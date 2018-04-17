@@ -4,7 +4,7 @@ import Sidebar from '../components/Sidebar';
 
 type Props = {};
 
-export default class HomePage extends Component<Props> {
+export default class Inventory extends Component<Props> {
   props: Props;
 
   render() {
@@ -12,7 +12,7 @@ export default class HomePage extends Component<Props> {
       <div>
         <Sidebar />
         <div>
-          Home page
+          Inventory page
         </div>
       </div>
     );

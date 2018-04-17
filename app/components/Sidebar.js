@@ -1,66 +1,63 @@
-// @flow
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
-type Props = {};
-
-export default class Home extends Component<Props> {
-  props: Props;
-
+export default class Sidebar extends Component {
   render() {
+    console.log('props', this.props);
     return (
       <div>
         <div className="sidebar">
-          <div className="header">
+          <Link className="header" to="/">
             <span>
               Tamanu
             </span>
-          </div>
+          </Link>
           <div className="scroll-container">
-            <div className="item">
+            <Link className="item" to="/inventory">
               <span>
                 Inventory
               </span>
-            </div>
-            <div className="item">
+            </Link>
+            <Link className="item" to="/patients">
               <span>
                 Patients
               </span>
-            </div>
-            <div className="item">
+            </Link>
+            <Link className="item" to="/scheduling">
               <span>
                 Scheduling
               </span>
-            </div>
-            <div className="item">
+            </Link>
+            <Link className="item" to="/imaging">
               <span>
                 Imaging
               </span>
-            </div>
-            <div className="item">
+            </Link>
+            <Link className="item" to="/medication">
               <span>
                 Medication
               </span>
-            </div>
-            <div className="item">
+            </Link>
+            <Link className="item" to="/labs">
               <span>
                 Labs
               </span>
-            </div>
-            <div className="item">
+            </Link>
+            <Link className="item" to="/billing">
               <span>
                 Billing
               </span>
-            </div>
-            <div className="item">
+            </Link>
+            <Link className="item" to="/incident">
               <span>
                 Incident
               </span>
-            </div>
-            <div className="item">
+            </Link>
+            <Link className="item" to="/administration">
               <span>
                 Administration
               </span>
-            </div>
+            </Link>
           </div>
         </div>
       </div>
