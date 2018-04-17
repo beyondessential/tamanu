@@ -12,7 +12,19 @@ export default class Inventory extends Component<Props> {
       <div>
         <Sidebar />
         <div className="content">
-          Inventory page
+          <div className="view-top-bar">
+            <span>
+              Requests
+            </span>
+            <div className="view-action-buttons">
+              <button>
+                + New Request
+              </button>
+              <button>
+                + Inventory Received
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );

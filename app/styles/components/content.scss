@@ -2,4 +2,32 @@
   margin-left: 275px;
   background: #eff2f5;
   height: 100vh;
+  .view-top-bar {
+    margin: 0;
+    border-bottom: 1px solid #d2dae3;
+    background: #fff;
+    padding: 0 15px;
+    height: 55px;
+    span {
+      float: left;
+      margin: 0;
+      line-height: 55px;
+      letter-spacing: -1px;
+      color: #2f4358;
+      font-size: 28px;
+      font-weight: 600;
+    }
+    .view-action-buttons {
+      float: right;
+      button {
+        margin: 10px 0 10px 15px;
+        border: 1px solid #00bd9c;
+        background-color: transparent;
+        color: #00bd9c;
+        font-size: 14px;
+        padding: 7px;
+        border-radius: 5px;
+      }
+    }
+  }
 }

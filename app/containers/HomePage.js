@@ -12,7 +12,11 @@ export default class HomePage extends Component<Props> {
       <div>
         <Sidebar />
         <div className="content">
-          Home page
+          <div className="view-top-bar">
+            <span>
+              Welcome to Tamanu!
+            </span>
+          </div>
         </div>
       </div>
     );
