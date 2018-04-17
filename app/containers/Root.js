@@ -10,6 +10,7 @@ type Props = {
 };
 
 export default class Root extends Component<Props> {
+  props: Props;
   render() {
     return (
       <Provider store={this.props.store}>
