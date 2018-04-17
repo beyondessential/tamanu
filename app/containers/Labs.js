@@ -12,7 +12,16 @@ export default class Labs extends Component<Props> {
       <div>
         <Sidebar />
         <div className="content">
-          Labs page
+          <div className="view-top-bar">
+            <span>
+              Lab Requests
+            </span>
+            <div className="view-action-buttons">
+              <button>
+                + New Lab
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );

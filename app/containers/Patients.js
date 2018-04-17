@@ -12,7 +12,16 @@ export default class Patients extends Component<Props> {
       <div>
         <Sidebar />
         <div className="content">
-          Patients page
+          <div className="view-top-bar">
+            <span>
+              Patient Listing
+            </span>
+            <div className="view-action-buttons">
+              <button>
+                + New Patient
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );

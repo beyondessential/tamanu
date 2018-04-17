@@ -12,7 +12,16 @@ export default class Scheduling extends Component<Props> {
       <div>
         <Sidebar />
         <div className="content">
-          Scheduling page
+          <div className="view-top-bar">
+            <span>
+              Appointments This Week
+            </span>
+            <div className="view-action-buttons">
+              <button>
+                + New Appointment
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );

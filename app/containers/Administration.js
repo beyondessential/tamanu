@@ -12,7 +12,11 @@ export default class Adminstration extends Component<Props> {
       <div>
         <Sidebar />
         <div className="content">
-          Adminstration page
+          <div className="view-top-bar">
+            <span>
+              Lookup Lists
+            </span>
+          </div>
         </div>
       </div>
     );

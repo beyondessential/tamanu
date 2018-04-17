@@ -12,7 +12,19 @@ export default class Billing extends Component<Props> {
       <div>
         <Sidebar />
         <div className="content">
-          Billing page
+          <div className="view-top-bar">
+            <span>
+              Billed Invoices
+            </span>
+            <div className="view-action-buttons">
+              <button>
+                + New Invoice
+              </button>
+              <button>
+                + Add Deposit
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );

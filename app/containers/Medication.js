@@ -12,7 +12,22 @@ export default class Medication extends Component<Props> {
       <div>
         <Sidebar />
         <div className="content">
-          Medication page
+          <div className="view-top-bar">
+            <span>
+              Medication Requests
+            </span>
+            <div className="view-action-buttons">
+              <button>
+                + New Request
+              </button>
+              <button>
+                Dispense Medication
+              </button>
+              <button>
+                Return Medication
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );

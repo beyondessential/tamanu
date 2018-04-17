@@ -12,7 +12,16 @@ export default class Imaging extends Component<Props> {
       <div>
         <Sidebar />
         <div className="content">
-          Imaging page
+          <div className="view-top-bar">
+            <span>
+              Imaging Requests
+            </span>
+            <div className="view-action-buttons">
+              <button>
+                + New Imaging
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );

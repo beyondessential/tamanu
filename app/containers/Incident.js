@@ -12,7 +12,16 @@ export default class Incident extends Component<Props> {
       <div>
         <Sidebar />
         <div className="content">
-          Incident page
+          <div className="view-top-bar">
+            <span>
+              Incidents
+            </span>
+            <div className="view-action-buttons">
+              <button>
+                + New Incident
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
