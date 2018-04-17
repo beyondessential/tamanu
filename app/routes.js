@@ -8,16 +8,16 @@ import Inventory from './containers/Inventory';
 export default () => (
   <App>
     <Switch>
-      <Route path="/" component={HomePage} />
-      <Route path="/inventory" component={Inventory} />
-      <Route path="/patients" component={HomePage} />
-      <Route path="/scheduling" component={HomePage} />
-      <Route path="/imaging" component={HomePage} />
-      <Route path="/medication" component={HomePage} />
-      <Route path="/labs" component={HomePage} />
-      <Route path="/billing" component={HomePage} />
-      <Route path="/incident" component={HomePage} />
-      <Route path="/administration" component={HomePage} />
+      <Route exact path="/" component={HomePage} />
+      <Route exact path="/inventory" component={Inventory} />
+      <Route exact path="/patients" component={HomePage} />
+      <Route exact path="/scheduling" component={HomePage} />
+      <Route exact path="/imaging" component={HomePage} />
+      <Route exact path="/medication" component={HomePage} />
+      <Route exact path="/labs" component={HomePage} />
+      <Route exact path="/billing" component={HomePage} />
+      <Route exact path="/incident" component={HomePage} />
+      <Route exact path="/administration" component={HomePage} />
     </Switch>
   </App>
 );

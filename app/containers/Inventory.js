@@ -11,7 +11,7 @@ export default class Inventory extends Component<Props> {
     return (
       <div>
         <Sidebar />
-        <div>
+        <div className="content">
           Inventory page
         </div>
       </div>

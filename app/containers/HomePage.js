@@ -11,7 +11,7 @@ export default class HomePage extends Component<Props> {
     return (
       <div>
         <Sidebar />
-        <div>
+        <div className="content">
           Home page
         </div>
       </div>
