@@ -1,0 +1,48 @@
+.sidebar {
+  display: block;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  box-shadow: 1px 0 0 #1e2c3a;
+  background-color: #263648;
+  width: 275px;
+  color: #fff;
+  font-weight: 300;
+  .header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-bottom: 1px solid #1e2c3a;
+    background-color: #2f4358;
+    width: 100%;
+    height: 55px;
+    span {
+      font-size: 25px;
+      color: white;
+    }
+  }
+  .scroll-container {
+    position: absolute;
+    top: 55px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 55px);
+    overflow: auto;
+    .item {
+      transition: all 200ms ease;
+      display: block;
+      border-bottom: 1px solid #1e2c3a;
+      background: #2f4358;
+      padding: 0 15px;
+      height: 48px;
+      line-height: 48px;
+      color: #fff;
+      font-size: 18px;
+      span {
+        color: white;
+      }
+    }
+  }
+}
