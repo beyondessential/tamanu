@@ -2,7 +2,7 @@ export const sidebarInfo = [
   {
     label: 'Patients',
     path: '/patients',
-    icon: 'fa fa-cube',
+    icon: 'fa fa-users',
     children: [
       {
         label: 'Patient Listing',
@@ -34,7 +34,7 @@ export const sidebarInfo = [
   {
     label: 'Scheduling',
     path: '/appointments',
-    icon: 'fa fa-cube',
+    icon: 'fa fa-calendar',
     children: [
       {
         label: 'Appointments This Week',
@@ -76,7 +76,7 @@ export const sidebarInfo = [
   {
     label: 'Imaging',
     path: '/imaging',
-    icon: 'fa fa-cube',
+    icon: 'fa fa-camera-retro',
     children: [
       {
         label: 'Requests',
@@ -98,7 +98,7 @@ export const sidebarInfo = [
   {
     label: 'Medication',
     path: '/medication',
-    icon: 'fa fa-cube',
+    icon: 'fa fa-file-text-o',
     children: [
       {
         label: 'Requests',
@@ -130,7 +130,7 @@ export const sidebarInfo = [
   {
     label: 'Labs',
     path: '/labs',
-    icon: 'fa fa-cube',
+    icon: 'fa fa-graduation-cap',
     children: [
       {
         label: 'Requests',
@@ -152,7 +152,7 @@ export const sidebarInfo = [
   {
     label: 'Billing',
     path: '/invoices',
-    icon: 'fa fa-cube',
+    icon: 'fa fa-credit-card',
     children: [
       {
         label: 'Invoices',
@@ -206,7 +206,7 @@ export const sidebarInfo = [
   {
     label: 'Administration',
     path: '/admin',
-    icon: 'fa fa-cube',
+    icon: 'fa fa-male',
     children: [
       {
         label: 'Address Fields',
