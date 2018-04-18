@@ -2,7 +2,7 @@
 import React from 'react';
 import { Switch, Route } from 'react-router';
 import App from './containers/App';
-import HomePage from './containers/HomePage';
+import HomePage from './containers/Home';
 import Patients from './containers/Patients';
 import Scheduling from './containers/Scheduling';
 import Imaging from './containers/Imaging';
