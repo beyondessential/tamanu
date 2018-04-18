@@ -25,6 +25,7 @@
       padding: 10px 15px;
       height: 55px;
       font-size: 25px;
+      color: white;
     }
   }
   .scroll-container {
@@ -46,6 +47,34 @@
       font-size: 18px;
       span {
         color: white;
+      }
+    }
+    & :hover {
+      background: #546a83;
+    }
+    .category-sub-items {
+      border-bottom: 1px solid #1e2c3a;
+      background: #3a4d63;
+    }
+    .children {
+      transition: all 200ms ease;
+      display: block;
+      border-bottom: 1px solid #1e2c3a;
+      background: #546a83;
+      padding: 0 20px;
+      height: 48px;
+      line-height: 48px;
+      color: #fff;
+      font-size: 16px;
+      span {
+        color: white;
+      }
+      i {
+        transition: all 200ms ease;
+        float: left;
+        margin: 6px;
+        width: 16px;
+        line-height: 36px;
       }
     }
     & :hover {
