@@ -54,6 +54,7 @@ export default class Sidebar extends Component {
               sidebarInfo.map((parent, index) => (
                 <div key={index} onClick={this.clickedParentItem.bind(this, parent.label)}>
                   <Link className={classNames(['item', selectedParentItem === parent.label ? 'selected' : ''])} to={parent.path} replace>
+                    <i className={parent.icon} />
                     <span>
                       {parent.label}
                     </span>
@@ -63,7 +64,7 @@ export default class Sidebar extends Component {
                     parent.children.map((child, key) => (
                       <div key={key} className="category-sub-items" onClick={this.clickedChildItem.bind(this, parent.label, child.label)}>
                         <Link className={classNames(['children', selectedChildItem === child.label ? 'selected' : ''])} to={child.path}>
-                          <i className="fa fa-plus" />
+                          <i className={child.icon} />
                           <span>
                             {child.label}
                           </span>

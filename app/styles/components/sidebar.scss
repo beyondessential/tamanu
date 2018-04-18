@@ -48,6 +48,14 @@
       span {
         color: white;
       }
+      i {
+        transition: all 200ms ease;
+        float: left;
+        margin-right: 10px;
+        margin-top: 6px;
+        width: 16px;
+        line-height: 36px;
+      }
     }
     & .selected {
       background: #546a83;
