@@ -2,22 +2,45 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { sidebarInfo } from '../constants';
 
+const classNames = require('classnames');
+
 export default class Sidebar extends Component {
   state = {
-    selectedItem: ''
+    selectedParentItem: '',
+    selectedChildItem: ''
   }
 
-  clickedItem = (label) => {
-    const { selectedItem } = this.state;
-    if (selectedItem !== label) {
-      this.setState({ selectedItem: label });
+  clickedParentItem = (label) => {
+    const { selectedParentItem } = this.state;
+    if (selectedParentItem !== label) {
+      this.setState({ selectedParentItem: label });
     } else {
-      this.setState({ selectedItem: '' });
+      this.setState({ selectedParentItem: '' });
+    }
+  }
+
+  clickedChildItem = (parent, child) => {
+    const { selectedParentItem, selectedChildItem } = this.state;
+    if (selectedParentItem !== parent) {
+      this.setState({
+        selectedParentItem: parent,
+        selectedChildItem: child
+      });
+    } else if (selectedChildItem !== child) {
+      this.setState({
+        selectedParentItem: parent,
+        selectedChildItem: child
+      });
+    } else {
+      this.setState({
+        selectedParentItem: '',
+        selectedChildItem: ''
+      });
     }
   }
 
   render() {
-    const { selectedItem } = this.state;
+    const { selectedParentItem, selectedChildItem } = this.state;
     return (
       <div>
         <div className="sidebar">
@@ -29,17 +52,17 @@ export default class Sidebar extends Component {
           <div className="scroll-container">
             {
               sidebarInfo.map((parent, index) => (
-                <div key={index} onClick={this.clickedItem.bind(this, parent.label)}>
-                  <Link className="item" to={parent.path} replace>
+                <div key={index} onClick={this.clickedParentItem.bind(this, parent.label)}>
+                  <Link className={classNames(['item', selectedParentItem === parent.label ? 'selected' : ''])} to={parent.path} replace>
                     <span>
                       {parent.label}
                     </span>
                   </Link>
                   {
-                    selectedItem === parent.label &&
+                    selectedParentItem === parent.label &&
                     parent.children.map((child, key) => (
-                      <div key={key} className="category-sub-items">
-                        <Link className="children" to="/" replace>
+                      <div key={key} className="category-sub-items" onClick={this.clickedChildItem.bind(this, parent.label, child.label)}>
+                        <Link className={classNames(['children', selectedChildItem === child.label ? 'selected' : ''])} to={parent.label} replace>
                           <i className="fa fa-plus" />
                           <span>
                             {child.label}

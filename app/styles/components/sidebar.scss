@@ -49,6 +49,9 @@
         color: white;
       }
     }
+    & .selected {
+      background: #546a83;
+    }
     & :hover {
       background: #546a83;
     }
@@ -60,7 +63,7 @@
       transition: all 200ms ease;
       display: block;
       border-bottom: 1px solid #1e2c3a;
-      background: #546a83;
+      background: #2f4358;
       padding: 0 20px;
       height: 48px;
       line-height: 48px;
@@ -76,6 +79,9 @@
         width: 16px;
         line-height: 36px;
       }
+    }
+    & .selected {
+      background: #546a83;
     }
     & :hover {
       background: #546a83;
