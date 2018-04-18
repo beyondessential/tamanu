@@ -7,7 +7,6 @@ export default class PatientsList extends Component<Props> {
   props: Props;
 
   render() {
-    console.log('PatientsList rendered ==========');
     return (
       <div className="content">
         <div className="view-top-bar">

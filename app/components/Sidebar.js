@@ -20,27 +20,34 @@ export default class Sidebar extends Component {
   }
 
   clickedChildItem = (parent, child) => {
-    const { selectedParentItem, selectedChildItem } = this.state;
-    if (selectedParentItem !== parent) {
-      this.setState({
-        selectedParentItem: parent,
-        selectedChildItem: child
-      });
-    } else if (selectedChildItem !== child) {
-      this.setState({
-        selectedParentItem: parent,
-        selectedChildItem: child
-      });
-    } else {
-      this.setState({
-        selectedParentItem: '',
-        selectedChildItem: ''
-      });
-    }
+    // const { selectedParentItem, selectedChildItem } = this.state;
+    console.log('parent', parent);
+    console.log('child', child);
+    this.setState({
+      selectedParentItem: parent,
+      selectedChildItem: child
+    });
+    // if (selectedParentItem !== parent) {
+    //   this.setState({
+    //     selectedParentItem: parent,
+    //     selectedChildItem: child
+    //   });
+    // } else if (selectedChildItem !== child) {
+    //   this.setState({
+    //     selectedParentItem: parent,
+    //     selectedChildItem: child
+    //   });
+    // } else {
+    //   this.setState({
+    //     selectedParentItem: '',
+    //     selectedChildItem: ''
+    //   });
+    // }
   }
 
   render() {
     const { selectedParentItem, selectedChildItem } = this.state;
+    console.log(selectedParentItem, selectedChildItem);
     return (
       <div>
         <div className="sidebar">
@@ -63,7 +70,7 @@ export default class Sidebar extends Component {
                     selectedParentItem === parent.label &&
                     parent.children.map((child, key) => (
                       <div key={key} className="category-sub-items" onClick={this.clickedChildItem.bind(this, parent.label, child.label)}>
-                        <Link className={classNames(['children', selectedChildItem === child.label ? 'selected' : ''])} to={child.path}>
+                        <Link className={classNames(['children', selectedChildItem === child.label ? 'selected' : ''])} to={child.path} replace>
                           <i className={child.icon} />
                           <span>
                             {child.label}

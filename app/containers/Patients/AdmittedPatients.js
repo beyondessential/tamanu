@@ -7,7 +7,6 @@ export default class AdmittedPatients extends Component<Props> {
   props: Props;
 
   render() {
-    console.log('admit renderedsdfsdfsdfsdfsdfsdfsd-------------------------');
     return (
       <div className="content">
         <div className="view-top-bar">
