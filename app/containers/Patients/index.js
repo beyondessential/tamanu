@@ -1,27 +1,10 @@
-// @flow
-import React, { Component } from 'react';
+import React from 'react';
+import Routes from './_routes';
 
-type Props = {};
+export const Patients = () => (
+  <div>
+    <Routes url="/patients" />
+  </div>
+);
 
-export default class Patients extends Component<Props> {
-  props: Props;
-
-  render() {
-    return (
-      <div>
-        <div className="content">
-          <div className="view-top-bar">
-            <span>
-              Patient Listing
-            </span>
-            <div className="view-action-buttons">
-              <button>
-                + New Patient
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-}
+export default Patients;

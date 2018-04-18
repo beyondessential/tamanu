@@ -62,7 +62,7 @@ export default class Sidebar extends Component {
                     selectedParentItem === parent.label &&
                     parent.children.map((child, key) => (
                       <div key={key} className="category-sub-items" onClick={this.clickedChildItem.bind(this, parent.label, child.label)}>
-                        <Link className={classNames(['children', selectedChildItem === child.label ? 'selected' : ''])} to={child.label} replace>
+                        <Link className={classNames(['children', selectedChildItem === child.label ? 'selected' : ''])} to={child.path}>
                           <i className="fa fa-plus" />
                           <span>
                             {child.label}
