@@ -1,22 +1,10 @@
-// @flow
-import React, { Component } from 'react';
+import React from 'react';
+import Routes from './_routes';
 
-type Props = {};
+export const Adminstration = () => (
+  <div>
+    <Routes url="/admin" />
+  </div>
+);
 
-export default class Adminstration extends Component<Props> {
-  props: Props;
-
-  render() {
-    return (
-      <div>
-        <div className="content">
-          <div className="view-top-bar">
-            <span>
-              Lookup Lists
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-}
+export default Adminstration;

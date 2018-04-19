@@ -17,13 +17,13 @@ export default () => (
     <Switch>
       <Route exact path="/" component={HomePage} />
       <Route path="/patients" component={Patients} />
-      <Route exact path="/appointments" component={Scheduling} />
-      <Route exact path="/imaging" component={Imaging} />
-      <Route exact path="/medication" component={Medication} />
-      <Route exact path="/labs" component={Labs} />
-      <Route exact path="/invoices" component={Billing} />
-      <Route exact path="/incident" component={Incident} />
-      <Route exact path="/admin" component={Administration} />
+      <Route path="/appointments" component={Scheduling} />
+      <Route path="/imaging" component={Imaging} />
+      <Route path="/medication" component={Medication} />
+      <Route path="/labs" component={Labs} />
+      <Route path="/invoices" component={Billing} />
+      <Route path="/incident" component={Incident} />
+      <Route path="/admin" component={Administration} />
     </Switch>
   </App>
 );
