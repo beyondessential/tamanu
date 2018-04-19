@@ -5,6 +5,8 @@ import { Route, Switch } from 'react-router-dom';
 import List from './List';
 import AdmittedPatients from './AdmittedPatients';
 import Outpatient from './Outpatient';
+import NewPatient from './NewPatient';
+import Reports from './Reports';
 
 export default function Routes({ url }) {
   return (
@@ -13,6 +15,8 @@ export default function Routes({ url }) {
         <Route exact path={url} component={List} />
         <Route path={`${url}/admitted`} component={AdmittedPatients} />
         <Route path={`${url}/outpatient`} component={Outpatient} />
+        <Route path={`${url}/edit/new`} component={NewPatient} />
+        <Route path={`${url}/reports`} component={Reports} />
       </Switch>
     </div>
   );
