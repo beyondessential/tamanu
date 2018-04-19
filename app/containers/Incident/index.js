@@ -1,27 +1,10 @@
-// @flow
-import React, { Component } from 'react';
+import React from 'react';
+import Routes from './_routes';
 
-type Props = {};
+export const Incident = () => (
+  <div>
+    <Routes url="/incident" />
+  </div>
+);
 
-export default class Incident extends Component<Props> {
-  props: Props;
-
-  render() {
-    return (
-      <div>
-        <div className="content">
-          <div className="view-top-bar">
-            <span>
-              Incidents
-            </span>
-            <div className="view-action-buttons">
-              <button>
-                + New Incident
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-}
+export default Incident;
