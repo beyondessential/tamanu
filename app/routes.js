@@ -3,7 +3,7 @@ import React from 'react';
 import { Switch, Route } from 'react-router';
 import App from './containers/App';
 import HomePage from './containers/Home';
-import Patients from './containers/Patients';
+import { Patients } from './containers/Patients';
 import Scheduling from './containers/Scheduling';
 import Imaging from './containers/Imaging';
 import Medication from './containers/Medication';
@@ -16,7 +16,7 @@ export default () => (
   <App>
     <Switch>
       <Route exact path="/" component={HomePage} />
-      <Route exact path="/patients" component={Patients} />
+      <Route path="/patients" component={Patients} />
       <Route exact path="/appointments" component={Scheduling} />
       <Route exact path="/imaging" component={Imaging} />
       <Route exact path="/medication" component={Medication} />

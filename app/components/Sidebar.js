@@ -11,13 +11,10 @@ export default class Sidebar extends Component {
   }
 
   clickedParentItem = (label) => {
-    const { selectedParentItem } = this.state;
-    if (selectedParentItem !== label) {
-      this.setState({
-        selectedParentItem: label,
-        selectedChildItem: ''
-      });
-    }
+    this.setState({
+      selectedParentItem: label,
+      selectedChildItem: ''
+    });
   }
 
   clickedChildItem = (parent, child) => {
