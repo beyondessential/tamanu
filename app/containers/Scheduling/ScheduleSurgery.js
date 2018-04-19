@@ -11,11 +11,11 @@ export default class ScheduleSurgery extends Component<Props> {
       <div className="content">
         <div className="view-top-bar">
           <span>
-            Theater Schedule
+            New Surgical Appointment
           </span>
           <div className="view-action-buttons">
             <button>
-              + schedule surgery
+              + New Appointment
             </button>
           </div>
         </div>
