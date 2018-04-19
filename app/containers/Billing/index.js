@@ -1,30 +1,10 @@
-// @flow
-import React, { Component } from 'react';
+import React from 'react';
+import Routes from './_routes';
 
-type Props = {};
+export const Billing = () => (
+  <div>
+    <Routes url="/invoices" />
+  </div>
+);
 
-export default class Billing extends Component<Props> {
-  props: Props;
-
-  render() {
-    return (
-      <div>
-        <div className="content">
-          <div className="view-top-bar">
-            <span>
-              Billed Invoices
-            </span>
-            <div className="view-action-buttons">
-              <button>
-                + New Invoice
-              </button>
-              <button>
-                + Add Deposit
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-}
+export default Billing;
