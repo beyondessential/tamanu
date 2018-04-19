@@ -1,27 +1,10 @@
-// @flow
-import React, { Component } from 'react';
+import React from 'react';
+import Routes from './_routes';
 
-type Props = {};
+export const Imaging = () => (
+  <div>
+    <Routes url="/imaging" />
+  </div>
+);
 
-export default class Imaging extends Component<Props> {
-  props: Props;
-
-  render() {
-    return (
-      <div>
-        <div className="content">
-          <div className="view-top-bar">
-            <span>
-              Imaging Requests
-            </span>
-            <div className="view-action-buttons">
-              <button>
-                + New Imaging
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-}
+export default Imaging;
