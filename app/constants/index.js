@@ -68,7 +68,7 @@ export const sidebarInfo = [
       },
       {
         label: 'Schedule Surgery',
-        path: '/appointments/edit/new',
+        path: '/appointments/edit/newsurgery',
         icon: 'fa fa-plus'
       }
     ]
