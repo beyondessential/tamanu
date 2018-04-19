@@ -4,6 +4,7 @@ import { Route, Switch } from 'react-router-dom';
 
 import List from './List';
 import AdmittedPatients from './AdmittedPatients';
+import Outpatient from './Outpatient';
 
 export default function Routes({ url }) {
   return (
@@ -11,6 +12,7 @@ export default function Routes({ url }) {
       <Switch>
         <Route exact path={url} component={List} />
         <Route path={`${url}/admitted`} component={AdmittedPatients} />
+        <Route path={`${url}/outpatient`} component={Outpatient} />
       </Switch>
     </div>
   );

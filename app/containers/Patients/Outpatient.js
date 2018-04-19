@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 
 type Props = {};
 
-export default class AdmittedPatients extends Component<Props> {
+export default class Outpatient extends Component<Props> {
   props: Props;
 
   render() {
@@ -11,11 +11,11 @@ export default class AdmittedPatients extends Component<Props> {
       <div className="content">
         <div className="view-top-bar">
           <span>
-            Admitted Patients
+            Today's Outpatients
           </span>
           <div className="view-action-buttons">
             <button>
-              + New Patient
+              Patient Check In
             </button>
           </div>
         </div>
