@@ -166,12 +166,12 @@ export const sidebarInfo = [
       },
       {
         label: 'Prices',
-        path: '/pricing',
+        path: '/invoices/pricing',
         icon: 'fa fa-chevron-right'
       },
       {
         label: 'Price Profiles',
-        path: '/pricing/profiles',
+        path: '/invoices/profiles',
         icon: 'fa fa-chevron-right'
       }
     ]
