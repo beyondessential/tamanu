@@ -1,31 +1,29 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 import { sidebarInfo } from '../constants';
 
 const classNames = require('classnames');
 
-export default class Sidebar extends Component {
+class Sidebar extends Component {
+  static propTypes = {
+    currentPath: PropTypes.string.isRequired
+  }
+
   state = {
     selectedParentItem: '',
-    selectedChildItem: ''
   }
 
   clickedParentItem = (label) => {
     this.setState({
       selectedParentItem: label,
-      selectedChildItem: ''
-    });
-  }
-
-  clickedChildItem = (parent, child) => {
-    this.setState({
-      selectedParentItem: parent,
-      selectedChildItem: child
     });
   }
 
   render() {
-    const { selectedParentItem, selectedChildItem } = this.state;
+    const { selectedParentItem } = this.state;
+    const { currentPath } = this.props;
     return (
       <div>
         <div className="sidebar">
@@ -47,8 +45,8 @@ export default class Sidebar extends Component {
                   {
                     selectedParentItem === parent.label &&
                     parent.children.map((child, key) => (
-                      <div key={key} className="category-sub-items" onClick={this.clickedChildItem.bind(this, parent.label, child.label)}>
-                        <Link className={classNames(['children', selectedChildItem === child.label ? 'selected' : ''])} to={child.path} replace>
+                      <div key={key} className="category-sub-items">
+                        <Link className={classNames(['children', currentPath === child.path ? 'selected' : ''])} to={child.path} replace>
                           <i className={child.icon} />
                           <span>
                             {child.label}
@@ -66,3 +64,11 @@ export default class Sidebar extends Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    currentPath: state.router.location.pathname
+  };
+}
+
+export default connect(mapStateToProps, undefined)(Sidebar);
