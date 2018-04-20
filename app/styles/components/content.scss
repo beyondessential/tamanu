@@ -28,6 +28,16 @@
         padding: 7px;
         border-radius: 5px;
       }
+      a {
+        margin: 10px 0 10px 15px;
+        border: 1px solid #00bd9c;
+        background-color: transparent;
+        color: #00bd9c;
+        font-size: 14px;
+        padding: 7px;
+        border-radius: 5px;
+        display: inline-block;
+      }
     }
   }
   .detail {
@@ -37,6 +47,14 @@
       background: #ffffe4;
       span {
         color: rgba(83, 83, 75, 0.7);
+        a {
+          color: #428bca;
+          text-decoration: none;
+        }
+        & :hover {
+          color: #2a6496;
+          text-decoration: underline;
+        }
       }
     }
   }

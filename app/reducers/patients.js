@@ -1,21 +1,26 @@
-// @flow
-import { INCREMENT_COUNTER, DECREMENT_COUNTER } from '../actions/patients';
+import { INCREMENT_COUNTER, DECREMENT_COUNTER } from '../actions/types';
 
 export type counterStateType = {
   +counter: number
 };
 
-type actionType = {
-  +type: string
+const initialState = {
+  patients: []
 };
 
-export default function counter(state: number = 0, action: actionType) {
+export default (state = initialState, action) => {
   switch (action.type) {
     case INCREMENT_COUNTER:
-      return state + 1;
+      return {
+        ...state,
+        patients: action.payload,
+      };
     case DECREMENT_COUNTER:
-      return state - 1;
+      return {
+        ...state,
+        patients: action.payload,
+      };
     default:
       return state;
   }
-}
+};

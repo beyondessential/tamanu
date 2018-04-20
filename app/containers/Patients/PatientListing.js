@@ -1,6 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 type Props = {};
 
@@ -15,15 +16,15 @@ class PatientListing extends Component<Props> {
             Patient Listing
           </span>
           <div className="view-action-buttons">
-            <button>
+            <Link to="/patients/edit/new">
               + New Patient
-            </button>
+            </Link>
           </div>
         </div>
         <div className="detail">
           <div className="notification">
             <span>
-              No patients found. Create a new patient record?
+              No patients found. <Link to="/patients/edit/new">Create a new patient record?</Link>
             </span>
           </div>
         </div>
@@ -34,7 +35,7 @@ class PatientListing extends Component<Props> {
 
 function mapStateToProps(state) {
   return {
-    patients: state.router.location.pathname
+    patients: state.patients.patients
   };
 }
 
