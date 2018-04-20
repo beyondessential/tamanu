@@ -73,28 +73,28 @@ export const sidebarInfo = [
       }
     ]
   },
-  {
-    label: 'Imaging',
-    path: '/imaging',
-    icon: 'fa fa-camera-retro',
-    children: [
-      {
-        label: 'Requests',
-        path: '/imaging',
-        icon: 'fa fa-chevron-right'
-      },
-      {
-        label: 'Completed',
-        path: '/imaging/completed',
-        icon: 'fa fa-chevron-right'
-      },
-      {
-        label: 'New Request',
-        path: '/imaging/edit/new',
-        icon: 'fa fa-plus'
-      }
-    ]
-  },
+  // {
+  //   label: 'Imaging',
+  //   path: '/imaging',
+  //   icon: 'fa fa-camera-retro',
+  //   children: [
+  //     {
+  //       label: 'Requests',
+  //       path: '/imaging',
+  //       icon: 'fa fa-chevron-right'
+  //     },
+  //     {
+  //       label: 'Completed',
+  //       path: '/imaging/completed',
+  //       icon: 'fa fa-chevron-right'
+  //     },
+  //     {
+  //       label: 'New Request',
+  //       path: '/imaging/edit/new',
+  //       icon: 'fa fa-plus'
+  //     }
+  //   ]
+  // },
   {
     label: 'Medication',
     path: '/medication',
@@ -127,28 +127,28 @@ export const sidebarInfo = [
       }
     ]
   },
-  {
-    label: 'Labs',
-    path: '/labs',
-    icon: 'fa fa-graduation-cap',
-    children: [
-      {
-        label: 'Requests',
-        path: '/labs',
-        icon: 'fa fa-chevron-right'
-      },
-      {
-        label: 'Completed',
-        path: '/labs/completed',
-        icon: 'fa fa-chevron-right'
-      },
-      {
-        label: 'New Request',
-        path: '/labs/edit/new',
-        icon: 'fa fa-plus'
-      }
-    ]
-  },
+  // {
+  //   label: 'Labs',
+  //   path: '/labs',
+  //   icon: 'fa fa-graduation-cap',
+  //   children: [
+  //     {
+  //       label: 'Requests',
+  //       path: '/labs',
+  //       icon: 'fa fa-chevron-right'
+  //     },
+  //     {
+  //       label: 'Completed',
+  //       path: '/labs/completed',
+  //       icon: 'fa fa-chevron-right'
+  //     },
+  //     {
+  //       label: 'New Request',
+  //       path: '/labs/edit/new',
+  //       icon: 'fa fa-plus'
+  //     }
+  //   ]
+  // },
   {
     label: 'Billing',
     path: '/invoices',
@@ -176,33 +176,33 @@ export const sidebarInfo = [
       }
     ]
   },
-  {
-    label: 'Incident',
-    path: '/incident',
-    icon: 'fa fa-cube',
-    children: [
-      {
-        label: 'Current Incidents',
-        path: '/incident',
-        icon: 'fa fa-chevron-right'
-      },
-      {
-        label: 'New Incident',
-        path: '/incident/edit/new',
-        icon: 'fa fa-plus'
-      },
-      {
-        label: 'History',
-        path: '/incident/completed',
-        icon: 'fa fa-chevron-right'
-      },
-      {
-        label: 'Reports',
-        path: '/incident/reports',
-        icon: 'fa fa-chevron-right'
-      }
-    ]
-  },
+  // {
+  //   label: 'Incident',
+  //   path: '/incident',
+  //   icon: 'fa fa-cube',
+  //   children: [
+  //     {
+  //       label: 'Current Incidents',
+  //       path: '/incident',
+  //       icon: 'fa fa-chevron-right'
+  //     },
+  //     {
+  //       label: 'New Incident',
+  //       path: '/incident/edit/new',
+  //       icon: 'fa fa-plus'
+  //     },
+  //     {
+  //       label: 'History',
+  //       path: '/incident/completed',
+  //       icon: 'fa fa-chevron-right'
+  //     },
+  //     {
+  //       label: 'Reports',
+  //       path: '/incident/reports',
+  //       icon: 'fa fa-chevron-right'
+  //     }
+  //   ]
+  // },
   {
     label: 'Administration',
     path: '/admin',
