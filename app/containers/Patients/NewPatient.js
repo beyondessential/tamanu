@@ -16,7 +16,7 @@ export default class NewPatient extends Component<Props> {
           </span>
           <div className="view-action-buttons">
             <button>
-              Patient Check In
+              Admit Patient
             </button>
           </div>
         </div>
@@ -37,91 +37,74 @@ export default class NewPatient extends Component<Props> {
               <InputGroup
                 label="Sex"
               />
-              <div className="column">
-                <span>
-                  Date of Birth
-                </span>
-                <input className="input is-primary" type="text" />
-              </div>
-              <div className="column">
-                <span>
-                  Age
-                </span>
-                <input className="input is-primary" type="text" />
-              </div>
-              <div className="column">
-                <span>
-                  Place of Birth
-                </span>
-                <input className="input is-primary" type="text" />
-              </div>
-              <div className="column">
-                <span>
-                  Occupation
-                </span>
-                <input className="input is-primary" type="text" />
-              </div>
-              <div className="column">
-                <span>
-                  Patient Type
-                </span>
-                <input className="input is-primary" type="text" />
-              </div>
+              <InputGroup
+                label="Date of Birth"
+              />
+              <InputGroup
+                label="Age"
+              />
+              <InputGroup
+                label="Place of Birth"
+              />
+              <InputGroup
+                label="Occupation"
+              />
+              <InputGroup
+                label="Patient Type"
+              />
             </div>
             <div className="column">
-              <div className="column">
-                <span>
-                  Patient Status
-                </span>
-                <input className="input is-primary" type="text" />
+              <InputGroup
+                label="Patient Status"
+              />
+              <InputGroup
+                label="External Patient Id"
+              />
+              <InputGroup
+                label="Blood Type"
+              />
+              <InputGroup
+                label="Clinic Site"
+              />
+              <InputGroup
+                label="Referred By"
+              />
+              <InputGroup
+                label="Referred Date"
+              />
+              <InputGroup
+                label="Religion"
+              />
+              <InputGroup
+                label="Parent/Guardian"
+              />
+              <InputGroup
+                label="Payment Profile"
+              />
+              <div className="column has-text-right">
+                <a className="button is-primary">+ Add Contact</a>
               </div>
-              <div className="column">
-                <span>
-                  External Patient Id
-                </span>
-                <input className="input is-primary" type="text" />
-              </div>
-              <div className="column">
-                <span>
-                  Blood Type
-                </span>
-                <input className="input is-primary" type="text" />
-              </div>
-              <div className="column">
-                <span>
-                  Clinic Site
-                </span>
-                <input className="input is-primary" type="text" />
-              </div>
-              <div className="column">
-                <span>
-                  Referred By
-                </span>
-                <input className="input is-primary" type="text" />
-              </div>
-              <div className="column">
-                <span>
-                  Referred Date
-                </span>
-                <input className="input is-primary" type="text" />
-              </div>
-              <div className="column">
-                <span>
-                  Religion
-                </span>
-                <input className="input is-primary" type="text" />
-              </div>
-              <div className="column">
-                <span>
-                  Parent/Guardian
-                </span>
-                <input className="input is-primary" type="text" />
-              </div>
-              <div className="column">
-                <span>
-                  Payment Profile
-                </span>
-                <input className="input is-primary" type="text" />
+            </div>
+          </div>
+          <div className="columns form">
+            <div className="column">
+              <InputGroup
+                label="Phone"
+              />
+              <InputGroup
+                label="Address"
+              />
+            </div>
+            <div className="column">
+              <InputGroup
+                label="Email"
+              />
+              <InputGroup
+                label="Country"
+              />
+              <div className="column has-text-right">
+                <a className="button is-danger cancel">Cancel</a>
+                <a className="button">Add</a>
               </div>
             </div>
           </div>
