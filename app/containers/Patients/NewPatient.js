@@ -1,11 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import ModalView from '../../components/Modal';
 import InputGroup from '../../components/InputGroup';
 import Serializer from '../../utils/form-serialize';
 import { createPatient } from '../../actions/patients';
 
 class NewPatient extends Component<Props> {
+  state = {
+    formError: false,
+  }
+  onCloseModal = () => {
+    this.setState({ formError: false });
+  }
+
   render() {
+    const { formError } = this.state;
     return (
       <div className="create-content">
         <div className="create-top-bar">
@@ -22,7 +31,13 @@ class NewPatient extends Component<Props> {
           className="create-container"
           onSubmit={(e) => {
             e.preventDefault();
-            this.props.createPatient(Serializer.serialize(e.target, { hash: true }));
+            const patient = Serializer.serialize(e.target, { hash: true });
+            if (patient.firstName && patient.lastName) {
+              console.log('called');
+              this.props.createPatient(patient);
+            } else {
+              this.setState({ formError: true });
+            }
           }}
         >
           <div className="columns form">
@@ -135,6 +150,13 @@ class NewPatient extends Component<Props> {
             </div>
           </div>
         </form>
+        <ModalView
+          isVisible={formError}
+          onClose={this.onCloseModal}
+          headerTitle="Warning!!!!"
+          contentText="Please fill in required fields (marked with *) and correct the errors before saving."
+          little
+        />
       </div>
     );
   }
