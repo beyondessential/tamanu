@@ -5,7 +5,8 @@ import { connect } from 'react-redux';
 class InputGroup extends Component {
   static propTypes = {
     label: PropTypes.string.isRequired,
-    required: PropTypes.bool
+    required: PropTypes.bool,
+    name: PropTypes.string.isRequired,
   }
 
   static defaultProps = {
@@ -13,13 +14,13 @@ class InputGroup extends Component {
   }
 
   render() {
-    const { label, required } = this.props;
+    const { label, required, name } = this.props;
     return (
       <div className="column">
         <span>
           {label} {required && <span className="isRequired">*</span>}
         </span>
-        <input className="input is-primary" type="text" />
+        <input className="input is-primary" type="text" name={name} />
       </div>
     );
   }
