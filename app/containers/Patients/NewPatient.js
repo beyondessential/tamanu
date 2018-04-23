@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import InputGroup from '../../components/InputGroup';
 
 type Props = {};
 
@@ -9,7 +10,7 @@ export default class NewPatient extends Component<Props> {
   render() {
     return (
       <div className="create-content">
-        <div className="create-top-bar container columns">
+        <div className="create-top-bar">
           <span>
             New Patient
           </span>
@@ -20,32 +21,22 @@ export default class NewPatient extends Component<Props> {
           </div>
         </div>
         <div className="create-container">
-          <div className="columns">
+          <div className="columns form">
             <div className="column">
-              <div className="column">
-                <span>
-                  First Name <span className="isRequired">*</span>
-                </span>
-                <input className="input is-primary" type="text" />
-              </div>
-              <div className="column">
-                <span>
-                  Middel Name
-                </span>
-                <input className="input is-primary" type="text" />
-              </div>
-              <div className="column">
-                <span>
-                  Last Name <span className="isRequired">*</span>
-                </span>
-                <input className="input is-primary" type="text" />
-              </div>
-              <div className="column">
-                <span>
-                  Sex
-                </span>
-                <input className="input is-primary" type="text" />
-              </div>
+              <InputGroup
+                label="First Name"
+                required
+              />
+              <InputGroup
+                label="Middel Name"
+              />
+              <InputGroup
+                label="Last Name"
+                required
+              />
+              <InputGroup
+                label="Sex"
+              />
               <div className="column">
                 <span>
                   Date of Birth
