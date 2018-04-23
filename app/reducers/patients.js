@@ -1,9 +1,5 @@
 import { INCREMENT_COUNTER, DECREMENT_COUNTER } from '../actions/types';
 
-export type counterStateType = {
-  +counter: number
-};
-
 const initialState = {
   patients: []
 };

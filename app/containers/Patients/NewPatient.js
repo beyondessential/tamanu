@@ -1,13 +1,10 @@
-// @flow
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import InputGroup from '../../components/InputGroup';
 import Serializer from '../../utils/form-serialize';
+import { createPatient } from '../../actions/patients';
 
-type Props = {};
-
-export default class NewPatient extends Component<Props> {
-  props: Props;
-
+class NewPatient extends Component<Props> {
   render() {
     return (
       <div className="create-content">
@@ -25,7 +22,7 @@ export default class NewPatient extends Component<Props> {
           className="create-container"
           onSubmit={(e) => {
             e.preventDefault();
-            console.log('form value', Serializer.serialize(e.target, { hash: true }));
+            this.props.createPatient(Serializer.serialize(e.target, { hash: true }));
           }}
         >
           <div className="columns form">
@@ -111,7 +108,7 @@ export default class NewPatient extends Component<Props> {
               </div>
             </div>
           </div>
-          <div className="columns form">
+          <div className="columns second-form">
             <div className="column">
               <InputGroup
                 name="phone"
@@ -142,3 +139,9 @@ export default class NewPatient extends Component<Props> {
     );
   }
 }
+
+const mapDispatchToProps = dispatch => ({
+  createPatient: patient => dispatch(createPatient(patient)),
+});
+
+export default connect(undefined, mapDispatchToProps)(NewPatient);

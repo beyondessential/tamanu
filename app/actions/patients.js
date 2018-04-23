@@ -1,42 +1,36 @@
-// @flow
-import type { counterStateType } from '../reducers/patients';
 import {
-  INCREMENT_COUNTER,
-  DECREMENT_COUNTER
+  CREATE_PATIENT_REQUEST,
+  CREATE_PATIENT_SUCCESS,
+  CREATE_PATIENT_FAILED,
 } from './types';
+import { idGenerator } from '../constants';
 
-type actionType = {
-  +type: string
+export function createPatientRequest() {
+  return {
+    type: CREATE_PATIENT_REQUEST
+  };
+}
+
+export function createPatientSuccess(patients) {
+  return {
+    type: CREATE_PATIENT_SUCCESS,
+    payload: patients
+  };
+}
+
+export function createPatientFailed() {
+  return {
+    type: CREATE_PATIENT_FAILED
+  };
+}
+
+export const createPatient = patient => {
+  return dispatch => {
+    dispatch(createPatientRequest());
+    const existingPatients = JSON.parse(localStorage.getItem('patients')) || [];
+    const patientInfo = patient;
+    patientInfo.id = idGenerator();
+    existingPatients.push(patientInfo);
+    localStorage.setItem('patients', JSON.stringify(existingPatients));
+  };
 };
-
-export function increment() {
-  return {
-    type: INCREMENT_COUNTER
-  };
-}
-
-export function decrement() {
-  return {
-    type: DECREMENT_COUNTER
-  };
-}
-
-export function incrementIfOdd() {
-  return (dispatch: (action: actionType) => void, getState: () => counterStateType) => {
-    const { counter } = getState();
-
-    if (counter % 2 === 0) {
-      return;
-    }
-
-    dispatch(increment());
-  };
-}
-
-export function incrementAsync(delay: number = 1000) {
-  return (dispatch: (action: actionType) => void) => {
-    setTimeout(() => {
-      dispatch(increment());
-    }, delay);
-  };
-}

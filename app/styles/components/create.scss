@@ -41,8 +41,18 @@
     }
   }
   .create-container {
-    margin: 20px auto;
+    background: #eff2f5;
     .form {
+      margin: 20px 20px;
+      background: white;
+      .isRequired {
+        color: red;
+      }
+      .cancel {
+        margin-right: 5px;
+      }
+    }
+    .second-form {
       margin: 20px 20px;
       background: white;
       .isRequired {
