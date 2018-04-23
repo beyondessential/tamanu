@@ -34,12 +34,20 @@ class Sidebar extends Component {
     return (
       <div>
         <div className="sidebar">
-          <Link className="header" to="/">
+          <Link className="header" to="/" replace>
             <span>
               Tamanu
             </span>
           </Link>
           <div className="scroll-container">
+            {currentPath.includes('/patients') &&
+              <div className="search-container">
+                <input className="input is-primary" type="text" placeholder="Search" />
+                <button>
+                  <i className="fa fa-search" />
+                </button>
+              </div>
+            }
             {
               sidebarInfo.map((parent, index) => (
                 <div key={index}>
