@@ -235,3 +235,61 @@ export const idGenerator = () => {
   };
   return (`${S4()}`);
 };
+
+const headerSortingStyle = { backgroundColor: '#c8e6c9' };
+
+export const parentColumns = [{
+  dataField: 'id',
+  text: 'id',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: 'rgba(38, 54, 72, 0.3)'
+  },
+}, {
+  dataField: 'firstName',
+  text: 'First Name',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: 'rgba(38, 54, 72, 0.3)'
+  }
+}, {
+  dataField: 'lastName',
+  text: 'Last Name',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: 'rgba(38, 54, 72, 0.3)'
+  }
+}, {
+  dataField: 'sex',
+  text: 'Sex',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: 'rgba(38, 54, 72, 0.3)'
+  }
+}, {
+  dataField: 'birthday',
+  text: 'DOB',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: 'rgba(38, 54, 72, 0.3)'
+  }
+}, {
+  dataField: 'patientStatus',
+  text: 'Status',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: 'rgba(38, 54, 72, 0.3)'
+  }
+}, {
+  dataField: 'action',
+  text: 'Actions',
+  headerStyle: {
+    backgroundColor: 'rgba(38, 54, 72, 0.3)'
+  }
+}];

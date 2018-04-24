@@ -3,64 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import BootstrapTable from 'react-bootstrap-table-next';
 import { fetchPatients } from '../../actions/patients';
-
-const headerSortingStyle = { backgroundColor: '#c8e6c9' };
-
-const columns = [{
-  dataField: 'id',
-  text: 'id',
-  sort: true,
-  headerSortingStyle,
-  headerStyle: {
-    backgroundColor: 'rgba(38, 54, 72, 0.3)'
-  },
-}, {
-  dataField: 'firstName',
-  text: 'First Name',
-  sort: true,
-  headerSortingStyle,
-  headerStyle: {
-    backgroundColor: 'rgba(38, 54, 72, 0.3)'
-  }
-}, {
-  dataField: 'lastName',
-  text: 'Last Name',
-  sort: true,
-  headerSortingStyle,
-  headerStyle: {
-    backgroundColor: 'rgba(38, 54, 72, 0.3)'
-  }
-}, {
-  dataField: 'sex',
-  text: 'Sex',
-  sort: true,
-  headerSortingStyle,
-  headerStyle: {
-    backgroundColor: 'rgba(38, 54, 72, 0.3)'
-  }
-}, {
-  dataField: 'birthday',
-  text: 'DOB',
-  sort: true,
-  headerSortingStyle,
-  headerStyle: {
-    backgroundColor: 'rgba(38, 54, 72, 0.3)'
-  }
-}, {
-  dataField: 'patientStatus',
-  text: 'Status',
-  sort: true,
-  headerSortingStyle,
-  headerStyle: {
-    backgroundColor: 'rgba(38, 54, 72, 0.3)'
-  }
-}, {
-  dataField: 'action',
-  text: 'Actions',
-  headerStyle: {
-    backgroundColor: 'rgba(38, 54, 72, 0.3)'
-  }
-}];
+import { parentColumns } from '../../constants';
 
 class PatientListing extends Component {
   componentDidMount() {
@@ -69,7 +12,6 @@ class PatientListing extends Component {
 
   render() {
     const { patients } = this.props;
-    console.log('patients', patients);
     return (
       <div className="content">
         <div className="view-top-bar">
@@ -94,7 +36,7 @@ class PatientListing extends Component {
               <BootstrapTable
                 keyField="id"
                 data={patients}
-                columns={columns}
+                columns={parentColumns}
                 defaultSortDirection="asc"
               />
             </div>
