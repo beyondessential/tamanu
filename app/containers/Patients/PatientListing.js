@@ -1,7 +1,31 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import BootstrapTable from 'react-bootstrap-table-next';
 import { fetchPatients } from '../../actions/patients';
+
+const columns = [{
+  dataField: 'id',
+  text: 'id'
+}, {
+  dataField: 'firstName',
+  text: 'First Name'
+}, {
+  dataField: 'lastName',
+  text: 'Last Name'
+}, {
+  dataField: 'sex',
+  text: 'Sex'
+}, {
+  dataField: 'birthday',
+  text: 'DOB'
+}, {
+  dataField: 'patientStatus',
+  text: 'Status'
+}, {
+  dataField: 'action',
+  text: 'Actions'
+}];
 
 class PatientListing extends Component {
   componentDidMount() {
@@ -24,11 +48,17 @@ class PatientListing extends Component {
           </div>
         </div>
         <div className="detail">
-          <div className="notification">
-            <span>
-              No patients found. <Link to="/patients/edit/new">Create a new patient record?</Link>
-            </span>
-          </div>
+          {patients.length === 0 ?
+            <div className="notification">
+              <span>
+                No patients found. <Link to="/patients/edit/new">Create a new patient record?</Link>
+              </span>
+            </div>
+            :
+            <div>
+              <BootstrapTable keyField="id" data={patients} columns={columns} />
+            </div>
+          }
         </div>
       </div>
     );

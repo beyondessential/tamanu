@@ -2,9 +2,10 @@
  * @NOTE: Prepend a `~` to css file paths that are in your node_modules
  *        See https://github.com/webpack-contrib/sass-loader#imports
  */
-@import '~bulma/bulma.sass';
+@import "~bulma/bulma.sass";
 @import "~font-awesome/css/font-awesome.css";
-@import '~react-responsive-modal/lib/react-responsive-modal.css';
+@import "~react-responsive-modal/lib/react-responsive-modal.css";
+@import "~react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
 @import "./components/create.scss";
 @import "./components/content.scss";
 @import "./components/sidebar.scss";
