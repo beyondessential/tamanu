@@ -1,14 +1,16 @@
-// @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { fetchPatients } from '../../actions/patients';
 
-type Props = {};
-
-class PatientListing extends Component<Props> {
-  props: Props;
+class PatientListing extends Component {
+  componentDidMount() {
+    this.props.fetchPatients();
+  }
 
   render() {
+    const { patients } = this.props;
+    console.log('patients', patients);
     return (
       <div className="content">
         <div className="view-top-bar">
@@ -39,4 +41,8 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, undefined)(PatientListing);
+const mapDispatchToProps = dispatch => ({
+  fetchPatients: () => dispatch(fetchPatients()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(PatientListing);

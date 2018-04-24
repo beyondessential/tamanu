@@ -33,7 +33,6 @@ class NewPatient extends Component<Props> {
             e.preventDefault();
             const patient = Serializer.serialize(e.target, { hash: true });
             if (patient.firstName && patient.lastName) {
-              console.log('called');
               this.props.createPatient(patient);
             } else {
               this.setState({ formError: true });

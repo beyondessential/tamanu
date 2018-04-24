@@ -1,4 +1,11 @@
-import { INCREMENT_COUNTER, DECREMENT_COUNTER } from '../actions/types';
+import {
+  CREATE_PATIENT_REQUEST,
+  CREATE_PATIENT_SUCCESS,
+  CREATE_PATIENT_FAILED,
+  FETCH_PATIENTS_REQUEST,
+  FETCH_PATIENTS_SUCCESS,
+  FETCH_PATIENTS_FAILED
+} from '../actions/types';
 
 const initialState = {
   patients: []
@@ -6,15 +13,30 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case INCREMENT_COUNTER:
+    case CREATE_PATIENT_REQUEST:
       return {
         ...state,
-        patients: action.payload,
       };
-    case DECREMENT_COUNTER:
+    case CREATE_PATIENT_SUCCESS:
       return {
         ...state,
-        patients: action.payload,
+      };
+    case CREATE_PATIENT_FAILED:
+      return {
+        ...state,
+      };
+    case FETCH_PATIENTS_REQUEST:
+      return {
+        ...state,
+      };
+    case FETCH_PATIENTS_SUCCESS:
+      return {
+        ...state,
+        patients: action.payload
+      };
+    case FETCH_PATIENTS_FAILED:
+      return {
+        ...state,
       };
     default:
       return state;
