@@ -1,3 +1,21 @@
 .custom-date-input {
-  background: red;
+  background: rgba(219, 235, 255, 0.2);
+  border: 1px solid #dee2e7;
+  display: block;
+  width: 100%;
+  font-size: 16px;
+  line-height: 2;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border-radius: 3px;
+  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  text-align: left;
+}
+.react-datepicker-wrapper {
+  width: 100%;
+  .react-datepicker__input-container {
+    width: 100%;
+  }
 }

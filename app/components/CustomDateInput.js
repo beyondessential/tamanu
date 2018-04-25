@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { PropTypes } from 'prop-types';
 
 class CustomDateInput extends Component {
   render() {
@@ -13,10 +12,5 @@ class CustomDateInput extends Component {
     );
   }
 }
-
-CustomDateInput.propTypes = {
-  onClick: PropTypes.func.isRequired,
-  value: PropTypes.string.isRequired
-};
 
 export default CustomDateInput;
