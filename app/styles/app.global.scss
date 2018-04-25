@@ -6,9 +6,11 @@
 @import "~font-awesome/css/font-awesome.css";
 @import "~react-responsive-modal/lib/react-responsive-modal.css";
 @import "~react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
+@import '~react-datepicker/dist/react-datepicker.css';
 @import "./components/create.scss";
 @import "./components/content.scss";
 @import "./components/sidebar.scss";
+@import "./components/custom.scss";
 
 body {
   padding: 0;
