@@ -1,23 +1,21 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
+import BootstrapTable from 'react-bootstrap-table-next';
 import CustomDateInput from '../../components/CustomDateInput';
+import { fetchPatients } from '../../actions/patients';
+import { parentColumns, locationOptions } from '../../constants';
 
-const options = [
-  { value: 'australian-capital-territory', label: 'Australian Capital Territory', className: 'State-ACT' },
-  { value: 'new-south-wales', label: 'New South Wales', className: 'State-NSW' },
-  { value: 'victoria', label: 'Victoria', className: 'State-Vic' },
-  { value: 'queensland', label: 'Queensland', className: 'State-Qld' },
-  { value: 'western-australia', label: 'Western Australia', className: 'State-WA' },
-  { value: 'south-australia', label: 'South Australia', className: 'State-SA' },
-  { value: 'tasmania', label: 'Tasmania', className: 'State-Tas' },
-  { value: 'northern-territory', label: 'Northern Territory', className: 'State-NT' },
-];
-export default class Outpatient extends Component<Props> {
+class Outpatient extends Component<Props> {
   state = {
     startDate: moment(),
     selectValue: ''
+  }
+
+  componentDidMount() {
+    this.props.fetchPatients();
   }
 
   onChangeDate = (date) => {
@@ -34,6 +32,7 @@ export default class Outpatient extends Component<Props> {
 
   render() {
     const { startDate } = this.state;
+    const { patients } = this.props;
     return (
       <div className="create-content">
         <div className="create-top-bar">
@@ -72,7 +71,7 @@ export default class Outpatient extends Component<Props> {
                 onBlurResetsInput={false}
                 onSelectResetsInput={false}
                 autoFocus
-                options={options}
+                options={locationOptions}
                 simpleValue
                 clearable
                 name="selected-state"
@@ -87,8 +86,29 @@ export default class Outpatient extends Component<Props> {
               <a className="button is-primary search">Search</a>
             </div>
           </div>
+          <div className="columns form-table">
+            <BootstrapTable
+              keyField="id"
+              className="custom-table"
+              data={patients}
+              columns={parentColumns}
+              defaultSortDirection="asc"
+            />
+          </div>
         </div>
       </div>
     );
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    patients: state.patients.patients
+  };
+}
+
+const mapDispatchToProps = dispatch => ({
+  fetchPatients: () => dispatch(fetchPatients()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Outpatient);
