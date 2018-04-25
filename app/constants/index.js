@@ -304,3 +304,17 @@ export const locationOptions = [
   { value: 'tasmania', label: 'Tasmania', className: 'State-Tas' },
   { value: 'northern-territory', label: 'Northern Territory', className: 'State-NT' },
 ];
+
+export const reportOptions = [
+  { value: 'detailedAdmissions', label: 'Admissions Detail', className: 'State-ACT' },
+  { value: 'admissions', label: 'Admissions Summary', className: 'State-NSW' },
+  { value: 'diagnostic', label: 'Diagnostic Testing', className: 'State-Vic' },
+  { value: 'detailedDischarges', label: 'Discharges Detail', className: 'State-Qld' },
+  { value: 'discharges', label: 'Discharges Summary', className: 'State-WA' },
+  { value: 'detailedProcedures', label: 'Procedures Detail', className: 'State-SA' },
+  { value: 'procedures', label: 'Procedures Summary', className: 'State-Tas' },
+  { value: 'status', label: 'Patient Status', className: 'State-NT' },
+  { value: 'patientDays', label: 'Total Patient Days', className: 'State-NT' },
+  { value: 'detailedPatientDays', label: 'Total Patient Days (Detailed)', className: 'State-NT' },
+  { value: 'visit', label: 'Visit', className: 'State-NT' },
+];

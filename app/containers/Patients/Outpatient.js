@@ -70,7 +70,6 @@ class Outpatient extends Component<Props> {
                 ref={(ref) => { this.select = ref; }}
                 onBlurResetsInput={false}
                 onSelectResetsInput={false}
-                autoFocus
                 options={locationOptions}
                 simpleValue
                 clearable
