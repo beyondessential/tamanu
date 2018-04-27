@@ -1,11 +1,7 @@
-// @flow
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
-type Props = {};
-
-export default class Requests extends Component<Props> {
-  props: Props;
-
+export default class Requests extends Component {
   render() {
     return (
       <div>
@@ -15,16 +11,34 @@ export default class Requests extends Component<Props> {
               Medication Requests
             </span>
             <div className="view-action-buttons">
-              <button>
+              <Link to="/medication/edit/new">
                 + New Request
-              </button>
-              <button>
+              </Link>
+              <Link to="/medication/edit/dispense">
                 Dispense Medication
-              </button>
-              <button>
+              </Link>
+              <Link to="/medication/return/new">
                 Return Medication
-              </button>
+              </Link>
             </div>
+          </div>
+          <div className="detail">
+            {patients.length === 0 ?
+              <div className="notification">
+                <span>
+                  No patients found. <Link to="/patients/edit/new">Create a new patient record?</Link>
+                </span>
+              </div>
+              :
+              <div>
+                <BootstrapTable
+                  keyField="id"
+                  data={patients}
+                  columns={parentColumns}
+                  defaultSortDirection="asc"
+                />
+              </div>
+            }
           </div>
         </div>
       </div>
