@@ -1,8 +1,17 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import BootstrapTable from 'react-bootstrap-table-next';
+import { fetchMedications } from '../../actions/medications';
+import { parentColumns } from '../../constants';
 
-export default class Requests extends Component {
+class Requests extends Component {
+  componentDidMount() {
+    this.props.fetchMedications();
+  }
+
   render() {
+    const { medications } = this.props;
     return (
       <div>
         <div className="content">
@@ -23,17 +32,17 @@ export default class Requests extends Component {
             </div>
           </div>
           <div className="detail">
-            {patients.length === 0 ?
+            {medications.length === 0 ?
               <div className="notification">
                 <span>
-                  No patients found. <Link to="/patients/edit/new">Create a new patient record?</Link>
+                  No medications found. <Link to="/medications/edit/new">Create a new patient record?</Link>
                 </span>
               </div>
               :
               <div>
                 <BootstrapTable
                   keyField="id"
-                  data={patients}
+                  data={medications}
                   columns={parentColumns}
                   defaultSortDirection="asc"
                 />
@@ -45,3 +54,15 @@ export default class Requests extends Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    medications: state.medications.medications
+  };
+}
+
+const mapDispatchToProps = dispatch => ({
+  fetchMedications: () => dispatch(fetchMedications()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Requests);
