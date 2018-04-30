@@ -51,7 +51,7 @@ class Sidebar extends Component {
             {
               sidebarInfo.map((parent, index) => (
                 <div key={index}>
-                  <Link className={classNames(['item', selectedParentItem === parent.label ? 'selected' : ''])} to={parent.path} replace onClick={this.clickedParentItem.bind(this, parent.label)}>
+                  <Link className={classNames(['item', selectedParentItem === parent.label ? 'selected' : ''])} to={parent.path} replace onClick={() => this.clickedParentItem(parent.label)}>
                     <i className={parent.icon} />
                     <span>
                       {parent.label}
