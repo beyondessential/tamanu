@@ -5,7 +5,7 @@ import InputGroup from '../../components/InputGroup';
 import Serializer from '../../utils/form-serialize';
 import { createPatient } from '../../actions/patients';
 
-class NewPatient extends Component<Props> {
+class NewPatient extends Component {
   state = {
     formError: false,
   }

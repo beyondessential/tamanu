@@ -35,7 +35,7 @@ class Requests extends Component {
             {medications.length === 0 ?
               <div className="notification">
                 <span>
-                  No medications found. <Link to="/medications/edit/new">Create a new patient record?</Link>
+                  No medications found. <Link to="/medication/edit/new">Create a new medication record?</Link>
                 </span>
               </div>
               :
