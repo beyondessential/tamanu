@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import ModalView from '../../components/Modal';
-// import Serializer from '../../utils/form-serialize';
+import Serializer from '../../utils/form-serialize';
 import InputGroup from '../../components/InputGroup';
-import { createPatient } from '../../actions/patients';
+import { createMedication } from '../../actions/medications';
 
 class NewMedication extends Component {
   state = {
@@ -39,15 +39,22 @@ class NewMedication extends Component {
             className="create-container"
             onSubmit={(e) => {
               e.preventDefault();
-              // const patient = Serializer.serialize(e.target, { hash: true });
-              // if (patient.firstName && patient.lastName) {
-              //   this.props.createPatient(patient);
-              // } else {
-              //   this.setState({ formError: true });
-              // }
+              const medication = Serializer.serialize(e.target, { hash: true });
+              if (medication.firstName && medication.lastName) {
+                this.props.createMedication(medication);
+              } else {
+                this.setState({ formError: true });
+              }
             }}
           >
             <div className="columns form">
+              <div className="column">
+                <InputGroup
+                  name="firstName"
+                  label="First Name"
+                  required
+                />
+              </div>
               <div className="column">
                 <InputGroup
                   name="firstName"
@@ -71,7 +78,7 @@ class NewMedication extends Component {
 }
 
 const mapDispatchToProps = dispatch => ({
-  createPatient: patient => dispatch(createPatient(patient)),
+  createMedication: medication => dispatch(createMedication(medication)),
 });
 
 export default connect(undefined, mapDispatchToProps)(NewMedication);
