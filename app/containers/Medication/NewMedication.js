@@ -40,7 +40,7 @@ class NewMedication extends Component {
             onSubmit={(e) => {
               e.preventDefault();
               const medication = Serializer.serialize(e.target, { hash: true });
-              if (medication.firstName && medication.lastName) {
+              if (medication.patient && medication.visit && medication.medication && medication.prescription) {
                 this.props.createMedication(medication);
               } else {
                 this.setState({ formError: true });
@@ -51,14 +51,14 @@ class NewMedication extends Component {
               <div className="columns">
                 <div className="column">
                   <InputGroup
-                    name="Patient"
+                    name="patient"
                     label="Patient"
                     required
                   />
                 </div>
                 <div className="column">
                   <InputGroup
-                    name="Visit"
+                    name="visit"
                     label="Visit"
                     required
                   />
@@ -67,7 +67,7 @@ class NewMedication extends Component {
               <div className="columns">
                 <div className="column">
                   <InputGroup
-                    name="Medication"
+                    name="medication"
                     label="Medication"
                     required
                   />
@@ -76,7 +76,7 @@ class NewMedication extends Component {
               <div className="columns">
                 <div className="column">
                   <InputGroup
-                    name="Prescription"
+                    name="prescription"
                     label="Prescription"
                     required
                   />
