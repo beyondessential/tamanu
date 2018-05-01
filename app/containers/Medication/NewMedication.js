@@ -47,20 +47,77 @@ class NewMedication extends Component {
               }
             }}
           >
-            <div className="columns form">
-              <div className="column">
-                <InputGroup
-                  name="firstName"
-                  label="First Name"
-                  required
-                />
+            <div className="form">
+              <div className="columns">
+                <div className="column">
+                  <InputGroup
+                    name="Patient"
+                    label="Patient"
+                    required
+                  />
+                </div>
+                <div className="column">
+                  <InputGroup
+                    name="Visit"
+                    label="Visit"
+                    required
+                  />
+                </div>
               </div>
-              <div className="column">
-                <InputGroup
-                  name="firstName"
-                  label="First Name"
-                  required
-                />
+              <div className="columns">
+                <div className="column">
+                  <InputGroup
+                    name="Medication"
+                    label="Medication"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column">
+                  <InputGroup
+                    name="Prescription"
+                    label="Prescription"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column is-5">
+                  <InputGroup
+                    name="date"
+                    label="Prescription Date"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column is-4">
+                  <InputGroup
+                    name="quantity"
+                    label="Quantity Requested"
+                    required
+                  />
+                </div>
+                <div className="column is-4">
+                  <InputGroup
+                    name="refills"
+                    label="Refills"
+                  />
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column is-4">
+                  <InputGroup
+                    name="fullfillRequest"
+                    label="Fullfill Request"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="column has-text-right">
+                <a className="button is-danger cancel">Cancel</a>
+                <button className="button" type="submit">Add</button>
               </div>
             </div>
           </form>
