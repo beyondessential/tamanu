@@ -1,18 +1,27 @@
-// @flow
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
-type Props = {};
+import ModalView from '../../components/Modal';
+import Serializer from '../../utils/form-serialize';
+import InputGroup from '../../components/InputGroup';
+import { createMedication } from '../../actions/medications';
 
-export default class Dispense extends Component<Props> {
-  props: Props;
+class Dispense extends Component {
+  state = {
+    formError: false,
+  }
+  onCloseModal = () => {
+    this.setState({ formError: false });
+  }
 
   render() {
+    const { formError } = this.state;
     return (
       <div>
-        <div className="content">
-          <div className="view-top-bar">
+        <div className="create-content">
+          <div className="create-top-bar">
             <span>
-              Completed Medication
+              New Medication Request
             </span>
             <div className="view-action-buttons">
               <button>
@@ -26,8 +35,107 @@ export default class Dispense extends Component<Props> {
               </button>
             </div>
           </div>
+          <form
+            className="create-container"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const medication = Serializer.serialize(e.target, { hash: true });
+              if (medication.patient && medication.visit && medication.medication && medication.prescription) {
+                this.props.createMedication(medication);
+              } else {
+                this.setState({ formError: true });
+              }
+            }}
+          >
+            <div className="form">
+              <div className="columns">
+                <div className="column">
+                  <InputGroup
+                    name="patient"
+                    label="Patient"
+                    required
+                  />
+                </div>
+                <div className="column">
+                  <InputGroup
+                    name="visit"
+                    label="Visit"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column">
+                  <InputGroup
+                    name="medication"
+                    label="Medication"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column">
+                  <InputGroup
+                    name="prescription"
+                    label="Prescription"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column is-5">
+                  <InputGroup
+                    name="date"
+                    label="Prescription Date"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column is-4">
+                  <InputGroup
+                    name="quantity"
+                    label="Quantity Requested"
+                    required
+                  />
+                </div>
+                <div className="column is-4">
+                  <InputGroup
+                    name="refills"
+                    label="Refills"
+                  />
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column is-4">
+                  <InputGroup
+                    name="billTo"
+                    label="Bill To"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="column has-text-right">
+                <a className="button is-danger cancel">Cancel</a>
+                <button className="button" type="submit">Add</button>
+              </div>
+            </div>
+          </form>
         </div>
+        <ModalView
+          isVisible={formError}
+          onClose={this.onCloseModal}
+          headerTitle="Warning!!!!"
+          contentText="Please fill in required fields (marked with *) and correct the errors before saving."
+          little
+        />
       </div>
     );
   }
 }
+
+const mapDispatchToProps = dispatch => ({
+  createMedication: medication => dispatch(createMedication(medication)),
+});
+
+export default connect(undefined, mapDispatchToProps)(Dispense);
