@@ -1,21 +1,41 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import Select from 'react-select';
+import DatePicker from 'react-datepicker';
+import moment from 'moment';
 
-import ModalView from '../../components/Modal';
+// import ModalView from '../../components/Modal';
 import Serializer from '../../utils/form-serialize';
 import InputGroup from '../../components/InputGroup';
+import CustomDateInput from '../../components/CustomDateInput';
 import { createDispense } from '../../actions/medications';
+import { visitOptions } from '../../constants';
 
 class Dispense extends Component {
   state = {
-    formError: false,
+    // formError: false,
+    selectValue: '',
+    prescriptionDate: moment(),
   }
-  onCloseModal = () => {
-    this.setState({ formError: false });
+
+  // onCloseModal = () => {
+  //   this.setState({ formError: false });
+  // }
+
+  updateValue = (newValue) => {
+    this.setState({
+      selectValue: newValue,
+    });
+  }
+
+  onChangeDate = (date) => {
+    this.setState({
+      prescriptionDate: date,
+    });
   }
 
   render() {
-    const { formError } = this.state;
+    const { prescriptionDate } = this.state;
     return (
       <div>
         <div className="create-content">
@@ -57,11 +77,26 @@ class Dispense extends Component {
                   />
                 </div>
                 <div className="column">
-                  <InputGroup
-                    name="visit"
-                    label="Visit"
-                    required
-                  />
+                  <div className="column">
+                    <span className="header">
+                      Visit
+                    </span>
+                    <Select
+                      id="state-select"
+                      ref={(ref) => { this.select = ref; }}
+                      onBlurResetsInput={false}
+                      onSelectResetsInput={false}
+                      options={visitOptions}
+                      simpleValue
+                      clearable
+                      name="selected-state"
+                      disabled={this.state.disabled}
+                      value={this.state.selectValue}
+                      onChange={this.updateValue}
+                      rtl={this.state.rtl}
+                      searchable={this.state.searchable}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="columns">
@@ -74,21 +109,22 @@ class Dispense extends Component {
                 </div>
               </div>
               <div className="columns">
-                <div className="column">
-                  <InputGroup
-                    name="prescription"
-                    label="Prescription"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="columns">
                 <div className="column is-5">
-                  <InputGroup
-                    name="date"
-                    label="Prescription Date"
-                    required
-                  />
+                  <div className="column">
+                    <span className="header">
+                      Prescription Date
+                    </span>
+                    <DatePicker
+                      name="prescriptionDate"
+                      customInput={<CustomDateInput />}
+                      selected={prescriptionDate}
+                      onChange={this.onChangeDate}
+                      peekNextMonth
+                      showMonthDropdown
+                      showYearDropdown
+                      dropdownMode="select"
+                    />
+                  </div>
                 </div>
               </div>
               <div className="columns">
@@ -122,13 +158,13 @@ class Dispense extends Component {
             </div>
           </form>
         </div>
-        <ModalView
+        {/* <ModalView
           isVisible={formError}
           onClose={this.onCloseModal}
           headerTitle="Warning!!!!"
           contentText="Please fill in required fields (marked with *) and correct the errors before saving."
           little
-        />
+        /> */}
       </div>
     );
   }

@@ -45,7 +45,6 @@ class Reports extends Component {
   render() {
     const { startDate, endDate, generated } = this.state;
     const { patients } = this.props;
-    console.log(moment(startDate).format('MM/YYYY'), moment(endDate));
     return (
       <div className="create-content">
         <div className="create-top-bar">

@@ -263,6 +263,13 @@ export const reportOptions = [
   { value: 'visit', label: 'Visit', className: 'State-NT' },
 ];
 
+export const visitOptions = [
+  { value: 'value1', label: 'Value 1' },
+  { value: 'value2', label: 'Value 2' },
+  { value: 'value3', label: 'Value 3' },
+  { value: 'value4', label: 'Value 4' },
+];
+
 export const patientColumns = [{
   dataField: 'id',
   text: 'id',
