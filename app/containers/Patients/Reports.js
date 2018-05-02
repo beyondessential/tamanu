@@ -46,56 +46,67 @@ class Reports extends Component {
           </div>
         </div>
         <div className="create-container">
-          <div className="columns form">
-            <div className="column is-6">
-              <span className="header">
-                Report Type
-              </span>
-              <Select
-                id="state-select"
-                ref={(ref) => { this.select = ref; }}
-                onBlurResetsInput={false}
-                onSelectResetsInput={false}
-                options={reportOptions}
-                simpleValue
-                clearable
-                name="selected-state"
-                disabled={this.state.disabled}
-                value={this.state.selectValue}
-                onChange={this.updateValue}
-                rtl={this.state.rtl}
-                searchable={this.state.searchable}
-              />
+          <div className="form">
+            <div className="columns">
+              <div className="column is-6">
+                <div className="column">
+                  <span className="header">
+                    Report Type
+                  </span>
+                  <Select
+                    id="state-select"
+                    ref={(ref) => { this.select = ref; }}
+                    onBlurResetsInput={false}
+                    onSelectResetsInput={false}
+                    options={reportOptions}
+                    simpleValue
+                    clearable
+                    name="selected-state"
+                    disabled={this.state.disabled}
+                    value={this.state.selectValue}
+                    onChange={this.updateValue}
+                    rtl={this.state.rtl}
+                    searchable={this.state.searchable}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="columns form">
-            <div className="column is-4">
-              <span className="header">
-                Report Type
-              </span>
-              <DatePicker
-                customInput={<CustomDateInput />}
-                selected={startDate}
-                onChange={this.onChangeDate}
-                peekNextMonth
-                showMonthDropdown
-                showYearDropdown
-                dropdownMode="select"
-              />
+            <div className="columns">
+              <div className="column is-4">
+                <div className="column">
+                  <span className="header">
+                    Start Date
+                  </span>
+                  <DatePicker
+                    customInput={<CustomDateInput />}
+                    selected={startDate}
+                    onChange={this.onChangeDate}
+                    peekNextMonth
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                  />
+                </div>
+              </div>
+              <div className="column is-4">
+                <div className="column">
+                  <span className="header">
+                    End Date
+                  </span>
+                  <DatePicker
+                    customInput={<CustomDateInput />}
+                    selected={startDate}
+                    onChange={this.onChangeDate}
+                    peekNextMonth
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                  />
+                </div>
+              </div>
             </div>
-            <div className="column is-4">
-              <span className="header">
-                Report Type
-              </span>
-              <DatePicker
-                customInput={<CustomDateInput />}
-                selected={startDate}
-                onChange={this.onChangeDate}
-                peekNextMonth
-                showMonthDropdown
-                showYearDropdown
-                dropdownMode="select"
-              />
+            <div className="column has-text-right">
+              <button className="button is-primary" type="submit">Generate Report</button>
             </div>
           </div>
           <div className="columns form-table">
