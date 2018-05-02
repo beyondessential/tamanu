@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import BootstrapTable from 'react-bootstrap-table-next';
 import { fetchMedications } from '../../actions/medications';
-import { parentColumns } from '../../constants';
+import { medicationColumns } from '../../constants';
 
 class Requests extends Component {
   componentDidMount() {
@@ -43,7 +43,7 @@ class Requests extends Component {
                 <BootstrapTable
                   keyField="id"
                   data={medications}
-                  columns={parentColumns}
+                  columns={medicationColumns}
                   defaultSortDirection="asc"
                 />
               </div>

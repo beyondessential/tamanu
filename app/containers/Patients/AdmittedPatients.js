@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import BootstrapTable from 'react-bootstrap-table-next';
 import { fetchPatients } from '../../actions/patients';
-import { parentColumns } from '../../constants';
+import { patientColumns } from '../../constants';
 
 class AdmittedPatients extends Component {
   componentDidMount() {
@@ -36,7 +36,7 @@ class AdmittedPatients extends Component {
               <BootstrapTable
                 keyField="id"
                 data={patients}
-                columns={parentColumns}
+                columns={patientColumns}
                 defaultSortDirection="asc"
               />
             </div>

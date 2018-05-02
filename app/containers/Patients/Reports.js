@@ -6,7 +6,7 @@ import Select from 'react-select';
 import BootstrapTable from 'react-bootstrap-table-next';
 import CustomDateInput from '../../components/CustomDateInput';
 import { fetchPatients } from '../../actions/patients';
-import { parentColumns, reportOptions } from '../../constants';
+import { patientColumns, reportOptions } from '../../constants';
 
 class Reports extends Component {
   state = {
@@ -103,7 +103,7 @@ class Reports extends Component {
               keyField="id"
               className="custom-table"
               data={patients}
-              columns={parentColumns}
+              columns={patientColumns}
               defaultSortDirection="asc"
             />
           </div>

@@ -238,62 +238,6 @@ export const idGenerator = () => {
 
 const headerSortingStyle = { backgroundColor: '#c8e6c9' };
 
-export const parentColumns = [{
-  dataField: 'id',
-  text: 'id',
-  sort: true,
-  headerSortingStyle,
-  headerStyle: {
-    backgroundColor: 'rgba(38, 54, 72, 0.3)'
-  },
-}, {
-  dataField: 'firstName',
-  text: 'First Name',
-  sort: true,
-  headerSortingStyle,
-  headerStyle: {
-    backgroundColor: 'rgba(38, 54, 72, 0.3)'
-  }
-}, {
-  dataField: 'lastName',
-  text: 'Last Name',
-  sort: true,
-  headerSortingStyle,
-  headerStyle: {
-    backgroundColor: 'rgba(38, 54, 72, 0.3)'
-  }
-}, {
-  dataField: 'sex',
-  text: 'Sex',
-  sort: true,
-  headerSortingStyle,
-  headerStyle: {
-    backgroundColor: 'rgba(38, 54, 72, 0.3)'
-  }
-}, {
-  dataField: 'birthday',
-  text: 'DOB',
-  sort: true,
-  headerSortingStyle,
-  headerStyle: {
-    backgroundColor: 'rgba(38, 54, 72, 0.3)'
-  }
-}, {
-  dataField: 'patientStatus',
-  text: 'Status',
-  sort: true,
-  headerSortingStyle,
-  headerStyle: {
-    backgroundColor: 'rgba(38, 54, 72, 0.3)'
-  }
-}, {
-  dataField: 'action',
-  text: 'Actions',
-  headerStyle: {
-    backgroundColor: 'rgba(38, 54, 72, 0.3)'
-  }
-}];
-
 export const locationOptions = [
   { value: 'australian-capital-territory', label: 'Australian Capital Territory', className: 'State-ACT' },
   { value: 'new-south-wales', label: 'New South Wales', className: 'State-NSW' },
@@ -318,3 +262,115 @@ export const reportOptions = [
   { value: 'detailedPatientDays', label: 'Total Patient Days (Detailed)', className: 'State-NT' },
   { value: 'visit', label: 'Visit', className: 'State-NT' },
 ];
+
+export const patientColumns = [{
+  dataField: 'id',
+  text: 'id',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  },
+}, {
+  dataField: 'firstName',
+  text: 'First Name',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'lastName',
+  text: 'Last Name',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'sex',
+  text: 'Sex',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'birthday',
+  text: 'DOB',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'patientStatus',
+  text: 'Status',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'action',
+  text: 'Actions',
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}];
+
+export const medicationColumns = [{
+  dataField: 'date',
+  text: 'Date',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  },
+}, {
+  dataField: 'patient',
+  text: 'Patient',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'prescriber',
+  text: 'Prescriber',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'medication',
+  text: 'Medication',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'quantity',
+  text: 'Quantity',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'status',
+  text: 'Status',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'action',
+  text: 'Actions',
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}];
