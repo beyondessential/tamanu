@@ -11,16 +11,24 @@ import { patientColumns, reportOptions } from '../../constants';
 class Reports extends Component {
   state = {
     startDate: moment(),
-    selectValue: ''
+    endDate: moment(),
+    selectValue: '',
+    generated: false
   }
 
   componentDidMount() {
     this.props.fetchPatients();
   }
 
-  onChangeDate = (date) => {
+  onChangeStartDate = (date) => {
     this.setState({
       startDate: date
+    });
+  }
+
+  onChangeEndDate = (date) => {
+    this.setState({
+      endDate: date
     });
   }
 
@@ -30,9 +38,14 @@ class Reports extends Component {
     });
   }
 
+  generateReport = () => {
+    this.setState({ generated: true });
+  }
+
   render() {
-    const { startDate } = this.state;
+    const { startDate, endDate, generated } = this.state;
     const { patients } = this.props;
+    console.log(moment(startDate).format('MM/YYYY'), moment(endDate));
     return (
       <div className="create-content">
         <div className="create-top-bar">
@@ -78,9 +91,10 @@ class Reports extends Component {
                     Start Date
                   </span>
                   <DatePicker
+                    name="startDate"
                     customInput={<CustomDateInput />}
                     selected={startDate}
-                    onChange={this.onChangeDate}
+                    onChange={this.onChangeStartDate}
                     peekNextMonth
                     showMonthDropdown
                     showYearDropdown
@@ -94,9 +108,10 @@ class Reports extends Component {
                     End Date
                   </span>
                   <DatePicker
+                    name="endDate"
                     customInput={<CustomDateInput />}
-                    selected={startDate}
-                    onChange={this.onChangeDate}
+                    selected={endDate}
+                    onChange={this.onChangeEndDate}
                     peekNextMonth
                     showMonthDropdown
                     showYearDropdown
@@ -106,18 +121,29 @@ class Reports extends Component {
               </div>
             </div>
             <div className="column has-text-right">
-              <button className="button is-primary" type="submit">Generate Report</button>
+              <button className="button is-primary" onClick={this.generateReport}>Generate Report</button>
             </div>
           </div>
-          <div className="columns form-table">
-            <BootstrapTable
-              keyField="id"
-              className="custom-table"
-              data={patients}
-              columns={patientColumns}
-              defaultSortDirection="asc"
-            />
-          </div>
+          {generated &&
+            <div className="form">
+              <div className="form-header">
+                <span>
+                  Diagnostic Testing Report {moment(startDate).format('MM/DD/YYYY')} - {moment(endDate).format('MM/DD/YYYY')}
+                </span>
+              </div>
+              <div className="columns">
+                <div className="columns form-table">
+                  <BootstrapTable
+                    keyField="id"
+                    className="custom-table"
+                    data={patients}
+                    columns={patientColumns}
+                    defaultSortDirection="asc"
+                  />
+                </div>
+              </div>
+            </div>
+          }
         </div>
       </div>
     );
