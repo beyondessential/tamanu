@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import ModalView from '../../components/Modal';
 import Serializer from '../../utils/form-serialize';
 import InputGroup from '../../components/InputGroup';
-import { createMedication } from '../../actions/medications';
+import { createDispense } from '../../actions/medications';
 
 class Dispense extends Component {
   state = {
@@ -39,9 +39,9 @@ class Dispense extends Component {
             className="create-container"
             onSubmit={(e) => {
               e.preventDefault();
-              const medication = Serializer.serialize(e.target, { hash: true });
-              if (medication.patient && medication.visit && medication.medication && medication.prescription) {
-                this.props.createMedication(medication);
+              const dispense = Serializer.serialize(e.target, { hash: true });
+              if (dispense.patient && dispense.visit && dispense.medication && dispense.prescription) {
+                this.props.createDispense(dispense);
               } else {
                 this.setState({ formError: true });
               }
@@ -95,7 +95,7 @@ class Dispense extends Component {
                 <div className="column is-4">
                   <InputGroup
                     name="quantity"
-                    label="Quantity Requested"
+                    label="Quantity Dispensed"
                     required
                   />
                 </div>
@@ -135,7 +135,7 @@ class Dispense extends Component {
 }
 
 const mapDispatchToProps = dispatch => ({
-  createMedication: medication => dispatch(createMedication(medication)),
+  createDispense: dispense => dispatch(createDispense(dispense)),
 });
 
 export default connect(undefined, mapDispatchToProps)(Dispense);

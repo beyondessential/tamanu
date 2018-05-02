@@ -1,11 +1,6 @@
-// @flow
 import React, { Component } from 'react';
 
-type Props = {};
-
-export default class Completed extends Component<Props> {
-  props: Props;
-
+export default class Completed extends Component {
   render() {
     return (
       <div>
