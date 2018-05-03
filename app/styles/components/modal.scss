@@ -1,0 +1,22 @@
+.tamanu-error-modal {
+  .modal-header {
+    border-bottom: 1px solid gray;
+    padding-bottom: 10px;
+    h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: bold;
+      letter-spacing: -0.025em;
+      color: #000;
+    }
+  }
+  .modal-content {
+    margin-top: 20px;
+    .modal-text {
+      margin-top: 20px;
+    }
+  }
+  .modal-footer {
+    margin-top: 20px;
+  }
+}
