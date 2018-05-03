@@ -63,7 +63,7 @@ app.on('ready', async () => {
     show: false,
     // width: 1024,
     // height: 728
-    width: 1400,
+    width: 1200,
     height: 900
   });
 

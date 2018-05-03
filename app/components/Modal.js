@@ -4,6 +4,7 @@ import Modal from 'react-responsive-modal';
 
 class ModalView extends Component {
   static propTypes = {
+    headerTitle: PropTypes.string.isRequired,
     contentText: PropTypes.string.isRequired,
     isVisible: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
@@ -11,6 +12,7 @@ class ModalView extends Component {
 
   render() {
     const {
+      headerTitle,
       contentText,
       isVisible,
       onClose
@@ -19,7 +21,7 @@ class ModalView extends Component {
       <Modal open={isVisible} onClose={onClose} little>
         <div className="tamanu-error-modal">
           <div className="modal-header">
-            <h2>Warning!!!!</h2>
+            <h2>{headerTitle}</h2>
           </div>
           <div className="modal-content">
             <span className="modal-text">{contentText}</span>
