@@ -57,5 +57,15 @@
         }
       }
     }
+    .tabs-container {
+      margin-top: 10px;
+      a {
+        background-color: transparent;
+        color: #2f4358;
+        font-weight: 600;
+        padding: 20px;
+        font-size: 18px;
+      }
+    }
   }
 }
