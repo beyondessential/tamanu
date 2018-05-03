@@ -83,5 +83,13 @@
         font-size: 18px;
       }
     }
+    .invoice-form {
+      margin-top: 35px;
+      background: white;
+      border-radius: 4px;
+      .isRequired {
+        color: red;
+      }
+    }
   }
 }
