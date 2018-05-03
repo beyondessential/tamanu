@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
@@ -160,7 +161,7 @@ class NewMedication extends Component {
                 </div>
               </div>
               <div className="column has-text-right">
-                <a className="button is-danger cancel">Cancel</a>
+                <Link className="button is-danger cancel" to="/medication">Cancel</Link>
                 <button className="button" type="submit">Add</button>
               </div>
             </div>

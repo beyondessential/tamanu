@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import ModalView from '../../components/Modal';
 import InputGroup from '../../components/InputGroup';
 import Serializer from '../../utils/form-serialize';
@@ -143,7 +144,7 @@ class NewPatient extends Component {
                 label="Country"
               />
               <div className="column has-text-right">
-                <a className="button is-danger cancel">Cancel</a>
+                <Link className="button is-danger cancel" to="/patients">Cancel</Link>
                 <button className="button" type="submit">Add</button>
               </div>
             </div>
