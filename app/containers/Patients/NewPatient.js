@@ -10,22 +10,29 @@ import InputGroup from '../../components/InputGroup';
 import CustomDateInput from '../../components/CustomDateInput';
 import Serializer from '../../utils/form-serialize';
 import { createPatient } from '../../actions/patients';
-import { bloodOptions } from '../../constants';
+import { bloodOptions, sexOptions } from '../../constants';
 
 class NewPatient extends Component {
   state = {
     formError: false,
     bloodType: '',
-    birthday: moment()
+    birthday: moment(),
+    sex: ''
   }
 
   onCloseModal = () => {
     this.setState({ formError: false });
   }
 
-  updateValue = (newValue) => {
+  updateBloodValue = (newValue) => {
     this.setState({
       bloodType: newValue,
+    });
+  }
+
+  updateSexValue = (newValue) => {
+    this.setState({
+      sex: newValue,
     });
   }
 
@@ -113,10 +120,10 @@ class NewPatient extends Component {
                     options={bloodOptions}
                     simpleValue
                     clearable
-                    name="selected-state"
+                    name="blood"
                     disabled={this.state.disabled}
                     value={this.state.bloodType}
-                    onChange={this.updateValue}
+                    onChange={this.updateBloodValue}
                     rtl={this.state.rtl}
                     searchable={this.state.searchable}
                   />
@@ -139,10 +146,26 @@ class NewPatient extends Component {
             </div>
             <div className="columns">
               <div className="column">
-                <InputGroup
-                  name="sex"
-                  label="Sex"
-                />
+                <div className="column">
+                  <span className="header">
+                    Sex
+                  </span>
+                  <Select
+                    id="state-select"
+                    ref={(ref) => { this.select = ref; }}
+                    onBlurResetsInput={false}
+                    onSelectResetsInput={false}
+                    options={sexOptions}
+                    simpleValue
+                    clearable
+                    name="sex"
+                    disabled={this.state.disabled}
+                    value={this.state.sex}
+                    onChange={this.updateSexValue}
+                    rtl={this.state.rtl}
+                    searchable={this.state.searchable}
+                  />
+                </div>
               </div>
               <div className="column">
                 <InputGroup

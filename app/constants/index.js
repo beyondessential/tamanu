@@ -281,6 +281,11 @@ export const bloodOptions = [
   { value: 'O-', label: 'O-' },
 ];
 
+export const sexOptions = [
+  { value: 'male', label: 'Male' },
+  { value: 'female', label: 'Female' },
+];
+
 export const patientColumns = [{
   dataField: 'id',
   text: 'id',
