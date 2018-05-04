@@ -44,7 +44,6 @@ class NewPatient extends Component {
 
   render() {
     const { formError, birthday } = this.state;
-    console.log('formError', formError);
     return (
       <div className="create-content">
         <div className="create-top-bar">
