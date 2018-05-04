@@ -270,6 +270,17 @@ export const visitOptions = [
   { value: 'value4', label: 'Value 4' },
 ];
 
+export const bloodOptions = [
+  { value: 'A+', label: 'A+' },
+  { value: 'A-', label: 'A-' },
+  { value: 'AB-', label: 'AB-' },
+  { value: 'AB+', label: 'AB+' },
+  { value: 'B+', label: 'B+' },
+  { value: 'B-', label: 'B-' },
+  { value: 'O+', label: 'O+' },
+  { value: 'O-', label: 'O-' },
+];
+
 export const patientColumns = [{
   dataField: 'id',
   text: 'id',

@@ -1,17 +1,26 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import Select from 'react-select';
 import ModalView from '../../components/Modal';
 import InputGroup from '../../components/InputGroup';
 import Serializer from '../../utils/form-serialize';
 import { createPatient } from '../../actions/patients';
+import { bloodOptions } from '../../constants';
 
 class NewPatient extends Component {
   state = {
     formError: false,
+    bloodType: ''
   }
   onCloseModal = () => {
     this.setState({ formError: false });
+  }
+
+  updateValue = (newValue) => {
+    this.setState({
+      bloodType: newValue,
+    });
   }
 
   render() {
@@ -79,10 +88,26 @@ class NewPatient extends Component {
                 />
               </div>
               <div className="column">
-                <InputGroup
-                  name="bloodType"
-                  label="Blood Type"
-                />
+                <div className="column">
+                  <span className="header">
+                    Visit
+                  </span>
+                  <Select
+                    id="state-select"
+                    ref={(ref) => { this.select = ref; }}
+                    onBlurResetsInput={false}
+                    onSelectResetsInput={false}
+                    options={bloodOptions}
+                    simpleValue
+                    clearable
+                    name="selected-state"
+                    disabled={this.state.disabled}
+                    value={this.state.bloodType}
+                    onChange={this.updateValue}
+                    rtl={this.state.rtl}
+                    searchable={this.state.searchable}
+                  />
+                </div>
               </div>
             </div>
             <div className="columns">
