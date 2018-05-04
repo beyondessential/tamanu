@@ -131,7 +131,7 @@ class Reports extends Component {
                 </span>
               </div>
               <div className="columns">
-                <div className="columns form-table">
+                <div className="form-table">
                   <BootstrapTable
                     keyField="id"
                     className="custom-table"
@@ -139,6 +139,9 @@ class Reports extends Component {
                     columns={patientColumns}
                     defaultSortDirection="asc"
                   />
+                  <div className="column has-text-right">
+                    <button className="button is-primary" onClick={this.generateReport}>Export Report</button>
+                  </div>
                 </div>
               </div>
             </div>
