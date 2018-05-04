@@ -40,86 +40,148 @@ class NewPatient extends Component {
             }
           }}
         >
-          <div className="columns form">
-            <div className="column">
-              <InputGroup
-                name="firstName"
-                label="First Name"
-                required
-              />
-              <InputGroup
-                name="middleName"
-                label="Middel Name"
-              />
-              <InputGroup
-                name="lastName"
-                label="Last Name"
-                required
-              />
-              <InputGroup
-                name="sex"
-                label="Sex"
-              />
-              <InputGroup
-                name="birthday"
-                label="Date of Birth"
-              />
-              <InputGroup
-                name="age"
-                label="Age"
-              />
-              <InputGroup
-                name="placeOfBirth"
-                label="Place of Birth"
-              />
-              <InputGroup
-                name="occupation"
-                label="Occupation"
-              />
-              <InputGroup
-                name="patientType"
-                label="Patient Type"
-              />
+          <div className="form">
+            <div className="columns">
+              <div className="column">
+                <InputGroup
+                  name="firstName"
+                  label="First Name"
+                  required
+                />
+              </div>
+              <div className="column">
+                <InputGroup
+                  name="patientStatus"
+                  label="Patient Status"
+                />
+              </div>
             </div>
-            <div className="column">
-              <InputGroup
-                name="patientStatus"
-                label="Patient Status"
-              />
-              <InputGroup
-                name="externalPatientId"
-                label="External Patient Id"
-              />
-              <InputGroup
-                name="bloodType"
-                label="Blood Type"
-              />
-              <InputGroup
-                name="clinicSite"
-                label="Clinic Site"
-              />
-              <InputGroup
-                name="referredBy"
-                label="Referred By"
-              />
-              <InputGroup
-                name="referredDate"
-                label="Referred Date"
-              />
-              <InputGroup
-                name="religion"
-                label="Religion"
-              />
-              <InputGroup
-                name="parent"
-                label="Parent/Guardian"
-              />
-              <InputGroup
-                name="paymentProfile"
-                label="Payment Profile"
-              />
-              <div className="column has-text-right">
-                <a className="button is-primary">+ Add Contact</a>
+            <div className="columns">
+              <div className="column">
+                <InputGroup
+                  name="middleName"
+                  label="Middel Name"
+                />
+              </div>
+              <div className="column">
+                <InputGroup
+                  name="externalPatientId"
+                  label="External Patient Id"
+                />
+              </div>
+            </div>
+            <div className="columns">
+              <div className="column">
+                <InputGroup
+                  name="lastName"
+                  label="Last Name"
+                  required
+                />
+              </div>
+              <div className="column">
+                <InputGroup
+                  name="bloodType"
+                  label="Blood Type"
+                />
+              </div>
+            </div>
+            <div className="columns">
+              <div className="column">
+                <InputGroup
+                  name="culturalName"
+                  label="Cultural or Traditional Name"
+                />
+              </div>
+              <div className="column">
+                <InputGroup
+                  name="clinicSite"
+                  label="Clinic Site"
+                />
+              </div>
+            </div>
+            <div className="columns">
+              <div className="column">
+                <InputGroup
+                  name="sex"
+                  label="Sex"
+                />
+              </div>
+              <div className="column">
+                <InputGroup
+                  name="referredBy"
+                  label="Referred By"
+                />
+              </div>
+            </div>
+            <div className="columns">
+              <div className="column">
+                <InputGroup
+                  name="birthday"
+                  label="Date of Birth"
+                />
+              </div>
+              <div className="column">
+                <InputGroup
+                  name="referredDate"
+                  label="Referred Date"
+                />
+              </div>
+            </div>
+            <div className="columns">
+              <div className="column">
+                <InputGroup
+                  name="age"
+                  label="Age"
+                />
+              </div>
+              <div className="column">
+                <InputGroup
+                  name="religion"
+                  label="Religion"
+                />
+              </div>
+            </div>
+            <div className="columns">
+              <div className="column">
+                <InputGroup
+                  name="placeOfBirth"
+                  label="Place of Birth"
+                />
+              </div>
+              <div className="column">
+                <InputGroup
+                  name="parent"
+                  label="Parent/Guardian"
+                />
+              </div>
+            </div>
+            <div className="columns">
+              <div className="column">
+                <InputGroup
+                  name="occupation"
+                  label="Occupation"
+                />
+              </div>
+              <div className="column">
+                <InputGroup
+                  name="paymentProfile"
+                  label="Payment Profile"
+                />
+              </div>
+            </div>
+            <div className="columns">
+              <div className="column is-6">
+                <InputGroup
+                  name="patientType"
+                  label="Patient Type"
+                />
+              </div>
+            </div>
+            <div className="columns">
+              <div className="column">
+                <div className="column has-text-right">
+                  <a className="button is-primary">+ Add Contact</a>
+                </div>
               </div>
             </div>
           </div>
