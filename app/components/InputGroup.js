@@ -17,7 +17,7 @@ class InputGroup extends Component {
     const { label, required, name } = this.props;
     return (
       <div className="column">
-        <span>
+        <span className="input-group-title">
           {label} {required && <span className="isRequired">*</span>}
         </span>
         <input className="input is-primary" type="text" name={name} />

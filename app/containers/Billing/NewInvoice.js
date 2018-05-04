@@ -63,7 +63,7 @@ class NewInvoice extends Component {
               <div className="columns">
                 <div className="column is-4">
                   <div className="column">
-                    <span>
+                    <span className="input-group-title">
                       Bill Date
                     </span>
                     <DatePicker
@@ -87,7 +87,7 @@ class NewInvoice extends Component {
                 </div>
                 <div className="column is-4">
                   <div className="column">
-                    <span className="header">
+                    <span className="input-group-title">
                       Visit
                     </span>
                     <Select
@@ -117,7 +117,7 @@ class NewInvoice extends Component {
                 </div>
                 <div className="column is-4">
                   <div className="column">
-                    <span className="header">
+                    <span className="input-group-title">
                       Payment Profile
                     </span>
                     <Select

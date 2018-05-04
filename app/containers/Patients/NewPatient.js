@@ -2,8 +2,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import Select from 'react-select';
+import DatePicker from 'react-datepicker';
+import moment from 'moment';
+
 import ModalView from '../../components/Modal';
 import InputGroup from '../../components/InputGroup';
+import CustomDateInput from '../../components/CustomDateInput';
 import Serializer from '../../utils/form-serialize';
 import { createPatient } from '../../actions/patients';
 import { bloodOptions } from '../../constants';
@@ -11,8 +15,10 @@ import { bloodOptions } from '../../constants';
 class NewPatient extends Component {
   state = {
     formError: false,
-    bloodType: ''
+    bloodType: '',
+    birthday: moment()
   }
+
   onCloseModal = () => {
     this.setState({ formError: false });
   }
@@ -23,8 +29,15 @@ class NewPatient extends Component {
     });
   }
 
+  onChangeDate = (date) => {
+    this.setState({
+      birthday: date,
+    });
+  }
+
   render() {
-    const { formError } = this.state;
+    const { formError, birthday } = this.state;
+    console.log('formError', formError);
     return (
       <div className="create-content">
         <div className="create-top-bar">
@@ -45,7 +58,7 @@ class NewPatient extends Component {
             if (patient.firstName && patient.lastName) {
               this.props.createPatient(patient);
             } else {
-              this.setState({ formError: true });
+              // this.setState({ formError: true });
             }
           }}
         >
@@ -69,7 +82,7 @@ class NewPatient extends Component {
               <div className="column">
                 <InputGroup
                   name="middleName"
-                  label="Middel Name"
+                  label="Middle Name"
                 />
               </div>
               <div className="column">
@@ -140,10 +153,21 @@ class NewPatient extends Component {
             </div>
             <div className="columns">
               <div className="column">
-                <InputGroup
-                  name="birthday"
-                  label="Date of Birth"
-                />
+                <div className="column">
+                  <span className="header">
+                    Date Of Birth
+                  </span>
+                  <DatePicker
+                    name="birthday"
+                    customInput={<CustomDateInput />}
+                    selected={birthday}
+                    onChange={this.onChangeDate}
+                    peekNextMonth
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                  />
+                </div>
               </div>
               <div className="column">
                 <InputGroup
