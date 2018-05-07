@@ -190,7 +190,7 @@ class NewInvoice extends Component {
                     <div className="has-text-right margin-t-30">
                       <Link className="button is-danger cancel" to="/invoices">Cancel</Link>
                       <button className="button" type="submit">Add</button>
-                      <button className="button" type="submit">Print</button>
+                      <button className="button">Print</button>
                     </div>
                   </div>
                 </div>

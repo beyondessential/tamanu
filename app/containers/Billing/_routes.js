@@ -7,8 +7,12 @@ import DraftInvoices from './DraftInvoices';
 import AllInvoices from './AllInvoices';
 import PaidInvoices from './PaidInvoices';
 import NewInvoice from './NewInvoice';
-import Prices from './Prices';
-import PriceProfiles from './PriceProfiles';
+import AllPricingItems from './AllPricingItems';
+import ImagingPricing from './ImagingPricing';
+import LabPricing from './LabPricing';
+import ProcedurePricing from './ProcedurePricing';
+import WardPricing from './WardPricing';
+import PricingProfiles from './PricingProfiles';
 
 export default function Routes({ url }) {
   return (
@@ -18,9 +22,13 @@ export default function Routes({ url }) {
         <Route exact path={`${url}/draft`} component={DraftInvoices} />
         <Route exact path={`${url}/all`} component={AllInvoices} />
         <Route exact path={`${url}/paid`} component={PaidInvoices} />
-        <Route path={`${url}/edit/new`} component={NewInvoice} />
-        <Route path={`${url}/pricing`} component={Prices} />
-        <Route path={`${url}/profiles`} component={PriceProfiles} />
+        <Route exact path={`${url}/edit/new`} component={NewInvoice} />
+        <Route exact path={`${url}/pricing`} component={AllPricingItems} />
+        <Route exact path={`${url}/pricing/imaging`} component={ImagingPricing} />
+        <Route exact path={`${url}/pricing/lab`} component={LabPricing} />
+        <Route exact path={`${url}/pricing/procedure`} component={ProcedurePricing} />
+        <Route exact path={`${url}/pricing/ward`} component={WardPricing} />
+        <Route exact path={`${url}/pricing/profiles`} component={PricingProfiles} />
       </Switch>
     </div>
   );
