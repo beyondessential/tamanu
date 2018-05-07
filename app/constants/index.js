@@ -171,7 +171,7 @@ export const sidebarInfo = [
       },
       {
         label: 'Price Profiles',
-        path: '/invoices/profiles',
+        path: '/invoices/pricing/profiles',
         icon: 'fa fa-chevron-right'
       }
     ]
