@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
+import BootstrapTable from 'react-bootstrap-table-next';
 
 import InputGroup from '../../components/InputGroup';
 import CustomDateInput from '../../components/CustomDateInput';
-import { visitOptions } from '../../constants';
+import { visitOptions, invoiceLineItemColumns } from '../../constants';
+import { fetchInvoices } from '../../actions/invoices';
 
 class NewInvoice extends Component {
   state = {
@@ -28,6 +31,7 @@ class NewInvoice extends Component {
 
   render() {
     const { billDate } = this.state;
+    const { invoices } = this.props;
     return (
       <div>
         <div className="content">
@@ -138,6 +142,26 @@ class NewInvoice extends Component {
                   </div>
                 </div>
               </div>
+              <div className="columns">
+                <div className="column">
+                  <div className="column">
+                    <div className="panel-heading">
+                      <span className="panel-title">
+                        Line Items
+                      </span>
+                      <button className="button is-primary align-right">+ Add Line Item</button>
+                    </div>
+                    <div>
+                      <BootstrapTable
+                        keyField="id"
+                        data={invoices}
+                        columns={invoiceLineItemColumns}
+                        defaultSortDirection="asc"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -146,4 +170,14 @@ class NewInvoice extends Component {
   }
 }
 
-export default NewInvoice;
+function mapStateToProps(state) {
+  return {
+    invoices: state.invoices.invoices
+  };
+}
+
+const mapDispatchToProps = dispatch => ({
+  fetchInvoices: () => dispatch(fetchInvoices()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(NewInvoice);

@@ -397,3 +397,115 @@ export const medicationColumns = [{
     backgroundColor: '#d2dae3'
   }
 }];
+
+export const invoiceColumns = [{
+  dataField: 'date',
+  text: 'Date',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  },
+}, {
+  dataField: 'patient',
+  text: 'Patient',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'prescriber',
+  text: 'Prescriber',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'medication',
+  text: 'Medication',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'quantity',
+  text: 'Quantity',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'status',
+  text: 'Status',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'action',
+  text: 'Actions',
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}];
+
+export const invoiceLineItemColumns = [{
+  dataField: 'description',
+  text: 'Description',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  },
+}, {
+  dataField: 'actualCharge',
+  text: 'Actual Charges',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'discount',
+  text: 'Discount',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'national',
+  text: 'National Insurance',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'hmo',
+  text: 'HMO/COM',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'excess',
+  text: 'Excess',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'action',
+  text: 'Actions',
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}];
