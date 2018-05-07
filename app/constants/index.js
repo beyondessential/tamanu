@@ -509,3 +509,43 @@ export const invoiceLineItemColumns = [{
     backgroundColor: '#d2dae3'
   }
 }];
+
+export const invoicePaymentColumns = [{
+  dataField: 'date',
+  text: 'Date',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  },
+}, {
+  dataField: 'amount',
+  text: 'Amount',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'type',
+  text: 'Type',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'notes',
+  text: 'Notes',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'action',
+  text: 'Action',
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}];

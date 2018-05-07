@@ -8,7 +8,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 
 import InputGroup from '../../components/InputGroup';
 import CustomDateInput from '../../components/CustomDateInput';
-import { visitOptions, invoiceLineItemColumns } from '../../constants';
+import { visitOptions, invoiceLineItemColumns, invoicePaymentColumns } from '../../constants';
 import { fetchInvoices } from '../../actions/invoices';
 
 class NewInvoice extends Component {
@@ -158,6 +158,39 @@ class NewInvoice extends Component {
                         columns={invoiceLineItemColumns}
                         defaultSortDirection="asc"
                       />
+                    </div>
+                    <div className="panel-heading margin-t-30">
+                      <span className="panel-title">
+                        Remarks
+                      </span>
+                    </div>
+                    <div className="margin-t-10">
+                      <textarea className="textarea" />
+                    </div>
+                    <div className="panel-heading margin-t-30">
+                      <span className="panel-title">
+                        Payments
+                      </span>
+                      <button className="button is-primary align-right">+ Add Payment</button>
+                    </div>
+                    <div>
+                      <BootstrapTable
+                        keyField="id"
+                        data={invoices}
+                        columns={invoicePaymentColumns}
+                        defaultSortDirection="asc"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column">
+                  <div className="column">
+                    <div className="has-text-right margin-t-30">
+                      <Link className="button is-danger cancel" to="/invoices">Cancel</Link>
+                      <button className="button" type="submit">Add</button>
+                      <button className="button" type="submit">Print</button>
                     </div>
                   </div>
                 </div>
