@@ -1,11 +1,6 @@
-// @flow
 import React, { Component } from 'react';
 
-type Props = {};
-
-export default class CustomFoms extends Component<Props> {
-  props: Props;
-
+export default class Shortcodes extends Component {
   render() {
     return (
       <div className="create-content">

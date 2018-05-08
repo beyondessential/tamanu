@@ -219,8 +219,8 @@ export const sidebarInfo = [
         icon: 'fa fa-chevron-right'
       },
       {
-        label: 'Incident Categories',
-        path: '/admin/inc-category',
+        label: 'Print Header',
+        path: '/admin/print-header',
         icon: 'fa fa-chevron-right'
       }
     ]
