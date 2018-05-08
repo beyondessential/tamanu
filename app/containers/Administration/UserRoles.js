@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import Select from 'react-select';
 import Serializer from '../../utils/form-serialize';
 import { createMedication } from '../../actions/medications';
