@@ -286,6 +286,23 @@ export const sexOptions = [
   { value: 'female', label: 'Female' },
 ];
 
+
+export const lookupOptions = [
+  { value: 'billing_categories', label: 'Billing Categories' },
+  { value: 'clinic_list', label: 'Clinic Locations' },
+  { value: 'diagnosis_list', label: 'Diagnoses' },
+  { value: 'patient_status_list', label: 'Patient Status List' },
+  { value: 'physician_list', label: 'Physicians' },
+  { value: 'procedure_list', label: 'Procedures' },
+  { value: 'procedure_locations', label: 'Procedures Locations' },
+  { value: 'radiologists', label: 'Radiologists' },
+  { value: 'sex', label: 'Sex' },
+  { value: 'unit_types', label: 'Unit Types' },
+  { value: 'visit_location_list', label: 'Visit Locations' },
+  { value: 'visit_types', label: 'Visit Types' },
+  { value: 'female', label: 'Female' },
+];
+
 export const patientColumns = [{
   dataField: 'id',
   text: 'id',
