@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 
-class AddressFields extends Component {
+class LookupList extends Component {
   render() {
     return (
       <div className="create-content">
         <div className="create-top-bar">
           <span>
-            Address Options
+            Lookup Lists
           </span>
         </div>
         <div className="create-container">
           <div className="form">
-            AddressFields
+            LookupList
           </div>
         </div>
       </div>
@@ -19,4 +19,4 @@ class AddressFields extends Component {
   }
 }
 
-export default AddressFields;
+export default LookupList;
