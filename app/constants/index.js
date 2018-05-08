@@ -214,13 +214,28 @@ export const sidebarInfo = [
         icon: 'fa fa-chevron-right'
       },
       {
-        label: 'Custom Forms',
-        path: '/admin/custom-forms',
+        label: 'Shortcodes',
+        path: '/admin/textreplace',
         icon: 'fa fa-chevron-right'
       },
       {
-        label: 'Incident Categories',
-        path: '/admin/inc-category',
+        label: 'Print Header',
+        path: '/admin/print-header',
+        icon: 'fa fa-chevron-right'
+      },
+      {
+        label: 'Users',
+        path: '/admin/users',
+        icon: 'fa fa-chevron-right'
+      },
+      {
+        label: 'New User',
+        path: '/admin/users/edit/new',
+        icon: 'fa fa-chevron-right'
+      },
+      {
+        label: 'User Roles',
+        path: '/admin/roles',
         icon: 'fa fa-chevron-right'
       }
     ]

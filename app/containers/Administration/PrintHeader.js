@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 
 import InputGroup from '../../components/InputGroup';
 
-class AddressFields extends Component {
+export default class PrintHeader extends Component {
   render() {
     return (
       <div className="create-content">
         <div className="create-top-bar">
           <span>
-            Address Options
+            Header Options
           </span>
         </div>
         <div className="create-container">
@@ -16,20 +16,24 @@ class AddressFields extends Component {
             <div className="columns">
               <div className="column">
                 <InputGroup
-                  name="address1"
-                  label="Address 1 Label"
+                  name="facilityName"
+                  label="Facility Name"
                 />
                 <InputGroup
-                  name="address2"
-                  label="Address 2 Label"
+                  name="headerLine1"
+                  label="Header Line 1"
                 />
                 <InputGroup
-                  name="address3"
-                  label="Address 3 Label"
+                  name="headerLine2"
+                  label="Header Line 2"
                 />
                 <InputGroup
-                  name="address4"
-                  label="Address 4 Label"
+                  name="headerLine3"
+                  label="Header Line 3"
+                />
+                <InputGroup
+                  name="logoUrl"
+                  label="Logo URL"
                 />
               </div>
             </div>
@@ -48,5 +52,3 @@ class AddressFields extends Component {
     );
   }
 }
-
-export default AddressFields;
