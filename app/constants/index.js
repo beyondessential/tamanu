@@ -127,55 +127,55 @@ export const sidebarInfo = [
       }
     ]
   },
+  {
+    label: 'Labs',
+    path: '/labs',
+    icon: 'fa fa-graduation-cap',
+    children: [
+      {
+        label: 'Requests',
+        path: '/labs',
+        icon: 'fa fa-chevron-right'
+      },
+      // {
+      //   label: 'Completed',
+      //   path: '/labs/completed',
+      //   icon: 'fa fa-chevron-right'
+      // },
+      // {
+      //   label: 'New Request',
+      //   path: '/labs/edit/new',
+      //   icon: 'fa fa-plus'
+      // }
+    ]
+  },
   // {
-  //   label: 'Labs',
-  //   path: '/labs',
-  //   icon: 'fa fa-graduation-cap',
+  //   label: 'Billing',
+  //   path: '/invoices',
+  //   icon: 'fa fa-credit-card',
   //   children: [
   //     {
-  //       label: 'Requests',
-  //       path: '/labs',
+  //       label: 'Invoices',
+  //       path: '/invoices',
   //       icon: 'fa fa-chevron-right'
   //     },
   //     {
-  //       label: 'Completed',
-  //       path: '/labs/completed',
-  //       icon: 'fa fa-chevron-right'
-  //     },
-  //     {
-  //       label: 'New Request',
-  //       path: '/labs/edit/new',
+  //       label: 'New Invoice',
+  //       path: '/invoices/edit/new',
   //       icon: 'fa fa-plus'
+  //     },
+  //     {
+  //       label: 'Prices',
+  //       path: '/invoices/pricing',
+  //       icon: 'fa fa-chevron-right'
+  //     },
+  //     {
+  //       label: 'Price Profiles',
+  //       path: '/invoices/pricing/profiles',
+  //       icon: 'fa fa-chevron-right'
   //     }
   //   ]
   // },
-  {
-    label: 'Billing',
-    path: '/invoices',
-    icon: 'fa fa-credit-card',
-    children: [
-      {
-        label: 'Invoices',
-        path: '/invoices',
-        icon: 'fa fa-chevron-right'
-      },
-      {
-        label: 'New Invoice',
-        path: '/invoices/edit/new',
-        icon: 'fa fa-plus'
-      },
-      {
-        label: 'Prices',
-        path: '/invoices/pricing',
-        icon: 'fa fa-chevron-right'
-      },
-      {
-        label: 'Price Profiles',
-        path: '/invoices/pricing/profiles',
-        icon: 'fa fa-chevron-right'
-      }
-    ]
-  },
   // {
   //   label: 'Incident',
   //   path: '/incident',
@@ -545,6 +545,44 @@ export const invoicePaymentColumns = [{
 }, {
   dataField: 'action',
   text: 'Action',
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}];
+
+export const labsColumns = [{
+  dataField: 'date',
+  text: 'Date Requested',
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  },
+}, {
+  dataField: 'patient',
+  text: 'Patient',
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'requestedBy',
+  text: 'Requested By',
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'type',
+  text: 'Lab Type',
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'note',
+  text: 'Notes',
+  headerStyle: {
+    backgroundColor: '#d2dae3'
+  }
+}, {
+  dataField: 'action',
+  text: 'Actions',
   headerStyle: {
     backgroundColor: '#d2dae3'
   }

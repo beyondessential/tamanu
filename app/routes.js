@@ -7,7 +7,7 @@ import { Patients } from './containers/Patients';
 import Scheduling from './containers/Scheduling';
 // import { Imaging } from './containers/Imaging';
 import Medication from './containers/Medication';
-// import { Labs } from './containers/Labs';
+import { Labs } from './containers/Labs';
 import { Billing } from './containers/Billing';
 // import { Incident } from './containers/Incident';
 import Administration from './containers/Administration';
@@ -20,7 +20,7 @@ export default () => (
       <Route path="/appointments" component={Scheduling} />
       {/* <Route path="/imaging" component={Imaging} /> */}
       <Route path="/medication" component={Medication} />
-      {/* <Route path="/labs" component={Labs} /> */}
+      <Route path="/labs" component={Labs} />
       <Route path="/invoices" component={Billing} />
       {/* <Route path="/incident" component={Incident} /> */}
       <Route path="/admin" component={Administration} />
