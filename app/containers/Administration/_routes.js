@@ -4,7 +4,7 @@ import { Route, Switch } from 'react-router-dom';
 
 import LookupList from './LookupList';
 import AddressFields from './AddressFields';
-import CustomFoms from './CustomFoms';
+import Shortcodes from './Shortcodes';
 import IncidentCategories from './IncidentCategories';
 
 export default function Routes({ url }) {
@@ -13,7 +13,7 @@ export default function Routes({ url }) {
       <Switch>
         <Route exact path={url} component={LookupList} />
         <Route path={`${url}/address`} component={AddressFields} />
-        <Route path={`${url}/custom-forms`} component={CustomFoms} />
+        <Route path={`${url}/textreplace`} component={Shortcodes} />
         <Route path={`${url}/inc-category`} component={IncidentCategories} />
       </Switch>
     </div>

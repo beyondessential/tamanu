@@ -57,8 +57,12 @@ class LookupList extends Component {
               </span>
             </div>
             <div className="columns">
-              <div className="column is-4">
-                sdfsdf
+              <div className="column">
+                <div className="column">
+                  <div className="has-text-right">
+                    <button className="button" type="submit">Add Value</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

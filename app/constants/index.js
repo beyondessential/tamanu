@@ -214,8 +214,8 @@ export const sidebarInfo = [
         icon: 'fa fa-chevron-right'
       },
       {
-        label: 'Custom Forms',
-        path: '/admin/custom-forms',
+        label: 'Shortcodes',
+        path: '/admin/textreplace',
         icon: 'fa fa-chevron-right'
       },
       {
