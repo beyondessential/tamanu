@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
-// import ModalView from '../../components/Modal';
 import Serializer from '../../utils/form-serialize';
 import InputGroup from '../../components/InputGroup';
 import CustomDateInput from '../../components/CustomDateInput';
@@ -13,7 +12,6 @@ import { visitOptions } from '../../constants';
 
 class AddAppointment extends Component {
   state = {
-    // formError: false,
     selectValue: '',
     prescriptionDate: moment(),
   }
@@ -60,10 +58,84 @@ class AddAppointment extends Component {
                   required
                 />
               </div>
-              <div className="column">
+            </div>
+            <div className="columns">
+              <div className="column is-4">
                 <div className="column">
                   <span className="header">
-                    Visit
+                    Start Date
+                  </span>
+                  <DatePicker
+                    name="startDate"
+                    customInput={<CustomDateInput />}
+                    selected={prescriptionDate}
+                    onChange={this.onChangeDate}
+                    peekNextMonth
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                  />
+                </div>
+              </div>
+              <div className="column is-4">
+                <div className="column">
+                  <span className="header">
+                    End Date
+                  </span>
+                  <DatePicker
+                    name="endDate"
+                    customInput={<CustomDateInput />}
+                    selected={prescriptionDate}
+                    onChange={this.onChangeDate}
+                    peekNextMonth
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="columns">
+              <div className="column is-6">
+                <div className="column">
+                  <span className="header">
+                    Type
+                  </span>
+                  <Select
+                    id="state-select"
+                    ref={(ref) => { this.select = ref; }}
+                    onBlurResetsInput={false}
+                    onSelectResetsInput={false}
+                    options={visitOptions}
+                    simpleValue
+                    clearable
+                    name="selected-state"
+                    disabled={this.state.disabled}
+                    value={this.state.selectValue}
+                    onChange={this.updateValue}
+                    rtl={this.state.rtl}
+                    searchable={this.state.searchable}
+                  />
+                </div>
+              </div>
+              <div className="column is-6">
+                <InputGroup
+                  name="with"
+                  label="With"
+                />
+              </div>
+            </div>
+            <div className="columns">
+              <div className="column is-6">
+                <InputGroup
+                  name="location"
+                  label="Location"
+                />
+              </div>
+              <div className="column is-4">
+                <div className="column">
+                  <span className="header">
+                    Status
                   </span>
                   <Select
                     id="state-select"
@@ -85,67 +157,16 @@ class AddAppointment extends Component {
             </div>
             <div className="columns">
               <div className="column">
-                <InputGroup
-                  name="medication"
-                  label="Medication"
-                  required
-                />
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column">
-                <InputGroup
-                  name="prescription"
-                  label="Prescription"
-                  required
-                />
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column is-5">
                 <div className="column">
                   <span className="header">
-                    Prescription Date
+                    Notes
                   </span>
-                  <DatePicker
-                    name="prescriptionDate"
-                    customInput={<CustomDateInput />}
-                    selected={prescriptionDate}
-                    onChange={this.onChangeDate}
-                    peekNextMonth
-                    showMonthDropdown
-                    showYearDropdown
-                    dropdownMode="select"
-                  />
+                  <textarea className="textarea" />
                 </div>
               </div>
             </div>
-            <div className="columns">
-              <div className="column is-4">
-                <InputGroup
-                  name="quantity"
-                  label="Quantity Requested"
-                  required
-                />
-              </div>
-              <div className="column is-4">
-                <InputGroup
-                  name="refills"
-                  label="Refills"
-                />
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column is-4">
-                <InputGroup
-                  name="fullfillRequest"
-                  label="Fullfill Request"
-                  required
-                />
-              </div>
-            </div>
             <div className="column has-text-right">
-              <Link className="button is-danger cancel" to="/medication">Cancel</Link>
+              <Link className="button is-danger cancel" to="/appointments">Cancel</Link>
               <button className="button" type="submit">Add</button>
             </div>
           </div>
