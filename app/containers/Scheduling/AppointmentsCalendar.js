@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Select from 'react-select';
+import BigCalendar from 'react-big-calendar';
+import moment from 'moment';
 import Serializer from '../../utils/form-serialize';
 import { createMedication } from '../../actions/medications';
-import { visitOptions } from '../../constants';
+import { visitOptions, appointments } from '../../constants';
+
+BigCalendar.momentLocalizer(moment);
 
 class AppointmentsCalendar extends Component {
   state = {
@@ -142,7 +146,14 @@ class AppointmentsCalendar extends Component {
             </div>
             <div className="columns">
               <div className="column">
-                Calendar
+                <div className="column calendar-height">
+                  <BigCalendar
+                    events={appointments}
+                    startAccessor="start"
+                    endAccessor="end"
+                    defaultDate={new Date()}
+                  />
+                </div>
               </div>
             </div>
           </div>
