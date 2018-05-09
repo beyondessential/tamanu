@@ -9,7 +9,7 @@ import { visitOptions, appointments } from '../../constants';
 
 BigCalendar.momentLocalizer(moment);
 
-class TheaterSchedule extends Component {
+class AppointmentsCalendar extends Component {
   state = {
     selectValue: '',
   }
@@ -25,11 +25,11 @@ class TheaterSchedule extends Component {
       <div className="create-content">
         <div className="create-top-bar">
           <span>
-            Theater Schedule
+            Appointments Calendar
           </span>
           <div className="view-action-buttons">
             <button>
-              + Schedule Surgery
+              + New Appointment
             </button>
           </div>
         </div>
@@ -51,6 +51,28 @@ class TheaterSchedule extends Component {
                 <div className="column">
                   <span className="header">
                     Status
+                  </span>
+                  <Select
+                    id="state-select"
+                    ref={(ref) => { this.select = ref; }}
+                    onBlurResetsInput={false}
+                    onSelectResetsInput={false}
+                    options={visitOptions}
+                    simpleValue
+                    clearable
+                    name="selected-state"
+                    disabled={this.state.disabled}
+                    value={this.state.selectValue}
+                    onChange={this.updateValue}
+                    rtl={this.state.rtl}
+                    searchable={this.state.searchable}
+                  />
+                </div>
+              </div>
+              <div className="column is-3">
+                <div className="column">
+                  <span className="header">
+                    Type
                   </span>
                   <Select
                     id="state-select"
@@ -145,4 +167,4 @@ const mapDispatchToProps = dispatch => ({
   createMedication: medication => dispatch(createMedication(medication)),
 });
 
-export default connect(undefined, mapDispatchToProps)(TheaterSchedule);
+export default connect(undefined, mapDispatchToProps)(AppointmentsCalendar);

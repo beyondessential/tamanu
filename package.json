@@ -196,6 +196,7 @@
     "history": "^4.7.2",
     "moment": "^2.22.1",
     "react": "^16.2.0",
+    "react-big-calendar": "^0.19.1",
     "react-bootstrap-table-next": "^0.1.8",
     "react-datepicker": "^1.4.1",
     "react-dom": "^16.2.0",
