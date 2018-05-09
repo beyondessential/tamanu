@@ -1,8 +1,10 @@
+import { patientIcon, scheduleIcon, medicationIcon, labsIcon, administrationIcon } from './images';
+
 export const sidebarInfo = [
   {
     label: 'Patients',
     path: '/patients',
-    icon: 'fa fa-users',
+    icon: patientIcon,
     children: [
       {
         label: 'Patient Listing',
@@ -34,7 +36,7 @@ export const sidebarInfo = [
   {
     label: 'Scheduling',
     path: '/appointments',
-    icon: 'fa fa-calendar',
+    icon: scheduleIcon,
     children: [
       {
         label: 'Appointments This Week',
@@ -98,7 +100,7 @@ export const sidebarInfo = [
   {
     label: 'Medication',
     path: '/medication',
-    icon: 'fa fa-file-text-o',
+    icon: medicationIcon,
     children: [
       {
         label: 'Requests',
@@ -130,7 +132,7 @@ export const sidebarInfo = [
   {
     label: 'Labs',
     path: '/labs',
-    icon: 'fa fa-graduation-cap',
+    icon: labsIcon,
     children: [
       {
         label: 'Requests',
@@ -206,7 +208,7 @@ export const sidebarInfo = [
   {
     label: 'Administration',
     path: '/admin',
-    icon: 'fa fa-male',
+    icon: administrationIcon,
     children: [
       {
         label: 'Address Fields',

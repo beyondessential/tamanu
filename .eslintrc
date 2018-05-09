@@ -38,7 +38,8 @@
     "react/no-unescaped-entities": 0,
     "arrow-body-style": 0,
     "react/prop-types": 0,
-    "max-len": 0
+    "max-len": 0,
+    "global-require": 0
   },
   "plugins": [
     "flowtype",
