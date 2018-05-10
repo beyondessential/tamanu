@@ -1,49 +1,77 @@
 # tamanu-desktop
 
-A Desktop application for Tamanu.
+### A Desktop application for Tamanu.
 
-Frontend:
+## Install
 
-* Electron
-* React.js
-* Redux (Router, Thunk)
-* Scss
-* Webpack
+* **Note: requires a node version >= 7 and an npm version >= 4.**
+* **If you have installation or compilation issues with this project, please see [our debugging guide](https://github.com/chentsulin/electron-react-boilerplate/issues/400)**
 
-## Prerequisites
-
-You will need the following resources properly installed on the machine.
-
-* [Git](https://git-scm.com)
-* [Node.js](https://nodejs.org) (with NPM or Yarn)
-* [MongoDB](https://www.mongodb.com)
-
-## Tools
-- Visual Studio Code: Our preferred text/code editor. Good extensions as follows
-- * Yarn: Basically does the job of 'npm' in terminal but faster and smarter
-- * Prettier: Use this to format your code according (currently optional, but not for long!(?))
-- * ESLint
-- * Reactjs code snippets
-- * React-Native/React/Redux snippets for es6/es7
-- * JavaScript (ES6) code snippets
-- Github Desktop (or how ever you like to manage your git)
-
-
-## Getting Started
+First, clone the repo via git:
 
 ```bash
-# Install the dependencies.
-$ cd .
-$ npm install (or `yarn`)
+git clone https://github.com/beyondessential/tamanu-desktop.git
 ```
 
-### Run the App(in Development Mode)
+And then install dependencies with yarn.
 
 ```bash
-$ cd .
-$ npm run dev (or `yarn dev`)
+$ cd tamanu-desktop
+$ yarn
+```
+**Note**: If you can't use [yarn](https://github.com/yarnpkg/yarn), run `npm install`.
+
+## Run
+
+Start the app in the `dev` environment. This starts the renderer process in [**hot-module-replacement**](https://webpack.js.org/guides/hmr-react/) mode and starts a webpack dev server that sends hot updates to the renderer process:
+
+```bash
+$ npm run dev
 ```
 
-## References
+Alternatively, you can run the renderer and main processes separately. This way, you can restart one process without waiting for the other. Run these two commands **simultaneously** in different console tabs:
 
-* [electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate)
+```bash
+$ npm run start-renderer-dev
+$ npm run start-main-dev
+```
+
+## Packaging
+
+To package apps for the local platform:
+
+```bash
+$ npm run package
+```
+
+To package apps for all platforms:
+
+ 
+* [electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate) 
+
+Then,
+```bash
+$ npm run package-all
+```
+
+To package apps with options:
+
+```bash
+$ npm run package -- --[option]
+```
+
+To run End-to-End Test
+
+```bash
+$ npm run build
+$ npm run test-e2e
+```
+
+:bulb: You can debug your production build with devtools by simply setting the `DEBUG_PROD` env variable:
+```bash
+DEBUG_PROD=true npm run package
+```
+
+## References 
+
+* [electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate) 
