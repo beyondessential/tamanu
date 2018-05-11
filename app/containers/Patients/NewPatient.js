@@ -10,14 +10,15 @@ import InputGroup from '../../components/InputGroup';
 import CustomDateInput from '../../components/CustomDateInput';
 import Serializer from '../../utils/form-serialize';
 import { createPatient } from '../../actions/patients';
-import { bloodOptions, sexOptions } from '../../constants';
+import { bloodOptions, sexOptions, getDifferenceDate } from '../../constants';
 
 class NewPatient extends Component {
   state = {
     formError: false,
     bloodType: '',
     birthday: moment(),
-    sex: ''
+    sex: '',
+    age: '0 months 0 days'
   }
 
   onCloseModal = () => {
@@ -39,11 +40,12 @@ class NewPatient extends Component {
   onChangeDate = (date) => {
     this.setState({
       birthday: date,
+      age: getDifferenceDate(moment(), date)
     });
   }
 
   render() {
-    const { formError, birthday } = this.state;
+    const { formError, birthday, age } = this.state;
     return (
       <div className="create-content">
         <div className="create-top-bar">
@@ -202,10 +204,14 @@ class NewPatient extends Component {
             </div>
             <div className="columns">
               <div className="column">
-                <InputGroup
-                  name="age"
-                  label="Age"
-                />
+                <div className="column">
+                  <span className="header">
+                    Age
+                  </span>
+                  <p name="age">
+                    {age}
+                  </p>
+                </div>
               </div>
               <div className="column">
                 <InputGroup
@@ -244,10 +250,21 @@ class NewPatient extends Component {
             </div>
             <div className="columns">
               <div className="column is-6">
-                <InputGroup
-                  name="patientType"
-                  label="Patient Type"
-                />
+                <div className="column">
+                  <span className="header">
+                    Patient Type
+                  </span>
+                  <div>
+                    <label className="radio">
+                      <input type="radio" />
+                      <span name="patientType">Charity</span>
+                    </label>
+                    <label className="radio">
+                      <input type="radio" />
+                      <span name="patientType">Private</span>
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="columns">

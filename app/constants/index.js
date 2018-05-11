@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 import { patientIcon, scheduleIcon, medicationIcon, labsIcon, administrationIcon } from './images';
 
 export const sidebarInfo = [
@@ -251,6 +253,11 @@ export const idGenerator = () => {
     return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
   };
   return (`${S4()}`);
+};
+
+export const getDifferenceDate = (today, target) => {
+  const difference = moment.duration(moment(today, 'DD/MM/YYYY HH:mm:ss').diff(moment(target, 'DD/MM/YYYY HH:mm:ss')));
+  return difference.humanize();
 };
 
 const headerSortingStyle = { backgroundColor: '#c8e6c9' };
