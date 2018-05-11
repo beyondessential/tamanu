@@ -49,31 +49,32 @@ export function fetchPatientsFailed() {
 export const createPatient = patient => {
   return dispatch => {
     dispatch(createPatientRequest());
-    // const existingPatients = JSON.parse(localStorage.getItem('patients')) || [];
-    // const patientInfo = patient;
-    // patientInfo.id = idGenerator();
-    // existingPatients.push(patientInfo);
-    // localStorage.setItem('patients', JSON.stringify(existingPatients));
-    dbHelpers.localDB.post({
-      test: patient
+    dbHelpers.patientDB.post({
+      firstName: patient.firstName || '',
+      middleName: patient.middleName || '',
+      lastName: patient.lastName || '',
+      culturalName: patient.culturalName || '',
+      sex: patient.sex || '',
+      birthday: patient.birthday || '',
+      age: patient.age || '',
+      placeOfBirth: patient.placeOfBirth || '',
+      occupation: patient.occupation || '',
+      patientType: patient.patientType || '',
+      patientStatus: patient.patientStatus || '',
+      externalPatientId: patient.externalPatientId || '',
+      bloodType: patient.bloodType || '',
+      clinicSite: patient.clinicSite || '',
+      referredBy: patient.referredBy || '',
+      referredDate: patient.referredDate || '',
+      religion: patient.religion || '',
+      parent: patient.parent || '',
+      paymentProfile: patient.paymentProfile || '',
+      phone: patient.phone || '',
+      address: patient.address || '',
+      email: patient.email || '',
+      country: patient.country || '',
     }).then(response => {
-      // handle response
       console.log('response', response);
-    }).catch((err) => {
-      console.log(err);
-    });
-    // dbHelpers.localDB.allDocs({
-    //   include_docs: true,
-    //   attachments: true
-    // }).then((result) => {
-    //   // handle result
-    //   console.log('result', result);
-    // }).catch((err) => {
-    //   console.log(err);
-    // });
-    dbHelpers.localDB.get('f0d27ab6-7e52-4dc0-8d2a-3de6ab5d168b').then((doc) => {
-      // handle doc
-      console.log('doc', doc);
     }).catch((err) => {
       console.log(err);
     });

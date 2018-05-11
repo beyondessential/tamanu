@@ -3,12 +3,12 @@ import React, { Component } from 'react';
 class CustomDateInput extends Component {
   render() {
     return (
-      <button
+      <div
         className="custom-date-input"
         onClick={this.props.onClick}
       >
         {this.props.value}
-      </button>
+      </div>
     );
   }
 }

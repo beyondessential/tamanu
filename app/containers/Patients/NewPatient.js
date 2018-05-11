@@ -64,7 +64,7 @@ class NewPatient extends Component {
             if (patient.firstName && patient.lastName) {
               this.props.createPatient(patient);
             } else {
-              // this.setState({ formError: true });
+              this.setState({ formError: true });
             }
           }}
         >
@@ -109,7 +109,7 @@ class NewPatient extends Component {
               <div className="column">
                 <div className="column">
                   <span className="header">
-                    Visit
+                    Blood Type
                   </span>
                   <Select
                     id="state-select"
@@ -119,7 +119,7 @@ class NewPatient extends Component {
                     options={bloodOptions}
                     simpleValue
                     clearable
-                    name="blood"
+                    name="bloodType"
                     disabled={this.state.disabled}
                     value={this.state.bloodType}
                     onChange={this.updateBloodValue}
@@ -181,12 +181,14 @@ class NewPatient extends Component {
                   </span>
                   <DatePicker
                     name="birthday"
+                    autoFocus
                     customInput={<CustomDateInput />}
                     selected={birthday}
                     onChange={this.onChangeDate}
                     peekNextMonth
                     showMonthDropdown
                     showYearDropdown
+                    type="button"
                     dropdownMode="select"
                   />
                 </div>
