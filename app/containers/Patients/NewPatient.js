@@ -82,6 +82,9 @@ class NewPatient extends Component {
           onSubmit={(e) => {
             e.preventDefault();
             const patient = Serializer.serialize(e.target, { hash: true });
+            patient.birthday = moment(birthday).format('YYYY-MM-DD');
+            patient.referredDate = moment(referredDate).format('YYYY-MM-DD');
+            patient.age = age;
             if (patient.firstName && patient.lastName) {
               this.props.createPatient(patient);
             } else {
@@ -208,6 +211,7 @@ class NewPatient extends Component {
                     onChange={this.onChangeDate}
                     peekNextMonth
                     showMonthDropdown
+                    value={moment(birthday).format('YYYY-MM-DD')}
                     showYearDropdown
                     type="button"
                     dropdownMode="select"
@@ -228,8 +232,8 @@ class NewPatient extends Component {
                     peekNextMonth
                     showMonthDropdown
                     showYearDropdown
-                    type="button"
                     dropdownMode="select"
+                    value={moment(referredDate).format('YYYY-MM-DD')}
                   />
                 </div>
               </div>
@@ -240,7 +244,7 @@ class NewPatient extends Component {
                   <span className="header">
                     Age
                   </span>
-                  <p name="age">
+                  <p name="age" value={age}>
                     {age}
                   </p>
                 </div>

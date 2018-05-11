@@ -34,6 +34,7 @@ class AddContactModal extends Component {
           </div>
           <div className="modal-footer">
             <div className="column has-text-right">
+              <button className="button is-danger cancel" onClick={onClose}>Cancel</button>
               <button className="button is-primary" onClick={onClose}>Ok</button>
             </div>
           </div>
