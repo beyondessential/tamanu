@@ -10,10 +10,12 @@ const kRSubmitter = /^(?:submit|button|image|reset|file)$/i;
 const kRSuccessContrls = /^(?:input|select|textarea|keygen)/i;
 
 // Matches bracket notation.
+// eslint-disable-next-line
 const brackets = /(\[[^\[\]]*\])/g;
 
 function parseKeys(string) {
   const keys = [];
+  // eslint-disable-next-line
   const prefix = /^([^\[\]]*)/;
   const children = new RegExp(brackets);
   let match = prefix.exec(string);
@@ -21,7 +23,7 @@ function parseKeys(string) {
   if (match[1]) {
     keys.push(match[1]);
   }
-
+  // eslint-disable-next-line
   while ((match = children.exec(string)) !== null) {
     keys.push(match[1]);
   }
@@ -152,23 +154,26 @@ function serialize(form, opt) {
 
   // Object store each radio and set if it's empty or not
   const radioStore = Object.create(null);
-
+  // eslint-disable-next-line
   for (let i = 0; i < elements.length; ++i) {
     const element = elements[i];
 
     // ingore disabled fields
     if ((!options.disabled && element.disabled) || !element.name) {
+      // eslint-disable-next-line
       continue;
     }
     // ignore anyhting that is not considered a success field
     if (!kRSuccessContrls.test(element.nodeName) ||
       kRSubmitter.test(element.type)) {
+      // eslint-disable-next-line
       continue;
     }
 
     const key = element.name;
     let { value } = element;
     if (key === 'confirmpassword') {
+      // eslint-disable-next-line
       continue;
     }
     // we can't just use element.value for checkboxes cause some browsers lie to us
@@ -195,10 +200,12 @@ function serialize(form, opt) {
 
       // if options empty is true, continue only if its radio
       if (value === undefined && element.type === 'radio') {
+        // eslint-disable-next-line
         continue;
       }
     } else if (!value) {
       // value-less fields are ignored unless options.empty is true
+      // eslint-disable-next-line
       continue;
     }
 
@@ -208,6 +215,7 @@ function serialize(form, opt) {
 
       const selectOptions = element.options;
       let isSelectedOptions = false;
+      // eslint-disable-next-line
       for (let j = 0; j < selectOptions.length; ++j) {
         const option = selectOptions[j];
         const allowedEmpty = options.empty && !option.value;
@@ -232,7 +240,7 @@ function serialize(form, opt) {
       if (!isSelectedOptions && options.empty) {
         result = serializer(result, key, '');
       }
-
+      // eslint-disable-next-line
       continue;
     }
 

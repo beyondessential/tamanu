@@ -14,5 +14,9 @@
     "postinstall": "npm run electron-rebuild"
   },
   "license": "MIT",
-  "dependencies": {}
+  "dependencies": {
+    "pouchdb": "^6.4.3",
+    "pouchdb-browser": "^6.4.3",
+    "pouchdb-find": "^6.4.3"
+  }
 }
