@@ -6,6 +6,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 
 import ModalView from '../../components/Modal';
+import AddContactModal from './components/AddContactModal';
 import InputGroup from '../../components/InputGroup';
 import CustomDateInput from '../../components/CustomDateInput';
 import Serializer from '../../utils/form-serialize';
@@ -19,11 +20,16 @@ class NewPatient extends Component {
     birthday: moment(),
     sex: '',
     age: '0 months 0 days',
-    referredDate: moment()
+    referredDate: moment(),
+    contactModalVisible: false
   }
 
   onCloseModal = () => {
     this.setState({ formError: false });
+  }
+
+  onCloseContactModal = () => {
+    this.setState({ contactModalVisible: false });
   }
 
   updateBloodValue = (newValue) => {
@@ -56,7 +62,8 @@ class NewPatient extends Component {
       formError,
       birthday,
       age,
-      referredDate
+      referredDate,
+      contactModalVisible
     } = this.state;
     return (
       <div className="create-content">
@@ -295,7 +302,7 @@ class NewPatient extends Component {
             <div className="columns">
               <div className="column">
                 <div className="column has-text-right">
-                  <a className="button is-primary">+ Add Contact</a>
+                  <a className="button is-primary" onClick={() => this.setState({ contactModalVisible: true })}>+ Add Contact</a>
                 </div>
               </div>
             </div>
@@ -332,6 +339,11 @@ class NewPatient extends Component {
           onClose={this.onCloseModal}
           headerTitle="Warning!!!!"
           contentText="Please fill in required fields (marked with *) and correct the errors before saving."
+          little
+        />
+        <AddContactModal
+          isVisible={contactModalVisible}
+          onClose={this.onCloseContactModal}
           little
         />
       </div>
