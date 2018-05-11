@@ -18,7 +18,8 @@ class NewPatient extends Component {
     bloodType: '',
     birthday: moment(),
     sex: '',
-    age: '0 months 0 days'
+    age: '0 months 0 days',
+    referredDate: moment()
   }
 
   onCloseModal = () => {
@@ -44,8 +45,19 @@ class NewPatient extends Component {
     });
   }
 
+  onChangeReferredDate = (date) => {
+    this.setState({
+      referredDate: date,
+    });
+  }
+
   render() {
-    const { formError, birthday, age } = this.state;
+    const {
+      formError,
+      birthday,
+      age,
+      referredDate
+    } = this.state;
     return (
       <div className="create-content">
         <div className="create-top-bar">
@@ -196,10 +208,23 @@ class NewPatient extends Component {
                 </div>
               </div>
               <div className="column">
-                <InputGroup
-                  name="referredDate"
-                  label="Referred Date"
-                />
+                <div className="column">
+                  <span className="header">
+                    Referred Date
+                  </span>
+                  <DatePicker
+                    name="referredDate"
+                    autoFocus
+                    customInput={<CustomDateInput />}
+                    selected={referredDate}
+                    onChange={this.onChangeReferredDate}
+                    peekNextMonth
+                    showMonthDropdown
+                    showYearDropdown
+                    type="button"
+                    dropdownMode="select"
+                  />
+                </div>
               </div>
             </div>
             <div className="columns">
@@ -256,12 +281,12 @@ class NewPatient extends Component {
                   </span>
                   <div>
                     <label className="radio">
-                      <input type="radio" />
-                      <span name="patientType">Charity</span>
+                      <input type="radio" name="patientType" value="Charity" />
+                      <span>Charity</span>
                     </label>
                     <label className="radio">
-                      <input type="radio" />
-                      <span name="patientType">Private</span>
+                      <input type="radio" name="patientType" value="Private" />
+                      <span>Private</span>
                     </label>
                   </div>
                 </div>
