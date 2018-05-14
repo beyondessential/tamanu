@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { dbHelpers } from '../utils/dbHelper';
 
 import { patientIcon, scheduleIcon, medicationIcon, labsIcon, administrationIcon } from './images';
 
@@ -246,13 +247,22 @@ export const sidebarInfo = [
   },
 ];
 
-export const idGenerator = () => {
-  // eslint-disable-next-line func-names
-  const S4 = function () {
-    // eslint-disable-next-line no-bitwise
-    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-  };
-  return (`${S4()}`);
+function padDigits(number, digits) {
+  return Array(Math.max((digits - String(number).length) + 1, 0)).join(0) + number;
+}
+
+export const getDisplayId = (item) => {
+  return new Promise((resolve, reject) => {
+    let renderedValue = '';
+    let totalItemCount = 0;
+    dbHelpers.patientDB.info().then((result) => {
+      totalItemCount = result.doc_count + result.doc_del_count;
+      renderedValue = padDigits(totalItemCount, 5);
+      resolve(item + renderedValue);
+    }).catch((err) => {
+      reject(err);
+    });
+  });
 };
 
 export const getDifferenceDate = (today, target) => {
@@ -328,7 +338,7 @@ export const lookupOptions = [
 ];
 
 export const patientColumns = [{
-  dataField: 'id',
+  dataField: 'doc.displayId',
   text: 'id',
   sort: true,
   headerSortingStyle,
@@ -336,7 +346,7 @@ export const patientColumns = [{
     backgroundColor: '#d2dae3'
   },
 }, {
-  dataField: 'firstName',
+  dataField: 'doc.firstName',
   text: 'First Name',
   sort: true,
   headerSortingStyle,
@@ -344,7 +354,7 @@ export const patientColumns = [{
     backgroundColor: '#d2dae3'
   }
 }, {
-  dataField: 'lastName',
+  dataField: 'doc.lastName',
   text: 'Last Name',
   sort: true,
   headerSortingStyle,
@@ -352,7 +362,7 @@ export const patientColumns = [{
     backgroundColor: '#d2dae3'
   }
 }, {
-  dataField: 'sex',
+  dataField: 'doc.sex',
   text: 'Sex',
   sort: true,
   headerSortingStyle,
@@ -360,7 +370,7 @@ export const patientColumns = [{
     backgroundColor: '#d2dae3'
   }
 }, {
-  dataField: 'birthday',
+  dataField: 'doc.birthday',
   text: 'DOB',
   sort: true,
   headerSortingStyle,
@@ -368,7 +378,7 @@ export const patientColumns = [{
     backgroundColor: '#d2dae3'
   }
 }, {
-  dataField: 'patientStatus',
+  dataField: 'doc.patientStatus',
   text: 'Status',
   sort: true,
   headerSortingStyle,

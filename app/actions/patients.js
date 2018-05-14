@@ -7,6 +7,7 @@ import {
   FETCH_PATIENTS_FAILED
 } from './types';
 import { dbHelpers } from '../utils/dbHelper';
+import { getDisplayId } from '../constants';
 
 export function createPatientRequest() {
   return {
@@ -49,32 +50,37 @@ export function fetchPatientsFailed() {
 export const createPatient = patient => {
   return dispatch => {
     dispatch(createPatientRequest());
-    dbHelpers.patientDB.post({
-      firstName: patient.firstName || '',
-      middleName: patient.middleName || '',
-      lastName: patient.lastName || '',
-      culturalName: patient.culturalName || '',
-      sex: patient.sex || '',
-      birthday: patient.birthday || '',
-      age: patient.age || '',
-      placeOfBirth: patient.placeOfBirth || '',
-      occupation: patient.occupation || '',
-      patientType: patient.patientType || '',
-      patientStatus: patient.patientStatus || '',
-      externalPatientId: patient.externalPatientId || '',
-      bloodType: patient.bloodType || '',
-      clinicSite: patient.clinicSite || '',
-      referredBy: patient.referredBy || '',
-      referredDate: patient.referredDate || '',
-      religion: patient.religion || '',
-      parent: patient.parent || '',
-      paymentProfile: patient.paymentProfile || '',
-      phone: patient.phone || '',
-      address: patient.address || '',
-      email: patient.email || '',
-      country: patient.country || '',
-    }).then(response => {
-      console.log('response', response);
+    getDisplayId('P').then(displayId => {
+      dbHelpers.patientDB.post({
+        displayId,
+        firstName: patient.firstName || '',
+        middleName: patient.middleName || '',
+        lastName: patient.lastName || '',
+        culturalName: patient.culturalName || '',
+        sex: patient.sex || '',
+        birthday: patient.birthday || '',
+        age: patient.age || '',
+        placeOfBirth: patient.placeOfBirth || '',
+        occupation: patient.occupation || '',
+        patientType: patient.patientType || '',
+        patientStatus: patient.patientStatus || '',
+        externalPatientId: patient.externalPatientId || '',
+        bloodType: patient.bloodType || '',
+        clinicSite: patient.clinicSite || '',
+        referredBy: patient.referredBy || '',
+        referredDate: patient.referredDate || '',
+        religion: patient.religion || '',
+        parent: patient.parent || '',
+        paymentProfile: patient.paymentProfile || '',
+        phone: patient.phone || '',
+        address: patient.address || '',
+        email: patient.email || '',
+        country: patient.country || '',
+      }).then(response => {
+        console.log('response', response);
+      }).catch((err) => {
+        console.log(err);
+      });
     }).catch((err) => {
       console.log(err);
     });
@@ -84,7 +90,15 @@ export const createPatient = patient => {
 export const fetchPatients = () => {
   return dispatch => {
     dispatch(fetchPatientsRequest());
-    const existingPatients = JSON.parse(localStorage.getItem('patients')) || [];
-    dispatch(fetchPatientsSuccess(existingPatients));
+    // const existingPatients = JSON.parse(localStorage.getItem('patients')) || [];
+    // dispatch(fetchPatientsSuccess(existingPatients));
+    dbHelpers.patientDB.allDocs({
+      include_docs: true,
+      attachments: true
+    }).then((result) => {
+      dispatch(fetchPatientsSuccess(result.rows));
+    }).catch((err) => {
+      console.log(err);
+    });
   };
 };
