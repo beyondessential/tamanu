@@ -87,7 +87,7 @@ class Outpatient extends Component<Props> {
           </div>
           <div className="columns form-table">
             <BootstrapTable
-              keyField="id"
+              keyField="_id"
               className="custom-table"
               data={patients}
               columns={patientColumns}

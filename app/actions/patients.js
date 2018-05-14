@@ -99,10 +99,8 @@ export const createPatientIndexes = () => {
         fields: ['admitted']
       }
     }).then((result) => {
-      console.log('create index', result);
       dispatch(createPatientIndexesSuccess(result));
     }).catch((err) => {
-      console.log('create index err', err);
       dispatch(createPatientIndexesFailed(err));
     });
   };
@@ -156,7 +154,13 @@ export const fetchPatients = () => {
       include_docs: true,
       attachments: true
     }).then((result) => {
-      dispatch(fetchPatientsSuccess(result.rows));
+      const patients = [];
+      result.rows.map(row => {
+        if (row.doc.firstName) {
+          patients.push(row.doc);
+        }
+      });
+      dispatch(fetchPatientsSuccess(patients));
     }).catch((err) => {
       console.log(err);
     });
@@ -166,23 +170,12 @@ export const fetchPatients = () => {
 export const fetchAdmittedPatients = () => {
   return dispatch => {
     dispatch(fetchAdmittedPatientsRequest());
-    // dbHelpers.patientDB.createIndex({
-    //   index: {
-    //     fields: ['admitted']
-    //   }
-    // }).then((result) => {
-    // console.log('create index', result);
     dbHelpers.patientDB.find({
       selector: { admitted: { $eq: true } }
     }).then((filteredResult) => {
-      console.log(filteredResult);
-      // dispatch(fetchAdmittedPatientsSuccess(result.rows));
+      dispatch(fetchAdmittedPatientsSuccess(filteredResult.docs));
     }).catch((err) => {
-      console.log(err);
       dispatch(fetchAdmittedPatientsFailed(err));
     });
-    // }).catch((err) => {
-    //   console.log('create index err', err);
-    // });
   };
 };

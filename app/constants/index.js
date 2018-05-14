@@ -342,7 +342,7 @@ export const lookupOptions = [
 ];
 
 export const patientColumns = [{
-  dataField: 'doc.displayId',
+  dataField: 'displayId',
   text: 'Id',
   sort: true,
   headerSortingStyle,
@@ -351,7 +351,7 @@ export const patientColumns = [{
     width: '10%'
   },
 }, {
-  dataField: 'doc.firstName',
+  dataField: 'firstName',
   text: 'First Name',
   sort: true,
   headerSortingStyle,
@@ -360,7 +360,7 @@ export const patientColumns = [{
     width: '12%'
   }
 }, {
-  dataField: 'doc.lastName',
+  dataField: 'lastName',
   text: 'Last Name',
   sort: true,
   headerSortingStyle,
@@ -369,7 +369,7 @@ export const patientColumns = [{
     width: '12%'
   }
 }, {
-  dataField: 'doc.sex',
+  dataField: 'sex',
   text: 'Sex',
   sort: true,
   headerSortingStyle,
@@ -378,7 +378,7 @@ export const patientColumns = [{
     width: '10%'
   }
 }, {
-  dataField: 'doc.birthday',
+  dataField: 'birthday',
   text: 'DOB',
   sort: true,
   headerSortingStyle,
@@ -387,7 +387,7 @@ export const patientColumns = [{
     width: '15%'
   }
 }, {
-  dataField: 'doc.patientStatus',
+  dataField: 'patientStatus',
   text: 'Status',
   sort: true,
   headerSortingStyle,

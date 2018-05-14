@@ -53,7 +53,7 @@ export default (state = initialState, action) => {
     case FETCH_ADMITTED_PATIENTS_SUCCESS:
       return {
         ...state,
-        // admittedPatients: action.payload
+        admittedPatients: action.payload
       };
     case FETCH_ADMITTED_PATIENTS_FAILED:
       return {

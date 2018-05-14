@@ -34,7 +34,7 @@ class AdmittedPatients extends Component {
             :
             <div>
               <BootstrapTable
-                keyField="id"
+                keyField="_id"
                 data={admittedPatients}
                 columns={patientColumns}
                 defaultSortDirection="asc"
