@@ -6,7 +6,7 @@
   width: 100%;
   font-size: 16px;
   color: #555;
-  background-color: #fff;
+  background-color: $main-white-color;
   background-image: none;
   border-radius: 3px;
   -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
@@ -35,7 +35,7 @@ li {
 }
 
 a {
-  color: white;
+  color: $main-white-color;
   opacity: 0.75;
   text-decoration: none;
 }

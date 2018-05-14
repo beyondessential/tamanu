@@ -77,9 +77,9 @@ export const createPatient = patient => {
         email: patient.email || '',
         country: patient.country || '',
       }).then(response => {
-        console.log('response', response);
+        dispatch(createPatientSuccess(response));
       }).catch((err) => {
-        console.log(err);
+        dispatch(createPatientFailed(err));
       });
     }).catch((err) => {
       console.log(err);
@@ -90,8 +90,6 @@ export const createPatient = patient => {
 export const fetchPatients = () => {
   return dispatch => {
     dispatch(fetchPatientsRequest());
-    // const existingPatients = JSON.parse(localStorage.getItem('patients')) || [];
-    // dispatch(fetchPatientsSuccess(existingPatients));
     dbHelpers.patientDB.allDocs({
       include_docs: true,
       attachments: true

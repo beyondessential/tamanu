@@ -5,7 +5,7 @@
   .view-top-bar {
     margin: 0;
     border-bottom: 1px solid #d2dae3;
-    background: #fff;
+    background: $main-white-color;
     padding: 0 15px;
     height: 55px;
     span {
@@ -21,18 +21,18 @@
       float: right;
       button {
         margin: 10px 0 10px 15px;
-        border: 1px solid #00bd9c;
+        border: 1px solid $main-green-color;
         background-color: transparent;
-        color: #00bd9c;
+        color: $main-green-color;
         font-size: 14px;
         padding: 7px;
         border-radius: 5px;
       }
       a {
         margin: 10px 0 10px 15px;
-        border: 1px solid #00bd9c;
+        border: 1px solid $main-green-color;
         background-color: transparent;
-        color: #00bd9c;
+        color: $main-green-color;
         font-size: 14px;
         padding: 7px;
         border-radius: 5px;
