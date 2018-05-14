@@ -409,7 +409,7 @@ function actionButtonFormatter(cell) {
   return (
     <div className="container">
       <button className="button column-button">Edit</button>
-      <button className="button is-primary column-button">Discharge</button>
+      <button className="button is-primary column-button">Admit</button>
       <button className="button is-danger column-button">Delete</button>
     </div>
   );
