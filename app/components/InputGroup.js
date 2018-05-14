@@ -14,13 +14,18 @@ class InputGroup extends Component {
   }
 
   render() {
-    const { label, required, name } = this.props;
+    const {
+      label,
+      required,
+      name,
+      tabIndex
+    } = this.props;
     return (
       <div className="column">
         <span className="input-group-title">
           {label} {required && <span className="isRequired">*</span>}
         </span>
-        <input className="input is-primary" type="text" name={name} />
+        <input className="input is-primary" type="text" name={name} tabIndex={tabIndex} />
       </div>
     );
   }

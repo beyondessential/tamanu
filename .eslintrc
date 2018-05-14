@@ -40,7 +40,8 @@
     "react/prop-types": 0,
     "max-len": 0,
     "global-require": 0,
-    "jsx-a11y/label-has-for": 0
+    "jsx-a11y/label-has-for": 0,
+    "jsx-a11y/tabindex-no-positive": 0
   },
   "plugins": [
     "flowtype",

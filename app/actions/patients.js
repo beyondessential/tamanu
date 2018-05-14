@@ -1,4 +1,7 @@
 import {
+  CREATE_PATIENT_INDEXES_REQUEST,
+  CREATE_PATIENT_INDEXES_SUCCESS,
+  CREATE_PATIENT_INDEXES_FAILED,
   CREATE_PATIENT_REQUEST,
   CREATE_PATIENT_SUCCESS,
   CREATE_PATIENT_FAILED,
@@ -11,6 +14,25 @@ import {
 } from './types';
 import { dbHelpers } from '../utils/dbHelper';
 import { getDisplayId } from '../constants';
+
+export function createPatientIndexesRequest() {
+  return {
+    type: CREATE_PATIENT_INDEXES_REQUEST
+  };
+}
+
+export function createPatientIndexesSuccess(index) {
+  return {
+    type: CREATE_PATIENT_INDEXES_SUCCESS,
+    payload: index
+  };
+}
+
+export function createPatientIndexesFailed() {
+  return {
+    type: CREATE_PATIENT_INDEXES_FAILED
+  };
+}
 
 export function createPatientRequest() {
   return {
@@ -68,6 +90,23 @@ export function fetchAdmittedPatientsFailed() {
     type: FETCH_ADMITTED_PATIENTS_FAILED
   };
 }
+
+export const createPatientIndexes = () => {
+  return dispatch => {
+    dispatch(createPatientIndexesRequest());
+    dbHelpers.patientDB.createIndex({
+      index: {
+        fields: ['admitted']
+      }
+    }).then((result) => {
+      console.log('create index', result);
+      dispatch(createPatientIndexesSuccess(result));
+    }).catch((err) => {
+      console.log('create index err', err);
+      dispatch(createPatientIndexesFailed(err));
+    });
+  };
+};
 
 export const createPatient = patient => {
   return dispatch => {
@@ -127,23 +166,23 @@ export const fetchPatients = () => {
 export const fetchAdmittedPatients = () => {
   return dispatch => {
     dispatch(fetchAdmittedPatientsRequest());
-    dbHelpers.patientDB.createIndex({
-      index: {
-        fields: ['admitted']
-      }
-    }).then((result) => {
-      console.log('create index', result);
-      dbHelpers.patientDB.find({
-        selector: { admitted: { $eq: false } }
-      }).then((filteredResult) => {
-        console.log(filteredResult);
-        dispatch(fetchAdmittedPatientsSuccess(result.rows));
-      }).catch((err) => {
-        console.log(err);
-        dispatch(fetchAdmittedPatientsFailed(err));
-      });
+    // dbHelpers.patientDB.createIndex({
+    //   index: {
+    //     fields: ['admitted']
+    //   }
+    // }).then((result) => {
+    // console.log('create index', result);
+    dbHelpers.patientDB.find({
+      selector: { admitted: { $eq: true } }
+    }).then((filteredResult) => {
+      console.log(filteredResult);
+      // dispatch(fetchAdmittedPatientsSuccess(result.rows));
     }).catch((err) => {
-      console.log('create index err', err);
+      console.log(err);
+      dispatch(fetchAdmittedPatientsFailed(err));
     });
+    // }).catch((err) => {
+    //   console.log('create index err', err);
+    // });
   };
 };

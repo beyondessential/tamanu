@@ -10,7 +10,7 @@ import AddContactModal from './components/AddContactModal';
 import InputGroup from '../../components/InputGroup';
 import CustomDateInput from '../../components/CustomDateInput';
 import Serializer from '../../utils/form-serialize';
-import { createPatient } from '../../actions/patients';
+import { createPatient, createPatientIndexes } from '../../actions/patients';
 import { bloodOptions, sexOptions, getDifferenceDate } from '../../constants';
 
 class NewPatient extends Component {
@@ -22,6 +22,10 @@ class NewPatient extends Component {
     age: '0 months 0 days',
     referredDate: moment(),
     contactModalVisible: false
+  }
+
+  componentDidMount() {
+    this.props.createPatientIndexes();
   }
 
   componentWillReceiveProps({ createPatientSuccess }) {
@@ -105,12 +109,14 @@ class NewPatient extends Component {
                   name="firstName"
                   label="First Name"
                   required
+                  tabIndex={1}
                 />
               </div>
               <div className="column">
                 <InputGroup
                   name="patientStatus"
                   label="Patient Status"
+                  tabIndex={7}
                 />
               </div>
             </div>
@@ -119,12 +125,14 @@ class NewPatient extends Component {
                 <InputGroup
                   name="middleName"
                   label="Middle Name"
+                  tabIndex={2}
                 />
               </div>
               <div className="column">
                 <InputGroup
                   name="externalPatientId"
                   label="External Patient Id"
+                  tabIndex={8}
                 />
               </div>
             </div>
@@ -134,6 +142,7 @@ class NewPatient extends Component {
                   name="lastName"
                   label="Last Name"
                   required
+                  tabIndex={3}
                 />
               </div>
               <div className="column">
@@ -164,12 +173,14 @@ class NewPatient extends Component {
                 <InputGroup
                   name="culturalName"
                   label="Cultural or Traditional Name"
+                  tabIndex={4}
                 />
               </div>
               <div className="column">
                 <InputGroup
                   name="clinicSite"
                   label="Clinic Site"
+                  tabIndex={9}
                 />
               </div>
             </div>
@@ -200,6 +211,7 @@ class NewPatient extends Component {
                 <InputGroup
                   name="referredBy"
                   label="Referred By"
+                  tabIndex={10}
                 />
               </div>
             </div>
@@ -259,6 +271,7 @@ class NewPatient extends Component {
                 <InputGroup
                   name="religion"
                   label="Religion"
+                  tabIndex={11}
                 />
               </div>
             </div>
@@ -267,12 +280,14 @@ class NewPatient extends Component {
                 <InputGroup
                   name="placeOfBirth"
                   label="Place of Birth"
+                  tabIndex={5}
                 />
               </div>
               <div className="column">
                 <InputGroup
                   name="parent"
                   label="Parent/Guardian"
+                  tabIndex={12}
                 />
               </div>
             </div>
@@ -281,12 +296,14 @@ class NewPatient extends Component {
                 <InputGroup
                   name="occupation"
                   label="Occupation"
+                  tabIndex={6}
                 />
               </div>
               <div className="column">
                 <InputGroup
                   name="paymentProfile"
                   label="Payment Profile"
+                  tabIndex={13}
                 />
               </div>
             </div>
@@ -322,20 +339,24 @@ class NewPatient extends Component {
               <InputGroup
                 name="phone"
                 label="Phone"
+                tabIndex={14}
               />
               <InputGroup
                 name="address"
                 label="Address"
+                tabIndex={15}
               />
             </div>
             <div className="column">
               <InputGroup
                 name="email"
                 label="Email"
+                tabIndex={16}
               />
               <InputGroup
                 name="country"
                 label="Country"
+                tabIndex={17}
               />
               <div className="column has-text-right">
                 <Link className="button is-danger cancel" to="/patients">Cancel</Link>
@@ -370,6 +391,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = dispatch => ({
   createPatient: patient => dispatch(createPatient(patient)),
+  createPatientIndexes: () => dispatch(createPatientIndexes())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewPatient);
