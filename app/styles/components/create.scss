@@ -1,6 +1,6 @@
 .create-content {
   margin-left: 275px;
-  background: #eff2f5;
+  background: $main-bg-color;
   height: 100vh;
   .create-top-bar {
     margin: 0 auto;
@@ -13,7 +13,7 @@
       margin: 0;
       line-height: 55px;
       letter-spacing: -1px;
-      color: #2f4358;
+      color: $main-light-dark-color;
       font-size: 28px;
       font-weight: 600;
     }
@@ -41,7 +41,7 @@
     }
   }
   .create-container {
-    background: #eff2f5;
+    background: $main-bg-color;
     .form {
       margin: 20px 20px;
       background: white;
@@ -52,7 +52,7 @@
         margin-right: 5px;
       }
       .header {
-        color: #2f4358;
+        color: $main-light-dark-color;
         display: inline-block;
         margin-bottom: 5px;
         font-weight: bold;

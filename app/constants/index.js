@@ -1,7 +1,10 @@
 import moment from 'moment';
 import { dbHelpers } from '../utils/dbHelper';
-
 import { patientIcon, scheduleIcon, medicationIcon, labsIcon, administrationIcon } from './images';
+
+export const Colors = {
+  searchTintColor: '#d2dae3'
+};
 
 export const sidebarInfo = [
   {
@@ -343,7 +346,7 @@ export const patientColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   },
 }, {
   dataField: 'doc.firstName',
@@ -351,7 +354,7 @@ export const patientColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'doc.lastName',
@@ -359,7 +362,7 @@ export const patientColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'doc.sex',
@@ -367,7 +370,7 @@ export const patientColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'doc.birthday',
@@ -375,7 +378,7 @@ export const patientColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'doc.patientStatus',
@@ -383,13 +386,13 @@ export const patientColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'action',
   text: 'Actions',
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }];
 
@@ -399,7 +402,7 @@ export const medicationColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   },
 }, {
   dataField: 'patient',
@@ -407,7 +410,7 @@ export const medicationColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'prescriber',
@@ -415,7 +418,7 @@ export const medicationColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'medication',
@@ -423,7 +426,7 @@ export const medicationColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'quantity',
@@ -431,7 +434,7 @@ export const medicationColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'status',
@@ -439,13 +442,13 @@ export const medicationColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'action',
   text: 'Actions',
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }];
 
@@ -455,7 +458,7 @@ export const invoiceColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   },
 }, {
   dataField: 'patient',
@@ -463,7 +466,7 @@ export const invoiceColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'prescriber',
@@ -471,7 +474,7 @@ export const invoiceColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'medication',
@@ -479,7 +482,7 @@ export const invoiceColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'quantity',
@@ -487,7 +490,7 @@ export const invoiceColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'status',
@@ -495,13 +498,13 @@ export const invoiceColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'action',
   text: 'Actions',
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }];
 
@@ -511,7 +514,7 @@ export const invoiceLineItemColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   },
 }, {
   dataField: 'actualCharge',
@@ -519,7 +522,7 @@ export const invoiceLineItemColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'discount',
@@ -527,7 +530,7 @@ export const invoiceLineItemColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'national',
@@ -535,7 +538,7 @@ export const invoiceLineItemColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'hmo',
@@ -543,7 +546,7 @@ export const invoiceLineItemColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'excess',
@@ -551,13 +554,13 @@ export const invoiceLineItemColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'action',
   text: 'Actions',
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }];
 
@@ -567,7 +570,7 @@ export const invoicePaymentColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   },
 }, {
   dataField: 'amount',
@@ -575,7 +578,7 @@ export const invoicePaymentColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'type',
@@ -583,7 +586,7 @@ export const invoicePaymentColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'notes',
@@ -591,13 +594,13 @@ export const invoicePaymentColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'action',
   text: 'Action',
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }];
 
@@ -605,37 +608,37 @@ export const labsColumns = [{
   dataField: 'date',
   text: 'Date Requested',
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   },
 }, {
   dataField: 'patient',
   text: 'Patient',
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'requestedBy',
   text: 'Requested By',
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'type',
   text: 'Lab Type',
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'note',
   text: 'Notes',
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }, {
   dataField: 'action',
   text: 'Actions',
   headerStyle: {
-    backgroundColor: '#d2dae3'
+    backgroundColor: Colors.searchTintColor
   }
 }];
 

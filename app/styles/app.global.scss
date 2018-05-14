@@ -2,7 +2,8 @@
  * @NOTE: Prepend a `~` to css file paths that are in your node_modules
  *        See https://github.com/webpack-contrib/sass-loader#imports
  */
-@import "~bulma/bulma.sass";
+ @import "./global/colors.scss";
+ @import "~bulma/bulma.sass";
 @import "~font-awesome/css/font-awesome.css";
 @import "~react-responsive-modal/lib/react-responsive-modal.css";
 @import "~react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
@@ -15,51 +16,3 @@
 @import "./components/custom.scss";
 @import "./components/modal.scss";
 
-body {
-  padding: 0;
-  margin: 0;
-  font-family: Arial, Helvetica, Helvetica Neue, serif;
-}
-
-p {
-  font-size: 24px;
-}
-
-li {
-  list-style: none;
-}
-
-a {
-  color: white;
-  opacity: 0.75;
-  text-decoration: none;
-}
-
-a:hover {
-  opacity: 1;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.input-group-title {
-  color: #2f4358;
-  display: inline-block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.align-right {
-  float: right;
-}
-
-.margin-t-10 {
-  margin-top: 10px;
-}
-
-.margin-t-30 {
-  margin-top: 30px;
-}
-
-.margin-t-60 {
-  margin-top: 60px;
-}

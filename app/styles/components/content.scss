@@ -1,6 +1,6 @@
 .content {
   margin-left: 275px;
-  background: #eff2f5;
+  background: $main-bg-color;
   height: 100vh;
   .view-top-bar {
     margin: 0;
@@ -13,7 +13,7 @@
       margin: 0;
       line-height: 55px;
       letter-spacing: -1px;
-      color: #2f4358;
+      color: $main-light-dark-color;
       font-size: 28px;
       font-weight: 600;
     }
@@ -77,7 +77,7 @@
       margin-top: 10px;
       a {
         background-color: transparent;
-        color: #2f4358;
+        color: $main-light-dark-color;
         font-weight: 600;
         margin-right: 20px;
         font-size: 18px;
