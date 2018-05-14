@@ -24,6 +24,12 @@ class NewPatient extends Component {
     contactModalVisible: false
   }
 
+  componentWillReceiveProps({ createPatientSuccess }) {
+    if (createPatientSuccess) {
+      this.props.history.push('/patients');
+    }
+  }
+
   onCloseModal = () => {
     this.setState({ formError: false });
   }
@@ -355,8 +361,15 @@ class NewPatient extends Component {
   }
 }
 
+function mapStateToProps(state) {
+  const { createPatientSuccess } = state.patients;
+  return {
+    createPatientSuccess,
+  };
+}
+
 const mapDispatchToProps = dispatch => ({
   createPatient: patient => dispatch(createPatient(patient)),
 });
 
-export default connect(undefined, mapDispatchToProps)(NewPatient);
+export default connect(mapStateToProps, mapDispatchToProps)(NewPatient);

@@ -1,3 +1,4 @@
+import React from 'react';
 import moment from 'moment';
 import { dbHelpers } from '../utils/dbHelper';
 import { patientIcon, scheduleIcon, medicationIcon, labsIcon, administrationIcon } from './images';
@@ -342,11 +343,12 @@ export const lookupOptions = [
 
 export const patientColumns = [{
   dataField: 'doc.displayId',
-  text: 'id',
+  text: 'Id',
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: Colors.searchTintColor
+    backgroundColor: Colors.searchTintColor,
+    width: '10%'
   },
 }, {
   dataField: 'doc.firstName',
@@ -354,7 +356,8 @@ export const patientColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: Colors.searchTintColor
+    backgroundColor: Colors.searchTintColor,
+    width: '12%'
   }
 }, {
   dataField: 'doc.lastName',
@@ -362,7 +365,8 @@ export const patientColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: Colors.searchTintColor
+    backgroundColor: Colors.searchTintColor,
+    width: '12%'
   }
 }, {
   dataField: 'doc.sex',
@@ -370,7 +374,8 @@ export const patientColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: Colors.searchTintColor
+    backgroundColor: Colors.searchTintColor,
+    width: '10%'
   }
 }, {
   dataField: 'doc.birthday',
@@ -378,7 +383,8 @@ export const patientColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: Colors.searchTintColor
+    backgroundColor: Colors.searchTintColor,
+    width: '15%'
   }
 }, {
   dataField: 'doc.patientStatus',
@@ -386,15 +392,28 @@ export const patientColumns = [{
   sort: true,
   headerSortingStyle,
   headerStyle: {
-    backgroundColor: Colors.searchTintColor
+    backgroundColor: Colors.searchTintColor,
+    width: '10%'
   }
 }, {
   dataField: 'action',
   text: 'Actions',
   headerStyle: {
     backgroundColor: Colors.searchTintColor
-  }
+  },
+  formatter: actionButtonFormatter
 }];
+
+function actionButtonFormatter(cell) {
+  console.log('cell', cell);
+  return (
+    <div className="container">
+      <button className="button column-button">Edit</button>
+      <button className="button is-primary column-button">Discharge</button>
+      <button className="button is-danger column-button">Delete</button>
+    </div>
+  );
+}
 
 export const medicationColumns = [{
   dataField: 'date',

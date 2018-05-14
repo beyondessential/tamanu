@@ -8,7 +8,8 @@ import {
 } from '../actions/types';
 
 const initialState = {
-  patients: []
+  patients: [],
+  createPatientSuccess: false
 };
 
 export default (state = initialState, action) => {
@@ -16,14 +17,17 @@ export default (state = initialState, action) => {
     case CREATE_PATIENT_REQUEST:
       return {
         ...state,
+        createPatientSuccess: false
       };
     case CREATE_PATIENT_SUCCESS:
       return {
         ...state,
+        createPatientSuccess: true
       };
     case CREATE_PATIENT_FAILED:
       return {
         ...state,
+        createPatientSuccess: false
       };
     case FETCH_PATIENTS_REQUEST:
       return {
