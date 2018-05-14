@@ -4,7 +4,10 @@ import {
   CREATE_PATIENT_FAILED,
   FETCH_PATIENTS_REQUEST,
   FETCH_PATIENTS_SUCCESS,
-  FETCH_PATIENTS_FAILED
+  FETCH_PATIENTS_FAILED,
+  FETCH_ADMITTED_PATIENTS_REQUEST,
+  FETCH_ADMITTED_PATIENTS_SUCCESS,
+  FETCH_ADMITTED_PATIENTS_FAILED
 } from './types';
 import { dbHelpers } from '../utils/dbHelper';
 import { getDisplayId } from '../constants';
@@ -47,6 +50,25 @@ export function fetchPatientsFailed() {
   };
 }
 
+export function fetchAdmittedPatientsRequest() {
+  return {
+    type: FETCH_ADMITTED_PATIENTS_REQUEST
+  };
+}
+
+export function fetchAdmittedPatientsSuccess(patients) {
+  return {
+    type: FETCH_ADMITTED_PATIENTS_SUCCESS,
+    payload: patients
+  };
+}
+
+export function fetchAdmittedPatientsFailed() {
+  return {
+    type: FETCH_ADMITTED_PATIENTS_FAILED
+  };
+}
+
 export const createPatient = patient => {
   return dispatch => {
     dispatch(createPatientRequest());
@@ -76,6 +98,7 @@ export const createPatient = patient => {
         address: patient.address || '',
         email: patient.email || '',
         country: patient.country || '',
+        admitted: false
       }).then(response => {
         dispatch(createPatientSuccess(response));
       }).catch((err) => {
@@ -97,6 +120,30 @@ export const fetchPatients = () => {
       dispatch(fetchPatientsSuccess(result.rows));
     }).catch((err) => {
       console.log(err);
+    });
+  };
+};
+
+export const fetchAdmittedPatients = () => {
+  return dispatch => {
+    dispatch(fetchAdmittedPatientsRequest());
+    dbHelpers.patientDB.createIndex({
+      index: {
+        fields: ['admitted']
+      }
+    }).then((result) => {
+      console.log('create index', result);
+      dbHelpers.patientDB.find({
+        selector: { admitted: { $eq: false } }
+      }).then((filteredResult) => {
+        console.log(filteredResult);
+        dispatch(fetchAdmittedPatientsSuccess(result.rows));
+      }).catch((err) => {
+        console.log(err);
+        dispatch(fetchAdmittedPatientsFailed(err));
+      });
+    }).catch((err) => {
+      console.log('create index err', err);
     });
   };
 };

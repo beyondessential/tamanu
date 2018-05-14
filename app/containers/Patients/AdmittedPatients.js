@@ -2,16 +2,16 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import BootstrapTable from 'react-bootstrap-table-next';
-import { fetchPatients } from '../../actions/patients';
+import { fetchAdmittedPatients } from '../../actions/patients';
 import { patientColumns } from '../../constants';
 
 class AdmittedPatients extends Component {
   componentDidMount() {
-    this.props.fetchPatients();
+    this.props.fetchAdmittedPatients();
   }
 
   render() {
-    const { patients } = this.props;
+    const { admittedPatients } = this.props;
     return (
       <div className="content">
         <div className="view-top-bar">
@@ -25,7 +25,7 @@ class AdmittedPatients extends Component {
           </div>
         </div>
         <div className="detail">
-          {patients.length === 0 ?
+          {admittedPatients.length === 0 ?
             <div className="notification">
               <span>
                 No patients found. <Link to="/patients/edit/new">Create a new patient record?</Link>
@@ -35,7 +35,7 @@ class AdmittedPatients extends Component {
             <div>
               <BootstrapTable
                 keyField="id"
-                data={patients}
+                data={admittedPatients}
                 columns={patientColumns}
                 defaultSortDirection="asc"
               />
@@ -48,13 +48,14 @@ class AdmittedPatients extends Component {
 }
 
 function mapStateToProps(state) {
+  const { admittedPatients } = state.patients;
   return {
-    patients: state.patients.patients
+    admittedPatients
   };
 }
 
 const mapDispatchToProps = dispatch => ({
-  fetchPatients: () => dispatch(fetchPatients()),
+  fetchAdmittedPatients: () => dispatch(fetchAdmittedPatients()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AdmittedPatients);
