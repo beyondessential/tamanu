@@ -404,7 +404,8 @@ export const patientColumns = [{
   formatter: actionButtonFormatter
 }];
 
-function actionButtonFormatter() {
+function actionButtonFormatter(cell, row, rowIndex, formatExtraData) {
+  console.log(cell, row, rowIndex, formatExtraData);
   return (
     <div className="container">
       <button className="button column-button">Edit</button>

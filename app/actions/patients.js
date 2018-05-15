@@ -96,7 +96,7 @@ export const createPatientIndexes = () => {
     dispatch(createPatientIndexesRequest());
     patientDB.createIndexAsync({
       index: {
-        fields: ['admitted']
+        fields: ['_id', 'admitted']
       }
     }).then((result) => {
       dispatch(createPatientIndexesSuccess(result));

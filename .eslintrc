@@ -42,7 +42,8 @@
     "global-require": 0,
     "jsx-a11y/label-has-for": 0,
     "jsx-a11y/tabindex-no-positive": 0,
-    "array-callback-return": 0
+    "array-callback-return": 0,
+    "no-underscore-dangle": 0
   },
   "plugins": [
     "flowtype",

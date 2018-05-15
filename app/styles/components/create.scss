@@ -45,6 +45,14 @@
     .form {
       margin: 20px 20px;
       background: white;
+      .visit-header {
+        margin: 10px;
+        background: $main-light-blue-color;
+        span {
+          font-size: 24px;
+          color: #2e4359;
+        }
+      }
       .isRequired {
         color: red;
       }
@@ -82,6 +90,15 @@
       }
       .calendar-height {
         height: 500px;
+      }
+      .card-info {
+        width: 120px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: $main-light-gray-color;
+        border-radius: 5px;
       }
     }
     .form-table {
