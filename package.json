@@ -188,6 +188,7 @@
     "webpack-merge": "^4.1.1"
   },
   "dependencies": {
+    "bluebird": "^3.5.1",
     "bulma": "^0.7.1",
     "classnames": "^2.2.5",
     "devtron": "^1.4.0",
@@ -195,6 +196,7 @@
     "font-awesome": "^4.7.0",
     "history": "^4.7.2",
     "moment": "^2.22.1",
+    "nano": "^6.4.4",
     "react": "^16.2.0",
     "react-big-calendar": "^0.19.1",
     "react-bootstrap-table-next": "^0.1.8",

@@ -12,7 +12,7 @@ import {
   FETCH_ADMITTED_PATIENTS_SUCCESS,
   FETCH_ADMITTED_PATIENTS_FAILED
 } from './types';
-import { dbHelpers } from '../utils/dbHelper';
+import { patientDB } from '../utils/dbHelper';
 import { getDisplayId } from '../constants';
 
 export function createPatientIndexesRequest() {
@@ -94,7 +94,7 @@ export function fetchAdmittedPatientsFailed() {
 export const createPatientIndexes = () => {
   return dispatch => {
     dispatch(createPatientIndexesRequest());
-    dbHelpers.patientDB.createIndex({
+    patientDB.createIndexAsync({
       index: {
         fields: ['admitted']
       }
@@ -110,7 +110,7 @@ export const createPatient = patient => {
   return dispatch => {
     dispatch(createPatientRequest());
     getDisplayId('P').then(displayId => {
-      dbHelpers.patientDB.post({
+      patientDB.insertAsync({
         displayId,
         firstName: patient.firstName || '',
         middleName: patient.middleName || '',
@@ -150,7 +150,7 @@ export const createPatient = patient => {
 export const fetchPatients = () => {
   return dispatch => {
     dispatch(fetchPatientsRequest());
-    dbHelpers.patientDB.allDocs({
+    patientDB.listAsync({
       include_docs: true,
       attachments: true
     }).then((result) => {
@@ -170,7 +170,7 @@ export const fetchPatients = () => {
 export const fetchAdmittedPatients = () => {
   return dispatch => {
     dispatch(fetchAdmittedPatientsRequest());
-    dbHelpers.patientDB.find({
+    patientDB.findAsync({
       selector: { admitted: { $eq: true } }
     }).then((filteredResult) => {
       dispatch(fetchAdmittedPatientsSuccess(filteredResult.docs));

@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import { dbHelpers } from '../utils/dbHelper';
+import { patientDB } from '../utils/dbHelper';
 import { patientIcon, scheduleIcon, medicationIcon, labsIcon, administrationIcon } from './images';
 
 export const Colors = {
@@ -259,7 +259,7 @@ export const getDisplayId = (item) => {
   return new Promise((resolve, reject) => {
     let renderedValue = '';
     let totalItemCount = 0;
-    dbHelpers.patientDB.info().then((result) => {
+    patientDB.infoAsync().then((result) => {
       totalItemCount = result.doc_count + result.doc_del_count;
       renderedValue = padDigits(totalItemCount, 5);
       resolve(item + renderedValue);
