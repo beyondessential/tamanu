@@ -8,6 +8,7 @@ import Outpatient from './Outpatient';
 import NewPatient from './NewPatient';
 import Reports from './Reports';
 import CheckInPatient from './CheckInPatient';
+import EditVisit from './EditVisit';
 
 export default function Routes({ url }) {
   return (
@@ -19,6 +20,7 @@ export default function Routes({ url }) {
         <Route path={`${url}/edit/new`} component={NewPatient} />
         <Route path={`${url}/reports`} component={Reports} />
         <Route path={`${url}/checkin/:id`} component={CheckInPatient} />
+        <Route path={`${url}/editvisit/:id`} component={EditVisit} />
       </Switch>
     </div>
   );

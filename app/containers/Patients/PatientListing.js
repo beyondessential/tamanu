@@ -10,8 +10,12 @@ class PatientListing extends Component {
     this.props.fetchPatients();
   }
 
-  goAdmit = (patientId) => {
-    this.props.history.push(`/patients/checkin/${patientId}`);
+  goAdmit = (patientId, patient) => {
+    if (patient.admitted) {
+      this.props.history.push(`/patients/editvisit/${patientId}`);
+    } else {
+      this.props.history.push(`/patients/checkin/${patientId}`);
+    }
   }
 
   render() {
@@ -84,7 +88,7 @@ class PatientListing extends Component {
       return (
         <div className="container" key={rowIndex}>
           <button className="button column-button">Edit</button>
-          <button className="button is-primary column-button" onClick={() => that.goAdmit(row._id)}>Admit</button>
+          <button className="button is-primary column-checkin-button" onClick={() => that.goAdmit(row._id, row)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
           <button className="button is-danger column-button">Delete</button>
         </div>
       );

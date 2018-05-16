@@ -11,7 +11,7 @@ import CustomDateInput from '../../components/CustomDateInput';
 import { fetchOnePatient } from '../../actions/patients';
 import { visitOptions } from '../../constants';
 
-class CheckInPatient extends Component {
+class EditVisit extends Component {
   state = {
     // formError: false,
     prescriptionDate: moment(),
@@ -40,7 +40,7 @@ class CheckInPatient extends Component {
         <div className="create-content">
           <div className="create-top-bar">
             <span>
-              Patient Check In
+              Edit Visit
             </span>
           </div>
           <form
@@ -195,4 +195,4 @@ const mapDispatchToProps = dispatch => ({
   fetchOnePatient: id => dispatch(fetchOnePatient(id)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(CheckInPatient);
+export default connect(mapStateToProps, mapDispatchToProps)(EditVisit);

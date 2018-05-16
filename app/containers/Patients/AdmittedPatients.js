@@ -3,15 +3,93 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import BootstrapTable from 'react-bootstrap-table-next';
 import { fetchAdmittedPatients } from '../../actions/patients';
-import { patientColumns } from '../../constants';
+import { headerSortingStyle, Colors } from '../../constants';
 
 class AdmittedPatients extends Component {
   componentDidMount() {
     this.props.fetchAdmittedPatients();
   }
 
+  goEdit = (patientId) => {
+    this.props.history.push(`/patients/editvisit/${patientId}`);
+  }
+
   render() {
     const { admittedPatients } = this.props;
+    const that = this;
+    const patientColumns = [{
+      dataField: 'displayId',
+      text: 'Id',
+      sort: true,
+      headerSortingStyle,
+      headerStyle: {
+        backgroundColor: Colors.searchTintColor,
+        width: '10%'
+      },
+    }, {
+      dataField: 'firstName',
+      text: 'First Name',
+      sort: true,
+      headerSortingStyle,
+      headerStyle: {
+        backgroundColor: Colors.searchTintColor,
+        width: '12%'
+      }
+    }, {
+      dataField: 'lastName',
+      text: 'Last Name',
+      sort: true,
+      headerSortingStyle,
+      headerStyle: {
+        backgroundColor: Colors.searchTintColor,
+        width: '12%'
+      }
+    }, {
+      dataField: 'sex',
+      text: 'Sex',
+      sort: true,
+      headerSortingStyle,
+      headerStyle: {
+        backgroundColor: Colors.searchTintColor,
+        width: '10%'
+      }
+    }, {
+      dataField: 'birthday',
+      text: 'DOB',
+      sort: true,
+      headerSortingStyle,
+      headerStyle: {
+        backgroundColor: Colors.searchTintColor,
+        width: '15%'
+      }
+    }, {
+      dataField: 'patientStatus',
+      text: 'Status',
+      sort: true,
+      headerSortingStyle,
+      headerStyle: {
+        backgroundColor: Colors.searchTintColor,
+        width: '10%'
+      }
+    }, {
+      dataField: 'action',
+      text: 'Actions',
+      headerStyle: {
+        backgroundColor: Colors.searchTintColor
+      },
+      formatter: actionButtonFormatter
+    }];
+
+    function actionButtonFormatter(cell, row, rowIndex) {
+      return (
+        <div className="container" key={rowIndex}>
+          <button className="button column-button">Edit</button>
+          <button className="button is-primary column-checkin-button" onClick={() => that.goEdit(row._id)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
+          <button className="button is-danger column-button">Delete</button>
+        </div>
+      );
+    }
+
     return (
       <div className="content">
         <div className="view-top-bar">
