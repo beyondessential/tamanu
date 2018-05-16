@@ -7,11 +7,15 @@ import {
   FETCH_PATIENTS_FAILED,
   FETCH_ADMITTED_PATIENTS_REQUEST,
   FETCH_ADMITTED_PATIENTS_SUCCESS,
-  FETCH_ADMITTED_PATIENTS_FAILED
+  FETCH_ADMITTED_PATIENTS_FAILED,
+  FETCH_ONE_PATIENT_REQUEST,
+  FETCH_ONE_PATIENT_SUCCESS,
+  FETCH_ONE_PATIENT_FAILED
 } from '../actions/types';
 
 const initialState = {
   patients: [],
+  onePatient: {},
   createPatientSuccess: false,
   admittedPatients: []
 };
@@ -59,6 +63,19 @@ export default (state = initialState, action) => {
       return {
         ...state,
         admittedPatients: []
+      };
+    case FETCH_ONE_PATIENT_REQUEST:
+      return {
+        ...state,
+      };
+    case FETCH_ONE_PATIENT_SUCCESS:
+      return {
+        ...state,
+        onePatient: action.payload
+      };
+    case FETCH_ONE_PATIENT_FAILED:
+      return {
+        ...state,
       };
     default:
       return state;

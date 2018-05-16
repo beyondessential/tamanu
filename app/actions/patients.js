@@ -10,7 +10,10 @@ import {
   FETCH_PATIENTS_FAILED,
   FETCH_ADMITTED_PATIENTS_REQUEST,
   FETCH_ADMITTED_PATIENTS_SUCCESS,
-  FETCH_ADMITTED_PATIENTS_FAILED
+  FETCH_ADMITTED_PATIENTS_FAILED,
+  FETCH_ONE_PATIENT_REQUEST,
+  FETCH_ONE_PATIENT_SUCCESS,
+  FETCH_ONE_PATIENT_FAILED
 } from './types';
 import { patientDB } from '../utils/dbHelper';
 import { getDisplayId } from '../constants';
@@ -88,6 +91,25 @@ export function fetchAdmittedPatientsSuccess(patients) {
 export function fetchAdmittedPatientsFailed() {
   return {
     type: FETCH_ADMITTED_PATIENTS_FAILED
+  };
+}
+
+export function fetchOnePatientRequest() {
+  return {
+    type: FETCH_ONE_PATIENT_REQUEST
+  };
+}
+
+export function fetchOnePatientSuccess(patient) {
+  return {
+    type: FETCH_ONE_PATIENT_SUCCESS,
+    payload: patient
+  };
+}
+
+export function fetchOnePatientFailed() {
+  return {
+    type: FETCH_ONE_PATIENT_FAILED
   };
 }
 
@@ -174,6 +196,19 @@ export const fetchAdmittedPatients = () => {
       selector: { admitted: { $eq: true } }
     }).then((filteredResult) => {
       dispatch(fetchAdmittedPatientsSuccess(filteredResult.docs));
+    }).catch((err) => {
+      dispatch(fetchAdmittedPatientsFailed(err));
+    });
+  };
+};
+
+export const fetchOnePatient = (id) => {
+  return dispatch => {
+    dispatch(fetchOnePatientRequest());
+    patientDB.findAsync({
+      selector: { _id: { $eq: id } }
+    }).then((filteredResult) => {
+      dispatch(fetchOnePatientSuccess(filteredResult.docs[0]));
     }).catch((err) => {
       dispatch(fetchAdmittedPatientsFailed(err));
     });

@@ -8,13 +8,18 @@ import moment from 'moment';
 import Serializer from '../../utils/form-serialize';
 import InputGroup from '../../components/InputGroup';
 import CustomDateInput from '../../components/CustomDateInput';
-import { createMedication } from '../../actions/medications';
+import { fetchOnePatient } from '../../actions/patients';
 import { visitOptions } from '../../constants';
 
 class CheckInPatient extends Component {
   state = {
     // formError: false,
     prescriptionDate: moment(),
+  }
+
+  componentDidMount() {
+    const { id } = this.props.match.params;
+    this.props.fetchOnePatient(id);
   }
 
   onChangeDate = (date) => {
@@ -29,6 +34,8 @@ class CheckInPatient extends Component {
 
   render() {
     const { prescriptionDate } = this.state;
+    const { patient } = this.props;
+    console.log(patient);
     return (
       <div>
         <div className="create-content">
@@ -66,13 +73,13 @@ class CheckInPatient extends Component {
                       <div className="column">
                         <span>Name: </span>
                         <span>
-                          sdfsdfsdf
+                          {patient.firstName} {patient.lastName}
                         </span>
                       </div>
                     </div>
                     <div className="column level-left">
                       <div className="card-info">
-                        P00001
+                        {patient.displayId}
                       </div>
                     </div>
                   </div>
@@ -162,7 +169,7 @@ class CheckInPatient extends Component {
               </div>
               <div className="column has-text-right">
                 <Link className="button is-danger cancel" to="/patients">Cancel</Link>
-                <button className="button is-primary" type="submit">Check In</button>
+                <button className="button is-primary" type="submit">Admit</button>
               </div>
             </div>
           </form>
@@ -179,8 +186,14 @@ class CheckInPatient extends Component {
   }
 }
 
+function mapStateToProps(state) {
+  return {
+    patient: state.patients.onePatient
+  };
+}
+
 const mapDispatchToProps = dispatch => ({
-  createMedication: medication => dispatch(createMedication(medication)),
+  fetchOnePatient: id => dispatch(fetchOnePatient(id)),
 });
 
-export default connect(undefined, mapDispatchToProps)(CheckInPatient);
+export default connect(mapStateToProps, mapDispatchToProps)(CheckInPatient);
