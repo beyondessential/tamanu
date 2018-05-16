@@ -14,14 +14,7 @@ import { visitOptions } from '../../constants';
 class CheckInPatient extends Component {
   state = {
     // formError: false,
-    selectValue: '',
     prescriptionDate: moment(),
-  }
-
-  updateValue = (newValue) => {
-    this.setState({
-      selectValue: newValue,
-    });
   }
 
   onChangeDate = (date) => {
@@ -86,19 +79,10 @@ class CheckInPatient extends Component {
                 </div>
               </div>
               <div className="columns">
-                <div className="column">
-                  <InputGroup
-                    name="prescription"
-                    label="Prescription"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="columns">
-                <div className="column is-5">
+                <div className="column is-4">
                   <div className="column">
                     <span className="header">
-                      Prescription Date
+                      Admission Date
                     </span>
                     <DatePicker
                       name="prescriptionDate"
@@ -112,19 +96,57 @@ class CheckInPatient extends Component {
                     />
                   </div>
                 </div>
-              </div>
-              <div className="columns">
                 <div className="column is-4">
-                  <InputGroup
-                    name="quantity"
-                    label="Quantity Requested"
-                    required
-                  />
+                  <div className="column">
+                    <span className="header">
+                      Discharge Date
+                    </span>
+                    <DatePicker
+                      name="prescriptionDate"
+                      customInput={<CustomDateInput />}
+                      selected={prescriptionDate}
+                      onChange={this.onChangeDate}
+                      peekNextMonth
+                      showMonthDropdown
+                      showYearDropdown
+                      dropdownMode="select"
+                    />
+                  </div>
                 </div>
                 <div className="column is-4">
                   <InputGroup
-                    name="refills"
-                    label="Refills"
+                    name="location"
+                    label="Location"
+                  />
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column is-4">
+                  <div className="column">
+                    <span className="header">
+                      Blood Type
+                    </span>
+                    <Select
+                      id="state-select"
+                      ref={(ref) => { this.select = ref; }}
+                      onBlurResetsInput={false}
+                      onSelectResetsInput={false}
+                      options={visitOptions}
+                      simpleValue
+                      clearable
+                      name="bloodType"
+                      disabled={this.state.disabled}
+                      value={this.state.bloodType}
+                      onChange={this.updateBloodValue}
+                      rtl={this.state.rtl}
+                      searchable={this.state.searchable}
+                    />
+                  </div>
+                </div>
+                <div className="column is-4">
+                  <InputGroup
+                    name="examiner"
+                    label="Examiner"
                   />
                 </div>
               </div>
@@ -139,8 +161,8 @@ class CheckInPatient extends Component {
                 </div>
               </div>
               <div className="column has-text-right">
-                <Link className="button is-danger cancel" to="/medication">Cancel</Link>
-                <button className="button" type="submit">Check In</button>
+                <Link className="button is-danger cancel" to="/patients">Cancel</Link>
+                <button className="button is-primary" type="submit">Check In</button>
               </div>
             </div>
           </form>
