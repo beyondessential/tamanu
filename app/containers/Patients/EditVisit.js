@@ -166,6 +166,14 @@ class EditVisit extends Component {
                   </div>
                 </div>
               </div>
+              <div className="columns">
+                <div className="column is-4">
+                  <InputGroup
+                    name="finalDignosis"
+                    label="Final/Billing Diagnosis"
+                  />
+                </div>
+              </div>
               <div className="column has-text-right">
                 <Link className="button is-danger cancel" to="/patients">Cancel</Link>
                 <button className="button is-primary" type="submit">Admit</button>
