@@ -13,7 +13,10 @@ import {
   FETCH_ADMITTED_PATIENTS_FAILED,
   FETCH_ONE_PATIENT_REQUEST,
   FETCH_ONE_PATIENT_SUCCESS,
-  FETCH_ONE_PATIENT_FAILED
+  FETCH_ONE_PATIENT_FAILED,
+  DELETE_PATIENT_REQUEST,
+  DELETE_PATIENT_SUCCESS,
+  DELETE_PATIENT_FAILED
 } from './types';
 import { patientDB } from '../utils/dbHelper';
 import { getDisplayId } from '../constants';
@@ -113,6 +116,26 @@ export function fetchOnePatientFailed() {
   };
 }
 
+export function deletePatientRequest() {
+  return {
+    type: DELETE_PATIENT_REQUEST
+  };
+}
+
+export function deletePatientSuccess(patient) {
+  return {
+    type: DELETE_PATIENT_SUCCESS,
+    payload: patient
+  };
+}
+
+export function deletePatientFailed() {
+  return {
+    type: DELETE_PATIENT_FAILED
+  };
+}
+
+
 export const createPatientIndexes = () => {
   return dispatch => {
     dispatch(createPatientIndexesRequest());
@@ -211,6 +234,22 @@ export const fetchOnePatient = (id) => {
       dispatch(fetchOnePatientSuccess(filteredResult.docs[0]));
     }).catch((err) => {
       dispatch(fetchAdmittedPatientsFailed(err));
+    });
+  };
+};
+
+export const deletePatient = (patient) => {
+  return dispatch => {
+    dispatch(deletePatientRequest());
+    console.log(patientDB);
+    patientDB.destroyAsync({
+      docName: patient._id,
+      rev: patient._rev
+    }).then((result) => {
+      console.log('result', result);
+      // dispatch(deletePatientSuccess(filteredResult.docs[0]));
+    }).catch((err) => {
+      dispatch(deletePatientFailed(err));
     });
   };
 };

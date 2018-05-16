@@ -10,6 +10,10 @@ class AdmittedPatients extends Component {
     this.props.fetchAdmittedPatients();
   }
 
+  goEditPatient = (patientId) => {
+    this.props.history.push(`/patients/editPatient/${patientId}`);
+  }
+
   goEdit = (patientId) => {
     this.props.history.push(`/patients/editvisit/${patientId}`);
   }
@@ -83,7 +87,7 @@ class AdmittedPatients extends Component {
     function actionButtonFormatter(cell, row, rowIndex) {
       return (
         <div className="container" key={rowIndex}>
-          <button className="button column-button">Edit</button>
+          <button className="button column-button" onClick={() => that.goEditPatient(row._id)}>Edit</button>
           <button className="button is-primary column-checkin-button" onClick={() => that.goEdit(row._id)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
           <button className="button is-danger column-button">Delete</button>
         </div>

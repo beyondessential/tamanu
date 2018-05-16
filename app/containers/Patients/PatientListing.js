@@ -2,10 +2,16 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import BootstrapTable from 'react-bootstrap-table-next';
-import { fetchPatients } from '../../actions/patients';
+import { fetchPatients, deletePatient } from '../../actions/patients';
 import { Colors, headerSortingStyle } from '../../constants';
+import DeletePatientModal from './components/DeletePatientModal';
 
 class PatientListing extends Component {
+  state = {
+    deleteModalVisible: false,
+    selectedPatient: null
+  }
+
   componentDidMount() {
     this.props.fetchPatients();
   }
@@ -22,9 +28,27 @@ class PatientListing extends Component {
     }
   }
 
+  showDeleteModal = (patient) => {
+    this.setState({
+      deleteModalVisible: true,
+      selectedPatient: patient
+    });
+  }
+
+  onCloseModal = () => {
+    this.setState({ deleteModalVisible: false });
+  }
+
+  onDeletePatient = () => {
+    const { selectedPatient } = this.state;
+    this.props.deletePatient(selectedPatient);
+    this.onCloseModal();
+  }
+
   render() {
-    const that = this;
+    const { deleteModalVisible } = this.state;
     const { patients } = this.props;
+    const that = this;
     const patientColumns = [{
       dataField: 'displayId',
       text: 'Id',
@@ -93,7 +117,7 @@ class PatientListing extends Component {
         <div className="container" key={rowIndex}>
           <button className="button column-button" onClick={() => that.goEdit(row._id)}>Edit</button>
           <button className="button is-primary column-checkin-button" onClick={() => that.goAdmit(row._id, row)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
-          <button className="button is-danger column-button">Delete</button>
+          <button className="button is-danger column-button" onClick={() => that.showDeleteModal(row)}>Delete</button>
         </div>
       );
     }
@@ -128,6 +152,12 @@ class PatientListing extends Component {
             </div>
           }
         </div>
+        <DeletePatientModal
+          isVisible={deleteModalVisible}
+          onClose={this.onCloseModal}
+          onDelete={this.onDeletePatient}
+          little
+        />
       </div>
     );
   }
@@ -141,6 +171,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = dispatch => ({
   fetchPatients: () => dispatch(fetchPatients()),
+  deletePatient: (selectedPatient) => dispatch(deletePatient(selectedPatient)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(PatientListing);
