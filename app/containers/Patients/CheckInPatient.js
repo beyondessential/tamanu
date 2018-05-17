@@ -8,7 +8,7 @@ import moment from 'moment';
 import Serializer from '../../utils/form-serialize';
 import InputGroup from '../../components/InputGroup';
 import CustomDateInput from '../../components/CustomDateInput';
-import { fetchOnePatient } from '../../actions/patients';
+import { fetchOnePatient, checkInPatient } from '../../actions/patients';
 import { visitOptions } from '../../constants';
 
 class CheckInPatient extends Component {
@@ -47,12 +47,8 @@ class CheckInPatient extends Component {
             className="create-container"
             onSubmit={(e) => {
               e.preventDefault();
-              const medication = Serializer.serialize(e.target, { hash: true });
-              if (medication.patient && medication.visit && medication.medication && medication.prescription) {
-                this.props.createMedication(medication);
-              } else {
-                // this.setState({ formError: true });
-              }
+              const patientValue = Serializer.serialize(e.target, { hash: true });
+              this.props.checkInPatient(patientValue);
             }}
           >
             <div className="form">
@@ -193,6 +189,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = dispatch => ({
   fetchOnePatient: id => dispatch(fetchOnePatient(id)),
+  checkInPatient: patient => dispatch(checkInPatient(patient)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(CheckInPatient);

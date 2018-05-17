@@ -176,7 +176,8 @@ class EditVisit extends Component {
               </div>
               <div className="column has-text-right">
                 <Link className="button is-danger cancel" to="/patients">Cancel</Link>
-                <button className="button is-primary" type="submit">Admit</button>
+                <button className="button is-primary cancel" type="submit">Update</button>
+                <button className="button is-primary" type="submit">Discharge</button>
               </div>
             </div>
           </form>

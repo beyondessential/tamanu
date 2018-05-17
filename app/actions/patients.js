@@ -16,7 +16,10 @@ import {
   FETCH_ONE_PATIENT_FAILED,
   DELETE_PATIENT_REQUEST,
   DELETE_PATIENT_SUCCESS,
-  DELETE_PATIENT_FAILED
+  DELETE_PATIENT_FAILED,
+  CHECKIN_PATIENT_REQUEST,
+  CHECKIN_PATIENT_SUCCESS,
+  CHECKIN_PATIENT_FAILED
 } from './types';
 import { patientDB } from '../utils/dbHelper';
 import { getDisplayId } from '../constants';
@@ -135,6 +138,25 @@ export function deletePatientFailed() {
   };
 }
 
+export function checkInPatientRequest() {
+  return {
+    type: CHECKIN_PATIENT_REQUEST
+  };
+}
+
+export function checkInPatientSuccess(patient) {
+  return {
+    type: CHECKIN_PATIENT_SUCCESS,
+    payload: patient
+  };
+}
+
+export function checkInPatientFailed() {
+  return {
+    type: CHECKIN_PATIENT_FAILED
+  };
+}
+
 
 export const createPatientIndexes = () => {
   return dispatch => {
@@ -242,18 +264,18 @@ export const fetchOnePatient = (id) => {
 export const deletePatient = (patient) => {
   return dispatch => {
     dispatch(deletePatientRequest());
-    // patientDB.destroyAsync({
-    //   docName: patient._id,
-    //   rev: patient._rev
-    // }).then((result) => {
-    //   console.log('result', result);
-    //   // dispatch(deletePatientSuccess(filteredResult.docs[0]));
-    // }).catch((err) => {
-    //   console.log(err);
-    //   dispatch(deletePatientFailed(err));
-    // });
     patientDB.destroy(patient._id, patient._rev, (result) => {
       dispatch(deletePatientSuccess(result));
     });
+  };
+};
+
+export const checkInPatient = (patient) => {
+  return dispatch => {
+    dispatch(checkInPatientRequest());
+    console.log(patientDB);
+    // patientDB.destroy(patient._id, patient._rev, (result) => {
+    //   dispatch(checkInPatientSuccess(result));
+    // });
   };
 };
