@@ -29,30 +29,36 @@ export default (state = initialState, action) => {
     case CREATE_PATIENT_REQUEST:
       return {
         ...state,
-        createPatientSuccess: false
+        createPatientSuccess: false,
+        deletePatientSuccess: false
       };
     case CREATE_PATIENT_SUCCESS:
       return {
         ...state,
-        createPatientSuccess: true
+        createPatientSuccess: true,
+        deletePatientSuccess: false
       };
     case CREATE_PATIENT_FAILED:
       return {
         ...state,
-        createPatientSuccess: false
+        createPatientSuccess: false,
+        deletePatientSuccess: false
       };
     case FETCH_PATIENTS_REQUEST:
       return {
         ...state,
+        deletePatientSuccess: false
       };
     case FETCH_PATIENTS_SUCCESS:
       return {
         ...state,
-        patients: action.payload
+        patients: action.payload,
+        deletePatientSuccess: false
       };
     case FETCH_PATIENTS_FAILED:
       return {
         ...state,
+        deletePatientSuccess: false
       };
     case FETCH_ADMITTED_PATIENTS_REQUEST:
       return {
@@ -84,16 +90,19 @@ export default (state = initialState, action) => {
     case DELETE_PATIENT_REQUEST:
       return {
         ...state,
+        createPatientSuccess: false,
         deletePatientSuccess: false
       };
     case DELETE_PATIENT_SUCCESS:
       return {
         ...state,
+        createPatientSuccess: false,
         deletePatientSuccess: true
       };
     case DELETE_PATIENT_FAILED:
       return {
         ...state,
+        createPatientSuccess: false,
         deletePatientSuccess: false
       };
     default:

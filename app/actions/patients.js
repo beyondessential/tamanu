@@ -183,6 +183,7 @@ export const createPatient = patient => {
         admitted: false
       }).then(response => {
         dispatch(createPatientSuccess(response));
+        return null;
       }).catch((err) => {
         dispatch(createPatientFailed(err));
       });
@@ -241,15 +242,18 @@ export const fetchOnePatient = (id) => {
 export const deletePatient = (patient) => {
   return dispatch => {
     dispatch(deletePatientRequest());
-    console.log(patientDB);
-    patientDB.destroyAsync({
-      docName: patient._id,
-      rev: patient._rev
-    }).then((result) => {
-      console.log('result', result);
-      // dispatch(deletePatientSuccess(filteredResult.docs[0]));
-    }).catch((err) => {
-      dispatch(deletePatientFailed(err));
+    // patientDB.destroyAsync({
+    //   docName: patient._id,
+    //   rev: patient._rev
+    // }).then((result) => {
+    //   console.log('result', result);
+    //   // dispatch(deletePatientSuccess(filteredResult.docs[0]));
+    // }).catch((err) => {
+    //   console.log(err);
+    //   dispatch(deletePatientFailed(err));
+    // });
+    patientDB.destroy(patient._id, patient._rev, (result) => {
+      dispatch(deletePatientSuccess(result));
     });
   };
 };

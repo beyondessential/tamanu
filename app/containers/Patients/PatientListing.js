@@ -9,11 +9,17 @@ import DeletePatientModal from './components/DeletePatientModal';
 class PatientListing extends Component {
   state = {
     deleteModalVisible: false,
-    selectedPatient: null
+    selectedPatient: null,
   }
 
   componentDidMount() {
     this.props.fetchPatients();
+  }
+
+  componentWillReceiveProps({ deletePatientSuccess }) {
+    if (deletePatientSuccess) {
+      this.props.fetchPatients();
+    }
   }
 
   goEdit = (patientId) => {
@@ -164,8 +170,10 @@ class PatientListing extends Component {
 }
 
 function mapStateToProps(state) {
+  const { patients, deletePatientSuccess } = state.patients;
   return {
-    patients: state.patients.patients
+    patients,
+    deletePatientSuccess
   };
 }
 
