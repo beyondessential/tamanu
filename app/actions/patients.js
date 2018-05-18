@@ -139,7 +139,7 @@ export function deletePatientFailed() {
 export const createPatientIndexes = () => {
   return dispatch => {
     dispatch(createPatientIndexesRequest());
-    patientDB.createIndexAsync({
+    patientDB.createIndex({
       index: {
         fields: ['_id', 'admitted']
       }
@@ -155,7 +155,7 @@ export const createPatient = patient => {
   return dispatch => {
     dispatch(createPatientRequest());
     getDisplayId('P').then(displayId => {
-      patientDB.insertAsync({
+      patientDB.insert({
         displayId,
         firstName: patient.firstName || '',
         middleName: patient.middleName || '',
@@ -196,7 +196,7 @@ export const createPatient = patient => {
 export const fetchPatients = () => {
   return dispatch => {
     dispatch(fetchPatientsRequest());
-    patientDB.listAsync({
+    patientDB.list({
       include_docs: true,
       attachments: true
     }).then((result) => {
@@ -216,7 +216,7 @@ export const fetchPatients = () => {
 export const fetchAdmittedPatients = () => {
   return dispatch => {
     dispatch(fetchAdmittedPatientsRequest());
-    patientDB.findAsync({
+    patientDB.find({
       selector: { admitted: { $eq: true } }
     }).then((filteredResult) => {
       dispatch(fetchAdmittedPatientsSuccess(filteredResult.docs));
@@ -229,7 +229,7 @@ export const fetchAdmittedPatients = () => {
 export const fetchOnePatient = (id) => {
   return dispatch => {
     dispatch(fetchOnePatientRequest());
-    patientDB.findAsync({
+    patientDB.find({
       selector: { _id: { $eq: id } }
     }).then((filteredResult) => {
       dispatch(fetchOnePatientSuccess(filteredResult.docs[0]));
@@ -242,7 +242,7 @@ export const fetchOnePatient = (id) => {
 export const deletePatient = (patient) => {
   return dispatch => {
     dispatch(deletePatientRequest());
-    // patientDB.destroyAsync({
+    // patientDB.destroy({
     //   docName: patient._id,
     //   rev: patient._rev
     // }).then((result) => {

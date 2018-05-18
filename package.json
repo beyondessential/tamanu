@@ -188,6 +188,10 @@
     "webpack-merge": "^4.1.1"
   },
   "dependencies": {
+    "backbone-pouch": "^1.5.0",
+    "backbone-react-component": "^1.0.0",
+    "backbone-xhr-events": "^1.0.1",
+    "backbone.localstorage": "^2.0.2",
     "bluebird": "^3.5.1",
     "bulma": "^0.7.1",
     "classnames": "^2.2.5",
@@ -195,6 +199,8 @@
     "electron-debug": "^1.5.0",
     "font-awesome": "^4.7.0",
     "history": "^4.7.2",
+    "jquery": "^3.3.1",
+    "lodash": "^4.17.10",
     "moment": "^2.22.1",
     "nano": "^6.4.4",
     "react": "^16.2.0",
@@ -202,7 +208,9 @@
     "react-bootstrap-table-next": "^0.1.8",
     "react-datepicker": "^1.4.1",
     "react-dom": "^16.2.0",
+    "react-events": "^1.0.1",
     "react-hot-loader": "^4.0.0-beta.13",
+    "react-mixin-manager": "^1.0.2",
     "react-redux": "^5.0.6",
     "react-responsive-modal": "^2.1.0",
     "react-router": "^4.2.0",
@@ -212,7 +220,8 @@
     "redux": "^3.7.2",
     "redux-pouchdb": "^0.1.1",
     "redux-thunk": "^2.2.0",
-    "source-map-support": "^0.5.3"
+    "source-map-support": "^0.5.3",
+    "underscore": "^1.9.0"
   },
   "devEngines": {
     "node": ">=7.x",

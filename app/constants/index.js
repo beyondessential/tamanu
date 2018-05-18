@@ -259,7 +259,7 @@ export const getDisplayId = (item) => {
   return new Promise((resolve, reject) => {
     let renderedValue = '';
     let totalItemCount = 0;
-    patientDB.infoAsync().then((result) => {
+    patientDB.info().then((result) => {
       totalItemCount = result.doc_count + result.doc_del_count;
       renderedValue = padDigits(totalItemCount, 5);
       resolve(item + renderedValue);

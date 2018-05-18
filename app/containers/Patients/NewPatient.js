@@ -11,9 +11,15 @@ import InputGroup from '../../components/InputGroup';
 import CustomDateInput from '../../components/CustomDateInput';
 import Serializer from '../../utils/form-serialize';
 import { createPatient, createPatientIndexes } from '../../actions/patients';
-import { bloodOptions, sexOptions, getDifferenceDate } from '../../constants';
+import { bloodOptions, sexOptions, getDifferenceDate, getDisplayId } from '../../constants';
+import { Patient as PatientModel } from '../../models';
 
 class NewPatient extends Component {
+  // constructor(props) {
+  //   super(props);
+  //   // this.handleChange = this.handleChange.bind(this);
+  // }
+
   state = {
     formError: false,
     bloodType: '',
@@ -25,13 +31,7 @@ class NewPatient extends Component {
   }
 
   componentDidMount() {
-    this.props.createPatientIndexes();
-  }
-
-  componentWillReceiveProps({ createPatientSuccess }) {
-    if (createPatientSuccess) {
-      this.props.history.push('/patients');
-    }
+    // this.props.createPatientIndexes();
   }
 
   onCloseModal = () => {
@@ -89,14 +89,19 @@ class NewPatient extends Component {
         </div>
         <form
           className="create-container"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
+            // TODO: move this to the model
             e.preventDefault();
             const patient = Serializer.serialize(e.target, { hash: true });
             patient.birthday = moment(birthday).format('YYYY-MM-DD');
             patient.referredDate = moment(referredDate).format('YYYY-MM-DD');
             patient.age = age;
-            if (patient.firstName && patient.lastName) {
-              this.props.createPatient(patient);
+            patient.displayId = await getDisplayId('P');
+
+            const patientRecord = new PatientModel(patient);
+            if (patientRecord.isValid()) {
+              patientRecord.save();
+              this.props.history.push('/patients');
             } else {
               this.setState({ formError: true });
             }
@@ -382,16 +387,23 @@ class NewPatient extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  const { createPatientSuccess } = state.patients;
-  return {
-    createPatientSuccess,
-  };
-}
+NewPatient.defaultProps = {
+  model: new PatientModel(),
+  patients: []
+};
 
-const mapDispatchToProps = dispatch => ({
-  createPatient: patient => dispatch(createPatient(patient)),
-  createPatientIndexes: () => dispatch(createPatientIndexes())
-});
+export default NewPatient;
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewPatient);
+// function mapStateToProps(state) {
+//   const { createPatientSuccess } = state.patients;
+//   return {
+//     createPatientSuccess,
+//   };
+// }
+
+// const mapDispatchToProps = dispatch => ({
+//   createPatient: patient => dispatch(createPatient(patient)),
+//   createPatientIndexes: () => dispatch(createPatientIndexes())
+// });
+
+// export default connect(mapStateToProps, mapDispatchToProps)(NewPatient);

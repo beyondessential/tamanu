@@ -1,25 +1,43 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import BootstrapTable from 'react-bootstrap-table-next';
-import { fetchPatients, deletePatient } from '../../actions/patients';
+import { map, isEmpty } from 'lodash';
+
+// import { fetchPatients, deletePatient } from '../../actions/patients';
 import { Colors, headerSortingStyle } from '../../constants';
 import DeletePatientModal from './components/DeletePatientModal';
+import { Patient as PatientModel } from '../../models';
+import { Patients as PatientsCollection } from '../../collections';
+
 
 class PatientListing extends Component {
+  constructor(props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
   state = {
     deleteModalVisible: false,
     selectedPatient: null,
   }
 
   componentDidMount() {
-    this.props.fetchPatients();
+    this.props.collection.on('update', this.handleChange);
+    this.props.collection.fetch();
   }
 
   componentWillReceiveProps({ deletePatientSuccess }) {
     if (deletePatientSuccess) {
-      this.props.fetchPatients();
+      this.props.collection.fetch();
     }
+  }
+
+  componentWillUnmount() {
+    this.props.collection.off('update', this.handleChange);
+  }
+
+  handleChange() {
+    this.forceUpdate();
   }
 
   goEdit = (patientId) => {
@@ -46,15 +64,22 @@ class PatientListing extends Component {
   }
 
   onDeletePatient = () => {
-    const { selectedPatient } = this.state;
-    this.props.deletePatient(selectedPatient);
-    this.onCloseModal();
+    let { selectedPatient } = this.state;
+    selectedPatient = this.props.collection.findWhere({ _id: selectedPatient._id });
+    if (!isEmpty(selectedPatient)) {
+      selectedPatient.destroy({
+        wait: true,
+        success: () => this.onCloseModal()
+      });
+    }
   }
 
   render() {
     const { deleteModalVisible } = this.state;
-    const { patients } = this.props;
     const that = this;
+    let { models: patients } = this.props.collection;
+    if (patients.length > 0) patients = map(patients, patient => patient.attributes);
+
     const patientColumns = [{
       dataField: 'displayId',
       text: 'Id',
@@ -169,17 +194,25 @@ class PatientListing extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  const { patients, deletePatientSuccess } = state.patients;
-  return {
-    patients,
-    deletePatientSuccess
-  };
-}
+PatientListing.defaultProps = {
+  collection: new PatientsCollection(),
+  model: new PatientModel(),
+  patients: []
+};
 
-const mapDispatchToProps = dispatch => ({
-  fetchPatients: () => dispatch(fetchPatients()),
-  deletePatient: (selectedPatient) => dispatch(deletePatient(selectedPatient)),
-});
+export default PatientListing;
 
-export default connect(mapStateToProps, mapDispatchToProps)(PatientListing);
+// function mapStateToProps(state) {
+//   const { patients, deletePatientSuccess } = state.patients;
+//   return {
+//     patients,
+//     deletePatientSuccess
+//   };
+// }
+
+// const mapDispatchToProps = dispatch => ({
+//   fetchPatients: () => dispatch(fetchPatients()),
+//   deletePatient: (selectedPatient) => dispatch(deletePatient(selectedPatient)),
+// });
+
+// export default connect(mapStateToProps, mapDispatchToProps)(PatientListing);
