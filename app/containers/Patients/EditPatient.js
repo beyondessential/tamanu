@@ -5,9 +5,12 @@ import { Link } from 'react-router-dom';
 import Serializer from '../../utils/form-serialize';
 import { fetchOnePatient } from '../../actions/patients';
 
+const classNames = require('classnames');
+
 class EditPatient extends Component {
   state = {
     // formError: false,
+    selectedTab: ''
   }
 
   componentDidMount() {
@@ -19,7 +22,14 @@ class EditPatient extends Component {
   //   this.setState({ formError: false });
   // }
 
+  changeTab = (tabName) => {
+    this.setState({
+      selectedTab: tabName
+    });
+  }
+
   render() {
+    const { selectedTab } = this.state;
     const { patient } = this.props;
     return (
       <div>
@@ -44,27 +54,102 @@ class EditPatient extends Component {
             <div className="form">
               <div className="columns">
                 <div className="column">
-                  <div className="column visit-header">
-                    <span>
-                      Visit Information
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="columns">
-                <div className="column">
                   <div className="columns">
-                    <div className="column">
+                    <div className="column is-8">
                       <div className="column">
-                        <span>Name: </span>
-                        <span>
+                        <span className="title">Name: </span>
+                        <span className="full-name">
                           {patient.firstName} {patient.lastName}
                         </span>
                       </div>
                     </div>
-                    <div className="column level-left">
-                      <div className="card-info">
-                        {patient.displayId}
+                    <div className="column is-4">
+                      <div className="align-left">
+                        <div className="card-info">
+                          {patient.displayId}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="columns border-bottom">
+                    <div className="column">
+                      <div className="column">
+                        <span className="title">Primary Dignose  </span>
+                        <a className="add-button">
+                          + Add Dignosis
+                        </a>
+                      </div>
+                      <div className="column">
+                        <span className="title">Operative Plan  </span>
+                        <a className="add-button">
+                          + Add Operative Plan
+                        </a>
+                      </div>
+                    </div>
+                    <div className="column">
+                      <div className="column">
+                        <span className="title">Patient Allergies  </span>
+                        <a className="add-button">
+                          + Add Allergy
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="columns">
+                    <div className="column">
+                      <div className="tabs">
+                        <ul>
+                          <li className={classNames(selectedTab === '' || selectedTab === 'history' ? 'is-active' : '')}><a onClick={() => this.changeTab('history')}>History</a></li>
+                          <li className={classNames(selectedTab === 'general' ? 'is-active' : '')}><a onClick={() => this.changeTab('general')}>General</a></li>
+                          <li className={classNames(selectedTab === 'photos' ? 'is-active' : '')}><a onClick={() => this.changeTab('photos')}>Photos</a></li>
+                          <li className={classNames(selectedTab === 'appointment' ? 'is-active' : '')}><a onClick={() => this.changeTab('appointment')}>Appointments</a></li>
+                          <li className={classNames(selectedTab === 'visit' ? 'is-active' : '')}><a onClick={() => this.changeTab('visit')}>Visits</a></li>
+                          <li className={classNames(selectedTab === 'medication' ? 'is-active' : '')}><a onClick={() => this.changeTab('medication')}>Medication</a></li>
+                          <li className={classNames(selectedTab === 'imaging' ? 'is-active' : '')}><a onClick={() => this.changeTab('imaging')}>Imaging</a></li>
+                          <li className={classNames(selectedTab === 'labs' ? 'is-active' : '')}><a onClick={() => this.changeTab('labs')}>Labs</a></li>
+                        </ul>
+                      </div>
+                      <div className="tab-content">
+                        {(selectedTab === '' || selectedTab === 'history') &&
+                          <div className="column">
+                            history
+                          </div>
+                        }
+                        {selectedTab === 'general' &&
+                          <div className="column">
+                            general
+                          </div>
+                        }
+                        {selectedTab === 'photos' &&
+                          <div className="column">
+                            photos
+                          </div>
+                        }
+                        {selectedTab === 'appointment' &&
+                          <div className="column">
+                            appointment
+                          </div>
+                        }
+                        {selectedTab === 'visit' &&
+                          <div className="column">
+                            visit
+                          </div>
+                        }
+                        {selectedTab === 'medication' &&
+                          <div className="column">
+                            medication
+                          </div>
+                        }
+                        {selectedTab === 'imaging' &&
+                          <div className="column">
+                            imaging
+                          </div>
+                        }
+                        {selectedTab === 'labs' &&
+                          <div className="column">
+                            labs
+                          </div>
+                        }
                       </div>
                     </div>
                   </div>
