@@ -1,16 +1,22 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+
 // import ModalView from '../../components/Modal';
-import Serializer from '../../utils/form-serialize';
-import { fetchOnePatient } from '../../actions/patients';
+import AddAllergyModal from '../components/AddAllergyModal';
+import History from './History';
+import General from './General';
+
+import Serializer from '../../../utils/form-serialize';
+import { fetchOnePatient } from '../../../actions/patients';
 
 const classNames = require('classnames');
 
 class EditPatient extends Component {
   state = {
     // formError: false,
-    selectedTab: ''
+    selectedTab: '',
+    allergyModalVisible: false
   }
 
   componentDidMount() {
@@ -22,6 +28,10 @@ class EditPatient extends Component {
   //   this.setState({ formError: false });
   // }
 
+  onCloseAllergyModal = () => {
+    this.setState({ allergyModalVisible: false });
+  }
+
   changeTab = (tabName) => {
     this.setState({
       selectedTab: tabName
@@ -29,7 +39,10 @@ class EditPatient extends Component {
   }
 
   render() {
-    const { selectedTab } = this.state;
+    const {
+      selectedTab,
+      allergyModalVisible
+    } = this.state;
     const { patient } = this.props;
     return (
       <div>
@@ -89,7 +102,7 @@ class EditPatient extends Component {
                     <div className="column">
                       <div className="column">
                         <span className="title">Patient Allergies  </span>
-                        <a className="add-button">
+                        <a className="add-button" onClick={() => this.setState({ allergyModalVisible: true })}>
                           + Add Allergy
                         </a>
                       </div>
@@ -99,26 +112,24 @@ class EditPatient extends Component {
                     <div className="column">
                       <div className="tabs">
                         <ul>
-                          <li className={classNames(selectedTab === '' || selectedTab === 'history' ? 'is-active' : '')}><a onClick={() => this.changeTab('history')}>History</a></li>
-                          <li className={classNames(selectedTab === 'general' ? 'is-active' : '')}><a onClick={() => this.changeTab('general')}>General</a></li>
-                          <li className={classNames(selectedTab === 'photos' ? 'is-active' : '')}><a onClick={() => this.changeTab('photos')}>Photos</a></li>
-                          <li className={classNames(selectedTab === 'appointment' ? 'is-active' : '')}><a onClick={() => this.changeTab('appointment')}>Appointments</a></li>
-                          <li className={classNames(selectedTab === 'visit' ? 'is-active' : '')}><a onClick={() => this.changeTab('visit')}>Visits</a></li>
-                          <li className={classNames(selectedTab === 'medication' ? 'is-active' : '')}><a onClick={() => this.changeTab('medication')}>Medication</a></li>
-                          <li className={classNames(selectedTab === 'imaging' ? 'is-active' : '')}><a onClick={() => this.changeTab('imaging')}>Imaging</a></li>
-                          <li className={classNames(selectedTab === 'labs' ? 'is-active' : '')}><a onClick={() => this.changeTab('labs')}>Labs</a></li>
+                          <li className={classNames(selectedTab === '' || selectedTab === 'history' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('history')}>History</a></li>
+                          <li className={classNames(selectedTab === 'general' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('general')}>General</a></li>
+                          <li className={classNames(selectedTab === 'photos' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('photos')}>Photos</a></li>
+                          <li className={classNames(selectedTab === 'appointment' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('appointment')}>Appointments</a></li>
+                          <li className={classNames(selectedTab === 'visit' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('visit')}>Visits</a></li>
+                          <li className={classNames(selectedTab === 'medication' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('medication')}>Medication</a></li>
+                          <li className={classNames(selectedTab === 'imaging' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('imaging')}>Imaging</a></li>
+                          <li className={classNames(selectedTab === 'labs' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('labs')}>Labs</a></li>
                         </ul>
                       </div>
                       <div className="tab-content">
                         {(selectedTab === '' || selectedTab === 'history') &&
                           <div className="column">
-                            history
+                            <History />
                           </div>
                         }
                         {selectedTab === 'general' &&
-                          <div className="column">
-                            general
-                          </div>
+                          <General />
                         }
                         {selectedTab === 'photos' &&
                           <div className="column">
@@ -169,6 +180,11 @@ class EditPatient extends Component {
           contentText="Please fill in required fields (marked with *) and correct the errors before saving."
           little
         /> */}
+        <AddAllergyModal
+          isVisible={allergyModalVisible}
+          onClose={this.onCloseAllergyModal}
+          little
+        />
       </div>
     );
   }
