@@ -77,3 +77,8 @@ a:hover {
   margin-right: 5px;
   width: 100px;
 }
+
+.align-left {
+  display: flex;
+  justify-content: flex-end;
+}

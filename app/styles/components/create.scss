@@ -99,6 +99,35 @@
         align-items: center;
         background: $main-light-gray-color;
         border-radius: 5px;
+        margin-right: 10px;
+      }
+      .title {
+        font-size: 16px;
+        font-weight: 400;
+      }
+      .full-name {
+        font-size: 22px;
+        font-weight: 600;
+      }
+      .add-button {
+        color: #428bca;
+        text-decoration: none;
+        cursor: pointer;
+        background: transparent;
+        font-size: 16px;
+        border: none;
+        font-weight: bold;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+      .border-bottom {
+        border-bottom: 2px solid #eff2f5;
+      }
+      .tabs {
+        a {
+          color: #6784a2;
+        }
       }
     }
     .form-table {
