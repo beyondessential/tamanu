@@ -6,8 +6,7 @@ import { map, isEmpty } from 'lodash';
 // import { fetchPatients, deletePatient } from '../../actions/patients';
 import { Colors, headerSortingStyle } from '../../constants';
 import DeletePatientModal from './components/DeletePatientModal';
-import { Patient as PatientModel } from '../../models';
-import { Patients as PatientsCollection } from '../../collections';
+import { PatientsCollection } from '../../collections';
 
 
 class PatientListing extends Component {
@@ -196,7 +195,6 @@ class PatientListing extends Component {
 
 PatientListing.defaultProps = {
   collection: new PatientsCollection(),
-  model: new PatientModel(),
   patients: []
 };
 

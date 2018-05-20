@@ -19,7 +19,6 @@ import {
   DELETE_PATIENT_FAILED
 } from './types';
 import { patientDB } from '../utils/dbHelper';
-import { getDisplayId } from '../constants';
 
 export function createPatientIndexesRequest() {
   return {
@@ -151,44 +150,18 @@ export const createPatientIndexes = () => {
   };
 };
 
-export const createPatient = patient => {
+export const createPatient = (patient, history) => {
   return dispatch => {
     dispatch(createPatientRequest());
-    getDisplayId('P').then(displayId => {
-      patientDB.insert({
-        displayId,
-        firstName: patient.firstName || '',
-        middleName: patient.middleName || '',
-        lastName: patient.lastName || '',
-        culturalName: patient.culturalName || '',
-        sex: patient.sex || '',
-        birthday: patient.birthday || '',
-        age: patient.age || '',
-        placeOfBirth: patient.placeOfBirth || '',
-        occupation: patient.occupation || '',
-        patientType: patient.patientType || '',
-        patientStatus: patient.patientStatus || '',
-        externalPatientId: patient.externalPatientId || '',
-        bloodType: patient.bloodType || '',
-        clinicSite: patient.clinicSite || '',
-        referredBy: patient.referredBy || '',
-        referredDate: patient.referredDate || '',
-        religion: patient.religion || '',
-        parent: patient.parent || '',
-        paymentProfile: patient.paymentProfile || '',
-        phone: patient.phone || '',
-        address: patient.address || '',
-        email: patient.email || '',
-        country: patient.country || '',
-        admitted: false
-      }).then(response => {
+    patient.save(patient.attributes, {
+      success: (model, response) => {
         dispatch(createPatientSuccess(response));
-        return null;
-      }).catch((err) => {
-        dispatch(createPatientFailed(err));
-      });
-    }).catch((err) => {
-      console.log(err);
+        history.push('/patients');
+      },
+      error: (model, response) => {
+        console.log('error', response);
+        return dispatch(createPatientFailed(response));
+      }
     });
   };
 };

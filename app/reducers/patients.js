@@ -41,6 +41,7 @@ export default (state = initialState, action) => {
     case CREATE_PATIENT_FAILED:
       return {
         ...state,
+        formError: true,
         createPatientSuccess: false,
         deletePatientSuccess: false
       };

@@ -1,14 +1,25 @@
-const { Collection } = require('backbone');
-const PouchDB = require('pouchdb');
-const Patient = require('../models/patient');
-const BackbonePouch = require('backbone-pouch');
+import BackbonePouch from 'backbone-pouch';
+
+const Backbone = require('backbone');
+const { PatientModel } = require('../models');
 const { map } = require('lodash');
-const _ = require('underscore');
-// const dbs = require('../utils/dbHelper');
+const { patientDB } = require('../utils/dbHelper');
 
-const Patients = Collection.extend({
-  model: Patient,
-
+const Patients = Backbone.Collection.extend({
+  model: PatientModel,
+  sync: BackbonePouch.sync({
+    db: patientDB,
+    fetch: 'query',
+    options: {
+      query: {
+        include_docs: true,
+        fun: 'patient_by_display_id'
+      },
+      changes: {
+        include_docs: true
+      }
+    },
+  }),
   parse: (result) => {
     return map(result.rows, obj => obj.doc);
   }

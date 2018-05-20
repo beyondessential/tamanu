@@ -1,3 +1,3 @@
 module.exports = {
-  Patients: require('./patients')
+  PatientsCollection: require('./patients')
 };

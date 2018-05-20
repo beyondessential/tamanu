@@ -12,14 +12,9 @@ import CustomDateInput from '../../components/CustomDateInput';
 import Serializer from '../../utils/form-serialize';
 import { createPatient, createPatientIndexes } from '../../actions/patients';
 import { bloodOptions, sexOptions, getDifferenceDate, getDisplayId } from '../../constants';
-import { Patient as PatientModel } from '../../models';
+import { PatientModel } from '../../models';
 
 class NewPatient extends Component {
-  // constructor(props) {
-  //   super(props);
-  //   // this.handleChange = this.handleChange.bind(this);
-  // }
-
   state = {
     formError: false,
     bloodType: '',
@@ -98,10 +93,10 @@ class NewPatient extends Component {
             patient.age = age;
             patient.displayId = await getDisplayId('P');
 
-            const patientRecord = new PatientModel(patient);
-            if (patientRecord.isValid()) {
-              patientRecord.save();
-              this.props.history.push('/patients');
+            // Clear the model to refresh id
+            const _patient = new PatientModel(patient);
+            if (_patient.isValid()) {
+              this.props.createPatient(_patient);
             } else {
               this.setState({ formError: true });
             }
@@ -387,23 +382,16 @@ class NewPatient extends Component {
   }
 }
 
-NewPatient.defaultProps = {
-  model: new PatientModel(),
-  patients: []
-};
+function mapStateToProps(state) {
+  const { createPatientSuccess } = state.patients;
+  return {
+    createPatientSuccess,
+  };
+}
 
-export default NewPatient;
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  createPatient: patient => dispatch(createPatient(patient, ownProps.history)),
+  createPatientIndexes: () => dispatch(createPatientIndexes())
+});
 
-// function mapStateToProps(state) {
-//   const { createPatientSuccess } = state.patients;
-//   return {
-//     createPatientSuccess,
-//   };
-// }
-
-// const mapDispatchToProps = dispatch => ({
-//   createPatient: patient => dispatch(createPatient(patient)),
-//   createPatientIndexes: () => dispatch(createPatientIndexes())
-// });
-
-// export default connect(mapStateToProps, mapDispatchToProps)(NewPatient);
+export default connect(mapStateToProps, mapDispatchToProps)(NewPatient);
