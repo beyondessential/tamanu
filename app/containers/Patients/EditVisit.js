@@ -8,8 +8,8 @@ import moment from 'moment';
 import Serializer from '../../utils/form-serialize';
 import InputGroup from '../../components/InputGroup';
 import CustomDateInput from '../../components/CustomDateInput';
-import { fetchOnePatient } from '../../actions/patients';
 import { visitOptions } from '../../constants';
+import { PatientModel } from '../../models';
 
 class EditVisit extends Component {
   state = {
@@ -19,7 +19,14 @@ class EditVisit extends Component {
 
   componentDidMount() {
     const { id } = this.props.match.params;
-    this.props.fetchOnePatient(id);
+    this.props.model.set({ _id: id });
+    this.props.model.fetch();
+  }
+
+  componentWillUnmount() {
+    this.props.model.off('change', () => {
+      console.log('changed!');
+    });
   }
 
   onChangeDate = (date) => {
@@ -200,7 +207,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = dispatch => ({
-  fetchOnePatient: id => dispatch(fetchOnePatient(id)),
+  model: new PatientModel()
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditVisit);

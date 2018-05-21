@@ -4,14 +4,21 @@ import { Link } from 'react-router-dom';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
+import { isEmpty } from 'lodash';
 // import ModalView from '../../components/Modal';
 import Serializer from '../../utils/form-serialize';
 import InputGroup from '../../components/InputGroup';
 import CustomDateInput from '../../components/CustomDateInput';
 import { fetchOnePatient } from '../../actions/patients';
 import { visitOptions } from '../../constants';
+import { PatientModel } from '../../models';
 
 class CheckInPatient extends Component {
+  constructor(props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
   state = {
     // formError: false,
     prescriptionDate: moment(),
@@ -19,7 +26,13 @@ class CheckInPatient extends Component {
 
   componentDidMount() {
     const { id } = this.props.match.params;
-    this.props.fetchOnePatient(id);
+    this.props.model.set({ _id: id });
+    this.props.model.fetch();
+    this.props.model.on('change', this.handleChange);
+  }
+
+  componentWillUnmount() {
+    this.props.model.off('change', this.handleChange);
   }
 
   onChangeDate = (date) => {
@@ -28,13 +41,18 @@ class CheckInPatient extends Component {
     });
   }
 
+  handleChange() {
+    this.forceUpdate();
+  }
+
   // onCloseModal = () => {
   //   this.setState({ formError: false });
   // }
 
   render() {
     const { prescriptionDate } = this.state;
-    const { patient } = this.props;
+    let { model: patient } = this.props;
+    if (!isEmpty(patient)) patient = patient.attributes;
     return (
       <div>
         <div className="create-content">
@@ -192,6 +210,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = dispatch => ({
+  model: new PatientModel(),
   fetchOnePatient: id => dispatch(fetchOnePatient(id)),
 });
 

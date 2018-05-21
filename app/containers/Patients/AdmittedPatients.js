@@ -2,12 +2,27 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import BootstrapTable from 'react-bootstrap-table-next';
-import { fetchAdmittedPatients } from '../../actions/patients';
+import { map, isEmpty } from 'lodash';
 import { headerSortingStyle, Colors } from '../../constants';
+import { PatientsCollection } from '../../collections';
 
 class AdmittedPatients extends Component {
+  constructor(props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
   componentDidMount() {
-    this.props.fetchAdmittedPatients();
+    this.props.collection.on('update', this.handleChange);
+    this.props.collection.fetch({ options: { query: { fun: 'patient_by_admission' } } });
+  }
+
+  componentWillUnmount() {
+    this.props.collection.off('update', this.handleChange);
+  }
+
+  handleChange() {
+    this.forceUpdate();
   }
 
   goEditPatient = (patientId) => {
@@ -19,7 +34,8 @@ class AdmittedPatients extends Component {
   }
 
   render() {
-    const { admittedPatients } = this.props;
+    let { models: admittedPatients } = this.props.collection;
+    if (!isEmpty(admittedPatients)) admittedPatients = map(admittedPatients, patient => patient.attributes);
     const that = this;
     const patientColumns = [{
       dataField: 'displayId',
@@ -137,7 +153,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = dispatch => ({
-  fetchAdmittedPatients: () => dispatch(fetchAdmittedPatients()),
+  collection: new PatientsCollection()
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AdmittedPatients);

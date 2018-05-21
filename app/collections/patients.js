@@ -1,9 +1,8 @@
 import BackbonePouch from 'backbone-pouch';
-
-const Backbone = require('backbone');
-const { PatientModel } = require('../models');
-const { map } = require('lodash');
-const { patientDB } = require('../utils/dbHelper');
+import Backbone from 'backbone';
+import { map } from 'lodash';
+import { patientDB } from '../utils/dbHelper';
+import { PatientModel } from '../models';
 
 const Patients = Backbone.Collection.extend({
   model: PatientModel,

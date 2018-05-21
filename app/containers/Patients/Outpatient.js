@@ -3,19 +3,34 @@ import { connect } from 'react-redux';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
+import { map, isEmpty } from 'lodash';
 import BootstrapTable from 'react-bootstrap-table-next';
 import CustomDateInput from '../../components/CustomDateInput';
-import { fetchPatients } from '../../actions/patients';
 import { patientColumns, locationOptions } from '../../constants';
+import { PatientsCollection } from '../../collections';
 
 class Outpatient extends Component<Props> {
+  constructor(props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
   state = {
     startDate: moment(),
     selectValue: ''
   }
 
   componentDidMount() {
-    this.props.fetchPatients();
+    this.props.collection.on('update', this.handleChange);
+    this.props.collection.fetch({ options: { query: { fun: 'visit_by_date' } } });
+  }
+
+  componentWillUnmount() {
+    this.props.collection.off('update', this.handleChange);
+  }
+
+  handleChange() {
+    this.forceUpdate();
   }
 
   onChangeDate = (date) => {
@@ -32,7 +47,8 @@ class Outpatient extends Component<Props> {
 
   render() {
     const { startDate } = this.state;
-    const { patients } = this.props;
+    let { models: patients } = this.props.collection;
+    if (!isEmpty(patients)) patients = map(patients, patient => patient.attributes);
     return (
       <div className="create-content">
         <div className="create-top-bar">
@@ -107,7 +123,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = dispatch => ({
-  fetchPatients: () => dispatch(fetchPatients()),
+  collection: new PatientsCollection()
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Outpatient);

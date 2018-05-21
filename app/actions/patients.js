@@ -169,7 +169,7 @@ export const createPatient = (patient, history) => {
 export const fetchPatients = () => {
   return dispatch => {
     dispatch(fetchPatientsRequest());
-    patientDB.list({
+    patientDB.allDocs({
       include_docs: true,
       attachments: true
     }).then((result) => {
