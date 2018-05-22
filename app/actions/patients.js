@@ -211,7 +211,7 @@ export const fetchPatients = () => {
 export const fetchAdmittedPatients = () => {
   return dispatch => {
     dispatch(fetchAdmittedPatientsRequest());
-    patientDB.find({
+    patientDB.allDocs({
       selector: { admitted: { $eq: true } }
     }).then((filteredResult) => {
       dispatch(fetchAdmittedPatientsSuccess(filteredResult.docs));
@@ -224,7 +224,7 @@ export const fetchAdmittedPatients = () => {
 export const fetchOnePatient = (id) => {
   return dispatch => {
     dispatch(fetchOnePatientRequest());
-    patientDB.find({
+    patientDB.allDocs({
       selector: { _id: { $eq: id } }
     }).then((filteredResult) => {
       dispatch(fetchOnePatientSuccess(filteredResult.docs[0]));
