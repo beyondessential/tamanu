@@ -6,6 +6,12 @@ import { Link } from 'react-router-dom';
 import AddAllergyModal from '../components/AddAllergyModal';
 import History from './History';
 import General from './General';
+import Photos from './Photos';
+import Appointments from './Appointments';
+import Visits from './Visits';
+import Medication from './Medication';
+import Imaging from './Imaging';
+import Labs from './Labs';
 
 import Serializer from '../../../utils/form-serialize';
 import { fetchOnePatient } from '../../../actions/patients';
@@ -133,32 +139,32 @@ class EditPatient extends Component {
                         }
                         {selectedTab === 'photos' &&
                           <div className="column">
-                            photos
+                            <Photos />
                           </div>
                         }
                         {selectedTab === 'appointment' &&
                           <div className="column">
-                            appointment
+                            <Appointments />
                           </div>
                         }
                         {selectedTab === 'visit' &&
                           <div className="column">
-                            visit
+                            <Visits />
                           </div>
                         }
                         {selectedTab === 'medication' &&
                           <div className="column">
-                            medication
+                            <Medication />
                           </div>
                         }
                         {selectedTab === 'imaging' &&
                           <div className="column">
-                            imaging
+                            <Imaging />
                           </div>
                         }
                         {selectedTab === 'labs' &&
                           <div className="column">
-                            labs
+                            <Labs />
                           </div>
                         }
                       </div>
