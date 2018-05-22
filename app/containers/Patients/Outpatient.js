@@ -122,7 +122,7 @@ function mapStateToProps(state) {
   };
 }
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = () => ({
   collection: new PatientsCollection()
 });
 

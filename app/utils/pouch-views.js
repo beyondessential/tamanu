@@ -6,13 +6,13 @@ import { resolve, all } from 'rsvp';
 function buildIndex(indexName, db) {
   return db.query(indexName, {
     limit: 0
-  }).catch(function(err) {
+  }).catch((err) => {
     console.log(`index error: ${JSON.stringify(err, null, 2)}`);
   });
 }
 
 function createDesignDoc(item, rev) {
-  let ddoc = {
+  const ddoc = {
     _id: `_design/${item.name}`,
     version: item.version,
     views: {
@@ -31,18 +31,15 @@ function createDesignDoc(item, rev) {
 }
 
 function checkForUpdate(view, db, runningTest, testDumpFile) {
-  return db.get(`_design/${view.name}`).then(function(doc) {
-    if (doc.version !== view.version) {
-      return updateDesignDoc(view, db, doc._rev, runningTest, testDumpFile);
-    } else {
-      if (runningTest) {
-        // Indexes need to be built when running tests
-        return buildIndex(view.name, db);
-      } else {
-        return resolve();
-      }
+  return db.get(`_design/${view.name}`).then((doc) => {
+    if (doc.version !== view.version) return updateDesignDoc(view, db, doc._rev, runningTest, testDumpFile);
+    if (runningTest) {
+      // Indexes need to be built when running tests
+      return buildIndex(view.name, db);
     }
-  }, function() {
+
+    return resolve();
+  }, () => {
     return updateDesignDoc(view, db, null, runningTest, testDumpFile);
   });
 }
@@ -125,14 +122,14 @@ function generateView(viewDocType, viewBody) {
 }
 
 function updateDesignDoc(item, db, rev, runningTest, testDumpFile) {
-  let designDoc = createDesignDoc(item, rev);
+  const designDoc = createDesignDoc(item, rev);
   if (runningTest) {
     console.log(`WARNING: The view ${item.name} is out of date. Please update the pouch dump ${testDumpFile} to the latest version of ${item.name}`);
   }
-  return db.put(designDoc).then(function() {
+  return db.put(designDoc).then(() => {
     // Update index
     return buildIndex(item.name, db);
-  }, function(err) {
+  }, (err) => {
     console.log('ERR updating design doc:', JSON.stringify(err, null, 2));
     // ignored, design doc already exists
   });
@@ -148,13 +145,10 @@ function generateDateForView(date1) {
     }`;
 }
 
-let appointmentSearch = generateSortFunction(function(a, b) {
+const appointmentSearch = generateSortFunction(((a, b) => {
   function defaultStatus(value) {
-    if (!value || value === '') {
-      return 'Scheduled';
-    } else {
-      return value;
-    }
+    if (!value || value === '') return 'Scheduled';
+    return value;
   }
   let sortBy = '';
   if (req.query && req.query.sortKey) {
@@ -166,23 +160,20 @@ let appointmentSearch = generateSortFunction(function(a, b) {
     case 'provider':
       return compareStrings(a.doc[sortBy], b.doc[sortBy]);
     case 'date': {
-      let startDiff = getCompareDate(a.doc.startDate) - getCompareDate(b.doc.startDate);
-      if (startDiff === 0) {
-        return getCompareDate(a.doc.endDate) - getCompareDate(b.doc.endDate);
-      } else {
-        return startDiff;
-      }
+      const startDiff = getCompareDate(a.doc.startDate) - getCompareDate(b.doc.startDate);
+      if (startDiff === 0) return getCompareDate(a.doc.endDate) - getCompareDate(b.doc.endDate);
+      return startDiff;
     }
     case 'status': {
-      let aStatus = defaultStatus(a.doc[sortBy]);
-      let bStatus = defaultStatus(b.doc[sortBy]);
+      const aStatus = defaultStatus(a.doc[sortBy]);
+      const bStatus = defaultStatus(b.doc[sortBy]);
       return compareStrings(aStatus, bStatus);
     }
     default: {
       return 0; // Don't sort
     }
   }
-}.toString(), true, function(row) {
+}).toString(), true, ((row) => {
   let filterBy = null;
   let includeRow = true;
   if (req.query && req.query.filterBy) {
@@ -191,7 +182,7 @@ let appointmentSearch = generateSortFunction(function(a, b) {
   if (!filterBy) {
     return true;
   }
-  for (let i = 0; i < filterBy.length; i++) {
+  for (let i = 0; i < filterBy.length; i += 1) {
     let currentValue = row.doc[filterBy[i].name];
     if (filterBy[i].name === 'status' && (!currentValue || currentValue === '')) {
       currentValue = 'Scheduled';
@@ -202,9 +193,9 @@ let appointmentSearch = generateSortFunction(function(a, b) {
     }
   }
   return includeRow;
-}.toString());
+}).toString());
 
-let patientListingKey = `if (doc.displayId) {
+const patientListingKey = `if (doc.displayId) {
     emit([doc.displayId, doc._id]);
   } else if (doc.externalPatientId) {
     emit([doc.externalPatientId, doc._id]);
@@ -212,7 +203,7 @@ let patientListingKey = `if (doc.displayId) {
     emit([doc._id, doc._id]);
  }`;
 
-let patientListingSearch = generateSortFunction(function(a, b) {
+const patientListingSearch = generateSortFunction(((a, b) => {
   let sortBy = '';
   if (req.query && req.query.sortKey) {
     sortBy = req.query.sortKey;
@@ -231,11 +222,12 @@ let patientListingSearch = generateSortFunction(function(a, b) {
       return 0; // Don't sort
     }
   }
-}.toString(), true);
+}).toString(), true);
 
-let designDocs = [{
+const designDocs = [{
   name: 'appointments_by_date',
-  function: generateView('appointment',
+  function: generateView(
+    'appointment',
     `${generateDateForView('endDate')}
     ${generateDateForView('startDate')}
     if (doc.appointmentType !== 'Surgery') {
@@ -246,7 +238,8 @@ let designDocs = [{
   version: 7
 }, {
   name: 'appointments_by_patient',
-  function: generateView('appointment',
+  function: generateView(
+    'appointment',
     `${generateDateForView('endDate')}
     ${generateDateForView('startDate')}
     emit([doc.patient, startDate, endDate,doc._id]);`
@@ -254,13 +247,15 @@ let designDocs = [{
   version: 4
 }, {
   name: 'custom_form_by_type',
-  function: generateView('customForm',
+  function: generateView(
+    'customForm',
     'emit(doc.formType);'
   ),
   version: 1
 }, {
   name: 'imaging_by_status',
-  function: generateView('imaging',
+  function: generateView(
+    'imaging',
     `${generateDateForView('imagingDate')}
     ${generateDateForView('requestedDate')}
     emit([doc.status, requestedDate, imagingDate, doc._id]);`
@@ -268,16 +263,18 @@ let designDocs = [{
   version: 4
 }, {
   name: 'inventory_by_friendly_id',
-  function: generateView('inventory',
+  function: generateView(
+    'inventory',
     'emit([doc.displayId, doc._id]);'
   ),
   version: 1
 }, {
   name: 'inventory_by_name',
-  function: generateView('inventory',
+  function: generateView(
+    'inventory',
     'emit([doc.name, doc._id]);'
   ),
-  sort: generateSortFunction(function(a, b) {
+  sort: generateSortFunction(((a, b) => {
     let sortBy = '';
     if (req.query && req.query.sortKey) {
       sortBy = req.query.sortKey;
@@ -296,40 +293,44 @@ let designDocs = [{
         return 0; // Don't sort
       }
     }
-  }.toString()),
+  }).toString()),
   version: 5
 }, {
   name: 'incident_by_friendly_id',
-  function: generateView('incident',
+  function: generateView(
+    'incident',
     'emit([doc.displayId, doc._id]);'
   ),
   version: 1
 }, {
   name: 'incident_by_date',
-  function: generateView('incident',
+  function: generateView(
+    'incident',
     `${generateDateForView('dateOfIncident')}
     emit([dateOfIncident, doc._id]);`
   ),
   version: 1
 }, {
   name: 'open_incidents_by_user',
-  function: generateView('incident',
+  function: generateView(
+    'incident',
     `if (doc.status !== "Closed") {
       emit([doc.reportedBy, doc._id]);
     }`
   ),
-  sort: generateSortFunction(function(a, b) {
+  sort: generateSortFunction(((a, b) => {
     let sortBy = '';
     if (req.query && req.query.sortKey) {
       sortBy = req.query.sortKey;
       return compareStrings(a.doc[sortBy], b.doc[sortBy]);
     }
     return 0; // Don't sort
-  }.toString()),
+  }).toString()),
   version: 1
 }, {
   name: 'closed_incidents_by_user',
-  function: generateView('incident',
+  function: generateView(
+    'incident',
     `if (doc.status === "Closed") {
       emit([doc.reportedBy, doc._id]);
     }`
@@ -337,54 +338,62 @@ let designDocs = [{
   version: 1
 }, {
   name: 'inventory_by_type',
-  function: generateView('inventory',
+  function: generateView(
+    'inventory',
     'emit(doc.inventoryType);'
   ),
   version: 5
 }, {
   name: 'inventory_purchase_by_date_received',
-  function: generateView('invPurchase',
+  function: generateView(
+    'invPurchase',
     `${generateDateForView('dateReceived')}
     emit([dateReceived, doc._id]);`
   ),
   version: 5
 }, {
   name: 'inventory_purchase_by_expiration_date',
-  function: generateView('invPurchase',
+  function: generateView(
+    'invPurchase',
     `${generateDateForView('expirationDate')}
     emit([expirationDate, doc._id]);`
   ),
   version: 5
 }, {
   name: 'inventory_request_by_item',
-  function: generateView('invRequest',
+  function: generateView(
+    'invRequest',
     `${generateDateForView('dateCompleted')}
     emit([doc.inventoryItem, doc.status, dateCompleted]);`
   ),
   version: 5
 }, {
   name: 'inventory_request_by_status',
-  function: generateView('invRequest',
+  function: generateView(
+    'invRequest',
     `${generateDateForView('dateCompleted')}
     emit([doc.status, dateCompleted, doc._id]);`
   ),
   version: 5
 }, {
   name: 'invoice_by_patient',
-  function: generateView('invoice',
+  function: generateView(
+    'invoice',
     'emit(doc.patient);'
   ),
   version: 1
 }, {
   name: 'invoice_by_status',
-  function: generateView('invoice',
+  function: generateView(
+    'invoice',
     `${generateDateForView('billDate')}
     emit([doc.status, billDate, doc._id]);`
   ),
   version: 4
 }, {
   name: 'lab_by_status',
-  function: generateView('lab',
+  function: generateView(
+    'lab',
     `${generateDateForView('labDate')}
     ${generateDateForView('requestedDate')}
     emit([doc.status, requestedDate, labDate, doc._id]);`
@@ -392,7 +401,8 @@ let designDocs = [{
   version: 4
 }, {
   name: 'medication_by_status',
-  function: generateView('medication',
+  function: generateView(
+    'medication',
     `${generateDateForView('prescriptionDate')}
     ${generateDateForView('requestedDate')}
     emit([doc.status, requestedDate, prescriptionDate, doc._id]);`
@@ -405,13 +415,15 @@ let designDocs = [{
   version: 7
 }, {
   name: 'patient_by_status',
-  function: generateView('patient',
+  function: generateView(
+    'patient',
     'emit(doc.status);'
   ),
   version: 3
 }, {
   name: 'patient_by_admission',
-  function: generateView('patient',
+  function: generateView(
+    'patient',
     `if (doc.admitted === true) {
       ${patientListingKey}
     }`
@@ -420,44 +432,51 @@ let designDocs = [{
   version: 4
 }, {
   name: 'photo_by_patient',
-  function: generateView('photo',
+  function: generateView(
+    'photo',
     'emit(doc.patient);'
   ),
   version: 4
 }, {
   name: 'photo_by_procedure',
-  function: generateView('photo',
+  function: generateView(
+    'photo',
     'emit(doc.procedure);'
   ),
   version: 1
 }, {
   name: 'photo_by_visit',
-  function: generateView('photo',
+  function: generateView(
+    'photo',
     'emit(doc.visit);'
   ),
   version: 1
 }, {
   name: 'procedure_by_date',
-  function: generateView('procedure',
+  function: generateView(
+    'procedure',
     `${generateDateForView('procedureDate')}
     emit([procedureDate, doc._id]);`
   ),
   version: 4
 }, {
   name: 'pricing_by_category',
-  function: generateView('pricing',
+  function: generateView(
+    'pricing',
     'emit([doc.category, doc.name, doc.pricingType, doc._id]);'
   ),
   version: 5
 }, {
   name: 'sequence_by_prefix',
-  function: generateView('sequence',
+  function: generateView(
+    'sequence',
     'emit(doc.prefix);'
   ),
   version: 4
 }, {
   name: 'surgical_appointments_by_date',
-  function: generateView('appointment',
+  function: generateView(
+    'appointment',
     `${generateDateForView('endDate')}
     ${generateDateForView('startDate')}
     if (doc.appointmentType === 'Surgery') {
@@ -468,7 +487,8 @@ let designDocs = [{
   version: 1
 }, {
   name: 'visit_by_date',
-  function: generateView('visit',
+  function: generateView(
+    'visit',
     `${generateDateForView('endDate')}
     ${generateDateForView('startDate')}
     emit([startDate, endDate, doc._id]);`
@@ -476,14 +496,16 @@ let designDocs = [{
   version: 4
 }, {
   name: 'visit_by_discharge_date',
-  function: generateView('visit',
+  function: generateView(
+    'visit',
     `${generateDateForView('endDate')}
     emit([endDate, doc._id]);`
   ),
   version: 2
 }, {
   name: 'visit_by_patient',
-  function: generateView('visit',
+  function: generateView(
+    'visit',
     `${generateDateForView('endDate')}
     ${generateDateForView('startDate')}
     emit([doc.patient, startDate, endDate, doc.visitType, doc._id]);`
@@ -491,16 +513,17 @@ let designDocs = [{
   version: 4
 }, {
   name: 'report_by_visit',
-  function: generateView('report',
+  function: generateView(
+    'report',
     'emit(doc.visit);'
   ),
   version: 1
 }];
 
-export default function(db, runningTest, testDumpFile) {
-  let viewUpdates = [];
-  designDocs.forEach(function(item) {
+export default (db, runningTest, testDumpFile) => {
+  const viewUpdates = [];
+  designDocs.forEach((item) => {
     viewUpdates.push(checkForUpdate(item, db, runningTest, testDumpFile));
   });
   return all(viewUpdates);
-}
+};

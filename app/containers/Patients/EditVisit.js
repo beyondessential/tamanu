@@ -207,7 +207,7 @@ function mapStateToProps(state) {
   };
 }
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = () => ({
   model: new PatientModel()
 });
 

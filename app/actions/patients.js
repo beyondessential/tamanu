@@ -256,7 +256,7 @@ export const deletePatient = (patient) => {
 export const checkInPatient = (patient) => {
   return dispatch => {
     dispatch(checkInPatientRequest());
-    console.log(patientDB);
+    console.log(patient);
     // patientDB.destroy(patient._id, patient._rev, (result) => {
     //   dispatch(checkInPatientSuccess(result));
     // });
