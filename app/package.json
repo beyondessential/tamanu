@@ -9,12 +9,17 @@
     "email": "chentsulin@gmail.com",
     "url": "https://github.com/chentsulin"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beyondessential/tamanu-desktop.git"
+  },
   "scripts": {
     "electron-rebuild": "node -r babel-register ../internals/scripts/ElectronRebuild.js",
     "postinstall": "npm run electron-rebuild"
   },
   "license": "MIT",
   "dependencies": {
+    "backbone-pouch": "^1.5.0",
     "pouchdb": "^6.4.3",
     "pouchdb-browser": "^6.4.3",
     "pouchdb-find": "^6.4.3"
