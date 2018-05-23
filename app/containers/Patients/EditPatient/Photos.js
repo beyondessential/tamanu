@@ -23,25 +23,24 @@ class Photos extends Component {
 
   render() {
     const { photoModalVisible, photos } = this.state;
-    console.log('file', photos);
     return (
       <div>
         <div className="column has-text-right">
           <button className="button is-primary" onClick={() => this.setState({ photoModalVisible: true })}>+ New Photo</button>
         </div>
         <div className="column">
-          <div className="columns">
+          <div className="columns is-multiline">
             {photos.map((photo, index) => (
               <div key={index} className="column is-3">
                 <div className="card">
                   <div className="column">
                     <img src={photo.preview} alt="preview" />
                     <span>
-                      Title
+                      {photo.caption}
                     </span>
-                    <div>
-                      <button className="button">Edit</button>
-                      <button className="button is-danger">Delete</button>
+                    <div className="btn-group">
+                      <button className="button is-small">Edit</button>
+                      <button className="button is-danger is-small">Delete</button>
                     </div>
                   </div>
                 </div>
