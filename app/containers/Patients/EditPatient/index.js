@@ -49,7 +49,7 @@ class EditPatient extends Component {
       selectedTab,
       allergyModalVisible
     } = this.state;
-    const { patient } = this.props;
+    const { patient, history } = this.props;
     return (
       <div>
         <div className="create-content">
@@ -131,7 +131,7 @@ class EditPatient extends Component {
                       <div className="tab-content">
                         {(selectedTab === '' || selectedTab === 'history') &&
                           <div className="column">
-                            <History />
+                            <History history={history} />
                           </div>
                         }
                         {selectedTab === 'general' &&
