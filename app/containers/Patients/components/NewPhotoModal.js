@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import Modal from 'react-responsive-modal';
+import Dropzone from 'react-dropzone';
 import InputGroup from '../../../components/InputGroup';
 
 class NewPhotoModal extends Component {
   state = {
-    selectedOption: 'take'
+    selectedOption: 'take',
+    selectedFile: null
   }
 
   optionChange = (value) => {
@@ -12,14 +14,18 @@ class NewPhotoModal extends Component {
     this.setState({ selectedOption: value });
   }
 
+  onDrop = (files) => {
+    this.setState({ selectedFile: files[0] });
+  }
+
   render() {
-    const { selectedOption } = this.state;
+    const { selectedOption, selectedFile } = this.state;
     const {
       isVisible,
       onClose
     } = this.props;
-    console.log('selectedOption', selectedOption);
     const that = this;
+    console.log(this.state.selectedFile);
     return (
       <Modal open={isVisible} onClose={onClose} little>
         <div className="tamanu-error-modal">
@@ -63,9 +69,19 @@ class NewPhotoModal extends Component {
                     Upload file
                   </span>
                   <div className="column">
-                    <div className="upload-panel columns">
-                      <input type="file" />
-                    </div>
+                    <Dropzone
+                      className="upload-panel columns"
+                      onDrop={this.onDrop}
+                      multiple={false}
+                      accept="image/jpeg, image/png"
+                    >
+                      <button className="button">
+                        Choose File
+                      </button>
+                      <span>
+                        {selectedFile === null ? 'No File chosen' : selectedFile.name}
+                      </span>
+                    </Dropzone>
                   </div>
                 </div>
               }
