@@ -133,6 +133,19 @@
           font-weight: 600;
         }
       }
+      .tab-content {
+        .history-pane {
+          padding: 10px;
+          background: #DEE2E7;
+          a {
+            color: #32425A;
+            background: transparent;
+            & :hover {
+              border: none;
+            }
+          }
+        }
+      }
     }
     .form-table {
       margin: 20px 20px;
