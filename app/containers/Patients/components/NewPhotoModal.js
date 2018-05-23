@@ -10,7 +10,6 @@ class NewPhotoModal extends Component {
   }
 
   optionChange = (value) => {
-    console.log('value', value);
     this.setState({ selectedOption: value });
   }
 
@@ -22,10 +21,10 @@ class NewPhotoModal extends Component {
     const { selectedOption, selectedFile } = this.state;
     const {
       isVisible,
-      onClose
+      onClose,
+      addPhoto
     } = this.props;
     const that = this;
-    console.log(this.state.selectedFile);
     return (
       <Modal open={isVisible} onClose={onClose} little>
         <div className="tamanu-error-modal">
@@ -90,7 +89,7 @@ class NewPhotoModal extends Component {
           <div className="modal-footer">
             <div className="column has-text-right">
               <button className="button is-danger" onClick={onClose}>Cancel</button>
-              <button className="button is-primary" onClick={onClose}>Add</button>
+              <button className="button is-primary" onClick={() => addPhoto(selectedFile)}>Add</button>
             </div>
           </div>
         </div>
