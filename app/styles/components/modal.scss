@@ -22,6 +22,18 @@
         color: #C53B62;
       }
     }
+    span {
+      color: #2f4358;
+      display: inline-block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .select {
+      width: 100%;
+      select {
+        width: 100%;
+      }
+    }
   }
   .modal-footer {
     margin-top: 20px;
