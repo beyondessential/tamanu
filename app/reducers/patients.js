@@ -1,3 +1,4 @@
+import moment from 'moment';
 import {
   CREATE_PATIENT_REQUEST,
   CREATE_PATIENT_SUCCESS,
@@ -13,7 +14,13 @@ import {
   FETCH_ONE_PATIENT_FAILED,
   DELETE_PATIENT_REQUEST,
   DELETE_PATIENT_SUCCESS,
-  DELETE_PATIENT_FAILED
+  DELETE_PATIENT_FAILED,
+  GET_UPDATED_BIRTHDAY_REQUEST,
+  GET_UPDATED_BIRTHDAY_SUCCESS,
+  GET_UPDATED_BIRTHDAY_FAILED,
+  GET_UPDATED_REFERDATE_REQUEST,
+  GET_UPDATED_REFERDATE_SUCCESS,
+  GET_UPDATED_REFERDATE_FAILED
 } from '../actions/types';
 
 const initialState = {
@@ -21,7 +28,9 @@ const initialState = {
   onePatient: {},
   createPatientSuccess: false,
   admittedPatients: [],
-  deletePatientSuccess: false
+  deletePatientSuccess: false,
+  updatedBirthday: moment(),
+  updatedReferredDate: moment()
 };
 
 export default (state = initialState, action) => {
@@ -105,6 +114,32 @@ export default (state = initialState, action) => {
         ...state,
         createPatientSuccess: false,
         deletePatientSuccess: false
+      };
+    case GET_UPDATED_BIRTHDAY_REQUEST:
+      return {
+        ...state,
+      };
+    case GET_UPDATED_BIRTHDAY_SUCCESS:
+      return {
+        ...state,
+        updatedBirthday: action.payload
+      };
+    case GET_UPDATED_BIRTHDAY_FAILED:
+      return {
+        ...state,
+      };
+    case GET_UPDATED_REFERDATE_REQUEST:
+      return {
+        ...state,
+      };
+    case GET_UPDATED_REFERDATE_SUCCESS:
+      return {
+        ...state,
+        updatedReferredDate: action.payload
+      };
+    case GET_UPDATED_REFERDATE_FAILED:
+      return {
+        ...state,
       };
     default:
       return state;

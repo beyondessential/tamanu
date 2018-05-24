@@ -19,7 +19,13 @@ import {
   DELETE_PATIENT_FAILED,
   CHECKIN_PATIENT_REQUEST,
   CHECKIN_PATIENT_SUCCESS,
-  CHECKIN_PATIENT_FAILED
+  CHECKIN_PATIENT_FAILED,
+  GET_UPDATED_BIRTHDAY_REQUEST,
+  GET_UPDATED_BIRTHDAY_SUCCESS,
+  GET_UPDATED_BIRTHDAY_FAILED,
+  GET_UPDATED_REFERDATE_REQUEST,
+  GET_UPDATED_REFERDATE_SUCCESS,
+  GET_UPDATED_REFERDATE_FAILED
 } from './types';
 import { patientDB } from '../utils/dbHelper';
 
@@ -156,6 +162,43 @@ export function checkInPatientFailed() {
   };
 }
 
+export function getBirthdayRequest() {
+  return {
+    type: GET_UPDATED_BIRTHDAY_REQUEST
+  };
+}
+
+export function getBirthdaySuccess(date) {
+  return {
+    type: GET_UPDATED_BIRTHDAY_SUCCESS,
+    payload: date
+  };
+}
+
+export function getBirthdayFailed() {
+  return {
+    type: GET_UPDATED_BIRTHDAY_FAILED
+  };
+}
+
+export function getReferredDateRequest() {
+  return {
+    type: GET_UPDATED_REFERDATE_REQUEST
+  };
+}
+
+export function getReferredDateSuccess(date) {
+  return {
+    type: GET_UPDATED_REFERDATE_SUCCESS,
+    payload: date
+  };
+}
+
+export function getReferredDateFailed() {
+  return {
+    type: GET_UPDATED_REFERDATE_FAILED
+  };
+}
 
 export const createPatientIndexes = () => {
   return dispatch => {
@@ -237,28 +280,28 @@ export const fetchOnePatient = (id) => {
 export const deletePatient = (patient) => {
   return dispatch => {
     dispatch(deletePatientRequest());
-    // patientDB.destroy({
-    //   docName: patient._id,
-    //   rev: patient._rev
-    // }).then((result) => {
-    //   console.log('result', result);
-    //   // dispatch(deletePatientSuccess(filteredResult.docs[0]));
-    // }).catch((err) => {
-    //   console.log(err);
-    //   dispatch(deletePatientFailed(err));
-    // });
     patientDB.destroy(patient._id, patient._rev, (result) => {
       dispatch(deletePatientSuccess(result));
     });
   };
 };
 
-export const checkInPatient = (patient) => {
+export const checkInPatient = () => {
   return dispatch => {
     dispatch(checkInPatientRequest());
-    console.log(patient);
-    // patientDB.destroy(patient._id, patient._rev, (result) => {
-    //   dispatch(checkInPatientSuccess(result));
-    // });
+  };
+};
+
+export const setUpdatedBirthday = (date) => {
+  return dispatch => {
+    dispatch(getBirthdayRequest());
+    dispatch(getBirthdaySuccess(date));
+  };
+};
+
+export const setUpdatedReferredDate = (date) => {
+  return dispatch => {
+    dispatch(getReferredDateRequest());
+    dispatch(getReferredDateSuccess(date));
   };
 };

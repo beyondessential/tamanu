@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
@@ -9,14 +10,16 @@ import CustomDateInput from '../../../components/CustomDateInput';
 
 import { bloodOptions, sexOptions, getDifferenceDate } from '../../../constants';
 
+import { setUpdatedBirthday, setUpdatedReferredDate } from '../../../actions/patients';
+
 class General extends Component {
   state = {
     // formError: false,
-    bloodType: '',
-    birthday: moment(),
-    sex: '',
+    bloodType: this.props.patient.bloodType,
+    birthday: moment(this.props.patient.birthday),
+    sex: this.props.patient.sex,
     age: '0 months 0 days',
-    referredDate: moment(),
+    referredDate: moment(this.props.patient.referredDate),
     contactModalVisible: false,
   }
 
@@ -37,12 +40,14 @@ class General extends Component {
       birthday: date,
       age: getDifferenceDate(moment(), date)
     });
+    this.props.setUpdatedBirthday(date);
   }
 
   onChangeReferredDate = (date) => {
     this.setState({
       referredDate: date,
     });
+    this.props.setUpdatedReferredDate(date);
   }
 
   onCloseContactModal = () => {
@@ -121,7 +126,6 @@ class General extends Component {
                   simpleValue
                   clearable
                   name="bloodType"
-                  disabled={this.state.disabled}
                   value={this.state.bloodType}
                   onChange={this.updateBloodValue}
                   rtl={this.state.rtl}
@@ -345,4 +349,9 @@ class General extends Component {
   }
 }
 
-export default General;
+const mapDispatchToProps = (dispatch) => ({
+  setUpdatedBirthday: date => dispatch(setUpdatedBirthday(date)),
+  setUpdatedReferredDate: date => dispatch(setUpdatedReferredDate(date)),
+});
+
+export default connect(undefined, mapDispatchToProps)(General);

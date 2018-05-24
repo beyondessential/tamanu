@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { assignIn } from 'lodash';
+import moment from 'moment';
 
 import Serializer from '../../../utils/form-serialize';
 import AddAllergyModal from '../components/AddAllergyModal';
@@ -21,7 +22,6 @@ const classNames = require('classnames');
 
 class EditPatient extends Component {
   state = {
-    // formError: false,
     selectedTab: '',
     allergyModalVisible: false,
     patient: this.props.model.attributes
@@ -43,10 +43,6 @@ class EditPatient extends Component {
     this.forceUpdate();
   }
 
-  // onCloseModal = () => {
-  //   this.setState({ formError: false });
-  // }
-
   onCloseAllergyModal = () => {
     this.setState({ allergyModalVisible: false });
   }
@@ -58,9 +54,12 @@ class EditPatient extends Component {
   }
 
   updatePatient = (patient) => {
-    this.props.model.set(patient);
+    const updatedPatient = patient;
+    updatedPatient.birthday = moment(this.props.updatedBirthday).format('YYYY-MM-DD');
+    updatedPatient.referredDate = moment(this.props.updatedReferredDate).format('YYYY-MM-DD');
+    this.props.model.set(updatedPatient);
     if (this.props.model.isValid()) {
-      this.props.model.update(null, {
+      this.props.model.save(null, {
         // success: (model, response) => {
         success: () => {
           this.props.history.push('/patients');
@@ -68,8 +67,6 @@ class EditPatient extends Component {
         // error: (model, response) => {
         error: () => {}
       });
-    } else {
-      this.setState({ formError: true });
     }
   }
 
@@ -80,7 +77,8 @@ class EditPatient extends Component {
       patient
     } = this.state;
     const { history } = this.props;
-    console.log(this.state.formError);
+    console.log('birthday', moment(this.props.updatedBirthday).format('YYYY-MM-DD'));
+    console.log('referdate', moment(this.props.updatedReferredDate).format('YYYY-MM-DD'));
     return (
       <div>
         <div className="create-content">
@@ -225,8 +223,11 @@ class EditPatient extends Component {
 }
 
 function mapStateToProps(state) {
+  const { onePatient, updatedBirthday, updatedReferredDate } = state.patients;
   return {
-    patient: state.patients.onePatient
+    patient: onePatient,
+    updatedBirthday,
+    updatedReferredDate
   };
 }
 
