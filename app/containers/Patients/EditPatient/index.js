@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { isEmpty, assignIn } from 'lodash';
+import { assignIn } from 'lodash';
 
-import Serializer from  '../../../utils/form-serialize';
+import Serializer from '../../../utils/form-serialize';
 import AddAllergyModal from '../components/AddAllergyModal';
 import History from './History';
 import General from './General';
@@ -61,12 +61,12 @@ class EditPatient extends Component {
     this.props.model.set(patient);
     if (this.props.model.isValid()) {
       this.props.model.save(null, {
-        success: (model, response) => {
-          console.log('Sucecss!');
+        // success: (model, response) => {
+        success: () => {
+          this.props.history.push('/patients');
         },
-        error: (model, response) => {
-          console.log('Error!', response);
-        }
+        // error: (model, response) => {
+        error: () => {}
       });
     } else {
       this.setState({ formError: true });
@@ -80,8 +80,7 @@ class EditPatient extends Component {
       patient
     } = this.state;
     const { history } = this.props;
-    // let { model: patient } = this.props;
-    // if (!isEmpty(patient)) patient = patient.attributes;
+    console.log(this.state.formError);
     return (
       <div>
         <div className="create-content">

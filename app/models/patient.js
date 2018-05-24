@@ -40,6 +40,7 @@ const Patient = Backbone.Model.extend({
       lastName: '',
       livingArrangement: '',
       middleName: '',
+      culturalName: '',
       notes: '',
       otherIncome: '',
       patientType: '',

@@ -72,8 +72,9 @@ class General extends Component {
             </div>
             <div className="column">
               <InputGroup
-                name="patientStatus"
+                name="status"
                 label="Patient Status"
+                value={patient.status}
                 tabIndex={7}
               />
             </div>
@@ -91,6 +92,7 @@ class General extends Component {
               <InputGroup
                 name="externalPatientId"
                 label="External Patient Id"
+                value={patient.externalPatientId}
                 tabIndex={8}
               />
             </div>
@@ -133,13 +135,15 @@ class General extends Component {
               <InputGroup
                 name="culturalName"
                 label="Cultural or Traditional Name"
+                value={patient.culturalName}
                 tabIndex={4}
               />
             </div>
             <div className="column">
               <InputGroup
-                name="clinicSite"
+                name="clinic"
                 label="Clinic Site"
+                value={patient.clinic}
                 tabIndex={9}
               />
             </div>
@@ -171,6 +175,7 @@ class General extends Component {
               <InputGroup
                 name="referredBy"
                 label="Referred By"
+                value={patient.referredBy}
                 tabIndex={10}
               />
             </div>
@@ -231,6 +236,7 @@ class General extends Component {
               <InputGroup
                 name="religion"
                 label="Religion"
+                value={patient.religion}
                 tabIndex={11}
               />
             </div>
@@ -240,6 +246,7 @@ class General extends Component {
               <InputGroup
                 name="placeOfBirth"
                 label="Place of Birth"
+                value={patient.placeOfBirth}
                 tabIndex={5}
               />
             </div>
@@ -247,6 +254,7 @@ class General extends Component {
               <InputGroup
                 name="parent"
                 label="Parent/Guardian"
+                value={patient.parent}
                 tabIndex={12}
               />
             </div>
@@ -256,13 +264,16 @@ class General extends Component {
               <InputGroup
                 name="occupation"
                 label="Occupation"
+                value={patient.occupation}
                 tabIndex={6}
               />
             </div>
             <div className="column">
+              {/* Not sure about this type */}
               <InputGroup
                 name="paymentProfile"
                 label="Payment Profile"
+                value={patient.paymentProfile}
                 tabIndex={13}
               />
             </div>
@@ -299,11 +310,13 @@ class General extends Component {
             <InputGroup
               name="phone"
               label="Phone"
+              value={patient.phone}
               tabIndex={14}
             />
             <InputGroup
               name="address"
               label="Address"
+              value={patient.address}
               tabIndex={15}
             />
           </div>
@@ -311,11 +324,13 @@ class General extends Component {
             <InputGroup
               name="email"
               label="Email"
+              value={patient.email}
               tabIndex={16}
             />
             <InputGroup
               name="country"
               label="Country"
+              value={patient.country}
               tabIndex={17}
             />
           </div>
