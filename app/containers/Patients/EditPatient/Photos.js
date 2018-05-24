@@ -72,8 +72,7 @@ class Photos extends Component {
                   </div>
                 </div>
               </div>
-            ))
-            }
+            ))}
           </div>
         </div>
         <NewPhotoModal
