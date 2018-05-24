@@ -13,7 +13,7 @@ import Medication from './Medication';
 import Imaging from './Imaging';
 import Labs from './Labs';
 
-import Serializer from '../../../utils/form-serialize';
+// import Serializer from '../../../utils/form-serialize';
 import { PatientModel } from '../../../models';
 
 const classNames = require('classnames');
@@ -74,12 +74,6 @@ class EditPatient extends Component {
             className="create-container"
             onSubmit={(e) => {
               e.preventDefault();
-              const medication = Serializer.serialize(e.target, { hash: true });
-              if (medication.patient && medication.visit && medication.medication && medication.prescription) {
-                this.props.createMedication(medication);
-              } else {
-                // this.setState({ formError: true });
-              }
             }}
           >
             <div className="form">
