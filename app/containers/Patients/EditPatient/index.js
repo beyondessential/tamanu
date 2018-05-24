@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { isEmpty } from 'lodash';
 
-// import ModalView from '../../components/Modal';
 import AddAllergyModal from '../components/AddAllergyModal';
 import History from './History';
 import General from './General';
@@ -14,7 +14,7 @@ import Imaging from './Imaging';
 import Labs from './Labs';
 
 import Serializer from '../../../utils/form-serialize';
-import { fetchOnePatient } from '../../../actions/patients';
+import { PatientModel } from '../../../models';
 
 const classNames = require('classnames');
 
@@ -27,7 +27,17 @@ class EditPatient extends Component {
 
   componentDidMount() {
     const { id } = this.props.match.params;
-    this.props.fetchOnePatient(id);
+    this.props.model.set({ _id: id });
+    this.props.model.fetch();
+    this.props.model.on('change', this.handleChange);
+  }
+
+  componentWillUnmount() {
+    this.props.model.off('change', this.handleChange);
+  }
+
+  handleChange = () => {
+    this.forceUpdate();
   }
 
   // onCloseModal = () => {
@@ -49,7 +59,9 @@ class EditPatient extends Component {
       selectedTab,
       allergyModalVisible
     } = this.state;
-    const { patient, history } = this.props;
+    const { history } = this.props;
+    let { model: patient } = this.props;
+    if (!isEmpty(patient)) patient = patient.attributes;
     return (
       <div>
         <div className="create-content">
@@ -202,8 +214,8 @@ function mapStateToProps(state) {
   };
 }
 
-const mapDispatchToProps = dispatch => ({
-  fetchOnePatient: id => dispatch(fetchOnePatient(id)),
+const mapDispatchToProps = () => ({
+  model: new PatientModel(),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditPatient);

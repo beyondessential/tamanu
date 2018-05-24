@@ -151,7 +151,6 @@ class PatientListing extends Component {
         </div>
       );
     }
-
     return (
       <div className="content">
         <div className="view-top-bar">
