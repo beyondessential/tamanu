@@ -78,7 +78,7 @@ class PatientListing extends Component {
     const that = this;
     let { models: patients } = this.props.collection;
     if (patients.length > 0) patients = map(patients, patient => patient.attributes);
-
+    console.log('patients', patients);
     const patientColumns = [{
       dataField: 'displayId',
       text: 'Id',

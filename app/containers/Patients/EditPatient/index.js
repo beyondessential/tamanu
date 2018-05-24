@@ -60,7 +60,7 @@ class EditPatient extends Component {
   updatePatient = (patient) => {
     this.props.model.set(patient);
     if (this.props.model.isValid()) {
-      this.props.model.save(null, {
+      this.props.model.update(null, {
         // success: (model, response) => {
         success: () => {
           this.props.history.push('/patients');
@@ -92,8 +92,9 @@ class EditPatient extends Component {
           <form
             className="create-container"
             onSubmit={(e) => {
-              const data = Serializer.serialize(e.target, { hash: true });
               e.preventDefault();
+              const data = Serializer.serialize(e.target, { hash: true });
+              console.log('updateData', data);
               this.updatePatient(data);
             }}
           >
