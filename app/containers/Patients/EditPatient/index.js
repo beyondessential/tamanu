@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { isEmpty } from 'lodash';
+import { isEmpty, assignIn } from 'lodash';
 
+import Serializer from  '../../../utils/form-serialize';
 import AddAllergyModal from '../components/AddAllergyModal';
 import History from './History';
 import General from './General';
@@ -22,7 +23,8 @@ class EditPatient extends Component {
   state = {
     // formError: false,
     selectedTab: '',
-    allergyModalVisible: false
+    allergyModalVisible: false,
+    patient: this.props.model.attributes
   }
 
   componentDidMount() {
@@ -37,6 +39,7 @@ class EditPatient extends Component {
   }
 
   handleChange = () => {
+    this.setState({ patient: assignIn(this.state.patient, this.props.model.changedAttributes()) });
     this.forceUpdate();
   }
 
@@ -54,14 +57,31 @@ class EditPatient extends Component {
     });
   }
 
+  updatePatient = (patient) => {
+    this.props.model.set(patient);
+    if (this.props.model.isValid()) {
+      this.props.model.save(null, {
+        success: (model, response) => {
+          console.log('Sucecss!');
+        },
+        error: (model, response) => {
+          console.log('Error!', response);
+        }
+      });
+    } else {
+      this.setState({ formError: true });
+    }
+  }
+
   render() {
     const {
       selectedTab,
-      allergyModalVisible
+      allergyModalVisible,
+      patient
     } = this.state;
     const { history } = this.props;
-    let { model: patient } = this.props;
-    if (!isEmpty(patient)) patient = patient.attributes;
+    // let { model: patient } = this.props;
+    // if (!isEmpty(patient)) patient = patient.attributes;
     return (
       <div>
         <div className="create-content">
@@ -73,7 +93,9 @@ class EditPatient extends Component {
           <form
             className="create-container"
             onSubmit={(e) => {
+              const data = Serializer.serialize(e.target, { hash: true });
               e.preventDefault();
+              this.updatePatient(data);
             }}
           >
             <div className="form">
@@ -141,7 +163,7 @@ class EditPatient extends Component {
                           </div>
                         }
                         {selectedTab === 'general' &&
-                          <General />
+                          <General patient={patient} />
                         }
                         {selectedTab === 'photos' &&
                           <div className="column">

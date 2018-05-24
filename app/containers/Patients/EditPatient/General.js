@@ -50,6 +50,7 @@ class General extends Component {
   }
 
   render() {
+    const { patient } = this.props;
     const {
       birthday,
       age,
@@ -64,6 +65,7 @@ class General extends Component {
               <InputGroup
                 name="firstName"
                 label="First Name"
+                value={patient.firstName}
                 required
                 tabIndex={1}
               />
@@ -81,6 +83,7 @@ class General extends Component {
               <InputGroup
                 name="middleName"
                 label="Middle Name"
+                value={patient.middleName}
                 tabIndex={2}
               />
             </div>
@@ -97,6 +100,7 @@ class General extends Component {
               <InputGroup
                 name="lastName"
                 label="Last Name"
+                value={patient.lastName}
                 required
                 tabIndex={3}
               />

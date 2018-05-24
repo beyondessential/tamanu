@@ -13,6 +13,15 @@ class InputGroup extends Component {
     required: false
   }
 
+  constructor(props) {
+    super(props);
+    this.state = { value: props.value };
+  }
+
+  handleChange(event) {
+    this.setState({ value: event.target.value });
+  }
+
   render() {
     const {
       label,
@@ -25,7 +34,7 @@ class InputGroup extends Component {
         <span className="input-group-title">
           {label} {required && <span className="isRequired">*</span>}
         </span>
-        <input className="input is-primary" type="text" name={name} tabIndex={tabIndex} />
+        <input className="input is-primary" type="text" name={name} tabIndex={tabIndex} value={this.state.value} onChange={this.handleChange.bind(this)} />
       </div>
     );
   }
@@ -37,4 +46,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, undefined)(InputGroup);
+export default connect(mapStateToProps, {})(InputGroup);
