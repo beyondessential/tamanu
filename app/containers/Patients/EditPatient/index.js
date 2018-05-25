@@ -77,8 +77,6 @@ class EditPatient extends Component {
       patient
     } = this.state;
     const { history } = this.props;
-    console.log('birthday', moment(this.props.updatedBirthday).format('YYYY-MM-DD'));
-    console.log('referdate', moment(this.props.updatedReferredDate).format('YYYY-MM-DD'));
     return (
       <div>
         <div className="create-content">
