@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import BootstrapTable from 'react-bootstrap-table-next';
 import { map, isEmpty } from 'lodash';
+import ReactTable from 'react-table';
 
 // import { fetchPatients, deletePatient } from '../../actions/patients';
 import { Colors, headerSortingStyle } from '../../constants';
 import DeletePatientModal from './components/DeletePatientModal';
 import { PatientsCollection } from '../../collections';
-
 
 class PatientListing extends Component {
   constructor(props) {
@@ -18,16 +17,18 @@ class PatientListing extends Component {
   state = {
     deleteModalVisible: false,
     selectedPatient: null,
+    pageSize: 5
   }
 
   componentDidMount() {
     this.props.collection.on('update', this.handleChange);
-    this.props.collection.fetch();
+    this.props.collection.setPageSize(this.state.pageSize);
+    this.props.collection.fetchResults();
   }
 
   componentWillReceiveProps({ deletePatientSuccess }) {
     if (deletePatientSuccess) {
-      this.props.collection.fetch();
+      this.props.collection.fetchResults();
     }
   }
 
@@ -73,69 +74,82 @@ class PatientListing extends Component {
     }
   }
 
+  onFetchData = (state) => {
+    this.props.collection.setPage(state.page);
+    this.props.collection.setPageSize(state.pageSize);
+
+    this.setState({ loading: true });
+    this.props.collection.fetchResults({
+      success: () => {
+        this.setState({ loading: false });
+      }
+    });
+  }
+
   render() {
     const { deleteModalVisible } = this.state;
     const that = this;
     let { models: patients } = this.props.collection;
     if (patients.length > 0) patients = map(patients, patient => patient.attributes);
+    // console.log('patients', this.props.collection);
     const patientColumns = [{
-      dataField: 'displayId',
-      text: 'Id',
-      sort: true,
+      accessor: 'displayId',
+      Header: 'Id',
+      sortable: true,
       headerSortingStyle,
       headerStyle: {
         backgroundColor: Colors.searchTintColor,
-        width: '10%'
+        //width: '10%'
       },
     }, {
-      dataField: 'firstName',
-      text: 'First Name',
-      sort: true,
+      accessor: 'firstName',
+      Header: 'First Name',
+      sortable: true,
       headerSortingStyle,
-      headerStyle: {
+      style: {
         backgroundColor: Colors.searchTintColor,
-        width: '12%'
+        //width: '12%'
       }
     }, {
-      dataField: 'lastName',
-      text: 'Last Name',
-      sort: true,
+      accessor: 'lastName',
+      Header: 'Last Name',
+      sortable: true,
       headerSortingStyle,
-      headerStyle: {
+      style: {
         backgroundColor: Colors.searchTintColor,
-        width: '12%'
+        //width: '12%'
       }
     }, {
-      dataField: 'sex',
-      text: 'Sex',
-      sort: true,
+      accessor: 'sex',
+      Header: 'Sex',
+      sortable: true,
       headerSortingStyle,
-      headerStyle: {
+      style: {
         backgroundColor: Colors.searchTintColor,
-        width: '10%'
+        //width: '10%'
       }
     }, {
-      dataField: 'birthday',
-      text: 'DOB',
-      sort: true,
+      accessor: 'birthday',
+      Header: 'DOB',
+      sortable: true,
       headerSortingStyle,
-      headerStyle: {
+      style: {
         backgroundColor: Colors.searchTintColor,
-        width: '15%'
+        //width: '15%'
       }
     }, {
-      dataField: 'patientStatus',
-      text: 'Status',
-      sort: true,
+      accessor: 'patientStatus',
+      Header: 'Status',
+      sortable: true,
       headerSortingStyle,
-      headerStyle: {
+      style: {
         backgroundColor: Colors.searchTintColor,
-        width: '10%'
+        //width: '10%'
       }
     }, {
-      dataField: 'action',
-      text: 'Actions',
-      headerStyle: {
+      accessor: 'action',
+      Header: 'Actions',
+      style: {
         backgroundColor: Colors.searchTintColor
       },
       formatter: actionButtonFormatter
@@ -171,11 +185,17 @@ class PatientListing extends Component {
             </div>
             :
             <div>
-              <BootstrapTable
+              <ReactTable
+                manual
                 keyField="_id"
                 data={patients}
+                pages={this.props.collection.totalPages}
+                defaultPageSize={5}
+                loading={this.state.loading}
                 columns={patientColumns}
+                className="-striped"
                 defaultSortDirection="asc"
+                onFetchData={this.onFetchData}
               />
             </div>
           }
