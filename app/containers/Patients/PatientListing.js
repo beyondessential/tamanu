@@ -95,75 +95,119 @@ class PatientListing extends Component {
     const patientColumns = [{
       accessor: 'displayId',
       Header: 'Id',
-      sortable: true,
-      headerSortingStyle,
       headerStyle: {
         backgroundColor: Colors.searchTintColor,
-        //width: '10%'
       },
+      style: {
+        backgroundColor: Colors.white,
+        height: '60px',
+        color: '#2f4358',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
+      minWidth: 80
     }, {
       accessor: 'firstName',
       Header: 'First Name',
-      sortable: true,
-      headerSortingStyle,
-      style: {
+      headerStyle: {
         backgroundColor: Colors.searchTintColor,
-        //width: '12%'
-      }
+      },
+      style: {
+        backgroundColor: Colors.white,
+        height: '60px',
+        color: '#2f4358',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
+      minWidth: 100
     }, {
       accessor: 'lastName',
       Header: 'Last Name',
-      sortable: true,
-      headerSortingStyle,
-      style: {
+      headerStyle: {
         backgroundColor: Colors.searchTintColor,
-        //width: '12%'
-      }
+      },
+      style: {
+        backgroundColor: Colors.white,
+        height: '60px',
+        color: '#2f4358',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
+      minWidth: 100
     }, {
       accessor: 'sex',
       Header: 'Sex',
-      sortable: true,
-      headerSortingStyle,
-      style: {
+      headerStyle: {
         backgroundColor: Colors.searchTintColor,
-        //width: '10%'
-      }
+      },
+      style: {
+        backgroundColor: Colors.white,
+        height: '60px',
+        color: '#2f4358',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
+      minWidth: 80
     }, {
       accessor: 'birthday',
       Header: 'DOB',
-      sortable: true,
-      headerSortingStyle,
-      style: {
+      headerStyle: {
         backgroundColor: Colors.searchTintColor,
-        //width: '15%'
-      }
+      },
+      style: {
+        backgroundColor: Colors.white,
+        height: '60px',
+        color: '#2f4358',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
+      minWidth: 100
     }, {
       accessor: 'patientStatus',
       Header: 'Status',
-      sortable: true,
-      headerSortingStyle,
-      style: {
+      headerStyle: {
         backgroundColor: Colors.searchTintColor,
-        //width: '10%'
-      }
+      },
+      style: {
+        backgroundColor: Colors.white,
+        height: '60px',
+        color: '#2f4358',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
+      minWidth: 80
     }, {
       accessor: 'action',
       Header: 'Actions',
-      style: {
+      headerStyle: {
         backgroundColor: Colors.searchTintColor
       },
-      formatter: actionButtonFormatter
+      style: {
+        backgroundColor: Colors.white,
+        height: '60px',
+        color: '#2f4358',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
+      minWidth: 250,
+      Cell: row => {
+        return (
+          <div key={row._id}>
+            <button className="button column-button" onClick={() => that.goEdit(row._id)}>Edit</button>
+            <button className="button is-primary column-checkin-button" onClick={() => that.goAdmit(row._id, row)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
+            <button className="button is-danger column-button" onClick={() => that.showDeleteModal(row)}>Delete</button>
+          </div>
+        );
+      }
     }];
 
-    function actionButtonFormatter(cell, row, rowIndex) {
-      return (
-        <div className="container" key={rowIndex}>
-          <button className="button column-button" onClick={() => that.goEdit(row._id)}>Edit</button>
-          <button className="button is-primary column-checkin-button" onClick={() => that.goAdmit(row._id, row)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
-          <button className="button is-danger column-button" onClick={() => that.showDeleteModal(row)}>Delete</button>
-        </div>
-      );
-    }
     return (
       <div className="content">
         <div className="view-top-bar">

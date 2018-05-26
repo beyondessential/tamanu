@@ -4,7 +4,8 @@ import { patientDB } from '../utils/dbHelper';
 import { patientIcon, scheduleIcon, medicationIcon, labsIcon, administrationIcon } from './images';
 
 export const Colors = {
-  searchTintColor: '#d2dae3'
+  searchTintColor: '#d2dae3',
+  white: '#ffffff'
 };
 
 export const sidebarInfo = [
