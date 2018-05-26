@@ -1,7 +1,7 @@
 const Backbone = require('backbone');
 const shortid = require('shortid');
 
-const Patient = Backbone.Model.extend({
+export default Backbone.Model.extend({
   idAttribute: '_id',
   defaults: () => {
     const _id = shortid.generate();
@@ -68,5 +68,3 @@ const Patient = Backbone.Model.extend({
     if (attrs.lastName === '') return 'lastName is required!';
   }
 });
-
-module.exports = Patient;
