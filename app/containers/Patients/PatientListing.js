@@ -4,7 +4,7 @@ import { map, isEmpty } from 'lodash';
 import ReactTable from 'react-table';
 
 // import { fetchPatients, deletePatient } from '../../actions/patients';
-import { Colors, headerSortingStyle } from '../../constants';
+import { Colors } from '../../constants';
 import DeletePatientModal from './components/DeletePatientModal';
 import { PatientsCollection } from '../../collections';
 
