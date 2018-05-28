@@ -1,4 +1,4 @@
-const Backbone = require('backbone');
+const Backbone = require('backbone-associations');
 const shortid = require('shortid');
 
 export default Backbone.Model.extend({
@@ -14,12 +14,7 @@ export default Backbone.Model.extend({
       requestedBy: null,
       requestedDate: Date,
       result: null,
-      status: null,
-
-      // Associations
-      labType: '',
-      patient: '',
-      visit: ''
+      status: null
     };
   },
 

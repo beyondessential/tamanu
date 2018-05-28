@@ -1,5 +1,7 @@
-const Backbone = require('backbone-associations');
-const shortid = require('shortid');
+import shortid from 'shortid';
+import Backbone from 'backbone-associations';
+
+console.log('backbone-associations', Backbone);
 
 export default Backbone.Model.extend({
   idAttribute: '_id',
@@ -7,16 +9,11 @@ export default Backbone.Model.extend({
     const _id = shortid.generate();
 
     return {
-      _id: `vital_${_id}`,
-      type: 'vital',
-      dateRecorded: Date,
-      dbp: null,
-      heartRate: null,
-      height: null,
-      respiratoryRate: null,
-      sbp: null,
-      temperature: null,
-      weight: null,
+      _id: `allergy_${_id}`,
+      type: 'allergy',
+      name: null,
+      icd9CMCode: null,
+      icd10Code: null,
     };
   },
 

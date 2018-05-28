@@ -1,6 +1,6 @@
 const Backbone = require('backbone-associations');
 const shortid = require('shortid');
-const { VisitModel } = require('./index');
+const { DiagnosisModel } = require('./index');
 
 export default Backbone.Model.extend({
   idAttribute: '_id',
@@ -8,17 +8,16 @@ export default Backbone.Model.extend({
     const _id = shortid.generate();
 
     return {
-      _id: `appointment_${_id}`,
-      type: 'appointment',
-      allDay: true,
-      provider: '',
-      location: '',
-      appointmentType: '',
-      startDate: Date,
-      endDate: Date,
-      notes: '',
-      status: 'Scheduled',
-      visits: [],
+      _id: `opReport_${_id}`,
+      type: 'opReport',
+      additionalNotes: null,
+      caseComplexity: null,
+      procedures: [],
+      operationDescription: null,
+      surgeon: null,
+      surgeryDate: Date,
+      preOpDiagnoses: [],
+      postOpDiagnoses: [],
     };
   },
 
@@ -26,8 +25,13 @@ export default Backbone.Model.extend({
   relations: [
     {
       type: Backbone.Many,
-      key: 'visits',
-      relatedModel: VisitModel
+      key: 'preOpDiagnoses',
+      relatedModel: DiagnosisModel
+    },
+    {
+      type: Backbone.Many,
+      key: 'postOpDiagnoses',
+      relatedModel: DiagnosisModel
     }
   ]
 

@@ -1,5 +1,11 @@
-const Backbone = require('backbone');
+const Backbone = require('backbone-associations');
 const shortid = require('shortid');
+const {
+  AllergyModel,
+  DiagnosisModel,
+  OperativePlanModel,
+  OperationReportModel
+} = require('./index');
 
 export default Backbone.Model.extend({
   idAttribute: '_id',
@@ -20,11 +26,9 @@ export default Backbone.Model.extend({
       clinic: '',
       country: '',
       checkedIn: false,
-      customForms: {},
       dateOfBirth: Date,
       economicClassification: '',
       email: '',
-      expenses: [],
       externalPatientId: '',
       familySupport1: '',
       familySupport2: '',
@@ -53,15 +57,36 @@ export default Backbone.Model.extend({
       socialActionTaken: '',
       socialRecommendation: '',
       status: '',
-      // Associations
-      // allergies: DS.hasMany('allergy', { async: true }),
-      // diagnoses: DS.hasMany('diagnosis', { async: false }),
-      // operationReports: DS.hasMany('operation-report', { async: true }),
-      // operativePlans: DS.hasMany('operative-plan', { async: true }),
-      // payments: DS.hasMany('payment', { async: true }),
-      // paymentProfile: DS.belongsTo('price-profile', { async: false }),
+      allergies: [],
+      diagnoses: [],
+      operationReports: [],
+      operativePlans: [],
     };
   },
+
+  // Associations
+  relations: [
+    {
+      type: Backbone.Many,
+      key: 'allergies',
+      relatedModel: AllergyModel
+    },
+    {
+      type: Backbone.Many,
+      key: 'diagnoses',
+      relatedModel: DiagnosisModel
+    },
+    {
+      type: Backbone.Many,
+      key: 'operationReports',
+      relatedModel: OperationReportModel
+    },
+    {
+      type: Backbone.Many,
+      key: 'operativePlans',
+      relatedModel: OperativePlanModel
+    }
+  ],
 
   validate: (attrs) => {
     if (attrs.firstName === '') return 'firstName is required!';

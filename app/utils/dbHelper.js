@@ -1,5 +1,5 @@
 import PouchDB from 'pouchdb';
-import Backbone from 'backbone';
+import Backbone from 'backbone-associations';
 import BackbonePouch from 'backbone-pouch';
 import createPouchViews from '../utils/pouch-views';
 

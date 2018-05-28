@@ -1,5 +1,6 @@
-const Backbone = require('backbone');
+const Backbone = require('backbone-associations');
 const shortid = require('shortid');
+const { DiagnosisModel } = require('./index');
 
 export default Backbone.Model.extend({
   idAttribute: '_id',
@@ -7,8 +8,8 @@ export default Backbone.Model.extend({
     const _id = shortid.generate();
 
     return {
-      _id: `operative_plan_${_id}`,
-      type: 'operative_plan',
+      _id: `opPlan_${_id}`,
+      type: 'opPlan',
       additionalNotes: null,
       admissionInstructions: null,
       caseComplexity: null,
@@ -16,12 +17,18 @@ export default Backbone.Model.extend({
       procedures: [],
       status: null,
       surgeon: null,
-
-      // Associations
-      diagnoses: '',
-      patient: '',
+      diagnoses: [],
     };
   },
+
+  // Associations
+  relations: [
+    {
+      type: Backbone.Many,
+      key: 'diagnoses',
+      relatedModel: DiagnosisModel
+    }
+  ]
 
   // validate: (attrs) => {
   //   if (attrs.firstName === '') return 'firstName is required!';

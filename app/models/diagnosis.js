@@ -1,4 +1,4 @@
-const Backbone = require('backbone');
+const Backbone = require('backbone-associations');
 const shortid = require('shortid');
 
 export default Backbone.Model.extend({

@@ -1,11 +1,12 @@
 import BackbonePouch from 'backbone-pouch';
-import Backbone from 'backbone';
+// import BackbonePouch from '../utils/backbone-pouch';
+import Backbone from 'backbone-associations';
 import { map } from 'lodash';
 import { patientDB } from '../utils/dbHelper';
 
 const defaultpageSize = 5;
 
-const Base = Backbone.Collection.extend({
+export default Backbone.Collection.extend({
   initialize() {
     this.totalPages = 0;
     this.currentPage = 0;
@@ -53,5 +54,3 @@ const Base = Backbone.Collection.extend({
     this.pageSize = pageSize;
   }
 });
-
-module.exports = Base;
