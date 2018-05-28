@@ -183,7 +183,10 @@ class PatientListing extends Component {
       },
       minWidth: 80
     }, {
-      accessor: 'action',
+      accessor: row => {
+        return { _id: row._id, admitted: row.admitted };
+      },
+      id: 'actions',
       Header: 'Actions',
       headerStyle: {
         backgroundColor: Colors.searchTintColor
@@ -200,8 +203,8 @@ class PatientListing extends Component {
       Cell: row => {
         return (
           <div key={row._id}>
-            <button className="button column-button" onClick={() => that.goEdit(row._id)}>Edit</button>
-            <button className="button is-primary column-checkin-button" onClick={() => that.goAdmit(row._id, row)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
+            <button className="button column-button" onClick={() => that.goEdit(row.value._id)}>Edit</button>
+            <button className="button is-primary column-checkin-button" onClick={() => that.goAdmit(row.value._id, row.value.admitted)}>{row.value.admitted ? 'Discharge' : 'Admit'}</button>
             <button className="button is-danger column-button" onClick={() => that.showDeleteModal(row)}>Delete</button>
           </div>
         );
