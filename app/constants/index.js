@@ -303,10 +303,20 @@ export const reportOptions = [
 ];
 
 export const visitOptions = [
-  { value: 'value1', label: 'Value 1' },
-  { value: 'value2', label: 'Value 2' },
-  { value: 'value3', label: 'Value 3' },
-  { value: 'value4', label: 'Value 4' },
+  { value: 'Admission', label: 'Admission' },
+  { value: 'Clinic', label: 'Clinic' },
+  { value: 'Followup', label: 'Followup' },
+  { value: 'Imaging', label: 'Imaging' },
+  { value: 'Lab', label: 'Lab' },
+  { value: 'Pharmacy', label: 'Pharmacy' },
+];
+
+
+export const appointmentStatusList = [
+  { value: 'Attended', label: 'Attended' },
+  { value: 'Scheduled', label: 'Scheduled' },
+  { value: 'Canceled', label: 'Canceled' },
+  { value: 'Missed', label: 'Missed' },
 ];
 
 export const bloodOptions = [

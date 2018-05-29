@@ -6,12 +6,14 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import { map } from 'lodash';
 import Autocomplete from 'react-autocomplete';
+import ModalView from '../../components/Modal';
 import Serializer from '../../utils/form-serialize';
 import InputGroup from '../../components/InputGroup';
 import CustomDateInput from '../../components/CustomDateInput';
-import { createMedication } from '../../actions/medications';
-import { visitOptions } from '../../constants';
+import { createAppointment } from '../../actions/appointments';
+import { visitOptions, appointmentStatusList } from '../../constants';
 import { PatientsCollection } from '../../collections';
+import { AppointmentModel } from '../../models';
 
 class AddAppointment extends Component {
   constructor(props) {
@@ -20,9 +22,13 @@ class AddAppointment extends Component {
   }
 
   state = {
-    selectValue: '',
-    prescriptionDate: moment(),
-    patients: []
+    formError: false,
+    startDate: moment(),
+    endDate: moment().add(1, 'd'),
+    patients: [],
+    patient: '',
+    appointmentType: 'Admission',
+    appointmentStatus: 'Scheduled'
   }
 
   componentDidMount() {
@@ -39,10 +45,16 @@ class AddAppointment extends Component {
     this.setState({ patients });
   }
 
-  updateValue = (newValue) => {
-    this.setState({
-      selectValue: newValue,
-    });
+  updateValue = (value) => {
+    this.setState({ selectValue: value });
+  }
+
+  manageAppointmentType = (value) => {
+    this.setState({ appointmentType: value });
+  }
+
+  manageStatus = (value) => {
+    this.setState({ appointmentStatus: value });
   }
 
   onChangeDate = (date) => {
@@ -51,8 +63,11 @@ class AddAppointment extends Component {
     });
   }
 
+  onCloseModal = () => {
+    this.setState({ formError: false });
+  }
+
   render() {
-    const { prescriptionDate } = this.state;
     return (
       <div className="create-content">
         <div className="create-top-bar">
@@ -64,11 +79,17 @@ class AddAppointment extends Component {
           className="create-container"
           onSubmit={(e) => {
             e.preventDefault();
-            const medication = Serializer.serialize(e.target, { hash: true });
-            if (medication.patient && medication.visit && medication.medication && medication.prescription) {
-              this.props.createMedication(medication);
+            const appointment = Serializer.serialize(e.target, { hash: true });
+            appointment.patient = this.state.patient;
+            appointment.startDate = this.state.startDate;
+            appointment.endDate = this.state.endDate;
+
+            const _appointment = new AppointmentModel(appointment);
+            if (_appointment.isValid()) {
+              console.log('_appointment_', _appointment);
+              this.props.createAppointment(_appointment);
             } else {
-              // this.setState({ formError: true });
+              this.setState({ formError: true });
             }
           }}
         >
@@ -80,12 +101,13 @@ class AddAppointment extends Component {
                     Patient <span className="isRequired">*</span>
                   </span>
                   <Autocomplete
+                    inputProps={{ name: 'patient' }}
                     getItemValue={(item) => `${item.displayId} - ${item.firstName} ${item.lastName}`}
                     wrapperProps={{ className: 'autocomplete-wrapper' }}
                     items={this.state.patients}
                     value={this.state.patientRef}
                     onSelect={(value, item) => {
-                      this.setState({ patientRef: value });
+                      this.setState({ patientRef: value, patient: item._id });
                     }}
                     onChange={(event, value) => {
                       this.setState({ patientRef: value });
@@ -105,13 +127,13 @@ class AddAppointment extends Component {
               <div className="column is-4">
                 <div className="column">
                   <span className="header">
-                    Start Date
+                    Start Date <span className="isRequired">*</span>
                   </span>
                   <DatePicker
                     name="startDate"
                     customInput={<CustomDateInput />}
-                    selected={prescriptionDate}
-                    onChange={this.onChangeDate}
+                    selected={this.state.startDate}
+                    onChange={date => { this.setState({ startDate: date }); }}
                     peekNextMonth
                     showMonthDropdown
                     showYearDropdown
@@ -122,13 +144,13 @@ class AddAppointment extends Component {
               <div className="column is-4">
                 <div className="column">
                   <span className="header">
-                    End Date
+                    End Date <span className="isRequired">*</span>
                   </span>
                   <DatePicker
                     name="endDate"
                     customInput={<CustomDateInput />}
-                    selected={prescriptionDate}
-                    onChange={this.onChangeDate}
+                    selected={this.state.endDate}
+                    onChange={date => { this.setState({ endDate: date }); }}
                     peekNextMonth
                     showMonthDropdown
                     showYearDropdown
@@ -141,7 +163,7 @@ class AddAppointment extends Component {
               <div className="column is-6">
                 <div className="column">
                   <span className="header">
-                    Type
+                    Type <span className="isRequired">*</span>
                   </span>
                   <Select
                     id="state-select"
@@ -150,11 +172,11 @@ class AddAppointment extends Component {
                     onSelectResetsInput={false}
                     options={visitOptions}
                     simpleValue
-                    clearable
-                    name="selected-state"
+                    clearable={false}
+                    name="appointmentType"
                     disabled={this.state.disabled}
-                    value={this.state.selectValue}
-                    onChange={this.updateValue}
+                    value={this.state.appointmentType}
+                    onChange={this.manageAppointmentType}
                     rtl={this.state.rtl}
                     searchable={this.state.searchable}
                   />
@@ -162,7 +184,7 @@ class AddAppointment extends Component {
               </div>
               <div className="column is-6">
                 <InputGroup
-                  name="with"
+                  name="provider"
                   label="With"
                 />
               </div>
@@ -184,13 +206,13 @@ class AddAppointment extends Component {
                     ref={(ref) => { this.select = ref; }}
                     onBlurResetsInput={false}
                     onSelectResetsInput={false}
-                    options={visitOptions}
+                    options={appointmentStatusList}
                     simpleValue
-                    clearable
-                    name="selected-state"
+                    clearable={false}
+                    name="status"
                     disabled={this.state.disabled}
-                    value={this.state.selectValue}
-                    onChange={this.updateValue}
+                    value={this.state.appointmentStatus}
+                    onChange={this.manageStatus}
                     rtl={this.state.rtl}
                     searchable={this.state.searchable}
                   />
@@ -203,7 +225,7 @@ class AddAppointment extends Component {
                   <span className="header">
                     Notes
                   </span>
-                  <textarea className="textarea" />
+                  <textarea className="textarea" name="notes" />
                 </div>
               </div>
             </div>
@@ -213,14 +235,21 @@ class AddAppointment extends Component {
             </div>
           </div>
         </form>
+        <ModalView
+          isVisible={this.state.formError}
+          onClose={this.onCloseModal}
+          headerTitle="Warning!!!!"
+          contentText="Please fill in required fields (marked with *) and correct the errors before saving."
+          little
+        />
       </div>
     );
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  createMedication: medication => dispatch(createMedication(medication)),
-  collection: new PatientsCollection()
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  createAppointment: appointment => dispatch(createAppointment(appointment, ownProps.history)),
+  collection: new PatientsCollection(),
 });
 
 export default connect(undefined, mapDispatchToProps)(AddAppointment);
