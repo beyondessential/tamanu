@@ -96,3 +96,13 @@ a:hover {
     margin-right: 5px;
   }
 }
+
+.autocomplete-wrapper{
+  display: block !important;
+
+  input {
+    @extend .input;
+    @extend .is-primary;
+    width: 500px;
+  }
+}

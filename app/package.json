@@ -19,7 +19,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "backbone-pouch": "^1.5.0",
     "pouchdb": "^6.4.3",
     "pouchdb-browser": "^6.4.3",
     "pouchdb-find": "^6.4.3"

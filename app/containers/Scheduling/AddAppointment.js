@@ -4,16 +4,39 @@ import { Link } from 'react-router-dom';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
+import { map } from 'lodash';
+import Autocomplete from 'react-autocomplete';
 import Serializer from '../../utils/form-serialize';
 import InputGroup from '../../components/InputGroup';
 import CustomDateInput from '../../components/CustomDateInput';
 import { createMedication } from '../../actions/medications';
 import { visitOptions } from '../../constants';
+import { PatientsCollection } from '../../collections';
 
 class AddAppointment extends Component {
+  constructor(props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
   state = {
     selectValue: '',
     prescriptionDate: moment(),
+    patients: []
+  }
+
+  componentDidMount() {
+    this.props.collection.on('update', this.handleChange);
+  }
+
+  componentWillUnmount() {
+    this.props.collection.off('update', this.handleChange);
+  }
+
+  handleChange() {
+    let { models: patients } = this.props.collection;
+    if (patients.length > 0) patients = map(patients, patient => patient.attributes);
+    this.setState({ patients });
   }
 
   updateValue = (newValue) => {
@@ -52,11 +75,30 @@ class AddAppointment extends Component {
           <div className="form">
             <div className="columns">
               <div className="column">
-                <InputGroup
-                  name="patient"
-                  label="Patient"
-                  required
-                />
+                <div className="column">
+                  <span className="input-group-title">
+                    Patient <span className="isRequired">*</span>
+                  </span>
+                  <Autocomplete
+                    getItemValue={(item) => `${item.displayId} - ${item.firstName} ${item.lastName}`}
+                    wrapperProps={{ className: 'autocomplete-wrapper' }}
+                    items={this.state.patients}
+                    value={this.state.patientRef}
+                    onSelect={(value, item) => {
+                      this.setState({ patientRef: value });
+                    }}
+                    onChange={(event, value) => {
+                      this.setState({ patientRef: value });
+                      this.props.collection.lookUp({
+                        selector: { displayId: { $regex: `(?i)${value}` } },
+                        fields: ['_id', 'displayId', 'firstName', 'lastName']
+                      });
+                    }}
+                    renderItem={(item, isHighlighted) =>
+                      <div style={{ background: isHighlighted ? 'lightgray' : 'white' }}> {`${item.displayId} - ${item.firstName} ${item.lastName}`} </div>
+                    }
+                  />
+                </div>
               </div>
             </div>
             <div className="columns">
@@ -178,6 +220,7 @@ class AddAppointment extends Component {
 
 const mapDispatchToProps = dispatch => ({
   createMedication: medication => dispatch(createMedication(medication)),
+  collection: new PatientsCollection()
 });
 
 export default connect(undefined, mapDispatchToProps)(AddAppointment);
