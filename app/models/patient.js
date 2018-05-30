@@ -1,5 +1,8 @@
-const Backbone = require('backbone-associations');
-const shortid = require('shortid');
+import Backbone from 'backbone-associations';
+import shortid from 'shortid';
+import { extend } from 'lodash';
+import BaseModel from './base';
+
 const {
   AllergyModel,
   DiagnosisModel,
@@ -7,13 +10,11 @@ const {
   OperationReportModel
 } = require('./index');
 
-export default Backbone.Model.extend({
-  idAttribute: '_id',
-  defaults: () => {
-    const _id = shortid.generate();
-
-    return {
-      _id: `patient_${_id}`,
+export default BaseModel.extend({
+  defaults: () => extend(
+    BaseModel.prototype.defaults,
+    {
+      _id: `patient_${shortid.generate()}`,
       type: 'patient',
       displayId: '',
       admitted: false,
@@ -61,8 +62,8 @@ export default Backbone.Model.extend({
       diagnoses: [],
       operationReports: [],
       operativePlans: [],
-    };
-  },
+    }
+  ),
 
   // Associations
   relations: [
@@ -88,7 +89,7 @@ export default Backbone.Model.extend({
     }
   ],
 
-  validate: (attrs) => {
+  validate(attrs) {
     if (attrs.firstName === '') return 'firstName is required!';
     if (attrs.lastName === '') return 'lastName is required!';
   }

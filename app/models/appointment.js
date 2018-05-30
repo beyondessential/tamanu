@@ -1,15 +1,15 @@
 import Backbone from 'backbone-associations';
 import shortid from 'shortid';
 import moment from 'moment';
+import { extend } from 'lodash';
+import BaseModel from './base';
 import { VisitModel } from './index';
 
-export default Backbone.Model.extend({
-  idAttribute: '_id',
-  defaults: () => {
-    const _id = shortid.generate();
-
-    return {
-      _id: `appointment_${_id}`,
+export default BaseModel.extend({
+  defaults: () => extend(
+    BaseModel.prototype.defaults,
+    {
+      _id: `appointment_${shortid.generate()}`,
       type: 'appointment',
       allDay: true,
       provider: '',
@@ -21,8 +21,8 @@ export default Backbone.Model.extend({
       status: 'Scheduled',
       patient: '',
       visits: [],
-    };
-  },
+    }
+  ),
 
   // Associations
   relations: [
@@ -33,7 +33,7 @@ export default Backbone.Model.extend({
     }
   ],
 
-  validate: (attrs) => {
+  validate(attrs) {
     if (attrs.patient === '') return 'Patient is required!';
     if (!moment(attrs.startDate).isValid()) return 'startDate is required!';
     if (!moment(attrs.startDate).isValid()) return 'startDate is required!';
