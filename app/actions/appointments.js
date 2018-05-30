@@ -3,7 +3,6 @@ import {
   CREATE_APPOINTMENT_SUCCESS,
   CREATE_APPOINTMENT_FAILED,
 } from './types';
-import { idGenerator } from '../constants';
 
 export function createAppointmentRequest() {
   return {
