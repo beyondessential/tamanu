@@ -37,7 +37,7 @@ class EditAppointment extends Component {
       this.props.model.save(null, {
         // success: (model, response) => {
         success: () => {
-          this.props.history.push('/patients');
+          this.props.history.push('/appointments');
         },
         // error: (model, response) => {
         error: () => {}
@@ -105,7 +105,7 @@ class EditAppointment extends Component {
                 </div>
               </div>
               <div className="column has-text-right">
-                <Link className="button is-danger cancel" to="/patients">Return</Link>
+                <Link className="button is-danger cancel" to="/appointments">Return</Link>
                 <button className="button is-primary" type="submit">Update</button>
               </div>
             </div>

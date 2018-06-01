@@ -49,11 +49,13 @@ class WeekAppointment extends Component {
   }
 
   goAdmit = (patientId, patient) => {
-    if (patient.admitted) {
-      this.props.history.push(`/appointments/editAppointment/${patientId}`);
-    } else {
-      this.props.history.push(`/appointments/editAppointment/${patientId}`);
-    }
+    console.log(patientId, patient);
+    // if (patient.admitted) {
+    //   this.props.history.push(`/appointments/editAppointment/${patientId}`);
+    // } else {
+    //   this.props.history.push(`/appointments/editAppointment/${patientId}`);
+    // }
+    this.props.history.push(`/appointments/editAppointment/${patientId}`);
   }
 
   showDeleteModal = (appointment) => {
@@ -83,7 +85,6 @@ class WeekAppointment extends Component {
     const { deleteModalVisible } = this.state;
     let { models: appointments } = this.props.collection;
     if (appointments.length > 0) appointments = map(appointments, appointment => appointment.attributes);
-    console.log('listing appointments', appointments);
     const appointmentColumns = [{
       accessor: 'date',
       Header: 'Date',

@@ -28,7 +28,8 @@ class AddAppointment extends Component {
     patients: [],
     patient: '',
     appointmentType: 'Admission',
-    appointmentStatus: 'Scheduled'
+    appointmentStatus: 'Scheduled',
+    checked: true
   }
 
   componentDidMount() {
@@ -45,10 +46,6 @@ class AddAppointment extends Component {
     this.setState({ patients });
   }
 
-  updateValue = (value) => {
-    this.setState({ selectValue: value });
-  }
-
   manageAppointmentType = (value) => {
     this.setState({ appointmentType: value });
   }
@@ -57,14 +54,12 @@ class AddAppointment extends Component {
     this.setState({ appointmentStatus: value });
   }
 
-  onChangeDate = (date) => {
-    this.setState({
-      prescriptionDate: date,
-    });
-  }
-
   onCloseModal = () => {
     this.setState({ formError: false });
+  }
+
+  changeAllDayValue = () => {
+    this.setState({ checked: !this.state.checked });
   }
 
   render() {
@@ -86,7 +81,7 @@ class AddAppointment extends Component {
 
             const _appointment = new AppointmentModel(appointment);
             if (_appointment.isValid()) {
-              console.log('_appointment_', _appointment);
+              console.log('_appointment_', appointment);
               this.props.createAppointment(_appointment);
             } else {
               this.setState({ formError: true });
@@ -141,6 +136,7 @@ class AddAppointment extends Component {
                     showTimeSelect
                     timeFormat="HH:mm"
                     timeIntervals={15}
+                    dateFormat="LLL"
                   />
                 </div>
               </div>
@@ -161,14 +157,17 @@ class AddAppointment extends Component {
                     showTimeSelect
                     timeFormat="HH:mm"
                     timeIntervals={15}
+                    dateFormat="LLL"
                   />
                 </div>
               </div>
               <div className="column is-4">
                 <div className="column">
                   <label className="checkbox">
-                    <input type="checkbox" />
-                    All Day
+                    <input type="checkbox" onChange={this.changeAllDayValue} value={this.state.checked} name="allDay" />
+                    <span>
+                      All Day
+                    </span>
                   </label>
                 </div>
               </div>
