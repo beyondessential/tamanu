@@ -83,6 +83,7 @@ class WeekAppointment extends Component {
     const { deleteModalVisible } = this.state;
     let { models: appointments } = this.props.collection;
     if (appointments.length > 0) appointments = map(appointments, appointment => appointment.attributes);
+    console.log('listing appointments', appointments);
     const appointmentColumns = [{
       accessor: 'date',
       Header: 'Date',
@@ -144,7 +145,7 @@ class WeekAppointment extends Component {
       },
       minWidth: 100
     }, {
-      accessor: 'with',
+      accessor: 'provider',
       Header: 'With',
       headerStyle: {
         backgroundColor: Colors.searchTintColor,

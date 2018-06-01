@@ -138,6 +138,9 @@ class AddAppointment extends Component {
                     showMonthDropdown
                     showYearDropdown
                     dropdownMode="select"
+                    showTimeSelect
+                    timeFormat="HH:mm"
+                    timeIntervals={15}
                   />
                 </div>
               </div>
@@ -155,6 +158,9 @@ class AddAppointment extends Component {
                     showMonthDropdown
                     showYearDropdown
                     dropdownMode="select"
+                    showTimeSelect
+                    timeFormat="HH:mm"
+                    timeIntervals={15}
                   />
                 </div>
               </div>
