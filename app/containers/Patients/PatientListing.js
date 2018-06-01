@@ -264,18 +264,3 @@ PatientListing.defaultProps = {
 };
 
 export default PatientListing;
-
-// function mapStateToProps(state) {
-//   const { patients, deletePatientSuccess } = state.patients;
-//   return {
-//     patients,
-//     deletePatientSuccess
-//   };
-// }
-
-// const mapDispatchToProps = dispatch => ({
-//   fetchPatients: () => dispatch(fetchPatients()),
-//   deletePatient: (selectedPatient) => dispatch(deletePatient(selectedPatient)),
-// });
-
-// export default connect(mapStateToProps, mapDispatchToProps)(PatientListing);

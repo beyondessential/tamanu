@@ -28,16 +28,6 @@ class EditAppointment extends Component {
     this.forceUpdate();
   }
 
-  onCloseAllergyModal = () => {
-    this.setState({ allergyModalVisible: false });
-  }
-
-  changeTab = (tabName) => {
-    this.setState({
-      selectedTab: tabName
-    });
-  }
-
   updatePatient = (patient) => {
     const updatedPatient = patient;
     updatedPatient.birthday = moment(this.props.updatedBirthday).format('YYYY-MM-DD');
@@ -111,14 +101,6 @@ class EditAppointment extends Component {
                         </a>
                       </div>
                     </div>
-                    <div className="column">
-                      <div className="column">
-                        <span className="title">Patient Allergies  </span>
-                        <a className="add-button" onClick={() => this.setState({ allergyModalVisible: true })}>
-                          + Add Allergy
-                        </a>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -129,13 +111,6 @@ class EditAppointment extends Component {
             </div>
           </form>
         </div>
-        {/* <ModalView
-          isVisible={formError}
-          onClose={this.onCloseModal}
-          headerTitle="Warning!!!!"
-          contentText="Please fill in required fields (marked with *) and correct the errors before saving."
-          little
-        /> */}
       </div>
     );
   }
