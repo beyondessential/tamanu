@@ -45,14 +45,14 @@ class WeekAppointment extends Component {
   }
 
   goEdit = (patientId) => {
-    this.props.history.push(`/patients/editPatient/${patientId}`);
+    this.props.history.push(`/appointments/editAppointment/${patientId}`);
   }
 
   goAdmit = (patientId, patient) => {
     if (patient.admitted) {
-      this.props.history.push(`/patients/editvisit/${patientId}`);
+      this.props.history.push(`/appointments/editAppointment/${patientId}`);
     } else {
-      this.props.history.push(`/patients/checkin/${patientId}`);
+      this.props.history.push(`/appointments/editAppointment/${patientId}`);
     }
   }
 

@@ -9,7 +9,7 @@ import AppointmentsCalendar from './AppointmentsCalendar';
 import AddAppointment from './AddAppointment';
 import TheaterSchedule from './TheaterSchedule';
 import ScheduleSurgery from './ScheduleSurgery';
-
+import EditAppointment from './EditAppointment';
 
 export default function Routes({ url }) {
   return (
@@ -22,6 +22,7 @@ export default function Routes({ url }) {
         <Route path={`${url}/edit/new`} component={AddAppointment} />
         <Route path={`${url}/theater`} component={TheaterSchedule} />
         <Route path={`${url}/edit/newsurgery`} component={ScheduleSurgery} />
+        <Route path={`${url}/editAppointment/:id`} component={EditAppointment} />
       </Switch>
     </div>
   );
