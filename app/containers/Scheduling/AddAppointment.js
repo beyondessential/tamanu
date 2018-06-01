@@ -164,6 +164,14 @@ class AddAppointment extends Component {
                   />
                 </div>
               </div>
+              <div className="column is-4">
+                <div className="column">
+                  <label className="checkbox">
+                    <input type="checkbox" />
+                    All Day
+                  </label>
+                </div>
+              </div>
             </div>
             <div className="columns">
               <div className="column is-6">
