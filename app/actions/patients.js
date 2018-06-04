@@ -221,10 +221,10 @@ export const createPatient = (patient, history) => {
     patient.save(patient.attributes, {
       success: (model, response) => {
         dispatch(createPatientSuccess(response));
-        history.push('/patients');
+        history.push(`/patients/editPatient/${model.id}`);
       },
       error: (model, response) => {
-        console.log('error', response);
+        console.error('error', response);
         return dispatch(createPatientFailed(response));
       }
     });
