@@ -4,7 +4,7 @@ import { map, isEmpty } from 'lodash';
 import ReactTable from 'react-table';
 
 // import { fetchPatients, deletePatient } from '../../actions/patients';
-import { Colors } from '../../constants';
+import { Colors, pageSizes } from '../../constants';
 import DeletePatientModal from './components/DeletePatientModal';
 import { PatientsCollection } from '../../collections';
 
@@ -17,7 +17,7 @@ class PatientListing extends Component {
   state = {
     deleteModalVisible: false,
     selectedPatient: null,
-    pageSize: 5
+    pageSize: pageSizes.patients
   }
 
   componentDidMount() {
@@ -237,7 +237,7 @@ class PatientListing extends Component {
                 keyField="_id"
                 data={patients}
                 pages={this.props.collection.totalPages}
-                defaultPageSize={5}
+                defaultPageSize={pageSizes.patients}
                 loading={this.state.loading}
                 columns={patientColumns}
                 className="-striped"

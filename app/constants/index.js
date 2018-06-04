@@ -8,6 +8,10 @@ export const Colors = {
   white: '#ffffff'
 };
 
+export const pageSizes = {
+  patients: 10
+};
+
 export const sidebarInfo = [
   {
     label: 'Patients',
