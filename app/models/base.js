@@ -12,7 +12,6 @@ export default Backbone.Model.extend({
   },
 
   save(attrs, options) {
-    console.log('_this_', this, this.attributes);
     // Set last modified times
     if (this.changedAttributes() !== false) {
       let modifiedFields = this.changedAttributes();
