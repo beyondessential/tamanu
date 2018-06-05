@@ -1,18 +1,16 @@
-module.exports = {
-  AllergyModel: require('./allergy'),
-  AppointmentModel: require('./appointment'),
-  DiagnosisModel: require('./diagnosis'),
-  LabModel: require('./lab'),
-  MedicationModel: require('./medication'),
-  OperativePlanModel: require('./operativePlan'),
-  OperationReportModel: require('./operationReport'),
-  PatientModel: require('./patient'),
-  PhotoModel: require('./photo'),
-  ProcedureModel: require('./procedure'),
-  PatientNoteModel: require('./patientNote'),
-  ReportModel: require('./report'),
-  UserRoleModel: require('./userRole'),
-  UserModel: require('./user'),
-  VitalModel: require('./vital'),
-  VisitModel: require('./visit'),
-};
+export AllergyModel from './allergy';
+export AppointmentModel from './appointment';
+export DiagnosisModel from './diagnosis';
+export LabModel from './lab';
+export MedicationModel from './medication';
+export OperativePlanModel from './operativePlan';
+export OperationReportModel from './operationReport';
+export PatientModel from './patient';
+export PhotoModel from './photo';
+export ProcedureModel from './procedure';
+export PatientNoteModel from './patientNote';
+export ReportModel from './report';
+export UserRoleModel from './userRole';
+export UserModel from './user';
+export VitalModel from './vital';
+export VisitModel from './visit';

@@ -1,18 +1,35 @@
 import Backbone from 'backbone-associations';
 import shortid from 'shortid';
-import { extend } from 'lodash';
+import { defaults, isEmpty, map, uniq, filter, isArray, every } from 'lodash';
 import BaseModel from './base';
 
-const {
-  AllergyModel,
-  DiagnosisModel,
-  OperativePlanModel,
-  OperationReportModel
-} = require('./index');
+const mapRelations = (objs, Model) => {
+  if (isEmpty(objs)) return [];
+  if (objs instanceof Model) return objs;
+
+  if (isArray(objs)) {
+    if (every(objs, (v) => v instanceof Model)) return objs;
+
+    const ids = filter(uniq(map(objs, '_id')), obj => { return typeof obj !== 'undefined'; });
+    const _return = [];
+    ids.forEach((_id) => {
+      const _model = new Model();
+      _model.set({ _id });
+      _model.fetch();
+      _return.push(_model);
+    });
+
+    return _return;
+  }
+
+  const _model = new Model();
+  _model.set({ _id: objs._id });
+  _model.fetch();
+  return _model;
+};
 
 export default BaseModel.extend({
-  defaults: () => extend(
-    BaseModel.prototype.defaults,
+  defaults: () => defaults(
     {
       _id: `patient_${shortid.generate()}`,
       type: 'patient',
@@ -62,7 +79,8 @@ export default BaseModel.extend({
       diagnoses: [],
       operationReports: [],
       operativePlans: [],
-    }
+    },
+    BaseModel.prototype.defaults
   ),
 
   // Associations
@@ -70,22 +88,30 @@ export default BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'allergies',
-      relatedModel: AllergyModel
+      relatedModel: () => require('./allergy'),
+      map: (values) => mapRelations(values, require('./allergy')),
+      serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'diagnoses',
-      relatedModel: DiagnosisModel
+      relatedModel: () => require('./diagnosis'),
+      map: (values) => mapRelations(values, require('./diagnosis')),
+      serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'operationReports',
-      relatedModel: OperationReportModel
+      relatedModel: () => require('./operationReport'),
+      map: (values) => mapRelations(values, require('./operationReport')),
+      serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'operativePlans',
-      relatedModel: OperativePlanModel
+      relatedModel: () => require('./operativePlan'),
+      map: (values) => mapRelations(values, require('./operativePlan')),
+      serialize: '_id'
     }
   ],
 

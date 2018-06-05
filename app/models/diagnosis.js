@@ -1,10 +1,9 @@
 import shortid from 'shortid';
-import { extend } from 'lodash';
+import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  defaults: () => extend(
-    BaseModel.prototype.defaults,
+  defaults: () => defaults(
     {
       _id: `diagnosis_${shortid.generate()}`,
       type: 'diagnosis',
@@ -12,6 +11,7 @@ export default BaseModel.extend({
       date: Date,
       diagnosis: null,
       secondaryDiagnosis: false
-    }
+    },
+    BaseModel.prototype.defaults,
   )
 });

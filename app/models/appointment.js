@@ -1,13 +1,12 @@
 import Backbone from 'backbone-associations';
 import shortid from 'shortid';
 import moment from 'moment';
-import { extend } from 'lodash';
+import { defaults } from 'lodash';
 import BaseModel from './base';
 import { VisitModel } from './index';
 
 export default BaseModel.extend({
-  defaults: () => extend(
-    BaseModel.prototype.defaults,
+  defaults: () => defaults(
     {
       _id: `appointment_${shortid.generate()}`,
       type: 'appointment',
@@ -21,7 +20,8 @@ export default BaseModel.extend({
       status: 'Scheduled',
       patient: '',
       visits: [],
-    }
+    },
+    BaseModel.prototype.defaults,
   ),
 
   // Associations

@@ -24,7 +24,7 @@ class EditPatient extends Component {
   state = {
     selectedTab: '',
     allergyModalVisible: false,
-    patient: this.props.model.attributes
+    patient: this.props.model.toJSON()
   }
 
   componentDidMount() {
@@ -39,6 +39,7 @@ class EditPatient extends Component {
   }
 
   handleChange = () => {
+    console.log('allergies', this.props.model.get('allergies'));
     this.setState({ patient: assignIn(this.state.patient, this.props.model.changedAttributes()) });
     this.forceUpdate();
   }
@@ -82,7 +83,7 @@ class EditPatient extends Component {
         <div className="create-content">
           <div className="create-top-bar">
             <span>
-              Edit Patient
+              Edit Patient {allergyModalVisible.toString()}
             </span>
           </div>
           <form
@@ -211,6 +212,7 @@ class EditPatient extends Component {
           little
         /> */}
         <AddAllergyModal
+          patient={this.props.model}
           isVisible={allergyModalVisible}
           onClose={this.onCloseAllergyModal}
           little

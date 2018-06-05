@@ -20,6 +20,7 @@ class InputGroup extends Component {
 
   handleChange(event) {
     this.setState({ value: event.target.value });
+    if (this.props.onChange) this.props.onChange(event);
   }
 
   render() {
@@ -27,14 +28,14 @@ class InputGroup extends Component {
       label,
       required,
       name,
-      tabIndex
+      tabIndex,
     } = this.props;
     return (
       <div className="column">
         <span className="input-group-title">
           {label} {required && <span className="isRequired">*</span>}
         </span>
-        <input className="input is-primary" type="text" name={name} tabIndex={tabIndex} value={this.state.value} onChange={this.handleChange.bind(this)} />
+        <input className="input is-primary" type="text" name={name} tabIndex={tabIndex} value={this.state.value} onChange={this.handleChange.bind(this)} required={required} />
       </div>
     );
   }

@@ -68,7 +68,8 @@ class NewPatient extends Component {
       birthday,
       age,
       referredDate,
-      contactModalVisible
+      contactModalVisible,
+      patientInProgress
     } = this.state;
     return (
       <div className="create-content">
@@ -360,7 +361,7 @@ class NewPatient extends Component {
               />
               <div className="column has-text-right">
                 <Link className="button is-danger cancel" to="/patients">Cancel</Link>
-                <button className="button" type="submit">Add</button>
+                <button className="button" type="submit" disabled={patientInProgress}>Add</button>
               </div>
             </div>
           </div>
@@ -383,10 +384,8 @@ class NewPatient extends Component {
 }
 
 function mapStateToProps(state) {
-  const { createPatientSuccess } = state.patients;
-  return {
-    createPatientSuccess,
-  };
+  const { createPatientSuccess, patientInProgress } = state.patients;
+  return { createPatientSuccess, patientInProgress };
 }
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

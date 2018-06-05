@@ -24,10 +24,9 @@ import {
 } from '../actions/types';
 
 const initialState = {
-  patients: [],
-  onePatient: {},
+  patient: {},
+  patientInProgress: false,
   createPatientSuccess: false,
-  admittedPatients: [],
   deletePatientSuccess: false,
   updatedBirthday: moment(),
   updatedReferredDate: moment()
@@ -38,18 +37,21 @@ export default (state = initialState, action) => {
     case CREATE_PATIENT_REQUEST:
       return {
         ...state,
+        patientInProgress: true,
         createPatientSuccess: false,
         deletePatientSuccess: false
       };
     case CREATE_PATIENT_SUCCESS:
       return {
         ...state,
+        patientInProgress: false,
         createPatientSuccess: true,
         deletePatientSuccess: false
       };
     case CREATE_PATIENT_FAILED:
       return {
         ...state,
+        patientInProgress: false,
         formError: true,
         createPatientSuccess: false,
         deletePatientSuccess: false
