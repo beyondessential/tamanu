@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { assignIn } from 'lodash';
+import { assignIn, isEmpty } from 'lodash';
 import moment from 'moment';
 
 import Serializer from '../../../utils/form-serialize';
@@ -16,7 +16,7 @@ import Imaging from './Imaging';
 import Labs from './Labs';
 
 // import Serializer from '../../../utils/form-serialize';
-import { PatientModel } from '../../../models';
+import { PatientModel, AllergyModel } from '../../../models';
 
 const classNames = require('classnames');
 
@@ -24,7 +24,7 @@ class EditPatient extends Component {
   state = {
     selectedTab: '',
     allergyModalVisible: false,
-    patient: this.props.model.toJSON()
+    patient: this.props.model.attributes
   }
 
   componentDidMount() {
@@ -38,10 +38,13 @@ class EditPatient extends Component {
     this.props.model.off('change', this.handleChange);
   }
 
-  handleChange = () => {
-    console.log('allergies', this.props.model.get('allergies'));
-    this.setState({ patient: assignIn(this.state.patient, this.props.model.changedAttributes()) });
-    this.forceUpdate();
+  handleChange = async () => {
+    try {
+      const patient = await this.props.model.toJSON({ relations: true });
+      this.setState({ patient }, () => this.forceUpdate());
+    } catch (err) {
+      console.error('Error: ', err);
+    }
   }
 
   onCloseAllergyModal = () => {
@@ -49,9 +52,7 @@ class EditPatient extends Component {
   }
 
   changeTab = (tabName) => {
-    this.setState({
-      selectedTab: tabName
-    });
+    this.setState({ selectedTab: tabName });
   }
 
   updatePatient = (patient) => {
@@ -78,12 +79,13 @@ class EditPatient extends Component {
       patient
     } = this.state;
     const { history } = this.props;
+
     return (
       <div>
         <div className="create-content">
           <div className="create-top-bar">
             <span>
-              Edit Patient {allergyModalVisible.toString()}
+              Edit Patient
             </span>
           </div>
           <form
@@ -136,6 +138,13 @@ class EditPatient extends Component {
                         <a className="add-button" onClick={() => this.setState({ allergyModalVisible: true })}>
                           + Add Allergy
                         </a>
+                        {patient.allergies.map((allergy) => {
+                          return (
+                            <div key={allergy._id} className="clearfix">
+                              <a className="add-button" onClick={() => this.setState({ allergyModalVisible: true })}>{allergy.name}</a>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
@@ -233,6 +242,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = () => ({
   model: new PatientModel(),
+  allergyModel: new AllergyModel(),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditPatient);
