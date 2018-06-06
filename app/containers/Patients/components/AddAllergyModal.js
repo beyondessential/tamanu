@@ -36,23 +36,21 @@ class AddAllergyModal extends Component {
     this.setState({ formValid: valid });
   }
 
-  submitForm = (e) => {
+  submitForm = async (e) => {
     e.preventDefault();
-    const { patient } = this.props;
+    const { patient, model: patientModel } = this.props;
     const _this = this;
     const allergy = Serializer.serialize(e.target, { hash: true });
 
     const _allergy = new AllergyModel(allergy);
-    _allergy.save(null, {
-      success: (model) => {
-        patient.get('allergies').add({ _id: model.id });
-        patient.save(null, {
-          success: () => _this.setState({ isVisible: false }),
-          error: (err) => console.error('Error: ', err)
-        });
-      },
-      error: (err) => console.error('Error: ', err)
-    });
+    try {
+      const model = await _allergy.save();
+      patientModel.get('allergies').add({ _id: model.id });
+      await patientModel.save();
+      _this.props.onClose();
+    } catch (err) {
+      console.error('Error: ', err);
+    }
   }
 
   render() {
