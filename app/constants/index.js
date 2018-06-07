@@ -8,6 +8,8 @@ export const Colors = {
   white: '#ffffff'
 };
 
+export const dateFormat = 'DD/MM/YYYY';
+
 export const pageSizes = {
   patients: 10
 };

@@ -4,7 +4,7 @@ class CustomDateInput extends Component {
   render() {
     return (
       <div
-        className="custom-date-input"
+        className="input custom-date-input"
         onClick={this.props.onClick}
       >
         {this.props.value}

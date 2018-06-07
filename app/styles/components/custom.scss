@@ -114,3 +114,10 @@ a:hover {
 .no-padding{
   padding: 0 !important;
 }
+
+.diagnosis-modal{
+  .modal-content{
+    position: relative;
+    overflow: inherit !important;
+  }
+}
