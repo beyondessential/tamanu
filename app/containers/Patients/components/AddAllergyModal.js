@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Modal from 'react-responsive-modal';
-import Backbone from 'backbone-associations';
 import InputGroup from '../../../components/InputGroup';
 import Serializer from '../../../utils/form-serialize';
 import { AllergyModel } from '../../../models';

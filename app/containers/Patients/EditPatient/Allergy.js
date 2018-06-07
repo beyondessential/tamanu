@@ -22,11 +22,13 @@ class Allergy extends Component {
           <a className="add-button" onClick={() => this.setState({ modalVisible: true, action: 'new', item: null })}>
             + Add Allergy
           </a>
-          {patient.allergies.map((allergy) => {
+          <div className="clearfix" />
+          {patient.allergies.map((allergy, k) => {
             return (
-              <div key={allergy._id} className="clearfix">
+              <React.Fragment key={allergy._id}>
+                {k > 0 ? ', ' : ''}
                 <a className="add-button" onClick={() => this.setState({ modalVisible: true, action: 'edit', item: allergy })}>{allergy.name}</a>
-              </div>
+              </React.Fragment>
             );
           })}
         </div>

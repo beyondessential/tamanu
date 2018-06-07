@@ -64,7 +64,7 @@ class General extends Component {
     } = this.state;
     return (
       <div>
-        <div className="form">
+        <div className="form no-margin">
           <div className="columns">
             <div className="column">
               <InputGroup
