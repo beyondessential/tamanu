@@ -62,6 +62,7 @@ const originalDestroy = Backbone.Model.prototype.destroy;
 Backbone.Model.prototype.destroy = function destroyData(options) {
   return new Promise((resolve, reject) => {
     const newOptions = defaults({
+      wait: true,
       success: resolve,
       error: reject
     }, options);
