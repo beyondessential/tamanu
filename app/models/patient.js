@@ -44,7 +44,7 @@ export default BaseModel.extend({
       clinic: '',
       country: '',
       checkedIn: false,
-      dateOfBirth: Date,
+      dateOfBirth: '',
       economicClassification: '',
       email: '',
       externalPatientId: '',

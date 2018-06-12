@@ -317,6 +317,11 @@ export const visitOptions = [
   { value: 'Pharmacy', label: 'Pharmacy' },
 ];
 
+export const operativePlanStatusList = [
+  { value: 'Planned', label: 'Planned' },
+  { value: 'Dropped', label: 'Dropped' },
+  { value: 'Completed', label: 'Completed' },
+];
 
 export const appointmentStatusList = [
   { value: 'Attended', label: 'Attended' },
@@ -340,7 +345,6 @@ export const sexOptions = [
   { value: 'male', label: 'Male' },
   { value: 'female', label: 'Female' },
 ];
-
 
 export const lookupOptions = [
   { value: 'billing_categories', label: 'Billing Categories' },

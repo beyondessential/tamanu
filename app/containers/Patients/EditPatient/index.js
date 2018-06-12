@@ -104,7 +104,7 @@ class EditPatient extends Component {
                   <div className="columns border-bottom">
                     <div className="column">
                       <Dignosis patient={patient} model={this.props.model} showSecondary={false} />
-                      <OperativePlan patient={patient} model={this.props.model} />
+                      <OperativePlan patient={patient} history={history} />
                     </div>
                     <div className="column">
                       <Dignosis patient={patient} model={this.props.model} showSecondary={true} />
