@@ -309,25 +309,25 @@ export const reportOptions = [
 ];
 
 export const visitOptions = [
-  { value: 'Admission', label: 'Admission' },
-  { value: 'Clinic', label: 'Clinic' },
-  { value: 'Followup', label: 'Followup' },
-  { value: 'Imaging', label: 'Imaging' },
-  { value: 'Lab', label: 'Lab' },
-  { value: 'Pharmacy', label: 'Pharmacy' },
+  { value: 'admission', label: 'Admission' },
+  { value: 'clinic', label: 'Clinic' },
+  { value: 'followup', label: 'Followup' },
+  { value: 'imaging', label: 'Imaging' },
+  { value: 'lab', label: 'Lab' },
+  { value: 'pharmacy', label: 'Pharmacy' },
 ];
 
 export const operativePlanStatusList = [
-  { value: 'Planned', label: 'Planned' },
-  { value: 'Dropped', label: 'Dropped' },
-  { value: 'Completed', label: 'Completed' },
+  { value: 'planned', label: 'Planned' },
+  { value: 'dropped', label: 'Dropped' },
+  { value: 'completed', label: 'Completed' },
 ];
 
 export const appointmentStatusList = [
-  { value: 'Attended', label: 'Attended' },
-  { value: 'Scheduled', label: 'Scheduled' },
-  { value: 'Canceled', label: 'Canceled' },
-  { value: 'Missed', label: 'Missed' },
+  { value: 'attended', label: 'Attended' },
+  { value: 'scheduled', label: 'Scheduled' },
+  { value: 'canceled', label: 'Canceled' },
+  { value: 'missed', label: 'Missed' },
 ];
 
 export const bloodOptions = [

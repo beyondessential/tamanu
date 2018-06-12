@@ -18,6 +18,10 @@ class InputGroup extends Component {
     this.state = { value: (props.value ? props.value : '') };
   }
 
+  componentWillReceiveProps(newProps) {
+    this.setState({ value: (newProps.value ? newProps.value : '') });
+  }
+
   handleChange(event) {
     this.setState({ value: event.target.value });
     if (this.props.onChange) this.props.onChange(event);
@@ -35,7 +39,7 @@ class InputGroup extends Component {
         <span className="input-group-title">
           {label} {required && <span className="isRequired">*</span>}
         </span>
-        <textarea className="textarea is-primary" type="text" name={name} rows="3" tabIndex={tabIndex} value={this.state.value} onChange={this.handleChange.bind(this)} required={required} />
+        <textarea className="textarea is-primary" name={name} rows="3" tabIndex={tabIndex} value={this.state.value} onChange={this.handleChange.bind(this)} required={required} />
       </div>
     );
   }

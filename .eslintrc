@@ -44,7 +44,10 @@
     "jsx-a11y/tabindex-no-positive": 0,
     "array-callback-return": 0,
     "no-underscore-dangle": 0,
-    "no-param-reassign": ["error", { "props": true, "ignorePropertyModificationsFor": ["attrs", "options"] }]
+    "no-param-reassign": ["error", { "props": true, "ignorePropertyModificationsFor": ["attrs", "options"] }],
+    "no-unused-vars":"warn",
+    "no-unused-labels": "warn",
+    "no-unused-expressions": "warn"
   },
   "plugins": [
     "flowtype",

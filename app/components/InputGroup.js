@@ -18,6 +18,10 @@ class InputGroup extends Component {
     this.state = { value: (props.value ? props.value : '') };
   }
 
+  componentWillReceiveProps(newProps) {
+    this.setState({ value: (newProps.value ? newProps.value : '') });
+  }
+
   handleChange(event) {
     this.setState({ value: event.target.value });
     if (this.props.onChange) this.props.onChange(event);

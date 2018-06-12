@@ -24,8 +24,8 @@ export default function Routes({ url }) {
         <Route path={`${url}/checkin/:id`} component={CheckInPatient} />
         <Route path={`${url}/editvisit/:id`} component={EditVisit} />
         <Route path={`${url}/editPatient/:id`} component={EditPatient} />
-        <Route path={`${url}/operativePlan/:patientId`} component={OperativePlan} />
         <Route path={`${url}/operativePlan/:patientId/:id`} component={OperativePlan} />
+        <Route path={`${url}/operativePlan/:patientId`} component={OperativePlan} />
       </Switch>
     </div>
   );
