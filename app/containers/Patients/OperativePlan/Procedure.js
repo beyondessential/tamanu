@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { clone, pull } from 'lodash';
-import shortid from 'shortid';
 import InputGroup from '../../../components/InputGroup';
 
 class Prodcedure extends Component {
@@ -13,6 +12,11 @@ class Prodcedure extends Component {
   state = {
     procedure: '',
     procedures: []
+  }
+
+  componentWillReceiveProps(newProps) {
+    const { procedures } = newProps;
+    this.setState({ procedures });
   }
 
   addProcedure() {

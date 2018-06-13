@@ -1,6 +1,6 @@
 import Backbone from 'backbone-associations';
 import shortid from 'shortid';
-import { defaults, isEmpty, map, uniq, filter, isArray, every } from 'lodash';
+import { defaults, isEmpty, map, uniq, filter, isArray, every, each, clone } from 'lodash';
 import BaseModel from './base';
 
 const mapRelations = (objs, Model) => {
@@ -118,5 +118,17 @@ export default BaseModel.extend({
   validate(attrs) {
     if (attrs.firstName === '') return 'firstName is required!';
     if (attrs.lastName === '') return 'lastName is required!';
+  },
+
+  getOpenPlan() {
+    let _return = {};
+    if (this.attributes.operativePlans.models.length > 0) {
+      each(this.attributes.operativePlans.models, (opPlan) => {
+        const operationPlan = clone(opPlan.attributes);
+        if (operationPlan.status === 'planned') _return = opPlan.toJSON();
+      });
+    }
+
+    return _return;
   }
 });

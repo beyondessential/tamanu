@@ -36,13 +36,14 @@ Backbone.sync = BackbonePouch.sync({
 // Add promise support to backbone model
 const originalSave = Backbone.Model.prototype.save;
 Backbone.Model.prototype.save = function saveData(data, options) {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const newOptions = defaults({
+      wait: true,
       success: resolve,
       error: reject
     }, options);
 
-    originalSave.apply(this, [data, newOptions]);
+    await originalSave.apply(this, [data, newOptions]);
   });
 };
 

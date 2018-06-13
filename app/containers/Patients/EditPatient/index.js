@@ -6,6 +6,7 @@ import moment from 'moment';
 import Serializer from '../../../utils/form-serialize';
 import Allergy from './Allergy';
 import Dignosis from './Dignosis';
+import Procedure from './Procedure';
 import OperativePlan from './OperativePlan';
 import History from './History';
 import General from './General';
@@ -104,7 +105,8 @@ class EditPatient extends Component {
                   <div className="columns border-bottom">
                     <div className="column">
                       <Dignosis patient={patient} model={this.props.model} showSecondary={false} />
-                      <OperativePlan patient={patient} history={history} />
+                      <Procedure patient={patient} model={this.props.model} />
+                      <OperativePlan patient={patient} model={this.props.model} history={history} />
                     </div>
                     <div className="column">
                       <Dignosis patient={patient} model={this.props.model} showSecondary />

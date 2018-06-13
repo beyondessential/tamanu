@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import AddAllergyModal from '../components/AddAllergyModal';
 
-class Allergy extends Component {
+class Procedure extends Component {
   state = {
     modalVisible: false,
     action: 'new',
@@ -18,10 +18,7 @@ class Allergy extends Component {
     return (
       <div>
         <div className="column p-b-0">
-          <span className="title">Patient Allergies  </span>
-          <a className="add-button" onClick={() => this.setState({ modalVisible: true, action: 'new', item: null })}>
-            + Add Allergy
-          </a>
+          <span className="title">Procedures</span>
           <div className="clearfix" />
           {patient.allergies.map((allergy, k) => {
             return (
@@ -32,18 +29,9 @@ class Allergy extends Component {
             );
           })}
         </div>
-        <AddAllergyModal
-          item={item}
-          patient={patient}
-          model={model}
-          action={action}
-          isVisible={modalVisible}
-          onClose={this.onCloseModal}
-          little
-        />
       </div>
     );
   }
 }
 
-export default Allergy;
+export default Procedure;

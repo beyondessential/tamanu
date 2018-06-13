@@ -20,7 +20,7 @@ class Diagnosis extends Component {
     const diagnoses = patient.diagnoses.filter(diagnosis => diagnosis.active && diagnosis.secondaryDiagnosis === showSecondary);
     return (
       <div>
-        <div className={`column ${!diagnoses.length && showSecondary ? 'is-hidden' : ''}`}>
+        <div className={`column p-b-0 ${!diagnoses.length && showSecondary ? 'is-hidden' : ''}`}>
           <span className="title">{`${showSecondary ? 'Secondary' : 'Primary'} Dignose`}</span>
           <a className={`${showSecondary ? 'is-hidden' : ''} add-button`} onClick={() => this.setState({ modalVisible: true, action: 'new', item: null })}>
             + Add Dignosis

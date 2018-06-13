@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import Select from 'react-select';
-import { clone, isUndefined, each, has } from 'lodash';
+import { clone, isUndefined, each, has, capitalize } from 'lodash';
 
 // import Serializer from '../../../utils/form-serialize';
 import Allergy from './Allergy';
@@ -25,8 +25,8 @@ class OperativePlan extends Component {
 
   state = {
     formError: false,
+    formSuccess: false,
     patient: this.props.patient.attributes,
-    operationReport: this.props.operationReport.attributes,
     action: 'new',
     form: {
       additionalNotes: '',
@@ -93,41 +93,45 @@ class OperativePlan extends Component {
     this.props.history.push(`/patients/editPatient/${this.state.patient._id}`);
   }
 
-  onCloseModal = () => {
+  onCloseErrorModal = () => {
     this.setState({ formError: false });
+  }
+
+  onCloseSuccessModal = () => {
+    this.setState({ formSuccess: false });
+  }
+
+  markComplete = (e) => {
+    e.preventDefault();
+    const form = clone(this.state.form);
+    form.status = 'completed';
+    this.setState({ form }, async () => {
+      await this.submitForm(e);
+    });
   }
 
   submitForm = async (e) => {
     e.preventDefault();
-    console.log('submitForm');
-    const { item, patient } = this.props;
-    const _this = this;
+    const { patient } = this.props;
     const { form, action } = this.state;
-    console.log('here1', form);
-
     if (!this.state.form.procedures.length) return this.setState({ formError: true });
 
     try {
-      const operativePlan = new OperativePlanModel((action !== 'new' ? item : form));
-      if (action !== 'new') operativePlan.set(form);
-      const model = await operativePlan.save();
-      console.log('here2', model);
+      // const operativePlan = new OperativePlanModel();
+      this.props.operationReport.set(form);
+      const model = await this.props.operationReport.save();
 
       // Attached operativePlan to patient object
       if (action === 'new') {
         patient.get('operativePlans').add({ _id: model.id });
         await patient.save();
-        console.log('here3', patient);
-
-        const url = `/patients/operativePlan/${patient.id}/${model.id}`;
-        console.log('url', url);
-        this.props.history.replace(url);
+        this.props.history.replace(`/patients/operativePlan/${patient.id}/${model.id}`);
         this.setState({ action: 'update' });
       } else {
         patient.trigger('change');
       }
 
-      _this.props.onClose();
+      this.setState({ formSuccess: true });
     } catch (err) {
       console.error('Error: ', err);
     }
@@ -137,6 +141,7 @@ class OperativePlan extends Component {
     const {
       patient,
       formError,
+      formSuccess,
       form,
       action
     } = this.state;
@@ -145,9 +150,7 @@ class OperativePlan extends Component {
       <div>
         <div className="create-content">
           <div className="create-top-bar">
-            <span>
-               New Operative Plan
-            </span>
+            <span>{`${capitalize(action)} Operative Plan`}</span>
           </div>
           <form
             name="opPlanForm"
@@ -207,7 +210,7 @@ class OperativePlan extends Component {
                   />
                 </div>
               </div>
-              <Procedure onChange={this.handleUserInput} />
+              <Procedure procedures={form.procedures} onChange={this.handleUserInput} />
               <div className="columns">
                 <div className="column is-10">
                   <div className="columns">
@@ -276,8 +279,11 @@ class OperativePlan extends Component {
               <div className="columns">
                 <div className="column">
                   <div className="column has-text-right">
-                    <button className="button is-danger cancel" onClick={this.goBack}>Cancel</button>
-                    <button className="button is-primary" onClick={this.submitForm}>{action === 'new' ? 'Add' : 'Update'}</button>
+                    <button className="button is-danger m-r-5" onClick={this.goBack}>{action === 'new' ? 'Cancel' : 'Return'}</button>
+                    <button className="button is-primary m-r-5" onClick={this.submitForm}>{action === 'new' ? 'Add' : 'Update'}</button>
+                    <button className="button is-primary" onClick={this.markComplete}>
+                      <i className="fa fa-check inline-block m-r-5" /> Complete Plan
+                    </button>
                   </div>
                 </div>
               </div>
@@ -286,9 +292,16 @@ class OperativePlan extends Component {
         </div>
         <ModalView
           isVisible={formError}
-          onClose={this.onCloseModal}
+          onClose={this.onCloseErrorModal}
           headerTitle="Warning!!!!"
           contentText="Please fill in required fields (marked with *) and correct the errors before saving."
+          little
+        />
+        <ModalView
+          isVisible={formSuccess}
+          onClose={this.onCloseSuccessModal}
+          headerTitle="Success!"
+          contentText="Operative Plan was successfully saved!"
           little
         />
       </div>
