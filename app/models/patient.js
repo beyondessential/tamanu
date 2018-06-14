@@ -1,32 +1,8 @@
 import Backbone from 'backbone-associations';
 import shortid from 'shortid';
-import { defaults, isEmpty, map, uniq, filter, isArray, every, each, clone } from 'lodash';
+import { defaults, each, clone } from 'lodash';
 import BaseModel from './base';
-
-const mapRelations = (objs, Model) => {
-  if (isEmpty(objs)) return [];
-  if (objs instanceof Model) return objs;
-
-  if (isArray(objs)) {
-    if (every(objs, (v) => v instanceof Model)) return objs;
-
-    const ids = filter(uniq(map(objs, '_id')), obj => { return typeof obj !== 'undefined'; });
-    const _return = [];
-    ids.forEach((_id) => {
-      const _model = new Model();
-      _model.set({ _id });
-      _model.fetch();
-      _return.push(_model);
-    });
-
-    return _return;
-  }
-
-  const _model = new Model();
-  _model.set({ _id: objs._id });
-  _model.fetch();
-  return _model;
-};
+import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
   defaults: () => defaults(

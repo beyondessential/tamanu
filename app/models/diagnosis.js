@@ -1,5 +1,5 @@
 import shortid from 'shortid';
-import { defaults } from 'lodash';
+import { defaults, clone } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
@@ -13,5 +13,13 @@ export default BaseModel.extend({
       secondaryDiagnosis: false
     },
     BaseModel.prototype.defaults,
-  )
+  ),
+
+  cloneAttrbutes() {
+    const attributes = clone(this.attributes);
+    delete attributes._id;
+    delete attributes._rev;
+    delete attributes.modifiedFields;
+    return attributes;
+  }
 });

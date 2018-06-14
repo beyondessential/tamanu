@@ -4,12 +4,15 @@ import { dateFormat } from '../../../constants';
 
 class Diagnosis extends Component {
   render() {
-    const { patient, showSecondary } = this.props;
-    const diagnoses = patient.diagnoses.filter(diagnosis => diagnosis.active && diagnosis.secondaryDiagnosis === showSecondary);
+    let { diagnoses, showSecondary } = this.props;
+    if (typeof showSecondary === 'undefined') showSecondary = false;
+    diagnoses = diagnoses.map(diagnosis => diagnosis.toJSON());
+    diagnoses = diagnoses.filter(diagnosis => diagnosis.active && diagnosis.secondaryDiagnosis === showSecondary);
+
     return (
       <div>
         <div className={`column ${!diagnoses.length && showSecondary ? 'is-hidden' : ''}`}>
-          <span className="title has-text-weight-semibold">{`${showSecondary ? 'Secondary' : 'Primary'} Dignose`}</span>
+          <span className="title has-text-weight-semibold">{`${showSecondary ? 'Secondary' : 'Primary'} Diagnosis`}</span>
           <div className="clearfix" />
           {diagnoses.map((diagnosis, k) => {
             return (

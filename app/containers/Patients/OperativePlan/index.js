@@ -6,14 +6,14 @@ import { clone, isUndefined, each, has, capitalize } from 'lodash';
 
 // import Serializer from '../../../utils/form-serialize';
 import Allergy from './Allergy';
-import Dignosis from './Dignosis';
+import Diagnosis from './Diagnosis';
 import Procedure from './Procedure';
 import ModalView from '../../../components/Modal';
 import InputGroup from '../../../components/InputGroup';
 import TextareaGroup from '../../../components/TextareaGroup';
 
 // import Serializer from '../../../utils/form-serialize';
-import { PatientModel, OperativePlanModel } from '../../../models';
+import { PatientModel, OperativePlanModel, DiagnosisModel } from '../../../models';
 import { getDifferenceDate, operativePlanStatusList } from '../../../constants';
 
 class OperativePlan extends Component {
@@ -27,6 +27,7 @@ class OperativePlan extends Component {
     formError: false,
     formSuccess: false,
     patient: this.props.patient.attributes,
+    diagnoses: this.props.patient.attributes.diagnoses,
     action: 'new',
     form: {
       additionalNotes: '',
@@ -41,16 +42,19 @@ class OperativePlan extends Component {
 
   async componentDidMount() {
     const { patientId, id } = this.props.match.params;
+    let _action = 'new';
     this.props.patient.on('change', this.handleChange);
     this.props.patient.set({ _id: patientId });
     await this.props.patient.fetch();
 
     if (!isUndefined(id)) {
+      _action = 'update';
       this.props.operationReport.on('change', this.handleChange);
       this.props.operationReport.set({ _id: id });
       await this.props.operationReport.fetch();
-      this.setForm(this.props.operationReport.toJSON());
     }
+
+    this.setForm(_action);
   }
 
   componentWillUnmount() {
@@ -78,15 +82,15 @@ class OperativePlan extends Component {
       form[name] = value;
     }
 
-    this.setState({ form }, () => {
-      console.log('form', this.state.form);
-    });
+    this.setState({ form });
   }
 
-  setForm = (data) => {
+  setForm = (_action) => {
+    const data = this.props.operationReport.toJSON();
+    const diagnoses = (_action === 'new' ? this.props.patient.get('diagnoses') : this.props.operationReport.get('diagnoses'));
     const form = clone(this.state.form);
     each(form, (value, key) => { form[key] = (has(data, key) ? data[key] : value); });
-    this.setState({ form, action: 'update' });
+    this.setState({ form, action: _action, diagnoses: diagnoses.models });
   }
 
   goBack() {
@@ -112,17 +116,37 @@ class OperativePlan extends Component {
 
   submitForm = async (e) => {
     e.preventDefault();
-    const { patient } = this.props;
+    const { patient, operationReport } = this.props;
     const { form, action } = this.state;
     if (!this.state.form.procedures.length) return this.setState({ formError: true });
 
     try {
       // const operativePlan = new OperativePlanModel();
-      this.props.operationReport.set(form);
-      const model = await this.props.operationReport.save();
+      operationReport.set(form);
+      const model = await operationReport.save();
 
       // Attached operativePlan to patient object
       if (action === 'new') {
+        // Duplicate diagnostics to operation plan
+        const diagnoses = patient.get('diagnoses');
+        if (diagnoses.length > 0) {
+          const tasks = [];
+          each(diagnoses.models, (diagnosis) => {
+            const attributes = diagnosis.cloneAttrbutes();
+
+            const _model = new DiagnosisModel();
+            _model.set(attributes);
+            tasks.push(_model.save());
+          });
+
+          const resp = await Promise.all(tasks);
+          resp.forEach((m) => {
+            operationReport.get('diagnoses').add({ _id: m.id });
+          });
+
+          await operationReport.save();
+        }
+
         patient.get('operativePlans').add({ _id: model.id });
         await patient.save();
         this.props.history.replace(`/patients/operativePlan/${patient.id}/${model.id}`);
@@ -143,7 +167,8 @@ class OperativePlan extends Component {
       formError,
       formSuccess,
       form,
-      action
+      action,
+      diagnoses
     } = this.state;
 
     return (
@@ -191,7 +216,8 @@ class OperativePlan extends Component {
                   </div>
                   <div className="columns border-bottom">
                     <div className="column">
-                      <Dignosis patient={patient} model={this.props.patient} showSecondary readonly />
+                      <Diagnosis diagnoses={diagnoses} model={this.props.patient} readonly />
+                      <Diagnosis diagnoses={diagnoses} model={this.props.patient} showSecondary readonly />
                     </div>
                     <div className="column">
                       <Allergy patient={patient} model={this.props.patient} readonly />
@@ -281,7 +307,7 @@ class OperativePlan extends Component {
                   <div className="column has-text-right">
                     <button className="button is-danger m-r-5" onClick={this.goBack}>{action === 'new' ? 'Cancel' : 'Return'}</button>
                     <button className="button is-primary m-r-5" onClick={this.submitForm}>{action === 'new' ? 'Add' : 'Update'}</button>
-                    <button className="button is-primary" onClick={this.markComplete}>
+                    <button className={`button is-primary ${(action === 'new' ? 'is-hidden' : '')}`} onClick={this.markComplete}>
                       <i className="fa fa-check inline-block m-r-5" /> Complete Plan
                     </button>
                   </div>
