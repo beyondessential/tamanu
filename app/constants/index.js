@@ -256,6 +256,18 @@ export const sidebarInfo = [
       }
     ]
   },
+  {
+    label: 'Programs',
+    path: '/programs',
+    icon: administrationIcon,
+    children: [
+      {
+        label: 'Pregnancy',
+        path: '/programs',
+        icon: 'fa fa-chevron-right'
+      },
+    ]
+  },
 ];
 
 function padDigits(number, digits) {
