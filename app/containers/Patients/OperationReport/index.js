@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import Select from 'react-select';
-import { clone, isUndefined, each, has, capitalize, pick } from 'lodash';
+import { clone, isUndefined, each, has, capitalize } from 'lodash';
 
 // import Serializer from '../../../utils/form-serialize';
 import Allergy from './Allergy';
@@ -13,25 +13,22 @@ import InputGroup from '../../../components/InputGroup';
 import TextareaGroup from '../../../components/TextareaGroup';
 
 // import Serializer from '../../../utils/form-serialize';
-import { PatientModel, OperativePlanModel, DiagnosisModel, OperationReportModel } from '../../../models';
-import { getDifferenceDate, operativePlanStatusList, dateFormat } from '../../../constants';
+import { PatientModel, OperationReportModel, DiagnosisModel } from '../../../models';
+import { getDifferenceDate, operativePlanStatusList } from '../../../constants';
 
-class OperativePlan extends Component {
-  constructor(props) {
-    super(props);
-    this.goBack = this.goBack.bind(this);
-    this.onCloseCompletedModal = this.onCloseCompletedModal.bind(this);
-    this.setForm = this.setForm.bind(this);
-  }
+class OperationReport extends Component {
+  // constructor(props) {
+  //   super(props);
+  //   // this.goBack = this.goBack.bind(this);
+  //   // this.setForm = this.setForm.bind(this);
+  // }
 
   state = {
     formError: false,
     formSuccess: false,
-    markedCompleted: false,
     patient: this.props.patient.attributes,
-    diagnoses: this.props.patient.attributes.diagnoses,
+    preOpDiagnoses: this.props.operationReport.attributes.preOpDiagnoses,
     action: 'new',
-    opReportId: '',
     form: {
       additionalNotes: '',
       admissionInstructions: '',
@@ -90,10 +87,10 @@ class OperativePlan extends Component {
 
   setForm = (_action) => {
     const data = this.props.operationReport.toJSON();
-    const diagnoses = (_action === 'new' ? this.props.patient.get('diagnoses') : this.props.operationReport.get('diagnoses'));
+    const preOpDiagnoses = (_action === 'new' ? this.props.patient.get('preOpDiagnoses') : this.props.operationReport.get('preOpDiagnoses'));
     const form = clone(this.state.form);
     each(form, (value, key) => { form[key] = (has(data, key) ? data[key] : value); });
-    this.setState({ form, action: _action, diagnoses: diagnoses.models });
+    this.setState({ form, action: _action, preOpDiagnoses: preOpDiagnoses.models });
   }
 
   goBack() {
@@ -106,11 +103,6 @@ class OperativePlan extends Component {
 
   onCloseSuccessModal = () => {
     this.setState({ formSuccess: false });
-  }
-
-  onCloseCompletedModal() {
-    const { opReportId } = this.state;
-    this.props.history.push(`/patients/operationReport/${this.state.patient._id}/${opReportId}`);
   }
 
   markComplete = (e) => {
@@ -129,17 +121,17 @@ class OperativePlan extends Component {
     if (!this.state.form.procedures.length) return this.setState({ formError: true });
 
     try {
-      // const operativePlan = new OperativePlanModel();
+      // const operativePlan = new OperationReportModel();
       operationReport.set(form);
       const model = await operationReport.save();
 
       // Attached operativePlan to patient object
       if (action === 'new') {
         // Duplicate diagnostics to operation plan
-        const diagnoses = patient.get('diagnoses');
-        if (diagnoses.length > 0) {
+        const preOpDiagnoses = patient.get('preOpDiagnoses');
+        if (preOpDiagnoses.length > 0) {
           const tasks = [];
-          each(diagnoses.models, (diagnosis) => {
+          each(preOpDiagnoses.models, (diagnosis) => {
             const attributes = diagnosis.cloneAttrbutes();
 
             const _model = new DiagnosisModel();
@@ -149,7 +141,7 @@ class OperativePlan extends Component {
 
           const resp = await Promise.all(tasks);
           resp.forEach((m) => {
-            operationReport.get('diagnoses').add({ _id: m.id });
+            operationReport.get('preOpDiagnoses').add({ _id: m.id });
           });
 
           await operationReport.save();
@@ -163,42 +155,10 @@ class OperativePlan extends Component {
         patient.trigger('change');
       }
 
-      // Create operation report
-      if (operationReport.get('status') === 'completed') {
-        const id = await this.createOperationReport();
-        this.setState({
-          opReportId: id,
-          markedCompleted: true
-        });
-      } else {
-        this.setState({ formSuccess: true });
-      }
+      this.setState({ formSuccess: true });
     } catch (err) {
       console.error('Error: ', err);
     }
-  }
-
-  createOperationReport() {
-    return new Promise(async (resolve, reject) => {
-      const { patient } = this.props;
-      let { operationReport } = this.props;
-      operationReport = operationReport.toJSON();
-      const toCopy = pick(operationReport, ['additionalNotes', 'caseComplexity', 'procedures', 'operationDescription', 'surgeon', 'diagnoses']);
-      const { diagnoses } = toCopy;
-      delete toCopy.diagnoses;
-      toCopy.patient = patient.id;
-      toCopy.surgeryDate = moment().format(dateFormat);
-
-      try {
-        const opReport = new OperationReportModel();
-        opReport.set(toCopy);
-        opReport.get('preOpDiagnoses').set(diagnoses.models);
-        await opReport.save();
-        resolve(opReport.id);
-      } catch (err) {
-        reject(err);
-      }
-    });
   }
 
   render() {
@@ -206,17 +166,16 @@ class OperativePlan extends Component {
       patient,
       formError,
       formSuccess,
-      markedCompleted,
       form,
       action,
-      diagnoses
+      preOpDiagnoses
     } = this.state;
 
     return (
       <div>
         <div className="create-content">
           <div className="create-top-bar">
-            <span>{`${capitalize(action)} Operative Plan`}</span>
+            <span>Edit Operation Report</span>
           </div>
           <form
             name="opPlanForm"
@@ -257,8 +216,8 @@ class OperativePlan extends Component {
                   </div>
                   <div className="columns border-bottom">
                     <div className="column">
-                      <Diagnosis diagnoses={diagnoses} model={this.props.patient} readonly />
-                      <Diagnosis diagnoses={diagnoses} model={this.props.patient} showSecondary readonly />
+                      <Diagnosis diagnoses={preOpDiagnoses} model={this.props.patient} readonly />
+                      <Diagnosis diagnoses={preOpDiagnoses} model={this.props.patient} showSecondary readonly />
                     </div>
                     <div className="column">
                       <Allergy patient={patient} model={this.props.patient} readonly />
@@ -368,14 +327,7 @@ class OperativePlan extends Component {
           isVisible={formSuccess}
           onClose={this.onCloseSuccessModal}
           headerTitle="Success!"
-          contentText="Operative Plan was saved successfully!"
-          little
-        />
-        <ModalView
-          isVisible={markedCompleted}
-          onClose={this.onCloseCompletedModal}
-          headerTitle="Success!"
-          contentText="Operative Plan was marked completed successfully, you'll be redirected to Operation Report now"
+          contentText="Operative Plan was successfully saved!"
           little
         />
       </div>
@@ -394,7 +346,7 @@ class OperativePlan extends Component {
 
 const mapDispatchToProps = () => ({
   patient: new PatientModel(),
-  operationReport: new OperativePlanModel()
+  operationReport: new OperationReportModel()
 });
 
-export default connect(undefined, mapDispatchToProps)(OperativePlan);
+export default connect(undefined, mapDispatchToProps)(OperationReport);

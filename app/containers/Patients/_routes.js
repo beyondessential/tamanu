@@ -11,6 +11,7 @@ import CheckInPatient from './CheckInPatient';
 import EditVisit from './EditVisit';
 import EditPatient from './EditPatient';
 import OperativePlan from './OperativePlan';
+import OperationReport from './OperationReport';
 
 export default function Routes({ url }) {
   return (
@@ -26,6 +27,7 @@ export default function Routes({ url }) {
         <Route path={`${url}/editPatient/:id`} component={EditPatient} />
         <Route path={`${url}/operativePlan/:patientId/:id`} component={OperativePlan} />
         <Route path={`${url}/operativePlan/:patientId`} component={OperativePlan} />
+        <Route path={`${url}/operationReport/:patientId/:id`} component={OperationReport} />
       </Switch>
     </div>
   );

@@ -1,8 +1,9 @@
-const Backbone = require('backbone-associations');
-const shortid = require('shortid');
-const { DiagnosisModel } = require('./index');
+import Backbone from 'backbone-associations';
+import shortid from 'shortid';
+import mapRelations from '../utils/map-relations';
+import BaseModel from './base';
 
-export default Backbone.Model.extend({
+export default BaseModel.extend({
   idAttribute: '_id',
   defaults: () => {
     const _id = shortid.generate();
@@ -26,12 +27,16 @@ export default Backbone.Model.extend({
     {
       type: Backbone.Many,
       key: 'preOpDiagnoses',
-      relatedModel: DiagnosisModel
+      relatedModel: require('./diagnosis'),
+      map: (values) => mapRelations(values, require('./diagnosis')),
+      serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'postOpDiagnoses',
-      relatedModel: DiagnosisModel
+      relatedModel: require('./diagnosis'),
+      map: (values) => mapRelations(values, require('./diagnosis')),
+      serialize: '_id'
     }
   ]
 
