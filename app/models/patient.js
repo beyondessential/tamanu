@@ -1,6 +1,6 @@
 import Backbone from 'backbone-associations';
 import shortid from 'shortid';
-import { defaults, each, clone } from 'lodash';
+import { defaults, each, clone, merge } from 'lodash';
 import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
 
@@ -106,5 +106,16 @@ export default BaseModel.extend({
     }
 
     return _return;
+  },
+
+  getProcedures() {
+    const operationReports = this.get('operationReports');
+    let allProcedures = [];
+    operationReports.models.forEach((model) => {
+      const { procedures, surgeryDate: date, _id: operationReportId } = model.toJSON();
+      allProcedures = merge(allProcedures, procedures.map(name => { return { name, date, operationReportId }; }));
+    });
+
+    return allProcedures;
   }
 });

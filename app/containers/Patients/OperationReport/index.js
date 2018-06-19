@@ -17,18 +17,18 @@ import { PatientModel, OperationReportModel, DiagnosisModel } from '../../../mod
 import { getDifferenceDate, operativePlanStatusList } from '../../../constants';
 
 class OperationReport extends Component {
-  // constructor(props) {
-  //   super(props);
-  //   // this.goBack = this.goBack.bind(this);
-  //   // this.setForm = this.setForm.bind(this);
-  // }
+  constructor(props) {
+    super(props);
+    this.goBack = this.goBack.bind(this);
+    this.setForm = this.setForm.bind(this);
+  }
 
   state = {
     formError: false,
     formSuccess: false,
     patient: this.props.patient.attributes,
     preOpDiagnoses: this.props.operationReport.attributes.preOpDiagnoses,
-    action: 'new',
+    action: 'update',
     form: {
       additionalNotes: '',
       admissionInstructions: '',
@@ -305,11 +305,8 @@ class OperationReport extends Component {
               <div className="columns">
                 <div className="column">
                   <div className="column has-text-right">
-                    <button className="button is-danger m-r-5" onClick={this.goBack}>{action === 'new' ? 'Cancel' : 'Return'}</button>
-                    <button className="button is-primary m-r-5" onClick={this.submitForm}>{action === 'new' ? 'Add' : 'Update'}</button>
-                    <button className={`button is-primary ${(action === 'new' ? 'is-hidden' : '')}`} onClick={this.markComplete}>
-                      <i className="fa fa-check inline-block m-r-5" /> Complete Plan
-                    </button>
+                    <button className="button is-danger m-r-5" onClick={this.goBack}>Cancel</button>
+                    <button className="button is-primary m-r-5" onClick={this.submitForm}>Update</button>
                   </div>
                 </div>
               </div>

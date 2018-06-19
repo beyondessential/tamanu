@@ -72,6 +72,7 @@ class EditPatient extends Component {
   render() {
     const { selectedTab, patient } = this.state;
     const { history } = this.props;
+    const procedures = this.props.model.getProcedures();
 
     return (
       <div>
@@ -105,7 +106,7 @@ class EditPatient extends Component {
                   <div className="columns border-bottom">
                     <div className="column">
                       <Dignosis patient={patient} model={this.props.model} showSecondary={false} />
-                      <Procedure patient={patient} model={this.props.model} />
+                      <Procedure procedures={procedures} patient={patient} history={history} />
                       <OperativePlan patient={patient} model={this.props.model} history={history} />
                     </div>
                     <div className="column">

@@ -1,30 +1,25 @@
 import React, { Component } from 'react';
-import AddAllergyModal from '../components/AddAllergyModal';
 
 class Procedure extends Component {
-  state = {
-    modalVisible: false,
-    action: 'new',
-    item: null
-  }
-
-  onCloseModal = () => {
-    this.setState({ modalVisible: false });
+  navigateTo(e, operationReportId) {
+    e.preventDefault();
+    const { patient } = this.props;
+    this.props.history.push(`/patients/operationReport/${patient._id}/${operationReportId}`);
   }
 
   render() {
-    const { patient, model } = this.props;
-    const { modalVisible, action, item } = this.state;
+    const { procedures } = this.props;
+
     return (
       <div>
         <div className="column p-b-0">
           <span className="title">Procedures</span>
           <div className="clearfix" />
-          {patient.allergies.map((allergy, k) => {
+          {procedures.map((procedure, k) => {
             return (
-              <React.Fragment key={allergy._id}>
+              <React.Fragment key={`procedure-${k}`}>
                 {k > 0 ? ', ' : ''}
-                <a className="add-button" onClick={() => this.setState({ modalVisible: true, action: 'edit', item: allergy })}>{allergy.name}</a>
+                <a className="add-button" onClick={(e) => this.navigateTo(e, procedure.operationReportId)}>{`${procedure.name} (${procedure.date})`}</a>
               </React.Fragment>
             );
           })}
