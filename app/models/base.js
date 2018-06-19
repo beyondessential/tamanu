@@ -30,11 +30,11 @@ export default Backbone.AssociatedModel.extend({
   },
 
   toJSON(options) {
+    const attributes = clone(this.attributes);
+    const { relations } = this;
+
     if (options && options.relations) {
       return new Promise(async (resolve, reject) => {
-        const attributes = clone(this.attributes);
-        const { relations } = this;
-
         // Fetch all the relations
         if (!isEmpty(relations)) {
           try {
@@ -50,7 +50,17 @@ export default Backbone.AssociatedModel.extend({
       });
     }
 
-    return clone(this.attributes);
+    if (!isEmpty(relations)) {
+      relations.forEach((relation) => {
+        if (relation.type === 'Many') {
+          const relationCol = this.get(relation.key);
+          const ids = relationCol.models.map((m) => m.id);
+          attributes[relation.key] = ids;
+        }
+      });
+    }
+
+    return attributes;
   },
 
   async fetchRelations(options) {
