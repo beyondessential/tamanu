@@ -44,10 +44,11 @@ class Pregnancy extends Component {
   }
 
   goAdmit = (pregnancyId, pregnancy) => {
+    console.log('aaa', pregnancyId);
     if (pregnancy.admitted) {
-      this.props.history.push(`/pregnancys/editvisit/${pregnancyId}`);
+      this.props.history.push(`/programs/pregnancyVisit/${pregnancyId}`);
     } else {
-      this.props.history.push(`/pregnancys/checkin/${pregnancyId}`);
+      this.props.history.push(`/programs/pregnancyVisit/${pregnancyId}`);
     }
   }
 
@@ -253,10 +254,11 @@ class Pregnancy extends Component {
       </div>
     );
   }
- 
 }
- Pregnancy.defaultProps = {
-    collection: new PregnancysCollection(),
-    Pregnancys: []
-  };
+
+Pregnancy.defaultProps = {
+  collection: new PregnancysCollection(),
+  Pregnancys: []
+};
+
 export default Pregnancy;

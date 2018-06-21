@@ -17,7 +17,7 @@ class LookupList extends Component {
   render() {
     const { selectValue } = this.state;
     const filterdArray = lookupOptions.filter(option => option.value === selectValue)[0];
-    console.log(filterdArray && filterdArray.label);
+    // console.log(filterdArray && filterdArray.label);
     return (
       <div className="create-content">
         <div className="create-top-bar">
