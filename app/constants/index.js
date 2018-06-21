@@ -11,7 +11,8 @@ export const Colors = {
 export const dateFormat = 'YYYY-MM-DD';
 
 export const pageSizes = {
-  patients: 10
+  patients: 10,
+  pregnancys: 5
 };
 
 export const sidebarInfo = [
@@ -375,6 +376,69 @@ export const lookupOptions = [
 ];
 
 export const patientColumns = [{
+  dataField: 'displayId',
+  text: 'Id',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+    width: '10%'
+  },
+}, {
+  dataField: 'firstName',
+  text: 'First Name',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+    width: '12%'
+  }
+}, {
+  dataField: 'lastName',
+  text: 'Last Name',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+    width: '12%'
+  }
+}, {
+  dataField: 'sex',
+  text: 'Sex',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+    width: '10%'
+  }
+}, {
+  dataField: 'birthday',
+  text: 'DOB',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+    width: '15%'
+  }
+}, {
+  dataField: 'patientStatus',
+  text: 'Status',
+  sort: true,
+  headerSortingStyle,
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+    width: '10%'
+  }
+}, {
+  dataField: 'action',
+  text: 'Actions',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor
+  },
+  formatter: actionButtonFormatter
+}];
+
+export const pregnancyColumns = [{
   dataField: 'displayId',
   text: 'Id',
   sort: true,

@@ -6,6 +6,7 @@ export MedicationModel from './medication';
 export OperativePlanModel from './operativePlan';
 export OperationReportModel from './operationReport';
 export PatientModel from './patient';
+export PregnancyModel from './pregnancy';
 export PhotoModel from './photo';
 export ProcedureModel from './procedure';
 export PatientNoteModel from './patientNote';
