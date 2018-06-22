@@ -102,4 +102,91 @@
       }
     }
   }
+  .details {
+    padding: 30px;
+    margin: 20px 20px;
+    background: white;
+    .pregnancy-name-title{
+      font-size: 20px;
+    }
+    .pregnancy-name-details{
+      font-size: 30px;
+      margin-left: 30px;
+      display: inline-block;
+    }
+    .pregnancy-button-details{
+      margin-top: 50px;
+      margin-left: 20px;
+      margin-bottom: 30px;
+      .button-details{
+        margin-top: 15px;
+        .pregnancys-button{
+          width: 250px;
+        }
+      }
+    }
+  }
+  .confirm-details{
+    padding: 30px;
+    margin: 20px 20px;
+    font-weight: 100;
+    background: white;
+    .title{
+      .confirm-name{
+        width: 250px;
+        font-weight: 100;
+        margin-bottom: 20px;
+        .confirm-name-title{
+          font-size: 20px;
+        }
+        .confirm-name-details{
+          font-size: 30px;
+          margin-left: 30px;
+        }
+      }
+    }
+    .text-details{
+      font-size: 20px;
+      margin-bottom: 200px;
+    }
+    .pregnancys-button{
+      .pregnancys-gestational-button{
+        width: 200px;
+        height: 70px;
+        white-space: normal;
+      }
+      .pregnancys-back-button{
+        width: 150px;
+        margin-left: 30px;
+        margin-top: 32px;
+      }
+    }
+  }
+  .question-table-details{
+    padding: 30px;
+    margin: 20px 20px;
+    background: white;
+    .title{
+      font-weight: 100;
+      .question-name{
+        width: 250px;
+        margin-left: 20px;
+        font-weight: 100;
+        .question-name-title{
+          font-size: 20px;
+        }
+        .question-name-details{
+          font-size: 30px;
+          margin-left: 30px;
+        }
+      }
+    }
+    .question-table-buttons{
+      margin-top: 40px;
+      .question-table-button{
+        margin-right: 30px;
+        margin-bottom: 20px;
+      }
+    }
+  }
 }

@@ -44,7 +44,6 @@ class Pregnancy extends Component {
   }
 
   goAdmit = (pregnancyId, pregnancy) => {
-    console.log('aaa', pregnancyId);
     if (pregnancy.admitted) {
       this.props.history.push(`/programs/pregnancyVisit/${pregnancyId}`);
     } else {
