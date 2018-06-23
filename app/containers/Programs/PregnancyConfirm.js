@@ -5,7 +5,7 @@ class PregnancyConfirm extends Component {
     this.props.history.push('/programs/questionTable');
   }
   back() {
-    this.props.history.push('/programs/questionTable');
+    this.props.history.push('/programs');
   }
 
   showAntenatal() {
