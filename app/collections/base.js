@@ -1,7 +1,7 @@
 import Backbone from 'backbone-associations';
 import { map } from 'lodash';
-import BackbonePouch from 'backbone-pouch';
-import { patientDB } from '../utils/dbHelper';
+// import dbService from '../services/database';
+// import BackbonePouch from 'backbone-pouch';
 
 const defaultpageSize = 5;
 
@@ -12,20 +12,20 @@ export default Backbone.Collection.extend({
     this.pageSize = defaultpageSize;
   },
 
-  sync: BackbonePouch.sync({
-    db: patientDB,
-    fetch: 'query',
-    options: {
-      query: {
-        include_docs: true,
-        fun: 'patient_by_display_id',
-        limit: defaultpageSize
-      },
-      changes: {
-        include_docs: true
-      }
-    },
-  }),
+  // sync: BackbonePouch.sync({
+  //   db: () => dbService.patientDB,
+  //   fetch: 'query',
+  //   options: {
+  //     query: {
+  //       include_docs: true,
+  //       fun: 'patient_by_display_id',
+  //       limit: defaultpageSize
+  //     },
+  //     changes: {
+  //       include_docs: true
+  //     }
+  //   },
+  // }),
 
   parse(result) {
     // console.log('_this_', this);
@@ -40,6 +40,7 @@ export default Backbone.Collection.extend({
       fetch: 'query',
       options: {
         query: {
+          fun: (opts && opts.view) || 'patient_by_display_id',
           limit: this.pageSize,
           skip: (this.currentPage * this.pageSize)
         }

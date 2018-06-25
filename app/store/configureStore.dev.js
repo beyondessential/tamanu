@@ -6,6 +6,7 @@ import { routerMiddleware, routerActions } from 'react-router-redux';
 import rootReducer from '../reducers';
 import * as counterActions from '../actions/patients';
 import type { counterStateType } from '../reducers/patients';
+import dbService from '../services/database';
 
 const history = createHashHistory();
 
@@ -16,6 +17,9 @@ const configureStore = (initialState?: counterStateType) => {
 
   // Thunk Middleware
   middleware.push(thunk);
+
+  dbService.createDB();
+  dbService.setup();
 
   // Logging Middleware
   // const logger = createLogger({
@@ -52,6 +56,10 @@ const configureStore = (initialState?: counterStateType) => {
   const enhancer = composeEnhancers(...enhancers);
 
   // Create Store
+  // if (typeof initialState === 'undefined') initialState = {};
+  // initialState.test = '12345';
+
+  // console.log('initialState', initialState);
   const store = createStore(rootReducer, initialState, enhancer);
 
   if (module.hot) {

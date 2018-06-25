@@ -1,6 +1,7 @@
 import React from 'react';
 import moment from 'moment';
-import { patientDB } from '../utils/dbHelper';
+const patientDB = {};
+// import { patientDB } from '../utils/dbHelper';
 import { patientIcon, scheduleIcon, medicationIcon, labsIcon, administrationIcon } from './images';
 
 export const Colors = {
