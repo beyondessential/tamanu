@@ -1,3 +1,4 @@
+import { get } from 'lodash';
 import {
   CREATE_PATIENT_INDEXES_REQUEST,
   CREATE_PATIENT_INDEXES_SUCCESS,
@@ -27,7 +28,9 @@ import {
   GET_UPDATED_REFERDATE_SUCCESS,
   GET_UPDATED_REFERDATE_FAILED
 } from './types';
-import { patientDB } from '../utils/dbHelper';
+import dbService from '../services/database';
+
+const { mainDB } = dbService;
 
 export function createPatientIndexesRequest() {
   return {
@@ -203,7 +206,7 @@ export function getReferredDateFailed() {
 export const createPatientIndexes = () => {
   return dispatch => {
     dispatch(createPatientIndexesRequest());
-    patientDB.createIndex({
+    mainDB.createIndex({
       index: {
         fields: ['_id', 'admitted']
       }
@@ -234,7 +237,7 @@ export const createPatient = (patient, history) => {
 export const fetchPatients = () => {
   return dispatch => {
     dispatch(fetchPatientsRequest());
-    patientDB.allDocs({
+    mainDB.allDocs({
       include_docs: true,
       attachments: true
     }).then((result) => {
@@ -254,7 +257,7 @@ export const fetchPatients = () => {
 export const fetchAdmittedPatients = () => {
   return dispatch => {
     dispatch(fetchAdmittedPatientsRequest());
-    patientDB.allDocs({
+    mainDB.allDocs({
       selector: { admitted: { $eq: true } }
     }).then((filteredResult) => {
       dispatch(fetchAdmittedPatientsSuccess(filteredResult.docs));
@@ -267,7 +270,7 @@ export const fetchAdmittedPatients = () => {
 export const fetchOnePatient = (id) => {
   return dispatch => {
     dispatch(fetchOnePatientRequest());
-    patientDB.allDocs({
+    mainDB.allDocs({
       selector: { _id: { $eq: id } }
     }).then((filteredResult) => {
       dispatch(fetchOnePatientSuccess(filteredResult.docs[0]));
@@ -280,7 +283,7 @@ export const fetchOnePatient = (id) => {
 export const deletePatient = (patient) => {
   return dispatch => {
     dispatch(deletePatientRequest());
-    patientDB.destroy(patient._id, patient._rev, (result) => {
+    mainDB.destroy(patient._id, patient._rev, (result) => {
       dispatch(deletePatientSuccess(result));
     });
   };

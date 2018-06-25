@@ -5,8 +5,6 @@ import Root from './containers/Root';
 import { configureStore, history } from './store/configureStore';
 import './styles/app.global.scss';
 
-require('./utils/dbHelper');
-
 const store = configureStore();
 
 render(
