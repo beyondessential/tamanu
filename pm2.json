@@ -1,0 +1,18 @@
+{
+    "apps": [{
+        "name": "tamanu-server",
+        "script": "./index.js",
+        "env": {
+            "watch": true,
+            "ignore_watch": ["node_modules", "public"],
+            "watch_options": {
+                "followSymlinks": false
+            },
+            "NODE_ENV": "development"
+        },
+        "env_production": {
+            "watch": false,
+            "NODE_ENV": "production"
+        }
+    }]
+  }
