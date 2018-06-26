@@ -203,6 +203,7 @@ export const getDisplayId = (item) => {
   const { mainDB } = dbService;
 
   return new Promise((resolve, reject) => {
+    const { mainDB } = dbService;
     let renderedValue = '';
     let totalItemCount = 0;
     mainDB.info().then((result) => {
