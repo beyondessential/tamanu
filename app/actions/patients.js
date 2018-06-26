@@ -219,18 +219,16 @@ export const createPatientIndexes = () => {
 };
 
 export const createPatient = (patient, history) => {
-  return dispatch => {
+  return async dispatch => {
     dispatch(createPatientRequest());
-    patient.save(patient.attributes, {
-      success: (model, response) => {
-        dispatch(createPatientSuccess(response));
-        history.push(`/patients/editPatient/${model.id}`);
-      },
-      error: (model, response) => {
-        console.error('error', response);
-        return dispatch(createPatientFailed(response));
-      }
-    });
+    try {
+      const model = await patient.save(patient.attributes);
+      dispatch(createPatientSuccess(model.attributes));
+      history.push(`/patients/editPatient/${model.id}`);
+    } catch (err) {
+      console.error('error', err);
+      return dispatch(createPatientFailed(err));
+    }
   };
 };
 

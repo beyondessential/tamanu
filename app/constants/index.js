@@ -1,7 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-const patientDB = {};
-// import { patientDB } from '../utils/dbHelper';
+import dbService from '../services/database';
 import { patientIcon, scheduleIcon, medicationIcon, labsIcon, administrationIcon } from './images';
 
 export const Colors = {
@@ -277,9 +276,10 @@ function padDigits(number, digits) {
 
 export const getDisplayId = (item) => {
   return new Promise((resolve, reject) => {
+    const { mainDB } = dbService;
     let renderedValue = '';
     let totalItemCount = 0;
-    patientDB.info().then((result) => {
+    mainDB.info().then((result) => {
       totalItemCount = result.doc_count + result.doc_del_count;
       renderedValue = padDigits(totalItemCount, 5);
       resolve(item + renderedValue);

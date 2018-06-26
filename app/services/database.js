@@ -17,7 +17,6 @@ PouchDB.plugin(require('pouchdb-find'));
 
 class Database {
   constructor() {
-    console.log('Database - constructor');
     this.senderId = '889083073051';
     this.dbHost = 'localhost';
     this.dbPort = 5984;
@@ -28,8 +27,25 @@ class Database {
   }
 
   createDB() {
-    this.configDB = new PouchDB(`http://${this.dbUser}:${this.dbPassword}@${this.dbHost}:${this.dbPort}/config`);
-    this.mainDB = new PouchDB(`http://${this.dbUser}:${this.dbPassword}@${this.dbHost}:${this.dbPort}/main`);
+    // return new Promise((resolve, reject) => {
+    const HTTPPouch = PouchDB.defaults({
+      prefix: `http://${this.dbUser}:${this.dbPassword}@${this.dbHost}:${this.dbPort}`
+    });
+
+    // const Timer = setTimeout(() => {
+    //   reject(new Error('Request timed-out!'));
+    // }, 5000);
+
+    // HTTPPouch.on('created', (dbName) => {
+    //   if (dbName === 'main') {
+    //     clearTimeout(Timer);
+    //     resolve();
+    //   }
+    // });
+
+    this.configDB = new HTTPPouch('config');
+    this.mainDB = new HTTPPouch('main');
+    // });
   }
 
   setup() {
