@@ -41,7 +41,7 @@ class Database {
     this.setupSync();
 
     // Setup subscriptions
-    this.setupSubscription();
+    // this.setupSubscription();
   }
 
   setupSync() {

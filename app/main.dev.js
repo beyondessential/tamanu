@@ -13,7 +13,7 @@
 import { app, BrowserWindow } from 'electron';
 import MenuBuilder from './menu';
 
-const { setup: setupPushReceiver } = require('electron-push-receiver');
+// const { setup: setupPushReceiver } = require('electron-push-receiver');
 
 let mainWindow = null;
 
@@ -71,7 +71,7 @@ app.on('ready', async () => {
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
 
-  setupPushReceiver(mainWindow.webContents);
+  // setupPushReceiver(mainWindow.webContents);
 
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
