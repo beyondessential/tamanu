@@ -5,12 +5,16 @@ import { createBrowserHistory } from 'history';
 import { routerMiddleware } from 'react-router-redux';
 import rootReducer from '../reducers';
 import type { counterStateType } from '../reducers/patients';
+import dbService from '../services/database';
 
 const history = createBrowserHistory();
 const router = routerMiddleware(history);
 const enhancer = applyMiddleware(thunk, router);
 
 function configureStore(initialState?: counterStateType) {
+  dbService.createDB();
+  dbService.setup();
+
   return createStore(rootReducer, initialState, enhancer);
 }
 
