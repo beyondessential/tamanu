@@ -1,6 +1,6 @@
 import Backbone from 'backbone-associations';
-import BackbonePouch from 'backbone-pouch';
 import { defaults } from 'lodash';
+import BackbonePouch from './backbone-pouch';
 
 const defaultpageSize = 5;
 

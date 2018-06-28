@@ -1,6 +1,8 @@
 import PouchDB from 'pouchdb';
 import { defaults } from 'lodash';
 import { ipcRenderer } from 'electron';
+import Promise from 'bluebird';
+import Replication from './replication';
 import {
   START_NOTIFICATION_SERVICE,
   NOTIFICATION_SERVICE_STARTED,
@@ -12,6 +14,7 @@ import createViews from '../utils/create-views';
 import createIndex from '../utils/create-index';
 import backboneSync from '../utils/backbone-sync';
 import firebase from '../services/firebase';
+
 // Attach pocuhdb find plugin
 PouchDB.plugin(require('pouchdb-find'));
 
@@ -23,29 +26,33 @@ class Database {
     this.dbUser = 'couchadmin';
     this.dbPassword = 'test';
     this.messaging = firebase.messaging();
+    this.serverUrl = 'http://localhost:3000/main123';
+    this.localUrl = `http://${this.dbUser}:${this.dbPassword}@${this.dbHost}:${this.dbPort}`;
+    this.replication = new Replication();
     // this.messaging.usePublicVapidKey('BDWzelnx830a2-S3ZqbUAeBHjM3AY05zVIZyWYMmgEO7vRt5MjoSbpyZsMl3zKVoKuo53i9GhThi_5f82IEUd64');
   }
 
   createDB() {
-    // return new Promise((resolve, reject) => {
-    const HTTPPouch = PouchDB.defaults({
-      prefix: `http://${this.dbUser}:${this.dbPassword}@${this.dbHost}:${this.dbPort}`
+    return new Promise((resolve, reject) => {
+      this.HTTPPouch = PouchDB.defaults({
+        // prefix: 'http://localhost:3000/couchProxy/'
+        prefix: this.localUrl
+      });
+
+      const Timer = setTimeout(() => {
+        reject(new Error('Request timed-out!'));
+      }, 5000);
+
+      this.HTTPPouch.on('created', (dbName) => {
+        if (dbName === 'main') {
+          clearTimeout(Timer);
+          resolve();
+        }
+      });
+
+      this.configDB = new this.HTTPPouch('config');
+      this.mainDB = new this.HTTPPouch('main');
     });
-
-    // const Timer = setTimeout(() => {
-    //   reject(new Error('Request timed-out!'));
-    // }, 5000);
-
-    // HTTPPouch.on('created', (dbName) => {
-    //   if (dbName === 'main') {
-    //     clearTimeout(Timer);
-    //     resolve();
-    //   }
-    // });
-
-    this.configDB = new HTTPPouch('config');
-    this.mainDB = new HTTPPouch('main');
-    // });
   }
 
   setup() {
@@ -55,6 +62,7 @@ class Database {
 
     // Setup backbone sync
     this.setupSync();
+    this.replication.setup();
 
     // Setup subscriptions
     // this.setupSubscription();
@@ -93,14 +101,6 @@ class Database {
       console.log('An error occurred while retrieving token. ', err);
     }
   }
-
-  // get mainDB() {
-  //   return this.mainDB;
-  // }
-
-  // get configDB() {
-  //   return this.configDB;
-  // }
 }
 
 const dbService = new Database();

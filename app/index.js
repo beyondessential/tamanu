@@ -4,24 +4,30 @@ import { AppContainer } from 'react-hot-loader';
 import Root from './containers/Root';
 import { configureStore, history } from './store/configureStore';
 import './styles/app.global.scss';
+import dbService from './services/database';
 
-const store = configureStore();
+(async () => {
+  await dbService.createDB();
+  dbService.setup();
 
-render(
-  <AppContainer>
-    <Root store={store} history={history} />
-  </AppContainer>,
-  document.getElementById('root')
-);
+  const store = configureStore();
 
-if (module.hot) {
-  module.hot.accept('./containers/Root', () => {
-    const NextRoot = require('./containers/Root'); // eslint-disable-line global-require
-    render(
-      <AppContainer>
-        <NextRoot store={store} history={history} />
-      </AppContainer>,
-      document.getElementById('root')
-    );
-  });
-}
+  render(
+    <AppContainer>
+      <Root store={store} history={history} />
+    </AppContainer>,
+    document.getElementById('root')
+  );
+
+  if (module.hot) {
+    module.hot.accept('./containers/Root', () => {
+      const NextRoot = require('./containers/Root'); // eslint-disable-line global-require
+      render(
+        <AppContainer>
+          <NextRoot store={store} history={history} />
+        </AppContainer>,
+        document.getElementById('root')
+      );
+    });
+  }
+})();
