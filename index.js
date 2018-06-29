@@ -1,6 +1,5 @@
-const build = async () => {
+const run = async () => {
     const ENV          = process.env.NODE_ENV || 'development';
-    const AWS          = require('aws-sdk');
     const config       = require('config');
     const express      = require('express');
     const session      = require('express-session');
@@ -8,28 +7,21 @@ const build = async () => {
     const compression  = require('compression');
     const bodyParser   = require('body-parser');
     const path         = require('path');
-    const mongoose     = require('mongoose');
-    const passport     = require('passport');
-    const cons         = require('consolidate');
     const serveIndex   = require('serve-index');
+    const Promise      = require('bluebird');
+    const { to }       = require('await-to-js');
 
     const errorHandler = require('./app/middleware/errorHandler');
 
     // Load routes
     const appRoutes = require('./app/routes');
 
-    // TODO: move this to aws helper, credentials won't be required in EC2
-    // Update AWS config from config file
-    AWS.config.update({
-        region: config.aws.region,
-    });
-
     // Init our app
     const app = express();
 
     app.use(compression());
-    app.use(bodyParser.json({ limit: '50mb' }));
     app.use(morgan(ENV === 'development' ? 'dev' : 'tiny'));
+    app.use(bodyParser.json());
 
     // Init sessions
     app.set('trust proxy', 1); // trust first proxy
@@ -41,22 +33,23 @@ const build = async () => {
     }));
 
     // view engine setup
-    app.engine('html', cons.swig);
-    app.set('views', path.join(__dirname, 'app/views'));
-    app.set('view engine', 'html');
+    // app.engine('html', cons.swig);
+    // app.set('views', path.join(__dirname, 'app/views'));
+    // app.set('view engine', 'html');
 
     // Initialize passport
-    app.use(passport.initialize());
-    app.use(passport.session({
-        resave: false,
-        saveUninitialized: true
-    }));
+    // app.use(passport.initialize());
+    // app.use(passport.session({
+    //     resave: false,
+    //     saveUninitialized: true
+    // }));
 
-    app.use(passport.initialize());
+    // app.use(passport.initialize());
 
     // app.use(express.json());
     app.use('/assets', express.static(path.join(__dirname, './app/public/assets')));
     app.use('/.well-known', express.static('.well-known'), serveIndex('.well-known'));
+    app.use('/', appRoutes);
 
     if (ENV === 'development') {
         app.use('/_ping', (req, res) => {
@@ -64,14 +57,22 @@ const build = async () => {
         });
     }
 
-    app.use('/', appRoutes);
-
     // Dis-allow all other routes
     app.get('*', (req, res) => {
         res.status(404).end();
     });
 
     app.use(errorHandler);
+
+    // Setup databases
+    const dbUrl = `http://${config.db.user}:${config.db.password}@${config.db.host}:${config.db.port}`;
+    const nano = require('nano')(dbUrl);
+    Promise.promisifyAll(nano.db);
+
+    let [err, pushDB] = await to(nano.db.getAsync('pushinfo'));
+    if (err && err.error === 'not_found') [err, pushDB] = await to(nano.db.createAsync('pushinfo'));
+    if (err) throw new Error(err);
+    console.log('Database pushinfo added!');
 
     // Start our app
     const port = config.app.port || 3000;
@@ -82,4 +83,4 @@ const build = async () => {
     return app;
 };
 
-module.export = build();
+module.export = run();

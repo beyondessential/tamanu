@@ -44,6 +44,8 @@
     "express-couch-proxy": "^0.1.0",
     "express-session": "^1.15.6",
     "express-validator": "^5.1.0",
+    "http-proxy": "^1.17.0",
+    "http-proxy-middleware": "^0.18.0",
     "keygen": "^0.3.1",
     "lodash": "^4.17.5",
     "moment": "^2.21.0",

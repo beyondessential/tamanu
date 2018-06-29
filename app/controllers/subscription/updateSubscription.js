@@ -15,7 +15,7 @@ const {
   map,
 } = require('lodash');
 
-const { MedicalHistoryQuestionnaire, User } = require('../../models');
+// const { MedicalHistoryQuestionnaire, User } = require('../../mod els');
 
 const internals = {
   SCOPES: ['device-connect', 'questionnaire'],
@@ -36,104 +36,104 @@ internals.validateQuery = (req, res, next) => {
   return next();
 };
 
-internals.validateBody = [
-  internals.checkBody('answers').exists().withMessage('answers is required'),
-  internals.checkBody('answers').isArray().withMessage('answers is required to be an array'),
-  internals.checkBody('answers.*.questionId').exists().withMessage('questionId is required for all answers'),
-  internals.checkBody('answers.*.optionId').exists().withMessage('optionId is required for all answers'),
-  internals.sanitizeBody('answers.*.questionId').trim(),
-  internals.sanitizeBody('answers.*.optionId').trim(),
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({
-        answers: {
-          errors: chain(errors.array()).map('msg').uniq().value(),
-        }
-      });
-    }
-    return next();
-  },
-];
+// internals.validateBody = [
+//   internals.checkBody('answers').exists().withMessage('answers is required'),
+//   internals.checkBody('answers').isArray().withMessage('answers is required to be an array'),
+//   internals.checkBody('answers.*.questionId').exists().withMessage('questionId is required for all answers'),
+//   internals.checkBody('answers.*.optionId').exists().withMessage('optionId is required for all answers'),
+//   internals.sanitizeBody('answers.*.questionId').trim(),
+//   internals.sanitizeBody('answers.*.optionId').trim(),
+//   (req, res, next) => {
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//       return res.status(422).json({
+//         answers: {
+//           errors: chain(errors.array()).map('msg').uniq().value(),
+//         }
+//       });
+//     }
+//     return next();
+//   },
+// ];
 
-internals.updateMedicalHistory = async (req, res, next) => {
-  const { id: userId } = req.user;
+// internals.updateMedicalHistory = async (req, res, next) => {
+//   const { id: userId } = req.user;
 
-  const questionnaire = await MedicalHistoryQuestionnaire.findOne({ isActive: true });
-  if (!questionnaire) return next({ status: 500, error: 'No active medical history questionnaire' });
+//   const questionnaire = await MedicalHistoryQuestionnaire.findOne({ isActive: true });
+//   if (!questionnaire) return next({ status: 500, error: 'No active medical history questionnaire' });
 
-  const { scope } = req.query;
-  const { answers } = matchedData(req);
+//   const { scope } = req.query;
+//   const { answers } = matchedData(req);
 
-  const questions = internals.compileQuestions(questionnaire, scope, answers);
+//   const questions = internals.compileQuestions(questionnaire, scope, answers);
 
-  const messages = internals.integrityMessages(questionnaire, questions, answers);
-  if (!isEmpty(messages)) {
-    return next({ status: 422, message: messages });
-  }
+//   const messages = internals.integrityMessages(questionnaire, questions, answers);
+//   if (!isEmpty(messages)) {
+//     return next({ status: 422, message: messages });
+//   }
 
-  const ops = { $set: {} };
-  ops.$set[`medicalHistory.${camelCase(scope)}`] = {
-    answers,
-    questionnaireId: questionnaire.id,
-  };
-  await User.findByIdAndUpdate(userId, ops);
+//   const ops = { $set: {} };
+//   ops.$set[`medicalHistory.${camelCase(scope)}`] = {
+//     answers,
+//     questionnaireId: questionnaire.id,
+//   };
+//   await User.findByIdAndUpdate(userId, ops);
 
-  return res.status(204).end();
-};
+//   return res.status(204).end();
+// };
 
-internals.compileQuestions = (questionnaire, scope, answers) => {
-  const scopedQuestions = scope
-    ? filter(questionnaire.questions, { scope })
-    : questionnaire.questions;
+// internals.compileQuestions = (questionnaire, scope, answers) => {
+//   const scopedQuestions = scope
+//     ? filter(questionnaire.questions, { scope })
+//     : questionnaire.questions;
 
-  return flatMap(
-    scopedQuestions,
-    (question) => {
-      if (isEmpty(question.followUps)) return question;
+//   return flatMap(
+//     scopedQuestions,
+//     (question) => {
+//       if (isEmpty(question.followUps)) return question;
 
-      const answer = find(answers, { questionId: question.id });
-      if (!answer) return question;
+//       const answer = find(answers, { questionId: question.id });
+//       if (!answer) return question;
 
-      const followUp = find(question.followUps, { triggerOptionId: answer.optionId });
-      if (!followUp) return question;
+//       const followUp = find(question.followUps, { triggerOptionId: answer.optionId });
+//       if (!followUp) return question;
 
-      return [question, followUp];
-    }
-  );
-};
+//       return [question, followUp];
+//     }
+//   );
+// };
 
-internals.integrityMessages = (questionnaire, questions, answers) => {
-  function validate(answer) {
-    if (filter(answers, { questionId: answer.questionId }).length > 1) {
-      return `too many answers for questionId "${answer.questionId}"`;
-    }
+// internals.integrityMessages = (questionnaire, questions, answers) => {
+//   function validate(answer) {
+//     if (filter(answers, { questionId: answer.questionId }).length > 1) {
+//       return `too many answers for questionId "${answer.questionId}"`;
+//     }
 
-    const question = find(questions, { id: answer.questionId });
-    if (isEmpty(question)) return `questionId "${answer.questionId}" not found`;
+//     const question = find(questions, { id: answer.questionId });
+//     if (isEmpty(question)) return `questionId "${answer.questionId}" not found`;
 
-    const optionsSet = find(questionnaire.optionsSets, { id: question.optionsSetId });
-    const option = find(optionsSet.options, { id: answer.optionId });
-    if (isEmpty(option)) return `optionId "${answer.optionId}" not found`;
+//     const optionsSet = find(questionnaire.optionsSets, { id: question.optionsSetId });
+//     const option = find(optionsSet.options, { id: answer.optionId });
+//     if (isEmpty(option)) return `optionId "${answer.optionId}" not found`;
 
-    return null;
-  }
+//     return null;
+//   }
 
-  const messages = chain(answers).map(validate).compact().value();
+//   const messages = chain(answers).map(validate).compact().value();
 
-  const missingAnswers = difference(
-    map(questions, 'id'), map(answers, 'questionId')
-  );
+//   const missingAnswers = difference(
+//     map(questions, 'id'), map(answers, 'questionId')
+//   );
 
-  forEach(missingAnswers, (questionId) => {
-    messages.push(`answer for questionId "${questionId}" is required`);
-  });
+//   forEach(missingAnswers, (questionId) => {
+//     messages.push(`answer for questionId "${questionId}" is required`);
+//   });
 
-  return messages;
-};
+//   return messages;
+// };
 
 module.exports = [
   internals.validateQuery,
-  internals.validateBody,
-  internals.updateMedicalHistory
+  // internals.validateBody,
+  // internals.updateMedicalHistory
 ];

@@ -1,5 +1,19 @@
 {
     "apps": [{
+      "name": "couch-proxy",
+      "script": "./proxy.js",
+      "env": {
+          "watch": ["./proxy.js", "./middleware"],
+          "watch_options": {
+              "followSymlinks": false
+          },
+          "NODE_ENV": "development"
+      },
+      "env_production": {
+          "watch": false,
+          "NODE_ENV": "production"
+      }
+  }, {
         "name": "tamanu-server",
         "script": "./index.js",
         "env": {
