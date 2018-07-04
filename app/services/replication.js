@@ -4,7 +4,7 @@ import to from 'await-to-js';
 
 class Replication {
   constructor() {
-    this.serverUrl = 'http://localhost:3000/main123';
+    this.serverUrl = 'http://localhost:3500/main123';
     // this.localUrl = `http://${this.dbUser}:${this.dbPassword}@${this.dbHost}:${this.dbPort}`;
     this.replicatorDB = Promise.promisifyAll(nano('http://couchadmin:test@localhost:5984/_replicator'));
     this.docName = 'main-to-remote-replicate';
@@ -17,7 +17,7 @@ class Replication {
       },
       target: {
         headers: {},
-        url: 'http://localhost:3000/main'
+        url: 'http://localhost:3500/main'
       },
       create_target: false,
       continuous: true,
