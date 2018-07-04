@@ -6,7 +6,7 @@ Promise.promisifyAll(nano.db);
 
 (async () => {
   try {
-    await nano.db.replicateAsync('main', 'http://localhost:3000/couchProxy/main123', { create_target: false });
+    await nano.db.replicateAsync('main', 'http://localhost:3000/couchProxy/main', { create_target: false });
     console.log('Replicated!');
     process.exit();
   } catch (err) {

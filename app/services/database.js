@@ -2,7 +2,7 @@ import PouchDB from 'pouchdb';
 import { defaults } from 'lodash';
 import { ipcRenderer } from 'electron';
 import Promise from 'bluebird';
-import Replication from './replication';
+import { to } from 'await-to-js';
 import {
   START_NOTIFICATION_SERVICE,
   NOTIFICATION_SERVICE_STARTED,
@@ -10,10 +10,12 @@ import {
   NOTIFICATION_RECEIVED as ON_NOTIFICATION_RECEIVED,
   TOKEN_UPDATED,
 } from 'electron-push-receiver/src/constants';
+import Replication from './replication';
 import createViews from '../utils/create-views';
 import createIndex from '../utils/create-index';
 import backboneSync from '../utils/backbone-sync';
 import firebase from '../services/firebase';
+import configService from './config';
 
 // Attach pocuhdb find plugin
 PouchDB.plugin(require('pouchdb-find'));
@@ -27,6 +29,7 @@ class Database {
     this.dbPassword = 'test';
     this.messaging = firebase.messaging();
     this.serverUrl = 'http://localhost:3000/main123';
+    this.apiHost = 'http://localhost:3000';
     this.localUrl = `http://${this.dbUser}:${this.dbPassword}@${this.dbHost}:${this.dbPort}`;
     this.replication = new Replication();
     // this.messaging.usePublicVapidKey('BDWzelnx830a2-S3ZqbUAeBHjM3AY05zVIZyWYMmgEO7vRt5MjoSbpyZsMl3zKVoKuo53i9GhThi_5f82IEUd64');
@@ -65,7 +68,7 @@ class Database {
     this.replication.setup();
 
     // Setup subscriptions
-    // this.setupSubscription();
+    this.setupSubscription();
   }
 
   setupSync() {
@@ -73,24 +76,55 @@ class Database {
   }
 
   setupSubscription() {
-    console.log('setupSubscription');
-    // this.messaging.requestPermission().then(() => {
-    //   console.log('Notification permission granted.');
-    //   // this._fetchToken();
-    // }).catch((err) => {
-    //   console.log('Unable to get permission to notify.', err);
-    // });
-
     // Listen for service successfully started
-    ipcRenderer.on(NOTIFICATION_SERVICE_STARTED, (_, token) => console.log('NOTIFICATION_SERVICE_STARTED', token));
+    ipcRenderer.on(NOTIFICATION_SERVICE_STARTED, (_, token) => this._saveSubscriptionToken(token));
+    ipcRenderer.on(TOKEN_UPDATED, (_, token) => this._saveSubscriptionToken(token));
+
     // Handle notification errors
-    ipcRenderer.on(NOTIFICATION_SERVICE_ERROR, (_, error) => console.log('NOTIFICATION_SERVICE_ERROR', error));
-    // Send FCM token to backend
-    ipcRenderer.on(TOKEN_UPDATED, (_, token) => console.log('TOKEN_UPDATED', token));
+    ipcRenderer.on(NOTIFICATION_SERVICE_ERROR, (_, error) => console.error('NOTIFICATION_SERVICE_ERROR', error));
+
     // Display notification
     ipcRenderer.on(ON_NOTIFICATION_RECEIVED, (_, notification) => console.log('ON_NOTIFICATION_RECEIVED', notification));
+
     // Start service
     ipcRenderer.send(START_NOTIFICATION_SERVICE, this.senderId);
+  }
+
+  async _saveSubscriptionToken(token) {
+    let [err, res] = await to(this._sendSubscriptionToServer(token));
+    if (!err) [err, res] = await to(configService.save('push_subscription_id', res.id));
+    if (err) throw new Error(err);
+    console.log('Subscription info sent to the server');
+  }
+
+  async _sendSubscriptionToServer(token) {
+    return new Promise(async (resolve, reject) => {
+      const [err, pushSubscriptionId] = await to(configService.get('push_subscription_id'));
+      if (err) return reject(err);
+
+      let url = `${this.apiHost}/subscription`;
+      let method = 'POST';
+      if (pushSubscriptionId !== '') {
+        url += `/${pushSubscriptionId}`;
+        method = 'PUT';
+      }
+
+      let [error, res] = await to(fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          remoteSeq: 0,
+          clientToken: token,
+          clientId: 'test-tamanu-app'
+        })
+      }));
+
+      if (!error) [error, res] = await to(res.json());
+      if (error) return reject(error);
+      return resolve(res);
+    });
   }
 
   async _fetchToken() {
