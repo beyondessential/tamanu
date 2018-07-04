@@ -4,9 +4,8 @@ import to from 'await-to-js';
 
 class Replication {
   constructor() {
-    this.serverUrl = 'http://localhost:3500/main123';
-    // this.localUrl = `http://${this.dbUser}:${this.dbPassword}@${this.dbHost}:${this.dbPort}`;
-    this.replicatorDB = Promise.promisifyAll(nano('http://couchadmin:test@localhost:5984/_replicator'));
+    const couchUrl = `http://${process.env.COUCHDB_USER}:${process.env.COUCHDB_PASS}@${process.env.COUCHDB_HOST}:${process.env.COUCHDB_PORT}`;
+    this.replicatorDB = Promise.promisifyAll(nano(`${couchUrl}/_replicator`));
     this.docName = 'main-to-remote-replicate';
     this.replicationDoc = {
       source: {
@@ -17,7 +16,7 @@ class Replication {
       },
       target: {
         headers: {},
-        url: 'http://localhost:3500/main'
+        url: `${process.env.COUCHDB_MAIN_SERVER}/main`
       },
       create_target: false,
       continuous: true,
