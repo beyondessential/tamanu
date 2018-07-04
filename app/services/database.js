@@ -1,5 +1,4 @@
 import PouchDB from 'pouchdb';
-import { defaults } from 'lodash';
 import { ipcRenderer } from 'electron';
 import Promise from 'bluebird';
 import { to } from 'await-to-js';
@@ -22,14 +21,14 @@ PouchDB.plugin(require('pouchdb-find'));
 
 class Database {
   constructor() {
-    this.senderId = '889083073051';
-    this.dbHost = 'localhost';
-    this.dbPort = 5984;
-    this.dbUser = 'couchadmin';
-    this.dbPassword = 'test';
+    this.senderId = process.env.FCM_SENDER_ID;
+    this.dbHost = process.env.COUCHDB_HOST;
+    this.dbPort = process.env.COUCHDB_PORT;
+    this.dbUser = process.env.COUCHDB_USER;
+    this.dbPassword = process.env.COUCHDB_PASS;
+    this.apiHost = process.env.API_HOST;
     this.messaging = firebase.messaging();
     this.serverUrl = 'http://localhost:3000/main123';
-    this.apiHost = 'http://localhost:3000';
     this.localUrl = `http://${this.dbUser}:${this.dbPassword}@${this.dbHost}:${this.dbPort}`;
     this.replication = new Replication();
     // this.messaging.usePublicVapidKey('BDWzelnx830a2-S3ZqbUAeBHjM3AY05zVIZyWYMmgEO7vRt5MjoSbpyZsMl3zKVoKuo53i9GhThi_5f82IEUd64');

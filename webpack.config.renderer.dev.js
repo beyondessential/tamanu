@@ -17,6 +17,8 @@ import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import baseConfig from './webpack.config.base';
 import CheckNodeEnv from './internals/scripts/CheckNodeEnv';
 
+const Dotenv = require('dotenv-webpack');
+
 CheckNodeEnv('development');
 
 const port = process.env.PORT || 1212;
@@ -208,6 +210,10 @@ export default merge.smart(baseConfig, {
     }),
 
     new webpack.NoEmitOnErrorsPlugin(),
+
+    new Dotenv({
+      path: './.env/config.dev'
+    }),
 
     /**
      * Create global constants which can be configured at compile time.
