@@ -1,16 +1,38 @@
-const { findKey, get } = require('lodash');
+const { buildCheckFunction, validationResult } = require('express-validator/check');
+const { to } = require('await-to-js');
+const dbService = require('../../services/database');
+const { chain } = require('lodash');
 
-const internals = {};
-
-internals.getDevice = (req, res) => {
-  const userServices = get(req.user, 'services', {});
-  const key = findKey(userServices, { connected: true });
-  if (!key) return res.status(404).end();
-
-  return res.json({
-    model: key,
-    // TODO: more here tbd...
-  });
+const { pushDB } = dbService.getDBs();
+const internals = {
+  checkBody: buildCheckFunction(['body']),
 };
 
-module.exports = internals.getDevice;
+internals.validateBody = [
+  internals.checkBody('clientId').exists().withMessage('clientId is required'),
+  internals.checkBody('clientToken').exists().withMessage('clientToken is required'),
+  internals.checkBody('remoteSeq').exists().withMessage('remoteSeq is required'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({
+        answers: {
+          errors: chain(errors.array()).map('msg').uniq().value(),
+        }
+      });
+    }
+    return next();
+  },
+];
+
+internals.saveSubscription = async (req, res) => {
+  const { clientId, clientToken, remoteSeq } = req.body;
+  const [err, result] = await to(pushDB.insertAsync({ clientId, clientToken, remoteSeq }));
+  if (err) return res.status(500).send(err.stack);
+  res.json(result);
+};
+
+module.exports = [
+  internals.validateBody,
+  internals.saveSubscription
+];

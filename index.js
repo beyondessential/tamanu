@@ -12,6 +12,8 @@ const run = async () => {
     const { to }       = require('await-to-js');
 
     const errorHandler = require('./app/middleware/errorHandler');
+    const dbService = require('./app/services/database');
+    const listeners = require('./app/services/listeners');
 
     // Load routes
     const appRoutes = require('./app/routes');
@@ -65,14 +67,8 @@ const run = async () => {
     app.use(errorHandler);
 
     // Setup databases
-    const dbUrl = `http://${config.db.user}:${config.db.password}@${config.db.host}:${config.db.port}`;
-    const nano = require('nano')(dbUrl);
-    Promise.promisifyAll(nano.db);
-
-    let [err, pushDB] = await to(nano.db.getAsync('pushinfo'));
-    if (err && err.error === 'not_found') [err, pushDB] = await to(nano.db.createAsync('pushinfo'));
-    if (err) throw new Error(err);
-    console.log('Database pushinfo added!');
+    await dbService.createDBs();
+    listeners.addDatabaseListeners('main');
 
     // Start our app
     const port = config.app.port || 3000;
