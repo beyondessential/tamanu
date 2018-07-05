@@ -4,7 +4,7 @@ import { map, isEmpty } from 'lodash';
 import ReactTable from 'react-table';
 
 import { Colors, pageSizes } from '../../constants';
-import { PregnancysCollection } from '../../collections';
+import { PregnanciesCollection } from '../../collections';
 import DeletePregnancyModal from './components/DeletePregnancyModal';
 
 class Pregnancy extends Component {
@@ -16,7 +16,7 @@ class Pregnancy extends Component {
   state = {
     deleteModalVisible: false,
     selectedPregnancy: null,
-    pageSize: pageSizes.pregnancys
+    pageSize: pageSizes.pregnancies
   }
 
   componentDidMount() {
@@ -25,8 +25,8 @@ class Pregnancy extends Component {
     this.props.collection.fetchResults();
   }
 
-  componentWillReceiveProps({ deletePregnancySuccess }) {
-    if (deletePregnancySuccess) {
+  componentWillReceiveProps({ deletepregnanciesuccess }) {
+    if (deletepregnanciesuccess) {
       this.props.collection.fetchResults();
     }
   }
@@ -40,15 +40,11 @@ class Pregnancy extends Component {
   }
 
   goEdit = (pregnancyId) => {
-    this.props.history.push(`/pregnancys/editPregnancy/${pregnancyId}`);
+    this.props.history.push(`/pregnancy/editPregnancy/${pregnancyId}`);
   }
 
-  goAdmit = (pregnancyId, pregnancy) => {
-    if (pregnancy.admitted) {
-      this.props.history.push(`/programs/pregnancyVisit/${pregnancyId}`);
-    } else {
-      this.props.history.push(`/programs/pregnancyVisit/${pregnancyId}`);
-    }
+  goAdmit = () => {
+    this.props.history.push('/pregnancy/prepregnancies');
   }
 
   showDeleteModal = (pregnancy) => {
@@ -88,8 +84,8 @@ class Pregnancy extends Component {
   render() {
     const { deleteModalVisible } = this.state;
     const that = this;
-    let { models: pregnancys } = this.props.collection;
-    if (pregnancys.length > 0) pregnancys = map(pregnancys, pregnancy => pregnancy.attributes);
+    let { models: pregnancies } = this.props.collection;
+    if (pregnancies.length > 0) pregnancies = map(pregnancies, pregnancy => pregnancy.attributes);
     const pregnancyColumns = [{
       accessor: 'displayId',
       Header: 'Id',
@@ -202,7 +198,7 @@ class Pregnancy extends Component {
         return (
           <div key={row._id}>
             <button className="button column-button" onClick={() => that.goEdit(row.value._id)}>Edit</button>
-            <button className="button is-primary column-checkin-button" onClick={() => that.goAdmit(row.value._id, row.value.admitted)}>{row.value.admitted ? 'Discharge' : 'Admit'}</button>
+            <button className="button is-primary column-checkin-button" onClick={() => that.goAdmit()}>Admit</button>
             <button className="button is-danger column-button" onClick={() => that.showDeleteModal(row)}>Delete</button>
           </div>
         );
@@ -221,10 +217,10 @@ class Pregnancy extends Component {
           </div>
         </div>
         <div className="detail">
-          {pregnancys.length === 0 ?
+          {pregnancies.length === 0 ?
             <div className="notification">
               <span>
-                No Pregnancys found. <Link to="/patients/edit/new">Create a new Pregnancys record?</Link>
+                No pregnancies found. <Link to="/patients/edit/new">Create a new pregnancies record?</Link>
               </span>
             </div>
             :
@@ -232,9 +228,9 @@ class Pregnancy extends Component {
               <ReactTable
                 manual
                 keyField="_id"
-                data={pregnancys}
+                data={pregnancies}
                 pages={this.props.collection.totalPages}
-                defaultPageSize={pageSizes.pregnancys}
+                defaultPageSize={pageSizes.pregnancies}
                 loading={this.state.loading}
                 columns={pregnancyColumns}
                 className="-striped"
@@ -256,8 +252,8 @@ class Pregnancy extends Component {
 }
 
 Pregnancy.defaultProps = {
-  collection: new PregnancysCollection(),
-  Pregnancys: []
+  collection: new PregnanciesCollection(),
+  pregnancies: []
 };
 
 export default Pregnancy;

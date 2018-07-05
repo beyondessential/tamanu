@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import { patientDB } from '../utils/dbHelper';
-import { patientIcon, scheduleIcon, medicationIcon, labsIcon, administrationIcon } from './images';
+import { patientIcon, scheduleIcon, medicationIcon, labsIcon, administrationIcon, pregnancyIcon, programsIcon } from './images';
 
 export const Colors = {
   searchTintColor: '#d2dae3',
@@ -12,7 +12,7 @@ export const dateFormat = 'YYYY-MM-DD';
 
 export const pageSizes = {
   patients: 10,
-  pregnancys: 5
+  pregnancies: 5
 };
 
 export const sidebarInfo = [
@@ -258,12 +258,24 @@ export const sidebarInfo = [
     ]
   },
   {
-    label: 'Programs',
-    path: '/programs',
-    icon: administrationIcon,
+    label: 'Pregnancy',
+    path: '/pregnancy',
+    icon: pregnancyIcon,
     children: [
       {
         label: 'Pregnancy',
+        path: '/pregnancy',
+        icon: 'fa fa-chevron-right'
+      },
+    ]
+  },
+  {
+    label: 'Programs',
+    path: '/programs',
+    icon: programsIcon,
+    children: [
+      {
+        label: 'Programs',
         path: '/programs',
         icon: 'fa fa-chevron-right'
       },

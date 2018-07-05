@@ -11,7 +11,8 @@ import { Labs } from './containers/Labs';
 import { Billing } from './containers/Billing';
 // import { Incident } from './containers/Incident';
 import Administration from './containers/Administration';
-import Programs from './containers/Programs';
+import { Programs } from './containers/Programs';
+import { Pregnancy } from './containers/Pregnancy';
 
 export default () => (
   <App>
@@ -26,6 +27,7 @@ export default () => (
       {/* <Route path="/incident" component={Incident} /> */}
       <Route path="/admin" component={Administration} />
       <Route path="/programs" component={Programs} />
+      <Route path="/pregnancy" component={Pregnancy} />
     </Switch>
   </App>
 );

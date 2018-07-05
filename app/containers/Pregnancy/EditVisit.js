@@ -2,16 +2,16 @@ import React, { Component } from 'react';
 
 class EditVisit extends Component {
   showAntenatal() {
-    this.props.history.push('/programs/pregnancyConfirm');
+    this.props.history.push('/pregnancy/pregnancyConfirm');
   }
   showGestantional() {
-    this.props.history.push('/programs/pregnancyConfirm');
+    this.props.history.push('/pregnancy/pregnancyConfirm');
   }
   showOnset() {
-    this.props.history.push('/programs/pregnancyConfirm');
+    this.props.history.push('/pregnancy/pregnancyConfirm');
   }
   showPregnancy() {
-    this.props.history.push('/programs/pregnancyConfirm');
+    this.props.history.push('/pregnancy/pregnancyConfirm');
   }
   render() {
     return (
@@ -32,16 +32,16 @@ class EditVisit extends Component {
           </div>
           <div className="pregnancy-button-details">
             <div className="button-details">
-              <button className="button is-primary pregnancys-button " onClick={this.showAntenatal.bind(this)}>Antenatal Visit</button>
+              <button className="button is-primary pregnancies-button " onClick={this.showAntenatal.bind(this)}>Antenatal Visit</button>
             </div>
             <div className="button-details">
-              <button className="button is-primary pregnancys-button " onClick={this.showGestantional.bind(this)}>Gestantional diabetes</button>
+              <button className="button is-primary pregnancies-button " onClick={this.showGestantional.bind(this)}>Gestantional diabetes</button>
             </div>
             <div className="button-details">
-              <button className="button is-primary pregnancys-button " onClick={this.showOnset.bind(this)}>Onset of labour</button>
+              <button className="button is-primary pregnancies-button " onClick={this.showOnset.bind(this)}>Onset of labour</button>
             </div>
             <div className="button-details">
-              <button className="button is-primary pregnancys-button " onClick={this.showPregnancy.bind(this)}>Pregnancy Outcomes</button>
+              <button className="button is-primary pregnancies-button " onClick={this.showPregnancy.bind(this)}>Pregnancy Outcomes</button>
             </div>
           </div>
         </div>

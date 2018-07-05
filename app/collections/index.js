@@ -1,5 +1,5 @@
 module.exports = {
   PatientsCollection: require('./patients'),
-  PregnancysCollection: require('./pregnancys'),
+  PregnanciesCollection: require('./pregnancies'),
   AppointmentCollection: require('./appointment')
 };

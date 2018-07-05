@@ -4,10 +4,10 @@ import { Colors } from '../../constants';
 
 class QuestionTable extends Component {
   showQuestionsFirst = () => {
-    this.props.history.push('/programs/questionsFirst');
+    this.props.history.push('/pregnancy/questionsFirst');
   }
   finish() {
-    this.props.history.push('/programs');
+    this.props.history.push('/pregnancy');
   }
 
   render() {
@@ -168,7 +168,7 @@ class QuestionTable extends Component {
                 Jo Citizon
               </span>
             </div>
-            <button className="button is-primary pregnancys-antenatal-button" onClick={this.showQuestionsFirst}>Antenatal Visit</button>
+            <button className="button is-primary pregnancies-antenatal-button" onClick={this.showQuestionsFirst}>Antenatal Visit</button>
           </div>
           <ReactTable
             manual
