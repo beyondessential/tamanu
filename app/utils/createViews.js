@@ -1,0 +1,425 @@
+const { to } = require('await-to-js');
+// const { resolve, all } = require('rsvp');
+/* global req */
+/* global compareStrings */
+/* global getCompareDate */
+
+function buildIndex(indexName, db) {
+  return db.query(indexName, {
+    limit: 0
+  }).catch((err) => {
+    console.log(`index error: ${JSON.stringify(err, null, 2)}`);
+  });
+}
+
+function createDesignDoc(item, rev) {
+  const ddoc = {
+    _id: `_design/${item.name}`,
+    version: item.version,
+    views: {
+    }
+  };
+  if (rev) {
+    ddoc._rev = rev;
+  }
+  ddoc.views[item.name] = { map: item.function.toString() };
+  if (item.sort) {
+    ddoc.lists = {
+      sort: item.sort
+    };
+  }
+  return ddoc;
+}
+
+async function updateDesignDoc(item, db, rev, runningTest, testDumpFile) {
+  const designDoc = createDesignDoc(item, rev);
+  if (runningTest) {
+    console.log(`WARNING: The view ${item.name} is out of date. Please update the pouch dump ${testDumpFile} to the latest version of ${item.name}`);
+  }
+
+  const [err, doc] = await to(db.insertAsync(designDoc));
+  if (err) return console.log('ERR updating design doc:', JSON.stringify(err, null, 2));
+  return buildIndex(item.name, db);
+}
+
+async function checkForUpdate(view, db, runningTest, testDumpFile) {
+  const [err, doc] = await to(db.getAsync(`_design/${view.name}`));
+  if (err) return updateDesignDoc(view, db, null, runningTest, testDumpFile);
+
+  if (doc.version !== view.version) return updateDesignDoc(view, db, doc._rev, runningTest, testDumpFile);
+  if (runningTest) {
+    // Indexes need to be built when running tests
+    return buildIndex(view.name, db);
+  }
+
+  return Promise.resolve();
+}
+
+function generateSortFunction(sortFunction, includeCompareDate, filterFunction) {
+  let generatedFunction = 'function(head, req) {'
+    + 'function keysEqual(keyA, keyB) {'
+    + 'for (var i= 0; i < keyA.length; i++) {'
+    + 'if (keyA[i] !== keyB[i]) {'
+    + 'return false;'
+    + '}'
+    + '}'
+    + 'return true;'
+    + '}';
+  if (includeCompareDate) {
+    generatedFunction += 'function getCompareDate(dateString) {'
+      + 'if (!dateString || dateString === "") {'
+      + 'return 0;'
+      + '}'
+      + 'return new Date(dateString).getTime();'
+      + '}';
+  }
+  generatedFunction += 'function compareStrings(aString, bString) {'
+    + 'if (!aString) {'
+    + 'aString = "";'
+    + '}'
+    + 'if (!bString) {'
+    + 'bString = "";'
+    + '}'
+    + 'if (aString < bString) {'
+    + 'return -1;'
+    + '} else if (aString > bString) {'
+    + 'return 1;'
+    + '} else {'
+    + 'return 0;'
+    + '}'
+    + '}'
+    + 'var row,'
+    + 'rows=[],'
+    + 'startingPosition = 0;'
+    + 'while(row = getRow()) {'
+    + 'rows.push(row);'
+    + '}';
+  if (filterFunction) {
+    generatedFunction += `rows = rows.filter(${filterFunction});`;
+  }
+  generatedFunction += `rows.sort(${sortFunction});`
+    + 'if (req.query.sortDesc) {'
+    + 'rows = rows.reverse();'
+    + '}'
+    + 'if (req.query.sortStartKey) {'
+    + 'var startKey = JSON.parse(req.query.sortStartKey);'
+    + 'for (var i=0; i<rows.length; i++) {'
+    + 'if (keysEqual(startKey, rows[i].key)) {'
+    + 'startingPosition = i;'
+    + 'break;'
+    + '}'
+    + '}'
+    + '}'
+    + 'if (req.query.sortLimit) {'
+    + 'rows = rows.slice(startingPosition, parseInt(req.query.sortLimit)+startingPosition);'
+    + '} else if (startingPosition > 0) {'
+    + 'rows = rows.slice(startingPosition);'
+    + '}'
+    + 'send(JSON.stringify({"rows" : rows}));'
+    + '}';
+  return generatedFunction;
+}
+
+function generateView(viewDocType, viewBody) {
+  return `function(doc) {
+    var doctype, uidx;
+    if (doc._id && (uidx = doc._id.indexOf('_')) > 0 && !doc.archived) {
+      doctype = doc._id.substring(0, uidx);
+      if (doctype === '${viewDocType}') {
+        ${viewBody}
+      }
+    }
+  }`;
+}
+
+function generateDateForView(date1) {
+  return `var ${date1} = doc.${date1};
+    if (${date1} && ${date1} !== "") {
+      ${date1} = new Date(${date1});
+      if (${date1}.getTime) {
+        ${date1} = ${date1}.getTime();
+      }
+    }`;
+}
+
+const appointmentSearch = generateSortFunction(((a, b) => {
+  function defaultStatus(value) {
+    if (!value || value === '') return 'Scheduled';
+    return value;
+  }
+  let sortBy = '';
+  if (req.query && req.query.sortKey) {
+    sortBy = req.query.sortKey;
+  }
+  switch (sortBy) {
+    case 'appointmentType':
+    case 'location':
+    case 'provider':
+      return compareStrings(a.doc[sortBy], b.doc[sortBy]);
+    case 'date': {
+      const startDiff = getCompareDate(a.doc.startDate) - getCompareDate(b.doc.startDate);
+      if (startDiff === 0) return getCompareDate(a.doc.endDate) - getCompareDate(b.doc.endDate);
+      return startDiff;
+    }
+    case 'status': {
+      const aStatus = defaultStatus(a.doc[sortBy]);
+      const bStatus = defaultStatus(b.doc[sortBy]);
+      return compareStrings(aStatus, bStatus);
+    }
+    default: {
+      return 0; // Don't sort
+    }
+  }
+}).toString(), true, ((row) => {
+  let filterBy = null;
+  let includeRow = true;
+  if (req.query && req.query.filterBy) {
+    filterBy = JSON.parse(req.query.filterBy);
+  }
+  if (!filterBy) {
+    return true;
+  }
+  for (let i = 0; i < filterBy.length; i += 1) {
+    let currentValue = row.doc[filterBy[i].name];
+    if (filterBy[i].name === 'status' && (!currentValue || currentValue === '')) {
+      currentValue = 'Scheduled';
+    }
+    if (currentValue !== filterBy[i].value) {
+      includeRow = false;
+      break;
+    }
+  }
+  return includeRow;
+}).toString());
+
+const patientListingKey = `if (doc.displayId) {
+    emit([doc.displayId, doc._id]);
+  } else if (doc.externalPatientId) {
+    emit([doc.externalPatientId, doc._id]);
+  } else {
+    emit([doc._id, doc._id]);
+ }`;
+
+const patientListingSearch = generateSortFunction(((a, b) => {
+  let sortBy = '';
+  if (req.query && req.query.sortKey) {
+    sortBy = req.query.sortKey;
+  }
+  switch (sortBy) {
+    case 'firstName':
+    case 'sex':
+    case 'lastName':
+    case 'status': {
+      return compareStrings(a.doc[sortBy], b.doc[sortBy]);
+    }
+    case 'dateOfBirth': {
+      return getCompareDate(a.doc.dateOfBirth) - getCompareDate(b.doc.dateOfBirth);
+    }
+    default: {
+      return 0; // Don't sort
+    }
+  }
+}).toString(), true);
+
+const designDocs = [{
+  name: 'appointments_by_date',
+  function: generateView(
+    'appointment',
+    `${generateDateForView('endDate')}
+    ${generateDateForView('startDate')}
+    if (doc.appointmentType !== 'Surgery') {
+      emit([startDate, endDate, doc._id]);
+    }`
+  ),
+  sort: appointmentSearch,
+  version: 7
+}, {
+  name: 'appointments_by_patient',
+  function: generateView(
+    'appointment',
+    `${generateDateForView('endDate')}
+    ${generateDateForView('startDate')}
+    emit([doc.patient, startDate, endDate,doc._id]);`
+  ),
+  version: 4
+}, {
+  name: 'imaging_by_status',
+  function: generateView(
+    'imaging',
+    `${generateDateForView('imagingDate')}
+    ${generateDateForView('requestedDate')}
+    emit([doc.status, requestedDate, imagingDate, doc._id]);`
+  ),
+  version: 4
+}, {
+  name: 'incident_by_friendly_id',
+  function: generateView(
+    'incident',
+    'emit([doc.displayId, doc._id]);'
+  ),
+  version: 1
+}, {
+  name: 'incident_by_date',
+  function: generateView(
+    'incident',
+    `${generateDateForView('dateOfIncident')}
+    emit([dateOfIncident, doc._id]);`
+  ),
+  version: 1
+}, {
+  name: 'open_incidents_by_user',
+  function: generateView(
+    'incident',
+    `if (doc.status !== "Closed") {
+      emit([doc.reportedBy, doc._id]);
+    }`
+  ),
+  sort: generateSortFunction(((a, b) => {
+    let sortBy = '';
+    if (req.query && req.query.sortKey) {
+      sortBy = req.query.sortKey;
+      return compareStrings(a.doc[sortBy], b.doc[sortBy]);
+    }
+    return 0; // Don't sort
+  }).toString()),
+  version: 1
+}, {
+  name: 'closed_incidents_by_user',
+  function: generateView(
+    'incident',
+    `if (doc.status === "Closed") {
+      emit([doc.reportedBy, doc._id]);
+    }`
+  ),
+  version: 1
+}, {
+  name: 'lab_by_status',
+  function: generateView(
+    'lab',
+    `${generateDateForView('labDate')}
+    ${generateDateForView('requestedDate')}
+    emit([doc.status, requestedDate, labDate, doc._id]);`
+  ),
+  version: 4
+}, {
+  name: 'medication_by_status',
+  function: generateView(
+    'medication',
+    `${generateDateForView('prescriptionDate')}
+    ${generateDateForView('requestedDate')}
+    emit([doc.status, requestedDate, prescriptionDate, doc._id]);`
+  ),
+  version: 4
+}, {
+  name: 'patient_by_display_id',
+  function: generateView('patient', patientListingKey),
+  sort: patientListingSearch,
+  version: 7
+}, {
+  name: 'patient_by_status',
+  function: generateView(
+    'patient',
+    'emit(doc.status);'
+  ),
+  version: 3
+}, {
+  name: 'patient_by_admission',
+  function: generateView(
+    'patient',
+    `if (doc.admitted === true) {
+      ${patientListingKey}
+    }`
+  ),
+  sort: patientListingSearch,
+  version: 4
+}, {
+  name: 'photo_by_patient',
+  function: generateView(
+    'photo',
+    'emit(doc.patient);'
+  ),
+  version: 4
+}, {
+  name: 'photo_by_procedure',
+  function: generateView(
+    'photo',
+    'emit(doc.procedure);'
+  ),
+  version: 1
+}, {
+  name: 'photo_by_visit',
+  function: generateView(
+    'photo',
+    'emit(doc.visit);'
+  ),
+  version: 1
+}, {
+  name: 'procedure_by_date',
+  function: generateView(
+    'procedure',
+    `${generateDateForView('procedureDate')}
+    emit([procedureDate, doc._id]);`
+  ),
+  version: 4
+}, {
+  name: 'sequence_by_prefix',
+  function: generateView(
+    'sequence',
+    'emit(doc.prefix);'
+  ),
+  version: 4
+}, {
+  name: 'surgical_appointments_by_date',
+  function: generateView(
+    'appointment',
+    `${generateDateForView('endDate')}
+    ${generateDateForView('startDate')}
+    if (doc.appointmentType === 'Surgery') {
+      emit([startDate, endDate, doc._id]);
+    }`
+  ),
+  sort: appointmentSearch,
+  version: 1
+}, {
+  name: 'visit_by_date',
+  function: generateView(
+    'visit',
+    `${generateDateForView('endDate')}
+    ${generateDateForView('startDate')}
+    emit([startDate, endDate, doc._id]);`
+  ),
+  version: 4
+}, {
+  name: 'visit_by_discharge_date',
+  function: generateView(
+    'visit',
+    `${generateDateForView('endDate')}
+    emit([endDate, doc._id]);`
+  ),
+  version: 2
+}, {
+  name: 'visit_by_patient',
+  function: generateView(
+    'visit',
+    `${generateDateForView('endDate')}
+    ${generateDateForView('startDate')}
+    emit([doc.patient, startDate, endDate, doc.visitType, doc._id]);`
+  ),
+  version: 4
+}, {
+  name: 'report_by_visit',
+  function: generateView(
+    'report',
+    'emit(doc.visit);'
+  ),
+  version: 1
+}];
+
+module.exports = (db, runningTest, testDumpFile) => {
+  const viewUpdates = [];
+  designDocs.forEach((item) => {
+    viewUpdates.push(checkForUpdate(item, db, runningTest, testDumpFile));
+  });
+
+  return Promise.all(viewUpdates);
+};
