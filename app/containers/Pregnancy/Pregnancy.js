@@ -39,8 +39,8 @@ class Pregnancy extends Component {
     this.forceUpdate();
   }
 
-  goEdit = (pregnancyId) => {
-    this.props.history.push(`/pregnancy/editPregnancy/${pregnancyId}`);
+  goEdit = () => {
+    this.props.history.push('/pregnancy/prepregnancies');
   }
 
   goAdmit = () => {
@@ -197,7 +197,7 @@ class Pregnancy extends Component {
       Cell: row => {
         return (
           <div key={row._id}>
-            <button className="button column-button" onClick={() => that.goEdit(row.value._id)}>Edit</button>
+            <button className="button column-button" onClick={() => that.goEdit()}>Edit</button>
             <button className="button is-primary column-checkin-button" onClick={() => that.goAdmit()}>Admit</button>
             <button className="button is-danger column-button" onClick={() => that.showDeleteModal(row)}>Delete</button>
           </div>
