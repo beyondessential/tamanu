@@ -46,9 +46,9 @@ class Prepregnancies extends Component {
                   <td>1/1/17-30/9/17</td>
                   <td>Live Birth</td>
                   <td>
-                    <button className="button is-success pregnancies-button " onClick={this.showPregnancy.bind(this)}>View Child</button>
+                    <button className="button is-success prepregnancies-button " onClick={this.showPregnancy.bind(this)}>View Child</button>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <button className="button is-warning pregnancies-button " onClick={this.showPregnancy.bind(this)}>Edit Pregnancy</button>
+                    <button className="button is-warning prepregnancies-button " onClick={this.showPregnancy.bind(this)}>Edit Pregnancy</button>
                   </td>
                 </tr>
                 <tr>
