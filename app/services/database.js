@@ -9,7 +9,7 @@ import {
   NOTIFICATION_RECEIVED as ON_NOTIFICATION_RECEIVED,
   TOKEN_UPDATED,
 } from 'electron-push-receiver/src/constants';
-import Replication from './replication';
+// import Replication from './replication';
 import createViews from '../utils/create-views';
 import createIndex from '../utils/create-index';
 import backboneSync from '../utils/backbone-sync';
@@ -30,7 +30,7 @@ class Database {
     this.messaging = firebase.messaging();
     this.serverUrl = 'http://localhost:3000/main123';
     this.localUrl = `http://${this.dbUser}:${this.dbPassword}@${this.dbHost}:${this.dbPort}`;
-    this.replication = new Replication();
+    // this.replication = new Replication();
     // this.messaging.usePublicVapidKey('BDWzelnx830a2-S3ZqbUAeBHjM3AY05zVIZyWYMmgEO7vRt5MjoSbpyZsMl3zKVoKuo53i9GhThi_5f82IEUd64');
   }
 
@@ -64,10 +64,10 @@ class Database {
 
     // Setup backbone sync
     this.setupSync();
-    this.replication.setup();
+    // this.replication.setup();
 
     // Setup subscriptions
-    this.setupSubscription();
+    // this.setupSubscription();
   }
 
   setupSync() {
