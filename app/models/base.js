@@ -1,12 +1,12 @@
 import Backbone from 'backbone-associations';
 import moment from 'moment';
-import { mapValues, assignIn, isEmpty, clone, map } from 'lodash';
+import { mapValues, assignIn, isEmpty, clone, map, set } from 'lodash';
 
 export default Backbone.AssociatedModel.extend({
   idAttribute: '_id',
 
   defaults: {
-    modifiedFields: [],
+    modifiedFields: {},
     createdAt: moment(),
     modifiedAt: null,
   },
