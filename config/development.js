@@ -4,7 +4,10 @@ module.exports = {
     host: 'localhost',
     user: 'couchadmin',
     password: 'test',
-    port: 5980,
+    port: 5990,
   },
-  mainServer: 'http://localhost:3500'
+  mainCouchServer: `http://${require('ip').address()}:3500`,
+  couchPubSubUrl: 'http://localhost:3000/couch-sync'
 };
+
+// const ip = require('ip');

@@ -1,10 +1,10 @@
 const run = async () => {
-    const ENV          = process.env.NODE_ENV || 'development';
-    const config       = require('config');
-    const express      = require('express');
-    const morgan       = require('morgan');
-    const compression  = require('compression');
-    const bodyParser   = require('body-parser');
+    const ENV = process.env.NODE_ENV || 'development';
+    const config = require('config');
+    const express = require('express');
+    const morgan = require('morgan');
+    const compression = require('compression');
+    const bodyParser = require('body-parser');
 
     const errorHandler = require('./app/middleware/errorHandler');
     const couchProxy = require('./app/middleware/forwardCouch');

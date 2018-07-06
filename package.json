@@ -42,6 +42,8 @@
     "express": "^4.16.2",
     "express-session": "^1.15.6",
     "express-validator": "^5.1.0",
+    "faye": "^1.2.4",
+    "firebase": "^5.2.0",
     "firebase-admin": "^5.12.1",
     "follow": "^1.1.0",
     "http-proxy": "^1.17.0",
@@ -52,6 +54,7 @@
     "nano": "^6.4.4",
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
-    "serve-index": "^1.9.1"
+    "serve-index": "^1.9.1",
+    "ip": "^1.1.5"
   }
 }

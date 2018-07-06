@@ -8,7 +8,7 @@ const dbUrl = `http://${config.db.user}:${config.db.password}@${config.db.host}:
 const nano = require('nano')(dbUrl);
 
 Promise.promisifyAll(nano.db);
-const internals = {};
+const internals = { nano };
 
 internals._createDB = async (dbName) => {
   return new Promise(async (resolve, reject) => {
