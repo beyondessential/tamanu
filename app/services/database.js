@@ -6,18 +6,27 @@ const dbUrl = `http://${config.db.user}:${config.db.password}@${config.db.host}:
 const nano = require('nano')(dbUrl);
 
 Promise.promisifyAll(nano.db);
-const internals = {};
+const internals = { nano };
 
-internals.createDBs = () => {
+internals._createDB = async (dbName) => {
   return new Promise(async (resolve, reject) => {
-    let [err, pushDB] = await to(nano.db.getAsync('pushinfo'));
-    if (err && err.error === 'not_found') [err, pushDB] = await to(nano.db.createAsync('pushinfo'));
+    let [err, database] = await to(nano.db.getAsync(dbName));
+    if (err && err.error === 'not_found') [err, database] = await to(nano.db.createAsync(dbName));
     if (err) return reject(err);
-    console.log('Database pushinfo added!');
+    return resolve(database);
+  });
+};
+
+internals.setup = () => {
+  return new Promise(async (resolve, reject) => {
+    let [err] = await to(internals._createDB('main'));
+    if (!err) [err] = await to(internals._createDB('users'));
+    if (err) return reject(err);
+    console.log('Database setup!');
 
     // Create indexes
-    await internals.createIndexes();
-    return resolve(pushDB);
+    // await internals.createIndexes();
+    return resolve();
   });
 };
 
@@ -36,9 +45,12 @@ internals.createIndexes = async () => {
 };
 
 internals.getDBs = () => {
-  const pushDB = nano.use('pushinfo');
-  Promise.promisifyAll(pushDB);
-  return { pushDB };
+  const mainDB = nano.use('main');
+  const usersDB = nano.use('users');
+  Promise.promisifyAll(mainDB);
+  Promise.promisifyAll(usersDB);
+
+  return { mainDB, usersDB };
 };
 
 module.exports = internals;

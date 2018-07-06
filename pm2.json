@@ -17,7 +17,7 @@
         "name": "tamanu-server",
         "script": "./index.js",
         "env": {
-            "watch": ["app", "config", "index.js"],
+            "watch": "./app",
             "watch_options": {
                 "followSymlinks": false
             },

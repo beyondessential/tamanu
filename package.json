@@ -42,6 +42,7 @@
     "express": "^4.16.2",
     "express-session": "^1.15.6",
     "express-validator": "^5.1.0",
+    "faye": "^1.2.4",
     "firebase-admin": "^5.12.1",
     "follow": "^1.1.0",
     "http-proxy": "^1.17.0",

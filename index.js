@@ -1,54 +1,30 @@
 const run = async () => {
-    const ENV          = process.env.NODE_ENV || 'development';
-    const config       = require('config');
-    const express      = require('express');
-    const session      = require('express-session');
-    const morgan       = require('morgan');
-    const compression  = require('compression');
-    const bodyParser   = require('body-parser');
-    const path         = require('path');
-    const serveIndex   = require('serve-index');
-    const Promise      = require('bluebird');
-    const { to }       = require('await-to-js');
-
+    const ENV = process.env.NODE_ENV || 'development';
+    const http = require('http');
+    const config = require('config');
+    const express = require('express');
+    const faye = require('faye');
+    const morgan = require('morgan');
+    const compression = require('compression');
+    const bodyParser = require('body-parser');
+    const path = require('path');
+    const serveIndex = require('serve-index');
     const errorHandler = require('./app/middleware/errorHandler');
     const dbService = require('./app/services/database');
     const listeners = require('./app/services/listeners');
-
-    // Load routes
     const appRoutes = require('./app/routes');
 
     // Init our app
     const app = express();
+    const server = http.createServer(app);
+    const bayeux = new faye.NodeAdapter({ mount: '/couch-sync', timeout: 45 });
 
+    bayeux.attach(server);
     app.use(compression());
     app.use(morgan(ENV === 'development' ? 'dev' : 'tiny'));
     app.use(bodyParser.json());
 
-    // Init sessions
-    app.set('trust proxy', 1); // trust first proxy
-    app.use(session({
-        secret: 'iohIHH*3o*)#NInkfdpfINPIN',
-        resave: false,
-        saveUninitialized: true,
-        // cookie: { secure: true }
-    }));
-
-    // view engine setup
-    // app.engine('html', cons.swig);
-    // app.set('views', path.join(__dirname, 'app/views'));
-    // app.set('view engine', 'html');
-
-    // Initialize passport
-    // app.use(passport.initialize());
-    // app.use(passport.session({
-    //     resave: false,
-    //     saveUninitialized: true
-    // }));
-
-    // app.use(passport.initialize());
-
-    // app.use(express.json());
+    app.use(express.json());
     app.use('/assets', express.static(path.join(__dirname, './app/public/assets')));
     app.use('/.well-known', express.static('.well-known'), serveIndex('.well-known'));
     app.use('/', appRoutes);
@@ -66,13 +42,21 @@ const run = async () => {
 
     app.use(errorHandler);
 
-    // Setup databases
-    await dbService.createDBs();
-    listeners.addDatabaseListeners('main');
+    // Setup services
+    try {
+      await dbService.setup();
+      listeners.addDatabaseListeners('main', bayeux);
+    } catch (err) {
+      console.error(err);
+    }
+
+    bayeux.on('handshake', (clientId) => {
+        console.log('Client connected', clientId);
+    });
 
     // Start our app
     const port = config.app.port || 3000;
-    app.listen(port, () => {
+    server.listen(port, () => {
         console.log(`Server is running on port ${port}!`);
     });
 
