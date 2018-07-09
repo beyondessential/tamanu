@@ -1,6 +1,8 @@
 import Backbone from 'backbone-associations';
 import { defaults } from 'lodash';
+import { to } from 'await-to-js';
 import BackbonePouch from './backbone-pouch';
+import dbService from '../services/database';
 
 const defaultpageSize = 5;
 
@@ -28,12 +30,16 @@ export default (mainDB) => {
   const originalSave = Backbone.Model.prototype.save;
   Backbone.Model.prototype.save = function saveData(data, options) {
     return new Promise(async (resolve, reject) => {
+      const { _id } = this.attributes;
       const newOptions = defaults({
         wait: true,
         success: resolve,
         error: reject
       }, options);
 
+      // Get current rev
+      const [err, doc] = await to(dbService.mainDB.get(_id));
+      if (!err) this.set('_rev', doc._rev);
       await originalSave.apply(this, [data, newOptions]);
     });
   };
