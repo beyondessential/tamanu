@@ -2,16 +2,16 @@ import React, { Component } from 'react';
 
 class EditVisit extends Component {
   showAntenatal() {
-    this.props.history.push('/pregnancy/pregnancyConfirm');
+    this.props.history.push('/programs/pregnancyConfirm');
   }
   showGestantional() {
-    this.props.history.push('/pregnancy/pregnancyConfirm');
+    this.props.history.push('/programs/pregnancyConfirm');
   }
   showOnset() {
-    this.props.history.push('/pregnancy/pregnancyConfirm');
+    this.props.history.push('/programs/pregnancyConfirm');
   }
   showPregnancy() {
-    this.props.history.push('/pregnancy/pregnancyConfirm');
+    this.props.history.push('/programs/pregnancyConfirm');
   }
   render() {
     return (

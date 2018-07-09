@@ -4,10 +4,10 @@ import { Colors } from '../../constants';
 
 class QuestionTable extends Component {
   showQuestionsFirst = () => {
-    this.props.history.push('/pregnancy/questionsFirst');
+    this.props.history.push('/programs/questionsFirst');
   }
   finish() {
-    this.props.history.push('/pregnancy');
+    this.props.history.push('/programs');
   }
 
   render() {

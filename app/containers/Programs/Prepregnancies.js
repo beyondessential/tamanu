@@ -2,16 +2,16 @@ import React, { Component } from 'react';
 
 class Prepregnancies extends Component {
   showAntenatal() {
-    this.props.history.push('/pregnancy/pregnancyVisit');
+    this.props.history.push('/programs/pregnancyVisit');
   }
   showGestantional() {
-    this.props.history.push('/pregnancy/pregnancyVisit');
+    this.props.history.push('/programs/pregnancyVisit');
   }
   showOnset() {
-    this.props.history.push('/pregnancy/pregnancyVisit');
+    this.props.history.push('/programs/pregnancyVisit');
   }
   showPregnancy() {
-    this.props.history.push('/pregnancy/pregnancyVisit');
+    this.props.history.push('/programs/pregnancyVisit');
   }
   render() {
     return (

@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 
 class QuestionsFirst extends Component {
   showGestational() {
-    this.props.history.push('/pregnancy/questionsSecond');
+    this.props.history.push('/programs/questionsSecond');
   }
   showOutcomes() {
-    this.props.history.push('/pregnancy/questionsSecond');
+    this.props.history.push('/programs/questionsSecond');
   }
   finish() {
-    this.props.history.push('/pregnancy/questionsSecond');
+    this.props.history.push('/programs/questionsSecond');
   }
   render() {
     return (

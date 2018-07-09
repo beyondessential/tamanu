@@ -40,11 +40,11 @@ class Pregnancy extends Component {
   }
 
   goEdit = () => {
-    this.props.history.push('/pregnancy/prepregnancies');
+    this.props.history.push('/programs/prepregnancies');
   }
 
   goAdmit = () => {
-    this.props.history.push('/pregnancy/prepregnancies');
+    this.props.history.push('/programs/prepregnancies');
   }
 
   showDeleteModal = (pregnancy) => {

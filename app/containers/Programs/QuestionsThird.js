@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 
 class QuestionsThird extends Component {
   back() {
-    this.props.history.push('/pregnancy/questionsSecond');
+    this.props.history.push('/programs/questionsSecond');
   }
   showOutcomes() {
-    this.props.history.push('/pregnancy/questionsThird');
+    this.props.history.push('/programs/questionsThird');
   }
   finish() {
-    this.props.history.push('/pregnancy');
+    this.props.history.push('/programs');
   }
   render() {
     return (

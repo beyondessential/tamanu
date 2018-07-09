@@ -90,28 +90,6 @@ export const sidebarInfo = [
       }
     ]
   },
-  // {
-  //   label: 'Imaging',
-  //   path: '/imaging',
-  //   icon: 'fa fa-camera-retro',
-  //   children: [
-  //     {
-  //       label: 'Requests',
-  //       path: '/imaging',
-  //       icon: 'fa fa-chevron-right'
-  //     },
-  //     {
-  //       label: 'Completed',
-  //       path: '/imaging/completed',
-  //       icon: 'fa fa-chevron-right'
-  //     },
-  //     {
-  //       label: 'New Request',
-  //       path: '/imaging/edit/new',
-  //       icon: 'fa fa-plus'
-  //     }
-  //   ]
-  // },
   {
     label: 'Medication',
     path: '/medication',
@@ -166,60 +144,6 @@ export const sidebarInfo = [
       // }
     ]
   },
-  // {
-  //   label: 'Billing',
-  //   path: '/invoices',
-  //   icon: 'fa fa-credit-card',
-  //   children: [
-  //     {
-  //       label: 'Invoices',
-  //       path: '/invoices',
-  //       icon: 'fa fa-chevron-right'
-  //     },
-  //     {
-  //       label: 'New Invoice',
-  //       path: '/invoices/edit/new',
-  //       icon: 'fa fa-plus'
-  //     },
-  //     {
-  //       label: 'Prices',
-  //       path: '/invoices/pricing',
-  //       icon: 'fa fa-chevron-right'
-  //     },
-  //     {
-  //       label: 'Price Profiles',
-  //       path: '/invoices/pricing/profiles',
-  //       icon: 'fa fa-chevron-right'
-  //     }
-  //   ]
-  // },
-  // {
-  //   label: 'Incident',
-  //   path: '/incident',
-  //   icon: 'fa fa-cube',
-  //   children: [
-  //     {
-  //       label: 'Current Incidents',
-  //       path: '/incident',
-  //       icon: 'fa fa-chevron-right'
-  //     },
-  //     {
-  //       label: 'New Incident',
-  //       path: '/incident/edit/new',
-  //       icon: 'fa fa-plus'
-  //     },
-  //     {
-  //       label: 'History',
-  //       path: '/incident/completed',
-  //       icon: 'fa fa-chevron-right'
-  //     },
-  //     {
-  //       label: 'Reports',
-  //       path: '/incident/reports',
-  //       icon: 'fa fa-chevron-right'
-  //     }
-  //   ]
-  // },
   {
     label: 'Administration',
     path: '/admin',
@@ -258,24 +182,12 @@ export const sidebarInfo = [
     ]
   },
   {
-    label: 'Pregnancy',
-    path: '/pregnancy',
-    icon: pregnancyIcon,
-    children: [
-      {
-        label: 'Pregnancy',
-        path: '/pregnancy',
-        icon: 'fa fa-chevron-right'
-      },
-    ]
-  },
-  {
     label: 'Programs',
     path: '/programs',
     icon: programsIcon,
     children: [
       {
-        label: 'Programs',
+        label: 'Pregnancy',
         path: '/programs',
         icon: 'fa fa-chevron-right'
       },

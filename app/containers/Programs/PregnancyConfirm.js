@@ -2,14 +2,14 @@ import React, { Component } from 'react';
 
 class PregnancyConfirm extends Component {
   confirmGestational() {
-    this.props.history.push('/pregnancy/questionTable');
+    this.props.history.push('/programs/questionTable');
   }
   back() {
-    this.props.history.push('/pregnancy');
+    this.props.history.push('/programs');
   }
 
   showAntenatal() {
-    this.props.history.push('/pregnancy/questionTable');
+    this.props.history.push('/programs/questionTable');
   }
   render() {
     return (
