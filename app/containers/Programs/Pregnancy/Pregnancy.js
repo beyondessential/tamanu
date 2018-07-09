@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { map, isEmpty } from 'lodash';
 import ReactTable from 'react-table';
 
-import { Colors, pageSizes } from '../../constants';
-import { PregnanciesCollection } from '../../collections';
+import { Colors, pageSizes } from '../../../constants';
+import { PregnanciesCollection } from '../../../collections';
 import DeletePregnancyModal from './components/DeletePregnancyModal';
 
 class Pregnancy extends Component {
@@ -39,8 +39,8 @@ class Pregnancy extends Component {
     this.forceUpdate();
   }
 
-  goEdit = () => {
-    this.props.history.push('/programs/prepregnancies');
+  goView = (patientId) => {
+    this.props.history.push(`/patients/editPatient/${patientId}`);
   }
 
   goAdmit = () => {
@@ -193,11 +193,11 @@ class Pregnancy extends Component {
         alignItems: 'center',
         justifyContent: 'center'
       },
-      minWidth: 250,
+      minWidth: 350,
       Cell: row => {
         return (
           <div key={row._id}>
-            <button className="button column-button" onClick={() => that.goEdit()}>Edit</button>
+            <button className="button column-button" onClick={() => that.goView(row.value._id)}>View Patient</button>
             <button className="button is-primary column-checkin-button" onClick={() => that.goAdmit()}>Admit</button>
             <button className="button is-danger column-button" onClick={() => that.showDeleteModal(row)}>Delete</button>
           </div>

@@ -17,6 +17,11 @@
       font-size: 28px;
       font-weight: 600;
     }
+    .title-text{
+      float: right;
+      margin-top: 20px;
+      font-size: 20px;
+    }
     .view-action-buttons {
       float: right;
       button {
@@ -106,17 +111,31 @@
     padding: 30px;
     margin: 20px 20px;
     background: white;
-    .pregnancy-name{
-      width:350px; /* or whatever width you want. */
-      max-width:350px; /* or whatever width you want. */
-      display: inline-block;
-      .pregnancy-name-title{
-        font-size: 20px;
+    .pregnancy-top{
+      .pregnancy-name{
+        // display: inline-block;
+        .pregnancy-name-title{
+           font-size: 20px;
+        }
+        .pregnancy-name-details{
+          width:150px; /* or whatever width you want. */
+          max-width:150px; /* or whatever width you want. */
+          font-size: 30px;
+          margin-left: 30px;
+          // display: inline-block;
+        }
       }
-      .pregnancy-name-details{
-        font-size: 30px;
-        margin-left: 30px;
-        display: inline-block;
+      .pregnancy-estimate{
+        margin-top: 10px;
+        .pregnancy-estimate-text{
+          width:150px; /* or whatever width you want. */
+          max-width:150px; /* or whatever width you want. */
+          font-size: 20px;
+          margin-right: 30px;
+        }
+        // .estimate-add-button{
+        //   margin-top: 10px;
+        // }
       }
     }
     .pregnancy-button-details{
@@ -242,7 +261,7 @@
       text-align: right;
     }
     .question-finish-button{
-      margin-left: 20px;
+      margin-right: 20px;
       width:100px;
     }
     .next-button{
@@ -294,7 +313,7 @@
       margin-top: 5px;
     }
     .question-finish-button{
-      margin-left: 20px;
+      margin-right: 20px;
     }
     .checkbox input[type="checkbox"] {
     /* position: relative; */
@@ -364,7 +383,7 @@
       margin-top: 5px;
     }
     .question-finish-button{
-      margin-left: 20px;
+      margin-right: 20px;
       width: 100px;
     }
     .question-back-button{

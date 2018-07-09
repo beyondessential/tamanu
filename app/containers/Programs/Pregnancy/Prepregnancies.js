@@ -22,13 +22,15 @@ class Prepregnancies extends Component {
           </span>
         </div>
         <div className="details">
-          <div className="pregnancy-name">
-            <span className="pregnancy-name-title">
-              Name
-            </span>
-            <span className="pregnancy-name-details">
-              Jo Citizon
-            </span>
+          <div className="pregnancy-top">
+            <div className="pregnancy-name">
+              <span className="pregnancy-name-title">
+                Name
+              </span>
+              <span className="pregnancy-name-details">
+                Jo Citizen
+              </span>
+            </div>
           </div>
           <div className="prepregnancies-table">
             <table className="table is-striped maternal__table is-fullwidth">
@@ -46,7 +48,7 @@ class Prepregnancies extends Component {
                   <td>1/1/17-30/9/17</td>
                   <td>Live Birth</td>
                   <td>
-                    <button className="button is-success prepregnancies-button " onClick={this.showPregnancy.bind(this)}>View Child</button>
+                    <button className="button is-info prepregnancies-button " onClick={this.showPregnancy.bind(this)}>View Child</button>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <button className="button is-warning prepregnancies-button " onClick={this.showPregnancy.bind(this)}>Edit Pregnancy</button>
                   </td>

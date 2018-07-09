@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactTable from 'react-table';
-import { Colors } from '../../constants';
+import { Colors } from '../../../constants';
 
 class QuestionTable extends Component {
   showQuestionsFirst = () => {
@@ -157,6 +157,9 @@ class QuestionTable extends Component {
           <span>
             Pregnancy
           </span>
+          <div className="title-text">
+            Antenatal Visit
+          </div>
         </div>
         <div className="question-table-details">
           <div className="columns title">
@@ -165,10 +168,10 @@ class QuestionTable extends Component {
                 Name
               </span>
               <span className="question-name-details">
-                Jo Citizon
+                Jo Citizen
               </span>
             </div>
-            <button className="button is-primary pregnancies-antenatal-button" onClick={this.showQuestionsFirst}>Antenatal Visit</button>
+            {/* <button className="button is-primary pregnancies-antenatal-button" onClick={this.showQuestionsFirst}>Antenatal Visit</button> */}
           </div>
           <ReactTable
             manual

@@ -16,6 +16,7 @@ import Visits from './Visits';
 import Medication from './Medication';
 import Imaging from './Imaging';
 import Labs from './Labs';
+import Programs from './Programs';
 
 // import Serializer from '../../../utils/form-serialize';
 import { PatientModel, AllergyModel } from '../../../models';
@@ -64,7 +65,7 @@ class EditPatient extends Component {
           this.props.history.push('/patients');
         },
         // error: (model, response) => {
-        error: () => {}
+        error: () => { }
       });
     }
   }
@@ -134,6 +135,7 @@ class EditPatient extends Component {
                             <li className={classNames(selectedTab === 'medication' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('medication')}>Medication</a></li>
                             <li className={classNames(selectedTab === 'imaging' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('imaging')}>Imaging</a></li>
                             <li className={classNames(selectedTab === 'labs' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('labs')}>Labs</a></li>
+                            <li className={classNames(selectedTab === 'programs' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('programs')}>Programs</a></li>
                           </ul>
                         </div>
                         <div className="tab-content">
@@ -173,6 +175,11 @@ class EditPatient extends Component {
                           {selectedTab === 'labs' &&
                             <div className="column">
                               <Labs />
+                            </div>
+                          }
+                          {selectedTab === 'programs' &&
+                            <div className="column">
+                              <Programs />
                             </div>
                           }
                         </div>

@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
 class QuestionsThird extends Component {
-  back() {
-    this.props.history.push('/programs/questionsSecond');
+  confirm() {
+    this.props.history.push('/programs');
   }
   showOutcomes() {
     this.props.history.push('/programs/questionsThird');
@@ -17,6 +18,9 @@ class QuestionsThird extends Component {
           <span>
             Pregnancy
           </span>
+          <div className="title-text">
+            Gestational diabetes data
+          </div>
         </div>
         <div className="questionsThird-details">
           <div className="columns title">
@@ -25,10 +29,9 @@ class QuestionsThird extends Component {
                 Name
               </span>
               <span className="name-details">
-                Jo Citizon
+                Jo Citizen
               </span>
             </div>
-            <button className="button is-primary gestational-diabetes-button" onClick={this.showOutcomes.bind(this)}>Pregnancy outcomes</button>
           </div>
           <div className="questions-sixteen">
             <div className="question-title">
@@ -191,8 +194,8 @@ class QuestionsThird extends Component {
             </div>
           </div>
           <div className="bottom-buttons">
-            <button className="button is-primary question-back-button" onClick={this.back.bind(this)}>Back</button>
-            <button className="button is-danger question-finish-button" onClick={this.finish.bind(this)}>Finish</button>
+            <button className="button is-danger question-finish-button" onClick={this.finish.bind(this)}>Cancel</button>
+            <button className="button is-primary question-back-button" onClick={this.confirm.bind(this)}>Confirm</button>
           </div>
         </div>
       </div>

@@ -18,6 +18,11 @@ class PregnancyConfirm extends Component {
           <span>
             Pregnancy
           </span>
+          {/* <div className="view-action-buttons">
+            <Link to="/patients/edit/new">
+              Antenatal Visit
+            </Link>
+          </div> */}
         </div>
         <div className="confirm-details">
           <div className="columns title">
@@ -26,10 +31,10 @@ class PregnancyConfirm extends Component {
                 Name
               </span>
               <span className="confirm-name-details">
-                Jo Citizon
+                Jo Citizen
               </span>
             </div>
-            <button className="button is-primary pregnancies-antenatal-button" onClick={this.showAntenatal.bind(this)}>Antenatal Visit</button>
+            {/* <button className="button is-primary pregnancies-antenatal-button" onClick={this.showAntenatal.bind(this)}>Antenatal Visit</button> */}
           </div>
           <div className="text-details">
             <span>Please Confirm you are making a diagnosis of Gestational Diabetes in this patient:</span>

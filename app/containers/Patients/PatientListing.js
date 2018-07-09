@@ -199,11 +199,11 @@ class PatientListing extends Component {
         alignItems: 'center',
         justifyContent: 'center'
       },
-      minWidth: 250,
+      minWidth: 350,
       Cell: row => {
         return (
           <div key={row._id}>
-            <button className="button column-button" onClick={() => that.goEdit(row.value._id)}>Edit</button>
+            <button className="button column-button" onClick={() => that.goEdit(row.value._id)}>View Patient</button>
             <button className="button is-primary column-checkin-button" onClick={() => that.goAdmit(row.value._id, row.value.admitted)}>{row.value.admitted ? 'Discharge' : 'Admit'}</button>
             <button className="button is-danger column-button" onClick={() => that.showDeleteModal(row)}>Delete</button>
           </div>

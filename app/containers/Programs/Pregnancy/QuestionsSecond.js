@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
 class QuestionsSecond extends Component {
   showNext() {
@@ -17,6 +18,9 @@ class QuestionsSecond extends Component {
           <span>
             Pregnancy
           </span>
+          <div className="title-text">
+            Gestational diabetes data
+          </div>
         </div>
         <div className="questionsSencond-details">
           <div className="columns title">
@@ -25,10 +29,10 @@ class QuestionsSecond extends Component {
                 Name
               </span>
               <span className="name-details">
-                Jo Citizon
+                Jo Citizen
               </span>
             </div>
-            <button className="button is-primary gestational-diabetes-button" onClick={this.showOutcomes.bind(this)}>Pregnancy outcomes</button>
+            {/* <button className="button is-primary gestational-diabetes-button" onClick={this.showOutcomes.bind(this)}>Pregnancy outcomes</button> */}
           </div>
 
           <div className="columns questions-seven-ele">
@@ -279,8 +283,8 @@ class QuestionsSecond extends Component {
             </div>
           </div>
           <div className="bottom-buttons">
-            <button className="button is-primary next-button" onClick={this.showNext.bind(this)}>Next</button>
-            <button className="button is-danger question-finish-button" onClick={this.finish.bind(this)}>Finish</button>
+            <button className="button is-danger question-finish-button" onClick={this.finish.bind(this)}>Cancel</button>
+            <button className="button is-primary next-button" onClick={this.showNext.bind(this)}>Confirm</button>
           </div>
         </div>
       </div>

@@ -2,14 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Route, Switch } from 'react-router-dom';
 
-import Pregnancy from './Pregnancy';
-import Prepregnancies from './Prepregnancies';
-import EditVisit from './EditVisit';
-import PregnancyConfirm from './PregnancyConfirm';
-import QuestionTable from './QuestionTable';
-import QuestionsFirst from './QuestionsFirst';
-import QuestionsSecond from './QuestionsSecond';
-import QuestionsThird from './QuestionsThird';
+import Pregnancy from './Pregnancy/Pregnancy';
+import Prepregnancies from './Pregnancy/Prepregnancies';
+import EditVisit from './Pregnancy/EditVisit';
+import PregnancyConfirm from './Pregnancy/PregnancyConfirm';
+import QuestionTable from './Pregnancy/QuestionTable';
+import QuestionsFirst from './Pregnancy/QuestionsFirst';
+import QuestionsSecond from './Pregnancy/QuestionsSecond';
+import QuestionsThird from './Pregnancy/QuestionsThird';
 
 export default function Routes({ url }) {
   return (
