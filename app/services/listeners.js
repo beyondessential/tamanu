@@ -94,11 +94,10 @@ internals.mergeConflicts = (change) => {
   }
 };
 
-
 internals._resolveConflicts = (conflictId, conflicts, currentDoc, callback) => {
-  const { maindb } = dbService.getDBs();
+  const { mainDB } = dbService.getDBs();
 
-  maindb.get(conflictId, { open_revs: JSON.stringify(conflicts, null, 2) }, (err, body) => {
+  mainDB.get(conflictId, { open_revs: JSON.stringify(conflicts, null, 2) }, (err, body) => {
     let compareObj;
     let currentModifiedDate;
     let i;
@@ -149,12 +148,12 @@ internals._resolveConflicts = (conflictId, conflicts, currentDoc, callback) => {
             conflicts: conflictDocs
           }
         };
-        maindb.insert(resolvedConflict, (err) => {
+        mainDB.insert(resolvedConflict, (err) => {
           if (err) {
             callback(`Error saving resolved conflicts: ${JSON.stringify(err)}`);
           } else {
             delete currentDoc._conflicts;
-            maindb.insert(currentDoc, currentDoc._id, (err, response) => {
+            mainDB.insert(currentDoc, currentDoc._id, (err, response) => {
               if (!err && response.ok) {
                 internals._cleanupConflicts(currentDoc, conflicts, callback);
               } else {
@@ -174,7 +173,7 @@ internals._resolveConflicts = (conflictId, conflicts, currentDoc, callback) => {
 };
 
 internals._cleanupConflicts = (currentDoc, conflicts, callback) => {
-  const { maindb } = dbService.getDBs();
+  const { mainDB } = dbService.getDBs();
   const recordsToDelete = [];
   for (let i = 0; i < conflicts.length; i++) {
     const recordToDelete = {
@@ -185,7 +184,7 @@ internals._cleanupConflicts = (currentDoc, conflicts, callback) => {
     recordsToDelete.push(recordToDelete);
   }
   if (recordsToDelete.length > 0) {
-    maindb.bulk({ docs: recordsToDelete }, (err, response) => {
+    mainDB.bulk({ docs: recordsToDelete }, (err, response) => {
       if (err) {
         callback(`Error deleting conflicting revs: ${JSON.stringify(err, null, 2)}`);
       } else {
