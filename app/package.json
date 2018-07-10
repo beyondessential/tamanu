@@ -21,7 +21,6 @@
   "dependencies": {
     "pouchdb": "^6.4.3",
     "pouchdb-browser": "^6.4.3",
-    "pouchdb-find": "^6.4.3",
-    "firebase": "^5.1.0"
+    "pouchdb-find": "^6.4.3"
   }
 }

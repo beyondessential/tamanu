@@ -13,7 +13,6 @@ import {
 import createViews from '../utils/create-views';
 import createIndex from '../utils/create-index';
 import backboneSync from '../utils/backbone-sync';
-import firebase from '../services/firebase';
 import configService from './config';
 
 // Attach pocuhdb find plugin
@@ -27,7 +26,6 @@ class Database {
     this.dbUser = process.env.COUCHDB_USER;
     this.dbPassword = process.env.COUCHDB_PASS;
     this.apiHost = process.env.API_HOST;
-    this.messaging = firebase.messaging();
     this.serverUrl = 'http://localhost:3000/main123';
     this.localUrl = `http://${this.dbUser}:${this.dbPassword}@${this.dbHost}:${this.dbPort}`;
     // this.replication = new Replication();
