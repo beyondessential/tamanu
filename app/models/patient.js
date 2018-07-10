@@ -55,6 +55,7 @@ export default BaseModel.extend({
       diagnoses: [],
       operationReports: [],
       operativePlans: [],
+      pregnancies: [],
     },
     BaseModel.prototype.defaults
   ),
@@ -87,6 +88,13 @@ export default BaseModel.extend({
       key: 'operativePlans',
       relatedModel: () => require('./operativePlan'),
       map: (values) => mapRelations(values, require('./operativePlan')),
+      serialize: '_id'
+    },
+    {
+      type: Backbone.Many,
+      key: 'pregnancies',
+      relatedModel: () => require('./pregnancy'),
+      map: (values) => mapRelations(values, require('./pregnancy')),
       serialize: '_id'
     }
   ],

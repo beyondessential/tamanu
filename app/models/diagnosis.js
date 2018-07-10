@@ -15,7 +15,7 @@ export default BaseModel.extend({
     BaseModel.prototype.defaults,
   ),
 
-  cloneAttrbutes() {
+  cloneAttributes() {
     const attributes = clone(this.attributes);
     delete attributes._id;
     delete attributes._rev;

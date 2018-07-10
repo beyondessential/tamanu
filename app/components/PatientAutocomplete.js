@@ -1,0 +1,90 @@
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import Autocomplete from 'react-autocomplete';
+import { map } from 'lodash';
+import { PatientsCollection } from '../collections';
+
+class PatientAutocomplete extends Component {
+  static propTypes = {
+    label: PropTypes.string.isRequired,
+    required: PropTypes.bool,
+    name: PropTypes.string.isRequired,
+    className: PropTypes.string,
+  }
+
+  static defaultProps = {
+    required: false,
+    className: ''
+  }
+
+  constructor(props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  state = {
+    patients: []
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.setState({ value: (newProps.value ? newProps.value : '') });
+  }
+
+  handleChange(event, value) {
+    this.props.collection.lookUp({
+      selector: { displayId: { $regex: `(?i)${value}` } },
+      fields: ['_id', 'displayId', 'firstName', 'lastName'],
+      success: () => {
+        let { models: patients } = this.props.collection;
+        if (patients.length > 0) patients = map(patients, patient => patient.attributes);
+        this.setState({ patients, patientRef: value });
+      }
+    });
+  }
+
+  render() {
+    const {
+      label,
+      required,
+      name,
+      className
+    } = this.props;
+
+    return (
+      <div className={`column ${className}`}>
+        <span className="input-group-title">
+          {label} {required && <span className="isRequired">*</span>}
+        </span>
+        <Autocomplete
+          inputProps={{ name: 'patient' }}
+          getItemValue={(item) => `${item.displayId} - ${item.firstName} ${item.lastName}`}
+          wrapperProps={{ className: 'autocomplete-wrapper' }}
+          items={this.state.patients}
+          value={this.state.patientRef}
+          onSelect={(value, item) => {
+            this.setState({ patientRef: value });
+            if (this.props.onChange) this.props.onChange(item._id, name);
+          }}
+          onChange={this.handleChange}
+          renderItem={(item, isHighlighted) =>
+            <div key={item._id} style={{ background: isHighlighted ? 'lightgray' : 'white' }}> {`${item.displayId} - ${item.firstName} ${item.lastName}`} </div>
+          }
+          renderMenu={(items, value, style) => <div className="autocomplete-dropmenu" style={{ ...style, ...this.menuStyle }}>{items}</div>}
+        />
+      </div>
+    );
+  }
+}
+
+const mapDispatchToProps = () => ({
+  collection: new PatientsCollection(),
+});
+
+function mapStateToProps(state) {
+  return {
+    currentPath: state.router.location.pathname,
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(PatientAutocomplete);

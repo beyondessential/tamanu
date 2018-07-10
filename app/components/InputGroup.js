@@ -7,10 +7,14 @@ class InputGroup extends Component {
     label: PropTypes.string.isRequired,
     required: PropTypes.bool,
     name: PropTypes.string.isRequired,
+    className: PropTypes.string,
+    inputClass: PropTypes.string,
   }
 
   static defaultProps = {
-    required: false
+    required: false,
+    className: '',
+    inputClass: '',
   }
 
   constructor(props) {
@@ -33,13 +37,15 @@ class InputGroup extends Component {
       required,
       name,
       tabIndex,
+      className,
+      inputClass
     } = this.props;
     return (
-      <div className="column">
+      <div className={`column ${className}`}>
         <span className="input-group-title">
           {label} {required && <span className="isRequired">*</span>}
         </span>
-        <input className="input is-primary" type="text" name={name} tabIndex={tabIndex} value={this.state.value} onChange={this.handleChange.bind(this)} required={required} />
+        <input className={`input is-primary ${inputClass}`} type="text" name={name} tabIndex={tabIndex} value={this.state.value} onChange={this.handleChange.bind(this)} required={required} />
       </div>
     );
   }

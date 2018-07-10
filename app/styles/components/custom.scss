@@ -97,26 +97,30 @@ a:hover {
   }
 }
 
-.autocomplete-wrapper{
+.autocomplete-wrapper {
   display: block !important;
 
   input {
     @extend .input;
     @extend .is-primary;
-    width: 500px;
+    // width: 500px;
+  }
+
+  .autocomplete-dropmenu {
+    width: 100%;
   }
 }
 
-.no-margin{
+.no-margin {
   margin: 0 !important;
 }
 
-.no-padding{
+.no-padding {
   padding: 0 !important;
 }
 
-.diagnosis-modal{
-  .modal-content{
+.diagnosis-modal {
+  .modal-content {
     position: relative;
     overflow: inherit !important;
   }

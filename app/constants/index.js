@@ -302,6 +302,13 @@ export const lookupOptions = [
   { value: 'female', label: 'Female' },
 ];
 
+export const pregnancyOutcomes = [
+  { value: '', label: 'N/A' },
+  { value: 'liveBirth', label: 'Live Birth' },
+  { value: 'stillBirth', label: 'Still Birth' },
+  { value: 'fetalDeath', label: 'Fetal Death' },
+];
+
 export const patientColumns = [{
   dataField: 'displayId',
   text: 'Id',
@@ -366,8 +373,8 @@ export const patientColumns = [{
 }];
 
 export const pregnancyColumns = [{
-  dataField: 'displayId',
-  text: 'Id',
+  dataField: 'label',
+  text: 'Pregnancies',
   sort: true,
   headerSortingStyle,
   headerStyle: {
@@ -375,8 +382,8 @@ export const pregnancyColumns = [{
     width: '10%'
   },
 }, {
-  dataField: 'firstName',
-  text: 'First Name',
+  dataField: 'conceptionDate',
+  text: 'Conception Date',
   sort: true,
   headerSortingStyle,
   headerStyle: {
@@ -384,40 +391,13 @@ export const pregnancyColumns = [{
     width: '12%'
   }
 }, {
-  dataField: 'lastName',
-  text: 'Last Name',
+  dataField: 'outcome',
+  text: 'Outcome',
   sort: true,
   headerSortingStyle,
   headerStyle: {
     backgroundColor: Colors.searchTintColor,
     width: '12%'
-  }
-}, {
-  dataField: 'sex',
-  text: 'Sex',
-  sort: true,
-  headerSortingStyle,
-  headerStyle: {
-    backgroundColor: Colors.searchTintColor,
-    width: '10%'
-  }
-}, {
-  dataField: 'birthday',
-  text: 'DOB',
-  sort: true,
-  headerSortingStyle,
-  headerStyle: {
-    backgroundColor: Colors.searchTintColor,
-    width: '15%'
-  }
-}, {
-  dataField: 'patientStatus',
-  text: 'Status',
-  sort: true,
-  headerSortingStyle,
-  headerStyle: {
-    backgroundColor: Colors.searchTintColor,
-    width: '10%'
   }
 }, {
   dataField: 'action',

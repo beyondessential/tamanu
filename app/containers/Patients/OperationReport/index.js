@@ -132,7 +132,7 @@ class OperationReport extends Component {
         if (preOpDiagnoses.length > 0) {
           const tasks = [];
           each(preOpDiagnoses.models, (diagnosis) => {
-            const attributes = diagnosis.cloneAttrbutes();
+            const attributes = diagnosis.cloneAttributes();
 
             const _model = new DiagnosisModel();
             _model.set(attributes);

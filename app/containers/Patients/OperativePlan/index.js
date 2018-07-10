@@ -140,7 +140,7 @@ class OperativePlan extends Component {
         if (diagnoses.length > 0) {
           const tasks = [];
           each(diagnoses.models, (diagnosis) => {
-            const attributes = diagnosis.cloneAttrbutes();
+            const attributes = diagnosis.cloneAttributes();
 
             const _model = new DiagnosisModel();
             _model.set(attributes);
