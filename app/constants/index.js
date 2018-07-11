@@ -373,39 +373,69 @@ export const patientColumns = [{
 }];
 
 export const pregnancyColumns = [{
-  dataField: 'label',
-  text: 'Pregnancies',
-  sort: true,
-  headerSortingStyle,
+  accessor: 'label',
+  Header: 'Pregnancies',
   headerStyle: {
     backgroundColor: Colors.searchTintColor,
-    width: '10%'
   },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 100
 }, {
-  dataField: 'conceptionDate',
-  text: 'Conception Date',
-  sort: true,
-  headerSortingStyle,
+  accessor: 'conceiveDate',
+  Header: 'Conception Date',
   headerStyle: {
     backgroundColor: Colors.searchTintColor,
-    width: '12%'
-  }
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 100
 }, {
-  dataField: 'outcome',
-  text: 'Outcome',
-  sort: true,
-  headerSortingStyle,
+  accessor: 'outcomeLabel',
+  Header: 'Outcome',
   headerStyle: {
     backgroundColor: Colors.searchTintColor,
-    width: '12%'
-  }
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 100
 }, {
-  dataField: 'action',
-  text: 'Actions',
+  accessor: row => {
+    return { _id: row._id, admitted: row.admitted };
+  },
+  id: 'actions',
+  Header: 'Actions',
   headerStyle: {
     backgroundColor: Colors.searchTintColor
   },
-  formatter: actionButtonFormatter
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  minWidth: 350,
+  Cell: null
 }];
 
 function actionButtonFormatter(cell, row, rowIndex, formatExtraData) {

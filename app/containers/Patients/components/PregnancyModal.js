@@ -16,7 +16,7 @@ class PregnancyModal extends Component {
     this.state = {
       formValid: false,
       isVisible: false,
-      form: {}
+      form: this.props.form
     };
 
     this.submitForm = this.submitForm.bind(this);
@@ -29,8 +29,9 @@ class PregnancyModal extends Component {
   componentWillReceiveProps(nextProps) {
     const { isVisible, action, item } = nextProps;
     if (action === 'edit') {
-      const form = pick(item, ['diagnosis', 'date', 'active', 'secondaryDiagnosis']);
-      form.date = moment(form.date);
+      const form = pick(item, ['conceiveDate', 'deliveryDate', 'outcome', 'child', 'father', 'gestationalAge']);
+      if (form.conceiveDate !== '') form.conceiveDate = moment(form.conceiveDate);
+      if (form.deliveryDate !== '') form.deliveryDate = moment(form.deliveryDate);
       this.setState({ isVisible, form }, () => this.validateField('diagnosis'));
     } else {
       this.setState({ isVisible }, () => this.resetForm());
@@ -38,17 +39,7 @@ class PregnancyModal extends Component {
   }
 
   resetForm() {
-    const form = {
-      conceiveDate: moment(),
-      deliveryDate: moment(),
-      // deliveryDate: '',
-      outcome: '',
-      child: '',
-      father: '',
-      gestationalAge: '',
-    };
-
-    this.setState({ form });
+    this.setState({ form: this.props.form });
   }
 
   handleUserInput = (e, name) => {
@@ -202,7 +193,7 @@ class PregnancyModal extends Component {
             <div className="modal-footer">
               <div className="column has-text-right">
                 <button className="button is-default" type="button" onClick={onClose}>Cancel</button>
-                <button className={action !== 'new' ? 'button is-danger' : 'button is-danger is-hidden'} type="button" onClick={this.deleteItem}>Delete</button>
+                {/* <button className={action !== 'new' ? 'button is-danger' : 'button is-danger is-hidden'} type="button" onClick={this.deleteItem}>Delete</button> */}
                 <button className="button is-primary" type="submit" disabled={!this.state.formValid}>{action === 'new' ? 'Add' : 'Update'}</button>
               </div>
             </div>
@@ -212,5 +203,17 @@ class PregnancyModal extends Component {
     );
   }
 }
+
+PregnancyModal.defaultProps = {
+  form: {
+    conceiveDate: moment(),
+    deliveryDate: moment(),
+    // deliveryDate: '',
+    outcome: '',
+    child: '',
+    father: '',
+    gestationalAge: '',
+  }
+};
 
 export default PregnancyModal;

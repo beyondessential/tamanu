@@ -1,25 +1,70 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import { map, isEmpty } from 'lodash';
+import moment from 'moment';
 import ReactTable from 'react-table';
-import { pregnancyColumns, pageSizes } from '../../../constants';
+import { pregnancyColumns, dateFormat } from '../../../constants';
 import PregnancyModal from '../components/PregnancyModal';
-
-const pregnancies = [];
+import PregnanciesCollection from '../../../collections/pregnancies';
 
 class Pregnancy extends Component {
+  constructor(props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
   state = {
+    pregnancies: new PregnanciesCollection(),
     modalVisible: false,
     action: 'new',
     item: null
   }
 
+  componentDidMount() {
+    const { model } = this.props;
+    const pregnancies = model.get('pregnancies');
+    this.setState({ pregnancies });
+  }
+
+  handleChange() {
+    this.forceUpdate();
+  }
+
   onCloseModal = () => {
     this.setState({ modalVisible: false });
   }
+
+  setActionsCol = (row) => {
+    return (
+      <div key={row._id}>
+        <button className="button is-primary m-r-5 is-outlined" onClick={() => this.setState({ modalVisible: true, action: 'edit', item: row.original })}>Edit Pregnancy</button>
+      </div>
+    );
+  }
+
   render() {
     const { patient, model } = this.props;
-    const { modalVisible, action, item } = this.state;
+    const {
+      modalVisible,
+      action,
+      item,
+      pregnancies
+    } = this.state;
+
+    // Set actions col for our table
+    const lastCol = pregnancyColumns[pregnancyColumns.length - 1];
+    lastCol.Cell = this.setActionsCol;
+
+    // Get items to display
+    let items = pregnancies.toArray();
+    items = items.map((p, k) => {
+      const _item = p.toJSON();
+      _item.label = `Pregnancy ${k + 1}`;
+      _item.conceiveDate = moment(_item.conceiveDate).format(dateFormat);
+      _item.outcomeLabel = _item.outcome; // TODO use label;
+      if (_item.outcomeLabel === '') _item.outcomeLabel = 'N/A';
+      return _item;
+    });
+
     return (
       <div>
         <div className="column p-t-0 p-b-0">
@@ -38,16 +83,13 @@ class Pregnancy extends Component {
             :
             <div>
               <ReactTable
-                manual
                 keyField="_id"
-                data={pregnancies}
-                pages={this.props.collection.totalPages}
-                defaultPageSize={pageSizes.pregnancies}
-                loading={this.state.loading}
+                data={items}
+                defaultPageSize={pregnancies.length}
                 columns={pregnancyColumns}
                 className="-striped"
                 defaultSortDirection="asc"
-                onFetchData={this.onFetchData}
+                showPagination={false}
               />
             </div>
           }
