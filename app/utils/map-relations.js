@@ -1,4 +1,4 @@
-import { isEmpty, uniq, filter, isArray, every, has } from 'lodash';
+import { isEmpty, uniq, filter, isArray, every, has, isString } from 'lodash';
 
 export default (objs, Model) => {
   if (isEmpty(objs)) return objs;
@@ -21,8 +21,14 @@ export default (objs, Model) => {
     return _return;
   }
 
-  return objs;
+  if (isString(objs)) {
+    const _model = new Model();
+    _model.set({ _id: objs });
+    _model.fetch();
+    return _model;
+  }
 
+  return objs;
   // const _model = new Model();
   // _model.set({ _id: objs._id });
   // // _model.fetch();

@@ -2,6 +2,7 @@ import shortid from 'shortid';
 import Backbone from 'backbone-associations';
 import { defaults, clone } from 'lodash';
 import BaseModel from './base';
+import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
   defaults: () => defaults(
@@ -23,12 +24,14 @@ export default BaseModel.extend({
       type: Backbone.One,
       key: 'child',
       relatedModel: require('./patient'),
+      map: (values) => mapRelations(values, require('./patient')),
       serialize: '_id'
     },
     {
       type: Backbone.One,
       key: 'father',
       relatedModel: require('./patient'),
+      map: (values) => mapRelations(values, require('./patient')),
       serialize: '_id'
     }
   ],

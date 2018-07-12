@@ -38,7 +38,7 @@ export default Backbone.AssociatedModel.extend({
         // Fetch all the relations
         if (!isEmpty(relations)) {
           try {
-            const tasks = relations.map((relation) => this.fetchRelations({ relation, attributes, reject }));
+            const tasks = relations.map((relation) => this.fetchRelations({ relation, attributes }));
             await Promise.all(tasks);
             resolve(attributes);
           } catch (err) {
@@ -52,10 +52,17 @@ export default Backbone.AssociatedModel.extend({
 
     if (!isEmpty(relations)) {
       relations.forEach((relation) => {
-        if (relation.type === 'Many') {
-          const relationCol = this.get(relation.key);
-          const ids = relationCol.models.map((m) => m.id);
-          attributes[relation.key] = ids;
+        const relationCol = this.get(relation.key);
+        if (typeof relationCol !== 'undefined') {
+          if (relation.type === 'Many') {
+            const ids = relationCol.models.map((m) => m.id);
+            attributes[relation.key] = ids;
+          } else if (relation.type === 'One') {
+            const { id } = relationCol;
+            attributes[relation.key] = id;
+          } else {
+            throw new Error('Invalid relation type!');
+          }
         }
       });
     }
@@ -63,30 +70,32 @@ export default Backbone.AssociatedModel.extend({
     return attributes;
   },
 
-  async fetchRelations(options) {
-    const { relation, attributes, reject } = options;
-    const Model = relation.relatedModel();
-    attributes[relation.key] = [];
+  fetchRelations(options) {
+    return new Promise(async (resolve, reject) => {
+      const { relation, attributes } = options;
+      const Model = relation.relatedModel();
+      attributes[relation.key] = [];
 
-    // Fetch the models
-    const models = this.get(relation.key);
-    if (models.length > 0) {
-      const tasks = [];
+      // Fetch the models
+      const models = this.get(relation.key);
+      if (models.length > 0) {
+        const tasks = [];
 
-      models.forEach((_model) => {
-        const _m = new Model();
-        _m.set({ _id: _model.id });
-        tasks.push(_m.fetch());
-      });
+        models.forEach((_model) => {
+          const _m = new Model();
+          _m.set({ _id: _model.id });
+          tasks.push(_m.fetch());
+        });
 
-      try {
-        const values = await Promise.all(tasks);
-        attributes[relation.key] = map(values, (value) => value.toJSON());
-      } catch (err) {
-        reject(err);
+        try {
+          const values = await Promise.all(tasks);
+          attributes[relation.key] = map(values, (value) => value.toJSON());
+        } catch (err) {
+          reject(err);
+        }
       }
-    }
 
-    return attributes;
+      resolve(attributes);
+    });
   }
 });

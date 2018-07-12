@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import moment from 'moment';
+import { Link } from 'react-router-dom';
 
-import Serializer from '../../../utils/form-serialize';
 import Allergy from './Allergy';
 import Dignosis from './Dignosis';
 import Procedure from './Procedure';
@@ -116,87 +115,77 @@ class EditPatient extends Component {
                       <Allergy patient={patient} model={this.props.model} />
                     </div>
                   </div>
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      const data = Serializer.serialize(e.target, { hash: true });
-                      console.log('updateData', data);
-                      this.updatePatient(data);
-                    }}
-                  >
-                    <div className="columns">
-                      <div className="column">
-                        <div className="tabs">
-                          <ul>
-                            <li className={classNames(selectedTab === '' || selectedTab === 'history' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('history')}>History</a></li>
-                            <li className={classNames(selectedTab === 'general' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('general')}>General</a></li>
-                            <li className={classNames(selectedTab === 'photos' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('photos')}>Photos</a></li>
-                            <li className={classNames(selectedTab === 'appointment' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('appointment')}>Appointments</a></li>
-                            <li className={classNames(selectedTab === 'visit' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('visit')}>Visits</a></li>
-                            <li className={classNames(selectedTab === 'medication' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('medication')}>Medication</a></li>
-                            <li className={classNames(selectedTab === 'imaging' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('imaging')}>Imaging</a></li>
-                            <li className={classNames(selectedTab === 'labs' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('labs')}>Labs</a></li>
-                            <li className={classNames(selectedTab === 'pregnancy' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('pregnancy')}>Pregnancy</a></li>
-                            <li className={classNames(selectedTab === 'programs' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('programs')}>Programs</a></li>
-                          </ul>
-                        </div>
-                        <div className="tab-content">
-                          {(selectedTab === '' || selectedTab === 'history') &&
-                            <div className="column">
-                              <History history={history} />
-                            </div>
-                          }
-                          {selectedTab === 'general' &&
-                            <General patient={patient} />
-                          }
-                          {selectedTab === 'photos' &&
-                            <div className="column">
-                              <Photos />
-                            </div>
-                          }
-                          {selectedTab === 'appointment' &&
-                            <div className="column">
-                              <Appointments />
-                            </div>
-                          }
-                          {selectedTab === 'visit' &&
-                            <div className="column">
-                              <Visits />
-                            </div>
-                          }
-                          {selectedTab === 'medication' &&
-                            <div className="column">
-                              <Medication />
-                            </div>
-                          }
-                          {selectedTab === 'imaging' &&
-                            <div className="column">
-                              <Imaging />
-                            </div>
-                          }
-                          {selectedTab === 'labs' &&
-                            <div className="column">
-                              <Labs />
-                            </div>
-                          }
-                          {selectedTab === 'programs' &&
-                            <div className="column">
-                              <Programs />
-                            </div>
-                          }
-                          {selectedTab === 'pregnancy' &&
-                            <div className="column">
-                              <Pregnancy patient={patient} model={this.props.model} />
-                            </div>
-                          }
-                        </div>
+                  <div className="columns">
+                    <div className="column">
+                      <div className="tabs">
+                        <ul>
+                          <li className={classNames(selectedTab === '' || selectedTab === 'history' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('history')}>History</a></li>
+                          <li className={classNames(selectedTab === 'general' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('general')}>General</a></li>
+                          <li className={classNames(selectedTab === 'photos' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('photos')}>Photos</a></li>
+                          <li className={classNames(selectedTab === 'appointment' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('appointment')}>Appointments</a></li>
+                          <li className={classNames(selectedTab === 'visit' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('visit')}>Visits</a></li>
+                          <li className={classNames(selectedTab === 'medication' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('medication')}>Medication</a></li>
+                          <li className={classNames(selectedTab === 'imaging' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('imaging')}>Imaging</a></li>
+                          <li className={classNames(selectedTab === 'labs' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('labs')}>Labs</a></li>
+                          <li className={classNames(selectedTab === 'pregnancy' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('pregnancy')}>Pregnancy</a></li>
+                          <li className={classNames(selectedTab === 'programs' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('programs')}>Programs</a></li>
+                        </ul>
+                      </div>
+                      <div className="tab-content">
+                        {(selectedTab === '' || selectedTab === 'history') &&
+                          <div className="column">
+                            <History history={history} />
+                          </div>
+                        }
+                        {selectedTab === 'general' &&
+                          <General patient={patient} />
+                        }
+                        {selectedTab === 'photos' &&
+                          <div className="column">
+                            <Photos />
+                          </div>
+                        }
+                        {selectedTab === 'appointment' &&
+                          <div className="column">
+                            <Appointments />
+                          </div>
+                        }
+                        {selectedTab === 'visit' &&
+                          <div className="column">
+                            <Visits />
+                          </div>
+                        }
+                        {selectedTab === 'medication' &&
+                          <div className="column">
+                            <Medication />
+                          </div>
+                        }
+                        {selectedTab === 'imaging' &&
+                          <div className="column">
+                            <Imaging />
+                          </div>
+                        }
+                        {selectedTab === 'labs' &&
+                          <div className="column">
+                            <Labs />
+                          </div>
+                        }
+                        {selectedTab === 'programs' &&
+                          <div className="column">
+                            <Programs />
+                          </div>
+                        }
+                        {selectedTab === 'pregnancy' &&
+                          <div className="column">
+                            <Pregnancy patient={patient} model={this.props.model} history={this.props.history} />
+                          </div>
+                        }
                       </div>
                     </div>
-                    <div className="column has-text-right">
-                      <Link className="button is-danger cancel" to="/patients">Return</Link>
-                      <button className="button is-primary" type="submit">Update</button>
-                    </div>
-                  </form>
+                  </div>
+                  <div className={`column has-text-right ${selectedTab === 'general' ? 'is-hidden' : ''}`}>
+                    <Link className="button is-danger cancel" to="/patients">Return</Link>
+                  </div>
                 </div>
               </div>
             </div>

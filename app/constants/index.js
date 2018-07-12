@@ -403,6 +403,21 @@ export const pregnancyColumns = [{
   },
   minWidth: 100
 }, {
+  accessor: 'deliveryDate',
+  Header: 'Delivery Date',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 100
+}, {
   accessor: 'outcomeLabel',
   Header: 'Outcome',
   headerStyle: {

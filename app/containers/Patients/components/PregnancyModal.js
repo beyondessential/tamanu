@@ -32,7 +32,10 @@ class PregnancyModal extends Component {
       const form = pick(item, ['conceiveDate', 'deliveryDate', 'outcome', 'child', 'father', 'gestationalAge']);
       if (form.conceiveDate !== '') form.conceiveDate = moment(form.conceiveDate);
       if (form.deliveryDate !== '') form.deliveryDate = moment(form.deliveryDate);
-      this.setState({ isVisible, form }, () => this.validateField('diagnosis'));
+      if (typeof form.child === 'object') form.child = form.child.get('_id');
+      if (typeof form.father === 'object') form.father = form.father.get('_id');
+
+      this.setState({ isVisible, form }, () => this.validateField());
     } else {
       this.setState({ isVisible }, () => this.resetForm());
     }
@@ -46,18 +49,18 @@ class PregnancyModal extends Component {
     const form = clone(this.state.form);
     if (typeof name !== 'undefined') {
       form[name] = e;
-      this.setState({ form }, () => { this.validateField(name); });
+      this.setState({ form }, () => { this.validateField(); });
     } else {
       const { name: _name } = e.target;
       const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
       form[_name] = value;
-      this.setState({ form }, () => { this.validateField(_name); });
+      this.setState({ form }, () => { this.validateField(); });
     }
   }
 
-  validateField = (name) => {
+  validateField = () => {
     let valid = true;
-    if (this.state.form[name] === '') valid = false;
+    if (this.state.form.conceiveDate && this.state.form.conceiveDate === '') valid = false;
     this.setState({ formValid: valid });
   }
 
@@ -102,6 +105,7 @@ class PregnancyModal extends Component {
 
   render() {
     const { onClose, action } = this.props;
+
     return (
       <Modal open={this.state.isVisible} onClose={onClose} little>
         <form
@@ -125,6 +129,8 @@ class PregnancyModal extends Component {
                   onChange={(date) => { this.handleUserInput(date, 'conceiveDate'); }}
                   dateFormat={dateFormat}
                   peekNextMonth
+                  showMonthDropdown
+                  showYearDropdown
                   // value={moment(birthday).format('YYYY-MM-DD')}
                   type="button"
                   popperModifiers={{
@@ -143,7 +149,7 @@ class PregnancyModal extends Component {
                   simpleValue
                   name="outcome"
                   value={this.state.form.outcome}
-                  onChange={(val) => { console.log('-val-', val); this.handleUserInput(val, 'outcome'); }}
+                  onChange={(val) => { this.handleUserInput(val, 'outcome'); }}
                   searchable={false}
                 />
               </div>

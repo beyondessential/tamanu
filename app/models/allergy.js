@@ -15,15 +15,6 @@ export default BaseModel.extend({
     BaseModel.prototype.defaults,
   ),
 
-  relations: [{
-    type: Backbone.One,
-    key: 'patient',
-    relatedModel: () => require('./patient'),
-    map: (obj) => {
-      console.log('-obj-', obj);
-    }
-  }]
-
   // validate: (attrs) => {
   //   if (attrs.firstName === '') return 'firstName is required!';
   //   if (attrs.lastName === '') return 'lastName is required!';

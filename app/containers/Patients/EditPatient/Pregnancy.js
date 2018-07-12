@@ -1,53 +1,44 @@
 import React, { Component } from 'react';
-import { map, isEmpty } from 'lodash';
+import { filter, get, clone } from 'lodash';
+import { Link } from 'react-router-dom';
 import moment from 'moment';
 import ReactTable from 'react-table';
-import { pregnancyColumns, dateFormat } from '../../../constants';
+import { pregnancyColumns, dateFormat, pregnancyOutcomes } from '../../../constants';
 import PregnancyModal from '../components/PregnancyModal';
-import PregnanciesCollection from '../../../collections/pregnancies';
 
 class Pregnancy extends Component {
-  constructor(props) {
-    super(props);
-    this.handleChange = this.handleChange.bind(this);
-  }
-
   state = {
-    pregnancies: new PregnanciesCollection(),
     modalVisible: false,
     action: 'new',
     item: null
-  }
-
-  componentDidMount() {
-    const { model } = this.props;
-    const pregnancies = model.get('pregnancies');
-    this.setState({ pregnancies });
-  }
-
-  handleChange() {
-    this.forceUpdate();
   }
 
   onCloseModal = () => {
     this.setState({ modalVisible: false });
   }
 
+  viewChild = (patientId) => {
+    this.props.history.push(`/patients/editPatient/${patientId}`);
+  }
+
   setActionsCol = (row) => {
+    const item = row.original;
     return (
       <div key={row._id}>
-        <button className="button is-primary m-r-5 is-outlined" onClick={() => this.setState({ modalVisible: true, action: 'edit', item: row.original })}>Edit Pregnancy</button>
+        <button className={`button is-primary m-r-5 is-outlined ${item.child === '' ? 'is-hidden' : ''}`} onClick={() => this.viewChild(item.child)}>View Child</button>
+        <button className="button is-primary m-r-5 is-outlined" onClick={() => this.setState({ modalVisible: true, action: 'edit', item })}>Edit Pregnancy</button>
+        <button className="button is-primary m-r-5 is-outlined" onClick={() => this.setState({ modalVisible: true, action: 'edit', item })}>Details</button>
       </div>
     );
   }
 
   render() {
     const { patient, model } = this.props;
+    let { pregnancies } = patient;
     const {
       modalVisible,
       action,
       item,
-      pregnancies
     } = this.state;
 
     // Set actions col for our table
@@ -55,13 +46,12 @@ class Pregnancy extends Component {
     lastCol.Cell = this.setActionsCol;
 
     // Get items to display
-    let items = pregnancies.toArray();
-    items = items.map((p, k) => {
-      const _item = p.toJSON();
+    pregnancies = pregnancies.map((p, k) => {
+      const _item = clone(p);
       _item.label = `Pregnancy ${k + 1}`;
       _item.conceiveDate = moment(_item.conceiveDate).format(dateFormat);
-      _item.outcomeLabel = _item.outcome; // TODO use label;
-      if (_item.outcomeLabel === '') _item.outcomeLabel = 'N/A';
+      if (_item.deliveryDate !== '') _item.deliveryDate = moment(_item.deliveryDate).format(dateFormat);
+      _item.outcomeLabel = get(filter(pregnancyOutcomes, outcome => outcome.value === _item.outcome)[0], 'label');
       return _item;
     });
 
@@ -84,7 +74,7 @@ class Pregnancy extends Component {
             <div>
               <ReactTable
                 keyField="_id"
-                data={items}
+                data={pregnancies}
                 defaultPageSize={pregnancies.length}
                 columns={pregnancyColumns}
                 className="-striped"

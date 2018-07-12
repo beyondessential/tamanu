@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import Autocomplete from 'react-autocomplete';
 import { map } from 'lodash';
 import { PatientsCollection } from '../collections';
+import { PatientModel } from '../models';
 
 class PatientAutocomplete extends Component {
   static propTypes = {
@@ -27,8 +28,14 @@ class PatientAutocomplete extends Component {
     patients: []
   }
 
-  componentWillReceiveProps(newProps) {
-    this.setState({ value: (newProps.value ? newProps.value : '') });
+  async componentWillMount() {
+    const { value: _id } = this.props;
+    if (_id) {
+      const model = new PatientModel();
+      model.set({ _id });
+      await model.fetch();
+      this.setState({ patientRef: `${model.get('displayId')} - ${model.get('firstName')} ${model.get('lastName')}` });
+    }
   }
 
   handleChange(event, value) {
@@ -48,7 +55,7 @@ class PatientAutocomplete extends Component {
       label,
       required,
       name,
-      className
+      className,
     } = this.props;
 
     return (
@@ -62,15 +69,15 @@ class PatientAutocomplete extends Component {
           wrapperProps={{ className: 'autocomplete-wrapper' }}
           items={this.state.patients}
           value={this.state.patientRef}
-          onSelect={(value, item) => {
-            this.setState({ patientRef: value });
+          onSelect={(val, item) => {
+            this.setState({ patientRef: val });
             if (this.props.onChange) this.props.onChange(item._id, name);
           }}
           onChange={this.handleChange}
           renderItem={(item, isHighlighted) =>
             <div key={item._id} style={{ background: isHighlighted ? 'lightgray' : 'white' }}> {`${item.displayId} - ${item.firstName} ${item.lastName}`} </div>
           }
-          renderMenu={(items, value, style) => <div className="autocomplete-dropmenu" style={{ ...style, ...this.menuStyle }}>{items}</div>}
+          renderMenu={(items, val, style) => <div className="autocomplete-dropmenu" style={{ ...style, ...this.menuStyle }}>{items}</div>}
         />
       </div>
     );
