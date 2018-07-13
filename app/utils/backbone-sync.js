@@ -69,6 +69,18 @@ export default (mainDB) => {
     });
   };
 
+  // const originalFetchCollection = Backbone.Collection.prototype.fetch;
+  // Backbone.Collection.prototype.fetch = function fetchData(options) {
+  //   return new Promise((resolve, reject) => {
+  //     const newOptions = defaults({
+  //       success: resolve,
+  //       error: reject
+  //     }, options);
+
+  //     originalFetchCollection.apply(this, [newOptions]);
+  //   });
+  // };
+
   // Backbone.sync = adaptor;
   Backbone.Model.prototype.idAttribute = '_id';
 };

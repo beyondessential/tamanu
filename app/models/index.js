@@ -10,6 +10,7 @@ export PregnancyModel from './pregnancy';
 export PhotoModel from './photo';
 export ProcedureModel from './procedure';
 export PatientNoteModel from './patientNote';
+export ProgramModel from './program';
 export ReportModel from './report';
 export UserRoleModel from './userRole';
 export UserModel from './user';

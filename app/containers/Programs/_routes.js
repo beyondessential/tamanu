@@ -10,12 +10,18 @@ import QuestionTable from './Pregnancy/QuestionTable';
 import QuestionsFirst from './Pregnancy/QuestionsFirst';
 import QuestionsSecond from './Pregnancy/QuestionsSecond';
 import QuestionsThird from './Pregnancy/QuestionsThird';
+import PatientListing from '../Patients/PatientListing';
+import Patients from './Patients';
 
 export default function Routes({ url }) {
   return (
     <div>
       <Switch>
         <Route exact path={url} component={Pregnancy} />
+        <Route path={`${url}/:program/patients`} component={Patients} />
+        <Route path={`${url}/:program/:patient/surveys`} component={PatientListing} />
+        <Route path={`${url}/:program/:patient/surveys/:survey/`} component={PatientListing} />
+        <Route path={`${url}/pregnancies`} component={PatientListing} />
         <Route path={`${url}/prepregnancies`} component={Prepregnancies} />
         <Route path={`${url}/pregnancyVisit`} component={EditVisit} />
         <Route path={`${url}/pregnancyConfirm`} component={PregnancyConfirm} />

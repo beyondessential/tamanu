@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { find, isEmpty } from 'lodash';
 import { sidebarInfo } from '../constants';
+import { ProgramsCollection } from '../collections';
 
 const classNames = require('classnames');
 
@@ -11,8 +13,44 @@ class Sidebar extends Component {
     currentPath: PropTypes.string.isRequired
   }
 
+  constructor(props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
   state = {
     selectedParentItem: '',
+  }
+
+  async componentWillMount() {
+    this.props.programsCollection.on('update', this.handleChange);
+    this.props.programsCollection.fetchAll({
+      success: () => console.log('Programs loaded!')
+    });
+  }
+
+  handleChange() {
+    // Prepare programs sub-menu
+    const { models } = this.props.programsCollection;
+    const programsNav = find(sidebarInfo, { key: 'programs' });
+    if (!isEmpty(models)) {
+      programsNav.hidden = false;
+      programsNav.children = [];
+      models.forEach((program, key) => {
+        program = program.toJSON();
+        programsNav.children.push({
+          label: program.name,
+          path: `/programs/${program._id}/patients`,
+          icon: 'fa fa-chevron-right'
+        });
+
+        if (key === 0) programsNav.path = `/programs/${program._id}/patients`;
+      });
+    }
+
+    console.log('__programsNav__', programsNav);
+
+    this.forceUpdate();
   }
 
   clickedParentItem = (label) => {
@@ -50,7 +88,7 @@ class Sidebar extends Component {
             }
             {
               sidebarInfo.map((parent, index) => (
-                <div key={index}>
+                <div key={index} className={parent.hidden ? 'is-hidden' : ''}>
                   <Link className={classNames(['item', selectedParentItem === parent.label ? 'selected' : ''])} to={parent.path} replace onClick={() => this.clickedParentItem(parent.label)}>
                     <img src={parent.icon} alt="icon" className="sidebar-icon" />
                     <span>
@@ -82,7 +120,8 @@ class Sidebar extends Component {
 
 function mapStateToProps(state) {
   return {
-    currentPath: state.router.location.pathname
+    currentPath: state.router.location.pathname,
+    programsCollection: new ProgramsCollection()
   };
 }
 

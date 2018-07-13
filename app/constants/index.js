@@ -17,6 +17,7 @@ export const pageSizes = {
 
 export const sidebarInfo = [
   {
+    key: 'patients',
     label: 'Patients',
     path: '/patients',
     icon: patientIcon,
@@ -49,6 +50,7 @@ export const sidebarInfo = [
     ]
   },
   {
+    key: 'scheduling',
     label: 'Scheduling',
     path: '/appointments',
     icon: scheduleIcon,
@@ -91,6 +93,7 @@ export const sidebarInfo = [
     ]
   },
   {
+    key: 'medication',
     label: 'Medication',
     path: '/medication',
     icon: medicationIcon,
@@ -123,6 +126,7 @@ export const sidebarInfo = [
     ]
   },
   {
+    key: 'labs',
     label: 'Labs',
     path: '/labs',
     icon: labsIcon,
@@ -145,6 +149,7 @@ export const sidebarInfo = [
     ]
   },
   {
+    key: 'admin',
     label: 'Administration',
     path: '/admin',
     icon: administrationIcon,
@@ -182,16 +187,12 @@ export const sidebarInfo = [
     ]
   },
   {
+    key: 'programs',
     label: 'Programs',
     path: '/programs',
     icon: programsIcon,
-    children: [
-      {
-        label: 'Pregnancy',
-        path: '/programs',
-        icon: 'fa fa-chevron-right'
-      },
-    ]
+    hidden: true,
+    children: []
   },
 ];
 
@@ -448,6 +449,118 @@ export const pregnancyColumns = [{
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  minWidth: 350,
+  Cell: null
+}];
+
+
+export const programsPatientsColumns = [{
+  accessor: 'displayId',
+  Header: 'Id',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 80
+}, {
+  accessor: 'firstName',
+  Header: 'First Name',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 100
+}, {
+  accessor: 'lastName',
+  Header: 'Last Name',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 100
+}, {
+  accessor: 'sex',
+  Header: 'Sex',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 80
+}, {
+  accessor: 'birthday',
+  Header: 'DOB',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 100
+}, {
+  accessor: 'patientStatus',
+  Header: 'Status',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 80
+}, {
+  accessor: row => {
+    return { _id: row._id, admitted: row.admitted };
+  },
+  id: 'actions',
+  Header: 'Actions',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   minWidth: 350,
   Cell: null
