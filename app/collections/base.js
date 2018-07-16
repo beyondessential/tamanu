@@ -1,5 +1,5 @@
 import Backbone from 'backbone-associations';
-import { map, keys } from 'lodash';
+import { map, keys, set } from 'lodash';
 // import dbService from '../services/database';
 // import BackbonePouch from 'backbone-pouch';
 
@@ -28,7 +28,7 @@ export default Backbone.Collection.extend({
   // }),
 
   parse(result) {
-    // console.log('_this_', this);
+    console.log('_parse_', result);
     this.totalPages = Math.ceil(result.total_rows / this.pageSize);
     return map(result.rows, obj => (obj.doc ? obj.doc : obj));
   },
@@ -43,21 +43,50 @@ export default Backbone.Collection.extend({
   fetchAll(opts) {
     const model = new this.model();
     const { type } = model.attributes;
-    const fields = keys(model.attributes);
+    const fields = opts.fields || keys(model.attributes);
+    const selector = opts.selector || {};
+    const limit = opts.limit || 10;
+    set(selector, 'type', type);
 
     this.fetch({
       success: (opts ? opts.success : null),
       error: (opts ? opts.error : null),
       fetch: 'find',
       options: {
-        find: {
-          selector: { type }, fields
-        }
+        find: { selector, fields, limit }
       }
     });
   },
 
   fetchResults(opts) {
+    const model = new this.model();
+    const { type } = model.attributes;
+    const fields = (opts && opts.fields) || keys(model.attributes);
+    const selector = (opts && opts.selector) || {};
+    const limit = this.pageSize;
+    const skip = (this.currentPage * this.pageSize);
+    set(selector, 'type', type);
+
+    const params = {
+      success: (opts ? opts.success : null),
+      error: (opts ? opts.error : null),
+      fetch: 'find',
+      options: {
+        find: {
+          selector,
+          fields,
+          limit,
+          skip
+        }
+      }
+    };
+
+    console.log('__params__', params, this);
+
+    this.fetch(params);
+  },
+
+  fetchByView(opts) {
     this.fetch({
       success: (opts ? opts.success : null),
       error: (opts ? opts.error : null),

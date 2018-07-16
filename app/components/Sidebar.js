@@ -48,8 +48,6 @@ class Sidebar extends Component {
       });
     }
 
-    console.log('__programsNav__', programsNav);
-
     this.forceUpdate();
   }
 

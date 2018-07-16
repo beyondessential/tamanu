@@ -22,12 +22,12 @@ class Pregnancy extends Component {
   componentDidMount() {
     this.props.collection.on('update', this.handleChange);
     this.props.collection.setPageSize(this.state.pageSize);
-    this.props.collection.fetchResults();
+    this.props.collection.fetchByView();
   }
 
   componentWillReceiveProps({ deletepregnanciesuccess }) {
     if (deletepregnanciesuccess) {
-      this.props.collection.fetchResults();
+      this.props.collection.fetchByView();
     }
   }
 
@@ -74,7 +74,7 @@ class Pregnancy extends Component {
     this.props.collection.setPageSize(state.pageSize);
 
     this.setState({ loading: true });
-    this.props.collection.fetchResults({
+    this.props.collection.fetchByView({
       success: () => {
         this.setState({ loading: false });
       }

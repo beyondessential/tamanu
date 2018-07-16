@@ -457,7 +457,7 @@ export const pregnancyColumns = [{
 
 export const programsPatientsColumns = [{
   accessor: 'displayId',
-  Header: 'Id',
+  Header: 'Patient ID',
   headerStyle: {
     backgroundColor: Colors.searchTintColor,
   },
@@ -514,7 +514,8 @@ export const programsPatientsColumns = [{
     alignItems: 'center',
     justifyContent: 'center'
   },
-  minWidth: 80
+  minWidth: 80,
+  filterable: false
 }, {
   accessor: 'birthday',
   Header: 'DOB',
@@ -529,7 +530,8 @@ export const programsPatientsColumns = [{
     alignItems: 'center',
     justifyContent: 'center'
   },
-  minWidth: 100
+  minWidth: 100,
+  filterable: false
 }, {
   accessor: 'patientStatus',
   Header: 'Status',
@@ -544,7 +546,8 @@ export const programsPatientsColumns = [{
     alignItems: 'center',
     justifyContent: 'center'
   },
-  minWidth: 80
+  minWidth: 80,
+  filterable: false
 }, {
   accessor: row => {
     return { _id: row._id, admitted: row.admitted };
@@ -563,7 +566,8 @@ export const programsPatientsColumns = [{
     justifyContent: 'center'
   },
   minWidth: 350,
-  Cell: null
+  Cell: null,
+  filterable: false
 }];
 
 function actionButtonFormatter(cell, row, rowIndex, formatExtraData) {

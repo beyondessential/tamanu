@@ -21,7 +21,7 @@ class WeekAppointment extends Component {
   componentDidMount() {
     this.props.collection.on('update', this.handleChange);
     this.props.collection.setPageSize(this.state.pageSize);
-    this.props.collection.fetchResults();
+    this.props.collection.fetchByView();
   }
 
   componentWillUnmount() {
@@ -37,7 +37,7 @@ class WeekAppointment extends Component {
     this.props.collection.setPageSize(state.pageSize);
 
     // this.setState({ loading: true });
-    this.props.collection.fetchResults({
+    this.props.collection.fetchByView({
       success: () => {
         // this.setState({ loading: false });
       }

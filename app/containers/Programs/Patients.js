@@ -12,23 +12,27 @@ class Patients extends Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
+    this.setActionsCol = this.setActionsCol.bind(this);
   }
 
   state = {
-    deleteModalVisible: false,
-    selectedPatient: null,
     pageSize: pageSizes.patients
   }
 
-  componentDidMount() {
+  async componentWillMount() {
     this.props.collection.on('update', this.handleChange);
-    this.props.collection.setPageSize(this.state.pageSize);
-    this.props.collection.fetchResults();
+    // this.props.collection.setPageSize(this.state.pageSize);
+    // this.props.collection.fetchByView();
+    // console.log('__this.props.collection__', this.props.collection);
+    this.loadProgram(this.props);
   }
 
-  componentWillReceiveProps({ deletePatientSuccess }) {
+  componentWillReceiveProps(newProps) {
+    const { deletePatientSuccess } = newProps;
+    this.loadProgram(newProps);
+
     if (deletePatientSuccess) {
-      this.props.collection.fetchResults();
+      this.props.collection.fetchByView();
     }
   }
 
@@ -36,70 +40,49 @@ class Patients extends Component {
     this.props.collection.off('update', this.handleChange);
   }
 
+  async loadProgram(props) {
+    const { programId } = props.match.params;
+    this.props.programModel.set({ _id: programId });
+    await this.props.programModel.fetch();
+    const program = this.props.programModel.toJSON();
+    this.setState({ program });
+  }
+
   handleChange() {
     this.forceUpdate();
   }
 
-  goEdit = (patientId) => {
-    this.props.history.push(`/patients/editPatient/${patientId}`);
-  }
-
-  goAdmit = (patientId, patient) => {
-    if (patient.admitted) {
-      this.props.history.push(`/patients/editvisit/${patientId}`);
-    } else {
-      this.props.history.push(`/patients/checkin/${patientId}`);
-    }
-  }
-
-  showDeleteModal = (patient) => {
-    this.setState({
-      deleteModalVisible: true,
-      selectedPatient: patient
-    });
-  }
-
-  onCloseModal = () => {
-    this.setState({ deleteModalVisible: false });
-  }
-
-  onDeletePatient = () => {
-    let { selectedPatient } = this.state;
-    selectedPatient = this.props.collection.findWhere({ _id: selectedPatient._id });
-    if (!isEmpty(selectedPatient)) {
-      selectedPatient.destroy({
-        wait: true,
-        success: () => this.onCloseModal()
-      });
-    }
+  selectPatient = (patientId) => {
+    const { programId } = this.props.match.params;
+    this.props.history.push(`/${programId}/${patientId}/surveys`);
   }
 
   onFetchData = (state) => {
+    console.log('__onFetchData__', state.page);
     this.props.collection.setPage(state.page);
     this.props.collection.setPageSize(state.pageSize);
 
     this.setState({ loading: true });
-    this.props.collection.fetchResults({
+    this.props.collection.fetchByView({
       success: () => {
         this.setState({ loading: false });
       }
     });
   }
 
-  setActionsCol = (row) => {
-    const item = row.original;
+  setActionsCol(row) {
+    const _this = this;
     return (
       <div key={row._id}>
-        <button className="button column-button" onClick={() => that.goEdit(row.value._id)}>View Patient</button>
-        <button className="button is-primary column-checkin-button" onClick={() => that.goAdmit(row.value._id, row.value.admitted)}>{row.value.admitted ? 'Discharge' : 'Admit'}</button>
-        <button className="button is-danger column-button" onClick={() => that.showDeleteModal(row)}>Delete</button>
+        <button className="button is-primary is-outlined column-button" onClick={() => _this.selectPatient(row.value._id)}>Select Patient</button>
       </div>
     );
   }
 
   render() {
+    const { program } = this.state;
     let { models: patients } = this.props.collection;
-    if (patients.length > 0) patients = map(patients, patient => patient.attributes);
+    if (patients.length > 0) patients = map(patients, patient => patient.toJSON());
 
     // Set actions col for our table
     const lastCol = programsPatientsColumns[programsPatientsColumns.length - 1];
@@ -108,17 +91,23 @@ class Patients extends Component {
     return (
       <div className="content">
         <div className="view-top-bar">
-          <span>
-            Patient Listing
-          </span>
-          <div className="view-action-buttons">
-            <Link to="/patients/edit/new">
-              + New Patient
-            </Link>
-          </div>
+          <span>{program && program.name}</span>
         </div>
         <div className="detail">
-          {patients.length === 0 ?
+          <ReactTable
+            manual
+            keyField="_id"
+            data={patients}
+            pages={this.props.collection.totalPages}
+            defaultPageSize={this.state.pageSize}
+            loading={this.state.loading}
+            columns={programsPatientsColumns}
+            className="-striped"
+            defaultSortDirection="asc"
+            onFetchData={this.onFetchData}
+            filterable
+          />
+          {/* {patients.length === 0 ?
             <div className="notification">
               <span>
                 No patients found. <Link to="/patients/edit/new">Create a new patient record?</Link>
@@ -137,9 +126,10 @@ class Patients extends Component {
                 className="-striped"
                 defaultSortDirection="asc"
                 onFetchData={this.onFetchData}
+                filterable
               />
             </div>
-          }
+          } */}
         </div>
       </div>
     );
@@ -147,6 +137,7 @@ class Patients extends Component {
 }
 
 Patients.defaultProps = {
+  programModel: new ProgramModel(),
   collection: new PatientsCollection(),
   patients: []
 };

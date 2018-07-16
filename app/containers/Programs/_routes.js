@@ -18,9 +18,9 @@ export default function Routes({ url }) {
     <div>
       <Switch>
         <Route exact path={url} component={Pregnancy} />
-        <Route path={`${url}/:program/patients`} component={Patients} />
-        <Route path={`${url}/:program/:patient/surveys`} component={PatientListing} />
-        <Route path={`${url}/:program/:patient/surveys/:survey/`} component={PatientListing} />
+        <Route path={`${url}/:programId/patients`} component={Patients} />
+        <Route path={`${url}/:programId/:patientId/surveys`} component={PatientListing} />
+        <Route path={`${url}/:programId/:patientId/surveys/:survey/`} component={PatientListing} />
         <Route path={`${url}/pregnancies`} component={PatientListing} />
         <Route path={`${url}/prepregnancies`} component={Prepregnancies} />
         <Route path={`${url}/pregnancyVisit`} component={EditVisit} />
