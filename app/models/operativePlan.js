@@ -10,7 +10,7 @@ export default BaseModel.extend({
 
     return {
       _id: `opPlan_${_id}`,
-      type: 'opPlan',
+      docType: 'opPlan',
       additionalNotes: null,
       admissionInstructions: null,
       caseComplexity: null,

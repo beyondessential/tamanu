@@ -6,7 +6,7 @@ export default BaseModel.extend({
   defaults: () => defaults(
     {
       _id: `diagnosis_${shortid.generate()}`,
-      type: 'diagnosis',
+      docType: 'diagnosis',
       active: true,
       date: Date,
       diagnosis: null,

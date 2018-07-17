@@ -6,7 +6,7 @@ export default BaseModel.extend({
   defaults: () => defaults(
     {
       _id: `surveyScrn_${shortid.generate()}`,
-      type: 'surveyScrn',
+      docType: 'surveyScrn',
       surveyId: null,
       screenNumber: null,
     },

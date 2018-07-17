@@ -8,7 +8,7 @@ export default Backbone.Model.extend({
 
     return {
       _id: `note_${_id}`,
-      type: 'note',
+      docType: 'note',
       attribution: null,
       content: null,
       createdBy: null,

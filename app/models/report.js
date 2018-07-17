@@ -8,7 +8,7 @@ export default Backbone.Model.extend({
 
     return {
       _id: `report_${_id}`,
-      type: 'report',
+      docType: 'report',
       reportDate: Date,
       reportType: null,
 

@@ -8,7 +8,7 @@ export default BaseModel.extend({
   defaults: () => defaults(
     {
       _id: `pregnancy_${shortid.generate()}`,
-      type: 'pregnancy',
+      docType: 'pregnancy',
       conceiveDate: Date, // estimated
       deliveryDate: Date, // estimated
       child: '',

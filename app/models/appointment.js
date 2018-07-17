@@ -9,7 +9,7 @@ export default BaseModel.extend({
   defaults: () => defaults(
     {
       _id: `appointment_${shortid.generate()}`,
-      type: 'appointment',
+      docType: 'appointment',
       allDay: true,
       provider: '',
       location: '',

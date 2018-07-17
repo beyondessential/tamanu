@@ -42,11 +42,11 @@ export default Backbone.Collection.extend({
 
   fetchAll(opts) {
     const model = new this.model();
-    const { type } = model.attributes;
+    const { docType } = model.attributes;
     const fields = opts.fields || keys(model.attributes);
     const selector = opts.selector || {};
     const limit = opts.limit || 10;
-    set(selector, 'type', type);
+    set(selector, 'docType', docType);
 
     this.fetch({
       success: (opts ? opts.success : null),

@@ -7,7 +7,7 @@ export default BaseModel.extend({
   defaults: () => defaults(
     {
       _id: `allergy_${shortid.generate()}`,
-      type: 'allergy',
+      docType: 'allergy',
       name: null,
       icd9CMCode: null,
       icd10Code: null,

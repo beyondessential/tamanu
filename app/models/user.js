@@ -8,7 +8,7 @@ export default Backbone.Model.extend({
 
     return {
       _id: `user_${_id}`,
-      type: 'user',
+      docType: 'user',
       derived_key: null,
       deleted: false,
       displayName: null,

@@ -8,7 +8,7 @@ export default Backbone.Model.extend({
 
     return {
       _id: `vital_${_id}`,
-      type: 'vital',
+      docType: 'vital',
       dateRecorded: Date,
       dbp: null,
       heartRate: null,

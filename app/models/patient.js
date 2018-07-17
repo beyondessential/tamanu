@@ -8,7 +8,7 @@ export default BaseModel.extend({
   defaults: () => defaults(
     {
       _id: `patient_${shortid.generate()}`,
-      type: 'patient',
+      docType: 'patient',
       displayId: '',
       admitted: false,
       additionalContacts: [],

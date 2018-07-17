@@ -8,7 +8,7 @@ export default Backbone.Model.extend({
 
     return {
       _id: `lab_${_id}`,
-      type: 'lab',
+      docType: 'lab',
       labDate: Date,
       notes: null,
       requestedBy: null,

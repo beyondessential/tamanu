@@ -8,7 +8,7 @@ export default Backbone.Model.extend({
 
     return {
       _id: `photo_${_id}`,
-      type: 'photo',
+      docType: 'photo',
       caption: null,
       coverImage: false,
       files: {

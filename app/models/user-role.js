@@ -8,7 +8,7 @@ export default Backbone.Model.extend({
 
     return {
       _id: `user_role_${_id}`,
-      type: 'user_role',
+      docType: 'user_role',
       name: null,
       capabilities: [],
       navRoute: null

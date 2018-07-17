@@ -8,7 +8,7 @@ export default Backbone.Model.extend({
 
     return {
       _id: `procedure_${_id}`,
-      type: 'procedure',
+      docType: 'procedure',
       anesthesiaType: null,
       anesthesiologist: null,
       assistant: null,

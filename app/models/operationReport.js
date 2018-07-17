@@ -10,7 +10,7 @@ export default BaseModel.extend({
 
     return {
       _id: `opReport_${_id}`,
-      type: 'opReport',
+      docType: 'opReport',
       additionalNotes: null,
       caseComplexity: null,
       procedures: [],

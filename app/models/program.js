@@ -7,7 +7,7 @@ export default BaseModel.extend({
   defaults: () => defaults(
     {
       _id: `program_${shortid.generate()}`,
-      type: 'program',
+      docType: 'program',
       name: null,
       programType: 'direct',
     },

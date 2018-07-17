@@ -17,7 +17,7 @@ export default Backbone.Model.extend({
 
     return {
       _id: `lab_${_id}`,
-      type: 'lab',
+      docType: 'lab',
       dischargeInfo: null,
       endDate: Date, // if visit type is outpatient, startDate and endDate are equal
       examiner: null,
