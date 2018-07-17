@@ -188,7 +188,13 @@
     "webpack": "^3.10.0",
     "webpack-bundle-analyzer": "^2.9.2",
     "webpack-dev-server": "^2.11.1",
-    "webpack-merge": "^4.1.1"
+    "webpack-merge": "^4.1.1",
+    "pouchdb": "^7.0.0",
+    "source-map-support": "^0.5.3",
+    "string-similarity": "^1.2.0",
+    "underscore": "^1.9.0",
+    "validator": "^10.4.0",
+    "xlsx": "^0.13.2"
   },
   "dependencies": {
     "await-to-js": "^2.0.1",
@@ -228,9 +234,7 @@
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
     "rsvp": "^4.8.2",
-    "shortid": "^2.2.8",
-    "source-map-support": "^0.5.3",
-    "underscore": "^1.9.0"
+    "shortid": "^2.2.8"
   },
   "devEngines": {
     "node": ">=7.x",
