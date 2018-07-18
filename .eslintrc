@@ -47,7 +47,14 @@
     "no-param-reassign": ["error", { "props": true, "ignorePropertyModificationsFor": ["attrs", "options"] }],
     "no-unused-vars":"warn",
     "no-unused-labels": "warn",
-    "no-unused-expressions": "warn"
+    "no-unused-expressions": "warn",
+    "no-await-in-loop": "off",
+    "no-restricted-syntax": [
+      "error",
+      "ForInStatement",
+      "LabeledStatement",
+      "WithStatement"
+    ]
   },
   "plugins": [
     "flowtype",

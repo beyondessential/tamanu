@@ -2,8 +2,7 @@ global.Promise = require('bluebird');
 const xlsx = require('xlsx');
 const { compareTwoStrings } = require('string-similarity');
 const PouchDB = require('pouchdb');
-const Promise = require('bluebird');
-const { kebabCase } = require('lodash');
+const { kebabCase, isNaN } = require('lodash');
 const shortid = require('shortid');
 // const { deleteScreensForSurvey, deleteOrphanQuestions } = require('../dataAccessors');
 const TYPES = require('./constants');
@@ -20,8 +19,8 @@ const HTTPPouch = PouchDB.defaults({
 });
 const surveyDB = new HTTPPouch('main');
 
-console.log('Terminated!');
-process.exit();
+// console.log('Terminated!');
+// process.exit();
 
 /**
 * Responds to POST requests to the /surveys endpoint
@@ -44,40 +43,40 @@ module.exports = async function importSurveys(req) {
     // }
     const permissionGroup = { id: 'permission-group-id' };
 
-    let surveyGroup;
     if (reqQuery.surveyGroup) {
-      surveyGroup = await surveyDB.put(
-        {
-          _id: kebabCase(reqQuery.surveyGroup),
-          docType: TYPES.SURVEY_GROUP,
-          name: reqQuery.surveyGroup,
-        },
-      );
+      const surveyGroup = await surveyDB.put({
+        _id: kebabCase(reqQuery.surveyGroup),
+        docType: TYPES.SURVEY_GROUP,
+        name: reqQuery.surveyGroup,
+      });
     }
+
+    // Update projects
+    const program = await surveyDB.get('program_CDBralnev');
+    if (typeof program.surveys !== 'object') program.surveys = [];
 
     // Go through each sheet, and make a survey for each
     const entries = Object.entries(workbook.Sheets);
     entries.forEach(async (surveySheets) => {
       const [tabName, sheet] = surveySheets;
       let surveyName = '';
-      for (const requestedSurveyName of requestedSurveyNames) {
+      requestedSurveyNames.forEach(requestedSurveyName => {
         // To deal with the character limit in Excel tabs, the tab name may be just the start of
         // the survey name, so we check for partial matches
-        if (requestedSurveyName.startsWith(tabName) &&    // Test it at least partially matches &
+        if (requestedSurveyName.startsWith(tabName) && // Test it at least partially matches &
             compareTwoStrings(requestedSurveyName, tabName) >
             compareTwoStrings(surveyName, tabName)) { // The existing match isn't closer
           surveyName = requestedSurveyName;
         }
-      }
+      });
       if (surveyName.length === 0) {
         throw new Error(`The tab ${tabName} was not listed as a survey name in the HTTP query`);
       }
 
-
       // Get the survey based on the name of the sheet/tab
       const survey = await surveyDB.put(
         {
-          _id: `${TYPES.SURVEY}-${shortid.generate()}`,
+          _id: `${TYPES.SURVEY}_${shortid.generate()}`,
           docType: TYPES.SURVEY,
           name: surveyName,
         },
@@ -89,30 +88,31 @@ module.exports = async function importSurveys(req) {
       if (!survey) {
         throw new Error('creating survey, check format of import file');
       }
+      program.surveys.push(survey.id);
 
       // Work out what fields of the survey should be updated based on query params
-      const fieldsToForceUpdate = {};
-      if (reqQuery.countryIds) {
-        // Set the countries this survey is available in
-        fieldsToForceUpdate.country_ids = splitOnCommas(reqQuery.countryIds);
-      }
-      if (surveyGroup) {
-        // Set the survey group this survey is attached to
-        fieldsToForceUpdate.survey_group_id = surveyGroup.id;
-      }
-      if (reqQuery.permissionGroup) {
-        // A non-default permission group was provided
-        fieldsToForceUpdate.permission_group_id = permissionGroup.id;
-      }
-      if (reqQuery.surveyCode) {
-        // Set or update the code for this survey
-        fieldsToForceUpdate.code = reqQuery.surveyCode;
-      }
-      // Update the survey based on the fields to force update
-      if (Object.keys(fieldsToForceUpdate).length > 0) {
-        fieldsToForceUpdate._id = survey.id;
-        await surveyDB.put(fieldsToForceUpdate);
-      }
+      // const fieldsToForceUpdate = {};
+      // if (reqQuery.countryIds) {
+      //   // Set the countries this survey is available in
+      //   fieldsToForceUpdate.country_ids = splitOnCommas(reqQuery.countryIds);
+      // }
+      // if (surveyGroup) {
+      //   // Set the survey group this survey is attached to
+      //   fieldsToForceUpdate.survey_group_id = surveyGroup.id;
+      // }
+      // if (reqQuery.permissionGroup) {
+      //   // A non-default permission group was provided
+      //   fieldsToForceUpdate.permission_group_id = permissionGroup.id;
+      // }
+      // if (reqQuery.surveyCode) {
+      //   // Set or update the code for this survey
+      //   fieldsToForceUpdate.code = reqQuery.surveyCode;
+      // }
+      // // Update the survey based on the fields to force update
+      // if (Object.keys(fieldsToForceUpdate).length > 0) {
+      //   fieldsToForceUpdate._id = survey.id;
+      //   await surveyDB.put(fieldsToForceUpdate);
+      // }
 
 
       // Delete all existing survey screens and components that were attached to this survey
@@ -126,7 +126,7 @@ module.exports = async function importSurveys(req) {
       let currentScreen;
       let currentSurveyScreenComponent;
       const questionCodes = []; // An array to hold all qustion codes, allowing duplicate checking
-      for (let rowIndex = 0; rowIndex < questionObjects.length; rowIndex++) {
+      for (let rowIndex = 0; rowIndex < questionObjects.length; rowIndex += 1) {
         const questionObject = questionObjects[rowIndex];
         const excelRowNumber = rowIndex + 2; // +2 to make up for header and 0 index
         const constructImportValidationError = (message, field) => new Error(message, excelRowNumber, field, tabName);
@@ -161,47 +161,42 @@ module.exports = async function importSurveys(req) {
         };
 
         // Either create or update the question depending on if there exists a matching code
-        let question;
         questionToUpsert.docType = TYPES.QUESTION;
-        questionToUpsert._id = `${TYPES.QUESTION}-${shortid.generate()}`;
-        question = await surveyDB.put(questionToUpsert);
+        questionToUpsert._id = `${TYPES.QUESTION}_${shortid.generate()}`;
+        const question = await surveyDB.put(questionToUpsert);
 
         // Generate the screen and screen component
         const shouldStartNewScreen = caseAndSpaceInsensitiveEquals(newScreen, 'yes');
         if (!currentScreen || shouldStartNewScreen) { // Spreadsheet indicates this question starts a new screen
           // Create a new survey screen
-          currentScreen = await surveyDB.put(
-            {
-              _id: `${TYPES.SURVEY_SCREEN}-${shortid.generate()}`,
-              docType: TYPES.SURVEY_SCREEN,
-              survey_id: survey.id,
-              screen_number: currentScreen ? currentScreen.screen_number + 1 : 1, // Next screen
-            },
-          );
+          currentScreen = await surveyDB.put({
+            _id: `${TYPES.SURVEY_SCREEN}_${shortid.generate()}`,
+            docType: TYPES.SURVEY_SCREEN,
+            survey_id: survey.id,
+            screen_number: currentScreen ? currentScreen.screen_number + 1 : 1, // Next screen
+          });
           // Clear existing survey screen component
           currentSurveyScreenComponent = undefined;
         }
 
         // Create a new survey screen component to display this question
-        console.log('__currentSurveyScreenComponent__', currentSurveyScreenComponent);
-        currentSurveyScreenComponent = await surveyDB.put(
-          {
-            _id: `${TYPES.SURVEY_SCREEN_COMPONENT}-${shortid.generate()}`,
-            type: TYPES.SURVEY_SCREEN_COMPONENT,
-            screen_id: currentScreen.id,
-            question_id: question.id,
-            component_number: currentSurveyScreenComponent ?
-                              currentSurveyScreenComponent.component_number + 1 :
-                              1,
-            is_follow_up: currentSurveyScreenComponent &&
-                          ((currentSurveyScreenComponent.answers_enabling_follow_up && currentSurveyScreenComponent.answers_enabling_follow_up.length > 0) ||
-                          currentSurveyScreenComponent.is_follow_up),
-            answers_enabling_follow_up: splitOnCommas(followUpAnswers),
-          },
-        );
+        const surveyScreenComponentId = `${TYPES.SURVEY_SCREEN_COMPONENT}_${shortid.generate()}`;
+        await surveyDB.put({
+          _id: surveyScreenComponentId,
+          type: TYPES.SURVEY_SCREEN_COMPONENT,
+          screen_id: currentScreen.id,
+          question_id: question.id,
+          component_number: currentSurveyScreenComponent ? currentSurveyScreenComponent.component_number + 1 : 1,
+          is_follow_up: currentSurveyScreenComponent &&
+                        ((currentSurveyScreenComponent.answers_enabling_follow_up && currentSurveyScreenComponent.answers_enabling_follow_up.length > 0) ||
+                        currentSurveyScreenComponent.is_follow_up),
+          answers_enabling_follow_up: splitOnCommas(followUpAnswers),
+        });
+        currentSurveyScreenComponent = await surveyDB.get(surveyScreenComponentId);
       }
       // Clear any orphaned questions (i.e. questions no longer included in a survey)
       // await deleteOrphanQuestions(database);
+      await surveyDB.put(program);
     });
   } catch (error) {
     if (error.respond) {
@@ -230,7 +225,7 @@ function processOptions(optionValuesString, optionLabelsString, optionColorsStri
   const optionLabels = splitOnCommas(optionLabelsString);
   const optionColors = splitOnCommas(optionColorsString);
   const options = [];
-  for (let i = 0; i < optionValues.length; i++) {
+  for (let i = 0; i < optionValues.length; i += 1) {
     // If this option has either a custom label or custom colour, add it as a preconfigured object
     if (optionLabels.length > i || optionColors.length > i) {
       options.push({
@@ -314,9 +309,7 @@ const FIELD_VALIDATORS = {
     ...optionsValidators,
     (cell, row) => {
       if (splitOnCommas(cell).length > splitOnCommas(row.options).length) {
-        throw new Error(
-          'There are more labels than options. Note that commas are separators and are not allowed in labels.'
-        );
+        throw new Error('There are more labels than options. Note that commas are separators and are not allowed in labels.');
       }
     },
   ],
