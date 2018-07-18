@@ -18,8 +18,10 @@ const localUrl = `http://${dbUser}:${dbPassword}@${dbHost}:${dbPort}`;
 const HTTPPouch = PouchDB.defaults({
   prefix: localUrl
 });
-const surveyDB = new HTTPPouch('survey');
+const surveyDB = new HTTPPouch('main');
 
+console.log('Terminated!');
+process.exit();
 
 /**
 * Responds to POST requests to the /surveys endpoint

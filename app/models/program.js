@@ -1,7 +1,8 @@
 import shortid from 'shortid';
-import Backbone from 'backbone-associations';
 import { defaults } from 'lodash';
+import Backbone from 'backbone-associations';
 import BaseModel from './base';
+import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
   defaults: () => defaults(
@@ -10,9 +11,21 @@ export default BaseModel.extend({
       docType: 'program',
       name: null,
       programType: 'direct',
+      surveys: []
     },
     BaseModel.prototype.defaults,
   ),
+
+  // Associations
+  relations: [
+    {
+      type: Backbone.Many,
+      key: 'surveys',
+      relatedModel: () => require('./survey'),
+      map: (values) => mapRelations(values, require('./survey')),
+      serialize: '_id'
+    }
+  ],
 
   // validate: (attrs) => {
   //   if (attrs.firstName === '') return 'firstName is required!';

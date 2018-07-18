@@ -7,8 +7,8 @@ export default Backbone.Model.extend({
     const _id = shortid.generate();
 
     return {
-      _id: `user_role_${_id}`,
-      docType: 'user_role',
+      _id: `userRole_${_id}`,
+      docType: 'userRole',
       name: null,
       capabilities: [],
       navRoute: null

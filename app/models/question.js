@@ -7,13 +7,15 @@ import mapRelations from '../utils/map-relations';
 export default BaseModel.extend({
   defaults: () => defaults(
     {
-      _id: `survey_${shortid.generate()}`,
-      docType: 'survey',
-      name: null,
-      code: null,
+      _id: `question_${shortid.generate()}`,
+      docType: 'question',
+      test: null,
+      indicator: null,
       imageData: null,
-      permissionGroupId: null,
-      surveyGroupId: null,
+      type: null,
+      options: [],
+      code: null,
+      details: null,
     },
     BaseModel.prototype.defaults,
   ),
