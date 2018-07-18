@@ -28,7 +28,7 @@ export default Backbone.Collection.extend({
   // }),
 
   parse(result) {
-    console.log('_parse_', result);
+    // console.log('_parse_', result);
     this.totalPages = Math.ceil(result.total_rows / this.pageSize);
     return map(result.rows, obj => (obj.doc ? obj.doc : obj));
   },

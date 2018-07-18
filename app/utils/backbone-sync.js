@@ -1,5 +1,5 @@
 import Backbone from 'backbone-associations';
-import { defaults } from 'lodash';
+import { defaults, clone, merge } from 'lodash';
 import { to } from 'await-to-js';
 import BackbonePouch from './backbone-pouch';
 import dbService from '../services/database';
@@ -49,7 +49,7 @@ export default (mainDB) => {
     return new Promise((resolve, reject) => {
       const newOptions = defaults({
         success: resolve,
-        error: reject
+        error: reject,
       }, options);
 
       originalFetch.apply(this, [newOptions]);

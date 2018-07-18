@@ -14,16 +14,24 @@ export default BaseModel.extend({
       imageData: null,
       permissionGroupId: null,
       surveyGroupId: null,
+      screens: []
     },
     BaseModel.prototype.defaults,
   ),
 
   relations: [
+    // {
+    //   type: Backbone.One,
+    //   key: 'surveyGroupId',
+    //   relatedModel: require('./surveyGroup'),
+    //   map: (values) => mapRelations(values, require('./surveyGroup')),
+    //   serialize: '_id'
+    // },
     {
-      type: Backbone.One,
-      key: 'surveyGroupId',
-      relatedModel: require('./surveyGroup'),
-      map: (values) => mapRelations(values, require('./surveyGroup')),
+      type: Backbone.Many,
+      key: 'screens',
+      relatedModel: require('./surveyScreen'),
+      map: (values) => mapRelations(values, require('./surveyScreen')),
       serialize: '_id'
     }
   ],

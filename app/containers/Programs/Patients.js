@@ -54,7 +54,7 @@ class Patients extends Component {
 
   selectPatient = (patientId) => {
     const { programId } = this.props.match.params;
-    this.props.history.push(`/${programId}/${patientId}/surveys`);
+    this.props.history.push(`/programs/${programId}/${patientId}/surveys`);
   }
 
   onFetchData = (state) => {

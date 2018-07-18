@@ -14,7 +14,6 @@ export default (objs, Model) => {
     ids.forEach((_id) => {
       const _model = new Model();
       _model.set({ _id });
-      _model.fetch();
       _return.push(_model);
     });
 
@@ -24,7 +23,6 @@ export default (objs, Model) => {
   if (isString(objs)) {
     const _model = new Model();
     _model.set({ _id: objs });
-    _model.fetch();
     return _model;
   }
 

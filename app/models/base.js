@@ -1,6 +1,7 @@
 import Backbone from 'backbone-associations';
 import moment from 'moment';
 import { mapValues, assignIn, isEmpty, clone, map, set } from 'lodash';
+import { to } from 'await-to-js';
 
 export default Backbone.AssociatedModel.extend({
   idAttribute: '_id',
@@ -29,73 +30,68 @@ export default Backbone.AssociatedModel.extend({
     return res;
   },
 
-  toJSON(options) {
-    const attributes = clone(this.attributes);
-    const { relations } = this;
-
-    if (options && options.relations) {
-      return new Promise(async (resolve, reject) => {
-        // Fetch all the relations
-        if (!isEmpty(relations)) {
-          try {
-            const tasks = relations.map((relation) => this.fetchRelations({ relation, attributes }));
-            await Promise.all(tasks);
-            resolve(attributes);
-          } catch (err) {
-            reject(err);
-          }
-        } else {
-          resolve(attributes);
+  fetch(options) {
+    return new Promise(async (resolve, reject) => {
+      const { relations } = this;
+      if (!options) options = {};
+      // Proxy the call to the original save function
+      const [error, res] = await to(Backbone.Model.prototype.fetch.apply(this, [options]));
+      if (error) return reject(error);
+      // Fetch all the relations
+      if (options.relations && !isEmpty(relations)) {
+        try {
+          const tasks = relations.map((relation) => this.fetchRelations({ relation }));
+          await Promise.all(tasks);
+          setTimeout(() => this.trigger('change'), 100);
+          resolve(res);
+        } catch (err) {
+          reject(err);
         }
-      });
-    }
-
-    if (!isEmpty(relations)) {
-      relations.forEach((relation) => {
-        const relationCol = this.get(relation.key);
-        if (typeof relationCol !== 'undefined') {
-          if (relation.type === 'Many') {
-            const ids = relationCol.models.map((m) => m.id);
-            attributes[relation.key] = ids;
-          } else if (relation.type === 'One') {
-            const { id } = relationCol;
-            attributes[relation.key] = id;
-          } else {
-            throw new Error('Invalid relation type!');
-          }
-        }
-      });
-    }
-
-    return attributes;
+      } else {
+        resolve(res);
+      }
+    });
   },
 
   fetchRelations(options) {
     return new Promise(async (resolve, reject) => {
-      const { relation, attributes } = options;
-      const Model = relation.relatedModel();
-      attributes[relation.key] = [];
-
+      const { relation } = options;
       // Fetch the models
-      const models = this.get(relation.key);
+      const { models } = this.get(relation.key);
       if (models.length > 0) {
-        const tasks = [];
-
-        models.forEach((_model) => {
-          const _m = new Model();
-          _m.set({ _id: _model.id });
-          tasks.push(_m.fetch());
-        });
-
+        const tasks = models.map(model => model.fetch());
         try {
-          const values = await Promise.all(tasks);
-          attributes[relation.key] = map(values, (value) => value.toJSON());
+          await Promise.all(tasks);
+          resolve();
         } catch (err) {
           reject(err);
         }
+      } else {
+        resolve();
       }
-
-      resolve(attributes);
     });
-  }
+  },
+
+  // toJSON() {
+  //   const attributes = clone(this.attributes);
+  //   const { relations } = this;
+  //   if (!isEmpty(relations)) {
+  //     relations.forEach((relation) => {
+  //       const relationCol = this.get(relation.key);
+  //       if (typeof relationCol !== 'undefined') {
+  //         if (relation.type === 'Many') {
+  //           const ids = relationCol.models.map((m) => m.id);
+  //           this.set(relation.key, ids);
+  //         } else if (relation.type === 'One') {
+  //           const { id } = relationCol;
+  //           this.set(relation.key, id);
+  //         } else {
+  //           throw new Error('Invalid relation type!');
+  //         }
+  //       }
+  //     });
+  //   }
+
+  //   return attributes;
+  // },
 });

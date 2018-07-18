@@ -10,7 +10,6 @@ export default BaseModel.extend({
       _id: `surveyScreenComponent_${shortid.generate()}`,
       docType: 'surveyScreenComponent',
       questionId: null,
-      screenId: null,
       componentNumber: null,
       nswersEnablingFollowUp: null,
       isFollowUp: false,
@@ -24,13 +23,6 @@ export default BaseModel.extend({
       key: 'questionId',
       relatedModel: require('./question'),
       map: (values) => mapRelations(values, require('./question')),
-      serialize: '_id'
-    },
-    {
-      type: Backbone.One,
-      key: 'screenId',
-      relatedModel: require('./surveyScreen'),
-      map: (values) => mapRelations(values, require('./surveyScreen')),
       serialize: '_id'
     }
   ],
