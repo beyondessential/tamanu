@@ -1,5 +1,5 @@
 import shortid from 'shortid';
-import { defaults } from 'lodash';
+import { defaults, isObject } from 'lodash';
 import Backbone from 'backbone-associations';
 import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
@@ -35,4 +35,15 @@ export default BaseModel.extend({
       serialize: '_id'
     }
   ],
+
+  getQuestions(screenIndex) {
+    const { screens } = this.attributes;
+    let questions = [];
+    const screen = screens.at(screenIndex);
+    if (isObject(screen)) {
+      const { components } = screen.attributes;
+      questions = components.models.map(component => component.get('question').toJSON());
+    }
+    return questions;
+  }
 });

@@ -19,15 +19,17 @@ class Surveys extends Component {
   }
 
   async componentWillMount() {
-    console.log('componentWillMount');
-    const { patientId, programId } = this.props.match.params;
+    const { match } = this.props;
+    const { patientId, programId } = match.params;
     this.props.patientModel.on('change', this.handleChange);
     this.props.programModel.on('change', this.handleChange);
 
     this.props.patientModel.set({ _id: patientId });
-    await this.props.patientModel.fetch();
     this.props.programModel.set({ _id: programId });
-    await this.props.programModel.fetch({ relations: true });
+    await Promise.all([
+      this.props.patientModel.fetch(),
+      this.props.programModel.fetch({ relations: true })
+    ]);
   }
 
   componentWillUnmount() {
@@ -42,22 +44,9 @@ class Surveys extends Component {
     this.setState({ patient, program, surveys });
   }
 
-  selectPatient = (patientId) => {
-    const { programId } = this.props.match.params;
-    this.props.history.push(`/programs/${programId}/${patientId}/surveys`);
-  }
-
-  showAntenatal() {
-    this.props.history.push('/programs/questionTable');
-  }
-  showGestantional() {
-    this.props.history.push('/programs/questionsFirst');
-  }
-  showOnset() {
-    this.props.history.push('/programs/pregnancyConfirm');
-  }
-  showPregnancy() {
-    this.props.history.push('/programs/pregnancyConfirm');
+  gotoSurvey = (surveyId) => {
+    const { patientId, programId } = this.props.match.params;
+    this.props.history.push(`/programs/${programId}/${patientId}/surveys/${surveyId}`);
   }
 
   render() {
@@ -74,27 +63,21 @@ class Surveys extends Component {
             <div className="columns">
               <div className="column pregnancy-name">
                 <span className="pregnancy-name-title">
-                  Name
+                  Patient
                 </span>
                 <span className="pregnancy-name-details">
                   {`${patient.firstName} ${patient.lastName}`}
                 </span>
               </div>
-              <div className="column pregnancy-estimate">
-                <span className="pregnancy-estimate-text">
-                  Estimate date of conception:
-                </span>
-                <button className="button is-primary estimate-add-button " onClick={this.showAntenatal.bind(this)}>+(Add)</button>
-              </div>
             </div>
           </div>
           <div className="columns">
             <div className="column pregnancy-button-details">
-              <div className="pregnancy-options-title">Pregnancy 3: Options</div>
+              <div className="pregnancy-options-title">{program.name}: Options</div>
               {surveys.map(survey => {
                 return (
                   <div className="button-details" key={survey._id}>
-                    <button className="button is-primary pregnancies-button " onClick={this.showAntenatal.bind(this)}>{survey.name}</button>
+                    <button className="button is-primary pregnancies-button " onClick={() => this.gotoSurvey(survey._id)}>{survey.name}</button>
                   </div>
                 );
               })}
@@ -102,16 +85,16 @@ class Surveys extends Component {
             <div className="column pregnancy-button-details">
               <div className="pregnancy-options-title">View previous visits</div>
               <div className="button-details">
-                <button className="button is-info pregnancies-button " onClick={this.showAntenatal.bind(this)}>Patient reporting</button>
+                <button className="button is-info pregnancies-button">Patient reporting</button>
               </div>
               <div className="button-details">
-                <button className="button is-warning pregnancies-button " onClick={this.showAntenatal.bind(this)}>Antenatal Visit 1</button>
+                <button className="button is-warning pregnancies-button">Antenatal Visit 1</button>
               </div>
               <div className="button-details">
-                <button className="button is-warning pregnancies-button " onClick={this.showAntenatal.bind(this)}>Antenatal Visit 2</button>
+                <button className="button is-warning pregnancies-button">Antenatal Visit 2</button>
               </div>
               <div className="button-details">
-                <button className="button is-warning pregnancies-button " onClick={this.showAntenatal.bind(this)}>Postnatal Visit 1</button>
+                <button className="button is-warning pregnancies-button">Postnatal Visit 1</button>
               </div>
             </div>
           </div>

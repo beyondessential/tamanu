@@ -9,7 +9,7 @@ export default BaseModel.extend({
     {
       _id: `surveyScreenComponent_${shortid.generate()}`,
       docType: 'surveyScreenComponent',
-      questionId: null,
+      question: '',
       componentNumber: null,
       nswersEnablingFollowUp: null,
       isFollowUp: false,
@@ -20,7 +20,7 @@ export default BaseModel.extend({
   relations: [
     {
       type: Backbone.One,
-      key: 'questionId',
+      key: 'question',
       relatedModel: require('./question'),
       map: (values) => mapRelations(values, require('./question')),
       serialize: '_id'

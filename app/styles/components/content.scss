@@ -16,6 +16,13 @@
       color: $main-light-dark-color;
       font-size: 28px;
       font-weight: 600;
+      &.survey-title{
+        font-size: 18px !important;
+        padding: 10px 30px !important;
+        margin-top: 8px !important;
+        float: right;
+        color: $main-white-color;
+      }
     }
     .title-text{
       float: right;
@@ -252,7 +259,7 @@
       font-weight: 100;
     }
     .question-details{
-      margin-left: 20px;
+      margin-left: 10px;
     }
     .checkbox span {
     margin-left: 10px;
@@ -303,7 +310,7 @@
       font-size: 18px;
     }
     .question-details{
-      margin-left: 20px;
+      margin-left: 10px;
     }
     .checkbox span {
     margin-left: 10px;
@@ -373,7 +380,7 @@
       }
     }
     .question-details{
-      margin-left: 20px;
+      margin-left: 10px;
     }
     .checkbox span {
     margin-left: 10px;

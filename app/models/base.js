@@ -48,26 +48,35 @@ export default Backbone.AssociatedModel.extend({
           reject(err);
         }
       } else {
+        setTimeout(() => this.trigger('change'), 100);
         resolve(res);
       }
     });
   },
 
-  fetchRelations(options) {
+  fetchRelations(options) { //
     return new Promise(async (resolve, reject) => {
       const { relation } = options;
+      const { type } = relation;
       // Fetch the models
-      const { models } = this.get(relation.key);
-      if (models.length > 0) {
-        const tasks = models.map(model => model.fetch());
-        try {
-          await Promise.all(tasks);
+      if (type === 'Many') {
+        const { models } = this.attributes[relation.key];
+        if (models.length > 0) {
+          const tasks = models.map(model => model.fetch({ relations: true }));
+          try {
+            await Promise.all(tasks);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        } else {
           resolve();
-        } catch (err) {
-          reject(err);
         }
       } else {
-        resolve();
+        const model = this.attributes[relation.key];
+        const [err] = await to(model.fetch());
+        if (err) return reject(err);
+        return resolve();
       }
     });
   },
@@ -80,8 +89,9 @@ export default Backbone.AssociatedModel.extend({
   //       const relationCol = this.get(relation.key);
   //       if (typeof relationCol !== 'undefined') {
   //         if (relation.type === 'Many') {
-  //           const ids = relationCol.models.map((m) => m.id);
-  //           this.set(relation.key, ids);
+  //           const data = relationCol.models.map((m) => m.toJSON());
+  //           console.log('__data__', data);
+  //           this.set(relation.key, data);
   //         } else if (relation.type === 'One') {
   //           const { id } = relationCol;
   //           this.set(relation.key, id);

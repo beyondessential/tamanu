@@ -5,13 +5,15 @@ import patients from './patients';
 import medications from './medications';
 import invoices from './invoices';
 import labs from './labs';
+import programs from './programs';
 
 const rootReducer = combineReducers({
   patients,
   router,
   medications,
   invoices,
-  labs
+  labs,
+  programs
 });
 
 export default rootReducer;

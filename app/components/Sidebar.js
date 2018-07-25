@@ -46,6 +46,47 @@ class Sidebar extends Component {
 
         if (key === 0) programsNav.path = `/programs/${program._id}/patients`;
       });
+
+      programsNav.children.push({
+        label: 'Pregnancies',
+        path: '/programs/pregnancies',
+        icon: 'fa fa-chevron-right'
+      });
+      programsNav.children.push({
+        label: 'prepregnancies',
+        path: '/programs/prepregnancies',
+        icon: 'fa fa-chevron-right'
+      });
+      programsNav.children.push({
+        label: 'pregnancyVisit',
+        path: '/programs/pregnancyVisit',
+        icon: 'fa fa-chevron-right'
+      });
+      programsNav.children.push({
+        label: 'pregnancyConfirm',
+        path: '/programs/pregnancyConfirm',
+        icon: 'fa fa-chevron-right'
+      });
+      programsNav.children.push({
+        label: 'questionTable',
+        path: '/programs/questionTable',
+        icon: 'fa fa-chevron-right'
+      });
+      programsNav.children.push({
+        label: 'questionsFirst',
+        path: '/programs/questionsFirst',
+        icon: 'fa fa-chevron-right'
+      });
+      programsNav.children.push({
+        label: 'questionsSecond',
+        path: '/programs/questionsSecond',
+        icon: 'fa fa-chevron-right'
+      });
+      programsNav.children.push({
+        label: 'questionsThird',
+        path: '/programs/questionsThird',
+        icon: 'fa fa-chevron-right'
+      });
     }
 
     this.forceUpdate();
