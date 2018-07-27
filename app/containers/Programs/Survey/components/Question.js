@@ -12,19 +12,36 @@ export class DumbQuestion extends React.Component {
   // }
 
   render() {
-    const { _id: key, imageData, text, type, SpecificQuestion, validationErrorMessage, ...questionProps } = this.props;
+    const { mageData, text, type, SpecificQuestion, validationErrorMessage, ...questionProps } = this.props;
+    let wrapperClass = '';
+    let questionClass = '';
+    let labelClass = 'm-b-10';
+    switch (type) {
+      case 'Number':
+        wrapperClass = 'column is-half';
+        questionClass = '_column question-details';
+        labelClass = '_column m-b-10';
+        break;
+      case 'Instruction':
+        wrapperClass = '';
+        break;
+      default:
+        wrapperClass = 'column is-half';
+        questionClass = 'question-details';
+        break;
+    }
     // console.log('__questionProps__', questionProps);
     return (
-      <div className="column is-half questions-one">
-        {text && <Instruction questionText={text} detailText={questionProps.detail} />}
+      <div className={wrapperClass}>
+        {text && <Instruction questionText={text} detailText={questionProps.detail} className={labelClass} />}
         {/* {imageData && imageData.length > 0 ? (<Image
           source={getImageSourceFromData(imageData)}
           style={localStyles.image}
         />) : null} */}
         {type !== 'Instruction' &&
-          <div className="question-details">
+          <div className={questionClass}>
             <SpecificQuestion
-              key={key}
+              key={questionProps._id}
               questionText={text}
               {...questionProps}
             />

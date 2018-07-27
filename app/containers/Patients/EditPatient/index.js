@@ -33,7 +33,11 @@ class EditPatient extends Component {
     const { id } = this.props.match.params;
     this.props.model.on('change', this.handleChange);
     this.props.model.set({ _id: id });
-    await this.props.model.fetch();
+    await this.props.model.fetch({ relations: true });
+  }
+
+  componentWillReceiveProps(newProps) {
+    console.log('_componentWillReceiveProps_', newProps);
   }
 
   componentWillUnmount() {
@@ -41,8 +45,9 @@ class EditPatient extends Component {
   }
 
   handleChange = async () => {
+    console.log('_handleChange_', this.props.model.attributes.allergies.models);
     try {
-      const patient = await this.props.model.toJSON({ relations: true });
+      const patient = this.props.model.toJSON({ relations: true });
       this.setState({ patient }, () => this.forceUpdate());
     } catch (err) {
       console.error('Error: ', err);
@@ -71,6 +76,7 @@ class EditPatient extends Component {
   }
 
   render() {
+    console.log('_render_');
     const { selectedTab, patient } = this.state;
     const { history } = this.props;
     const procedures = this.props.model.getProcedures();
@@ -127,7 +133,7 @@ class EditPatient extends Component {
                           <li className={classNames(selectedTab === 'medication' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('medication')}>Medication</a></li>
                           <li className={classNames(selectedTab === 'imaging' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('imaging')}>Imaging</a></li>
                           <li className={classNames(selectedTab === 'labs' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('labs')}>Labs</a></li>
-                          <li className={classNames(selectedTab === 'pregnancy' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('pregnancy')}>Pregnancy</a></li>
+                          {patient.sex === 'female' && <li className={classNames(selectedTab === 'pregnancy' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('pregnancy')}>Pregnancy</a></li>}
                           <li className={classNames(selectedTab === 'programs' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('programs')}>Programs</a></li>
                         </ul>
                       </div>
@@ -175,7 +181,7 @@ class EditPatient extends Component {
                             <Programs />
                           </div>
                         }
-                        {selectedTab === 'pregnancy' &&
+                        {selectedTab === 'pregnancy' && patient.sex === 'female' &&
                           <div className="column">
                             <Pregnancy patient={patient} model={this.props.model} history={this.props.history} />
                           </div>

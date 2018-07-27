@@ -3,11 +3,9 @@ import {
   getAnswers,
   getCurrentScreen,
   getSelectedClinicName,
-  getSelectedCountryId,
   getSurveyScreenIndex,
   getTotalNumberOfScreens,
   getSurveyScreen,
-  getScreens,
   getVisibleSurveyScreenQuestions,
   getAnswerForQuestion,
 } from './selectors';
@@ -26,7 +24,7 @@ import {
   SURVEY_SCREEN_ERROR_MESSAGE_CHANGE,
 } from './types';
 import { validateAnswer } from './validation';
-import { PatientModel, ProgramModel, SurveyModel } from '../models';
+import { AnswerModel, PatientModel, ProgramModel, SurveyModel, SurveyResponseModel } from '../models';
 
 export const initSurvey = ({ patientId, programId, surveyId }) =>
   async dispatch => {
@@ -53,37 +51,10 @@ export const initSurvey = ({ patientId, programId, surveyId }) =>
     });
   };
 
-
-
-
-
-
-
-const goBack = () => { console.log('goBack'); };
-const openSurvey = () => { console.log('openSurvey'); };
-const openSurveyGroup = () => { console.log('openSurveyGroup'); };
-const getCurrentUserLocation = () => { console.log('getCurrentUserLocation'); };
-const watchUserLocation = () => { console.log('watchUserLocation'); };
-const stopWatchingUserLocation = () => { console.log('stopWatchingUserLocation'); };
-const arrayWithIdsToObject = (arr) => { console.log('arrayWithIdsToObject'); return arr; };
-
-export const initialiseSurveys = () => async (dispatch, getState, { database }) => {
-  const surveys = {};
-
-  const countryId = getSelectedCountryId(getState());
-  database.getSurveys(countryId).forEach((survey) => {
-    surveys[survey.id] = survey.getReduxStoreData();
-  });
-
-  dispatch({
-    type: UPDATE_SURVEYS,
-    surveys,
-  });
-};
-
-export const changeAnswer = (questionId, newAnswer) => ({
+export const changeAnswer = (questionId, questionType, newAnswer) => ({
   type: ANSWER_CHANGE,
   questionId,
+  questionType,
   newAnswer,
 });
 
@@ -92,6 +63,100 @@ export const changeExtraProps = (componentIndex, newProps) => ({
   componentIndex,
   newProps,
 });
+
+export const submitSurvey = (patientId, surveyId, programId, history, startTime, shouldRepeat = false) => {
+  return async (dispatch, getState) => {
+    // console.log('__model__', model);
+    // console.log('__props__', props);
+    // const screens = getScreens(getState());
+    // screens.forEach((screen, screenIndex) => {
+    //   dispatch(validateScreen(screenIndex));
+    // });
+    // const validatedScreens = getScreens(getState()); // Re-fetch state now validation is added
+    // if (validatedScreens.some((screen) => doesScreenHaveValidationErrors(screen))) {
+    //   return; // Early return, do not submit if there are validation errors
+    // }
+
+    dispatch({ type: SURVEY_SUBMIT });
+    const location = {}; // await getCurrentUserLocation(getState(), 1000);
+    const existingSurveyResponses = [];
+    // Skip duplicate survey responses.
+    // const existingSurveyResponses = await database.findSurveyResponses({
+    //   surveyId,
+    //   clinicId,
+    //   startTime,
+    // });
+
+    // Only save the survey if it isn't a duplicate.
+    if (existingSurveyResponses.length === 0) {
+      const response = {
+        surveyId,
+        assessorName: 'userName', // TODO: update this
+        patientId,
+        startTime,
+        userId: '000', // TODO: update this
+        metadata: JSON.stringify({ location }),
+      };
+
+      // Set endTime only after no duplicate responses are found.
+      response.endTime = new Date().toISOString();
+
+      // Save the response
+      const responseModel = new SurveyResponseModel();
+      responseModel.set(response);
+      await responseModel.save();
+
+      // Attach answers
+      const tasks = [];
+      const answerEntries = Object.entries(getAnswers(getState()));
+      answerEntries.forEach(entry => {
+        const answer = processAnswerForDatabase(entry[1]);
+        const answerModel = new AnswerModel();
+        answerModel.set(answer);
+        tasks.push(answerModel.save());
+      });
+
+      // Update answers
+      const answers = await Promise.all(tasks);
+      answers.forEach(answer => responseModel.get('answers').add(answer.id));
+      await responseModel.save();
+
+      dispatch({ type: SURVEY_SUBMIT_SUCCESS });
+      if (shouldRepeat) {
+        dispatch(selectSurvey(surveyId, true));
+      } else {
+        dispatch(gotoProgram(patientId, programId, history));
+      }
+    }
+  };
+};
+
+const processAnswerForDatabase = ({ questionId, questionType, newAnswer: answer }) => {
+  let processedAnswer = answer;
+
+  // if (type === 'Photo' && imageDataIsFileName(answer)) {
+  //   const fileName = getFileInDocumentsPath(answer);
+  //   processedAnswer = await RNFS.readFile(fileName, 'base64');
+  // }
+
+  // Some question types work off raw data, but display and store a processed version. E.g. DaysSince
+  // questions store the raw date during the survey, but need to save the days since that raw date.
+  if (answer && answer.processed) {
+    processedAnswer = answer.processed;
+  }
+
+  processedAnswer = typeof processedAnswer === 'string' ? processedAnswer : JSON.stringify(processedAnswer);
+
+  return {
+    questionId,
+    questionType,
+    body: processedAnswer,
+  };
+};
+
+const gotoProgram = (patientId, programId, history) => {
+  return dispatch => dispatch(history.push(`/programs/${programId}/${patientId}/surveys`));
+};
 
 export const changeClinic = (clinic) => (dispatch, getState, { analytics }) => {
   const { assessment } = getState();
@@ -165,7 +230,7 @@ export const selectSurvey = ({ surveyModel }) =>
     // }
   };
 
-export const selectSurveyGroup = openSurveyGroup;
+// export const selectSurveyGroup = openSurveyGroup;
 
 export const moveToSurveyScreen = (toIndex) => (dispatch, getState) => {
   dispatch(validateScreen());
@@ -207,91 +272,6 @@ export const moveSurveyScreens = (numberOfScreens) => (dispatch, getState) => {
   dispatch(moveToSurveyScreen(toIndex));
 };
 
-const processAnswerForDatabase = async (questionId, type, answer) => {
-  let processedAnswer = answer;
-
-  if (type === 'Photo' && imageDataIsFileName(answer)) {
-    const fileName = getFileInDocumentsPath(answer);
-    processedAnswer = await RNFS.readFile(fileName, 'base64');
-  }
-
-  // Some question types work off raw data, but display and store a processed version. E.g. DaysSince
-  // questions store the raw date during the survey, but need to save the days since that raw date.
-  if (answer && answer.processed) {
-    processedAnswer = answer.processed;
-  }
-
-  processedAnswer = typeof processedAnswer === 'string' ? processedAnswer : JSON.stringify(processedAnswer);
-
-  return {
-    questionId,
-    type,
-    body: processedAnswer,
-  };
-};
-
-export const submitSurvey = (surveyId, assessorId, clinicId, startTime, questions, shouldRepeat) =>
-  async (dispatch, getState, { database, analytics }) => {
-    const screens = getScreens(getState());
-    screens.forEach((screen, screenIndex) => {
-      dispatch(validateScreen(screenIndex));
-    });
-    const validatedScreens = getScreens(getState()); // Re-fetch state now validation is added
-    if (validatedScreens.some((screen) => doesScreenHaveValidationErrors(screen))) {
-      return; // Early return, do not submit if there are validation errors
-    }
-
-    dispatch({ type: SURVEY_SUBMIT });
-
-    const location = await getCurrentUserLocation(getState(), 1000);
-
-    // Skip duplicate survey responses.
-    const existingSurveyResponses = await database.findSurveyResponses({
-      surveyId,
-      clinicId,
-      startTime,
-    });
-
-    // Only save the survey if it isn't a duplicate.
-    if (existingSurveyResponses.length === 0) {
-      const response = {
-        surveyId,
-        assessorName: database.getCurrentUser().name,
-        clinicId,
-        startTime,
-        userId: assessorId,
-        metadata: JSON.stringify({ location }),
-      };
-
-      // Set endTime only after no duplicate responses are found.
-      response.endTime = new Date().toISOString();
-
-      // Process answers and save the response in the database
-      const processedAnswers = [];
-      const answerEntries = Object.entries(getAnswers(getState()));
-      for (let i = 0; i < answerEntries.length; i++) {
-        const [questionId, answer] = answerEntries[i];
-        if (answer) {
-          const questionType = questions[questionId].type;
-          processedAnswers.push(await processAnswerForDatabase(questionId, questionType, answer));
-        }
-      }
-      database.saveSurveyResponse(response, processedAnswers);
-
-      analytics.trackEvent('Submit Survey', response);
-    }
-
-    // dispatch(synchroniseDatabase());
-    dispatch({ type: SURVEY_SUBMIT_SUCCESS });
-
-    if (shouldRepeat) {
-      dispatch(selectSurvey(surveyId, true));
-    } else {
-      dispatch(stopWatchingUserLocation());
-      dispatch(goBack(false));
-    }
-  };
-
 export const validateComponent = (screenIndex, componentIndex, validationCriteria, answer) =>
   (dispatch, getState) => {
     dispatch({
@@ -330,7 +310,7 @@ const validateScreen = (screenIndex) => (dispatch, getState) => {
       getAnswerForQuestion(state, questionId),
     ));
   });
-}
+};
 
 const doesScreenHaveValidationErrors = (screen) =>
   screen && screen.components.some(({ validationErrorMessage }) => !!validationErrorMessage);
@@ -338,3 +318,11 @@ const doesScreenHaveValidationErrors = (screen) =>
 export const resetAssessmentState = () => ({
   type: ASSESSMENT_RESET,
 });
+
+const goBack = () => { console.log('goBack'); };
+const openSurvey = () => { console.log('openSurvey'); };
+const openSurveyGroup = () => { console.log('openSurveyGroup'); };
+const getCurrentUserLocation = () => { console.log('getCurrentUserLocation'); };
+const watchUserLocation = () => { console.log('watchUserLocation'); };
+const stopWatchingUserLocation = () => { console.log('stopWatchingUserLocation'); };
+const arrayWithIdsToObject = (arr) => { console.log('arrayWithIdsToObject'); return arr; };

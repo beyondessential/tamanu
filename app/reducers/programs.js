@@ -57,14 +57,27 @@ const stateChanges = {
     isSurveyInProgress: true,
     currentScreenIndex: 0, // Start at the first screen
   }),
-
-
-
-  [ANSWER_CHANGE]: ({ questionId, newAnswer }, state) => {
+  [ANSWER_CHANGE]: ({ questionId, questionType, newAnswer }, state) => {
     const answers = { ...state.answers };
-    answers[questionId] = newAnswer;
+    answers[questionId] = { questionId, questionType, newAnswer };
     return { ...state, answers };
   },
+  [SURVEY_SUBMIT]: (_, state) => ({ ...state, isSubmitting: true }),
+  [SURVEY_SUBMIT_SUCCESS]: (_, state) => ({
+    ...state,
+    isSubmitting: false,
+    isSurveyInProgress: false,
+  }),
+  [SURVEY_SCREEN_SELECT]: ({ screenIndex }, state) => ({
+    ...state,
+    currentScreenIndex: screenIndex,
+  }),
+  [EXTRA_PROPS_CHANGE]: ({ componentIndex, newProps }, state) =>
+    updateComponentState(state, state.currentScreenIndex, componentIndex, (component) => {
+      component.extraProps = { ...component.extraProps, ...newProps };
+      return component;
+    }),
+
   [VALIDATION_ERROR_CHANGE]: ({ screenIndex, componentIndex, validationErrorMessage }, state) =>
     updateComponentState(state, screenIndex, componentIndex, (component) => {
       if (component.hasOwnProperty('validationErrorMessage') || validationErrorMessage) {
@@ -73,27 +86,12 @@ const stateChanges = {
       return component;
     }),
   [ASSESSMENT_CLINIC_SELECT]: ({ selectedClinic }, state) => ({ ...state, selectedClinic }),
-  [EXTRA_PROPS_CHANGE]: ({ componentIndex, newProps }, state) =>
-    updateComponentState(state, state.currentScreenIndex, componentIndex, (component) => {
-      component.extraProps = { ...component.extraProps, ...newProps };
-      return component;
-    }),
   [ASSESSMENT_RESET]: () => initialState,
   [SURVEY_SCREEN_ERROR_MESSAGE_CHANGE]: ({ message, screenIndex }, state) => {
     const screens = [...state.screens];
     screens[screenIndex].errorMessage = message;
     return { ...state, screens };
   },
-  [SURVEY_SCREEN_SELECT]: ({ screenIndex }, state) => ({
-    ...state,
-    currentScreenIndex: screenIndex,
-  }),
-  [SURVEY_SUBMIT]: (_, state) => ({ ...state, isSubmitting: true }),
-  [SURVEY_SUBMIT_SUCCESS]: (_, state) => ({
-    ...state,
-    isSubmitting: false,
-    isSurveyInProgress: false,
-  }),
   [UPDATE_SURVEYS]: ({ surveys }, state) => ({ ...state, surveys }),
   [WIPE_CURRENT_SURVEY]: (_, state) => ({
     ...state,
@@ -107,138 +105,6 @@ const stateChanges = {
 };
 
 export default (state = initialState, action) => {
-  console.log('action', action);
   if (has(stateChanges, action.type)) return stateChanges[action.type](action, state);
   return state;
 };
-
-// {
-// stateChanges[action.type]();
-// let assessorId, surveyId, screens, startTime, questions;
-// switch (action.type) {
-//   case INIT_SURVEY:
-//     let { assessorId, surveyId, screens, startTime, questions } = action;
-//     return {
-//       answers: initialState.answers,
-//       assessorId,
-//       surveyId,
-//       screens,
-//       questions,
-//       startTime,
-//       isSubmitting: false,
-//       isSurveyInProgress: true,
-//       currentScreenIndex: 0, // Start at the first screen
-//     };
-//   case CREATE_PATIENT_REQUEST:
-//     return {
-//       ...state,
-//       patientInProgress: true,
-//       createPatientSuccess: false,
-//       deletePatientSuccess: false
-//     };
-//   case CREATE_PATIENT_SUCCESS:
-//     return {
-//       ...state,
-//       patientInProgress: false,
-//       createPatientSuccess: true,
-//       deletePatientSuccess: false
-//     };
-//   case CREATE_PATIENT_FAILED:
-//     return {
-//       ...state,
-//       patientInProgress: false,
-//       formError: true,
-//       createPatientSuccess: false,
-//       deletePatientSuccess: false
-//     };
-//   case FETCH_PATIENTS_REQUEST:
-//     return {
-//       ...state,
-//       deletePatientSuccess: false
-//     };
-//   case FETCH_PATIENTS_SUCCESS:
-//     return {
-//       ...state,
-//       patients: action.payload,
-//       deletePatientSuccess: false
-//     };
-//   case FETCH_PATIENTS_FAILED:
-//     return {
-//       ...state,
-//       deletePatientSuccess: false
-//     };
-//   case FETCH_ADMITTED_PATIENTS_REQUEST:
-//     return {
-//       ...state,
-//     };
-//   case FETCH_ADMITTED_PATIENTS_SUCCESS:
-//     return {
-//       ...state,
-//       admittedPatients: action.payload
-//     };
-//   case FETCH_ADMITTED_PATIENTS_FAILED:
-//     return {
-//       ...state,
-//       admittedPatients: []
-//     };
-//   case FETCH_ONE_PATIENT_REQUEST:
-//     return {
-//       ...state,
-//     };
-//   case FETCH_ONE_PATIENT_SUCCESS:
-//     return {
-//       ...state,
-//       onePatient: action.payload
-//     };
-//   case FETCH_ONE_PATIENT_FAILED:
-//     return {
-//       ...state,
-//     };
-//   case DELETE_PATIENT_REQUEST:
-//     return {
-//       ...state,
-//       createPatientSuccess: false,
-//       deletePatientSuccess: false
-//     };
-//   case DELETE_PATIENT_SUCCESS:
-//     return {
-//       ...state,
-//       createPatientSuccess: false,
-//       deletePatientSuccess: true
-//     };
-//   case DELETE_PATIENT_FAILED:
-//     return {
-//       ...state,
-//       createPatientSuccess: false,
-//       deletePatientSuccess: false
-//     };
-//   case GET_UPDATED_BIRTHDAY_REQUEST:
-//     return {
-//       ...state,
-//     };
-//   case GET_UPDATED_BIRTHDAY_SUCCESS:
-//     return {
-//       ...state,
-//       updatedBirthday: action.payload
-//     };
-//   case GET_UPDATED_BIRTHDAY_FAILED:
-//     return {
-//       ...state,
-//     };
-//   case GET_UPDATED_REFERDATE_REQUEST:
-//     return {
-//       ...state,
-//     };
-//   case GET_UPDATED_REFERDATE_SUCCESS:
-//     return {
-//       ...state,
-//       updatedReferredDate: action.payload
-//     };
-//   case GET_UPDATED_REFERDATE_FAILED:
-//     return {
-//       ...state,
-//     };
-//   default:
-//     return state;
-// }
-//  };

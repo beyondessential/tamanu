@@ -4,7 +4,7 @@ export { CheckboxQuestion } from './CheckboxQuestion';
 // export { FreeTextQuestion } from './FreeTextQuestion';
 // export { GeolocateQuestion } from './GeolocateQuestion';
 export { Instruction } from './Instruction';
-// export { NumberQuestion } from './NumberQuestion';
+export { NumberQuestion } from './NumberQuestion';
 // export { PhotoQuestion } from './PhotoQuestion';
 export { RadioQuestion } from './RadioQuestion';
 // export { UnsupportedQuestion } from './UnsupportedQuestion';

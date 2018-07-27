@@ -1,6 +1,6 @@
 import Backbone from 'backbone-associations';
 import moment from 'moment';
-import { mapValues, assignIn, isEmpty, clone, map, set } from 'lodash';
+import { mapValues, assignIn, isEmpty, clone, map, set, isObject } from 'lodash';
 import { to } from 'await-to-js';
 
 export default Backbone.AssociatedModel.extend({
@@ -74,34 +74,34 @@ export default Backbone.AssociatedModel.extend({
         }
       } else {
         const model = this.attributes[relation.key];
-        const [err] = await to(model.fetch());
-        if (err) return reject(err);
+        if (model) {
+          const [err] = await to(model.fetch());
+          if (err) return reject(err);
+        }
         return resolve();
       }
     });
   },
 
-  // toJSON() {
-  //   const attributes = clone(this.attributes);
-  //   const { relations } = this;
-  //   if (!isEmpty(relations)) {
-  //     relations.forEach((relation) => {
-  //       const relationCol = this.get(relation.key);
-  //       if (typeof relationCol !== 'undefined') {
-  //         if (relation.type === 'Many') {
-  //           const data = relationCol.models.map((m) => m.toJSON());
-  //           console.log('__data__', data);
-  //           this.set(relation.key, data);
-  //         } else if (relation.type === 'One') {
-  //           const { id } = relationCol;
-  //           this.set(relation.key, id);
-  //         } else {
-  //           throw new Error('Invalid relation type!');
-  //         }
-  //       }
-  //     });
-  //   }
-
-  //   return attributes;
-  // },
+  toJSON({ relations: addRelations = false } = {}) {
+    const attributes = clone(this.attributes);
+    const { relations } = this;
+    if (!isEmpty(relations)) {
+      relations.forEach((relation) => {
+        const relationCol = this.get(relation.key);
+        if (typeof relationCol !== 'undefined' && isObject(relationCol)) {
+          if (relation.type === 'Many') {
+            const data = relationCol.models.map((m) => (addRelations ? m.toJSON() : m.id));
+            set(attributes, relation.key, data);
+          } else if (relation.type === 'One') {
+            const { id } = relationCol;
+            set(attributes, relation.key, id);
+          } else {
+            throw new Error('Invalid relation type!');
+          }
+        }
+      });
+    }
+    return attributes;
+  },
 });

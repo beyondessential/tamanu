@@ -13,14 +13,14 @@ const renderQuestionText = (questionText) => (
   </label>
 );
 
-export const Instruction = ({ questionText, detailText }) => {
+export const Instruction = ({ questionText, detailText, className }) => {
   // Skip rendering of instruction if there is no text to render.
   if (!questionText && !detailText) {
     return null;
   }
 
   return (
-    <div className="m-b-10">
+    <div className={className}>
       {(questionText && questionText.length > 0 ? renderQuestionText(questionText) : null)}
       {(detailText && detailText.length > 0 ? renderDetailText(detailText) : null)}
     </div>

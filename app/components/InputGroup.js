@@ -4,17 +4,19 @@ import { connect } from 'react-redux';
 
 class InputGroup extends Component {
   static propTypes = {
-    label: PropTypes.string.isRequired,
+    label: PropTypes.any.isRequired,
     required: PropTypes.bool,
     name: PropTypes.string.isRequired,
     className: PropTypes.string,
     inputClass: PropTypes.string,
+    overwriteClass: PropTypes.bool
   }
 
   static defaultProps = {
     required: false,
     className: '',
     inputClass: '',
+    overwriteClass: false
   }
 
   constructor(props) {
@@ -37,14 +39,19 @@ class InputGroup extends Component {
       required,
       name,
       tabIndex,
-      className,
+      overwriteClass,
       inputClass
     } = this.props;
+    let { className } = this.props;
+    if (!overwriteClass) className = `column ${className}`;
+
     return (
-      <div className={`column ${className}`}>
-        <span className="input-group-title">
-          {label} {required && <span className="isRequired">*</span>}
-        </span>
+      <div className={className}>
+        {label !== false &&
+          <span className="input-group-title">
+            {label} {required && <span className="isRequired">*</span>}
+          </span>
+        }
         <input className={`input is-primary ${inputClass}`} type="text" name={name} tabIndex={tabIndex} value={this.state.value} onChange={this.handleChange.bind(this)} required={required} />
       </div>
     );

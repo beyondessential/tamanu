@@ -1,14 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export const RadioQuestion = ({ answer, onChangeAnswer, options, style }) => (
+export const RadioQuestion = ({ _id: id, answer, onChangeAnswer, options, style }) => (
   <div className="control is-size-6">
     {options.map((option) => {
       const { color: iconColor, label, value } = extractOptionDetails(option); // Sometimes an object with defined color/label/value
-      const isSelected = answer === value;
+      const isChecked = answer === value;
       return (
         <label className="radio is-block m-b-5 m-l-0" key={value}>
-          <input type="radio" name="answer" value={value} checked={isSelected} /> {label}
+          <input type="radio" name={`radio_${id}`} value={value} defaultChecked={isChecked} onChange={({ target }) => onChangeAnswer(target.value)} /> {label}
         </label>
         // <Checkbox
         //   key={value}

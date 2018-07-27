@@ -9,21 +9,22 @@ class Procedure extends Component {
 
   render() {
     const { procedures } = this.props;
-
     return (
       <div>
-        <div className="column p-b-0">
-          <span className="title">Procedures</span>
-          <div className="clearfix" />
-          {procedures.map((procedure, k) => {
-            return (
-              <React.Fragment key={`procedure-${k}`}>
-                {k > 0 ? ', ' : ''}
-                <a className="add-button" onClick={(e) => this.navigateTo(e, procedure.operationReportId)}>{`${procedure.name} (${procedure.date})`}</a>
-              </React.Fragment>
-            );
-          })}
-        </div>
+        {procedures.length > 0 &&
+          <div className="column p-b-0">
+            <span className="title">Procedures</span>
+            <div className="is-clearfix" />
+            {procedures.map((procedure, k) => {
+              return (
+                <React.Fragment key={`procedure-${k}`}>
+                  {k > 0 ? ', ' : ''}
+                  <a className="add-button" onClick={(e) => this.navigateTo(e, procedure.operationReportId)}>{`${procedure.name} (${procedure.date})`}</a>
+                </React.Fragment>
+              );
+            })}
+          </div>
+        }
       </div>
     );
   }

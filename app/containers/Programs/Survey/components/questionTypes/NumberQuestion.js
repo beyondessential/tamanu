@@ -13,12 +13,10 @@ export const NumberQuestion = (props) => {
 
   return (
     <InputGroup
-      textInputProps={{
-        ...textInputProps,
-        placeholder: 'Enter a number',
-        keyboardType: 'numeric',
-      }}
-      {...otherProps}
+      label={false}
+      required={false}
+      name="some-name"
+      className="is-one-third is-paddingless"
     />
   );
 };

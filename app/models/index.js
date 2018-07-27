@@ -1,4 +1,5 @@
 export AllergyModel from './allergy';
+export AnswerModel from './answer';
 export AppointmentModel from './appointment';
 export DiagnosisModel from './diagnosis';
 export LabModel from './lab';

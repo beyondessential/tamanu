@@ -4,18 +4,33 @@ import Modal from 'react-responsive-modal';
 
 class ModalView extends Component {
   static propTypes = {
+    modalType: PropTypes.oneOf(['alert', 'confirm']),
     headerTitle: PropTypes.string.isRequired,
     contentText: PropTypes.string.isRequired,
     isVisible: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
+    onConfirm: PropTypes.func,
+    okText: PropTypes.string,
+    cancelText: PropTypes.string,
+  }
+
+  static defaultProps = {
+    modalType: 'alert',
+    okText: 'OK',
+    cancelText: 'Cancel',
+    onConfirm: () => {}
   }
 
   render() {
     const {
+      modalType,
       headerTitle,
       contentText,
       isVisible,
-      onClose
+      onClose,
+      onConfirm,
+      okText,
+      cancelText
     } = this.props;
     return (
       <Modal open={isVisible} onClose={onClose} little>
@@ -28,7 +43,8 @@ class ModalView extends Component {
           </div>
           <div className="modal-footer">
             <div className="column has-text-right">
-              <button className="button is-primary" onClick={onClose}>Ok</button>
+              {modalType === 'confirm' && <button className="button is-default" onClick={onClose}>{cancelText}</button>}
+              <button className="button is-primary" onClick={modalType === 'confirm' ? onConfirm : onClose}>{okText}</button>
             </div>
           </div>
         </div>

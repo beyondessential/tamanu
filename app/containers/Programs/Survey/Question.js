@@ -8,7 +8,7 @@ import {
   // FreeTextQuestion,
   // GeolocateQuestion,
   Instruction,
-  // NumberQuestion,
+  NumberQuestion,
   // PhotoQuestion,
   RadioQuestion,
   UnsupportedQuestion,
@@ -24,7 +24,7 @@ const QUESTION_TYPES = {
   // FreeText: FreeTextQuestion,
   // Geolocate: GeolocateQuestion,
   Instruction,
-  // Number: NumberQuestion,
+  Number: NumberQuestion,
   // Photo: PhotoQuestion,
   Radio: RadioQuestion,
   // DaysSince: DaysSinceQuestion,
@@ -41,7 +41,7 @@ const mapStateToProps = (state, {
   text: questionText,
   textInputProps,
 }) => {
-  const types = ['Instruction', 'Checkbox', 'Radio', 'Binary'];
+  const types = ['Instruction', 'Checkbox', 'Radio', 'Binary', 'Number'];
   // console.log('__type__', type, types.includes(type));
   // const { answer, extraProps, validationErrorMessage } = getQuestionState(state, screenIndex, componentIndex);
   return {
@@ -56,18 +56,18 @@ const mapStateToProps = (state, {
 };
 
 const mergeProps = ({ hasValidationErrorMessage, ...restOfStateProps }, { dispatch }, ownProps) => {
-  const { id, screenIndex, componentIndex, validationCriteria } = ownProps;
+  const { _id: id, type, screenIndex, componentIndex, validationCriteria } = ownProps;
   return {
     ...ownProps,
     ...restOfStateProps,
-    onChangeAnswer: () => console.log('onChangeAnswer') // (newAnswer) => {
-    //   dispatch(changeAnswer(id, newAnswer));
-    //   // If this question has a validation error message, validate it every time the answer is
-    //   // changed so the user gets immediate feedback when they have fixed the issue
-    //   if (hasValidationErrorMessage) {
-    //     dispatch(validateComponent(screenIndex, componentIndex, validationCriteria, newAnswer));
-    //   }
-    // },
+    onChangeAnswer: (newAnswer) => {
+      dispatch(changeAnswer(id, type, newAnswer));
+      // If this question has a validation error message, validate it every time the answer is
+      // changed so the user gets immediate feedback when they have fixed the issue
+      // if (hasValidationErrorMessage) {
+      //   dispatch(validateComponent(screenIndex, componentIndex, validationCriteria, newAnswer));
+      // }
+    },
     // onChangeExtraProps: (newProps) =>
     //   dispatch(changeExtraProps(id, newProps)),
   };

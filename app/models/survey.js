@@ -45,5 +45,9 @@ export default BaseModel.extend({
       questions = components.models.map(component => component.get('question').toJSON());
     }
     return questions;
+  },
+
+  getTotalScreens() {
+    return this.attributes.screens.length;
   }
 });
