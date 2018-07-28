@@ -27,6 +27,16 @@ export default BaseModel.extend({
     }
   ],
 
+  getAvailableSurveys() {
+    console.log('_getAvailableSurveys_');
+    return this.get('surveys').toJSON();
+  },
+
+  getCompletedSurveys() {
+    console.log('_getCompletedSurveys_');
+    return [];
+  }
+
   // validate: (attrs) => {
   //   if (attrs.firstName === '') return 'firstName is required!';
   //   if (attrs.lastName === '') return 'lastName is required!';

@@ -13,6 +13,9 @@ import {
   UPDATE_SURVEYS,
   WIPE_CURRENT_SURVEY,
   LOGIN_REQUEST,
+  LOAD_SURVEYS_START,
+  LOAD_SURVEYS_SUCCESS,
+  LOAD_SURVEYS_FAILED,
 } from '../actions/types';
 
 import { SurveyModel } from '../models';
@@ -20,15 +23,19 @@ import { SurveyModel } from '../models';
 const surveyModel = new SurveyModel();
 
 const initialState = {
+  surveys: [],
+  surveysAvailable: [],
+  surveysCompleted: [],
+  questions: {},
+  answers: {},
   survey: Object.assign({}, surveyModel.attributes),
   currentScreenIndex: -1,
   screens: null,
   selectedClinic: null,
   isSubmitting: false,
   isSurveyInProgress: false,
-  questions: {},
-  answers: {},
   loading: true,
+  error: null,
 };
 
 // Have to be careful with objects in default state, must deep copy when using them. State should
@@ -77,6 +84,25 @@ const stateChanges = {
       component.extraProps = { ...component.extraProps, ...newProps };
       return component;
     }),
+  [LOAD_SURVEYS_START]: (_, state) => ({
+    ...state,
+    loading: true,
+  }),
+  [LOAD_SURVEYS_SUCCESS]: ({ patient, program, availableSurveys, completedSurveys }, state) => ({
+    ...state,
+    patient,
+    program,
+    availableSurveys,
+    completedSurveys,
+    loading: false,
+  }),
+  [LOAD_SURVEYS_FAILED]: ({ error }, state) => ({
+    ...state,
+    loading: false,
+    error,
+  }),
+
+  // ---  ---  --- //
 
   [VALIDATION_ERROR_CHANGE]: ({ screenIndex, componentIndex, validationErrorMessage }, state) =>
     updateComponentState(state, screenIndex, componentIndex, (component) => {

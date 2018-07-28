@@ -14,7 +14,9 @@ export default BaseModel.extend({
       imageData: null,
       permissionGroupId: null,
       surveyGroupId: null,
-      screens: []
+      screens: [],
+      canRedo: false, // Can submit multiple times
+      order: 0
     },
     BaseModel.prototype.defaults,
   ),

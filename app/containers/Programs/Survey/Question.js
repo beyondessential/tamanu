@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
-import { changeAnswer, changeExtraProps, validateComponent } from '../../../actions/programs';
 import { DumbQuestion } from './components/Question';
+import actions from '../../../actions/programs';
 import {
   BinaryQuestion,
   CheckboxQuestion,
@@ -16,6 +16,9 @@ import {
   // MonthsSinceQuestion,
   // YearsSinceQuestion,
 } from './components/questionTypes';
+
+const { survey: surveyActions } = actions;
+const { changeAnswer, changeExtraProps, validateComponent } = surveyActions;
 
 const QUESTION_TYPES = {
   Binary: BinaryQuestion,

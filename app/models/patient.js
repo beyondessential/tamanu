@@ -1,8 +1,9 @@
 import Backbone from 'backbone-associations';
 import shortid from 'shortid';
-import { defaults, each, clone, merge } from 'lodash';
+import { defaults, each, clone, merge, set } from 'lodash';
 import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
+// import SurveyModel from './survey';
 
 export default BaseModel.extend({
   defaults: () => defaults(
@@ -56,6 +57,7 @@ export default BaseModel.extend({
       operationReports: [],
       operativePlans: [],
       pregnancies: [],
+      surveyResponses: [],
     },
     BaseModel.prototype.defaults
   ),
@@ -96,7 +98,14 @@ export default BaseModel.extend({
       relatedModel: () => require('./pregnancy'),
       map: (values) => mapRelations(values, require('./pregnancy')),
       serialize: '_id'
-    }
+    },
+    {
+      type: Backbone.Many,
+      key: 'surveyResponses',
+      relatedModel: () => require('./survey'),
+      map: (values) => mapRelations(values, require('./survey')),
+      serialize: '_id'
+    },
   ],
 
   validate(attrs) {
@@ -125,5 +134,37 @@ export default BaseModel.extend({
     });
 
     return allProcedures;
+  },
+
+  getCompletedSurveys() {
+    return new Promise(async (resolve, reject) => {
+      const SurveyModel = require('./survey');
+      const tasks = [];
+      const surveyResponses = this.get('surveyResponses');
+      surveyResponses.models.forEach(resp => tasks.push(resp.fetch({ relations: true })));
+      // surveyResponses = surveyResponses.map(resp => {
+      //   const m = new SurveyModel();
+      //   console.log('_1_model_1_', m, require('./survey'));
+      //   m.set({ _id: resp._id });
+      //   tasks.push(m.fetch());
+      //   set(resp, 'survey', m);
+      //   return resp;
+      // });
+
+      const models = await Promise.all(tasks);
+      console.log('--surveyResponses--', models);
+      resolve([]);
+
+      // try {
+      //   await Promise.all(tasks);
+      //   surveyResponses.map(resp => {
+      //     resp.survey = resp.survey.toJSON();
+      //   });
+      //   console.log('--surveyResponses--', surveyResponses);
+      //   resolve([]);
+      // } catch (err) {
+      //   reject(err);
+      // }
+    });
   }
 });

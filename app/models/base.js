@@ -40,7 +40,7 @@ export default Backbone.AssociatedModel.extend({
       // Fetch all the relations
       if (options.relations && !isEmpty(relations)) {
         try {
-          const tasks = relations.map((relation) => this.fetchRelations({ relation }));
+          const tasks = relations.map((relation) => this.fetchRelations(Object.assign({ relation, deep: true }, options)));
           await Promise.all(tasks);
           setTimeout(() => this.trigger('change'), 100);
           resolve(res);
@@ -62,7 +62,7 @@ export default Backbone.AssociatedModel.extend({
       if (type === 'Many') {
         const { models } = this.attributes[relation.key];
         if (models.length > 0) {
-          const tasks = models.map(model => model.fetch({ relations: true }));
+          const tasks = models.map(model => model.fetch({ relations: options.deep }));
           try {
             await Promise.all(tasks);
             resolve();

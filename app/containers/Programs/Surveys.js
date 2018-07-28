@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import { clone } from 'lodash';
-
-// import { fetchPatients, deletePatient } from '../../actions/patients';
+import { connect } from 'react-redux';
+import { isEmpty } from 'lodash';
 import { Colors, pageSizes } from '../../constants';
-import { PatientModel, ProgramModel } from '../../models';
+import actions from '../../actions/programs';
+import Preloader from '../../components/Preloader';
+
+const { surveys: surveysActions } = actions;
+const { initSurveys } = surveysActions;
 
 class Surveys extends Component {
   constructor(props) {
@@ -15,33 +17,37 @@ class Surveys extends Component {
   state = {
     patient: {},
     program: {},
-    surveys: []
+    availableSurveys: [],
+    completedSurveys: []
   }
 
-  async componentWillMount() {
-    const { match } = this.props;
-    const { patientId, programId } = match.params;
-    this.props.patientModel.on('change', this.handleChange);
-    this.props.programModel.on('change', this.handleChange);
-
-    this.props.patientModel.set({ _id: patientId });
-    this.props.programModel.set({ _id: programId });
-    await Promise.all([
-      this.props.patientModel.fetch(),
-      this.props.programModel.fetch({ relations: true })
-    ]);
+  componentDidMount() {
+    const { patientId, programId } = this.props.match.params;
+    this.props.initSurveys({ patientId, programId });
   }
 
-  componentWillUnmount() {
-    this.props.patientModel.off('change');
-    this.props.programModel.off('change');
+  componentWillReceiveProps(newProps) {
+    this.handleChange(newProps);
   }
 
-  async handleChange() {
-    const patient = this.props.patientModel.toJSON();
-    const program = this.props.programModel.toJSON();
-    const surveys = this.props.programModel.get('surveys').toJSON();
-    this.setState({ patient, program, surveys });
+  async handleChange(props = {}) {
+    if (isEmpty(props)) props = this.props;
+    const {
+      patient: patientModel,
+      program: programModel,
+      availableSurveys,
+      completedSurveys,
+      loading
+    } = props;
+
+    if (!loading) {
+      this.setState({
+        patient: patientModel.toJSON(),
+        program: programModel.toJSON(),
+        availableSurveys,
+        completedSurveys,
+      });
+    }
   }
 
   gotoSurvey = (surveyId) => {
@@ -49,17 +55,24 @@ class Surveys extends Component {
     this.props.history.push(`/programs/${programId}/${patientId}/surveys/${surveyId}`);
   }
 
-  render() {
-    const { patient, program, surveys } = this.state;
-    // console.log('render', surveys);
+  viewCompleted(listing, surveyId, responseId) {
+    const { patientId } = this.props.match.params;
+    const url = listing ? `/programs/${patientId}/${surveyId}/responses` : `/programs/${patientId}/${surveyId}/response/${responseId}`;
+    this.props.history.push(url);
+  }
 
+  render() {
+    const { loading } = this.props;
+    if (loading) return <Preloader />;
+
+    const { patient, program, availableSurveys, completedSurveys } = this.state;
     return (
       <div className="content">
         <div className="view-top-bar">
           <span>{program.name}</span>
         </div>
         <div className="details">
-          <div className="pregnancy-top">
+          <div className="pregnancy-top p-l-10">
             <div className="columns">
               <div className="column pregnancy-name">
                 <span className="pregnancy-name-title">
@@ -72,9 +85,9 @@ class Surveys extends Component {
             </div>
           </div>
           <div className="columns">
-            <div className="column pregnancy-button-details">
-              <div className="pregnancy-options-title">{program.name}: Options</div>
-              {surveys.map(survey => {
+            <div className="column pregnancy-button-details m-l-10">
+              <div className="pregnancy-options-title">Options available</div>
+              {availableSurveys.map(survey => {
                 return (
                   <div className="button-details" key={survey._id}>
                     <button className="button is-primary pregnancies-button " onClick={() => this.gotoSurvey(survey._id)}>{survey.name}</button>
@@ -83,19 +96,14 @@ class Surveys extends Component {
               })}
             </div>
             <div className="column pregnancy-button-details">
-              <div className="pregnancy-options-title">View previous visits</div>
-              <div className="button-details">
-                <button className="button is-info pregnancies-button">Patient reporting</button>
-              </div>
-              <div className="button-details">
-                <button className="button is-warning pregnancies-button">Antenatal Visit 1</button>
-              </div>
-              <div className="button-details">
-                <button className="button is-warning pregnancies-button">Antenatal Visit 2</button>
-              </div>
-              <div className="button-details">
-                <button className="button is-warning pregnancies-button">Postnatal Visit 1</button>
-              </div>
+              <div className="pregnancy-options-title">Previously Submitted</div>
+              {completedSurveys.map(survey => {
+                return (
+                  <div className="button-details" key={survey._id}>
+                    <button className="button is-info pregnancies-button " onClick={() => this.viewCompleted(survey.canRedo, survey._id)}>{survey.name}</button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -104,10 +112,13 @@ class Surveys extends Component {
   }
 }
 
-Surveys.defaultProps = {
-  programModel: new ProgramModel(),
-  patientModel: new PatientModel(),
-  surveys: []
-};
+function mapStateToProps(state) {
+  const { patient, program, availableSurveys, completedSurveys, loading } = state.programs;
+  return { patient, program, availableSurveys, completedSurveys, loading };
+}
 
-export default Surveys;
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  initSurveys: (model) => dispatch(initSurveys(model)),
+});
+// , questions, startTime
+export default connect(mapStateToProps, mapDispatchToProps)(Surveys);

@@ -1,16 +1,19 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-
 import ModalView from '../../../components/Modal';
 import Preloader from '../../../components/Preloader';
-import { initSurvey, submitSurvey } from '../../../actions/programs';
+import actions from '../../../actions/programs';
 import QuestionScreen from './QuestionScreen';
+
+const { survey: surveyActions } = actions;
+const { initSurvey, submitSurvey } = surveyActions;
 
 class Survey extends Component {
   state = {
     currentScreenIndex: 0,
     cancelSurveyModalVisible: false,
     submitSurveyModalVisible: false,
+    loading: true
   }
 
   componentDidMount() {
@@ -19,9 +22,11 @@ class Survey extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { currentScreenIndex, survey: surveyModel } = newProps;
+    const { currentScreenIndex, survey: surveyModel, program: programModel, loading } = newProps;
+    const program = programModel.toJSON();
+    const survey = surveyModel.toJSON();
     const totalScreens = surveyModel.getTotalScreens();
-    this.setState({ currentScreenIndex, totalScreens });
+    this.setState({ currentScreenIndex, totalScreens, program, survey, loading });
   }
 
   buttonPrevClick() {
@@ -45,23 +50,22 @@ class Survey extends Component {
     }
   }
 
+  submitSurvey() {
+    const { patient: patientModel, history } = this.props;
+    const { programId, surveyId } = this.props.match.params;
+    this.props.submitSurvey(patientModel, programId, surveyId, history);
+  }
+
   cancelSurvey() {
     const { patientId, programId } = this.props.match.params;
     this.props.history.push(`/programs/${programId}/${patientId}/surveys`);
   }
 
   render() {
-    const { loading } = this.props;
+    const { loading } = this.state;
     if (loading) return <Preloader />;
 
-    const {
-      program: programModel,
-      survey: surveyModel,
-    } = this.props;
-    const { currentScreenIndex, totalScreens } = this.state;
-    const program = programModel.toJSON();
-    const survey = surveyModel.toJSON();
-
+    const { currentScreenIndex, totalScreens, program, survey } = this.state;
     return (
       <Fragment>
         <div className="content headerFixed">
@@ -71,7 +75,7 @@ class Survey extends Component {
             <span className="tag is-white survey-steps m-r-10">{`Step ${currentScreenIndex + 1} of ${totalScreens}`}</span>
           </div>
           <div className="survey-details">
-            <QuestionScreen model={surveyModel} screenIndex={currentScreenIndex} />
+            <QuestionScreen model={this.props.survey} screenIndex={currentScreenIndex} />
             <div className="bottom-buttons">
               <button className="button is-danger question-finish-button" onClick={this.buttonPrevClick.bind(this)}>{currentScreenIndex > 0 ? 'Prev' : 'Cancel'}</button>
               <button className="button is-primary question-outcomes-button" onClick={this.buttonNextClick.bind(this)}>{currentScreenIndex < (totalScreens - 1) ? 'Next' : 'Submit'}</button>
@@ -93,7 +97,7 @@ class Survey extends Component {
           headerTitle="Submit your survey"
           contentText="You are now ready to submit your answers. Once submitted, your survey answers will be synced automatically."
           isVisible={this.state.submitSurveyModalVisible}
-          onConfirm={this.props.submitSurvey.bind(this)}
+          onConfirm={this.submitSurvey.bind(this)}
           onClose={() => this.setState({ submitSurveyModalVisible: false })}
           okText="Submit"
         />
@@ -103,17 +107,13 @@ class Survey extends Component {
 }
 
 function mapStateToProps(state) {
-  const { answers, patient, survey, program, currentScreenIndex, loading } = state.programs;
+  const { patient, survey, program, currentScreenIndex, loading } = state.programs;
   return { patient, survey, program, currentScreenIndex, loading };
 }
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  initSurvey: (model) => dispatch(initSurvey(model)),
-  submitSurvey: () => {
-    const { patientId, programId, surveyId } = ownProps.match.params;
-    const { history } = ownProps;
-    dispatch(submitSurvey(patientId, surveyId, programId, history));
-  },
+  initSurvey: (patientId, programId, surveyId) => dispatch(initSurvey(patientId, programId, surveyId)),
+  submitSurvey: (patientModel, programId, surveyId, history) => dispatch(submitSurvey(patientModel, programId, surveyId, history)),
 });
 // , questions, startTime
 export default connect(mapStateToProps, mapDispatchToProps)(Survey);
