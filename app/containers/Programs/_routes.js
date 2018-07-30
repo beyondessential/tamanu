@@ -14,12 +14,15 @@ import PatientListing from '../Patients/PatientListing';
 import Patients from './Patients';
 import Surveys from './Surveys';
 import Survey from './Survey';
+import Responses from './Responses';
 
 export default function Routes({ url }) {
   return (
     <div>
       <Switch>
         <Route exact path={url} component={Pregnancy} />
+        <Route path={`${url}/:patientId/:surveyId/responses`} component={Responses} />
+        <Route path={`${url}/:patientId/:surveyId/response/:responseId`} component={Survey} />
         <Route path={`${url}/:programId/:patientId/surveys/:surveyId`} component={Survey} />
         <Route path={`${url}/:programId/:patientId/surveys`} component={Surveys} />
         <Route path={`${url}/:programId/patients`} component={Patients} />
