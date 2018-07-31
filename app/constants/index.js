@@ -12,7 +12,8 @@ export const dateFormat = 'YYYY-MM-DD';
 
 export const pageSizes = {
   patients: 10,
-  pregnancies: 5
+  pregnancies: 5,
+  surveyResponses: 5
 };
 
 export const sidebarInfo = [
@@ -857,3 +858,50 @@ export const appointments = [
     resourceId: 4,
   },
 ];
+
+export const surveyResponsesColumns = [{
+  accessor: 'date',
+  Header: 'Date',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 100
+}, {
+  accessor: 'urinalysis',
+  Header: 'Urinalysis Pro/sug',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 100
+}, {
+  accessor: 'actions',
+  Header: 'Actions',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 80
+}];

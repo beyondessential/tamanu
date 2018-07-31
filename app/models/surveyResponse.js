@@ -29,19 +29,19 @@ export default BaseModel.extend({
       map: (values) => mapRelations(values, require('./answer')),
       serialize: '_id'
     },
-    {
-      type: Backbone.One,
-      key: 'surveyId',
-      relatedModel: require('./survey'),
-      map: (values) => mapRelations(values, require('./survey')),
-      serialize: '_id'
-    },
-    {
-      type: Backbone.One,
-      key: 'patientId',
-      relatedModel: require('./patient'),
-      map: (values) => mapRelations(values, require('./patient')),
-      serialize: '_id'
-    }
+    // {
+    //   type: Backbone.One,
+    //   key: 'surveyId',
+    //   relatedModel: require('./survey'),
+    //   map: (values) => mapRelations(values, require('./survey')),
+    //   serialize: '_id'
+    // },
+    // {
+    //   type: Backbone.One,
+    //   key: 'patientId',
+    //   relatedModel: require('./patient'),
+    //   map: (values) => mapRelations(values, require('./patient')),
+    //   serialize: '_id'
+    // }
   ],
 });

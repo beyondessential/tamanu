@@ -56,9 +56,14 @@ class Surveys extends Component {
   }
 
   viewCompleted(listing, surveyId, responseId) {
-    const { patientId } = this.props.match.params;
-    const url = listing ? `/programs/${patientId}/${surveyId}/responses` : `/programs/${patientId}/${surveyId}/response/${responseId}`;
+    const { patientId, programId } = this.props.match.params;
+    const url = listing ? `/programs/${programId}/${patientId}/${surveyId}/responses` : `/programs/${patientId}/${surveyId}/response/${responseId}`;
     this.props.history.push(url);
+  }
+
+  goBack() {
+    const { programId } = this.props.match.params;
+    this.props.history.push(`/programs/${programId}/patients`);
   }
 
   render() {
@@ -86,8 +91,9 @@ class Surveys extends Component {
           </div>
           <div className="columns">
             <div className="column pregnancy-button-details m-l-10">
-              <div className="pregnancy-options-title">Options available</div>
-              {availableSurveys.map(survey => {
+              <div className="pregnancy-options-title is-size-5 has-text-weight-semibold">Forms available</div>
+              {!availableSurveys.length && <div className="p-t-10">No forms available</div>}
+              {availableSurveys.length > 0 && availableSurveys.map(survey => {
                 return (
                   <div className="button-details" key={survey._id}>
                     <button className="button is-primary pregnancies-button " onClick={() => this.gotoSurvey(survey._id)}>{survey.name}</button>
@@ -95,16 +101,21 @@ class Surveys extends Component {
                 );
               })}
             </div>
-            <div className="column pregnancy-button-details">
-              <div className="pregnancy-options-title">Previously Submitted</div>
-              {completedSurveys.map(survey => {
-                return (
-                  <div className="button-details" key={survey._id}>
-                    <button className="button is-info pregnancies-button " onClick={() => this.viewCompleted(survey.canRedo, survey._id)}>{survey.name}</button>
-                  </div>
-                );
-              })}
-            </div>
+            {completedSurveys.length > 0 &&
+              <div className="column pregnancy-button-details">
+                <div className="pregnancy-options-title">Previously Submitted</div>
+                {completedSurveys.map(survey => {
+                  return (
+                    <div className="button-details" key={survey._id}>
+                      <button className="button is-info pregnancies-button " onClick={() => this.viewCompleted(survey.canRedo, survey._id)}>{`${survey.name} (${survey.count})`}</button>
+                    </div>
+                  );
+                })}
+              </div>
+            }
+          </div>
+          <div className="bottom-buttons p-l-10">
+            <button className="button is-danger question-finish-button" onClick={this.goBack.bind(this)}>Back</button>
           </div>
         </div>
       </div>

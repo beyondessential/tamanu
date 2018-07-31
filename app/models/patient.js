@@ -102,8 +102,8 @@ export default BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'surveyResponses',
-      relatedModel: () => require('./survey'),
-      map: (values) => mapRelations(values, require('./survey')),
+      relatedModel: () => require('./surveyResponse'),
+      map: (values) => mapRelations(values, require('./surveyResponse')),
       serialize: '_id'
     },
   ],

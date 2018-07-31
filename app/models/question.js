@@ -16,6 +16,7 @@ export default BaseModel.extend({
       options: [],
       code: null,
       details: null,
+      params: [],
     },
     BaseModel.prototype.defaults,
   ),
@@ -29,4 +30,12 @@ export default BaseModel.extend({
       serialize: '_id'
     }
   ],
+
+  isHeader() {
+    return this.attributes.params.includes('header');
+  },
+
+  isSingleLine() {
+    return this.attributes.params.includes('singleline');
+  }
 });

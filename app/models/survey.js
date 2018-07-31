@@ -1,5 +1,5 @@
 import shortid from 'shortid';
-import { defaults, isObject } from 'lodash';
+import { defaults, isObject, concat, chain, pick, mapKeys } from 'lodash';
 import Backbone from 'backbone-associations';
 import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
@@ -51,5 +51,23 @@ export default BaseModel.extend({
 
   getTotalScreens() {
     return this.attributes.screens.length;
+  },
+
+  getHeaders() {
+    const { screens } = this.attributes;
+    let allQuestions = [];
+    screens.forEach(screen => {
+      const { components } = screen.attributes;
+      allQuestions = concat(
+        allQuestions,
+        chain(components.models)
+          .map(component => component.get('question'))
+          .filter(question => question.isHeader())
+          .mapKeys((value, key) => (key === 'indicator' ? 'text' : key))
+          .map(question => pick(question.toJSON(), ['text', '_id']))
+          .value()
+      );
+    });
+    return allQuestions;
   }
 });

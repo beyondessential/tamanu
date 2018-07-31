@@ -16,6 +16,9 @@ import {
   LOAD_SURVEYS_START,
   LOAD_SURVEYS_SUCCESS,
   LOAD_SURVEYS_FAILED,
+  LOAD_RESPONSES_START,
+  LOAD_RESPONSES_SUCCESS,
+  LOAD_RESPONSES_FAILED,
 } from '../actions/types';
 
 import { SurveyModel } from '../models';
@@ -24,6 +27,7 @@ const surveyModel = new SurveyModel();
 
 const initialState = {
   surveys: [],
+  responses: [],
   surveysAvailable: [],
   surveysCompleted: [],
   questions: {},
@@ -101,6 +105,25 @@ const stateChanges = {
     loading: false,
     error,
   }),
+  [LOAD_RESPONSES_START]: (_, state) => ({
+    ...state,
+    loading: true,
+  }),
+  [LOAD_RESPONSES_SUCCESS]: ({ patient, program, survey, responses }, state) => ({
+    ...state,
+    survey,
+    patient,
+    program,
+    responses,
+    loading: false,
+  }),
+  [LOAD_RESPONSES_FAILED]: ({ error }, state) => ({
+    ...state,
+    loading: false,
+    error,
+  }),
+
+
 
   // ---  ---  --- //
 

@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { isEmpty } from 'lodash';
-import { Colors, pageSizes } from '../../constants';
+import { isEmpty, clone } from 'lodash';
+import moment from 'moment';
+import ReactTable from 'react-table';
+import { Colors, pageSizes, surveyResponsesColumns, dateFormat } from '../../constants';
 import actions from '../../actions/programs';
 import Preloader from '../../components/Preloader';
 
-const { surveys: surveysActions } = actions;
-const { initSurveys } = surveysActions;
+const { responses: responseActions } = actions;
+const { initResponses } = responseActions;
 
 class Responses extends Component {
   constructor(props) {
@@ -16,14 +18,15 @@ class Responses extends Component {
 
   state = {
     patient: {},
+    survey: {},
     program: {},
-    availableSurveys: [],
-    completedSurveys: []
+    headers: [],
+    responses: [],
   }
 
   componentDidMount() {
-    const { patientId, programId } = this.props.match.params;
-    this.props.initSurveys({ patientId, programId });
+    const { patientId, programId, surveyId } = this.props.match.params;
+    this.props.initResponses({ patientId, programId, surveyId });
   }
 
   componentWillReceiveProps(newProps) {
@@ -33,46 +36,94 @@ class Responses extends Component {
   async handleChange(props = {}) {
     if (isEmpty(props)) props = this.props;
     const {
-      patient: patientModel,
+      survey: surveyModel,
       program: programModel,
-      availableSurveys,
-      completedSurveys,
+      patient: patientModel,
+      responses,
       loading
     } = props;
 
     if (!loading) {
       this.setState({
-        patient: patientModel.toJSON(),
+        survey: surveyModel.toJSON(),
         program: programModel.toJSON(),
-        availableSurveys,
-        completedSurveys,
+        patient: patientModel.toJSON(),
+        headers: surveyModel.getHeaders(),
+        responses
       });
     }
   }
 
-  gotoSurvey = (surveyId) => {
-    const { patientId, programId } = this.props.match.params;
-    this.props.history.push(`/programs/${programId}/${patientId}/surveys/${surveyId}`);
+  getHeaderColumns() {
+    const { headers } = this.state;
+    const tableHeaders = clone(surveyResponsesColumns);
+    headers.forEach((header, key) => {
+      tableHeaders.splice(key + 1, 0, {
+        accessor: header._id,
+        Header: header.text,
+        headerStyle: {
+          backgroundColor: Colors.searchTintColor,
+        },
+        style: {
+          backgroundColor: Colors.white,
+          height: '60px',
+          color: '#2f4358',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        },
+        minWidth: 100
+      });
+    });
+    return tableHeaders;
   }
 
-  viewCompleted(listing, surveyId, responseId) {
-    const { patientId } = this.props.match.params;
-    const url = listing ? `/programs/${patientId}/${surveyId}/responses` : `/programs/${patientId}/${surveyId}/response/${responseId}`;
-    this.props.history.push(url);
+  getDataColumns() {
+    const { responses } = this.state;
+    const rows = [];
+    responses.forEach(response => {
+      const columns = [];
+      const answers = response.get('answers').toJSON();
+      answers.forEach(answer => { columns[answer.questionId] = answer.body; });
+      columns.date = moment(response.attributes.startTime).format(dateFormat);
+      columns.actions = this.setActionsCol(response.toJSON());
+      rows.push(columns);
+    });
+    return rows;
+  }
+
+  setActionsCol(row) {
+    const _this = this;
+    return (
+      <div key={row._id}>
+        <button className="button is-primary is-outlined" onClick={() => _this.viewResponse(row._id)}>View Form</button>
+      </div>
+    );
+  }
+
+  viewResponse(responseId) {
+    const { programId, patientId, surveyId } = this.props.match.params;
+    this.props.history.push(`/programs/${programId}/${patientId}/${surveyId}/responses/${responseId}`);
+  }
+
+  goBack() {
+    const { patientId, programId } = this.props.match.params;
+    this.props.history.push(`/programs/${programId}/${patientId}/surveys`);
   }
 
   render() {
     const { loading } = this.props;
     if (loading) return <Preloader />;
 
-    const { patient, program, availableSurveys, completedSurveys } = this.state;
+    const { survey, program, patient } = this.state;
     return (
       <div className="content">
         <div className="view-top-bar">
           <span>{program.name}</span>
+          <span className="tag is-info survey-title">{survey.name}</span>
         </div>
-        <div className="details">
-          <div className="pregnancy-top m-b-20">
+        <div className="survey-details details">
+          <div className="pregnancy-top m-b-10">
             <div className="columns">
               <div className="column pregnancy-name">
                 <span className="pregnancy-name-title">
@@ -84,21 +135,19 @@ class Responses extends Component {
               </div>
             </div>
           </div>
-          {/* <ReactTable
+          <ReactTable
             manual
             keyField="_id"
-            data={questionTable}
+            data={this.getDataColumns()}
             // pages={this.props.collection.totalPages}
-            defaultPageSize={5}
-            // loading={this.state.loading}
-            columns={questionTableColumns}
+            defaultPageSize={pageSizes.surveyResponses}
+            loading={this.state.loading}
+            columns={this.getHeaderColumns()}
             className="-striped"
-            defaultSortDirection="asc"
           // onFetchData={this.onFetchData}
-          /> */}
-          <div className="question-table-buttons">
-            <button className="button is-primary question-table-button">Gestational diabetes</button>
-            <button className="button is-danger question-table-button">Finish Visit</button>
+          />
+          <div className="question-table-buttons p-t-15">
+            <button className="button is-danger question-table-button" onClick={this.goBack.bind(this)}>Back</button>
           </div>
         </div>
       </div>
@@ -107,12 +156,11 @@ class Responses extends Component {
 }
 
 function mapStateToProps(state) {
-  const { patient, program, availableSurveys, completedSurveys, loading } = state.programs;
-  return { patient, program, availableSurveys, completedSurveys, loading };
+  const { patient, program, survey, responses, loading } = state.programs;
+  return { patient, program, survey, responses, loading };
 }
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  initSurveys: (model) => dispatch(initSurveys(model)),
+  initResponses: (params) => dispatch(initResponses(params)),
 });
-// , questions, startTime
 export default connect(mapStateToProps, mapDispatchToProps)(Responses);

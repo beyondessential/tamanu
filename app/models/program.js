@@ -27,14 +27,9 @@ export default BaseModel.extend({
     }
   ],
 
-  getAvailableSurveys() {
-    console.log('_getAvailableSurveys_');
-    return this.get('surveys').toJSON();
-  },
-
-  getCompletedSurveys() {
-    console.log('_getCompletedSurveys_');
-    return [];
+  getSurvey(surveyId) {
+    const surveys = this.get('surveys');
+    return surveys.findWhere({ _id: surveyId });
   }
 
   // validate: (attrs) => {

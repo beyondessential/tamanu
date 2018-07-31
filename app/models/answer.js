@@ -15,14 +15,4 @@ export default BaseModel.extend({
     },
     BaseModel.prototype.defaults,
   ),
-
-  relations: [
-    {
-      type: Backbone.Many,
-      key: 'answers',
-      relatedModel: require('./question'),
-      map: (values) => mapRelations(values, require('./question')),
-      serialize: '_id'
-    }
-  ],
 });
