@@ -1,6 +1,5 @@
-module.exports = {
-  PatientsCollection: require('./patients'),
-  PregnanciesCollection: require('./pregnancies'),
-  AppointmentCollection: require('./appointment'),
-  ProgramsCollection: require('./programs')
-};
+export PatientsCollection from './patients';
+export PregnanciesCollection from './pregnancies';
+export AppointmentCollection from './appointment';
+export ProgramsCollection from './programs';
+export SurveysCollection from './surveys';

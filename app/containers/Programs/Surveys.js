@@ -115,7 +115,9 @@ class Surveys extends Component {
             }
           </div>
           <div className="bottom-buttons p-l-10">
-            <button className="button is-danger question-finish-button" onClick={this.goBack.bind(this)}>Back</button>
+            <button className="button is-danger question-finish-button" onClick={this.goBack.bind(this)}>
+              <i className="fa fa-chevron-left" /> Back
+            </button>
           </div>
         </div>
       </div>

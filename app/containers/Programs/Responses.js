@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { isEmpty, clone } from 'lodash';
 import moment from 'moment';
 import ReactTable from 'react-table';
-import { Colors, pageSizes, surveyResponsesColumns, dateFormat } from '../../constants';
+import { Colors, pageSizes, surveyResponsesColumns, dateFormat, timeFormat } from '../../constants';
 import actions from '../../actions/programs';
 import Preloader from '../../components/Preloader';
 
@@ -85,7 +85,7 @@ class Responses extends Component {
       const columns = [];
       const answers = response.get('answers').toJSON();
       answers.forEach(answer => { columns[answer.questionId] = answer.body; });
-      columns.date = moment(response.attributes.startTime).format(dateFormat);
+      columns.date = moment(response.attributes.startTime).format(`${dateFormat} ${timeFormat}`);
       columns.actions = this.setActionsCol(response.toJSON());
       rows.push(columns);
     });
@@ -111,6 +111,11 @@ class Responses extends Component {
     this.props.history.push(`/programs/${programId}/${patientId}/surveys`);
   }
 
+  startSurvey = () => {
+    const { patientId, programId, surveyId } = this.props.match.params;
+    this.props.history.push(`/programs/${programId}/${patientId}/surveys/${surveyId}`);
+  }
+
   render() {
     const { loading } = this.props;
     if (loading) return <Preloader />;
@@ -125,15 +130,30 @@ class Responses extends Component {
         <div className="survey-details details">
           <div className="pregnancy-top m-b-10">
             <div className="columns">
+              <div className="column pregnancy-name is-pulled-left">
+                <span className="has-text-weight-normal is-size-6">
+                  Patient
+                </span>
+                <span className="has-text-weight-bold is-size-5 p-l-10">
+                  {`${patient.firstName} ${patient.lastName}`}
+                </span>
+              </div>
+              <div className="column pregnancy-name is-pulled-right">
+                <button className="button is-primary is-pulled-right" onClick={this.startSurvey.bind(this)}>
+                  <i className="fa fa-plus p-r-5" /> Add new
+                </button>
+              </div>
+            </div>
+            {/* <div className="columns">
               <div className="column pregnancy-name">
-                <span className="pregnancy-name-title">
+                <span className="pregnancy-name-tit1le">
                   Patient
                 </span>
                 <span className="pregnancy-name-details">
                   {`${patient.firstName} ${patient.lastName}`}
                 </span>
               </div>
-            </div>
+            </div> */}
           </div>
           <ReactTable
             manual
@@ -146,8 +166,10 @@ class Responses extends Component {
             className="-striped"
           // onFetchData={this.onFetchData}
           />
-          <div className="question-table-buttons p-t-15">
-            <button className="button is-danger question-table-button" onClick={this.goBack.bind(this)}>Back</button>
+          <div className="question-table-buttons p-t-20">
+            <button className="button is-danger question-table-button" onClick={this.goBack.bind(this)}>
+              <i className="fa fa-chevron-left" /> Back
+            </button>
           </div>
         </div>
       </div>

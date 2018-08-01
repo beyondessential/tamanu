@@ -40,7 +40,8 @@ class InputGroup extends Component {
       name,
       tabIndex,
       overwriteClass,
-      inputClass
+      inputClass,
+      readOnly
     } = this.props;
     let { className } = this.props;
     if (!overwriteClass) className = `column ${className}`;
@@ -52,7 +53,16 @@ class InputGroup extends Component {
             {label} {required && <span className="isRequired">*</span>}
           </span>
         }
-        <input className={`input is-primary ${inputClass}`} type="text" name={name} tabIndex={tabIndex} value={this.state.value} onChange={this.handleChange.bind(this)} required={required} />
+        <input
+          className={`input is-primary ${inputClass}`}
+          type="text"
+          name={name}
+          tabIndex={tabIndex}
+          value={this.state.value}
+          onChange={this.handleChange.bind(this)}
+          required={required}
+          readOnly={readOnly}
+        />
       </div>
     );
   }

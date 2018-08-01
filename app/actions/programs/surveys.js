@@ -2,34 +2,12 @@ import { filter, chain, set } from 'lodash';
 import { to } from 'await-to-js';
 import { getFileInDocumentsPath, imageDataIsFileName } from '../../utils';
 import {
-  getAnswers,
-  getCurrentScreen,
-  getSelectedClinicName,
-  getSurveyScreenIndex,
-  getTotalNumberOfScreens,
-  getSurveyScreen,
-  getVisibleSurveyScreenQuestions,
-  getAnswerForQuestion,
-} from './selectors';
-import {
-  ANSWER_CHANGE,
-  ASSESSMENT_CLINIC_SELECT,
-  EXTRA_PROPS_CHANGE,
-  SURVEY_SCREEN_SELECT,
-  INIT_SURVEY,
-  UPDATE_SURVEYS,
-  SURVEY_SUBMIT,
-  SURVEY_SUBMIT_SUCCESS,
-  WIPE_CURRENT_SURVEY,
-  ASSESSMENT_RESET,
-  VALIDATION_ERROR_CHANGE,
-  SURVEY_SCREEN_ERROR_MESSAGE_CHANGE,
   LOAD_SURVEYS_START,
   LOAD_SURVEYS_SUCCESS,
   LOAD_SURVEYS_FAILED,
 } from '../types';
 import { validateAnswer } from './validation';
-import { AnswerModel, PatientModel, ProgramModel, SurveyResponseModel } from '../../models';
+import { PatientModel, ProgramModel } from '../../models';
 
 export const initSurveys = ({ patientId, programId }) =>
   async dispatch => {
@@ -44,12 +22,11 @@ export const initSurveys = ({ patientId, programId }) =>
     ]));
     if (error) return dispatch({ type: LOAD_SURVEYS_FAILED, error });
 
-    const surveys = programModel.get('surveys').toJSON();
+    const surveys = programModel.get('surveys').sort().toJSON();
     const surveyResps = patientModel.get('surveyResponses');
     const surveysDone = surveyResps.toJSON().map(survey => survey.surveyId);
     const availableSurveys = filter(surveys, survey => survey.canRedo || !surveysDone.includes(survey._id));
     const completedSurveys = getCompletedSurveys({ surveys, surveysDone, surveyResps });
-    console.log('completedSurveys', completedSurveys);
     dispatch({
       type: LOAD_SURVEYS_SUCCESS,
       assessorId: 'test-user',
@@ -70,4 +47,4 @@ const getCompletedSurveys = ({ surveys, surveysDone, surveyResps }) => {
       return survey;
     })
     .value();
-}
+};

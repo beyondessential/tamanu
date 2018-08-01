@@ -23,7 +23,8 @@ export default BaseModel.extend({
       key: 'surveys',
       relatedModel: () => require('./survey'),
       map: (values) => mapRelations(values, require('./survey')),
-      serialize: '_id'
+      serialize: '_id',
+      collectionType: require('../collections/surveys'),
     }
   ],
 

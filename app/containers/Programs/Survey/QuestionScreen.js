@@ -1,12 +1,20 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { find } from 'lodash';
 import { Question } from './Question';
 
 class QuestionScreen extends React.Component {
   constructor(props) {
     super(props);
     this.textInputRefs = {};
+    this.getAnswer = this.getAnswer.bind(this);
+  }
+
+  getAnswer(questionId) {
+    const { answers } = this.props;
+    const answer = find(answers, (_answer => _answer.questionId === questionId));
+    return (answer && answer.body) || '';
   }
 
   // shouldComponentUpdate(nextProps) {
@@ -20,10 +28,19 @@ class QuestionScreen extends React.Component {
   // }
 
   render() {
-    const { questions, screenIndex } = this.props;
-    return questions.map((question, index) => {
-      // console.log('__question__', question);
-      return <Question key={question._id} screenIndex={screenIndex} {...question} />;
+    const { questions, screenIndex, answers, readOnly } = this.props;
+    return questions.map((model, index) => {
+      const question = model.toJSON();
+      return (
+        <Question
+          key={question._id}
+          screenIndex={screenIndex}
+          answer={this.getAnswer(question._id)}
+          readOnly={readOnly}
+          singleLine={model.isSingleLine()}
+          {...question}
+        />
+      );
       // if (!TABBABLE_QUESTION_TYPES.includes(question.type)) {
       // }
       // const nextQuestionIsTabbable = index + 1 < questions.length &&
@@ -51,6 +68,13 @@ class QuestionScreen extends React.Component {
 QuestionScreen.propTypes = {
   questions: PropTypes.array.isRequired,
   screenIndex: PropTypes.number.isRequired,
+  answers: PropTypes.array,
+  readOnly: PropTypes.bool
+};
+
+QuestionScreen.defaultProps = {
+  answers: [],
+  readOnly: false
 };
 
 const mapStateToProps = (state, { model, screenIndex }) => {

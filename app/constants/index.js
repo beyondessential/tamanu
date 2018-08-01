@@ -10,6 +10,8 @@ export const Colors = {
 
 export const dateFormat = 'YYYY-MM-DD';
 
+export const timeFormat = 'hh:mm a';
+
 export const pageSizes = {
   patients: 10,
   pregnancies: 5,

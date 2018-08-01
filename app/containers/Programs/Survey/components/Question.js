@@ -12,15 +12,21 @@ export class DumbQuestion extends React.Component {
   // }
 
   render() {
-    const { mageData, text, type, SpecificQuestion, validationErrorMessage, ...questionProps } = this.props;
+    const { mageData, text, type, SpecificQuestion, validationErrorMessage, singleLine, ...questionProps } = this.props;
     let wrapperClass = '';
     let questionClass = '';
     let labelClass = 'm-b-10';
     switch (type) {
+      case 'Binary':
+      case 'Radio':
+        wrapperClass = `${singleLine ? 'columns' : 'column is-half'}`;
+        questionClass = `${singleLine ? 'column' : ''} question-details`;
+        labelClass = `${singleLine ? 'column is-narrow-desktop m-l-10' : 'm-b-10'}`;
+        break;
       case 'Number':
-        wrapperClass = 'column is-half';
-        questionClass = '_column question-details';
-        labelClass = '_column m-b-10';
+        wrapperClass = `${singleLine ? 'columns' : 'column is-half'}`;
+        questionClass = `${singleLine ? 'column is-one-third' : ''} question-details`;
+        labelClass = `${singleLine ? 'column is-narrow-desktop m-l-10 p-t-15' : 'm-b-10'}`;
         break;
       case 'Instruction':
         wrapperClass = '';
@@ -30,10 +36,10 @@ export class DumbQuestion extends React.Component {
         questionClass = 'question-details';
         break;
     }
-    // console.log('__questionProps__', questionProps);
+
     return (
       <div className={wrapperClass}>
-        {text && <Instruction questionText={text} detailText={questionProps.detail} className={labelClass} />}
+        {text && <Instruction questionText={`${text}:`} detailText={questionProps.detail} className={labelClass} />}
         {/* {imageData && imageData.length > 0 ? (<Image
           source={getImageSourceFromData(imageData)}
           style={localStyles.image}

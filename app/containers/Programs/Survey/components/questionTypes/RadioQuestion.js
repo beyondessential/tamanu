@@ -1,25 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export const RadioQuestion = ({ _id: id, answer, onChangeAnswer, options, style }) => (
+export const RadioQuestion = ({ _id: id, answer, onChangeAnswer, options, readOnly, stacked }) => (
   <div className="control is-size-6">
     {options.map((option) => {
-      const { color: iconColor, label, value } = extractOptionDetails(option); // Sometimes an object with defined color/label/value
+      const { label, value } = extractOptionDetails(option); // Sometimes an object with defined color/label/value
       const isChecked = answer === value;
+      const className = `radio ${stacked ? 'is-block-inline m-r-15' : 'is-block'} m-b-5 m-l-0`;
       return (
-        <label className="radio is-block m-b-5 m-l-0" key={value}>
-          <input type="radio" name={`radio_${id}`} value={value} defaultChecked={isChecked} onChange={({ target }) => onChangeAnswer(target.value)} /> {label}
+        <label className={className} key={value}>
+          <input
+            className="m-r-2"
+            type="radio"
+            name={`radio_${id}`}
+            value={value}
+            defaultChecked={isChecked}
+            onChange={({ target }) => onChangeAnswer(target.value)}
+            disabled={readOnly && !isChecked}
+          /> {label}
         </label>
-        // <Checkbox
-        //   key={value}
-        //   labelText={label}
-        //   labelColor={labelColor}
-        //   type={'radio'}
-        //   isChecked={isSelected}
-        //   onToggle={() => onChangeAnswer(isSelected ? null : value)}
-        //   style={checkboxStyle}
-        //   iconProps={iconColor && { color: iconColor }}
-        // />
       );
     })}
   </div>
@@ -29,10 +28,12 @@ RadioQuestion.propTypes = {
   answer: PropTypes.string,
   options: PropTypes.array.isRequired,
   onChangeAnswer: PropTypes.func.isRequired,
+  stacked: PropTypes.bool,
 };
 
 RadioQuestion.defaultProps = {
   answer: '',
+  stacked: false,
 };
 
 /**

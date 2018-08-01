@@ -44,7 +44,7 @@ export default BaseModel.extend({
     const screen = screens.at(screenIndex);
     if (isObject(screen)) {
       const { components } = screen.attributes;
-      questions = components.models.map(component => component.get('question').toJSON());
+      questions = components.models.map(component => component.get('question'));
     }
     return questions;
   },
