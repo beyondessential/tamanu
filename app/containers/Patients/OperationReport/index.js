@@ -45,7 +45,7 @@ class OperationReport extends Component {
     let _action = 'new';
     this.props.patient.on('change', this.handleChange);
     this.props.patient.set({ _id: patientId });
-    await this.props.patient.fetch();
+    await this.props.patient.fetch({ relations: true });
 
     if (!isUndefined(id)) {
       _action = 'update';

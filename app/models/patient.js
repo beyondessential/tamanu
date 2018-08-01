@@ -1,8 +1,10 @@
 import Backbone from 'backbone-associations';
 import shortid from 'shortid';
-import { defaults, each, clone, merge, set } from 'lodash';
+import { defaults, each, clone, merge, set, concat, get, filter } from 'lodash';
+import moment from 'moment';
 import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
+import { pregnancyOutcomes, dateFormat } from '../constants';
 // import SurveyModel from './survey';
 
 export default BaseModel.extend({
@@ -130,41 +132,25 @@ export default BaseModel.extend({
     let allProcedures = [];
     operationReports.models.forEach((model) => {
       const { procedures, surgeryDate: date, _id: operationReportId } = model.toJSON();
-      allProcedures = merge(allProcedures, procedures.map(name => { return { name, date, operationReportId }; }));
+      allProcedures = allProcedures.concat(procedures.map(name => { return { name, date, operationReportId }; }));
     });
 
     return allProcedures;
   },
 
-  getCompletedSurveys() {
-    return new Promise(async (resolve, reject) => {
-      const SurveyModel = require('./survey');
-      const tasks = [];
-      const surveyResponses = this.get('surveyResponses');
-      surveyResponses.models.forEach(resp => tasks.push(resp.fetch({ relations: true })));
-      // surveyResponses = surveyResponses.map(resp => {
-      //   const m = new SurveyModel();
-      //   console.log('_1_model_1_', m, require('./survey'));
-      //   m.set({ _id: resp._id });
-      //   tasks.push(m.fetch());
-      //   set(resp, 'survey', m);
-      //   return resp;
-      // });
-
-      const models = await Promise.all(tasks);
-      console.log('--surveyResponses--', models);
-      resolve([]);
-
-      // try {
-      //   await Promise.all(tasks);
-      //   surveyResponses.map(resp => {
-      //     resp.survey = resp.survey.toJSON();
-      //   });
-      //   console.log('--surveyResponses--', surveyResponses);
-      //   resolve([]);
-      // } catch (err) {
-      //   reject(err);
-      // }
+  getPregnancies() {
+    const pregnancies = this.get('pregnancies');
+    return pregnancies.models.map((p, k) => {
+      const _item = clone(p.attributes);
+      _item.label = `Pregnancy ${k + 1}`;
+      _item.conceiveDate = moment(_item.conceiveDate).format(dateFormat);
+      if (_item.outcome === '' || _item.outcome === 'fetalDeath') {
+        _item.deliveryDate = '';
+        _item.child = '';
+      }
+      if (_item.deliveryDate !== '') _item.deliveryDate = moment(_item.deliveryDate).format(dateFormat);
+      _item.outcomeLabel = get(filter(pregnancyOutcomes, outcome => outcome.value === _item.outcome)[0], 'label');
+      return _item;
     });
-  }
+  },
 });

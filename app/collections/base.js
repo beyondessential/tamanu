@@ -80,9 +80,6 @@ export default Backbone.Collection.extend({
         }
       }
     };
-
-    console.log('__params__', params, this);
-
     this.fetch(params);
   },
 

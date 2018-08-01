@@ -58,7 +58,6 @@ class Patients extends Component {
   }
 
   onFetchData = (state) => {
-    console.log('__onFetchData__', state.page);
     this.props.collection.setPage(state.page);
     this.props.collection.setPageSize(state.pageSize);
 

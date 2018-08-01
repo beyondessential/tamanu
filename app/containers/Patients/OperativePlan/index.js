@@ -48,7 +48,7 @@ class OperativePlan extends Component {
     let _action = 'new';
     this.props.patient.on('change', this.handleChange);
     this.props.patient.set({ _id: patientId });
-    await this.props.patient.fetch();
+    await this.props.patient.fetch({ relations: true });
 
     if (!isUndefined(id)) {
       _action = 'update';
@@ -190,11 +190,13 @@ class OperativePlan extends Component {
       toCopy.surgeryDate = moment().format(dateFormat);
 
       try {
-        const opReport = new OperationReportModel();
-        opReport.set(toCopy);
-        opReport.get('preOpDiagnoses').set(diagnoses.models);
-        await opReport.save();
-        resolve(opReport.id);
+        const operationReport = new OperationReportModel();
+        operationReport.set(toCopy);
+        operationReport.get('preOpDiagnoses').set(diagnoses.models);
+        await operationReport.save();
+        this.props.patient.get('operationReports').add(operationReport.attributes);
+        await this.props.patient.save();
+        resolve(operationReport.id);
       } catch (err) {
         reject(err);
       }
@@ -316,6 +318,7 @@ class OperativePlan extends Component {
                         label="Case Complexity"
                         tabIndex={9}
                         onChange={this.handleUserInput}
+                        value={form.caseComplexity}
                       />
                     </div>
                   </div>

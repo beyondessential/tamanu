@@ -29,7 +29,7 @@ class PregnancyModal extends Component {
   componentWillReceiveProps(nextProps) {
     const { isVisible, action, item } = nextProps;
     if (action === 'edit') {
-      const form = pick(item, ['conceiveDate', 'deliveryDate', 'outcome', 'child', 'father', 'gestationalAge']);
+      const form = pick(item.attributes, ['conceiveDate', 'deliveryDate', 'outcome', 'child', 'father', 'gestationalAge']);
       if (form.conceiveDate !== '') form.conceiveDate = moment(form.conceiveDate);
       if (form.deliveryDate !== '') form.deliveryDate = moment(form.deliveryDate);
       if (typeof form.child === 'object') form.child = form.child.get('_id');
@@ -71,16 +71,14 @@ class PregnancyModal extends Component {
     const { form } = this.state;
 
     try {
-      const pregnancy = new PregnancyModel((action !== 'new' ? item : form));
-      if (action !== 'new') pregnancy.set(form);
-      const model = await pregnancy.save();
-
-      // Attached pregnancy to patient object
       if (action === 'new') {
-        patientModel.get('pregnancies').add({ _id: model.id });
+        const pregnancy = new PregnancyModel(form);
+        const model = await pregnancy.save();
+        patientModel.get('pregnancies').add(model.attributes);
         await patientModel.save();
       } else {
-        patientModel.trigger('change');
+        item.set(form);
+        await item.save();
       }
 
       _this.props.onClose();
@@ -142,7 +140,7 @@ class PregnancyModal extends Component {
                 />
               </div>
               <div className="column is-four-fifths">
-                <span className="header">Outcome</span>
+                <span className="header">Outcome {this.state.form.outcome}</span>
                 <Select
                   id="pregnancy-outcome"
                   options={pregnancyOutcomes}
@@ -153,7 +151,7 @@ class PregnancyModal extends Component {
                   searchable={false}
                 />
               </div>
-              <div className={`column is-half ${this.state.form.outcome === '' ? 'is-hidden' : ''}`}>
+              <div className={`column is-half ${(this.state.form.outcome === '' || this.state.form.outcome === 'fetalDeath') ? 'is-hidden' : ''}`}>
                 <span className="header">
                   Delivery Date
                 </span>
@@ -179,7 +177,7 @@ class PregnancyModal extends Component {
                 label="Child"
                 value={this.state.form.child}
                 onChange={this.handleUserInput}
-                className={`is-four-fifths ${this.state.form.outcome === '' ? 'is-hidden' : ''}`}
+                className={`is-four-fifths ${(this.state.form.outcome === '' || this.state.form.outcome === 'fetalDeath') ? 'is-hidden' : ''}`}
               />
               <PatientAutocomplete
                 name="father"

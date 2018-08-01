@@ -1,6 +1,6 @@
 import Backbone from 'backbone-associations';
 import moment from 'moment';
-import { mapValues, assignIn, isEmpty, clone, map, set, isObject } from 'lodash';
+import { mapValues, assignIn, isEmpty, clone, map, set, isObject, isArray } from 'lodash';
 import { to } from 'await-to-js';
 
 export default Backbone.AssociatedModel.extend({
@@ -40,7 +40,10 @@ export default Backbone.AssociatedModel.extend({
       // Fetch all the relations
       if (options.relations && !isEmpty(relations)) {
         try {
-          const tasks = relations.map((relation) => this.fetchRelations(Object.assign({ relation, deep: true }, options)));
+          const tasks = relations.map((relation) => {
+            if ((isArray(options.relations) && options.relations.includes(relation.key)) || options.relations === true)
+              return this.fetchRelations(Object.assign({ relation, deep: true }, options));
+          });
           await Promise.all(tasks);
           setTimeout(() => this.trigger('change'), 100);
           resolve(res);

@@ -21,20 +21,26 @@ class Pregnancy extends Component {
     this.props.history.push(`/patients/editPatient/${patientId}`);
   }
 
+  editItem = (row) => {
+    const { pregnancies: pregnanciesCollection } = this.props.model.attributes;
+    const item = pregnanciesCollection.findWhere({ _id: row.original._id });
+    this.setState({ modalVisible: true, action: 'edit', item });
+  }
+
   setActionsCol = (row) => {
     const item = row.original;
     return (
       <div key={row._id}>
         <button className={`button is-primary m-r-5 is-outlined ${item.child === '' ? 'is-hidden' : ''}`} onClick={() => this.viewChild(item.child)}>View Child</button>
-        <button className="button is-primary m-r-5 is-outlined" onClick={() => this.setState({ modalVisible: true, action: 'edit', item })}>Edit Pregnancy</button>
-        <button className="button is-primary m-r-5 is-outlined" onClick={() => this.setState({ modalVisible: true, action: 'edit', item })}>Details</button>
+        <button className="button is-primary m-r-5 is-outlined" onClick={() => this.editItem(row)}>Edit Pregnancy</button>
+        <button className="button is-primary m-r-5 is-outlined" onClick={() => this.setState({ modalVisible: true, action: 'edit', item })}>Add Form</button>
       </div>
     );
   }
 
   render() {
     const { patient, model } = this.props;
-    let { pregnancies } = patient;
+    const pregnancies = model.getPregnancies();
     const {
       modalVisible,
       action,
@@ -45,16 +51,6 @@ class Pregnancy extends Component {
     const lastCol = pregnancyColumns[pregnancyColumns.length - 1];
     lastCol.Cell = this.setActionsCol;
 
-    // Get items to display
-    pregnancies = pregnancies.map((p, k) => {
-      const _item = clone(p);
-      _item.label = `Pregnancy ${k + 1}`;
-      _item.conceiveDate = moment(_item.conceiveDate).format(dateFormat);
-      if (_item.deliveryDate !== '') _item.deliveryDate = moment(_item.deliveryDate).format(dateFormat);
-      _item.outcomeLabel = get(filter(pregnancyOutcomes, outcome => outcome.value === _item.outcome)[0], 'label');
-      return _item;
-    });
-
     return (
       <div>
         <div className="column p-t-0 p-b-0">
@@ -64,23 +60,24 @@ class Pregnancy extends Component {
           <div className="is-clearfix" />
         </div>
         <div className="column">
-          {pregnancies.length === 0 ?
-            <div className="notification">
-              <span>
-                No pregnancies found.
-              </span>
-            </div>
-            :
+          {pregnancies.length > 0 &&
             <div>
               <ReactTable
                 keyField="_id"
                 data={pregnancies}
-                defaultPageSize={pregnancies.length}
+                pageSize={pregnancies.length}
                 columns={pregnancyColumns}
                 className="-striped"
                 defaultSortDirection="asc"
                 showPagination={false}
               />
+            </div>
+          }
+          {pregnancies.length === 0 &&
+            <div className="notification">
+              <span>
+                No pregnancies found.
+              </span>
             </div>
           }
         </div>

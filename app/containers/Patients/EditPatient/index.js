@@ -26,7 +26,8 @@ const classNames = require('classnames');
 class EditPatient extends Component {
   state = {
     selectedTab: '',
-    patient: this.props.model.attributes
+    patient: this.props.model.attributes,
+    procedures: [],
   }
 
   async componentDidMount() {
@@ -45,13 +46,9 @@ class EditPatient extends Component {
   }
 
   handleChange = async () => {
-    console.log('_handleChange_', this.props.model.attributes.allergies.models);
-    try {
-      const patient = this.props.model.toJSON({ relations: true });
-      this.setState({ patient }, () => this.forceUpdate());
-    } catch (err) {
-      console.error('Error: ', err);
-    }
+    const patient = this.props.model.toJSON({ relations: true });
+    const procedures = this.props.model.getProcedures();
+    this.setState({ patient, procedures });
   }
 
   changeTab = (tabName) => {
@@ -76,11 +73,8 @@ class EditPatient extends Component {
   }
 
   render() {
-    console.log('_render_');
-    const { selectedTab, patient } = this.state;
+    const { selectedTab, patient, procedures } = this.state;
     const { history } = this.props;
-    const procedures = this.props.model.getProcedures();
-
     return (
       <div>
         <div className="create-content">

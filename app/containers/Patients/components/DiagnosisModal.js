@@ -78,7 +78,7 @@ class DiagnosisModal extends Component {
 
       // Attached allergy to patient object
       if (action === 'new') {
-        patientModel.get('diagnoses').add({ _id: model.id });
+        patientModel.get('diagnoses').add(model.attributes);
         await patientModel.save();
       } else {
         patientModel.trigger('change');
