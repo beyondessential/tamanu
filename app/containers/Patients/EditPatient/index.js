@@ -4,7 +4,7 @@ import moment from 'moment';
 import { Link } from 'react-router-dom';
 
 import Allergy from './Allergy';
-import Dignosis from './Dignosis';
+import Diagnosis from './Diagnosis';
 import Procedure from './Procedure';
 import OperativePlan from './OperativePlan';
 import History from './History';
@@ -106,12 +106,12 @@ class EditPatient extends Component {
                   </div>
                   <div className="columns border-bottom">
                     <div className="column">
-                      <Dignosis patient={patient} model={this.props.model} showSecondary={false} />
+                      <Diagnosis patient={patient} model={this.props.model} showSecondary={false} />
                       <Procedure procedures={procedures} patient={patient} history={history} />
                       <OperativePlan patient={patient} model={this.props.model} history={history} />
                     </div>
                     <div className="column">
-                      <Dignosis patient={patient} model={this.props.model} showSecondary />
+                      <Diagnosis patient={patient} model={this.props.model} showSecondary />
                       <Allergy patient={patient} model={this.props.model} />
                     </div>
                   </div>

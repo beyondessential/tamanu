@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import dbService from '../services/database';
-import { patientIcon, scheduleIcon, medicationIcon, labsIcon, administrationIcon, pregnancyIcon, programsIcon } from './images';
+import { patientIcon, scheduleIcon, medicationIcon, labsIcon, administrationIcon, programsIcon } from './images';
 
 export const Colors = {
   searchTintColor: '#d2dae3',
@@ -204,8 +204,6 @@ function padDigits(number, digits) {
 }
 
 export const getDisplayId = (item) => {
-  const { mainDB } = dbService;
-
   return new Promise((resolve, reject) => {
     const { mainDB } = dbService;
     let renderedValue = '';

@@ -21,9 +21,9 @@ class Diagnosis extends Component {
     return (
       <div>
         <div className={`column p-b-0 ${!diagnoses.length && showSecondary ? 'is-hidden' : ''}`}>
-          <span className="title">{`${showSecondary ? 'Secondary' : 'Primary'} Dignose`}</span>
+          <span className="title">{`${showSecondary ? 'Secondary' : 'Primary'} Diagnose`}</span>
           <a className={`${showSecondary ? 'is-hidden' : ''} add-button`} onClick={() => this.setState({ modalVisible: true, action: 'new', item: null })}>
-            + Add Dignosis
+            + Add Diagnosis
           </a>
           <div className="clearfix" />
           {diagnoses.map((diagnosis, k) => {

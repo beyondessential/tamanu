@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
-import { filter, get, clone } from 'lodash';
-import { Link } from 'react-router-dom';
-import moment from 'moment';
 import ReactTable from 'react-table';
-import { pregnancyColumns, dateFormat, pregnancyOutcomes } from '../../../constants';
+import { pregnancyColumns } from '../../../constants';
 import PregnancyModal from '../components/PregnancyModal';
 
 class Pregnancy extends Component {
