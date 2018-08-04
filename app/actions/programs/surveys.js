@@ -2,7 +2,7 @@ import { filter, chain, set } from 'lodash';
 import { to } from 'await-to-js';
 import { getFileInDocumentsPath, imageDataIsFileName } from '../../utils';
 import {
-  LOAD_SURVEYS_START,
+  LOAD_SURVEYS_REQUEST,
   LOAD_SURVEYS_SUCCESS,
   LOAD_SURVEYS_FAILED,
 } from '../types';
@@ -11,7 +11,7 @@ import { PatientModel, ProgramModel } from '../../models';
 
 export const initSurveys = ({ patientId, programId }) =>
   async dispatch => {
-    dispatch({ type: LOAD_SURVEYS_START });
+    dispatch({ type: LOAD_SURVEYS_REQUEST });
     const patientModel = new PatientModel();
     const programModel = new ProgramModel();
     patientModel.set({ _id: patientId });

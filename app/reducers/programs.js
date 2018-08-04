@@ -13,13 +13,13 @@ import {
   UPDATE_SURVEYS,
   WIPE_CURRENT_SURVEY,
   LOGIN_REQUEST,
-  LOAD_SURVEYS_START,
+  LOAD_SURVEYS_REQUEST,
   LOAD_SURVEYS_SUCCESS,
   LOAD_SURVEYS_FAILED,
-  LOAD_RESPONSES_START,
+  LOAD_RESPONSES_REQUEST,
   LOAD_RESPONSES_SUCCESS,
   LOAD_RESPONSES_FAILED,
-  LOAD_RESPONSE_START,
+  LOAD_RESPONSE_REQUEST,
   LOAD_RESPONSE_SUCCESS,
   LOAD_RESPONSE_FAILED,
 } from '../actions/types';
@@ -91,7 +91,7 @@ const stateChanges = {
       component.extraProps = { ...component.extraProps, ...newProps };
       return component;
     }),
-  [LOAD_SURVEYS_START]: (_, state) => ({
+  [LOAD_SURVEYS_REQUEST]: (_, state) => ({
     ...state,
     loading: true,
   }),
@@ -108,7 +108,7 @@ const stateChanges = {
     loading: false,
     error,
   }),
-  [LOAD_RESPONSES_START]: (_, state) => ({
+  [LOAD_RESPONSES_REQUEST]: (_, state) => ({
     ...state,
     loading: true,
   }),
@@ -125,7 +125,7 @@ const stateChanges = {
     loading: false,
     error,
   }),
-  [LOAD_RESPONSE_START]: (_, state) => ({
+  [LOAD_RESPONSE_REQUEST]: (_, state) => ({
     ...state,
     loading: true,
   }),

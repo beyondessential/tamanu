@@ -9,14 +9,16 @@ class InputGroup extends Component {
     name: PropTypes.string.isRequired,
     className: PropTypes.string,
     inputClass: PropTypes.string,
-    overwriteClass: PropTypes.bool
+    overwriteClass: PropTypes.bool,
+    autoFocus: PropTypes.bool,
   }
 
   static defaultProps = {
     required: false,
     className: '',
     inputClass: '',
-    overwriteClass: false
+    overwriteClass: false,
+    autoFocus: false,
   }
 
   constructor(props) {
@@ -41,7 +43,8 @@ class InputGroup extends Component {
       tabIndex,
       overwriteClass,
       inputClass,
-      readOnly
+      readOnly,
+      autoFocus
     } = this.props;
     let { className } = this.props;
     if (!overwriteClass) className = `column ${className}`;
@@ -62,6 +65,7 @@ class InputGroup extends Component {
           onChange={this.handleChange.bind(this)}
           required={required}
           readOnly={readOnly}
+          autoFocus={autoFocus}
         />
       </div>
     );

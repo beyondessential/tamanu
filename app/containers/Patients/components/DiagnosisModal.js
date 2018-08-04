@@ -14,7 +14,8 @@ class DiagnosisModal extends Component {
     this.state = {
       formValid: false,
       isVisible: false,
-      form: {}
+      form: {},
+      item: {},
     };
 
     this.submitForm = this.submitForm.bind(this);
@@ -25,11 +26,14 @@ class DiagnosisModal extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { isVisible, action, item } = nextProps;
+    const { isVisible, action, itemId, model: Model } = nextProps;
     if (action === 'edit') {
-      const form = pick(item, ['diagnosis', 'date', 'active', 'secondaryDiagnosis']);
-      form.date = moment(form.date);
-      this.setState({ isVisible, form }, () => this.validateField('diagnosis'));
+      const item = Model.get('diagnoses').findWhere({ _id: itemId });
+      if (item) {
+        const form = pick(item.attributes, ['diagnosis', 'date', 'active', 'secondaryDiagnosis']);
+        form.date = moment(form.date);
+        this.setState({ isVisible, form, item }, () => this.validateField('diagnosis'));
+      }
     } else {
       this.setState({ isVisible }, () => this.resetForm());
     }
@@ -67,37 +71,33 @@ class DiagnosisModal extends Component {
 
   submitForm = async (e) => {
     e.preventDefault();
-    const { action, item, model: patientModel } = this.props;
-    const _this = this;
-    const { form } = this.state;
+    const { action, model: Model } = this.props;
+    const { item, form } = this.state;
 
     try {
-      const allergy = new DiagnosisModel((action !== 'new' ? item : form));
-      if (action !== 'new') allergy.set(form);
-      const model = await allergy.save();
-
-      // Attached allergy to patient object
       if (action === 'new') {
-        patientModel.get('diagnoses').add(model.attributes);
-        await patientModel.save();
+        const diagnosis = new DiagnosisModel(form);
+        const model = await diagnosis.save();
+        Model.get('diagnoses').add(model.attributes);
+        await Model.save();
       } else {
-        patientModel.trigger('change');
+        item.set(form);
+        await item.save();
       }
 
-      _this.props.onClose();
+      this.props.onClose();
     } catch (err) {
       console.error('Error: ', err);
     }
   }
 
   async deleteItem() {
-    const { item, model: patientModel } = this.props;
-    const allergy = new DiagnosisModel(item);
-
+    const { itemId: _id, model: Model } = this.props;
+    const { item } = this.state;
     try {
-      patientModel.get('diagnoses').remove({ _id: allergy.id });
-      await patientModel.save();
-      await allergy.destroy();
+      Model.get('diagnoses').remove({ _id });
+      await Model.save();
+      await item.destroy();
       this.props.onClose();
     } catch (err) {
       console.error('Error: ', err);
@@ -106,8 +106,9 @@ class DiagnosisModal extends Component {
 
   render() {
     const { onClose, action } = this.props;
+    const { form } = this.state;
     return (
-      <Modal open={this.state.isVisible} onClose={onClose} little>
+      <Modal open={this.props.isVisible} onClose={onClose} little>
         <form
           name="allergyForm"
           className="create-container"
@@ -121,8 +122,9 @@ class DiagnosisModal extends Component {
               <InputGroup
                 name="diagnosis"
                 label="Diagnosis"
-                value={this.state.form.diagnosis}
+                value={form.diagnosis}
                 onChange={this.handleUserInput}
+                autoFocus
                 required
               />
               <div className="column is-one-third">
@@ -131,9 +133,8 @@ class DiagnosisModal extends Component {
                 </span>
                 <DatePicker
                   name="date"
-                  autoFocus
                   customInput={<CustomDateInput />}
-                  selected={this.state.form.date}
+                  selected={form.date}
                   onChange={this.handleUserInput}
                   dateFormat={dateFormat}
                   peekNextMonth
@@ -149,12 +150,12 @@ class DiagnosisModal extends Component {
               </div>
               <div className="column is-half is-pulled-left">
                 <label className="checkbox">
-                  <input type="checkbox" name="secondaryDiagnosis" checked={this.state.form.secondaryDiagnosis} onChange={this.handleUserInput} /> Secondary Diagnosis
+                  <input type="checkbox" name="secondaryDiagnosis" checked={form.secondaryDiagnosis} onChange={this.handleUserInput} /> Secondary Diagnosis
                 </label>
               </div>
               <div className={`column is-half is-pulled-right ${action === 'new' ? 'is-hidden' : ''}`}>
                 <label className="checkbox">
-                  <input type="checkbox" name="active" checked={this.state.form.active} onChange={this.handleUserInput} /> Active Diagnosis
+                  <input type="checkbox" name="active" checked={form.active} onChange={this.handleUserInput} /> Active Diagnosis
                 </label>
               </div>
               <div className="is-clearfix" />

@@ -12,11 +12,12 @@ class PatientAutocomplete extends Component {
     required: PropTypes.bool,
     name: PropTypes.string.isRequired,
     className: PropTypes.string,
+    onChange: PropTypes.func.isRequired,
   }
 
   static defaultProps = {
     required: false,
-    className: ''
+    className: '',
   }
 
   constructor(props) {

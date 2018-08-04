@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 
-import Allergy from './Allergy';
-import Diagnosis from './Diagnosis';
+import Allergy from '../components/Allergy';
+import Diagnosis from '../components/Diagnosis';
 import Procedure from './Procedure';
 import OperativePlan from './OperativePlan';
 import History from './History';
@@ -17,6 +17,7 @@ import Imaging from './Imaging';
 import Labs from './Labs';
 import Programs from './Programs';
 import Pregnancy from './Pregnancy';
+import TopRow from '../components/TopRow';
 
 // import Serializer from '../../../utils/form-serialize';
 import { PatientModel, AllergyModel } from '../../../models';
@@ -32,9 +33,10 @@ class EditPatient extends Component {
 
   async componentDidMount() {
     const { id } = this.props.match.params;
-    this.props.model.on('change', this.handleChange);
+    this.props.model.on('render', this.handleChange);
     this.props.model.set({ _id: id });
     await this.props.model.fetch({ relations: true });
+    this.props.model.trigger('render');
   }
 
   componentWillReceiveProps(newProps) {
@@ -42,10 +44,10 @@ class EditPatient extends Component {
   }
 
   componentWillUnmount() {
-    this.props.model.off('change', this.handleChange);
+    this.props.model.off('render', this.handleChange);
   }
 
-  handleChange = async () => {
+  handleChange = () => {
     const patient = this.props.model.toJSON({ relations: true });
     const procedures = this.props.model.getProcedures();
     this.setState({ patient, procedures });
@@ -87,32 +89,16 @@ class EditPatient extends Component {
             <div className="form">
               <div className="columns">
                 <div className="column">
-                  <div className="columns">
-                    <div className="column is-8">
-                      <div className="column">
-                        <span className="title">Name: </span>
-                        <span className="full-name">
-                          {patient.firstName} {patient.lastName}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="column is-4">
-                      <div className="align-left">
-                        <div className="card-info">
-                          {patient.displayId}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <TopRow patient={patient} />
                   <div className="columns border-bottom">
                     <div className="column">
-                      <Diagnosis patient={patient} model={this.props.model} showSecondary={false} />
+                      <Diagnosis model={this.props.model} showSecondary={false} />
                       <Procedure procedures={procedures} patient={patient} history={history} />
                       <OperativePlan patient={patient} model={this.props.model} history={history} />
                     </div>
                     <div className="column">
-                      <Diagnosis patient={patient} model={this.props.model} showSecondary />
-                      <Allergy patient={patient} model={this.props.model} />
+                      <Diagnosis model={this.props.model} showSecondary />
+                      <Allergy model={this.props.model} />
                     </div>
                   </div>
                   <div className="columns">
@@ -152,7 +138,7 @@ class EditPatient extends Component {
                         }
                         {selectedTab === 'visit' &&
                           <div className="column">
-                            <Visits />
+                            <Visits model={this.props.model} history={this.props.history} />
                           </div>
                         }
                         {selectedTab === 'medication' &&

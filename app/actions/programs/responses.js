@@ -1,6 +1,6 @@
 import { to } from 'await-to-js';
 import {
-  LOAD_RESPONSES_START,
+  LOAD_RESPONSES_REQUEST,
   LOAD_RESPONSES_SUCCESS,
   LOAD_RESPONSES_FAILED,
 } from '../types';
@@ -8,7 +8,7 @@ import { ProgramModel, PatientModel } from '../../models';
 
 export const initResponses = ({ patientId, programId, surveyId }) =>
   async dispatch => {
-    dispatch({ type: LOAD_RESPONSES_START });
+    dispatch({ type: LOAD_RESPONSES_REQUEST });
     const patient = new PatientModel();
     const program = new ProgramModel();
     patient.set({ _id: patientId });
