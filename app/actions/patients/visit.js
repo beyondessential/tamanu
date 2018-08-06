@@ -41,12 +41,10 @@ export const submitForm = ({ action, visitModel, patientModel, history, setStatu
       try {
         const endDate = visitModel.get('endDate');
         if (endDate instanceof moment && !endDate.isValid()) visitModel.set('endDate', null, { silent: true });
-        if (setStatus) _setStatus(visitModel);
+        if (setStatus) _setStatus({ visitModel, patientModel });
         const Model = await visitModel.save(null, { silent: true });
-        if (action === 'new') {
-          patientModel.get('visits').add({ _id: Model.id });
-          await patientModel.save(null, { silent: true });
-        }
+        if (action === 'new') patientModel.get('visits').add({ _id: Model.id });
+        if (patientModel.changed) await patientModel.save(null, { silent: true });
         dispatch({
           type: SAVE_VISIT_SUCCESS,
           patient: patientModel,
@@ -64,14 +62,17 @@ export const submitForm = ({ action, visitModel, patientModel, history, setStatu
     }
   };
 
-const _setStatus = (Model) => {
-  if (moment(Model.get('startDate')).isSameOrBefore(moment()) &&
+const _setStatus = ({ visitModel, patientModel }) => {
+  if (moment(visitModel.get('startDate')).isSameOrBefore(moment()) &&
     (
-      Model.get('endDate') === null ||
-      moment(Model.get('endDate')).isSameOrAfter(moment())
+      visitModel.get('endDate') === null ||
+      moment(visitModel.get('endDate')).isSameOrAfter(moment())
     )
   ) {
-    if (Model.get('visitType') === 'admission') Model.set('status', visitStatuses.ADMITTED);
-    if (Model.get('visitType') !== 'admission') Model.set('status', visitStatuses.CHECKED_IN);
+    if (visitModel.get('visitType') === 'admission') {
+      visitModel.set('status', visitStatuses.ADMITTED);
+      patientModel.set('admitted', true);
+    }
+    if (visitModel.get('visitType') !== 'admission') visitModel.set('status', visitStatuses.CHECKED_IN);
   }
 };

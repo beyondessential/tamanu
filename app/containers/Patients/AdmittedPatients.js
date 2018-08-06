@@ -1,18 +1,22 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import BootstrapTable from 'react-bootstrap-table-next';
 import { map, isEmpty } from 'lodash';
-import { headerSortingStyle, Colors } from '../../constants';
+import ReactTable from 'react-table';
+import { patientColumns, pageSizes } from '../../constants';
 import { PatientsCollection } from '../../collections';
 
 class AdmittedPatients extends Component {
   constructor(props) {
     super(props);
+    this.state = { loading: false };
     this.handleChange = this.handleChange.bind(this);
+    this.setActionsColumn = this.setActionsColumn.bind(this);
+    this.onFetchData = this.onFetchData.bind(this);
   }
 
   componentDidMount() {
+    patientColumns[patientColumns.length - 1].Cell = this.setActionsColumn;
     this.props.collection.on('update', this.handleChange);
     this.props.collection.fetch({ options: { query: { fun: 'patient_by_admission' } } });
   }
@@ -33,83 +37,33 @@ class AdmittedPatients extends Component {
     this.props.history.push(`/patients/editvisit/${patientId}`);
   }
 
+  onFetchData = (state) => {
+    this.props.collection.setPage(state.page);
+    this.props.collection.setPageSize(state.pageSize);
+
+    this.setState({ loading: true });
+    this.props.collection.fetchByView({
+      view: 'patient_by_admission',
+      success: () => {
+        this.setState({ loading: false });
+      }
+    });
+  }
+
+  setActionsColumn = _row => {
+    const row = _row.original;
+    return (
+      <div key={row._id}>
+        <button className="button column-button" onClick={() => this.goEditPatient(row._id)}>Edit</button>
+        <button className="button is-primary column-checkin-button" onClick={() => this.goEdit(row._id)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
+        <button className="button is-danger column-button">Delete</button>
+      </div>
+    );
+  }
+
   render() {
     let { models: admittedPatients } = this.props.collection;
     if (!isEmpty(admittedPatients)) admittedPatients = map(admittedPatients, patient => patient.attributes);
-    const that = this;
-    const patientColumns = [{
-      dataField: 'displayId',
-      text: 'Id',
-      sort: true,
-      headerSortingStyle,
-      headerStyle: {
-        backgroundColor: Colors.searchTintColor,
-        width: '10%'
-      },
-    }, {
-      dataField: 'firstName',
-      text: 'First Name',
-      sort: true,
-      headerSortingStyle,
-      headerStyle: {
-        backgroundColor: Colors.searchTintColor,
-        width: '12%'
-      }
-    }, {
-      dataField: 'lastName',
-      text: 'Last Name',
-      sort: true,
-      headerSortingStyle,
-      headerStyle: {
-        backgroundColor: Colors.searchTintColor,
-        width: '12%'
-      }
-    }, {
-      dataField: 'sex',
-      text: 'Sex',
-      sort: true,
-      headerSortingStyle,
-      headerStyle: {
-        backgroundColor: Colors.searchTintColor,
-        width: '10%'
-      }
-    }, {
-      dataField: 'birthday',
-      text: 'DOB',
-      sort: true,
-      headerSortingStyle,
-      headerStyle: {
-        backgroundColor: Colors.searchTintColor,
-        width: '15%'
-      }
-    }, {
-      dataField: 'patientStatus',
-      text: 'Status',
-      sort: true,
-      headerSortingStyle,
-      headerStyle: {
-        backgroundColor: Colors.searchTintColor,
-        width: '10%'
-      }
-    }, {
-      dataField: 'action',
-      text: 'Actions',
-      headerStyle: {
-        backgroundColor: Colors.searchTintColor
-      },
-      formatter: actionButtonFormatter
-    }];
-
-    function actionButtonFormatter(cell, row, rowIndex) {
-      return (
-        <div className="container" key={rowIndex}>
-          <button className="button column-button" onClick={() => that.goEditPatient(row._id)}>Edit</button>
-          <button className="button is-primary column-checkin-button" onClick={() => that.goEdit(row._id)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
-          <button className="button is-danger column-button">Delete</button>
-        </div>
-      );
-    }
-
     return (
       <div className="content">
         <div className="view-top-bar">
@@ -131,11 +85,17 @@ class AdmittedPatients extends Component {
             </div>
             :
             <div>
-              <BootstrapTable
+              <ReactTable
+                manual
                 keyField="_id"
                 data={admittedPatients}
+                pages={this.props.collection.totalPages}
+                defaultPageSize={pageSizes.patients}
+                loading={this.state.loading}
                 columns={patientColumns}
+                className="-striped"
                 defaultSortDirection="asc"
+                onFetchData={this.onFetchData}
               />
             </div>
           }

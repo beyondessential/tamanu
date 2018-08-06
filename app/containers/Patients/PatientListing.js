@@ -4,7 +4,7 @@ import { map, isEmpty } from 'lodash';
 import ReactTable from 'react-table';
 
 // import { fetchPatients, deletePatient } from '../../actions/patients';
-import { Colors, pageSizes } from '../../constants';
+import { Colors, pageSizes, patientColumns } from '../../constants';
 import DeletePatientModal from './components/DeletePatientModal';
 import { PatientsCollection } from '../../collections';
 
@@ -12,6 +12,8 @@ class PatientListing extends Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
+    this.setActionsColumn = this.setActionsColumn.bind(this);
+    this.onFetchData = this.onFetchData.bind(this);
   }
 
   state = {
@@ -21,6 +23,7 @@ class PatientListing extends Component {
   }
 
   componentDidMount() {
+    patientColumns[patientColumns.length - 1].Cell = this.setActionsColumn;
     this.props.collection.on('update', this.handleChange);
     this.props.collection.setPageSize(this.state.pageSize);
     this.props.collection.fetchByView();
@@ -86,131 +89,22 @@ class PatientListing extends Component {
     });
   }
 
+  setActionsColumn = _row => {
+    const row = _row.original;
+    return (
+      <div key={row._id}>
+        <button className="button column-button" onClick={() => this.goEdit(row._id)}>View Patient</button>
+        <button className="button is-primary column-checkin-button" onClick={() => this.goAdmit(row._id, row.admitted)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
+        <button className="button is-danger column-button" onClick={() => this.showDeleteModal(row)}>Delete</button>
+      </div>
+    );
+  }
+
   render() {
     const { deleteModalVisible } = this.state;
-    const that = this;
     let { models: patients } = this.props.collection;
     if (patients.length > 0) patients = map(patients, patient => patient.attributes);
     // console.log('patients', this.props.collection);
-    const patientColumns = [{
-      accessor: 'displayId',
-      Header: 'Id',
-      headerStyle: {
-        backgroundColor: Colors.searchTintColor,
-      },
-      style: {
-        backgroundColor: Colors.white,
-        height: '60px',
-        color: '#2f4358',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      },
-      minWidth: 80
-    }, {
-      accessor: 'firstName',
-      Header: 'First Name',
-      headerStyle: {
-        backgroundColor: Colors.searchTintColor,
-      },
-      style: {
-        backgroundColor: Colors.white,
-        height: '60px',
-        color: '#2f4358',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      },
-      minWidth: 100
-    }, {
-      accessor: 'lastName',
-      Header: 'Last Name',
-      headerStyle: {
-        backgroundColor: Colors.searchTintColor,
-      },
-      style: {
-        backgroundColor: Colors.white,
-        height: '60px',
-        color: '#2f4358',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      },
-      minWidth: 100
-    }, {
-      accessor: 'sex',
-      Header: 'Sex',
-      headerStyle: {
-        backgroundColor: Colors.searchTintColor,
-      },
-      style: {
-        backgroundColor: Colors.white,
-        height: '60px',
-        color: '#2f4358',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      },
-      minWidth: 80
-    }, {
-      accessor: 'birthday',
-      Header: 'DOB',
-      headerStyle: {
-        backgroundColor: Colors.searchTintColor,
-      },
-      style: {
-        backgroundColor: Colors.white,
-        height: '60px',
-        color: '#2f4358',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      },
-      minWidth: 100
-    }, {
-      accessor: 'patientStatus',
-      Header: 'Status',
-      headerStyle: {
-        backgroundColor: Colors.searchTintColor,
-      },
-      style: {
-        backgroundColor: Colors.white,
-        height: '60px',
-        color: '#2f4358',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      },
-      minWidth: 80
-    }, {
-      accessor: row => {
-        return { _id: row._id, admitted: row.admitted };
-      },
-      id: 'actions',
-      Header: 'Actions',
-      headerStyle: {
-        backgroundColor: Colors.searchTintColor
-      },
-      style: {
-        backgroundColor: Colors.white,
-        height: '60px',
-        color: '#2f4358',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      },
-      minWidth: 350,
-      Cell: row => {
-        return (
-          <div key={row._id}>
-            <button className="button column-button" onClick={() => that.goEdit(row.value._id)}>View Patient</button>
-            <button className="button is-primary column-checkin-button" onClick={() => that.goAdmit(row.value._id, row.value.admitted)}>{row.value.admitted ? 'Discharge' : 'Admit'}</button>
-            <button className="button is-danger column-button" onClick={() => that.showDeleteModal(row)}>Delete</button>
-          </div>
-        );
-      }
-    }];
-
     return (
       <div className="content">
         <div className="view-top-bar">

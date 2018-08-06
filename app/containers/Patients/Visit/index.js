@@ -88,9 +88,10 @@ class EditVisit extends Component {
   }
 
   discharge = () => {
-    const { visitModel } = this.state;
+    const { visitModel, patientModel } = this.state;
     visitModel.set('status', visitStatuses.DISCHARGED);
-    visitModel.set('endDate', moment());
+    if (visitModel.get('endDate') === null || visitModel.get('endDate') === '') visitModel.set('endDate', moment());
+    patientModel.set('admitted', false);
     this.submitForm(false);
   }
 
