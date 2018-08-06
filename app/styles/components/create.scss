@@ -16,6 +16,20 @@
       color: $main-light-dark-color;
       font-size: 28px;
       font-weight: 600;
+      &.title{
+        font-size: 18px !important;
+        padding: 10px 30px !important;
+        margin-top: 8px !important;
+        float: right;
+        color: $main-white-color;
+      }
+      &.sub-title{
+        font-size: 15px !important;
+        padding: 18px !important;
+        margin-top: 8px !important;
+        float: right;
+        color: $main-light-dark-color;
+      }
     }
     .view-action-buttons {
       float: right;

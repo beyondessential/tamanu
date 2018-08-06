@@ -13,6 +13,7 @@ const initialState = {
   updatedReferredDate: moment(),
   visit: {},
   action: '',
+  saved: false,
 };
 
 export default (state = initialState, action) => {

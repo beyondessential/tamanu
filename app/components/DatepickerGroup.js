@@ -16,7 +16,7 @@ class DatepickerGroup extends Component {
     labelClass: PropTypes.string,
     overwriteClass: PropTypes.bool,
     showTimeSelect: PropTypes.bool,
-    value: PropTypes.string,
+    value: PropTypes.any,
     readOnly: PropTypes.bool,
     todayAsDefault: PropTypes.bool,
   }
@@ -28,7 +28,7 @@ class DatepickerGroup extends Component {
     labelClass: 'input-group-title',
     overwriteClass: false,
     showTimeSelect: false,
-    value: moment().format(dateFormat),
+    value: moment(),
     readOnly: false,
     todayAsDefault: true,
   }
@@ -42,15 +42,16 @@ class DatepickerGroup extends Component {
   }
 
   parseValue(props, init = false) {
-    let { value, todayAsDefault } = props;
-    value = moment(value);
-    if (!todayAsDefault && init) value = null;
+    const { value, todayAsDefault } = props;
+    // value = moment(value);
+    // if (init) value = todayAsDefault ? moment() : null;
     this.setState({ value });
   }
 
-  handleChange(event) {
-    this.setState({ value: event.target.value });
-    if (this.props.onChange) this.props.onChange(event);
+  handleChange(value) {
+    const { name } = this.props;
+    this.setState({ value });
+    if (this.props.onChange) this.props.onChange(value, name);
   }
 
   render() {

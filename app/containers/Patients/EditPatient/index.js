@@ -5,8 +5,8 @@ import { Link } from 'react-router-dom';
 
 import Allergy from '../components/Allergy';
 import Diagnosis from '../components/Diagnosis';
-import Procedure from './Procedure';
-import OperativePlan from './OperativePlan';
+import Procedure from '../components/Procedure';
+import OperativePlan from '../components/OperativePlan';
 import History from './History';
 import General from './General';
 import Photos from './Photos';
@@ -92,9 +92,9 @@ class EditPatient extends Component {
                   <TopRow patient={patient} />
                   <div className="columns border-bottom">
                     <div className="column">
-                      <Diagnosis model={this.props.model} showSecondary={false} />
-                      <Procedure procedures={procedures} patient={patient} history={history} />
-                      <OperativePlan patient={patient} model={this.props.model} history={history} />
+                      <Diagnosis model={this.props.model} />
+                      <Procedure model={this.props.model} />
+                      <OperativePlan model={this.props.model} />
                     </div>
                     <div className="column">
                       <Diagnosis model={this.props.model} showSecondary />
@@ -138,7 +138,7 @@ class EditPatient extends Component {
                         }
                         {selectedTab === 'visit' &&
                           <div className="column">
-                            <Visits model={this.props.model} history={this.props.history} />
+                            <Visits model={this.props.model} />
                           </div>
                         }
                         {selectedTab === 'medication' &&

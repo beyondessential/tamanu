@@ -113,7 +113,7 @@ export const sidebarInfo = [
       },
       {
         label: 'New Request',
-        path: '/medication/edit/new',
+        path: '/medication/request/new',
         icon: 'fa fa-plus'
       },
       {
@@ -224,6 +224,13 @@ export const getDifferenceDate = (today, target) => {
 };
 
 const headerSortingStyle = { backgroundColor: '#c8e6c9' };
+
+export const visitStatuses = {
+  ADMITTED: 'Admitted',
+  DISCHARGED: 'Discharged',
+  CHECKED_IN: 'CheckedIn',
+  CHECKED_OUT: 'CheckedOut',
+};
 
 export const locationOptions = [
   { value: 'australian-capital-territory', label: 'Australian Capital Territory', className: 'State-ACT' },
@@ -455,6 +462,116 @@ export const pregnancyColumns = [{
   Cell: null
 }];
 
+export const visitsColumns = [{
+  accessor: 'startDate',
+  Header: 'Start Date',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 100
+}, {
+  accessor: 'endDate',
+  Header: 'End Date',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 100
+}, {
+  accessor: 'diagnosis',
+  Header: 'Diagnosis',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 100
+}, {
+  accessor: 'examiner',
+  Header: 'Provider',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 100
+}, {
+  accessor: 'location',
+  Header: 'Location',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 100
+}, {
+  accessor: 'visitType',
+  Header: 'Type',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor,
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  minWidth: 100
+}, {
+  accessor: row => {
+    return { _id: row._id, admitted: row.admitted };
+  },
+  id: 'actions',
+  Header: 'Actions',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor
+  },
+  style: {
+    backgroundColor: Colors.white,
+    height: '60px',
+    color: '#2f4358',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  minWidth: 350,
+  Cell: null
+}];
 
 export const programsPatientsColumns = [{
   accessor: 'displayId',
