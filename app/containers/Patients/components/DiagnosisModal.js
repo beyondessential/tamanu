@@ -83,6 +83,7 @@ class DiagnosisModal extends Component {
       } else {
         item.set(form);
         await item.save();
+        Model.trigger('change');
       }
 
       this.props.onClose();

@@ -1,9 +1,19 @@
 import React, { Component } from 'react';
 import moment from 'moment';
+import PropTypes from 'prop-types';
 import DiagnosisModal from './DiagnosisModal';
 import { dateFormat } from '../../../constants';
 
 class Diagnosis extends Component {
+  static propTypes = {
+    model: PropTypes.object.isRequired,
+    showSecondary: PropTypes.bool,
+  }
+
+  static defaultProps = {
+    showSecondary: false
+  }
+
   state = {
     modalVisible: false,
     action: 'new',

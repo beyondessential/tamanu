@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import AllergyModal from './AllergyModal';
 
 class Allergy extends Component {
+  static propTypes = {
+    model: PropTypes.object.isRequired,
+  }
+
   state = {
     modalVisible: false,
     action: 'new',

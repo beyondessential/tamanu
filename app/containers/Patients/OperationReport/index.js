@@ -45,7 +45,7 @@ class OperationReport extends Component {
     let _action = 'new';
     this.props.patient.on('change', this.handleChange);
     this.props.patient.set({ _id: patientId });
-    await this.props.patient.fetch({ relations: true });
+    await this.props.patient.fetch({ relations: true, deep: false });
 
     if (!isUndefined(id)) {
       _action = 'update';
@@ -66,7 +66,7 @@ class OperationReport extends Component {
     try {
       const patient = await this.props.patient.toJSON({ relations: true });
       if (patient.dateOfBirth !== '') patient.age = getDifferenceDate(moment(), moment(patient.dateOfBirth));
-      this.setState({ patient }, () => this.forceUpdate());
+      this.setState({ patient });
     } catch (err) {
       console.error('Error: ', err);
     }

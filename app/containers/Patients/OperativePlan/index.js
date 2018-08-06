@@ -5,9 +5,9 @@ import Select from 'react-select';
 import { clone, isUndefined, each, has, capitalize, pick } from 'lodash';
 
 // import Serializer from '../../../utils/form-serialize';
-import Allergy from './Allergy';
-import Diagnosis from './Diagnosis';
-import Procedure from './Procedure';
+import Allergy from '../components/Allergy';
+import Diagnosis from '../components/Diagnosis';
+import Procedure from '../components/Procedure';
 import ModalView from '../../../components/Modal';
 import InputGroup from '../../../components/InputGroup';
 import TextareaGroup from '../../../components/TextareaGroup';
@@ -48,7 +48,7 @@ class OperativePlan extends Component {
     let _action = 'new';
     this.props.patient.on('change', this.handleChange);
     this.props.patient.set({ _id: patientId });
-    await this.props.patient.fetch({ relations: true });
+    await this.props.patient.fetch({ relations: true, deep: false });
 
     if (!isUndefined(id)) {
       _action = 'update';
@@ -157,7 +157,7 @@ class OperativePlan extends Component {
 
         patient.get('operativePlans').add({ _id: model.id });
         await patient.save();
-        this.props.history.replace(`/patients/operativePlan/${patient.id}/${model.id}`);
+        this.props.history.push(`/patients/operativePlan/${patient.id}/${model.id}`);
         this.setState({ action: 'update' });
       } else {
         patient.trigger('change');
@@ -190,13 +190,13 @@ class OperativePlan extends Component {
       toCopy.surgeryDate = moment().format(dateFormat);
 
       try {
-        const operationReport = new OperationReportModel();
-        operationReport.set(toCopy);
-        operationReport.get('preOpDiagnoses').set(diagnoses.models);
-        await operationReport.save();
-        this.props.patient.get('operationReports').add(operationReport.attributes);
+        const operationReportModel = new OperationReportModel();
+        operationReportModel.set(toCopy);
+        operationReportModel.get('preOpDiagnoses').set(diagnoses.models);
+        await operationReportModel.save();
+        this.props.patient.get('operationReports').add(operationReportModel.attributes);
         await this.props.patient.save();
-        resolve(operationReport.id);
+        resolve(operationReportModel.id);
       } catch (err) {
         reject(err);
       }
@@ -211,7 +211,6 @@ class OperativePlan extends Component {
       markedCompleted,
       form,
       action,
-      diagnoses
     } = this.state;
 
     return (
@@ -259,11 +258,11 @@ class OperativePlan extends Component {
                   </div>
                   <div className="columns border-bottom">
                     <div className="column">
-                      <Diagnosis diagnoses={diagnoses} model={this.props.patient} readonly />
-                      <Diagnosis diagnoses={diagnoses} model={this.props.patient} showSecondary readonly />
+                      <Diagnosis model={this.props.patient} readonly />
+                      <Diagnosis model={this.props.patient} showSecondary readonly />
                     </div>
                     <div className="column">
-                      <Allergy patient={patient} model={this.props.patient} readonly />
+                      <Allergy model={this.props.patient} readonly />
                     </div>
                   </div>
                 </div>
@@ -279,7 +278,7 @@ class OperativePlan extends Component {
                   />
                 </div>
               </div>
-              <Procedure procedures={form.procedures} onChange={this.handleUserInput} />
+              <Procedure model={this.props.patient} onChange={this.handleUserInput} />
               <div className="columns">
                 <div className="column is-10">
                   <div className="columns">
