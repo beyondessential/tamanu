@@ -1,5 +1,6 @@
 export CustomDateInput from './CustomDateInput';
 export DatepickerGroup from './DatepickerGroup';
+export DrugAutocomplete from './DrugAutocomplete';
 export InputGroup from './InputGroup';
 export Modal from './Modal';
 export PatientAutocomplete from './PatientAutocomplete';

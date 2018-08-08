@@ -4,10 +4,15 @@ import InputGroup from '../../../components/InputGroup';
 import Serializer from '../../../utils/form-serialize';
 import { AllergyModel } from '../../../models';
 
-class AddAllergyModal extends Component {
+class AllergyModal extends Component {
   constructor(props) {
     super(props);
-    this.state = { name: '', formValid: false, isVisible: false };
+    this.state = {
+      name: '',
+      formValid: false,
+      isVisible: false,
+      item: {},
+    };
     this.submitForm = this.submitForm.bind(this);
     this.handleUserInput = this.handleUserInput.bind(this);
     this.validateField = this.validateField.bind(this);
@@ -15,9 +20,10 @@ class AddAllergyModal extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { isVisible, action, item } = nextProps;
+    const { isVisible, action, itemId, model: Model } = nextProps;
     if (action === 'edit') {
-      this.setState({ isVisible, name: item.name }, () => this.validateField('name'));
+      const item = Model.get('allergies').findWhere({ _id: itemId });
+      this.setState({ isVisible, name: item.name, item }, () => this.validateField('name'));
     } else {
       this.setState({ isVisible, name: '' });
     }
@@ -36,24 +42,22 @@ class AddAllergyModal extends Component {
 
   submitForm = async (e) => {
     e.preventDefault();
-    const { action, item, model: patientModel } = this.props;
-    const _this = this;
+    const { action, model: Model } = this.props;
+    const { item } = this.state;
     const form = Serializer.serialize(e.target, { hash: true });
 
     try {
-      const allergy = new AllergyModel((action !== 'new' ? item : form));
-      if (action !== 'new') allergy.set(form);
-      const model = await allergy.save();
-
-      // Attached allergy to patient object
       if (action === 'new') {
-        patientModel.get('allergies').add(model.attributes);
-        await patientModel.save();
+        const allergy = new AllergyModel(form);
+        const model = await allergy.save();
+        Model.get('allergies').add(model.attributes);
+        await Model.save();
       } else {
-        patientModel.trigger('change');
+        item.set(form);
+        await item.save();
       }
 
-      _this.props.onClose();
+      this.props.onClose();
     } catch (err) {
       console.error('Error: ', err);
     }
@@ -108,4 +112,4 @@ class AddAllergyModal extends Component {
   }
 }
 
-export default AddAllergyModal;
+export default AllergyModal;

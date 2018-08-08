@@ -2,7 +2,7 @@ const importSurveys = require('./importSurveys');
 
 const res = importSurveys({
   reqQuery: {
-    surveyNames: 'Antibiotic Audit'
+    surveyNames: 'Antenatal Visit, Gestational Diabetes, Pregnancy Outcomes, Postnatal FollowUp surveillance, Child Follow-Up Surveillance'
   },
-  filePath: './survey.xlsx'
+  filePath: './GDM_survey.xlsx'
 });

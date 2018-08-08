@@ -1,6 +1,6 @@
 import Backbone from 'backbone-associations';
 import shortid from 'shortid';
-import { defaults, each, clone, merge, set, concat, get, filter } from 'lodash';
+import { defaults, each, clone, merge, set, concat, get, filter, capitalize } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
@@ -159,4 +159,20 @@ export default BaseModel.extend({
       return _item;
     });
   },
+
+  getVisitsSelect() {
+    let visits = this.get('visits').toJSON();
+    visits = visits.map(visit => {
+      const label = [];
+      label.push(moment(visit.startDate).format(dateFormat));
+      if (visit.endDate !== null) label.push(` - ${moment(visit.endDate).format(dateFormat)}`);
+      label.push(` (${capitalize(visit.visitType)})`);
+
+      return {
+        value: visit._id,
+        label: label.concat(),
+      };
+    });
+    return visits;
+  }
 });

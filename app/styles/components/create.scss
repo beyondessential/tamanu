@@ -79,7 +79,7 @@
         margin-bottom: 5px;
         font-weight: bold;
       }
-      p {
+      p:not(.help) {
         font-size: 18px;
       }
       .radio {

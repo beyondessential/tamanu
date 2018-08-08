@@ -203,7 +203,7 @@ class EditVisit extends Component {
 
 function mapStateToProps(state) {
   return {
-    patient: state.patients.onePatient
+    patient: {}, // state.patients.onePatient
   };
 }
 

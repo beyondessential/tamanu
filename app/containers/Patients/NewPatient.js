@@ -5,10 +5,8 @@ import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 
-import ModalView from '../../components/Modal';
+import { Modal as ModalView, InputGroup, CustomDateInput } from '../../components';
 import AddContactModal from './components/AddContactModal';
-import InputGroup from '../../components/InputGroup';
-import CustomDateInput from '../../components/CustomDateInput';
 import Serializer from '../../utils/form-serialize';
 import { createPatient, createPatientIndexes } from '../../actions/patients';
 import { bloodOptions, sexOptions, getDifferenceDate, getDisplayId } from '../../constants';

@@ -11,6 +11,8 @@ import UglifyJSPlugin from 'uglifyjs-webpack-plugin';
 import baseConfig from './webpack.config.base';
 import CheckNodeEnv from './internals/scripts/CheckNodeEnv';
 
+const Dotenv = require('dotenv-webpack');
+
 CheckNodeEnv('production');
 
 export default merge.smart(baseConfig, {
@@ -167,6 +169,10 @@ export default merge.smart(baseConfig, {
     new UglifyJSPlugin({
       parallel: true,
       sourceMap: true
+    }),
+
+    new Dotenv({
+      path: './.env/config.prod'
     }),
 
     new ExtractTextPlugin('style.css'),

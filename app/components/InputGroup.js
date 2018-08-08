@@ -2,23 +2,29 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-class InputGroup extends Component {
+class InputGroupNew extends Component {
   static propTypes = {
+    type: PropTypes.string,
     label: PropTypes.any.isRequired,
     required: PropTypes.bool,
     name: PropTypes.string.isRequired,
     className: PropTypes.string,
+    labelClass: PropTypes.string,
     inputClass: PropTypes.string,
     overwriteClass: PropTypes.bool,
     autoFocus: PropTypes.bool,
+    note: PropTypes.string,
   }
 
   static defaultProps = {
+    type: 'text',
     required: false,
-    className: '',
-    inputClass: '',
+    className: 'field column',
+    labelClass: 'label',
+    inputClass: 'control',
     overwriteClass: false,
     autoFocus: false,
+    note: '',
   }
 
   constructor(props) {
@@ -37,36 +43,42 @@ class InputGroup extends Component {
 
   render() {
     const {
+      type,
       label,
       required,
       name,
       tabIndex,
       overwriteClass,
       inputClass,
+      labelClass,
       readOnly,
-      autoFocus
+      autoFocus,
+      note,
     } = this.props;
     let { className } = this.props;
-    if (!overwriteClass) className = `column ${className}`;
+    if (!overwriteClass) className = `field ${className}`;
 
     return (
       <div className={className}>
         {label !== false &&
-          <span className="input-group-title">
+          <label className={labelClass}>
             {label} {required && <span className="isRequired">*</span>}
-          </span>
+          </label>
         }
-        <input
-          className={`input is-primary ${inputClass}`}
-          type="text"
-          name={name}
-          tabIndex={tabIndex}
-          value={this.state.value}
-          onChange={this.handleChange.bind(this)}
-          required={required}
-          readOnly={readOnly}
-          autoFocus={autoFocus}
-        />
+        <div className={inputClass}>
+          <input
+            className="input is-primary"
+            type={type}
+            name={name}
+            tabIndex={tabIndex}
+            value={this.state.value}
+            onChange={this.handleChange.bind(this)}
+            required={required}
+            readOnly={readOnly}
+            autoFocus={autoFocus}
+          />
+        </div>
+        {note && <p className="help">{note}</p>}
       </div>
     );
   }
@@ -78,4 +90,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, {})(InputGroup);
+export default connect(mapStateToProps, {})(InputGroupNew);

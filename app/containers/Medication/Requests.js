@@ -7,7 +7,7 @@ import { medicationColumns } from '../../constants';
 
 class Requests extends Component {
   componentDidMount() {
-    this.props.fetchMedications();
+    // this.props.fetchMedications();
   }
 
   render() {
