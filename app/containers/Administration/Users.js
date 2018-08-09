@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import BootstrapTable from 'react-bootstrap-table-next';
-import { fetchPatients } from '../../actions/patients';
+import { fetchPatients } from '../../actions/patients/patients';
 import { patientColumns } from '../../constants';
 
 class Users extends Component {

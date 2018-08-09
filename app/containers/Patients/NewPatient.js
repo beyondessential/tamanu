@@ -8,7 +8,7 @@ import moment from 'moment';
 import { Modal as ModalView, InputGroup, CustomDateInput } from '../../components';
 import AddContactModal from './components/AddContactModal';
 import Serializer from '../../utils/form-serialize';
-import { createPatient, createPatientIndexes } from '../../actions/patients';
+import { createPatient, createPatientIndexes } from '../../actions/patients/patients';
 import { bloodOptions, sexOptions, getDifferenceDate, getDisplayId } from '../../constants';
 import { PatientModel } from '../../models';
 

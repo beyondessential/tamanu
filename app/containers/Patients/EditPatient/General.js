@@ -12,7 +12,7 @@ import Serializer from '../../../utils/form-serialize';
 
 import { bloodOptions, sexOptions, getDifferenceDate } from '../../../constants';
 
-import { setUpdatedBirthday, setUpdatedReferredDate } from '../../../actions/patients';
+import { setUpdatedBirthday, setUpdatedReferredDate } from '../../../actions/patients/patients';
 
 class General extends Component {
   state = {

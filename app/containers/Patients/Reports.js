@@ -5,7 +5,7 @@ import moment from 'moment';
 import Select from 'react-select';
 import BootstrapTable from 'react-bootstrap-table-next';
 import CustomDateInput from '../../components/CustomDateInput';
-import { fetchPatients } from '../../actions/patients';
+import { fetchPatients } from '../../actions/patients/patients';
 import { patientColumns, reportOptions } from '../../constants';
 
 class Reports extends Component {

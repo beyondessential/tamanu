@@ -9,7 +9,7 @@ import { isEmpty } from 'lodash';
 import Serializer from '../../utils/form-serialize';
 import InputGroup from '../../components/InputGroup';
 import CustomDateInput from '../../components/CustomDateInput';
-import { fetchOnePatient, checkInPatient } from '../../actions/patients';
+import { fetchOnePatient, checkInPatient } from '../../actions/patients/patients';
 import { visitOptions } from '../../constants';
 import { PatientModel } from '../../models';
 
