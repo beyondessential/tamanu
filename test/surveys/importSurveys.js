@@ -20,8 +20,8 @@ const HTTPPouch = PouchDB.defaults({
 });
 const surveyDB = new HTTPPouch('main');
 
-console.log('Terminated!');
-process.exit();
+// console.log('Terminated!');
+// process.exit();
 
 /**
 * Responds to POST requests to the /surveys endpoint
@@ -71,7 +71,9 @@ module.exports = async function importSurveys(req) {
         }
       });
       if (surveyName.length === 0) {
-        throw new Error(`The tab ${tabName} was not listed as a survey name in the HTTP query`);
+        console.log('Skipping..', surveyName);
+        return;
+        // throw new Error(`The tab ${tabName} was not listed as a survey name in the HTTP query`);
       }
 
       // Get the survey based on the name of the sheet/tab
@@ -132,6 +134,7 @@ module.exports = async function importSurveys(req) {
         const questionObject = questionObjects[rowIndex];
         const excelRowNumber = rowIndex + 2; // +2 to make up for header and 0 index
         const constructImportValidationError = (message, field) => new Error(message, excelRowNumber, field, tabName);
+        console.log('_questionObject_', questionObject);
         await objectValidator.validate(questionObject, constructImportValidationError);
         if (questionObject.code && questionObject.code.length > 0 && questionCodes.includes(questionObject.code)) {
           throw new Error('Question code is not unique', excelRowNumber);
@@ -285,7 +288,7 @@ const FIELD_VALIDATORS = {
   ],
   type: [
     hasContent,
-    constructIsOneOf(['Binary', 'Checkbox', 'FreeText', 'Geolocate', 'Instruction', 'Number', 'Photo', 'Radio', 'MultiColor']),
+    constructIsOneOf(['Binary', 'Checkbox', 'FreeText', 'Geolocate', 'Instruction', 'Number', 'Photo', 'Radio', 'MultiColor', 'Date']),
   ],
   indicator: [
     (cell, questionObject) => { // Not required for Instruction lines
