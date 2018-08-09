@@ -5,9 +5,10 @@ import Routes from '../routes';
 
 export default class Root extends Component {
   render() {
+    const { store, history } = this.props.
     return (
-      <Provider store={this.props.store}>
-        <ConnectedRouter history={this.props.history}>
+      <Provider store={store}>
+        <ConnectedRouter history={history}>
           <Routes />
         </ConnectedRouter>
       </Provider>

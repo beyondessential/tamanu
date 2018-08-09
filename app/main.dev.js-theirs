@@ -40,7 +40,6 @@ const installExtensions = async () => {
   ).catch(console.log);
 };
 
-
 /**
  * Add event listeners...
  */
@@ -53,7 +52,6 @@ app.on('window-all-closed', () => {
   }
 });
 
-
 app.on('ready', async () => {
   if (
     process.env.NODE_ENV === 'development' ||
@@ -64,10 +62,8 @@ app.on('ready', async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    // width: 1024,
-    // height: 728
-    width: 1500,
-    height: 900
+    width: 1024,
+    height: 728
   });
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);

@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 import Sidebar from '../components/Sidebar';
 
-export default class App extends Component {
+export default class App extends Component<Props> {
+  props: Props;
+
   render() {
+    const { children } = this.props;
     return (
-      <div>
+      <React.Fragment>
         <Sidebar />
-        {this.props.children}
-      </div>
+        {children}
+      </React.Fragment>
     );
   }
 }

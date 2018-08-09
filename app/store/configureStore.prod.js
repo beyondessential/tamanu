@@ -12,9 +12,6 @@ const router = routerMiddleware(history);
 const enhancer = applyMiddleware(thunk, router);
 
 function configureStore(initialState?: counterStateType) {
-  dbService.createDB();
-  dbService.setup();
-
   return createStore(rootReducer, initialState, enhancer);
 }
 

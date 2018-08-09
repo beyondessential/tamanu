@@ -9,13 +9,17 @@ export default class MenuBuilder {
   }
 
   buildMenu() {
-    if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+    if (
+      process.env.NODE_ENV === 'development' ||
+      process.env.DEBUG_PROD === 'true'
+    ) {
       this.setupDevelopmentEnvironment();
     }
 
-    const template = process.platform === 'darwin'
-      ? this.buildDarwinTemplate()
-      : this.buildDefaultTemplate();
+    const template =
+      process.platform === 'darwin'
+        ? this.buildDarwinTemplate()
+        : this.buildDefaultTemplate();
 
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
@@ -28,14 +32,14 @@ export default class MenuBuilder {
     this.mainWindow.webContents.on('context-menu', (e, props) => {
       const { x, y } = props;
 
-      Menu
-        .buildFromTemplate([{
+      Menu.buildFromTemplate([
+        {
           label: 'Inspect element',
           click: () => {
             this.mainWindow.inspectElement(x, y);
           }
-        }])
-        .popup(this.mainWindow);
+        }
+      ]).popup(this.mainWindow);
     });
   }
 

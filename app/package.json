@@ -5,9 +5,9 @@
   "description": "Tamanu Electron app",
   "main": "./main.prod.js",
   "author": {
-    "name": "C. T. Lin",
-    "email": "chentsulin@gmail.com",
-    "url": "https://github.com/chentsulin"
+    "name": "Salman Amjad",
+    "email": "salman.amjad@protonmail.com",
+    "url": "https://github.com/salman-amjad"
   },
   "repository": {
     "type": "git",
