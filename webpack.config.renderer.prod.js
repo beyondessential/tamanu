@@ -211,6 +211,8 @@ export default merge.smart(baseConfig, {
       path: './.env/config.prod'
     }),
 
+    new ExtractTextPlugin('style.css'),
+
     new BundleAnalyzerPlugin({
       analyzerMode:
         process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',

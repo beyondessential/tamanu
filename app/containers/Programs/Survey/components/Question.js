@@ -1,8 +1,8 @@
-import React from 'react';
+import { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Instruction } from './questionTypes/Instruction';
 
-export class DumbQuestion extends React.Component {
+export class DumbQuestion extends Component {
   // shouldComponentUpdate(nextProps) {
   //   if (this.props.answer === nextProps.answer &&
   //       this.props.validationErrorMessage === nextProps.validationErrorMessage) {

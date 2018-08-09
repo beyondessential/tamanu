@@ -2,8 +2,9 @@ global.Promise = require('bluebird');
 const xlsx = require('xlsx');
 const { compareTwoStrings } = require('string-similarity');
 const PouchDB = require('pouchdb');
-const { kebabCase, isNaN } = require('lodash');
+const { kebabCase, isNaN, isArray, has, camelCase } = require('lodash');
 const shortid = require('shortid');
+const { to } = require('await-to-js');
 // const { deleteScreensForSurvey, deleteOrphanQuestions } = require('../dataAccessors');
 const TYPES = require('./constants');
 // const { PermissionGroup } = require('../models');
@@ -19,8 +20,8 @@ const HTTPPouch = PouchDB.defaults({
 });
 const surveyDB = new HTTPPouch('main');
 
-// console.log('Terminated!');
-// process.exit();
+console.log('Terminated!');
+process.exit();
 
 /**
 * Responds to POST requests to the /surveys endpoint
@@ -57,7 +58,7 @@ module.exports = async function importSurveys(req) {
 
     // Go through each sheet, and make a survey for each
     const entries = Object.entries(workbook.Sheets);
-    entries.forEach(async (surveySheets) => {
+    entries.forEach(async (surveySheets, order) => {
       const [tabName, sheet] = surveySheets;
       let surveyName = '';
       requestedSurveyNames.forEach(requestedSurveyName => {
@@ -74,21 +75,22 @@ module.exports = async function importSurveys(req) {
       }
 
       // Get the survey based on the name of the sheet/tab
-      const survey = await surveyDB.put(
-        {
-          _id: `${TYPES.SURVEY}_${shortid.generate()}`,
-          docType: TYPES.SURVEY,
-          name: surveyName,
-        },
-        { // If no survey with that name is found, give it a code and public permissions
-          code: generateSurveyCode(surveyName),
-          permission_group_id: permissionGroup.id,
-        }
-      );
+      let survey = await surveyDB.put({
+        _id: `${TYPES.SURVEY}_${shortid.generate()}`,
+        docType: TYPES.SURVEY,
+        name: surveyName,
+        canRedo: true,
+        code: generateSurveyCode(surveyName),
+        permissionGroupId: permissionGroup.id,
+        order
+      });
       if (!survey) {
         throw new Error('creating survey, check format of import file');
       }
+
       program.surveys.push(survey.id);
+      survey = await surveyDB.get(survey.id);
+      if (!isArray(survey.screens)) survey.screens = [];
 
       // Work out what fields of the survey should be updated based on query params
       // const fieldsToForceUpdate = {};
@@ -150,6 +152,11 @@ module.exports = async function importSurveys(req) {
           followUpAnswers,
         } = questionObject;
 
+        let { params } = questionObject;
+        if (params && params !== '') {
+          params = params.split(',').map(param => param.trim());
+        }
+
         // Compose question based on details from spreadsheet
         const questionToUpsert = {
           code,
@@ -158,6 +165,7 @@ module.exports = async function importSurveys(req) {
           text,
           detail,
           options: processOptions(options, optionLabels, optionColors),
+          params,
         };
 
         // Either create or update the question depending on if there exists a matching code
@@ -172,31 +180,39 @@ module.exports = async function importSurveys(req) {
           currentScreen = await surveyDB.put({
             _id: `${TYPES.SURVEY_SCREEN}_${shortid.generate()}`,
             docType: TYPES.SURVEY_SCREEN,
-            survey_id: survey.id,
-            screen_number: currentScreen ? currentScreen.screen_number + 1 : 1, // Next screen
+            surveyId: survey.id,
+            screenNumber: has(currentScreen, 'screenNumber') ? currentScreen.screenNumber + 1 : 1, // Next screen
           });
+          survey.screens.push(currentScreen.id);
+          currentScreen = await surveyDB.get(currentScreen.id);
           // Clear existing survey screen component
           currentSurveyScreenComponent = undefined;
         }
 
         // Create a new survey screen component to display this question
-        const surveyScreenComponentId = `${TYPES.SURVEY_SCREEN_COMPONENT}_${shortid.generate()}`;
-        await surveyDB.put({
-          _id: surveyScreenComponentId,
-          type: TYPES.SURVEY_SCREEN_COMPONENT,
-          screen_id: currentScreen.id,
-          question_id: question.id,
-          component_number: currentSurveyScreenComponent ? currentSurveyScreenComponent.component_number + 1 : 1,
-          is_follow_up: currentSurveyScreenComponent &&
-                        ((currentSurveyScreenComponent.answers_enabling_follow_up && currentSurveyScreenComponent.answers_enabling_follow_up.length > 0) ||
-                        currentSurveyScreenComponent.is_follow_up),
-          answers_enabling_follow_up: splitOnCommas(followUpAnswers),
+        currentSurveyScreenComponent = await surveyDB.put({
+          _id: `${TYPES.SURVEY_SCREEN_COMPONENT}_${shortid.generate()}`,
+          docType: TYPES.SURVEY_SCREEN_COMPONENT,
+          // screen_id: currentScreen._id,
+          question: question.id,
+          componentNumber: currentSurveyScreenComponent ? currentSurveyScreenComponent.componentNumber + 1 : 1,
+          isFollowUp: currentSurveyScreenComponent &&
+                        ((currentSurveyScreenComponent.answersEnablingFollowUp && currentSurveyScreenComponent.answersEnablingFollowUp.length > 0) ||
+                        currentSurveyScreenComponent.isFollowUp),
+          answersEnablingFollowUp: splitOnCommas(followUpAnswers),
         });
-        currentSurveyScreenComponent = await surveyDB.get(surveyScreenComponentId);
+
+        // Update screen
+        currentScreen = await surveyDB.get(currentScreen._id);
+        if (!isArray(currentScreen.components)) currentScreen.components = [];
+        currentScreen.components.push(currentSurveyScreenComponent.id);
+        await surveyDB.put(currentScreen);
+        currentSurveyScreenComponent = await surveyDB.get(currentSurveyScreenComponent.id);
       }
       // Clear any orphaned questions (i.e. questions no longer included in a survey)
       // await deleteOrphanQuestions(database);
       await surveyDB.put(program);
+      await surveyDB.put(survey);
     });
   } catch (error) {
     if (error.respond) {

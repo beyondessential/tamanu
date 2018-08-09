@@ -80,7 +80,10 @@
       "ForInStatement",
       "LabeledStatement",
       "WithStatement"
-    ]
+    ],
+    "object-curly-newline":"off",
+    "react/forbid-prop-types":"off",
+    "no-param-reasign":"warn"
   },
   "plugins": ["flowtype", "import", "promise", "compat", "react"],
   "settings": {

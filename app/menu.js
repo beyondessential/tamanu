@@ -71,7 +71,7 @@ export default class MenuBuilder {
       ]
     };
     const subMenuViewDev = {
-      label: 'View',
+      label: 'View123',
       submenu: [
         { label: 'Reload', accelerator: 'Command+R', click: () => { this.mainWindow.webContents.reload(); } },
         { label: 'Toggle Full Screen', accelerator: 'Ctrl+Command+F', click: () => { this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen()); } },

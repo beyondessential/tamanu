@@ -7,7 +7,7 @@ import { medicationColumns } from '../../constants';
 
 class Completed extends Component {
   componentDidMount() {
-    this.props.fetchMedications();
+    // this.props.fetchMedications();
   }
 
   render() {

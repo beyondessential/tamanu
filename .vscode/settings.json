@@ -26,5 +26,8 @@
     "test/**/__snapshots__": true,
     "yarn.lock": true
   },
-  "eslint.enable": true
+  "eslint.enable": true,
+  "cSpell.words": [
+    "tamanu"
+  ]
 }

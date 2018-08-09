@@ -118,7 +118,7 @@ export const sidebarInfo = [
     children: [
       {
         label: 'Requests',
-        path: '/medication',
+        path: '/medication/requests',
         icon: 'fa fa-chevron-right'
       },
       {
@@ -128,7 +128,7 @@ export const sidebarInfo = [
       },
       {
         label: 'New Request',
-        path: '/medication/request/new',
+        path: '/medication/request',
         icon: 'fa fa-plus'
       },
       {

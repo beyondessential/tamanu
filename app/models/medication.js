@@ -9,19 +9,32 @@ export default Backbone.Model.extend({
     return {
       _id: `medication_${_id}`,
       docType: 'medication',
-      notes: null,
-      prescription: null,
-      prescriptionDate: Date,
-      quantity: null,
-      refills: null,
-      requestedDate: Date,
-      requestedBy: null,
-      status: null,
+      drug: '',
+      notes: '',
+      prescription: '',
+      prescriptionDate: '',
+      quantity: '',
+      refills: '',
+      requestedDate: '',
+      requestedBy: '',
+      status: '',
     };
   },
 
-  // validate: (attrs) => {
-  //   if (attrs.firstName === '') return 'firstName is required!';
-  //   if (attrs.lastName === '') return 'lastName is required!';
-  // }
+  // Associations
+  relations: [
+    {
+      type: Backbone.One,
+      key: 'drug',
+      relatedModel: () => require('./drug'),
+      map: (values) => mapRelations(values, require('./drug')),
+      serialize: '_id'
+    },
+  ],
+
+  validate: (attrs) => {
+    if (attrs.drugName === '') return 'Medication is required!';
+    if (attrs.prescription === '') return 'Prescription is required!';
+    if (attrs.prescriptionDate === '') return 'Prescription Date is required!';
+  }
 });

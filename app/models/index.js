@@ -2,6 +2,7 @@ export AllergyModel from './allergy';
 export AnswerModel from './answer';
 export AppointmentModel from './appointment';
 export DiagnosisModel from './diagnosis';
+export DrugModel from './drug';
 export LabModel from './lab';
 export MedicationModel from './medication';
 export OperativePlanModel from './operativePlan';
