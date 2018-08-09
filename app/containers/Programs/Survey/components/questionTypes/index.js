@@ -1,7 +1,7 @@
 export { BinaryQuestion } from './BinaryQuestion';
 export { CheckboxQuestion } from './CheckboxQuestion';
-// export { DateQuestion } from './DateQuestion';
-// export { FreeTextQuestion } from './FreeTextQuestion';
+export { DateQuestion } from './DateQuestion';
+export { FreeTextQuestion } from './FreeTextQuestion';
 // export { GeolocateQuestion } from './GeolocateQuestion';
 export { Instruction } from './Instruction';
 export { NumberQuestion } from './NumberQuestion';

@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-class InputGroup extends Component {
+class TextareaGroup extends Component {
   static propTypes = {
-    label: PropTypes.string.isRequired,
+    label: PropTypes.any.isRequired,
     required: PropTypes.bool,
     name: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired,
   }
 
   static defaultProps = {
@@ -35,11 +36,23 @@ class InputGroup extends Component {
       tabIndex,
     } = this.props;
     return (
-      <div className="column">
-        <span className="input-group-title">
-          {label} {required && <span className="isRequired">*</span>}
-        </span>
-        <textarea className="textarea is-primary" name={name} rows="3" tabIndex={tabIndex} value={this.state.value} onChange={this.handleChange.bind(this)} required={required} />
+      <div className="field">
+        {label &&
+          <label className="input-group-title label">
+            {label} {required && <span className="isRequired">*</span>}
+          </label>
+        }
+        <div className="control">
+          <textarea
+            className="textarea is-primary"
+            name={name}
+            rows="3"
+            tabIndex={tabIndex}
+            value={this.state.value}
+            onChange={this.handleChange.bind(this)}
+            required={required}
+          />
+        </div>
       </div>
     );
   }
@@ -51,4 +64,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, {})(InputGroup);
+export default connect(mapStateToProps, {})(TextareaGroup);

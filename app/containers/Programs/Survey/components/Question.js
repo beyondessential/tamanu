@@ -65,6 +65,7 @@ DumbQuestion.propTypes = {
   text: PropTypes.string,
   validationErrorMessage: PropTypes.string,
   SpecificQuestion: PropTypes.any.isRequired,
+  readOnly: PropTypes.bool,
 };
 
 DumbQuestion.defaultProps = {
@@ -72,4 +73,5 @@ DumbQuestion.defaultProps = {
   imageData: null,
   text: null,
   validationErrorMessage: null,
+  readOnly: false,
 };

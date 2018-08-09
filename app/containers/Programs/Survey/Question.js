@@ -4,8 +4,8 @@ import actions from '../../../actions/programs';
 import {
   BinaryQuestion,
   CheckboxQuestion,
-  // DateQuestion,
-  // FreeTextQuestion,
+  DateQuestion,
+  FreeTextQuestion,
   // GeolocateQuestion,
   Instruction,
   NumberQuestion,
@@ -23,8 +23,8 @@ const { changeAnswer, changeExtraProps, validateComponent } = surveyActions;
 const QUESTION_TYPES = {
   Binary: BinaryQuestion,
   Checkbox: CheckboxQuestion,
-  // Date: DateQuestion,
-  // FreeText: FreeTextQuestion,
+  Date: DateQuestion,
+  FreeText: FreeTextQuestion,
   // Geolocate: GeolocateQuestion,
   Instruction,
   Number: NumberQuestion,
@@ -44,7 +44,7 @@ const mapStateToProps = (state, {
   text: questionText,
   textInputProps,
 }) => {
-  const types = ['Instruction', 'Checkbox', 'Radio', 'Binary', 'Number'];
+  const types = ['Instruction', 'Checkbox', 'Radio', 'Binary', 'Number', 'FreeText', 'Date'];
   // console.log('__type__', type, types.includes(type));
   // const { answer, extraProps, validationErrorMessage } = getQuestionState(state, screenIndex, componentIndex);
   return {
