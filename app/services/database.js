@@ -2,18 +2,11 @@ import PouchDB from 'pouchdb';
 import { ipcRenderer } from 'electron';
 import Promise from 'bluebird';
 import { to } from 'await-to-js';
-import {
-  START_NOTIFICATION_SERVICE,
-  NOTIFICATION_SERVICE_STARTED,
-  NOTIFICATION_SERVICE_ERROR,
-  NOTIFICATION_RECEIVED as ON_NOTIFICATION_RECEIVED,
-  TOKEN_UPDATED,
-} from 'electron-push-receiver/src/constants';
 // import Replication from './replication';
 import createViews from '../utils/create-views';
 import createIndex from '../utils/create-index';
 import backboneSync from '../utils/backbone-sync';
-import configService from './config';
+// import configService from './config';
 // Attach pocuhdb find plugin
 PouchDB.plugin(require('pouchdb-find'));
 
@@ -73,57 +66,57 @@ class Database {
     backboneSync(this.mainDB);
   }
 
-  setupSubscription() {
-    // Listen for service successfully started
-    ipcRenderer.on(NOTIFICATION_SERVICE_STARTED, (_, token) => this._saveSubscriptionToken(token));
-    ipcRenderer.on(TOKEN_UPDATED, (_, token) => this._saveSubscriptionToken(token));
+  // setupSubscription() {
+  //   // Listen for service successfully started
+  //   ipcRenderer.on(NOTIFICATION_SERVICE_STARTED, (_, token) => this._saveSubscriptionToken(token));
+  //   ipcRenderer.on(TOKEN_UPDATED, (_, token) => this._saveSubscriptionToken(token));
 
-    // Handle notification errors
-    ipcRenderer.on(NOTIFICATION_SERVICE_ERROR, (_, error) => console.error('NOTIFICATION_SERVICE_ERROR', error));
+  //   // Handle notification errors
+  //   ipcRenderer.on(NOTIFICATION_SERVICE_ERROR, (_, error) => console.error('NOTIFICATION_SERVICE_ERROR', error));
 
-    // Display notification
-    ipcRenderer.on(ON_NOTIFICATION_RECEIVED, (_, notification) => console.log('ON_NOTIFICATION_RECEIVED', notification));
+  //   // Display notification
+  //   ipcRenderer.on(ON_NOTIFICATION_RECEIVED, (_, notification) => console.log('ON_NOTIFICATION_RECEIVED', notification));
 
-    // Start service
-    ipcRenderer.send(START_NOTIFICATION_SERVICE, this.senderId);
-  }
+  //   // Start service
+  //   ipcRenderer.send(START_NOTIFICATION_SERVICE, this.senderId);
+  // }
 
-  async _saveSubscriptionToken(token) {
-    let [err, res] = await to(this._sendSubscriptionToServer(token));
-    if (!err) [err, res] = await to(configService.save('push_subscription_id', res.id));
-    if (err) throw new Error(err);
-    console.log('Subscription info sent to the server');
-  }
+  // async _saveSubscriptionToken(token) {
+  //   let [err, res] = await to(this._sendSubscriptionToServer(token));
+  //   if (!err) [err, res] = await to(configService.save('push_subscription_id', res.id));
+  //   if (err) throw new Error(err);
+  //   console.log('Subscription info sent to the server');
+  // }
 
-  async _sendSubscriptionToServer(token) {
-    return new Promise(async (resolve, reject) => {
-      const [err, pushSubscriptionId] = await to(configService.get('push_subscription_id'));
-      if (err) return reject(err);
+  // async _sendSubscriptionToServer(token) {
+  //   return new Promise(async (resolve, reject) => {
+  //     const [err, pushSubscriptionId] = await to(configService.get('push_subscription_id'));
+  //     if (err) return reject(err);
 
-      let url = `${this.apiHost}/subscription`;
-      let method = 'POST';
-      if (pushSubscriptionId !== '') {
-        url += `/${pushSubscriptionId}`;
-        method = 'PUT';
-      }
+  //     let url = `${this.apiHost}/subscription`;
+  //     let method = 'POST';
+  //     if (pushSubscriptionId !== '') {
+  //       url += `/${pushSubscriptionId}`;
+  //       method = 'PUT';
+  //     }
 
-      let [error, res] = await to(fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          remoteSeq: 0,
-          clientToken: token,
-          clientId: 'test-tamanu-app'
-        })
-      }));
+  //     let [error, res] = await to(fetch(url, {
+  //       method,
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify({
+  //         remoteSeq: 0,
+  //         clientToken: token,
+  //         clientId: 'test-tamanu-app'
+  //       })
+  //     }));
 
-      if (!error) [error, res] = await to(res.json());
-      if (error) return reject(error);
-      return resolve(res);
-    });
-  }
+  //     if (!error) [error, res] = await to(res.json());
+  //     if (error) return reject(error);
+  //     return resolve(res);
+  //   });
+  // }
 
   async _fetchToken() {
     try {

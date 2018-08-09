@@ -245,9 +245,9 @@ export default merge.smart(baseConfig, {
       debug: true
     }),
 
-    //new ExtractTextPlugin({
+    //  new ExtractTextPlugin({
     //  filename: '[name].css'
-    //}),
+    //  }),
   ],
 
   node: {

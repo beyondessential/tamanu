@@ -283,12 +283,12 @@ class EditVisit extends Component {
                 <Link className="button is-danger cancel" to={`/patients/editPatient/${patient._id}`}>Cancel</Link>
                 <button className="button is-primary cancel" type="submit">{action === 'new' ? 'Add' : 'Update'}</button>
                 {form.status === visitStatuses.ADMITTED &&
-                  <button className="button is-primary" onClick={this.discharge}>
+                  <button className="button is-primary" onClick={this.discharge} type="button">
                     <i className="fa fa-sign-out" /> Discharge
                   </button>
                 }
                 {form.status === visitStatuses.CHECKED_IN &&
-                  <button className="button is-primary" onClick={this.checkOut}>
+                  <button className="button is-primary" onClick={this.checkOut} type="button">
                     <i className="fa fa-sign-out" /> Check-out
                   </button>
                 }

@@ -1,8 +1,7 @@
 import Backbone from 'backbone-associations';
-import { defaults, clone, merge } from 'lodash';
+import { defaults } from 'lodash';
 import { to } from 'await-to-js';
 import BackbonePouch from './backbone-pouch';
-import dbService from '../services/database';
 
 const defaultpageSize = 5;
 
@@ -38,7 +37,7 @@ export default (mainDB) => {
       }, options);
 
       // Get current rev
-      const [err, doc] = await to(dbService.mainDB.get(_id));
+      const [err, doc] = await to(mainDB.get(_id));
       if (!err) this.set('_rev', doc._rev);
       await originalSave.apply(this, [data, newOptions]);
     });
