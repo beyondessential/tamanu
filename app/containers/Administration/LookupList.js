@@ -8,7 +8,6 @@ class LookupList extends Component {
   }
 
   updateValue = (newValue) => {
-    console.log('new value', newValue);
     this.setState({
       selectValue: newValue,
     });

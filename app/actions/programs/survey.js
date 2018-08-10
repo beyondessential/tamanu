@@ -58,7 +58,7 @@ export const changeExtraProps = (componentIndex, newProps) => ({
   newProps,
 });
 
-export const submitSurvey = (patientModel, programId, surveyId, history, shouldRepeat = false) =>
+export const submitSurvey = ({ patientModel, programId, surveyId, moduleId, history, shouldRepeat = false }) =>
   async (dispatch, getState) => {
     const { id: patientId } = patientModel;
     const startTime = getStartTime(getState());
@@ -117,6 +117,19 @@ export const submitSurvey = (patientModel, programId, surveyId, history, shouldR
       answers.forEach(answer => responseModel.get('answers').add(answer.id));
       await responseModel.save();
 
+      // Attach to the module
+      const programModel = new ProgramModel();
+      programModel.set('_id', programId);
+      await programModel.fetch();
+      if (programModel.get('programType') !== 'direct') {
+        const moduleOptions = programModel.get('moduleOptions');
+        const moduleModel = patientModel.get(moduleOptions.collection).findWhere({ _id: moduleId });
+        await moduleModel.fetch({ relations: true, deep: false });
+        moduleModel.get('surveyResponses').add(responseModel.id);
+        await moduleModel.save();
+      }
+
+      // Save patient
       patientModel.get('surveyResponses').add(responseModel.id);
       await patientModel.save();
 
@@ -174,6 +187,6 @@ const processAnswerForDatabase = ({ questionId, questionType, newAnswer: answer 
 };
 
 const gotoProgram = (patientId, programId, history) => {
-  return dispatch => dispatch(history.push(`/programs/${programId}/${patientId}/surveys`));
+  return dispatch => history.push(`/programs/${programId}/${patientId}/surveys`);
 };
 

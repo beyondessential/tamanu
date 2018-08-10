@@ -95,10 +95,11 @@ const stateChanges = {
     ...state,
     loading: true,
   }),
-  [LOAD_SURVEYS_SUCCESS]: ({ patient, program, availableSurveys, completedSurveys }, state) => ({
+  [LOAD_SURVEYS_SUCCESS]: ({ patient, program, modules, availableSurveys, completedSurveys }, state) => ({
     ...state,
     patient,
     program,
+    modules,
     availableSurveys,
     completedSurveys,
     loading: false,

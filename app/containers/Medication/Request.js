@@ -82,10 +82,8 @@ class NewMedication extends Component {
   }
 
   submitForm(e) {
-    console.log('-submitForm-');
     e.preventDefault();
     const { action, medicationModel, patientModel, visit } = this.state;
-    console.log({ action, medicationModel, patientModel, visit });
     // this.props.saveMedication({ action, visitModel, patientModel, history: this.props.history, setStatus });
   }
 

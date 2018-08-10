@@ -52,8 +52,8 @@ class Survey extends Component {
 
   submitSurvey() {
     const { patient: patientModel, history } = this.props;
-    const { programId, surveyId } = this.props.match.params;
-    this.props.submitSurvey(patientModel, programId, surveyId, history);
+    const { programId, surveyId, moduleId } = this.props.match.params;
+    this.props.submitSurvey({ patientModel, programId, surveyId, moduleId, history });
   }
 
   cancelSurvey() {

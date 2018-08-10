@@ -1,5 +1,7 @@
-import { filter, chain, set } from 'lodash';
+import { filter, chain, set, template } from 'lodash';
+import moment from 'moment';
 import { to } from 'await-to-js';
+import { dateFormat, timeFormat } from '../../constants';
 import { getFileInDocumentsPath, imageDataIsFileName } from '../../utils';
 import {
   LOAD_SURVEYS_REQUEST,
@@ -22,6 +24,19 @@ export const initSurveys = ({ patientId, programId }) =>
     ]));
     if (error) return dispatch({ type: LOAD_SURVEYS_FAILED, error });
 
+    let modules = [];
+    if (programModel.get('programType') !== 'direct') {
+      const moduleType = programModel.get('programType');
+      const moduleOptions = programModel.get('moduleOptions');
+      if (patientModel.has(moduleOptions.collection)) {
+        modules = patientModel.get(moduleOptions.collection).toJSON();
+        modules = modules.map(module => ({
+          label: template(moduleOptions.label)({ moment, dateFormat, timeFormat, ...module }),
+          value: module[moduleOptions.value]
+        }));
+      }
+    }
+
     const surveys = programModel.get('surveys').sort().toJSON();
     const surveyResponses = patientModel.get('surveyResponses');
     const surveysDone = surveyResponses.toJSON().map(survey => survey.surveyId);
@@ -32,6 +47,7 @@ export const initSurveys = ({ patientId, programId }) =>
       assessorId: 'test-user',
       patient: patientModel,
       program: programModel,
+      modules,
       availableSurveys,
       completedSurveys,
       startTime: new Date().toISOString(),

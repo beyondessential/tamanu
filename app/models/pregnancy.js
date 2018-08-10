@@ -14,7 +14,8 @@ export default BaseModel.extend({
       child: '',
       father: '', // biological father
       outcome: '',
-      gestationalAge: ''
+      gestationalAge: '',
+      surveyResponses: [],
     },
     BaseModel.prototype.defaults,
   ),
@@ -33,7 +34,14 @@ export default BaseModel.extend({
       relatedModel: require('./patient'),
       map: (values) => mapRelations(values, require('./patient')),
       serialize: '_id'
-    }
+    },
+    {
+      type: Backbone.Many,
+      key: 'surveyResponses',
+      relatedModel: () => require('./surveyResponse'),
+      map: (values) => mapRelations(values, require('./surveyResponse')),
+      serialize: '_id'
+    },
   ],
 
   cloneAttributes() {

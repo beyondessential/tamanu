@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactTable from 'react-table';
+import { Link } from 'react-router-dom';
 import { pregnancyColumns } from '../../../constants';
 import PregnancyModal from '../components/PregnancyModal';
 
@@ -28,12 +29,15 @@ class Pregnancy extends Component {
     const item = row.original;
     return (
       <div key={row._id}>
-        <button className={`button is-primary m-r-5 is-outlined ${item.child === '' ? 'is-hidden' : ''}`} onClick={() => this.viewChild(item.child)}>View Child</button>
-        <button className="button is-primary m-r-5 is-outlined" onClick={() => this.editItem(row)}>Edit Pregnancy</button>
-        <button className="button is-primary m-r-5 is-outlined" onClick={() => this.setState({ modalVisible: true, action: 'edit', item })}>Add Form</button>
+        <button type="button" className={`button is-primary m-r-5 is-outlined ${item.child === '' ? 'is-hidden' : ''}`} onClick={() => this.viewChild(item.child)}>View Child</button>
+        <button type="button" className="button is-primary m-r-5 is-outlined" onClick={() => this.editItem(row)}>Edit Pregnancy</button>
+        <button type="button" className="button is-primary m-r-5 is-outlined" onClick={() => this.setState({ modalVisible: true, action: 'edit', item })}>Add Form</button>
+        {item.surveyResponses.length > 0 && <Link to="/programs"> View Forms </Link>}
       </div>
     );
   }
+
+  goto
 
   render() {
     const { patient, model } = this.props;
