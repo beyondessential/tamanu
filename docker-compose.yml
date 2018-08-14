@@ -1,0 +1,33 @@
+version: "3.1"
+services:
+  tamanu_lan:
+    image: tamanu:latest
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      - NODE_ENV=production
+    links:
+      - couchdb
+    depends_on:
+      - couchdb
+    ports:
+      - "4500:4500"
+    secrets:
+      - tamanu_lan_config
+
+  couchdb:
+    image: couchdb:2.2
+    volumes:
+      - ./data/couchdb:/usr/local/var/lib/couchdb
+    ports:
+      - "5984:5984"
+secrets:
+  tamanu_lan_config:
+    external: true
+volumes:
+  esdata1:
+    driver: local

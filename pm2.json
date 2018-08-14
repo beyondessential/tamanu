@@ -1,6 +1,6 @@
 {
     "apps": [{
-        "name": "tamanu-lan-server",
+        "name": "tamanu-lan",
         "script": "./index.js",
         "env": {
             "watch": ["app", "config", "index.js"],

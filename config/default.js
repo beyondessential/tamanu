@@ -12,10 +12,16 @@ module.exports = {
       digest: process.env.PBKDF2_DIGEST || 'sha512',
     },
   },
-  db: {
-    user: process.env.MONGODB_USER,
-    password: process.env.MONGODB_PASSWORD,
-    host: process.env.MONGODB_HOST,
-    database: process.env.MONGODB_DATABASE,
+  localDB: {
+    username: process.env.COUCHDB_LOCAL_USERNAME,
+    password: process.env.COUCHDB_LOCAL_PASSWORD,
+    host: process.env.COUCHDB_LOCAL_HOST,
+    database: process.env.COUCHDB_LOCAL_DATABASE,
+  },
+  remoteDB: {
+    username: process.env.COUCHDB_REMOTE_USERNAME,
+    password: process.env.COUCHDB_REMOTE_PASSWORD,
+    host: process.env.COUCHDB_REMOTE_HOST,
+    database: process.env.COUCHDB_REMOTE_DATABASE,
   },
 };
