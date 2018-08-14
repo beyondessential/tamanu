@@ -1,15 +1,10 @@
 const { to } = require('await-to-js');
-// const { resolve, all } = require('rsvp');
-/* global req */
-/* global compareStrings */
-/* global getCompareDate */
 
-function buildIndex(indexName, db) {
-  return db.query(indexName, {
-    limit: 0
-  }).catch((err) => {
-    console.log(`index error: ${JSON.stringify(err, null, 2)}`);
-  });
+async function buildIndex(indexName, db) {
+  const indexPath = `_design/${indexName}`;
+  const [err, res] = await to(db.getAsync(indexPath));
+  if (err) console.error(`Index: ${indexPath} ${err.toString()}`);
+  return res;
 }
 
 function createDesignDoc(item, rev) {

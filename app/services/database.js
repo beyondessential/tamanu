@@ -4,7 +4,7 @@ const { to } = require('await-to-js');
 const createIndex = require('../utils/createIndex');
 const createViews = require('../utils/createViews');
 
-const dbUrl = `http://${config.db.user}:${config.db.password}@${config.db.host}:${config.db.port}`;
+const dbUrl = `http://${config.localDB.username}:${config.localDB.password}@${config.localDB.host}:${config.localDB.port}`;
 const nano = require('nano')(dbUrl);
 
 Promise.promisifyAll(nano.db);

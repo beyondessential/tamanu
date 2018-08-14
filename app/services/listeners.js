@@ -8,7 +8,7 @@ const internals = {};
 
 internals.addDatabaseListeners = (dbName) => {
   console.log('addDatabaseListeners', dbName);
-  const dbUrl = `http://${config.db.user}:${config.db.password}@${config.db.host}:${config.db.port}`;
+  const dbUrl = `http://${config.localDB.username}:${config.localDB.password}@${config.localDB.host}:${config.localDB.port}`;
   const couchFollowOpts = {
     db: `${dbUrl}/${dbName}`,
     include_docs: true,

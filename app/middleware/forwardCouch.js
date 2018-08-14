@@ -9,6 +9,6 @@ module.exports = (req, res) => {
   });
 
   proxy.web(req, res, {
-    target: `http://${config.db.user}:${config.db.password}@${config.db.host}:${config.db.port}`
+    target: `http://${config.localDB.user}:${config.localDB.password}@${config.localDB.host}:${config.localDB.port}`
   });
 };

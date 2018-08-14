@@ -2,49 +2,47 @@ const config = require('config');
 const Promise = require('bluebird');
 const faye = require('faye');
 const { to } = require('await-to-js');
+const util = require('util');
 const dbService = require('../services/database');
 
 const { nano } = dbService;
+const { localDB, remoteDB } = config;
+const localAuthHeader = Buffer.from(`${localDB.username}:${localDB.password}`).toString('base64');
+const remoteAuthHeader = Buffer.from(`${remoteDB.username}:${remoteDB.password}`).toString('base64');
+const localDBCredentials = {
+  headers: {
+    Authorization: `Basic ${localAuthHeader}`
+  },
+  url: `http://${localDB.host}:${localDB.port}/main`
+};
+const remoteDBCredentials = {
+  headers: {
+    Authorization: `Basic ${remoteAuthHeader}`
+  },
+  url: `http://${remoteDB.host}:${remoteDB.port}/main`
+};
+
 const internals = {
   replicatorDB: Promise.promisifyAll(nano.use('_replicator')),
-  replicationDocs: [
-    {
-      name: 'main-to-remote-replicate',
-      doc: {
-        source: {
-          headers: {
-            Authorization: 'Basic Y291Y2hhZG1pbjp0ZXN0'
-          },
-          url: 'http://127.0.0.1:5984/main'
-        },
-        target: {
-          headers: {},
-          url: `${config.mainCouchServer}/main`
-        },
-        create_target: false,
-        continuous: true,
-        owner: 'couchadmin'
-      }
-    },
-    {
-      name: 'remote-to-main-replicate',
-      doc: {
-        source: {
-          headers: {},
-          url: `${config.mainCouchServer}/main`
-        },
-        target: {
-          headers: {
-            Authorization: 'Basic Y291Y2hhZG1pbjp0ZXN0'
-          },
-          url: 'http://127.0.0.1:5984/main'
-        },
-        create_target: false,
-        continuous: true,
-        owner: 'couchadmin',
-      }
+  replicationDocs: [{
+    name: 'main-to-remote-replicate',
+    doc: {
+      source: localDBCredentials,
+      target: remoteDBCredentials,
+      create_target: false,
+      continuous: true,
+      owner: localDB.username
     }
-  ]
+  }, {
+    name: 'remote-to-main-replicate',
+    doc: {
+      source: remoteDBCredentials,
+      target: localDBCredentials,
+      create_target: false,
+      continuous: true,
+      owner: localDB.username
+    }
+  }]
 };
 
 internals.setup = () => {
@@ -65,16 +63,16 @@ internals.setup = () => {
   });
 };
 
-internals.setupSubscriptions = async () => {
-  const client = new faye.Client(config.couchPubSubUrl);
+// internals.setupSubscriptions = async () => {
+//   const client = new faye.Client(config.couchPubSubUrl);
 
-  client.subscribe('/couchDBChange', async (msg) => {
-    const [err, res] = await to(nano.db.replicateAsync(`${config.mainCouchServer}/main`, 'main'));
-    if (err) throw new Error(err);
-    console.log('couch-change-res', res);
-    console.log('couch-change-detected', msg);
-  });
-};
+//   client.subscribe('/couchDBChange', async (msg) => {
+//     const [err, res] = await to(nano.localDB.replicateAsync(`${config.mainCouchServer}/main`, 'main'));
+//     if (err) throw new Error(err);
+//     console.log('couch-change-res', res);
+//     console.log('couch-change-detected', msg);
+//   });
+// };
 
 internals._addReplicationDoc = (docInfo) => {
   return new Promise(async (resolve, reject) => {
