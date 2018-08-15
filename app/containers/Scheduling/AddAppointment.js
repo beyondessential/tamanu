@@ -106,7 +106,7 @@ class AddAppointment extends Component {
                     }}
                     onChange={(event, value) => {
                       this.setState({ patientRef: value });
-                      this.props.collection.lookUp({
+                      this.props.collection.find({
                         selector: { displayId: { $regex: `(?i)${value}` } },
                         fields: ['_id', 'displayId', 'firstName', 'lastName']
                       });

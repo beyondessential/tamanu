@@ -40,7 +40,7 @@ class PatientAutocomplete extends Component {
   }
 
   handleChange(event, value) {
-    this.props.collection.lookUp({
+    this.props.collection.find({
       selector: { displayId: { $regex: `(?i)${value}` } },
       fields: ['_id', 'displayId', 'firstName', 'lastName'],
       success: () => {

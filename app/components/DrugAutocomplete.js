@@ -41,7 +41,7 @@ class DrugAutocomplete extends Component {
 
   handleChange(event, value) {
     if (value !== '') {
-      this.props.collection.lookUp({
+      this.props.collection.find({
         selector: {
           $or: [
             { name: { $regex: `(?i)${value}` } },

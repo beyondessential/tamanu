@@ -98,7 +98,7 @@ export default Backbone.Collection.extend({
     });
   },
 
-  lookUp(opts) {
+  find(opts) {
     const model = new this.model();
     const { docType } = model.attributes;
     const fields = (opts && opts.fields) || keys(model.attributes);
