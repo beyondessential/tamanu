@@ -83,8 +83,7 @@
       "WithStatement"
     ],
     "object-curly-newline":"off",
-    "react/forbid-prop-types":"off",
-    "no-param-reasign":"warn"
+    "react/forbid-prop-types":"off"
   },
   "plugins": ["flowtype", "import", "promise", "compat", "react"],
   "settings": {

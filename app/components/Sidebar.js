@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { find, isEmpty } from 'lodash';
+import { find, isEmpty, startsWith } from 'lodash';
 import { sidebarInfo } from '../constants';
 import { ProgramsCollection } from '../collections';
 
@@ -76,38 +76,33 @@ class Sidebar extends Component {
             </span>
           </Link>
           <div className="scroll-container">
-            {currentPath.includes('/patients') &&
-              <div className="search-container">
-                <input className="input is-primary" type="text" placeholder="Search" />
-                <button>
-                  <i className="fa fa-search" />
-                </button>
-              </div>
-            }
             {
-              sidebarInfo.map((parent, index) => (
-                <div key={index} className={parent.hidden ? 'is-hidden' : ''}>
-                  <Link className={classNames(['item', selectedParentItem === parent.label ? 'selected' : ''])} to={parent.path} replace onClick={() => this.clickedParentItem(parent.label)}>
-                    <img src={parent.icon} alt="icon" className="sidebar-icon" />
-                    <span>
-                      {parent.label}
-                    </span>
-                  </Link>
-                  {
-                    selectedParentItem === parent.label &&
-                    parent.children.map((child, key) => (
-                      <div key={key} className="category-sub-items">
-                        <Link className={classNames(['children', currentPath === child.path ? 'selected' : ''])} to={child.path} replace>
-                          <i className={child.icon} />
-                          <span>
-                            {child.label}
-                          </span>
-                        </Link>
-                      </div>
-                    ))
-                  }
-                </div>
-              ))
+              sidebarInfo.map((parent, index) => {
+                const selected = startsWith(currentPath, parent.path) ;
+                return (
+                  <div key={index} className={parent.hidden ? 'is-hidden' : ''}>
+                    <Link className={classNames({ item: true, selected })} to={parent.path} replace onClick={() => this.clickedParentItem(parent.label)}>
+                      <img src={parent.icon} alt="icon" className="sidebar-icon" />
+                      <span>
+                        {parent.label}
+                      </span>
+                    </Link>
+                    {
+                      selected &&
+                      parent.children.map((child, key) => (
+                        <div key={key} className="category-sub-items">
+                          <Link className={classNames(['children', currentPath === child.path ? 'selected' : ''])} to={child.path} replace>
+                            <i className={child.icon} />
+                            <span>
+                              {child.label}
+                            </span>
+                          </Link>
+                        </div>
+                      ))
+                    }
+                  </div>
+                );
+              })
             }
           </div>
         </div>

@@ -4,6 +4,7 @@ import { map, isEmpty } from 'lodash';
 import ReactTable from 'react-table';
 
 // import { fetchPatients, deletePatient } from '../../actions/patients';
+import { PatientSearchBar } from '../../components';
 import { Colors, pageSizes, patientColumns } from '../../constants';
 import DeletePatientModal from './components/DeletePatientModal';
 import { PatientsCollection } from '../../collections';
@@ -14,12 +15,16 @@ class PatientListing extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.setActionsColumn = this.setActionsColumn.bind(this);
     this.onFetchData = this.onFetchData.bind(this);
+    this.searchSubmit = this.searchSubmit.bind(this);
+    this.searchReset = this.searchReset.bind(this);
   }
 
   state = {
     deleteModalVisible: false,
     selectedPatient: null,
-    pageSize: pageSizes.patients
+    pageSize: pageSizes.patients,
+    keyword: '',
+    tableClass: '',
   }
 
   componentDidMount() {
@@ -77,44 +82,85 @@ class PatientListing extends Component {
     }
   }
 
-  onFetchData = (state) => {
-    this.props.collection.setPage(state.page);
-    this.props.collection.setPageSize(state.pageSize);
-
+  onFetchData(state = {}) {
+    const { keyword } = this.state;
     this.setState({ loading: true });
-    this.props.collection.fetchByView({
-      success: () => {
-        this.setState({ loading: false });
-      }
-    });
+    if (keyword === '') {
+      this.props.collection.setPage(state.page);
+      this.props.collection.setPageSize(state.pageSize);
+      this.props.collection.fetchByView({
+        success: () => {
+          this.setState({ loading: false });
+        }
+      });
+    } else {
+      this.props.collection.find({
+        selector: {
+          displayId: {
+            $regex: `(?i)${keyword}`
+          }
+        },
+        fields: ['_id', 'displayId', 'firstName', 'lastName'],
+        limit: 50,
+        success: () => {
+          this.setState({ loading: false });
+        }
+      });
+    }
   }
 
   setActionsColumn = _row => {
     const row = _row.original;
     return (
       <div key={row._id}>
-        <button className="button column-button" onClick={() => this.goEdit(row._id)}>View Patient</button>
-        <button className="button is-primary column-checkin-button" onClick={() => this.goAdmit(row._id, row.admitted)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
-        <button className="button is-danger column-button" onClick={() => this.showDeleteModal(row)}>Delete</button>
+        <button type="button" className="button column-button" onClick={() => this.goEdit(row._id)}>View Patient</button>
+        <button type="button" className="button is-primary column-checkin-button" onClick={() => this.goAdmit(row._id, row.admitted)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
+        <button type="button" className="button is-danger column-button" onClick={() => this.showDeleteModal(row)}>Delete</button>
       </div>
     );
   }
 
+  searchSubmit(keyword) {
+    this.setState({
+      keyword,
+      tableClass: 'search-results'
+    }, this.onFetchData);
+  }
+
+  searchReset() {
+    this.props.collection.totalPages = 1;
+    this.setState({
+      keyword: '',
+      tableClass: ''
+    }, () => this.onFetchData({
+        page: 0,
+        pageSize: pageSizes.patients
+      })
+    );
+  }
+
   render() {
-    const { deleteModalVisible } = this.state;
+    const { deleteModalVisible, tableClass } = this.state;
     let { models: patients } = this.props.collection;
     if (patients.length > 0) patients = map(patients, patient => patient.attributes);
-    // console.log('patients', this.props.collection);
     return (
       <div className="content">
-        <div className="view-top-bar">
-          <span>
+        <div className="view-top-bar columns is-gapless">
+          <span className="column is-6">
             Patient Listing
           </span>
-          <div className="view-action-buttons">
-            <Link to="/patients/edit/new">
-              + New Patient
-            </Link>
+          <div className="column is-311">
+            <PatientSearchBar
+              name="search"
+              className="p-t-10 is-pulled-right"
+              onSubmit={this.searchSubmit}
+              onReset={this.searchReset}
+            />
+            <div className="view-action-buttons is-pulled-right m-r-10">
+              <Link to="/patients/edit/new">
+                <i className="fa fa-plus" /> New Patient
+              </Link>
+            </div>
           </div>
         </div>
         <div className="detail">
@@ -134,7 +180,7 @@ class PatientListing extends Component {
                 defaultPageSize={pageSizes.patients}
                 loading={this.state.loading}
                 columns={patientColumns}
-                className="-striped"
+                className={`-striped ${tableClass}`}
                 defaultSortDirection="asc"
                 onFetchData={this.onFetchData}
               />

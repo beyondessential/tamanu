@@ -5,5 +5,6 @@ export InputGroup from './InputGroup';
 export Modal from './Modal';
 export PatientAutocomplete from './PatientAutocomplete';
 export Preloader from './Preloader';
+export PatientSearchBar from './PatientSearchBar';
 export Sidebar from './Sidebar';
 export TextareaGroup from './TextareaGroup';

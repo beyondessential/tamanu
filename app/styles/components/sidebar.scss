@@ -95,35 +95,5 @@
     & .selected {
       background: #546a83;
     }
-    .search-container {
-      padding: 10px;
-      width: 100%;
-      display: flex;
-      input {
-        background: white;
-        border: none;
-      }
-      ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-        color: #90A7BD;
-        opacity: 1; /* Firefox */
-      }
-      
-      :-ms-input-placeholder { /* Internet Explorer 10-11 */
-          color: #90A7BD;
-      }
-      
-      ::-ms-input-placeholder { /* Microsoft Edge */
-          color: #90A7BD;
-      }
-      button {
-        width: 50px;
-        background: #92a7bc;
-        border: none;
-        i {
-          font-size: 20px;
-          color: #D3DAE4;
-        }
-      }
-    }
   }
 }
