@@ -43,6 +43,7 @@ export const FETCH_VISIT_FAILED = 'patients/FETCH_VISIT_FAILED';
 export const SAVE_VISIT_REQUEST = 'patients/SAVE_VISIT_REQUEST';
 export const SAVE_VISIT_SUCCESS = 'patients/SAVE_VISIT_SUCCESS';
 export const SAVE_VISIT_FAILED = 'patients/SAVE_VISIT_FAILED';
+export const SAVE_VISIT_RESET = 'patients/SAVE_VISIT_RESET';
 
 // Medications
 export const FETCH_MEDICATION_REQUEST = 'medication/FETCH_MEDICATION_REQUEST';

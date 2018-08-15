@@ -9,7 +9,6 @@ export default (ComposedComponent, mapStatetoProps, actionCreators) => {
   class FormHOC extends Component {
     constructor(props) {
       super(props);
-      console.log('FormHOC', props);
       const { dispatch } = props;
       this.boundActionCreators = bindActionCreators(actionCreators, dispatch);
     }

@@ -25,7 +25,7 @@ class EditVisit extends Component {
 
   componentWillUnmount() {
     this.props.model.off('change', () => {
-      console.log('changed!');
+      // console.log('changed!');
     });
   }
 

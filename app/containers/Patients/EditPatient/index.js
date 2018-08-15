@@ -32,7 +32,6 @@ class EditPatient extends Component {
   }
 
   async componentDidMount() {
-    console.log('_componentWillReceiveProps_', this.props);
     const { id } = this.props.match.params;
     this.props.model.on('change', this.handleChange);
     this.props.model.set({ _id: id });
@@ -40,7 +39,7 @@ class EditPatient extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    console.log('_componentWillReceiveProps_', newProps);
+    // console.log('_componentWillReceiveProps_', newProps);
   }
 
   componentWillUnmount() {
@@ -48,7 +47,6 @@ class EditPatient extends Component {
   }
 
   handleChange = () => {
-    console.log('_handleChange_');
     const patient = this.props.model.toJSON({ relations: true });
     const procedures = this.props.model.getProcedures();
     this.setState({ patient, procedures });
@@ -78,7 +76,6 @@ class EditPatient extends Component {
   render() {
     const { selectedTab, patient, procedures } = this.state;
     const { history } = this.props;
-    console.log('_redner_', { selectedTab, patient, procedures });
     return (
       <div>
         <div className="create-content">

@@ -8,6 +8,7 @@ import {
   SAVE_VISIT_REQUEST,
   SAVE_VISIT_SUCCESS,
   SAVE_VISIT_FAILED,
+  SAVE_VISIT_RESET,
 } from '../types';
 import { PatientModel, VisitModel } from '../../models';
 
@@ -61,6 +62,11 @@ export const submitForm = ({ action, visitModel, patientModel, history, setStatu
       dispatch({ type: SAVE_VISIT_FAILED, error });
     }
   };
+
+export const resetSaved = () =>
+  dispatch => {
+    dispatch({ type: SAVE_VISIT_RESET });
+  }
 
 const _setStatus = ({ visitModel, patientModel }) => {
   if (moment(visitModel.get('startDate')).isSameOrBefore(moment()) &&

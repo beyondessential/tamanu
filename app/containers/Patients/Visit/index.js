@@ -83,8 +83,9 @@ class EditVisit extends Component {
   }
 
   onCloseModal() {
-    const visitSaved = false;
-    this.setState({ visitSaved });
+    this.props.resetSaved();
+    // const visitSaved = false;
+    // this.setState({ visitSaved });
   }
 
   discharge = () => {
@@ -314,10 +315,11 @@ function mapStateToProps(state) {
 }
 
 const { visit: visitActions } = actions;
-const { initVisit, submitForm } = visitActions;
+const { initVisit, submitForm, resetSaved } = visitActions;
 const mapDispatchToProps = (dispatch, ownProps) => ({
   initVisit: (params) => dispatch(initVisit(params)),
   submitForm: (params) => dispatch(submitForm(params)),
+  resetSaved: (params) => dispatch(resetSaved(params)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditVisit);

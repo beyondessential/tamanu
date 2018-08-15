@@ -5,6 +5,7 @@ import {
   SAVE_VISIT_REQUEST,
   SAVE_VISIT_SUCCESS,
   SAVE_VISIT_FAILED,
+  SAVE_VISIT_RESET,
 } from '../../actions/types';
 
 export default {
@@ -40,5 +41,11 @@ export default {
     ...state,
     error,
     loading: false
+  }),
+  [SAVE_VISIT_RESET]: ({ error }, state) => ({
+    ...state,
+    error,
+    loading: false,
+    saved: false
   }),
 };
