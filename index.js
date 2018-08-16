@@ -38,7 +38,7 @@ const run = async () => {
     // listeners.addDatabaseListeners('main');
 
     // Start our app
-    const port = config.app.port || 4000;
+    const port = config.app.port || 4500;
     app.listen(port, () => {
         console.log(`Server is running on port ${port}!`);
     });

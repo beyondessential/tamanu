@@ -13,7 +13,7 @@ const localDBCredentials = {
   headers: {
     Authorization: `Basic ${localAuthHeader}`
   },
-  url: `http://${localDB.host}:${localDB.port}/main`
+  url: `http://127.0.0.1:${localDB.port}/main`
 };
 const remoteDBCredentials = {
   headers: {
