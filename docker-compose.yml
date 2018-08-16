@@ -1,13 +1,12 @@
-version: "3.1"
+version: "3.7"
 services:
-  tamanu_lan:
+  proxy:
     image: tamanu:latest
     deploy:
+      mode: global
       restart_policy:
         condition: on-failure
-        delay: 5s
         max_attempts: 3
-        window: 120s
     environment:
       - NODE_ENV=production
     links:
@@ -18,16 +17,28 @@ services:
       - "4500:4500"
     secrets:
       - tamanu_lan_config
+    networks:
+      - tamanu
 
   couchdb:
     image: couchdb:2.2
-    volumes:
-      - ./data/couchdb:/usr/local/var/lib/couchdb
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+    # volumes:
+    #   - ./data/couchdb:/usr/local/var/lib/couchdb
     ports:
       - "5984:5984"
+    networks:
+      - tamanu
 secrets:
   tamanu_lan_config:
     external: true
 volumes:
   esdata1:
     driver: local
+networks:
+  tamanu:
+    driver: overlay
