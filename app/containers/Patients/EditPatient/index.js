@@ -81,7 +81,7 @@ class EditPatient extends Component {
         <div className="create-content">
           <div className="create-top-bar">
             <span>
-              Edit Patient
+              View Patient
             </span>
           </div>
           <div className="create-container">

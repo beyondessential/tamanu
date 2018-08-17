@@ -43,7 +43,7 @@ class Diagnosis extends Component {
     return (
       <div>
         <div className={`column p-b-0 ${!diagnoses.length && showSecondary ? 'is-hidden' : ''}`}>
-          <span className="title">{`${showSecondary ? 'Secondary' : 'Primary'} Diagnose`}</span>
+          <span className="title">{`${showSecondary ? 'Secondary' : 'Primary'} Diagnosis`}</span>
           <a className={`${showSecondary ? 'is-hidden' : ''} add-button`} onClick={() => this.setState({ modalVisible: true, action: 'new', itemId: null })}>
             + Add Diagnosis
           </a>
