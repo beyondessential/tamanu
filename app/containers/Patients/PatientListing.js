@@ -45,6 +45,18 @@ class PatientListing extends Component {
   }
 
   handleChange() {
+    let { models: patients } = this.props.collection;
+    if (patients.length > 0) {
+      patients = map(patients, async patient => {
+        const { attributes } = patient;
+        if (attributes.admitted) {
+          const admission = await patient.getCurrentAdmission();
+          if (!isEmpty(admission)) attributes.dischargeUrl = `/patients/visit/${patient.id}/${admission.id}`;
+        }
+        return attributes;
+      });
+    }
+
     this.forceUpdate();
   }
 
@@ -54,7 +66,7 @@ class PatientListing extends Component {
 
   goAdmit = (patientId, patient) => {
     if (patient.admitted) {
-      this.props.history.push(`/patients/editvisit/${patientId}`);
+      this.props.history.push(patient.dischargeUrl);
     } else {
       this.props.history.push(`/patients/checkin/${patientId}`);
     }
@@ -114,7 +126,7 @@ class PatientListing extends Component {
     return (
       <div key={row._id}>
         <button type="button" className="button column-button" onClick={() => this.goEdit(row._id)}>View Patient</button>
-        <button type="button" className="button is-primary column-checkin-button" onClick={() => this.goAdmit(row._id, row.admitted)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
+        <button type="button" className="button is-primary column-checkin-button" onClick={() => this.goAdmit(row._id, row)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
         <button type="button" className="button is-danger column-button" onClick={() => this.showDeleteModal(row)}>Delete</button>
       </div>
     );

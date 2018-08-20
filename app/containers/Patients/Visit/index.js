@@ -24,6 +24,7 @@ class EditVisit extends Component {
   }
 
   state = {
+    checkIn: false,
     action: 'new',
     patient: {},
     visitModel: {},
@@ -44,18 +45,22 @@ class EditVisit extends Component {
 
   componentWillUnmount() {
     const { visit } = this.props;
-    // visit.off('change');
+    visit.off('change');
   }
 
   handleChange(props = this.props) {
+    let updates = {};
     const { patient, visit, action, loading, saved } = props;
+    if (this.props.match.path.indexOf('checkin') !== -1) {
+      updates.checkIn = true;
+    }
     if (!loading) {
       // visit.on('change', this.forceUpdate);
       if (action === 'new') {
         const diagnoses = visit.get('diagnoses');
         patient.attributes.diagnoses.models.forEach(model => diagnoses.add(model)); // visit.set('diagnoses', patient.attributes.diagnoses);
       }
-      this.setState({
+      updates = Object.assign(updates, {
         patientModel: patient,
         patient: patient.toJSON(),
         visitModel: visit,
@@ -64,6 +69,7 @@ class EditVisit extends Component {
         visitSaved: saved
       });
     }
+    this.setState(updates);
   }
 
   handleUserInput = (e, field) => {
@@ -113,6 +119,7 @@ class EditVisit extends Component {
     if (loading) return <Preloader />; // TODO: make this automatic
 
     const {
+      checkIn,
       action,
       patientModel,
       patient,
@@ -126,7 +133,7 @@ class EditVisit extends Component {
       <div>
         <div className="create-content">
           <div className="create-top-bar">
-            <span>{`${capitalize(action)} Visit`}</span>
+            <span>{checkIn ? 'Patient Check In' : `${capitalize(action)} Visit`}</span>
           </div>
           <form
             className="create-container"
@@ -139,9 +146,7 @@ class EditVisit extends Component {
               <div className="columns m-b-0">
                 <div className="column p-t-0">
                   <div className="column visit-header">
-                    <span>
-                      Visit Information
-                    </span>
+                    <span>Visit Information</span>
                   </div>
                 </div>
               </div>

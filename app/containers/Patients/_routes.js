@@ -22,13 +22,14 @@ export default function Routes({ url }) {
         <Route path={`${url}/outpatient`} component={Outpatient} />
         <Route path={`${url}/edit/new`} component={NewPatient} />
         <Route path={`${url}/reports`} component={Reports} />
-        <Route path={`${url}/checkin/:id`} component={CheckInPatient} />
+        {/* <Route path={`${url}/checkin/:id`} component={CheckInPatient} /> */}
         <Route path={`${url}/editPatient/:id`} component={EditPatient} />
         <Route path={`${url}/operativePlan/:patientId/:id`} component={OperativePlan} />
         <Route path={`${url}/operativePlan/:patientId`} component={OperativePlan} />
         <Route path={`${url}/operationReport/:patientId/:id`} component={OperationReport} />
         <Route path={`${url}/visit/:patientId/:id`} component={Visit} />
         <Route path={`${url}/visit/:patientId`} component={Visit} />
+        <Route path={`${url}/checkin/:patientId`} component={Visit} />
       </Switch>
     </div>
   );

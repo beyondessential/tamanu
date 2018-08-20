@@ -48,7 +48,7 @@ export default Backbone.Collection.extend({
     const limit = opts.limit || 10;
     set(selector, 'docType', docType);
 
-    this.fetch({
+    return this.fetch({
       success: (opts ? opts.success : null),
       error: (opts ? opts.error : null),
       fetch: 'find',
@@ -80,11 +80,11 @@ export default Backbone.Collection.extend({
         }
       }
     };
-    this.fetch(params);
+    return this.fetch(params);
   },
 
   fetchByView(opts) {
-    this.fetch({
+    return this.fetch({
       success: (opts ? opts.success : null),
       error: (opts ? opts.error : null),
       fetch: 'query',
@@ -106,7 +106,7 @@ export default Backbone.Collection.extend({
     const limit = (opts && opts.limit) || 10;
     set(selector, 'docType', docType);
 
-    this.fetch({
+    return this.fetch({
       success: (opts ? opts.success : null),
       error: (opts ? opts.error : null),
       fetch: 'find',
