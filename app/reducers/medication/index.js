@@ -1,7 +1,8 @@
 import { has } from 'lodash';
 import request from './request';
+import requests from './requests';
 
-const stateChanges = { ...request };
+const stateChanges = { ...request, ...requests };
 const initialState = {
   request: {},
   requestInProgress: false,

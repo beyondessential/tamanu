@@ -37,10 +37,21 @@ export default Backbone.Collection.extend({
     // Proxy the call to the original save function
     // const res = await Backbone.Collection.prototype.fetch.apply(this, [options]);
     // return res;
+    const originalSuccess = options.success;
+    options.success = async () => {
+      if (options.fetchRelations) {
+        const tasks = [];
+        this.models.forEach(model => {
+          tasks.push(model.fetch({ relations: true, deep: false }));
+        });
+        await Promise.all(tasks);
+      }
+      if (typeof originalSuccess === "function") originalSuccess();
+    };
     return Backbone.Collection.prototype.fetch.apply(this, [options]);
   },
 
-  fetchAll(opts) {
+  fetchAll(opts = {}) {
     const model = new this.model();
     const { docType } = model.attributes;
     const fields = opts.fields || keys(model.attributes);
@@ -49,6 +60,7 @@ export default Backbone.Collection.extend({
     set(selector, 'docType', docType);
 
     return this.fetch({
+      fetchRelations: opts.fetchRelations || false,
       success: (opts ? opts.success : null),
       error: (opts ? opts.error : null),
       fetch: 'find',
@@ -58,7 +70,7 @@ export default Backbone.Collection.extend({
     });
   },
 
-  fetchResults(opts) {
+  fetchResults(opts = {}) {
     const model = new this.model();
     const { docType } = model.attributes;
     const fields = (opts && opts.fields) || keys(model.attributes);
@@ -68,6 +80,7 @@ export default Backbone.Collection.extend({
     set(selector, 'docType', docType);
 
     const params = {
+      fetchRelations: opts.fetchRelations || false,
       success: (opts ? opts.success : null),
       error: (opts ? opts.error : null),
       fetch: 'find',
@@ -83,8 +96,9 @@ export default Backbone.Collection.extend({
     return this.fetch(params);
   },
 
-  fetchByView(opts) {
+  fetchByView(opts = {}) {
     return this.fetch({
+      fetchRelations: opts.fetchRelations || false,
       success: (opts ? opts.success : null),
       error: (opts ? opts.error : null),
       fetch: 'query',
@@ -98,7 +112,7 @@ export default Backbone.Collection.extend({
     });
   },
 
-  find(opts) {
+  find(opts = {}) {
     const model = new this.model();
     const { docType } = model.attributes;
     const fields = (opts && opts.fields) || keys(model.attributes);
@@ -107,6 +121,7 @@ export default Backbone.Collection.extend({
     set(selector, 'docType', docType);
 
     return this.fetch({
+      fetchRelations: opts.fetchRelations || false,
       success: (opts ? opts.success : null),
       error: (opts ? opts.error : null),
       fetch: 'find',

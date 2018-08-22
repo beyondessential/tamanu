@@ -2,14 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import Select from 'react-select';
-import DatePicker from 'react-datepicker';
-import moment from 'moment';
 import actions from '../../actions/medication';
-import { dateFormat } from '../../constants';
 import {
   Preloader,
   PatientAutocomplete,
-  CustomDateInput,
   InputGroup,
   DrugAutocomplete,
   TextareaGroup,
@@ -41,10 +37,10 @@ class NewMedication extends Component {
     this.handleChange(newProps);
   }
 
-  // componentWillUnmount() {
-  //   const { visit } = this.props;
-  //   // visit.off('change');
-  // }
+  componentWillUnmount() {
+    // const { visit } = this.props;
+    // visit.off('change');
+  }
 
   selectPatient = (patientId) => {
     const { id } = this.props.match.params;
@@ -61,6 +57,7 @@ class NewMedication extends Component {
     const { patient, medication, loading } = props;
     if (!loading) {
       this.setState({
+        patient,
         medicationModel: medication,
         medication: medication.toJSON(),
         visits: patient.getVisitsSelect(),
@@ -83,8 +80,14 @@ class NewMedication extends Component {
 
   submitForm(e) {
     e.preventDefault();
-    const { action, medicationModel, patientModel, visit } = this.state;
-    // this.props.saveMedication({ action, visitModel, patientModel, history: this.props.history, setStatus });
+    const { action, medicationModel, patient, visit } = this.state;
+    this.props.saveMedication({
+      action,
+      model: medicationModel,
+      visitId: visit,
+      patientId: patient.id,
+      history: this.props.history
+    });
   }
 
   render() {
@@ -109,6 +112,7 @@ class NewMedication extends Component {
                     label="Patient"
                     name="patient"
                     onChange={this.selectPatient}
+                    value={medication.patient}
                     required
                   />
                 </div>
@@ -134,18 +138,22 @@ class NewMedication extends Component {
                     name="drug"
                     label="Medication"
                     onChange={this.handleUserInput}
+                    value={medication.drug}
                     required
                   />
                 </div>
               </div>
               <div className="columns">
                 <div className="column">
-                  <TextareaGroup
-                    name="prescription"
-                    label="Prescription"
-                    onChange={this.handleUserInput}
-                    required
-                  />
+                  <div className="column">
+                    <TextareaGroup
+                      name="prescription"
+                      label="Prescription"
+                      onChange={this.handleUserInput}
+                      value={medication.prescription}
+                      required
+                    />
+                  </div>
                 </div>
               </div>
               <div className="columns">
@@ -154,6 +162,7 @@ class NewMedication extends Component {
                     label="Prescription Date"
                     name="prescriptionDate"
                     onChange={this.handleUserInput}
+                    value={medication.prescriptionDate}
                   />
                 </div>
               </div>
@@ -161,7 +170,7 @@ class NewMedication extends Component {
                 <div className="column is-4">
                   <div className="column">
                     <span className="header">
-                      Quantity <span className="isRequired">*</span>
+                      Quantity
                     </span>
                     <div className="columns is-gapless">
                       <div className="column">
@@ -169,17 +178,21 @@ class NewMedication extends Component {
                           type="number"
                           label="Morning"
                           className="is-horizontal m-b-0"
-                          labelClass="column is-4 p-t-15"
+                          labelClass="column is-5 p-t-15 p-l-3 p-r-0"
                           inputClass="column is-7"
-                          name="refills"
+                          name="qtyMorning"
+                          onChange={this.handleUserInput}
+                          required
                         />
                         <InputGroup
                           type="number"
                           label="Evening"
                           className="is-horizontal m-b-0"
-                          labelClass="column is-4 p-t-15"
+                          labelClass="column is-5 p-t-15 p-l-3 p-r-0"
                           inputClass="column is-7"
-                          name="refills"
+                          name="qtyEvening"
+                          onChange={this.handleUserInput}
+                          required
                         />
                       </div>
                       <div className="column">
@@ -187,26 +200,42 @@ class NewMedication extends Component {
                           type="number"
                           label="Lunch"
                           className="is-horizontal m-b-0"
-                          labelClass="column is-4 p-t-15"
+                          labelClass="column is-5 p-t-15 p-l-3 p-r-0"
                           inputClass="column is-7"
-                          name="refills"
+                          name="qtyLunch"
+                          onChange={this.handleUserInput}
+                          required
                         />
                         <InputGroup
                           type="number"
                           label="Night"
                           className="is-horizontal m-b-0"
-                          labelClass="column is-4 p-t-15"
+                          labelClass="column is-5 p-t-15 p-l-3 p-r-0"
                           inputClass="column is-7"
-                          name="refills"
+                          name="qtyNight"
+                          onChange={this.handleUserInput}
+                          required
                         />
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="column is-4">
-                  <InputGroup
-                    name="refills"
-                    label="Refills"
+                  <TextareaGroup
+                    name="notes"
+                    label="Notes"
+                    onChange={this.handleUserInput}
+                    value={medication.notes}
+                  />
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column is-5">
+                  <DatepickerGroup
+                    label="End Date"
+                    name="endDate"
+                    onChange={this.handleUserInput}
+                    value={medication.endDate}
                   />
                 </div>
               </div>

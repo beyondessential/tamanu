@@ -30,7 +30,8 @@ export const timeFormat = 'hh:mm a';
 export const pageSizes = {
   patients: 10,
   pregnancies: 5,
-  surveyResponses: 5
+  surveyResponses: 5,
+  medicationRequests: 10,
 };
 
 export const sidebarInfo = [
@@ -543,59 +544,77 @@ export const programsPatientsColumns = [
 
 export const medicationColumns = [
   {
-    dataField: 'date',
-    text: 'Date',
-    sort: true,
-    headerSortingStyle,
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor
+    accessor: 'prescriptionDate',
+    Header: 'Date',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'patient',
+    Header: 'Patient',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'prescriber',
+    Header: 'Prescriber',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'drug',
+    Header: 'Medication',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 300
+  }, {
+    accessor: 'quantity',
+    Header: 'Quantity',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100,
+    columns: [{
+      Header: 'Morning',
+      accessor: 'qtyMorning',
+      headerStyle,
+      style: columnStyle,
+      maxWidth: 80,
+    }, {
+      Header: 'Lunch',
+      accessor: 'qtyLunch',
+      headerStyle,
+      style: columnStyle,
+      maxWidth: 80,
+    }, {
+      Header: 'Evening',
+      accessor: 'qtyEvening',
+      headerStyle,
+      style: columnStyle,
+      maxWidth: 80,
+    }, {
+      Header: 'Night',
+      accessor: 'qtyNight',
+      headerStyle,
+      style: columnStyle,
+      maxWidth: 80,
+    }]
+  }, {
+    accessor: 'status',
+    Header: 'Status',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: row => {
+      return { _id: row._id, admitted: row.admitted };
     },
-  }, {
-    dataField: 'patient',
-    text: 'Patient',
-    sort: true,
-    headerSortingStyle,
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor
-    }
-  }, {
-    dataField: 'prescriber',
-    text: 'Prescriber',
-    sort: true,
-    headerSortingStyle,
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor
-    }
-  }, {
-    dataField: 'medication',
-    text: 'Medication',
-    sort: true,
-    headerSortingStyle,
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor
-    }
-  }, {
-    dataField: 'quantity',
-    text: 'Quantity',
-    sort: true,
-    headerSortingStyle,
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor
-    }
-  }, {
-    dataField: 'status',
-    text: 'Status',
-    sort: true,
-    headerSortingStyle,
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor
-    }
-  }, {
-    dataField: 'action',
-    text: 'Actions',
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor
-    }
+    id: 'actions',
+    Header: 'Actions',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 200,
+    Cell: null,
+    filterable: false
   }
 ];
 

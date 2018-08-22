@@ -9,7 +9,7 @@ import {
   SAVE_MEDICATION_SUCCESS,
   SAVE_MEDICATION_FAILED,
 } from '../types';
-import { PatientModel, MedicationModel } from '../../models';
+import { PatientModel, MedicationModel, VisitModel } from '../../models';
 
 export const fetchMedication = ({ patientId, id }) =>
   async dispatch => {
@@ -26,7 +26,7 @@ export const fetchMedication = ({ patientId, id }) =>
       medicationModel.set({ _id: id });
       [error] = await to(medicationModel.fetch({ relations: true, deep: false }));
     }
-    // if (error) return dispatch({ type: FETCH_MEDICATION_FAILED, error });
+    if (error) return dispatch({ type: FETCH_MEDICATION_FAILED, error });
     dispatch({
       type: FETCH_MEDICATION_SUCCESS,
       patient: patientModel,
@@ -35,45 +35,32 @@ export const fetchMedication = ({ patientId, id }) =>
     });
   };
 
-export const saveMedication = ({ action, visitModel, patientModel, history, setStatus }) =>
+export const saveMedication = ({ action, model, visitId, patientId, history }) =>
   async dispatch => {
     dispatch({ type: SAVE_MEDICATION_REQUEST });
-    if (visitModel.isValid()) {
+    if (model.isValid()) {
       try {
-        const endDate = visitModel.get('endDate');
-        if (endDate instanceof moment && !endDate.isValid()) visitModel.set('endDate', null, { silent: true });
-        if (setStatus) _setStatus({ visitModel, patientModel });
-        const Model = await visitModel.save(null, { silent: true });
-        if (action === 'new') patientModel.get('visits').add({ _id: Model.id });
-        if (patientModel.changed) await patientModel.save(null, { silent: true });
-        dispatch({
-          type: SAVE_MEDICATION_SUCCESS,
-          patient: patientModel,
-          visit: Model,
-        });
-        if (action === 'new') history.push(`/patients/visit/${patientModel.id}/${Model.id}`);
+        model.set('patient', patientId);
+        model.set('visit', visitId);
+        const endDate = model.get('endDate');
+        if (endDate instanceof moment && !endDate.isValid()) model.set('endDate', null, { silent: true });
+        const Model = await model.save(null, { silent: true });
+        if (action === 'new'){
+          const visitModel = new VisitModel();
+          visitModel.set('_id', visitId);
+          await visitModel.fetch({ relations: true, deep: false });
+          visitModel.get('medication').add({ _id: Model.id });
+          await visitModel.save(null, { silent: true });
+        }
+        dispatch({ type: SAVE_MEDICATION_SUCCESS });
+        if (action === 'new') history.push('/medication/requests');
       } catch (error) {
         console.log({ error });
         dispatch({ type: SAVE_MEDICATION_FAILED, error });
       }
     } else {
-      const error = visitModel.validationError;
+      const error = model.validationError;
       console.log({ error });
       dispatch({ type: SAVE_MEDICATION_FAILED, error });
     }
   };
-
-const _setStatus = ({ visitModel, patientModel }) => {
-  if (moment(visitModel.get('startDate')).isSameOrBefore(moment()) &&
-    (
-      visitModel.get('endDate') === null ||
-      moment(visitModel.get('endDate')).isSameOrAfter(moment())
-    )
-  ) {
-    if (visitModel.get('visitType') === 'admission') {
-      visitModel.set('status', visitStatuses.ADMITTED);
-      patientModel.set('admitted', true);
-    }
-    if (visitModel.get('visitType') !== 'admission') visitModel.set('status', visitStatuses.CHECKED_IN);
-  }
-};

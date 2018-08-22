@@ -57,7 +57,7 @@ class Completed extends Component {
 
 function mapStateToProps(state) {
   return {
-    medications: state.medications.medications
+    medications: []
   };
 }
 

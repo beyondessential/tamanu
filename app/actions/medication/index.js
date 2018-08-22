@@ -1,4 +1,4 @@
-// import * as patients from './patients';
 import * as request from './request';
+import * as requests from './requests';
 
-export default { request };
+export default { request, requests };

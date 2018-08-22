@@ -42,7 +42,6 @@ class PatientSearchBar extends Component {
   onSubmit(e){
     e.preventDefault()
     const { value } = this.state;
-    console.log({value});
     if (value === '') return this.props.onReset();
     this.props.onSubmit(value, e);
   }

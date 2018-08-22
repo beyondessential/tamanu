@@ -1,17 +1,42 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import BootstrapTable from 'react-bootstrap-table-next';
-import { fetchMedications } from '../../actions/medications';
-import { medicationColumns } from '../../constants';
+import ReactTable from 'react-table';
+import actions from '../../actions/medication';
+import { medicationColumns, pageSizes } from '../../constants';
 
 class Requests extends Component {
-  componentDidMount() {
-    // this.props.fetchMedications();
+  state = {
+    medications: [{}, {}],
+    totalPages: 0,
+    loading: true,
+  }
+
+  componentWillMount() {
+    medicationColumns[medicationColumns.length - 1].Cell = this.setActionsColumn;
+    // this.props.fetchMedications({ page: 0 });
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.handleChange(newProps);
+  }
+
+  handleChange(props = this.props) {
+    const { medications, loading } = props;
+    if (!loading) this.setState({ medications, loading });
+  }
+
+  setActionsColumn = _row => {
+    const row = _row.original;
+    return (
+      <div key={row._id}>
+        <button type="button" className="button is-primary" disabled>Fullfill</button>
+      </div>
+    );
   }
 
   render() {
-    const { medications } = this.props;
+    const { medications, totalPages } = this.state;
     return (
       <div>
         <div className="content">
@@ -40,11 +65,17 @@ class Requests extends Component {
               </div>
               :
               <div>
-                <BootstrapTable
-                  keyField="id"
+                <ReactTable
+                  manual
+                  keyField="_id"
                   data={medications}
+                  pages={totalPages}
+                  defaultPageSize={pageSizes.medications}
+                  loading={this.state.loading}
                   columns={medicationColumns}
+                  className="-striped"
                   defaultSortDirection="asc"
+                  onFetchData={this.props.fetchMedications}
                 />
               </div>
             }
@@ -56,13 +87,14 @@ class Requests extends Component {
 }
 
 function mapStateToProps(state) {
-  return {
-    medications: state.medications.medications
-  };
+  const { medications, totalPages, loading, error } = state.medication;
+  return { medications, totalPages, loading, error };
 }
 
+const { requests: requestsActions } = actions;
+const { fetchMedications } = requestsActions;
 const mapDispatchToProps = dispatch => ({
-  fetchMedications: () => dispatch(fetchMedications()),
+  fetchMedications: (props) => dispatch(fetchMedications(props)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Requests);
