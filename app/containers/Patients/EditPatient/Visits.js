@@ -27,7 +27,6 @@ class Visits extends Component {
     return (
       <div key={row.original._id}>
         <Link className="button is-light m-r-5" to={`/patients/visit/${Model.id}/${row.original._id}`}>Edit</Link>
-        <button className="button is-danger">Delete</button>
       </div>
     );
   }
