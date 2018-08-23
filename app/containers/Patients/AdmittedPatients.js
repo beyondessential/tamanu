@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { map, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import ReactTable from 'react-table';
 import { patientColumns, pageSizes } from '../../constants';
 import { PatientsCollection } from '../../collections';
@@ -9,7 +9,10 @@ import { PatientsCollection } from '../../collections';
 class AdmittedPatients extends Component {
   constructor(props) {
     super(props);
-    this.state = { loading: false };
+    this.state = {
+      admittedPatients: [],
+      loading: false
+    };
     this.handleChange = this.handleChange.bind(this);
     this.setActionsColumn = this.setActionsColumn.bind(this);
     this.onFetchData = this.onFetchData.bind(this);
@@ -18,7 +21,10 @@ class AdmittedPatients extends Component {
   componentDidMount() {
     patientColumns[patientColumns.length - 1].Cell = this.setActionsColumn;
     this.props.collection.on('update', this.handleChange);
-    this.props.collection.fetch({ options: { query: { fun: 'patient_by_admission' } } });
+    this.props.collection.fetchByView({
+      view: 'patient_by_admission',
+      fetchRelations: true,
+    });
   }
 
   componentWillUnmount() {
@@ -26,7 +32,20 @@ class AdmittedPatients extends Component {
   }
 
   handleChange() {
-    this.forceUpdate();
+    let { models: admittedPatients } = this.props.collection;
+    // if (admittedPatients.length > 0) {
+    //   admittedPatients = admittedPatients.map(patient => {
+    //     const { attributes } = patient;
+    //     if (attributes.admitted) {
+    //       const admission = patient.getCurrentAdmission();
+    //       if (!isEmpty(admission)) attributes.dischargeUrl = `/patients/visit/${patient.id}/${admission.id}`;
+    //     }
+    //     return attributes;
+    //   });
+    // }
+
+    admittedPatients = this.props.collection.toJSON();
+    this.setState({ admittedPatients });
   }
 
   goEditPatient = (patientId) => {
@@ -44,26 +63,36 @@ class AdmittedPatients extends Component {
     this.setState({ loading: true });
     this.props.collection.fetchByView({
       view: 'patient_by_admission',
+      fetchRelations: true,
       success: () => {
         this.setState({ loading: false });
       }
     });
   }
 
+  discharge(patientId) {
+    let dischargeUrl = '';
+    const patient = this.props.collection.where({ _id: patientId })[0];
+    if (!isEmpty(patient)) {
+      const admission = patient.getCurrentAdmission();
+      if (!isEmpty(admission)) dischargeUrl = `/patients/visit/${patient.id}/${admission.id}`;
+    }
+    this.props.history.push(dischargeUrl);
+  }
+
   setActionsColumn = _row => {
     const row = _row.original;
     return (
       <div key={row._id}>
-        <button className="button column-button" onClick={() => this.goEditPatient(row._id)}>Edit</button>
-        <button className="button is-primary column-checkin-button" onClick={() => this.goEdit(row._id)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
-        <button className="button is-danger column-button">Delete</button>
+        <button className="button column-button" onClick={() => this.goEditPatient(row._id)}>View Patient</button>
+        <button className="button is-primary column-checkin-button" onClick={() => this.discharge(row._id)}>Discharge</button>
+        <button className="button is-danger column-button" disabled>Delete</button>
       </div>
     );
   }
 
   render() {
-    let { models: admittedPatients } = this.props.collection;
-    if (!isEmpty(admittedPatients)) admittedPatients = map(admittedPatients, patient => patient.attributes);
+    const { admittedPatients } = this.state;
     return (
       <div className="content">
         <div className="view-top-bar">
@@ -105,15 +134,8 @@ class AdmittedPatients extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  const { admittedPatients } = state.patients;
-  return {
-    admittedPatients
-  };
-}
+AdmittedPatients.defaultProps = {
+  collection: new PatientsCollection(),
+};
 
-const mapDispatchToProps = () => ({
-  collection: new PatientsCollection()
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(AdmittedPatients);
+export default AdmittedPatients;

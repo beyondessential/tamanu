@@ -31,7 +31,7 @@ class PatientListing extends Component {
     patientColumns[patientColumns.length - 1].Cell = this.setActionsColumn;
     this.props.collection.on('update', this.handleChange);
     this.props.collection.setPageSize(this.state.pageSize);
-    this.props.collection.fetchByView();
+    this.props.collection.fetchByView({ fetchRelations: ['visits'] });
   }
 
   componentWillReceiveProps({ deletePatientSuccess }) {
@@ -64,9 +64,13 @@ class PatientListing extends Component {
     this.props.history.push(`/patients/editPatient/${patientId}`);
   }
 
-  goAdmit = (patientId, patient) => {
-    if (patient.admitted) {
-      this.props.history.push(patient.dischargeUrl);
+  goAdmit = (patientId) => {
+    const patient = this.props.collection.where({ _id: patientId })[0];
+    if (patient.get('admitted')) {
+      let dischargeUrl = '';
+      const admission = patient.getCurrentAdmission();
+      if (!isEmpty(admission)) dischargeUrl = `/patients/visit/${patient.id}/${admission.id}`;
+      this.props.history.push(dischargeUrl);
     } else {
       this.props.history.push(`/patients/checkin/${patientId}`);
     }
@@ -101,6 +105,7 @@ class PatientListing extends Component {
       this.props.collection.setPage(state.page);
       this.props.collection.setPageSize(state.pageSize);
       this.props.collection.fetchByView({
+        fetchRelations: ['visits'],
         success: () => {
           this.setState({ loading: false });
         }
@@ -126,8 +131,8 @@ class PatientListing extends Component {
     return (
       <div key={row._id}>
         <button type="button" className="button column-button" onClick={() => this.goEdit(row._id)}>View Patient</button>
-        <button type="button" className="button is-primary column-checkin-button" onClick={() => this.goAdmit(row._id, row)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
-        <button type="button" className="button is-danger column-button" onClick={() => this.showDeleteModal(row)}>Delete</button>
+        <button type="button" className="button is-primary column-checkin-button" onClick={() => this.goAdmit(row._id)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
+        <button type="button" className="button is-danger column-button" onClick={() => this.showDeleteModal(row)} disabled>Delete</button>
       </div>
     );
   }

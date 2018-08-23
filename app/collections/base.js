@@ -42,7 +42,7 @@ export default Backbone.Collection.extend({
       if (options.fetchRelations) {
         const tasks = [];
         this.models.forEach(model => {
-          tasks.push(model.fetch({ relations: true, deep: false }));
+          tasks.push(model.fetch({ relations: options.fetchRelations, deep: false }));
         });
         await Promise.all(tasks);
       }

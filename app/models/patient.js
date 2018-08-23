@@ -176,8 +176,8 @@ export default BaseModel.extend({
     return visits;
   },
 
-  async getCurrentAdmission() {
-    await this.fetch({ relations: ['visits'] });
+  getCurrentAdmission() {
+    // await this.fetch({ relations: ['visits'] });
     const { visits } = this.attributes;
     return visits.findWhere({ visitType: 'admission', endDate: null });
   }

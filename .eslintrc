@@ -58,6 +58,7 @@
     "react/jsx-no-bind": "off",
     "react/jsx-filename-extension": ["error", { "extensions": [".js", ".jsx"] }],
     "react/prefer-stateless-function": "off",
+    "react/button-has-type": "off",
     "import/prefer-default-export": 0,
     "react/no-array-index-key": 0,
     "jsx-a11y/click-events-have-key-events": 0,
