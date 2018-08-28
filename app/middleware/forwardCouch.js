@@ -1,4 +1,4 @@
-const config = require('config');
+const config = require('../../config');
 const httpProxy = require('http-proxy');
 
 const proxy = httpProxy.createProxyServer({});
@@ -9,6 +9,6 @@ module.exports = (req, res) => {
   });
 
   proxy.web(req, res, {
-    target: `http://${config.localDB.user}:${config.localDB.password}@${config.localDB.host}:${config.localDB.port}`
+    target: `http://${config.localDB.username}:${config.localDB.password}@${config.localDB.host}:${config.localDB.port}`
   });
 };

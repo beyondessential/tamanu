@@ -1,6 +1,6 @@
 module.exports = async (mainDB) => {
   try {
-    await mainDB.createIndexAsync({
+    await mainDB.createIndex({
       index: {
         fields: ['displayId']
       }

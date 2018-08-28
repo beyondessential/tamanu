@@ -1,11 +1,10 @@
-const config = require('config');
+const config = require('../../config');
 const follow = require('follow');
 const Promise = require('bluebird');
 const dbService = require('../services/database');
 const pushHelper = require('../helpers/pushHelper');
 
 const internals = {};
-
 internals.addDatabaseListeners = (dbName) => {
   console.log('addDatabaseListeners', dbName);
   const dbUrl = `http://${config.localDB.username}:${config.localDB.password}@${config.localDB.host}:${config.localDB.port}`;

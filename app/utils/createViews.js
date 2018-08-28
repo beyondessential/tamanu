@@ -2,7 +2,7 @@ const { to } = require('await-to-js');
 
 async function buildIndex(indexName, db) {
   const indexPath = `_design/${indexName}`;
-  const [err, res] = await to(db.getAsync(indexPath));
+  const [err, res] = await to(db.get(indexPath));
   if (err) console.error(`Index: ${indexPath} ${err.toString()}`);
   return res;
 }
@@ -32,13 +32,13 @@ async function updateDesignDoc(item, db, rev, runningTest, testDumpFile) {
     console.log(`WARNING: The view ${item.name} is out of date. Please update the pouch dump ${testDumpFile} to the latest version of ${item.name}`);
   }
 
-  const [err, doc] = await to(db.insertAsync(designDoc));
+  const [err, doc] = await to(db.put(designDoc));
   if (err) return console.log('ERR updating design doc:', JSON.stringify(err, null, 2));
   return buildIndex(item.name, db);
 }
 
 async function checkForUpdate(view, db, runningTest, testDumpFile) {
-  const [err, doc] = await to(db.getAsync(`_design/${view.name}`));
+  const [err, doc] = await to(db.get(`_design/${view.name}`));
   if (err) return updateDesignDoc(view, db, null, runningTest, testDumpFile);
 
   if (doc.version !== view.version) return updateDesignDoc(view, db, doc._rev, runningTest, testDumpFile);
