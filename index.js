@@ -35,8 +35,6 @@
     prefix: './data/',
   });
 
-  console.log({ DB: config.localDB });
-
   app.use(compression());
   app.use(morgan(ENV === 'development' ? 'dev' : 'tiny'));
   app.use(basicAuth({
