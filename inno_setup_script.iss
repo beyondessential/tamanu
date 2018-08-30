@@ -3,8 +3,8 @@
 
 #define MyAppName "Tamanu Server"
 #define MyAppVersion "1.0"
-#define MyAppPublisher "Beyond Essentials"
-#define MyAppURL "http://www.beyondessentials.com.au"
+#define MyAppPublisher "Beyond Essential"
+#define MyAppURL "http://www.beyondessential.com.au"
 #define MyAppExeName "tamanu-server.exe"
 
 [Setup]
@@ -39,7 +39,7 @@ Source: "C:\Users\User\Workspace\tamanu-lan-server\release\tamanu-server.exe"; D
 Source: "C:\Users\User\Workspace\tamanu-lan-server\node_modules\os-service\*"; DestDir: "{app}\node_modules\os-service\"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\User\Workspace\tamanu-lan-server\node_modules\level\*"; DestDir: "{app}\node_modules\level\"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\User\Workspace\tamanu-lan-server\node_modules\leveldown\*"; DestDir: "{app}\node_modules\leveldown\"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "C:\Users\User\Workspace\tamanu-lan-server\release\tamanu-server\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\User\Workspace\tamanu-lan-server\.keep"; DestDir: "{app}\data"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
