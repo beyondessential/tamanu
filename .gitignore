@@ -26,3 +26,5 @@ coverage
 benchmarks/graphs
 
 release
+
+config\.js
