@@ -5,19 +5,16 @@
   "main": "NODE_ENV='development' index.js",
   "bin": "index.js",
   "pkg": {
-    "scripts": "./node_modules/express-pouchdb/**/*.js",
-    "assets": "./node_modules/pouchdb-fauxton/**/*",
-    "targets": [
-      "node8-macos-x64",
-      "node8-win-x64"
-    ],
     "output": "./release/tamanu-lan-server"
   },
   "scripts": {
     "start": "NODE_ENV='development' nodemon index.js",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "test:watch": "npm test -- --watch"
+    "test:watch": "npm test -- --watch",
+    "package": "pkg . --out-path ./release/",
+    "package:win": "pkg . --targets node8-win-x64 --out-path ./release/",
+    "package:mac": "pkg . --targets node8-macos-x64 --out-path ./release/"
   },
   "repository": {
     "type": "git",
@@ -38,17 +35,14 @@
     "grunt-notify": "^0.4.5",
     "grunt-sass": "^2.1.0",
     "mocha": "^5.2.0",
+    "pkg": "^4.3.4",
     "supertest": "^3.0.0"
   },
   "dependencies": {
-    "accurized": "^0.4.6",
     "await-to-js": "^2.0.1",
     "bluebird": "^3.5.1",
-    "body-parser": "^1.18.2",
     "compression": "^1.7.2",
     "connect-flash": "^0.1.1",
-    "consolidate": "^0.15.1",
-    "exec": "^0.2.1",
     "express": "^4.16.2",
     "express-basic-auth": "^1.1.5",
     "express-pouchdb": "git@github.com:beyondessential/express-pouchdb.git",
@@ -56,21 +50,12 @@
     "express-validator": "^5.1.0",
     "faye": "^1.2.4",
     "follow": "^1.1.0",
-    "git": "^0.1.5",
-    "http-proxy": "^1.17.0",
-    "ip": "^1.1.5",
-    "keygen": "^0.3.1",
     "lodash": "^4.17.5",
     "moment": "^2.21.0",
     "morgan": "^1.9.0",
     "nano": "^6.4.4",
-    "nexe": "^2.0.0-rc.34",
+    "os-service": "^2.1.3",
     "pouchdb": "^7.0.0",
-    "pouchdb-find": "^7.0.0",
-    "request": "^2.85.0",
-    "request-promise": "^4.2.2",
-    "require-from-string": "^2.0.2",
-    "require-resolve": "0.0.2",
-    "serve-index": "^1.9.1"
+    "pouchdb-find": "^7.0.0"
   }
 }

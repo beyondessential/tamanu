@@ -5,10 +5,9 @@
   const PouchDB = require('pouchdb');
   const morgan = require('morgan');
   const compression = require('compression');
-  const bodyParser = require('body-parser');
   const expressPouch = require('express-pouchdb');
   const basicAuth = require('express-basic-auth');
-  const exec = require('exec');
+  const service = require('os-service');
 
   // exec(['ls', '-lha'], (err, out, code) => {
   //   if (err instanceof Error) {
@@ -18,6 +17,11 @@
   //   process.stdout.write(out);
   //   process.exit(code);
   // });
+
+  // Start os-service
+  service.run(() => {
+    console.log('Service running.');
+  });
 
   const errorHandler = require('./app/middleware/errorHandler');
   // const couchProxy = require('./app/middleware/forwardCouch');
