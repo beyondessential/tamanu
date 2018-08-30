@@ -7,16 +7,22 @@ import ReactTable from 'react-table';
 import { Colors, pageSizes, programsPatientsColumns } from '../../constants';
 import { PatientsCollection } from '../../collections';
 import { ProgramModel } from '../../models';
+import { PatientSearchBar } from '../../components';
 
 class Patients extends Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
     this.setActionsCol = this.setActionsCol.bind(this);
+    this.searchSubmit = this.searchSubmit.bind(this);
+    this.searchReset = this.searchReset.bind(this);
   }
 
   state = {
-    pageSize: pageSizes.patients
+    pageSize: pageSizes.patients,
+    programLoaded: false,
+    keyword: '',
+    tableClass: ''
   }
 
   async componentWillMount() {
@@ -45,7 +51,7 @@ class Patients extends Component {
     this.props.programModel.set({ _id: programId });
     await this.props.programModel.fetch();
     const program = this.props.programModel.toJSON();
-    this.setState({ program });
+    this.setState({ program, programLoaded: true });
   }
 
   handleChange() {
@@ -58,15 +64,35 @@ class Patients extends Component {
   }
 
   onFetchData = (state) => {
-    this.props.collection.setPage(state.page);
-    this.props.collection.setPageSize(state.pageSize);
-
+    const { keyword } = this.state;
+    const { program } = this.state;
+    const { filters } = program.moduleOptions;
     this.setState({ loading: true });
-    this.props.collection.fetchByView({
-      success: () => {
-        this.setState({ loading: false });
-      }
-    });
+    if (keyword === '') {
+      this.props.collection.setPage(state.page);
+      this.props.collection.setPageSize(state.pageSize);
+      this.props.collection.fetchByView({
+        view: filters.view || 'patient_by_display_id',
+        success: () => {
+          this.setState({ loading: false });
+        }
+      });
+    } else {
+      const selector = Object.assign({
+        displayId: {
+          $regex: `(?i)${keyword}`
+        }
+      }, filters.selector);
+      console.log({ selector });
+      this.props.collection.find({
+        selector,
+        fields: ['_id', 'displayId', 'firstName', 'lastName', 'dateOfBirth', 'sex', 'status'],
+        limit: 50,
+        success: () => {
+          this.setState({ loading: false });
+        }
+      });
+    }
   }
 
   setActionsCol(row) {
@@ -78,8 +104,27 @@ class Patients extends Component {
     );
   }
 
+  searchSubmit(keyword) {
+    this.setState({
+      keyword,
+      tableClass: 'search-results'
+    }, this.onFetchData);
+  }
+
+  searchReset() {
+    this.props.collection.totalPages = 1;
+    this.setState({
+      keyword: '',
+      tableClass: ''
+    }, () => this.onFetchData({
+        page: 0,
+        pageSize: pageSizes.patients
+      })
+    );
+  }
+
   render() {
-    const { program } = this.state;
+    const { program, programLoaded, tableClass } = this.state;
     let { models: patients } = this.props.collection;
     if (patients.length > 0) patients = map(patients, patient => patient.toJSON());
 
@@ -89,23 +134,42 @@ class Patients extends Component {
 
     return (
       <div className="content">
-        <div className="view-top-bar">
-          <span>{program && program.name}</span>
+        <div className="view-top-bar columns is-gapless">
+          <span className="column is-6">
+            {program && program.name}
+          </span>
+          <div className="column is-311">
+            <PatientSearchBar
+              name="search"
+              className="p-t-10 is-pulled-right"
+              onSubmit={this.searchSubmit}
+              onReset={this.searchReset}
+            />
+            <div className="view-action-buttons is-pulled-right m-r-10">
+              <Link to="/patients/edit/new">
+                <i className="fa fa-plus" /> New Patient
+              </Link>
+            </div>
+          </div>
         </div>
+        {/* <div className="view-top-bar">
+          <span>{program && program.name}</span>
+        </div> */}
         <div className="detail">
-          <ReactTable
-            manual
-            keyField="_id"
-            data={patients}
-            pages={this.props.collection.totalPages}
-            defaultPageSize={this.state.pageSize}
-            loading={this.state.loading}
-            columns={programsPatientsColumns}
-            className="-striped"
-            defaultSortDirection="asc"
-            onFetchData={this.onFetchData}
-            filterable
-          />
+          {programLoaded &&
+            <ReactTable
+              manual
+              keyField="_id"
+              data={patients}
+              pages={this.props.collection.totalPages}
+              defaultPageSize={this.state.pageSize}
+              loading={this.state.loading && programLoaded}
+              columns={programsPatientsColumns}
+              className={`-striped ${tableClass}`}
+              defaultSortDirection="asc"
+              onFetchData={this.onFetchData}
+            />
+          }
           {/* {patients.length === 0 ?
             <div className="notification">
               <span>

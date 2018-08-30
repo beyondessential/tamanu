@@ -33,15 +33,29 @@ export default merge.smart(baseConfig, {
 
   module: {
     rules: [
-      // Extract all .global.css to style.css as is
+      {
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            cacheDirectory: true,
+            plugins: [
+              // Here, we include babel plugins that are only required for the
+              // renderer process. The 'transform-*' plugins must be included
+              // before react-hot-loader/babel
+              'transform-class-properties',
+              'transform-es2015-classes',
+              'react-hot-loader/babel'
+            ]
+          }
+        }
+      },
       {
         test: /\.global\.css$/,
         use: [
           {
-            loader: MiniCssExtractPlugin.loader,
-            options: {
-              publicPath: './'
-            }
+            loader: 'style-loader'
           },
           {
             loader: 'css-loader',
@@ -51,66 +65,59 @@ export default merge.smart(baseConfig, {
           }
         ]
       },
-      // Pipe other styles through css modules and append to style.css
       {
         test: /^((?!\.global).)*\.css$/,
         use: [
           {
-            loader: MiniCssExtractPlugin.loader
+            loader: 'style-loader'
           },
           {
             loader: 'css-loader',
             options: {
               modules: true,
-              localIdentName: '[name]__[local]__[hash:base64:5]',
-              sourceMap: true
+              sourceMap: true,
+              importLoaders: 1,
+              localIdentName: '[name]__[local]__[hash:base64:5]'
             }
           }
         ]
       },
-      // Add SASS support  - compile all .global.scss files and pipe it to style.css
+      // SASS support - compile all .global.scss files and pipe it to style.css
       {
         test: /\.global\.(scss|sass)$/,
         use: [
           {
-            loader: MiniCssExtractPlugin.loader
+            loader: 'style-loader'
           },
           {
             loader: 'css-loader',
             options: {
-              sourceMap: true,
-              importLoaders: 1
+              sourceMap: true
             }
           },
           {
-            loader: 'sass-loader',
-            options: {
-              sourceMap: true
-            }
+            loader: 'sass-loader'
           }
         ]
       },
-      // Add SASS support  - compile all other .scss files and pipe it to style.css
+      // SASS support - compile all other .scss files and pipe it to style.css
       {
         test: /^((?!\.global).)*\.(scss|sass)$/,
         use: [
           {
-            loader: MiniCssExtractPlugin.loader
+            loader: 'style-loader'
           },
           {
             loader: 'css-loader',
             options: {
               modules: true,
+              sourceMap: true,
               importLoaders: 1,
-              localIdentName: '[name]__[local]__[hash:base64:5]',
-              sourceMap: true
+              localIdentName: '[name]__[local]__[hash:base64:5]'
             }
           },
           {
-            loader: 'sass-loader',
-            options: {
-              sourceMap: true
-            }
+            loader: 'sass-loader'
           }
         ]
       },
