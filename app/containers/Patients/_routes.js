@@ -12,6 +12,7 @@ import Visit from './Visit';
 import EditPatient from './EditPatient';
 import OperativePlan from './OperativePlan';
 import OperationReport from './OperationReport';
+import NotActive from '../NotActive';
 
 export default function Routes({ url }) {
   return (
@@ -21,7 +22,7 @@ export default function Routes({ url }) {
         <Route path={`${url}/admitted`} component={AdmittedPatients} />
         <Route path={`${url}/outpatient`} component={Outpatient} />
         <Route path={`${url}/edit/new`} component={NewPatient} />
-        <Route path={`${url}/reports`} component={Reports} />
+        <Route path={`${url}/reports`} component={NotActive} />
         {/* <Route path={`${url}/checkin/:id`} component={CheckInPatient} /> */}
         <Route path={`${url}/editPatient/:id`} component={EditPatient} />
         <Route path={`${url}/operativePlan/:patientId/:id`} component={OperativePlan} />
