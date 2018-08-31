@@ -162,6 +162,8 @@ class PregnancyModal extends Component {
                   onChange={(date) => { this.handleUserInput(date, 'deliveryDate'); }}
                   dateFormat={dateFormat}
                   peekNextMonth
+                  showMonthDropdown
+                  showYearDropdown
                   // value={moment(birthday).format('YYYY-MM-DD')}
                   type="button"
                   popperModifiers={{
