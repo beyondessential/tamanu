@@ -26,18 +26,18 @@ class Pregnancy extends Component {
   }
 
   setActionsCol = (row) => {
+    const { patient } = this.props;
     const item = row.original;
+    console.log({ item });
     return (
       <div key={row._id}>
         <button type="button" className={`button is-primary m-r-5 is-outlined ${item.child === '' ? 'is-hidden' : ''}`} onClick={() => this.viewChild(item.child)}>View Child</button>
         <button type="button" className="button is-primary m-r-5 is-outlined" onClick={() => this.editItem(row)}>Edit Pregnancy</button>
-        <button type="button" className="button is-primary m-r-5 is-outlined" onClick={() => this.setState({ modalVisible: true, action: 'edit', item })}>Add Form</button>
-        {item.surveyResponses.length > 0 && <Link to="/programs"> View Forms </Link>}
+        <Link className="button is-primary m-r-5 is-outlined" to={`/programs/program_CDBralnev/${patient._id}/surveys`}> Add Form </Link>
+        <Link className="button is-primary m-r-5 is-outlined" to={`/programs/program_CDBralnev/${patient._id}/surveys`} disabled={item.surveyResponses.length <= 0}> View Forms </Link>
       </div>
     );
   }
-
-  goto
 
   render() {
     const { patient, model } = this.props;
