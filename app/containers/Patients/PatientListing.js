@@ -113,9 +113,20 @@ class PatientListing extends Component {
     } else {
       this.props.collection.find({
         selector: {
-          displayId: {
-            $regex: `(?i)${keyword}`
-          }
+          $or: [{
+            displayId: {
+              $regex: `(?i)${keyword}`
+            }
+          }, {
+            firstName: {
+              $regex: `(?i)${keyword}`
+            }
+          }, {
+            lastName: {
+              $regex: `(?i)${keyword}`
+            }
+          }]
+
         },
         fields: ['_id', 'displayId', 'firstName', 'lastName'],
         limit: 50,
