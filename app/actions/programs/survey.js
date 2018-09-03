@@ -112,15 +112,21 @@ export const submitSurvey = ({ patientModel, programId, surveyId, moduleId, hist
         tasks.push(answerModel.save());
       });
 
-      // Update answers
-      const answers = await Promise.all(tasks);
-      answers.forEach(answer => responseModel.get('answers').add(answer.id));
-      await responseModel.save();
-
-      // Attach to the module
+      // Load program
       const programModel = new ProgramModel();
       programModel.set('_id', programId);
       await programModel.fetch();
+
+      // Update answers
+      const answers = await Promise.all(tasks);
+      answers.forEach(answer => responseModel.get('answers').add(answer.id));
+      if (programModel.get('programType') !== 'direct') {
+        responseModel.set('moduleType', programModel.get('programType'));
+        responseModel.set('moduleId', moduleId);
+      }
+      await responseModel.save();
+
+      // Attach to the module
       if (programModel.get('programType') !== 'direct') {
         const moduleOptions = programModel.get('moduleOptions');
         const moduleModel = patientModel.get(moduleOptions.collection).findWhere({ _id: moduleId });

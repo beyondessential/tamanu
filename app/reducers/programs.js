@@ -16,6 +16,7 @@ import {
   LOAD_SURVEYS_REQUEST,
   LOAD_SURVEYS_SUCCESS,
   LOAD_SURVEYS_FAILED,
+  LOAD_COMPLETED_SURVEYS_SUCCESS,
   LOAD_RESPONSES_REQUEST,
   LOAD_RESPONSES_SUCCESS,
   LOAD_RESPONSES_FAILED,
@@ -33,6 +34,9 @@ const initialState = {
   responses: [],
   surveysAvailable: [],
   surveysCompleted: [],
+  surveysDone: [],
+  surveyResponses: [],
+  completedSurveys: [],
   questions: {},
   answers: {},
   survey: Object.assign({}, surveyModel.attributes),
@@ -95,19 +99,26 @@ const stateChanges = {
     ...state,
     loading: true,
   }),
-  [LOAD_SURVEYS_SUCCESS]: ({ patient, program, modules, availableSurveys, completedSurveys }, state) => ({
+  [LOAD_SURVEYS_SUCCESS]: ({ patient, program, modules, availableSurveys, completedSurveys, surveys, surveysDone, surveyResponses }, state) => ({
     ...state,
     patient,
     program,
     modules,
     availableSurveys,
     completedSurveys,
+    surveys,
+    surveysDone,
+    surveyResponses,
     loading: false,
   }),
   [LOAD_SURVEYS_FAILED]: ({ error }, state) => ({
     ...state,
     loading: false,
     error,
+  }),
+  [LOAD_COMPLETED_SURVEYS_SUCCESS]: ({ completedSurveys }, state) => ({
+    ...state,
+    completedSurveys
   }),
   [LOAD_RESPONSES_REQUEST]: (_, state) => ({
     ...state,

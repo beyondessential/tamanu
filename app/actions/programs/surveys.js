@@ -7,11 +7,12 @@ import {
   LOAD_SURVEYS_REQUEST,
   LOAD_SURVEYS_SUCCESS,
   LOAD_SURVEYS_FAILED,
+  LOAD_COMPLETED_SURVEYS_SUCCESS,
 } from '../types';
 import { validateAnswer } from './validation';
 import { PatientModel, ProgramModel } from '../../models';
 
-export const initSurveys = ({ patientId, programId }) =>
+export const initSurveys = ({ patientId, programId, moduleId }) =>
   async dispatch => {
     dispatch({ type: LOAD_SURVEYS_REQUEST });
     const patientModel = new PatientModel();
@@ -26,7 +27,6 @@ export const initSurveys = ({ patientId, programId }) =>
 
     let modules = [];
     if (programModel.get('programType') !== 'direct') {
-      const moduleType = programModel.get('programType');
       const moduleOptions = programModel.get('moduleOptions');
       if (patientModel.has(moduleOptions.collection)) {
         modules = patientModel.get(moduleOptions.collection).toJSON();
@@ -37,11 +37,13 @@ export const initSurveys = ({ patientId, programId }) =>
       }
     }
 
+    let filters = {};
     const surveys = programModel.get('surveys').sort().toJSON();
     const surveyResponses = patientModel.get('surveyResponses');
     const surveysDone = surveyResponses.toJSON().map(survey => survey.surveyId);
     const availableSurveys = filter(surveys, survey => survey.canRedo || !surveysDone.includes(survey._id));
-    const completedSurveys = getCompletedSurveys({ surveys, surveysDone, surveyResponses });
+    if (moduleId) filters = { moduleType: programModel.get('programType'), moduleId };
+    const completedSurveys = _getCompletedSurveys({ surveys, surveysDone, surveyResponses, ...filters });
     dispatch({
       type: LOAD_SURVEYS_SUCCESS,
       assessorId: 'test-user',
@@ -50,17 +52,34 @@ export const initSurveys = ({ patientId, programId }) =>
       modules,
       availableSurveys,
       completedSurveys,
+      surveys,
+      surveysDone,
+      surveyResponses,
       startTime: new Date().toISOString(),
       loading: false,
     });
   };
 
-const getCompletedSurveys = ({ surveys, surveysDone, surveyResponses }) => {
+export const getCompletedSurveys = ({ moduleType, moduleId }) =>
+  async (dispatch, getState) => {
+    const { programs } = getState();
+    const { surveys, surveysDone, surveyResponses } = programs;
+    const completedSurveys = _getCompletedSurveys({ surveys, surveysDone, surveyResponses, moduleType, moduleId });
+    dispatch({
+      type: LOAD_COMPLETED_SURVEYS_SUCCESS,
+      completedSurveys
+    });
+  };
+
+const _getCompletedSurveys = ({ surveys, surveysDone, surveyResponses, moduleType, moduleId }) => {
+  let filters = {};
+  if (moduleType && moduleId) filters = { moduleType, moduleId };
   return chain(surveys)
     .filter(survey => surveysDone.includes(survey._id))
     .map(survey => {
-      set(survey, 'count', surveyResponses.where({ surveyId: survey._id }).length);
+      set(survey, 'count', surveyResponses.where({ surveyId: survey._id, ...filters }).length);
       return survey;
     })
+    .filter(survey => survey.count > 0)
     .value();
 };

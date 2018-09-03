@@ -6,7 +6,7 @@ import {
 } from '../types';
 import { ProgramModel, PatientModel } from '../../models';
 
-export const initResponses = ({ patientId, programId, surveyId }) =>
+export const initResponses = ({ patientId, programId, surveyId, moduleId }) =>
   async dispatch => {
     dispatch({ type: LOAD_RESPONSES_REQUEST });
     const patient = new PatientModel();
@@ -20,7 +20,9 @@ export const initResponses = ({ patientId, programId, surveyId }) =>
 
     // Fetch all the responses
     const tasks = [];
-    const responses = patient.get('surveyResponses').where({ surveyId });
+    const filters = { surveyId };
+    if (moduleId) filters.moduleId = moduleId;
+    const responses = patient.get('surveyResponses').where(filters);
     responses.forEach(response => tasks.push(response.fetch({ relations: true })));
     await Promise.all(tasks);
 

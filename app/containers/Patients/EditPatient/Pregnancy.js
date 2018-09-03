@@ -33,8 +33,8 @@ class Pregnancy extends Component {
       <div key={row._id}>
         <button type="button" className={`button is-primary m-r-5 is-outlined ${item.child === '' ? 'is-hidden' : ''}`} onClick={() => this.viewChild(item.child)}>View Child</button>
         <button type="button" className="button is-primary m-r-5 is-outlined" onClick={() => this.editItem(row)}>Edit Pregnancy</button>
-        <Link className="button is-primary m-r-5 is-outlined" to={`/programs/program_CDBralnev/${patient._id}/surveys`}> Add Form </Link>
-        <Link className="button is-primary m-r-5 is-outlined" to={`/programs/program_CDBralnev/${patient._id}/surveys`} disabled={item.surveyResponses.length <= 0}> View Forms </Link>
+        <Link className="button is-primary m-r-5 is-outlined" to={`/programs/program_CDBralnev/${patient._id}/surveys/module/${item._id}`}> Add Form </Link>
+        <Link className="button is-primary m-r-5 is-outlined" to={`/programs/program_CDBralnev/${patient._id}/surveys/module/${item._id}`} disabled={item.surveyResponses.length <= 0}> View Forms </Link>
       </div>
     );
   }

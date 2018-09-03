@@ -12,6 +12,8 @@ export default BaseModel.extend({
       surveyId: '',
       patientId: '',
       userId: '',
+      moduleType: '',
+      moduleId: '',
       assessorName: '',
       startTime: '',
       endTime: '',

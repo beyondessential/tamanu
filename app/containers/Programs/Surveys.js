@@ -7,7 +7,7 @@ import actions from '../../actions/programs';
 import { Preloader, Modal } from '../../components';
 
 const { surveys: surveysActions } = actions;
-const { initSurveys } = surveysActions;
+const { initSurveys, getCompletedSurveys } = surveysActions;
 
 class Surveys extends Component {
   constructor(props) {
@@ -22,7 +22,8 @@ class Surveys extends Component {
     availableSurveys: [],
     completedSurveys: [],
     modules: [],
-    moduleSelected: '',
+    moduleSelectedLabel: '',
+    moduleSelectedValue: '',
     showMessage: false,
     message: {
       header: '',
@@ -31,16 +32,17 @@ class Surveys extends Component {
   }
 
   componentDidMount() {
-    const { patientId, programId } = this.props.match.params;
-    this.props.initSurveys({ patientId, programId });
+    const { patientId, programId, moduleId } = this.props.match.params;
+    this.props.initSurveys({ patientId, programId, moduleId });
+    if (moduleId) this.setState({ moduleSelectedValue: moduleId });
   }
 
   componentWillReceiveProps(newProps) {
     this.handleChange(newProps);
   }
 
-  async handleChange(props = {}) {
-    if (isEmpty(props)) props = this.props;
+  async handleChange(props = this.props) {
+    const { moduleId } = this.props.match.params;
     const {
       patient: patientModel,
       program: programModel,
@@ -61,15 +63,23 @@ class Surveys extends Component {
     }
   }
 
-  selectModule = (value) => {
-    this.setState({ moduleSelected: value });
+  selectModule = ({ label, value }) => {
+    const { program } = this.state;
+    this.props.getCompletedSurveys({
+      moduleType: program.programType,
+      moduleId: value
+    });
+    this.setState({
+      moduleSelectedLabel: label,
+      moduleSelectedValue: value
+    });
   }
 
   gotoSurvey = (surveyId) => {
     const { patientId, programId } = this.props.match.params;
-    const { program, moduleSelected } = this.state;
+    const { program, moduleSelectedValue } = this.state;
     let valid = true;
-    if (program.programType !== 'direct' && moduleSelected === '') {
+    if (program.programType !== 'direct' && moduleSelectedValue === '') {
       valid = false;
       const message = {
         header: `${capitalize(program.programType)} is required!`,
@@ -80,14 +90,22 @@ class Surveys extends Component {
     if (valid) {
       const url = program.programType === 'direct' ?
                     `/programs/${programId}/${patientId}/surveys/${surveyId}` :
-                    `/programs/${programId}/${patientId}/surveys/${surveyId}/module/${moduleSelected}`;
+                    `/programs/${programId}/${patientId}/surveys/${surveyId}/module/${moduleSelectedValue}`;
       this.props.history.push(url);
     }
   }
 
   viewCompleted(listing, surveyId, responseId) {
     const { patientId, programId } = this.props.match.params;
-    const url = listing ? `/programs/${programId}/${patientId}/${surveyId}/responses` : `/programs/${patientId}/${surveyId}/response/${responseId}`;
+    const { moduleSelectedValue } = this.state;
+    let url = '';
+    if (listing) {
+      url = moduleSelectedValue ?
+              `/programs/${programId}/${patientId}/${surveyId}/${moduleSelectedValue}/responses` :
+              `/programs/${programId}/${patientId}/${surveyId}/responses`;
+    } else {
+      url = `/programs/${patientId}/${surveyId}/response/${responseId}`;
+    }
     this.props.history.push(url);
   }
 
@@ -109,7 +127,8 @@ class Surveys extends Component {
       patient,
       program,
       modules,
-      moduleSelected,
+      moduleSelectedLabel,
+      moduleSelectedValue,
       availableSurveys,
       completedSurveys,
       showMessage,
@@ -142,9 +161,8 @@ class Surveys extends Component {
                       <div className="column is-8">
                         <Select
                           options={modules}
-                          simpleValue
                           name="moduleType"
-                          value={moduleSelected}
+                          value={moduleSelectedValue}
                           onChange={this.selectModule}
                           required
                         />
@@ -168,7 +186,7 @@ class Surveys extends Component {
               </div>
               {completedSurveys.length > 0 &&
                 <div className="column pregnancy-button-details">
-                  <div className="pregnancy-options-title">Previously Submitted</div>
+                  <div className="pregnancy-options-title">Previously Submitted {!moduleSelectedValue && '- All'}</div>
                   {completedSurveys.map(survey => {
                     return (
                       <div className="button-details" key={survey._id}>
@@ -199,12 +217,14 @@ class Surveys extends Component {
 }
 
 function mapStateToProps(state) {
+  console.log({ programs: state.programs });
   const { patient, program, modules, availableSurveys, completedSurveys, loading } = state.programs;
   return { patient, program, modules, availableSurveys, completedSurveys, loading };
 }
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   initSurveys: (model) => dispatch(initSurveys(model)),
+  getCompletedSurveys: (props) => dispatch(getCompletedSurveys(props)),
 });
 // , questions, startTime
 export default connect(mapStateToProps, mapDispatchToProps)(Surveys);

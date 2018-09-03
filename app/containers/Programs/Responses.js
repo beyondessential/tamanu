@@ -25,16 +25,15 @@ class Responses extends Component {
   }
 
   componentDidMount() {
-    const { patientId, programId, surveyId } = this.props.match.params;
-    this.props.initResponses({ patientId, programId, surveyId });
+    const { patientId, programId, surveyId, moduleId } = this.props.match.params;
+    this.props.initResponses({ patientId, programId, surveyId, moduleId });
   }
 
   componentWillReceiveProps(newProps) {
     this.handleChange(newProps);
   }
 
-  async handleChange(props = {}) {
-    if (isEmpty(props)) props = this.props;
+  async handleChange(props = this.props) {
     const {
       survey: surveyModel,
       program: programModel,
