@@ -13,6 +13,7 @@ export const NumberQuestion = (props) => {
 
   return (
     <InputGroup
+      type="number"
       label={false}
       required={false}
       name="some-name"

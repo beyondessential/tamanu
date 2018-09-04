@@ -847,12 +847,6 @@ export const surveyResponsesColumns = [{
   style: columnStyle,
   minWidth: 100
 }, {
-  accessor: 'urinalysis',
-  Header: 'Urinalysis Pro/sug',
-  headerStyle,
-  style: columnStyle,
-  minWidth: 100
-}, {
   accessor: 'actions',
   Header: 'Actions',
   headerStyle,
