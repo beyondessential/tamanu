@@ -1,5 +1,5 @@
 import Backbone from 'backbone-associations';
-import { map, keys, set } from 'lodash';
+import { map, keys, set, isEmpty, merge } from 'lodash';
 // import dbService from '../services/database';
 // import BackbonePouch from 'backbone-pouch';
 
@@ -46,7 +46,7 @@ export default Backbone.Collection.extend({
         });
         await Promise.all(tasks);
       }
-      if (typeof originalSuccess === "function") originalSuccess();
+      if (originalSuccess) originalSuccess.call();
     };
     return Backbone.Collection.prototype.fetch.apply(this, [options]);
   },
@@ -116,9 +116,17 @@ export default Backbone.Collection.extend({
     const model = new this.model();
     const { docType } = model.attributes;
     const fields = (opts && opts.fields) || keys(model.attributes);
-    const selector = (opts && opts.selector) || {};
+    let selector = (opts && opts.selector) || {};
     const limit = (opts && opts.limit) || 10;
-    set(selector, 'docType', docType);
+    if (!isEmpty(selector)) {
+      selector = {
+        $and: selector.concat([
+          { docType }
+        ])
+      };
+    } else {
+      selector = { docType };
+    }
 
     return this.fetch({
       fetchRelations: opts.fetchRelations || false,

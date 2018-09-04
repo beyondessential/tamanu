@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { map, isEmpty } from 'lodash';
+import { map, isEmpty, toUpper, capitalize } from 'lodash';
 import ReactTable from 'react-table';
 
 // import { fetchPatients, deletePatient } from '../../actions/patients';
@@ -78,12 +78,22 @@ class Patients extends Component {
         }
       });
     } else {
-      const selector = Object.assign({
-        displayId: {
-          $regex: `(?i)${keyword}`
-        }
-      }, filters.selector);
-      console.log({ selector });
+      let selector = {
+        $or: [{
+          displayId: {
+            $regex: `^${toUpper(keyword)}+`
+          }
+        }, {
+          firstName: {
+            $regex: `^${capitalize(keyword)}+`
+          }
+        }, {
+          lastName: {
+            $regex: `^${capitalize(keyword)}+`
+          }
+        }]
+      };
+      if (!isEmpty(filters.selector)) selector = [ selector, filters.selector ];
       this.props.collection.find({
         selector,
         fields: ['_id', 'displayId', 'firstName', 'lastName', 'dateOfBirth', 'sex', 'status'],

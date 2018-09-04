@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { map, isEmpty } from 'lodash';
+import { map, isEmpty, toUpper, capitalize } from 'lodash';
 import ReactTable from 'react-table';
 
 // import { fetchPatients, deletePatient } from '../../actions/patients';
@@ -112,22 +112,21 @@ class PatientListing extends Component {
       });
     } else {
       this.props.collection.find({
-        selector: {
+        selector: [{
           $or: [{
             displayId: {
-              $regex: `(?i)${keyword}`
+              $regex: `^${toUpper(keyword)}+`
             }
           }, {
             firstName: {
-              $regex: `(?i)${keyword}`
+              $regex: `^${capitalize(keyword)}+`
             }
           }, {
             lastName: {
-              $regex: `(?i)${keyword}`
+              $regex: `^${capitalize(keyword)}+`
             }
           }]
-
-        },
+        }],
         fields: ['_id', 'displayId', 'firstName', 'lastName'],
         limit: 50,
         success: () => {
