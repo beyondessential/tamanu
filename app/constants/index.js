@@ -220,17 +220,18 @@ function padDigits(number, digits) {
 }
 
 export const getDisplayId = (item) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const { mainDB } = dbService;
-    let renderedValue = '';
-    let totalItemCount = 0;
-    mainDB.info().then((result) => {
-      totalItemCount = result.doc_count + result.doc_del_count;
-      renderedValue = padDigits(totalItemCount, 5);
-      resolve(item + renderedValue);
-    }).catch((err) => {
+    try {
+      const doc = await mainDB.get('patient_id_seq');
+      doc.value += 1;
+      const renderedValue = padDigits(doc.value, 5);
+      // Update value
+      await mainDB.put(doc);
+      return resolve(item + renderedValue);
+    } catch (err) {
       reject(err);
-    });
+    };
   });
 };
 
