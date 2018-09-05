@@ -65,7 +65,10 @@ class DatepickerGroup extends Component {
       labelClass,
       readOnly,
       showTimeSelect,
-      todayAsDefault
+      todayAsDefault,
+      onChange,
+      value: _,
+      ...others
     } = this.props;
     const { value } = this.state;
     let { className } = this.props;
@@ -94,6 +97,7 @@ class DatepickerGroup extends Component {
             showMonthDropdown
             showYearDropdown
             dropdownMode="select"
+            {...others}
           />
         }
       </div>

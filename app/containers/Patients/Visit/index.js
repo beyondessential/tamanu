@@ -10,6 +10,7 @@ import Allergy from '../components/Allergy';
 import Diagnosis from '../components/Diagnosis';
 import Procedure from '../components/Procedure';
 import OperativePlan from '../components/OperativePlan';
+import Vitals from './Vitals';
 import actions from '../../../actions/patients';
 import { Preloader, InputGroup, DatepickerGroup, Modal } from '../../../components';
 import { visitOptions, visitStatuses } from '../../../constants';
@@ -44,8 +45,8 @@ class EditVisit extends Component {
   }
 
   componentWillUnmount() {
-    const { visit } = this.props;
-    visit.off('change');
+    const { visitModel } = this.state;
+    visitModel.off('change');
   }
 
   handleChange(props = this.props) {
@@ -55,7 +56,8 @@ class EditVisit extends Component {
       updates.checkIn = true;
     }
     if (!loading) {
-      // visit.on('change', this.forceUpdate);
+      // handle model's change
+      visit.on('change', () => this.forceUpdate());
       if (action === 'new') {
         const diagnoses = visit.get('diagnoses');
         patient.attributes.diagnoses.models.forEach(model => diagnoses.add(model)); // visit.set('diagnoses', patient.attributes.diagnoses);
@@ -135,14 +137,15 @@ class EditVisit extends Component {
           <div className="create-top-bar">
             <span>{checkIn ? 'Patient Check In' : `${capitalize(action)} Visit`}</span>
           </div>
-          <form
-            className="create-container"
-            onSubmit={(e) => {
-              e.preventDefault();
-              this.submitForm();
-            }}
-          >
+          <div className="create-container">
             <div className="form">
+              <form
+                id="visitForm"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  this.submitForm();
+                }}
+              />
               <div className="columns m-b-0">
                 <div className="column p-t-0">
                   <div className="column visit-header">
@@ -247,6 +250,7 @@ class EditVisit extends Component {
                   </div>
                 </div>
               </div>
+
               {/* <div className="columns">
                 <div className="column is-4">
                   <InputGroup
@@ -270,7 +274,11 @@ class EditVisit extends Component {
                     </div>
                     <div className="tab-content">
                       {(selectedTab === '' || selectedTab === 'vitals') &&
-                        <div className="column">Vitals</div>
+                        <div className="column">
+                          <Vitals
+                            model={visitModel}
+                          />
+                        </div>
                       }
                       {selectedTab === 'notes' &&
                         <div className="column">Notes</div>
@@ -287,7 +295,7 @@ class EditVisit extends Component {
               }
               <div className="column has-text-right">
                 <Link className="button is-danger cancel" to={`/patients/editPatient/${patient._id}`}>Cancel</Link>
-                <button className="button is-primary cancel" type="submit">{action === 'new' ? 'Add' : 'Update'}</button>
+                <button className="button is-primary cancel" type="submit" form="visitForm">{action === 'new' ? 'Add' : 'Update'}</button>
                 {form.status === visitStatuses.ADMITTED &&
                   <button className="button is-primary" onClick={this.discharge} type="button">
                     <i className="fa fa-sign-out" /> Discharge
@@ -300,7 +308,7 @@ class EditVisit extends Component {
                 }
               </div>
             </div>
-          </form>
+          </div>
         </div>
         <Modal
           isVisible={visitSaved}

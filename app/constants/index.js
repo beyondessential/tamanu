@@ -487,6 +487,74 @@ export const visitsColumns = [
   }
 ];
 
+export const vitalsColumns = [
+  {
+    accessor: 'taken',
+    Header: 'Taken By',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    id: "dateRecorded",
+    accessor: row => moment(row.dateRecorded).format(dateFormat),
+    Header: 'Date',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'temperature',
+    Header: 'Temperature',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'weight',
+    Header: 'Weight',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'height',
+    Header: 'Height',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'sbp',
+    Header: 'SBP',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'dbp',
+    Header: 'DBP',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'heartRate',
+    Header: 'Heart Rate',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'respiratoryRate',
+    Header: 'Respiratory Rate',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 250
+  }, {
+    id: 'actions',
+    Header: 'Actions',
+    headerStyle: {
+      backgroundColor: Colors.searchTintColor
+    },
+    style: columnStyle,
+    minWidth: 250,
+    Cell: null
+  }
+];
+
 export const programsPatientsColumns = [
   {
     accessor: 'displayId',

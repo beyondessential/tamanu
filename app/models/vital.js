@@ -1,27 +1,32 @@
-const Backbone = require('backbone-associations');
-const shortid = require('shortid');
+import Backbone from 'backbone-associations';
+import shortid from 'shortid';
+import { defaults } from 'lodash';
+import moment from 'moment';
+import BaseModel from './base';
+import mapRelations from '../utils/map-relations';
 
-export default Backbone.Model.extend({
-  idAttribute: '_id',
-  defaults: () => {
-    const _id = shortid.generate();
+export default BaseModel.extend({
+  defaults: () => defaults({
+    _id: `vital_${shortid.generate()}`,
+    docType: 'vital',
+    dateRecorded: moment(),
+    temperature: null,
+    weight: null,
+    height: null,
+    sbp: null,
+    dbp: null,
+    heartRate: null,
+    respiratoryRate: null,
+  }, BaseModel.prototype.defaults),
 
-    return {
-      _id: `vital_${_id}`,
-      docType: 'vital',
-      dateRecorded: Date,
-      dbp: null,
-      heartRate: null,
-      height: null,
-      respiratoryRate: null,
-      sbp: null,
-      temperature: null,
-      weight: null,
-    };
-  },
-
-  // validate: (attrs) => {
-  //   if (attrs.firstName === '') return 'firstName is required!';
-  //   if (attrs.lastName === '') return 'lastName is required!';
-  // }
+  validate: (attrs) => {
+    const errors = [];
+    if (!attrs.dateRecorded) errors.push('dateRecorded is required!');
+    if (!attrs.temperature) errors.push('temperature is required!');
+    if (!attrs.sbp) errors.push('sbp is required!');
+    if (!attrs.dbp) errors.push('dbp is required!');
+    if (!attrs.heartRate) errors.push('heartRate is required!');
+    if (!attrs.respiratoryRate) errors.push('respiratoryRate is required!');
+    if (errors.length) return errors;
+  }
 });
