@@ -11,6 +11,8 @@ import Diagnosis from '../components/Diagnosis';
 import Procedure from '../components/Procedure';
 import OperativePlan from '../components/OperativePlan';
 import Vitals from './Vitals';
+import Notes from './Notes';
+import Procedures from './Procedures';
 import actions from '../../../actions/patients';
 import { Preloader, InputGroup, DatepickerGroup, Modal } from '../../../components';
 import { visitOptions, visitStatuses } from '../../../constants';
@@ -281,10 +283,21 @@ class EditVisit extends Component {
                         </div>
                       }
                       {selectedTab === 'notes' &&
-                        <div className="column">Notes</div>
+                        <div className="column">
+                          <Notes
+                            model={visitModel}
+                            patientModel={patientModel}
+                          />
+                        </div>
                       }
                       {selectedTab === 'procedures' &&
-                        <div className="column">Procedures</div>
+                        <div className="column">
+                          <Procedures
+                            history={this.props.history}
+                            model={visitModel}
+                            patientModel={patientModel}
+                          />
+                        </div>
                       }
                       {selectedTab === 'reports' &&
                         <div className="column">Reports</div>

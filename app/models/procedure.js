@@ -1,33 +1,45 @@
-const Backbone = require('backbone-associations');
-const shortid = require('shortid');
+import shortid from 'shortid';
+import Backbone from 'backbone-associations';
+import { defaults, isEmpty } from 'lodash';
+import moment from 'moment';
+import BaseModel from './base';
+import { mapRelations } from '../utils';
 
-export default Backbone.Model.extend({
-  idAttribute: '_id',
-  defaults: () => {
-    const _id = shortid.generate();
+export default BaseModel.extend({
+  defaults: () => defaults({
+    _id: `procedure_${shortid.generate()}`,
+    docType: 'procedure',
+    anesthesiaType: '',
+    anesthesiologist: '',
+    assistant: '',
+    description: '',
+    cptCode: '',
+    location: '',
+    notes: '',
+    physician: '',
+    procedureDate: moment(),
+    timeStarted: '',
+    timeEnded: '',
 
-    return {
-      _id: `procedure_${_id}`,
-      docType: 'procedure',
-      anesthesiaType: null,
-      anesthesiologist: null,
-      assistant: null,
-      description: null,
-      cptCode: null,
-      location: null,
-      notes: null,
-      physician: null,
-      procedureDate: Date,
-      timeStarted: null,
-      timeEnded: null,
+    medication: [],
+  }, BaseModel.prototype.defaults),
 
-      // Associations
-      // visit: ''
-    };
-  },
+  // Associations
+  relations: [
+    {
+      type: Backbone.Many,
+      key: 'medication',
+      relatedModel: () => require('./procedureMedication'),
+      map: (values) => mapRelations(values, require('./procedureMedication')),
+      serialize: '_id'
+    },
+  ],
 
-  // validate: (attrs) => {
-  //   if (attrs.firstName === '') return 'firstName is required!';
-  //   if (attrs.lastName === '') return 'lastName is required!';
-  // }
+  validate: (attrs) => {
+    const errors = [];
+    if (!attrs.description) errors.push('description is required!');
+    if (!attrs.procedureDate) errors.push('procedureDate is required!');
+    if (!attrs.physician) errors.push('physician is required!');
+    if (!isEmpty(errors)) return errors;
+  }
 });

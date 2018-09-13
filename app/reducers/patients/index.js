@@ -2,8 +2,9 @@ import moment from 'moment';
 import { has } from 'lodash';
 import patients from './patients';
 import visits from './visits';
+import procedures from './procedures';
 
-const stateChanges = { ...patients, ...visits };
+const stateChanges = { ...patients, ...visits, ...procedures };
 const initialState = {
   patient: {},
   patientInProgress: false,
@@ -12,6 +13,7 @@ const initialState = {
   updatedBirthday: moment(),
   updatedReferredDate: moment(),
   visit: {},
+  procedure: {},
   action: '',
   saved: false,
 };

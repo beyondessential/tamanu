@@ -23,8 +23,7 @@ export default BaseModel.extend({
     //  Relation fields
     diagnoses: [],
     labs: [],
-    medication: [],
-    patientNotes: [],
+    notes: [],
     procedures: [],
     vitals: [],
     reports: [],
@@ -55,9 +54,9 @@ export default BaseModel.extend({
     },
     {
       type: Backbone.Many,
-      key: 'patientNotes',
-      relatedModel: () => require('./patientNote'),
-      map: (values) => mapRelations(values, require('./patientNote')),
+      key: 'notes',
+      relatedModel: () => require('./note'),
+      map: (values) => mapRelations(values, require('./note')),
       serialize: '_id'
     },
     {

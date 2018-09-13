@@ -20,7 +20,7 @@ class Prodcedure extends Component {
   }
 
   addProcedure() {
-    const procedures = clone(this.state.procedures);
+    const { procedures } = this.state;
     procedures.push(this.state.procedure);
     this.setState({ procedures, procedure: '' }, () => {
       this.props.onChange(procedures, 'procedures');
@@ -28,7 +28,7 @@ class Prodcedure extends Component {
   }
 
   removeProcedure(value) {
-    let procedures = clone(this.state.procedures);
+    let { procedures } = this.state;
     procedures = pull(procedures, value);
     this.setState({ procedures, procedure: '' }, () => {
       this.props.onChange(procedures, 'procedures');

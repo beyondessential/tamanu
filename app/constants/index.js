@@ -555,6 +555,89 @@ export const vitalsColumns = [
   }
 ];
 
+export const notesColumns = [
+  {
+    id: 'date',
+    accessor: row => moment(row.date).format(dateFormat),
+    Header: 'Date',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'authoredBy',
+    Header: 'Authored By',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'content',
+    Header: 'Note',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    id: 'actions',
+    Header: 'Actions',
+    headerStyle: {
+      backgroundColor: Colors.searchTintColor
+    },
+    style: columnStyle,
+    minWidth: 250,
+    Cell: null
+  }
+];
+
+export const proceduresColumns = [
+  {
+    id: 'date',
+    accessor: row => moment(row.date).format(dateFormat),
+    Header: 'Date',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'description',
+    Header: 'Procedure',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    id: 'actions',
+    Header: 'Actions',
+    headerStyle: {
+      backgroundColor: Colors.searchTintColor
+    },
+    style: columnStyle,
+    minWidth: 250,
+    Cell: null
+  }
+];
+
+export const proceduresMedicationColumns = [
+  {
+    accessor: 'medication',
+    Header: 'Item',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'quantity',
+    Header: 'Quantity',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    id: 'actions',
+    Header: 'Actions',
+    headerStyle: {
+      backgroundColor: Colors.searchTintColor
+    },
+    style: columnStyle,
+    minWidth: 250,
+    Cell: null
+  }
+];
+
 export const programsPatientsColumns = [
   {
     accessor: 'displayId',
