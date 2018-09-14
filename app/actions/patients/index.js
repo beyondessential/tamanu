@@ -1,5 +1,6 @@
 // import * as patients from './patients';
-import * as visit from './visit';
+import * as patient from './patient';
 import * as procedure from './procedure';
+import * as visit from './visit';
 
-export default { visit, procedure };
+export default { patient, procedure, visit };

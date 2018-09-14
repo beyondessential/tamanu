@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 
+import { Preloader } from '../../../components';
+import actions from '../../../actions/patients';
 import Allergy from '../components/Allergy';
 import Diagnosis from '../components/Diagnosis';
 import Procedure from '../components/Procedure';
@@ -26,46 +28,63 @@ const classNames = require('classnames');
 
 class EditPatient extends Component {
   state = {
+    patient: {},
+    loading: true,
+    patientModel: {},
     selectedTab: '',
-    patient: this.props.model.attributes,
-    procedures: [],
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     const { id } = this.props.match.params;
-    this.props.model.on('change', this.handleChange);
-    this.props.model.set({ _id: id });
-    await this.props.model.fetch({ relations: true });
+    this.props.fetchPatient({ id });
   }
 
   componentWillReceiveProps(newProps) {
-    // console.log('_componentWillReceiveProps_', newProps);
+    this.handleChange(newProps);
   }
 
-  componentWillUnmount() {
-    this.props.model.off('change', this.handleChange);
+  // componentWillUnmount() {
+  //   patientModel.off('change', this.handleChange);
+  // }
+
+  handleChange(props = this.props) {
+    let updates = {};
+    const { patient, action, loading, saved } = props;
+    if (!loading) {
+      // handle model's change
+      // visit.on('change', () => this.forceUpdate());
+      updates = Object.assign(updates, {
+        patientModel: patient,
+        patient: patient.toJSON({ relations: true }),
+        action,
+        loading,
+      });
+    }
+    this.setState(updates);
   }
 
-  handleChange = () => {
-    const patient = this.props.model.toJSON({ relations: true });
-    const procedures = this.props.model.getProcedures();
-    this.setState({ patient, procedures });
-  }
+  // handleChange = () => {
+  //   const patient = patientModel.toJSON({ relations: true });
+  //   const procedures = patientModel.getProcedures();
+  //   this.setState({ patient, procedures });
+  // }
 
   changeTab = (tabName) => {
     this.setState({ selectedTab: tabName });
   }
 
   updatePatient = (patient) => {
+    const { patientModel } = this.state;
+    const { history } = this.props;
     const updatedPatient = patient;
     updatedPatient.birthday = moment(this.props.updatedBirthday).format('YYYY-MM-DD');
     updatedPatient.referredDate = moment(this.props.updatedReferredDate).format('YYYY-MM-DD');
-    this.props.model.set(updatedPatient);
-    if (this.props.model.isValid()) {
-      this.props.model.save(null, {
+    patientModel.set(updatedPatient);
+    if (patientModel.isValid()) {
+      patientModel.save(null, {
         // success: (model, response) => {
         success: () => {
-          this.props.history.push('/patients');
+          history.push('/patients');
         },
         // error: (model, response) => {
         error: () => { }
@@ -74,7 +93,10 @@ class EditPatient extends Component {
   }
 
   render() {
-    const { selectedTab, patient, procedures } = this.state;
+    const { loading } = this.state;
+    if (loading) return <Preloader />; // TODO: make this automatic
+
+    const { selectedTab, patient, patientModel } = this.state;
     const { history } = this.props;
     return (
       <div>
@@ -91,13 +113,13 @@ class EditPatient extends Component {
                   <TopRow patient={patient} />
                   <div className="columns border-bottom">
                     <div className="column">
-                      <Diagnosis model={this.props.model} />
-                      <Procedure model={this.props.model} />
-                      <OperativePlan model={this.props.model} />
+                      <Diagnosis model={patientModel} />
+                      <Procedure model={patientModel} />
+                      <OperativePlan model={patientModel} />
                     </div>
                     <div className="column">
-                      <Diagnosis model={this.props.model} showSecondary />
-                      <Allergy model={this.props.model} />
+                      <Diagnosis model={patientModel} showSecondary />
+                      <Allergy model={patientModel} />
                     </div>
                   </div>
                   <div className="columns">
@@ -119,7 +141,10 @@ class EditPatient extends Component {
                       <div className="tab-content">
                         {(selectedTab === '' || selectedTab === 'history') &&
                           <div className="column">
-                            <History history={history} />
+                            <History
+                              history={history}
+                              model={patientModel}
+                            />
                           </div>
                         }
                         {selectedTab === 'general' &&
@@ -137,7 +162,11 @@ class EditPatient extends Component {
                         }
                         {selectedTab === 'visit' &&
                           <div className="column">
-                            <Visits model={this.props.model} />
+                            <Visits
+                              history={history}
+                              patient={patient}
+                              model={patientModel}
+                            />
                           </div>
                         }
                         {selectedTab === 'medication' &&
@@ -162,7 +191,11 @@ class EditPatient extends Component {
                         }
                         {selectedTab === 'pregnancy' && patient.sex === 'female' &&
                           <div className="column">
-                            <Pregnancy patient={patient} model={this.props.model} history={this.props.history} />
+                            <Pregnancy
+                              history={history}
+                              patient={patient}
+                              model={patientModel}
+                            />
                           </div>
                         }
                       </div>
@@ -189,17 +222,15 @@ class EditPatient extends Component {
 }
 
 function mapStateToProps(state) {
-  const { onePatient, updatedBirthday, updatedReferredDate } = state.patients;
-  return {
-    patient: onePatient,
-    updatedBirthday,
-    updatedReferredDate
-  };
+  const { patient, action, loading, saved, error } = state.patients;
+  return { patient, action, loading, saved, error };
 }
 
-const mapDispatchToProps = () => ({
-  model: new PatientModel(),
-  allergyModel: new AllergyModel(),
+const { patient: patientActions } = actions;
+const { fetchPatient, savePatient } = patientActions;
+const mapDispatchToProps = dispatch => ({
+  fetchPatient: (params) => dispatch(fetchPatient(params)),
+  savePatient: (params) => dispatch(savePatient(params)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditPatient);

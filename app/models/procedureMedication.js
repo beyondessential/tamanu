@@ -8,7 +8,6 @@ export default BaseModel.extend({
     docType: 'procedureMedication',
     medication: '',
     quantity: '',
-
   }, BaseModel.prototype.defaults),
 
   validate: (attrs) => {

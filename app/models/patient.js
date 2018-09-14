@@ -1,6 +1,6 @@
 import Backbone from 'backbone-associations';
 import shortid from 'shortid';
-import { defaults, each, clone, merge, set, concat, get, filter, capitalize } from 'lodash';
+import { defaults, each, clone, isEmpty, get, filter, capitalize, sortBy, concat } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
@@ -112,7 +112,8 @@ export default BaseModel.extend({
       key: 'visits',
       relatedModel: () => require('./visit'),
       map: (values) => mapRelations(values, require('./visit')),
-      serialize: '_id'
+      serialize: '_id',
+      collectionType: require('../collections/visits')
     },
   ],
 
@@ -180,5 +181,13 @@ export default BaseModel.extend({
     // await this.fetch({ relations: ['visits'] });
     const { visits } = this.attributes;
     return visits.findWhere({ visitType: 'admission', endDate: null });
+  },
+
+  async getHistory() {
+    let history = [];
+    let { visits } = this.attributes;
+    visits = visits.map(visit => visit.toJSON({ relations: true }));
+    if (!isEmpty(visits)) history = concat(history, visits.map(visit => ({ date: visit.startDate, ...visit })));
+    return history;
   }
 });

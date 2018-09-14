@@ -154,3 +154,9 @@ a:hover {
     margin-right: 0 !important;
   }
 }
+
+.ReactTable.clickable {
+  .rt-tr-group{
+    cursor: pointer;
+  }
+}

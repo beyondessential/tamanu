@@ -8,18 +8,30 @@ import { visitsColumns, dateFormat } from '../../../constants';
 class Visits extends Component {
   state = {
     visits: [],
+    tableColumns: visitsColumns
   };
 
   componentWillMount() {
-    const { model: Model } = this.props;
-    const visits = Model.get('visits');
-    this.setState({ visits });
+    this.handleChange();
   }
 
   componentWillReceiveProps(newProps) {
-    const { model: Model } = newProps;
-    const visits = Model.get('visits');
-    this.setState({ visits });
+    this.handleChange(newProps);
+  }
+
+  handleChange(props = this.props) {
+    const { patient } = props;
+    const { tableColumns } = this.state;
+    let { visits } = patient;
+    visits = visits.map(visit => {
+      if (visit.startDate !== '') visit.startDate = moment(visit.startDate).format(`${dateFormat}`);
+      if (visit.endDate !== null) visit.endDate = moment(visit.endDate).format(`${dateFormat}`);
+      visit.visitType = capitalize(visit.visitType);
+      return visit;
+    });
+    // Add actions column for our table
+    tableColumns[tableColumns.length - 1].Cell = this.setActionsCol;
+    this.setState({ visits, tableColumns });
   }
 
   setActionsCol = (row) => {
@@ -33,16 +45,7 @@ class Visits extends Component {
 
   render() {
     const { model: Model } = this.props;
-    let { visits } = this.state;
-    visits = visits.models.map(model => {
-      const visit = model.attributes;
-      if (visit.startDate !== '') visit.startDate = moment(visit.startDate).format(`${dateFormat}`);
-      if (visit.endDate !== null) visit.endDate = moment(visit.endDate).format(`${dateFormat}`);
-      visit.visitType = capitalize(visit.visitType);
-      return visit;
-    });
-    // Add actions column for our table
-    visitsColumns[visitsColumns.length - 1].Cell = this.setActionsCol;
+    const { visits, tableColumns } = this.state;
     return (
       <div>
         <div className="column p-t-0 p-b-0">
@@ -58,7 +61,7 @@ class Visits extends Component {
                 keyField="_id"
                 data={visits}
                 pageSize={visits.length}
-                columns={visitsColumns}
+                columns={tableColumns}
                 className="-striped"
                 defaultSortDirection="asc"
                 showPagination={false}

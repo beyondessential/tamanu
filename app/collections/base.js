@@ -28,9 +28,11 @@ export default Backbone.Collection.extend({
   // }),
 
   parse(result) {
-    // console.log('_parse_', result);
-    this.totalPages = Math.ceil(result.total_rows / this.pageSize);
-    return map(result.rows, obj => (obj.doc ? obj.doc : obj));
+    if (result.rows) {
+      this.totalPages = Math.ceil(result.total_rows / this.pageSize);
+      return map(result.rows, obj => (obj.doc ? obj.doc : obj));
+    }
+    return result;
   },
 
   async fetch(options) {
@@ -39,13 +41,7 @@ export default Backbone.Collection.extend({
     // return res;
     const originalSuccess = options.success;
     options.success = async () => {
-      if (options.fetchRelations) {
-        const tasks = [];
-        this.models.forEach(model => {
-          tasks.push(model.fetch({ relations: options.fetchRelations, deep: false }));
-        });
-        await Promise.all(tasks);
-      }
+      if (options.fetchRelations) await this.fetchRelations({ relations: options.fetchRelations, deep: false });
       if (originalSuccess) originalSuccess.call();
     };
     return Backbone.Collection.prototype.fetch.apply(this, [options]);
@@ -137,6 +133,15 @@ export default Backbone.Collection.extend({
         find: { selector, fields, limit }
       }
     });
+  },
+
+  async fetchRelations(props = { relations: true, deep: false }) {
+    const { relations, deep } = props;
+    const tasks = [];
+    this.models.forEach(model => {
+      tasks.push(model.fetch({ relations, deep }));
+    });
+    await Promise.all(tasks);
   },
 
   setPage(page) {

@@ -59,7 +59,8 @@ class EditVisit extends Component {
     }
     if (!loading) {
       // handle model's change
-      visit.on('change', () => this.forceUpdate());
+      console.log({ visit });
+      // visit.on('change', () => this.forceUpdate());
       if (action === 'new') {
         const diagnoses = visit.get('diagnoses');
         patient.attributes.diagnoses.models.forEach(model => diagnoses.add(model)); // visit.set('diagnoses', patient.attributes.diagnoses);

@@ -47,13 +47,6 @@ export default BaseModel.extend({
     },
     {
       type: Backbone.Many,
-      key: 'medication',
-      relatedModel: () => require('./medication'),
-      map: (values) => mapRelations(values, require('./medication')),
-      serialize: '_id'
-    },
-    {
-      type: Backbone.Many,
       key: 'notes',
       relatedModel: () => require('./note'),
       map: (values) => mapRelations(values, require('./note')),
@@ -78,7 +71,7 @@ export default BaseModel.extend({
       key: 'reports',
       relatedModel: () => require('./report'),
       map: (values) => mapRelations(values, require('./report')),
-      serialize: '_id'
+      serialize: '_id',
     },
   ],
 
