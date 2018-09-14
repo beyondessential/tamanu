@@ -59,8 +59,7 @@ class EditVisit extends Component {
     }
     if (!loading) {
       // handle model's change
-      console.log({ visit });
-      // visit.on('change', () => this.forceUpdate());
+      visit.on('change', () => this.forceUpdate());
       if (action === 'new') {
         const diagnoses = visit.get('diagnoses');
         patient.attributes.diagnoses.models.forEach(model => diagnoses.add(model)); // visit.set('diagnoses', patient.attributes.diagnoses);
@@ -308,7 +307,7 @@ class EditVisit extends Component {
                 </div>
               }
               <div className="column has-text-right">
-                <Link className="button is-danger cancel" to={`/patients/editPatient/${patient._id}`}>Cancel</Link>
+                <Link className="button is-danger cancel" to={`/patients/editPatient/${patient._id}`}>Return</Link>
                 <button className="button is-primary cancel" type="submit" form="visitForm">{action === 'new' ? 'Add' : 'Update'}</button>
                 {form.status === visitStatuses.ADMITTED &&
                   <button className="button is-primary" onClick={this.discharge} type="button">

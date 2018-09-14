@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import Modal from 'react-responsive-modal';
 import moment from 'moment';
 import { capitalize } from 'lodash';
+import PropTypes from 'prop-types';
 import { InputGroup, PatientRelationSelect, TextareaGroup } from '../../../components';
-import { NoteModel } from '../../../models';
+import { NoteModel, VisitModel } from '../../../models';
 import { dateFormat } from '../../../constants';
 
 class NoteModal extends Component {
@@ -12,6 +13,7 @@ class NoteModal extends Component {
     this.state = {
       isVisible: false,
       Model: new NoteModel(),
+      visitId: ''
     };
 
     this.submitForm = this.submitForm.bind(this);
@@ -19,10 +21,10 @@ class NoteModal extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { action, itemId, isVisible, model: VisitModel } = nextProps;
+    const { action, itemId, isVisible, model: visitModel } = nextProps;
     let Model;
     if (action === 'edit') {
-      Model = VisitModel.get('notes').findWhere({ _id: itemId });
+      Model = visitModel.get('notes').findWhere({ _id: itemId });
       if (Model.get('dateRecorded') !== '') Model.set('dateRecorded', moment(Model.get('dateRecorded')));
     } else {
       Model = new NoteModel();
@@ -32,28 +34,35 @@ class NoteModal extends Component {
 
   handleUserInput = (e, field) => {
     const { Model } = this.state;
-    if (typeof field !== 'undefined') {
-      Model.set(field, e, { silent: true });
+    if (field === 'visit') {
+      this.setState({ visitId: e });
     } else {
-      const { name } = e.target;
-      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-      Model.set(name, value, { silent: true });
+      if (typeof field !== 'undefined') {
+        Model.set(field, e, { silent: true });
+      } else {
+        const { name } = e.target;
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+        Model.set(name, value, { silent: true });
+      }
+      this.setState({ Model });
     }
-    this.setState({ Model });
   }
 
   submitForm = async (e) => {
     e.preventDefault();
-    const { action, model: VisitModel } = this.props;
-    const { Model } = this.state;
-
+    const { action, model: visitModel } = this.props;
+    const { Model, visitId } = this.state;
+    if (visitId !== '') {
+      visitModel.set({ _id: visitId });
+      await visitModel.fetch();
+    }
     try {
       await Model.save();
       if (action === 'new') {
-        VisitModel.get('notes').add(Model.attributes);
-        await VisitModel.save(null, { silent: true });
+        visitModel.get('notes').add(Model.attributes);
+        await visitModel.save(null, { silent: true });
       } else {
-        VisitModel.trigger('change');
+        visitModel.trigger('change');
       }
       this.props.onClose();
     } catch (err) {
@@ -62,7 +71,7 @@ class NoteModal extends Component {
   }
 
   render() {
-    const { onClose, action, patientModel } = this.props;
+    const { onClose, action, patientModel, showVisits } = this.props;
     const { Model } = this.state;
     const form = Model.toJSON();
     return (
@@ -89,14 +98,17 @@ class NoteModal extends Component {
                   required
                 />
               </div>
-              {/* <PatientRelationSelect
-                patient={patientModel.id}
-                relation="visits"
-                tmpl={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
-                label="Visit"
-                name="visit"
-                required
-              /> */}
+              {showVisits &&
+                <PatientRelationSelect
+                  patient={patientModel.id}
+                  relation="visits"
+                  tmpl={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
+                  label="Visit"
+                  name="visit"
+                  onChange={val => this.handleUserInput(val, 'visit')}
+                  required
+                />
+              }
               <InputGroup
                 label="On Behalf Of"
                 name="attribution"
@@ -119,5 +131,20 @@ class NoteModal extends Component {
     );
   }
 }
+
+NoteModal.propTypes = {
+  action: PropTypes.string,
+  itemId: PropTypes.string,
+  isVisible: PropTypes.bool.isRequired,
+  model: PropTypes.any,
+  showVisits: PropTypes.bool,
+};
+
+NoteModal.defaultProps = {
+  action: 'new',
+  itemId: '',
+  model: new VisitModel(),
+  showVisits: false,
+};
 
 export default NoteModal;

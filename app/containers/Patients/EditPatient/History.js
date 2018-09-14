@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
 import { capitalize } from 'lodash';
-import NewNoteModal from '../components/NewNoteModal';
+import NoteModal from '../components/NoteModal';
 import { dateFormat } from '../../../constants';
 
 class History extends Component {
@@ -86,13 +86,24 @@ class History extends Component {
               }
             })
           }
-
         </div>
-        <NewNoteModal
+        <NoteModal
           isVisible={noteModalVisible}
           onClose={this.onCloseModal}
+          patientModel={Model}
+          action="new"
+          showVisits
           little
         />
+        {/* <NoteModal
+          itemId={itemId}
+          model={Model}
+          patientModel={patientModel}
+          action={action}
+          isVisible={modalVisible}
+          onClose={this.onCloseModal}
+          little
+        /> */}
       </div>
     );
   }
