@@ -395,6 +395,43 @@ export const patientColumns = [
   }
 ];
 
+export const patientContactColumns = [
+  {
+    accessor: 'name',
+    Header: 'Name',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'phone',
+    Header: 'Phone',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'email',
+    Header: 'Email',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'relationship',
+    Header: 'Relationship',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    id: 'actions',
+    Header: 'Actions',
+    headerStyle: {
+      backgroundColor: Colors.searchTintColor
+    },
+    style: columnStyle,
+    minWidth: 250,
+    Cell: null
+  }
+];
+
 export const pregnancyColumns = [
   {
     accessor: 'label',

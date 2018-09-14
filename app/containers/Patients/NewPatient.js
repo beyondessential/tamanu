@@ -6,7 +6,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 
 import { Modal as ModalView, InputGroup, CustomDateInput } from '../../components';
-import AddContactModal from './components/AddContactModal';
+import ContactModal from './components/ContactModal';
 import Serializer from '../../utils/form-serialize';
 import { createPatient, createPatientIndexes } from '../../actions/patients/patients';
 import { bloodOptions, sexOptions, getDifferenceDate, getDisplayId } from '../../constants';
@@ -371,11 +371,11 @@ class NewPatient extends Component {
           contentText="Please fill in required fields (marked with *) and correct the errors before saving."
           little
         />
-        <AddContactModal
+        {/* <ContactModal
           isVisible={contactModalVisible}
           onClose={this.onCloseContactModal}
           little
-        />
+        /> */}
       </div>
     );
   }

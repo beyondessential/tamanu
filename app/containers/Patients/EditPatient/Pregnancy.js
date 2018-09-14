@@ -56,7 +56,7 @@ class Pregnancy extends Component {
       <div>
         <div className="column p-t-0 p-b-0">
           <a className="button is-primary is-pulled-right is-block" onClick={() => this.setState({ modalVisible: true, action: 'new', item: null })}>
-            + New Pregnancy
+            <i className="fa fa-plus" /> Add Pregnancy
           </a>
           <div className="is-clearfix" />
         </div>

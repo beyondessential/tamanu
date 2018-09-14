@@ -50,7 +50,7 @@ class Visits extends Component {
       <div>
         <div className="column p-t-0 p-b-0">
           <Link className="button is-primary is-pulled-right is-block" to={`/patients/visit/${Model.id}`}>
-            <i className="fa fa-plus" /> New Visit
+            <i className="fa fa-plus" /> Add Visit
           </Link>
           <div className="is-clearfix" />
         </div>

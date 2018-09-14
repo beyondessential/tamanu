@@ -45,7 +45,7 @@ class History extends Component {
       <div>
         <div className="column has-text-right">
           <button className="button is-primary" onClick={() => this.setState({ noteModalVisible: true })}>
-            <i className="fa fa-plus" /> New Note
+            <i className="fa fa-plus" /> Add Note
           </button>
         </div>
         <div className="column">

@@ -73,25 +73,6 @@ class EditPatient extends Component {
     this.setState({ selectedTab: tabName });
   }
 
-  updatePatient = (patient) => {
-    const { patientModel } = this.state;
-    const { history } = this.props;
-    const updatedPatient = patient;
-    updatedPatient.birthday = moment(this.props.updatedBirthday).format('YYYY-MM-DD');
-    updatedPatient.referredDate = moment(this.props.updatedReferredDate).format('YYYY-MM-DD');
-    patientModel.set(updatedPatient);
-    if (patientModel.isValid()) {
-      patientModel.save(null, {
-        // success: (model, response) => {
-        success: () => {
-          history.push('/patients');
-        },
-        // error: (model, response) => {
-        error: () => { }
-      });
-    }
-  }
-
   render() {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
@@ -140,15 +121,17 @@ class EditPatient extends Component {
                       </div>
                       <div className="tab-content">
                         {(selectedTab === '' || selectedTab === 'history') &&
-                          <div className="column">
-                            <History
-                              history={history}
-                              model={patientModel}
-                            />
-                          </div>
+                          <History
+                            history={history}
+                            model={patientModel}
+                          />
                         }
                         {selectedTab === 'general' &&
-                          <General patient={patient} />
+                          <General
+                            history={history}
+                            patient={patient}
+                            model={patientModel}
+                          />
                         }
                         {selectedTab === 'photos' &&
                           <div className="column">
@@ -161,13 +144,11 @@ class EditPatient extends Component {
                           </div>
                         }
                         {selectedTab === 'visit' &&
-                          <div className="column">
-                            <Visits
-                              history={history}
-                              patient={patient}
-                              model={patientModel}
-                            />
-                          </div>
+                          <Visits
+                            history={history}
+                            patient={patient}
+                            model={patientModel}
+                          />
                         }
                         {selectedTab === 'medication' &&
                           <div className="column">
@@ -190,13 +171,11 @@ class EditPatient extends Component {
                           </div>
                         }
                         {selectedTab === 'pregnancy' && patient.sex === 'female' &&
-                          <div className="column">
-                            <Pregnancy
-                              history={history}
-                              patient={patient}
-                              model={patientModel}
-                            />
-                          </div>
+                          <Pregnancy
+                            history={history}
+                            patient={patient}
+                            model={patientModel}
+                          />
                         }
                       </div>
                     </div>
