@@ -8,7 +8,7 @@ import {
   SAVE_PATIENT_SUCCESS,
   SAVE_PATIENT_FAILED,
 } from '../types';
-import { VisitModel, PatientModel } from '../../models';
+import { PatientModel } from '../../models';
 
 export const fetchPatient = ({ id }) =>
   async dispatch => {
@@ -19,8 +19,9 @@ export const fetchPatient = ({ id }) =>
     if (action === 'edit') {
       patientModel.set({ _id: id });
       [error] = await to(patientModel.fetch({ relations: true }));
-      // const patientDate = patientModel.get('patientDate');
-      // if (typeof patientDate === 'string') patientModel.set('patientDate', moment(patientDate));
+      const { dateOfBirth, referredDate } = patientModel.attributes;
+      if (dateOfBirth !== null) patientModel.set('dateOfBirth', moment(dateOfBirth));
+      if (referredDate !== null) patientModel.set('referredDate', moment(referredDate));
     }
     if (error) return dispatch({ type: FETCH_PATIENT_FAILED, error });
     dispatch({
@@ -31,31 +32,22 @@ export const fetchPatient = ({ id }) =>
     });
   };
 
-export const savePatient = ({ action, patientModel, visitId, history }) =>
+export const savePatient = ({ Model }) =>
   async dispatch => {
     dispatch({ type: SAVE_PATIENT_REQUEST });
-    if (patientModel.isValid()) {
+    if (Model.isValid()) {
       try {
-        await patientModel.save(null, { silent: true });
-        if (action === 'new') {
-          const visitModel = new VisitModel();
-          visitModel.set({ _id: visitId });
-          await visitModel.fetch();
-          visitModel.get('patients').add({ _id: patientModel.id });
-          await visitModel.save(null, { silent: true });
-        }
+        await Model.save(null, { silent: true });
         dispatch({
           type: SAVE_PATIENT_SUCCESS,
-          patient: patientModel,
+          patient: Model,
         });
-        if (action === 'new')
-          history.push(`/patients/visit/${visitId}/patient/${patientModel.id}`);
       } catch (error) {
         console.log({ error });
         dispatch({ type: SAVE_PATIENT_FAILED, error });
       }
     } else {
-      const error = patientModel.validationError;
+      const error = Model.validationError;
       console.log({ error });
       dispatch({ type: SAVE_PATIENT_FAILED, error });
     }

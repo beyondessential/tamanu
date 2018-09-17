@@ -1,88 +1,85 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import Select from 'react-select';
-import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 import Contacts from '../components/Contacts';
-import InputGroup from '../../../components/InputGroup';
-import CustomDateInput from '../../../components/CustomDateInput';
-import Serializer from '../../../utils/form-serialize';
+import { InputGroup, DatepickerGroup, RadioGroup } from '../../../components';
 import { bloodOptions, sexOptions, getDifferenceDate } from '../../../constants';
-import { setUpdatedBirthday, setUpdatedReferredDate } from '../../../actions/patients/patients';
 
 class General extends Component {
+  constructor(props) {
+    super(props);
+    this.submitForm = this.submitForm.bind(this);
+  }
+
   state = {
-    // formError: false,
-    bloodType: this.props.patient.bloodType,
-    birthday: moment(this.props.patient.birthday),
-    sex: this.props.patient.sex,
-    age: '0 months 0 days',
-    referredDate: moment(this.props.patient.referredDate),
-    contactModalVisible: false,
+    age: 'Please select age',
+    patientModel: {},
   }
 
-  updateBloodValue = (newValue) => {
-    this.setState({
-      bloodType: newValue,
-    });
+  componentWillMount() {
+    this.handleChange();
   }
 
-  updateSexValue = (newValue) => {
-    this.setState({
-      sex: newValue,
-    });
+  componentWillReceiveProps(newProps) {
+    this.handleChange(newProps);
   }
 
-  onChangeDate = (date) => {
-    this.setState({
-      birthday: date,
-      age: getDifferenceDate(moment(), date)
-    });
-    this.props.setUpdatedBirthday(date);
+  handleChange(props = this.props) {
+    const { model: patientModel } = props;
+    let { age } = this.state;
+    if (patientModel.get('dateOfBirth') !== null) age = getDifferenceDate(moment(), patientModel.get('dateOfBirth'));
+    this.setState({ age, patientModel });
   }
 
-  onChangeReferredDate = (date) => {
-    this.setState({
-      referredDate: date,
-    });
-    this.props.setUpdatedReferredDate(date);
-  }
-
-  onCloseContactModal = () => {
-    this.setState({ contactModalVisible: false });
-  }
-
-  updatePatient = async (patient) => {
-    const { history, model: patientModel } = this.props;
-    const updatedPatient = patient;
-    updatedPatient.birthday = moment(this.props.updatedBirthday).format('YYYY-MM-DD');
-    updatedPatient.referredDate = moment(this.props.updatedReferredDate).format('YYYY-MM-DD');
-    console.log({ updatedPatient });
-    patientModel.set(updatedPatient);
-    if (patientModel.isValid()) {
-      await patientModel.save();
-      history.push('/patients');
+  handleUserInput = (e, field) => {
+    const { model: patientModel } = this.props;
+    let { age } = this.state;
+    if (typeof field !== 'undefined') {
+      patientModel.set(field, e, { silent: true });
+    } else {
+      const { name } = e.target;
+      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+      patientModel.set(name, value, { silent: true });
     }
+
+    // Get age
+    if (field === 'dateOfBirth') age = getDifferenceDate(moment(), e);
+    this.setState({ age, patientModel });
   }
+
+  submitForm = (e) => {
+    e.preventDefault();
+    const { patientModel } = this.state;
+    this.props.savePatient({ Model: patientModel });
+  }
+
+  // updatePatient = async (patient) => {
+  //   const { history, model: patientModel } = this.props;
+  //   const updatedPatient = patient;
+  //   updatedPatient.birthday = moment(this.props.updatedBirthday).format('YYYY-MM-DD');
+  //   updatedPatient.referredDate = moment(this.props.updatedReferredDate).format('YYYY-MM-DD');
+  //   console.log({ updatedPatient });
+  //   patientModel.set(updatedPatient);
+  //   if (patientModel.isValid()) {
+  //     await patientModel.save();
+  //     history.push('/patients');
+  //   }
+  // }
 
   render() {
-    const { patient, model: patientModel } = this.props;
     const {
-      birthday,
+      patientModel,
       age,
-      referredDate,
     } = this.state;
+    const { attributes: form } = patientModel;
     return (
       <div>
         <form
           id="generalForm"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            const data = Serializer.serialize(e.target, { hash: true });
-            await this.updatePatient(data);
-          }}
+          onSubmit={this.submitForm}
         />
         <div className="form no-margin">
           <div className="columns">
@@ -90,7 +87,8 @@ class General extends Component {
               <InputGroup
                 name="firstName"
                 label="First Name"
-                value={patient.firstName}
+                value={form.firstName}
+                onChange={this.handleUserInput}
                 required
                 tabIndex={1}
               />
@@ -99,7 +97,8 @@ class General extends Component {
               <InputGroup
                 name="status"
                 label="Patient Status"
-                value={patient.status}
+                value={form.status}
+                onChange={this.handleUserInput}
                 tabIndex={7}
               />
             </div>
@@ -109,7 +108,8 @@ class General extends Component {
               <InputGroup
                 name="middleName"
                 label="Middle Name"
-                value={patient.middleName}
+                value={form.middleName}
+                onChange={this.handleUserInput}
                 tabIndex={2}
               />
             </div>
@@ -117,7 +117,8 @@ class General extends Component {
               <InputGroup
                 name="externalPatientId"
                 label="External Patient Id"
-                value={patient.externalPatientId}
+                value={form.externalPatientId}
+                onChange={this.handleUserInput}
                 tabIndex={8}
               />
             </div>
@@ -127,7 +128,8 @@ class General extends Component {
               <InputGroup
                 name="lastName"
                 label="Last Name"
-                value={patient.lastName}
+                value={form.lastName}
+                onChange={this.handleUserInput}
                 required
                 tabIndex={3}
               />
@@ -138,18 +140,11 @@ class General extends Component {
                   Blood Type
                 </span>
                 <Select
-                  id="state-select"
-                  ref={(ref) => { this.select = ref; }}
-                  onBlurResetsInput={false}
-                  onSelectResetsInput={false}
                   options={bloodOptions}
                   simpleValue
-                  clearable
                   name="bloodType"
-                  value={this.state.bloodType}
-                  onChange={this.updateBloodValue}
-                  rtl={this.state.rtl}
-                  searchable={this.state.searchable}
+                  value={form.bloodType}
+                  onChange={val => this.handleUserInput(val, 'bloodType')}
                 />
               </div>
             </div>
@@ -159,7 +154,8 @@ class General extends Component {
               <InputGroup
                 name="culturalName"
                 label="Cultural or Traditional Name"
-                value={patient.culturalName}
+                value={form.culturalName}
+                onChange={this.handleUserInput}
                 tabIndex={4}
               />
             </div>
@@ -167,7 +163,8 @@ class General extends Component {
               <InputGroup
                 name="clinic"
                 label="Clinic Site"
-                value={patient.clinic}
+                value={form.clinic}
+                onChange={this.handleUserInput}
                 tabIndex={9}
               />
             </div>
@@ -179,19 +176,11 @@ class General extends Component {
                   Sex
                 </span>
                 <Select
-                  id="state-select"
-                  ref={(ref) => { this.select = ref; }}
-                  onBlurResetsInput={false}
-                  onSelectResetsInput={false}
                   options={sexOptions}
                   simpleValue
-                  clearable
                   name="sex"
-                  disabled={this.state.disabled}
-                  value={this.state.sex}
-                  onChange={this.updateSexValue}
-                  rtl={this.state.rtl}
-                  searchable={this.state.searchable}
+                  value={form.sex}
+                  onChange={val => this.handleUserInput(val, 'sex')}
                 />
               </div>
             </div>
@@ -199,50 +188,28 @@ class General extends Component {
               <InputGroup
                 name="referredBy"
                 label="Referred By"
-                value={patient.referredBy}
+                value={form.referredBy}
+                onChange={this.handleUserInput}
                 tabIndex={10}
               />
             </div>
           </div>
           <div className="columns">
             <div className="column">
-              <div className="column">
-                <span className="header">
-                  Date Of Birth
-                </span>
-                <DatePicker
-                  name="birthday"
-                  autoFocus
-                  customInput={<CustomDateInput />}
-                  selected={birthday}
-                  onChange={this.onChangeDate}
-                  peekNextMonth
-                  showMonthDropdown
-                  value={moment(birthday).format('YYYY-MM-DD')}
-                  showYearDropdown
-                  type="button"
-                  dropdownMode="select"
-                />
-              </div>
+              <DatepickerGroup
+                label="Date Of Birth"
+                name="dateOfBirth"
+                onChange={this.handleUserInput}
+                value={form.dateOfBirth}
+              />
             </div>
             <div className="column">
-              <div className="column">
-                <span className="header">
-                  Referred Date
-                </span>
-                <DatePicker
-                  name="referredDate"
-                  autoFocus
-                  customInput={<CustomDateInput />}
-                  selected={referredDate}
-                  onChange={this.onChangeReferredDate}
-                  peekNextMonth
-                  showMonthDropdown
-                  showYearDropdown
-                  dropdownMode="select"
-                  value={moment(referredDate).format('YYYY-MM-DD')}
-                />
-              </div>
+              <DatepickerGroup
+                label="Referred Date"
+                name="referredDate"
+                onChange={this.handleUserInput}
+                value={form.referredDate}
+              />
             </div>
           </div>
           <div className="columns">
@@ -260,7 +227,8 @@ class General extends Component {
               <InputGroup
                 name="religion"
                 label="Religion"
-                value={patient.religion}
+                value={form.religion}
+                onChange={this.handleUserInput}
                 tabIndex={11}
               />
             </div>
@@ -270,7 +238,8 @@ class General extends Component {
               <InputGroup
                 name="placeOfBirth"
                 label="Place of Birth"
-                value={patient.placeOfBirth}
+                value={form.placeOfBirth}
+                onChange={this.handleUserInput}
                 tabIndex={5}
               />
             </div>
@@ -278,7 +247,8 @@ class General extends Component {
               <InputGroup
                 name="parent"
                 label="Parent/Guardian"
-                value={patient.parent}
+                value={form.parent}
+                onChange={this.handleUserInput}
                 tabIndex={12}
               />
             </div>
@@ -288,7 +258,8 @@ class General extends Component {
               <InputGroup
                 name="occupation"
                 label="Occupation"
-                value={patient.occupation}
+                value={form.occupation}
+                onChange={this.handleUserInput}
                 tabIndex={6}
               />
             </div>
@@ -297,28 +268,23 @@ class General extends Component {
               <InputGroup
                 name="paymentProfile"
                 label="Payment Profile"
-                value={patient.paymentProfile}
+                value={form.paymentProfile}
+                onChange={this.handleUserInput}
                 tabIndex={13}
               />
             </div>
           </div>
           <div className="columns">
             <div className="column is-6">
-              <div className="column">
-                <span className="header">
-                  Patient Type
-                </span>
-                <div>
-                  <label className="radio">
-                    <input type="radio" name="patientType" value="Charity" />
-                    <span>Charity</span>
-                  </label>
-                  <label className="radio">
-                    <input type="radio" name="patientType" value="Private" />
-                    <span>Private</span>
-                  </label>
-                </div>
-              </div>
+              <RadioGroup
+                name="patientType"
+                className="column"
+                label="Patient Type"
+                value={form.patientType}
+                options={[{ value: 'charity', label: 'Charity' }, { value: 'private', label: 'Private' }]}
+                onChange={this.handleUserInput}
+                stacked
+              />
             </div>
           </div>
           <div className="columns">
@@ -326,13 +292,15 @@ class General extends Component {
               <InputGroup
                 name="phone"
                 label="Phone"
-                value={patient.phone}
+                value={form.phone}
+                onChange={this.handleUserInput}
                 tabIndex={14}
               />
               <InputGroup
                 name="address"
                 label="Address"
-                value={patient.address}
+                value={form.address}
+                onChange={this.handleUserInput}
                 tabIndex={15}
               />
             </div>
@@ -340,13 +308,15 @@ class General extends Component {
               <InputGroup
                 name="email"
                 label="Email"
-                value={patient.email}
+                value={form.email}
+                onChange={this.handleUserInput}
                 tabIndex={16}
               />
               <InputGroup
                 name="country"
                 label="Country"
-                value={patient.country}
+                value={form.country}
+                onChange={this.handleUserInput}
                 tabIndex={17}
               />
             </div>
@@ -359,7 +329,7 @@ class General extends Component {
         </div>
         <div className="column has-text-right">
           <Link className="button is-danger cancel" to="/patients">Return</Link>
-          <button className="button is-primary" form="generalForm" type="submit">Update</button>
+          <button className="button is-primary" form="generalForm" type="submit" disabled={!patientModel.isValid()}>Update</button>
         </div>
 
       </div>
@@ -367,9 +337,8 @@ class General extends Component {
   }
 }
 
-const mapDispatchToProps = (dispatch) => ({
-  setUpdatedBirthday: date => dispatch(setUpdatedBirthday(date)),
-  setUpdatedReferredDate: date => dispatch(setUpdatedReferredDate(date)),
-});
+General.propTypes = {
+  savePatient: PropTypes.func.isRequired
+}
 
-export default connect(undefined, mapDispatchToProps)(General);
+export default General;

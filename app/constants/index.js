@@ -236,7 +236,7 @@ export const getDisplayId = (item) => {
 };
 
 export const getDifferenceDate = (today, target) => {
-  const difference = moment.duration(moment(today, 'DD/MM/YYYY HH:mm:ss').diff(moment(target, 'DD/MM/YYYY HH:mm:ss')));
+  const difference = moment.duration(moment(today).diff(moment(target)));
   return difference.humanize();
 };
 
@@ -337,58 +337,45 @@ export const patientColumns = [
   {
     accessor: 'displayId',
     Header: 'Id',
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor,
-    },
+    headerStyle,
     style: columnStyle,
     minWidth: 80
   }, {
     accessor: 'firstName',
     Header: 'First Name',
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor,
-    },
+    headerStyle,
     style: columnStyle,
     minWidth: 100
   }, {
     accessor: 'lastName',
     Header: 'Last Name',
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor,
-    },
+    headerStyle,
     style: columnStyle,
     minWidth: 100
   }, {
     accessor: 'sex',
     Header: 'Sex',
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor,
-    },
+    headerStyle,
     style: columnStyle,
     minWidth: 80
   }, {
-    accessor: 'birthday',
+    id: 'birthday',
+    accessor: row => moment(row.birthday).format(dateFormat),
     Header: 'DOB',
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor,
-    },
+    headerStyle,
     style: columnStyle,
     minWidth: 100
   }, {
     accessor: 'patientStatus',
     Header: 'Status',
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor,
-    },
+    headerStyle,
     style: columnStyle,
     minWidth: 80
   }, {
     accessor: 'actiomns',
     id: 'actions',
     Header: 'Actions',
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor
-    },
+    headerStyle,
     style: columnStyle,
     minWidth: 250,
     Cell: {}

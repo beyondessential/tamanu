@@ -6,6 +6,7 @@ export Modal from './Modal';
 export PatientAutocomplete from './PatientAutocomplete';
 export PatientRelationSelect from './PatientRelationSelect';
 export Preloader from './Preloader';
+export RadioGroup from './RadioGroup';
 export PatientSearchBar from './PatientSearchBar';
 export Sidebar from './Sidebar';
 export TextareaGroup from './TextareaGroup';

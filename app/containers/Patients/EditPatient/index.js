@@ -131,6 +131,7 @@ class EditPatient extends Component {
                             history={history}
                             patient={patient}
                             model={patientModel}
+                            savePatient={this.props.savePatient}
                           />
                         }
                         {selectedTab === 'photos' &&
