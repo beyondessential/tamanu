@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Autocomplete from 'react-autocomplete';
-import { map } from 'lodash';
+import { map, toUpper, capitalize } from 'lodash';
 import { PatientsCollection } from '../collections';
 import { PatientModel } from '../models';
 
@@ -41,7 +41,21 @@ class PatientAutocomplete extends Component {
 
   handleChange(event, value) {
     this.props.collection.find({
-      selector: { displayId: { $regex: `(?i)${value}` } },
+      selector: [{
+        $or: [{
+          displayId: {
+            $regex: `^${toUpper(value)}+`
+          }
+        }, {
+          firstName: {
+            $regex: `^${capitalize(value)}+`
+          }
+        }, {
+          lastName: {
+            $regex: `^${capitalize(value)}+`
+          }
+        }]
+      }],
       fields: ['_id', 'displayId', 'firstName', 'lastName'],
       success: () => {
         let { models: patients } = this.props.collection;

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Autocomplete from 'react-autocomplete';
-import { map } from 'lodash';
+import { map, capitalize, toUpper } from 'lodash';
 import { DrugsCollection } from '../collections';
 import { DrugModel } from '../models';
 
@@ -42,12 +42,17 @@ class DrugAutocomplete extends Component {
   handleChange(event, value) {
     if (value !== '') {
       this.props.collection.find({
-        selector: {
-          $or: [
-            { name: { $regex: `(?i)${value}` } },
-            { code: { $regex: `(?i)${value}` } },
-          ]
-        },
+        selector: [{
+          $or: [{
+            name: {
+              $regex: `^${capitalize(value)}+`
+            }
+          }, {
+            code: {
+              $regex: `^${toUpper(value)}+`
+            }
+          }]
+        }],
         fields: ['_id', 'code', 'name'],
         success: () => {
           let { models: drugs } = this.props.collection;

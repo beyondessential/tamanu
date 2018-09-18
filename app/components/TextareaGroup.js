@@ -8,10 +8,12 @@ class TextareaGroup extends Component {
     required: PropTypes.bool,
     name: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
+    labelClass: PropTypes.string,
   }
 
   static defaultProps = {
-    required: false
+    required: false,
+    labelClass: 'label'
   }
 
   constructor(props) {
@@ -34,11 +36,12 @@ class TextareaGroup extends Component {
       required,
       name,
       tabIndex,
+      labelClass,
     } = this.props;
     return (
       <div className="field">
         {label &&
-          <label className="input-group-title label">
+          <label className={labelClass}>
             {label} {required && <span className="isRequired">*</span>}
           </label>
         }

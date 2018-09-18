@@ -21,6 +21,7 @@ export default BaseModel.extend({
     visitType: '',
 
     //  Relation fields
+    medication: [],
     diagnoses: [],
     labs: [],
     notes: [],
@@ -31,6 +32,13 @@ export default BaseModel.extend({
 
   // Associations
   relations: [
+    {
+      type: Backbone.Many,
+      key: 'medication',
+      relatedModel: () => require('./medication'),
+      map: (values) => mapRelations(values, require('./medication')),
+      serialize: '_id'
+    },
     {
       type: Backbone.Many,
       key: 'diagnoses',

@@ -4,6 +4,7 @@ import { isNaN, toNumber } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
 import { mapRelations } from '../utils';
+import { medicationStatuses } from '../constants';
 
 export default BaseModel.extend({
   idAttribute: '_id',
@@ -27,7 +28,7 @@ export default BaseModel.extend({
       endDate: null,
       requestedDate: '',
       requestedBy: '',
-      status: '',
+      status: medicationStatuses.REQUESTED,
     };
   },
 
@@ -57,12 +58,14 @@ export default BaseModel.extend({
   ],
 
   validate: (attrs) => {
-    if (attrs.drugName === '') return 'Medication is required!';
-    if (attrs.prescription === '') return 'Prescription is required!';
-    if (attrs.prescriptionDate === '') return 'Prescription Date is required!';
-    if (isNaN(toNumber(attrs.qtyMorning))) return 'Morning quantity is required!';
-    if (isNaN(toNumber(attrs.qtyLunch))) return 'Lunch quantity is required!';
-    if (isNaN(toNumber(attrs.qtyEvening))) return 'Evening quantity is required!';
-    if (isNaN(toNumber(attrs.qtyNight))) return 'Night quantity is required!';
+    const errors = [];
+    if (attrs.drugName === '') errors.push('Medication is required!');
+    if (attrs.prescription === '') errors.push('Prescription is required!');
+    if (attrs.prescriptionDate === '') errors.push('Prescription Date is required!');
+    if (isNaN(toNumber(attrs.qtyMorning))) errors.push('Morning quantity is required!');
+    if (isNaN(toNumber(attrs.qtyLunch))) errors.push('Lunch quantity is required!');
+    if (isNaN(toNumber(attrs.qtyEvening))) errors.push('Evening quantity is required!');
+    if (isNaN(toNumber(attrs.qtyNight))) errors.push('Night quantity is required!');
+    if (errors.length) return errors;
   }
 });

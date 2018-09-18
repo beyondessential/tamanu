@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 import {
   FETCH_MEDICATION_REQUEST,
   FETCH_MEDICATION_SUCCESS,
@@ -27,13 +28,10 @@ export default {
     ...state,
     loading: true
   }),
-  [SAVE_MEDICATION_SUCCESS]: ({ patient, medication }, state) => ({
-    ...state,
-    patient,
-    medication,
-    loading: false,
-    saved: true
-  }),
+  [SAVE_MEDICATION_SUCCESS]: (_, state) => {
+    toast('Medication added successfully.', { type: 'success' });
+    return { ...state, loading: false }
+  },
   [SAVE_MEDICATION_FAILED]: ({ error }, state) => ({
     ...state,
     error,

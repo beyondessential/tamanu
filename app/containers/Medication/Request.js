@@ -94,7 +94,12 @@ class NewMedication extends Component {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
 
-    const { visit, visits, medicationModel, medication } = this.state;
+    const {
+      visit,
+      visits,
+      medicationModel,
+      medication
+    } = this.state;
     return (
       <div>
         <div className="create-content">
@@ -105,118 +110,111 @@ class NewMedication extends Component {
             className="create-container"
             onSubmit={this.submitForm}
           >
-            <div className="form">
+            <div className="form with-padding">
+              <div className="columns">
+                <PatientAutocomplete
+                  label="Patient"
+                  name="patient"
+                  onChange={this.selectPatient}
+                  value={medication.patient}
+                  required
+                />
+                <div className="column">
+                  <span className="header">
+                    Visit <span className="isRequired">*</span>
+                  </span>
+                  <Select
+                    options={visits}
+                    simpleValue
+                    name="visit"
+                    value={visit}
+                    onChange={this.selectVisit}
+                    placeholder={visits.length > 0 ? 'Select a Visit' : 'Add a Visit'}
+                  />
+                </div>
+              </div>
+              <div className="columns">
+                <DrugAutocomplete
+                  name="drug"
+                  label="Medication"
+                  onChange={this.handleUserInput}
+                  value={medication.drug}
+                  required
+                />
+              </div>
               <div className="columns">
                 <div className="column">
-                  <PatientAutocomplete
-                    label="Patient"
-                    name="patient"
-                    onChange={this.selectPatient}
-                    value={medication.patient}
+                  <TextareaGroup
+                    name="prescription"
+                    label="Prescription"
+                    onChange={this.handleUserInput}
+                    value={medication.prescription}
                     required
                   />
                 </div>
-                <div className="column">
-                  <div className="column">
-                    <span className="header">
-                      Visit <span className="isRequired">*</span>
-                    </span>
-                    <Select
-                      options={visits}
-                      simpleValue
-                      name="visit"
-                      value={visit}
-                      onChange={this.selectVisit}
-                      placeholder={visits.length > 0 ? 'Select a Visit' : 'Add a Visit'}
-                    />
-                  </div>
-                </div>
               </div>
               <div className="columns">
-                <div className="column">
-                  <DrugAutocomplete
-                    name="drug"
-                    label="Medication"
-                    onChange={this.handleUserInput}
-                    value={medication.drug}
-                    required
-                  />
-                </div>
-              </div>
-              <div className="columns">
-                <div className="column">
-                  <div className="column">
-                    <TextareaGroup
-                      name="prescription"
-                      label="Prescription"
-                      onChange={this.handleUserInput}
-                      value={medication.prescription}
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="columns">
-                <div className="column is-5">
-                  <DatepickerGroup
-                    label="Prescription Date"
-                    name="prescriptionDate"
-                    onChange={this.handleUserInput}
-                    value={medication.prescriptionDate}
-                  />
-                </div>
+                <DatepickerGroup
+                  label="Prescription Date"
+                  name="prescriptionDate"
+                  className="is-3"
+                  onChange={this.handleUserInput}
+                  value={medication.prescriptionDate}
+                />
               </div>
               <div className="columns">
                 <div className="column is-4">
-                  <div className="column">
-                    <span className="header">
-                      Quantity
-                    </span>
-                    <div className="columns is-gapless">
-                      <div className="column">
-                        <InputGroup
-                          type="number"
-                          label="Morning"
-                          className="is-horizontal m-b-0"
-                          labelClass="column is-5 p-t-15 p-l-3 p-r-0"
-                          inputClass="column is-7"
-                          name="qtyMorning"
-                          onChange={this.handleUserInput}
-                          required
-                        />
-                        <InputGroup
-                          type="number"
-                          label="Evening"
-                          className="is-horizontal m-b-0"
-                          labelClass="column is-5 p-t-15 p-l-3 p-r-0"
-                          inputClass="column is-7"
-                          name="qtyEvening"
-                          onChange={this.handleUserInput}
-                          required
-                        />
-                      </div>
-                      <div className="column">
-                        <InputGroup
-                          type="number"
-                          label="Lunch"
-                          className="is-horizontal m-b-0"
-                          labelClass="column is-5 p-t-15 p-l-3 p-r-0"
-                          inputClass="column is-7"
-                          name="qtyLunch"
-                          onChange={this.handleUserInput}
-                          required
-                        />
-                        <InputGroup
-                          type="number"
-                          label="Night"
-                          className="is-horizontal m-b-0"
-                          labelClass="column is-5 p-t-15 p-l-3 p-r-0"
-                          inputClass="column is-7"
-                          name="qtyNight"
-                          onChange={this.handleUserInput}
-                          required
-                        />
-                      </div>
+                  <span className="header">
+                    Quantity
+                  </span>
+                  <div className="columns is-gapless">
+                    <div className="column">
+                      <InputGroup
+                        type="number"
+                        label="Morning"
+                        className="is-horizontal m-b-0"
+                        labelClass="column is-5 p-t-10 p-l-3 p-r-0"
+                        inputClass="column is-7 p-t-5"
+                        name="qtyMorning"
+                        value={medication.qtyMorning}
+                        onChange={this.handleUserInput}
+                        required
+                      />
+                      <InputGroup
+                        type="number"
+                        label="Evening"
+                        className="is-horizontal m-b-0"
+                        labelClass="column is-5 p-t-10 p-l-3 p-r-0"
+                        inputClass="column is-7 p-t-5"
+                        name="qtyEvening"
+                        value={medication.qtyEvening}
+                        onChange={this.handleUserInput}
+                        required
+                      />
+                    </div>
+                    <div className="column">
+                      <InputGroup
+                        type="number"
+                        label="Lunch"
+                        className="is-horizontal m-b-0"
+                        labelClass="column is-5 p-t-10 p-l-3 p-r-0"
+                        inputClass="column is-7 p-t-5"
+                        name="qtyLunch"
+                        value={medication.qtyLunch}
+                        onChange={this.handleUserInput}
+                        required
+                      />
+                      <InputGroup
+                        type="number"
+                        label="Night"
+                        className="is-horizontal m-b-0"
+                        labelClass="column is-5 p-t-10 p-l-3 p-r-0"
+                        inputClass="column is-7 p-t-5"
+                        name="qtyNight"
+                        value={medication.qtyNight}
+                        onChange={this.handleUserInput}
+                        required
+                      />
                     </div>
                   </div>
                 </div>
@@ -230,18 +228,17 @@ class NewMedication extends Component {
                 </div>
               </div>
               <div className="columns">
-                <div className="column is-5">
-                  <DatepickerGroup
-                    label="End Date"
-                    name="endDate"
-                    onChange={this.handleUserInput}
-                    value={medication.endDate}
-                  />
-                </div>
+                <DatepickerGroup
+                  label="End Date"
+                  name="endDate"
+                  className="is-3 p-t-0"
+                  onChange={this.handleUserInput}
+                  value={medication.endDate}
+                />
               </div>
               <div className="column has-text-right">
                 <Link className="button is-danger cancel" to="/medication">Cancel</Link>
-                <button className="button is-primary" type="submit" disabled={!medicationModel.isValid() && 1 === 2}>Add</button>
+                <button className="button is-primary" type="submit" disabled={!medicationModel.isValid()}>Add</button>
               </div>
             </div>
           </form>

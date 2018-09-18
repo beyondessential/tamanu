@@ -93,19 +93,23 @@ export default Backbone.Collection.extend({
   },
 
   fetchByView(opts = {}) {
-    return this.fetch({
-      fetchRelations: opts.fetchRelations || false,
-      success: (opts ? opts.success : null),
-      error: (opts ? opts.error : null),
+    const { fetchRelations, success, error, view } = opts;
+    const params = {
+      fetchRelations: fetchRelations || false,
+      success: success || null,
+      error: error || null,
       fetch: 'query',
       options: {
         query: {
-          fun: (opts && opts.view) || 'patient_by_display_id',
+          fun: view || 'patient_by_display_id',
           limit: this.pageSize,
-          skip: (this.currentPage * this.pageSize)
+          skip: (this.currentPage * this.pageSize),
+          ...opts
         }
       }
-    });
+    };
+
+    return this.fetch(params);
   },
 
   find(opts = {}) {

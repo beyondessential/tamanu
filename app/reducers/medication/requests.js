@@ -17,6 +17,7 @@ export default {
   }),
   [FETCH_MEDICATIONS_FAILED]: ({ error }, state) => ({
     ...state,
+    medications: [],
     error,
     loading: false
   }),

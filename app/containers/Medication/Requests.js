@@ -3,11 +3,16 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import ReactTable from 'react-table';
 import actions from '../../actions/medication';
-import { medicationColumns, pageSizes } from '../../constants';
+import { medicationColumns, pageSizes, medicationStatuses } from '../../constants';
 
 class Requests extends Component {
+  constructor(props) {
+    super(props);
+    this.fetchData = this.fetchData.bind(this);
+  }
+
   state = {
-    medications: [{}, {}],
+    medications: [{}],
     totalPages: 0,
     loading: true,
   }
@@ -35,6 +40,13 @@ class Requests extends Component {
     );
   }
 
+  fetchData = opts => {
+    this.props.fetchMedications({
+      status: medicationStatuses.REQUESTED,
+      ...opts
+    });
+  }
+
   render() {
     const { medications, totalPages } = this.state;
     return (
@@ -45,7 +57,7 @@ class Requests extends Component {
               Medication Requests
             </span>
             <div className="view-action-buttons">
-              <Link to="/medication/edit/new">
+              <Link to="/medication/request">
                 + New Request
               </Link>
               <Link to="/medication/edit/dispense">
@@ -60,7 +72,7 @@ class Requests extends Component {
             {medications.length === 0 ?
               <div className="notification">
                 <span>
-                  No medications found. <Link to="/medication/edit/new">Create a new medication record?</Link>
+                  No medications found. <Link to="/medication/request">Create a new medication record?</Link>
                 </span>
               </div>
               :
@@ -75,7 +87,7 @@ class Requests extends Component {
                   columns={medicationColumns}
                   className="-striped"
                   defaultSortDirection="asc"
-                  onFetchData={this.props.fetchMedications}
+                  onFetchData={this.fetchData}
                 />
               </div>
             }

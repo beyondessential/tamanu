@@ -247,6 +247,12 @@ export const visitStatuses = {
   CHECKED_OUT: 'CheckedOut',
 };
 
+export const medicationStatuses = {
+  COMPLETED: 'Completed',
+  FULFILLED: 'Fulfilled',
+  REQUESTED: 'Requested',
+};
+
 export const locationOptions = [
   { value: 'australian-capital-territory', label: 'Australian Capital Territory', className: 'State-ACT' },
   { value: 'new-south-wales', label: 'New South Wales', className: 'State-NSW' },

@@ -8,7 +8,7 @@ import {
 } from '../types';
 import { MedicationCollection } from '../../collections';
 
-export const fetchMedications = ({ page }) =>
+export const fetchMedications = ({ page, status }) =>
   async dispatch => {
     dispatch({ type: FETCH_MEDICATIONS_REQUEST });
     const medicationCollection = new MedicationCollection();
@@ -17,6 +17,7 @@ export const fetchMedications = ({ page }) =>
     medicationCollection.fetchByView({
       view: 'medication_by_status',
       fetchRelations: true,
+      key: status || 'Requested',
       success: () => {
         const medications = medicationCollection.models.map(model => {
           const medication = model.toJSON();
@@ -34,8 +35,8 @@ export const fetchMedications = ({ page }) =>
           loading: false,
         });
       },
-      error: err => {
-        dispatch({ type: FETCH_MEDICATIONS_FAILED, err })
+      error: (res, error)=> {
+        dispatch({ type: FETCH_MEDICATIONS_FAILED, error })
       }
     });
   };

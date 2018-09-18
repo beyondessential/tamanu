@@ -59,6 +59,9 @@
     .form {
       margin: 20px 20px;
       background: white;
+      &.with-padding {
+        padding: 0 15px;
+      }
       .visit-header {
         margin: 10px;
         background: $main-light-blue-color;
