@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import Select from 'react-select';
 import actions from '../../actions/medication';
+import TopRow from '../Patients/components/TopRow';
 import {
   Preloader,
   PatientAutocomplete,
@@ -26,6 +27,7 @@ class NewMedication extends Component {
     medication: {},
     visits: [],
     loading: true,
+    byPatient: false
   }
 
   componentWillMount() {
@@ -54,14 +56,18 @@ class NewMedication extends Component {
   }
 
   handleChange(props = this.props) {
+    const { patientId } = this.props.match.params;
     const { patient, medication, loading } = props;
+    let byPatient = false;
     if (!loading) {
+      if (patientId) byPatient = true;
       this.setState({
         patient,
         medicationModel: medication,
         medication: medication.toJSON(),
         visits: patient.getVisitsSelect(),
         loading,
+        byPatient,
       });
     }
   }
@@ -98,8 +104,11 @@ class NewMedication extends Component {
       visit,
       visits,
       medicationModel,
-      medication
+      medication,
+      patient,
+      byPatient,
     } = this.state;
+
     return (
       <div>
         <div className="create-content">
@@ -110,16 +119,23 @@ class NewMedication extends Component {
             className="create-container"
             onSubmit={this.submitForm}
           >
+            {byPatient &&
+              <div className="form p-d-15">
+                <TopRow patient={patient.toJSON()} />
+              </div>
+            }
             <div className="form with-padding">
               <div className="columns">
-                <PatientAutocomplete
-                  label="Patient"
-                  name="patient"
-                  onChange={this.selectPatient}
-                  value={medication.patient}
-                  required
-                />
-                <div className="column">
+                {!byPatient &&
+                  <PatientAutocomplete
+                    label="Patient"
+                    name="patient"
+                    onChange={this.selectPatient}
+                    value={medication.patient}
+                    required
+                  />
+                }
+                <div className="column is-half">
                   <span className="header">
                     Visit <span className="isRequired">*</span>
                   </span>

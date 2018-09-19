@@ -29,6 +29,8 @@ export default BaseModel.extend({
       requestedDate: '',
       requestedBy: '',
       status: medicationStatuses.REQUESTED,
+
+      history: [],
     };
   },
 
@@ -53,6 +55,13 @@ export default BaseModel.extend({
       key: 'drug',
       relatedModel: () => require('./drug'),
       map: (values) => mapRelations(values, require('./drug')),
+      serialize: '_id'
+    },
+    {
+      type: Backbone.Many,
+      key: 'history',
+      relatedModel: () => require('./medicationHistory'),
+      map: (values) => mapRelations(values, require('./medicationHistory')),
       serialize: '_id'
     },
   ],

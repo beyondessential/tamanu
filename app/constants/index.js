@@ -1,5 +1,5 @@
-import React from 'react';
 import moment from 'moment';
+import { defaults } from 'lodash';
 import dbService from '../services/database';
 import { patientIcon, scheduleIcon, medicationIcon, labsIcon, administrationIcon, programsIcon } from './images';
 
@@ -14,8 +14,18 @@ const columnStyle = {
   color: '#2f4358',
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'center'
+  justifyContent: 'center',
 };
+
+const columnStyleSlim = {
+  backgroundColor: Colors.white,
+  height: '40px',
+  color: '#2f4358',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+};
+
 
 const headerStyle = {
   backgroundColor: Colors.searchTintColor,
@@ -23,7 +33,18 @@ const headerStyle = {
 
 const headerSortingStyle = { backgroundColor: '#c8e6c9' };
 
+export const momentSimpleCalender = {
+  sameDay: '[Today]',
+  nextDay: '[Tomorrow]',
+  nextWeek: 'dddd',
+  lastDay: '[Yesterday]',
+  lastWeek: '[Last] dddd',
+  sameElse: 'DD/MM/YYYY'
+};
+
 export const dateFormat = 'YYYY-MM-DD';
+
+export const dateFormatText = 'Do MMM YYYY';
 
 export const timeFormat = 'hh:mm a';
 
@@ -422,6 +443,46 @@ export const patientContactColumns = [
     style: columnStyle,
     minWidth: 250,
     Cell: null
+  }
+];
+
+export const patientMedicationColumns = [
+  {
+    accessor: 'drug.name',
+    Header: 'Medicine',
+    headerStyle,
+    style: defaults({ justifyContent: 'left' }, columnStyleSlim),
+    minWidth: 100
+  }, {
+    accessor: 'qtyMorning',
+    Header: 'Morning',
+    headerStyle,
+    style: columnStyleSlim,
+    maxWidth: 150
+  }, {
+    accessor: 'qtyLunch',
+    Header: 'Lunch',
+    headerStyle,
+    style: columnStyleSlim,
+    maxWidth: 150
+  }, {
+    accessor: 'qtyEvening',
+    Header: 'Evening',
+    headerStyle,
+    style: columnStyleSlim,
+    maxWidth: 150
+  }, {
+    accessor: 'qtyNight',
+    Header: 'Night',
+    headerStyle,
+    style: columnStyleSlim,
+    maxWidth: 150
+  }, {
+    accessor: 'notes',
+    Header: 'Notes',
+    headerStyle,
+    style: columnStyleSlim,
+    minWidth: 100
   }
 ];
 

@@ -76,6 +76,7 @@ export default Backbone.AssociatedModel.extend({
           resolve();
         }
       } else {
+        // console.log({ type }, relation.key, this.attributes[relation.key]);
         const model = this.attributes[relation.key];
         if (model) {
           const [err] = await to(model.fetch());
@@ -98,7 +99,7 @@ export default Backbone.AssociatedModel.extend({
             set(attributes, relation.key, data);
           } else if (relation.type === 'One') {
             const { id } = relationCol;
-            set(attributes, relation.key, id);
+            set(attributes, relation.key, (addRelations ? relationCol.toJSON() : id));
           } else {
             throw new Error('Invalid relation type!');
           }

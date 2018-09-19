@@ -14,7 +14,8 @@ export default function Routes({ url }) {
       <Switch>
         <Route exact path={url} component={Requests} />
         <Route path={`${url}/requests`} component={Requests} />
-        <Route path={`${url}/request/:patientId/:id`} component={Request} />
+        <Route path={`${url}/request/by-patient/:patientId/:id`} component={Request} />
+        <Route path={`${url}/request/by-patient/:patientId`} component={Request} />
         <Route path={`${url}/request/:id`} component={Request} />
         <Route path={`${url}/request`} component={Request} />
         <Route path={`${url}/completed`} component={Completed} />

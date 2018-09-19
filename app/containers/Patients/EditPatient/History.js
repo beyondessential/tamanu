@@ -11,15 +11,15 @@ class History extends Component {
     history: []
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     const { model: Model } = this.props;
-    const history = await Model.getHistory();
+    const history = Model.getHistory();
     this.setState({ history });
   }
 
-  async componentWillReceiveProps(newProps) {
+  componentWillReceiveProps(newProps) {
     const { model: Model } = newProps;
-    const history = await Model.getHistory();
+    const history = Model.getHistory();
     this.setState({ history });
   }
 

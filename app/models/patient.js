@@ -1,6 +1,6 @@
 import Backbone from 'backbone-associations';
 import shortid from 'shortid';
-import { defaults, each, clone, isEmpty, get, filter, capitalize, sortBy, concat } from 'lodash';
+import { defaults, each, clone, isEmpty, get, filter, capitalize, concat } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
@@ -183,11 +183,38 @@ export default BaseModel.extend({
     return visits.findWhere({ visitType: 'admission', endDate: null });
   },
 
-  async getHistory() {
+  getHistory() {
     let history = [];
     let { visits } = this.attributes;
     visits = visits.map(visit => visit.toJSON({ relations: true }));
     if (!isEmpty(visits)) history = concat(history, visits.map(visit => ({ date: visit.startDate, ...visit })));
     return history;
+  },
+
+  getMedication() {
+    const { visits } = this.attributes;
+    let medications = [];
+    visits.models.forEach(visit => {
+      const { medication } = visit.attributes;
+      medications = concat(medications, medication.models);
+    });
+    return medications;
+  },
+
+  getMedicationHistory(from = moment().subtract(1, 'days'), to = moment().add(1, 'days')) {
+    console.log( from.format(), to.format() );
+    const medication = [];
+    const allMedication = this.getMedication();
+    while (from.isSameOrBefore(to)) {
+      const date = from.clone();
+      medication.push({
+        date: date.format(dateFormat),
+        medication: allMedication.filter(({ attributes }) => {
+          return (date.isSameOrAfter(attributes.prescriptionDate) && (date.isSameOrBefore(attributes.endDate) || attributes.endDate === null));
+        })
+      });
+      from.add(1, 'days');
+    }
+    return medication;
   }
 });

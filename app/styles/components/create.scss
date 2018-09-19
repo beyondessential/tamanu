@@ -70,6 +70,16 @@
           color: #2e4359;
         }
       }
+      .medication-header {
+        margin: 5px 3px;
+        background: $main-light-blue-color;
+        margin: 0;
+        text-align: center;
+        span.text {
+          font-size: 18px;
+          color: #2e4359;
+        }
+      }
       .isRequired {
         color: red;
       }

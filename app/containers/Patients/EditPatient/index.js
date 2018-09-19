@@ -153,7 +153,11 @@ class EditPatient extends Component {
                         }
                         {selectedTab === 'medication' &&
                           <div className="column">
-                            <Medication />
+                            <Medication
+                              history={history}
+                              patient={patient}
+                              model={patientModel}
+                            />
                           </div>
                         }
                         {selectedTab === 'imaging' &&
