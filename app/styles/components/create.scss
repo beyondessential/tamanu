@@ -80,6 +80,21 @@
           color: #2e4359;
         }
       }
+      .medication-chart-cell {
+        text-align: center;
+        width: 100%;
+        position: relative;
+        .button, .icon {
+          position: absolute;
+          right: 0;
+        }
+      }
+      .rt-td.taken {
+        background: rgb(230, 255, 230);
+      }
+      .rt-td.not-taken {
+        background: rgb(255, 230, 230);
+      }
       .isRequired {
         color: red;
       }

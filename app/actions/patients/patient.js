@@ -8,7 +8,7 @@ import {
   SAVE_PATIENT_SUCCESS,
   SAVE_PATIENT_FAILED,
 } from '../types';
-import { PatientModel } from '../../models';
+import { PatientModel, MedicationHistoryModel } from '../../models';
 
 export const fetchPatient = ({ id }) =>
   async dispatch => {

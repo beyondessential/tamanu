@@ -1,11 +1,15 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import ReactTable from 'react-table';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { chain } from 'lodash';
+import { MedicationHistoryModel } from '../../../models';
 import {
   patientMedicationColumns,
   momentSimpleCalender,
-  dateFormatText
+  dateFormatText,
+  dateFormat
 } from '../../../constants';
 
 class Medication extends Component {
@@ -19,6 +23,7 @@ class Medication extends Component {
     medicationHistory: [],
     from: moment().subtract(1, 'days'),
     to: moment().add(1, 'days'),
+    tableColumns: patientMedicationColumns
   }
 
   componentWillMount() {
@@ -31,13 +36,109 @@ class Medication extends Component {
 
   handleChange(props = this.props) {
     const { model: Model } = props;
-    const { from, to } = this.state;
+    const { from, to, tableColumns } = this.state;
     let medicationHistory = Model.getMedicationHistory(from.clone(), to.clone());
     medicationHistory = medicationHistory.map(obj => ({
       date: obj.date,
-      medication: obj.medication.map(model => model.toJSON({ relations: true }))
+      medication: obj.medication.map(model => ({ currentDate: obj.date, ...model.toJSON({ relations: true }) }))
     }));
-    this.setState({ medicationHistory });
+
+    // Add actions column for our table
+    // tableColumns[tableColumns.length - 1].Cell = this.setActionsCol;
+    tableColumns[1].Cell = this.renderQtyColumn;
+    tableColumns[2].Cell = this.renderQtyColumn;
+    tableColumns[3].Cell = this.renderQtyColumn;
+    tableColumns[4].Cell = this.renderQtyColumn;
+    this.setState({ medicationHistory, tableColumns });
+  }
+
+  setActionsCol = (row) => {
+    const { model: Model } = this.props;
+    const id = `__${row.original._id}`;
+    return (
+      <div className="dropdown is-hoverable">
+        <div className="dropdown-trigger" aria-haspopup="true" aria-controls={id}>
+          <button className="button">
+            <span>Taken</span>
+            <span className="icon is-small">
+              <i className="fa fa-angle-down" />
+            </span>
+          </button>
+        </div>
+        <div className="dropdown-menu" id={id} role="menu">
+          <div className="dropdown-content">
+            <a href="#" className="dropdown-item">
+              Overview
+            </a>
+            <a href="#" className="dropdown-item">
+              Modifiers
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  renderQtyColumn = row => {
+    const { original, column } = row;
+    const { medicationHistory } = this.state;
+    const fieldName = chain(column.id)
+                        .toLower()
+                        .replace('qty', '')
+                        .value();
+    const isTaken = chain(medicationHistory)
+                      .find(({ date }) => date === original.currentDate)
+                      .get('medication')
+                      .find(({ _id }) => _id === original._id)
+                      .get('history')
+                      .find(({ date }) => date === original.currentDate)
+                      .get(fieldName)
+                      .value();
+
+    return (
+      <div className="medication-chart-cell">
+        <span className="is-inline-block">{row.value}</span>
+        {(moment(original.currentDate).isBefore(moment().format(dateFormat)) || isTaken) &&
+          <span className={`is-rounded icon is-pulled-right p-r-15 has-text-${isTaken ? 'success' : 'danger'}`}>
+            <i className={`fa ${isTaken ? 'fa-check' : 'fa-times'}`} />
+          </span>
+        }
+        {moment(moment().format(dateFormat)).isSame(original.currentDate) && !isTaken &&
+          <button
+            className="button is-primary is-small is-pulled-right"
+            onClick={() => this.markTaken(original._id, original.currentDate, fieldName)}
+            title="Mark as taken"
+          >
+            <i className="fa fa-check" />
+          </button>
+        }
+      </div>
+    );
+  }
+
+  async markTaken(id, date, field) {
+    const { model: Model } = this.props;
+    const { from, to } = this.state;
+    const medicationHistory = Model.getMedicationHistory(from.clone(), to.clone());
+    const recordModel = chain(medicationHistory)
+                          .find(({ date: _date }) => _date === date)
+                          .get('medication')
+                          .find(({ id: _id }) => _id === id)
+                          .value();
+
+    try {
+      const { history } = recordModel.attributes;
+      let historyModel = history.findWhere({ date });
+      if (!historyModel) historyModel = new MedicationHistoryModel();
+      historyModel.set({ date, [field]: true });
+      await historyModel.save(null, { silent: true });
+
+      recordModel.get('history').add(historyModel.attributes);
+      await recordModel.save(null, { silent: true });
+      this.handleChange();
+    } catch (err) {
+      toast('Something went wrong while updating, please try again later.', { type: 'error' });
+    }
   }
 
   goToPrev = () => {
@@ -54,9 +155,16 @@ class Medication extends Component {
     this.setState({ from, to }, this.handleChange);
   }
 
+  getHeaderText = (date) => {
+    const days = ['Yesterday', 'Today', 'Tomorrow'];
+    const calenderText = moment(date).calendar(null, momentSimpleCalender);
+    if (days.includes(calenderText)) return `${calenderText} - ${moment(date).format(dateFormatText)}`;
+    return `${moment(date).format(dateFormatText)}`;
+  }
+
   render() {
     const { model: Model } = this.props;
-    const { medicationHistory } = this.state;
+    const { medicationHistory, tableColumns } = this.state;
     return (
       <div>
         <div className="column p-t-0 p-b-0">
@@ -78,7 +186,7 @@ class Medication extends Component {
                         </span>
                       </button>
                     }
-                    <span className="text">{`${moment(date).calendar(null, momentSimpleCalender)} - ${moment(date).format(dateFormatText)}`}</span>
+                    <span className="text">{this.getHeaderText(date)}</span>
                     {k === 0 &&
                       <button className="button is-pulled-right is-small" onClick={this.goToNext}>
                         <span className="icon is-small">
@@ -90,8 +198,9 @@ class Medication extends Component {
                   <ReactTable
                     keyField="_id"
                     data={medication}
+                    noDataText="No nedication found"
                     pageSize={medication.length}
-                    columns={patientMedicationColumns}
+                    columns={tableColumns}
                     className="-striped m-b-20"
                     defaultSortDirection="asc"
                     showPagination={false}

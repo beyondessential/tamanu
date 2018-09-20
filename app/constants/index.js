@@ -1,7 +1,14 @@
 import moment from 'moment';
 import { defaults } from 'lodash';
 import dbService from '../services/database';
-import { patientIcon, scheduleIcon, medicationIcon, labsIcon, administrationIcon, programsIcon } from './images';
+import {
+  patientIcon,
+  scheduleIcon,
+  medicationIcon,
+  labsIcon,
+  administrationIcon,
+  programsIcon
+} from './images';
 
 export const Colors = {
   searchTintColor: '#d2dae3',
@@ -33,18 +40,18 @@ const headerStyle = {
 
 const headerSortingStyle = { backgroundColor: '#c8e6c9' };
 
-export const momentSimpleCalender = {
-  sameDay: '[Today]',
-  nextDay: '[Tomorrow]',
-  nextWeek: 'dddd',
-  lastDay: '[Yesterday]',
-  lastWeek: '[Last] dddd',
-  sameElse: 'DD/MM/YYYY'
-};
-
 export const dateFormat = 'YYYY-MM-DD';
 
 export const dateFormatText = 'Do MMM YYYY';
+
+export const momentSimpleCalender = {
+  sameDay: '[Today]',
+  nextDay: '[Tomorrow]',
+  nextWeek: null,
+  lastDay: '[Yesterday]',
+  lastWeek: null,
+  sameElse: null
+};
 
 export const timeFormat = 'hh:mm a';
 

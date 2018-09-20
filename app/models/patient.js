@@ -202,7 +202,6 @@ export default BaseModel.extend({
   },
 
   getMedicationHistory(from = moment().subtract(1, 'days'), to = moment().add(1, 'days')) {
-    console.log( from.format(), to.format() );
     const medication = [];
     const allMedication = this.getMedication();
     while (from.isSameOrBefore(to)) {

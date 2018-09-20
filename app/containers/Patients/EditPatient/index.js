@@ -211,7 +211,7 @@ function mapStateToProps(state) {
 }
 
 const { patient: patientActions } = actions;
-const { fetchPatient, savePatient } = patientActions;
+const { fetchPatient, savePatient, medicationTaken } = patientActions;
 const mapDispatchToProps = dispatch => ({
   fetchPatient: (params) => dispatch(fetchPatient(params)),
   savePatient: (params) => dispatch(savePatient(params)),

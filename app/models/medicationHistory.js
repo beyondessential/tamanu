@@ -1,5 +1,4 @@
 import shortid from 'shortid';
-import moment from 'moment';
 import BaseModel from './base';
 
 export default BaseModel.extend({
@@ -8,7 +7,7 @@ export default BaseModel.extend({
     return {
       _id: `medicationHistory_${shortid.generate()}`,
       docType: 'medicationHistory',
-      date: moment(),
+      date: '',
       morning: false,
       lunch: false,
       evening: false,
@@ -16,4 +15,10 @@ export default BaseModel.extend({
       markedBy: '',
     };
   },
+
+  validate: (attrs) => {
+    const errors = [];
+    if (attrs.date === '') errors.push('date is required!');
+    if (errors.length) return errors;
+  }
 });
