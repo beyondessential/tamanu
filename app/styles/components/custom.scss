@@ -182,3 +182,11 @@ a:hover {
     max-width: inherit;
   }
 }
+
+.button.is-primary,
+.button.is-danger {
+  border: 0.5px solid #333 !important;
+}
+.has-text-success {
+  color: $primary !important;
+}

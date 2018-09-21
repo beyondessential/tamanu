@@ -124,6 +124,7 @@ class EditPatient extends Component {
                           <History
                             history={history}
                             model={patientModel}
+                            changeTab={this.changeTab}
                           />
                         }
                         {selectedTab === 'general' &&
@@ -211,7 +212,7 @@ function mapStateToProps(state) {
 }
 
 const { patient: patientActions } = actions;
-const { fetchPatient, savePatient, medicationTaken } = patientActions;
+const { fetchPatient, savePatient } = patientActions;
 const mapDispatchToProps = dispatch => ({
   fetchPatient: (params) => dispatch(fetchPatient(params)),
   savePatient: (params) => dispatch(savePatient(params)),

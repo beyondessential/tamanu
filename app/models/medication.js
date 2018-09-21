@@ -1,38 +1,32 @@
 import Backbone from 'backbone-associations';
 import shortid from 'shortid';
-import { isNaN, toNumber } from 'lodash';
+import { isNaN, toNumber, defaults } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
 import { mapRelations } from '../utils';
 import { medicationStatuses } from '../constants';
 
 export default BaseModel.extend({
-  idAttribute: '_id',
-  defaults: () => {
-    const _id = shortid.generate();
-
-    return {
-      _id: `medication_${_id}`,
-      docType: 'medication',
-      patient: '',
-      visit: '',
-      drug: '',
-      notes: '',
-      prescription: '',
-      prescriptionDate: moment(),
-      qtyMorning: 0,
-      qtyLunch: 0,
-      qtyEvening: 0,
-      qtyNight: 0,
-      refills: '',
-      endDate: null,
-      requestedDate: '',
-      requestedBy: '',
-      status: medicationStatuses.REQUESTED,
-
-      history: [],
-    };
-  },
+  defaults: () => defaults({
+    _id: `medication_${shortid.generate()}`,
+    docType: 'medication',
+    patient: '',
+    visit: '',
+    drug: '',
+    notes: '',
+    prescription: '',
+    prescriptionDate: moment(),
+    qtyMorning: 0,
+    qtyLunch: 0,
+    qtyEvening: 0,
+    qtyNight: 0,
+    refills: '',
+    endDate: null,
+    requestedDate: moment(),
+    requestedBy: '',
+    status: medicationStatuses.REQUESTED,
+    history: [],
+  }, BaseModel.prototype.defaults),
 
   // Associations
   relations: [

@@ -35,12 +35,16 @@ class History extends Component {
       case 'visit':
         this.props.history.push(`/patients/visit/${Model.id}/${_id}`);
       break;
+      case 'medication':
+        this.props.changeTab('medication');
+      break;
     }
   }
 
   render() {
     const { model: Model } = this.props;
     const { noteModalVisible, history } = this.state;
+    console.log({ history });
     return (
       <div>
         <div className="column has-text-right">
@@ -55,7 +59,7 @@ class History extends Component {
                 default:
                 case 'visit':
                   return (
-                    <div className="history-pane m-b-15" key={`history-${item._id}`}>
+                    <div className="history-pane m-b-25" key={`history-${item._id}`}>
                       <div className="header" onClick={() => this.gotoItem(item)}>
                         <span>
                         {
@@ -63,6 +67,7 @@ class History extends Component {
                         }
                         </span>
                         {capitalize(item.visitType)}
+                        <span className="has-text-grey-lighter has-background-white-ter is-pulled-right m-r-0">Visit</span>
                       </div>
                       {item.procedures.length > 0 &&
                         <div className="text">
@@ -80,6 +85,37 @@ class History extends Component {
                           }
                         </div>
                       }
+                    </div>
+                  );
+                break;
+                case 'medication':
+                  return (
+                    <div className="history-pane m-b-25" key={`history-${item._id}`}>
+                      <div className="header" onClick={() => this.gotoItem(item)}>
+                        <span>
+                        {
+                          `${moment(item.prescriptionDate).format(dateFormat)} ${(item.endDate != null ? ` - ${moment(item.endDate).format(dateFormat)}` : '')}`
+                        }
+                        </span>
+                        {capitalize(item.drug.name)}
+                        <span className="has-text-grey-lighter has-background-white-ter is-pulled-right m-r-0">Medication</span>
+                      </div>
+                      {/* {item.procedures.length > 0 &&
+                        <div className="text">
+                          {
+                            item.procedures.map(procedure => {
+                              return (
+                                <Fragment key={`procedure-${procedure._id}`}>
+                                  <span>Procedure</span><br />
+                                  <Link to={`/patients/visit/${Model.id}/${item._id}/procedure/${procedure._id}`}>
+                                    {`${moment(procedure).format(dateFormat)}: ${procedure.description}`}
+                                  </Link>
+                                </Fragment>
+                              );
+                            })
+                          }
+                        </div>
+                      } */}
                     </div>
                   );
                 break;

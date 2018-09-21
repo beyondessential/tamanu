@@ -1,9 +1,9 @@
 import Backbone from 'backbone-associations';
 import shortid from 'shortid';
-import { defaults, each, clone, isEmpty, get, filter, capitalize, concat } from 'lodash';
+import { defaults, each, clone, isEmpty, get, filter, capitalize, concat, orderBy } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
-import mapRelations from '../utils/map-relations';
+import { mapRelations, concatSelf } from '../utils';
 import { pregnancyOutcomes, dateFormat } from '../constants';
 // import SurveyModel from './survey';
 
@@ -186,8 +186,13 @@ export default BaseModel.extend({
   getHistory() {
     let history = [];
     let { visits } = this.attributes;
-    visits = visits.map(visit => visit.toJSON({ relations: true }));
-    if (!isEmpty(visits)) history = concat(history, visits.map(visit => ({ date: visit.startDate, ...visit })));
+    visits = visits.map(visit =>  visit.toJSON({ relations: true }));
+    if (!isEmpty(visits)) concatSelf(history, visits.map(visit => {
+      // Add medication for this visit to the history
+      if (!isEmpty(visit.medication)) concatSelf(history, visit.medication.map(medicine => ({ date: moment(medicine.requestedDate), ...medicine })));
+      return { date: moment(visit.startDate), ...visit };
+    }));
+    history = orderBy(history, item => item.date, 'desc');
     return history;
   },
 

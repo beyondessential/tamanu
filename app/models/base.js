@@ -95,11 +95,11 @@ export default Backbone.AssociatedModel.extend({
         const relationCol = this.get(relation.key);
         if (typeof relationCol !== 'undefined' && isObject(relationCol)) {
           if (relation.type === 'Many') {
-            const data = relationCol.models.map((m) => (addRelations ? m.toJSON() : m.id));
+            const data = relationCol.models.map((m) => (addRelations ? m.toJSON({ relations: true }) : m.id));
             set(attributes, relation.key, data);
           } else if (relation.type === 'One') {
             const { id } = relationCol;
-            set(attributes, relation.key, (addRelations ? relationCol.toJSON() : id));
+            set(attributes, relation.key, (addRelations ? relationCol.toJSON({ relations: true }) : id));
           } else {
             throw new Error('Invalid relation type!');
           }
