@@ -40,7 +40,15 @@ class EditPatient extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    this.handleChange(newProps);
+    const { id: oldId } = this.props.match.params;
+    const { id: newId } = newProps.match.params;
+    if (oldId !== newId) {
+      this.props.fetchPatient({ id: newId });
+      this.changeTab('history');
+    } else {
+      this.handleChange(newProps);
+    }
+
   }
 
   // componentWillUnmount() {
@@ -49,7 +57,7 @@ class EditPatient extends Component {
 
   handleChange(props = this.props) {
     let updates = {};
-    const { patient, action, loading, saved } = props;
+    const { patient, action, loading } = props;
     if (!loading) {
       // handle model's change
       // visit.on('change', () => this.forceUpdate());
