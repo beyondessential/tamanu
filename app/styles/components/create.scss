@@ -87,6 +87,10 @@
         .button, .icon {
           position: absolute;
           right: 0;
+          &.is-pulled-left {
+            right: auto;
+            left: 0;
+          }
         }
       }
       .rt-td.taken {

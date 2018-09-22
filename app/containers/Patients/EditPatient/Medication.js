@@ -3,6 +3,7 @@ import ReactTable from 'react-table';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import ReactTooltip from 'react-tooltip';
 import { chain } from 'lodash';
 import { MedicationHistoryModel } from '../../../models';
 import {
@@ -94,20 +95,33 @@ class Medication extends Component {
                       .find(({ date }) => date === original.currentDate)
                       .get(fieldName)
                       .value();
-
     return (
       <div className="medication-chart-cell">
         <span className="is-inline-block">{row.value}</span>
         {(moment(original.currentDate).isBefore(moment().format(dateFormat)) || isTaken) &&
-          <span className={`is-rounded icon is-pulled-right p-r-15 has-text-${isTaken ? 'success' : 'danger'}`}>
-            <i className={`fa ${isTaken ? 'fa-check' : 'fa-times'}`} />
-          </span>
+          <Fragment>
+            <span 
+              className={`is-rounded icon is-pulled-right p-l-35 is-pulled-left has-text-${isTaken ? 'success' : 'danger'}`}
+              data-tip={isTaken ? 'Taken' : 'Not Taken'}
+            >
+              <i className={`fa ${isTaken ? 'fa-check' : 'fa-times'}`} />
+            </span>
+            {moment(moment().format(dateFormat)).isSame(original.currentDate) && isTaken &&
+              <button
+                className="button is-default is-small"
+                onClick={() => this.markTaken(original._id, original.currentDate, fieldName, false)}
+                data-tip="Undo"
+              >
+                <i className="fa fa-undo" />
+              </button>
+            }
+          </Fragment>
         }
         {moment(moment().format(dateFormat)).isSame(original.currentDate) && !isTaken &&
           <button
-            className="button is-primary is-small is-pulled-right"
-            onClick={() => this.markTaken(original._id, original.currentDate, fieldName)}
-            title="Mark as taken"
+            className="button is-default is-small is-pulled-right has-text-success"
+            onClick={() => this.markTaken(original._id, original.currentDate, fieldName, true)}
+            data-tip="Mark as taken"
           >
             <i className="fa fa-check" />
           </button>
@@ -116,7 +130,7 @@ class Medication extends Component {
     );
   }
 
-  async markTaken(id, date, field) {
+  async markTaken(id, date, field, value) {
     const { model: Model } = this.props;
     const { from, to } = this.state;
     const medicationHistory = Model.getMedicationHistory(from.clone(), to.clone());
@@ -130,7 +144,7 @@ class Medication extends Component {
       const { history } = recordModel.attributes;
       let historyModel = history.findWhere({ date });
       if (!historyModel) historyModel = new MedicationHistoryModel();
-      historyModel.set({ date, [field]: true });
+      historyModel.set({ date, [field]: value });
       await historyModel.save(null, { silent: true });
 
       recordModel.get('history').add(historyModel.attributes);
@@ -231,6 +245,7 @@ class Medication extends Component {
             </div>
           }
         </div>
+        <ReactTooltip />
       </div>
     );
   }
