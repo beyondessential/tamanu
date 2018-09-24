@@ -26,5 +26,8 @@ coverage
 benchmarks/graphs
 
 release
+data
+config
 
 config\.js
+config\.demo\.js

@@ -1,6 +1,0 @@
-version: "3.7"
-services:
-  proxy:
-    image: edwinbes/tamanu_lan:latest
-    environment:
-      - NODE_ENV=production

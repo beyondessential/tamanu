@@ -55,22 +55,22 @@ internals.setup = ({ PouchDB }) => {
     retry: true
   })
   .on('change', (info) => {
-    console.log(`DB Sync[change]: ${info}`);
+    console.log(`DB Sync[change]: ${info.docs.length} docs`);
   })
   .on('paused', (err) => {
-    console.log(`DB Sync[paused]: ${err}`);
+    console.log('DB Sync[paused]:', err);
   })
   .on('active', () => {
     console.log('DB Sync[active]');
   })
   .on('denied', (err) => {
-    console.log(`DB Sync[denied]: ${err}`);
+    console.log('DB Sync[denied]:', err);
   })
   .on('complete', (info) => {
-    console.log(`DB Sync[complete]: ${info}`);
+    console.log('DB Sync[complete]:', info);
   })
   .on('error', (err) => {
-    console.log(`DB Sync[error]: ${err}`);
+    console.log('DB Sync[error]:', err);
   });
 };
 
