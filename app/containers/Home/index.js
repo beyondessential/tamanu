@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { random } from 'lodash';
+import { splashImages } from '../../constants/images';
 
 class HomePage extends Component {
   state: {
@@ -8,7 +9,8 @@ class HomePage extends Component {
 
   componentWillMount() {
     const numImages = 3;
-    const splashStyle = { backgroundImage: `url('./assets/images/splashscreens/screen_${random(1, numImages)}.jpg')` };
+    const imgData = splashImages[random(0, splashImages.length-1)];
+    const splashStyle = { backgroundImage: `url(${imgData})` };
     this.setState({ splashStyle });
   }
 
