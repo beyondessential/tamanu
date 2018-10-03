@@ -5,10 +5,8 @@ import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
-  defaults: () => defaults(
-    {
-      _id: `pregnancy_${shortid.generate()}`,
-      docType: 'pregnancy',
+  url: `${BaseModel.prototype.url}/pregnancy`,
+  defaults: () => defaults({
       conceiveDate: Date, // estimated
       deliveryDate: Date, // estimated
       child: '',

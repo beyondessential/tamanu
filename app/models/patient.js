@@ -8,9 +8,9 @@ import { pregnancyOutcomes, dateFormat } from '../constants';
 // import SurveyModel from './survey';
 
 export default BaseModel.extend({
+  url: `${BaseModel.prototype.url}/patient`,
   defaults: () => defaults({
-    _id: `patient_${shortid.generate()}`,
-    docType: 'patient',
+    _id: shortid.generate(),
     displayId: '',
     admitted: false,
     address: '',

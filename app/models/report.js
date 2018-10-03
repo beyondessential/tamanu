@@ -1,21 +1,12 @@
-const Backbone = require('backbone-associations');
-const shortid = require('shortid');
+import { defaults } from 'lodash';
+import BaseModel from './base';
 
-export default Backbone.Model.extend({
-  idAttribute: '_id',
-  defaults: () => {
-    const _id = shortid.generate();
-
-    return {
-      _id: `report_${_id}`,
-      docType: 'report',
-      reportDate: Date,
-      reportType: null,
-
-      // Associations
-      // visit: ''
-    };
-  },
+export default BaseModel.extend({
+  url: `${BaseModel.prototype.url}/report`,
+  defaults: () => defaults({
+    reportDate: Date,
+    reportType: null,
+  }, BaseModel.prototype.defaults),
 
   // validate: (attrs) => {
   //   if (attrs.firstName === '') return 'firstName is required!';

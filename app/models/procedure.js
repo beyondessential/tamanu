@@ -6,9 +6,8 @@ import BaseModel from './base';
 import { mapRelations } from '../utils';
 
 export default BaseModel.extend({
+  url: `${BaseModel.prototype.url}/procedure`,
   defaults: () => defaults({
-    _id: `procedure_${shortid.generate()}`,
-    docType: 'procedure',
     anesthesiaType: '',
     anesthesiologist: '',
     assistant: '',

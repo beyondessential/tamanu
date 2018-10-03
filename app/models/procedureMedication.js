@@ -3,9 +3,8 @@ import { defaults, isEmpty } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
+  url: `${BaseModel.prototype.url}/procedureMedication`,
   defaults: () => defaults({
-    _id: `procedureMedication_${shortid.generate()}`,
-    docType: 'procedureMedication',
     medication: '',
     quantity: '',
   }, BaseModel.prototype.defaults),

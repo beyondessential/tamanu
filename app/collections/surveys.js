@@ -1,6 +1,8 @@
 import Backbone from 'backbone';
+import BaseCollection from './base';
 
-export default Backbone.Collection.extend({
+export default BaseCollection.extend({
   model: require('../models/survey'),
   comparator: 'order',
+  url: `${BaseCollection.prototype.url}/survey`
 });

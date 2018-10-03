@@ -3,10 +3,8 @@ import { defaults, clone } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  defaults: () => defaults(
-    {
-      _id: `diagnosis_${shortid.generate()}`,
-      docType: 'diagnosis',
+  url: `${BaseModel.prototype.url}/diagnosis`,
+  defaults: () => defaults({
       active: true,
       date: Date,
       diagnosis: null,

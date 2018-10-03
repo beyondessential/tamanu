@@ -4,9 +4,8 @@ import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
+  url: `${BaseModel.prototype.url}/allergy`,
   defaults: () => defaults({
-    _id: `allergy_${shortid.generate()}`,
-    docType: 'allergy',
     name: null,
     icd9CMCode: null,
     icd10Code: null,

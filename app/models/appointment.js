@@ -6,10 +6,8 @@ import BaseModel from './base';
 import { VisitModel } from './index';
 
 export default BaseModel.extend({
-  defaults: () => defaults(
-    {
-      _id: `appointment_${shortid.generate()}`,
-      docType: 'appointment',
+  url: `${BaseModel.prototype.url}/appointment`,
+  defaults: () => defaults({
       allDay: true,
       provider: '',
       location: '',

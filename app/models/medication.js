@@ -7,9 +7,8 @@ import { mapRelations } from '../utils';
 import { medicationStatuses } from '../constants';
 
 export default BaseModel.extend({
+  url: `${BaseModel.prototype.url}/medication`,
   defaults: () => defaults({
-    _id: `medication_${shortid.generate()}`,
-    docType: 'medication',
     patient: '',
     visit: '',
     drug: '',

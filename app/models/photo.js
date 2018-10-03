@@ -1,28 +1,22 @@
-const Backbone = require('backbone-associations');
-const shortid = require('shortid');
+import { defaults } from 'lodash';
+import BaseModel from './base';
 
-export default Backbone.Model.extend({
-  idAttribute: '_id',
-  defaults: () => {
-    const _id = shortid.generate();
-
-    return {
-      _id: `photo_${_id}`,
-      docType: 'photo',
-      caption: null,
-      coverImage: false,
-      files: {
-        attachments: []
-      },
-      fileName: null,
-      isImage: false,
-      localFile: false,
-      url: null,
-      // patient: '',
-      // visit: '',
-      // procedure: ''
-    };
-  },
+export default BaseModel.extend({
+  url: `${BaseModel.prototype.url}/photo`,
+  defaults: () => defaults({
+    caption: null,
+    coverImage: false,
+    files: {
+      attachments: []
+    },
+    fileName: null,
+    isImage: false,
+    localFile: false,
+    url: null,
+    // patient: '',
+    // visit: '',
+    // procedure: ''
+  }, BaseModel.prototype.defaults),
 
   // validate: (attrs) => {
   //   if (attrs.firstName === '') return 'firstName is required!';

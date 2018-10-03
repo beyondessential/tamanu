@@ -1,5 +1,5 @@
 import Backbone from 'backbone-associations';
-import { map, keys, set, isEmpty, merge } from 'lodash';
+import { map, keys, set, isEmpty } from 'lodash';
 // import dbService from '../services/database';
 // import BackbonePouch from 'backbone-pouch';
 
@@ -12,6 +12,7 @@ export default Backbone.Collection.extend({
     this.pageSize = defaultpageSize;
   },
 
+  url: process.env.LAN_REALM,
   // sync: BackbonePouch.sync({
   //   db: () => dbService.patientDB,
   //   fetch: 'query',

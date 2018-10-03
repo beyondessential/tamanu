@@ -5,13 +5,11 @@ import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
-  defaults: () => defaults(
-    {
-      _id: `surveyScreenComponent_${shortid.generate()}`,
-      docType: 'surveyScreenComponent',
+  url: `${BaseModel.prototype.url}/surveyScreenComponent`,
+  defaults: () => defaults({
       question: '',
       componentNumber: null,
-      nswersEnablingFollowUp: null,
+      answersEnablingFollowUp: null,
       isFollowUp: false,
     },
     BaseModel.prototype.defaults,

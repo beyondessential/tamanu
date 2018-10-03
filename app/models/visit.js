@@ -6,9 +6,8 @@ import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
+  url: `${BaseModel.prototype.url}/visit`,
   defaults: () => defaults({
-    _id: `visit_${shortid.generate()}`,
-    docType: 'visit',
     dischargeInfo: '',
     startDate: moment(),
     endDate: null, // if visit type is outpatient, startDate and endDate are equal

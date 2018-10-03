@@ -1,23 +1,18 @@
-const Backbone = require('backbone-associations');
+const BaseModel = require('./base');
 const shortid = require('shortid');
 
-export default Backbone.Model.extend({
-  idAttribute: '_id',
-  defaults: () => {
-    const _id = shortid.generate();
-
-    return {
-      _id: `lab_${_id}`,
-      docType: 'lab',
+export default BaseModel.extend({
+  url: `${BaseModel.prototype.url}/lab`,
+  defaults: () => defaults({
       labDate: Date,
       notes: null,
       requestedBy: null,
       requestedDate: Date,
       result: null,
       status: null
-    };
-  },
-
+    },
+    BaseModel.prototype.defaults,
+  ),
   // validate: (attrs) => {
   //   if (attrs.firstName === '') return 'firstName is required!';
   //   if (attrs.lastName === '') return 'lastName is required!';

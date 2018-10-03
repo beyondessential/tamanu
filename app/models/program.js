@@ -5,10 +5,8 @@ import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
-  defaults: () => defaults(
-    {
-      _id: `program_${shortid.generate()}`,
-      docType: 'program',
+  url: `${BaseModel.prototype.url}/program`,
+  defaults: () => defaults({
       name: null,
       programType: 'direct',
       surveys: []

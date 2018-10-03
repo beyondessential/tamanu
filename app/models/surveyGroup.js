@@ -3,10 +3,8 @@ import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  defaults: () => defaults(
-    {
-      _id: `surveyGroup_${shortid.generate()}`,
-      docType: 'surveyGroup',
+  url: `${BaseModel.prototype.url}/surveyGroup`,
+  defaults: () => defaults({
       name: null,
     },
     BaseModel.prototype.defaults,

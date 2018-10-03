@@ -4,15 +4,16 @@ import moment from 'moment';
 import BaseModel from './base';
 
 export default BaseModel.extend({
+  url: `${BaseModel.prototype.url}/note`,
   defaults: () => defaults({
-    _id: `note_${shortid.generate()}`,
-    docType: 'note',
-    attribution: '',
-    content: '',
-    createdBy: '',
-    date: moment(),
-    noteType: ''
-  }, BaseModel.prototype.defaults),
+      attribution: '',
+      content: '',
+      createdBy: '',
+      date: moment(),
+      noteType: ''
+    },
+    BaseModel.prototype.defaults,
+  ),
 
   authoredBy() {
     if (!isEmpty(this.get('attribution'))) {

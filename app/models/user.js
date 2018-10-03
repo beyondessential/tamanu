@@ -1,29 +1,23 @@
-const Backbone = require('backbone-associations');
-const shortid = require('shortid');
+import { defaults } from 'lodash';
+import BaseModel from './base';
 
-export default Backbone.Model.extend({
-  idAttribute: '_id',
-  defaults: () => {
-    const _id = shortid.generate();
-
-    return {
-      _id: `user_${_id}`,
-      docType: 'user',
-      derived_key: null,
-      deleted: false,
-      displayName: null,
-      email: null,
-      iterations: [],
-      name: null,
-      password: null,
-      password_scheme: null,
-      password_sha: null,
-      rev: null,
-      roles: [],
-      salt: null,
-      userPrefix: null,
-    };
-  },
+export default BaseModel.extend({
+  url: `${BaseModel.prototype.url}/user`,
+  defaults: () => defaults({
+    derived_key: null,
+    deleted: false,
+    displayName: null,
+    email: null,
+    iterations: [],
+    name: null,
+    password: null,
+    password_scheme: null,
+    password_sha: null,
+    rev: null,
+    roles: [],
+    salt: null,
+    userPrefix: null,
+  }, BaseModel.prototype.defaults),
 
   // validate: (attrs) => {
   //   if (attrs.firstName === '') return 'firstName is required!';

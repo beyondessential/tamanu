@@ -5,10 +5,8 @@ import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
-  defaults: () => defaults(
-    {
-      _id: `surveyScreen_${shortid.generate()}`,
-      docType: 'surveyScreen',
+  url: `${BaseModel.prototype.url}/surveyScreen`,
+  defaults: () => defaults({
       surveyId: null,
       screenNumber: null,
       components: []

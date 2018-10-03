@@ -55,7 +55,7 @@ class Database {
     createViews(this.mainDB);
 
     // Setup backbone sync
-    this.setupSync();
+    // this.setupSync();
     // this.replication.setup();
 
     // Setup subscriptions

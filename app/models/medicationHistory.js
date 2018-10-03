@@ -2,19 +2,17 @@ import shortid from 'shortid';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  idAttribute: '_id',
-  defaults: () => {
-    return {
-      _id: `medicationHistory_${shortid.generate()}`,
-      docType: 'medicationHistory',
+  url: `${BaseModel.prototype.url}/medicationHistory`,
+  defaults: () => defaults({
       date: '',
       morning: false,
       lunch: false,
       evening: false,
       night: false,
       markedBy: '',
-    };
-  },
+    },
+    BaseModel.prototype.defaults,
+  ),
 
   validate: (attrs) => {
     const errors = [];

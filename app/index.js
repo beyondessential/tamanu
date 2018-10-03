@@ -4,13 +4,13 @@ import { AppContainer } from 'react-hot-loader';
 import Root from './containers/Root';
 import { configureStore, history } from './store/configureStore';
 import './styles/app.global.scss';
-import dbService from './services/database';
-import configService from './services/config';
+// import dbService from './services/database';
+// import configService from './services/config';
 
 (async () => {
-  await dbService.createDB();
-  await configService.setup();
-  dbService.setup();
+  // await dbService.createDB();
+  // await configService.setup();
+  // dbService.setup();
 
   const store = configureStore();
 

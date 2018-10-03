@@ -6,9 +6,8 @@ import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
+  url: `${BaseModel.prototype.url}/vital`,
   defaults: () => defaults({
-    _id: `vital_${shortid.generate()}`,
-    docType: 'vital',
     dateRecorded: moment(),
     temperature: null,
     weight: null,

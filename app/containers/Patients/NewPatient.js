@@ -16,7 +16,7 @@ class NewPatient extends Component {
   state = {
     formError: false,
     bloodType: '',
-    birthday: moment(),
+    dateOfBirth: moment(),
     sex: '',
     age: '0 months 0 days',
     referredDate: moment(),
@@ -49,7 +49,7 @@ class NewPatient extends Component {
 
   onChangeDate = (date) => {
     this.setState({
-      birthday: date,
+      dateOfBirth: date,
       age: getDifferenceDate(moment(), date)
     });
   }
@@ -63,7 +63,7 @@ class NewPatient extends Component {
   render() {
     const {
       formError,
-      birthday,
+      dateOfBirth,
       age,
       referredDate,
       contactModalVisible,
@@ -87,7 +87,7 @@ class NewPatient extends Component {
             // TODO: move this to the model
             e.preventDefault();
             const patient = Serializer.serialize(e.target, { hash: true });
-            patient.birthday = moment(birthday).format('YYYY-MM-DD');
+            patient.dateOfBirth = moment(dateOfBirth).format('YYYY-MM-DD');
             patient.referredDate = moment(referredDate).format('YYYY-MM-DD');
             patient.age = age;
             patient.displayId = await getDisplayId('P');
@@ -221,14 +221,14 @@ class NewPatient extends Component {
                     Date Of Birth
                   </span>
                   <DatePicker
-                    name="birthday"
+                    name="dateOfBirth"
                     autoFocus
                     customInput={<CustomDateInput />}
-                    selected={birthday}
+                    selected={dateOfBirth}
                     onChange={this.onChangeDate}
                     peekNextMonth
                     showMonthDropdown
-                    value={moment(birthday).format('YYYY-MM-DD')}
+                    value={moment(dateOfBirth).format('YYYY-MM-DD')}
                     showYearDropdown
                     type="button"
                     dropdownMode="select"

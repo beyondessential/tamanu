@@ -1,10 +1,12 @@
 import Backbone from 'backbone-associations';
 import moment from 'moment';
+import shortid from 'shortid';
 import { mapValues, assignIn, isEmpty, clone, map, set, isObject, isArray } from 'lodash';
 import { to } from 'await-to-js';
 
 export default Backbone.AssociatedModel.extend({
   idAttribute: '_id',
+  url: process.env.LAN_REALM,
 
   defaults: {
     modifiedFields: {},

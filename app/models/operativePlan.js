@@ -1,26 +1,21 @@
 import Backbone from 'backbone-associations';
 import shortid from 'shortid';
+import { defaults } from 'lodash';
 import mapRelations from '../utils/map-relations';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  idAttribute: '_id',
-  defaults: () => {
-    const _id = shortid.generate();
-
-    return {
-      _id: `opPlan_${_id}`,
-      docType: 'opPlan',
-      additionalNotes: null,
-      admissionInstructions: null,
-      caseComplexity: null,
-      operationDescription: null,
-      procedures: [],
-      status: null,
-      surgeon: null,
-      diagnoses: [],
-    };
-  },
+  url: `${BaseModel.prototype.url}/opPlan`,
+  defaults: () => defaults({
+    additionalNotes: null,
+    admissionInstructions: null,
+    caseComplexity: null,
+    operationDescription: null,
+    procedures: [],
+    status: null,
+    surgeon: null,
+    diagnoses: [],
+  }, BaseModel.prototype.defaults),
 
   // Associations
   relations: [

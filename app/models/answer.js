@@ -5,10 +5,8 @@ import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
-  defaults: () => defaults(
-    {
-      _id: `answer_${shortid.generate()}`,
-      docType: 'answer',
+  url: `${BaseModel.prototype.url}/answer`,
+  defaults: () => defaults({
       type: '',
       questionId: '',
       body: '',

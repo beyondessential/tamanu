@@ -248,19 +248,20 @@ function padDigits(number, digits) {
 }
 
 export const getDisplayId = (item) => {
-  return new Promise(async (resolve, reject) => {
-    const { mainDB } = dbService;
-    try {
-      const doc = await mainDB.get('patient_id_seq');
-      doc.value += 1;
-      const renderedValue = padDigits(doc.value, 5);
-      // Update value
-      await mainDB.put(doc);
-      return resolve(item + renderedValue);
-    } catch (err) {
-      reject(err);
-    };
-  });
+  return 'P0000123';
+  // return new Promise(async (resolve, reject) => {
+  //   const { mainDB } = dbService;
+  //   try {
+  //     const doc = await mainDB.get('patient_id_seq');
+  //     doc.value += 1;
+  //     const renderedValue = padDigits(doc.value, 5);
+  //     // Update value
+  //     await mainDB.put(doc);
+  //     return resolve(item + renderedValue);
+  //   } catch (err) {
+  //     reject(err);
+  //   };
+  // });
 };
 
 export const getDifferenceDate = (today, target) => {
