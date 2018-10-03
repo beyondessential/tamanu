@@ -2,59 +2,34 @@
   const ENV = process.env.NODE_ENV || 'production';
   const config = require('./config');
   const express = require('express');
-  const PouchDB = require('pouchdb');
+  const bodyParser = require('body-parser');
   const morgan = require('morgan');
   const compression = require('compression');
-  const expressPouch = require('express-pouchdb');
-  const basicAuth = require('express-basic-auth');
   const service = require('os-service');
 
-  // exec(['ls', '-lha'], (err, out, code) => {
-  //   if (err instanceof Error) {
-  //     throw err;
-  //   }
-  //   process.stderr.write(err);
-  //   process.stdout.write(out);
-  //   process.exit(code);
-  // });
+  const routes = require('./app/routes');
+  const errorHandler = require('./app/middleware/errorHandler');
+  const dbService = require('./app/services/database');
+  // const replicationService = require('./app/services/replication');
 
   // Start os-service
   service.run(() => {
     console.log('Service running.');
   });
 
-  const errorHandler = require('./app/middleware/errorHandler');
-  // const couchProxy = require('./app/middleware/forwardCouch');
-  const dbService = require('./app/services/database');
-  const replicationService = require('./app/services/replication');
-
   // // Init our app
-  PouchDB.plugin(require('pouchdb-find'));
   const app = express();
-  const OurPouchDB = PouchDB.defaults({
-    prefix: './data/',
-  });
-
   app.use(compression());
   app.use(morgan(ENV === 'development' ? 'dev' : 'tiny'));
-  app.use(basicAuth({
-    users: { [config.localDB.username]: [config.localDB.password] }
-  }));
+  // app.use(basicAuth({
+  //   users: { [config.localDB.username]: [config.localDB.password] }
+  // }));
 
   // console.log({ ENV, config, _env: process.env });
-  // app.use(bodyParser.raw());
-  // app.use('/', couchProxy);
-  app.use('/', expressPouch(OurPouchDB, {
-    // configPath: './config/pouchdb.json',
-    overrideMode: {
-      exclude: [
-        'routes/fauxton',
-        'routes/authentication',
-        'routes/authorization',
-        'routes/session'
-      ]
-    }
-  }));
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(errorHandler);
+  app.use('/', routes);
 
   if (ENV === 'development') {
     app.use('/_ping', (req, res) => {
@@ -64,14 +39,17 @@
 
   // Dis-allow all other routes
   app.get('*', (req, res) => {
-      res.status(404).end();
+    res.status(404).end();
   });
 
-  app.use(errorHandler);
-
-  // Setup databases
-  await dbService.setup({ PouchDB: OurPouchDB });
-  replicationService.setup({ PouchDB: OurPouchDB });
+  // // Setup databases
+  try {
+    const realm = await dbService.connect();
+    app.set('realm', realm);
+  } catch (err) {
+    throw new Error(err);
+  }
+  // replicationService.setup({ PouchDB: OurPouchDB });
   // listeners.addDatabaseListeners('main');
 
   // Start our app
