@@ -1,8 +1,16 @@
 const PregnancySchema = {
   name: 'pregnancy',
+  primaryKey: '_id',
   properties: {
-    conceiveDate: 'date', // estimated
-    deliveryDate: 'date', // estimated
+    _id: 'string',
+    conceiveDate: {
+      type: 'date',
+      optional: true
+    }, // estimated
+    deliveryDate: {
+      type: 'date',
+      optional: true
+    }, // estimated
     child: {
       type: 'string',
       optional: true

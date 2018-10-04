@@ -1,6 +1,8 @@
 const medicationHistorySchema = {
   name: 'medicationHistory',
+  primaryKey: '_id',
   properties: {
+    _id: 'string',
     date: 'date',
     morning: {
       type: 'bool',
@@ -18,7 +20,10 @@ const medicationHistorySchema = {
       type: 'bool',
       default: false
     },
-    markedBy: {         type: 'string',         optional: true       },
+    markedBy: {
+      type: 'string',
+      optional: true
+    },
   }
 };
 

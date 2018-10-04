@@ -2,7 +2,9 @@ const moment = require('moment');
 
 const VitalSchema = {
   name: 'vitals',
+  primaryKey: '_id',
   properties: {
+    _id: 'string',
     dateRecorded: {
       type: 'date',
       default: moment()

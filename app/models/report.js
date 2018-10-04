@@ -1,7 +1,12 @@
 const ReportSchema = {
   name: 'report',
+  primaryKey: '_id',
   properties: {
-    reportDate: 'date',
+    _id: 'string',
+    reportDate: {
+      type: 'date',
+      optional: true
+    },
     reportType: {
       type: 'string',
       optional: true

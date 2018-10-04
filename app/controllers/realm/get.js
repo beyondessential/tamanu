@@ -1,12 +1,20 @@
+const { objectToJSON } = require('../../utils');
+
 module.exports = (req, res) => {
-  const { body, path } = req;
   const realm = req.app.get('realm');
-  const table = path.replace('/', '');
+  const { params } = req;
+  const { model, id } = params;
 
   try {
-    realm.write(() => {
-      let objects = realm.objects(table);
-      objects = objects.map(object => JSON.parse(JSON.stringify(object)));
+    return realm.write(() => {
+      let objects = realm.objects(model);
+      if (id) {
+        objects = objects.filtered(`_id = '${id}'`);
+        objects = objectToJSON(objects[0]);
+        return res.json(objects);
+      }
+
+      objects = objects.map(object => objectToJSON(object));
       return res.json(objects);
     });
   } catch (err) {

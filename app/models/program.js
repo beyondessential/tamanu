@@ -1,6 +1,8 @@
 const ProgramSchema = {
   name: 'program',
-  properties: {
+  primaryKey: '_id', 
+  properties: { 
+    _id: 'string',
     name: {
       type: 'string',
       optional: true

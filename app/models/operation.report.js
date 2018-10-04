@@ -1,6 +1,8 @@
 const OpReportSchema = {
   name: 'operationReport',
+  primaryKey: '_id',
   properties: {
+    _id: 'string',
     additionalNotes: {
       type: 'string',
       optional: true
@@ -17,7 +19,10 @@ const OpReportSchema = {
       type: 'string',
       optional: true
     },
-    surgeryDate: 'date',
+    surgeryDate: {
+      type: 'date',
+      optional: true
+    },
     procedures: 'string[]',
     preOpDiagnoses: {
       type: 'list',

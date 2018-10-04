@@ -1,6 +1,8 @@
 const OpPlanSchema = {
   name: 'operationPlan',
+  primaryKey: '_id',
   properties: {
+    _id: 'string',
     additionalNotes: {
       type: 'string',
       optional: true

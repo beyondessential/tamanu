@@ -1,6 +1,8 @@
 const AllergySchema = {
   name: 'allergy',
+  primaryKey: '_id',
   properties: {
+    _id: 'string',
     name: 'string',
     icd9CMCode: {
       type: 'string',

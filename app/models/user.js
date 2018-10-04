@@ -1,6 +1,8 @@
 const UserSchema = {
   name: 'user',
+  primaryKey: '_id',
   properties: {
+    _id: 'string',
     derived_key: {
       type: 'string',
       optional: true

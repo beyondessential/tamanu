@@ -1,6 +1,8 @@
 const PhotoSchema = {
   name: 'photo',
+  primaryKey: '_id',
   properties: {
+    _id: 'string',
     caption: {
       type: 'string',
       optional: true

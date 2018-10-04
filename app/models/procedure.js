@@ -2,7 +2,9 @@ const moment = require('moment');
 
 const ProcedureSchema = {
   name: 'procedure',
+  primaryKey: '_id',
   properties: {
+    _id: 'string',
     anesthesiaType: {
       type: 'string',
       optional: true

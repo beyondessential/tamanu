@@ -2,7 +2,9 @@ const moment = require('moment');
 
 const VisitSchema = {
   name: 'visit',
+  primaryKey: '_id',
   properties: {
+    _id: 'string',
     dischargeInfo: {
       type: 'string',
       optional: true
@@ -11,7 +13,11 @@ const VisitSchema = {
       type: 'date',
       default: moment()
     },
-    endDate: 'date', // if visit type is outpatient, startDate and endDate are equal
+    // if visit type is outpatient, startDate and endDate are equal
+    endDate: {
+      type: 'date',
+      optional: true
+    },
     examiner: {
       type: 'string',
       optional: true

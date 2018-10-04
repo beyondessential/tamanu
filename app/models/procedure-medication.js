@@ -1,6 +1,8 @@
 const ProcedureMedicationSchema = {
   name: 'procedureMedication',
+  primaryKey: '_id',
   properties: {
+    _id: 'string',
     medication: {
       type: 'string',
       optional: true

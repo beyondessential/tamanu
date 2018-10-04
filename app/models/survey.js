@@ -1,36 +1,38 @@
 const SurveySchema = {
-    name: 'survey',
-    properties: {
-        name: {
-            type: 'string',
-            optional: true
-        },
-        code: {
-            type: 'string',
-            optional: true
-        },
-        imageData: {
-            type: 'string',
-            optional: true
-        },
-        permissionGroupId: {
-            type: 'string',
-            optional: true
-        },
-        surveyGroupId: {
-            type: 'string',
-            optional: true
-        },
-        screens: 'string[]',
-        canRedo: { // Can submit multiple times
-            type: 'bool',
-            default: false
-        },
-        order: {
-            type: 'int',
-            default: 0
-        }
+  name: 'survey',
+  primaryKey: '_id',
+  properties: {
+    _id: 'string',
+    name: {
+      type: 'string',
+      optional: true
+    },
+    code: {
+      type: 'string',
+      optional: true
+    },
+    imageData: {
+      type: 'string',
+      optional: true
+    },
+    permissionGroupId: {
+      type: 'string',
+      optional: true
+    },
+    surveyGroupId: {
+      type: 'string',
+      optional: true
+    },
+    screens: 'string[]',
+    canRedo: { // Can submit multiple times
+      type: 'bool',
+      default: false
+    },
+    order: {
+      type: 'int',
+      default: 0
     }
+  }
 };
 
 module.exports = SurveySchema;

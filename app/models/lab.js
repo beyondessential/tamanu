@@ -1,12 +1,32 @@
 const LabSchema = {
   name: 'lab',
+  primaryKey: '_id',
   properties: {
-    labDate: 'date',
-    notes: {         type: 'string',         optional: true       },
-    requestedBy: {         type: 'string',         optional: true       },
-    requestedDate: 'date',
-    result: {         type: 'string',         optional: true       },
-    status: {         type: 'string',         optional: true       }
+    _id: 'string',
+    labDate: {
+      type: 'date',
+      optional: true
+    },
+    notes: {
+      type: 'string',
+      optional: true
+    },
+    requestedBy: {
+      type: 'string',
+      optional: true
+    },
+    requestedDate: {
+      type: 'date',
+      optional: true
+    },
+    result: {
+      type: 'string',
+      optional: true
+    },
+    status: {
+      type: 'string',
+      optional: true
+    }
   }
 };
 

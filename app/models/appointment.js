@@ -1,6 +1,8 @@
 const AppointmentSchema = {
   name: 'appointment',
+  primaryKey: '_id',
   properties: {
+    _id: 'string',
     allDay: 'bool',
     provider: {
       type: 'string',
@@ -14,8 +16,14 @@ const AppointmentSchema = {
       type: 'string',
       optional: true
     },
-    startDate: 'date',
-    endDate: 'date',
+    startDate: {
+      type: 'date',
+      optional: true
+    },
+    endDate: {
+      type: 'date',
+      optional: true
+    },
     notes: {
       type: 'string',
       optional: true

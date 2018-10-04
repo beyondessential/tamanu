@@ -1,6 +1,8 @@
 const QuestionSchema = {
   name: 'question',
+  primaryKey: '_id',
   properties: {
+    _id: 'string',
     test: {
       type: 'string',
       optional: true

@@ -1,13 +1,19 @@
+const { has, set } = require('lodash');
+const shortId = require('shortid');
+const { objectToJSON } = require('../../utils');
+
 module.exports = (req, res) => {
-  const { body, path } = req;
   const realm = req.app.get('realm');
-  const table = path.replace('/', '');
+  const { body, params } = req;
+  const { model, id } = params;
 
   try {
-    realm.write(() => {
-      realm.create(table, body);
+    if (id) set(body, '_id', id);
+    if (!has(body, '_id')) set(body, '_id', shortId.generate());
+    return realm.write(() => {
+      const result = realm.create(model, body, true);
+      return res.json(objectToJSON(result));
     });
-    return res.sendStatus(200);
   } catch (err) {
     return res.status(500).send(err.toString());
   }

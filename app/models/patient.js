@@ -76,7 +76,7 @@ const PatientSchema = {
       type: 'string',
       optional: true
     },
-    familyInfo: 'string[]',
+    // familyInfo: 'string[]',
     firstName: {
       type: 'string',
       optional: true
@@ -137,7 +137,10 @@ const PatientSchema = {
       type: 'string',
       optional: true
     },
-    referredDate: 'date',
+    referredDate: {
+      type: 'date',
+      optional: true
+    },
     referredBy: {
       type: 'string',
       optional: true

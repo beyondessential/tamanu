@@ -1,6 +1,8 @@
 const SurveyResponseSchema = {
   name: 'surveyResponse',
+  primaryKey: '_id',
   properties: {
+    _id: 'string',
     surveyId: {
       type: 'string',
       optional: true

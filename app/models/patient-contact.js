@@ -1,6 +1,8 @@
 const PatientContactSchema = {
   name: 'patientContact',
+  primaryKey: '_id',
   properties: {
+    _id: 'string',
     name: {
       type: 'string',
       optional: true
