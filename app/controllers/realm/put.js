@@ -3,7 +3,7 @@ const shortId = require('shortid');
 const { objectToJSON } = require('../../utils');
 
 module.exports = (req, res) => {
-  const realm = req.app.get('realm');
+  const realm = req.app.get('database');
   const { body, params } = req;
   const { model, id } = params;
 

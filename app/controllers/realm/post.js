@@ -4,7 +4,7 @@ const { objectToJSON } = require('../../utils');
 
 module.exports = (req, res) => {
   const { body, path } = req;
-  const realm = req.app.get('realm');
+  const realm = req.app.get('database');
   const table = path.replace('/', '');
 
   try {

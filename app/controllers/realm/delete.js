@@ -1,7 +1,7 @@
 const { head, isEmpty } = require('lodash');
 
 module.exports = (req, res) => {
-  const realm = req.app.get('realm');
+  const realm = req.app.get('database');
   const { params } = req;
   const { model, id } = params;
 

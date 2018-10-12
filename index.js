@@ -9,7 +9,9 @@
 
   const routes = require('./app/routes');
   const errorHandler = require('./app/middleware/errorHandler');
-  const dbService = require('./app/services/database');
+  const Database = require('./app/services/database');
+  const Listeners = require('./app/services/listeners');
+  const models = require('./app/models');
   // const replicationService = require('./app/services/replication');
 
   // Start os-service
@@ -44,8 +46,19 @@
 
   // // Setup databases
   try {
-    const realm = await dbService.connect();
-    app.set('realm', realm);
+    // Connect database
+    const database = new Database({
+      path: './data/main.realm',
+      schema: models,
+      schemaVersion: 2,
+    });
+
+    // Set database sync
+    const listeners = new Listeners(database);
+    listeners.addDatabaseListeners();
+
+    // Set realm  instance to be accessible app wide
+    app.set('database', database);
   } catch (err) {
     throw new Error(err);
   }
