@@ -59,7 +59,7 @@ class NoteModal extends Component {
     try {
       await Model.save();
       if (action === 'new') {
-        visitModel.get('notes').add(Model.attributes);
+        visitModel.get('notes').add(Model);
         await visitModel.save(null, { silent: true });
       } else {
         visitModel.trigger('change');

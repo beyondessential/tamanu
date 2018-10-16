@@ -50,7 +50,7 @@ class AllergyModal extends Component {
       if (action === 'new') {
         const allergy = new AllergyModel(form);
         const model = await allergy.save();
-        Model.get('allergies').add(model.attributes);
+        Model.get('allergies').add(model);
         await Model.save();
       } else {
         item.set(form);

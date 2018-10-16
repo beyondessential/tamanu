@@ -453,6 +453,17 @@
       color: rgb(74, 74, 74);
     }
   }
+  .login-container {
+    display: flex;
+    height: calc(100vh - 50px);
+    align-items: center;
+    justify-content: center;
+
+    .login-form {
+      // background: #F4F6F8;
+      border: 1px solid #EEE;
+    }
+  }
 
   &.headerFixed {
     position: relative;
@@ -467,6 +478,17 @@
 
     .survey-details {
       padding-top: 60px;
+    }
+  }
+
+  &.no-sidebar {
+    margin-left: 0;
+
+    .view-top-bar {
+      text-align: center;
+      span {
+        float: none;
+      }
     }
   }
 }

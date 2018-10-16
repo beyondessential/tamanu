@@ -30,6 +30,8 @@ class General extends Component {
   handleChange(props = this.props) {
     const { model: patientModel } = props;
     let { age } = this.state;
+    if (patientModel.get('dateOfBirth') !== null) patientModel.set('dateOfBirth', moment(patientModel.get('dateOfBirth')));
+    if (patientModel.get('referredDate') !== null) patientModel.set('referredDate', moment(patientModel.get('referredDate')));
     if (patientModel.get('dateOfBirth') !== null) age = getDifferenceDate(moment(), patientModel.get('dateOfBirth'));
     this.setState({ age, patientModel });
   }
@@ -75,6 +77,7 @@ class General extends Component {
       age,
     } = this.state;
     const { attributes: form } = patientModel;
+    console.log({ form });
     return (
       <div>
         <form

@@ -140,14 +140,14 @@ class OperationReport extends Component {
           });
 
           const resp = await Promise.all(tasks);
-          resp.forEach((m) => {
-            operationReport.get('preOpDiagnoses').add({ _id: m.id });
+          resp.forEach((_model) => {
+            operationReport.get('preOpDiagnoses').add(_model);
           });
 
           await operationReport.save();
         }
 
-        patient.get('operativePlans').add({ _id: model.id });
+        patient.get('operativePlans').add(model);
         await patient.save();
         this.props.history.replace(`/patients/operativePlan/${patient.id}/${model.id}`);
         this.setState({ action: 'update' });

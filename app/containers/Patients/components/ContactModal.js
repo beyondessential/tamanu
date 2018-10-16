@@ -59,7 +59,7 @@ class ContactModal extends Component {
     try {
       await Model.save();
       if (action === 'new') {
-        patientModel.get('additionalContacts').add(Model.attributes);
+        patientModel.get('additionalContacts').add(Model);
         await patientModel.save(null, { silent: true });
       } else {
         patientModel.trigger('change');

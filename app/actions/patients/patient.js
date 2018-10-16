@@ -37,6 +37,7 @@ export const savePatient = ({ Model }) =>
     dispatch({ type: SAVE_PATIENT_REQUEST });
     if (Model.isValid()) {
       try {
+        console.log('-Model-', Model, Model.toJSON());
         await Model.save(null, { silent: true });
         dispatch({
           type: SAVE_PATIENT_SUCCESS,

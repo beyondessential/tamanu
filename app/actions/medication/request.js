@@ -49,7 +49,7 @@ export const saveMedication = ({ action, model, visitId, patientId, history }) =
           const visitModel = new VisitModel();
           visitModel.set('_id', visitId);
           await visitModel.fetch({ relations: true, deep: false });
-          visitModel.get('medication').add({ _id: Model.id });
+          visitModel.get('medication').add(Model);
           await visitModel.save(null, { silent: true });
         }
         dispatch({ type: SAVE_MEDICATION_SUCCESS });

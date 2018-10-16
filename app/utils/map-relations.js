@@ -1,6 +1,8 @@
 import { isEmpty, uniq, filter, isArray, every, has, isString } from 'lodash';
 
 export default (objs, Model) => {
+  if (!isEmpty(objs)) console.log({ objs }, new Model());
+
   if (isEmpty(objs)) return objs;
   if (objs instanceof Model) return objs;
   if (has(objs, '_id')) return objs;
@@ -9,14 +11,13 @@ export default (objs, Model) => {
     if (every(objs, (v) => v instanceof Model)) return objs;
 
     // const ids = filter(uniq(map(objs, '_id')), obj => { return typeof obj !== 'undefined'; });
-    const ids = filter(uniq(objs), id => { return typeof id !== 'undefined'; });
+    const ids = filter(uniq(objs), ({ _id }) => typeof _id !== 'undefined' );
     const _return = [];
-    ids.forEach((_id) => {
+    ids.forEach(attrs => {
       const _model = new Model();
-      _model.set({ _id });
+      _model.set(attrs);
       _return.push(_model);
     });
-
     return _return;
   }
 

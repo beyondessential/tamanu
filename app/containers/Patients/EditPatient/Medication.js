@@ -100,7 +100,7 @@ class Medication extends Component {
         <span className="is-inline-block">{row.value}</span>
         {(moment(original.currentDate).isBefore(moment().format(dateFormat)) || isTaken) &&
           <Fragment>
-            <span 
+            <span
               className={`is-rounded icon is-pulled-right p-l-35 is-pulled-left has-text-${isTaken ? 'success' : 'danger'}`}
               data-tip={isTaken ? 'Taken' : 'Not Taken'}
             >
@@ -147,7 +147,7 @@ class Medication extends Component {
       historyModel.set({ date, [field]: value });
       await historyModel.save(null, { silent: true });
 
-      recordModel.get('history').add(historyModel.attributes);
+      recordModel.get('history').add(historyModel);
       await recordModel.save(null, { silent: true });
       this.handleChange();
     } catch (err) {

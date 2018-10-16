@@ -54,6 +54,7 @@ class InputGroupNew extends Component {
       readOnly,
       autoFocus,
       note,
+      placeholder,
     } = this.props;
     let { className } = this.props;
     if (!overwriteClass) className = `field ${className}`;
@@ -76,6 +77,7 @@ class InputGroupNew extends Component {
             required={required}
             readOnly={readOnly}
             autoFocus={autoFocus}
+            placeholder={placeholder}
           />
         </div>
         {note && <p className="help">{note}</p>}

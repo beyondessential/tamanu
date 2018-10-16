@@ -42,7 +42,7 @@ export const saveProcedure = ({ action, procedureModel, visitId, history }) =>
           const visitModel = new VisitModel();
           visitModel.set({ _id: visitId });
           await visitModel.fetch();
-          visitModel.get('procedures').add({ _id: procedureModel.id });
+          visitModel.get('procedures').add(procedureModel);
           await visitModel.save(null, { silent: true });
         }
         dispatch({

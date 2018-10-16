@@ -74,7 +74,7 @@ class PregnancyModal extends Component {
       if (action === 'new') {
         const pregnancy = new PregnancyModel(form);
         const model = await pregnancy.save();
-        patientModel.get('pregnancies').add(model.attributes);
+        patientModel.get('pregnancies').add(model);
         await patientModel.save();
       } else {
         item.set(form);

@@ -5,6 +5,10 @@ import { connect } from 'react-redux';
 import { find, isEmpty, startsWith } from 'lodash';
 import { sidebarInfo } from '../constants';
 import { ProgramsCollection } from '../collections';
+import actions from '../actions/auth';
+
+const { login: loginActions } = actions;
+const { logout } = loginActions;
 
 const classNames = require('classnames');
 
@@ -20,6 +24,7 @@ class Sidebar extends Component {
 
   state = {
     selectedParentItem: '',
+    userId: null,
   }
 
   async componentWillMount() {
@@ -29,9 +34,13 @@ class Sidebar extends Component {
     });
   }
 
-  handleChange() {
+  componentWillReceiveProps(newProps) {
+    this.handleChange(newProps);
+  }
+
+  handleChange(props = this.props) {
     // Prepare programs sub-menu
-    const { models } = this.props.programsCollection;
+    const { models } = props.programsCollection;
     const programsNav = find(sidebarInfo, { key: 'programs' });
     if (!isEmpty(models)) {
       programsNav.hidden = false;
@@ -104,6 +113,10 @@ class Sidebar extends Component {
                 );
               })
             }
+            <div className="user-info p-l-20 p-t-30">
+              <div className="is-size-6 is-color-white has-text-weight-semibold p-b-5">Sal</div>
+              <button className="button is-default is-small" onClick={this.props.logout}>Logout</button>
+            </div>
           </div>
         </div>
       </div>
@@ -112,10 +125,14 @@ class Sidebar extends Component {
 }
 
 function mapStateToProps(state) {
-  return {
-    currentPath: state.router.location.pathname,
-    programsCollection: new ProgramsCollection()
-  };
+  const { userId } = state.auth;
+  const { pathname: currentPath } = state.router.location;
+  const programsCollection = new ProgramsCollection();
+  return { userId, currentPath, programsCollection };
 }
 
-export default connect(mapStateToProps, undefined)(Sidebar);
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  logout: (params) => dispatch(logout(params)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);

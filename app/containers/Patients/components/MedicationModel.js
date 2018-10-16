@@ -46,7 +46,7 @@ class NoteModal extends Component {
     try {
       await Model.save();
       if (action === 'new') {
-        ProcedureModel.get('medication').add(Model.attributes);
+        ProcedureModel.get('medication').add(Model);
         await ProcedureModel.save(null, { silent: true });
       } else {
         ProcedureModel.trigger('change');

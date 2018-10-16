@@ -149,13 +149,13 @@ class OperativePlan extends Component {
 
           const resp = await Promise.all(tasks);
           resp.forEach((m) => {
-            operationReport.get('diagnoses').add({ _id: m.id });
+            operationReport.get('diagnoses').add(m);
           });
 
           await operationReport.save();
         }
 
-        patient.get('operativePlans').add({ _id: model.id });
+        patient.get('operativePlans').add(model);
         await patient.save();
         this.props.history.push(`/patients/operativePlan/${patient.id}/${model.id}`);
         this.setState({ action: 'update' });
@@ -194,7 +194,7 @@ class OperativePlan extends Component {
         operationReportModel.set(toCopy);
         operationReportModel.get('preOpDiagnoses').set(diagnoses.models);
         await operationReportModel.save();
-        this.props.patient.get('operationReports').add(operationReportModel.attributes);
+        this.props.patient.get('operationReports').add(operationReportModel);
         await this.props.patient.save();
         resolve(operationReportModel.id);
       } catch (err) {

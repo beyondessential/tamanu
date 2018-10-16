@@ -48,7 +48,7 @@ class VisitModal extends Component {
     try {
       await Model.save();
       if (action === 'new') {
-        VisitModel.get('vitals').add(Model.attributes);
+        VisitModel.get('vitals').add(Model);
         await VisitModel.save(null, { silent: true });
       } else {
         VisitModel.trigger('change');

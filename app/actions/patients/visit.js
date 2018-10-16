@@ -44,7 +44,7 @@ export const submitForm = ({ action, visitModel, patientModel, history, setStatu
         if (endDate instanceof moment && !endDate.isValid()) visitModel.set('endDate', null, { silent: true });
         if (setStatus) _setStatus({ visitModel, patientModel });
         const Model = await visitModel.save(null, { silent: true });
-        if (action === 'new') patientModel.get('visits').add({ _id: Model.id });
+        if (action === 'new') patientModel.get('visits').add(Model);
         if (patientModel.changed) await patientModel.save(null, { silent: true });
         dispatch({
           type: SAVE_VISIT_SUCCESS,

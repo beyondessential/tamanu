@@ -78,7 +78,7 @@ class DiagnosisModal extends Component {
       if (action === 'new') {
         const diagnosis = new DiagnosisModel(form);
         const model = await diagnosis.save();
-        Model.get('diagnoses').add(model.attributes);
+        Model.get('diagnoses').add(model);
         await Model.save();
       } else {
         item.set(form);

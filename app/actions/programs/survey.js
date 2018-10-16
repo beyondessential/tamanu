@@ -119,7 +119,7 @@ export const submitSurvey = ({ patientModel, programId, surveyId, moduleId, hist
 
       // Update answers
       const answers = await Promise.all(tasks);
-      answers.forEach(answer => responseModel.get('answers').add(answer.id));
+      answers.forEach(answer => responseModel.get('answers').add(answer));
       if (programModel.get('programType') !== 'direct') {
         responseModel.set('moduleType', programModel.get('programType'));
         responseModel.set('moduleId', moduleId);
@@ -131,12 +131,12 @@ export const submitSurvey = ({ patientModel, programId, surveyId, moduleId, hist
         const moduleOptions = programModel.get('moduleOptions');
         const moduleModel = patientModel.get(moduleOptions.collection).findWhere({ _id: moduleId });
         await moduleModel.fetch({ relations: true, deep: false });
-        moduleModel.get('surveyResponses').add(responseModel.id);
+        moduleModel.get('surveyResponses').add(responseModel);
         await moduleModel.save();
       }
 
       // Save patient
-      patientModel.get('surveyResponses').add(responseModel.id);
+      patientModel.get('surveyResponses').add(responseModel);
       await patientModel.save();
 
       dispatch({ type: SURVEY_SUBMIT_SUCCESS });

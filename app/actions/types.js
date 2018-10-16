@@ -1,3 +1,9 @@
+// Auth
+export const AUTH_LOGIN_REQUEST = 'auth/LOGIN_REQUEST';
+export const AUTH_LOGIN_SUCCESS = 'auth/LOGIN_SUCCESS';
+export const AUTH_LOGIN_FAILED = 'auth/LOGIN_FAILED';
+export const AUTH_LOGOUT = 'auth/LOGOUT';
+
 // Patients
 export const CREATE_PATIENT_INDEXES_REQUEST = 'patients/CREATE_PATIENT_INDEXES_REQUEST';
 export const CREATE_PATIENT_INDEXES_SUCCESS = 'patients/CREATE_PATIENT_INDEXES_SUCCESS';
