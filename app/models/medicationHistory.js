@@ -1,9 +1,11 @@
 import shortid from 'shortid';
+import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  url: `${BaseModel.prototype.url}/medicationHistory`,
+  urlRoot:  `${process.env.LAN_REALM}/medicationHistory`,
   defaults: () => defaults({
+      _id: shortid.generate(),
       date: '',
       morning: false,
       lunch: false,

@@ -1,11 +1,11 @@
 import shortid from 'shortid';
-import Backbone from 'backbone-associations';
 import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  url: `${BaseModel.prototype.url}/allergy`,
+  urlRoot:  `${process.env.LAN_REALM}/allergy`,
   defaults: () => defaults({
+    _id: shortid.generate(),
     name: null,
     icd9CMCode: null,
     icd10Code: null,

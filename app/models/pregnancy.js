@@ -5,8 +5,9 @@ import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
-  url: `${BaseModel.prototype.url}/pregnancy`,
+  urlRoot:  `${process.env.LAN_REALM}/pregnancy`,
   defaults: () => defaults({
+      _id: shortid.generate(),
       conceiveDate: Date, // estimated
       deliveryDate: Date, // estimated
       child: '',
@@ -23,22 +24,22 @@ export default BaseModel.extend({
       type: Backbone.One,
       key: 'child',
       relatedModel: require('./patient'),
-      map: (values) => mapRelations(values, require('./patient')),
-      serialize: '_id'
+      // map: (values) => mapRelations(values, require('./patient')),
+      // serialize: '_id'
     },
     {
       type: Backbone.One,
       key: 'father',
       relatedModel: require('./patient'),
-      map: (values) => mapRelations(values, require('./patient')),
-      serialize: '_id'
+      // map: (values) => mapRelations(values, require('./patient')),
+      // serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'surveyResponses',
       relatedModel: () => require('./surveyResponse'),
-      map: (values) => mapRelations(values, require('./surveyResponse')),
-      serialize: '_id'
+      // map: (values) => mapRelations(values, require('./surveyResponse')),
+      // serialize: '_id'
     },
   ],
 

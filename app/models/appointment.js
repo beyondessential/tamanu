@@ -6,8 +6,9 @@ import BaseModel from './base';
 import { VisitModel } from './index';
 
 export default BaseModel.extend({
-  url: `${BaseModel.prototype.url}/appointment`,
+  urlRoot:  `${process.env.LAN_REALM}/appointment`,
   defaults: () => defaults({
+      _id: shortid.generate(),
       allDay: true,
       provider: '',
       location: '',

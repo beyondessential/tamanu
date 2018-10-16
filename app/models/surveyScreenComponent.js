@@ -5,8 +5,9 @@ import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
-  url: `${BaseModel.prototype.url}/surveyScreenComponent`,
+  urlRoot:  `${process.env.LAN_REALM}/surveyScreenComponent`,
   defaults: () => defaults({
+      _id: shortid.generate(),
       question: '',
       componentNumber: null,
       answersEnablingFollowUp: null,
@@ -20,8 +21,8 @@ export default BaseModel.extend({
       type: Backbone.One,
       key: 'question',
       relatedModel: require('./question'),
-      map: (values) => mapRelations(values, require('./question')),
-      serialize: '_id'
+      // map: (values) => mapRelations(values, require('./question')),
+      // serialize: '_id'
     }
   ],
 });

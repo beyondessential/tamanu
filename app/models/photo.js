@@ -1,9 +1,11 @@
+import shortid from 'shortid';
 import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  url: `${BaseModel.prototype.url}/photo`,
+  urlRoot:  `${process.env.LAN_REALM}/photo`,
   defaults: () => defaults({
+    _id: shortid.generate(),
     caption: null,
     coverImage: false,
     files: {
@@ -12,7 +14,7 @@ export default BaseModel.extend({
     fileName: null,
     isImage: false,
     localFile: false,
-    url: null,
+    urlRoot:  null,
     // patient: '',
     // visit: '',
     // procedure: ''

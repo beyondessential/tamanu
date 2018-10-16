@@ -1,13 +1,12 @@
-import Backbone from 'backbone-associations';
 import shortid from 'shortid';
 import { defaults } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
-import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
-  url: `${BaseModel.prototype.url}/vital`,
+  urlRoot:  `${process.env.LAN_REALM}/vital`,
   defaults: () => defaults({
+    _id: shortid.generate(),
     dateRecorded: moment(),
     temperature: null,
     weight: null,

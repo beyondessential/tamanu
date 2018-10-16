@@ -4,8 +4,9 @@ import moment from 'moment';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  url: `${BaseModel.prototype.url}/note`,
+  urlRoot:  `${process.env.LAN_REALM}/note`,
   defaults: () => defaults({
+      _id: shortid.generate(),
       attribution: '',
       content: '',
       createdBy: '',

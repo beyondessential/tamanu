@@ -5,8 +5,9 @@ import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
-  url: `${BaseModel.prototype.url}/survey`,
+  urlRoot:  `${process.env.LAN_REALM}/survey`,
   defaults: () => defaults({
+      _id: shortid.generate(),
       name: null,
       code: null,
       imageData: null,
@@ -24,15 +25,15 @@ export default BaseModel.extend({
     //   type: Backbone.One,
     //   key: 'surveyGroupId',
     //   relatedModel: require('./surveyGroup'),
-    //   map: (values) => mapRelations(values, require('./surveyGroup')),
-    //   serialize: '_id'
+    //   // map: (values) => mapRelations(values, require('./surveyGroup')),
+    //   // serialize: '_id'
     // },
     {
       type: Backbone.Many,
       key: 'screens',
       relatedModel: require('./surveyScreen'),
-      map: (values) => mapRelations(values, require('./surveyScreen')),
-      serialize: '_id'
+      // map: (values) => mapRelations(values, require('./surveyScreen')),
+      // serialize: '_id'
     }
   ],
 

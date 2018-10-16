@@ -3,12 +3,12 @@ import shortid from 'shortid';
 import { defaults, each, clone, isEmpty, get, filter, capitalize, concat, orderBy } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
-import { mapRelations, concatSelf } from '../utils';
+import { concatSelf } from '../utils';
 import { pregnancyOutcomes, dateFormat } from '../constants';
 // import SurveyModel from './survey';
 
 export default BaseModel.extend({
-  url: `${BaseModel.prototype.url}/patient`,
+  urlRoot: `${process.env.LAN_REALM}/patient`,
   defaults: () => defaults({
     _id: shortid.generate(),
     displayId: '',
@@ -30,7 +30,7 @@ export default BaseModel.extend({
     familySupport3: '',
     familySupport4: '',
     familySupport5: '',
-    familyInfo: [],
+    // familyInfo: [],
     firstName: '',
     sex: '',
     occupation: '',
@@ -69,50 +69,50 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'additionalContacts',
       relatedModel: () => require('./patientContact'),
-      map: (values) => mapRelations(values, require('./patientContact')),
-      serialize: '_id'
+      // // map: (values) => mapRelations(values, require('./patientContact')),
+      // // serialize: '_id'
     }, {
       type: Backbone.Many,
       key: 'allergies',
       relatedModel: () => require('./allergy'),
-      map: (values) => mapRelations(values, require('./allergy')),
-      serialize: '_id'
+      // // map: (values) => mapRelations(values, require('./allergy')),
+      // // serialize: '_id'
     }, {
       type: Backbone.Many,
       key: 'diagnoses',
       relatedModel: () => require('./diagnosis'),
-      map: (values) => mapRelations(values, require('./diagnosis')),
-      serialize: '_id'
+      // // map: (values) => mapRelations(values, require('./diagnosis')),
+      // // serialize: '_id'
     }, {
       type: Backbone.Many,
       key: 'operationReports',
       relatedModel: () => require('./operationReport'),
-      map: (values) => mapRelations(values, require('./operationReport')),
-      serialize: '_id'
+      // // map: (values) => mapRelations(values, require('./operationReport')),
+      // // serialize: '_id'
     }, {
       type: Backbone.Many,
       key: 'operativePlans',
       relatedModel: () => require('./operativePlan'),
-      map: (values) => mapRelations(values, require('./operativePlan')),
-      serialize: '_id'
+      // // map: (values) => mapRelations(values, require('./operativePlan')),
+      // // serialize: '_id'
     }, {
       type: Backbone.Many,
       key: 'pregnancies',
       relatedModel: () => require('./pregnancy'),
-      map: (values) => mapRelations(values, require('./pregnancy')),
-      serialize: '_id'
+      // // map: (values) => mapRelations(values, require('./pregnancy')),
+      // // serialize: '_id'
     }, {
       type: Backbone.Many,
       key: 'surveyResponses',
       relatedModel: () => require('./surveyResponse'),
-      map: (values) => mapRelations(values, require('./surveyResponse')),
-      serialize: '_id'
+      // // map: (values) => mapRelations(values, require('./surveyResponse')),
+      // // serialize: '_id'
     }, {
       type: Backbone.Many,
       key: 'visits',
       relatedModel: () => require('./visit'),
-      map: (values) => mapRelations(values, require('./visit')),
-      serialize: '_id',
+      // // map: (values) => mapRelations(values, require('./visit')),
+      // // serialize: '_id',
       collectionType: require('../collections/visits')
     },
   ],

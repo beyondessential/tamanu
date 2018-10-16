@@ -3,8 +3,9 @@ import { defaults, clone } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  url: `${BaseModel.prototype.url}/diagnosis`,
+  urlRoot:  `${process.env.LAN_REALM}/diagnosis`,
   defaults: () => defaults({
+      _id: shortid.generate(),
       active: true,
       date: Date,
       diagnosis: null,

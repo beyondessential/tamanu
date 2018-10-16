@@ -6,8 +6,9 @@ import BaseModel from './base';
 import { mapRelations } from '../utils';
 
 export default BaseModel.extend({
-  url: `${BaseModel.prototype.url}/procedure`,
+  urlRoot:  `${process.env.LAN_REALM}/procedure`,
   defaults: () => defaults({
+      _id: shortid.generate(),
     anesthesiaType: '',
     anesthesiologist: '',
     assistant: '',
@@ -29,8 +30,8 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'medication',
       relatedModel: () => require('./procedureMedication'),
-      map: (values) => mapRelations(values, require('./procedureMedication')),
-      serialize: '_id'
+      // map: (values) => mapRelations(values, require('./procedureMedication')),
+      // serialize: '_id'
     },
   ],
 

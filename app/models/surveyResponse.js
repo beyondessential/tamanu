@@ -5,8 +5,9 @@ import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
-  url: `${BaseModel.prototype.url}/surveyResponse`,
+  urlRoot:  `${process.env.LAN_REALM}/surveyResponse`,
   defaults: () => defaults({
+      _id: shortid.generate(),
       surveyId: '',
       patientId: '',
       userId: '',
@@ -26,22 +27,22 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'answers',
       relatedModel: require('./answer'),
-      map: (values) => mapRelations(values, require('./answer')),
-      serialize: '_id'
+      // map: (values) => mapRelations(values, require('./answer')),
+      // serialize: '_id'
     },
     // {
     //   type: Backbone.One,
     //   key: 'surveyId',
     //   relatedModel: require('./survey'),
-    //   map: (values) => mapRelations(values, require('./survey')),
-    //   serialize: '_id'
+    //   // map: (values) => mapRelations(values, require('./survey')),
+    //   // serialize: '_id'
     // },
     // {
     //   type: Backbone.One,
     //   key: 'patientId',
     //   relatedModel: require('./patient'),
-    //   map: (values) => mapRelations(values, require('./patient')),
-    //   serialize: '_id'
+    //   // map: (values) => mapRelations(values, require('./patient')),
+    //   // serialize: '_id'
     // }
   ],
 });

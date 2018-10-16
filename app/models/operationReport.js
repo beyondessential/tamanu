@@ -5,8 +5,9 @@ import mapRelations from '../utils/map-relations';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  url: `${BaseModel.prototype.url}/opReport`,
+  urlRoot:  `${process.env.LAN_REALM}/operationReport`,
   defaults: () => defaults({
+      _id: shortid.generate(),
       additionalNotes: null,
       caseComplexity: null,
       procedures: [],
@@ -25,15 +26,15 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'preOpDiagnoses',
       relatedModel: require('./diagnosis'),
-      map: (values) => mapRelations(values, require('./diagnosis')),
-      serialize: '_id'
+      // map: (values) => mapRelations(values, require('./diagnosis')),
+      // serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'postOpDiagnoses',
       relatedModel: require('./diagnosis'),
-      map: (values) => mapRelations(values, require('./diagnosis')),
-      serialize: '_id'
+      // map: (values) => mapRelations(values, require('./diagnosis')),
+      // serialize: '_id'
     }
   ]
 

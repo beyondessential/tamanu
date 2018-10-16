@@ -6,8 +6,9 @@ import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
-  url: `${BaseModel.prototype.url}/visit`,
+  urlRoot:  `${process.env.LAN_REALM}/visit`,
   defaults: () => defaults({
+    _id: shortid.generate(),
     dischargeInfo: '',
     startDate: moment(),
     endDate: null, // if visit type is outpatient, startDate and endDate are equal
@@ -35,50 +36,50 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'medication',
       relatedModel: () => require('./medication'),
-      map: (values) => mapRelations(values, require('./medication')),
-      serialize: '_id'
+      // map: (values) => mapRelations(values, require('./medication')),
+      // serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'diagnoses',
       relatedModel: () => require('./diagnosis'),
-      map: (values) => mapRelations(values, require('./diagnosis')),
-      serialize: '_id'
+      // map: (values) => mapRelations(values, require('./diagnosis')),
+      // serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'labs',
       relatedModel: () => require('./lab'),
-      map: (values) => mapRelations(values, require('./lab')),
-      serialize: '_id'
+      // map: (values) => mapRelations(values, require('./lab')),
+      // serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'notes',
       relatedModel: () => require('./note'),
-      map: (values) => mapRelations(values, require('./note')),
-      serialize: '_id'
+      // map: (values) => mapRelations(values, require('./note')),
+      // serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'procedures',
       relatedModel: () => require('./procedure'),
-      map: (values) => mapRelations(values, require('./procedure')),
-      serialize: '_id'
+      // map: (values) => mapRelations(values, require('./procedure')),
+      // serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'vitals',
       relatedModel: () => require('./vital'),
-      map: (values) => mapRelations(values, require('./vital')),
-      serialize: '_id'
+      // map: (values) => mapRelations(values, require('./vital')),
+      // serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'reports',
       relatedModel: () => require('./report'),
-      map: (values) => mapRelations(values, require('./report')),
-      serialize: '_id',
+      // map: (values) => mapRelations(values, require('./report')),
+      // serialize: '_id',
     },
   ],
 

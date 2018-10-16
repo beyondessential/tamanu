@@ -6,7 +6,7 @@ import { to } from 'await-to-js';
 
 export default Backbone.AssociatedModel.extend({
   idAttribute: '_id',
-  url: process.env.LAN_REALM,
+  // urlRoot: process.env.LAN_REALM,
 
   defaults: {
     modifiedFields: {},
@@ -32,32 +32,32 @@ export default Backbone.AssociatedModel.extend({
     return res;
   },
 
-  fetch(options) {
-    return new Promise(async (resolve, reject) => {
-      const { relations } = this;
-      if (!options) options = {};
-      // Proxy the call to the original save function
-      const [error, res] = await to(Backbone.Model.prototype.fetch.apply(this, [options]));
-      if (error) return reject(error);
-      // Fetch all the relations
-      if (options.relations && !isEmpty(relations)) {
-        try {
-          const tasks = relations.map((relation) => {
-            if ((isArray(options.relations) && options.relations.includes(relation.key)) || options.relations === true)
-              return this.fetchRelations(Object.assign({ relation, deep: true }, options));
-          });
-          await Promise.all(tasks);
-          setTimeout(() => this.trigger('change'), 100);
-          resolve(res);
-        } catch (err) {
-          reject(err);
-        }
-      } else {
-        setTimeout(() => this.trigger('change'), 100);
-        resolve(res);
-      }
-    });
-  },
+  // fetch(options) {
+  //   return new Promise(async (resolve, reject) => {
+  //     const { relations } = this;
+  //     if (!options) options = {};
+  //     // Proxy the call to the original save function
+  //     const [error, res] = await to(Backbone.Model.prototype.fetch.apply(this, [options]));
+  //     if (error) return reject(error);
+  //     // Fetch all the relations
+  //     if (options.relations && !isEmpty(relations)) {
+  //       try {
+  //         const tasks = relations.map((relation) => {
+  //           if ((isArray(options.relations) && options.relations.includes(relation.key)) || options.relations === true)
+  //             return this.fetchRelations(Object.assign({ relation, deep: true }, options));
+  //         });
+  //         await Promise.all(tasks);
+  //         setTimeout(() => this.trigger('change'), 100);
+  //         resolve(res);
+  //       } catch (err) {
+  //         reject(err);
+  //       }
+  //     } else {
+  //       setTimeout(() => this.trigger('change'), 100);
+  //       resolve(res);
+  //     }
+  //   });
+  // },
 
   fetchRelations(options) { //
     return new Promise(async (resolve, reject) => {
@@ -89,7 +89,7 @@ export default Backbone.AssociatedModel.extend({
     });
   },
 
-  toJSON({ relations: addRelations = false } = {}) {
+  toJSON() {
     const attributes = clone(this.attributes);
     const { relations } = this;
     if (!isEmpty(relations)) {
@@ -97,11 +97,11 @@ export default Backbone.AssociatedModel.extend({
         const relationCol = this.get(relation.key);
         if (typeof relationCol !== 'undefined' && isObject(relationCol)) {
           if (relation.type === 'Many') {
-            const data = relationCol.models.map((m) => (addRelations ? m.toJSON({ relations: true }) : m.id));
+            const data = relationCol.models.map((m) => m.toJSON());
             set(attributes, relation.key, data);
           } else if (relation.type === 'One') {
             const { id } = relationCol;
-            set(attributes, relation.key, (addRelations ? relationCol.toJSON({ relations: true }) : id));
+            set(attributes, relation.key, relationCol.toJSON());
           } else {
             throw new Error('Invalid relation type!');
           }

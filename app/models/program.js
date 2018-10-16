@@ -5,8 +5,9 @@ import BaseModel from './base';
 import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
-  url: `${BaseModel.prototype.url}/program`,
+  urlRoot:  `${process.env.LAN_REALM}/program`,
   defaults: () => defaults({
+      _id: shortid.generate(),
       name: null,
       programType: 'direct',
       surveys: []
@@ -20,8 +21,8 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'surveys',
       relatedModel: () => require('./survey'),
-      map: (values) => mapRelations(values, require('./survey')),
-      serialize: '_id',
+      // map: (values) => mapRelations(values, require('./survey')),
+      // serialize: '_id',
       collectionType: require('../collections/surveys'),
     }
   ],
