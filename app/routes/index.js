@@ -1,10 +1,8 @@
 const express = require('express');
-const SubscriptionRoutes = require('./subscription');
-const forwardCouch = require('../middleware/forwardCouch');
+const AuthRoutes = require('./auth');
 
 const router = express.Router();
-router.get('/', (req, res) => res.send('Hello World!'));
-router.use('/subscription', SubscriptionRoutes);
-router.use('/couchProxy', forwardCouch);
+router.get('/', (req, res) => res.status(403).end());
+router.use('/auth', AuthRoutes);
 
 module.exports = router;
