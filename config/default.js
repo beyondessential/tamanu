@@ -13,9 +13,15 @@ module.exports = {
     },
   },
   db: {
+    host: process.env.MONGODB_HOST,
     user: process.env.MONGODB_USER,
     password: process.env.MONGODB_PASSWORD,
-    host: process.env.MONGODB_HOST,
-    database: process.env.MONGODB_DATABASE,
+    port: process.env.MONGODB_PORT,
   },
+  sync: {
+    path: process.env.SYNC_PATH,
+    channelIn: process.env.SYNC_CHANNEL_IN,
+    channelOut: process.env.SYNC_CHANNEL_OUT
+  },
+  disableOfflineSync: false,
 };

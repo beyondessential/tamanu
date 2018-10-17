@@ -1,45 +1,100 @@
-const config = require('config');
-const follow = require('follow');
-const Promise = require('bluebird');
-const uuid = require('uuid');
-const { to } = require('await-to-js');
-const dbService = require('../services/database');
-const pushHelper = require('../helpers/pushHelper');
+const { each } = require('lodash');
+const schemas = require('../schemas');
+const QueueManager = require('./queue-manager');
+const Sync = require('./sync');
 
-const internals = {};
+class Listeners {
+  constructor(database, bayeux) {
+    this.database = database;
+    this.sync =  new Sync(database, bayeux);
+    this.queueManager = new QueueManager(database);
 
-internals.addDatabaseListeners = (dbName, bayeux) => {
-  console.log('addDatabaseListeners', dbName);
-  const dbUrl = `http://${config.db.user}:${config.db.password}@${config.db.host}:${config.db.port}`;
-  const couchFollowOpts = {
-    db: `${dbUrl}/${dbName}`,
-    include_docs: true,
-    since: -1, // config.couchDbChangesSince,
-    query_params: {
-      conflicts: true,
-    },
-  };
+    // Setup sync
+    this.sync.setup();
+    this.queueManager.on('change', () => this.sync.synchronize());
+  }
 
-  follow(couchFollowOpts, async (error, change) => {
-    // console.log('follow', error, change);
-    if (!error) {
-      internals.pushSync(change, bayeux);
-      internals.mergeConflicts(change, bayeux);
+  addDatabaseListeners() {
+    each(schemas, (model) => {
+      if (model.sync !== false) this._addListener(model);
+    });
+    console.log('Database listeners added!');
+  }
 
-      // if (err) console.error(err);
-    } else {
-      console.error(error);
-    }
-  });
-};
+  _addListener({ name }) {
+    const objects = this.database.objects(name);
+    let items = this._toJSON(objects);
+    objects.addListener((itemsUpdated, changes) => {
+      each(changes, (indexes, actionType) => {
+        switch (actionType) {
+          case 'insertions':
+          case 'newModifications':
+          case 'modifications':
+          case 'oldModifications':
+            indexes.forEach((index) => {
+              this.queueManager.push({
+                action: 'SAVE',
+                recordId: itemsUpdated[index]._id,
+                recordType: name
+              });
+            });
+            items = this._toJSON(itemsUpdated);
+          break;
+          case 'deletions':
+            indexes.forEach((index) => {
+              this.queueManager.push({
+                action: 'REMOVE',
+                recordId: items[index]._id,
+                recordType: name
+              });
+            });
+            items = this._toJSON(itemsUpdated);
+          break;
+          default:
+            console.log(`Ignoring ${actionType}`);
+          break;
+        }
+      });
+    });
+  }
 
-internals.pushSync = async (change, bayeux) => {
-  // const { pushDB } = dbService.getDBs();
-  // const tasks = [];
+  _toJSON(object) {
+   return JSON.parse(JSON.stringify(object));
+  }
+}
 
-  const [err] = await to(bayeux.getClient().publish('/couchDBChange', {
-    seq: change.seq
-  }));
+module.exports = Listeners;
+
+// let _addListener;
+// let _addTOQueue;
+// let this._toJSON;
+// const internals = {};
+// internals.addDatabaseListeners = (realm) => {
+  // const
+  // console.log('addDatabaseListeners', dbName);
+  // const dbUrl = `http://${config.localDB.username}:${config.localDB.password}@${config.localDB.host}:${config.localDB.port}`;
+  // const couchFollowOpts = {
+  //   db: `${dbUrl}/${dbName}`,
+  //   include_docs: true,
+  //   since: -1, // config.couchDbChangesSince,
+  //   query_params: {
+  //     conflicts: true,
+  //   },
+  // };
+
+  // follow(couchFollowOpts, (error, change) => {
+  //   console.log('follow', error, change);
+  //   if (!error) {
+  //     internals.pushSync(change);
+  //   } else {
+  //     console.error(error);
+  //   }
+  // });
+// };
+
+// internals.pushSync = (change) => {
+//   const { pushDB } = dbService.getDBs();
+//   const tasks = [];
 
 //   pushDB.list({ include_docs: true }, async (err, subscriptions) => {
 //     subscriptions.rows.forEach(async (subscriptionInfo) => {
@@ -50,15 +105,8 @@ internals.pushSync = async (change, bayeux) => {
 //           type: 'couchDBChange'
 //         };
 
-//         tasks.push(bayeux.getClient().publish('/couchDBChange', {
-//           text: 'New email has arrived!',
-//           inboxSize: 34
-//         }));
+//         tasks.push(await pushHelper.sendNotification(subscriptionInfo.doc.clientToken, notificationInfo));
 
-//         console.log('err', err);
-//         console.log('subscriptionInfo', subscriptionInfo);
-// hgn
-//         // tasks.push(await pushHelper.sendNotification(subscriptionInfo.doc.clientToken, notificationInfo));
 //         // pushHelper.sendNotification(subscriptionInfo.doc.subscription, notificationInfo).catch((err) => {
 //         //   if (err.statusCode === 404 || err.statusCode === 410) {
 //         //     pushDB.destroy(subscriptionInfo.doc._id, subscriptionInfo.doc._rev);
@@ -69,129 +117,16 @@ internals.pushSync = async (change, bayeux) => {
 //       }
 //     });
 
-//     // try {
-//     //   Promise.each(tasks, (value, index, length) => {
-//     //     console.log('value', value);
-//     //     console.log('index', index);
-//     //     console.log('length', length);
-//     //   });
-//     // } catch (er) {
-//     //   console.error(er);
-//     // }
+//     try {
+//       Promise.each(tasks, (value, index, length) => {
+//         console.log('value', value);
+//         console.log('index', index);
+//         console.log('length', length);
+//       });
+//     } catch (er) {
+//       console.error(er);
+//     }
 
 //     console.log('pushSync', tasks);
 //   });
-};
-
-internals.mergeConflicts = (change) => {
-  // console.log('-mergeConflicts-', change);
-  if (change.doc && change.doc._conflicts) {
-    const conflicts = change.doc._conflicts;
-    const currentDoc = change.doc;
-    internals._resolveConflicts(change.id, conflicts, currentDoc, (err) => {
-      if (err) console.log(`ERROR resolving conflicts: ${JSON.stringify(err, null, 2)}`);
-    });
-  }
-};
-
-internals._resolveConflicts = (conflictId, conflicts, currentDoc, callback) => {
-  const { mainDB } = dbService.getDBs();
-
-  mainDB.get(conflictId, { open_revs: JSON.stringify(conflicts, null, 2) }, (err, body) => {
-    let compareObj;
-    let currentModifiedDate;
-    let i;
-    let key;
-    let modifiedDate;
-    let updateProperty;
-    const updateDocument = false;
-    const originalDoc = JSON.parse(JSON.stringify(currentDoc));
-    const conflictDocs = [];
-
-    if (!currentDoc.modifiedFields) {
-      currentDoc.modifiedFields = {};
-    }
-    if (err) {
-      callback(err);
-    } else if (body.length) {
-      for (i = 0; i < body.length; i++) {
-        compareObj = body[i].ok;
-        conflictDocs.push(compareObj);
-        if (compareObj.modifiedFields) {
-          for (key in compareObj.modifiedFields) {
-            if (currentDoc[key] !== compareObj[key]) {
-              updateProperty = false;
-              modifiedDate = new Date(compareObj.modifiedFields[key]);
-              if (currentDoc.modifiedFields[key]) {
-                currentModifiedDate = new Date(currentDoc.modifiedFields[key]);
-                if (modifiedDate.getTime() > currentModifiedDate.getTime()) {
-                  updateProperty = true;
-                }
-              } else {
-                updateProperty = true;
-              }
-            }
-            if (updateProperty) {
-              updateDocument = true;
-              currentDoc.modifiedFields[key] = modifiedDate;
-              currentDoc[key] = compareObj[key];
-            }
-          }
-        }
-      }
-
-      if (updateDocument) {
-        const resolvedConflict = {
-          _id: `resolvedConflict_2_${uuid.v4()}`,
-          data: {
-            original: originalDoc,
-            conflicts: conflictDocs
-          }
-        };
-        mainDB.insert(resolvedConflict, (err) => {
-          if (err) {
-            callback(`Error saving resolved conflicts: ${JSON.stringify(err)}`);
-          } else {
-            delete currentDoc._conflicts;
-            mainDB.insert(currentDoc, currentDoc._id, (err, response) => {
-              if (!err && response.ok) {
-                internals._cleanupConflicts(currentDoc, conflicts, callback);
-              } else {
-                if (!err) {
-                  err = response;
-                }
-                callback(`Error updating latest doc with merged data: ${JSON.stringify(err)}`);
-              }
-            });
-          }
-        });
-      } else {
-        internals._cleanupConflicts(currentDoc, conflicts, callback);
-      }
-    }
-  });
-};
-
-internals._cleanupConflicts = (currentDoc, conflicts, callback) => {
-  const { mainDB } = dbService.getDBs();
-  const recordsToDelete = [];
-  for (let i = 0; i < conflicts.length; i++) {
-    const recordToDelete = {
-      _id: currentDoc._id,
-      _rev: conflicts[i],
-      _deleted: true
-    };
-    recordsToDelete.push(recordToDelete);
-  }
-  if (recordsToDelete.length > 0) {
-    mainDB.bulk({ docs: recordsToDelete }, (err, response) => {
-      if (err) {
-        callback(`Error deleting conflicting revs: ${JSON.stringify(err, null, 2)}`);
-      } else {
-        callback(err, response);
-      }
-    });
-  }
-};
-
-module.exports = internals;
+// };

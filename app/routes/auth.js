@@ -1,15 +1,15 @@
-var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-var bodyParser = require('body-parser');
-var express = require('express');
-var expressSession = require('express-session');
-var passport = require('passport');
-var serializer = require('serializer');
-var request = require('request');
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+const bodyParser = require('body-parser');
+const express = require('express');
+const expressSession = require('express-session');
+const passport = require('passport');
+const serializer = require('serializer');
+const request = require('request');
 
 function createSecret(secretBase) {
-  var encryptKey = serializer.randomString(48);
-  var validateKey = serializer.randomString(48);
-  var secretString = serializer.secureStringify(secretBase, encryptKey, validateKey);
+  const encryptKey = serializer.randomString(48);
+  const validateKey = serializer.randomString(48);
+  const secretString = serializer.secureStringify(secretBase, encryptKey, validateKey);
   if (secretString.length > 80) {
     secretString = secretString.substr(30,50);
   }
@@ -17,7 +17,7 @@ function createSecret(secretBase) {
 }
 
 function denormalizeOAuth(user) {
-  var key;
+  let key = null;
   for (key in user.oauth.consumer_keys) {
     user.consumer_key = key;
     user.consumer_secret = user.oauth.consumer_keys[key];
@@ -45,7 +45,7 @@ function validateOAuth(oauth) {
 
 
 function getPrimaryRole(user) {
-  var primaryRole = '';
+  const primaryRole = '';
   if (user.roles) {
     user.roles.forEach(function(role) {
       if (role !== 'user' && role !== 'admin') {
@@ -74,9 +74,9 @@ passport.deserializeUser(function(obj, done) {
 
 module.exports = function(app, config) {
   /*eslint new-cap: ["error", { "capIsNewExceptions": ["Router"] }]*/
-  var router = express.Router();
-  var nano = require('nano')(config.couchAuthDbURL);
-  var users = nano.use('_users');
+  const router = express.Router();
+  const nano = require('nano')(config.couchAuthDbURL);
+  const users = nano.use('_users');
   router.use(bodyParser.json());
   router.use(bodyParser.urlencoded({
     extended: true
@@ -85,8 +85,8 @@ module.exports = function(app, config) {
 
 
   function createOAuthTokens(secretBase, user, callback) {
-    var consumerKey = serializer.randomString(96);
-    var tokenKey = serializer.randomString(96);
+    const consumerKey = serializer.randomString(96);
+    const tokenKey = serializer.randomString(96);
     user.oauth = {
       consumer_keys: {},
       tokens: {},
@@ -103,7 +103,7 @@ module.exports = function(app, config) {
   }
 
   function findOAuthUser(accessToken, refreshToken, profile, callback) {
-    var userKey = 'org.couchdb.user:' + profile.emails[0].value;
+    const userKey = 'org.couchdb.user:' + profile.emails[0].value;
     users.get(userKey, {}, function(err, body) {
       if (err) {
         if (err.error && err.error === 'not_found') {
@@ -126,7 +126,7 @@ module.exports = function(app, config) {
   }
 
   function findUser(userName, callback) {
-    var userKey = userName;
+    const userKey = userName;
     if (userKey.indexOf('org.couchdb.user:') !== 0) {
       userKey = 'org.couchdb.user:' + userKey;
     }
@@ -153,15 +153,15 @@ module.exports = function(app, config) {
       if (error) {
         res.json({error: true, errorResult: error});
       } else {
-        var userSession = JSON.parse(body);
-        var userDetails = userSession.userCtx || userSession;
+        const userSession = JSON.parse(body);
+        const userDetails = userSession.userCtx || userSession;
         if (userDetails.name === req.body.name) {
           // User names match; we should respond with requested info
           findUser(userDetails.name, function(err, user) {
             if (err) {
               res.json({error: true, errorResult: err});
             } else {
-              var response = {
+              const response = {
                 displayName: user.displayName,
                 prefix: user.userPrefix,
                 role: getPrimaryRole(user)
@@ -220,8 +220,8 @@ module.exports = function(app, config) {
   router.get('/auth/google/callback',
     passport.authenticate('google', {failureRedirect: '/#/login'}),
     function(req, res) {
-      var user = req.user;
-      var redirURL = '/#/finishgauth/';
+      const user = req.user;
+      const redirURL = '/#/finishgauth/';
       redirURL += user.consumer_secret;
       redirURL += '/' + user.token_secret;
       redirURL += '/' + user.consumer_key;
@@ -233,7 +233,7 @@ module.exports = function(app, config) {
   );
 
   router.post('/auth/login', function(req, res) {
-    var requestOptions = {
+    const requestOptions = {
       method: 'POST',
       form: req.body
     };
@@ -241,7 +241,7 @@ module.exports = function(app, config) {
   });
 
   router.post('/chkuser', function(req, res) {
-    var requestOptions = {};
+    const requestOptions = {};
     if (req.get('x-oauth-consumer-key')) {
       requestOptions.oauth = {
         consumer_key: req.get('x-oauth-consumer-key'),

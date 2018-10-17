@@ -1,9 +1,9 @@
 const { buildCheckFunction, validationResult } = require('express-validator/check');
 const { to } = require('await-to-js');
 const { chain } = require('lodash');
-const dbService = require('../../services/database');
+// const dbService = require('../../services/database');
 
-const { pushDB } = dbService.getDBs();
+// const { pushDB } = dbService.getDBs();
 const internals = {
   checkBody: buildCheckFunction(['body']),
 };
@@ -26,17 +26,19 @@ internals.validateBody = [
 ];
 
 internals.updateSubscription = async (req, res) => {
-  const { clientId, clientToken, remoteSeq } = req.body;
-  const { id } = req.params;
-  const [err, subscription] = await to(pushDB.getAsync(id));
-  if (err) return res.status(500).send(err.stack);
+  // const realm = req.app.get('realm');
+  // const { clientId, clientToken, remoteSeq } = req.body;
+  // const { id } = req.params;
+  // const [err, subscription] = await to(pushDB.getAsync(id));
+  // if (err) return res.status(500).send(err.stack);
 
-  subscription.clientId = clientId;
-  subscription.clientToken = clientToken;
-  subscription.remoteSeq = remoteSeq;
-  const [_err, result] = await to(pushDB.insertAsync(subscription));
-  if (_err) return res.status(500).send(_err.stack);
-  return res.json(result);
+  // subscription.clientId = clientId;
+  // subscription.clientToken = clientToken;
+  // subscription.remoteSeq = remoteSeq;
+  // const [_err, result] = await to(pushDB.insertAsync(subscription));
+  // if (_err) return res.status(500).send(_err.stack);
+  // return res.json(result);
+  return res.json({});
 };
 
 module.exports = [

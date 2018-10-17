@@ -3,7 +3,6 @@ const { to } = require('await-to-js');
 const dbService = require('../../services/database');
 const { chain } = require('lodash');
 
-const { pushDB } = dbService.getDBs();
 const internals = {
   checkBody: buildCheckFunction(['body']),
 };
@@ -26,10 +25,16 @@ internals.validateBody = [
 ];
 
 internals.saveSubscription = async (req, res) => {
+  const realm = req.app.get('realm');
   const { clientId, clientToken, remoteSeq } = req.body;
-  const [err, result] = await to(pushDB.insertAsync({ clientId, clientToken, remoteSeq }));
-  if (err) return res.status(500).send(err.stack);
-  res.json(result);
+  try {
+    const subscription = realm.write(() => {
+      return realm.create('subscription', { clientId, clientToken, remoteSeq });
+    });
+     return res.json(subscription);
+  } catch (err) {
+    return res.status(500).send(err.stack);
+  }
 };
 
 module.exports = [

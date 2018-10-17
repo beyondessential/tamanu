@@ -33,6 +33,7 @@
   "dependencies": {
     "accurized": "^0.4.6",
     "await-to-js": "^2.0.1",
+    "bcrypt": "^3.0.1",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "compression": "^1.7.2",
@@ -51,8 +52,10 @@
     "moment": "^2.21.0",
     "morgan": "^1.9.0",
     "nano": "^6.4.4",
+    "realm": "^2.18.0",
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
-    "serve-index": "^1.9.1"
+    "serve-index": "^1.9.1",
+    "shortid": "^2.2.13"
   }
 }
