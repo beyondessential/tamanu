@@ -10,14 +10,16 @@ const run = async () => {
     const path = require('path');
     const serveIndex = require('serve-index');
     const errorHandler = require('./app/middleware/errorHandler');
-    const dbService = require('./app/services/database');
-    const listeners = require('./app/services/listeners');
+    const Database = require('./app/services/database');
+    const Listeners = require('./app/services/listeners');
     const appRoutes = require('./app/routes');
+    const seed = require('./.seeds');
+    const models = require('./app/models');
 
     // Init our app
     const app = express();
     const server = http.createServer(app);
-    const bayeux = new faye.NodeAdapter({ mount: '/couch-sync', timeout: 45 });
+    const bayeux = new faye.NodeAdapter({ mount: config.sync.path, timeout: 45 });
 
     bayeux.attach(server);
     app.use(compression());
@@ -42,12 +44,26 @@ const run = async () => {
 
     app.use(errorHandler);
 
-    // Setup services
+    // // Setup databases
     try {
-      await dbService.setup();
-      listeners.addDatabaseListeners('main', bayeux);
+      // Connect database
+      const database = new Database({
+        path: './data/main.realm',
+        schema: models,
+        schemaVersion: 2,
+      });
+
+      // Set database sync
+      const listeners = new Listeners(database, bayeux);
+      listeners.addDatabaseListeners();
+
+      // Set realm  instance to be accessible app wide
+      app.set('realm', database);
+
+      // Initialize seeds
+      if (ENV === 'development') seed(database);
     } catch (err) {
-      console.error(err);
+      throw new Error(err);
     }
 
     bayeux.on('handshake', (clientId) => {
