@@ -15,7 +15,7 @@ class Database extends Realm {
 
   create(type, object, ...args) {
     const objectWithId = {
-      id: shortId.generate(),
+      _id: shortId.generate(),
       ...object,
     };
     return super.create(type, objectWithId, ...args);
@@ -23,7 +23,7 @@ class Database extends Realm {
 
   update(type, object, ...args) {
     const objectWithId = {
-      id: shortId.generate(),
+      _id: shortId.generate(),
       ...object, // If object already has id, it will be used rather than the one generated above
     };
     return super.update(type, objectWithId, ...args);

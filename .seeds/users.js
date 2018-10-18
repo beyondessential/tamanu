@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const AuthService = require('../app/services/auth');
 
 module.exports = (database) => {
   database.create('hospital', {
@@ -6,7 +7,7 @@ module.exports = (database) => {
     name: 'Demo Hospital'
   }, true);
 
-  const saltRounds = 10;
+  const saltRounds = 12;
   const salt = bcrypt.genSaltSync(saltRounds);
   const hash = bcrypt.hashSync('123455', salt);
   database.create('user', {
