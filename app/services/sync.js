@@ -3,15 +3,11 @@ const { objectToJSON } = require('../utils');
 const config = require('../../config');
 const { outgoing } = require('../utils/faye-extensions');
 
-const hospitalId = 'hospital-demo-1';
-const channelOut = 'realm-slave2master';
-const channelIn = 'realm-master2slave';
-
 class Sync {
   constructor(database, listeners) {
     this.database = database;
     this.listeners = listeners;
-    this.client = new Faye.Client(config.mainFayeServer);
+    this.client = new Faye.Client(config.sync.server);
     this.client.addExtension({
       outgoing: (message, callback) => outgoing({ database, message, callback })
     });
@@ -21,8 +17,8 @@ class Sync {
     const lastSyncTime = this.database.getSetting('LAST_SYNC_OUT');
     this.client.setHeader('lastSync', lastSyncTime);
 
-    const subscription = this.client.subscribe(`/${channelIn}`).withChannel((channel, message) => {
-      console.log(`[MessageIn - ${channelIn}] - [${channel}]`, { action: message.action, type: message.recordType, id: message.recordId });
+    const subscription = this.client.subscribe(`/${config.sync.channelIn}`).withChannel((channel, message) => {
+      console.log(`[MessageIn - ${config.sync.channelIn}] - [${channel}]`, { action: message.action, type: message.recordType, id: message.recordId });
       this.listeners.removeDatabaseListeners();
       switch (message.action) {
         case 'SAVE':
@@ -69,17 +65,18 @@ class Sync {
 
   async _publishMessage(change) {
     try {
+      const clientId = this.database.getSetting('CLIENT_ID');
       let record = this.database.findOne(change.recordType, change.recordId);
       if (record) record = objectToJSON(record);
-      await this.client.publish(`/${channelOut}/${hospitalId}`, {
-        from: hospitalId,
+      await this.client.publish(`/${config.sync.channelOut}/${clientId}`, {
+        from: clientId,
         record,
         ...change
       });
 
       // Update last sync out date
       this.database.setSetting('LAST_SYNC_OUT', new Date().getTime());
-      console.log('[MessageOut]', { action: change.action, type: change.recordType, id: change.recordId });
+      console.log('[MessageOut]', `/${config.sync.channelOut}/${clientId}`, { action: change.action, type: change.recordType, id: change.recordId });
     } catch (err) {
       throw new Error(err);
     }

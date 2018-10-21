@@ -5,11 +5,12 @@
  * table only.
  */
 const { each } = require('lodash');
+const uuidV4 = require('uuid/v4');
 
 const defaults = {
   LAST_SYNC_IN: '0',
   LAST_SYNC_OUT: '0',
-  CLIENT_ID: '',
+  CLIENT_ID: uuidV4(),
   CLIENT_SECRET: '',
 };
 

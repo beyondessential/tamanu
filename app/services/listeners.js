@@ -9,8 +9,9 @@ class Listeners {
     this.sync = new Sync(database, this);
     this.queueManager = new QueueManager(database);
     this.collections = {};
+  }
 
-    // Setup sync
+  setupSync() {
     this.sync.setup();
     this.sync.synchronize();
     this.queueManager.on('change', () => this.sync.synchronize());
@@ -73,8 +74,8 @@ class Listeners {
   }
 
   _toJSON(object) {
-   return JSON.parse(JSON.stringify(object));
-  }
+    return JSON.parse(JSON.stringify(object));
+  };
 }
 
 module.exports = Listeners;

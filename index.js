@@ -11,13 +11,15 @@
   const errorHandler = require('./app/middleware/errorHandler');
   const Database = require('./app/services/database');
   const Listeners = require('./app/services/listeners');
+  const Auth = require('./app/services/auth');
   const models = require('./app/models');
-  // const replicationService = require('./app/services/replication');
+
+  const port = config.port || 4500;
 
   // Start os-service
-  service.run(() => {
-    console.log('Service running.');
-  });
+  // service.run(() => {
+  //   console.log('Service running.');
+  // });
 
   // // Init our app
   const app = express();
@@ -44,11 +46,16 @@
     res.status(404).end();
   });
 
-  // // Setup databases
+  const startServer = () => {
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}!`);
+    });
+  };
+
   try {
     // Connect database
     const database = new Database({
-      path: './data/main.realm',
+      path: `./data/${config.db.name}.realm`, // './data/main.realm',
       schema: models,
       schemaVersion: 2,
     });
@@ -57,17 +64,16 @@
     const listeners = new Listeners(database);
     listeners.addDatabaseListeners();
 
+    // Prompt user to login
+    const authService = new Auth(database);
+    authService.promptLogin(() => {
+      startServer();
+      listeners.setupSync();
+    });
+
     // Set realm  instance to be accessible app wide
     app.set('database', database);
   } catch (err) {
     throw new Error(err);
   }
-  // replicationService.setup({ PouchDB: OurPouchDB });
-  // listeners.addDatabaseListeners('main');
-
-  // Start our app
-  const port = config.port || 4500;
-  app.listen(port, () => {
-      console.log(`Server is running on port ${port}!`);
-  });
 })();
