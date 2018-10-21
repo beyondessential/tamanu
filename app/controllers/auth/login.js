@@ -14,7 +14,7 @@ internals.validateBody = [
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({
-        errors: chain(errors.array()).map('msg').uniq().value(),
+        error: chain(errors.array()).map('msg').uniq().value(),
       });
     }
     return next();
@@ -34,7 +34,7 @@ internals.login = async (req, res) => {
     });
   }
 
-  return res.json({
+  return res.status(401).json({
     error: 'Invalid email or password entered.'
   });
 };

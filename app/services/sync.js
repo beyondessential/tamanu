@@ -11,8 +11,8 @@ class Sync {
   }
 
   setup() {
-    const hospitals = this.database.objects('hospital');
-    hospitals.forEach(hospital => this._addSubscriber(hospital));
+    const clients = this.database.objects('client');
+    clients.forEach(client => this._addSubscriber(client));
   }
 
   synchronize() {
@@ -27,35 +27,33 @@ class Sync {
     }
   }
 
-  _addSubscriber(hospital) {
-    const subscription = this.client.getClient().subscribe(`/${config.sync.channelIn}/${hospital._id}`, (message) => {
-      console.log(`[MessageIn - ${config.sync.channelIn}]`, { action: message.action, type: message.recordType, id: message.recordId });
-      switch (message.action) {
-        case 'SAVE':
-          this._saveRecord(message);
-        break;
-        case 'REMOVE':
-          this._removeRecord(message);
-        break;
-        default:
-          throw new Error('No action specified');
+  _addSubscriber(client) {
+    this.client.on('publish', (clientId, channel, message) => {
+      if (channel === `/${config.sync.channelIn}/${client.clientId}`) {
+        console.log(`[MessageIn - ${config.sync.channelIn}]`, { action: message.action, type: message.recordType, id: message.recordId });
+        switch (message.action) {
+          case 'SAVE':
+            this._saveRecord(message);
+          break;
+          case 'REMOVE':
+            this._removeRecord(message);
+          break;
+          default:
+            throw new Error('No action specified');
+        }
       }
     });
 
-    subscription.then(() => {
-      console.log(`[realm-sync - ${hospital.name}] active`);
-    });
-
     this.client.on('subscribe', (clientId, channel) => {
-      console.log(`[SUBSCRIBE - ${hospital.name}] ${clientId} -> ${channel}`);
+      console.log(`[SUBSCRIBE - ${client.clientId}] ${clientId} -> ${channel}`);
     });
 
     this.client.on('unsubscribe', (clientId, channel) => {
-      console.log(`[UNSUBSCRIBE - ${hospital.name}] ${clientId} -> ${channel}`);
+      console.log(`[UNSUBSCRIBE - ${client.clientId}] ${clientId} -> ${channel}`);
     });
 
     this.client.on('disconnect', (clientId) => {
-      console.log(`[DISCONNECT - ${hospital.name}] ${clientId}`);
+      console.log(`[DISCONNECT - ${client.clientId}] ${clientId}`);
     });
   }
 
