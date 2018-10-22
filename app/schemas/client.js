@@ -7,15 +7,11 @@ const ClientSchema = {
     userId: 'string',
     clientId: 'string',
     clientSecret: 'string',
-    lastSynced: {
-      type: 'int',
-      default: 0
+    active: {
+      type: 'bool',
+      default: false
     },
     syncOut: {
-      type: 'int',
-      default: 0
-    },
-    syncIn: {
       type: 'int',
       default: 0
     },

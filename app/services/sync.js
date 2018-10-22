@@ -11,17 +11,26 @@ class Sync {
   }
 
   setup() {
-    const clients = this.database.objects('client');
+    const clients = this.database.find('client');
     clients.forEach(client => this._addSubscriber(client));
   }
 
   synchronize() {
+    const clients = this.database.find('client', 'active = "true"');
+    clients.forEach(client => this._sync(client));
+  }
+
+  _sync(client) {
     try {
-      const lastSyncTime = this.database.getSetting('LAST_SYNC_OUT');
+      const lastSyncTime = client.syncOut;
       const changes = this.database.find('change', `timestamp >= "${lastSyncTime}"`);
       const tasks = [];
-      changes.forEach(change => tasks.push(this._publishMessage(objectToJSON(change))));
+      changes.forEach(change => tasks.push(this._publishMessage(objectToJSON(change), client)));
       Promise.all(tasks);
+      // Update sync date
+      this.database.write(() => {
+        client.syncOut = new Date().getTime();
+      });
     } catch (err) {
       throw new Error(err);
     }
@@ -45,29 +54,37 @@ class Sync {
     });
 
     this.client.on('subscribe', (clientId, channel) => {
+      this.database.write(() => {
+        client.active = true;
+      });
+      this._sync(client);
       console.log(`[SUBSCRIBE - ${client.clientId}] ${clientId} -> ${channel}`);
     });
 
     this.client.on('unsubscribe', (clientId, channel) => {
+      this.database.write(() => {
+        client.active = false;
+      });
       console.log(`[UNSUBSCRIBE - ${client.clientId}] ${clientId} -> ${channel}`);
     });
 
     this.client.on('disconnect', (clientId) => {
+      this.database.write(() => {
+        client.active = false;
+      });
       console.log(`[DISCONNECT - ${client.clientId}] ${clientId}`);
     });
   }
 
-  async _publishMessage(change) {
+  async _publishMessage(change, client) {
     try {
       let record = this.database.findOne(change.recordType, change.recordId);
       if (record) record = objectToJSON(record);
-      await this.client.getClient().publish(`/${config.sync.channelOut}`, {
+      await this.client.getClient().publish(`/${config.sync.channelOut}/${client.clientId}`, {
         record,
         ...change
       });
 
-      // Update last sync out date
-      this.database.setSetting('LAST_SYNC_OUT', new Date().getTime());
       console.log('[MessageOut]', { action: change.action, type: change.recordType, id: change.recordId });
       return {};
     } catch (err) {

@@ -1,6 +1,7 @@
 const UserSchema = {
   name: 'hospital',
   primaryKey: '_id',
+  sync: false,
   properties: {
     _id: 'string',
     name: 'string',

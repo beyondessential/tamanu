@@ -24,6 +24,7 @@ class QueueManager extends EventEmitter {
    * @return {none}
    */
   push({ action, recordId, recordType }) {
+    console.log('-push-', { action, recordId, recordType });
     if (!recordId) throw new Error('Cannot push a change without a record id onto the change queue');
     const key = `${recordType}-${recordId}`;
     this.queue[key] = {

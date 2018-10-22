@@ -55,8 +55,10 @@ class Database extends Realm {
     return null;
   }
 
-  find(type, condition = '') {
-    return this.objects(type).filtered(condition);
+  find(type, condition = null) {
+    const item = this.objects(type);
+    if (condition) item.filtered(condition);
+    return item;
   }
 
   setSettings(settings) {

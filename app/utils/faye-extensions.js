@@ -6,10 +6,11 @@ module.exports.incoming = ({ database, message, callback }) => {
   const { clientId, clientSecret } = ext || {};
   if (startsWith(channel, `/${config.sync.channelIn}`) || channel === '/meta/subscribe') {
     const user = database.find('client', `clientId = "${clientId}" AND clientSecret = "${clientSecret}"`);
-    if (!user || user.length <= 0) {
+    if (user && user.length > 0) {
+      message.ext = head(user);
+    } else {
       message.error = 'User authentication failed!';
     }
   }
-  // console.log('-incoming-', message);
   callback(message);
 };

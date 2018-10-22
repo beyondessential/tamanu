@@ -56,6 +56,7 @@
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
     "serve-index": "^1.9.1",
-    "shortid": "^2.2.13"
+    "shortid": "^2.2.13",
+    "uuid": "^3.3.2"
   }
 }

@@ -1,6 +1,7 @@
 const UserSchema = {
   name: 'user',
   primaryKey: '_id',
+  sync: false,
   properties: {
     _id: 'string',
     displayName: {
