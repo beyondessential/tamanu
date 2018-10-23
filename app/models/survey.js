@@ -23,7 +23,10 @@ const SurveySchema = {
       type: 'string',
       optional: true
     },
-    screens: 'string[]',
+    screens: {
+      type: 'list',
+      objectType: 'surveyScreen'
+    },
     canRedo: { // Can submit multiple times
       type: 'bool',
       default: false

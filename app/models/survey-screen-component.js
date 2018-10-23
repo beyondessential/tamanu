@@ -4,15 +4,15 @@ const SurveyScreenComponentSchema = {
   properties: {
   _id: 'string',
     question: {
-      type: 'string',
-      optional: true
+      type: 'list',
+      objectType: 'question'
     },
     componentNumber: {
-      type: 'string',
+      type: 'int',
       optional: true
     },
     answersEnablingFollowUp: {
-      type: 'string',
+      type: 'string[]',
       optional: true
     },
     isFollowUp: {

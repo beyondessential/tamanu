@@ -8,7 +8,7 @@ const SurveyScreenSchema = {
       optional: true
     },
     screenNumber: {
-      type: 'string',
+      type: 'int',
       optional: true
     },
     components: {

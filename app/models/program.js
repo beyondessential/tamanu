@@ -1,7 +1,7 @@
 const ProgramSchema = {
   name: 'program',
-  primaryKey: '_id', 
-  properties: { 
+  primaryKey: '_id',
+  properties: {
     _id: 'string',
     name: {
       type: 'string',
