@@ -1,5 +1,7 @@
 const config = require('config');
 const { objectToJSON, incoming } = require('../utils');
+const jsonDiff = require('json-diff');
+const { each, has } = require('lodash');
 
 class Sync {
   constructor(database, faye) {
@@ -16,7 +18,7 @@ class Sync {
   }
 
   synchronize() {
-    const clients = this.database.find('client', 'active = "true"');
+    const clients = this.database.find('client', 'active = true');
     clients.forEach(client => this._sync(client));
   }
 
@@ -92,83 +94,51 @@ class Sync {
     }
   }
 
-  _saveRecord(props) {
-    this.database.write(() => {
-      this.database.create(props.recordType, props.record, true);
-    });
+  /**
+   * This function is called when a record needs to be saved ( CREATE or UPDATE ) to the database
+   * after being synced ( data sent from another client )
+   * CREATE: we simply use the data sent from client to create a new record using recordType
+   * UPDATE: we compare modifiedFields using timestamps and use a last updated value for that field. Only the fields that are updated will be sent to the database
+   * @param {object} options Options passed to the function i-e record, recordType
+   */
+  _saveRecord(options) {
+    try {
+      // Check if record exists
+      let newRecord = { _id: options.record._id };
+      const record = this.database.findOne(options.recordType, options.record._id);
+      if (record) { // UPDATE
+        // Resolve conflicts
+        const modifiedFields = JSON.parse(record.modifiedFields);
+        const newModifiedFields = JSON.parse(options.record.modifiedFields);
+        each(newModifiedFields, (value, key) => {
+          console.log({ value, key }, has(newModifiedFields, key));
+          if (has(newModifiedFields, key)) {
+            newRecord[key] = modifiedFields[key] > newModifiedFields[key] ? record[key] : options.record[key];
+          } else {
+            newRecord[key] = options.record[key];
+          }
+        });
+      } else { // CREATE
+        newRecord = options.record;
+      }
+  
+      this.database.write(() => {
+        this.database.create(options.recordType, newRecord, true);
+      });
+    } catch (err) {
+      throw err;
+    }
   }
 
-  _removeRecord(props) {
+  /**
+   *  This function deletes a record from the database after just being synced ( sent from another client )
+   * @param {options} options Options include recordType and recordId
+   */
+  _removeRecord(options) {
     this.database.write(() => {
-      this.database.deleteByPrimaryKey(props.recordType, props.recordId);
+      this.database.deleteByPrimaryKey(options.recordType, options.recordId);
     });
   }
 }
 
 module.exports = Sync;
-
-// let _addListener;
-// let _addTOQueue;
-// let this._toJSON;
-// const internals = {};
-// internals.addDatabaseListeners = (realm) => {
-  // const
-  // console.log('addDatabaseListeners', dbName);
-  // const dbUrl = `http://${config.localDB.username}:${config.localDB.password}@${config.localDB.host}:${config.localDB.port}`;
-  // const couchFollowOpts = {
-  //   db: `${dbUrl}/${dbName}`,
-  //   include_docs: true,
-  //   since: -1, // config.couchDbChangesSince,
-  //   query_params: {
-  //     conflicts: true,
-  //   },
-  // };
-
-  // follow(couchFollowOpts, (error, change) => {
-  //   console.log('follow', error, change);
-  //   if (!error) {
-  //     internals.pushSync(change);
-  //   } else {
-  //     console.error(error);
-  //   }
-  // });
-// };
-
-// internals.pushSync = (change) => {
-//   const { pushDB } = dbService.getDBs();
-//   const tasks = [];
-
-//   pushDB.list({ include_docs: true }, async (err, subscriptions) => {
-//     subscriptions.rows.forEach(async (subscriptionInfo) => {
-//       //  && subscriptionInfo.doc.remoteSeq < change.seq
-//       if (subscriptionInfo.doc && subscriptionInfo.doc.clientToken) {
-//         const notificationInfo = {
-//           seq: change.seq,
-//           type: 'couchDBChange'
-//         };
-
-//         tasks.push(await pushHelper.sendNotification(subscriptionInfo.doc.clientToken, notificationInfo));
-
-//         // pushHelper.sendNotification(subscriptionInfo.doc.subscription, notificationInfo).catch((err) => {
-//         //   if (err.statusCode === 404 || err.statusCode === 410) {
-//         //     pushDB.destroy(subscriptionInfo.doc._id, subscriptionInfo.doc._rev);
-//         //   } else {
-//         //     console.log('Subscription is no longer valid: ', err);
-//         //   }
-//         // });
-//       }
-//     });
-
-//     try {
-//       Promise.each(tasks, (value, index, length) => {
-//         console.log('value', value);
-//         console.log('index', index);
-//         console.log('length', length);
-//       });
-//     } catch (er) {
-//       console.error(er);
-//     }
-
-//     console.log('pushSync', tasks);
-//   });
-// };
