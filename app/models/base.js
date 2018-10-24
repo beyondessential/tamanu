@@ -1,12 +1,18 @@
 import Backbone from 'backbone-associations';
 import moment from 'moment';
-import shortid from 'shortid';
-import { mapValues, assignIn, isEmpty, clone, map, set, isObject, isArray } from 'lodash';
+import jsonDiff from 'json-diff';
+import { isString, assignIn, isEmpty, clone, each, set, isObject, has } from 'lodash';
 import { to } from 'await-to-js';
 
 export default Backbone.AssociatedModel.extend({
   idAttribute: '_id',
+  lastSyncedAttributes: {},
   // urlRoot: process.env.LAN_REALM,
+
+  constructor(attributes, options) {
+    if (!isEmpty(attributes) && has(attributes, '_id')) this.lastSyncedAttributes = attributes;
+    return Backbone.AssociatedModel.apply(this, [attributes, options]);
+  },
 
   defaults: {
     modifiedFields: {},
@@ -14,22 +20,61 @@ export default Backbone.AssociatedModel.extend({
     modifiedAt: null,
   },
 
-  async save(attrs, options) {
-    // Set last modified times
-    if (this.changedAttributes() !== false) {
-      let modifiedFields = this.changedAttributes();
-      modifiedFields = mapValues(modifiedFields, () => moment());
-      modifiedFields = assignIn(this.attributes.modifiedFields, modifiedFields);
-
-      this.set({
-        modifiedFields,
-        modifiedAt: moment(),
-      });
+  /**
+   * Override backbone's default fetch method to record `lastSyncedAttributes`
+   * @param {object} options Options sent to XHR request
+   */
+  async fetch(options) {
+    try {
+      const res = await Backbone.Model.prototype.fetch.apply(this, [options]);
+      this.lastSyncedAttributes = this.toJSON();
+      return res;
+    } catch (err) {
+      console.error(err);
+      return this.previousAttributes();
     }
+  },
 
-    // Proxy the call to the original save function
-    const res = await Backbone.Model.prototype.save.apply(this, [attrs, options]);
-    return res;
+  /**
+   * Override backbone's default save method to record `modifiedFields` and `lastSyncedAttributes`
+   * @param {object} attrs Attributes to be patched
+   * @param {object} options Options sent to XHR request
+   */
+  async save(attrs, options) {
+    try {
+      let attributes = attrs;
+      if (!attributes) attributes = {};
+      let modifiedFields = jsonDiff.diff(this.lastSyncedAttributes, this.toJSON());
+
+      // Set last modified times
+      if (modifiedFields) {
+        let originalModified = {};
+        if (this.attributes.modifiedFields !== '' && isString(this.attributes.modifiedFields))
+          originalModified = JSON.parse(this.attributes.modifiedFields);
+
+        each(modifiedFields, (value, key) => {
+          if (has(this.defaults(), key)) {
+            modifiedFields[key] = new Date().getTime();
+          } else {
+            delete modifiedFields[key];
+          }
+        })
+        modifiedFields = assignIn(originalModified, modifiedFields);
+        modifiedFields = JSON.stringify(modifiedFields);
+        attributes = Object.assign(attributes, {
+          modifiedFields,
+          modifiedAt: moment(),
+        });
+      }
+
+      // Proxy the call to the original save function
+      const res = await Backbone.Model.prototype.save.apply(this, [attributes, options]);
+      this.lastSyncedAttributes = this.toJSON();
+      return res;
+    } catch (err) {
+      console.error(err);
+      return this.previousAttributes();
+    }
   },
 
   // fetch(options) {
@@ -91,6 +136,13 @@ export default Backbone.AssociatedModel.extend({
 
   toJSON() {
     const attributes = clone(this.attributes);
+
+    // Convert dated to string
+    each(attributes, (value, key) => {
+      if (value instanceof moment) attributes[key] = value.toISOString();
+    })
+
+    // Add relations
     const { relations } = this;
     if (!isEmpty(relations)) {
       relations.forEach((relation) => {
