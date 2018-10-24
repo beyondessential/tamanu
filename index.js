@@ -12,7 +12,7 @@
   const Database = require('./app/services/database');
   const Listeners = require('./app/services/listeners');
   const Auth = require('./app/services/auth');
-  const models = require('./app/models');
+  const schemas = require('./tamanu-common/schemas');
 
   const port = config.port || 4500;
 
@@ -56,7 +56,7 @@
     // Connect database
     const database = new Database({
       path: `./data/${config.db.name}.realm`, // './data/main.realm',
-      schema: models,
+      schema: schemas,
       schemaVersion: 2,
     });
 
@@ -66,6 +66,7 @@
 
     // Prompt user to login
     const authService = new Auth(database);
+    // startServer();
     authService.promptLogin(() => {
       startServer();
       listeners.setupSync();
