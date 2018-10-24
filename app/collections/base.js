@@ -1,51 +1,34 @@
 import Backbone from 'backbone-associations';
-import { map, keys, set, isEmpty } from 'lodash';
-// import dbService from '../services/database';
-// import BackbonePouch from 'backbone-pouch';
+import { keys, set, isEmpty } from 'lodash';
 
-const defaultpageSize = 5;
+require('backbone.paginator');
 
-export default Backbone.Collection.extend({
-  initialize() {
-    this.totalPages = 0;
-    this.currentPage = 0;
-    this.pageSize = defaultpageSize;
-  },
-
+export default Backbone.PageableCollection.extend({
   url: process.env.LAN_REALM,
-  // sync: BackbonePouch.sync({
-  //   db: () => dbService.patientDB,
-  //   fetch: 'query',
-  //   options: {
-  //     query: {
-  //       include_docs: true,
-  //       fun: 'patient_by_display_id',
-  //       limit: defaultpageSize
-  //     },
-  //     changes: {
-  //       include_docs: true
-  //     }
-  //   },
-  // }),
-
-  parse(result) {
-    if (result.rows) {
-      this.totalPages = Math.ceil(result.total_rows / this.pageSize);
-      return map(result.rows, obj => (obj.doc ? obj.doc : obj));
-    }
-    return result;
+  state: {
+    firstPage: 0,
+    currentPage: 0,
+    pageSize: 10
   },
 
-  async fetch(options) {
-    // Proxy the call to the original save function
-    // const res = await Backbone.Collection.prototype.fetch.apply(this, [options]);
-    // return res;
-    const originalSuccess = options.success;
-    options.success = async () => {
-      if (options.fetchRelations) await this.fetchRelations({ relations: options.fetchRelations, deep: false });
-      if (originalSuccess) originalSuccess.call();
-    };
-    return Backbone.Collection.prototype.fetch.apply(this, [options]);
+  filters: {
+    keyword: '',
+    fields: [],
+  },
+
+  queryParams: {
+    currentPage: "current_page",
+    pageSize: "page_size"
+  },
+
+  fetch(options = {}) {
+    const { keyword, fields } = this.filters;
+    if (!options.data) options.data = {};
+    if (keyword) {
+      options.data.keyword = keyword;
+      options.data.fields = fields.join(',');
+    }
+    return Backbone.PageableCollection.prototype.fetch.apply(this, [options]);
   },
 
   fetchAll(opts = {}) {
@@ -149,11 +132,7 @@ export default Backbone.Collection.extend({
     await Promise.all(tasks);
   },
 
-  setPage(page) {
-    this.currentPage = page;
+  setKeyword(keyword) {
+    this.filters.keyword = keyword;
   },
-
-  setPageSize(pageSize) {
-    this.pageSize = pageSize;
-  }
 });
