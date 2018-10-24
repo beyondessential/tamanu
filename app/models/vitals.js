@@ -4,7 +4,7 @@ import moment from 'moment';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/vital`,
+  urlRoot:  `${process.env.LAN_REALM}/vitals`,
   defaults: () => defaults({
     _id: shortid.generate(),
     dateRecorded: moment(),

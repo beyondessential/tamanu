@@ -25,5 +25,5 @@ export SurveyScreenModel from './surveyScreen';
 export SurveyScreenComponentModel from './surveyScreenComponent';
 export UserRoleModel from './userRole';
 export UserModel from './user';
-export VitalModel from './vital';
+export VitalModel from './vitals';
 export VisitModel from './visit';

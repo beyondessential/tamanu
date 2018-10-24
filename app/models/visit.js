@@ -70,8 +70,8 @@ export default BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'vitals',
-      relatedModel: () => require('./vital'),
-      // map: (values) => mapRelations(values, require('./vital')),
+      relatedModel: () => require('./vitals'),
+      // map: (values) => mapRelations(values, require('./vitals')),
       // serialize: '_id'
     },
     {
@@ -84,9 +84,10 @@ export default BaseModel.extend({
   ],
 
   parse(res) {
-    if (res.startDate !== '') res.startDate = moment(res.startDate);
-    if (res.endDate !== null) res.endDate = moment(res.endDate);
-    return res;
+    const _res = res
+    if (res.startDate !== '') _res.startDate = moment(res.startDate);
+    if (res.endDate !== null) _res.endDate = moment(res.endDate);
+    return _res;
   },
 
   // validate: (attrs) => {
