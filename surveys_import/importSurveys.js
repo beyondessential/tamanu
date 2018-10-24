@@ -5,20 +5,18 @@ const PouchDB = require('pouchdb');
 const { kebabCase, isNaN, isArray, has, camelCase } = require('lodash');
 const shortid = require('shortid');
 const { to } = require('await-to-js');
+const Realm = require('realm');
+const schemas = require('../tamanu-common/schemas');
 // const { deleteScreensForSurvey, deleteOrphanQuestions } = require('../dataAccessors');
 const TYPES = require('./constants');
 // const { PermissionGroup } = require('../models');
 const { ObjectValidator, constructIsOneOf, hasContent } = require('./validation');
 
-const dbHost = 'localhost';
-const dbPort = 5984;
-const dbUser = 'couchadmin';
-const dbPassword = 'test';
-const localUrl = `http://${dbUser}:${dbPassword}@${dbHost}:${dbPort}`;
-const HTTPPouch = PouchDB.defaults({
-  prefix: localUrl
+const database = new Realm({
+  path: '../../tamanu-lan-server/data/main.realm',
+  schema: schemas,
+  schemaVersion: 2,
 });
-const surveyDB = new HTTPPouch('main');
 
 // console.log('Terminated!');
 // process.exit();
@@ -45,15 +43,23 @@ module.exports = async function importSurveys(req) {
     const permissionGroup = { id: 'permission-group-id' };
 
     if (reqQuery.surveyGroup) {
-      const surveyGroup = await surveyDB.put({
-        _id: kebabCase(reqQuery.surveyGroup),
-        docType: TYPES.SURVEY_GROUP,
-        name: reqQuery.surveyGroup,
+      database.write(() => {
+        database.create('surveyGroup', {
+          _id: kebabCase(reqQuery.surveyGroup),
+          name: reqQuery.surveyGroup,
+        });
       });
     }
 
     // Update projects
-    const program = await surveyDB.get('program_CDBralnev');
+    let program;
+    database.write(() => {
+      program = database.create('program', {
+        _id: shortid.generate(),
+        name: 'Pregnancy',
+        programType: 'pregnancy'
+      });
+    });
     if (typeof program.surveys !== 'object') program.surveys = [];
 
     // Go through each sheet, and make a survey for each
@@ -61,7 +67,7 @@ module.exports = async function importSurveys(req) {
     entries.forEach(async (surveySheets, order) => {
       const [tabName, sheet] = surveySheets;
       let surveyName = '';
-      requestedSurveyNames.forEach(requestedSurveyName => {
+      requestedSurveyNames.forEach((requestedSurveyName) => {
         // To deal with the character limit in Excel tabs, the tab name may be just the start of
         // the survey name, so we check for partial matches
         if (requestedSurveyName.startsWith(tabName) && // Test it at least partially matches &
@@ -77,22 +83,25 @@ module.exports = async function importSurveys(req) {
       }
 
       // Get the survey based on the name of the sheet/tab
-      let survey = await surveyDB.put({
-        _id: `${TYPES.SURVEY}_${shortid.generate()}`,
-        docType: TYPES.SURVEY,
-        name: surveyName,
-        canRedo: true,
-        code: generateSurveyCode(surveyName),
-        permissionGroupId: permissionGroup.id,
-        order
+      let survey;
+      database.write(() => {
+        survey = database.create('survey', {
+          _id: shortid.generate(),
+          docType: TYPES.SURVEY,
+          name: surveyName,
+          canRedo: true,
+          code: generateSurveyCode(surveyName),
+          permissionGroupId: permissionGroup._id,
+          order
+        });
+
+        program.surveys.push(survey);
+        if (!isArray(survey.screens)) survey.screens = [];
       });
+
       if (!survey) {
         throw new Error('creating survey, check format of import file');
       }
-
-      program.surveys.push(survey.id);
-      survey = await surveyDB.get(survey.id);
-      if (!isArray(survey.screens)) survey.screens = [];
 
       // Work out what fields of the survey should be updated based on query params
       // const fieldsToForceUpdate = {};
@@ -130,92 +139,90 @@ module.exports = async function importSurveys(req) {
       let currentScreen;
       let currentSurveyScreenComponent;
       const questionCodes = []; // An array to hold all qustion codes, allowing duplicate checking
-      for (let rowIndex = 0; rowIndex < questionObjects.length; rowIndex += 1) {
-        const questionObject = questionObjects[rowIndex];
-        const excelRowNumber = rowIndex + 2; // +2 to make up for header and 0 index
-        const constructImportValidationError = (message, field) => new Error(message, excelRowNumber, field, tabName);
-        console.log('_questionObject_', questionObject);
-        await objectValidator.validate(questionObject, constructImportValidationError);
-        if (questionObject.code && questionObject.code.length > 0 && questionCodes.includes(questionObject.code)) {
-          throw new Error('Question code is not unique', excelRowNumber);
-        }
-        questionCodes.push(questionObject.code);
+      database.write(() => {
+        for (let rowIndex = 0; rowIndex < questionObjects.length; rowIndex += 1) {
+          const questionObject = questionObjects[rowIndex];
+          const excelRowNumber = rowIndex + 2; // +2 to make up for header and 0 index
+          const constructImportValidationError = (message, field) => new Error(message, excelRowNumber, field, tabName);
+          console.log('_questionObject_', questionObject);
+          // await objectValidator.validate(questionObject, constructImportValidationError);
+          if (questionObject.code && questionObject.code.length > 0 && questionCodes.includes(questionObject.code)) {
+            throw new Error('Question code is not unique', excelRowNumber);
+          }
+          questionCodes.push(questionObject.code);
 
-        // Extract question details from spreadsheet row
-        const {
-          code,
-          type,
-          indicator,
-          text,
-          detail,
-          options,
-          optionLabels,
-          optionColors,
-          newScreen,
-          followUpAnswers,
-        } = questionObject;
+          // Extract question details from spreadsheet row
+          const {
+            code,
+            type,
+            indicator,
+            text,
+            detail,
+            options,
+            optionLabels,
+            optionColors,
+            newScreen,
+            followUpAnswers,
+          } = questionObject;
 
-        let { params } = questionObject;
-        if (params && params !== '') {
-          params = params.split(',').map(param => param.trim());
-        }
+          let { params } = questionObject;
+          if (params && params !== '') {
+            params = params.split(',').map(param => param.trim());
+          }
 
-        // Compose question based on details from spreadsheet
-        const questionToUpsert = {
-          code,
-          type,
-          indicator,
-          text,
-          detail,
-          options: processOptions(options, optionLabels, optionColors),
-          params,
-        };
+          // Either create or update the question depending on if there exists a matching code
+          const question = database.create('question', {
+            _id: shortid.generate(),
+            code,
+            type,
+            indicator,
+            text,
+            detail,
+            options: processOptions(options, optionLabels, optionColors),
+            params,
+          }); // database.create('question', questionToUpsert);
 
-        // Either create or update the question depending on if there exists a matching code
-        questionToUpsert.docType = TYPES.QUESTION;
-        questionToUpsert._id = `${TYPES.QUESTION}_${shortid.generate()}`;
-        const question = await surveyDB.put(questionToUpsert);
+          // Generate the screen and screen component
+          const shouldStartNewScreen = caseAndSpaceInsensitiveEquals(newScreen, 'yes');
+          if (!currentScreen || shouldStartNewScreen) { // Spreadsheet indicates this question starts a new screen
+            // Create a new survey screen
+            currentScreen = database.create('surveyScreen', {
+              _id: shortid.generate(),
+              surveyId: survey._id,
+              screenNumber: has(currentScreen, 'screenNumber') ? currentScreen.screenNumber + 1 : 1, // Next screen
+            });
 
-        // Generate the screen and screen component
-        const shouldStartNewScreen = caseAndSpaceInsensitiveEquals(newScreen, 'yes');
-        if (!currentScreen || shouldStartNewScreen) { // Spreadsheet indicates this question starts a new screen
-          // Create a new survey screen
-          currentScreen = await surveyDB.put({
-            _id: `${TYPES.SURVEY_SCREEN}_${shortid.generate()}`,
-            docType: TYPES.SURVEY_SCREEN,
-            surveyId: survey.id,
-            screenNumber: has(currentScreen, 'screenNumber') ? currentScreen.screenNumber + 1 : 1, // Next screen
+            // Clear existing survey screen component
+            currentSurveyScreenComponent = undefined;
+          }
+
+          // Create a new survey screen component to display this question
+          currentSurveyScreenComponent = database.create('surveyScreenComponent', {
+            _id: shortid.generate(),
+            // screen_id: currentScreen._id,
+            componentNumber: currentSurveyScreenComponent ? currentSurveyScreenComponent.componentNumber + 1 : 1,
+            isFollowUp: currentSurveyScreenComponent &&
+                          ((currentSurveyScreenComponent.answersEnablingFollowUp && currentSurveyScreenComponent.answersEnablingFollowUp.length > 0) ||
+                          currentSurveyScreenComponent.isFollowUp),
+            answersEnablingFollowUp: splitOnCommas(followUpAnswers),
           });
-          survey.screens.push(currentScreen.id);
-          currentScreen = await surveyDB.get(currentScreen.id);
-          // Clear existing survey screen component
-          currentSurveyScreenComponent = undefined;
+
+          currentSurveyScreenComponent.question.push(question);
+
+          // Update screen
+          // currentScreen = await surveyDB.get(currentScreen._id);
+          if (!isArray(currentScreen.components)) currentScreen.components = [];
+          currentScreen.components.push(currentSurveyScreenComponent);
+          survey.screens.push(currentScreen);
+        // currentSurveyScreenComponent = await surveyDB.get(currentSurveyScreenComponent.id);
         }
-
-        // Create a new survey screen component to display this question
-        currentSurveyScreenComponent = await surveyDB.put({
-          _id: `${TYPES.SURVEY_SCREEN_COMPONENT}_${shortid.generate()}`,
-          docType: TYPES.SURVEY_SCREEN_COMPONENT,
-          // screen_id: currentScreen._id,
-          question: question.id,
-          componentNumber: currentSurveyScreenComponent ? currentSurveyScreenComponent.componentNumber + 1 : 1,
-          isFollowUp: currentSurveyScreenComponent &&
-                        ((currentSurveyScreenComponent.answersEnablingFollowUp && currentSurveyScreenComponent.answersEnablingFollowUp.length > 0) ||
-                        currentSurveyScreenComponent.isFollowUp),
-          answersEnablingFollowUp: splitOnCommas(followUpAnswers),
-        });
-
-        // Update screen
-        currentScreen = await surveyDB.get(currentScreen._id);
-        if (!isArray(currentScreen.components)) currentScreen.components = [];
-        currentScreen.components.push(currentSurveyScreenComponent.id);
-        await surveyDB.put(currentScreen);
-        currentSurveyScreenComponent = await surveyDB.get(currentSurveyScreenComponent.id);
-      }
+      });
       // Clear any orphaned questions (i.e. questions no longer included in a survey)
       // await deleteOrphanQuestions(database);
-      await surveyDB.put(program);
-      await surveyDB.put(survey);
+      database.write(() => {
+        database.create('program', program, true);
+        database.create('survey', survey, true);
+      });
     });
   } catch (error) {
     if (error.respond) {

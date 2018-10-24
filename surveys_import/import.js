@@ -6,5 +6,5 @@ const res = importSurveys({
   reqQuery: {
     surveyNames: 'Antenatal Visit'
   },
-  filePath: './data/GDM_surveys.xlsx'
+  filePath: './GDM_surveys.xlsx'
 });
