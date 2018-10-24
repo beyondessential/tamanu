@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { map, isEmpty, toUpper, capitalize } from 'lodash';
+import { map, isEmpty, toUpper, capitalize, head } from 'lodash';
 import ReactTable from 'react-table';
 
 // import { fetchPatients, deletePatient } from '../../actions/patients';
@@ -25,13 +25,14 @@ class PatientListing extends Component {
     pageSize: pageSizes.patients,
     keyword: '',
     tableClass: '',
+    tableState: {}
   }
 
   componentDidMount() {
     patientColumns[patientColumns.length - 1].Cell = this.setActionsColumn;
     this.props.collection.on('update', this.handleChange);
     this.props.collection.setPageSize(this.state.pageSize);
-    this.props.collection.fetchByView({ fetchRelations: ['visits'] });
+    this.props.collection.fetch();
   }
 
   componentWillReceiveProps({ deletePatientSuccess }) {
@@ -46,6 +47,7 @@ class PatientListing extends Component {
 
   handleChange() {
     let { models: patients } = this.props.collection;
+    console.log('-handleChange-', patients);
     if (patients.length > 0) {
       patients = map(patients, async patient => {
         const { attributes } = patient;
@@ -98,41 +100,30 @@ class PatientListing extends Component {
     }
   }
 
-  onFetchData(state = {}) {
+  async onFetchData(state = {}) {
     const { keyword } = this.state;
-    this.setState({ loading: true });
-    if (keyword === '') {
-      this.props.collection.setPage(state.page);
+    const updates = { loading: true };
+    if (!isEmpty(state)) updates.tableState = state;
+    this.setState(updates);
+
+    try {
+      // Set pagination options
+      if (state.sorted.length > 0) {
+        const sort = head(state.sorted);
+        this.props.collection.setSorting(sort.id, sort.desc ? 1 : -1);
+      }
+      if (keyword) {
+        this.props.collection.setKeyword(keyword);
+      } else {
+        this.props.collection.setKeyword('');
+      }
+      
       this.props.collection.setPageSize(state.pageSize);
-      this.props.collection.fetchByView({
-        fetchRelations: ['visits'],
-        success: () => {
-          this.setState({ loading: false });
-        }
-      });
-    } else {
-      this.props.collection.find({
-        selector: [{
-          $or: [{
-            displayId: {
-              $regex: `^${toUpper(keyword)}+`
-            }
-          }, {
-            firstName: {
-              $regex: `^${capitalize(keyword)}+`
-            }
-          }, {
-            lastName: {
-              $regex: `^${capitalize(keyword)}+`
-            }
-          }]
-        }],
-        fields: ['_id', 'displayId', 'firstName', 'lastName'],
-        limit: 50,
-        success: () => {
-          this.setState({ loading: false });
-        }
-      });
+      await this.props.collection.getPage(state.page).promise();
+      this.setState({ loading: false });
+    } catch (err) {
+      this.setState({ loading: false });
+      console.error(err);
     }
   }
 
@@ -147,23 +138,18 @@ class PatientListing extends Component {
     );
   }
 
-  searchSubmit(keyword) {
-    this.setState({
-      keyword,
-      tableClass: 'search-results'
-    }, this.onFetchData);
+  async searchSubmit(keyword) {
+    const { tableState } = this.state;
+    this.setState({ keyword }, () => {
+      this.onFetchData(tableState);
+    });
   }
 
   searchReset() {
-    this.props.collection.totalPages = 1;
-    this.setState({
-      keyword: '',
-      tableClass: ''
-    }, () => this.onFetchData({
-        page: 0,
-        pageSize: pageSizes.patients
-      })
-    );
+    const { tableState } = this.state;
+    this.setState({ keyword: '' }, () => {
+      this.onFetchData(tableState);
+    });
   }
 
   render() {
@@ -203,7 +189,7 @@ class PatientListing extends Component {
                 manual
                 keyField="_id"
                 data={patients}
-                pages={this.props.collection.totalPages}
+                pages={this.props.collection.state.totalPages}
                 defaultPageSize={pageSizes.patients}
                 loading={this.state.loading}
                 columns={patientColumns}
