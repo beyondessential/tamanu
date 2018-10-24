@@ -70,7 +70,8 @@ class DatepickerGroup extends Component {
       value: _,
       ...others
     } = this.props;
-    const { value } = this.state;
+    let { value } = this.state;
+    if (typeof value === 'string') value = moment(value);
     let { className } = this.props;
     if (!overwriteClass) className = `column ${className}`;
 
