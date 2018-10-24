@@ -18,4 +18,13 @@ module.exports = (database) => {
     password: hash,
     secret: 'hospital-demo-1-secret-key'
   }, true);
+
+  database.create('user', {
+    _id: 'demo-user-2',
+    displayName: 'John1',
+    name: 'John Doe1',
+    email: 'john.doe1@gmail.com',
+    password: hash,
+    secret: 'hospital-demo-2-secret-key'
+  }, true);
 }
