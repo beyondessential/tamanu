@@ -14,12 +14,10 @@ class Sync {
   }
 
   setup() {
-    const lastSyncTime = this.database.getSetting('LAST_SYNC_OUT');
-    this.client.setHeader('lastSync', lastSyncTime);
-
-    const subscription = this.client.subscribe(`/${config.sync.channelIn}`).withChannel((channel, message) => {
-      console.log(`[MessageIn - ${config.sync.channelIn}] - [${channel}]`, { action: message.action, type: message.recordType, id: message.recordId });
-      this.listeners.removeDatabaseListeners();
+    const clientId = this.database.getSetting('CLIENT_ID');
+    const subscription = this.client.subscribe(`/${config.sync.channelIn}/${clientId}`).withChannel((channel, message) => {
+      console.log(`[MessageIn - ${config.sync.channelIn}/${clientId}] - [${channel}]`, { action: message.action, type: message.recordType, id: message.recordId });
+      // this.listeners.removeDatabaseListeners();
       switch (message.action) {
         case 'SAVE':
           this._saveRecord(message);
@@ -30,23 +28,25 @@ class Sync {
         default:
           throw new Error('No action specified');
       }
-      this.listeners.addDatabaseListeners();
+      // this.listeners.addDatabaseListeners();
     });
 
     subscription.then(() => {
+      // Sync once the connection has been setup
+      this.synchronize();
       console.log('[realm-sync] active');
     });
 
-    this.client.on('subscribe', (clientId, channel) => {
-      console.log(`[SUBSCRIBE] ${clientId} -> ${channel}`);
+    this.client.on('subscribe', (client, channel) => {
+      console.log(`[SUBSCRIBE] ${client} -> ${channel}`);
     });
 
-    this.client.on('unsubscribe', (clientId, channel) => {
-      console.log(`[UNSUBSCRIBE] ${clientId} -> ${channel}`);
+    this.client.on('unsubscribe', (client, channel) => {
+      console.log(`[UNSUBSCRIBE] ${client} -> ${channel}`);
     });
 
-    this.client.on('disconnect', (clientId) => {
-      console.log(`[DISCONNECT] ${clientId}`);
+    this.client.on('disconnect', (client) => {
+      console.log(`[DISCONNECT] ${client}`);
     });
   }
 
@@ -84,13 +84,13 @@ class Sync {
 
   _saveRecord(props) {
     this.database.write(() => {
-      this.database.create(props.recordType, props.record, true);
+      this.database.create(props.recordType, props.record, true, true);
     });
   }
 
   _removeRecord(props) {
     this.database.write(() => {
-      this.database.deleteByPrimaryKey(props.recordType, props.recordId);
+      this.database.deleteByPrimaryKey(props.recordType, props.recordId, '_id', true);
     });
   }
 }
