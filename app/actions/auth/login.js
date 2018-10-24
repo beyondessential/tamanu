@@ -10,7 +10,6 @@ export const login = ({ email, password }) =>
   dispatch => {
     dispatch({ type: AUTH_LOGIN_REQUEST });
     if (email === 'demo@beyondessential.com.au' && password === 'demo@123') {
-      toast('Login Successful', { type: 'error' });
       return  dispatch({
         type: AUTH_LOGIN_SUCCESS,
         email: 'demo@beyondessential.com.au',
