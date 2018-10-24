@@ -14,6 +14,7 @@ module.exports = (req, res) => {
       return res.status(200).json({});
     });
   } catch (err) {
+    console.error(err);
     return res.status(500).send(err.toString());
   }
 };
