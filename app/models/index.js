@@ -1,5 +1,5 @@
 const Base = require('./base');
-const schemas = require('../schemas');
+const schemas = require('../../tamanu-common/schemas');
 
 // console.log({ schemas });
 

@@ -1,5 +1,5 @@
 const { each } = require('lodash');
-const schemas = require('../schemas');
+const schemas = require('../../tamanu-common/schemas');
 const QueueManager = require('./queue-manager');
 const Sync = require('./sync');
 
@@ -15,8 +15,8 @@ class Listeners {
   }
 
   addDatabaseListeners() {
-    each(schemas, (model) => {
-      if (model.sync !== false) this._addListener(model);
+    each(schemas, (schema) => {
+      if (schema.sync !== false) this._addListener(schema);
     });
     console.log('Database listeners added!');
   }
