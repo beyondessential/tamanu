@@ -1,32 +1,115 @@
 const Realm = require('realm');
 const shortId = require('shortid');
 const Settings = require('./settings');
+const { has } = require('lodash');
 
 class Database extends Realm {
   constructor(...props) {
     super(...props);
     this.realm = null;
     this.settings = new Settings(this);
+    this.listeners = {};
   }
 
   getInstance() {
     return this.realm;
   }
 
-  create(type, object, ...args) {
+  create(type, object, update = false, silent = false) {
     const objectWithId = {
       _id: shortId.generate(),
       ...object,
     };
-    return super.create(type, objectWithId, ...args);
+
+    if (update) objectWithId.modifiedAt = new Date();
+    const result = super.create(type, objectWithId, update);
+    if (!silent) this._alertListeners('SAVE', type, result);
+    return result;
   }
 
-  update(type, object, ...args) {
+  update(type, object, silent = false) {
     const objectWithId = {
       _id: shortId.generate(),
+      modifiedAt: new Date(),
       ...object, // If object already has id, it will be used rather than the one generated above
     };
-    return super.update(type, objectWithId, ...args);
+
+    const result = super.update(type, objectWithId);
+    if (!silent) this._alertListeners('SAVE', type, result);
+    return result;
+  }
+
+  /**
+   * Deletes a specific object from the database.
+   * @param  {Realm.Object} object  Object to be deleted, also can accept an array of Objects
+   *                                of same type to be deleted.
+   * @param  {string} type          Type of the object(s) to be deleted
+   * Any extra params are passed directly on to change listeners
+   * @return {none}
+   */
+  delete(object, silent = false) {
+    // Test if the object is a RealmObject by checking if it has the function objectSchema(). If it
+    // is, stick it in an array. Otherwise, objet is an array, a realm list, or a realm results
+    // object, so just slice it to make sure it is a simple array
+    const objects = typeof object.objectSchema === 'function' ? [object] : object.slice();
+
+    // If empty, ignore
+    if (!objects || objects.length === 0) return;
+
+    // Go through each object, call its destructor, and alert any change listeners
+    objects.forEach((obj) => {
+      const schema = obj.objectSchema();
+      const type = schema.name;
+      const record = { _id: obj._id }; // If it is being deleted, only alert with the id
+      if (obj && obj.destructor instanceof Function) obj.destructor(this);
+      if (!silent) this._alertListeners('REMOVE', type, record);
+    });
+
+    // Actually delete the objects from the database
+    super.delete(objects);
+  }
+
+  /**
+   * Deletes all objects from the database.
+   * Any params are passed directly on to change listeners
+   * @return {none}
+   */
+  deleteAll(...listenerArgs) {
+    super.deleteAll();
+    this.alertListeners('WIPE', ...listenerArgs);
+  }
+
+  /**
+   * Add listener to the database changes
+   * @param {string} type Record type
+   * @param {func} callback callback function
+   */
+  addListener(type, callback) {
+    this.listeners[type] = callback;
+  }
+
+  /**
+   * Remove a single database listener
+   * @param {string} type Record type
+   */
+  removeListener(type) {
+    delete this.listeners[type];
+  }
+
+  /**
+   * Remove all database listeners
+   */
+  removeAllListeners() {
+    this.listeners = {};
+  }
+
+  /**
+   * Calls each callback in the array of listeners with the provided arguments.
+   * @param  {array} ...args The arguments to pass on to each callback
+   * @return {none}
+   */
+  _alertListeners(action, type, record) {
+    if (has(this.listeners, type)) this.listeners[type](action, record);
   }
 
   /**
@@ -43,9 +126,9 @@ class Database extends Realm {
     return this.update(type, object);
   }
 
-  deleteByPrimaryKey(type, primaryKey, primaryKeyField = '_id') {
+  deleteByPrimaryKey(type, primaryKey, primaryKeyField = '_id', silent = false) {
     const deleteResults = this.objects(type).filtered(`${primaryKeyField} == $0`, primaryKey);
-    if (deleteResults && deleteResults.length > 0) this.delete(deleteResults[0]);
+    if (deleteResults && deleteResults.length > 0) this.delete(deleteResults[0], silent);
   }
 
   findOne(type, searchKey, searchKeyField = '_id') {
