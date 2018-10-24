@@ -1,5 +1,5 @@
 const { each } = require('lodash');
-const models = require('../models');
+const schemas = require('../../tamanu-common/schemas');
 const QueueManager = require('./queue-manager');
 const Sync = require('./sync');
 
@@ -13,64 +13,45 @@ class Listeners {
 
   setupSync() {
     this.sync.setup();
-    this.sync.synchronize();
+    // this.sync.synchronize();
     this.queueManager.on('change', () => this.sync.synchronize());
   }
 
   addDatabaseListeners() {
-    each(models, (model) => {
-      if (model.sync !== false) this._addListener(model.name);
+    each(schemas, (schema) => {
+      if (schema.sync !== false) this._addListener(schema.name);
     });
     console.log('Database listeners added!');
   }
 
   removeDatabaseListeners() {
-    each(models, (model) => {
-      if (model.sync !== false) this._removeListener(model.name);
+    each(schemas, (schema) => {
+      if (schema.sync !== false) this._removeListener(schema.name);
     });
     console.log('Database listeners removed!');
   }
 
   _addListener(recordType) {
-    const objects = this.database.objects(recordType);
-    let items = this._toJSON(objects);
-    this.collections[recordType] = objects;
-    objects.addListener((itemsUpdated, changes) => {
-      each(changes, (indexes, actionType) => {
-        switch (actionType) {
-          case 'insertions':
-          case 'newModifications':
-          case 'modifications':
-          case 'oldModifications':
-            indexes.forEach((index) => {
-              this.queueManager.push({
-                action: 'SAVE',
-                recordId: itemsUpdated[index]._id,
-                recordType
-              });
-            });
-            items = this._toJSON(itemsUpdated);
-          break;
-          case 'deletions':
-            indexes.forEach((index) => {
-              this.queueManager.push({
-                action: 'REMOVE',
-                recordId: items[index]._id,
-                recordType
-              });
-            });
-            items = this._toJSON(itemsUpdated);
-          break;
-          default:
-            console.log(`Ignoring ${actionType}`);
-          break;
-        }
-      });
+    this.database.addListener(recordType, (action, record) => {
+      switch (action) {
+        case 'SAVE':
+        case 'REMOVE':
+        case 'WIPE':
+          this.queueManager.push({
+            action,
+            recordId: record._id,
+            recordType
+          });
+        break;
+        default:
+          console.log(`Ignoring ${action}`);
+        break;
+      }
     });
   }
 
   _removeListener(recordType) {
-    this.collections[recordType].removeAllListeners();
+    this.database.removeListener(recordType);
   }
 
   _toJSON(object) {
