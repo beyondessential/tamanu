@@ -149,7 +149,7 @@ class OperationReport extends Component {
 
         patient.get('operativePlans').add(model);
         await patient.save();
-        this.props.history.replace(`/patients/operativePlan/${patient.id}/${model.id}`);
+        this.props.history.replace(`/patients/operativePlan/${patient._id}/${model._id}`);
         this.setState({ action: 'update' });
       } else {
         patient.trigger('change');
