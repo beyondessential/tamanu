@@ -8,7 +8,8 @@ const ViewSchema = {
     _id: 'string',
     name: {
       type: 'string',
-      optional: true
+      optional: true,
+      indexed: true
     },
     filters: {
       type: 'string',

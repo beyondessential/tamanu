@@ -8,7 +8,8 @@ const VitalSchema = {
     _id: 'string',
     dateRecorded: {
       type: 'date',
-      default: moment()
+      default: moment(),
+      indexed: true
     },
     temperature: {
       type: 'string',

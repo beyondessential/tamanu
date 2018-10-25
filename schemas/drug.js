@@ -7,11 +7,13 @@ const DrugSchema = {
     _id: 'string',
     name: {
       type: 'string',
-      optional: true
+      optional: true,
+      indexed: true
     },
     code: {
       type: 'string',
-      optional: true
+      optional: true,
+      indexed: true
     },
     unit: {
       type: 'string',

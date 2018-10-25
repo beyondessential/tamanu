@@ -7,11 +7,13 @@ const PregnancySchema = {
     _id: 'string',
     conceiveDate: {
       type: 'date',
-      optional: true
+      optional: true,
+      indexed: true
     }, // estimated
     deliveryDate: {
       type: 'date',
-      optional: true
+      optional: true,
+      indexed: true
     }, // estimated
     child: {
       type: 'string',

@@ -5,7 +5,10 @@ const AllergySchema = {
   primaryKey: '_id',
   properties: Object.assign({
     _id: 'string',
-    name: 'string',
+    name: {
+      type: 'string',
+      indexed: true
+    },
     icd9CMCode: {
       type: 'string',
       optional: true

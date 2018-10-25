@@ -39,7 +39,8 @@ const ProcedureSchema = {
     },
     procedureDate: {
       type: 'date',
-      default: new Date()
+      default: new Date(),
+      indexed: true
     },
     timeStarted: {
       type: 'string',

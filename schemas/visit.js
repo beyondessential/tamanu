@@ -12,12 +12,14 @@ const VisitSchema = {
     },
     startDate: {
       type: 'date',
-      default: moment()
+      default: moment(),
+      indexed: true
     },
     // if visit type is outpatient, startDate and endDate are equal
     endDate: {
       type: 'date',
-      optional: true
+      optional: true,
+      indexed: true
     },
     examiner: {
       type: 'string',
@@ -41,11 +43,13 @@ const VisitSchema = {
     },
     status: {
       type: 'string',
-      optional: true
+      optional: true,
+      indexed: true
     },
     visitType: {
       type: 'string',
-      optional: true
+      optional: true,
+      indexed: true
     },
 
     //  Relation fields

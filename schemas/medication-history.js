@@ -5,7 +5,10 @@ const medicationHistorySchema = {
   primaryKey: '_id',
   properties: Object.assign({
     _id: 'string',
-    date: 'date',
+    date: {
+      type: 'date',
+      indexed: true
+    },
     morning: {
       type: 'bool',
       default: false

@@ -5,11 +5,13 @@ const ProgramSchema = {
     _id: 'string',
     name: {
       type: 'string',
-      optional: true
+      optional: true,
+      indexed: true
     },
     programType: {
       type: 'string',
-      default: 'direct'
+      default: 'direct',
+      indexed: true
     },
     surveys: {
       type: 'list',

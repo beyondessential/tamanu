@@ -7,7 +7,8 @@ const PatientSchema = {
     _id: 'string',
     displayId: {
       type: 'string',
-      optional: true
+      optional: true,
+      indexed: true
     },
     admitted: {
       type: 'bool',
@@ -81,11 +82,13 @@ const PatientSchema = {
     // familyInfo: 'string[]',
     firstName: {
       type: 'string',
-      optional: true
+      optional: true,
+      indexed: true
     },
     sex: {
       type: 'string',
-      optional: true
+      optional: true,
+      indexed: true
     },
     occupation: {
       type: 'string',
@@ -101,7 +104,8 @@ const PatientSchema = {
     },
     lastName: {
       type: 'string',
-      optional: true
+      optional: true,
+      indexed: true
     },
     livingArrangement: {
       type: 'string',
@@ -109,7 +113,8 @@ const PatientSchema = {
     },
     middleName: {
       type: 'string',
-      optional: true
+      optional: true,
+      indexed: true
     },
     culturalName: {
       type: 'string',
@@ -133,7 +138,8 @@ const PatientSchema = {
     },
     phone: {
       type: 'string',
-      optional: true
+      optional: true,
+      indexed: true
     },
     placeOfBirth: {
       type: 'string',
@@ -161,7 +167,8 @@ const PatientSchema = {
     },
     status: {
       type: 'string',
-      optional: true
+      optional: true,
+      indexed: true
     },
 
     additionalContacts: {

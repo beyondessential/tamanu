@@ -5,7 +5,10 @@ const SettingSchema = {
   primaryKey: 'key',
   sync: false,
   properties: Object.assign({
-    key: 'string',
+    key: {
+      type: 'string',
+      indexed: true
+    },
     value: {
       type: 'string',
       optional: true
