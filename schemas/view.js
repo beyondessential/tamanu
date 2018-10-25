@@ -1,4 +1,3 @@
-const moment = require('moment');
 const defaults = require('./defaults');
 
 const ViewSchema = {

@@ -1,4 +1,3 @@
-const moment = require('moment');
 const defaults = require('./defaults');
 
 const VitalSchema = {
@@ -8,7 +7,7 @@ const VitalSchema = {
     _id: 'string',
     dateRecorded: {
       type: 'date',
-      default: moment(),
+      default: new Date(),
       indexed: true
     },
     temperature: {

@@ -1,4 +1,3 @@
-const moment = require('moment');
 const defaults = require('./defaults');
 
 const VisitSchema = {
@@ -12,7 +11,7 @@ const VisitSchema = {
     },
     startDate: {
       type: 'date',
-      default: moment(),
+      default: new Date(),
       indexed: true
     },
     // if visit type is outpatient, startDate and endDate are equal

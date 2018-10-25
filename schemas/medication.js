@@ -1,4 +1,3 @@
-const moment = require('moment');
 const defaults = require('./defaults');
 
 const MedicationSchema = {
@@ -28,7 +27,7 @@ const MedicationSchema = {
     },
     prescriptionDate: {
       type: 'date',
-      default: moment()
+      default: new Date()
     },
     qtyMorning: {
       type: 'int',
@@ -53,7 +52,7 @@ const MedicationSchema = {
     endDate: 'date',
     requestedDate: {
       type: 'date',
-      default: moment()
+      default: new Date()
     },
     requestedBy: {
       type: 'string',

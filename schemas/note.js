@@ -1,4 +1,3 @@
-const moment = require('moment');
 const defaults = require('./defaults');
 
 const NoteSchema = {
@@ -20,7 +19,7 @@ const NoteSchema = {
     },
     date: {
       type: 'date',
-      default: moment()
+      default: new Date()
     },
     noteType: {
       type: 'string',
