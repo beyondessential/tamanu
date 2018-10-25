@@ -5,10 +5,7 @@ const QuestionSchema = {
   primaryKey: '_id',
   properties: Object.assign({
     _id: 'string',
-    test: {
-      type: 'string',
-      optional: true
-    },
+    text: 'string',
     indicator: {
       type: 'string',
       optional: true

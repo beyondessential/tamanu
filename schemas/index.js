@@ -1,10 +1,11 @@
 const fs = require('fs');
 const path = require('path');
+const version = 7
 
-const mods = [];
+const schemas = [];
 fs.readdirSync(__dirname).forEach((file) => {
   if (file === 'index.js' || file === 'defaults.js') return;
-  mods.push(require(path.join(__dirname, file)));
+  schemas.push(require(path.join(__dirname, file)));
 });
 
-module.exports = mods;
+module.exports = { schemas, version };
