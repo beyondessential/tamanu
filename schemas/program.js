@@ -13,12 +13,10 @@ const ProgramSchema = {
       default: 'direct',
       indexed: true
     },
-    moduleOptions: {
-      collection: 'string?',
-      label: 'string?',
-      value: 'string?',
-      filterView: 'string?',
-    },
+    collection: 'string?',
+    label: 'string?',
+    value: 'string?',
+    filterView: 'string?',
     surveys: {
       type: 'list',
       objectType: 'survey'
