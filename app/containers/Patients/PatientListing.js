@@ -117,7 +117,7 @@ class PatientListing extends Component {
       } else {
         this.props.collection.setKeyword('');
       }
-      
+
       this.props.collection.setPageSize(state.pageSize);
       await this.props.collection.getPage(state.page).promise();
       this.setState({ loading: false });
@@ -138,7 +138,7 @@ class PatientListing extends Component {
     );
   }
 
-  async searchSubmit(keyword) {
+  searchSubmit(keyword) {
     const { tableState } = this.state;
     this.setState({ keyword }, () => {
       this.onFetchData(tableState);

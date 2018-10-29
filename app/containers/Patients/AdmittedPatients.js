@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { isEmpty } from 'lodash';
+import { isEmpty, head } from 'lodash';
 import ReactTable from 'react-table';
-import { patientColumns, pageSizes } from '../../constants';
+import { patientColumns, pageSizes, dbViews } from '../../constants';
 import { PatientsCollection } from '../../collections';
 
 class AdmittedPatients extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      view: dbViews.patientsAdmitted,
       admittedPatients: [],
+      pageSize: pageSizes.patients,
       loading: false
     };
     this.handleChange = this.handleChange.bind(this);
@@ -19,12 +21,11 @@ class AdmittedPatients extends Component {
   }
 
   componentDidMount() {
+    const { view } = this.state;
     patientColumns[patientColumns.length - 1].Cell = this.setActionsColumn;
     this.props.collection.on('update', this.handleChange);
-    this.props.collection.fetchByView({
-      view: 'patient_by_admission',
-      fetchRelations: true,
-    });
+    this.props.collection.setPageSize(this.state.pageSize);
+    this.props.collection.fetchByView({ view });
   }
 
   componentWillUnmount() {
@@ -56,18 +57,21 @@ class AdmittedPatients extends Component {
     this.props.history.push(`/patients/editvisit/${patientId}`);
   }
 
-  onFetchData = (state) => {
-    this.props.collection.setPage(state.page);
-    this.props.collection.setPageSize(state.pageSize);
-
+  async onFetchData(state = {}) {
+    const { keyword, view } = this.state;
     this.setState({ loading: true });
-    this.props.collection.fetchByView({
-      view: 'patient_by_admission',
-      fetchRelations: true,
-      success: () => {
-        this.setState({ loading: false });
-      }
-    });
+
+    try {
+      // Set pagination options
+      const sort = head(state.sorted);
+      if (state.sorted.length > 0) this.props.collection.setSorting(sort.id, sort.desc ? 1 : -1);
+      this.props.collection.setPageSize(state.pageSize);
+      await this.props.collection.getPage(state.page, view).promise();
+      this.setState({ loading: false });
+    } catch (err) {
+      this.setState({ loading: false });
+      console.error(err);
+    }
   }
 
   discharge(patientId) {
