@@ -12,7 +12,7 @@
   const Database = require('./app/services/database');
   const Listeners = require('./app/services/listeners');
   const Auth = require('./app/services/auth');
-  const schemas = require('./tamanu-common/schemas');
+  const { schemas, version: schemaVersion } = require('./tamanu-common/schemas');
 
   const port = config.port || 4500;
 
@@ -57,7 +57,7 @@
     const database = new Database({
       path: `./data/${config.db.name}.realm`, // './data/main.realm',
       schema: schemas,
-      schemaVersion: 2,
+      schemaVersion
     });
 
     // Set database sync
@@ -66,11 +66,11 @@
 
     // Prompt user to login
     const authService = new Auth(database);
-    // startServer();
-    authService.promptLogin(() => {
-      startServer();
-      listeners.setupSync();
-    });
+    startServer();
+    // authService.promptLogin(() => {
+    //   startServer();
+    //   listeners.setupSync();
+    // });
 
     // Set realm  instance to be accessible app wide
     app.set('database', database);
