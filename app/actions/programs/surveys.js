@@ -27,12 +27,14 @@ export const initSurveys = ({ patientId, programId, moduleId }) =>
 
     let modules = [];
     if (programModel.get('programType') !== 'direct') {
-      const moduleOptions = programModel.get('moduleOptions');
-      if (patientModel.has(moduleOptions.collection)) {
-        modules = patientModel.get(moduleOptions.collection).toJSON();
+      const collection = programModel.get('collection');
+      const label = programModel.get('label');
+      const value = programModel.get('value');
+      if (patientModel.has(collection)) {
+        modules = patientModel.get(collection).toJSON();
         modules = modules.map(module => ({
-          label: template(moduleOptions.label)({ moment, dateFormat, timeFormat, ...module }),
-          value: module[moduleOptions.value]
+          label: template(label)({ moment, dateFormat, timeFormat, ...module }),
+          value: module[value]
         }));
       }
     }

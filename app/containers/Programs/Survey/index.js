@@ -108,6 +108,7 @@ class Survey extends Component {
 
 function mapStateToProps(state) {
   const { patient, survey, program, currentScreenIndex, loading } = state.programs;
+  console.log({ patient, survey, program, currentScreenIndex, loading });
   return { patient, survey, program, currentScreenIndex, loading };
 }
 

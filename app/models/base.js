@@ -1,8 +1,9 @@
 import Backbone from 'backbone-associations';
 import moment from 'moment';
 import jsonDiff from 'json-diff';
-import { isString, assignIn, isEmpty, clone, each, set, isObject, has } from 'lodash';
+import { isString, assignIn, isEmpty, clone, each, set, isObject, has, head } from 'lodash';
 import { to } from 'await-to-js';
+import { isArray } from 'util';
 
 export default Backbone.AssociatedModel.extend({
   idAttribute: '_id',
@@ -10,8 +11,9 @@ export default Backbone.AssociatedModel.extend({
   // urlRoot: process.env.LAN_REALM,
 
   constructor(attributes, options) {
+    if (isArray(attributes)) attributes = head(attributes);
     if (!isEmpty(attributes) && has(attributes, '_id')) this.lastSyncedAttributes = attributes;
-    return Backbone.AssociatedModel.apply(this, [attributes, options]);
+    Backbone.AssociatedModel.apply(this, [attributes, options]);
   },
 
   defaults: {
@@ -161,5 +163,5 @@ export default Backbone.AssociatedModel.extend({
       });
     }
     return attributes;
-  },
+  }
 });

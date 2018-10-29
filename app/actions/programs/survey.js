@@ -128,8 +128,8 @@ export const submitSurvey = ({ patientModel, programId, surveyId, moduleId, hist
 
       // Attach to the module
       if (programModel.get('programType') !== 'direct') {
-        const moduleOptions = programModel.get('moduleOptions');
-        const moduleModel = patientModel.get(moduleOptions.collection).findWhere({ _id: moduleId });
+        const collection = programModel.get('collection');
+        const moduleModel = patientModel.get(collection).findWhere({ _id: moduleId });
         await moduleModel.fetch({ relations: true, deep: false });
         moduleModel.get('surveyResponses').add(responseModel);
         await moduleModel.save();

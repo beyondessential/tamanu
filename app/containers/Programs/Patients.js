@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { map, isEmpty, toUpper, capitalize } from 'lodash';
+import { map, head } from 'lodash';
 import ReactTable from 'react-table';
 
 // import { fetchPatients, deletePatient } from '../../actions/patients';
@@ -12,6 +12,7 @@ import { PatientSearchBar } from '../../components';
 class Patients extends Component {
   constructor(props) {
     super(props);
+    this.onFetchData = this.onFetchData.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.setActionsCol = this.setActionsCol.bind(this);
     this.searchSubmit = this.searchSubmit.bind(this);
@@ -27,19 +28,11 @@ class Patients extends Component {
 
   async componentWillMount() {
     this.props.collection.on('update', this.handleChange);
-    // this.props.collection.setPageSize(this.state.pageSize);
-    // this.props.collection.fetchByView();
-    // console.log('__this.props.collection__', this.props.collection);
     this.loadProgram(this.props);
   }
 
   componentWillReceiveProps(newProps) {
-    const { deletePatientSuccess } = newProps;
     this.loadProgram(newProps);
-
-    if (deletePatientSuccess) {
-      this.props.collection.fetchByView();
-    }
   }
 
   componentWillUnmount() {
@@ -63,45 +56,27 @@ class Patients extends Component {
     this.props.history.push(`/programs/${programId}/${patientId}/surveys`);
   }
 
-  onFetchData = (state) => {
-    const { keyword } = this.state;
-    const { program } = this.state;
-    const { filters } = program.moduleOptions;
+  onFetchData = async (state = {}) => {
+    console.log('-onFetchData-', state);
+    const { keyword, program } = this.state;
+    console.log('-program-', program);
+    const { filterView: view } = program;
     this.setState({ loading: true });
-    if (keyword === '') {
-      this.props.collection.setPage(state.page);
+
+
+    try {
+      // Reset keyword
+      this.props.collection.setKeyword('');
+      // Set pagination options
+      const sort = head(state.sorted);
+      if (state.sorted.length > 0) this.props.collection.setSorting(sort.id, sort.desc ? 1 : -1);
+      if (keyword) this.props.collection.setKeyword(keyword);
       this.props.collection.setPageSize(state.pageSize);
-      this.props.collection.fetchByView({
-        view: filters.view || 'patient_by_display_id',
-        success: () => {
-          this.setState({ loading: false });
-        }
-      });
-    } else {
-      let selector = {
-        $or: [{
-          displayId: {
-            $regex: `^${toUpper(keyword)}+`
-          }
-        }, {
-          firstName: {
-            $regex: `^${capitalize(keyword)}+`
-          }
-        }, {
-          lastName: {
-            $regex: `^${capitalize(keyword)}+`
-          }
-        }]
-      };
-      if (!isEmpty(filters.selector)) selector = [ selector, filters.selector ];
-      this.props.collection.find({
-        selector,
-        fields: ['_id', 'displayId', 'firstName', 'lastName', 'dateOfBirth', 'sex', 'status'],
-        limit: 50,
-        success: () => {
-          this.setState({ loading: false });
-        }
-      });
+      await this.props.collection.getPage(state.page, view).promise();
+      this.setState({ loading: false });
+    } catch (err) {
+      this.setState({ loading: false });
+      console.error(err);
     }
   }
 
@@ -115,22 +90,17 @@ class Patients extends Component {
   }
 
   searchSubmit(keyword) {
-    this.setState({
-      keyword,
-      tableClass: 'search-results'
-    }, this.onFetchData);
+    const { tableState } = this.state;
+    this.setState({ keyword }, () => {
+      this.onFetchData(tableState);
+    });
   }
 
   searchReset() {
-    this.props.collection.totalPages = 1;
-    this.setState({
-      keyword: '',
-      tableClass: ''
-    }, () => this.onFetchData({
-        page: 0,
-        pageSize: pageSizes.patients
-      })
-    );
+    const { tableState } = this.state;
+    this.setState({ keyword: '' }, () => {
+      this.onFetchData(tableState);
+    });
   }
 
   render() {

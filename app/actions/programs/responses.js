@@ -4,7 +4,7 @@ import {
   LOAD_RESPONSES_SUCCESS,
   LOAD_RESPONSES_FAILED,
 } from '../types';
-import { ProgramModel, PatientModel } from '../../models';
+import { ProgramModel, PatientModel, SurveyModel } from '../../models';
 
 export const initResponses = ({ patientId, programId, surveyId, moduleId }) =>
   async dispatch => {
@@ -27,7 +27,8 @@ export const initResponses = ({ patientId, programId, surveyId, moduleId }) =>
     await Promise.all(tasks);
 
     if (error) return dispatch({ type: LOAD_RESPONSES_FAILED, error });
-    const survey = program.getSurvey(surveyId);
+    const survey = new SurveyModel(); // await program.getSurvey(surveyId).promise();
+    survey.set('_id', surveyId);
     await survey.fetch({ relations: true });
     dispatch({
       type: LOAD_RESPONSES_SUCCESS,

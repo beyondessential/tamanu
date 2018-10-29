@@ -15,6 +15,12 @@ export const Colors = {
   white: '#ffffff'
 };
 
+export const dbViews = {
+  patientsAdmitted: 'patients_admitted',
+  patientsFemale: 'patients_female',
+  patientsMale: 'patients_male',
+};
+
 const columnStyle = {
   backgroundColor: Colors.white,
   height: '60px',

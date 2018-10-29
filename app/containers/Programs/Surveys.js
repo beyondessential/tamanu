@@ -53,6 +53,7 @@ class Surveys extends Component {
     } = props;
 
     if (!loading) {
+      console.log('-modules-', modules);
       this.setState({
         patient: patientModel.toJSON(),
         program: programModel.toJSON(),

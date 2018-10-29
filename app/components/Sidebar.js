@@ -28,9 +28,8 @@ class Sidebar extends Component {
   }
 
   async componentWillMount() {
-    this.props.programsCollection.on('update', this.handleChange);
     this.props.programsCollection.fetchAll({
-      // success: () => console.log('Programs loaded!')
+      success: () => this.handleChange()
     });
   }
 

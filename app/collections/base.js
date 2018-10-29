@@ -77,23 +77,12 @@ export default Backbone.PageableCollection.extend({
   },
 
   fetchByView(opts = {}) {
-    const { fetchRelations, success, error, view } = opts;
-    const params = {
-      fetchRelations: fetchRelations || false,
-      success: success || null,
-      error: error || null,
-      fetch: 'query',
-      options: {
-        query: {
-          fun: view || 'patient_by_display_id',
-          limit: this.pageSize,
-          skip: (this.currentPage * this.pageSize),
-          ...opts
-        }
-      }
+    const { view } = opts;
+    const options = {
+      data: { view, ...opts }
     };
 
-    return this.fetch(params);
+    return this.fetch(options);
   },
 
   find(opts = {}) {
@@ -135,4 +124,10 @@ export default Backbone.PageableCollection.extend({
   setKeyword(keyword) {
     this.filters.keyword = keyword;
   },
+
+  getPage(page, view, options) {
+    if (!options) options = {};
+    if (view) set(options, 'data.view', view);
+    return Backbone.PageableCollection.prototype.getPage.apply(this, [page, options]);
+  }
 });

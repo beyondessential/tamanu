@@ -28,7 +28,7 @@ export default BaseModel.extend({
   ],
 
   getSurvey(surveyId) {
-    const surveys = this.get('surveys');
+    const { surveys } = this.attributes;
     return surveys.findWhere({ _id: surveyId });
   }
 

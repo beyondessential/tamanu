@@ -29,6 +29,7 @@ class QuestionScreen extends React.Component {
 
   render() {
     const { questions, screenIndex, answers, readOnly } = this.props;
+    console.log('-questions-', questions);
     return questions.map((model, index) => {
       const question = model.toJSON();
       return (

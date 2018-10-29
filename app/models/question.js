@@ -8,7 +8,7 @@ export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/question`,
   defaults: () => defaults({
       _id: shortid.generate(),
-      test: null,
+      text: null,
       indicator: null,
       imageData: null,
       type: null,
