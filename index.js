@@ -14,7 +14,7 @@ const run = async () => {
     const Listeners = require('./app/services/listeners');
     const appRoutes = require('./app/routes');
     const seed = require('./.seeds');
-    const models = require('./app/models');
+    const { schemas, version: schemaVersion } = require('../tamanu-common/schemas');
 
     // Init our app
     const app = express();
@@ -49,8 +49,8 @@ const run = async () => {
       // Connect database
       const database = new Database({
         path: './data/main.realm',
-        schema: models,
-        schemaVersion: 2,
+        schema: schemas,
+        schemaVersion
       });
 
       // Set database sync
