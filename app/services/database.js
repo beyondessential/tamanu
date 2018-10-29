@@ -169,6 +169,10 @@ class Database extends Realm {
   deleteSetting(key) {
     return this.settings.delete(key);
   }
+
+  getView(key) {
+    return this.findOne('view', key, 'name');
+  }
 }
 
 module.exports = Database;
