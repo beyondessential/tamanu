@@ -74,7 +74,7 @@ class Sidebar extends Component {
 
   render() {
     const { selectedParentItem } = this.state;
-    const { currentPath } = this.props;
+    const { currentPath, displayName } = this.props;
     return (
       <div>
         <div className="sidebar">
@@ -113,8 +113,10 @@ class Sidebar extends Component {
               })
             }
             <div className="user-info p-l-20 p-t-30">
-              <div className="is-size-6 is-color-white has-text-weight-semibold p-b-5">Sal</div>
-              <button className="button is-default is-small" onClick={this.props.logout}>Logout</button>
+              <div className="is-size-5 is-color-white has-text-weight-semibold p-b-5">{displayName}</div>
+              <button className="button is-danger is-outlined" onClick={this.props.logout}>
+                <i className="fa fa-sign-out" /> Logout
+              </button>
             </div>
           </div>
         </div>
@@ -124,10 +126,10 @@ class Sidebar extends Component {
 }
 
 function mapStateToProps(state) {
-  const { userId } = state.auth;
+  const { userId, displayName } = state.auth;
   const { pathname: currentPath } = state.router.location;
   const programsCollection = new ProgramsCollection();
-  return { userId, currentPath, programsCollection };
+  return { userId, displayName, currentPath, programsCollection };
 }
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
