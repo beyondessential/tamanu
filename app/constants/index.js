@@ -179,6 +179,29 @@ export const sidebarInfo = [
     ]
   },
   {
+    key: 'imaging',
+    label: 'Imaging',
+    path: '/imaging',
+    icon: labsIcon,
+    children: [
+      {
+        label: 'Requests',
+        path: '/imaging',
+        icon: 'fa fa-chevron-right'
+      },
+      {
+        label: 'Completed',
+        path: '/imaging/completed',
+        icon: 'fa fa-chevron-right'
+      },
+      {
+        label: 'New Request',
+        path: '/imaging/edit/new',
+        icon: 'fa fa-plus'
+      }
+    ]
+  },
+  {
     key: 'labs',
     label: 'Labs',
     path: '/labs',

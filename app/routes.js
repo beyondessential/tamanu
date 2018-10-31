@@ -5,7 +5,7 @@ import App from './containers/App';
 import HomePage from './containers/Home';
 import { Patients } from './containers/Patients';
 import Scheduling from './containers/Scheduling';
-// import { Imaging } from './containers/Imaging';
+import { Imaging } from './containers/Imaging';
 import Medication from './containers/Medication';
 import { Labs } from './containers/Labs';
 import { Billing } from './containers/Billing';
@@ -19,7 +19,7 @@ export default () => (
       <Route exact path="/" component={HomePage} />
       <Route path="/patients" component={Patients} />
       <Route path="/appointments" component={Scheduling} />
-      {/* <Route path="/imaging" component={Imaging} /> */}
+      <Route path="/imaging" component={Imaging} />
       <Route path="/medication" component={Medication} />
       <Route path="/labs" component={Labs} />
       <Route path="/invoices" component={Billing} />
