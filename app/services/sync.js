@@ -13,8 +13,8 @@ class Sync {
   }
 
   synchronize() {
-    const fiveMinsAgo = moment().subtract(5, 'minutes').toDate().getTime();
-    const clients = this.database.find('client', `lastActive > ${fiveMinsAgo}`);
+    const fromTime = moment().subtract(30, 'minutes').toDate().getTime();
+    const clients = this.database.find('client', `lastActive > ${fromTime}`);
     clients.forEach(client => this._sync(client));
   }
 
