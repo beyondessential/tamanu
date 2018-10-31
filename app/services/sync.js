@@ -1,7 +1,7 @@
 const config = require('config');
 const { objectToJSON, incoming } = require('../utils');
-const jsonDiff = require('json-diff');
 const { each, has } = require('lodash');
+const moment = require('moment');
 
 class Sync {
   constructor(database, faye) {
@@ -12,23 +12,25 @@ class Sync {
     });
   }
 
-  setup() {
-    const clients = this.database.find('client');
-    clients.forEach(client => this._addSubscriber(client));
-  }
+  // setup() {
+  //   const clients = this.database.find('client');
+  //   clients.forEach(client => this._addSubscriber(client));
+  // }
 
   synchronize() {
-    const clients = this.database.find('client', 'active = true');
+    const fiveMinsAgo = moment().subtract(5, 'minutes').toDate().getTime();
+    const clients = this.database.find('client', `lastActive > ${fiveMinsAgo}`);
     clients.forEach(client => this._sync(client));
   }
 
-  _sync(client) {
+  async _sync(client) {
     try {
-      const lastSyncTime = client.syncOut;
+      const { syncOut: lastSyncTime } = client;
       const changes = this.database.find('change', `timestamp >= "${lastSyncTime}"`);
       const tasks = [];
       changes.forEach(change => tasks.push(this._publishMessage(objectToJSON(change), client)));
-      Promise.all(tasks);
+      await Promise.all(tasks);
+
       // Update sync date
       this.database.write(() => {
         client.syncOut = new Date().getTime();
@@ -38,9 +40,15 @@ class Sync {
     }
   }
 
-  _addSubscriber(client) {
+  setup() {
+    // On handshake
+    this.client.on('handshake', (clientId) => {
+      console.log('Client connected', clientId);
+    });
+
+    // On new message
     this.client.on('publish', (clientId, channel, message) => {
-      if (channel === `/${config.sync.channelIn}/${client.clientId}`) {
+      if (channel === `/${config.sync.channelIn}`) {
         console.log(`[MessageIn - ${config.sync.channelIn}]`, { action: message.action, type: message.recordType, id: message.recordId });
         switch (message.action) {
           case 'SAVE':
@@ -56,25 +64,18 @@ class Sync {
     });
 
     this.client.on('subscribe', (clientId, channel) => {
-      this.database.write(() => {
-        client.active = true;
-      });
-      this._sync(client);
-      console.log(`[SUBSCRIBE - ${client.clientId}] ${clientId} -> ${channel}`);
+      console.log(`[SUBSCRIBE - ${clientId}] -> ${channel}`);
+      this.synchronize();
+      // this.database.write(() => {
+      //   client.active = true;
+      // });
     });
 
     this.client.on('unsubscribe', (clientId, channel) => {
-      this.database.write(() => {
-        client.active = false;
-      });
-      console.log(`[UNSUBSCRIBE - ${client.clientId}] ${clientId} -> ${channel}`);
-    });
-
-    this.client.on('disconnect', (clientId) => {
-      this.database.write(() => {
-        client.active = false;
-      });
-      console.log(`[DISCONNECT - ${client.clientId}] ${clientId}`);
+      console.log(`[UNSUBSCRIBE - ${clientId} -> ${channel}`);
+      // this.database.write(() => {
+      //   client.active = false;
+      // });
     });
   }
 
@@ -121,7 +122,7 @@ class Sync {
       } else { // CREATE
         newRecord = options.record;
       }
-  
+
       this.database.write(() => {
         this.database.create(options.recordType, newRecord, true);
       });

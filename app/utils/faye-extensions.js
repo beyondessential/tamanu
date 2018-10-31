@@ -5,11 +5,20 @@ module.exports.incoming = ({ database, message, callback }) => {
   const { channel, ext } = message;
   const { clientId, clientSecret } = ext || {};
   if (startsWith(channel, `/${config.sync.channelIn}`) || channel === '/meta/subscribe') {
-    const user = database.find('client', `clientId = "${clientId}" AND clientSecret = "${clientSecret}"`);
+    let user = database.find('client', `clientId = "${clientId}" AND clientSecret = "${clientSecret}"`);
     if (user && user.length > 0) {
-      message.ext = head(user);
+      user = head(user);
+      message.ext = user;
+
+      if (channel === '/meta/subscribe') {
+        console.log(`Client subscribed ${user._id}`, user);
+        database.write(() => {
+          user.lastActive = new Date().getTime();
+        });
+      }
     } else {
       message.error = 'User authentication failed!';
+      console.warn('User authentication failed!');
     }
   }
   callback(message);

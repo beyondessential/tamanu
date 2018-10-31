@@ -66,10 +66,6 @@ const run = async () => {
       throw new Error(err);
     }
 
-    bayeux.on('handshake', (clientId) => {
-        console.log('Client connected', clientId);
-    });
-
     // Start our app
     const port = config.app.port || 3000;
     server.listen(port, () => {
