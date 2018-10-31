@@ -12,11 +12,6 @@ class Sync {
     });
   }
 
-  // setup() {
-  //   const clients = this.database.find('client');
-  //   clients.forEach(client => this._addSubscriber(client));
-  // }
-
   synchronize() {
     const fiveMinsAgo = moment().subtract(5, 'minutes').toDate().getTime();
     const clients = this.database.find('client', `lastActive > ${fiveMinsAgo}`);
@@ -26,15 +21,18 @@ class Sync {
   async _sync(client) {
     try {
       const { syncOut: lastSyncTime } = client;
-      const changes = this.database.find('change', `timestamp >= "${lastSyncTime}"`);
-      const tasks = [];
-      changes.forEach(change => tasks.push(this._publishMessage(objectToJSON(change), client)));
-      await Promise.all(tasks);
+      const changes = this.database.find('change', `timestamp > "${lastSyncTime}"`);
+      if (changes && changes.length > 0) {
+        const maxTimestamp = changes.max('timestamp');
+        const tasks = [];
+        changes.forEach(change => tasks.push(this._publishMessage(objectToJSON(change), client)));
+        await Promise.all(tasks);
 
-      // Update sync date
-      this.database.write(() => {
-        client.syncOut = new Date().getTime();
-      });
+        // Update sync date
+        this.database.write(() => {
+          client.syncOut = maxTimestamp || new Date().getTime();
+        });
+      }
     } catch (err) {
       throw new Error(err);
     }
@@ -66,16 +64,6 @@ class Sync {
     this.client.on('subscribe', (clientId, channel) => {
       console.log(`[SUBSCRIBE - ${clientId}] -> ${channel}`);
       this.synchronize();
-      // this.database.write(() => {
-      //   client.active = true;
-      // });
-    });
-
-    this.client.on('unsubscribe', (clientId, channel) => {
-      console.log(`[UNSUBSCRIBE - ${clientId} -> ${channel}`);
-      // this.database.write(() => {
-      //   client.active = false;
-      // });
     });
   }
 

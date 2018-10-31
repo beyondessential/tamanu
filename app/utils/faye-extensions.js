@@ -9,13 +9,10 @@ module.exports.incoming = ({ database, message, callback }) => {
     if (user && user.length > 0) {
       user = head(user);
       message.ext = user;
-
-      if (channel === '/meta/subscribe') {
-        console.log(`Client subscribed ${user._id}`, user);
-        database.write(() => {
-          user.lastActive = new Date().getTime();
-        });
-      }
+      database.write(() => {
+        user.lastActive = new Date().getTime();
+      });
+      if (channel === '/meta/subscribe') console.log(`Client subscribed ${user._id}`);
     } else {
       message.error = 'User authentication failed!';
       console.warn('User authentication failed!');

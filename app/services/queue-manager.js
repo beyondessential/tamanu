@@ -47,7 +47,7 @@ class QueueManager extends EventEmitter {
 
   saveToDatabase() {
     if (!this.isInTransaction) {
-      console.log('saveToDatabase', this.database);
+      console.log('saveToDatabase');
       this.database.write(() => {
         each(this.queue, (item, key) => {
           this.database.create(this.schemaName, item, true);
