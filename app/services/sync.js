@@ -31,23 +31,36 @@ class Sync {
       // this.listeners.addDatabaseListeners();
     });
 
-    subscription.then(() => {
-      // Sync once the connection has been setup
+    subscription.callback(() => {
       this.synchronize();
-      console.log('[realm-sync] active');
+      console.log('[SUBSCRIBE SUCCEEDED]');
     });
 
-    this.client.on('subscribe', (client, channel) => {
-      console.log(`[SUBSCRIBE] ${client} -> ${channel}`);
+    subscription.errback((error) => {
+      console.log('[SUBSCRIBE FAILED]', error);
     });
 
-    this.client.on('unsubscribe', (client, channel) => {
-      console.log(`[UNSUBSCRIBE] ${client} -> ${channel}`);
+    this.client.bind('transport:down', () => {
+      console.log('[CONNECTION DOWN]');
     });
 
-    this.client.on('disconnect', (client) => {
-      console.log(`[DISCONNECT] ${client}`);
+    this.client.bind('transport:up', () => {
+      console.log('[CONNECTION UP]');
     });
+
+    // subscription.then(() => {
+    //   // Sync once the connection has been setup
+    //   this.synchronize();
+    //   console.log('[realm-sync] active');
+
+    //   this.client.on('unsubscribe', (client, channel) => {
+    //     console.log(`[UNSUBSCRIBE] ${client} -> ${channel}`);
+    //   });
+
+    //   this.client.on('disconnect', (client) => {
+    //     console.log(`[DISCONNECT] ${client}`);
+    //   });
+    // });
   }
 
   synchronize() {
@@ -68,7 +81,7 @@ class Sync {
       const clientId = this.database.getSetting('CLIENT_ID');
       let record = this.database.findOne(change.recordType, change.recordId);
       if (record) record = objectToJSON(record);
-      await this.client.publish(`/${config.sync.channelOut}/${clientId}`, {
+      await this.client.publish(`/${config.sync.channelOut}`, {
         from: clientId,
         record,
         ...change
@@ -76,7 +89,7 @@ class Sync {
 
       // Update last sync out date
       this.database.setSetting('LAST_SYNC_OUT', new Date().getTime());
-      console.log('[MessageOut]', `/${config.sync.channelOut}/${clientId}`, { action: change.action, type: change.recordType, id: change.recordId });
+      console.log('[MessageOut]', `/${config.sync.channelOut}`, { action: change.action, type: change.recordType, id: change.recordId });
     } catch (err) {
       throw new Error(err);
     }

@@ -66,11 +66,10 @@
 
     // Prompt user to login
     const authService = new Auth(database);
-    startServer();
-    // authService.promptLogin(() => {
-    //   startServer();
-    //   listeners.setupSync();
-    // });
+    authService.promptLogin(() => {
+      startServer();
+      listeners.setupSync();
+    });
 
     // Set realm  instance to be accessible app wide
     app.set('database', database);

@@ -5,12 +5,12 @@
  * table only.
  */
 const { each } = require('lodash');
-const uuidV4 = require('uuid/v4');
+const shortid = require('shortid');
 
 const defaults = {
   LAST_SYNC_IN: '0',
   LAST_SYNC_OUT: '0',
-  CLIENT_ID: uuidV4(),
+  CLIENT_ID: shortid.generate(),
   CLIENT_SECRET: '',
 };
 
@@ -49,7 +49,7 @@ class Settings {
     this.database.write(() => {
       each(defaults, (value, key) => {
         const record = this.database.findOne('setting', key, 'key');
-        if (!record) this.database.create('setting', { key, value }, true);
+        if (!record || record.value === '') this.database.create('setting', { key, value }, true);
       });
     });
   }
