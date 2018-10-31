@@ -9,9 +9,9 @@ const ClientSchema = {
     userId: 'string',
     clientId: 'string',
     clientSecret: 'string',
-    active: {
-      type: 'bool',
-      default: false
+    lastActive: {
+      type: 'int',
+      default: 0
     },
     syncOut: {
       type: 'int',
