@@ -267,6 +267,13 @@ export const sidebarInfo = [
     hidden: true,
     children: []
   },
+  {
+    key: 'logout',
+    label: 'Logout',
+    path: '/logout',
+    icon: programsIcon,
+    children: []
+  },
 ];
 
 function padDigits(number, digits) {

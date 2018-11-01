@@ -58,16 +58,21 @@ class Sidebar extends Component {
     this.forceUpdate();
   }
 
-  clickedParentItem = (label) => {
-    const { selectedParentItem } = this.state;
-    if (selectedParentItem !== label) {
-      this.setState({
-        selectedParentItem: label,
-      });
+  clickedParentItem = ({ label, key }, event) => {
+    if (key !== 'logout') {
+      const { selectedParentItem } = this.state;
+      if (selectedParentItem !== label) {
+        this.setState({
+          selectedParentItem: label,
+        });
+      } else {
+        this.setState({
+          selectedParentItem: '',
+        });
+      }
     } else {
-      this.setState({
-        selectedParentItem: '',
-      });
+      event.preventDefault();
+      this.props.logout();
     }
   }
 
@@ -88,7 +93,7 @@ class Sidebar extends Component {
                 const selected = startsWith(currentPath, parent.path) ;
                 return (
                   <div key={index} className={parent.hidden ? 'is-hidden' : ''}>
-                    <Link className={classNames({ item: true, selected })} to={parent.path} replace onClick={() => this.clickedParentItem(parent.label)}>
+                    <Link className={classNames({ item: true, selected })} to={parent.path} replace onClick={(e) => this.clickedParentItem(parent, e)}>
                       <img src={parent.icon} alt="icon" className="sidebar-icon" />
                       <span>
                         {parent.label}
@@ -111,12 +116,12 @@ class Sidebar extends Component {
                 );
               })
             }
-            <div className="user-info p-l-20 p-t-30">
-              <div className="is-size-5 is-color-white has-text-weight-semibold p-b-5">{displayName}</div>
-              <button className="button is-danger is-outlined" onClick={this.props.logout}>
+            {/* <div className="user-info p-l-20 p-t-30">
+              <div className="is-size-5 is-color-white p-b-5">Demo User</div>
+              <button className="button is-warning is-outlined" onClick={this.props.logout}>
                 <i className="fa fa-sign-out" /> Logout
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
