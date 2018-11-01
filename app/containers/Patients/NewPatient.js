@@ -9,7 +9,7 @@ import { Modal as ModalView, InputGroup, CustomDateInput } from '../../component
 import ContactModal from './components/ContactModal';
 import Serializer from '../../utils/form-serialize';
 import { createPatient, createPatientIndexes } from '../../actions/patients/patients';
-import { bloodOptions, sexOptions, getDifferenceDate, getDisplayId } from '../../constants';
+import { bloodOptions, sexOptions, getDifferenceDate } from '../../constants';
 import { PatientModel } from '../../models';
 
 class NewPatient extends Component {
@@ -90,7 +90,6 @@ class NewPatient extends Component {
             patient.dateOfBirth = moment(dateOfBirth).format('YYYY-MM-DD');
             patient.referredDate = moment(referredDate).format('YYYY-MM-DD');
             patient.age = age;
-            patient.displayId = await getDisplayId('P');
 
             // Clear the model to refresh id
             const _patient = new PatientModel(patient);

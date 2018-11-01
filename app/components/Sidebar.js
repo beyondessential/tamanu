@@ -24,7 +24,6 @@ class Sidebar extends Component {
 
   state = {
     selectedParentItem: '',
-    userId: null,
   }
 
   async componentWillMount() {
