@@ -214,7 +214,7 @@ class Medication extends Component {
                   <ReactTable
                     keyField="_id"
                     data={medication}
-                    noDataText="No nedication found"
+                    noDataText="No medication found"
                     pageSize={medication.length}
                     columns={tableColumns}
                     className="-striped m-b-20"

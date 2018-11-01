@@ -87,7 +87,6 @@ class History extends Component {
                       }
                     </div>
                   );
-                break;
                 case 'medication':
                   return (
                     <div className="history-pane m-b-25" key={`history-${item._id}`}>
@@ -118,7 +117,6 @@ class History extends Component {
                       } */}
                     </div>
                   );
-                break;
               }
             })
           }
