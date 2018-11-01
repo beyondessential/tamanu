@@ -11,8 +11,7 @@ class AdmittedPatients extends Component {
     super(props);
     this.state = {
       view: dbViews.patientsAdmitted,
-      admittedPatients: [],
-      pageSize: pageSizes.patients,
+      admittedPatients: [{}],
       loading: false
     };
     this.handleChange = this.handleChange.bind(this);
@@ -20,12 +19,12 @@ class AdmittedPatients extends Component {
     this.onFetchData = this.onFetchData.bind(this);
   }
 
-  componentDidMount() {
-    const { view } = this.state;
+  componentWillMount() {
     patientColumns[patientColumns.length - 1].Cell = this.setActionsColumn;
+  }
+
+  componentDidMount() {
     this.props.collection.on('update', this.handleChange);
-    this.props.collection.setPageSize(this.state.pageSize);
-    this.props.collection.fetchByView({ view });
   }
 
   componentWillUnmount() {
@@ -65,7 +64,7 @@ class AdmittedPatients extends Component {
       // Set pagination options
       const sort = head(state.sorted);
       if (state.sorted.length > 0) this.props.collection.setSorting(sort.id, sort.desc ? 1 : -1);
-      this.props.collection.setPageSize(state.pageSize);
+      if (this.props.collection.state.pageSize !== state.pageSize) this.props.collection.setPageSize(state.pageSize);
       await this.props.collection.getPage(state.page, view).promise();
       this.setState({ loading: false });
     } catch (err) {
@@ -79,7 +78,7 @@ class AdmittedPatients extends Component {
     const patient = this.props.collection.where({ _id: patientId })[0];
     if (!isEmpty(patient)) {
       const admission = patient.getCurrentAdmission();
-      if (!isEmpty(admission)) dischargeUrl = `/patients/visit/${patient.id}/${admission.id}`;
+      if (!isEmpty(admission)) dischargeUrl = `/patients/visit/${patientId}/${admission.id}`;
     }
     this.props.history.push(dischargeUrl);
   }

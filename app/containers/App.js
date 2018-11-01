@@ -38,7 +38,6 @@ class App extends Component{
           />
         }
         <ToastContainer
-          position="top-center"
           autoClose={3000}
           transition={Slide}
         />
