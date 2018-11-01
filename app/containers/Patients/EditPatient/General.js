@@ -77,7 +77,6 @@ class General extends Component {
       age,
     } = this.state;
     const { attributes: form } = patientModel;
-    console.log({ form });
     return (
       <div>
         <form

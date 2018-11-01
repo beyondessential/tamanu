@@ -1,5 +1,6 @@
 import { to } from 'await-to-js';
 import moment from 'moment';
+import { toast } from 'react-toastify';
 import { visitStatuses } from '../../constants';
 import {
   FETCH_VISIT_REQUEST,
@@ -43,22 +44,27 @@ export const submitForm = ({ action, visitModel, patientModel, history, setStatu
         const endDate = visitModel.get('endDate');
         if (endDate instanceof moment && !endDate.isValid()) visitModel.set('endDate', null, { silent: true });
         if (setStatus) _setStatus({ visitModel, patientModel });
-        const Model = await visitModel.save(null, { silent: true });
-        if (action === 'new') patientModel.get('visits').add(Model);
+        await visitModel.save(null, { silent: true });
+        if (action === 'new') patientModel.get('visits').add(visitModel);
         if (patientModel.changed) await patientModel.save(null, { silent: true });
-        dispatch({
-          type: SAVE_VISIT_SUCCESS,
-          patient: patientModel,
-          visit: Model,
-        });
-        if (action === 'new') history.push(`/patients/visit/${patientModel.id}/${Model.id}`);
+        toast('Visit saved successfully.', { type: toast.TYPE.SUCCESS });
+
+        if (action === 'new') {
+          history.push(`/patients/visit/${patientModel.id}/${visitModel.id}`);
+        } else {
+          dispatch({
+            type: SAVE_VISIT_SUCCESS,
+            patient: patientModel,
+            visit: visitModel,
+          });
+        }
       } catch (error) {
-        console.log({ error });
+        console.error({ error });
         dispatch({ type: SAVE_VISIT_FAILED, error });
       }
     } else {
       const error = visitModel.validationError;
-      console.log({ error });
+      console.error({ error });
       dispatch({ type: SAVE_VISIT_FAILED, error });
     }
   };

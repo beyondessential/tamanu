@@ -1,6 +1,6 @@
 import Backbone from 'backbone-associations';
 import shortid from 'shortid';
-import { defaults, each, clone, isEmpty, get, filter, capitalize, concat, orderBy } from 'lodash';
+import { defaults, each, clone, isEmpty, get, filter, capitalize, concat, orderBy, head } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
 import { concatSelf } from '../utils';
@@ -180,7 +180,10 @@ export default BaseModel.extend({
   getCurrentAdmission() {
     // await this.fetch({ relations: ['visits'] });
     const { visits } = this.attributes;
-    return visits.findWhere({ visitType: 'admission', endDate: null });
+    return visits.models.find(model => {
+      const { visitType, endDate } = model.toJSON();
+      return (visitType === 'admission' && endDate === null);
+    });
   },
 
   getHistory() {
