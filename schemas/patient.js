@@ -1,3 +1,4 @@
+const { parseInt, padStart } = require('lodash');
 const defaults = require('./defaults');
 
 const PatientSchema = {
@@ -203,7 +204,20 @@ const PatientSchema = {
       type: 'list',
       objectType: 'visit'
     },
-  }, defaults)
+  }, defaults),
+  beforeSave: (db, object) => {
+    if (object.displayId === '') object.displayId = _generateTempDisplayId(db);
+    return object;
+  }
+};
+
+const _generateTempDisplayId = (db) => {
+  let idSeq = db.getSetting('TEMP_DISPLAY_ID_SEQ');
+  idSeq = parseInt(idSeq);
+  idSeq += 1;
+  const newId = `TMP${padStart(idSeq, 5, '0')}`;
+  db.setSetting('TEMP_DISPLAY_ID_SEQ', idSeq);
+  return newId;
 };
 
 module.exports = PatientSchema;
