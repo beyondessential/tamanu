@@ -108,6 +108,16 @@ a:hover {
 
   .autocomplete-dropmenu {
     width: 100%;
+    border-right: 1px solid $grey-lighter;
+    border-left: 1px solid $grey-lighter;
+    > div {
+      padding: 8px 10px;
+      border-bottom: 1px solid $grey-lighter;
+      cursor: pointer;
+      &:hover {
+        background: $white-ter !important;
+      }
+    }
   }
 }
 

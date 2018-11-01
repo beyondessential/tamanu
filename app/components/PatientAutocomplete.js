@@ -39,30 +39,17 @@ class PatientAutocomplete extends Component {
     }
   }
 
-  handleChange(event, value) {
-    this.props.collection.find({
-      selector: [{
-        $or: [{
-          displayId: {
-            $regex: `^${toUpper(value)}+`
-          }
-        }, {
-          firstName: {
-            $regex: `^${capitalize(value)}+`
-          }
-        }, {
-          lastName: {
-            $regex: `^${capitalize(value)}+`
-          }
-        }]
-      }],
-      fields: ['_id', 'displayId', 'firstName', 'lastName'],
-      success: () => {
-        let { models: patients } = this.props.collection;
-        if (patients.length > 0) patients = map(patients, patient => patient.attributes);
-        this.setState({ patients, patientRef: value });
-      }
-    });
+  async handleChange(event, value) {
+    try {
+      this.props.collection.setPageSize(1000);
+      this.props.collection.setKeyword(value);
+      await this.props.collection.getPage(0).promise();
+      let { models: patients } = this.props.collection;
+      if (patients.length > 0) patients = map(patients, patient => patient.attributes);
+      this.setState({ patients, patientRef: value });
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   render() {
