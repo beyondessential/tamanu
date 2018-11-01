@@ -14,8 +14,7 @@ const MedicationSchema = {
       optional: true
     }, // Rel
     drug: {
-      type: 'string',
-      optional: true
+      type: 'drug',
     }, // Rel
     notes: {
       type: 'string',
@@ -30,26 +29,29 @@ const MedicationSchema = {
       default: new Date()
     },
     qtyMorning: {
-      type: 'int',
-      default: 0
+      type: 'string',
+      default: '0'
     },
     qtyLunch: {
-      type: 'int',
-      default: 0
+      type: 'string',
+      default: '0'
     },
     qtyEvening: {
-      type: 'int',
-      default: 0
+      type: 'string',
+      default: '0'
     },
     qtyNight: {
-      type: 'int',
-      default: 0
+      type: 'string',
+      default: '0'
     },
     refills: {
       type: 'string',
       optional: true
     },
-    endDate: 'date',
+    endDate: {
+      type: 'date',
+      optional: true
+    },
     requestedDate: {
       type: 'date',
       default: new Date()
