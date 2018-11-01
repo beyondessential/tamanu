@@ -1,5 +1,6 @@
 import { to } from 'await-to-js';
 import moment from 'moment';
+import { toast } from 'react-toastify';
 import {
   FETCH_PATIENT_REQUEST,
   FETCH_PATIENT_SUCCESS,
@@ -37,8 +38,8 @@ export const savePatient = ({ Model }) =>
     dispatch({ type: SAVE_PATIENT_REQUEST });
     if (Model.isValid()) {
       try {
-        console.log('-Model-', Model, Model.toJSON());
         await Model.save(null, { silent: true });
+        toast('Patient saved successfully.', { type: toast.TYPE.SUCCESS });
         dispatch({
           type: SAVE_PATIENT_SUCCESS,
           patient: Model,

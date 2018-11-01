@@ -222,9 +222,9 @@ export const createPatient = (patient, history) => {
   return async dispatch => {
     dispatch(createPatientRequest());
     try {
-      const model = await patient.save(patient.attributes);
-      dispatch(createPatientSuccess(model.attributes));
-      history.push(`/patients/editPatient/${model._id}`);
+      await patient.save(patient.attributes);
+      dispatch(createPatientSuccess(patient.attributes));
+      history.push(`/patients/editPatient/${patient.id}`);
     } catch (err) {
       console.error('error', err);
       return dispatch(createPatientFailed(err));

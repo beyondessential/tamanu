@@ -53,7 +53,7 @@ class EditVisit extends Component {
 
   handleChange(props = this.props) {
     let updates = {};
-    const { patient, visit, action, loading, saved } = props;
+    const { patient, visit, action, loading } = props;
     if (this.props.match.path.indexOf('checkin') !== -1) {
       updates.checkIn = true;
     }
@@ -70,7 +70,6 @@ class EditVisit extends Component {
         visitModel: visit,
         action,
         loading,
-        visitSaved: saved
       });
     }
     this.setState(updates);
@@ -132,6 +131,7 @@ class EditVisit extends Component {
       visitSaved,
       selectedTab,
     } = this.state;
+    console.log('-visitModel-', visitModel);
     const { attributes: form } = visitModel;
     return (
       <div>
@@ -323,21 +323,14 @@ class EditVisit extends Component {
             </div>
           </div>
         </div>
-        <Modal
-          isVisible={visitSaved}
-          onClose={() => this.onCloseModal()}
-          headerTitle="Visit Saved"
-          contentText="Visit was saved successfully."
-          little
-        />
       </div>
     );
   }
 }
 
 function mapStateToProps(state) {
-  const { patient, visit, action, loading, saved, error } = state.patients;
-  return { patient, visit, action, loading, saved, error };
+  const { patient, visit, action, loading, error } = state.patients;
+  return { patient, visit, action, loading, error };
 }
 
 const { visit: visitActions } = actions;
