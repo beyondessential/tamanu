@@ -39,29 +39,16 @@ class DrugAutocomplete extends Component {
     }
   }
 
-  handleChange(event, value) {
-    if (value !== '') {
-      this.props.collection.find({
-        selector: [{
-          $or: [{
-            name: {
-              $regex: `^${capitalize(value)}+`
-            }
-          }, {
-            code: {
-              $regex: `^${toUpper(value)}+`
-            }
-          }]
-        }],
-        fields: ['_id', 'code', 'name'],
-        success: () => {
-          let { models: drugs } = this.props.collection;
-          if (drugs.length > 0) drugs = map(drugs, drug => drug.attributes);
-          this.setState({ drugs, value });
-        }
-      });
-    } else {
-      this.setState({ drugs: [], value: '' });
+  async handleChange(event, value) {
+    try {
+      this.props.collection.setPageSize(1000);
+      this.props.collection.setKeyword(value);
+      await this.props.collection.getPage(0).promise();
+      let { models: drugs } = this.props.collection;
+      if (drugs.length > 0) drugs = map(drugs, drug => drug.attributes);
+      this.setState({ drugs, value });
+    } catch (err) {
+      console.error(err);
     }
   }
 
