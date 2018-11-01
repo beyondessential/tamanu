@@ -1,6 +1,5 @@
 import moment from 'moment';
 import { defaults } from 'lodash';
-import dbService from '../services/database';
 import {
   patientIcon,
   scheduleIcon,
@@ -19,6 +18,9 @@ export const dbViews = {
   patientsAdmitted: 'patients_admitted',
   patientsFemale: 'patients_female',
   patientsMale: 'patients_male',
+  medicationCompleted: 'medication_completed',
+  medicationRequested: 'medication_requested',
+  medicationFulfilled: 'medication_fulfilled',
 };
 
 const columnStyle = {
@@ -170,11 +172,6 @@ export const sidebarInfo = [
         label: 'Dispense',
         path: '/medication/edit/dispense',
         icon: 'fa fa-chevron-right'
-      },
-      {
-        label: 'Return Medication',
-        path: '/medication/return/new',
-        icon: 'fa fa-chevron-right'
       }
     ]
   },
@@ -275,23 +272,6 @@ export const sidebarInfo = [
 function padDigits(number, digits) {
   return Array(Math.max((digits - String(number).length) + 1, 0)).join(0) + number;
 }
-
-export const getDisplayId = (item) => {
-  return 'P0000123';
-  // return new Promise(async (resolve, reject) => {
-  //   const { mainDB } = dbService;
-  //   try {
-  //     const doc = await mainDB.get('patient_id_seq');
-  //     doc.value += 1;
-  //     const renderedValue = padDigits(doc.value, 5);
-  //     // Update value
-  //     await mainDB.put(doc);
-  //     return resolve(item + renderedValue);
-  //   } catch (err) {
-  //     reject(err);
-  //   };
-  // });
-};
 
 export const getDifferenceDate = (today, target) => {
   const difference = moment.duration(moment(today).diff(moment(target)));

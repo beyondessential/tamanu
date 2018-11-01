@@ -1,6 +1,10 @@
 import { to } from 'await-to-js';
 import moment from 'moment';
-import { pageSizes, dateFormat } from '../../constants';
+import { 
+  pageSizes, 
+  dateFormat,
+  dbViews
+} from '../../constants';
 import {
   FETCH_MEDICATIONS_REQUEST,
   FETCH_MEDICATIONS_SUCCESS,
@@ -8,35 +12,30 @@ import {
 } from '../types';
 import { MedicationCollection } from '../../collections';
 
-export const fetchMedications = ({ page, status }) =>
+export const fetchMedications = ({ page, view = dbViews.medicationRequested }) =>
   async dispatch => {
-    dispatch({ type: FETCH_MEDICATIONS_REQUEST });
-    const medicationCollection = new MedicationCollection();
-    medicationCollection.setPage(page);
-    medicationCollection.setPageSize(pageSizes.medicationRequests);
-    medicationCollection.fetchByView({
-      view: 'medication_by_status',
-      fetchRelations: true,
-      key: status || 'Requested',
-      success: () => {
-        const medications = medicationCollection.models.map(model => {
-          const medication = model.toJSON();
-          if (medication.prescriptionDate !== '') medication.prescriptionDate = moment(medication.prescriptionDate).format(dateFormat);
-          medication.patient = `${model.attributes.patient.get('firstName')} ${model.attributes.patient.get('lastName')}`;
-          medication.drug = model.attributes.drug.get('name');
-          medication.quantity = `Morning ${medication.qtyMorning}, L: ${medication.qtyLunch}, E: ${medication.qtyEvening}, N: ${medication.qtyNight}`;
-          return medication;
-        });
+    try {
+      dispatch({ type: FETCH_MEDICATIONS_REQUEST });
+      const medicationCollection = new MedicationCollection();
+      medicationCollection.setPageSize(pageSizes.medicationRequests);
+      medicationCollection.getPage(page, view).promise();
 
-        dispatch({
-          type: FETCH_MEDICATIONS_SUCCESS,
-          medications,
-          totalPages: medicationCollection.totalPages,
-          loading: false,
-        });
-      },
-      error: (res, error)=> {
-        dispatch({ type: FETCH_MEDICATIONS_FAILED, error })
-      }
-    });
+      const medications = medicationCollection.models.map(model => {
+        const medication = model.toJSON();
+        if (medication.prescriptionDate !== '') medication.prescriptionDate = moment(medication.prescriptionDate).format(dateFormat);
+        medication.patient = `${model.attributes.patient.get('firstName')} ${model.attributes.patient.get('lastName')}`;
+        medication.drug = model.attributes.drug.get('name');
+        medication.quantity = `Morning ${medication.qtyMorning}, L: ${medication.qtyLunch}, E: ${medication.qtyEvening}, N: ${medication.qtyNight}`;
+        return medication;
+      });
+
+      dispatch({
+        type: FETCH_MEDICATIONS_SUCCESS,
+        medications,
+        totalPages: medicationCollection.totalPages,
+        loading: false,
+      });
+    } catch (err) {
+      dispatch({ type: FETCH_MEDICATIONS_FAILED, err })
+    }
   };

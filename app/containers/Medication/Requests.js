@@ -3,7 +3,12 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import ReactTable from 'react-table';
 import actions from '../../actions/medication';
-import { medicationColumns, pageSizes, medicationStatuses } from '../../constants';
+import { 
+  medicationColumns, 
+  pageSizes, 
+  medicationStatuses,
+  dbViews
+} from '../../constants';
 
 class Requests extends Component {
   constructor(props) {
@@ -42,7 +47,7 @@ class Requests extends Component {
 
   fetchData = opts => {
     this.props.fetchMedications({
-      status: medicationStatuses.REQUESTED,
+      view: dbViews.medicationRequested,
       ...opts
     });
   }

@@ -42,7 +42,7 @@ class Dispense extends Component {
         <div className="create-content">
           <div className="create-top-bar">
             <span>
-              New Medication Request
+              Dispense Medication
             </span>
             <div className="view-action-buttons">
               <button>

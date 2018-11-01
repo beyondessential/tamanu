@@ -3,7 +3,12 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import ReactTable from 'react-table';
 import actions from '../../actions/medication';
-import { medicationColumns, pageSizes, medicationStatuses } from '../../constants';
+import {
+  medicationColumns,
+  pageSizes,
+  medicationStatuses,
+  dbViews
+} from '../../constants';
 
 class Completed extends Component {
   constructor(props) {
@@ -35,14 +40,14 @@ class Completed extends Component {
     const row = _row.original;
     return (
       <div key={row._id}>
-        <button type="button" className="button is-primary" disabled>Fullfill</button>
+        <button type="button" className="button is-primary" disabled>Fulfill</button>
       </div>
     );
   }
 
   fetchData = opts => {
     this.props.fetchMedications({
-      status: medicationStatuses.FULFILLED,
+      view: dbViews.medicationFulfilled,
       ...opts
     });
   }
@@ -54,7 +59,7 @@ class Completed extends Component {
         <div className="content">
           <div className="view-top-bar">
             <span>
-              Medication Requests
+              Completed Medication Requests
             </span>
             <div className="view-action-buttons">
               <Link to="/medication/request">
