@@ -1,5 +1,5 @@
 const { objectToJSON } = require('../../utils');
-const { parseInt, ceil, each, head } = require('lodash');
+const { parseInt, ceil, each, head, isEmpty } = require('lodash');
 
 module.exports = (req, res) => {
   const realm = req.app.get('database');
@@ -21,7 +21,7 @@ module.exports = (req, res) => {
   try {
     return realm.write(() => {
       let objects = realm.objects(model);
-      let filters = '';
+      const filters = [];
 
       // Return single object
       if (id) {
@@ -37,20 +37,16 @@ module.exports = (req, res) => {
       // Load our filters if a view is set
       if (viewName) {
         const view = realm.getView(viewName);
-        console.log('-view-', view);
         if (view) {
-          const _filters = [];
           let { filters: viewFilters } = view;
           viewFilters = JSON.parse(viewFilters);
           each(viewFilters, (value, field) => {
             if (typeof value === 'string') {
-              _filters.push(` ${field} = "${value}" `);
+              filters.push(` ${field} = "${value}" `);
             } else {
-              _filters.push(` ${field} = ${value} `);
+              filters.push(` ${field} = ${value} `);
             }
           });
-
-          filters += _filters.join(' AND ');
         }
       }
 
@@ -60,11 +56,11 @@ module.exports = (req, res) => {
         fields.split(',').forEach((field) => {
           conditions.push(` ${field} CONTAINS[c] "${keyword}" `);
         });
-        filters += ` AND (${conditions.join(' OR ')})`;
+        filters.push(`(${conditions.join(' OR ')})`);
       }
 
       // Add filters
-      if (filters !== '') objects = objects.filtered(filters);
+      if (!isEmpty(filters)) objects = objects.filtered(filters.join(' AND '));
 
       // Sort results
       if (sortBy) objects = objects.sorted(sortBy, order === 'desc');

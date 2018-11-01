@@ -5,6 +5,7 @@
   "main": "NODE_ENV='development' index.js",
   "bin": "index.js",
   "pkg": {
+    "scripts": "./tamanu-common/**/*.js",
     "output": "./release/tamanu-lan-server"
   },
   "scripts": {

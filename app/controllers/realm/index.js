@@ -1,6 +1,6 @@
 module.exports = {
   GET: require('./get'),
-  PUT: require('./put'),
-  POST: require('./post'),
+  PUT: require('./save'),
+  POST: require('./save'),
   DELETE: require('./delete'),
 };

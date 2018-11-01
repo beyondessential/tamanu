@@ -12,6 +12,7 @@ const defaults = {
   LAST_SYNC_OUT: '0',
   CLIENT_ID: shortid.generate(),
   CLIENT_SECRET: '',
+  TEMP_DISPLAY_ID_SEQ: '0'
 };
 
 class Settings {
