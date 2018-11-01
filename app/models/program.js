@@ -29,7 +29,7 @@ export default BaseModel.extend({
 
   getSurvey(surveyId) {
     const { surveys } = this.attributes;
-    return surveys.findWhere({ _id: surveyId });
+    return surveys.models.find(model => model.id === surveyId);
   }
 
   // validate: (attrs) => {
