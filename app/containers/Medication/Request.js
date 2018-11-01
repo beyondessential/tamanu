@@ -200,6 +200,7 @@ class NewMedication extends Component {
                         name="qtyMorning"
                         value={medication.qtyMorning}
                         onChange={this.handleUserInput}
+                        tabIndex={1}
                         required
                       />
                       <InputGroup
@@ -211,6 +212,7 @@ class NewMedication extends Component {
                         name="qtyEvening"
                         value={medication.qtyEvening}
                         onChange={this.handleUserInput}
+                        tabIndex={3}
                         required
                       />
                     </div>
@@ -224,6 +226,7 @@ class NewMedication extends Component {
                         name="qtyLunch"
                         value={medication.qtyLunch}
                         onChange={this.handleUserInput}
+                        tabIndex={2}
                         required
                       />
                       <InputGroup
@@ -235,6 +238,7 @@ class NewMedication extends Component {
                         name="qtyNight"
                         value={medication.qtyNight}
                         onChange={this.handleUserInput}
+                        tabIndex={4}
                         required
                       />
                     </div>
@@ -246,6 +250,7 @@ class NewMedication extends Component {
                     label="Notes"
                     onChange={this.handleUserInput}
                     value={medication.notes}
+                    tabIndex={5}
                   />
                 </div>
               </div>
@@ -256,6 +261,7 @@ class NewMedication extends Component {
                   className="is-3 p-t-0"
                   onChange={this.handleUserInput}
                   value={medication.endDate}
+                  tabIndex={6}
                 />
               </div>
               <div className="column has-text-right">
