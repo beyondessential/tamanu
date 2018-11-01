@@ -9,7 +9,7 @@ import {
   SAVE_MEDICATION_SUCCESS,
   SAVE_MEDICATION_FAILED,
 } from '../types';
-import { PatientModel, MedicationModel, VisitModel } from '../../models';
+import { PatientModel, MedicationModel, VisitModel, DrugModel } from '../../models';
 
 export const fetchMedication = ({ patientId, id }) =>
   async dispatch => {
@@ -35,16 +35,22 @@ export const fetchMedication = ({ patientId, id }) =>
     });
   };
 
-export const saveMedication = ({ action, model, visitId, patientId, history }) =>
+export const saveMedication = ({ action, model, drugId, visitId, patientId, history }) =>
   async dispatch => {
     dispatch({ type: SAVE_MEDICATION_REQUEST });
     if (model.isValid()) {
       try {
         model.set('patient', patientId);
         model.set('visit', visitId);
+        // Attach drug
+        const drug = new DrugModel({ _id: drugId });
+        await drug.fetch();
+        model.set('drug', drug);
+        // Set endDate
         const endDate = model.get('endDate');
         if (endDate instanceof moment && !endDate.isValid()) model.set('endDate', null, { silent: true });
         const Model = await model.save(null, { silent: true });
+        // Attach to visit
         if (action === 'new'){
           const visitModel = new VisitModel();
           visitModel.set('_id', visitId);

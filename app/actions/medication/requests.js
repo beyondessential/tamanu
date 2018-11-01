@@ -1,7 +1,7 @@
 import { to } from 'await-to-js';
 import moment from 'moment';
-import { 
-  pageSizes, 
+import {
+  pageSizes,
   dateFormat,
   dbViews
 } from '../../constants';
@@ -16,18 +16,17 @@ export const fetchMedications = ({ page, view = dbViews.medicationRequested }) =
   async dispatch => {
     try {
       dispatch({ type: FETCH_MEDICATIONS_REQUEST });
-      const medicationCollection = new MedicationCollection();
-      medicationCollection.setPageSize(pageSizes.medicationRequests);
-      medicationCollection.getPage(page, view).promise();
-
-      const medications = medicationCollection.models.map(model => {
-        const medication = model.toJSON();
-        if (medication.prescriptionDate !== '') medication.prescriptionDate = moment(medication.prescriptionDate).format(dateFormat);
-        medication.patient = `${model.attributes.patient.get('firstName')} ${model.attributes.patient.get('lastName')}`;
-        medication.drug = model.attributes.drug.get('name');
-        medication.quantity = `Morning ${medication.qtyMorning}, L: ${medication.qtyLunch}, E: ${medication.qtyEvening}, N: ${medication.qtyNight}`;
-        return medication;
+      let medications = [];
+      const medicationCollection = new MedicationCollection({
+        pageSize: pageSizes.medicationRequests
       });
+      // medicationCollection.setPageSize(pageSizes.medicationRequests);
+      await medicationCollection.getPage(page, view).promise();
+      if (medicationCollection.models.length > 0) {
+        const tasks = [];
+        medicationCollection.models.forEach(model => tasks.push(_prepareMedication(model)));
+        medications = await Promise.all(tasks);
+      }
 
       dispatch({
         type: FETCH_MEDICATIONS_SUCCESS,
@@ -38,4 +37,15 @@ export const fetchMedications = ({ page, view = dbViews.medicationRequested }) =
     } catch (err) {
       dispatch({ type: FETCH_MEDICATIONS_FAILED, err })
     }
+  };
+
+  const _prepareMedication = async (model) => {
+    const medication = model.toJSON();
+    const patient = await model.getPatient();
+
+    if (medication.prescriptionDate !== '') medication.prescriptionDate = moment(medication.prescriptionDate).format(dateFormat);
+    medication.patient = `${patient.get('firstName')} ${patient.get('lastName')}`;
+    medication.drug = model.attributes.drug.get('name');
+    medication.quantity = `Morning ${medication.qtyMorning}, L: ${medication.qtyLunch}, E: ${medication.qtyEvening}, N: ${medication.qtyNight}`;
+    return medication;
   };

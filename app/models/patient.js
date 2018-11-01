@@ -189,8 +189,10 @@ export default BaseModel.extend({
     visits = visits.map(visit =>  visit.toJSON({ relations: true }));
     if (!isEmpty(visits)) concatSelf(history, visits.map(visit => {
       // Add medication for this visit to the history
-      if (!isEmpty(visit.medication)) concatSelf(history, visit.medication.map(medicine => ({ date: moment(medicine.requestedDate), ...medicine })));
-      return { date: moment(visit.startDate), ...visit };
+      if (!isEmpty(visit.medication))
+        concatSelf(history, visit.medication.map(medicine => ({ docType: 'medication', date: moment(medicine.requestedDate), ...medicine })));
+
+      return { docType: 'visit', date: moment(visit.startDate), ...visit };
     }));
     history = orderBy(history, item => item.date, 'desc');
     return history;

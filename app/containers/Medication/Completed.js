@@ -68,9 +68,6 @@ class Completed extends Component {
               <Link to="/medication/edit/dispense">
                 Dispense Medication
               </Link>
-              <Link to="/medication/return/new">
-                Return Medication
-              </Link>
             </div>
           </div>
           <div className="detail">

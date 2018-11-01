@@ -23,6 +23,7 @@ class NewMedication extends Component {
   state = {
     action: 'new',
     visit: '',
+    drugId: '',
     patient: {},
     medication: {},
     visits: [],
@@ -53,6 +54,10 @@ class NewMedication extends Component {
     const { id } = this.props.match.params;
     this.setState({ visit: visitId });
     // this.props.fetchMedication({ visitId, id });
+  }
+
+  selectDrug = (drugId) => {
+    this.setState({ drugId });
   }
 
   handleChange(props = this.props) {
@@ -86,11 +91,12 @@ class NewMedication extends Component {
 
   submitForm(e) {
     e.preventDefault();
-    const { action, medicationModel, patient, visit } = this.state;
+    const { action, medicationModel, patient, visit, drugId } = this.state;
     this.props.saveMedication({
       action,
       model: medicationModel,
       visitId: visit,
+      drugId,
       patientId: patient.id,
       history: this.props.history
     });
@@ -153,7 +159,7 @@ class NewMedication extends Component {
                 <DrugAutocomplete
                   name="drug"
                   label="Medication"
-                  onChange={this.handleUserInput}
+                  onChange={this.selectDrug}
                   value={medication.drug}
                   required
                 />

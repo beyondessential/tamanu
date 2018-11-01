@@ -3,9 +3,9 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import ReactTable from 'react-table';
 import actions from '../../actions/medication';
-import { 
-  medicationColumns, 
-  pageSizes, 
+import {
+  medicationColumns,
+  pageSizes,
   medicationStatuses,
   dbViews
 } from '../../constants';
@@ -40,7 +40,7 @@ class Requests extends Component {
     const row = _row.original;
     return (
       <div key={row._id}>
-        <button type="button" className="button is-primary" disabled>Fullfill</button>
+        <button type="button" className="button is-primary" disabled>Fulfill</button>
       </div>
     );
   }
@@ -67,9 +67,6 @@ class Requests extends Component {
               </Link>
               <Link to="/medication/edit/dispense">
                 Dispense Medication
-              </Link>
-              <Link to="/medication/return/new">
-                Return Medication
               </Link>
             </div>
           </div>

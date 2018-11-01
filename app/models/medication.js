@@ -5,6 +5,7 @@ import moment from 'moment';
 import BaseModel from './base';
 import { mapRelations } from '../utils';
 import { medicationStatuses } from '../constants';
+import PatientModel from './patient';
 
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/medication`,
@@ -30,20 +31,20 @@ export default BaseModel.extend({
 
   // Associations
   relations: [
-    {
-      type: Backbone.One,
-      key: 'patient',
-      relatedModel: () => require('./patient'),
-      // map: (values) => mapRelations(values, require('./patient')),
-      // serialize: '_id'
-    },
-    {
-      type: Backbone.One,
-      key: 'visit',
-      relatedModel: () => require('./visit'),
-      // map: (values) => mapRelations(values, require('./visit')),
-      // serialize: '_id'
-    },
+    // {
+    //   type: Backbone.One,
+    //   key: 'patient',
+    //   relatedModel: () => require('./patient'),
+    //   // map: (values) => mapRelations(values, require('./patient')),
+    //   // serialize: '_id'
+    // },
+    // {
+    //   type: Backbone.One,
+    //   key: 'visit',
+    //   relatedModel: () => require('./visit'),
+    //   // map: (values) => mapRelations(values, require('./visit')),
+    //   // serialize: '_id'
+    // },
     {
       type: Backbone.One,
       key: 'drug',
@@ -70,5 +71,11 @@ export default BaseModel.extend({
     if (isNaN(toNumber(attrs.qtyEvening))) errors.push('Evening quantity is required!');
     if (isNaN(toNumber(attrs.qtyNight))) errors.push('Night quantity is required!');
     if (errors.length) return errors;
+  },
+
+  async getPatient() {
+    const patient = new PatientModel({ _id: this.attributes.patient });
+    await patient.fetch();
+    return patient;
   }
 });

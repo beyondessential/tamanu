@@ -39,6 +39,7 @@ class Medication extends Component {
     const { model: Model } = props;
     const { from, to, tableColumns } = this.state;
     let medicationHistory = Model.getMedicationHistory(from.clone(), to.clone());
+    console.log('-medicationHistory-', medicationHistory);
     medicationHistory = medicationHistory.map(obj => ({
       date: obj.date,
       medication: obj.medication.map(model => ({ currentDate: obj.date, ...model.toJSON({ relations: true }) }))
@@ -88,11 +89,11 @@ class Medication extends Component {
                         .replace('qty', '')
                         .value();
     const isTaken = chain(medicationHistory)
-                      .find(({ date }) => date === original.currentDate)
+                      .find(({ date }) => moment(date).isSame(original.currentDate, 'day'))
                       .get('medication')
                       .find(({ _id }) => _id === original._id)
                       .get('history')
-                      .find(({ date }) => date === original.currentDate)
+                      .find(({ date }) => moment(date).isSame(original.currentDate, 'day'))
                       .get(fieldName)
                       .value();
     return (
@@ -135,14 +136,15 @@ class Medication extends Component {
     const { from, to } = this.state;
     const medicationHistory = Model.getMedicationHistory(from.clone(), to.clone());
     const recordModel = chain(medicationHistory)
-                          .find(({ date: _date }) => _date === date)
+                          .find(({ date: _date }) => moment(_date).isSame(date, 'day'))
                           .get('medication')
                           .find(({ id: _id }) => _id === id)
                           .value();
 
     try {
       const { history } = recordModel.attributes;
-      let historyModel = history.findWhere({ date });
+      // Find model
+      let historyModel = history.models.find(model => moment(date).isSame(model.get('date'), 'day'));
       if (!historyModel) historyModel = new MedicationHistoryModel();
       historyModel.set({ date, [field]: value });
       await historyModel.save(null, { silent: true });
