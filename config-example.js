@@ -1,16 +1,17 @@
 module.exports = {
-  port: process.env.PORT,
-  localDB: {
-    host: process.env.LOCAL_DB_HOST,
-    username: process.env.LOCAL_DB_USERNAME,
-    password: process.env.LOCAL_DB_PASSWORD,
-    port: process.env.LOCAL_DB_PORT,
+  port: process.env.LAN_PORT || 4000,
+  db: {
+    host: 'localhost',
+    user: 'couchadmin',
+    password: 'test',
+    port: 5990,
+    name: process.env.DB_NAME || 'main'
   },
-  remoteDB: {
-    host: process.env.REMOTE_DB_HOST,
-    username: process.env.REMOTE_DB_USERNAME,
-    password: process.env.REMOTE_DB_PASSWORD,
-    port: process.env.REMOTE_DB_PORT
+  sync: {
+    server: 'http://127.0.0.1:3000/realm-sync',
+    channelIn: 'realm-online-local',
+    channelOut: 'realm-local-online'
   },
-  couchPubSubUrl: process.env.PUB_SUB_URL
+  mainServer: 'http://127.0.0.1:3000',
+  offlineMode: false,
 };
