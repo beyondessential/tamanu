@@ -13,4 +13,5 @@ module.exports = {
     channelOut: 'realm-local-online'
   },
   mainServer: 'http://127.0.0.1:3000',
+  offlineMode: false,
 };

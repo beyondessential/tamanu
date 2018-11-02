@@ -64,12 +64,16 @@
     const listeners = new Listeners(database);
     listeners.addDatabaseListeners();
 
-    // Prompt user to login
-    const authService = new Auth(database);
-    authService.promptLogin(() => {
+    if(config.offlineMode) {
       startServer();
-      listeners.setupSync();
-    });
+    } else {
+      // Prompt user to login before activating sync
+      const authService = new Auth(database);
+      authService.promptLogin(() => {
+        startServer();
+        listeners.setupSync();
+      });
+    }
 
     // Set realm  instance to be accessible app wide
     app.set('database', database);
