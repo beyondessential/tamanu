@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { InputGroup } from '../../components';
 import Serializer from '../../utils/form-serialize';
 
+import { TamanuLogo } from '../../components/TamanuLogo';
+
 class Login extends Component {
   render() {
     const { loginSubmit } = this.props;
@@ -10,9 +12,7 @@ class Login extends Component {
       <Fragment>
         <div className="content no-sidebar">
           <div className="view-top-bar">
-            <span>
-              Tamanu
-            </span>
+            <TamanuLogo />
           </div>
           <div className="columns login-container">
             <div className="column is-3 login-form has-background-grey-lighter">

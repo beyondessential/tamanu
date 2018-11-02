@@ -7,6 +7,8 @@ import { sidebarInfo } from '../constants';
 import { ProgramsCollection } from '../collections';
 import actions from '../actions/auth';
 
+import { TamanuLogo } from './TamanuLogo';
+
 const { login: loginActions } = actions;
 const { logout } = loginActions;
 
@@ -82,11 +84,7 @@ class Sidebar extends Component {
     return (
       <div>
         <div className="sidebar">
-          <Link className="header" to="/" replace>
-            <span>
-              Tamanu
-            </span>
-          </Link>
+          <TamanuLogo />
           <div className="scroll-container">
             {
               sidebarInfo.map((parent, index) => {
