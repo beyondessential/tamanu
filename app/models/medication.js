@@ -3,7 +3,6 @@ import shortid from 'shortid';
 import { isNaN, toNumber, defaults } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
-import { mapRelations } from '../utils';
 import { medicationStatuses } from '../constants';
 import PatientModel from './patient';
 
@@ -25,6 +24,7 @@ export default BaseModel.extend({
     endDate: null,
     requestedDate: moment(),
     requestedBy: '',
+    dispense: false,
     status: medicationStatuses.REQUESTED,
     history: [],
   }, BaseModel.prototype.defaults),

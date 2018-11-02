@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import Select from 'react-select';
 import actions from '../../actions/medication';
 import TopRow from '../Patients/components/TopRow';
+import { medicationStatuses } from '../../constants';
 import {
   Preloader,
   PatientAutocomplete,
@@ -91,7 +92,12 @@ class NewMedication extends Component {
 
   submitForm(e) {
     e.preventDefault();
+    const { dispense } = this.props;
     const { action, medicationModel, patient, visit, drugId } = this.state;
+    if (dispense) {
+      medicationModel.set('dispense', true);
+      medicationModel.set('status', medicationStatuses.FULFILLED);
+    }
     this.props.saveMedication({
       action,
       model: medicationModel,
@@ -106,6 +112,7 @@ class NewMedication extends Component {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
 
+    const { dispense } = this.props;
     const {
       visit,
       visits,
@@ -114,12 +121,11 @@ class NewMedication extends Component {
       patient,
       byPatient,
     } = this.state;
-
     return (
       <div>
         <div className="create-content">
           <div className="create-top-bar">
-            <span> New Medication Request </span>
+            <span> { dispense ? 'Dispense Medication' : 'New Medication Request' } </span>
           </div>
           <form
             className="create-container"
@@ -187,7 +193,7 @@ class NewMedication extends Component {
               <div className="columns">
                 <div className="column is-4">
                   <span className="header">
-                    Quantity
+                    { dispense && 'Dispense' } Quantity
                   </span>
                   <div className="columns is-gapless">
                     <div className="column">

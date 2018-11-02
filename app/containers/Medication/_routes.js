@@ -19,7 +19,7 @@ export default function Routes({ url }) {
         <Route path={`${url}/request/:id`} component={Request} />
         <Route path={`${url}/request`} component={Request} />
         <Route path={`${url}/completed`} component={Completed} />
-        <Route path={`${url}/edit/dispense`} component={Dispense} />
+        <Route path={`${url}/dispense`} component={Dispense} />
         <Route path={`${url}/return/new`} component={ReturnMedication} />
       </Switch>
     </div>

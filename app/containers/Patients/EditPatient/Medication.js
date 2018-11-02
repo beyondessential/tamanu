@@ -39,7 +39,6 @@ class Medication extends Component {
     const { model: Model } = props;
     const { from, to, tableColumns } = this.state;
     let medicationHistory = Model.getMedicationHistory(from.clone(), to.clone());
-    console.log('-medicationHistory-', medicationHistory);
     medicationHistory = medicationHistory.map(obj => ({
       date: obj.date,
       medication: obj.medication.map(model => ({ currentDate: obj.date, ...model.toJSON({ relations: true }) }))
@@ -47,6 +46,7 @@ class Medication extends Component {
 
     // Add actions column for our table
     // tableColumns[tableColumns.length - 1].Cell = this.setActionsCol;
+    tableColumns[0].Cell = this.renderMedicineColumn;
     tableColumns[1].Cell = this.renderQtyColumn;
     tableColumns[2].Cell = this.renderQtyColumn;
     tableColumns[3].Cell = this.renderQtyColumn;
@@ -81,6 +81,17 @@ class Medication extends Component {
     );
   }
 
+  renderMedicineColumn = row => {
+    const { original: medicine , value} = row;
+    console.log('-medicine-', medicine, row);
+    return (
+      <React.Fragment>
+        {value}
+        {medicine.dispense && ' ** '}
+      </React.Fragment>
+    );
+  }
+
   renderQtyColumn = row => {
     const { original, column } = row;
     const { medicationHistory } = this.state;
@@ -99,7 +110,7 @@ class Medication extends Component {
     return (
       <div className="medication-chart-cell">
         <span className="is-inline-block">{row.value}</span>
-        {(moment(original.currentDate).isBefore(moment().format(dateFormat)) || isTaken) &&
+        {(moment(original.currentDate).isBefore(moment().format(dateFormat)) || isTaken) && !original.dispense && 
           <Fragment>
             <span
               className={`is-rounded icon is-pulled-right p-l-35 is-pulled-left has-text-${isTaken ? 'success' : 'danger'}`}
@@ -118,7 +129,7 @@ class Medication extends Component {
             }
           </Fragment>
         }
-        {moment(moment().format(dateFormat)).isSame(original.currentDate) && !isTaken &&
+        {moment(moment().format(dateFormat)).isSame(original.currentDate) && !isTaken && !original.dispense && 
           <button
             className="button is-default is-small is-pulled-right has-text-success"
             onClick={() => this.markTaken(original._id, original.currentDate, fieldName, true)}
@@ -246,6 +257,7 @@ class Medication extends Component {
               </div>
             </div>
           }
+          <span className="is-size-7 has-text-grey">** dispensed medication</span>
         </div>
         <ReactTooltip />
       </div>

@@ -170,7 +170,7 @@ export const sidebarInfo = [
       },
       {
         label: 'Dispense',
-        path: '/medication/edit/dispense',
+        path: '/medication/dispense',
         icon: 'fa fa-chevron-right'
       }
     ]
@@ -882,6 +882,78 @@ export const medicationColumns = [
     minWidth: 200,
     Cell: null,
     filterable: false
+  }
+];
+
+export const medicationCompletedColumns = [
+  {
+    accessor: 'prescriptionDate',
+    Header: 'Date',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    id: 'end-date',
+    accessor: row => moment(row.endDate).isValid() ? moment(row.endDate).format(dateFormat) : '-',
+    Header: 'End Date',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'patient',
+    Header: 'Patient',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'prescriber',
+    Header: 'Prescriber',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'drug',
+    Header: 'Medication',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 300
+  }, {
+    accessor: 'quantity',
+    Header: 'Quantity',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100,
+    columns: [{
+      Header: 'Morning',
+      accessor: 'qtyMorning',
+      headerStyle,
+      style: columnStyle,
+      maxWidth: 80,
+    }, {
+      Header: 'Lunch',
+      accessor: 'qtyLunch',
+      headerStyle,
+      style: columnStyle,
+      maxWidth: 80,
+    }, {
+      Header: 'Evening',
+      accessor: 'qtyEvening',
+      headerStyle,
+      style: columnStyle,
+      maxWidth: 80,
+    }, {
+      Header: 'Night',
+      accessor: 'qtyNight',
+      headerStyle,
+      style: columnStyle,
+      maxWidth: 80,
+    }]
+  }, {
+    accessor: 'status',
+    Header: 'Status',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
   }
 ];
 

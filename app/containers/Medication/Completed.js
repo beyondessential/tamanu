@@ -4,9 +4,8 @@ import { Link } from 'react-router-dom';
 import ReactTable from 'react-table';
 import actions from '../../actions/medication';
 import {
-  medicationColumns,
+  medicationCompletedColumns,
   pageSizes,
-  medicationStatuses,
   dbViews
 } from '../../constants';
 
@@ -20,11 +19,6 @@ class Completed extends Component {
     medications: [{}],
     totalPages: 0,
     loading: true,
-  }
-
-  componentWillMount() {
-    medicationColumns[medicationColumns.length - 1].Cell = this.setActionsColumn;
-    // this.props.fetchMedications({ page: 0 });
   }
 
   componentWillReceiveProps(newProps) {
@@ -53,7 +47,10 @@ class Completed extends Component {
   }
 
   render() {
-    const { medications, totalPages } = this.state;
+    const {
+      medications,
+      totalPages,
+     } = this.state;
     return (
       <div>
         <div className="content">
@@ -65,7 +62,7 @@ class Completed extends Component {
               <Link to="/medication/request">
                 + New Request
               </Link>
-              <Link to="/medication/edit/dispense">
+              <Link to="/medication/dispense">
                 Dispense Medication
               </Link>
             </div>
@@ -86,7 +83,7 @@ class Completed extends Component {
                   pages={totalPages}
                   defaultPageSize={pageSizes.medications}
                   loading={this.state.loading}
-                  columns={medicationColumns}
+                  columns={medicationCompletedColumns}
                   className="-striped"
                   defaultSortDirection="asc"
                   onFetchData={this.fetchData}
