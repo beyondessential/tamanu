@@ -231,7 +231,7 @@ class EditVisit extends Component {
                 <div className="column is-4">
                   <InputGroup
                     name="examiner"
-                    label="Examiner"
+                    label="Doctor/Nurse"
                     value={form.examiner}
                     onChange={this.handleUserInput}
                   />

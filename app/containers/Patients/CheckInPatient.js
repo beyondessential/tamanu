@@ -166,7 +166,7 @@ class CheckInPatient extends Component {
                 <div className="column is-4">
                   <InputGroup
                     name="examiner"
-                    label="Examiner"
+                    label="Doctor/Nurse"
                   />
                 </div>
               </div>
