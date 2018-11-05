@@ -3,15 +3,16 @@ import PropTypes from 'prop-types';
 
 import { TopBar } from '../../components/TopBar';
 
-import { availableReports } from './dummyReports';
+import { availableReports, dummyData } from './dummyReports';
+import { ReportViewer } from './ReportViewer';
 
-const ReportGraph = () => <div>Report Graph</div>;
-const ReportData = () => <div>Report Data</div>;
-const ReportFilters = () => <div>Report Filters</div>;
-const ReportViewer = () => (
+import DatepickerGroup from '../../components/DatepickerGroup';
+
+const ReportFilters = ({ onUpdateFilter }) => (
   <div>
-    <ReportGraph />
-    <ReportData />
+    <DatepickerGroup name="startDate" label="Start date" />
+    <DatepickerGroup name="endDate" label="End date" />
+    <hr/>
   </div>
 );
 
@@ -39,7 +40,7 @@ export const ReportGenerator = ({ match }) => {
       <TopBar>{ report.name }</TopBar>
       <div className="detail">
         <ReportFilters />
-        <ReportViewer />
+        <ReportViewer data={dummyData} />
       </div>
     </div>
   );
