@@ -9,22 +9,22 @@ import { ReportGraph } from './ReportGraph';
 export class ReportViewer extends Component {
   
   state = {
-    totals: [],
+    values: [],
   };
 
   recalculate() {
     const { data } = this.props;
-    const totalsByKey = data.reduce(patientsPerDay.reducer, {});
+    const valuesByKey = data.reduce(patientsPerDay.reducer, {});
     
-    const totals = Object.keys(totalsByKey)
+    const values = Object.keys(valuesByKey)
       .map(k => ({ 
         date: moment(k).valueOf(), 
         formatted: moment(k).format('L'),
-        amount: totalsByKey[k]
+        amount: valuesByKey[k]
       }))
       .sort((a, b) => a.date - b.date);
 
-    this.setState({ totals });
+    this.setState({ values });
   }
 
   componentDidMount() {
@@ -35,9 +35,9 @@ export class ReportViewer extends Component {
     const { data } = this.props;
     return (
       <div>
-        <ReportGraph data={ this.state.totals } />
+        <ReportGraph data={ this.state.values } />
         <hr />
-        <ReportTable data={ this.state.totals } />
+        <ReportTable data={ this.state.values } />
       </div>
     );
   }
