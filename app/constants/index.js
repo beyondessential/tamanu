@@ -268,6 +268,14 @@ export const sidebarInfo = [
     children: []
   },
   {
+    key: 'reports',
+    label: 'Reports',
+    path: '/reports',
+    icon: scheduleIcon,
+    hidden: false,
+    children: []
+  },
+  {
     key: 'logout',
     label: 'Logout',
     path: '/logout',
