@@ -18,7 +18,7 @@ export const ReportSelector = ({}) => {
   return (
     <div>
       <TopBar>Select a report</TopBar>
-      <div class="detail">
+      <div className="detail">
         { reportButtons } 
       </div>
     </div>

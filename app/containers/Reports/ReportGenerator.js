@@ -18,8 +18,8 @@ const ReportViewer = () => (
 const ReportNotFound = ({ missingId }) => (
   <div>
     <TopBar>Report not found</TopBar>
-    <div class="detail">
-      <div class="notification">
+    <div className="detail">
+      <div className="notification">
         Could not find report with id "{missingId}".
       </div>
     </div>
@@ -37,7 +37,7 @@ export const ReportGenerator = ({ match }) => {
   return (
     <div>
       <TopBar>{ report.name }</TopBar>
-      <div class="detail">
+      <div className="detail">
         <ReportFilters />
         <ReportViewer />
       </div>
