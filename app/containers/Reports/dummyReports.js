@@ -1,5 +1,6 @@
 import moment from 'moment';
 
+// hardcoded reports to click through to
 export const availableReports = [
   { id: 'patients-per-day', name: "Patients per day" },
   { id: 'patients-per-clinician', name: "Patients per clinician" },
@@ -8,9 +9,10 @@ export const availableReports = [
   { id: 'breakdown-of-diagnosis', name: "Diagnosis breakdown" },
 ];
 
+// generate some visits on some random dates
 const randomDate = () => {
   const offset = Math.random() * 25 + Math.random() * 15;
-  return moment().add(Math.floor(offset), 'days');
+  return moment().subtract(Math.floor(offset), 'days');
 };
 
 export const dummyData = (new Array(220)).fill(0)
@@ -18,6 +20,7 @@ export const dummyData = (new Array(220)).fill(0)
     date: randomDate().toDate(),
   }));
 
+// hardcoded report reducer for now
 export const patientsPerDay = {
   name: 'Patients per day',
   reducer: (totals, row) => {
