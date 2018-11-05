@@ -2,14 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Route, Switch } from 'react-router-dom';
 
-import NotActive from '../NotActive';
+import { ReportSelector } from './ReportSelector';
+import { ReportGenerator } from './ReportGenerator';
 
-export const Reports = ({ url }) => (
-  <Switch>
-    <Route exact path={url} component={NotActive} />
-  </Switch>
+export const Reports = ({ match }) => (
+  <div class="content">
+    <Switch>
+      <Route path={ match.url + '/:reportId' } component={ReportGenerator} />
+      <Route exact path={ match.url } component={ReportSelector} />
+    </Switch>
+  </div>
 );
 
-Reports.propTypes = {
-  url: PropTypes.string.isRequired,
-};
