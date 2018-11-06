@@ -27,9 +27,9 @@ export class ReportFilters extends Component {
   render() {
     return (
       <div>
-        <div class="column">
+        <div className="column">
           <Expander label={ isExpanded => !isExpanded ? "Advanced filters" : "Hide advanced filters" }>
-            <span class="input-group-title">Diagnosis</span>
+            <span className="input-group-title">Diagnosis</span>
             <Select 
               name="diagnosis" 
               options={ ["1", "2", "3"].map(x => ({ value: x, label: x })) }
@@ -44,8 +44,8 @@ export class ReportFilters extends Component {
           onChange={ range => this.setState({ range }) } 
           value={ this.state.range }
         />
-        <div class="column" style={ { textAlign: "right" } }>
-          <Button onClick={ this.apply } primary>Apply</Button>
+        <div className="column" style={ { textAlign: "right" } }>
+          <Button onClick={ this.apply } primary>Generate report</Button>
         </div>
       </div>
     );
