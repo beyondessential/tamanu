@@ -5,16 +5,7 @@ import { TopBar } from '../../components/TopBar';
 
 import { availableReports, dummyData } from './dummyReports';
 import { ReportViewer } from './ReportViewer';
-
-import DatepickerGroup from '../../components/DatepickerGroup';
-
-const ReportFilters = ({ onUpdateFilter }) => (
-  <div>
-    <DatepickerGroup name="startDate" label="Start date" />
-    <DatepickerGroup name="endDate" label="End date" />
-    <hr/>
-  </div>
-);
+import { ReportFilters } from './ReportFilters';
 
 const ReportNotFound = ({ missingId }) => (
   <div>
@@ -39,7 +30,8 @@ export const ReportGenerator = ({ match }) => {
     <div>
       <TopBar>{ report.name }</TopBar>
       <div className="detail">
-        <ReportFilters />
+        <ReportFilters onApply={ f => console.log(f) } />
+        <hr />
         <ReportViewer data={dummyData} />
       </div>
     </div>
