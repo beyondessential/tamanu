@@ -58,7 +58,7 @@ export class SaveSpreadsheetButton extends Component {
         { ...this.props }
         filters={ filters }
         writeFunction={ this.writeData }
-      >Export to Excel (.xlsx)</SaveFileButton>
+      >Export report (.xlsx)</SaveFileButton>
     );
   }
 }

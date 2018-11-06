@@ -19,9 +19,14 @@ const dataColumns = [
   },
 ];
 
+const buttonContainerStyle = {
+  marginBottom: '0.5rem',
+  textAlign: 'right',
+};
+
 export const ReportTable = ({ data }) => (
   <div>
-    <div style={ { textAlign: 'right' } }>
+    <div style={ buttonContainerStyle }>
       <SaveSpreadsheetButton 
         filename="report"
         data={data}
