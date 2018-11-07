@@ -129,5 +129,9 @@ export default Backbone.PageableCollection.extend({
     if (!options) options = {};
     if (view) set(options, 'data.view', view);
     return Backbone.PageableCollection.prototype.getPage.apply(this, [page, options]);
+  },
+
+  setPage(page) {
+    console.log('-setPage-', page);
   }
 });
