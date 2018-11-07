@@ -9,38 +9,32 @@ const groupStyle = {
 
 export class DateRange extends Component {
 
-  state = {
-    start: null,
-    end: null,
-  }
-
   updateStart = (start) => this.updateValue({ start })
   updateEnd = (end) => this.updateValue({ end })
 
   updateValue(newValue) {
-    const { onChange } = this.props;
-    const updatedValue = { ...this.state, ...newValue };
-    this.setState(updatedValue);
+    const { onChange, value } = this.props;
+    const updatedValue = { ...value, ...newValue };
     if(onChange) {
       onChange(updatedValue);
     }
   }
 
   render() {
-    const { name } = this.props;
+    const { name, value } = this.props;
 
     return (
       <div style={ groupStyle }>
         <DatepickerGroup 
           name={ `${name}-start` } 
           label="Start date"
-          value={ this.state.start }
+          value={ value.start }
           onChange={ this.updateStart }
         />
         <DatepickerGroup 
           name={ `${name}-end` } 
           label="End date" 
-          value={ this.state.end }
+          value={ value.end }
           onChange={ this.updateEnd }
         />
       </div>

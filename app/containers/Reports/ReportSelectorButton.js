@@ -10,6 +10,8 @@ const style = {
   padding: '1em',
   margin: '0.5em',
   width: '15em',
+  textAlign: 'center',
+  borderRadius: '0.4em',
 };
 
 export const ReportSelectorButton = ({ report }) => (

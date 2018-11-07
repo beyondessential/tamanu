@@ -6,7 +6,8 @@ import {
   medicationIcon,
   labsIcon,
   administrationIcon,
-  programsIcon
+  programsIcon,
+  radiologyIcon,
 } from './images';
 
 export const Colors = {
@@ -179,7 +180,7 @@ export const sidebarInfo = [
     key: 'imaging',
     label: 'Imaging',
     path: '/imaging',
-    icon: labsIcon,
+    icon: radiologyIcon,
     children: [
       {
         label: 'Requests',

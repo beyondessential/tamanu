@@ -2,11 +2,33 @@ import moment from 'moment';
 
 // hardcoded reports to click through to
 export const availableReports = [
-  { id: 'patients-per-day', name: "Patients per day" },
-  { id: 'patients-per-clinician', name: "Patients per clinician" },
-  { id: 'diagnosis-over-time', name: "Instances of diagnosis" },
-  { id: 'breakdown-of-age-groups', name: "Age group breakdown" },
-  { id: 'breakdown-of-diagnosis', name: "Diagnosis breakdown" },
+  { 
+    id: 'patients-per-day', 
+    name: "Patients per day",
+    graphType: 'line',
+    getCountKey: (row) => moment(row.date).startOf('day').toDate(),
+  },
+  { 
+    id: 'patients-per-clinician', 
+    graphType: 'bar',
+    name: "Patients per clinician",
+    getCountKey: (row) => row.prescriber,
+  },
+  { 
+    id: 'breakdown-of-age-groups', 
+    graphType: 'pie',
+    name: "Age group breakdown",
+    getCountKey: (row) => {
+      const lowBound = Math.floor(row.age / 10) * 10;
+      return `${lowBound}-${lowBound+10}`;
+    },
+  },
+  { 
+    id: 'breakdown-of-diagnosis', 
+    graphType: 'pie',
+    name: "Diagnosis breakdown",
+    getCountKey: row => row.diagnosis,
+  },
 ];
 
 // generate some visits on some random dates
@@ -18,18 +40,6 @@ const randomDate = () => {
 const randomChoice = (array) => {
   const idx = Math.floor(Math.random() * array.length);
   return array[idx];
-};
-
-// hardcoded report reducer for now
-export const patientsPerDay = {
-  name: 'Patients per day',
-  reducer: (totals, row) => {
-    const key = row.date;
-    return { 
-      ...totals,
-      [key]: (totals[key] || 0) + 1
-    };
-  },
 };
 
 function generateDummyOptions(values) {

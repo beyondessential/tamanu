@@ -7,12 +7,19 @@ import { sidebarInfo } from '../constants';
 import { ProgramsCollection } from '../collections';
 import actions from '../actions/auth';
 
-import { TamanuLogo } from './TamanuLogo';
+import { TamanuLogo, TamanuBrandMark } from './TamanuLogo';
 
 const { login: loginActions } = actions;
 const { logout } = loginActions;
 
 const classNames = require('classnames');
+
+const logoContainerStyle = {
+  position: 'absolute',
+  bottom: 0,
+  width: '100%',
+  textAlign: 'center',
+};
 
 class Sidebar extends Component {
   static propTypes = {
@@ -84,7 +91,7 @@ class Sidebar extends Component {
     return (
       <div>
         <div className="sidebar">
-          <TamanuLogo />
+          <TamanuBrandMark />
           <div className="scroll-container">
             {
               sidebarInfo.map((parent, index) => {
@@ -120,6 +127,9 @@ class Sidebar extends Component {
                 <i className="fa fa-sign-out" /> Logout
               </button>
             </div> */}
+          </div>
+          <div style={ logoContainerStyle }>
+            <TamanuLogo width="120px" />
           </div>
         </div>
       </div>
