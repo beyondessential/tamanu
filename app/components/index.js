@@ -1,3 +1,4 @@
+export CheckboxGroup from './CheckboxGroup';
 export CustomDateInput from './CustomDateInput';
 export DatepickerGroup from './DatepickerGroup';
 export DrugAutocomplete from './DrugAutocomplete';
@@ -7,6 +8,7 @@ export PatientAutocomplete from './PatientAutocomplete';
 export PatientRelationSelect from './PatientRelationSelect';
 export Preloader from './Preloader';
 export RadioGroup from './RadioGroup';
+export SelectGroup from './SelectGroup';
 export PatientSearchBar from './PatientSearchBar';
 export Sidebar from './Sidebar';
 export TextareaGroup from './TextareaGroup';
