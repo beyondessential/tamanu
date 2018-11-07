@@ -171,7 +171,7 @@ const PatientSchema = {
       optional: true,
       indexed: true
     },
-
+    
     appointments: {
       type: 'list',
       objectType: 'appointment'
