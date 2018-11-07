@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { defaults } from 'lodash';
+import { defaults, padStart, capitalize } from 'lodash';
 import {
   patientIcon,
   scheduleIcon,
@@ -21,6 +21,8 @@ export const dbViews = {
   medicationCompleted: 'medication_completed',
   medicationRequested: 'medication_requested',
   medicationFulfilled: 'medication_fulfilled',
+  appointmentsThisWeek: 'appointments_week',
+  appointmentsToday: 'appointments_today'
 };
 
 const columnStyle = {
@@ -41,7 +43,6 @@ const columnStyleSlim = {
   justifyContent: 'center',
 };
 
-
 const headerStyle = {
   backgroundColor: Colors.searchTintColor,
 };
@@ -49,6 +50,7 @@ const headerStyle = {
 const headerSortingStyle = { backgroundColor: '#c8e6c9' };
 
 export const dateFormat = 'YYYY-MM-DD';
+export const dateTimeFormat = 'YYYY-MM-DD hh:mm A';
 
 export const dateFormatText = 'Do MMM YYYY';
 
@@ -68,7 +70,28 @@ export const pageSizes = {
   pregnancies: 5,
   surveyResponses: 5,
   medicationRequests: 10,
+  appointments: 10,
 };
+
+// Generate time picker select options
+export const timeSelectOptions = {
+  hours: [],
+  minutes: []
+};
+
+const startOfDay = moment().startOf('day');
+for (let i = 0; i <= 23; i += 1) {
+  timeSelectOptions.hours.push({
+    value: i,
+    label: startOfDay.add((i > 0 ? 1 : 0), 'hours').format('hh A')
+  });
+}
+for (let i = 0; i <= 59; i += 1) {
+  timeSelectOptions.minutes.push({
+    value: i,
+    label: padStart(i, 2, '0')
+  });
+}
 
 export const sidebarInfo = [
   {
@@ -132,7 +155,7 @@ export const sidebarInfo = [
       },
       {
         label: 'Add Appointment',
-        path: '/appointments/edit/new',
+        path: '/appointments/appointment/new',
         icon: 'fa fa-plus'
       },
       {
@@ -1190,4 +1213,54 @@ export const surveyResponsesColumns = [{
   headerStyle,
   style: columnStyle,
   minWidth: 80
+}];
+
+export const appointmentsColumns = [{
+  id: 'startDate',
+  accessor: row => moment(row.startDate).format(dateFormat),
+  Header: 'Date',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 100
+}, {
+  accessor: 'name',
+  Header: 'Name',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 100
+}, {
+  id: 'appointmentType',
+  accessor: row => capitalize(row.appointmentType),
+  Header: 'Type',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 80
+}, {
+  accessor: 'location',
+  Header: 'Location',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 100
+}, {
+  accessor: 'provider',
+  Header: 'With',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 80
+}, {
+  id: 'status',
+  accessor: row => capitalize(row.status),
+  Header: 'Status',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 80
+}, {
+  id: 'actions',
+  Header: 'Actions',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor
+  },
+  style: columnStyle,
+  minWidth: 250,
+  Cell: null
 }];

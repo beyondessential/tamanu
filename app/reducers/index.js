@@ -8,6 +8,7 @@ import medications from './medications';
 import invoices from './invoices';
 import labs from './labs';
 import programs from './programs';
+import scheduling from './scheduling';
 
 const rootReducer = combineReducers({
   auth,
@@ -17,7 +18,8 @@ const rootReducer = combineReducers({
   medications,
   invoices,
   labs,
-  programs
+  programs,
+  scheduling
 });
 
 export default rootReducer;

@@ -1,268 +1,337 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import Select from 'react-select';
-import DatePicker from 'react-datepicker';
 import moment from 'moment';
-import { map } from 'lodash';
-import Autocomplete from 'react-autocomplete';
-import ModalView from '../../components/Modal';
-import Serializer from '../../utils/form-serialize';
-import InputGroup from '../../components/InputGroup';
-import CustomDateInput from '../../components/CustomDateInput';
-import { createAppointment } from '../../actions/appointments';
-import { visitOptions, appointmentStatusList } from '../../constants';
-import { PatientsCollection } from '../../collections';
-import { AppointmentModel } from '../../models';
+import { has, capitalize } from 'lodash';
+import actions from '../../actions/scheduling';
+import {
+  visitOptions,
+  appointmentStatusList,
+  timeSelectOptions,
+  dateFormat,
+  dateTimeFormat
+} from '../../constants';
+import {
+  Preloader,
+  PatientAutocomplete,
+  InputGroup,
+  CheckboxGroup,
+  TextareaGroup,
+  DatepickerGroup,
+  SelectGroup,
+} from '../../components';
 
 class AddAppointment extends Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
+    this.submitForm = this.submitForm.bind(this);
   }
 
   state = {
-    formError: false,
-    startDate: moment(),
-    endDate: moment().add(1, 'd'),
-    patients: [],
+    action: 'New',
+    appointmentModel: '',
+    appointment: '',
     patient: '',
-    appointmentType: 'Admission',
-    appointmentStatus: 'Scheduled',
-    checked: true
+    admissionStartDate: moment().startOf('day'),
+    admissionEndDate: moment().endOf('day'),
+    admissionAllDay: true,
+    othersDate: moment(),
+    othersStartTimeHrs: 0,
+    othersStartTimeMins: 0,
+    othersEndTimeHrs: 0,
+    othersEndTimeMins: 0,
+    othersAllDay: false,
+    loading: true,
   }
 
-  componentDidMount() {
-    this.props.collection.on('update', this.handleChange);
+  componentWillMount() {
+    const { id } = this.props.match.params;
+    this.props.fetchAppointment({ id });
   }
 
-  componentWillUnmount() {
-    this.props.collection.off('update', this.handleChange);
+  componentWillReceiveProps(newProps) {
+    this.handleChange(newProps);
   }
 
-  handleChange() {
-    let { models: patients } = this.props.collection;
-    if (patients.length > 0) patients = map(patients, patient => patient.attributes);
-    this.setState({ patients });
+  handleChange(props = this.props) {
+    const { id } = this.props.match.params;
+    const { appointment, loading } = props;
+    let { action } = this.state;
+    if (id) action = 'Update';
+    if (!loading) {
+      this.setState({
+        action,
+        loading,
+        appointmentModel: appointment,
+        appointment: appointment.toJSON(),
+      });
+    }
   }
 
-  manageAppointmentType = (value) => {
-    this.setState({ appointmentType: value });
+  handleUserInput = (e, field) => {
+    const { appointmentModel } = this.state;
+    let name = '';
+    let value = '';
+    if (typeof field !== 'undefined') {
+      name = field;
+      value = e;
+    } else {
+      ({ name } = e.target);
+      value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    }
+
+    if (has(this.state, name)) {
+      this.setState({ [name]: value }, this.parseDates);
+    } else {
+      appointmentModel.set(name, value, { silent: true });
+      this.setState({ appointmentModel, appointment: appointmentModel.toJSON() }, this.parseDates);
+    }
   }
 
-  manageStatus = (value) => {
-    this.setState({ appointmentStatus: value });
+  parseDates() {
+    const {
+      appointmentModel,
+      admissionStartDate,
+      admissionEndDate,
+      admissionAllDay,
+      othersDate,
+      othersStartTimeHrs,
+      othersStartTimeMins,
+      othersEndTimeHrs,
+      othersEndTimeMins,
+      othersAllDay,
+    } = this.state;
+
+    if (appointmentModel.get('appointmentType') === 'admission') {
+      appointmentModel.set({
+        startDate: admissionStartDate,
+        endDate: admissionEndDate,
+        allDay: admissionAllDay
+      }, { silent: true });
+    } else {
+      appointmentModel.set({
+        startDate: moment(othersDate).hours(othersStartTimeHrs).minutes(othersStartTimeMins),
+        endDate: moment(othersDate).hours(othersEndTimeHrs).minutes(othersEndTimeMins),
+        allDay: othersAllDay
+      }, { silent: true });
+    }
+    // Update state
+    this.setState({ appointmentModel, appointment: appointmentModel.toJSON() });
   }
 
-  onCloseModal = () => {
-    this.setState({ formError: false });
-  }
-
-  changeAllDayValue = () => {
-    this.setState({ checked: !this.state.checked });
+  submitForm(e) {
+    e.preventDefault();
+    const { action, appointmentModel, patient } = this.state;
+    // Parse out dates
+    this.parseDates();
+    // Save appointment
+    this.props.saveAppointment({
+      action,
+      patient,
+      model: appointmentModel,
+      history: this.props.history
+    });
   }
 
   render() {
+    const { loading } = this.state;
+    if (loading) return <Preloader />; // TODO: make this automatic
+
+    const {
+      action,
+      appointmentModel,
+      appointment,
+      admissionStartDate,
+      admissionEndDate,
+      admissionAllDay,
+      othersDate,
+      othersStartTimeHrs,
+      othersStartTimeMins,
+      othersEndTimeHrs,
+      othersEndTimeMins,
+      othersAllDay,
+    } = this.state;
+
     return (
       <div className="create-content">
         <div className="create-top-bar">
           <span>
-            New Appointment
+            {capitalize(action)} Appointment
           </span>
         </div>
         <form
           className="create-container"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const appointment = Serializer.serialize(e.target, { hash: true });
-            appointment.patient = this.state.patient;
-            appointment.startDate = this.state.startDate;
-            appointment.endDate = this.state.endDate;
-
-            const _appointment = new AppointmentModel(appointment);
-            if (_appointment.isValid()) {
-              console.log('_appointment_', appointment);
-              this.props.createAppointment(_appointment);
-            } else {
-              this.setState({ formError: true });
-            }
-          }}
+          onSubmit={this.submitForm}
         >
-          <div className="form">
+          <div className="form  with-padding">
             <div className="columns">
-              <div className="column">
-                <div className="column">
-                  <span className="input-group-title">
-                    Patient <span className="isRequired">*</span>
-                  </span>
-                  <Autocomplete
-                    inputProps={{ name: 'patient' }}
-                    getItemValue={(item) => `${item.displayId} - ${item.firstName} ${item.lastName}`}
-                    wrapperProps={{ className: 'autocomplete-wrapper' }}
-                    items={this.state.patients}
-                    value={this.state.patientRef}
-                    onSelect={(value, item) => {
-                      this.setState({ patientRef: value, patient: item._id });
-                    }}
-                    onChange={(event, value) => {
-                      this.setState({ patientRef: value });
-                      this.props.collection.find({
-                        selector: { displayId: { $regex: `(?i)${value}` } },
-                        fields: ['_id', 'displayId', 'firstName', 'lastName']
-                      });
-                    }}
-                    renderItem={(item, isHighlighted) =>
-                      <div style={{ background: isHighlighted ? 'lightgray' : 'white' }}> {`${item.displayId} - ${item.firstName} ${item.lastName}`} </div>
-                    }
-                  />
-                </div>
-              </div>
+              <PatientAutocomplete
+                label="Patient"
+                name="patient"
+                value={appointment.patient}
+                onChange={this.handleUserInput}
+                required
+              />
             </div>
             <div className="columns">
-              <div className="column is-4">
-                <div className="column">
-                  <span className="header">
-                    Start Date <span className="isRequired">*</span>
-                  </span>
-                  <DatePicker
-                    name="startDate"
-                    customInput={<CustomDateInput />}
-                    selected={this.state.startDate}
-                    onChange={date => { this.setState({ startDate: date }); }}
-                    peekNextMonth
-                    showMonthDropdown
-                    showYearDropdown
-                    dropdownMode="select"
-                    showTimeSelect
-                    timeFormat="HH:mm"
-                    timeIntervals={15}
-                    dateFormat="LLL"
+              {appointment.appointmentType !== 'admission' &&
+                <React.Fragment>
+                  <DatepickerGroup
+                    className="column is-3"
+                    label="Date"
+                    name="othersDate"
+                    value={othersDate}
+                    onChange={this.handleUserInput}
+                    required
                   />
-                </div>
-              </div>
-              <div className="column is-4">
-                <div className="column">
-                  <span className="header">
-                    End Date <span className="isRequired">*</span>
-                  </span>
-                  <DatePicker
-                    name="endDate"
-                    customInput={<CustomDateInput />}
-                    selected={this.state.endDate}
-                    onChange={date => { this.setState({ endDate: date }); }}
-                    peekNextMonth
-                    showMonthDropdown
-                    showYearDropdown
-                    dropdownMode="select"
-                    showTimeSelect
-                    timeFormat="HH:mm"
-                    timeIntervals={15}
-                    dateFormat="LLL"
+                  {!othersAllDay &&
+                    <React.Fragment>
+                      <SelectGroup
+                        className="column is-1"
+                        label="Start Time"
+                        name="othersStartTimeHrs"
+                        options={timeSelectOptions.hours}
+                        value={othersStartTimeHrs}
+                        onChange={this.handleUserInput}
+                        searchable
+                        required
+                      />
+                      <SelectGroup
+                        className="column is-1 p-t-40"
+                        label={false}
+                        name="othersStartTimeMins"
+                        options={timeSelectOptions.minutes}
+                        value={othersStartTimeMins}
+                        onChange={this.handleUserInput}
+                        searchable
+                      />
+                      <SelectGroup
+                        className="column is-1"
+                        label="End Time"
+                        name="othersEndTimeHrs"
+                        options={timeSelectOptions.hours}
+                        value={othersEndTimeHrs}
+                        onChange={this.handleUserInput}
+                        required
+                      />
+                      <SelectGroup
+                        className="column is-1 p-t-40"
+                        label={false}
+                        name="othersEndTimeMins"
+                        options={timeSelectOptions.minutes}
+                        value={othersEndTimeMins}
+                        onChange={this.handleUserInput}
+                      />
+                    </React.Fragment>
+                  }
+                  <CheckboxGroup
+                    label="All Day"
+                    name="othersAllDay"
+                    defaultChecked={othersAllDay}
+                    onChange={this.handleUserInput}
+                    value
                   />
-                </div>
-              </div>
-              <div className="column is-4">
-                <div className="column">
-                  <label className="checkbox">
-                    <input type="checkbox" onChange={this.changeAllDayValue} value={this.state.checked} name="allDay" />
-                    <span>
-                      All Day
-                    </span>
-                  </label>
-                </div>
-              </div>
+                </React.Fragment>
+              }
+
+              {appointment.appointmentType === 'admission' &&
+                <React.Fragment>
+                  <DatepickerGroup
+                    className="column is-3"
+                    label="Start Date"
+                    name="admissionStartDate"
+                    value={admissionStartDate}
+                    onChange={this.handleUserInput}
+                    showTimeSelect={!admissionAllDay}
+                    dateFormat={admissionAllDay?dateFormat:dateTimeFormat}
+                    timeIntervals={30}
+                    required
+                  />
+                  <DatepickerGroup
+                    className="column is-3"
+                    label="End Date"
+                    name="admissionEndDate"
+                    value={admissionEndDate}
+                    onChange={this.handleUserInput}
+                    showTimeSelect={!admissionAllDay}
+                    dateFormat={admissionAllDay?dateFormat:dateTimeFormat}
+                    minDate={admissionStartDate}
+                    timeIntervals={30}
+                    required
+                  />
+                  <CheckboxGroup
+                    label="All Day"
+                    name="admissionAllDay"
+                    defaultChecked={admissionAllDay}
+                    onChange={this.handleUserInput}
+                    value
+                  />
+                </React.Fragment>
+              }
             </div>
             <div className="columns">
-              <div className="column is-6">
-                <div className="column">
-                  <span className="header">
-                    Type <span className="isRequired">*</span>
-                  </span>
-                  <Select
-                    id="state-select"
-                    ref={(ref) => { this.select = ref; }}
-                    onBlurResetsInput={false}
-                    onSelectResetsInput={false}
-                    options={visitOptions}
-                    simpleValue
-                    clearable={false}
-                    name="appointmentType"
-                    disabled={this.state.disabled}
-                    value={this.state.appointmentType}
-                    onChange={this.manageAppointmentType}
-                    rtl={this.state.rtl}
-                    searchable={this.state.searchable}
-                  />
-                </div>
-              </div>
-              <div className="column is-6">
-                <InputGroup
-                  name="provider"
-                  label="With"
-                />
-              </div>
+              <SelectGroup
+                className="column is-5"
+                name="appointmentType"
+                label="Type"
+                options={visitOptions}
+                value={appointment.appointmentType}
+                onChange={this.handleUserInput}
+                required
+              />
+              <InputGroup
+                className="column"
+                name="provider"
+                label="With"
+                onChange={this.handleUserInput}
+              />
             </div>
             <div className="columns">
-              <div className="column is-6">
-                <InputGroup
-                  name="location"
-                  label="Location"
-                />
-              </div>
-              <div className="column is-4">
-                <div className="column">
-                  <span className="header">
-                    Status
-                  </span>
-                  <Select
-                    id="state-select"
-                    ref={(ref) => { this.select = ref; }}
-                    onBlurResetsInput={false}
-                    onSelectResetsInput={false}
-                    options={appointmentStatusList}
-                    simpleValue
-                    clearable={false}
-                    name="status"
-                    disabled={this.state.disabled}
-                    value={this.state.appointmentStatus}
-                    onChange={this.manageStatus}
-                    rtl={this.state.rtl}
-                    searchable={this.state.searchable}
-                  />
-                </div>
-              </div>
+              <InputGroup
+                className="column is-5"
+                name="location"
+                label="Location"
+                onChange={this.handleUserInput}
+              />
+              <SelectGroup
+                className="column is-4"
+                name="status"
+                label="Status"
+                options={appointmentStatusList}
+                value={appointment.status}
+                onChange={this.handleUserInput}
+              />
             </div>
             <div className="columns">
-              <div className="column">
-                <div className="column">
-                  <span className="header">
-                    Notes
-                  </span>
-                  <textarea className="textarea" name="notes" />
-                </div>
-              </div>
+              <TextareaGroup
+                label="Notes"
+                name="notes"
+                value={appointment.notes}
+                onChange={this.handleUserInput}
+              />
             </div>
             <div className="column has-text-right">
               <Link className="button is-danger cancel" to="/appointments">Cancel</Link>
-              <button className="button" type="submit">Add</button>
+              <button className="button is-primary" type="submit" disabled={!appointmentModel.isValid()}>Add</button>
             </div>
           </div>
         </form>
-        <ModalView
-          isVisible={this.state.formError}
-          onClose={this.onCloseModal}
-          headerTitle="Warning!!!!"
-          contentText="Please fill in required fields (marked with *) and correct the errors before saving."
-          little
-        />
       </div>
     );
   }
 }
 
+function mapStateToProps(state) {
+  const { appointment, loading, error } = state.scheduling;
+  return { appointment, loading, error };
+}
+
+const { appointment: appointmentActions } = actions;
+const { fetchAppointment, saveAppointment } = appointmentActions;
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  createAppointment: appointment => dispatch(createAppointment(appointment, ownProps.history)),
-  collection: new PatientsCollection(),
+  fetchAppointment: (params) => dispatch(fetchAppointment(params)),
+  saveAppointment: (params) => dispatch(saveAppointment(params)),
 });
 
-export default connect(undefined, mapDispatchToProps)(AddAppointment);
+export default connect(mapStateToProps, mapDispatchToProps)(AddAppointment);
