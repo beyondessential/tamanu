@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import shortid from 'shortid';
 
 class TextareaGroup extends Component {
   static propTypes = {
@@ -8,11 +9,13 @@ class TextareaGroup extends Component {
     required: PropTypes.bool,
     name: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
+    className: PropTypes.string,
     labelClass: PropTypes.string,
   }
 
   static defaultProps = {
     required: false,
+    className: 'field column',
     labelClass: 'label'
   }
 
@@ -37,16 +40,19 @@ class TextareaGroup extends Component {
       name,
       tabIndex,
       labelClass,
+      className,
     } = this.props;
+    const fiedlId = `textarea-${shortid.generate()}`;
     return (
-      <div className="field">
+      <div className={className}>
         {label &&
-          <label className={labelClass}>
+          <label className={labelClass} htmlFor={fiedlId}>
             {label} {required && <span className="isRequired">*</span>}
           </label>
         }
         <div className="control">
           <textarea
+            id={fiedlId}
             className="textarea is-primary"
             name={name}
             rows="3"

@@ -19,6 +19,9 @@ class DatepickerGroup extends Component {
     value: PropTypes.any,
     readOnly: PropTypes.bool,
     todayAsDefault: PropTypes.bool,
+    timeFormat: PropTypes.string,
+    timeIntervals: PropTypes.number,
+    timeCaption: PropTypes.string
   }
 
   static defaultProps = {
@@ -31,6 +34,9 @@ class DatepickerGroup extends Component {
     value: moment(),
     readOnly: false,
     todayAsDefault: true,
+    timeFormat: '',
+    timeIntervals: 15,
+    timeCaption: 'Time'
   }
 
   componentWillMount() {
