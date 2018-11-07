@@ -13,8 +13,20 @@ export class ReportViewer extends Component {
   };
 
   recalculate() {
-    const { data } = this.props;
-    const valuesByKey = data.reduce(patientsPerDay.reducer, {});
+    const { data, filters } = this.props;
+
+    const { diagnosis, location, ageMin, ageMax, sex } = filters;
+    const valuesByKey = data
+      .filter(row => {
+        if(diagnosis && diagnosis !== row.diagnosis) return false;
+        if(location && location !== row.location) return false;
+        if(sex && sex !== row.sex) return false;
+        if(prescriber !== row.prescriber) return false;
+        if(ageMin && ageMin > row.age) return false;
+        if(ageMax && ageMax < row.age) return false;
+        return true;
+      })
+      .reduce(patientsPerDay.reducer, {});
     
     const values = Object.keys(valuesByKey)
       .map(k => ({ 
@@ -29,6 +41,12 @@ export class ReportViewer extends Component {
 
   componentDidMount() {
     this.recalculate();
+  }
+
+  componentDidUpdate(prevProps) {
+    if(JSON.stringify(prevProps.filters) !== JSON.stringify(this.props.filters)) {
+      this.recalculate();
+    }
   }
 
   render() {

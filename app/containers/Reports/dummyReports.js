@@ -15,10 +15,10 @@ const randomDate = () => {
   return moment().subtract(Math.floor(offset), 'days');
 };
 
-export const dummyData = (new Array(220)).fill(0)
-  .map(x => ({
-    date: randomDate().toDate(),
-  }));
+const randomChoice = (array) => {
+  const idx = Math.floor(Math.random() * array.length);
+  return array[idx];
+};
 
 // hardcoded report reducer for now
 export const patientsPerDay = {
@@ -31,3 +31,66 @@ export const patientsPerDay = {
     };
   },
 };
+
+function generateDummyOptions(values) {
+  return values.split(/\s*\n\s*/g)
+    .filter(x => x)
+    .sort()
+    .map(x => ({ 
+      label: x,
+      value: x.toLowerCase().replace(/\W+/g, '-')
+    }));
+}
+
+export const diagnosisOptions = generateDummyOptions(`
+  Hypertension
+  Hyperlipidemia
+  Diabetes
+  Back pain
+  Anxiety
+  Obesity
+  Allergic rhinitis
+  Reflux esophagitis
+  Respiratory problems
+  Hypothyroidism
+  Visual refractive errors
+  General medical exam
+  Osteoarthritis
+  Fibromyalgia / myositis
+  Malaise and fatigue
+  Pain in joint
+  Acute laryngopharyngitis
+  Acute maxillary sinusitis
+  Major depressive disorder
+  Acute bronchitis
+  Asthma
+  Depressive disorder
+  Nail fungus
+  Coronary atherosclerosis
+  Urinary tract infection
+`);
+
+export const locationOptions = generateDummyOptions(`
+  Ward 1
+  Ward 2
+  Children's Ward
+  Maternity Ward
+  Surgical Ward
+`);
+
+export const prescriberOptions = generateDummyOptions(`
+  Dr John Smith
+  Dr Jane Brown
+  Prof Molly Mollison
+  Ms Ian Ianson
+`);
+
+export const dummyData = (new Array(220)).fill(0)
+  .map(x => ({
+    date: randomDate().toDate(),
+    diagnosis: randomChoice(diagnosisOptions).value,
+    location: randomChoice(locationOptions).value,
+    prescriber: randomChoice(prescriberOptions).value,
+    age: Math.floor(Math.random() * 40) + Math.floor(Math.random() * 30),
+    sex: (Math.random() < 0.5) ? 'male' : 'female',
+  }));
