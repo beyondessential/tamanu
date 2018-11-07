@@ -1,7 +1,8 @@
 .content {
   margin-left: 275px;
   background: $main-bg-color;
-  height: 100vh;
+  min-height: 100vh;
+  margin-bottom: 0 !important;
 
   .view-top-bar {
     margin: 0;

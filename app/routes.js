@@ -12,6 +12,7 @@ import { Billing } from './containers/Billing';
 // import { Incident } from './containers/Incident';
 import Administration from './containers/Administration';
 import { Programs } from './containers/Programs';
+import { Reports } from './containers/Reports';
 
 export default () => (
   <App>
@@ -26,6 +27,7 @@ export default () => (
       {/* <Route path="/incident" component={Incident} /> */}
       <Route path="/admin" component={Administration} />
       <Route path="/programs" component={Programs} />
+      <Route path="/reports" component={Reports} />
     </Switch>
   </App>
 );
