@@ -7,7 +7,7 @@ import { sidebarInfo } from '../constants';
 import { ProgramsCollection } from '../collections';
 import actions from '../actions/auth';
 
-import { TamanuLogo } from './TamanuLogo';
+import { TamanuLogo, TamanuBrandMark } from './TamanuLogo';
 
 const { login: loginActions } = actions;
 const { logout } = loginActions;
@@ -84,7 +84,7 @@ class Sidebar extends Component {
     return (
       <div>
         <div className="sidebar">
-          <TamanuLogo />
+          <TamanuBrandMark />
           <div className="scroll-container">
             {
               sidebarInfo.map((parent, index) => {
@@ -120,6 +120,14 @@ class Sidebar extends Component {
                 <i className="fa fa-sign-out" /> Logout
               </button>
             </div> */}
+          </div>
+          <div style={{
+            position: 'absolute',
+            bottom: 0,
+            width: '100%',
+            textAlign: 'center',
+          }}>
+            <TamanuLogo width="120px" />
           </div>
         </div>
       </div>

@@ -68,7 +68,7 @@ class InputGroupNew extends Component {
         }
         <div className={inputClass}>
           <input
-            className="input is-primary"
+            className="input"
             type={type}
             name={name}
             tabIndex={tabIndex}
