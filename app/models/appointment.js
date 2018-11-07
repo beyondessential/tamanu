@@ -3,7 +3,6 @@ import shortid from 'shortid';
 import moment from 'moment';
 import { defaults } from 'lodash';
 import BaseModel from './base';
-import { VisitModel } from './index';
 
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/appointment`,
@@ -12,11 +11,11 @@ export default BaseModel.extend({
       allDay: true,
       provider: '',
       location: '',
-      appointmentType: '',
+      appointmentType: 'admission',
       startDate: Date,
       endDate: Date,
       notes: '',
-      status: 'Scheduled',
+      status: 'scheduled',
       patient: '',
       visits: [],
     },
@@ -28,12 +27,11 @@ export default BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'visits',
-      relatedModel: VisitModel
+      relatedModel: () => require('./visit')
     }
   ],
 
   validate(attrs) {
-    if (attrs.patient === '') return 'Patient is required!';
     if (!moment(attrs.startDate).isValid()) return 'startDate is required!';
     if (!moment(attrs.endDate).isValid()) return 'endDate is required!';
     if (!moment(attrs.startDate).isBefore(attrs.endDate)) return 'Invalid start and end dates!';

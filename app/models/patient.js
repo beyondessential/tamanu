@@ -53,6 +53,7 @@ export default BaseModel.extend({
     socialRecommendation: '',
     status: '',
 
+    appointments: [],
     additionalContacts: [],
     allergies: [],
     diagnoses: [],
@@ -65,6 +66,13 @@ export default BaseModel.extend({
 
   // Associations
   relations: [
+    {
+      type: Backbone.Many,
+      key: 'appointments',
+      relatedModel: () => require('./appointment'),
+      // // map: (values) => mapRelations(values, require('./patientContact')),
+      // // serialize: '_id'
+    },
     {
       type: Backbone.Many,
       key: 'additionalContacts',
