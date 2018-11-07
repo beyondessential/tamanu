@@ -30,7 +30,15 @@ export class ReportViewer extends Component {
         return true;
       });
     
-    const valuesByKey = filteredValues.reduce(report.reducer, {});
+    const valuesByKey = filteredValues
+      .reduce((totals, row) => {
+        const key = report.getCountKey(row);
+        return { 
+          ...totals,
+          [key]: (totals[key] || 0) + 1
+        };
+      }, {});
+
     
     // ensure a continuous date range by filling out missing counts with 0
     const isReportDateBased = (report.graphType === 'line');

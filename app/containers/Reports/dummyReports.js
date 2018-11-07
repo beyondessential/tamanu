@@ -6,49 +6,28 @@ export const availableReports = [
     id: 'patients-per-day', 
     name: "Patients per day",
     graphType: 'line',
-    reducer: (totals, row) => {
-      const key = moment(row.date).startOf('day').toDate();
-      return { 
-        ...totals,
-        [key]: (totals[key] || 0) + 1
-      };
-    },
+    getCountKey: (row) => moment(row.date).startOf('day').toDate(),
   },
   { 
     id: 'patients-per-clinician', 
     graphType: 'bar',
     name: "Patients per clinician",
-    reducer: (totals, row) => {
-      const key = row.prescriber;
-      return { 
-        ...totals,
-        [key]: (totals[key] || 0) + 1
-      };
-    },
+    getCountKey: (row) => row.prescriber,
   },
   { 
     id: 'breakdown-of-age-groups', 
     graphType: 'pie',
     name: "Age group breakdown",
-    reducer: (totals, row) => {
-      const key = row.age;
-      return { 
-        ...totals,
-        [key]: (totals[key] || 0) + 1
-      };
+    getCountKey: (row) => {
+      const lowBound = Math.floor(row.age / 10) * 10;
+      return `${lowBound}-${lowBound+10}`;
     },
   },
   { 
     id: 'breakdown-of-diagnosis', 
     graphType: 'pie',
     name: "Diagnosis breakdown",
-    reducer: (totals, row) => {
-      const key = row.diagnosis;
-      return { 
-        ...totals,
-        [key]: (totals[key] || 0) + 1
-      };
-    },
+    getCountKey: row => row.diagnosis,
   },
 ];
 

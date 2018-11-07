@@ -5,6 +5,7 @@ import {
   Line,
   PieChart,
   Pie,
+  Legend,
   BarChart,
   Bar,
   XAxis,
@@ -37,7 +38,9 @@ const graphRenderers = {
     </LineChart>
   ),
   bar: (data) => (
-    <BarChart data={data}>
+    <BarChart 
+      data={data.sort((a, b) => a.formatted.localeCompare(b.formatted))}
+    >
       <XAxis dataKey="formatted"/>
       <YAxis/>
       <Tooltip />
@@ -51,8 +54,15 @@ const graphRenderers = {
   ),
   pie: (data) => (
     <PieChart>
-      <Pie data={data} dataKey="amount" nameKey="formatted" />
+      <Pie 
+        data={data.sort((a, b) => a.amount - b.amount)}
+        dataKey="amount"
+        nameKey="formatted" 
+        startAngle={ 90 }
+        endAngle={ 360+90 }
+      />
       <Tooltip />
+      <Legend />
     </PieChart>
   ),
 

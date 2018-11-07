@@ -131,6 +131,8 @@ export class ReportFilters extends Component {
           </ExpanderSection>
         </div>
         <div className="column" style={ { textAlign: "right", marginTop: '-1em' } }>
+          <Button >Advanced filters</Button>
+          { " " }
           <Button onClick={ this.apply } primary>Generate report</Button>
         </div>
       </div>
