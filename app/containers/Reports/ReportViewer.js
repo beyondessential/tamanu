@@ -32,7 +32,6 @@ export class ReportViewer extends Component {
   }
 
   render() {
-    const { data } = this.props;
     return (
       <div>
         <ReportGraph data={ this.state.values } />
