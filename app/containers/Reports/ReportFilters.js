@@ -87,13 +87,17 @@ export class ReportFilters extends Component {
           </ExpanderSection>
           <ExpanderSection heading="Patient demographics">
             <InputGroup 
+              className=""
               name="ageMin"
+              type="number"
               label="Age (min)" 
               value={ this.state.ageMin }
               onChange={ e => this.setState({ ageMin: e.target.value }) }
             />
             <InputGroup 
+              className=""
               name="ageMax"
+              type="number"
               label="Age (max)" 
               value={ this.state.ageMax }
               onChange={ e => this.setState({ ageMax: e.target.value }) }

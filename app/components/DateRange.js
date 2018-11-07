@@ -4,6 +4,7 @@ import DatepickerGroup from './DatepickerGroup';
 
 const groupStyle = {
   display: 'flex',
+  width: '20em',
 };
 
 export class DateRange extends Component {
