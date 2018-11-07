@@ -7,11 +7,11 @@ import { SaveSpreadsheetButton } from '../../components/SaveSpreadsheetButton';
 const dataColumns = [
   { 
     Header: 'Date',
-    id: 'date', 
-    accessor: row => row.date,
+    id: 'key', 
+    accessor: row => row.sort,
     sortMethod: (a, b) => a - b,
-    Cell: record => moment(record.row.date).format('L'),
-    exporter: row => moment(row.date).format('L'),
+    Cell: record => record.original.formatted,
+    exporter: row => row.formatted,
   },
   { 
     Header: 'Amount',

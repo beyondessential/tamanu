@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 
-import { patientsPerDay } from './dummyReports';
-
 import { ReportTable } from './ReportTable';
 import { ReportGraph } from './ReportGraph';
 
@@ -13,7 +11,7 @@ export class ReportViewer extends Component {
   };
 
   recalculate() {
-    const { data, filters } = this.props;
+    const { data, filters, report } = this.props;
 
     const { ageMin, ageMax, range } = filters;
     const checkEqualFilter = (row, key) => !filters[key] || (filters[key] === row[key]);
@@ -32,12 +30,12 @@ export class ReportViewer extends Component {
         return true;
       });
     
-    console.log(filters, filteredValues.length);
-    const valuesByKey = filteredValues.reduce(patientsPerDay.reducer, {});
+    const valuesByKey = filteredValues.reduce(report.reducer, {});
     
     // ensure a continuous date range by filling out missing counts with 0
-    const dateAxis = true;
-    if(range && dateAxis) {
+    const isReportDateBased = (report.graphType === 'line');
+
+    if(range && isReportDateBased) {
       let dateIterator = moment(range.start).startOf('day');
       console.log(valuesByKey);
       while(dateIterator.isBefore(range.end)) {
@@ -47,13 +45,21 @@ export class ReportViewer extends Component {
       }
     }
 
+    const formatDateRange = key => ({
+      sort: moment(key).valueOf(), 
+      formatted: moment(key).format('L'),
+      amount: valuesByKey[key],
+    });
+    const formatValueRange = key => ({
+      sort: key,
+      formatted: key,
+      amount: valuesByKey[key],
+    });
+
+    const format = (isReportDateBased) ? formatDateRange : formatValueRange;
     const values = Object.keys(valuesByKey)
-      .map(k => ({ 
-        date: moment(k).valueOf(), 
-        formatted: moment(k).format('L'),
-        amount: valuesByKey[k]
-      }))
-      .sort((a, b) => a.date - b.date);
+      .map(format)
+      .sort((a, b) => a.sort - b.sort);
 
     this.setState({ values });
   }
@@ -69,9 +75,11 @@ export class ReportViewer extends Component {
   }
 
   render() {
+    const { report } = this.props;
+
     return (
       <div>
-        <ReportGraph data={ this.state.values } />
+        <ReportGraph report={ report} data={ this.state.values } />
         <hr />
         <ReportTable data={ this.state.values } />
       </div>

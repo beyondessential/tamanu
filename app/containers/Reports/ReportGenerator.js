@@ -39,7 +39,11 @@ export class ReportGenerator extends Component {
         <div className="detail">
           <ReportFilters onApply={ filters => this.setState({ filters }) } />
           <hr />
-          <ReportViewer data={dummyData} filters={ this.state.filters } />
+          <ReportViewer 
+            report={ report }
+            data={dummyData}
+            filters={ this.state.filters }
+          />
         </div>
       </div>
     );
