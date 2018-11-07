@@ -25,7 +25,7 @@ export class SaveSpreadsheetButton extends Component {
     const exportColumns = columns.filter(c => c.exporter !== null);
 
     // assemble array of rows based on ReactTable format
-    const cellBuilder = (row, column) => {
+    const buildCell = (row, column) => {
       const { exporter, accessor } = column;
       if(exporter) {
         // we have an explicit exporter set
@@ -40,8 +40,8 @@ export class SaveSpreadsheetButton extends Component {
     };
 
     // convert to excel format
-    const rowBuilder = row => exportColumns.map(c => cellBuilder(row, c));
-    const rows = data.map(rowBuilder);
+    const buildRow = row => exportColumns.map(c => buildCell(row, c));
+    const rows = data.map(buildRow);
     const headers = exportColumns.map(c => c.Header);
       
     const sheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);

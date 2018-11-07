@@ -44,7 +44,7 @@ export class SaveFileButton extends Component {
     this.setState({ isWriting: false })
   }
 
-  click = async () => {
+  onClick = async () => {
     const filePath = await this.showDialog();
     if(!filePath) return;
 
@@ -55,7 +55,7 @@ export class SaveFileButton extends Component {
     return (
       <button 
         className="button"
-        onClick={ this.click }
+        onClick={ this.onClick }
         disabled={ this.state.isWriting }
       >
         { this.props.children || "Save" }
