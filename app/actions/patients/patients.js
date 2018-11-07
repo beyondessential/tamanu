@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { padStart, random } from 'lodash';
 import {
   CREATE_PATIENT_INDEXES_REQUEST,
   CREATE_PATIENT_INDEXES_SUCCESS,
@@ -222,6 +222,7 @@ export const createPatient = (patient, history) => {
   return async dispatch => {
     dispatch(createPatientRequest());
     try {
+      patient.set('displayId', _getDisplayId());
       await patient.save(patient.attributes);
       dispatch(createPatientSuccess(patient.attributes));
       history.push(`/patients/editPatient/${patient.id}`);
@@ -231,6 +232,11 @@ export const createPatient = (patient, history) => {
     }
   };
 };
+
+const _getDisplayId = () => {
+  const randNumber = random(0, 999999);
+  return `P${padStart(randNumber, 8, '0')}`;
+}
 
 export const fetchPatients = () => {
   return dispatch => {
