@@ -15,13 +15,13 @@ export class ReportViewer extends Component {
   recalculate() {
     const { data, filters } = this.props;
 
-    const { diagnosis, location, ageMin, ageMax, sex } = filters;
+    const { diagnosis, location, ageMin, ageMax, sex, prescriber } = filters;
     const valuesByKey = data
       .filter(row => {
         if(diagnosis && diagnosis !== row.diagnosis) return false;
         if(location && location !== row.location) return false;
         if(sex && sex !== row.sex) return false;
-        if(prescriber !== row.prescriber) return false;
+        if(prescriber && prescriber !== row.prescriber) return false;
         if(ageMin && ageMin > row.age) return false;
         if(ageMax && ageMax < row.age) return false;
         return true;

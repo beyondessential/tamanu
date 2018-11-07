@@ -13,7 +13,7 @@ const filters = [{
 
 export class SaveSpreadsheetButton extends Component {
 
-  propTypes = {
+  static propTypes = {
     ...ReactTable.propTypes,
     filename: PropTypes.string,
   }

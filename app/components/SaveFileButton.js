@@ -5,7 +5,7 @@ import { createWriteStream } from 'fs';
 
 export class SaveFileButton extends Component {
 
-  propTypes = {
+  static propTypes = {
     filters: PropTypes.arrayOf(PropTypes.shape({
       name: PropTypes.string,
       extensions: PropTypes.arrayOf(PropTypes.string),
