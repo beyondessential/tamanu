@@ -1,17 +1,96 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import BootstrapTable from 'react-bootstrap-table-next';
-import { fetchMedications } from '../../actions/medications';
-import { medicationColumns } from '../../constants';
+import ReactTable from 'react-table';
+import { isEmpty } from 'lodash';
+import actions from '../../actions/scheduling';
+import { appointmentsColumns, dbViews, pageSizes } from '../../constants';
 
-class TodayAppointment extends Component {
-  componentDidMount() {
-    this.props.fetchMedications();
+class TodaysAppointment extends Component {
+  constructor(props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+    this.setActionsColumn = this.setActionsColumn.bind(this);
+  }
+
+  state = {
+    appointments: [{}],
+    loading: true,
+    deleteModalVisible: false,
+    selectedAppointment: null,
+  }
+
+  componentWillMount() {
+    appointmentsColumns[appointmentsColumns.length - 1].Cell = this.setActionsColumn;
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.handleChange(newProps);
+  }
+
+  handleChange(props = this.props) {
+    const { appointments, loading } = props;
+    if (!loading) this.setState({ appointments, loading });
+  }
+
+  setActionsColumn = _row => {
+    const row = _row.original;
+    return (
+      <div key={row._id}>
+        <button className="button column-button" onClick={() => this.goEdit(row._id)}>Edit</button>
+        <button className="button is-primary column-checkin-button" onClick={() => this.checkIn(row._id)}>
+          <i className="fa fa-sign-in" /> Check In
+        </button>
+        <button className="button is-danger column-button" onClick={() => this.showDeleteModal(row)}>Delete</button>
+      </div>
+    );
+  }
+
+  fetchData = opts => {
+    this.props.fetchAppointments({
+      view: dbViews.appointmentsToday,
+      ...opts
+    });
+  }
+
+  goEdit = (id) => {
+    this.props.history.push(`/appointments/appointment/${id}`);
+  }
+
+  checkIn = (id) => {
+    this.props.history.push(`/appointments/check-in/${id}`);
+  }
+
+
+  showDeleteModal = (appointment) => {
+    this.setState({
+      deleteModalVisible: true,
+      selectedAppointment: appointment
+    });
+  }
+
+  onCloseModal = () => {
+    this.setState({ deleteModalVisible: false });
+  }
+
+  onDeleteAppointment = () => {
+    let { selectedAppointment } = this.state;
+    selectedAppointment = this.props.collection.findWhere({ _id: selectedAppointment._id });
+    if (!isEmpty(selectedAppointment)) {
+      selectedAppointment.destroy({
+        wait: true,
+        success: () => this.onCloseModal()
+      });
+    }
   }
 
   render() {
-    const { medications } = this.props;
+    const {
+      loading,
+      totalPages,
+      appointments,
+    } = this.state;
+
     return (
       <div className="content">
         <div className="view-top-bar">
@@ -19,32 +98,46 @@ class TodayAppointment extends Component {
             Today's Appointments
           </span>
           <div className="view-action-buttons">
-            <Link to="/appointments/edit/new">
-              + New Appointment
+            <Link to="/appointments/appointment/new">
+              <i className="fa fa-plus" /> New Appointment
             </Link>
           </div>
         </div>
         <div className="detail">
-          <BootstrapTable
-            keyField="id"
-            data={medications}
-            columns={medicationColumns}
+          <ReactTable
+            manual
+            keyField="_id"
+            data={appointments}
+            pages={totalPages}
+            defaultPageSize={pageSizes.appointments}
+            loading={loading}
+            columns={appointmentsColumns}
+            className="-striped"
             defaultSortDirection="asc"
+            onFetchData={this.fetchData}
           />
         </div>
+        {/* <DeleteAppointmentModal
+          isVisible={deleteModalVisible}
+          onClose={this.onCloseModal}
+          onDelete={this.onDeleteAppointment}
+          little
+        /> */}
       </div>
     );
   }
 }
 
 function mapStateToProps(state) {
-  return {
-    medications: state.medications.medications
-  };
+  const { appointments, totalPages, loading, error } = state.scheduling;
+  return { appointments, totalPages, loading, error };
 }
 
+const { appointments: appointmentsActions } = actions;
+const { fetchAppointments } = appointmentsActions;
 const mapDispatchToProps = dispatch => ({
-  fetchMedications: () => dispatch(fetchMedications()),
+  fetchAppointments: (props) => dispatch(fetchAppointments(props)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(TodayAppointment);
+export default connect(mapStateToProps, mapDispatchToProps)(TodaysAppointment);
+
