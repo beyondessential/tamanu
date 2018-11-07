@@ -36,7 +36,7 @@ const AppointmentSchema = {
     },
     visits: {
       type: 'list',
-      objectType: 'Visit'
+      objectType: 'visit'
     }
   }, defaults)
 };
