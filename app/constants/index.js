@@ -465,6 +465,67 @@ export const patientColumns = [
   }
 ];
 
+export const admittedPatientsColumns = [
+  {
+    accessor: 'displayId',
+    Header: 'Id',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 80
+  }, {
+    accessor: 'location',
+    Header: 'Location',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'firstName',
+    Header: 'First Name',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'firstName',
+    Header: 'First Name',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'lastName',
+    Header: 'Last Name',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'sex',
+    Header: 'Sex',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 80
+  }, {
+    id: 'birthday',
+    accessor: row => moment(row.birthday).format(dateFormat),
+    Header: 'DOB',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'patientStatus',
+    Header: 'Status',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 80
+  }, {
+    accessor: 'actiomns',
+    id: 'actions',
+    Header: 'Actions',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 250,
+    Cell: {}
+  }
+];
+
 export const patientContactColumns = [
   {
     accessor: 'name',

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { isEmpty, head } from 'lodash';
 import ReactTable from 'react-table';
-import { patientColumns, pageSizes, dbViews } from '../../constants';
+import { admittedPatientsColumns, pageSizes, dbViews } from '../../constants';
 import { PatientsCollection } from '../../collections';
 
 class AdmittedPatients extends Component {
@@ -20,11 +20,12 @@ class AdmittedPatients extends Component {
   }
 
   componentWillMount() {
-    patientColumns[patientColumns.length - 1].Cell = this.setActionsColumn;
+    admittedPatientsColumns[admittedPatientsColumns.length - 1].Cell = this.setActionsColumn;
   }
 
   componentDidMount() {
     this.props.collection.on('update', this.handleChange);
+    this.onFetchData();
   }
 
   componentWillUnmount() {
@@ -33,18 +34,18 @@ class AdmittedPatients extends Component {
 
   handleChange() {
     let { models: admittedPatients } = this.props.collection;
-    // if (admittedPatients.length > 0) {
-    //   admittedPatients = admittedPatients.map(patient => {
-    //     const { attributes } = patient;
-    //     if (attributes.admitted) {
-    //       const admission = patient.getCurrentAdmission();
-    //       if (!isEmpty(admission)) attributes.dischargeUrl = `/patients/visit/${patient.id}/${admission.id}`;
-    //     }
-    //     return attributes;
-    //   });
-    // }
+    if (admittedPatients.length > 0) {
+      admittedPatients = admittedPatients.map(patient => {
+        const { attributes } = patient;
+        attributes.location = '';
+        if (attributes.admitted) {
+          const admission = patient.getCurrentAdmission();
+          if (!isEmpty(admission)) attributes.location = admission.get('location');
+        }
+        return attributes;
+      });
+    }
 
-    admittedPatients = this.props.collection.toJSON();
     this.setState({ admittedPatients });
   }
 
@@ -56,16 +57,12 @@ class AdmittedPatients extends Component {
     this.props.history.push(`/patients/editvisit/${patientId}`);
   }
 
-  async onFetchData(state = {}) {
-    const { keyword, view } = this.state;
+  async onFetchData() {
+    const { view } = this.state;
     this.setState({ loading: true });
 
     try {
-      // Set pagination options
-      const sort = head(state.sorted);
-      if (state.sorted.length > 0) this.props.collection.setSorting(sort.id, sort.desc ? 1 : -1);
-      if (this.props.collection.state.pageSize !== state.pageSize) this.props.collection.setPageSize(state.pageSize);
-      await this.props.collection.getPage(state.page, view).promise();
+      await this.props.collection.fetchByView({ view, page_size: 1000 }).promise();
       this.setState({ loading: false });
     } catch (err) {
       this.setState({ loading: false });
@@ -118,16 +115,14 @@ class AdmittedPatients extends Component {
             :
             <div>
               <ReactTable
-                manual
                 keyField="_id"
                 data={admittedPatients}
                 pages={this.props.collection.totalPages}
                 defaultPageSize={pageSizes.patients}
                 loading={this.state.loading}
-                columns={patientColumns}
+                columns={admittedPatientsColumns}
                 className="-striped"
                 defaultSortDirection="asc"
-                onFetchData={this.onFetchData}
               />
             </div>
           }
