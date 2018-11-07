@@ -60,6 +60,10 @@ const MedicationSchema = {
       type: 'string',
       optional: true
     },
+    dispense: {
+      type: 'bool',
+      default: false
+    },
     status: {
       type: 'string',
       optional: true

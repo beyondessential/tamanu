@@ -34,14 +34,10 @@ const AppointmentSchema = {
       type: 'string',
       optional: true
     },
-    patient: {
-      type: 'string',
-      optional: true
-    },
-    // visits: {
-    //   type: 'list',
-    //   objectType: 'Visit'
-    // }
+    visits: {
+      type: 'list',
+      objectType: 'Visit'
+    }
   }, defaults)
 };
 

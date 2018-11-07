@@ -172,6 +172,10 @@ const PatientSchema = {
       indexed: true
     },
 
+    appointments: {
+      type: 'list',
+      objectType: 'appointment'
+    },
     additionalContacts: {
       type: 'list',
       objectType: 'patientContact'
