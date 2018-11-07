@@ -24,7 +24,7 @@ const randomChoice = (array) => {
 export const patientsPerDay = {
   name: 'Patients per day',
   reducer: (totals, row) => {
-    const key = row.date;
+    const key = moment(row.date).startOf('day').toDate();
     return { 
       ...totals,
       [key]: (totals[key] || 0) + 1

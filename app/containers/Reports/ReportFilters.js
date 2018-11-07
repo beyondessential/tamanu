@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 
+import moment from 'moment';
+
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -43,8 +45,10 @@ const ExpanderSection = ({ heading, subheading, children, ...props }) => (
 export class ReportFilters extends Component {
 
   state = {
-    range: { },
-    diagnosis: "",
+    range: { 
+      end: moment(),
+      start: moment().subtract(30, 'days'),
+    }
   }
   
   static propTypes = {
@@ -52,10 +56,11 @@ export class ReportFilters extends Component {
   }
 
   apply = () => {
-    const { onApply } = this.props;
-    if(onApply) {
-      onApply(this.state);
-    }
+    this.props.onApply(this.state);
+  }
+
+  componentDidMount() {
+    this.apply();
   }
 
   render() {

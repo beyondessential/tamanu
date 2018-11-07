@@ -15,19 +15,38 @@ export class ReportViewer extends Component {
   recalculate() {
     const { data, filters } = this.props;
 
-    const { diagnosis, location, ageMin, ageMax, sex, prescriber } = filters;
-    const valuesByKey = data
+    const { ageMin, ageMax, range } = filters;
+    const checkEqualFilter = (row, key) => !filters[key] || (filters[key] === row[key]);
+    const filteredValues = data
       .filter(row => {
-        if(diagnosis && diagnosis !== row.diagnosis) return false;
-        if(location && location !== row.location) return false;
-        if(sex && sex !== row.sex) return false;
-        if(prescriber && prescriber !== row.prescriber) return false;
+        if(!checkEqualFilter(row, 'diagnosis')) return false;
+        if(!checkEqualFilter(row, 'location')) return false;
+        if(!checkEqualFilter(row, 'sex')) return false;
+        if(!checkEqualFilter(row, 'prescriber')) return false;
         if(ageMin && ageMin > row.age) return false;
         if(ageMax && ageMax < row.age) return false;
+        if(range) {
+          if(range.start.isAfter(row.date)) return false;
+          if(range.end.isBefore(row.date)) return false;
+        }
         return true;
-      })
-      .reduce(patientsPerDay.reducer, {});
+      });
     
+    console.log(filters, filteredValues.length);
+    const valuesByKey = filteredValues.reduce(patientsPerDay.reducer, {});
+    
+    // ensure a continuous date range by filling out missing counts with 0
+    const dateAxis = true;
+    if(range && dateAxis) {
+      let dateIterator = moment(range.start).startOf('day');
+      console.log(valuesByKey);
+      while(dateIterator.isBefore(range.end)) {
+        const dateKey = dateIterator.toDate();
+        valuesByKey[dateKey] = valuesByKey[dateKey] || 0;
+        dateIterator.add(1, 'day');
+      }
+    }
+
     const values = Object.keys(valuesByKey)
       .map(k => ({ 
         date: moment(k).valueOf(), 
