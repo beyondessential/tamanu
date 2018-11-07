@@ -51,7 +51,7 @@ const graphRenderers = {
   ),
   pie: (data) => (
     <PieChart>
-      <Pie data={data} dataKey="amount" label />
+      <Pie data={data} dataKey="amount" nameKey="formatted" />
       <Tooltip />
     </PieChart>
   ),
