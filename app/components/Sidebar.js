@@ -14,6 +14,13 @@ const { logout } = loginActions;
 
 const classNames = require('classnames');
 
+const logoContainerStyle = {
+  position: 'absolute',
+  bottom: 0,
+  width: '100%',
+  textAlign: 'center',
+};
+
 class Sidebar extends Component {
   static propTypes = {
     currentPath: PropTypes.string.isRequired
@@ -121,12 +128,7 @@ class Sidebar extends Component {
               </button>
             </div> */}
           </div>
-          <div style={{
-            position: 'absolute',
-            bottom: 0,
-            width: '100%',
-            textAlign: 'center',
-          }}>
+          <div style={ logoContainerStyle }>
             <TamanuLogo width="120px" />
           </div>
         </div>

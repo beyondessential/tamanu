@@ -4,7 +4,6 @@ import tamanuLogo from '../assets/images/tamanu_logo.svg';
 
 const logoStyle = {
   fontWeight: 300,
-  opacity: 1,
 };
 
 const imgStyle = {
