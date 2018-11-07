@@ -12,7 +12,11 @@ import InputGroup from '../../components/InputGroup';
 import { Button } from '../../components/Button';
 
 import { sexOptions } from '../../constants';
-import { diagnosisOptions, locationOptions } from './dummyReports';
+import {
+  diagnosisOptions,
+  locationOptions,
+  prescriberOptions,
+} from './dummyReports';
 
 
 const LabeledSelect = ({ label, ...props }) => (
@@ -63,8 +67,8 @@ export class ReportFilters extends Component {
               label="Location"
               name="location" 
               options={ locationOptions }
-              onChange={ diagnosis => this.setState({ diagnosis }) } 
-              value={ this.state.diagnosis }
+              onChange={ location => this.setState({ location }) } 
+              value={ this.state.location }
               simpleValue
             />
             <div style={{ display: 'flex', width: '100%', }}>
@@ -75,7 +79,15 @@ export class ReportFilters extends Component {
               />
             </div>
           </ExpanderSection>
-          <ExpanderSection heading="Diagnosis">
+          <ExpanderSection heading="Care information">
+            <LabeledSelect 
+              label="Clinician"
+              name="prescriber" 
+              options={ prescriberOptions }
+              onChange={ prescriber => this.setState({ prescriber }) } 
+              value={ this.state.prescriber }
+              simpleValue
+            />
             <LabeledSelect 
               label="Diagnosis"
               name="diagnosis" 
@@ -96,6 +108,7 @@ export class ReportFilters extends Component {
             />
             <InputGroup 
               className=""
+              inputClass=""
               name="ageMax"
               type="number"
               label="Age (max)" 
@@ -108,6 +121,7 @@ export class ReportFilters extends Component {
               options={ sexOptions }
               value={ this.state.sex }
               onChange={ sex => this.setState({ sex }) }
+              simpleValue
             />
           </ExpanderSection>
         </div>

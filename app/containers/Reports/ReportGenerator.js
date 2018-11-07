@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import { TopBar } from '../../components/TopBar';
@@ -18,22 +18,31 @@ const ReportNotFound = ({ missingId }) => (
   </div>
 );
 
-export const ReportGenerator = ({ match }) => {
-  const { reportId } = match.params;
-  const report = availableReports.find(r => r.id === reportId);
+export class ReportGenerator extends Component {
 
-  if(!report) {
-    return <ReportNotFound missingId={reportId} />;
+  state = {
+    filters: {}
   }
+  
+  render() {
+    const { match } = this.props;
+    const { reportId } = match.params;
+    const report = availableReports.find(r => r.id === reportId);
 
-  return (
-    <div>
-      <TopBar>{ report.name }</TopBar>
-      <div className="detail">
-        <ReportFilters onApply={ f => console.log(f) } />
-        <hr />
-        <ReportViewer data={dummyData} />
+    if(!report) {
+      return <ReportNotFound missingId={reportId} />;
+    }
+
+    return (
+      <div>
+        <TopBar>{ report.name }</TopBar>
+        <div className="detail">
+          <ReportFilters onApply={ filters => this.setState({ filters }) } />
+          <hr />
+          <ReportViewer data={dummyData} filters={ this.state.filters } />
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+}
+

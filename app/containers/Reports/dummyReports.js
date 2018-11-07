@@ -73,9 +73,16 @@ export const diagnosisOptions = generateDummyOptions(`
 export const locationOptions = generateDummyOptions(`
   Ward 1
   Ward 2
-  Ward 3
-  Ward 4
-  Ward 5
+  Children's Ward
+  Maternity Ward
+  Surgical Ward
+`);
+
+export const prescriberOptions = generateDummyOptions(`
+  Dr John Smith
+  Dr Jane Brown
+  Prof Molly Mollison
+  Ms Ian Ianson
 `);
 
 export const dummyData = (new Array(220)).fill(0)
@@ -83,6 +90,7 @@ export const dummyData = (new Array(220)).fill(0)
     date: randomDate().toDate(),
     diagnosis: randomChoice(diagnosisOptions).value,
     location: randomChoice(locationOptions).value,
+    prescriber: randomChoice(prescriberOptions).value,
     age: Math.floor(Math.random() * 40) + Math.floor(Math.random() * 30),
-    gender: (Math.random() < 0.5) ? 'male' : 'female',
+    sex: (Math.random() < 0.5) ? 'male' : 'female',
   }));
