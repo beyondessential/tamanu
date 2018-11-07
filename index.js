@@ -64,7 +64,7 @@
     const listeners = new Listeners(database);
     listeners.addDatabaseListeners();
 
-    if(config.offlineMode) {
+    if (config.offlineMode) {
       startServer();
     } else {
       // Prompt user to login before activating sync
