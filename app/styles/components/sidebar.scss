@@ -23,7 +23,7 @@
       transition: opacity 200ms ease;
       display: inline-block;
       padding: 10px 15px;
-      height: 55px;
+      max-height: 55px;
       font-size: 25px;
       color: $main-white-color;
     }
@@ -33,7 +33,7 @@
     top: 55px;
     left: 0;
     width: 100%;
-    height: calc(100% - 55px);
+    height: calc(100% - 190px);
     overflow: auto;
     .item {
       transition: all 200ms ease;
