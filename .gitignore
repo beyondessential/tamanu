@@ -27,3 +27,5 @@ coverage
 benchmarks/graphs
 
 config/development\.js
+
+data/
