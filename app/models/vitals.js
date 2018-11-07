@@ -18,13 +18,11 @@ export default BaseModel.extend({
   }, BaseModel.prototype.defaults),
 
   validate: (attrs) => {
-    const errors = [];
-    if (!attrs.dateRecorded) errors.push('dateRecorded is required!');
-    if (!attrs.temperature) errors.push('temperature is required!');
-    if (!attrs.sbp) errors.push('sbp is required!');
-    if (!attrs.dbp) errors.push('dbp is required!');
-    if (!attrs.heartRate) errors.push('heartRate is required!');
-    if (!attrs.respiratoryRate) errors.push('respiratoryRate is required!');
-    if (errors.length) return errors;
+    if (!attrs.dateRecorded
+        && !attrs.temperature
+        && !attrs.sbp
+        && !attrs.dbp
+        && !attrs.heartRate
+        && !attrs.respiratoryRate) return ['At least one field is required'];
   }
 });

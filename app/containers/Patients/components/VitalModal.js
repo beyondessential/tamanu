@@ -97,7 +97,6 @@ class VisitModal extends Component {
                 inputClass="column is-2 no-padding"
                 onChange={this.handleUserInput}
                 value={form.temperature}
-                required
               />
               <div className="columns p-l-10 p-t-10">
                 <InputGroup
@@ -128,7 +127,6 @@ class VisitModal extends Component {
                   inputClass="column is-6 no-padding"
                   onChange={this.handleUserInput}
                   value={form.sbp}
-                  required
                 />
                 <InputGroup
                   type="number"
@@ -138,7 +136,6 @@ class VisitModal extends Component {
                   inputClass="column is-6 no-padding"
                   onChange={this.handleUserInput}
                   value={form.dbp}
-                  required
                 />
               </div>
               <div className="columns p-l-10 p-t-10">
@@ -150,7 +147,6 @@ class VisitModal extends Component {
                   inputClass="column is-6 no-padding"
                   onChange={this.handleUserInput}
                   value={form.heartRate}
-                  required
                 />
                 <InputGroup
                   type="number"
@@ -160,7 +156,6 @@ class VisitModal extends Component {
                   inputClass="column is-6 no-padding"
                   onChange={this.handleUserInput}
                   value={form.respiratoryRate}
-                  required
                 />
               </div>
             </div>
