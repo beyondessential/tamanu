@@ -95,7 +95,8 @@ class Sidebar extends Component {
           <div className="scroll-container">
             {
               sidebarInfo.map((parent, index) => {
-                const selected = startsWith(currentPath, parent.path) ;
+                const parentPath = parent.path.split('/');
+                const selected = startsWith(currentPath, `/${parentPath[1]}`);
                 return (
                   <div key={index} className={parent.hidden ? 'is-hidden' : ''}>
                     <Link className={classNames({ item: true, selected })} to={parent.path} replace onClick={(e) => this.clickedParentItem(parent, e)}>
