@@ -77,8 +77,11 @@ class PatientSearchBar extends Component {
             />
           </div>
           <div className="control">
-            <button className="button is-info" type="button">
+            <button className="button is-info m-r-3" type="button">
               <i className="fa fa-search" />
+            </button>
+            <button className="button is-warning is-outlined" type="button">
+              <i className="fa fa-search-plus" /> Advanced Search
             </button>
           </div>
         </div>
