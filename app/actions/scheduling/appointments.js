@@ -20,7 +20,8 @@ export const fetchAppointments = ({ page, view = dbViews.appointmentRequested })
       });
       await appointmentCollection.getPage(page, view).promise();
       console.log({ appointmentCollection });
-      const appointments = appointmentCollection.toJSON();
+      let appointments = appointmentCollection.toJSON();
+      appointments = appointments.map(object => ({ name: 'Jane Doe', ...object }));
 
       dispatch({
         type: FETCH_APPOINTMENTS_SUCCESS,
