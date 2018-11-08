@@ -3,6 +3,7 @@ import Modal from 'react-responsive-modal';
 import moment from 'moment';
 import { InputGroup, DatepickerGroup } from '../../../components';
 import { VitalModel } from '../../../models';
+import { dateTimeFormat } from '../../../constants';
 
 class VisitModal extends Component {
   constructor(props) {
@@ -77,9 +78,9 @@ class VisitModal extends Component {
             </div>
             <div className="modal-content">
               <DatepickerGroup
-                label="Date Recorded"
+                label="Recorded At"
                 name="dateRecorded"
-                className="is-4"
+                className="is-5"
                 popperModifiers={{
                   offset: {
                     enabled: true,
@@ -88,16 +89,30 @@ class VisitModal extends Component {
                 }}
                 onChange={this.handleUserInput}
                 value={form.dateRecorded}
+                showTimeSelect
+                dateFormat={dateTimeFormat}
+                timeIntervals={30}
               />
-              <InputGroup
-                type="number"
-                label="Temperature (°C)"
-                name="temperature"
-                className="column m-b-0"
-                inputClass="column is-2 no-padding"
-                onChange={this.handleUserInput}
-                value={form.temperature}
-              />
+              <div className="columns p-l-10 p-t-10">
+                <InputGroup
+                  type="number"
+                  label="Temperature (°C)"
+                  name="temperature"
+                  className="column m-b-0 is-4"
+                  inputClass="column is-6 no-padding"
+                  onChange={this.handleUserInput}
+                  value={form.temperature}
+                />
+                <InputGroup
+                  type="number"
+                  label="Blood Sugar Level"
+                  name="bloodSugarLevel"
+                  className="column m-b-0 is-4"
+                  inputClass="column is-6 no-padding"
+                  onChange={this.handleUserInput}
+                  value={form.bloodSugarLevel}
+                />
+              </div>
               <div className="columns p-l-10 p-t-10">
                 <InputGroup
                   type="number"

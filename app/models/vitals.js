@@ -9,6 +9,7 @@ export default BaseModel.extend({
     _id: shortid.generate(),
     dateRecorded: moment(),
     temperature: null,
+    bloodSugarLevel: null,
     weight: null,
     height: null,
     sbp: null,

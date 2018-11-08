@@ -704,11 +704,11 @@ export const vitalsColumns = [
     minWidth: 100
   }, {
     id: "dateRecorded",
-    accessor: row => moment(row.dateRecorded).format(dateFormat),
+    accessor: row => moment(row.dateRecorded).format(dateTimeFormat),
     Header: 'Date',
     headerStyle,
     style: columnStyle,
-    minWidth: 100
+    minWidth: 200
   }, {
     accessor: 'temperature',
     Header: 'Temperature',
@@ -750,7 +750,7 @@ export const vitalsColumns = [
     Header: 'Respiratory Rate',
     headerStyle,
     style: columnStyle,
-    minWidth: 250
+    minWidth: 150
   }, {
     id: 'actions',
     Header: 'Actions',
@@ -758,7 +758,7 @@ export const vitalsColumns = [
       backgroundColor: Colors.searchTintColor
     },
     style: columnStyle,
-    minWidth: 250,
+    minWidth: 200,
     Cell: null
   }
 ];
