@@ -3,10 +3,8 @@ import { Link } from 'react-router-dom';
 import { map, isEmpty, toUpper, capitalize, head } from 'lodash';
 import ReactTable from 'react-table';
 
-// import { fetchPatients, deletePatient } from '../../actions/patients';
 import { PatientSearchBar } from '../../components';
 import { Colors, pageSizes, patientColumns } from '../../constants';
-import DeletePatientModal from './components/DeletePatientModal';
 import { PatientsCollection } from '../../collections';
 
 class PatientListing extends Component {
@@ -20,7 +18,6 @@ class PatientListing extends Component {
   }
 
   state = {
-    deleteModalVisible: false,
     selectedPatient: null,
     pageSize: pageSizes.patients,
     keyword: '',
@@ -33,12 +30,6 @@ class PatientListing extends Component {
     this.props.collection.on('update', this.handleChange);
     this.props.collection.setPageSize(this.state.pageSize);
     this.props.collection.fetch();
-  }
-
-  componentWillReceiveProps({ deletePatientSuccess }) {
-    if (deletePatientSuccess) {
-      this.props.collection.fetchByView();
-    }
   }
 
   componentWillUnmount() {
@@ -78,28 +69,6 @@ class PatientListing extends Component {
     }
   }
 
-  showDeleteModal = (patient) => {
-    this.setState({
-      deleteModalVisible: true,
-      selectedPatient: patient
-    });
-  }
-
-  onCloseModal = () => {
-    this.setState({ deleteModalVisible: false });
-  }
-
-  onDeletePatient = () => {
-    let { selectedPatient } = this.state;
-    selectedPatient = this.props.collection.findWhere({ _id: selectedPatient._id });
-    if (!isEmpty(selectedPatient)) {
-      selectedPatient.destroy({
-        wait: true,
-        success: () => this.onCloseModal()
-      });
-    }
-  }
-
   async onFetchData(state = {}) {
     const { keyword } = this.state;
     const updates = { loading: true };
@@ -133,7 +102,6 @@ class PatientListing extends Component {
       <div key={row._id}>
         <button type="button" className="button column-button" onClick={() => this.goEdit(row._id)}>View Patient</button>
         <button type="button" className="button is-primary column-checkin-button" onClick={() => this.goAdmit(row._id)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
-        <button type="button" className="button is-danger column-button" onClick={() => this.showDeleteModal(row)} disabled>Delete</button>
       </div>
     );
   }
@@ -153,7 +121,7 @@ class PatientListing extends Component {
   }
 
   render() {
-    const { deleteModalVisible, tableClass } = this.state;
+    const { tableClass } = this.state;
     let { models: patients } = this.props.collection;
     if (patients.length > 0) patients = map(patients, patient => patient.attributes);
     return (
@@ -200,12 +168,6 @@ class PatientListing extends Component {
             </div>
           }
         </div>
-        <DeletePatientModal
-          isVisible={deleteModalVisible}
-          onClose={this.onCloseModal}
-          onDelete={this.onDeletePatient}
-          little
-        />
       </div>
     );
   }
