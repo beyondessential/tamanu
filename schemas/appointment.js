@@ -37,6 +37,11 @@ const AppointmentSchema = {
     visits: {
       type: 'list',
       objectType: 'visit'
+    },
+    patients: {
+      type: 'linkingObjects',
+      objectType: 'patient',
+      property: 'appointments'
     }
   }, defaults)
 };
