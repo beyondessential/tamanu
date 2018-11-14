@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
-import { has, capitalize } from 'lodash';
+import { has, capitalize, parseInt } from 'lodash';
 import actions from '../../actions/scheduling';
 import {
   visitOptions,
@@ -33,15 +33,6 @@ class AddAppointment extends Component {
     appointmentModel: '',
     appointment: '',
     patient: '',
-    admissionStartDate: moment().startOf('day'),
-    admissionEndDate: moment().endOf('day'),
-    admissionAllDay: true,
-    othersDate: moment(),
-    othersStartTimeHrs: 0,
-    othersStartTimeMins: 0,
-    othersEndTimeHrs: 0,
-    othersEndTimeMins: 0,
-    othersAllDay: false,
     loading: true,
   }
 
@@ -51,18 +42,63 @@ class AddAppointment extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    this.handleChange(newProps);
+    if (this.props.location.pathname !== newProps.location.pathname) {
+      const { id } = newProps.match.params;
+      this.props.fetchAppointment({ id });
+    } else {
+      this.handleChange(newProps);
+    }
   }
 
   handleChange(props = this.props) {
-    const { id } = this.props.match.params;
+    const { id } = props.match.params;
     const { appointment, loading } = props;
+    let {
+      admissionStartDate,
+      admissionEndDate,
+      admissionAllDay,
+      othersDate,
+      othersStartTimeHrs,
+      othersStartTimeMins,
+      othersEndTimeHrs,
+      othersEndTimeMins,
+      othersAllDay,
+    } = props;
     let { action } = this.state;
     if (id) action = 'Update';
     if (!loading) {
+      // Set initials
+      if (id) {
+        console.log('-appointment-', appointment);
+        switch (appointment.get('appointmentType')) {
+          case 'admission':
+            admissionStartDate = moment(appointment.get('startDate'));
+            admissionEndDate = moment(appointment.get('endDate'));
+            admissionAllDay = appointment.get('allDay');
+          break;
+          default:
+            othersDate = moment(appointment.get('startDate'));
+            othersStartTimeHrs = parseInt(moment(appointment.get('startDate')).format('HH'));
+            othersStartTimeMins = parseInt(moment(appointment.get('startDate')).format('mm'));
+            othersEndTimeHrs = parseInt(moment(appointment.get('endDate')).format('HH')) || 0;
+            othersEndTimeMins = parseInt(moment(appointment.get('endDate')).format('mm')) || 0;
+            othersAllDay = appointment.get('allDay');
+          break;
+        }
+      }
+
       this.setState({
         action,
         loading,
+        admissionStartDate,
+        admissionEndDate,
+        admissionAllDay,
+        othersDate,
+        othersStartTimeHrs,
+        othersStartTimeMins,
+        othersEndTimeHrs,
+        othersEndTimeMins,
+        othersAllDay,
         appointmentModel: appointment,
         appointment: appointment.toJSON(),
       });
@@ -85,6 +121,7 @@ class AddAppointment extends Component {
       this.setState({ [name]: value }, this.parseDates);
     } else {
       appointmentModel.set(name, value, { silent: true });
+      console.log('-appointmentModel-', appointmentModel, appointmentModel.toJSON());
       this.setState({ appointmentModel, appointment: appointmentModel.toJSON() }, this.parseDates);
     }
   }
@@ -284,6 +321,7 @@ class AddAppointment extends Component {
                 className="column"
                 name="provider"
                 label="With"
+                value={appointment.provider}
                 onChange={this.handleUserInput}
               />
             </div>
@@ -292,6 +330,7 @@ class AddAppointment extends Component {
                 className="column is-5"
                 name="location"
                 label="Location"
+                value={appointment.location}
                 onChange={this.handleUserInput}
               />
               <SelectGroup
@@ -313,7 +352,7 @@ class AddAppointment extends Component {
             </div>
             <div className="column has-text-right">
               <Link className="button is-danger cancel" to="/appointments">Cancel</Link>
-              <button className="button is-primary" type="submit" disabled={!appointmentModel.isValid()}>Add</button>
+              <button className="button is-primary" type="submit" disabled={!appointmentModel.isValid()}>{action==='New'?'Add':'Save'}</button>
             </div>
           </div>
         </form>
@@ -321,6 +360,18 @@ class AddAppointment extends Component {
     );
   }
 }
+
+AddAppointment.defaultProps = {
+  admissionStartDate: moment().startOf('day'),
+  admissionEndDate: moment().endOf('day'),
+  admissionAllDay: true,
+  othersDate: moment(),
+  othersStartTimeHrs: 0,
+  othersStartTimeMins: 0,
+  othersEndTimeHrs: 0,
+  othersEndTimeMins: 0,
+  othersAllDay: false,
+};
 
 function mapStateToProps(state) {
   const { appointment, loading, error } = state.scheduling;

@@ -6,7 +6,7 @@ import WeekAppointment from './WeekAppointment';
 import TodayAppointment from './TodayAppointment';
 import SearchAppointment from './SearchAppointment';
 import AppointmentsCalendar from './AppointmentsCalendar';
-import AddAppointment from './AddAppointment';
+import Appointment from './Appointment';
 import TheaterSchedule from './TheaterSchedule';
 import ScheduleSurgery from './ScheduleSurgery';
 
@@ -18,8 +18,8 @@ export default function Routes({ url }) {
         <Route path={`${url}/today`} component={TodayAppointment} />
         <Route path={`${url}/search`} component={SearchAppointment} />
         <Route path={`${url}/calendar`} component={AppointmentsCalendar} />
-        <Route path={`${url}/appointment/new`} component={AddAppointment} />
-        <Route path={`${url}/appointment/:id`} component={AddAppointment} />
+        <Route path={`${url}/appointment/new`} component={Appointment} />
+        <Route path={`${url}/appointment/:id`} component={Appointment} />
         <Route path={`${url}/theater`} component={TheaterSchedule} />
         <Route path={`${url}/edit/newsurgery`} component={ScheduleSurgery} />
       </Switch>
