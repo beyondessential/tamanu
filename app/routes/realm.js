@@ -4,6 +4,7 @@ const RealmController = require('../controllers/realm');
 const router = express.Router();
 router.get('/:model/:id', RealmController.GET);
 router.get('/:model', RealmController.GET);
+router.patch('/:model/:id', RealmController.PATCH);
 router.put('/:model/:id', RealmController.PUT);
 router.put('/:model', RealmController.PUT);
 router.post('/:model', RealmController.POST);
