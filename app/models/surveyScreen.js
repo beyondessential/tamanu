@@ -7,7 +7,7 @@ import mapRelations from '../utils/map-relations';
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/surveyScreen`,
   defaults: () => defaults({
-      _id: shortid.generate(),
+      // _id: shortid.generate(),
       surveyId: null,
       screenNumber: null,
       components: []

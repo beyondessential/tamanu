@@ -5,7 +5,7 @@ import BaseModel from './base';
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/patientContact`,
   defaults: () => defaults({
-      _id: shortid.generate(),
+      // _id: shortid.generate(),
       name: '',
       phone: '',
       email: '',

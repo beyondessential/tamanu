@@ -7,7 +7,7 @@ import mapRelations from '../utils/map-relations';
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/question`,
   defaults: () => defaults({
-      _id: shortid.generate(),
+      // _id: shortid.generate(),
       text: null,
       indicator: null,
       imageData: null,

@@ -10,7 +10,7 @@ import { pregnancyOutcomes, dateFormat } from '../constants';
 export default BaseModel.extend({
   urlRoot: `${process.env.LAN_REALM}/patient`,
   defaults: () => defaults({
-    _id: shortid.generate(),
+    // // _id: shortid.generate(),
     displayId: '',
     admitted: false,
     address: '',

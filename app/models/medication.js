@@ -9,7 +9,7 @@ import PatientModel from './patient';
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/medication`,
   defaults: () => defaults({
-      _id: shortid.generate(),
+      // _id: shortid.generate(),
     patient: '',
     visit: '',
     drug: '',

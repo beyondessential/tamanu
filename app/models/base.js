@@ -1,9 +1,9 @@
 import Backbone from 'backbone-associations';
 import moment from 'moment';
 import jsonDiff from 'json-diff';
-import { isString, assignIn, isEmpty, clone, each, set, isObject, has, head } from 'lodash';
+import { isString, assignIn, isEmpty, clone, each, set, isObject, has, head, isArray } from 'lodash';
 import { to } from 'await-to-js';
-import { isArray } from 'util';
+import { concatSelf } from '../utils';
 
 export default Backbone.AssociatedModel.extend({
   idAttribute: '_id',
@@ -42,10 +42,10 @@ export default Backbone.AssociatedModel.extend({
    * @param {object} attrs Attributes to be patched
    * @param {object} options Options sent to XHR request
    */
-  async save(attrs, options) {
+  async save(attrs = {}, options = {}) {
     try {
-      let attributes = attrs;
-      if (!attributes) attributes = {};
+      let attributes = attrs || {};
+      if (!this.isNew()) attributes = {};
       let modifiedFields = jsonDiff.diff(this.lastSyncedAttributes, this.toJSON());
 
       // Set last modified times
@@ -54,9 +54,14 @@ export default Backbone.AssociatedModel.extend({
         if (this.attributes.modifiedFields !== '' && isString(this.attributes.modifiedFields))
           originalModified = JSON.parse(this.attributes.modifiedFields);
 
-        each(modifiedFields, (value, key) => {
+        each(modifiedFields, (_, key) => {
           if (has(this.defaults(), key)) {
             modifiedFields[key] = new Date().getTime();
+            if (!this.isNew()) {
+              let value = this.get(key);
+              if (value.toJSON) value = value.toJSON();
+              attributes[key] = value;
+            }
           } else {
             delete modifiedFields[key];
           }
@@ -68,6 +73,9 @@ export default Backbone.AssociatedModel.extend({
           modifiedAt: moment(),
         });
       }
+
+      // Use match method for instead of PUT
+      if (!this.isNew()) options.patch = true;
 
       // Proxy the call to the original save function
       const res = await Backbone.Model.prototype.save.apply(this, [attributes, options]);
