@@ -6,6 +6,20 @@ import Serializer from '../../utils/form-serialize';
 import { TamanuBrandMark } from '../../components/TamanuLogo';
 
 class Login extends Component {
+
+  componentDidMount() {
+    const { loginSubmit } = this.props;
+
+    // allow dev environment to automatically provide credentials
+    // (save typing it in every time the app reloads)
+    const email = process.env.SKIP_LOGIN_EMAIL;
+    const password = process.env.SKIP_LOGIN_PASSWORD;
+
+    if(email && password) {
+      loginSubmit({ email, password });
+    }
+  }
+
   render() {
     const { loginSubmit } = this.props;
     return (
