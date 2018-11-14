@@ -119,7 +119,7 @@ class PatientListing extends Component {
       }
 
       this.props.collection.setPageSize(state.pageSize);
-      await this.props.collection.getPage(state.page).promise();
+      await this.props.collection.getPage(state.page);
       this.setState({ loading: false });
     } catch (err) {
       this.setState({ loading: false });
