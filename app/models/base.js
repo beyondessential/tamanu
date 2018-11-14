@@ -14,6 +14,7 @@ export default Backbone.AssociatedModel.extend({
     if (isArray(attributes)) attributes = head(attributes);
     if (!isEmpty(attributes) && has(attributes, '_id')) this.lastSyncedAttributes = attributes;
     Backbone.AssociatedModel.apply(this, [attributes, options]);
+    this._parseParents();
   },
 
   defaults: {
@@ -30,6 +31,7 @@ export default Backbone.AssociatedModel.extend({
     try {
       const res = await Backbone.Model.prototype.fetch.apply(this, [options]);
       this.lastSyncedAttributes = this.toJSON();
+      this._parseParents();
       return res;
     } catch (err) {
       console.error(err);
@@ -171,5 +173,18 @@ export default Backbone.AssociatedModel.extend({
       });
     }
     return attributes;
+  },
+
+  _parseParents() {
+    const parents = [];
+    if (typeof this.reverseRelations === 'object') {
+      const reverse = this.reverseRelations;
+      reverse.forEach(({ key, model: Model }) => {
+        if (!parents[key]) parents[key] = [];
+        if (has(this.attributes, key) && this.attributes[key]) concatSelf(parents[key], this.attributes[key].map(record => new Model(record)));
+      });
+    }
+
+    this.parents = parents;
   }
 });

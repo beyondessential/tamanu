@@ -31,6 +31,13 @@ export default BaseModel.extend({
     }
   ],
 
+  reverseRelations: [
+    {
+      key: 'patients',
+      model: require('./patient')
+    }
+  ],
+
   validate(attrs) {
     if (!moment(attrs.startDate).isValid()) return 'startDate is required!';
     if (!moment(attrs.endDate).isValid()) return 'endDate is required!';
