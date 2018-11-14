@@ -1,4 +1,5 @@
 import { to } from 'await-to-js';
+import { has, isEmpty, set } from 'lodash';
 import {
   pageSizes,
   dateFormat,
@@ -18,10 +19,14 @@ export const fetchAppointments = ({ page, view = dbViews.appointmentRequested })
       const appointmentCollection = new AppointmentCollection({
         pageSize: pageSizes.appointments
       });
-      await appointmentCollection.getPage(page, view).promise();
-      console.log({ appointmentCollection });
-      let appointments = appointmentCollection.toJSON();
-      appointments = appointments.map(object => ({ name: 'Jane Doe', ...object }));
+      await appointmentCollection.getPage(page, view);
+      const appointments = appointmentCollection.models.map(object => {
+        const { parents } = object;
+        let name = '';
+        if (has(parents, 'patients') && !isEmpty(parents.patients))
+          name = set(object.attributes, 'patientsName', `${parents.patients[0].get('firstName')} ${parents.patients[0].get('lastName')}`);
+        return { name, ...object.toJSON() };
+      });
 
       dispatch({
         type: FETCH_APPOINTMENTS_SUCCESS,

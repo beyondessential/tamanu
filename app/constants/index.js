@@ -1293,7 +1293,7 @@ export const appointmentsColumns = [{
   style: columnStyle,
   minWidth: 100
 }, {
-  accessor: 'name',
+  accessor: 'patientsName',
   Header: 'Name',
   headerStyle,
   style: columnStyle,

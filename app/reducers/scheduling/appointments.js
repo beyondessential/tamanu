@@ -9,9 +9,10 @@ export default {
     ...state,
     loading: true
   }),
-  [FETCH_APPOINTMENTS_SUCCESS]: ({ appointments }, state) => ({
+  [FETCH_APPOINTMENTS_SUCCESS]: ({ appointments, totalPages }, state) => ({
     ...state,
     appointments,
+    totalPages,
     loading: false
   }),
   [FETCH_APPOINTMENTS_FAILED]: ({ error }, state) => ({

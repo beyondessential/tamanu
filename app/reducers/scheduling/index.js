@@ -6,6 +6,7 @@ const stateChanges = { ...appointment, ...appointments };
 const initialState = {
   appointment: {},
   appointments: [],
+  totalPages: 0,
   loading: false,
 };
 

@@ -29,8 +29,8 @@ class TodaysAppointment extends Component {
   }
 
   handleChange(props = this.props) {
-    const { appointments, loading } = props;
-    if (!loading) this.setState({ appointments, loading });
+    const { appointments, totalPages, loading } = props;
+    if (!loading) this.setState({ appointments, totalPages, loading });
   }
 
   setActionsColumn = _row => {
