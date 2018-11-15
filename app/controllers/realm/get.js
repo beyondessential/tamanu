@@ -1,5 +1,6 @@
 const { objectToJSON } = require('../../utils');
 const { parseInt, ceil, each, head, isEmpty } = require('lodash');
+const moment = require('moment');
 
 module.exports = (req, res) => {
   const realm = req.app.get('database');
@@ -10,12 +11,13 @@ module.exports = (req, res) => {
     order,
     keyword,
     fields,
-    view: viewName
+    view: viewName,
   } = query;
   const defaultPageSize = 10;
   let {
     current_page: currentPage,
     page_size: pageSize,
+    keys: viewKeys,
   } = query;
 
   try {
@@ -38,15 +40,13 @@ module.exports = (req, res) => {
       if (viewName) {
         const view = realm.getView(viewName);
         if (view) {
-          let { filters: viewFilters } = view;
-          viewFilters = JSON.parse(viewFilters);
-          each(viewFilters, (value, field) => {
-            if (typeof value === 'string') {
-              filters.push(` ${field} = "${value}" `);
-            } else {
-              filters.push(` ${field} = ${value} `);
-            }
-          });
+          const { filters: viewFilters } = view;
+          filters.push(viewFilters);
+        }
+
+        if (viewKeys) {
+          viewKeys = viewKeys.split(',');
+          viewKeys = viewKeys.map(key => (moment(key).isValid() ? moment(key).toISOString() : key));
         }
       }
 
@@ -60,7 +60,8 @@ module.exports = (req, res) => {
       }
 
       // Add filters
-      if (!isEmpty(filters)) objects = objects.filtered(filters.join(' AND '));
+      if (!viewKeys) viewKeys = [];
+      if (!isEmpty(filters)) objects = objects.filtered(filters.join(' AND '), ...viewKeys);
 
       // Sort results
       if (sortBy) objects = objects.sorted(sortBy, order === 'desc');
