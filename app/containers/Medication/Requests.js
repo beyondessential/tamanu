@@ -10,6 +10,8 @@ import {
   dbViews
 } from '../../constants';
 
+import { Button } from '../../components/Button';
+
 class Requests extends Component {
   constructor(props) {
     super(props);
@@ -40,7 +42,10 @@ class Requests extends Component {
     const row = _row.original;
     return (
       <div key={row._id}>
-        <button type="button" className="button is-primary" disabled>Fulfill</button>
+        <Button
+          variant="contained"
+          color="primary"
+        >Fulfill</Button>
       </div>
     );
   }

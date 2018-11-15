@@ -7,6 +7,8 @@ import Serializer from '../../utils/form-serialize';
 import { createMedication } from '../../actions/medications';
 import { visitOptions, appointments } from '../../constants';
 
+import { ClearButton, FilterButton } from '../../components/Button';
+
 BigCalendar.momentLocalizer(moment);
 
 class TheaterSchedule extends Component {
@@ -117,8 +119,8 @@ class TheaterSchedule extends Component {
             <div className="columns">
               <div className="column">
                 <div className="column has-text-right">
-                  <button className="button is-danger" type="submit">Clear</button>
-                  <button className="button is-primary" type="submit">Filter</button>
+                  <ClearButton />
+                  <FilterButton />
                 </div>
               </div>
             </div>

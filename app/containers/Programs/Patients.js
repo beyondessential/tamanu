@@ -8,6 +8,7 @@ import { Colors, pageSizes, programsPatientsColumns } from '../../constants';
 import { PatientsCollection } from '../../collections';
 import { ProgramModel } from '../../models';
 import { PatientSearchBar } from '../../components';
+import { Button } from '../../components/Button';
 
 class Patients extends Component {
   constructor(props) {
@@ -84,7 +85,11 @@ class Patients extends Component {
     const _this = this;
     return (
       <div key={row._id}>
-        <button className="button is-primary is-outlined column-button" onClick={() => _this.selectPatient(row.value._id)}>Select Patient</button>
+        <Button 
+          variant="contained"
+          color="primary"
+          onClick={() => _this.selectPatient(row.value._id)}
+        >Select Patient</Button>
       </div>
     );
   }

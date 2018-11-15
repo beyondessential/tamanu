@@ -8,6 +8,8 @@ import InputGroup from '../../components/InputGroup';
 import CustomDateInput from '../../components/CustomDateInput';
 import { createMedication } from '../../actions/medications';
 
+import { AddButton, BackButton } from '../../components/Button';
+
 class ScheduleSurgery extends Component {
   state = {
     prescriptionDate: moment(),
@@ -112,8 +114,8 @@ class ScheduleSurgery extends Component {
               </div>
             </div>
             <div className="column has-text-right">
-              <Link className="button is-danger cancel" to="/appointments/theater">Cancel</Link>
-              <button className="button" type="submit">Add</button>
+              <BackButton to="/appointments/theater" />
+              <AddButton />
             </div>
           </div>
         </form>

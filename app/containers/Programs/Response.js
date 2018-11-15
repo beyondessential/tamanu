@@ -7,6 +7,7 @@ import { Colors, pageSizes, dateFormat, timeFormat } from '../../constants';
 import actions from '../../actions/programs';
 import Preloader from '../../components/Preloader';
 import QuestionScreen from './Survey/QuestionScreen';
+import { BackButton } from '../../components/Button';
 
 const { response: responseActions } = actions;
 const { initResponse } = responseActions;
@@ -118,7 +119,7 @@ class Response extends Component {
             ))}
           </div>
           <div className="question-table-buttons p-t-15">
-            <button className="button is-danger question-table-button" onClick={this.goBack.bind(this)}>Back</button>
+            <BackButton onClick={this.goBack.bind(this)} />
           </div>
         </div>
       </div>

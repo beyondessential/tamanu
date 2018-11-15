@@ -21,7 +21,7 @@ import {
   SelectGroup,
 } from '../../components';
 
-import { Button, BackButton } from '../../components/Button';
+import { AddButton, BackButton } from '../../components/Button';
 
 class AddAppointment extends Component {
   constructor(props) {
@@ -315,11 +315,9 @@ class AddAppointment extends Component {
             </div>
             <div className="column has-text-right">
               <BackButton to="/appointments" />
-              <Button
-                variant="contained"
-                color="primary"
+              <AddButton
                 disabled={ !appointmentModel.isValid() }
-              >Add</Button>
+              />
             </div>
           </div>
         </form>
