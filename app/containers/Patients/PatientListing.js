@@ -7,6 +7,8 @@ import { PatientSearchBar } from '../../components';
 import { Colors, pageSizes, patientColumns } from '../../constants';
 import { PatientsCollection } from '../../collections';
 
+import { Button } from '../../components/Button';
+
 class PatientListing extends Component {
   constructor(props) {
     super(props);
@@ -100,8 +102,19 @@ class PatientListing extends Component {
     const row = _row.original;
     return (
       <div key={row._id}>
-        <button type="button" className="button column-button" onClick={() => this.goEdit(row._id)}>View Patient</button>
-        <button type="button" className="button is-primary column-checkin-button" onClick={() => this.goAdmit(row._id)}>{row.admitted ? 'Discharge' : 'Admit'}</button>
+        <Button 
+          onClick={() => this.goEdit(row._id)}
+          variant="outlined"
+        >
+          View Patient
+        </Button>
+        <Button
+          color="primary"
+          variant="contained"
+          onClick={() => this.goAdmit(row._id)}
+        >
+          {row.admitted ? 'Discharge' : 'Admit'}
+        </Button>
       </div>
     );
   }
