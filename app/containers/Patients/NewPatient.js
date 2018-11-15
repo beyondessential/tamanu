@@ -12,6 +12,8 @@ import { createPatient, createPatientIndexes } from '../../actions/patients/pati
 import { bloodOptions, sexOptions, getDifferenceDate } from '../../constants';
 import { PatientModel } from '../../models';
 
+import { BackButton, Button, AddButton } from '../../components/Button';
+
 class NewPatient extends Component {
   state = {
     formError: false,
@@ -327,7 +329,10 @@ class NewPatient extends Component {
             <div className="columns">
               <div className="column">
                 <div className="column has-text-right">
-                  <a className="button is-primary" onClick={() => this.setState({ contactModalVisible: true })}>+ Add Contact</a>
+                  <Button 
+                    variant="contained"
+                    onClick={() => this.setState({ contactModalVisible: true })}
+                  >+ Add Contact</Button>
                 </div>
               </div>
             </div>
@@ -357,8 +362,11 @@ class NewPatient extends Component {
                 tabIndex={17}
               />
               <div className="column has-text-right">
-                <Link className="button is-danger cancel" to="/patients">Cancel</Link>
-                <button className="button" type="submit" disabled={patientInProgress}>Add</button>
+                <BackButton to="/patients" />
+                <AddButton
+                  type="submit"
+                  disabled={patientInProgress}
+                />
               </div>
             </div>
           </div>
