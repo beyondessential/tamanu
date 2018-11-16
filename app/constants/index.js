@@ -8,7 +8,6 @@ import {
   administrationIcon,
   programsIcon,
   radiologyIcon,
-  logoutIcon,
 } from './images';
 
 export const Colors = {
@@ -289,7 +288,6 @@ export const sidebarInfo = [
     label: 'Programs',
     path: '/programs',
     icon: programsIcon,
-    hidden: true,
     children: []
   },
   {
@@ -297,14 +295,6 @@ export const sidebarInfo = [
     label: 'Reports',
     path: '/reports',
     icon: scheduleIcon,
-    hidden: false,
-    children: []
-  },
-  {
-    key: 'logout',
-    label: 'Logout',
-    path: '/logout',
-    icon: logoutIcon,
     children: []
   },
 ];

@@ -1,12 +1,19 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { ToastContainer, Slide } from 'react-toastify';
+import styled from 'styled-components';
+
 import Sidebar from '../components/Sidebar';
 import actions from '../actions/auth';
 import Login from './Auth/Login';
 
+
 const { login: loginActions } = actions;
 const { login } = loginActions;
+
+const AppContainer = styled.div`
+  display: flex;
+`;
 
 class App extends Component{
   state = {
@@ -26,22 +33,29 @@ class App extends Component{
     console.log({ props });
   }
 
+  renderAppContents() {
+    if(!this.props.userId) {
+      return <Login loginSubmit={this.props.login} />;
+    }
+      
+    return (
+      <AppContainer>
+        <Sidebar />
+        { this.props.children }
+      </AppContainer>
+    );
+  }
+
   render() {
     const { userId, children } = this.props;
     return (
-      <React.Fragment>
-        {userId && <Sidebar />}
-        {userId && children}
-        {!userId &&
-          <Login
-            loginSubmit={this.props.login}
-          />
-        }
+      <div>
+        { this.renderAppContents() }
         <ToastContainer
           autoClose={3000}
           transition={Slide}
         />
-      </React.Fragment>
+      </div>
     );
   }
 }

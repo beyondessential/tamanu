@@ -3,10 +3,21 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { find, isEmpty, startsWith } from 'lodash';
+
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import Collapse from '@material-ui/core/Collapse';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+
+import styled from 'styled-components';
 import { sidebarInfo } from '../constants';
 import { ProgramsCollection } from '../collections';
 import actions from '../actions/auth';
 
+import { logoutIcon } from '../constants/images';
 import { TamanuLogo, TamanuBrandMark } from './TamanuLogo';
 
 const { login: loginActions } = actions;
@@ -14,12 +25,54 @@ const { logout } = loginActions;
 
 const classNames = require('classnames');
 
-const logoContainerStyle = {
-  position: 'absolute',
-  bottom: 0,
-  width: '100%',
-  textAlign: 'center',
-};
+const SidebarContainer = styled.div`
+  width: 275px;
+  height: 100vh;
+  position: relative;
+  background: #2f4358;
+`;
+
+const LogoContainer = styled.div`
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  textAlign: center;
+`;
+
+const SidebarPrimaryIcon = styled.img`
+  width: 2.5em;
+  height: 2.5em;
+`;
+
+const LogoutItem = ({ onClick }) => (
+  <ListItem button onClick={ onClick }>
+    <SidebarPrimaryIcon src={ logoutIcon } />
+    <ListItemText inset primary="Logout" />
+  </ListItem>
+);
+
+const PrimarySidebarItem = ({ item, selected, onClick }) => (
+  <React.Fragment>
+    <ListItem button onClick={ onClick }>
+      <SidebarPrimaryIcon src={item.icon} />
+      <ListItemText inset primary={item.label} />
+    </ListItem>
+    <Collapse in={selected} timeout="auto" unmountOnExit>
+      <List component="div" disablePadding>
+        {item.children.map(child => (
+          <SecondarySidebarItem item={ child } key={ child.path } />
+        ))}
+      </List>
+    </Collapse>
+  </React.Fragment>
+);
+
+const SecondarySidebarItem = ({ item }) => (
+  <ListItem button component={ Link } to={ item.path }>
+    <i className={ item.icon } />
+    <ListItemText primary={item.label} />
+  </ListItem>
+);
 
 class Sidebar extends Component {
   static propTypes = {
@@ -68,20 +121,15 @@ class Sidebar extends Component {
   }
 
   clickedParentItem = ({ label, key }, event) => {
-    if (key !== 'logout') {
-      const { selectedParentItem } = this.state;
-      if (selectedParentItem !== label) {
-        this.setState({
-          selectedParentItem: label,
-        });
-      } else {
-        this.setState({
-          selectedParentItem: '',
-        });
-      }
+    const { selectedParentItem } = this.state;
+    if (selectedParentItem !== key) {
+      this.setState({
+        selectedParentItem: key,
+      });
     } else {
-      event.preventDefault();
-      this.props.logout();
+      this.setState({
+        selectedParentItem: '',
+      });
     }
   }
 
@@ -89,51 +137,29 @@ class Sidebar extends Component {
     const { selectedParentItem } = this.state;
     const { currentPath, displayName } = this.props;
     return (
-      <div>
-        <div className="sidebar">
-          <TamanuBrandMark />
-          <div className="scroll-container">
-            {
-              sidebarInfo.map((parent, index) => {
-                const parentPath = parent.path.split('/');
-                const selected = startsWith(currentPath, `/${parentPath[1]}`);
-                return (
-                  <div key={index} className={parent.hidden ? 'is-hidden' : ''}>
-                    <Link className={classNames({ item: true, selected })} to={parent.path} replace onClick={(e) => this.clickedParentItem(parent, e)}>
-                      <img src={parent.icon} alt="icon" className="sidebar-icon" />
-                      <span>
-                        {parent.label}
-                      </span>
-                    </Link>
-                    {
-                      selected &&
-                      parent.children.map((child, key) => (
-                        <div key={key} className="category-sub-items">
-                          <Link className={classNames(['children', currentPath === child.path ? 'selected' : ''])} to={child.path} replace>
-                            <i className={child.icon} />
-                            <span>
-                              {child.label}
-                            </span>
-                          </Link>
-                        </div>
-                      ))
-                    }
-                  </div>
-                );
-              })
-            }
-            {/* <div className="user-info p-l-20 p-t-30">
-              <div className="is-size-5 is-color-white p-b-5">Demo User</div>
-              <button className="button is-warning is-outlined" onClick={this.props.logout}>
-                <i className="fa fa-sign-out" /> Logout
-              </button>
-            </div> */}
-          </div>
-          <div style={ logoContainerStyle }>
-            <TamanuLogo width="120px" />
-          </div>
-        </div>
-      </div>
+      <SidebarContainer>
+        <TamanuBrandMark />
+        <LogoContainer>
+          <TamanuLogo width="120px" />
+        </LogoContainer>
+        <List>
+          {
+            sidebarInfo.map((item, index) => {
+              const pathSegment = item.path.split('/');
+              const selected = startsWith(currentPath, `/${pathSegment[1]}`);
+              return (
+                <PrimarySidebarItem 
+                  item={item}
+                  key={item.key}
+                  selected={selectedParentItem === item.key}
+                  onClick={() => this.clickedParentItem(item)}
+                />
+              );
+            })
+          }
+          <LogoutItem onClick={ this.props.logout } />
+        </List>
+      </SidebarContainer>
     );
   }
 }
