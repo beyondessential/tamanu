@@ -1,5 +1,5 @@
 import Backbone from 'backbone-associations';
-import { keys, set, isEmpty } from 'lodash';
+import { keys, set, isEmpty, isArray } from 'lodash';
 
 require('backbone.paginator');
 
@@ -125,9 +125,10 @@ export default Backbone.PageableCollection.extend({
     this.filters.keyword = keyword;
   },
 
-  getPage(page, view, options) {
+  getPage(page, view, keys, options) {
     if (!options) options = {};
     if (view) set(options, 'data.view', view);
+    if (keys) set(options, 'data.keys', isArray(keys) ? keys.join(',') : keys);
     return Backbone.PageableCollection.prototype.getPage.apply(this, [page, options]);
   },
 

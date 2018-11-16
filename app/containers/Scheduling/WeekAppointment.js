@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import ReactTable from 'react-table';
 import { isEmpty } from 'lodash';
+import moment from 'moment';
 import actions from '../../actions/scheduling';
 import { appointmentsColumns, dbViews, pageSizes } from '../../constants';
 
@@ -47,8 +48,14 @@ class WeekAppointment extends Component {
   }
 
   fetchData = opts => {
+    const keys = [
+      moment().startOf('week').toISOString(), // start date
+      moment().endOf('week').toISOString() // end date
+    ];
+
     this.props.fetchAppointments({
-      view: dbViews.appointmentsThisWeek,
+      view: dbViews.appointmentsSearch,
+      keys,
       ...opts
     });
   }

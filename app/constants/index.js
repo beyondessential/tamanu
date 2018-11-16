@@ -22,8 +22,8 @@ export const dbViews = {
   medicationCompleted: 'medication_completed',
   medicationRequested: 'medication_requested',
   medicationFulfilled: 'medication_fulfilled',
-  appointmentsThisWeek: 'appointments_week',
-  appointmentsToday: 'appointments_today'
+  appointmentsSearch: 'appointments_search', // keys [ startDate, endDate, status, type, with / doctor ]
+  appointmentsSearchKeys: [moment(), moment(), '', '', '']
 };
 
 const columnStyle = {
