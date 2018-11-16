@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment';
 
 import { BackButton } from '../../../components/Button';
 
@@ -84,12 +83,121 @@ class EditPatient extends Component {
     this.setState({ selectedTab: tabName });
   }
 
+  renderTabContents() {
+    const { selectedTab, patient, patientModel } = this.state;
+    const { history } = this.props;
+
+    switch(selectedTab) {
+      case 'general':
+        return (
+          <General
+            history={history}
+            patient={patient}
+            model={patientModel}
+            savePatient={this.props.savePatient}
+          />
+        );
+      case 'photos':
+        return (
+          <div className="column">
+            <Photos />
+          </div>
+        );
+      case 'appointment':
+        return (
+          <div className="column">
+            <Appointments />
+          </div>
+        );
+      case 'visit':
+        return (
+          <Visits
+            history={history}
+            patient={patient}
+            model={patientModel}
+          />
+        );
+      case 'medication':
+        return (
+          <div className="column">
+            <Medication
+              history={history}
+              patient={patient}
+              model={patientModel}
+            />
+          </div>
+        );
+      case 'imaging':
+        return (
+          <div className="column">
+            <Imaging />
+          </div>
+        );
+      case 'labs':
+        return (
+          <div className="column">
+            <Labs />
+          </div>
+        );
+      case 'programs':
+        return (
+          <div className="column">
+            <Programs />
+          </div>
+        );
+      case 'pregnancy':
+        return (
+          <Pregnancy
+            history={history}
+            patient={patient}
+            model={patientModel}
+          />
+        );
+      case 'history':
+      default:
+        return (
+          <History
+            history={history}
+            model={patientModel}
+            changeTab={this.changeTab}
+          />
+        );
+    }
+  }
+
+  renderTabs() {
+    const { selectedTab, patient } = this.state;
+
+    return [
+      { value: 'history', label: 'History' },
+      { value: 'general', label: 'General' },
+      { value: 'photos', label: 'Photos' },
+      { value: 'appointment', label: 'Appointment' },
+      { value: 'visit', label: 'Visit' },
+      { value: 'medication', label: 'Medication' },
+      { value: 'imaging', label: 'Imaging' },
+      { value: 'labs', label: 'Labs' },
+      { value: 'pregnancy', label: 'Pregnancy', condition: () => patient.sex === 'female' },
+      { value: 'programs', label: 'Programs' },
+    ]
+    .filter(item => !item.condition || item.condition())
+    .map(item => (
+      <li
+        key={ item.value }
+        className={selectedTab === item.value ? 'is-active selected' : ''}
+      >
+        <a onClick={() => this.changeTab(item.value)}>{ item.label }</a>
+      </li>
+    ));
+  }
+
   render() {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
 
     const { selectedTab, patient, patientModel } = this.state;
     const { history } = this.props;
+
     return (
       <div>
         <div className="create-content">
@@ -118,82 +226,11 @@ class EditPatient extends Component {
                     <div className="column">
                       <div className="tabs">
                         <ul>
-                          <li className={classNames(selectedTab === '' || selectedTab === 'history' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('history')}>History</a></li>
-                          <li className={classNames(selectedTab === 'general' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('general')}>General</a></li>
-                          <li className={classNames(selectedTab === 'photos' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('photos')}>Photos</a></li>
-                          <li className={classNames(selectedTab === 'appointment' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('appointment')}>Appointments</a></li>
-                          <li className={classNames(selectedTab === 'visit' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('visit')}>Visits</a></li>
-                          <li className={classNames(selectedTab === 'medication' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('medication')}>Medication</a></li>
-                          <li className={classNames(selectedTab === 'imaging' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('imaging')}>Imaging</a></li>
-                          <li className={classNames(selectedTab === 'labs' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('labs')}>Labs</a></li>
-                          {patient.sex === 'female' && <li className={classNames(selectedTab === 'pregnancy' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('pregnancy')}>Pregnancy</a></li>}
-                          <li className={classNames(selectedTab === 'programs' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('programs')}>Programs</a></li>
+                          { this.renderTabs() }
                         </ul>
                       </div>
                       <div className="tab-content">
-                        {(selectedTab === '' || selectedTab === 'history') &&
-                          <History
-                            history={history}
-                            model={patientModel}
-                            changeTab={this.changeTab}
-                          />
-                        }
-                        {selectedTab === 'general' &&
-                          <General
-                            history={history}
-                            patient={patient}
-                            model={patientModel}
-                            savePatient={this.props.savePatient}
-                          />
-                        }
-                        {selectedTab === 'photos' &&
-                          <div className="column">
-                            <Photos />
-                          </div>
-                        }
-                        {selectedTab === 'appointment' &&
-                          <div className="column">
-                            <Appointments />
-                          </div>
-                        }
-                        {selectedTab === 'visit' &&
-                          <Visits
-                            history={history}
-                            patient={patient}
-                            model={patientModel}
-                          />
-                        }
-                        {selectedTab === 'medication' &&
-                          <div className="column">
-                            <Medication
-                              history={history}
-                              patient={patient}
-                              model={patientModel}
-                            />
-                          </div>
-                        }
-                        {selectedTab === 'imaging' &&
-                          <div className="column">
-                            <Imaging />
-                          </div>
-                        }
-                        {selectedTab === 'labs' &&
-                          <div className="column">
-                            <Labs />
-                          </div>
-                        }
-                        {selectedTab === 'programs' &&
-                          <div className="column">
-                            <Programs />
-                          </div>
-                        }
-                        {selectedTab === 'pregnancy' && patient.sex === 'female' &&
-                          <Pregnancy
-                            history={history}
-                            patient={patient}
-                            model={patientModel}
-                          />
-                        }
+                        { this.renderTabContents() }
                       </div>
                     </div>
                   </div>
