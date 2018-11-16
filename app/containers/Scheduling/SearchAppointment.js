@@ -1,36 +1,95 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import Select from 'react-select';
-import DatePicker from 'react-datepicker';
+import { Link } from 'react-router-dom';
+import { isEmpty } from 'lodash';
 import moment from 'moment';
-import BootstrapTable from 'react-bootstrap-table-next';
-import Serializer from '../../utils/form-serialize';
-import CustomDateInput from '../../components/CustomDateInput';
-import { createMedication } from '../../actions/medications';
-import { visitOptions, medicationColumns } from '../../constants';
-
-const medications = [];
+import ReactTable from 'react-table';
+import Button from '@material-ui/core/Button';
+import SearchForm from './components/SearchForm';
+import actions from '../../actions/scheduling';
+import {
+  appointmentsColumns,
+  dbViews,
+  pageSizes
+} from '../../constants';
 
 class SearchAppointment extends Component {
+  constructor(props) {
+    super(props);
+    this.submitForm = this.submitForm.bind(this);
+  }
+
   state = {
-    selectValue: '',
-    prescriptionDate: moment(),
+    appointments: [{}],
+    keys: [],
+    totalPages: 0,
+    loading: true,
   }
 
-  updateValue = (newValue) => {
-    this.setState({
-      selectValue: newValue,
-    });
+  componentWillMount() {
+    appointmentsColumns[appointmentsColumns.length - 1].Cell = this.setActionsColumn;
   }
 
-  onChangeDate = (date) => {
-    this.setState({
-      prescriptionDate: date,
-    });
+  componentWillReceiveProps(newProps) {
+    this.handleChange(newProps);
+  }
+
+  handleChange(props = this.props) {
+    const { appointments, totalPages, loading } = props;
+    console.log('-handleChange', { appointments, totalPages, loading });
+    if (!loading) this.setState({ appointments, totalPages, loading });
+  }
+
+  setActionsColumn = _row => {
+    const row = _row.original;
+    return (
+      <div key={row._id}>
+        <Button color="default" variant="contained" onClick={() => this.goEdit(row._id)}>Edit</Button>
+        <Button color="primary" variant="contained" classes={{ root: 'm-l-5' }} onClick={() => this.checkIn(row._id)}>
+          <i className="fa fa-sign-in p-r-5" /> Check In
+        </Button>
+        <Button color="secondary" variant="contained" classes={{ root: 'm-l-5' }} onClick={() => this.showDeleteModal(row)}>Delete</Button>
+      </div>
+    );
+  }
+
+  goEdit = (id) => {
+    this.props.history.push(`/appointments/appointment/${id}`);
+  }
+
+  checkIn = (id) => {
+    this.props.history.push(`/appointments/check-in/${id}`);
+  }
+
+  submitForm(form) {
+    const keys = [form.startDate, moment().add(100, 'years'), form.status, form.type, form.practitioner];
+    this.setState({ keys }, () => this.fetchData({ page: 0 }));
+  }
+
+  fetchData = opts => {
+    const { keys } = this.state;
+    if (!isEmpty(keys)) {
+      this.props.fetchAppointments({
+        view: dbViews.appointmentsSearch,
+        keys,
+        ...opts
+      });
+    } else {
+      this.setState({
+        appointments: [],
+        totalPages: 1,
+        loading: false
+      });
+    }
   }
 
   render() {
-    const { prescriptionDate } = this.state;
+    const {
+      appointments,
+      totalPages,
+      loading,
+    } = this.state;
+
     return (
       <div className="create-content">
         <div className="create-top-bar">
@@ -38,135 +97,50 @@ class SearchAppointment extends Component {
             Search Appointments
           </span>
           <div className="view-action-buttons">
-            <button>
-              + New Appointment
-            </button>
+            <Link to="/appointments/appointment/new">
+              <i className="fa fa-plus" /> New Appointment
+            </Link>
           </div>
         </div>
-        <form
-          className="create-container"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const medication = Serializer.serialize(e.target, { hash: true });
-            if (medication.patient && medication.visit && medication.medication && medication.prescription) {
-              this.props.createMedication(medication);
-            } else {
-              // this.setState({ formError: true });
-            }
-          }}
-        >
-          <div className="form">
-            <div className="columns">
-              <div className="column is-3">
-                <div className="column">
-                  <span className="header">
-                    Start Date
-                  </span>
-                  <DatePicker
-                    name="startDate"
-                    customInput={<CustomDateInput />}
-                    selected={prescriptionDate}
-                    onChange={this.onChangeDate}
-                    peekNextMonth
-                    showMonthDropdown
-                    showYearDropdown
-                    dropdownMode="select"
-                  />
-                </div>
-              </div>
-              <div className="column is-3">
-                <div className="column">
-                  <span className="header">
-                    Status
-                  </span>
-                  <Select
-                    id="state-select"
-                    ref={(ref) => { this.select = ref; }}
-                    onBlurResetsInput={false}
-                    onSelectResetsInput={false}
-                    options={visitOptions}
-                    simpleValue
-                    clearable
-                    name="selected-state"
-                    disabled={this.state.disabled}
-                    value={this.state.selectValue}
-                    onChange={this.updateValue}
-                    rtl={this.state.rtl}
-                    searchable={this.state.searchable}
-                  />
-                </div>
-              </div>
-              <div className="column is-3">
-                <div className="column">
-                  <span className="header">
-                    Type
-                  </span>
-                  <Select
-                    id="state-select"
-                    ref={(ref) => { this.select = ref; }}
-                    onBlurResetsInput={false}
-                    onSelectResetsInput={false}
-                    options={visitOptions}
-                    simpleValue
-                    clearable
-                    name="selected-state"
-                    disabled={this.state.disabled}
-                    value={this.state.selectValue}
-                    onChange={this.updateValue}
-                    rtl={this.state.rtl}
-                    searchable={this.state.searchable}
-                  />
-                </div>
-              </div>
-              <div className="column is-3">
-                <div className="column">
-                  <span className="header">
-                    With
-                  </span>
-                  <Select
-                    id="state-select"
-                    ref={(ref) => { this.select = ref; }}
-                    onBlurResetsInput={false}
-                    onSelectResetsInput={false}
-                    options={visitOptions}
-                    simpleValue
-                    clearable
-                    name="selected-state"
-                    disabled={this.state.disabled}
-                    value={this.state.selectValue}
-                    onChange={this.updateValue}
-                    rtl={this.state.rtl}
-                    searchable={this.state.searchable}
-                  />
-                </div>
-              </div>
-            </div>
+        <div className="create-container">
+          <div className="form with-padding">
+            <SearchForm
+              loading={loading}
+              onSubmit={this.submitForm}
+            />
             <div className="columns">
               <div className="column">
-                <div className="column has-text-right">
-                  <button className="button is-primary" type="submit">Search</button>
-                </div>
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column">
-                <BootstrapTable
-                  keyField="id"
-                  data={medications}
-                  columns={medicationColumns}
+                <ReactTable
+                  manual
+                  keyField="_id"
+                  data={appointments}
+                  pages={totalPages}
+                  defaultPageSize={pageSizes.appointments}
+                  loading={loading}
+                  columns={appointmentsColumns}
+                  className="-striped"
                   defaultSortDirection="asc"
+                  onFetchData={this.fetchData}
                 />
               </div>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     );
   }
 }
 
+function mapStateToProps(state) {
+  const { appointments, totalPages, loading, error } = state.scheduling;
+  return { appointments, totalPages, loading, error };
+}
+
+const { appointments: appointmentsActions } = actions;
+const { fetchAppointments } = appointmentsActions;
 const mapDispatchToProps = dispatch => ({
-  createMedication: medication => dispatch(createMedication(medication)),
+  fetchAppointments: (props) => dispatch(fetchAppointments(props)),
 });
 
-export default connect(undefined, mapDispatchToProps)(SearchAppointment);
+export default connect(mapStateToProps, mapDispatchToProps)(SearchAppointment);
+

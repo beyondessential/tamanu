@@ -121,7 +121,6 @@ class AddAppointment extends Component {
       this.setState({ [name]: value }, this.parseDates);
     } else {
       appointmentModel.set(name, value, { silent: true });
-      console.log('-appointmentModel-', appointmentModel, appointmentModel.toJSON());
       this.setState({ appointmentModel, appointment: appointmentModel.toJSON() }, this.parseDates);
     }
   }
