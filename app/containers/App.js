@@ -15,6 +15,12 @@ const AppContainer = styled.div`
   display: flex;
 `;
 
+const AppContentsContainer = styled.div`
+  height: 100vh;
+  overflow: scroll;
+  flex-grow: 1;
+`;
+
 class App extends Component{
   state = {
     userId: null,
@@ -41,7 +47,9 @@ class App extends Component{
     return (
       <AppContainer>
         <Sidebar />
-        { this.props.children }
+        <AppContentsContainer>
+          { this.props.children }
+        </AppContentsContainer>
       </AppContainer>
     );
   }

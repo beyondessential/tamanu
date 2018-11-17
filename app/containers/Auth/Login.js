@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { InputGroup } from '../../components';
 import Serializer from '../../utils/form-serialize';
 
-import { TamanuBrandMark } from '../../components/TamanuLogo';
+import { TamanuLogo } from '../../components/TamanuLogo';
 
 class Login extends Component {
   render() {
@@ -11,11 +11,9 @@ class Login extends Component {
     return (
       <Fragment>
         <div className="content no-sidebar">
-          <div className="view-top-bar">
-            <TamanuBrandMark />
-          </div>
           <div className="columns login-container">
             <div className="column is-3 login-form has-background-grey-lighter">
+              <TamanuLogo size="240px" />
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -23,7 +21,6 @@ class Login extends Component {
                   loginSubmit(data);
                 }}
               >
-                <div className="is-size-3 has-text-centered m-b-15">Login</div>
                 <InputGroup
                   className="m-b-0 column"
                   name="email"

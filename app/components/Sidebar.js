@@ -11,6 +11,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Collapse from '@material-ui/core/Collapse';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import Divider from '@material-ui/core/Divider';
 
 import styled from 'styled-components';
 import { sidebarInfo } from '../constants';
@@ -18,7 +19,7 @@ import { ProgramsCollection } from '../collections';
 import actions from '../actions/auth';
 
 import { logoutIcon } from '../constants/images';
-import { TamanuLogo, TamanuBrandMark } from './TamanuLogo';
+import { TamanuLogo } from './TamanuLogo';
 
 const { login: loginActions } = actions;
 const { logout } = loginActions;
@@ -26,36 +27,53 @@ const { logout } = loginActions;
 const classNames = require('classnames');
 
 const SidebarContainer = styled.div`
-  width: 275px;
+  min-width: 275px;
   height: 100vh;
   position: relative;
   background: #2f4358;
+  color: #fff;
+  flex-grow: 0;
+  flex-shrink: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  i {
+    color: #fff;
+  }
+`;
+
+const SidebarMenuContainer = styled.div`
+  flex-grow: 1;
+  overflow: scroll;
 `;
 
 const LogoContainer = styled.div`
-  position: fixed;
-  bottom: 0;
   width: 100%;
-  textAlign: center;
+  text-align: center;
 `;
 
 const SidebarPrimaryIcon = styled.img`
-  width: 2.5em;
-  height: 2.5em;
+  width: 2.2em;
+  height: 2.2em;
+`;
+
+const SidebarPrimaryItemText = styled(ListItemText)`
+  color: #fff;
 `;
 
 const LogoutItem = ({ onClick }) => (
   <ListItem button onClick={ onClick }>
     <SidebarPrimaryIcon src={ logoutIcon } />
-    <ListItemText inset primary="Logout" />
+    <SidebarPrimaryItemText disableTypography inset primary="Logout" />
   </ListItem>
 );
 
 const PrimarySidebarItem = ({ item, selected, onClick }) => (
   <React.Fragment>
-    <ListItem button onClick={ onClick }>
+    <ListItem button onClick={ onClick } selected={selected}>
       <SidebarPrimaryIcon src={item.icon} />
-      <ListItemText inset primary={item.label} />
+      <SidebarPrimaryItemText inset disableTypography primary={item.label} />
     </ListItem>
     <Collapse in={selected} timeout="auto" unmountOnExit>
       <List component="div" disablePadding>
@@ -70,7 +88,7 @@ const PrimarySidebarItem = ({ item, selected, onClick }) => (
 const SecondarySidebarItem = ({ item }) => (
   <ListItem button component={ Link } to={ item.path }>
     <i className={ item.icon } />
-    <ListItemText primary={item.label} />
+    <ListItemText disableTypography primary={item.label} />
   </ListItem>
 );
 
@@ -138,27 +156,33 @@ class Sidebar extends Component {
     const { currentPath, displayName } = this.props;
     return (
       <SidebarContainer>
-        <TamanuBrandMark />
+        <SidebarMenuContainer>
+          <List component="nav">
+            {
+              sidebarInfo.map((item, index) => {
+                const pathSegment = item.path.split('/');
+                const selected = startsWith(currentPath, `/${pathSegment[1]}`);
+                return (
+                  <PrimarySidebarItem 
+                    item={item}
+                    key={item.key}
+                    selected={selectedParentItem === item.key}
+                    onClick={() => this.clickedParentItem(item)}
+                  />
+                );
+              })
+            }
+          </List>
+          <Divider />
+          <List>
+            <LogoutItem onClick={ this.props.logout } />
+          </List>
+        </SidebarMenuContainer>
         <LogoContainer>
-          <TamanuLogo width="120px" />
+          <Link to="/">
+            <TamanuLogo size="120px" />
+          </Link>
         </LogoContainer>
-        <List>
-          {
-            sidebarInfo.map((item, index) => {
-              const pathSegment = item.path.split('/');
-              const selected = startsWith(currentPath, `/${pathSegment[1]}`);
-              return (
-                <PrimarySidebarItem 
-                  item={item}
-                  key={item.key}
-                  selected={selectedParentItem === item.key}
-                  onClick={() => this.clickedParentItem(item)}
-                />
-              );
-            })
-          }
-          <LogoutItem onClick={ this.props.logout } />
-        </List>
       </SidebarContainer>
     );
   }
