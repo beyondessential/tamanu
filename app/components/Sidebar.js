@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { find, isEmpty, startsWith } from 'lodash';
+import { withRouter } from 'react-router-dom';
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -45,7 +46,7 @@ const SidebarContainer = styled.div`
 
 const SidebarMenuContainer = styled.div`
   flex-grow: 1;
-  overflow: scroll;
+  overflow: auto;
 `;
 
 const LogoContainer = styled.div`
@@ -58,14 +59,14 @@ const SidebarPrimaryIcon = styled.img`
   height: 2.2em;
 `;
 
-const SidebarPrimaryItemText = styled(ListItemText)`
+const SidebarItemText = styled(ListItemText)`
   color: #fff;
 `;
 
 const LogoutItem = ({ onClick }) => (
   <ListItem button onClick={ onClick }>
     <SidebarPrimaryIcon src={ logoutIcon } />
-    <SidebarPrimaryItemText disableTypography inset primary="Logout" />
+    <SidebarItemText disableTypography inset primary="Logout" />
   </ListItem>
 );
 
@@ -73,7 +74,7 @@ const PrimarySidebarItem = ({ item, selected, onClick }) => (
   <React.Fragment>
     <ListItem button onClick={ onClick } selected={selected}>
       <SidebarPrimaryIcon src={item.icon} />
-      <SidebarPrimaryItemText inset disableTypography primary={item.label} />
+      <SidebarItemText inset disableTypography primary={item.label} />
     </ListItem>
     <Collapse in={selected} timeout="auto" unmountOnExit>
       <List component="div" disablePadding>
@@ -85,12 +86,17 @@ const PrimarySidebarItem = ({ item, selected, onClick }) => (
   </React.Fragment>
 );
 
-const SecondarySidebarItem = ({ item }) => (
-  <ListItem button component={ Link } to={ item.path }>
+const SecondarySidebarItem = withRouter(({ item, location }) => (
+  <ListItem 
+    button
+    component={ Link } 
+    to={ item.path }
+    selected={ item.path === location.pathname }
+  >
     <i className={ item.icon } />
-    <ListItemText disableTypography primary={item.label} />
+    <SidebarItemText disableTypography primary={item.label} />
   </ListItem>
-);
+));
 
 class Sidebar extends Component {
   static propTypes = {
