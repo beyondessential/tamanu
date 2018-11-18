@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import ModalView from '../../../components/Modal';
 import Preloader from '../../../components/Preloader';
+import { Button } from '../../../components/Button';
 import actions from '../../../actions/programs';
 import QuestionScreen from './QuestionScreen';
 
@@ -66,6 +67,9 @@ class Survey extends Component {
     if (loading) return <Preloader />;
 
     const { currentScreenIndex, totalScreens, program, survey } = this.state;
+    const isFirstScreen = (currentScreenIndex === 0);
+    const isLastScreen = (currentScreenIndex === (totalScreens - 1));
+
     return (
       <Fragment>
         <div className="content headerFixed">
@@ -77,8 +81,15 @@ class Survey extends Component {
           <div className="survey-details">
             <QuestionScreen model={this.props.survey} screenIndex={currentScreenIndex} />
             <div className="bottom-buttons">
-              <button className="button is-danger question-finish-button" onClick={this.buttonPrevClick.bind(this)}>{currentScreenIndex > 0 ? 'Prev' : 'Cancel'}</button>
-              <button className="button is-primary question-outcomes-button" onClick={this.buttonNextClick.bind(this)}>{currentScreenIndex < (totalScreens - 1) ? 'Next' : 'Submit'}</button>
+              <Button 
+                variant="outlined"
+                onClick={this.buttonPrevClick.bind(this)}
+              >{isFirstScreen ? 'Cancel' : 'Previous'}</Button>
+              <Button 
+                variant="contained"
+                color="primary"
+                onClick={this.buttonNextClick.bind(this)}
+              >{isLastScreen ? 'Submit' : 'Next'}</Button>
             </div>
           </div>
         </div>

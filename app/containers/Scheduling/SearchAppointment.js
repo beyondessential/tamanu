@@ -9,6 +9,8 @@ import CustomDateInput from '../../components/CustomDateInput';
 import { createMedication } from '../../actions/medications';
 import { visitOptions, medicationColumns } from '../../constants';
 
+import { SearchButton } from '../../components/Button';
+
 const medications = [];
 
 class SearchAppointment extends Component {
@@ -144,7 +146,7 @@ class SearchAppointment extends Component {
             <div className="columns">
               <div className="column">
                 <div className="column has-text-right">
-                  <button className="button is-primary" type="submit">Search</button>
+                  <SearchButton type="submit" />
                 </div>
               </div>
             </div>

@@ -6,6 +6,8 @@ import ReactTable from 'react-table';
 import { admittedPatientsColumns, pageSizes, dbViews } from '../../constants';
 import { PatientsCollection } from '../../collections';
 
+import { Button } from '../../components/Button';
+
 class AdmittedPatients extends Component {
   constructor(props) {
     super(props);
@@ -84,9 +86,15 @@ class AdmittedPatients extends Component {
     const row = _row.original;
     return (
       <div key={row._id}>
-        <button className="button column-button" onClick={() => this.goEditPatient(row._id)}>View Patient</button>
-        <button className="button is-primary column-checkin-button" onClick={() => this.discharge(row._id)}>Discharge</button>
-        <button className="button is-danger column-button" disabled>Delete</button>
+        <Button 
+          variant="outlined"
+          onClick={() => this.goEditPatient(row._id)}
+        >View Patient</Button>
+        <Button 
+          variant="contained"
+          color="primary"
+          onClick={() => this.discharge(row._id)}
+        >Discharge</Button>
       </div>
     );
   }

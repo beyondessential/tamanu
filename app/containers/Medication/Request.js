@@ -13,6 +13,7 @@ import {
   TextareaGroup,
   DatepickerGroup,
 } from '../../components';
+import { BackButton, AddButton } from '../../components/Button';
 
 class NewMedication extends Component {
   constructor(props) {
@@ -271,8 +272,10 @@ class NewMedication extends Component {
                 />
               </div>
               <div className="column has-text-right">
-                <Link className="button is-danger cancel" to="/medication">Cancel</Link>
-                <button className="button is-primary" type="submit" disabled={!medicationModel.isValid()}>Add</button>
+                <BackButton to="/medication" />
+                <AddButton
+                  disabled={!medicationModel.isValid()}
+                />
               </div>
             </div>
           </form>

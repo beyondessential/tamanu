@@ -7,6 +7,8 @@ import { Colors, pageSizes, surveyResponsesColumns, dateFormat, timeFormat } fro
 import actions from '../../actions/programs';
 import Preloader from '../../components/Preloader';
 
+import { BackButton, Button } from '../../components/Button';
+
 const { responses: responseActions } = actions;
 const { initResponses } = responseActions;
 
@@ -95,7 +97,11 @@ class Responses extends Component {
     const _this = this;
     return (
       <div key={row._id}>
-        <button className="button is-primary is-outlined" onClick={() => _this.viewResponse(row._id)}>View Form</button>
+        <Button 
+          variant="contained"
+          color="primary"
+          onClick={() => _this.viewResponse(row._id)}
+        >View Form</Button>
       </div>
     );
   }
@@ -138,9 +144,10 @@ class Responses extends Component {
                 </span>
               </div>
               <div className="column pregnancy-name is-pulled-right">
-                <button className="button is-primary is-pulled-right" onClick={this.startSurvey.bind(this)}>
-                  <i className="fa fa-plus p-r-5" /> Add new
-                </button>
+                <Button 
+                  variant="outlined"
+                  onClick={this.startSurvey.bind(this)}
+                >Add new</Button>
               </div>
             </div>
             {/* <div className="columns">
@@ -166,9 +173,9 @@ class Responses extends Component {
           // onFetchData={this.onFetchData}
           />
           <div className="question-table-buttons p-t-20">
-            <button className="button is-danger question-table-button" onClick={this.goBack.bind(this)}>
-              <i className="fa fa-chevron-left" /> Back
-            </button>
+            <BackButton
+              onClick={this.goBack.bind(this)}
+            />
           </div>
         </div>
       </div>

@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { remote } from 'electron';
 import { createWriteStream } from 'fs';
 
+import { Button } from './Button';
+
 export class SaveFileButton extends Component {
 
   static propTypes = {
@@ -53,13 +55,12 @@ export class SaveFileButton extends Component {
 
   render() {
     return (
-      <button 
-        className="button"
+      <Button 
         onClick={ this.onClick }
         disabled={ this.state.isWriting }
       >
         { this.props.children || "Save" }
-      </button>
+      </Button>
     );
   }
 }

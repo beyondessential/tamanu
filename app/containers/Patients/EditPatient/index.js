@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+
+import { BackButton } from '../../../components/Button';
 
 import { Preloader } from '../../../components';
 import actions from '../../../actions/patients';
@@ -234,7 +235,7 @@ class EditPatient extends Component {
                     </div>
                   </div>
                   <div className={`column has-text-right ${selectedTab === 'general' ? 'is-hidden' : ''}`}>
-                    <Link className="button is-danger cancel" to="/patients">Return</Link>
+                    <BackButton to="/patients" />
                   </div>
                 </div>
               </div>

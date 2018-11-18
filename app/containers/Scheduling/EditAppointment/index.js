@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { assignIn } from 'lodash';
 import moment from 'moment';
 
+import { BackButton } from '../../../components/Button';
+
 import Serializer from '../../../utils/form-serialize';
 import { AppointmentModel } from '../../../models';
 
@@ -105,7 +107,7 @@ class EditAppointment extends Component {
                 </div>
               </div>
               <div className="column has-text-right">
-                <Link className="button is-danger cancel" to="/appointments">Return</Link>
+                <BackButton to="/appointments" />
                 <button className="button is-primary" type="submit">Update</button>
               </div>
             </div>

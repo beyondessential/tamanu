@@ -6,6 +6,8 @@ import { isEmpty } from 'lodash';
 import actions from '../../actions/scheduling';
 import { appointmentsColumns, dbViews, pageSizes } from '../../constants';
 
+import { Button } from '../../components/Button';
+
 class TodaysAppointment extends Component {
   constructor(props) {
     super(props);
@@ -37,11 +39,22 @@ class TodaysAppointment extends Component {
     const row = _row.original;
     return (
       <div key={row._id}>
-        <button className="button column-button" onClick={() => this.goEdit(row._id)}>Edit</button>
-        <button className="button is-primary column-checkin-button" onClick={() => this.checkIn(row._id)}>
-          <i className="fa fa-sign-in" /> Check In
-        </button>
-        <button className="button is-danger column-button" onClick={() => this.showDeleteModal(row)}>Delete</button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => this.checkIn(row._id)}
+        >
+          Check In
+        </Button>
+        <Button 
+          variant="outlined"
+          onClick={() => this.goEdit(row._id)}
+        >Edit</Button>
+        <Button
+          color="secondary"
+          variant="outlined"
+          onClick={() => this.showDeleteModal(row)}
+        >Cancel</Button>
       </div>
     );
   }

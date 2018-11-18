@@ -8,6 +8,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import CustomDateInput from '../../components/CustomDateInput';
 import { patientColumns, locationOptions } from '../../constants';
 import { PatientsCollection } from '../../collections';
+import { SearchButton } from '../../components/Button';
 
 class Outpatient extends Component<Props> {
   constructor(props) {
@@ -98,7 +99,7 @@ class Outpatient extends Component<Props> {
               />
             </div>
             <div className="column is-4">
-              <a className="button is-primary search">Search</a>
+              <SearchButton />
             </div>
           </div>
           <div className="columns form-table">

@@ -21,6 +21,8 @@ import {
   SelectGroup,
 } from '../../components';
 
+import { AddButton, BackButton } from '../../components/Button';
+
 class AddAppointment extends Component {
   constructor(props) {
     super(props);
@@ -312,8 +314,10 @@ class AddAppointment extends Component {
               />
             </div>
             <div className="column has-text-right">
-              <Link className="button is-danger cancel" to="/appointments">Cancel</Link>
-              <button className="button is-primary" type="submit" disabled={!appointmentModel.isValid()}>Add</button>
+              <BackButton to="/appointments" />
+              <AddButton
+                disabled={ !appointmentModel.isValid() }
+              />
             </div>
           </div>
         </form>
