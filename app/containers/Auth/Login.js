@@ -1,9 +1,17 @@
 import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+
 import { InputGroup } from '../../components';
+import { Button } from '../../components/Button';
+import { TamanuLogo } from '../../components/TamanuLogo';
+
 import Serializer from '../../utils/form-serialize';
 
-import { TamanuLogo } from '../../components/TamanuLogo';
+
+const LogoContainer = styled.div`
+  text-align: center;
+`;
 
 class Login extends Component {
   render() {
@@ -13,7 +21,9 @@ class Login extends Component {
         <div className="content no-sidebar">
           <div className="columns login-container">
             <div className="column is-3 login-form has-background-grey-lighter">
-              <TamanuLogo size="240px" />
+              <LogoContainer>
+                <TamanuLogo size="240px" />
+              </LogoContainer>
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -38,7 +48,11 @@ class Login extends Component {
                   required
                 />
                 <div className="column has-text-right">
-                  <button type="submit" className="button is-primary">Login</button>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                  >Login</Button>
                 </div>
               </form>
             </div>
