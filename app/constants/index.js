@@ -10,6 +10,8 @@ import {
   radiologyIcon,
 } from './images';
 
+import { availableReports } from '../containers/Reports/dummyReports';
+
 export const Colors = {
   searchTintColor: '#d2dae3',
   white: '#ffffff'
@@ -121,11 +123,6 @@ export const sidebarInfo = [
         path: '/patients/edit/new',
         icon: 'fa fa-plus'
       },
-      {
-        label: 'Reports',
-        path: '/patients/reports',
-        icon: 'fa fa-chevron-right'
-      }
     ]
   },
   {
@@ -295,7 +292,11 @@ export const sidebarInfo = [
     label: 'Reports',
     path: '/reports',
     icon: scheduleIcon,
-    children: []
+    children: availableReports.map(report => ({
+      label: report.name,
+      path: `/reports/${report.id}`,
+      icon: 'fa fa-chevron-right',
+    })),
   },
 ];
 
