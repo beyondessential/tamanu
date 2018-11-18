@@ -17,7 +17,7 @@ const AppContainer = styled.div`
 
 const AppContentsContainer = styled.div`
   height: 100vh;
-  overflow: scroll;
+  overflow: auto;
   flex-grow: 1;
 `;
 

@@ -18,3 +18,8 @@
 @import "./components/spacing-helpers.scss";
 @import "./components/modal.scss";
 @import '~react-toastify/dist/ReactToastify.css';
+
+html {
+  // override mini-reset.css to hide scrollbar
+  overflow-y: auto;
+}
