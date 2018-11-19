@@ -1,9 +1,8 @@
-import { to } from 'await-to-js';
-import { has, isEmpty, set, concat } from 'lodash';
+import React from 'react';
+import { has, isEmpty, set, concat, capitalize } from 'lodash';
 import moment from 'moment';
 import {
   pageSizes,
-  dateFormat,
   dbViews
 } from '../../constants';
 import {
@@ -13,7 +12,7 @@ import {
 } from '../types';
 import { AppointmentCollection } from '../../collections';
 
-export const fetchAppointments = ({ page, view = dbViews.appointmentRequested, keys = [] }) =>
+export const fetchAppointments = ({ page, view = dbViews.appointmentsSearch, keys = [] }) =>
   async dispatch => {
     try {
       dispatch({ type: FETCH_APPOINTMENTS_REQUEST });
@@ -43,3 +42,46 @@ export const fetchAppointments = ({ page, view = dbViews.appointmentRequested, k
     }
   };
 
+  export const fetchCalender = ({ view = dbViews.appointmentsSearch, keys = [] }) =>
+    async dispatch => {
+      try {
+        dispatch({ type: FETCH_APPOINTMENTS_REQUEST });
+        const appointmentCollection = new AppointmentCollection({
+          pageSize: pageSizes.appointments
+        });
+        // Merge keys
+        const viewKeys = concat(keys, dbViews.appointmentsSearchKeys.slice(keys.length));
+        // Fetch results
+        await appointmentCollection.fetchByView({ view, keys: viewKeys });
+        console.log('-json-', appointmentCollection.toJSON());
+        const appointments = appointmentCollection.toJSON().map(({ _id, startDate, endDate, allDay, patients, location }) => ({
+            _id,
+            allDay,
+            start: moment(startDate).toDate(),
+            end: moment(endDate).toDate(),
+            title: _getTitle({ patients, location }),
+          })
+        );
+
+        dispatch({
+          type: FETCH_APPOINTMENTS_SUCCESS,
+          appointments,
+          totalPages: appointmentCollection.state.totalPages,
+          loading: false,
+        });
+      } catch (err) {
+        dispatch({ type: FETCH_APPOINTMENTS_FAILED, err })
+      }
+    };
+
+  const _getTitle = ({ patients, location }) => {
+    let patient = '';
+    if (!isEmpty(patients) && has(patients[0], 'firstName') && has(patients[0], 'lastName'))
+      patient = `${capitalize(patients[0].firstName)} ${capitalize(patients[0].lastName)}`;
+
+    return (
+      <span className="is-size-7">
+        {patient} {location && <br />} {location}
+      </span>
+    )
+  };

@@ -77,9 +77,13 @@ export default Backbone.PageableCollection.extend({
   },
 
   fetchByView(opts = {}) {
-    const { view } = opts;
+    const { view, keys: viewKeys } = opts;
     const options = {
-      data: { view, ...opts }
+      data: {
+        ...opts,
+        view,
+        keys: isArray(viewKeys) ? viewKeys.join(',') : viewKeys,
+      }
     };
 
     return this.fetch(options);
