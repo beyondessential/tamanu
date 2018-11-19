@@ -36,7 +36,6 @@ class SearchAppointment extends Component {
 
   handleChange(props = this.props) {
     const { appointments, totalPages, loading } = props;
-    console.log('-handleChange', { appointments, totalPages, loading });
     if (!loading) this.setState({ appointments, totalPages, loading });
   }
 
@@ -62,7 +61,7 @@ class SearchAppointment extends Component {
   }
 
   submitForm(form) {
-    const keys = [form.startDate, moment().add(100, 'years'), form.status, form.type, form.practitioner];
+    const keys = [moment(form.startDate).startOf('day'), moment().add(100, 'years'), form.status, form.type, form.practitioner];
     this.setState({ keys }, () => this.fetchData({ page: 0 }));
   }
 
@@ -143,4 +142,3 @@ const mapDispatchToProps = dispatch => ({
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SearchAppointment);
-
