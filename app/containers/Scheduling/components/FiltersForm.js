@@ -97,7 +97,12 @@ class FiltersForm extends Component {
       visitOptions,
       appointmentStatusList,
     } = this.state;
-    const { loading, collapse } = this.props;
+
+    const {
+      loading,
+      collapse,
+      theatre
+    } = this.props;
 
     return (
       <Collapse in={collapse}>
@@ -111,14 +116,16 @@ class FiltersForm extends Component {
               onChange={this.handleInputChange}
               value={status}
             />
-            <SelectGroup
-              className="column is-3"
-              label="Type"
-              name="type"
-              options={visitOptions}
-              onChange={this.handleInputChange}
-              value={type}
-            />
+            {!theatre &&
+              <SelectGroup
+                className="column is-3"
+                label="Type"
+                name="type"
+                options={visitOptions}
+                onChange={this.handleInputChange}
+                value={type}
+              />
+            }
             <InputGroup
               name="practitioner"
               label="With"

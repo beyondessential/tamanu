@@ -45,7 +45,8 @@ class AppointmentsCalendar extends Component {
   }
 
   viewAppointment = ({ _id }) => {
-    this.props.history.push(`/appointments/appointment/${_id}`);
+    const { theatre } = this.props;
+    this.props.history.push(`/appointments/${!theatre ? 'appointment' : 'surgery'}/${_id}`);
   }
 
   setDates = dates => {
@@ -67,6 +68,7 @@ class AppointmentsCalendar extends Component {
   }
 
   fetchData = () => {
+    const { theatre } = this.props;
     const {
       startDate,
       endDate,
@@ -75,23 +77,24 @@ class AppointmentsCalendar extends Component {
       location,
       practitioner,
     } = this.state;
+    let keys = [];
+    let view = '';
 
-    const keys = [
-      startDate,
-      endDate,
-      status,
-      type,
-      practitioner,
-      location,
-    ];
+    if (theatre) {
+      keys = [ startDate, endDate, status, type, practitioner, location];
+      view = dbViews.appointmentsSurgerySearch;
+    } else {
+      keys = [ startDate, endDate, status, practitioner, location];
+      view = dbViews.appointmentsSearch;
+    }
 
     this.props.fetchCalender({
-      view: dbViews.appointmentsSearch,
-      keys
+      view, keys
     });
   }
 
   render() {
+    const { theatre } = this.props;
     const {
       appointments,
       loading,
@@ -102,14 +105,14 @@ class AppointmentsCalendar extends Component {
       <div className="create-content">
         <div className="create-top-bar">
           <span>
-            Appointments Calendar
+            {!theatre ? 'Appointments Calendar': 'Theatre Schedule'}
           </span>
           <div className="view-action-buttons p-t-10">
             <Button
               color="primary"
               variant='outlined'
               className="m-r-5"
-              component={props => <Link to="/appointments/appointment/new" {...props} />}
+              component={props => <Link to={`/appointments/${!theatre ? 'appointment' : 'surgery'}/new`} {...props} />}
             >
               <Icon className="fa fa-plus m-r-5" fontSize="inherit" /> New Appointment
             </Button>
@@ -125,6 +128,7 @@ class AppointmentsCalendar extends Component {
         <div className="create-container" >
           <div className="form with-padding">
             <FiltersForm
+              theatre={theatre}
               loading={loading}
               collapse={filtersOn}
               onSubmit={this.setFilters}
