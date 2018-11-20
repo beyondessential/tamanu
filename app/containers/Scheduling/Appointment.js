@@ -126,6 +126,7 @@ class AddAppointment extends Component {
   }
 
   parseDates() {
+    const { surgery } = this.props;
     const {
       appointmentModel,
       admissionStartDate,
@@ -139,7 +140,7 @@ class AddAppointment extends Component {
       othersAllDay,
     } = this.state;
 
-    if (appointmentModel.get('appointmentType') === 'admission') {
+    if (appointmentModel.get('appointmentType') === 'admission' && !surgery) {
       appointmentModel.set({
         startDate: admissionStartDate,
         endDate: admissionEndDate,
@@ -157,16 +158,22 @@ class AddAppointment extends Component {
   }
 
   submitForm(e) {
-    e.preventDefault();
+    const { surgery } = this.props;
     const { action, appointmentModel, patient } = this.state;
+    e.preventDefault();
     // Parse out dates
     this.parseDates();
+    // Set defaults for surgery
+    if (surgery) {
+      appointmentModel.set('appointmentType', 'surgery', { silent: true });
+    }
     // Save appointment
     this.props.saveAppointment({
       action,
       patient,
       model: appointmentModel,
-      history: this.props.history
+      history: this.props.history,
+      surgery
     });
   }
 
@@ -174,6 +181,7 @@ class AddAppointment extends Component {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
 
+    const { surgery } = this.props;
     const {
       action,
       appointmentModel,
@@ -193,7 +201,7 @@ class AddAppointment extends Component {
       <div className="create-content">
         <div className="create-top-bar">
           <span>
-            {capitalize(action)} Appointment
+            {`${capitalize(action)} ${surgery?'Surgical':''} Appointment`}
           </span>
         </div>
         <form
@@ -211,7 +219,7 @@ class AddAppointment extends Component {
               />
             </div>
             <div className="columns">
-              {appointment.appointmentType !== 'admission' &&
+              {(appointment.appointmentType !== 'admission' || surgery) &&
                 <React.Fragment>
                   <DatepickerGroup
                     className="column is-3"
@@ -271,7 +279,7 @@ class AddAppointment extends Component {
                 </React.Fragment>
               }
 
-              {appointment.appointmentType === 'admission' &&
+              {appointment.appointmentType === 'admission' && !surgery &&
                 <React.Fragment>
                   <DatepickerGroup
                     className="column is-3"
@@ -306,41 +314,63 @@ class AddAppointment extends Component {
                 </React.Fragment>
               }
             </div>
-            <div className="columns">
-              <SelectGroup
-                className="column is-5"
-                name="appointmentType"
-                label="Type"
-                options={visitOptions}
-                value={appointment.appointmentType}
-                onChange={this.handleUserInput}
-                required
-              />
-              <InputGroup
-                className="column"
-                name="provider"
-                label="With"
-                value={appointment.provider}
-                onChange={this.handleUserInput}
-              />
-            </div>
-            <div className="columns">
-              <InputGroup
-                className="column is-5"
-                name="location"
-                label="Location"
-                value={appointment.location}
-                onChange={this.handleUserInput}
-              />
-              <SelectGroup
-                className="column is-4"
-                name="status"
-                label="Status"
-                options={appointmentStatusList}
-                value={appointment.status}
-                onChange={this.handleUserInput}
-              />
-            </div>
+            {!surgery &&
+              <React.Fragment>
+                <div className="columns">
+                  <SelectGroup
+                    className="column is-5"
+                    name="appointmentType"
+                    label="Type"
+                    options={visitOptions}
+                    value={appointment.appointmentType}
+                    onChange={this.handleUserInput}
+                    required
+                  />
+                  <InputGroup
+                    className="column is-4"
+                    name="provider"
+                    label="With"
+                    value={appointment.provider}
+                    onChange={this.handleUserInput}
+                  />
+                </div>
+                <div className="columns">
+                  <InputGroup
+                    className="column is-5"
+                    name="location"
+                    label="Location"
+                    value={appointment.location}
+                    onChange={this.handleUserInput}
+                  />
+                  <SelectGroup
+                    className="column is-4"
+                    name="status"
+                    label="Status"
+                    options={appointmentStatusList}
+                    value={appointment.status}
+                    onChange={this.handleUserInput}
+                  />
+                </div>
+              </React.Fragment>
+            }
+            {surgery &&
+              <div className="columns">
+                <InputGroup
+                  className="column is-4"
+                  name="provider"
+                  label="With"
+                  value={appointment.provider}
+                  onChange={this.handleUserInput}
+                />
+                <InputGroup
+                  className="column is-5"
+                  name="location"
+                  label="Location"
+                  value={appointment.location}
+                  onChange={this.handleUserInput}
+                />
+              </div>
+            }
             <div className="columns">
               <TextareaGroup
                 label="Notes"

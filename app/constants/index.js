@@ -23,7 +23,9 @@ export const dbViews = {
   medicationRequested: 'medication_requested',
   medicationFulfilled: 'medication_fulfilled',
   appointmentsSearch: 'appointments_search', // keys [ startDate, endDate, status, type, practitioner, location ]
-  appointmentsSearchKeys: [moment(), moment(), '', '', '', '']
+  appointmentsSearchKeys: [moment(), moment(), '', '', '', ''],
+  appointmentsSurgerySearch: 'appointments_surgery_search', // keys [ startDate, endDate, status, practitioner, location ]
+  appointmentsSurgerySearchKeys: [moment(), moment(), '', '', '']
 };
 
 const columnStyle = {
@@ -166,7 +168,7 @@ export const sidebarInfo = [
       },
       {
         label: 'Schedule Surgery',
-        path: '/appointments/edit/newsurgery',
+        path: '/appointments/surgery/new',
         icon: 'fa fa-plus'
       }
     ]

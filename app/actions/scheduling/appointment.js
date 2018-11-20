@@ -36,14 +36,13 @@ export const fetchAppointment = ({ id }) =>
     });
   };
 
-export const saveAppointment = ({ action, model, patient, history }) =>
+export const saveAppointment = ({ action, model, patient, history, surgery=false }) =>
   async dispatch => {
     dispatch({ type: SAVE_APPOINTMENT_REQUEST });
     if (model.isValid()) {
       try {
         // model.set({ patient });
         await model.save();
-        console.log('-action-', action);
         // Attach to patient
         if (action.toLowerCase() === 'new'){
           const patientModel = new PatientModel({ _id: patient });
@@ -53,7 +52,7 @@ export const saveAppointment = ({ action, model, patient, history }) =>
         }
         dispatch({ type: SAVE_APPOINTMENT_SUCCESS });
         toast('Appointment saved successfully.', { type: 'success' });
-        if (action.toLowerCase() === 'new') history.push(`/appointments/appointment/${model.id}`);
+        if (action.toLowerCase() === 'new') history.push(`/appointments/${surgery ? 'surgery' : 'appointment'}/${model.id}`);
       } catch (error) {
         console.log({ error });
         dispatch({ type: SAVE_APPOINTMENT_FAILED, error });
