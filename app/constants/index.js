@@ -138,7 +138,7 @@ export const sidebarInfo = [
     children: [
       {
         label: 'Appointments This Week',
-        path: '/appointments',
+        path: '/appointments/week',
         icon: 'fa fa-chevron-right'
       },
       {
@@ -1293,39 +1293,40 @@ export const appointmentsColumns = [{
   Header: 'Date',
   headerStyle,
   style: columnStyle,
-  minWidth: 100
+  minWidth: 100,
 }, {
   accessor: 'patientsName',
   Header: 'Name',
   headerStyle,
   style: columnStyle,
-  minWidth: 100
+  minWidth: 100,
+  sortable: false,
 }, {
   id: 'appointmentType',
   accessor: row => capitalize(row.appointmentType),
   Header: 'Type',
   headerStyle,
   style: columnStyle,
-  minWidth: 80
+  minWidth: 80,
 }, {
   accessor: 'location',
   Header: 'Location',
   headerStyle,
   style: columnStyle,
-  minWidth: 100
+  minWidth: 100,
 }, {
   accessor: 'provider',
   Header: 'With',
   headerStyle,
   style: columnStyle,
-  minWidth: 80
+  minWidth: 80,
 }, {
   id: 'status',
   accessor: row => capitalize(row.status),
   Header: 'Status',
   headerStyle,
   style: columnStyle,
-  minWidth: 80
+  minWidth: 80,
 }, {
   id: 'actions',
   Header: 'Actions',
@@ -1334,5 +1335,6 @@ export const appointmentsColumns = [{
   },
   style: columnStyle,
   minWidth: 250,
-  Cell: null
+  Cell: null,
+  sortable: false,
 }];

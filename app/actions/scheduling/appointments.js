@@ -1,5 +1,5 @@
 import React from 'react';
-import { has, isEmpty, set, concat, capitalize } from 'lodash';
+import { has, isEmpty, set, concat, capitalize, head } from 'lodash';
 import moment from 'moment';
 import {
   pageSizes,
@@ -12,15 +12,24 @@ import {
 } from '../types';
 import { AppointmentCollection } from '../../collections';
 
-export const fetchAppointments = ({ page, view = dbViews.appointmentsSearch, keys = [] }) =>
-  async dispatch => {
+export const fetchAppointments = ({
+  page,
+  view = dbViews.appointmentsSearch,
+  keys = [],
+  sorted = [],
+  pageSize = pageSizes.appointments
+}) => {
+  return async dispatch => {
     try {
       dispatch({ type: FETCH_APPOINTMENTS_REQUEST });
-      const appointmentCollection = new AppointmentCollection({
-        pageSize: pageSizes.appointments
-      });
+      const appointmentCollection = new AppointmentCollection({ pageSize });
       // Merge keys
       const viewKeys = concat(keys, dbViews.appointmentsSearchKeys.slice(keys.length));
+      // Set pagination options
+      if (sorted.length > 0) {
+        const sort = head(sorted);
+        appointmentCollection.setSorting(sort.id, sort.desc ? 1 : -1);
+      }
       // Fetch results
       await appointmentCollection.getPage(page, view, viewKeys);
       const appointments = appointmentCollection.models.map(object => {
@@ -41,8 +50,9 @@ export const fetchAppointments = ({ page, view = dbViews.appointmentsSearch, key
       dispatch({ type: FETCH_APPOINTMENTS_FAILED, err })
     }
   };
+};
 
-  export const fetchCalender = ({ view = dbViews.appointmentsSearch, keys = [] }) =>
+export const fetchCalender = ({ view = dbViews.appointmentsSearch, keys = [] }) =>
     async dispatch => {
       try {
         dispatch({ type: FETCH_APPOINTMENTS_REQUEST });
@@ -53,7 +63,6 @@ export const fetchAppointments = ({ page, view = dbViews.appointmentsSearch, key
         const viewKeys = concat(keys, dbViews.appointmentsSearchKeys.slice(keys.length));
         // Fetch results
         await appointmentCollection.fetchByView({ view, keys: viewKeys });
-        console.log('-json-', appointmentCollection.toJSON());
         const appointments = appointmentCollection.toJSON().map(({ _id, startDate, endDate, allDay, patients, location }) => ({
             _id,
             allDay,

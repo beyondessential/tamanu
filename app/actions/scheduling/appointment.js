@@ -8,6 +8,9 @@ import {
   SAVE_APPOINTMENT_REQUEST,
   SAVE_APPOINTMENT_SUCCESS,
   SAVE_APPOINTMENT_FAILED,
+  DELETE_APPOINTMENT_FAILED,
+  DELETE_APPOINTMENT_REQUEST,
+  DELETE_APPOINTMENT_SUCCESS,
 } from '../types';
 import {
   PatientModel,
@@ -63,4 +66,19 @@ export const saveAppointment = ({ action, model, patient, history, surgery=false
       dispatch({ type: SAVE_APPOINTMENT_FAILED, error });
     }
   };
+
+  export const deleteAppointment = ({ _id }) =>
+    async dispatch => {
+      dispatch({ type: DELETE_APPOINTMENT_REQUEST });
+
+      try {
+        const appointment = new AppointmentModel({ _id });
+        await appointment.destroy();
+        dispatch({ type: DELETE_APPOINTMENT_SUCCESS });
+        toast('Appointment deleted successfully.', { type: 'success' });
+      } catch (error) {
+        console.log({ error });
+        dispatch({ type: DELETE_APPOINTMENT_FAILED, error });
+      }
+    };
 
