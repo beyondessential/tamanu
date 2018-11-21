@@ -57,7 +57,7 @@ class Appointments extends Component {
       <div key={row._id}>
         <button className="button column-button" onClick={() => this.goEdit(row._id)}>Edit</button>
         {toLower(row.status) === 'scheduled' &&
-          <button className="button is-primary column-checkin-button" onClick={() => this.checkIn(row._id)}>
+          <button className="button is-primary column-checkin-button" onClick={() => this.checkIn(row.patients[0]._id)}>
             <i className="fa fa-sign-in" /> Check In
           </button>
         }
@@ -87,8 +87,8 @@ class Appointments extends Component {
     this.props.history.push(`/appointments/appointment/${id}`);
   }
 
-  checkIn = (id) => {
-    this.props.history.push(`/appointments/check-in/${id}`);
+  checkIn = (patientId) => {
+    this.props.history.push(`/patients/check-in/${patientId}`);
   }
 
   showDeleteModal = (appointment) => {

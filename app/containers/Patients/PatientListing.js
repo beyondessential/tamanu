@@ -74,7 +74,7 @@ class PatientListing extends Component {
       if (!isEmpty(admission)) dischargeUrl = `/patients/visit/${patient.id}/${admission.id}`;
       this.props.history.push(dischargeUrl);
     } else {
-      this.props.history.push(`/patients/checkin/${patientId}`);
+      this.props.history.push(`/patients/check-in/${patientId}`);
     }
   }
 
