@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Field } from 'formik';
+import { FastField } from 'formik';
 
 import { SelectField } from './SelectField';
 import { TextField } from './TextField';
@@ -35,7 +35,7 @@ export const AutoField = ({ definitions, field, ...overrides }) => {
 
   if(isRelation) {
     return (
-      <Field 
+      <FastField 
         name={field}
         type={type} 
         component={ RelationField }
@@ -47,7 +47,7 @@ export const AutoField = ({ definitions, field, ...overrides }) => {
   const component = getComponentForField(definition);
 
   return (
-    <Field
+    <FastField
       name={field}
       component={component}
       {...otherProps}
