@@ -13,8 +13,12 @@
 @import '~react-big-calendar/lib/css/react-big-calendar.css';
 @import "./components/create.scss";
 @import "./components/content.scss";
-@import "./components/sidebar.scss";
 @import "./components/custom.scss";
 @import "./components/spacing-helpers.scss";
 @import "./components/modal.scss";
 @import '~react-toastify/dist/ReactToastify.css';
+
+html {
+  // override mini-reset.css to hide scrollbar
+  overflow-y: auto;
+}
