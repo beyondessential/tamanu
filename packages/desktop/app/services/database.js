@@ -8,9 +8,9 @@ import createIndex from '../utils/create-index';
 import backboneSync from '../utils/backbone-sync';
 // import configService from './config';
 // Attach pocuhdb find plugin
-PouchDB.plugin(require('pouchdb-find'));
+// PouchDB.plugin(require('pouchdb-find'));
 
-PouchDB.debug.enable('pouchdb:find');
+// PouchDB.debug.enable('pouchdb:find');
 
 class Database {
   constructor() {

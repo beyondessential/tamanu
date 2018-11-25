@@ -8,16 +8,23 @@ import fs from 'fs';
 import { dependencies as externals } from './app/package.json';
 import { dependencies as possibleExternals } from './package.json';
 
+const rootNodeModules = '../../node_modules';
+const localNodeModules = './node_modules';
+
 // Find all the dependencies without a `main` property and add them as webpack externals
 function filterDepWithoutEntryPoints(dep: string): boolean {
   // Return true if we want to add a dependency to externals
   try {
+    let modulesPath = rootNodeModules;
     // If the root of the dependency has an index.js, return true
-    if (fs.existsSync(path.join(__dirname, `node_modules/${dep}/index.js`))) {
+    if (fs.existsSync(`${rootNodeModules}/${dep}/index.js`)) {
       return false;
     }
+    if (!fs.existsSync(`${rootNodeModules}/${dep}/package.json`)) {
+      modulesPath = localNodeModules;
+    }
     const pgkString = fs
-      .readFileSync(path.join(__dirname, `node_modules/${dep}/package.json`))
+      .readFileSync(`${modulesPath}/${dep}/package.json`)
       .toString();
     const pkg = JSON.parse(pgkString);
     const fields = ['main', 'module', 'jsnext:main', 'browser'];

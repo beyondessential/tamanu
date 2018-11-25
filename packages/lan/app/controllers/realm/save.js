@@ -1,7 +1,7 @@
 const { has, set, find, isFunction } = require('lodash');
 const shortId = require('shortid');
 const { objectToJSON } = require('../../utils');
-const { schemas } = require('../../../tamanu-common/schemas');
+const { schemas } = require('../../../../shared/schemas');
 
 module.exports = (req, res) => {
   const realm = req.app.get('database');

@@ -1,3 +1,0 @@
-[submodule "tamanu-common"]
-	path = packages/lan/tamanu-common
-	url = git@github.com:beyondessential/tamanu-common.git

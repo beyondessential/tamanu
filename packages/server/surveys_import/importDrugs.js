@@ -5,8 +5,8 @@ const shortid = require('shortid');
 const { to } = require('await-to-js');
 const request = require('request');
 const Realm = require('realm');
-const DrugSchema = require('../tamanu-common/schemas/drug');
-const ChangeSchema = require('../tamanu-common/schemas/change');
+const DrugSchema = require('.../../shared/schemas/drug');
+const ChangeSchema = require('.../../shared/schemas/change');
 
 const database = new Realm({
   path: '../data/main.realm',

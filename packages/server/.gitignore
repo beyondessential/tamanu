@@ -25,15 +25,10 @@ coverage
 # Benchmarking
 benchmarks/graphs
 
-<<<<<<< HEAD:packages/server/.gitignore
 config/development\.js
-
+config\.js
+config\.demo\.js
 data/
-=======
 release
 data
 config
-
-config\.js
-config\.demo\.js
->>>>>>> old_lan/master:.gitignore

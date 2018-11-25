@@ -12,7 +12,7 @@
   const Database = require('./app/services/database');
   const Listeners = require('./app/services/listeners');
   const Auth = require('./app/services/auth');
-  const { schemas, version: schemaVersion } = require('./tamanu-common/schemas');
+  const { schemas, version: schemaVersion } = require('../shared/schemas');
 
   const port = config.port || 4500;
 
