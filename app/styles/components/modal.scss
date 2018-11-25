@@ -1,0 +1,91 @@
+.tamanu-error-modal {
+  .modal-header {
+    border-bottom: 1px solid gray;
+    padding-bottom: 10px;
+    h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: bold;
+      letter-spacing: -0.025em;
+      color: #000;
+    }
+  }
+  .modal-content {
+    margin-top: 20px;
+    .modal-text {
+      margin-top: 20px;
+    }
+    .alert {
+      padding: 10px;
+      background: #FCD4D3;
+      span {
+        color: #C53B62;
+      }
+    }
+    span {
+      color: #2f4358;
+      display: inline-block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .select {
+      width: 100%;
+      select {
+        width: 100%;
+      }
+    }
+    .take-panel {
+      border: 1px solid #DEE2E7;
+      border-radius: 5px;
+      padding: 10px;
+      min-height: 300px;
+      span {
+        font-size: 30px;
+        color: #31425B;
+      }
+      .take-button {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background: #D9D9D9;
+      }
+    }
+    .upload-panel {
+      border: 1px solid #DEE2E7;
+      border-radius: 5px;
+      padding: 10px;
+      min-height: 30px;
+      input {
+        font-size: 15px;
+      }
+      span {
+        font-size: 14px;
+        margin-left: 10px;
+        margin-top: 5px;
+        color: black;
+        font-weight: normal;
+      }
+      .take-button {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background: #D9D9D9;
+      }
+    }
+    .attention {
+      padding: 10px;
+      background: #F7F2C4;
+      color: #876F34;
+      margin-top: 20px;
+    }
+  }
+  .modal-footer {
+    margin-top: 20px;
+    .cancel {
+      margin-right: 5px;
+    }
+    button {
+      margin-right: 5px;
+    }
+  }
+}

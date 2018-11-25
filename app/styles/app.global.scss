@@ -1,0 +1,24 @@
+/*
+ * @NOTE: Prepend a `~` to css file paths that are in your node_modules
+ *        See https://github.com/webpack-contrib/sass-loader#imports
+ */
+ @import "./global/colors.scss";
+ @import "~bulma/bulma.sass";
+@import "~font-awesome/css/font-awesome.css";
+@import '~react-table/react-table.css';
+@import "~react-responsive-modal/lib/react-responsive-modal.css";
+@import "~react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
+@import '~react-datepicker/dist/react-datepicker.css';
+@import '~react-select/dist/react-select.css';
+@import '~react-big-calendar/lib/css/react-big-calendar.css';
+@import "./components/create.scss";
+@import "./components/content.scss";
+@import "./components/custom.scss";
+@import "./components/spacing-helpers.scss";
+@import "./components/modal.scss";
+@import '~react-toastify/dist/ReactToastify.css';
+
+html {
+  // override mini-reset.css to hide scrollbar
+  overflow-y: auto;
+}

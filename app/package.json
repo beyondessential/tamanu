@@ -1,0 +1,27 @@
+{
+  "name": "tamanu",
+  "productName": "Tamanu",
+  "version": "1.0.0",
+  "description": "Tamanu Electron app",
+  "main": "./main.prod.js",
+  "author": {
+    "name": "Salman Amjad",
+    "email": "salman.amjad@protonmail.com",
+    "url": "https://github.com/salman-amjad"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beyondessential/tamanu-desktop.git"
+  },
+  "scripts": {
+    "electron-rebuild": "node -r babel-register ../internals/scripts/ElectronRebuild.js",
+    "postinstall": "npm run electron-rebuild"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "pouchdb": "^6.4.3",
+    "pouchdb-browser": "^6.4.3",
+    "pouchdb-find": "^6.4.3",
+    "firebase": "^5.1.0"
+  }
+}
