@@ -1,5 +1,9 @@
 # OS X
 .DS_Store*
+<<<<<<< HEAD
+=======
+Icon?
+>>>>>>> old_shared/master
 ._*
 
 # Windows
@@ -25,9 +29,13 @@ coverage
 # Benchmarking
 benchmarks/graphs
 
+<<<<<<< HEAD
 release
 data
 config
 
 config\.js
 config\.demo\.js
+=======
+config/development\.js
+>>>>>>> old_shared/master

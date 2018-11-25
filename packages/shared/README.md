@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Tamanu
 
 > This is a [mono-repo](https://github.com/babel/babel/blob/master/doc/design/monorepo.md)
@@ -29,3 +30,11 @@ $ cd ./packages/lan && yarn add json-prune
 * [tamanu-lan](https://github.com/beyondessential/tamanu/tree/master/packages/lan)
 * [tamanu-server](https://github.com/beyondessential/tamanu/tree/master/packages/server)
 * [shared-components](https://github.com/beyondessential/tamanu/tree/master/packages/shared)
+=======
+# Tamanu Common
+
+Shared code between Tamanu's components.
+
+    ./schemas - Schemas for Realm DB
+
+>>>>>>> old_shared/master

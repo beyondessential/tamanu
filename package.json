@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "name": "tamanu",
   "version": "1.0.0",
   "description": "This repo contains all the packages for Tamanu",
@@ -25,26 +24,4 @@
     ]
   },
   "devDependencies": {}
-=======
-  "name": "tamanu-common",
-  "version": "1.0.0",
-  "description": "Some common components for Tamanu Lan & Server",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/beyondessential/tamanu-common.git"
-  },
-  "author": "Salman Amjad",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/beyondessential/tamanu-common/issues"
-  },
-  "homepage": "https://github.com/beyondessential/tamanu-common#readme",
-  "dependencies": {
-    "lodash": "^4.17.11"
-  }
->>>>>>> old_shared/master
 }
