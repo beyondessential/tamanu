@@ -14,7 +14,7 @@ const run = async () => {
     const Listeners = require('./app/services/listeners');
     const appRoutes = require('./app/routes');
     const seed = require('./.seeds');
-    const { schemas, version: schemaVersion } = require('../../shared/schemas');
+    const { schemas, version: schemaVersion } = require('../shared/schemas');
 
     // Init our app
     const app = express();

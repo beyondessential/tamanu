@@ -1,5 +1,5 @@
 const { each } = require('lodash');
-const { schemas } = require('../.../../shared/schemas');
+const { schemas } = require('../../../shared/schemas');
 const QueueManager = require('./queue-manager');
 const Sync = require('./sync');
 

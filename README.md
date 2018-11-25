@@ -21,6 +21,7 @@ $ yarn config set workspaces-experimental true
 $ yarn config set workspaces-nohoist-experimental true
 $ yarn
 $ cd ./packages/lan && yarn add json-prune
+$ cd ./packages/server && yarn add config
 ```
 
 ## Components
