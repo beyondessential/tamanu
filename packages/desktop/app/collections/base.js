@@ -32,7 +32,8 @@ export default Backbone.PageableCollection.extend({
   },
 
   fetchAll(opts = {}) {
-    const model = new this.model();
+    const { model: Model } = this;
+    const model = new Model();
     const { docType } = model.attributes;
     const fields = opts.fields || keys(model.attributes);
     const selector = opts.selector || {};
@@ -51,7 +52,8 @@ export default Backbone.PageableCollection.extend({
   },
 
   fetchResults(opts = {}) {
-    const model = new this.model();
+    const { model: Model } = this;
+    const model = new Model();
     const { docType } = model.attributes;
     const fields = (opts && opts.fields) || keys(model.attributes);
     const selector = (opts && opts.selector) || {};
@@ -90,7 +92,8 @@ export default Backbone.PageableCollection.extend({
   },
 
   find(opts = {}) {
-    const model = new this.model();
+    const { model: Model } = this;
+    const model = new Model();
     const { docType } = model.attributes;
     const fields = (opts && opts.fields) || keys(model.attributes);
     let selector = (opts && opts.selector) || {};
@@ -129,10 +132,10 @@ export default Backbone.PageableCollection.extend({
     this.filters.keyword = keyword;
   },
 
-  getPage(page, view, keys, options) {
-    if (!options) options = {};
+  getPage(page, view, viewKeys, options = {}) {
     if (view) set(options, 'data.view', view);
-    if (keys) set(options, 'data.keys', isArray(keys) ? keys.join(',') : keys);
+    if (viewKeys) set(options, 'data.keys', isArray(viewKeys) ? viewKeys.join(',') : viewKeys);
+    if (options.pageSize) this.state.pageSize = options.pageSize
     return Backbone.PageableCollection.prototype.getPage.apply(this, [page, options]);
   },
 
