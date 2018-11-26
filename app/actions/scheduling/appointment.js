@@ -69,18 +69,18 @@ export const saveAppointment = ({ action, model, patient, history, surgery=false
     }
   };
 
-  export const deleteAppointment = ({ _id }) =>
-    async dispatch => {
-      dispatch({ type: DELETE_APPOINTMENT_REQUEST });
+export const deleteAppointment = ({ _id }) =>
+  async dispatch => {
+    dispatch({ type: DELETE_APPOINTMENT_REQUEST });
 
-      try {
-        const appointment = new AppointmentModel({ _id });
-        await appointment.destroy();
-        dispatch({ type: DELETE_APPOINTMENT_SUCCESS });
-        toast('Appointment deleted successfully.', { type: 'success' });
-      } catch (error) {
-        console.log({ error });
-        dispatch({ type: DELETE_APPOINTMENT_FAILED, error });
-      }
-    };
+    try {
+      const appointment = new AppointmentModel({ _id });
+      await appointment.destroy();
+      dispatch({ type: DELETE_APPOINTMENT_SUCCESS });
+      toast('Appointment deleted successfully.', { type: 'success' });
+    } catch (error) {
+      console.log({ error });
+      dispatch({ type: DELETE_APPOINTMENT_FAILED, error });
+    }
+  };
 
