@@ -1,13 +1,10 @@
-import shortid from 'shortid';
-import { defaults, isObject, concat, chain, pick, mapKeys } from 'lodash';
+import { defaults, isObject, concat, chain, pick } from 'lodash';
 import Backbone from 'backbone-associations';
 import BaseModel from './base';
-import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/survey`,
   defaults: () => defaults({
-      _id: shortid.generate(),
       name: null,
       code: null,
       imageData: null,

@@ -200,3 +200,6 @@ a:hover {
 .has-text-success {
   color: $primary !important;
 }
+.react-datepicker-popper{
+  z-index: 999 !important;
+}

@@ -1,11 +1,9 @@
-import shortid from 'shortid';
 import { defaults, isEmpty } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/procedureMedication`,
   defaults: () => defaults({
-      _id: shortid.generate(),
     medication: '',
     quantity: '',
   }, BaseModel.prototype.defaults),

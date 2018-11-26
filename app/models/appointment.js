@@ -1,5 +1,4 @@
 import Backbone from 'backbone-associations';
-import shortid from 'shortid';
 import moment from 'moment';
 import { defaults } from 'lodash';
 import BaseModel from './base';
@@ -7,7 +6,6 @@ import BaseModel from './base';
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/appointment`,
   defaults: () => defaults({
-      _id: shortid.generate(),
       allDay: true,
       provider: '',
       location: '',
@@ -28,6 +26,13 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'visits',
       relatedModel: () => require('./visit')
+    }
+  ],
+
+  reverseRelations: [
+    {
+      key: 'patients',
+      model: require('./patient')
     }
   ],
 

@@ -33,7 +33,7 @@ export default function Routes({ url }) {
         <Route path={`${url}/visit/:patientId/:visitId/procedure`} component={Procedure} />
         <Route path={`${url}/visit/:patientId/:id`} component={Visit} />
         <Route path={`${url}/visit/:patientId`} component={Visit} />
-        <Route path={`${url}/checkin/:patientId`} component={Visit} />
+        <Route path={`${url}/check-in/:patientId`} component={Visit} />
       </Switch>
     </div>
   );

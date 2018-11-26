@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Select from 'react-select';
 import { head } from 'lodash';
-import { dateFormat, timeFormat } from '../constants';
 
 class SelectGroup extends Component {
   static propTypes = {
@@ -80,6 +79,7 @@ class SelectGroup extends Component {
       labelClass,
       readOnly,
       onChange,
+      defaultValue,
       ...others
     } = this.props;
     const { value } = this.state;

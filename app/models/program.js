@@ -1,13 +1,10 @@
-import shortid from 'shortid';
 import { defaults } from 'lodash';
 import Backbone from 'backbone-associations';
 import BaseModel from './base';
-import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/program`,
   defaults: () => defaults({
-      _id: shortid.generate(),
       name: null,
       programType: 'direct',
       surveys: []

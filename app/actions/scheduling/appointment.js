@@ -1,6 +1,6 @@
 import { to } from 'await-to-js';
 import { toast } from 'react-toastify';
-import moment from 'moment';
+import { has, isEmpty } from 'lodash';
 import {
   FETCH_APPOINTMENT_REQUEST,
   FETCH_APPOINTMENT_SUCCESS,
@@ -8,22 +8,29 @@ import {
   SAVE_APPOINTMENT_REQUEST,
   SAVE_APPOINTMENT_SUCCESS,
   SAVE_APPOINTMENT_FAILED,
+  DELETE_APPOINTMENT_FAILED,
+  DELETE_APPOINTMENT_REQUEST,
+  DELETE_APPOINTMENT_SUCCESS,
 } from '../types';
 import {
   PatientModel,
   AppointmentModel,
-  VisitModel,
 } from '../../models';
 
 export const fetchAppointment = ({ id }) =>
   async dispatch => {
     dispatch({ type: FETCH_APPOINTMENT_REQUEST });
     let error = null;
-    const action = id ? 'edit' : 'new';
+    const action = id ? 'update' : 'new';
     const appointmentModel = new AppointmentModel();
-    if (action === 'edit' && id && !error) {
+    if (action === 'update' && id && !error) {
       appointmentModel.set({ _id: id });
       [error] = await to(appointmentModel.fetch({ relations: true, deep: false }));
+      // Set patient
+      const { parents } = appointmentModel;
+      if (has(parents, 'patients') && !isEmpty(parents.patients)) {
+        appointmentModel.set('patient', parents.patients[0].id);
+      }
     }
     if (error) return dispatch({ type: FETCH_APPOINTMENT_FAILED, error });
     dispatch({
@@ -33,12 +40,11 @@ export const fetchAppointment = ({ id }) =>
     });
   };
 
-export const saveAppointment = ({ action, model, patient, history }) =>
+export const saveAppointment = ({ action, model, patient, history, surgery=false }) =>
   async dispatch => {
     dispatch({ type: SAVE_APPOINTMENT_REQUEST });
     if (model.isValid()) {
       try {
-        model.set({ patient });
         await model.save();
         // Attach to patient
         if (action === 'new'){
@@ -49,7 +55,9 @@ export const saveAppointment = ({ action, model, patient, history }) =>
         }
         dispatch({ type: SAVE_APPOINTMENT_SUCCESS });
         toast('Appointment saved successfully.', { type: 'success' });
-        if (action === 'new') history.push(`/appointments/appointment/${model.id}`);
+        if (action === 'new') {
+          history.push(`/appointments/${surgery ? 'surgery' : 'appointment'}/${model.id}`);
+        }
       } catch (error) {
         console.log({ error });
         dispatch({ type: SAVE_APPOINTMENT_FAILED, error });
@@ -58,6 +66,21 @@ export const saveAppointment = ({ action, model, patient, history }) =>
       const error = model.validationError;
       console.log({ error });
       dispatch({ type: SAVE_APPOINTMENT_FAILED, error });
+    }
+  };
+
+export const deleteAppointment = ({ _id }) =>
+  async dispatch => {
+    dispatch({ type: DELETE_APPOINTMENT_REQUEST });
+
+    try {
+      const appointment = new AppointmentModel({ _id });
+      await appointment.destroy();
+      dispatch({ type: DELETE_APPOINTMENT_SUCCESS });
+      toast('Appointment deleted successfully.', { type: 'success' });
+    } catch (error) {
+      console.log({ error });
+      dispatch({ type: DELETE_APPOINTMENT_FAILED, error });
     }
   };
 

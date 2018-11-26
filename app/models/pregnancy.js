@@ -1,13 +1,10 @@
-import shortid from 'shortid';
 import Backbone from 'backbone-associations';
 import { defaults, clone } from 'lodash';
 import BaseModel from './base';
-import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/pregnancy`,
   defaults: () => defaults({
-      _id: shortid.generate(),
       conceiveDate: Date, // estimated
       deliveryDate: Date, // estimated
       child: '',
