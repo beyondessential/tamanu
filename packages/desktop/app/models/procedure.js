@@ -1,14 +1,11 @@
-import shortid from 'shortid';
 import Backbone from 'backbone-associations';
 import { defaults, isEmpty } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
-import { mapRelations } from '../utils';
 
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/procedure`,
   defaults: () => defaults({
-      _id: shortid.generate(),
     anesthesiaType: '',
     anesthesiologist: '',
     assistant: '',

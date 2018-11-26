@@ -5,6 +5,9 @@ import {
   SAVE_APPOINTMENT_REQUEST,
   SAVE_APPOINTMENT_SUCCESS,
   SAVE_APPOINTMENT_FAILED,
+  DELETE_APPOINTMENT_FAILED,
+  DELETE_APPOINTMENT_REQUEST,
+  DELETE_APPOINTMENT_SUCCESS,
 } from '../../actions/types';
 
 export default {
@@ -33,6 +36,20 @@ export default {
   [SAVE_APPOINTMENT_FAILED]: ({ error }, state) => ({
     ...state,
     error,
+    loading: false
+  }),
+  [DELETE_APPOINTMENT_FAILED]: (_, state) => ({
+    ...state,
+    loading: true
+  }),
+  [DELETE_APPOINTMENT_REQUEST]: (_, state) => ({
+    ...state,
+    loading: false
+  }),
+  [DELETE_APPOINTMENT_SUCCESS]: ({ error }, state) => ({
+    ...state,
+    error,
+    reFetch: true,
     loading: false
   }),
 };

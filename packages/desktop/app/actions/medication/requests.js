@@ -21,7 +21,7 @@ export const fetchMedications = ({ page, view = dbViews.medicationRequested }) =
         pageSize: pageSizes.medicationRequests
       });
       // medicationCollection.setPageSize(pageSizes.medicationRequests);
-      await medicationCollection.getPage(page, view).promise();
+      await medicationCollection.getPage(page, view);
       if (medicationCollection.models.length > 0) {
         const tasks = [];
         medicationCollection.models.forEach(model => tasks.push(_prepareMedication(model)));

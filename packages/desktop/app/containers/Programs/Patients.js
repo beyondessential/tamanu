@@ -73,7 +73,7 @@ class Patients extends Component {
       if (state.sorted.length > 0) this.props.collection.setSorting(sort.id, sort.desc ? 1 : -1);
       if (keyword) this.props.collection.setKeyword(keyword);
       this.props.collection.setPageSize(state.pageSize);
-      await this.props.collection.getPage(state.page, view).promise();
+      await this.props.collection.getPage(state.page, view);
       this.setState({ loading: false });
     } catch (err) {
       this.setState({ loading: false });

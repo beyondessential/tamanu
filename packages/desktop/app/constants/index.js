@@ -24,8 +24,10 @@ export const dbViews = {
   medicationCompleted: 'medication_completed',
   medicationRequested: 'medication_requested',
   medicationFulfilled: 'medication_fulfilled',
-  appointmentsThisWeek: 'appointments_week',
-  appointmentsToday: 'appointments_today'
+  appointmentsSearch: 'appointments_search', // keys [ startDate, endDate, status, type, practitioner, location ]
+  appointmentsSearchKeys: [moment(), moment(), '', '', '', ''],
+  appointmentsSurgerySearch: 'appointments_surgery_search', // keys [ startDate, endDate, status, practitioner, location ]
+  appointmentsSurgerySearchKeys: [moment(), moment(), '', '', '']
 };
 
 const columnStyle = {
@@ -133,7 +135,7 @@ export const sidebarInfo = [
     children: [
       {
         label: 'Appointments This Week',
-        path: '/appointments',
+        path: '/appointments/week',
         icon: 'fa fa-chevron-right'
       },
       {
@@ -163,7 +165,7 @@ export const sidebarInfo = [
       },
       {
         label: 'Schedule Surgery',
-        path: '/appointments/edit/newsurgery',
+        path: '/appointments/surgery/new',
         icon: 'fa fa-plus'
       }
     ]
@@ -1283,39 +1285,40 @@ export const appointmentsColumns = [{
   Header: 'Date',
   headerStyle,
   style: columnStyle,
-  minWidth: 100
+  minWidth: 100,
 }, {
-  accessor: 'name',
+  accessor: 'patientsName',
   Header: 'Name',
   headerStyle,
   style: columnStyle,
-  minWidth: 100
+  minWidth: 100,
+  sortable: false,
 }, {
   id: 'appointmentType',
   accessor: row => capitalize(row.appointmentType),
   Header: 'Type',
   headerStyle,
   style: columnStyle,
-  minWidth: 80
+  minWidth: 80,
 }, {
   accessor: 'location',
   Header: 'Location',
   headerStyle,
   style: columnStyle,
-  minWidth: 100
+  minWidth: 100,
 }, {
   accessor: 'provider',
   Header: 'With',
   headerStyle,
   style: columnStyle,
-  minWidth: 80
+  minWidth: 80,
 }, {
   id: 'status',
   accessor: row => capitalize(row.status),
   Header: 'Status',
   headerStyle,
   style: columnStyle,
-  minWidth: 80
+  minWidth: 80,
 }, {
   id: 'actions',
   Header: 'Actions',
@@ -1324,5 +1327,6 @@ export const appointmentsColumns = [{
   },
   style: columnStyle,
   minWidth: 250,
-  Cell: null
+  Cell: null,
+  sortable: false,
 }];

@@ -43,7 +43,7 @@ class DrugAutocomplete extends Component {
     try {
       this.props.collection.setPageSize(1000);
       this.props.collection.setKeyword(value);
-      await this.props.collection.getPage(0).promise();
+      await this.props.collection.getPage(0);
       let { models: drugs } = this.props.collection;
       if (drugs.length > 0) drugs = map(drugs, drug => drug.attributes);
       this.setState({ drugs, value });
