@@ -28,7 +28,9 @@ export const fetchAppointment = ({ id }) =>
       [error] = await to(appointmentModel.fetch({ relations: true, deep: false }));
       // Set patient
       const { parents } = appointmentModel;
-      if (has(parents, 'patients') && !isEmpty(parents.patients)) appointmentModel.set('patient', parents.patients[0].id);
+      if (has(parents, 'patients') && !isEmpty(parents.patients)) {
+        appointmentModel.set('patient', parents.patients[0].id);
+      }
     }
     if (error) return dispatch({ type: FETCH_APPOINTMENT_FAILED, error });
     dispatch({
@@ -43,7 +45,6 @@ export const saveAppointment = ({ action, model, patient, history, surgery=false
     dispatch({ type: SAVE_APPOINTMENT_REQUEST });
     if (model.isValid()) {
       try {
-        // model.set({ patient });
         await model.save();
         // Attach to patient
         if (action === 'new'){
@@ -54,7 +55,9 @@ export const saveAppointment = ({ action, model, patient, history, surgery=false
         }
         dispatch({ type: SAVE_APPOINTMENT_SUCCESS });
         toast('Appointment saved successfully.', { type: 'success' });
-        if (action === 'new') history.push(`/appointments/${surgery ? 'surgery' : 'appointment'}/${model.id}`);
+        if (action === 'new') {
+          history.push(`/appointments/${surgery ? 'surgery' : 'appointment'}/${model.id}`);
+        }
       } catch (error) {
         console.log({ error });
         dispatch({ type: SAVE_APPOINTMENT_FAILED, error });

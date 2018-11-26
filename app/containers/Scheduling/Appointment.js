@@ -21,12 +21,13 @@ import {
   SelectGroup,
 } from '../../components';
 
+let appointmentModel = null;
+
 class Appointment extends Component {
   state = {
     action: 'new',
-    appointmentModel: '',
-    appointment: '',
-    patient: '',
+    appointment: null,
+    patient: null,
     loading: true,
   }
 
@@ -61,6 +62,9 @@ class Appointment extends Component {
     let { action } = this.state;
     if (id) action = 'update';
     if (!loading) {
+      // Set Model
+      appointmentModel = appointment;
+
       // Set initials
       if (id) {
         switch (appointment.get('appointmentType')) {
@@ -92,14 +96,12 @@ class Appointment extends Component {
         othersEndTimeHrs,
         othersEndTimeMins,
         othersAllDay,
-        appointmentModel: appointment,
         appointment: appointment.toJSON(),
       });
     }
   }
 
   handleUserInput = (e, field) => {
-    const { appointmentModel } = this.state;
     let name = '';
     let value = '';
     if (typeof field !== 'undefined') {
@@ -121,7 +123,6 @@ class Appointment extends Component {
   parseDates() {
     const { surgery } = this.props;
     const {
-      appointmentModel,
       admissionStartDate,
       admissionEndDate,
       admissionAllDay,
@@ -152,7 +153,7 @@ class Appointment extends Component {
 
   submitForm(e) {
     const { surgery } = this.props;
-    const { action, appointmentModel, patient } = this.state;
+    const { action, patient } = this.state;
     e.preventDefault();
     // Parse out dates
     this.parseDates();
@@ -284,6 +285,71 @@ class Appointment extends Component {
     );
   }
 
+  renderFieldsOthers() {
+    const { appointment } = this.state;
+    return (
+      <React.Fragment>
+        <div className="columns">
+          <SelectGroup
+            className="column is-5"
+            name="appointmentType"
+            label="Type"
+            options={visitOptions}
+            value={appointment.appointmentType}
+            onChange={this.handleUserInput}
+            required
+          />
+          <InputGroup
+            className="column is-4"
+            name="provider"
+            label="With"
+            value={appointment.provider}
+            onChange={this.handleUserInput}
+          />
+        </div>
+        <div className="columns">
+          <InputGroup
+            className="column is-5"
+            name="location"
+            label="Location"
+            value={appointment.location}
+            onChange={this.handleUserInput}
+          />
+          <SelectGroup
+            className="column is-4"
+            name="status"
+            label="Status"
+            options={appointmentStatusList}
+            value={appointment.status}
+            onChange={this.handleUserInput}
+          />
+        </div>
+      </React.Fragment>
+    );
+  }
+
+  renderFieldsSurgery() {
+    const { appointment } = this.state;
+    return (
+      <div className="columns">
+        <InputGroup
+          className="column is-4"
+          name="provider"
+          label="With"
+          value={appointment.provider}
+          onChange={this.handleUserInput}
+        />
+        <InputGroup
+          className="column is-5"
+          name="location"
+          label="Location"
+          value={appointment.location}
+          onChange={this.handleUserInput}
+        />
+      </div>
+    );
+  }
+
   render() {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
@@ -291,7 +357,6 @@ class Appointment extends Component {
     const { surgery } = this.props;
     const {
       action,
-      appointmentModel,
       appointment,
     } = this.state;
 
@@ -326,61 +391,10 @@ class Appointment extends Component {
               }
             </div>
             {!surgery &&
-              <React.Fragment>
-                <div className="columns">
-                  <SelectGroup
-                    className="column is-5"
-                    name="appointmentType"
-                    label="Type"
-                    options={visitOptions}
-                    value={appointment.appointmentType}
-                    onChange={this.handleUserInput}
-                    required
-                  />
-                  <InputGroup
-                    className="column is-4"
-                    name="provider"
-                    label="With"
-                    value={appointment.provider}
-                    onChange={this.handleUserInput}
-                  />
-                </div>
-                <div className="columns">
-                  <InputGroup
-                    className="column is-5"
-                    name="location"
-                    label="Location"
-                    value={appointment.location}
-                    onChange={this.handleUserInput}
-                  />
-                  <SelectGroup
-                    className="column is-4"
-                    name="status"
-                    label="Status"
-                    options={appointmentStatusList}
-                    value={appointment.status}
-                    onChange={this.handleUserInput}
-                  />
-                </div>
-              </React.Fragment>
+              this.renderFieldsOthers()
             }
             {surgery &&
-              <div className="columns">
-                <InputGroup
-                  className="column is-4"
-                  name="provider"
-                  label="With"
-                  value={appointment.provider}
-                  onChange={this.handleUserInput}
-                />
-                <InputGroup
-                  className="column is-5"
-                  name="location"
-                  label="Location"
-                  value={appointment.location}
-                  onChange={this.handleUserInput}
-                />
-              </div>
+              this.renderFieldsSurgery()
             }
             <div className="columns">
               <TextareaGroup
@@ -392,7 +406,7 @@ class Appointment extends Component {
             </div>
             <div className="column has-text-right">
               <Link className="button is-danger cancel" to="/appointments">Cancel</Link>
-              <button className="button is-primary" type="submit" disabled={!appointmentModel.isValid()}>{action==='new'?'Add':'Save'}</button>
+              <button className="button is-primary" type="submit" disabled={!appointmentModel.isValid()}>{action === 'new' ? 'Add' : 'Save'}</button>
             </div>
           </div>
         </form>
