@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { clone } from 'lodash';
-import { connect } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import Collapse from '@material-ui/core/Collapse';
 import {
@@ -12,6 +10,9 @@ import {
   visitOptions as  visitOptionsOriginal,
   appointmentStatusList as appointmentStatusListOriginal,
 } from '../../../constants';
+
+const visitOptions = [ ...visitOptionsOriginal, { value: 'all', label: 'All' } ];
+const appointmentStatusList = [ ...appointmentStatusListOriginal, { value: 'all', label: 'All' } ];
 
 class FiltersForm extends Component {
   static propTypes = {
@@ -41,21 +42,11 @@ class FiltersForm extends Component {
       type,
       practitioner,
       location,
-      visitOptions: [],
-      appointmentStatusList: [],
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.resetForm = this.resetForm.bind(this);
-  }
-
-  componentWillMount() {
-    const visitOptions = clone(visitOptionsOriginal);
-    const appointmentStatusList = clone(appointmentStatusListOriginal);
-    visitOptions.unshift({ value: 'all', label: 'All' });
-    appointmentStatusList.unshift({ value: 'all', label: 'All' });
-    this.setState({ visitOptions, appointmentStatusList });
   }
 
   handleInputChange(event, field) {
@@ -94,8 +85,6 @@ class FiltersForm extends Component {
       type,
       practitioner,
       location,
-      visitOptions,
-      appointmentStatusList,
     } = this.state;
 
     const {
@@ -154,10 +143,4 @@ class FiltersForm extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  return {
-    currentPath: state.router.location.pathname
-  };
-}
-
-export default connect(mapStateToProps, {})(FiltersForm);
+export default FiltersForm;

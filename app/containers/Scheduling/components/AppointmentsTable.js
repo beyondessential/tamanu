@@ -11,13 +11,7 @@ import {
   pageSizes,
 } from '../../../constants';
 
-class Appointments extends Component {
-  constructor(props) {
-    super(props);
-    this.handleChange = this.handleChange.bind(this);
-    this.setActionsColumn = this.setActionsColumn.bind(this);
-  }
-
+class AppointmentsTable extends Component {
   state = {
     appointments: [{}],
     loading: true,
@@ -143,12 +137,12 @@ class Appointments extends Component {
   }
 }
 
-Appointments.propTypes = {
+AppointmentsTable.propTypes = {
   keys: PropTypes.array.isRequired,
   autoFetch: PropTypes.bool,
 }
 
-Appointments.defaultProps = {
+AppointmentsTable.defaultProps = {
   autoFetch: false,
 }
 
@@ -168,5 +162,5 @@ const mapDispatchToProps = dispatch => ({
   deleteAppointment: (props) => dispatch(deleteAppointment(props)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Appointments);
+export default connect(mapStateToProps, mapDispatchToProps)(AppointmentsTable);
 

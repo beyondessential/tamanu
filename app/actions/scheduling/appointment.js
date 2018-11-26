@@ -15,7 +15,6 @@ import {
 import {
   PatientModel,
   AppointmentModel,
-  VisitModel,
 } from '../../models';
 
 export const fetchAppointment = ({ id }) =>
@@ -47,7 +46,7 @@ export const saveAppointment = ({ action, model, patient, history, surgery=false
         // model.set({ patient });
         await model.save();
         // Attach to patient
-        if (action.toLowerCase() === 'new'){
+        if (action === 'new'){
           const patientModel = new PatientModel({ _id: patient });
           await patientModel.fetch();
           patientModel.get('appointments').add(model);
@@ -55,7 +54,7 @@ export const saveAppointment = ({ action, model, patient, history, surgery=false
         }
         dispatch({ type: SAVE_APPOINTMENT_SUCCESS });
         toast('Appointment saved successfully.', { type: 'success' });
-        if (action.toLowerCase() === 'new') history.push(`/appointments/${surgery ? 'surgery' : 'appointment'}/${model.id}`);
+        if (action === 'new') history.push(`/appointments/${surgery ? 'surgery' : 'appointment'}/${model.id}`);
       } catch (error) {
         console.log({ error });
         dispatch({ type: SAVE_APPOINTMENT_FAILED, error });

@@ -85,8 +85,9 @@ export const fetchCalender = ({ view = dbViews.appointmentsSearch, keys = [] }) 
 
   const _getTitle = ({ patients, location }) => {
     let patient = '';
-    if (!isEmpty(patients) && has(patients[0], 'firstName') && has(patients[0], 'lastName'))
+    if (!isEmpty(patients) && has(patients[0], 'firstName') && has(patients[0], 'lastName')) {
       patient = `${capitalize(patients[0].firstName)} ${capitalize(patients[0].lastName)}`;
+    }
 
     return (
       <span className="is-size-7">

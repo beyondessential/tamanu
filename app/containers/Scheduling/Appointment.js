@@ -21,15 +21,9 @@ import {
   SelectGroup,
 } from '../../components';
 
-class AddAppointment extends Component {
-  constructor(props) {
-    super(props);
-    this.handleChange = this.handleChange.bind(this);
-    this.submitForm = this.submitForm.bind(this);
-  }
-
+class Appointment extends Component {
   state = {
-    action: 'New',
+    action: 'new',
     appointmentModel: '',
     appointment: '',
     patient: '',
@@ -65,11 +59,10 @@ class AddAppointment extends Component {
       othersAllDay,
     } = props;
     let { action } = this.state;
-    if (id) action = 'Update';
+    if (id) action = 'update';
     if (!loading) {
       // Set initials
       if (id) {
-        console.log('-appointment-', appointment);
         switch (appointment.get('appointmentType')) {
           case 'admission':
             admissionStartDate = moment(appointment.get('startDate'));
@@ -177,6 +170,120 @@ class AddAppointment extends Component {
     });
   }
 
+  renderDatesAdmission() {
+    const {
+      othersDate,
+      othersStartTimeHrs,
+      othersStartTimeMins,
+      othersEndTimeHrs,
+      othersEndTimeMins,
+      othersAllDay,
+    } = this.state;
+
+    return (
+      <React.Fragment>
+        <DatepickerGroup
+          className="column is-3"
+          label="Date"
+          name="othersDate"
+          value={othersDate}
+          onChange={this.handleUserInput}
+          required
+        />
+        {!othersAllDay &&
+          <React.Fragment>
+            <SelectGroup
+              className="column is-1"
+              label="Start Time"
+              name="othersStartTimeHrs"
+              options={timeSelectOptions.hours}
+              value={othersStartTimeHrs}
+              onChange={this.handleUserInput}
+              searchable
+              required
+            />
+            <SelectGroup
+              className="column is-1 p-t-40"
+              label={false}
+              name="othersStartTimeMins"
+              options={timeSelectOptions.minutes}
+              value={othersStartTimeMins}
+              onChange={this.handleUserInput}
+              searchable
+            />
+            <SelectGroup
+              className="column is-1"
+              label="End Time"
+              name="othersEndTimeHrs"
+              options={timeSelectOptions.hours}
+              value={othersEndTimeHrs}
+              onChange={this.handleUserInput}
+              required
+            />
+            <SelectGroup
+              className="column is-1 p-t-40"
+              label={false}
+              name="othersEndTimeMins"
+              options={timeSelectOptions.minutes}
+              value={othersEndTimeMins}
+              onChange={this.handleUserInput}
+            />
+          </React.Fragment>
+        }
+        <CheckboxGroup
+          label="All Day"
+          name="othersAllDay"
+          defaultChecked={othersAllDay}
+          onChange={this.handleUserInput}
+          value
+        />
+      </React.Fragment>
+    );
+  }
+
+  renderDatesOthers() {
+    const {
+      admissionStartDate,
+      admissionEndDate,
+      admissionAllDay,
+    } = this.state;
+
+    return (
+      <React.Fragment>
+        <DatepickerGroup
+          className="column is-3"
+          label="Start Date"
+          name="admissionStartDate"
+          value={admissionStartDate}
+          onChange={this.handleUserInput}
+          showTimeSelect={!admissionAllDay}
+          dateFormat={admissionAllDay?dateFormat:dateTimeFormat}
+          timeIntervals={30}
+          required
+        />
+        <DatepickerGroup
+          className="column is-3"
+          label="End Date"
+          name="admissionEndDate"
+          value={admissionEndDate}
+          onChange={this.handleUserInput}
+          showTimeSelect={!admissionAllDay}
+          dateFormat={admissionAllDay?dateFormat:dateTimeFormat}
+          minDate={admissionStartDate}
+          timeIntervals={30}
+          required
+        />
+        <CheckboxGroup
+          label="All Day"
+          name="admissionAllDay"
+          defaultChecked={admissionAllDay}
+          onChange={this.handleUserInput}
+          value
+        />
+      </React.Fragment>
+    );
+  }
+
   render() {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
@@ -186,15 +293,6 @@ class AddAppointment extends Component {
       action,
       appointmentModel,
       appointment,
-      admissionStartDate,
-      admissionEndDate,
-      admissionAllDay,
-      othersDate,
-      othersStartTimeHrs,
-      othersStartTimeMins,
-      othersEndTimeHrs,
-      othersEndTimeMins,
-      othersAllDay,
     } = this.state;
 
     return (
@@ -206,7 +304,7 @@ class AddAppointment extends Component {
         </div>
         <form
           className="create-container"
-          onSubmit={this.submitForm}
+          onSubmit={(e) => this.submitForm(e)}
         >
           <div className="form  with-padding">
             <div className="columns">
@@ -220,98 +318,11 @@ class AddAppointment extends Component {
             </div>
             <div className="columns">
               {(appointment.appointmentType !== 'admission' || surgery) &&
-                <React.Fragment>
-                  <DatepickerGroup
-                    className="column is-3"
-                    label="Date"
-                    name="othersDate"
-                    value={othersDate}
-                    onChange={this.handleUserInput}
-                    required
-                  />
-                  {!othersAllDay &&
-                    <React.Fragment>
-                      <SelectGroup
-                        className="column is-1"
-                        label="Start Time"
-                        name="othersStartTimeHrs"
-                        options={timeSelectOptions.hours}
-                        value={othersStartTimeHrs}
-                        onChange={this.handleUserInput}
-                        searchable
-                        required
-                      />
-                      <SelectGroup
-                        className="column is-1 p-t-40"
-                        label={false}
-                        name="othersStartTimeMins"
-                        options={timeSelectOptions.minutes}
-                        value={othersStartTimeMins}
-                        onChange={this.handleUserInput}
-                        searchable
-                      />
-                      <SelectGroup
-                        className="column is-1"
-                        label="End Time"
-                        name="othersEndTimeHrs"
-                        options={timeSelectOptions.hours}
-                        value={othersEndTimeHrs}
-                        onChange={this.handleUserInput}
-                        required
-                      />
-                      <SelectGroup
-                        className="column is-1 p-t-40"
-                        label={false}
-                        name="othersEndTimeMins"
-                        options={timeSelectOptions.minutes}
-                        value={othersEndTimeMins}
-                        onChange={this.handleUserInput}
-                      />
-                    </React.Fragment>
-                  }
-                  <CheckboxGroup
-                    label="All Day"
-                    name="othersAllDay"
-                    defaultChecked={othersAllDay}
-                    onChange={this.handleUserInput}
-                    value
-                  />
-                </React.Fragment>
+                this.renderDatesAdmission()
               }
 
               {appointment.appointmentType === 'admission' && !surgery &&
-                <React.Fragment>
-                  <DatepickerGroup
-                    className="column is-3"
-                    label="Start Date"
-                    name="admissionStartDate"
-                    value={admissionStartDate}
-                    onChange={this.handleUserInput}
-                    showTimeSelect={!admissionAllDay}
-                    dateFormat={admissionAllDay?dateFormat:dateTimeFormat}
-                    timeIntervals={30}
-                    required
-                  />
-                  <DatepickerGroup
-                    className="column is-3"
-                    label="End Date"
-                    name="admissionEndDate"
-                    value={admissionEndDate}
-                    onChange={this.handleUserInput}
-                    showTimeSelect={!admissionAllDay}
-                    dateFormat={admissionAllDay?dateFormat:dateTimeFormat}
-                    minDate={admissionStartDate}
-                    timeIntervals={30}
-                    required
-                  />
-                  <CheckboxGroup
-                    label="All Day"
-                    name="admissionAllDay"
-                    defaultChecked={admissionAllDay}
-                    onChange={this.handleUserInput}
-                    value
-                  />
-                </React.Fragment>
+                this.renderDatesOthers()
               }
             </div>
             {!surgery &&
@@ -381,7 +392,7 @@ class AddAppointment extends Component {
             </div>
             <div className="column has-text-right">
               <Link className="button is-danger cancel" to="/appointments">Cancel</Link>
-              <button className="button is-primary" type="submit" disabled={!appointmentModel.isValid()}>{action==='New'?'Add':'Save'}</button>
+              <button className="button is-primary" type="submit" disabled={!appointmentModel.isValid()}>{action==='new'?'Add':'Save'}</button>
             </div>
           </div>
         </form>
@@ -390,7 +401,7 @@ class AddAppointment extends Component {
   }
 }
 
-AddAppointment.defaultProps = {
+Appointment.defaultProps = {
   admissionStartDate: moment().startOf('day'),
   admissionEndDate: moment().endOf('day'),
   admissionAllDay: true,
@@ -414,4 +425,4 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   saveAppointment: (params) => dispatch(saveAppointment(params)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(AddAppointment);
+export default connect(mapStateToProps, mapDispatchToProps)(Appointment);
