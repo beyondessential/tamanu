@@ -19,6 +19,8 @@ import {
   TextareaGroup,
   DatepickerGroup,
   SelectGroup,
+  AddButton,
+  BackButton
 } from '../../components';
 
 class Appointment extends Component {
@@ -364,7 +366,7 @@ class Appointment extends Component {
           </span>
         </div>
         <form
-          className="create-container"
+          className="create-container" 
           onSubmit={(e) => this.submitForm(e)}
         >
           <div className="form  with-padding">
@@ -401,14 +403,8 @@ class Appointment extends Component {
               />
             </div>
             <div className="column has-text-right">
-              <Link className="button is-danger cancel" to="/appointments">Cancel</Link>
-              <button
-                className="button is-primary" 
-                type="submit" 
-                disabled={!appointmentModel.isValid()}
-              >
-                {action === 'new' ? 'Add' : 'Save'}
-              </button>
+              <BackButton to="/appointments" />
+              <AddButton disabled={!appointmentModel.isValid()} />
             </div>
           </div>
         </form>
@@ -431,9 +427,9 @@ Appointment.defaultProps = {
 
 function mapStateToProps(state) {
   const { appointment, loading, error } = state.scheduling;
-  return { 
+  return {
     loading, error,
-    appointmentModel: appointment, 
+    appointmentModel: appointment,
   };
 }
 

@@ -4,7 +4,9 @@ import Button from '@material-ui/core/Button';
 import Collapse from '@material-ui/core/Collapse';
 import {
   InputGroup,
-  SelectGroup
+  SelectGroup,
+  ClearButton,
+  FilterButton
 } from '../../../components';
 import {
   visitOptions as  visitOptionsOriginal,
@@ -132,8 +134,8 @@ class FiltersForm extends Component {
           <div className="columns">
             <div className="column">
               <div className="column has-text-right">
-                <Button color="default" variant="contained" onClick={this.resetForm} classes={{ root: 'm-r-5' }}>Clear</Button>
-                <Button color="primary" variant="contained" type="submit" disabled={loading}>Filter</Button>
+                <ClearButton onClick={this.resetForm} />
+                <FilterButton disabled={loading} />
               </div>
             </div>
           </div>

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import ReactTable from 'react-table';
 import { toLower, isEmpty, isEqual } from 'lodash';
 import actions from '../../../actions/scheduling';
-import { Modal } from '../../../components';
+import { Modal, Button } from '../../../components';
 import {
   appointmentsColumns,
   dbViews,
@@ -49,13 +49,29 @@ class AppointmentsTable extends Component {
     const row = _row.original;
     return (
       <div key={row._id}>
-        <button className="button column-button" onClick={() => this.goEdit(row._id)}>Edit</button>
+        <Button
+          onClick={() => this.goEdit(row._id)}
+          color="secondary"
+          variant="contained"
+        >
+          Edit
+        </Button>
         {toLower(row.status) === 'scheduled' &&
-          <button className="button is-primary column-checkin-button" onClick={() => this.checkIn(row.patients[0]._id)}>
-            <i className="fa fa-sign-in" /> Check In
-          </button>
+          <Button
+            onClick={() => this.checkIn(row.patients[0]._id)}
+            color="primary"
+            variant="contained"
+          >
+            Check In
+          </Button>
         }
-        <button className="button is-danger column-button" onClick={() => this.showDeleteModal(row)}>Delete</button>
+        <Button
+          onClick={() => this.showDeleteModal(row)}
+          color="primary"
+          variant="outlined"
+        >
+          Delete
+        </Button>
       </div>
     );
   }

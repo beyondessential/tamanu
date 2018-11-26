@@ -5,12 +5,9 @@ import { isEmpty, has, head, last } from 'lodash';
 import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
 import Button from '@material-ui/core/Button';
-import Icon from '@material-ui/core/Icon';
 import actions from '../../actions/scheduling';
 import FiltersForm from './components/FiltersForm';
 import { dbViews } from '../../constants';
-
-import { ClearButton, FilterButton } from '../../components/Button';
 
 BigCalendar.momentLocalizer(moment);
 
@@ -116,14 +113,14 @@ class AppointmentsCalendar extends Component {
               className="m-r-5"
               component={props => <Link to={`/appointments/${!theatre ? 'appointment' : 'surgery'}/new`} {...props} />}
             >
-              <Icon className="fa fa-plus m-r-5" fontSize="inherit" /> New Appointment
+              New Appointment
             </Button>
             <Button
               color="primary"
               variant={filtersOn ? 'contained' : 'outlined'}
               onClick={() => this.setState({ filtersOn: !filtersOn })}
             >
-              <Icon className="fa fa-filter m-r-5" fontSize="inherit" /> Filter
+              Filters
             </Button>
           </div>
         </div>
