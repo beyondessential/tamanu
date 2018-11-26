@@ -1,11 +1,9 @@
-import shortid from 'shortid';
 import { defaults, clone } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/diagnosis`,
   defaults: () => defaults({
-      // _id: shortid.generate(),
       active: true,
       date: Date,
       diagnosis: null,

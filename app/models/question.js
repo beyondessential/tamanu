@@ -1,13 +1,10 @@
-import shortid from 'shortid';
 import { defaults } from 'lodash';
 import Backbone from 'backbone-associations';
 import BaseModel from './base';
-import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/question`,
   defaults: () => defaults({
-      // _id: shortid.generate(),
       text: null,
       indicator: null,
       imageData: null,

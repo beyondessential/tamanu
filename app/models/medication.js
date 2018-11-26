@@ -1,5 +1,4 @@
 import Backbone from 'backbone-associations';
-import shortid from 'shortid';
 import { isNaN, toNumber, defaults } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
@@ -9,7 +8,6 @@ import PatientModel from './patient';
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/medication`,
   defaults: () => defaults({
-      // _id: shortid.generate(),
     patient: '',
     visit: '',
     drug: '',

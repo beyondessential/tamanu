@@ -1,13 +1,10 @@
 import Backbone from 'backbone-associations';
-import shortid from 'shortid';
 import { defaults } from 'lodash';
-import mapRelations from '../utils/map-relations';
 import BaseModel from './base';
 
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/operationReport`,
   defaults: () => defaults({
-      // _id: shortid.generate(),
       additionalNotes: null,
       caseComplexity: null,
       procedures: [],

@@ -1,6 +1,5 @@
 import Backbone from 'backbone-associations';
-import shortid from 'shortid';
-import { defaults, each, clone, isEmpty, get, filter, capitalize, concat, orderBy, head } from 'lodash';
+import { defaults, each, clone, isEmpty, get, filter, capitalize, concat, orderBy } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
 import { concatSelf } from '../utils';
@@ -10,7 +9,6 @@ import { pregnancyOutcomes, dateFormat } from '../constants';
 export default BaseModel.extend({
   urlRoot: `${process.env.LAN_REALM}/patient`,
   defaults: () => defaults({
-    // // _id: shortid.generate(),
     displayId: '',
     admitted: false,
     address: '',

@@ -1,14 +1,11 @@
 import Backbone from 'backbone-associations';
-import shortid from 'shortid';
 import { defaults } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
-import mapRelations from '../utils/map-relations';
 
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/visit`,
   defaults: () => defaults({
-    // _id: shortid.generate(),
     dischargeInfo: '',
     startDate: moment(),
     endDate: null, // if visit type is outpatient, startDate and endDate are equal

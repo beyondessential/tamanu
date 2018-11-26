@@ -1,5 +1,3 @@
-import shortid from 'shortid';
-import Backbone from 'backbone-associations';
 import { defaults } from 'lodash';
 import BaseModel from './base';
 
@@ -7,7 +5,6 @@ import BaseModel from './base';
 export default BaseModel.extend({
   urlRoot:  `${process.env.LAN_REALM}/lab`,
   defaults: () => defaults({
-      // _id: shortid.generate(),
       labDate: Date,
       notes: null,
       requestedBy: null,
