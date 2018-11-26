@@ -21,12 +21,10 @@ import {
   SelectGroup,
 } from '../../components';
 
-let appointmentModel = null;
-
 class Appointment extends Component {
   state = {
     action: 'new',
-    appointment: null,
+    appointmentData: null,
     patient: null,
     loading: true,
   }
@@ -47,7 +45,7 @@ class Appointment extends Component {
 
   handleChange(props = this.props) {
     const { id } = props.match.params;
-    const { appointment, loading } = props;
+    const { appointmentModel, loading } = props;
     let {
       admissionStartDate,
       admissionEndDate,
@@ -62,24 +60,21 @@ class Appointment extends Component {
     let { action } = this.state;
     if (id) action = 'update';
     if (!loading) {
-      // Set Model
-      appointmentModel = appointment;
-
       // Set initials
       if (id) {
-        switch (appointment.get('appointmentType')) {
+        switch (appointmentModel.get('appointmentType')) {
           case 'admission':
-            admissionStartDate = moment(appointment.get('startDate'));
-            admissionEndDate = moment(appointment.get('endDate'));
-            admissionAllDay = appointment.get('allDay');
+            admissionStartDate = moment(appointmentModel.get('startDate'));
+            admissionEndDate = moment(appointmentModel.get('endDate'));
+            admissionAllDay = appointmentModel.get('allDay');
           break;
           default:
-            othersDate = moment(appointment.get('startDate'));
-            othersStartTimeHrs = parseInt(moment(appointment.get('startDate')).format('HH'));
-            othersStartTimeMins = parseInt(moment(appointment.get('startDate')).format('mm'));
-            othersEndTimeHrs = parseInt(moment(appointment.get('endDate')).format('HH')) || 0;
-            othersEndTimeMins = parseInt(moment(appointment.get('endDate')).format('mm')) || 0;
-            othersAllDay = appointment.get('allDay');
+            othersDate = moment(appointmentModel.get('startDate'));
+            othersStartTimeHrs = parseInt(moment(appointmentModel.get('startDate')).format('HH'));
+            othersStartTimeMins = parseInt(moment(appointmentModel.get('startDate')).format('mm'));
+            othersEndTimeHrs = parseInt(moment(appointmentModel.get('endDate')).format('HH')) || 0;
+            othersEndTimeMins = parseInt(moment(appointmentModel.get('endDate')).format('mm')) || 0;
+            othersAllDay = appointmentModel.get('allDay');
           break;
         }
       }
@@ -96,7 +91,7 @@ class Appointment extends Component {
         othersEndTimeHrs,
         othersEndTimeMins,
         othersAllDay,
-        appointment: appointment.toJSON(),
+        appointmentData: appointmentModel.toJSON(),
       });
     }
   }
@@ -115,13 +110,14 @@ class Appointment extends Component {
     if (has(this.state, name)) {
       this.setState({ [name]: value }, this.parseDates);
     } else {
+      const { appointmentModel } = this.props;
       appointmentModel.set(name, value, { silent: true });
-      this.setState({ appointmentModel, appointment: appointmentModel.toJSON() }, this.parseDates);
+      this.setState({ appointmentData: appointmentModel.toJSON() }, this.parseDates);
     }
   }
 
   parseDates() {
-    const { surgery } = this.props;
+    const { surgery, appointmentModel } = this.props;
     const {
       admissionStartDate,
       admissionEndDate,
@@ -148,11 +144,11 @@ class Appointment extends Component {
       }, { silent: true });
     }
     // Update state
-    this.setState({ appointmentModel, appointment: appointmentModel.toJSON() });
+    this.setState({ appointmentData: appointmentModel.toJSON() });
   }
 
   submitForm(e) {
-    const { surgery } = this.props;
+    const { surgery, appointmentModel } = this.props;
     const { action, patient } = this.state;
     e.preventDefault();
     // Parse out dates
@@ -286,7 +282,7 @@ class Appointment extends Component {
   }
 
   renderFieldsOthers() {
-    const { appointment } = this.state;
+    const { appointmentData } = this.state;
     return (
       <React.Fragment>
         <div className="columns">
@@ -295,7 +291,7 @@ class Appointment extends Component {
             name="appointmentType"
             label="Type"
             options={visitOptions}
-            value={appointment.appointmentType}
+            value={appointmentData.appointmentType}
             onChange={this.handleUserInput}
             required
           />
@@ -303,7 +299,7 @@ class Appointment extends Component {
             className="column is-4"
             name="provider"
             label="With"
-            value={appointment.provider}
+            value={appointmentData.provider}
             onChange={this.handleUserInput}
           />
         </div>
@@ -312,7 +308,7 @@ class Appointment extends Component {
             className="column is-5"
             name="location"
             label="Location"
-            value={appointment.location}
+            value={appointmentData.location}
             onChange={this.handleUserInput}
           />
           <SelectGroup
@@ -320,7 +316,7 @@ class Appointment extends Component {
             name="status"
             label="Status"
             options={appointmentStatusList}
-            value={appointment.status}
+            value={appointmentData.status}
             onChange={this.handleUserInput}
           />
         </div>
@@ -329,21 +325,21 @@ class Appointment extends Component {
   }
 
   renderFieldsSurgery() {
-    const { appointment } = this.state;
+    const { appointmentData } = this.state;
     return (
       <div className="columns">
         <InputGroup
           className="column is-4"
           name="provider"
           label="With"
-          value={appointment.provider}
+          value={appointmentData.provider}
           onChange={this.handleUserInput}
         />
         <InputGroup
           className="column is-5"
           name="location"
           label="Location"
-          value={appointment.location}
+          value={appointmentData.location}
           onChange={this.handleUserInput}
         />
       </div>
@@ -354,10 +350,10 @@ class Appointment extends Component {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
 
-    const { surgery } = this.props;
+    const { surgery, appointmentModel } = this.props;
     const {
       action,
-      appointment,
+      appointmentData,
     } = this.state;
 
     return (
@@ -376,17 +372,17 @@ class Appointment extends Component {
               <PatientAutocomplete
                 label="Patient"
                 name="patient"
-                value={appointment.patient}
+                value={appointmentData.patient}
                 onChange={this.handleUserInput}
                 required
               />
             </div>
             <div className="columns">
-              {(appointment.appointmentType !== 'admission' || surgery) &&
+              {(appointmentData.appointmentType !== 'admission' || surgery) &&
                 this.renderDatesAdmission()
               }
 
-              {appointment.appointmentType === 'admission' && !surgery &&
+              {appointmentData.appointmentType === 'admission' && !surgery &&
                 this.renderDatesOthers()
               }
             </div>
@@ -400,13 +396,19 @@ class Appointment extends Component {
               <TextareaGroup
                 label="Notes"
                 name="notes"
-                value={appointment.notes}
+                value={appointmentData.notes}
                 onChange={this.handleUserInput}
               />
             </div>
             <div className="column has-text-right">
               <Link className="button is-danger cancel" to="/appointments">Cancel</Link>
-              <button className="button is-primary" type="submit" disabled={!appointmentModel.isValid()}>{action === 'new' ? 'Add' : 'Save'}</button>
+              <button
+                className="button is-primary" 
+                type="submit" 
+                disabled={!appointmentModel.isValid()}
+              >
+                {action === 'new' ? 'Add' : 'Save'}
+              </button>
             </div>
           </div>
         </form>
@@ -429,7 +431,10 @@ Appointment.defaultProps = {
 
 function mapStateToProps(state) {
   const { appointment, loading, error } = state.scheduling;
-  return { appointment, loading, error };
+  return { 
+    loading, error,
+    appointmentModel: appointment, 
+  };
 }
 
 const { appointment: appointmentActions } = actions;
