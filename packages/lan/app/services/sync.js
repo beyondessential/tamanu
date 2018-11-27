@@ -7,7 +7,11 @@ class Sync {
   constructor(database, listeners) {
     this.database = database;
     this.listeners = listeners;
-    this.client = new Faye.Client(config.sync.server);
+
+    const server = config.mainServer;
+    const syncPath = config.sync.path || '/realm-sync';
+    this.client = new Faye.Client(server + syncPath);
+
     this.client.addExtension({
       outgoing: (message, callback) => outgoing({ database, message, callback })
     });
