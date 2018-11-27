@@ -4,7 +4,7 @@
 
 ## Install
 
-* **Note: requires a node version >= 8.3 and an ayrn version > 1.2.**
+* **Note: requires node version >= 8.3 and yarn version > 1.2.**
 
 First, clone the repo via git:
 
