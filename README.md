@@ -24,6 +24,42 @@ $ cd ./packages/lan && yarn add json-prune
 $ cd ./packages/server && yarn add config
 ```
 
+## Configure
+
+Before development can begin, you'll need to configure the LAN server.
+
+```
+cd ./packages/lan 
+cp config-example.js config.js
+```
+
+The example config is set up to just talk to a local realm server. To get 
+some real data, you should point the lan client to a remote server.
+
+- change `mainServer` in config.js to `"http://13.210.104.94:3000"` 
+- ensure `offlineMode` is set to `true`
+
+When you run the lan-server with these settings, you'll be prompted for login
+credentials. These are in TeamPassword under "Tamanu main sync server". Once the
+sync has completed, you can revert the config to its original values.
+
+## Run
+
+The Tamanu desktop app needs a lan server running to operate correctly. For
+local development, this can just be another process on the same host.
+
+```bash
+$ cd packages/lan
+$ yarn run dev
+```
+
+Then, in a different terminal pane:
+
+```bash
+$ cd packages/desktop
+$ yarn run start
+```
+
 ## Components
 
 * [tamanu-desktop](https://github.com/beyondessential/tamanu/tree/master/packages/desktop)
