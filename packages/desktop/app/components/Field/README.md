@@ -45,3 +45,78 @@ be given `value` and `onChange` props directly.
 This is obviously more verbose, but can be used in situations where Formik is
 inappropriate (for example, in a nested field, or when there's only one control).
 
+## AutoField and MultiAutoField
+
+These are fields designed for generating a form from a schema. 
+
+A single field can be generated from part of a schema. Based on the `type` 
+property of the definition, AutoField will render the appropriate component
+with the right label, displays, events, etc -- a checkbox for a boolean field,
+a calendar selector for a date, a text field for a string, etc.
+
+```javascript
+const definition = {
+  label: 'First name',
+  name: 'firstName',
+  required: true,
+  type: 'string',
+};
+
+...
+
+<AutoField definition={ definition } />
+```
+
+MultiAutoField behaves similarly, except it renders an array of fields.
+Because schemas are usually in key/value objects that do not preserve key order,
+MultiAutoField takes another parameter indicating which fields to render and
+which order to render them in.
+
+MultiAutoField currently just renders an array, so it's not expected that you
+render an entire schema with a single MultiAutoField component - there's almost 
+no way it'd come out laid out nicely. It's just meant to make groups of fields 
+easier, especially in cases when you already have a schema handy.
+
+```javascript
+const definitions = {
+  name: {
+    label: "First name",
+    name: "firstName",
+    required: true,
+    type: "string",
+    // note that additional props will be passed down to the rendered component
+    helperText: 'Please use the full legal name of the patient here',
+  },
+  bloodType: {
+    label: "Blood type",
+    name: "bloodType",
+    type: "string",
+    options: bloodTypeOptions, // imported from elsewhere
+  },
+  dateOfBirth: {
+    label: "Date of birth",
+    name: "dateOfBirth",
+    type: "date",
+  },
+  ... etc etc
+};
+
+...
+
+return (
+  <div>
+    <h2>Patient details</h2>
+    <MultiAutoField 
+      definitions={definitions}
+      fields={['firstName', 'middleName', 'lastName']} 
+    />
+    <h2>Contact information</h2>
+    <MultiAutoField 
+      definitions={definitions}
+      fields={['phone', 'email', 'address']} 
+    />
+  </div>
+);
+```
+
+
