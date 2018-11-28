@@ -45,6 +45,8 @@ sync has completed, you can revert the config to its original values.
 
 ## Run
 
+### LAN server
+
 The Tamanu desktop app needs a lan server running to operate correctly. For
 local development, this can just be another process on the same host.
 
@@ -53,7 +55,9 @@ $ cd packages/lan
 $ yarn run dev
 ```
 
-Then, in a different terminal pane:
+### Desktop app
+
+Once there is a LAN server up and running, run this to start the Electron app.
 
 ```bash
 $ cd packages/desktop
@@ -62,7 +66,7 @@ $ yarn run start
 
 ## Components
 
-* [tamanu-desktop](https://github.com/beyondessential/tamanu/tree/master/packages/desktop)
-* [tamanu-lan](https://github.com/beyondessential/tamanu/tree/master/packages/lan)
-* [tamanu-server](https://github.com/beyondessential/tamanu/tree/master/packages/server)
-* [shared-components](https://github.com/beyondessential/tamanu/tree/master/packages/shared)
+* [tamanu-desktop](packages/desktop): the main Electron app
+* [tamanu-lan](packages/lan): the local server
+* [tamanu-server](packages/server): the remote server
+* [shared-components](packages/shared): shared code among Tamanu components
