@@ -1,12 +1,23 @@
-FROM node:10.13-jessie
+FROM node:10.14.0 as base_image
+RUN dpkg --add-architecture i386
+RUN apt-get update && \
+      apt-get install -y -q --no-install-recommends \
+        apt-transport-https \
+        build-essential \
+        msitools \
+        wine32 \
+        wine \
+        wixl \
+        zip \
+      && npm install -g yarn
 
-WORKDIR /usr/tamanu
-
-RUN apt-get update && npm install -g yarn
-
-COPY * .
-# RUN yarn config set workspaces-experimental true && yarn config set workspaces-nohoist-experimental true
-# RUN yarn --silent
-# RUN cd ./packages/lan && yarn add json-prune
-# RUN cd ./packages/server && yarn add config
-RUN ls -lash
+FROM base_image
+ENV PACKAGES_DIR=/tamanu/packages \
+    DEPLOY_DIR=/tamanu/deploy \
+    DESKTOP_RELEASE_DIR=/tamanu/packages/desktop/release \
+    LAN_RELEASE_DIR=/tamanu/packages/lan/release \
+    DESKTOP_ROOT=/tamanu/packages/desktop \
+    LAN_ROOT=/tamanu/packages/lan \
+    SERVER_ROOT=/tamanu/packages/server
+COPY . .tmp/
+WORKDIR /tamanu

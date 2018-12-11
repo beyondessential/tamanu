@@ -32,3 +32,5 @@ config
 config\.js
 config\.demo\.js
 realm-object-server*
+
+*.aes
