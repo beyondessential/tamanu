@@ -221,9 +221,7 @@ export default merge.smart(baseConfig, {
 
     new webpack.NoEmitOnErrorsPlugin(),
 
-    new Dotenv({
-      path: './.env/config.dev'
-    }),
+    new Dotenv(),
 
     /**
      * Create global constants which can be configured at compile time.

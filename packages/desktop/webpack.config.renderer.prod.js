@@ -214,9 +214,7 @@ export default merge.smart(baseConfig, {
       filename: 'style.css'
     }),
 
-    new Dotenv({
-      path: './.env/config.prod'
-    }),
+    new Dotenv(),
 
     new BundleAnalyzerPlugin({
       analyzerMode:
