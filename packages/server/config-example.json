@@ -1,0 +1,20 @@
+{
+  "app": {
+    "port": 3000
+  },
+  "proxy": {
+    "port": 3500
+  },
+  "db": {
+    "host": "localhost",
+    "user": "couchadmin",
+    "password": "test",
+    "port": 5984
+  },
+  "sync": {
+    "path": "/realm-sync",
+    "channelIn": "realm-local-online",
+    "channelOut": "realm-online-local"
+  },
+  "disableOfflineSync": false
+}

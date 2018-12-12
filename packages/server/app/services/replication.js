@@ -1,5 +1,4 @@
-const config = require('../../config');
-const Promise = require('bluebird');
+const config = require(`${process.cwd()}/config`);
 const faye = require('faye');
 const { to } = require('await-to-js');
 const util = require('util');

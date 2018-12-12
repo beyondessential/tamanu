@@ -1,5 +1,5 @@
 const ENV          = process.env.NODE_ENV || 'development';
-const config       = require('config');
+const config       = require(`${process.cwd()}/config`);
 const express      = require('express');
 const morgan       = require('morgan');
 const compression  = require('compression');

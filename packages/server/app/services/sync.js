@@ -1,4 +1,4 @@
-const config = require('config');
+const config = require(`${process.cwd()}/config`);
 const { objectToJSON, incoming } = require('../utils');
 const { each, has } = require('lodash');
 const moment = require('moment');

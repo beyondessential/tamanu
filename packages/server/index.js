@@ -1,7 +1,7 @@
 const run = async () => {
     const ENV = process.env.NODE_ENV || 'development';
     const http = require('http');
-    const config = require('config');
+    const config = require('./config');
     const express = require('express');
     const faye = require('faye');
     const morgan = require('morgan');
