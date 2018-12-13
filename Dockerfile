@@ -9,6 +9,7 @@ RUN apt-get update && \
         wine \
         wixl \
         zip \
+        unzip \
       && npm install -g yarn
 
 FROM base_image

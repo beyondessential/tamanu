@@ -1,9 +1,9 @@
 #!/bin/bash
 type=$1
 type=${type^^}
-lan_config="LAN_CONFIG_$type"
-server_config="SERVER_CONFIG_$type"
-echo "Building for (${type})"
+lan_config="$type_LAN_CONFIG"
+server_config="$type_SERVER_CONFIG"
+echo "Building - ${type}"
 
 echo "${DESKTOP_CONFIG}" > ${DESKTOP_ROOT}/.env
 printf '%s\n' "${!lan_config}" > ${LAN_ROOT}/config.json
