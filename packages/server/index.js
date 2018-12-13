@@ -46,9 +46,20 @@ const run = async () => {
 
     // // Setup databases
     try {
+      // Get database patch
+      let dbPath = './data';
+      if (ENV === 'production') {
+        const cwd = process.cwd();
+        const matches = cwd.match(new RegExp('/tamanu-([a-zA-z]+)-([a-zA-z]+)/'));
+        const [, envType, branch] = matches;
+        dbPath = `${process.env.DB_BASE_PATH}/${envType}-${branch}`;
+      }
+
+      console.log('dbPath', dbPath);
+
       // Connect database
       const database = new Database({
-        path: './data/main.realm',
+        path: `${dbPath}/main.realm`,
         schema: schemas,
         schemaVersion
       });
