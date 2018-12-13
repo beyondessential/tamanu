@@ -1,23 +1,30 @@
 - name: copy_files
   service: app
+  tag: ^(codeship|master|dev)
   command: /.tmp/scripts/copy_files.sh
-
 - name: install
   service: app
+  tag: ^(codeship|master|dev)
   command: ./scripts/install.sh
-
 - name: build_pack
   service: app
+  tag: ^(codeship|master|dev)
   command: ./scripts/build.sh demo
-
-- name: deploy
+- name: push
   service: awsdeployment
-  exclude: master
-  command: ./scripts/deploy.sh
+  tag: ^(codeship|dev)
+  command: ./scripts/push.sh
+- name: deploy
+  service: app
+  tag: ^(codeship|dev)
+  command: ./scripts/deploy.sh demo
 
 - type: manual
   tag: master
   steps:
-    - service: app
-      name: deploy-server
-      command: echo 'deploy to server';
+    - name: push-master
+      service: awsdeployment
+      command: ./scripts/push.sh
+    - name: deploy-master
+      service: awsdeployment
+      command: ./scripts/deploy.sh demo
