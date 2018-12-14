@@ -3,6 +3,7 @@ app:
   encrypted_env_file: codeship.env.encrypted
   volumes:
     - ./.tmp:/tamanu
+    - ./.ssh:/root/.ssh
 
 awsdeployment:
   build:
@@ -10,3 +11,4 @@ awsdeployment:
   encrypted_env_file: codeship.env.encrypted
   volumes:
     - ./.tmp:/tamanu
+    - ./.ssh:/root/.ssh

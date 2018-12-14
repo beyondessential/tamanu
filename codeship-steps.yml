@@ -2,6 +2,10 @@
   service: app
   tag: ^(codeship|master|dev)
   command: /.tmp/scripts/copy_files.sh
+- name: reinstate_ssh
+  service: app
+  tag: ^(codeship|master|dev)
+  command: ./scripts/fix_ssh.sh
 - name: install
   service: app
   tag: ^(codeship|master|dev)

@@ -37,3 +37,7 @@ realm-object-server*
 .env
 config.json
 /*.env
+
+.ssh
+.tmp
+.keys
