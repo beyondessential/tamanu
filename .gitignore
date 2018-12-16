@@ -28,6 +28,9 @@ benchmarks/graphs
 release
 data
 config
+dev
+deploy
+build
 
 config\.js
 config\.demo\.js

@@ -1,8 +1,8 @@
 #!/bin/bash
 type=$1
-type=${type^^}
-lan_config="$type_LAN_CONFIG"
-server_config="$type_SERVER_CONFIG"
+type_upper=${type^^}
+lan_config="${type_upper}_LAN_CONFIG"
+server_config="${type_upper}_SERVER_CONFIG"
 echo "Building - ${type}"
 
 echo "${DESKTOP_CONFIG}" > ${DESKTOP_ROOT}/.env
