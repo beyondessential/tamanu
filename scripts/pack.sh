@@ -10,5 +10,5 @@ mkdir -p deploy
   && zip -q -r ${DEPLOY_DIR}/lan-$type-$CI_BRANCH-$CI_COMMIT_ID.zip . \
   && echo "${DEPLOY_DIR}/lan-$type-$CI_BRANCH-$CI_COMMIT_ID.zip generated")
 zip -q -x packages/server/node_modules/**\* data/**\* \
-  -r server-$type-$CI_BRANCH-$CI_COMMIT_ID.zip packages/server packages/shared yarn.lock \
-  && echo "server-$type-$CI_BRANCH-$CI_COMMIT_ID.zip generated"
+  -r ${DEPLOY_DIR}/server-$type-$CI_BRANCH-$CI_COMMIT_ID.zip packages/server packages/shared yarn.lock \
+  && echo "${DEPLOY_DIR}/server-$type-$CI_BRANCH-$CI_COMMIT_ID.zip generated"
