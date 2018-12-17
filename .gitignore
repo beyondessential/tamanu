@@ -44,3 +44,4 @@ config.json
 .ssh
 .tmp
 .keys
+.tmp
