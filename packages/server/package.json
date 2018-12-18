@@ -42,6 +42,7 @@
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",
     "compression": "^1.7.2",
+    "configs": "^1.0.3",
     "connect-flash": "^0.1.1",
     "cross-var": "^1.1.0",
     "express": "^4.16.2",

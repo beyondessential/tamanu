@@ -20,7 +20,8 @@
       "**/webpack", "**/webpack/**",
       "**/fbjs-scripts", "**/fbjs-scripts/**",
       "**/electron", "**/electron/**",
-      "**/electron-*", "**/electron-*/**"
+      "**/electron-*", "**/electron-*/**",
+      "**/configs", "**/configs/**"
     ]
   },
   "devDependencies": {}

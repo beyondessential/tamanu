@@ -1,4 +1,4 @@
-const config = require(`${process.cwd()}/config`);
+const config = require('configs');
 const { head, startsWith } = require('lodash');
 
 module.exports.incoming = ({ database, message, callback }) => {

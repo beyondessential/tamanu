@@ -1,4 +1,4 @@
-const config = require(`${process.cwd()}/config`);
+const config = require('configs');
 const httpProxy = require('http-proxy');
 
 const proxy = httpProxy.createProxyServer({});

@@ -1,6 +1,6 @@
 const Faye = require('faye');
 const { objectToJSON } = require('../utils');
-const config = require(`${process.cwd()}/config`);
+const config = require('configs');
 const { outgoing } = require('../utils/faye-extensions');
 
 class Sync {

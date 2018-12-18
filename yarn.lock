@@ -2922,6 +2922,15 @@ concurrently@^3.6.1:
     supports-color "^3.2.3"
     tree-kill "^1.1.0"
 
+configs@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/configs/-/configs-1.0.3.tgz#82b8871cba98b8a70412d7bb9b898f6a1378ff26"
+  integrity sha1-griHHLqYuKcEEte7m4mPahN4/yY=
+  dependencies:
+    debug "2.1.1"
+    deep-extend "0.3.2"
+    parent-dir "0.0.3"
+
 configstore@^3.0.0:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/configstore/-/configstore-3.1.2.tgz#c6f25defaeef26df12dd33414b001fe81a543f8f"
@@ -3491,7 +3500,14 @@ debounce@^1.1.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/debounce/-/debounce-1.2.0.tgz#44a540abc0ea9943018dc0eaa95cce87f65cd131"
 
-debug@2.6.9, debug@^2.1.0, debug@^2.1.2, debug@^2.1.3, debug@^2.2.0, debug@^2.3.3, debug@^2.5.1, debug@^2.6.0, debug@^2.6.3, debug@^2.6.8, debug@^2.6.9:
+debug@2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-2.1.1.tgz#e0c548cc607adc22b537540dc3639c4236fdf90c"
+  integrity sha1-4MVIzGB63CK1N1QNw2OcQjb9+Qw=
+  dependencies:
+    ms "0.6.2"
+
+debug@2.6.9, debug@^2.1.0, debug@^2.1.1, debug@^2.1.2, debug@^2.1.3, debug@^2.2.0, debug@^2.3.3, debug@^2.5.1, debug@^2.6.0, debug@^2.6.3, debug@^2.6.8, debug@^2.6.9:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
   dependencies:
@@ -3615,6 +3631,11 @@ deep-equal@^1.0.1:
 deep-equal@~0.2.1:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/deep-equal/-/deep-equal-0.2.2.tgz#84b745896f34c684e98f2ce0e42abaf43bba017d"
+
+deep-extend@0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/deep-extend/-/deep-extend-0.3.2.tgz#c75dff89f1c639e98438894d156c30b4f87b3a56"
+  integrity sha1-x13/ifHGOemEOIlNFWwwtPh7OlY=
 
 deep-extend@^0.6.0:
   version "0.6.0"
@@ -8078,6 +8099,11 @@ move-concurrently@^1.0.1:
     rimraf "^2.5.4"
     run-queue "^1.0.3"
 
+ms@0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/ms/-/ms-0.6.2.tgz#d89c2124c6fdc1353d65a8b77bf1aac4b193708c"
+  integrity sha1-2JwhJMb9wTU9Zai3e/GqxLGTcIw=
+
 ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
@@ -8783,6 +8809,13 @@ parallel-transform@^1.1.0:
     cyclist "~0.2.2"
     inherits "^2.0.3"
     readable-stream "^2.1.5"
+
+parent-dir@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/parent-dir/-/parent-dir-0.0.3.tgz#468c109f25bec438119630941b758d4095a655db"
+  integrity sha1-RowQnyW+xDgRljCUG3WNQJWmVds=
+  dependencies:
+    debug "^2.1.1"
 
 parse-asn1@^5.0.0:
   version "5.1.1"

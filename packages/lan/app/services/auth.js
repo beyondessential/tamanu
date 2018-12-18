@@ -1,4 +1,4 @@
-const config = require(`${process.cwd()}/config`);
+const config = require('configs');
 const prompt = require('prompt');
 const request = require('request');
 const { isArray, join } = require('lodash');
