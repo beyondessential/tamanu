@@ -12,7 +12,7 @@ import { Button } from '../../components/Button';
 class PatientListing extends Component {
   constructor(props) {
     super(props);
-    this.handleChange = this.handleChange.bind(this);
+    // this.handleChange = this.handleChange.bind(this);
     this.setActionsColumn = this.setActionsColumn.bind(this);
     this.onFetchData = this.onFetchData.bind(this);
     this.searchSubmit = this.searchSubmit.bind(this);
@@ -20,27 +20,23 @@ class PatientListing extends Component {
   }
 
   state = {
-    selectedPatient: null,
-    pageSize: pageSizes.patients,
     keyword: '',
     tableClass: '',
-    tableState: {}
+    tableState: {},
+    loading: true,
   }
 
   componentDidMount() {
     patientColumns[patientColumns.length - 1].Cell = this.setActionsColumn;
-    this.props.collection.on('update', this.handleChange);
-    this.props.collection.setPageSize(this.state.pageSize);
-    this.props.collection.fetch();
+    this.props.collection.on('update', this.handleChange());
   }
 
   componentWillUnmount() {
-    this.props.collection.off('update', this.handleChange);
+    this.props.collection.off('update', this.handleChange());
   }
 
   handleChange() {
     let { models: patients } = this.props.collection;
-    console.log('-handleChange-', patients);
     if (patients.length > 0) {
       patients = map(patients, async patient => {
         const { attributes } = patient;
@@ -67,7 +63,7 @@ class PatientListing extends Component {
       if (!isEmpty(admission)) dischargeUrl = `/patients/visit/${patient.id}/${admission.id}`;
       this.props.history.push(dischargeUrl);
     } else {
-      this.props.history.push(`/patients/checkin/${patientId}`);
+      this.props.history.push(`/patients/check-in/${patientId}`);
     }
   }
 
@@ -89,8 +85,14 @@ class PatientListing extends Component {
         this.props.collection.setKeyword('');
       }
 
-      this.props.collection.setPageSize(state.pageSize);
-      await this.props.collection.getPage(state.page).promise();
+      await this.props.collection.getPage(
+        state.page,
+        undefined,
+        undefined,
+        {
+          pageSize: state.pageSize
+        }
+      );
       this.setState({ loading: false });
     } catch (err) {
       this.setState({ loading: false });
@@ -102,7 +104,7 @@ class PatientListing extends Component {
     const row = _row.original;
     return (
       <div key={row._id}>
-        <Button 
+        <Button
           onClick={() => this.goEdit(row._id)}
           variant="outlined"
         >
@@ -134,7 +136,7 @@ class PatientListing extends Component {
   }
 
   render() {
-    const { tableClass } = this.state;
+    const { tableClass, loading } = this.state;
     let { models: patients } = this.props.collection;
     if (patients.length > 0) patients = map(patients, patient => patient.attributes);
     return (
@@ -158,13 +160,14 @@ class PatientListing extends Component {
           </div>
         </div>
         <div className="detail">
-          {patients.length === 0 ?
+          {patients.length === 0 && !loading && // Loaded and no records
             <div className="notification">
               <span>
                 No patients found. <Link to="/patients/edit/new">Create a new patient record?</Link>
               </span>
             </div>
-            :
+          }
+          {(patients.length > 0 || loading) && // Loading or there's records
             <div>
               <ReactTable
                 manual

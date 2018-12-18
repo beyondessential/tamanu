@@ -95,6 +95,10 @@
   dependencies:
     "@babel/types" "^7.0.0"
 
+"@babel/helper-plugin-utils@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@babel/helper-plugin-utils/-/helper-plugin-utils-7.0.0.tgz#bbb3fbee98661c569034237cc03967ba99b4f250"
+
 "@babel/helper-split-export-declaration@7.0.0-beta.44":
   version "7.0.0-beta.44"
   resolved "http://registry.npmjs.org/@babel/helper-split-export-declaration/-/helper-split-export-declaration-7.0.0-beta.44.tgz#c0b351735e0fbcb3822c8ad8db4e583b05ebd9dc"
@@ -134,6 +138,12 @@
 "@babel/parser@7.1.6", "@babel/parser@^7.1.2", "@babel/parser@^7.1.6":
   version "7.1.6"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.1.6.tgz#16e97aca1ec1062324a01c5a6a7d0df8dd189854"
+
+"@babel/plugin-syntax-jsx@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-jsx/-/plugin-syntax-jsx-7.0.0.tgz#034d5e2b4e14ccaea2e4c137af7e4afb39375ffd"
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.0.0"
 
 "@babel/runtime@7.0.0":
   version "7.0.0"
@@ -1258,7 +1268,7 @@ babel-plugin-react-transform@^2.0.2:
   resolved "https://registry.yarnpkg.com/babel-plugin-styled-components/-/babel-plugin-styled-components-1.9.2.tgz#0e6a6587454dcb1c9a362a8fd31fc0b075ccd260"
   dependencies:
     "@babel/helper-annotate-as-pure" "^7.0.0"
-    babel-plugin-syntax-jsx "^6.18.0"
+    babel-plugin-syntax-jsx "^6.18.0"syntax-jsx" "^7.0.0"
     lodash "^4.17.10"
 
 babel-plugin-syntax-async-functions@^6.8.0:

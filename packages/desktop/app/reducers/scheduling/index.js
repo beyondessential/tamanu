@@ -6,6 +6,8 @@ const stateChanges = { ...appointment, ...appointments };
 const initialState = {
   appointment: {},
   appointments: [],
+  reFetch: false,
+  totalPages: 0,
   loading: false,
 };
 

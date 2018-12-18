@@ -43,7 +43,7 @@ class PatientAutocomplete extends Component {
     try {
       this.props.collection.setPageSize(1000);
       this.props.collection.setKeyword(value);
-      await this.props.collection.getPage(0).promise();
+      await this.props.collection.getPage(0);
       let { models: patients } = this.props.collection;
       if (patients.length > 0) patients = map(patients, patient => patient.attributes);
       this.setState({ patients, patientRef: value });

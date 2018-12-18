@@ -11,19 +11,19 @@ export const Button = ({ primary, ...props }) => {
 };
 
 export const BackButton = ({ to, ...props }) => {
-  if(to) {
+  if (to) {
     return <Button
       variant="outlined"
       component={ Link }
       to={ to }
       { ...props }
     >Back</Button>;
-  } else {
-    return <Button
-      variant="outlined"
-      { ...props }
-    >Back</Button>;
   }
+
+  return <Button
+    variant="outlined"
+    { ...props }
+  >Back</Button>;
 };
 
 export const ClearButton = ({ ...props }) => {

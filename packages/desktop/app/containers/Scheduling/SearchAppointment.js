@@ -1,38 +1,38 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import Select from 'react-select';
-import DatePicker from 'react-datepicker';
+import { Link } from 'react-router-dom';
+import { isEmpty } from 'lodash';
 import moment from 'moment';
-import BootstrapTable from 'react-bootstrap-table-next';
-import Serializer from '../../utils/form-serialize';
-import CustomDateInput from '../../components/CustomDateInput';
-import { createMedication } from '../../actions/medications';
-import { visitOptions, medicationColumns } from '../../constants';
-
-import { SearchButton } from '../../components/Button';
-
-const medications = [];
+import SearchForm from './components/SearchForm';
+import actions from '../../actions/scheduling';
+import AppointmentsTable from './components/AppointmentsTable';
 
 class SearchAppointment extends Component {
+  constructor(props) {
+    super(props);
+    this.submitForm = this.submitForm.bind(this);
+  }
+
   state = {
-    selectValue: '',
-    prescriptionDate: moment(),
+    keys: [],
+    loading: false,
   }
 
-  updateValue = (newValue) => {
-    this.setState({
-      selectValue: newValue,
-    });
+  submitForm(form) {
+    const keys = [moment(form.startDate).startOf('day'), moment().add(100, 'years'), form.status, form.type, form.practitioner];
+    this.setState({ keys });
   }
 
-  onChangeDate = (date) => {
-    this.setState({
-      prescriptionDate: date,
-    });
+  onLoading(loading) {
+    this.setState({ loading });
   }
 
   render() {
-    const { prescriptionDate } = this.state;
+    const {
+      keys,
+      loading,
+    } = this.state;
+
     return (
       <div className="create-content">
         <div className="create-top-bar">
@@ -40,135 +40,43 @@ class SearchAppointment extends Component {
             Search Appointments
           </span>
           <div className="view-action-buttons">
-            <button>
-              + New Appointment
-            </button>
+            <Link to="/appointments/appointment/new">
+              <i className="fa fa-plus" /> New Appointment
+            </Link>
           </div>
         </div>
-        <form
-          className="create-container"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const medication = Serializer.serialize(e.target, { hash: true });
-            if (medication.patient && medication.visit && medication.medication && medication.prescription) {
-              this.props.createMedication(medication);
-            } else {
-              // this.setState({ formError: true });
-            }
-          }}
-        >
-          <div className="form">
-            <div className="columns">
-              <div className="column is-3">
-                <div className="column">
-                  <span className="header">
-                    Start Date
-                  </span>
-                  <DatePicker
-                    name="startDate"
-                    customInput={<CustomDateInput />}
-                    selected={prescriptionDate}
-                    onChange={this.onChangeDate}
-                    peekNextMonth
-                    showMonthDropdown
-                    showYearDropdown
-                    dropdownMode="select"
-                  />
-                </div>
-              </div>
-              <div className="column is-3">
-                <div className="column">
-                  <span className="header">
-                    Status
-                  </span>
-                  <Select
-                    id="state-select"
-                    ref={(ref) => { this.select = ref; }}
-                    onBlurResetsInput={false}
-                    onSelectResetsInput={false}
-                    options={visitOptions}
-                    simpleValue
-                    clearable
-                    name="selected-state"
-                    disabled={this.state.disabled}
-                    value={this.state.selectValue}
-                    onChange={this.updateValue}
-                    rtl={this.state.rtl}
-                    searchable={this.state.searchable}
-                  />
-                </div>
-              </div>
-              <div className="column is-3">
-                <div className="column">
-                  <span className="header">
-                    Type
-                  </span>
-                  <Select
-                    id="state-select"
-                    ref={(ref) => { this.select = ref; }}
-                    onBlurResetsInput={false}
-                    onSelectResetsInput={false}
-                    options={visitOptions}
-                    simpleValue
-                    clearable
-                    name="selected-state"
-                    disabled={this.state.disabled}
-                    value={this.state.selectValue}
-                    onChange={this.updateValue}
-                    rtl={this.state.rtl}
-                    searchable={this.state.searchable}
-                  />
-                </div>
-              </div>
-              <div className="column is-3">
-                <div className="column">
-                  <span className="header">
-                    With
-                  </span>
-                  <Select
-                    id="state-select"
-                    ref={(ref) => { this.select = ref; }}
-                    onBlurResetsInput={false}
-                    onSelectResetsInput={false}
-                    options={visitOptions}
-                    simpleValue
-                    clearable
-                    name="selected-state"
-                    disabled={this.state.disabled}
-                    value={this.state.selectValue}
-                    onChange={this.updateValue}
-                    rtl={this.state.rtl}
-                    searchable={this.state.searchable}
-                  />
-                </div>
-              </div>
-            </div>
+        <div className="create-container">
+          <div className="form with-padding">
+            <SearchForm
+              loading={loading}
+              onSubmit={this.submitForm}
+            />
             <div className="columns">
               <div className="column">
-                <div className="column has-text-right">
-                  <SearchButton type="submit" />
-                </div>
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column">
-                <BootstrapTable
-                  keyField="id"
-                  data={medications}
-                  columns={medicationColumns}
-                  defaultSortDirection="asc"
-                />
+                  <AppointmentsTable
+                    keys={keys}
+                    history={this.props.history}
+                    onLoading={this.onLoading.bind(this)}
+                    reFetch
+                  />
               </div>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     );
   }
 }
 
+function mapStateToProps(state) {
+  const { appointments, totalPages, loading, error } = state.scheduling;
+  return { appointments, totalPages, loading, error };
+}
+
+const { appointments: appointmentsActions } = actions;
+const { fetchAppointments } = appointmentsActions;
 const mapDispatchToProps = dispatch => ({
-  createMedication: medication => dispatch(createMedication(medication)),
+  fetchAppointments: (props) => dispatch(fetchAppointments(props)),
 });
 
-export default connect(undefined, mapDispatchToProps)(SearchAppointment);
+export default connect(mapStateToProps, mapDispatchToProps)(SearchAppointment);

@@ -7,7 +7,7 @@
     background: $main-white-color;
     padding: 0 15px;
     height: 55px;
-    span {
+    > span {
       float: left;
       margin: 0;
       line-height: 55px;
@@ -32,7 +32,7 @@
     }
     .view-action-buttons {
       float: right;
-      button {
+      button.button {
         margin: 10px 0 10px 15px;
         border: 1px solid $main-green-color;
         background-color: transparent;
@@ -41,7 +41,7 @@
         padding: 7px;
         border-radius: 5px;
       }
-      a {
+      a.button {
         margin: 10px 0 10px 15px;
         border: 1px solid $main-green-color;
         background-color: transparent;
@@ -135,6 +135,7 @@
       }
       .calendar-height {
         height: 500px;
+        min-height: calc(100vh - 120px)
       }
       .card-info {
         width: 120px;

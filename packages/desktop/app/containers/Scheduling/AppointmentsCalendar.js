@@ -1,172 +1,164 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import Select from 'react-select';
+import { Link } from 'react-router-dom';
+import { isEmpty, has, head, last } from 'lodash';
 import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
-import Serializer from '../../utils/form-serialize';
-import { createMedication } from '../../actions/medications';
-import { visitOptions, appointments } from '../../constants';
-
-import { ClearButton, FilterButton } from '../../components/Button';
+import Button from '@material-ui/core/Button';
+import actions from '../../actions/scheduling';
+import FiltersForm from './components/FiltersForm';
+import { dbViews } from '../../constants';
 
 BigCalendar.momentLocalizer(moment);
 
 class AppointmentsCalendar extends Component {
-  state = {
-    selectValue: '',
+  constructor(props) {
+    super(props);
+    this.setFilters = this.setFilters.bind(this);
+    this.viewAppointment = this.viewAppointment.bind(this);
   }
 
-  updateValue = (newValue) => {
-    this.setState({
-      selectValue: newValue,
+  state = {
+    appointments: [{}],
+    loading: true,
+    filtersOn: false,
+    startDate: moment().startOf('month').subtract(2, 'weeks'),
+    endDate: moment().endOf('month').add(2, 'weeks'),
+    status: '',
+    type: '',
+    location: '',
+    practitioner: '',
+  }
+
+  componentDidMount() {
+    this.fetchData();
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.handleChange(newProps);
+  }
+
+  handleChange(props = this.props) {
+    const { appointments, loading } = props;
+    if (!loading) this.setState({ appointments, loading });
+  }
+
+  viewAppointment = ({ _id }) => {
+    const { theatre } = this.props;
+    this.props.history.push(`/appointments/${!theatre ? 'appointment' : 'surgery'}/${_id}`);
+  }
+
+  setDates = dates => {
+    let startDate;
+    let endDate;
+    if (has(dates, 'start') && has(dates, 'end')) {
+      startDate = moment(dates.start).startOf('day').toISOString();
+      endDate = moment(dates.end).endOf('day').toISOString();
+    } else if (!isEmpty(dates)) {
+      startDate = moment(head(dates)).startOf('day').toISOString();
+      endDate = moment(last(dates)).endOf('day').toISOString();
+    }
+
+    this.setState({ startDate, endDate }, this.fetchData);
+  }
+
+  setFilters = ({ status, type, practitioner, location }) => {
+    this.setState({ status, type, practitioner, location }, this.fetchData);
+  }
+
+  fetchData = () => {
+    const { theatre } = this.props;
+    const {
+      startDate,
+      endDate,
+      status,
+      type,
+      location,
+      practitioner,
+    } = this.state;
+    let keys = [];
+    let view = '';
+
+    if (theatre) {
+      keys = [ startDate, endDate, status, type, practitioner, location];
+      view = dbViews.appointmentsSurgerySearch;
+    } else {
+      keys = [ startDate, endDate, status, practitioner, location];
+      view = dbViews.appointmentsSearch;
+    }
+
+    this.props.fetchCalender({
+      view, keys
     });
   }
 
   render() {
+    const { theatre } = this.props;
+    const {
+      appointments,
+      loading,
+      filtersOn,
+    } = this.state;
+
     return (
       <div className="create-content">
         <div className="create-top-bar">
           <span>
-            Appointments Calendar
+            {!theatre ? 'Appointments Calendar': 'Theatre Schedule'}
           </span>
-          <div className="view-action-buttons">
-            <button>
-              + New Appointment
-            </button>
+          <div className="view-action-buttons p-t-10">
+            <Button
+              color="primary"
+              variant='outlined'
+              className="m-r-5"
+              component={props => <Link to={`/appointments/${!theatre ? 'appointment' : 'surgery'}/new`} {...props} />}
+            >
+              New Appointment
+            </Button>
+            <Button
+              color="primary"
+              variant={filtersOn ? 'contained' : 'outlined'}
+              onClick={() => this.setState({ filtersOn: !filtersOn })}
+            >
+              Filters
+            </Button>
           </div>
         </div>
-        <form
-          className="create-container"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const medication = Serializer.serialize(e.target, { hash: true });
-            if (medication.patient && medication.visit && medication.medication && medication.prescription) {
-              this.props.createMedication(medication);
-            } else {
-              // this.setState({ formError: true });
-            }
-          }}
-        >
-          <div className="form">
-            <div className="columns">
-              <div className="column is-3">
-                <div className="column">
-                  <span className="header">
-                    Status
-                  </span>
-                  <Select
-                    id="state-select"
-                    ref={(ref) => { this.select = ref; }}
-                    onBlurResetsInput={false}
-                    onSelectResetsInput={false}
-                    options={visitOptions}
-                    simpleValue
-                    clearable
-                    name="selected-state"
-                    disabled={this.state.disabled}
-                    value={this.state.selectValue}
-                    onChange={this.updateValue}
-                    rtl={this.state.rtl}
-                    searchable={this.state.searchable}
-                  />
-                </div>
-              </div>
-              <div className="column is-3">
-                <div className="column">
-                  <span className="header">
-                    Type
-                  </span>
-                  <Select
-                    id="state-select"
-                    ref={(ref) => { this.select = ref; }}
-                    onBlurResetsInput={false}
-                    onSelectResetsInput={false}
-                    options={visitOptions}
-                    simpleValue
-                    clearable
-                    name="selected-state"
-                    disabled={this.state.disabled}
-                    value={this.state.selectValue}
-                    onChange={this.updateValue}
-                    rtl={this.state.rtl}
-                    searchable={this.state.searchable}
-                  />
-                </div>
-              </div>
-              <div className="column is-3">
-                <div className="column">
-                  <span className="header">
-                    With
-                  </span>
-                  <Select
-                    id="state-select"
-                    ref={(ref) => { this.select = ref; }}
-                    onBlurResetsInput={false}
-                    onSelectResetsInput={false}
-                    options={visitOptions}
-                    simpleValue
-                    clearable
-                    name="selected-state"
-                    disabled={this.state.disabled}
-                    value={this.state.selectValue}
-                    onChange={this.updateValue}
-                    rtl={this.state.rtl}
-                    searchable={this.state.searchable}
-                  />
-                </div>
-              </div>
-              <div className="column is-3">
-                <div className="column">
-                  <span className="header">
-                    Location
-                  </span>
-                  <Select
-                    id="state-select"
-                    ref={(ref) => { this.select = ref; }}
-                    onBlurResetsInput={false}
-                    onSelectResetsInput={false}
-                    options={visitOptions}
-                    simpleValue
-                    clearable
-                    name="selected-state"
-                    disabled={this.state.disabled}
-                    value={this.state.selectValue}
-                    onChange={this.updateValue}
-                    rtl={this.state.rtl}
-                    searchable={this.state.searchable}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column">
-                <div className="column has-text-right">
-                  <ClearButton />
-                  <FilterButton />
-                </div>
-              </div>
-            </div>
+        <div className="create-container" >
+          <div className="form with-padding">
+            <FiltersForm
+              theatre={theatre}
+              loading={loading}
+              collapse={filtersOn}
+              onSubmit={this.setFilters}
+            />
             <div className="columns">
               <div className="column">
                 <div className="column calendar-height">
                   <BigCalendar
                     events={appointments}
-                    startAccessor="start"
-                    endAccessor="end"
-                    defaultDate={new Date()}
+                    onRangeChange={this.setDates}
+                    onSelectEvent={this.viewAppointment}
                   />
                 </div>
               </div>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     );
   }
 }
 
+function mapStateToProps(state) {
+  const { appointments, loading, error } = state.scheduling;
+  return { appointments, loading, error };
+}
+
+const { appointments: appointmentsActions } = actions;
+const { fetchCalender } = appointmentsActions;
 const mapDispatchToProps = dispatch => ({
-  createMedication: medication => dispatch(createMedication(medication)),
+  fetchCalender: (props) => dispatch(fetchCalender(props)),
 });
 
-export default connect(undefined, mapDispatchToProps)(AppointmentsCalendar);
+export default connect(mapStateToProps, mapDispatchToProps)(AppointmentsCalendar);
