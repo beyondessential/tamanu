@@ -8,8 +8,8 @@ server_config="CONFIG_SERVER_${type_upper}_${branch_upper}"
 echo "Building - ${type}"
 
 echo "${CONFIG_DESKTOP}" > ${DESKTOP_ROOT}/.env
-printf '%s\n' "${!lan_config}" > ${LAN_ROOT}/config.json
-printf '%s\n' "${!server_config}" > ${SERVER_ROOT}/config.json
+printf '%s\n' "${!lan_config}" > ${LAN_ROOT}/config/default.json
+printf '%s\n' "${!server_config}" > ${SERVER_ROOT}/config/production.json
 
 yarn --cwd ${DESKTOP_ROOT} run package
 yarn --cwd ${LAN_ROOT} run package

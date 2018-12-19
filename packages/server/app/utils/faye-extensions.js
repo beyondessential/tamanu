@@ -1,4 +1,4 @@
-const config = require('configs');
+const config = require('config');
 const { head, startsWith } = require('lodash');
 
 module.exports.incoming = ({ database, message, callback }) => {

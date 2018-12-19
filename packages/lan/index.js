@@ -1,6 +1,6 @@
 (async () => {
   const ENV = process.env.NODE_ENV || 'production';
-  const config = require('configs');
+  const config = require('config');
   const express = require('express');
   const bodyParser = require('body-parser');
   const morgan = require('morgan');

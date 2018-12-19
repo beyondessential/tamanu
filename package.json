@@ -21,7 +21,7 @@
       "**/fbjs-scripts", "**/fbjs-scripts/**",
       "**/electron", "**/electron/**",
       "**/electron-*", "**/electron-*/**",
-      "**/configs", "**/configs/**"
+      "**/config", "**/config/**"
     ]
   },
   "devDependencies": {}

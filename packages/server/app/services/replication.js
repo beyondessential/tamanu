@@ -1,4 +1,4 @@
-const config = require('configs');
+const config = require('config');
 const faye = require('faye');
 const { to } = require('await-to-js');
 const util = require('util');

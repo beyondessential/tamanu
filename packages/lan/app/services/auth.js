@@ -1,4 +1,4 @@
-const config = require('configs');
+const config = require('config');
 const prompt = require('prompt');
 const request = require('request');
 const { isArray, join } = require('lodash');
