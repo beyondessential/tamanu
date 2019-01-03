@@ -1,7 +1,8 @@
 const config = require('config');
-const { objectToJSON, incoming } = require('../utils');
-const { each, has } = require('lodash');
+const { each, has, isEmpty } = require('lodash');
 const moment = require('moment');
+const { objectToJSON, objectToJsonValidate, incoming } = require('../utils');
+const { schemas } = require('../../../shared/schemas');
 
 class Sync {
   constructor(database, faye) {
@@ -70,14 +71,28 @@ class Sync {
   async _publishMessage(change, client) {
     try {
       let record = this.database.findOne(change.recordType, change.recordId);
-      if (record) record = objectToJSON(record);
-      await this.client.getClient().publish(`/${config.sync.channelOut}/${client.clientId}`, {
-        record,
-        ...change
-      });
+      const schema = schemas.find(_schema => _schema.name === change.recordType);
+      if (!isEmpty(schema)) {
+        // Apply filter if defined
+        if (typeof schema.filter === 'function') {
+          const sendItem = schema.filter(record, client, change);
+          if (!sendItem) {
+            console.log(`Object [${change.recordType} - ${change.recordId}] not authorized to be synced, skipping..`);
+            return true;
+          }
+        }
 
-      console.log('[MessageOut]', { action: change.action, type: change.recordType, id: change.recordId });
-      return {};
+        if (record) record = objectToJSON(record);
+        await this.client.getClient().publish(`/${config.sync.channelOut}/${client.clientId}`, {
+          record,
+          ...change
+        });
+
+        console.log('[MessageOut]', { action: change.action, type: change.recordType, id: change.recordId });
+        return {};
+      }
+
+      throw Error(`Error: Schema not found ${change.recordType}`);
     } catch (err) {
       throw new Error(err);
     }

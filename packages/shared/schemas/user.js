@@ -53,6 +53,13 @@ const UserSchema = {
       property: 'users'
     }
   }, defaults),
+  filter: (object, client) => {
+    let valid = false;
+    object.hospitals.forEach(hospital => {
+      if (hospital._id === client.hospitalId) valid = true;
+    });
+    return valid;
+  }
 };
 
 module.exports = UserSchema;

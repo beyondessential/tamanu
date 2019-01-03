@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const version = 14;
+const version = 15;
 
 const schemas = [];
 fs.readdirSync(__dirname).forEach((file) => {

@@ -1,9 +1,9 @@
 const defaults = require('./defaults');
 
-const UserSchema = {
+const HospitalSchema = {
   name: 'hospital',
   primaryKey: '_id',
-  sync: false,
+  // sync: false,
   properties: Object.assign({
     _id: 'string',
     name: 'string',
@@ -11,8 +11,16 @@ const UserSchema = {
       type: 'string',
       optional: true
     },
-    users: 'user[]'
-  }, defaults)
+    users: {
+      type: 'list',
+      objectType: 'user'
+    }
+  }, defaults),
+  filter: (object, client) => {
+    let valid = false;
+    if (object._id === client.hospitalId) valid = true;
+    return valid;
+  }
 };
 
-module.exports = UserSchema;
+module.exports = HospitalSchema;
