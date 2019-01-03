@@ -1,64 +1,105 @@
 const config = require('config');
-const prompt = require('prompt');
-const request = require('request');
+const prompts = require('prompts');
+const request = require('request-promise');
+const { to } = require('await-to-js');
 const { isArray, join } = require('lodash');
 
 class Auth {
   constructor(database) {
     this.database = database;
-    this.schema = {
-      properties: {
-        email: {
-          pattern: /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i,
-          message: 'Invalid email address added',
-          description: 'Enter email',
-          required: true
-        },
-        password: {
-          description: 'Enter password',
-          hidden: true,
-          required: true
-        }
+    this.credentials = {};
+    this.hospitalOptions = [];
+    this.schema = [{
+        type: 'text',
+        message: 'Enter email',
+        name: 'email',
+        required: true,
+        validate: email => /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i.test(email),
+      }, {
+        type: 'password',
+        message: 'Enter password',
+        name: 'password',
+        hidden: true,
+        required: true,
+        validate: password => password.length
       }
-    };
+    ];
+    this.schemaHospital = [{
+        type: 'select',
+        message: 'Select hospital',
+        name: 'hospital',
+        required: true,
+        choices: () => this.hospitalOptions
+      }
+    ];
   }
 
-  promptLogin(cb) {
+  async promptLogin(cb, verifyCredentials = true, schema = this.schema) {
     const clientId = this.database.getSetting('CLIENT_ID');
     const clientSecret = this.database.getSetting('CLIENT_SECRET');
-    if (!clientId || !clientSecret) {
-      prompt.start();
-      prompt.get(this.schema, (err, result) => {
-        if (err) throw new Error(err);
-        this._login(result, cb);
-      });
-    } else {
-      cb();
+    let promptUser = true;
+
+    if (clientId && clientSecret && verifyCredentials) {
+      const [, valid] = await to(this._verifyCredentials({ clientId, clientSecret }));
+      if (valid.clientId && valid.clientSecret) return cb();
+    }
+
+    const answers = await prompts(schema, {
+      onSubmit: (prompt, answer) => {
+        this.credentials[prompt.name] = answer;
+      },
+      onCancel: (prompt, answers) => {
+        if (!answers.email || !answers.password) {
+          console.log('Aborted.');
+          process.exit();
+        }
+      }
+    });
+
+    if (this.credentials.email && this.credentials.password) {
+      const [err, res] = await to(this._login());
+      if (!err) {
+        if (res.action === 'select-hospital') {
+          this.hospitalOptions = res.options.map(({ _id: value, name: title }) => ({ title, value }));
+          this.promptLogin(cb, false, this.schemaHospital);
+        } else {
+          // Save user auth secret
+          this.database.setSetting('CLIENT_SECRET', res.clientSecret);
+          cb();
+        }
+      } else {
+        console.error(err.error);
+        this.promptLogin(cb, false);
+      }
     }
   }
 
-  _login(result, cb) {
-    const clientId = this.database.getSetting('CLIENT_ID');
-    request({
-      method: 'POST',
-      url: `${config.mainServer}/auth/login`,
-      json: { clientId, ...result }
-    }, (error, response, body) => {
-      if (!error && !body.error) {
-        // Save user auth secret
-        this.database.setSetting('CLIENT_SECRET', body.clientSecret);
-        cb();
-      } else {
-        console.error(error || (isArray(body.error) ? join(body.error) : body.error));
-        // Reset prompt
-        this.promptLogin(cb);
-      }
+  _login() {
+    return new Promise(async (resolve, reject) => {
+      const clientId = this.database.getSetting('CLIENT_ID');
+      const [err, res] = await to(request({
+        method: 'POST',
+        url: `${config.mainServer}/auth/login`,
+        json: { clientId, ...this.credentials }
+      }));
+
+      if (err) return reject(err);
+      resolve(res);
+    });
+  }
+
+  _verifyCredentials({ clientId, clientSecret }) {
+    return new Promise(async (resolve, reject) => {
+      const [err, res] = await to(request({
+        method: 'POST',
+        url: `${config.mainServer}/auth/verify-credentials`,
+        json: { clientId, clientSecret }
+      }));
+
+      if (err) return reject(err);
+      resolve(res);
     });
   }
 }
 
 module.exports = Auth;
-
-
-//  john.doe@gmail.com
-//  123455

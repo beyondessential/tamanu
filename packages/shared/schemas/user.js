@@ -38,10 +38,6 @@ const UserSchema = {
       type: 'string',
       optional: true
     },
-    rev: {
-      type: 'string',
-      optional: true
-    },
     roles: 'string[]',
     salt: {
       type: 'string',
@@ -51,7 +47,12 @@ const UserSchema = {
       type: 'string',
       optional: true
     },
-  }, defaults)
+    hospitals: {
+      type: 'linkingObjects',
+      objectType: 'hospital',
+      property: 'users'
+    }
+  }, defaults),
 };
 
 module.exports = UserSchema;

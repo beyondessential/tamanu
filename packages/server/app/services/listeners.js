@@ -1,4 +1,5 @@
 const { each } = require('lodash');
+const jsonPrune = require('json-prune');
 const { schemas } = require('../../../shared/schemas');
 const QueueManager = require('./queue-manager');
 const Sync = require('./sync');
@@ -59,7 +60,7 @@ class Listeners {
   }
 
   _toJSON(object) {
-   return JSON.parse(JSON.stringify(object));
+   return JSON.parse(jsonPrune(object));
   }
 }
 

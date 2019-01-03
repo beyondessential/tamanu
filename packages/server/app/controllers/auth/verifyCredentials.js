@@ -8,8 +8,7 @@ const internals = {
 
 internals.validateBody = [
   internals.checkBody('clientId').exists().withMessage('clientId is required'),
-  internals.checkBody('email').isEmail().exists().withMessage('email is required'),
-  internals.checkBody('password').exists().withMessage('password is required'),
+  internals.checkBody('clientSecret').isEmail().exists().withMessage('clientSecret is required'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -21,23 +20,23 @@ internals.validateBody = [
   },
 ];
 
-internals.login = async (req, res) => {
+internals.verifyCredentials = async (req, res) => {
   const database = req.app.get('realm');
-  const { email, password, hospital, clientId } = req.body;
+  const { clientId, clientSecret } = req.body;
 
   try {
     const authService = new AuthService(database);
-    const doLogin = await authService.login({ email, password, hospital, clientId });
-    if (doLogin !== false) {
-      return res.json(doLogin);
-    }
-    throw doLogin;
+    const loginCheck = await authService.checkLogin({ clientId, clientSecret });
+    return res.json({
+      userId: loginCheck.userId,
+      clientId: loginCheck.clientId,
+      clientSecret: loginCheck.clientSecret,
+    });
   } catch (err) {
     return res.status(404).send(err.toString());
   }
 };
 
 module.exports = [
-  internals.validateBody,
-  internals.login
+  internals.verifyCredentials
 ];

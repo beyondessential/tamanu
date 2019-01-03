@@ -7,6 +7,7 @@ const ClientSchema = {
   properties: Object.assign({
     _id: 'string',
     userId: 'string',
+    hospitalId: 'string',
     clientId: 'string',
     clientSecret: 'string',
     lastActive: {
