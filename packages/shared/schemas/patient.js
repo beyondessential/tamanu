@@ -212,7 +212,8 @@ const PatientSchema = {
   beforeSave: (db, object) => {
     if (object.displayId === '') object.displayId = _generateTempDisplayId(db);
     return object;
-  }
+  },
+  selectors: ['displayId', 'firstName', 'lastName', 'dateOfBirth', 'sex', 'status', 'admitted']
 };
 
 const _generateTempDisplayId = (db) => {

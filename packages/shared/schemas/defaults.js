@@ -7,6 +7,10 @@ const Default = {
   modifiedAt: {
     type: 'date',
     default: new Date()
+  },
+  fullySynced: {
+    type: 'bool',
+    default: false
   }
 };
 

@@ -22,7 +22,7 @@ class Listeners {
     console.log('Database listeners added!');
   }
 
-  _addListener({ name }) {
+  _addListener({ name, onChange }) {
     const objects = this.database.objects(name);
     let items = this._toJSON(objects);
     objects.addListener((itemsUpdated, changes) => {
@@ -33,11 +33,22 @@ class Listeners {
           case 'modifications':
           case 'oldModifications':
             indexes.forEach((index) => {
-              this.queueManager.push({
+              const queueItem = {
                 action: 'SAVE',
                 recordId: itemsUpdated[index]._id,
                 recordType: name
-              });
+              };
+              this.queueManager.push(queueItem);
+              // trigger onChange event for the schema
+              if (onChange) {
+                onChange(
+                  {
+                    record: itemsUpdated[index], ...queueItem
+                  },
+                  this.database,
+                  this.queueManager,
+                );
+              }
             });
             items = this._toJSON(itemsUpdated);
           break;

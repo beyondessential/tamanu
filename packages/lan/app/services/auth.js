@@ -37,9 +37,10 @@ class Auth {
   async promptLogin(cb, verifyCredentials = true, schema = this.schema) {
     const clientId = this.database.getSetting('CLIENT_ID');
     const clientSecret = this.database.getSetting('CLIENT_SECRET');
+    const hospitalId = this.database.getSetting('HOSPITAL_ID');
     let promptUser = true;
 
-    if (clientId && clientSecret && verifyCredentials) {
+    if (clientId && clientSecret && hospitalId && verifyCredentials) {
       const [, valid] = await to(this._verifyCredentials({ clientId, clientSecret }));
       if (valid.clientId && valid.clientSecret) return cb();
     }
@@ -65,6 +66,7 @@ class Auth {
         } else {
           // Save user auth secret
           this.database.setSetting('CLIENT_SECRET', res.clientSecret);
+          this.database.setSetting('HOSPITAL_ID', res.hospitalId);
           cb();
         }
       } else {

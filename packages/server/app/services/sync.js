@@ -1,8 +1,8 @@
 const config = require('config');
-const { each, has, isEmpty } = require('lodash');
+const { each, has, isEmpty, toLower, pick, keys } = require('lodash');
 const moment = require('moment');
-const { objectToJSON, objectToJsonValidate, incoming } = require('../utils');
-const { schemas } = require('../../../shared/schemas');
+const { objectToJSON, incoming } = require('../utils');
+const { schemas, defaults } = require('../../../shared/schemas');
 
 class Sync {
   constructor(database, faye) {
@@ -21,12 +21,13 @@ class Sync {
 
   async _sync(client) {
     try {
-      const { syncOut: lastSyncTime } = client;
+      const { syncOut: lastSyncTime, hospitalId } = client;
       const changes = this.database.find('change', `timestamp > "${lastSyncTime}"`);
       if (changes && changes.length > 0) {
+        const hospital = this.database.findOne('hospital', hospitalId);
         const maxTimestamp = changes.max('timestamp');
         const tasks = [];
-        changes.forEach(change => tasks.push(this._publishMessage(objectToJSON(change), client)));
+        changes.forEach(change => tasks.push(this._publishMessage(objectToJSON(change), client, hospital)));
         await Promise.all(tasks);
 
         // Update sync date
@@ -68,7 +69,7 @@ class Sync {
     });
   }
 
-  async _publishMessage(change, client) {
+  async _publishMessage(change, client, hospital) {
     try {
       let record = this.database.findOne(change.recordType, change.recordId);
       const schema = schemas.find(_schema => _schema.name === change.recordType);
@@ -82,7 +83,30 @@ class Sync {
           }
         }
 
+        // Object to JSON
         if (record) record = objectToJSON(record);
+
+        // Apply selectors  if defined
+        if (toLower(change.action) === 'save') {
+          if (schema.selectors && !isEmpty(schema.selectors)) {
+            let syncedIds = [];
+            let { objectsFullySynced } = hospital;
+            objectsFullySynced = JSON.parse(objectsFullySynced);
+            if (has(objectsFullySynced, change.recordType)) syncedIds = objectsFullySynced[change.recordType];
+            console.log({ objectsFullySynced, syncedIds });
+            if (syncedIds.includes(change.recordId)) record.fullySynced = true;
+          } else {
+            record.fullySynced = true;
+          }
+
+          // Send selected fields only
+          if (!record.fullySynced) {
+            schema.selectors = ['_id', ...keys(defaults), ...schema.selectors];
+            record = pick(record, schema.selectors);
+            record.fullySynced = false; // just to make sure
+          }
+        }
+
         await this.client.getClient().publish(`/${config.sync.channelOut}/${client.clientId}`, {
           record,
           ...change
@@ -112,8 +136,8 @@ class Sync {
       const record = this.database.findOne(options.recordType, options.record._id);
       if (record) { // UPDATE
         // Resolve conflicts
-        const modifiedFields = JSON.parse(record.modifiedFields);
-        const newModifiedFields = JSON.parse(options.record.modifiedFields);
+        const modifiedFields = JSON.parse(record.modifiedFields) || {};
+        const newModifiedFields = JSON.parse(options.record.modifiedFields) || {};
         each(newModifiedFields, (value, key) => {
           console.log({ value, key }, has(newModifiedFields, key));
           if (has(newModifiedFields, key)) {

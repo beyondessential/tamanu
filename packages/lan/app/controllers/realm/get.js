@@ -1,5 +1,5 @@
 const { objectToJSON } = require('../../utils');
-const { parseInt, ceil, each, head, isEmpty } = require('lodash');
+const { parseInt, ceil, head, isEmpty, has } = require('lodash');
 const moment = require('moment');
 
 module.exports = (req, res) => {
@@ -29,6 +29,9 @@ module.exports = (req, res) => {
       if (id) {
         objects = objects.filtered(`_id = '${id}'`);
         if (objects.length <= 0) return res.status(404).end();
+        // Mark item to be fully fetched
+        if (query.fully_sync) _markToBeSynced(head(objects), model, realm);
+        // Get first item from the list
         const object = objectToJSON(head(objects));
         return res.json(object);
       }
@@ -83,6 +86,34 @@ module.exports = (req, res) => {
       return res.send(response);
     });
   } catch (err) {
+    console.error(err);
     return res.status(500).send(err.toString());
   }
 };
+
+_markToBeSynced = (object, model, realm) => {
+  const settings = realm.settings;
+  const hospitalId = settings.get('HOSPITAL_ID');
+  const hospital = realm.findOne('hospital', hospitalId);
+  if (hospital) {
+    let ids = [];
+    let newIds = [];
+    let { objectsFullySynced, modifiedFields } = hospital;
+    objectsFullySynced = JSON.parse(objectsFullySynced) || {};
+    if (has(objectsFullySynced, model)) ids = objectsFullySynced[model];
+    if (has(objectsFullySynced, 'new')) newIds = objectsFullySynced['new'];
+    if (!ids.includes(object._id)) ids.push(object._id);
+    newIds.push({
+      _id: object._id,
+      recordType: model
+    });
+    objectsFullySynced[model] = ids;
+    objectsFullySynced['new'] = newIds;
+    modifiedFields = JSON.parse(modifiedFields) || {};
+    modifiedFields['objectsFullySynced'] = new Date().getTime();
+    hospital.objectsFullySynced = JSON.stringify(objectsFullySynced);
+    hospital.modifiedFields = JSON.stringify(modifiedFields);
+    // trigger change
+    realm._alertListeners('SAVE', 'hospital', hospital);
+  }
+}
