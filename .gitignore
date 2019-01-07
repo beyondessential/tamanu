@@ -28,7 +28,20 @@ benchmarks/graphs
 release
 data
 config
+dev
+deploy
+build
 
 config\.js
 config\.demo\.js
-realm-object-server
+realm-object-server*
+
+*.aes
+.env
+config.json
+/*.env
+
+.ssh
+.tmp
+.keys
+.tmp

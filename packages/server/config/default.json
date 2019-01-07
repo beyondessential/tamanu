@@ -1,0 +1,10 @@
+{
+  "app": {
+    "port": 3000
+  },
+  "sync": {
+    "path": "/realm-sync",
+    "channelIn": "realm-local-online",
+    "channelOut": "realm-online-local"
+  }
+}

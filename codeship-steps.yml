@@ -1,0 +1,34 @@
+- name: copy_files
+  service: app
+  tag: ^(master|dev)
+  command: /.tmp/scripts/copy_files.sh
+- name: reinstate_ssh
+  service: app
+  tag: ^(master|dev)
+  command: ./scripts/fix_ssh.sh
+- name: install
+  service: app
+  tag: ^(master|dev)
+  command: ./scripts/install.sh
+- name: build_pack
+  service: app
+  tag: ^(master|dev)
+  command: ./scripts/build.sh demo
+- name: push
+  service: awsdeployment
+  tag: dev
+  command: ./scripts/push.sh
+- name: deploy
+  service: app
+  tag: dev
+  command: ./scripts/deploy.sh demo
+
+- type: manual
+  tag: master
+  steps:
+    - name: push-master
+      service: awsdeployment
+      command: ./scripts/push.sh
+    - name: deploy-master
+      service: awsdeployment
+      command: ./scripts/deploy.sh demo

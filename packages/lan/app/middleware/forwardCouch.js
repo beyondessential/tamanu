@@ -1,4 +1,4 @@
-const config = require('../../config');
+const config = require('config');
 const httpProxy = require('http-proxy');
 
 const proxy = httpProxy.createProxyServer({});

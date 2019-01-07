@@ -1,27 +1,15 @@
 {
-  "name": "tamanu",
+  "name": "shared",
   "version": "1.0.0",
   "description": "This repo contains all the packages for Tamanu",
   "main": "index.js",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Salman Amjad",
   "license": "MIT",
-  "scripts": {
-  },
+  "scripts": {},
   "private": true,
-  "workspaces": {
-    "packages": [
-      "packages/desktop",
-      "packages/lan",
-      "packages/server",
-      "packages/shared"
-    ],
-    "nohoist": [
-      "**/webpack", "**/webpack/**",
-      "**/fbjs-scripts", "**/fbjs-scripts/**",
-      "**/electron", "**/electron/**",
-      "**/electron-*", "**/electron-*/**"
-    ]
-  },
-  "devDependencies": {}
+  "devDependencies": {},
+  "dependencies": {
+    "lodash": "^4.17.11"
+  }
 }

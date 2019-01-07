@@ -1,0 +1,14 @@
+app:
+  build: .
+  encrypted_env_file: codeship.env.encrypted
+  volumes:
+    - ./.tmp:/tamanu
+    - ./.ssh:/root/.ssh
+
+awsdeployment:
+  build:
+    dockerfile: Dockerfile.deploy
+  encrypted_env_file: codeship.env.encrypted
+  volumes:
+    - ./.tmp:/tamanu
+    - ./.ssh:/root/.ssh

@@ -5,20 +5,15 @@
   "main": "NODE_ENV='development' index.js",
   "bin": "index.js",
   "pkg": {
-    "scripts": "../../shared/**/*.js",
-    "output": "./release/tamanu-lan-server"
+    "assets": ["../shared/**/*", "config", "node_modules/config"]
   },
   "scripts": {
-    "start": "NODE_ENV='development' nodemon index.js",
+    "start": "node index.js",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "npm test -- --watch",
-    "fix-build": "rm ./node_modules/pouchdb-fauxton/www/index.html || true",
-    "package": "pkg .  --targets node8-x64 --out-path ./release/",
-    "package:tonga": "yarn fix-build && cp ./config/tonga.js ./config.js && yarn package && rm ./config.js",
-    "package:demo": "yarn fix-build && cp ./config/demo.js ./config.js && yarn package && rm ./config.js",
-    "package:win": "pkg . --targets node8-win-x64 --out-path ./release/",
-    "package:mac": "pkg . --targets node8-macos-x64 --out-path ./release/"
+    "build": "pkg . --targets node10-win-x64 --output ./release/server.exe",
+    "package": "./scripts/package.sh"
   },
   "repository": {
     "type": "git",
@@ -48,6 +43,7 @@
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",
     "compression": "^1.7.2",
+    "config": "^3.0.1",
     "connect-flash": "^0.1.1",
     "cross-var": "^1.1.0",
     "express": "^4.16.2",
@@ -60,10 +56,7 @@
     "lodash": "^4.17.5",
     "moment": "^2.21.0",
     "morgan": "^1.9.0",
-    "nano": "^6.4.4",
     "os-service": "^2.1.3",
-    "pouchdb": "^7.0.0",
-    "pouchdb-find": "^7.0.0",
     "prompt": "^1.0.0",
     "realm": "^2.17.0",
     "request": "^2.88.0",

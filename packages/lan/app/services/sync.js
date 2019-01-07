@@ -1,13 +1,13 @@
 const Faye = require('faye');
 const { objectToJSON } = require('../utils');
-const config = require('../../config');
+const config = require('config');
 const { outgoing } = require('../utils/faye-extensions');
 
 class Sync {
   constructor(database, listeners) {
     this.database = database;
     this.listeners = listeners;
-    this.client = new Faye.Client(config.sync.server);
+    this.client = new Faye.Client(`${config.mainServer}/${config.sync.path}`);
     this.client.addExtension({
       outgoing: (message, callback) => outgoing({ database, message, callback })
     });

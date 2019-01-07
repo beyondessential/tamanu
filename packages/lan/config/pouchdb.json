@@ -1,9 +1,0 @@
-{
-  "log": {
-    "file": "test-log-file.txt",
-    "level": "debug"
-  },
-  "couchdb": {
-    "uuid": "b65f50d9-6a9e-4f0d-91aa-fe18c4fc2675"
-  }
-}
