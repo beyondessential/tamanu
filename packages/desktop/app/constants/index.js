@@ -415,8 +415,12 @@ export const patientColumns = [
     accessor: 'displayId',
     Header: 'Id',
     headerStyle,
-    style: columnStyle,
-    minWidth: 80
+    style: {
+      ...columnStyle,
+      justifyContent: 'left'
+    },
+    minWidth: 80,
+    Cell: () => {}
   }, {
     accessor: 'firstName',
     Header: 'First Name',
@@ -449,13 +453,12 @@ export const patientColumns = [
     style: columnStyle,
     minWidth: 80
   }, {
-    accessor: 'actiomns',
     id: 'actions',
     Header: 'Actions',
     headerStyle,
     style: columnStyle,
     minWidth: 250,
-    Cell: {}
+    Cell: () => {}
   }
 ];
 

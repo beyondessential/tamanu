@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { map, isEmpty, toUpper, capitalize, head } from 'lodash';
+import { map, isEmpty, head } from 'lodash';
 import ReactTable from 'react-table';
+import { toast } from 'react-toastify';
 
 import { PatientSearchBar } from '../../components';
-import { Colors, pageSizes, patientColumns } from '../../constants';
+import { pageSizes, patientColumns } from '../../constants';
 import { PatientsCollection } from '../../collections';
+import { PatientModel } from '../../models';
 
 import { Button } from '../../components/Button';
 
@@ -27,6 +29,7 @@ class PatientListing extends Component {
   }
 
   componentDidMount() {
+    patientColumns[0].Cell = this.setSyncStatus;
     patientColumns[patientColumns.length - 1].Cell = this.setActionsColumn;
     this.props.collection.on('update', this.handleChange());
   }
@@ -97,6 +100,66 @@ class PatientListing extends Component {
     } catch (err) {
       this.setState({ loading: false });
       console.error(err);
+    }
+  }
+
+  setSyncStatus = _row => {
+    const row = _row.original;
+    return (
+      <div key={row._id}>
+        {!row.fullySynced &&
+          this._drawSyncBtn(row, _row.value)
+        }
+
+        {row.fullySynced &&
+          this._drawSyncedIcon(_row.value)
+        }
+      </div>
+    );
+  }
+
+  _drawSyncBtn = (row, text) => {
+    return <React.Fragment>
+      <a href="#"
+        className="icon-link m-l-15 m-r-15 is-pulled-left"
+        title="Sync locally"
+        onClick={(e) => {
+          e.preventDefault();
+          this.syncItem(row);
+        }}
+      >
+        <span className="icon is-small p-t-5">
+          <i className="fa fa-cloud-download" />
+        </span>
+      </a>
+      <span> {text} </span>
+    </React.Fragment>;
+  }
+
+  _drawSyncedIcon = (text) => {
+    return <React.Fragment>
+      <span
+        className="icon is-small p-t-5 m-l-15 m-r-15 is-pulled-left"
+        style={{ color: 'green' }}
+        title="Synced"
+      >
+        <i className="fa fa-cloud-download" />
+      </span>
+      <span> {text} </span>
+    </React.Fragment>;
+  }
+
+  syncItem = async ({ _id }) => {
+    try {
+      const patientModel = new PatientModel();
+      patientModel.set({ _id });
+      await patientModel.fetch({
+        data: { "fully_sync": true }
+      });
+      toast('Item added to the queue.', { type: toast.TYPE.SUCCESS });
+    } catch (e) {
+      console.error(e);
+      toast('Something west wrong, please try again later.', { type: toast.TYPE.ERROR });
     }
   }
 
