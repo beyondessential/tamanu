@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const { isEmpty } = require('lodash');
+const { to } = require('await-to-js');
+const { isEmpty, isArray } = require('lodash');
 const { objectToJSON } = require('../utils');
 
 class Auth {
@@ -13,52 +14,57 @@ class Auth {
     };
   }
 
-  login({ email, password, hospital: hospitalSelected, clientId }) {
-    return new Promise(async (resolve, reject) => {
-      let user = this.database.findOne('user', email, 'email');
-      if (user && user !== null) {
-        try {
-          user = objectToJSON(user);
-          const match = await bcrypt.compare(password, user.password);
-          if (match) {
-            const { hospitals } = user;
-            if (!isEmpty(hospitals)) {
-              let hospitalId = hospitals[0]._id;
-              if (hospitals.length > 1) {
-                if (!hospitalSelected) {
-                  return resolve({
-                    action: 'select-hospital',
-                    options: hospitals.map(({ _id, name }) => ({ _id, name }))
-                  });
-                }
+  async login({ email, password: passwordEntered, hospital: hospitalSelected, clientId }) {
+    const { _id: userId, password, hospitals } = this._userExists({ email });
+    if (!userId)  return Promise.reject(this.errors.InvalidCredentials);
 
-                hospitals.forEach((hospital) => {
-                  if (hospital._id === hospitalSelected) hospitalId = hospitalSelected;
-                });
-              }
-              if (!hospitalId) return reject(this.errors.InvalidHospital);
+    // Check user's password
+    const [err, validPassword] = await to(bcrypt.compare(passwordEntered, password));
+    if (err) console.error(err);
+    if (!validPassword || err) return Promise.reject(this.errors.InvalidCredentials);
 
-              // Register the client
-              const client = this._addClient({
-                hospitalId,
-                userId: user._id,
-                clientId,
-                clientSecret: crypto.randomBytes(20).toString('hex')
-              });
-              return resolve(client);
-            }
+    // Validate hospital
+    const checkHospitalResponse = this._checkHospital({ hospitals, hospitalSelected });
+    if (checkHospitalResponse === false)  return Promise.reject(this.errors.InvalidHospital);
+    if (isArray(checkHospitalResponse)) {
+      return {
+        action: 'select-hospital',
+        options: checkHospitalResponse
+      };
+    }
 
-            return reject(this.errors.InvalidHospital);
-          }
+    const { _id: hospitalId } = checkHospitalResponse;
+    if (!hospitalId) return Promise.reject(this.errors.InvalidHospital);
 
-          return reject(this.errors.InvalidCredentials);
-        } catch (err) {
-          return reject(this.errors.InvalidCredentials);
-        }
-      } else {
-        return reject(this.errors.InvalidCredentials);
+    // Register the client
+    const clientSecret = crypto.randomBytes(20).toString('hex');
+    return this._addClient({ hospitalId, userId, clientId, clientSecret });
+  }
+
+  _userExists({ email }) {
+    let user = this.database.findOne('user', email, 'email');
+    if (user && user !== null) {
+      try {
+        user = objectToJSON(user);
+        return user;
+      } catch (err) {
+        throw err;
       }
-    });
+    }
+    return false;
+  }
+
+  _checkHospital({ hospitals, hospitalSelected }) {
+    if (isEmpty(hospitals)) throw this.errors.InvalidHospital;
+    if (hospitals.length > 1 && !hospitalSelected) {
+      return hospitals.map(({ _id, name }) => ({ _id, name }));
+    }
+
+    if (hospitalSelected) {
+      const hospital = hospitals.find(({ _id }) => (_id === hospitalSelected));
+      if (hospital) return hospital;
+    }
+    return false;
   }
 
   async checkLogin({ clientId, clientSecret }) {
