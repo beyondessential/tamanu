@@ -1,4 +1,5 @@
 (async () => {
+  process.env["NODE_CONFIG_DIR"] = `${__dirname}/config/`;
   const ENV = process.env.NODE_ENV || 'production';
   const config = require('config');
   const express = require('express');

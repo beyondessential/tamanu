@@ -11,7 +11,7 @@ echo "${CONFIG_DESKTOP}" > ${DESKTOP_ROOT}/.env
 printf '%s\n' "${!lan_config}" > ${LAN_ROOT}/config/default.json
 printf '%s\n' "${!server_config}" > ${SERVER_ROOT}/config/production.json
 
-yarn --cwd ${DESKTOP_ROOT} run package
+yarn --cwd ${DESKTOP_ROOT} run package-all
 yarn --cwd ${LAN_ROOT} run package
 
 ./scripts/pack.sh ${type}
