@@ -14,6 +14,10 @@ const ClientSchema = {
       type: 'int',
       default: 0
     },
+    expiry: {
+      type: 'int',
+      default: 0
+    },
     syncOut: {
       type: 'int',
       default: 0

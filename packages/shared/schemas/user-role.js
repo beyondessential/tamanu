@@ -4,17 +4,24 @@ const UserRoleSchema = {
   name: 'userRole',
   primaryKey: '_id',
   properties: Object.assign({
+    // should be 'user._id:hospital._id:role._id'
     _id: 'string',
-    name: {
-      type: 'string',
-      optional: true
+    hospital: {
+      type: 'hospital'
     },
-    capabilities: 'string[]',
-    navRoute: {
-      type: 'string',
-      optional: true
+    role: {
+      type: 'role'
+    },
+    user: {
+      type: 'linkingObjects',
+      objectType: 'user',
+      property: 'roles'
     }
-  }, defaults)
+  }, defaults),
+  beforeSave: (db, { hospital, role }) => ({
+    ...object,
+    _id: `${hospital._id}:${role._id}`
+  })
 };
 
 module.exports = UserRoleSchema;

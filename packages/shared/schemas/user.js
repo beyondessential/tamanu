@@ -38,7 +38,6 @@ const UserSchema = {
       type: 'string',
       optional: true
     },
-    roles: 'string[]',
     salt: {
       type: 'string',
       optional: true
@@ -46,6 +45,10 @@ const UserSchema = {
     userPrefix: {
       type: 'string',
       optional: true
+    },
+    roles: {
+      type: 'list',
+      objectType: 'userRole'
     },
     hospitals: {
       type: 'linkingObjects',
