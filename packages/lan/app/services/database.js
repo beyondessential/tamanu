@@ -1,7 +1,9 @@
 const Realm = require('realm');
+const config = require('config');
 const shortId = require('shortid');
+const { has, head } = require('lodash');
 const Settings = require('./settings');
-const { has } = require('lodash');
+const { schemas, version: schemaVersion } = require('../../../shared/schemas');
 
 class Database extends Realm {
   constructor(...props) {
@@ -134,8 +136,10 @@ class Database extends Realm {
   findOne(type, searchKey, searchKeyField = '_id') {
     if (!searchKey || searchKey.length < 1) throw new Error('Cannot find without a search key');
     const results = super.objects(type).filtered(`${searchKeyField} == $0`, searchKey);
-    if (results.length > 0) return results[0];
-    return null;
+    return head(results);
+    // console.log()
+    // if (results.length > 0) return results[0];
+    // return null;
   }
 
   find(type, condition = '') {
@@ -175,4 +179,10 @@ class Database extends Realm {
   }
 }
 
-module.exports = Database;
+const database = new Database({
+  path: `./data/${config.db.name}.realm`,
+  schema: schemas,
+  schemaVersion
+});
+
+module.exports = database;
