@@ -7,7 +7,7 @@ const initialState = {
   displayName: '',
   email: '',
   secret: '',
-  permissions: {},
+  abilities: {},
 };
 
 export default (state = initialState, action) => {

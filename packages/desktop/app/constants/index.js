@@ -12,6 +12,8 @@ import {
 
 import { availableReports } from '../containers/Reports/dummyReports';
 
+export const REMEMBER_EMAIL_KEY = 'remember-email';
+
 export const Colors = {
   searchTintColor: '#d2dae3',
   white: '#ffffff'

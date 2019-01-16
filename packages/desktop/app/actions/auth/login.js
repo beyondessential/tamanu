@@ -1,4 +1,4 @@
-import { toast } from 'react-toastify';
+import { getClient, notify, history } from '../../utils';
 import {
   AUTH_LOGIN_FAILED,
   AUTH_LOGIN_REQUEST,
@@ -7,19 +7,34 @@ import {
 } from '../types';
 
 export const login = ({ email, password }) =>
-  dispatch => {
+  async dispatch => {
     dispatch({ type: AUTH_LOGIN_REQUEST });
-    if (email === 'demo@beyondessential.com.au' && password === 'demo@123') {
-      return  dispatch({
+    try {
+      const clientId = getClient();
+      let res = await fetch(`${process.env.HOST}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ clientId, email, password })
+      });
+      res = await res.json();
+      if (res.error) return _error({ error: res.error, dispatch });
+
+      dispatch({
         type: AUTH_LOGIN_SUCCESS,
-        email: 'demo@beyondessential.com.au',
-        userId: 'demo-user',
-        displayName: 'Demo User',
-        secret: 'kkkllloo000i88i'
-       });
+        ...res
+      });
+      return history.push('/');
+    } catch (error) {
+      _error({ error, dispatch });
     }
-    toast('Invalid email or password entered');
-    return dispatch({ type: AUTH_LOGIN_FAILED, error: 'Invalid email or password entered' });
+  }
+
+  const _error = ({ error, dispatch }) => {
+    notify(error);
+    return dispatch({ type: AUTH_LOGIN_FAILED, error });
   }
 
   export const logout = () =>

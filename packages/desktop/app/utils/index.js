@@ -5,4 +5,4 @@ export createViews from './create-views';
 export formSerializer from './form-serialize';
 export { getImageSourceFromData, getFileInDocumentsPath, imageDataIsFileName } from './image';
 export mapRelations from './map-relations';
-export { concatSelf } from './utils';
+export * from './utils';

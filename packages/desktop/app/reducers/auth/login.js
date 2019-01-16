@@ -15,14 +15,14 @@ export default {
     displayName,
     email,
     secret,
-    permissions
+    abilities
    }, state) => ({
     ...state,
     userId,
     displayName,
     email,
     secret,
-    permissions,
+    abilities,
     loading: false
   }),
   [AUTH_LOGIN_FAILED]: ({ error }, state) => ({
@@ -34,7 +34,9 @@ export default {
     ...state,
     userId: null,
     displayName: '',
-    secret: '',
+    email: '',
+    secret: null,
+    abilities: {},
     loading: false
   }),
 };
