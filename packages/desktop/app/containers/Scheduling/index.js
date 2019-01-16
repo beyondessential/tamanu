@@ -1,10 +1,10 @@
 import React from 'react';
 import Routes from './_routes';
 
-export const Patients = () => (
+export const Scheduling = () => (
   <div>
     <Routes url="/appointments" />
   </div>
 );
 
-export default Patients;
+export default Scheduling;
