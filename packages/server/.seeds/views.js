@@ -5,27 +5,27 @@ module.exports = (database) => {
   const views = [
     {
       name: 'patients_admitted',
-      filters: { "admitted": true }
+      filters: "admitted = true"
     },
     {
       name: 'patients_female',
-      filters: { "sex": "female" }
+      filters: "sex = 'female'"
     },
     {
       name: 'patients_male',
-      filters: { "sex": "male" }
+      filters: "sex = 'male'"
     },
     {
       name: 'medication_completed',
-      filters: { "status": "Completed"}
+      filters: "status = 'Completed'"
     },
     {
       name: 'medication_requested',
-      filters: { "status": "Requested" }
+      filters: "status = 'Requested'"
     },
     {
       name: 'medication_fulfilled',
-      filters: { "status": "Fulfilled" }
+      filters: "status = 'Fulfilled'"
     }
   ];
 
