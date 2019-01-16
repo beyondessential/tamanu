@@ -3,7 +3,7 @@ import Backbone from 'backbone-associations';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/surveyResponse`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/surveyResponse`,
   defaults: () => defaults({
       surveyId: '',
       patientId: '',

@@ -7,7 +7,7 @@ import { pregnancyOutcomes, dateFormat } from '../constants';
 // import SurveyModel from './survey';
 
 export default BaseModel.extend({
-  urlRoot: `${process.env.LAN_REALM}/patient`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/patient`,
   defaults: () => defaults({
     displayId: '',
     admitted: false,

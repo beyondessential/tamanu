@@ -4,7 +4,7 @@ import moment from 'moment';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/visit`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/visit`,
   defaults: () => defaults({
     dischargeInfo: '',
     startDate: moment(),

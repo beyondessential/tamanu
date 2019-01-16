@@ -3,7 +3,7 @@ import moment from 'moment';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/vitals`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/vitals`,
   defaults: () => defaults({
     dateRecorded: moment(),
     temperature: null,

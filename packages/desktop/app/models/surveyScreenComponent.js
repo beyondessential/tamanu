@@ -3,7 +3,7 @@ import Backbone from 'backbone-associations';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/surveyScreenComponent`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/surveyScreenComponent`,
   defaults: () => defaults({
       question: '',
       componentNumber: null,

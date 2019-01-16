@@ -1,14 +1,17 @@
 import Backbone from 'backbone-associations';
 import moment from 'moment';
 import jsonDiff from 'json-diff';
-import { isString, assignIn, isEmpty, clone, each, set, isObject, has, head, isArray } from 'lodash';
+import {
+  isString, assignIn, isEmpty, clone, each,
+  set, isObject, has, head, isArray
+} from 'lodash';
 import { to } from 'await-to-js';
 import { concatSelf } from '../utils';
 
 export default Backbone.AssociatedModel.extend({
+  urlRoot: `${process.env.HOST}${process.env.REALM_PATH}`,
   idAttribute: '_id',
   lastSyncedAttributes: {},
-  // urlRoot: process.env.LAN_REALM,
 
   constructor(attributes, options) {
     if (isArray(attributes)) attributes = head(attributes);

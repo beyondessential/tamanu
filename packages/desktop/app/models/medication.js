@@ -6,7 +6,7 @@ import { medicationStatuses } from '../constants';
 import PatientModel from './patient';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/medication`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/medication`,
   defaults: () => defaults({
     patient: '',
     visit: '',

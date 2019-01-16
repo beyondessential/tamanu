@@ -3,7 +3,7 @@ import { defaults, clone } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/pregnancy`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/pregnancy`,
   defaults: () => defaults({
       conceiveDate: Date, // estimated
       deliveryDate: Date, // estimated

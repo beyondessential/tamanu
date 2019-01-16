@@ -4,7 +4,7 @@ import moment from 'moment';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/procedure`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/procedure`,
   defaults: () => defaults({
     anesthesiaType: '',
     anesthesiologist: '',

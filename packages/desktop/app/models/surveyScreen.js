@@ -3,7 +3,7 @@ import Backbone from 'backbone-associations';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/surveyScreen`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/surveyScreen`,
   defaults: () => defaults({
       surveyId: null,
       screenNumber: null,

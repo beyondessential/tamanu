@@ -2,7 +2,7 @@ import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/user`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/user`,
   defaults: () => defaults({
     derived_key: null,
     deleted: false,
