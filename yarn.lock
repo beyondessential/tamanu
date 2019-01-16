@@ -247,6 +247,18 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
+"@casl/ability@^2.5.1":
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/@casl/ability/-/ability-2.5.1.tgz#53f12af45295793472c65b539204226372904594"
+  integrity sha512-Ju1cl1R4xgPiiYxmjUAoO+rhNxp0ximyKZzWuw4/DLKHnbQNqbSVyDkRSVHuAuL+BWyeBsaD/sVSwxUitYlDyA==
+  dependencies:
+    sift "^7.0.1"
+
+"@casl/react@^0.8.1":
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/@casl/react/-/react-0.8.1.tgz#a14c7f5467835617c797d06ea44bb7ef5b8667b7"
+  integrity sha512-YotoU25ElMMwByb3RqkKkFeB6BwgWp24QXKBj8pzBPtwbIW/sn35sZdYEZY1mzZqMBaystMp7yMihDv54ytt8w==
+
 "@emotion/is-prop-valid@^0.7.3":
   version "0.7.3"
   resolved "https://registry.yarnpkg.com/@emotion/is-prop-valid/-/is-prop-valid-0.7.3.tgz#a6bf4fa5387cbba59d44e698a4680f481a8da6cc"
@@ -8537,6 +8549,11 @@ kleur@^2.0.1:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-2.0.2.tgz#b704f4944d95e255d038f0cb05fb8a602c55a300"
   integrity sha512-77XF9iTllATmG9lSlIv0qdQ2BQ/h9t0bJllHlbvsQ0zUWfU7Yi0S8L5JXzPZgkefIiajLmBJJ4BsMJmqcf7oxQ==
 
+kleur@^3.0.0:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.1.tgz#4f5b313f5fa315432a400f19a24db78d451ede62"
+  integrity sha512-P3kRv+B+Ra070ng2VKQqW4qW7gd/v3iD8sy/zOdcYRsfiD+QBokQNOps/AfP6Hr48cBhIIBFWckB9aO+IZhrWg==
+
 known-css-properties@^0.10.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/known-css-properties/-/known-css-properties-0.10.0.tgz#8378a8921e6c815ecc47095744a8900af63d577d"
@@ -11059,6 +11076,14 @@ prompts@^0.1.9:
     kleur "^2.0.1"
     sisteransi "^0.1.1"
 
+prompts@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/prompts/-/prompts-2.0.0.tgz#d36c6c044ea58825c9f531949e30f9e8bd39a29e"
+  integrity sha512-DG8VBhhzNKj/61pAFa02SBR+iOjU21uLTalRTBLLwHv1KcTQlgZloXQLMIWSXGaqk2Yq+Rd2GNtjPdUgYFcT0w==
+  dependencies:
+    kleur "^3.0.0"
+    sisteransi "^1.0.0"
+
 prop-types-extra@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/prop-types-extra/-/prop-types-extra-1.1.0.tgz#32609910ea2dcf190366bacd3490d5a6412a605f"
@@ -11856,6 +11881,11 @@ redux-logger@^3.0.6:
   dependencies:
     deep-diff "^0.3.5"
 
+redux-persist@^5.10.0:
+  version "5.10.0"
+  resolved "https://registry.yarnpkg.com/redux-persist/-/redux-persist-5.10.0.tgz#5d8d802c5571e55924efc1c3a9b23575283be62b"
+  integrity sha512-sSJAzNq7zka3qVHKce1hbvqf0Vf5DuTVm7dr4GtsqQVOexnrvbV47RWFiPxQ8fscnyiuWyD2O92DOxPl0tGCRg==
+
 redux-thunk@^2.2.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/redux-thunk/-/redux-thunk-2.3.0.tgz#51c2c19a185ed5187aaa9a2d08b666d0d6467622"
@@ -12635,6 +12665,11 @@ shortid@^2.2.13, shortid@^2.2.8:
   dependencies:
     nanoid "^2.0.0"
 
+sift@^7.0.1:
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/sift/-/sift-7.0.1.tgz#47d62c50b159d316f1372f8b53f9c10cd21a4b08"
+  integrity sha512-oqD7PMJ+uO6jV9EQCl0LrRw1OwsiPsiFQR5AR30heR+4Dl7jBBbDLnNvWiak20tzZlSE1H7RB30SX/1j/YYT7g==
+
 signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
@@ -12673,6 +12708,11 @@ sisteransi@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/sisteransi/-/sisteransi-0.1.1.tgz#5431447d5f7d1675aac667ccd0b865a4994cb3ce"
   integrity sha512-PmGOd02bM9YO5ifxpw36nrNMBTptEtfRl4qUYl9SndkolplkrZZOW7PGHjrZL53QvMVj9nQ+TKqUnRsw4tJa4g==
+
+sisteransi@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/sisteransi/-/sisteransi-1.0.0.tgz#77d9622ff909080f1c19e5f4a1df0c1b0a27b88c"
+  integrity sha512-N+z4pHB4AmUv0SjveWRd6q1Nj5w62m5jodv+GD8lvmbY/83T/rpbJGZOnK5T149OldDj4Db07BSv9xY4K6NTPQ==
 
 slash@^1.0.0:
   version "1.0.0"

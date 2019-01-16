@@ -12,10 +12,9 @@
     ]
   },
   "scripts": {
-    "start": "node index.js",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
-    "test:watch": "npm test -- --watch",
+    "start": "pm2 start pm2.json && pm2 logs tamanu-lan",
+    "restart": "pm2 restart tamanu-lan & pm2 logs tamanu-lan",
+    "stop": "pm2 stop tamanu-lan",
     "build": "pkg . --targets node10-win-x64 --output ./release/server.exe",
     "package": "./scripts/package.sh"
   },
@@ -42,6 +41,7 @@
     "supertest": "^3.0.0"
   },
   "dependencies": {
+    "@casl/ability": "^2.5.1",
     "await-to-js": "^2.0.1",
     "bcrypt": "^3.0.1",
     "bluebird": "^3.5.1",

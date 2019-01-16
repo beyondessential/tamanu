@@ -1,9 +1,9 @@
 {
     "apps": [{
-        "name": "tamanu-lan",
+        "name": "tamanu-server",
         "script": "./index.js",
         "env": {
-            "watch": "./app",
+            "watch": ["app", "config", "index.js", "../shared/**/*"],
             "watch_options": {
                 "followSymlinks": false
             },
