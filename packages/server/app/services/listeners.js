@@ -1,8 +1,8 @@
 const { each } = require('lodash');
-const jsonPrune = require('json-prune');
 const { schemas } = require('../../../shared/schemas');
 const QueueManager = require('./queue-manager');
 const Sync = require('./sync');
+const { jsonParse } = require('../utils');
 
 class Listeners {
   constructor(database, bayeux) {
@@ -24,7 +24,7 @@ class Listeners {
 
   _addListener({ name, onChange }) {
     const objects = this.database.objects(name);
-    let items = this._toJSON(objects);
+    let items = jsonParse(objects);
     objects.addListener((itemsUpdated, changes) => {
       each(changes, (indexes, actionType) => {
         switch (actionType) {
@@ -50,7 +50,7 @@ class Listeners {
                 );
               }
             });
-            items = this._toJSON(itemsUpdated);
+            items = jsonParse(itemsUpdated);
           break;
           case 'deletions':
             indexes.forEach((index) => {
@@ -60,7 +60,7 @@ class Listeners {
                 recordType: name
               });
             });
-            items = this._toJSON(itemsUpdated);
+            items = jsonParse(itemsUpdated);
           break;
           default:
             console.log(`Ignoring ${actionType}`);
@@ -68,10 +68,6 @@ class Listeners {
         }
       });
     });
-  }
-
-  _toJSON(object) {
-   return JSON.parse(jsonPrune(object));
   }
 }
 

@@ -2,10 +2,18 @@ const { each, isArray } = require('lodash');
 const jsonPrune = require('json-prune');
 const { incoming } = require('./faye-extensions');
 
-const objectToJSON = (object, depp = true) => {
+const jsonParse = (object) => {
   try {
-    if (isArray(object) && depp) return object.map(obj => objectToJSON(obj));
-    const jsonObject = JSON.parse(jsonPrune(object));
+    return JSON.parse(jsonPrune(object));
+  } catch (err) {
+    throw err;
+  }
+};
+
+const objectToJSON = (object, deep = true) => {
+  try {
+    if (isArray(object) && deep) return object.map(obj => objectToJSON(obj));
+    const jsonObject = jsonParse(object);
     if (typeof object.objectSchema === 'function') {
       const { properties } = object.objectSchema();
       each(properties, (props, key) => {
@@ -18,4 +26,4 @@ const objectToJSON = (object, depp = true) => {
   }
 };
 
-module.exports = { objectToJSON, incoming };
+module.exports = { objectToJSON, incoming, jsonParse };

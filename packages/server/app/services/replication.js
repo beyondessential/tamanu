@@ -1,10 +1,5 @@
 const config = require('config');
-const faye = require('faye');
-const { to } = require('await-to-js');
-const util = require('util');
-const dbService = require('../services/database');
 
-const { nano } = dbService;
 const { localDB, remoteDB } = config;
 const remoteUrl = `http://${remoteDB.username}:${remoteDB.password}@${remoteDB.host}:${remoteDB.port}`;
 const localAuthHeader = Buffer.from(`${localDB.username}:${localDB.password}`).toString('base64');
@@ -72,23 +67,5 @@ internals.setup = ({ PouchDB }) => {
     console.log('DB Sync[error]:', err);
   });
 };
-
-// internals.setupSubscriptions = async () => {
-//   const client = new faye.Client(config.couchPubSubUrl);
-
-//   client.subscribe('/couchDBChange', async (msg) => {
-//     const [err, res] = await to(nano.localDB.replicateAsync(`${config.mainCouchServer}/main`, 'main'));
-//     if (err) throw new Error(err);
-//     console.log('couch-change-res', res);
-//     console.log('couch-change-detected', msg);
-//   });
-// };
-
-// internals._addReplicationDoc = async (docInfo) => {
-//   let [err, doc] = await to(internals.replicatorDB.get(docInfo.name));
-//   if (err && err.status === 404) [err, doc] = await to(internals.replicatorDB.put(docInfo.doc));
-//   if (err) Promise.reject(err);
-//   return doc;
-// };
 
 module.exports = internals;

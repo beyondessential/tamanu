@@ -1,8 +1,12 @@
 const config = require('config');
-const { each, has, isEmpty, toLower, pick, keys } = require('lodash');
+const {
+  each, has, isEmpty, isArray, isObject, mapValues,
+  toLower, pick, keys, pickBy
+} = require('lodash');
 const moment = require('moment');
-const { objectToJSON, incoming } = require('../utils');
-const { schemas, defaults } = require('../../../shared/schemas');
+const { to } = require('await-to-js');
+const { objectToJSON, incoming, jsonParse } = require('../utils');
+const { schemas, defaults: defaultFields } = require('../../../shared/schemas');
 
 class Sync {
   constructor(database, faye) {
@@ -13,10 +17,11 @@ class Sync {
     });
   }
 
-  synchronize() {
+  async synchronize() {
     const fromTime = moment().subtract(30, 'minutes').toDate().getTime();
     const clients = this.database.find('client', `lastActive > ${fromTime}`);
-    clients.forEach(client => this._sync(client));
+    const [err] = await to(Promise.all(clients.map(client => this._sync(client))));
+    if (err) throw err;
   }
 
   async _sync(client) {
@@ -26,15 +31,17 @@ class Sync {
       if (changes && changes.length > 0) {
         const hospital = this.database.findOne('hospital', hospitalId);
         const maxTimestamp = changes.max('timestamp');
-        const tasks = [];
-        changes.forEach(change => tasks.push(this._publishMessage(objectToJSON(change), client, hospital)));
-        await Promise.all(tasks);
+        const [err] = await to(Promise.all(changes.map(change =>
+                                this._publishMessage(objectToJSON(change), client, hospital))));
+        if (err) return new Error(err);
 
         // Update sync date
         this.database.write(() => {
           client.syncOut = maxTimestamp || new Date().getTime();
         });
+        return true;
       }
+      return true;
     } catch (err) {
       throw new Error(err);
     }
@@ -88,32 +95,18 @@ class Sync {
 
         // Apply selectors  if defined
         if (toLower(change.action) === 'save') {
-          if (schema.selectors && !isEmpty(schema.selectors)) {
-            let syncedIds = [];
-            let { objectsFullySynced } = hospital;
-            objectsFullySynced = JSON.parse(objectsFullySynced);
-            if (has(objectsFullySynced, change.recordType)) syncedIds = objectsFullySynced[change.recordType];
-            console.log({ objectsFullySynced, syncedIds });
-            if (syncedIds.includes(change.recordId)) record.fullySynced = true;
-          } else {
-            record.fullySynced = true;
-          }
-
-          // Send selected fields only
-          if (!record.fullySynced) {
-            schema.selectors = ['_id', ...keys(defaults), ...schema.selectors];
-            record = pick(record, schema.selectors);
-            record.fullySynced = false; // just to make sure
-          }
+          record = this._applySelectors(schema, hospital, change, record);
+          record = this._pickDefaultFieldsOnly(record);
         }
 
+        // if (record._id === 'hospital-demo-10') console.log('-out-', { users: record.users });
         await this.client.getClient().publish(`/${config.sync.channelOut}/${client.clientId}`, {
           record,
           ...change
         });
 
         console.log('[MessageOut]', { action: change.action, type: change.recordType, id: change.recordId });
-        return {};
+        return true;
       }
 
       throw Error(`Error: Schema not found ${change.recordType}`);
@@ -122,11 +115,48 @@ class Sync {
     }
   }
 
+  _applySelectors(schema, hospital, change, record) {
+    if (schema.selectors && !isEmpty(schema.selectors)) {
+      let syncedIds = [];
+      let { objectsFullySynced } = hospital;
+      objectsFullySynced = jsonParse(objectsFullySynced);
+      if (has(objectsFullySynced, change.recordType)) {
+        syncedIds = objectsFullySynced[change.recordType];
+      }
+      console.log({ objectsFullySynced, syncedIds });
+      if (syncedIds.includes(change.recordId)) record.fullySynced = true;
+
+      // Send selected fields only
+      if (!record.fullySynced) {
+        schema.selectors = ['_id', ...keys(defaultFields), ...schema.selectors];
+        record = pick(record, schema.selectors);
+        record.fullySynced = false; // just to make sure
+      }
+    } else {
+      record.fullySynced = true;
+    }
+    return record;
+  }
+
+  _pickDefaultFieldsOnly(record) {
+    record = mapValues(record, (value) => {
+      if (isArray(value)) {
+        return value.map(_record => pickBy(_record, _value => typeof _value !== 'object'));
+      }
+      if (isObject(value)) {
+        return pickBy(value, _value => typeof _value !== 'object');
+      }
+      return value;
+    });
+    return { ...record, modifiedFields: '' };
+  }
+
   /**
    * This function is called when a record needs to be saved ( CREATE or UPDATE ) to the database
    * after being synced ( data sent from another client )
    * CREATE: we simply use the data sent from client to create a new record using recordType
-   * UPDATE: we compare modifiedFields using timestamps and use a last updated value for that field. Only the fields that are updated will be sent to the database
+   * UPDATE: we compare modifiedFields using timestamps and use a last updated value for
+   *         that field. Only the fields that are updated will be sent to the database
    * @param {object} options Options passed to the function i-e record, recordType
    */
   _saveRecord(options) {
@@ -136,12 +166,13 @@ class Sync {
       const record = this.database.findOne(options.recordType, options.record._id);
       if (record) { // UPDATE
         // Resolve conflicts
-        const modifiedFields = JSON.parse(record.modifiedFields) || {};
-        const newModifiedFields = JSON.parse(options.record.modifiedFields) || {};
+        const modifiedFields = jsonParse(record.modifiedFields) || {};
+        const newModifiedFields = jsonParse(options.record.modifiedFields) || {};
         each(newModifiedFields, (value, key) => {
           console.log({ value, key }, has(newModifiedFields, key));
           if (has(newModifiedFields, key)) {
-            newRecord[key] = modifiedFields[key] > newModifiedFields[key] ? record[key] : options.record[key];
+            newRecord[key] = modifiedFields[key] > newModifiedFields[key]
+                              ? record[key] : options.record[key];
           } else {
             newRecord[key] = options.record[key];
           }
@@ -159,7 +190,8 @@ class Sync {
   }
 
   /**
-   *  This function deletes a record from the database after just being synced ( sent from another client )
+   *  This function deletes a record from the database after 
+   *  just being synced ( sent from another client )
    * @param {options} options Options include recordType and recordId
    */
   _removeRecord(options) {

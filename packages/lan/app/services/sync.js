@@ -1,6 +1,7 @@
 const Faye = require('faye');
-const { objectToJSON } = require('../utils');
+const { isArray, each } = require('lodash');
 const config = require('config');
+const { objectToJSON } = require('../utils');
 const { outgoing } = require('../utils/faye-extensions');
 
 class Sync {
@@ -79,12 +80,13 @@ class Sync {
     }
   }
 
-  _saveRecord(props) {
+  _saveRecord({ record, recordType }) {
     try{
       this.database.write(() => {
-        this.database.create(props.recordType, props.record, true, true);
+        this.database.create(recordType, record, true, true);
       });
     } catch (err) {
+      console.error(err.toString(), record);
       throw err;
     }
   }

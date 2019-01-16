@@ -1,6 +1,6 @@
-const { each, isArray, isFinite } = require('lodash');
-const moment = require('moment');
+const { each, isArray } = require('lodash');
 const jsonPrune = require('json-prune');
+const AuthService = require('../services/auth');
 
 const objectToJSON = (object, depp = true) => {
   try {
@@ -9,7 +9,6 @@ const objectToJSON = (object, depp = true) => {
     if (typeof object.objectSchema === 'function') {
       const { properties } = object.objectSchema();
       each(properties, (props, key) => {
-        // console.log('-key-', key, props.type === 'linkingObjects' ? Array.from(object[key]) : '---');
         if (props.type === 'list' || props.type === 'linkingObjects') jsonObject[key] = objectToJSON(Array.from(object[key]), props.type === 'list');
       });
     }
@@ -19,4 +18,14 @@ const objectToJSON = (object, depp = true) => {
   }
 };
 
-module.exports = { objectToJSON };
+const authorizer = async (clientId, clientSecret, cb) => {
+  try {
+    const auth = new AuthService();
+    await auth.verifyExtendToken({ clientId, clientSecret });
+    return cb(null, true);
+  } catch (error) {
+    return cb(null, false);
+  }
+}
+
+module.exports = { objectToJSON, authorizer };
