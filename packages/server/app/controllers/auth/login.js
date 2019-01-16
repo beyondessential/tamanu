@@ -23,11 +23,17 @@ internals.validateBody = [
 
 internals.login = async (req, res) => {
   const database = req.app.get('realm');
-  const { email, password, hospital, clientId } = req.body;
+  const { email, password, hospital, clientId, firstTimeLogin } = req.body;
 
   try {
     const authService = new AuthService(database);
-    const doLogin = await authService.login({ email, password, hospital, clientId });
+    const doLogin = await authService.login({
+      email,
+      password,
+      hospital,
+      clientId,
+      firstTimeLogin
+    });
     if (doLogin !== false) {
       return res.json(doLogin);
     }

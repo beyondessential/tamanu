@@ -26,7 +26,7 @@ internals.verifyCredentials = async (req, res) => {
 
   try {
     const authService = new AuthService(database);
-    const loginCheck = await authService.checkLogin({ clientId, clientSecret });
+    const loginCheck = await authService.verifyExtendToken({ clientId, clientSecret });
     return res.json({
       userId: loginCheck.userId,
       clientId: loginCheck.clientId,
