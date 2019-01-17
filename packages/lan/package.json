@@ -12,7 +12,7 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "npm test -- --watch",
-    "build": "pkg . --targets node10-win-x64 --output ./release/server.exe",
+    "build": "pkg . --targets node10-win-x64 --output ./release/server.exe --debug | grep config",
     "package": "./scripts/package.sh"
   },
   "repository": {
