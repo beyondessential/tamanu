@@ -1,6 +1,5 @@
 const { each, isArray } = require('lodash');
 const jsonPrune = require('json-prune');
-const AuthService = require('../services/auth');
 
 const objectToJSON = (object, depp = true) => {
   try {
@@ -18,14 +17,4 @@ const objectToJSON = (object, depp = true) => {
   }
 };
 
-const authorizer = async (clientId, clientSecret, cb) => {
-  try {
-    const auth = new AuthService();
-    await auth.verifyExtendToken({ clientId, clientSecret });
-    return cb(null, true);
-  } catch (error) {
-    return cb(null, false);
-  }
-}
-
-module.exports = { objectToJSON, authorizer };
+module.exports = { objectToJSON };

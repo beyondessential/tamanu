@@ -1,17 +1,10 @@
 const express = require('express');
-const basicAuth = require('express-basic-auth');
-
 const RealmRoutes = require('./realm');
 const AuthRoutes = require('./auth');
-const { authorizer } = require('../utils');
 
 const router = express.Router();
-router.get('/', (req, res) => res.send('Hello World!'));
+router.get('/', (req, res) => res.send('Tamanu Lan Server'));
 router.use('/auth', AuthRoutes);
-router.use('/realm', basicAuth({
-  authorizer,
-  authorizeAsync: true,
-  unauthorizedResponse: () => 'Invalid credentials'
-}), RealmRoutes);
+router.use('/realm', RealmRoutes);
 
 module.exports = router;
