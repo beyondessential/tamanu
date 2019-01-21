@@ -211,7 +211,7 @@ export const createPatientIndexes = () => {
         fields: ['_id', 'admitted']
       }
     }).then((result) => {
-      dispatch(createPatientIndexesSuccess(result));
+      return dispatch(createPatientIndexesSuccess(result));
     }).catch((err) => {
       dispatch(createPatientIndexesFailed(err));
     });
@@ -227,7 +227,7 @@ export const createPatient = (patient, history) => {
       dispatch(createPatientSuccess(patient.attributes));
       history.push(`/patients/editPatient/${patient.id}`);
     } catch (err) {
-      console.error('error', err);
+      console.error(err);
       return dispatch(createPatientFailed(err));
     }
   };
@@ -251,9 +251,9 @@ export const fetchPatients = () => {
           patients.push(row.doc);
         }
       });
-      dispatch(fetchPatientsSuccess(patients));
+      return dispatch(fetchPatientsSuccess(patients));
     }).catch((err) => {
-      console.log(err);
+      console.error(err);
     });
   };
 };
@@ -264,7 +264,7 @@ export const fetchAdmittedPatients = () => {
     mainDB.allDocs({
       selector: { admitted: { $eq: true } }
     }).then((filteredResult) => {
-      dispatch(fetchAdmittedPatientsSuccess(filteredResult.docs));
+      return dispatch(fetchAdmittedPatientsSuccess(filteredResult.docs));
     }).catch((err) => {
       dispatch(fetchAdmittedPatientsFailed(err));
     });
@@ -277,7 +277,7 @@ export const fetchOnePatient = (id) => {
     mainDB.allDocs({
       selector: { _id: { $eq: id } }
     }).then((filteredResult) => {
-      dispatch(fetchOnePatientSuccess(filteredResult.docs[0]));
+      return dispatch(fetchOnePatientSuccess(filteredResult.docs[0]));
     }).catch((err) => {
       dispatch(fetchAdmittedPatientsFailed(err));
     });

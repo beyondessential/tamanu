@@ -37,8 +37,8 @@ export default Backbone.AssociatedModel.extend({
       this._parseParents();
       return res;
     } catch (err) {
-      console.error(err);
-      return this.previousAttributes();
+      console.error(`Error: ${err}`);
+      return Promise.reject(err);
     }
   },
 
@@ -56,8 +56,9 @@ export default Backbone.AssociatedModel.extend({
       // Set last modified times
       if (modifiedFields) {
         let originalModified = {};
-        if (this.attributes.modifiedFields !== '' && isString(this.attributes.modifiedFields))
+        if (this.attributes.modifiedFields !== '' && isString(this.attributes.modifiedFields)) {
           originalModified = JSON.parse(this.attributes.modifiedFields);
+        }
 
         each(modifiedFields, (_, key) => {
           if (has(this.defaults(), key)) {
@@ -87,8 +88,8 @@ export default Backbone.AssociatedModel.extend({
       this.lastSyncedAttributes = this.toJSON();
       return res;
     } catch (err) {
-      console.error(err);
-      return this.previousAttributes();
+      console.error(`Error: ${err}`);
+      return Promise.reject(err);
     }
   },
 

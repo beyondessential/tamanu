@@ -37,6 +37,6 @@ export const getClient = () => {
   return localStorage.getItem('clientId');
 };
 
-export const notify = (message, { type='error', autoClose=3000, ...props } = {}) =>
+export const notify = (message, { type='error', autoClose=null, ...props } = {}) =>
   toast(prepareToastMessage(message), { type, autoClose, ...props });
 
