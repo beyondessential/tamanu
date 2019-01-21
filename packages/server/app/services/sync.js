@@ -166,8 +166,8 @@ class Sync {
       const record = this.database.findOne(options.recordType, options.record._id);
       if (record) { // UPDATE
         // Resolve conflicts
-        const modifiedFields = jsonParse(record.modifiedFields) || {};
-        const newModifiedFields = jsonParse(options.record.modifiedFields) || {};
+        const modifiedFields = JSON.parse(record.modifiedFields) || {};
+        const newModifiedFields = JSON.parse(options.record.modifiedFields) || {};
         each(newModifiedFields, (value, key) => {
           console.log({ value, key }, has(newModifiedFields, key));
           if (has(newModifiedFields, key)) {
@@ -190,7 +190,7 @@ class Sync {
   }
 
   /**
-   *  This function deletes a record from the database after 
+   *  This function deletes a record from the database after
    *  just being synced ( sent from another client )
    * @param {options} options Options include recordType and recordId
    */
