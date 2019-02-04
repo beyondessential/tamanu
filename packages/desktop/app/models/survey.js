@@ -18,20 +18,12 @@ export default BaseModel.extend({
   ),
 
   relations: [
-    // {
-    //   type: Backbone.One,
-    //   key: 'surveyGroupId',
-    //   relatedModel: require('./surveyGroup'),
-    //   // map: (values) => mapRelations(values, require('./surveyGroup')),
-    //   // serialize: '_id'
-    // },
     {
       type: Backbone.Many,
       key: 'screens',
       relatedModel: require('./surveyScreen'),
-      // map: (values) => mapRelations(values, require('./surveyScreen')),
-      // serialize: '_id'
-    }
+    },
+    ...BaseModel.prototype.relations
   ],
 
   getQuestions(screenIndex) {

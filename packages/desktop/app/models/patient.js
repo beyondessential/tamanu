@@ -68,59 +68,51 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'appointments',
       relatedModel: () => require('./appointment'),
-      // // map: (values) => mapRelations(values, require('./patientContact')),
-      // // serialize: '_id'
+      serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'additionalContacts',
       relatedModel: () => require('./patientContact'),
-      // // map: (values) => mapRelations(values, require('./patientContact')),
-      // // serialize: '_id'
+      serialize: '_id'
     }, {
       type: Backbone.Many,
       key: 'allergies',
       relatedModel: () => require('./allergy'),
-      // // map: (values) => mapRelations(values, require('./allergy')),
-      // // serialize: '_id'
+      serialize: '_id'
     }, {
       type: Backbone.Many,
       key: 'diagnoses',
       relatedModel: () => require('./diagnosis'),
-      // // map: (values) => mapRelations(values, require('./diagnosis')),
-      // // serialize: '_id'
+      serialize: '_id'
     }, {
       type: Backbone.Many,
       key: 'operationReports',
       relatedModel: () => require('./operationReport'),
-      // // map: (values) => mapRelations(values, require('./operationReport')),
-      // // serialize: '_id'
+      serialize: '_id'
     }, {
       type: Backbone.Many,
       key: 'operativePlans',
       relatedModel: () => require('./operativePlan'),
-      // // map: (values) => mapRelations(values, require('./operativePlan')),
-      // // serialize: '_id'
+      serialize: '_id'
     }, {
       type: Backbone.Many,
       key: 'pregnancies',
       relatedModel: () => require('./pregnancy'),
-      // // map: (values) => mapRelations(values, require('./pregnancy')),
-      // // serialize: '_id'
+      serialize: '_id'
     }, {
       type: Backbone.Many,
       key: 'surveyResponses',
       relatedModel: () => require('./surveyResponse'),
-      // // map: (values) => mapRelations(values, require('./surveyResponse')),
-      // // serialize: '_id'
+      serialize: '_id'
     }, {
       type: Backbone.Many,
       key: 'visits',
       relatedModel: () => require('./visit'),
-      // // map: (values) => mapRelations(values, require('./visit')),
-      // // serialize: '_id',
-      collectionType: require('../collections/visits')
+      collectionType: require('../collections/visits'),
+      serialize: '_id'
     },
+    ...BaseModel.prototype.relations
   ],
 
   validate(attrs) {

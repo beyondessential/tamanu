@@ -27,9 +27,8 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'medication',
       relatedModel: () => require('./procedureMedication'),
-      // map: (values) => mapRelations(values, require('./procedureMedication')),
-      // serialize: '_id'
     },
+    ...BaseModel.prototype.relations
   ],
 
   validate: (attrs) => {

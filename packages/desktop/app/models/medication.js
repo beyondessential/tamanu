@@ -29,34 +29,17 @@ export default BaseModel.extend({
 
   // Associations
   relations: [
-    // {
-    //   type: Backbone.One,
-    //   key: 'patient',
-    //   relatedModel: () => require('./patient'),
-    //   // map: (values) => mapRelations(values, require('./patient')),
-    //   // serialize: '_id'
-    // },
-    // {
-    //   type: Backbone.One,
-    //   key: 'visit',
-    //   relatedModel: () => require('./visit'),
-    //   // map: (values) => mapRelations(values, require('./visit')),
-    //   // serialize: '_id'
-    // },
     {
       type: Backbone.One,
       key: 'drug',
       relatedModel: () => require('./drug'),
-      // map: (values) => mapRelations(values, require('./drug')),
-      // serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'history',
       relatedModel: () => require('./medicationHistory'),
-      // map: (values) => mapRelations(values, require('./medicationHistory')),
-      // serialize: '_id'
     },
+    ...BaseModel.prototype.relations
   ],
 
   validate: (attrs) => {

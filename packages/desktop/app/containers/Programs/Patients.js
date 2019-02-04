@@ -58,9 +58,7 @@ class Patients extends Component {
   }
 
   onFetchData = async (state = {}) => {
-    console.log('-onFetchData-', state);
     const { keyword, program } = this.state;
-    console.log('-program-', program);
     const { filterView: view } = program;
     this.setState({ loading: true });
 

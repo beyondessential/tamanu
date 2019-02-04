@@ -23,16 +23,13 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'preOpDiagnoses',
       relatedModel: require('./diagnosis'),
-      // map: (values) => mapRelations(values, require('./diagnosis')),
-      // serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'postOpDiagnoses',
       relatedModel: require('./diagnosis'),
-      // map: (values) => mapRelations(values, require('./diagnosis')),
-      // serialize: '_id'
-    }
+    },
+    ...BaseModel.prototype.relations
   ]
 
   // validate: (attrs) => {

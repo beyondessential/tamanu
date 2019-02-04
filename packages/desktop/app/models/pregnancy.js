@@ -21,23 +21,18 @@ export default BaseModel.extend({
       type: Backbone.One,
       key: 'child',
       relatedModel: require('./patient'),
-      // map: (values) => mapRelations(values, require('./patient')),
-      // serialize: '_id'
     },
     {
       type: Backbone.One,
       key: 'father',
       relatedModel: require('./patient'),
-      // map: (values) => mapRelations(values, require('./patient')),
-      // serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'surveyResponses',
       relatedModel: () => require('./surveyResponse'),
-      // map: (values) => mapRelations(values, require('./surveyResponse')),
-      // serialize: '_id'
     },
+    ...BaseModel.prototype.relations
   ],
 
   cloneAttributes() {

@@ -33,51 +33,32 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'medication',
       relatedModel: () => require('./medication'),
-      // map: (values) => mapRelations(values, require('./medication')),
-      // serialize: '_id'
-    },
-    {
+    }, {
       type: Backbone.Many,
       key: 'diagnoses',
       relatedModel: () => require('./diagnosis'),
-      // map: (values) => mapRelations(values, require('./diagnosis')),
-      // serialize: '_id'
-    },
-    {
+    }, {
       type: Backbone.Many,
       key: 'labs',
       relatedModel: () => require('./lab'),
-      // map: (values) => mapRelations(values, require('./lab')),
-      // serialize: '_id'
-    },
-    {
+    }, {
       type: Backbone.Many,
       key: 'notes',
       relatedModel: () => require('./note'),
-      // map: (values) => mapRelations(values, require('./note')),
-      // serialize: '_id'
-    },
-    {
+    }, {
       type: Backbone.Many,
       key: 'procedures',
       relatedModel: () => require('./procedure'),
-      // map: (values) => mapRelations(values, require('./procedure')),
-      // serialize: '_id'
-    },
-    {
+    }, {
       type: Backbone.Many,
       key: 'vitals',
       relatedModel: () => require('./vitals'),
-      // map: (values) => mapRelations(values, require('./vitals')),
-      // serialize: '_id'
-    },
-    {
+    }, {
       type: Backbone.Many,
       key: 'reports',
       relatedModel: () => require('./report'),
-      // map: (values) => mapRelations(values, require('./report')),
-      // serialize: '_id',
     },
+    ...BaseModel.prototype.relations
   ],
 
   parse(res) {

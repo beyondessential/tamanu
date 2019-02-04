@@ -18,8 +18,7 @@ export default BaseModel.extend({
       type: Backbone.One,
       key: 'question',
       relatedModel: require('./question'),
-      // map: (values) => mapRelations(values, require('./question')),
-      // serialize: '_id'
-    }
+    },
+    ...BaseModel.prototype.relations
   ],
 });

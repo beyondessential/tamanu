@@ -8,7 +8,7 @@ export default BaseModel.extend({
     deleted: false,
     displayName: null,
     email: null,
-    iterations: [],
+    iterations: '',
     name: null,
     password: null,
     password_scheme: null,

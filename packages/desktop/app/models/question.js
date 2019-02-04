@@ -22,9 +22,8 @@ export default BaseModel.extend({
       type: Backbone.One,
       key: 'surveyGroupId',
       relatedModel: require('./surveyGroup'),
-      // map: (values) => mapRelations(values, require('./surveyGroup')),
-      // serialize: '_id'
-    }
+    },
+    ...BaseModel.prototype.relations
   ],
 
   isHeader() {

@@ -26,7 +26,8 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'visits',
       relatedModel: () => require('./visit')
-    }
+    },
+    ...BaseModel.prototype.relations
   ],
 
   reverseRelations: [

@@ -58,9 +58,7 @@ class EditPatient extends Component {
   handleChange(props = this.props) {
     let updates = {};
     const { patient, action, loading } = props;
-    console.log({ patient, action, loading });
     if (!loading) {
-      console.log('-patient-', patient.toJSON());
       // handle model's change
       // visit.on('change', () => this.forceUpdate());
       updates = Object.assign(updates, {

@@ -13,19 +13,11 @@ export default BaseModel.extend({
   ),
 
   relations: [
-    // {
-    //   type: Backbone.One,
-    //   key: 'surveyId',
-    //   relatedModel: require('./survey'),
-    //   // map: (values) => mapRelations(values, require('./survey')),
-    //   // serialize: '_id'
-    // },
     {
       type: Backbone.Many,
       key: 'components',
       relatedModel: require('./surveyScreenComponent'),
-      // map: (values) => mapRelations(values, require('./surveyScreenComponent')),
-      // serialize: '_id'
-    }
+    },
+    ...BaseModel.prototype.relations
   ],
 });
