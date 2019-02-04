@@ -6,6 +6,7 @@ export DrugModel from './drug';
 export LabModel from './lab';
 export MedicationModel from './medication';
 export MedicationHistoryModel from './medicationHistory';
+export ModifiedFieldModel from './modifiedField';
 export OperativePlanModel from './operativePlan';
 export OperationReportModel from './operationReport';
 export PatientModel from './patient';
