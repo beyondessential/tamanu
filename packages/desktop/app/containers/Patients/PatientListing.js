@@ -1,15 +1,13 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { map, isEmpty, head, clone } from 'lodash';
+import { map, isEmpty, head } from 'lodash';
 import ReactTable from 'react-table';
 import { toast } from 'react-toastify';
 
-import { PatientSearchBar } from '../../components';
+import { PatientSearchBar, Button, SyncIconButton } from '../../components';
 import { pageSizes, patientColumns } from '../../constants';
 import { PatientsCollection } from '../../collections';
-import { PatientModel, HospitalModel } from '../../models';
-
-import { Button } from '../../components/Button';
+import { HospitalModel } from '../../models';
 
 class PatientListing extends Component {
   constructor(props) {
@@ -120,31 +118,18 @@ class PatientListing extends Component {
 
   _drawSyncBtn = (row, text) => {
     return <React.Fragment>
-      <a href="#"
-        className="icon-link m-l-15 m-r-15 is-pulled-left"
-        title="Sync locally"
+      <SyncIconButton
         onClick={(e) => {
           e.preventDefault();
           this.syncItem(row);
-        }}
-      >
-        <span className="icon is-small p-t-5">
-          <i className="fa fa-cloud-download" />
-        </span>
-      </a>
+        }} />
       <span> {text} </span>
     </React.Fragment>;
   }
 
   _drawSyncedIcon = (text) => {
     return <React.Fragment>
-      <span
-        className="icon is-small p-t-5 m-l-15 m-r-15 is-pulled-left"
-        style={{ color: 'green' }}
-        title="Synced"
-      >
-        <i className="fa fa-cloud-download" />
-      </span>
+      <SyncIconButton disabled />
       <span> {text} </span>
     </React.Fragment>;
   }

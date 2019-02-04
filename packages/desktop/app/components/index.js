@@ -13,3 +13,4 @@ export PatientSearchBar from './PatientSearchBar';
 export Sidebar from './Sidebar';
 export TextareaGroup from './TextareaGroup';
 export * from './Button';
+export * from './IconButton';
