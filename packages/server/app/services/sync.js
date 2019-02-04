@@ -1,17 +1,20 @@
 const config = require('config');
 const {
-  each, has, isEmpty, isArray, isObject, mapValues,
-  toLower, pick, keys, pickBy
+  each, has, isEmpty, isArray, isObject, mapValues, reverse,
+  toLower, pick, keys, pickBy, set, isFunction, uniqBy, chain
 } = require('lodash');
 const moment = require('moment');
 const { to } = require('await-to-js');
-const { objectToJSON, incoming, jsonParse } = require('../utils');
-const { schemas, defaults: defaultFields } = require('../../../shared/schemas');
+const { objectToJSON, incoming, findSchema } = require('../utils');
+const { defaults: defaultFields } = require('../../../shared/schemas');
+const AuthService = require('../services/auth');
+const { HTTP_METHOD_TO_ACTION, ENVIRONMENT_TYPE } = require('../constants');
 
 class Sync {
   constructor(database, faye) {
     this.database = database;
     this.client = faye; // new Faye.Client(`http://127.0.0.1:${config.app.port}/${config.syncPath}`);
+    this.auth = new AuthService(database);
     this.client.addExtension({
       incoming: (message, callback) => incoming({ database, message, callback })
     });
@@ -74,12 +77,28 @@ class Sync {
       console.log(`[SUBSCRIBE - ${clientId}] -> ${channel}`);
       this.synchronize();
     });
+
+    this.client.on('unsubscribe', (client, channel) => {
+      const channelSections = channel.split('/');
+      const clientId = channelSections.pop();
+      this.disconnectClients(`clientId = '${clientId}'`);
+      console.log(`[UN-SUBSCRIBE - ${clientId}] -> ${channel}`);
+    });
+  }
+
+  disconnectClients(condition = 'lastActive != 0') {
+    const activeClients = this.database.find('client', condition);
+    this.database.write(() => {
+      activeClients.forEach((client) => {
+        if (client) client.lastActive = 0;
+      });
+    });
   }
 
   async _publishMessage(change, client, hospital) {
     try {
       let record = this.database.findOne(change.recordType, change.recordId);
-      const schema = schemas.find(_schema => _schema.name === change.recordType);
+      const schema = findSchema(change.recordType);
       if (!isEmpty(schema)) {
         // Apply filter if defined
         if (typeof schema.filter === 'function') {
