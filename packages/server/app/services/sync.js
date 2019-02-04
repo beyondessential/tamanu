@@ -108,16 +108,15 @@ class Sync {
             return true;
           }
         }
-
         // Object to JSON
         if (record) record = objectToJSON(record);
-
         // Apply selectors  if defined
         if (toLower(change.action) === 'save') {
           record = this._applySelectors(schema, hospital, change, record);
           record = this._pickDefaultFieldsOnly(record);
+          // Reset modified fields
+          record.modifiedFields = [];
         }
-
         // if (record._id === 'hospital-demo-10') console.log('-out-', { users: record.users });
         await this.client.getClient().publish(`/${config.sync.channelOut}/${client.clientId}`, {
           record,
@@ -136,14 +135,9 @@ class Sync {
 
   _applySelectors(schema, hospital, change, record) {
     if (schema.selectors && !isEmpty(schema.selectors)) {
-      let syncedIds = [];
-      let { objectsFullySynced } = hospital;
-      objectsFullySynced = jsonParse(objectsFullySynced);
-      if (has(objectsFullySynced, change.recordType)) {
-        syncedIds = objectsFullySynced[change.recordType];
-      }
-      console.log({ objectsFullySynced, syncedIds });
-      if (syncedIds.includes(change.recordId)) record.fullySynced = true;
+      const key = `${change.recordType}-${change.recordId}`;
+      const objectsFullySynced = Array.from(hospital.objectsFullySynced);
+      if (objectsFullySynced.includes(key)) record.fullySynced = true;
 
       // Send selected fields only
       if (!record.fullySynced) {
@@ -158,12 +152,14 @@ class Sync {
   }
 
   _pickDefaultFieldsOnly(record) {
-    record = mapValues(record, (value) => {
-      if (isArray(value)) {
-        return value.map(_record => pickBy(_record, _value => typeof _value !== 'object'));
-      }
-      if (isObject(value)) {
-        return pickBy(value, _value => typeof _value !== 'object');
+    record = mapValues(record, (value, key) => {
+      if (key !== 'objectsFullySynced') {
+        if (isArray(value)) {
+          return value.map(_record => pickBy(_record, _value => typeof _value !== 'object'));
+        }
+        if (isObject(value)) {
+          return pickBy(value, _value => typeof _value !== 'object');
+        }
       }
       return value;
     });
@@ -176,36 +172,93 @@ class Sync {
    * CREATE: we simply use the data sent from client to create a new record using recordType
    * UPDATE: we compare modifiedFields using timestamps and use a last updated value for
    *         that field. Only the fields that are updated will be sent to the database
-   * @param {object} options Options passed to the function i-e record, recordType
+   * @param {from, record, action, recordId, recordType, timestamp} options Options passed to the function
    */
-  _saveRecord(options) {
+  _saveRecord({ record: updatedRecord, recordType }) {
     try {
-      // Check if record exists
-      let newRecord = { _id: options.record._id };
-      const record = this.database.findOne(options.recordType, options.record._id);
-      if (record) { // UPDATE
-        // Resolve conflicts
-        const modifiedFields = JSON.parse(record.modifiedFields) || {};
-        const newModifiedFields = JSON.parse(options.record.modifiedFields) || {};
-        each(newModifiedFields, (value, key) => {
-          console.log({ value, key }, has(newModifiedFields, key));
-          if (has(newModifiedFields, key)) {
-            newRecord[key] = modifiedFields[key] > newModifiedFields[key]
-                              ? record[key] : options.record[key];
-          } else {
-            newRecord[key] = options.record[key];
-          }
-        });
-      } else { // CREATE
-        newRecord = options.record;
-      }
+      // check if record exists
+      const schema = findSchema(recordType);
+      let newRecord = { _id: updatedRecord._id };
+      const currentRecord = this.database.findOne(recordType, updatedRecord._id);
+      const action = currentRecord ? HTTP_METHOD_TO_ACTION.PUT : HTTP_METHOD_TO_ACTION.POST;
 
-      this.database.write(() => {
-        this.database.create(options.recordType, newRecord, true);
-      });
+      // resolve conflicts
+      if (recordType !== 'modifiedField') {
+        newRecord = this._mergeChanges(currentRecord, updatedRecord, recordType, action, newRecord);
+      } else {
+        newRecord = updatedRecord;
+      }
+      // trigger `beforeSave` event
+      if (isFunction(schema.beforeSave)) {
+        newRecord = schema.beforeSave(this.database, newRecord, ENVIRONMENT_TYPE.SERVER);
+      }
+      // fix relations
+      newRecord = this._serializeRelations(newRecord);
+      // only add / update record if some authorized data is present
+      if (Object.keys(newRecord).length > 1) {
+        this.database.write(() => {
+          this.database.create(recordType, newRecord, true);
+        });
+      }
     } catch (err) {
+      // console.error(err);
       throw err;
     }
+  }
+
+  _serializeRelations(newRecord) {
+    each(newRecord, (value, field) => {
+      if (field === 'modifiedFields' || field === 'objectsFullySynced') return;
+      if (isArray(value)) {
+        const newValue = value.map(({ _id }) => ({ _id }));
+        set(newRecord, field, newValue);
+      } else if (isObject(value)) {
+        set(newRecord, field, pick(value, ['_id']));
+      }
+    });
+
+    return newRecord;
+  }
+
+  _mergeChanges(currentRecord, updatedRecord, recordType, action, newRecord) {
+    let { modifiedFields: currentModifiedFields } = currentRecord || {};
+    const { modifiedFields: updatedModifiedFields } = updatedRecord;
+    if (currentModifiedFields) currentModifiedFields = Array.from(currentModifiedFields);
+
+    updatedModifiedFields.forEach(({ time: updateTime, token, field }) => {
+      const tokenPayload = this.auth.verifyJWTToken(token);
+
+      if (tokenPayload !== false) {
+        const { userId, hospitalId } = tokenPayload;
+        const fields = updatedModifiedFields.map(({ field: f }) => f);
+        const subject = recordType;
+        const user = userId;
+        const validPermissions = this.auth.validatePermissions({ user, hospitalId, action, subject, fields });
+        if (validPermissions) { // TODO: add generous relations update
+          if (has(currentModifiedFields, field)) { // if key already has an old value stored
+            const lastUpdatedValue = updateTime > currentModifiedFields[field].time
+                                        ? updatedRecord[field] : currentRecord[field];
+            newRecord[field] = lastUpdatedValue;
+          } else { // Set the new value
+            newRecord[field] = updatedRecord[field];
+          }
+        } else {
+          console.error(`Invalid permissions, [${action}-${subject}] !`);
+        }
+      } else {
+        console.error(`Save data request rejected, invalid sync token[${token}] !`);
+      }
+    });
+
+    // set the latest modified fields
+    if (Object.keys(newRecord).length > 1) {
+      newRecord.modifiedFields = chain([...currentModifiedFields, ...updatedModifiedFields])
+                                  .sortBy('_id')
+                                  .reverse()
+                                  .uniqBy('_id')
+                                  .value();
+    }
+    return newRecord;
   }
 
   /**
@@ -221,3 +274,4 @@ class Sync {
 }
 
 module.exports = Sync;
+

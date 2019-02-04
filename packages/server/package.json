@@ -52,6 +52,7 @@
     "http-proxy": "^1.17.0",
     "json-diff": "^0.5.3",
     "json-prune": "^1.1.0",
+    "jsonwebtoken": "^8.4.0",
     "keygen": "^0.3.1",
     "lodash": "^4.17.5",
     "moment": "^2.21.0",
