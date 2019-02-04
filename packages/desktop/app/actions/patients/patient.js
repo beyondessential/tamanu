@@ -1,6 +1,9 @@
 import { to } from 'await-to-js';
 import moment from 'moment';
 import { toast } from 'react-toastify';
+import { isEmpty } from 'lodash';
+import { history } from '../../utils';
+import { DISPLAY_ID_PLACEHOLDER } from '../../constants';
 import {
   FETCH_PATIENT_REQUEST,
   FETCH_PATIENT_SUCCESS,
@@ -9,7 +12,7 @@ import {
   SAVE_PATIENT_SUCCESS,
   SAVE_PATIENT_FAILED,
 } from '../types';
-import { PatientModel, MedicationHistoryModel } from '../../models';
+import { PatientModel } from '../../models';
 
 export const fetchPatient = ({ id }) =>
   async dispatch => {
@@ -38,19 +41,25 @@ export const savePatient = ({ Model }) =>
     dispatch({ type: SAVE_PATIENT_REQUEST });
     if (Model.isValid()) {
       try {
-        await Model.save(null, { silent: true });
+        const attrs = {};
+        const isNew = Model.isNew();
+        if (isEmpty(Model.get('displayId'))) {
+          attrs.displayId = DISPLAY_ID_PLACEHOLDER;
+        }
+        await Model.save(attrs, { silent: true });
         toast('Patient saved successfully.', { type: toast.TYPE.SUCCESS });
         dispatch({
           type: SAVE_PATIENT_SUCCESS,
           patient: Model,
         });
+        if (isNew) history.push(`/patients/editPatient/${Model.id}`);
       } catch (error) {
-        console.log({ error });
+        console.error({ error });
         dispatch({ type: SAVE_PATIENT_FAILED, error });
       }
     } else {
       const error = Model.validationError;
-      console.log({ error });
+      console.error({ error });
       dispatch({ type: SAVE_PATIENT_FAILED, error });
     }
   };
