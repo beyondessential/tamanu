@@ -2,17 +2,17 @@ import React from 'react';
 import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
 import { persistReducer } from 'redux-persist';
-import Root from './containers/Root';
-import { configureStore, history } from './store/configureStore';
 import BackboneSync from './utils/backbone-sync';
+import Root from './containers/Root';
+import {
+  store,
+  persistor,
+  persistConfig,
+  history
+} from './store';
 import './styles/app.global.scss';
 
 (async () => {
-  const {
-    store,
-    persistor,
-    persistConfig
-  } = configureStore();
   BackboneSync(store);
 
   render(

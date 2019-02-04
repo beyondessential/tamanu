@@ -21,7 +21,7 @@ export const login = ({ email, password }) =>
       });
       res = await res.json();
       if (res.error) return _error({ error: res.error, dispatch });
-
+      notify(false); // Dismiss all
       dispatch({
         type: AUTH_LOGIN_SUCCESS,
         ...res

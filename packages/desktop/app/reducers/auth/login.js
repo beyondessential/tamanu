@@ -12,6 +12,7 @@ export default {
   }),
   [AUTH_LOGIN_SUCCESS]: ({
     userId,
+    hospitalId,
     displayName,
     email,
     secret,
@@ -19,6 +20,7 @@ export default {
    }, state) => ({
     ...state,
     userId,
+    hospitalId,
     displayName,
     email,
     secret,
@@ -33,6 +35,7 @@ export default {
   [AUTH_LOGOUT]: (_, state) => ({
     ...state,
     userId: null,
+    hospitalId: null,
     displayName: '',
     email: '',
     secret: null,

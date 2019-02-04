@@ -4,6 +4,7 @@ import login from './login';
 const stateChanges = { ...login };
 const initialState = {
   userId: null,
+  hospitalId: null,
   displayName: '',
   email: '',
   secret: '',
