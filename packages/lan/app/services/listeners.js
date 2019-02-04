@@ -2,7 +2,7 @@ const { each } = require('lodash');
 const { schemas } = require('../../../shared/schemas');
 const QueueManager = require('./queue-manager');
 const Sync = require('./sync');
-const { SYNC_MODES } = require('../constants');
+const { SYNC_MODES, SYNC_ACTIONS } = require('../constants');
 
 class Listeners {
   constructor(database) {
@@ -39,9 +39,9 @@ class Listeners {
   _addListener(recordType) {
     this.database.addListener(recordType, (action, record) => {
       switch (action) {
-        case 'SAVE':
-        case 'REMOVE':
-        case 'WIPE':
+        case SYNC_ACTIONS.SAVE:
+        case SYNC_ACTIONS.REMOVE:
+        case SYNC_ACTIONS.WIPE:
           this.queueManager.push({
             action,
             recordId: record._id,

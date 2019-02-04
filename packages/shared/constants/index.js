@@ -6,6 +6,12 @@ const HTTP_METHOD_TO_ACTION = {
   'DELETE': 'delete'
 };
 
+const SYNC_ACTIONS = {
+  'SAVE': 'save',
+  'REMOVE': 'remove',
+  'WIPE': 'wipe',
+};
+
 const SYNC_MODES = {
   ON: true,
   OFF: false,
@@ -23,5 +29,6 @@ const ENVIRONMENT_TYPE = {
 
 module.exports = {
   HTTP_METHOD_TO_ACTION, SYNC_MODES,
-  DISPLAY_ID_PLACEHOLDER, ENVIRONMENT_TYPE
+  DISPLAY_ID_PLACEHOLDER, ENVIRONMENT_TYPE,
+  SYNC_ACTIONS
 };

@@ -173,7 +173,7 @@ class BaseAuth {
       const ability = new Ability(abilities);
       const canDo = ability.can(action, subject);
       if (!canDo) {
-        console.error('validatePermissionsError', subject, abilities, canDo);
+        console.error('validatePermissionsError', abilities, canDo);
         return false;
       }
 
@@ -194,7 +194,6 @@ class BaseAuth {
   }
 
   _getAbilities({ hospitalId, ...props }) {
-    // console.log('_getAbilities_', ({ hospitalId, ...props }));
     try {
       const { roles }  = this.user;
       const userRole = roles.find(({ hospital }) => hospital._id === hospitalId);

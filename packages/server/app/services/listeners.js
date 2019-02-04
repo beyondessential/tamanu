@@ -3,13 +3,13 @@ const { schemas } = require('../../../shared/schemas');
 const QueueManager = require('./queue-manager');
 const Sync = require('./sync');
 const { jsonParse } = require('../utils');
-const { SYNC_MODES } = require('../constants');
+const { SYNC_MODES, SYNC_ACTIONS } = require('../constants');
 
 class Listeners {
   constructor(database, bayeux) {
     this.database = database;
-    this.sync =  new Sync(database, bayeux);
     this.queueManager = new QueueManager(database);
+    this.sync =  new Sync(database, bayeux, this.queueManager);
 
     // Setup sync
     this.sync.disconnectClients();
@@ -38,7 +38,7 @@ class Listeners {
           case 'oldModifications':
             indexes.forEach((index) => {
               const queueItem = {
-                action: 'SAVE',
+                action: SYNC_ACTIONS.SAVE,
                 recordId: itemsUpdated[index]._id,
                 recordType: name
               };
@@ -59,7 +59,7 @@ class Listeners {
           case 'deletions':
             indexes.forEach((index) => {
               this.queueManager.push({
-                action: 'REMOVE',
+                action: SYNC_ACTIONS.REMOVE,
                 recordId: items[index]._id,
                 recordType: name
               });

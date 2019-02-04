@@ -1,19 +1,23 @@
 const config = require('config');
 const {
-  each, has, isEmpty, isArray, isObject, mapValues, reverse,
-  toLower, pick, keys, pickBy, set, isFunction, uniqBy, chain
+  each, has, isEmpty, isArray, isObject, mapValues, reverse, clone,
+  toLower, pick, keys, pickBy, set, isFunction, uniqBy, chain, difference
 } = require('lodash');
 const moment = require('moment');
 const { to } = require('await-to-js');
 const { objectToJSON, incoming, findSchema } = require('../utils');
 const { defaults: defaultFields } = require('../../../shared/schemas');
 const AuthService = require('../services/auth');
-const { HTTP_METHOD_TO_ACTION, ENVIRONMENT_TYPE } = require('../constants');
+const {
+  HTTP_METHOD_TO_ACTION, ENVIRONMENT_TYPE,
+  SYNC_ACTIONS
+} = require('../constants');
 
 class Sync {
-  constructor(database, faye) {
+  constructor(database, faye, queueManager) {
     this.database = database;
-    this.client = faye; // new Faye.Client(`http://127.0.0.1:${config.app.port}/${config.syncPath}`);
+    this.client = faye;
+    this.queueManager = queueManager;
     this.auth = new AuthService(database);
     this.client.addExtension({
       incoming: (message, callback) => incoming({ database, message, callback })
@@ -61,10 +65,10 @@ class Sync {
       if (channel === `/${config.sync.channelIn}`) {
         console.log(`[MessageIn - ${config.sync.channelIn}]`, { action: message.action, type: message.recordType, id: message.recordId });
         switch (message.action) {
-          case 'SAVE':
-            this._saveRecord(message);
+          case SYNC_ACTIONS.SAVE:
+            this.saveRecord(message);
           break;
-          case 'REMOVE':
+          case SYNC_ACTIONS.REMOVE:
             this._removeRecord(message);
           break;
           default:

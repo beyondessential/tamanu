@@ -1,6 +1,7 @@
-const { objectToJSON } = require('../../utils');
 const { parseInt, ceil, head, isEmpty, has } = require('lodash');
 const moment = require('moment');
+const { objectToJSON } = require('../../utils');
+const { SYNC_ACTIONS } = require('../../constants');
 
 module.exports = (req, res) => {
   const realm = req.app.get('database');
@@ -114,6 +115,6 @@ const _markToBeSynced = (object, model, realm) => {
     hospital.objectsFullySynced = JSON.stringify(objectsFullySynced);
     hospital.modifiedFields = JSON.stringify(modifiedFields);
     // trigger change
-    realm._alertListeners('SAVE', 'hospital', hospital);
+    realm._alertListeners(SYNC_ACTIONS.SAVE, 'hospital', hospital);
   }
 }

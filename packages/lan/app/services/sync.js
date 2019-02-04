@@ -4,7 +4,7 @@ const config = require('config');
 const { objectToJSON } = require('../utils');
 const { outgoing } = require('../utils/faye-extensions');
 const { schemas } = require('../../../shared/schemas');
-const { SYNC_MODES } = require('../constants');
+const { SYNC_MODES, SYNC_ACTIONS } = require('../constants');
 
 class Sync {
   constructor(database, listeners) {
@@ -29,10 +29,10 @@ class Sync {
       }
       console.log(`[MessageIn - ${config.sync.channelIn}/${clientId}] - [${channel}]`, { action, type, id });
       switch (message.action) {
-        case 'SAVE':
+        case SYNC_ACTIONS.SAVE:
           this._saveRecord(message);
         break;
-        case 'REMOVE':
+        case SYNC_ACTIONS.REMOVE:
           this._removeRecord(message);
         break;
         default:
