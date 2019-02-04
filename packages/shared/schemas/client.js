@@ -1,9 +1,10 @@
+const { SYNC_MODES } = require('../constants');
 const defaults = require('./defaults');
 
 const ClientSchema = {
   name: 'client',
   primaryKey: 'clientId',
-  sync: false,
+  sync: SYNC_MODES.OFF,
   properties: Object.assign({
     _id: 'string',
     userId: 'string',

@@ -1,5 +1,6 @@
 const { each, isArray } = require('lodash');
 const jsonPrune = require('json-prune');
+const { schemas } = require('../schemas');
 
 const jsonParse = (object) => {
   try {
@@ -16,7 +17,10 @@ const objectToJSON = (object, deep = true) => {
     if (typeof object.objectSchema === 'function') {
       const { properties } = object.objectSchema();
       each(properties, (props, key) => {
-        if (props.type === 'list' || props.type === 'linkingObjects') jsonObject[key] = objectToJSON(Array.from(object[key]), props.type === 'list');
+        if (key !== 'objectsFullySynced' && (props.type === 'list' || props.type === 'linkingObjects')) {
+          jsonObject[key] = objectToJSON(Array.from(object[key]), props.type === 'list');
+        }
+        if (key === 'objectsFullySynced') jsonObject[key] = Array.from(object[key]);
       });
     }
     return jsonObject;
@@ -25,4 +29,8 @@ const objectToJSON = (object, deep = true) => {
   }
 };
 
-module.exports = { objectToJSON, jsonParse };
+const findSchema = (type) => {
+  return schemas.find(schema => schema.name === type);
+}
+
+module.exports = { objectToJSON, jsonParse, findSchema };

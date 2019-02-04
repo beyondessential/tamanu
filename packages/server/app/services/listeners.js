@@ -3,6 +3,7 @@ const { schemas } = require('../../../shared/schemas');
 const QueueManager = require('./queue-manager');
 const Sync = require('./sync');
 const { jsonParse } = require('../utils');
+const { SYNC_MODES } = require('../constants');
 
 class Listeners {
   constructor(database, bayeux) {
@@ -11,13 +12,16 @@ class Listeners {
     this.queueManager = new QueueManager(database);
 
     // Setup sync
+    this.sync.disconnectClients();
     this.sync.setup();
     this.queueManager.on('change', () => this.sync.synchronize());
   }
 
   addDatabaseListeners() {
     each(schemas, (schema) => {
-      if (schema.sync !== false) this._addListener(schema);
+      if (schema.sync === SYNC_MODES.ON || schema.sync === SYNC_MODES.REMOTE_TO_LOCAL) {
+        this._addListener(schema);
+      }
     });
     console.log('Database listeners added!');
   }

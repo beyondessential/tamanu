@@ -1,7 +1,9 @@
+const { SYNC_MODES } = require('../constants');
+
 const ChangeSchema = {
   name: 'change',
   primaryKey: '_id',
-  sync: false,
+  sync: SYNC_MODES.OFF,
   properties: {
     _id: 'string',
     action: 'string',

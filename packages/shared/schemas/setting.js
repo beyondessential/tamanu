@@ -1,9 +1,10 @@
+const { SYNC_MODES } = require('../constants');
 const defaults = require('./defaults');
 
 const SettingSchema = {
   name: 'setting',
   primaryKey: 'key',
-  sync: false,
+  sync: SYNC_MODES.OFF,
   properties: Object.assign({
     key: {
       type: 'string',

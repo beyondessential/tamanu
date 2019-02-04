@@ -1,8 +1,10 @@
 const Faye = require('faye');
-const { isArray, each } = require('lodash');
+const { find } = require('lodash');
 const config = require('config');
 const { objectToJSON } = require('../utils');
 const { outgoing } = require('../utils/faye-extensions');
+const { schemas } = require('../../../shared/schemas');
+const { SYNC_MODES } = require('../constants');
 
 class Sync {
   constructor(database, listeners) {
@@ -17,7 +19,15 @@ class Sync {
   setup() {
     const clientId = this.database.getSetting('CLIENT_ID');
     const subscription = this.client.subscribe(`/${config.sync.channelIn}/${clientId}`).withChannel((channel, message) => {
-      console.log(`[MessageIn - ${config.sync.channelIn}/${clientId}] - [${channel}]`, { action: message.action, type: message.recordType, id: message.recordId });
+      const { action, recordType: type, recordId: id } = message;
+      const schema = find(schemas, ({ name }) => name === type);
+      if (!schema) {
+        throw new Error(`Invalid recordType [${type}]`);
+      }
+      if (schema.sync !== SYNC_MODES.ON && schema.sync !== SYNC_MODES.REMOTE_TO_LOCAL) {
+        throw new Error(`Schema sync not allowed [${schema.sync}]`);
+      }
+      console.log(`[MessageIn - ${config.sync.channelIn}/${clientId}] - [${channel}]`, { action, type, id });
       switch (message.action) {
         case 'SAVE':
           this._saveRecord(message);
@@ -52,7 +62,7 @@ class Sync {
     try {
       const lastSyncTime = this.database.getSetting('LAST_SYNC_OUT');
       console.log('lastSyncTime', lastSyncTime);
-      const changes = this.database.find('change', `timestamp >= "${lastSyncTime}"`);
+      const changes = this.database.find('change', `timestamp >= "${lastSyncTime}"`).sorted('timestamp', false);
       const tasks = [];
       changes.forEach(change => tasks.push(this._publishMessage(objectToJSON(change))));
       Promise.all(tasks);
@@ -72,7 +82,7 @@ class Sync {
         ...change
       });
 
-      // Update last sync out date
+      // // Update last sync out date
       this.database.setSetting('LAST_SYNC_OUT', new Date().getTime());
       console.log('[MessageOut]', `/${config.sync.channelOut}`, { action: change.action, type: change.recordType, id: change.recordId });
     } catch (err) {
