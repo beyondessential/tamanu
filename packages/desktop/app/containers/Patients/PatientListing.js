@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { map, isEmpty, head } from 'lodash';
+import { map, isEmpty, head, clone } from 'lodash';
 import ReactTable from 'react-table';
 import { toast } from 'react-toastify';
 
 import { PatientSearchBar } from '../../components';
 import { pageSizes, patientColumns } from '../../constants';
 import { PatientsCollection } from '../../collections';
-import { PatientModel } from '../../models';
+import { PatientModel, HospitalModel } from '../../models';
 
 import { Button } from '../../components/Button';
 
@@ -28,7 +28,7 @@ class PatientListing extends Component {
     loading: true,
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     patientColumns[0].Cell = this.setSyncStatus;
     patientColumns[patientColumns.length - 1].Cell = this.setActionsColumn;
     this.props.collection.on('update', this.handleChange());
@@ -151,12 +151,21 @@ class PatientListing extends Component {
 
   syncItem = async ({ _id }) => {
     try {
-      const patientModel = new PatientModel();
-      patientModel.set({ _id });
-      await patientModel.fetch({
-        data: { "fully_sync": true }
-      });
-      toast('Item added to the queue.', { type: toast.TYPE.SUCCESS });
+      // fetch hospitals info
+      const key = `patient-${_id}`;
+      const hospitalModel = new HospitalModel();
+      await hospitalModel.fetch();
+      const hospital = hospitalModel.toJSON();
+      // attach the object
+      const objectsFullySynced = hospital.objectsFullySynced.splice(0);
+      if (!objectsFullySynced.includes(key)) {
+        objectsFullySynced.push(key);
+        hospitalModel.set('objectsFullySynced', objectsFullySynced, { silent: true });
+        await hospitalModel.save();
+        toast('Item added to the queue.', { type: toast.TYPE.SUCCESS });
+      } else {
+        toast('Item already in queue!', { type: toast.TYPE.WARNING });
+      }
     } catch (e) {
       console.error(e);
       toast('Something west wrong, please try again later.', { type: toast.TYPE.ERROR });

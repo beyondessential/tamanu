@@ -91,8 +91,8 @@ module.exports = (req, res) => {
   }
 };
 
-_markToBeSynced = (object, model, realm) => {
-  const settings = realm.settings;
+const _markToBeSynced = (object, model, realm) => {
+  const { settings } = realm;
   const hospitalId = settings.get('HOSPITAL_ID');
   const hospital = realm.findOne('hospital', hospitalId);
   if (hospital) {
@@ -101,16 +101,16 @@ _markToBeSynced = (object, model, realm) => {
     let { objectsFullySynced, modifiedFields } = hospital;
     objectsFullySynced = JSON.parse(objectsFullySynced) || {};
     if (has(objectsFullySynced, model)) ids = objectsFullySynced[model];
-    if (has(objectsFullySynced, 'new')) newIds = objectsFullySynced['new'];
+    if (has(objectsFullySynced, 'new')) newIds = objectsFullySynced.new;
     if (!ids.includes(object._id)) ids.push(object._id);
     newIds.push({
       _id: object._id,
       recordType: model
     });
     objectsFullySynced[model] = ids;
-    objectsFullySynced['new'] = newIds;
+    objectsFullySynced.new = newIds;
     modifiedFields = JSON.parse(modifiedFields) || {};
-    modifiedFields['objectsFullySynced'] = new Date().getTime();
+    modifiedFields.objectsFullySynced = new Date().getTime();
     hospital.objectsFullySynced = JSON.stringify(objectsFullySynced);
     hospital.modifiedFields = JSON.stringify(modifiedFields);
     // trigger change

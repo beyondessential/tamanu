@@ -4,9 +4,9 @@ import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 
+import actions from '../../actions/patients';
 import { Modal as ModalView, InputGroup, CustomDateInput } from '../../components';
 import Serializer from '../../utils/form-serialize';
-import { createPatient, createPatientIndexes } from '../../actions/patients/patients';
 import { bloodOptions, sexOptions, getDifferenceDate } from '../../constants';
 import { PatientModel } from '../../models';
 
@@ -21,10 +21,6 @@ class NewPatient extends Component {
     age: '0 months 0 days',
     referredDate: moment(),
     contactModalVisible: false
-  }
-
-  componentDidMount() {
-    // this.props.createPatientIndexes();
   }
 
   onCloseModal = () => {
@@ -385,9 +381,10 @@ function mapStateToProps(state) {
   return { createPatientSuccess, patientInProgress };
 }
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  createPatient: patient => dispatch(createPatient(patient, ownProps.history)),
-  createPatientIndexes: () => dispatch(createPatientIndexes())
+const { patient: patientActions } = actions;
+const { savePatient } = patientActions;
+const mapDispatchToProps = (dispatch) => ({
+  createPatient: patient => dispatch(savePatient({ Model: patient })),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewPatient);

@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
-import { isArray, toString } from 'lodash';
+import { isArray, toString, each } from 'lodash';
 import { toast } from 'react-toastify';
+import jsonPrune from 'json-prune';
 import shortid from 'shortid';
 import createHistory from 'history/createHashHistory';
 
@@ -37,6 +38,31 @@ export const getClient = () => {
   return localStorage.getItem('clientId');
 };
 
-export const notify = (message, { type='error', autoClose=null, ...props } = {}) =>
-  toast(prepareToastMessage(message), { type, autoClose, ...props });
+export const notify = (message, { type='error', autoClose=null, ...props } = {}) => {
+  if (message !== false) {
+    toast(prepareToastMessage(message), { type, autoClose, ...props });
+  } else {
+    toast.dismiss();
+  }
+}
 
+export const flattenRequest = (object, deep = true) => {
+  try {
+    const newObject = object;
+    if (isArray(object) && deep) return object.map(obj => flattenRequest(obj, false));
+    each(newObject, (value, key) => {
+      if (typeof value === 'object') {
+        if (!deep) {
+          delete newObject[key];
+        } else {
+          newObject[key] = flattenRequest(newObject[key], typeof value === 'object');
+        }
+      } else {
+        newObject[key] = value;
+      }
+    });
+    return newObject;
+  } catch (err) {
+    throw new Error(err);
+  }
+};

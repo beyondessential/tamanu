@@ -21,7 +21,7 @@ const UserSchema = {
       type: 'string',
       optional: true
     },
-    iterations: 'string[]',
+    iterations: 'string?',
     name: {
       type: 'string',
       optional: true
