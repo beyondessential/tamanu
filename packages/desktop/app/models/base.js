@@ -1,12 +1,14 @@
 import Backbone from 'backbone-associations';
 import moment from 'moment';
 import jsonDiff from 'json-diff';
+import shortid from 'shortid';
 import {
   isString, assignIn, isEmpty, clone, each,
   set, isObject, has, head, isArray
 } from 'lodash';
 import { to } from 'await-to-js';
 import { concatSelf } from '../utils';
+import { store } from '../store';
 
 export default Backbone.AssociatedModel.extend({
   urlRoot: `${process.env.HOST}${process.env.REALM_PATH}`,
@@ -14,17 +16,40 @@ export default Backbone.AssociatedModel.extend({
   lastSyncedAttributes: {},
 
   constructor(attributes, options) {
-    if (isArray(attributes)) attributes = head(attributes);
-    if (!isEmpty(attributes) && has(attributes, '_id')) this.lastSyncedAttributes = attributes;
-    Backbone.AssociatedModel.apply(this, [attributes, options]);
+    let newAttributes = clone(attributes);
+    if (isArray(newAttributes)) newAttributes = head(newAttributes);
+    // if (!isEmpty(newAttributes) && has(newAttributes, '_id')) this.lastSyncedAttributes = newAttributes;
+    Backbone.AssociatedModel.apply(this, [newAttributes, options]);
     this._parseParents();
   },
 
   defaults: {
-    modifiedFields: {},
+    modifiedFields: [],
+    createdBy: null,
     createdAt: moment(),
+    modifiedBy: '',
     modifiedAt: null,
   },
+
+  // Associations
+  relations: [
+    {
+      type: Backbone.Many,
+      key: 'modifiedFields',
+      relatedModel: () => require('./modifiedField'),
+      // serialize: '_id'
+    }, {
+      type: Backbone.One,
+      key: 'createdBy',
+      relatedModel: () => require('./user'),
+      serialize: '_id',
+    }, {
+      type: Backbone.One,
+      key: 'modifiedBy',
+      relatedModel: () => require('./user'),
+      serialize: '_id'
+    },
+  ],
 
   /**
    * Override backbone's default fetch method to record `lastSyncedAttributes`
