@@ -1,12 +1,10 @@
 const config = require('config');
 const basicAuth = require('basic-auth');
-const { Ability } = require('@casl/ability');
-const { permittedFieldsOf } = require('@casl/ability/extra');
-const { set, find } = require('lodash');
+const { set, isEmpty } = require('lodash');
 const BaseAuth = require('../../../shared/services/auth');
+const { schemaClasses } = require('../../../shared/schemas');
 const database = require('./database');
 const { HTTP_METHOD_TO_ACTION } = require('../constants');
-const { schemas } = require('../../../shared/schemas');
 
 class Auth extends BaseAuth {
   constructor(props) {
@@ -58,70 +56,44 @@ class Auth extends BaseAuth {
     }
   }
 
-  validatePermissions() {
+  validateRequestPermissions() {
     return (req, res, next) => {
+      let subject;
       const { params, method, user, client, body } = req;
-      const { model } = params;
-      const _reject = (error = 'Invalid request', code = 405) => res.status(code).send(error);
+      const { model, id } = params;
+      const { hospitalId } = client;
+      const fields = Object.keys(body);
+      const _reject = (error = 'Invalid permissions', code = 405) => res.status(code).send(error);
 
-      // Get schema
-      const schema = find(schemas, ({ name }) => name === model);
-      if (!schema) return _reject();
+      switch (true) {
+        case (method === 'GET' && !isEmpty(id)):
+          Object.defineProperty(schemaClasses[model], 'name', { value: model })
+          subject = new schemaClasses[model]({ _id: id });
+        break;
+        case (['PUT','PATCH','POST'].includes(method) && !isEmpty(id)):
+          Object.defineProperty(schemaClasses[model], 'name', { value: model })
+          subject = new schemaClasses[model]({ _id: id, ...body });
+        break;
+        default:
+          subject = model;
+        break;
+      }
 
       try {
         const action = HTTP_METHOD_TO_ACTION[method];
-        if (!user || !client || !model || !action) return _reject();
+        const permissionsValid = this.validatePermissions({
+          user,
+          hospitalId,
+          action,
+          subject,
+          fields
+        });
 
-        this.user = user;
-        this.client = client;
-        const allowed = this._isAllowed({ action, model, schema, body });
-        if (allowed === false) return _reject();
-
-        next();
+        if (permissionsValid === true) return next();
+        return _reject(permissionsValid || 'Not enough permissions!');
       } catch (error) {
         return _reject(error.toString());
       }
-    }
-  }
-
-  _isAllowed({ action, model, schema, body }) {
-    try {
-      const abilities = this._getAbilities();
-      if (abilities === false) return false;
-
-      const ability = new Ability(abilities);
-      const canDo = ability.can(action, model);
-      if (!canDo) return false;
-
-      const allFields = Object.keys(schema.properties)
-      const allowedFields = permittedFieldsOf(ability, action, model, {
-        fieldsFrom: rule => rule.fields || allFields
-      });
-
-      const bodyKeys = Object.keys(body);
-      const keysFiltered = bodyKeys.filter(_key => allowedFields.includes(_key));
-      console.log({ keysFiltered, bodyKeys });
-      if (keysFiltered.length !== bodyKeys.length) return false;
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-  }
-
-  _getAbilities() {
-    try {
-      const { roles }  = this.user;
-      const { hospitalId } = this.client;
-      const userRole = roles.find(({ hospital }) => hospital._id === hospitalId);
-      if (!userRole) return false;
-
-      const { role } = userRole;
-      let { abilities } = role;
-      if (abilities) abilities = JSON.parse(abilities);
-      return abilities;
-    } catch (error) {
-      console.error(error);
-      return false;
     }
   }
 }

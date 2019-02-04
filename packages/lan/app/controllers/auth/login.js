@@ -33,7 +33,7 @@ internals.login = async (req, res) => {
       const user = database.findOne('user', userId);
       const { role } = user.roles.find(_role => _role.hospital._id === hospitalId);
       const { abilities } = role;
-      return res.json({ userId, displayName, clientId, secret, abilities });
+      return res.json({ userId, hospitalId, displayName, clientId, secret, abilities });
     }
     throw doLogin;
   } catch (err) {
