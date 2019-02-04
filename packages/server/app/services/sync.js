@@ -39,7 +39,7 @@ class Sync {
         const hospital = this.database.findOne('hospital', hospitalId);
         const maxTimestamp = changes.max('timestamp');
         const [err] = await to(Promise.all(changes.map(change =>
-                                this._publishMessage(objectToJSON(change), client, hospital))));
+                                this.publishMessage(objectToJSON(change), client, hospital))));
         if (err) return new Error(err);
 
         // Update sync date
@@ -99,7 +99,7 @@ class Sync {
     });
   }
 
-  async _publishMessage(change, client, hospital) {
+  async publishMessage(change, client, hospital) {
     try {
       let record = this.database.findOne(change.recordType, change.recordId);
       const schema = findSchema(change.recordType);
@@ -138,6 +138,7 @@ class Sync {
   }
 
   _applySelectors(schema, hospital, change, record) {
+    record.fullySynced = false; // reset
     if (schema.selectors && !isEmpty(schema.selectors)) {
       const key = `${change.recordType}-${change.recordId}`;
       const objectsFullySynced = Array.from(hospital.objectsFullySynced);
@@ -178,12 +179,15 @@ class Sync {
    *         that field. Only the fields that are updated will be sent to the database
    * @param {from, record, action, recordId, recordType, timestamp} options Options passed to the function
    */
-  _saveRecord({ record: updatedRecord, recordType }) {
+  saveRecord({ record: updatedRecord, recordType }) {
     try {
       // check if record exists
       const schema = findSchema(recordType);
       let newRecord = { _id: updatedRecord._id };
-      const currentRecord = this.database.findOne(recordType, updatedRecord._id);
+      let currentRecord = this.database.find(recordType, `_id = '${updatedRecord._id}'`);
+      if (currentRecord) {
+        [currentRecord] = currentRecord.slice(0, 1);
+      }
       const action = currentRecord ? HTTP_METHOD_TO_ACTION.PUT : HTTP_METHOD_TO_ACTION.POST;
 
       // resolve conflicts
@@ -200,9 +204,7 @@ class Sync {
       newRecord = this._serializeRelations(newRecord);
       // only add / update record if some authorized data is present
       if (Object.keys(newRecord).length > 1) {
-        this.database.write(() => {
-          this.database.create(recordType, newRecord, true);
-        });
+        this._updateRecord({ recordType, newRecord, currentRecord });
       }
     } catch (err) {
       // console.error(err);
@@ -263,6 +265,35 @@ class Sync {
                                   .value();
     }
     return newRecord;
+  }
+
+  _updateRecord({ recordType, currentRecord, newRecord }) {
+    // get new item added to `objectsFullySynced`
+    let { objectsFullySynced: oldSyncedItems } = currentRecord;
+    let { objectsFullySynced: newSyncedItems } = newRecord;
+    // parse
+    oldSyncedItems = Array.from(oldSyncedItems || []);
+    newSyncedItems = Array.from(newSyncedItems || []);
+    // write to db
+    this.database.write(() => {
+      this.database.create(recordType, newRecord, true);
+    });
+    // push newly synced items to the client
+    if (newRecord.objectsFullySynced) {
+      this._pushNewlySyncedItems({ oldSyncedItems, newSyncedItems });
+    }
+  }
+
+  _pushNewlySyncedItems({ oldSyncedItems, newSyncedItems }) {
+    const newlyAdded = difference(newSyncedItems, oldSyncedItems);
+    newlyAdded.forEach((item) => {
+      const [recordType, recordId] = item.split(/-(.+)/);
+      this.queueManager.push({
+        action: SYNC_ACTIONS.SAVE,
+        recordId,
+        recordType
+      });
+    });
   }
 
   /**
