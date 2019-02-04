@@ -1,5 +1,6 @@
 const { parseInt, padStart } = require('lodash');
 const defaults = require('./defaults');
+const { DISPLAY_ID_PLACEHOLDER, ENVIRONMENT_TYPE } = require('../constants');
 
 const PatientSchema = {
   name: 'patient',
@@ -209,8 +210,15 @@ const PatientSchema = {
       objectType: 'visit'
     },
   }, defaults),
-  beforeSave: (db, object) => {
-    if (object.displayId === '') object.displayId = _generateTempDisplayId(db);
+  beforeSave: (db, object, env) => {
+    if (object.displayId === DISPLAY_ID_PLACEHOLDER && env === ENVIRONMENT_TYPE.LAN){
+      object.displayId = _generateTempDisplayId(db);
+    }
+
+    // if (object.displayId === DISPLAY_ID_PLACEHOLDER && env === ENVIRONMENT_TYPE.SERVER){
+    //   object.displayId = _generateTempDisplayId(db);
+    // }
+
     return object;
   },
   selectors: ['displayId', 'firstName', 'lastName', 'dateOfBirth', 'sex', 'status', 'admitted']
