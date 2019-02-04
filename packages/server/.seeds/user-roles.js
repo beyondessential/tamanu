@@ -6,10 +6,21 @@ module.exports = (database) => {
     { // allow 'read' for [models]
       actions: ['read'],
       subject: ['userRole', 'user', 'view', 'role']
+    }, { // allow 'read' for [models]
+      actions: ['read'],
+      subject: ['hospital'],
+      conditions: { "_id": "${hospitalId}" }
+    }, {
+      actions: ['manage'],
+      subject: ['modifiedField']
+    }, {
+      actions: ['update'],
+      subject: ['hospital'],
+      fields: ['objectsFullySynced', 'modifiedBy', 'modifiedAt', 'modifiedFields', 'fullySynced'],
     }, { // don't allow 'delete' action for [model]
       actions: ['delete'],
       subject: [
-        'userRole', 'user', 'view', 'program', 'question', 'surveyGroup',
+        'userRole', 'user', 'view', 'program', 'question', 'surveyGroup', 'modifiedField',
         'surveyResponse', 'surveyScreenComponent', 'surveyScreen', 'survey', 'answer'
       ],
       inverted: true
@@ -52,6 +63,7 @@ module.exports = (database) => {
   ];
 
   const juniorDoctor = [
+    ...seniorDoctor,  // all abilities from `seniorDoctor`
     { // don't allow 'update' for [model]
       actions: ['update'],
       subject: ['lab', 'imaging'],
@@ -60,20 +72,20 @@ module.exports = (database) => {
     }, {
       actions: ['delete'],
       subject: ['lab', 'imaging'],
-    },  // all abilities from `seniorDoctor`
-    ...seniorDoctor
+    }
   ];
 
-  const seniorNurse = [
+  const seniorNurse = [ // all abilities from `juniorDoctor`
+  ...juniorDoctor,
     { // don't allow 'delete' for [model]
       actions: ['create'],
       subject: ['operationPlan', 'operationReport'],
       inverted: true
-    },  // all abilities from `juniorDoctor`
-    ...juniorDoctor
+    },
   ];
 
   const juniorNurse = [
+    ...baseRules,
     ...fillSurveys,
     {
       actions: ['read'],
@@ -85,6 +97,7 @@ module.exports = (database) => {
   ];
 
   const midwife = [
+    ...seniorNurse,
     {
       actions: ['create'],
       subject: ['appointment', 'diagnosis'],
@@ -94,7 +107,6 @@ module.exports = (database) => {
       subject: ['medication'],
       inverted: true
     },
-    ...seniorNurse
   ];
 
   const pharmacy = [
