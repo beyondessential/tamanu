@@ -9,6 +9,7 @@ import {
 import { to } from 'await-to-js';
 import { concatSelf } from '../utils';
 import { store } from '../store';
+import { ModifiedFieldsCollection } from '../collections';
 
 export default Backbone.AssociatedModel.extend({
   urlRoot: `${process.env.HOST}${process.env.REALM_PATH}`,
@@ -112,7 +113,7 @@ export default Backbone.AssociatedModel.extend({
     if (modifiedFields && has(defaultAttributes, 'modifiedFields')) {
       let { modifiedFields: originalModifiedFields } = attributes;
       if (!originalModifiedFields) {
-        originalModifiedFields = [];
+        originalModifiedFields = new ModifiedFieldsCollection();
       }
 
       modifiedFields.forEach(key => {

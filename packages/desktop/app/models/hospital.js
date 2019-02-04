@@ -5,7 +5,6 @@ import { store } from '../store';
 
 export default BaseModel.extend({
   initialize() {
-    console.log('-hospital-initialize-');
     const { auth } = store.getState();
     const { hospitalId } = auth;
     this.set('_id', hospitalId, { silent: true });
@@ -21,9 +20,9 @@ export default BaseModel.extend({
   relations: [
     {
       type: Backbone.Many,
-      key: 'user',
+      key: 'users',
       relatedModel: () => require('./user'),
-      serialize: '_id'
     },
+    ...BaseModel.prototype.relations
   ]
 });
