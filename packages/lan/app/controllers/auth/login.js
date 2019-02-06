@@ -30,9 +30,7 @@ internals.login = async (req, res) => {
     const doLogin = await authService.login({ email, password, hospital, clientId });
     if (doLogin !== false) {
       const { userId, hospitalId, displayName, clientSecret: secret } = doLogin;
-      const user = database.findOne('user', userId);
-      const { role } = user.roles.find(_role => _role.hospital._id === hospitalId);
-      const { abilities } = role;
+      const abilities = authService.getAbilities({ userId, hospitalId });
       return res.json({ userId, hospitalId, displayName, clientId, secret, abilities });
     }
     throw doLogin;
