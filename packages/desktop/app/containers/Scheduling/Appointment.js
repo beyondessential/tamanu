@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import moment from 'moment';
 import { has, capitalize, parseInt } from 'lodash';
 import actions from '../../actions/scheduling';
@@ -20,7 +19,9 @@ import {
   DatepickerGroup,
   SelectGroup,
   AddButton,
-  BackButton
+  UpdateButton,
+  BackButton,
+  TopBar
 } from '../../components';
 
 class Appointment extends Component {
@@ -360,13 +361,9 @@ class Appointment extends Component {
 
     return (
       <div className="create-content">
-        <div className="create-top-bar">
-          <span>
-            {`${capitalize(action)} ${surgery?'Surgical':''} Appointment`}
-          </span>
-        </div>
+        <TopBar title={`${capitalize(action)} ${surgery?'Surgical':''} Appointment`} />
         <form
-          className="create-container" 
+          className="create-container"
           onSubmit={(e) => this.submitForm(e)}
         >
           <div className="form  with-padding">
@@ -404,7 +401,16 @@ class Appointment extends Component {
             </div>
             <div className="column has-text-right">
               <BackButton to="/appointments" />
-              <AddButton disabled={!appointmentModel.isValid()} />
+              {action === 'new' && <AddButton
+                type="submit"
+                disabled={!appointmentModel.isValid()}
+                can={{ do: 'update', on: 'appointment'}}
+              />}
+              {action === 'update' && <UpdateButton
+                type="submit"
+                disabled={!appointmentModel.isValid()}
+                can={{ do: 'update', on: 'appointment'}}
+              />}
             </div>
           </div>
         </form>
@@ -435,7 +441,7 @@ function mapStateToProps(state) {
 
 const { appointment: appointmentActions } = actions;
 const { fetchAppointment, saveAppointment } = appointmentActions;
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = (dispatch) => ({
   fetchAppointment: (params) => dispatch(fetchAppointment(params)),
   saveAppointment: (params) => dispatch(saveAppointment(params)),
 });

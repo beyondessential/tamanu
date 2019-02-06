@@ -53,6 +53,7 @@ class AppointmentsTable extends Component {
           onClick={() => this.goEdit(row._id)}
           color="secondary"
           variant="contained"
+          can={{ do: 'update', on: 'appointment' }}
         >
           Edit
         </Button>
@@ -69,6 +70,7 @@ class AppointmentsTable extends Component {
           onClick={() => this.showDeleteModal(row)}
           color="primary"
           variant="outlined"
+          can={{ do: 'delete', on: 'appointment' }}
         >
           Delete
         </Button>

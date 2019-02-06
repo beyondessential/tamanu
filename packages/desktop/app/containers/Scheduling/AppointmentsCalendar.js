@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { isEmpty, has, head, last } from 'lodash';
 import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
-import Button from '@material-ui/core/Button';
 import actions from '../../actions/scheduling';
 import FiltersForm from './components/FiltersForm';
 import { dbViews } from '../../constants';
+import { TopBar } from '../../components';
 
 BigCalendar.momentLocalizer(moment);
 
@@ -102,28 +101,19 @@ class AppointmentsCalendar extends Component {
 
     return (
       <div className="create-content">
-        <div className="create-top-bar">
-          <span>
-            {!theatre ? 'Appointments Calendar': 'Theatre Schedule'}
-          </span>
-          <div className="view-action-buttons p-t-10">
-            <Button
-              color="primary"
-              variant='outlined'
-              className="m-r-5"
-              component={props => <Link to={`/appointments/${!theatre ? 'appointment' : 'surgery'}/new`} {...props} />}
-            >
-              New Appointment
-            </Button>
-            <Button
-              color="primary"
-              variant={filtersOn ? 'contained' : 'outlined'}
-              onClick={() => this.setState({ filtersOn: !filtersOn })}
-            >
-              Filters
-            </Button>
-          </div>
-        </div>
+        <TopBar
+          title={!theatre ? 'Appointments Calendar': 'Theatre Schedule'}
+          buttons={{
+            to: `/appointments/${!theatre ? 'appointment' : 'surgery'}/new`,
+            can: { do: 'create', on: 'appointment' },
+            children: 'New Appointment'
+          }}
+          buttonsSecondary={{
+            variant: (filtersOn ? 'contained' : 'outlined'),
+            children: 'Filters',
+            onClick: () => this.setState({ filtersOn: !filtersOn }),
+          }}
+        />
         <div className="create-container" >
           <div className="form with-padding">
             <FiltersForm
