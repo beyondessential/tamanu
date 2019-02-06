@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { find, isEmpty, startsWith } from 'lodash';
-import { withRouter } from 'react-router-dom';
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -18,6 +17,7 @@ import styled from 'styled-components';
 import { sidebarInfo } from '../constants';
 import { ProgramsCollection } from '../collections';
 import actions from '../actions/auth';
+import { checkAbility } from '../utils/ability-context';
 
 import { logoutIcon } from '../constants/images';
 import { TamanuLogo } from './TamanuLogo';
@@ -70,7 +70,7 @@ const LogoutItem = ({ onClick }) => (
   </ListItem>
 );
 
-const PrimarySidebarItem = ({ item, selected, onClick }) => (
+const PrimarySidebarItem = ({ item, ability: parentAbility, selected, onClick }) => (
   <React.Fragment>
     <ListItem button onClick={ onClick } selected={selected}>
       <SidebarPrimaryIcon src={item.icon} />
@@ -79,30 +79,38 @@ const PrimarySidebarItem = ({ item, selected, onClick }) => (
     <Collapse in={selected} timeout="auto" unmountOnExit>
       <List component="div" disablePadding>
         {item.children.map(child => (
-          <SecondarySidebarItem item={ child } key={ child.path } />
+          <SecondarySidebarItem
+            item={ child }
+            key={ child.path }
+            parentAbility={parentAbility}
+          />
         ))}
       </List>
     </Collapse>
   </React.Fragment>
 );
 
-const SecondarySidebarItem = withRouter(({ item, location }) => (
-  <ListItem 
+const SecondarySidebarItem = withRouter(({ item, location, parentAbility }) => {
+  const ability = { ...parentAbility, ...(item.ability || {}) };
+  const { action, subject } = ability;
+  let allowed = false;
+  if (action && subject) {
+    allowed = checkAbility({ action, subject });
+  }
+  return <ListItem
     button
-    component={ Link } 
+    component={ Link }
     to={ item.path }
     selected={ item.path === location.pathname }
+    disabled={!allowed}
+    replace={ item.path === location.pathname }
   >
     <i className={ item.icon } />
     <SidebarItemText disableTypography primary={item.label} />
   </ListItem>
-));
+});
 
 class Sidebar extends Component {
-  static propTypes = {
-    currentPath: PropTypes.string.isRequired
-  }
-
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
@@ -144,7 +152,7 @@ class Sidebar extends Component {
     this.forceUpdate();
   }
 
-  clickedParentItem = ({ label, key }, event) => {
+  clickedParentItem = ({ label, key }) => {
     const { selectedParentItem } = this.state;
     if (selectedParentItem !== key) {
       this.setState({
@@ -159,19 +167,18 @@ class Sidebar extends Component {
 
   render() {
     const { selectedParentItem } = this.state;
-    const { currentPath, displayName } = this.props;
     return (
       <SidebarContainer>
         <SidebarMenuContainer>
           <List component="nav">
             {
-              sidebarInfo.map((item, index) => {
-                const pathSegment = item.path.split('/');
-                const selected = startsWith(currentPath, `/${pathSegment[1]}`);
+              sidebarInfo.map((item) => {
+                const { ability = {} } = item;
                 return (
-                  <PrimarySidebarItem 
+                  <PrimarySidebarItem
                     item={item}
                     key={item.key}
+                    ability={ability}
                     selected={selectedParentItem === item.key}
                     onClick={() => this.clickedParentItem(item)}
                   />
@@ -201,7 +208,7 @@ function mapStateToProps(state) {
   return { userId, displayName, currentPath, programsCollection };
 }
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = (dispatch, his) => ({
   logout: (params) => dispatch(logout(params)),
 });
 
