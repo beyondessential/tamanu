@@ -1,27 +1,56 @@
 import Backbone from 'backbone-associations';
 import moment from 'moment';
 import jsonDiff from 'json-diff';
-import { isString, assignIn, isEmpty, clone, each, set, isObject, has, head, isArray } from 'lodash';
+import shortid from 'shortid';
+import {
+  isString, assignIn, isEmpty, clone, each,
+  set, isObject, has, head, isArray
+} from 'lodash';
 import { to } from 'await-to-js';
 import { concatSelf } from '../utils';
+import { store } from '../store';
+import { ModifiedFieldsCollection } from '../collections';
 
 export default Backbone.AssociatedModel.extend({
+  urlRoot: `${process.env.HOST}${process.env.REALM_PATH}`,
   idAttribute: '_id',
   lastSyncedAttributes: {},
-  // urlRoot: process.env.LAN_REALM,
 
   constructor(attributes, options) {
-    if (isArray(attributes)) attributes = head(attributes);
-    if (!isEmpty(attributes) && has(attributes, '_id')) this.lastSyncedAttributes = attributes;
-    Backbone.AssociatedModel.apply(this, [attributes, options]);
+    let newAttributes = clone(attributes);
+    if (isArray(newAttributes)) newAttributes = head(newAttributes);
+    // if (!isEmpty(newAttributes) && has(newAttributes, '_id')) this.lastSyncedAttributes = newAttributes;
+    Backbone.AssociatedModel.apply(this, [newAttributes, options]);
     this._parseParents();
   },
 
   defaults: {
-    modifiedFields: {},
+    modifiedFields: [],
+    createdBy: null,
     createdAt: moment(),
+    modifiedBy: '',
     modifiedAt: null,
   },
+
+  // Associations
+  relations: [
+    {
+      type: Backbone.Many,
+      key: 'modifiedFields',
+      relatedModel: () => require('./modifiedField'),
+      // serialize: '_id'
+    }, {
+      type: Backbone.One,
+      key: 'createdBy',
+      relatedModel: () => require('./user'),
+      serialize: '_id',
+    }, {
+      type: Backbone.One,
+      key: 'modifiedBy',
+      relatedModel: () => require('./user'),
+      serialize: '_id'
+    },
+  ],
 
   /**
    * Override backbone's default fetch method to record `lastSyncedAttributes`
@@ -30,12 +59,12 @@ export default Backbone.AssociatedModel.extend({
   async fetch(options) {
     try {
       const res = await Backbone.Model.prototype.fetch.apply(this, [options]);
-      this.lastSyncedAttributes = this.toJSON();
+      this.lastSyncedAttributes =  this.toJSON();
       this._parseParents();
       return res;
     } catch (err) {
-      console.error(err);
-      return this.previousAttributes();
+      console.error(`Error: ${err}`);
+      return Promise.reject(err);
     }
   },
 
@@ -46,75 +75,80 @@ export default Backbone.AssociatedModel.extend({
    */
   async save(attrs = {}, options = {}) {
     try {
-      let attributes = attrs || {};
-      if (!this.isNew()) attributes = {};
+      const ModifiedFieldModel = require('./modifiedField');
+      const { auth } = store.getState();
+      let { secret } = auth;
+      secret = btoa(secret);
+
+      // let attributes = attrs || {};
+      if (!isEmpty(attrs)) this.set(attrs, { silent: true });
+      const { attributes } = this;
+      let modifiedAttributes = {};
+      const defaultAttributes = this.defaults() || this.defaults;
+      if (this.isNew()) this.lastSyncedAttributes = defaultAttributes;
+
       let modifiedFields = jsonDiff.diff(this.lastSyncedAttributes, this.toJSON());
+      modifiedFields = Object.keys(modifiedFields).map(field => field.split('__')[0]);
 
       // Set last modified times
-      if (modifiedFields) {
-        let originalModified = {};
-        if (this.attributes.modifiedFields !== '' && isString(this.attributes.modifiedFields))
-          originalModified = JSON.parse(this.attributes.modifiedFields);
-
-        each(modifiedFields, (_, key) => {
-          if (has(this.defaults(), key)) {
-            modifiedFields[key] = new Date().getTime();
-            if (!this.isNew()) {
-              let value = this.get(key);
-              if (value.toJSON) value = value.toJSON();
-              attributes[key] = value;
-            }
-          } else {
-            delete modifiedFields[key];
-          }
-        })
-        modifiedFields = assignIn(originalModified, modifiedFields);
-        modifiedFields = JSON.stringify(modifiedFields);
-        attributes = Object.assign(attributes, {
-          modifiedFields,
-          modifiedAt: moment(),
-        });
-      }
+      modifiedAttributes = this._setModifiedFields({ modifiedFields, defaultAttributes, attributes, ModifiedFieldModel, secret, modifiedAttributes });
 
       // Use match method for instead of PUT
       if (!this.isNew()) options.patch = true;
 
       // Proxy the call to the original save function
-      const res = await Backbone.Model.prototype.save.apply(this, [attributes, options]);
+      const res = await Backbone.Model.prototype.save.apply(this, [modifiedAttributes, options]);
       this.lastSyncedAttributes = this.toJSON();
       return res;
     } catch (err) {
-      console.error(err);
-      return this.previousAttributes();
+      console.error(`Error: ${err}`);
+      return Promise.reject(err);
     }
   },
 
-  // fetch(options) {
-  //   return new Promise(async (resolve, reject) => {
-  //     const { relations } = this;
-  //     if (!options) options = {};
-  //     // Proxy the call to the original save function
-  //     const [error, res] = await to(Backbone.Model.prototype.fetch.apply(this, [options]));
-  //     if (error) return reject(error);
-  //     // Fetch all the relations
-  //     if (options.relations && !isEmpty(relations)) {
-  //       try {
-  //         const tasks = relations.map((relation) => {
-  //           if ((isArray(options.relations) && options.relations.includes(relation.key)) || options.relations === true)
-  //             return this.fetchRelations(Object.assign({ relation, deep: true }, options));
-  //         });
-  //         await Promise.all(tasks);
-  //         setTimeout(() => this.trigger('change'), 100);
-  //         resolve(res);
-  //       } catch (err) {
-  //         reject(err);
-  //       }
-  //     } else {
-  //       setTimeout(() => this.trigger('change'), 100);
-  //       resolve(res);
-  //     }
-  //   });
-  // },
+  _setModifiedFields({ modifiedFields, defaultAttributes, attributes, ModifiedFieldModel, secret, modifiedAttributes }) {
+    let modifiedAttributesNew = modifiedAttributes;
+
+    // if modified field is a default attribute
+    if (modifiedFields && has(defaultAttributes, 'modifiedFields')) {
+      let { modifiedFields: originalModifiedFields } = attributes;
+      if (!originalModifiedFields) {
+        originalModifiedFields = new ModifiedFieldsCollection();
+      }
+
+      modifiedFields.forEach(key => {
+        if (has(defaultAttributes, key)) {
+          const _id = `${this.id || shortid.generate()}-${key}`;
+          const _model = new ModifiedFieldModel({
+            _id,
+            token: secret,
+            field: key,
+            time: new Date().getTime()
+          });
+          originalModifiedFields.set([_model], { remove: false });
+          // Set new value
+          let value = this.get(key);
+          if (value && typeof value.toJSON === 'function')
+            value = value.toJSON();
+          modifiedAttributesNew[key] = value;
+        }
+      });
+
+      modifiedAttributesNew = { ...modifiedAttributesNew, modifiedFields: originalModifiedFields };
+    } else if (!has(defaultAttributes, 'modifiedFields')) {
+      modifiedAttributesNew = attributes;
+    }
+    return modifiedAttributesNew;
+  },
+
+
+  toJSON() {
+    const json = Backbone.AssociatedModel.prototype.toJSON.call(this);
+    each(json, (field, key) => {
+      if (field instanceof moment) json[key] = field.format();
+    });
+    return json;
+  },
 
   fetchRelations(options) { //
     return new Promise(async (resolve, reject) => {
@@ -135,7 +169,6 @@ export default Backbone.AssociatedModel.extend({
           resolve();
         }
       } else {
-        // console.log({ type }, relation.key, this.attributes[relation.key]);
         const model = this.attributes[relation.key];
         if (model) {
           const [err] = await to(model.fetch());
@@ -146,42 +179,15 @@ export default Backbone.AssociatedModel.extend({
     });
   },
 
-  toJSON() {
-    const attributes = clone(this.attributes);
-
-    // Convert dated to string
-    each(attributes, (value, key) => {
-      if (value instanceof moment) attributes[key] = value.toISOString();
-    })
-
-    // Add relations
-    const { relations } = this;
-    if (!isEmpty(relations)) {
-      relations.forEach((relation) => {
-        const relationCol = this.get(relation.key);
-        if (typeof relationCol !== 'undefined' && isObject(relationCol)) {
-          if (relation.type === 'Many') {
-            const data = relationCol.models.map((m) => m.toJSON());
-            set(attributes, relation.key, data);
-          } else if (relation.type === 'One') {
-            const { id } = relationCol;
-            set(attributes, relation.key, relationCol.toJSON());
-          } else {
-            throw new Error('Invalid relation type!');
-          }
-        }
-      });
-    }
-    return attributes;
-  },
-
   _parseParents() {
     const parents = [];
     if (typeof this.reverseRelations === 'object') {
       const reverse = this.reverseRelations;
       reverse.forEach(({ key, model: Model }) => {
         if (!parents[key]) parents[key] = [];
-        if (has(this.attributes, key) && this.attributes[key]) concatSelf(parents[key], this.attributes[key].map(record => new Model(record)));
+        if (has(this.attributes, key) && this.attributes[key]) {
+          concatSelf(parents[key], this.attributes[key].map(record => new Model(record)));
+        }
       });
     }
 

@@ -23,20 +23,24 @@ internals.validateBody = [
 
 internals.login = async (req, res) => {
   const database = req.app.get('realm');
-  const { email, password, clientId } = req.body;
-  const authService = new AuthService(database);
-  const doLogin = await authService.login({ email, password, clientId });
-  if (doLogin !== false) {
-    return res.json({
-      userId: doLogin.userId,
-      clientId: doLogin.clientId,
-      clientSecret: doLogin.clientSecret,
-    });
-  }
+  const { email, password, hospital, clientId, firstTimeLogin } = req.body;
 
-  return res.status(401).json({
-    error: 'Invalid email or password entered.'
-  });
+  try {
+    const authService = new AuthService(database);
+    const doLogin = await authService.login({
+      email,
+      password,
+      hospital,
+      clientId,
+      firstTimeLogin
+    });
+    if (doLogin !== false) {
+      return res.json(doLogin);
+    }
+    throw doLogin;
+  } catch (err) {
+    return res.status(404).send(err.toString());
+  }
 };
 
 module.exports = [

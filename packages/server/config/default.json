@@ -6,5 +6,6 @@
     "path": "/realm-sync",
     "channelIn": "realm-local-online",
     "channelOut": "realm-online-local"
-  }
+  },
+  "sessionTimeout": 1209600000
 }

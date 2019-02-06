@@ -55,9 +55,8 @@ const run = async () => {
         dbPath = `${process.env.DB_BASE_PATH}/${envType}-${branch}`;
       }
 
-      console.log('dbPath', dbPath);
-
       // Connect database
+      console.log(`Database path: ${dbPath}`);
       const database = new Database({
         path: `${dbPath}/main.realm`,
         schema: schemas,

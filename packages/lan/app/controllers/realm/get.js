@@ -1,6 +1,7 @@
-const { objectToJSON } = require('../../utils');
-const { parseInt, ceil, each, head, isEmpty } = require('lodash');
+const { parseInt, ceil, head, isEmpty, has } = require('lodash');
 const moment = require('moment');
+const { objectToJSON } = require('../../utils');
+const { SYNC_ACTIONS } = require('../../constants');
 
 module.exports = (req, res) => {
   const realm = req.app.get('database');
@@ -29,6 +30,7 @@ module.exports = (req, res) => {
       if (id) {
         objects = objects.filtered(`_id = '${id}'`);
         if (objects.length <= 0) return res.status(404).end();
+        // Get first item from the list
         const object = objectToJSON(head(objects));
         return res.json(object);
       }
@@ -83,6 +85,7 @@ module.exports = (req, res) => {
       return res.send(response);
     });
   } catch (err) {
+    console.error(err);
     return res.status(500).send(err.toString());
   }
 };

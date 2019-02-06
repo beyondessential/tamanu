@@ -3,7 +3,7 @@ import BaseModel from './base';
 
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/lab`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/lab`,
   defaults: () => defaults({
       labDate: Date,
       notes: null,

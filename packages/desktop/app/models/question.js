@@ -3,7 +3,7 @@ import Backbone from 'backbone-associations';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/question`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/question`,
   defaults: () => defaults({
       text: null,
       indicator: null,
@@ -22,9 +22,8 @@ export default BaseModel.extend({
       type: Backbone.One,
       key: 'surveyGroupId',
       relatedModel: require('./surveyGroup'),
-      // map: (values) => mapRelations(values, require('./surveyGroup')),
-      // serialize: '_id'
-    }
+    },
+    ...BaseModel.prototype.relations
   ],
 
   isHeader() {

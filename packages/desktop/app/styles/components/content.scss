@@ -493,6 +493,15 @@
   }
 }
 
+a.icon-link,
+a.icon-link:active,
+a.icon-link:hover {
+  display: block;
+  opacity: 1 !important;
+  float: left;
+  color: #555
+}
+
 .autocomplete-dropmenu {
   position: fixed;
   z-index: 99;

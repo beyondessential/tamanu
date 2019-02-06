@@ -13,6 +13,7 @@
         "no-multi-spaces": "off",
         "no-param-reassign": "off",
         "object-curly-newline": "off",
-        "comma-dangle": "off"
+        "comma-dangle": "off",
+        "class-methods-use-this": "off"
     }
 }

@@ -24,7 +24,6 @@ const AppContentsContainer = styled.div`
 class App extends Component{
   state = {
     userId: null,
-    loading: true,
   }
 
   componentWillMount() {
@@ -36,14 +35,16 @@ class App extends Component{
   }
 
   handleChange(props = this.props) {
-    console.log({ props });
+    const { userId, secret } = props;
+    this.setState({ userId, secret });
   }
 
   renderAppContents() {
-    if(!this.props.userId) {
-      return <Login loginSubmit={this.props.login} />;
+    const { userId, secret } = this.state;
+    if (!userId || !secret) {
+      return <Login { ...this.props } />;
     }
-      
+
     return (
       <AppContainer>
         <Sidebar />
@@ -55,7 +56,6 @@ class App extends Component{
   }
 
   render() {
-    const { userId, children } = this.props;
     return (
       <div>
         { this.renderAppContents() }
@@ -69,11 +69,11 @@ class App extends Component{
 }
 
 function mapStateToProps(state) {
-  const { userId, loading } = state.auth;
-  return { userId, loading };
+  const { userId, secret, history } = state.auth;
+  return { userId, secret, history };
 }
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = (dispatch) => ({
   login: (params) => dispatch(login(params)),
 });
 

@@ -1,7 +1,10 @@
 const Realm = require('realm');
+const config = require('config');
 const shortId = require('shortid');
+const { has, head } = require('lodash');
 const Settings = require('./settings');
-const { has } = require('lodash');
+const { schemas, version: schemaVersion } = require('../../../shared/schemas');
+const { SYNC_ACTIONS } = require('../constants');
 
 class Database extends Realm {
   constructor(...props) {
@@ -23,7 +26,7 @@ class Database extends Realm {
 
     if (update) objectWithId.modifiedAt = new Date();
     const result = super.create(type, objectWithId, update);
-    if (!silent) this._alertListeners('SAVE', type, result);
+    if (!silent) this._alertListeners(SYNC_ACTIONS.SAVE, type, result);
     return result;
   }
 
@@ -35,7 +38,7 @@ class Database extends Realm {
     };
 
     const result = super.update(type, objectWithId);
-    if (!silent) this._alertListeners('SAVE', type, result);
+    if (!silent) this._alertListeners(SYNC_ACTIONS.SAVE, type, result);
     return result;
   }
 
@@ -62,7 +65,7 @@ class Database extends Realm {
       const type = schema.name;
       const record = { _id: obj._id }; // If it is being deleted, only alert with the id
       if (obj && obj.destructor instanceof Function) obj.destructor(this);
-      if (!silent) this._alertListeners('REMOVE', type, record);
+      if (!silent) this._alertListeners(SYNC_ACTIONS.REMOVE, type, record);
     });
 
     // Actually delete the objects from the database
@@ -76,7 +79,7 @@ class Database extends Realm {
    */
   deleteAll(...listenerArgs) {
     super.deleteAll();
-    this.alertListeners('WIPE', ...listenerArgs);
+    this.alertListeners(SYNC_ACTIONS.WIPE, ...listenerArgs);
   }
 
   /**
@@ -134,8 +137,10 @@ class Database extends Realm {
   findOne(type, searchKey, searchKeyField = '_id') {
     if (!searchKey || searchKey.length < 1) throw new Error('Cannot find without a search key');
     const results = super.objects(type).filtered(`${searchKeyField} == $0`, searchKey);
-    if (results.length > 0) return results[0];
-    return null;
+    return head(results);
+    // console.log()
+    // if (results.length > 0) return results[0];
+    // return null;
   }
 
   find(type, condition = '') {
@@ -175,4 +180,10 @@ class Database extends Realm {
   }
 }
 
-module.exports = Database;
+const database = new Database({
+  path: `./data/${config.db.name}.realm`,
+  schema: schemas,
+  schemaVersion
+});
+
+module.exports = database;

@@ -12,17 +12,19 @@ export default {
   }),
   [AUTH_LOGIN_SUCCESS]: ({
     userId,
+    hospitalId,
     displayName,
     email,
     secret,
-    permissions
+    abilities
    }, state) => ({
     ...state,
     userId,
+    hospitalId,
     displayName,
     email,
     secret,
-    permissions,
+    abilities,
     loading: false
   }),
   [AUTH_LOGIN_FAILED]: ({ error }, state) => ({
@@ -33,8 +35,11 @@ export default {
   [AUTH_LOGOUT]: (_, state) => ({
     ...state,
     userId: null,
+    hospitalId: null,
     displayName: '',
-    secret: '',
+    email: '',
+    secret: null,
+    abilities: {},
     loading: false
   }),
 };

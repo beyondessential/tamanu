@@ -3,7 +3,7 @@ import moment from 'moment';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/note`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/note`,
   defaults: () => defaults({
       attribution: '',
       content: '',

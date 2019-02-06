@@ -3,7 +3,7 @@ import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/operationReport`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/operationReport`,
   defaults: () => defaults({
       additionalNotes: null,
       caseComplexity: null,
@@ -23,16 +23,13 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'preOpDiagnoses',
       relatedModel: require('./diagnosis'),
-      // map: (values) => mapRelations(values, require('./diagnosis')),
-      // serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'postOpDiagnoses',
       relatedModel: require('./diagnosis'),
-      // map: (values) => mapRelations(values, require('./diagnosis')),
-      // serialize: '_id'
-    }
+    },
+    ...BaseModel.prototype.relations
   ]
 
   // validate: (attrs) => {

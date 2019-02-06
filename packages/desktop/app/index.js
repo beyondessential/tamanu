@@ -1,22 +1,27 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
+import { persistReducer } from 'redux-persist';
+import BackboneSync from './utils/backbone-sync';
 import Root from './containers/Root';
-import { configureStore, history } from './store/configureStore';
+import {
+  store,
+  persistor,
+  persistConfig,
+  history
+} from './store';
 import './styles/app.global.scss';
-// import dbService from './services/database';
-// import configService from './services/config';
 
 (async () => {
-  // await dbService.createDB();
-  // await configService.setup();
-  // dbService.setup();
-
-  const store = configureStore();
+  BackboneSync(store);
 
   render(
     <AppContainer>
-      <Root store={store} history={history} />
+      <Root
+        persistor={persistor}
+        store={store}
+        history={history}
+      />
     </AppContainer>,
     document.getElementById('root')
   );
@@ -24,9 +29,15 @@ import './styles/app.global.scss';
   if (module.hot) {
     module.hot.accept('./containers/Root', () => {
       const NextRoot = require('./containers/Root'); // eslint-disable-line global-require
+      store.replaceReducer(
+        persistReducer(persistConfig, NextRoot)
+      )
       render(
         <AppContainer>
-          <NextRoot store={store} history={history} />
+          <NextRoot
+            store={store}
+            history={history}
+          />
         </AppContainer>,
         document.getElementById('root')
       );

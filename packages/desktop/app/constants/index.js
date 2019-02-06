@@ -12,6 +12,10 @@ import {
 
 import { availableReports } from '../containers/Reports/dummyReports';
 
+export const REMEMBER_EMAIL_KEY = 'remember-email';
+
+export const DISPLAY_ID_PLACEHOLDER = '-TMP-';
+
 export const Colors = {
   searchTintColor: '#d2dae3',
   white: '#ffffff'
@@ -415,8 +419,12 @@ export const patientColumns = [
     accessor: 'displayId',
     Header: 'Id',
     headerStyle,
-    style: columnStyle,
-    minWidth: 80
+    style: {
+      ...columnStyle,
+      justifyContent: 'left'
+    },
+    minWidth: 80,
+    Cell: () => {}
   }, {
     accessor: 'firstName',
     Header: 'First Name',
@@ -449,13 +457,12 @@ export const patientColumns = [
     style: columnStyle,
     minWidth: 80
   }, {
-    accessor: 'actiomns',
     id: 'actions',
     Header: 'Actions',
     headerStyle,
     style: columnStyle,
     minWidth: 250,
-    Cell: {}
+    Cell: () => {}
   }
 ];
 

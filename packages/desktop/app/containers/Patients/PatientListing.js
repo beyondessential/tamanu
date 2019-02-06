@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { map, isEmpty, toUpper, capitalize, head } from 'lodash';
+import { map, isEmpty, head } from 'lodash';
 import ReactTable from 'react-table';
+import { toast } from 'react-toastify';
 
-import { PatientSearchBar } from '../../components';
-import { Colors, pageSizes, patientColumns } from '../../constants';
+import { PatientSearchBar, Button, SyncIconButton } from '../../components';
+import { pageSizes, patientColumns } from '../../constants';
 import { PatientsCollection } from '../../collections';
-
-import { Button } from '../../components/Button';
+import { HospitalModel } from '../../models';
 
 class PatientListing extends Component {
   constructor(props) {
@@ -26,7 +26,8 @@ class PatientListing extends Component {
     loading: true,
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    patientColumns[0].Cell = this.setSyncStatus;
     patientColumns[patientColumns.length - 1].Cell = this.setActionsColumn;
     this.props.collection.on('update', this.handleChange());
   }
@@ -97,6 +98,62 @@ class PatientListing extends Component {
     } catch (err) {
       this.setState({ loading: false });
       console.error(err);
+    }
+  }
+
+  setSyncStatus = _row => {
+    const row = _row.original;
+    return (
+      <div key={row._id}>
+        {!row.fullySynced &&
+          this._drawSyncBtn(row, _row.value)
+        }
+
+        {row.fullySynced &&
+          this._drawSyncedIcon(_row.value)
+        }
+      </div>
+    );
+  }
+
+  _drawSyncBtn = (row, text) => {
+    return <React.Fragment>
+      <SyncIconButton
+        onClick={(e) => {
+          e.preventDefault();
+          this.syncItem(row);
+        }} />
+      <span> {text} </span>
+    </React.Fragment>;
+  }
+
+  _drawSyncedIcon = (text) => {
+    return <React.Fragment>
+      <SyncIconButton disabled />
+      <span> {text} </span>
+    </React.Fragment>;
+  }
+
+  syncItem = async ({ _id }) => {
+    try {
+      // fetch hospitals info
+      const key = `patient-${_id}`;
+      const hospitalModel = new HospitalModel();
+      await hospitalModel.fetch();
+      const hospital = hospitalModel.toJSON();
+      // attach the object
+      const objectsFullySynced = hospital.objectsFullySynced.splice(0);
+      if (!objectsFullySynced.includes(key)) {
+        objectsFullySynced.push(key);
+        hospitalModel.set('objectsFullySynced', objectsFullySynced, { silent: true });
+        await hospitalModel.save();
+        toast('Item added to the queue.', { type: toast.TYPE.SUCCESS });
+      } else {
+        toast('Item already in queue!', { type: toast.TYPE.WARNING });
+      }
+    } catch (e) {
+      console.error(e);
+      toast('Something west wrong, please try again later.', { type: toast.TYPE.ERROR });
     }
   }
 

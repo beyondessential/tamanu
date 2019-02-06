@@ -5,14 +5,17 @@
   "main": "NODE_ENV='development' index.js",
   "bin": "index.js",
   "pkg": {
-    "assets": ["../shared/**/*", "config", "node_modules/config"]
+    "assets": [
+      "../shared/**/*",
+      "config",
+      "node_modules/config"
+    ]
   },
   "scripts": {
-    "start": "node index.js",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
-    "test:watch": "npm test -- --watch",
-    "build": "pkg . --targets node10-win-x64 --output ./release/server.exe --debug | grep config",
+    "start": "pm2 start pm2.json && pm2 logs tamanu-lan",
+    "restart": "pm2 restart tamanu-lan & pm2 logs tamanu-lan",
+    "stop": "pm2 stop tamanu-lan",
+    "build": "pkg . --targets node10-win-x64 --output ./release/server.exe",
     "package": "./scripts/package.sh"
   },
   "repository": {
@@ -38,7 +41,9 @@
     "supertest": "^3.0.0"
   },
   "dependencies": {
+    "@casl/ability": "^2.5.1",
     "await-to-js": "^2.0.1",
+    "basic-auth": "^2.0.1",
     "bcrypt": "^3.0.1",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",
@@ -47,19 +52,20 @@
     "connect-flash": "^0.1.1",
     "cross-var": "^1.1.0",
     "express": "^4.16.2",
-    "express-basic-auth": "^1.1.5",
     "express-session": "^1.15.6",
     "express-validator": "^5.1.0",
     "faye": "^1.2.4",
     "follow": "^1.1.0",
     "json-prune": "^1.1.0",
+    "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.5",
     "moment": "^2.21.0",
     "morgan": "^1.9.0",
     "os-service": "^2.1.3",
-    "prompt": "^1.0.0",
+    "prompts": "^2.0.0",
     "realm": "^2.17.0",
     "request": "^2.88.0",
+    "request-promise": "^4.2.2",
     "shortid": "^2.2.13",
     "uuid": "^3.3.2"
   }

@@ -4,7 +4,7 @@ import { keys, set, isEmpty, isArray } from 'lodash';
 require('backbone.paginator');
 
 export default Backbone.PageableCollection.extend({
-  url: process.env.LAN_REALM,
+  url: `${process.env.HOST}${process.env.REALM_PATH}`,
   state: {
     firstPage: 0,
     currentPage: 0,

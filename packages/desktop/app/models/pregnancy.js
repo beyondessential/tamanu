@@ -3,7 +3,7 @@ import { defaults, clone } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/pregnancy`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/pregnancy`,
   defaults: () => defaults({
       conceiveDate: Date, // estimated
       deliveryDate: Date, // estimated
@@ -21,23 +21,18 @@ export default BaseModel.extend({
       type: Backbone.One,
       key: 'child',
       relatedModel: require('./patient'),
-      // map: (values) => mapRelations(values, require('./patient')),
-      // serialize: '_id'
     },
     {
       type: Backbone.One,
       key: 'father',
       relatedModel: require('./patient'),
-      // map: (values) => mapRelations(values, require('./patient')),
-      // serialize: '_id'
     },
     {
       type: Backbone.Many,
       key: 'surveyResponses',
       relatedModel: () => require('./surveyResponse'),
-      // map: (values) => mapRelations(values, require('./surveyResponse')),
-      // serialize: '_id'
     },
+    ...BaseModel.prototype.relations
   ],
 
   cloneAttributes() {

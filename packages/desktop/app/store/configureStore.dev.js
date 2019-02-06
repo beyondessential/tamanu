@@ -1,5 +1,8 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
+import { persistStore, persistReducer } from 'redux-persist'
+import storage from 'redux-persist/lib/storage';
+import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 import { createHashHistory } from 'history';
 import { routerMiddleware, routerActions } from 'react-router-redux';
 import { createLogger } from 'redux-logger';
@@ -53,7 +56,15 @@ const configureStore = (initialState?: counterStateType) => {
   const enhancer = composeEnhancers(...enhancers);
 
   // Create Store
-  const store = createStore(rootReducer, initialState, enhancer);
+  const persistConfig = {
+    key: 'tamanu',
+    storage,
+    stateReconciler: autoMergeLevel2,
+    whitelist: ['auth'],
+    debug: true,
+  };
+  const persistedReducer = persistReducer(persistConfig, rootReducer);
+  const store = createStore(persistedReducer, initialState, enhancer);
 
   if (module.hot) {
     module.hot.accept(
@@ -62,7 +73,8 @@ const configureStore = (initialState?: counterStateType) => {
     );
   }
 
-  return store;
+  const persistor = persistStore(store);
+  return { store, persistor, persistConfig };
 };
 
 export default { configureStore, history };

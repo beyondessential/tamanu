@@ -4,10 +4,11 @@ import login from './login';
 const stateChanges = { ...login };
 const initialState = {
   userId: null,
+  hospitalId: null,
   displayName: '',
   email: '',
   secret: '',
-  permissions: {},
+  abilities: {},
 };
 
 export default (state = initialState, action) => {

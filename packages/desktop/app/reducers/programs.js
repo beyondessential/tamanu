@@ -12,7 +12,6 @@ import {
   SURVEY_SUBMIT_SUCCESS,
   UPDATE_SURVEYS,
   WIPE_CURRENT_SURVEY,
-  LOGIN_REQUEST,
   LOAD_SURVEYS_REQUEST,
   LOAD_SURVEYS_SUCCESS,
   LOAD_SURVEYS_FAILED,
@@ -25,10 +24,6 @@ import {
   LOAD_RESPONSE_FAILED,
 } from '../actions/types';
 
-import { SurveyModel } from '../models';
-
-const surveyModel = new SurveyModel();
-
 const initialState = {
   surveys: [],
   responses: [],
@@ -39,7 +34,7 @@ const initialState = {
   completedSurveys: [],
   questions: {},
   answers: {},
-  survey: Object.assign({}, surveyModel.attributes),
+  survey: {},
   currentScreenIndex: -1,
   screens: null,
   selectedClinic: null,
@@ -153,36 +148,7 @@ const stateChanges = {
     ...state,
     loading: false,
     error,
-  }),
-
-
-
-  // ---  ---  --- //
-
-  [VALIDATION_ERROR_CHANGE]: ({ screenIndex, componentIndex, validationErrorMessage }, state) =>
-    updateComponentState(state, screenIndex, componentIndex, (component) => {
-      if (component.hasOwnProperty('validationErrorMessage') || validationErrorMessage) {
-        component.validationErrorMessage = validationErrorMessage;
-      }
-      return component;
-    }),
-  [ASSESSMENT_CLINIC_SELECT]: ({ selectedClinic }, state) => ({ ...state, selectedClinic }),
-  [ASSESSMENT_RESET]: () => initialState,
-  [SURVEY_SCREEN_ERROR_MESSAGE_CHANGE]: ({ message, screenIndex }, state) => {
-    const screens = [...state.screens];
-    screens[screenIndex].errorMessage = message;
-    return { ...state, screens };
-  },
-  [UPDATE_SURVEYS]: ({ surveys }, state) => ({ ...state, surveys }),
-  [WIPE_CURRENT_SURVEY]: (_, state) => ({
-    ...state,
-    answers: initialState.answers,
-    questions: initialState.questions,
-    screens: initialState.screens,
-    currentScreenIndex: initialState.currentScreenIndex,
-    isSurveyInProgress: false,
-  }),
-  [LOGIN_REQUEST]: (_, state) => ({ ...state, selectedClinic: initialState.selectedClinic }),
+  })
 };
 
 export default (state = initialState, action) => {

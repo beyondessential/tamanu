@@ -4,7 +4,7 @@ import moment from 'moment';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/procedure`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/procedure`,
   defaults: () => defaults({
     anesthesiaType: '',
     anesthesiologist: '',
@@ -27,9 +27,8 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'medication',
       relatedModel: () => require('./procedureMedication'),
-      // map: (values) => mapRelations(values, require('./procedureMedication')),
-      // serialize: '_id'
     },
+    ...BaseModel.prototype.relations
   ],
 
   validate: (attrs) => {

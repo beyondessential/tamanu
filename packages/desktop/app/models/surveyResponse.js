@@ -3,7 +3,7 @@ import Backbone from 'backbone-associations';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/surveyResponse`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/surveyResponse`,
   defaults: () => defaults({
       surveyId: '',
       patientId: '',
@@ -24,22 +24,7 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'answers',
       relatedModel: require('./answer'),
-      // map: (values) => mapRelations(values, require('./answer')),
-      // serialize: '_id'
     },
-    // {
-    //   type: Backbone.One,
-    //   key: 'surveyId',
-    //   relatedModel: require('./survey'),
-    //   // map: (values) => mapRelations(values, require('./survey')),
-    //   // serialize: '_id'
-    // },
-    // {
-    //   type: Backbone.One,
-    //   key: 'patientId',
-    //   relatedModel: require('./patient'),
-    //   // map: (values) => mapRelations(values, require('./patient')),
-    //   // serialize: '_id'
-    // }
+    ...BaseModel.prototype.relations
   ],
 });

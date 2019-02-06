@@ -2,7 +2,7 @@ import { defaults, isEmpty } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/procedureMedication`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/procedureMedication`,
   defaults: () => defaults({
     medication: '',
     quantity: '',

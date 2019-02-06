@@ -3,24 +3,22 @@
   "version": "1.0.0",
   "main": "NODE_ENV='development' index.js",
   "bin": "index.js",
-  "pkg": {
-    "scripts": "./tamanu-common/**/*.js",
-    "output": "./release/tamanu-lan-server"
-  },
-  "description": "Main serevr for Tamanu desktop app",
+  "description": "Remote server for Tamanu desktop app",
   "scripts": {
-    "start": "node index.js",
+    "start": "pm2 start pm2.json && pm2 logs tamanu-server",
+    "restart": "pm2 restart tamanu-server & pm2 logs tamanu-server",
+    "stop": "pm2 stop tamanu-server",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "npm test -- --watch"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:beyondessential/tamanu-desktop.git"
+    "url": "git@github.com:beyondessential/tamanu.git"
   },
   "author": "",
   "license": "ISC",
-  "homepage": "https://github.com/beyondessential/tamanu-desktop.git#readme",
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "devDependencies": {
     "chai": "^4.1.2",
     "eslint": "^4.19.1",
@@ -53,6 +51,8 @@
     "follow": "^1.1.0",
     "http-proxy": "^1.17.0",
     "json-diff": "^0.5.3",
+    "json-prune": "^1.1.0",
+    "jsonwebtoken": "^8.4.0",
     "keygen": "^0.3.1",
     "lodash": "^4.17.5",
     "moment": "^2.21.0",

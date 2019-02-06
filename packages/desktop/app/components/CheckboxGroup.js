@@ -53,8 +53,6 @@ class CheckboxGroup extends Component {
     if (!overwriteClass) className = `field ${className}`;
     delete others.className;
 
-    console.log({ others });
-
     return (
       <div className={className}>
         <label className={labelClass} htmlFor={fieldId}>

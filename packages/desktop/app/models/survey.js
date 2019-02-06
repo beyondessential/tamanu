@@ -3,7 +3,7 @@ import Backbone from 'backbone-associations';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/survey`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/survey`,
   defaults: () => defaults({
       name: null,
       code: null,
@@ -18,20 +18,12 @@ export default BaseModel.extend({
   ),
 
   relations: [
-    // {
-    //   type: Backbone.One,
-    //   key: 'surveyGroupId',
-    //   relatedModel: require('./surveyGroup'),
-    //   // map: (values) => mapRelations(values, require('./surveyGroup')),
-    //   // serialize: '_id'
-    // },
     {
       type: Backbone.Many,
       key: 'screens',
       relatedModel: require('./surveyScreen'),
-      // map: (values) => mapRelations(values, require('./surveyScreen')),
-      // serialize: '_id'
-    }
+    },
+    ...BaseModel.prototype.relations
   ],
 
   getQuestions(screenIndex) {

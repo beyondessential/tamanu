@@ -2,7 +2,7 @@ import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${process.env.LAN_REALM}/photo`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/photo`,
   defaults: () => defaults({
     caption: null,
     coverImage: false,

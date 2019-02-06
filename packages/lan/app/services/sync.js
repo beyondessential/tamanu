@@ -1,7 +1,10 @@
 const Faye = require('faye');
-const { objectToJSON } = require('../utils');
+const { find } = require('lodash');
 const config = require('config');
+const { objectToJSON } = require('../utils');
 const { outgoing } = require('../utils/faye-extensions');
+const { schemas } = require('../../../shared/schemas');
+const { SYNC_MODES, SYNC_ACTIONS } = require('../constants');
 
 class Sync {
   constructor(database, listeners) {
@@ -16,19 +19,25 @@ class Sync {
   setup() {
     const clientId = this.database.getSetting('CLIENT_ID');
     const subscription = this.client.subscribe(`/${config.sync.channelIn}/${clientId}`).withChannel((channel, message) => {
-      console.log(`[MessageIn - ${config.sync.channelIn}/${clientId}] - [${channel}]`, { action: message.action, type: message.recordType, id: message.recordId });
-      // this.listeners.removeDatabaseListeners();
+      const { action, recordType: type, recordId: id } = message;
+      const schema = find(schemas, ({ name }) => name === type);
+      if (!schema) {
+        throw new Error(`Invalid recordType [${type}]`);
+      }
+      if (schema.sync !== SYNC_MODES.ON && schema.sync !== SYNC_MODES.REMOTE_TO_LOCAL) {
+        throw new Error(`Schema sync not allowed [${schema.sync}]`);
+      }
+      console.log(`[MessageIn - ${config.sync.channelIn}/${clientId}] - [${channel}]`, { action, type, id });
       switch (message.action) {
-        case 'SAVE':
+        case SYNC_ACTIONS.SAVE:
           this._saveRecord(message);
         break;
-        case 'REMOVE':
+        case SYNC_ACTIONS.REMOVE:
           this._removeRecord(message);
         break;
         default:
           throw new Error('No action specified');
       }
-      // this.listeners.addDatabaseListeners();
     });
 
     subscription.callback(() => {
@@ -47,27 +56,13 @@ class Sync {
     this.client.bind('transport:up', () => {
       console.log('[CONNECTION UP]');
     });
-
-    // subscription.then(() => {
-    //   // Sync once the connection has been setup
-    //   this.synchronize();
-    //   console.log('[realm-sync] active');
-
-    //   this.client.on('unsubscribe', (client, channel) => {
-    //     console.log(`[UNSUBSCRIBE] ${client} -> ${channel}`);
-    //   });
-
-    //   this.client.on('disconnect', (client) => {
-    //     console.log(`[DISCONNECT] ${client}`);
-    //   });
-    // });
   }
 
   synchronize() {
     try {
       const lastSyncTime = this.database.getSetting('LAST_SYNC_OUT');
       console.log('lastSyncTime', lastSyncTime);
-      const changes = this.database.find('change', `timestamp >= "${lastSyncTime}"`);
+      const changes = this.database.find('change', `timestamp >= "${lastSyncTime}"`).sorted('timestamp', false);
       const tasks = [];
       changes.forEach(change => tasks.push(this._publishMessage(objectToJSON(change))));
       Promise.all(tasks);
@@ -87,7 +82,7 @@ class Sync {
         ...change
       });
 
-      // Update last sync out date
+      // // Update last sync out date
       this.database.setSetting('LAST_SYNC_OUT', new Date().getTime());
       console.log('[MessageOut]', `/${config.sync.channelOut}`, { action: change.action, type: change.recordType, id: change.recordId });
     } catch (err) {
@@ -95,83 +90,26 @@ class Sync {
     }
   }
 
-  _saveRecord(props) {
-    this.database.write(() => {
-      this.database.create(props.recordType, props.record, true, true);
-    });
+  _saveRecord({ record, recordType }) {
+    try{
+      this.database.write(() => {
+        this.database.create(recordType, record, true, true);
+      });
+    } catch (err) {
+      console.error(err.toString(), record);
+      throw err;
+    }
   }
 
   _removeRecord(props) {
-    this.database.write(() => {
-      this.database.deleteByPrimaryKey(props.recordType, props.recordId, '_id', true);
-    });
+    try{
+      this.database.write(() => {
+        this.database.deleteByPrimaryKey(props.recordType, props.recordId, '_id', true);
+      });
+    } catch (err) {
+      throw err;
+    }
   }
 }
 
 module.exports = Sync;
-
-// let _addListener;
-// let _addTOQueue;
-// let this._toJSON;
-// const internals = {};
-// internals.addDatabaseListeners = (realm) => {
-  // const
-  // console.log('addDatabaseListeners', dbName);
-  // const dbUrl = `http://${config.localDB.username}:${config.localDB.password}@${config.localDB.host}:${config.localDB.port}`;
-  // const couchFollowOpts = {
-  //   db: `${dbUrl}/${dbName}`,
-  //   include_docs: true,
-  //   since: -1, // config.couchDbChangesSince,
-  //   query_params: {
-  //     conflicts: true,
-  //   },
-  // };
-
-  // follow(couchFollowOpts, (error, change) => {
-  //   console.log('follow', error, change);
-  //   if (!error) {
-  //     internals.pushSync(change);
-  //   } else {
-  //     console.error(error);
-  //   }
-  // });
-// };
-
-// internals.pushSync = (change) => {
-//   const { pushDB } = dbService.getDBs();
-//   const tasks = [];
-
-//   pushDB.list({ include_docs: true }, async (err, subscriptions) => {
-//     subscriptions.rows.forEach(async (subscriptionInfo) => {
-//       //  && subscriptionInfo.doc.remoteSeq < change.seq
-//       if (subscriptionInfo.doc && subscriptionInfo.doc.clientToken) {
-//         const notificationInfo = {
-//           seq: change.seq,
-//           type: 'couchDBChange'
-//         };
-
-//         tasks.push(await pushHelper.sendNotification(subscriptionInfo.doc.clientToken, notificationInfo));
-
-//         // pushHelper.sendNotification(subscriptionInfo.doc.subscription, notificationInfo).catch((err) => {
-//         //   if (err.statusCode === 404 || err.statusCode === 410) {
-//         //     pushDB.destroy(subscriptionInfo.doc._id, subscriptionInfo.doc._rev);
-//         //   } else {
-//         //     console.log('Subscription is no longer valid: ', err);
-//         //   }
-//         // });
-//       }
-//     });
-
-//     try {
-//       Promise.each(tasks, (value, index, length) => {
-//         console.log('value', value);
-//         console.log('index', index);
-//         console.log('length', length);
-//       });
-//     } catch (er) {
-//       console.error(er);
-//     }
-
-//     console.log('pushSync', tasks);
-//   });
-// };
