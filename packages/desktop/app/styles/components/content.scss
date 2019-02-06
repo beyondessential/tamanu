@@ -9,7 +9,7 @@
     background: $main-white-color;
     padding: 0 15px;
     height: 55px;
-    span {
+    > span {
       float: left;
       margin: 0;
       line-height: 55px;
@@ -41,22 +41,9 @@
       float: right;
       button {
         margin: 10px 0 10px 15px;
-        border: 1px solid $main-green-color;
-        background-color: transparent;
-        color: $main-green-color;
-        font-size: 14px;
-        padding: 7px;
-        border-radius: 5px;
       }
       a {
         margin: 10px 0 10px 15px;
-        border: 1px solid $main-green-color;
-        background-color: transparent;
-        color: $main-green-color;
-        font-size: 14px;
-        padding: 7px;
-        border-radius: 5px;
-        display: inline-block;
       }
     }
     .search-container {

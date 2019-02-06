@@ -12,5 +12,6 @@ export SelectGroup from './SelectGroup';
 export PatientSearchBar from './PatientSearchBar';
 export Sidebar from './Sidebar';
 export TextareaGroup from './TextareaGroup';
+export TopBar from './TopBar';
 export * from './Button';
 export * from './IconButton';
