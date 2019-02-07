@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { map, isEmpty, head } from 'lodash';
 import ReactTable from 'react-table';
 import { toast } from 'react-toastify';
-
-import { PatientSearchBar, Button, SyncIconButton } from '../../components';
+import { Button, SyncIconButton, TopBar } from '../../components';
 import { pageSizes, patientColumns } from '../../constants';
 import { PatientsCollection } from '../../collections';
 import { HospitalModel } from '../../models';
@@ -198,24 +197,23 @@ class PatientListing extends Component {
     if (patients.length > 0) patients = map(patients, patient => patient.attributes);
     return (
       <div className="content">
-        <div className="view-top-bar columns is-gapless">
-          <span className="column is-6">
-            Patient Listing
-          </span>
-          <div className="column is-311">
-            <PatientSearchBar
-              name="search"
-              className="p-t-10 is-pulled-right"
-              onSubmit={this.searchSubmit}
-              onReset={this.searchReset}
-            />
-            <div className="view-action-buttons is-pulled-right m-r-10">
-              <Link to="/patients/edit/new">
-                <i className="fa fa-plus" /> New Patient
-              </Link>
-            </div>
-          </div>
-        </div>
+        <TopBar
+          title="Patient Listing"
+          search={{
+            onSubmit: this.searchSubmit,
+            onClear: this.searchReset
+          }}
+          buttons={[{
+            to: "/patients/edit/new",
+            color: "secondary",
+            variant: "contained",
+            children: 'Advanced Search'
+          }, {
+            to: "/patients/edit/new",
+            can: { do: 'create', on: 'patient' },
+            children: 'New Patient'
+          }]}
+        />
         <div className="detail">
           {patients.length === 0 && !loading && // Loaded and no records
             <div className="notification">

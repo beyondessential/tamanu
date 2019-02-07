@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { isEmpty, head } from 'lodash';
+import { isEmpty } from 'lodash';
 import ReactTable from 'react-table';
 import { admittedPatientsColumns, pageSizes, dbViews } from '../../constants';
 import { PatientsCollection } from '../../collections';
-
-import { Button } from '../../components/Button';
+import { Button, TopBar } from '../../components';
 
 class AdmittedPatients extends Component {
   constructor(props) {
@@ -86,11 +84,11 @@ class AdmittedPatients extends Component {
     const row = _row.original;
     return (
       <div key={row._id}>
-        <Button 
+        <Button
           variant="outlined"
           onClick={() => this.goEditPatient(row._id)}
         >View Patient</Button>
-        <Button 
+        <Button
           variant="contained"
           color="primary"
           onClick={() => this.discharge(row._id)}
@@ -103,16 +101,14 @@ class AdmittedPatients extends Component {
     const { admittedPatients } = this.state;
     return (
       <div className="content">
-        <div className="view-top-bar">
-          <span>
-            Admitted Patients
-          </span>
-          <div className="view-action-buttons">
-            <Link to="/patients/edit/new">
-              + New Patient
-            </Link>
-          </div>
-        </div>
+        <TopBar
+          title="Admitted Patients"
+          button={{
+            to: "/patients/edit/new",
+            can: { do: 'create', on: 'patient' },
+            children: 'New Patient'
+          }}
+        />
         <div className="detail">
           {admittedPatients.length === 0 ?
             <div className="notification">

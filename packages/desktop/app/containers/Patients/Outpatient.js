@@ -8,7 +8,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import CustomDateInput from '../../components/CustomDateInput';
 import { patientColumns, locationOptions } from '../../constants';
 import { PatientsCollection } from '../../collections';
-import { SearchButton } from '../../components/Button';
+import { SearchButton, TopBar } from '../../components';
 
 class Outpatient extends Component<Props> {
   constructor(props) {
@@ -52,16 +52,14 @@ class Outpatient extends Component<Props> {
     if (!isEmpty(patients)) patients = map(patients, patient => patient.attributes);
     return (
       <div className="create-content">
-        <div className="create-top-bar">
-          <span>
-            Today's Outpatients
-          </span>
-          <div className="view-action-buttons">
-            <button>
-              Patient Check In
-            </button>
-          </div>
-        </div>
+        <TopBar
+          title="Today's Outpatientss"
+          button={{
+            to: "/patients/edit/new",
+            can: { do: 'create', on: 'patient' },
+            children: 'Patient Check In'
+          }}
+        />
         <div className="create-container">
           <div className="columns form">
             <div className="column is-4">
