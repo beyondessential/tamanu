@@ -5,9 +5,9 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { values, mapValues, isArray } from 'lodash';
-import { NewButton } from '.';
+import { NewButton, SearchBar } from '.';
 
-const styles = {
+const styles = theme => ({
   root: {
     flexGrow: 1,
   },
@@ -21,9 +21,11 @@ const styles = {
     boxShadow: 'none'
   },
   buttonBarItems: {
-    marginLeft: '5px'
+    marginLeft: '5px',
+    boxShadow: 'none !important',
+    lineHeight: `${theme.spacing.unit * 2}px`,
   }
-};
+});
 
 const TopBar = ({ classes, ...children }) => (
   <div className={classes.root}>
@@ -57,8 +59,13 @@ const DrawChildren = ({ classes, children }) => {
             className={classes.h3}
           >{child}</Typography>
         );
+      case 'search':
+        return (
+          <SearchBar key={elementKey} {...child} />
+        );
       case 'button':
       case 'buttons':
+        if (React.isValidElement(child)) return { ...child, key: elementKey };
         if (!isArray(child)) child = [child];
         return (child.map((props, buttonKey) => (
           <NewButton
