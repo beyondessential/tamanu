@@ -16,7 +16,7 @@ class CheckboxGroup extends Component {
 
   static defaultProps = {
     type: 'checkbox',
-    className: 'field column p-t-45',
+    className: 'field column',
     labelClass: 'label',
     overwriteClass: false,
     note: '',

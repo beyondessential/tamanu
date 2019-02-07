@@ -3,6 +3,8 @@ import { isEmpty } from 'lodash';
 
 import { Link } from 'react-router-dom';
 import MuiButton from '@material-ui/core/Button';
+import { withStyles } from '@material-ui/core';
+import { red } from '@material-ui/core/colors';
 import { checkAbility } from '../utils/ability-context';
 
 export const Button = ({ primary, ...props }) => {
@@ -40,6 +42,30 @@ export const ClearButton = ({ ...props }) => {
     { ...props }
   >Clear</Button>;
 };
+
+export const CancelButton = ({ ...props }) => {
+  return <Button
+    variant="contained"
+    { ...props }
+  >Cancel</Button>;
+};
+
+const deleteButtonStyles = theme => ({
+  root: {
+    backgroundColor: red[600],
+    color: theme.palette.common.white,
+    '&:hover': {
+      backgroundColor: red[800],
+    }
+  }
+})
+
+export const DeleteButton = withStyles(deleteButtonStyles)(({ ...props }) => {
+  return <Button
+    variant="contained"
+    { ...props }
+  >Delete</Button>;
+});
 
 export const SearchButton = ({ ...props }) => {
   return <Button
@@ -88,3 +114,34 @@ export const NewButton = ({ to, children, ...props }) => {
     { ...props }
   >{children}</Button>;
 };
+
+const textButtonStyles = theme => {
+   console.log('-theme-', theme);
+  return {
+    root: {
+      fontSize: theme.spacing.unit * 2,
+      textTransform: 'capitalize',
+      fontWeight: 400,
+      padding: 0,
+      minHeight: 'auto',
+      minWidth: 'auto',
+      color: theme.palette.primary.light,
+      '&:hover': {
+        backgroundColor: 'rgba(0,0,0,0)',
+        color: theme.palette.primary.dark,
+        fontWeight: 500
+      }
+    }
+  }
+}
+export const TextButton = withStyles(textButtonStyles)(({ to, children, ...props }) => {
+  let newProps = props;
+  if (to) {
+    newProps = { ...newProps, to, component: Link };
+  }
+  return <Button
+    variant="text"
+    color="primary"
+    { ...newProps }
+  >{children}</Button>;
+});

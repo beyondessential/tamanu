@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import Contacts from '../components/Contacts';
-import { InputGroup, DatepickerGroup, RadioGroup } from '../../../components';
+import { InputGroup, DatepickerGroup, RadioGroup, UpdateButton, BackButton } from '../../../components';
 import { bloodOptions, sexOptions, getDifferenceDate } from '../../../constants';
 
 class General extends Component {
@@ -330,8 +330,13 @@ class General extends Component {
           </div>
         </div>
         <div className="column has-text-right">
-          <Link className="button is-danger cancel" to="/patients">Return</Link>
-          <button className="button is-primary" form="generalForm" type="submit" disabled={!patientModel.isValid()}>Update</button>
+          <BackButton to="/patients" />
+          <UpdateButton
+            form="generalForm"
+            type="submit"
+            disabled={!patientModel.isValid()}
+            can={{ do: 'update', on: 'patient' }}
+          />
         </div>
 
       </div>

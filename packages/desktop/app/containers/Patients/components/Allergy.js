@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import AllergyModal from './AllergyModal';
+import { Button, TextButton } from '../../../components';
 
 class Allergy extends Component {
   static propTypes = {
@@ -37,15 +38,19 @@ class Allergy extends Component {
       <div>
         <div className="column p-b-0">
           <span className="title">Patient Allergies  </span>
-          <a className="add-button" onClick={() => this.setState({ modalVisible: true, action: 'new', itemId: null })}>
-            + Add Allergy
-          </a>
+          <TextButton
+            can={{ do: 'create', on: 'allergy' }}
+            onClick={() => this.setState({ modalVisible: true, action: 'new', itemId: null })}
+          > + Add Allergy </TextButton>
           <div className="clearfix" />
           {allergies.toJSON().map((allergy, k) => {
             return (
               <React.Fragment key={allergy._id}>
                 {k > 0 ? ', ' : ''}
-                <a className="add-button" onClick={() => this.setState({ modalVisible: true, action: 'edit', itemId: allergy._id })}>{allergy.name}</a>
+                <TextButton
+                  can={{ do: 'create', on: 'allergy' }}
+                  onClick={() => this.setState({ modalVisible: true, action: 'edit', itemId: allergy._id })}
+                >{allergy.name}</TextButton>
               </React.Fragment>
             );
           })}

@@ -3,6 +3,7 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import DiagnosisModal from './DiagnosisModal';
 import { dateFormat } from '../../../constants';
+import { TextButton} from '../../../components';
 
 class Diagnosis extends Component {
   static propTypes = {
@@ -43,18 +44,21 @@ class Diagnosis extends Component {
     return (
       <div>
         <div className={`column p-b-0 ${!diagnoses.length && showSecondary ? 'is-hidden' : ''}`}>
-          <span className="title">{`${showSecondary ? 'Secondary' : 'Primary'} Diagnosis`}</span>
-          <a className={`${showSecondary ? 'is-hidden' : ''} add-button`} onClick={() => this.setState({ modalVisible: true, action: 'new', itemId: null })}>
-            + Add Diagnosis
-          </a>
+          <span className="title">{`${showSecondary ? 'Secondary' : 'Primary'} Diagnosis `}</span>
+          <TextButton
+            className={showSecondary ? 'is-hidden' : ''}
+            can={{ do: 'create', on: 'diagnosis' }}
+            onClick={() => this.setState({ modalVisible: true, action: 'new', itemId: null })}
+          > + Add Diagnosis </TextButton>
           <div className="clearfix" />
           {diagnoses.map((diagnosis, k) => {
             return (
               <React.Fragment key={diagnosis._id}>
                 {k > 0 ? ', ' : ''}
-                <a className="add-button" onClick={() => this.setState({ modalVisible: true, action: 'edit', itemId: diagnosis._id })}>
-                  {`${diagnosis.diagnosis} (${moment(diagnosis.date).format(dateFormat)})`}
-                </a>
+                <TextButton
+                  can={{ do: 'read', on: 'diagnosis' }}
+                  onClick={() => this.setState({ modalVisible: true, action: 'edit', itemId: diagnosis._id })}
+                >{`${diagnosis.diagnosis} (${moment(diagnosis.date).format(dateFormat)})`}</TextButton>
               </React.Fragment>
             );
           })}
