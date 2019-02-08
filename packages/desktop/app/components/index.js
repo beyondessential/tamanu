@@ -5,6 +5,7 @@ export DrugAutocomplete from './DrugAutocomplete';
 export InputGroup from './InputGroup';
 export Modal from './Modal';
 export PatientAutocomplete from './PatientAutocomplete';
+export PatientQuickLinks from './PatientQuickLinks';
 export PatientRelationSelect from './PatientRelationSelect';
 export Preloader from './Preloader';
 export RadioGroup from './RadioGroup';

@@ -2,48 +2,52 @@ import React from 'react';
 import { isEmpty } from 'lodash';
 
 import { Link } from 'react-router-dom';
+import MuiButtonBase from '@material-ui/core/ButtonBase';
 import MuiButton from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core';
 import { red } from '@material-ui/core/colors';
 import { checkAbility } from '../utils/ability-context';
+import { history } from '../utils';
 
-export const Button = ({ primary, ...props }) => {
-  let allowed = true;
-  const { can = {} } = props;
-  const { do: action, on: subject } = can;
-  if (!isEmpty(can)) {
-    allowed = checkAbility({ action, subject });
-  }
-  return <MuiButton
+export const ButtonBase = (props) => {
+  const allowed = _isAllowed(props);
+  const locationsProps = _getLocationProps(props);
+  return <MuiButtonBase
     { ...props }
-    disabled={!allowed || props.disabled}
-  />;
+    { ...locationsProps }
+    disabled={!allowed || props.disabled} />;
 };
 
-export const BackButton = ({ to, ...props }) => {
-  if (to) {
-    return <Button
-      variant="outlined"
-      component={ Link }
-      to={ to }
-      { ...props }
-    >Back</Button>;
-  }
+export const Button = (props) => {
+  const allowed = _isAllowed(props);
+  const locationsProps = _getLocationProps(props);
+  return <MuiButton
+    { ...props }
+    { ...locationsProps }
+    disabled={!allowed || props.disabled} />;
+};
 
+export const BackButton = ({ to, onClick, ...props }) => {
+  const { goBack } = history;
+  let newClick = onClick;
+  if (!to && !onClick) {
+    newClick = () => goBack();
+  }
   return <Button
     variant="outlined"
+    onClick={ newClick }
     { ...props }
   >Back</Button>;
 };
 
-export const ClearButton = ({ ...props }) => {
+export const ClearButton = (props) => {
   return <Button
     variant="outlined"
     { ...props }
   >Clear</Button>;
 };
 
-export const CancelButton = ({ ...props }) => {
+export const CancelButton = (props) => {
   return <Button
     variant="contained"
     { ...props }
@@ -60,14 +64,14 @@ const deleteButtonStyles = theme => ({
   }
 })
 
-export const DeleteButton = withStyles(deleteButtonStyles)(({ ...props }) => {
+export const DeleteButton = withStyles(deleteButtonStyles)((props) => {
   return <Button
     variant="contained"
     { ...props }
   >Delete</Button>;
 });
 
-export const SearchButton = ({ ...props }) => {
+export const SearchButton = (props) => {
   return <Button
     variant="contained"
     color="primary"
@@ -75,7 +79,7 @@ export const SearchButton = ({ ...props }) => {
   >Search</Button>;
 };
 
-export const AddButton = ({ ...props }) => {
+export const AddButton = (props) => {
   return <Button
     variant="contained"
     color="primary"
@@ -83,7 +87,15 @@ export const AddButton = ({ ...props }) => {
   >Add</Button>;
 };
 
-export const FilterButton = ({ ...props }) => {
+export const EditButton = (props) => {
+  return <Button
+    variant="contained"
+    color="secondary"
+    { ...props }
+  >Edit</Button>;
+};
+
+export const FilterButton = (props) => {
   return <Button
     variant="contained"
     color="primary"
@@ -91,7 +103,7 @@ export const FilterButton = ({ ...props }) => {
   >Filter</Button>;
 };
 
-export const UpdateButton = ({ ...props }) => {
+export const UpdateButton = (props) => {
   return <Button
     variant="contained"
     color="primary"
@@ -99,16 +111,7 @@ export const UpdateButton = ({ ...props }) => {
   >Update</Button>;
 };
 
-export const NewButton = ({ to, children, ...props }) => {
-  if (to) {
-    return <Button
-      variant="outlined"
-      component={ Link }
-      to={ to }
-      { ...props }
-    >{children}</Button>;
-  }
-
+export const NewButton = ({ children, ...props }) => {
   return <Button
     variant="outlined"
     { ...props }
@@ -116,7 +119,6 @@ export const NewButton = ({ to, children, ...props }) => {
 };
 
 const textButtonStyles = theme => {
-   console.log('-theme-', theme);
   return {
     root: {
       fontSize: theme.spacing.unit * 2,
@@ -134,14 +136,27 @@ const textButtonStyles = theme => {
     }
   }
 }
-export const TextButton = withStyles(textButtonStyles)(({ to, children, ...props }) => {
-  let newProps = props;
-  if (to) {
-    newProps = { ...newProps, to, component: Link };
-  }
+
+export const TextButton = withStyles(textButtonStyles)(({ children, ...props }) => {
   return <Button
     variant="text"
     color="primary"
-    { ...newProps }
+    { ...props }
   >{children}</Button>;
 });
+
+const _isAllowed = ({ can = {} }) => {
+  let allowed = true;
+  const { do: action, on: subject } = can;
+  if (!isEmpty(can)) {
+    allowed = checkAbility({ action, subject });
+  }
+  return allowed;
+}
+
+const _getLocationProps = ({ to }) => {
+  if (to) {
+    return { component: Link, to };
+  }
+  return {};
+}

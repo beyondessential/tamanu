@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
-import { BackButton } from '../../../components/Button';
-
-import { Preloader } from '../../../components';
+import { Preloader, BackButton, PatientQuickLinks } from '../../../components';
 import actions from '../../../actions/patients';
 import Allergy from '../components/Allergy';
 import Diagnosis from '../components/Diagnosis';
@@ -21,17 +20,13 @@ import Programs from './Programs';
 import Pregnancy from './Pregnancy';
 import TopRow from '../components/TopRow';
 
-// import Serializer from '../../../utils/form-serialize';
-import { PatientModel, AllergyModel } from '../../../models';
-
-const classNames = require('classnames');
-
 class EditPatient extends Component {
   state = {
     patient: {},
     loading: true,
     patientModel: {},
     selectedTab: '',
+    anchorEl: null,
   }
 
   componentDidMount() {
@@ -192,13 +187,12 @@ class EditPatient extends Component {
     ));
   }
 
+
   render() {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
 
     const { selectedTab, patient, patientModel } = this.state;
-    const { history } = this.props;
-
     return (
       <div>
         <div className="create-content">
@@ -243,6 +237,8 @@ class EditPatient extends Component {
             </div>
           </div>
         </div>
+
+        <PatientQuickLinks patient={patient} />
         {/* <ModalView
           isVisible={formError}
           onClose={this.onCloseModal}
