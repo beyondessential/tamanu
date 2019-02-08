@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import ReactTooltip from 'react-tooltip';
 import { chain } from 'lodash';
 import { MedicationHistoryModel } from '../../../models';
+import { NewButton } from '../../../components';
 import {
   patientMedicationColumns,
   momentSimpleCalender,
@@ -83,7 +84,6 @@ class Medication extends Component {
 
   renderMedicineColumn = row => {
     const { original: medicine , value} = row;
-    console.log('-medicine-', medicine, row);
     return (
       <React.Fragment>
         {value}
@@ -110,7 +110,7 @@ class Medication extends Component {
     return (
       <div className="medication-chart-cell">
         <span className="is-inline-block">{row.value}</span>
-        {(moment(original.currentDate).isBefore(moment().format(dateFormat)) || isTaken) && !original.dispense && 
+        {(moment(original.currentDate).isBefore(moment().format(dateFormat)) || isTaken) && !original.dispense &&
           <Fragment>
             <span
               className={`is-rounded icon is-pulled-right p-l-35 is-pulled-left has-text-${isTaken ? 'success' : 'danger'}`}
@@ -129,7 +129,7 @@ class Medication extends Component {
             }
           </Fragment>
         }
-        {moment(moment().format(dateFormat)).isSame(original.currentDate) && !isTaken && !original.dispense && 
+        {moment(moment().format(dateFormat)).isSame(original.currentDate) && !isTaken && !original.dispense &&
           <button
             className="button is-default is-small is-pulled-right has-text-success"
             onClick={() => this.markTaken(original._id, original.currentDate, fieldName, true)}
@@ -195,9 +195,11 @@ class Medication extends Component {
     return (
       <div>
         <div className="column p-t-0 p-b-0">
-          <Link className="button is-primary is-pulled-right is-block" to={`/medication/request/by-patient/${Model.id}`}>
-            <i className="fa fa-plus" /> Add Medication
-          </Link>
+          <NewButton
+            className="is-pulled-right"
+            to={`/medication/request/by-patient/${Model.id}`}
+            can={{ do: 'create', on: 'visit' }}
+          >New Medication</NewButton>
           <div className="is-clearfix" />
         </div>
         <div className="column">
