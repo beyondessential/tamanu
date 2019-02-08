@@ -8,6 +8,7 @@ import {
   pageSizes,
   dbViews
 } from '../../constants';
+import { TextButton, NewButton } from '../../components';
 
 class Completed extends Component {
   constructor(props) {
@@ -59,19 +60,28 @@ class Completed extends Component {
               Completed Medication Requests
             </span>
             <div className="view-action-buttons">
-              <Link to="/medication/request">
-                + New Request
-              </Link>
-              <Link to="/medication/dispense">
-                Dispense Medication
-              </Link>
+              <NewButton
+                to="/medication/request"
+                can={{ do: 'create', on: 'medication' }}
+              >New Request</NewButton>
+              <NewButton
+                variant="contained"
+                color="secondary"
+                to="/medication/dispense"
+                can={{ do: 'create', on: 'medication' }}
+              >Dispense Medication</NewButton>
             </div>
           </div>
           <div className="detail">
             {medications.length === 0 ?
               <div className="notification">
                 <span>
-                  No medications found. <Link to="/medication/request">Create a new medication record?</Link>
+                  No medications found.
+                  <TextButton
+                    className="p-l-5"
+                    to="/medication/request"
+                    can={{ do: 'create', on: 'medication' }}
+                  > Create a new medication record? </TextButton>
                 </span>
               </div>
               :
