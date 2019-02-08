@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import moment from 'moment';
 import { has, capitalize, parseInt } from 'lodash';
 import actions from '../../actions/scheduling';
+import PatientsTopRow from '../Patients/components/TopRow';
 import {
   visitOptions,
   appointmentStatusList,
@@ -33,14 +34,15 @@ class Appointment extends Component {
   }
 
   componentWillMount() {
-    const { id } = this.props.match.params;
-    this.props.fetchAppointment({ id });
+    const { id, patientId } = this.props.match.params;
+    this.props.fetchAppointment({ id, patientId });
   }
 
   componentWillReceiveProps(newProps) {
+    console.log('-componentWillReceiveProps-', newProps);
     if (this.props.location.pathname !== newProps.location.pathname) {
-      const { id } = newProps.match.params;
-      this.props.fetchAppointment({ id });
+      const { id, patientId } = newProps.match.params;
+      this.props.fetchAppointment({ id, patientId });
     } else {
       this.handleChange(newProps);
     }
@@ -353,10 +355,10 @@ class Appointment extends Component {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
 
-    const { surgery, appointmentModel } = this.props;
+    const { surgery, appointmentModel, patient } = this.props;
     const {
       action,
-      appointmentData,
+      appointmentData
     } = this.state;
 
     return (
@@ -366,8 +368,13 @@ class Appointment extends Component {
           className="create-container"
           onSubmit={(e) => this.submitForm(e)}
         >
+          {patient &&
+            <div className="form p-b-15">
+              <PatientsTopRow
+                patient={patient.toJSON()} />
+            </div>}
           <div className="form  with-padding">
-            <div className="columns">
+            {!patient && <div className="columns">
               <PatientAutocomplete
                 label="Patient"
                 name="patient"
@@ -375,7 +382,7 @@ class Appointment extends Component {
                 onChange={this.handleUserInput}
                 required
               />
-            </div>
+            </div>}
             <div className="columns">
               {(appointmentData.appointmentType !== 'admission' || surgery) &&
                 this.renderDatesAdmission()
@@ -400,7 +407,7 @@ class Appointment extends Component {
               />
             </div>
             <div className="column has-text-right">
-              <BackButton to="/appointments" />
+              <BackButton />
               {action === 'new' && <AddButton
                 type="submit"
                 disabled={!appointmentModel.isValid()}
@@ -432,9 +439,9 @@ Appointment.defaultProps = {
 };
 
 function mapStateToProps(state) {
-  const { appointment, loading, error } = state.scheduling;
+  const { appointment, patient, loading, error } = state.scheduling;
   return {
-    loading, error,
+    loading, error, patient,
     appointmentModel: appointment,
   };
 }
