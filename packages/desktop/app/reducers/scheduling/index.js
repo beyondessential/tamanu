@@ -4,6 +4,7 @@ import appointments from './appointments';
 
 const stateChanges = { ...appointment, ...appointments };
 const initialState = {
+  patient: {},
   appointment: {},
   appointments: [],
   reFetch: false,

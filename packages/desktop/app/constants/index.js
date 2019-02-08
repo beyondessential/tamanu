@@ -1368,3 +1368,48 @@ export const appointmentsColumns = [{
   Cell: null,
   sortable: false,
 }];
+
+export const patientAppointmentsColumns = [{
+  id: 'startDate',
+  accessor: row => moment(row.startDate).format(dateFormat),
+  Header: 'Date',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 100,
+}, {
+  id: 'appointmentType',
+  accessor: row => capitalize(row.appointmentType),
+  Header: 'Type',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 80,
+}, {
+  accessor: 'location',
+  Header: 'Location',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 100,
+}, {
+  accessor: 'provider',
+  Header: 'With',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 80,
+}, {
+  id: 'status',
+  accessor: row => capitalize(row.status),
+  Header: 'Status',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 80,
+}, {
+  id: 'actions',
+  Header: 'Actions',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor
+  },
+  style: columnStyle,
+  minWidth: 250,
+  Cell: null,
+  sortable: false,
+}];

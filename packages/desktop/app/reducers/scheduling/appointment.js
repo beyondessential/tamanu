@@ -15,8 +15,9 @@ export default {
     ...state,
     loading: true
   }),
-  [FETCH_APPOINTMENT_SUCCESS]: ({ appointment }, state) => ({
+  [FETCH_APPOINTMENT_SUCCESS]: ({ patient, appointment }, state) => ({
     ...state,
+    patient,
     appointment,
     loading: false
   }),

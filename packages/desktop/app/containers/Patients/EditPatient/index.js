@@ -104,7 +104,10 @@ class EditPatient extends Component {
       case 'appointment':
         return (
           <div className="column">
-            <Appointments />
+            <Appointments
+              history={history}
+              patient={patient}
+              model={patientModel} />
           </div>
         );
       case 'visit':

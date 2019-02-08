@@ -17,7 +17,7 @@ class AppointmentsTable extends Component {
     loading: true,
     deleteModalVisible: false,
     selectedAppointment: null,
-    keys: [],
+    keys: this.props.keys,
   }
 
   componentWillMount() {
