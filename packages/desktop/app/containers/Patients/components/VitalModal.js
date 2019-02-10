@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import Modal from 'react-responsive-modal';
 import moment from 'moment';
-import { InputGroup, DatepickerGroup } from '../../../components';
+import { InputGroup, DatepickerGroup, AddButton,
+          UpdateButton, CancelButton } from '../../../components';
 import { VitalModel } from '../../../models';
 import { dateTimeFormat } from '../../../constants';
 
@@ -176,9 +177,16 @@ class VisitModal extends Component {
             </div>
             <div className="modal-footer">
               <div className="column has-text-right">
-                <button className="button is-default" type="button" onClick={onClose}>Cancel</button>
-                {/* <button className={action !== 'new' ? 'button is-danger' : 'button is-danger is-hidden'} type="button" onClick={this.deleteItem}>Delete</button> */}
-                <button className="button is-primary" type="submit" form="vitalForm" disabled={!Model.isValid()}>{action === 'new' ? 'Add' : 'Update'}</button>
+                <CancelButton
+                  onClick={onClose} />
+                {action === 'new' && <AddButton
+                                      type="submit"
+                                      form="vitalForm"
+                                      disabled={!Model.isValid()} />}
+                {action !== 'new' && <UpdateButton
+                                      type="submit"
+                                      form="vitalForm"
+                                      disabled={!Model.isValid()} />}
               </div>
             </div>
           </div>

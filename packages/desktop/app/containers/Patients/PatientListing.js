@@ -162,6 +162,7 @@ class PatientListing extends Component {
       <div key={row._id}>
         <Button
           onClick={() => this.goEdit(row._id)}
+          can={{ do: 'read', on: 'patient' }}
           variant="outlined"
         >
           View Patient
@@ -170,6 +171,7 @@ class PatientListing extends Component {
           color="primary"
           variant="contained"
           onClick={() => this.goAdmit(row._id)}
+          can={{ do: 'update', on: 'patient', field: 'admitted' }}
         >
           {row.admitted ? 'Discharge' : 'Admit'}
         </Button>

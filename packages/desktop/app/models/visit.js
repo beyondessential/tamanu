@@ -68,8 +68,9 @@ export default BaseModel.extend({
     return _res;
   },
 
-  // validate: (attrs) => {
-  //   if (attrs.firstName === '') return 'firstName is required!';
-  //   if (attrs.lastName === '') return 'lastName is required!';
-  // }
+  validate: (attrs) => {
+    if (!moment(attrs.startDate).isValid()) return 'startDate is required!';
+    if (attrs.visitType === '') return 'visitType is required!';
+    // if (!moment(attrs.startDate).isAfter(moment())) return 'Invalid check-in date!';
+  }
 });

@@ -35,6 +35,7 @@ export const BackButton = ({ to, onClick, ...props }) => {
   }
   return <Button
     variant="outlined"
+    to={ to }
     onClick={ newClick }
     { ...props }
   >Back</Button>;
@@ -77,6 +78,30 @@ export const SearchButton = (props) => {
     color="primary"
     { ...props }
   >Search</Button>;
+};
+
+export const DischargeButton = (props) => {
+  return <Button
+    variant="contained"
+    color="secondary"
+    { ...props }
+  >Discharge</Button>;
+};
+
+export const CheckInButton = (props) => {
+  return <Button
+    variant="contained"
+    color="secondary"
+    { ...props }
+  >Check In</Button>;
+};
+
+export const CheckOutButton = (props) => {
+  return <Button
+    variant="contained"
+    color="secondary"
+    { ...props }s
+  >Check Out</Button>;
 };
 
 export const AddButton = (props) => {

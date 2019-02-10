@@ -3,7 +3,7 @@ import ReactTable from 'react-table';
 import { Link } from 'react-router-dom';
 import { proceduresColumns } from '../../../../constants';
 // import ProcedureModal from '../components/ProcedureModal';
-import { Modal } from '../../../../components';
+import { Modal, DeleteButton, EditButton, NewButton } from '../../../../components';
 
 class Procedures extends Component {
   state = {
@@ -55,14 +55,14 @@ class Procedures extends Component {
   setActionsCol = (row) => {
     return (
       <div key={row._id}>
-        <button type="button" className="button is-primary m-r-5 is-small" onClick={() => this.editItem(row.original._id)}>
-          <i className="fa fa-pencil" />
-          Edit
-        </button>
-        <button type="button" className="button is-danger m-r-5 is-small" onClick={() => this.deleteConfirm(row.original._id)}>
-          <i className="fa fa-times" />
-          Delete
-        </button>
+        <EditButton
+          size="small"
+          onClick={() => this.editItem(row.original._id)}
+          can={{ do: 'update', on: 'procedure' }} />
+        <DeleteButton
+          size="small"
+          onClick={() => this.deleteConfirm(row.original._id)}
+          can={{ do: 'delete', on: 'procedure' }} />
       </div>
     );
   }
@@ -72,6 +72,14 @@ class Procedures extends Component {
     const { procedures, tableColumns } = this.state;
     return (
       <div>
+        <div className="column p-t-0 p-b-0">
+          <NewButton
+            className="is-pulled-right"
+            to={`/patients/visit/${patientModel.id}/${Model.id}/procedure`}
+            can={{ do: 'create', on: 'procedure' }}
+          >New Procedure</NewButton>
+          <div className="is-clearfix" />
+        </div>
         <div className="column">
           {procedures.length > 0 &&
             <ReactTable
@@ -89,12 +97,6 @@ class Procedures extends Component {
               <span> No procedures found. </span>
             </div>
           }
-        </div>
-        <div className="column p-t-0 p-b-0">
-          <Link className="button is-primary is-pulled-right is-block" to={`/patients/visit/${patientModel.id}/${Model.id}/procedure`}>
-            + New Procedure
-          </Link>
-          <div className="is-clearfix" />
         </div>
         <Modal
           modalType="confirm"

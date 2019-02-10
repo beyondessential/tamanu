@@ -65,7 +65,7 @@
       .visit-header {
         margin: 10px;
         background: $main-light-blue-color;
-        span {
+        > span {
           font-size: 24px;
           color: #2e4359;
         }
