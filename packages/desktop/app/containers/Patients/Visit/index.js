@@ -167,9 +167,7 @@ class EditVisit extends Component {
       patientModel,
       patient,
       visitModel,
-      selectedTab,
     } = this.state;
-    console.log('-visitModel-', visitModel);
     const { attributes: form } = visitModel;
     return (
       <div>
@@ -195,17 +193,19 @@ class EditVisit extends Component {
               <div className="columns">
                 <div className="column">
                   <TopRow patient={patient} />
-                  <div className="columns border-bottom">
-                    <div className="column">
-                      <Diagnosis model={patientModel} />
-                      <Procedure model={patientModel} />
-                      <OperativePlan model={patientModel} history={this.props.history} />
+                  {action !== 'new' &&
+                    <div className="columns border-bottom">
+                      <div className="column">
+                        <Diagnosis model={visitModel} />
+                        <Procedure model={patientModel} />
+                        <OperativePlan model={patientModel} history={this.props.history} />
+                      </div>
+                      <div className="column">
+                        <Diagnosis model={visitModel} showSecondary />
+                        <Allergy model={patientModel} />
+                      </div>
                     </div>
-                    <div className="column">
-                      <Diagnosis model={patientModel} showSecondary />
-                      <Allergy model={patientModel} />
-                    </div>
-                  </div>
+                  }
                 </div>
               </div>
               <div className="columns">

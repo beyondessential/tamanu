@@ -47,17 +47,13 @@ export const submitForm = ({ action, visitModel, patientModel, history, setStatu
         await visitModel.save(null, { silent: true });
         if (action === 'new') patientModel.get('visits').add(visitModel);
         if (patientModel.changed) await patientModel.save(null, { silent: true });
+        dispatch({
+          type: SAVE_VISIT_SUCCESS,
+          patient: patientModel,
+          visit: visitModel,
+        });
         toast('Visit saved successfully.', { type: toast.TYPE.SUCCESS });
-
-        if (action === 'new') {
-          history.push(`/patients/visit/${patientModel.id}/${visitModel.id}`);
-        } else {
-          dispatch({
-            type: SAVE_VISIT_SUCCESS,
-            patient: patientModel,
-            visit: visitModel,
-          });
-        }
+        history.push(`/patients/visit/${patientModel.id}/${visitModel.id}`);
       } catch (error) {
         console.error({ error });
         dispatch({ type: SAVE_VISIT_FAILED, error });
