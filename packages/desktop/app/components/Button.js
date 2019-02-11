@@ -172,9 +172,9 @@ export const TextButton = withStyles(textButtonStyles)(({ children, ...props }) 
 
 const _isAllowed = ({ can = {} }) => {
   let allowed = true;
-  const { do: action, on: subject } = can;
+  const { do: action, on: subject, field } = can;
   if (!isEmpty(can)) {
-    allowed = checkAbility({ action, subject });
+    allowed = checkAbility({ action, subject, field });
   }
   return allowed;
 }

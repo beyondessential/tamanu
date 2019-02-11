@@ -11,10 +11,10 @@ export const Can = () => {
   return createContextualCan(auth.abilities);
 }
 
-export const checkAbility = ({ action, subject }) => {
+export const checkAbility = ({ action, subject, field }) => {
   const abilities = getAbilities();
   const ability = new Ability(abilities);
-  return ability.can(action, subject);
+  return ability.can(action, subject, field);
 }
 
 export const getAbilities = () => {
