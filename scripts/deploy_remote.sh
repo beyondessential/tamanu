@@ -25,12 +25,8 @@ mkdir -p ${DB_BASE_PATH}
 unzip -q ./${filename} -d ${dir_tmp}/
 echo "unzip ${filename} > ${dir_tmp}"
 
-cd ${dir_tmp}/packages/server
-rm -rf ./node_modules
-yarn install
-
-cd ${dir_tmp}/packages/shared
-rm -rf ./node_modules
+cd ${dir_tmp}
+rm -rf ${dir_tmp}/**/node_modules
 yarn install
 $pm2 delete "${app_name}"
 
