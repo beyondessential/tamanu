@@ -123,7 +123,6 @@ class NoteModal extends Component {
               <div className="column has-text-right">
                 <CancelButton
                   onClick={onClose} />
-                {/* <button className={action !== 'new' ? 'button is-danger' : 'button is-danger is-hidden'} type="button" onClick={this.deleteItem}>Delete</button> */}
                 {action === 'new' && <AddButton
                   form="noteForm"
                   type="submit"
