@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Select from 'react-select';
 import { head } from 'lodash';
+import styled from 'styled-components';
 
 class SelectGroup extends Component {
   static propTypes = {
     label: PropTypes.any.isRequired,
-    required: PropTypes.bool,
     name: PropTypes.string.isRequired,
+    required: PropTypes.bool,
     className: PropTypes.string,
     inputClass: PropTypes.string,
     labelClass: PropTypes.string,

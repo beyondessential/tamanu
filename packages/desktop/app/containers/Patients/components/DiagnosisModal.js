@@ -135,27 +135,34 @@ class DiagnosisModal extends Component {
                 autoFocus
                 required
               />
-              <div className="columns p-l-15 p-r-15">
-                <DatepickerGroup
-                  className="column is-half"
-                  label="Date"
+              <div className="column is-one-third">
+                <span className="header">
+                  Date
+                </span>
+                <DatePicker
                   name="date"
-                  value={form.date}
-                  onChange={this.handleUserInput} />
-                <SelectGroup
-                  className="column is-half"
-                  label="Certainty"
-                  name="certainty"
-                  options={diagnosisCertainty}
-                  value={form.certainty}
-                  onChange={this.handleUserInput} />
+                  customInput={<CustomDateInput />}
+                  selected={form.date}
+                  onChange={this.handleUserInput}
+                  dateFormat={dateFormat}
+                  peekNextMonth
+                  // value={moment(birthday).format('YYYY-MM-DD')}
+                  type="button"
+                  popperModifiers={{
+                    offset: {
+                      enabled: true,
+                      offset: '-10px, 0px'
+                    }
+                  }}
+                />
               </div>
               <CheckboxGroupNoPadding
                 className="column"
                 checked={form.secondaryDiagnosis}
                 label="Secondary Diagnosis"
                 name="secondaryDiagnosis"
-                onChange={this.handleUserInput} />
+                onChange={this.handleUserInput}
+              />
               <CheckboxGroupNoPadding
                 className="column"
                 checked={form.active}

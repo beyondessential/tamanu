@@ -9,8 +9,8 @@ import { dateFormat, timeFormat } from '../constants';
 class DatepickerGroup extends Component {
   static propTypes = {
     label: PropTypes.any.isRequired,
-    required: PropTypes.bool,
     name: PropTypes.string.isRequired,
+    required: PropTypes.bool,
     className: PropTypes.string,
     inputClass: PropTypes.string,
     labelClass: PropTypes.string,
