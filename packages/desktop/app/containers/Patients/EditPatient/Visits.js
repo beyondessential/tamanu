@@ -42,7 +42,8 @@ class Visits extends Component {
         <EditButton
           to={`/patients/visit/${Model.id}/${row.original._id}`}
           size="small"
-        can={{ do: 'update', on: 'visit' }} />
+          can={{ do: 'update', on: 'visit' }} 
+        />
       </div>
     );
   }

@@ -208,7 +208,7 @@ function mapStateToProps(state) {
   return { userId, displayName, currentPath, programsCollection };
 }
 
-const mapDispatchToProps = (dispatch, his) => ({
+const mapDispatchToProps = (dispatch) => ({
   logout: (params) => dispatch(logout(params)),
 });
 
