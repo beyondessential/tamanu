@@ -70,7 +70,7 @@ const LogoutItem = ({ onClick }) => (
   </ListItem>
 );
 
-const PrimarySidebarItem = ({ item, ability: parentAbility, selected, onClick }) => (
+const PrimarySidebarItem = ({ item, ability, selected, onClick }) => (
   <React.Fragment>
     <ListItem button onClick={ onClick } selected={selected}>
       <SidebarPrimaryIcon src={item.icon} />
@@ -82,7 +82,7 @@ const PrimarySidebarItem = ({ item, ability: parentAbility, selected, onClick })
           <SecondarySidebarItem
             item={ child }
             key={ child.path }
-            parentAbility={parentAbility}
+            parentAbility={ability}
           />
         ))}
       </List>
