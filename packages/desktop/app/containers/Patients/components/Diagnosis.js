@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
 import DiagnosisModal from './DiagnosisModal';
 import { dateFormat } from '../../../constants';
 import { TextButton} from '../../../components';
-import { DiagnosisModel } from '../../../models';
 
 class Diagnosis extends Component {
   static propTypes = {
@@ -20,7 +18,7 @@ class Diagnosis extends Component {
   state = {
     modalVisible: false,
     action: 'new',
-    itemModel: new DiagnosisModel()
+    itemId: null
   }
 
   componentWillMount() {
@@ -39,36 +37,10 @@ class Diagnosis extends Component {
     this.setState({ modalVisible: false });
   }
 
-  editItem( itemId = null ) {
-    const { model: Model } = this.props;
-    let { itemModel } = this.state;
-    const item = Model.get('diagnoses').findWhere({ _id: itemId });
-    if (!isEmpty(item)) {
-      itemModel = item
-    } else {
-      itemModel = new DiagnosisModel()
-    }
-    this.setState({
-      modalVisible: true,
-      action: isEmpty(item) ? 'new' : 'update',
-      itemModel
-    });
-  }
-
   render() {
-    const {
-      model: Model,
-      showSecondary
-    } = this.props;
-    const {
-      modalVisible,
-      action,
-      itemModel,
-      diagnoses: diagnosesAll
-    } = this.state;
-    // filter diagnosis type i-e primary or secondary
+    const { model: Model, showSecondary } = this.props;
+    const { modalVisible, action, itemId, diagnoses: diagnosesAll } = this.state;
     const diagnoses = diagnosesAll.toJSON().filter(diagnosis => diagnosis.active && diagnosis.secondaryDiagnosis === showSecondary);
-
     return (
       <div>
         <div className={`column p-b-0 ${!diagnoses.length && showSecondary ? 'is-hidden' : ''}`}>
@@ -76,7 +48,7 @@ class Diagnosis extends Component {
           <TextButton
             className={showSecondary ? 'is-hidden' : ''}
             can={{ do: 'create', on: 'diagnosis' }}
-            onClick={() => this.editItem()}
+            onClick={() => this.setState({ modalVisible: true, action: 'new', itemId: null })}
           > + Add Diagnosis </TextButton>
           <div className="clearfix" />
           {diagnoses.map((diagnosis, k) => {
@@ -85,15 +57,15 @@ class Diagnosis extends Component {
                 {k > 0 ? ', ' : ''}
                 <TextButton
                   can={{ do: 'read', on: 'diagnosis' }}
-                  onClick={() => this.editItem(diagnosis._id)}
+                  onClick={() => this.setState({ modalVisible: true, action: 'edit', itemId: diagnosis._id })}
                 >{`${diagnosis.diagnosis} (${moment(diagnosis.date).format(dateFormat)})`}</TextButton>
               </React.Fragment>
             );
           })}
         </div>
         <DiagnosisModal
-          model={itemModel}
-          parentModel={Model}
+          itemId={itemId}
+          model={Model}
           action={action}
           isVisible={modalVisible}
           onClose={this.onCloseModal}

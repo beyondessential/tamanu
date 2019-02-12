@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import Modal from 'react-responsive-modal';
+import DatePicker from 'react-datepicker';
 import moment from 'moment';
+import { clone, pick } from 'lodash';
 import styled from 'styled-components';
 import { InputGroup, AddButton, CancelButton,
-          DeleteButton, UpdateButton, CheckboxGroup, SelectGroup,
-          DatepickerGroup } from '../../../components';
-import { diagnosisCertainty } from '../../../constants';
+          DeleteButton, UpdateButton, CheckboxGroup } from '../../../components';
+import { DiagnosisModel } from '../../../models';
+import CustomDateInput from '../../../components/CustomDateInput';
+import { dateFormat } from '../../../constants';
 
 const CheckboxGroupNoPadding = styled(CheckboxGroup)`
   padding-top: 0 !important;
@@ -15,40 +18,79 @@ const CheckboxGroupNoPadding = styled(CheckboxGroup)`
 class DiagnosisModal extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      formValid: false,
+      isVisible: false,
+      form: {},
+      item: {},
+    };
+
     this.submitForm = this.submitForm.bind(this);
     this.handleUserInput = this.handleUserInput.bind(this);
+    this.validateField = this.validateField.bind(this);
     this.deleteItem = this.deleteItem.bind(this);
+    this.resetForm = this.resetForm.bind(this);
   }
 
-  handleUserInput = (e, field) => {
-    const { model: Model } = this.props;
-    let fieldName = field;
-    let fieldValue = '';
+  componentWillReceiveProps(nextProps) {
+    const { isVisible, action, itemId, model: Model } = nextProps;
+    if (action === 'edit') {
+      const item = Model.get('diagnoses').findWhere({ _id: itemId });
+      if (item) {
+        const form = pick(item.attributes, ['diagnosis', 'date', 'active', 'secondaryDiagnosis']);
+        form.date = moment(form.date);
+        this.setState({ isVisible, form, item }, () => this.validateField('diagnosis'));
+      }
+    } else {
+      this.setState({ isVisible }, () => this.resetForm());
+    }
+  }
 
-    if (e instanceof moment || typeof e.target === "undefined") {
-      fieldValue = e;
+  resetForm() {
+    const form = {
+      diagnosis: '',
+      date: moment(),
+      active: true,
+      secondaryDiagnosis: false,
+    };
+
+    this.setState({ form });
+  }
+
+  handleUserInput = (e) => {
+    const form = clone(this.state.form);
+    if (e instanceof moment) {
+      form.date = e;
+      this.setState({ form }, () => { this.validateField('date'); });
     } else {
       const { name } = e.target;
       const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-      fieldName = name;
-      fieldValue = value;
+      form[name] = value;
+      this.setState({ form }, () => { this.validateField(name); });
     }
+  }
 
-    Model.set({ [fieldName]: fieldValue });
-    this.forceUpdate(); // re-render
+  validateField = (name) => {
+    let valid = true;
+    if (this.state.form[name] === '') valid = false;
+    this.setState({ formValid: valid });
   }
 
   submitForm = async (e) => {
     e.preventDefault();
-    const { action, model: Model, parentModel } = this.props;
+    const { action, model: Model } = this.props;
+    const { item, form } = this.state;
 
     try {
-      await Model.save();
       if (action === 'new') {
-        parentModel.get('diagnoses').add(Model);
-        await parentModel.save();
+        const diagnosis = new DiagnosisModel(form);
+        const model = await diagnosis.save();
+        Model.get('diagnoses').add(model);
+        await Model.save();
       } else {
-        parentModel.trigger('change');
+        item.set(form);
+        await item.save();
+        Model.trigger('change');
       }
 
       this.props.onClose();
@@ -58,11 +100,12 @@ class DiagnosisModal extends Component {
   }
 
   async deleteItem() {
-    const { itemId: _id, model: Model, parentModel } = this.props;
+    const { itemId: _id, model: Model } = this.props;
+    const { item } = this.state;
     try {
-      parentModel.get('diagnoses').remove({ _id });
-      await parentModel.save();
-      await Model.destroy();
+      Model.get('diagnoses').remove({ _id });
+      await Model.save();
+      await item.destroy();
       this.props.onClose();
     } catch (err) {
       console.error('Error: ', err);
@@ -70,13 +113,8 @@ class DiagnosisModal extends Component {
   }
 
   render() {
-    const {
-      onClose,
-      action,
-      model: Model
-    } = this.props;
-    const { attributes: form } = Model;
-
+    const { onClose, action } = this.props;
+    const { form } = this.state;
     return (
       <Modal open={this.props.isVisible} onClose={onClose} little>
         <form
@@ -84,13 +122,12 @@ class DiagnosisModal extends Component {
           className="create-container"
           onSubmit={this.submitForm}
         >
-          <div className="diagnosis-modal">
+          <div className="tamanu-error-modal diagnosis-modal">
             <div className="modal-header">
               <h2>{action === 'new' ? 'Add' : 'Update'} Diagnosis</h2>
             </div>
             <div className="modal-content">
               <InputGroup
-                className="field column m-b-10"
                 name="diagnosis"
                 label="Diagnosis"
                 value={form.diagnosis}
@@ -140,13 +177,13 @@ class DiagnosisModal extends Component {
                     <UpdateButton
                       can={{ do: 'update', on: 'diagnosis' }}
                       type="submit"
-                      disabled={!Model.isValid()} />
+                      disabled={!this.state.formValid} />
                   </React.Fragment>}
                 {action === 'new' &&
                   <AddButton
                     can={{ do: 'create', on: 'diagnosis' }}
                     type="submit"
-                    disabled={!Model.isValid()} />}
+                    disabled={!this.state.formValid} />}
               </div>
             </div>
           </div>
