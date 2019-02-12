@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from '@material-ui/core/InputBase';
@@ -101,8 +102,12 @@ class SearchBar extends Component {
   }
 };
 
-// SearchBar.defaultProps = {
-//   value: ''
-// };
+SearchBar.defaultProps = {
+  value: ''
+};
+
+SearchBar.propTypes = {
+  value: PropTypes.string,
+};
 
 export default withStyles(styles)(SearchBar);
