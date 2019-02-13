@@ -23,7 +23,6 @@ export default BaseModel.extend({
   },
 
   parse(res) {
-    console.log('-res-', res);
     return { ...res, date: moment(res.date) };
   },
 
