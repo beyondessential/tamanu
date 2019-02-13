@@ -1,3 +1,4 @@
+import Backbone from 'backbone-associations';
 import { defaults, clone, isEmpty } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
@@ -9,10 +10,25 @@ export default BaseModel.extend({
       date: moment(),
       diagnosis: null,
       secondaryDiagnosis: false,
-      certainty: null
+      certainty: null,
+      condition: ''
     },
     BaseModel.prototype.defaults,
   ),
+
+  relations: [
+    {
+      type: Backbone.One,
+      key: 'condition',
+      relatedModel: () => require('./condition'),
+    },
+    ...BaseModel.prototype.relations
+  ],
+
+  hasOngoingCondition() {
+    const { condition } = this.toJSON();
+    return !isEmpty(condition);
+  },
 
   cloneAttributes() {
     const attributes = clone(this.attributes);

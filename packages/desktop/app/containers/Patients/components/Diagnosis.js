@@ -58,7 +58,8 @@ class Diagnosis extends Component {
   render() {
     const {
       model: Model,
-      showSecondary
+      showSecondary,
+      patientModel
     } = this.props;
     const {
       modalVisible,
@@ -93,7 +94,8 @@ class Diagnosis extends Component {
         </div>
         <DiagnosisModal
           model={itemModel}
-          parentModel={Model}
+          visitModel={Model}
+          patientModel={patientModel}
           action={action}
           isVisible={modalVisible}
           onClose={this.onCloseModal}

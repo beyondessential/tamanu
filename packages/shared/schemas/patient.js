@@ -185,9 +185,9 @@ const PatientSchema = {
       type: 'list',
       objectType: 'allergy'
     },
-    diagnoses: {
+    conditions: {
       type: 'list',
-      objectType: 'diagnosis'
+      objectType: 'condition'
     },
     operationReports: {
       type: 'list',

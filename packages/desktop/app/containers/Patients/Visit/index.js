@@ -196,12 +196,12 @@ class EditVisit extends Component {
                   {action !== 'new' &&
                     <div className="columns border-bottom">
                       <div className="column">
-                        <Diagnosis model={visitModel} />
+                        <Diagnosis model={visitModel} patientModel={patientModel} />
                         <Procedure model={patientModel} />
                         <OperativePlan model={patientModel} history={this.props.history} />
                       </div>
                       <div className="column">
-                        <Diagnosis model={visitModel} showSecondary />
+                        <Diagnosis model={visitModel} patientModel={patientModel} showSecondary />
                         <Allergy model={patientModel} />
                       </div>
                     </div>

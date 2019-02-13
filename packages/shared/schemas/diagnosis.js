@@ -19,6 +19,7 @@ const DiagnosisSchema = {
       type: 'bool',
       default: false
     },
+    condition: 'condition?',
     certainty: 'string', // suspected or confirmed
   }, defaults)
 };
