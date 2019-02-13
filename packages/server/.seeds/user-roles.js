@@ -46,7 +46,7 @@ module.exports = (database) => {
     { // allow CRUD actions for [models]
       actions: ['manage'],
       subject: [
-        'allergy', 'answer', 'appointment', 'diagnosis', 'lab', 'imaging', 'medicationHistory', 'medication', 'note',
+        'allergy', 'answer', 'appointment', 'diagnosis', 'condition', 'lab', 'imaging', 'medicationHistory', 'medication', 'note',
         'operationPlan', 'operationReport', 'patientContact', 'patient', 'photo', 'pregnancy',
         'procedureMedication', 'procedure', 'report', 'visit', 'vital'
       ]
@@ -100,7 +100,7 @@ module.exports = (database) => {
     ...seniorNurse,
     {
       actions: ['create'],
-      subject: ['appointment', 'diagnosis'],
+      subject: ['appointment', 'diagnosis', 'condition'],
       inverted: true
     }, {
       actions: ['create', 'delete'],
