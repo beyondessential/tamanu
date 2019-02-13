@@ -8,7 +8,8 @@ export default BaseModel.extend({
       active: true,
       date: moment(),
       diagnosis: null,
-      secondaryDiagnosis: false
+      secondaryDiagnosis: false,
+      certainty: null
     },
     BaseModel.prototype.defaults,
   ),

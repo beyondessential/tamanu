@@ -3,8 +3,9 @@ import Modal from 'react-responsive-modal';
 import moment from 'moment';
 import styled from 'styled-components';
 import { InputGroup, AddButton, CancelButton,
-          DeleteButton, UpdateButton, CheckboxGroup,
+          DeleteButton, UpdateButton, CheckboxGroup, SelectGroup,
           DatepickerGroup } from '../../../components';
+import { diagnosisCertainty } from '../../../constants';
 
 const CheckboxGroupNoPadding = styled(CheckboxGroup)`
   padding-top: 0 !important;
@@ -97,12 +98,21 @@ class DiagnosisModal extends Component {
                 autoFocus
                 required
               />
-              <DatepickerGroup
-                className="column is-half"
-                label="Date"
-                name="date"
-                value={form.date}
-                onChange={this.handleUserInput} />
+              <div className="columns p-l-15 p-r-15">
+                <DatepickerGroup
+                  className="column is-half"
+                  label="Date"
+                  name="date"
+                  value={form.date}
+                  onChange={this.handleUserInput} />
+                <SelectGroup
+                  className="column is-half"
+                  label="Certainty"
+                  name="certainty"
+                  options={diagnosisCertainty}
+                  value={form.certainty}
+                  onChange={this.handleUserInput} />
+              </div>
               <CheckboxGroupNoPadding
                 className="column"
                 checked={form.secondaryDiagnosis}
