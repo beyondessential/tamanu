@@ -87,8 +87,8 @@ class DiagnosisModal extends Component {
       // link to current diagnosis object
       model.set({ 'condition': conditionModel });
       await model.save();
-
       notifySuccess('Diagnosis was marked as an ongoing condition successfully.');
+      this.forceUpdate(); // re-render
     } else {
       notifyError('Invalid request');
     }

@@ -11,7 +11,7 @@ export default BaseModel.extend({
       diagnosis: null,
       secondaryDiagnosis: false,
       certainty: null,
-      condition: ''
+      condition: null
     },
     BaseModel.prototype.defaults,
   ),

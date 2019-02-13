@@ -7,9 +7,10 @@ export default BaseModel.extend({
   defaults: () => ({
     date: moment(),
     condition: null,
-    diagnosis: '',
+    diagnosis: null,
     ...BaseModel.prototype.defaults
   }),
+  ignoreRequestKeys: ['diagnosis'],
 
   reverseRelations: [
     {
