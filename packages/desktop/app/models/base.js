@@ -182,12 +182,24 @@ export default Backbone.AssociatedModel.extend({
 
   _parseParents() {
     const parents = [];
+    const { attributes } = this;
     if (typeof this.reverseRelations === 'object') {
       const reverse = this.reverseRelations;
-      reverse.forEach(({ key, model: Model }) => {
-        if (!parents[key]) parents[key] = [];
-        if (has(this.attributes, key) && this.attributes[key]) {
-          concatSelf(parents[key], this.attributes[key].map(record => new Model(record)));
+      reverse.forEach(({ type, key, model: Model }) => {
+        switch(type) {
+          default:
+          case Backbone.Many:
+            if (!parents[key]) parents[key] = [];
+            if (has(attributes, key) && attributes[key]) {
+              concatSelf(parents[key], attributes[key].map(record => new Model(record)));
+            }
+          break;
+          case Backbone.One:
+            if (!parents[key]) parents[key] = {};
+            if (has(attributes, key) && attributes[key]) {
+              parents[key] = new Model(attributes[key]);
+            }
+          break;
         }
       });
     }
