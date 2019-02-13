@@ -76,7 +76,7 @@ module.exports = (database) => {
   ];
 
   const seniorNurse = [ // all abilities from `juniorDoctor`
-  ...juniorDoctor,
+    ...juniorDoctor,
     { // don't allow 'delete' for [model]
       actions: ['create'],
       subject: ['operationPlan', 'operationReport'],
@@ -174,6 +174,13 @@ module.exports = (database) => {
     },
   ];
 
+  const superUser = [
+    {
+      actions: ['manage'],
+      subject: ['all'],
+    }
+  ];
+
   const roles = [
     {
       _id: 'senior-doctor',
@@ -229,6 +236,11 @@ module.exports = (database) => {
       _id: 'lab',
       name: 'Lab',
       abilities: JSON.stringify(lab)
+    },
+    {
+      _id: 'super',
+      name: 'Super',
+      abilities: JSON.stringify(superUser)
     },
   ];
 

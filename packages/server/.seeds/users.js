@@ -36,7 +36,7 @@ module.exports = (database) => {
 
   const seniorDoctorRole = database.findOne('role', 'senior-doctor');
   const adminRole = database.findOne('role', 'admin');
-  const juniorNurseRole = database.findOne('role', 'junior-nurse');
+  const superUserRole = database.findOne('role', 'super');
 
   const userARole1 = database.create('userRole', {
     _id: `${userA._id}:${hospitalA._id}:${seniorDoctorRole._id}`,
@@ -51,9 +51,9 @@ module.exports = (database) => {
   }, true);
 
   const userBRole1 = database.create('userRole', {
-    _id: `${userB._id}:${hospitalA._id}:${juniorNurseRole._id}`,
+    _id: `${userB._id}:${hospitalA._id}:${superUserRole._id}`,
     hospital: hospitalA,
-    role: juniorNurseRole
+    role: superUserRole
   }, true);
 
   // User A
