@@ -226,9 +226,9 @@ class Sync {
     return newRecord;
   }
 
-  _mergeChanges(currentRecord, updatedRecord, recordType, action, newRecord) {
-    let { modifiedFields: currentModifiedFields } = currentRecord || {};
-    const { modifiedFields: updatedModifiedFields } = updatedRecord;
+  _mergeChanges(currentRecord = {}, updatedRecord, recordType, action, newRecord) {
+    let { modifiedFields: currentModifiedFields = [] } = currentRecord;
+    const { modifiedFields: updatedModifiedFields = [] } = updatedRecord;
     if (currentModifiedFields) currentModifiedFields = Array.from(currentModifiedFields);
 
     updatedModifiedFields.forEach(({ time: updateTime, token, field }) => {
@@ -267,13 +267,13 @@ class Sync {
     return newRecord;
   }
 
-  _updateRecord({ recordType, currentRecord, newRecord }) {
+  _updateRecord({ recordType, currentRecord = {}, newRecord }) {
     // get new item added to `objectsFullySynced`
-    let { objectsFullySynced: oldSyncedItems } = currentRecord;
-    let { objectsFullySynced: newSyncedItems } = newRecord;
+    let { objectsFullySynced: oldSyncedItems = [] } = currentRecord;
+    let { objectsFullySynced: newSyncedItems = [] } = newRecord;
     // parse
-    oldSyncedItems = Array.from(oldSyncedItems || []);
-    newSyncedItems = Array.from(newSyncedItems || []);
+    oldSyncedItems = Array.from(oldSyncedItems);
+    newSyncedItems = Array.from(newSyncedItems);
     // write to db
     this.database.write(() => {
       this.database.create(recordType, newRecord, true);

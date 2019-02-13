@@ -89,7 +89,7 @@ export default Backbone.AssociatedModel.extend({
       if (this.isNew()) this.lastSyncedAttributes = defaultAttributes;
 
       let modifiedFields = jsonDiff.diff(this.lastSyncedAttributes, this.toJSON());
-      modifiedFields = Object.keys(modifiedFields).map(field => field.split('__')[0]);
+      if (modifiedFields) modifiedFields = Object.keys(modifiedFields).map(field => field.split('__')[0]);
 
       // Set last modified times
       modifiedAttributes = this._setModifiedFields({ modifiedFields, defaultAttributes, attributes, ModifiedFieldModel, secret, modifiedAttributes });
