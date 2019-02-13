@@ -46,6 +46,9 @@ export const notify = (message, { type='error', autoClose=null, ...props } = {})
   }
 }
 
+export const notifySuccess = (msg, props) => notify(msg, { ...props, type: 'success' });
+export const notifyError = notify;
+
 export const flattenRequest = (object, deep = true) => {
   try {
     const newObject = object;
