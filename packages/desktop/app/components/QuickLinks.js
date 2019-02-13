@@ -14,9 +14,8 @@ const FabBottomRight = styled(Fab)`
   bottom: 20px !important;
 `;
 
-const QuickLinksItem = ({ to, text, key, children, ...props }) =>
+const QuickLinksItem = ({ to, text, children, ...props }) =>
   <MenuItem
-    key={key}
     component={ ButtonBase }
     to={to}
     {...props}
