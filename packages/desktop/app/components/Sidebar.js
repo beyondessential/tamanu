@@ -93,10 +93,11 @@ const PrimarySidebarItem = ({ item, ability, selected, onClick }) => (
 const SecondarySidebarItem = withRouter(({ item, location, parentAbility }) => {
   const ability = { ...parentAbility, ...(item.ability || {}) };
   const { action, subject } = ability;
-  let allowed = false;
-  if (action && subject) {
-    allowed = checkAbility({ action, subject });
+  if (!action || !subject) {
+    throw new Error("Invalid ability provided to sidebar item");
   }
+  const allowed = checkAbility({ action, subject });
+
   return <ListItem
     button
     component={ Link }
