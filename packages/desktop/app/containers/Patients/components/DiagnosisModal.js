@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Modal from 'react-responsive-modal';
 import moment from 'moment';
 import styled from 'styled-components';
+import PropTypes from 'prop-types';
 import { InputGroup, AddButton, CancelButton,
           DeleteButton, UpdateButton, CheckboxGroup, SelectGroup,
           DatepickerGroup } from '../../../components';
@@ -15,13 +16,23 @@ const CheckboxGroupNoPadding = styled(CheckboxGroup)`
 class DiagnosisModal extends Component {
   constructor(props) {
     super(props);
+    this.state = { ...this.props.model.attributes, formIsValid: false };
     this.submitForm = this.submitForm.bind(this);
+    this.handleChange = this.handleChange.bind(this);
     this.handleUserInput = this.handleUserInput.bind(this);
     this.deleteItem = this.deleteItem.bind(this);
   }
 
+  componentWillReceiveProps(newProps) {
+    const { attributes } = newProps.model;
+    const formIsValid = newProps.model.isValid();
+    this.setState({ ...attributes, formIsValid });
+    // handle model's change
+    newProps.model.off('change');
+    newProps.model.on('change', this.handleChange);
+  }
+
   handleUserInput = (e, field) => {
-    const { model: Model } = this.props;
     let fieldName = field;
     let fieldValue = '';
 
@@ -34,8 +45,13 @@ class DiagnosisModal extends Component {
       fieldValue = value;
     }
 
-    Model.set({ [fieldName]: fieldValue });
-    this.forceUpdate(); // re-render
+    this.props.model.set({ [fieldName]: fieldValue });
+  }
+
+  handleChange() {
+    const formIsValid = this.props.model.isValid();
+    const changedAttributes = this.props.model.changedAttributes();
+    this.setState({ ...changedAttributes, formIsValid });
   }
 
   submitForm = async (e) => {
@@ -73,9 +89,15 @@ class DiagnosisModal extends Component {
     const {
       onClose,
       action,
-      model: Model
     } = this.props;
-    const { attributes: form } = Model;
+    const {
+      diagnosis,
+      date,
+      certainty,
+      secondaryDiagnosis,
+      active,
+      formIsValid
+    } = this.state;
 
     return (
       <Modal
@@ -97,8 +119,7 @@ class DiagnosisModal extends Component {
                 className="field column m-b-10"
                 name="diagnosis"
                 label="Diagnosis"
-                value={form.diagnosis}
-                onChange={this.handleUserInput}
+                value={diagnosis}
                 autoFocus
                 required
               />
@@ -107,25 +128,25 @@ class DiagnosisModal extends Component {
                   className="column is-half"
                   label="Date"
                   name="date"
-                  value={form.date}
+                  value={date}
                   onChange={this.handleUserInput} />
                 <SelectGroup
                   className="column is-half"
                   label="Certainty"
                   name="certainty"
                   options={diagnosisCertainty}
-                  value={form.certainty}
+                  value={certainty}
                   onChange={this.handleUserInput} />
               </div>
               <CheckboxGroupNoPadding
                 className="column"
-                checked={form.secondaryDiagnosis}
+                checked={secondaryDiagnosis}
                 label="Secondary Diagnosis"
                 name="secondaryDiagnosis"
                 onChange={this.handleUserInput} />
               <CheckboxGroupNoPadding
                 className="column"
-                checked={form.active}
+                checked={active}
                 label="Active Diagnosis"
                 name="active"
                 onChange={this.handleUserInput}
@@ -144,13 +165,13 @@ class DiagnosisModal extends Component {
                     <UpdateButton
                       can={{ do: 'update', on: 'diagnosis' }}
                       type="submit"
-                      disabled={!Model.isValid()} />
+                      disabled={!formIsValid} />
                   </React.Fragment>}
                 {action === 'new' &&
                   <AddButton
                     can={{ do: 'create', on: 'diagnosis' }}
                     type="submit"
-                    disabled={!Model.isValid()} />}
+                    disabled={!formIsValid} />}
               </div>
             </div>
           </div>
@@ -159,5 +180,9 @@ class DiagnosisModal extends Component {
     );
   }
 }
+
+DiagnosisModal.propTypes = {
+  model: PropTypes.object.isRequired,
+};
 
 export default DiagnosisModal;
