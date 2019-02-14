@@ -108,26 +108,31 @@ export const sidebarInfo = [
     label: 'Patients',
     path: '/patients',
     icon: patientIcon,
+    ability: { subject: 'patient' },
     children: [
       {
         label: 'Patient Listing',
         path: '/patients',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
+        ability: { action: 'read' },
       },
       {
         label: 'Admitted Patients',
         path: '/patients/admitted',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
+        ability: { action: 'read' },
       },
       {
         label: 'Outpatient',
         path: '/patients/outpatient',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
+        ability: { action: 'read' },
       },
       {
         label: 'New Patient',
         path: '/patients/edit/new',
-        icon: 'fa fa-plus'
+        icon: 'fa fa-plus',
+        ability: { action: 'create' },
       },
     ]
   },
@@ -136,41 +141,49 @@ export const sidebarInfo = [
     label: 'Scheduling',
     path: '/appointments',
     icon: scheduleIcon,
+    ability: { subject: 'appointment' },
     children: [
       {
         label: 'Appointments This Week',
         path: '/appointments/week',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
+        ability: { action: 'read' },
       },
       {
         label: "Today's Appointments",
         path: '/appointments/today',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
+        ability: { action: 'read' },
       },
       {
         label: 'Search Appointments',
         path: '/appointments/search',
-        icon: 'fa fa-search'
+        icon: 'fa fa-search',
+        ability: { action: 'read' },
       },
       {
         label: 'Appointments Calendar',
         path: '/appointments/calendar',
-        icon: 'fa fa-calendar'
+        icon: 'fa fa-calendar',
+        ability: { action: 'read' },
       },
       {
         label: 'Add Appointment',
         path: '/appointments/appointment/new',
-        icon: 'fa fa-plus'
+        icon: 'fa fa-plus',
+        ability: { action: 'create' },
       },
       {
         label: 'Theater Schedule',
         path: '/appointments/theater',
-        icon: 'fa fa-calendar'
+        icon: 'fa fa-calendar',
+        ability: { action: 'read' },
       },
       {
         label: 'Schedule Surgery',
         path: '/appointments/surgery/new',
-        icon: 'fa fa-plus'
+        icon: 'fa fa-plus',
+        ability: { action: 'create' },
       }
     ]
   },
@@ -179,26 +192,31 @@ export const sidebarInfo = [
     label: 'Medication',
     path: '/medication',
     icon: medicationIcon,
+    ability: { subject: 'medication' },
     children: [
       {
         label: 'Requests',
         path: '/medication/requests',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
+        ability: { action: 'read' },
       },
       {
         label: 'Completed',
         path: '/medication/completed',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
+        ability: { action: 'read' },
       },
       {
         label: 'New Request',
         path: '/medication/request',
-        icon: 'fa fa-plus'
+        icon: 'fa fa-plus',
+        ability: { action: 'create' },
       },
       {
         label: 'Dispense',
         path: '/medication/dispense',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
+        ability: { action: 'create' },
       }
     ]
   },
@@ -207,21 +225,25 @@ export const sidebarInfo = [
     label: 'Imaging',
     path: '/imaging',
     icon: radiologyIcon,
+    ability: {  subject: 'imaging' },
     children: [
       {
         label: 'Requests',
         path: '/imaging',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
+        ability: { action: 'read' },
       },
       {
         label: 'Completed',
         path: '/imaging/completed',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
+        ability: { action: 'read' },
       },
       {
         label: 'New Request',
         path: '/imaging/edit/new',
-        icon: 'fa fa-plus'
+        icon: 'fa fa-plus',
+        ability: { action: 'create' },
       }
     ]
   },
@@ -230,22 +252,26 @@ export const sidebarInfo = [
     label: 'Labs',
     path: '/labs',
     icon: labsIcon,
+    ability: {  subject: 'lab' },
     children: [
       {
         label: 'Requests',
         path: '/labs',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
+        ability: { action: 'read' },
       },
-      // {
-      //   label: 'Completed',
-      //   path: '/labs/completed',
-      //   icon: 'fa fa-chevron-right'
-      // },
-      // {
-      //   label: 'New Request',
-      //   path: '/labs/edit/new',
-      //   icon: 'fa fa-plus'
-      // }
+      {
+        label: 'Completed',
+        path: '/labs/completed',
+        icon: 'fa fa-chevron-right',
+        ability: { action: 'read' },
+      },
+      {
+        label: 'New Request',
+        path: '/labs/edit/new',
+        icon: 'fa fa-plus',
+        ability: { action: 'create' },
+      }
     ]
   },
   {
@@ -253,6 +279,7 @@ export const sidebarInfo = [
     label: 'Administration',
     path: '/admin',
     icon: administrationIcon,
+    ability: {  subject: 'imaging' },
     children: [
       {
         label: 'Address Fields',
@@ -272,17 +299,20 @@ export const sidebarInfo = [
       {
         label: 'Users',
         path: '/admin/users',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
+        ability: { action: 'read', subject: 'user' },
       },
       {
         label: 'New User',
         path: '/admin/users/edit/new',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
+        ability: { action: 'create', subject: 'user' },
       },
       {
         label: 'User Roles',
         path: '/admin/roles',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
+        ability: { action: 'read', subject: 'userRole' },
       }
     ]
   },
@@ -291,6 +321,7 @@ export const sidebarInfo = [
     label: 'Programs',
     path: '/programs',
     icon: programsIcon,
+    ability: { action: 'read', subject: 'program' },
     children: []
   },
   {
@@ -1300,6 +1331,51 @@ export const appointmentsColumns = [{
   style: columnStyle,
   minWidth: 100,
   sortable: false,
+}, {
+  id: 'appointmentType',
+  accessor: row => capitalize(row.appointmentType),
+  Header: 'Type',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 80,
+}, {
+  accessor: 'location',
+  Header: 'Location',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 100,
+}, {
+  accessor: 'provider',
+  Header: 'With',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 80,
+}, {
+  id: 'status',
+  accessor: row => capitalize(row.status),
+  Header: 'Status',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 80,
+}, {
+  id: 'actions',
+  Header: 'Actions',
+  headerStyle: {
+    backgroundColor: Colors.searchTintColor
+  },
+  style: columnStyle,
+  minWidth: 250,
+  Cell: null,
+  sortable: false,
+}];
+
+export const patientAppointmentsColumns = [{
+  id: 'startDate',
+  accessor: row => moment(row.startDate).format(dateFormat),
+  Header: 'Date',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 100,
 }, {
   id: 'appointmentType',
   accessor: row => capitalize(row.appointmentType),

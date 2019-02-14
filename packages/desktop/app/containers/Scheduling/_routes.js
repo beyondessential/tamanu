@@ -19,6 +19,7 @@ export default function Routes({ url }) {
         <Route path={`${url}/today`} component={TodayAppointments} />
         <Route path={`${url}/search`} component={SearchAppointment} />
         <Route path={`${url}/calendar`} component={AppointmentsCalendar} />
+        <Route path={`${url}/appointmentByPatient/:patientId`} component={Appointment} />
         <Route path={`${url}/appointment/new`} component={Appointment} />
         <Route path={`${url}/appointment/:id`} component={Appointment} />
         <Route path={`${url}/theater`} component={TheaterSchedule} />

@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import moment from 'moment';
 import { isEmpty } from 'lodash';
+
 import AppointmentsTable from './components/AppointmentsTable';
-import { Preloader } from '../../components';
+import { Preloader, TopBar  } from '../../components';
+
 
 class Appointments extends Component {
   state = {
@@ -28,16 +29,14 @@ class Appointments extends Component {
     }
     return (
       <div className="content">
-        <div className="view-top-bar">
-          <span>
-            {today ? "Today's Appointments" : "Appointments This Week"}
-          </span>
-          <div className="view-action-buttons">
-            <Link to="/appointments/appointment/new">
-              <i className="fa fa-plus" /> New Appointment
-            </Link>
-          </div>
-        </div>
+        <TopBar
+          title={today ? "Today's Appointments" : "Appointments This Week"}
+          buttons={{
+            to: "/appointments/appointment/new",
+            can: { do: 'create', on: 'appointment' },
+            children: 'New Appointment'
+          }}
+        />
         <AppointmentsTable
           keys={keys}
           history={this.props.history}

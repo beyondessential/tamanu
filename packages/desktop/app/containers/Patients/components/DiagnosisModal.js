@@ -3,10 +3,17 @@ import Modal from 'react-responsive-modal';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import { clone, pick } from 'lodash';
-import InputGroup from '../../../components/InputGroup';
+import styled from 'styled-components';
+import { InputGroup, AddButton, CancelButton,
+          DeleteButton, UpdateButton, CheckboxGroup } from '../../../components';
 import { DiagnosisModel } from '../../../models';
 import CustomDateInput from '../../../components/CustomDateInput';
 import { dateFormat } from '../../../constants';
+
+const CheckboxGroupNoPadding = styled(CheckboxGroup)`
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+`;
 
 class DiagnosisModal extends Component {
   constructor(props) {
@@ -149,23 +156,41 @@ class DiagnosisModal extends Component {
                   }}
                 />
               </div>
-              <div className="column is-half is-pulled-left">
-                <label className="checkbox">
-                  <input type="checkbox" name="secondaryDiagnosis" checked={form.secondaryDiagnosis} onChange={this.handleUserInput} /> Secondary Diagnosis
-                </label>
-              </div>
-              <div className={`column is-half is-pulled-right ${action === 'new' ? 'is-hidden' : ''}`}>
-                <label className="checkbox">
-                  <input type="checkbox" name="active" checked={form.active} onChange={this.handleUserInput} /> Active Diagnosis
-                </label>
-              </div>
+              <CheckboxGroupNoPadding
+                className="column"
+                checked={form.secondaryDiagnosis}
+                label="Secondary Diagnosis"
+                name="secondaryDiagnosis"
+                onChange={this.handleUserInput}
+              />
+              <CheckboxGroupNoPadding
+                className="column"
+                checked={form.active}
+                label="Active Diagnosis"
+                name="active"
+                onChange={this.handleUserInput}
+              />
               <div className="is-clearfix" />
             </div>
             <div className="modal-footer">
               <div className="column has-text-right">
-                <button className="button is-default" type="button" onClick={onClose}>Cancel</button>
-                <button className={action !== 'new' ? 'button is-danger' : 'button is-danger is-hidden'} type="button" onClick={this.deleteItem}>Delete</button>
-                <button className="button is-primary" type="submit" disabled={!this.state.formValid}>{action === 'new' ? 'Add' : 'Update'}</button>
+                <CancelButton
+                  onClick={onClose} />
+                {action !== 'new' &&
+                  <React.Fragment>
+                    <DeleteButton
+                      can={{ do: 'delete', on: 'diagnosis' }}
+                      onClick={this.deleteItem} />
+                    <UpdateButton
+                      can={{ do: 'update', on: 'diagnosis' }}
+                      type="submit"
+                      disabled={!this.state.formValid} />
+                  </React.Fragment>}
+                {action === 'new' &&
+                  <AddButton
+                    can={{ do: 'create', on: 'diagnosis' }}
+                    type="submit"
+                    disabled={!this.state.formValid} />}
               </div>
             </div>
           </div>

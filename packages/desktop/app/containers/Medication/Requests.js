@@ -9,8 +9,7 @@ import {
   medicationStatuses,
   dbViews
 } from '../../constants';
-
-import { Button } from '../../components/Button';
+import { NewButton, TextButton, Button } from '../../components/Button';
 
 class Requests extends Component {
   constructor(props) {
@@ -67,19 +66,28 @@ class Requests extends Component {
               Medication Requests
             </span>
             <div className="view-action-buttons">
-              <Link to="/medication/request">
-                + New Request
-              </Link>
-              <Link to="/medication/edit/dispense">
-                Dispense Medication
-              </Link>
+              <NewButton
+                to="/medication/request"
+                can={{ do: 'create', on: 'medication' }}
+              >New Request</NewButton>
+              <NewButton
+                variant="contained"
+                color="secondary"
+                to="/medication/dispense"
+                can={{ do: 'create', on: 'medication' }}
+              >Dispense Medication</NewButton>
             </div>
           </div>
           <div className="detail">
             {medications.length === 0 ?
               <div className="notification">
                 <span>
-                  No medications found. <Link to="/medication/request">Create a new medication record?</Link>
+                  No medications found.
+                  <TextButton
+                    className="p-l-5"
+                    to="/medication/request"
+                    can={{ do: 'create', on: 'medication' }}
+                  > Create a new medication record? </TextButton>
                 </span>
               </div>
               :

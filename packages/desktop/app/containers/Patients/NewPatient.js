@@ -5,12 +5,11 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 
 import actions from '../../actions/patients';
-import { Modal as ModalView, InputGroup, CustomDateInput } from '../../components';
+import { Modal as ModalView, InputGroup, CustomDateInput,
+          BackButton, Button, AddButton, TopBar } from '../../components';
 import Serializer from '../../utils/form-serialize';
 import { bloodOptions, sexOptions, getDifferenceDate } from '../../constants';
 import { PatientModel } from '../../models';
-
-import { BackButton, Button, AddButton } from '../../components/Button';
 
 class NewPatient extends Component {
   state = {
@@ -20,15 +19,10 @@ class NewPatient extends Component {
     sex: '',
     age: '0 months 0 days',
     referredDate: moment(),
-    contactModalVisible: false
   }
 
   onCloseModal = () => {
     this.setState({ formError: false });
-  }
-
-  onCloseContactModal = () => {
-    this.setState({ contactModalVisible: false });
   }
 
   updateBloodValue = (newValue) => {
@@ -66,16 +60,6 @@ class NewPatient extends Component {
     } = this.state;
     return (
       <div className="create-content">
-        <div className="create-top-bar">
-          <span>
-            New Patient
-          </span>
-          <div className="view-action-buttons">
-            <button>
-              Admit Patient
-            </button>
-          </div>
-        </div>
         <form
           className="create-container"
           onSubmit={async (e) => {
@@ -95,6 +79,18 @@ class NewPatient extends Component {
             }
           }}
         >
+          <TopBar
+            title="New Patient"
+            buttons={(
+              <React.Fragment>
+                <BackButton to="/patients" />
+                <AddButton
+                  type="submit"
+                  disabled={patientInProgress}
+                />
+              </React.Fragment>
+            )}
+          />
           <div className="form">
             <div className="columns">
               <div className="column">

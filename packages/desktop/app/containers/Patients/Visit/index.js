@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import Select from 'react-select';
 import moment from 'moment';
-import { capitalize, isEmpty, clone } from 'lodash';
+import { capitalize } from 'lodash';
 
 import TopRow from '../components/TopRow';
 import Allergy from '../components/Allergy';
@@ -14,7 +13,9 @@ import Vitals from './Vitals';
 import Notes from './Notes';
 import Procedures from './Procedures';
 import actions from '../../../actions/patients';
-import { Preloader, InputGroup, DatepickerGroup, Modal } from '../../../components';
+import { Preloader, InputGroup, DatepickerGroup, TopBar,
+          AddButton, UpdateButton, CancelButton,
+          DischargeButton, CheckOutButton } from '../../../components';
 import { visitOptions, visitStatuses } from '../../../constants';
 
 const classNames = require('classnames');
@@ -117,6 +118,45 @@ class EditVisit extends Component {
     this.props.submitForm({ action, visitModel, patientModel, history: this.props.history, setStatus });
   }
 
+  renderTabs() {
+    const { selectedTab } = this.state;
+    return [
+      { value: 'vitals', label: 'Vitals' },
+      { value: 'notes', label: 'Notes' },
+      { value: 'procedures', label: 'Procedures' },
+      { value: 'reports', label: 'Reports' },
+    ]
+    .map(item => (
+      <li
+        key={ item.value }
+        className={selectedTab === item.value ? 'is-active selected' : ''}
+      >
+        <a onClick={() => this.changeTab(item.value)}>{ item.label }</a>
+      </li>
+    ));
+  }
+
+  renderTabsContent() {
+    const { selectedTab, visitModel, patientModel } = this.state;
+
+    return (<React.Fragment>
+      {(selectedTab === '' || selectedTab === 'vitals') &&
+        <div className="column">
+          <Vitals model={visitModel} />
+        </div>}
+      {selectedTab === 'notes' &&
+        <div className="column">
+          <Notes model={visitModel} patientModel={patientModel} />
+        </div>}
+      {selectedTab === 'procedures' &&
+        <div className="column">
+          <Procedures history={this.props.history} model={visitModel} patientModel={patientModel} />
+        </div>}
+      {selectedTab === 'reports' &&
+        <div className="column">Reports</div>}
+    </React.Fragment>);
+  }
+
   render() {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
@@ -127,8 +167,6 @@ class EditVisit extends Component {
       patientModel,
       patient,
       visitModel,
-      error,
-      visitSaved,
       selectedTab,
     } = this.state;
     console.log('-visitModel-', visitModel);
@@ -136,9 +174,8 @@ class EditVisit extends Component {
     return (
       <div>
         <div className="create-content">
-          <div className="create-top-bar">
-            <span>{checkIn ? 'Patient Check In' : `${capitalize(action)} Visit`}</span>
-          </div>
+          <TopBar
+            title={checkIn ? 'Patient Check In' : `${capitalize(action)} Visit`} />
           <div className="create-container">
             <div className="form">
               <form
@@ -252,72 +289,42 @@ class EditVisit extends Component {
                   </div>
                 </div>
               </div>
-
-              {/* <div className="columns">
-                <div className="column is-4">
-                  <InputGroup
-                    name="finalDignosis"
-                    label="Final/Billing Diagnosis"
-                    onChange={this.handleUserInput}
-                  />
-                </div>
-              </div> */}
-
               {action === 'edit' &&
                 <div className="columns">
                   <div className="column">
                     <div className="tabs">
                       <ul>
-                        <li className={classNames(selectedTab === '' || selectedTab === 'vitals' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('vitals')}>Vitals</a></li>
-                        <li className={classNames(selectedTab === 'notes' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('notes')}>Notes</a></li>
-                        <li className={classNames(selectedTab === 'procedures' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('procedures')}>Procedures</a></li>
-                        <li className={classNames(selectedTab === 'reports' ? 'is-active selected' : '')}><a onClick={() => this.changeTab('reports')}>Reports</a></li>
+                        { this.renderTabs() }
                       </ul>
                     </div>
                     <div className="tab-content">
-                      {(selectedTab === '' || selectedTab === 'vitals') &&
-                        <div className="column">
-                          <Vitals
-                            model={visitModel}
-                          />
-                        </div>
-                      }
-                      {selectedTab === 'notes' &&
-                        <div className="column">
-                          <Notes
-                            model={visitModel}
-                            patientModel={patientModel}
-                          />
-                        </div>
-                      }
-                      {selectedTab === 'procedures' &&
-                        <div className="column">
-                          <Procedures
-                            history={this.props.history}
-                            model={visitModel}
-                            patientModel={patientModel}
-                          />
-                        </div>
-                      }
-                      {selectedTab === 'reports' &&
-                        <div className="column">Reports</div>
-                      }
+                      { this.renderTabsContent() }
                     </div>
                   </div>
                 </div>
               }
               <div className="column has-text-right">
-                <Link className="button is-danger cancel" to={`/patients/editPatient/${patient._id}`}>Return</Link>
-                <button className="button is-primary cancel" type="submit" form="visitForm">{action === 'new' ? 'Add' : 'Update'}</button>
+                <CancelButton
+                  to={`/patients/editPatient/${patient._id}`} />
+                {action === 'new' && <AddButton
+                                      disabled={!visitModel.isValid()}
+                                      type="submit"
+                                      form="visitForm"
+                                      can={{ do: 'create', on: 'visit' }} />}
+                {action !== 'new' && <UpdateButton
+                                      disabled={!visitModel.isValid()}
+                                      type="submit"
+                                      form="visitForm"
+                                      can={{ do: 'update', on: 'visit' }} />}
                 {form.status === visitStatuses.ADMITTED &&
-                  <button className="button is-primary" onClick={this.discharge} type="button">
-                    <i className="fa fa-sign-out" /> Discharge
-                  </button>
+                  <DischargeButton
+                    onClick={this.discharge}
+                    can={{ do: 'update', on: 'visit', field: 'status' }} />
                 }
                 {form.status === visitStatuses.CHECKED_IN &&
-                  <button className="button is-primary" onClick={this.checkOut} type="button">
-                    <i className="fa fa-sign-out" /> Check-out
-                  </button>
+                  <CheckOutButton
+                    onClick={this.checkOut}
+                    can={{ do: 'update', on: 'visit', field: 'status' }} />
                 }
               </div>
             </div>

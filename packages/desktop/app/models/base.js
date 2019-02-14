@@ -31,6 +31,7 @@ export default Backbone.AssociatedModel.extend({
     modifiedBy: '',
     modifiedAt: null,
   },
+  ignoreRequestKeys: [],
 
   // Associations
   relations: [

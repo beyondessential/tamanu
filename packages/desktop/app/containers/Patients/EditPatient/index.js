@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
-import { BackButton } from '../../../components/Button';
-
-import { Preloader } from '../../../components';
+import { Preloader, BackButton } from '../../../components';
 import actions from '../../../actions/patients';
 import Allergy from '../components/Allergy';
 import Diagnosis from '../components/Diagnosis';
 import Procedure from '../components/Procedure';
 import OperativePlan from '../components/OperativePlan';
+import PatientQuickLinks from '../components/PatientQuickLinks';
 import History from './History';
 import General from './General';
 import Photos from './Photos';
@@ -21,17 +21,13 @@ import Programs from './Programs';
 import Pregnancy from './Pregnancy';
 import TopRow from '../components/TopRow';
 
-// import Serializer from '../../../utils/form-serialize';
-import { PatientModel, AllergyModel } from '../../../models';
-
-const classNames = require('classnames');
-
 class EditPatient extends Component {
   state = {
     patient: {},
     loading: true,
     patientModel: {},
     selectedTab: '',
+    anchorEl: null,
   }
 
   componentDidMount() {
@@ -51,10 +47,6 @@ class EditPatient extends Component {
 
   }
 
-  // componentWillUnmount() {
-  //   patientModel.off('change', this.handleChange);
-  // }
-
   handleChange(props = this.props) {
     let updates = {};
     const { patient, action, loading } = props;
@@ -70,12 +62,6 @@ class EditPatient extends Component {
     }
     this.setState(updates);
   }
-
-  // handleChange = () => {
-  //   const patient = patientModel.toJSON({ relations: true });
-  //   const procedures = patientModel.getProcedures();
-  //   this.setState({ patient, procedures });
-  // }
 
   changeTab = (tabName) => {
     this.setState({ selectedTab: tabName });
@@ -104,7 +90,10 @@ class EditPatient extends Component {
       case 'appointment':
         return (
           <div className="column">
-            <Appointments />
+            <Appointments
+              history={history}
+              patient={patient}
+              model={patientModel} />
           </div>
         );
       case 'visit':
@@ -189,13 +178,12 @@ class EditPatient extends Component {
     ));
   }
 
+
   render() {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
 
     const { selectedTab, patient, patientModel } = this.state;
-    const { history } = this.props;
-
     return (
       <div>
         <div className="create-content">
@@ -240,13 +228,7 @@ class EditPatient extends Component {
             </div>
           </div>
         </div>
-        {/* <ModalView
-          isVisible={formError}
-          onClose={this.onCloseModal}
-          headerTitle="Warning!!!!"
-          contentText="Please fill in required fields (marked with *) and correct the errors before saving."
-          little
-        /> */}
+        <PatientQuickLinks patient={patient} />
       </div>
     );
   }

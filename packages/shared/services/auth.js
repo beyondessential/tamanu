@@ -164,7 +164,7 @@ class BaseAuth {
     }
 
     try {
-      const abilities = this._getAbilities({ userId: user._id, hospitalId }); // Get abilities
+      const abilities = this.getAbilities({ userId: user._id, hospitalId }); // Get abilities
       if (abilities === false) {
         console.error('validatePermissionsError', abilities);
         return false;
@@ -193,9 +193,14 @@ class BaseAuth {
     }
   }
 
-  _getAbilities({ hospitalId, ...props }) {
+  getAbilities({ hospitalId, userId, ...props }) {
     try {
-      const { roles }  = this.user;
+      let { user } = this;
+      if (!user && userId) {
+        user = this.database.findOne('user', userId);
+      }
+      if (!user) return false;
+      const { roles }  = user;
       const userRole = roles.find(({ hospital }) => hospital._id === hospitalId);
       if (!userRole) return false;
 

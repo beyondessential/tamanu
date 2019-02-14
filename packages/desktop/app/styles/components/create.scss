@@ -1,6 +1,7 @@
 .create-content {
   background: $main-bg-color;
   height: 100vh;
+  font-size: 15px;
   .create-top-bar {
     margin: 0 auto;
     border-bottom: 1px solid #d2dae3;
@@ -64,7 +65,7 @@
       .visit-header {
         margin: 10px;
         background: $main-light-blue-color;
-        span {
+        > span {
           font-size: 24px;
           color: #2e4359;
         }
@@ -158,14 +159,13 @@
       .add-button {
         color: #428bca;
         text-decoration: none;
+        padding: 0;
+        text-transform: none;
         cursor: pointer;
         background: transparent;
         font-size: 16px;
         border: none;
         font-weight: bold;
-        &:hover {
-          text-decoration: underline;
-        }
       }
       .border-bottom {
         border-bottom: 2px solid #eff2f5;

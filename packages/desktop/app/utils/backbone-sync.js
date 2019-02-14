@@ -1,5 +1,5 @@
 import Backbone from 'backbone-associations';
-import { pick, set, isArray, each, isObject } from 'lodash';
+import { pick, set, isArray, each, isObject, difference } from 'lodash';
 import { getClient, history, notify } from '.';
 import { AUTH_LOGOUT } from '../actions/types';
 
@@ -57,9 +57,8 @@ export default (store) => {
     newOptions.error = _newError();
 
     if (method === 'create' || method === 'patch') {
-      const defaultFields = model.defaults();
       let { attrs } = options;
-      attrs = _pickDefaults(attrs || model.toJSON(), defaultFields);
+      attrs = _pickDefaults.call(model, (attrs || model.toJSON()));
       newOptions.attrs = attrs;
     }
 
@@ -72,8 +71,7 @@ export default (store) => {
     return new Promise(async (resolve, reject) => {
       const { auth } = store.getState();
       const { userId } = auth;
-      const defaults = this.defaults() || this.defaults;
-      const dataFiltered = _pickDefaults(data, defaults);
+      const dataFiltered = _pickDefaults.call(this, data);
 
       // Add created / modified by
       const user = { _id: userId };
@@ -129,8 +127,9 @@ export default (store) => {
   };
 };
 
-const _pickDefaults = (data, defaults) =>{
-  const modelKeys = Object.keys(defaults);
+function _pickDefaults(data) {
+  const defaults = this.defaults() || this.defaults;
+  const ignoreRequestKeys = this.ignoreRequestKeys || [];
+  const modelKeys = difference(Object.keys(defaults), ignoreRequestKeys);
   return pick(data, modelKeys);
 }
-

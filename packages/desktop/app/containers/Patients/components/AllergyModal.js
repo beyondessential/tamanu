@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Modal from 'react-responsive-modal';
 import moment from 'moment';
 import { pick } from 'lodash';
-import InputGroup from '../../../components/InputGroup';
+import { InputGroup, AddButton, CancelButton, DeleteButton, UpdateButton } from '../../../components';
 import { AllergyModel } from '../../../models';
 
 class AllergyModal extends Component {
@@ -114,8 +114,20 @@ class AllergyModal extends Component {
             </div>
             <div className="modal-footer">
               <div className="column has-text-right">
-                <button className={action !== 'new' ? 'button is-danger' : 'button is-danger is-hidden'} type="button" onClick={this.deleteItem}>Delete</button>
-                <button className="button is-primary" type="submit" disabled={!this.state.formValid}>{action === 'new' ? 'Add' : 'Update'}</button>
+                {action !== 'new' &&
+                  <DeleteButton
+                    can={{ do: 'delete', on: 'allergy' }}
+                    onClick={this.deleteItem} />}
+                {action !== 'new' &&
+                  <UpdateButton
+                    can={{ do: 'update', on: 'allergy' }}
+                    type="submit"
+                    disabled={!this.state.formValid} />}
+                {action === 'new' &&
+                  <AddButton
+                    can={{ do: 'create', on: 'allergy' }}
+                    type="submit"
+                    disabled={!this.state.formValid} />}
               </div>
             </div>
           </div>

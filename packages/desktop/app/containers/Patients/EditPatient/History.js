@@ -4,6 +4,7 @@ import moment from 'moment';
 import { capitalize } from 'lodash';
 import NoteModal from '../components/NoteModal';
 import { dateFormat } from '../../../constants';
+import { NewButton } from '../../../components';
 
 class History extends Component {
   state = {
@@ -44,13 +45,13 @@ class History extends Component {
   render() {
     const { model: Model } = this.props;
     const { noteModalVisible, history } = this.state;
-    console.log({ history });
     return (
       <div>
         <div className="column has-text-right">
-          <button className="button is-primary" onClick={() => this.setState({ noteModalVisible: true })}>
-            <i className="fa fa-plus" /> Add Note
-          </button>
+          <NewButton
+            onClick={() => this.setState({ noteModalVisible: true })}
+            can={{ do: 'create', on: 'note' }}
+          >Add Note </NewButton>
         </div>
         <div className="column">
           {

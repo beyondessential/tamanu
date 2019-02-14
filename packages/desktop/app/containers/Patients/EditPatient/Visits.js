@@ -4,6 +4,7 @@ import moment from 'moment';
 import { Link } from 'react-router-dom';
 import { capitalize } from 'lodash';
 import { visitsColumns, dateFormat } from '../../../constants';
+import { NewButton, EditButton } from '../../../components';
 
 class Visits extends Component {
   state = {
@@ -22,12 +23,12 @@ class Visits extends Component {
   handleChange(props = this.props) {
     const { patient } = props;
     const { tableColumns } = this.state;
-    let { visits } = patient;
-    visits = visits.map(visit => {
-      if (visit.startDate !== '') visit.startDate = moment(visit.startDate).format(`${dateFormat}`);
-      if (visit.endDate !== null) visit.endDate = moment(visit.endDate).format(`${dateFormat}`);
-      visit.visitType = capitalize(visit.visitType);
-      return visit;
+    const visits = patient.visits.map(visit => {
+      let { startDate, endDate, visitType } = visit;
+      if (startDate) startDate = moment(startDate).format(`${dateFormat}`);
+      if (endDate) endDate = moment(endDate).format(`${dateFormat}`);
+      visitType = capitalize(visitType);
+      return  { ...visit, startDate, endDate, visitType } ;
     });
     // Add actions column for our table
     tableColumns[tableColumns.length - 1].Cell = this.setActionsCol;
@@ -38,7 +39,11 @@ class Visits extends Component {
     const { model: Model } = this.props;
     return (
       <div key={row.original._id}>
-        <Link className="button is-light m-r-5" to={`/patients/visit/${Model.id}/${row.original._id}`}>Edit</Link>
+        <EditButton
+          to={`/patients/visit/${Model.id}/${row.original._id}`}
+          size="small"
+          can={{ do: 'update', on: 'visit' }} 
+        />
       </div>
     );
   }
@@ -47,11 +52,13 @@ class Visits extends Component {
     const { model: Model } = this.props;
     const { visits, tableColumns } = this.state;
     return (
-      <div>
+      <div className="column">
         <div className="column p-t-0 p-b-0">
-          <Link className="button is-primary is-pulled-right is-block" to={`/patients/visit/${Model.id}`}>
-            <i className="fa fa-plus" /> Add Visit
-          </Link>
+          <NewButton
+            className="is-pulled-right"
+            to={`/appointments/appointmentByPatient/${Model.id}`}
+            can={{ do: 'create', on: 'visit' }}
+          >New Visit</NewButton>
           <div className="is-clearfix" />
         </div>
         <div className="column">

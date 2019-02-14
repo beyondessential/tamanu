@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ReactTable from 'react-table';
 import { notesColumns } from '../../../constants';
 import NoteModal from '../components/NoteModal';
-import { Modal } from '../../../components';
+import { Modal, EditButton, DeleteButton, NewButton } from '../../../components';
 
 class Notes extends Component {
   state = {
@@ -59,14 +59,12 @@ class Notes extends Component {
   setActionsCol = (row) => {
     return (
       <div key={row._id}>
-        <button type="button" className="button is-primary m-r-5 is-small" onClick={() => this.editItem(row.original._id)}>
-          <i className="fa fa-pencil" />
-          Edit
-        </button>
-        <button type="button" className="button is-danger m-r-5 is-small" onClick={() => this.deleteConfirm(row.original._id)}>
-          <i className="fa fa-times" />
-          Delete
-        </button>
+        <EditButton
+          size="small"
+          onClick={() => this.editItem(row.original._id)} />
+        <DeleteButton
+          size="small"
+          onClick={() => this.deleteConfirm(row.original._id)} />
       </div>
     );
   }
@@ -76,6 +74,13 @@ class Notes extends Component {
     const { modalVisible, action, itemId, notes, tableColumns } = this.state;
     return (
       <div>
+        <div className="column p-t-0 p-b-0">
+          <NewButton
+            className="is-pulled-right"
+            onClick={() => this.editItem()}
+          >Add Note</NewButton>
+            <div className="is-clearfix" />
+        </div>
         <div className="column">
           {notes.length > 0 &&
             <ReactTable
@@ -93,12 +98,6 @@ class Notes extends Component {
               <span> No notes found. </span>
             </div>
           }
-        </div>
-        <div className="column p-t-0 p-b-0">
-          <a className="button is-primary is-pulled-right is-block" onClick={() => this.editItem()}>
-            + New Note
-          </a>
-          <div className="is-clearfix" />
         </div>
         <Modal
           modalType="confirm"

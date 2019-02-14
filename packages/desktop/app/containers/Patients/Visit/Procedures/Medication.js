@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ReactTable from 'react-table';
 import { proceduresMedicationColumns } from '../../../../constants';
 import MedicationModal from '../../components/MedicationModel';
-import { Modal } from '../../../../components';
+import { Modal, EditButton, DeleteButton, NewButton } from '../../../../components';
 
 class Medication extends Component {
   state = {
@@ -59,14 +59,14 @@ class Medication extends Component {
   setActionsCol = (row) => {
     return (
       <div key={row._id}>
-        <button type="button" className="button is-primary m-r-5 is-small" onClick={() => this.editItem(row.original._id)}>
-          <i className="fa fa-pencil" />
-          Edit
-        </button>
-        <button type="button" className="button is-danger m-r-5 is-small" onClick={() => this.deleteConfirm(row.original._id)}>
-          <i className="fa fa-times" />
-          Delete
-        </button>
+        <EditButton
+          size="small"
+          onClick={() => this.editItem(row.original._id)}
+          can={{ do: 'update', on: 'medication' }} />
+        <DeleteButton
+          size="small"
+          onClick={() => this.deleteConfirm(row.original._id)}
+          can={{ do: 'delete', on: 'medication' }} />
       </div>
     );
   }
@@ -79,10 +79,11 @@ class Medication extends Component {
         <div className="columns m-b-0 m-t-10">
           <div className="column visit-header">
             <span>Medication Used</span>
-            <a className="button is-primary is-pulled-right is-block" onClick={() => this.editItem()}>
-              <i className="fa fa-plus" />
-              Add Medication
-            </a>
+            <NewButton
+              className="is-pulled-right"
+              onClick={() => this.editItem()}
+              can={{ do: 'create', on: 'medication' }}
+            >Add Medication</NewButton>
           </div>
         </div>
         <div className="column">
@@ -102,10 +103,6 @@ class Medication extends Component {
               <span> No medication found. </span>
             </div>
           }
-        </div>
-        <div className="column p-t-0 p-b-0">
-
-          <div className="is-clearfix" />
         </div>
         <MedicationModal
           itemId={itemId}

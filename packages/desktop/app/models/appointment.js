@@ -19,6 +19,7 @@ export default BaseModel.extend({
     },
     BaseModel.prototype.defaults,
   ),
+  ignoreRequestKeys: ['patient'],
 
   // Associations
   relations: [

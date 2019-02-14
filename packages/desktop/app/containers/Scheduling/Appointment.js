@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import moment from 'moment';
 import { has, capitalize, parseInt } from 'lodash';
 import actions from '../../actions/scheduling';
+import PatientsTopRow from '../Patients/components/TopRow';
 import {
   visitOptions,
   appointmentStatusList,
@@ -20,7 +20,9 @@ import {
   DatepickerGroup,
   SelectGroup,
   AddButton,
-  BackButton
+  UpdateButton,
+  BackButton,
+  TopBar
 } from '../../components';
 
 class Appointment extends Component {
@@ -32,14 +34,14 @@ class Appointment extends Component {
   }
 
   componentWillMount() {
-    const { id } = this.props.match.params;
-    this.props.fetchAppointment({ id });
+    const { id, patientId } = this.props.match.params;
+    this.props.fetchAppointment({ id, patientId });
   }
 
   componentWillReceiveProps(newProps) {
     if (this.props.location.pathname !== newProps.location.pathname) {
-      const { id } = newProps.match.params;
-      this.props.fetchAppointment({ id });
+      const { id, patientId } = newProps.match.params;
+      this.props.fetchAppointment({ id, patientId });
     } else {
       this.handleChange(newProps);
     }
@@ -352,25 +354,26 @@ class Appointment extends Component {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
 
-    const { surgery, appointmentModel } = this.props;
+    const { surgery, appointmentModel, patient } = this.props;
     const {
       action,
-      appointmentData,
+      appointmentData
     } = this.state;
 
     return (
       <div className="create-content">
-        <div className="create-top-bar">
-          <span>
-            {`${capitalize(action)} ${surgery?'Surgical':''} Appointment`}
-          </span>
-        </div>
+        <TopBar title={`${capitalize(action)} ${surgery?'Surgical':''} Appointment`} />
         <form
-          className="create-container" 
+          className="create-container"
           onSubmit={(e) => this.submitForm(e)}
         >
+          {patient &&
+            <div className="form p-b-15">
+              <PatientsTopRow
+                patient={patient.toJSON()} />
+            </div>}
           <div className="form  with-padding">
-            <div className="columns">
+            {!patient && <div className="columns">
               <PatientAutocomplete
                 label="Patient"
                 name="patient"
@@ -378,7 +381,7 @@ class Appointment extends Component {
                 onChange={this.handleUserInput}
                 required
               />
-            </div>
+            </div>}
             <div className="columns">
               {(appointmentData.appointmentType !== 'admission' || surgery) &&
                 this.renderDatesAdmission()
@@ -403,8 +406,17 @@ class Appointment extends Component {
               />
             </div>
             <div className="column has-text-right">
-              <BackButton to="/appointments" />
-              <AddButton disabled={!appointmentModel.isValid()} />
+              <BackButton />
+              {action === 'new' && <AddButton
+                type="submit"
+                disabled={!appointmentModel.isValid()}
+                can={{ do: 'update', on: 'appointment'}}
+              />}
+              {action === 'update' && <UpdateButton
+                type="submit"
+                disabled={!appointmentModel.isValid()}
+                can={{ do: 'update', on: 'appointment'}}
+              />}
             </div>
           </div>
         </form>
@@ -426,16 +438,16 @@ Appointment.defaultProps = {
 };
 
 function mapStateToProps(state) {
-  const { appointment, loading, error } = state.scheduling;
+  const { appointment, patient, loading, error } = state.scheduling;
   return {
-    loading, error,
+    loading, error, patient,
     appointmentModel: appointment,
   };
 }
 
 const { appointment: appointmentActions } = actions;
 const { fetchAppointment, saveAppointment } = appointmentActions;
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = (dispatch) => ({
   fetchAppointment: (params) => dispatch(fetchAppointment(params)),
   saveAppointment: (params) => dispatch(saveAppointment(params)),
 });

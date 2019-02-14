@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import Select from 'react-select';
 import actions from '../../actions/medication';
 import TopRow from '../Patients/components/TopRow';
@@ -13,7 +12,7 @@ import {
   TextareaGroup,
   DatepickerGroup,
 } from '../../components';
-import { BackButton, AddButton } from '../../components/Button';
+import { BackButton, AddButton, UpdateButton } from '../../components/Button';
 
 class NewMedication extends Component {
   constructor(props) {
@@ -115,6 +114,7 @@ class NewMedication extends Component {
 
     const { dispense } = this.props;
     const {
+      action,
       visit,
       visits,
       medicationModel,
@@ -272,10 +272,17 @@ class NewMedication extends Component {
                 />
               </div>
               <div className="column has-text-right">
-                <BackButton to="/medication" />
-                <AddButton
+                <BackButton />
+                {action === 'new' && <AddButton
+                  type="submit"
                   disabled={!medicationModel.isValid()}
-                />
+                  can={{ do: 'create', on: 'medication' }}
+                />}
+                {action !== 'new' && <UpdateButton
+                  type="submit"
+                  disabled={!medicationModel.isValid()}
+                  can={{ do: 'update', on: 'medication' }}
+                />}
               </div>
             </div>
           </form>

@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { isEmpty } from 'lodash';
 import moment from 'moment';
 import SearchForm from './components/SearchForm';
 import actions from '../../actions/scheduling';
 import AppointmentsTable from './components/AppointmentsTable';
+import { TopBar } from '../../components';
 
 class SearchAppointment extends Component {
   constructor(props) {
@@ -35,16 +34,14 @@ class SearchAppointment extends Component {
 
     return (
       <div className="create-content">
-        <div className="create-top-bar">
-          <span>
-            Search Appointments
-          </span>
-          <div className="view-action-buttons">
-            <Link to="/appointments/appointment/new">
-              <i className="fa fa-plus" /> New Appointment
-            </Link>
-          </div>
-        </div>
+        <TopBar
+          title="Search Appointments"
+          buttons={{
+            to: "/appointments/appointment/new",
+            can: { do: 'create', on: 'appointment' },
+            children: 'New Appointment'
+          }}
+        />
         <div className="create-container">
           <div className="form with-padding">
             <SearchForm

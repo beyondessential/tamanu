@@ -17,10 +17,11 @@ import {
   AppointmentModel,
 } from '../../models';
 
-export const fetchAppointment = ({ id }) =>
+export const fetchAppointment = ({ id, patientId }) =>
   async dispatch => {
     dispatch({ type: FETCH_APPOINTMENT_REQUEST });
     let error = null;
+    let patient = null;
     const action = id ? 'update' : 'new';
     const appointmentModel = new AppointmentModel();
     if (action === 'update' && id && !error) {
@@ -32,10 +33,16 @@ export const fetchAppointment = ({ id }) =>
         appointmentModel.set('patient', parents.patients[0].id);
       }
     }
+    if (patientId) {
+      patient = new PatientModel({ _id: patientId });
+      await patient.fetch();
+      appointmentModel.set('patient', patientId);
+    }
     if (error) return dispatch({ type: FETCH_APPOINTMENT_FAILED, error });
     dispatch({
       type: FETCH_APPOINTMENT_SUCCESS,
       appointment: appointmentModel,
+      patient,
       loading: false,
     });
   };
@@ -83,4 +90,3 @@ export const deleteAppointment = ({ _id }) =>
       dispatch({ type: DELETE_APPOINTMENT_FAILED, error });
     }
   };
-

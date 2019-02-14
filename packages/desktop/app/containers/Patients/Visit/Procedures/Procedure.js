@@ -9,6 +9,9 @@ import {
   InputGroup,
   TextareaGroup,
   DatepickerGroup,
+  AddButton,
+  UpdateButton,
+  CancelButton,
 } from '../../../../components';
 
 class Procedure extends Component {
@@ -191,8 +194,16 @@ class Procedure extends Component {
                 />
               }
               <div className="column has-text-right">
-                <Link className="button is-danger cancel" to={`/patients/visit/${patientId}/${visitId}`}>Cancel</Link>
-                <button className="button is-primary" type="submit" disabled={!procedureModel.isValid()}>{action === 'edit' ? 'Save': 'Add'}</button>
+                <CancelButton
+                  to={`/patients/visit/${patientId}/${visitId}`} />
+                {action === 'new' && <AddButton
+                                      type="submit"
+                                      disabled={!procedureModel.isValid()}
+                                      can={{ do: 'create', on: 'procedure' }} /> }
+                {action !== 'new' && <UpdateButton
+                                      type="submit"
+                                      disabled={!procedureModel.isValid()}
+                                      can={{ do: 'update', on: 'procedure' }}/> }
               </div>
             </div>
           </form>

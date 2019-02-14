@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ReactTable from 'react-table';
 import { vitalsColumns } from '../../../constants';
 import VitalModal from '../components/VitalModal';
-import { Modal } from '../../../components';
+import { Modal, NewButton, EditButton, DeleteButton } from '../../../components';
 
 class Vitals extends Component {
   state = {
@@ -59,14 +59,14 @@ class Vitals extends Component {
   setActionsCol = (row) => {
     return (
       <div key={row._id}>
-        <button type="button" className="button is-primary m-r-5 is-small" onClick={() => this.editItem(row.original._id)}>
-          <i className="fa fa-pencil" />
-          Edit
-        </button>
-        <button type="button" className="button is-danger m-r-5 is-small" onClick={() => this.deleteConfirm(row.original._id)}>
-          <i className="fa fa-times" />
-          Delete
-        </button>
+        <EditButton
+          size="small"
+          onClick={() => this.editItem(row.original._id)}
+          can={{ do: 'update', on: 'vital' }} />
+        <DeleteButton
+          size="small"
+          onClick={() => this.deleteConfirm(row.original._id)} 
+          can={{ do: 'delete', on: 'vital' }}/>
       </div>
     );
   }
@@ -76,6 +76,14 @@ class Vitals extends Component {
     const { modalVisible, action, itemId, vitals, tableColumns } = this.state;
     return (
       <div>
+        <div className="column p-t-0 p-b-0">
+          <NewButton
+            className="is-pulled-right"
+            onClick={() => this.editItem()}
+            can={{ do: 'create', on: 'vital' }}
+          >Add Vitals</NewButton>
+          <div className="is-clearfix" />
+        </div>
         <div className="column">
           {vitals.length > 0 &&
             <ReactTable
@@ -93,12 +101,6 @@ class Vitals extends Component {
               <span> No vitals found. </span>
             </div>
           }
-        </div>
-        <div className="column p-t-0 p-b-0">
-          <a className="button is-primary is-pulled-right is-block" onClick={() => this.editItem()}>
-            + New Vital
-          </a>
-          <div className="is-clearfix" />
         </div>
         <VitalModal
           itemId={itemId}

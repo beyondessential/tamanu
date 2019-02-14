@@ -3,7 +3,8 @@ import Modal from 'react-responsive-modal';
 import moment from 'moment';
 import { capitalize } from 'lodash';
 import PropTypes from 'prop-types';
-import { InputGroup, PatientRelationSelect, TextareaGroup } from '../../../components';
+import { InputGroup, PatientRelationSelect, TextareaGroup,
+          AddButton, UpdateButton, CancelButton } from '../../../components';
 import { NoteModel, VisitModel } from '../../../models';
 import { dateFormat } from '../../../constants';
 
@@ -120,9 +121,18 @@ class NoteModal extends Component {
             </div>
             <div className="modal-footer">
               <div className="column has-text-right">
-                <button className="button is-default" type="button" onClick={onClose}>Cancel</button>
-                {/* <button className={action !== 'new' ? 'button is-danger' : 'button is-danger is-hidden'} type="button" onClick={this.deleteItem}>Delete</button> */}
-                <button className="button is-primary" type="submit" form="noteForm" disabled={!Model.isValid()}>{action === 'new' ? 'Add' : 'Update'}</button>
+                <CancelButton
+                  onClick={onClose} />
+                {action === 'new' && <AddButton
+                  form="noteForm"
+                  type="submit"
+                  disabled={!Model.isValid()}
+                  can={{ do: 'create', on: 'note' }} /> }
+                {action !== 'new' && <UpdateButton
+                  form="noteForm"
+                  type="submit"
+                  disabled={!Model.isValid()}
+                  can={{ do: 'update', on: 'note' }} />}
               </div>
             </div>
           </div>
