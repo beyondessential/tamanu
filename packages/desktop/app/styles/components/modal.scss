@@ -1,4 +1,5 @@
-.tamanu-error-modal {
+.tamanu-error-modal,
+.tamanu-modal {
   .modal-header {
     border-bottom: 1px solid gray;
     padding-bottom: 10px;
@@ -12,6 +13,7 @@
   }
   .modal-content {
     margin-top: 20px;
+    overflow: unset !important;
     .modal-text {
       margin-top: 20px;
     }
