@@ -1,4 +1,5 @@
-.tamanu-error-modal {
+.tamanu-error-modal,
+.tamanu-modal {
   .modal-header {
     border-bottom: 1px solid gray;
     padding-bottom: 10px;
@@ -21,12 +22,6 @@
       span {
         color: #C53B62;
       }
-    }
-    span {
-      color: #2f4358;
-      display: inline-block;
-      margin-bottom: 5px;
-      font-weight: bold;
     }
     .select {
       width: 100%;

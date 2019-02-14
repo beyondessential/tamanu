@@ -78,7 +78,11 @@ class DiagnosisModal extends Component {
     const { attributes: form } = Model;
 
     return (
-      <Modal open={this.props.isVisible} onClose={onClose} little>
+      <Modal
+        classNames={{ modal: 'tamanu-modal' }}
+        open={this.props.isVisible}
+        onClose={onClose}
+        little>
         <form
           name="allergyForm"
           className="create-container"
