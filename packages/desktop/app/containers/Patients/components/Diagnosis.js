@@ -41,16 +41,11 @@ class Diagnosis extends Component {
 
   editItem( itemId = null ) {
     const { model: Model } = this.props;
-    let { itemModel } = this.state;
-    const item = Model.get('diagnoses').findWhere({ _id: itemId });
-    if (!isEmpty(item)) {
-      itemModel = item
-    } else {
-      itemModel = new DiagnosisModel()
-    }
+    let itemModel = Model.get('diagnoses').findWhere({ _id: itemId });
+    if (!itemModel) itemModel = new DiagnosisModel()
     this.setState({
       modalVisible: true,
-      action: isEmpty(item) ? 'new' : 'update',
+      action: itemModel.id ? 'update' : 'new',
       itemModel
     });
   }
