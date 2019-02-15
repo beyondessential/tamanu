@@ -261,6 +261,13 @@
   dependencies:
     sift "^7.0.1"
 
+"@casl/ability@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@casl/ability/-/ability-3.0.0.tgz#57b9a3660f204491e68d9a14b54e4a4af27769e6"
+  integrity sha512-ZGzZPgFxK/CYed7F6ksxX/dQfBHtBoRGM5xMBhDc/mVvmGepBLYq/YLbnY3KR2GL+xmSlOb8Hmd1tsrUROqs7Q==
+  dependencies:
+    sift "^7.0.1"
+
 "@casl/react@^0.8.1":
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/@casl/react/-/react-0.8.1.tgz#a14c7f5467835617c797d06ea44bb7ef5b8667b7"
