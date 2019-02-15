@@ -1,6 +1,6 @@
 const defaults = require('./defaults');
 
-const DiagnosisSchema = {
+const ConditionsSchema = {
   name: 'condition',
   primaryKey: '_id',
   properties: Object.assign({
@@ -15,4 +15,4 @@ const DiagnosisSchema = {
   }, defaults)
 };
 
-module.exports = DiagnosisSchema;
+module.exports = ConditionsSchema;
