@@ -61,7 +61,7 @@ class Diagnosis extends Component {
       diagnoses: allDiagnoses
     } = this.state;
     // filter diagnosis type i-e primary or secondary
-    const diagnoses = diagnosesAll.toJSON().filter(diagnosis => diagnosis.active && diagnosis.secondaryDiagnosis === showSecondary);
+    const diagnoses = allDiagnoses.toJSON().filter(diagnosis => diagnosis.active && diagnosis.secondaryDiagnosis === showSecondary);
 
     return (
       <div>
