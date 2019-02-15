@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Modal from 'react-responsive-modal';
-import moment from 'moment';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { InputGroup, AddButton, CancelButton,
@@ -32,19 +31,21 @@ class DiagnosisModal extends Component {
     newProps.model.on('change', this.handleChange);
   }
 
-  handleUserInput = (e, field) => {
-    let fieldName = field;
-    let fieldValue = '';
+  handleSelectInput = (fieldValue, fieldName) => {
+    this.handleUserInput(fieldValue, fieldName);
+  }
 
-    if (e instanceof moment || typeof e.target === "undefined") {
-      fieldValue = e;
-    } else {
-      const { name } = e.target;
-      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-      fieldName = name;
-      fieldValue = value;
-    }
+  handleDateInput = (date, fieldName) => {
+    this.handleUserInput(date, fieldName);
+  }
+  
+  handleFormInput = (event) => {
+    const { name: fieldName, type, checked, value } = event.target;
+    const fieldValue = type === 'checkbox' ? checked : value;
+    this.handleUserInput(fieldValue, fieldName);
+  }
 
+  handleUserInput = (fieldValue, fieldName) => {
     this.props.model.set({ [fieldName]: fieldValue });
   }
 
@@ -120,6 +121,7 @@ class DiagnosisModal extends Component {
                 name="diagnosis"
                 label="Diagnosis"
                 value={diagnosis}
+                onChange={this.handleFormInput}
                 autoFocus
                 required
               />
@@ -129,27 +131,27 @@ class DiagnosisModal extends Component {
                   label="Date"
                   name="date"
                   value={date}
-                  onChange={this.handleUserInput} />
+                  onChange={this.handleDateInput} />
                 <SelectGroup
                   className="column is-half"
                   label="Certainty"
                   name="certainty"
                   options={diagnosisCertainty}
                   value={certainty}
-                  onChange={this.handleUserInput} />
+                  onChange={this.handleSelectInput} />
               </div>
               <CheckboxGroupNoPadding
                 className="column"
                 checked={secondaryDiagnosis}
                 label="Secondary Diagnosis"
                 name="secondaryDiagnosis"
-                onChange={this.handleUserInput} />
+                onChange={this.handleFormInput} />
               <CheckboxGroupNoPadding
                 className="column"
                 checked={active}
                 label="Active Diagnosis"
                 name="active"
-                onChange={this.handleUserInput}
+                onChange={this.handleFormInput}
               />
               <div className="is-clearfix" />
             </div>
