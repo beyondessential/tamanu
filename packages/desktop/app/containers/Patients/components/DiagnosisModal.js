@@ -18,7 +18,7 @@ class DiagnosisModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      conditionModalVisible: false
+      isConditionModalVisible: false
     };
     this.submitForm = this.submitForm.bind(this);
     this.handleUserInput = this.handleUserInput.bind(this);
@@ -63,11 +63,11 @@ class DiagnosisModal extends Component {
   }
 
   async deleteItem() {
-    const { itemId: _id, model: Model, visitModel } = this.props;
+    const { model, visitModel } = this.props;
     try {
-      visitModel.get('diagnoses').remove({ _id });
+      visitModel.get('diagnoses').remove({ _id: model.id });
       await visitModel.save();
-      await Model.destroy();
+      await model.destroy();
       this.props.onClose();
     } catch (err) {
       console.error('Error: ', err);
@@ -76,7 +76,7 @@ class DiagnosisModal extends Component {
 
   async makeOngoingCondition() {
     const { model, patientModel } = this.props;
-    this.conditionModalClose();
+    this.closeConditionModal();
     if (model.id) {
       const { date, diagnosis: condition } = model.toJSON();
       const conditionModel = new ConditionModel({ date, condition });
@@ -94,16 +94,16 @@ class DiagnosisModal extends Component {
     }
   }
 
-  conditionModalOpen() {
-    this.setState({ conditionModalVisible: true });
+  openConditionModal() {
+    this.setState({ isConditionModalVisible: true });
   }
 
-  conditionModalClose() {
-    this.setState({ conditionModalVisible: false });
+  closeConditionModal() {
+    this.setState({ isConditionModalVisible: false });
   }
 
   render() {
-    const { conditionModalVisible } = this.state;
+    const { isConditionModalVisible } = this.state;
     const {
       onClose,
       action,
@@ -171,7 +171,7 @@ class DiagnosisModal extends Component {
                         className="is-pulled-left"
                         color="secondary"
                         variant="contained"
-                        onClick={this.conditionModalOpen.bind(this)}
+                        onClick={this.openConditionModal.bind(this)}
                         disabled={Model.hasOngoingCondition()}
                         can={{ do: 'create', on: 'condition' }}
                       >Make Ongoing Condition</Button>
@@ -203,9 +203,9 @@ class DiagnosisModal extends Component {
           modalType="confirm"
           headerTitle="Mark as ongoing condition?"
           contentText="Are you sure you want to mark this diagnosis as an ongoing condition?"
-          isVisible={conditionModalVisible}
+          isVisible={isConditionModalVisible}
           onConfirm={this.makeOngoingCondition.bind(this)}
-          onClose={this.conditionModalClose.bind(this)}
+          onClose={this.closeConditionModal.bind(this)}
         />
       </React.Fragment>
     );
