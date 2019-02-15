@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const SurveyScreenSchema = {
   name: 'surveyScreen',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     surveyId: {
       type: 'string',
@@ -16,8 +16,9 @@ const SurveyScreenSchema = {
     components: {
       type: 'list',
       objectType: 'surveyScreenComponent'
-    }
-  }, defaults)
+    },
+    ...defaults,
+  }
 };
 
 module.exports = SurveyScreenSchema;

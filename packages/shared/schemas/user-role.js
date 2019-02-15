@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const UserRoleSchema = {
   name: 'userRole',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     // should be 'user._id:hospital._id:role._id'
     _id: 'string',
     hospital: {
@@ -16,8 +16,9 @@ const UserRoleSchema = {
       type: 'linkingObjects',
       objectType: 'user',
       property: 'roles'
-    }
-  }, defaults),
+    },
+    ...defaults,
+  },
   beforeSave: (db, { hospital, role }) => ({
     ...object,
     _id: `${hospital._id}:${role._id}`

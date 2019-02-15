@@ -3,12 +3,13 @@ const defaults = require('./defaults');
 const AnswerSchema = {
   name: 'answer',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     type: 'string',
     questionId: 'string',
     body: { type: 'string', optional: true },
-  }, defaults)
+    ...defaults,
+  }
 };
 
 module.exports = AnswerSchema;

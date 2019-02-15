@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const OpPlanSchema = {
   name: 'operationPlan',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     additionalNotes: {
       type: 'string',
@@ -34,7 +34,8 @@ const OpPlanSchema = {
       type: 'list',
       objectType: 'diagnosis'
     },
-  }, defaults)
+    ...defaults,
+  }
 };
 
 module.exports = OpPlanSchema;

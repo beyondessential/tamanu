@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const LabSchema = {
   name: 'lab',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     labDate: {
       type: 'date',
@@ -28,8 +28,9 @@ const LabSchema = {
     status: {
       type: 'string',
       optional: true
-    }
-  }, defaults)
+    },
+    ...defaults,
+  }
 };
 
 module.exports = LabSchema;

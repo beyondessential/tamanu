@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const QuestionSchema = {
   name: 'question',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     text: 'string',
     indicator: {
@@ -28,7 +28,8 @@ const QuestionSchema = {
       optional: true
     },
     params: 'string[]',
-  }, defaults)
+    ...defaults,
+  }
 };
 
 module.exports = QuestionSchema;

@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const AllergySchema = {
   name: 'allergy',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     name: {
       type: 'string',
@@ -17,7 +17,8 @@ const AllergySchema = {
       type: 'string',
       optional: true
     },
-  }, defaults)
+    ...defaults,
+  }
 };
 
 module.exports = AllergySchema;

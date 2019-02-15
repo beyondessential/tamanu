@@ -5,7 +5,7 @@ const ClientSchema = {
   name: 'client',
   primaryKey: 'clientId',
   sync: SYNC_MODES.OFF,
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     userId: 'string',
     hospitalId: 'string',
@@ -27,7 +27,8 @@ const ClientSchema = {
       type: 'date',
       default: new Date()
     },
-  }, defaults)
+    ...defaults,
+  }
 };
 
 module.exports = ClientSchema;

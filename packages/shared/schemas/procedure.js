@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const ProcedureSchema = {
   name: 'procedure',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     anesthesiaType: {
       type: 'string',
@@ -55,7 +55,8 @@ const ProcedureSchema = {
       type: 'list',
       objectType: 'procedureMedication'
     },
-  }, defaults)
+    ...defaults,
+  }
 };
 
 module.exports = ProcedureSchema;

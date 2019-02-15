@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const PhotoSchema = {
   name: 'photo',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     caption: {
       type: 'string',
@@ -30,7 +30,8 @@ const PhotoSchema = {
       type: 'string',
       optional: true
     },
-  }, defaults)
+    ...defaults,
+  }
 };
 
 module.exports = PhotoSchema;

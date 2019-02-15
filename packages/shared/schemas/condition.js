@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const ConditionsSchema = {
   name: 'condition',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     date: 'date',
     condition: 'string',
@@ -11,8 +11,9 @@ const ConditionsSchema = {
       type: 'linkingObjects',
       objectType: 'diagnosis',
       property: 'condition'
-    }
-  }, defaults)
+    },
+    ...defaults
+  }
 };
 
 module.exports = ConditionsSchema;
