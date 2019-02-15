@@ -15,7 +15,8 @@ const CheckboxGroupNoPadding = styled(CheckboxGroup)`
 class DiagnosisModal extends Component {
   constructor(props) {
     super(props);
-    this.state = { ...this.props.model.attributes, formIsValid: false };
+    const { model: { attributes } } = this.props;
+    this.state = { ...attributes, formIsValid: false };
     this.submitForm = this.submitForm.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleUserInput = this.handleUserInput.bind(this);
@@ -38,7 +39,7 @@ class DiagnosisModal extends Component {
   handleDateInput = (date, fieldName) => {
     this.handleUserInput(date, fieldName);
   }
-  
+
   handleFormInput = (event) => {
     const { name: fieldName, type, checked, value } = event.target;
     const fieldValue = type === 'checkbox' ? checked : value;
@@ -46,23 +47,25 @@ class DiagnosisModal extends Component {
   }
 
   handleUserInput = (fieldValue, fieldName) => {
-    this.props.model.set({ [fieldName]: fieldValue });
+    const { model } = this.props;
+    model.set({ [fieldName]: fieldValue });
   }
 
   handleChange() {
-    const formIsValid = this.props.model.isValid();
-    const changedAttributes = this.props.model.changedAttributes();
+    const { model } = this.props;
+    const formIsValid = model.isValid();
+    const changedAttributes = model.changedAttributes();
     this.setState({ ...changedAttributes, formIsValid });
   }
 
   submitForm = async (e) => {
     e.preventDefault();
-    const { action, model: Model, parentModel } = this.props;
+    const { action, model, parentModel } = this.props;
 
     try {
-      await Model.save();
+      await model.save();
       if (action === 'new') {
-        parentModel.get('diagnoses').add(Model);
+        parentModel.get('diagnoses').add(model);
         await parentModel.save();
       } else {
         parentModel.trigger('change');
@@ -75,11 +78,11 @@ class DiagnosisModal extends Component {
   }
 
   async deleteItem() {
-    const { itemId: _id, model: Model, parentModel } = this.props;
+    const { itemId: _id, model, parentModel } = this.props;
     try {
       parentModel.get('diagnoses').remove({ _id });
       await parentModel.save();
-      await Model.destroy();
+      await model.destroy();
       this.props.onClose();
     } catch (err) {
       console.error('Error: ', err);
