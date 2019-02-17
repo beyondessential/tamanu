@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
 import DiagnosisModal from './DiagnosisModal';
 import { dateFormat } from '../../../constants';
 import { TextButton} from '../../../components';
@@ -20,18 +19,18 @@ class Diagnosis extends Component {
   state = {
     modalVisible: false,
     action: 'new',
-    itemModel: new DiagnosisModel()
+    diagnosisModel: new DiagnosisModel()
   }
 
   componentWillMount() {
-    const { model: Model } = this.props;
-    const { diagnoses } = Model.attributes;
+    const { model } = this.props;
+    const { diagnoses } = model.attributes;
     this.setState({ diagnoses });
   }
 
   componentWillReceiveProps(newProps) {
-    const { model: Model } = newProps;
-    const { diagnoses } = Model.attributes;
+    const { model } = newProps;
+    const { diagnoses } = model.attributes;
     this.setState({ diagnoses });
   }
 
@@ -40,35 +39,29 @@ class Diagnosis extends Component {
   }
 
   editItem( itemId = null ) {
-    const { model: Model } = this.props;
-    let { itemModel } = this.state;
-    const item = Model.get('diagnoses').findWhere({ _id: itemId });
-    if (!isEmpty(item)) {
-      itemModel = item
-    } else {
-      itemModel = new DiagnosisModel()
-    }
+    const { model } = this.props;
+    let diagnosisModel = model.get('diagnoses').findWhere({ _id: itemId });
+    if (!diagnosisModel) diagnosisModel = new DiagnosisModel()
     this.setState({
       modalVisible: true,
-      action: isEmpty(item) ? 'new' : 'update',
-      itemModel
+      action: diagnosisModel.id ? 'update' : 'new',
+      diagnosisModel
     });
   }
 
   render() {
     const {
-      model: Model,
-      showSecondary,
-      patientModel
+      model,
+      showSecondary
     } = this.props;
     const {
       modalVisible,
       action,
-      itemModel,
-      diagnoses: diagnosesAll
+      diagnosisModel,
+      diagnoses: allDiagnoses
     } = this.state;
     // filter diagnosis type i-e primary or secondary
-    const diagnoses = diagnosesAll.toJSON().filter(diagnosis => diagnosis.active && diagnosis.secondaryDiagnosis === showSecondary);
+    const diagnoses = allDiagnoses.toJSON().filter(diagnosis => diagnosis.active && diagnosis.secondaryDiagnosis === showSecondary);
 
     return (
       <div>
@@ -93,9 +86,8 @@ class Diagnosis extends Component {
           })}
         </div>
         <DiagnosisModal
-          model={itemModel}
-          visitModel={Model}
-          patientModel={patientModel}
+          diagnosisModel={diagnosisModel}
+          parentModel={model}
           action={action}
           isVisible={modalVisible}
           onClose={this.onCloseModal}

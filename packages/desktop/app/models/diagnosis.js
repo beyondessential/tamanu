@@ -38,15 +38,15 @@ export default BaseModel.extend({
     return attributes;
   },
 
-  parse(res) {
-    return { ...res, date: moment(res.date) };
+  parse(response) {
+    return { ...response, date: moment(response.date) };
   },
 
-  validate(attrs) {
+  validate(attributes) {
     const errors = [];
-    if (isEmpty(attrs.diagnosis)) errors.push('diagnosis is required!');
-    if (!moment(attrs.date).isValid()) errors.push('date is required!');
-    if (isEmpty(attrs.certainty)) errors.push('certainty is required!');
+    if (isEmpty(attributes.diagnosis)) errors.push('diagnosis is required!');
+    if (!moment(attributes.date).isValid()) errors.push('date is required!');
+    if (isEmpty(attributes.certainty)) errors.push('certainty is required!');
     if (!isEmpty(errors)) return errors;
   },
 });
