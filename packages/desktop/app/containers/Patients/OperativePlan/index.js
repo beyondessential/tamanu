@@ -258,8 +258,8 @@ class OperativePlan extends Component {
                   </div>
                   <div className="columns border-bottom">
                     <div className="column">
-                      <Diagnosis model={this.props.patient} readonly />
-                      <Diagnosis model={this.props.patient} showSecondary readonly />
+                      <Diagnosis parentModel={this.props.patient} readonly />
+                      <Diagnosis parentModel={this.props.patient} showSecondary readonly />
                     </div>
                     <div className="column">
                       <Allergy model={this.props.patient} readonly />
