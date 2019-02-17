@@ -56,7 +56,7 @@ class Visits extends Component {
         <div className="column p-t-0 p-b-0">
           <NewButton
             className="is-pulled-right"
-            to={`/appointments/appointmentByPatient/${Model.id}`}
+            to={`/patients/visit/${Model.id}`}
             can={{ do: 'create', on: 'visit' }}
           >New Visit</NewButton>
           <div className="is-clearfix" />
