@@ -5,7 +5,11 @@ const DiagnosisSchema = {
   primaryKey: '_id',
   properties: Object.assign({
     _id: 'string',
-    active: 'bool',
+    active:  {
+      type: 'bool',
+      optional: true,
+      default: true
+    },
     date: 'date',
     diagnosis: {
       type: 'string',
@@ -14,7 +18,8 @@ const DiagnosisSchema = {
     secondaryDiagnosis: {
       type: 'bool',
       default: false
-    }
+    },
+    certainty: 'string', // suspected or confirmed
   }, defaults)
 };
 
