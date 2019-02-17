@@ -15,7 +15,7 @@ const CheckboxGroupNoPadding = styled(CheckboxGroup)`
 class DiagnosisModal extends Component {
   constructor(props) {
     super(props);
-    const { model: { attributes } } = this.props;
+    const { diagnosisModel: { attributes } } = this.props;
     this.state = { ...attributes, formIsValid: false };
     this.submitForm = this.submitForm.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -24,12 +24,12 @@ class DiagnosisModal extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { attributes } = newProps.model;
-    const formIsValid = newProps.model.isValid();
+    const { attributes } = newProps.diagnosisModel;
+    const formIsValid = newProps.diagnosisModel.isValid();
     this.setState({ ...attributes, formIsValid });
-    // handle model's change
-    newProps.model.off('change');
-    newProps.model.on('change', this.handleChange);
+    // handle diagnosisModel's change
+    newProps.diagnosisModel.off('change');
+    newProps.diagnosisModel.on('change', this.handleChange);
   }
 
   handleSelectInput = (fieldValue, fieldName) => {
@@ -47,25 +47,25 @@ class DiagnosisModal extends Component {
   }
 
   handleUserInput = (fieldValue, fieldName) => {
-    const { model } = this.props;
-    model.set({ [fieldName]: fieldValue });
+    const { diagnosisModel } = this.props;
+    diagnosisModel.set({ [fieldName]: fieldValue });
   }
 
   handleChange() {
-    const { model } = this.props;
-    const formIsValid = model.isValid();
-    const changedAttributes = model.changedAttributes();
+    const { diagnosisModel } = this.props;
+    const formIsValid = diagnosisModel.isValid();
+    const changedAttributes = diagnosisModel.changedAttributes();
     this.setState({ ...changedAttributes, formIsValid });
   }
 
   submitForm = async (e) => {
     e.preventDefault();
-    const { action, model, parentModel } = this.props;
+    const { action, diagnosisModel, parentModel } = this.props;
 
     try {
-      await model.save();
+      await diagnosisModel.save();
       if (action === 'new') {
-        parentModel.get('diagnoses').add(model);
+        parentModel.get('diagnoses').add(diagnosisModel);
         await parentModel.save();
       } else {
         parentModel.trigger('change');
@@ -78,11 +78,11 @@ class DiagnosisModal extends Component {
   }
 
   async deleteItem() {
-    const { itemId: _id, model, parentModel } = this.props;
+    const { itemId: _id, diagnosisModel, parentModel } = this.props;
     try {
       parentModel.get('diagnoses').remove({ _id });
       await parentModel.save();
-      await model.destroy();
+      await diagnosisModel.destroy();
       this.props.onClose();
     } catch (err) {
       console.error('Error: ', err);
@@ -108,7 +108,8 @@ class DiagnosisModal extends Component {
         classNames={{ modal: 'tamanu-modal' }}
         open={this.props.isVisible}
         onClose={onClose}
-        little>
+        little
+      >
         <form
           name="allergyForm"
           className="create-container"
@@ -134,21 +135,24 @@ class DiagnosisModal extends Component {
                   label="Date"
                   name="date"
                   value={date}
-                  onChange={this.handleDateInput} />
+                  onChange={this.handleDateInput}
+                />
                 <SelectGroup
                   className="column is-half"
                   label="Certainty"
                   name="certainty"
                   options={diagnosisCertainty}
                   value={certainty}
-                  onChange={this.handleSelectInput} />
+                  onChange={this.handleSelectInput}
+                />
               </div>
               <CheckboxGroupNoPadding
                 className="column"
                 checked={secondaryDiagnosis}
                 label="Secondary Diagnosis"
                 name="secondaryDiagnosis"
-                onChange={this.handleFormInput} />
+                onChange={this.handleFormInput}
+              />
               <CheckboxGroupNoPadding
                 className="column"
                 checked={active}
@@ -160,23 +164,27 @@ class DiagnosisModal extends Component {
             </div>
             <div className="modal-footer">
               <div className="column has-text-right">
-                <CancelButton
-                  onClick={onClose} />
+                <CancelButton onClick={onClose} />
                 {action !== 'new' &&
                   <React.Fragment>
                     <DeleteButton
                       can={{ do: 'delete', on: 'diagnosis' }}
-                      onClick={this.deleteItem} />
+                      onClick={this.deleteItem}
+                    />
                     <UpdateButton
                       can={{ do: 'update', on: 'diagnosis' }}
                       type="submit"
-                      disabled={!formIsValid} />
-                  </React.Fragment>}
+                      disabled={!formIsValid}
+                    />
+                  </React.Fragment>
+                }
                 {action === 'new' &&
                   <AddButton
                     can={{ do: 'create', on: 'diagnosis' }}
                     type="submit"
-                    disabled={!formIsValid} />}
+                    disabled={!formIsValid}
+                  />
+                }
               </div>
             </div>
           </div>
@@ -187,7 +195,7 @@ class DiagnosisModal extends Component {
 }
 
 DiagnosisModal.propTypes = {
-  model: PropTypes.object.isRequired,
+  diagnosisModel: PropTypes.object.isRequired,
 };
 
 export default DiagnosisModal;
