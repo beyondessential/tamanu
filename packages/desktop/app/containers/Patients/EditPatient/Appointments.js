@@ -22,8 +22,7 @@ class Appointments extends Component {
   handleChange(props = this.props) {
     const { patient } = props;
     const { tableColumns } = this.state;
-    let { appointments } = patient;
-    appointments = appointments.map(appointment => {
+    const appointments = patient.appointments.map(appointment => {
       let { startDate, endDate, appointmentType } = appointment;
       if (startDate !== '') startDate = moment(startDate).format(`${dateFormat}`);
       if (endDate !== null) endDate = moment(endDate).format(`${dateFormat}`);

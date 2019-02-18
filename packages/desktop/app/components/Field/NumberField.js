@@ -1,10 +1,19 @@
 import React from 'react';
 
-import { TextField } from './TextField';
+import { TextInput } from './TextField';
 
-export const NumberField = (props) => (
-  <TextField 
-    { ...props }
+export const NumberInput = (props) => (
+  <TextInput
+    {...props}
     type="number"
+  />
+);
+
+export const NumberField = ({ field, ...props }) => (
+  <NumberInput 
+    name={field.name}
+    value={field.value || 0}
+    onChange={field.onChange}
+    {...props}
   />
 );
