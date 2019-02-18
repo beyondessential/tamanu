@@ -53,7 +53,7 @@ class Outpatient extends Component<Props> {
     return (
       <div className="create-content">
         <TopBar
-          title="Today's Outpatientss"
+          title="Today's Outpatients"
           button={{
             to: "/patients/edit/new",
             can: { do: 'create', on: 'patient' },

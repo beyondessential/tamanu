@@ -1,8 +1,10 @@
 import React from 'react';
 import MuiTextField from '@material-ui/core/TextField';
 
+export const TextInput = MuiTextField;
+
 export const TextField = ({ field, ...props }) => (
-  <MuiTextField
+  <TextInput
     {...props}
     name={field.name}
     value={field.value || ""}

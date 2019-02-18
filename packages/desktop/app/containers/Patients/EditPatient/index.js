@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
-import { Preloader, BackButton, PatientQuickLinks } from '../../../components';
+import { Preloader, BackButton } from '../../../components';
 import actions from '../../../actions/patients';
 import Allergy from '../components/Allergy';
 import Condition from '../components/Condition';
 import Diagnosis from '../components/Diagnosis';
 import Procedure from '../components/Procedure';
 import OperativePlan from '../components/OperativePlan';
+import PatientQuickLinks from '../components/PatientQuickLinks';
 import History from './History';
 import General from './General';
 import Photos from './Photos';
@@ -47,10 +48,6 @@ class EditPatient extends Component {
 
   }
 
-  // componentWillUnmount() {
-  //   patientModel.off('change', this.handleChange);
-  // }
-
   handleChange(props = this.props) {
     let updates = {};
     const { patient, action, loading } = props;
@@ -66,12 +63,6 @@ class EditPatient extends Component {
     }
     this.setState(updates);
   }
-
-  // handleChange = () => {
-  //   const patient = patientModel.toJSON({ relations: true });
-  //   const procedures = patientModel.getProcedures();
-  //   this.setState({ patient, procedures });
-  // }
 
   changeTab = (tabName) => {
     this.setState({ selectedTab: tabName });
@@ -237,15 +228,7 @@ class EditPatient extends Component {
             </div>
           </div>
         </div>
-
         <PatientQuickLinks patient={patient} />
-        {/* <ModalView
-          isVisible={formError}
-          onClose={this.onCloseModal}
-          headerTitle="Warning!!!!"
-          contentText="Please fill in required fields (marked with *) and correct the errors before saving."
-          little
-        /> */}
       </div>
     );
   }

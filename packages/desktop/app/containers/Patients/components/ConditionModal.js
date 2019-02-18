@@ -160,7 +160,8 @@ class ConditionModal extends Component {
                         type="submit"
                         disabled={!formIsValid} 
                       />
-                    </React.Fragment>}
+                    </React.Fragment>
+                  }
                   {action === 'new' &&
                     <React.Fragment>
                       <CancelButton onClick={onClose} />
@@ -169,7 +170,8 @@ class ConditionModal extends Component {
                         type="submit"
                         disabled={!formIsValid} 
                       />
-                    </React.Fragment>}
+                    </React.Fragment>
+                  }
                 </div>
               </div>
             </div>

@@ -1,11 +1,11 @@
 const config = require('config');
 const {
   each, has, isEmpty, isArray, isObject, mapValues, reverse, clone,
-  toLower, pick, keys, pickBy, set, isFunction, uniqBy, chain, difference
+  toLower, pick, keys, set, isFunction, uniqBy, chain, difference
 } = require('lodash');
 const moment = require('moment');
 const { to } = require('await-to-js');
-const { objectToJSON, incoming, findSchema } = require('../utils');
+const { objectToJSON, parseObjectForSync, incoming, findSchema } = require('../utils');
 const { defaults: defaultFields } = require('../../../shared/schemas');
 const AuthService = require('../services/auth');
 const {
@@ -113,11 +113,10 @@ class Sync {
           }
         }
         // Object to JSON
-        if (record) record = objectToJSON(record);
+        if (record) record = parseObjectForSync(record);
         // Apply selectors  if defined
         if (toLower(change.action) === 'save') {
           record = this._applySelectors(schema, hospital, change, record);
-          record = this._pickDefaultFieldsOnly(record);
           // Reset modified fields
           record.modifiedFields = [];
         }
@@ -154,21 +153,6 @@ class Sync {
       record.fullySynced = true;
     }
     return record;
-  }
-
-  _pickDefaultFieldsOnly(record) {
-    record = mapValues(record, (value, key) => {
-      if (key !== 'objectsFullySynced') {
-        if (isArray(value)) {
-          return value.map(_record => pickBy(_record, _value => typeof _value !== 'object'));
-        }
-        if (isObject(value)) {
-          return pickBy(value, _value => typeof _value !== 'object');
-        }
-      }
-      return value;
-    });
-    return { ...record, modifiedFields: '' };
   }
 
   /**
