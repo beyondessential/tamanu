@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Preloader, BackButton } from '../../../components';
 import actions from '../../../actions/patients';
 import Allergy from '../components/Allergy';
+import Condition from '../components/Condition';
 import Diagnosis from '../components/Diagnosis';
 import Procedure from '../components/Procedure';
 import OperativePlan from '../components/OperativePlan';
@@ -199,12 +200,11 @@ class EditPatient extends Component {
                   <TopRow patient={patient} />
                   <div className="columns border-bottom">
                     <div className="column">
-                      <Diagnosis parentModel={patientModel} />
+                      <Condition model={patientModel} />
                       <Procedure model={patientModel} />
                       <OperativePlan model={patientModel} />
                     </div>
                     <div className="column">
-                      <Diagnosis parentModel={patientModel} showSecondary />
                       <Allergy model={patientModel} />
                     </div>
                   </div>
