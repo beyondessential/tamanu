@@ -28,7 +28,6 @@ class EditPatient extends Component {
     loading: true,
     patientModel: {},
     selectedTab: '',
-    anchorEl: null,
   }
 
   componentDidMount() {
@@ -78,7 +77,7 @@ class EditPatient extends Component {
           <General
             history={history}
             patient={patient}
-            model={patientModel}
+            patientModel={patientModel}
             savePatient={this.props.savePatient}
           />
         );
@@ -94,7 +93,7 @@ class EditPatient extends Component {
             <Appointments
               history={history}
               patient={patient}
-              model={patientModel} />
+              patientModel={patientModel} />
           </div>
         );
       case 'visit':
@@ -102,7 +101,7 @@ class EditPatient extends Component {
           <Visits
             history={history}
             patient={patient}
-            model={patientModel}
+            patientModel={patientModel}
           />
         );
       case 'medication':
@@ -111,7 +110,7 @@ class EditPatient extends Component {
             <Medication
               history={history}
               patient={patient}
-              model={patientModel}
+              patientModel={patientModel}
             />
           </div>
         );
@@ -138,7 +137,7 @@ class EditPatient extends Component {
           <Pregnancy
             history={history}
             patient={patient}
-            model={patientModel}
+            patientModel={patientModel}
           />
         );
       case 'history':
@@ -146,7 +145,7 @@ class EditPatient extends Component {
         return (
           <History
             history={history}
-            model={patientModel}
+            patientModel={patientModel}
             changeTab={this.changeTab}
           />
         );

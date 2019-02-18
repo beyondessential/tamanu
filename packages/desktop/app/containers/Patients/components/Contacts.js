@@ -1,20 +1,18 @@
 import React, { Component } from 'react';
-import moment from 'moment';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import ReactTable from 'react-table';
+import styled from 'styled-components';
 import ContactModal from './ContactModal';
-import { Modal } from '../../../components';
+import { Modal, EditButton ,DeleteButton, NewButton } from '../../../components';
 import { patientContactColumns } from '../../../constants';
+
+const AddContactButton = styled(NewButton)`
+  float: right
+`;
 
 class Contacts extends Component {
   static propTypes = {
-    model: PropTypes.object.isRequired,
-    showSecondary: PropTypes.bool,
-  }
-
-  static defaultProps = {
-    showSecondary: false
+    patientModel: PropTypes.object.isRequired,
   }
 
   state = {
@@ -33,9 +31,9 @@ class Contacts extends Component {
   }
 
   handleChange(props = this.props) {
-    const { model: Model } = props;
+    const { patientModel } = props;
     const { tableColumns } = this.state;
-    const { additionalContacts } = Model.attributes;
+    const { additionalContacts } = patientModel.attributes;
     tableColumns[tableColumns.length - 1].Cell = this.setActionsColumn;
     this.setState({ additionalContacts, tableColumns });
   }
@@ -49,12 +47,12 @@ class Contacts extends Component {
   }
 
   async deleteItem() {
-    const { model: Model } = this.props;
+    const { patientModel } = this.props;
     const { itemId } = this.state;
     try {
-      const item = Model.get('additionalContacts').findWhere({ _id: itemId });
-      Model.get('additionalContacts').remove({ _id: itemId });
-      await Model.save(null, { silent: true });
+      const item = patientModel.get('additionalContacts').findWhere({ _id: itemId });
+      patientModel.get('additionalContacts').remove({ _id: itemId });
+      await patientModel.save(null, { silent: true });
       await item.destroy();
       this.setState({ deleteModalVisible: false, itemId: null });
     } catch (err) {
@@ -66,18 +64,18 @@ class Contacts extends Component {
     const row = _row.original;
     return (
       <div key={row._id}>
-        <button className="button is-primary is-small m-r-5" onClick={() => this.showModal(row._id)}>
-          <i className="fa fa-pencil" /> Edit
-        </button>
-        <button className="button is-danger is-small" onClick={() => this.setState({ deleteModalVisible: true, itemId: row._id })}>
-          <i className="fa fa-times" /> Delete
-        </button>
+        <EditButton
+          onClick={() => this.showModal(row._id)}
+        />
+        <DeleteButton
+          onClick={() => this.setState({ deleteModalVisible: true, itemId: row._id })}
+        />
       </div>
     );
   }
 
   render() {
-    const { model: Model } = this.props;
+    const { patientModel } = this.props;
     const { modalVisible, additionalContacts, tableColumns, itemId } = this.state;
     const contacts = additionalContacts.toJSON();
     return (
@@ -85,9 +83,9 @@ class Contacts extends Component {
         <div className="columns m-b-0 m-t-10">
           <div className="column visit-header">
             <span>Additional Contacts</span>
-            <a className="button is-primary is-pulled-right is-block" onClick={() => this.showModal()}>
-              <i className="fa fa-plus" /> Add Contact
-            </a>
+            <AddContactButton
+              onClick={() => this.showModal()}
+            >Add Contact</AddContactButton>
           </div>
         </div>
         <div className="column">
@@ -122,7 +120,7 @@ class Contacts extends Component {
         />
         <ContactModal
           itemId={itemId}
-          patientModel={Model}
+          patientModel={patientModel}
           isVisible={modalVisible}
           onClose={this.onCloseModal}
           little

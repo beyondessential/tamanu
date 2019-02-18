@@ -8,7 +8,7 @@ import { ReportFilters } from './ReportFilters';
 
 const ReportNotFound = ({ missingId }) => (
   <div>
-    <TopBar>Report not found</TopBar>
+    <TopBar title='Report not found' />
     <div className="detail">
       <div className="notification">
         Could not find report with id "{missingId}".

@@ -16,8 +16,8 @@ class Vitals extends Component {
 
   componentWillMount() {
     const { tableColumns } = this.state;
-    const { model: Model } = this.props;
-    const { vitals } = Model.attributes;
+    const { visitModel } = this.props;
+    const { vitals } = visitModel.attributes;
 
     // Set actions col for our table
     tableColumns[tableColumns.length - 1].Cell = this.setActionsCol;
@@ -25,8 +25,8 @@ class Vitals extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { model: Model } = newProps;
-    const { vitals } = Model.attributes;
+    const { visitModel } = newProps;
+    const { vitals } = visitModel.attributes;
     this.setState({ vitals: vitals.toJSON() });
   }
 
@@ -43,12 +43,12 @@ class Vitals extends Component {
   }
 
   async deleteItem() {
-    const { model: Model } = this.props;
+    const { visitModel } = this.props;
     const { itemId } = this.state;
     try {
-      const item = Model.get('vitals').findWhere({ _id: itemId });
-      Model.get('vitals').remove({ _id: itemId });
-      await Model.save();
+      const item = visitModel.get('vitals').findWhere({ _id: itemId });
+      visitModel.get('vitals').remove({ _id: itemId });
+      await visitModel.save();
       await item.destroy();
       this.setState({ deleteModalVisible: false });
     } catch (err) {
@@ -65,14 +65,14 @@ class Vitals extends Component {
           can={{ do: 'update', on: 'vital' }} />
         <DeleteButton
           size="small"
-          onClick={() => this.deleteConfirm(row.original._id)} 
+          onClick={() => this.deleteConfirm(row.original._id)}
           can={{ do: 'delete', on: 'vital' }}/>
       </div>
     );
   }
 
   render() {
-    const { model: Model } = this.props;
+    const { visitModel } = this.props;
     const { modalVisible, action, itemId, vitals, tableColumns } = this.state;
     return (
       <div>
@@ -104,7 +104,7 @@ class Vitals extends Component {
         </div>
         <VitalModal
           itemId={itemId}
-          model={Model}
+          visitModel={visitModel}
           action={action}
           isVisible={modalVisible}
           onClose={this.onCloseModal}

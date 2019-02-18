@@ -190,7 +190,7 @@ class Procedure extends Component {
               </div>
               {action === 'edit' &&
                 <Medication
-                  model={procedureModel}
+                  procedureModel={procedureModel}
                 />
               }
               <div className="column has-text-right">

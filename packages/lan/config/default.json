@@ -8,7 +8,7 @@
     "channelIn": "realm-online-local",
     "channelOut": "realm-local-online"
   },
-  "mainServer": "http://127.0.0.1:3000",
-  "offlineMode": false,
+  "mainServer": "http://13.210.104.94:3000",
+  "offlineMode": true,
   "sessionTimeout": 300000
 }

@@ -16,8 +16,8 @@ class Notes extends Component {
 
   componentWillMount() {
     const { tableColumns } = this.state;
-    const { model: Model } = this.props;
-    const { notes } = Model.attributes;
+    const { parentModel } = this.props;
+    const { notes } = parentModel.attributes;
 
     // Set actions col for our table
     tableColumns[tableColumns.length - 1].Cell = this.setActionsCol;
@@ -25,8 +25,8 @@ class Notes extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { model: Model } = newProps;
-    const { notes } = Model.attributes;
+    const { parentModel } = newProps;
+    const { notes } = parentModel.attributes;
     this.setState({ notes: notes.toJSON() });
   }
 
@@ -43,13 +43,13 @@ class Notes extends Component {
   }
 
   async deleteItem() {
-    const { model: Model } = this.props;
+    const { parentModel } = this.props;
     const { itemId } = this.state;
     try {
-      const item = Model.get('notes').findWhere({ _id: itemId });
-      Model.get('notes').remove({ _id: itemId });
-      await Model.save();
-      await item.destroy();
+      const noteModel = parentModel.get('notes').findWhere({ _id: itemId });
+      parentModel.get('notes').remove({ _id: itemId });
+      await parentModel.save();
+      await noteModel.destroy();
       this.setState({ deleteModalVisible: false });
     } catch (err) {
       console.error('Error: ', err);
@@ -70,7 +70,7 @@ class Notes extends Component {
   }
 
   render() {
-    const { model: Model, patientModel } = this.props;
+    const { parentModel, patientModel } = this.props;
     const { modalVisible, action, itemId, notes, tableColumns } = this.state;
     return (
       <div>
@@ -109,7 +109,7 @@ class Notes extends Component {
         />
         <NoteModal
           itemId={itemId}
-          model={Model}
+          parentModel={parentModel}
           patientModel={patientModel}
           action={action}
           isVisible={modalVisible}
