@@ -1,9 +1,0 @@
-Install CouchDB locally from: http://docs.couchdb.org/en/2.1.2/install/windows.html
-Once installed navigate to http://localhost:5984/_utils/#login in your browser
-Goto `Setup` from left menu
-Select `Configure a Single Node`
-Use `couchadmin` and `test` as username and password
-Click `Configure Node`
-Navigate to `Configuration` > `CORS` 
-Click `Enable CORS` then select `All domains`
-Navigate to `Verify` click `Verify Installation` and make sure all items are checked.
