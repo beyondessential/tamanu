@@ -28,40 +28,19 @@ class QuestionScreen extends React.Component {
   // }
 
   render() {
-    const { questions, screenIndex, answers, readOnly } = this.props;
-    console.log('-questions-', questions);
-    return questions.map((model, index) => {
-      const question = model.toJSON();
+    const { questions, screenIndex, readOnly } = this.props;
+    return questions.map((questionModel) => {
+      const question = questionModel.toJSON();
       return (
         <Question
           key={question._id}
           screenIndex={screenIndex}
           answer={this.getAnswer(question._id)}
           readOnly={readOnly}
-          singleLine={model.isSingleLine()}
+          singleLine={questionModel.isSingleLine()}
           {...question}
         />
       );
-      // if (!TABBABLE_QUESTION_TYPES.includes(question.type)) {
-      // }
-      // const nextQuestionIsTabbable = index + 1 < questions.length &&
-      //   TABBABLE_QUESTION_TYPES.includes(questions[index + 1].type);
-      // return (
-      //   <Question
-      //     key={question.id}
-      //     screenIndex={screenIndex}
-      //     {...question}
-      //     textInputProps={{
-      //       inputRef: (textInputRef) => { this.textInputRefs[question.id] = textInputRef; },
-      //       onSubmitEditing: () => {
-      //         if (nextQuestionIsTabbable) {
-      //           this.textInputRefs[questions[index + 1].id].focus();
-      //         }
-      //       },
-      //       returnKeyType: nextQuestionIsTabbable ? 'next' : 'done',
-      //     }}
-      //   />
-      // );
     });
   }
 }
@@ -78,8 +57,8 @@ QuestionScreen.defaultProps = {
   readOnly: false
 };
 
-const mapStateToProps = (state, { model, screenIndex }) => {
-  return { questions: model.getQuestions(screenIndex) };
+const mapStateToProps = (state, { surveyModel, screenIndex }) => {
+  return { questions: surveyModel.getQuestions(screenIndex) };
 };
 
 export default connect(mapStateToProps, undefined)(QuestionScreen);

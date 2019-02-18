@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import ReactTable from 'react-table';
-import { Link } from 'react-router-dom';
-import { pregnancyColumns } from '../../../constants';
+import { pregnancyColumns, PREGNANCY_PROGRAM_ID } from '../../../constants';
 import PregnancyModal from '../components/PregnancyModal';
+import { Button } from '../../../components';
 
 class Pregnancy extends Component {
   state = {
@@ -20,7 +20,7 @@ class Pregnancy extends Component {
   }
 
   editItem = (row) => {
-    const { pregnancies: pregnanciesCollection } = this.props.model.attributes;
+    const { pregnancies: pregnanciesCollection } = this.props.patientModel.attributes;
     const item = pregnanciesCollection.findWhere({ _id: row.original._id });
     this.setState({ modalVisible: true, action: 'edit', item });
   }
@@ -30,18 +30,34 @@ class Pregnancy extends Component {
     const item = row.original;
     return (
       <div key={row._id}>
-        <button type="button" className={`button is-primary m-r-5 is-outlined ${item.child === '' ? 'is-hidden' : ''}`} onClick={() => this.viewPatient(item.child.id)}>View Child</button>
-        <button type="button" className={`button is-primary m-r-5 is-outlined ${item.father === '' ? 'is-hidden' : ''}`} onClick={() => this.viewPatient(item.father.id)}>View Father</button>
-        <button type="button" className="button is-primary m-r-5 is-outlined" onClick={() => this.editItem(row)}>Edit Pregnancy</button>
-        <Link className="button is-primary m-r-5 is-outlined" to={`/programs/program_CDBralnev/${patient._id}/surveys/module/${item._id}`}> Add Form </Link>
-        <Link className="button is-primary m-r-5 is-outlined" to={`/programs/program_CDBralnev/${patient._id}/surveys/module/${item._id}`} disabled={item.surveyResponses.length <= 0}> View Forms </Link>
+        {item.child &&
+          <Button
+            variant="outlined"
+            onClick={() => this.viewPatient(item.child.id)}
+          >View Child</Button>
+        }
+        {item.child &&
+          <Button
+            onClick={() => this.viewPatient(item.father.id)}
+          >View Father</Button>
+        }
+        <Button
+          onClick={() => this.editItem(row)}
+        >Edit Pregnancy</Button>
+        <Button
+          to={`/programs/${PREGNANCY_PROGRAM_ID}/${patient._id}/surveys/module/${item._id}`}
+        >Add Form</Button>
+        <Button
+          to={`/programs/${PREGNANCY_PROGRAM_ID}/${patient._id}/surveys/module/${item._id}`}
+          disabled={item.surveyResponses.length <= 0}
+        >View Forms</Button>
       </div>
     );
   }
 
   render() {
-    const { patient, model } = this.props;
-    const pregnancies = model.getPregnancies();
+    const { patient, patientModel } = this.props;
+    const pregnancies = patientModel.getPregnancies();
     const {
       modalVisible,
       action,
@@ -85,7 +101,7 @@ class Pregnancy extends Component {
         <PregnancyModal
           item={item}
           patient={patient}
-          model={model}
+          patientModel={patientModel}
           action={action}
           isVisible={modalVisible}
           onClose={this.onCloseModal}

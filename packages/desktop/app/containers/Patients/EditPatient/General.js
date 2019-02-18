@@ -28,7 +28,7 @@ class General extends Component {
   }
 
   handleChange(props = this.props) {
-    const { model: patientModel } = props;
+    const { patientModel } = props;
     let { age } = this.state;
     if (patientModel.get('dateOfBirth') !== null) patientModel.set('dateOfBirth', moment(patientModel.get('dateOfBirth')));
     if (patientModel.get('referredDate') !== null) patientModel.set('referredDate', moment(patientModel.get('referredDate')));
@@ -37,7 +37,7 @@ class General extends Component {
   }
 
   handleUserInput = (e, field) => {
-    const { model: patientModel } = this.props;
+    const { patientModel } = this.props;
     let { age } = this.state;
     if (typeof field !== 'undefined') {
       patientModel.set(field, e, { silent: true });
@@ -325,7 +325,7 @@ class General extends Component {
           </div>
           <div className="formLayout">
             <Contacts
-              model={patientModel}
+              patientModel={patientModel}
             />
           </div>
         </div>

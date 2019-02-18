@@ -18,8 +18,6 @@ import { Preloader, InputGroup, DatepickerGroup, TopBar,
           DischargeButton, CheckOutButton } from '../../../components';
 import { visitOptions, visitStatuses } from '../../../constants';
 
-const classNames = require('classnames');
-
 class EditVisit extends Component {
   constructor(props) {
     super(props);
@@ -34,7 +32,6 @@ class EditVisit extends Component {
     visitModel: {},
     loading: true,
     patientModel: {},
-    visitSaved: false,
     selectedTab: '',
   }
 
@@ -142,15 +139,22 @@ class EditVisit extends Component {
     return (<React.Fragment>
       {(selectedTab === '' || selectedTab === 'vitals') &&
         <div className="column">
-          <Vitals model={visitModel} />
+          <Vitals visitModel={visitModel} />
         </div>}
       {selectedTab === 'notes' &&
         <div className="column">
-          <Notes model={visitModel} patientModel={patientModel} />
+          <Notes
+            parentModel={visitModel}
+            patientModel={patientModel}
+          />
         </div>}
       {selectedTab === 'procedures' &&
         <div className="column">
-          <Procedures history={this.props.history} model={visitModel} patientModel={patientModel} />
+          <Procedures
+            history={this.props.history}
+            visitModel={visitModel}
+            patientModel={patientModel}
+          />
         </div>}
       {selectedTab === 'reports' &&
         <div className="column">Reports</div>}
@@ -197,12 +201,12 @@ class EditVisit extends Component {
                     <div className="columns border-bottom">
                       <div className="column">
                         <Diagnosis parentModel={visitModel} patientModel={patientModel} />
-                        <Procedure model={patientModel} />
-                        <OperativePlan model={patientModel} history={this.props.history} />
+                        <Procedure patientModel={patientModel} />
+                        <OperativePlan patientModel={patientModel} history={this.props.history} />
                       </div>
                       <div className="column">
                         <Diagnosis parentModel={visitModel} patientModel={patientModel} showSecondary />
-                        <Allergy model={patientModel} />
+                        <Allergy patientModel={patientModel} />
                       </div>
                     </div>
                   }

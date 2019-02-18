@@ -79,7 +79,10 @@ class Survey extends Component {
             <span className="tag is-white survey-steps m-r-10">{`Step ${currentScreenIndex + 1} of ${totalScreens}`}</span>
           </div>
           <div className="survey-details">
-            <QuestionScreen model={this.props.survey} screenIndex={currentScreenIndex} />
+            <QuestionScreen 
+              surveyModel={this.props.survey} 
+              screenIndex={currentScreenIndex} 
+            />
             <div className="bottom-buttons">
               <Button 
                 variant="outlined"

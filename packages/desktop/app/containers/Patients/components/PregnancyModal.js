@@ -6,7 +6,6 @@ import { clone, pick } from 'lodash';
 import Select from 'react-select';
 import InputGroup from '../../../components/InputGroup';
 import { PregnancyModel } from '../../../models';
-import CustomDateInput from '../../../components/CustomDateInput';
 import PatientAutocomplete from '../../../components/PatientAutocomplete';
 import { dateFormat, pregnancyOutcomes } from '../../../constants';
 
@@ -66,15 +65,15 @@ class PregnancyModal extends Component {
 
   submitForm = async (e) => {
     e.preventDefault();
-    const { action, item, model: patientModel } = this.props;
+    const { action, item, patientModel } = this.props;
     const _this = this;
     const { form } = this.state;
 
     try {
       if (action === 'new') {
-        const pregnancy = new PregnancyModel(form);
-        const model = await pregnancy.save();
-        patientModel.get('pregnancies').add(model);
+        const pregnancyModel = new PregnancyModel(form);
+        await pregnancyModel.save();
+        patientModel.get('pregnancies').add(pregnancyModel);
         await patientModel.save();
       } else {
         item.set(form);
@@ -88,7 +87,7 @@ class PregnancyModal extends Component {
   }
 
   async deleteItem() {
-    const { item, model: patientModel } = this.props;
+    const { item, patientModel } = this.props;
     const pregnancy = new PregnancyModel(item);
 
     try {

@@ -36,11 +36,11 @@ class Visits extends Component {
   }
 
   setActionsCol = (row) => {
-    const { model: Model } = this.props;
+    const { patientModel } = this.props;
     return (
       <div key={row.original._id}>
         <EditButton
-          to={`/patients/visit/${Model.id}/${row.original._id}`}
+          to={`/patients/visit/${patientModel.id}/${row.original._id}`}
           size="small"
           can={{ do: 'update', on: 'visit' }} 
         />
@@ -49,14 +49,14 @@ class Visits extends Component {
   }
 
   render() {
-    const { model: Model } = this.props;
+    const { patientModel } = this.props;
     const { visits, tableColumns } = this.state;
     return (
       <div className="column">
         <div className="column p-t-0 p-b-0">
           <NewButton
             className="is-pulled-right"
-            to={`/appointments/appointmentByPatient/${Model.id}`}
+            to={`/appointments/appointmentByPatient/${patientModel.id}`}
             can={{ do: 'create', on: 'visit' }}
           >New Visit</NewButton>
           <div className="is-clearfix" />

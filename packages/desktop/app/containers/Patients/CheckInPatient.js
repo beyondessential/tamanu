@@ -25,14 +25,16 @@ class CheckInPatient extends Component {
   }
 
   componentDidMount() {
+    const { patientModel } = this.props;
     const { id } = this.props.match.params;
-    this.props.model.set({ _id: id });
-    this.props.model.fetch();
-    this.props.model.on('change', this.handleChange);
+    patientModel.set({ _id: id });
+    patientModel.fetch();
+    patientModel.on('change', this.handleChange);
   }
 
   componentWillUnmount() {
-    this.props.model.off('change', this.handleChange);
+    const { patientModel } = this.props;
+    patientModel.off('change', this.handleChange);
   }
 
   onChangeDate = (date) => {
@@ -51,8 +53,7 @@ class CheckInPatient extends Component {
 
   render() {
     const { prescriptionDate } = this.state;
-    let { model: patient } = this.props;
-    if (!isEmpty(patient)) patient = patient.attributes;
+    const { patientModel: { attributes: patient } } = this.props;
     return (
       <div>
         <div className="create-content">
@@ -206,7 +207,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = dispatch => ({
-  model: new PatientModel(),
+  patientModel: new PatientModel(),
   fetchOnePatient: id => dispatch(fetchOnePatient(id)),
   checkInPatient: patient => dispatch(checkInPatient(patient)),
 });
