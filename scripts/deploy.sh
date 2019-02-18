@@ -1,7 +1,7 @@
 #!/bin/bash
 type=$1
 type_upper=${type^^}
-url="${type_upper}_SERVER_URL"
+url="SERVER_URL_${type_upper}"
 url=${!url}
 user="$(cut -d'@' -f1 <<<"$url")"
 host="$(cut -d'@' -f2 <<<"$url")"

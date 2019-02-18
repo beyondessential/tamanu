@@ -182,10 +182,12 @@ class VisitModal extends Component {
                 {action === 'new' && <AddButton
                                       type="submit"
                                       form="vitalForm"
+                                      can={{ do: 'create', on: 'vital' }}
                                       disabled={!Model.isValid()} />}
                 {action !== 'new' && <UpdateButton
                                       type="submit"
                                       form="vitalForm"
+                                      can={{ do: 'update', on: 'vital' }}
                                       disabled={!Model.isValid()} />}
               </div>
             </div>

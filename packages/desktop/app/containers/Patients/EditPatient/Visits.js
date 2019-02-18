@@ -23,11 +23,10 @@ class Visits extends Component {
   handleChange(props = this.props) {
     const { patient } = props;
     const { tableColumns } = this.state;
-    let { visits } = patient;
-    visits = visits.map(visit => {
+    const visits = patient.visits.map(visit => {
       let { startDate, endDate, visitType } = visit;
-      if (startDate !== '') startDate = moment(startDate).format(`${dateFormat}`);
-      if (endDate !== null) endDate = moment(endDate).format(`${dateFormat}`);
+      if (startDate) startDate = moment(startDate).format(`${dateFormat}`);
+      if (endDate) endDate = moment(endDate).format(`${dateFormat}`);
       visitType = capitalize(visitType);
       return  { ...visit, startDate, endDate, visitType } ;
     });
@@ -43,7 +42,8 @@ class Visits extends Component {
         <EditButton
           to={`/patients/visit/${patientModel.id}/${row.original._id}`}
           size="small"
-        can={{ do: 'update', on: 'visit' }} />
+          can={{ do: 'update', on: 'visit' }} 
+        />
       </div>
     );
   }

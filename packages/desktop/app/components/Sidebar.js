@@ -70,7 +70,7 @@ const LogoutItem = ({ onClick }) => (
   </ListItem>
 );
 
-const PrimarySidebarItem = ({ item, ability: parentAbility, selected, onClick }) => (
+const PrimarySidebarItem = ({ item, ability, selected, onClick }) => (
   <React.Fragment>
     <ListItem button onClick={ onClick } selected={selected}>
       <SidebarPrimaryIcon src={item.icon} />
@@ -82,7 +82,7 @@ const PrimarySidebarItem = ({ item, ability: parentAbility, selected, onClick })
           <SecondarySidebarItem
             item={ child }
             key={ child.path }
-            parentAbility={parentAbility}
+            parentAbility={ability}
           />
         ))}
       </List>
@@ -93,10 +93,11 @@ const PrimarySidebarItem = ({ item, ability: parentAbility, selected, onClick })
 const SecondarySidebarItem = withRouter(({ item, location, parentAbility }) => {
   const ability = { ...parentAbility, ...(item.ability || {}) };
   const { action, subject } = ability;
-  let allowed = false;
-  if (action && subject) {
-    allowed = checkAbility({ action, subject });
+  if (!action || !subject) {
+    throw new Error("Invalid ability provided to sidebar item");
   }
+  const allowed = checkAbility({ action, subject });
+
   return <ListItem
     button
     component={ Link }
@@ -208,7 +209,7 @@ function mapStateToProps(state) {
   return { userId, displayName, currentPath, programsCollection };
 }
 
-const mapDispatchToProps = (dispatch, his) => ({
+const mapDispatchToProps = (dispatch) => ({
   logout: (params) => dispatch(logout(params)),
 });
 

@@ -71,6 +71,5 @@ export default BaseModel.extend({
   validate: (attrs) => {
     if (!moment(attrs.startDate).isValid()) return 'startDate is required!';
     if (attrs.visitType === '') return 'visitType is required!';
-    // if (!moment(attrs.startDate).isAfter(moment())) return 'Invalid check-in date!';
   }
 });

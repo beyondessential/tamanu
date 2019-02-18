@@ -39,7 +39,6 @@ class Appointment extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    console.log('-componentWillReceiveProps-', newProps);
     if (this.props.location.pathname !== newProps.location.pathname) {
       const { id, patientId } = newProps.match.params;
       this.props.fetchAppointment({ id, patientId });

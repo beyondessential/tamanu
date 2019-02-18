@@ -104,7 +104,7 @@ class AppointmentsCalendar extends Component {
         <TopBar
           title={!theatre ? 'Appointments Calendar': 'Theatre Schedule'}
           buttons={{
-            to: `/appointments/${!theatre ? 'appointment' : 'surgery'}/new`,
+            to: `/appointments/${theatre ? 'surgery' : 'appointment'}/new`,
             can: { do: 'create', on: 'appointment' },
             children: 'New Appointment'
           }}
