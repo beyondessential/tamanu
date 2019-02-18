@@ -35,8 +35,7 @@ class Response extends Component {
     this.handleChange(newProps);
   }
 
-  async handleChange(props = {}) {
-    if (isEmpty(props)) props = this.props;
+  async handleChange(props = this.props) {
     const {
       survey: surveyModel,
       program: programModel,
@@ -115,7 +114,13 @@ class Response extends Component {
               </div>
             </div>
             {survey.screens.map((screen, index) => (
-              <QuestionScreen key={`${survey._id}-${index}`} model={this.props.survey} screenIndex={index} answers={answers} readOnly />
+              <QuestionScreen
+                key={`${survey._id}-${index}`}
+                surveyModel={this.props.survey}
+                screenIndex={index}
+                answers={answers}
+                readOnly
+              />
             ))}
           </div>
           <div className="question-table-buttons p-t-15">

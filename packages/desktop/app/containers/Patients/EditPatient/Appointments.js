@@ -47,14 +47,14 @@ class Appointments extends Component {
   }
 
   render() {
-    const { model: Model } = this.props;
+    const { patientModel } = this.props;
     const { appointments, tableColumns } = this.state;
     return (
       <div>
         <div className="column p-t-0 p-b-0">
           <NewButton
             className="is-pulled-right"
-            to={`/appointments/appointmentByPatient/${Model.id}`}
+            to={`/appointments/appointmentByPatient/${patientModel.id}`}
             can={{ do: 'create', on: 'appointment' }}
           >New Appointment</NewButton>
           <div className="is-clearfix" />

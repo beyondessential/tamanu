@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import ReactTable from 'react-table';
 import moment from 'moment';
-import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ReactTooltip from 'react-tooltip';
 import { chain } from 'lodash';
@@ -37,9 +36,9 @@ class Medication extends Component {
   }
 
   handleChange(props = this.props) {
-    const { model: Model } = props;
+    const { patientModel } = props;
     const { from, to, tableColumns } = this.state;
-    let medicationHistory = Model.getMedicationHistory(from.clone(), to.clone());
+    let medicationHistory = patientModel.getMedicationHistory(from.clone(), to.clone());
     medicationHistory = medicationHistory.map(obj => ({
       date: obj.date,
       medication: obj.medication.map(model => ({ currentDate: obj.date, ...model.toJSON({ relations: true }) }))
@@ -56,7 +55,6 @@ class Medication extends Component {
   }
 
   setActionsCol = (row) => {
-    const { model: Model } = this.props;
     const id = `__${row.original._id}`;
     return (
       <div className="dropdown is-hoverable">
@@ -143,9 +141,9 @@ class Medication extends Component {
   }
 
   async markTaken(id, date, field, value) {
-    const { model: Model } = this.props;
+    const { patientModel } = this.props;
     const { from, to } = this.state;
-    const medicationHistory = Model.getMedicationHistory(from.clone(), to.clone());
+    const medicationHistory = patientModel.getMedicationHistory(from.clone(), to.clone());
     const recordModel = chain(medicationHistory)
                           .find(({ date: _date }) => moment(_date).isSame(date, 'day'))
                           .get('medication')
@@ -190,14 +188,14 @@ class Medication extends Component {
   }
 
   render() {
-    const { model: Model } = this.props;
+    const { patientModel } = this.props;
     const { medicationHistory, tableColumns } = this.state;
     return (
       <div>
         <div className="column p-t-0 p-b-0">
           <NewButton
             className="is-pulled-right"
-            to={`/medication/request/by-patient/${Model.id}`}
+            to={`/medication/request/by-patient/${patientModel.id}`}
             can={{ do: 'create', on: 'visit' }}
           >New Medication</NewButton>
           <div className="is-clearfix" />

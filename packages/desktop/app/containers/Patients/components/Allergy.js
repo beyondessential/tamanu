@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import AllergyModal from './AllergyModal';
-import { Button, TextButton } from '../../../components';
+import { TextButton } from '../../../components';
 
 class Allergy extends Component {
   static propTypes = {
-    model: PropTypes.object.isRequired,
+    patientModel: PropTypes.object.isRequired,
   }
 
   state = {
@@ -16,14 +16,14 @@ class Allergy extends Component {
   }
 
   componentWillMount() {
-    const { model: Model } = this.props;
-    const { allergies } = Model.attributes;
+    const { patientModel } = this.props;
+    const { allergies } = patientModel.attributes;
     this.setState({ allergies });
   }
 
   componentWillReceiveProps(newProps) {
-    const { model: Model } = newProps;
-    const { allergies } = Model.attributes;
+    const { patientModel } = newProps;
+    const { allergies } = patientModel.attributes;
     this.setState({ allergies });
   }
 
@@ -32,7 +32,7 @@ class Allergy extends Component {
   }
 
   render() {
-    const { model: Model } = this.props;
+    const { patientModel } = this.props;
     const { modalVisible, action, itemId, allergies } = this.state;
     return (
       <div>
@@ -57,7 +57,7 @@ class Allergy extends Component {
         </div>
         <AllergyModal
           itemId={itemId}
-          model={Model}
+          patientModel={patientModel}
           action={action}
           isVisible={modalVisible}
           onClose={this.onCloseModal}

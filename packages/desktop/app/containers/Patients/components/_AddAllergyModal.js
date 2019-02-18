@@ -48,9 +48,9 @@ class AllergyModal extends Component {
 
     try {
       if (action === 'new') {
-        const allergy = new AllergyModel(form);
-        const model = await allergy.save();
-        Model.get('allergies').add(model);
+        const allergyModel = new AllergyModel(form);
+        await allergyModel.save();
+        Model.get('allergies').add(allergyModel);
         await Model.save();
       } else {
         item.set(form);
@@ -65,12 +65,12 @@ class AllergyModal extends Component {
 
   async deleteItem() {
     const { item, model: patientModel } = this.props;
-    const allergy = new AllergyModel(item);
+    const allergyModel = new AllergyModel(item);
 
     try {
-      patientModel.get('allergies').remove({ _id: allergy.id });
+      patientModel.get('allergies').remove({ _id: allergyModel.id });
       await patientModel.save();
-      await allergy.destroy();
+      await allergyModel.destroy();
       this.props.onClose();
     } catch (err) {
       console.error('Error: ', err);

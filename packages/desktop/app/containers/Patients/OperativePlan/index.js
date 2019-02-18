@@ -29,7 +29,6 @@ class OperativePlan extends Component {
     formSuccess: false,
     markedCompleted: false,
     patient: this.props.patient.attributes,
-    diagnoses: this.props.patient.attributes.diagnoses,
     action: 'new',
     opReportId: '',
     form: {
@@ -76,7 +75,7 @@ class OperativePlan extends Component {
   }
 
   handleUserInput = (e, field) => {
-    const form = clone(this.state.form);
+    const { form } = this.state;
     if (typeof field !== 'undefined') {
       form[field] = e;
     } else {
@@ -90,10 +89,9 @@ class OperativePlan extends Component {
 
   setForm = (_action) => {
     const data = this.props.operationReport.toJSON();
-    const diagnoses = (_action === 'new' ? this.props.patient.get('diagnoses') : this.props.operationReport.get('diagnoses'));
-    const form = clone(this.state.form);
+    const { form} = this.state;
     each(form, (value, key) => { form[key] = (has(data, key) ? data[key] : value); });
-    this.setState({ form, action: _action, diagnoses: diagnoses.models });
+    this.setState({ form, action: _action });
   }
 
   goBack() {
@@ -115,7 +113,7 @@ class OperativePlan extends Component {
 
   markComplete = (e) => {
     e.preventDefault();
-    const form = clone(this.state.form);
+    const { form } = this.state;
     form.status = 'completed';
     this.setState({ form }, async () => {
       await this.submitForm(e);
@@ -131,7 +129,7 @@ class OperativePlan extends Component {
     try {
       // const operativePlan = new OperativePlanModel();
       operationReport.set(form);
-      const model = await operationReport.save();
+      await operationReport.save();
 
       // Attached operativePlan to patient object
       if (action === 'new') {
@@ -142,9 +140,9 @@ class OperativePlan extends Component {
           each(diagnoses.models, (diagnosis) => {
             const attributes = diagnosis.cloneAttributes();
 
-            const _model = new DiagnosisModel();
-            _model.set(attributes);
-            tasks.push(_model.save());
+            const diagnosisModel = new DiagnosisModel();
+            diagnosisModel.set(attributes);
+            tasks.push(diagnosisModel.save());
           });
 
           const resp = await Promise.all(tasks);
@@ -155,9 +153,9 @@ class OperativePlan extends Component {
           await operationReport.save();
         }
 
-        patient.get('operativePlans').add(model);
+        patient.get('operativePlans').add(operationReport);
         await patient.save();
-        this.props.history.push(`/patients/operativePlan/${patient._id}/${model._id}`);
+        this.props.history.push(`/patients/operativePlan/${patient._id}/${operationReport._id}`);
         this.setState({ action: 'update' });
       } else {
         patient.trigger('change');
@@ -262,7 +260,7 @@ class OperativePlan extends Component {
                       <Diagnosis parentModel={this.props.patient} showSecondary readonly />
                     </div>
                     <div className="column">
-                      <Allergy model={this.props.patient} readonly />
+                      <Allergy patientModel={this.props.patient} readonly />
                     </div>
                   </div>
                 </div>
@@ -278,7 +276,10 @@ class OperativePlan extends Component {
                   />
                 </div>
               </div>
-              <Procedure model={this.props.patient} onChange={this.handleUserInput} />
+              <Procedure
+                patientModel={this.props.patient}
+                onChange={this.handleUserInput}
+              />
               <div className="columns">
                 <div className="column is-10">
                   <div className="columns">

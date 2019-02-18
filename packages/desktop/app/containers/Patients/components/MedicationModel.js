@@ -16,10 +16,10 @@ class NoteModal extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { action, itemId, isVisible, model: ProcedureModel } = nextProps;
+    const { action, itemId, isVisible, procedureModel } = nextProps;
     let Model;
     if (action === 'edit') {
-      Model = ProcedureModel.get('medication').findWhere({ _id: itemId });
+      Model = procedureModel.get('medication').findWhere({ _id: itemId });
     } else {
       Model = new ProcedureMedicationModel();
     }
@@ -40,16 +40,16 @@ class NoteModal extends Component {
 
   submitForm = async (e) => {
     e.preventDefault();
-    const { action, model: ProcedureModel } = this.props;
+    const { action, procedureModel } = this.props;
     const { Model } = this.state;
 
     try {
       await Model.save();
       if (action === 'new') {
-        ProcedureModel.get('medication').add(Model);
-        await ProcedureModel.save(null, { silent: true });
+        procedureModel.get('medication').add(Model);
+        await procedureModel.save(null, { silent: true });
       } else {
-        ProcedureModel.trigger('change');
+        procedureModel.trigger('change');
       }
       this.props.onClose();
     } catch (err) {

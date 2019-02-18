@@ -13,7 +13,7 @@ class NoteModal extends Component {
     super(props);
     this.state = {
       isVisible: false,
-      Model: new NoteModel(),
+      noteModel: new NoteModel(),
       visitId: ''
     };
 
@@ -22,48 +22,46 @@ class NoteModal extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { action, itemId, isVisible, model: visitModel } = nextProps;
-    let Model;
+    const { action, itemId, isVisible, parentModel } = nextProps;
+    let noteModel = new NoteModel();
     if (action === 'edit') {
-      Model = visitModel.get('notes').findWhere({ _id: itemId });
-      if (Model.get('dateRecorded') !== '') Model.set('dateRecorded', moment(Model.get('dateRecorded')));
-    } else {
-      Model = new NoteModel();
+      noteModel = parentModel.get('notes').findWhere({ _id: itemId });
+      if (noteModel.get('dateRecorded') !== '') noteModel.set('dateRecorded', moment(noteModel.get('dateRecorded')));
     }
-    this.setState({ isVisible, Model });
+    this.setState({ isVisible, noteModel });
   }
 
   handleUserInput = (e, field) => {
-    const { Model } = this.state;
+    const { noteModel } = this.state;
     if (field === 'visit') {
       this.setState({ visitId: e });
     } else {
       if (typeof field !== 'undefined') {
-        Model.set(field, e, { silent: true });
+        noteModel.set(field, e, { silent: true });
       } else {
         const { name } = e.target;
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-        Model.set(name, value, { silent: true });
+        noteModel.set(name, value, { silent: true });
       }
-      this.setState({ Model });
+      this.setState({ noteModel });
     }
   }
 
   submitForm = async (e) => {
     e.preventDefault();
-    const { action, model: visitModel } = this.props;
-    const { Model, visitId } = this.state;
+    const { action, parentModel } = this.props;
+    const { noteModel, visitId } = this.state;
     if (visitId !== '') {
-      visitModel.set({ _id: visitId });
-      await visitModel.fetch();
+      parentModel.set({ _id: visitId });
+      await parentModel.fetch();
     }
     try {
-      await Model.save();
+      await noteModel.save();
       if (action === 'new') {
-        visitModel.get('notes').add(Model);
-        await visitModel.save(null, { silent: true });
+        parentModel.get('notes').add(noteModel);
+        await parentModel.save(null, { silent: true });
       } else {
-        visitModel.trigger('change');
+        parentModel.trigger('change');
       }
       this.props.onClose();
     } catch (err) {
@@ -73,8 +71,8 @@ class NoteModal extends Component {
 
   render() {
     const { onClose, action, patientModel, showVisits } = this.props;
-    const { Model } = this.state;
-    const form = Model.toJSON();
+    const { noteModel } = this.state;
+    const form = noteModel.toJSON();
     return (
       <Modal open={this.state.isVisible} onClose={onClose} little>
         <form
@@ -121,19 +119,23 @@ class NoteModal extends Component {
             </div>
             <div className="modal-footer">
               <div className="column has-text-right">
-                <CancelButton
-                  onClick={onClose} />
-                {/* <button className={action !== 'new' ? 'button is-danger' : 'button is-danger is-hidden'} type="button" onClick={this.deleteItem}>Delete</button> */}
-                {action === 'new' && <AddButton
-                  form="noteForm"
-                  type="submit"
-                  disabled={!Model.isValid()}
-                  can={{ do: 'create', on: 'note' }} /> }
-                {action !== 'new' && <UpdateButton
-                  form="noteForm"
-                  type="submit"
-                  disabled={!Model.isValid()}
-                  can={{ do: 'update', on: 'note' }} />}
+                <CancelButton onClick={onClose} />
+                {action === 'new' &&
+                  <AddButton
+                    form="noteForm"
+                    type="submit"
+                    disabled={!noteModel.isValid()}
+                    can={{ do: 'create', on: 'note' }}
+                  />
+                }
+                {action !== 'new' &&
+                  <UpdateButton
+                    form="noteForm"
+                    type="submit"
+                    disabled={!noteModel.isValid()}
+                    can={{ do: 'update', on: 'note' }}
+                  />
+                }
               </div>
             </div>
           </div>
@@ -147,14 +149,14 @@ NoteModal.propTypes = {
   action: PropTypes.string,
   itemId: PropTypes.string,
   isVisible: PropTypes.bool.isRequired,
-  model: PropTypes.any,
+  parentModel: PropTypes.any,
   showVisits: PropTypes.bool,
 };
 
 NoteModal.defaultProps = {
   action: 'new',
   itemId: '',
-  model: new VisitModel(),
+  parentModel: new VisitModel(),
   showVisits: false,
 };
 

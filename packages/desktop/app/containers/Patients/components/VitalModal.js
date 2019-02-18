@@ -19,7 +19,7 @@ class VisitModal extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { action, itemId, isVisible, model: VisitModel } = nextProps;
+    const { action, itemId, isVisible, VisitModel } = nextProps;
     let Model;
     if (action === 'edit') {
       Model = VisitModel.get('vitals').findWhere({ _id: itemId });
@@ -44,7 +44,7 @@ class VisitModal extends Component {
 
   submitForm = async (e) => {
     e.preventDefault();
-    const { action, model: VisitModel } = this.props;
+    const { action, VisitModel } = this.props;
     const { Model } = this.state;
 
     try {
