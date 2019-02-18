@@ -17,7 +17,7 @@ class ConditionModal extends Component {
   }
 
   handleUserInput = (event, field) => {
-    const { model: Model } = this.props;
+    const { conditionModel } = this.props;
     let fieldName = field;
     let fieldValue = '';
 
@@ -30,18 +30,18 @@ class ConditionModal extends Component {
       fieldValue = value;
     }
 
-    Model.set({ [fieldName]: fieldValue });
+    conditionModel.set({ [fieldName]: fieldValue });
     this.forceUpdate(); // re-render
   }
 
   submitForm = async (event) => {
     event.preventDefault();
-    const { action, model: Model, patientModel } = this.props;
+    const { action, conditionModel, patientModel } = this.props;
 
     try {
-      await Model.save();
+      await conditionModel.save();
       if (action === 'new') {
-        patientModel.get('conditions').add(Model);
+        patientModel.get('conditions').add(conditionModel);
         await patientModel.save();
       } else {
         patientModel.trigger('change');
@@ -56,7 +56,7 @@ class ConditionModal extends Component {
   async deleteItem() {
     const {
       itemId: _id,
-      model: Model,
+      conditionModel,
       patientModel
     } = this.props;
 
@@ -64,7 +64,7 @@ class ConditionModal extends Component {
       this.deleteModalClose();
       patientModel.get('conditions').remove({ _id });
       await patientModel.save();
-      await Model.destroy();
+      await conditionModel.destroy();
       this.props.onClose();
     } catch (err) {
       console.error('Error: ', err);
@@ -84,9 +84,9 @@ class ConditionModal extends Component {
     const {
       onClose,
       action,
-      model: Model
+      conditionModel
     } = this.props;
-    const { attributes: form } = Model;
+    const { attributes: form } = conditionModel;
 
     return (
       <React.Fragment>
@@ -136,7 +136,7 @@ class ConditionModal extends Component {
                       <UpdateButton
                         can={{ do: 'update', on: 'condition' }}
                         type="submit"
-                        disabled={!Model.isValid()} />
+                        disabled={!conditionModel.isValid()} />
                     </React.Fragment>}
                   {action === 'new' &&
                     <React.Fragment>
@@ -145,7 +145,7 @@ class ConditionModal extends Component {
                       <AddButton
                         can={{ do: 'create', on: 'condition' }}
                         type="submit"
-                        disabled={!Model.isValid()} />
+                        disabled={!conditionModel.isValid()} />
                     </React.Fragment>}
                 </div>
               </div>
