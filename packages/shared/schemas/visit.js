@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const VisitSchema = {
   name: 'visit',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     dischargeInfo: {
       type: 'string',
@@ -80,7 +80,8 @@ const VisitSchema = {
       type: 'list',
       objectType: 'report'
     },
-  }, defaults)
+    ...defaults,
+  }
 };
 
 module.exports = VisitSchema;

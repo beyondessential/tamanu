@@ -384,6 +384,11 @@ export const reportOptions = [
   { value: 'visit', label: 'Visit', className: 'State-NT' },
 ];
 
+export const diagnosisCertainty = [
+  { value: 'suspected', label: 'Suspected' },
+  { value: 'confirmed', label: 'Confirmed' },
+];
+
 export const visitOptions = [
   { value: 'admission', label: 'Admission' },
   { value: 'clinic', label: 'Clinic' },

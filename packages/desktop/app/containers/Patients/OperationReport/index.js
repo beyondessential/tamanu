@@ -216,8 +216,8 @@ class OperationReport extends Component {
                   </div>
                   <div className="columns border-bottom">
                     <div className="column">
-                      <Diagnosis diagnoses={preOpDiagnoses} model={this.props.patient} readonly />
-                      <Diagnosis diagnoses={preOpDiagnoses} model={this.props.patient} showSecondary readonly />
+                      <Diagnosis diagnoses={preOpDiagnoses} parentModel={this.props.patient} readonly />
+                      <Diagnosis diagnoses={preOpDiagnoses} parentModel={this.props.patient} showSecondary readonly />
                     </div>
                     <div className="column">
                       <Allergy patient={patient} model={this.props.patient} readonly />

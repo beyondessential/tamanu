@@ -5,7 +5,7 @@ const { DISPLAY_ID_PLACEHOLDER, ENVIRONMENT_TYPE } = require('../constants');
 const PatientSchema = {
   name: 'patient',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     displayId: {
       type: 'string',
@@ -185,9 +185,9 @@ const PatientSchema = {
       type: 'list',
       objectType: 'allergy'
     },
-    diagnoses: {
+    conditions: {
       type: 'list',
-      objectType: 'diagnosis'
+      objectType: 'condition'
     },
     operationReports: {
       type: 'list',
@@ -209,7 +209,8 @@ const PatientSchema = {
       type: 'list',
       objectType: 'visit'
     },
-  }, defaults),
+    ...defaults,
+  },
   beforeSave: (db, object, env) => {
     if (object.displayId === DISPLAY_ID_PLACEHOLDER && env === ENVIRONMENT_TYPE.LAN){
       object.displayId = _generateTempDisplayId(db);

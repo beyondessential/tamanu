@@ -199,12 +199,12 @@ class EditPatient extends Component {
                   <TopRow patient={patient} />
                   <div className="columns border-bottom">
                     <div className="column">
-                      <Diagnosis model={patientModel} />
+                      <Diagnosis parentModel={patientModel} />
                       <Procedure model={patientModel} />
                       <OperativePlan model={patientModel} />
                     </div>
                     <div className="column">
-                      <Diagnosis model={patientModel} showSecondary />
+                      <Diagnosis parentModel={patientModel} showSecondary />
                       <Allergy model={patientModel} />
                     </div>
                   </div>

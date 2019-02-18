@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const AppointmentSchema = {
   name: 'appointment',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     allDay: 'bool',
     provider: {
@@ -42,8 +42,9 @@ const AppointmentSchema = {
       type: 'linkingObjects',
       objectType: 'patient',
       property: 'appointments'
-    }
-  }, defaults)
+    },
+    ...defaults,
+  }
 };
 
 module.exports = AppointmentSchema;

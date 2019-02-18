@@ -1,6 +1,7 @@
 export AllergyModel from './allergy';
 export AnswerModel from './answer';
 export AppointmentModel from './appointment';
+export ConditionModel from './condition';
 export DiagnosisModel from './diagnosis';
 export DrugModel from './drug';
 export HospitalModel from './hospital';

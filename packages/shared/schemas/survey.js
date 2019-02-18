@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const SurveySchema = {
   name: 'survey',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     name: {
       type: 'string',
@@ -36,8 +36,9 @@ const SurveySchema = {
     order: {
       type: 'int',
       default: 0
-    }
-  }, defaults)
+    },
+    ...defaults,
+  }
 };
 
 module.exports = SurveySchema;

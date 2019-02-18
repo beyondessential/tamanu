@@ -4,10 +4,11 @@ import PropTypes from 'prop-types';
 import DiagnosisModal from './DiagnosisModal';
 import { dateFormat } from '../../../constants';
 import { TextButton} from '../../../components';
+import { DiagnosisModel } from '../../../models';
 
 class Diagnosis extends Component {
   static propTypes = {
-    model: PropTypes.object.isRequired,
+    parentModel: PropTypes.object.isRequired,
     showSecondary: PropTypes.bool,
   }
 
@@ -18,18 +19,18 @@ class Diagnosis extends Component {
   state = {
     modalVisible: false,
     action: 'new',
-    itemId: null
+    diagnosisModel: new DiagnosisModel()
   }
 
   componentWillMount() {
-    const { model: Model } = this.props;
-    const { diagnoses } = Model.attributes;
+    const { parentModel } = this.props;
+    const { diagnoses } = parentModel.attributes;
     this.setState({ diagnoses });
   }
 
   componentWillReceiveProps(newProps) {
-    const { model: Model } = newProps;
-    const { diagnoses } = Model.attributes;
+    const { parentModel } = newProps;
+    const { diagnoses } = parentModel.attributes;
     this.setState({ diagnoses });
   }
 
@@ -37,10 +38,31 @@ class Diagnosis extends Component {
     this.setState({ modalVisible: false });
   }
 
+  editItem( itemId = null ) {
+    const { parentModel } = this.props;
+    let diagnosisModel = parentModel.get('diagnoses').findWhere({ _id: itemId });
+    if (!diagnosisModel) diagnosisModel = new DiagnosisModel()
+    this.setState({
+      modalVisible: true,
+      action: diagnosisModel.id ? 'update' : 'new',
+      diagnosisModel
+    });
+  }
+
   render() {
-    const { model: Model, showSecondary } = this.props;
-    const { modalVisible, action, itemId, diagnoses: diagnosesAll } = this.state;
-    const diagnoses = diagnosesAll.toJSON().filter(diagnosis => diagnosis.active && diagnosis.secondaryDiagnosis === showSecondary);
+    const {
+      parentModel,
+      showSecondary
+    } = this.props;
+    const {
+      modalVisible,
+      action,
+      diagnosisModel,
+      diagnoses: allDiagnoses
+    } = this.state;
+    // filter diagnosis type i-e primary or secondary
+    const diagnoses = allDiagnoses.toJSON().filter(diagnosis => diagnosis.active && diagnosis.secondaryDiagnosis === showSecondary);
+
     return (
       <div>
         <div className={`column p-b-0 ${!diagnoses.length && showSecondary ? 'is-hidden' : ''}`}>
@@ -48,7 +70,7 @@ class Diagnosis extends Component {
           <TextButton
             className={showSecondary ? 'is-hidden' : ''}
             can={{ do: 'create', on: 'diagnosis' }}
-            onClick={() => this.setState({ modalVisible: true, action: 'new', itemId: null })}
+            onClick={() => this.editItem()}
           > + Add Diagnosis </TextButton>
           <div className="clearfix" />
           {diagnoses.map((diagnosis, k) => {
@@ -57,15 +79,15 @@ class Diagnosis extends Component {
                 {k > 0 ? ', ' : ''}
                 <TextButton
                   can={{ do: 'read', on: 'diagnosis' }}
-                  onClick={() => this.setState({ modalVisible: true, action: 'edit', itemId: diagnosis._id })}
+                  onClick={() => this.editItem(diagnosis._id)}
                 >{`${diagnosis.diagnosis} (${moment(diagnosis.date).format(dateFormat)})`}</TextButton>
               </React.Fragment>
             );
           })}
         </div>
         <DiagnosisModal
-          itemId={itemId}
-          model={Model}
+          diagnosisModel={diagnosisModel}
+          parentModel={parentModel}
           action={action}
           isVisible={modalVisible}
           onClose={this.onCloseModal}

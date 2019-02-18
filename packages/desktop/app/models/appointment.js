@@ -33,6 +33,7 @@ export default BaseModel.extend({
 
   reverseRelations: [
     {
+      type: Backbone.Many,
       key: 'patients',
       model: require('./patient')
     }

@@ -5,7 +5,7 @@ const HospitalSchema = {
   name: 'hospital',
   primaryKey: '_id',
   // sync: false,
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     name: 'string',
     key: {
@@ -16,8 +16,9 @@ const HospitalSchema = {
       type: 'list',
       objectType: 'user'
     },
-    objectsFullySynced: 'string?[]'
-  }, defaults),
+    objectsFullySynced: 'string?[]',
+    ...defaults,
+  },
   filter: (object, client) => {
     let valid = false;
     if (object._id === client.hospitalId) valid = true;
