@@ -279,22 +279,22 @@ export const sidebarInfo = [
     label: 'Administration',
     path: '/admin',
     icon: administrationIcon,
-    ability: {  subject: 'imaging' },
+    ability: {  subject: 'user', action: 'read' },
     children: [
       {
         label: 'Address Fields',
         path: '/admin/address',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
       },
       {
         label: 'Shortcodes',
         path: '/admin/textreplace',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
       },
       {
         label: 'Print Header',
         path: '/admin/print-header',
-        icon: 'fa fa-chevron-right'
+        icon: 'fa fa-chevron-right',
       },
       {
         label: 'Users',
@@ -329,6 +329,7 @@ export const sidebarInfo = [
     label: 'Reports',
     path: '/reports',
     icon: scheduleIcon,
+    ability: { action: 'read', subject: 'report' },
     children: availableReports.map(report => ({
       label: report.name,
       path: `/reports/${report.id}`,
@@ -336,10 +337,6 @@ export const sidebarInfo = [
     })),
   },
 ];
-
-function padDigits(number, digits) {
-  return Array(Math.max((digits - String(number).length) + 1, 0)).join(0) + number;
-}
 
 export const getDifferenceDate = (today, target) => {
   const difference = moment.duration(moment(today).diff(moment(target)));

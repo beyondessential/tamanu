@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 
-import { TopBar } from '../../components/TopBar';
+import { TopBar } from '../../components';
 
 import { availableReports, dummyData } from './dummyReports';
 import { ReportViewer } from './ReportViewer';
@@ -9,7 +8,7 @@ import { ReportFilters } from './ReportFilters';
 
 const ReportNotFound = ({ missingId }) => (
   <div>
-    <TopBar>Report not found</TopBar>
+    <TopBar title='Report not found' />
     <div className="detail">
       <div className="notification">
         Could not find report with id "{missingId}".
@@ -23,7 +22,7 @@ export class ReportGenerator extends Component {
   state = {
     filters: {}
   }
-  
+
   render() {
     const { match } = this.props;
     const { reportId } = match.params;
@@ -35,11 +34,11 @@ export class ReportGenerator extends Component {
 
     return (
       <div>
-        <TopBar>{ report.name }</TopBar>
+        <TopBar title={report.name} />
         <div className="detail">
           <ReportFilters onApply={ filters => this.setState({ filters }) } />
           <hr />
-          <ReportViewer 
+          <ReportViewer
             report={ report }
             data={dummyData}
             filters={ this.state.filters }

@@ -1,16 +1,12 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { find, isEmpty, startsWith } from 'lodash';
+import { find, isEmpty } from 'lodash';
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Collapse from '@material-ui/core/Collapse';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ExpandMore from '@material-ui/icons/ExpandMore';
 import Divider from '@material-ui/core/Divider';
 
 import styled from 'styled-components';
@@ -24,8 +20,6 @@ import { TamanuLogo } from './TamanuLogo';
 
 const { login: loginActions } = actions;
 const { logout } = loginActions;
-
-const classNames = require('classnames');
 
 const SidebarContainer = styled.div`
   min-width: 275px;
@@ -138,8 +132,8 @@ class Sidebar extends Component {
     if (!isEmpty(models)) {
       programsNav.hidden = false;
       programsNav.children = [];
-      models.forEach((program, key) => {
-        program = program.toJSON();
+      models.forEach((programString, key) => {
+        const program = programString.toJSON();
         programsNav.children.push({
           label: program.name,
           path: `/programs/${program._id}/patients`,
@@ -153,7 +147,7 @@ class Sidebar extends Component {
     this.forceUpdate();
   }
 
-  clickedParentItem = ({ label, key }) => {
+  clickedParentItem = ({ key }) => {
     const { selectedParentItem } = this.state;
     if (selectedParentItem !== key) {
       this.setState({
