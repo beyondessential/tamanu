@@ -9,24 +9,24 @@ import { ConditionModel } from '../../../models';
 
 class Condition extends Component {
   static propTypes = {
-    model: PropTypes.object.isRequired,
+    patientModel: PropTypes.object.isRequired,
   }
 
   state = {
     modalVisible: false,
     action: 'new',
-    itemModel: new ConditionModel()
+    conditionModel: new ConditionModel()
   }
 
   componentWillMount() {
-    const { model: Model } = this.props;
-    const { conditions } = Model.attributes;
+    const { patientModel } = this.props;
+    const { conditions } = patientModel.attributes;
     this.setState({ conditions });
   }
 
   componentWillReceiveProps(newProps) {
-    const { model: Model } = newProps;
-    const { conditions } = Model.attributes;
+    const { patientModel } = newProps;
+    const { conditions } = patientModel.attributes;
     this.setState({ conditions });
   }
 
@@ -35,27 +35,27 @@ class Condition extends Component {
   }
 
   editItem( itemId = null ) {
-    const { model: Model } = this.props;
-    let { itemModel } = this.state;
-    const item = Model.get('conditions').findWhere({ _id: itemId });
+    const { patientModel } = this.props;
+    let { conditionModel } = this.state;
+    const item = patientModel.get('conditions').findWhere({ _id: itemId });
     if (!isEmpty(item)) {
-      itemModel = item
+      conditionModel = item
     } else {
-      itemModel = new ConditionModel()
+      conditionModel = new ConditionModel()
     }
     this.setState({
       modalVisible: true,
       action: isEmpty(item) ? 'new' : 'update',
-      itemModel
+      conditionModel
     });
   }
 
   render() {
-    const { model: Model } = this.props;
+    const { patientModel } = this.props;
     const {
       modalVisible,
       action,
-      itemModel,
+      conditionModel,
       conditions
     } = this.state;
 
@@ -68,10 +68,10 @@ class Condition extends Component {
             onClick={() => this.editItem()}
           > + Add Condition </TextButton>
           <div className="clearfix" />
-          {conditions.map((conditionModel, k) => {
-            const { _id, condition, date } = conditionModel.toJSON();
+          {conditions.map((model, k) => {
+            const { _id, condition, date } = model.toJSON();
             return (
-              <React.Fragment key={condition._id}>
+              <React.Fragment key={_id}>
                 {k > 0 ? ', ' : ''}
                 <TextButton
                   can={{ do: 'read', on: 'condition' }}
@@ -82,8 +82,8 @@ class Condition extends Component {
           })}
         </div>
         <ConditionModal
-          model={itemModel}
-          patientModel={Model}
+          conditionModel={conditionModel}
+          patientModel={patientModel}
           action={action}
           isVisible={modalVisible}
           onClose={this.onCloseModal}

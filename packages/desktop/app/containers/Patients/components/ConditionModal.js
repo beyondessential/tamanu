@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Modal from 'react-responsive-modal';
-import moment from 'moment';
 import { InputGroup, AddButton, CancelButton,
           DeleteButton, UpdateButton, DatepickerGroup,
           Modal as DeleteConfirmModal } from '../../../components';
@@ -8,40 +7,57 @@ import { InputGroup, AddButton, CancelButton,
 class ConditionModal extends Component {
   constructor(props) {
     super(props);
+    const { conditionModel: { attributes } } = this.props;
     this.state = {
+      ...attributes,
+      formIsValid: false,
       deleteModalVisible: false
     };
     this.submitForm = this.submitForm.bind(this);
     this.handleUserInput = this.handleUserInput.bind(this);
+    this.handleChange = this.handleChange.bind(this);
     this.deleteItem = this.deleteItem.bind(this);
   }
 
-  handleUserInput = (event, field) => {
-    const { model: Model } = this.props;
-    let fieldName = field;
-    let fieldValue = '';
+  componentWillReceiveProps(newProps) {
+    const { attributes } = newProps.conditionModel;
+    const formIsValid = newProps.conditionModel.isValid();
+    this.setState({ ...attributes, formIsValid });
+    // handle conditionModel's change
+    newProps.conditionModel.off('change');
+    newProps.conditionModel.on('change', this.handleChange);
+  }
 
-    if (event instanceof moment || typeof event.target === "undefined") {
-      fieldValue = event;
-    } else {
-      const { name } = event.target;
-      const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
-      fieldName = name;
-      fieldValue = value;
-    }
+  handleDateInput = (date, fieldName) => {
+    this.handleUserInput(date, fieldName);
+  }
 
-    Model.set({ [fieldName]: fieldValue });
-    this.forceUpdate(); // re-render
+  handleFormInput = (event) => {
+    const { name: fieldName, type, checked, value } = event.target;
+    const fieldValue = type === 'checkbox' ? checked : value;
+    this.handleUserInput(fieldValue, fieldName);
+  }
+
+  handleUserInput = (fieldValue, fieldName) => {
+    const { conditionModel } = this.props;
+    conditionModel.set({ [fieldName]: fieldValue });
+  }
+
+  handleChange() {
+    const { conditionModel } = this.props;
+    const formIsValid = conditionModel.isValid();
+    const changedAttributes = conditionModel.changedAttributes();
+    this.setState({ ...changedAttributes, formIsValid });
   }
 
   submitForm = async (event) => {
     event.preventDefault();
-    const { action, model: Model, patientModel } = this.props;
+    const { action, conditionModel, patientModel } = this.props;
 
     try {
-      await Model.save();
+      await conditionModel.save();
       if (action === 'new') {
-        patientModel.get('conditions').add(Model);
+        patientModel.get('conditions').add(conditionModel);
         await patientModel.save();
       } else {
         patientModel.trigger('change');
@@ -56,7 +72,7 @@ class ConditionModal extends Component {
   async deleteItem() {
     const {
       itemId: _id,
-      model: Model,
+      conditionModel,
       patientModel
     } = this.props;
 
@@ -64,7 +80,7 @@ class ConditionModal extends Component {
       this.deleteModalClose();
       patientModel.get('conditions').remove({ _id });
       await patientModel.save();
-      await Model.destroy();
+      await conditionModel.destroy();
       this.props.onClose();
     } catch (err) {
       console.error('Error: ', err);
@@ -80,13 +96,18 @@ class ConditionModal extends Component {
   }
 
   render() {
-    const { deleteModalVisible } = this.state;
+    const {
+      condition,
+      date,
+      deleteModalVisible,
+      formIsValid
+    } = this.state;
     const {
       onClose,
       action,
-      model: Model
+      conditionModel
     } = this.props;
-    const { attributes: form } = Model;
+    const { attributes: form } = conditionModel;
 
     return (
       <React.Fragment>
@@ -110,8 +131,8 @@ class ConditionModal extends Component {
                   className="field column m-b-10"
                   name="condition"
                   label="Condition"
-                  value={form.condition}
-                  onChange={this.handleUserInput}
+                  value={condition}
+                  onChange={this.handleFormInput}
                   autoFocus
                   required
                 />
@@ -120,8 +141,8 @@ class ConditionModal extends Component {
                   label="Date of Diagnosis"
                   name="date"
                   popperPlacement="bottom-start"
-                  value={form.date}
-                  onChange={this.handleUserInput}
+                  value={date}
+                  onChange={this.handleDateInput}
                   required
                 />
                 <div className="is-clearfix" />
@@ -132,21 +153,25 @@ class ConditionModal extends Component {
                     <React.Fragment>
                       <DeleteButton
                         can={{ do: 'delete', on: 'condition' }}
-                        onClick={this.deleteItemConfirm.bind(this)} />
+                        onClick={this.deleteItemConfirm.bind(this)} 
+                      />
                       <UpdateButton
                         can={{ do: 'update', on: 'condition' }}
                         type="submit"
-                        disabled={!Model.isValid()} />
-                    </React.Fragment>}
+                        disabled={!formIsValid} 
+                      />
+                    </React.Fragment>
+                  }
                   {action === 'new' &&
                     <React.Fragment>
-                      <CancelButton
-                        onClick={onClose} />
+                      <CancelButton onClick={onClose} />
                       <AddButton
                         can={{ do: 'create', on: 'condition' }}
                         type="submit"
-                        disabled={!Model.isValid()} />
-                    </React.Fragment>}
+                        disabled={!formIsValid} 
+                      />
+                    </React.Fragment>
+                  }
                 </div>
               </div>
             </div>

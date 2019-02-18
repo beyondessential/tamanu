@@ -200,7 +200,7 @@ class EditPatient extends Component {
                   <TopRow patient={patient} />
                   <div className="columns border-bottom">
                     <div className="column">
-                      <Condition model={patientModel} />
+                      <Condition patientModel={patientModel} />
                       <Procedure model={patientModel} />
                       <OperativePlan model={patientModel} />
                     </div>
