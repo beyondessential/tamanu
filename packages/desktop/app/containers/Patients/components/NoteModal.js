@@ -120,15 +120,13 @@ class NoteModal extends Component {
             <div className="modal-footer">
               <div className="column has-text-right">
                 <CancelButton onClick={onClose} />
-                {action === 'new' &&
+                {action === 'new' ?
                   <AddButton
                     form="noteForm"
                     type="submit"
                     disabled={!noteModel.isValid()}
                     can={{ do: 'create', on: 'note' }}
-                  />
-                }
-                {action !== 'new' &&
+                  /> :
                   <UpdateButton
                     form="noteForm"
                     type="submit"
