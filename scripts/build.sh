@@ -7,8 +7,9 @@ lan_config="CONFIG_LAN_${type_upper}_${branch_upper}"
 server_config="CONFIG_SERVER_${type_upper}_${branch_upper}"
 echo "Building - ${type}"
 
+IFS='|' read -a desktop_config <<< "${CONFIG_DESKTOP}"
 touch ${DESKTOP_ROOT}/.env &&
-  echo "${CONFIG_DESKTOP}" > ${DESKTOP_ROOT}/.env &&
+  printf '%s\n' "${desktop_config[@]}" > ${DESKTOP_ROOT}/.env &&
   echo ${DESKTOP_ROOT}/.env
 
 mkdir -p ${LAN_ROOT}/config/ &&
