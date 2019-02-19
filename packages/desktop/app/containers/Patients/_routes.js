@@ -6,8 +6,6 @@ import PatientListing from './PatientListing';
 import AdmittedPatients from './AdmittedPatients';
 import Outpatient from './Outpatient';
 import NewPatient from './NewPatient';
-import Reports from './Reports';
-import CheckInPatient from './CheckInPatient';
 import Visit from './Visit';
 import Procedure from './Visit/Procedures/Procedure';
 import EditPatient from './EditPatient';
@@ -24,7 +22,6 @@ export default function Routes({ url }) {
         <Route path={`${url}/outpatient`} component={Outpatient} />
         <Route path={`${url}/edit/new`} component={NewPatient} />
         <Route path={`${url}/reports`} component={NotActive} />
-        {/* <Route path={`${url}/checkin/:id`} component={CheckInPatient} /> */}
         <Route path={`${url}/editPatient/:id`} component={EditPatient} />
         <Route path={`${url}/operativePlan/:patientId/:id`} component={OperativePlan} />
         <Route path={`${url}/operativePlan/:patientId`} component={OperativePlan} />
