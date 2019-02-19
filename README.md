@@ -53,7 +53,7 @@ local development, this can just be another process on the same host.
 
 ```bash
 $ cd packages/lan
-$ yarn start
+$ yarn start-dev
 ```
 
 ### Desktop app
@@ -63,7 +63,7 @@ Once there is a LAN server up and running, run this to start the Electron app fo
 ```bash
 $ cd packages/desktop
 $ mv example.env .env
-$ yarn dev # To run in production, use yarn start
+$ yarn start-dev # To run in production, use yarn start
 ```
 
 ## CI / CD
