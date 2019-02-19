@@ -26,11 +26,11 @@ unzip -q ./${filename} -d ${dir_tmp}/
 echo "unzip ${filename} > ${dir_tmp}"
 
 cd ${dir_tmp}
-rm -rf ${dir_tmp}/**/node_modules
-yarn install
 $pm2 delete "${app_name}"
+rm -rf ${dir_tmp}/**/node_modules
+yarn install --cwd ${dir_tmp}/packages/server
+yarn install --cwd ${dir_tmp}/packages/shared
 
-cd ../../
 echo "${dir} > ${dir_bk}" \
   && mv ${dir} ${dir_bk} || echo " " \
   && echo "${dir_tmp} > ${dir}" \
