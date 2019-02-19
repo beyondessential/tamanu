@@ -24,9 +24,6 @@ export const Colors = {
 };
 
 export const dbViews = {
-  patientsAdmitted: 'patients_admitted',
-  patientsFemale: 'patients_female',
-  patientsMale: 'patients_male',
   medicationCompleted: 'medication_completed',
   medicationRequested: 'medication_requested',
   medicationFulfilled: 'medication_fulfilled',

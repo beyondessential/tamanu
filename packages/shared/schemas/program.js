@@ -16,7 +16,7 @@ const ProgramSchema = {
     collection: 'string?',
     label: 'string?',
     value: 'string?',
-    filterView: 'string?',
+    patientFilters: 'string?',
     surveys: {
       type: 'list',
       objectType: 'survey'

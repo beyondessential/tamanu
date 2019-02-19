@@ -59,9 +59,8 @@ class Patients extends Component {
 
   onFetchData = async (state = {}) => {
     const { keyword, program } = this.state;
-    const { filterView: view } = program;
+    const { patientFilters: patientFiltersString } = program;
     this.setState({ loading: true });
-
 
     try {
       // Reset keyword
@@ -71,7 +70,8 @@ class Patients extends Component {
       if (state.sorted.length > 0) this.props.collection.setSorting(sort.id, sort.desc ? 1 : -1);
       if (keyword) this.props.collection.setKeyword(keyword);
       this.props.collection.setPageSize(state.pageSize);
-      await this.props.collection.getPage(state.page, view);
+      const patientFilters = JSON.parse(patientFiltersString);
+      await this.props.collection.getPage(state.page, null, null, { data: patientFilters });
       this.setState({ loading: false });
     } catch (err) {
       this.setState({ loading: false });
@@ -118,7 +118,7 @@ class Patients extends Component {
     return (
       <div className="content">
         <TopBar
-          title={program && program.name}
+          title={program ? program.name : 'Patients'}
           search={{
             onSubmit: this.searchSubmit,
             onClear: this.searchReset
