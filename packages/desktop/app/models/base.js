@@ -3,8 +3,7 @@ import moment from 'moment';
 import jsonDiff from 'json-diff';
 import shortid from 'shortid';
 import {
-  isString, assignIn, isEmpty, clone, each,
-  set, isObject, has, head, isArray
+  isEmpty, clone, each, has, head, isArray
 } from 'lodash';
 import { to } from 'await-to-js';
 import { concatSelf } from '../utils';
@@ -19,7 +18,6 @@ export default Backbone.AssociatedModel.extend({
   constructor(attributes, options) {
     let newAttributes = clone(attributes);
     if (isArray(newAttributes)) newAttributes = head(newAttributes);
-    // if (!isEmpty(newAttributes) && has(newAttributes, '_id')) this.lastSyncedAttributes = newAttributes;
     Backbone.AssociatedModel.apply(this, [newAttributes, options]);
     this._parseParents();
   },
@@ -39,7 +37,6 @@ export default Backbone.AssociatedModel.extend({
       type: Backbone.Many,
       key: 'modifiedFields',
       relatedModel: () => require('./modifiedField'),
-      // serialize: '_id'
     }, {
       type: Backbone.One,
       key: 'createdBy',
@@ -81,7 +78,6 @@ export default Backbone.AssociatedModel.extend({
       let { secret } = auth;
       secret = btoa(secret);
 
-      // let attributes = attrs || {};
       if (!isEmpty(attrs)) this.set(attrs, { silent: true });
       const { attributes } = this;
       let modifiedAttributes = {};
