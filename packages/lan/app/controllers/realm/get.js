@@ -1,32 +1,27 @@
-const { parseInt, ceil, head, isEmpty, has } = require('lodash');
-const moment = require('moment');
+const { parseInt, ceil, head, isEmpty } = require('lodash');
 const { objectToJSON } = require('../../utils');
-const { SYNC_ACTIONS } = require('../../constants');
 
 module.exports = (req, res) => {
   const realm = req.app.get('database');
   const { params, query } = req;
-  const { model, id } = params;
+  const { model: modelName, id } = params;
   const {
     sort_by: sortBy,
     order,
     keyword,
     fields,
-    view: viewName,
+    current_page: currentPageString,
+    page_size: pageSizeString,
+    ...restOfQuery
   } = query;
   const defaultPageSize = 10;
-  let {
-    current_page: currentPage,
-    page_size: pageSize,
-    keys: viewKeys,
-  } = query;
 
   try {
     return realm.write(() => {
-      let objects = realm.objects(model);
+      let objects = realm.objects(modelName);
       const filters = [];
 
-      // Return single object
+      // If id is provided, return single object
       if (id) {
         objects = objects.filtered(`_id = '${id}'`);
         if (objects.length <= 0) return res.status(404).end();
@@ -38,20 +33,6 @@ module.exports = (req, res) => {
       // Create pagination options before limiting
       const paginationParams = { total_entries: objects.length };
 
-      // Load our filters if a view is set
-      if (viewName) {
-        const view = realm.getView(viewName);
-        if (view) {
-          const { filters: viewFilters } = view;
-          filters.push(viewFilters);
-        }
-
-        if (viewKeys) {
-          viewKeys = viewKeys.split(',');
-          viewKeys = viewKeys.map(key => (moment(key).isValid() ? moment(key).toISOString() : key));
-        }
-      }
-
       // Add keyword filter
       if (keyword && fields) {
         const conditions = [];
@@ -61,18 +42,25 @@ module.exports = (req, res) => {
         filters.push(`(${conditions.join(' OR ')})`);
       }
 
-      // Add filters
-      if (!viewKeys) viewKeys = [];
-      if (!isEmpty(filters)) objects = objects.filtered(filters.join(' AND '), ...viewKeys);
+      // Add any additional filters from query parameters
+      const { properties: fieldSchemata } = realm.schema.find(({ name }) => name === modelName);
+      Object.entries(restOfQuery).forEach(([field, value]) => {
+        const fieldSchema = fieldSchemata[field] || {};
+        const isString = fieldSchema === 'string' || fieldSchema.type === 'string';
+        const valueString = isString ? `'${value}'` : value;
+        filters.push(`${field} = ${valueString}`);
+      });
+
+      // Filter collection on all filters
+      if (!isEmpty(filters)) objects = objects.filtered(filters.join(' AND '));
 
       // Sort results
       if (sortBy) objects = objects.sorted(sortBy, order === 'desc');
 
       // Limit results
-      if (currentPage) {
-        if (!pageSize) pageSize = defaultPageSize;
-        currentPage = parseInt(currentPage);
-        pageSize = parseInt(pageSize);
+      if (currentPageString) {
+        const currentPage = parseInt(currentPageString);
+        const pageSize = pageSizeString ? parseInt(pageSizeString) : defaultPageSize;
         const start = currentPage * pageSize;
         const end = start + pageSize;
         objects = objects.slice(start, end);
