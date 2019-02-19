@@ -23,7 +23,6 @@ export default {
   [FETCH_VISIT_FAILED]: ({ error }, state) => ({
     ...state,
     error,
-    loading: false
   }),
   [SAVE_VISIT_REQUEST]: (_, state) => ({
     ...state,

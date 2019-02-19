@@ -17,6 +17,7 @@ import { Preloader, InputGroup, DatepickerGroup, TopBar,
           AddButton, UpdateButton, CancelButton,
           DischargeButton, CheckOutButton } from '../../../components';
 import { visitOptions, visitStatuses } from '../../../constants';
+import { VisitModel } from '../../../models';
 
 class EditVisit extends Component {
   constructor(props) {
@@ -29,7 +30,7 @@ class EditVisit extends Component {
     checkIn: false,
     action: 'new',
     patient: {},
-    visitModel: {},
+    visitModel: new VisitModel(),
     loading: true,
     patientModel: {},
     selectedTab: '',
@@ -46,7 +47,7 @@ class EditVisit extends Component {
 
   componentWillUnmount() {
     const { visitModel } = this.state;
-    visitModel.off('change');
+    if (visitModel) visitModel.off('change');
   }
 
   handleChange(props = this.props) {
@@ -341,7 +342,9 @@ class EditVisit extends Component {
 
 function mapStateToProps(state) {
   const { patient, visit, action, loading, error } = state.patients;
-  return { patient, visit, action, loading, error };
+  const mappedProps = { patient, action, loading, error };
+  if (visit instanceof VisitModel) mappedProps.visit = visit;
+  return mappedProps;
 }
 
 const { visit: visitActions } = actions;
