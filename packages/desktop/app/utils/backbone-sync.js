@@ -43,7 +43,7 @@ export default (store) => {
       // 405 - Not enough permissions
       if (status === 405) {
         notify("You don't have enough permissions to make this request!");
-        if (method === 'read') return history.push('/');
+        if (method === 'read') return history.goBack();
       }
       // 404 - Not found
       if (status === 404) {
