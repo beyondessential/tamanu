@@ -133,9 +133,10 @@ export default Backbone.PageableCollection.extend({
   },
 
   getPage(page, view, viewKeys, options = {}) {
+    const { pageSize } = options;
+    if (pageSize) this.state.pageSize = pageSize;
     if (view) set(options, 'data.view', view);
     if (viewKeys) set(options, 'data.keys', isArray(viewKeys) ? viewKeys.join(',') : viewKeys);
-    if (options.pageSize) this.state.pageSize = options.pageSize
     return Backbone.PageableCollection.prototype.getPage.apply(this, [page, options]);
   },
 
