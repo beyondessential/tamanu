@@ -117,7 +117,7 @@ class Sidebar extends Component {
 
   async componentWillMount() {
     this.props.programsCollection.fetchAll({
-      success: (data) => this.updateProgramsMenu(data.models),
+      success: ({ models: programModels }) => this.updateProgramsMenu(programModels),
     });
   }
 
