@@ -1,4 +1,3 @@
-// @flow
 let filename;
 if (process.env.NODE_ENV === 'production') {
   filename = 'configureStore.prod';
