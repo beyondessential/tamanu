@@ -200,11 +200,11 @@ class EditPatient extends Component {
                   <div className="columns border-bottom">
                     <div className="column">
                       <Condition patientModel={patientModel} />
-                      <Procedure model={patientModel} />
-                      <OperativePlan model={patientModel} />
+                      <Procedure patientModel={patientModel} />
+                      <OperativePlan patientModel={patientModel} />
                     </div>
                     <div className="column">
-                      <Allergy model={patientModel} />
+                      <Allergy patientModel={patientModel} />
                     </div>
                   </div>
                   <div className="columns">
