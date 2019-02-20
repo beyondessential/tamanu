@@ -1,3 +1,5 @@
+const defaults = require('./defaults');
+
 const ProgramSchema = {
   name: 'program',
   primaryKey: '_id',
@@ -20,7 +22,8 @@ const ProgramSchema = {
     surveys: {
       type: 'list',
       objectType: 'survey'
-    }
+    },
+    ...defaults
   }
 };
 
