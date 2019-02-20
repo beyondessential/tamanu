@@ -108,7 +108,7 @@ const SecondarySidebarItem = withRouter(({ item, location, parentAbility }) => {
 class Sidebar extends Component {
   constructor(props) {
     super(props);
-    this.handleChange = this.handleChange.bind(this);
+    this.updateProgramsMenu = this.updateProgramsMenu.bind(this);
   }
 
   state = {
@@ -117,22 +117,22 @@ class Sidebar extends Component {
 
   async componentWillMount() {
     this.props.programsCollection.fetchAll({
-      success: () => this.handleChange()
+      success: (data) => this.updateProgramsMenu(data.models),
     });
   }
 
   componentWillReceiveProps(newProps) {
-    this.handleChange(newProps);
+    const { programsCollection = {} } = newProps;
+    this.updateProgramsMenu(programsCollection.models);
   }
 
-  handleChange(props = this.props) {
+  updateProgramsMenu(programs) {
     // Prepare programs sub-menu
-    const { models } = props.programsCollection;
     const programsNav = find(sidebarInfo, { key: 'programs' });
-    if (!isEmpty(models)) {
+    if (!isEmpty(programs)) {
       programsNav.hidden = false;
       programsNav.children = [];
-      models.forEach((programString, key) => {
+      programs.forEach((programString, key) => {
         const program = programString.toJSON();
         programsNav.children.push({
           label: program.name,
