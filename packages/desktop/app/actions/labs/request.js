@@ -48,7 +48,7 @@ export const createLabRequest = ({ labModel }) =>
         labModel.get('tests').forEach(labTestModel => {
           const { test } = labTestModel.toJSON();
           const { category: { _id: categoryId } = {} } = test;
-          if (has(labTypesFiltered, categoryId)) {
+          if (labTypesFiltered[categoryId]) {
             const currentLabModel = labTypesFiltered[categoryId];
             currentLabModel.get('tests').push(labTestModel);
           } else {
