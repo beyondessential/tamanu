@@ -6,3 +6,5 @@ export ModifiedFieldsCollection from './modifiedFields';
 export MedicationCollection from './medication';
 export ProgramsCollection from './programs';
 export SurveysCollection from './surveys';
+export TestsCollection from './tests';
+export VisitsCollection from './visits';
