@@ -281,18 +281,8 @@ export const sidebarInfo = [
     ability: {  subject: 'user', action: 'read' },
     children: [
       {
-        label: 'Address Fields',
-        path: '/admin/address',
-        icon: 'fa fa-chevron-right',
-      },
-      {
-        label: 'Shortcodes',
-        path: '/admin/textreplace',
-        icon: 'fa fa-chevron-right',
-      },
-      {
-        label: 'Print Header',
-        path: '/admin/print-header',
+        label: 'Settings',
+        path: '/admin/settings',
         icon: 'fa fa-chevron-right',
       },
       {
@@ -302,16 +292,16 @@ export const sidebarInfo = [
         ability: { action: 'read', subject: 'user' },
       },
       {
-        label: 'New User',
-        path: '/admin/users/edit/new',
-        icon: 'fa fa-chevron-right',
-        ability: { action: 'create', subject: 'user' },
-      },
-      {
-        label: 'User Roles',
-        path: '/admin/roles',
+        label: 'Permissions',
+        path: '/admin/permissions',
         icon: 'fa fa-chevron-right',
         ability: { action: 'read', subject: 'userRole' },
+      },
+      {
+        label: 'New User',
+        path: '/admin/users/edit/new',
+        icon: 'fa fa-plus',
+        ability: { action: 'create', subject: 'user' },
       }
     ]
   },
