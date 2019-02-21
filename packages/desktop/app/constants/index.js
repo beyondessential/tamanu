@@ -33,6 +33,13 @@ export const dbViews = {
   appointmentsSurgerySearchKeys: [moment(), moment(), '', '', '']
 };
 
+const icons = {
+  calendar: 'fa fa-calendar',
+  new: 'fa fa-plus',
+  search: 'fa fa-search',
+  table: 'fa fa-th-list',
+};
+
 const columnStyle = {
   backgroundColor: Colors.white,
   height: '60px',
@@ -112,25 +119,25 @@ export const sidebarInfo = [
       {
         label: 'Patient Listing',
         path: '/patients',
-        icon: 'fa fa-chevron-right',
+        icon: icons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Admitted Patients',
         path: '/patients/admitted',
-        icon: 'fa fa-chevron-right',
+        icon: icons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Outpatient',
         path: '/patients/outpatient',
-        icon: 'fa fa-chevron-right',
+        icon: icons.table,
         ability: { action: 'read' },
       },
       {
         label: 'New Patient',
         path: '/patients/edit/new',
-        icon: 'fa fa-plus',
+        icon: icons.new,
         ability: { action: 'create' },
       },
     ]
@@ -145,43 +152,43 @@ export const sidebarInfo = [
       {
         label: 'Appointments This Week',
         path: '/appointments/week',
-        icon: 'fa fa-chevron-right',
+        icon: icons.table,
         ability: { action: 'read' },
       },
       {
         label: "Today's Appointments",
         path: '/appointments/today',
-        icon: 'fa fa-chevron-right',
+        icon: icons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Search Appointments',
         path: '/appointments/search',
-        icon: 'fa fa-search',
+        icon: icons.search,
         ability: { action: 'read' },
       },
       {
         label: 'Appointments Calendar',
         path: '/appointments/calendar',
-        icon: 'fa fa-calendar',
+        icon: icons.calendar,
         ability: { action: 'read' },
       },
       {
         label: 'Add Appointment',
         path: '/appointments/appointment/new',
-        icon: 'fa fa-plus',
+        icon: icons.new,
         ability: { action: 'create' },
       },
       {
         label: 'Theater Schedule',
         path: '/appointments/theater',
-        icon: 'fa fa-calendar',
+        icon: icons.calendar,
         ability: { action: 'read' },
       },
       {
         label: 'Schedule Surgery',
         path: '/appointments/surgery/new',
-        icon: 'fa fa-plus',
+        icon: icons.new,
         ability: { action: 'create' },
       }
     ]
@@ -196,25 +203,25 @@ export const sidebarInfo = [
       {
         label: 'Requests',
         path: '/medication/requests',
-        icon: 'fa fa-chevron-right',
+        icon: icons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
         path: '/medication/completed',
-        icon: 'fa fa-chevron-right',
+        icon: icons.table,
         ability: { action: 'read' },
       },
       {
         label: 'New Request',
         path: '/medication/request',
-        icon: 'fa fa-plus',
+        icon: icons.new,
         ability: { action: 'create' },
       },
       {
         label: 'Dispense',
         path: '/medication/dispense',
-        icon: 'fa fa-chevron-right',
+        icon: icons.table,
         ability: { action: 'create' },
       }
     ]
@@ -229,19 +236,19 @@ export const sidebarInfo = [
       {
         label: 'Requests',
         path: '/imaging',
-        icon: 'fa fa-chevron-right',
+        icon: icons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
         path: '/imaging/completed',
-        icon: 'fa fa-chevron-right',
+        icon: icons.table,
         ability: { action: 'read' },
       },
       {
         label: 'New Request',
         path: '/imaging/edit/new',
-        icon: 'fa fa-plus',
+        icon: icons.new,
         ability: { action: 'create' },
       }
     ]
@@ -256,19 +263,19 @@ export const sidebarInfo = [
       {
         label: 'Requests',
         path: '/labs',
-        icon: 'fa fa-chevron-right',
+        icon: icons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
         path: '/labs/completed',
-        icon: 'fa fa-chevron-right',
+        icon: icons.table,
         ability: { action: 'read' },
       },
       {
         label: 'New Request',
         path: '/labs/edit/new',
-        icon: 'fa fa-plus',
+        icon: icons.new,
         ability: { action: 'create' },
       }
     ]
@@ -283,24 +290,24 @@ export const sidebarInfo = [
       {
         label: 'Settings',
         path: '/admin/settings',
-        icon: 'fa fa-chevron-right',
+        icon: icons.table,
       },
       {
         label: 'Users',
         path: '/admin/users',
-        icon: 'fa fa-chevron-right',
+        icon: icons.table,
         ability: { action: 'read', subject: 'user' },
       },
       {
         label: 'Permissions',
         path: '/admin/permissions',
-        icon: 'fa fa-chevron-right',
+        icon: icons.table,
         ability: { action: 'read', subject: 'userRole' },
       },
       {
         label: 'New User',
         path: '/admin/users/edit/new',
-        icon: 'fa fa-plus',
+        icon: icons.new,
         ability: { action: 'create', subject: 'user' },
       }
     ]
@@ -322,7 +329,7 @@ export const sidebarInfo = [
     children: availableReports.map(report => ({
       label: report.name,
       path: `/reports/${report.id}`,
-      icon: 'fa fa-chevron-right',
+      icon: icons.table,
     })),
   },
 ];
