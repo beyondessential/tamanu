@@ -60,7 +60,7 @@ export const createLabRequest = ({ labModel }) =>
           }
         });
 
-        const response = await Promise.all(values(labTypesFiltered).map(labModel => labModel.save()));
+        const response = await Promise.all(Object.values(labTypesFiltered).map(labModel => labModel.save()));
         dispatch({ type: SAVE_LAB_SUCCESS });
         notifySuccess("Lab request was created successfully.");
         if (response.length > 1) {
