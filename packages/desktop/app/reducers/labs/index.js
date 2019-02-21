@@ -1,0 +1,16 @@
+import { has } from 'lodash';
+import request from './request';
+import requests from './requests';
+
+const stateChanges = { ...request, ...requests };
+const initialState = {
+  patient: {},
+  tests: [],
+  labModel: {},
+  loading: false,
+};
+
+export default (state = initialState, action) => {
+  if (has(stateChanges, action.type)) return stateChanges[action.type](action, state);
+  return state;
+};
