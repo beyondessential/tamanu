@@ -9,7 +9,7 @@ import { PatientModel } from '../models';
 
 class PatientRelationSelect extends Component {
   static propTypes = {
-    patient: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
+    patient: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     relation: PropTypes.string.isRequired,
     tmpl: PropTypes.func.isRequired,
     label: PropTypes.string.isRequired,
@@ -21,6 +21,7 @@ class PatientRelationSelect extends Component {
   }
 
   static defaultProps = {
+    patient: null,
     required: false,
     className: '',
     simpleValue: true,
@@ -37,19 +38,26 @@ class PatientRelationSelect extends Component {
     options: []
   }
 
-  async componentWillMount() {
-    const { patient, relation, tmpl, value: _id } = this.props;
-    let Model;
-    if (typeof patient === "string") {
-      this.props.model.set({ _id: patient });
-      await this.props.model.fetch({ relations: [relation] });
-      Model = this.props.model;
-    } else {
-      Model = patient;
+  componentDidMount() {
+    this.loadRelations();
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.patient !== this.props.patient) this.loadRelations(newProps);
+  }
+
+  async loadRelations(props = this.props) {
+    const {  patient, relation, tmpl, patientModel } = props;
+    if (patient) {
+      if (typeof patient === "string") {
+        patientModel.set({ _id: patient });
+        await patientModel.fetch();
+      }
+
+      let { [relation]: options } = patientModel.toJSON();
+      options = options.map(item => ({ value: item._id, label: tmpl(item) }) );
+      this.setState({ options });
     }
-    let options = Model.get(relation).toJSON();
-    options = options.map(item => ({ value: item._id, label: tmpl(item) }) );
-    this.setState({ options });
   }
 
   handleChange(value) {
@@ -86,7 +94,7 @@ class PatientRelationSelect extends Component {
 }
 
 const mapDispatchToProps = () => ({
-  model: new PatientModel(),
+  patientModel: new PatientModel(),
 });
 
 function mapStateToProps(state) {
