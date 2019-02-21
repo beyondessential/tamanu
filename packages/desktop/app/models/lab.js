@@ -1,21 +1,32 @@
-import { defaults } from 'lodash';
+import Backbone from 'backbone-associations';
 import BaseModel from './base';
-
+import moment from 'moment';
+import { store } from '../store';
 
 export default BaseModel.extend({
+  initialize() {
+    const { auth: { userId } } = store.getState();
+    const UserModel = require('./user');
+    this.set('requestedBy', new UserModel({ _id: userId }), { silent: true });
+  },
   urlRoot:  `${BaseModel.prototype.urlRoot}/lab`,
-  defaults: () => defaults({
-      labDate: Date,
-      notes: null,
-      requestedBy: null,
-      requestedDate: Date,
-      result: null,
-      status: null
+  defaults: () => ({
+    date: moment(),
+    requestedBy: null,
+    requestedDate: moment(),
+    status: null,
+    tests: [],
+    notes: null,
+    ...BaseModel.prototype.defaults,
+  }),
+
+  // Associations
+  relations: [
+    {
+      type: Backbone.Many,
+      key: 'tests',
+      relatedModel: () => require('./labTest'),
     },
-    BaseModel.prototype.defaults,
-  ),
-  // validate: (attrs) => {
-  //   if (attrs.firstName === '') return 'firstName is required!';
-  //   if (attrs.lastName === '') return 'lastName is required!';
-  // }
+    ...BaseModel.prototype.relations
+  ],
 });
