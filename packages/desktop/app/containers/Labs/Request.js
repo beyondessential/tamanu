@@ -150,7 +150,7 @@ class Request extends Component {
                   className=""
                   patient={patient._id || patient}
                   relation="visits"
-                  tmpl={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
+                  template={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
                   label="Visit"
                   name="visit"
                   value={visit}
