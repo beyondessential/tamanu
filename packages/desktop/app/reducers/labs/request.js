@@ -10,30 +10,30 @@ import {
 export default {
   [FETCH_LAB_REQUEST]: (_, state) => ({
     ...state,
-    loading: true
+    isLoading: true
   }),
   [FETCH_LAB_SUCCESS]: ({ patient, tests }, state) => ({
     ...state,
     patient,
     tests,
-    loading: false
+    isLoading: false
   }),
   [FETCH_LAB_FAILED]: ({ error }, state) => ({
     ...state,
     error,
-    loading: false
+    isLoading: false
   }),
   [SAVE_LAB_REQUEST]: (_, state) => ({
     ...state,
-    loading: true
+    isLoading: true
   }),
   [SAVE_LAB_SUCCESS]: (_, state) => ({
     ...state,
-    loading: false
+    isLoading: false
   }),
   [SAVE_LAB_FAILED]: ({ error }, state) => ({
     ...state,
     error,
-    loading: false
+    isLoading: false
   }),
 };

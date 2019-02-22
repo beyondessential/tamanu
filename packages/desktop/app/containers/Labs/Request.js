@@ -35,7 +35,7 @@ class Request extends Component {
       byPatient: false,
       testsSelected: [],
       isFormValid: false,
-      loading: true,
+      isLoading: true,
     }
     this.handlePatientChange = this.handlePatientChange.bind(this);
     this.handleTestsListChange = this.handleTestsListChange.bind(this);
@@ -59,13 +59,13 @@ class Request extends Component {
   }
 
   handleFetchedLabRequest(props = this.props) {
-    const { patient, tests, loading, match} = props;
+    const { patient, tests, isLoading, match} = props;
     const { params: { patientId } } = match;
-    if (!loading) {
+    if (!isLoading) {
       this.setState({
         patient,
         tests,
-        loading,
+        isLoading,
         byPatient: patientId ? true : false,
       });
     }
@@ -117,8 +117,8 @@ class Request extends Component {
   }
 
   render() {
-    const { loading } = this.state;
-    if (loading) return <Preloader />;
+    const { isLoading } = this.state;
+    if (isLoading) return <Preloader />;
 
     const { labModel } = this.props;
     const { patient, visit, tests, isFormValid, byPatient } = this.state;
@@ -192,7 +192,7 @@ Request.propTypes = {
   patient: PropTypes.object,
   tests: PropTypes.arrayOf(PropTypes.object),
   labModel: PropTypes.object,
-  loading: PropTypes.bool,
+  isLoading: PropTypes.bool,
   error: PropTypes.object,
 }
 
@@ -200,12 +200,12 @@ Request.defaultProps = {
   patient: {},
   tests: [],
   labModel: new LabModel(),
-  loading: true,
+  isLoading: true,
   error: {},
 }
 
-function mapStateToProps({ labs: { patient, tests, loading, error } }) {
-  return { patient, tests, loading, error };
+function mapStateToProps({ labs: { patient, tests, isLoading, error } }) {
+  return { patient, tests, isLoading, error };
 }
 
 const { initLabRequest, createLabRequest } = labRequestActions;

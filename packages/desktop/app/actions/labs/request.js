@@ -33,7 +33,7 @@ export const initLabRequest = (patientId) =>
         type: FETCH_LAB_SUCCESS,
         patient: patientModel.toJSON(),
         tests: testsCollection.toJSON(),
-        loading: false,
+        isLoading: false,
       });
     } catch (error) {
       dispatch({ type: FETCH_LAB_FAILED, error });

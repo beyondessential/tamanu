@@ -7,7 +7,7 @@ const initialState = {
   patient: {},
   tests: [],
   labModel: {},
-  loading: false,
+  isLoading: false,
 };
 
 export default (state = initialState, action) => {
