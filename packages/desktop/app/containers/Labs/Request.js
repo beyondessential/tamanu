@@ -33,7 +33,7 @@ class Request extends Component {
     super(props);
     this.state = {
       byPatient: false,
-      testsSelected: [],
+      selectedTests: [],
       isFormValid: false,
       isLoading: true,
     }
@@ -86,9 +86,9 @@ class Request extends Component {
     this.handleFormChange({ visit });
   }
 
-  handleTestsListChange(testsSelected) {
+  handleTestsListChange(selectedTests) {
     const testsCollection = this.props.tests
-                              .filter(({ _id }) => testsSelected.includes(_id))
+                              .filter(({ _id }) => selectedTests.includes(_id))
                               .map((testModel) => new LabTestModel({ test: testModel }));
     this.handleFormChange({ tests: testsCollection });
   }
@@ -104,9 +104,9 @@ class Request extends Component {
   }
 
   updateFormsStatus() {
-    const { visit, testsSelected } = this.state;
+    const { visit, selectedTests } = this.state;
     let isFormValid = false;
-    if (visit && testsSelected) isFormValid = true;
+    if (visit && selectedTests) isFormValid = true;
     this.setState({ isFormValid });
   }
 
@@ -122,7 +122,7 @@ class Request extends Component {
 
     const { labModel } = this.props;
     const { patient, visit, tests, isFormValid, byPatient } = this.state;
-    const { tests: testsSelected } = labModel.toJSON();
+    const { tests: selectedTests } = labModel.toJSON();
     return (
       <div className="create-content">
         <TopBar title="New Lab Request" />
@@ -161,7 +161,7 @@ class Request extends Component {
             <Grid item container xs={6}>
               <TestsList
                 tests={tests}
-                testsSelected={testsSelected}
+                selectedTests={selectedTests}
                 onChange={this.handleTestsListChange}
               />
             </Grid>

@@ -22,27 +22,27 @@ class TestsList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      testsSelected: []
+      selectedTests: []
     }
     this.handleListItemChange = this.handleListItemChange.bind(this);
   }
 
   handleListItemChange(_id) {
     const { onChange } = this.props;
-    let { testsSelected } = this.state;
-    if (testsSelected.includes(_id)) {
-      testsSelected = pull(testsSelected, _id);
+    let { selectedTests } = this.state;
+    if (selectedTests.includes(_id)) {
+      selectedTests = pull(selectedTests, _id);
     } else {
-      testsSelected.push(_id);
+      selectedTests.push(_id);
     }
 
-    if (onChange) onChange(testsSelected);
-    this.setState({ testsSelected });
+    if (onChange) onChange(selectedTests);
+    this.setState({ selectedTests });
   }
 
   render() {
     const { tests, classes } = this.props;
-    const { testsSelected } = this.state;
+    const { selectedTests } = this.state;
 
     return (
       <div className="column">
@@ -62,7 +62,7 @@ class TestsList extends Component {
                 className={classes.checkBox}
                 tabIndex={-1}
                 disableRipple
-                checked={testsSelected.includes(_id)}
+                checked={selectedTests.includes(_id)}
               />
               <ListItemText
                 className={classes.listItemText}
