@@ -1,4 +1,3 @@
-import { to } from 'await-to-js';
 import { TestsCollection } from '../../collections';
 import { notifySuccess, history } from '../../utils';
 import {
@@ -27,7 +26,7 @@ export const initLabRequest = (patientId) =>
       const patientModel = new PatientModel();
       if (patientId) {
         patientModel.set({ _id: patientId });
-        await to(patientModel.fetch());
+        await patientModel.fetch();
       }
       dispatch({
         type: FETCH_LAB_SUCCESS,
