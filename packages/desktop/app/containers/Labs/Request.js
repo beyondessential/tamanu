@@ -32,7 +32,6 @@ class Request extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      byPatient: false,
       selectedTests: [],
       isFormValid: false,
       isLoading: true,
@@ -66,7 +65,6 @@ class Request extends Component {
         patient,
         tests,
         isLoading,
-        byPatient: patientId ? true : false,
       });
     }
   }
@@ -120,8 +118,8 @@ class Request extends Component {
     const { isLoading } = this.state;
     if (isLoading) return <Preloader />;
 
-    const { labModel } = this.props;
-    const { patient, visit, tests, isFormValid, byPatient } = this.state;
+    const { labModel, isPatientSelected } = this.props;
+    const { patient, visit, tests, isFormValid } = this.state;
     const { tests: selectedTests } = labModel.toJSON();
     return (
       <div className="create-content">
@@ -132,7 +130,7 @@ class Request extends Component {
         >
           <div className="form with-padding">
             <Grid container spacing={8}>
-              {byPatient ?
+              {isPatientSelected ?
                 <Grid item container xs={12}>
                   <TopRow patient={patient} />
                 </Grid> :
@@ -204,8 +202,8 @@ Request.defaultProps = {
   error: {},
 }
 
-function mapStateToProps({ labs: { patient, tests, isLoading, error } }) {
-  return { patient, tests, isLoading, error };
+function mapStateToProps({ labs: { patient, tests, isLoading, error } }, { match: { params = {} } }) {
+  return { patient, tests, isLoading, error, isPatientSelected: params.patientId };
 }
 
 const { initLabRequest, createLabRequest } = labRequestActions;
