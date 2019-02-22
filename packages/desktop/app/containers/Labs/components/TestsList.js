@@ -36,8 +36,6 @@ class TestsList extends Component {
       selectedTests.add(_id);
     }
 
-    console.log('--selectedTests--', selectedTests);
-
     if (onChange) onChange(selectedTests);
     this.setState({ selectedTests });
   }
