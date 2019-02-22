@@ -1,12 +1,12 @@
 import { TestsCollection } from '../../collections';
 import { notifySuccess, history } from '../../utils';
 import {
-  FETCH_LAB_REQUEST,
-  FETCH_LAB_SUCCESS,
-  FETCH_LAB_FAILED,
-  SAVE_LAB_REQUEST,
-  SAVE_LAB_SUCCESS,
-  SAVE_LAB_FAILED,
+  FETCH_LAB_REQUEST_REQUEST,
+  FETCH_LAB_REQUEST_SUCCESS,
+  FETCH_LAB_REQUEST_FAILED,
+  SAVE_LAB_REQUEST_REQUEST,
+  SAVE_LAB_REQUEST_SUCCESS,
+  SAVE_LAB_REQUEST_FAILED,
 } from '../types';
 import {
   LabModel,
@@ -17,7 +17,7 @@ import {
 
 export const initLabRequest = (patientId) =>
   async dispatch => {
-    dispatch({ type: FETCH_LAB_REQUEST });
+    dispatch({ type: FETCH_LAB_REQUEST_REQUEST });
     try {
       // fetch all tests
       const testsCollection = new TestsCollection();
@@ -29,19 +29,19 @@ export const initLabRequest = (patientId) =>
         await patientModel.fetch();
       }
       dispatch({
-        type: FETCH_LAB_SUCCESS,
+        type: FETCH_LAB_REQUEST_SUCCESS,
         patient: patientModel.toJSON(),
         tests: testsCollection.toJSON(),
         isLoading: false,
       });
     } catch (error) {
-      dispatch({ type: FETCH_LAB_FAILED, error });
+      dispatch({ type: FETCH_LAB_REQUEST_FAILED, error });
     }
   };
 
 export const createLabRequest = ({ labModel }) =>
   async dispatch => {
-    dispatch({ type: SAVE_LAB_REQUEST });
+    dispatch({ type: SAVE_LAB_REQUEST_REQUEST });
     if (labModel.isValid()) {
       try {
         const labTypesFiltered = {};
@@ -70,7 +70,7 @@ export const createLabRequest = ({ labModel }) =>
         visitModel.get('labs').add(labModels);
         await visitModel.save();
 
-        dispatch({ type: SAVE_LAB_SUCCESS });
+        dispatch({ type: SAVE_LAB_REQUEST_SUCCESS });
         notifySuccess("Lab request was created successfully.");
         if (labModels.length > 1) {
           history.push('/labs');
@@ -79,11 +79,11 @@ export const createLabRequest = ({ labModel }) =>
         }
       } catch (error) {
         console.error({ error });
-        dispatch({ type: SAVE_LAB_FAILED, error });
+        dispatch({ type: SAVE_LAB_REQUEST_FAILED, error });
       }
     } else {
       const error = labModel.validationError;
       console.error({ error });
-      dispatch({ type: SAVE_LAB_FAILED, error });
+      dispatch({ type: SAVE_LAB_REQUEST_FAILED, error });
     }
   };
