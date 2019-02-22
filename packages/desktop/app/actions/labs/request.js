@@ -13,6 +13,7 @@ import {
   PatientModel,
   TestCategoryModel,
   VisitModel,
+  UserModel,
 } from '../../models';
 
 export const initLabRequest = (patientId) =>
@@ -40,12 +41,15 @@ export const initLabRequest = (patientId) =>
   };
 
 export const createLabRequest = ({ labModel }) =>
-  async dispatch => {
+  async (dispatch, getState) => {
     dispatch({ type: SAVE_LAB_REQUEST_REQUEST });
     if (labModel.isValid()) {
       try {
         const labTypesFiltered = {};
+        const { auth: { userId } } = getState();
+        const requestedBy = new UserModel({ _id: userId });
         const visitId = labModel.get('visit');
+
         labModel.get('tests').forEach(labTestModel => {
           const categoryId = labTestModel.get('test').get('category').get('_id');
           const testCategoryModel = new TestCategoryModel({ _id : categoryId });
@@ -53,22 +57,20 @@ export const createLabRequest = ({ labModel }) =>
             const currentLabModel = labTypesFiltered[categoryId];
             currentLabModel.get('tests').push(labTestModel);
             currentLabModel.set('category', testCategoryModel);
+            currentLabModel.set('requestedBy', requestedBy);
           } else {
             const { attributes } = labModel;
             const newLabModel = new LabModel({ ...attributes, tests: [] });
             newLabModel.get('tests').push(labTestModel);
             newLabModel.set('category', testCategoryModel);
+            newLabModel.set('requestedBy', requestedBy);
             labTypesFiltered[categoryId] = newLabModel;
           }
         });
 
         await Promise.all(labModel.get('tests').map(labTestModel => labTestModel.save()));
         const labModels = await Promise.all(Object.values(labTypesFiltered).map(labModel => labModel.save()));
-        // link lab requests to visit
-        const visitModel = new VisitModel({ _id: visitId });
-        await visitModel.fetch();
-        visitModel.get('labs').add(labModels);
-        await visitModel.save();
+        _updateVisit(visitId, labModels);
 
         dispatch({ type: SAVE_LAB_REQUEST_SUCCESS });
         notifySuccess("Lab request was created successfully.");
@@ -87,3 +89,11 @@ export const createLabRequest = ({ labModel }) =>
       dispatch({ type: SAVE_LAB_REQUEST_FAILED, error });
     }
   };
+
+const _updateVisit = async (visitId, labModels) => {
+  // link lab requests to visit
+  const visitModel = new VisitModel({ _id: visitId });
+  await visitModel.fetch();
+  visitModel.get('labs').add(labModels);
+  await visitModel.save();
+}
