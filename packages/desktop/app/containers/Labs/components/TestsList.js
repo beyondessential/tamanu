@@ -22,19 +22,21 @@ class TestsList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedTests: []
+      selectedTests: new Set()
     }
     this.handleListItemChange = this.handleListItemChange.bind(this);
   }
 
   handleListItemChange(_id) {
     const { onChange } = this.props;
-    let { selectedTests } = this.state;
-    if (selectedTests.includes(_id)) {
-      selectedTests = pull(selectedTests, _id);
+    const { selectedTests } = this.state;
+    if (selectedTests.has(_id)) {
+      selectedTests.delete(_id);
     } else {
-      selectedTests.push(_id);
+      selectedTests.add(_id);
     }
+
+    console.log('--selectedTests--', selectedTests);
 
     if (onChange) onChange(selectedTests);
     this.setState({ selectedTests });
@@ -62,7 +64,7 @@ class TestsList extends Component {
                 className={classes.checkBox}
                 tabIndex={-1}
                 disableRipple
-                checked={selectedTests.includes(_id)}
+                checked={selectedTests.has(_id)}
               />
               <ListItemText
                 className={classes.listItemText}

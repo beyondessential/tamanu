@@ -88,7 +88,7 @@ class Request extends Component {
 
   handleTestsListChange(selectedTests) {
     const testsCollection = this.props.tests
-                              .filter(({ _id }) => selectedTests.includes(_id))
+                              .filter(({ _id }) => selectedTests.has(_id))
                               .map((testModel) => new LabTestModel({ test: testModel }));
     this.handleFormChange({ tests: testsCollection });
   }
