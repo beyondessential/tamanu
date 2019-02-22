@@ -35,6 +35,7 @@ class Request extends Component {
       selectedTests: [],
       isFormValid: false,
       isLoading: true,
+      selectedPatientsId: '',
     }
     this.handlePatientChange = this.handlePatientChange.bind(this);
     this.handleTestsListChange = this.handleTestsListChange.bind(this);
@@ -60,8 +61,8 @@ class Request extends Component {
     const { patient, isLoading } = props;
     if (!isLoading) {
       this.setState({
-        patient,
         isLoading,
+        selectedPatientsId: patient._id
       });
     }
   }
@@ -73,8 +74,8 @@ class Request extends Component {
     this.setState({ ...changedAttributes, isFormValid });
   }
 
-  handlePatientChange(patient) {
-    this.handleFormChange({ patient });
+  handlePatientChange(selectedPatientsId) {
+    this.setState({ selectedPatientsId });
   }
 
   handleVisitChange(visit) {
@@ -115,8 +116,8 @@ class Request extends Component {
     const { isLoading } = this.state;
     if (isLoading) return <Preloader />;
 
-    const { labRequestModel, isPatientSelected, labTestTypes } = this.props;
-    const { patient, visit, isFormValid } = this.state;
+    const { labRequestModel, isPatientSelected, labTestTypes, patient } = this.props;
+    const { selectedPatientsId, visit, isFormValid } = this.state;
     const { tests: selectedTests } = labRequestModel.toJSON();
     return (
       <div className="create-content">
@@ -143,7 +144,7 @@ class Request extends Component {
               <Grid item xs={6}>
                 <PatientRelationSelect
                   className=""
-                  patient={patient._id || patient}
+                  patient={selectedPatientsId}
                   relation="visits"
                   template={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
                   label="Visit"
@@ -189,7 +190,6 @@ Request.propTypes = {
   labRequestModel: PropTypes.object,
   isLoading: PropTypes.bool,
   error: PropTypes.object,
-  patientId: PropTypes.string,
 }
 
 Request.defaultProps = {
@@ -198,7 +198,6 @@ Request.defaultProps = {
   labRequestModel: new LabRequestModel(),
   isLoading: true,
   error: {},
-  patientId: '',
 }
 
 function mapStateToProps({
