@@ -45,8 +45,7 @@ class Request extends Component {
   }
 
   componentDidMount() {
-    const { params: { patientId } } = this.props.match;
-    this.props.initLabRequest(patientId);
+    this.props.initLabRequest();
   }
 
   componentWillReceiveProps(newProps) {
@@ -59,7 +58,6 @@ class Request extends Component {
 
   handleFetchedLabRequest(props = this.props) {
     const { patient, tests, isLoading, match} = props;
-    const { params: { patientId } } = match;
     if (!isLoading) {
       this.setState({
         patient,
@@ -192,6 +190,7 @@ Request.propTypes = {
   labModel: PropTypes.object,
   isLoading: PropTypes.bool,
   error: PropTypes.object,
+  patientId: PropTypes.string,
 }
 
 Request.defaultProps = {
@@ -200,15 +199,22 @@ Request.defaultProps = {
   labModel: new LabModel(),
   isLoading: true,
   error: {},
+  patientId: '',
 }
 
-function mapStateToProps({ labs: { patient, tests, isLoading, error } }, { match: { params = {} } }) {
-  return { patient, tests, isLoading, error, isPatientSelected: params.patientId };
+function mapStateToProps({
+  labs: { patient, tests, isLoading, error } },
+  { match: { params: { patientId = false } = {} } }
+) {
+  return { patient, tests, isLoading, error, isPatientSelected: patientId };
 }
 
 const { initLabRequest, createLabRequest } = labRequestActions;
-const mapDispatchToProps = (dispatch) => ({
-  initLabRequest: (params) => dispatch(initLabRequest(params)),
+const mapDispatchToProps = (
+  dispatch,
+  { match: { params: { patientId } = {} } }
+) => ({
+  initLabRequest: () => dispatch(initLabRequest(patientId)),
   createLabRequest: (params) => dispatch(createLabRequest(params)),
 });
 
