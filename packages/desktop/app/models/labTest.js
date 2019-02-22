@@ -3,7 +3,7 @@ import BaseModel from './base';
 import shortid from 'shortid';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/lab`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/labTest`,
   defaults: () => ({
     _id: shortid.generate(),
     test: null,

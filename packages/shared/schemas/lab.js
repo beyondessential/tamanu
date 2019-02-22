@@ -8,11 +8,17 @@ const LabSchema = {
     date: 'date?',
     requestedBy: 'user',
     requestedDate: 'date',
+    category: 'testCategory',
     notes: 'string?',
     status: 'string?',
     tests: {
       type: 'list',
       objectType: 'labTest'
+    },
+    visits: {
+      type: 'linkingObjects',
+      objectType: 'visit',
+      property: 'labs'
     },
     ...defaults,
   }

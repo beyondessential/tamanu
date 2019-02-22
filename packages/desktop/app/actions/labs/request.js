@@ -1,6 +1,5 @@
 import { to } from 'await-to-js';
 import { TestsCollection } from '../../collections';
-import { has, values } from 'lodash';
 import { notifySuccess, history } from '../../utils';
 import {
   FETCH_LAB_REQUEST,
@@ -13,6 +12,8 @@ import {
 import {
   LabModel,
   PatientModel,
+  TestCategoryModel,
+  VisitModel,
 } from '../../models';
 
 export const initLabRequest = (patientId) =>
@@ -45,28 +46,37 @@ export const createLabRequest = ({ labModel }) =>
     if (labModel.isValid()) {
       try {
         const labTypesFiltered = {};
+        const visitId = labModel.get('visit');
         labModel.get('tests').forEach(labTestModel => {
-          const { test } = labTestModel.toJSON();
-          const { category: { _id: categoryId } = {} } = test;
+          const categoryId = labTestModel.get('test').get('category').get('_id');
+          const testCategoryModel = new TestCategoryModel({ _id : categoryId });
           if (labTypesFiltered[categoryId]) {
             const currentLabModel = labTypesFiltered[categoryId];
             currentLabModel.get('tests').push(labTestModel);
+            currentLabModel.set('category', testCategoryModel);
           } else {
             const { attributes } = labModel;
-            delete attributes.tests;
-            const newLabModel = new LabModel(attributes);
+            const newLabModel = new LabModel({ ...attributes, tests: [] });
             newLabModel.get('tests').push(labTestModel);
+            newLabModel.set('category', testCategoryModel);
             labTypesFiltered[categoryId] = newLabModel;
           }
         });
 
-        const response = await Promise.all(Object.values(labTypesFiltered).map(labModel => labModel.save()));
+        await Promise.all(labModel.get('tests').map(labTestModel => labTestModel.save()));
+        const labModels = await Promise.all(Object.values(labTypesFiltered).map(labModel => labModel.save()));
+        // link lab requests to visit
+        const visitModel = new VisitModel({ _id: visitId });
+        await visitModel.fetch();
+        visitModel.get('labs').add(labModels);
+        await visitModel.save();
+
         dispatch({ type: SAVE_LAB_SUCCESS });
         notifySuccess("Lab request was created successfully.");
-        if (response.length > 1) {
+        if (labModels.length > 1) {
           history.push('/labs');
         } else {
-          history.push(`/labs/request/${response[0].id}`);
+          history.push(`/labs/request/${labModels[0].id}`);
         }
       } catch (error) {
         console.error({ error });
