@@ -33,11 +33,16 @@ export const dbViews = {
   appointmentsSurgerySearchKeys: [moment(), moment(), '', '', '']
 };
 
-const icons = {
+export const submenuIcons = {
   calendar: 'fa fa-calendar',
   new: 'fa fa-plus',
   search: 'fa fa-search',
   table: 'fa fa-th-list',
+  users: 'fa fa-users',
+  permissions: 'fa fa-lock',
+  cog: 'fa fa-cog',
+  report: 'fa fa-chevron-circle-right',
+  action: 'fa fa-chevron-circle-right',
 };
 
 const columnStyle = {
@@ -119,25 +124,25 @@ export const sidebarInfo = [
       {
         label: 'Patient Listing',
         path: '/patients',
-        icon: icons.table,
+        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Admitted Patients',
         path: '/patients/admitted',
-        icon: icons.table,
+        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
-        label: 'Outpatient',
+        label: 'Outpatients',
         path: '/patients/outpatient',
-        icon: icons.table,
+        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'New Patient',
         path: '/patients/edit/new',
-        icon: icons.new,
+        icon: submenuIcons.new,
         ability: { action: 'create' },
       },
     ]
@@ -152,43 +157,43 @@ export const sidebarInfo = [
       {
         label: 'Appointments This Week',
         path: '/appointments/week',
-        icon: icons.table,
+        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: "Today's Appointments",
         path: '/appointments/today',
-        icon: icons.table,
+        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Search Appointments',
         path: '/appointments/search',
-        icon: icons.search,
+        icon: submenuIcons.search,
         ability: { action: 'read' },
       },
       {
         label: 'Appointments Calendar',
         path: '/appointments/calendar',
-        icon: icons.calendar,
+        icon: submenuIcons.calendar,
         ability: { action: 'read' },
       },
       {
         label: 'Add Appointment',
         path: '/appointments/appointment/new',
-        icon: icons.new,
+        icon: submenuIcons.new,
         ability: { action: 'create' },
       },
       {
         label: 'Theater Schedule',
         path: '/appointments/theater',
-        icon: icons.calendar,
+        icon: submenuIcons.calendar,
         ability: { action: 'read' },
       },
       {
         label: 'Schedule Surgery',
         path: '/appointments/surgery/new',
-        icon: icons.new,
+        icon: submenuIcons.new,
         ability: { action: 'create' },
       }
     ]
@@ -203,25 +208,25 @@ export const sidebarInfo = [
       {
         label: 'Requests',
         path: '/medication/requests',
-        icon: icons.table,
+        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
         path: '/medication/completed',
-        icon: icons.table,
+        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'New Request',
         path: '/medication/request',
-        icon: icons.new,
+        icon: submenuIcons.new,
         ability: { action: 'create' },
       },
       {
         label: 'Dispense',
         path: '/medication/dispense',
-        icon: icons.table,
+        icon: submenuIcons.action,
         ability: { action: 'create' },
       }
     ]
@@ -236,19 +241,19 @@ export const sidebarInfo = [
       {
         label: 'Requests',
         path: '/imaging',
-        icon: icons.table,
+        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
         path: '/imaging/completed',
-        icon: icons.table,
+        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'New Request',
         path: '/imaging/edit/new',
-        icon: icons.new,
+        icon: submenuIcons.new,
         ability: { action: 'create' },
       }
     ]
@@ -263,19 +268,19 @@ export const sidebarInfo = [
       {
         label: 'Requests',
         path: '/labs',
-        icon: icons.table,
+        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
         path: '/labs/completed',
-        icon: icons.table,
+        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'New Request',
         path: '/labs/edit/new',
-        icon: icons.new,
+        icon: submenuIcons.new,
         ability: { action: 'create' },
       }
     ]
@@ -290,24 +295,24 @@ export const sidebarInfo = [
       {
         label: 'Settings',
         path: '/admin/settings',
-        icon: icons.table,
+        icon: submenuIcons.cog,
       },
       {
         label: 'Users',
         path: '/admin/users',
-        icon: icons.table,
+        icon: submenuIcons.users,
         ability: { action: 'read', subject: 'user' },
       },
       {
         label: 'Permissions',
         path: '/admin/permissions',
-        icon: icons.table,
+        icon: submenuIcons.permissions,
         ability: { action: 'read', subject: 'userRole' },
       },
       {
         label: 'New User',
         path: '/admin/users/edit/new',
-        icon: icons.new,
+        icon: submenuIcons.new,
         ability: { action: 'create', subject: 'user' },
       }
     ]
@@ -329,7 +334,7 @@ export const sidebarInfo = [
     children: availableReports.map(report => ({
       label: report.name,
       path: `/reports/${report.id}`,
-      icon: icons.table,
+      icon: submenuIcons.report,
     })),
   },
 ];

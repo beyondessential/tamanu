@@ -10,7 +10,7 @@ import Collapse from '@material-ui/core/Collapse';
 import Divider from '@material-ui/core/Divider';
 
 import styled from 'styled-components';
-import { sidebarInfo } from '../constants';
+import { sidebarInfo, submenuIcons } from '../constants';
 import { ProgramsCollection } from '../collections';
 import actions from '../actions/auth';
 import { checkAbility } from '../utils/ability-context';
@@ -137,7 +137,7 @@ class Sidebar extends Component {
         programsNav.children.push({
           label: program.name,
           path: `/programs/${program._id}/patients`,
-          icon: 'fa fa-chevron-right'
+          icon: submenuIcons.action,
         });
 
         if (key === 0) programsNav.path = `/programs/${program._id}/patients`;
