@@ -1,14 +1,14 @@
 const defaults = require('./defaults');
 
-const TestSchema = {
-  name: 'test',
+const LabTestType = {
+  name: 'labTestType',
   primaryKey: '_id',
   properties: {
     _id: 'string',
     name: 'string',
-    category: 'testCategory',
-    femaleRange: 'int?[]',
-    maleRange: 'int?[]',
+    category: 'labTestCategory',
+    femaleRange: 'double?[]',
+    maleRange: 'double?[]',
     unit:  'string?',
     questionType: 'string?',
     options: 'string?[]',
@@ -20,4 +20,4 @@ const TestSchema = {
   }
 };
 
-module.exports = TestSchema;
+module.exports = LabTestType;

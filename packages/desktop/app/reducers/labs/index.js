@@ -5,8 +5,8 @@ import requests from './requests';
 const stateChanges = { ...request, ...requests };
 const initialState = {
   patient: {},
-  tests: [],
-  labModel: {},
+  labTestTypes: [],
+  labRequestModel: {},
   isLoading: false,
 };
 

@@ -1,4 +1,4 @@
-import { TestsCollection } from '../../collections';
+import { LabTestTypesCollection } from '../../collections';
 import { notifySuccess, history } from '../../utils';
 import {
   FETCH_LAB_REQUEST_REQUEST,
@@ -9,9 +9,9 @@ import {
   SAVE_LAB_REQUEST_FAILED,
 } from '../types';
 import {
-  LabModel,
+  LabRequestModel,
   PatientModel,
-  TestCategoryModel,
+  LabTestCategoryModel,
   VisitModel,
   UserModel,
 } from '../../models';
@@ -21,8 +21,8 @@ export const initLabRequest = (patientId) =>
     dispatch({ type: FETCH_LAB_REQUEST_REQUEST });
     try {
       // fetch all tests
-      const testsCollection = new TestsCollection();
-      await testsCollection.fetchAll();
+      const labTestTypesCollection = new LabTestTypesCollection();
+      await labTestTypesCollection.fetchAll();
       // fetch patient if defined
       const patientModel = new PatientModel();
       if (patientId) {
@@ -32,7 +32,7 @@ export const initLabRequest = (patientId) =>
       dispatch({
         type: FETCH_LAB_REQUEST_SUCCESS,
         patient: patientModel.toJSON(),
-        tests: testsCollection.toJSON(),
+        labTestTypes: labTestTypesCollection.toJSON(),
         isLoading: false,
       });
     } catch (error) {
@@ -40,60 +40,60 @@ export const initLabRequest = (patientId) =>
     }
   };
 
-export const createLabRequest = ({ labModel }) =>
+export const createLabRequest = ({ labRequestModel }) =>
   async (dispatch, getState) => {
     dispatch({ type: SAVE_LAB_REQUEST_REQUEST });
-    if (labModel.isValid()) {
+    if (labRequestModel.isValid()) {
       try {
         const labTypesFiltered = {};
         const { auth: { userId } } = getState();
         const requestedBy = new UserModel({ _id: userId });
-        const visitId = labModel.get('visit');
+        const visitId = labRequestModel.get('visit');
 
-        labModel.get('tests').forEach(labTestModel => {
-          const categoryId = labTestModel.get('test').get('category').get('_id');
-          const testCategoryModel = new TestCategoryModel({ _id : categoryId });
+        labRequestModel.get('tests').forEach(labTestModel => {
+          const categoryId = labTestModel.get('type').get('category').get('_id');
+          const testCategoryModel = new LabTestCategoryModel({ _id : categoryId });
           if (labTypesFiltered[categoryId]) {
-            const currentLabModel = labTypesFiltered[categoryId];
-            currentLabModel.get('tests').push(labTestModel);
-            currentLabModel.set('category', testCategoryModel);
-            currentLabModel.set('requestedBy', requestedBy);
+            const currentLabRequestModel = labTypesFiltered[categoryId];
+            currentLabRequestModel.get('tests').push(labTestModel);
+            currentLabRequestModel.set('category', testCategoryModel);
+            currentLabRequestModel.set('requestedBy', requestedBy);
           } else {
-            const { attributes } = labModel;
-            const newLabModel = new LabModel({ ...attributes, tests: [] });
-            newLabModel.get('tests').push(labTestModel);
-            newLabModel.set('category', testCategoryModel);
-            newLabModel.set('requestedBy', requestedBy);
-            labTypesFiltered[categoryId] = newLabModel;
+            const { attributes } = labRequestModel;
+            const newLabRequestModel = new LabRequestModel({ ...attributes, tests: [] });
+            newLabRequestModel.get('tests').push(labTestModel);
+            newLabRequestModel.set('category', testCategoryModel);
+            newLabRequestModel.set('requestedBy', requestedBy);
+            labTypesFiltered[categoryId] = newLabRequestModel;
           }
         });
 
-        await Promise.all(labModel.get('tests').map(labTestModel => labTestModel.save()));
-        const labModels = await Promise.all(Object.values(labTypesFiltered).map(labModel => labModel.save()));
-        _updateVisit(visitId, labModels);
+        await Promise.all(labRequestModel.get('tests').map(labTestModel => labTestModel.save()));
+        const labRequestModels = await Promise.all(Object.values(labTypesFiltered).map(labRequestModel => labRequestModel.save()));
+        _updateVisit(visitId, labRequestModels);
 
         dispatch({ type: SAVE_LAB_REQUEST_SUCCESS });
         notifySuccess("Lab request was created successfully.");
-        if (labModels.length > 1) {
+        if (labRequestModels.length > 1) {
           history.push('/labs');
         } else {
-          history.push(`/labs/request/${labModels[0].id}`);
+          history.push(`/labs/request/${labRequestModels[0].id}`);
         }
       } catch (error) {
         console.error({ error });
         dispatch({ type: SAVE_LAB_REQUEST_FAILED, error });
       }
     } else {
-      const error = labModel.validationError;
+      const error = labRequestModel.validationError;
       console.error({ error });
       dispatch({ type: SAVE_LAB_REQUEST_FAILED, error });
     }
   };
 
-const _updateVisit = async (visitId, labModels) => {
+const _updateVisit = async (visitId, labRequestModels) => {
   // link lab requests to visit
   const visitModel = new VisitModel({ _id: visitId });
   await visitModel.fetch();
-  visitModel.get('labs').add(labModels);
+  visitModel.get('labRequests').add(labRequestModels);
   await visitModel.save();
 }

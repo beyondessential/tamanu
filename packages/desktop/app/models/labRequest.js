@@ -3,7 +3,7 @@ import BaseModel from './base';
 import moment from 'moment';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/lab`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/labRequest`,
   defaults: () => ({
     date: moment(),
     requestedBy: null,
@@ -24,7 +24,7 @@ export default BaseModel.extend({
     }, {
       type: Backbone.One,
       key: 'category',
-      relatedModel: () => require('./testCategory'),
+      relatedModel: () => require('./labTestCategory'),
     },
     ...BaseModel.prototype.relations
   ],

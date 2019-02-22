@@ -41,7 +41,7 @@ class TestsList extends Component {
   }
 
   render() {
-    const { tests, classes } = this.props;
+    const { labTestTypes, classes } = this.props;
     const { selectedTests } = this.state;
 
     return (
@@ -50,7 +50,7 @@ class TestsList extends Component {
           Tests Available
         </span>
         <List disablePadding className={classes.root}>
-          {tests.map(({ _id, name, unit, category: { name: categoryName } } = {}) => (
+          {labTestTypes.map(({ _id, name, unit, category: { name: categoryName } } = {}) => (
             <ListItem
               key={_id}
               onClick={() => this.handleListItemChange(_id)}
@@ -80,7 +80,7 @@ class TestsList extends Component {
 }
 
 TestsList.propTypes = {
-  tests: PropTypes.arrayOf(PropTypes.object).isRequired,
+  labTestTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
   onChange: PropTypes.func.isRequired,
 }
 

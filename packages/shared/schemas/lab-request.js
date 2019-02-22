@@ -1,14 +1,14 @@
 const defaults = require('./defaults');
 
-const LabSchema = {
-  name: 'lab',
+const LabRequest = {
+  name: 'labRequest',
   primaryKey: '_id',
   properties: {
     _id: 'string',
     date: 'date?',
     requestedBy: 'user',
     requestedDate: 'date',
-    category: 'testCategory',
+    category: 'labTestCategory',
     notes: 'string?',
     status: 'string?',
     tests: {
@@ -18,10 +18,10 @@ const LabSchema = {
     visits: {
       type: 'linkingObjects',
       objectType: 'visit',
-      property: 'labs'
+      property: 'labRequests'
     },
     ...defaults,
   }
 };
 
-module.exports = LabSchema;
+module.exports = LabRequest;

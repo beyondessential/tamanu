@@ -12,10 +12,10 @@ export default {
     ...state,
     isLoading: true
   }),
-  [FETCH_LAB_REQUEST_SUCCESS]: ({ patient, tests }, state) => ({
+  [FETCH_LAB_REQUEST_SUCCESS]: ({ patient, labTestTypes }, state) => ({
     ...state,
     patient,
-    tests,
+    labTestTypes,
     isLoading: false
   }),
   [FETCH_LAB_REQUEST_FAILED]: ({ error }, state) => ({
