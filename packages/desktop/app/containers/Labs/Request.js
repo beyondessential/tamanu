@@ -35,7 +35,7 @@ class Request extends Component {
       selectedTests: [],
       isFormValid: false,
       isLoading: true,
-      selectedPatientsId: '',
+      selectedPatientId: '',
     }
     this.handlePatientChange = this.handlePatientChange.bind(this);
     this.handleTestsListChange = this.handleTestsListChange.bind(this);
@@ -62,7 +62,7 @@ class Request extends Component {
     if (!isLoading) {
       this.setState({
         isLoading,
-        selectedPatientsId: patient._id
+        selectedPatientId: patient._id
       });
     }
   }
@@ -74,8 +74,8 @@ class Request extends Component {
     this.setState({ ...changedAttributes, isFormValid });
   }
 
-  handlePatientChange(selectedPatientsId) {
-    this.setState({ selectedPatientsId });
+  handlePatientChange(selectedPatientId) {
+    this.setState({ selectedPatientId });
   }
 
   handleVisitChange(visit) {
@@ -117,7 +117,7 @@ class Request extends Component {
     if (isLoading) return <Preloader />;
 
     const { labRequestModel, isPatientSelected, labTestTypes, patient } = this.props;
-    const { selectedPatientsId, visit, isFormValid } = this.state;
+    const { selectedPatientId, visit, isFormValid } = this.state;
     const { tests: selectedTests } = labRequestModel.toJSON();
     return (
       <div className="create-content">
@@ -144,7 +144,7 @@ class Request extends Component {
               <Grid item xs={6}>
                 <PatientRelationSelect
                   className=""
-                  patient={selectedPatientsId}
+                  patient={selectedPatientId}
                   relation="visits"
                   template={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
                   label="Visit"
