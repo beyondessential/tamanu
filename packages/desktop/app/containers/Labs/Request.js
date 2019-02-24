@@ -16,9 +16,9 @@ import {
   CancelButton,
   Preloader,
 } from '../../components';
-import TestsList from './components/TestsList';
+import TestTypesList from './components/TestTypesList';
 import { dateFormat } from '../../constants';
-import { LabModel, LabTestModel } from '../../models';
+import { LabRequestModel, LabTestModel } from '../../models';
 
 const ButtonsContainer = styled.div`
   padding: 8px 8px 32px 8px;
@@ -32,10 +32,10 @@ class Request extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      byPatient: false,
-      testsSelected: [],
+      selectedTests: [],
       isFormValid: false,
-      loading: true,
+      isLoading: true,
+      selectedPatientId: '',
     }
     this.handlePatientChange = this.handlePatientChange.bind(this);
     this.handleTestsListChange = this.handleTestsListChange.bind(this);
@@ -46,51 +46,47 @@ class Request extends Component {
   }
 
   componentDidMount() {
-    const { params: { patientId } } = this.props.match;
-    this.props.initLabRequest(patientId);
+    this.props.initLabRequest();
   }
 
   componentWillReceiveProps(newProps) {
-    const { labModel } = newProps;
-    if (labModel instanceof LabModel) {
-      labModel.on('change', this.handleModelsChange);
+    const { labRequestModel } = newProps;
+    if (labRequestModel instanceof LabRequestModel) {
+      labRequestModel.on('change', this.handleModelsChange);
     }
     this.handleFetchedLabRequest(newProps);
   }
 
   handleFetchedLabRequest(props = this.props) {
-    const { patient, tests, loading, match} = props;
-    const { params: { patientId } } = match;
-    if (!loading) {
+    const { patient, isLoading } = props;
+    if (!isLoading) {
       this.setState({
-        patient,
-        tests,
-        loading,
-        byPatient: patientId ? true : false,
+        isLoading,
+        selectedPatientId: patient._id
       });
     }
   }
 
   handleModelsChange() {
-    const { labModel } = this.props;
-    const changedAttributes = labModel.changedAttributes();
-    const isFormValid = labModel.isValid();
+    const { labRequestModel } = this.props;
+    const changedAttributes = labRequestModel.changedAttributes();
+    const isFormValid = labRequestModel.isValid();
     this.setState({ ...changedAttributes, isFormValid });
   }
 
-  handlePatientChange(patient) {
-    this.handleFormChange({ patient });
+  handlePatientChange(selectedPatientId) {
+    this.setState({ selectedPatientId });
   }
 
   handleVisitChange(visit) {
     this.handleFormChange({ visit });
   }
 
-  handleTestsListChange(testsSelected) {
-    const testsCollection = this.props.tests
-                              .filter(({ _id }) => testsSelected.includes(_id))
-                              .map((testModel) => new LabTestModel({ test: testModel }));
-    this.handleFormChange({ tests: testsCollection });
+  handleTestsListChange(selectedTests) {
+    const testTypesCollection = this.props.labTestTypes
+                                  .filter(({ _id }) => selectedTests.has(_id))
+                                  .map((labTestTypeModel) => new LabTestModel({ type: labTestTypeModel }));
+    this.handleFormChange({ tests: testTypesCollection });
   }
 
   handleFormInput(event) {
@@ -99,30 +95,30 @@ class Request extends Component {
   }
 
   handleFormChange(change) {
-    const { labModel } = this.props;
-    labModel.set(change);
+    const { labRequestModel } = this.props;
+    labRequestModel.set(change);
   }
 
   updateFormsStatus() {
-    const { visit, testsSelected } = this.state;
+    const { visit, selectedTests } = this.state;
     let isFormValid = false;
-    if (visit && testsSelected) isFormValid = true;
+    if (visit && selectedTests) isFormValid = true;
     this.setState({ isFormValid });
   }
 
   submitForm(event) {
     event.preventDefault();
-    const { labModel } = this.props;
-    this.props.createLabRequest({ labModel });
+    const { labRequestModel } = this.props;
+    this.props.createLabRequest({ labRequestModel });
   }
 
   render() {
-    const { loading } = this.state;
-    if (loading) return <Preloader />;
+    const { isLoading } = this.state;
+    if (isLoading) return <Preloader />;
 
-    const { labModel } = this.props;
-    const { patient, visit, tests, isFormValid, byPatient } = this.state;
-    const { tests: testsSelected } = labModel.toJSON();
+    const { labRequestModel, isPatientSelected, labTestTypes, patient } = this.props;
+    const { selectedPatientId, visit, isFormValid } = this.state;
+    const { tests: selectedTests } = labRequestModel.toJSON();
     return (
       <div className="create-content">
         <TopBar title="New Lab Request" />
@@ -132,7 +128,7 @@ class Request extends Component {
         >
           <div className="form with-padding">
             <Grid container spacing={8}>
-              {byPatient ?
+              {isPatientSelected ?
                 <Grid item container xs={12}>
                   <TopRow patient={patient} />
                 </Grid> :
@@ -148,9 +144,9 @@ class Request extends Component {
               <Grid item xs={6}>
                 <PatientRelationSelect
                   className=""
-                  patient={patient._id || patient}
+                  patient={selectedPatientId}
                   relation="visits"
-                  tmpl={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
+                  template={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
                   label="Visit"
                   name="visit"
                   value={visit}
@@ -159,9 +155,9 @@ class Request extends Component {
               </Grid>
             </Grid>
             <Grid item container xs={6}>
-              <TestsList
-                tests={tests}
-                testsSelected={testsSelected}
+              <TestTypesList
+                labTestTypes={labTestTypes}
+                selectedTests={selectedTests}
                 onChange={this.handleTestsListChange}
               />
             </Grid>
@@ -190,27 +186,33 @@ Request.propTypes = {
   initLabRequest: PropTypes.func.isRequired,
   createLabRequest: PropTypes.func.isRequired,
   patient: PropTypes.object,
-  tests: PropTypes.arrayOf(PropTypes.object),
-  labModel: PropTypes.object,
-  loading: PropTypes.bool,
+  labTestTypes: PropTypes.arrayOf(PropTypes.object),
+  labRequestModel: PropTypes.object,
+  isLoading: PropTypes.bool,
   error: PropTypes.object,
 }
 
 Request.defaultProps = {
   patient: {},
-  tests: [],
-  labModel: new LabModel(),
-  loading: true,
+  labTestTypes: [],
+  labRequestModel: new LabRequestModel(),
+  isLoading: true,
   error: {},
 }
 
-function mapStateToProps({ labs: { patient, tests, loading, error } }) {
-  return { patient, tests, loading, error };
+function mapStateToProps({
+  labs: { patient, labTestTypes, isLoading, error } },
+  { match: { params: { patientId = false } = {} } }
+) {
+  return { patient, labTestTypes, isLoading, error, isPatientSelected: patientId };
 }
 
 const { initLabRequest, createLabRequest } = labRequestActions;
-const mapDispatchToProps = (dispatch) => ({
-  initLabRequest: (params) => dispatch(initLabRequest(params)),
+const mapDispatchToProps = (
+  dispatch,
+  { match: { params: { patientId } = {} } }
+) => ({
+  initLabRequest: () => dispatch(initLabRequest(patientId)),
   createLabRequest: (params) => dispatch(createLabRequest(params)),
 });
 

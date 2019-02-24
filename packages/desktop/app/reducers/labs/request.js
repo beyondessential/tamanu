@@ -1,39 +1,39 @@
 import {
-  FETCH_LAB_REQUEST,
-  FETCH_LAB_SUCCESS,
-  FETCH_LAB_FAILED,
-  SAVE_LAB_REQUEST,
-  SAVE_LAB_SUCCESS,
-  SAVE_LAB_FAILED,
+  FETCH_LAB_REQUEST_REQUEST,
+  FETCH_LAB_REQUEST_SUCCESS,
+  FETCH_LAB_REQUEST_FAILED,
+  SAVE_LAB_REQUEST_REQUEST,
+  SAVE_LAB_REQUEST_SUCCESS,
+  SAVE_LAB_REQUEST_FAILED,
 } from '../../actions/types';
 
 export default {
-  [FETCH_LAB_REQUEST]: (_, state) => ({
+  [FETCH_LAB_REQUEST_REQUEST]: (_, state) => ({
     ...state,
-    loading: true
+    isLoading: true
   }),
-  [FETCH_LAB_SUCCESS]: ({ patient, tests }, state) => ({
+  [FETCH_LAB_REQUEST_SUCCESS]: ({ patient, labTestTypes }, state) => ({
     ...state,
     patient,
-    tests,
-    loading: false
+    labTestTypes,
+    isLoading: false
   }),
-  [FETCH_LAB_FAILED]: ({ error }, state) => ({
+  [FETCH_LAB_REQUEST_FAILED]: ({ error }, state) => ({
     ...state,
     error,
-    loading: false
+    isLoading: false
   }),
-  [SAVE_LAB_REQUEST]: (_, state) => ({
+  [SAVE_LAB_REQUEST_REQUEST]: (_, state) => ({
     ...state,
-    loading: true
+    isLoading: true
   }),
-  [SAVE_LAB_SUCCESS]: (_, state) => ({
+  [SAVE_LAB_REQUEST_SUCCESS]: (_, state) => ({
     ...state,
-    loading: false
+    isLoading: false
   }),
-  [SAVE_LAB_FAILED]: ({ error }, state) => ({
+  [SAVE_LAB_REQUEST_FAILED]: ({ error }, state) => ({
     ...state,
     error,
-    loading: false
+    isLoading: false
   }),
 };

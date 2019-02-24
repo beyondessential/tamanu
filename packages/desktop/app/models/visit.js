@@ -20,7 +20,7 @@ export default BaseModel.extend({
     //  Relation fields
     medication: [],
     diagnoses: [],
-    labs: [],
+    labRequests: [],
     notes: [],
     procedures: [],
     vitals: [],
@@ -33,30 +33,37 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'medication',
       relatedModel: () => require('./medication'),
+      serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'diagnoses',
       relatedModel: () => require('./diagnosis'),
+      serialize: '_id',
     }, {
       type: Backbone.Many,
-      key: 'labs',
-      relatedModel: () => require('./lab'),
+      key: 'labRequests',
+      relatedModel: () => require('./labRequest'),
+      serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'notes',
       relatedModel: () => require('./note'),
+      serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'procedures',
       relatedModel: () => require('./procedure'),
+      serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'vitals',
       relatedModel: () => require('./vitals'),
+      serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'reports',
       relatedModel: () => require('./report'),
+      serialize: '_id',
     },
     ...BaseModel.prototype.relations
   ],

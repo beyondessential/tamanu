@@ -3,10 +3,10 @@ import BaseModel from './base';
 import shortid from 'shortid';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/lab`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/labTest`,
   defaults: () => ({
     _id: shortid.generate(),
-    test: null,
+    type: null,
     result: null,
     ...BaseModel.prototype.defaults
   }),
@@ -15,8 +15,8 @@ export default BaseModel.extend({
   relations: [
     {
       type: Backbone.One,
-      key: 'test',
-      relatedModel: () => require('./test'),
+      key: 'type',
+      relatedModel: () => require('./labTestType'),
     },
     ...BaseModel.prototype.relations
   ],
