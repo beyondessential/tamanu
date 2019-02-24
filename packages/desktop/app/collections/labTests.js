@@ -1,7 +1,7 @@
-import { TestModel } from '../models';
+import { LabTestModel } from '../models';
 import BaseCollection from './base';
 
 export default BaseCollection.extend({
-  model: TestModel,
-  url: `${BaseCollection.prototype.url}/test`,
+  model: LabTestModel,
+  url: `${BaseCollection.prototype.url}/labTest`,
 });

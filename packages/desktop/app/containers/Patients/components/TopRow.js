@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-const FullWidthhWrapper = styled.div`
+const FullWidthWrapper = styled.div`
   flex-grow: 1
 `;
 
@@ -14,7 +14,7 @@ class TopRow extends Component {
   render() {
     const { patient } = this.props;
     return (
-      <FullWidthhWrapper>
+      <FullWidthWrapper>
         <div className="columns is-multiline is-variable m-b-0 p-b-15">
           <div className="column p-b-0 is-8">
             <div className="column p-b-5 p-t-0">
@@ -44,7 +44,7 @@ class TopRow extends Component {
             </div>
           </div>
         </div>
-      </FullWidthhWrapper>
+      </FullWidthWrapper>
     );
   }
 }

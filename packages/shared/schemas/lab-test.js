@@ -5,7 +5,7 @@ const LabTestSchema = {
   primaryKey: '_id',
   properties: {
     _id: 'string',
-    test: 'test',
+    type: 'labTestType',
     result: 'string?',
     ...defaults,
   }
