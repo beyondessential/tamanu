@@ -11,6 +11,7 @@ import { HospitalModel } from '../../models';
 class PatientListing extends Component {
   constructor(props) {
     super(props);
+    // this.handleChange = this.handleChange.bind(this);
     this.setActionsColumn = this.setActionsColumn.bind(this);
     this.onFetchData = this.onFetchData.bind(this);
     this.searchSubmit = this.searchSubmit.bind(this);

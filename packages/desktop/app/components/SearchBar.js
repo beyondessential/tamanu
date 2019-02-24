@@ -54,14 +54,18 @@ const styles = theme => ({
 class SearchBar extends Component {
   constructor(props) {
     super(props);
-    this.state = { value: '' };
+    this.state = { value: this.props.value || '' };
+  }
+
+  componentWillReceiveProps(newProps) {
+      if (newProps.value) this.setState({ value: newProps.value });
   }
 
   handleChange(event) {
     const { onChange, onClear } = this.props;
     const { value } = event.target;
     this.setState({ value });
-    if (onChange) onChange(value);
+    if (onChange) onChange(event);
     if (value === '' && onClear) onClear();
   }
 
@@ -73,10 +77,8 @@ class SearchBar extends Component {
   }
 
   render(){
-    const { classes, onClear, value: externalValue, ...props } = this.props;
-    const { value: internalValue } = this.state;
-    // Use externally controlled value if provided. Otherwise use state
-    const value = externalValue === undefined ? internalValue : externalValue;
+    const { value } = this.state;
+    const { classes, onClear, ...props } = this.props;
 
     return (
       <form onSubmit={this.onSubmit.bind(this)}>
@@ -101,7 +103,7 @@ class SearchBar extends Component {
 };
 
 SearchBar.defaultProps = {
-  value: undefined,
+  value: ''
 };
 
 SearchBar.propTypes = {

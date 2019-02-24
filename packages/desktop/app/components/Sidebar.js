@@ -10,7 +10,7 @@ import Collapse from '@material-ui/core/Collapse';
 import Divider from '@material-ui/core/Divider';
 
 import styled from 'styled-components';
-import { sidebarInfo, submenuIcons } from '../constants';
+import { sidebarInfo } from '../constants';
 import { ProgramsCollection } from '../collections';
 import actions from '../actions/auth';
 import { checkAbility } from '../utils/ability-context';
@@ -108,7 +108,7 @@ const SecondarySidebarItem = withRouter(({ item, location, parentAbility }) => {
 class Sidebar extends Component {
   constructor(props) {
     super(props);
-    this.updateProgramsMenu = this.updateProgramsMenu.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   state = {
@@ -117,27 +117,27 @@ class Sidebar extends Component {
 
   async componentWillMount() {
     this.props.programsCollection.fetchAll({
-      success: ({ models: programModels }) => this.updateProgramsMenu(programModels),
+      success: () => this.handleChange()
     });
   }
 
   componentWillReceiveProps(newProps) {
-    const { programsCollection = {} } = newProps;
-    this.updateProgramsMenu(programsCollection.models);
+    this.handleChange(newProps);
   }
 
-  updateProgramsMenu(programs) {
+  handleChange(props = this.props) {
     // Prepare programs sub-menu
+    const { models } = props.programsCollection;
     const programsNav = find(sidebarInfo, { key: 'programs' });
-    if (!isEmpty(programs)) {
+    if (!isEmpty(models)) {
       programsNav.hidden = false;
       programsNav.children = [];
-      programs.forEach((programString, key) => {
+      models.forEach((programString, key) => {
         const program = programString.toJSON();
         programsNav.children.push({
           label: program.name,
           path: `/programs/${program._id}/patients`,
-          icon: submenuIcons.action,
+          icon: 'fa fa-chevron-right'
         });
 
         if (key === 0) programsNav.path = `/programs/${program._id}/patients`;
