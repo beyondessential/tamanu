@@ -67,14 +67,14 @@ const DrawChildren = ({ classes, children }) => {
       case 'buttons':
         if (React.isValidElement(child)) return { ...child, key: elementKey };
         if (!isArray(child)) child = [child];
-        return (child.map((props, buttonKey) => (
+        return (child.map(({ text, children, ...props }, buttonKey) => (
           <NewButton
             key={`${elementKey}-${buttonKey}`}
             color="primary"
             variant="outlined"
             className={classes.buttonBarItems}
             {...props}
-          />
+          >{text || children}</NewButton>
         )));
     }
   }));

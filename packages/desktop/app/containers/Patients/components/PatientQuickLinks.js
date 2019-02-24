@@ -24,7 +24,7 @@ const PatientQuickLinks = ({ patient }) => {
         can: { do: 'create', on: 'imaging '},
         text: "Imaging"
       }, {
-        to: `/medication/request/by-patient/${patientId}`,
+        to: `/labs/request/by-patient/${patientId}`,
         can: { do: 'create', on: 'lab '},
         text: "Lab"
       }]} />
