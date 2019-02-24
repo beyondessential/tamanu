@@ -5,12 +5,12 @@ import requests from './requests';
 const stateChanges = { ...request, ...requests };
 const initialState = {
   patient: {},
-  labTestTypes: [],
-  labRequestModel: {},
-  isLoading: false,
+  tests: [],
+  labModel: {},
+  loading: false,
 };
 
 export default (state = initialState, action) => {
-  return stateChanges[action.type] ? stateChanges[action.type](action, state) : state;
+  if (has(stateChanges, action.type)) return stateChanges[action.type](action, state);
   return state;
 };

@@ -1,7 +1,7 @@
 const defaults = require('./defaults');
 
 const TestCategorySchema = {
-  name: 'labTestCategory',
+  name: 'testCategory',
   primaryKey: '_id',
   properties: {
     _id: 'string',

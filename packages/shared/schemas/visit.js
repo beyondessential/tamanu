@@ -60,9 +60,9 @@ const VisitSchema = {
       type: 'list',
       objectType: 'diagnosis'
     },
-    labRequests: {
+    labs: {
       type: 'list',
-      objectType: 'labRequest'
+      objectType: 'lab'
     },
     notes: {
       type: 'list',

@@ -3,7 +3,7 @@ const path = require('path');
 const { each } = require('lodash');
 const defaults = require('./defaults');
 const { SYNC_MODES } = require('../constants');
-const version = 39;
+const version = 38;
 const defaultSchema = {
   primaryKey: '_id',
   sync: SYNC_MODES.ON,

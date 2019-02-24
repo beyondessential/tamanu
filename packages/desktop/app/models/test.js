@@ -3,7 +3,7 @@ import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/labTestType`,
+  urlRoot:  `${BaseModel.prototype.urlRoot}/lab`,
   defaults: () => defaults({
       name: null,
       category: null,
@@ -22,7 +22,7 @@ export default BaseModel.extend({
     {
       type: Backbone.One,
       key: 'category',
-      relatedModel: () => require('./labTestCategory'),
+      relatedModel: () => require('./testCategory'),
     },
     ...BaseModel.prototype.relations
   ],

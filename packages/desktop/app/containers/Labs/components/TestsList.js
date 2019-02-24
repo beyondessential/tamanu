@@ -22,27 +22,27 @@ class TestsList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedTests: new Set()
+      testsSelected: []
     }
     this.handleListItemChange = this.handleListItemChange.bind(this);
   }
 
   handleListItemChange(_id) {
     const { onChange } = this.props;
-    const { selectedTests } = this.state;
-    if (selectedTests.has(_id)) {
-      selectedTests.delete(_id);
+    let { testsSelected } = this.state;
+    if (testsSelected.includes(_id)) {
+      testsSelected = pull(testsSelected, _id);
     } else {
-      selectedTests.add(_id);
+      testsSelected.push(_id);
     }
 
-    if (onChange) onChange(selectedTests);
-    this.setState({ selectedTests });
+    if (onChange) onChange(testsSelected);
+    this.setState({ testsSelected });
   }
 
   render() {
-    const { labTestTypes, classes } = this.props;
-    const { selectedTests } = this.state;
+    const { tests, classes } = this.props;
+    const { testsSelected } = this.state;
 
     return (
       <div className="column">
@@ -50,7 +50,7 @@ class TestsList extends Component {
           Tests Available
         </span>
         <List disablePadding className={classes.root}>
-          {labTestTypes.map(({ _id, name, unit, category: { name: categoryName } } = {}) => (
+          {tests.map(({ _id, name, unit, category: { name: categoryName } } = {}) => (
             <ListItem
               key={_id}
               onClick={() => this.handleListItemChange(_id)}
@@ -62,7 +62,7 @@ class TestsList extends Component {
                 className={classes.checkBox}
                 tabIndex={-1}
                 disableRipple
-                checked={selectedTests.has(_id)}
+                checked={testsSelected.includes(_id)}
               />
               <ListItemText
                 className={classes.listItemText}
@@ -80,7 +80,7 @@ class TestsList extends Component {
 }
 
 TestsList.propTypes = {
-  labTestTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
+  tests: PropTypes.arrayOf(PropTypes.object).isRequired,
   onChange: PropTypes.func.isRequired,
 }
 

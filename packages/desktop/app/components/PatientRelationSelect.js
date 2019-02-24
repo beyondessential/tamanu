@@ -11,7 +11,7 @@ class PatientRelationSelect extends Component {
   static propTypes = {
     patient: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     relation: PropTypes.string.isRequired,
-    template: PropTypes.func.isRequired,
+    tmpl: PropTypes.func.isRequired,
     label: PropTypes.string.isRequired,
     required: PropTypes.bool,
     name: PropTypes.string.isRequired,
@@ -47,7 +47,7 @@ class PatientRelationSelect extends Component {
   }
 
   async loadRelations(props = this.props) {
-    const {  patient, relation, template, patientModel } = props;
+    const {  patient, relation, tmpl, patientModel } = props;
     if (patient) {
       if (typeof patient === "string") {
         patientModel.set({ _id: patient });
@@ -55,7 +55,7 @@ class PatientRelationSelect extends Component {
       }
 
       let { [relation]: options } = patientModel.toJSON();
-      options = options.map(item => ({ value: item._id, label: template(item) }) );
+      options = options.map(item => ({ value: item._id, label: tmpl(item) }) );
       this.setState({ options });
     }
   }

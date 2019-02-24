@@ -101,7 +101,7 @@ class NoteModal extends Component {
                 <PatientRelationSelect
                   patient={patientModel.id}
                   relation="visits"
-                  template={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
+                  tmpl={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
                   label="Visit"
                   name="visit"
                   onChange={val => this.handleUserInput(val, 'visit')}

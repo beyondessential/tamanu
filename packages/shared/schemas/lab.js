@@ -1,27 +1,21 @@
 const defaults = require('./defaults');
 
-const LabRequest = {
-  name: 'labRequest',
+const LabSchema = {
+  name: 'lab',
   primaryKey: '_id',
   properties: {
     _id: 'string',
     date: 'date?',
     requestedBy: 'user',
     requestedDate: 'date',
-    category: 'labTestCategory',
     notes: 'string?',
     status: 'string?',
     tests: {
       type: 'list',
       objectType: 'labTest'
     },
-    visits: {
-      type: 'linkingObjects',
-      objectType: 'visit',
-      property: 'labRequests'
-    },
     ...defaults,
   }
 };
 
-module.exports = LabRequest;
+module.exports = LabSchema;
