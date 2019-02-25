@@ -69,7 +69,7 @@ const headerStyle = {
 
 const headerSortingStyle = { backgroundColor: '#c8e6c9' };
 
-export const dateFormat = 'YYYY-MM-DD';
+export const dateFormat = 'L';
 export const dateTimeFormat = 'YYYY-MM-DD hh:mm A';
 
 export const dateFormatText = 'Do MMM YYYY';
@@ -478,8 +478,8 @@ export const patientColumns = [
     style: columnStyle,
     minWidth: 80
   }, {
-    id: 'birthday',
-    accessor: row => moment(row.birthday).format(dateFormat),
+    id: 'dateOfBirth',
+    accessor: row => moment(row.dateOfBirth).format(dateFormat),
     Header: 'DOB',
     headerStyle,
     style: columnStyle,
@@ -538,8 +538,8 @@ export const admittedPatientsColumns = [
     style: columnStyle,
     minWidth: 80
   }, {
-    id: 'birthday',
-    accessor: row => moment(row.birthday).format(dateFormat),
+    id: 'dateOfBirth',
+    accessor: row => moment(row.dateOfBirth).format(dateFormat),
     Header: 'DOB',
     headerStyle,
     style: columnStyle,
@@ -908,7 +908,8 @@ export const programsPatientsColumns = [
     minWidth: 80,
     filterable: false
   }, {
-    accessor: 'birthday',
+    id: 'dateOfBirth',
+    accessor: row => moment(row.dateOfBirth).format(dateFormat),
     Header: 'DOB',
     headerStyle,
     style: columnStyle,
