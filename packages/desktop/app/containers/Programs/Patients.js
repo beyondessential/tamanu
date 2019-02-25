@@ -71,9 +71,9 @@ class Patients extends Component {
         this.props.collection.setSorting(sort.id, sort.desc ? 1 : -1);
       }
       if (keyword) this.props.collection.setKeyword(keyword);
-      this.props.collection.setPageSize(pageSize);
+
       const patientFilters = JSON.parse(patientFiltersString);
-      await this.props.collection.getPage(page, null, null, { data: patientFilters });
+      await this.props.collection.getPage(page, null, null, { data: patientFilters, pageSize });
       this.setState({ loading: false });
     } catch (err) {
       this.setState({ loading: false });
