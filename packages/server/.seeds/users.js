@@ -29,11 +29,9 @@ module.exports = (database) => {
 
     if (hospital.users.indexOf(user) === -1) {
       hospital.users.push(user);
-      hospital.save();
     }
     if (user.roles.indexOf(userRole) === -1) {
       user.roles.push(userRole);
-      user.save();
     }
   });
 }
