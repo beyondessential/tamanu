@@ -69,7 +69,7 @@ const headerStyle = {
 
 const headerSortingStyle = { backgroundColor: '#c8e6c9' };
 
-export const dateFormat = 'L';
+export const dateFormat = 'L'; // 06/09/2014, swap mm and dd based on locale
 export const dateTimeFormat = 'YYYY-MM-DD hh:mm A';
 
 export const dateFormatText = 'Do MMM YYYY';
