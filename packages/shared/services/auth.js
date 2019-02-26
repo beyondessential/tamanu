@@ -19,7 +19,7 @@ class BaseAuth {
     this.issuer = 'realm-sync';
     this.errors = {
       InvalidCredentials: 'Invalid email or password entered.',
-      InvalidHospital: 'User not linked to aany facility.',
+      InvalidHospital: 'User not linked to any facility.',
       invalidToken: 'Invalid credentials.'
     };
   }
