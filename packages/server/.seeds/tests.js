@@ -1,25 +1,26 @@
-module.exports = (database, createdBy) => {
-  const categoryOther = database.create('testCategory', {
+module.exports = (database) => {
+  const createdBy = database.findOne('user', 'demo--admin');
+  const categoryOther = database.create('labTestCategory', {
     _id: 'test-category-other',
     name: 'Other'
   }, true);
 
-  const categoryLFT = database.create('testCategory', {
+  const categoryLFT = database.create('labTestCategory', {
     _id: 'test-category-lft',
     name: 'LFT'
   }, true);
 
-  const categoryUNE = database.create('testCategory', {
+  const categoryUNE = database.create('labTestCategory', {
     _id: 'test-category-lft',
     name: 'U&E'
   }, true);
 
-  const categoryFBC = database.create('testCategory', {
+  const categoryFBC = database.create('labTestCategory', {
     _id: 'test-category-fbc',
     name: 'FBC'
   }, true);
 
-  const tests =  [
+  const testTypes =  [
     {
         "category": categoryOther,
         "name": "INR",
@@ -252,9 +253,9 @@ module.exports = (database, createdBy) => {
     }
   ];
 
-  tests.forEach((test, key) => {
-    database.create('test', {
-      ...test,
+  testTypes.forEach((testType, key) => {
+    database.create('labTestType', {
+      ...testType,
       _id: `test-auto-id-${key}`,
       sortOrder: key,
       createdBy
