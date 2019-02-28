@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { ToastContainer, Slide } from 'react-toastify';
 import styled from 'styled-components';
-import log from 'electron-log';
 
 import Sidebar from '../components/Sidebar';
 import actions from '../actions/auth';
