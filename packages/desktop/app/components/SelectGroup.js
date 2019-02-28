@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import Select from 'react-select';
 import { head, isEmpty } from 'lodash';
 
-class SelectGroup extends Component {
+export default class SelectGroup extends Component {
   static propTypes = {
     label: PropTypes.any.isRequired,
     required: PropTypes.bool,
@@ -106,11 +105,3 @@ class SelectGroup extends Component {
     );
   }
 }
-
-function mapStateToProps(state) {
-  return {
-    currentPath: state.router.location.pathname
-  };
-}
-
-export default connect(mapStateToProps, {})(SelectGroup);

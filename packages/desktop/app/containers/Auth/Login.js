@@ -50,7 +50,7 @@ class Login extends Component {
   }
 
   render() {
-    const { email, rememberMe } = this.state;
+    const { email, password, rememberMe } = this.state;
 
     return (
       <Fragment>
@@ -77,6 +77,7 @@ class Login extends Component {
                   type="password"
                   label={false}
                   placeholder="Password"
+                  value={password}
                   onChange={this.handleUserInput}
                   required
                 />

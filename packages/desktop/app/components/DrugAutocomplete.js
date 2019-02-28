@@ -90,10 +90,4 @@ const mapDispatchToProps = () => ({
   collection: new DrugsCollection(),
 });
 
-function mapStateToProps(state) {
-  return {
-    currentPath: state.router.location.pathname,
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(DrugAutocomplete);
+export default connect(null, mapDispatchToProps)(DrugAutocomplete);

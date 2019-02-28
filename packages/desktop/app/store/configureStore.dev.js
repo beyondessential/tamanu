@@ -4,7 +4,6 @@ import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 import { createHashHistory } from 'history';
-import { routerMiddleware, routerActions } from 'react-router-redux';
 import { createLogger } from 'redux-logger';
 import rootReducer from '../reducers';
 import * as actions from '../actions/patients';
@@ -30,14 +29,9 @@ const configureStore = (initialState) => {
     middleware.push(logger);
   }
 
-  // Router Middleware
-  const router = routerMiddleware(history);
-  middleware.push(router);
-
   // Redux DevTools Configuration
   const actionCreators = {
     ...actions,
-    ...routerActions,
   };
 
   // If Redux DevTools Extension is installed use it, otherwise use Redux compose

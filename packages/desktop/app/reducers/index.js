@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux';
-import { routerReducer as router } from 'react-router-redux';
 import auth from './auth';
 import patients from './patients';
 import medication from './medication';
@@ -12,7 +11,6 @@ import scheduling from './scheduling';
 const rootReducer = combineReducers({
   auth,
   patients,
-  router,
   medication,
   medications,
   invoices,

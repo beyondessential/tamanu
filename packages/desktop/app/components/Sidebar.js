@@ -198,9 +198,8 @@ class Sidebar extends Component {
 
 function mapStateToProps(state) {
   const { userId, displayName } = state.auth;
-  const { pathname: currentPath } = state.router.location;
   const programsCollection = new ProgramsCollection();
-  return { userId, displayName, currentPath, programsCollection };
+  return { userId, displayName, programsCollection };
 }
 
 const mapDispatchToProps = (dispatch) => ({

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'react-router-redux';
+import { HashRouter as Router } from 'react-router-dom';
 import { PersistGate } from 'redux-persist/integration/react'
 
 import Routes from '../routes';
@@ -12,7 +12,6 @@ export default class Root extends Component {
   render() {
     const {
       store,
-      history,
       persistor
     } = this.props;
 
@@ -23,11 +22,11 @@ export default class Root extends Component {
           persistor={persistor}
           onBeforeLift={initClient()}
         >
-          <ConnectedRouter history={history}>
+          <Router>
             <ThemeProvider>
               <Routes />
             </ThemeProvider>
-          </ConnectedRouter>
+          </Router>
         </PersistGate>
       </Provider>
     );

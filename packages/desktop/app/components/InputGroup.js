@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 
-class InputGroupNew extends Component {
+export default class InputGroupNew extends Component {
   static propTypes = {
     type: PropTypes.string,
     label: PropTypes.any.isRequired,
@@ -85,11 +84,3 @@ class InputGroupNew extends Component {
     );
   }
 }
-
-function mapStateToProps(state) {
-  return {
-    currentPath: state.router.location.pathname
-  };
-}
-
-export default connect(mapStateToProps, {})(InputGroupNew);

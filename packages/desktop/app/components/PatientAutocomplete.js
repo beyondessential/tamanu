@@ -90,10 +90,4 @@ const mapDispatchToProps = () => ({
   collection: new PatientsCollection(),
 });
 
-function mapStateToProps(state) {
-  return {
-    currentPath: state.router.location.pathname,
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(PatientAutocomplete);
+export default connect(null, mapDispatchToProps)(PatientAutocomplete);

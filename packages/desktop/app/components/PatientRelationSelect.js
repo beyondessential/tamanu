@@ -97,10 +97,4 @@ const mapDispatchToProps = () => ({
   patientModel: new PatientModel(),
 });
 
-function mapStateToProps(state) {
-  return {
-    currentPath: state.router.location.pathname,
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(PatientRelationSelect);
+export default connect(null, mapDispatchToProps)(PatientRelationSelect);

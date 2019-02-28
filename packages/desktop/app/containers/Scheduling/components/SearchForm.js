@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { clone } from 'lodash';
-import { connect } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import {
   InputGroup,
@@ -14,7 +13,7 @@ import {
   appointmentStatusList as appointmentStatusListOriginal,
 } from '../../../constants';
 
-class SearchForm extends Component {
+export default class SearchForm extends Component {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
     loading: PropTypes.bool,
@@ -144,11 +143,3 @@ class SearchForm extends Component {
     );
   }
 }
-
-function mapStateToProps(state) {
-  return {
-    currentPath: state.router.location.pathname
-  };
-}
-
-export default connect(mapStateToProps, {})(SearchForm);
