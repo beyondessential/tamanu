@@ -1,18 +1,9 @@
 import React from 'react';
 
+import { TopBar } from '../../components';
+
 export default () => (
-  <div>
-    <div className="content">
-      <div className="view-top-bar">
-        <span>
-          Completed Labs
-        </span>
-        <div className="view-action-buttons">
-          <button>
-            + New Lab
-          </button>
-        </div>
-      </div>
-    </div>
+  <div className="content">
+    <TopBar title="Lab Results" />
   </div>
 );

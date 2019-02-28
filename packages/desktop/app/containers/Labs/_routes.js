@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Route, Switch } from 'react-router-dom';
 
-import Requests from '../NotActive';
+import { LabRequests } from './LabRequests';
 import Completed from './Completed';
 import Request from './Request';
 
@@ -10,8 +10,8 @@ export default function Routes({ url }) {
   return (
     <div>
       <Switch>
-        <Route exact path={url} component={Requests} />
-        <Route path={`${url}/requests`} component={Requests} />
+        <Route exact path={url} component={LabRequests} />
+        <Route path={`${url}/LabRequests`} component={LabRequests} />
         <Route path={`${url}/request/by-patient/:patientId/:id`} component={Request} />
         <Route path={`${url}/request/by-patient/:patientId`} component={Request} />
         <Route path={`${url}/request/:id`} component={Request} />
