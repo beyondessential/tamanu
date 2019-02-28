@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import { map, head } from 'lodash';
 import ReactTable from 'react-table';
 
-// import { fetchPatients, deletePatient } from '../../actions/patients';
 import { pageSizes, programsPatientsColumns } from '../../constants';
 import { PatientsCollection } from '../../collections';
 import { ProgramModel } from '../../models';
 import { TopBar } from '../../components';
 import { Button } from '../../components/Button';
+
+const DEFAULT_PAGE_SIZE = pageSizes.patients;
 
 class Patients extends Component {
   constructor(props) {
@@ -21,10 +21,9 @@ class Patients extends Component {
   }
 
   state = {
-    pageSize: pageSizes.patients,
     programLoaded: false,
     keyword: '',
-    tableClass: ''
+    tableClass: '',
   }
 
   async componentWillMount() {
@@ -57,8 +56,9 @@ class Patients extends Component {
     this.props.history.push(`/programs/${programId}/${patientId}/surveys`);
   }
 
-  onFetchData = async (state = {}) => {
+  onFetchData = async (childTableState = {}) => {
     const { keyword, program } = this.state;
+    const { sorted, page = 0, pageSize = DEFAULT_PAGE_SIZE } = childTableState;
     const { patientFilters: patientFiltersString } = program;
     this.setState({ loading: true });
 
@@ -66,12 +66,14 @@ class Patients extends Component {
       // Reset keyword
       this.props.collection.setKeyword('');
       // Set pagination options
-      const sort = head(state.sorted);
-      if (state.sorted.length > 0) this.props.collection.setSorting(sort.id, sort.desc ? 1 : -1);
+      if (sorted && sorted.length > 0) {
+        const sort = head(sorted);
+        this.props.collection.setSorting(sort.id, sort.desc ? 1 : -1);
+      }
       if (keyword) this.props.collection.setKeyword(keyword);
-      this.props.collection.setPageSize(state.pageSize);
+
       const patientFilters = JSON.parse(patientFiltersString);
-      await this.props.collection.getPage(state.page, null, null, { data: patientFilters });
+      await this.props.collection.getPage(page, null, null, { data: patientFilters, pageSize });
       this.setState({ loading: false });
     } catch (err) {
       this.setState({ loading: false });
@@ -136,7 +138,7 @@ class Patients extends Component {
               keyField="_id"
               data={patients}
               pages={this.props.collection.totalPages}
-              defaultPageSize={this.state.pageSize}
+              defaultPageSize={DEFAULT_PAGE_SIZE}
               loading={this.state.loading && programLoaded}
               columns={programsPatientsColumns}
               className={`-striped ${tableClass}`}

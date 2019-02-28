@@ -31,24 +31,8 @@ export default Backbone.PageableCollection.extend({
     return Backbone.PageableCollection.prototype.fetch.apply(this, [options]);
   },
 
-  fetchAll(opts = {}) {
-    const { model: Model } = this;
-    const model = new Model();
-    const { docType } = model.attributes;
-    const fields = opts.fields || keys(model.attributes);
-    const selector = opts.selector || {};
-    const limit = opts.limit || 10;
-    set(selector, 'docType', docType);
-
-    return this.fetch({
-      fetchRelations: opts.fetchRelations || false,
-      success: (opts ? opts.success : null),
-      error: (opts ? opts.error : null),
-      fetch: 'find',
-      options: {
-        find: { selector, fields, limit }
-      }
-    });
+  fetchAll(options = {}) {
+    return this.fetch({ ...options, data: { page_size: 9999 } });
   },
 
   fetchResults(opts = {}) {

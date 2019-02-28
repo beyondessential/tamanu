@@ -9,13 +9,8 @@ const { SYNC_ACTIONS } = require('../constants');
 class Database extends Realm {
   constructor(...props) {
     super(...props);
-    this.realm = null;
     this.settings = new Settings(this);
     this.listeners = {};
-  }
-
-  getInstance() {
-    return this.realm;
   }
 
   create(type, object, update = false, silent = false) {

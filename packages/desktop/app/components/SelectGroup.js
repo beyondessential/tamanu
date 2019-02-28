@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Select from 'react-select';
-import { head } from 'lodash';
+import { head, isEmpty } from 'lodash';
 
 class SelectGroup extends Component {
   static propTypes = {
@@ -53,7 +53,7 @@ class SelectGroup extends Component {
 
     // Set default value
     let { value } = props;
-    if (showDefault && value === '') {
+    if (showDefault && value === '' && !isEmpty(options)) {
       const { value: firstValue } = head(options);
       value = firstValue;
     }
