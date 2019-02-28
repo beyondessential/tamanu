@@ -63,7 +63,7 @@ export class BrowsableTable extends Component {
     const items = collection.models.map(m => m.attributes);
 
     if (items.length === 0 && !loading) {
-      return <Notification message={emptyNotification} />
+      return <Notification message={emptyNotification} />;
     }
     
     return (
