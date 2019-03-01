@@ -3,13 +3,13 @@ const views = require('./views');
 const userRoles = require('./user-roles');
 const programs = require('./programs');
 const tests = require('./tests');
+const patients = require('./patients');
 
-module.exports = (database) => {
-  database.write(() => {
-    views(database);
-    userRoles(database);
-    users(database);
-    programs(database);
-    tests(database);
-  });
+module.exports = async (database) => {
+  views(database);
+  userRoles(database);
+  users(database);
+  programs(database);
+  tests(database);
+  await patients(database);
 }

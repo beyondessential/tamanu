@@ -71,7 +71,7 @@ const run = async () => {
       app.set('realm', database);
 
       // Initialize seeds
-      if (ENV === 'development') seed(database);
+      if (ENV === 'development') await seed(database);
     } catch (err) {
       throw new Error(err);
     }

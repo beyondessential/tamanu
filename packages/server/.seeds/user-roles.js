@@ -244,5 +244,5 @@ module.exports = (database) => {
     },
   ];
 
-  roles.forEach(role => database.create('role', role, true));
+  database.write(() => roles.forEach(role => database.create('role', role, true)));
 };
