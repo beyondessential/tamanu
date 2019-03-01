@@ -13,14 +13,14 @@ class History extends Component {
   }
 
   componentWillMount() {
-    const { model: Model } = this.props;
-    const history = Model.getHistory();
+    const { patientModel } = this.props;
+    const history = patientModel.getHistory();
     this.setState({ history });
   }
 
   componentWillReceiveProps(newProps) {
-    const { model: Model } = newProps;
-    const history = Model.getHistory();
+    const { patientModel } = newProps;
+    const history = patientModel.getHistory();
     this.setState({ history });
   }
 
@@ -30,11 +30,11 @@ class History extends Component {
 
   gotoItem = (item) => {
     const { docType, _id } = item;
-    const { model: Model } = this.props;
+    const { patientModel } = this.props;
     switch (docType) {
       default:
       case 'visit':
-        this.props.history.push(`/patients/visit/${Model.id}/${_id}`);
+        this.props.history.push(`/patients/visit/${patientModel.id}/${_id}`);
       break;
       case 'medication':
         this.props.changeTab('medication');
@@ -43,7 +43,7 @@ class History extends Component {
   }
 
   render() {
-    const { model: Model } = this.props;
+    const { patientModel } = this.props;
     const { noteModalVisible, history } = this.state;
     return (
       <div>
@@ -77,7 +77,7 @@ class History extends Component {
                               return (
                                 <Fragment key={`procedure-${procedure._id}`}>
                                   <span>Procedure</span><br />
-                                  <Link to={`/patients/visit/${Model.id}/${item._id}/procedure/${procedure._id}`}>
+                                  <Link to={`/patients/visit/${patientModel.id}/${item._id}/procedure/${procedure._id}`}>
                                     {`${moment(procedure).format(dateFormat)}: ${procedure.description}`}
                                   </Link>
                                 </Fragment>
@@ -94,7 +94,9 @@ class History extends Component {
                       <div className="header" onClick={() => this.gotoItem(item)}>
                         <span>
                         {
-                          `${moment(item.prescriptionDate).format(dateFormat)} ${(item.endDate != null ? ` - ${moment(item.endDate).format(dateFormat)}` : '')}`
+                          `${moment(item.prescriptionDate).format(dateFormat)} ${(item.endDate != null
+                              ? ` - ${moment(item.endDate).format(dateFormat)}`
+                              : '')}`
                         }
                         </span>
                         {capitalize(item.drug.name)}
@@ -125,20 +127,11 @@ class History extends Component {
         <NoteModal
           isVisible={noteModalVisible}
           onClose={this.onCloseModal}
-          patientModel={Model}
+          patientModel={patientModel}
           action="new"
           showVisits
           little
         />
-        {/* <NoteModal
-          itemId={itemId}
-          model={Model}
-          patientModel={patientModel}
-          action={action}
-          isVisible={modalVisible}
-          onClose={this.onCloseModal}
-          little
-        /> */}
       </div>
     );
   }

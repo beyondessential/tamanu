@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { isEmpty } from 'lodash';
 import ReactTable from 'react-table';
-import { admittedPatientsColumns, pageSizes, dbViews } from '../../constants';
+import { admittedPatientsColumns, pageSizes } from '../../constants';
 import { PatientsCollection } from '../../collections';
 import { Button, TopBar } from '../../components';
 
@@ -10,7 +10,6 @@ class AdmittedPatients extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      view: dbViews.patientsAdmitted,
       admittedPatients: [{}],
       loading: false
     };
@@ -58,16 +57,15 @@ class AdmittedPatients extends Component {
   }
 
   async onFetchData() {
-    const { view } = this.state;
+    const { collection } = this.props;
     this.setState({ loading: true });
 
     try {
-      await this.props.collection.fetchByView({ view, page_size: 1000 }).promise();
-      this.setState({ loading: false });
+      await collection.fetch({ data: { admitted: true }, page_size: 1000 }).promise();
     } catch (err) {
-      this.setState({ loading: false });
       console.error(err);
     }
+    this.setState({ loading: false });
   }
 
   discharge(patientId) {

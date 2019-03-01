@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import ReactTable from 'react-table';
-import { Link } from 'react-router-dom';
 import { proceduresColumns } from '../../../../constants';
-// import ProcedureModal from '../components/ProcedureModal';
 import { Modal, DeleteButton, EditButton, NewButton } from '../../../../components';
 
 class Procedures extends Component {
@@ -15,8 +13,8 @@ class Procedures extends Component {
 
   componentWillMount() {
     const { tableColumns } = this.state;
-    const { model: Model } = this.props;
-    const { procedures } = Model.attributes;
+    const { visitModel } = this.props;
+    const { procedures } = visitModel.attributes;
 
     // Set actions col for our table
     tableColumns[tableColumns.length - 1].Cell = this.setActionsCol;
@@ -24,14 +22,14 @@ class Procedures extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { model: Model } = newProps;
-    const { procedures } = Model.attributes;
+    const { visitModel } = newProps;
+    const { procedures } = visitModel.attributes;
     this.setState({ procedures: procedures.toJSON() });
   }
 
   editItem(itemId) {
-    const { model: Model, patientModel } = this.props;
-    this.props.history.push(`/patients/visit/${patientModel.id}/${Model.id}/procedure/${itemId}`);
+    const { visitModel, patientModel } = this.props;
+    this.props.history.push(`/patients/visit/${patientModel.id}/${visitModel.id}/procedure/${itemId}`);
   }
 
   deleteConfirm(itemId = null) {
@@ -39,12 +37,12 @@ class Procedures extends Component {
   }
 
   async deleteItem() {
-    const { model: Model } = this.props;
+    const { visitModel } = this.props;
     const { itemId } = this.state;
     try {
-      const item = Model.get('procedures').findWhere({ _id: itemId });
-      Model.get('procedures').remove({ _id: itemId });
-      await Model.save();
+      const item = visitModel.get('procedures').findWhere({ _id: itemId });
+      visitModel.get('procedures').remove({ _id: itemId });
+      await visitModel.save();
       await item.destroy();
       this.setState({ deleteModalVisible: false });
     } catch (err) {
@@ -68,14 +66,14 @@ class Procedures extends Component {
   }
 
   render() {
-    const { model: Model, patientModel } = this.props;
+    const { visitModel, patientModel } = this.props;
     const { procedures, tableColumns } = this.state;
     return (
       <div>
         <div className="column p-t-0 p-b-0">
           <NewButton
             className="is-pulled-right"
-            to={`/patients/visit/${patientModel.id}/${Model.id}/procedure`}
+            to={`/patients/visit/${patientModel.id}/${visitModel.id}/procedure`}
             can={{ do: 'create', on: 'procedure' }}
           >New Procedure</NewButton>
           <div className="is-clearfix" />

@@ -3,13 +3,14 @@ const defaults = require('./defaults');
 const SurveyGroupSchema = {
   name: 'surveyGroup',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     name: {
       type: 'string',
       optional: true
     },
-  }, defaults)
+    ...defaults,
+  }
 };
 
 module.exports = SurveyGroupSchema;

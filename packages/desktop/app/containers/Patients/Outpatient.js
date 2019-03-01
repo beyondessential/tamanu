@@ -10,7 +10,7 @@ import { patientColumns, locationOptions } from '../../constants';
 import { PatientsCollection } from '../../collections';
 import { SearchButton, TopBar } from '../../components';
 
-class Outpatient extends Component<Props> {
+class Outpatient extends Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
@@ -53,7 +53,7 @@ class Outpatient extends Component<Props> {
     return (
       <div className="create-content">
         <TopBar
-          title="Today's Outpatientss"
+          title="Today's Outpatients"
           button={{
             to: "/patients/edit/new",
             can: { do: 'create', on: 'patient' },

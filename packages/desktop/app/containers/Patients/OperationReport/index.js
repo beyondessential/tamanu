@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import Select from 'react-select';
-import { clone, isUndefined, each, has, capitalize } from 'lodash';
+import { isUndefined, each, has } from 'lodash';
 
 // import Serializer from '../../../utils/form-serialize';
 import Allergy from './Allergy';
@@ -73,7 +73,7 @@ class OperationReport extends Component {
   }
 
   handleUserInput = (e, field) => {
-    const form = clone(this.state.form);
+    const { form } = this.state;
     if (typeof field !== 'undefined') {
       form[field] = e;
     } else {
@@ -88,7 +88,7 @@ class OperationReport extends Component {
   setForm = (_action) => {
     const data = this.props.operationReport.toJSON();
     const preOpDiagnoses = (_action === 'new' ? this.props.patient.get('preOpDiagnoses') : this.props.operationReport.get('preOpDiagnoses'));
-    const form = clone(this.state.form);
+    const { form } = this.state;
     each(form, (value, key) => { form[key] = (has(data, key) ? data[key] : value); });
     this.setState({ form, action: _action, preOpDiagnoses: preOpDiagnoses.models });
   }
@@ -107,9 +107,13 @@ class OperationReport extends Component {
 
   markComplete = (e) => {
     e.preventDefault();
-    const form = clone(this.state.form);
-    form.status = 'completed';
-    this.setState({ form }, async () => {
+    const { form } = this.state;
+    this.setState({
+      form: {
+        ...form,
+        status: 'completed'
+      }
+    }, async () => {
       await this.submitForm(e);
     });
   }
@@ -123,7 +127,7 @@ class OperationReport extends Component {
     try {
       // const operativePlan = new OperationReportModel();
       operationReport.set(form);
-      const model = await operationReport.save();
+      await operationReport.save();
 
       // Attached operativePlan to patient object
       if (action === 'new') {
@@ -134,22 +138,22 @@ class OperationReport extends Component {
           each(preOpDiagnoses.models, (diagnosis) => {
             const attributes = diagnosis.cloneAttributes();
 
-            const _model = new DiagnosisModel();
-            _model.set(attributes);
-            tasks.push(_model.save());
+            const diagnosisModel = new DiagnosisModel();
+            diagnosisModel.set(attributes);
+            tasks.push(diagnosisModel.save());
           });
 
-          const resp = await Promise.all(tasks);
-          resp.forEach((_model) => {
-            operationReport.get('preOpDiagnoses').add(_model);
+          const diagnosisModels = await Promise.all(tasks);
+          diagnosisModels.forEach((diagnosisModel) => {
+            operationReport.get('preOpDiagnoses').add(diagnosisModel);
           });
 
           await operationReport.save();
         }
 
-        patient.get('operativePlans').add(model);
+        patient.get('operativePlans').add(operationReport);
         await patient.save();
-        this.props.history.replace(`/patients/operativePlan/${patient._id}/${model._id}`);
+        this.props.history.replace(`/patients/operativePlan/${patient._id}/${operationReport._id}`);
         this.setState({ action: 'update' });
       } else {
         patient.trigger('change');
@@ -216,11 +220,11 @@ class OperationReport extends Component {
                   </div>
                   <div className="columns border-bottom">
                     <div className="column">
-                      <Diagnosis diagnoses={preOpDiagnoses} model={this.props.patient} readonly />
-                      <Diagnosis diagnoses={preOpDiagnoses} model={this.props.patient} showSecondary readonly />
+                      <Diagnosis diagnoses={preOpDiagnoses} parentModel={this.props.patient} readonly />
+                      <Diagnosis diagnoses={preOpDiagnoses} parentModel={this.props.patient} showSecondary readonly />
                     </div>
                     <div className="column">
-                      <Allergy patient={patient} model={this.props.patient} readonly />
+                      <Allergy patient={patient} patientModel={this.props.patient} readonly />
                     </div>
                   </div>
                 </div>

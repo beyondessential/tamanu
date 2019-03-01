@@ -23,6 +23,49 @@ $ yarn config set workspaces-nohoist-experimental true
 $ yarn
 ```
 
+## Configure
+
+Before development can begin, you'll need to configure the LAN server, and sync
+data from the main server.
+
+The example config is set up to just talk to a local realm server. To get
+some real data, you should point the lan client to a remote server.
+
+- ensure `mainServer` in /packages/lan/config/default.json is set to `"http://13.210.104.94:3000"`
+- ensure `offlineMode` is set to `false`
+
+Now run `cd /packages/lan/config && node index` to start the LAN server.
+When you run the lan-server with these settings, you'll be prompted for login
+credentials. These are in LastPass under "Tamanu main sync server".
+
+Once the sync has completed, change the config to run in offline mode
+- change `offlineMode` to `true`
+
+You can now follow the instructions below to run the LAN server, and shouldn't
+need to sync with the main server while developing.
+
+## Run
+
+### LAN server
+
+The Tamanu desktop app needs a lan server running to operate correctly. For
+local development, this can just be another process on the same host.
+
+```bash
+$ cd packages/lan
+$ yarn start-dev
+```
+
+### Desktop app
+
+Once there is a LAN server up and running, run this to start the Electron app for development.
+
+```bash
+$ cd packages/desktop
+$ mv example.env .env
+$ yarn start-dev # To run in production, use yarn start
+```
+
 ## CI / CD
 > **Note: [codeship pro](https://codeship.com/features/pro) is required**
 
@@ -57,7 +100,8 @@ $ yarn
 - `codeship.env.encrypted` encrypted ENV variables passed to docker during build process
 
 ## Components
-* [tamanu-desktop](https://github.com/beyondessential/tamanu/tree/master/packages/desktop)
-* [tamanu-lan](https://github.com/beyondessential/tamanu/tree/master/packages/lan)
-* [tamanu-server](https://github.com/beyondessential/tamanu/tree/master/packages/server)
-* [shared-components](https://github.com/beyondessential/tamanu/tree/master/packages/shared)
+
+* [tamanu-desktop](packages/desktop): the main Electron app
+* [tamanu-lan](packages/lan): the local server
+* [tamanu-server](packages/server): the remote server
+* [shared-components](packages/shared): shared code among Tamanu components

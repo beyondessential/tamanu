@@ -1,4 +1,3 @@
-// @flow
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { createBrowserHistory } from 'history';
@@ -7,13 +6,12 @@ import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 import rootReducer from '../reducers';
-import type { counterStateType } from '../reducers/patients';
 
 const history = createBrowserHistory();
 const router = routerMiddleware(history);
 const enhancer = applyMiddleware(thunk, router);
 
-function configureStore(initialState?: counterStateType) {
+function configureStore(initialState) {
   // Create Store
   const persistConfig = {
     key: 'tamanu',

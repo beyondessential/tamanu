@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 class Procedure extends Component {
   static propTypes = {
-    model: PropTypes.object.isRequired,
+    patientModel: PropTypes.object.isRequired,
   }
 
   state = {
@@ -12,19 +12,19 @@ class Procedure extends Component {
   }
 
   componentWillMount() {
-    const { model: Model } = this.props;
-    const procedures = Model.getProcedures();
+    const { patientModel } = this.props;
+    const procedures = patientModel.getProcedures();
     this.setState({ procedures });
   }
 
   componentWillReceiveProps(newProps) {
-    const { model: Model } = newProps;
-    const procedures = Model.getProcedures();
+    const { patientModel } = newProps;
+    const procedures = patientModel.getProcedures();
     this.setState({ procedures });
   }
 
   render() {
-    const { model: Model } = this.props;
+    const { patientModel } = this.props;
     const { procedures } = this.state;
     return (
       <div>
@@ -36,7 +36,7 @@ class Procedure extends Component {
               return (
                 <React.Fragment key={`procedure-${k}`}>
                   {k > 0 ? ', ' : ''}
-                  <Link className="add-button" to={`/patients/operationReport/${Model.id}/${procedure.operationReportId}`}>{`${procedure.name} (${procedure.date})`}</Link>
+                  <Link className="add-button" to={`/patients/operationReport/${patientModel.id}/${procedure.operationReportId}`}>{`${procedure.name} (${procedure.date})`}</Link>
                 </React.Fragment>
               );
             })}

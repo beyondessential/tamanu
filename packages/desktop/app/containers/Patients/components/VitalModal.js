@@ -19,10 +19,10 @@ class VisitModal extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { action, itemId, isVisible, model: VisitModel } = nextProps;
+    const { action, itemId, isVisible, visitModel } = nextProps;
     let Model;
     if (action === 'edit') {
-      Model = VisitModel.get('vitals').findWhere({ _id: itemId });
+      Model = visitModel.get('vitals').findWhere({ _id: itemId });
       if (Model.get('dateRecorded') !== '') Model.set('dateRecorded', moment(Model.get('dateRecorded')));
     } else {
       Model = new VitalModel();
@@ -44,16 +44,16 @@ class VisitModal extends Component {
 
   submitForm = async (e) => {
     e.preventDefault();
-    const { action, model: VisitModel } = this.props;
+    const { action, visitModel } = this.props;
     const { Model } = this.state;
 
     try {
       await Model.save();
       if (action === 'new') {
-        VisitModel.get('vitals').add(Model);
-        await VisitModel.save(null, { silent: true });
+        visitModel.get('vitals').add(Model);
+        await visitModel.save(null, { silent: true });
       } else {
-        VisitModel.trigger('change');
+        visitModel.trigger('change');
       }
       this.props.onClose();
     } catch (err) {
@@ -182,10 +182,12 @@ class VisitModal extends Component {
                 {action === 'new' && <AddButton
                                       type="submit"
                                       form="vitalForm"
+                                      can={{ do: 'create', on: 'vital' }}
                                       disabled={!Model.isValid()} />}
                 {action !== 'new' && <UpdateButton
                                       type="submit"
                                       form="vitalForm"
+                                      can={{ do: 'update', on: 'vital' }}
                                       disabled={!Model.isValid()} />}
               </div>
             </div>

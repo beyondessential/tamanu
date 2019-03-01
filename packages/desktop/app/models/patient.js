@@ -54,7 +54,7 @@ export default BaseModel.extend({
     appointments: [],
     additionalContacts: [],
     allergies: [],
-    diagnoses: [],
+    conditions: [],
     operationReports: [],
     operativePlans: [],
     pregnancies: [],
@@ -82,8 +82,8 @@ export default BaseModel.extend({
       serialize: '_id'
     }, {
       type: Backbone.Many,
-      key: 'diagnoses',
-      relatedModel: () => require('./diagnosis'),
+      key: 'conditions',
+      relatedModel: () => require('./condition'),
       serialize: '_id'
     }, {
       type: Backbone.Many,

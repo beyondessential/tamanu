@@ -1,20 +1,16 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { find, isEmpty, startsWith } from 'lodash';
+import { find, isEmpty } from 'lodash';
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Collapse from '@material-ui/core/Collapse';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ExpandMore from '@material-ui/icons/ExpandMore';
 import Divider from '@material-ui/core/Divider';
 
 import styled from 'styled-components';
-import { sidebarInfo } from '../constants';
+import { sidebarInfo, submenuIcons } from '../constants';
 import { ProgramsCollection } from '../collections';
 import actions from '../actions/auth';
 import { checkAbility } from '../utils/ability-context';
@@ -24,8 +20,6 @@ import { TamanuLogo } from './TamanuLogo';
 
 const { login: loginActions } = actions;
 const { logout } = loginActions;
-
-const classNames = require('classnames');
 
 const SidebarContainer = styled.div`
   min-width: 275px;
@@ -70,7 +64,7 @@ const LogoutItem = ({ onClick }) => (
   </ListItem>
 );
 
-const PrimarySidebarItem = ({ item, ability: parentAbility, selected, onClick }) => (
+const PrimarySidebarItem = ({ item, ability, selected, onClick }) => (
   <React.Fragment>
     <ListItem button onClick={ onClick } selected={selected}>
       <SidebarPrimaryIcon src={item.icon} />
@@ -82,7 +76,7 @@ const PrimarySidebarItem = ({ item, ability: parentAbility, selected, onClick })
           <SecondarySidebarItem
             item={ child }
             key={ child.path }
-            parentAbility={parentAbility}
+            parentAbility={ability}
           />
         ))}
       </List>
@@ -93,10 +87,11 @@ const PrimarySidebarItem = ({ item, ability: parentAbility, selected, onClick })
 const SecondarySidebarItem = withRouter(({ item, location, parentAbility }) => {
   const ability = { ...parentAbility, ...(item.ability || {}) };
   const { action, subject } = ability;
-  let allowed = false;
-  if (action && subject) {
-    allowed = checkAbility({ action, subject });
+  if (!action || !subject) {
+    throw new Error("Invalid ability provided to sidebar item");
   }
+  const allowed = checkAbility({ action, subject });
+
   return <ListItem
     button
     component={ Link }
@@ -113,7 +108,7 @@ const SecondarySidebarItem = withRouter(({ item, location, parentAbility }) => {
 class Sidebar extends Component {
   constructor(props) {
     super(props);
-    this.handleChange = this.handleChange.bind(this);
+    this.updateProgramsMenu = this.updateProgramsMenu.bind(this);
   }
 
   state = {
@@ -122,27 +117,27 @@ class Sidebar extends Component {
 
   async componentWillMount() {
     this.props.programsCollection.fetchAll({
-      success: () => this.handleChange()
+      success: ({ models: programModels }) => this.updateProgramsMenu(programModels),
     });
   }
 
   componentWillReceiveProps(newProps) {
-    this.handleChange(newProps);
+    const { programsCollection = {} } = newProps;
+    this.updateProgramsMenu(programsCollection.models);
   }
 
-  handleChange(props = this.props) {
+  updateProgramsMenu(programs) {
     // Prepare programs sub-menu
-    const { models } = props.programsCollection;
     const programsNav = find(sidebarInfo, { key: 'programs' });
-    if (!isEmpty(models)) {
+    if (!isEmpty(programs)) {
       programsNav.hidden = false;
       programsNav.children = [];
-      models.forEach((program, key) => {
-        program = program.toJSON();
+      programs.forEach((programString, key) => {
+        const program = programString.toJSON();
         programsNav.children.push({
           label: program.name,
           path: `/programs/${program._id}/patients`,
-          icon: 'fa fa-chevron-right'
+          icon: submenuIcons.action,
         });
 
         if (key === 0) programsNav.path = `/programs/${program._id}/patients`;
@@ -152,7 +147,7 @@ class Sidebar extends Component {
     this.forceUpdate();
   }
 
-  clickedParentItem = ({ label, key }) => {
+  clickedParentItem = ({ key }) => {
     const { selectedParentItem } = this.state;
     if (selectedParentItem !== key) {
       this.setState({
@@ -208,7 +203,7 @@ function mapStateToProps(state) {
   return { userId, displayName, currentPath, programsCollection };
 }
 
-const mapDispatchToProps = (dispatch, his) => ({
+const mapDispatchToProps = (dispatch) => ({
   logout: (params) => dispatch(logout(params)),
 });
 

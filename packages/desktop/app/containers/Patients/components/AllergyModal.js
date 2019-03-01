@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import Modal from 'react-responsive-modal';
-import moment from 'moment';
 import { pick } from 'lodash';
-import { InputGroup, AddButton, CancelButton, DeleteButton, UpdateButton } from '../../../components';
+import { InputGroup, AddButton, DeleteButton, UpdateButton } from '../../../components';
 import { AllergyModel } from '../../../models';
 
 class AllergyModal extends Component {
@@ -10,7 +9,6 @@ class AllergyModal extends Component {
     super(props);
     this.state = {
       formValid: false,
-      isVisible: false,
       form: {},
       item: {},
     };
@@ -22,9 +20,9 @@ class AllergyModal extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { action, itemId, model: Model } = nextProps;
+    const { action, itemId, patientModel } = nextProps;
     if (action === 'edit') {
-      const item = Model.get('allergies').findWhere({ _id: itemId });
+      const item = patientModel.get('allergies').findWhere({ _id: itemId });
       if (item) {
         const form = pick(item.attributes, ['name']);
         this.setState({ form, item }, () => this.validateField('name'));
@@ -55,15 +53,15 @@ class AllergyModal extends Component {
 
   submitForm = async (e) => {
     e.preventDefault();
-    const { action, model: Model } = this.props;
+    const { action, patientModel } = this.props;
     const { item, form } = this.state;
 
     try {
       if (action === 'new') {
         const allergy = new AllergyModel(form);
         await allergy.save();
-        Model.get('allergies').add(allergy);
-        await Model.save();
+        patientModel.get('allergies').add(allergy);
+        await patientModel.save();
       } else {
         item.set(form);
         await item.save();
@@ -76,11 +74,11 @@ class AllergyModal extends Component {
   }
 
   async deleteItem() {
-    const { itemId: _id, model: Model } = this.props;
+    const { itemId: _id, patientModel } = this.props;
     const { item } = this.state;
     try {
-      Model.get('allergies').remove({ _id });
-      await Model.save();
+      patientModel.get('allergies').remove({ _id });
+      await patientModel.save();
       await item.destroy();
       this.props.onClose();
     } catch (err) {

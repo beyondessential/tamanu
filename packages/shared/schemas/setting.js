@@ -5,7 +5,7 @@ const SettingSchema = {
   name: 'setting',
   primaryKey: 'key',
   sync: SYNC_MODES.OFF,
-  properties: Object.assign({
+  properties: {
     key: {
       type: 'string',
       indexed: true
@@ -14,7 +14,8 @@ const SettingSchema = {
       type: 'string',
       optional: true
     },
-  }, defaults)
+    ...defaults,
+  }
 };
 
 module.exports = SettingSchema;

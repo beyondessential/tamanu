@@ -17,8 +17,7 @@ import { Preloader, InputGroup, DatepickerGroup, TopBar,
           AddButton, UpdateButton, CancelButton,
           DischargeButton, CheckOutButton } from '../../../components';
 import { visitOptions, visitStatuses } from '../../../constants';
-
-const classNames = require('classnames');
+import { VisitModel } from '../../../models';
 
 class EditVisit extends Component {
   constructor(props) {
@@ -31,10 +30,9 @@ class EditVisit extends Component {
     checkIn: false,
     action: 'new',
     patient: {},
-    visitModel: {},
+    visitModel: new VisitModel(),
     loading: true,
     patientModel: {},
-    visitSaved: false,
     selectedTab: '',
   }
 
@@ -49,7 +47,7 @@ class EditVisit extends Component {
 
   componentWillUnmount() {
     const { visitModel } = this.state;
-    visitModel.off('change');
+    if (visitModel) visitModel.off('change');
   }
 
   handleChange(props = this.props) {
@@ -142,15 +140,22 @@ class EditVisit extends Component {
     return (<React.Fragment>
       {(selectedTab === '' || selectedTab === 'vitals') &&
         <div className="column">
-          <Vitals model={visitModel} />
+          <Vitals visitModel={visitModel} />
         </div>}
       {selectedTab === 'notes' &&
         <div className="column">
-          <Notes model={visitModel} patientModel={patientModel} />
+          <Notes
+            parentModel={visitModel}
+            patientModel={patientModel}
+          />
         </div>}
       {selectedTab === 'procedures' &&
         <div className="column">
-          <Procedures history={this.props.history} model={visitModel} patientModel={patientModel} />
+          <Procedures
+            history={this.props.history}
+            visitModel={visitModel}
+            patientModel={patientModel}
+          />
         </div>}
       {selectedTab === 'reports' &&
         <div className="column">Reports</div>}
@@ -196,13 +201,13 @@ class EditVisit extends Component {
                   {action !== 'new' &&
                     <div className="columns border-bottom">
                       <div className="column">
-                        <Diagnosis model={visitModel} />
-                        <Procedure model={patientModel} />
-                        <OperativePlan model={patientModel} history={this.props.history} />
+                        <Diagnosis parentModel={visitModel} patientModel={patientModel} />
+                        <Procedure patientModel={patientModel} />
+                        <OperativePlan patientModel={patientModel} history={this.props.history} />
                       </div>
                       <div className="column">
-                        <Diagnosis model={visitModel} showSecondary />
-                        <Allergy model={patientModel} />
+                        <Diagnosis parentModel={visitModel} patientModel={patientModel} showSecondary />
+                        <Allergy patientModel={patientModel} />
                       </div>
                     </div>
                   }
@@ -337,7 +342,9 @@ class EditVisit extends Component {
 
 function mapStateToProps(state) {
   const { patient, visit, action, loading, error } = state.patients;
-  return { patient, visit, action, loading, error };
+  const mappedProps = { patient, action, loading, error };
+  if (visit instanceof VisitModel) mappedProps.visit = visit;
+  return mappedProps;
 }
 
 const { visit: visitActions } = actions;

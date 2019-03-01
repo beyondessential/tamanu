@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const UserSchema = {
   name: 'user',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     derived_key: {
       type: 'string',
@@ -54,8 +54,9 @@ const UserSchema = {
       type: 'linkingObjects',
       objectType: 'hospital',
       property: 'users'
-    }
-  }, defaults),
+    },
+    ...defaults,
+  },
   filter: (object, client) => {
     let valid = false;
     object.hospitals.forEach(hospital => {

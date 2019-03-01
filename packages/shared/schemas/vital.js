@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const VitalSchema = {
   name: 'vitals',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     dateRecorded: {
       type: 'date',
@@ -38,7 +38,8 @@ const VitalSchema = {
       type: 'string',
       optional: true
     },
-  }, defaults)
+    ...defaults,
+  }
 };
 
 module.exports = VitalSchema;

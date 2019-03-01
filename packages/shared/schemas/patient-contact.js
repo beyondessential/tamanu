@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const PatientContactSchema = {
   name: 'patientContact',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     name: {
       type: 'string',
@@ -21,7 +21,8 @@ const PatientContactSchema = {
       type: 'string',
       optional: true
     },
-  }, defaults)
+    ...defaults,
+  }
 };
 
 module.exports = PatientContactSchema;

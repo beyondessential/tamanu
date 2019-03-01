@@ -5,12 +5,7 @@ const Settings = require('./settings');
 class Database extends Realm {
   constructor(...props) {
     super(...props);
-    this.realm = null;
     this.settings = new Settings(this);
-  }
-
-  getInstance() {
-    return this.realm;
   }
 
   create(type, object, ...args) {

@@ -8,7 +8,7 @@ import { DiagnosisModel } from '../../../models';
 
 class Diagnosis extends Component {
   static propTypes = {
-    model: PropTypes.object.isRequired,
+    parentModel: PropTypes.object.isRequired,
     showSecondary: PropTypes.bool,
   }
 
@@ -23,14 +23,14 @@ class Diagnosis extends Component {
   }
 
   componentWillMount() {
-    const { model } = this.props;
-    const { diagnoses } = model.attributes;
+    const { parentModel } = this.props;
+    const { diagnoses } = parentModel.attributes;
     this.setState({ diagnoses });
   }
 
   componentWillReceiveProps(newProps) {
-    const { model } = newProps;
-    const { diagnoses } = model.attributes;
+    const { parentModel } = newProps;
+    const { diagnoses } = parentModel.attributes;
     this.setState({ diagnoses });
   }
 
@@ -39,8 +39,8 @@ class Diagnosis extends Component {
   }
 
   editItem( itemId = null ) {
-    const { model } = this.props;
-    let diagnosisModel = model.get('diagnoses').findWhere({ _id: itemId });
+    const { parentModel } = this.props;
+    let diagnosisModel = parentModel.get('diagnoses').findWhere({ _id: itemId });
     if (!diagnosisModel) diagnosisModel = new DiagnosisModel()
     this.setState({
       modalVisible: true,
@@ -51,7 +51,7 @@ class Diagnosis extends Component {
 
   render() {
     const {
-      model,
+      parentModel,
       showSecondary
     } = this.props;
     const {
@@ -87,7 +87,7 @@ class Diagnosis extends Component {
         </div>
         <DiagnosisModal
           diagnosisModel={diagnosisModel}
-          parentModel={model}
+          parentModel={parentModel}
           action={action}
           isVisible={modalVisible}
           onClose={this.onCloseModal}

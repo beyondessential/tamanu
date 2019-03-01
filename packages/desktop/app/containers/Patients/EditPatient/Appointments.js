@@ -22,8 +22,7 @@ class Appointments extends Component {
   handleChange(props = this.props) {
     const { patient } = props;
     const { tableColumns } = this.state;
-    let { appointments } = patient;
-    appointments = appointments.map(appointment => {
+    const appointments = patient.appointments.map(appointment => {
       let { startDate, endDate, appointmentType } = appointment;
       if (startDate !== '') startDate = moment(startDate).format(`${dateFormat}`);
       if (endDate !== null) endDate = moment(endDate).format(`${dateFormat}`);
@@ -47,14 +46,14 @@ class Appointments extends Component {
   }
 
   render() {
-    const { model: Model } = this.props;
+    const { patientModel } = this.props;
     const { appointments, tableColumns } = this.state;
     return (
       <div>
         <div className="column p-t-0 p-b-0">
           <NewButton
             className="is-pulled-right"
-            to={`/appointments/appointmentByPatient/${Model.id}`}
+            to={`/appointments/appointmentByPatient/${patientModel.id}`}
             can={{ do: 'create', on: 'appointment' }}
           >New Appointment</NewButton>
           <div className="is-clearfix" />

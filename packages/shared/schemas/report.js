@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const ReportSchema = {
   name: 'report',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     reportDate: {
       type: 'date',
@@ -13,7 +13,8 @@ const ReportSchema = {
       type: 'string',
       optional: true
     },
-  }, defaults)
+    ...defaults,
+  }
 };
 
 module.exports = ReportSchema;

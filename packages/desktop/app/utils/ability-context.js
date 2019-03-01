@@ -1,15 +1,5 @@
-import { createContext } from 'react'
-import { createContextualCan } from '@casl/react'
 import { Ability } from '@casl/ability'
 import { store } from '../store';
-
-export const AbilityContext = createContext()
-export const Can = () => {
-  const state = store.getState();
-  const { auth } = state;
-  if (auth.abilities && typeof auth.abilities !== 'object') auth.abilities = JSON.parse(auth.abilities);
-  return createContextualCan(auth.abilities);
-}
 
 export const checkAbility = ({ action, subject, field }) => {
   const abilities = getAbilities();

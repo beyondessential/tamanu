@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const PregnancySchema = {
   name: 'pregnancy',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     conceiveDate: {
       type: 'date',
@@ -35,7 +35,8 @@ const PregnancySchema = {
       type: 'list',
       objectType: 'surveyResponse'
     },
-  }, defaults)
+    ...defaults,
+  }
 };
 
 module.exports = PregnancySchema;

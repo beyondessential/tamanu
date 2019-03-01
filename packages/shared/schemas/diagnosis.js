@@ -3,7 +3,7 @@ const defaults = require('./defaults');
 const DiagnosisSchema = {
   name: 'diagnosis',
   primaryKey: '_id',
-  properties: Object.assign({
+  properties: {
     _id: 'string',
     active:  {
       type: 'bool',
@@ -19,8 +19,10 @@ const DiagnosisSchema = {
       type: 'bool',
       default: false
     },
+    condition: 'condition?',
     certainty: 'string', // suspected or confirmed
-  }, defaults)
+    ...defaults,
+  }
 };
 
 module.exports = DiagnosisSchema;

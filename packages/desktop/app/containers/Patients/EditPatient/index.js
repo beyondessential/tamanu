@@ -2,12 +2,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
-import { Preloader, BackButton, PatientQuickLinks } from '../../../components';
+import { Preloader, BackButton } from '../../../components';
 import actions from '../../../actions/patients';
 import Allergy from '../components/Allergy';
+import Condition from '../components/Condition';
 import Diagnosis from '../components/Diagnosis';
 import Procedure from '../components/Procedure';
 import OperativePlan from '../components/OperativePlan';
+import PatientQuickLinks from '../components/PatientQuickLinks';
 import History from './History';
 import General from './General';
 import Photos from './Photos';
@@ -26,7 +28,6 @@ class EditPatient extends Component {
     loading: true,
     patientModel: {},
     selectedTab: '',
-    anchorEl: null,
   }
 
   componentDidMount() {
@@ -46,10 +47,6 @@ class EditPatient extends Component {
 
   }
 
-  // componentWillUnmount() {
-  //   patientModel.off('change', this.handleChange);
-  // }
-
   handleChange(props = this.props) {
     let updates = {};
     const { patient, action, loading } = props;
@@ -66,12 +63,6 @@ class EditPatient extends Component {
     this.setState(updates);
   }
 
-  // handleChange = () => {
-  //   const patient = patientModel.toJSON({ relations: true });
-  //   const procedures = patientModel.getProcedures();
-  //   this.setState({ patient, procedures });
-  // }
-
   changeTab = (tabName) => {
     this.setState({ selectedTab: tabName });
   }
@@ -86,7 +77,7 @@ class EditPatient extends Component {
           <General
             history={history}
             patient={patient}
-            model={patientModel}
+            patientModel={patientModel}
             savePatient={this.props.savePatient}
           />
         );
@@ -102,7 +93,7 @@ class EditPatient extends Component {
             <Appointments
               history={history}
               patient={patient}
-              model={patientModel} />
+              patientModel={patientModel} />
           </div>
         );
       case 'visit':
@@ -110,7 +101,7 @@ class EditPatient extends Component {
           <Visits
             history={history}
             patient={patient}
-            model={patientModel}
+            patientModel={patientModel}
           />
         );
       case 'medication':
@@ -119,7 +110,7 @@ class EditPatient extends Component {
             <Medication
               history={history}
               patient={patient}
-              model={patientModel}
+              patientModel={patientModel}
             />
           </div>
         );
@@ -146,7 +137,7 @@ class EditPatient extends Component {
           <Pregnancy
             history={history}
             patient={patient}
-            model={patientModel}
+            patientModel={patientModel}
           />
         );
       case 'history':
@@ -154,7 +145,7 @@ class EditPatient extends Component {
         return (
           <History
             history={history}
-            model={patientModel}
+            patientModel={patientModel}
             changeTab={this.changeTab}
           />
         );
@@ -208,13 +199,12 @@ class EditPatient extends Component {
                   <TopRow patient={patient} />
                   <div className="columns border-bottom">
                     <div className="column">
-                      <Diagnosis model={patientModel} />
-                      <Procedure model={patientModel} />
-                      <OperativePlan model={patientModel} />
+                      <Condition patientModel={patientModel} />
+                      <Procedure patientModel={patientModel} />
+                      <OperativePlan patientModel={patientModel} />
                     </div>
                     <div className="column">
-                      <Diagnosis model={patientModel} showSecondary />
-                      <Allergy model={patientModel} />
+                      <Allergy patientModel={patientModel} />
                     </div>
                   </div>
                   <div className="columns">
@@ -237,15 +227,7 @@ class EditPatient extends Component {
             </div>
           </div>
         </div>
-
         <PatientQuickLinks patient={patient} />
-        {/* <ModalView
-          isVisible={formError}
-          onClose={this.onCloseModal}
-          headerTitle="Warning!!!!"
-          contentText="Please fill in required fields (marked with *) and correct the errors before saving."
-          little
-        /> */}
       </div>
     );
   }

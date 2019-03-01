@@ -18,15 +18,15 @@ class EditVisit extends Component {
   }
 
   componentDidMount() {
+    const { patientModel } = this.props;
     const { id } = this.props.match.params;
-    this.props.model.set({ _id: id });
-    this.props.model.fetch();
+    patientModel.set({ _id: id });
+    patientModel.fetch();
   }
 
   componentWillUnmount() {
-    this.props.model.off('change', () => {
-      // console.log('changed!');
-    });
+    const { patientModel } = this.props;
+    patientModel.off('change');
   }
 
   onChangeDate = (date) => {
@@ -204,11 +204,8 @@ class EditVisit extends Component {
 function mapStateToProps(state) {
   return {
     patient: {}, // state.patients.onePatient
+    patientModel: new PatientModel()
   };
 }
 
-const mapDispatchToProps = () => ({
-  model: new PatientModel()
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(EditVisit);
+export default connect(mapStateToProps, null)(EditVisit);

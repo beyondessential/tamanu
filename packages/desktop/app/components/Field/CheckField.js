@@ -3,16 +3,24 @@ import React from 'react';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
-export const CheckField = ({ field, label, ...props }) => (
+export const CheckInput = ({ label, value, ...props }) => (
   <FormControlLabel
     control={
       <Checkbox
-        name={field.name}
-        checked={field.value || false}
-        onChange={field.onChange}
+        checked={value}
         value="checked"
+        {...props}
       />
     }
     label={label}
+  />
+);
+
+export const CheckField = ({ field, ...props }) => (
+  <CheckInput
+    name={field.name}
+    value={field.value || false}
+    onChange={field.onChange}
+    {...props}
   />
 );

@@ -16,8 +16,8 @@ class Medication extends Component {
 
   componentWillMount() {
     const { tableColumns } = this.state;
-    const { model: Model } = this.props;
-    const { medication } = Model.attributes;
+    const { procedureModel } = this.props;
+    const { medication } = procedureModel.attributes;
 
     // Set actions col for our table
     tableColumns[tableColumns.length - 1].Cell = this.setActionsCol;
@@ -25,8 +25,8 @@ class Medication extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { model: Model } = newProps;
-    const { medication } = Model.attributes;
+    const { procedureModel } = newProps;
+    const { medication } = procedureModel.attributes;
     this.setState({ medication: medication.toJSON() });
   }
 
@@ -43,12 +43,12 @@ class Medication extends Component {
   }
 
   async deleteItem() {
-    const { model: Model } = this.props;
+    const { procedureModel } = this.props;
     const { itemId } = this.state;
     try {
-      const item = Model.get('medication').findWhere({ _id: itemId });
-      Model.get('medication').remove({ _id: itemId });
-      await Model.save();
+      const item = procedureModel.get('medication').findWhere({ _id: itemId });
+      procedureModel.get('medication').remove({ _id: itemId });
+      await procedureModel.save();
       await item.destroy();
       this.setState({ deleteModalVisible: false });
     } catch (err) {
@@ -72,7 +72,7 @@ class Medication extends Component {
   }
 
   render() {
-    const { model: Model } = this.props;
+    const { procedureModel } = this.props;
     const { modalVisible, action, itemId, medication, tableColumns } = this.state;
     return (
       <div>
@@ -106,7 +106,7 @@ class Medication extends Component {
         </div>
         <MedicationModal
           itemId={itemId}
-          model={Model}
+          procedureModel={procedureModel}
           action={action}
           isVisible={modalVisible}
           onClose={this.onCloseModal}
