@@ -95,7 +95,15 @@ export default (store) => {
         error: reject
       };
 
-      originalSave.apply(this, [dataFiltered, newOptions]);
+      const sent = originalSave.apply(this, [dataFiltered, newOptions]);
+
+      // In some cases the save method will not dispatch a request at all - for eg
+      // if validation fails. This means the success/error functions in the options
+      // object will never be called -- so we check for a falsy return value and
+      // reject manually.
+      if(!sent) {
+        reject(this.validationError);
+      }
     })
   };
 
