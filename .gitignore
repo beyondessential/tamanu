@@ -11,13 +11,11 @@ Desktop.ini
 .directory
 *~
 
-
 # npm
 node_modules
 package-lock.json
 *.log
 *.gz
-
 
 # Coveralls
 coverage
@@ -25,22 +23,20 @@ coverage
 # Benchmarking
 benchmarks/graphs
 
+# Build targets
 release
-data
 config
 dev
 deploy
 build
 
-config\.js
-config\.demo\.js
-realm-object-server*
+# Local config files
+**/config/local.*
 
+# Hidden files
 *.aes
 .env
-config.json
 /*.env
-
 .ssh
 .tmp
 .keys
