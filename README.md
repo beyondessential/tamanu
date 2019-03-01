@@ -38,8 +38,13 @@ and paste this data into it:
 {
   "mainServer": "http://13.210.104.94:3000",
   "offlineMode": false,
+  "sessionTimeout": 36000000
 }
 ```
+
+(note that the `sessionTimeout` config isn't necessary for development, it's just that
+it's only 5 minutes in production and having to re-log-in that often while developing
+is maddening)
 
 Any settings in `config/local.json` will take priority over those in `config/default.json`.
 The [`config` docs](https://github.com/lorenwest/node-config/wiki/Configuration-Files) have more info on how that works.
