@@ -24,6 +24,12 @@ export default () => (
       <Route path="/admin" component={Administration} />
       <Route path="/programs" component={Programs} />
       <Route path="/reports" component={Reports} />
+      {
+        /*
+        * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
+        * where none of the app contents would render in a production build.
+        */
+      }
     </Switch>
   </App>
 );
