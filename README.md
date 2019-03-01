@@ -31,8 +31,18 @@ data from the main server.
 The example config is set up to just talk to a local realm server. To get
 some real data, you should point the lan client to a remote server.
 
-- ensure `mainServer` in /packages/lan/config/default.json is set to `"http://13.210.104.94:3000"`
-- ensure `offlineMode` is set to `false`
+Create a file `/packages/lan/config/local.json` (will not be tracked by git)
+and paste this data into it:
+
+```json
+{
+  "mainServer": "http://13.210.104.94:3000",
+  "offlineMode": false,
+}
+```
+
+Any settings in `config/local.json` will take priority over those in `config/default.json`.
+The [`config` docs](https://github.com/lorenwest/node-config/wiki/Configuration-Files) have more info on how that works.
 
 Now run `cd /packages/lan/config && node index` to start the LAN server.
 When you run the lan-server with these settings, you'll be prompted for login
