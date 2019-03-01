@@ -18,7 +18,7 @@ import {
 } from '../../components';
 import TestTypesList from './components/TestTypesList';
 import { dateFormat } from '../../constants';
-import { LabRequestModel, LabTestModel, PatientModel } from '../../models';
+import { LabRequestModel, LabTestModel } from '../../models';
 
 const ButtonsContainer = styled.div`
   padding: 8px 8px 32px 8px;
@@ -28,21 +28,19 @@ const ButtonsContainer = styled.div`
   }
 `;
 
-class LabRequestForm extends Component {
-
-  state = {
-    isFormValid: false,
-    isLoading: true,
-    selectedPatientId: '',
-  }
-
-  labRequestModel = new LabRequestModel();
-
+class Request extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      selectedTests: [],
+      isFormValid: false,
+      isLoading: true,
+      selectedPatientId: '',
+    }
     this.handlePatientChange = this.handlePatientChange.bind(this);
     this.handleTestsListChange = this.handleTestsListChange.bind(this);
     this.handleVisitChange = this.handleVisitChange.bind(this);
+    this.handleModelsChange = this.handleModelsChange.bind(this);
     this.handleFormInput = this.handleFormInput.bind(this);
     this.submitForm = this.submitForm.bind(this);
   }
@@ -52,6 +50,10 @@ class LabRequestForm extends Component {
   }
 
   componentWillReceiveProps(newProps) {
+    const { labRequestModel } = newProps;
+    if (labRequestModel instanceof LabRequestModel) {
+      labRequestModel.on('change', this.handleModelsChange);
+    }
     this.handleFetchedLabRequest(newProps);
   }
 
@@ -65,27 +67,25 @@ class LabRequestForm extends Component {
     }
   }
 
-  updateValidation() {
-    const { labRequestModel } = this;
+  handleModelsChange() {
+    const { labRequestModel } = this.props;
+    const changedAttributes = labRequestModel.changedAttributes();
     const isFormValid = labRequestModel.isValid();
-    this.setState({ isFormValid });
+    this.setState({ ...changedAttributes, isFormValid });
   }
 
   handlePatientChange(selectedPatientId) {
     this.setState({ selectedPatientId });
-    this.labRequestModel.set('patient', { _id: selectedPatientId });
-    this.updateValidation();
   }
 
   handleVisitChange(visit) {
-    this.labRequestModel.set('visit', { _id: visit });
-    this.updateValidation();
+    this.handleFormChange({ visit });
   }
 
   handleTestsListChange(selectedTests) {
     const testTypesCollection = this.props.labTestTypes
-      .filter(({ _id }) => selectedTests.has(_id))
-      .map((labTestTypeModel) => new LabTestModel({ type: labTestTypeModel }));
+                                  .filter(({ _id }) => selectedTests.has(_id))
+                                  .map((labTestTypeModel) => new LabTestModel({ type: labTestTypeModel }));
     this.handleFormChange({ tests: testTypesCollection });
   }
 
@@ -95,13 +95,20 @@ class LabRequestForm extends Component {
   }
 
   handleFormChange(change) {
-    this.labRequestModel.set(change);
-    this.updateValidation();
+    const { labRequestModel } = this.props;
+    labRequestModel.set(change);
+  }
+
+  updateFormsStatus() {
+    const { visit, selectedTests } = this.state;
+    let isFormValid = false;
+    if (visit && selectedTests) isFormValid = true;
+    this.setState({ isFormValid });
   }
 
   submitForm(event) {
     event.preventDefault();
-    const { labRequestModel } = this;
+    const { labRequestModel } = this.props;
     this.props.createLabRequest({ labRequestModel });
   }
 
@@ -109,8 +116,7 @@ class LabRequestForm extends Component {
     const { isLoading } = this.state;
     if (isLoading) return <Preloader />;
 
-    const { labRequestModel } = this;
-    const { isPatientSelected, labTestTypes, patient } = this.props;
+    const { labRequestModel, isPatientSelected, labTestTypes, patient } = this.props;
     const { selectedPatientId, visit, isFormValid } = this.state;
     const { tests: selectedTests } = labRequestModel.toJSON();
     return (
@@ -176,18 +182,20 @@ class LabRequestForm extends Component {
   }
 }
 
-LabRequestForm.propTypes = {
+Request.propTypes = {
   initLabRequest: PropTypes.func.isRequired,
   createLabRequest: PropTypes.func.isRequired,
   patient: PropTypes.object,
   labTestTypes: PropTypes.arrayOf(PropTypes.object),
+  labRequestModel: PropTypes.object,
   isLoading: PropTypes.bool,
   error: PropTypes.object,
 }
 
-LabRequestForm.defaultProps = {
+Request.defaultProps = {
   patient: {},
   labTestTypes: [],
+  labRequestModel: new LabRequestModel(),
   isLoading: true,
   error: {},
 }
@@ -208,4 +216,4 @@ const mapDispatchToProps = (
   createLabRequest: (params) => dispatch(createLabRequest(params)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(LabRequestForm);
+export default connect(mapStateToProps, mapDispatchToProps)(Request);

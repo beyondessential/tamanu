@@ -12,29 +12,19 @@ export default BaseModel.extend({
     status: null,
     tests: [],
     notes: null,
-    patient: null,
-    visit: null,
     ...BaseModel.prototype.defaults,
   }),
 
   // Associations
   relations: [
     {
-      type: Backbone.Many, 
+      type: Backbone.Many,
       key: 'tests',
       relatedModel: () => require('./labTest'),
     }, {
       type: Backbone.One,
       key: 'category',
       relatedModel: () => require('./labTestCategory'),
-    }, {
-      type: Backbone.One,
-      key: 'patient',
-      relatedModel: () => require('./patient'),
-    }, {
-      type: Backbone.One,
-      key: 'visit',
-      relatedModel: () => require('./visit'),
     },
     ...BaseModel.prototype.relations
   ],
