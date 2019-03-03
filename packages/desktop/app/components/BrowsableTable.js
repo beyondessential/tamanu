@@ -22,6 +22,11 @@ export class BrowsableTable extends Component {
     this.setState(updates);
 
     try {
+      // Set sorting options
+      // TODO: investigate support for multiple sort keys
+      // (currently this will just use the most recent one)
+      state.sorted.map(s => collection.setSorting(s.id, s.desc ? 1 : -1));
+
       // Set pagination options
       if (keyword) {
         collection.setKeyword(keyword);
