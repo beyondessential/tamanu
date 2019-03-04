@@ -74,13 +74,14 @@ class Diagnosis extends Component {
           > + Add Diagnosis </TextButton>
           <div className="clearfix" />
           {diagnoses.map((diagnosis, k) => {
+            const { diagnosis: { name: diagnosisName = '' } = {} } = diagnosis;
             return (
               <React.Fragment key={diagnosis._id}>
                 {k > 0 ? ', ' : ''}
                 <TextButton
                   can={{ do: 'read', on: 'diagnosis' }}
                   onClick={() => this.editItem(diagnosis._id)}
-                >{`${diagnosis.diagnosis} (${moment(diagnosis.date).format(dateFormat)})`}</TextButton>
+                >{`${diagnosisName} (${moment(diagnosis.date).format(dateFormat)})`}</TextButton>
               </React.Fragment>
             );
           })}
