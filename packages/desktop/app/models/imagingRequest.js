@@ -31,7 +31,7 @@ export default BaseModel.extend({
     }, {
       type: Backbone.One,
       key: 'diagnosis',
-      relatedModel: () => require('./diagnosisList'),
+      relatedModel: () => require('./diagnosis'),
     }, {
       type: Backbone.One,
       key: 'requestedBy',
