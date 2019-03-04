@@ -30,9 +30,6 @@ module.exports = (req, res) => {
         return res.json(object);
       }
 
-      // Create pagination options before limiting
-      const paginationParams = { total_entries: objects.length };
-
       // Add keyword filter
       if (keyword && fields) {
         const conditions = [];
@@ -56,6 +53,9 @@ module.exports = (req, res) => {
 
       // Sort results
       if (sortBy) objects = objects.sorted(sortBy, order === 'desc');
+
+      // Create pagination options before limiting
+      const paginationParams = { total_entries: objects.length };
 
       // Limit results
       if (currentPageString) {
