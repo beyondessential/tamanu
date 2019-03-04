@@ -6,6 +6,7 @@ const tests = require('./tests');
 const imagingTypes = require('./imaging-types');
 const patients = require('./patients');
 const diagnoses = require('./diagnoses');
+const drugs= require('./drugs');
 
 module.exports = async (database) => {
   views(database);
@@ -14,4 +15,5 @@ module.exports = async (database) => {
   programs(database);
   tests(database);
   await patients(database);
+  await drugs(database);
 }
