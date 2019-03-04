@@ -1,6 +1,3 @@
-const request = require('request-promise');
-const shortid = require('shortid');
-
 const users = require('./users');
 const views = require('./views');
 const userRoles = require('./user-roles');
