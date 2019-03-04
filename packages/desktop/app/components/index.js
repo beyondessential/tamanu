@@ -1,6 +1,7 @@
 export CheckboxGroup from './CheckboxGroup';
 export CustomDateInput from './CustomDateInput';
 export DatepickerGroup from './DatepickerGroup';
+export DiagnosisAutocomplete from './DiagnosisAutocomplete';
 export DrugAutocomplete from './DrugAutocomplete';
 export InputGroup from './InputGroup';
 export Modal from './Modal';
