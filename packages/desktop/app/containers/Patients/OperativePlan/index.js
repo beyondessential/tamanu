@@ -140,9 +140,9 @@ class OperativePlan extends Component {
           each(diagnoses.models, (diagnosis) => {
             const attributes = diagnosis.cloneAttributes();
 
-            const diagnosisModel = new PatientDiagnosisModel();
-            diagnosisModel.set(attributes);
-            tasks.push(diagnosisModel.save());
+            const patientDiagnosisModel = new PatientDiagnosisModel();
+            patientDiagnosisModel.set(attributes);
+            tasks.push(patientDiagnosisModel.save());
           });
 
           const resp = await Promise.all(tasks);

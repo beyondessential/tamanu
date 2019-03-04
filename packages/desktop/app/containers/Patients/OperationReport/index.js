@@ -138,14 +138,14 @@ class OperationReport extends Component {
           each(preOpDiagnoses.models, (diagnosis) => {
             const attributes = diagnosis.cloneAttributes();
 
-            const diagnosisModel = new PatientDiagnosisModel();
-            diagnosisModel.set(attributes);
-            tasks.push(diagnosisModel.save());
+            const patientDiagnosisModel = new PatientDiagnosisModel();
+            patientDiagnosisModel.set(attributes);
+            tasks.push(patientDiagnosisModel.save());
           });
 
-          const diagnosisModels = await Promise.all(tasks);
-          diagnosisModels.forEach((diagnosisModel) => {
-            operationReport.get('preOpDiagnoses').add(diagnosisModel);
+          const patientDiagnosisModels = await Promise.all(tasks);
+          patientDiagnosisModels.forEach((patientDiagnosisModel) => {
+            operationReport.get('preOpDiagnoses').add(patientDiagnosisModel);
           });
 
           await operationReport.save();

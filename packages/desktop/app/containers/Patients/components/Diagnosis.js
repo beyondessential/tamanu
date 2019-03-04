@@ -19,7 +19,7 @@ class Diagnosis extends Component {
   state = {
     modalVisible: false,
     action: 'new',
-    diagnosisModel: new PatientDiagnosisModel()
+    patientDiagnosisModel: new PatientDiagnosisModel()
   }
 
   componentWillMount() {
@@ -40,12 +40,12 @@ class Diagnosis extends Component {
 
   editItem( itemId = null ) {
     const { parentModel } = this.props;
-    let diagnosisModel = parentModel.get('diagnoses').findWhere({ _id: itemId });
-    if (!diagnosisModel) diagnosisModel = new PatientDiagnosisModel()
+    let patientDiagnosisModel = parentModel.get('diagnoses').findWhere({ _id: itemId });
+    if (!patientDiagnosisModel) patientDiagnosisModel = new PatientDiagnosisModel()
     this.setState({
       modalVisible: true,
-      action: diagnosisModel.id ? 'update' : 'new',
-      diagnosisModel
+      action: patientDiagnosisModel.id ? 'update' : 'new',
+      patientDiagnosisModel
     });
   }
 
@@ -57,7 +57,7 @@ class Diagnosis extends Component {
     const {
       modalVisible,
       action,
-      diagnosisModel,
+      patientDiagnosisModel,
       diagnoses: allDiagnoses
     } = this.state;
     // filter diagnosis type i-e primary or secondary
@@ -87,7 +87,7 @@ class Diagnosis extends Component {
           })}
         </div>
         <DiagnosisModal
-          diagnosisModel={diagnosisModel}
+          patientDiagnosisModel={patientDiagnosisModel}
           parentModel={parentModel}
           action={action}
           isVisible={modalVisible}
