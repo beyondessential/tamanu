@@ -18,6 +18,6 @@
     "shortid": "^2.2.13",
     "string-similarity": "^1.2.0",
     "validator": "^10.5.0",
-    "xlsx": "^0.13.3"
+    "xlsx": "^0.14.1"
   }
 }
