@@ -4,9 +4,9 @@ import Autosuggest from 'react-autosuggest';
 import { map } from 'lodash';
 import { Popper, Paper, Input, MenuItem } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import { DiagnosisListCollection } from '../collections';
+import { DiagnosesCollection } from '../collections';
 import { MAX_AUTO_COMPLETE_ITEMS } from  '../constants';
-import { DiagnosisModel } from '../models';
+import { PatientDiagnosisModel } from '../models';
 
 const styles = theme => ({
   root: {
@@ -186,7 +186,7 @@ DiagnosisAutocomplete.propTypes = {
 DiagnosisAutocomplete.defaultProps = {
   required: false,
   className: '',
-  diagnosisListCollection: new DiagnosisListCollection(),
+  diagnosisListCollection: new DiagnosesCollection(),
   placeholder: 'Start typing..',
 };
 

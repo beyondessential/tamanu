@@ -13,7 +13,7 @@ import InputGroup from '../../../components/InputGroup';
 import TextareaGroup from '../../../components/TextareaGroup';
 
 // import Serializer from '../../../utils/form-serialize';
-import { PatientModel, OperationReportModel, DiagnosisModel } from '../../../models';
+import { PatientModel, OperationReportModel, PatientDiagnosisModel } from '../../../models';
 import { getDifferenceDate, operativePlanStatusList } from '../../../constants';
 
 class OperationReport extends Component {
@@ -138,7 +138,7 @@ class OperationReport extends Component {
           each(preOpDiagnoses.models, (diagnosis) => {
             const attributes = diagnosis.cloneAttributes();
 
-            const diagnosisModel = new DiagnosisModel();
+            const diagnosisModel = new PatientDiagnosisModel();
             diagnosisModel.set(attributes);
             tasks.push(diagnosisModel.save());
           });

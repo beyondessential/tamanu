@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import DiagnosisModal from './DiagnosisModal';
 import { dateFormat } from '../../../constants';
 import { TextButton} from '../../../components';
-import { DiagnosisModel } from '../../../models';
+import { PatientDiagnosisModel } from '../../../models';
 
 class Diagnosis extends Component {
   static propTypes = {
@@ -19,7 +19,7 @@ class Diagnosis extends Component {
   state = {
     modalVisible: false,
     action: 'new',
-    diagnosisModel: new DiagnosisModel()
+    diagnosisModel: new PatientDiagnosisModel()
   }
 
   componentWillMount() {
@@ -41,7 +41,7 @@ class Diagnosis extends Component {
   editItem( itemId = null ) {
     const { parentModel } = this.props;
     let diagnosisModel = parentModel.get('diagnoses').findWhere({ _id: itemId });
-    if (!diagnosisModel) diagnosisModel = new DiagnosisModel()
+    if (!diagnosisModel) diagnosisModel = new PatientDiagnosisModel()
     this.setState({
       modalVisible: true,
       action: diagnosisModel.id ? 'update' : 'new',

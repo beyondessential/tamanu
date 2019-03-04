@@ -37,7 +37,7 @@ export default BaseModel.extend({
     }, {
       type: Backbone.Many,
       key: 'diagnoses',
-      relatedModel: () => require('./diagnosis'),
+      relatedModel: () => require('./patientDiagnosis'),
       serialize: '_id',
     }, {
       type: Backbone.Many,
