@@ -8,7 +8,6 @@ import { Notification } from './Notification';
 export class BrowsableTable extends Component {
 
   state = {
-    keyword: '',
     tableClass: '',
     tableState: {},
     loading: true,
@@ -16,7 +15,6 @@ export class BrowsableTable extends Component {
 
   onFetchData = async (state = {}) => {
     const { collection } = this.props;
-    const { keyword } = this.state;
     const updates = { loading: true };
     if (!isEmpty(state)) updates.tableState = state;
     this.setState(updates);
@@ -25,13 +23,8 @@ export class BrowsableTable extends Component {
       // Set sorting options
       // TODO: investigate support for multiple sort keys
       // (currently this will just use the most recent one)
-      state.sorted.map(s => collection.setSorting(s.id, s.desc ? 1 : -1));
-
-      // Set pagination options
-      if (keyword) {
-        collection.setKeyword(keyword);
-      } else {
-        collection.setKeyword('');
+      if(state.sorted) {
+        state.sorted.map(s => collection.setSorting(s.id, s.desc ? 1 : -1));
       }
 
       await collection.getPage(
