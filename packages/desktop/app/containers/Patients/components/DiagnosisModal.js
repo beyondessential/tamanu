@@ -4,7 +4,8 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { InputGroup, AddButton, CancelButton,
           DeleteButton, UpdateButton, CheckboxGroup, SelectGroup,
-          DatepickerGroup, Modal as ConditionConfirmModal } from '../../../components';
+          DatepickerGroup, Modal as ConditionConfirmModal,
+          DiagnosisAutocomplete } from '../../../components';
 import { diagnosisCertainty } from '../../../constants';
 import { ConditionModel } from '../../../models';
 import { notifyError, notifySuccess } from '../../../utils';
@@ -32,6 +33,10 @@ class DiagnosisModal extends Component {
     // handle diagnosisModel's change
     newProps.diagnosisModel.off('change');
     newProps.diagnosisModel.on('change', this.handleChange);
+  }
+
+  handleAutocompleteInput = (suggestion) => {
+    this.handleUserInput({ _id: suggestion._id }, 'diagnosis');
   }
 
   handleSelectInput = (fieldValue, fieldName) => {
@@ -120,10 +125,10 @@ class DiagnosisModal extends Component {
   }
 
   render() {
-    const { isConditionModalVisible } = this.state;
     const {
       onClose,
       action,
+      isVisible,
     } = this.props;
     const {
       diagnosis,
@@ -131,14 +136,15 @@ class DiagnosisModal extends Component {
       certainty,
       secondaryDiagnosis,
       active,
-      formIsValid
+      formIsValid,
+      isConditionModalVisible,
     } = this.state;
 
     return (
       <React.Fragment>
         <Modal
           classNames={{ modal: 'tamanu-modal' }}
-          open={this.props.isVisible}
+          open={isVisible}
           onClose={onClose}
           little
         >
@@ -152,13 +158,11 @@ class DiagnosisModal extends Component {
                 <h2>{action === 'new' ? 'Add' : 'Update'} Diagnosis</h2>
               </div>
               <div className="modal-content">
-                <InputGroup
-                  className="field column m-b-10"
-                  name="diagnosis"
+                <DiagnosisAutocomplete
                   label="Diagnosis"
+                  name="diagnosis"
                   value={diagnosis}
-                  onChange={this.handleFormInput}
-                  autoFocus
+                  onChange={this.handleAutocompleteInput}
                   required
                 />
                 <div className="columns p-l-15 p-r-15">

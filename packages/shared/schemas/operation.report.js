@@ -28,11 +28,11 @@ const OpReportSchema = {
     procedures: 'string[]',
     preOpDiagnoses: {
       type: 'list',
-      objectType: 'diagnosis'
+      objectType: 'patientDiagnosis'
     },
     postOpDiagnoses: {
       type: 'list',
-      objectType: 'diagnosis'
+      objectType: 'patientDiagnosis'
     },
     ...defaults,
   }

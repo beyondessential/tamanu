@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import DiagnosisModal from './DiagnosisModal';
 import { dateFormat } from '../../../constants';
 import { TextButton} from '../../../components';
-import { DiagnosisModel } from '../../../models';
+import { PatientDiagnosisModel } from '../../../models';
 
 class Diagnosis extends Component {
   static propTypes = {
@@ -19,7 +19,7 @@ class Diagnosis extends Component {
   state = {
     modalVisible: false,
     action: 'new',
-    diagnosisModel: new DiagnosisModel()
+    patientDiagnosisModel: new PatientDiagnosisModel()
   }
 
   componentWillMount() {
@@ -40,12 +40,12 @@ class Diagnosis extends Component {
 
   editItem( itemId = null ) {
     const { parentModel } = this.props;
-    let diagnosisModel = parentModel.get('diagnoses').findWhere({ _id: itemId });
-    if (!diagnosisModel) diagnosisModel = new DiagnosisModel()
+    let patientDiagnosisModel = parentModel.get('diagnoses').findWhere({ _id: itemId });
+    if (!patientDiagnosisModel) patientDiagnosisModel = new PatientDiagnosisModel()
     this.setState({
       modalVisible: true,
-      action: diagnosisModel.id ? 'update' : 'new',
-      diagnosisModel
+      action: patientDiagnosisModel.id ? 'update' : 'new',
+      patientDiagnosisModel
     });
   }
 
@@ -57,7 +57,7 @@ class Diagnosis extends Component {
     const {
       modalVisible,
       action,
-      diagnosisModel,
+      patientDiagnosisModel,
       diagnoses: allDiagnoses
     } = this.state;
     // filter diagnosis type i-e primary or secondary
@@ -74,19 +74,20 @@ class Diagnosis extends Component {
           > + Add Diagnosis </TextButton>
           <div className="clearfix" />
           {diagnoses.map((diagnosis, k) => {
+            const { diagnosis: { name: diagnosisName = '' } = {} } = diagnosis;
             return (
               <React.Fragment key={diagnosis._id}>
                 {k > 0 ? ', ' : ''}
                 <TextButton
                   can={{ do: 'read', on: 'diagnosis' }}
                   onClick={() => this.editItem(diagnosis._id)}
-                >{`${diagnosis.diagnosis} (${moment(diagnosis.date).format(dateFormat)})`}</TextButton>
+                >{`${diagnosisName} (${moment(diagnosis.date).format(dateFormat)})`}</TextButton>
               </React.Fragment>
             );
           })}
         </div>
         <DiagnosisModal
-          diagnosisModel={diagnosisModel}
+          patientDiagnosisModel={patientDiagnosisModel}
           parentModel={parentModel}
           action={action}
           isVisible={modalVisible}

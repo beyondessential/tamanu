@@ -9,7 +9,7 @@ const ConditionsSchema = {
     condition: 'string',
     diagnosis: {
       type: 'linkingObjects',
-      objectType: 'diagnosis',
+      objectType: 'patientDiagnosis',
       property: 'condition'
     },
     ...defaults

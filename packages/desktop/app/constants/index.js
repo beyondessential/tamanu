@@ -23,6 +23,10 @@ export const Colors = {
   white: '#ffffff'
 };
 
+export const MAX_AUTO_COMPLETE_ITEMS = {
+  DIAGNOSES: 10,
+};
+
 export const dbViews = {
   medicationCompleted: 'medication_completed',
   medicationRequested: 'medication_requested',
