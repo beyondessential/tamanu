@@ -1,4 +1,5 @@
 module.exports = (database) => {
+  console.log('Seeding: imagingTypes');
   const imagingTypes = [
     {
       _id: 'imaging-type-x-ray',
@@ -27,5 +28,7 @@ module.exports = (database) => {
     },
   ];
 
-  imagingTypes.forEach(imagingType => database.create('imagingType', imagingType, true));
+  database.write = () => {
+    imagingTypes.forEach(imagingType => database.create('imagingType', imagingType, true));
+  }
 }
