@@ -7,16 +7,18 @@ const modelName = 'drug';
 module.exports = async (database) => {
   try {
     const drugs = await fetchDrugs();
-    drugs.forEach(drug => {
-      const { code, name } = drug;
-      const drugObject = database.findOne(modelName, name, 'name');
-      if (!drugObject || drugObject.length <= 0) {
-        database.create(modelName, {
-          _id: shortid.generate(),
-          name,
-          code: toUpper(code)
-        }, true);
-      }
+    database.write(() => {
+      drugs.forEach(drug => {
+        const { code, name } = drug;
+        const drugObject = database.findOne(modelName, name, 'name');
+        if (!drugObject || drugObject.length <= 0) {
+          database.create(modelName, {
+            _id: shortid.generate(),
+            name,
+            code: toUpper(code)
+          }, true);
+        }
+      });
     });
   } catch (error) {
     console.error(`Error happened while fetching drugs ${error}`);
