@@ -256,7 +256,7 @@ export const sidebarInfo = [
       },
       {
         label: 'New Request',
-        path: '/imaging/edit/new',
+        path: '/imaging/request',
         icon: submenuIcons.new,
         ability: { action: 'create' },
       }
