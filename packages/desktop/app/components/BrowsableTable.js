@@ -58,7 +58,7 @@ export class BrowsableTable extends Component {
   render() {
     const { collection, columns, emptyNotification } = this.props;
     const { tableClass, loading } = this.state;
-    const items = collection.models.map(m => m.attributes);
+    const items = collection.models.map(m => m.toJSON());
 
     if (items.length === 0 && !loading) {
       return <Notification message={emptyNotification} />;
