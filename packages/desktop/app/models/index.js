@@ -5,6 +5,8 @@ export ConditionModel from './condition';
 export DiagnosisModel from './diagnosis';
 export DrugModel from './drug';
 export HospitalModel from './hospital';
+export ImagingRequestModel from './imagingRequest';
+export ImagingTypeModel from './imagingType';
 export LabRequestModel from './labRequest';
 export LabTestModel from './labTest';
 export LabTestTypeModel from './labTestType';

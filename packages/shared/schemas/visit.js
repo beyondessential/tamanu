@@ -64,6 +64,10 @@ const VisitSchema = {
       type: 'list',
       objectType: 'labRequest'
     },
+    imagingRequests: {
+      type: 'list',
+      objectType: 'imagingRequest'
+    },
     notes: {
       type: 'list',
       objectType: 'note'
