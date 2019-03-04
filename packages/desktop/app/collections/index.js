@@ -1,6 +1,7 @@
 export PatientsCollection from './patients';
 export PregnanciesCollection from './pregnancies';
 export AppointmentCollection from './appointment';
+export DiagnosisListCollection from './diagnosisList';
 export DrugsCollection from './drugs';
 export ModifiedFieldsCollection from './modifiedFields';
 export MedicationCollection from './medication';
