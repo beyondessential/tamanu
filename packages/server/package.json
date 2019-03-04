@@ -10,7 +10,8 @@
     "stop": "pm2 stop tamanu-server",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "test:watch": "npm test -- --watch"
+    "test:watch": "npm test -- --watch",
+    "start-dev": "NODE_ENV=development nodemon index"
   },
   "repository": {
     "type": "git",

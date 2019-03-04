@@ -14,9 +14,11 @@ module.exports = (database) => {
     }
   ];
 
-  views.forEach(view => {
-    const { name, filters } = view;
-    const viewObject = database.findOne('view', name, 'name');
-    if (!viewObject || viewObject.length <= 0) database.create('view', { name, filters: JSON.stringify(filters) }, true);
+  database.write(() => {
+    views.forEach(view => {
+      const { name, filters } = view;
+      const viewObject = database.findOne('view', name, 'name');
+      if (!viewObject || viewObject.length <= 0) database.create('view', { name, filters: JSON.stringify(filters) }, true);
+    });
   });
 }

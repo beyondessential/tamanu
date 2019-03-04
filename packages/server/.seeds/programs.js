@@ -9,5 +9,5 @@ module.exports = (database) => {
     patientFilters: '{ "sex": "female" }'
   };
 
-  database.create('program', pregnancyProgram, true);
+  database.write(() => database.create('program', pregnancyProgram, true));
 }

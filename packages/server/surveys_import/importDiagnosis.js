@@ -33,11 +33,11 @@ entries.forEach(async (surveySheets) => {
           _id: shortid.generate(),
           action: 'save',
           recordId: object._id,
-          recordType: 'diagnosisList',
+          recordType: 'diagnosis',
           timestamp: new Date().getTime()
         };
 
-        database.create('diagnosisList', object, true);
+        database.create('diagnosis', object, true);
         database.create('change', change, true);
         console.log('DiagnosisList item added!');
       });

@@ -9,7 +9,7 @@ const ImagingRequestSchema = {
     type: 'imagingType',
     detail: 'string?',
     location: 'string?',
-    diagnosis: 'diagnosisList?',
+    diagnosis: 'diagnosis?',
     notes: 'string?',
     imageSource: 'string?',
     status: 'string?',

@@ -4,9 +4,8 @@ import Autosuggest from 'react-autosuggest';
 import { map } from 'lodash';
 import { Popper, Paper, Input, MenuItem } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import { DiagnosisListCollection } from '../collections';
+import { DiagnosesCollection } from '../collections';
 import { MAX_AUTO_COMPLETE_ITEMS } from  '../constants';
-import { DiagnosisModel } from '../models';
 
 const styles = theme => ({
   root: {
@@ -76,16 +75,16 @@ class DiagnosisAutocomplete extends Component {
   }
 
   componentDidMount() {
-    this.props.diagnosisListCollection.setPageSize(MAX_AUTO_COMPLETE_ITEMS.DIAGNOSES);
+    this.props.diagnosesCollection.setPageSize(MAX_AUTO_COMPLETE_ITEMS.DIAGNOSES);
   }
 
   async fetchSuggestions({ value }) {
-    const { diagnosisListCollection } = this.props;
+    const { diagnosesCollection } = this.props;
     try {
-      diagnosisListCollection.setKeyword(value);
-      await diagnosisListCollection.getPage(0);
+      diagnosesCollection.setKeyword(value);
+      await diagnosesCollection.getPage(0);
 
-      let { models: suggestions } = diagnosisListCollection;
+      let { models: suggestions } = diagnosesCollection;
       if (suggestions.length > 0) suggestions = map(suggestions, model => model.toJSON());
       this.setState({ suggestions, value });
     } catch (err) {
@@ -180,13 +179,13 @@ DiagnosisAutocomplete.propTypes = {
   required: PropTypes.bool,
   className: PropTypes.string,
   placeholder: PropTypes.string,
-  diagnosisListCollection: PropTypes.object
+  diagnosesCollection: PropTypes.object
 };
 
 DiagnosisAutocomplete.defaultProps = {
   required: false,
   className: '',
-  diagnosisListCollection: new DiagnosisListCollection(),
+  diagnosesCollection: new DiagnosesCollection(),
   placeholder: 'Start typing..',
 };
 

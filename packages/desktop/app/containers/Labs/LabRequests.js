@@ -1,50 +1,47 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import BootstrapTable from 'react-bootstrap-table-next';
-import { fetchLabs } from '../../actions/labs';
-import { labsColumns } from '../../constants';
+import { TopBar, Button } from '../../components';
+import { BrowsableTable } from '../../components/BrowsableTable';
+import { LabRequestsCollection } from '../../collections';
 
-class LabRequests extends Component {
-  componentDidMount() {
-    this.props.fetchLabs();
-  }
+export class LabRequestsTable extends Component {
+  
+  collection = new LabRequestsCollection();
+
+  static columns = [
+    { Header: 'Status', accessor: 'status' },
+    { Header: 'Category', accessor: 'category.name' },
+    { Header: 'Patient name', accessor: 'patient.displayName' },
+    { Header: 'Requested by', accessor: 'requestedBy.displayName' },
+    { Header: 'Date', accessor: 'requestedDate' },
+    { 
+      Header: 'Actions', 
+      Cell: ({ original: labRequestData }) => (
+        <Button 
+          color="primary" 
+          variant="contained"
+          to={`/labs/request/${labRequestData._id}`}
+        >View</Button>
+      )
+    },
+  ]
+  
   render() {
-    const { labs } = this.props;
     return (
-      <div>
-        <div className="content">
-          <div className="view-top-bar">
-            <span>
-              Lab Requests
-            </span>
-            {/* <div className="view-action-buttons">
-              <button>
-                + New Lab
-              </button>
-            </div> */}
-          </div>
-          <div className="detail">
-            <BootstrapTable
-              keyField="id"
-              data={labs}
-              columns={labsColumns}
-              defaultSortDirection="asc"
-            />
-          </div>
-        </div>
-      </div>
+      <BrowsableTable
+        collection={this.collection}
+        columns={LabRequestsTable.columns}
+        emptyNotification="No requests found"
+      />
     );
   }
+
 }
 
-function mapStateToProps(state) {
-  return {
-    labs: state.labs.labs
-  };
-}
-
-const mapDispatchToProps = dispatch => ({
-  fetchLabs: () => dispatch(fetchLabs()),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(LabRequests);
+export const LabRequests = ({}) => (
+  <div className="content">
+    <TopBar title="Lab Requests" />
+    <div className="detail">
+      <LabRequestsTable />
+    </div>
+  </div>
+);

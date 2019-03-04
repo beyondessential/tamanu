@@ -5,19 +5,16 @@ const DiagnosisSchema = {
   primaryKey: '_id',
   properties: {
     _id: 'string',
-    active:  {
-      type: 'bool',
+    name: {
+      type: 'string',
       optional: true,
-      default: true
+      indexed: true
     },
-    date: 'date',
-    diagnosis: 'diagnosisList',
-    secondaryDiagnosis: {
-      type: 'bool',
-      default: false
+    code: {
+      type: 'string',
+      optional: true,
+      indexed: true
     },
-    condition: 'condition?',
-    certainty: 'string', // suspected or confirmed
     ...defaults,
   }
 };
