@@ -1,20 +1,30 @@
 import React, { Component } from 'react';
-import { TopBar } from '../../components';
+import { TopBar, Button } from '../../components';
 import { BrowsableTable } from '../../components/BrowsableTable';
 import { LabRequestsCollection } from '../../collections';
 
-class LabRequestsTable extends Component {
+export class LabRequestsTable extends Component {
   
   collection = new LabRequestsCollection();
 
   static columns = [
     { Header: 'Status', accessor: 'status' },
+    { Header: 'Category', accessor: 'category.name' },
     { Header: 'Patient name', accessor: 'patient.displayName' },
     { Header: 'Requested by', accessor: 'requestedBy.displayName' },
     { Header: 'Date', accessor: 'requestedDate' },
-    { Header: 'Actions', accessor: '_id' },
+    { 
+      Header: 'Actions', 
+      Cell: ({ original: labRequestData }) => (
+        <Button 
+          color="primary" 
+          variant="contained"
+          to={`/labs/request/${labRequestData._id}`}
+        >View</Button>
+      )
+    },
   ]
-
+  
   render() {
     return (
       <BrowsableTable
