@@ -1,14 +1,17 @@
 import React, { Component } from 'react';
 import { TopBar } from '../../components';
 import { BrowsableTable } from '../../components/BrowsableTable';
-import { LabTestsCollection } from '../../collections';
+import { LabRequestsCollection } from '../../collections';
+import { LAB_REQUEST_STATUSES } from '../../../../shared/constants';
 
-class LabResultsTable extends Component {
+class PublishedLabRequestsTable extends Component {
   
-  collection = new LabTestsCollection();
+  collection = (new LabRequestsCollection())
+    .setKeyword(LAB_REQUEST_STATUSES.PUBLISHED, ['status']);
 
   static columns = [
     { Header: 'Status', accessor: 'status' },
+    { Header: 'Category', accessor: 'category.name' },
     { Header: 'Patient name', accessor: 'patient.displayName' },
     { Header: 'Requested by', accessor: 'requestedBy.displayName' },
     { Header: 'Date', accessor: 'requestedDate' },
@@ -19,7 +22,7 @@ class LabResultsTable extends Component {
     return (
       <BrowsableTable
         collection={this.collection}
-        columns={LabResultsTable.columns}
+        columns={PublishedLabRequestsTable.columns}
         emptyNotification="No requests found"
       />
     );
@@ -27,11 +30,11 @@ class LabResultsTable extends Component {
 
 }
 
-export const LabResults = ({}) => (
+export const PublishedLabRequests = ({}) => (
   <div className="content">
     <TopBar title="Lab Results" />
     <div className="detail">
-      <LabResultsTable />
+      <PublishedLabRequestsTable />
     </div>
   </div>
 );
