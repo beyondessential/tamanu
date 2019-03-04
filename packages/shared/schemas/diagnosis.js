@@ -11,10 +11,7 @@ const DiagnosisSchema = {
       default: true
     },
     date: 'date',
-    diagnosis: {
-      type: 'string',
-      optional: true
-    },
+    diagnosis: 'diagnosisList',
     secondaryDiagnosis: {
       type: 'bool',
       default: false

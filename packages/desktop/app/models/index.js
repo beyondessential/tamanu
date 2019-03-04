@@ -3,6 +3,7 @@ export AnswerModel from './answer';
 export AppointmentModel from './appointment';
 export ConditionModel from './condition';
 export DiagnosisModel from './diagnosis';
+export DiagnosisListModel from './diagnosisList';
 export DrugModel from './drug';
 export HospitalModel from './hospital';
 export LabRequestModel from './labRequest';

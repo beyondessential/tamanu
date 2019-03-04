@@ -19,6 +19,10 @@ export default BaseModel.extend({
   relations: [
     {
       type: Backbone.One,
+      key: 'diagnosis',
+      relatedModel: () => require('./diagnosisList'),
+    }, {
+      type: Backbone.One,
       key: 'condition',
       relatedModel: () => require('./condition'),
     },
