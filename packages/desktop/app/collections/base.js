@@ -112,8 +112,12 @@ export default Backbone.PageableCollection.extend({
     await Promise.all(tasks);
   },
 
-  setKeyword(keyword) {
-    this.filters.keyword = keyword;
+  setKeyword(keyword, fields = null) {
+    this.filters = {
+      keyword,
+      fields: fields || this.filters.fields,
+    };
+    return this;
   },
 
   getPage(page, view, viewKeys, options = {}) {

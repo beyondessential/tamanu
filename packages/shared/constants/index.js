@@ -27,8 +27,19 @@ const ENVIRONMENT_TYPE = {
   DESKTOP: 'desktop'
 };
 
+const LAB_REQUEST_STATUSES = {
+  RECEPTION_PENDING: 'reception_pending',
+  RESULTS_PENDING: 'results_pending',
+  TO_BE_VERIFIED: 'to_be_verified',
+  VERIFIED: 'verified',
+  PUBLISHED: 'published',
+};
+
 module.exports = {
-  HTTP_METHOD_TO_ACTION, SYNC_MODES,
-  DISPLAY_ID_PLACEHOLDER, ENVIRONMENT_TYPE,
+  HTTP_METHOD_TO_ACTION, 
+  SYNC_MODES,
+  DISPLAY_ID_PLACEHOLDER,
+  ENVIRONMENT_TYPE,
+  LAB_REQUEST_STATUSES,
   SYNC_ACTIONS
 };
