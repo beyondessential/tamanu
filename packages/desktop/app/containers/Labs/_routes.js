@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Route, Switch } from 'react-router-dom';
 
 import { LabRequests } from './LabRequests';
-import { PublishedLabRequests } from './LabResults';
+import { PublishedLabRequests } from './PublishedLabRequests';
 import Request from './Request';
 
 export default function Routes({ url }) {
