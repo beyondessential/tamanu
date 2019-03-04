@@ -30,7 +30,6 @@ export class LabRequestDisplay extends React.Component {
     const model = new LabRequestModel({ _id: labRequestId });
     await model.fetch();
 
-    console.log(model.toJSON());
     this.setState({ 
       loading: false,
       data: model.toJSON(),
