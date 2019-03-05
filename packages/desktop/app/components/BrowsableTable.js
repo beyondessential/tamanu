@@ -1,11 +1,21 @@
 import React, { Component } from 'react';
 import ReactTable from 'react-table';
-
+import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
 
 import { Notification } from './Notification';
 
+const defaultTransformRow = model => model.toJSON();
+
 export class BrowsableTable extends Component {
+
+  static propTypes = {
+    transformRow: PropTypes.func,
+  }
+
+  static defaultProps = {
+    transformRow: defaultTransformRow,
+  }
 
   state = {
     tableClass: '',
@@ -56,14 +66,15 @@ export class BrowsableTable extends Component {
   }
 
   render() {
-    const { collection, columns, emptyNotification } = this.props;
+    const { collection, columns, emptyNotification, transformRow } = this.props;
     const { tableClass, loading } = this.state;
-    const items = collection.models.map(m => m.toJSON());
+    // transform data
+    const items = collection.models.map(transformRow);
 
     if (items.length === 0 && !loading) {
       return <Notification message={emptyNotification} />;
     }
-    
+
     return (
       <ReactTable
         manual
