@@ -1421,3 +1421,53 @@ export const patientAppointmentsColumns = [{
   Cell: null,
   sortable: false,
 }];
+
+export const imagingRequestsColumns = [
+  {
+    accessor: 'patientName',
+    Header: 'Patient',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'typeName',
+    Header: 'Type',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'detail',
+    Header: 'Detail',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    id: 'requestedDate',
+    accessor: row => moment(row.requestedDate).format(dateTimeFormat),
+    Header: 'Date & Time of Request',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 150
+  }, {
+    accessor: 'requestedBy',
+    Header: 'Requested By',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  },  {
+    accessor: 'location',
+    Header: 'Location',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    id: 'actions',
+    Header: 'Actions',
+    headerStyle: {
+      backgroundColor: Colors.searchTintColor
+    },
+    style: columnStyle,
+    minWidth: 250,
+    Cell: null
+  }
+];
