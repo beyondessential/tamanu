@@ -92,8 +92,6 @@ export class SenaitePoller extends ScheduledTask {
   // Creating lab requests on Senaite
   // 
   async getAnalysisServiceUUIDs() {
-    await this.login();
-
     const items = await this.getAllItems('AnalysisService');
     const findSenaiteItem = realmLabTestType => {
       return items.find(i => i.title === realmLabTestType.name);
@@ -161,10 +159,13 @@ export class SenaitePoller extends ScheduledTask {
   //----------------------------------------------------------
   // Polling senaite for test results
   //
-  async getLabRequestResults(senaiteId) {
+  async fetchLabRequestInfo(senaiteId) {
     // fetch information about entire request
-    const body = await this.apiRequest(`analysisrequest/${senaiteId}`);
+    const body = await this.apiRequest(`analysisrequest/${senaiteId}?workflow=y`);
     const labRequest = body.items[0];
+
+    const statusData = labRequest.workflow_info.find(x => x.workflow === 'bika_ar_workflow');
+    const requestStatus = (statusData || {}).status;
 
     // fetch individual lab results
     const analysisTasks = labRequest.Analyses
@@ -181,7 +182,10 @@ export class SenaitePoller extends ScheduledTask {
         serviceId: item.AnalysisService.uid,
       }));
 
-    return analysisData;
+    return {
+      tests: analysisData,
+      status: requestStatus,
+    };
   }
 
   async getAllPendingLabRequests() {
@@ -192,16 +196,25 @@ export class SenaitePoller extends ScheduledTask {
 
   async processLabRequest(realmLabRequest) {
     const { senaiteId } = realmLabRequest;
-    const results = await this.getLabRequestResults(senaiteId);
+    const results = await this.fetchLabRequestInfo(senaiteId);
 
+    console.log("Updating tests for", realmLabRequest._id);
+    console.log(results);
     this.database.write(() => {
       realmLabRequest.tests.map(realmTest => {
-        const senaiteResult = results.find(x => x.serviceId === realmTest.type.senaiteId);
+        const senaiteResult = results.tests.find(x => x.serviceId === realmTest.type.senaiteId);
         if(senaiteResult) {
-          realmTest.result = senaiteResult.result;
-          realmTest.status = senaiteResult.status;
+          if(realmTest.status !== senaiteResult.status 
+            || realmTest.result !== senaiteResult.result
+          ) {
+            console.log("Updated", realmTest.type.name, realmTest.status, '=>', senaiteResult.status, `(${senaiteResult.result})`);
+            realmTest.result = senaiteResult.result;
+            realmTest.status = senaiteResult.status;
+          }
         }
       });
+
+      realmLabRequest.status = results.status;
     });
   }
 
