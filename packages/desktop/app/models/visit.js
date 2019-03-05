@@ -68,6 +68,14 @@ export default BaseModel.extend({
     ...BaseModel.prototype.relations
   ],
 
+  reverseRelations: [
+    {
+      type: Backbone.One,
+      key: 'patient',
+      model: require('./patient'),
+    }
+  ],
+
   parse(res) {
     const _res = res
     if (res.startDate !== '') _res.startDate = moment(res.startDate);

@@ -4,6 +4,9 @@ const userRoles = require('./user-roles');
 const programs = require('./programs');
 const tests = require('./tests');
 const patients = require('./patients');
+const imagingTypes = require('./imaging-types');
+const diagnoses = require('./diagnoses');
+const drugs= require('./drugs');
 
 module.exports = async (database) => {
   views(database);
@@ -12,4 +15,7 @@ module.exports = async (database) => {
   programs(database);
   tests(database);
   await patients(database);
+  imagingTypes(database);
+  diagnoses(database);
+  await drugs(database);
 }

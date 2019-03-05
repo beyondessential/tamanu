@@ -15,7 +15,7 @@
     "start": "pm2 start pm2.json && pm2 logs tamanu-lan",
     "restart": "pm2 restart tamanu-lan & pm2 logs tamanu-lan",
     "stop": "pm2 stop tamanu-lan",
-    "start-dev": "nodemon --exec babel-node index",
+    "start-dev": "nodemon index",
     "build": "pkg . --targets node10-win-x64 --output ./release/server.exe",
     "package": "./scripts/package.sh"
   },
