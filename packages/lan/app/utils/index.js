@@ -9,14 +9,21 @@ const jsonParse = (object) => {
   }
 };
 
-const objectToJSON = (object, depp = true) => {
+let currentDepth = 0;
+const objectToJSON = (object, depp = true, maxDepth = 3, internalCall = false) => {
   try {
-    if (isArray(object) && depp) return object.map(obj => objectToJSON(obj));
+    currentDepth = internalCall ? currentDepth + 1 : 0;
+    if (isArray(object) && depp) {
+      return object.map(obj => objectToJSON(obj, true, maxDepth, true));
+    }
+
     const jsonObject = jsonParse(object);
     if (typeof object.objectSchema === 'function') {
       const { properties } = object.objectSchema();
       each(properties, (props, key) => {
-        if (props.type === 'list' || props.type === 'linkingObjects') jsonObject[key] = objectToJSON(Array.from(object[key]), props.type === 'list');
+        if (props.type === 'list' || props.type === 'linkingObjects') {
+          jsonObject[key] = objectToJSON(Array.from(object[key]), (currentDepth <= maxDepth), maxDepth, true);
+        }
       });
     }
     return jsonObject;

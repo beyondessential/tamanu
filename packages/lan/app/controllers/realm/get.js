@@ -68,7 +68,7 @@ module.exports = (req, res) => {
       }
 
       // Convert to JSON as response
-      objects = objects.map(object => objectToJSON(object));
+      objects = objects.map(object => objectToJSON(object, true, 3));
       const response = [paginationParams, objects];
       return res.send(response);
     });
