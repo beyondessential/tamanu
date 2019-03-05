@@ -17,7 +17,6 @@ export default BaseModel.extend({
     requestedDate: moment(),
     reviewedBy: null,
     reviewedDate: moment(),
-    visits: [],
     ...BaseModel.prototype.defaults,
   }),
   ignoreRequestKeys: ['visits'],
@@ -46,9 +45,15 @@ export default BaseModel.extend({
 
   reverseRelations: [
     {
-      type: Backbone.Many,
-      key: 'visits',
+      type: Backbone.One,
+      key: 'visit',
       model: require('./visit')
     }
   ],
+
+  getPatient() {
+    const { parents: { visit: visitModel } } = this;
+    const { parents: { patient: patientModel } } = visitModel;
+    return patientModel.toJSON();
+  }
 });

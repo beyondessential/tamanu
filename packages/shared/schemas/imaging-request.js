@@ -17,7 +17,7 @@ const ImagingRequestSchema = {
     requestedDate: 'date',
     reviewedBy: 'user',
     reviewedDate: 'date',
-    visits: {
+    visit: {
       type: 'linkingObjects',
       objectType: 'visit',
       property: 'imagingRequests'
