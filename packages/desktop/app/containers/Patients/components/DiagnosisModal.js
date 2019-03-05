@@ -18,7 +18,7 @@ const CheckboxGroupNoPadding = styled(CheckboxGroup)`
 class DiagnosisModal extends Component {
   constructor(props) {
     super(props);
-    const { diagnosisModel: { attributes } } = this.props;
+    const { patientDiagnosisModel: { attributes } } = this.props;
     this.state = { ...attributes, formIsValid: false };
     this.submitForm = this.submitForm.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -27,12 +27,12 @@ class DiagnosisModal extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { attributes } = newProps.diagnosisModel;
-    const formIsValid = newProps.diagnosisModel.isValid();
+    const { attributes } = newProps.patientDiagnosisModel;
+    const formIsValid = newProps.patientDiagnosisModel.isValid();
     this.setState({ ...attributes, formIsValid });
-    // handle diagnosisModel's change
-    newProps.diagnosisModel.off('change');
-    newProps.diagnosisModel.on('change', this.handleChange);
+    // handle patientDiagnosisModel's change
+    newProps.patientDiagnosisModel.off('change');
+    newProps.patientDiagnosisModel.on('change', this.handleChange);
   }
 
   handleAutocompleteInput = (suggestion) => {
@@ -54,25 +54,25 @@ class DiagnosisModal extends Component {
   }
 
   handleUserInput = (fieldValue, fieldName) => {
-    const { diagnosisModel } = this.props;
-    diagnosisModel.set({ [fieldName]: fieldValue });
+    const { patientDiagnosisModel } = this.props;
+    patientDiagnosisModel.set({ [fieldName]: fieldValue });
   }
 
   handleChange() {
-    const { diagnosisModel } = this.props;
-    const formIsValid = diagnosisModel.isValid();
-    const changedAttributes = diagnosisModel.changedAttributes();
+    const { patientDiagnosisModel } = this.props;
+    const formIsValid = patientDiagnosisModel.isValid();
+    const changedAttributes = patientDiagnosisModel.changedAttributes();
     this.setState({ ...changedAttributes, formIsValid });
   }
 
   submitForm = async (e) => {
     e.preventDefault();
-    const { action, diagnosisModel, parentModel } = this.props;
+    const { action, patientDiagnosisModel, parentModel } = this.props;
 
     try {
-      await diagnosisModel.save();
+      await patientDiagnosisModel.save();
       if (action === 'new') {
-        parentModel.get('diagnoses').add(diagnosisModel);
+        parentModel.get('diagnoses').add(patientDiagnosisModel);
         await parentModel.save();
       } else {
         parentModel.trigger('change');
@@ -85,11 +85,11 @@ class DiagnosisModal extends Component {
   }
 
   async deleteItem() {
-    const { itemId: _id, diagnosisModel, parentModel } = this.props;
+    const { itemId: _id, patientDiagnosisModel, parentModel } = this.props;
     try {
       parentModel.get('diagnoses').remove({ _id });
       await parentModel.save();
-      await diagnosisModel.destroy();
+      await patientDiagnosisModel.destroy();
       this.props.onClose();
     } catch (err) {
       console.error('Error: ', err);
@@ -240,7 +240,7 @@ class DiagnosisModal extends Component {
 }
 
 DiagnosisModal.propTypes = {
-  diagnosisModel: PropTypes.object.isRequired,
+  patientDiagnosisModel: PropTypes.object.isRequired,
 };
 
 export default DiagnosisModal;
