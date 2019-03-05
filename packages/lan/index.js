@@ -11,7 +11,7 @@ import database from './app/services/database';
 import Listeners from './app/services/listeners';
 import RemoteAuth from './app/services/remote-auth';
 
-import { startScheduledTasks } from './app/tasks';
+// import { startScheduledTasks } from './app/tasks';
 
 process.env["NODE_CONFIG_DIR"] = `${__dirname}/config/`;
 const ENV = process.env.NODE_ENV || 'production';
@@ -51,7 +51,7 @@ const port = config.port || 4500;
         console.log(`Server is running on port ${port}!`);
     });
 
-    startScheduledTasks();
+    // startScheduledTasks();
   };
 
   try {

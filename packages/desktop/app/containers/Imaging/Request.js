@@ -29,6 +29,7 @@ export default ({ match: { params: { patientId, id } = {} } }) => {
   const action = id ? 'edit' : 'new';
   const isPatientSelected = !!patientId;
   const isFormValid = false;
+  const patient = null;
 
   return (
     <div className="create-content">
