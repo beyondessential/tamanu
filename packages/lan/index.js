@@ -1,21 +1,24 @@
+import config from 'config';
+import express from 'express';
+import bodyParser from 'body-parser';
+import morgan from 'morgan';
+import compression from 'compression';
+import service from 'os-service';
+
+import routes from './app/routes';
+import errorHandler from './app/middleware/errorHandler';
+import database from './app/services/database';
+import Listeners from './app/services/listeners';
+import RemoteAuth from './app/services/remote-auth';
+
+import { startScheduledTasks } from './app/tasks';
+
+process.env["NODE_CONFIG_DIR"] = `${__dirname}/config/`;
+const ENV = process.env.NODE_ENV || 'production';
+
+const port = config.port || 4500;
+
 (async () => {
-  process.env["NODE_CONFIG_DIR"] = `${__dirname}/config/`;
-  const ENV = process.env.NODE_ENV || 'production';
-  const config = require('config');
-  const express = require('express');
-  const bodyParser = require('body-parser');
-  const morgan = require('morgan');
-  const compression = require('compression');
-  const service = require('os-service');
-
-  const routes = require('./app/routes');
-  const errorHandler = require('./app/middleware/errorHandler');
-  const database = require('./app/services/database');
-  const Listeners = require('./app/services/listeners');
-  const RemoteAuth = require('./app/services/remote-auth');
-
-  const port = config.port || 4500;
-
   // Start os-service
   // service.run(() => {
   //   console.log('Service runninFg.');
@@ -47,6 +50,8 @@
     app.listen(port, () => {
         console.log(`Server is running on port ${port}!`);
     });
+
+    startScheduledTasks();
   };
 
   try {
