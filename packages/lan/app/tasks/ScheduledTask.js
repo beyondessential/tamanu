@@ -1,6 +1,11 @@
 import { scheduleJob } from 'node-schedule';
 
 export class ScheduledTask {
+
+  getName() {
+    // get class name from reflection
+    return this.constructor.name;
+  }
   
   constructor(schedule) {
     this.schedule = schedule;
@@ -12,17 +17,22 @@ export class ScheduledTask {
   }
 
   beginPolling() {
-    console.log('Scheduled', this.constructor.name);
-    this.job = scheduleJob(this.schedule, () => {
-      console.log('Running', this.constructor.name);
-      this.run();
-    });
+    if(!this.job) {
+      const name = this.getName();
+      console.log('Scheduled', name);
+      this.job = scheduleJob(this.schedule, () => {
+        console.log('Running', name);
+        this.run();
+      });
+    }
   }
 
   cancelPolling() {
-    this.job.cancel();
-    this.job = null;
-    console.log('Cancelled', this.constructor.name);
+    if(this.job) {
+      this.job.cancel();
+      this.job = null;
+      console.log('Cancelled', this.getName());
+    }
   }
 }
 
