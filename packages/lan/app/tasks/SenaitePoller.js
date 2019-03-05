@@ -5,6 +5,7 @@ import moment from 'moment';
 import { LAB_REQUEST_STATUSES } from '../../../shared/constants';
 import { ScheduledTask } from './ScheduledTask';
 
+const TARGET_STATES = ['verified', 'published', 'invalid'];
 const BASE_URL = config.senaite.server;
     
 function formatForSenaite(datetime) {
@@ -27,7 +28,7 @@ export class SenaitePoller extends ScheduledTask {
     await this.getAnalysisServiceUUIDs();
 
     /*
-     * TODO temp code
+     * FIXME temp code
      * 
     const labRequest = this.database.objects('labRequest')[1];
     this.createLabRequest(labRequest);
@@ -175,10 +176,9 @@ export class SenaitePoller extends ScheduledTask {
     const analysisData = analysisResults
       .map(paginated => paginated.items[0]) // we're requesting by ID so it'll always be 1 result
       .map(item => ({
-        date: item.ResultCaptureDate,
         result: item.Result,
         status: item.workflow_info[0].review_state,
-        testType: item.id,
+        serviceId: item.AnalysisService.uid,
       }));
 
     return analysisData;
@@ -186,7 +186,8 @@ export class SenaitePoller extends ScheduledTask {
 
   async getAllPendingLabRequests() {
     return this.database.objects('labRequest')
-      .filter(x => x.senaiteId && x.status !== 'published');
+      .filter(x => x.senaiteId)
+      .filter(x => !TARGET_STATES.includes(x.status));
   }
 
   async processLabRequest(realmLabRequest) {
@@ -194,8 +195,13 @@ export class SenaitePoller extends ScheduledTask {
     const results = await this.getLabRequestResults(senaiteId);
 
     this.database.write(() => {
-      // TODO: actually save to db
-      console.log(realmLabRequest._id, results);
+      realmLabRequest.tests.map(realmTest => {
+        const senaiteResult = results.find(x => x.serviceId === realmTest.type.senaiteId);
+        if(senaiteResult) {
+          realmTest.result = senaiteResult.result;
+          realmTest.status = senaiteResult.status;
+        }
+      });
     });
   }
 
