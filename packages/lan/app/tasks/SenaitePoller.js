@@ -54,7 +54,8 @@ class SenaitePoller extends ScheduledTask {
     return this.request(url);
   }
 
-  async request(url) {
+  async request(baseUrl) {
+    const url = baseUrl.replace(/^http:/, 'https:');
     console.log('request', url);
     const rawbody = await new Promise((resolve, reject) => {
       get(
@@ -69,7 +70,12 @@ class SenaitePoller extends ScheduledTask {
 
     // TODO: handle authentication error and re-log-in
 
-    return JSON.parse(rawbody);
+    try {
+      return JSON.parse(rawbody);
+    } catch(e) {
+      console.error(rawbody);
+      throw e;
+    }
   }
 
   login() {
@@ -141,7 +147,10 @@ class SenaitePoller extends ScheduledTask {
       formData.append('ClientSampleID-0', labRequest.sampleId || '');
       formData.append('SampleType-0_uid', '2c8c959a8fbf4ee684cf27e13cadbcbc');
 
-      testIDs.forEach(uid => formData.append('Analyses-0', uid));
+      testIDs.forEach(uid => {
+        formData.append('Analyses-0', uid)
+        formData.append('Parts-0.uid:records', uid)
+      });
     });
 
     // get recent requests & find the one we just created
@@ -169,7 +178,7 @@ class SenaitePoller extends ScheduledTask {
 
     // fetch individual lab results
     const analysisTasks = labRequest.Analyses
-      .map(r => r.api_url.replace(/^http:/, "https:") + '?workflow=y')
+      .map(r => r.api_url + '?workflow=y')
       .map(url => this.request(url));
 
     // get the relevant bits that we want
