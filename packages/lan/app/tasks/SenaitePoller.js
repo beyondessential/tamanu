@@ -1,9 +1,9 @@
-import { get, post, jar } from 'request';
-import config from 'config';
-import moment from 'moment';
+const { get, post, jar } = require('request');
+const config = require('config');
+const moment = require('moment');
 
-import { LAB_REQUEST_STATUSES } from '../../../shared/constants';
-import { ScheduledTask } from './ScheduledTask';
+const { LAB_REQUEST_STATUSES } = require('../../../shared/constants');
+const { ScheduledTask } = require('./ScheduledTask');
 
 const TARGET_STATES = ['verified', 'published', 'invalid'];
 const BASE_URL = config.senaite.server;
@@ -12,7 +12,7 @@ function formatForSenaite(datetime) {
   return moment(datetime).format('YYYY-MM-DD HH:mm');
 }
 
-export class SenaitePoller extends ScheduledTask {
+class SenaitePoller extends ScheduledTask {
   
   constructor(database) {
     super('*/5 * * * *'); // run every 5 minutes
@@ -227,3 +227,5 @@ export class SenaitePoller extends ScheduledTask {
     await Promise.all(requests.map(req => this.processLabRequest(req)));
   }
 }
+
+module.exports = { SenaitePoller };

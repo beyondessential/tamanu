@@ -1,6 +1,6 @@
-import { scheduleJob } from 'node-schedule';
+const { scheduleJob } = require('node-schedule');
 
-export class ScheduledTask {
+class ScheduledTask {
 
   getName() {
     // get class name from reflection
@@ -36,3 +36,4 @@ export class ScheduledTask {
   }
 }
 
+module.exports = {ScheduledTask};
