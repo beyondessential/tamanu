@@ -2,10 +2,11 @@
   "apps": [{
     "name": "tamanu-lan",
     "script": "./index.js",
+    "interpreter": "babel-node",
     "env": {
       "watch": ["app", "config", "index.js", "../shared/**/*"],
       "watch_options": {
-          "followSymlinks": false
+        "followSymlinks": false
       },
       "NODE_ENV": "development",
       "autorestart": true
