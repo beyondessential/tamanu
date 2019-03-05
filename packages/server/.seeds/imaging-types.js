@@ -28,7 +28,7 @@ module.exports = (database) => {
     },
   ];
 
-  database.write = () => {
+  database.write(() => {
     imagingTypes.forEach(imagingType => database.create('imagingType', imagingType, true));
-  }
+  })
 }

@@ -14,7 +14,7 @@ module.exports = (database) => {
   const workbook = xlsx.readFile(fileToImport);
   const entries = Object.entries(workbook.Sheets);
   database.write(() => {
-    entries.forEach(async ([tabName, sheet]) => {
+    entries.forEach(([tabName, sheet]) => {
       const diagnoses = xlsx.utils.sheet_to_json(sheet);
 
       diagnoses.forEach((diagnosis) => {
