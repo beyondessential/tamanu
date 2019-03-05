@@ -8,6 +8,12 @@
     "channelIn": "realm-online-local",
     "channelOut": "realm-local-online"
   },
+  "senaite": {
+    "enabled": false,
+    "server": "https://192.168.33.100",
+    "username": "admin",
+    "password": "admin"
+  },
   "mainServer": "http://13.210.104.94:3000",
   "offlineMode": true,
   "sessionTimeout": 300000

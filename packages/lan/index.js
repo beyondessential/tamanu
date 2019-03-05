@@ -51,7 +51,7 @@ const port = config.port || 4500;
         console.log(`Server is running on port ${port}!`);
     });
 
-    startScheduledTasks();
+    startScheduledTasks(database);
   };
 
   try {
