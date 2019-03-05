@@ -181,7 +181,8 @@ export default Backbone.AssociatedModel.extend({
     const { attributes } = this;
     if (typeof this.reverseRelations === 'object') {
       const reverse = this.reverseRelations;
-      reverse.forEach(({ type, key, model: Model }) => {
+      reverse.forEach(({ type, key, model }) => {
+        const Model = model.default ? model.default : model;
         switch(type) {
           default:
           case Backbone.Many:
@@ -193,7 +194,8 @@ export default Backbone.AssociatedModel.extend({
           case Backbone.One:
             if (!parents[key]) parents[key] = {};
             if (has(attributes, key) && attributes[key]) {
-              parents[key] = new Model(attributes[key]);
+              const modelsAttributes = Array.isArray(attributes[key]) ? attributes[key][0] : attributes[key];
+              parents[key] = new Model(modelsAttributes);
             }
           break;
         }
@@ -201,5 +203,5 @@ export default Backbone.AssociatedModel.extend({
     }
 
     this.parents = parents;
-  }
+  },
 });

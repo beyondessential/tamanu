@@ -84,6 +84,12 @@ const VisitSchema = {
       type: 'list',
       objectType: 'report'
     },
+    // reverse links
+    patient: {
+      type: 'linkingObjects',
+      objectType: 'patient',
+      property: 'visits'
+    },
     ...defaults,
   }
 };

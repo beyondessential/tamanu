@@ -223,5 +223,15 @@ export default BaseModel.extend({
       from.add(1, 'days');
     }
     return medication;
+  },
+
+  getImagingRequests() {
+    const { attributes: { visits } } = this;
+    let allImagingRequests = [];
+    visits.models.forEach(visitModel => {
+      const { imagingRequests } = visitModel.toJSON();
+      allImagingRequests = allImagingRequests.concat(imagingRequests);
+    })
+    return allImagingRequests;
   }
 });
