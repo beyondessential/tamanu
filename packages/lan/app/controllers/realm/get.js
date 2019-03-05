@@ -26,7 +26,7 @@ module.exports = (req, res) => {
         objects = objects.filtered(`_id = '${id}'`);
         if (objects.length <= 0) return res.status(404).end();
         // Get first item from the list
-        const object = objectToJSON(head(objects));
+        const object = objectToJSON(head(objects), true, 10);
         return res.json(object);
       }
 

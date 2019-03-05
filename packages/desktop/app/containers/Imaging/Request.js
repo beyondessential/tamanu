@@ -12,7 +12,7 @@ import {
   TextareaGroup,
   AddButton,
   UpdateButton,
-  CancelButton,
+  BackButton,
   DiagnosisAutocomplete,
 } from '../../components';
 import { dateFormat } from '../../constants';
@@ -96,7 +96,7 @@ export default ({ match: { params: { patientId, id } = {} } }) => {
             />
           </Grid>
           <ButtonsContainer>
-            <CancelButton to="/imaging" />
+            <BackButton />
             {action === 'new' ?
               <AddButton
                 type="submit"

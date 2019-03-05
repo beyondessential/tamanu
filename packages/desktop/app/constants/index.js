@@ -1436,12 +1436,6 @@ export const imagingRequestsColumns = [
     style: columnStyle,
     minWidth: 100
   }, {
-    accessor: 'detail',
-    Header: 'Detail',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 100
-  }, {
     id: 'requestedDate',
     accessor: row => moment(row.requestedDate).format(dateTimeFormat),
     Header: 'Date & Time of Request',
@@ -1461,6 +1455,12 @@ export const imagingRequestsColumns = [
     style: columnStyle,
     minWidth: 100
   }, {
+    accessor: 'detail',
+    Header: 'Detail',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
     id: 'actions',
     Header: 'Actions',
     headerStyle: {
@@ -1471,3 +1471,50 @@ export const imagingRequestsColumns = [
     Cell: null
   }
 ];
+
+export const patientImagingRequestsColumns = [
+  {
+    id: 'typeName',
+    accessor: ({ type }) => type.name,
+    Header: 'Type',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    id: 'requestedDate',
+    accessor: row => moment(row.requestedDate).format(dateTimeFormat),
+    Header: 'Date & Time of Request',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 150
+  }, {
+    id: 'requestedBy',
+    accessor: ({ requestedBy }) => requestedBy.name,
+    Header: 'Requested By',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  },  {
+    accessor: 'location',
+    Header: 'Location',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'detail',
+    Header: 'Detail',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    id: 'actions',
+    Header: 'Actions',
+    headerStyle: {
+      backgroundColor: Colors.searchTintColor
+    },
+    style: columnStyle,
+    minWidth: 250,
+    Cell: null
+  }
+];
+

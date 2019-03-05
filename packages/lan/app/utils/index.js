@@ -14,7 +14,7 @@ const objectToJSON = (object, depp = true, maxDepth = 3, internalCall = false) =
   try {
     currentDepth = internalCall ? currentDepth + 1 : 0;
     if (isArray(object) && depp) {
-      return object.map(obj => objectToJSON(obj, true, maxDepth, true));
+      return object.map(obj => objectToJSON(obj, (currentDepth <= maxDepth), maxDepth, true));
     }
 
     const jsonObject = jsonParse(object);
