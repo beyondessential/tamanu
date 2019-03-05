@@ -140,7 +140,7 @@ export class SenaitePoller extends ScheduledTask {
       formData.append('Contact-0_uid', '68238055871c4629874b101a8fc00e56');
       formData.append('DateSampled-0', dateTime);
       formData.append('ClientReference-0', labRequest._id);
-      formData.append('ClientSampleID-0', labRequest.sampleId);
+      formData.append('ClientSampleID-0', labRequest.sampleId || '');
       formData.append('SampleType-0_uid', '2c8c959a8fbf4ee684cf27e13cadbcbc');
 
       testIDs.forEach(uid => formData.append('Analyses-0', uid));
