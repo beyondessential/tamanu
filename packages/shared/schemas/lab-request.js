@@ -9,6 +9,8 @@ const LabRequest = {
     requestedBy: 'user',
     requestedDate: 'date',
     category: 'labTestCategory',
+    senaiteId: 'string?',
+    sampleId: 'string?',
     notes: 'string?',
     status: 'string?',
     tests: {

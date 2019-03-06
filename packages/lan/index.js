@@ -14,7 +14,8 @@ const database = require('./app/services/database');
 const Listeners = require('./app/services/listeners');
 const RemoteAuth = require('./app/services/remote-auth');
 
-// const { startScheduledTasks } = require('./app/tasks');
+const { startScheduledTasks } = require('./app/tasks');
+
 const port = config.port || 4500;
 
 (async () => {
@@ -50,7 +51,7 @@ const port = config.port || 4500;
         console.log(`Server is running on port ${port}!`);
     });
 
-    // startScheduledTasks();
+    startScheduledTasks(database);
   };
 
   try {
