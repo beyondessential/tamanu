@@ -161,6 +161,9 @@ class SenaitePoller extends ScheduledTask {
         rejectUnauthorized: false,
       }, (err, response, body) => err ? reject(err) : resolve(body))
 
+      // generate string of the format 0dddddddd
+      const sampleId = ('000000000' + Math.floor(Math.random() * 99999999)).slice(-9);
+
       // append form data to the request
       // TODO: use json api
       const formData = request.form();
@@ -168,7 +171,7 @@ class SenaitePoller extends ScheduledTask {
       formData.append('Contact-0_uid', '68238055871c4629874b101a8fc00e56');
       formData.append('DateSampled-0', dateTime);
       formData.append('ClientReference-0', labRequestRealmId);
-      formData.append('ClientSampleID-0', labRequest.sampleId || '');
+      formData.append('ClientSampleID-0', sampleId);
       formData.append('SampleType-0_uid', '2c8c959a8fbf4ee684cf27e13cadbcbc');
 
       testIDs.forEach(uid => {
@@ -188,6 +191,7 @@ class SenaitePoller extends ScheduledTask {
 
     this.database.write(() => {
       labRequest.senaiteId = createdRequest.uid;
+      labRequest.sampleId = sampleId;
     });
   }
 
