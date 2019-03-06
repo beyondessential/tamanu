@@ -2,7 +2,7 @@ const { get, post, jar } = require('request');
 const config = require('config');
 const moment = require('moment');
 
-const { LAB_REQUEST_STATUSES } = require('../../../shared/constants');
+const { LAB_REQUEST_STATUSES } = require('../constants');
 const { ScheduledTask } = require('./ScheduledTask');
 
 // if there's an error creating a lab request in senaite
@@ -119,9 +119,11 @@ class SenaitePoller extends ScheduledTask {
   }
 
   async createLabRequestsOnSenaite() {
+    // Get all requests that need a senaite record created. That is:
+    // - no senaite ID
+    // - status is not senaite error (ie, previously attempted and failed)
     const labRequestsToBeCreated = this.database.objects('labRequest')
-      .filter(x => !x.senaiteId)
-      .filter(x => x.status !== SENAITE_ERROR_STATUS);
+      .filtered('senaiteId == NULL && status != $0', SENAITE_ERROR_STATUS);
 
     for(let i = 0; i < labRequestsToBeCreated.length; ++i) {
       const labRequest = labRequestsToBeCreated[i];
@@ -228,9 +230,20 @@ class SenaitePoller extends ScheduledTask {
   }
 
   async getAllPendingLabRequests() {
+    // Get all lab requests that
+    // - have a corresponding record in senaite
+    // - are open (ie, not fulfilled, not cancelled, etc)
+
+    // Realm doesn't have an "in array" query so we assemble the
+    // query by concatenation.
+
+    const query = [
+      'senaiteId != NULL',
+      ...TARGET_STATES.map(x => `status != "${x}"`)
+    ].join(" && ");
+
     return this.database.objects('labRequest')
-      .filter(x => x.senaiteId)
-      .filter(x => !TARGET_STATES.includes(x.status));
+      .filtered(query);
   }
 
   async processLabRequest(realmLabRequest) {
