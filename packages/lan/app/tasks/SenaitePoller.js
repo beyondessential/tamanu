@@ -15,7 +15,7 @@ function formatForSenaite(datetime) {
 class SenaitePoller extends ScheduledTask {
   
   constructor(database) {
-    super('*/5 * * * *'); // run every 5 minutes
+    super('*/1 * * * *'); // run every 1 minute
     this.jar = jar(); // separate cookie store
     this.loginTask = null;
     this.database = database;
@@ -25,14 +25,6 @@ class SenaitePoller extends ScheduledTask {
 
   async runInitialTasks() {
     await this.login();
-    await this.getAnalysisServiceUUIDs();
-
-    /*
-     * FIXME temp code
-     * 
-    const labRequest = this.database.objects('labRequest')[1];
-    this.createLabRequest(labRequest);
-    /**/
   }
 
   //----------------------------------------------------------
@@ -50,6 +42,7 @@ class SenaitePoller extends ScheduledTask {
   }
 
   async apiRequest(endpoint) {
+
     const url = `${BASE_URL}/@@API/senaite/v1/${endpoint}`;
     return this.request(url);
   }
@@ -115,8 +108,21 @@ class SenaitePoller extends ScheduledTask {
     });
   }
 
+  async createLabRequestsOnSenaite() {
+    const labRequestsToBeCreated = this.database.objects('labRequest')
+      .filter(x => !x.senaiteId);
+
+    for(let i = 0; i < labRequestsToBeCreated.length; ++i) {
+      const labRequest = labRequestsToBeCreated[i];
+      await this.createLabRequest(labRequest);
+    }
+  }
+
   async createLabRequest(labRequest) {
+    const labRequestRealmId = labRequest._id;
     const url = `${BASE_URL}/analysisrequests/ajax_ar_add/submit`;
+
+    console.log("CREATING", labRequestRealmId);
 
     // get analyses that have associated senaite IDs
     const testIDs = labRequest.tests
@@ -143,7 +149,7 @@ class SenaitePoller extends ScheduledTask {
       formData.append('Client-0_uid', 'afcdd64ab9ac48fe9255ecc129459e88');
       formData.append('Contact-0_uid', '68238055871c4629874b101a8fc00e56');
       formData.append('DateSampled-0', dateTime);
-      formData.append('ClientReference-0', labRequest._id);
+      formData.append('ClientReference-0', labRequestRealmId);
       formData.append('ClientSampleID-0', labRequest.sampleId || '');
       formData.append('SampleType-0_uid', '2c8c959a8fbf4ee684cf27e13cadbcbc');
 
@@ -155,10 +161,12 @@ class SenaitePoller extends ScheduledTask {
 
     // get recent requests & find the one we just created
     const allRequests = await this.getAllItems('AnalysisRequest?complete=true');
-    const createdRequest = allRequests.find(x => x.ClientReference === labRequest._id);
+    const createdRequest = allRequests.find(x => x.ClientReference === labRequestRealmId);
     if(!createdRequest) {
       throw new Error('Could not get senaite ID for new lab request');
     }
+
+    console.log("CREATED", createdRequest.url);
 
     this.database.write(() => {
       labRequest.senaiteId = createdRequest.uid;
@@ -228,9 +236,15 @@ class SenaitePoller extends ScheduledTask {
   }
 
   async run() {
-    if(!this.loggedIn) {
+    if(!this.loginTask) {
       await this.login();
     }
+
+    // run in case services have been created or renamed
+    await this.getAnalysisServiceUUIDs();
+
+    // TODO: create these requests immediately rather than polling for them
+    await this.createLabRequestsOnSenaite();
     
     const requests = await this.getAllPendingLabRequests();
     await Promise.all(requests.map(req => this.processLabRequest(req)));
