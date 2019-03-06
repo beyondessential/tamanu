@@ -5,9 +5,6 @@ function startScheduledTasks(database) {
   if(config.senaite.enabled) {
     const senaite = new SenaitePoller(database);
     senaite.beginPolling();
-    
-    // FIXME: TEMP CODE DELETE THIS
-    setTimeout(() => senaite.run(), 1000);
   }
 }
 
