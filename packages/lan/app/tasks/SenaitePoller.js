@@ -210,7 +210,7 @@ class SenaitePoller extends ScheduledTask {
 
     // fetch individual lab results
     const analysisTasks = labRequest.Analyses
-      .map(r => r.uid + '?workflow=y')
+      .map(r => `${r.uid}?workflow=y`)
       .map(url => this.apiRequest(url));
 
     // get the relevant bits that we want
