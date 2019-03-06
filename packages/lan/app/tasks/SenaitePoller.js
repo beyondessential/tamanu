@@ -53,7 +53,6 @@ class SenaitePoller extends ScheduledTask {
   }
 
   async apiRequest(endpoint) {
-
     const url = `${BASE_URL}/@@API/senaite/v1/${endpoint}`;
     return this.request(url);
   }
@@ -200,7 +199,7 @@ class SenaitePoller extends ScheduledTask {
   //
   async fetchLabRequestInfo(senaiteId) {
     // fetch information about entire request
-    const body = await this.apiRequest(`analysisrequest/${senaiteId}?workflow=y`);
+    const body = await this.apiRequest(`${senaiteId}?workflow=y`);
     const labRequest = body.items[0];
 
     const statusData = labRequest.workflow_info.find(x => x.workflow === 'bika_ar_workflow');
@@ -214,7 +213,6 @@ class SenaitePoller extends ScheduledTask {
     // get the relevant bits that we want
     const analysisResults = await Promise.all(analysisTasks);
     const analysisData = analysisResults
-      .map(paginated => paginated.items[0]) // we're requesting by ID so it'll always be 1 result
       .map(item => ({
         result: item.Result,
         status: item.workflow_info[0].review_state,
