@@ -202,6 +202,8 @@ class SenaitePoller extends ScheduledTask {
     const body = await this.apiRequest(`${senaiteId}?workflow=y`);
     const labRequest = body.items[0];
 
+    // there can be multiple workflows (eg cancellation workflow) so make sure
+    // we get the right one
     const statusData = labRequest.workflow_info.find(x => x.workflow === 'bika_ar_workflow');
     const requestStatus = (statusData || {}).status;
 
@@ -236,7 +238,6 @@ class SenaitePoller extends ScheduledTask {
     const results = await this.fetchLabRequestInfo(senaiteId);
 
     console.log("Updating tests for", realmLabRequest._id);
-    console.log(results);
     this.database.write(() => {
       realmLabRequest.tests.map(realmTest => {
         const senaiteResult = results.tests.find(x => x.serviceId === realmTest.type.senaiteId);
