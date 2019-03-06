@@ -1,3 +1,6 @@
+process.env.NODE_CONFIG_DIR = `${__dirname}/config/`;
+const ENV = process.env.NODE_ENV || 'production';
+
 const config = require('config');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -12,9 +15,6 @@ const Listeners = require('./app/services/listeners');
 const RemoteAuth = require('./app/services/remote-auth');
 
 const { startScheduledTasks } = require('./app/tasks');
-
-process.env["NODE_CONFIG_DIR"] = `${__dirname}/config/`;
-const ENV = process.env.NODE_ENV || 'production';
 
 const port = config.port || 4500;
 
