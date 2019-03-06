@@ -155,15 +155,15 @@ class SenaitePoller extends ScheduledTask {
 
     const dateTime = formatForSenaite(labRequest.requestedDate);
 
+    // generate string of the format 0dddddddd
+    const sampleId = ('000000000' + Math.floor(Math.random() * 99999999)).slice(-9);
+
     const result = await new Promise((resolve, reject) => {
       const request = post({
         url,
         jar: this.jar,
         rejectUnauthorized: false,
       }, (err, response, body) => err ? reject(err) : resolve(body))
-
-      // generate string of the format 0dddddddd
-      const sampleId = ('000000000' + Math.floor(Math.random() * 99999999)).slice(-9);
 
       // append form data to the request
       // TODO: use json api
@@ -201,8 +201,7 @@ class SenaitePoller extends ScheduledTask {
   //
   async fetchLabRequestInfo(senaiteId) {
     // fetch information about entire request
-    const body = await this.apiRequest(`${senaiteId}?workflow=y`);
-    const labRequest = body.items[0];
+    const labRequest = await this.apiRequest(`${senaiteId}?workflow=y`);
 
     // there can be multiple workflows (eg cancellation workflow) so make sure
     // we get the right one
@@ -211,8 +210,8 @@ class SenaitePoller extends ScheduledTask {
 
     // fetch individual lab results
     const analysisTasks = labRequest.Analyses
-      .map(r => r.api_url + '?workflow=y')
-      .map(url => this.request(url));
+      .map(r => r.uid + '?workflow=y')
+      .map(url => this.apiRequest(url));
 
     // get the relevant bits that we want
     const analysisResults = await Promise.all(analysisTasks);
