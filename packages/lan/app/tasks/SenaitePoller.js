@@ -5,7 +5,18 @@ const moment = require('moment');
 const { LAB_REQUEST_STATUSES } = require('../../../shared/constants');
 const { ScheduledTask } = require('./ScheduledTask');
 
-const TARGET_STATES = ['verified', 'published', 'invalid'];
+// if there's an error creating a lab request in senaite
+// set it to "manual" status (indicating 'you'll need to do this manually')
+// it should be called something errorier but it's set to diplomatic language
+// for a demo
+const SENAITE_ERROR_STATUS = 'manual';
+
+const TARGET_STATES = [
+  'verified', 
+  'published', 
+  'invalid', 
+  SENAITE_ERROR_STATUS,
+];
 const BASE_URL = config.senaite.server;
     
 function formatForSenaite(datetime) {
@@ -110,11 +121,19 @@ class SenaitePoller extends ScheduledTask {
 
   async createLabRequestsOnSenaite() {
     const labRequestsToBeCreated = this.database.objects('labRequest')
-      .filter(x => !x.senaiteId);
+      .filter(x => !x.senaiteId)
+      .filter(x => x.status !== SENAITE_ERROR_STATUS);
 
     for(let i = 0; i < labRequestsToBeCreated.length; ++i) {
       const labRequest = labRequestsToBeCreated[i];
-      await this.createLabRequest(labRequest);
+      try {
+        await this.createLabRequest(labRequest);
+      } catch(e) {
+        console.error(e);
+        this.database.write(() => {
+          labRequest.status = SENAITE_ERROR_STATUS;
+        });
+      }
     }
   }
 
@@ -130,8 +149,7 @@ class SenaitePoller extends ScheduledTask {
       .filter(x => x);
 
     if(!testIDs.length) {
-      console.warn("No valid test types on labRequest", labRequest._id);
-      return;
+      throw new Error("No valid test types on labRequest:" + labRequest._id);
     }
 
     const dateTime = formatForSenaite(labRequest.requestedDate);
