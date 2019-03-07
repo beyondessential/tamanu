@@ -3,6 +3,7 @@ import { TopBar, Button } from '../../components';
 import { BrowsableTable } from '../../components/BrowsableTable';
 import { DateDisplay } from '../../components/DateDisplay';
 import { LabRequestsCollection } from '../../collections';
+import { toTitleCase } from '../../utils';
 
 const requestWithPatientInfo = (row) => {
   const data = row.toJSON();
@@ -26,7 +27,11 @@ export class LabRequestsTable extends Component {
   collection = new LabRequestsCollection();
 
   static columns = [
-    { Header: 'Status', accessor: 'status' },
+    { 
+      Header: 'Status',
+      accessor: 'status',
+      Cell: ({ original }) => toTitleCase(original.status),
+    },
     { Header: 'Category', accessor: 'category.name' },
     { Header: 'Patient name', accessor: 'patientName' },
     { Header: 'Requested by', accessor: 'requestedBy.displayName' },

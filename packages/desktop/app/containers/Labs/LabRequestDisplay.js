@@ -5,6 +5,7 @@ import moment from 'moment';
 import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
 import { LabRequestModel } from '../../models';
+import { toTitleCase } from '../../utils';
 
 const Unit = styled.span`
   color: rgba(0, 0, 0, 0.6);
@@ -14,10 +15,22 @@ const DataSection = styled.div`
   margin-bottom: 1rem;
 `;
 
+const DataLabel = styled.span`
+  font-weight: bold;
+`;
+
+const DataValue = styled.span`
+`;
+
+const DataItem = ({ label, value }) => ( 
+  <li>
+    <DataLabel>{label}:</DataLabel> <DataValue>{value}</DataValue>
+  </li>
+);
+
 const NoteContent = styled.p`
   font-size: 14pt;
 `;
-
 
 const PLACEHOLDER_PATIENT = {
   sex: "female",
@@ -93,13 +106,13 @@ export class LabRequestDisplay extends React.Component {
         <div className="detail">
           <DataSection>
             <ul>
-              <li>Patient: {patientData.firstName} {patientData.lastName}</li>
-              <li>Requested by: {labRequestData.requestedBy.displayName}</li>
-              <li>Status: {labRequestData.status}</li>
-              <li>Category: {labRequestData.category.name}</li>
-              <li>Requested date: <DateDisplay date={labRequestData.requestedDate}/></li>
-              <li>Sample date: <DateDisplay date={labRequestData.sampleDate}/></li>
-              <li>Sample ID: {labRequestData.sampleId || "processing"}</li>
+              <DataItem label="Patient" value={`${patientData.firstName} ${patientData.lastName}`} />
+              <DataItem label="Requested by" value={labRequestData.requestedBy.displayName} />
+              <DataItem label="Status" value={toTitleCase(labRequestData.status)} />
+              <DataItem label="Category" value={labRequestData.category.name} />
+              <DataItem label="Requested date" value={<DateDisplay date={labRequestData.requestedDate}/>} />
+              <DataItem label="Sample date" value={<DateDisplay day={labRequestData.sampleDate}/>} />
+              <DataItem label="Sample ID" value={labRequestData.sampleId || "processing"} />
             </ul>
           </DataSection>
 
