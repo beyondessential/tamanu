@@ -7,9 +7,11 @@ import createHistory from 'history/createHashHistory';
 
 export const history = createHistory();
 
-export const toTitleCase = text => text.split(' ')
-  .map(t => t.slice(0, 1).toUpperCase() + t.slice(1))
-  .join(' ');
+export const toTitleCase = text => text
+  ? text.split(' ')
+    .map(t => t.slice(0, 1).toUpperCase() + t.slice(1))
+    .join(' ')
+  : '';
 
 export const concatSelf = (array, ...items) => {
   items.map(item => {
