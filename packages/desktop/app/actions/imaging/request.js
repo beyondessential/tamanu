@@ -11,11 +11,9 @@ import {
 import {
   ImagingRequestModel,
   PatientModel,
-  ImagingTestCategoryModel,
   VisitModel,
   UserModel,
 } from '../../models';
-import { IMAGING_REQUEST_STATUSES } from '../../constants';
 
 export const initImagingRequest = (patientId, id) =>
   async dispatch => {
@@ -88,7 +86,7 @@ export const saveImagingRequest = ({ imagingRequestModel, action }) =>
   };
 
 export const markImagingRequestCompleted = ({ imagingRequestModel }) =>
-    async (dispatch, getState) => {
+    async (dispatch) => {
       dispatch({ type: SAVE_IMAGING_REQUEST_REQUEST });
       try {
         await imagingRequestModel.save();

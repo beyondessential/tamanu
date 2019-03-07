@@ -21,7 +21,7 @@ import {
   Button,
 } from '../../components';
 import { dateFormat, IMAGING_REQUEST_STATUSES } from '../../constants';
-import { ImagingRequestModel, DiagnosisModel } from '../../models';
+import { ImagingRequestModel } from '../../models';
 
 const ButtonsContainer = styled.div`
   padding: 8px 8px 32px 8px;
