@@ -3,9 +3,18 @@ import PropTypes from 'prop-types';
 import { Button } from '../../../components';
 import { BrowsableTable } from '../../../components/BrowsableTable';
 import { ImagingRequestsCollection } from '../../../collections';
-import { imagingRequestsColumns, IMAGING_REQUEST_STATUSES } from '../../../constants';
+import { imagingRequestsColumns, columnStyle, headerStyle, IMAGING_REQUEST_STATUSES } from '../../../constants';
 
-const setActionsColumn = ({ original: { _id } }) => (
+const getActionsColumn = () => ({
+  id: 'actions',
+  Header: 'Actions',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 100,
+  Cell: (props) => <ActionsColumn {...props} />
+});
+
+const ActionsColumn = ({ original: { _id } }) => (
     <div key={_id}>
       <Button
         variant="contained"
@@ -42,7 +51,7 @@ class ImagingRequestsTable extends Component {
 
   componentWillMount() {
     // set action columns
-    imagingRequestsColumns[imagingRequestsColumns.length - 1].Cell = setActionsColumn;
+    this.columns = [...imagingRequestsColumns, getActionsColumn()];
     this.collection = new ImagingRequestsCollection();
   }
 
@@ -52,7 +61,7 @@ class ImagingRequestsTable extends Component {
     return (
       <BrowsableTable
         collection={this.collection}
-        columns={imagingRequestsColumns}
+        columns={this.columns}
         emptyNotification="No requests found"
         transformRow={transformRow}
         fetchOptions={{ data: { status } }}
