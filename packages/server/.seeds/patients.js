@@ -1,4 +1,5 @@
 const request = require('request');
+const { padStart } = require('lodash');
 
 module.exports = async (database) => {
   const URL = 'http://randomuser.me/api?results=30';
@@ -21,7 +22,7 @@ module.exports = async (database) => {
     database.write(() => {
       mockPatients.map(async (r, i) => {
         const patientDetails = {
-          dispalyId: `TMP${i.padStart(4, '0')}`,
+          displayId: `TMP${padStart(i.toFixed(), 4, '0')}`,
           sex: r.gender,
           firstName: titleCase(r.name.first),
           lastName: titleCase(r.name.last),
