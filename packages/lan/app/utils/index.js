@@ -9,6 +9,8 @@ const jsonParse = (object) => {
   }
 };
 
+// TODO: change this function to use regex only or a combination
+//       to reduce performance issues when parsing large objects 
 let currentDepth = 0;
 const objectToJSON = (object, depp = true, maxDepth = 3, internalCall = false) => {
   try {
