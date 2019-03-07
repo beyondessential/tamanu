@@ -6,6 +6,7 @@ import medication from './medication';
 import medications from './medications';
 import invoices from './invoices';
 import labs from './labs';
+import imaging from './imaging';
 import programs from './programs';
 import scheduling from './scheduling';
 
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   medications,
   invoices,
   labs,
+  imaging,
   programs,
   scheduling
 });

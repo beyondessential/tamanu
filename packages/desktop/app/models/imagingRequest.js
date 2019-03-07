@@ -1,6 +1,8 @@
 import Backbone from 'backbone-associations';
 import BaseModel from './base';
 import moment from 'moment';
+import { IMAGING_REQUEST_STATUSES } from '../constants';
+import PatientModel from './patient';
 
 export default BaseModel.extend({
   urlRoot:  `${BaseModel.prototype.urlRoot}/imagingRequest`,
@@ -12,7 +14,7 @@ export default BaseModel.extend({
     diagnosis: null,
     notes: null,
     imageSource: null,
-    status: null,
+    status: IMAGING_REQUEST_STATUSES.PENDING,
     requestedBy: null,
     requestedDate: moment(),
     reviewedBy: null,
@@ -53,7 +55,17 @@ export default BaseModel.extend({
 
   getPatient() {
     const { parents: { visit: visitModel } } = this;
-    const { parents: { patient: patientModel } } = visitModel;
+    const { parents: { patient: patientModel = new PatientModel() } } = visitModel;
     return patientModel.toJSON();
+  },
+
+  validate(attributes) {
+    const errors = [];
+    if (!attributes.type) errors.push('type is required');
+    if (attributes._id) {
+      if (!attributes.diagnosis) errors.push('diagnosis is required');
+      if (!attributes.detail) errors.push('detail is required');
+    }
+    if (errors.length >= 1) return errors;
   }
 });

@@ -27,6 +27,11 @@ export const MAX_AUTO_COMPLETE_ITEMS = {
   DIAGNOSES: 10,
 };
 
+export const IMAGING_REQUEST_STATUSES = {
+  PENDING: 'pending',
+  COMPLETED: 'completed',
+};
+
 export const dbViews = {
   medicationCompleted: 'medication_completed',
   medicationRequested: 'medication_requested',
@@ -1503,6 +1508,13 @@ export const patientImagingRequestsColumns = [
   }, {
     accessor: 'detail',
     Header: 'Detail',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    id: 'status',
+    accessor: ({ status }) => capitalize(status),
+    Header: 'Status',
     headerStyle,
     style: columnStyle,
     minWidth: 100

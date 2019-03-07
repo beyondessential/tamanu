@@ -3,6 +3,7 @@ export PregnanciesCollection from './pregnancies';
 export AppointmentCollection from './appointment';
 export DiagnosesCollection from './diagnoses';
 export ImagingRequestsCollection from './imagingRequests';
+export ImagingTypesCollection from './imagingTypes';
 export DrugsCollection from './drugs';
 export ModifiedFieldsCollection from './modifiedFields';
 export MedicationCollection from './medication';
