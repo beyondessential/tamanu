@@ -3,6 +3,23 @@ import { TopBar, Button } from '../../components';
 import { BrowsableTable } from '../../components/BrowsableTable';
 import { LabRequestsCollection } from '../../collections';
 
+const requestWithPatientInfo = (row) => {
+  const data = row.toJSON();
+  const { visits: [visit] } = data;
+
+  if(!visit) return data;
+
+  // 'visit.patient' is actually an array containing one patient
+  const { patient: patients = [] } = visit;
+  const patient = patients[0];
+  const patientName = `${patient.firstName} ${patient.lastName}`;
+
+  return {
+    ...data,
+    patientName,
+  };
+};
+
 export class LabRequestsTable extends Component {
   
   collection = new LabRequestsCollection();
@@ -10,7 +27,7 @@ export class LabRequestsTable extends Component {
   static columns = [
     { Header: 'Status', accessor: 'status' },
     { Header: 'Category', accessor: 'category.name' },
-    { Header: 'Patient name', accessor: 'patient.displayName' },
+    { Header: 'Patient name', accessor: 'patientName' },
     { Header: 'Requested by', accessor: 'requestedBy.displayName' },
     { Header: 'Date', accessor: 'requestedDate' },
     { 
@@ -28,6 +45,7 @@ export class LabRequestsTable extends Component {
   render() {
     return (
       <BrowsableTable
+        transformRow={requestWithPatientInfo}
         collection={this.collection}
         columns={LabRequestsTable.columns}
         emptyNotification="No requests found"
