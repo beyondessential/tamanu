@@ -3,7 +3,7 @@ import { TopBar } from '../../components';
 import ImagingRequestsTable from './components/ImagingRequestsTable';
 import { IMAGING_REQUEST_STATUSES  } from '../../constants';
 
-export const CompletedRequests = () => (
+const CompletedImagingRequests = () => (
   <div className="content">
     <TopBar
       title="Completed Imaging Requests"
@@ -19,4 +19,4 @@ export const CompletedRequests = () => (
   </div>
 );
 
-export default CompletedRequests;
+export default CompletedImagingRequests;
