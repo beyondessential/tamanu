@@ -494,12 +494,6 @@ export const patientColumns = [
     style: columnStyle,
     minWidth: 100
   }, {
-    accessor: 'patientStatus',
-    Header: 'Status',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 80
-  }, {
     id: 'actions',
     Header: 'Actions',
     headerStyle,
@@ -553,12 +547,6 @@ export const admittedPatientsColumns = [
     headerStyle,
     style: columnStyle,
     minWidth: 100
-  }, {
-    accessor: 'patientStatus',
-    Header: 'Status',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 80
   }, {
     accessor: 'actiomns',
     id: 'actions',
@@ -923,13 +911,6 @@ export const programsPatientsColumns = [
     headerStyle,
     style: columnStyle,
     minWidth: 100,
-    filterable: false
-  }, {
-    accessor: 'patientStatus',
-    Header: 'Status',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 80,
     filterable: false
   }, {
     accessor: row => {
