@@ -33,7 +33,7 @@ const NoteContent = styled.p`
 `;
 
 const PLACEHOLDER_PATIENT = {
-  sex: "female",
+  attributes: { sex: "female" },
   getDisplayName: () => "Joan Smythe",
 };
 
@@ -66,7 +66,8 @@ export class LabRequestDisplay extends React.Component {
       return <Preloader />;
     }
 
-    const patientIsMale = (patientData.sex === "male");
+    const patientSex = patientData.attributes.sex;
+    const patientIsMale = (patientSex === "male");
     const getReferenceRange = ({type}) => {
       const range = (patientIsMale ? type.maleRange : type.femaleRange);
       const { 0: min, 1: max } = (range || {});
@@ -106,7 +107,7 @@ export class LabRequestDisplay extends React.Component {
             <table>
               <tbody>
                 <tr>
-                  <th>Test</th><th>Result</th><th>Reference ({patientData.sex})</th>
+                  <th>Test</th><th>Result</th><th>Reference ({patientSex})</th>
                 </tr>
                 {tests}
               </tbody>
