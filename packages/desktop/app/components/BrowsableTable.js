@@ -11,10 +11,12 @@ export class BrowsableTable extends Component {
 
   static propTypes = {
     transformRow: PropTypes.func,
+    fetchOptions: PropTypes.object,
   }
 
   static defaultProps = {
     transformRow: defaultTransformRow,
+    fetchOptions: {},
   }
 
   state = {
@@ -24,7 +26,7 @@ export class BrowsableTable extends Component {
   }
 
   onFetchData = async (state = {}) => {
-    const { collection } = this.props;
+    const { collection, fetchOptions } = this.props;
     const updates = { loading: true };
     if (!isEmpty(state)) updates.tableState = state;
     this.setState(updates);
@@ -39,9 +41,10 @@ export class BrowsableTable extends Component {
 
       await collection.getPage(
         state.page || 0,
-        undefined,
-        undefined,
+        null,
+        null,
         {
+          ...fetchOptions,
           pageSize: state.pageSize || 10,
         }
       );
