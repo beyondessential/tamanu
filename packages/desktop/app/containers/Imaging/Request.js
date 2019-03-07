@@ -19,6 +19,7 @@ import {
   DiagnosisAutocomplete,
   SelectGroup,
   Button,
+  Preloader,
 } from '../../components';
 import { dateFormat, IMAGING_REQUEST_STATUSES } from '../../constants';
 import { ImagingRequestModel } from '../../models';
@@ -126,6 +127,9 @@ class Request extends Component {
   }
 
   render () {
+    const { isLoading } = this.state;
+    if (isLoading) return <Preloader />;
+
     const { action, patient, isPatientSelected, imagingTypes } = this.props;
     const {
       selectedPatientId, visit, location, type, notes,
