@@ -13,11 +13,13 @@ class DrugAutocomplete extends Component {
     name: PropTypes.string.isRequired,
     className: PropTypes.string,
     onChange: PropTypes.func.isRequired,
+    placeholder: PropTypes.string.isRequired,
   }
 
   static defaultProps = {
     required: false,
     className: '',
+    placeholder: 'Start typing...',
   }
 
   constructor(props) {
@@ -58,6 +60,7 @@ class DrugAutocomplete extends Component {
       required,
       name,
       className,
+      placeholder,
     } = this.props;
 
     return (
@@ -66,7 +69,7 @@ class DrugAutocomplete extends Component {
           {label} {required && <span className="isRequired">*</span>}
         </span>
         <Autocomplete
-          inputProps={{ name: 'drug' }}
+          inputProps={{ name: 'drug', placeholder }}
           getItemValue={(item) => `${item.code} - ${item.firstName} ${item.lastName}`}
           wrapperProps={{ className: 'autocomplete-wrapper' }}
           items={this.state.drugs}

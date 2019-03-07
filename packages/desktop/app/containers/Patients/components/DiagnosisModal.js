@@ -189,13 +189,6 @@ class DiagnosisModal extends Component {
                   name="secondaryDiagnosis"
                   onChange={this.handleFormInput}
                 />
-                <CheckboxGroupNoPadding
-                  className="column"
-                  checked={active}
-                  label="Active Diagnosis"
-                  name="active"
-                  onChange={this.handleFormInput}
-                />
                 <div className="is-clearfix" />
               </div>
               <div className="modal-footer">
