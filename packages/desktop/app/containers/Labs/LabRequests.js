@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { TopBar, Button } from '../../components';
 import { BrowsableTable } from '../../components/BrowsableTable';
+import { DateDisplay } from '../../components/DateDisplay';
 import { LabRequestsCollection } from '../../collections';
 
 const requestWithPatientInfo = (row) => {
@@ -29,7 +30,11 @@ export class LabRequestsTable extends Component {
     { Header: 'Category', accessor: 'category.name' },
     { Header: 'Patient name', accessor: 'patientName' },
     { Header: 'Requested by', accessor: 'requestedBy.displayName' },
-    { Header: 'Date', accessor: 'requestedDate' },
+    {
+      Header: 'Date', 
+      accessor: 'requestedDate',
+      Cell: ({ original }) => <DateDisplay date={original.requestedDate} />,
+    },
     { 
       Header: 'Actions', 
       Cell: ({ original: labRequestData }) => (
