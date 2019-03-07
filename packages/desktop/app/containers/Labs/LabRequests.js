@@ -7,18 +7,13 @@ import { toTitleCase } from '../../utils';
 
 const requestWithPatientInfo = (row) => {
   const data = row.toJSON();
-  const { visits: [visit] } = data;
 
-  if(!visit) return data;
-
-  // 'visit.patient' is actually an array containing one patient
-  const { patient: patients = [] } = visit;
-  const patient = patients[0];
-  const patientName = `${patient.firstName} ${patient.lastName}`;
+  const patient = row.getPatient();
+  if(!patient) return data;
 
   return {
     ...data,
-    patientName,
+    patientName: patient.getDisplayName(),
   };
 };
 

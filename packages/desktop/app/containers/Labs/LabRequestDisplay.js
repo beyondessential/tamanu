@@ -34,22 +34,7 @@ const NoteContent = styled.p`
 
 const PLACEHOLDER_PATIENT = {
   sex: "female",
-  firstName: "Joan",
-  lastName: "Smythe",
-};
-
-function extractPatientFromLabRequest(labRequestModel) {
-  const { visits: [visit] } = labRequestModel;
-
-  if(!visit) return PLACEHOLDER_PATIENT;
-
-  // 'visit.patient' is actually an array containing one patient
-  const { patient: patients = [] } = visit;
-  const patient = patients[0];
-
-  if(!patient) return PLACEHOLDER_PATIENT;
-    
-  return patient;
+  getDisplayName: () => "Joan Smythe",
 };
 
 export class LabRequestDisplay extends React.Component {
@@ -66,7 +51,7 @@ export class LabRequestDisplay extends React.Component {
     await model.fetch();
 
     const labRequestData = model.toJSON();
-    const patientData = extractPatientFromLabRequest(labRequestData);
+    const patientData = model.getPatient() || PLACEHOLDER_PATIENT;
 
     this.setState({ 
       loading: false,
@@ -106,7 +91,7 @@ export class LabRequestDisplay extends React.Component {
         <div className="detail">
           <DataSection>
             <ul>
-              <DataItem label="Patient" value={`${patientData.firstName} ${patientData.lastName}`} />
+              <DataItem label="Patient" value={patientData.getDisplayName()} />
               <DataItem label="Requested by" value={labRequestData.requestedBy.displayName} />
               <DataItem label="Status" value={toTitleCase(labRequestData.status)} />
               <DataItem label="Category" value={labRequestData.category.name} />

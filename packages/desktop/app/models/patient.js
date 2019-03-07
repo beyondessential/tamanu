@@ -120,6 +120,11 @@ export default BaseModel.extend({
     if (attrs.lastName === '') return 'lastName is required!';
   },
 
+  getDisplayName() {
+    const { firstName, lastName } = this.attributes;
+    return [firstName, lastName].join(' ');
+  },
+
   getOpenPlan() {
     let _return = {};
     if (this.attributes.operativePlans.models.length > 0) {
