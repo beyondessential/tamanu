@@ -728,13 +728,15 @@ export const visitsColumns = [
 ];
 
 export const vitalsColumns = [
+  // TODO Add back in after the vitals taker is recorded
+  // {
+  //   accessor: 'taken',
+  //   Header: 'Taken By',
+  //   headerStyle,
+  //   style: columnStyle,
+  //   minWidth: 100
+  // },
   {
-    accessor: 'taken',
-    Header: 'Taken By',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 100
-  }, {
     id: "dateRecorded",
     accessor: row => moment(row.dateRecorded).format(dateTimeFormat),
     Header: 'Date',
