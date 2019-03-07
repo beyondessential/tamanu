@@ -19,8 +19,9 @@ module.exports = async (database) => {
     const mockPatients = JSON.parse(details).results
 
     database.write(() => {
-      mockPatients.map(async r => {
+      mockPatients.map(async (r, i) => {
         const patientDetails = {
+          displayId: `TMP${i.toFixed().padStart(4, '0')}`,
           sex: r.gender,
           firstName: titleCase(r.name.first),
           lastName: titleCase(r.name.last),
