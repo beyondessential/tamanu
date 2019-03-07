@@ -56,6 +56,7 @@ export default BaseModel.extend({
   getPatient() {
     const { parents: { visit: visitModel } } = this;
     const { parents: { patient: patientModel = new PatientModel() } } = visitModel;
+    if (!patientModel.id) console.log(`patient not found for imagingRequest[${this.id}]`);
     return patientModel.toJSON();
   },
 
