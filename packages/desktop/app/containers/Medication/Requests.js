@@ -49,8 +49,8 @@ class Requests extends Component {
     );
   }
 
-  fetchData = opts => {
-    this.props.fetchMedications({
+  fetchData = async opts => {
+    return this.props.fetchMedications({
       view: dbViews.medicationRequested,
       ...opts
     });

@@ -41,7 +41,7 @@ class Completed extends Component {
   }
 
   fetchData = opts => {
-    this.props.fetchMedications({
+    return this.props.fetchMedications({
       view: dbViews.medicationFulfilled,
       ...opts
     });
