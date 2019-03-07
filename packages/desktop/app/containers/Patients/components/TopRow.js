@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import moment from 'moment';
+import { getDifferenceDate } from '../../../constants';
 
 const FullWidthWrapper = styled.div`
   flex-grow: 1
@@ -32,7 +34,7 @@ class TopRow extends Component {
             <div className="column p-t-5 p-b-5">
               <span className="title is-medium">Age: </span>
               <span className="is-medium">
-                {patient.age}
+                {getDifferenceDate(moment(), patient.dateOfBirth)}
               </span>
             </div>
           </div>
