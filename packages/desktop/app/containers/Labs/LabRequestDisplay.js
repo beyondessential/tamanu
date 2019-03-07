@@ -79,6 +79,7 @@ export class LabRequestDisplay extends React.Component {
               <li>Category: {data.category.name}</li>
               <li>Requested date: <DateDisplay date={data.requestedDate}/></li>
               <li>Sample date: <DateDisplay date={data.sampleDate}/></li>
+              <li>Sample ID: {data.sampleId || "processing"}</li>
             </ul>
           </DataSection>
 

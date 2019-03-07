@@ -5,7 +5,7 @@
     "env": {
       "watch": ["app", "config", "index.js", "../shared/**/*"],
       "watch_options": {
-          "followSymlinks": false
+        "followSymlinks": false
       },
       "NODE_ENV": "development",
       "autorestart": true
