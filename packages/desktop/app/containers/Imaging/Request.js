@@ -35,11 +35,10 @@ const ViewImageButton = styled(Button)`
   float: left;
 `;
 
-const prepareFormData = ({ type: imagingType, ...fields }) => {
-  const parsedData = {};
-  if (imagingType) parsedData.type = imagingType.id || imagingType._id;
-  return { ...parsedData, ...fields };
-}
+const prepareFormData = ({ type, ...attributes }) => {
+  if (!type) return attributes;
+  return { ...attributes, type: type.id };
+};
 
 class Request extends Component {
   constructor(props) {
@@ -68,7 +67,7 @@ class Request extends Component {
     const { patient: { _id: selectedPatientId }, isLoading, imagingRequestModel } = props;
     if (!isLoading) {
       const formData = prepareFormData({
-        ...imagingRequestModel.toJSON(),
+        ...imagingRequestModel.attributes,
         diagnosis: imagingRequestModel.get('diagnosis'),
       });
       this.setState({
