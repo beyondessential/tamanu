@@ -50,16 +50,6 @@ class Request extends Component {
       isLoading: true,
       selectedPatientId: '',
     }
-
-    this.handlePatientChange = this.handlePatientChange.bind(this);
-    this.handleVisitChange = this.handleVisitChange.bind(this);
-    this.handleTypeChange = this.handleTypeChange.bind(this);
-    this.handleFormInput = this.handleFormInput.bind(this);
-    this.handleModelChange = this.handleModelChange.bind(this);
-    this.handleDiagnosisChange = this.handleDiagnosisChange.bind(this);
-    this.handleFetchedImagingRequest = this.handleFetchedImagingRequest.bind(this);
-    this.markAsCompleted = this.markAsCompleted.bind(this);
-    this.submitForm = this.submitForm.bind(this);
   }
 
   componentDidMount() {
@@ -74,7 +64,7 @@ class Request extends Component {
     this.handleFetchedImagingRequest(newProps);
   }
 
-  handleFetchedImagingRequest(props = this.props) {
+  handleFetchedImagingRequest = (props = this.props) => {
     const { patient: { _id: selectedPatientId }, isLoading, imagingRequestModel } = props;
     if (!isLoading) {
       const formData = prepareFormData({
@@ -90,7 +80,7 @@ class Request extends Component {
     }
   }
 
-  handleModelChange() {
+  handleModelChange = () => {
     const { imagingRequestModel } = this.props;
     const { selectedPatientId } = this.state;
     const formData = prepareFormData(imagingRequestModel.changedAttributes());
@@ -98,23 +88,23 @@ class Request extends Component {
     this.setState({ ...formData, isFormValid });
   }
 
-  handlePatientChange(selectedPatientId) {
+  handlePatientChange = (selectedPatientId) => {
     this.setState({ selectedPatientId });
   }
 
-  handleVisitChange(visit) {
+  handleVisitChange = (visit) => {
     this.handleFormChange({ visit });
   }
 
-  handleTypeChange(imagingTypeId, name) {
+  handleTypeChange = (imagingTypeId, name) => {
     this.handleFormChange({ [name]: { _id: imagingTypeId } });
   }
 
-  handleDiagnosisChange(selectedDiagnosis, name) {
+  handleDiagnosisChange = (selectedDiagnosis, name) => {
     this.handleFormChange({ [name]: selectedDiagnosis });
   }
 
-  handleFormInput(event) {
+  handleFormInput = (event) => {
     const { target: { name, value } } = event;
     this.handleFormChange({ [name]: value });
   }
@@ -124,13 +114,13 @@ class Request extends Component {
     imagingRequestModel.set(change);
   }
 
-  async submitForm(event) {
+  submitForm = (event) => {
     event.preventDefault();
     const { imagingRequestModel, action } = this.props;
     this.props.saveImagingRequest({ imagingRequestModel, action });
   }
 
-  markAsCompleted() {
+  markAsCompleted = () => {
     const { imagingRequestModel, markImagingRequestCompleted } = this.props;
     imagingRequestModel.set('status', IMAGING_REQUEST_STATUSES.COMPLETED);
     markImagingRequestCompleted({ imagingRequestModel });
