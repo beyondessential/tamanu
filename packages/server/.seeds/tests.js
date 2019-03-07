@@ -162,22 +162,22 @@ module.exports = (database) => {
           "questionType": "number"
       }, {
           "category": categoryFBC,
-          "name": "Haemoglobin",
-          "unit": "g/L",
+          "name": "HGB",
+          "unit": "g/dL",
           "maleRange": [135, 180],
           "femaleRange": [115, 160],
           "questionType": "number"
       }, {
           "category": categoryFBC,
           "name": "WBC",
-          "unit": "x10^9/L",
+          "unit": "x10^3/uL",
           "maleRange": [4, 11],
           "femaleRange": [4, 11],
           "questionType": "number"
       }, {
           "category": categoryFBC,
-          "name": "Platelets",
-          "unit": "x10^9/L",
+          "name": "PLT",
+          "unit": "x10^3/uL",
           "maleRange": [150, 400],
           "femaleRange": [150, 400],
           "questionType": "number"
@@ -197,7 +197,7 @@ module.exports = (database) => {
       }, {
           "category": categoryFBC,
           "name": "RBC",
-          "unit": "x10^12/L",
+          "unit": "x10^6/uL",
           "maleRange": [4.5, 6.5],
           "femaleRange": [3.8, 5.8],
           "questionType": "number"
@@ -211,13 +211,14 @@ module.exports = (database) => {
       }, {
           "category": categoryFBC,
           "name": "MCHC",
-          "unit": "g/L",
+          "unit": "g/dL",
           "maleRange": [310, 370],
           "femaleRange": [310, 370],
           "questionType": "number"
       }, {
           "category": categoryFBC,
-          "name": "RDW",
+          "name": "RDW-CV",
+          "unit": "%",
           "maleRange": [11.5, 15],
           "femaleRange": [11.5, 15],
           "questionType": "number"

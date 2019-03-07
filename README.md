@@ -81,6 +81,14 @@ $ mv example.env .env
 $ yarn start-dev # To run in production, use yarn start
 ```
 
+## Integrations
+
+### Senaite
+
+Senaite is disabled by default. To enable it, update your config/local.json to include the Senaite
+information. The most relevant key is `enabled: true` but you'll almost certainly have to update
+the API url and login credentials as well (see config/default.json for how this should be structured).
+
 ## CI / CD
 > **Note: [codeship pro](https://codeship.com/features/pro) is required**
 

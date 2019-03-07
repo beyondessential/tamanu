@@ -6,6 +6,7 @@ const LabTestType = {
   properties: {
     _id: 'string',
     name: 'string',
+    senaiteId: 'string?',
     category: 'labTestCategory',
     femaleRange: 'double?[]',
     maleRange: 'double?[]',

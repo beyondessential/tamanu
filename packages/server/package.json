@@ -64,6 +64,7 @@
     "request-promise": "^4.2.2",
     "serve-index": "^1.9.1",
     "shortid": "^2.2.13",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "xlsx": "^0.14.1"
   }
 }
