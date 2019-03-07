@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import moment from 'moment';
 
 import { DateDisplay } from '../../components/DateDisplay';
-import { TopBar } from '../../components';
+import { TopBar, Preloader } from '../../components';
 import { LabRequestModel } from '../../models';
 import { toTitleCase } from '../../utils';
 
@@ -63,7 +63,7 @@ export class LabRequestDisplay extends React.Component {
   render() {
     const { loading, labRequestData, patientData } = this.state;
     if(loading) {
-      return <div>Loading...</div>;
+      return <Preloader />;
     }
 
     const patientIsMale = (patientData.sex === "male");
