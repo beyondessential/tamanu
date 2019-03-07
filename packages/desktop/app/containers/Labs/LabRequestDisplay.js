@@ -47,11 +47,11 @@ export class LabRequestDisplay extends React.Component {
   
   async componentDidMount() {
     const { match: { params: { id: labRequestId } } } = this.props;
-    const model = new LabRequestModel({ _id: labRequestId });
-    await model.fetch();
+    const labRequestModel = new LabRequestModel({ _id: labRequestId });
+    await labRequestModel.fetch();
 
-    const labRequestData = model.toJSON();
-    const patientData = model.getPatient() || PLACEHOLDER_PATIENT;
+    const labRequestData = labRequestModel.toJSON();
+    const patientData = labRequestModel.getPatient() || PLACEHOLDER_PATIENT;
 
     this.setState({ 
       loading: false,
