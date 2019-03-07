@@ -21,6 +21,7 @@ export default BaseModel.extend({
     medication: [],
     diagnoses: [],
     labRequests: [],
+    imagingRequests: [],
     notes: [],
     procedures: [],
     vitals: [],
@@ -43,6 +44,11 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'labRequests',
       relatedModel: () => require('./labRequest'),
+      serialize: '_id',
+    }, {
+      type: Backbone.Many,
+      key: 'imagingRequests',
+      relatedModel: () => require('./imagingRequest'),
       serialize: '_id',
     }, {
       type: Backbone.Many,

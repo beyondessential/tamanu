@@ -67,8 +67,15 @@ class DiagnosisAutocomplete extends Component {
     value: '',
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     const { value: diagnosisModel } = this.props;
+    if (diagnosisModel) {
+      this.setState({ value: diagnosisModel.get('name') });
+    }
+  }
+
+  componentWillReceiveProps(newProps) {
+    const { value: diagnosisModel } = newProps;
     if (diagnosisModel) {
       this.setState({ value: diagnosisModel.get('name') });
     }
@@ -103,8 +110,8 @@ class DiagnosisAutocomplete extends Component {
   }
 
   getSuggestionValue = suggestion => {
-    const { onChange } = this.props;
-    if (suggestion && onChange) onChange(suggestion);
+    const { onChange, name } = this.props;
+    if (suggestion && onChange) onChange(suggestion, name);
     return suggestion ? suggestion.name : '';
   }
 

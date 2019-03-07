@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Select from 'react-select';
 import { head, isEmpty } from 'lodash';
+import shortid from 'shortid';
 
 class SelectGroup extends Component {
   static propTypes = {
@@ -26,7 +27,7 @@ class SelectGroup extends Component {
     required: false,
     className: '',
     inputClass: 'input custom-date-input',
-    labelClass: 'input-group-title',
+    labelClass: 'label',
     value: '',
     readOnly: false,
     onBlurResetsInput: false,
@@ -84,16 +85,17 @@ class SelectGroup extends Component {
     } = this.props;
     const { value } = this.state;
     delete others.value;
+    const selectMenuId = `select-${shortid.generate()}`;
 
     return (
       <div className={className}>
         {label !== false &&
-          <span className={labelClass}>
+          <label className={labelClass} htmlFor={selectMenuId}>
             {label} {required && <span className="isRequired">*</span>}
-          </span>
+          </label>
         }
         <Select
-          id="state-select"
+          id={selectMenuId}
           name={name}
           tabIndex={tabIndex}
           options={options}

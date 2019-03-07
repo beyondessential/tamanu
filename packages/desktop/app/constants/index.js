@@ -27,6 +27,11 @@ export const MAX_AUTO_COMPLETE_ITEMS = {
   DIAGNOSES: 10,
 };
 
+export const IMAGING_REQUEST_STATUSES = {
+  PENDING: 'pending',
+  COMPLETED: 'completed',
+};
+
 export const dbViews = {
   medicationCompleted: 'medication_completed',
   medicationRequested: 'medication_requested',
@@ -49,7 +54,7 @@ export const submenuIcons = {
   action: 'fa fa-chevron-circle-right',
 };
 
-const columnStyle = {
+export const columnStyle = {
   backgroundColor: Colors.white,
   height: '60px',
   color: '#2f4358',
@@ -58,7 +63,7 @@ const columnStyle = {
   justifyContent: 'center',
 };
 
-const columnStyleSlim = {
+export const columnStyleSlim = {
   backgroundColor: Colors.white,
   height: '40px',
   color: '#2f4358',
@@ -67,7 +72,7 @@ const columnStyleSlim = {
   justifyContent: 'center',
 };
 
-const headerStyle = {
+export const headerStyle = {
   backgroundColor: Colors.searchTintColor,
 };
 
@@ -1460,15 +1465,6 @@ export const imagingRequestsColumns = [
     headerStyle,
     style: columnStyle,
     minWidth: 100
-  }, {
-    id: 'actions',
-    Header: 'Actions',
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor
-    },
-    style: columnStyle,
-    minWidth: 250,
-    Cell: null
   }
 ];
 
@@ -1503,6 +1499,13 @@ export const patientImagingRequestsColumns = [
   }, {
     accessor: 'detail',
     Header: 'Detail',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    id: 'status',
+    accessor: ({ status }) => capitalize(status),
+    Header: 'Status',
     headerStyle,
     style: columnStyle,
     minWidth: 100

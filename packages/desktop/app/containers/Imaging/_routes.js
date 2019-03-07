@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Route, Switch } from 'react-router-dom';
 
-import NotActive from '../NotActive';
 import Request from './Request';
 import Requests from './Requests';
+import Completed from './Completed';
 
 export default function Routes({ url }) {
   return (
@@ -16,7 +16,7 @@ export default function Routes({ url }) {
         <Route path={`${url}/request/by-patient/:patientId`} component={Request} />
         <Route path={`${url}/request/:id`} component={Request} />
         <Route path={`${url}/request`} component={Request} />
-        <Route path={`${url}/completed`} component={NotActive} />
+        <Route path={`${url}/completed`} component={Completed} />
       </Switch>
     </div>
   );
