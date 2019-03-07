@@ -26,7 +26,7 @@ module.exports = (req, res) => {
         objects = objects.filtered(`_id = '${id}'`);
         if (objects.length <= 0) return res.status(404).end();
         // Get first item from the list
-        const object = objectToJSON(head(objects), true, 25);
+        const object = objectToJSON(head(objects));
         return res.json(object);
       }
 
@@ -68,7 +68,7 @@ module.exports = (req, res) => {
       }
 
       // Convert to JSON as response
-      objects = objects.map(object => objectToJSON(object, true, 15));
+      objects = objects.map(object => objectToJSON(object));
       const response = [paginationParams, objects];
       return res.send(response);
     });
