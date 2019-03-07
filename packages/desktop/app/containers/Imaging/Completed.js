@@ -1,18 +1,22 @@
 import React from 'react';
+import { TopBar } from '../../components';
+import ImagingRequestsTable from './components/ImagingRequestsTable';
+import { IMAGING_REQUEST_STATUSES  } from '../../constants';
 
-export default () => (
-  <div>
-    <div className="content">
-      <div className="view-top-bar">
-        <span>
-          Completed Imaging
-        </span>
-        <div className="view-action-buttons">
-          <button>
-            + New Imaging
-          </button>
-        </div>
-      </div>
+export const CompletedRequests = () => (
+  <div className="content">
+    <TopBar
+      title="Completed Imaging Requests"
+      button={{
+        to: '/imaging/request',
+        text: 'New Request',
+        can: { do: 'create', on: 'imaging' }
+      }}
+    />
+    <div className="detail">
+      <ImagingRequestsTable status={IMAGING_REQUEST_STATUSES.COMPLETED} />
     </div>
   </div>
 );
+
+export default CompletedRequests;
