@@ -4,6 +4,9 @@ import moment from 'moment';
 
 import { LAB_REQUEST_STATUSES } from '../../../shared/constants';
 
+import VisitModel from './visit';
+import PatientModel from './patient';
+
 export default BaseModel.extend({
   urlRoot:  `${BaseModel.prototype.urlRoot}/labRequest`,
   defaults: () => ({
@@ -30,4 +33,14 @@ export default BaseModel.extend({
     },
     ...BaseModel.prototype.relations
   ],
+
+  getPatient() {
+    const visit = this.getVisit();
+    return visit && visit.getPatient();
+  },
+
+  getVisit() {
+    const visit = this.attributes.visits[0];
+    return visit && new VisitModel(visit);
+  },
 });
