@@ -49,7 +49,7 @@ class Requests extends Component {
     );
   }
 
-  fetchData = async opts => {
+  fetchData = opts => {
     return this.props.fetchMedications({
       view: dbViews.medicationRequested,
       ...opts
