@@ -89,7 +89,7 @@ const generateDataColumns = labTests => {
 
 const Lab = function ({ patientModel }) {
   const labRequestsCollection = patientModel.getLabRequests();
-  const labRequests = labRequestsCollection.where({ status: LAB_REQUEST_STATUSES.RECEPTION_PENDING });
+  const labRequests = labRequestsCollection.where({ status: LAB_REQUEST_STATUSES.PUBLISHED });
   const labTests = getTestsFromLabRequests(labRequests, patientModel.get('sex'));
   const columns = generateDataColumns(labTests);
 
