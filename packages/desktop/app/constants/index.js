@@ -743,7 +743,6 @@ export const visitsColumns = [
     Header: 'Diagnosis',
     headerStyle,
     style: columnStyle,
-    minWidth: 100
   }, {
     accessor: 'examiner',
     Header: 'Provider',
@@ -772,7 +771,7 @@ export const visitsColumns = [
       backgroundColor: Colors.searchTintColor
     },
     style: columnStyle,
-    minWidth: 350,
+    minWidth: 100,
     Cell: null
   }
 ];

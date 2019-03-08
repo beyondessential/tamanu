@@ -3,8 +3,19 @@ import ReactTable from 'react-table';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 import { capitalize } from 'lodash';
+import { Grid } from '@material-ui/core';
 import { visitsColumns, dateFormat } from '../../../constants';
 import { NewButton, EditButton } from '../../../components';
+
+const DiagnosisColumn = ({ diagnoses }) => {
+  return (
+    <Grid container direction="column" alignItems="center">
+      {diagnoses.map(({ diagnosis: { name } }) => (
+        <Grid item>{name}</Grid>
+      ))}
+    </Grid>
+  );
+}
 
 class Visits extends Component {
   state = {
@@ -24,11 +35,14 @@ class Visits extends Component {
     const { patient } = props;
     const { tableColumns } = this.state;
     const visits = patient.visits.map(visit => {
-      let { startDate, endDate, visitType } = visit;
+      let { startDate, endDate, visitType, diagnoses } = visit;
       if (startDate) startDate = moment(startDate).format(`${dateFormat}`);
       if (endDate) endDate = moment(endDate).format(`${dateFormat}`);
       visitType = capitalize(visitType);
-      return  { ...visit, startDate, endDate, visitType } ;
+      return  {
+        ...visit, startDate, endDate, visitType,
+        diagnosis: <DiagnosisColumn diagnoses={diagnoses} />
+      };
     });
     // Add actions column for our table
     tableColumns[tableColumns.length - 1].Cell = this.setActionsCol;
@@ -42,7 +56,7 @@ class Visits extends Component {
         <EditButton
           to={`/patients/visit/${patientModel.id}/${row.original._id}`}
           size="small"
-          can={{ do: 'update', on: 'visit' }} 
+          can={{ do: 'update', on: 'visit' }}
         />
       </div>
     );
