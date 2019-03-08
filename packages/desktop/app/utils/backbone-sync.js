@@ -37,11 +37,8 @@ export default (store) => {
       }
       // 401 - Unauthorized
       if (status === 401) {
-        // TODO reinstate after demo
-        // store.dispatch({ type: AUTH_LOGOUT });
-        // return history.push('/login');
-        notify("You don't have enough permissions to make this request!");
-        if (method === 'read') return history.goBack();
+        store.dispatch({ type: AUTH_LOGOUT });
+        return history.push('/login');
       }
       // 405 - Not enough permissions
       if (status === 405) {
