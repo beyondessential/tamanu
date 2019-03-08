@@ -40,7 +40,6 @@ export class CommonAutocomplete extends Component {
   async handleChange(event, value) {
     const { collection } = this.props;
     try {
-      collection.setPageSize(1000);
       collection.setKeyword(value);
       await collection.getPage(0, null, null, { data: { page_size: 1000 } });
       const { models = [] } = collection;
