@@ -12,7 +12,7 @@ module.exports = async (database) => {
   views(database);
   userRoles(database);
   users(database);
-  await programs(database);
+  programs(database);
   tests(database);
   await patients(database);
   imagingTypes(database);

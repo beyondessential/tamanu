@@ -1,7 +1,7 @@
 const importSurveys = require('../surveys_import/importSurveys');
 
-module.exports = async (database) => {
-  const pregnancyProgram = {
+module.exports = (database) => {
+  const pregnancyProgramDetails = {
     _id: 'program-pregnancy',
     name: 'Pregnancy',
     programType: 'pregnancy',
@@ -11,7 +11,8 @@ module.exports = async (database) => {
     patientFilters: '{ "sex": "female" }'
   };
 
-  database.write(() => database.create('program', pregnancyProgram, true));
-
-  await importSurveys(database, `${__dirname}/../surveys_import/data/GDM_surveys.xlsx`);
+  database.write(() => {
+    const pregnancyProgram = database.create('program', pregnancyProgramDetails, true);
+    importSurveys(database, `${__dirname}/../surveys_import/data/GDM_surveys.xlsx`, pregnancyProgram);
+  });
 }
