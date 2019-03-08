@@ -67,8 +67,10 @@ export default Backbone.PageableCollection.extend({
     const options = {
       data: {
         ...opts,
-        view,
-        keys: isArray(viewKeys) ? viewKeys.join(',') : viewKeys,
+        // FIXME
+        // Disabling view and viewKeys functionalities as they are broken 
+        // view,
+        // keys: isArray(viewKeys) ? viewKeys.join(',') : viewKeys,
       }
     };
 
@@ -123,8 +125,12 @@ export default Backbone.PageableCollection.extend({
   getPage(page, view, viewKeys, options = {}) {
     const { pageSize } = options;
     if (pageSize) this.state.pageSize = pageSize;
-    if (view) set(options, 'data.view', view);
-    if (viewKeys) set(options, 'data.keys', isArray(viewKeys) ? viewKeys.join(',') : viewKeys);
+
+    // FIXME 
+    // Disabling view and viewKeys functionalities as they are broken 
+    // if (view) set(options, 'data.view', view);
+    // if (viewKeys) set(options, 'data.keys', isArray(viewKeys) ? viewKeys.join(',') : viewKeys);
+    
     return Backbone.PageableCollection.prototype.getPage.apply(this, [page, options]);
   },
 

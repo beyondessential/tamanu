@@ -185,12 +185,14 @@ export default Backbone.AssociatedModel.extend({
         const Model = model.default ? model.default : model;
         switch(type) {
           default:
-          case Backbone.Many:
+          case Backbone.Many: {
             if (!parents[key]) parents[key] = [];
-            if (has(attributes, key) && attributes[key]) {
-              concatSelf(parents[key], attributes[key].map(record => new Model(record)));
+            const attribute = attributes[key];
+            if (attribute && Array.isArray(attribute)) {
+              concatSelf(parents[key], attribute.map(record => new Model(record)));
             }
-          break;
+            break;
+          }
           case Backbone.One:
             if (!parents[key]) parents[key] = {};
             if (has(attributes, key) && attributes[key]) {
