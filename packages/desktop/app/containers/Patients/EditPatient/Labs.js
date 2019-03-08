@@ -39,13 +39,17 @@ const TestType = ({ name, category, range }) => (
 
 const TestResult = ({ range, result, unit }) => {
   if (range && Array.isArray(range) && result) {
-    const resultParsed = parseInt(result);
-    if (resultParsed < range[0] || resultParsed > range[1]) {
-      return (
-        <span style={{ fontWeight: 'bold' }}>
-          {`${result} ${unit || ''}`}
-        </span>
-      );
+    try {
+      const resultParsed = parseFloat(result);
+      if (resultParsed < range[0] || resultParsed > range[1]) {
+        return (
+          <span style={{ fontWeight: 'bold' }}>
+            {`${result} ${unit || ''}`}
+          </span>
+        );
+      }
+    } catch (err) {
+      console.error(err);
     }
   }
   return `${result} ${unit || ''}`;
