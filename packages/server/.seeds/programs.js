@@ -1,4 +1,6 @@
-module.exports = (database) => {
+const importSurveys = require('../surveys_import/importSurveys');
+
+module.exports = async (database) => {
   const pregnancyProgram = {
     _id: 'program-pregnancy',
     name: 'Pregnancy',
@@ -10,4 +12,6 @@ module.exports = (database) => {
   };
 
   database.write(() => database.create('program', pregnancyProgram, true));
+
+  await importSurveys(database, `${__dirname}/../surveys_import/data/GDM_surveys.xlsx`);
 }

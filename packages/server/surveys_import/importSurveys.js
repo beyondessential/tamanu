@@ -1,55 +1,17 @@
 global.Promise = require('bluebird');
 const xlsx = require('xlsx');
-const { compareTwoStrings } = require('string-similarity');
-const PouchDB = require('pouchdb');
-const { kebabCase, isNaN, isArray, has, camelCase } = require('lodash');
+const { isNaN, isArray, has } = require('lodash');
 const shortid = require('shortid');
-const { to } = require('await-to-js');
-const Realm = require('realm');
-const schemas = require('.../../shared/schemas');
-// const { deleteScreensForSurvey, deleteOrphanQuestions } = require('../dataAccessors');
 const TYPES = require('./constants');
-// const { PermissionGroup } = require('../models');
-const { ObjectValidator, constructIsOneOf, hasContent } = require('./validation');
-
-const database = new Realm({
-  path: '../../tamanu-lan-server/data/main.realm',
-  schema: schemas,
-  schemaVersion: 2,
-});
-
-// console.log('Terminated!');
-// process.exit();
+const { constructIsOneOf, hasContent } = require('./validation');
 
 /**
 * Responds to POST requests to the /surveys endpoint
 */
-module.exports = async function importSurveys(req) {
-  const { reqQuery, filePath } = req;
-  if (!reqQuery || !reqQuery.surveyNames) {
-    throw new Error('HTTP query should contain surveyNames');
-  }
-  const requestedSurveyNames = splitOnCommas(reqQuery.surveyNames);
-  if (!filePath) {
-    throw new Error();
-  }
+module.exports = async function importSurveys(database, filePath) {
   const workbook = xlsx.readFile(filePath);
-  const objectValidator = new ObjectValidator(FIELD_VALIDATORS);
   try {
-    // const permissionGroup = await PermissionGroup.findOne({ name: reqQuery.permissionGroup || 'Public' });
-    // if (!permissionGroup) {
-    //   throw new Error('finding permission group');
-    // }
     const permissionGroup = { id: 'permission-group-id' };
-
-    if (reqQuery.surveyGroup) {
-      database.write(() => {
-        database.create('surveyGroup', {
-          _id: kebabCase(reqQuery.surveyGroup),
-          name: reqQuery.surveyGroup,
-        });
-      });
-    }
 
     // Update projects
     let program;
@@ -65,22 +27,7 @@ module.exports = async function importSurveys(req) {
     // Go through each sheet, and make a survey for each
     const entries = Object.entries(workbook.Sheets);
     entries.forEach(async (surveySheets, order) => {
-      const [tabName, sheet] = surveySheets;
-      let surveyName = '';
-      requestedSurveyNames.forEach((requestedSurveyName) => {
-        // To deal with the character limit in Excel tabs, the tab name may be just the start of
-        // the survey name, so we check for partial matches
-        if (requestedSurveyName.startsWith(tabName) && // Test it at least partially matches &
-            compareTwoStrings(requestedSurveyName, tabName) >
-            compareTwoStrings(surveyName, tabName)) { // The existing match isn't closer
-          surveyName = requestedSurveyName;
-        }
-      });
-      if (surveyName.length === 0) {
-        console.log('Skipping..', surveyName);
-        return;
-        // throw new Error(`The tab ${tabName} was not listed as a survey name in the HTTP query`);
-      }
+      const [surveyName, sheet] = surveySheets;
 
       // Get the survey based on the name of the sheet/tab
       let survey;
@@ -103,31 +50,6 @@ module.exports = async function importSurveys(req) {
         throw new Error('creating survey, check format of import file');
       }
 
-      // Work out what fields of the survey should be updated based on query params
-      // const fieldsToForceUpdate = {};
-      // if (reqQuery.countryIds) {
-      //   // Set the countries this survey is available in
-      //   fieldsToForceUpdate.country_ids = splitOnCommas(reqQuery.countryIds);
-      // }
-      // if (surveyGroup) {
-      //   // Set the survey group this survey is attached to
-      //   fieldsToForceUpdate.survey_group_id = surveyGroup.id;
-      // }
-      // if (reqQuery.permissionGroup) {
-      //   // A non-default permission group was provided
-      //   fieldsToForceUpdate.permission_group_id = permissionGroup.id;
-      // }
-      // if (reqQuery.surveyCode) {
-      //   // Set or update the code for this survey
-      //   fieldsToForceUpdate.code = reqQuery.surveyCode;
-      // }
-      // // Update the survey based on the fields to force update
-      // if (Object.keys(fieldsToForceUpdate).length > 0) {
-      //   fieldsToForceUpdate._id = survey.id;
-      //   await surveyDB.put(fieldsToForceUpdate);
-      // }
-
-
       // Delete all existing survey screens and components that were attached to this survey
       // await deleteScreensForSurvey(database, survey.id);
       const questionObjects = xlsx.utils.sheet_to_json(sheet);
@@ -143,9 +65,6 @@ module.exports = async function importSurveys(req) {
         for (let rowIndex = 0; rowIndex < questionObjects.length; rowIndex += 1) {
           const questionObject = questionObjects[rowIndex];
           const excelRowNumber = rowIndex + 2; // +2 to make up for header and 0 index
-          const constructImportValidationError = (message, field) => new Error(message, excelRowNumber, field, tabName);
-          console.log('_questionObject_', questionObject);
-          // await objectValidator.validate(questionObject, constructImportValidationError);
           if (questionObject.code && questionObject.code.length > 0 && questionCodes.includes(questionObject.code)) {
             throw new Error('Question code is not unique', excelRowNumber);
           }
@@ -180,7 +99,7 @@ module.exports = async function importSurveys(req) {
             detail,
             options: processOptions(options, optionLabels, optionColors),
             params,
-          }); // database.create('question', questionToUpsert);
+          });
 
           // Generate the screen and screen component
           const shouldStartNewScreen = caseAndSpaceInsensitiveEquals(newScreen, 'yes');
@@ -239,7 +158,8 @@ function generateSurveyCode(surveyName) {
 }
 
 function splitOnCommas(string) {
-  return string ? string.split(',').map((segment) => segment.trim()) : [];
+  function trimSegment(segment) { return segment.trim(); };
+  return string ? string.split(',').map(trimSegment) : [];
 }
 
 function caseAndSpaceInsensitiveEquals(stringA = '', stringB = '') {
