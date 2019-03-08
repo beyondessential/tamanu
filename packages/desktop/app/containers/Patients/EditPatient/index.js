@@ -126,7 +126,10 @@ class EditPatient extends Component {
       case 'labs':
         return (
           <div className="column">
-            <Labs />
+            <Labs
+              history={history}
+              patientModel={patientModel}
+            />
           </div>
         );
       case 'programs':
@@ -197,7 +200,7 @@ class EditPatient extends Component {
           </div>
           <div className="create-container">
             <div className="form">
-              <div className="columns">
+              <div className="columns" style={{ overflowX: 'hidden' }}>
                 <div className="column">
                   <TopRow patient={patient} />
                   <div className="columns border-bottom">

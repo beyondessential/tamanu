@@ -27,6 +27,14 @@ export const MAX_AUTO_COMPLETE_ITEMS = {
   DIAGNOSES: 10,
 };
 
+export const LAB_REQUEST_STATUSES = {
+  RECEPTION_PENDING: 'reception_pending',
+  RESULTS_PENDING: 'results_pending',
+  TO_BE_VERIFIED: 'to_be_verified',
+  VERIFIED: 'verified',
+  PUBLISHED: 'published',
+};
+
 export const IMAGING_REQUEST_STATUSES = {
   PENDING: 'pending',
   COMPLETED: 'completed',
@@ -1546,3 +1554,12 @@ export const patientImagingRequestsColumns = [
   }
 ];
 
+export const patientsLabRequestsColumns = [
+  {
+    accessor: 'testType',
+    Header: 'Test',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }
+];

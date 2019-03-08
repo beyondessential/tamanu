@@ -4,7 +4,7 @@ import moment from 'moment';
 import BaseModel from './base';
 import { concatSelf } from '../utils';
 import { pregnancyOutcomes, dateFormat } from '../constants';
-// import SurveyModel from './survey';
+import LabRequestsCollection from '../collections/labRequests';
 
 export default BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/patient`,
@@ -238,5 +238,23 @@ export default BaseModel.extend({
       allImagingRequests = allImagingRequests.concat(imagingRequests);
     })
     return allImagingRequests;
+  },
+
+  getLabRequests() {
+    const { attributes: { visits } } = this;
+    const labRequestsCollection = new LabRequestsCollection();
+    visits.models.forEach(visitModel => {
+      const labRequests = visitModel.get('labRequests');
+      if (labRequests) labRequestsCollection.add(labRequests.models);
+    })
+    return labRequestsCollection;
+  },
+
+  getLabTests(labRequests = this.getLabRequests()) {
+    let labTests = [];
+    labRequests.forEach(async ({ tests }) => {
+      labTests = labTests.concat(tests);
+    });
+    return labTests;
   }
 });

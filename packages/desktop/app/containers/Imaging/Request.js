@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
+import { remote as electron } from 'electron';
+import fs from 'fs-jetpack';
+import request from 'request';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Grid } from '@material-ui/core';
-import { request as imagingRequestActions} from '../../actions/imaging';
+import { request as imagingRequestActions } from '../../actions/imaging';
 import moment from 'moment';
 import { capitalize } from 'lodash';
 import styled from 'styled-components';
@@ -24,6 +27,7 @@ import {
 import { dateFormat, IMAGING_REQUEST_STATUSES } from '../../constants';
 import { ImagingRequestModel } from '../../models';
 
+const { dialog, shell } = electron;
 const ButtonsContainer = styled.div`
   padding: 8px 8px 32px 8px;
   text-align: right;
@@ -126,6 +130,22 @@ class Request extends Component {
     markImagingRequestCompleted({ imagingRequestModel });
   }
 
+  viewImage = () => {
+    const { _id: requestId } = this.state;
+    const imageUrl = 'http://192.168.43.109:8080/weasis-pacs-connector/IHEInvokeImageDisplay?requestType=STUDY&studyUID=1.113654.3.13.1026';
+    const fileExtension = imageUrl.split('.').pop();
+    const filePath = dialog.showSaveDialog({
+      title: 'Save Imaging',
+      defaultPath: `imaging-${requestId}.${fileExtension}`
+    });
+    if (filePath) {
+      request(imageUrl).pipe(fs.createWriteStream(filePath))
+        .on('close', () => {
+          shell.openItem(filePath);
+        });
+    }
+  }
+
   render () {
     const { isLoading } = this.state;
     if (isLoading) return <Preloader />;
@@ -221,10 +241,11 @@ class Request extends Component {
               />
             </Grid>
             <ButtonsContainer>
-              {action !== 'new' &&
+              {status === IMAGING_REQUEST_STATUSES.COMPLETED &&
                 <ViewImageButton
                   color="secondary"
                   variant="contained"
+                  onClick={this.viewImage}
                 >
                   View Image
                 </ViewImageButton>

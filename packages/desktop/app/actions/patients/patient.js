@@ -22,7 +22,7 @@ export const fetchPatient = ({ id }) =>
     const patientModel = new PatientModel();
     if (action === 'edit') {
       patientModel.set({ _id: id });
-      [error] = await to(patientModel.fetch({ relations: true }));
+      [error] = await to(patientModel.fetch({ data: { objects_max_depth: 10 } }));
       const { dateOfBirth, referredDate } = patientModel.attributes;
       if (dateOfBirth !== null) patientModel.set('dateOfBirth', moment(dateOfBirth));
       if (referredDate !== null) patientModel.set('referredDate', moment(referredDate));
