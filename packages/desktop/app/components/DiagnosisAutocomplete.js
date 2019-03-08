@@ -22,6 +22,9 @@ const styles = theme => ({
   },
   popperContainer: {
     zIndex: 999,
+    top: 'initial !important',
+    left: 'initial !important',
+    transform: 'none !important',
   }
 });
 
@@ -69,13 +72,6 @@ class DiagnosisAutocomplete extends Component {
 
   componentWillMount() {
     const { value: diagnosisModel } = this.props;
-    if (diagnosisModel) {
-      this.setState({ value: diagnosisModel.get('name') });
-    }
-  }
-
-  componentWillReceiveProps(newProps) {
-    const { value: diagnosisModel } = newProps;
     if (diagnosisModel) {
       this.setState({ value: diagnosisModel.get('name') });
     }
