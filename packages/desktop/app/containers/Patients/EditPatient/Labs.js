@@ -64,7 +64,7 @@ const generateDataColumns = labTests => {
   allDates.forEach(date => {
     const accessorPrefix = moment(date).unix();
     columns.push({
-      id: 'quantity',
+      id: 'result',
       accessor: () => '',
       Header: moment(date).format(dateFormat),
       headerStyle,
