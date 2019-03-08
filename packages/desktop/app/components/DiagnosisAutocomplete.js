@@ -22,6 +22,9 @@ const styles = theme => ({
   },
   popperContainer: {
     zIndex: 999,
+    top: 'initial !important',
+    left: 'initial !important',
+    transform: 'none !important',
   }
 });
 
