@@ -74,13 +74,6 @@ class DiagnosisAutocomplete extends Component {
     }
   }
 
-  componentWillReceiveProps(newProps) {
-    const { value: diagnosisModel } = newProps;
-    if (diagnosisModel) {
-      this.setState({ value: diagnosisModel.get('name') });
-    }
-  }
-
   componentDidMount() {
     this.props.diagnosesCollection.setPageSize(MAX_AUTO_COMPLETE_ITEMS.DIAGNOSES);
   }
