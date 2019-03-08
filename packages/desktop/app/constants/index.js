@@ -1533,12 +1533,7 @@ export const patientsLabRequestsColumns = [
   {
     accessor: 'testType',
     Header: 'Test',
-    headerStyle: {
-      ...headerStyle,
-      height: 55,
-      alignItems: 'center',
-      display: 'flex'
-    },
+    headerStyle,
     style: columnStyle,
     minWidth: 100
   }

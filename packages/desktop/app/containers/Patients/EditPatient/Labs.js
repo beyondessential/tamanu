@@ -29,12 +29,27 @@ const ActionsColumn = ({ original: { _id, requestId } }) => (
     </div>
 )
 
-const TestType = ({ name, category }) => (
+const TestType = ({ name, category, range }) => (
   <Grid container direction="column">
     <Typography variant="subtitle1">{name}</Typography>
+    <Typography variant="caption">{range.join(' - ')}</Typography>
     <Typography variant="caption">{category.name}</Typography>
   </Grid>
 );
+
+const TestResult = ({ range, result, unit }) => {
+  if (range && Array.isArray(range) && result) {
+    const resultParsed = parseInt(result);
+    if (resultParsed < range[0] || resultParsed > range[1]) {
+      return (
+        <span style={{ fontWeight: 'bold' }}>
+          {`${result} ${unit || ''}`}
+        </span>
+      );
+    }
+  }
+  return `${result} ${unit || ''}`;
+}
 
 const getTestsFromLabRequests = (labRequests, sex) => {
   let labTestsById = {};
@@ -42,13 +57,13 @@ const getTestsFromLabRequests = (labRequests, sex) => {
     const { _id: requestId, tests, requestedDate } = labRequestModel.toJSON();
     const accessorPrefix = moment(requestedDate).unix();
     tests.forEach(({ _id, type, result, ...attributes }) => {
+      const testRange = type[`${sex}Range`];
       const testObject = {
         ...attributes,
         date: requestedDate,
         requestId,
-        testType: <TestType {...type} />,
-        [`${accessorPrefix}-range`]: type[`${sex}Range`] || DEFAULT_NIL_PLACEHOLDER,
-        [`${accessorPrefix}-result`]: `${result} ${type.unit || ''}`,
+        testType: <TestType range={testRange} {...type} />,
+        [`${accessorPrefix}-result`]: <TestResult range={testRange} result={result} {...type} />,
       };
 
       labTestsById[type._id] = { ...labTestsById[type._id] || {}, ...testObject };
@@ -64,23 +79,10 @@ const generateDataColumns = labTests => {
   allDates.forEach(date => {
     const accessorPrefix = moment(date).unix();
     columns.push({
-      id: 'quantity',
-      accessor: () => '',
-      Header: moment(date).format(dateFormat),
+      Header: 'Result',
+      accessor: `${accessorPrefix}-result`,
       headerStyle,
       style: columnStyle,
-      pivot: true,
-      columns: [{
-        Header: 'Range',
-        accessor: `${accessorPrefix}-range`,
-        headerStyle,
-        style: columnStyle,
-      }, {
-        Header: 'Result',
-        accessor: `${accessorPrefix}-result`,
-        headerStyle,
-        style: columnStyle,
-      }]
     });
   });
   columns.push(getActionsColumn());
