@@ -42,7 +42,7 @@ export class CommonAutocomplete extends Component {
     try {
       collection.setPageSize(1000);
       collection.setKeyword(value);
-      await collection.getPage(0);
+      await collection.getPage(0, null, null, { data: { page_size: 1000 } });
       const { models = [] } = collection;
       const options = models.map(model => model.attributes);
       this.setState({ options, selectedOption: value });
