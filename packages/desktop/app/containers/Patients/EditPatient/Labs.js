@@ -57,16 +57,18 @@ const getTestsFromLabRequests = (labRequests, sex) => {
     const { _id: requestId, tests, requestedDate } = labRequestModel.toJSON();
     const accessorPrefix = moment(requestedDate).unix();
     tests.forEach(({ _id, type, result, ...attributes }) => {
-      const testRange = type[`${sex}Range`];
-      const testObject = {
-        ...attributes,
-        date: requestedDate,
-        requestId,
-        testType: <TestType range={testRange} {...type} />,
-        [`${accessorPrefix}-result`]: <TestResult range={testRange} result={result} {...type} />,
-      };
+      if (result) {
+        const testRange = type[`${sex}Range`];
+        const testObject = {
+          ...attributes,
+          date: requestedDate,
+          requestId,
+          testType: <TestType range={testRange} {...type} />,
+          [`${accessorPrefix}-result`]: <TestResult range={testRange} result={result} {...type} />,
+        };
 
-      labTestsById[type._id] = { ...labTestsById[type._id] || {}, ...testObject };
+        labTestsById[type._id] = { ...labTestsById[type._id] || {}, ...testObject };
+      }
     });
   });
   return Object.values(labTestsById);
