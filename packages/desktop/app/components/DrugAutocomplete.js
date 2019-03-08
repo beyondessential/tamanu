@@ -10,6 +10,7 @@ const DrugAutocomplete = ({
   name,
   className,
   collection,
+  onChange,
 }) => (
     <CommonAutocomplete
       label={label}
@@ -18,6 +19,7 @@ const DrugAutocomplete = ({
       className={className}
       ModelClass={DrugModel}
       collection={collection}
+      onChange={onChange}
       formatOptionLabel={({ code, name }) => `${code} - ${name}`}
     />
   );
