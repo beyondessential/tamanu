@@ -42,10 +42,15 @@ module.exports = (req, res) => {
       // Add any additional filters from query parameters
       const { properties: fieldSchemata } = realm.schema.find(({ name }) => name === modelName);
       Object.entries(restOfQuery).forEach(([field, value]) => {
+        let operator = '=';
+        let newValue = value;
+        if (/([|])/.test(value)) {
+          [operator, newValue] = value.split('|');
+        }
         const fieldSchema = fieldSchemata[field] || {};
         const isString = fieldSchema === 'string' || fieldSchema.type === 'string';
-        const valueString = isString ? `'${value}'` : value;
-        filters.push(`${field} = ${valueString}`);
+        const valueString = isString ? `'${newValue}'` : newValue;
+        filters.push(`${field} ${operator} ${valueString}`);
       });
 
       // Filter collection on all filters
