@@ -12,6 +12,7 @@ module.exports = (req, res) => {
     fields,
     current_page: currentPageString,
     page_size: pageSizeString,
+    objects_max_depth: objectsMaxDepth = 5,
     ...restOfQuery
   } = query;
   const defaultPageSize = 10;
@@ -26,7 +27,7 @@ module.exports = (req, res) => {
         objects = objects.filtered(`_id = '${id}'`);
         if (objects.length <= 0) return res.status(404).end();
         // Get first item from the list
-        const object = objectToJSON(head(objects));
+        const object = objectToJSON(head(objects), objectsMaxDepth);
         return res.json(object);
       }
 
@@ -68,7 +69,7 @@ module.exports = (req, res) => {
       }
 
       // Convert to JSON as response
-      objects = objects.map(object => objectToJSON(object));
+      objects = objects.map(object => objectToJSON(object, objectsMaxDepth));
       const response = [paginationParams, objects];
       return res.send(response);
     });
