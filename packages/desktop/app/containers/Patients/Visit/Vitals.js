@@ -17,17 +17,27 @@ class Vitals extends Component {
   componentWillMount() {
     const { tableColumns } = this.state;
     const { visitModel } = this.props;
-    const { vitals } = visitModel.attributes;
+    this.handleChange = this.handleChange.bind(this);
+    visitModel.on('change', this.handleChange);
 
     // Set actions col for our table
     tableColumns[tableColumns.length - 1].Cell = this.setActionsCol;
+
+    const { vitals } = visitModel.attributes;
     this.setState({ vitals: vitals.toJSON(), tableColumns });
+
   }
 
   componentWillReceiveProps(newProps) {
     const { visitModel } = newProps;
     const { vitals } = visitModel.attributes;
     this.setState({ vitals: vitals.toJSON() });
+  }
+
+  handleChange() {
+    const { visitModel } = this.props;
+    const { vitals } = visitModel.changedAttributes();
+    if (vitals) this.setState({ vitals: vitals.toJSON() });
   }
 
   onCloseModal = () => {
