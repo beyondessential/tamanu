@@ -4,11 +4,30 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
 import { map, isEmpty } from 'lodash';
-import BootstrapTable from 'react-bootstrap-table-next';
+import ReactTable from 'react-table';
 import CustomDateInput from '../../components/CustomDateInput';
-import { patientColumns, locationOptions } from '../../constants';
+import { outPatientColumns, locationOptions, pageSizes, columnStyle, headerStyle } from '../../constants';
 import { PatientsCollection } from '../../collections';
-import { SearchButton, TopBar } from '../../components';
+import { SearchButton, TopBar, Button } from '../../components';
+
+const getActionsColumn = () => ({
+  id: 'actions',
+  Header: 'Actions',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 100,
+  Cell: (props) => <ActionsColumn {...props} />
+});
+
+const ActionsColumn = ({ original: { _id } }) => (
+    <div key={_id}>
+      <Button
+        variant="contained"
+        color="primary"
+        to={`/patients/editPatient/${_id}`}
+      >View</Button>
+    </div>
+)
 
 class Outpatient extends Component {
   constructor(props) {
@@ -21,9 +40,10 @@ class Outpatient extends Component {
     selectValue: ''
   }
 
-  componentDidMount() {
+  componentWillMount() {
+    this.columns = [ ...outPatientColumns.slice(0, outPatientColumns.length-1), getActionsColumn()];
     this.props.collection.on('update', this.handleChange);
-    this.props.collection.fetch({ options: { query: { fun: 'visit_by_date' } } });
+    this.getPatients();
   }
 
   componentWillUnmount() {
@@ -46,18 +66,21 @@ class Outpatient extends Component {
     });
   }
 
+  getPatients() {
+    this.props.collection.fetch({ data: { 'visits.@count': '>|0', 'admitted': false } });
+  }
+
   render() {
     const { startDate } = this.state;
-    let { models: patients } = this.props.collection;
-    if (!isEmpty(patients)) patients = map(patients, patient => patient.attributes);
+    const patients = this.props.collection.toJSON();
     return (
       <div className="create-content">
         <TopBar
-          title="Today's Outpatients"
+          title="Outpatients"
           button={{
             to: "/patients/edit/new",
             can: { do: 'create', on: 'patient' },
-            children: 'Patient Check In'
+            children: 'New Patient'
           }}
         />
         <div className="create-container">
@@ -96,18 +119,22 @@ class Outpatient extends Component {
                 searchable={this.state.searchable}
               />
             </div>
-            <div className="column is-4">
+            <div className="column is-4" style={{ paddingTop: 37 }}>
               <SearchButton />
             </div>
           </div>
-          <div className="columns form-table">
-            <BootstrapTable
-              keyField="_id"
-              className="custom-table"
-              data={patients}
-              columns={patientColumns}
-              defaultSortDirection="asc"
-            />
+          <div className="columns">
+            <div className="column">
+              <ReactTable
+                keyField="_id"
+                data={patients}
+                pages={this.props.collection.totalPages}
+                defaultPageSize={pageSizes.patients}
+                columns={this.columns}
+                className="-striped"
+                defaultSortDirection="asc"
+              />
+            </div>
           </div>
         </div>
       </div>
