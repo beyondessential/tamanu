@@ -85,7 +85,7 @@ const generateDataColumns = labTests => {
   allDates.forEach(date => {
     const accessorPrefix = moment(date).unix();
     columns.push({
-      Header: 'Result',
+      Header: moment(date).format(dateFormat),
       accessor: `${accessorPrefix}-result`,
       headerStyle,
       style: columnStyle,
@@ -97,7 +97,7 @@ const generateDataColumns = labTests => {
 
 const Lab = function ({ patientModel }) {
   const labRequestsCollection = patientModel.getLabRequests();
-  const labRequests = labRequestsCollection.where({ status: LAB_REQUEST_STATUSES.PUBLISHED });
+  const labRequests = labRequestsCollection.where({ status: LAB_REQUEST_STATUSES.VERIFIED });
   const labTests = getTestsFromLabRequests(labRequests, patientModel.get('sex'));
   const columns = generateDataColumns(labTests);
 
