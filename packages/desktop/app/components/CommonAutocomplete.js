@@ -38,15 +38,18 @@ export class CommonAutocomplete extends Component {
   }
 
   async handleChange(event, value) {
-    const { collection } = this.props;
-    try {
-      collection.setKeyword(value);
-      await collection.getPage(0, null, null, { data: { page_size: 1000 } });
-      const { models = [] } = collection;
-      const options = models.map(model => model.attributes);
-      this.setState({ options, selectedOption: value });
-    } catch (err) {
-      console.error(err);
+    if (value) {
+      this.setState({ selectedOption: value });
+      const { collection } = this.props;
+      try {
+        collection.setKeyword(value);
+        await collection.fetchAll();
+        this.setState({ options: collection.models.map(model => model.attributes) });
+      } catch (err) {
+        console.error(err);
+      }
+    } else {
+      this.setState({ selectedOption: value, options: [] });
     }
   }
 
