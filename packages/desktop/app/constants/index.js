@@ -650,7 +650,11 @@ export const patientMedicationColumns = [
     accessor: 'drug.name',
     Header: 'Medicine',
     headerStyle,
-    style: defaults({ justifyContent: 'left' }, columnStyleSlim),
+    style: {
+      ...columnStyleSlim,
+      justifyContent: 'center',
+      whiteSpace: 'normal',
+    },
     minWidth: 100
   }, {
     accessor: 'qtyMorning',
@@ -1002,7 +1006,10 @@ export const medicationColumns = [
     accessor: 'drug',
     Header: 'Medication',
     headerStyle,
-    style: columnStyle,
+    style: {
+      ...columnStyle,
+      whiteSpace: 'normal',
+    },
     minWidth: 300
   }, {
     accessor: 'quantity',
