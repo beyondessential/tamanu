@@ -108,6 +108,7 @@ export const pageSizes = {
   surveyResponses: 5,
   medicationRequests: 10,
   appointments: 10,
+  patientLabRequests: 5,
 };
 
 // Generate time picker select options
