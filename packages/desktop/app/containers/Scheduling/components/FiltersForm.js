@@ -13,8 +13,8 @@ import {
   appointmentStatusList as appointmentStatusListOriginal,
 } from '../../../constants';
 
-const visitOptions = [ ...visitOptionsOriginal, { value: 'all', label: 'All' } ];
-const appointmentStatusList = [ ...appointmentStatusListOriginal, { value: 'all', label: 'All' } ];
+const visitOptions = [{ value: 'all', label: 'All' } , ...visitOptionsOriginal];
+const appointmentStatusList = [{ value: 'all', label: 'All' }, ...appointmentStatusListOriginal];
 
 class FiltersForm extends Component {
   static propTypes = {
@@ -66,11 +66,11 @@ class FiltersForm extends Component {
   }
 
   onSubmit(e) {
+    e.preventDefault();
     const { location, practitioner } = this.state;
     let { status, type } = this.state;
     if (status === 'all') status = '';
     if (type === 'all') type = '';
-    e.preventDefault();
     this.props.onSubmit({ location, status, type, practitioner });
   }
 
@@ -135,7 +135,7 @@ class FiltersForm extends Component {
             <div className="column">
               <div className="column has-text-right">
                 <ClearButton onClick={this.resetForm} />
-                <FilterButton disabled={loading} />
+                <FilterButton type="submit" disabled={loading} />
               </div>
             </div>
           </div>

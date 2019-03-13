@@ -99,16 +99,16 @@ class AppointmentsCalendar extends Component {
       <div className="create-content">
         <TopBar
           title={!theatre ? 'Appointments Calendar': 'Theatre Schedule'}
-          buttons={{
+          buttons={[{
             to: `/appointments/${theatre ? 'surgery' : 'appointment'}/new`,
             can: { do: 'create', on: 'appointment' },
             children: 'New Appointment'
-          }}
-          buttonsSecondary={{
+          }, {
             variant: (filtersOn ? 'contained' : 'outlined'),
+            color: 'secondary',
             children: 'Filters',
             onClick: () => this.setState({ filtersOn: !filtersOn }),
-          }}
+          }]}
         />
         <div className="create-container" >
           <div className="form with-padding">
