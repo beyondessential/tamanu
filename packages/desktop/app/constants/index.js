@@ -1529,13 +1529,3 @@ export const patientImagingRequestsColumns = [
     Cell: null
   }
 ];
-
-export const patientsLabRequestsColumns = [
-  {
-    accessor: 'testType',
-    Header: 'Test',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 100
-  }
-];

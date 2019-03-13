@@ -3,10 +3,7 @@ import ReactTable from 'react-table';
 import moment from 'moment';
 import { Typography, Grid } from '@material-ui/core';
 import { Button } from '../../../components';
-import {
-  patientsLabRequestsColumns, LAB_REQUEST_STATUSES,
-  columnStyle, headerStyle, dateFormat, pageSizes,
-} from '../../../constants';
+import { columnStyle, headerStyle, dateFormat, pageSizes } from '../../../constants';
 
 const getActionsColumn = () => ({
   id: 'actions',
@@ -36,7 +33,8 @@ const TestType = ({ name, category, range }) => (
 );
 
 const TestResult = ({ range, result, unit }) => {
-  if (range && Array.isArray(range) && result) {
+  if (!result) return '';
+  if (range && Array.isArray(range)) {
     try {
       const resultParsed = parseFloat(result);
       if (resultParsed < range[0] || resultParsed > range[1]) {
@@ -59,13 +57,13 @@ const getTestsFromLabRequests = (labRequests, sex) => {
     const { _id: requestId, tests, requestedDate } = labRequestModel.toJSON();
     const accessorPrefix = moment(requestedDate).unix();
     tests.forEach(({ _id, type, result, ...attributes }) => {
-      const testRange = type[`${sex}Range`];
+      const range = type[`${sex}Range`];
       const testObject = {
         ...attributes,
         date: requestedDate,
         requestId,
-        testType: <TestType range={testRange} {...type} />,
-        [`${accessorPrefix}-result`]: <TestResult range={testRange} result={result} {...type} />,
+        testType: { ...type, range },
+        [`${accessorPrefix}-result`]: { range, result, unit: type.unit },
       };
 
       labTestsById[type._id] = { ...labTestsById[type._id] || {}, ...testObject };
@@ -79,17 +77,27 @@ const generateDataColumns = labTests => {
   const columns = [];
   labTests.forEach(({ date }) => allDates.add(date));
   allDates.forEach(date => {
-    const accessorPrefix = moment(date).unix();
+    const accessor = `${moment(date).unix()}-result`;
     columns.push({
       Header: moment(date).format(dateFormat),
-      accessor: `${accessorPrefix}-result`,
+      accessor,
       headerStyle,
       style: columnStyle,
+      Cell: ({ original: { [accessor]: props }}) => <TestResult {...props} />
     });
   });
   columns.push(getActionsColumn());
   return columns;
 }
+
+const getFixedTableColumns = () => ([{
+  accessor: 'testType',
+  Header: 'Test',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 100,
+  Cell: ({ original: { testType: props }}) => <TestType {...props} />
+}]);
 
 class Labs extends Component {
   state = {
@@ -143,7 +151,7 @@ class Labs extends Component {
                   keyField="_id"
                   data={labTests}
                   pageSize={labTests.length}
-                  columns={patientsLabRequestsColumns}
+                  columns={getFixedTableColumns()}
                   className="-striped"
                   defaultSortDirection="asc"
                   showPagination={false}
