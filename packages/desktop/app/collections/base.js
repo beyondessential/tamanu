@@ -63,21 +63,6 @@ export default Backbone.PageableCollection.extend({
     return this.fetch(params);
   },
 
-  fetchByView(opts = {}) {
-    const { view, keys: viewKeys } = opts;
-    const options = {
-      data: {
-        ...opts,
-        // FIXME
-        // Disabling view and viewKeys functionalities as they are broken
-        // view,
-        // keys: isArray(viewKeys) ? viewKeys.join(',') : viewKeys,
-      }
-    };
-
-    return this.fetch(options);
-  },
-
   find(opts = {}) {
     const { model: Model } = this;
     const model = new Model();
