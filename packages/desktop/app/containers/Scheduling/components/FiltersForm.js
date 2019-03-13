@@ -92,7 +92,7 @@ class FiltersForm extends Component {
     const {
       loading,
       collapse,
-      theatre
+      surgery
     } = this.props;
 
     return (
@@ -107,7 +107,7 @@ class FiltersForm extends Component {
               onChange={this.handleInputChange}
               value={status}
             />
-            {!theatre &&
+            {!surgery &&
               <SelectGroup
                 className="column is-3"
                 label="Type"

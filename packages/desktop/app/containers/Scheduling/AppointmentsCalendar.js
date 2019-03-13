@@ -43,8 +43,8 @@ class AppointmentsCalendar extends Component {
   }
 
   viewAppointment = ({ _id }) => {
-    const { theatre } = this.props;
-    this.props.history.push(`/appointments/${!theatre ? 'appointment' : 'surgery'}/${_id}`);
+    const { surgery } = this.props;
+    this.props.history.push(`/appointments/${!surgery ? 'appointment' : 'surgery'}/${_id}`);
   }
 
   setDates = dates => {
@@ -66,7 +66,7 @@ class AppointmentsCalendar extends Component {
   }
 
   fetchData = () => {
-    const { theatre } = this.props;
+    const { surgery } = this.props;
     const {
       startDate,
       endDate,
@@ -83,12 +83,12 @@ class AppointmentsCalendar extends Component {
     if (type) filters.appointmentType = `LIKE|${type}`;
     if (location) filters.location = `CONTAINS[c]|${location}`;
     if (practitioner) filters.provider = `CONTAINS[c]|${practitioner}`;
-    if (theatre) filters.appointmentType = 'surgery';
+    if (surgery) filters.appointmentType = 'surgery';
     this.props.fetchCalender({ filters });
   }
 
   render() {
-    const { theatre } = this.props;
+    const { surgery } = this.props;
     const {
       appointments,
       loading,
@@ -98,9 +98,9 @@ class AppointmentsCalendar extends Component {
     return (
       <div className="create-content">
         <TopBar
-          title={!theatre ? 'Appointments Calendar': 'Theatre Schedule'}
+          title={!surgery ? 'Appointments Calendar': 'Theatre Schedule'}
           buttons={[{
-            to: `/appointments/${theatre ? 'surgery' : 'appointment'}/new`,
+            to: `/appointments/${surgery ? 'surgery' : 'appointment'}/new`,
             can: { do: 'create', on: 'appointment' },
             children: 'New Appointment'
           }, {
@@ -113,7 +113,7 @@ class AppointmentsCalendar extends Component {
         <div className="create-container" >
           <div className="form with-padding">
             <FiltersForm
-              theatre={theatre}
+              surgery={surgery}
               loading={loading}
               collapse={filtersOn}
               onSubmit={this.setFilters}
