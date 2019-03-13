@@ -1,15 +1,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import ReactTable from 'react-table';
-import { toLower, isEmpty, isEqual } from 'lodash';
+import { toLower } from 'lodash';
 import actions from '../../../actions/scheduling';
-import { Modal, Button } from '../../../components';
-import {
-  appointmentsColumns,
-  dbViews,
-  pageSizes,
-} from '../../../constants';
+import { Modal, Button, BrowsableTable } from '../../../components';
+import { AppointmentsCollection } from '../../../collections';
+import { appointmentsColumns } from '../../../constants';
+
+const prepareRow = (model) => {
+  const patient = model.parents.patients[0];
+  return {
+    ...model.toJSON(),
+    patientsName: `${patient.get('firstName')} ${patient.get('lastName')}`
+  };
+}
 
 class AppointmentsTable extends Component {
   state = {
