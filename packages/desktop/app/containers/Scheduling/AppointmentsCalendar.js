@@ -5,7 +5,7 @@ import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
 import actions from '../../actions/scheduling';
 import FiltersForm from './components/FiltersForm';
-import { dbViews } from '../../constants';
+import { REALM_DATE_FORMAT } from '../../constants';
 import { TopBar } from '../../components';
 
 BigCalendar.momentLocalizer(moment);
@@ -75,20 +75,16 @@ class AppointmentsCalendar extends Component {
       location,
       practitioner,
     } = this.state;
-    let keys = [];
-    let view = '';
 
-    if (theatre) {
-      keys = [ startDate, endDate, status, type, practitioner, location];
-      view = dbViews.appointmentsSurgerySearch;
-    } else {
-      keys = [ startDate, endDate, status, practitioner, location];
-      view = dbViews.appointmentsSearch;
-    }
-
-    this.props.fetchCalender({
-      view, keys
-    });
+    const filters = {};
+    if (startDate) filters.startDate = `>|${moment(startDate).startOf('day').format(REALM_DATE_FORMAT)}`;
+    if (endDate) filters.endDate = `<|${moment(endDate).endOf('day').format(REALM_DATE_FORMAT)}`;
+    if (status) filters.status = `LIKE|${status}`;
+    if (type) filters.appointmentType = `LIKE|${type}`;
+    if (location) filters.location = `CONTAINS[c]|${location}`;
+    if (practitioner) filters.provider = `CONTAINS[c]|${practitioner}`;
+    if (theatre) filters.appointmentType = 'surgery';
+    this.props.fetchCalender({ filters });
   }
 
   render() {
