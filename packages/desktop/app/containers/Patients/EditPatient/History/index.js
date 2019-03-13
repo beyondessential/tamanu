@@ -7,22 +7,38 @@ import ImagingRequest from './ImagingRequest';
 import LabRequest from './LabRequest';
 import Appointment from './Appointment';
 
+const HistoryRow = ({ objectType, ...props }) => {
+  switch (objectType) {
+    case 'visit':
+      return <Visit {...props} />;
+    case 'medication':
+      return <Medication {...props} />;
+    case 'imagingRequest':
+      return <ImagingRequest {...props} />;
+    case 'labRequest':
+      return <LabRequest {...props} />;
+    case 'appointment':
+      return <Appointment {...props} />;
+  }
+}
+
 class History extends Component {
   state = {
     noteModalVisible: false,
-    history: []
+    patientsHistory: []
   }
 
   componentWillMount() {
-    const { patientModel } = this.props;
-    const history = patientModel.getHistory();
-    this.setState({ history });
+    this.handleChange();
   }
 
   componentWillReceiveProps(newProps) {
-    const { patientModel } = newProps;
-    const history = patientModel.getHistory();
-    this.setState({ history });
+    this.handleChange(newProps);
+  }
+
+  handleChange(props = this.props) {
+    const { patientModel } = props;
+    this.setState({ patientsHistory: patientModel.getHistory() });
   }
 
   onCloseModal = () => {
@@ -52,7 +68,7 @@ class History extends Component {
 
   render() {
     const { patientModel } = this.props;
-    const { noteModalVisible, history } = this.state;
+    const { noteModalVisible, patientsHistory } = this.state;
     return (
       <div>
         <div className="column has-text-right">
@@ -62,19 +78,15 @@ class History extends Component {
           >Add Note </NewButton>
         </div>
         <div className="column">
-          {history.map(({ objectType, object }) => {
-            const props = {
-              key: `${objectType}-${object._id}`,
-              item: object,
-              patientModel,
-              gotoItem: this.gotoItem,
-            };
-            if (objectType === 'visit') return <Visit {...props} />;
-            if (objectType === 'medication') return <Medication {...props} />;
-            if (objectType === 'imagingRequest') return <ImagingRequest {...props} />;
-            if (objectType === 'labRequest') return <LabRequest {...props} />;
-            if (objectType === 'appointment') return <Appointment {...props} />;
-          })}
+          {patientsHistory.map(({ objectType, object }) => (
+            <HistoryRow
+              key={object._id}
+              item={object}
+              patientModel={patientModel}
+              gotoItem={this.gotoItem}
+              objectType={objectType}
+            />
+          ))}
         </div>
         <NoteModal
           isVisible={noteModalVisible}
