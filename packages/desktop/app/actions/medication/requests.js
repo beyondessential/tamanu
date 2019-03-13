@@ -3,7 +3,6 @@ import moment from 'moment';
 import {
   pageSizes,
   dateFormat,
-  dbViews
 } from '../../constants';
 import {
   FETCH_MEDICATIONS_REQUEST,
@@ -12,7 +11,7 @@ import {
 } from '../types';
 import { MedicationCollection } from '../../collections';
 
-export const fetchMedications = ({ page, view = dbViews.medicationRequested }) =>
+export const fetchMedications = ({ page, filters = {} }) =>
   async dispatch => {
     try {
       dispatch({ type: FETCH_MEDICATIONS_REQUEST });
@@ -21,7 +20,7 @@ export const fetchMedications = ({ page, view = dbViews.medicationRequested }) =
         pageSize: pageSizes.medicationRequests
       });
       // medicationCollection.setPageSize(pageSizes.medicationRequests);
-      await medicationCollection.getPage(page, view);
+      await medicationCollection.getPage(page, { data: filters });
       if (medicationCollection.models.length > 0) {
         const tasks = [];
         medicationCollection.models.forEach(model => tasks.push(_prepareMedication(model)));
