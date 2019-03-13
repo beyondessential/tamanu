@@ -2,7 +2,7 @@ import React,{ Component } from 'react';
 import ReactTable from 'react-table';
 import moment from 'moment';
 import { Typography, Grid } from '@material-ui/core';
-import { Button } from '../../../components';
+import { Button, Notification } from '../../../components';
 import { columnStyle, headerStyle, dateFormat, pageSizes } from '../../../constants';
 
 const getActionsColumn = () => ({
@@ -131,51 +131,43 @@ class Labs extends Component {
     const { labTests, columns } = this.state;
     const labRequestsState = this.labRequests.state;
 
+    if (labTests.length === 0) return <Notification message="No requests found." />
     return (
       <React.Fragment>
-        { labTests.length > 0 ?
-          <React.Fragment>
-            <Grid container item justify="flex-end">
-              <Button
-                disabled={labRequestsState.currentPage <= 0}
-                onClick={this.prevPage}
-              >Prev</Button>
-              <Button
-                disabled={labRequestsState.currentPage === (labRequestsState.totalPages - 1)}
-                onClick={this.nextPage}
-              >Next</Button>
-            </Grid>
-            <Grid container>
-              <Grid item xs={1}>
-                <ReactTable
-                  keyField="_id"
-                  data={labTests}
-                  pageSize={labTests.length}
-                  columns={getFixedTableColumns()}
-                  className="-striped"
-                  defaultSortDirection="asc"
-                  showPagination={false}
-                />
-              </Grid>
-              <Grid item xs={11} style={{ overflowX: 'auto' }}>
-                <ReactTable
-                  keyField="_id"
-                  data={labTests}
-                  pageSize={labTests.length}
-                  columns={columns}
-                  className="-striped"
-                  defaultSortDirection="asc"
-                  showPagination={false}
-                />
-              </Grid>
-            </Grid>
-          </React.Fragment>:
-          <div className="notification">
-            <span>
-              No requests found.
-            </span>
-          </div>
-        }
+        <Grid container item justify="flex-end">
+          <Button
+            disabled={labRequestsState.currentPage <= 0}
+            onClick={this.prevPage}
+          >Prev</Button>
+          <Button
+            disabled={labRequestsState.currentPage === (labRequestsState.totalPages - 1)}
+            onClick={this.nextPage}
+          >Next</Button>
+        </Grid>
+        <Grid container>
+          <Grid item xs={1}>
+            <ReactTable
+              keyField="_id"
+              data={labTests}
+              pageSize={labTests.length}
+              columns={getFixedTableColumns()}
+              className="-striped"
+              defaultSortDirection="asc"
+              showPagination={false}
+            />
+          </Grid>
+          <Grid item xs={11} style={{ overflowX: 'auto' }}>
+            <ReactTable
+              keyField="_id"
+              data={labTests}
+              pageSize={labTests.length}
+              columns={columns}
+              className="-striped"
+              defaultSortDirection="asc"
+              showPagination={false}
+            />
+          </Grid>
+        </Grid>
       </React.Fragment>
     );
   }
