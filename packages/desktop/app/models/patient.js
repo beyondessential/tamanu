@@ -245,7 +245,7 @@ export default BaseModel.extend({
           labRequests
             .where({ status: LAB_REQUEST_STATUSES.VERIFIED })
             .filter(({ attributes: { tests } }) => (
-              !!tests.find(test => test.attributes.result != null)
+              tests.some(test => test.attributes.result != null)
             ))
         );
       }
