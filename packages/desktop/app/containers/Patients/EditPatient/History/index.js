@@ -22,7 +22,7 @@ const HistoryRow = ({ objectType, ...props }) => {
   }
 }
 
-class History extends Component {
+class HistoryTab extends Component {
   state = {
     noteModalVisible: false,
     patientsHistory: []
@@ -101,4 +101,4 @@ class History extends Component {
   }
 }
 
-export default History;
+export default HistoryTab;
