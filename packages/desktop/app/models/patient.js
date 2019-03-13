@@ -1,8 +1,7 @@
 import Backbone from 'backbone-associations';
-import { defaults, each, clone, isEmpty, get, filter, capitalize, concat, orderBy } from 'lodash';
+import { defaults, each, clone, get, filter, capitalize, concat } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
-import { concatSelf } from '../utils';
 import { pregnancyOutcomes, dateFormat } from '../constants';
 import LabRequestsCollection from '../collections/labRequests';
 
@@ -192,15 +191,28 @@ export default BaseModel.extend({
   getHistory() {
     let history = [];
     let { visits } = this.attributes;
-    visits = visits.map(visit =>  visit.toJSON({ relations: true }));
-    if (!isEmpty(visits)) concatSelf(history, visits.map(visit => {
-      // Add medication for this visit to the history
-      if (!isEmpty(visit.medication))
-        concatSelf(history, visit.medication.map(medicine => ({ docType: 'medication', date: moment(medicine.requestedDate), ...medicine })));
+    const _parseHistoryObject = (objectType, collection, dateField = 'requestedDate') => {
+      return collection.map(model => ({
+        date: moment(model.get(dateField)).unix(),
+        objectType,
+        object: model.toJSON()
+      }));
+    }
 
-      return { docType: 'visit', date: moment(visit.startDate), ...visit };
-    }));
-    history = orderBy(history, item => item.date, 'desc');
+    const appointments = this.get('appointments');
+    history = history.concat(_parseHistoryObject('appointment', appointments, 'startDate'));
+    visits.forEach(visitModel => {
+      const medication = visitModel.getMedication();
+      const imagingRequests = visitModel.getImagingRequests();
+      const labRequests = visitModel.getLabRequests();
+      history = history
+                .concat(_parseHistoryObject('visit', [visitModel], 'startDate'))
+                .concat(_parseHistoryObject('medication', medication))
+                .concat(_parseHistoryObject('imagingRequest', imagingRequests))
+                .concat(_parseHistoryObject('labRequest', labRequests));
+    });
+
+    history = history.sort(( objectA, objectB ) => objectB.date - objectA.date);
     return history;
   },
 
