@@ -20,15 +20,15 @@ export const fetchAppointments = ({
   return async dispatch => {
     try {
       dispatch({ type: FETCH_APPOINTMENTS_REQUEST });
-      const appointmentCollection = new AppointmentsCollection({ pageSize });
+      const appointmentsCollection = new AppointmentsCollection({ pageSize });
       // Set pagination options
       if (sorted.length > 0) {
         const sort = head(sorted);
-        appointmentCollection.setSorting(sort.id, sort.desc ? 1 : -1);
+        appointmentsCollection.setSorting(sort.id, sort.desc ? 1 : -1);
       }
       // Fetch results
-      await appointmentCollection.getPage(page, { data: filters });
-      const appointments = appointmentCollection.models.map(object => {
+      await appointmentsCollection.getPage(page, { data: filters });
+      const appointments = appointmentsCollection.models.map(object => {
         const { parents } = object;
         let name = '';
         if (has(parents, 'patients') && !isEmpty(parents.patients))
@@ -39,7 +39,7 @@ export const fetchAppointments = ({
       dispatch({
         type: FETCH_APPOINTMENTS_SUCCESS,
         appointments,
-        totalPages: appointmentCollection.state.totalPages,
+        totalPages: appointmentsCollection.state.totalPages,
         loading: false,
       });
     } catch (err) {
@@ -52,9 +52,9 @@ export const fetchCalender = ({ filters = {} }) =>
     async dispatch => {
       try {
         dispatch({ type: FETCH_APPOINTMENTS_REQUEST });
-        const appointmentCollection = new AppointmentsCollection();
-        await appointmentCollection.fetchAll({ data: filters });
-        const appointments = appointmentCollection.toJSON().map(({ _id, startDate, endDate, allDay, patients, location }) => ({
+        const appointmentsCollection = new AppointmentsCollection();
+        await appointmentsCollection.fetchAll({ data: filters });
+        const appointments = appointmentsCollection.toJSON().map(({ _id, startDate, endDate, allDay, patients, location }) => ({
             _id,
             allDay,
             start: moment(startDate).toDate(),
@@ -66,7 +66,7 @@ export const fetchCalender = ({ filters = {} }) =>
         dispatch({
           type: FETCH_APPOINTMENTS_SUCCESS,
           appointments,
-          totalPages: appointmentCollection.state.totalPages,
+          totalPages: appointmentsCollection.state.totalPages,
           loading: false,
         });
       } catch (err) {
