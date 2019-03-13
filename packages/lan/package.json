@@ -17,7 +17,9 @@
     "stop": "pm2 stop tamanu-lan",
     "start-dev": "nodemon index",
     "build": "pkg . --targets node10-win-x64 --output ./release/server.exe",
-    "package": "./scripts/package.sh"
+    "package": "./scripts/package.sh",
+    "lint": "eslint",
+    "lint-all": "eslint app"
   },
   "repository": {
     "type": "git",
@@ -27,6 +29,7 @@
   "license": "ISC",
   "homepage": "https://github.com/beyondessential/tamanu-desktop.git#readme",
   "devDependencies": {
+    "@beyondessential/eslint-config-beyondessential": "*",
     "chai": "^4.1.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
