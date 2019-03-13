@@ -11,7 +11,7 @@ const prepareRow = (model) => {
   const patient = model.parents.patients[0];
   return {
     ...model.toJSON(),
-    patientsName: `${patient.get('firstName')} ${patient.get('lastName')}`
+    patientsName: patient.getDisplayName()
   };
 }
 
