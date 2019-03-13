@@ -28,27 +28,6 @@ class AppointmentsTable extends Component {
     appointmentsColumns[appointmentsColumns.length - 1].Cell = this.setActionsColumn;
   }
 
-  componentDidMount() {
-    const { autoFetch } = this.props;
-    if (autoFetch) this.handleChange();
-  }
-
-  componentWillReceiveProps(newProps) {
-    this.handleChange(newProps);
-  }
-
-  handleChange(props = this.props) {
-    const { appointments, totalPages, loading, reFetch, keys } = props;
-    const { keys: oldKeys } = this.state;
-    if (reFetch) {
-      this.onCloseModal();
-      return this.fetchData({ page: 0 });
-    }
-    if (!loading) this.setState({ appointments, totalPages, loading, keys }, () => {
-      if (!isEqual(oldKeys, keys)) this.fetchData({ page: 0 });
-    });
-  }
-
   setActionsColumn = _row => {
     const row = _row.original;
     return (
@@ -82,23 +61,6 @@ class AppointmentsTable extends Component {
     );
   }
 
-  fetchData = opts => {
-    const { keys } = this.state;
-    if (!isEmpty(keys)) {
-      this.props.fetchAppointments({
-        view: dbViews.appointmentsSearch,
-        keys,
-        ...opts
-      });
-    } else {
-      this.setState({
-        appointments: [],
-        totalPages: 1,
-        loading: false
-      });
-    }
-  }
-
   goEdit = (id) => {
     this.props.history.push(`/appointments/appointment/${id}`);
   }
@@ -124,26 +86,16 @@ class AppointmentsTable extends Component {
   }
 
   render() {
-    const {
-      loading,
-      totalPages,
-      appointments,
-    } = this.state;
-
+    const { filters } = this.props;
     return (
       <React.Fragment>
         <div className="detail">
-          <ReactTable
-            manual
-            keyField="_id"
-            data={appointments}
-            pages={totalPages}
-            defaultPageSize={pageSizes.appointments}
-            loading={loading}
+          <BrowsableTable
+            collection={this.props.collection}
             columns={appointmentsColumns}
-            className="-striped"
-            defaultSortDirection="asc"
-            onFetchData={this.fetchData}
+            emptyNotification="No appointments found"
+            transformRow={prepareRow}
+            fetchOptions={filters}
           />
         </div>
         <Modal
@@ -160,7 +112,7 @@ class AppointmentsTable extends Component {
 }
 
 AppointmentsTable.propTypes = {
-  keys: PropTypes.array.isRequired,
+  filters: PropTypes.object.isRequired,
   autoFetch: PropTypes.bool,
 }
 
@@ -170,7 +122,10 @@ AppointmentsTable.defaultProps = {
 
 function mapStateToProps(state) {
   const { appointments, totalPages, loading, reFetch, error } = state.scheduling;
-  return { appointments, totalPages, loading, reFetch, error };
+  return {
+    appointments, totalPages, loading, reFetch, error,
+    collection: new AppointmentsCollection()
+  };
 }
 
 const {
