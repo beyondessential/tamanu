@@ -1,5 +1,5 @@
 import Backbone from 'backbone-associations';
-import { defaults, each, clone, isEmpty, get, filter, capitalize, concat, orderBy } from 'lodash';
+import { defaults, each, clone, get, filter, capitalize, concat } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
 import { concatSelf } from '../utils';
@@ -192,15 +192,28 @@ export default BaseModel.extend({
   getHistory() {
     let history = [];
     let { visits } = this.attributes;
-    visits = visits.map(visit =>  visit.toJSON({ relations: true }));
-    if (!isEmpty(visits)) concatSelf(history, visits.map(visit => {
-      // Add medication for this visit to the history
-      if (!isEmpty(visit.medication))
-        concatSelf(history, visit.medication.map(medicine => ({ docType: 'medication', date: moment(medicine.requestedDate), ...medicine })));
+    const parseHistoryObject = (objectType, collection, dateField = 'requestedDate') => {
+      return collection.map(model => ({
+        date: moment(model.get(dateField)).unix(),
+        objectType,
+        object: model.toJSON()
+      }));
+    }
 
-      return { docType: 'visit', date: moment(visit.startDate), ...visit };
-    }));
-    history = orderBy(history, item => item.date, 'desc');
+    const appointments = this.get('appointments');
+    history = history.concat(parseHistoryObject('appointment', appointments, 'startDate'));
+    visits.forEach(visitModel => {
+      const medication = visitModel.getMedication();
+      const imagingRequests = visitModel.getImagingRequests();
+      const labRequests = visitModel.getLabRequests();
+      history = history
+                .concat(parseHistoryObject('visit', [visitModel], 'startDate'))
+                .concat(parseHistoryObject('medication', medication))
+                .concat(parseHistoryObject('imagingRequest', imagingRequests))
+                .concat(parseHistoryObject('labRequest', labRequests));
+    });
+
+    history = history.sort(( objectA, objectB ) => objectB.date - objectA.date);
     return history;
   },
 
@@ -250,7 +263,7 @@ export default BaseModel.extend({
           labRequests
             .where({ status: LAB_REQUEST_STATUSES.VERIFIED })
             .filter(({ attributes: { tests } }) => (
-              !!tests.find(test => test.attributes.result != null)
+              tests.some(test => test.attributes.result != null)
             ))
         );
       }

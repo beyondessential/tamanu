@@ -3,36 +3,32 @@ import { has, isEmpty, set, concat, capitalize, head } from 'lodash';
 import moment from 'moment';
 import {
   pageSizes,
-  dbViews
 } from '../../constants';
 import {
   FETCH_APPOINTMENTS_REQUEST,
   FETCH_APPOINTMENTS_SUCCESS,
   FETCH_APPOINTMENTS_FAILED,
 } from '../types';
-import { AppointmentCollection } from '../../collections';
+import { AppointmentsCollection } from '../../collections';
 
 export const fetchAppointments = ({
   page,
-  view = dbViews.appointmentsSearch,
-  keys = [],
+  filters = [],
   sorted = [],
   pageSize = pageSizes.appointments
 }) => {
   return async dispatch => {
     try {
       dispatch({ type: FETCH_APPOINTMENTS_REQUEST });
-      const appointmentCollection = new AppointmentCollection({ pageSize });
-      // Merge keys
-      const viewKeys = concat(keys, dbViews.appointmentsSearchKeys.slice(keys.length));
+      const appointmentsCollection = new AppointmentsCollection({ pageSize });
       // Set pagination options
       if (sorted.length > 0) {
         const sort = head(sorted);
-        appointmentCollection.setSorting(sort.id, sort.desc ? 1 : -1);
+        appointmentsCollection.setSorting(sort.id, sort.desc ? 1 : -1);
       }
       // Fetch results
-      await appointmentCollection.getPage(page, view, viewKeys);
-      const appointments = appointmentCollection.models.map(object => {
+      await appointmentsCollection.getPage(page, { data: filters });
+      const appointments = appointmentsCollection.models.map(object => {
         const { parents } = object;
         let name = '';
         if (has(parents, 'patients') && !isEmpty(parents.patients))
@@ -43,7 +39,7 @@ export const fetchAppointments = ({
       dispatch({
         type: FETCH_APPOINTMENTS_SUCCESS,
         appointments,
-        totalPages: appointmentCollection.state.totalPages,
+        totalPages: appointmentsCollection.state.totalPages,
         loading: false,
       });
     } catch (err) {
@@ -52,18 +48,13 @@ export const fetchAppointments = ({
   };
 };
 
-export const fetchCalender = ({ view = dbViews.appointmentsSearch, keys = [] }) =>
+export const fetchCalender = ({ filters = {} }) =>
     async dispatch => {
       try {
         dispatch({ type: FETCH_APPOINTMENTS_REQUEST });
-        const appointmentCollection = new AppointmentCollection({
-          pageSize: pageSizes.appointments
-        });
-        // Merge keys
-        const viewKeys = concat(keys, dbViews.appointmentsSearchKeys.slice(keys.length));
-        // Fetch results
-        await appointmentCollection.fetchByView({ view, keys: viewKeys });
-        const appointments = appointmentCollection.toJSON().map(({ _id, startDate, endDate, allDay, patients, location }) => ({
+        const appointmentsCollection = new AppointmentsCollection();
+        await appointmentsCollection.fetchAll({ data: filters });
+        const appointments = appointmentsCollection.toJSON().map(({ _id, startDate, endDate, allDay, patients, location }) => ({
             _id,
             allDay,
             start: moment(startDate).toDate(),
@@ -75,7 +66,7 @@ export const fetchCalender = ({ view = dbViews.appointmentsSearch, keys = [] }) 
         dispatch({
           type: FETCH_APPOINTMENTS_SUCCESS,
           appointments,
-          totalPages: appointmentCollection.state.totalPages,
+          totalPages: appointmentsCollection.state.totalPages,
           loading: false,
         });
       } catch (err) {

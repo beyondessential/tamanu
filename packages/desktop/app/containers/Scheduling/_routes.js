@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Route, Switch } from 'react-router-dom';
 
-import Appointments from './Appointments';
-import TodayAppointments from './TodayAppointments';
+import WeeksAppointments from './WeeksAppointments';
+import TodaysAppointments from './TodaysAppointments';
 import SearchAppointment from './SearchAppointment';
 import AppointmentsCalendar from './AppointmentsCalendar';
 import Appointment from './Appointment';
@@ -14,9 +14,9 @@ export default function Routes({ url }) {
   return (
     <div>
       <Switch>
-        <Route exact path={url} component={Appointments} />
-        <Route path={`${url}/week`} component={Appointments} />
-        <Route path={`${url}/today`} component={TodayAppointments} />
+        <Route exact path={url} component={WeeksAppointments} />
+        <Route path={`${url}/week`} component={WeeksAppointments} />
+        <Route path={`${url}/today`} component={TodaysAppointments} />
         <Route path={`${url}/search`} component={SearchAppointment} />
         <Route path={`${url}/calendar`} component={AppointmentsCalendar} />
         <Route path={`${url}/appointmentByPatient/:patientId`} component={Appointment} />

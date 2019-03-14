@@ -100,4 +100,16 @@ export default BaseModel.extend({
     const patient = this.attributes.patient[0];
     return patient && new PatientModel(patient);
   },
+
+  getMedication() {
+    return this.get('medication');
+  },
+
+  getLabRequests() {
+    return this.get('labRequests');
+  },
+
+  getImagingRequests() {
+    return this.get('imagingRequests');
+  }
 });

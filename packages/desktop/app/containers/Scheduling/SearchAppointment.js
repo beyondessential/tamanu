@@ -5,6 +5,7 @@ import SearchForm from './components/SearchForm';
 import actions from '../../actions/scheduling';
 import AppointmentsTable from './components/AppointmentsTable';
 import { TopBar } from '../../components';
+import { REALM_DATE_FORMAT } from '../../constants';
 
 class SearchAppointment extends Component {
   constructor(props) {
@@ -13,13 +14,17 @@ class SearchAppointment extends Component {
   }
 
   state = {
-    keys: [],
+    filters: {},
     loading: false,
   }
 
   submitForm(form) {
-    const keys = [moment(form.startDate).startOf('day'), moment().add(100, 'years'), form.status, form.type, form.practitioner];
-    this.setState({ keys });
+    const filters = {};
+    if (form.startDate) filters.startDate = `>|${moment(form.startDate).startOf('day').format(REALM_DATE_FORMAT)}`;
+    if (form.status) filters.status = `LIKE|${form.status}`;
+    if (form.type) filters.appointmentType = `LIKE|${form.type}`;
+    if (form.practitioner) filters.provider = `CONTAINS[c]|${form.practitioner}`;
+    this.setState({ filters });
   }
 
   onLoading(loading) {
@@ -28,7 +33,7 @@ class SearchAppointment extends Component {
 
   render() {
     const {
-      keys,
+      filters,
       loading,
     } = this.state;
 
@@ -50,12 +55,11 @@ class SearchAppointment extends Component {
             />
             <div className="columns">
               <div className="column">
-                  <AppointmentsTable
-                    keys={keys}
-                    history={this.props.history}
-                    onLoading={this.onLoading.bind(this)}
-                    reFetch
-                  />
+                <AppointmentsTable
+                  filters={filters}
+                  history={this.props.history}
+                  onLoading={this.onLoading.bind(this)}
+                />
               </div>
             </div>
           </div>

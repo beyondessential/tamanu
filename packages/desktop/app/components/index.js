@@ -15,5 +15,8 @@ export SearchBar from './SearchBar';
 export Sidebar from './Sidebar';
 export TextareaGroup from './TextareaGroup';
 export TopBar from './TopBar';
+export * from './BrowsableTable';
 export * from './Button';
 export * from './IconButton';
+export * from './DateDisplay';
+export * from './DateRange';
