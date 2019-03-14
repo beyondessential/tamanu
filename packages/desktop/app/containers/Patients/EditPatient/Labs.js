@@ -99,7 +99,7 @@ const getFixedTableColumns = () => ([{
   Cell: ({ original: { testType: props }}) => <TestType {...props} />
 }]);
 
-class Labs extends Component {
+export default class Labs extends Component {
   state = {
     columns: [],
     labTests: [],
@@ -172,5 +172,3 @@ class Labs extends Component {
     );
   }
 }
-
-export default Labs;
