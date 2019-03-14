@@ -30,7 +30,9 @@
     "test-all": "npm run lint && npm run flow && npm run build && npm run test && npm run test-e2e",
     "test-e2e": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 node --trace-warnings -r babel-register ./internals/scripts/RunTests.js e2e",
     "test-watch": "npm test -- --watch",
-    "reinstall": "rm -rf node_modules && yarn"
+    "reinstall": "rm -rf node_modules && yarn",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "browserslist": "electron 1.6",
   "lint-staged": {
@@ -204,7 +206,11 @@
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.1.5",
     "webpack-merge": "^4.1.3",
-    "yarn": "^1.9.2"
+    "yarn": "^1.9.2",
+    "@storybook/react": "^5.0.1",
+    "@storybook/addon-actions": "^5.0.1",
+    "@storybook/addon-links": "^5.0.1",
+    "@storybook/addons": "^5.0.1"
   },
   "dependencies": {
     "@casl/react": "^0.8.1",
