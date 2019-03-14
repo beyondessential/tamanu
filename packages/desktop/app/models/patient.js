@@ -257,16 +257,7 @@ export default BaseModel.extend({
     const { attributes: { visits } } = this;
     const labRequestsCollection = new LabRequestsCollection({}, { mode: 'client' });
     visits.models.forEach(visitModel => {
-      const labRequests = visitModel.get('labRequests');
-      if (labRequests) {
-        labRequestsCollection.add(
-          labRequests
-            .where({ status: LAB_REQUEST_STATUSES.VERIFIED })
-            .filter(({ attributes: { tests } }) => (
-              tests.some(test => test.attributes.result != null)
-            ))
-        );
-      }
+      labRequestsCollection.add(visitModel.getLabRequests().models);
     })
     return labRequestsCollection;
   },

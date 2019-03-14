@@ -2,8 +2,9 @@ import Backbone from 'backbone-associations';
 import { defaults } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
-
 import PatientModel from './patient';
+import { LAB_REQUEST_STATUSES } from '../constants';
+import LabRequestsCollection from '../collections/labRequests';
 
 export default BaseModel.extend({
   urlRoot:  `${BaseModel.prototype.urlRoot}/visit`,
@@ -101,15 +102,13 @@ export default BaseModel.extend({
     return patient && new PatientModel(patient);
   },
 
-  getMedication() {
-    return this.get('medication');
-  },
-
   getLabRequests() {
-    return this.get('labRequests');
+    return new LabRequestsCollection(
+      this.get('labRequests')
+        .where({ status: LAB_REQUEST_STATUSES.VERIFIED })
+        .filter(({ attributes: { tests } }) => (
+          !!tests.find(test => test.attributes.result != null)
+        ))
+    , { mode: 'client' });
   },
-
-  getImagingRequests() {
-    return this.get('imagingRequests');
-  }
 });
