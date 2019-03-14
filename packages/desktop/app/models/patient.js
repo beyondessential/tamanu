@@ -2,7 +2,8 @@ import Backbone from 'backbone-associations';
 import { defaults, each, clone, get, filter, capitalize, concat } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
-import { pregnancyOutcomes, dateFormat } from '../constants';
+import { concatSelf } from '../utils';
+import { pregnancyOutcomes, dateFormat, LAB_REQUEST_STATUSES } from '../constants';
 import LabRequestsCollection from '../collections/labRequests';
 
 export default BaseModel.extend({
@@ -254,10 +255,18 @@ export default BaseModel.extend({
 
   getLabRequests() {
     const { attributes: { visits } } = this;
-    const labRequestsCollection = new LabRequestsCollection();
+    const labRequestsCollection = new LabRequestsCollection({}, { mode: 'client' });
     visits.models.forEach(visitModel => {
       const labRequests = visitModel.get('labRequests');
-      if (labRequests) labRequestsCollection.add(labRequests.models);
+      if (labRequests) {
+        labRequestsCollection.add(
+          labRequests
+            .where({ status: LAB_REQUEST_STATUSES.VERIFIED })
+            .filter(({ attributes: { tests } }) => (
+              tests.some(test => test.attributes.result != null)
+            ))
+        );
+      }
     })
     return labRequestsCollection;
   },
