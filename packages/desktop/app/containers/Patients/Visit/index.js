@@ -9,6 +9,7 @@ import Allergy from '../components/Allergy';
 import Diagnosis from '../components/Diagnosis';
 import Procedure from '../components/Procedure';
 import OperativePlan from '../components/OperativePlan';
+import LabRequests from '../components/LabRequests';
 import Vitals from './Vitals';
 import Notes from './Notes';
 import Procedures from './Procedures';
@@ -118,6 +119,7 @@ class EditVisit extends Component {
       { value: 'vitals', label: 'Vitals' },
       { value: 'notes', label: 'Notes' },
       { value: 'procedures', label: 'Procedures' },
+      { value: 'labs', label: 'Labs' },
       { value: 'reports', label: 'Reports' },
     ]
     .map(item => (
@@ -153,6 +155,13 @@ class EditVisit extends Component {
             patientModel={patientModel}
           />
         </div>}
+      {selectedTab === 'labs' &&
+        <LabRequests
+          history={this.props.history}
+          parentModel={visitModel}
+          patientsSex={patientModel.get('sex')}
+        />
+      }
       {selectedTab === 'reports' &&
         <div className="column">Reports</div>}
     </React.Fragment>);

@@ -23,7 +23,7 @@ export const initVisit = ({ patientId, id }) =>
     let [error] = await to(patientModel.fetch({ relations: true, deep: false }));
     if (action === 'edit' && !error) {
       visitModel.set({ _id: id });
-      [error] = await to(visitModel.fetch({ relations: true, deep: false }));
+      [error] = await to(visitModel.fetch({ data: { objects_max_depth: 7 } }));
     }
     if (error) return dispatch({ type: FETCH_VISIT_FAILED, error });
     dispatch({

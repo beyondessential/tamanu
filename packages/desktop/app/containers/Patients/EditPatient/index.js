@@ -6,7 +6,6 @@ import { Preloader, BackButton } from '../../../components';
 import actions from '../../../actions/patients';
 import Allergy from '../components/Allergy';
 import Condition from '../components/Condition';
-import Diagnosis from '../components/Diagnosis';
 import Procedure from '../components/Procedure';
 import OperativePlan from '../components/OperativePlan';
 import PatientQuickLinks from '../components/PatientQuickLinks';
@@ -17,7 +16,7 @@ import Appointments from './Appointments';
 import Visits from './Visits';
 import Medication from './Medication';
 import Imaging from './Imaging';
-import Labs from './Labs';
+import LabRequests from '../components/LabRequests';
 import Programs from './Programs';
 import Pregnancy from './Pregnancy';
 import TopRow from '../components/TopRow';
@@ -126,9 +125,10 @@ class EditPatient extends Component {
       case 'labs':
         return (
           <div className="column">
-            <Labs
+            <LabRequests
               history={history}
-              patientModel={patientModel}
+              parentModel={patientModel}
+              patientsSex={patientModel.get('sex')}
             />
           </div>
         );
