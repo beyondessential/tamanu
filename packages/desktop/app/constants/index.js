@@ -108,6 +108,7 @@ export const pageSizes = {
   surveyResponses: 5,
   medicationRequests: 10,
   appointments: 10,
+  patientLabRequests: 5,
 };
 
 // Generate time picker select options
@@ -1557,15 +1558,5 @@ export const patientImagingRequestsColumns = [
     style: columnStyle,
     minWidth: 250,
     Cell: null
-  }
-];
-
-export const patientsLabRequestsColumns = [
-  {
-    accessor: 'testType',
-    Header: 'Test',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 100
   }
 ];

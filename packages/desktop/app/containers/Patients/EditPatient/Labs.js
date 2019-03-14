@@ -1,14 +1,9 @@
-import React from 'react';
+import React,{ Component } from 'react';
 import ReactTable from 'react-table';
 import moment from 'moment';
 import { Typography, Grid } from '@material-ui/core';
-import { Button } from '../../../components';
-import {
-  patientsLabRequestsColumns, LAB_REQUEST_STATUSES,
-  columnStyle, headerStyle, dateFormat
-} from '../../../constants';
-
-const DEFAULT_NIL_PLACEHOLDER = '-';
+import { Button, Notification } from '../../../components';
+import { columnStyle, headerStyle, dateFormat, pageSizes } from '../../../constants';
 
 const getActionsColumn = () => ({
   id: 'actions',
@@ -38,7 +33,8 @@ const TestType = ({ name, category, range }) => (
 );
 
 const TestResult = ({ range, result, unit }) => {
-  if (range && Array.isArray(range) && result) {
+  if (!result) return '';
+  if (range && Array.isArray(range)) {
     try {
       const resultParsed = parseFloat(result);
       if (resultParsed < range[0] || resultParsed > range[1]) {
@@ -61,18 +57,16 @@ const getTestsFromLabRequests = (labRequests, sex) => {
     const { _id: requestId, tests, requestedDate } = labRequestModel.toJSON();
     const accessorPrefix = moment(requestedDate).unix();
     tests.forEach(({ _id, type, result, ...attributes }) => {
-      if (result) {
-        const testRange = type[`${sex}Range`];
-        const testObject = {
-          ...attributes,
-          date: requestedDate,
-          requestId,
-          testType: <TestType range={testRange} {...type} />,
-          [`${accessorPrefix}-result`]: <TestResult range={testRange} result={result} {...type} />,
-        };
+      const range = type[`${sex}Range`];
+      const testObject = {
+        ...attributes,
+        date: requestedDate,
+        requestId,
+        testType: { ...type, range },
+        [`${accessorPrefix}-result`]: { range, result, unit: type.unit },
+      };
 
-        labTestsById[type._id] = { ...labTestsById[type._id] || {}, ...testObject };
-      }
+      labTestsById[type._id] = { ...labTestsById[type._id] || {}, ...testObject };
     });
   });
   return Object.values(labTestsById);
@@ -83,34 +77,80 @@ const generateDataColumns = labTests => {
   const columns = [];
   labTests.forEach(({ date }) => allDates.add(date));
   allDates.forEach(date => {
-    const accessorPrefix = moment(date).unix();
+    const accessor = `${moment(date).unix()}-result`;
     columns.push({
-      Header: 'Result',
-      accessor: `${accessorPrefix}-result`,
+      Header: moment(date).format(dateFormat),
+      accessor,
       headerStyle,
       style: columnStyle,
+      Cell: ({ original: { [accessor]: props }}) => <TestResult {...props} />
     });
   });
   columns.push(getActionsColumn());
   return columns;
 }
 
-const Lab = function ({ patientModel }) {
-  const labRequestsCollection = patientModel.getLabRequests();
-  const labRequests = labRequestsCollection.where({ status: LAB_REQUEST_STATUSES.PUBLISHED });
-  const labTests = getTestsFromLabRequests(labRequests, patientModel.get('sex'));
-  const columns = generateDataColumns(labTests);
+const getFixedTableColumns = () => ([{
+  accessor: 'testType',
+  Header: 'Test',
+  headerStyle,
+  style: columnStyle,
+  minWidth: 100,
+  Cell: ({ original: { testType: props }}) => <TestType {...props} />
+}]);
 
-  return (
-    <React.Fragment>
-      { labRequests.length > 0 ?
+export default class Labs extends Component {
+  state = {
+    columns: [],
+    labTests: [],
+  }
+
+  componentWillMount() {
+    const { patientModel } = this.props;
+    this.labRequests = patientModel.getLabRequests();
+    this.labRequests.on('pageable:state:change', this.handleChange);
+    this.labRequests.setPageSize(pageSizes.patientLabRequests);
+  }
+
+  handleChange = () => {
+    const { patientModel } = this.props;
+    const labTests = getTestsFromLabRequests(this.labRequests.models, patientModel.get('sex'));
+    const columns = generateDataColumns(labTests);
+    this.setState({ labTests, columns });
+  }
+
+  prevPage = () => {
+    this.labRequests.getPreviousPage();
+  }
+
+  nextPage = () => {
+    this.labRequests.getNextPage();
+  }
+
+  render() {
+    const { labTests, columns } = this.state;
+    const labRequestsState = this.labRequests.state;
+
+    if (labTests.length === 0) return <Notification message="No requests found." />
+    return (
+      <React.Fragment>
+        <Grid container item justify="flex-end">
+          <Button
+            disabled={labRequestsState.currentPage <= 0}
+            onClick={this.prevPage}
+          >Prev</Button>
+          <Button
+            disabled={labRequestsState.currentPage === (labRequestsState.totalPages - 1)}
+            onClick={this.nextPage}
+          >Next</Button>
+        </Grid>
         <Grid container>
           <Grid item xs={1}>
             <ReactTable
               keyField="_id"
               data={labTests}
               pageSize={labTests.length}
-              columns={patientsLabRequestsColumns}
+              columns={getFixedTableColumns()}
               className="-striped"
               defaultSortDirection="asc"
               showPagination={false}
@@ -127,15 +167,8 @@ const Lab = function ({ patientModel }) {
               showPagination={false}
             />
           </Grid>
-        </Grid>:
-        <div className="notification">
-          <span>
-            No requests found.
-          </span>
-        </div>
-      }
-    </React.Fragment>
-  );
+        </Grid>
+      </React.Fragment>
+    );
+  }
 }
-
-export default Lab;
