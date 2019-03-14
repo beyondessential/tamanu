@@ -35,11 +35,47 @@ const LAB_REQUEST_STATUSES = {
   PUBLISHED: 'published',
 };
 
+const VISIT_STATUSES = {
+  ADMITTED: 'Admitted',
+  DISCHARGED: 'Discharged',
+  CHECKED_IN: 'CheckedIn',
+  CHECKED_OUT: 'CheckedOut',
+};
+
+const MEDICATION_STATUSES = {
+  COMPLETED: 'Completed',
+  FULFILLED: 'Fulfilled',
+  REQUESTED: 'Requested',
+};
+
+const APPOINTMENT_STATUSES = {
+  ATTENDED: 'Attended',
+  SCHEDULED: 'Scheduled',
+  CANCELED: 'Canceled',
+  MISSED: 'Missed',
+}
+
+const OPERATION_PLAN_STATUSES = {
+  PLANNED: 'Planned',
+  DROPPED: 'Dropped',
+  COMPLETED: 'Completed',
+}
+
+const IMAGING_REQUEST_STATUSES = {
+  PENDING: 'pending',
+  COMPLETED: 'completed',
+};
+
 module.exports = {
-  HTTP_METHOD_TO_ACTION, 
+  HTTP_METHOD_TO_ACTION,
   SYNC_MODES,
   DISPLAY_ID_PLACEHOLDER,
   ENVIRONMENT_TYPE,
   LAB_REQUEST_STATUSES,
-  SYNC_ACTIONS
+  SYNC_ACTIONS,
+  VISIT_STATUSES,
+  MEDICATION_STATUSES,
+  APPOINTMENT_STATUSES,
+  OPERATION_PLAN_STATUSES,
+  IMAGING_REQUEST_STATUSES,
 };

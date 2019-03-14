@@ -18,6 +18,8 @@ export const DISPLAY_ID_PLACEHOLDER = '-TMP-';
 
 export const PREGNANCY_PROGRAM_ID = 'program-pregnancy';
 
+export const REALM_DATE_FORMAT = 'YYYY-MM-DD@HH:MM:SS';
+
 export const Colors = {
   searchTintColor: '#d2dae3',
   white: '#ffffff'
@@ -38,16 +40,6 @@ export const LAB_REQUEST_STATUSES = {
 export const IMAGING_REQUEST_STATUSES = {
   PENDING: 'pending',
   COMPLETED: 'completed',
-};
-
-export const dbViews = {
-  medicationCompleted: 'medication_completed',
-  medicationRequested: 'medication_requested',
-  medicationFulfilled: 'medication_fulfilled',
-  appointmentsSearch: 'appointments_search', // keys [ startDate, endDate, status, type, practitioner, location ]
-  appointmentsSearchKeys: [moment(), moment(), '', '', '', ''],
-  appointmentsSurgerySearch: 'appointments_surgery_search', // keys [ startDate, endDate, status, practitioner, location ]
-  appointmentsSurgerySearchKeys: [moment(), moment(), '', '', '']
 };
 
 export const submenuIcons = {
@@ -650,7 +642,11 @@ export const patientMedicationColumns = [
     accessor: 'drug.name',
     Header: 'Medicine',
     headerStyle,
-    style: defaults({ justifyContent: 'left' }, columnStyleSlim),
+    style: {
+      ...columnStyleSlim,
+      justifyContent: 'center',
+      whiteSpace: 'normal',
+    },
     minWidth: 100
   }, {
     accessor: 'qtyMorning',
@@ -1002,7 +998,10 @@ export const medicationColumns = [
     accessor: 'drug',
     Header: 'Medication',
     headerStyle,
-    style: columnStyle,
+    style: {
+      ...columnStyle,
+      whiteSpace: 'normal',
+    },
     minWidth: 300
   }, {
     accessor: 'quantity',

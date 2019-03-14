@@ -1,4 +1,5 @@
 const defaults = require('./defaults');
+const { LAB_REQUEST_STATUSES } = require('../constants');
 
 const LabRequest = {
   name: 'labRequest',
@@ -12,7 +13,11 @@ const LabRequest = {
     senaiteId: 'string?',
     sampleId: 'string?',
     notes: 'string?',
-    status: 'string?',
+    status: {
+      type: 'string',
+      optional: true,
+      default: LAB_REQUEST_STATUSES.RECEPTION_PENDING
+    },
     tests: {
       type: 'list',
       objectType: 'labTest'

@@ -1,4 +1,5 @@
 const defaults = require('./defaults');
+const { MEDICATION_STATUSES } = require('../constants');
 
 const MedicationSchema = {
   name: 'medication',
@@ -66,7 +67,8 @@ const MedicationSchema = {
     },
     status: {
       type: 'string',
-      optional: true
+      optional: true,
+      default: MEDICATION_STATUSES.REQUESTED
     },
     history: {
       type: 'list',
