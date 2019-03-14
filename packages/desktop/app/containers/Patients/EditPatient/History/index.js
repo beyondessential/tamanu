@@ -1,26 +1,8 @@
 import React, { Component, Fragment } from 'react';
+import { Grid } from '@material-ui/core';
 import NoteModal from '../../components/NoteModal';
 import { NewButton } from '../../../../components';
-import Visit from './Visit';
-import Medication from './Medication';
-import ImagingRequest from './ImagingRequest';
-import LabRequest from './LabRequest';
-import Appointment from './Appointment';
-
-const HistoryRow = ({ objectType, ...props }) => {
-  switch (objectType) {
-    case 'visit':
-      return <Visit {...props} />;
-    case 'medication':
-      return <Medication {...props} />;
-    case 'imagingRequest':
-      return <ImagingRequest {...props} />;
-    case 'labRequest':
-      return <LabRequest {...props} />;
-    case 'appointment':
-      return <Appointment {...props} />;
-  }
-}
+import HistoryItem from './HistoryItem';
 
 class HistoryTab extends Component {
   state = {
@@ -45,49 +27,31 @@ class HistoryTab extends Component {
     this.setState({ noteModalVisible: false });
   }
 
-  gotoItem = (objectType, { _id }) => {
-    const { patientModel } = this.props;
-    switch (objectType) {
-      case 'visit':
-        this.props.history.push(`/patients/visit/${patientModel.id}/${_id}`);
-      break;
-      case 'medication':
-        this.props.changeTab('medication');
-      break;
-      case 'imagingRequest':
-        this.props.history.push(`/imaging/request/${_id}`);
-      break;
-      case 'labRequest':
-        this.props.history.push(`/labs/request/${_id}`);
-      break;
-      case 'appointment':
-        this.props.history.push(`/appointments/appointment/${_id}`);
-      break;
-    }
-  }
-
   render() {
-    const { patientModel } = this.props;
+    const { patientModel, changeTab } = this.props;
     const { noteModalVisible, patientsHistory } = this.state;
     return (
-      <div>
-        <div className="column has-text-right">
-          <NewButton
-            onClick={() => this.setState({ noteModalVisible: true })}
-            can={{ do: 'create', on: 'note' }}
-          >Add Note </NewButton>
-        </div>
-        <div className="column">
+      <Fragment>
+        <Grid container justify="flex-end" style={{ marginBottom: 10}}>
+          <Grid item>
+            <NewButton
+              onClick={() => this.setState({ noteModalVisible: true })}
+              can={{ do: 'create', on: 'note' }}
+            >Add Note </NewButton>
+          </Grid>
+        </Grid>
+        <Grid container item>
           {patientsHistory.map(({ objectType, object }) => (
-            <HistoryRow
+            <HistoryItem
               key={object._id}
               item={object}
-              patientModel={patientModel}
-              gotoItem={this.gotoItem}
+              patientId={patientModel.id}
               objectType={objectType}
+              changeTab={changeTab}
+              history={this.props.history}
             />
           ))}
-        </div>
+        </Grid>
         <NoteModal
           isVisible={noteModalVisible}
           onClose={this.onCloseModal}
@@ -96,7 +60,7 @@ class HistoryTab extends Component {
           showVisits
           little
         />
-      </div>
+      </Fragment>
     );
   }
 }
