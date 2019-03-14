@@ -191,7 +191,7 @@ export default BaseModel.extend({
   getHistory() {
     let history = [];
     let { visits } = this.attributes;
-    const _parseHistoryObject = (objectType, collection, dateField = 'requestedDate') => {
+    const parseHistoryObject = (objectType, collection, dateField = 'requestedDate') => {
       return collection.map(model => ({
         date: moment(model.get(dateField)).unix(),
         objectType,
@@ -200,16 +200,16 @@ export default BaseModel.extend({
     }
 
     const appointments = this.get('appointments');
-    history = history.concat(_parseHistoryObject('appointment', appointments, 'startDate'));
+    history = history.concat(parseHistoryObject('appointment', appointments, 'startDate'));
     visits.forEach(visitModel => {
       const medication = visitModel.getMedication();
       const imagingRequests = visitModel.getImagingRequests();
       const labRequests = visitModel.getLabRequests();
       history = history
-                .concat(_parseHistoryObject('visit', [visitModel], 'startDate'))
-                .concat(_parseHistoryObject('medication', medication))
-                .concat(_parseHistoryObject('imagingRequest', imagingRequests))
-                .concat(_parseHistoryObject('labRequest', labRequests));
+                .concat(parseHistoryObject('visit', [visitModel], 'startDate'))
+                .concat(parseHistoryObject('medication', medication))
+                .concat(parseHistoryObject('imagingRequest', imagingRequests))
+                .concat(parseHistoryObject('labRequest', labRequests));
     });
 
     history = history.sort(( objectA, objectB ) => objectB.date - objectA.date);
