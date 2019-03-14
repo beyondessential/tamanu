@@ -51,7 +51,7 @@ class VisitModal extends Component {
       await Model.save();
       if (action === 'new') {
         visitModel.get('vitals').add(Model);
-        await visitModel.save(null, { silent: true });
+        await visitModel.save();
       } else {
         visitModel.trigger('change');
       }
@@ -106,7 +106,7 @@ class VisitModal extends Component {
                 />
                 <InputGroup
                   type="number"
-                  label="Blood Sugar Level"
+                  label="Blood Sugar Level (mmol/L)"
                   name="bloodSugarLevel"
                   className="column m-b-0 is-4"
                   inputClass="column is-6 no-padding"

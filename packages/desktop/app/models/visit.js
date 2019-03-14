@@ -3,6 +3,8 @@ import { defaults } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
 
+import PatientModel from './patient';
+
 export default BaseModel.extend({
   urlRoot:  `${BaseModel.prototype.urlRoot}/visit`,
   defaults: () => defaults({
@@ -92,5 +94,22 @@ export default BaseModel.extend({
   validate: (attrs) => {
     if (!moment(attrs.startDate).isValid()) return 'startDate is required!';
     if (attrs.visitType === '') return 'visitType is required!';
+  },
+
+  getPatient() {
+    const patient = this.attributes.patient[0];
+    return patient && new PatientModel(patient);
+  },
+
+  getMedication() {
+    return this.get('medication');
+  },
+
+  getLabRequests() {
+    return this.get('labRequests');
+  },
+
+  getImagingRequests() {
+    return this.get('imagingRequests');
   }
 });

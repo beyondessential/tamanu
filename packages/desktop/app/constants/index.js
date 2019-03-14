@@ -18,6 +18,8 @@ export const DISPLAY_ID_PLACEHOLDER = '-TMP-';
 
 export const PREGNANCY_PROGRAM_ID = 'program-pregnancy';
 
+export const REALM_DATE_FORMAT = 'YYYY-MM-DD@HH:MM:SS';
+
 export const Colors = {
   searchTintColor: '#d2dae3',
   white: '#ffffff'
@@ -38,16 +40,6 @@ export const LAB_REQUEST_STATUSES = {
 export const IMAGING_REQUEST_STATUSES = {
   PENDING: 'pending',
   COMPLETED: 'completed',
-};
-
-export const dbViews = {
-  medicationCompleted: 'medication_completed',
-  medicationRequested: 'medication_requested',
-  medicationFulfilled: 'medication_fulfilled',
-  appointmentsSearch: 'appointments_search', // keys [ startDate, endDate, status, type, practitioner, location ]
-  appointmentsSearchKeys: [moment(), moment(), '', '', '', ''],
-  appointmentsSurgerySearch: 'appointments_surgery_search', // keys [ startDate, endDate, status, practitioner, location ]
-  appointmentsSurgerySearchKeys: [moment(), moment(), '', '', '']
 };
 
 export const submenuIcons = {
@@ -503,12 +495,6 @@ export const patientColumns = [
     style: columnStyle,
     minWidth: 100
   }, {
-    accessor: 'patientStatus',
-    Header: 'Status',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 80
-  }, {
     id: 'actions',
     Header: 'Actions',
     headerStyle,
@@ -563,12 +549,6 @@ export const admittedPatientsColumns = [
     style: columnStyle,
     minWidth: 100
   }, {
-    accessor: 'patientStatus',
-    Header: 'Status',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 80
-  }, {
     accessor: 'actiomns',
     id: 'actions',
     Header: 'Actions',
@@ -576,6 +556,48 @@ export const admittedPatientsColumns = [
     style: columnStyle,
     minWidth: 250,
     Cell: {}
+  }
+];
+
+export const outPatientColumns = [
+  {
+    accessor: 'displayId',
+    Header: 'Id',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 80,
+  }, {
+    accessor: 'firstName',
+    Header: 'First Name',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'lastName',
+    Header: 'Last Name',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    accessor: 'sex',
+    Header: 'Sex',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 80
+  }, {
+    id: 'dateOfBirth',
+    accessor: row => moment(row.dateOfBirth).format(dateFormat),
+    Header: 'DOB',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100
+  }, {
+    id: 'actions',
+    Header: 'Actions',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 250,
+    Cell: () => {}
   }
 ];
 
@@ -621,7 +643,11 @@ export const patientMedicationColumns = [
     accessor: 'drug.name',
     Header: 'Medicine',
     headerStyle,
-    style: defaults({ justifyContent: 'left' }, columnStyleSlim),
+    style: {
+      ...columnStyleSlim,
+      justifyContent: 'center',
+      whiteSpace: 'normal',
+    },
     minWidth: 100
   }, {
     accessor: 'qtyMorning',
@@ -714,7 +740,6 @@ export const visitsColumns = [
     Header: 'Diagnosis',
     headerStyle,
     style: columnStyle,
-    minWidth: 100
   }, {
     accessor: 'examiner',
     Header: 'Provider',
@@ -743,19 +768,21 @@ export const visitsColumns = [
       backgroundColor: Colors.searchTintColor
     },
     style: columnStyle,
-    minWidth: 350,
+    minWidth: 100,
     Cell: null
   }
 ];
 
 export const vitalsColumns = [
+  // TODO Add back in after the vitals taker is recorded
+  // {
+  //   accessor: 'taken',
+  //   Header: 'Taken By',
+  //   headerStyle,
+  //   style: columnStyle,
+  //   minWidth: 100
+  // },
   {
-    accessor: 'taken',
-    Header: 'Taken By',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 100
-  }, {
     id: "dateRecorded",
     accessor: row => moment(row.dateRecorded).format(dateTimeFormat),
     Header: 'Date',
@@ -934,13 +961,6 @@ export const programsPatientsColumns = [
     minWidth: 100,
     filterable: false
   }, {
-    accessor: 'patientStatus',
-    Header: 'Status',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 80,
-    filterable: false
-  }, {
     accessor: row => {
       return { _id: row._id, admitted: row.admitted };
     },
@@ -979,7 +999,10 @@ export const medicationColumns = [
     accessor: 'drug',
     Header: 'Medication',
     headerStyle,
-    style: columnStyle,
+    style: {
+      ...columnStyle,
+      whiteSpace: 'normal',
+    },
     minWidth: 300
   }, {
     accessor: 'quantity',

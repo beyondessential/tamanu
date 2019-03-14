@@ -1,6 +1,6 @@
 export PatientsCollection from './patients';
 export PregnanciesCollection from './pregnancies';
-export AppointmentCollection from './appointment';
+export AppointmentsCollection from './appointments';
 export DiagnosesCollection from './diagnoses';
 export ImagingRequestsCollection from './imagingRequests';
 export ImagingTypesCollection from './imagingTypes';

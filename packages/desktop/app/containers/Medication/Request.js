@@ -174,6 +174,7 @@ class NewMedication extends Component {
               <div className="columns">
                 <div className="column">
                   <TextareaGroup
+                    className="field"
                     name="prescription"
                     label="Prescription"
                     onChange={this.handleUserInput}

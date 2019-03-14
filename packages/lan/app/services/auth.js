@@ -12,9 +12,10 @@ class Auth extends BaseAuth {
     this.database = database;
     this.user = null;
     this.client = '';
-    this.sessionTimeout = config.sessionTimeout
-                            ? config.sessionTimeout
-                            : (60 * 60 * 5 * 1000);
+    this.sessionTimeout = (60 * 60 * 120 * 1000);; // config.sessionTimeout
+                            // ? config.sessionTimeout
+                            // : (60 * 60 * 5 * 1000);
+    // TODO: add keep-alive functionality
   }
 
   async login(props) {

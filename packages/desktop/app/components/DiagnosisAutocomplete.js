@@ -22,6 +22,9 @@ const styles = theme => ({
   },
   popperContainer: {
     zIndex: 999,
+    top: 'initial !important',
+    left: 'initial !important',
+    transform: 'none !important',
   }
 });
 
@@ -74,13 +77,6 @@ class DiagnosisAutocomplete extends Component {
     }
   }
 
-  componentWillReceiveProps(newProps) {
-    const { value: diagnosisModel } = newProps;
-    if (diagnosisModel) {
-      this.setState({ value: diagnosisModel.get('name') });
-    }
-  }
-
   componentDidMount() {
     this.props.diagnosesCollection.setPageSize(MAX_AUTO_COMPLETE_ITEMS.DIAGNOSES);
   }
@@ -89,7 +85,7 @@ class DiagnosisAutocomplete extends Component {
     const { diagnosesCollection } = this.props;
     try {
       diagnosesCollection.setKeyword(value);
-      await diagnosesCollection.getPage(0);
+      await diagnosesCollection.getFirstPage();
 
       let { models: suggestions } = diagnosesCollection;
       if (suggestions.length > 0) suggestions = map(suggestions, model => model.toJSON());

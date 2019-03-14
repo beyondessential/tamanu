@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import ReactTable from 'react-table';
 import actions from '../../actions/medication';
 import {
   medicationColumns,
   pageSizes,
   medicationStatuses,
-  dbViews
 } from '../../constants';
 import { NewButton, TextButton, Button } from '../../components/Button';
 
@@ -50,9 +48,9 @@ class Requests extends Component {
   }
 
   fetchData = opts => {
-    this.props.fetchMedications({
-      view: dbViews.medicationRequested,
-      ...opts
+    return this.props.fetchMedications({
+      ...opts,
+      filters: { status: medicationStatuses.REQUESTED }
     });
   }
 

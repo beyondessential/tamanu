@@ -32,7 +32,8 @@ export default Backbone.PageableCollection.extend({
   },
 
   fetchAll(options = {}) {
-    return this.fetch({ ...options, data: { page_size: 9999 } });
+    options.data = { ...options.data, page_size: 9999  }
+    return this.fetch(options);
   },
 
   fetchResults(opts = {}) {
@@ -60,19 +61,6 @@ export default Backbone.PageableCollection.extend({
       }
     };
     return this.fetch(params);
-  },
-
-  fetchByView(opts = {}) {
-    const { view, keys: viewKeys } = opts;
-    const options = {
-      data: {
-        ...opts,
-        view,
-        keys: isArray(viewKeys) ? viewKeys.join(',') : viewKeys,
-      }
-    };
-
-    return this.fetch(options);
   },
 
   find(opts = {}) {
@@ -120,15 +108,9 @@ export default Backbone.PageableCollection.extend({
     return this;
   },
 
-  getPage(page, view, viewKeys, options = {}) {
+  getPage(page, options = {}) {
     const { pageSize } = options;
     if (pageSize) this.state.pageSize = pageSize;
-    if (view) set(options, 'data.view', view);
-    if (viewKeys) set(options, 'data.keys', isArray(viewKeys) ? viewKeys.join(',') : viewKeys);
     return Backbone.PageableCollection.prototype.getPage.apply(this, [page, options]);
   },
-
-  setPage(page) {
-    console.log('-setPage-', page);
-  }
 });

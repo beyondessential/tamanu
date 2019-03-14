@@ -133,10 +133,9 @@ class Request extends Component {
   viewImage = () => {
     const { _id: requestId } = this.state;
     const imageUrl = 'http://192.168.43.109:8080/weasis-pacs-connector/IHEInvokeImageDisplay?requestType=STUDY&studyUID=1.113654.3.13.1026';
-    const fileExtension = imageUrl.split('.').pop();
     const filePath = dialog.showSaveDialog({
       title: 'Save Imaging',
-      defaultPath: `imaging-${requestId}.${fileExtension}`
+      defaultPath: `imaging-${requestId}.jnlp`
     });
     if (filePath) {
       request(imageUrl).pipe(fs.createWriteStream(filePath))

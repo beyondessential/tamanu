@@ -1,5 +1,7 @@
+const importSurveys = require('../surveys_import/importSurveys');
+
 module.exports = (database) => {
-  const pregnancyProgram = {
+  const pregnancyProgramDetails = {
     _id: 'program-pregnancy',
     name: 'Pregnancy',
     programType: 'pregnancy',
@@ -9,5 +11,8 @@ module.exports = (database) => {
     patientFilters: '{ "sex": "female" }'
   };
 
-  database.write(() => database.create('program', pregnancyProgram, true));
+  database.write(() => {
+    const pregnancyProgram = database.create('program', pregnancyProgramDetails, true);
+    importSurveys(database, `${__dirname}/../surveys_import/data/GDM_surveys.xlsx`, pregnancyProgram);
+  });
 }
