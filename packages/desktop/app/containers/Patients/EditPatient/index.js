@@ -128,7 +128,7 @@ class EditPatient extends Component {
             <LabRequests
               history={history}
               parentModel={patientModel}
-              patientsSex={patientModel.get('sex')}
+              patientSex={patientModel.get('sex')}
             />
           </div>
         );

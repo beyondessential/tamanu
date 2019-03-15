@@ -159,7 +159,7 @@ class EditVisit extends Component {
         <LabRequests
           history={this.props.history}
           parentModel={visitModel}
-          patientsSex={patientModel.get('sex')}
+          patientSex={patientModel.get('sex')}
         />
       }
       {selectedTab === 'reports' &&

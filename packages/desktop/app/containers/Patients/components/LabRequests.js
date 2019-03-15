@@ -2,6 +2,7 @@ import React,{ Component } from 'react';
 import ReactTable from 'react-table';
 import moment from 'moment';
 import { Typography, Grid } from '@material-ui/core';
+import PropTypes from 'prop-types';
 import { Button, Notification } from '../../../components';
 import { columnStyle, headerStyle, dateFormat, pageSizes } from '../../../constants';
 
@@ -49,7 +50,7 @@ const TestResult = ({ range, result, unit }) => {
     }
   }
   return `${result} ${unit || ''}`;
-}
+};
 
 const getTestsFromLabRequests = (labRequests, sex) => {
   let labTestsById = {};
@@ -70,7 +71,7 @@ const getTestsFromLabRequests = (labRequests, sex) => {
     });
   });
   return Object.values(labTestsById);
-}
+};
 
 const generateDataColumns = labTests => {
   const allDates = new Set();
@@ -88,7 +89,7 @@ const generateDataColumns = labTests => {
   });
   columns.push(getActionsColumn());
   return columns;
-}
+};
 
 const getFixedTableColumns = () => ([{
   accessor: 'testType',
@@ -105,6 +106,14 @@ export default class LabRequests extends Component {
     labTests: [],
   }
 
+  static propTypes = {
+    patientSex: PropTypes.string.isRequired,
+  }
+
+  static propTypes = {
+    parentModel: PropTypes.instanceOf(Object).isRequired,
+  }
+
   componentWillMount() {
     const { parentModel } = this.props;
     this.labRequestsCollection = parentModel.getLabRequests();
@@ -112,9 +121,9 @@ export default class LabRequests extends Component {
     this.labRequestsCollection.setPageSize(pageSizes.patientLabRequests);
   }
 
-  handleChange = (...props) => {
-    const { patientsSex } = this.props;
-    const labTests = getTestsFromLabRequests(this.labRequestsCollection.models, patientsSex);
+  handleChange = () => {
+    const { patientSex } = this.props;
+    const labTests = getTestsFromLabRequests(this.labRequestsCollection.models, patientSex);
     const columns = generateDataColumns(labTests);
     this.setState({ labTests, columns });
   }
