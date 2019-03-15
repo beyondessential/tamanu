@@ -20,9 +20,14 @@ export const PREGNANCY_PROGRAM_ID = 'program-pregnancy';
 
 export const REALM_DATE_FORMAT = 'YYYY-MM-DD@HH:MM:SS';
 
+export const DB_OBJECTS_MAX_DEPTH = {
+  PATIENT_MAIN: 10,
+  VISIT_MAIN: 7,
+};
+
 export const Colors = {
   searchTintColor: '#d2dae3',
-  white: '#ffffff'
+  white: '#ffffff',
 };
 
 export const MAX_AUTO_COMPLETE_ITEMS = {
