@@ -203,8 +203,8 @@ export default BaseModel.extend({
     const appointments = this.get('appointments');
     history = history.concat(parseHistoryObject('appointment', appointments, 'startDate'));
     visits.forEach(visitModel => {
-      const medication = visitModel.getMedication();
-      const imagingRequests = visitModel.getImagingRequests();
+      const medication = visitModel.get('medication');
+      const imagingRequests = visitModel.get('imagingRequests');
       const labRequests = visitModel.getLabRequests();
       history = history
                 .concat(parseHistoryObject('visit', [visitModel], 'startDate'))

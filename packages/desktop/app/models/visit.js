@@ -7,7 +7,7 @@ import { LAB_REQUEST_STATUSES } from '../constants';
 import LabRequestsCollection from '../collections/labRequests';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/visit`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/visit`,
   defaults: () => defaults({
     dischargeInfo: '',
     startDate: moment(),
@@ -74,7 +74,7 @@ export default BaseModel.extend({
       relatedModel: () => require('./report'),
       serialize: '_id',
     },
-    ...BaseModel.prototype.relations
+    ...BaseModel.prototype.relations,
   ],
 
   reverseRelations: [
@@ -85,20 +85,23 @@ export default BaseModel.extend({
     }
   ],
 
-  parse(res) {
-    const _res = res
-    if (res.startDate !== '') _res.startDate = moment(res.startDate);
-    if (res.endDate !== null) _res.endDate = moment(res.endDate);
-    return _res;
+  parse({ startDate, endDate, ...attributes }) {
+    return {
+      ...attributes,
+      startDate: startDate ? moment(startDate) : startDate,
+      endDate: endDate ? moment(endDate) : endDate,
+    };
   },
 
   validate: (attrs) => {
-    if (!moment(attrs.startDate).isValid()) return 'startDate is required!';
-    if (attrs.visitType === '') return 'visitType is required!';
+    const errors = [];
+    if (!moment(attrs.startDate).isValid()) errors.push('startDate is required!');
+    if (attrs.visitType === '') errors.push('visitType is required!');
+    return errors.length ? errors : null;
   },
 
   getPatient() {
-    const patient = this.attributes.patient[0];
+    const [patient] = this.attributes.patient;
     return patient && new PatientModel(patient);
   },
 
@@ -108,7 +111,8 @@ export default BaseModel.extend({
         .where({ status: LAB_REQUEST_STATUSES.VERIFIED })
         .filter(({ attributes: { tests } }) => (
           !!tests.find(test => test.attributes.result != null)
-        ))
-    , { mode: 'client' });
+        )),
+      { mode: 'client' },
+    );
   },
 });
