@@ -24,7 +24,7 @@ export class CommonAutocomplete extends Component {
   }
 
   state = {
-    options: []
+    options: [],
   }
 
   async componentWillMount() {
@@ -66,7 +66,9 @@ export class CommonAutocomplete extends Component {
     return (
       <div className={`column ${className}`}>
         <span className="input-group-title">
-          {label} {required && <span className="isRequired">*</span>}
+          {label}
+          {' '}
+          {required && <span className="isRequired">*</span>}
         </span>
         <Autocomplete
           inputProps={{ name }}
@@ -79,8 +81,13 @@ export class CommonAutocomplete extends Component {
             if (onChange) onChange(item._id, name);
           }}
           onChange={this.handleChange}
-          renderItem={(item, isHighlighted) =>
-            <div key={item._id} style={{ background: isHighlighted ? 'lightgray' : 'white' }}> {formatOptionLabel(item)} </div>
+          renderItem={(item, isHighlighted) => (
+            <div key={item._id} style={{ background: isHighlighted ? 'lightgray' : 'white' }}>
+              {' '}
+              {formatOptionLabel(item)}
+              {' '}
+            </div>
+          )
           }
           renderMenu={(items, val, style) => <div className="autocomplete-dropmenu" style={{ ...style, ...this.menuStyle }}>{items}</div>}
         />

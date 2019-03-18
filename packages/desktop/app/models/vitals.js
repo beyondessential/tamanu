@@ -3,7 +3,7 @@ import moment from 'moment';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/vitals`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/vitals`,
   defaults: () => defaults({
     dateRecorded: moment(),
     temperature: null,
@@ -23,5 +23,5 @@ export default BaseModel.extend({
         && !attrs.dbp
         && !attrs.heartRate
         && !attrs.respiratoryRate) return ['At least one field is required'];
-  }
+  },
 });

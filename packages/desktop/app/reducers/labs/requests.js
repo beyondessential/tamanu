@@ -7,18 +7,18 @@ import {
 export default {
   [FETCH_LABS_REQUEST]: (_, state) => ({
     ...state,
-    isLoading: true
+    isLoading: true,
   }),
   [FETCH_LABS_SUCCESS]: ({ labs, totalPages }, state) => ({
     ...state,
     labs,
     totalPages,
-    isLoading: false
+    isLoading: false,
   }),
   [FETCH_LABS_FAILED]: ({ error }, state) => ({
     ...state,
     labs: [],
     error,
-    isLoading: false
+    isLoading: false,
   }),
 };

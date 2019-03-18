@@ -1,11 +1,11 @@
 import Backbone from 'backbone-associations';
-import BaseModel from './base';
 import moment from 'moment';
+import BaseModel from './base';
 import { IMAGING_REQUEST_STATUSES } from '../constants';
 import PatientModel from './patient';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/imagingRequest`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/imagingRequest`,
   defaults: () => ({
     date: moment(),
     type: null,
@@ -42,15 +42,15 @@ export default BaseModel.extend({
       key: 'reviewedBy',
       relatedModel: () => require('./user'),
     },
-    ...BaseModel.prototype.relations
+    ...BaseModel.prototype.relations,
   ],
 
   reverseRelations: [
     {
       type: Backbone.One,
       key: 'visit',
-      model: require('./visit')
-    }
+      model: require('./visit'),
+    },
   ],
 
   getPatient() {
@@ -68,5 +68,5 @@ export default BaseModel.extend({
       if (!attributes.detail) errors.push('detail is required');
     }
     if (errors.length >= 1) return errors;
-  }
+  },
 });

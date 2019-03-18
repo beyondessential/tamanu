@@ -5,7 +5,9 @@ import patients from './patients';
 import visits from './visits';
 import procedures from './procedures';
 
-const stateChanges = { ...patient, ...patients, ...visits, ...procedures };
+const stateChanges = {
+  ...patient, ...patients, ...visits, ...procedures,
+};
 const initialState = {
   patient: {},
   patientInProgress: false,

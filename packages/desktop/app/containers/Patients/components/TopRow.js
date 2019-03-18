@@ -22,7 +22,9 @@ class TopRow extends Component {
             <div className="column p-b-5 p-t-0">
               <span className="title">Name: </span>
               <span className="full-name">
-                {patient.firstName} {patient.lastName}
+                {patient.firstName}
+                {' '}
+                {patient.lastName}
               </span>
             </div>
             <div className="column p-b-5 p-t-5">

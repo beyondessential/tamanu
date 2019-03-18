@@ -61,10 +61,14 @@ class InputGroupNew extends Component {
 
     return (
       <div className={className}>
-        {label !== false &&
+        {label !== false
+          && (
           <label className={labelClass}>
-            {label} {required && <span className="isRequired">*</span>}
+            {label}
+            {' '}
+            {required && <span className="isRequired">*</span>}
           </label>
+          )
         }
         <div className={inputClass}>
           <input
@@ -88,7 +92,7 @@ class InputGroupNew extends Component {
 
 function mapStateToProps(state) {
   return {
-    currentPath: state.router.location.pathname
+    currentPath: state.router.location.pathname,
   };
 }
 

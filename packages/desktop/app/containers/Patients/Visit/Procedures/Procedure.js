@@ -76,7 +76,7 @@ class Procedure extends Component {
       action,
       procedureModel,
       visitId,
-      history: this.props.history
+      history: this.props.history,
     });
   }
 
@@ -188,27 +188,36 @@ class Procedure extends Component {
                   />
                 </div>
               </div>
-              {action === 'edit' &&
+              {action === 'edit'
+                && (
                 <Medication
                   procedureModel={procedureModel}
                 />
+                )
               }
               <div className="column has-text-right">
                 <CancelButton
-                  to={`/patients/visit/${patientId}/${visitId}`} />
-                {action === 'new' && <AddButton
-                                      type="submit"
-                                      disabled={!procedureModel.isValid()}
-                                      can={{ do: 'create', on: 'procedure' }} /> }
-                {action !== 'new' && <UpdateButton
-                                      type="submit"
-                                      disabled={!procedureModel.isValid()}
-                                      can={{ do: 'update', on: 'procedure' }}/> }
+                  to={`/patients/visit/${patientId}/${visitId}`}
+                />
+                {action === 'new' && (
+                <AddButton
+                  type="submit"
+                  disabled={!procedureModel.isValid()}
+                  can={{ do: 'create', on: 'procedure' }}
+                />
+                ) }
+                {action !== 'new' && (
+                <UpdateButton
+                  type="submit"
+                  disabled={!procedureModel.isValid()}
+                  can={{ do: 'update', on: 'procedure' }}
+                />
+                ) }
               </div>
             </div>
           </form>
-          </div>
-          {/* <ModalView
+        </div>
+        {/* <ModalView
             isVisible={formError}
             onClose={this.onCloseModal}
             headerTitle="Warning!!!!"
@@ -221,8 +230,12 @@ class Procedure extends Component {
 }
 
 function mapStateToProps(state) {
-  const { procedure, action, loading, error } = state.patients;
-  return { procedure, action, loading, error };
+  const {
+    procedure, action, loading, error,
+  } = state.patients;
+  return {
+    procedure, action, loading, error,
+  };
 }
 
 const { procedure: procedureActions } = actions;

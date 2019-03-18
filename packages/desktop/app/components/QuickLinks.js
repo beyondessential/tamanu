@@ -14,20 +14,19 @@ const FabBottomRight = styled(Fab)`
   bottom: 20px !important;
 `;
 
-const QuickLinksItem = ({ to, text, ...props }) =>
-  <MenuItem
+const QuickLinksItem = ({ to, text, ...props }) => (
+<MenuItem
     component={ ButtonBase }
     to={to}
     {...props}
   >{text}</MenuItem>
-
-class QuickLinks extends Component {
+)class QuickLinks extends Component {
   static defaultProps = {
-    key: 'quick-links'
+    key: 'quick-links',
   };
 
   state = {
-    anchorEl: null
+    anchorEl: null,
   }
 
   handleClick = event => {
@@ -55,18 +54,20 @@ class QuickLinks extends Component {
           anchorEl={anchorEl}
           open={open}
           onClose={this.handleClose}
-        >{links.map(({ to, text, ...props }) => {
+        >
+{links.map(({ to, text, ...props }) => {
           return (<QuickLinksItem
                     key={text}
                     to={to}
                     text={text}
                     {...props}
                   />);
-        })}</Menu>
+        })}
+</Menu>
       </React.Fragment>
     );
   }
-};
+}
 
 QuickLinks.propTypes = {
   links: PropTypes.array.isRequired,

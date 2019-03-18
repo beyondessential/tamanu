@@ -3,7 +3,9 @@ import { connect } from 'react-redux';
 import { isEmpty, clone } from 'lodash';
 import moment from 'moment';
 import ReactTable from 'react-table';
-import { Colors, pageSizes, surveyResponsesColumns, dateFormat, timeFormat } from '../../constants';
+import {
+  Colors, pageSizes, surveyResponsesColumns, dateFormat, timeFormat,
+} from '../../constants';
 import actions from '../../actions/programs';
 import Preloader from '../../components/Preloader';
 
@@ -27,8 +29,12 @@ class Responses extends Component {
   }
 
   componentDidMount() {
-    const { patientId, programId, surveyId, moduleId } = this.props.match.params;
-    this.props.initResponses({ patientId, programId, surveyId, moduleId });
+    const {
+      patientId, programId, surveyId, moduleId,
+    } = this.props.match.params;
+    this.props.initResponses({
+      patientId, programId, surveyId, moduleId,
+    });
   }
 
   componentWillReceiveProps(newProps) {
@@ -41,7 +47,7 @@ class Responses extends Component {
       program: programModel,
       patient: patientModel,
       responses,
-      loading
+      loading,
     } = props;
 
     if (!loading) {
@@ -50,7 +56,7 @@ class Responses extends Component {
         program: programModel.toJSON(),
         patient: patientModel.toJSON(),
         headers: surveyModel.getHeaders(),
-        responses
+        responses,
       });
     }
   }
@@ -71,9 +77,9 @@ class Responses extends Component {
           color: '#2f4358',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
         },
-        minWidth: 100
+        minWidth: 100,
       });
     });
     return tableHeaders;
@@ -97,11 +103,13 @@ class Responses extends Component {
     const _this = this;
     return (
       <div key={row._id}>
-        <Button 
+        <Button
           variant="contained"
           color="primary"
           onClick={() => _this.viewResponse(row._id)}
-        >View Form</Button>
+        >
+View Form
+        </Button>
       </div>
     );
   }
@@ -144,10 +152,12 @@ class Responses extends Component {
                 </span>
               </div>
               <div className="column pregnancy-name is-pulled-right">
-                <Button 
+                <Button
                   variant="outlined"
                   onClick={this.startSurvey.bind(this)}
-                >Add new</Button>
+                >
+Add new
+                </Button>
               </div>
             </div>
             {/* <div className="columns">
@@ -184,8 +194,12 @@ class Responses extends Component {
 }
 
 function mapStateToProps(state) {
-  const { patient, program, survey, responses, loading } = state.programs;
-  return { patient, program, survey, responses, loading };
+  const {
+    patient, program, survey, responses, loading,
+  } = state.programs;
+  return {
+    patient, program, survey, responses, loading,
+  };
 }
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

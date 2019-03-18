@@ -49,16 +49,14 @@ QuestionScreen.propTypes = {
   questions: PropTypes.array.isRequired,
   screenIndex: PropTypes.number.isRequired,
   answers: PropTypes.array,
-  readOnly: PropTypes.bool
+  readOnly: PropTypes.bool,
 };
 
 QuestionScreen.defaultProps = {
   answers: [],
-  readOnly: false
+  readOnly: false,
 };
 
-const mapStateToProps = (state, { surveyModel, screenIndex }) => {
-  return { questions: surveyModel.getQuestions(screenIndex) };
-};
+const mapStateToProps = (state, { surveyModel, screenIndex }) => ({ questions: surveyModel.getQuestions(screenIndex) });
 
 export default connect(mapStateToProps, undefined)(QuestionScreen);

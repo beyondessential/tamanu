@@ -5,6 +5,6 @@ export default BaseCollection.extend({
   model: DrugModel,
   url: `${BaseCollection.prototype.url}/diagnosis`,
   filters: {
-    fields: ['name', 'code']
-  }
+    fields: ['name', 'code'],
+  },
 });

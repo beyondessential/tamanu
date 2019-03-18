@@ -5,13 +5,13 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 export const CheckInput = ({ label, value, ...props }) => (
   <FormControlLabel
-    control={
+    control={(
       <Checkbox
         checked={value}
         value="checked"
         {...props}
       />
-    }
+)}
     label={label}
   />
 );

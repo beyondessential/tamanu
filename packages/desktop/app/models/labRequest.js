@@ -1,6 +1,6 @@
 import Backbone from 'backbone-associations';
-import BaseModel from './base';
 import moment from 'moment';
+import BaseModel from './base';
 
 import { LAB_REQUEST_STATUSES } from '../../../shared/constants';
 
@@ -8,7 +8,7 @@ import VisitModel from './visit';
 import PatientModel from './patient';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/labRequest`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/labRequest`,
   defaults: () => ({
     date: moment(),
     requestedBy: null,
@@ -31,7 +31,7 @@ export default BaseModel.extend({
       key: 'category',
       relatedModel: () => require('./labTestCategory'),
     },
-    ...BaseModel.prototype.relations
+    ...BaseModel.prototype.relations,
   ],
 
   getPatient() {

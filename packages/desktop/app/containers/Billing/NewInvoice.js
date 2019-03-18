@@ -205,7 +205,7 @@ class NewInvoice extends Component {
 
 function mapStateToProps(state) {
   return {
-    invoices: state.invoices.invoices
+    invoices: state.invoices.invoices,
   };
 }
 

@@ -5,8 +5,10 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 
 import actions from '../../actions/patients';
-import { Modal as ModalView, InputGroup, CustomDateInput,
-          BackButton, Button, AddButton, TopBar } from '../../components';
+import {
+  Modal as ModalView, InputGroup, CustomDateInput,
+  BackButton, Button, AddButton, TopBar,
+} from '../../components';
 import Serializer from '../../utils/form-serialize';
 import { bloodOptions, sexOptions, getDifferenceDate } from '../../constants';
 import { PatientModel } from '../../models';
@@ -40,7 +42,7 @@ class NewPatient extends Component {
   onChangeDate = (date) => {
     this.setState({
       dateOfBirth: date,
-      age: getDifferenceDate(moment(), date)
+      age: getDifferenceDate(moment(), date),
     });
   }
 
@@ -56,7 +58,7 @@ class NewPatient extends Component {
       dateOfBirth,
       age,
       referredDate,
-      patientInProgress
+      patientInProgress,
     } = this.state;
     return (
       <div className="create-content">
@@ -321,7 +323,9 @@ class NewPatient extends Component {
                   <Button
                     variant="contained"
                     onClick={() => this.setState({ contactModalVisible: true })}
-                  >+ Add Contact</Button>
+                  >
++ Add Contact
+                  </Button>
                 </div>
               </div>
             </div>

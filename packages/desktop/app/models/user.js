@@ -2,7 +2,7 @@ import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/user`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/user`,
   defaults: () => defaults({
     derived_key: null,
     deleted: false,

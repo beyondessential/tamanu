@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { 
+import {
   LineChart,
   Line,
   PieChart,
@@ -25,48 +25,48 @@ const graphStyle = {
 const graphRenderers = {
   line: (data) => (
     <LineChart data={data}>
-      <XAxis dataKey="formatted"/>
-      <YAxis/>
+      <XAxis dataKey="formatted" />
+      <YAxis />
       <Tooltip />
       <CartesianGrid stroke="#eee" />
-      <Line 
-        type="monotone" 
-        isAnimationActive={ false } 
-        dataKey="amount" 
-        stroke="#000" 
+      <Line
+        type="monotone"
+        isAnimationActive={false}
+        dataKey="amount"
+        stroke="#000"
       />
     </LineChart>
   ),
   bar: (data) => (
-    <BarChart 
+    <BarChart
       data={data.sort((a, b) => a.formatted.localeCompare(b.formatted))}
     >
-      <XAxis dataKey="formatted"/>
-      <YAxis/>
+      <XAxis dataKey="formatted" />
+      <YAxis />
       <Tooltip />
       <CartesianGrid stroke="#eee" />
-      <Bar 
-        isAnimationActive={ false } 
-        dataKey="amount" 
-        stroke="#000" 
+      <Bar
+        isAnimationActive={false}
+        dataKey="amount"
+        stroke="#000"
       />
     </BarChart>
   ),
   pie: (data) => (
     <PieChart>
-      <Pie 
+      <Pie
         data={data.sort((a, b) => a.amount - b.amount)}
         dataKey="amount"
-        nameKey="formatted" 
-        startAngle={ 90 }
-        endAngle={ 360+90 }
+        nameKey="formatted"
+        startAngle={90}
+        endAngle={360 + 90}
       />
       <Tooltip />
       <Legend />
     </PieChart>
   ),
 
-}
+};
 
 // this has to be a function, not a component, as recharts
 // will break if its components get wrapped in non-recharts
@@ -77,7 +77,7 @@ function renderGraph(report, data) {
 }
 
 export const ReportGraph = ({ report, data }) => (
-  <div style={ graphStyle }>
+  <div style={graphStyle}>
     <ResponsiveContainer>
       { renderGraph(report, data) }
     </ResponsiveContainer>

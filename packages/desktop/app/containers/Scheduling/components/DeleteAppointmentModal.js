@@ -6,7 +6,7 @@ class DeleteAppointmentModal extends Component {
     const {
       isVisible,
       onClose,
-      onDelete
+      onDelete,
     } = this.props;
     return (
       <Modal open={isVisible} onClose={onClose} little>

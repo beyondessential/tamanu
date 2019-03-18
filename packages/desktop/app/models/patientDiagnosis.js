@@ -4,17 +4,16 @@ import moment from 'moment';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/patientDiagnosis`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/patientDiagnosis`,
   defaults: () => defaults({
-      active: true,
-      date: moment(),
-      diagnosis: null,
-      secondaryDiagnosis: false,
-      certainty: null,
-      condition: null
-    },
-    BaseModel.prototype.defaults,
-  ),
+    active: true,
+    date: moment(),
+    diagnosis: null,
+    secondaryDiagnosis: false,
+    certainty: null,
+    condition: null,
+  },
+  BaseModel.prototype.defaults),
 
   relations: [
     {
@@ -26,7 +25,7 @@ export default BaseModel.extend({
       key: 'condition',
       relatedModel: () => require('./condition'),
     },
-    ...BaseModel.prototype.relations
+    ...BaseModel.prototype.relations,
   ],
 
   hasOngoingCondition() {

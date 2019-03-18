@@ -2,7 +2,7 @@ import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/allergy`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/allergy`,
   defaults: () => defaults({
     name: null,
     icd9CMCode: null,

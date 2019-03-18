@@ -9,30 +9,31 @@ const PatientQuickLinks = ({ patient }) => {
     <QuickLinks
       links={[{
         to: `/appointments/appointmentByPatient/${patientId}`,
-        can: { do: 'create', on: 'appointment '},
-        text: "Appointment"
+        can: { do: 'create', on: 'appointment ' },
+        text: 'Appointment',
       }, {
         to: `/patients/visit/${patientId}`,
-        can: { do: 'create', on: 'visit '},
-        text: "Visit"
+        can: { do: 'create', on: 'visit ' },
+        text: 'Visit',
       }, {
         to: `/medication/request/by-patient/${patientId}`,
-        can: { do: 'create', on: 'medication '},
-        text: "Medication"
+        can: { do: 'create', on: 'medication ' },
+        text: 'Medication',
       }, {
         to: `/imaging/request/by-patient/${patientId}`,
-        can: { do: 'create', on: 'imaging '},
-        text: "Imaging"
+        can: { do: 'create', on: 'imaging ' },
+        text: 'Imaging',
       }, {
         to: `/labs/request/by-patient/${patientId}`,
-        can: { do: 'create', on: 'lab '},
-        text: "Lab"
-      }]} />
+        can: { do: 'create', on: 'lab ' },
+        text: 'Lab',
+      }]}
+    />
   );
 };
 
 PatientQuickLinks.propTypes = {
   patient: PropTypes.object.isRequired,
-}
+};
 
 export default PatientQuickLinks;

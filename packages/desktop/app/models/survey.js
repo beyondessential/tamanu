@@ -1,21 +1,22 @@
-import { defaults, isObject, concat, chain, pick } from 'lodash';
+import {
+  defaults, isObject, concat, chain, pick,
+} from 'lodash';
 import Backbone from 'backbone-associations';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/survey`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/survey`,
   defaults: () => defaults({
-      name: null,
-      code: null,
-      imageData: null,
-      permissionGroupId: null,
-      surveyGroupId: null,
-      screens: [],
-      canRedo: false, // Can submit multiple times
-      order: 0
-    },
-    BaseModel.prototype.defaults,
-  ),
+    name: null,
+    code: null,
+    imageData: null,
+    permissionGroupId: null,
+    surveyGroupId: null,
+    screens: [],
+    canRedo: false, // Can submit multiple times
+    order: 0,
+  },
+  BaseModel.prototype.defaults),
 
   relations: [
     {
@@ -23,7 +24,7 @@ export default BaseModel.extend({
       key: 'screens',
       relatedModel: require('./surveyScreen'),
     },
-    ...BaseModel.prototype.relations
+    ...BaseModel.prototype.relations,
   ],
 
   getQuestions(screenIndex) {
@@ -53,9 +54,9 @@ export default BaseModel.extend({
           .filter(question => question.isHeader())
           .mapKeys((value, key) => (key === 'indicator' ? 'text' : key))
           .map(question => pick(question.toJSON(), ['text', '_id']))
-          .value()
+          .value(),
       );
     });
     return allQuestions;
-  }
+  },
 });

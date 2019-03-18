@@ -5,7 +5,10 @@ export const CheckboxQuestion = ({ answer, onChangeAnswer, questionText }) => (
   <div key={questionText}>
     <label className="checkbox">
       <input type="checkbox" name="secondaryDiagnosis" checked={answer === 'Yes'} />
-      <span> {questionText}</span>
+      <span>
+        {' '}
+        {questionText}
+      </span>
     </label>
   </div>
   // <input type="checkbox" />

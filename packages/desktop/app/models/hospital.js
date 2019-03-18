@@ -9,7 +9,7 @@ export default BaseModel.extend({
     const { hospitalId } = auth;
     this.set('_id', hospitalId, { silent: true });
   },
-  urlRoot:  `${BaseModel.prototype.urlRoot}/hospital`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/hospital`,
   defaults: () => defaults({
     name: null,
     key: null,
@@ -23,6 +23,6 @@ export default BaseModel.extend({
       key: 'users',
       relatedModel: () => require('./user'),
     },
-    ...BaseModel.prototype.relations
-  ]
+    ...BaseModel.prototype.relations,
+  ],
 });

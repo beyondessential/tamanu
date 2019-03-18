@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import Select from 'react-select';
-import { clone, isUndefined, each, has, capitalize, pick } from 'lodash';
+import {
+  clone, isUndefined, each, has, capitalize, pick,
+} from 'lodash';
 
 // import Serializer from '../../../utils/form-serialize';
 import Allergy from '../components/Allergy';
@@ -13,7 +15,9 @@ import InputGroup from '../../../components/InputGroup';
 import TextareaGroup from '../../../components/TextareaGroup';
 
 // import Serializer from '../../../utils/form-serialize';
-import { PatientModel, OperativePlanModel, PatientDiagnosisModel, OperationReportModel } from '../../../models';
+import {
+  PatientModel, OperativePlanModel, PatientDiagnosisModel, OperationReportModel,
+} from '../../../models';
 import { getDifferenceDate, operativePlanStatusList, dateFormat } from '../../../constants';
 
 class OperativePlan extends Component {
@@ -39,7 +43,7 @@ class OperativePlan extends Component {
       procedures: [],
       status: 'planned',
       surgeon: '',
-    }
+    },
   }
 
   async componentDidMount() {
@@ -89,7 +93,7 @@ class OperativePlan extends Component {
 
   setForm = (_action) => {
     const data = this.props.operationReport.toJSON();
-    const { form} = this.state;
+    const { form } = this.state;
     each(form, (value, key) => { form[key] = (has(data, key) ? data[key] : value); });
     this.setState({ form, action: _action });
   }
@@ -166,7 +170,7 @@ class OperativePlan extends Component {
         const id = await this.createOperationReport();
         this.setState({
           opReportId: id,
-          markedCompleted: true
+          markedCompleted: true,
         });
       } else {
         this.setState({ formSuccess: true });
@@ -230,7 +234,9 @@ class OperativePlan extends Component {
                       <div className="column p-b-5">
                         <span className="title">Name: </span>
                         <span className="full-name">
-                          {patient.firstName} {patient.lastName}
+                          {patient.firstName}
+                          {' '}
+                          {patient.lastName}
                         </span>
                       </div>
                       <div className="column p-b-5 p-t-5">
@@ -352,7 +358,9 @@ class OperativePlan extends Component {
                     <button className="button is-danger m-r-5" onClick={this.goBack}>{action === 'new' ? 'Cancel' : 'Return'}</button>
                     <button className="button is-primary m-r-5" onClick={this.submitForm}>{action === 'new' ? 'Add' : 'Update'}</button>
                     <button className={`button is-primary ${(action === 'new' ? 'is-hidden' : '')}`} onClick={this.markComplete}>
-                      <i className="fa fa-check inline-block m-r-5" /> Complete Plan
+                      <i className="fa fa-check inline-block m-r-5" />
+                      {' '}
+Complete Plan
                     </button>
                   </div>
                 </div>
@@ -397,7 +405,7 @@ class OperativePlan extends Component {
 
 const mapDispatchToProps = () => ({
   patient: new PatientModel(),
-  operationReport: new OperativePlanModel()
+  operationReport: new OperativePlanModel(),
 });
 
 export default connect(undefined, mapDispatchToProps)(OperativePlan);

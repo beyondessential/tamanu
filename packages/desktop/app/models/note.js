@@ -3,16 +3,15 @@ import moment from 'moment';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/note`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/note`,
   defaults: () => defaults({
-      attribution: '',
-      content: '',
-      createdBy: '',
-      date: moment(),
-      noteType: ''
-    },
-    BaseModel.prototype.defaults,
-  ),
+    attribution: '',
+    content: '',
+    createdBy: '',
+    date: moment(),
+    noteType: '',
+  },
+  BaseModel.prototype.defaults),
 
   authoredBy() {
     if (!isEmpty(this.get('attribution'))) {
@@ -30,5 +29,5 @@ export default BaseModel.extend({
 
   validate: (attrs) => {
     if (!attrs.content) return "note's text is required!";
-  }
+  },
 });

@@ -7,21 +7,21 @@ import createHistory from 'history/createHashHistory';
 
 export const history = createHistory();
 
-export const toTitleCase = text => text
+export const toTitleCase = text => (text
   ? text.split(' ')
     .map(t => t.slice(0, 1).toUpperCase() + t.slice(1))
     .join(' ')
-  : '';
+  : '');
 
 export const concatSelf = (array, ...items) => {
   items.map(item => {
     if (isArray(item)) {
       item.forEach(variable => array.push(variable));
     } else {
-      array.push(item)
+      array.push(item);
     }
   });
-}
+};
 
 export const prepareToastMessage = (msg) => {
   const messages = isArray(msg) ? msg : [msg];
@@ -44,13 +44,13 @@ export const getClient = () => {
   return localStorage.getItem('clientId');
 };
 
-export const notify = (message, { type='error', autoClose=null, ...props } = {}) => {
+export const notify = (message, { type = 'error', autoClose = null, ...props } = {}) => {
   if (message !== false) {
     toast(prepareToastMessage(message), { type, autoClose, ...props });
   } else {
     toast.dismiss();
   }
-}
+};
 
 export const notifySuccess = (msg, props) => notify(msg, { ...props, type: 'success' });
 export const notifyError = notify;

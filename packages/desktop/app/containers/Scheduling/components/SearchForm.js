@@ -7,10 +7,10 @@ import Button from '@material-ui/core/Button';
 import {
   InputGroup,
   DatepickerGroup,
-  SelectGroup
+  SelectGroup,
 } from '../../../components';
 import {
-  visitOptions as  visitOptionsOriginal,
+  visitOptions as visitOptionsOriginal,
   appointmentStatusList as appointmentStatusListOriginal,
 } from '../../../constants';
 
@@ -34,7 +34,9 @@ class SearchForm extends Component {
 
   constructor(props) {
     super(props);
-    const { startDate, status, type, practitioner } = props;
+    const {
+      startDate, status, type, practitioner,
+    } = props;
     this.state = {
       startDate,
       status,
@@ -77,14 +79,20 @@ class SearchForm extends Component {
     if (status === 'all') status = '';
     if (type === 'all') type = '';
     e.preventDefault();
-    this.props.onSubmit({ startDate, status, type, practitioner });
+    this.props.onSubmit({
+      startDate, status, type, practitioner,
+    });
   }
 
   resetForm() {
-    const { startDate, status, type, practitioner } = this.props;
-    this.setState({ startDate, status, type, practitioner }, () =>
-      this.props.onSubmit({ startDate, status, type, practitioner })
-    );
+    const {
+      startDate, status, type, practitioner,
+    } = this.props;
+    this.setState({
+      startDate, status, type, practitioner,
+    }, () => this.props.onSubmit({
+      startDate, status, type, practitioner,
+    }));
   }
 
   render() {
@@ -147,7 +155,7 @@ class SearchForm extends Component {
 
 function mapStateToProps(state) {
   return {
-    currentPath: state.router.location.pathname
+    currentPath: state.router.location.pathname,
   };
 }
 

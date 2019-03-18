@@ -3,19 +3,18 @@ import Backbone from 'backbone-associations';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/question`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/question`,
   defaults: () => defaults({
-      text: null,
-      indicator: null,
-      imageData: null,
-      type: null,
-      options: [],
-      code: null,
-      details: null,
-      params: [],
-    },
-    BaseModel.prototype.defaults,
-  ),
+    text: null,
+    indicator: null,
+    imageData: null,
+    type: null,
+    options: [],
+    code: null,
+    details: null,
+    params: [],
+  },
+  BaseModel.prototype.defaults),
 
   relations: [
     {
@@ -23,7 +22,7 @@ export default BaseModel.extend({
       key: 'surveyGroupId',
       relatedModel: require('./surveyGroup'),
     },
-    ...BaseModel.prototype.relations
+    ...BaseModel.prototype.relations,
   ],
 
   isHeader() {
@@ -32,5 +31,5 @@ export default BaseModel.extend({
 
   isSingleLine() {
     return this.attributes.params.includes('singleline');
-  }
+  },
 });

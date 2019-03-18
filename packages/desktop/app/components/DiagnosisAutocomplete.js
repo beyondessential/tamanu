@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { map } from 'lodash';
-import { Popper, Paper, Input, MenuItem } from '@material-ui/core';
+import {
+  Popper, Paper, Input, MenuItem,
+} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { DiagnosesCollection } from '../collections';
-import { MAX_AUTO_COMPLETE_ITEMS } from  '../constants';
+import { MAX_AUTO_COMPLETE_ITEMS } from '../constants';
 
 const styles = theme => ({
   root: {
@@ -25,11 +27,13 @@ const styles = theme => ({
     top: 'initial !important',
     left: 'initial !important',
     transform: 'none !important',
-  }
+  },
 });
 
 const renderInputComponent = (inputProps) => {
-  const { classes, inputRef = () => {}, ref, ...other } = inputProps;
+  const {
+    classes, inputRef = () => {}, ref, ...other
+  } = inputProps;
   return (
     <div className="control">
       <Input
@@ -45,17 +49,15 @@ const renderInputComponent = (inputProps) => {
       />
     </div>
   );
-}
+};
 
-const renderSuggestion = (suggestion, { isHighlighted }) => {
-  return (
-    <MenuItem selected={isHighlighted} component="div">
-      <div>
-        {suggestion.name}
-      </div>
-    </MenuItem>
-  );
-}
+const renderSuggestion = (suggestion, { isHighlighted }) => (
+  <MenuItem selected={isHighlighted} component="div">
+    <div>
+      {suggestion.name}
+    </div>
+  </MenuItem>
+);
 
 class DiagnosisAutocomplete extends Component {
   constructor(props) {
@@ -120,17 +122,21 @@ class DiagnosisAutocomplete extends Component {
       >
         {options.children}
       </Paper>
-    </Popper>
+    </Popper>;
   }
 
   render() {
-    const { label, required, name, className, classes, placeholder } = this.props;
+    const {
+      label, required, name, className, classes, placeholder,
+    } = this.props;
     const { value, suggestions } = this.state;
 
     return (
       <div className={`column ${className}`}>
         <label className="label" htmlFor="diagnosis-autocomplete">
-          {label} {required && <span className="isRequired">*</span>}
+          {label}
+          {' '}
+          {required && <span className="isRequired">*</span>}
         </label>
         <Autosuggest
           suggestions={suggestions}
@@ -182,7 +188,7 @@ DiagnosisAutocomplete.propTypes = {
   required: PropTypes.bool,
   className: PropTypes.string,
   placeholder: PropTypes.string,
-  diagnosesCollection: PropTypes.object
+  diagnosesCollection: PropTypes.object,
 };
 
 DiagnosisAutocomplete.defaultProps = {

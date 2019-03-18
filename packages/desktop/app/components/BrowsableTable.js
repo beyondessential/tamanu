@@ -8,7 +8,6 @@ import { Notification } from './Notification';
 const defaultTransformRow = model => model.toJSON();
 
 export class BrowsableTable extends Component {
-
   static propTypes = {
     transformRow: PropTypes.func,
     fetchOptions: PropTypes.object,
@@ -35,7 +34,7 @@ export class BrowsableTable extends Component {
       // Set sorting options
       // TODO: investigate support for multiple sort keys
       // (currently this will just use the most recent one)
-      if(state.sorted) {
+      if (state.sorted) {
         state.sorted.map(s => collection.setSorting(s.id, s.desc ? 1 : -1));
       }
 
@@ -44,7 +43,7 @@ export class BrowsableTable extends Component {
         {
           data: fetchOptions,
           pageSize: state.pageSize || 10,
-        }
+        },
       );
 
       this.setState({ loading: false });
@@ -55,7 +54,7 @@ export class BrowsableTable extends Component {
   }
 
   componentWillMount() {
-    this.props.collection.on('pageable:state:change',  this.handleChange);
+    this.props.collection.on('pageable:state:change', this.handleChange);
   }
 
   componentWillReceiveProps(newProps) {
@@ -71,7 +70,9 @@ export class BrowsableTable extends Component {
   }
 
   render() {
-    const { collection, columns, emptyNotification, transformRow } = this.props;
+    const {
+      collection, columns, emptyNotification, transformRow,
+    } = this.props;
     const { tableClass, loading } = this.state;
 
     // transform data

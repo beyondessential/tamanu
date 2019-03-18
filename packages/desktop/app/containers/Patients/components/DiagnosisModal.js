@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 import Modal from 'react-responsive-modal';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import { InputGroup, AddButton, CancelButton,
-          DeleteButton, UpdateButton, CheckboxGroup, SelectGroup,
-          DatepickerGroup, Modal as ConditionConfirmModal,
-          DiagnosisAutocomplete } from '../../../components';
+import {
+  InputGroup, AddButton, CancelButton,
+  DeleteButton, UpdateButton, CheckboxGroup, SelectGroup,
+  DatepickerGroup, Modal as ConditionConfirmModal,
+  DiagnosisAutocomplete,
+} from '../../../components';
 import { diagnosisCertainty } from '../../../constants';
 import { ConditionModel } from '../../../models';
 import { notifyError, notifySuccess } from '../../../utils';
@@ -48,7 +50,9 @@ class DiagnosisModal extends Component {
   }
 
   handleFormInput = (event) => {
-    const { name: fieldName, type, checked, value } = event.target;
+    const {
+      name: fieldName, type, checked, value,
+    } = event.target;
     const fieldValue = type === 'checkbox' ? checked : value;
     this.handleUserInput(fieldValue, fieldName);
   }
@@ -107,7 +111,7 @@ class DiagnosisModal extends Component {
       patientModel.get('conditions').add(conditionModel);
       await patientModel.save();
       // link to current diagnosis object
-      parentModel.set({ 'condition': conditionModel });
+      parentModel.set({ condition: conditionModel });
       await parentModel.save();
       notifySuccess('Diagnosis was marked as an ongoing condition successfully.');
       this.forceUpdate(); // re-render
@@ -155,7 +159,11 @@ class DiagnosisModal extends Component {
           >
             <div className="diagnosis-modal">
               <div className="modal-header">
-                <h2>{action === 'new' ? 'Add' : 'Update'} Diagnosis</h2>
+                <h2>
+                  {action === 'new' ? 'Add' : 'Update'}
+                  {' '}
+Diagnosis
+                </h2>
               </div>
               <div className="modal-content">
                 <DiagnosisAutocomplete
@@ -194,7 +202,8 @@ class DiagnosisModal extends Component {
               <div className="modal-footer">
                 <div className="column has-text-right">
                   <CancelButton onClick={onClose} />
-                  {action !== 'new' &&
+                  {action !== 'new'
+                    && (
                     <React.Fragment>
                       <DeleteButton
                         can={{ do: 'delete', on: 'diagnosis' }}
@@ -206,13 +215,16 @@ class DiagnosisModal extends Component {
                         disabled={!formIsValid}
                       />
                     </React.Fragment>
+                    )
                   }
-                  {action === 'new' &&
+                  {action === 'new'
+                    && (
                     <AddButton
                       can={{ do: 'create', on: 'diagnosis' }}
                       type="submit"
                       disabled={!formIsValid}
                     />
+                    )
                   }
                 </div>
               </div>

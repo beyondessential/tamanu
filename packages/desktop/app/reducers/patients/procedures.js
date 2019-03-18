@@ -10,22 +10,22 @@ import {
 export default {
   [FETCH_PROCEDURE_REQUEST]: (_, state) => ({
     ...state,
-    loading: true
+    loading: true,
   }),
   [FETCH_PROCEDURE_SUCCESS]: ({ procedure, action }, state) => ({
     ...state,
     procedure,
     action,
-    loading: false
+    loading: false,
   }),
   [FETCH_PROCEDURE_FAILED]: ({ error }, state) => ({
     ...state,
     error,
-    loading: false
+    loading: false,
   }),
   [SAVE_PROCEDURE_REQUEST]: (_, state) => ({
     ...state,
-    loading: true
+    loading: true,
   }),
   [SAVE_PROCEDURE_SUCCESS]: ({ patient, procedure }, state) => ({
     ...state,
@@ -37,6 +37,6 @@ export default {
   [SAVE_PROCEDURE_FAILED]: ({ error }, state) => ({
     ...state,
     error,
-    loading: false
+    loading: false,
   }),
 };

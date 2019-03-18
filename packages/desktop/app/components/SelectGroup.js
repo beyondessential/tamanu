@@ -35,7 +35,7 @@ class SelectGroup extends Component {
     clearable: false,
     simpleValue: true,
     searchable: false,
-    showDefault: true
+    showDefault: true,
   }
 
   componentWillMount() {
@@ -49,7 +49,7 @@ class SelectGroup extends Component {
   parseValue(props) {
     const {
       options,
-      showDefault
+      showDefault,
     } = props;
 
     // Set default value
@@ -89,10 +89,14 @@ class SelectGroup extends Component {
 
     return (
       <div className={className}>
-        {label !== false &&
+        {label !== false
+          && (
           <label className={labelClass} htmlFor={selectMenuId}>
-            {label} {required && <span className="isRequired">*</span>}
+            {label}
+            {' '}
+            {required && <span className="isRequired">*</span>}
           </label>
+          )
         }
         <Select
           id={selectMenuId}
@@ -111,7 +115,7 @@ class SelectGroup extends Component {
 
 function mapStateToProps(state) {
   return {
-    currentPath: state.router.location.pathname
+    currentPath: state.router.location.pathname,
   };
 }
 

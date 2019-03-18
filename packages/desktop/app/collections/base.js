@@ -1,5 +1,7 @@
 import Backbone from 'backbone-associations';
-import { keys, set, isEmpty, isArray } from 'lodash';
+import {
+  keys, set, isEmpty, isArray,
+} from 'lodash';
 
 require('backbone.paginator');
 
@@ -8,7 +10,7 @@ export default Backbone.PageableCollection.extend({
   state: {
     firstPage: 0,
     currentPage: 0,
-    pageSize: 10
+    pageSize: 10,
   },
 
   filters: {
@@ -17,8 +19,8 @@ export default Backbone.PageableCollection.extend({
   },
 
   queryParams: {
-    currentPage: "current_page",
-    pageSize: "page_size"
+    currentPage: 'current_page',
+    pageSize: 'page_size',
   },
 
   fetch(options = {}) {
@@ -32,7 +34,7 @@ export default Backbone.PageableCollection.extend({
   },
 
   fetchAll(options = {}) {
-    options.data = { ...options.data, page_size: 9999  }
+    options.data = { ...options.data, page_size: 9999 };
     return this.fetch(options);
   },
 
@@ -56,9 +58,9 @@ export default Backbone.PageableCollection.extend({
           selector,
           fields,
           limit,
-          skip
-        }
-      }
+          skip,
+        },
+      },
     };
     return this.fetch(params);
   },
@@ -73,8 +75,8 @@ export default Backbone.PageableCollection.extend({
     if (!isEmpty(selector)) {
       selector = {
         $and: selector.concat([
-          { docType }
-        ])
+          { docType },
+        ]),
       };
     } else {
       selector = { docType };
@@ -86,8 +88,8 @@ export default Backbone.PageableCollection.extend({
       error: (opts ? opts.error : null),
       fetch: 'find',
       options: {
-        find: { selector, fields, limit }
-      }
+        find: { selector, fields, limit },
+      },
     });
   },
 

@@ -11,7 +11,7 @@ class AdmittedPatients extends Component {
     super(props);
     this.state = {
       admittedPatients: [{}],
-      loading: false
+      loading: false,
     };
     this.handleChange = this.handleChange.bind(this);
     this.setActionsColumn = this.setActionsColumn.bind(this);
@@ -85,12 +85,16 @@ class AdmittedPatients extends Component {
         <Button
           variant="outlined"
           onClick={() => this.goEditPatient(row._id)}
-        >View Patient</Button>
+        >
+View Patient
+        </Button>
         <Button
           variant="contained"
           color="primary"
           onClick={() => this.discharge(row._id)}
-        >Discharge</Button>
+        >
+Discharge
+        </Button>
       </div>
     );
   }
@@ -102,31 +106,36 @@ class AdmittedPatients extends Component {
         <TopBar
           title="Admitted Patients"
           button={{
-            to: "/patients/edit/new",
+            to: '/patients/edit/new',
             can: { do: 'create', on: 'patient' },
-            children: 'New Patient'
+            children: 'New Patient',
           }}
         />
         <div className="detail">
-          {admittedPatients.length === 0 ?
-            <div className="notification">
-              <span>
-                No patients found. <Link to="/patients/edit/new">Create a new patient record?</Link>
-              </span>
-            </div>
-            :
-            <div>
-              <ReactTable
-                keyField="_id"
-                data={admittedPatients}
-                pages={this.props.collection.totalPages}
-                defaultPageSize={pageSizes.patients}
-                loading={this.state.loading}
-                columns={admittedPatientsColumns}
-                className="-striped"
-                defaultSortDirection="asc"
-              />
-            </div>
+          {admittedPatients.length === 0
+            ? (
+              <div className="notification">
+                <span>
+                No patients found.
+                  {' '}
+                  <Link to="/patients/edit/new">Create a new patient record?</Link>
+                </span>
+              </div>
+            )
+            : (
+              <div>
+                <ReactTable
+                  keyField="_id"
+                  data={admittedPatients}
+                  pages={this.props.collection.totalPages}
+                  defaultPageSize={pageSizes.patients}
+                  loading={this.state.loading}
+                  columns={admittedPatientsColumns}
+                  className="-striped"
+                  defaultSortDirection="asc"
+                />
+              </div>
+            )
           }
         </div>
       </div>

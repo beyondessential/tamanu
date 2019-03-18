@@ -11,7 +11,7 @@ class Prodcedure extends Component {
 
   state = {
     procedure: '',
-    procedures: []
+    procedures: [],
   }
 
   componentWillReceiveProps(newProps) {
@@ -58,7 +58,9 @@ class Prodcedure extends Component {
           </div>
           <div className="column is-2 p-l-5">
             <button className="button is-primary m-t-40" onClick={this.addProcedure} type="button">
-              <i className="fa fa-plus p-r-5 inline-block" /> Add Procedure
+              <i className="fa fa-plus p-r-5 inline-block" />
+              {' '}
+Add Procedure
             </button>
           </div>
         </div>
@@ -77,18 +79,18 @@ class Prodcedure extends Component {
                   </tr>
                 </thead>
                 <tbody>
-                  {procedures.map((procedure, key) => {
-                    return (
-                      <tr key={`procedure-${key}`}>
-                        <td>{procedure}</td>
-                        <td>
-                          <button className="button is-danger is-small" type="button" onClick={() => { this.removeProcedure(procedure); }}>
-                            <i className="fa fa-times inline-block m-r-5" /> Delete
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {procedures.map((procedure, key) => (
+                    <tr key={`procedure-${key}`}>
+                      <td>{procedure}</td>
+                      <td>
+                        <button className="button is-danger is-small" type="button" onClick={() => { this.removeProcedure(procedure); }}>
+                          <i className="fa fa-times inline-block m-r-5" />
+                          {' '}
+Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

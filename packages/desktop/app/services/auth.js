@@ -31,8 +31,8 @@ class Auth {
         method: 'POST',
         body: {
           clientId: this.clientId,
-          clientSecret: this.clientSecret
-        }
+          clientSecret: this.clientSecret,
+        },
       });
 
       if (res.ok) {
@@ -40,7 +40,7 @@ class Auth {
         console.log('-verifyToken-', res);
       }
 
-      return Promise.reject(new Error("invalid token"));
+      return Promise.reject(new Error('invalid token'));
     } catch (err) {
       return Promise.reject(err);
     }
@@ -50,13 +50,13 @@ class Auth {
     try {
       let res = await fetch(`${process.env.HOST}/auth/login`, {
         method: 'POST',
-        body: { clientId: this.clientId, email, password }
+        body: { clientId: this.clientId, email, password },
       });
       res = await res.json();
 
       if (res.error) {
         let { error } = res;
-        if (isArray(error)) error = error.join("\n");
+        if (isArray(error)) error = error.join('\n');
         return Promise.reject(new Error(error));
       }
 

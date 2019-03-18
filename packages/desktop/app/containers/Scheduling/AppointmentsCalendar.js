@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { isEmpty, has, head, last } from 'lodash';
+import {
+  isEmpty, has, head, last,
+} from 'lodash';
 import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
 import actions from '../../actions/scheduling';
@@ -61,8 +63,12 @@ class AppointmentsCalendar extends Component {
     this.setState({ startDate, endDate }, this.fetchData);
   }
 
-  setFilters = ({ status, type, practitioner, location }) => {
-    this.setState({ status, type, practitioner, location }, this.fetchData);
+  setFilters = ({
+    status, type, practitioner, location,
+  }) => {
+    this.setState({
+      status, type, practitioner, location,
+    }, this.fetchData);
   }
 
   fetchData = () => {
@@ -98,11 +104,11 @@ class AppointmentsCalendar extends Component {
     return (
       <div className="create-content">
         <TopBar
-          title={!surgery ? 'Appointments Calendar': 'Theatre Schedule'}
+          title={!surgery ? 'Appointments Calendar' : 'Theatre Schedule'}
           buttons={[{
             to: `/appointments/${surgery ? 'surgery' : 'appointment'}/new`,
             can: { do: 'create', on: 'appointment' },
-            children: 'New Appointment'
+            children: 'New Appointment',
           }, {
             variant: (filtersOn ? 'contained' : 'outlined'),
             color: 'secondary',
@@ -110,7 +116,7 @@ class AppointmentsCalendar extends Component {
             onClick: () => this.setState({ filtersOn: !filtersOn }),
           }]}
         />
-        <div className="create-container" >
+        <div className="create-container">
           <div className="form with-padding">
             <FiltersForm
               surgery={surgery}

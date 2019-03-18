@@ -29,7 +29,7 @@ class Surveys extends Component {
     message: {
       header: '',
       text: '',
-    }
+    },
   }
 
   componentDidMount() {
@@ -50,7 +50,7 @@ class Surveys extends Component {
       availableSurveys,
       completedSurveys,
       modules,
-      loading
+      loading,
     } = props;
 
     if (!loading) {
@@ -69,11 +69,11 @@ class Surveys extends Component {
     const { program } = this.state;
     this.props.getCompletedSurveys({
       moduleType: program.programType,
-      moduleId: value
+      moduleId: value,
     });
     this.setState({
       moduleSelectedLabel: label,
-      moduleSelectedValue: value
+      moduleSelectedValue: value,
     });
   }
 
@@ -85,14 +85,14 @@ class Surveys extends Component {
       valid = false;
       const message = {
         header: `${capitalize(program.programType)} is required!`,
-        text: capitalize(`Please select a ${program.programType} first`)
+        text: capitalize(`Please select a ${program.programType} first`),
       };
       this.setState({ showMessage: true, message });
     }
     if (valid) {
-      const url = program.programType === 'direct' ?
-                    `/programs/${programId}/${patientId}/surveys/${surveyId}` :
-                    `/programs/${programId}/${patientId}/surveys/${surveyId}/module/${moduleSelectedValue}`;
+      const url = program.programType === 'direct'
+        ? `/programs/${programId}/${patientId}/surveys/${surveyId}`
+        : `/programs/${programId}/${patientId}/surveys/${surveyId}/module/${moduleSelectedValue}`;
       this.props.history.push(url);
     }
   }
@@ -102,9 +102,9 @@ class Surveys extends Component {
     const { moduleSelectedValue } = this.state;
     let url = '';
     if (listing) {
-      url = moduleSelectedValue ?
-              `/programs/${programId}/${patientId}/${surveyId}/${moduleSelectedValue}/responses` :
-              `/programs/${programId}/${patientId}/${surveyId}/responses`;
+      url = moduleSelectedValue
+        ? `/programs/${programId}/${patientId}/${surveyId}/${moduleSelectedValue}/responses`
+        : `/programs/${programId}/${patientId}/${surveyId}/responses`;
     } else {
       url = `/programs/${patientId}/${surveyId}/response/${responseId}`;
     }
@@ -154,7 +154,8 @@ class Surveys extends Component {
                   </span>
                 </div>
 
-                {program.programType !== 'direct' &&
+                {program.programType !== 'direct'
+                  && (
                   <div className="column is-5">
                     <div className="columns">
                       <div className="column pregnancy-name is-narrow is-size-5">
@@ -171,6 +172,7 @@ class Surveys extends Component {
                       </div>
                     </div>
                   </div>
+                  )
                 }
               </div>
             </div>
@@ -178,25 +180,26 @@ class Surveys extends Component {
               <div className="column pregnancy-button-details m-l-10">
                 <div className="pregnancy-options-title is-size-5 has-text-weight-semibold">Forms available</div>
                 {!availableSurveys.length && <div className="p-t-10">No forms available</div>}
-                {availableSurveys.length > 0 && availableSurveys.map(survey => {
-                  return (
-                    <div className="button-details" key={survey._id}>
-                      <button className="button is-primary pregnancies-button " onClick={() => this.gotoSurvey(survey._id)}>{survey.name}</button>
-                    </div>
-                  );
-                })}
+                {availableSurveys.length > 0 && availableSurveys.map(survey => (
+                  <div className="button-details" key={survey._id}>
+                    <button className="button is-primary pregnancies-button " onClick={() => this.gotoSurvey(survey._id)}>{survey.name}</button>
+                  </div>
+                ))}
               </div>
-              {completedSurveys.length > 0 &&
+              {completedSurveys.length > 0
+                && (
                 <div className="column pregnancy-button-details">
-                  <div className="pregnancy-options-title">Previously Submitted {!moduleSelectedValue && '- All'}</div>
-                  {completedSurveys.map(survey => {
-                    return (
-                      <div className="button-details" key={survey._id}>
-                        <button className="button is-info pregnancies-button " onClick={() => this.viewCompleted(survey.canRedo, survey._id)}>{`${survey.name} (${survey.count})`}</button>
-                      </div>
-                    );
-                  })}
+                  <div className="pregnancy-options-title">
+Previously Submitted
+                    {!moduleSelectedValue && '- All'}
+                  </div>
+                  {completedSurveys.map(survey => (
+                    <div className="button-details" key={survey._id}>
+                      <button className="button is-info pregnancies-button " onClick={() => this.viewCompleted(survey.canRedo, survey._id)}>{`${survey.name} (${survey.count})`}</button>
+                    </div>
+                  ))}
                 </div>
+                )
               }
             </div>
             <div className="bottom-buttons p-l-10">
@@ -220,8 +223,12 @@ class Surveys extends Component {
 
 function mapStateToProps(state) {
   console.log({ programs: state.programs });
-  const { patient, program, modules, availableSurveys, completedSurveys, loading } = state.programs;
-  return { patient, program, modules, availableSurveys, completedSurveys, loading };
+  const {
+    patient, program, modules, availableSurveys, completedSurveys, loading,
+  } = state.programs;
+  return {
+    patient, program, modules, availableSurveys, completedSurveys, loading,
+  };
 }
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

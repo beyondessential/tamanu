@@ -86,7 +86,7 @@ class PatientListing extends Component {
 
       await this.props.collection.getPage(
         state.page,
-        { pageSize: state.pageSize }
+        { pageSize: state.pageSize },
       );
       this.setState({ loading: false });
     } catch (err) {
@@ -99,34 +99,43 @@ class PatientListing extends Component {
     const row = _row.original;
     return (
       <div key={row._id}>
-        {!row.fullySynced &&
-          this._drawSyncBtn(row, _row.value)
+        {!row.fullySynced
+          && this._drawSyncBtn(row, _row.value)
         }
 
-        {row.fullySynced &&
-          this._drawSyncedIcon(_row.value)
+        {row.fullySynced
+          && this._drawSyncedIcon(_row.value)
         }
       </div>
     );
   }
 
-  _drawSyncBtn = (row, text) => {
-    return <React.Fragment>
+  _drawSyncBtn = (row, text) => (
+    <React.Fragment>
       <SyncIconButton
         onClick={(e) => {
           e.preventDefault();
           this.syncItem(row);
-        }} />
-      <span> {text} </span>
-    </React.Fragment>;
-  }
+        }}
+      />
+      <span>
+        {' '}
+        {text}
+        {' '}
+      </span>
+    </React.Fragment>
+  )
 
-  _drawSyncedIcon = (text) => {
-    return <React.Fragment>
+  _drawSyncedIcon = (text) => (
+    <React.Fragment>
       <SyncIconButton disabled />
-      <span> {text} </span>
-    </React.Fragment>;
-  }
+      <span>
+        {' '}
+        {text}
+        {' '}
+      </span>
+    </React.Fragment>
+  )
 
   syncItem = async ({ _id }) => {
     try {
@@ -198,28 +207,33 @@ class PatientListing extends Component {
           title="Patient Listing"
           search={{
             onSubmit: this.searchSubmit,
-            onClear: this.searchReset
+            onClear: this.searchReset,
           }}
           buttons={[{
-            to: "/patients/edit/new",
-            color: "secondary",
-            variant: "contained",
-            children: 'Advanced Search'
+            to: '/patients/edit/new',
+            color: 'secondary',
+            variant: 'contained',
+            children: 'Advanced Search',
           }, {
-            to: "/patients/edit/new",
+            to: '/patients/edit/new',
             can: { do: 'create', on: 'patient' },
-            children: 'New Patient'
+            children: 'New Patient',
           }]}
         />
         <div className="detail">
-          {patients.length === 0 && !loading && // Loaded and no records
+          {patients.length === 0 && !loading // Loaded and no records
+            && (
             <div className="notification">
               <span>
-                No patients found. <Link to="/patients/edit/new">Create a new patient record?</Link>
+                No patients found.
+                {' '}
+                <Link to="/patients/edit/new">Create a new patient record?</Link>
               </span>
             </div>
+            )
           }
-          {(patients.length > 0 || loading) && // Loading or there's records
+          {(patients.length > 0 || loading) // Loading or there's records
+            && (
             <div>
               <ReactTable
                 manual
@@ -234,6 +248,7 @@ class PatientListing extends Component {
                 onFetchData={this.onFetchData}
               />
             </div>
+            )
           }
         </div>
       </div>
@@ -243,7 +258,7 @@ class PatientListing extends Component {
 
 PatientListing.defaultProps = {
   collection: new PatientsCollection(),
-  patients: []
+  patients: [],
 };
 
 export default PatientListing;

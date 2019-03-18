@@ -15,7 +15,7 @@ class PregnancyModal extends Component {
     this.state = {
       formValid: false,
       isVisible: false,
-      form: this.props.form
+      form: this.props.form,
     };
 
     this.submitForm = this.submitForm.bind(this);
@@ -112,7 +112,11 @@ class PregnancyModal extends Component {
         >
           <div className="tamanu-error-modal diagnosis-modal">
             <div className="modal-header">
-              <h2>{action === 'new' ? 'Add' : 'Update'} Pregnancy</h2>
+              <h2>
+                {action === 'new' ? 'Add' : 'Update'}
+                {' '}
+Pregnancy
+              </h2>
             </div>
             <div className="modal-content">
               <div className="column is-half">
@@ -133,13 +137,16 @@ class PregnancyModal extends Component {
                   popperModifiers={{
                     offset: {
                       enabled: true,
-                      offset: '-10px, 0px'
-                    }
+                      offset: '-10px, 0px',
+                    },
                   }}
                 />
               </div>
               <div className="column is-four-fifths">
-                <span className="header">Outcome {this.state.form.outcome}</span>
+                <span className="header">
+Outcome
+                  {this.state.form.outcome}
+                </span>
                 <Select
                   id="pregnancy-outcome"
                   options={pregnancyOutcomes}
@@ -168,8 +175,8 @@ class PregnancyModal extends Component {
                   popperModifiers={{
                     offset: {
                       enabled: true,
-                      offset: '-10px, 0px'
-                    }
+                      offset: '-10px, 0px',
+                    },
                   }}
                 />
               </div>
@@ -218,7 +225,7 @@ PregnancyModal.defaultProps = {
     child: '',
     father: '',
     gestationalAge: '',
-  }
+  },
 };
 
 export default PregnancyModal;

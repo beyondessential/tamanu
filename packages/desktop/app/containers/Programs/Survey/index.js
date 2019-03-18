@@ -14,7 +14,7 @@ class Survey extends Component {
     currentScreenIndex: 0,
     cancelSurveyModalVisible: false,
     submitSurveyModalVisible: false,
-    loading: true
+    loading: true,
   }
 
   componentDidMount() {
@@ -23,11 +23,15 @@ class Survey extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { currentScreenIndex, survey: surveyModel, program: programModel, loading } = newProps;
+    const {
+      currentScreenIndex, survey: surveyModel, program: programModel, loading,
+    } = newProps;
     const program = programModel.toJSON();
     const survey = surveyModel.toJSON();
     const totalScreens = surveyModel.getTotalScreens();
-    this.setState({ currentScreenIndex, totalScreens, program, survey, loading });
+    this.setState({
+      currentScreenIndex, totalScreens, program, survey, loading,
+    });
   }
 
   buttonPrevClick() {
@@ -54,7 +58,9 @@ class Survey extends Component {
   submitSurvey() {
     const { patient: patientModel, history } = this.props;
     const { programId, surveyId, moduleId } = this.props.match.params;
-    this.props.submitSurvey({ patientModel, programId, surveyId, moduleId, history });
+    this.props.submitSurvey({
+      patientModel, programId, surveyId, moduleId, history,
+    });
   }
 
   cancelSurvey() {
@@ -66,7 +72,9 @@ class Survey extends Component {
     const { loading } = this.state;
     if (loading) return <Preloader />;
 
-    const { currentScreenIndex, totalScreens, program, survey } = this.state;
+    const {
+      currentScreenIndex, totalScreens, program, survey,
+    } = this.state;
     const isFirstScreen = (currentScreenIndex === 0);
     const isLastScreen = (currentScreenIndex === (totalScreens - 1));
 
@@ -79,20 +87,24 @@ class Survey extends Component {
             <span className="tag is-white survey-steps m-r-10">{`Step ${currentScreenIndex + 1} of ${totalScreens}`}</span>
           </div>
           <div className="survey-details">
-            <QuestionScreen 
-              surveyModel={this.props.survey} 
-              screenIndex={currentScreenIndex} 
+            <QuestionScreen
+              surveyModel={this.props.survey}
+              screenIndex={currentScreenIndex}
             />
             <div className="bottom-buttons">
-              <Button 
+              <Button
                 variant="outlined"
                 onClick={this.buttonPrevClick.bind(this)}
-              >{isFirstScreen ? 'Cancel' : 'Previous'}</Button>
-              <Button 
+              >
+                {isFirstScreen ? 'Cancel' : 'Previous'}
+              </Button>
+              <Button
                 variant="contained"
                 color="primary"
                 onClick={this.buttonNextClick.bind(this)}
-              >{isLastScreen ? 'Submit' : 'Next'}</Button>
+              >
+                {isLastScreen ? 'Submit' : 'Next'}
+              </Button>
             </div>
           </div>
         </div>
@@ -121,8 +133,12 @@ class Survey extends Component {
 }
 
 function mapStateToProps(state) {
-  const { patient, survey, program, currentScreenIndex, loading } = state.programs;
-  return { patient, survey, program, currentScreenIndex, loading };
+  const {
+    patient, survey, program, currentScreenIndex, loading,
+  } = state.programs;
+  return {
+    patient, survey, program, currentScreenIndex, loading,
+  };
 }
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

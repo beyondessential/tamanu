@@ -2,11 +2,11 @@ import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/userRole`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/userRole`,
   defaults: () => defaults({
     name: null,
     capabilities: [],
-    navRoute: null
+    navRoute: null,
   }, BaseModel.prototype.defaults),
 
   // validate: (attrs) => {

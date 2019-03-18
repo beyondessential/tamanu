@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import ReactTable from 'react-table';
 import { notesColumns } from '../../../constants';
 import NoteModal from '../components/NoteModal';
-import { Modal, EditButton, DeleteButton, NewButton } from '../../../components';
+import {
+  Modal, EditButton, DeleteButton, NewButton,
+} from '../../../components';
 
 class Notes extends Component {
   state = {
@@ -11,7 +13,7 @@ class Notes extends Component {
     action: 'new',
     itemId: null,
     notes: [],
-    tableColumns: notesColumns
+    tableColumns: notesColumns,
   }
 
   componentWillMount() {
@@ -56,33 +58,38 @@ class Notes extends Component {
     }
   }
 
-  setActionsCol = (row) => {
-    return (
-      <div key={row._id}>
-        <EditButton
-          size="small"
-          onClick={() => this.editItem(row.original._id)} />
-        <DeleteButton
-          size="small"
-          onClick={() => this.deleteConfirm(row.original._id)} />
-      </div>
-    );
-  }
+  setActionsCol = (row) => (
+    <div key={row._id}>
+      <EditButton
+        size="small"
+        onClick={() => this.editItem(row.original._id)}
+      />
+      <DeleteButton
+        size="small"
+        onClick={() => this.deleteConfirm(row.original._id)}
+      />
+    </div>
+  )
 
   render() {
     const { parentModel, patientModel } = this.props;
-    const { modalVisible, action, itemId, notes, tableColumns } = this.state;
+    const {
+      modalVisible, action, itemId, notes, tableColumns,
+    } = this.state;
     return (
       <div>
         <div className="column p-t-0 p-b-0">
           <NewButton
             className="is-pulled-right"
             onClick={() => this.editItem()}
-          >Add Note</NewButton>
-            <div className="is-clearfix" />
+          >
+Add Note
+          </NewButton>
+          <div className="is-clearfix" />
         </div>
         <div className="column">
-          {notes.length > 0 &&
+          {notes.length > 0
+            && (
             <ReactTable
               keyField="_id"
               data={notes}
@@ -92,11 +99,14 @@ class Notes extends Component {
               defaultSortDirection="asc"
               showPagination={false}
             />
+            )
           }
-          {notes.length <= 0 &&
+          {notes.length <= 0
+            && (
             <div className="notification">
               <span> No notes found. </span>
             </div>
+            )
           }
         </div>
         <Modal

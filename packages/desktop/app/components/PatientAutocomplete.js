@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { PatientsCollection } from '../collections';
 import { PatientModel } from '../models';
-import { CommonAutocomplete }  from './CommonAutocomplete';
+import { CommonAutocomplete } from './CommonAutocomplete';
 
 const PatientAutocomplete = ({
   label,

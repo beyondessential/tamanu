@@ -33,7 +33,9 @@ class Allergy extends Component {
 
   render() {
     const { patientModel } = this.props;
-    const { modalVisible, action, itemId, allergies } = this.state;
+    const {
+      modalVisible, action, itemId, allergies,
+    } = this.state;
     return (
       <div>
         <div className="column p-b-0">
@@ -41,19 +43,23 @@ class Allergy extends Component {
           <TextButton
             can={{ do: 'create', on: 'allergy' }}
             onClick={() => this.setState({ modalVisible: true, action: 'new', itemId: null })}
-          > + Add Allergy </TextButton>
+          >
+            {' '}
++ Add Allergy
+            {' '}
+          </TextButton>
           <div className="clearfix" />
-          {allergies.toJSON().map((allergy, k) => {
-            return (
-              <React.Fragment key={allergy._id}>
-                {k > 0 ? ', ' : ''}
-                <TextButton
-                  can={{ do: 'create', on: 'allergy' }}
-                  onClick={() => this.setState({ modalVisible: true, action: 'edit', itemId: allergy._id })}
-                >{allergy.name}</TextButton>
-              </React.Fragment>
-            );
-          })}
+          {allergies.toJSON().map((allergy, k) => (
+            <React.Fragment key={allergy._id}>
+              {k > 0 ? ', ' : ''}
+              <TextButton
+                can={{ do: 'create', on: 'allergy' }}
+                onClick={() => this.setState({ modalVisible: true, action: 'edit', itemId: allergy._id })}
+              >
+                {allergy.name}
+              </TextButton>
+            </React.Fragment>
+          ))}
         </div>
         <AllergyModal
           itemId={itemId}

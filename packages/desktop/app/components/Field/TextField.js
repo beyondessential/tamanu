@@ -7,8 +7,7 @@ export const TextField = ({ field, ...props }) => (
   <TextInput
     {...props}
     name={field.name}
-    value={field.value || ""}
+    value={field.value || ''}
     onChange={field.onChange}
   />
 );
-

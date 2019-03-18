@@ -6,7 +6,7 @@ import { medicationStatuses } from '../constants';
 import PatientModel from './patient';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/medication`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/medication`,
   defaults: () => defaults({
     patient: '',
     visit: '',
@@ -39,7 +39,7 @@ export default BaseModel.extend({
       key: 'history',
       relatedModel: () => require('./medicationHistory'),
     },
-    ...BaseModel.prototype.relations
+    ...BaseModel.prototype.relations,
   ],
 
   validate: (attrs) => {
@@ -58,5 +58,5 @@ export default BaseModel.extend({
     const patient = new PatientModel({ _id: this.attributes.patient });
     await patient.fetch();
     return patient;
-  }
+  },
 });

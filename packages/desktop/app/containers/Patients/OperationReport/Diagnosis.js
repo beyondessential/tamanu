@@ -14,16 +14,14 @@ class Diagnosis extends Component {
         <div className={`column ${!diagnoses.length && showSecondary ? 'is-hidden' : ''}`}>
           <span className="title has-text-weight-semibold">{`${showSecondary ? 'Secondary' : 'Primary'} Diagnosis`}</span>
           <div className="clearfix" />
-          {diagnoses.map((diagnosis, k) => {
-            return (
-              <React.Fragment key={diagnosis._id}>
-                {k > 0 ? ', ' : ''}
-                <span className="has-text-weight-light">
-                  {`${diagnosis.diagnosis} (${moment(diagnosis.date).format(dateFormat)})`}
-                </span>
-              </React.Fragment>
-            );
-          })}
+          {diagnoses.map((diagnosis, k) => (
+            <React.Fragment key={diagnosis._id}>
+              {k > 0 ? ', ' : ''}
+              <span className="has-text-weight-light">
+                {`${diagnosis.diagnosis} (${moment(diagnosis.date).format(dateFormat)})`}
+              </span>
+            </React.Fragment>
+          ))}
         </div>
       </div>
     );

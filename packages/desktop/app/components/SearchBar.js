@@ -72,8 +72,10 @@ class SearchBar extends Component {
     if (typeof originalSubmit === 'function') originalSubmit(value);
   }
 
-  render(){
-    const { classes, onClear, value: externalValue, ...props } = this.props;
+  render() {
+    const {
+      classes, onClear, value: externalValue, ...props
+    } = this.props;
     const { value: internalValue } = this.state;
     // Use externally controlled value if provided. Otherwise use state
     const value = externalValue === undefined ? internalValue : externalValue;
@@ -98,7 +100,7 @@ class SearchBar extends Component {
       </form>
     );
   }
-};
+}
 
 SearchBar.defaultProps = {
   value: undefined,
