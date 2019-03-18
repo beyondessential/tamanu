@@ -18,5 +18,6 @@ export TopBar from './TopBar';
 export * from './BrowsableTable';
 export * from './Button';
 export * from './IconButton';
+export * from './Notification';
 export * from './DateDisplay';
 export * from './DateRange';

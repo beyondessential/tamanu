@@ -2,6 +2,7 @@ import React,{ Component } from 'react';
 import ReactTable from 'react-table';
 import moment from 'moment';
 import { Typography, Grid } from '@material-ui/core';
+import PropTypes from 'prop-types';
 import { Button, Notification } from '../../../components';
 import { columnStyle, headerStyle, dateFormat, pageSizes } from '../../../constants';
 
@@ -49,7 +50,7 @@ const TestResult = ({ range, result, unit }) => {
     }
   }
   return `${result} ${unit || ''}`;
-}
+};
 
 const getTestsFromLabRequests = (labRequests, sex) => {
   let labTestsById = {};
@@ -70,7 +71,7 @@ const getTestsFromLabRequests = (labRequests, sex) => {
     });
   });
   return Object.values(labTestsById);
-}
+};
 
 const generateDataColumns = labTests => {
   const allDates = new Set();
@@ -88,7 +89,7 @@ const generateDataColumns = labTests => {
   });
   columns.push(getActionsColumn());
   return columns;
-}
+};
 
 const getFixedTableColumns = () => ([{
   accessor: 'testType',
@@ -99,48 +100,54 @@ const getFixedTableColumns = () => ([{
   Cell: ({ original: { testType: props }}) => <TestType {...props} />
 }]);
 
-export default class Labs extends Component {
+export default class LabRequests extends Component {
   state = {
     columns: [],
     labTests: [],
   }
 
+  static propTypes = {
+    patientSex: PropTypes.string.isRequired,
+  }
+
+  static propTypes = {
+    parentModel: PropTypes.instanceOf(Object).isRequired,
+  }
+
   componentWillMount() {
-    const { patientModel } = this.props;
-    this.labRequests = patientModel.getLabRequests();
-    this.labRequests.on('pageable:state:change', this.handleChange);
-    this.labRequests.setPageSize(pageSizes.patientLabRequests);
+    const { parentModel } = this.props;
+    this.labRequestsCollection = parentModel.getLabRequests();
+    this.labRequestsCollection.on('pageable:state:change', this.handleChange);
+    this.labRequestsCollection.setPageSize(pageSizes.patientLabRequests);
   }
 
   handleChange = () => {
-    const { patientModel } = this.props;
-    const labTests = getTestsFromLabRequests(this.labRequests.models, patientModel.get('sex'));
+    const { patientSex } = this.props;
+    const labTests = getTestsFromLabRequests(this.labRequestsCollection.models, patientSex);
     const columns = generateDataColumns(labTests);
     this.setState({ labTests, columns });
   }
 
   prevPage = () => {
-    this.labRequests.getPreviousPage();
+    this.labRequestsCollection.getPreviousPage();
   }
 
   nextPage = () => {
-    this.labRequests.getNextPage();
+    this.labRequestsCollection.getNextPage();
   }
 
   render() {
     const { labTests, columns } = this.state;
-    const labRequestsState = this.labRequests.state;
-
     if (labTests.length === 0) return <Notification message="No requests found." />
     return (
       <React.Fragment>
         <Grid container item justify="flex-end">
           <Button
-            disabled={labRequestsState.currentPage <= 0}
+            disabled={!this.labRequestsCollection.hasPreviousPage()}
             onClick={this.prevPage}
           >Prev</Button>
           <Button
-            disabled={labRequestsState.currentPage === (labRequestsState.totalPages - 1)}
+            disabled={!this.labRequestsCollection.hasNextPage()}
             onClick={this.nextPage}
           >Next</Button>
         </Grid>
