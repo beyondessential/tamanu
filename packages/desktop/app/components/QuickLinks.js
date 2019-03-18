@@ -15,12 +15,14 @@ const FabBottomRight = styled(Fab)`
 `;
 
 const QuickLinksItem = ({ to, text, ...props }) => (
-<MenuItem
+  <MenuItem
     component={ ButtonBase }
     to={to}
     {...props}
   >{text}</MenuItem>
-)class QuickLinks extends Component {
+);
+
+class QuickLinks extends Component {
   static defaultProps = {
     key: 'quick-links',
   };
