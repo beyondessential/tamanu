@@ -9,5 +9,5 @@ module.exports = {
   database: {
     createDB: require('./database/createDB'),
     getDB: require('./database/getDB'),
-  }
+  },
 };

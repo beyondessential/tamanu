@@ -5,8 +5,8 @@ class Auth extends BaseAuth {
   constructor(props) {
     super(props);
     this.sessionTimeout = config.sessionTimeout
-                            ? config.sessionTimeout
-                            : (60 * 60 * 24 * 14 * 1000);
+      ? config.sessionTimeout
+      : (60 * 60 * 24 * 14 * 1000);
   }
 }
 

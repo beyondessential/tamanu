@@ -18,7 +18,7 @@ internals.validateBody = [
       return res.status(422).json({
         answers: {
           errors: chain(errors.array()).map('msg').uniq().value(),
-        }
+        },
       });
     }
     return next();
@@ -43,5 +43,5 @@ internals.updateSubscription = async (req, res) => {
 
 module.exports = [
   internals.validateBody,
-  internals.updateSubscription
+  internals.updateSubscription,
 ];
