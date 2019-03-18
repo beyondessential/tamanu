@@ -13,22 +13,22 @@ const ClientSchema = {
     clientSecret: 'string',
     lastActive: {
       type: 'int',
-      default: 0
+      default: 0,
     },
     expiry: {
       type: 'int',
-      default: 0
+      default: 0,
     },
     syncOut: {
       type: 'int',
-      default: 0
+      default: 0,
     },
     date: {
       type: 'date',
-      default: new Date()
+      default: new Date(),
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = ClientSchema;

@@ -7,53 +7,53 @@ const UserSchema = {
     _id: 'string',
     derived_key: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     deleted: {
       type: 'bool',
-      default: false
+      default: false,
     },
     displayName: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     email: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     iterations: 'string?',
     name: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     password: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     password_scheme: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     password_sha: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     salt: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     userPrefix: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     roles: {
       type: 'list',
-      objectType: 'userRole'
+      objectType: 'userRole',
     },
     hospitals: {
       type: 'linkingObjects',
       objectType: 'hospital',
-      property: 'users'
+      property: 'users',
     },
     ...defaults,
   },
@@ -63,7 +63,7 @@ const UserSchema = {
       if (hospital._id === client.hospitalId) valid = true;
     });
     return valid;
-  }
+  },
 };
 
 module.exports = UserSchema;

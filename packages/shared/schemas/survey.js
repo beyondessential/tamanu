@@ -7,38 +7,38 @@ const SurveySchema = {
     _id: 'string',
     name: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     code: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     imageData: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     permissionGroupId: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     surveyGroupId: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     screens: {
       type: 'list',
-      objectType: 'surveyScreen'
+      objectType: 'surveyScreen',
     },
     canRedo: { // Can submit multiple times
       type: 'bool',
-      default: false
+      default: false,
     },
     order: {
       type: 'int',
-      default: 0
+      default: 0,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = SurveySchema;

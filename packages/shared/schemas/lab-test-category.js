@@ -7,7 +7,7 @@ const TestCategorySchema = {
     _id: 'string',
     name: 'string',
     ...defaults,
-  }
+  },
 };
 
 module.exports = TestCategorySchema;

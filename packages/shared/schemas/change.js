@@ -10,7 +10,7 @@ const ChangeSchema = {
     recordId: 'string',
     recordType: 'string',
     timestamp: 'int',
-  }
+  },
 };
 
 module.exports = ChangeSchema;

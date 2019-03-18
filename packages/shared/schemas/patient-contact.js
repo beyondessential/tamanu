@@ -7,22 +7,22 @@ const PatientContactSchema = {
     _id: 'string',
     name: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     phone: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     email: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     relationship: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = PatientContactSchema;

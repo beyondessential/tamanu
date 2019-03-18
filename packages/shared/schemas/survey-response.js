@@ -7,46 +7,46 @@ const SurveyResponseSchema = {
     _id: 'string',
     surveyId: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     patientId: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     userId: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     moduleType: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     moduleId: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     assessorName: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     startTime: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     endTime: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     metadata: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     answers: {
       type: 'list',
-      objectType: 'answer'
+      objectType: 'answer',
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = SurveyResponseSchema;

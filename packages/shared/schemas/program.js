@@ -8,12 +8,12 @@ const ProgramSchema = {
     name: {
       type: 'string',
       optional: true,
-      indexed: true
+      indexed: true,
     },
     programType: {
       type: 'string',
       default: 'direct',
-      indexed: true
+      indexed: true,
     },
     collection: 'string?',
     label: 'string?',
@@ -21,12 +21,11 @@ const ProgramSchema = {
     patientFilters: 'string?',
     surveys: {
       type: 'list',
-      objectType: 'survey'
+      objectType: 'survey',
     },
-    ...defaults
-  }
+    ...defaults,
+  },
 };
-
 
 
 module.exports = ProgramSchema;

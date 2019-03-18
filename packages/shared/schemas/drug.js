@@ -8,19 +8,19 @@ const DrugSchema = {
     name: {
       type: 'string',
       optional: true,
-      indexed: true
+      indexed: true,
     },
     code: {
       type: 'string',
       optional: true,
-      indexed: true
+      indexed: true,
     },
     unit: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = DrugSchema;

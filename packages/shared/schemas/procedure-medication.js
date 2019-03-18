@@ -7,14 +7,14 @@ const ProcedureMedicationSchema = {
     _id: 'string',
     medication: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     quantity: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = ProcedureMedicationSchema;

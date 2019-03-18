@@ -7,7 +7,7 @@ const version = 45;
 const defaultSchema = {
   primaryKey: '_id',
   sync: SYNC_MODES.ON,
-  properties: {}
+  properties: {},
 };
 
 const schemas = [];
@@ -17,11 +17,13 @@ fs.readdirSync(__dirname).forEach((file) => {
   const schema = require(path.join(__dirname, file));
   schemas.push({ ...defaultSchema, ...schema });
   schemaClasses[schema.name] = class {
-    constructor(props){
+    constructor(props) {
       each(props, (value, key) => this[key] = value);
     }
   };
-  Object.defineProperty(schemaClasses[schema.name], 'name', { value: schema.name })
+  Object.defineProperty(schemaClasses[schema.name], 'name', { value: schema.name });
 });
 
-module.exports = { schemas, schemaClasses, version, defaults };
+module.exports = {
+  schemas, schemaClasses, version, defaults,
+};

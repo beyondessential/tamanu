@@ -7,10 +7,10 @@ const SurveyGroupSchema = {
     _id: 'string',
     name: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = SurveyGroupSchema;

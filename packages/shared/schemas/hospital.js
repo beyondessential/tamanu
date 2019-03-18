@@ -10,11 +10,11 @@ const HospitalSchema = {
     name: 'string',
     key: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     users: {
       type: 'list',
-      objectType: 'user'
+      objectType: 'user',
     },
     objectsFullySynced: 'string?[]',
     ...defaults,
@@ -23,7 +23,7 @@ const HospitalSchema = {
     let valid = false;
     if (object._id === client.hospitalId) valid = true;
     return valid;
-  }
+  },
 };
 
 module.exports = HospitalSchema;

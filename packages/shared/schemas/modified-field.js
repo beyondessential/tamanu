@@ -11,9 +11,9 @@ const modifiedFieldSchema = {
     field: 'string',
     time: {
       type: 'int',
-      default: new Date().getTime()
-    }
-  }
+      default: new Date().getTime(),
+    },
+  },
 };
 
 module.exports = modifiedFieldSchema;

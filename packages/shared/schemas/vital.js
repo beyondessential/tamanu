@@ -8,38 +8,38 @@ const VitalSchema = {
     dateRecorded: {
       type: 'date',
       default: new Date(),
-      indexed: true
+      indexed: true,
     },
     temperature: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     weight: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     height: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     sbp: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     dbp: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     heartRate: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     respiratoryRate: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = VitalSchema;

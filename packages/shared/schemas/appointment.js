@@ -9,44 +9,44 @@ const AppointmentSchema = {
     allDay: 'bool',
     provider: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     location: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     appointmentType: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     startDate: {
       type: 'date',
-      optional: true
+      optional: true,
     },
     endDate: {
       type: 'date',
-      optional: true
+      optional: true,
     },
     notes: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     status: {
       type: 'string',
       optional: true,
-      default: APPOINTMENT_STATUSES.SCHEDULED
+      default: APPOINTMENT_STATUSES.SCHEDULED,
     },
     visits: {
       type: 'list',
-      objectType: 'visit'
+      objectType: 'visit',
     },
     patients: {
       type: 'linkingObjects',
       objectType: 'patient',
-      property: 'appointments'
+      property: 'appointments',
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = AppointmentSchema;

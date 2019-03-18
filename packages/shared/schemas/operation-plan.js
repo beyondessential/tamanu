@@ -8,36 +8,36 @@ const OpPlanSchema = {
     _id: 'string',
     additionalNotes: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     admissionInstructions: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     caseComplexity: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     operationDescription: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     procedures: 'string[]',
     status: {
       type: 'string',
       optional: true,
-      default: OPERATION_PLAN_STATUSES.PLANNED
+      default: OPERATION_PLAN_STATUSES.PLANNED,
     },
     surgeon: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     diagnoses: {
       type: 'list',
-      objectType: 'patientDiagnosis'
+      objectType: 'patientDiagnosis',
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = OpPlanSchema;
