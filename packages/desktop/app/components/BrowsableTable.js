@@ -25,8 +25,8 @@ export class BrowsableTable extends Component {
     loading: true,
   }
 
-  onFetchData = async (state = {}) => {
-    const { collection, fetchOptions } = this.props;
+  onFetchData = (props = this.props) => async (state = {}) => {
+    const { collection, fetchOptions } = props;
     const updates = { loading: true };
     if (!isEmpty(state)) updates.tableState = state;
     this.setState(updates);
@@ -41,13 +41,12 @@ export class BrowsableTable extends Component {
 
       await collection.getPage(
         state.page || 0,
-        null,
-        null,
         {
-          ...fetchOptions,
+          data: fetchOptions,
           pageSize: state.pageSize || 10,
         }
       );
+
       this.setState({ loading: false });
     } catch (err) {
       this.setState({ loading: false });
@@ -55,22 +54,26 @@ export class BrowsableTable extends Component {
     }
   }
 
-  componentDidMount() {
-    this.props.collection.on('update', this.handleChange());
-    this.onFetchData();
+  componentWillMount() {
+    this.props.collection.on('pageable:state:change',  this.handleChange);
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.onFetchData(newProps)();
   }
 
   componentWillUnmount() {
-    this.props.collection.off('update', this.handleChange());
+    this.props.collection.off('pageable:state:change');
   }
 
-  handleChange() {
+  handleChange = () => {
     this.forceUpdate();
   }
 
   render() {
     const { collection, columns, emptyNotification, transformRow } = this.props;
     const { tableClass, loading } = this.state;
+
     // transform data
     const items = collection.models.map(transformRow);
 
@@ -88,7 +91,7 @@ export class BrowsableTable extends Component {
         loading={loading}
         columns={columns}
         defaultSortDirection="asc"
-        onFetchData={this.onFetchData}
+        onFetchData={this.onFetchData()}
       />
     );
   }

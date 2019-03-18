@@ -6,7 +6,7 @@ import actions from '../../actions/medication';
 import {
   medicationCompletedColumns,
   pageSizes,
-  dbViews
+  medicationStatuses
 } from '../../constants';
 import { TextButton, NewButton } from '../../components';
 
@@ -42,8 +42,8 @@ class Completed extends Component {
 
   fetchData = opts => {
     return this.props.fetchMedications({
-      view: dbViews.medicationFulfilled,
-      ...opts
+      ...opts,
+      filters: { status: medicationStatuses.FULFILLED }
     });
   }
 

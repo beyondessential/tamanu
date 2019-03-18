@@ -85,7 +85,7 @@ class DiagnosisAutocomplete extends Component {
     const { diagnosesCollection } = this.props;
     try {
       diagnosesCollection.setKeyword(value);
-      await diagnosesCollection.getPage(0);
+      await diagnosesCollection.getFirstPage();
 
       let { models: suggestions } = diagnosesCollection;
       if (suggestions.length > 0) suggestions = map(suggestions, model => model.toJSON());

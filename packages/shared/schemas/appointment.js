@@ -1,4 +1,5 @@
 const defaults = require('./defaults');
+const { APPOINTMENT_STATUSES } = require('../constants');
 
 const AppointmentSchema = {
   name: 'appointment',
@@ -32,7 +33,8 @@ const AppointmentSchema = {
     },
     status: {
       type: 'string',
-      optional: true
+      optional: true,
+      default: APPOINTMENT_STATUSES.SCHEDULED
     },
     visits: {
       type: 'list',

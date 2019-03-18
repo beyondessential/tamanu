@@ -1,4 +1,5 @@
 const defaults = require('./defaults');
+const { OPERATION_PLAN_STATUSES } = require('../constants');
 
 const OpPlanSchema = {
   name: 'operationPlan',
@@ -24,7 +25,8 @@ const OpPlanSchema = {
     procedures: 'string[]',
     status: {
       type: 'string',
-      optional: true
+      optional: true,
+      default: OPERATION_PLAN_STATUSES.PLANNED
     },
     surgeon: {
       type: 'string',
