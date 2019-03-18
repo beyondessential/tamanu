@@ -11,7 +11,9 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "npm test -- --watch",
-    "start-dev": "NODE_ENV=development nodemon index"
+    "start-dev": "NODE_ENV=development nodemon index",
+    "lint": "eslint app",
+    "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
   },
   "repository": {
     "type": "git",

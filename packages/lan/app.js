@@ -3,7 +3,6 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import compression from 'compression';
-import service from 'os-service';
 
 import routes from './app/routes';
 import errorHandler from './app/middleware/errorHandler';
@@ -17,11 +16,6 @@ const port = config.port || 4500;
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 (async () => {
-  // Start os-service
-  // service.run(() => {
-  //   console.log('Service runninFg.');
-  // });
-
   // // Init our app
   const app = express();
   app.use(compression());
@@ -45,7 +39,7 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 
   const startServer = () => {
     app.listen(port, () => {
-        console.log(`Server is running on port ${port}!`);
+      console.log(`Server is running on port ${port}!`);
     });
 
     startScheduledTasks(database);

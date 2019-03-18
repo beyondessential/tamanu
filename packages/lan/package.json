@@ -17,7 +17,9 @@
     "stop": "pm2 stop tamanu-lan",
     "start-dev": "nodemon index",
     "build": "pkg . --targets node10-win-x64 --output ./release/server.exe",
-    "package": "./scripts/package.sh"
+    "package": "./scripts/package.sh",
+    "lint": "eslint app",
+    "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
   },
   "repository": {
     "type": "git",

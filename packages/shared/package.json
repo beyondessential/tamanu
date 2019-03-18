@@ -6,7 +6,10 @@
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Salman Amjad",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "lint": "eslint schemas utils constants services",
+    "lint-stats": "eslint schemas utils constants services --format ../scripts/eslint-stats.js"
+  },
   "private": true,
   "devDependencies": {},
   "dependencies": {
