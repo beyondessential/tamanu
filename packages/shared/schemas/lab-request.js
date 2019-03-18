@@ -16,19 +16,19 @@ const LabRequest = {
     status: {
       type: 'string',
       optional: true,
-      default: LAB_REQUEST_STATUSES.RECEPTION_PENDING
+      default: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
     },
     tests: {
       type: 'list',
-      objectType: 'labTest'
+      objectType: 'labTest',
     },
     visits: {
       type: 'linkingObjects',
       objectType: 'visit',
-      property: 'labRequests'
+      property: 'labRequests',
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = LabRequest;

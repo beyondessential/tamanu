@@ -12,9 +12,9 @@ class Auth extends BaseAuth {
     this.database = database;
     this.user = null;
     this.client = '';
-    this.sessionTimeout = (60 * 60 * 120 * 1000);; // config.sessionTimeout
-                            // ? config.sessionTimeout
-                            // : (60 * 60 * 5 * 1000);
+    this.sessionTimeout = (60 * 60 * 120 * 1000); // config.sessionTimeout
+    // ? config.sessionTimeout
+    // : (60 * 60 * 5 * 1000);
     // TODO: add keep-alive functionality
   }
 
@@ -54,13 +54,15 @@ class Auth extends BaseAuth {
       } catch (error) {
         return _reject(error.toString());
       }
-    }
+    };
   }
 
   validateRequestPermissions() {
     return (req, res, next) => {
       let subject;
-      const { params, method, user, client, body } = req;
+      const {
+        params, method, user, client, body,
+      } = req;
       const { model, id } = params;
       const { hospitalId } = client;
       const fields = Object.keys(body);
@@ -68,16 +70,16 @@ class Auth extends BaseAuth {
 
       switch (true) {
         case (method === 'GET' && !isEmpty(id)):
-          Object.defineProperty(schemaClasses[model], 'name', { value: model })
+          Object.defineProperty(schemaClasses[model], 'name', { value: model });
           subject = new schemaClasses[model]({ _id: id });
-        break;
-        case (['PUT','PATCH','POST'].includes(method) && !isEmpty(id)):
-          Object.defineProperty(schemaClasses[model], 'name', { value: model })
+          break;
+        case (['PUT', 'PATCH', 'POST'].includes(method) && !isEmpty(id)):
+          Object.defineProperty(schemaClasses[model], 'name', { value: model });
           subject = new schemaClasses[model]({ _id: id, ...body });
-        break;
+          break;
         default:
           subject = model;
-        break;
+          break;
       }
 
       try {
@@ -87,7 +89,7 @@ class Auth extends BaseAuth {
           hospitalId,
           action,
           subject,
-          fields
+          fields,
         });
 
         if (permissionsValid === true) return next();
@@ -95,7 +97,7 @@ class Auth extends BaseAuth {
       } catch (error) {
         return _reject(error.toString());
       }
-    }
+    };
   }
 }
 

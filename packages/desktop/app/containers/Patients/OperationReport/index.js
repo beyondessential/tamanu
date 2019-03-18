@@ -37,7 +37,7 @@ class OperationReport extends Component {
       procedures: [],
       status: 'planned',
       surgeon: '',
-    }
+    },
   }
 
   async componentDidMount() {
@@ -111,8 +111,8 @@ class OperationReport extends Component {
     this.setState({
       form: {
         ...form,
-        status: 'completed'
-      }
+        status: 'completed',
+      },
     }, async () => {
       await this.submitForm(e);
     });
@@ -172,7 +172,7 @@ class OperationReport extends Component {
       formSuccess,
       form,
       action,
-      preOpDiagnoses
+      preOpDiagnoses,
     } = this.state;
 
     return (
@@ -194,7 +194,9 @@ class OperationReport extends Component {
                       <div className="column p-b-5">
                         <span className="title">Name: </span>
                         <span className="full-name">
-                          {patient.firstName} {patient.lastName}
+                          {patient.firstName}
+                          {' '}
+                          {patient.lastName}
                         </span>
                       </div>
                       <div className="column p-b-5 p-t-5">
@@ -347,7 +349,7 @@ class OperationReport extends Component {
 
 const mapDispatchToProps = () => ({
   patient: new PatientModel(),
-  operationReport: new OperationReportModel()
+  operationReport: new OperationReportModel(),
 });
 
 export default connect(undefined, mapDispatchToProps)(OperationReport);

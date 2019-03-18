@@ -1,4 +1,6 @@
-const { parseInt, ceil, head, isEmpty } = require('lodash');
+const {
+  parseInt, ceil, head, isEmpty,
+} = require('lodash');
 const { objectToJSON } = require('../../utils');
 
 module.exports = (req, res) => {

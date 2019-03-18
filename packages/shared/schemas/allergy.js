@@ -7,18 +7,18 @@ const AllergySchema = {
     _id: 'string',
     name: {
       type: 'string',
-      indexed: true
+      indexed: true,
     },
     icd9CMCode: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     icd10Code: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = AllergySchema;

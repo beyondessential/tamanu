@@ -14,7 +14,9 @@ class NotActive extends Component {
           <div className="detail">
             <div className="notification">
               <span>
-                This section is not activated yet. <Link to="/patients">Back to Patients</Link>
+                This section is not activated yet.
+                {' '}
+                <Link to="/patients">Back to Patients</Link>
               </span>
             </div>
           </div>

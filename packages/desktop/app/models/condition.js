@@ -4,12 +4,12 @@ import { isEmpty } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/condition`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/condition`,
   defaults: () => ({
     date: moment(),
     condition: null,
     diagnosis: null,
-    ...BaseModel.prototype.defaults
+    ...BaseModel.prototype.defaults,
   }),
   ignoreRequestKeys: ['diagnosis'],
 
@@ -17,8 +17,8 @@ export default BaseModel.extend({
     {
       type: Backbone.One,
       key: 'diagnosis',
-      model: require('./diagnosis')
-    }
+      model: require('./diagnosis'),
+    },
   ],
 
   parse(res) {

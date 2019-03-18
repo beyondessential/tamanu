@@ -3,8 +3,10 @@ import Modal from 'react-responsive-modal';
 import moment from 'moment';
 import { capitalize } from 'lodash';
 import PropTypes from 'prop-types';
-import { InputGroup, PatientRelationSelect, TextareaGroup,
-          AddButton, UpdateButton, CancelButton } from '../../../components';
+import {
+  InputGroup, PatientRelationSelect, TextareaGroup,
+  AddButton, UpdateButton, CancelButton,
+} from '../../../components';
 import { NoteModel, VisitModel } from '../../../models';
 import { dateFormat } from '../../../constants';
 
@@ -14,7 +16,7 @@ class NoteModal extends Component {
     this.state = {
       isVisible: false,
       noteModel: new NoteModel(),
-      visitId: ''
+      visitId: '',
     };
 
     this.submitForm = this.submitForm.bind(this);
@@ -22,7 +24,9 @@ class NoteModal extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { action, itemId, isVisible, parentModel } = nextProps;
+    const {
+      action, itemId, isVisible, parentModel,
+    } = nextProps;
     let noteModel = new NoteModel();
     if (action === 'edit') {
       noteModel = parentModel.get('notes').findWhere({ _id: itemId });
@@ -70,7 +74,9 @@ class NoteModal extends Component {
   }
 
   render() {
-    const { onClose, action, patientModel, showVisits } = this.props;
+    const {
+      onClose, action, patientModel, showVisits,
+    } = this.props;
     const { noteModel } = this.state;
     const form = noteModel.toJSON();
     return (
@@ -83,7 +89,11 @@ class NoteModal extends Component {
         >
           <div className="tamanu-error-modal diagnosis-modal">
             <div className="modal-header">
-              <h2>{action === 'new' ? 'Add' : 'Update'} Note</h2>
+              <h2>
+                {action === 'new' ? 'Add' : 'Update'}
+                {' '}
+Note
+              </h2>
             </div>
             <div className="modal-content">
               <div className="column">
@@ -97,7 +107,8 @@ class NoteModal extends Component {
                   required
                 />
               </div>
-              {showVisits &&
+              {showVisits
+                && (
                 <PatientRelationSelect
                   patient={patientModel.id}
                   relation="visits"
@@ -107,6 +118,7 @@ class NoteModal extends Component {
                   onChange={val => this.handleUserInput(val, 'visit')}
                   required
                 />
+                )
               }
               <InputGroup
                 label="On Behalf Of"
@@ -120,19 +132,23 @@ class NoteModal extends Component {
             <div className="modal-footer">
               <div className="column has-text-right">
                 <CancelButton onClick={onClose} />
-                {action === 'new' ?
-                  <AddButton
-                    form="noteForm"
-                    type="submit"
-                    disabled={!noteModel.isValid()}
-                    can={{ do: 'create', on: 'note' }}
-                  /> :
-                  <UpdateButton
-                    form="noteForm"
-                    type="submit"
-                    disabled={!noteModel.isValid()}
-                    can={{ do: 'update', on: 'note' }}
-                  />
+                {action === 'new'
+                  ? (
+                    <AddButton
+                      form="noteForm"
+                      type="submit"
+                      disabled={!noteModel.isValid()}
+                      can={{ do: 'create', on: 'note' }}
+                    />
+                  )
+                  : (
+                    <UpdateButton
+                      form="noteForm"
+                      type="submit"
+                      disabled={!noteModel.isValid()}
+                      can={{ do: 'update', on: 'note' }}
+                    />
+                  )
                 }
               </div>
             </div>

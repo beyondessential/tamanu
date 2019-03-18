@@ -9,7 +9,7 @@ import InputGroup from '../../../components/InputGroup';
 class NewPhotoModal extends Component {
   state = {
     selectedOption: 'take',
-    selectedFile: null
+    selectedFile: null,
   }
 
   optionChange = (value) => {
@@ -30,7 +30,7 @@ class NewPhotoModal extends Component {
     const {
       isVisible,
       onClose,
-      addPhoto
+      addPhoto,
     } = this.props;
     const that = this;
     return (
@@ -70,48 +70,53 @@ class NewPhotoModal extends Component {
                 </div>
               </div>
               <div className="column">
-                {selectedOption === 'take' ?
-                  <div>
-                    <div className="column">
-                      <div className="take-panel columns">
-                        <div className="column">
-                          <span>Preview</span>
+                {selectedOption === 'take'
+                  ? (
+                    <div>
+                      <div className="column">
+                        <div className="take-panel columns">
+                          <div className="column">
+                            <span>Preview</span>
+                          </div>
+                          <div className="column">
+                            <span>Photo</span>
+                          </div>
+                          <button className="button take-button">Take photo</button>
                         </div>
-                        <div className="column">
-                          <span>Photo</span>
-                        </div>
-                        <button className="button take-button">Take photo</button>
                       </div>
                     </div>
-                  </div>
-                :
-                  <div>
-                    <span>
-                      Upload file
-                    </span>
-                    <div className="column">
-                      <Dropzone
-                        className="upload-panel columns"
-                        onDrop={this.onDrop}
-                        multiple={false}
-                        accept="image/jpeg, image/png"
-                      >
-                        <button className="button">
-                          Choose File
-                        </button>
-                        <span>
-                          {selectedFile === null ? 'No File chosen' : selectedFile.name}
-                        </span>
-                      </Dropzone>
-                    </div>
+                  )
+                  : (
                     <div>
-                      {selectedFile === null &&
+                      <span>
+                      Upload file
+                      </span>
+                      <div className="column">
+                        <Dropzone
+                          className="upload-panel columns"
+                          onDrop={this.onDrop}
+                          multiple={false}
+                          accept="image/jpeg, image/png"
+                        >
+                          <button className="button">
+                          Choose File
+                          </button>
+                          <span>
+                            {selectedFile === null ? 'No File chosen' : selectedFile.name}
+                          </span>
+                        </Dropzone>
+                      </div>
+                      <div>
+                        {selectedFile === null
+                        && (
                         <div className="attention">
                           Please take a picture or upload a file before saving this photo.
                         </div>
+                        )
                       }
+                      </div>
                     </div>
-                  </div>
+                  )
                 }
               </div>
             </div>

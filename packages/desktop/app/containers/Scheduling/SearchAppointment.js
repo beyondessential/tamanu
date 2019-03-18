@@ -42,9 +42,9 @@ class SearchAppointment extends Component {
         <TopBar
           title="Search Appointments"
           buttons={{
-            to: "/appointments/appointment/new",
+            to: '/appointments/appointment/new',
             can: { do: 'create', on: 'appointment' },
-            children: 'New Appointment'
+            children: 'New Appointment',
           }}
         />
         <div className="create-container">
@@ -70,8 +70,12 @@ class SearchAppointment extends Component {
 }
 
 function mapStateToProps(state) {
-  const { appointments, totalPages, loading, error } = state.scheduling;
-  return { appointments, totalPages, loading, error };
+  const {
+    appointments, totalPages, loading, error,
+  } = state.scheduling;
+  return {
+    appointments, totalPages, loading, error,
+  };
 }
 
 const { appointments: appointmentsActions } = actions;

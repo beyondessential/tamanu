@@ -8,28 +8,28 @@ const QuestionSchema = {
     text: 'string',
     indicator: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     imageData: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     type: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     options: 'string[]',
     code: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     details: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     params: 'string[]',
     ...defaults,
-  }
+  },
 };
 
 module.exports = QuestionSchema;

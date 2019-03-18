@@ -58,15 +58,17 @@ const SidebarItemText = styled(ListItemText)`
 `;
 
 const LogoutItem = ({ onClick }) => (
-  <ListItem button onClick={ onClick }>
-    <SidebarPrimaryIcon src={ logoutIcon } />
+  <ListItem button onClick={onClick}>
+    <SidebarPrimaryIcon src={logoutIcon} />
     <SidebarItemText disableTypography inset primary="Logout" />
   </ListItem>
 );
 
-const PrimarySidebarItem = ({ item, ability, selected, onClick }) => (
+const PrimarySidebarItem = ({
+  item, ability, selected, onClick,
+}) => (
   <React.Fragment>
-    <ListItem button onClick={ onClick } selected={selected}>
+    <ListItem button onClick={onClick} selected={selected}>
       <SidebarPrimaryIcon src={item.icon} />
       <SidebarItemText inset disableTypography primary={item.label} />
     </ListItem>
@@ -74,8 +76,8 @@ const PrimarySidebarItem = ({ item, ability, selected, onClick }) => (
       <List component="div" disablePadding>
         {item.children.map(child => (
           <SecondarySidebarItem
-            item={ child }
-            key={ child.path }
+            item={child}
+            key={child.path}
             parentAbility={ability}
           />
         ))}
@@ -88,21 +90,23 @@ const SecondarySidebarItem = withRouter(({ item, location, parentAbility }) => {
   const ability = { ...parentAbility, ...(item.ability || {}) };
   const { action, subject } = ability;
   if (!action || !subject) {
-    throw new Error("Invalid ability provided to sidebar item");
+    throw new Error('Invalid ability provided to sidebar item');
   }
   const allowed = checkAbility({ action, subject });
 
-  return <ListItem
-    button
-    component={ Link }
-    to={ item.path }
-    selected={ item.path === location.pathname }
-    disabled={!allowed}
-    replace={ item.path === location.pathname }
-  >
-    <i className={ item.icon } />
-    <SidebarItemText disableTypography primary={item.label} />
-  </ListItem>
+  return (
+    <ListItem
+      button
+      component={Link}
+      to={item.path}
+      selected={item.path === location.pathname}
+      disabled={!allowed}
+      replace={item.path === location.pathname}
+    >
+      <i className={item.icon} />
+      <SidebarItemText disableTypography primary={item.label} />
+    </ListItem>
+  );
 });
 
 class Sidebar extends Component {
@@ -183,7 +187,7 @@ class Sidebar extends Component {
           </List>
           <Divider />
           <List>
-            <LogoutItem onClick={ this.props.logout } />
+            <LogoutItem onClick={this.props.logout} />
           </List>
         </SidebarMenuContainer>
         <LogoContainer>
@@ -200,7 +204,9 @@ function mapStateToProps(state) {
   const { userId, displayName } = state.auth;
   const { pathname: currentPath } = state.router.location;
   const programsCollection = new ProgramsCollection();
-  return { userId, displayName, currentPath, programsCollection };
+  return {
+    userId, displayName, currentPath, programsCollection,
+  };
 }
 
 const mapDispatchToProps = (dispatch) => ({

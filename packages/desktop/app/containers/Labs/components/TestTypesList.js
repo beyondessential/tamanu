@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { List, ListItem, ListItemText, Checkbox } from '@material-ui/core';
+import {
+  List, ListItem, ListItemText, Checkbox,
+} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { pull } from 'lodash';
 
@@ -11,19 +13,19 @@ const styles = () => ({
   },
   checkBox: {
     paddingTop: 0,
-    paddingBottom: 0
+    paddingBottom: 0,
   },
   listItemText: {
     paddingLeft: 0,
-  }
-})
+  },
+});
 
 class TestsList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedTests: new Set()
-    }
+      selectedTests: new Set(),
+    };
     this.handleListItemChange = this.handleListItemChange.bind(this);
   }
 
@@ -50,7 +52,9 @@ class TestsList extends Component {
           Tests Available
         </span>
         <List disablePadding className={classes.root}>
-          {labTestTypes.map(({ _id, name, unit, category: { name: categoryName } } = {}) => (
+          {labTestTypes.map(({
+            _id, name, unit, category: { name: categoryName },
+          } = {}) => (
             <ListItem
               key={_id}
               onClick={() => this.handleListItemChange(_id)}
@@ -82,6 +86,6 @@ class TestsList extends Component {
 TestsList.propTypes = {
   labTestTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
   onChange: PropTypes.func.isRequired,
-}
+};
 
 export default withStyles(styles)(TestsList);

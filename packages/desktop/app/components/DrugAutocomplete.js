@@ -12,17 +12,17 @@ const DrugAutocomplete = ({
   collection,
   onChange,
 }) => (
-    <CommonAutocomplete
-      label={label}
-      required={required}
-      name={name}
-      className={className}
-      ModelClass={DrugModel}
-      collection={collection}
-      onChange={onChange}
-      formatOptionLabel={({ code, name }) => `${code} - ${name}`}
-    />
-  );
+  <CommonAutocomplete
+    label={label}
+    required={required}
+    name={name}
+    className={className}
+    ModelClass={DrugModel}
+    collection={collection}
+    onChange={onChange}
+    formatOptionLabel={({ code, name }) => `${code} - ${name}`}
+  />
+);
 
 function mapStateToProps(state) {
   return {

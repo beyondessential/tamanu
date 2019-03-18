@@ -3,7 +3,9 @@ import { connect } from 'react-redux';
 import { isEmpty, clone } from 'lodash';
 import moment from 'moment';
 import ReactTable from 'react-table';
-import { Colors, pageSizes, dateFormat, timeFormat } from '../../constants';
+import {
+  Colors, pageSizes, dateFormat, timeFormat,
+} from '../../constants';
 import actions from '../../actions/programs';
 import Preloader from '../../components/Preloader';
 import QuestionScreen from './Survey/QuestionScreen';
@@ -27,8 +29,12 @@ class Response extends Component {
   }
 
   componentWillMount() {
-    const { patientId, programId, surveyId, responseId } = this.props.match.params;
-    this.props.initResponse({ patientId, programId, surveyId, responseId });
+    const {
+      patientId, programId, surveyId, responseId,
+    } = this.props.match.params;
+    this.props.initResponse({
+      patientId, programId, surveyId, responseId,
+    });
   }
 
   componentWillReceiveProps(newProps) {
@@ -41,7 +47,7 @@ class Response extends Component {
       program: programModel,
       patient: patientModel,
       response,
-      loading
+      loading,
     } = props;
 
     if (!loading) {
@@ -52,7 +58,7 @@ class Response extends Component {
         patient: patientModel.toJSON(),
         response: response.toJSON(),
         answers: answers.toJSON(),
-        loading
+        loading,
       });
     }
   }
@@ -86,7 +92,9 @@ class Response extends Component {
     const { loading } = this.state;
     if (loading) return <Preloader />;
 
-    const { survey, program, patient, response, answers } = this.state;
+    const {
+      survey, program, patient, response, answers,
+    } = this.state;
     return (
       <div className="content">
         <div className="view-top-bar">
@@ -133,8 +141,12 @@ class Response extends Component {
 }
 
 function mapStateToProps(state) {
-  const { patient, program, survey, response, loading } = state.programs;
-  return { patient, program, survey, response, loading };
+  const {
+    patient, program, survey, response, loading,
+  } = state.programs;
+  return {
+    patient, program, survey, response, loading,
+  };
 }
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

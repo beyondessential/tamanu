@@ -5,7 +5,6 @@ import { ReportTable } from './ReportTable';
 import { ReportGraph } from './ReportGraph';
 
 export class ReportViewer extends Component {
-  
   state = {
     values: [],
   };
@@ -17,36 +16,36 @@ export class ReportViewer extends Component {
     const checkEqualFilter = (row, key) => !filters[key] || (filters[key] === row[key]);
     const filteredValues = data
       .filter(row => {
-        if(!checkEqualFilter(row, 'diagnosis')) return false;
-        if(!checkEqualFilter(row, 'location')) return false;
-        if(!checkEqualFilter(row, 'sex')) return false;
-        if(!checkEqualFilter(row, 'prescriber')) return false;
-        if(ageMin && ageMin > row.age) return false;
-        if(ageMax && ageMax < row.age) return false;
-        if(range) {
-          if(range.start.isAfter(row.date)) return false;
-          if(range.end.isBefore(row.date)) return false;
+        if (!checkEqualFilter(row, 'diagnosis')) return false;
+        if (!checkEqualFilter(row, 'location')) return false;
+        if (!checkEqualFilter(row, 'sex')) return false;
+        if (!checkEqualFilter(row, 'prescriber')) return false;
+        if (ageMin && ageMin > row.age) return false;
+        if (ageMax && ageMax < row.age) return false;
+        if (range) {
+          if (range.start.isAfter(row.date)) return false;
+          if (range.end.isBefore(row.date)) return false;
         }
         return true;
       });
-    
+
     const valuesByKey = filteredValues
       .reduce((totals, row) => {
         const key = report.getCountKey(row);
-        return { 
+        return {
           ...totals,
-          [key]: (totals[key] || 0) + 1
+          [key]: (totals[key] || 0) + 1,
         };
       }, {});
 
-    
+
     // ensure a continuous date range by filling out missing counts with 0
     const isReportDateBased = (report.graphType === 'line');
 
-    if(range && isReportDateBased) {
-      let dateIterator = moment(range.start).startOf('day');
+    if (range && isReportDateBased) {
+      const dateIterator = moment(range.start).startOf('day');
       console.log(valuesByKey);
-      while(dateIterator.isBefore(range.end)) {
+      while (dateIterator.isBefore(range.end)) {
         const dateKey = dateIterator.toDate();
         valuesByKey[dateKey] = valuesByKey[dateKey] || 0;
         dateIterator.add(1, 'day');
@@ -54,7 +53,7 @@ export class ReportViewer extends Component {
     }
 
     const formatDateRange = key => ({
-      sort: moment(key).valueOf(), 
+      sort: moment(key).valueOf(),
       formatted: moment(key).format('L'),
       amount: valuesByKey[key],
     });
@@ -77,7 +76,7 @@ export class ReportViewer extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if(JSON.stringify(prevProps.filters) !== JSON.stringify(this.props.filters)) {
+    if (JSON.stringify(prevProps.filters) !== JSON.stringify(this.props.filters)) {
       this.recalculate();
     }
   }
@@ -87,9 +86,9 @@ export class ReportViewer extends Component {
 
     return (
       <div>
-        <ReportGraph report={ report} data={ this.state.values } />
+        <ReportGraph report={report} data={this.state.values} />
         <hr />
-        <ReportTable data={ this.state.values } />
+        <ReportTable data={this.state.values} />
       </div>
     );
   }

@@ -39,7 +39,9 @@ class AllPricingItems extends Component {
             </div>
             <div className="bill-notification">
               <span>
-                No pricing items found. <Link to="/invoices/pricing/edit/new">Create a new record?</Link>
+                No pricing items found.
+                {' '}
+                <Link to="/invoices/pricing/edit/new">Create a new record?</Link>
               </span>
             </div>
           </div>

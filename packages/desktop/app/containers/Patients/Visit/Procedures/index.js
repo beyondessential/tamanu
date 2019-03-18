@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import ReactTable from 'react-table';
 import { proceduresColumns } from '../../../../constants';
-import { Modal, DeleteButton, EditButton, NewButton } from '../../../../components';
+import {
+  Modal, DeleteButton, EditButton, NewButton,
+} from '../../../../components';
 
 class Procedures extends Component {
   state = {
     deleteModalVisible: false,
     itemId: null,
     procedures: [],
-    tableColumns: proceduresColumns
+    tableColumns: proceduresColumns,
   }
 
   componentWillMount() {
@@ -50,20 +52,20 @@ class Procedures extends Component {
     }
   }
 
-  setActionsCol = (row) => {
-    return (
-      <div key={row._id}>
-        <EditButton
-          size="small"
-          onClick={() => this.editItem(row.original._id)}
-          can={{ do: 'update', on: 'procedure' }} />
-        <DeleteButton
-          size="small"
-          onClick={() => this.deleteConfirm(row.original._id)}
-          can={{ do: 'delete', on: 'procedure' }} />
-      </div>
-    );
-  }
+  setActionsCol = (row) => (
+    <div key={row._id}>
+      <EditButton
+        size="small"
+        onClick={() => this.editItem(row.original._id)}
+        can={{ do: 'update', on: 'procedure' }}
+      />
+      <DeleteButton
+        size="small"
+        onClick={() => this.deleteConfirm(row.original._id)}
+        can={{ do: 'delete', on: 'procedure' }}
+      />
+    </div>
+  )
 
   render() {
     const { visitModel, patientModel } = this.props;
@@ -75,11 +77,14 @@ class Procedures extends Component {
             className="is-pulled-right"
             to={`/patients/visit/${patientModel.id}/${visitModel.id}/procedure`}
             can={{ do: 'create', on: 'procedure' }}
-          >New Procedure</NewButton>
+          >
+New Procedure
+          </NewButton>
           <div className="is-clearfix" />
         </div>
         <div className="column">
-          {procedures.length > 0 &&
+          {procedures.length > 0
+            && (
             <ReactTable
               keyField="_id"
               data={procedures}
@@ -89,11 +94,14 @@ class Procedures extends Component {
               defaultSortDirection="asc"
               showPagination={false}
             />
+            )
           }
-          {procedures.length <= 0 &&
+          {procedures.length <= 0
+            && (
             <div className="notification">
               <span> No procedures found. </span>
             </div>
+            )
           }
         </div>
         <Modal

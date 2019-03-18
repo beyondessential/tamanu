@@ -18,30 +18,33 @@ internals.validateBody = [
       return res.status(422).json({
         answers: {
           errors: chain(errors.array()).map('msg').uniq().value(),
-        }
+        },
       });
     }
     return next();
   },
 ];
 
+/*
 internals.updateSubscription = async (req, res) => {
-  // const realm = req.app.get('realm');
-  // const { clientId, clientToken, remoteSeq } = req.body;
-  // const { id } = req.params;
-  // const [err, subscription] = await to(pushDB.getAsync(id));
-  // if (err) return res.status(500).send(err.stack);
+  const realm = req.app.get('realm');
+  const { clientId, clientToken, remoteSeq } = req.body;
+  const { id } = req.params;
+  const [err, subscription] = await to(pushDB.getAsync(id));
+  if (err) return res.status(500).send(err.stack);
 
-  // subscription.clientId = clientId;
-  // subscription.clientToken = clientToken;
-  // subscription.remoteSeq = remoteSeq;
-  // const [_err, result] = await to(pushDB.insertAsync(subscription));
-  // if (_err) return res.status(500).send(_err.stack);
-  // return res.json(result);
-  return res.json({});
+  subscription.clientId = clientId;
+  subscription.clientToken = clientToken;
+  subscription.remoteSeq = remoteSeq;
+  const [_err, result] = await to(pushDB.insertAsync(subscription));
+  if (_err) return res.status(500).send(_err.stack);
+  return res.json(result);
 };
+*/
+
+internals.updateSubscription = async (req, res) => res.json({});
 
 module.exports = [
   internals.validateBody,
-  internals.updateSubscription
+  internals.updateSubscription,
 ];

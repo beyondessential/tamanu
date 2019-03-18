@@ -3,7 +3,7 @@ const { chain } = require('lodash');
 const AuthService = require('../../services/auth');
 
 const internals = {
-  checkBody: buildCheckFunction(['body'])
+  checkBody: buildCheckFunction(['body']),
 };
 
 internals.validateBody = [
@@ -23,15 +23,23 @@ internals.validateBody = [
 
 internals.login = async (req, res) => {
   const database = req.app.get('database');
-  const { email, password, hospital, clientId } = req.body;
+  const {
+    email, password, hospital, clientId,
+  } = req.body;
 
   try {
     const authService = new AuthService(database);
-    const doLogin = await authService.login({ email, password, hospital, clientId });
+    const doLogin = await authService.login({
+      email, password, hospital, clientId,
+    });
     if (doLogin !== false) {
-      const { userId, hospitalId, displayName, clientSecret: secret } = doLogin;
+      const {
+        userId, hospitalId, displayName, clientSecret: secret,
+      } = doLogin;
       const abilities = authService.getAbilities({ userId, hospitalId });
-      return res.json({ userId, hospitalId, displayName, clientId, secret, abilities });
+      return res.json({
+        userId, hospitalId, displayName, clientId, secret, abilities,
+      });
     }
     throw doLogin;
   } catch (err) {
@@ -41,5 +49,5 @@ internals.login = async (req, res) => {
 
 module.exports = [
   internals.validateBody,
-  internals.login
+  internals.login,
 ];

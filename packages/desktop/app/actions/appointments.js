@@ -6,35 +6,33 @@ import {
 
 export function createAppointmentRequest() {
   return {
-    type: CREATE_APPOINTMENT_REQUEST
+    type: CREATE_APPOINTMENT_REQUEST,
   };
 }
 
 export function createAppointmentSuccess(appointment) {
   return {
     type: CREATE_APPOINTMENT_SUCCESS,
-    payload: appointment
+    payload: appointment,
   };
 }
 
 export function createAppointmentFailed() {
   return {
-    type: CREATE_APPOINTMENT_FAILED
+    type: CREATE_APPOINTMENT_FAILED,
   };
 }
 
-export const createAppointment = (appointment, history) => {
-  return dispatch => {
-    dispatch(createAppointmentRequest());
-    appointment.save(appointment.attributes, {
-      success: (model, response) => {
-        dispatch(createAppointmentSuccess(response));
-        history.push('/appointments');
-      },
-      error: (model, response) => {
-        console.log('error', response);
-        return dispatch(createAppointmentFailed(response));
-      }
-    });
-  };
+export const createAppointment = (appointment, history) => dispatch => {
+  dispatch(createAppointmentRequest());
+  appointment.save(appointment.attributes, {
+    success: (model, response) => {
+      dispatch(createAppointmentSuccess(response));
+      history.push('/appointments');
+    },
+    error: (model, response) => {
+      console.log('error', response);
+      return dispatch(createAppointmentFailed(response));
+    },
+  });
 };

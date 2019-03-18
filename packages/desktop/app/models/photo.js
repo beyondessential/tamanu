@@ -2,17 +2,17 @@ import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/photo`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/photo`,
   defaults: () => defaults({
     caption: null,
     coverImage: false,
     files: {
-      attachments: []
+      attachments: [],
     },
     fileName: null,
     isImage: false,
     localFile: false,
-    urlRoot:  null,
+    urlRoot: null,
     // patient: '',
     // visit: '',
     // procedure: ''

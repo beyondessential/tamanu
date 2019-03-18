@@ -46,7 +46,7 @@ class Photos extends Component {
       photos,
       addPhotoModalVisible,
       editPhotoModalVisible,
-      deletePhotoModalVisible
+      deletePhotoModalVisible,
     } = this.state;
     return (
       <div>

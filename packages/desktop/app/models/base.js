@@ -3,7 +3,7 @@ import moment from 'moment';
 import jsonDiff from 'json-diff';
 import shortid from 'shortid';
 import {
-  isEmpty, clone, each, has, head, isArray
+  isEmpty, clone, each, has, head, isArray,
 } from 'lodash';
 import { to } from 'await-to-js';
 import { concatSelf } from '../utils';
@@ -46,7 +46,7 @@ export default Backbone.AssociatedModel.extend({
       type: Backbone.One,
       key: 'modifiedBy',
       relatedModel: () => require('./user'),
-      serialize: '_id'
+      serialize: '_id',
     },
   ],
 
@@ -57,7 +57,7 @@ export default Backbone.AssociatedModel.extend({
   async fetch(options) {
     try {
       const res = await Backbone.Model.prototype.fetch.apply(this, [options]);
-      this.lastSyncedAttributes =  this.toJSON();
+      this.lastSyncedAttributes = this.toJSON();
       this._parseParents();
       return res;
     } catch (err) {
@@ -88,7 +88,9 @@ export default Backbone.AssociatedModel.extend({
       if (modifiedFields) modifiedFields = Object.keys(modifiedFields).map(field => field.split('__')[0]);
 
       // Set last modified times
-      modifiedAttributes = this._setModifiedFields({ modifiedFields, defaultAttributes, attributes, ModifiedFieldModel, secret, modifiedAttributes });
+      modifiedAttributes = this._setModifiedFields({
+        modifiedFields, defaultAttributes, attributes, ModifiedFieldModel, secret, modifiedAttributes,
+      });
 
       // Use match method for instead of PUT
       if (!this.isNew()) options.patch = true;
@@ -103,7 +105,9 @@ export default Backbone.AssociatedModel.extend({
     }
   },
 
-  _setModifiedFields({ modifiedFields, defaultAttributes, attributes, ModifiedFieldModel, secret, modifiedAttributes }) {
+  _setModifiedFields({
+    modifiedFields, defaultAttributes, attributes, ModifiedFieldModel, secret, modifiedAttributes,
+  }) {
     let modifiedAttributesNew = modifiedAttributes;
 
     // if modified field is a default attribute
@@ -120,13 +124,12 @@ export default Backbone.AssociatedModel.extend({
             _id,
             token: secret,
             field: key,
-            time: new Date().getTime()
+            time: new Date().getTime(),
           });
           originalModifiedFields.set([_model], { remove: false });
           // Set new value
           let value = this.get(key);
-          if (value && typeof value.toJSON === 'function')
-            value = value.toJSON();
+          if (value && typeof value.toJSON === 'function') value = value.toJSON();
           modifiedAttributesNew[key] = value;
         }
       });
@@ -183,7 +186,7 @@ export default Backbone.AssociatedModel.extend({
       const reverse = this.reverseRelations;
       reverse.forEach(({ type, key, model }) => {
         const Model = model.default ? model.default : model;
-        switch(type) {
+        switch (type) {
           default:
           case Backbone.Many: {
             if (!parents[key]) parents[key] = [];
@@ -199,7 +202,7 @@ export default Backbone.AssociatedModel.extend({
               const modelsAttributes = Array.isArray(attributes[key]) ? attributes[key][0] : attributes[key];
               parents[key] = new Model(modelsAttributes);
             }
-          break;
+            break;
         }
       });
     }

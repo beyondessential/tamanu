@@ -16,7 +16,7 @@ const ImagingRequestSchema = {
     status: {
       type: 'string',
       optional: true,
-      default: IMAGING_REQUEST_STATUSES.PENDING
+      default: IMAGING_REQUEST_STATUSES.PENDING,
     },
     requestedBy: 'user',
     requestedDate: 'date',
@@ -25,10 +25,10 @@ const ImagingRequestSchema = {
     visit: {
       type: 'linkingObjects',
       objectType: 'visit',
-      property: 'imagingRequests'
+      property: 'imagingRequests',
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = ImagingRequestSchema;

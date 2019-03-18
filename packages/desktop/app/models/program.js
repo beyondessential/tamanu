@@ -3,14 +3,13 @@ import Backbone from 'backbone-associations';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/program`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/program`,
   defaults: () => defaults({
-      name: null,
-      programType: 'direct',
-      surveys: []
-    },
-    BaseModel.prototype.defaults,
-  ),
+    name: null,
+    programType: 'direct',
+    surveys: [],
+  },
+  BaseModel.prototype.defaults),
 
   // Associations
   relations: [
@@ -20,11 +19,11 @@ export default BaseModel.extend({
       relatedModel: () => require('./survey'),
       collectionType: require('../collections/surveys'),
     },
-    ...BaseModel.prototype.relations
+    ...BaseModel.prototype.relations,
   ],
 
   getSurvey(surveyId) {
     const { surveys } = this.attributes;
     return surveys.models.find(model => model.id === surveyId);
-  }
+  },
 });

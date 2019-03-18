@@ -3,7 +3,7 @@ import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/operationPlan`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/operationPlan`,
   defaults: () => defaults({
     additionalNotes: null,
     admissionInstructions: null,
@@ -22,8 +22,8 @@ export default BaseModel.extend({
       key: 'diagnoses',
       relatedModel: require('./diagnosis'),
     },
-    ...BaseModel.prototype.relations
-  ]
+    ...BaseModel.prototype.relations,
+  ],
 
   // validate: (attrs) => {
   //   if (attrs.firstName === '') return 'firstName is required!';

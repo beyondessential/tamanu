@@ -51,7 +51,7 @@ class RadioGroup extends React.Component {
       labelClass,
       readOnly,
       options,
-      stacked
+      stacked,
     } = this.props;
     const { value } = this.state;
     let { className } = this.props;
@@ -59,16 +59,20 @@ class RadioGroup extends React.Component {
 
     return (
       <div className={className}>
-        {label !== false &&
+        {label !== false
+          && (
           <label className={labelClass}>
-            {label} {required && <span className="isRequired">*</span>}
+            {label}
+            {' '}
+            {required && <span className="isRequired">*</span>}
           </label>
+          )
         }
         <div className={inputClass}>
           {options.map((option) => {
             const {
               label: optionLabel,
-              value: optionValue
+              value: optionValue,
             } = option;
             const isChecked = optionValue === value;
             const _className = `radio ${stacked ? 'is-block-inline m-r-15' : 'is-block'} m-b-5 m-l-0`;
@@ -82,7 +86,9 @@ class RadioGroup extends React.Component {
                   defaultChecked={isChecked}
                   // disabled={readOnly && !isChecked}
                   onChange={this.handleChange}
-                /> {optionLabel}
+                />
+                {' '}
+                {optionLabel}
               </label>
             );
           })}
@@ -90,6 +96,6 @@ class RadioGroup extends React.Component {
       </div>
     );
   }
-};
+}
 
 export default RadioGroup;

@@ -13,8 +13,7 @@ export const getTotalNumberOfScreens = (state) => getScreens(state).length;
 export const getErrorMessageForScreen = (state, screenIndex) => {
   // If the screen index is past the end of the screens array, get the submit screen error
   if (screenIndex === getTotalNumberOfScreens(state)) {
-    if (getScreens(state).some((screen) =>
-      screen.components.some((component) => !!component.validationErrorMessage))) {
+    if (getScreens(state).some((screen) => screen.components.some((component) => !!component.validationErrorMessage))) {
       return 'This survey contains validation errors on some answers, please go back through and fix them before submitting';
     }
     return '';
@@ -45,12 +44,10 @@ export const getSelectedCountryId = ({ programs }) => programs.selectedClinic.co
 
 // Whether a given survey can repeat, i.e. be done again and again within a single facility on a
 // single date. If no surveyId passed in, will assume the current survey being completed
-export const getCanSurveyRepeat = ({ programs }, surveyId = programs.surveyId) =>
-  programs.surveys[surveyId] && programs.surveys[surveyId].canRepeat;
+export const getCanSurveyRepeat = ({ programs }, surveyId = programs.surveyId) => programs.surveys[surveyId] && programs.surveys[surveyId].canRepeat;
 
 // The name of a survey. If no surveyId passed in, will assume the current survey being completed
-export const getSurveyName = ({ programs }, surveyId = programs.surveyId) =>
-  programs.surveys[surveyId].name;
+export const getSurveyName = ({ programs }, surveyId = programs.surveyId) => programs.surveys[surveyId].name;
 
 export const getQuestionState = (state, screenIndex, componentIndex) => {
   const component = getSurveyScreen(state, screenIndex).components[componentIndex];
@@ -86,8 +83,7 @@ const checkVisibilityCriteriaAreMet = (state, visibilityCriteria) => {
   if (!visibilityCriteria || Object.keys(visibilityCriteria).length === 0) {
     return true;
   }
-  const checkIfQuestionMeetsCriteria = ([questionId, answersEnablingFollowUp]) =>
-    answersEnablingFollowUp.includes(getAnswerForQuestion(state, questionId));
+  const checkIfQuestionMeetsCriteria = ([questionId, answersEnablingFollowUp]) => answersEnablingFollowUp.includes(getAnswerForQuestion(state, questionId));
 
   const { _conjunction: conjunction, ...restOfCriteria } = visibilityCriteria;
   if (conjunction === 'and') {

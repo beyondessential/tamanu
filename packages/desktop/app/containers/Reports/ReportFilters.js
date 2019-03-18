@@ -24,14 +24,16 @@ import {
 const LabeledSelect = ({ label, ...props }) => (
   <div>
     <span className="input-group-title">{ label }</span>
-    <Select { ...props } />
+    <Select {...props} />
   </div>
 );
 
-const ExpanderSection = ({ heading, subheading, children, ...props }) => (
+const ExpanderSection = ({
+  heading, subheading, children, ...props
+}) => (
   <ExpansionPanel {...props}>
-    <ExpansionPanelSummary expandIcon={ <ExpandMoreIcon /> }>
-      <div style={ { minWidth: '14em' } }>{ heading }</div>
+    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+      <div style={{ minWidth: '14em' }}>{ heading }</div>
       <small>{ subheading }</small>
     </ExpansionPanelSummary>
     <ExpansionPanelDetails>
@@ -43,14 +45,13 @@ const ExpanderSection = ({ heading, subheading, children, ...props }) => (
 );
 
 export class ReportFilters extends Component {
-
   state = {
-    range: { 
+    range: {
       end: moment(),
       start: moment().subtract(30, 'days'),
-    }
+    },
   }
-  
+
   static propTypes = {
     onApply: PropTypes.func.isRequired,
   }
@@ -68,72 +69,72 @@ export class ReportFilters extends Component {
       <div>
         <div className="column">
           <ExpanderSection heading="Report details" defaultExpanded>
-            <LabeledSelect 
+            <LabeledSelect
               label="Location"
-              name="location" 
-              options={ locationOptions }
-              onChange={ location => this.setState({ location }) } 
-              value={ this.state.location }
+              name="location"
+              options={locationOptions}
+              onChange={location => this.setState({ location })}
+              value={this.state.location}
               simpleValue
             />
-            <div style={{ display: 'flex', width: '100%', }}>
+            <div style={{ display: 'flex', width: '100%' }}>
               <DateRange
                 name="range"
-                onChange={ range => this.setState({ range }) } 
-                value={ this.state.range }
+                onChange={range => this.setState({ range })}
+                value={this.state.range}
               />
             </div>
           </ExpanderSection>
           <ExpanderSection heading="Care information">
-            <LabeledSelect 
+            <LabeledSelect
               label="Clinician"
-              name="prescriber" 
-              options={ prescriberOptions }
-              onChange={ prescriber => this.setState({ prescriber }) } 
-              value={ this.state.prescriber }
+              name="prescriber"
+              options={prescriberOptions}
+              onChange={prescriber => this.setState({ prescriber })}
+              value={this.state.prescriber}
               simpleValue
             />
-            <LabeledSelect 
+            <LabeledSelect
               label="Diagnosis"
-              name="diagnosis" 
-              options={ diagnosisOptions }
-              onChange={ diagnosis => this.setState({ diagnosis }) } 
-              value={ this.state.diagnosis }
+              name="diagnosis"
+              options={diagnosisOptions}
+              onChange={diagnosis => this.setState({ diagnosis })}
+              value={this.state.diagnosis}
               simpleValue
             />
           </ExpanderSection>
           <ExpanderSection heading="Patient demographics">
-            <InputGroup 
+            <InputGroup
               className=""
               name="ageMin"
               type="number"
-              label="Age (min)" 
-              value={ this.state.ageMin }
-              onChange={ e => this.setState({ ageMin: e.target.value }) }
+              label="Age (min)"
+              value={this.state.ageMin}
+              onChange={e => this.setState({ ageMin: e.target.value })}
             />
-            <InputGroup 
+            <InputGroup
               className=""
               inputClass=""
               name="ageMax"
               type="number"
-              label="Age (max)" 
-              value={ this.state.ageMax }
-              onChange={ e => this.setState({ ageMax: e.target.value }) }
+              label="Age (max)"
+              value={this.state.ageMax}
+              onChange={e => this.setState({ ageMax: e.target.value })}
             />
-            <LabeledSelect 
+            <LabeledSelect
               name="sex"
               label="Sex"
-              options={ sexOptions }
-              value={ this.state.sex }
-              onChange={ sex => this.setState({ sex }) }
+              options={sexOptions}
+              value={this.state.sex}
+              onChange={sex => this.setState({ sex })}
               simpleValue
             />
           </ExpanderSection>
         </div>
-        <div className="column" style={ { textAlign: "right", marginTop: '-1em' } }>
-          <Button >Advanced filters</Button>
-          { " " }
-          <Button onClick={ this.apply } primary>Generate report</Button>
+        <div className="column" style={{ textAlign: 'right', marginTop: '-1em' }}>
+          <Button>Advanced filters</Button>
+          { ' ' }
+          <Button onClick={this.apply} primary>Generate report</Button>
         </div>
       </div>
     );

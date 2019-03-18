@@ -14,9 +14,11 @@ import Vitals from './Vitals';
 import Notes from './Notes';
 import Procedures from './Procedures';
 import actions from '../../../actions/patients';
-import { Preloader, InputGroup, DatepickerGroup, TopBar,
-          AddButton, UpdateButton, CancelButton,
-          DischargeButton, CheckOutButton } from '../../../components';
+import {
+  Preloader, InputGroup, DatepickerGroup, TopBar,
+  AddButton, UpdateButton, CancelButton,
+  DischargeButton, CheckOutButton,
+} from '../../../components';
 import { visitOptions, visitStatuses } from '../../../constants';
 import { VisitModel } from '../../../models';
 
@@ -53,7 +55,9 @@ class EditVisit extends Component {
 
   handleChange(props = this.props) {
     let updates = {};
-    const { patient, visit, action, loading } = props;
+    const {
+      patient, visit, action, loading,
+    } = props;
     if (this.props.match.path.indexOf('checkin') !== -1) {
       updates.checkIn = true;
     }
@@ -110,7 +114,9 @@ class EditVisit extends Component {
 
   submitForm(setStatus = true) {
     const { action, patientModel, visitModel } = this.state;
-    this.props.submitForm({ action, visitModel, patientModel, history: this.props.history, setStatus });
+    this.props.submitForm({
+      action, visitModel, patientModel, history: this.props.history, setStatus,
+    });
   }
 
   renderTabs() {
@@ -122,49 +128,59 @@ class EditVisit extends Component {
       { value: 'labs', label: 'Labs' },
       { value: 'reports', label: 'Reports' },
     ]
-    .map(item => (
-      <li
-        key={ item.value }
-        className={selectedTab === item.value ? 'is-active selected' : ''}
-      >
-        <a onClick={() => this.changeTab(item.value)}>{ item.label }</a>
-      </li>
-    ));
+      .map(item => (
+        <li
+          key={item.value}
+          className={selectedTab === item.value ? 'is-active selected' : ''}
+        >
+          <a onClick={() => this.changeTab(item.value)}>{ item.label }</a>
+        </li>
+      ));
   }
 
   renderTabsContent() {
     const { selectedTab, visitModel, patientModel } = this.state;
 
-    return (<React.Fragment>
-      {(selectedTab === '' || selectedTab === 'vitals') &&
+    return (
+      <React.Fragment>
+        {(selectedTab === '' || selectedTab === 'vitals')
+        && (
         <div className="column">
           <Vitals visitModel={visitModel} />
-        </div>}
-      {selectedTab === 'notes' &&
+        </div>
+        )}
+        {selectedTab === 'notes'
+        && (
         <div className="column">
           <Notes
             parentModel={visitModel}
             patientModel={patientModel}
           />
-        </div>}
-      {selectedTab === 'procedures' &&
+        </div>
+        )}
+        {selectedTab === 'procedures'
+        && (
         <div className="column">
           <Procedures
             history={this.props.history}
             visitModel={visitModel}
             patientModel={patientModel}
           />
-        </div>}
-      {selectedTab === 'labs' &&
+        </div>
+        )}
+        {selectedTab === 'labs'
+        && (
         <LabRequests
           history={this.props.history}
           parentModel={visitModel}
           patientSex={patientModel.get('sex')}
         />
+        )
       }
-      {selectedTab === 'reports' &&
-        <div className="column">Reports</div>}
-    </React.Fragment>);
+        {selectedTab === 'reports'
+        && <div className="column">Reports</div>}
+      </React.Fragment>
+    );
   }
 
   render() {
@@ -183,7 +199,8 @@ class EditVisit extends Component {
       <div>
         <div className="create-content">
           <TopBar
-            title={checkIn ? 'Patient Check In' : `${capitalize(action)} Visit`} />
+            title={checkIn ? 'Patient Check In' : `${capitalize(action)} Visit`}
+          />
           <div className="create-container">
             <div className="form">
               <form
@@ -203,7 +220,8 @@ class EditVisit extends Component {
               <div className="columns">
                 <div className="column">
                   <TopRow patient={patient} />
-                  {action !== 'new' &&
+                  {action !== 'new'
+                    && (
                     <div className="columns border-bottom">
                       <div className="column">
                         <Diagnosis parentModel={visitModel} patientModel={patientModel} />
@@ -215,6 +233,7 @@ class EditVisit extends Component {
                         <Allergy patientModel={patientModel} />
                       </div>
                     </div>
+                    )
                   }
                 </div>
               </div>
@@ -255,7 +274,9 @@ class EditVisit extends Component {
                 <div className="column is-4">
                   <div className="column">
                     <span className="header">
-                      Visit Type <span className="isRequired">*</span>
+                      Visit Type
+                      {' '}
+                      <span className="isRequired">*</span>
                     </span>
                     <Select
                       options={visitOptions}
@@ -299,7 +320,8 @@ class EditVisit extends Component {
                   </div>
                 </div>
               </div>
-              {action === 'edit' &&
+              {action === 'edit'
+                && (
                 <div className="columns">
                   <div className="column">
                     <div className="tabs">
@@ -312,29 +334,43 @@ class EditVisit extends Component {
                     </div>
                   </div>
                 </div>
+                )
               }
               <div className="column has-text-right">
                 <CancelButton
-                  to={`/patients/editPatient/${patient._id}`} />
-                {action === 'new' && <AddButton
-                                      disabled={!visitModel.isValid()}
-                                      type="submit"
-                                      form="visitForm"
-                                      can={{ do: 'create', on: 'visit' }} />}
-                {action !== 'new' && <UpdateButton
-                                      disabled={!visitModel.isValid()}
-                                      type="submit"
-                                      form="visitForm"
-                                      can={{ do: 'update', on: 'visit' }} />}
-                {form.status === visitStatuses.ADMITTED &&
+                  to={`/patients/editPatient/${patient._id}`}
+                />
+                {action === 'new' && (
+                <AddButton
+                  disabled={!visitModel.isValid()}
+                  type="submit"
+                  form="visitForm"
+                  can={{ do: 'create', on: 'visit' }}
+                />
+                )}
+                {action !== 'new' && (
+                <UpdateButton
+                  disabled={!visitModel.isValid()}
+                  type="submit"
+                  form="visitForm"
+                  can={{ do: 'update', on: 'visit' }}
+                />
+                )}
+                {form.status === visitStatuses.ADMITTED
+                  && (
                   <DischargeButton
                     onClick={this.discharge}
-                    can={{ do: 'update', on: 'visit', field: 'status' }} />
+                    can={{ do: 'update', on: 'visit', field: 'status' }}
+                  />
+                  )
                 }
-                {form.status === visitStatuses.CHECKED_IN &&
+                {form.status === visitStatuses.CHECKED_IN
+                  && (
                   <CheckOutButton
                     onClick={this.checkOut}
-                    can={{ do: 'update', on: 'visit', field: 'status' }} />
+                    can={{ do: 'update', on: 'visit', field: 'status' }}
+                  />
+                  )
                 }
               </div>
             </div>
@@ -346,8 +382,12 @@ class EditVisit extends Component {
 }
 
 function mapStateToProps(state) {
-  const { patient, visit, action, loading, error } = state.patients;
-  const mappedProps = { patient, action, loading, error };
+  const {
+    patient, visit, action, loading, error,
+  } = state.patients;
+  const mappedProps = {
+    patient, action, loading, error,
+  };
   if (visit instanceof VisitModel) mappedProps.visit = visit;
   return mappedProps;
 }

@@ -6,7 +6,9 @@ import Select from 'react-select';
 import { map, isEmpty } from 'lodash';
 import ReactTable from 'react-table';
 import CustomDateInput from '../../components/CustomDateInput';
-import { outPatientColumns, locationOptions, pageSizes, columnStyle, headerStyle } from '../../constants';
+import {
+  outPatientColumns, locationOptions, pageSizes, columnStyle, headerStyle,
+} from '../../constants';
 import { PatientsCollection } from '../../collections';
 import { SearchButton, TopBar, Button } from '../../components';
 
@@ -16,18 +18,20 @@ const getActionsColumn = () => ({
   headerStyle,
   style: columnStyle,
   minWidth: 100,
-  Cell: (props) => <ActionsColumn {...props} />
+  Cell: (props) => <ActionsColumn {...props} />,
 });
 
 const ActionsColumn = ({ original: { _id } }) => (
-    <div key={_id}>
-      <Button
-        variant="contained"
-        color="primary"
-        to={`/patients/editPatient/${_id}`}
-      >View</Button>
-    </div>
-)
+  <div key={_id}>
+    <Button
+      variant="contained"
+      color="primary"
+      to={`/patients/editPatient/${_id}`}
+    >
+View
+    </Button>
+  </div>
+);
 
 class Outpatient extends Component {
   constructor(props) {
@@ -37,11 +41,11 @@ class Outpatient extends Component {
 
   state = {
     startDate: moment(),
-    selectValue: ''
+    selectValue: '',
   }
 
   componentWillMount() {
-    this.columns = [ ...outPatientColumns.slice(0, outPatientColumns.length-1), getActionsColumn()];
+    this.columns = [...outPatientColumns.slice(0, outPatientColumns.length - 1), getActionsColumn()];
     this.props.collection.on('update', this.handleChange);
     this.getPatients();
   }
@@ -56,7 +60,7 @@ class Outpatient extends Component {
 
   onChangeDate = (date) => {
     this.setState({
-      startDate: date
+      startDate: date,
     });
   }
 
@@ -67,7 +71,7 @@ class Outpatient extends Component {
   }
 
   getPatients() {
-    this.props.collection.fetch({ data: { 'visits.@count': '>|0', 'admitted': false } });
+    this.props.collection.fetch({ data: { 'visits.@count': '>|0', admitted: false } });
   }
 
   render() {
@@ -78,9 +82,9 @@ class Outpatient extends Component {
         <TopBar
           title="Outpatients"
           button={{
-            to: "/patients/edit/new",
+            to: '/patients/edit/new',
             can: { do: 'create', on: 'patient' },
-            children: 'New Patient'
+            children: 'New Patient',
           }}
         />
         <div className="create-container">
@@ -144,12 +148,12 @@ class Outpatient extends Component {
 
 function mapStateToProps(state) {
   return {
-    patients: state.patients.patients
+    patients: state.patients.patients,
   };
 }
 
 const mapDispatchToProps = () => ({
-  collection: new PatientsCollection()
+  collection: new PatientsCollection(),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Outpatient);

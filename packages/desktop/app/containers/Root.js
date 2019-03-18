@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
-import { PersistGate } from 'redux-persist/integration/react'
+import { PersistGate } from 'redux-persist/integration/react';
 
 import Routes from '../routes';
 import { initClient } from '../utils';
@@ -13,7 +13,7 @@ export default class Root extends Component {
     const {
       store,
       history,
-      persistor
+      persistor,
     } = this.props;
 
     return (
@@ -32,4 +32,4 @@ export default class Root extends Component {
       </Provider>
     );
   }
-};
+}

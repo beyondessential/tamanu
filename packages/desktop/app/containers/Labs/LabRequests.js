@@ -9,7 +9,7 @@ const requestWithPatientInfo = (row) => {
   const data = row.toJSON();
 
   const patient = row.getPatient();
-  if(!patient) return data;
+  if (!patient) return data;
 
   return {
     ...data,
@@ -18,11 +18,10 @@ const requestWithPatientInfo = (row) => {
 };
 
 export class LabRequestsTable extends Component {
-  
   collection = new LabRequestsCollection();
 
   static columns = [
-    { 
+    {
       Header: 'Status',
       accessor: 'status',
       Cell: ({ original }) => toTitleCase(original.status),
@@ -31,22 +30,24 @@ export class LabRequestsTable extends Component {
     { Header: 'Patient name', accessor: 'patientName' },
     { Header: 'Requested by', accessor: 'requestedBy.displayName' },
     {
-      Header: 'Date', 
+      Header: 'Date',
       accessor: 'requestedDate',
       Cell: ({ original }) => <DateDisplay date={original.requestedDate} />,
     },
-    { 
-      Header: 'Actions', 
+    {
+      Header: 'Actions',
       Cell: ({ original: labRequestData }) => (
-        <Button 
-          color="primary" 
+        <Button
+          color="primary"
           variant="contained"
           to={`/labs/request/${labRequestData._id}`}
-        >View</Button>
-      )
+        >
+View
+        </Button>
+      ),
     },
   ]
-  
+
   render() {
     return (
       <BrowsableTable
@@ -57,7 +58,6 @@ export class LabRequestsTable extends Component {
       />
     );
   }
-
 }
 
 export const LabRequests = ({}) => (

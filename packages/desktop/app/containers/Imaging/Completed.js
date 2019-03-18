@@ -1,7 +1,7 @@
 import React from 'react';
 import { TopBar } from '../../components';
 import ImagingRequestsTable from './components/ImagingRequestsTable';
-import { IMAGING_REQUEST_STATUSES  } from '../../constants';
+import { IMAGING_REQUEST_STATUSES } from '../../constants';
 
 const CompletedImagingRequests = () => (
   <div className="content">
@@ -10,7 +10,7 @@ const CompletedImagingRequests = () => (
       button={{
         to: '/imaging/request',
         text: 'New Request',
-        can: { do: 'create', on: 'imaging' }
+        can: { do: 'create', on: 'imaging' },
       }}
     />
     <div className="detail">

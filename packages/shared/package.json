@@ -6,13 +6,18 @@
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Salman Amjad",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "lint": "eslint schemas utils constants services",
+    "lint-stats": "eslint schemas utils constants services --format ../scripts/eslint-stats.js"
+  },
   "private": true,
   "devDependencies": {},
   "dependencies": {
+    "@beyondessential/eslint-config-beyondessential": "^2.2",
     "@casl/ability": "^3.0.0",
     "await-to-js": "^2.0.1",
     "bcrypt": "^3.0.1",
+    "eslint": "^5.15.2",
     "json-prune": "^1.1.0",
     "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.11"

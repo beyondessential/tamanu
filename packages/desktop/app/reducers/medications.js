@@ -11,7 +11,7 @@ import {
 } from '../actions/types';
 
 const initialState = {
-  medications: []
+  medications: [],
 };
 
 export default (state = initialState, action) => {
@@ -47,7 +47,7 @@ export default (state = initialState, action) => {
     case FETCH_MEDICATIONS_SUCCESS:
       return {
         ...state,
-        medications: action.payload
+        medications: action.payload,
       };
     case FETCH_MEDICATIONS_FAILED:
       return {

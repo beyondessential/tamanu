@@ -39,7 +39,9 @@ class PricingProfiles extends Component {
             </div>
             <div className="bill-notification">
               <span>
-                No pricing profiles found. <Link to="/invoices/pricing/edit/new">Create a new record?</Link>
+                No pricing profiles found.
+                {' '}
+                <Link to="/invoices/pricing/edit/new">Create a new record?</Link>
               </span>
             </div>
           </div>

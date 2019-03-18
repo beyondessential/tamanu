@@ -79,7 +79,9 @@ class EditVisit extends Component {
                       <div className="column">
                         <span>Name: </span>
                         <span>
-                          {patient.firstName} {patient.lastName}
+                          {patient.firstName}
+                          {' '}
+                          {patient.lastName}
                         </span>
                       </div>
                     </div>
@@ -204,7 +206,7 @@ class EditVisit extends Component {
 function mapStateToProps(state) {
   return {
     patient: {}, // state.patients.onePatient
-    patientModel: new PatientModel()
+    patientModel: new PatientModel(),
   };
 }
 

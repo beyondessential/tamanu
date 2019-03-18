@@ -1,25 +1,26 @@
 import Backbone from 'backbone-associations';
-import { pick, set, isArray, each, isObject, difference } from 'lodash';
+import {
+  pick, set, isArray, each, isObject, difference,
+} from 'lodash';
 import { getClient, history, notify } from '.';
 import { AUTH_LOGOUT } from '../actions/types';
 
 export default (store) => {
   const originalSyncFunc = Backbone.sync;
   Backbone.Model.prototype.idAttribute = '_id';
-  Backbone.sync = (method, model, options={}) => {
-    const _newError = () =>
-      (xhr, textStatus, error) => {
-        _errorHandler({ xhr, textStatus, error });
-        return originalError(xhr, textStatus, error);
-      }
+  Backbone.sync = (method, model, options = {}) => {
+    const _newError = () => (xhr, textStatus, error) => {
+      _errorHandler({ xhr, textStatus, error });
+      return originalError(xhr, textStatus, error);
+    };
 
     const _getOptions = () => {
       let { headers } = options;
       headers = { ...headers, ..._getHeaders() };
       return { ...options, headers };
-    }
+    };
 
-    const _getHeaders = () => ({ 'Authorization': `Basic ${_encodeCredentials()}` });
+    const _getHeaders = () => ({ Authorization: `Basic ${_encodeCredentials()}` });
 
     const _encodeCredentials = () => {
       const clientId = getClient();
@@ -82,7 +83,7 @@ export default (store) => {
       each(dataFiltered, (value, field) => {
         if (field === 'modifiedFields' || field === 'objectsFullySynced') return;
         if (isArray(value)) {
-          const newValue = value.map(({ _id }) => ({ _id }))
+          const newValue = value.map(({ _id }) => ({ _id }));
           set(dataFiltered, field, newValue);
         } else if (isObject(value)) {
           set(dataFiltered, field, pick(value, ['_id']));
@@ -92,7 +93,7 @@ export default (store) => {
         ...options,
         wait: true,
         success: resolve,
-        error: reject
+        error: reject,
       };
 
       const sent = originalSave.apply(this, [dataFiltered, newOptions]);
@@ -101,10 +102,10 @@ export default (store) => {
       // if validation fails. This means the success/error functions in the options
       // object will never be called -- so we check for a falsy return value and
       // reject manually.
-      if(!sent) {
+      if (!sent) {
         reject(this.validationError);
       }
-    })
+    });
   };
 
   const originalFetch = Backbone.Model.prototype.fetch;
@@ -121,13 +122,13 @@ export default (store) => {
   };
 
   const originalDestroy = Backbone.Model.prototype.destroy;
-    Backbone.Model.prototype.destroy = function destroyData(options) {
+  Backbone.Model.prototype.destroy = function destroyData(options) {
     return new Promise((resolve, reject) => {
       const newOptions = {
         ...options,
         wait: true,
         success: resolve,
-        error: reject
+        error: reject,
       };
 
       originalDestroy.apply(this, [newOptions]);

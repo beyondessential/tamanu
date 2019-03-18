@@ -3,19 +3,18 @@ import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/operationReport`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/operationReport`,
   defaults: () => defaults({
-      additionalNotes: null,
-      caseComplexity: null,
-      procedures: [],
-      operationDescription: null,
-      surgeon: null,
-      surgeryDate: Date,
-      preOpDiagnoses: [],
-      postOpDiagnoses: [],
-    },
-    BaseModel.prototype.defaults,
-  ),
+    additionalNotes: null,
+    caseComplexity: null,
+    procedures: [],
+    operationDescription: null,
+    surgeon: null,
+    surgeryDate: Date,
+    preOpDiagnoses: [],
+    postOpDiagnoses: [],
+  },
+  BaseModel.prototype.defaults),
 
   // Associations
   relations: [
@@ -29,8 +28,8 @@ export default BaseModel.extend({
       key: 'postOpDiagnoses',
       relatedModel: require('./diagnosis'),
     },
-    ...BaseModel.prototype.relations
-  ]
+    ...BaseModel.prototype.relations,
+  ],
 
   // validate: (attrs) => {
   //   if (attrs.firstName === '') return 'firstName is required!';

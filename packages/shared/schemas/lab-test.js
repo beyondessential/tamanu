@@ -11,7 +11,7 @@ const LabTestSchema = {
     senaiteId: 'string?',
     status: { type: 'string', default: LAB_REQUEST_STATUSES.RECEPTION_PENDING },
     ...defaults,
-  }
+  },
 };
 
 module.exports = LabTestSchema;

@@ -21,7 +21,7 @@ const AppContentsContainer = styled.div`
   flex-grow: 1;
 `;
 
-class App extends Component{
+class App extends Component {
   state = {
     userId: null,
   }
@@ -42,7 +42,7 @@ class App extends Component{
   renderAppContents() {
     const { userId, secret } = this.state;
     if (!userId || !secret) {
-      return <Login { ...this.props } />;
+      return <Login {...this.props} />;
     }
 
     return (

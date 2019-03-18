@@ -29,7 +29,7 @@ class NewMedication extends Component {
     medication: {},
     visits: [],
     loading: true,
-    byPatient: false
+    byPatient: false,
   }
 
   componentWillMount() {
@@ -93,7 +93,9 @@ class NewMedication extends Component {
   submitForm(e) {
     e.preventDefault();
     const { dispense } = this.props;
-    const { action, medicationModel, patient, visit, drugId } = this.state;
+    const {
+      action, medicationModel, patient, visit, drugId,
+    } = this.state;
     if (dispense) {
       medicationModel.set('dispense', true);
       medicationModel.set('status', medicationStatuses.FULFILLED);
@@ -104,7 +106,7 @@ class NewMedication extends Component {
       visitId: visit,
       drugId,
       patientId: patient.id,
-      history: this.props.history
+      history: this.props.history,
     });
   }
 
@@ -126,20 +128,27 @@ class NewMedication extends Component {
       <div>
         <div className="create-content">
           <div className="create-top-bar">
-            <span> { dispense ? 'Dispense Medication' : 'New Medication Request' } </span>
+            <span>
+              {' '}
+              { dispense ? 'Dispense Medication' : 'New Medication Request' }
+              {' '}
+            </span>
           </div>
           <form
             className="create-container"
             onSubmit={this.submitForm}
           >
-            {byPatient &&
+            {byPatient
+              && (
               <div className="form p-d-15">
                 <TopRow patient={patient.toJSON()} />
               </div>
+              )
             }
             <div className="form with-padding">
               <div className="columns">
-                {!byPatient &&
+                {!byPatient
+                  && (
                   <PatientAutocomplete
                     label="Patient"
                     name="patient"
@@ -147,10 +156,13 @@ class NewMedication extends Component {
                     value={medication.patient}
                     required
                   />
+                  )
                 }
                 <div className="column is-half">
                   <span className="header">
-                    Visit <span className="isRequired">*</span>
+                    Visit
+                    {' '}
+                    <span className="isRequired">*</span>
                   </span>
                   <Select
                     options={visits}
@@ -195,7 +207,9 @@ class NewMedication extends Component {
               <div className="columns">
                 <div className="column is-4">
                   <span className="header">
-                    { dispense && 'Dispense' } Quantity
+                    { dispense && 'Dispense' }
+                    {' '}
+Quantity
                   </span>
                   <div className="columns is-gapless">
                     <div className="column">
@@ -274,16 +288,20 @@ class NewMedication extends Component {
               </div>
               <div className="column has-text-right">
                 <BackButton />
-                {action === 'new' && <AddButton
+                {action === 'new' && (
+                <AddButton
                   type="submit"
                   disabled={!medicationModel.isValid()}
                   can={{ do: 'create', on: 'medication' }}
-                />}
-                {action !== 'new' && <UpdateButton
+                />
+                )}
+                {action !== 'new' && (
+                <UpdateButton
                   type="submit"
                   disabled={!medicationModel.isValid()}
                   can={{ do: 'update', on: 'medication' }}
-                />}
+                />
+                )}
               </div>
             </div>
           </form>
@@ -301,8 +319,12 @@ class NewMedication extends Component {
 }
 
 function mapStateToProps(state) {
-  const { patient, medication, loading, error } = state.medication;
-  return { patient, medication, loading, error };
+  const {
+    patient, medication, loading, error,
+  } = state.medication;
+  return {
+    patient, medication, loading, error,
+  };
 }
 
 const { request: requestActions } = actions;

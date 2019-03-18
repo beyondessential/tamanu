@@ -59,7 +59,9 @@ const mapStateToProps = (state, {
 };
 
 const mergeProps = ({ hasValidationErrorMessage, ...restOfStateProps }, { dispatch }, ownProps) => {
-  const { _id: id, type, screenIndex, componentIndex, validationCriteria } = ownProps;
+  const {
+    _id: id, type, screenIndex, componentIndex, validationCriteria,
+  } = ownProps;
   return {
     ...ownProps,
     ...restOfStateProps,

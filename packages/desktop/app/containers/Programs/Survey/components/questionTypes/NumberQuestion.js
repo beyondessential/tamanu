@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import InputGroup from '../../../../../components/InputGroup';
 
 export const NumberQuestion = (props) => {
-  const { textInputProps, answer, onChangeAnswer, readOnly } = props;
+  const {
+    textInputProps, answer, onChangeAnswer, readOnly,
+  } = props;
 
   // label: PropTypes.string.isRequired,
   //   required: PropTypes.bool,

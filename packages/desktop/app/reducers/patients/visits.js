@@ -11,14 +11,14 @@ import {
 export default {
   [FETCH_VISIT_REQUEST]: (_, state) => ({
     ...state,
-    loading: true
+    loading: true,
   }),
   [FETCH_VISIT_SUCCESS]: ({ patient, visit, action }, state) => ({
     ...state,
     patient,
     visit,
     action,
-    loading: false
+    loading: false,
   }),
   [FETCH_VISIT_FAILED]: ({ error }, state) => ({
     ...state,
@@ -26,7 +26,7 @@ export default {
   }),
   [SAVE_VISIT_REQUEST]: (_, state) => ({
     ...state,
-    loading: true
+    loading: true,
   }),
   [SAVE_VISIT_SUCCESS]: ({ patient, visit }, state) => ({
     ...state,
@@ -34,17 +34,17 @@ export default {
     visit,
     action: 'edit',
     loading: false,
-    saved: true
+    saved: true,
   }),
   [SAVE_VISIT_FAILED]: ({ error }, state) => ({
     ...state,
     error,
-    loading: false
+    loading: false,
   }),
   [SAVE_VISIT_RESET]: ({ error }, state) => ({
     ...state,
     error,
     loading: false,
-    saved: false
+    saved: false,
   }),
 };

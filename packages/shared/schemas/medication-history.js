@@ -7,30 +7,30 @@ const medicationHistorySchema = {
     _id: 'string',
     date: {
       type: 'date',
-      indexed: true
+      indexed: true,
     },
     morning: {
       type: 'bool',
-      default: false
+      default: false,
     },
     lunch: {
       type: 'bool',
-      default: false
+      default: false,
     },
     evening: {
       type: 'bool',
-      default: false
+      default: false,
     },
     night: {
       type: 'bool',
-      default: false
+      default: false,
     },
     markedBy: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = medicationHistorySchema;

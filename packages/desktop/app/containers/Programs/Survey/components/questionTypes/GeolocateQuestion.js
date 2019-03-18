@@ -32,7 +32,7 @@ const getMaterialIcon = (iconName, style = {}) => (
   <Icon
     name={iconName}
     size={14}
-    pointerEvents={'none'}
+    pointerEvents="none"
     color={THEME_COLOR_ONE}
     style={[localStyles.icon, style]}
   />
@@ -133,13 +133,15 @@ class GeolocateQuestionComponent extends React.Component {
 
   updateAnswer() {
     const { onChangeAnswer, userLocation, answer } = this.props;
-    const { latitude, longitude, accuracy, errorMessage } = userLocation;
+    const {
+      latitude, longitude, accuracy, errorMessage,
+    } = userLocation;
 
     if (
-      (latitude !== null || errorMessage) &&
-      latitude !== answer.latitude &&
-      longitude !== answer.longitude &&
-      accuracy !== answer.accuracy
+      (latitude !== null || errorMessage)
+      && latitude !== answer.latitude
+      && longitude !== answer.longitude
+      && accuracy !== answer.accuracy
     ) {
       onChangeAnswer({
         latitude,
@@ -171,7 +173,7 @@ class GeolocateQuestionComponent extends React.Component {
 
   renderSaveLocationButton() {
     return (
-      <TouchableOpacity analyticsLabel={'Geolocate: Save'} onPress={() => this.onLockLocation()} style={localStyles.actionButton}>
+      <TouchableOpacity analyticsLabel="Geolocate: Save" onPress={() => this.onLockLocation()} style={localStyles.actionButton}>
         {getMaterialIcon('check')}
         <Text>Save location</Text>
       </TouchableOpacity>
@@ -181,7 +183,7 @@ class GeolocateQuestionComponent extends React.Component {
   renderRefreshButton() {
     return (
       <TouchableOpacity
-        analyticsLabel={'Geolocate: Retry'}
+        analyticsLabel="Geolocate: Retry"
         onPress={() => this.onPressFindLocation()}
         style={localStyles.actionButton}
       >
@@ -231,7 +233,7 @@ class GeolocateQuestionComponent extends React.Component {
           </TouchableOpacity>
           {hasAnswer && !errorMessage && (
             <TouchableOpacity
-              analyticsLabel={'Geolocate: Clear'}
+              analyticsLabel="Geolocate: Clear"
               style={localStyles.removeButton}
               onPress={() => this.onRemoveLocation()}
             >

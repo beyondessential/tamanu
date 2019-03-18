@@ -7,8 +7,7 @@ import { ReportGenerator } from './ReportGenerator';
 export const Reports = ({ match }) => (
   <div className="content">
     <Switch>
-      <Route path={ match.url + '/:reportId' } component={ReportGenerator} />
+      <Route path={`${match.url}/:reportId`} component={ReportGenerator} />
     </Switch>
   </div>
 );
-

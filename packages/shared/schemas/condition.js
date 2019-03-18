@@ -10,10 +10,10 @@ const ConditionsSchema = {
     diagnosis: {
       type: 'linkingObjects',
       objectType: 'patientDiagnosis',
-      property: 'condition'
+      property: 'condition',
     },
-    ...defaults
-  }
+    ...defaults,
+  },
 };
 
 module.exports = ConditionsSchema;

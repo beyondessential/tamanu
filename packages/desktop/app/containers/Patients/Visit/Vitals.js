@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import ReactTable from 'react-table';
 import { vitalsColumns } from '../../../constants';
 import VitalModal from '../components/VitalModal';
-import { Modal, NewButton, EditButton, DeleteButton } from '../../../components';
+import {
+  Modal, NewButton, EditButton, DeleteButton,
+} from '../../../components';
 
 class Vitals extends Component {
   state = {
@@ -11,7 +13,7 @@ class Vitals extends Component {
     action: 'new',
     itemId: null,
     vitals: [],
-    tableColumns: vitalsColumns
+    tableColumns: vitalsColumns,
   }
 
   componentWillMount() {
@@ -25,7 +27,6 @@ class Vitals extends Component {
 
     const { vitals } = visitModel.attributes;
     this.setState({ vitals: vitals.toJSON(), tableColumns });
-
   }
 
   componentWillReceiveProps(newProps) {
@@ -66,24 +67,26 @@ class Vitals extends Component {
     }
   }
 
-  setActionsCol = (row) => {
-    return (
-      <div key={row._id}>
-        <EditButton
-          size="small"
-          onClick={() => this.editItem(row.original._id)}
-          can={{ do: 'update', on: 'vital' }} />
-        <DeleteButton
-          size="small"
-          onClick={() => this.deleteConfirm(row.original._id)}
-          can={{ do: 'delete', on: 'vital' }}/>
-      </div>
-    );
-  }
+  setActionsCol = (row) => (
+    <div key={row._id}>
+      <EditButton
+        size="small"
+        onClick={() => this.editItem(row.original._id)}
+        can={{ do: 'update', on: 'vital' }}
+      />
+      <DeleteButton
+        size="small"
+        onClick={() => this.deleteConfirm(row.original._id)}
+        can={{ do: 'delete', on: 'vital' }}
+      />
+    </div>
+  )
 
   render() {
     const { visitModel } = this.props;
-    const { modalVisible, action, itemId, vitals, tableColumns } = this.state;
+    const {
+      modalVisible, action, itemId, vitals, tableColumns,
+    } = this.state;
     return (
       <div>
         <div className="column p-t-0 p-b-0">
@@ -91,11 +94,14 @@ class Vitals extends Component {
             className="is-pulled-right"
             onClick={() => this.editItem()}
             can={{ do: 'create', on: 'vital' }}
-          >Add Vitals</NewButton>
+          >
+Add Vitals
+          </NewButton>
           <div className="is-clearfix" />
         </div>
         <div className="column">
-          {vitals.length > 0 &&
+          {vitals.length > 0
+            && (
             <ReactTable
               keyField="_id"
               data={vitals}
@@ -105,11 +111,14 @@ class Vitals extends Component {
               defaultSortDirection="asc"
               showPagination={false}
             />
+            )
           }
-          {vitals.length <= 0 &&
+          {vitals.length <= 0
+            && (
             <div className="notification">
               <span> No vitals found. </span>
             </div>
+            )
           }
         </div>
         <VitalModal

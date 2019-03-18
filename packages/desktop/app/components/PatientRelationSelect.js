@@ -35,7 +35,7 @@ class PatientRelationSelect extends Component {
   }
 
   state = {
-    options: []
+    options: [],
   }
 
   componentDidMount() {
@@ -47,15 +47,17 @@ class PatientRelationSelect extends Component {
   }
 
   async loadRelations(props = this.props) {
-    const {  patient, relation, template, patientModel } = props;
+    const {
+      patient, relation, template, patientModel,
+    } = props;
     if (patient) {
-      if (typeof patient === "string") {
+      if (typeof patient === 'string') {
         patientModel.set({ _id: patient });
         await patientModel.fetch();
       }
 
       let { [relation]: options } = patientModel.toJSON();
-      options = options.map(item => ({ value: item._id, label: template(item) }) );
+      options = options.map(item => ({ value: item._id, label: template(item) }));
       this.setState({ options });
     }
   }
@@ -78,7 +80,9 @@ class PatientRelationSelect extends Component {
     return (
       <div className={`column ${className}`}>
         <span className="input-group-title">
-          {label} {required && <span className="isRequired">*</span>}
+          {label}
+          {' '}
+          {required && <span className="isRequired">*</span>}
         </span>
         <Select
           options={options}

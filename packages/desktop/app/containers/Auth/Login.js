@@ -14,7 +14,7 @@ class Login extends Component {
   state = {
     email: '',
     password: '',
-    rememberMe: false
+    rememberMe: false,
   }
 
   componentDidMount() {
@@ -22,7 +22,7 @@ class Login extends Component {
     if (userId && secret) history.push('/');
 
     const rememberEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
-    if (rememberEmail) this.setState({ 'email': rememberEmail, 'rememberMe': true });
+    if (rememberEmail) this.setState({ email: rememberEmail, rememberMe: true });
   }
 
   handleUserInput = (e, field) => {
@@ -43,7 +43,7 @@ class Login extends Component {
     const { email, rememberMe } = this.state;
     if (rememberMe) {
       localStorage.setItem(REMEMBER_EMAIL_KEY, email);
-    }else {
+    } else {
       localStorage.removeItem(REMEMBER_EMAIL_KEY);
     }
     login(this.state);
@@ -94,7 +94,9 @@ class Login extends Component {
                       type="submit"
                       variant="contained"
                       color="primary"
-                    >Login</Button>
+                    >
+Login
+                    </Button>
                   </div>
                 </div>
               </form>

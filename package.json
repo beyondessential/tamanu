@@ -22,11 +22,16 @@
       "packages/shared"
     ],
     "nohoist": [
-      "**/webpack", "**/webpack/**",
-      "**/fbjs-scripts", "**/fbjs-scripts/**",
-      "**/electron", "**/electron/**",
-      "**/electron-*", "**/electron-*/**",
-      "**/config", "**/config/**"
+      "**/webpack",
+      "**/webpack/**",
+      "**/fbjs-scripts",
+      "**/fbjs-scripts/**",
+      "**/electron",
+      "**/electron/**",
+      "**/electron-*",
+      "**/electron-*/**",
+      "**/config",
+      "**/config/**"
     ]
   },
   "devDependencies": {}

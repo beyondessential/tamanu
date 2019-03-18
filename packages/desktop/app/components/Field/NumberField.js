@@ -10,7 +10,7 @@ export const NumberInput = (props) => (
 );
 
 export const NumberField = ({ field, ...props }) => (
-  <NumberInput 
+  <NumberInput
     name={field.name}
     value={field.value || 0}
     onChange={field.onChange}

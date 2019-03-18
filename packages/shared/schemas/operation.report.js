@@ -7,35 +7,35 @@ const OpReportSchema = {
     _id: 'string',
     additionalNotes: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     caseComplexity: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     operationDescription: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     surgeon: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     surgeryDate: {
       type: 'date',
-      optional: true
+      optional: true,
     },
     procedures: 'string[]',
     preOpDiagnoses: {
       type: 'list',
-      objectType: 'patientDiagnosis'
+      objectType: 'patientDiagnosis',
     },
     postOpDiagnoses: {
       type: 'list',
-      objectType: 'patientDiagnosis'
+      objectType: 'patientDiagnosis',
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = OpReportSchema;

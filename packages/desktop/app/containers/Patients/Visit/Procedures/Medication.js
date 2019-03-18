@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import ReactTable from 'react-table';
 import { proceduresMedicationColumns } from '../../../../constants';
 import MedicationModal from '../../components/MedicationModel';
-import { Modal, EditButton, DeleteButton, NewButton } from '../../../../components';
+import {
+  Modal, EditButton, DeleteButton, NewButton,
+} from '../../../../components';
 
 class Medication extends Component {
   state = {
@@ -11,7 +13,7 @@ class Medication extends Component {
     action: 'new',
     itemId: null,
     medication: [],
-    tableColumns: proceduresMedicationColumns
+    tableColumns: proceduresMedicationColumns,
   }
 
   componentWillMount() {
@@ -56,24 +58,26 @@ class Medication extends Component {
     }
   }
 
-  setActionsCol = (row) => {
-    return (
-      <div key={row._id}>
-        <EditButton
-          size="small"
-          onClick={() => this.editItem(row.original._id)}
-          can={{ do: 'update', on: 'medication' }} />
-        <DeleteButton
-          size="small"
-          onClick={() => this.deleteConfirm(row.original._id)}
-          can={{ do: 'delete', on: 'medication' }} />
-      </div>
-    );
-  }
+  setActionsCol = (row) => (
+    <div key={row._id}>
+      <EditButton
+        size="small"
+        onClick={() => this.editItem(row.original._id)}
+        can={{ do: 'update', on: 'medication' }}
+      />
+      <DeleteButton
+        size="small"
+        onClick={() => this.deleteConfirm(row.original._id)}
+        can={{ do: 'delete', on: 'medication' }}
+      />
+    </div>
+  )
 
   render() {
     const { procedureModel } = this.props;
-    const { modalVisible, action, itemId, medication, tableColumns } = this.state;
+    const {
+      modalVisible, action, itemId, medication, tableColumns,
+    } = this.state;
     return (
       <div>
         <div className="columns m-b-0 m-t-10">
@@ -83,11 +87,14 @@ class Medication extends Component {
               className="is-pulled-right"
               onClick={() => this.editItem()}
               can={{ do: 'create', on: 'medication' }}
-            >Add Medication</NewButton>
+            >
+Add Medication
+            </NewButton>
           </div>
         </div>
         <div className="column">
-          {medication.length > 0 &&
+          {medication.length > 0
+            && (
             <ReactTable
               keyField="_id"
               data={medication}
@@ -97,11 +104,14 @@ class Medication extends Component {
               defaultSortDirection="asc"
               showPagination={false}
             />
+            )
           }
-          {medication.length <= 0 &&
+          {medication.length <= 0
+            && (
             <div className="notification">
               <span> No medication found. </span>
             </div>
+            )
           }
         </div>
         <MedicationModal

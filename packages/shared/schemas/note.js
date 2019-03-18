@@ -7,26 +7,26 @@ const NoteSchema = {
     _id: 'string',
     attribution: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     content: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     createdBy: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     date: {
       type: 'date',
-      default: new Date()
+      default: new Date(),
     },
     noteType: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = NoteSchema;

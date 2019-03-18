@@ -7,6 +7,6 @@ export default BaseCollection.extend({
   state: {
     sortKey: 'startDate',
     order: 1,
-    ...BaseCollection.prototype.state
-  }
+    ...BaseCollection.prototype.state,
+  },
 });

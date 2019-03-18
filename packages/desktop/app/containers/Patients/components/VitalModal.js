@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import Modal from 'react-responsive-modal';
 import moment from 'moment';
-import { InputGroup, DatepickerGroup, AddButton,
-          UpdateButton, CancelButton } from '../../../components';
+import {
+  InputGroup, DatepickerGroup, AddButton,
+  UpdateButton, CancelButton,
+} from '../../../components';
 import { VitalModel } from '../../../models';
 import { dateTimeFormat } from '../../../constants';
 
@@ -19,7 +21,9 @@ class VisitModal extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { action, itemId, isVisible, visitModel } = nextProps;
+    const {
+      action, itemId, isVisible, visitModel,
+    } = nextProps;
     let Model;
     if (action === 'edit') {
       Model = visitModel.get('vitals').findWhere({ _id: itemId });
@@ -75,7 +79,11 @@ class VisitModal extends Component {
         >
           <div className="tamanu-error-modal diagnosis-modal">
             <div className="modal-header">
-              <h2>{action === 'new' ? 'Add' : 'Update'} Vitals</h2>
+              <h2>
+                {action === 'new' ? 'Add' : 'Update'}
+                {' '}
+Vitals
+              </h2>
             </div>
             <div className="modal-content">
               <DatepickerGroup
@@ -85,8 +93,8 @@ class VisitModal extends Component {
                 popperModifiers={{
                   offset: {
                     enabled: true,
-                    offset: '0px, 30px'
-                  }
+                    offset: '0px, 30px',
+                  },
                 }}
                 onChange={this.handleUserInput}
                 value={form.dateRecorded}
@@ -178,17 +186,24 @@ class VisitModal extends Component {
             <div className="modal-footer">
               <div className="column has-text-right">
                 <CancelButton
-                  onClick={onClose} />
-                {action === 'new' && <AddButton
-                                      type="submit"
-                                      form="vitalForm"
-                                      can={{ do: 'create', on: 'vital' }}
-                                      disabled={!Model.isValid()} />}
-                {action !== 'new' && <UpdateButton
-                                      type="submit"
-                                      form="vitalForm"
-                                      can={{ do: 'update', on: 'vital' }}
-                                      disabled={!Model.isValid()} />}
+                  onClick={onClose}
+                />
+                {action === 'new' && (
+                <AddButton
+                  type="submit"
+                  form="vitalForm"
+                  can={{ do: 'create', on: 'vital' }}
+                  disabled={!Model.isValid()}
+                />
+                )}
+                {action !== 'new' && (
+                <UpdateButton
+                  type="submit"
+                  form="vitalForm"
+                  can={{ do: 'update', on: 'vital' }}
+                  disabled={!Model.isValid()}
+                />
+                )}
               </div>
             </div>
           </div>

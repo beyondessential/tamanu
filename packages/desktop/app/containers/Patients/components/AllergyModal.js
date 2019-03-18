@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import Modal from 'react-responsive-modal';
 import { pick } from 'lodash';
-import { InputGroup, AddButton, DeleteButton, UpdateButton } from '../../../components';
+import {
+  InputGroup, AddButton, DeleteButton, UpdateButton,
+} from '../../../components';
 import { AllergyModel } from '../../../models';
 
 class AllergyModal extends Component {
@@ -98,7 +100,11 @@ class AllergyModal extends Component {
         >
           <div className="tamanu-error-modal">
             <div className="modal-header">
-              <h2>{action === 'new' ? 'Add' : 'Update'} Allergy</h2>
+              <h2>
+                {action === 'new' ? 'Add' : 'Update'}
+                {' '}
+Allergy
+              </h2>
             </div>
             <div className="modal-content">
               <InputGroup
@@ -112,20 +118,29 @@ class AllergyModal extends Component {
             </div>
             <div className="modal-footer">
               <div className="column has-text-right">
-                {action !== 'new' &&
+                {action !== 'new'
+                  && (
                   <DeleteButton
                     can={{ do: 'delete', on: 'allergy' }}
-                    onClick={this.deleteItem} />}
-                {action !== 'new' &&
+                    onClick={this.deleteItem}
+                  />
+                  )}
+                {action !== 'new'
+                  && (
                   <UpdateButton
                     can={{ do: 'update', on: 'allergy' }}
                     type="submit"
-                    disabled={!this.state.formValid} />}
-                {action === 'new' &&
+                    disabled={!this.state.formValid}
+                  />
+                  )}
+                {action === 'new'
+                  && (
                   <AddButton
                     can={{ do: 'create', on: 'allergy' }}
                     type="submit"
-                    disabled={!this.state.formValid} />}
+                    disabled={!this.state.formValid}
+                  />
+                  )}
               </div>
             </div>
           </div>

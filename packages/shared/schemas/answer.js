@@ -9,7 +9,7 @@ const AnswerSchema = {
     questionId: 'string',
     body: { type: 'string', optional: true },
     ...defaults,
-  }
+  },
 };
 
 module.exports = AnswerSchema;

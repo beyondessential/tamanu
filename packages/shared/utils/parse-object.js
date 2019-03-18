@@ -1,14 +1,18 @@
-const { isArray, isObject, each, pull, pick } = require('lodash');
+const {
+  isArray, isObject, each, pull, pick,
+} = require('lodash');
 const jsonPrune = require('json-prune');
 
 const internals = {};
-const _parseProperty = ({ props, isParentObject, key, forSync, object }) => {
+const _parseProperty = ({
+  props, isParentObject, key, forSync, object,
+}) => {
   if (['linkingObjects', 'list', 'object'].includes(props.type) && isParentObject) {
     const valueToParse = (props.type === 'object' ? object[key] : Array.from(object[key]));
     return internals.parseToJSON(valueToParse, {
       deep: props.type === 'list',
       isParentObject: false,
-      forSync
+      forSync,
     });
   }
 
@@ -16,10 +20,10 @@ const _parseProperty = ({ props, isParentObject, key, forSync, object }) => {
 };
 
 internals.parseToJSON = (object, {
-                      deep = true,
-                      forSync = false,
-                      isParentObject = true
-                    } = {}) => {
+  deep = true,
+  forSync = false,
+  isParentObject = true,
+} = {}) => {
   if (!object) return null;
   try {
     if (isArray(object) && deep) {
@@ -27,7 +31,7 @@ internals.parseToJSON = (object, {
     }
 
     let requiredFields = [];
-    let jsonObject = JSON.parse(jsonPrune(object));
+    const jsonObject = JSON.parse(jsonPrune(object));
     if (typeof object.objectSchema === 'function') {
       const { properties } = object.objectSchema();
       each(properties, (props, key) => {
@@ -39,7 +43,9 @@ internals.parseToJSON = (object, {
           requiredFields = pull(requiredFields, key);
         }
         // only include required fields without parent links
-        const newValue = _parseProperty({ props, isParentObject, key, forSync, object });
+        const newValue = _parseProperty({
+          props, isParentObject, key, forSync, object,
+        });
         if (newValue) jsonObject[key] = newValue;
       });
     }
@@ -53,21 +59,15 @@ internals.parseToJSON = (object, {
   }
 };
 
-internals.arrayToJSON = (array, props = {}) => {
-  return array.map((value) => {
-    if (isObject(value)) {
-      return internals.parseToJSON(value, props);
-    }
-    return value;
-  });
-};
+internals.arrayToJSON = (array, props = {}) => array.map((value) => {
+  if (isObject(value)) {
+    return internals.parseToJSON(value, props);
+  }
+  return value;
+});
 
-internals.objectToJSON = (object) => {
-  return internals.parseToJSON(object);
-};
+internals.objectToJSON = (object) => internals.parseToJSON(object);
 
-internals.parseObjectForSync = (object) => {
-  return internals.parseToJSON(object, { forSync: true });
-};
+internals.parseObjectForSync = (object) => internals.parseToJSON(object, { forSync: true });
 
 module.exports = internals;

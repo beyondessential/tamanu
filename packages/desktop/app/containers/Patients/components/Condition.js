@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
 import ConditionModal from './ConditionModal';
 import { dateFormat } from '../../../constants';
-import { TextButton} from '../../../components';
+import { TextButton } from '../../../components';
 import { ConditionModel } from '../../../models';
 
 class Condition extends Component {
@@ -15,7 +15,7 @@ class Condition extends Component {
   state = {
     modalVisible: false,
     action: 'new',
-    conditionModel: new ConditionModel()
+    conditionModel: new ConditionModel(),
   }
 
   componentWillMount() {
@@ -34,19 +34,19 @@ class Condition extends Component {
     this.setState({ modalVisible: false });
   }
 
-  editItem( itemId = null ) {
+  editItem(itemId = null) {
     const { patientModel } = this.props;
     let { conditionModel } = this.state;
     const item = patientModel.get('conditions').findWhere({ _id: itemId });
     if (!isEmpty(item)) {
-      conditionModel = item
+      conditionModel = item;
     } else {
-      conditionModel = new ConditionModel()
+      conditionModel = new ConditionModel();
     }
     this.setState({
       modalVisible: true,
       action: isEmpty(item) ? 'new' : 'update',
-      conditionModel
+      conditionModel,
     });
   }
 
@@ -56,7 +56,7 @@ class Condition extends Component {
       modalVisible,
       action,
       conditionModel,
-      conditions
+      conditions,
     } = this.state;
 
     return (
@@ -66,7 +66,11 @@ class Condition extends Component {
           <TextButton
             can={{ do: 'create', on: 'condition' }}
             onClick={() => this.editItem()}
-          > + Add Condition </TextButton>
+          >
+            {' '}
++ Add Condition
+            {' '}
+          </TextButton>
           <div className="clearfix" />
           {conditions.map((model, k) => {
             const { _id, condition, date } = model.toJSON();
@@ -76,7 +80,9 @@ class Condition extends Component {
                 <TextButton
                   can={{ do: 'read', on: 'condition' }}
                   onClick={() => this.editItem(_id)}
-                >{`${condition} (${moment(date).format(dateFormat)})`}</TextButton>
+                >
+                  {`${condition} (${moment(date).format(dateFormat)})`}
+                </TextButton>
               </React.Fragment>
             );
           })}

@@ -11,30 +11,30 @@ import {
 export default {
   [FETCH_MEDICATION_REQUEST]: (_, state) => ({
     ...state,
-    loading: true
+    loading: true,
   }),
   [FETCH_MEDICATION_SUCCESS]: ({ patient, medication }, state) => ({
     ...state,
     patient,
     medication,
-    loading: false
+    loading: false,
   }),
   [FETCH_MEDICATION_FAILED]: ({ error }, state) => ({
     ...state,
     error,
-    loading: false
+    loading: false,
   }),
   [SAVE_MEDICATION_REQUEST]: (_, state) => ({
     ...state,
-    loading: true
+    loading: true,
   }),
   [SAVE_MEDICATION_SUCCESS]: (_, state) => {
     toast('Medication added successfully.', { type: 'success' });
-    return { ...state, loading: false }
+    return { ...state, loading: false };
   },
   [SAVE_MEDICATION_FAILED]: ({ error }, state) => ({
     ...state,
     error,
-    loading: false
+    loading: false,
   }),
 };

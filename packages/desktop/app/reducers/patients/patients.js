@@ -12,38 +12,38 @@ export default {
     ...state,
     patientInProgress: true,
     createPatientSuccess: false,
-    deletePatientSuccess: false
+    deletePatientSuccess: false,
   }),
   [CREATE_PATIENT_SUCCESS]: (_, state) => ({
     ...state,
     patientInProgress: false,
     createPatientSuccess: true,
-    deletePatientSuccess: false
+    deletePatientSuccess: false,
   }),
   [CREATE_PATIENT_FAILED]: (_, state) => ({
     ...state,
     patientInProgress: false,
     formError: true,
     createPatientSuccess: false,
-    deletePatientSuccess: false
+    deletePatientSuccess: false,
   }),
   [FETCH_PATIENTS_REQUEST]: (_, state) => ({
     ...state,
-    deletePatientSuccess: false
+    deletePatientSuccess: false,
   }),
 
   [FETCH_PATIENTS_SUCCESS]: ({ patients }, state) => ({
     ...state,
     patients,
-    deletePatientSuccess: false
+    deletePatientSuccess: false,
   }),
   [FETCH_PATIENTS_FAILED]: (_, state) => ({
     ...state,
-    deletePatientSuccess: false
+    deletePatientSuccess: false,
   }),
   [FETCH_PATIENTS_REQUEST]: (_, state) => ({
     ...state,
-    deletePatientSuccess: false
+    deletePatientSuccess: false,
   }),
 };
 

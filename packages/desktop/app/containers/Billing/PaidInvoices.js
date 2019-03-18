@@ -36,7 +36,9 @@ class PaidInvoices extends Component {
             </div>
             <div className="bill-notification">
               <span>
-                No invoices found. <Link to="/invoices/edit/new">Create an invoice?</Link>
+                No invoices found.
+                {' '}
+                <Link to="/invoices/edit/new">Create an invoice?</Link>
               </span>
             </div>
           </div>

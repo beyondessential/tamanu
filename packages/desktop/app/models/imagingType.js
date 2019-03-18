@@ -3,11 +3,10 @@ import { defaults } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/imagingType`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/imagingType`,
   defaults: () => defaults({
-      name: null,
-      sortOrder: 0
-    },
-    BaseModel.prototype.defaults,
-  ),
+    name: null,
+    sortOrder: 0,
+  },
+  BaseModel.prototype.defaults),
 });

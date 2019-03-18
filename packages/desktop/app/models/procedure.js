@@ -4,7 +4,7 @@ import moment from 'moment';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/procedure`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/procedure`,
   defaults: () => defaults({
     anesthesiaType: '',
     anesthesiologist: '',
@@ -28,7 +28,7 @@ export default BaseModel.extend({
       key: 'medication',
       relatedModel: () => require('./procedureMedication'),
     },
-    ...BaseModel.prototype.relations
+    ...BaseModel.prototype.relations,
   ],
 
   validate: (attrs) => {
@@ -37,5 +37,5 @@ export default BaseModel.extend({
     if (!attrs.procedureDate) errors.push('procedureDate is required!');
     if (!attrs.physician) errors.push('physician is required!');
     if (!isEmpty(errors)) return errors;
-  }
+  },
 });

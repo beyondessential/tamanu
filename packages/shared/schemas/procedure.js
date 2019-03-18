@@ -7,56 +7,56 @@ const ProcedureSchema = {
     _id: 'string',
     anesthesiaType: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     anesthesiologist: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     assistant: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     description: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     cptCode: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     location: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     notes: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     physician: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     procedureDate: {
       type: 'date',
       default: new Date(),
-      indexed: true
+      indexed: true,
     },
     timeStarted: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     timeEnded: {
       type: 'string',
-      optional: true
+      optional: true,
     },
 
     medication: {
       type: 'list',
-      objectType: 'procedureMedication'
+      objectType: 'procedureMedication',
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = ProcedureSchema;

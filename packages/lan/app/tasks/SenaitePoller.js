@@ -12,19 +12,18 @@ const { ScheduledTask } = require('./ScheduledTask');
 const SENAITE_ERROR_STATUS = 'manual';
 
 const TARGET_STATES = [
-  'verified', 
-  'published', 
-  'invalid', 
+  'verified',
+  'published',
+  'invalid',
   SENAITE_ERROR_STATUS,
 ];
 const BASE_URL = config.senaite.server;
-    
+
 function formatForSenaite(datetime) {
   return moment(datetime).format('YYYY-MM-DD HH:mm');
 }
 
 class SenaitePoller extends ScheduledTask {
-  
   constructor(database) {
     super('*/1 * * * *'); // run every 1 minute
     this.jar = jar(); // separate cookie store
@@ -40,12 +39,12 @@ class SenaitePoller extends ScheduledTask {
 
   //----------------------------------------------------------
   // Web interface
-  // 
+  //
   async getAllItems(endpoint) {
     // traverse pagination to get all items
     let body = await this.apiRequest(endpoint);
     let items = body.items;
-    while(body.next) {
+    while (body.next) {
       body = await this.request(body.next);
       items = [...items, ...body.items];
     }
@@ -62,12 +61,12 @@ class SenaitePoller extends ScheduledTask {
     console.log('request', url);
     const rawbody = await new Promise((resolve, reject) => {
       get(
-        { 
+        {
           url,
           jar: this.jar,
           rejectUnauthorized: false,
-        }, 
-        (err, response, body) => err ? reject(err) : resolve(body)
+        },
+        (err, response, body) => (err ? reject(err) : resolve(body)),
       );
     });
 
@@ -75,22 +74,22 @@ class SenaitePoller extends ScheduledTask {
 
     try {
       return JSON.parse(rawbody);
-    } catch(e) {
+    } catch (e) {
       console.error(rawbody);
       throw e;
     }
   }
 
   login() {
-    if(!this.loginTask) {
+    if (!this.loginTask) {
       const { username, password } = config.senaite;
       this.loginTask = (async () => {
         const body = await this.apiRequest(`login?__ac_name=${username}&__ac_password=${password}`);
-        if(!body.items[0].authenticated) {
-          throw new Error("Senaite authentication failed");
+        if (!body.items[0].authenticated) {
+          throw new Error('Senaite authentication failed');
         }
 
-        console.log("Logged in to Senaite");
+        console.log('Logged in to Senaite');
       })();
     }
 
@@ -99,19 +98,17 @@ class SenaitePoller extends ScheduledTask {
 
   //----------------------------------------------------------
   // Creating lab requests on Senaite
-  // 
+  //
   async getAnalysisServiceUUIDs() {
     const items = await this.getAllItems('AnalysisService');
-    const findSenaiteItem = realmLabTestType => {
-      return items.find(i => i.title === realmLabTestType.name);
-    };
+    const findSenaiteItem = realmLabTestType => items.find(i => i.title === realmLabTestType.name);
 
     // pair all labTestType services in Realm up to their corresponding Senaite UIDs
     const objects = this.database.objects('labTestType');
     this.database.write(() => {
       objects.forEach(o => {
         const matching = findSenaiteItem(o);
-        if(matching) {
+        if (matching) {
           o.senaiteId = matching.uid;
         }
       });
@@ -125,11 +122,11 @@ class SenaitePoller extends ScheduledTask {
     const labRequestsToBeCreated = this.database.objects('labRequest')
       .filtered('senaiteId == NULL && status != $0', SENAITE_ERROR_STATUS);
 
-    for(let i = 0; i < labRequestsToBeCreated.length; ++i) {
+    for (let i = 0; i < labRequestsToBeCreated.length; ++i) {
       const labRequest = labRequestsToBeCreated[i];
       try {
         await this.createLabRequest(labRequest);
-      } catch(e) {
+      } catch (e) {
         console.error(e);
         this.database.write(() => {
           labRequest.status = SENAITE_ERROR_STATUS;
@@ -142,28 +139,28 @@ class SenaitePoller extends ScheduledTask {
     const labRequestRealmId = labRequest._id;
     const url = `${BASE_URL}/analysisrequests/ajax_ar_add/submit`;
 
-    console.log("CREATING", labRequestRealmId);
+    console.log('CREATING', labRequestRealmId);
 
     // get analyses that have associated senaite IDs
     const testIDs = labRequest.tests
       .map(x => x.type.senaiteId)
       .filter(x => x);
 
-    if(!testIDs.length) {
-      throw new Error("No valid test types on labRequest:" + labRequest._id);
+    if (!testIDs.length) {
+      throw new Error(`No valid test types on labRequest:${labRequest._id}`);
     }
 
     const dateTime = formatForSenaite(labRequest.requestedDate);
 
     // generate string of the format 0dddddddd
-    const sampleId = ('000000000' + Math.floor(Math.random() * 99999999)).slice(-9);
+    const sampleId = (`000000000${Math.floor(Math.random() * 99999999)}`).slice(-9);
 
     const result = await new Promise((resolve, reject) => {
       const request = post({
         url,
         jar: this.jar,
         rejectUnauthorized: false,
-      }, (err, response, body) => err ? reject(err) : resolve(body))
+      }, (err, response, body) => (err ? reject(err) : resolve(body)));
 
       // append form data to the request
       // TODO: use json api
@@ -176,19 +173,19 @@ class SenaitePoller extends ScheduledTask {
       formData.append('SampleType-0_uid', '2c8c959a8fbf4ee684cf27e13cadbcbc');
 
       testIDs.forEach(uid => {
-        formData.append('Analyses-0', uid)
-        formData.append('Parts-0.uid:records', uid)
+        formData.append('Analyses-0', uid);
+        formData.append('Parts-0.uid:records', uid);
       });
     });
 
     // get recent requests & find the one we just created
     const allRequests = await this.getAllItems('AnalysisRequest?complete=true');
     const createdRequest = allRequests.find(x => x.ClientReference === labRequestRealmId);
-    if(!createdRequest) {
+    if (!createdRequest) {
       throw new Error('Could not get senaite ID for new lab request');
     }
 
-    console.log("CREATED", createdRequest.url);
+    console.log('CREATED', createdRequest.url);
 
     this.database.write(() => {
       labRequest.senaiteId = createdRequest.uid;
@@ -238,8 +235,8 @@ class SenaitePoller extends ScheduledTask {
 
     const query = [
       'senaiteId != NULL',
-      ...TARGET_STATES.map(x => `status != "${x}"`)
-    ].join(" && ");
+      ...TARGET_STATES.map(x => `status != "${x}"`),
+    ].join(' && ');
 
     return this.database.objects('labRequest')
       .filtered(query);
@@ -249,15 +246,15 @@ class SenaitePoller extends ScheduledTask {
     const { senaiteId } = realmLabRequest;
     const results = await this.fetchLabRequestInfo(senaiteId);
 
-    console.log("Updating tests for", realmLabRequest._id);
+    console.log('Updating tests for', realmLabRequest._id);
     this.database.write(() => {
       realmLabRequest.tests.map(realmTest => {
         const senaiteResult = results.tests.find(x => x.serviceId === realmTest.type.senaiteId);
-        if(senaiteResult) {
-          if(realmTest.status !== senaiteResult.status 
+        if (senaiteResult) {
+          if (realmTest.status !== senaiteResult.status
             || realmTest.result !== senaiteResult.result
           ) {
-            console.log("Updated", realmTest.type.name, realmTest.status, '=>', senaiteResult.status, `(${senaiteResult.result})`);
+            console.log('Updated', realmTest.type.name, realmTest.status, '=>', senaiteResult.status, `(${senaiteResult.result})`);
             realmTest.result = senaiteResult.result;
             realmTest.status = senaiteResult.status;
           }
@@ -269,7 +266,7 @@ class SenaitePoller extends ScheduledTask {
   }
 
   async run() {
-    if(!this.loginTask) {
+    if (!this.loginTask) {
       await this.login();
     }
 
@@ -278,7 +275,7 @@ class SenaitePoller extends ScheduledTask {
 
     // TODO: create these requests immediately rather than polling for them
     await this.createLabRequestsOnSenaite();
-    
+
     const requests = await this.getAllPendingLabRequests();
     await Promise.all(requests.map(req => this.processLabRequest(req)));
   }
