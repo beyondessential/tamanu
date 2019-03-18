@@ -12,7 +12,7 @@ class Sync {
     this.listeners = listeners;
     this.client = new Faye.Client(`${config.mainServer}/${config.sync.path}`);
     this.client.addExtension({
-      outgoing: (message, callback) => outgoing({ database, message, callback })
+      outgoing: (message, callback) => outgoing({ database, message, callback }),
     });
   }
 
@@ -31,10 +31,10 @@ class Sync {
       switch (message.action) {
         case SYNC_ACTIONS.SAVE:
           this._saveRecord(message);
-        break;
+          break;
         case SYNC_ACTIONS.REMOVE:
           this._removeRecord(message);
-        break;
+          break;
         default:
           throw new Error('No action specified');
       }
@@ -79,7 +79,7 @@ class Sync {
       await this.client.publish(`/${config.sync.channelOut}`, {
         from: clientId,
         record,
-        ...change
+        ...change,
       });
 
       // // Update last sync out date
@@ -91,7 +91,7 @@ class Sync {
   }
 
   _saveRecord({ record, recordType }) {
-    try{
+    try {
       this.database.write(() => {
         this.database.create(recordType, record, true, true);
       });
@@ -102,7 +102,7 @@ class Sync {
   }
 
   _removeRecord(props) {
-    try{
+    try {
       this.database.write(() => {
         this.database.deleteByPrimaryKey(props.recordType, props.recordId, '_id', true);
       });

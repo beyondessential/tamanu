@@ -178,7 +178,7 @@ class Database extends Realm {
 const database = new Database({
   path: `./data/${config.db.name}.realm`,
   schema: schemas,
-  schemaVersion
+  schemaVersion,
 });
 
 module.exports = database;

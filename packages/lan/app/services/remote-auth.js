@@ -10,27 +10,27 @@ class RemoteAuth {
     this.credentials = {};
     this.hospitalOptions = [];
     this.schema = [{
-        type: 'text',
-        message: 'Enter email',
-        name: 'email',
-        required: true,
-        validate: email => /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i.test(email),
-      }, {
-        type: 'password',
-        message: 'Enter password',
-        name: 'password',
-        hidden: true,
-        required: true,
-        validate: password => password.length
-      }
+      type: 'text',
+      message: 'Enter email',
+      name: 'email',
+      required: true,
+      validate: email => /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i.test(email),
+    }, {
+      type: 'password',
+      message: 'Enter password',
+      name: 'password',
+      hidden: true,
+      required: true,
+      validate: password => password.length,
+    },
     ];
     this.schemaHospital = [{
-        type: 'select',
-        message: 'Select hospital',
-        name: 'hospital',
-        required: true,
-        choices: () => this.hospitalOptions
-      }
+      type: 'select',
+      message: 'Select hospital',
+      name: 'hospital',
+      required: true,
+      choices: () => this.hospitalOptions,
+    },
     ];
   }
 
@@ -53,7 +53,7 @@ class RemoteAuth {
           console.log('Aborted.');
           process.exit();
         }
-      }
+      },
     });
 
     if (this.credentials.email && this.credentials.password) {
@@ -84,7 +84,9 @@ class RemoteAuth {
     const [err, res] = await to(request({
       method: 'POST',
       url: `${this.mainServer}/auth/login`,
-      json: { ...this.credentials, clientId, hospitalId, firstTimeLogin }
+      json: {
+        ...this.credentials, clientId, hospitalId, firstTimeLogin,
+      },
     }));
 
     if (err) return Promise.reject(err);
@@ -95,7 +97,7 @@ class RemoteAuth {
     const [err, res] = await to(request({
       method: 'POST',
       url: `${this.mainServer}/auth/verify-credentials`,
-      json: { clientId, clientSecret, hospitalId }
+      json: { clientId, clientSecret, hospitalId },
     }));
 
     if (err) return Promise.reject(err);
