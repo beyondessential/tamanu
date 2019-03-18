@@ -16,10 +16,12 @@ const FabBottomRight = styled(Fab)`
 
 const QuickLinksItem = ({ to, text, ...props }) => (
   <MenuItem
-    component={ ButtonBase }
+    component={ButtonBase}
     to={to}
     {...props}
-  >{text}</MenuItem>
+  >
+    {text}
+  </MenuItem>
 );
 
 class QuickLinks extends Component {
@@ -57,15 +59,15 @@ class QuickLinks extends Component {
           open={open}
           onClose={this.handleClose}
         >
-{links.map(({ to, text, ...props }) => {
-          return (<QuickLinksItem
-                    key={text}
-                    to={to}
-                    text={text}
-                    {...props}
-                  />);
-        })}
-</Menu>
+          {links.map(({ to, text, ...props }) => (
+            <QuickLinksItem
+              key={text}
+              to={to}
+              text={text}
+              {...props}
+            />
+          ))}
+        </Menu>
       </React.Fragment>
     );
   }
