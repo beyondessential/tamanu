@@ -1,29 +1,33 @@
-import React,{ Component } from 'react';
+import React, { Component } from 'react';
 import ReactTable from 'react-table';
 import moment from 'moment';
 import { Typography, Grid } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { Button, Notification } from '../../../components';
-import { columnStyle, headerStyle, dateFormat, pageSizes } from '../../../constants';
+import {
+  columnStyle, headerStyle, dateFormat, pageSizes,
+} from '../../../constants';
 
 const getActionsColumn = () => ({
   id: 'actions',
   Header: 'Actions',
   headerStyle,
   style: columnStyle,
-  Cell: (props) => <ActionsColumn {...props} />
+  Cell: (props) => <ActionsColumn {...props} />,
 });
 
 const ActionsColumn = ({ original: { _id, requestId } }) => (
-    <div key={_id}>
-      <Button
-        variant="contained"
-        color="primary"
-        size="small"
-        to={`/labs/request/${requestId}`}
-      >View</Button>
-    </div>
-)
+  <div key={_id}>
+    <Button
+      variant="contained"
+      color="primary"
+      size="small"
+      to={`/labs/request/${requestId}`}
+    >
+View
+    </Button>
+  </div>
+);
 
 const TestType = ({ name, category, range }) => (
   <Grid container direction="column">
@@ -53,11 +57,13 @@ const TestResult = ({ range, result, unit }) => {
 };
 
 const getTestsFromLabRequests = (labRequests, sex) => {
-  let labTestsById = {};
+  const labTestsById = {};
   labRequests.forEach(labRequestModel => {
     const { _id: requestId, tests, requestedDate } = labRequestModel.toJSON();
     const accessorPrefix = moment(requestedDate).unix();
-    tests.forEach(({ _id, type, result, ...attributes }) => {
+    tests.forEach(({
+      _id, type, result, ...attributes
+    }) => {
       const range = type[`${sex}Range`];
       const testObject = {
         ...attributes,
@@ -84,7 +90,7 @@ const generateDataColumns = labTests => {
       accessor,
       headerStyle,
       style: columnStyle,
-      Cell: ({ original: { [accessor]: props }}) => <TestResult {...props} />
+      Cell: ({ original: { [accessor]: props } }) => <TestResult {...props} />,
     });
   });
   columns.push(getActionsColumn());
@@ -97,7 +103,7 @@ const getFixedTableColumns = () => ([{
   headerStyle,
   style: columnStyle,
   minWidth: 100,
-  Cell: ({ original: { testType: props }}) => <TestType {...props} />
+  Cell: ({ original: { testType: props } }) => <TestType {...props} />,
 }]);
 
 export default class LabRequests extends Component {
@@ -138,18 +144,22 @@ export default class LabRequests extends Component {
 
   render() {
     const { labTests, columns } = this.state;
-    if (labTests.length === 0) return <Notification message="No requests found." />
+    if (labTests.length === 0) return <Notification message="No requests found." />;
     return (
       <React.Fragment>
         <Grid container item justify="flex-end">
           <Button
             disabled={!this.labRequestsCollection.hasPreviousPage()}
             onClick={this.prevPage}
-          >Prev</Button>
+          >
+Prev
+          </Button>
           <Button
             disabled={!this.labRequestsCollection.hasNextPage()}
             onClick={this.nextPage}
-          >Next</Button>
+          >
+Next
+          </Button>
         </Grid>
         <Grid container>
           <Grid item xs={1}>

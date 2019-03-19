@@ -164,8 +164,8 @@ function serialize(form, opt) {
       continue;
     }
     // ignore anyhting that is not considered a success field
-    if (!kRSuccessContrls.test(element.nodeName) ||
-      kRSubmitter.test(element.type)) {
+    if (!kRSuccessContrls.test(element.nodeName)
+      || kRSubmitter.test(element.type)) {
       // eslint-disable-next-line
       continue;
     }

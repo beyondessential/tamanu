@@ -6,14 +6,14 @@ import {
   InputGroup,
   SelectGroup,
   ClearButton,
-  FilterButton
+  FilterButton,
 } from '../../../components';
 import {
-  visitOptions as  visitOptionsOriginal,
+  visitOptions as visitOptionsOriginal,
   appointmentStatusList as appointmentStatusListOriginal,
 } from '../../../constants';
 
-const visitOptions = [{ value: 'all', label: 'All' } , ...visitOptionsOriginal];
+const visitOptions = [{ value: 'all', label: 'All' }, ...visitOptionsOriginal];
 const appointmentStatusList = [{ value: 'all', label: 'All' }, ...appointmentStatusListOriginal];
 
 class FiltersForm extends Component {
@@ -38,7 +38,9 @@ class FiltersForm extends Component {
 
   constructor(props) {
     super(props);
-    const { status, type, practitioner, location } = props;
+    const {
+      status, type, practitioner, location,
+    } = props;
     this.state = {
       status,
       type,
@@ -71,14 +73,20 @@ class FiltersForm extends Component {
     let { status, type } = this.state;
     if (status === 'all') status = '';
     if (type === 'all') type = '';
-    this.props.onSubmit({ location, status, type, practitioner });
+    this.props.onSubmit({
+      location, status, type, practitioner,
+    });
   }
 
   resetForm() {
-    const { location, status, type, practitioner } = this.props;
-    this.setState({ location, status, type, practitioner }, () =>
-      this.props.onSubmit({ location, status, type, practitioner })
-    );
+    const {
+      location, status, type, practitioner,
+    } = this.props;
+    this.setState({
+      location, status, type, practitioner,
+    }, () => this.props.onSubmit({
+      location, status, type, practitioner,
+    }));
   }
 
   render() {
@@ -92,7 +100,7 @@ class FiltersForm extends Component {
     const {
       loading,
       collapse,
-      surgery
+      surgery,
     } = this.props;
 
     return (
@@ -107,7 +115,8 @@ class FiltersForm extends Component {
               onChange={this.handleInputChange}
               value={status}
             />
-            {!surgery &&
+            {!surgery
+              && (
               <SelectGroup
                 className="column is-3"
                 label="Type"
@@ -116,6 +125,7 @@ class FiltersForm extends Component {
                 onChange={this.handleInputChange}
                 value={type}
               />
+              )
             }
             <InputGroup
               name="practitioner"

@@ -16,7 +16,9 @@ class NoteModal extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { action, itemId, isVisible, procedureModel } = nextProps;
+    const {
+      action, itemId, isVisible, procedureModel,
+    } = nextProps;
     let Model;
     if (action === 'edit') {
       Model = procedureModel.get('medication').findWhere({ _id: itemId });
@@ -71,7 +73,11 @@ class NoteModal extends Component {
         >
           <div className="tamanu-error-modal diagnosis-modal">
             <div className="modal-header">
-              <h2>{action === 'new' ? 'Add' : 'Update'} Medication Used</h2>
+              <h2>
+                {action === 'new' ? 'Add' : 'Update'}
+                {' '}
+Medication Used
+              </h2>
             </div>
             <div className="modal-content">
               <InputGroup

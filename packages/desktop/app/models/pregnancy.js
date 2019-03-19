@@ -3,18 +3,17 @@ import { defaults, clone } from 'lodash';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/pregnancy`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/pregnancy`,
   defaults: () => defaults({
-      conceiveDate: Date, // estimated
-      deliveryDate: Date, // estimated
-      child: '',
-      father: '', // biological father
-      outcome: '',
-      gestationalAge: '',
-      surveyResponses: [],
-    },
-    BaseModel.prototype.defaults,
-  ),
+    conceiveDate: Date, // estimated
+    deliveryDate: Date, // estimated
+    child: '',
+    father: '', // biological father
+    outcome: '',
+    gestationalAge: '',
+    surveyResponses: [],
+  },
+  BaseModel.prototype.defaults),
 
   relations: [
     {
@@ -32,7 +31,7 @@ export default BaseModel.extend({
       key: 'surveyResponses',
       relatedModel: () => require('./surveyResponse'),
     },
-    ...BaseModel.prototype.relations
+    ...BaseModel.prototype.relations,
   ],
 
   cloneAttributes() {
@@ -41,5 +40,5 @@ export default BaseModel.extend({
     delete attributes._rev;
     delete attributes.modifiedFields;
     return attributes;
-  }
+  },
 });

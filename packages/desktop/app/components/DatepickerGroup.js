@@ -21,7 +21,7 @@ class DatepickerGroup extends Component {
     todayAsDefault: PropTypes.bool,
     timeFormat: PropTypes.string,
     timeIntervals: PropTypes.number,
-    timeCaption: PropTypes.string
+    timeCaption: PropTypes.string,
   }
 
   static defaultProps = {
@@ -36,7 +36,7 @@ class DatepickerGroup extends Component {
     todayAsDefault: true,
     timeFormat: '',
     timeIntervals: 15,
-    timeCaption: 'Time'
+    timeCaption: 'Time',
   }
 
   componentWillMount() {
@@ -83,13 +83,18 @@ class DatepickerGroup extends Component {
 
     return (
       <div className={className}>
-        {label !== false &&
+        {label !== false
+          && (
           <span className={labelClass}>
-            {label} {required && <span className="isRequired">*</span>}
+            {label}
+            {' '}
+            {required && <span className="isRequired">*</span>}
           </span>
+          )
         }
         {readOnly && <CustomDateInput styleName={inputClass} value={value} />}
-        {!readOnly &&
+        {!readOnly
+          && (
           <DatePicker
             name={name}
             tabIndex={tabIndex}
@@ -106,6 +111,7 @@ class DatepickerGroup extends Component {
             dropdownMode="select"
             {...others}
           />
+          )
         }
       </div>
     );
@@ -114,7 +120,7 @@ class DatepickerGroup extends Component {
 
 function mapStateToProps(state) {
   return {
-    currentPath: state.router.location.pathname
+    currentPath: state.router.location.pathname,
   };
 }
 

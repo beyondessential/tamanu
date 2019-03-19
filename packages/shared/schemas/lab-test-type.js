@@ -10,15 +10,15 @@ const LabTestType = {
     category: 'labTestCategory',
     femaleRange: 'double?[]',
     maleRange: 'double?[]',
-    unit:  'string?',
+    unit: 'string?',
     questionType: 'string?',
     options: 'string?[]',
     sortOrder: {
       type: 'int',
-      default: 0
+      default: 0,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = LabTestType;

@@ -6,7 +6,7 @@ class DeletePhotoModal extends Component {
     const {
       isVisible,
       onClose,
-      deletePhoto
+      deletePhoto,
     } = this.props;
     return (
       <Modal open={isVisible} onClose={onClose} little>

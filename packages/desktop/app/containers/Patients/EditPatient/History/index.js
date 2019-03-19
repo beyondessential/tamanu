@@ -7,7 +7,7 @@ import HistoryItem from './HistoryItem';
 class HistoryTab extends Component {
   state = {
     noteModalVisible: false,
-    patientsHistory: []
+    patientsHistory: [],
   }
 
   componentWillMount() {
@@ -32,12 +32,15 @@ class HistoryTab extends Component {
     const { noteModalVisible, patientsHistory } = this.state;
     return (
       <Fragment>
-        <Grid container justify="flex-end" style={{ marginBottom: 10}}>
+        <Grid container justify="flex-end" style={{ marginBottom: 10 }}>
           <Grid item>
             <NewButton
               onClick={() => this.setState({ noteModalVisible: true })}
               can={{ do: 'create', on: 'note' }}
-            >Add Note </NewButton>
+            >
+Add Note
+              {' '}
+            </NewButton>
           </Grid>
         </Grid>
         <Grid container item>

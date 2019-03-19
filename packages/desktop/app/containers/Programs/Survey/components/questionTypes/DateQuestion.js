@@ -17,7 +17,9 @@ export class DateQuestion extends Component {
   // }]
 
   render() {
-    const { _id, answer, questionText, maximumDate } = this.props;
+    const {
+      _id, answer, questionText, maximumDate,
+    } = this.props;
     const hasAnswer = answer === 0 || !!answer;
     return (
       <DatepickerGroup

@@ -1,16 +1,18 @@
 const config = require('config');
 const {
   each, has, isEmpty, isArray, isObject, mapValues, reverse, clone,
-  toLower, pick, keys, set, isFunction, uniqBy, chain, difference
+  toLower, pick, keys, set, isFunction, uniqBy, chain, difference,
 } = require('lodash');
 const moment = require('moment');
 const { to } = require('await-to-js');
-const { objectToJSON, parseObjectForSync, incoming, findSchema } = require('../utils');
+const {
+  objectToJSON, parseObjectForSync, incoming, findSchema,
+} = require('../utils');
 const { defaults: defaultFields } = require('../../../shared/schemas');
 const AuthService = require('../services/auth');
 const {
   HTTP_METHOD_TO_ACTION, ENVIRONMENT_TYPE,
-  SYNC_ACTIONS
+  SYNC_ACTIONS,
 } = require('../constants');
 
 class Sync {
@@ -20,7 +22,7 @@ class Sync {
     this.queueManager = queueManager;
     this.auth = new AuthService(database);
     this.client.addExtension({
-      incoming: (message, callback) => incoming({ database, message, callback })
+      incoming: (message, callback) => incoming({ database, message, callback }),
     });
   }
 
@@ -38,8 +40,7 @@ class Sync {
       if (changes && changes.length > 0) {
         const hospital = this.database.findOne('hospital', hospitalId);
         const maxTimestamp = changes.max('timestamp');
-        const [err] = await to(Promise.all(changes.map(change =>
-                                this.publishMessage(objectToJSON(change), client, hospital))));
+        const [err] = await to(Promise.all(changes.map(change => this.publishMessage(objectToJSON(change), client, hospital))));
         if (err) return new Error(err);
 
         // Update sync date
@@ -67,10 +68,10 @@ class Sync {
         switch (message.action) {
           case SYNC_ACTIONS.SAVE:
             this.saveRecord(message);
-          break;
+            break;
           case SYNC_ACTIONS.REMOVE:
             this._removeRecord(message);
-          break;
+            break;
           default:
             throw new Error('No action specified');
         }
@@ -123,7 +124,7 @@ class Sync {
         // if (record._id === 'hospital-demo-10') console.log('-out-', { users: record.users });
         await this.client.getClient().publish(`/${config.sync.channelOut}/${client.clientId}`, {
           record,
-          ...change
+          ...change,
         });
 
         console.log('[MessageOut]', { action: change.action, type: change.recordType, id: change.recordId });
@@ -223,11 +224,13 @@ class Sync {
         const fields = updatedModifiedFields.map(({ field: f }) => f);
         const subject = recordType;
         const user = userId;
-        const validPermissions = this.auth.validatePermissions({ user, hospitalId, action, subject, fields });
+        const validPermissions = this.auth.validatePermissions({
+          user, hospitalId, action, subject, fields,
+        });
         if (validPermissions) { // TODO: add generous relations update
           if (has(currentModifiedFields, field)) { // if key already has an old value stored
             const lastUpdatedValue = updateTime > currentModifiedFields[field].time
-                                        ? updatedRecord[field] : currentRecord[field];
+              ? updatedRecord[field] : currentRecord[field];
             newRecord[field] = lastUpdatedValue;
           } else { // Set the new value
             newRecord[field] = updatedRecord[field];
@@ -243,10 +246,10 @@ class Sync {
     // set the latest modified fields
     if (Object.keys(newRecord).length > 1) {
       newRecord.modifiedFields = chain([...currentModifiedFields, ...updatedModifiedFields])
-                                  .sortBy('_id')
-                                  .reverse()
-                                  .uniqBy('_id')
-                                  .value();
+        .sortBy('_id')
+        .reverse()
+        .uniqBy('_id')
+        .value();
     }
     return newRecord;
   }
@@ -275,7 +278,7 @@ class Sync {
       this.queueManager.push({
         action: SYNC_ACTIONS.SAVE,
         recordId,
-        recordType
+        recordType,
       });
     });
   }
@@ -293,4 +296,3 @@ class Sync {
 }
 
 module.exports = Sync;
-

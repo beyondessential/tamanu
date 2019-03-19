@@ -5,7 +5,9 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import Contacts from '../components/Contacts';
-import { InputGroup, DatepickerGroup, RadioGroup, UpdateButton, BackButton } from '../../../components';
+import {
+  InputGroup, DatepickerGroup, RadioGroup, UpdateButton, BackButton,
+} from '../../../components';
 import { bloodOptions, sexOptions, getDifferenceDate } from '../../../constants';
 
 class General extends Component {
@@ -345,7 +347,7 @@ class General extends Component {
 }
 
 General.propTypes = {
-  savePatient: PropTypes.func.isRequired
-}
+  savePatient: PropTypes.func.isRequired,
+};
 
 export default General;

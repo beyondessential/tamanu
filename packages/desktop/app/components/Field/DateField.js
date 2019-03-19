@@ -24,10 +24,9 @@ export const DateInput = (props) => (
 
 export const DateField = ({ field, ...props }) => (
   <DateInput
-    name={ field.name }
-    value={ toDate(field.value) }
-    onChange={ (e) => field.onChange(fromDate(e)) }
+    name={field.name}
+    value={toDate(field.value)}
+    onChange={(e) => field.onChange(fromDate(e))}
     {...props}
   />
 );
-

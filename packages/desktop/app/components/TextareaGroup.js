@@ -16,7 +16,7 @@ class TextareaGroup extends Component {
   static defaultProps = {
     required: false,
     className: 'field column',
-    labelClass: 'label'
+    labelClass: 'label',
   }
 
   constructor(props) {
@@ -45,10 +45,14 @@ class TextareaGroup extends Component {
     const fiedlId = `textarea-${shortid.generate()}`;
     return (
       <div className={className}>
-        {label &&
+        {label
+          && (
           <label className={labelClass} htmlFor={fiedlId}>
-            {label} {required && <span className="isRequired">*</span>}
+            {label}
+            {' '}
+            {required && <span className="isRequired">*</span>}
           </label>
+          )
         }
         <div className="control">
           <textarea
@@ -69,7 +73,7 @@ class TextareaGroup extends Component {
 
 function mapStateToProps(state) {
   return {
-    currentPath: state.router.location.pathname
+    currentPath: state.router.location.pathname,
   };
 }
 

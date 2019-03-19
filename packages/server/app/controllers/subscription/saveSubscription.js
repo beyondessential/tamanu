@@ -17,7 +17,7 @@ internals.validateBody = [
       return res.status(422).json({
         answers: {
           errors: chain(errors.array()).map('msg').uniq().value(),
-        }
+        },
       });
     }
     return next();
@@ -28,10 +28,8 @@ internals.saveSubscription = async (req, res) => {
   const realm = req.app.get('realm');
   const { clientId, clientToken, remoteSeq } = req.body;
   try {
-    const subscription = realm.write(() => {
-      return realm.create('subscription', { clientId, clientToken, remoteSeq });
-    });
-     return res.json(subscription);
+    const subscription = realm.write(() => realm.create('subscription', { clientId, clientToken, remoteSeq }));
+    return res.json(subscription);
   } catch (err) {
     return res.status(500).send(err.stack);
   }
@@ -39,5 +37,5 @@ internals.saveSubscription = async (req, res) => {
 
 module.exports = [
   internals.validateBody,
-  internals.saveSubscription
+  internals.saveSubscription,
 ];

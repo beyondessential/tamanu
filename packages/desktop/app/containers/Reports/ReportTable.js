@@ -5,15 +5,15 @@ import moment from 'moment';
 import { SaveSpreadsheetButton } from '../../components/SaveSpreadsheetButton';
 
 const dataColumns = [
-  { 
+  {
     Header: 'Date',
-    id: 'key', 
+    id: 'key',
     accessor: row => row.sort,
     sortMethod: (a, b) => a - b,
     Cell: record => record.original.formatted,
     exporter: row => row.formatted,
   },
-  { 
+  {
     Header: 'Amount',
     accessor: 'amount',
   },
@@ -26,17 +26,17 @@ const buttonContainerStyle = {
 
 export const ReportTable = ({ data }) => (
   <div>
-    <div style={ buttonContainerStyle }>
-      <SaveSpreadsheetButton 
+    <div style={buttonContainerStyle}>
+      <SaveSpreadsheetButton
         filename="report"
         data={data}
         columns={dataColumns}
       />
     </div>
     <ReactTable
-      data={ data }
+      data={data}
       columns={dataColumns}
-      minRows={ 1 }
+      minRows={1}
     />
   </div>
 );

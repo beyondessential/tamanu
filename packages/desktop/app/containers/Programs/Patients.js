@@ -89,7 +89,9 @@ class Patients extends Component {
           variant="contained"
           color="primary"
           onClick={() => _this.selectPatient(row.value._id)}
-        >Select Patient</Button>
+        >
+Select Patient
+        </Button>
       </div>
     );
   }
@@ -123,16 +125,17 @@ class Patients extends Component {
           title={program ? program.name : 'Patients'}
           search={{
             onSubmit: this.searchSubmit,
-            onClear: this.searchReset
+            onClear: this.searchReset,
           }}
           buttons={[{
-            to: "/patients/edit/new",
+            to: '/patients/edit/new',
             can: { do: 'create', on: 'patient' },
-            children: 'New Patient'
+            children: 'New Patient',
           }]}
         />
         <div className="detail">
-          {programLoaded &&
+          {programLoaded
+            && (
             <ReactTable
               manual
               keyField="_id"
@@ -145,6 +148,7 @@ class Patients extends Component {
               defaultSortDirection="asc"
               onFetchData={this.onFetchData}
             />
+            )
           }
         </div>
       </div>
@@ -155,7 +159,7 @@ class Patients extends Component {
 Patients.defaultProps = {
   programModel: new ProgramModel(),
   collection: new PatientsCollection(),
-  patients: []
+  patients: [],
 };
 
 export default Patients;

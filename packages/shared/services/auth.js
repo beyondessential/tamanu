@@ -6,7 +6,7 @@ const { Ability } = require('@casl/ability');
 const { permittedFieldsOf } = require('@casl/ability/extra');
 const {
   isEmpty, isArray, head, isNumber,
-  find, difference, template
+  find, difference, template,
 } = require('lodash');
 const { objectToJSON } = require('../utils');
 const { schemas, schemaClasses } = require('../../shared/schemas');
@@ -20,7 +20,7 @@ class BaseAuth {
     this.errors = {
       InvalidCredentials: 'Invalid email or password entered.',
       InvalidHospital: 'User not linked to any facility.',
-      invalidToken: 'Invalid credentials.'
+      invalidToken: 'Invalid credentials.',
     };
   }
 
@@ -29,13 +29,13 @@ class BaseAuth {
     password: passwordEntered,
     hospital: hospitalSelected,
     clientId,
-    firstTimeLogin = false
+    firstTimeLogin = false,
   }) {
     if (!isNumber(this.sessionTimeout)) throw new Error('Invalid session timeout.');
     const expiry = new Date().getTime() + this.sessionTimeout;
 
     const { _id: userId, password, hospitals } = this._userExists({ email });
-    if (!userId)  return Promise.reject(new Error(this.errors.InvalidCredentials));
+    if (!userId) return Promise.reject(new Error(this.errors.InvalidCredentials));
 
     // Check user's password
     const [err, validPassword] = await to(bcrypt.compare(passwordEntered, password));
@@ -44,11 +44,11 @@ class BaseAuth {
 
     // Validate hospital
     const checkHospitalResponse = this._checkHospital({ hospitals, hospitalSelected, firstTimeLogin });
-    if (checkHospitalResponse === false)  return Promise.reject(new Error(this.errors.InvalidHospital));
+    if (checkHospitalResponse === false) return Promise.reject(new Error(this.errors.InvalidHospital));
     if (isArray(checkHospitalResponse)) {
       return {
         action: 'select-hospital',
-        options: checkHospitalResponse
+        options: checkHospitalResponse,
       };
     }
 
@@ -57,7 +57,9 @@ class BaseAuth {
 
     // Register the client
     const clientSecret = this.generateJWTToken({ hospitalId, userId });
-    return this._addClient({ hospitalId, userId, clientId, clientSecret, expiry });
+    return this._addClient({
+      hospitalId, userId, clientId, clientSecret, expiry,
+    });
   }
 
   _userExists({ email }) {
@@ -88,7 +90,9 @@ class BaseAuth {
     return false;
   }
 
-  _addClient({ hospitalId, userId, clientId, clientSecret, expiry }) {
+  _addClient({
+    hospitalId, userId, clientId, clientSecret, expiry,
+  }) {
     let client;
     this.database.write(() => {
       client = this.database.create('client', {
@@ -97,17 +101,17 @@ class BaseAuth {
         clientId,
         clientSecret,
         expiry,
-        date: new Date()
+        date: new Date(),
       }, true);
     });
     return client;
   }
 
-  async verifyExtendToken({ clientId, clientSecret, extend=true }) {
+  async verifyExtendToken({ clientId, clientSecret, extend = true }) {
     try {
       const user = this.database.find(
         'client',
-        `clientId = "${clientId}" AND clientSecret = "${clientSecret}" AND expiry > "${new Date().getTime()}" `
+        `clientId = "${clientId}" AND clientSecret = "${clientSecret}" AND expiry > "${new Date().getTime()}" `,
       );
       if (user && user.length > 0) {
         if (extend === true && isNumber(this.sessionTimeout)) {
@@ -125,9 +129,9 @@ class BaseAuth {
     if (!this.secret) throw new Error('JWT secret not set');
     const payload = { userId, hospitalId };
     return jwt.sign(payload, this.secret, {
-      expiresIn: "2w",
+      expiresIn: '2w',
       issuer: this.issuer,
-      ...opts
+      ...opts,
     });
   }
 
@@ -151,13 +155,15 @@ class BaseAuth {
    * Validate user permissions
    * @param {user, hospitalId, action, subject, fields} param
    */
-  validatePermissions({ user, hospitalId, action, subject, fields }) {
+  validatePermissions({
+    user, hospitalId, action, subject, fields,
+  }) {
     if (!user || !hospitalId || !action || !subject) return false;
     if (typeof user === 'string') user = this.database.findOne('user', user);
-    this.user = user; 
+    this.user = user;
 
     /*
-     * Permissions check temporarily disabled as it has a lot of bugs and we have 
+     * Permissions check temporarily disabled as it has a lot of bugs and we have
      * an upcoming demo
      *
     const schema = find(schemas, ({ name }) => (name === subject || subject instanceof schemaClasses[name]));
@@ -201,7 +207,7 @@ class BaseAuth {
         user = this.database.findOne('user', userId);
       }
       if (!user) return false;
-      const { roles }  = user;
+      const { roles } = user;
       const userRole = roles.find(({ hospital }) => hospital._id === hospitalId);
       if (!userRole) return false;
 

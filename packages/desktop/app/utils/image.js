@@ -1,7 +1,6 @@
 export const getFileInDocumentsPath = (fileName) => ''; // '`file://${RNFS.DocumentDirectoryPath}/${fileName}`;
 
-export const imageDataIsFileName = (imageData) =>
-  imageData && imageData.length < 100 && imageData.search('.*?.(jpg|png)') !== -1;
+export const imageDataIsFileName = (imageData) => imageData && imageData.length < 100 && imageData.search('.*?.(jpg|png)') !== -1;
 
 /**
  * Get a ReactNative ImageSource object.

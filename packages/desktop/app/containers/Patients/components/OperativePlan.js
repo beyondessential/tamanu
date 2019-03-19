@@ -14,18 +14,28 @@ class Dignosis extends Component {
     return (
       <div className="column">
         <span className="title">Operative Plan </span>
-        {isEmpty(operationPlan) && <TextButton
-            can={{ do: 'create', on: 'operativePlan' }}
-            to={`/patients/operativePlan/${patientModel.id}`}
-          > + Add Operative Plan</TextButton>}
-        {!isEmpty(operationPlan) &&
+        {isEmpty(operationPlan) && (
+        <TextButton
+          can={{ do: 'create', on: 'operativePlan' }}
+          to={`/patients/operativePlan/${patientModel.id}`}
+        >
+          {' '}
++ Add Operative Plan
+        </TextButton>
+        )}
+        {!isEmpty(operationPlan)
+          && (
           <React.Fragment>
             <br />
             <TextButton
               can={{ do: 'read', on: 'operativePlan' }}
               to={`/patients/operativePlan/${patientModel.id}/${operationPlan._id}`}
-            > Current Operative Plan</TextButton>
+            >
+              {' '}
+Current Operative Plan
+            </TextButton>
           </React.Fragment>
+          )
         }
       </div>
     );

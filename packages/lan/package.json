@@ -17,7 +17,9 @@
     "stop": "pm2 stop tamanu-lan",
     "start-dev": "nodemon index",
     "build": "pkg . --targets node10-win-x64 --output ./release/server.exe",
-    "package": "./scripts/package.sh"
+    "package": "./scripts/package.sh",
+    "lint": "eslint app",
+    "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
   },
   "repository": {
     "type": "git",
@@ -48,6 +50,7 @@
     "@babel/node": "^7.2.2",
     "@babel/plugin-proposal-class-properties": "^7.3.4",
     "@babel/preset-env": "^7.3.4",
+    "@beyondessential/eslint-config-beyondessential": "^2.2",
     "@babel/register": "^7.0.0",
     "@casl/ability": "^2.5.1",
     "await-to-js": "^2.0.1",

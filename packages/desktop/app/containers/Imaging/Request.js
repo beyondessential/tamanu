@@ -5,10 +5,10 @@ import request from 'request';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Grid } from '@material-ui/core';
-import { request as imagingRequestActions } from '../../actions/imaging';
 import moment from 'moment';
 import { capitalize } from 'lodash';
 import styled from 'styled-components';
+import { request as imagingRequestActions } from '../../actions/imaging';
 import TopRow from '../Patients/components/TopRow';
 import {
   TopBar,
@@ -53,7 +53,7 @@ class Request extends Component {
       isFormValid: false,
       isLoading: true,
       selectedPatientId: '',
-    }
+    };
   }
 
   componentDidMount() {
@@ -88,7 +88,7 @@ class Request extends Component {
     const { imagingRequestModel } = this.props;
     const { selectedPatientId } = this.state;
     const formData = prepareFormData(imagingRequestModel.changedAttributes());
-    const isFormValid = imagingRequestModel.isValid() ; //&& !!selectedPatientId && !!visit;
+    const isFormValid = imagingRequestModel.isValid(); //&& !!selectedPatientId && !!visit;
     this.setState({ ...formData, isFormValid });
   }
 
@@ -135,7 +135,7 @@ class Request extends Component {
     const imageUrl = 'http://192.168.43.109:8080/weasis-pacs-connector/IHEInvokeImageDisplay?requestType=STUDY&studyUID=1.113654.3.13.1026';
     const filePath = dialog.showSaveDialog({
       title: 'Save Imaging',
-      defaultPath: `imaging-${requestId}.jnlp`
+      defaultPath: `imaging-${requestId}.jnlp`,
     });
     if (filePath) {
       request(imageUrl).pipe(fs.createWriteStream(filePath))
@@ -145,14 +145,16 @@ class Request extends Component {
     }
   }
 
-  render () {
+  render() {
     const { isLoading } = this.state;
     if (isLoading) return <Preloader />;
 
-    const { action, patient, isPatientSelected, imagingTypes } = this.props;
+    const {
+      action, patient, isPatientSelected, imagingTypes,
+    } = this.props;
     const {
       selectedPatientId, visit, location, type, notes,
-      detail, isFormValid, diagnosis, status
+      detail, isFormValid, diagnosis, status,
     } = this.state;
 
     return (
@@ -164,20 +166,25 @@ class Request extends Component {
         >
           <div className="form with-padding">
             <Grid container spacing={8}>
-              {isPatientSelected ?
-                <Grid item container xs={12}>
-                  <TopRow patient={patient} />
-                </Grid> :
-                <Grid item xs={6}>
-                  <PatientAutocomplete
-                    label="Patient"
-                    name="patient"
-                    onChange={this.handlePatientChange}
-                    required
-                  />
-                </Grid>
+              {isPatientSelected
+                ? (
+                  <Grid item container xs={12}>
+                    <TopRow patient={patient} />
+                  </Grid>
+                )
+                : (
+                  <Grid item xs={6}>
+                    <PatientAutocomplete
+                      label="Patient"
+                      name="patient"
+                      onChange={this.handlePatientChange}
+                      required
+                    />
+                  </Grid>
+                )
               }
-              {action === 'new' &&
+              {action === 'new'
+                && (
                 <Grid item xs={6}>
                   <PatientRelationSelect
                     className=""
@@ -190,9 +197,11 @@ class Request extends Component {
                     onChange={this.handleVisitChange}
                   />
                 </Grid>
+                )
               }
             </Grid>
-            {action !== 'new' &&
+            {action !== 'new'
+              && (
               <Grid container>
                 <Grid item xs={6}>
                   <DiagnosisAutocomplete
@@ -210,6 +219,7 @@ class Request extends Component {
                   required
                 />
               </Grid>
+              )
             }
             <Grid container>
               <Grid item xs={6}>
@@ -240,7 +250,8 @@ class Request extends Component {
               />
             </Grid>
             <ButtonsContainer>
-              {status === IMAGING_REQUEST_STATUSES.COMPLETED &&
+              {status === IMAGING_REQUEST_STATUSES.COMPLETED
+                && (
                 <ViewImageButton
                   color="secondary"
                   variant="contained"
@@ -248,30 +259,35 @@ class Request extends Component {
                 >
                   View Image
                 </ViewImageButton>
+                )
               }
               <BackButton />
-              {action === 'new' ?
-                <AddButton
-                  type="submit"
-                  disabled={!isFormValid}
-                  can={{ do: 'create', on: 'imaging' }}
-                /> :
-                <React.Fragment>
-                  <Button
-                    color="secondary"
-                    variant="contained"
-                    can={{ do: 'update', on: 'imaging', field: 'status' }}
-                    onClick={this.markAsCompleted}
-                    disabled={status === IMAGING_REQUEST_STATUSES.COMPLETED || !isFormValid}
-                  >
-                    {status !== IMAGING_REQUEST_STATUSES.COMPLETED ? 'Mark as Completed' : 'Completed'}
-                  </Button>
-                  <UpdateButton
+              {action === 'new'
+                ? (
+                  <AddButton
                     type="submit"
-                    disabled={!isFormValid || status === IMAGING_REQUEST_STATUSES.COMPLETED}
-                    can={{ do: 'update', on: 'imaging' }}
+                    disabled={!isFormValid}
+                    can={{ do: 'create', on: 'imaging' }}
                   />
-                </React.Fragment>
+                )
+                : (
+                  <React.Fragment>
+                    <Button
+                      color="secondary"
+                      variant="contained"
+                      can={{ do: 'update', on: 'imaging', field: 'status' }}
+                      onClick={this.markAsCompleted}
+                      disabled={status === IMAGING_REQUEST_STATUSES.COMPLETED || !isFormValid}
+                    >
+                      {status !== IMAGING_REQUEST_STATUSES.COMPLETED ? 'Mark as Completed' : 'Completed'}
+                    </Button>
+                    <UpdateButton
+                      type="submit"
+                      disabled={!isFormValid || status === IMAGING_REQUEST_STATUSES.COMPLETED}
+                      can={{ do: 'update', on: 'imaging' }}
+                    />
+                  </React.Fragment>
+                )
               }
             </ButtonsContainer>
           </div>
@@ -279,7 +295,7 @@ class Request extends Component {
       </div>
     );
   }
-};
+}
 
 Request.propTypes = {
   initImagingRequest: PropTypes.func.isRequired,
@@ -290,31 +306,36 @@ Request.propTypes = {
   imagingRequestModel: PropTypes.object.isRequired,
   isLoading: PropTypes.bool,
   error: PropTypes.object,
-}
+};
 
 Request.defaultProps = {
   patient: {},
   imagingTypes: [],
   isLoading: true,
   error: {},
-}
+};
 
 function mapStateToProps({
-  imaging: { patient, imagingTypes, isLoading, error, imagingRequestModel } },
-  { match: { params: { patientId, id } = {} } }
-) {
+  imaging: {
+    patient, imagingTypes, isLoading, error, imagingRequestModel,
+  },
+},
+{ match: { params: { patientId, id } = {} } }) {
   return {
-    patient, imagingTypes, isLoading,
-    imagingRequestModel, error,
+    patient,
+    imagingTypes,
+    isLoading,
+    imagingRequestModel,
+    error,
     isPatientSelected: !!patientId || !!id,
-    action: id ? 'edit' : 'new'
+    action: id ? 'edit' : 'new',
   };
 }
 
 const { initImagingRequest, saveImagingRequest, markImagingRequestCompleted } = imagingRequestActions;
 const mapDispatchToProps = (
   dispatch,
-  { match: { params: { patientId, id } = {} } }
+  { match: { params: { patientId, id } = {} } },
 ) => ({
   initImagingRequest: () => dispatch(initImagingRequest(patientId, id)),
   saveImagingRequest: (params) => dispatch(saveImagingRequest(params)),

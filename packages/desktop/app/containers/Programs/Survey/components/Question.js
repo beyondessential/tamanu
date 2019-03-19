@@ -12,7 +12,9 @@ export class DumbQuestion extends Component {
   // }
 
   render() {
-    const { mageData, text, type, SpecificQuestion, validationErrorMessage, singleLine, ...questionProps } = this.props;
+    const {
+      mageData, text, type, SpecificQuestion, validationErrorMessage, singleLine, ...questionProps
+    } = this.props;
     let wrapperClass = '';
     let questionClass = '';
     let labelClass = 'm-b-10';
@@ -44,7 +46,8 @@ export class DumbQuestion extends Component {
           source={getImageSourceFromData(imageData)}
           style={localStyles.image}
         />) : null} */}
-        {type !== 'Instruction' &&
+        {type !== 'Instruction'
+          && (
           <div className={questionClass}>
             <SpecificQuestion
               key={questionProps._id}
@@ -52,6 +55,7 @@ export class DumbQuestion extends Component {
               {...questionProps}
             />
           </div>
+          )
         }
         {/* {validationErrorMessage && <StatusMessage type={STATUS_MESSAGE_ERROR} message={validationErrorMessage} />} */}
       </div>

@@ -4,14 +4,16 @@ import { Button } from '../../../components';
 import { patientImagingRequestsColumns } from '../../../constants';
 
 const setActionsColumn = ({ original: { _id } }) => (
-    <div key={_id}>
-      <Button
-        variant="contained"
-        color="primary"
-        to={`/imaging/request/${_id}`}
-      >View</Button>
-    </div>
-)
+  <div key={_id}>
+    <Button
+      variant="contained"
+      color="primary"
+      to={`/imaging/request/${_id}`}
+    >
+View
+    </Button>
+  </div>
+);
 
 const Imaging = ({ patientModel }) => {
   const imagingRequests = patientModel.getImagingRequests();
@@ -21,7 +23,8 @@ const Imaging = ({ patientModel }) => {
   return (
     <div className="column">
       <div className="column">
-        {imagingRequests.length > 0 &&
+        {imagingRequests.length > 0
+          && (
           <div>
             <ReactTable
               keyField="_id"
@@ -33,17 +36,20 @@ const Imaging = ({ patientModel }) => {
               showPagination={false}
             />
           </div>
+          )
         }
-        {imagingRequests.length === 0 &&
+        {imagingRequests.length === 0
+          && (
           <div className="notification">
             <span>
               No requests found.
             </span>
           </div>
+          )
         }
       </div>
     </div>
   );
-}
+};
 
 export default Imaging;

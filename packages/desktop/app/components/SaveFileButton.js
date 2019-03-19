@@ -6,7 +6,6 @@ import { createWriteStream } from 'fs';
 import { Button } from './Button';
 
 export class SaveFileButton extends Component {
-
   static propTypes = {
     filters: PropTypes.arrayOf(PropTypes.shape({
       name: PropTypes.string,
@@ -15,7 +14,7 @@ export class SaveFileButton extends Component {
     writeFunction: PropTypes.func.isRequired,
     children: PropTypes.node,
   }
-    
+
   state = {
     isWriting: false,
   }
@@ -43,23 +42,23 @@ export class SaveFileButton extends Component {
       resolve(result);
     });
 
-    this.setState({ isWriting: false })
+    this.setState({ isWriting: false });
   }
 
   onClick = async () => {
     const filePath = await this.showDialog();
-    if(!filePath) return;
+    if (!filePath) return;
 
     await this.write(filePath);
   }
 
   render() {
     return (
-      <Button 
-        onClick={ this.onClick }
-        disabled={ this.state.isWriting }
+      <Button
+        onClick={this.onClick}
+        disabled={this.state.isWriting}
       >
-        { this.props.children || "Save" }
+        { this.props.children || 'Save' }
       </Button>
     );
   }

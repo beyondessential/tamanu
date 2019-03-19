@@ -3,21 +3,20 @@ import Backbone from 'backbone-associations';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/surveyResponse`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/surveyResponse`,
   defaults: () => defaults({
-      surveyId: '',
-      patientId: '',
-      userId: '',
-      moduleType: '',
-      moduleId: '',
-      assessorName: '',
-      startTime: '',
-      endTime: '',
-      metadata: '',
-      answers: []
-    },
-    BaseModel.prototype.defaults,
-  ),
+    surveyId: '',
+    patientId: '',
+    userId: '',
+    moduleType: '',
+    moduleId: '',
+    assessorName: '',
+    startTime: '',
+    endTime: '',
+    metadata: '',
+    answers: [],
+  },
+  BaseModel.prototype.defaults),
 
   relations: [
     {
@@ -25,6 +24,6 @@ export default BaseModel.extend({
       key: 'answers',
       relatedModel: require('./answer'),
     },
-    ...BaseModel.prototype.relations
+    ...BaseModel.prototype.relations,
   ],
 });

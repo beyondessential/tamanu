@@ -22,9 +22,14 @@ const DataLabel = styled.span`
 const DataValue = styled.span`
 `;
 
-const DataItem = ({ label, value }) => ( 
+const DataItem = ({ label, value }) => (
   <li>
-    <DataLabel>{label}:</DataLabel> <DataValue>{value}</DataValue>
+    <DataLabel>
+      {label}
+:
+    </DataLabel>
+    {' '}
+    <DataValue>{value}</DataValue>
   </li>
 );
 
@@ -33,18 +38,17 @@ const NoteContent = styled.p`
 `;
 
 const PLACEHOLDER_PATIENT = {
-  attributes: { sex: "female" },
-  getDisplayName: () => "Joan Smythe",
+  attributes: { sex: 'female' },
+  getDisplayName: () => 'Joan Smythe',
 };
 
 export class LabRequestDisplay extends React.Component {
-
   state = {
     loading: true,
     patientData: null,
     labRequestData: null,
   }
-  
+
   async componentDidMount() {
     const { match: { params: { id: labRequestId } } } = this.props;
     const labRequestModel = new LabRequestModel({ _id: labRequestId });
@@ -53,7 +57,7 @@ export class LabRequestDisplay extends React.Component {
     const labRequestData = labRequestModel.toJSON();
     const patientData = labRequestModel.getPatient() || PLACEHOLDER_PATIENT;
 
-    this.setState({ 
+    this.setState({
       loading: false,
       labRequestData,
       patientData,
@@ -62,26 +66,33 @@ export class LabRequestDisplay extends React.Component {
 
   render() {
     const { loading, labRequestData, patientData } = this.state;
-    if(loading) {
+    if (loading) {
       return <Preloader />;
     }
 
     const patientSex = patientData.attributes.sex;
-    const patientIsMale = (patientSex === "male");
-    const getReferenceRange = ({type}) => {
+    const patientIsMale = (patientSex === 'male');
+    const getReferenceRange = ({ type }) => {
       const range = (patientIsMale ? type.maleRange : type.femaleRange);
       const { 0: min, 1: max } = (range || {});
-      if(min && max) {
-        return <span>{`${min}–${max} `}<Unit>{type.unit}</Unit></span>
-      } else {
-        return <span></span>;
+      if (min && max) {
+        return (
+          <span>
+            {`${min}–${max} `}
+            <Unit>{type.unit}</Unit>
+          </span>
+        );
       }
+      return <span />;
     };
 
     const tests = labRequestData.tests.map(t => (
       <tr key={t._id}>
         <td>{t.type.name}</td>
-        <td>{t.result || "– "}<Unit>{t.type.unit}</Unit></td>
+        <td>
+          {t.result || '– '}
+          <Unit>{t.type.unit}</Unit>
+        </td>
         <td>{getReferenceRange(t)}</td>
       </tr>
     ));
@@ -96,9 +107,9 @@ export class LabRequestDisplay extends React.Component {
               <DataItem label="Requested by" value={labRequestData.requestedBy.displayName} />
               <DataItem label="Status" value={toTitleCase(labRequestData.status)} />
               <DataItem label="Category" value={labRequestData.category.name} />
-              <DataItem label="Requested date" value={<DateDisplay date={labRequestData.requestedDate}/>} />
-              <DataItem label="Sample date" value={<DateDisplay day={labRequestData.sampleDate}/>} />
-              <DataItem label="Sample ID" value={labRequestData.sampleId || "processing"} />
+              <DataItem label="Requested date" value={<DateDisplay date={labRequestData.requestedDate} />} />
+              <DataItem label="Sample date" value={<DateDisplay day={labRequestData.sampleDate} />} />
+              <DataItem label="Sample ID" value={labRequestData.sampleId || 'processing'} />
             </ul>
           </DataSection>
 
@@ -107,7 +118,13 @@ export class LabRequestDisplay extends React.Component {
             <table>
               <tbody>
                 <tr>
-                  <th>Test</th><th>Result</th><th>Reference ({patientSex})</th>
+                  <th>Test</th>
+                  <th>Result</th>
+                  <th>
+Reference (
+                    {patientSex}
+)
+                  </th>
                 </tr>
                 {tests}
               </tbody>
@@ -116,11 +133,10 @@ export class LabRequestDisplay extends React.Component {
 
           <DataSection>
             <h3>Notes</h3>
-            <NoteContent>{labRequestData.notes || "No notes."}</NoteContent>
+            <NoteContent>{labRequestData.notes || 'No notes.'}</NoteContent>
           </DataSection>
         </div>
       </div>
     );
   }
-
 }

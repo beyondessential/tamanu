@@ -8,10 +8,10 @@ const ImagingTypeSchema = {
     name: 'string',
     sortOrder: {
       type: 'int',
-      default: 0
+      default: 0,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = ImagingTypeSchema;

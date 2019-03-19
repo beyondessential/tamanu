@@ -32,7 +32,7 @@ class QueueManager extends EventEmitter {
       timestamp: new Date().getTime(),
       action,
       recordId,
-      recordType
+      recordType,
     };
 
     // Wait for concurrent push

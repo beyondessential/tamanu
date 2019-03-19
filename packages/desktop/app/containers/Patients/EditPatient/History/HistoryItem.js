@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { Grid, ListItem, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
-import { DateDisplay } from '../../../../components';
 import { capitalize } from 'lodash';
 import { Link } from 'react-router-dom';
+import { DateDisplay } from '../../../../components';
 
 const styles = ({ spacing }) => {
   const defaultPadding = `${spacing.unit / 2}px ${spacing.unit * 2}px`;
@@ -19,16 +19,16 @@ const styles = ({ spacing }) => {
     date: {
       backgroundColor: grey[400],
       padding: defaultPadding,
-      display: "flex",
+      display: 'flex',
       alignItems: 'center',
-      "& abbr": {
+      '& abbr': {
         textDecoration: 'none',
-      }
+      },
     },
     captionText: {
       color: grey[400],
       padding: defaultPadding,
-      display: "flex",
+      display: 'flex',
       alignItems: 'center',
     },
     titleText: {
@@ -37,11 +37,13 @@ const styles = ({ spacing }) => {
     procedures: {
       padding: spacing.unit,
       backgroundColor: grey[100],
-    }
+    },
   };
-}
+};
 
-const Procedures = ({ classes, _id: visitId, procedures, patientId }) => (
+const Procedures = ({
+  classes, _id: visitId, procedures, patientId,
+}) => (
   <Grid container className={classes.procedures} spacing={8}>
     {procedures.map(procedure => (
       <Grid item key={procedure._id}>
@@ -63,11 +65,13 @@ const Procedures = ({ classes, _id: visitId, procedures, patientId }) => (
       </Grid>
     ))}
   </Grid>
-)
+);
 
-const Item = ({ classes, onClick, date, startDate, endDate, caption, title }) => (
+const Item = ({
+  classes, onClick, date, startDate, endDate, caption, title,
+}) => (
   <ListItem
-    component={'div'}
+    component="div"
     className={classes.list}
     disableGutters
     button
@@ -77,11 +81,13 @@ const Item = ({ classes, onClick, date, startDate, endDate, caption, title }) =>
       <Grid item className={classes.date}>
         <Typography variant="subtitle1">
           <DateDisplay date={startDate || date} />
-          {endDate &&
+          {endDate
+            && (
             <React.Fragment>
               <span> - </span>
               <DateDisplay date={endDate} />
             </React.Fragment>
+            )
           }
         </Typography>
       </Grid>
@@ -93,7 +99,7 @@ const Item = ({ classes, onClick, date, startDate, endDate, caption, title }) =>
       </Grid>
     </Grid>
   </ListItem>
-)
+);
 
 class HistoryItem extends Component {
   gotoLink(link) {
@@ -101,7 +107,9 @@ class HistoryItem extends Component {
   }
 
   render() {
-    const { item, patientId, changeTab, ...props } = this.props;
+    const {
+      item, patientId, changeTab, ...props
+    } = this.props;
     switch (props.objectType) {
       case 'visit':
         return (

@@ -3,7 +3,7 @@ const { chain } = require('lodash');
 const AuthService = require('../../services/auth');
 
 const internals = {
-  checkBody: buildCheckFunction(['body'])
+  checkBody: buildCheckFunction(['body']),
 };
 
 internals.validateBody = [
@@ -38,5 +38,5 @@ internals.verifyCredentials = async (req, res) => {
 };
 
 module.exports = [
-  internals.verifyCredentials
+  internals.verifyCredentials,
 ];

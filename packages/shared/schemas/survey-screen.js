@@ -7,18 +7,18 @@ const SurveyScreenSchema = {
     _id: 'string',
     surveyId: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     screenNumber: {
       type: 'int',
-      optional: true
+      optional: true,
     },
     components: {
       type: 'list',
-      objectType: 'surveyScreenComponent'
+      objectType: 'surveyScreenComponent',
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = SurveyScreenSchema;

@@ -29,12 +29,14 @@ const renderImage = (imageData) => (
     <Image
       style={localStyles.image}
       source={getImageSourceFromData(imageData)}
-      resizeMode={'cover'}
+      resizeMode="cover"
     />
   </View>
 );
 
-const DumbPhotoQuestion = ({ onPressChoosePhoto, onPressRemovePhoto, imageData, errorMessage }) => (
+const DumbPhotoQuestion = ({
+  onPressChoosePhoto, onPressRemovePhoto, imageData, errorMessage,
+}) => (
   <View style={localStyles.container}>
     {imageData !== null && renderImage(imageData)}
     {imageData === null && errorMessage && <Text>{errorMessage}</Text>}
@@ -107,19 +109,20 @@ const handleImagePickerResponse = async (response, onChangeAnswer, onChangeExtra
   }
 };
 
-export const PhotoQuestion =
-  ({ answer, extraProps, onChangeAnswer, onChangeExtraProps }) => (
-    <DumbPhotoQuestion
-      imageData={answer}
-      errorMessage={extraProps.errorMessage}
-      onPressChoosePhoto={() => {
-        ImagePicker.showImagePicker({
-          quality: IMAGE_QUALITY,
-        }, (response) => handleImagePickerResponse(response, onChangeAnswer, onChangeExtraProps));
-      }}
-      onPressRemovePhoto={() => onChangeAnswer(null)}
-    />
-  );
+export const PhotoQuestion = ({
+  answer, extraProps, onChangeAnswer, onChangeExtraProps,
+}) => (
+  <DumbPhotoQuestion
+    imageData={answer}
+    errorMessage={extraProps.errorMessage}
+    onPressChoosePhoto={() => {
+      ImagePicker.showImagePicker({
+        quality: IMAGE_QUALITY,
+      }, (response) => handleImagePickerResponse(response, onChangeAnswer, onChangeExtraProps));
+    }}
+    onPressRemovePhoto={() => onChangeAnswer(null)}
+  />
+);
 
 PhotoQuestion.propTypes = {
   answer: PropTypes.string,

@@ -87,7 +87,9 @@ class CheckInPatient extends Component {
                       <div className="column">
                         <span>Name: </span>
                         <span>
-                          {patient.firstName} {patient.lastName}
+                          {patient.firstName}
+                          {' '}
+                          {patient.lastName}
                         </span>
                       </div>
                     </div>
@@ -202,7 +204,7 @@ class CheckInPatient extends Component {
 
 function mapStateToProps(state) {
   return {
-    patient: state.patients.onePatient
+    patient: state.patients.onePatient,
   };
 }
 

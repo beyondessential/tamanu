@@ -1,5 +1,7 @@
 import Backbone from 'backbone-associations';
-import { defaults, each, clone, get, filter, capitalize, concat } from 'lodash';
+import {
+  defaults, each, clone, get, filter, capitalize, concat,
+} from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
 import { concatSelf } from '../utils';
@@ -68,51 +70,51 @@ export default BaseModel.extend({
       type: Backbone.Many,
       key: 'appointments',
       relatedModel: () => require('./appointment'),
-      serialize: '_id'
+      serialize: '_id',
     },
     {
       type: Backbone.Many,
       key: 'additionalContacts',
       relatedModel: () => require('./patientContact'),
-      serialize: '_id'
+      serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'allergies',
       relatedModel: () => require('./allergy'),
-      serialize: '_id'
+      serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'conditions',
       relatedModel: () => require('./condition'),
-      serialize: '_id'
+      serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'operationReports',
       relatedModel: () => require('./operationReport'),
-      serialize: '_id'
+      serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'operativePlans',
       relatedModel: () => require('./operativePlan'),
-      serialize: '_id'
+      serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'pregnancies',
       relatedModel: () => require('./pregnancy'),
-      serialize: '_id'
+      serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'surveyResponses',
       relatedModel: () => require('./surveyResponse'),
-      serialize: '_id'
+      serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'visits',
       relatedModel: () => require('./visit'),
       collectionType: require('../collections/visits'),
-      serialize: '_id'
+      serialize: '_id',
     },
-    ...BaseModel.prototype.relations
+    ...BaseModel.prototype.relations,
   ],
 
   validate(attrs) {
@@ -142,7 +144,7 @@ export default BaseModel.extend({
     let allProcedures = [];
     operationReports.models.forEach((model) => {
       const { procedures, surgeryDate: date, _id: operationReportId } = model.toJSON();
-      allProcedures = allProcedures.concat(procedures.map(name => { return { name, date, operationReportId }; }));
+      allProcedures = allProcedures.concat(procedures.map(name => ({ name, date, operationReportId })));
     });
 
     return allProcedures;
@@ -191,14 +193,12 @@ export default BaseModel.extend({
 
   getHistory() {
     let history = [];
-    let { visits } = this.attributes;
-    const parseHistoryObject = (objectType, collection, dateField = 'requestedDate') => {
-      return collection.map(model => ({
-        date: moment(model.get(dateField)).unix(),
-        objectType,
-        object: model.toJSON()
-      }));
-    }
+    const { visits } = this.attributes;
+    const parseHistoryObject = (objectType, collection, dateField = 'requestedDate') => collection.map(model => ({
+      date: moment(model.get(dateField)).unix(),
+      objectType,
+      object: model.toJSON(),
+    }));
 
     const appointments = this.get('appointments');
     history = history.concat(parseHistoryObject('appointment', appointments, 'startDate'));
@@ -207,13 +207,13 @@ export default BaseModel.extend({
       const imagingRequests = visitModel.get('imagingRequests');
       const labRequests = visitModel.getLabRequests();
       history = history
-                .concat(parseHistoryObject('visit', [visitModel], 'startDate'))
-                .concat(parseHistoryObject('medication', medication))
-                .concat(parseHistoryObject('imagingRequest', imagingRequests))
-                .concat(parseHistoryObject('labRequest', labRequests));
+        .concat(parseHistoryObject('visit', [visitModel], 'startDate'))
+        .concat(parseHistoryObject('medication', medication))
+        .concat(parseHistoryObject('imagingRequest', imagingRequests))
+        .concat(parseHistoryObject('labRequest', labRequests));
     });
 
-    history = history.sort(( objectA, objectB ) => objectB.date - objectA.date);
+    history = history.sort((objectA, objectB) => objectB.date - objectA.date);
     return history;
   },
 
@@ -234,9 +234,7 @@ export default BaseModel.extend({
       const date = from.clone();
       medication.push({
         date: date.format(dateFormat),
-        medication: allMedication.filter(({ attributes }) => {
-          return (date.isSameOrAfter(attributes.prescriptionDate) && (date.isSameOrBefore(attributes.endDate) || attributes.endDate === null));
-        })
+        medication: allMedication.filter(({ attributes }) => (date.isSameOrAfter(attributes.prescriptionDate) && (date.isSameOrBefore(attributes.endDate) || attributes.endDate === null))),
       });
       from.add(1, 'days');
     }
@@ -249,7 +247,7 @@ export default BaseModel.extend({
     visits.models.forEach(visitModel => {
       const { imagingRequests } = visitModel.toJSON();
       allImagingRequests = allImagingRequests.concat(imagingRequests);
-    })
+    });
     return allImagingRequests;
   },
 
@@ -258,7 +256,7 @@ export default BaseModel.extend({
     const labRequestsCollection = new LabRequestsCollection({}, { mode: 'client' });
     visits.models.forEach(visitModel => {
       labRequestsCollection.add(visitModel.getLabRequests().models);
-    })
+    });
     return labRequestsCollection;
   },
 
@@ -268,5 +266,5 @@ export default BaseModel.extend({
       labTests = labTests.concat(tests);
     });
     return labTests;
-  }
+  },
 });

@@ -7,14 +7,14 @@ const ReportSchema = {
     _id: 'string',
     reportDate: {
       type: 'date',
-      optional: true
+      optional: true,
     },
     reportType: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = ReportSchema;

@@ -95,9 +95,9 @@ export class DumbSurveyScreen extends React.Component {
 
     // Interpolations must be based on increasing input range
     const halfWay = currentScreenIndex - ((currentScreenIndex - lastScreenIndex) / 2);
-    const inputRange = isIncreasing ?
-                       [lastScreenIndex, halfWay, currentScreenIndex] :
-                       [currentScreenIndex, halfWay, lastScreenIndex];
+    const inputRange = isIncreasing
+      ? [lastScreenIndex, halfWay, currentScreenIndex]
+      : [currentScreenIndex, halfWay, lastScreenIndex];
 
     // Output range depends on if this is the screen fading in or fading out, and in which direction
     // the input range was ordered
@@ -139,9 +139,9 @@ export class DumbSurveyScreen extends React.Component {
         {[0, 1].map((index) => {
           // Even screens will use the first component, odd will use the second
           const isCurrentContent = screenIndex % 2 === index;
-          const screenIndexForThisContent = isCurrentContent ?
-                                            screenIndex :
-                                            this.state.lastScreenIndex;
+          const screenIndexForThisContent = isCurrentContent
+            ? screenIndex
+            : this.state.lastScreenIndex;
           if (screenIndexForThisContent === null) {
             return null;
           }
@@ -150,32 +150,38 @@ export class DumbSurveyScreen extends React.Component {
               key={screenIndexForThisContent}
               style={this.getStyleForContent(screenIndexForThisContent)}
             >
-              {isCurrentContent && !!errorMessage && <StatusMessage
+              {isCurrentContent && !!errorMessage && (
+              <StatusMessage
                 type={STATUS_MESSAGE_ERROR}
                 message={errorMessage}
-              />}
+              />
+              )}
               <ScrollView
                 ref={(scrollViewRef) => {
                   this.scrollViewRefs[index] = scrollViewRef;
                 }}
                 style={localStyles.scrollView}
               >
-                {screenIndexForThisContent === surveyScreens.length ?
-                  <SubmitScreen /> :
-                  <QuestionScreen screenIndex={screenIndexForThisContent} />
+                {screenIndexForThisContent === surveyScreens.length
+                  ? <SubmitScreen />
+                  : <QuestionScreen screenIndex={screenIndexForThisContent} />
                 }
-                {isSubmitting && <ActivityIndicator color={THEME_COLOR_ONE} size={'large'} />}
-                <View style={localStyles.buttonContainerContainer} >
-                  {isCurrentContent && onPressSubmit !== null && !isSubmitting && <Button
-                    title={'Submit'}
+                {isSubmitting && <ActivityIndicator color={THEME_COLOR_ONE} size="large" />}
+                <View style={localStyles.buttonContainerContainer}>
+                  {isCurrentContent && onPressSubmit !== null && !isSubmitting && (
+                  <Button
+                    title="Submit"
                     onPress={onPressSubmit}
                     style={localStyles.submitButton}
-                  />}
-                  {isCurrentContent && onPressRepeat !== null && !isSubmitting && <Button
-                    title={'Submit and repeat'}
+                  />
+                  )}
+                  {isCurrentContent && onPressRepeat !== null && !isSubmitting && (
+                  <Button
+                    title="Submit and repeat"
                     onPress={onPressRepeat}
                     style={localStyles.submitButton}
-                  />}
+                  />
+                  )}
                 </View>
               </ScrollView>
             </Animated.View>
@@ -204,7 +210,7 @@ export class DumbSurveyScreen extends React.Component {
           />
         </Popup>
         <KeyboardSpacer />
-      </BackgroundComponent >
+      </BackgroundComponent>
     );
   }
 }

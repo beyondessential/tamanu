@@ -8,19 +8,20 @@ import { ReportFilters } from './ReportFilters';
 
 const ReportNotFound = ({ missingId }) => (
   <div>
-    <TopBar title='Report not found' />
+    <TopBar title="Report not found" />
     <div className="detail">
       <div className="notification">
-        Could not find report with id "{missingId}".
+        Could not find report with id "
+        {missingId}
+".
       </div>
     </div>
   </div>
 );
 
 export class ReportGenerator extends Component {
-
   state = {
-    filters: {}
+    filters: {},
   }
 
   render() {
@@ -28,7 +29,7 @@ export class ReportGenerator extends Component {
     const { reportId } = match.params;
     const report = availableReports.find(r => r.id === reportId);
 
-    if(!report) {
+    if (!report) {
       return <ReportNotFound missingId={reportId} />;
     }
 
@@ -36,16 +37,15 @@ export class ReportGenerator extends Component {
       <div>
         <TopBar title={report.name} />
         <div className="detail">
-          <ReportFilters onApply={ filters => this.setState({ filters }) } />
+          <ReportFilters onApply={filters => this.setState({ filters })} />
           <hr />
           <ReportViewer
-            report={ report }
+            report={report}
             data={dummyData}
-            filters={ this.state.filters }
+            filters={this.state.filters}
           />
         </div>
       </div>
     );
   }
 }
-

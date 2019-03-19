@@ -1,4 +1,6 @@
-const { has, set, find, isFunction } = require('lodash');
+const {
+  has, set, find, isFunction,
+} = require('lodash');
 const shortId = require('shortid');
 const { objectToJSON } = require('../../utils');
 const { schemas } = require('../../../../shared/schemas');

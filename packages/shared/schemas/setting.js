@@ -8,14 +8,14 @@ const SettingSchema = {
   properties: {
     key: {
       type: 'string',
-      indexed: true
+      indexed: true,
     },
     value: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = SettingSchema;

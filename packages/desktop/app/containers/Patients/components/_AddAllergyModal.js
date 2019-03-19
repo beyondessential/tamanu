@@ -20,7 +20,9 @@ class AllergyModal extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { isVisible, action, itemId, model: Model } = nextProps;
+    const {
+      isVisible, action, itemId, model: Model,
+    } = nextProps;
     if (action === 'edit') {
       const item = Model.get('allergies').findWhere({ _id: itemId });
       this.setState({ isVisible, name: item.name, item }, () => this.validateField('name'));
@@ -88,7 +90,11 @@ class AllergyModal extends Component {
         >
           <div className="tamanu-error-modal">
             <div className="modal-header">
-              <h2>{action === 'new' ? 'Add' : 'Update'} Allergy</h2>
+              <h2>
+                {action === 'new' ? 'Add' : 'Update'}
+                {' '}
+Allergy
+              </h2>
             </div>
             <div className="modal-content">
               <InputGroup

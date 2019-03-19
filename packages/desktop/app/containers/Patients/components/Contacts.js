@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import ReactTable from 'react-table';
 import styled from 'styled-components';
 import ContactModal from './ContactModal';
-import { Modal, EditButton ,DeleteButton, NewButton } from '../../../components';
+import {
+  Modal, EditButton, DeleteButton, NewButton,
+} from '../../../components';
 import { patientContactColumns } from '../../../constants';
 
 const AddContactButton = styled(NewButton)`
@@ -76,7 +78,9 @@ class Contacts extends Component {
 
   render() {
     const { patientModel } = this.props;
-    const { modalVisible, additionalContacts, tableColumns, itemId } = this.state;
+    const {
+      modalVisible, additionalContacts, tableColumns, itemId,
+    } = this.state;
     const contacts = additionalContacts.toJSON();
     return (
       <div>
@@ -85,11 +89,14 @@ class Contacts extends Component {
             <span>Additional Contacts</span>
             <AddContactButton
               onClick={() => this.showModal()}
-            >Add Contact</AddContactButton>
+            >
+Add Contact
+            </AddContactButton>
           </div>
         </div>
         <div className="column">
-          {additionalContacts.length > 0 &&
+          {additionalContacts.length > 0
+            && (
             <div>
               <ReactTable
                 keyField="_id"
@@ -101,13 +108,16 @@ class Contacts extends Component {
                 showPagination={false}
               />
             </div>
+            )
           }
-          {additionalContacts.length === 0 &&
+          {additionalContacts.length === 0
+            && (
             <div className="notification">
               <span>
                 No contacts found.
               </span>
             </div>
+            )
           }
         </div>
         <Modal

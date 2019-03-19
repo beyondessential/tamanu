@@ -82,7 +82,7 @@ export default BaseModel.extend({
       type: Backbone.One,
       key: 'patient',
       model: require('./patient'),
-    }
+    },
   ],
 
   parse({ startDate, endDate, ...attributes }) {

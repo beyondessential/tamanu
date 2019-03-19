@@ -20,7 +20,7 @@ const rootReducer = combineReducers({
   labs,
   imaging,
   programs,
-  scheduling
+  scheduling,
 });
 
 export default rootReducer;

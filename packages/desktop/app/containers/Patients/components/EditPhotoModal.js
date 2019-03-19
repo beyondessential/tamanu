@@ -8,7 +8,7 @@ class EditPhotoModal extends Component {
     const {
       isVisible,
       onClose,
-      editPhoto
+      editPhoto,
     } = this.props;
     return (
       <Modal open={isVisible} onClose={onClose} little>

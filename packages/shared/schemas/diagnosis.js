@@ -8,15 +8,15 @@ const DiagnosisSchema = {
     name: {
       type: 'string',
       optional: true,
-      indexed: true
+      indexed: true,
     },
     code: {
       type: 'string',
       optional: true,
-      indexed: true
+      indexed: true,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = DiagnosisSchema;

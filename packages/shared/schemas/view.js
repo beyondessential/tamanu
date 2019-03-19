@@ -8,14 +8,14 @@ const ViewSchema = {
     name: {
       type: 'string',
       optional: true,
-      indexed: true
+      indexed: true,
     },
     filters: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = ViewSchema;

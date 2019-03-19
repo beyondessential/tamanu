@@ -8,74 +8,74 @@ const MedicationSchema = {
     _id: 'string',
     patient: {
       type: 'string',
-      optional: true
+      optional: true,
     }, // Rel
     visit: {
       type: 'string',
-      optional: true
+      optional: true,
     }, // Rel
     drug: {
       type: 'drug',
     }, // Rel
     notes: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     prescription: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     prescriptionDate: {
       type: 'date',
-      default: new Date()
+      default: new Date(),
     },
     qtyMorning: {
       type: 'string',
-      default: '0'
+      default: '0',
     },
     qtyLunch: {
       type: 'string',
-      default: '0'
+      default: '0',
     },
     qtyEvening: {
       type: 'string',
-      default: '0'
+      default: '0',
     },
     qtyNight: {
       type: 'string',
-      default: '0'
+      default: '0',
     },
     refills: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     endDate: {
       type: 'date',
-      optional: true
+      optional: true,
     },
     requestedDate: {
       type: 'date',
-      default: new Date()
+      default: new Date(),
     },
     requestedBy: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     dispense: {
       type: 'bool',
-      default: false
+      default: false,
     },
     status: {
       type: 'string',
       optional: true,
-      default: MEDICATION_STATUSES.REQUESTED
+      default: MEDICATION_STATUSES.REQUESTED,
     },
     history: {
       type: 'list',
-      objectType: 'medicationHistory'
+      objectType: 'medicationHistory',
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = MedicationSchema;

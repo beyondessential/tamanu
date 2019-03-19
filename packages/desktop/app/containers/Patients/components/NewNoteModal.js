@@ -6,7 +6,7 @@ class NewNoteModal extends Component {
   render() {
     const {
       isVisible,
-      onClose
+      onClose,
     } = this.props;
     return (
       <Modal open={isVisible} onClose={onClose} little>

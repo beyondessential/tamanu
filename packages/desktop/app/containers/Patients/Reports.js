@@ -13,7 +13,7 @@ class Reports extends Component {
     startDate: moment(),
     endDate: moment(),
     selectValue: '',
-    generated: false
+    generated: false,
   }
 
   componentDidMount() {
@@ -22,13 +22,13 @@ class Reports extends Component {
 
   onChangeStartDate = (date) => {
     this.setState({
-      startDate: date
+      startDate: date,
     });
   }
 
   onChangeEndDate = (date) => {
     this.setState({
-      endDate: date
+      endDate: date,
     });
   }
 
@@ -123,11 +123,18 @@ class Reports extends Component {
               <button className="button is-primary" onClick={this.generateReport}>Generate Report</button>
             </div>
           </div>
-          {generated &&
+          {generated
+            && (
             <div className="form">
               <div className="form-header">
                 <span>
-                  Diagnostic Testing Report {moment(startDate).format('MM/DD/YYYY')} - {moment(endDate).format('MM/DD/YYYY')}
+                  Diagnostic Testing Report
+                  {' '}
+                  {moment(startDate).format('MM/DD/YYYY')}
+                  {' '}
+-
+                  {' '}
+                  {moment(endDate).format('MM/DD/YYYY')}
                 </span>
               </div>
               <div className="columns">
@@ -145,6 +152,7 @@ class Reports extends Component {
                 </div>
               </div>
             </div>
+            )
           }
         </div>
       </div>
@@ -154,7 +162,7 @@ class Reports extends Component {
 
 function mapStateToProps(state) {
   return {
-    patients: state.patients.patients
+    patients: state.patients.patients,
   };
 }
 

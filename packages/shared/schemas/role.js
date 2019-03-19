@@ -7,11 +7,11 @@ const RoleSchema = {
     _id: 'string',
     name: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     abilities: 'string',
     ...defaults,
-  }
+  },
 };
 
 module.exports = RoleSchema;

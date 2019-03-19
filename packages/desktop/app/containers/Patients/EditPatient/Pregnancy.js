@@ -8,7 +8,7 @@ class Pregnancy extends Component {
   state = {
     modalVisible: false,
     action: 'new',
-    item: null
+    item: null,
   }
 
   onCloseModal = () => {
@@ -30,27 +30,41 @@ class Pregnancy extends Component {
     const item = row.original;
     return (
       <div key={row._id}>
-        {item.child &&
+        {item.child
+          && (
           <Button
             variant="outlined"
             onClick={() => this.viewPatient(item.child.id)}
-          >View Child</Button>
+          >
+View Child
+          </Button>
+          )
         }
-        {item.child &&
+        {item.child
+          && (
           <Button
             onClick={() => this.viewPatient(item.father.id)}
-          >View Father</Button>
+          >
+View Father
+          </Button>
+          )
         }
         <Button
           onClick={() => this.editItem(row)}
-        >Edit Pregnancy</Button>
+        >
+Edit Pregnancy
+        </Button>
         <Button
           to={`/programs/${PREGNANCY_PROGRAM_ID}/${patient._id}/surveys/module/${item._id}`}
-        >Add Form</Button>
+        >
+Add Form
+        </Button>
         <Button
           to={`/programs/${PREGNANCY_PROGRAM_ID}/${patient._id}/surveys/module/${item._id}`}
           disabled={item.surveyResponses.length <= 0}
-        >View Forms</Button>
+        >
+View Forms
+        </Button>
       </div>
     );
   }
@@ -72,12 +86,15 @@ class Pregnancy extends Component {
       <div>
         <div className="column p-t-0 p-b-0">
           <a className="button is-primary is-pulled-right is-block" onClick={() => this.setState({ modalVisible: true, action: 'new', item: null })}>
-            <i className="fa fa-plus" /> Add Pregnancy
+            <i className="fa fa-plus" />
+            {' '}
+Add Pregnancy
           </a>
           <div className="is-clearfix" />
         </div>
         <div className="column">
-          {pregnancies.length > 0 &&
+          {pregnancies.length > 0
+            && (
             <div>
               <ReactTable
                 keyField="_id"
@@ -89,13 +106,16 @@ class Pregnancy extends Component {
                 showPagination={false}
               />
             </div>
+            )
           }
-          {pregnancies.length === 0 &&
+          {pregnancies.length === 0
+            && (
             <div className="notification">
               <span>
                 No pregnancies found.
               </span>
             </div>
+            )
           }
         </div>
         <PregnancyModal

@@ -4,25 +4,25 @@ const SurveyScreenComponentSchema = {
   name: 'surveyScreenComponent',
   primaryKey: '_id',
   properties: {
-  _id: 'string',
+    _id: 'string',
     question: {
       type: 'list',
-      objectType: 'question'
+      objectType: 'question',
     },
     componentNumber: {
       type: 'int',
-      optional: true
+      optional: true,
     },
     answersEnablingFollowUp: {
       type: 'string[]',
-      optional: true
+      optional: true,
     },
     isFollowUp: {
       type: 'bool',
-      default: false
+      default: false,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = SurveyScreenComponentSchema;

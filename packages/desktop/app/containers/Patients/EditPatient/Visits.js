@@ -7,20 +7,18 @@ import { Grid } from '@material-ui/core';
 import { visitsColumns, dateFormat } from '../../../constants';
 import { NewButton, EditButton } from '../../../components';
 
-const DiagnosisColumn = ({ diagnoses }) => {
-  return (
-    <Grid container direction="column" alignItems="center">
-      {diagnoses.map(({ diagnosis: { name } }) => (
-        <Grid item>{name}</Grid>
-      ))}
-    </Grid>
-  );
-}
+const DiagnosisColumn = ({ diagnoses }) => (
+  <Grid container direction="column" alignItems="center">
+    {diagnoses.map(({ diagnosis: { name } }) => (
+      <Grid item>{name}</Grid>
+    ))}
+  </Grid>
+);
 
 class Visits extends Component {
   state = {
     visits: [],
-    tableColumns: visitsColumns
+    tableColumns: visitsColumns,
   };
 
   componentWillMount() {
@@ -35,13 +33,18 @@ class Visits extends Component {
     const { patient } = props;
     const { tableColumns } = this.state;
     const visits = patient.visits.map(visit => {
-      let { startDate, endDate, visitType, diagnoses } = visit;
+      let {
+        startDate, endDate, visitType, diagnoses,
+      } = visit;
       if (startDate) startDate = moment(startDate).format(`${dateFormat}`);
       if (endDate) endDate = moment(endDate).format(`${dateFormat}`);
       visitType = capitalize(visitType);
-      return  {
-        ...visit, startDate, endDate, visitType,
-        diagnosis: <DiagnosisColumn diagnoses={diagnoses} />
+      return {
+        ...visit,
+        startDate,
+        endDate,
+        visitType,
+        diagnosis: <DiagnosisColumn diagnoses={diagnoses} />,
       };
     });
     // Add actions column for our table
@@ -72,11 +75,14 @@ class Visits extends Component {
             className="is-pulled-right"
             to={`/patients/visit/${patientModel.id}`}
             can={{ do: 'create', on: 'visit' }}
-          >New Visit</NewButton>
+          >
+New Visit
+          </NewButton>
           <div className="is-clearfix" />
         </div>
         <div className="column">
-          {visits.length > 0 &&
+          {visits.length > 0
+            && (
             <div>
               <ReactTable
                 keyField="_id"
@@ -88,13 +94,16 @@ class Visits extends Component {
                 showPagination={false}
               />
             </div>
+            )
           }
-          {visits.length === 0 &&
+          {visits.length === 0
+            && (
             <div className="notification">
               <span>
                 No visits found.
               </span>
             </div>
+            )
           }
         </div>
       </div>

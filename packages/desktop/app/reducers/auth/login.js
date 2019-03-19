@@ -8,7 +8,7 @@ import {
 export default {
   [AUTH_LOGIN_REQUEST]: (_, state) => ({
     ...state,
-    loading: true
+    loading: true,
   }),
   [AUTH_LOGIN_SUCCESS]: ({
     userId,
@@ -16,8 +16,8 @@ export default {
     displayName,
     email,
     secret,
-    abilities
-   }, state) => ({
+    abilities,
+  }, state) => ({
     ...state,
     userId,
     hospitalId,
@@ -25,12 +25,12 @@ export default {
     email,
     secret,
     abilities,
-    loading: false
+    loading: false,
   }),
   [AUTH_LOGIN_FAILED]: ({ error }, state) => ({
     ...state,
     error,
-    loading: false
+    loading: false,
   }),
   [AUTH_LOGOUT]: (_, state) => ({
     ...state,
@@ -40,6 +40,6 @@ export default {
     email: '',
     secret: null,
     abilities: {},
-    loading: false
+    loading: false,
   }),
 };

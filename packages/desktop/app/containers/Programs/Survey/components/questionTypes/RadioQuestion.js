@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export const RadioQuestion = ({ _id: id, answer, onChangeAnswer, options, readOnly, stacked }) => (
+export const RadioQuestion = ({
+  _id: id, answer, onChangeAnswer, options, readOnly, stacked,
+}) => (
   <div className="control is-size-6">
     {options.map((option) => {
       const { label, value } = extractOptionDetails(option); // Sometimes an object with defined color/label/value
@@ -17,7 +19,9 @@ export const RadioQuestion = ({ _id: id, answer, onChangeAnswer, options, readOn
             defaultChecked={isChecked}
             onChange={({ target }) => onChangeAnswer(target.value)}
             disabled={readOnly && !isChecked}
-          /> {label}
+          />
+          {' '}
+          {label}
         </label>
       );
     })}

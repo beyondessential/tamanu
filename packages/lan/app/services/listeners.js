@@ -45,12 +45,12 @@ class Listeners {
           this.queueManager.push({
             action,
             recordId: record._id,
-            recordType
+            recordType,
           });
-        break;
+          break;
         default:
           console.log(`Ignoring ${action}`);
-        break;
+          break;
       }
     });
   }
@@ -61,7 +61,7 @@ class Listeners {
 
   _toJSON(object) {
     return JSON.parse(JSON.stringify(object));
-  };
+  }
 }
 
 module.exports = Listeners;

@@ -1,4 +1,6 @@
-const { each, isArray, isObject, pick, pull } = require('lodash');
+const {
+  each, isArray, isObject, pick, pull,
+} = require('lodash');
 const jsonPrune = require('json-prune');
 const { schemas } = require('../schemas');
 const parseObject = require('./parse-object');
@@ -11,8 +13,6 @@ const jsonParse = (object) => {
   }
 };
 
-const findSchema = (type) => {
-  return schemas.find(schema => schema.name === type);
-}
+const findSchema = (type) => schemas.find(schema => schema.name === type);
 
 module.exports = { jsonParse, findSchema, ...parseObject };

@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import Modal from 'react-responsive-modal';
-import { InputGroup, AddButton, CancelButton,
-          DeleteButton, UpdateButton, DatepickerGroup,
-          Modal as DeleteConfirmModal } from '../../../components';
+import {
+  InputGroup, AddButton, CancelButton,
+  DeleteButton, UpdateButton, DatepickerGroup,
+  Modal as DeleteConfirmModal,
+} from '../../../components';
 
 class ConditionModal extends Component {
   constructor(props) {
@@ -11,7 +13,7 @@ class ConditionModal extends Component {
     this.state = {
       ...attributes,
       formIsValid: false,
-      deleteModalVisible: false
+      deleteModalVisible: false,
     };
     this.submitForm = this.submitForm.bind(this);
     this.handleUserInput = this.handleUserInput.bind(this);
@@ -33,7 +35,9 @@ class ConditionModal extends Component {
   }
 
   handleFormInput = (event) => {
-    const { name: fieldName, type, checked, value } = event.target;
+    const {
+      name: fieldName, type, checked, value,
+    } = event.target;
     const fieldValue = type === 'checkbox' ? checked : value;
     this.handleUserInput(fieldValue, fieldName);
   }
@@ -73,7 +77,7 @@ class ConditionModal extends Component {
     const {
       itemId: _id,
       conditionModel,
-      patientModel
+      patientModel,
     } = this.props;
 
     try {
@@ -100,12 +104,12 @@ class ConditionModal extends Component {
       condition,
       date,
       deleteModalVisible,
-      formIsValid
+      formIsValid,
     } = this.state;
     const {
       onClose,
       action,
-      conditionModel
+      conditionModel,
     } = this.props;
     const { attributes: form } = conditionModel;
 
@@ -124,7 +128,11 @@ class ConditionModal extends Component {
           >
             <div className="condition-modal">
               <div className="modal-header">
-                <h2>{action === 'new' ? 'Add' : 'Update'} Condition</h2>
+                <h2>
+                  {action === 'new' ? 'Add' : 'Update'}
+                  {' '}
+Condition
+                </h2>
               </div>
               <div className="modal-content">
                 <InputGroup
@@ -149,28 +157,32 @@ class ConditionModal extends Component {
               </div>
               <div className="modal-footer">
                 <div className="column has-text-right">
-                  {action !== 'new' &&
+                  {action !== 'new'
+                    && (
                     <React.Fragment>
                       <DeleteButton
                         can={{ do: 'delete', on: 'condition' }}
-                        onClick={this.deleteItemConfirm.bind(this)} 
+                        onClick={this.deleteItemConfirm.bind(this)}
                       />
                       <UpdateButton
                         can={{ do: 'update', on: 'condition' }}
                         type="submit"
-                        disabled={!formIsValid} 
+                        disabled={!formIsValid}
                       />
                     </React.Fragment>
+                    )
                   }
-                  {action === 'new' &&
+                  {action === 'new'
+                    && (
                     <React.Fragment>
                       <CancelButton onClick={onClose} />
                       <AddButton
                         can={{ do: 'create', on: 'condition' }}
                         type="submit"
-                        disabled={!formIsValid} 
+                        disabled={!formIsValid}
                       />
                     </React.Fragment>
+                    )
                   }
                 </div>
               </div>

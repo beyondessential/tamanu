@@ -3,7 +3,7 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import DiagnosisModal from './DiagnosisModal';
 import { dateFormat } from '../../../constants';
-import { TextButton} from '../../../components';
+import { TextButton } from '../../../components';
 import { PatientDiagnosisModel } from '../../../models';
 
 class Diagnosis extends Component {
@@ -13,13 +13,13 @@ class Diagnosis extends Component {
   }
 
   static defaultProps = {
-    showSecondary: false
+    showSecondary: false,
   }
 
   state = {
     modalVisible: false,
     action: 'new',
-    patientDiagnosisModel: new PatientDiagnosisModel()
+    patientDiagnosisModel: new PatientDiagnosisModel(),
   }
 
   componentWillMount() {
@@ -38,27 +38,27 @@ class Diagnosis extends Component {
     this.setState({ modalVisible: false });
   }
 
-  editItem( itemId = null ) {
+  editItem(itemId = null) {
     const { parentModel } = this.props;
     let patientDiagnosisModel = parentModel.get('diagnoses').findWhere({ _id: itemId });
-    if (!patientDiagnosisModel) patientDiagnosisModel = new PatientDiagnosisModel()
+    if (!patientDiagnosisModel) patientDiagnosisModel = new PatientDiagnosisModel();
     this.setState({
       modalVisible: true,
       action: patientDiagnosisModel.id ? 'update' : 'new',
-      patientDiagnosisModel
+      patientDiagnosisModel,
     });
   }
 
   render() {
     const {
       parentModel,
-      showSecondary
+      showSecondary,
     } = this.props;
     const {
       modalVisible,
       action,
       patientDiagnosisModel,
-      diagnoses: allDiagnoses
+      diagnoses: allDiagnoses,
     } = this.state;
     // filter diagnosis type i-e primary or secondary
     const diagnoses = allDiagnoses.toJSON().filter(diagnosis => diagnosis.active && diagnosis.secondaryDiagnosis === showSecondary);
@@ -71,7 +71,11 @@ class Diagnosis extends Component {
             className={showSecondary ? 'is-hidden' : ''}
             can={{ do: 'create', on: 'diagnosis' }}
             onClick={() => this.editItem()}
-          > + Add Diagnosis </TextButton>
+          >
+            {' '}
++ Add Diagnosis
+            {' '}
+          </TextButton>
           <div className="clearfix" />
           {diagnoses.map((diagnosis, k) => {
             const { diagnosis: { name: diagnosisName = '' } = {} } = diagnosis;
@@ -81,7 +85,9 @@ class Diagnosis extends Component {
                 <TextButton
                   can={{ do: 'read', on: 'diagnosis' }}
                   onClick={() => this.editItem(diagnosis._id)}
-                >{`${diagnosisName} (${moment(diagnosis.date).format(dateFormat)})`}</TextButton>
+                >
+                  {`${diagnosisName} (${moment(diagnosis.date).format(dateFormat)})`}
+                </TextButton>
               </React.Fragment>
             );
           })}

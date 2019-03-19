@@ -10,7 +10,7 @@ import {
   patientMedicationColumns,
   momentSimpleCalender,
   dateFormatText,
-  dateFormat
+  dateFormat,
 } from '../../../constants';
 
 class Medication extends Component {
@@ -24,7 +24,7 @@ class Medication extends Component {
     medicationHistory: [],
     from: moment().subtract(1, 'days'),
     to: moment().add(1, 'days'),
-    tableColumns: patientMedicationColumns
+    tableColumns: patientMedicationColumns,
   }
 
   componentWillMount() {
@@ -41,7 +41,7 @@ class Medication extends Component {
     let medicationHistory = patientModel.getMedicationHistory(from.clone(), to.clone());
     medicationHistory = medicationHistory.map(obj => ({
       date: obj.date,
-      medication: obj.medication.map(model => ({ currentDate: obj.date, ...model.toJSON({ relations: true }) }))
+      medication: obj.medication.map(model => ({ currentDate: obj.date, ...model.toJSON({ relations: true }) })),
     }));
 
     // Add actions column for our table
@@ -81,7 +81,7 @@ class Medication extends Component {
   }
 
   renderMedicineColumn = row => {
-    const { original: medicine , value} = row;
+    const { original: medicine, value } = row;
     return (
       <React.Fragment>
         {value}
@@ -94,21 +94,22 @@ class Medication extends Component {
     const { original, column } = row;
     const { medicationHistory } = this.state;
     const fieldName = chain(column.id)
-                        .toLower()
-                        .replace('qty', '')
-                        .value();
+      .toLower()
+      .replace('qty', '')
+      .value();
     const isTaken = chain(medicationHistory)
-                      .find(({ date }) => moment(date).isSame(original.currentDate, 'day'))
-                      .get('medication')
-                      .find(({ _id }) => _id === original._id)
-                      .get('history')
-                      .find(({ date }) => moment(date).isSame(original.currentDate, 'day'))
-                      .get(fieldName)
-                      .value();
+      .find(({ date }) => moment(date).isSame(original.currentDate, 'day'))
+      .get('medication')
+      .find(({ _id }) => _id === original._id)
+      .get('history')
+      .find(({ date }) => moment(date).isSame(original.currentDate, 'day'))
+      .get(fieldName)
+      .value();
     return (
       <div className="medication-chart-cell">
         <span className="is-inline-block">{row.value}</span>
-        {(moment(original.currentDate).isBefore(moment().format(dateFormat)) || isTaken) && !original.dispense &&
+        {(moment(original.currentDate).isBefore(moment().format(dateFormat)) || isTaken) && !original.dispense
+          && (
           <Fragment>
             <span
               className={`is-rounded icon is-pulled-right p-l-35 is-pulled-left has-text-${isTaken ? 'success' : 'danger'}`}
@@ -116,7 +117,8 @@ class Medication extends Component {
             >
               <i className={`fa ${isTaken ? 'fa-check' : 'fa-times'}`} />
             </span>
-            {moment(moment().format(dateFormat)).isSame(original.currentDate) && isTaken &&
+            {moment(moment().format(dateFormat)).isSame(original.currentDate) && isTaken
+              && (
               <button
                 className="button is-default is-small"
                 onClick={() => this.markTaken(original._id, original.currentDate, fieldName, false)}
@@ -124,10 +126,13 @@ class Medication extends Component {
               >
                 <i className="fa fa-undo" />
               </button>
+              )
             }
           </Fragment>
+          )
         }
-        {moment(moment().format(dateFormat)).isSame(original.currentDate) && !isTaken && !original.dispense &&
+        {moment(moment().format(dateFormat)).isSame(original.currentDate) && !isTaken && !original.dispense
+          && (
           <button
             className="button is-default is-small is-pulled-right has-text-success"
             onClick={() => this.markTaken(original._id, original.currentDate, fieldName, true)}
@@ -135,6 +140,7 @@ class Medication extends Component {
           >
             <i className="fa fa-check" />
           </button>
+          )
         }
       </div>
     );
@@ -145,10 +151,10 @@ class Medication extends Component {
     const { from, to } = this.state;
     const medicationHistory = patientModel.getMedicationHistory(from.clone(), to.clone());
     const recordModel = chain(medicationHistory)
-                          .find(({ date: _date }) => moment(_date).isSame(date, 'day'))
-                          .get('medication')
-                          .find(({ id: _id }) => _id === id)
-                          .value();
+      .find(({ date: _date }) => moment(_date).isSame(date, 'day'))
+      .get('medication')
+      .find(({ id: _id }) => _id === id)
+      .value();
 
     try {
       const { history } = recordModel.attributes;
@@ -197,46 +203,51 @@ class Medication extends Component {
             className="is-pulled-right"
             to={`/medication/request/by-patient/${patientModel.id}`}
             can={{ do: 'create', on: 'visit' }}
-          >New Medication</NewButton>
+          >
+New Medication
+          </NewButton>
           <div className="is-clearfix" />
         </div>
         <div className="column">
-          {medicationHistory.length > 0 &&
-            medicationHistory.map(({ date, medication }, k) => {
-              return (
-                <div key={date}>
-                  <div className="column medication-header">
-                    {k === 0 &&
+          {medicationHistory.length > 0
+            && medicationHistory.map(({ date, medication }, k) => (
+              <div key={date}>
+                <div className="column medication-header">
+                  {k === 0
+                      && (
                       <button className="button is-pulled-left is-small" onClick={this.goToPrev}>
                         <span className="icon is-small">
                           <i className="fa fa-chevron-left" />
                         </span>
                       </button>
+                      )
                     }
-                    <span className="text">{this.getHeaderText(date)}</span>
-                    {k === 0 &&
+                  <span className="text">{this.getHeaderText(date)}</span>
+                  {k === 0
+                      && (
                       <button className="button is-pulled-right is-small" onClick={this.goToNext}>
                         <span className="icon is-small">
                           <i className="fa fa-chevron-right" />
                         </span>
                       </button>
+                      )
                     }
-                  </div>
-                  <ReactTable
-                    keyField="_id"
-                    data={medication}
-                    noDataText="No medication found"
-                    pageSize={medication.length}
-                    columns={tableColumns}
-                    className="-striped m-b-20"
-                    defaultSortDirection="asc"
-                    showPagination={false}
-                  />
                 </div>
-              );
-            })
+                <ReactTable
+                  keyField="_id"
+                  data={medication}
+                  noDataText="No medication found"
+                  pageSize={medication.length}
+                  columns={tableColumns}
+                  className="-striped m-b-20"
+                  defaultSortDirection="asc"
+                  showPagination={false}
+                />
+              </div>
+            ))
           }
-          {medicationHistory.length === 0 &&
+          {medicationHistory.length === 0
+            && (
             <div>
               <div className="column medication-header">
                 <button className="button is-pulled-left is-small" onClick={this.goToPrev}>
@@ -256,6 +267,7 @@ class Medication extends Component {
                 </span>
               </div>
             </div>
+            )
           }
           <span className="is-size-7 has-text-grey">** dispensed medication</span>
         </div>

@@ -2,31 +2,31 @@ import moment from 'moment';
 
 // hardcoded reports to click through to
 export const availableReports = [
-  { 
-    id: 'patients-per-day', 
-    name: "Patients per day",
+  {
+    id: 'patients-per-day',
+    name: 'Patients per day',
     graphType: 'line',
     getCountKey: (row) => moment(row.date).startOf('day').toDate(),
   },
-  { 
-    id: 'patients-per-clinician', 
+  {
+    id: 'patients-per-clinician',
     graphType: 'bar',
-    name: "Patients per clinician",
+    name: 'Patients per clinician',
     getCountKey: (row) => row.prescriber,
   },
-  { 
-    id: 'breakdown-of-age-groups', 
+  {
+    id: 'breakdown-of-age-groups',
     graphType: 'pie',
-    name: "Age group breakdown",
+    name: 'Age group breakdown',
     getCountKey: (row) => {
       const lowBound = Math.floor(row.age / 10) * 10;
-      return `${lowBound}-${lowBound+10}`;
+      return `${lowBound}-${lowBound + 10}`;
     },
   },
-  { 
-    id: 'breakdown-of-diagnosis', 
+  {
+    id: 'breakdown-of-diagnosis',
     graphType: 'pie',
-    name: "Diagnosis breakdown",
+    name: 'Diagnosis breakdown',
     getCountKey: row => row.diagnosis,
   },
 ];
@@ -46,9 +46,9 @@ function generateDummyOptions(values) {
   return values.split(/\s*\n\s*/g)
     .filter(x => x)
     .sort()
-    .map(x => ({ 
+    .map(x => ({
       label: x,
-      value: x.toLowerCase().replace(/\W+/g, '-')
+      value: x.toLowerCase().replace(/\W+/g, '-'),
     }));
 }
 

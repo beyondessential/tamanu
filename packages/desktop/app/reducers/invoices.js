@@ -8,7 +8,7 @@ import {
 } from '../actions/types';
 
 const initialState = {
-  invoices: []
+  invoices: [],
 };
 
 export default (state = initialState, action) => {
@@ -32,7 +32,7 @@ export default (state = initialState, action) => {
     case FETCH_INVOICES_SUCCESS:
       return {
         ...state,
-        invoices: action.payload
+        invoices: action.payload,
       };
     case FETCH_INVOICES_FAILED:
       return {

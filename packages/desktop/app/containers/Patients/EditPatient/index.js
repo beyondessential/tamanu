@@ -43,7 +43,6 @@ class EditPatient extends Component {
     } else {
       this.handleChange(newProps);
     }
-
   }
 
   handleChange(props = this.props) {
@@ -70,7 +69,7 @@ class EditPatient extends Component {
     const { selectedTab, patient, patientModel } = this.state;
     const { history } = this.props;
 
-    switch(selectedTab) {
+    switch (selectedTab) {
       case 'general':
         return (
           <General
@@ -92,7 +91,8 @@ class EditPatient extends Component {
             <Appointments
               history={history}
               patient={patient}
-              patientModel={patientModel} />
+              patientModel={patientModel}
+            />
           </div>
         );
       case 'visit':
@@ -173,15 +173,15 @@ class EditPatient extends Component {
       { value: 'pregnancy', label: 'Pregnancy', condition: () => patient.sex === 'female' },
       { value: 'programs', label: 'Programs' },
     ]
-    .filter(item => !item.condition || item.condition())
-    .map(item => (
-      <li
-        key={ item.value }
-        className={selectedTab === item.value ? 'is-active selected' : ''}
-      >
-        <a onClick={() => this.changeTab(item.value)}>{ item.label }</a>
-      </li>
-    ));
+      .filter(item => !item.condition || item.condition())
+      .map(item => (
+        <li
+          key={item.value}
+          className={selectedTab === item.value ? 'is-active selected' : ''}
+        >
+          <a onClick={() => this.changeTab(item.value)}>{ item.label }</a>
+        </li>
+      ));
   }
 
 
@@ -240,8 +240,12 @@ class EditPatient extends Component {
 }
 
 function mapStateToProps(state) {
-  const { patient, action, loading, saved, error } = state.patients;
-  return { patient, action, loading, saved, error };
+  const {
+    patient, action, loading, saved, error,
+  } = state.patients;
+  return {
+    patient, action, loading, saved, error,
+  };
 }
 
 const { patient: patientActions } = actions;

@@ -13,44 +13,44 @@ import {
 export default {
   [FETCH_APPOINTMENT_REQUEST]: (_, state) => ({
     ...state,
-    loading: true
+    loading: true,
   }),
   [FETCH_APPOINTMENT_SUCCESS]: ({ patient, appointment }, state) => ({
     ...state,
     patient,
     appointment,
-    loading: false
+    loading: false,
   }),
   [FETCH_APPOINTMENT_FAILED]: ({ error }, state) => ({
     ...state,
     error,
-    loading: false
+    loading: false,
   }),
   [SAVE_APPOINTMENT_REQUEST]: (_, state) => ({
     ...state,
-    loading: true
+    loading: true,
   }),
   [SAVE_APPOINTMENT_SUCCESS]: (_, state) => ({
     ...state,
-    loading: false
+    loading: false,
   }),
   [SAVE_APPOINTMENT_FAILED]: ({ error }, state) => ({
     ...state,
     error,
-    loading: false
+    loading: false,
   }),
   [DELETE_APPOINTMENT_FAILED]: (_, state) => ({
     ...state,
-    loading: true
+    loading: true,
   }),
   [DELETE_APPOINTMENT_REQUEST]: (_, state) => ({
     ...state,
-    loading: false
+    loading: false,
   }),
   [DELETE_APPOINTMENT_SUCCESS]: ({ error }, state) => ({
     ...state,
     error,
     reFetch: true,
-    loading: false
+    loading: false,
   }),
 };

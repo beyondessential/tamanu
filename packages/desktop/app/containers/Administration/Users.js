@@ -25,21 +25,26 @@ class Users extends Component {
           </div>
         </div>
         <div className="detail">
-          {patients.length === 0 ?
-            <div className="notification">
-              <span>
-                No patients found. <Link to="/patients/edit/new">Create a new patient record?</Link>
-              </span>
-            </div>
-            :
-            <div>
-              <BootstrapTable
-                keyField="id"
-                data={patients}
-                columns={patientColumns}
-                defaultSortDirection="asc"
-              />
-            </div>
+          {patients.length === 0
+            ? (
+              <div className="notification">
+                <span>
+                No patients found.
+                  {' '}
+                  <Link to="/patients/edit/new">Create a new patient record?</Link>
+                </span>
+              </div>
+            )
+            : (
+              <div>
+                <BootstrapTable
+                  keyField="id"
+                  data={patients}
+                  columns={patientColumns}
+                  defaultSortDirection="asc"
+                />
+              </div>
+            )
           }
         </div>
       </div>
@@ -49,7 +54,7 @@ class Users extends Component {
 
 function mapStateToProps(state) {
   return {
-    patients: state.patients.patients
+    patients: state.patients.patients,
   };
 }
 

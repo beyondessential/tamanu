@@ -10,7 +10,7 @@ import {
 export default {
   [FETCH_IMAGING_REQUEST_REQUEST]: (_, state) => ({
     ...state,
-    isLoading: true
+    isLoading: true,
   }),
   [FETCH_IMAGING_REQUEST_SUCCESS]: ({ patient, imagingTypes, imagingRequestModel }, state) => ({
     ...state,
@@ -22,11 +22,11 @@ export default {
   [FETCH_IMAGING_REQUEST_FAILED]: ({ error }, state) => ({
     ...state,
     error,
-    isLoading: false
+    isLoading: false,
   }),
   [SAVE_IMAGING_REQUEST_REQUEST]: (_, state) => ({
     ...state,
-    isLoading: true
+    isLoading: true,
   }),
   [SAVE_IMAGING_REQUEST_SUCCESS]: ({ imagingRequestModel }, state) => ({
     ...state,
@@ -36,6 +36,6 @@ export default {
   [SAVE_IMAGING_REQUEST_FAILED]: ({ error }, state) => ({
     ...state,
     error,
-    isLoading: false
+    isLoading: false,
   }),
 };

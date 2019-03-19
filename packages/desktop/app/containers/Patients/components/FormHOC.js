@@ -14,7 +14,7 @@ export default (ComposedComponent, mapStatetoProps, actionCreators) => {
     }
 
     state = {
-      form: this.props.form
+      form: this.props.form,
     }
 
     handleUserInput = (e, field) => {

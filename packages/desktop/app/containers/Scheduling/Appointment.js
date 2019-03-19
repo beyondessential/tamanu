@@ -9,7 +9,7 @@ import {
   appointmentStatusList,
   timeSelectOptions,
   dateFormat,
-  dateTimeFormat
+  dateTimeFormat,
 } from '../../constants';
 import {
   Preloader,
@@ -22,7 +22,7 @@ import {
   AddButton,
   UpdateButton,
   BackButton,
-  TopBar
+  TopBar,
 } from '../../components';
 
 class Appointment extends Component {
@@ -71,7 +71,7 @@ class Appointment extends Component {
             admissionStartDate = moment(appointmentModel.get('startDate'));
             admissionEndDate = moment(appointmentModel.get('endDate'));
             admissionAllDay = appointmentModel.get('allDay');
-          break;
+            break;
           default:
             othersDate = moment(appointmentModel.get('startDate'));
             othersStartTimeHrs = parseInt(moment(appointmentModel.get('startDate')).format('HH'));
@@ -79,7 +79,7 @@ class Appointment extends Component {
             othersEndTimeHrs = parseInt(moment(appointmentModel.get('endDate')).format('HH')) || 0;
             othersEndTimeMins = parseInt(moment(appointmentModel.get('endDate')).format('mm')) || 0;
             othersAllDay = appointmentModel.get('allDay');
-          break;
+            break;
         }
       }
 
@@ -138,13 +138,13 @@ class Appointment extends Component {
       appointmentModel.set({
         startDate: admissionStartDate,
         endDate: admissionEndDate,
-        allDay: admissionAllDay
+        allDay: admissionAllDay,
       }, { silent: true });
     } else {
       appointmentModel.set({
         startDate: moment(othersDate).hours(othersStartTimeHrs).minutes(othersStartTimeMins),
         endDate: moment(othersDate).hours(othersEndTimeHrs).minutes(othersEndTimeMins),
-        allDay: othersAllDay
+        allDay: othersAllDay,
       }, { silent: true });
     }
     // Update state
@@ -167,7 +167,7 @@ class Appointment extends Component {
       patient,
       model: appointmentModel,
       history: this.props.history,
-      surgery
+      surgery,
     });
   }
 
@@ -191,7 +191,8 @@ class Appointment extends Component {
           onChange={this.handleUserInput}
           required
         />
-        {!othersAllDay &&
+        {!othersAllDay
+          && (
           <React.Fragment>
             <SelectGroup
               className="column is-1"
@@ -230,6 +231,7 @@ class Appointment extends Component {
               onChange={this.handleUserInput}
             />
           </React.Fragment>
+          )
         }
         <CheckboxGroup
           label="All Day"
@@ -258,7 +260,7 @@ class Appointment extends Component {
           value={admissionStartDate}
           onChange={this.handleUserInput}
           showTimeSelect={!admissionAllDay}
-          dateFormat={admissionAllDay?dateFormat:dateTimeFormat}
+          dateFormat={admissionAllDay ? dateFormat : dateTimeFormat}
           timeIntervals={30}
           required
         />
@@ -269,7 +271,7 @@ class Appointment extends Component {
           value={admissionEndDate}
           onChange={this.handleUserInput}
           showTimeSelect={!admissionAllDay}
-          dateFormat={admissionAllDay?dateFormat:dateTimeFormat}
+          dateFormat={admissionAllDay ? dateFormat : dateTimeFormat}
           minDate={admissionStartDate}
           timeIntervals={30}
           required
@@ -357,23 +359,27 @@ class Appointment extends Component {
     const { surgery, appointmentModel, patient } = this.props;
     const {
       action,
-      appointmentData
+      appointmentData,
     } = this.state;
 
     return (
       <div className="create-content">
-        <TopBar title={`${capitalize(action)} ${surgery?'Surgical':''} Appointment`} />
+        <TopBar title={`${capitalize(action)} ${surgery ? 'Surgical' : ''} Appointment`} />
         <form
           className="create-container"
           onSubmit={(e) => this.submitForm(e)}
         >
-          {patient &&
+          {patient
+            && (
             <div className="form p-b-15">
               <PatientsTopRow
-                patient={patient.toJSON()} />
-            </div>}
+                patient={patient.toJSON()}
+              />
+            </div>
+            )}
           <div className="form  with-padding">
-            {!patient && <div className="columns">
+            {!patient && (
+            <div className="columns">
               <PatientAutocomplete
                 label="Patient"
                 name="patient"
@@ -381,21 +387,22 @@ class Appointment extends Component {
                 onChange={this.handleUserInput}
                 required
               />
-            </div>}
+            </div>
+            )}
             <div className="columns">
-              {(appointmentData.appointmentType !== 'admission' || surgery) &&
-                this.renderDatesAdmission()
+              {(appointmentData.appointmentType !== 'admission' || surgery)
+                && this.renderDatesAdmission()
               }
 
-              {appointmentData.appointmentType === 'admission' && !surgery &&
-                this.renderDatesOthers()
+              {appointmentData.appointmentType === 'admission' && !surgery
+                && this.renderDatesOthers()
               }
             </div>
-            {!surgery &&
-              this.renderFieldsOthers()
+            {!surgery
+              && this.renderFieldsOthers()
             }
-            {surgery &&
-              this.renderFieldsSurgery()
+            {surgery
+              && this.renderFieldsSurgery()
             }
             <div className="columns">
               <TextareaGroup
@@ -407,16 +414,20 @@ class Appointment extends Component {
             </div>
             <div className="column has-text-right">
               <BackButton />
-              {action === 'new' && <AddButton
+              {action === 'new' && (
+              <AddButton
                 type="submit"
                 disabled={!appointmentModel.isValid()}
-                can={{ do: 'update', on: 'appointment'}}
-              />}
-              {action === 'update' && <UpdateButton
+                can={{ do: 'update', on: 'appointment' }}
+              />
+              )}
+              {action === 'update' && (
+              <UpdateButton
                 type="submit"
                 disabled={!appointmentModel.isValid()}
-                can={{ do: 'update', on: 'appointment'}}
-              />}
+                can={{ do: 'update', on: 'appointment' }}
+              />
+              )}
             </div>
           </div>
         </form>
@@ -438,9 +449,13 @@ Appointment.defaultProps = {
 };
 
 function mapStateToProps(state) {
-  const { appointment, patient, loading, error } = state.scheduling;
+  const {
+    appointment, patient, loading, error,
+  } = state.scheduling;
   return {
-    loading, error, patient,
+    loading,
+    error,
+    patient,
     appointmentModel: appointment,
   };
 }

@@ -8,7 +8,7 @@ import { NewButton, EditButton } from '../../../components';
 class Appointments extends Component {
   state = {
     appointments: [],
-    tableColumns: patientAppointmentsColumns
+    tableColumns: patientAppointmentsColumns,
   };
 
   componentWillMount() {
@@ -27,23 +27,24 @@ class Appointments extends Component {
       if (startDate !== '') startDate = moment(startDate).format(`${dateFormat}`);
       if (endDate !== null) endDate = moment(endDate).format(`${dateFormat}`);
       appointmentType = capitalize(appointmentType);
-      return { ...appointment, startDate, endDate, appointmentType };
+      return {
+        ...appointment, startDate, endDate, appointmentType,
+      };
     });
     // Add actions column for our table
     tableColumns[tableColumns.length - 1].Cell = this.setActionsCol;
     this.setState({ appointments, tableColumns });
   }
 
-  setActionsCol = (row) => {
-    return (
-      <div key={row.original._id}>
-        <EditButton
-          to={`/appointments/appointment/${row.original._id}`}
-          size="small"
-          can={{ do: 'update', on: 'appointment' }} />
-      </div>
-    );
-  }
+  setActionsCol = (row) => (
+    <div key={row.original._id}>
+      <EditButton
+        to={`/appointments/appointment/${row.original._id}`}
+        size="small"
+        can={{ do: 'update', on: 'appointment' }}
+      />
+    </div>
+  )
 
   render() {
     const { patientModel } = this.props;
@@ -55,11 +56,14 @@ class Appointments extends Component {
             className="is-pulled-right"
             to={`/appointments/appointmentByPatient/${patientModel.id}`}
             can={{ do: 'create', on: 'appointment' }}
-          >New Appointment</NewButton>
+          >
+New Appointment
+          </NewButton>
           <div className="is-clearfix" />
         </div>
         <div className="column">
-          {appointments.length > 0 &&
+          {appointments.length > 0
+            && (
             <div>
               <ReactTable
                 keyField="_id"
@@ -71,13 +75,16 @@ class Appointments extends Component {
                 showPagination={false}
               />
             </div>
+            )
           }
-          {appointments.length === 0 &&
+          {appointments.length === 0
+            && (
             <div className="notification">
               <span>
                 No appointments found.
               </span>
             </div>
+            )
           }
         </div>
       </div>

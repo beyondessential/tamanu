@@ -20,7 +20,7 @@ class ModalView extends Component {
     modalType: 'alert',
     okText: 'OK',
     cancelText: 'Cancel',
-    onConfirm: () => {}
+    onConfirm: () => {},
   }
 
   render() {
@@ -32,7 +32,7 @@ class ModalView extends Component {
       onClose,
       onConfirm,
       okText,
-      cancelText
+      cancelText,
     } = this.props;
 
     return (
@@ -47,11 +47,13 @@ class ModalView extends Component {
           <div className="modal-footer">
             <div className="column has-text-right">
               {modalType === 'confirm' && <Button variant="outlined" onClick={onClose}>{cancelText}</Button>}
-              <Button 
+              <Button
                 variant="contained"
-                color="primary" 
+                color="primary"
                 onClick={modalType === 'confirm' ? onConfirm : onClose}
-              >{okText}</Button>
+              >
+                {okText}
+              </Button>
             </div>
           </div>
         </div>

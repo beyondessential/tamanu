@@ -8,35 +8,35 @@ const PregnancySchema = {
     conceiveDate: {
       type: 'date',
       optional: true,
-      indexed: true
+      indexed: true,
     }, // estimated
     deliveryDate: {
       type: 'date',
       optional: true,
-      indexed: true
+      indexed: true,
     }, // estimated
     child: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     father: {
       type: 'string',
-      optional: true
+      optional: true,
     }, // biological father
     outcome: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     gestationalAge: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     surveyResponses: {
       type: 'list',
-      objectType: 'surveyResponse'
+      objectType: 'surveyResponse',
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = PregnancySchema;

@@ -7,31 +7,31 @@ const PhotoSchema = {
     _id: 'string',
     caption: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     coverImage: {
       type: 'bool',
-      default: false
+      default: false,
     },
     attachments: 'string[]',
     fileName: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     isImage: {
       type: 'bool',
-      default: false
+      default: false,
     },
     localFile: {
       type: 'bool',
-      default: false
+      default: false,
     },
     url: {
       type: 'string',
-      optional: true
+      optional: true,
     },
     ...defaults,
-  }
+  },
 };
 
 module.exports = PhotoSchema;

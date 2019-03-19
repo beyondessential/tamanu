@@ -8,7 +8,7 @@ const { each } = require('lodash');
 
 const defaults = {
   LAST_SYNC_IN: '0',
-  LAST_SYNC_OUT: '0'
+  LAST_SYNC_OUT: '0',
 };
 
 class Settings {

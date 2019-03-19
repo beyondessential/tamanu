@@ -8,7 +8,7 @@ import {
   store,
   persistor,
   persistConfig,
-  history
+  history,
 } from './store';
 import './styles/app.global.scss';
 
@@ -23,15 +23,15 @@ import './styles/app.global.scss';
         history={history}
       />
     </AppContainer>,
-    document.getElementById('root')
+    document.getElementById('root'),
   );
 
   if (module.hot) {
     module.hot.accept('./containers/Root', () => {
       const NextRoot = require('./containers/Root'); // eslint-disable-line global-require
       store.replaceReducer(
-        persistReducer(persistConfig, NextRoot)
-      )
+        persistReducer(persistConfig, NextRoot),
+      );
       render(
         <AppContainer>
           <NextRoot
@@ -39,7 +39,7 @@ import './styles/app.global.scss';
             history={history}
           />
         </AppContainer>,
-        document.getElementById('root')
+        document.getElementById('root'),
       );
     });
   }

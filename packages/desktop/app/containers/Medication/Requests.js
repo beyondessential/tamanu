@@ -42,17 +42,17 @@ class Requests extends Component {
         <Button
           variant="contained"
           color="primary"
-        >Fulfill</Button>
+        >
+Fulfill
+        </Button>
       </div>
     );
   }
 
-  fetchData = opts => {
-    return this.props.fetchMedications({
-      ...opts,
-      filters: { status: medicationStatuses.REQUESTED }
-    });
-  }
+  fetchData = opts => this.props.fetchMedications({
+    ...opts,
+    filters: { status: medicationStatuses.REQUESTED },
+  })
 
   render() {
     const { medications, totalPages } = this.state;
@@ -67,42 +67,53 @@ class Requests extends Component {
               <NewButton
                 to="/medication/request"
                 can={{ do: 'create', on: 'medication' }}
-              >New Request</NewButton>
+              >
+New Request
+              </NewButton>
               <NewButton
                 variant="contained"
                 color="secondary"
                 to="/medication/dispense"
                 can={{ do: 'create', on: 'medication' }}
-              >Dispense Medication</NewButton>
+              >
+Dispense Medication
+              </NewButton>
             </div>
           </div>
           <div className="detail">
-            {medications.length === 0 ?
-              <div className="notification">
-                <span>
+            {medications.length === 0
+              ? (
+                <div className="notification">
+                  <span>
                   No medications found.
-                  <TextButton
-                    className="p-l-5"
-                    to="/medication/request"
-                    can={{ do: 'create', on: 'medication' }}
-                  > Create a new medication record? </TextButton>
-                </span>
-              </div>
-              :
-              <div>
-                <ReactTable
-                  manual
-                  keyField="_id"
-                  data={medications}
-                  pages={totalPages}
-                  defaultPageSize={pageSizes.medications}
-                  loading={this.state.loading}
-                  columns={medicationColumns}
-                  className="-striped"
-                  defaultSortDirection="asc"
-                  onFetchData={this.fetchData}
-                />
-              </div>
+                    <TextButton
+                      className="p-l-5"
+                      to="/medication/request"
+                      can={{ do: 'create', on: 'medication' }}
+                    >
+                      {' '}
+Create a new medication record?
+                      {' '}
+                    </TextButton>
+                  </span>
+                </div>
+              )
+              : (
+                <div>
+                  <ReactTable
+                    manual
+                    keyField="_id"
+                    data={medications}
+                    pages={totalPages}
+                    defaultPageSize={pageSizes.medications}
+                    loading={this.state.loading}
+                    columns={medicationColumns}
+                    className="-striped"
+                    defaultSortDirection="asc"
+                    onFetchData={this.fetchData}
+                  />
+                </div>
+              )
             }
           </div>
         </div>
@@ -112,8 +123,12 @@ class Requests extends Component {
 }
 
 function mapStateToProps(state) {
-  const { medications, totalPages, loading, error } = state.medication;
-  return { medications, totalPages, loading, error };
+  const {
+    medications, totalPages, loading, error,
+  } = state.medication;
+  return {
+    medications, totalPages, loading, error,
+  };
 }
 
 const { requests: requestsActions } = actions;

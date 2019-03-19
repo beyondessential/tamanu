@@ -11,9 +11,9 @@ const prepareRow = (model) => {
   const patient = model.parents.patients[0];
   return {
     ...model.toJSON(),
-    patientsName: patient.getDisplayName()
+    patientsName: patient.getDisplayName(),
   };
-}
+};
 
 class AppointmentsTable extends Component {
   state = {
@@ -40,7 +40,8 @@ class AppointmentsTable extends Component {
         >
           Edit
         </Button>
-        {toLower(row.status) === 'scheduled' &&
+        {toLower(row.status) === 'scheduled'
+          && (
           <Button
             onClick={() => this.checkIn(row.patients[0]._id)}
             color="primary"
@@ -48,6 +49,7 @@ class AppointmentsTable extends Component {
           >
             Check In
           </Button>
+          )
         }
         <Button
           onClick={() => this.showDeleteModal(row)}
@@ -72,7 +74,7 @@ class AppointmentsTable extends Component {
   showDeleteModal = (appointment) => {
     this.setState({
       deleteModalVisible: true,
-      selectedAppointment: appointment
+      selectedAppointment: appointment,
     });
   }
 
@@ -114,23 +116,29 @@ class AppointmentsTable extends Component {
 AppointmentsTable.propTypes = {
   filters: PropTypes.object.isRequired,
   autoFetch: PropTypes.bool,
-}
+};
 
 AppointmentsTable.defaultProps = {
   autoFetch: false,
-}
+};
 
 function mapStateToProps(state) {
-  const { appointments, totalPages, loading, reFetch, error } = state.scheduling;
-  return {
+  const {
     appointments, totalPages, loading, reFetch, error,
-    collection: new AppointmentsCollection()
+  } = state.scheduling;
+  return {
+    appointments,
+    totalPages,
+    loading,
+    reFetch,
+    error,
+    collection: new AppointmentsCollection(),
   };
 }
 
 const {
   appointments: appointmentsActions,
-  appointment: appointmentActions
+  appointment: appointmentActions,
 } = actions;
 const { fetchAppointments } = appointmentsActions;
 const { deleteAppointment } = appointmentActions;
@@ -140,4 +148,3 @@ const mapDispatchToProps = dispatch => ({
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppointmentsTable);
-

@@ -1,22 +1,22 @@
 const HTTP_METHOD_TO_ACTION = {
-  'GET': 'read',
-  'POST': 'create',
-  'PUT': 'update',
-  'PATCH': 'update',
-  'DELETE': 'delete'
+  GET: 'read',
+  POST: 'create',
+  PUT: 'update',
+  PATCH: 'update',
+  DELETE: 'delete',
 };
 
 const SYNC_ACTIONS = {
-  'SAVE': 'save',
-  'REMOVE': 'remove',
-  'WIPE': 'wipe',
+  SAVE: 'save',
+  REMOVE: 'remove',
+  WIPE: 'wipe',
 };
 
 const SYNC_MODES = {
   ON: true,
   OFF: false,
   REMOTE_TO_LOCAL: 'remote_to_local',
-  LOCAL_TO_REMOTE: 'local_to_remote'
+  LOCAL_TO_REMOTE: 'local_to_remote',
 };
 
 const DISPLAY_ID_PLACEHOLDER = '-TMP-';
@@ -24,7 +24,7 @@ const DISPLAY_ID_PLACEHOLDER = '-TMP-';
 const ENVIRONMENT_TYPE = {
   SERVER: 'server',
   LAN: 'lan',
-  DESKTOP: 'desktop'
+  DESKTOP: 'desktop',
 };
 
 const LAB_REQUEST_STATUSES = {
@@ -53,13 +53,13 @@ const APPOINTMENT_STATUSES = {
   SCHEDULED: 'Scheduled',
   CANCELED: 'Canceled',
   MISSED: 'Missed',
-}
+};
 
 const OPERATION_PLAN_STATUSES = {
   PLANNED: 'Planned',
   DROPPED: 'Dropped',
   COMPLETED: 'Completed',
-}
+};
 
 const IMAGING_REQUEST_STATUSES = {
   PENDING: 'pending',

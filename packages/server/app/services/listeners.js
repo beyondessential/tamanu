@@ -9,7 +9,7 @@ class Listeners {
   constructor(database, bayeux) {
     this.database = database;
     this.queueManager = new QueueManager(database);
-    this.sync =  new Sync(database, bayeux, this.queueManager);
+    this.sync = new Sync(database, bayeux, this.queueManager);
 
     // Setup sync
     this.sync.disconnectClients();
@@ -40,14 +40,14 @@ class Listeners {
               const queueItem = {
                 action: SYNC_ACTIONS.SAVE,
                 recordId: itemsUpdated[index]._id,
-                recordType: name
+                recordType: name,
               };
               this.queueManager.push(queueItem);
               // trigger onChange event for the schema
               if (onChange) {
                 onChange(
                   {
-                    record: itemsUpdated[index], ...queueItem
+                    record: itemsUpdated[index], ...queueItem,
                   },
                   this.database,
                   this.queueManager,
@@ -55,20 +55,20 @@ class Listeners {
               }
             });
             items = jsonParse(itemsUpdated);
-          break;
+            break;
           case 'deletions':
             indexes.forEach((index) => {
               this.queueManager.push({
                 action: SYNC_ACTIONS.REMOVE,
                 recordId: items[index]._id,
-                recordType: name
+                recordType: name,
               });
             });
             items = jsonParse(itemsUpdated);
-          break;
+            break;
           default:
             console.log(`Ignoring ${actionType}`);
-          break;
+            break;
         }
       });
     });

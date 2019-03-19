@@ -1,7 +1,7 @@
 import Promise from 'bluebird';
 import { to } from 'await-to-js';
 import { startsWith, each } from 'lodash';
-import dbService from '../services/database';
+import dbService from './database';
 
 class Config {
   constructor() {
@@ -13,7 +13,7 @@ class Config {
     return new Promise(async (resolve, reject) => {
       const docs = [];
       const defaults = {
-        config_push_subscription_id: ''
+        config_push_subscription_id: '',
       };
       each(defaults, (value, _id) => docs.push({ _id, value }));
       const [err, res] = await to(this.configDB.bulkDocs(docs));

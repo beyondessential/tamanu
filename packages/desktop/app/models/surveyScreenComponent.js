@@ -3,15 +3,14 @@ import Backbone from 'backbone-associations';
 import BaseModel from './base';
 
 export default BaseModel.extend({
-  urlRoot:  `${BaseModel.prototype.urlRoot}/surveyScreenComponent`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/surveyScreenComponent`,
   defaults: () => defaults({
-      question: '',
-      componentNumber: null,
-      answersEnablingFollowUp: null,
-      isFollowUp: false,
-    },
-    BaseModel.prototype.defaults,
-  ),
+    question: '',
+    componentNumber: null,
+    answersEnablingFollowUp: null,
+    isFollowUp: false,
+  },
+  BaseModel.prototype.defaults),
 
   relations: [
     {
@@ -19,6 +18,6 @@ export default BaseModel.extend({
       key: 'question',
       relatedModel: require('./question'),
     },
-    ...BaseModel.prototype.relations
+    ...BaseModel.prototype.relations,
   ],
 });
