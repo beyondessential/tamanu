@@ -1,12 +1,12 @@
-const {
+import {
   has, set, find, isFunction,
-} = require('lodash');
-const shortId = require('shortid');
-const { objectToJSON } = require('../../utils');
-const { schemas } = require('../../../../shared/schemas');
-const { ENVIRONMENT_TYPE } = require('../../constants');
+} from 'lodash';
+import shortId from 'shortid';
+import { objectToJSON } from '../../utils';
+import { schemas } from 'Shared/schemas';
+import { ENVIRONMENT_TYPE } from '../../constants';
 
-module.exports = (req, res) => {
+export default function (req, res) {
   const realm = req.app.get('database');
   let { body } = req;
   const { params } = req;
@@ -27,4 +27,4 @@ module.exports = (req, res) => {
     console.error(err);
     return res.status(500).send(err.toString());
   }
-};
+}
