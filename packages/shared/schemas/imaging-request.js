@@ -1,4 +1,5 @@
 const defaults = require('./defaults');
+const { IMAGING_REQUEST_STATUSES } = require('../constants');
 
 const ImagingRequestSchema = {
   name: 'imagingRequest',
@@ -12,7 +13,11 @@ const ImagingRequestSchema = {
     diagnosis: 'diagnosis?',
     notes: 'string?',
     imageSource: 'string?',
-    status: 'string?',
+    status: {
+      type: 'string',
+      optional: true,
+      default: IMAGING_REQUEST_STATUSES.PENDING
+    },
     requestedBy: 'user',
     requestedDate: 'date',
     reviewedBy: 'user',

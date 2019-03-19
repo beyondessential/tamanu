@@ -73,7 +73,7 @@ class Patients extends Component {
       if (keyword) this.props.collection.setKeyword(keyword);
 
       const patientFilters = JSON.parse(patientFiltersString);
-      await this.props.collection.getPage(page, null, null, { data: patientFilters, pageSize });
+      await this.props.collection.getPage(page, { data: patientFilters, pageSize });
       this.setState({ loading: false });
     } catch (err) {
       this.setState({ loading: false });

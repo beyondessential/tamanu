@@ -5,7 +5,7 @@ import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
 import actions from '../../actions/scheduling';
 import FiltersForm from './components/FiltersForm';
-import { dbViews } from '../../constants';
+import { REALM_DATE_FORMAT } from '../../constants';
 import { TopBar } from '../../components';
 
 BigCalendar.momentLocalizer(moment);
@@ -43,8 +43,8 @@ class AppointmentsCalendar extends Component {
   }
 
   viewAppointment = ({ _id }) => {
-    const { theatre } = this.props;
-    this.props.history.push(`/appointments/${!theatre ? 'appointment' : 'surgery'}/${_id}`);
+    const { surgery } = this.props;
+    this.props.history.push(`/appointments/${!surgery ? 'appointment' : 'surgery'}/${_id}`);
   }
 
   setDates = dates => {
@@ -66,7 +66,7 @@ class AppointmentsCalendar extends Component {
   }
 
   fetchData = () => {
-    const { theatre } = this.props;
+    const { surgery } = this.props;
     const {
       startDate,
       endDate,
@@ -75,24 +75,20 @@ class AppointmentsCalendar extends Component {
       location,
       practitioner,
     } = this.state;
-    let keys = [];
-    let view = '';
 
-    if (theatre) {
-      keys = [ startDate, endDate, status, type, practitioner, location];
-      view = dbViews.appointmentsSurgerySearch;
-    } else {
-      keys = [ startDate, endDate, status, practitioner, location];
-      view = dbViews.appointmentsSearch;
-    }
-
-    this.props.fetchCalender({
-      view, keys
-    });
+    const filters = {};
+    if (startDate) filters.startDate = `>|${moment(startDate).startOf('day').format(REALM_DATE_FORMAT)}`;
+    if (endDate) filters.endDate = `<|${moment(endDate).endOf('day').format(REALM_DATE_FORMAT)}`;
+    if (status) filters.status = `LIKE|${status}`;
+    if (type) filters.appointmentType = `LIKE|${type}`;
+    if (location) filters.location = `CONTAINS[c]|${location}`;
+    if (practitioner) filters.provider = `CONTAINS[c]|${practitioner}`;
+    if (surgery) filters.appointmentType = 'surgery';
+    this.props.fetchCalender({ filters });
   }
 
   render() {
-    const { theatre } = this.props;
+    const { surgery } = this.props;
     const {
       appointments,
       loading,
@@ -102,22 +98,22 @@ class AppointmentsCalendar extends Component {
     return (
       <div className="create-content">
         <TopBar
-          title={!theatre ? 'Appointments Calendar': 'Theatre Schedule'}
-          buttons={{
-            to: `/appointments/${theatre ? 'surgery' : 'appointment'}/new`,
+          title={!surgery ? 'Appointments Calendar': 'Theatre Schedule'}
+          buttons={[{
+            to: `/appointments/${surgery ? 'surgery' : 'appointment'}/new`,
             can: { do: 'create', on: 'appointment' },
             children: 'New Appointment'
-          }}
-          buttonsSecondary={{
+          }, {
             variant: (filtersOn ? 'contained' : 'outlined'),
+            color: 'secondary',
             children: 'Filters',
             onClick: () => this.setState({ filtersOn: !filtersOn }),
-          }}
+          }]}
         />
         <div className="create-container" >
           <div className="form with-padding">
             <FiltersForm
-              theatre={theatre}
+              surgery={surgery}
               loading={loading}
               collapse={filtersOn}
               onSubmit={this.setFilters}
