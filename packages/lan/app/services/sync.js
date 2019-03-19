@@ -1,9 +1,9 @@
 import Faye from 'faye';
 import { find } from 'lodash';
 import config from 'config';
+import { schemas } from 'Shared/schemas';
 import { objectToJSON } from '../utils';
 import { outgoing } from '../utils/faye-extensions';
-import { schemas } from 'Shared/schemas';
 import { SYNC_MODES, SYNC_ACTIONS } from '../constants';
 
 export default class Sync {
@@ -30,10 +30,10 @@ export default class Sync {
       console.log(`[MessageIn - ${config.sync.channelIn}/${clientId}] - [${channel}]`, { action, type, id });
       switch (message.action) {
         case SYNC_ACTIONS.SAVE:
-          this._saveRecord(message);
+          this.saveRecord(message);
           break;
         case SYNC_ACTIONS.REMOVE:
-          this._removeRecord(message);
+          this.removeRecord(message);
           break;
         default:
           throw new Error('No action specified');
@@ -64,14 +64,14 @@ export default class Sync {
       console.log('lastSyncTime', lastSyncTime);
       const changes = this.database.find('change', `timestamp >= "${lastSyncTime}"`).sorted('timestamp', false);
       const tasks = [];
-      changes.forEach(change => tasks.push(this._publishMessage(objectToJSON(change))));
+      changes.forEach(change => tasks.push(this.publishMessage(objectToJSON(change))));
       Promise.all(tasks);
     } catch (err) {
       throw new Error(err);
     }
   }
 
-  async _publishMessage(change) {
+  async publishMessage(change) {
     try {
       const clientId = this.database.getSetting('CLIENT_ID');
       let record = this.database.findOne(change.recordType, change.recordId);
@@ -90,7 +90,7 @@ export default class Sync {
     }
   }
 
-  _saveRecord({ record, recordType }) {
+  saveRecord({ record, recordType }) {
     try {
       this.database.write(() => {
         this.database.create(recordType, record, true, true);
@@ -101,7 +101,7 @@ export default class Sync {
     }
   }
 
-  _removeRecord(props) {
+  removeRecord(props) {
     try {
       this.database.write(() => {
         this.database.deleteByPrimaryKey(props.recordType, props.recordId, '_id', true);

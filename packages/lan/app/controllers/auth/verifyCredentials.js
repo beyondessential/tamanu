@@ -19,7 +19,6 @@ const validateBody = [
 
 const verifyCredentials = async (req, res) => {
   const database = req.app.get('database');
-  console.log('-verifyCredentials-', database);
   const { clientId, clientSecret } = req.body;
 
   try {

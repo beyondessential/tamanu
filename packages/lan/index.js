@@ -55,7 +55,7 @@ const isDevelopment = process.env.NODE_ENV === 'development';
   try {
     const database = new Database({
       path: `./data/${config.db.name}.realm`,
-      schema: Object.values(schemas),
+      schema: schemas,
       schemaVersion,
     });
 
