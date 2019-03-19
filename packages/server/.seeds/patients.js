@@ -1,4 +1,4 @@
-const request = require('request');
+import request from 'request';
 
 // Names found at https://www.bhutanpelyabtours.com/bhutanese-personal-names/
 // N.B. most names are gender neutral, but some are specific for females, so have
@@ -109,7 +109,7 @@ const BHUTAN_DEMO_USERS = [
   },
 ];
 
-module.exports = async (database) => {
+export default async (database) => {
   const URL = `http://randomuser.me/api?results=${BHUTAN_DEMO_USERS.length}`;
 
   async function fetchNewMockPatients() {

@@ -1,5 +1,5 @@
-module.exports = (database) => {
-  console.log('Seeding: imagingTypes');
+export default (database) => {
+  console.info('Seeding: imagingTypes');
   const imagingTypes = [
     {
       _id: 'imaging-type-x-ray',
