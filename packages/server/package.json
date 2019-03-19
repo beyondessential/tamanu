@@ -5,15 +5,11 @@
   "bin": "index.js",
   "description": "Remote server for Tamanu desktop app",
   "scripts": {
-    "start": "pm2 start pm2.json && pm2 logs tamanu-server",
-    "restart": "pm2 restart tamanu-server & pm2 logs tamanu-server",
-    "stop": "pm2 stop tamanu-server",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "npm test -- --watch",
-    "start-dev": "NODE_ENV=development nodemon index",
-    "lint": "eslint app",
-    "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
+    "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.js",
+    "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js"
   },
   "repository": {
     "type": "git",
@@ -23,10 +19,19 @@
   "license": "ISC",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "devDependencies": {
+    "@babel/core": "^7.3.4",
+    "@babel/plugin-proposal-class-properties": "^7.3.4",
+    "@babel/plugin-proposal-export-default-from": "^7.2.0",
+    "@babel/plugin-proposal-export-namespace-from": "^7.2.0",
+    "@babel/polyfill": "^7.2.5",
+    "@babel/preset-env": "^7.3.4",
     "@beyondessential/eslint-config-beyondessential": "*",
+    "babel-loader": "^8.0.5",
     "chai": "^4.1.2",
+    "clean-webpack-plugin": "^2.0.1",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-import-resolver-webpack": "^0.11.0",
     "eslint-plugin-import": "^2.9.0",
     "grunt": "^1.0.2",
     "grunt-contrib-clean": "^1.1.0",
@@ -35,8 +40,12 @@
     "grunt-notify": "^0.4.5",
     "grunt-sass": "^2.1.0",
     "mocha": "^5.2.0",
+    "nodemon-webpack-plugin": "^4.0.8",
     "pkg": "^4.3.4",
-    "supertest": "^3.0.0"
+    "supertest": "^3.0.0",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0",
+    "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
     "@beyondessential/eslint-config-beyondessential": "^2.2",
