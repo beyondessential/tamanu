@@ -1,11 +1,10 @@
 import bcrypt from 'bcrypt';
-import crypto from 'crypto';
 import { to } from 'await-to-js';
 import jwt from 'jsonwebtoken';
 import { Ability } from '@casl/ability';
 import { permittedFieldsOf } from '@casl/ability/extra';
 import {
-  isEmpty, isArray, head, isNumber,
+  isEmpty, head, isNumber,
   find, difference, template,
 } from 'lodash';
 import { objectToJSON } from '../utils';
@@ -45,7 +44,7 @@ export default class Auth {
     // Validate hospital
     const checkHospitalResponse = this.checkHospital({ hospitals, hospitalSelected, firstTimeLogin });
     if (checkHospitalResponse === false) return Promise.reject(new Error(this.errors.InvalidHospital));
-    if (isArray(checkHospitalResponse)) {
+    if (Array.isArray(checkHospitalResponse)) {
       return {
         action: 'select-hospital',
         options: checkHospitalResponse,

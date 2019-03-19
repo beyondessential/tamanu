@@ -1,6 +1,3 @@
-const {
-  each, isArray, isObject, pick, pull,
-} = require('lodash');
 const jsonPrune = require('json-prune');
 const { schemas } = require('../schemas');
 const parseObject = require('./parse-object');

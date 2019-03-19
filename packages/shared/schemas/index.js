@@ -1,9 +1,16 @@
-import * as schemas from './schemas';
+import * as schemaObjects from './schemas';
 import defaults from './defaults';
+import { SYNC_MODES } from '../constants';
 
+const defaultSchema = {
+  primaryKey: '_id',
+  sync: SYNC_MODES.ON,
+  properties: {},
+};
+const schemas = Object.values(schemaObjects).map(schema => ({ ...defaultSchema, ...schema }));
 const version = 47;
 const schemaClasses = [];
-Object.values(schemas).forEach(({ name, properties }) => {
+schemas.forEach(({ name, properties }) => {
   schemaClasses[name] = class {
     constructor() {
       Object.keys(properties).forEach(key => {

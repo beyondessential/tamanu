@@ -1,15 +1,13 @@
 const {
-  isArray, isObject, each, pull, pick,
+  isObject, pull, pick,
 } = require('lodash');
 const jsonPrune = require('json-prune');
-
-const internals = {};
-const _parseProperty = ({
+const parseProperty = ({
   props, isParentObject, key, forSync, object,
 }) => {
   if (['linkingObjects', 'list', 'object'].includes(props.type) && isParentObject) {
     const valueToParse = (props.type === 'object' ? object[key] : Array.from(object[key]));
-    return internals.parseToJSON(valueToParse, {
+    return parseToJSON(valueToParse, {
       deep: props.type === 'list',
       isParentObject: false,
       forSync,
@@ -19,22 +17,22 @@ const _parseProperty = ({
   return null;
 };
 
-internals.parseToJSON = (object, {
+export const parseToJSON = (object, {
   deep = true,
   forSync = false,
   isParentObject = true,
 } = {}) => {
   if (!object) return null;
   try {
-    if (isArray(object) && deep) {
-      return internals.arrayToJSON(object, { deep, isParentObject, forSync });
+    if (Array.isArray(object) && deep) {
+      return arrayToJSON(object, { deep, isParentObject, forSync });
     }
 
     let requiredFields = [];
     const jsonObject = JSON.parse(jsonPrune(object));
     if (typeof object.objectSchema === 'function') {
       const { properties } = object.objectSchema();
-      each(properties, (props, key) => {
+      properties.forEach((props, key) => {
         if (props.optional === false || isParentObject) {
           requiredFields.push(key);
         }
@@ -43,7 +41,7 @@ internals.parseToJSON = (object, {
           requiredFields = pull(requiredFields, key);
         }
         // only include required fields without parent links
-        const newValue = _parseProperty({
+        const newValue = parseProperty({
           props, isParentObject, key, forSync, object,
         });
         if (newValue) jsonObject[key] = newValue;
@@ -59,15 +57,13 @@ internals.parseToJSON = (object, {
   }
 };
 
-internals.arrayToJSON = (array, props = {}) => array.map((value) => {
+export const arrayToJSON = (array, props = {}) => array.map((value) => {
   if (isObject(value)) {
-    return internals.parseToJSON(value, props);
+    return parseToJSON(value, props);
   }
   return value;
 });
 
-internals.objectToJSON = (object) => internals.parseToJSON(object);
+export const objectToJSON = (object) => parseToJSON(object);
 
-internals.parseObjectForSync = (object) => internals.parseToJSON(object, { forSync: true });
-
-module.exports = internals;
+export const parseObjectForSync = (object) => parseToJSON(object, { forSync: true });

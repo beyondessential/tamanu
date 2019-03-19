@@ -1,6 +1,5 @@
 import Realm from 'realm';
 import shortId from 'shortid';
-import { has, head } from 'lodash';
 import { SYNC_ACTIONS } from '../constants';
 
 export default class Database extends Realm {
@@ -12,7 +11,7 @@ export default class Database extends Realm {
 
     if (update) objectWithId.modifiedAt = new Date();
     const result = super.create(type, objectWithId, update);
-    if (!silent) this._alertListeners(SYNC_ACTIONS.SAVE, type, result);
+    if (!silent) this.alertListeners(SYNC_ACTIONS.SAVE, type, result);
     return result;
   }
 
@@ -24,7 +23,7 @@ export default class Database extends Realm {
     };
 
     const result = super.update(type, objectWithId);
-    if (!silent) this._alertListeners(SYNC_ACTIONS.SAVE, type, result);
+    if (!silent) this.alertListeners(SYNC_ACTIONS.SAVE, type, result);
     return result;
   }
 
@@ -51,7 +50,7 @@ export default class Database extends Realm {
       const type = schema.name;
       const record = { _id: obj._id }; // If it is being deleted, only alert with the id
       if (obj && obj.destructor instanceof Function) obj.destructor(this);
-      if (!silent) this._alertListeners(SYNC_ACTIONS.REMOVE, type, record);
+      if (!silent) this.alertListeners(SYNC_ACTIONS.REMOVE, type, record);
     });
 
     // Actually delete the objects from the database
@@ -97,8 +96,8 @@ export default class Database extends Realm {
    * @param  {array} ...args The arguments to pass on to each callback
    * @return {none}
    */
-  _alertListeners(action, type, record) {
-    if (has(this.listeners, type)) this.listeners[type](action, record);
+  alertListeners(action, type, record) {
+    if (this.listeners && this.listeners[type]) this.listeners[type](action, record);
   }
 
   /**
@@ -123,14 +122,14 @@ export default class Database extends Realm {
   findOne(type, searchKey, searchKeyField = '_id') {
     if (!searchKey || searchKey.length < 1) throw new Error('Cannot find without a search key');
     const results = super.objects(type).filtered(`${searchKeyField} == $0`, searchKey);
-    return head(results);
-    // console.log()
-    // if (results.length > 0) return results[0];
-    // return null;
+    if (results.length > 0) return results[0];
+    return null;
   }
 
-  find(type, condition = '') {
-    return this.objects(type).filtered(condition);
+  find(type, condition = null) {
+    let items = this.objects(type);
+    if (condition) items = items.filtered(condition);
+    return items;
   }
 
   setSettings(settings) {
