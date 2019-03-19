@@ -1,17 +1,17 @@
-const bcrypt = require('bcrypt');
-const crypto = require('crypto');
-const { to } = require('await-to-js');
-const jwt = require('jsonwebtoken');
-const { Ability } = require('@casl/ability');
-const { permittedFieldsOf } = require('@casl/ability/extra');
-const {
+import bcrypt from 'bcrypt';
+import crypto from 'crypto';
+import { to } from 'await-to-js';
+import jwt from 'jsonwebtoken';
+import { Ability } from '@casl/ability';
+import { permittedFieldsOf } from '@casl/ability/extra';
+import {
   isEmpty, isArray, head, isNumber,
   find, difference, template,
-} = require('lodash');
-const { objectToJSON } = require('../utils');
-const { schemas, schemaClasses } = require('../../shared/schemas');
+} from 'lodash';
+import { objectToJSON } from '../utils';
+import { schemas, schemaClasses } from "../schemas";
 
-class BaseAuth {
+export default class Auth {
   constructor(database) {
     this.saltRounds = 12;
     this.database = database;
@@ -34,7 +34,7 @@ class BaseAuth {
     if (!isNumber(this.sessionTimeout)) throw new Error('Invalid session timeout.');
     const expiry = new Date().getTime() + this.sessionTimeout;
 
-    const { _id: userId, password, hospitals } = this._userExists({ email });
+    const { _id: userId, password, hospitals } = this.userExists({ email });
     if (!userId) return Promise.reject(new Error(this.errors.InvalidCredentials));
 
     // Check user's password
@@ -43,7 +43,7 @@ class BaseAuth {
     if (!validPassword || err) return Promise.reject(new Error(this.errors.InvalidCredentials));
 
     // Validate hospital
-    const checkHospitalResponse = this._checkHospital({ hospitals, hospitalSelected, firstTimeLogin });
+    const checkHospitalResponse = this.checkHospital({ hospitals, hospitalSelected, firstTimeLogin });
     if (checkHospitalResponse === false) return Promise.reject(new Error(this.errors.InvalidHospital));
     if (isArray(checkHospitalResponse)) {
       return {
@@ -57,12 +57,12 @@ class BaseAuth {
 
     // Register the client
     const clientSecret = this.generateJWTToken({ hospitalId, userId });
-    return this._addClient({
+    return this.addClient({
       hospitalId, userId, clientId, clientSecret, expiry,
     });
   }
 
-  _userExists({ email }) {
+  userExists({ email }) {
     let user = this.database.findOne('user', email, 'email');
     if (user && user !== null) {
       try {
@@ -75,7 +75,7 @@ class BaseAuth {
     return false;
   }
 
-  _checkHospital({ hospitals, hospitalSelected, firstTimeLogin }) {
+  checkHospital({ hospitals, hospitalSelected, firstTimeLogin }) {
     if (isEmpty(hospitals)) throw this.errors.InvalidHospital;
     if (hospitals.length > 1 && !hospitalSelected) {
       return hospitals.map(({ _id, name }) => ({ _id, name }));
@@ -90,7 +90,7 @@ class BaseAuth {
     return false;
   }
 
-  _addClient({
+  addClient({
     hospitalId, userId, clientId, clientSecret, expiry,
   }) {
     let client;
@@ -115,7 +115,9 @@ class BaseAuth {
       );
       if (user && user.length > 0) {
         if (extend === true && isNumber(this.sessionTimeout)) {
-          this.database.write(() => user.sessionTimeout = new Date().getTime() + this.sessionTimeout);
+          this.database.write(() => {
+            user.sessionTimeout = new Date().getTime() + this.sessionTimeout;
+          });
         }
         return head(user);
       }
@@ -142,8 +144,8 @@ class BaseAuth {
   verifyJWTToken(token) {
     if (!this.secret) throw new Error('JWT secret not set');
     try {
-      token = Buffer.from(token, 'base64').toString();
-      const valid = jwt.verify(token, this.secret, { issuer: this.issuer });
+      const stringToken = Buffer.from(token, 'base64').toString();
+      const valid = jwt.verify(stringToken, this.secret, { issuer: this.issuer });
       return valid;
     } catch (error) {
       console.error(error);
@@ -222,5 +224,3 @@ class BaseAuth {
     }
   }
 }
-
-module.exports = BaseAuth;

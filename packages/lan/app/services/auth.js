@@ -1,15 +1,13 @@
-const config = require('config');
-const basicAuth = require('basic-auth');
-const { set, isEmpty } = require('lodash');
-const BaseAuth = require('../../../shared/services/auth');
-const { schemaClasses } = require('../../../shared/schemas');
-const database = require('./database');
-const { HTTP_METHOD_TO_ACTION } = require('../constants');
+import basicAuth from 'basic-auth';
+import { set, isEmpty } from 'lodash';
+import BaseAuth from 'Shared/services/auth';
+import { schemaClasses } from 'Shared/schemas';
+import database from './database';
+import { HTTP_METHOD_TO_ACTION } from '../constants';
 
-class Auth extends BaseAuth {
+export default class Auth extends BaseAuth {
   constructor(props) {
     super(props);
-    this.database = database;
     this.user = null;
     this.client = '';
     this.sessionTimeout = (60 * 60 * 120 * 1000); // config.sessionTimeout
@@ -28,77 +26,69 @@ class Auth extends BaseAuth {
     return super.login(newProps);
   }
 
-  authorizeRequest() {
-    return async (req, res, next) => {
-      const _reject = (error = 'Invalid credentials', code = 401) => res.status(code).send(error);
+  async authorizeRequest(req, res, next) {
+    const reject = (error = 'Invalid credentials', code = 401) => res.status(code).send(error);
 
-      try {
-        const credentials = basicAuth(req);
-        if (!credentials) return _reject();
+    try {
+      const credentials = basicAuth(req);
+      if (!credentials) return reject();
 
-        const { name: clientId, pass: clientSecret } = credentials;
-        const client = await this.verifyExtendToken({ clientId, clientSecret });
-
-        // console.log('-client-', client);
-        if (client && client.userId) {
-          const { userId } = client;
-          const user = database.findOne('user', userId);
-          if (user) {
-            set(req, 'user', user);
-            set(req, 'client', client);
-            return next(null, user);
-          }
+      const { name: clientId, pass: clientSecret } = credentials;
+      const client = await this.verifyExtendToken({ clientId, clientSecret });
+      if (client && client.userId) {
+        const { userId } = client;
+        const user = this.database.findOne('user', userId);
+        if (user) {
+          set(req, 'user', user);
+          set(req, 'client', client);
+          return next(null, user);
         }
-
-        return _reject();
-      } catch (error) {
-        return _reject(error.toString());
       }
-    };
+
+      return reject();
+    } catch (error) {
+      return reject(error.toString());
+    }
   }
 
-  validateRequestPermissions() {
-    return (req, res, next) => {
-      let subject;
-      const {
-        params, method, user, client, body,
-      } = req;
-      const { model, id } = params;
-      const { hospitalId } = client;
-      const fields = Object.keys(body);
-      const _reject = (error = 'Invalid permissions', code = 405) => res.status(code).send(error);
+  validateRequestPermissions(req, res, next) {
+    let subject;
+    const {
+      params, method, user, client, body,
+    } = req;
+    const { model, id } = params;
+    const { hospitalId } = client;
+    const fields = Object.keys(body);
+    const reject = (error = 'Invalid permissions', code = 405) => res.status(code).send(error);
 
-      switch (true) {
-        case (method === 'GET' && !isEmpty(id)):
-          Object.defineProperty(schemaClasses[model], 'name', { value: model });
-          subject = new schemaClasses[model]({ _id: id });
-          break;
-        case (['PUT', 'PATCH', 'POST'].includes(method) && !isEmpty(id)):
-          Object.defineProperty(schemaClasses[model], 'name', { value: model });
-          subject = new schemaClasses[model]({ _id: id, ...body });
-          break;
-        default:
-          subject = model;
-          break;
-      }
+    switch (true) {
+      case (method === 'GET' && !isEmpty(id)):
+        Object.defineProperty(schemaClasses[model], 'name', { value: model });
+        subject = new schemaClasses[model]({ _id: id });
+        break;
+      case (['PUT', 'PATCH', 'POST'].includes(method) && !isEmpty(id)):
+        Object.defineProperty(schemaClasses[model], 'name', { value: model });
+        subject = new schemaClasses[model]({ _id: id, ...body });
+        break;
+      default:
+        subject = model;
+        break;
+    }
 
-      try {
-        const action = HTTP_METHOD_TO_ACTION[method];
-        const permissionsValid = this.validatePermissions({
-          user,
-          hospitalId,
-          action,
-          subject,
-          fields,
-        });
+    try {
+      const action = HTTP_METHOD_TO_ACTION[method];
+      const permissionsValid = this.validatePermissions({
+        user,
+        hospitalId,
+        action,
+        subject,
+        fields,
+      });
 
-        if (permissionsValid === true) return next();
-        return _reject(permissionsValid || 'Not enough permissions!');
-      } catch (error) {
-        return _reject(error.toString());
-      }
-    };
+      if (permissionsValid === true) return next();
+      return reject(permissionsValid || 'Not enough permissions!');
+    } catch (error) {
+      return reject(error.toString());
+    }
   }
 }
-
-module.exports = Auth;

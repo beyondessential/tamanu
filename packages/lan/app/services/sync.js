@@ -1,12 +1,12 @@
-const Faye = require('faye');
-const { find } = require('lodash');
-const config = require('config');
-const { objectToJSON } = require('../utils');
-const { outgoing } = require('../utils/faye-extensions');
-const { schemas } = require('../../../shared/schemas');
-const { SYNC_MODES, SYNC_ACTIONS } = require('../constants');
+import Faye from 'faye';
+import { find } from 'lodash';
+import config from 'config';
+import { objectToJSON } from '../utils';
+import { outgoing } from '../utils/faye-extensions';
+import { schemas } from 'Shared/schemas';
+import { SYNC_MODES, SYNC_ACTIONS } from '../constants';
 
-class Sync {
+export default class Sync {
   constructor(database, listeners) {
     this.database = database;
     this.listeners = listeners;
@@ -111,5 +111,3 @@ class Sync {
     }
   }
 }
-
-module.exports = Sync;
