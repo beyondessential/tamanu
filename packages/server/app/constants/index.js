@@ -1,4 +1,2 @@
-const sharedConstants = require('../../../shared/constants');
+export * from '../../../shared/constants';
 // Local constants
-
-module.exports = { ...sharedConstants };

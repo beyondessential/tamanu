@@ -1,8 +1,8 @@
-const express = require('express');
-const AuthRoutes = require('./auth');
+import express from 'express';
+import AuthRoutes from './auth';
 
 const router = express.Router();
 router.get('/', (req, res) => res.status(403).end());
 router.use('/auth', AuthRoutes);
 
-module.exports = router;
+export default router;

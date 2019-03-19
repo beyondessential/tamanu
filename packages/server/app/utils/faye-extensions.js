@@ -1,7 +1,7 @@
-const config = require('config');
-const { head, startsWith } = require('lodash');
+import config from 'config';
+import { head, startsWith } from 'lodash';
 
-module.exports.incoming = ({ database, message, callback }) => {
+export const incoming = ({ database, message, callback }) => {
   const { channel, ext } = message;
   const { clientId, clientSecret } = ext || {};
   if (startsWith(channel, `/${config.sync.channelIn}`) || channel === '/meta/subscribe') {
@@ -12,7 +12,8 @@ module.exports.incoming = ({ database, message, callback }) => {
       database.write(() => {
         user.lastActive = new Date().getTime();
       });
-      if (channel === '/meta/subscribe') console.log(`Client subscribed ${user._id}`);
+      // eslint-disable-next-line no-underscore-dangle
+      if (channel === '/meta/subscribe') console.log(`Client subscribed ${user._id}`); 
     } else {
       message.error = 'User authentication failed!';
       console.warn('User authentication failed!');
