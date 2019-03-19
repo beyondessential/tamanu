@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const ProgramSchema = {
+export const ProgramSchema = {
   name: 'program',
   primaryKey: '_id',
   properties: {
@@ -26,6 +26,3 @@ const ProgramSchema = {
     ...defaults,
   },
 };
-
-
-module.exports = ProgramSchema;

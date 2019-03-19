@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const UserSchema = {
+export const UserSchema = {
   name: 'user',
   primaryKey: '_id',
   properties: {
@@ -65,5 +65,3 @@ const UserSchema = {
     return valid;
   },
 };
-
-module.exports = UserSchema;

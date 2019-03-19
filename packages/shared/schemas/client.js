@@ -1,7 +1,7 @@
-const { SYNC_MODES } = require('../constants');
-const defaults = require('./defaults');
+import defaults from './defaults';
+import { SYNC_MODES } from '../constants';
 
-const ClientSchema = {
+export const ClientSchema = {
   name: 'client',
   primaryKey: 'clientId',
   sync: SYNC_MODES.OFF,
@@ -30,5 +30,3 @@ const ClientSchema = {
     ...defaults,
   },
 };
-
-module.exports = ClientSchema;

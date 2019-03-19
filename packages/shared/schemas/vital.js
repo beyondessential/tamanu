@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const VitalSchema = {
+export const VitalSchema = {
   name: 'vitals',
   primaryKey: '_id',
   properties: {
@@ -41,5 +41,3 @@ const VitalSchema = {
     ...defaults,
   },
 };
-
-module.exports = VitalSchema;

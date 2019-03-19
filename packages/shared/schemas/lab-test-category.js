@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const TestCategorySchema = {
+export const TestCategorySchema = {
   name: 'labTestCategory',
   primaryKey: '_id',
   properties: {
@@ -9,5 +9,3 @@ const TestCategorySchema = {
     ...defaults,
   },
 };
-
-module.exports = TestCategorySchema;

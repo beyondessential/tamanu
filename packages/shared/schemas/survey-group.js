@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const SurveyGroupSchema = {
+export const SurveyGroupSchema = {
   name: 'surveyGroup',
   primaryKey: '_id',
   properties: {
@@ -12,5 +12,3 @@ const SurveyGroupSchema = {
     ...defaults,
   },
 };
-
-module.exports = SurveyGroupSchema;

@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const VisitSchema = {
+export const VisitSchema = {
   name: 'visit',
   primaryKey: '_id',
   properties: {
@@ -93,5 +93,3 @@ const VisitSchema = {
     ...defaults,
   },
 };
-
-module.exports = VisitSchema;

@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const ImagingTypeSchema = {
+export const ImagingTypeSchema = {
   name: 'imagingType',
   primaryKey: '_id',
   properties: {
@@ -13,5 +13,3 @@ const ImagingTypeSchema = {
     ...defaults,
   },
 };
-
-module.exports = ImagingTypeSchema;

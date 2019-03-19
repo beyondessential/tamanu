@@ -1,8 +1,8 @@
-const { parseInt, padStart } = require('lodash');
-const defaults = require('./defaults');
-const { DISPLAY_ID_PLACEHOLDER, ENVIRONMENT_TYPE } = require('../constants');
+import { parseInt, padStart } from 'lodash';
+import defaults from './defaults';
+import { DISPLAY_ID_PLACEHOLDER, ENVIRONMENT_TYPE } from '../constants';
 
-const PatientSchema = {
+export const PatientSchema = {
   name: 'patient',
   primaryKey: '_id',
   properties: {
@@ -212,20 +212,21 @@ const PatientSchema = {
     ...defaults,
   },
   beforeSave: (db, object, env) => {
+    let displayId = object.displayId;
     if (object.displayId === DISPLAY_ID_PLACEHOLDER && env === ENVIRONMENT_TYPE.LAN) {
-      object.displayId = _generateTempDisplayId(db);
+      displayId = generateTempDisplayId(db);
     }
 
     // if (object.displayId === DISPLAY_ID_PLACEHOLDER && env === ENVIRONMENT_TYPE.SERVER){
-    //   object.displayId = _generateTempDisplayId(db);
+    //  displayId = generateTempDisplayId(db);
     // }
 
-    return object;
+    return { ...object, displayId };
   },
   selectors: ['displayId', 'firstName', 'lastName', 'dateOfBirth', 'sex', 'status', 'admitted'],
 };
 
-const _generateTempDisplayId = (db) => {
+const generateTempDisplayId = (db) => {
   let idSeq = db.getSetting('TEMP_DISPLAY_ID_SEQ');
   idSeq = parseInt(idSeq);
   idSeq += 1;
@@ -233,5 +234,3 @@ const _generateTempDisplayId = (db) => {
   db.setSetting('TEMP_DISPLAY_ID_SEQ', idSeq);
   return newId;
 };
-
-module.exports = PatientSchema;

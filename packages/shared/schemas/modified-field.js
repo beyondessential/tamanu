@@ -1,7 +1,6 @@
-const { SYNC_MODES } = require('../constants');
-const defaults = require('./defaults');
+import { SYNC_MODES } from '../constants';
 
-const modifiedFieldSchema = {
+export const modifiedFieldSchema = {
   name: 'modifiedField',
   primaryKey: '_id',
   sync: SYNC_MODES.LOCAL_TO_REMOTE,
@@ -15,5 +14,3 @@ const modifiedFieldSchema = {
     },
   },
 };
-
-module.exports = modifiedFieldSchema;

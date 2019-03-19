@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const PhotoSchema = {
+export const PhotoSchema = {
   name: 'photo',
   primaryKey: '_id',
   properties: {
@@ -33,5 +33,3 @@ const PhotoSchema = {
     ...defaults,
   },
 };
-
-module.exports = PhotoSchema;

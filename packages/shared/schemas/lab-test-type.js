@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const LabTestType = {
+export const LabTestType = {
   name: 'labTestType',
   primaryKey: '_id',
   properties: {
@@ -20,5 +20,3 @@ const LabTestType = {
     ...defaults,
   },
 };
-
-module.exports = LabTestType;
