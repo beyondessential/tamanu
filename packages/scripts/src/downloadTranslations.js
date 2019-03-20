@@ -17,7 +17,7 @@ const OMIT_COLUMNS = [
   '_xml',
 ];
 
-const BASE_PATH = '.';
+const BASE_PATH = process.argv[2] || '.';
 const DOC_ID = '10CIUe83xHRUUycwPJEwlQJaMsGWRkMydBy3zE-6D5y0';
 const doc = new GoogleSpreadsheet(DOC_ID);
 
