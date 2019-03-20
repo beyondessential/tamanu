@@ -1,5 +1,5 @@
 import shortid from 'shortid';
-import SharedSettings from 'SHared/services/settings';
+import SharedSettings from 'Shared/services/settings';
 
 export default class Settings extends SharedSettings {
   constructor(props) {
