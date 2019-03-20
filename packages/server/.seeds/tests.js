@@ -1,4 +1,4 @@
-module.exports = (database) => {
+export default (database) => {
   database.write(() => {
     const createdBy = database.findOne('user', 'demo--admin');
     const categoryOther = database.create('labTestCategory', {

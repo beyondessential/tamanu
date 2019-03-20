@@ -1,7 +1,6 @@
-const defaults = require('./defaults');
-const { has, isEmpty } = require('lodash');
+import defaults from './defaults';
 
-const HospitalSchema = {
+export const HospitalSchema = {
   name: 'hospital',
   primaryKey: '_id',
   // sync: false,
@@ -25,5 +24,3 @@ const HospitalSchema = {
     return valid;
   },
 };
-
-module.exports = HospitalSchema;

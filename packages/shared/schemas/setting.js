@@ -1,7 +1,7 @@
-const { SYNC_MODES } = require('../constants');
-const defaults = require('./defaults');
+import defaults from './defaults';
+import { SYNC_MODES } from '../constants';
 
-const SettingSchema = {
+export const SettingSchema = {
   name: 'setting',
   primaryKey: 'key',
   sync: SYNC_MODES.OFF,
@@ -17,5 +17,3 @@ const SettingSchema = {
     ...defaults,
   },
 };
-
-module.exports = SettingSchema;

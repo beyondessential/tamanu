@@ -1,10 +1,10 @@
-const { toUpper } = require('lodash');
-const shortid = require('shortid');
-const request = require('request-promise');
+import { toUpper } from 'lodash';
+import shortid from 'shortid';
+import request from 'request-promise';
 const apiURL = 'https://api.universalcodes.msupply.org.nz/v1/items';
 const modelName = 'drug';
 
-module.exports = async (database) => {
+export default async (database) => {
   try {
     const drugs = await fetchDrugs();
     database.write(() => {

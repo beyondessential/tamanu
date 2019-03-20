@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const PatientContactSchema = {
+export const PatientContactSchema = {
   name: 'patientContact',
   primaryKey: '_id',
   properties: {
@@ -24,5 +24,3 @@ const PatientContactSchema = {
     ...defaults,
   },
 };
-
-module.exports = PatientContactSchema;

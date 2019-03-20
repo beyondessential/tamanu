@@ -11,7 +11,9 @@
     "lint-stats": "eslint schemas utils constants services --format ../scripts/eslint-stats.js"
   },
   "private": true,
-  "devDependencies": {},
+  "devDependencies": {
+    "@babel/preset-env": "^7.3.4"
+  },
   "dependencies": {
     "@beyondessential/eslint-config-beyondessential": "^2.2",
     "@casl/ability": "^3.0.0",
@@ -20,6 +22,8 @@
     "eslint": "^5.15.2",
     "json-prune": "^1.1.0",
     "jsonwebtoken": "^8.4.0",
-    "lodash": "^4.17.11"
+    "lodash": "^4.17.11",
+    "realm": "^2.25.0",
+    "shortid": "^2.2.14"
   }
 }

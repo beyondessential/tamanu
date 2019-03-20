@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const QuestionSchema = {
+export const QuestionSchema = {
   name: 'question',
   primaryKey: '_id',
   properties: {
@@ -31,5 +31,3 @@ const QuestionSchema = {
     ...defaults,
   },
 };
-
-module.exports = QuestionSchema;

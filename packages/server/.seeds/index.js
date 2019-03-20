@@ -1,15 +1,14 @@
-const users = require('./users');
-const views = require('./views');
-const userRoles = require('./user-roles');
-const programs = require('./programs');
-const tests = require('./tests');
-const patients = require('./patients');
-const imagingTypes = require('./imaging-types');
-const diagnoses = require('./diagnoses');
-const drugs= require('./drugs');
+import users from './users';
+import userRoles from './user-roles';
+import programs from './programs';
+import tests from './tests';
+import patients from './patients';
+import imagingTypes from './imaging-types';
+import diagnoses from './diagnoses';
+import drugs from './drugs';
 
-module.exports = async (database) => {
-  views(database);
+// TODO: update seed to work with non-db level change detection
+export default async (database) => {
   userRoles(database);
   users(database);
   programs(database);

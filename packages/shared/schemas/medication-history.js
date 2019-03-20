@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const medicationHistorySchema = {
+export const medicationHistorySchema = {
   name: 'medicationHistory',
   primaryKey: '_id',
   properties: {
@@ -32,5 +32,3 @@ const medicationHistorySchema = {
     ...defaults,
   },
 };
-
-module.exports = medicationHistorySchema;

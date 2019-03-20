@@ -1,7 +1,4 @@
-const bcrypt = require('bcrypt');
-const AuthService = require('../app/services/auth');
-
-module.exports = (database) => {
+export default (database) => {
   const baseRules = [
     { // allow 'read' for [models]
       actions: ['read'],

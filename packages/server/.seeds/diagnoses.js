@@ -1,11 +1,11 @@
-const { toUpper } = require('lodash');
-const shortid = require('shortid');
-const xlsx = require('xlsx');
-const fs = require('fs');
+import { toUpper } from 'lodash';
+import shortid from 'shortid';
+import xlsx from 'xlsx';
+import fs from 'fs';
 const fileToImport = __dirname + '/data/diagnoses.xlsx';
 const modelName = 'diagnosis';
 
-module.exports = (database) => {
+export default (database) => {
   if (!fs.existsSync(fileToImport)) {
     console.log('Skipping diagnosis import');
     return;

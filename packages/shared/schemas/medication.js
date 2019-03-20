@@ -1,7 +1,7 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 const { MEDICATION_STATUSES } = require('../constants');
 
-const MedicationSchema = {
+export const MedicationSchema = {
   name: 'medication',
   primaryKey: '_id',
   properties: {
@@ -77,5 +77,3 @@ const MedicationSchema = {
     ...defaults,
   },
 };
-
-module.exports = MedicationSchema;

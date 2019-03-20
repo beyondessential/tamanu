@@ -1,7 +1,7 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 const { IMAGING_REQUEST_STATUSES } = require('../constants');
 
-const ImagingRequestSchema = {
+export const ImagingRequestSchema = {
   name: 'imagingRequest',
   primaryKey: '_id',
   properties: {
@@ -30,5 +30,3 @@ const ImagingRequestSchema = {
     ...defaults,
   },
 };
-
-module.exports = ImagingRequestSchema;

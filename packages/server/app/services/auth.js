@@ -1,7 +1,7 @@
-const config = require('config');
-const BaseAuth = require('../../../shared/services/auth');
+import config from 'config';
+import SharedAuth from 'Shared/services/auth';
 
-class Auth extends BaseAuth {
+export default class Auth extends SharedAuth {
   constructor(props) {
     super(props);
     this.sessionTimeout = config.sessionTimeout
@@ -9,5 +9,3 @@ class Auth extends BaseAuth {
       : (60 * 60 * 24 * 14 * 1000);
   }
 }
-
-module.exports = Auth;

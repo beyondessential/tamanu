@@ -1,21 +1,21 @@
-const config = require('config');
-const {
-  each, has, isEmpty, isArray, isObject, mapValues, reverse, clone,
-  toLower, pick, keys, set, isFunction, uniqBy, chain, difference,
-} = require('lodash');
-const moment = require('moment');
-const { to } = require('await-to-js');
-const {
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable import/no-unresolved */
+import config from 'config';
+import {
+  has, isEmpty, toLower, pick, keys, set, isFunction, chain, difference,
+} from 'lodash';
+import moment from 'moment';
+import { to } from 'await-to-js';
+import { defaults as defaultFields } from 'Shared/schemas';
+import {
   objectToJSON, parseObjectForSync, incoming, findSchema,
-} = require('../utils');
-const { defaults: defaultFields } = require('../../../shared/schemas');
-const AuthService = require('../services/auth');
+} from '../utils';
+import AuthService from './auth';
 const {
-  HTTP_METHOD_TO_ACTION, ENVIRONMENT_TYPE,
-  SYNC_ACTIONS,
+  HTTP_METHOD_TO_ACTION, ENVIRONMENT_TYPE, SYNC_ACTIONS,
 } = require('../constants');
 
-class Sync {
+export default class Sync {
   constructor(database, faye, queueManager) {
     this.database = database;
     this.client = faye;
@@ -29,22 +29,27 @@ class Sync {
   async synchronize() {
     const fromTime = moment().subtract(30, 'minutes').toDate().getTime();
     const clients = this.database.find('client', `lastActive > ${fromTime}`);
-    const [err] = await to(Promise.all(clients.map(client => this._sync(client))));
+    const [err] = await to(Promise.all(clients.map(client => this.sync(client))));
     if (err) throw err;
   }
 
-  async _sync(client) {
+  async sync(client) {
     try {
       const { syncOut: lastSyncTime, hospitalId } = client;
       const changes = this.database.find('change', `timestamp > "${lastSyncTime}"`);
       if (changes && changes.length > 0) {
         const hospital = this.database.findOne('hospital', hospitalId);
         const maxTimestamp = changes.max('timestamp');
-        const [err] = await to(Promise.all(changes.map(change => this.publishMessage(objectToJSON(change), client, hospital))));
+        const [err] = await to(Promise.all(changes.map(change => this.publishMessage(
+          objectToJSON(change),
+          client,
+          hospital,
+        ))));
         if (err) return new Error(err);
 
         // Update sync date
         this.database.write(() => {
+          // eslint-disable-next-line no-param-reassign
           client.syncOut = maxTimestamp || new Date().getTime();
         });
         return true;
@@ -95,6 +100,7 @@ class Sync {
     const activeClients = this.database.find('client', condition);
     this.database.write(() => {
       activeClients.forEach((client) => {
+        // eslint-disable-next-line no-param-reassign
         if (client) client.lastActive = 0;
       });
     });
@@ -117,7 +123,7 @@ class Sync {
         if (record) record = parseObjectForSync(record);
         // Apply selectors  if defined
         if (toLower(change.action) === 'save') {
-          record = this._applySelectors(schema, hospital, change, record);
+          record = this.applySelectors(schema, hospital, change, record);
           // Reset modified fields
           record.modifiedFields = [];
         }
@@ -137,23 +143,24 @@ class Sync {
     }
   }
 
-  _applySelectors(schema, hospital, change, record) {
-    record.fullySynced = false; // reset
+  applySelectors = (schema, hospital, change, record) => {
+    let filteredRecord = record;
+    filteredRecord.fullySynced = false; // reset
     if (schema.selectors && !isEmpty(schema.selectors)) {
       const key = `${change.recordType}-${change.recordId}`;
       const objectsFullySynced = Array.from(hospital.objectsFullySynced);
-      if (objectsFullySynced.includes(key)) record.fullySynced = true;
+      if (objectsFullySynced.includes(key)) filteredRecord.fullySynced = true;
 
       // Send selected fields only
-      if (!record.fullySynced) {
-        schema.selectors = ['_id', ...keys(defaultFields), ...schema.selectors];
-        record = pick(record, schema.selectors);
-        record.fullySynced = false; // just to make sure
+      if (!filteredRecord.fullySynced) {
+        const selectedFields = ['_id', ...keys(defaultFields), ...schema.selectors];
+        filteredRecord = pick(filteredRecord, selectedFields);
+        filteredRecord.fullySynced = false; // just to make sure
       }
     } else {
-      record.fullySynced = true;
+      filteredRecord.fullySynced = true;
     }
-    return record;
+    return filteredRecord;
   }
 
   /**
@@ -168,8 +175,8 @@ class Sync {
     try {
       // check if record exists
       const schema = findSchema(recordType);
-      let newRecord = { _id: updatedRecord._id };
-      let currentRecord = this.database.find(recordType, `_id = '${updatedRecord._id}'`);
+      let newRecord = { _id: updatedRecord._id }; // eslint-disable-line no-underscore-dangle
+      let currentRecord = this.database.find(recordType, `_id = '${updatedRecord._id}'`); // eslint-disable-line no-underscore-dangle
       if (currentRecord) {
         [currentRecord] = currentRecord.slice(0, 1);
       }
@@ -177,7 +184,7 @@ class Sync {
 
       // resolve conflicts
       if (recordType !== 'modifiedField') {
-        newRecord = this._mergeChanges(currentRecord, updatedRecord, recordType, action, newRecord);
+        newRecord = this.mergeChanges(currentRecord, updatedRecord, recordType, action, newRecord);
       } else {
         newRecord = updatedRecord;
       }
@@ -186,10 +193,10 @@ class Sync {
         newRecord = schema.beforeSave(this.database, newRecord, ENVIRONMENT_TYPE.SERVER);
       }
       // fix relations
-      newRecord = this._serializeRelations(newRecord);
+      newRecord = this.serializeRelations(newRecord);
       // only add / update record if some authorized data is present
       if (Object.keys(newRecord).length > 1) {
-        this._updateRecord({ recordType, newRecord, currentRecord });
+        this.updateRecord({ recordType, newRecord, currentRecord });
       }
     } catch (err) {
       // console.error(err);
@@ -197,13 +204,14 @@ class Sync {
     }
   }
 
-  _serializeRelations(newRecord) {
-    each(newRecord, (value, field) => {
+  serializeRelations = newRecord => {
+    Object.keys(newRecord).forEach(field => {
       if (field === 'modifiedFields' || field === 'objectsFullySynced') return;
-      if (isArray(value)) {
+      const value = newRecord[field];
+      if (Array.isArray(value)) {
         const newValue = value.map(({ _id }) => ({ _id }));
         set(newRecord, field, newValue);
-      } else if (isObject(value)) {
+      } else if (typeof value === 'object') {
         set(newRecord, field, pick(value, ['_id']));
       }
     });
@@ -211,7 +219,8 @@ class Sync {
     return newRecord;
   }
 
-  _mergeChanges(currentRecord = {}, updatedRecord, recordType, action, newRecord) {
+  mergeChanges(currentRecord = {}, updatedRecord, recordType, action, record) {
+    const newRecord = record;
     let { modifiedFields: currentModifiedFields = [] } = currentRecord;
     const { modifiedFields: updatedModifiedFields = [] } = updatedRecord;
     if (currentModifiedFields) currentModifiedFields = Array.from(currentModifiedFields);
@@ -227,6 +236,7 @@ class Sync {
         const validPermissions = this.auth.validatePermissions({
           user, hospitalId, action, subject, fields,
         });
+
         if (validPermissions) { // TODO: add generous relations update
           if (has(currentModifiedFields, field)) { // if key already has an old value stored
             const lastUpdatedValue = updateTime > currentModifiedFields[field].time
@@ -251,10 +261,11 @@ class Sync {
         .uniqBy('_id')
         .value();
     }
+
     return newRecord;
   }
 
-  _updateRecord({ recordType, currentRecord = {}, newRecord }) {
+  updateRecord({ recordType, currentRecord = {}, newRecord }) {
     // get new item added to `objectsFullySynced`
     let { objectsFullySynced: oldSyncedItems = [] } = currentRecord;
     let { objectsFullySynced: newSyncedItems = [] } = newRecord;
@@ -267,11 +278,11 @@ class Sync {
     });
     // push newly synced items to the client
     if (newRecord.objectsFullySynced) {
-      this._pushNewlySyncedItems({ oldSyncedItems, newSyncedItems });
+      this.pushNewlySyncedItems({ oldSyncedItems, newSyncedItems });
     }
   }
 
-  _pushNewlySyncedItems({ oldSyncedItems, newSyncedItems }) {
+  pushNewlySyncedItems({ oldSyncedItems, newSyncedItems }) {
     const newlyAdded = difference(newSyncedItems, oldSyncedItems);
     newlyAdded.forEach((item) => {
       const [recordType, recordId] = item.split(/-(.+)/);
@@ -294,5 +305,3 @@ class Sync {
     });
   }
 }
-
-module.exports = Sync;

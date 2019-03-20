@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const NoteSchema = {
+export const NoteSchema = {
   name: 'note',
   primaryKey: '_id',
   properties: {
@@ -28,5 +28,3 @@ const NoteSchema = {
     ...defaults,
   },
 };
-
-module.exports = NoteSchema;

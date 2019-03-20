@@ -1,14 +1,11 @@
-const { buildCheckFunction, validationResult } = require('express-validator/check');
-const { chain } = require('lodash');
-const AuthService = require('../../services/auth');
+import { buildCheckFunction, validationResult } from 'express-validator/check';
+import { chain } from 'lodash';
+import AuthService from '../../services/auth';
 
-const internals = {
-  checkBody: buildCheckFunction(['body']),
-};
-
-internals.validateBody = [
-  internals.checkBody('clientId').exists().withMessage('clientId is required'),
-  internals.checkBody('clientSecret').isEmail().exists().withMessage('clientSecret is required'),
+const checkBody = buildCheckFunction(['body']);
+const validateBody = [
+  checkBody('clientId').exists().withMessage('clientId is required'),
+  checkBody('clientSecret').isEmail().exists().withMessage('clientSecret is required'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -20,7 +17,7 @@ internals.validateBody = [
   },
 ];
 
-internals.verifyCredentials = async (req, res) => {
+const verifyCredentials = async (req, res) => {
   const database = req.app.get('database');
   const { clientId, clientSecret } = req.body;
 
@@ -37,6 +34,4 @@ internals.verifyCredentials = async (req, res) => {
   }
 };
 
-module.exports = [
-  internals.verifyCredentials,
-];
+export default [verifyCredentials];
