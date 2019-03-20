@@ -12,7 +12,7 @@
     ]
   },
   "scripts": {
-    "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.js",
+    "start-dev": "rm -rf ./dist/ && ./node_modules/.bin/webpack --config webpack.config.dev.js",
     "build": "pkg . --targets node10-win-x64 --output ./release/server.exe",
     "package": "./scripts/package.sh",
     "lint": "eslint app",
