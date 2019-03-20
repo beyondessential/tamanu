@@ -19,13 +19,13 @@ export class Translated extends React.PureComponent {
 
   // Function to fetch a translated string. Implemented as a static method to 
   // increase friction in using this function instead of the component.
-  static _t(id, values) {
+  static getTranslatedString(id, values) {
     return polyglot.t(id, values);
   }
 
   render() {
     const { id, values } = this.props;
-    const text = Translated._t(id, values);
+    const text = Translated.getTranslatedString(id, values);
 
     if(SHOW_TRANSLATE_ID) {
       return <span title={`_t(${id})`}>{text}</span>;
