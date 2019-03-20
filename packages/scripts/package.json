@@ -2,5 +2,8 @@
   "name": "tools",
   "version": "1.0.0",
   "main": "index.js",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "google-spreadsheet": "^2.0.7"
+  }
 }

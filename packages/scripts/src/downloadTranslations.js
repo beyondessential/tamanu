@@ -1,0 +1,91 @@
+const { writeFile } = require('fs');
+const GoogleSpreadsheet = require('google-spreadsheet');
+
+const creds = require('../config/bes-tools-key.json');
+
+const OMIT_COLUMNS = [
+  // for clerical use only
+  'id',
+  'section',
+  'note',
+
+  // google doc utils
+  'save',
+  'del',
+  'app:edited',
+  '_links',
+  '_xml',
+];
+
+const BASE_PATH = '.';
+const DOC_ID = '10CIUe83xHRUUycwPJEwlQJaMsGWRkMydBy3zE-6D5y0';
+const doc = new GoogleSpreadsheet(DOC_ID);
+
+const log = console.log;
+
+function login() {
+  log("Logging in...");
+  return new Promise(resolve => doc.useServiceAccountAuth(creds, resolve));
+}
+
+function getWorksheets() {
+  log("Getting worksheets...");
+  return new Promise((resolve, reject) => 
+    doc.getInfo((err, info) => {
+      if(err) return reject(err);
+
+      resolve(info.worksheets);
+    })
+  );
+}
+
+function getRows(sheet) {
+  return new Promise((resolve, reject) => 
+    sheet.getRows((err, rows) => {
+      if(err) return reject(err);
+
+      resolve(rows);
+    })
+  );
+}
+
+async function processSheet(sheet) {
+  log("Processing sheet", sheet.title);
+
+  // get all rows and check which languages we have
+  const rows = await getRows(sheet);
+  const keys = Object.keys(rows[0]).filter(k => !OMIT_COLUMNS.includes(k));
+  const translations = keys.reduce((obj, k) => ({...obj, [k]: {}}), {});
+
+  // put all languages into their own key-value pair object
+  rows.map(r => {
+    keys.map(k => {
+      translations[k][r.id] = r[k];
+    });
+  });
+
+  // write each translation to disk
+  const writeTasks = keys.map(k => {
+    const sanitisedName = sheet.title.toLowerCase().replace(/\W+/g, '');
+    const filename = `${sanitisedName}-${k}.json`;
+    const path = [BASE_PATH, filename].join('/');
+
+    const data = JSON.stringify(translations[k]);
+    log('Writing', path);
+    return new Promise((resolve, reject) => {
+      writeFile(path, data, (err) => err ? reject(err) : resolve());
+    });
+  });
+
+  return Promise.all(writeTasks);
+}
+
+async function run() {
+  await login(); 
+  const sheets = await getWorksheets();
+  
+  const sheetTasks = sheets.map(processSheet);
+  await Promise.all(sheetTasks);
+}
+
+run();
