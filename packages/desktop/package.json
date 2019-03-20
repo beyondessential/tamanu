@@ -28,7 +28,9 @@
     "test-all": "npm run lint && npm run flow && npm run build && npm run test && npm run test-e2e",
     "test-e2e": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 node --trace-warnings -r babel-register ./internals/scripts/RunTests.js e2e",
     "test-watch": "npm test -- --watch",
-    "reinstall": "rm -rf node_modules && yarn"
+    "reinstall": "rm -rf ../../**/node_modules && yarn",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "browserslist": "electron 1.6",
   "lint-staged": {
@@ -131,6 +133,11 @@
   },
   "devDependencies": {
     "@beyondessential/eslint-config-beyondessential": "^2.2",
+    "@emotion/core": "^10.0.9",
+    "@storybook/addon-actions": "^5.0.1",
+    "@storybook/addon-links": "^5.0.1",
+    "@storybook/addons": "^5.0.1",
+    "@storybook/react": "^5.0.1",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.6",
     "babel-jest": "^23.4.2",
