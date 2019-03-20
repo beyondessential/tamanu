@@ -18,7 +18,7 @@ import { checkAbility } from '../utils/ability-context';
 import { logoutIcon } from '../constants/images';
 import { TamanuLogo } from './TamanuLogo';
 
-import { Translated } from '../components/Translated';
+import { Translated } from './Translated';
 
 const { login: loginActions } = actions;
 const { logout } = loginActions;
