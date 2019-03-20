@@ -11,8 +11,10 @@ const palette = {
   },
 };
 const themeName = 'Tamanu';
-const theme = createMuiTheme({ palette, themeName });
+const typography = { useNextVariants: true };
+const theme = createMuiTheme({ palette, themeName, typography });
 
 export const ThemeProvider = (props) => (
+  // eslint-disable-next-line react/jsx-filename-extension
   <MuiThemeProvider theme={theme} {...props} />
 );
