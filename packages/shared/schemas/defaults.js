@@ -1,4 +1,4 @@
-const Default = {
+export default {
   modifiedFields: {
     type: 'list',
     objectType: 'modifiedField',
@@ -20,5 +20,3 @@ const Default = {
     default: false,
   },
 };
-
-module.exports = Default;

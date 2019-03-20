@@ -1,6 +1,6 @@
 const { SYNC_MODES } = require('../constants');
 
-const ChangeSchema = {
+export const ChangeSchema = {
   name: 'change',
   primaryKey: '_id',
   sync: SYNC_MODES.OFF,
@@ -12,5 +12,3 @@ const ChangeSchema = {
     timestamp: 'int',
   },
 };
-
-module.exports = ChangeSchema;

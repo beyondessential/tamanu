@@ -1,6 +1,6 @@
-const bcrypt = require('bcrypt');
+import bcrypt from 'bcrypt';
 
-module.exports = (database) => {
+export default (database) => {
   const saltRounds = 12;
   const salt = bcrypt.genSaltSync(saltRounds);
   const hash = bcrypt.hashSync('123455', salt);

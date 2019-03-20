@@ -1,16 +1,27 @@
-const express = require('express');
-const RealmController = require('../controllers/realm');
-const AuthService = require('../services/auth');
+import express from 'express';
+import RealmController from '../controllers/realm';
+import AuthService from '../services/auth';
 
-const authService = new AuthService();
+const authorizeRequest = (req, res, next) => {
+  const database = req.app.get('database');
+  const authService = new AuthService(database);
+  return authService.authorizeRequest(req, res, next);
+};
+
+const validatePermissions = (req, res, next) => {
+  const database = req.app.get('database');
+  const authService = new AuthService(database);
+  return authService.validateRequestPermissions(req, res, next);
+};
+
 const router = express.Router();
-router.use(authService.authorizeRequest());
-router.get('/:model/:id', authService.validateRequestPermissions(), RealmController.GET);
-router.get('/:model', authService.validateRequestPermissions(), RealmController.GET);
-router.patch('/:model/:id', authService.validateRequestPermissions(), RealmController.PATCH);
-router.put('/:model/:id', authService.validateRequestPermissions(), RealmController.PUT);
-router.put('/:model', authService.validateRequestPermissions(), RealmController.PUT);
-router.post('/:model', authService.validateRequestPermissions(), RealmController.POST);
-router.delete('/:model/:id', authService.validateRequestPermissions(), RealmController.DELETE);
+router.use(authorizeRequest);
+router.get('/:model/:id', validatePermissions, RealmController.GET);
+router.get('/:model', validatePermissions, RealmController.GET);
+router.patch('/:model/:id', validatePermissions, RealmController.PATCH);
+router.put('/:model/:id', validatePermissions, RealmController.PUT);
+router.put('/:model', validatePermissions, RealmController.PUT);
+router.post('/:model', validatePermissions, RealmController.POST);
+router.delete('/:model/:id', validatePermissions, RealmController.DELETE);
 
-module.exports = router;
+export default router;

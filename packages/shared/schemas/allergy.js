@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const AllergySchema = {
+export const AllergySchema = {
   name: 'allergy',
   primaryKey: '_id',
   properties: {
@@ -20,5 +20,3 @@ const AllergySchema = {
     ...defaults,
   },
 };
-
-module.exports = AllergySchema;

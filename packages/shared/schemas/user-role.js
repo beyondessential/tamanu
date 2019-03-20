@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const UserRoleSchema = {
+export const UserRoleSchema = {
   name: 'userRole',
   primaryKey: '_id',
   properties: {
@@ -19,10 +19,10 @@ const UserRoleSchema = {
     },
     ...defaults,
   },
-  beforeSave: (db, { hospital, role }) => ({
+  beforeSave: (db, { hospital, role, ...object }) => ({
     ...object,
+    hospital,
+    role,
     _id: `${hospital._id}:${role._id}`,
   }),
 };
-
-module.exports = UserRoleSchema;

@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const RoleSchema = {
+export const RoleSchema = {
   name: 'role',
   primaryKey: '_id',
   properties: {
@@ -13,5 +13,3 @@ const RoleSchema = {
     ...defaults,
   },
 };
-
-module.exports = RoleSchema;

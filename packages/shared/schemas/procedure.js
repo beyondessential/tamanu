@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const ProcedureSchema = {
+export const ProcedureSchema = {
   name: 'procedure',
   primaryKey: '_id',
   properties: {
@@ -58,5 +58,3 @@ const ProcedureSchema = {
     ...defaults,
   },
 };
-
-module.exports = ProcedureSchema;

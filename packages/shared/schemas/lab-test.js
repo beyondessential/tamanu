@@ -1,7 +1,7 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 const { LAB_REQUEST_STATUSES } = require('../constants');
 
-const LabTestSchema = {
+export const LabTestSchema = {
   name: 'labTest',
   primaryKey: '_id',
   properties: {
@@ -13,5 +13,3 @@ const LabTestSchema = {
     ...defaults,
   },
 };
-
-module.exports = LabTestSchema;

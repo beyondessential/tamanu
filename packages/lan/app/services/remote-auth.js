@@ -1,9 +1,9 @@
-const config = require('config');
-const prompts = require('prompts');
-const request = require('request-promise');
-const { to } = require('await-to-js');
+import config from 'config';
+import prompts from 'prompts';
+import request from 'request-promise';
+import { to } from 'await-to-js';
 
-class RemoteAuth {
+export default class RemoteAuth {
   constructor(database) {
     this.mainServer = config.mainServer;
     this.database = database;
@@ -104,5 +104,3 @@ class RemoteAuth {
     return res;
   }
 }
-
-module.exports = RemoteAuth;

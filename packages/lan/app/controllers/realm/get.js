@@ -1,9 +1,9 @@
-const {
+import {
   parseInt, ceil, head, isEmpty,
-} = require('lodash');
-const { objectToJSON } = require('../../utils');
+} from 'lodash';
+import { objectToJSON } from '../../utils';
 
-module.exports = (req, res) => {
+export default function (req, res) {
   const realm = req.app.get('database');
   const { params, query } = req;
   const { model: modelName, id } = params;
@@ -84,4 +84,4 @@ module.exports = (req, res) => {
     console.error(err);
     return res.status(500).send(err.toString());
   }
-};
+}

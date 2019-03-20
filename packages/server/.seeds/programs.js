@@ -1,6 +1,8 @@
-const importSurveys = require('../surveys_import/importSurveys');
+import fs from 'fs';
+import importSurveys from '../surveys_import/importSurveys';
+const surveysImportFile = `${__dirname}/../surveys_import/data/GDM_surveys.xlsx`;
 
-module.exports = (database) => {
+export default (database) => {
   const pregnancyProgramDetails = {
     _id: 'program-pregnancy',
     name: 'Pregnancy',
@@ -13,6 +15,8 @@ module.exports = (database) => {
 
   database.write(() => {
     const pregnancyProgram = database.create('program', pregnancyProgramDetails, true);
-    importSurveys(database, `${__dirname}/../surveys_import/data/GDM_surveys.xlsx`, pregnancyProgram);
+    if (fs.existsSync(surveysImportFile)) {
+      importSurveys(database, surveysImportFile, pregnancyProgram);
+    }
   });
 }

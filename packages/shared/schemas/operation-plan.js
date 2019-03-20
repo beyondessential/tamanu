@@ -1,7 +1,7 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 const { OPERATION_PLAN_STATUSES } = require('../constants');
 
-const OpPlanSchema = {
+export const OpPlanSchema = {
   name: 'operationPlan',
   primaryKey: '_id',
   properties: {
@@ -39,5 +39,3 @@ const OpPlanSchema = {
     ...defaults,
   },
 };
-
-module.exports = OpPlanSchema;

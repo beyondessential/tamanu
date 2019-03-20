@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const ViewSchema = {
+export const ViewSchema = {
   name: 'view',
   primaryKey: '_id',
   properties: {
@@ -17,5 +17,3 @@ const ViewSchema = {
     ...defaults,
   },
 };
-
-module.exports = ViewSchema;

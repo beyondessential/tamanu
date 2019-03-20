@@ -1,29 +1,26 @@
-const fs = require('fs');
-const path = require('path');
-const { each } = require('lodash');
-const defaults = require('./defaults');
-const { SYNC_MODES } = require('../constants');
-const version = 45;
+import * as schemaObjects from './schemas';
+import defaults from './defaults';
+import { SYNC_MODES } from '../constants';
+
 const defaultSchema = {
   primaryKey: '_id',
   sync: SYNC_MODES.ON,
   properties: {},
 };
-
-const schemas = [];
+const schemas = Object.values(schemaObjects).map(schema => ({ ...defaultSchema, ...schema }));
+const version = 47;
 const schemaClasses = [];
-fs.readdirSync(__dirname).forEach((file) => {
-  if (file === 'index.js' || file === 'defaults.js') return;
-  const schema = require(path.join(__dirname, file));
-  schemas.push({ ...defaultSchema, ...schema });
-  schemaClasses[schema.name] = class {
-    constructor(props) {
-      each(props, (value, key) => this[key] = value);
+schemas.forEach(({ name, properties }) => {
+  schemaClasses[name] = class {
+    constructor() {
+      Object.keys(properties).forEach(key => {
+        this[key] = properties[key];
+      });
     }
   };
-  Object.defineProperty(schemaClasses[schema.name], 'name', { value: schema.name });
+  Object.defineProperty(schemaClasses[name], 'name', { value: name });
 });
 
-module.exports = {
-  schemas, schemaClasses, version, defaults,
+export {
+  schemas, version, schemaClasses, defaults,
 };

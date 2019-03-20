@@ -1,15 +1,12 @@
-const { buildCheckFunction, validationResult } = require('express-validator/check');
-const { chain } = require('lodash');
-const AuthService = require('../../services/auth');
+import { buildCheckFunction, validationResult } from 'express-validator/check';
+import { chain } from 'lodash';
+import AuthService from '../../services/auth';
 
-const internals = {
-  checkBody: buildCheckFunction(['body']),
-};
-
-internals.validateBody = [
-  internals.checkBody('clientId').exists().withMessage('clientId is required'),
-  internals.checkBody('email').isEmail().exists().withMessage('email is required'),
-  internals.checkBody('password').exists().withMessage('password is required'),
+const checkBody = buildCheckFunction(['body']);
+const validateBody = [
+  checkBody('clientId').exists().withMessage('clientId is required'),
+  checkBody('email').isEmail().exists().withMessage('email is required'),
+  checkBody('password').exists().withMessage('password is required'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -21,7 +18,7 @@ internals.validateBody = [
   },
 ];
 
-internals.login = async (req, res) => {
+const login = async (req, res) => {
   const database = req.app.get('realm');
   const {
     email, password, hospital, clientId, firstTimeLogin,
@@ -45,7 +42,4 @@ internals.login = async (req, res) => {
   }
 };
 
-module.exports = [
-  internals.validateBody,
-  internals.login,
-];
+export default [validateBody, login];

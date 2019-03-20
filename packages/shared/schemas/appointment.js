@@ -1,7 +1,7 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 const { APPOINTMENT_STATUSES } = require('../constants');
 
-const AppointmentSchema = {
+export const AppointmentSchema = {
   name: 'appointment',
   primaryKey: '_id',
   properties: {
@@ -48,5 +48,3 @@ const AppointmentSchema = {
     ...defaults,
   },
 };
-
-module.exports = AppointmentSchema;

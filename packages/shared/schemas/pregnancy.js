@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const PregnancySchema = {
+export const PregnancySchema = {
   name: 'pregnancy',
   primaryKey: '_id',
   properties: {
@@ -38,5 +38,3 @@ const PregnancySchema = {
     ...defaults,
   },
 };
-
-module.exports = PregnancySchema;

@@ -1,6 +1,6 @@
-const { head, isEmpty } = require('lodash');
+import { head, isEmpty } from 'lodash';
 
-module.exports = (req, res) => {
+export default function (req, res) {
   const realm = req.app.get('database');
   const { params } = req;
   const { model, id } = params;
@@ -17,4 +17,4 @@ module.exports = (req, res) => {
     console.error(err);
     return res.status(500).send(err.toString());
   }
-};
+}

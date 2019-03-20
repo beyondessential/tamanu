@@ -1,6 +1,6 @@
-const defaults = require('./defaults');
+import defaults from './defaults';
 
-const ReportSchema = {
+export const ReportSchema = {
   name: 'report',
   primaryKey: '_id',
   properties: {
@@ -16,5 +16,3 @@ const ReportSchema = {
     ...defaults,
   },
 };
-
-module.exports = ReportSchema;

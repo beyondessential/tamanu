@@ -1,4 +1,3 @@
-module.exports = {
-  login: require('./login'),
-  verifyCredentials: require('./verifyCredentials'),
-};
+import login from './login';
+import verifyCredentials from './verifyCredentials';
+export default { login, verifyCredentials };

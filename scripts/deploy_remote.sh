@@ -38,5 +38,6 @@ echo "${dir} > ${dir_bk}" \
 rm -rf ${dir_bk}
 
 cd ${dir}/packages/server/
-$pm2 start --name "${app_name}" index.js
+yarn build
+$pm2 start --name "${app_name}" ./dist/app.bundle.js
 $pm2 log --nostream --lines 20 "${app_name}"
