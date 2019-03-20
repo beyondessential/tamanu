@@ -10,7 +10,8 @@ import LabRequestsCollection from '../collections/labRequests';
 
 export default BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/patient`,
-  defaults: () => defaults({
+  defaults: () => ({
+    ...BaseModel.prototype.defaults,
     displayId: '',
     admitted: false,
     address: '',
@@ -62,7 +63,7 @@ export default BaseModel.extend({
     pregnancies: [],
     surveyResponses: [],
     visits: [],
-  }, BaseModel.prototype.defaults),
+  }),
 
   // Associations
   relations: [
@@ -120,6 +121,11 @@ export default BaseModel.extend({
   validate(attrs) {
     if (attrs.firstName === '') return 'firstName is required!';
     if (attrs.lastName === '') return 'lastName is required!';
+  },
+
+  toJSON() {
+    const { attributes } = this;
+    return { ...attributes, displayName: this.getDisplayName() };
   },
 
   getDisplayName() {
@@ -234,7 +240,8 @@ export default BaseModel.extend({
       const date = from.clone();
       medication.push({
         date: date.format(dateFormat),
-        medication: allMedication.filter(({ attributes }) => (date.isSameOrAfter(attributes.prescriptionDate) && (date.isSameOrBefore(attributes.endDate) || attributes.endDate === null))),
+        medication: allMedication.filter(({ attributes }) => (date.isSameOrAfter(attributes.prescriptionDate)
+          && (date.isSameOrBefore(attributes.endDate) || attributes.endDate === null))),
       });
       from.add(1, 'days');
     }

@@ -193,16 +193,14 @@ class EditPatient extends Component {
     return (
       <div>
         <div className="create-content">
-          <div className="create-top-bar">
-            <span>
-              View Patient
-            </span>
-          </div>
+          <TopBar title="View Patient" />
+          {/* TODO: remove this margin after removing CSS */}
+          <hr style={{ margin: 0 }} />
+          <TopRow patient={patient} />
           <div className="create-container">
             <div className="form">
               <div className="columns" style={{ overflowX: 'hidden' }}>
                 <div className="column">
-                  <TopRow patient={patient} />
                   <div className="columns border-bottom">
                     <div className="column">
                       <Condition patientModel={patientModel} />
