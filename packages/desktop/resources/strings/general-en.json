@@ -1,1 +1,15 @@
-{"tamanu":"Tamanu","patients":"Patients","scheduling":"Scheduling","medication":"Medication","imaging":"Imaging","labs":"Labs","administration":"Administration","programs":"Programs","reports":"Reports"}
+{
+  "tamanu": "Tamanu",
+  "patients": "Patients",
+  "scheduling": "Scheduling",
+  "medication": "Medication",
+  "imaging": "Imaging",
+  "labs": "Labs",
+  "administration": "Administration",
+  "programs": "Programs",
+  "reports": "Reports",
+  "login": "Log in",
+  "logout": "Log out",
+  "username": "Username",
+  "password": "Password"
+}

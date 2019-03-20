@@ -58,11 +58,16 @@ async function processSheet(sheet) {
   const translations = keys.reduce((obj, k) => ({...obj, [k]: {}}), {});
 
   // put all languages into their own key-value pair object
-  rows.map(r => {
-    keys.map(k => {
-      translations[k][r.id] = r[k];
+  rows
+    .filter(row => row.id)
+    .map(row => {
+      keys.map(key => {
+        const value = row[key];
+        if(value) {
+          translations[key][row.id] = value;
+        }
+      });
     });
-  });
 
   // write each translation to disk
   const writeTasks = keys.map(k => {
@@ -70,7 +75,9 @@ async function processSheet(sheet) {
     const filename = `${sanitisedName}-${k}.json`;
     const path = [BASE_PATH, filename].join('/');
 
-    const data = JSON.stringify(translations[k]);
+    // pretty-print json to avoid ridiculous diffs
+    const data = JSON.stringify(translations[k], null, 2);
+
     log('Writing', path);
     return new Promise((resolve, reject) => {
       writeFile(path, data, (err) => err ? reject(err) : resolve());
@@ -88,4 +95,8 @@ async function run() {
   await Promise.all(sheetTasks);
 }
 
-run();
+try {
+  run();
+} catch(e) {
+  console.log(e);
+}
