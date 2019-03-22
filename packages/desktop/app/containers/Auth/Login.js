@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
-
-import { InputGroup, Button, CheckboxGroup } from '../../components';
+import { Grid, Paper } from '@material-ui/core';
+import { TextField, Button, CheckField } from '../../components';
 import { TamanuLogo } from '../../components/TamanuLogo';
 import { history } from '../../utils';
 import { REMEMBER_EMAIL_KEY } from '../../constants';
@@ -50,39 +50,38 @@ class Login extends Component {
   }
 
   render() {
-    const { email, rememberMe } = this.state;
-
+    const { email, password, rememberMe } = this.state;
     return (
-      <Fragment>
-        <div className="content no-sidebar">
-          <div className="columns login-container">
-            <div className="column is-3 login-form has-background-grey-lighter">
-              <LogoContainer>
-                <TamanuLogo size="240px" />
-              </LogoContainer>
-              <form onSubmit={this.submitForm.bind(this)}>
-                <InputGroup
-                  className="m-b-0 column"
-                  name="email"
-                  type="email"
-                  label={false}
-                  placeholder="Email"
-                  value={email}
-                  onChange={this.handleUserInput}
-                  required
-                />
-                <InputGroup
-                  className="m-b-0 column"
-                  name="password"
-                  type="password"
-                  label={false}
-                  placeholder="Password"
-                  onChange={this.handleUserInput}
-                  required
-                />
-                <div className="columns p-r-15">
-                  <CheckboxGroup
-                    className="column is-half p-l-25 p-t-20 p-b-0"
+      <Grid container justify="center" alignItems="center" style={{ minHeight: '100vh' }}>
+        <Grid item xs={3}>
+          <Paper elevation={0} style={{ padding: '0 24px 24px' }}>
+            <LogoContainer>
+              <TamanuLogo size="240px" />
+            </LogoContainer>
+            <form onSubmit={this.submitForm.bind(this)}>
+              <Grid container spacing={16}>
+                <Grid item xs={12}>
+                  <TextField
+                    name="email"
+                    type="email"
+                    label="Email"
+                    value={email}
+                    onChange={this.handleUserInput}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    name="password"
+                    type="password"
+                    label="Password"
+                    value={password}
+                    onChange={this.handleUserInput}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <CheckField
                     name="rememberMe"
                     value="yes"
                     label="Remember me"
@@ -95,15 +94,15 @@ class Login extends Component {
                       variant="contained"
                       color="primary"
                     >
-Login
+                      Login
                     </Button>
                   </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </Fragment>
+                </Grid>
+              </Grid>
+            </form>
+          </Paper>
+        </Grid>
+      </Grid>
     );
   }
 }
