@@ -51,8 +51,8 @@
       "dist/",
       "node_modules/",
       "app.html",
-      "main.prod.js",
-      "main.prod.js.map",
+      "dist/main.prod.js",
+      "dist/main.prod.js.map",
       "package.json"
     ],
     "dmg": {

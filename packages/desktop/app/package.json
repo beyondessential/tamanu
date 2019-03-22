@@ -3,7 +3,7 @@
   "productName": "Tamanu",
   "version": "1.0.0",
   "description": "Tamanu Electron app",
-  "main": "./main.prod.js",
+  "main": "./dist/main.prod.js",
   "author": {
     "name": "Salman Amjad",
     "email": "salman.amjad@protonmail.com",

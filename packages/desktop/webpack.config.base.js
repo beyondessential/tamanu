@@ -5,6 +5,7 @@
 import path from 'path';
 import webpack from 'webpack';
 import fs from 'fs';
+import Dotenv from 'dotenv-webpack';
 import { dependencies as externals } from './app/package.json';
 import { dependencies as possibleExternals } from './package.json';
 
@@ -12,7 +13,7 @@ const rootNodeModules = '../../node_modules';
 const localNodeModules = './node_modules';
 
 // Find all the dependencies without a `main` property and add them as webpack externals
-function filterDepWithoutEntryPoints(dep: string): boolean {
+function filterDepWithoutEntryPoints(dep) {
   // Return true if we want to add a dependency to externals
   try {
     let modulesPath = rootNodeModules;
@@ -74,7 +75,7 @@ export default {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production'
     }),
-
     new webpack.NamedModulesPlugin(),
+    new Dotenv(),
   ],
 };

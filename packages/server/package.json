@@ -8,8 +8,8 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "npm test -- --watch",
-    "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.js",
-    "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js"
+    "start-dev": "rm -rf ./dist/ && ./node_modules/.bin/webpack --config webpack.config.dev.js",
+    "build": "rm -rf ./dist/ && ./node_modules/.bin/webpack --config webpack.config.prod.js"
   },
   "repository": {
     "type": "git",
