@@ -1,65 +1,55 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import Modal from 'react-responsive-modal';
+import {
+  Dialog, DialogTitle, DialogContent, DialogActions,
+} from '@material-ui/core';
 
 import { Button } from './Button';
 
-class ModalView extends Component {
-  static propTypes = {
-    modalType: PropTypes.oneOf(['alert', 'confirm']),
-    headerTitle: PropTypes.string.isRequired,
-    contentText: PropTypes.string.isRequired,
-    isVisible: PropTypes.bool.isRequired,
-    onClose: PropTypes.func.isRequired,
-    onConfirm: PropTypes.func,
-    okText: PropTypes.string,
-    cancelText: PropTypes.string,
-  }
-
-  static defaultProps = {
-    modalType: 'alert',
-    okText: 'OK',
-    cancelText: 'Cancel',
-    onConfirm: () => {},
-  }
-
-  render() {
-    const {
-      modalType,
-      headerTitle,
-      contentText,
-      isVisible,
-      onClose,
-      onConfirm,
-      okText,
-      cancelText,
-    } = this.props;
-
-    return (
-      <Modal open={isVisible} onClose={onClose} little>
-        <div className="tamanu-error-modal">
-          <div className="modal-header">
-            <h2>{headerTitle}</h2>
-          </div>
-          <div className="modal-content">
-            <span className="modal-text">{contentText}</span>
-          </div>
-          <div className="modal-footer">
-            <div className="column has-text-right">
-              {modalType === 'confirm' && <Button variant="outlined" onClick={onClose}>{cancelText}</Button>}
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={modalType === 'confirm' ? onConfirm : onClose}
-              >
-                {okText}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Modal>
-    );
-  }
+function ModalView({
+  modalType,
+  headerTitle,
+  contentText,
+  isVisible,
+  onClose,
+  onConfirm,
+  okText,
+  cancelText,
+}) {
+  return (
+    <Dialog open={isVisible} onClose={onClose} little>
+      <DialogTitle>{headerTitle}</DialogTitle>
+      <DialogContent>{contentText}</DialogContent>
+      <DialogActions>
+        {modalType === 'confirm' && <Button variant="outlined" onClick={onClose}>{cancelText}</Button>}
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={modalType === 'confirm' ? onConfirm : onClose}
+        >
+          {okText}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 }
+
+ModalView.propTypes = {
+  modalType: PropTypes.oneOf(['alert', 'confirm']),
+  headerTitle: PropTypes.string.isRequired,
+  contentText: PropTypes.string.isRequired,
+  isVisible: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func,
+  okText: PropTypes.string,
+  cancelText: PropTypes.string,
+};
+
+ModalView.defaultProps = {
+  modalType: 'alert',
+  okText: 'OK',
+  cancelText: 'Cancel',
+  onConfirm: () => {},
+};
 
 export default ModalView;

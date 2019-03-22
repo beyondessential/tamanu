@@ -8,6 +8,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Collapse from '@material-ui/core/Collapse';
 import Divider from '@material-ui/core/Divider';
+import { grey } from '@material-ui/core/colors';
 
 import styled from 'styled-components';
 import { sidebarInfo, submenuIcons } from '../constants';
@@ -54,7 +55,8 @@ const SidebarPrimaryIcon = styled.img`
 `;
 
 const SidebarItemText = styled(ListItemText)`
-  color: #fff;
+  color: ${grey[100]};
+  font-size: 1.05rem;
 `;
 
 const LogoutItem = ({ onClick }) => (
@@ -130,6 +132,19 @@ class Sidebar extends Component {
     this.updateProgramsMenu(programsCollection.models);
   }
 
+  clickedParentItem = ({ key }) => {
+    const { selectedParentItem } = this.state;
+    if (selectedParentItem !== key) {
+      this.setState({
+        selectedParentItem: key,
+      });
+    } else {
+      this.setState({
+        selectedParentItem: '',
+      });
+    }
+  }
+
   updateProgramsMenu(programs) {
     // Prepare programs sub-menu
     const programsNav = find(sidebarInfo, { key: 'programs' });
@@ -149,19 +164,6 @@ class Sidebar extends Component {
     }
 
     this.forceUpdate();
-  }
-
-  clickedParentItem = ({ key }) => {
-    const { selectedParentItem } = this.state;
-    if (selectedParentItem !== key) {
-      this.setState({
-        selectedParentItem: key,
-      });
-    } else {
-      this.setState({
-        selectedParentItem: '',
-      });
-    }
   }
 
   render() {

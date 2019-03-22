@@ -21,4 +21,5 @@ export * from './IconButton';
 export * from './Notification';
 export * from './DateDisplay';
 export * from './DateRange';
+export * from './Layout';
 export * from './Field';
