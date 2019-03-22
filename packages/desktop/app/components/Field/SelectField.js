@@ -1,6 +1,7 @@
 import React from 'react';
 import MuiTextField from '@material-ui/core/TextField';
 import MuiMenuItem from '@material-ui/core/MenuItem';
+import PropTypes from 'prop-types';
 
 export const SelectInput = ({ options, value, ...props }) => (
   <MuiTextField
@@ -8,7 +9,7 @@ export const SelectInput = ({ options, value, ...props }) => (
     InputLabelProps={{
       shrink: !!value,
     }}
-    value={value}
+    value={value || ''}
     {...props}
   >
     {options.map(o => (
@@ -19,11 +20,21 @@ export const SelectInput = ({ options, value, ...props }) => (
   </MuiTextField>
 );
 
-export const SelectField = ({ field, ...props }) => (
+export const SelectField = (props) => (
   <SelectInput
+    fullWidth
     {...props}
-    name={field.name}
-    value={field.value}
-    onChange={field.onChange}
   />
 );
+
+SelectField.propTypes = {
+  name: PropTypes.string.isRequired,
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  options: PropTypes.arrayOf(PropTypes.instanceOf(Object)),
+};
+
+SelectField.defaultProps = {
+  value: '',
+  options: [],
+};

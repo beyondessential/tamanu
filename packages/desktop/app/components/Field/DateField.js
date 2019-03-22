@@ -1,17 +1,15 @@
 import React from 'react';
-
 import moment from 'moment';
-
+import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
 
 function toDate(momentValue) {
-  return momentValue && moment(momentValue).format('YYYY-MM-DD');
+  return momentValue ? moment(momentValue).format('YYYY-MM-DD') : '';
 }
 
 function fromDate(changeEvent) {
   const value = changeEvent.target.value;
-  changeEvent.target.value = moment(value).format('YYYY-MM-DD');
-  return changeEvent;
+  return [moment(value).format('YYYY-MM-DD'), changeEvent];
 }
 
 export const DateInput = (props) => (
@@ -22,11 +20,21 @@ export const DateInput = (props) => (
   />
 );
 
-export const DateField = ({ field, ...props }) => (
+export const DateField = ({ value, onChange, ...props }) => (
   <DateInput
-    name={field.name}
-    value={toDate(field.value)}
-    onChange={(e) => field.onChange(fromDate(e))}
+    fullWidth
+    value={toDate(value)}
+    onChange={(e) => onChange(fromDate(e))}
     {...props}
   />
 );
+
+DateField.propTypes = {
+  name: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(moment)]),
+  onChange: PropTypes.func.isRequired,
+};
+
+DateField.defaultProps = {
+  value: '',
+};

@@ -1,5 +1,5 @@
 import React from 'react';
-
+import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
 
 export const NumberInput = (props) => (
@@ -9,11 +9,16 @@ export const NumberInput = (props) => (
   />
 );
 
-export const NumberField = ({ field, ...props }) => (
-  <NumberInput
-    name={field.name}
-    value={field.value || 0}
-    onChange={field.onChange}
-    {...props}
-  />
+export const NumberField = ({ ...props }) => (
+  <NumberInput {...props} />
 );
+
+NumberField.propTypes = {
+  name: PropTypes.string.isRequired,
+  value: PropTypes.number,
+  onChange: PropTypes.func.isRequired,
+};
+
+NumberField.defaultProps = {
+  value: 0,
+};
