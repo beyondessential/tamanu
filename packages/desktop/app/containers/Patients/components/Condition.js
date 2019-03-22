@@ -2,14 +2,15 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
+import { Grid, Typography } from '@material-ui/core';
 import ConditionModal from './ConditionModal';
 import { dateFormat } from '../../../constants';
 import { TextButton } from '../../../components';
-import { ConditionModel } from '../../../models';
+import { ConditionModel, PatientModel } from '../../../models';
 
-class Condition extends Component {
+export default class Condition extends Component {
   static propTypes = {
-    patientModel: PropTypes.object.isRequired,
+    patientModel: PropTypes.instanceOf(PatientModel).isRequired,
   }
 
   state = {
@@ -60,33 +61,34 @@ class Condition extends Component {
     } = this.state;
 
     return (
-      <div>
-        <div className="column p-b-0">
-          <span className="title"> Ongoing Conditions </span>
+      <Grid container item spacing={8}>
+        <Grid item>
+          <Typography variant="body2" inline>
+            Ongoing Conditions
+          </Typography>
+        </Grid>
+        <Grid item>
           <TextButton
             can={{ do: 'create', on: 'condition' }}
             onClick={() => this.editItem()}
           >
-            {' '}
-+ Add Condition
-            {' '}
+            + Add Condition
           </TextButton>
-          <div className="clearfix" />
-          {conditions.map((model, k) => {
-            const { _id, condition, date } = model.toJSON();
-            return (
-              <React.Fragment key={_id}>
-                {k > 0 ? ', ' : ''}
-                <TextButton
-                  can={{ do: 'read', on: 'condition' }}
-                  onClick={() => this.editItem(_id)}
-                >
-                  {`${condition} (${moment(date).format(dateFormat)})`}
-                </TextButton>
-              </React.Fragment>
-            );
-          })}
-        </div>
+        </Grid>
+        {conditions.map((model, k) => {
+          const { _id, condition, date } = model.toJSON();
+          return (
+            <React.Fragment key={_id}>
+              {k > 0 ? ', ' : ''}
+              <TextButton
+                can={{ do: 'read', on: 'condition' }}
+                onClick={() => this.editItem(_id)}
+              >
+                {`${condition} (${moment(date).format(dateFormat)})`}
+              </TextButton>
+            </React.Fragment>
+          );
+        })}
         <ConditionModal
           conditionModel={conditionModel}
           patientModel={patientModel}
@@ -95,9 +97,7 @@ class Condition extends Component {
           onClose={this.onCloseModal}
           little
         />
-      </div>
+      </Grid>
     );
   }
 }
-
-export default Condition;

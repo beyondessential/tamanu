@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-
-import { Preloader, BackButton } from '../../../components';
+import {
+  Paper, Grid, Tabs, Tab,
+} from '@material-ui/core';
+import {
+  Preloader, BackButton, TopBar, Container,
+} from '../../../components';
 import actions from '../../../actions/patients';
 import Allergy from '../components/Allergy';
 import Condition from '../components/Condition';
@@ -26,7 +29,7 @@ class EditPatient extends Component {
     patient: {},
     loading: true,
     patientModel: {},
-    selectedTab: '',
+    selectedTab: 'history',
   }
 
   componentDidMount() {
@@ -45,6 +48,10 @@ class EditPatient extends Component {
     }
   }
 
+  changeTab = (tabName) => {
+    this.setState({ selectedTab: tabName });
+  }
+
   handleChange(props = this.props) {
     let updates = {};
     const { patient, action, loading } = props;
@@ -59,10 +66,6 @@ class EditPatient extends Component {
       });
     }
     this.setState(updates);
-  }
-
-  changeTab = (tabName) => {
-    this.setState({ selectedTab: tabName });
   }
 
   renderTabContents() {
@@ -161,78 +164,68 @@ class EditPatient extends Component {
   renderTabs() {
     const { selectedTab, patient } = this.state;
 
-    return [
-      { value: 'history', label: 'History' },
-      { value: 'general', label: 'General' },
-      { value: 'photos', label: 'Photos' },
-      { value: 'appointment', label: 'Appointment' },
-      { value: 'visit', label: 'Visit' },
-      { value: 'medication', label: 'Medication' },
-      { value: 'imaging', label: 'Imaging' },
-      { value: 'labs', label: 'Labs' },
-      { value: 'pregnancy', label: 'Pregnancy', condition: () => patient.sex === 'female' },
-      { value: 'programs', label: 'Programs' },
-    ]
-      .filter(item => !item.condition || item.condition())
-      .map(item => (
-        <li
-          key={item.value}
-          className={selectedTab === item.value ? 'is-active selected' : ''}
-        >
-          <a onClick={() => this.changeTab(item.value)}>{ item.label }</a>
-        </li>
-      ));
+    return (
+      <Tabs value={selectedTab} style={{ marginBottom: 24 }}>
+        {
+          [
+            { value: 'history', label: 'History' },
+            { value: 'general', label: 'General' },
+            { value: 'photos', label: 'Photos' },
+            { value: 'appointment', label: 'Appointment' },
+            { value: 'visit', label: 'Visit' },
+            { value: 'medication', label: 'Medication' },
+            { value: 'imaging', label: 'Imaging' },
+            { value: 'labs', label: 'Labs' },
+            { value: 'pregnancy', label: 'Pregnancy', condition: () => patient.sex === 'female' },
+            { value: 'programs', label: 'Programs' },
+          ]
+            .filter(item => !item.condition || item.condition())
+            .map(({ value, label }) => (
+              <Tab
+                key={value}
+                style={{ minWidth: 'auto' }}
+                label={label}
+                value={value}
+                onClick={() => this.changeTab(value)}
+              />
+            ))
+        }
+      </Tabs>
+    );
   }
-
 
   render() {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
 
-    const { selectedTab, patient, patientModel } = this.state;
+    const { patient, patientModel } = this.state;
     return (
-      <div>
-        <div className="create-content">
-          <TopBar title="View Patient" />
-          {/* TODO: remove this margin after removing CSS */}
-          <hr style={{ margin: 0 }} />
+      <React.Fragment>
+        <TopBar title="View Patient" />
+        <Paper elevation={0} style={{ minHeight: 'calc(100vh - 70px)' }}>
           <TopRow patient={patient} />
-          <div className="create-container">
-            <div className="form">
-              <div className="columns" style={{ overflowX: 'hidden' }}>
-                <div className="column">
-                  <div className="columns border-bottom">
-                    <div className="column">
-                      <Condition patientModel={patientModel} />
-                      <Procedure patientModel={patientModel} />
-                      <OperativePlan patientModel={patientModel} />
-                    </div>
-                    <div className="column">
-                      <Allergy patientModel={patientModel} />
-                    </div>
-                  </div>
-                  <div className="columns">
-                    <div className="column">
-                      <div className="tabs">
-                        <ul>
-                          { this.renderTabs() }
-                        </ul>
-                      </div>
-                      <div className="tab-content">
-                        { this.renderTabContents() }
-                      </div>
-                    </div>
-                  </div>
-                  <div className={`column has-text-right ${selectedTab === 'general' ? 'is-hidden' : ''}`}>
-                    <BackButton to="/patients" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          <Container>
+            <Grid container spacing={8} style={{ paddingBottom: 16 }}>
+              <Grid container item xs spacing={8}>
+                <Condition patientModel={patientModel} />
+                <Procedure patientModel={patientModel} />
+                <OperativePlan patientModel={patientModel} />
+              </Grid>
+              <Grid container item xs>
+                <Allergy patientModel={patientModel} />
+              </Grid>
+            </Grid>
+            <Grid container spacing={8}>
+              { this.renderTabs() }
+              <Grid container>
+                { this.renderTabContents() }
+              </Grid>
+              <BackButton to="/patients" />
+            </Grid>
+          </Container>
+        </Paper>
         <PatientQuickLinks patient={patient} />
-      </div>
+      </React.Fragment>
     );
   }
 }
