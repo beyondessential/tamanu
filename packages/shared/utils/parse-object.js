@@ -1,7 +1,6 @@
-const {
-  isObject, pull, pick,
-} = require('lodash');
-const jsonPrune = require('json-prune');
+import { isObject, pull, pick } from 'lodash';
+import jsonPrune from 'json-prune';
+
 const parseProperty = ({
   props, isParentObject, key, forSync, object,
 }) => {
@@ -32,20 +31,21 @@ export const parseToJSON = (object, {
     const jsonObject = JSON.parse(jsonPrune(object));
     if (typeof object.objectSchema === 'function') {
       const { properties } = object.objectSchema();
-      properties.forEach((props, key) => {
-        if (props.optional === false || isParentObject) {
-          requiredFields.push(key);
-        }
-        // remove `list` and `linkingObjects` types
-        if ((forSync && !isParentObject) && ['linkingObjects', 'list'].includes(props.type)) {
-          requiredFields = pull(requiredFields, key);
-        }
-        // only include required fields without parent links
-        const newValue = parseProperty({
-          props, isParentObject, key, forSync, object,
+      Object.entries(properties)
+        .forEach(([key, props]) => {
+          if (props.optional === false || isParentObject) {
+            requiredFields.push(key);
+          }
+          // remove `list` and `linkingObjects` types
+          if ((forSync && !isParentObject) && ['linkingObjects', 'list'].includes(props.type)) {
+            requiredFields = pull(requiredFields, key);
+          }
+          // only include required fields without parent links
+          const newValue = parseProperty({
+            props, isParentObject, key, forSync, object,
+          });
+          if (newValue) jsonObject[key] = newValue;
         });
-        if (newValue) jsonObject[key] = newValue;
-      });
     }
 
     if (forSync) {
