@@ -237,6 +237,7 @@
     "lodash": "^4.17.10",
     "moment": "^2.22.1",
     "nano": "^6.4.4",
+    "node-polyglot": "^2.3.0",
     "prop-types": "^15.6.2",
     "react": "^16.2.0",
     "react-autocomplete": "^1.8.1",

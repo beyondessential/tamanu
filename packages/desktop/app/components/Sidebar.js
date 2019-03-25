@@ -18,6 +18,8 @@ import { checkAbility } from '../utils/ability-context';
 import { logoutIcon } from '../constants/images';
 import { TamanuLogo } from './TamanuLogo';
 
+import { Translated } from './Translated';
+
 const { login: loginActions } = actions;
 const { logout } = loginActions;
 
@@ -60,7 +62,7 @@ const SidebarItemText = styled(ListItemText)`
 const LogoutItem = ({ onClick }) => (
   <ListItem button onClick={onClick}>
     <SidebarPrimaryIcon src={logoutIcon} />
-    <SidebarItemText disableTypography inset primary="Logout" />
+    <SidebarItemText disableTypography inset primary={<Translated id="logout" />} />
   </ListItem>
 );
 

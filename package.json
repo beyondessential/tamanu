@@ -17,6 +17,7 @@
   "private": true,
   "workspaces": {
     "packages": [
+      "packages/scripts",
       "packages/desktop",
       "packages/lan",
       "packages/server",
