@@ -1,6 +1,6 @@
-const shortid = require('shortid');
-const { isArray } = require('lodash');
-const { to } = require('await-to-js');
+import shortid from 'shortid';
+import { isArray } from 'lodash';
+import { to } from 'await-to-js';
 
 class Auth {
   constructor() {

@@ -27,12 +27,14 @@ import {
 import { SurveyTableOfContents } from './SurveyTableOfContents';
 import { THEME_COLOR_ONE } from '../globalStyles';
 
+import headerBackImage from '../images/x.png';
+
 const LENGTH_OF_TRANSITION = 300;
 
 export class DumbSurveyScreen extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     title: navigation.state.params.clinicName,
-    headerBackImage: require('../images/x.png'),
+    headerBackImage,
   })
 
   constructor(props) {
