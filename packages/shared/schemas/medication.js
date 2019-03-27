@@ -1,5 +1,5 @@
 import defaults from './defaults';
-const { MEDICATION_STATUSES } = require('../constants');
+import { MEDICATION_STATUSES } from '../constants';
 
 export const MedicationSchema = {
   name: 'medication',

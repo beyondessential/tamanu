@@ -1,5 +1,5 @@
 import defaults from './defaults';
-const { OPERATION_PLAN_STATUSES } = require('../constants');
+import { OPERATION_PLAN_STATUSES } from '../constants';
 
 export const OpPlanSchema = {
   name: 'operationPlan',

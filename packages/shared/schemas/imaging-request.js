@@ -1,5 +1,5 @@
 import defaults from './defaults';
-const { IMAGING_REQUEST_STATUSES } = require('../constants');
+import { IMAGING_REQUEST_STATUSES } from '../constants';
 
 export const ImagingRequestSchema = {
   name: 'imagingRequest',

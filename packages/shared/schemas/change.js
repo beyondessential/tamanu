@@ -1,4 +1,4 @@
-const { SYNC_MODES } = require('../constants');
+import { SYNC_MODES } from '../constants';
 
 export const ChangeSchema = {
   name: 'change',
