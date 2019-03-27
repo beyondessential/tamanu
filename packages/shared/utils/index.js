@@ -1,8 +1,9 @@
-const jsonPrune = require('json-prune');
-const { schemas } = require('../schemas');
-const parseObject = require('./parse-object');
+import jsonPrune from 'json-prune';
+import { schemas } from '../schemas';
 
-const jsonParse = (object) => {
+export * from './parse-object';
+
+export const jsonParse = (object) => {
   try {
     return JSON.parse(jsonPrune(object));
   } catch (err) {
@@ -10,6 +11,4 @@ const jsonParse = (object) => {
   }
 };
 
-const findSchema = (type) => schemas.find(schema => schema.name === type);
-
-module.exports = { jsonParse, findSchema, ...parseObject };
+export const findSchema = (type) => schemas.find(schema => schema.name === type);

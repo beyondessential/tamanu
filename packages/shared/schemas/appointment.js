@@ -1,5 +1,5 @@
 import defaults from './defaults';
-const { APPOINTMENT_STATUSES } = require('../constants');
+import { APPOINTMENT_STATUSES } from '../constants';
 
 export const AppointmentSchema = {
   name: 'appointment',

@@ -1,11 +1,9 @@
-const { SenaitePoller } = require('./SenaitePoller');
-const config = require('config');
+import config from 'config';
+import { SenaitePoller } from './SenaitePoller';
 
-function startScheduledTasks(database) {
+export function startScheduledTasks(database) {
   if (config.senaite.enabled) {
     const senaite = new SenaitePoller(database);
     senaite.beginPolling();
   }
 }
-
-module.exports = { startScheduledTasks };

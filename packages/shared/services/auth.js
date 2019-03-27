@@ -8,7 +8,7 @@ import {
   find, difference, template,
 } from 'lodash';
 import { objectToJSON } from '../utils';
-import { schemas, schemaClasses } from "../schemas";
+import { schemas, schemaClasses } from '../schemas';
 
 export default class Auth {
   constructor(database) {
