@@ -6,8 +6,7 @@ import moment from 'moment';
 
 import { register } from './register';
 import BaseModel from './base';
-import { concatSelf } from '../utils';
-import { pregnancyOutcomes, dateFormat, LAB_REQUEST_STATUSES } from '../constants';
+import { pregnancyOutcomes, dateFormat } from '../constants';
 import LabRequestsCollection from '../collections/labRequests';
 import VisitsCollection from '../collections/visits';
 

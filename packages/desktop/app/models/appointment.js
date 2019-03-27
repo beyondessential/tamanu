@@ -7,19 +7,18 @@ import { register } from './register';
 export default register('Appointment', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/appointment`,
   defaults: () => defaults({
-      allDay: true,
-      provider: '',
-      location: '',
-      appointmentType: 'admission',
-      startDate: Date,
-      endDate: Date,
-      notes: '',
-      status: 'scheduled',
-      patient: '',
-      visits: [],
-    },
-    BaseModel.prototype.defaults
-  ),
+    allDay: true,
+    provider: '',
+    location: '',
+    appointmentType: 'admission',
+    startDate: Date,
+    endDate: Date,
+    notes: '',
+    status: 'scheduled',
+    patient: '',
+    visits: [],
+  },
+  BaseModel.prototype.defaults),
   ignoreRequestKeys: ['patient'],
 
   // Associations

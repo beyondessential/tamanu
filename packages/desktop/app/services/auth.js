@@ -1,6 +1,5 @@
 import shortid from 'shortid';
 import { isArray } from 'lodash';
-import { to } from 'await-to-js';
 
 class Auth {
   constructor() {

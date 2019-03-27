@@ -24,5 +24,7 @@ export function configureStore(initialState) {
   const store = createStore(persistedReducer, initialState, enhancer);
 
   const persistor = persistStore(store);
-  return { store, persistor, persistConfig, history };
+  return {
+    store, persistor, persistConfig, history,
+  };
 }

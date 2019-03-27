@@ -5,7 +5,6 @@ import BaseModel from './base';
 import { LAB_REQUEST_STATUSES } from '../../../shared/constants';
 
 import VisitModel from './visit';
-import PatientModel from './patient';
 import { register } from './register';
 
 export default register('LabRequest', BaseModel.extend({

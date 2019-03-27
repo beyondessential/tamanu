@@ -8,7 +8,6 @@
  *
  */
 import { app, BrowserWindow } from 'electron';
-import MenuBuilder from './menu';
 
 // production only
 import sourceMapSupport from 'source-map-support';
@@ -17,6 +16,8 @@ import sourceMapSupport from 'source-map-support';
 // TODO: exclude these from production builds entirely
 import electronDebug from 'electron-debug';
 import * as electronDevtoolsInstaller from 'electron-devtools-installer';
+
+import MenuBuilder from './menu';
 
 let mainWindow = null;
 

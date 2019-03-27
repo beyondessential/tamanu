@@ -70,5 +70,7 @@ export const configureStore = (initialState) => {
   }
 
   const persistor = persistStore(store);
-  return { store, persistor, persistConfig, history };
+  return {
+    store, persistor, persistConfig, history,
+  };
 };

@@ -1,4 +1,3 @@
-import Backbone from 'backbone-associations';
 import { defaults } from 'lodash';
 import BaseModel from './base';
 import { register } from './register';

@@ -1,6 +1,6 @@
 import Backbone from 'backbone-associations';
 import {
-  keys, set, isEmpty, isArray,
+  keys, set, isEmpty,
 } from 'lodash';
 
 import 'backbone.paginator';

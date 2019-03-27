@@ -29,7 +29,7 @@ import './styles/app.global.scss';
   if (module.hot) {
     module.hot.accept('./containers/Root', () => {
       store.replaceReducer(
-        persistReducer(persistConfig, NextRoot),
+        persistReducer(persistConfig, Root),
       );
       render(
         <AppContainer>
