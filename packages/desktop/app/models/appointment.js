@@ -6,18 +6,19 @@ import BaseModel from './base';
 export default BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/appointment`,
   defaults: () => defaults({
-    allDay: true,
-    provider: '',
-    location: '',
-    appointmentType: 'admission',
-    startDate: Date,
-    endDate: Date,
-    notes: '',
-    status: 'scheduled',
-    patient: '',
-    visits: [],
-  },
-  BaseModel.prototype.defaults),
+      allDay: true,
+      provider: '',
+      location: '',
+      appointmentType: 'admission',
+      startDate: Date,
+      endDate: Date,
+      notes: '',
+      status: 'scheduled',
+      patient: '',
+      visits: [],
+    },
+    BaseModel.prototype.defaults
+  ),
   ignoreRequestKeys: ['patient'],
 
   // Associations
