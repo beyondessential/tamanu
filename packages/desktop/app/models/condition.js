@@ -2,8 +2,9 @@ import Backbone from 'backbone-associations';
 import moment from 'moment';
 import { isEmpty } from 'lodash';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('Condition', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/condition`,
   defaults: () => ({
     date: moment(),
@@ -31,4 +32,4 @@ export default BaseModel.extend({
     if (!moment(attrs.date).isValid()) errors.push('date is required!');
     if (!isEmpty(errors)) return errors;
   },
-});
+}));

@@ -1,8 +1,9 @@
 import { defaults } from 'lodash';
 import Backbone from 'backbone-associations';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('Question', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/question`,
   defaults: () => defaults({
     text: null,
@@ -32,4 +33,4 @@ export default BaseModel.extend({
   isSingleLine() {
     return this.attributes.params.includes('singleline');
   },
-});
+}));

@@ -1,8 +1,9 @@
 import { defaults } from 'lodash';
 import Backbone from 'backbone-associations';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('SurveyScreen', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/surveyScreen`,
   defaults: () => defaults({
     surveyId: null,
@@ -19,4 +20,4 @@ export default BaseModel.extend({
     },
     ...BaseModel.prototype.relations,
   ],
-});
+}));

@@ -4,8 +4,9 @@ import moment from 'moment';
 import BaseModel from './base';
 import { medicationStatuses } from '../constants';
 import PatientModel from './patient';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('Medication', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/medication`,
   defaults: () => defaults({
     patient: '',
@@ -59,4 +60,4 @@ export default BaseModel.extend({
     await patient.fetch();
     return patient;
   },
-});
+}));

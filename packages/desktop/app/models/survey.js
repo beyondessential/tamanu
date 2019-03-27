@@ -3,8 +3,9 @@ import {
 } from 'lodash';
 import Backbone from 'backbone-associations';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('Survey', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/survey`,
   defaults: () => defaults({
     name: null,
@@ -59,4 +60,4 @@ export default BaseModel.extend({
     });
     return allQuestions;
   },
-});
+}));

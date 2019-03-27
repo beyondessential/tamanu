@@ -3,8 +3,9 @@ import moment from 'moment';
 import BaseModel from './base';
 import { IMAGING_REQUEST_STATUSES } from '../constants';
 import PatientModel from './patient';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('ImagingRequest', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/imagingRequest`,
   defaults: () => ({
     date: moment(),
@@ -69,4 +70,4 @@ export default BaseModel.extend({
     }
     if (errors.length >= 1) return errors;
   },
-});
+}));

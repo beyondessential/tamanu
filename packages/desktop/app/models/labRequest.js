@@ -6,8 +6,9 @@ import { LAB_REQUEST_STATUSES } from '../../../shared/constants';
 
 import VisitModel from './visit';
 import PatientModel from './patient';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('LabRequest', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/labRequest`,
   defaults: () => ({
     date: moment(),
@@ -43,4 +44,4 @@ export default BaseModel.extend({
     const visit = this.attributes.visits[0];
     return visit && new VisitModel(visit);
   },
-});
+}));

@@ -1,8 +1,9 @@
 import Backbone from 'backbone-associations';
 import { defaults } from 'lodash';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('OperationReport', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/operationReport`,
   defaults: () => defaults({
     additionalNotes: null,
@@ -35,4 +36,4 @@ export default BaseModel.extend({
   //   if (attrs.firstName === '') return 'firstName is required!';
   //   if (attrs.lastName === '') return 'lastName is required!';
   // }
-});
+}));

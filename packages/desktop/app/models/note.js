@@ -1,8 +1,9 @@
 import { defaults, isEmpty } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('Note', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/note`,
   defaults: () => defaults({
     attribution: '',
@@ -30,4 +31,4 @@ export default BaseModel.extend({
   validate: (attrs) => {
     if (!attrs.content) return "note's text is required!";
   },
-});
+}));

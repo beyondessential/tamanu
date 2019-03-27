@@ -1,12 +1,13 @@
 import Backbone from 'backbone-associations';
 import { defaults } from 'lodash';
 import moment from 'moment';
+import { register } from './register';
 import BaseModel from './base';
 import PatientModel from './patient';
 import { LAB_REQUEST_STATUSES } from '../constants';
 import LabRequestsCollection from '../collections/labRequests';
 
-export default BaseModel.extend({
+export default register('Visit', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/visit`,
   defaults: () => defaults({
     dischargeInfo: '',
@@ -115,4 +116,4 @@ export default BaseModel.extend({
       { mode: 'client' },
     );
   },
-});
+}));

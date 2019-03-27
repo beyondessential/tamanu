@@ -1,8 +1,9 @@
 import { defaults } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('Vitals', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/vitals`,
   defaults: () => defaults({
     dateRecorded: moment(),
@@ -24,4 +25,4 @@ export default BaseModel.extend({
         && !attrs.heartRate
         && !attrs.respiratoryRate) return ['At least one field is required'];
   },
-});
+}));

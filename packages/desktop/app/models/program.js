@@ -1,8 +1,9 @@
 import { defaults } from 'lodash';
 import Backbone from 'backbone-associations';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('Program', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/program`,
   defaults: () => defaults({
     name: null,
@@ -26,4 +27,4 @@ export default BaseModel.extend({
     const { surveys } = this.attributes;
     return surveys.models.find(model => model.id === surveyId);
   },
-});
+}));
