@@ -7,11 +7,11 @@ import storage from 'redux-persist/lib/storage';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 import rootReducer from '../reducers';
 
-const history = createBrowserHistory();
-const router = routerMiddleware(history);
-const enhancer = applyMiddleware(thunk, router);
+export function configureStore(initialState) {
+  const history = createBrowserHistory();
+  const router = routerMiddleware(history);
+  const enhancer = applyMiddleware(thunk, router);
 
-function configureStore(initialState) {
   // Create Store
   const persistConfig = {
     key: 'tamanu',
@@ -24,7 +24,5 @@ function configureStore(initialState) {
   const store = createStore(persistedReducer, initialState, enhancer);
 
   const persistor = persistStore(store);
-  return { store, persistor, persistConfig };
+  return { store, persistor, persistConfig, history };
 }
-
-export default { configureStore, history };

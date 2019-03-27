@@ -28,13 +28,12 @@ import './styles/app.global.scss';
 
   if (module.hot) {
     module.hot.accept('./containers/Root', () => {
-      const NextRoot = require('./containers/Root'); // eslint-disable-line global-require
       store.replaceReducer(
         persistReducer(persistConfig, NextRoot),
       );
       render(
         <AppContainer>
-          <NextRoot
+          <Root
             store={store}
             history={history}
           />
