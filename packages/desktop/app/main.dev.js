@@ -1,5 +1,3 @@
-/* eslint global-require: 0, flowtype-errors/show-errors: 0 */
-
 /**
  * This module executes inside of electron's main process. You can start
  * electron renderer process from here and communicate with the other processes
@@ -12,25 +10,29 @@
 import { app, BrowserWindow } from 'electron';
 import MenuBuilder from './menu';
 
+// production only
+import sourceMapSupport from 'source-map-support';
+
+// debug only
+// TODO: exclude these from production builds entirely
+import electronDebug from 'electron-debug';
+import * as electronDevtoolsInstaller from 'electron-devtools-installer';
+
 let mainWindow = null;
 
-if (process.env.NODE_ENV === 'production') {
-  const sourceMapSupport = require('source-map-support');
+const isProduction = (process.env.NODE_ENV === 'production');
+const isDebug = (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true');
+
+if (isProduction) {
   sourceMapSupport.install();
 }
 
-if (
-  process.env.NODE_ENV === 'development'
-  || process.env.DEBUG_PROD === 'true'
-) {
-  require('electron-debug')();
-  const path = require('path');
-  const p = path.join(__dirname, '..', 'app', 'node_modules');
-  require('module').globalPaths.push(p);
+if (isDebug) {
+  electronDebug();
 }
 
 const installExtensions = async () => {
-  const installer = require('electron-devtools-installer');
+  const installer = electronDevtoolsInstaller;
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
 
@@ -54,10 +56,7 @@ app.on('window-all-closed', () => {
 
 
 app.on('ready', async () => {
-  if (
-    process.env.NODE_ENV === 'development'
-    || process.env.DEBUG_PROD === 'true'
-  ) {
+  if (isDebug) {
     await installExtensions();
   }
 
