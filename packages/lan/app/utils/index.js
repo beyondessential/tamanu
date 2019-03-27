@@ -1,6 +1,6 @@
 import jsonPrune from 'json-prune';
 
-export const objectToJSON = (object, maxDepth) => {
+export const objectToJSON = (object, maxDepth = 5) => {
   try {
     return JSON.parse(jsonPrune(object, maxDepth), (key, value) => {
       let valueInString = JSON.stringify(value);
