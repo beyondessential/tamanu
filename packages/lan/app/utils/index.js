@@ -1,6 +1,6 @@
-const jsonPrune = require('json-prune');
+import jsonPrune from 'json-prune';
 
-const jsonParse = (object, maxDepth) => {
+export const objectToJSON = (object, maxDepth) => {
   try {
     return JSON.parse(jsonPrune(object, maxDepth), (key, value) => {
       let valueInString = JSON.stringify(value);
@@ -19,6 +19,3 @@ const jsonParse = (object, maxDepth) => {
   }
 };
 
-const objectToJSON = (object, maxDepth = 5) => jsonParse(object, maxDepth);
-
-module.exports = { objectToJSON };

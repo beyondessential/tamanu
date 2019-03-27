@@ -1,6 +1,6 @@
-const { scheduleJob } = require('node-schedule');
+import { scheduleJob } from 'node-schedule';
 
-class ScheduledTask {
+export class ScheduledTask {
   getName() {
     // get class name from reflection
     return this.constructor.name;
@@ -35,4 +35,3 @@ class ScheduledTask {
   }
 }
 
-module.exports = { ScheduledTask };
