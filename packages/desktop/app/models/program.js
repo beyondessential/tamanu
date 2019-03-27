@@ -2,6 +2,7 @@ import { defaults } from 'lodash';
 import Backbone from 'backbone-associations';
 import BaseModel from './base';
 import { register } from './register';
+import SurveyCollection from '../collections/surveys';
 
 export default register('Program', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/program`,
@@ -18,7 +19,7 @@ export default register('Program', BaseModel.extend({
       type: Backbone.Many,
       key: 'surveys',
       relatedModel: 'Survey',
-      collectionType: require('../collections/surveys'),
+      collectionType: SurveyCollection,
     },
     ...BaseModel.prototype.relations,
   ],

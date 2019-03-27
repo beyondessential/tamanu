@@ -74,7 +74,7 @@ export default Backbone.AssociatedModel.extend({
    */
   async save(attrs = {}, options = {}) {
     try {
-      const ModifiedFieldModel = require('./modifiedField');
+      const ModifiedFieldModel = getModel('ModifiedField');
       const { auth } = store.getState();
       let { secret } = auth;
       secret = btoa(secret);

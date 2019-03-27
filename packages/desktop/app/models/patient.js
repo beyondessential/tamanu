@@ -9,6 +9,7 @@ import BaseModel from './base';
 import { concatSelf } from '../utils';
 import { pregnancyOutcomes, dateFormat, LAB_REQUEST_STATUSES } from '../constants';
 import LabRequestsCollection from '../collections/labRequests';
+import VisitsCollection from '../collections/visits';
 
 export default register('Patient', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/patient`,
@@ -113,7 +114,7 @@ export default register('Patient', BaseModel.extend({
       type: Backbone.Many,
       key: 'visits',
       relatedModel: 'Visit',
-      collectionType: require('../collections/visits'),
+      collectionType: VisitsCollection,
       serialize: '_id',
     },
     ...BaseModel.prototype.relations,
