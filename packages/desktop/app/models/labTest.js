@@ -17,7 +17,7 @@ export default register('LabTest', BaseModel.extend({
     {
       type: Backbone.One,
       key: 'type',
-      relatedModel: () => require('./labTestType'),
+      relatedModel: 'LabTestType',
     },
     ...BaseModel.prototype.relations,
   ],

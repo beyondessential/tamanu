@@ -17,7 +17,7 @@ export default register('Program', BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'surveys',
-      relatedModel: () => require('./survey'),
+      relatedModel: 'Survey',
       collectionType: require('../collections/surveys'),
     },
     ...BaseModel.prototype.relations,

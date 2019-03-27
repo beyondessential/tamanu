@@ -21,7 +21,7 @@ export default register('Question', BaseModel.extend({
     {
       type: Backbone.One,
       key: 'surveyGroupId',
-      relatedModel: require('./surveyGroup'),
+      relatedModel: 'SurveyGroup',
     },
     ...BaseModel.prototype.relations,
   ],

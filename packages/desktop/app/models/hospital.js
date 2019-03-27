@@ -22,7 +22,7 @@ export default register('Hospital', BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'users',
-      relatedModel: () => require('./user'),
+      relatedModel: 'User',
     },
     ...BaseModel.prototype.relations,
   ],

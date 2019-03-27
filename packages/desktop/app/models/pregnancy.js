@@ -20,17 +20,17 @@ export default register('Pregnancy', BaseModel.extend({
     {
       type: Backbone.One,
       key: 'child',
-      relatedModel: require('./patient'),
+      relatedModel: 'Patient',
     },
     {
       type: Backbone.One,
       key: 'father',
-      relatedModel: require('./patient'),
+      relatedModel: 'Patient',
     },
     {
       type: Backbone.Many,
       key: 'surveyResponses',
-      relatedModel: () => require('./surveyResponse'),
+      relatedModel: 'SurveyResponse',
     },
     ...BaseModel.prototype.relations,
   ],

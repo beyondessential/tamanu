@@ -26,11 +26,11 @@ export default register('LabRequest', BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'tests',
-      relatedModel: () => require('./labTest'),
+      relatedModel: 'LabTest',
     }, {
       type: Backbone.One,
       key: 'category',
-      relatedModel: () => require('./labTestCategory'),
+      relatedModel: 'LabTestCategory',
     },
     ...BaseModel.prototype.relations,
   ],

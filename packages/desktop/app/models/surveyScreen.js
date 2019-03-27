@@ -16,7 +16,7 @@ export default register('SurveyScreen', BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'components',
-      relatedModel: require('./surveyScreenComponent'),
+      relatedModel: 'SurveyScreenComponent',
     },
     ...BaseModel.prototype.relations,
   ],

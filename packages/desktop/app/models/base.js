@@ -36,16 +36,16 @@ export default Backbone.AssociatedModel.extend({
     {
       type: Backbone.Many,
       key: 'modifiedFields',
-      relatedModel: () => require('./modifiedField'),
+      relatedModel: 'ModifiedField',
     }, {
       type: Backbone.One,
       key: 'createdBy',
-      relatedModel: () => require('./user'),
+      relatedModel: 'User',
       serialize: '_id',
     }, {
       type: Backbone.One,
       key: 'modifiedBy',
-      relatedModel: () => require('./user'),
+      relatedModel: 'User',
       serialize: '_id',
     },
   ],

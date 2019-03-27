@@ -27,7 +27,7 @@ export default register('Appointment', BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'visits',
-      relatedModel: () => require('./visit'),
+      relatedModel: 'Visit',
     },
     ...BaseModel.prototype.relations,
   ],

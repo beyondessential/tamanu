@@ -27,7 +27,7 @@ export default register('Procedure', BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'medication',
-      relatedModel: () => require('./procedureMedication'),
+      relatedModel: 'ProcedureMedication',
     },
     ...BaseModel.prototype.relations,
   ],

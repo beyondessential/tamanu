@@ -20,11 +20,11 @@ export default register('PatientDiagnosis', BaseModel.extend({
     {
       type: Backbone.One,
       key: 'diagnosis',
-      relatedModel: () => require('./diagnosis'),
+      relatedModel: 'Diagnosis',
     }, {
       type: Backbone.One,
       key: 'condition',
-      relatedModel: () => require('./condition'),
+      relatedModel: 'Condition',
     },
     ...BaseModel.prototype.relations,
   ],

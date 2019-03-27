@@ -29,19 +29,19 @@ export default register('ImagingRequest', BaseModel.extend({
     {
       type: Backbone.One,
       key: 'type',
-      relatedModel: () => require('./imagingType'),
+      relatedModel: 'ImagingType',
     }, {
       type: Backbone.One,
       key: 'diagnosis',
-      relatedModel: () => require('./diagnosis'),
+      relatedModel: 'Diagnosis',
     }, {
       type: Backbone.One,
       key: 'requestedBy',
-      relatedModel: () => require('./user'),
+      relatedModel: 'User',
     }, {
       type: Backbone.One,
       key: 'reviewedBy',
-      relatedModel: () => require('./user'),
+      relatedModel: 'User',
     },
     ...BaseModel.prototype.relations,
   ],

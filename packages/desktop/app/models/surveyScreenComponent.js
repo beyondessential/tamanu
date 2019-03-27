@@ -17,7 +17,7 @@ export default register('SurveyScreenComponent', BaseModel.extend({
     {
       type: Backbone.One,
       key: 'question',
-      relatedModel: require('./question'),
+      relatedModel: 'Question',
     },
     ...BaseModel.prototype.relations,
   ],

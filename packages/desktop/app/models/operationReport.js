@@ -22,12 +22,12 @@ export default register('OperationReport', BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'preOpDiagnoses',
-      relatedModel: require('./diagnosis'),
+      relatedModel: 'Diagnosis',
     },
     {
       type: Backbone.Many,
       key: 'postOpDiagnoses',
-      relatedModel: require('./diagnosis'),
+      relatedModel: 'Diagnosis',
     },
     ...BaseModel.prototype.relations,
   ],

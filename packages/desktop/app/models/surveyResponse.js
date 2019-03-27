@@ -23,7 +23,7 @@ export default register('SurveyResponse', BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'answers',
-      relatedModel: require('./answer'),
+      relatedModel: 'Answer',
     },
     ...BaseModel.prototype.relations,
   ],

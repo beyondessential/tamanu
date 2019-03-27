@@ -33,12 +33,12 @@ export default register('Medication', BaseModel.extend({
     {
       type: Backbone.One,
       key: 'drug',
-      relatedModel: () => require('./drug'),
+      relatedModel: 'Drug',
     },
     {
       type: Backbone.Many,
       key: 'history',
-      relatedModel: () => require('./medicationHistory'),
+      relatedModel: 'MedicationHistory',
     },
     ...BaseModel.prototype.relations,
   ],
