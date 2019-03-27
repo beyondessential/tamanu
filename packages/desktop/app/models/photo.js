@@ -1,7 +1,8 @@
 import { defaults } from 'lodash';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('Photo', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/photo`,
   defaults: () => defaults({
     caption: null,
@@ -22,4 +23,4 @@ export default BaseModel.extend({
   //   if (attrs.firstName === '') return 'firstName is required!';
   //   if (attrs.lastName === '') return 'lastName is required!';
   // }
-});
+}));

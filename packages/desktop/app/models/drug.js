@@ -1,7 +1,8 @@
 import { defaults } from 'lodash';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('Drug', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/drug`,
   defaults: () => defaults({
     name: '',
@@ -9,4 +10,4 @@ export default BaseModel.extend({
     unit: '',
   },
   BaseModel.prototype.defaults),
-});
+}));

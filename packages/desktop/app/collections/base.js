@@ -1,9 +1,9 @@
 import Backbone from 'backbone-associations';
 import {
-  keys, set, isEmpty, isArray,
+  keys, set, isEmpty,
 } from 'lodash';
 
-require('backbone.paginator');
+import 'backbone.paginator';
 
 export default Backbone.PageableCollection.extend({
   url: `${process.env.HOST}${process.env.REALM_PATH}`,

@@ -1,14 +1,14 @@
-export const patientIcon = require('../assets/images/patient.png');
-export const scheduleIcon = require('../assets/images/schedule.png');
-export const medicationIcon = require('../assets/images/medication.png');
-export const labsIcon = require('../assets/images/labs.png');
-export const administrationIcon = require('../assets/images/administration.png');
-export const pregnancyIcon = require('../assets/images/pregnancy.png');
-export const programsIcon = require('../assets/images/programs.png');
-export const radiologyIcon = require('../assets/images/radiology.png');
-export const logoutIcon = require('../assets/images/logout.png');
-export const splashImages = [
-  require('../assets/images/splashscreens/screen_1.jpg'),
-  require('../assets/images/splashscreens/screen_2.jpg'),
-  require('../assets/images/splashscreens/screen_3.jpg'),
-];
+import splash1 from '../assets/images/splashscreens/screen_1.jpg';
+import splash2 from '../assets/images/splashscreens/screen_2.jpg';
+import splash3 from '../assets/images/splashscreens/screen_3.jpg';
+export const splashImages = [splash1, splash2, splash3];
+
+export patientIcon from '../assets/images/patient.png';
+export scheduleIcon from '../assets/images/schedule.png';
+export medicationIcon from '../assets/images/medication.png';
+export labsIcon from '../assets/images/labs.png';
+export administrationIcon from '../assets/images/administration.png';
+export pregnancyIcon from '../assets/images/pregnancy.png';
+export programsIcon from '../assets/images/programs.png';
+export radiologyIcon from '../assets/images/radiology.png';
+export logoutIcon from '../assets/images/logout.png';

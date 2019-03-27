@@ -2,8 +2,9 @@ import Backbone from 'backbone-associations';
 import moment from 'moment';
 import { defaults } from 'lodash';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('Appointment', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/appointment`,
   defaults: () => defaults({
     allDay: true,
@@ -25,7 +26,7 @@ export default BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'visits',
-      relatedModel: () => require('./visit'),
+      relatedModel: 'Visit',
     },
     ...BaseModel.prototype.relations,
   ],
@@ -34,7 +35,7 @@ export default BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'patients',
-      model: require('./patient'),
+      model: 'Patient',
     },
   ],
 
@@ -43,4 +44,4 @@ export default BaseModel.extend({
     if (!moment(attrs.endDate).isValid()) return 'endDate is required!';
     if (!moment(attrs.startDate).isBefore(attrs.endDate)) return 'Invalid start and end dates!';
   },
-});
+}));

@@ -1,8 +1,9 @@
 import Backbone from 'backbone-associations';
 import { defaults, clone } from 'lodash';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('Pregnancy', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/pregnancy`,
   defaults: () => defaults({
     conceiveDate: Date, // estimated
@@ -19,17 +20,17 @@ export default BaseModel.extend({
     {
       type: Backbone.One,
       key: 'child',
-      relatedModel: require('./patient'),
+      relatedModel: 'Patient',
     },
     {
       type: Backbone.One,
       key: 'father',
-      relatedModel: require('./patient'),
+      relatedModel: 'Patient',
     },
     {
       type: Backbone.Many,
       key: 'surveyResponses',
-      relatedModel: () => require('./surveyResponse'),
+      relatedModel: 'SurveyResponse',
     },
     ...BaseModel.prototype.relations,
   ],
@@ -41,4 +42,4 @@ export default BaseModel.extend({
     delete attributes.modifiedFields;
     return attributes;
   },
-});
+}));

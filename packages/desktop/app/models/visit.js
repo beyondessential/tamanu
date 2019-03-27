@@ -1,12 +1,13 @@
 import Backbone from 'backbone-associations';
 import { defaults } from 'lodash';
 import moment from 'moment';
+import { register } from './register';
 import BaseModel from './base';
 import PatientModel from './patient';
 import { LAB_REQUEST_STATUSES } from '../constants';
 import LabRequestsCollection from '../collections/labRequests';
 
-export default BaseModel.extend({
+export default register('Visit', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/visit`,
   defaults: () => defaults({
     dischargeInfo: '',
@@ -36,42 +37,42 @@ export default BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'medication',
-      relatedModel: () => require('./medication'),
+      relatedModel: 'Medication',
       serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'diagnoses',
-      relatedModel: () => require('./patientDiagnosis'),
+      relatedModel: 'PatientDiagnosis',
       serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'labRequests',
-      relatedModel: () => require('./labRequest'),
+      relatedModel: 'LabRequest',
       serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'imagingRequests',
-      relatedModel: () => require('./imagingRequest'),
+      relatedModel: 'ImagingRequest',
       serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'notes',
-      relatedModel: () => require('./note'),
+      relatedModel: 'Note',
       serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'procedures',
-      relatedModel: () => require('./procedure'),
+      relatedModel: 'Procedure',
       serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'vitals',
-      relatedModel: () => require('./vitals'),
+      relatedModel: 'Vitals',
       serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'reports',
-      relatedModel: () => require('./report'),
+      relatedModel: 'Report',
       serialize: '_id',
     },
     ...BaseModel.prototype.relations,
@@ -81,7 +82,7 @@ export default BaseModel.extend({
     {
       type: Backbone.One,
       key: 'patient',
-      model: require('./patient'),
+      model: 'Patient',
     },
   ],
 
@@ -115,4 +116,4 @@ export default BaseModel.extend({
       { mode: 'client' },
     );
   },
-});
+}));

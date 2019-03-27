@@ -2,8 +2,9 @@ import Backbone from 'backbone-associations';
 import { defaults } from 'lodash';
 import BaseModel from './base';
 import { store } from '../store';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('Hospital', BaseModel.extend({
   initialize() {
     const { auth } = store.getState();
     const { hospitalId } = auth;
@@ -21,8 +22,8 @@ export default BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'users',
-      relatedModel: () => require('./user'),
+      relatedModel: 'User',
     },
     ...BaseModel.prototype.relations,
   ],
-});
+}));

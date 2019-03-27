@@ -9,9 +9,9 @@ import { createLogger } from 'redux-logger';
 import rootReducer from '../reducers';
 import * as actions from '../actions/patients';
 
-const history = createHashHistory();
+export const configureStore = (initialState) => {
+  const history = createHashHistory();
 
-const configureStore = (initialState) => {
   // Redux Configuration
   const middleware = [];
   const enhancers = [];
@@ -66,14 +66,11 @@ const configureStore = (initialState) => {
   const store = createStore(persistedReducer, initialState, enhancer);
 
   if (module.hot) {
-    module.hot.accept(
-      '../reducers',
-      () => store.replaceReducer(require('../reducers')), // eslint-disable-line global-require
-    );
+    module.hot.accept('../reducers');
   }
 
   const persistor = persistStore(store);
-  return { store, persistor, persistConfig };
+  return {
+    store, persistor, persistConfig, history,
+  };
 };
-
-export default { configureStore, history };

@@ -1,7 +1,8 @@
 import { defaults } from 'lodash';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('PatientContact', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/patientContact`,
   defaults: () => defaults({
     name: '',
@@ -17,4 +18,4 @@ export default BaseModel.extend({
     if (attrs.phone === '') errors.push('phone is required!');
     if (errors.length) return errors;
   },
-});
+}));

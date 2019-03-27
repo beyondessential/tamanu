@@ -1,8 +1,7 @@
-const shortid = require('shortid');
-const { isArray } = require('lodash');
-const { to } = require('await-to-js');
+import shortid from 'shortid';
+import { isArray } from 'lodash';
 
-class Auth {
+export default class Auth {
   constructor() {
     this.clientId = localStorage.getItem('clientId');
     this.clientSecret = localStorage.getItem('clientSecret');
@@ -67,5 +66,3 @@ class Auth {
     }
   }
 }
-
-module.exports = Auth;
