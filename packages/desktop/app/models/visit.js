@@ -82,7 +82,7 @@ export default register('Visit', BaseModel.extend({
     {
       type: Backbone.One,
       key: 'patient',
-      model: require('./patient'),
+      model: 'Patient',
     },
   ],
 

@@ -1,6 +1,7 @@
 import Backbone from 'backbone-associations';
 import moment from 'moment';
 import { isEmpty } from 'lodash';
+
 import BaseModel from './base';
 import { register } from './register';
 
@@ -18,7 +19,7 @@ export default register('Condition', BaseModel.extend({
     {
       type: Backbone.One,
       key: 'diagnosis',
-      model: require('./diagnosis'),
+      model: 'Diagnosis',
     },
   ],
 

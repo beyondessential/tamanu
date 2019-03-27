@@ -50,7 +50,7 @@ export default register('ImagingRequest', BaseModel.extend({
     {
       type: Backbone.One,
       key: 'visit',
-      model: require('./visit'),
+      model: 'Visit',
     },
   ],
 

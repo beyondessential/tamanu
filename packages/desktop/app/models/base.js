@@ -9,6 +9,7 @@ import { to } from 'await-to-js';
 import { concatSelf } from '../utils';
 import { store } from '../store';
 import { ModifiedFieldsCollection } from '../collections';
+import { getModel } from './register';
 
 export default Backbone.AssociatedModel.extend({
   urlRoot: `${process.env.HOST}${process.env.REALM_PATH}`,
@@ -185,7 +186,7 @@ export default Backbone.AssociatedModel.extend({
     if (typeof this.reverseRelations === 'object') {
       const reverse = this.reverseRelations;
       reverse.forEach(({ type, key, model }) => {
-        const Model = model.default ? model.default : model;
+        const Model = getModel(model.default ? model.default : model);
         switch (type) {
           default:
           case Backbone.Many: {

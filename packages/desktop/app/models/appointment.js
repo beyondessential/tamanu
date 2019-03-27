@@ -36,7 +36,7 @@ export default register('Appointment', BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'patients',
-      model: require('./patient'),
+      model: 'Patient',
     },
   ],
 

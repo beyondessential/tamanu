@@ -8,3 +8,12 @@ export function register(name, model) {
   registry[name] = model;
   return model;
 }
+
+export function getModel(nameOrModel) {
+  // this should be callable with a full model object, which is just a no-op
+  if(typeof(nameOrModel) !== "string") {
+    return nameOrModel;
+  }
+
+  return registry[nameOrModel];
+}
