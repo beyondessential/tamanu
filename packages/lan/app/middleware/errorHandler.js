@@ -11,4 +11,3 @@ export default function errorHandler(err, req, res, next) { // eslint-disable-li
 
   return res.status(status).json(error);
 }
-

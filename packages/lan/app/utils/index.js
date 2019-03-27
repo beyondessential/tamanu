@@ -18,4 +18,3 @@ export const objectToJSON = (object, maxDepth) => {
     throw err;
   }
 };
-

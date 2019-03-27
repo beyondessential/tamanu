@@ -1,5 +1,5 @@
-import { SenaitePoller } from './SenaitePoller';
 import config from 'config';
+import { SenaitePoller } from './SenaitePoller';
 
 export function startScheduledTasks(database) {
   if (config.senaite.enabled) {

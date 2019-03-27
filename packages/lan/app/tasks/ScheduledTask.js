@@ -11,6 +11,7 @@ export class ScheduledTask {
     this.job = null;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   async run() {
     throw new Error('Not implemented');
   }
@@ -34,4 +35,3 @@ export class ScheduledTask {
     }
   }
 }
-

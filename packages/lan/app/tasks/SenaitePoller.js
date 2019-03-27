@@ -2,7 +2,6 @@ import { get, post, jar } from 'request';
 import config from 'config';
 import moment from 'moment';
 
-import { LAB_REQUEST_STATUSES } from '../constants';
 import { ScheduledTask } from './ScheduledTask';
 
 // if there's an error creating a lab request in senaite
