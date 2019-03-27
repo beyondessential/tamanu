@@ -12,4 +12,3 @@ export const jsonParse = (object) => {
 };
 
 export const findSchema = (type) => schemas.find(schema => schema.name === type);
-
