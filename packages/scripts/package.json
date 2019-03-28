@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "test": "echo 'No tests on scripts'",
     "download-translations": "node src/downloadTranslations.js ../desktop/resources/strings"
   },
   "dependencies": {

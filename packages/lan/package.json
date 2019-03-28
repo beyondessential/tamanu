@@ -13,6 +13,9 @@
   },
   "scripts": {
     "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "npm test -- --watch",
     "build": "pkg . --targets node10-win-x64 --output ./release/server.exe",
     "package": "./scripts/package.sh",
     "lint": "eslint app",

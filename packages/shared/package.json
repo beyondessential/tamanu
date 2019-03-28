@@ -7,6 +7,9 @@
   "author": "Salman Amjad",
   "license": "MIT",
   "scripts": {
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "npm test -- --watch",
     "lint": "eslint schemas utils constants services",
     "lint-stats": "eslint schemas utils constants services --format ../scripts/eslint-stats.js"
   },
