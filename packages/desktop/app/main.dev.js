@@ -15,7 +15,7 @@ import sourceMapSupport from 'source-map-support';
 // debug only
 // TODO: exclude these from production builds entirely
 import electronDebug from 'electron-debug';
-import * as electronDevtoolsInstaller from 'electron-devtools-installer';
+import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 
 import MenuBuilder from './menu';
 
@@ -33,13 +33,19 @@ if (isDebug) {
 }
 
 const installExtensions = async () => {
-  const installer = electronDevtoolsInstaller;
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
 
-  return Promise.all(
-    extensions.map(name => installer.default(installer[name], forceDownload)),
-  ).catch(console.log);
+  const install = async (extension) => {
+    try {
+      const name = await installExtension(extension.id, forceDownload);
+      console.log("installed extension", name);
+    } catch(e) {
+      console.error(e);
+    }
+  };
+
+  await install(REACT_DEVELOPER_TOOLS);
+  await install(REDUX_DEVTOOLS);
 };
 
 
