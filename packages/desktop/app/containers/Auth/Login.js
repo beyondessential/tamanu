@@ -1,7 +1,7 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Grid, Paper } from '@material-ui/core';
-import { TextField, Button, CheckField } from '../../components';
+import { TextInput, Button, CheckInput } from '../../components';
 import { TamanuLogo } from '../../components/TamanuLogo';
 import { history } from '../../utils';
 import { REMEMBER_EMAIL_KEY } from '../../constants';
@@ -10,7 +10,7 @@ const LogoContainer = styled.div`
   text-align: center;
 `;
 
-class Login extends Component {
+export default class Login extends Component {
   state = {
     email: '',
     password: '',
@@ -37,8 +37,8 @@ class Login extends Component {
     this.setState(form);
   }
 
-  submitForm(e) {
-    e.preventDefault();
+  submitForm(event) {
+    event.preventDefault();
     const { login } = this.props;
     const { email, rememberMe } = this.state;
     if (rememberMe) {
@@ -61,7 +61,7 @@ class Login extends Component {
             <form onSubmit={this.submitForm.bind(this)}>
               <Grid container spacing={16}>
                 <Grid item xs={12}>
-                  <TextField
+                  <TextInput
                     name="email"
                     type="email"
                     label="Email"
@@ -71,7 +71,7 @@ class Login extends Component {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <TextField
+                  <TextInput
                     name="password"
                     type="password"
                     label="Password"
@@ -81,7 +81,7 @@ class Login extends Component {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <CheckField
+                  <CheckInput
                     name="rememberMe"
                     value="yes"
                     label="Remember me"
@@ -106,5 +106,3 @@ class Login extends Component {
     );
   }
 }
-
-export default Login;
