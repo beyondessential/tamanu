@@ -49,6 +49,7 @@
   "dependencies": {
     "@beyondessential/eslint-config-beyondessential": "2.3.0",
     "await-to-js": "^2.0.1",
+    "babel-jest": "^24.5.0",
     "bcrypt": "^3.0.1",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",
@@ -63,6 +64,7 @@
     "faye": "^1.2.4",
     "follow": "^1.1.0",
     "http-proxy": "^1.17.0",
+    "jest": "^24.5.0",
     "json-diff": "^0.5.3",
     "json-prune": "^1.1.0",
     "jsonwebtoken": "^8.4.0",
