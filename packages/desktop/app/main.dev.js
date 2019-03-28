@@ -38,8 +38,8 @@ const installExtensions = async () => {
   const install = async (extension) => {
     try {
       const name = await installExtension(extension.id, forceDownload);
-      console.log("installed extension", name);
-    } catch(e) {
+      console.log('Installed extension:', name);
+    } catch (e) {
       console.error(e);
     }
   };

@@ -1,3 +1,4 @@
+import shortid from 'shortid';
 import {
   CREATE_MEDICATION_REQUEST,
   CREATE_MEDICATION_SUCCESS,
@@ -9,7 +10,6 @@ import {
   FETCH_MEDICATIONS_SUCCESS,
   FETCH_MEDICATIONS_FAILED,
 } from './types';
-import shortid from 'shortid';
 
 export function createMedicationRequest() {
   return {

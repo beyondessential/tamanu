@@ -1,4 +1,4 @@
-export default function errorHandler(err, req, res) { 
+export default function errorHandler(err, req, res) {
   const { field, message = 'An error occurred', status = 500 } = err;
 
   const error = {};

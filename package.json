@@ -36,5 +36,8 @@
       "**/config/**"
     ]
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "dependencies": {
+    "babel-eslint": "^10.0.1"
+  }
 }

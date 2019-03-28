@@ -1,3 +1,4 @@
+import shortid from 'shortid';
 import {
   CREATE_INVOICE_REQUEST,
   CREATE_INVOICE_SUCCESS,
@@ -6,7 +7,6 @@ import {
   FETCH_INVOICES_SUCCESS,
   FETCH_INVOICES_FAILED,
 } from './types';
-import shortid from 'shortid';
 
 export function createInvoiceRequest() {
   return {
