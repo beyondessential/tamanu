@@ -2,22 +2,30 @@ import React from 'react';
 import MuiTextField from '@material-ui/core/TextField';
 import PropTypes from 'prop-types';
 
-export const TextInput = MuiTextField;
-
-export const TextField = ({ value, ...props }) => (
-  <TextInput
-    fullWidth
+export const TextInput = ({ value, ...props }) => (
+  <MuiTextField
     value={value || ''}
     {...props}
   />
 );
 
-TextField.propTypes = {
+export const TextField = ({ field, ...props }) => (
+  <TextInput
+    name={field.name}
+    value={field.value || ''}
+    onChange={field.onChange}
+    {...props}
+  />
+);
+
+TextInput.propTypes = {
   name: PropTypes.string.isRequired,
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onChange: PropTypes.func.isRequired,
+  fullWidth: PropTypes.bool,
 };
 
-TextField.defaultProps = {
+TextInput.defaultProps = {
   value: '',
+  fullWidth: true,
 };

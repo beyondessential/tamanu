@@ -11,6 +11,7 @@ const PatientAutocomplete = ({
   className,
   collection,
   onChange,
+  ...props
 }) => (
   <CommonAutocomplete
     label={label}
@@ -21,6 +22,7 @@ const PatientAutocomplete = ({
     collection={collection}
     onChange={onChange}
     formatOptionLabel={({ displayId, firstName, lastName }) => `${displayId} - ${firstName} ${lastName}`}
+    {...props}
   />
 );
 

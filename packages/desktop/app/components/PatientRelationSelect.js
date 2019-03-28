@@ -1,13 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import Autocomplete from 'react-autocomplete';
-import Select from 'react-select';
-import { map, template, isEmpty } from 'lodash';
-import { PatientsCollection } from '../collections';
 import { PatientModel } from '../models';
+import { SelectInput } from './Field';
 
-class PatientRelationSelect extends Component {
+export default class PatientRelationSelect extends Component {
   static propTypes = {
     patient: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     relation: PropTypes.string.isRequired,
@@ -31,7 +27,7 @@ class PatientRelationSelect extends Component {
 
   constructor(props) {
     super(props);
-    this.handleChange = this.handleChange.bind(this);
+    this.patientModel = new PatientModel();
   }
 
   state = {
@@ -46,65 +42,44 @@ class PatientRelationSelect extends Component {
     if (newProps.patient !== this.props.patient) this.loadRelations(newProps);
   }
 
-  async loadRelations(props = this.props) {
-    const {
-      patient, relation, template, patientModel,
-    } = props;
-    if (patient) {
-      if (typeof patient === 'string') {
-        patientModel.set({ _id: patient });
-        await patientModel.fetch();
-      }
-
-      let { [relation]: options } = patientModel.toJSON();
-      options = options.map(item => ({ value: item._id, label: template(item) }));
-      this.setState({ options });
-    }
-  }
-
-  handleChange(value) {
+  handleChange = (value) => {
     const { onChange } = this.props;
     if (onChange) onChange(value);
     this.setState({ value });
   }
 
+  async loadRelations(props = this.props) {
+    const {
+      patient, relation, template,
+    } = props;
+    if (patient) {
+      if (typeof patient === 'string') {
+        this.patientModel.set({ _id: patient });
+        await this.patientModel.fetch();
+      }
+
+      let { [relation]: options } = this.patientModel.toJSON();
+      options = options.map(item => ({ value: item._id, label: template(item) }));
+      this.setState({ options });
+    }
+  }
+
   render() {
     const {
       label,
-      required,
       name,
-      className,
-      simpleValue,
+      ...props
     } = this.props;
     const { options, value } = this.state;
     return (
-      <div className={`column ${className}`}>
-        <span className="input-group-title">
-          {label}
-          {' '}
-          {required && <span className="isRequired">*</span>}
-        </span>
-        <Select
-          options={options}
-          name={name}
-          value={value}
-          onChange={this.handleChange.bind(this)}
-          simpleValue={simpleValue}
-          required
-        />
-      </div>
+      <SelectInput
+        label={label}
+        options={options}
+        name={name}
+        value={value}
+        onChange={this.handleChange}
+        {...props}
+      />
     );
   }
 }
-
-const mapDispatchToProps = () => ({
-  patientModel: new PatientModel(),
-});
-
-function mapStateToProps(state) {
-  return {
-    currentPath: state.router.location.pathname,
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(PatientRelationSelect);

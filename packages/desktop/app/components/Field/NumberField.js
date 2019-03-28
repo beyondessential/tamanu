@@ -9,16 +9,21 @@ export const NumberInput = (props) => (
   />
 );
 
-export const NumberField = ({ ...props }) => (
-  <NumberInput {...props} />
+export const NumberField = ({ field, ...props }) => (
+  <NumberInput
+    name={field.name}
+    value={field.value || ''}
+    onChange={field.onChange}
+    {...props}
+  />
 );
 
-NumberField.propTypes = {
+NumberInput.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.number,
   onChange: PropTypes.func.isRequired,
 };
 
-NumberField.defaultProps = {
+NumberInput.defaultProps = {
   value: 0,
 };

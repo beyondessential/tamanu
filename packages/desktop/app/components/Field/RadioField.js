@@ -5,33 +5,38 @@ import {
 } from '@material-ui/core';
 
 export const RadioInput = ({
-  options, name, value, ...props
+  options, name, value, label, ...props
 }) => (
-  <RadioGroup
-    aria-label={name}
-    name={name}
-    value={value}
-    {...props}
-  >
-    {options.map(option => (
-      <FormControlLabel
-        key={option.value}
-        control={<Radio />}
-        label={option.label}
-        value={option.value}
-      />
-    ))}
-  </RadioGroup>
-);
-
-export const RadioField = ({ label, ...props }) => (
   <React.Fragment>
-    <FormLabel component="legend">{label}</FormLabel>
-    <RadioInput {...props} />
+    <FormLabel>{label}</FormLabel>
+    <RadioGroup
+      aria-label={name}
+      name={name}
+      value={value}
+      {...props}
+    >
+      {options.map(option => (
+        <FormControlLabel
+          key={option.value}
+          control={<Radio />}
+          label={option.label}
+          value={option.value}
+        />
+      ))}
+    </RadioGroup>
   </React.Fragment>
 );
 
-RadioField.propTypes = {
+export const RadioField = ({ field, ...props }) => (
+  <RadioInput
+    name={field.name}
+    value={field.value || ''}
+    onChange={field.onChange}
+    {...props}
+  />
+);
+
+RadioInput.propTypes = {
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   value: PropTypes.string,
@@ -39,6 +44,6 @@ RadioField.propTypes = {
   options: PropTypes.arrayOf(PropTypes.instanceOf(Object)).isRequired,
 };
 
-RadioField.defaultProps = {
+RadioInput.defaultProps = {
   value: false,
 };

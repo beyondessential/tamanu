@@ -1,6 +1,7 @@
 import React from 'react';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
+import { MUI_SPACING_UNIT } from '../constants';
 
 const palette = {
   primary: {
@@ -13,6 +14,9 @@ const palette = {
   background: {
     paper: 'white',
     default: grey[200],
+  },
+  spacing: {
+    unit: MUI_SPACING_UNIT,
   },
 };
 const themeName = 'Tamanu';

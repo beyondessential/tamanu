@@ -20,21 +20,25 @@ export const SelectInput = ({ options, value, ...props }) => (
   </MuiTextField>
 );
 
-export const SelectField = (props) => (
+export const SelectField = ({ field, ...props }) => (
   <SelectInput
-    fullWidth
+    name={field.name}
+    value={field.value || ''}
+    onChange={field.onChange}
     {...props}
   />
 );
 
-SelectField.propTypes = {
+SelectInput.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   options: PropTypes.arrayOf(PropTypes.instanceOf(Object)),
+  fullWidth: PropTypes.bool,
 };
 
-SelectField.defaultProps = {
+SelectInput.defaultProps = {
   value: '',
   options: [],
+  fullWidth: true,
 };

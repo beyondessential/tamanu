@@ -16,16 +16,23 @@ export const CheckInput = ({ label, value, ...props }) => (
   />
 );
 
-export const CheckField = (props) => (
-  <CheckInput {...props} />
+export const CheckField = ({ field, ...props }) => (
+  <CheckInput
+    name={field.name}
+    value={field.value || ''}
+    onChange={field.onChange}
+    {...props}
+  />
 );
 
-CheckField.propTypes = {
+CheckInput.propTypes = {
   name: PropTypes.string.isRequired,
-  value: PropTypes.string,
+  value: PropTypes.bool,
+  label: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
 };
 
-CheckField.defaultProps = {
+CheckInput.defaultProps = {
   value: false,
+  label: '',
 };

@@ -1,55 +1,41 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions,
+  Dialog as MuiDialog, DialogTitle, DialogContent, DialogActions,
 } from '@material-ui/core';
+import { MUI_SPACING_UNIT as spacing } from '../constants';
 
-import { Button } from './Button';
+export const ModalActions = (props) => (
+  <DialogActions style={{ marginTop: spacing * 2 }} {...props} />
+);
 
-function ModalView({
-  modalType,
-  headerTitle,
-  contentText,
-  isVisible,
-  onClose,
-  onConfirm,
-  okText,
-  cancelText,
+export function Modal({
+  title, children, isVisible,
+  onClose, actions, ...props
 }) {
   return (
-    <Dialog open={isVisible} onClose={onClose} little>
-      <DialogTitle>{headerTitle}</DialogTitle>
-      <DialogContent>{contentText}</DialogContent>
-      <DialogActions>
-        {modalType === 'confirm' && <Button variant="outlined" onClick={onClose}>{cancelText}</Button>}
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={modalType === 'confirm' ? onConfirm : onClose}
-        >
-          {okText}
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <MuiDialog
+      fullWidth
+      maxWidth="sm"
+      {...props}
+      open={isVisible}
+      onClose={onClose}
+    >
+      <DialogTitle>{title}</DialogTitle>
+      <DialogContent>{children}</DialogContent>
+      {actions && <ModalActions>{actions}</ModalActions>}
+    </MuiDialog>
   );
 }
 
-ModalView.propTypes = {
-  modalType: PropTypes.oneOf(['alert', 'confirm']),
-  headerTitle: PropTypes.string.isRequired,
-  contentText: PropTypes.string.isRequired,
+Modal.propTypes = {
+  title: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
+  actions: PropTypes.node,
   isVisible: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  onConfirm: PropTypes.func,
-  okText: PropTypes.string,
-  cancelText: PropTypes.string,
 };
 
-ModalView.defaultProps = {
-  modalType: 'alert',
-  okText: 'OK',
-  cancelText: 'Cancel',
-  onConfirm: () => {},
+Modal.defaultProps = {
+  actions: null,
 };
-
-export default ModalView;

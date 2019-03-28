@@ -9,7 +9,7 @@ import { NewButton, SearchBar } from '.';
 const styles = theme => ({
   root: {
     flexGrow: 1,
-    backgroundColor: grey[100],
+    backgroundColor: grey[200],
     borderBottom: `2px solid ${grey[300]}`,
     marginBottom: 3,
   },

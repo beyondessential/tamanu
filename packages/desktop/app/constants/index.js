@@ -12,6 +12,8 @@ import {
 
 import { availableReports } from '../containers/Reports/dummyReports';
 
+export const MUI_SPACING_UNIT = 8;
+
 export const REMEMBER_EMAIL_KEY = 'remember-email';
 
 export const DISPLAY_ID_PLACEHOLDER = '-TMP-';

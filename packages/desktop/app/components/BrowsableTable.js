@@ -10,7 +10,7 @@ const defaultTransformRow = model => model.toJSON();
 export class BrowsableTable extends Component {
   static propTypes = {
     transformRow: PropTypes.func,
-    fetchOptions: PropTypes.object,
+    fetchOptions: PropTypes.instanceOf(Object),
   }
 
   static defaultProps = {
@@ -22,6 +22,18 @@ export class BrowsableTable extends Component {
     tableClass: '',
     tableState: {},
     loading: true,
+  }
+
+  componentWillMount() {
+    this.props.collection.on('pageable:state:change', this.handleChange);
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.onFetchData(newProps)();
+  }
+
+  componentWillUnmount() {
+    this.props.collection.off('pageable:state:change');
   }
 
   onFetchData = (props = this.props) => async (state = {}) => {
@@ -53,18 +65,6 @@ export class BrowsableTable extends Component {
     }
   }
 
-  componentWillMount() {
-    this.props.collection.on('pageable:state:change', this.handleChange);
-  }
-
-  componentWillReceiveProps(newProps) {
-    this.onFetchData(newProps)();
-  }
-
-  componentWillUnmount() {
-    this.props.collection.off('pageable:state:change');
-  }
-
   handleChange = () => {
     this.forceUpdate();
   }
@@ -84,6 +84,7 @@ export class BrowsableTable extends Component {
 
     return (
       <ReactTable
+        style={{ flexGrow: 1 }}
         manual
         keyField="_id"
         data={items}
