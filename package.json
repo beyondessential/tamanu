@@ -7,6 +7,7 @@
   "author": "Salman Amjad",
   "license": "MIT",
   "scripts": {
+    "test": "yarn workspaces run test",
     "lint-all": "eslint packages/desktop/app packages/server/app packages/lan/app packages/shared/schemas packages/shared/services packages/shared/constants packages/shared/utils",
     "upgrade-lint-rules": "yarn workspaces run upgrade @beyondessential/eslint-config-beyondessential --latest"
   },
