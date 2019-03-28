@@ -1,7 +1,9 @@
 
 module.exports = api => {
 
-  api.cache(false);
+  // Cache permanently. Safe because this setting only applies per-process.
+  // (ie restarting the build will reset the cache)
+  api.cache(true);
 
   return {
     presets: [
