@@ -13,7 +13,7 @@ export class FreeTextQuestion extends Component {
 
     const {
       onSubmitEditing,
-      ...restOfTextInputProps,
+      ...restOfTextInputProps
     } = textInputProps;
 
     return (

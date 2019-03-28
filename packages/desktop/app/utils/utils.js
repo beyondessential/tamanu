@@ -3,9 +3,9 @@ import { isArray, toString, each } from 'lodash';
 import { toast } from 'react-toastify';
 import jsonPrune from 'json-prune';
 import shortid from 'shortid';
-import createHistory from 'history/createHashHistory';
+import { createHashHistory } from 'history';
 
-export const history = createHistory();
+export const history = createHashHistory();
 
 export const toTitleCase = text => (text
   ? text.split(' ')

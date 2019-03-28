@@ -2,8 +2,8 @@ import {
   has, set, find, isFunction,
 } from 'lodash';
 import shortId from 'shortid';
-import { objectToJSON } from '../../utils';
 import { schemas } from 'Shared/schemas';
+import { objectToJSON } from '../../utils';
 import { ENVIRONMENT_TYPE } from '../../constants';
 
 export default function (req, res) {

@@ -8,7 +8,7 @@ import { Grid } from '@material-ui/core';
 import moment from 'moment';
 import { capitalize } from 'lodash';
 import styled from 'styled-components';
-import { request as imagingRequestActions } from '../../actions/imaging';
+import * as imagingRequestActions from '../../actions/imaging';
 import TopRow from '../Patients/components/TopRow';
 import {
   TopBar,
