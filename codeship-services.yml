@@ -4,6 +4,8 @@ app:
   volumes:
     - ./.tmp:/tamanu
     - ./.ssh:/root/.ssh
+  environment:
+    ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
 
 awsdeployment:
   build:
