@@ -18,6 +18,10 @@ class SearchAppointment extends Component {
     loading: false,
   }
 
+  onLoading = (loading) => {
+    this.setState({ loading });
+  }
+
   submitForm(form) {
     const filters = {};
     if (form.startDate) filters.startDate = `>|${moment(form.startDate).startOf('day').format(REALM_DATE_FORMAT)}`;
@@ -25,10 +29,6 @@ class SearchAppointment extends Component {
     if (form.type) filters.appointmentType = `LIKE|${form.type}`;
     if (form.practitioner) filters.provider = `CONTAINS[c]|${form.practitioner}`;
     this.setState({ filters });
-  }
-
-  onLoading(loading) {
-    this.setState({ loading });
   }
 
   render() {
@@ -58,7 +58,7 @@ class SearchAppointment extends Component {
                 <AppointmentsTable
                   filters={filters}
                   history={this.props.history}
-                  onLoading={this.onLoading.bind(this)}
+                  onLoading={this.onLoading}
                 />
               </div>
             </div>

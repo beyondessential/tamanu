@@ -1,22 +1,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Collapse from '@material-ui/core/Collapse';
+import { Grid, Collapse } from '@material-ui/core';
 import {
-  InputGroup,
-  SelectGroup,
-  ClearButton,
-  FilterButton,
+  TextInput, SelectInput, ClearButton,
+  FilterButton, Container,
 } from '../../../components';
 import {
-  visitOptions as visitOptionsOriginal,
+  visitOptions as visitOptionsOriginal, MUI_SPACING_UNIT as spacing,
   appointmentStatusList as appointmentStatusListOriginal,
 } from '../../../constants';
 
 const visitOptions = [{ value: 'all', label: 'All' }, ...visitOptionsOriginal];
 const appointmentStatusList = [{ value: 'all', label: 'All' }, ...appointmentStatusListOriginal];
 
-class FiltersForm extends Component {
+export default class FiltersForm extends Component {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
     loading: PropTypes.bool,
@@ -47,13 +44,20 @@ class FiltersForm extends Component {
       practitioner,
       location,
     };
-
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.onSubmit = this.onSubmit.bind(this);
-    this.resetForm = this.resetForm.bind(this);
   }
 
-  handleInputChange(event, field) {
+  onSubmit = (e) => {
+    e.preventDefault();
+    const { location, practitioner } = this.state;
+    let { status, type } = this.state;
+    if (status === 'all') status = '';
+    if (type === 'all') type = '';
+    this.props.onSubmit({
+      location, status, type, practitioner,
+    });
+  }
+
+  handleInputChange = (event, field) => {
     let name = '';
     let value = '';
     if (typeof field !== 'undefined') {
@@ -67,18 +71,7 @@ class FiltersForm extends Component {
     this.setState({ [name]: value });
   }
 
-  onSubmit(e) {
-    e.preventDefault();
-    const { location, practitioner } = this.state;
-    let { status, type } = this.state;
-    if (status === 'all') status = '';
-    if (type === 'all') type = '';
-    this.props.onSubmit({
-      location, status, type, practitioner,
-    });
-  }
-
-  resetForm() {
+  resetForm = () => {
     const {
       location, status, type, practitioner,
     } = this.props;
@@ -105,54 +98,58 @@ class FiltersForm extends Component {
 
     return (
       <Collapse in={collapse}>
-        <form onSubmit={this.onSubmit}>
-          <div className="columns p-t-10">
-            <SelectGroup
-              className="column is-3"
-              label="Status"
-              name="status"
-              options={appointmentStatusList}
-              onChange={this.handleInputChange}
-              value={status}
-            />
-            {!surgery
-              && (
-              <SelectGroup
-                className="column is-3"
-                label="Type"
-                name="type"
-                options={visitOptions}
-                onChange={this.handleInputChange}
-                value={type}
-              />
-              )
-            }
-            <InputGroup
-              name="practitioner"
-              label="With"
-              onChange={this.handleInputChange}
-              value={practitioner}
-              placeholder="Practitioner"
-            />
-            <InputGroup
-              name="location"
-              label="Location"
-              onChange={this.handleInputChange}
-              value={location}
-            />
-          </div>
-          <div className="columns">
-            <div className="column">
-              <div className="column has-text-right">
+        <Container autoHeight>
+          <form onSubmit={this.onSubmit}>
+            <Grid container spacing={spacing * 2}>
+              <Grid item xs>
+                <SelectInput
+                  className="column is-3"
+                  label="Status"
+                  name="status"
+                  options={appointmentStatusList}
+                  onChange={this.handleInputChange}
+                  value={status}
+                />
+              </Grid>
+              {!surgery
+                && (
+                  <Grid item xs>
+                    <SelectInput
+                      className="column is-3"
+                      label="Type"
+                      name="type"
+                      options={visitOptions}
+                      onChange={this.handleInputChange}
+                      value={type}
+                    />
+                  </Grid>
+                )
+              }
+              <Grid item xs>
+                <TextInput
+                  name="practitioner"
+                  label="With"
+                  onChange={this.handleInputChange}
+                  value={practitioner}
+                  placeholder="Practitioner"
+                />
+              </Grid>
+              <Grid item xs>
+                <TextInput
+                  name="location"
+                  label="Location"
+                  onChange={this.handleInputChange}
+                  value={location}
+                />
+              </Grid>
+              <Grid container item xs={12} justify="flex-end">
                 <ClearButton onClick={this.resetForm} />
                 <FilterButton type="submit" disabled={loading} />
-              </div>
-            </div>
-          </div>
-        </form>
+              </Grid>
+            </Grid>
+          </form>
+        </Container>
       </Collapse>
     );
   }
 }
-
-export default FiltersForm;

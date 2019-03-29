@@ -1,10 +1,11 @@
-import React, { Component } from 'react';
+import React from 'react';
 import moment from 'moment';
+import PropTypes from 'prop-types';
 import AppointmentsTable from './components/AppointmentsTable';
 import { TopBar } from '../../components';
 import { REALM_DATE_FORMAT } from '../../constants';
 
-const Appointments = ({ duration = 'day', history }) => {
+export default function Appointments({ duration, history }) {
   const filters = {
     startDate: `>=|${moment().startOf(duration).format(REALM_DATE_FORMAT)}`,
     endDate: `<=|${moment().endOf(duration).format(REALM_DATE_FORMAT)}`,
@@ -27,6 +28,12 @@ const Appointments = ({ duration = 'day', history }) => {
       />
     </div>
   );
+}
+
+Appointments.propTypes = {
+  duration: PropTypes.string,
 };
 
-export default Appointments;
+Appointments.defaultProps = {
+  duration: 'day',
+};
