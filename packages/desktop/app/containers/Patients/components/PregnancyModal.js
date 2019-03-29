@@ -1,28 +1,23 @@
 import React, { Component } from 'react';
-import Modal from 'react-responsive-modal';
-import DatePicker from 'react-datepicker';
 import moment from 'moment';
-import { clone, pick } from 'lodash';
-import Select from 'react-select';
-import InputGroup from '../../../components/InputGroup';
+import { pick } from 'lodash';
+import { Grid } from '@material-ui/core';
+import {
+  TextInput, Modal, DateInput, SelectInput, ModalActions,
+  CancelButton, AddButton, UpdateButton,
+} from '../../../components';
 import { PregnancyModel } from '../../../models';
 import PatientAutocomplete from '../../../components/PatientAutocomplete';
-import { dateFormat, pregnancyOutcomes } from '../../../constants';
+import { pregnancyOutcomes, MUI_SPACING_UNIT as spacing } from '../../../constants';
 
-class PregnancyModal extends Component {
+export default class PregnancyModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      formValid: false,
+      isFormValid: false,
       isVisible: false,
-      form: this.props.form,
+      form: {},
     };
-
-    this.submitForm = this.submitForm.bind(this);
-    this.handleUserInput = this.handleUserInput.bind(this);
-    this.validateField = this.validateField.bind(this);
-    this.deleteItem = this.deleteItem.bind(this);
-    this.resetForm = this.resetForm.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -40,27 +35,27 @@ class PregnancyModal extends Component {
     }
   }
 
-  resetForm() {
-    this.setState({ form: this.props.form });
+  handleAutoCompleteInput = (value, name) => {
+    this.handleFormInput(value, name);
   }
 
-  handleUserInput = (e, name) => {
-    const form = clone(this.state.form);
-    if (typeof name !== 'undefined') {
-      form[name] = e;
-      this.setState({ form }, () => { this.validateField(); });
-    } else {
-      const { name: _name } = e.target;
-      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-      form[_name] = value;
-      this.setState({ form }, () => { this.validateField(); });
-    }
+  handleUserInput = ({ target }) => {
+    const name = target.name;
+    const value = target.type === 'checkbox' ? target.checked : target.value;
+    this.handleFormInput(value, name);
+  }
+
+  handleFormInput = (value, name) => {
+    const { form } = this.state;
+    form[name] = value;
+    this.setState({ form }, () => this.validateField());
   }
 
   validateField = () => {
+    const { form } = this.state;
     let valid = true;
-    if (this.state.form.conceiveDate && this.state.form.conceiveDate === '') valid = false;
-    this.setState({ formValid: valid });
+    if (form.conceiveDate && form.conceiveDate === '') valid = false;
+    this.setState({ isFormValid: valid });
   }
 
   submitForm = async (e) => {
@@ -86,7 +81,7 @@ class PregnancyModal extends Component {
     }
   }
 
-  async deleteItem() {
+  deleteItem = async () => {
     const { item, patientModel } = this.props;
     const pregnancy = new PregnancyModel(item);
 
@@ -100,116 +95,104 @@ class PregnancyModal extends Component {
     }
   }
 
-  render() {
-    const { onClose, action } = this.props;
+  resetForm = () => {
+    this.setState({ form: {} });
+  }
 
+  // filterModels
+  render() {
+    const { onClose, action, patientModel } = this.props;
+    const { isFormValid, form } = this.state;
     return (
-      <Modal open={this.state.isVisible} onClose={onClose} little>
+      <Modal
+        title={`${action === 'new' ? 'Add' : 'Update'} Pregnancy`}
+        isVisible={this.state.isVisible}
+        onClose={onClose}
+      >
         <form
           name="pregnancyForm"
-          className="create-container"
           onSubmit={this.submitForm}
         >
-          <div className="tamanu-error-modal diagnosis-modal">
-            <div className="modal-header">
-              <h2>
-                {action === 'new' ? 'Add' : 'Update'}
-                {' '}
-Pregnancy
-              </h2>
-            </div>
-            <div className="modal-content">
-              <div className="column is-half">
-                <span className="header">
-                  Estimated Conception Date
-                </span>
-                <DatePicker
-                  name="conceiveDate"
-                  className="input custom-date-input column is-three-fifths"
-                  selected={this.state.form.conceiveDate}
-                  onChange={(date) => { this.handleUserInput(date, 'conceiveDate'); }}
-                  dateFormat={dateFormat}
-                  peekNextMonth
-                  showMonthDropdown
-                  showYearDropdown
-                  // value={moment(birthday).format('YYYY-MM-DD')}
-                  type="button"
-                  popperModifiers={{
-                    offset: {
-                      enabled: true,
-                      offset: '-10px, 0px',
-                    },
-                  }}
-                />
-              </div>
-              <div className="column is-four-fifths">
-                <span className="header">
-Outcome
-                  {this.state.form.outcome}
-                </span>
-                <Select
-                  id="pregnancy-outcome"
-                  options={pregnancyOutcomes}
-                  simpleValue
-                  name="outcome"
-                  value={this.state.form.outcome}
-                  onChange={(val) => { this.handleUserInput(val, 'outcome'); }}
-                  searchable={false}
-                />
-              </div>
-              <div className={`column is-half ${(this.state.form.outcome === '' || this.state.form.outcome === 'fetalDeath') ? 'is-hidden' : ''}`}>
-                <span className="header">
-                  Delivery Date
-                </span>
-                <DatePicker
-                  name="deliveryDate"
-                  className="input custom-date-input column is-three-fifths"
-                  selected={this.state.form.deliveryDate}
-                  onChange={(date) => { this.handleUserInput(date, 'deliveryDate'); }}
-                  dateFormat={dateFormat}
-                  peekNextMonth
-                  showMonthDropdown
-                  showYearDropdown
-                  // value={moment(birthday).format('YYYY-MM-DD')}
-                  type="button"
-                  popperModifiers={{
-                    offset: {
-                      enabled: true,
-                      offset: '-10px, 0px',
-                    },
-                  }}
-                />
-              </div>
-              <PatientAutocomplete
-                name="child"
-                label="Child"
-                value={this.state.form.child}
+          <Grid container spacing={spacing * 2}>
+            <Grid item xs={12}>
+              <DateInput
+                label="Estimated Conception Date"
+                name="conceiveDate"
+                value={form.conceiveDate}
                 onChange={this.handleUserInput}
-                className={`is-four-fifths ${(this.state.form.outcome === '' || this.state.form.outcome === 'fetalDeath') ? 'is-hidden' : ''}`}
               />
-              <PatientAutocomplete
-                name="father"
-                label="Father"
-                value={this.state.form.father}
+            </Grid>
+            <Grid item xs={12}>
+              <SelectInput
+                label="Outcome"
+                options={pregnancyOutcomes}
+                name="outcome"
+                value={form.outcome}
                 onChange={this.handleUserInput}
-                className={`is-four-fifths ${this.state.form.outcome === '' ? 'is-hidden' : ''}`}
               />
-              <InputGroup
+            </Grid>
+            <Grid item xs={12}>
+              <DateInput
+                label="Delivery Date"
+                name="deliveryDate"
+                value={form.deliveryDate}
+                onChange={(date) => { this.handleUserInput(date, 'deliveryDate'); }}
+              />
+            </Grid>
+            {form.outcome
+              && form.outcome !== 'fetalDeath'
+              && (
+                <Grid item xs={12}>
+                  <PatientAutocomplete
+                    name="child"
+                    label="Child"
+                    value={form.child}
+                    onChange={this.handleAutoCompleteInput}
+                    filterModels={(patient) => patient._id !== patientModel.get('_id')}
+                  />
+                </Grid>
+              )
+            }
+            {form.outcome
+              && (
+                <Grid item xs={12}>
+                  <PatientAutocomplete
+                    name="father"
+                    label="Father"
+                    value={form.father}
+                    onChange={this.handleAutoCompleteInput}
+                    filterModels={(patient) => patient._id !== patientModel.get('_id')}
+                  />
+                </Grid>
+              )
+            }
+            <Grid item xs={12}>
+              <TextInput
                 name="gestationalAge"
                 label="Gestational Age"
-                value={this.state.form.gestationalAge}
+                value={form.gestationalAge}
                 onChange={this.handleUserInput}
-                className={`is-one-third ${this.state.form.outcome !== 'fetalDeath' ? 'is-hidden' : ''}`}
+                className={`is-one-third ${form.outcome !== 'fetalDeath' ? 'is-hidden' : ''}`}
               />
-            </div>
-            <div className="modal-footer">
-              <div className="column has-text-right">
-                <button className="button is-default" type="button" onClick={onClose}>Cancel</button>
-                {/* <button className={action !== 'new' ? 'button is-danger' : 'button is-danger is-hidden'} type="button" onClick={this.deleteItem}>Delete</button> */}
-                <button className="button is-primary" type="submit" disabled={!this.state.formValid}>{action === 'new' ? 'Add' : 'Update'}</button>
-              </div>
-            </div>
-          </div>
+            </Grid>
+          </Grid>
+          <ModalActions>
+            <CancelButton onClick={onClose} />
+            {action === 'new'
+              ? (
+                <AddButton
+                  type="submit"
+                  disabled={!isFormValid}
+                />
+              )
+              : (
+                <UpdateButton
+                  type="submit"
+                  disabled={!isFormValid}
+                />
+              )
+            }
+          </ModalActions>
         </form>
       </Modal>
     );
@@ -227,5 +210,3 @@ PregnancyModal.defaultProps = {
     gestationalAge: '',
   },
 };
-
-export default PregnancyModal;

@@ -59,45 +59,48 @@ export default class Condition extends Component {
       conditionModel,
       conditions,
     } = this.state;
-
     return (
-      <Grid container item spacing={8}>
-        <Grid item>
-          <Typography variant="body2" inline>
-            Ongoing Conditions
-          </Typography>
+      <React.Fragment>
+        <Grid container item spacing={8}>
+          <Grid item>
+            <Typography variant="body2">
+              Ongoing Conditions
+            </Typography>
+          </Grid>
+          <Grid item>
+            <TextButton
+              can={{ do: 'create', on: 'condition' }}
+              onClick={() => this.editItem()}
+            >
+              + Add Condition
+            </TextButton>
+          </Grid>
+          <Grid item xs={12} style={{ paddingTop: 0 }}>
+            {conditions.map((model, k) => {
+              const { _id, condition, date } = model.toJSON();
+              return (
+                <React.Fragment key={_id}>
+                  {k > 0 ? ', ' : ''}
+                  <TextButton
+                    can={{ do: 'read', on: 'condition' }}
+                    onClick={() => this.editItem(_id)}
+                  >
+                    {`${condition} (${moment(date).format(dateFormat)})`}
+                  </TextButton>
+                </React.Fragment>
+              );
+            })}
+          </Grid>
+          <ConditionModal
+            conditionModel={conditionModel}
+            patientModel={patientModel}
+            action={action}
+            isVisible={modalVisible}
+            onClose={this.onCloseModal}
+            little
+          />
         </Grid>
-        <Grid item>
-          <TextButton
-            can={{ do: 'create', on: 'condition' }}
-            onClick={() => this.editItem()}
-          >
-            + Add Condition
-          </TextButton>
-        </Grid>
-        {conditions.map((model, k) => {
-          const { _id, condition, date } = model.toJSON();
-          return (
-            <React.Fragment key={_id}>
-              {k > 0 ? ', ' : ''}
-              <TextButton
-                can={{ do: 'read', on: 'condition' }}
-                onClick={() => this.editItem(_id)}
-              >
-                {`${condition} (${moment(date).format(dateFormat)})`}
-              </TextButton>
-            </React.Fragment>
-          );
-        })}
-        <ConditionModal
-          conditionModel={conditionModel}
-          patientModel={patientModel}
-          action={action}
-          isVisible={modalVisible}
-          onClose={this.onCloseModal}
-          little
-        />
-      </Grid>
+      </React.Fragment>
     );
   }
 }

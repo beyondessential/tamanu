@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import ReactTable from 'react-table';
 import moment from 'moment';
-import { Link } from 'react-router-dom';
 import { capitalize } from 'lodash';
 import { Grid } from '@material-ui/core';
 import { visitsColumns, dateFormat } from '../../../constants';
-import { NewButton, EditButton } from '../../../components';
+import {
+  NewButton, EditButton, TabHeader, ClientSideTable,
+} from '../../../components';
 
 const DiagnosisColumn = ({ diagnoses }) => (
   <Grid container direction="column" alignItems="center">
@@ -15,7 +15,7 @@ const DiagnosisColumn = ({ diagnoses }) => (
   </Grid>
 );
 
-class Visits extends Component {
+export default class Visits extends Component {
   state = {
     visits: [],
     tableColumns: visitsColumns,
@@ -27,6 +27,17 @@ class Visits extends Component {
 
   componentWillReceiveProps(newProps) {
     this.handleChange(newProps);
+  }
+
+  setActionsCol = ({ original: { _id } }) => {
+    const { patientModel } = this.props;
+    return (
+      <EditButton
+        to={`/patients/visit/${patientModel.id}/${_id}`}
+        size="small"
+        can={{ do: 'update', on: 'visit' }}
+      />
+    );
   }
 
   handleChange(props = this.props) {
@@ -52,63 +63,28 @@ class Visits extends Component {
     this.setState({ visits, tableColumns });
   }
 
-  setActionsCol = (row) => {
-    const { patientModel } = this.props;
-    return (
-      <div key={row.original._id}>
-        <EditButton
-          to={`/patients/visit/${patientModel.id}/${row.original._id}`}
-          size="small"
-          can={{ do: 'update', on: 'visit' }}
-        />
-      </div>
-    );
-  }
-
   render() {
     const { patientModel } = this.props;
     const { visits, tableColumns } = this.state;
     return (
-      <div className="column">
-        <div className="column p-t-0 p-b-0">
+      <Grid container>
+        <TabHeader>
           <NewButton
             className="is-pulled-right"
             to={`/patients/visit/${patientModel.id}`}
             can={{ do: 'create', on: 'visit' }}
           >
-New Visit
+            New Visit
           </NewButton>
-          <div className="is-clearfix" />
-        </div>
-        <div className="column">
-          {visits.length > 0
-            && (
-            <div>
-              <ReactTable
-                keyField="_id"
-                data={visits}
-                pageSize={visits.length}
-                columns={tableColumns}
-                className="-striped"
-                defaultSortDirection="asc"
-                showPagination={false}
-              />
-            </div>
-            )
-          }
-          {visits.length === 0
-            && (
-            <div className="notification">
-              <span>
-                No visits found.
-              </span>
-            </div>
-            )
-          }
-        </div>
-      </div>
+        </TabHeader>
+        <Grid container item>
+          <ClientSideTable
+            data={visits}
+            columns={tableColumns}
+            emptyNotification="No visits found."
+          />
+        </Grid>
+      </Grid>
     );
   }
 }
-
-export default Visits;

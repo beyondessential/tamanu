@@ -1,12 +1,27 @@
 import React, { Component } from 'react';
-import Modal from 'react-responsive-modal';
+import PropTypes from 'prop-types';
+import { Grid } from '@material-ui/core';
 import {
-  InputGroup, AddButton, CancelButton,
-  DeleteButton, UpdateButton, DatepickerGroup,
-  Modal as DeleteConfirmModal,
+  TextInput, AddButton, CancelButton,
+  DeleteButton, UpdateButton, DateInput,
+  Dialog as DeleteConfirmDialog, Modal, ModalActions,
 } from '../../../components';
+import { ConditionModel, PatientModel } from '../../../models';
 
-class ConditionModal extends Component {
+export default class ConditionModal extends Component {
+  static propTypes = {
+    conditionModel: PropTypes.instanceOf(ConditionModel).isRequired,
+    patientModel: PropTypes.instanceOf(PatientModel).isRequired,
+    action: PropTypes.string,
+    onClose: PropTypes.func,
+    isVisible: PropTypes.bool.isRequired,
+  }
+
+  static defaultProps = {
+    action: 'new',
+    onClose: () => {},
+  }
+
   constructor(props) {
     super(props);
     const { conditionModel: { attributes } } = this.props;
@@ -15,10 +30,6 @@ class ConditionModal extends Component {
       formIsValid: false,
       deleteModalVisible: false,
     };
-    this.submitForm = this.submitForm.bind(this);
-    this.handleUserInput = this.handleUserInput.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.deleteItem = this.deleteItem.bind(this);
   }
 
   componentWillReceiveProps(newProps) {
@@ -28,10 +39,6 @@ class ConditionModal extends Component {
     // handle conditionModel's change
     newProps.conditionModel.off('change');
     newProps.conditionModel.on('change', this.handleChange);
-  }
-
-  handleDateInput = (date, fieldName) => {
-    this.handleUserInput(date, fieldName);
   }
 
   handleFormInput = (event) => {
@@ -45,13 +52,6 @@ class ConditionModal extends Component {
   handleUserInput = (fieldValue, fieldName) => {
     const { conditionModel } = this.props;
     conditionModel.set({ [fieldName]: fieldValue });
-  }
-
-  handleChange() {
-    const { conditionModel } = this.props;
-    const formIsValid = conditionModel.isValid();
-    const changedAttributes = conditionModel.changedAttributes();
-    this.setState({ ...changedAttributes, formIsValid });
   }
 
   submitForm = async (event) => {
@@ -73,7 +73,7 @@ class ConditionModal extends Component {
     }
   }
 
-  async deleteItem() {
+  deleteItem = async () => {
     const {
       itemId: _id,
       conditionModel,
@@ -91,12 +91,19 @@ class ConditionModal extends Component {
     }
   }
 
-  deleteItemConfirm() {
-    this.setState({ deleteModalVisible: true });
+  deleteModalClose = () => {
+    this.setState({ deleteModalVisible: false });
   }
 
-  deleteModalClose() {
-    this.setState({ deleteModalVisible: false });
+  handleChange = () => {
+    const { conditionModel } = this.props;
+    const formIsValid = conditionModel.isValid();
+    const changedAttributes = conditionModel.changedAttributes();
+    this.setState({ ...changedAttributes, formIsValid });
+  }
+
+  deleteItemConfirm = () => {
+    this.setState({ deleteModalVisible: true });
   }
 
   render() {
@@ -109,34 +116,23 @@ class ConditionModal extends Component {
     const {
       onClose,
       action,
-      conditionModel,
+      isVisible,
     } = this.props;
-    const { attributes: form } = conditionModel;
 
     return (
       <React.Fragment>
         <Modal
-          classNames={{ modal: 'tamanu-modal' }}
-          open={this.props.isVisible}
+          title={`${action === 'new' ? 'Add' : 'Update'} Condition`}
+          isVisible={isVisible}
           onClose={onClose}
-          little
         >
           <form
             name="conditionForm"
-            className="create-container"
             onSubmit={this.submitForm}
           >
-            <div className="condition-modal">
-              <div className="modal-header">
-                <h2>
-                  {action === 'new' ? 'Add' : 'Update'}
-                  {' '}
-Condition
-                </h2>
-              </div>
-              <div className="modal-content">
-                <InputGroup
-                  className="field column m-b-10"
+            <Grid container spacing={16} direction="row">
+              <Grid container item>
+                <TextInput
                   name="condition"
                   label="Condition"
                   value={condition}
@@ -144,63 +140,58 @@ Condition
                   autoFocus
                   required
                 />
-                <DatepickerGroup
-                  className="column is-half"
+              </Grid>
+              <Grid container item>
+                <DateInput
                   label="Date of Diagnosis"
                   name="date"
-                  popperPlacement="bottom-start"
                   value={date}
-                  onChange={this.handleDateInput}
+                  onChange={this.handleFormInput}
                   required
                 />
-                <div className="is-clearfix" />
-              </div>
-              <div className="modal-footer">
-                <div className="column has-text-right">
-                  {action !== 'new'
-                    && (
-                    <React.Fragment>
-                      <DeleteButton
-                        can={{ do: 'delete', on: 'condition' }}
-                        onClick={this.deleteItemConfirm.bind(this)}
-                      />
-                      <UpdateButton
-                        can={{ do: 'update', on: 'condition' }}
-                        type="submit"
-                        disabled={!formIsValid}
-                      />
-                    </React.Fragment>
-                    )
-                  }
-                  {action === 'new'
-                    && (
-                    <React.Fragment>
-                      <CancelButton onClick={onClose} />
-                      <AddButton
-                        can={{ do: 'create', on: 'condition' }}
-                        type="submit"
-                        disabled={!formIsValid}
-                      />
-                    </React.Fragment>
-                    )
-                  }
-                </div>
-              </div>
-            </div>
+              </Grid>
+            </Grid>
+            <ModalActions>
+              {action !== 'new'
+                && (
+                <React.Fragment>
+                  <DeleteButton
+                    can={{ do: 'delete', on: 'condition' }}
+                    onClick={this.deleteItemConfirm}
+                  />
+                  <UpdateButton
+                    can={{ do: 'update', on: 'condition' }}
+                    type="submit"
+                    disabled={!formIsValid}
+                  />
+                </React.Fragment>
+                )
+              }
+              {action === 'new'
+                && (
+                <React.Fragment>
+                  <CancelButton onClick={onClose} />
+                  <AddButton
+                    can={{ do: 'create', on: 'condition' }}
+                    type="submit"
+                    disabled={!formIsValid}
+                  />
+                </React.Fragment>
+                )
+              }
+            </ModalActions>
           </form>
         </Modal>
 
-        <DeleteConfirmModal
-          modalType="confirm"
+        <DeleteConfirmDialog
+          dialogType="confirm"
           headerTitle="Delete Ongoing Condition?"
           contentText="Are you sure you want to delete this ongoing condition?"
           isVisible={deleteModalVisible}
-          onConfirm={this.deleteItem.bind(this)}
-          onClose={this.deleteModalClose.bind(this)}
+          onConfirm={this.deleteItem}
+          onClose={this.deleteModalClose}
         />
       </React.Fragment>
     );
   }
 }
-
-export default ConditionModal;

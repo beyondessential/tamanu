@@ -1,11 +1,19 @@
 import React, { Component } from 'react';
-import ReactTable from 'react-table';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import { capitalize } from 'lodash';
+import { Grid } from '@material-ui/core';
 import { patientAppointmentsColumns, dateFormat } from '../../../constants';
-import { NewButton, EditButton } from '../../../components';
+import {
+  NewButton, EditButton, TabHeader, ClientSideTable,
+} from '../../../components';
+import { PatientModel } from '../../../models';
 
-class Appointments extends Component {
+export default class Appointments extends Component {
+  static propTypes = {
+    patientModel: PropTypes.instanceOf(PatientModel).isRequired,
+  }
+
   state = {
     appointments: [],
     tableColumns: patientAppointmentsColumns,
@@ -18,6 +26,16 @@ class Appointments extends Component {
   componentWillReceiveProps(newProps) {
     this.handleChange(newProps);
   }
+
+  setActionsCol = (row) => (
+    <div key={row.original._id}>
+      <EditButton
+        to={`/appointments/appointment/${row.original._id}`}
+        size="small"
+        can={{ do: 'update', on: 'appointment' }}
+      />
+    </div>
+  )
 
   handleChange(props = this.props) {
     const { patient } = props;
@@ -36,60 +54,27 @@ class Appointments extends Component {
     this.setState({ appointments, tableColumns });
   }
 
-  setActionsCol = (row) => (
-    <div key={row.original._id}>
-      <EditButton
-        to={`/appointments/appointment/${row.original._id}`}
-        size="small"
-        can={{ do: 'update', on: 'appointment' }}
-      />
-    </div>
-  )
-
   render() {
     const { patientModel } = this.props;
     const { appointments, tableColumns } = this.state;
     return (
-      <div>
-        <div className="column p-t-0 p-b-0">
+      <Grid container>
+        <TabHeader>
           <NewButton
-            className="is-pulled-right"
             to={`/appointments/appointmentByPatient/${patientModel.id}`}
             can={{ do: 'create', on: 'appointment' }}
           >
-New Appointment
+            New Appointment
           </NewButton>
-          <div className="is-clearfix" />
-        </div>
-        <div className="column">
-          {appointments.length > 0
-            && (
-            <div>
-              <ReactTable
-                keyField="_id"
-                data={appointments}
-                pageSize={appointments.length}
-                columns={tableColumns}
-                className="-striped"
-                defaultSortDirection="asc"
-                showPagination={false}
-              />
-            </div>
-            )
-          }
-          {appointments.length === 0
-            && (
-            <div className="notification">
-              <span>
-                No appointments found.
-              </span>
-            </div>
-            )
-          }
-        </div>
-      </div>
+        </TabHeader>
+        <Grid container item>
+          <ClientSideTable
+            data={appointments}
+            columns={tableColumns}
+            emptyNotification="No appointments found."
+          />
+        </Grid>
+      </Grid>
     );
   }
 }
-
-export default Appointments;

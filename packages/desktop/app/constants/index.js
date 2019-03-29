@@ -1531,14 +1531,5 @@ export const patientImagingRequestsColumns = [
     headerStyle,
     style: columnStyle,
     minWidth: 100,
-  }, {
-    id: 'actions',
-    Header: 'Actions',
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor,
-    },
-    style: columnStyle,
-    minWidth: 250,
-    Cell: null,
   },
 ];

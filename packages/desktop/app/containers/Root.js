@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import Routes from '../routes';
 import { initClient } from '../utils';
-import Preloader from '../components/Preloader';
+import { Preloader } from '../components';
 import { ThemeProvider } from '../components/ThemeProvider';
 
 export default function Root({ store, history, persistor }) {

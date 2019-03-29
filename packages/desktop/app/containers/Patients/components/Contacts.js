@@ -1,20 +1,23 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactTable from 'react-table';
-import styled from 'styled-components';
+import { Grid, Typography } from '@material-ui/core';
 import ContactModal from './ContactModal';
 import {
-  Modal, EditButton, DeleteButton, NewButton,
+  Dialog as ConfirmDeleteDialog, EditButton, DeleteButton,
+  ButtonGroup, Notification, NewButton,
 } from '../../../components';
 import { patientContactColumns } from '../../../constants';
+import { PatientModel } from '../../../models';
 
-const AddContactButton = styled(NewButton)`
-  float: right
-`;
-
-class Contacts extends Component {
+export default class Contacts extends Component {
   static propTypes = {
-    patientModel: PropTypes.object.isRequired,
+    patientModel: PropTypes.instanceOf(PatientModel).isRequired,
+    style: PropTypes.instanceOf(Object),
+  }
+
+  static defaultProps = {
+    style: {},
   }
 
   state = {
@@ -32,23 +35,24 @@ class Contacts extends Component {
     this.handleChange(newProps);
   }
 
-  handleChange(props = this.props) {
-    const { patientModel } = props;
-    const { tableColumns } = this.state;
-    const { additionalContacts } = patientModel.attributes;
-    tableColumns[tableColumns.length - 1].Cell = this.setActionsColumn;
-    this.setState({ additionalContacts, tableColumns });
-  }
-
   onCloseModal = () => {
     this.setState({ modalVisible: false });
   }
 
-  showModal(itemId) {
-    this.setState({ modalVisible: true, itemId });
-  }
+  setActionsColumn = ({ original: { _id } }) => (
+    <ButtonGroup>
+      <EditButton
+        size="small"
+        onClick={() => this.showModal(_id)}
+      />
+      <DeleteButton
+        size="small"
+        onClick={() => this.setState({ deleteModalVisible: true, itemId: _id })}
+      />
+    </ButtonGroup>
+  )
 
-  async deleteItem() {
+  deleteItem = async () => {
     const { patientModel } = this.props;
     const { itemId } = this.state;
     try {
@@ -62,43 +66,49 @@ class Contacts extends Component {
     }
   }
 
-  setActionsColumn = _row => {
-    const row = _row.original;
-    return (
-      <div key={row._id}>
-        <EditButton
-          onClick={() => this.showModal(row._id)}
-        />
-        <DeleteButton
-          onClick={() => this.setState({ deleteModalVisible: true, itemId: row._id })}
-        />
-      </div>
-    );
+  showModal = (itemId = '') => {
+    this.setState({ modalVisible: true, itemId });
+  }
+
+  handleChange(props = this.props) {
+    const { patientModel } = props;
+    const { tableColumns } = this.state;
+    const { additionalContacts } = patientModel.attributes;
+    tableColumns[tableColumns.length - 1].Cell = this.setActionsColumn;
+    this.setState({ additionalContacts, tableColumns });
   }
 
   render() {
-    const { patientModel } = this.props;
+    const { patientModel, style } = this.props;
     const {
       modalVisible, additionalContacts, tableColumns, itemId,
     } = this.state;
     const contacts = additionalContacts.toJSON();
     return (
-      <div>
-        <div className="columns m-b-0 m-t-10">
-          <div className="column visit-header">
-            <span>Additional Contacts</span>
-            <AddContactButton
-              onClick={() => this.showModal()}
-            >
-Add Contact
-            </AddContactButton>
-          </div>
-        </div>
-        <div className="column">
+      <Grid
+        container
+        item
+        direction="row"
+        spacing={16}
+        style={style}
+      >
+        <Grid container spacing={16} style={{ padding: '0 10px' }}>
+          <Grid item xs>
+            <Typography variant="h6">
+              Additional Contacts
+            </Typography>
+          </Grid>
+          <Grid container item xs justify="flex-end">
+            <NewButton onClick={() => this.showModal()}>
+              Add Contact
+            </NewButton>
+          </Grid>
+        </Grid>
+        <Grid container item xs={12}>
           {additionalContacts.length > 0
-            && (
-            <div>
+            ? (
               <ReactTable
+                style={{ flexGrow: 1 }}
                 keyField="_id"
                 data={contacts}
                 pageSize={contacts.length}
@@ -107,25 +117,16 @@ Add Contact
                 defaultSortDirection="asc"
                 showPagination={false}
               />
-            </div>
             )
+            : <Notification message="No contacts found." />
           }
-          {additionalContacts.length === 0
-            && (
-            <div className="notification">
-              <span>
-                No contacts found.
-              </span>
-            </div>
-            )
-          }
-        </div>
-        <Modal
-          modalType="confirm"
+        </Grid>
+        <ConfirmDeleteDialog
+          dialogType="confirm"
           headerTitle="Confirm"
           contentText="Are you sure you want to delete this item?"
           isVisible={this.state.deleteModalVisible}
-          onConfirm={this.deleteItem.bind(this)}
+          onConfirm={this.deleteItem}
           onClose={() => this.setState({ deleteModalVisible: false })}
         />
         <ContactModal
@@ -135,9 +136,7 @@ Add Contact
           onClose={this.onCloseModal}
           little
         />
-      </div>
+      </Grid>
     );
   }
 }
-
-export default Contacts;

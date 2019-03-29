@@ -4,11 +4,11 @@ import moment from 'moment';
 import { Grid, Typography, Chip } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { getDifferenceDate } from '../../../constants';
-import { Container } from '../../../components';
 
 const styles = ({ spacing }) => ({
   container: {
     position: 'relative',
+    marginBottom: spacing.unit,
   },
   chip: {
     position: 'absolute',
@@ -35,31 +35,29 @@ const RenderRow = ({ label, value }) => (
 
 function TopRow({ classes, patient }) {
   return (
-    <Container>
-      <Grid
-        container
-        spacing={8}
-        direction="row"
-        className={classes.container}
-      >
-        <Chip
-          className={classes.chip}
-          label={patient.displayId}
-        />
-        <RenderRow
-          label="Name"
-          value={patient.displayName}
-        />
-        <RenderRow
-          label="Sex"
-          value={patient.sex}
-        />
-        <RenderRow
-          label="Age"
-          value={getDifferenceDate(moment(), patient.dateOfBirth)}
-        />
-      </Grid>
-    </Container>
+    <Grid
+      container
+      spacing={8}
+      direction="row"
+      className={classes.container}
+    >
+      <Chip
+        className={classes.chip}
+        label={patient.displayId}
+      />
+      <RenderRow
+        label="Name"
+        value={patient.displayName}
+      />
+      <RenderRow
+        label="Sex"
+        value={patient.sex}
+      />
+      <RenderRow
+        label="Age"
+        value={getDifferenceDate(moment(), patient.dateOfBirth)}
+      />
+    </Grid>
   );
 }
 

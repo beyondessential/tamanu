@@ -6,6 +6,7 @@ import {
 import {
   Preloader, BackButton, TopBar, Container,
 } from '../../../components';
+import { MUI_SPACING_UNIT as spacing } from '../../../constants';
 import actions from '../../../actions/patients';
 import Allergy from '../components/Allergy';
 import Condition from '../components/Condition';
@@ -83,20 +84,14 @@ class EditPatient extends Component {
           />
         );
       case 'photos':
-        return (
-          <div className="column">
-            <Photos />
-          </div>
-        );
+        return <Photos />;
       case 'appointment':
         return (
-          <div className="column">
-            <Appointments
-              history={history}
-              patient={patient}
-              patientModel={patientModel}
-            />
-          </div>
+          <Appointments
+            history={history}
+            patient={patient}
+            patientModel={patientModel}
+          />
         );
       case 'visit':
         return (
@@ -108,39 +103,29 @@ class EditPatient extends Component {
         );
       case 'medication':
         return (
-          <div className="column">
-            <Medication
-              history={history}
-              patient={patient}
-              patientModel={patientModel}
-            />
-          </div>
+          <Medication
+            history={history}
+            patient={patient}
+            patientModel={patientModel}
+          />
         );
       case 'imaging':
         return (
-          <div className="column">
-            <Imaging
-              history={history}
-              patientModel={patientModel}
-            />
-          </div>
+          <Imaging
+            history={history}
+            patientModel={patientModel}
+          />
         );
       case 'labs':
         return (
-          <div className="column">
-            <LabRequests
-              history={history}
-              parentModel={patientModel}
-              patientSex={patientModel.get('sex')}
-            />
-          </div>
+          <LabRequests
+            history={history}
+            parentModel={patientModel}
+            patientSex={patientModel.get('sex')}
+          />
         );
       case 'programs':
-        return (
-          <div className="column">
-            <Programs />
-          </div>
-        );
+        return <Programs />;
       case 'pregnancy':
         return (
           <Pregnancy
@@ -165,7 +150,7 @@ class EditPatient extends Component {
     const { selectedTab, patient } = this.state;
 
     return (
-      <Tabs value={selectedTab} style={{ marginBottom: 24 }}>
+      <Tabs value={selectedTab} style={{ marginBottom: spacing }}>
         {
           [
             { value: 'history', label: 'History' },
@@ -198,32 +183,36 @@ class EditPatient extends Component {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
 
-    const { patient, patientModel } = this.state;
+    const { patient, patientModel, selectedTab } = this.state;
     return (
       <React.Fragment>
         <TopBar title="View Patient" />
-        <Paper elevation={0} style={{ minHeight: 'calc(100vh - 70px)' }}>
+        <Container style={{ paddingBottom: 90 }}>
           <TopRow patient={patient} />
-          <Container>
-            <Grid container spacing={8} style={{ paddingBottom: 16 }}>
-              <Grid container item xs spacing={8}>
-                <Condition patientModel={patientModel} />
-                <Procedure patientModel={patientModel} />
-                <OperativePlan patientModel={patientModel} />
-              </Grid>
-              <Grid container item xs>
-                <Allergy patientModel={patientModel} />
-              </Grid>
+          <Grid container spacing={8} style={{ paddingBottom: 16 }}>
+            <Grid container item xs spacing={8}>
+              <Condition patientModel={patientModel} />
+              <Procedure patientModel={patientModel} />
+              <OperativePlan patientModel={patientModel} />
             </Grid>
-            <Grid container spacing={8}>
-              { this.renderTabs() }
-              <Grid container>
-                { this.renderTabContents() }
-              </Grid>
-              <BackButton to="/patients" />
+            <Grid container item xs>
+              <Allergy patientModel={patientModel} />
             </Grid>
-          </Container>
-        </Paper>
+          </Grid>
+          <Grid container spacing={8}>
+            { this.renderTabs() }
+            <Grid container>
+              { this.renderTabContents() }
+            </Grid>
+            {selectedTab !== 'general'
+              && (
+                <Grid item style={{ marginTop: spacing, padding: 0 }}>
+                  <BackButton to="/patients" />
+                </Grid>
+              )
+            }
+          </Grid>
+        </Container>
         <PatientQuickLinks patient={patient} />
       </React.Fragment>
     );

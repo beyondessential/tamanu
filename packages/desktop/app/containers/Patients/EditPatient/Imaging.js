@@ -1,55 +1,61 @@
-import React, { Component } from 'react';
-import ReactTable from 'react-table';
-import { Button } from '../../../components';
-import { patientImagingRequestsColumns } from '../../../constants';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Grid } from '@material-ui/core';
+import {
+  Button, NewButton, TabHeader, ClientSideTable,
+} from '../../../components';
+import {
+  patientImagingRequestsColumns as tableColumns,
+  headerStyle, columnStyle,
+} from '../../../constants';
+import { PatientModel } from '../../../models';
 
-const setActionsColumn = ({ original: { _id } }) => (
-  <div key={_id}>
-    <Button
-      variant="contained"
-      color="primary"
-      to={`/imaging/request/${_id}`}
-    >
-View
-    </Button>
-  </div>
+const getTableColumns = () => ([
+  ...tableColumns,
+  {
+    id: 'actions',
+    Header: 'Actions',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 250,
+    Cell: (row) => <ActionsColumn {...row} />,
+  },
+]);
+
+const ActionsColumn = ({ original: { _id } }) => (
+  <Button
+    key={_id}
+    variant="contained"
+    color="primary"
+    to={`/imaging/request/${_id}`}
+  >
+    View
+  </Button>
 );
 
-const Imaging = ({ patientModel }) => {
+export default function Imaging({ patientModel }) {
   const imagingRequests = patientModel.getImagingRequests();
-  // set action columns
-  patientImagingRequestsColumns[patientImagingRequestsColumns.length - 1].Cell = setActionsColumn;
-
   return (
-    <div className="column">
-      <div className="column">
-        {imagingRequests.length > 0
-          && (
-          <div>
-            <ReactTable
-              keyField="_id"
-              data={imagingRequests}
-              pageSize={imagingRequests.length}
-              columns={patientImagingRequestsColumns}
-              className="-striped"
-              defaultSortDirection="asc"
-              showPagination={false}
-            />
-          </div>
-          )
-        }
-        {imagingRequests.length === 0
-          && (
-          <div className="notification">
-            <span>
-              No requests found.
-            </span>
-          </div>
-          )
-        }
-      </div>
-    </div>
+    <Grid container>
+      <TabHeader>
+        <NewButton
+          to={`/appointments/appointmentByPatient/${patientModel.id}`}
+          can={{ do: 'create', on: 'appointment' }}
+        >
+          New Appointment
+        </NewButton>
+      </TabHeader>
+      <Grid container item>
+        <ClientSideTable
+          data={imagingRequests}
+          columns={getTableColumns()}
+          emptyNotification="No imaging requests found."
+        />
+      </Grid>
+    </Grid>
   );
-};
+}
 
-export default Imaging;
+Imaging.propTypes = {
+  patientModel: PropTypes.instanceOf(PatientModel).isRequired,
+};

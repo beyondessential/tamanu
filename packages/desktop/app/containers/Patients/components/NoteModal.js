@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
-import Modal from 'react-responsive-modal';
 import moment from 'moment';
 import { capitalize } from 'lodash';
 import PropTypes from 'prop-types';
 import {
-  InputGroup, PatientRelationSelect, TextareaGroup,
+  Dialog, DialogTitle, DialogContent, DialogActions, Grid,
+} from '@material-ui/core';
+import {
+  TextInput, PatientRelationSelect,
   AddButton, UpdateButton, CancelButton,
 } from '../../../components';
 import { NoteModel, VisitModel } from '../../../models';
 import { dateFormat } from '../../../constants';
 
-class NoteModal extends Component {
+export default class NoteModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -80,81 +82,81 @@ class NoteModal extends Component {
     const { noteModel } = this.state;
     const form = noteModel.toJSON();
     return (
-      <Modal open={this.state.isVisible} onClose={onClose} little>
-        <form
-          id="noteForm"
-          name="noteForm"
-          className="create-container"
-          onSubmit={this.submitForm}
-        >
-          <div className="tamanu-error-modal diagnosis-modal">
-            <div className="modal-header">
-              <h2>
-                {action === 'new' ? 'Add' : 'Update'}
-                {' '}
-Note
-              </h2>
-            </div>
-            <div className="modal-content">
-              <div className="column">
-                <TextareaGroup
+      <Dialog
+        fullWidth
+        open={this.state.isVisible}
+        onClose={onClose}
+        maxWidth="sm"
+      >
+        <DialogTitle>{`${action === 'new' ? 'Add' : 'Update'} Note`}</DialogTitle>
+        <DialogContent>
+          <form
+            id="noteForm"
+            name="noteForm"
+            className="create-container"
+            onSubmit={this.submitForm}
+          >
+            <Grid container spacing={16} direction="row">
+              <Grid item xs={12}>
+                <TextInput
                   label="Note"
                   name="content"
-                  className="column m-b-0"
-                  inputClass="column is-2 no-padding"
                   onChange={this.handleUserInput}
                   value={form.content}
+                  rows={5}
+                  variant="outlined"
+                  multiline
                   required
                 />
-              </div>
-              {showVisits
-                && (
-                <PatientRelationSelect
-                  patient={patientModel.id}
-                  relation="visits"
-                  template={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
-                  label="Visit"
-                  name="visit"
-                  onChange={val => this.handleUserInput(val, 'visit')}
-                  required
-                />
-                )
-              }
-              <InputGroup
-                label="On Behalf Of"
-                name="attribution"
-                className="column m-b-0"
-                inputClass="column no-padding"
-                onChange={this.handleUserInput}
-                value={form.attribution}
-              />
-            </div>
-            <div className="modal-footer">
-              <div className="column has-text-right">
-                <CancelButton onClick={onClose} />
-                {action === 'new'
-                  ? (
-                    <AddButton
-                      form="noteForm"
-                      type="submit"
-                      disabled={!noteModel.isValid()}
-                      can={{ do: 'create', on: 'note' }}
-                    />
-                  )
-                  : (
-                    <UpdateButton
-                      form="noteForm"
-                      type="submit"
-                      disabled={!noteModel.isValid()}
-                      can={{ do: 'update', on: 'note' }}
-                    />
+              </Grid>
+              <Grid item xs={12}>
+                {showVisits
+                  && (
+                  <PatientRelationSelect
+                    patient={patientModel.id}
+                    relation="visits"
+                    template={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
+                    label="Visit"
+                    name="visit"
+                    onChange={val => this.handleUserInput(val, 'visit')}
+                    required
+                  />
                   )
                 }
-              </div>
-            </div>
-          </div>
-        </form>
-      </Modal>
+              </Grid>
+              <Grid item xs={12}>
+                <TextInput
+                  label="On Behalf Of"
+                  name="attribution"
+                  onChange={this.handleUserInput}
+                  value={form.attribution}
+                />
+              </Grid>
+            </Grid>
+          </form>
+        </DialogContent>
+        <DialogActions>
+          <CancelButton onClick={onClose} />
+          {action === 'new'
+            ? (
+              <AddButton
+                form="noteForm"
+                type="submit"
+                disabled={!noteModel.isValid()}
+                can={{ do: 'create', on: 'note' }}
+              />
+            )
+            : (
+              <UpdateButton
+                form="noteForm"
+                type="submit"
+                disabled={!noteModel.isValid()}
+                can={{ do: 'update', on: 'note' }}
+              />
+            )
+          }
+        </DialogActions>
+      </Dialog>
     );
   }
 }
@@ -173,5 +175,3 @@ NoteModal.defaultProps = {
   parentModel: new VisitModel(),
   showVisits: false,
 };
-
-export default NoteModal;

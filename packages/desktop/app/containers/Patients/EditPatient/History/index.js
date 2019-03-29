@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { Grid } from '@material-ui/core';
 import NoteModal from '../../components/NoteModal';
-import { NewButton } from '../../../../components';
+import { NewButton, TabHeader } from '../../../../components';
 import HistoryItem from './HistoryItem';
 
-class HistoryTab extends Component {
+export default class HistoryTab extends Component {
   state = {
     noteModalVisible: false,
     patientsHistory: [],
@@ -18,13 +18,13 @@ class HistoryTab extends Component {
     this.handleChange(newProps);
   }
 
+  onCloseModal = () => {
+    this.setState({ noteModalVisible: false });
+  }
+
   handleChange(props = this.props) {
     const { patientModel } = props;
     this.setState({ patientsHistory: patientModel.getHistory() });
-  }
-
-  onCloseModal = () => {
-    this.setState({ noteModalVisible: false });
   }
 
   render() {
@@ -32,17 +32,14 @@ class HistoryTab extends Component {
     const { noteModalVisible, patientsHistory } = this.state;
     return (
       <Fragment>
-        <Grid container justify="flex-end" style={{ marginBottom: 10 }}>
-          <Grid item>
-            <NewButton
-              onClick={() => this.setState({ noteModalVisible: true })}
-              can={{ do: 'create', on: 'note' }}
-            >
-Add Note
-              {' '}
-            </NewButton>
-          </Grid>
-        </Grid>
+        <TabHeader>
+          <NewButton
+            onClick={() => this.setState({ noteModalVisible: true })}
+            can={{ do: 'create', on: 'note' }}
+          >
+            Add Note
+          </NewButton>
+        </TabHeader>
         <Grid container item>
           {patientsHistory.map(({ objectType, object }) => (
             <HistoryItem
@@ -67,5 +64,3 @@ Add Note
     );
   }
 }
-
-export default HistoryTab;

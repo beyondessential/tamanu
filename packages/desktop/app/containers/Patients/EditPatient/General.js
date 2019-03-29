@@ -5,23 +5,14 @@ import { Grid } from '@material-ui/core';
 import Contacts from '../components/Contacts';
 import { PatientModel } from '../../../models';
 import {
-  TextField, DateField, RadioField, UpdateButton, BackButton, SelectField,
+  TextInput, DateInput, RadioInput, UpdateButton, BackButton,
+  FormRow, SelectInput,
 } from '../../../components';
-import { bloodOptions, sexOptions, getDifferenceDate } from '../../../constants';
+import {
+  bloodOptions, sexOptions, getDifferenceDate, MUI_SPACING_UNIT as spacing,
+} from '../../../constants';
 
-function FormRow({ children }) {
-  return (
-    <Grid container item spacing={32}>
-      {children.map((child, key) => (
-        <Grid item xs key={key}>
-          {child}
-        </Grid>
-      ))}
-    </Grid>
-  );
-}
-
-class General extends Component {
+export default class General extends Component {
   constructor(props) {
     super(props);
     this.submitForm = this.submitForm.bind(this);
@@ -66,19 +57,6 @@ class General extends Component {
     this.props.savePatient({ Model: patientModel });
   }
 
-  // updatePatient = async (patient) => {
-  //   const { history, model: patientModel } = this.props;
-  //   const updatedPatient = patient;
-  //   updatedPatient.birthday = moment(this.props.updatedBirthday).format('YYYY-MM-DD');
-  //   updatedPatient.referredDate = moment(this.props.updatedReferredDate).format('YYYY-MM-DD');
-  //   console.log({ updatedPatient });
-  //   patientModel.set(updatedPatient);
-  //   if (patientModel.isValid()) {
-  //     await patientModel.save();
-  //     history.push('/patients');
-  //   }
-  // }
-
   render() {
     const {
       patientModel,
@@ -90,14 +68,14 @@ class General extends Component {
       <Grid container spacing={24} direction="row">
         <form id="generalForm" onSubmit={this.submitForm} />
         <FormRow>
-          <TextField
+          <TextInput
             name="firstName"
             label="First Name"
             value={form.firstName}
             onChange={this.handleUserInput}
             required
           />
-          <TextField
+          <TextInput
             name="status"
             label="Patient Status"
             value={form.status}
@@ -105,13 +83,13 @@ class General extends Component {
           />
         </FormRow>
         <FormRow>
-          <TextField
+          <TextInput
             name="middleName"
             label="Middle Name"
             value={form.middleName}
             onChange={this.handleUserInput}
           />
-          <TextField
+          <TextInput
             name="externalPatientId"
             label="External Patient Id"
             value={form.externalPatientId}
@@ -119,14 +97,14 @@ class General extends Component {
           />
         </FormRow>
         <FormRow>
-          <TextField
+          <TextInput
             name="lastName"
             label="Last Name"
             value={form.lastName}
             onChange={this.handleUserInput}
             required
           />
-          <SelectField
+          <SelectInput
             label="Blood Type"
             options={bloodOptions}
             name="bloodType"
@@ -135,13 +113,13 @@ class General extends Component {
           />
         </FormRow>
         <FormRow>
-          <TextField
+          <TextInput
             name="culturalName"
             label="Cultural or Traditional Name"
             value={form.culturalName}
             onChange={this.handleUserInput}
           />
-          <TextField
+          <TextInput
             name="clinic"
             label="Clinic Site"
             value={form.clinic}
@@ -149,14 +127,14 @@ class General extends Component {
           />
         </FormRow>
         <FormRow>
-          <SelectField
+          <SelectInput
             label="Sex"
             options={sexOptions}
             name="sex"
             value={form.sex}
             onChange={this.handleUserInput}
           />
-          <TextField
+          <TextInput
             name="referredBy"
             label="Referred By"
             value={form.referredBy}
@@ -164,14 +142,14 @@ class General extends Component {
           />
         </FormRow>
         <FormRow>
-          <DateField
+          <DateInput
             label="Date Of Birth"
             name="dateOfBirth"
             onChange={this.handleUserInput}
             value={form.dateOfBirth}
             helperText={age && `${age} of age`}
           />
-          <DateField
+          <DateInput
             label="Referred Date"
             name="referredDate"
             onChange={this.handleUserInput}
@@ -179,13 +157,13 @@ class General extends Component {
           />
         </FormRow>
         <FormRow>
-          <TextField
+          <TextInput
             name="religion"
             label="Religion"
             value={form.religion}
             onChange={this.handleUserInput}
           />
-          <TextField
+          <TextInput
             name="placeOfBirth"
             label="Place of Birth"
             value={form.placeOfBirth}
@@ -193,13 +171,13 @@ class General extends Component {
           />
         </FormRow>
         <FormRow>
-          <TextField
+          <TextInput
             name="parent"
             label="Parent/Guardian"
             value={form.parent}
             onChange={this.handleUserInput}
           />
-          <TextField
+          <TextInput
             name="occupation"
             label="Occupation"
             value={form.occupation}
@@ -207,13 +185,13 @@ class General extends Component {
           />
         </FormRow>
         <FormRow>
-          <TextField
+          <TextInput
             name="paymentProfile"
             label="Payment Profile"
             value={form.paymentProfile}
             onChange={this.handleUserInput}
           />
-          <RadioField
+          <RadioInput
             name="patientType"
             label="Patient Type"
             value={form.patientType}
@@ -223,13 +201,13 @@ class General extends Component {
           />
         </FormRow>
         <FormRow>
-          <TextField
+          <TextInput
             name="phone"
             label="Phone"
             value={form.phone}
             onChange={this.handleUserInput}
           />
-          <TextField
+          <TextInput
             name="address"
             label="Address"
             value={form.address}
@@ -237,29 +215,34 @@ class General extends Component {
           />
         </FormRow>
         <FormRow>
-          <TextField
+          <TextInput
             name="email"
             label="Email"
             value={form.email}
             onChange={this.handleUserInput}
           />
-          <TextField
+          <TextInput
             name="country"
             label="Country"
             value={form.country}
             onChange={this.handleUserInput}
           />
         </FormRow>
-        <Contacts patientModel={patientModel} />
-        <FormRow>
-          <BackButton to="/patients" />
-          <UpdateButton
-            form="generalForm"
-            type="submit"
-            disabled={!patientModel.isValid()}
-            can={{ do: 'update', on: 'patient' }}
-          />
-        </FormRow>
+        <Contacts
+          patientModel={patientModel}
+          style={{ marginTop: spacing * 2, marginBottom: spacing * 2 }}
+        />
+        <Grid container item justify="flex-end">
+          <Grid item>
+            <BackButton to="/patients" />
+            <UpdateButton
+              form="generalForm"
+              type="submit"
+              disabled={!patientModel.isValid()}
+              can={{ do: 'update', on: 'patient' }}
+            />
+          </Grid>
+        </Grid>
       </Grid>
     );
   }
@@ -269,5 +252,3 @@ General.propTypes = {
   savePatient: PropTypes.func.isRequired,
   patientModel: PropTypes.instanceOf(PatientModel).isRequired,
 };
-
-export default General;

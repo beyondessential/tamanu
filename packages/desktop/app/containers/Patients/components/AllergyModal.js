@@ -1,24 +1,33 @@
 import React, { Component } from 'react';
-import Modal from 'react-responsive-modal';
+import PropTypes from 'prop-types';
 import { pick } from 'lodash';
 import {
-  InputGroup, AddButton, DeleteButton, UpdateButton,
+  TextInput, AddButton, DeleteButton, UpdateButton,
+  Modal, ModalActions, Dialog as DeleteConfirmDialog, ButtonGroup,
 } from '../../../components';
-import { AllergyModel } from '../../../models';
+import { AllergyModel, PatientModel } from '../../../models';
 
-class AllergyModal extends Component {
+export default class AllergyModal extends Component {
+  static propTypes = {
+    patientModel: PropTypes.instanceOf(PatientModel).isRequired,
+    action: PropTypes.string,
+    onClose: PropTypes.func,
+    isVisible: PropTypes.bool.isRequired,
+  }
+
+  static defaultProps = {
+    action: 'new',
+    onClose: () => {},
+  }
+
   constructor(props) {
     super(props);
     this.state = {
       formValid: false,
       form: {},
       item: {},
+      deleteModalVisible: false,
     };
-
-    this.submitForm = this.submitForm.bind(this);
-    this.handleUserInput = this.handleUserInput.bind(this);
-    this.deleteItem = this.deleteItem.bind(this);
-    this.resetForm = this.resetForm.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -34,23 +43,12 @@ class AllergyModal extends Component {
     }
   }
 
-  resetForm() {
-    const form = { name: '' };
-    this.setState({ form });
-  }
-
   handleUserInput = (e) => {
     const { form } = this.state;
     const { name } = e.target;
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     form[name] = value;
     this.setState({ form }, () => { this.validateField(name); });
-  }
-
-  validateField(name) {
-    let valid = true;
-    if (this.state.form[name] === '') valid = false;
-    this.setState({ formValid: valid });
   }
 
   submitForm = async (e) => {
@@ -75,79 +73,97 @@ class AllergyModal extends Component {
     }
   }
 
-  async deleteItem() {
+  deleteItem = async () => {
     const { itemId: _id, patientModel } = this.props;
     const { item } = this.state;
     try {
       patientModel.get('allergies').remove({ _id });
       await patientModel.save();
       await item.destroy();
+      this.deleteModalClose();
       this.props.onClose();
     } catch (err) {
       console.error('Error: ', err);
     }
   }
 
+  resetForm = () => {
+    const form = { name: '' };
+    this.setState({ form });
+  }
+
+  deleteModalClose = () => {
+    this.setState({ deleteModalVisible: false });
+  }
+
+  deleteItemConfirm = () => {
+    this.setState({ deleteModalVisible: true });
+  }
+
+  validateField(name) {
+    let valid = true;
+    if (this.state.form[name] === '') valid = false;
+    this.setState({ formValid: valid });
+  }
+
   render() {
     const { onClose, action, isVisible } = this.props;
-    const { form } = this.state;
+    const { form, deleteModalVisible } = this.state;
     return (
-      <Modal open={isVisible} onClose={onClose} little>
-        <form
-          name="allergyForm"
-          className="create-container"
-          onSubmit={this.submitForm}
+      <React.Fragment>
+        <Modal
+          title={`${action === 'new' ? 'Add' : 'Update'} Allergy`}
+          isVisible={isVisible}
+          onClose={onClose}
         >
-          <div className="tamanu-error-modal">
-            <div className="modal-header">
-              <h2>
-                {action === 'new' ? 'Add' : 'Update'}
-                {' '}
-Allergy
-              </h2>
-            </div>
-            <div className="modal-content">
-              <InputGroup
-                name="name"
-                label="Name"
-                value={form.name}
-                onChange={this.handleUserInput}
-                autoFocus
-                required
-              />
-            </div>
-            <div className="modal-footer">
-              <div className="column has-text-right">
-                {action !== 'new'
-                  && (
+          <form
+            name="allergyForm"
+            className="create-container"
+            onSubmit={this.submitForm}
+          >
+            <TextInput
+              name="name"
+              label="Name"
+              value={form.name}
+              onChange={this.handleUserInput}
+              autoFocus
+              required
+            />
+            <ModalActions>
+              {action !== 'new'
+                && (
+                <React.Fragment>
                   <DeleteButton
                     can={{ do: 'delete', on: 'allergy' }}
-                    onClick={this.deleteItem}
+                    onClick={this.deleteItemConfirm}
                   />
-                  )}
-                {action !== 'new'
-                  && (
                   <UpdateButton
                     can={{ do: 'update', on: 'allergy' }}
                     type="submit"
                     disabled={!this.state.formValid}
                   />
-                  )}
-                {action === 'new'
-                  && (
-                  <AddButton
-                    can={{ do: 'create', on: 'allergy' }}
-                    type="submit"
-                    disabled={!this.state.formValid}
-                  />
-                  )}
-              </div>
-            </div>
-          </div>
-        </form>
-      </Modal>
+                </React.Fragment>
+                )}
+              {action === 'new'
+                && (
+                <AddButton
+                  can={{ do: 'create', on: 'allergy' }}
+                  type="submit"
+                  disabled={!this.state.formValid}
+                />
+                )}
+            </ModalActions>
+          </form>
+        </Modal>
+        <DeleteConfirmDialog
+          dialogType="confirm"
+          headerTitle="Delete Allergy?"
+          contentText="Are you sure you want to delete this allergy?"
+          isVisible={deleteModalVisible}
+          onConfirm={this.deleteItem}
+          onClose={this.deleteModalClose}
+        />
+      </React.Fragment>
     );
   }
 }
-
-export default AllergyModal;
