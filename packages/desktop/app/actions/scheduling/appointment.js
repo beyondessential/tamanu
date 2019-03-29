@@ -1,6 +1,7 @@
 import { to } from 'await-to-js';
 import { toast } from 'react-toastify';
 import { has, isEmpty } from 'lodash';
+import moment from 'moment';
 import {
   FETCH_APPOINTMENT_REQUEST,
   FETCH_APPOINTMENT_SUCCESS,
@@ -30,6 +31,11 @@ export const fetchAppointment = ({ id, patientId }) => async dispatch => {
     const { parents } = appointmentModel;
     if (has(parents, 'patients') && !isEmpty(parents.patients)) {
       appointmentModel.set('patient', parents.patients[0].id);
+    }
+    // parse dates
+    if (!appointmentModel.get('allDay')) {
+      appointmentModel.set('startTime', moment(appointmentModel.get('startDate')).format('HH:mm'));
+      appointmentModel.set('endTime', moment(appointmentModel.get('endDate')).format('HH:mm'));
     }
   }
   if (patientId) {
@@ -66,12 +72,12 @@ export const saveAppointment = ({
         history.push(`/appointments/${surgery ? 'surgery' : 'appointment'}/${model.id}`);
       }
     } catch (error) {
-      console.log({ error });
+      console.error({ error });
       dispatch({ type: SAVE_APPOINTMENT_FAILED, error });
     }
   } else {
     const error = model.validationError;
-    console.log({ error });
+    console.error({ error });
     dispatch({ type: SAVE_APPOINTMENT_FAILED, error });
   }
 };
@@ -85,7 +91,7 @@ export const deleteAppointment = ({ _id }) => async dispatch => {
     dispatch({ type: DELETE_APPOINTMENT_SUCCESS });
     toast('Appointment deleted successfully.', { type: 'success' });
   } catch (error) {
-    console.log({ error });
+    console.error({ error });
     dispatch({ type: DELETE_APPOINTMENT_FAILED, error });
   }
 };

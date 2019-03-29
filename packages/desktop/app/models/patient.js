@@ -1,10 +1,9 @@
 import Backbone from 'backbone-associations';
 import {
-  defaults, each, clone, get, filter, capitalize, concat,
+  each, clone, get, filter, capitalize, concat,
 } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
-import { concatSelf } from '../utils';
 import { pregnancyOutcomes, dateFormat, LAB_REQUEST_STATUSES } from '../constants';
 import LabRequestsCollection from '../collections/labRequests';
 
@@ -124,8 +123,10 @@ export default BaseModel.extend({
   },
 
   toJSON() {
-    const { attributes } = this;
-    return { ...attributes, displayName: this.getDisplayName() };
+    return {
+      ...BaseModel.prototype.toJSON.call(this),
+      displayName: this.getDisplayName(),
+    };
   },
 
   getDisplayName() {
@@ -239,7 +240,7 @@ export default BaseModel.extend({
     while (from.isSameOrBefore(to)) {
       const date = from.clone();
       medication.push({
-        date: date.format(dateFormat),
+        date: date.format(),
         medication: allMedication.filter(({ attributes }) => (date.isSameOrAfter(attributes.prescriptionDate)
           && (date.isSameOrBefore(attributes.endDate) || attributes.endDate === null))),
       });
