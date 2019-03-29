@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { ToastContainer, Slide } from 'react-toastify';
 import styled from 'styled-components';
+import 'typeface-roboto';
 
 import Sidebar from '../components/Sidebar';
 import actions from '../actions/auth';
