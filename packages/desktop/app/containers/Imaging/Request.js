@@ -11,31 +11,14 @@ import styled from 'styled-components';
 import { request as imagingRequestActions } from '../../actions/imaging';
 import TopRow from '../Patients/components/TopRow';
 import {
-  TopBar,
-  PatientAutocomplete,
-  PatientRelationSelect,
-  InputGroup,
-  TextareaGroup,
-  AddButton,
-  UpdateButton,
-  BackButton,
-  DiagnosisAutocomplete,
-  SelectGroup,
-  Button,
-  Preloader,
+  TopBar, PatientAutocomplete, PatientRelationSelect, TextInput,
+  AddButton, UpdateButton, BackButton, DiagnosisAutocomplete, SelectInput,
+  Button, Preloader, Container, FormRow, ButtonGroup,
 } from '../../components';
-import { dateFormat, IMAGING_REQUEST_STATUSES } from '../../constants';
+import { dateFormat, IMAGING_REQUEST_STATUSES, MUI_SPACING_UNIT as spacing } from '../../constants';
 import { ImagingRequestModel } from '../../models';
 
 const { dialog, shell } = electron;
-const ButtonsContainer = styled.div`
-  padding: 8px 8px 32px 8px;
-  text-align: right;
-  > button {
-    margin-right: 8px
-  }
-`;
-
 const ViewImageButton = styled(Button)`
   float: left;
 `;
@@ -92,7 +75,7 @@ class Request extends Component {
     this.setState({ ...formData, isFormValid });
   }
 
-  handlePatientChange = (selectedPatientId) => {
+  handlePatientChange = ({ _id: selectedPatientId }) => {
     this.setState({ selectedPatientId });
   }
 
@@ -111,11 +94,6 @@ class Request extends Component {
   handleFormInput = (event) => {
     const { target: { name, value } } = event;
     this.handleFormChange({ [name]: value });
-  }
-
-  handleFormChange(change) {
-    const { imagingRequestModel } = this.props;
-    imagingRequestModel.set(change);
   }
 
   submitForm = (event) => {
@@ -145,6 +123,11 @@ class Request extends Component {
     }
   }
 
+  handleFormChange(change) {
+    const { imagingRequestModel } = this.props;
+    imagingRequestModel.set(change);
+  }
+
   render() {
     const { isLoading } = this.state;
     if (isLoading) return <Preloader />;
@@ -158,34 +141,26 @@ class Request extends Component {
     } = this.state;
 
     return (
-      <div className="create-content">
+      <React.Fragment>
         <TopBar title={`${capitalize(action)} Imaging Request`} />
         <form
           className="create-container"
           onSubmit={this.submitForm}
         >
-          <div className="form with-padding">
-            <Grid container spacing={8}>
-              {isPatientSelected
-                ? (
-                  <Grid item container xs={12}>
-                    <TopRow patient={patient} />
-                  </Grid>
-                )
-                : (
-                  <Grid item xs={6}>
-                    <PatientAutocomplete
-                      label="Patient"
-                      name="patient"
-                      onChange={this.handlePatientChange}
-                      required
-                    />
-                  </Grid>
-                )
-              }
+          <Container>
+            {isPatientSelected
+              && <TopRow patient={patient} />
+            }
+            <Grid container spacing={spacing * 2} direction="column">
               {action === 'new'
                 && (
-                <Grid item xs={6}>
+                <FormRow>
+                  <PatientAutocomplete
+                    label="Patient"
+                    name="patient"
+                    onChange={this.handlePatientChange}
+                    required
+                  />
                   <PatientRelationSelect
                     className=""
                     relation="visits"
@@ -196,34 +171,30 @@ class Request extends Component {
                     value={visit}
                     onChange={this.handleVisitChange}
                   />
-                </Grid>
+                </FormRow>
                 )
               }
-            </Grid>
-            {action !== 'new'
-              && (
-              <Grid container>
-                <Grid item xs={6}>
+              {action !== 'new'
+                && (
+                <FormRow>
                   <DiagnosisAutocomplete
                     label="Diagnosis"
                     name="diagnosis"
                     onChange={this.handleDiagnosisChange}
                     value={diagnosis}
                   />
-                </Grid>
-                <InputGroup
-                  label="Detail"
-                  name="detail"
-                  onChange={this.handleFormInput}
-                  value={detail}
-                  required
-                />
-              </Grid>
-              )
-            }
-            <Grid container>
-              <Grid item xs={6}>
-                <SelectGroup
+                  <TextInput
+                    label="Detail"
+                    name="detail"
+                    onChange={this.handleFormInput}
+                    value={detail}
+                    required
+                  />
+                </FormRow>
+                )
+              }
+              <FormRow>
+                <SelectInput
                   label="Type"
                   name="type"
                   options={imagingTypes}
@@ -231,68 +202,70 @@ class Request extends Component {
                   onChange={this.handleTypeChange}
                   value={type}
                 />
-              </Grid>
-              <Grid item xs={6}>
-                <InputGroup
+                <TextInput
                   label="Location"
                   name="location"
                   onChange={this.handleFormInput}
                   value={location}
                 />
-              </Grid>
-            </Grid>
-            <Grid container>
-              <TextareaGroup
-                label="Notes"
-                name="notes"
-                onChange={this.handleFormInput}
-                value={notes}
-              />
-            </Grid>
-            <ButtonsContainer>
-              {status === IMAGING_REQUEST_STATUSES.COMPLETED
-                && (
-                <ViewImageButton
-                  color="secondary"
-                  variant="contained"
-                  onClick={this.viewImage}
-                >
-                  View Image
-                </ViewImageButton>
-                )
-              }
-              <BackButton />
-              {action === 'new'
-                ? (
-                  <AddButton
-                    type="submit"
-                    disabled={!isFormValid}
-                    can={{ do: 'create', on: 'imaging' }}
-                  />
-                )
-                : (
-                  <React.Fragment>
-                    <Button
+              </FormRow>
+              <FormRow>
+                <TextInput
+                  label="Notes"
+                  name="notes"
+                  onChange={this.handleFormInput}
+                  value={notes}
+                  rows="2"
+                  multiline
+                />
+              </FormRow>
+              <Grid container item justify="flex-end">
+                <ButtonGroup>
+                  {status === IMAGING_REQUEST_STATUSES.COMPLETED
+                    && (
+                    <ViewImageButton
                       color="secondary"
                       variant="contained"
-                      can={{ do: 'update', on: 'imaging', field: 'status' }}
-                      onClick={this.markAsCompleted}
-                      disabled={status === IMAGING_REQUEST_STATUSES.COMPLETED || !isFormValid}
+                      onClick={this.viewImage}
                     >
-                      {status !== IMAGING_REQUEST_STATUSES.COMPLETED ? 'Mark as Completed' : 'Completed'}
-                    </Button>
-                    <UpdateButton
-                      type="submit"
-                      disabled={!isFormValid || status === IMAGING_REQUEST_STATUSES.COMPLETED}
-                      can={{ do: 'update', on: 'imaging' }}
-                    />
-                  </React.Fragment>
-                )
-              }
-            </ButtonsContainer>
-          </div>
+                      View Image
+                    </ViewImageButton>
+                    )
+                  }
+                  <BackButton />
+                  {action === 'new'
+                    ? (
+                      <AddButton
+                        type="submit"
+                        disabled={!isFormValid}
+                        can={{ do: 'create', on: 'imaging' }}
+                      />
+                    )
+                    : (
+                      <React.Fragment>
+                        <Button
+                          color="secondary"
+                          variant="contained"
+                          can={{ do: 'update', on: 'imaging', field: 'status' }}
+                          onClick={this.markAsCompleted}
+                          disabled={status === IMAGING_REQUEST_STATUSES.COMPLETED || !isFormValid}
+                        >
+                          {status !== IMAGING_REQUEST_STATUSES.COMPLETED ? 'Mark as Completed' : 'Completed'}
+                        </Button>
+                        <UpdateButton
+                          type="submit"
+                          disabled={!isFormValid || status === IMAGING_REQUEST_STATUSES.COMPLETED}
+                          can={{ do: 'update', on: 'imaging' }}
+                        />
+                      </React.Fragment>
+                    )
+                  }
+                </ButtonGroup>
+              </Grid>
+            </Grid>
+          </Container>
         </form>
-      </div>
+      </React.Fragment>
     );
   }
 }
@@ -301,9 +274,9 @@ Request.propTypes = {
   initImagingRequest: PropTypes.func.isRequired,
   saveImagingRequest: PropTypes.func.isRequired,
   markImagingRequestCompleted: PropTypes.func.isRequired,
-  patient: PropTypes.object,
+  patient: PropTypes.instanceOf(Object),
   imagingTypes: PropTypes.arrayOf(PropTypes.object),
-  imagingRequestModel: PropTypes.object.isRequired,
+  imagingRequestModel: PropTypes.instanceOf(ImagingRequestModel).isRequired,
   isLoading: PropTypes.bool,
   error: PropTypes.object,
 };
@@ -332,7 +305,9 @@ function mapStateToProps({
   };
 }
 
-const { initImagingRequest, saveImagingRequest, markImagingRequestCompleted } = imagingRequestActions;
+const {
+  initImagingRequest, saveImagingRequest, markImagingRequestCompleted,
+} = imagingRequestActions;
 const mapDispatchToProps = (
   dispatch,
   { match: { params: { patientId, id } = {} } },
