@@ -1042,15 +1042,6 @@ export const medicationColumns = [
     headerStyle,
     style: columnStyle,
     minWidth: 100,
-  }, {
-    accessor: row => ({ _id: row._id, admitted: row.admitted }),
-    id: 'actions',
-    Header: 'Actions',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 200,
-    Cell: null,
-    filterable: false,
   },
 ];
 

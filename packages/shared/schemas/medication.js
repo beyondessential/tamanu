@@ -6,10 +6,7 @@ export const MedicationSchema = {
   primaryKey: '_id',
   properties: {
     _id: 'string',
-    patient: {
-      type: 'string',
-      optional: true,
-    }, // Rel
+    patient: 'patient', // Rel
     visit: {
       type: 'string',
       optional: true,

@@ -9,6 +9,7 @@ const initialState = {
   saveRequestSuccess: false,
   deleteRequestSuccess: false,
   loading: false,
+  medicationModel: {},
 };
 
 export default (state = initialState, action) => {
