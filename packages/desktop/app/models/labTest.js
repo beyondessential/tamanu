@@ -1,8 +1,9 @@
 import Backbone from 'backbone-associations';
 import shortid from 'shortid';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('LabTest', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/labTest`,
   defaults: () => ({
     _id: shortid.generate(),
@@ -16,8 +17,8 @@ export default BaseModel.extend({
     {
       type: Backbone.One,
       key: 'type',
-      relatedModel: () => require('./labTestType'),
+      relatedModel: 'LabTestType',
     },
     ...BaseModel.prototype.relations,
   ],
-});
+}));

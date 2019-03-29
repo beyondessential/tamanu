@@ -7,6 +7,9 @@
   "author": "Salman Amjad",
   "license": "MIT",
   "scripts": {
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "npm test -- --watch",
     "lint": "eslint schemas utils constants services",
     "lint-stats": "eslint schemas utils constants services --format ../scripts/eslint-stats.js"
   },
@@ -15,11 +18,13 @@
     "@babel/preset-env": "^7.3.4"
   },
   "dependencies": {
-    "@beyondessential/eslint-config-beyondessential": "^2.2",
+    "@beyondessential/eslint-config-beyondessential": "2.3.0",
     "@casl/ability": "^3.0.0",
     "await-to-js": "^2.0.1",
+    "babel-jest": "^24.5.0",
     "bcrypt": "^3.0.1",
     "eslint": "^5.15.2",
+    "jest": "^24.5.0",
     "json-prune": "^1.1.0",
     "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.11",

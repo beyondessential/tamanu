@@ -1,8 +1,9 @@
 import { defaults } from 'lodash';
 import Backbone from 'backbone-associations';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('SurveyScreenComponent', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/surveyScreenComponent`,
   defaults: () => defaults({
     question: '',
@@ -16,8 +17,8 @@ export default BaseModel.extend({
     {
       type: Backbone.One,
       key: 'question',
-      relatedModel: require('./question'),
+      relatedModel: 'Question',
     },
     ...BaseModel.prototype.relations,
   ],
-});
+}));

@@ -25,7 +25,6 @@ benchmarks/graphs
 
 # Build targets
 release
-config
 dev
 deploy
 build

@@ -1,5 +1,5 @@
 import defaults from './defaults';
-const { LAB_REQUEST_STATUSES } = require('../constants');
+import { LAB_REQUEST_STATUSES } from '../constants';
 
 export const LabRequest = {
   name: 'labRequest',

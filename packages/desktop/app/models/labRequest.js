@@ -5,9 +5,9 @@ import BaseModel from './base';
 import { LAB_REQUEST_STATUSES } from '../../../shared/constants';
 
 import VisitModel from './visit';
-import PatientModel from './patient';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('LabRequest', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/labRequest`,
   defaults: () => ({
     date: moment(),
@@ -25,11 +25,11 @@ export default BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'tests',
-      relatedModel: () => require('./labTest'),
+      relatedModel: 'LabTest',
     }, {
       type: Backbone.One,
       key: 'category',
-      relatedModel: () => require('./labTestCategory'),
+      relatedModel: 'LabTestCategory',
     },
     ...BaseModel.prototype.relations,
   ],
@@ -43,4 +43,4 @@ export default BaseModel.extend({
     const visit = this.attributes.visits[0];
     return visit && new VisitModel(visit);
   },
-});
+}));

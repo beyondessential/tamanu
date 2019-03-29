@@ -11,9 +11,10 @@ import {
   objectToJSON, parseObjectForSync, incoming, findSchema,
 } from '../utils';
 import AuthService from './auth';
-const {
+
+import {
   HTTP_METHOD_TO_ACTION, ENVIRONMENT_TYPE, SYNC_ACTIONS,
-} = require('../constants');
+} from '../constants';
 
 export default class Sync {
   constructor(database, faye, queueManager) {

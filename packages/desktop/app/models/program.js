@@ -1,8 +1,10 @@
 import { defaults } from 'lodash';
 import Backbone from 'backbone-associations';
 import BaseModel from './base';
+import { register } from './register';
+import SurveyCollection from '../collections/surveys';
 
-export default BaseModel.extend({
+export default register('Program', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/program`,
   defaults: () => defaults({
     name: null,
@@ -16,8 +18,8 @@ export default BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'surveys',
-      relatedModel: () => require('./survey'),
-      collectionType: require('../collections/surveys'),
+      relatedModel: 'Survey',
+      collectionType: SurveyCollection,
     },
     ...BaseModel.prototype.relations,
   ],
@@ -26,4 +28,4 @@ export default BaseModel.extend({
     const { surveys } = this.attributes;
     return surveys.models.find(model => model.id === surveyId);
   },
-});
+}));

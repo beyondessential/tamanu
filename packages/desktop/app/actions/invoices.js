@@ -1,3 +1,4 @@
+import shortid from 'shortid';
 import {
   CREATE_INVOICE_REQUEST,
   CREATE_INVOICE_SUCCESS,
@@ -6,7 +7,6 @@ import {
   FETCH_INVOICES_SUCCESS,
   FETCH_INVOICES_FAILED,
 } from './types';
-import { idGenerator } from '../constants';
 
 export function createInvoiceRequest() {
   return {
@@ -50,7 +50,7 @@ export const createInvoice = invoice => dispatch => {
   dispatch(createInvoiceRequest());
   const existingInvoices = JSON.parse(localStorage.getItem('invoices')) || [];
   const invoiceInfo = invoice;
-  invoiceInfo.id = idGenerator();
+  invoiceInfo.id = shortid.generate();
   existingInvoices.push(invoiceInfo);
   localStorage.setItem('invoices', JSON.stringify(existingInvoices));
 };

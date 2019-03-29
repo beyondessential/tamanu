@@ -7,7 +7,9 @@
   "author": "Salman Amjad",
   "license": "MIT",
   "scripts": {
-    "lint-all": "eslint packages/desktop/app packages/server/app packages/lan/app packages/shared/schemas packages/shared/services packages/shared/constants packages/shared/utils"
+    "test": "yarn workspaces run test",
+    "lint-all": "eslint packages/desktop/app packages/server/app packages/lan/app packages/shared/schemas packages/shared/services packages/shared/constants packages/shared/utils",
+    "upgrade-lint-rules": "yarn workspaces run upgrade @beyondessential/eslint-config-beyondessential --latest"
   },
   "engines": {
     "node": ">=8.3",
@@ -16,6 +18,7 @@
   "private": true,
   "workspaces": {
     "packages": [
+      "packages/scripts",
       "packages/desktop",
       "packages/lan",
       "packages/server",
@@ -34,5 +37,8 @@
       "**/config/**"
     ]
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "dependencies": {
+    "babel-eslint": "^10.0.1"
+  }
 }

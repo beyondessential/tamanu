@@ -1,9 +1,8 @@
-const { get, post, jar } = require('request');
-const config = require('config');
-const moment = require('moment');
+import { get, post, jar } from 'request';
+import config from 'config';
+import moment from 'moment';
 
-const { LAB_REQUEST_STATUSES } = require('../constants');
-const { ScheduledTask } = require('./ScheduledTask');
+import { ScheduledTask } from './ScheduledTask';
 
 // if there's an error creating a lab request in senaite
 // set it to "manual" status (indicating 'you'll need to do this manually')
@@ -23,7 +22,7 @@ function formatForSenaite(datetime) {
   return moment(datetime).format('YYYY-MM-DD HH:mm');
 }
 
-class SenaitePoller extends ScheduledTask {
+export class SenaitePoller extends ScheduledTask {
   constructor(database) {
     super('*/1 * * * *'); // run every 1 minute
     this.jar = jar(); // separate cookie store
@@ -280,5 +279,3 @@ class SenaitePoller extends ScheduledTask {
     await Promise.all(requests.map(req => this.processLabRequest(req)));
   }
 }
-
-module.exports = { SenaitePoller };

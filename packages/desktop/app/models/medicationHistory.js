@@ -1,7 +1,8 @@
 import { defaults } from 'lodash';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('MedicationHistory', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/medicationHistory`,
   defaults: () => defaults({
     date: '',
@@ -18,4 +19,4 @@ export default BaseModel.extend({
     if (attrs.date === '') errors.push('date is required!');
     if (errors.length) return errors;
   },
-});
+}));

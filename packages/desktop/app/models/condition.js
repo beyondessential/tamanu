@@ -1,9 +1,11 @@
 import Backbone from 'backbone-associations';
 import moment from 'moment';
 import { isEmpty } from 'lodash';
-import BaseModel from './base';
 
-export default BaseModel.extend({
+import BaseModel from './base';
+import { register } from './register';
+
+export default register('Condition', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/condition`,
   defaults: () => ({
     date: moment(),
@@ -17,7 +19,7 @@ export default BaseModel.extend({
     {
       type: Backbone.One,
       key: 'diagnosis',
-      model: require('./diagnosis'),
+      model: 'Diagnosis',
     },
   ],
 
@@ -31,4 +33,4 @@ export default BaseModel.extend({
     if (!moment(attrs.date).isValid()) errors.push('date is required!');
     if (!isEmpty(errors)) return errors;
   },
-});
+}));

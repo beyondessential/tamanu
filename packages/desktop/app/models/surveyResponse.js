@@ -1,8 +1,9 @@
 import { defaults } from 'lodash';
 import Backbone from 'backbone-associations';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('SurveyResponse', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/surveyResponse`,
   defaults: () => defaults({
     surveyId: '',
@@ -22,8 +23,8 @@ export default BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'answers',
-      relatedModel: require('./answer'),
+      relatedModel: 'Answer',
     },
     ...BaseModel.prototype.relations,
   ],
-});
+}));

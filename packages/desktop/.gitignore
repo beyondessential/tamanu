@@ -53,3 +53,4 @@ main.js.map
 npm-debug.log.*
 
 dev/
+storybook-static/

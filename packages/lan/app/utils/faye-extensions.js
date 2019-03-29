@@ -1,4 +1,4 @@
-module.exports.outgoing = ({ database, message, callback }) => {
+export const outgoing = ({ database, message, callback }) => {
   const clientId = database.getSetting('CLIENT_ID');
   const clientSecret = database.getSetting('CLIENT_SECRET');
   if (clientId !== '' && clientSecret !== '') {

@@ -1,6 +1,7 @@
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('ModifiedField', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/modifiedField`,
   defaults: () => ({
     token: null,
@@ -8,4 +9,4 @@ export default BaseModel.extend({
     time: null,
   }),
   relations: [],
-});
+}));

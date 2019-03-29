@@ -13,7 +13,7 @@ export const incoming = ({ database, message, callback }) => {
         user.lastActive = new Date().getTime();
       });
       // eslint-disable-next-line no-underscore-dangle
-      if (channel === '/meta/subscribe') console.log(`Client subscribed ${user._id}`); 
+      if (channel === '/meta/subscribe') console.log(`Client subscribed ${user._id}`);
     } else {
       message.error = 'User authentication failed!';
       console.warn('User authentication failed!');

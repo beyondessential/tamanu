@@ -8,8 +8,8 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "npm test -- --watch",
-    "start-dev": "rm -rf ./dist/ && ./node_modules/.bin/webpack --config webpack.config.dev.js",
-    "build": "rm -rf ./dist/ && ./node_modules/.bin/webpack --config webpack.config.prod.js"
+    "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.js",
+    "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js"
   },
   "repository": {
     "type": "git",
@@ -25,7 +25,6 @@
     "@babel/plugin-proposal-export-namespace-from": "^7.2.0",
     "@babel/polyfill": "^7.2.5",
     "@babel/preset-env": "^7.3.4",
-    "@beyondessential/eslint-config-beyondessential": "*",
     "babel-loader": "^8.0.5",
     "chai": "^4.1.2",
     "clean-webpack-plugin": "^2.0.1",
@@ -48,8 +47,9 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
-    "@beyondessential/eslint-config-beyondessential": "^2.2",
+    "@beyondessential/eslint-config-beyondessential": "2.3.0",
     "await-to-js": "^2.0.1",
+    "babel-jest": "^24.5.0",
     "bcrypt": "^3.0.1",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",
@@ -64,6 +64,7 @@
     "faye": "^1.2.4",
     "follow": "^1.1.0",
     "http-proxy": "^1.17.0",
+    "jest": "^24.5.0",
     "json-diff": "^0.5.3",
     "json-prune": "^1.1.0",
     "jsonwebtoken": "^8.4.0",

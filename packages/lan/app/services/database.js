@@ -1,5 +1,5 @@
-import Settings from './settings';
 import BaseDatabase from 'Shared/services/database';
+import Settings from './settings';
 
 export default class Database extends BaseDatabase {
   constructor(...props) {

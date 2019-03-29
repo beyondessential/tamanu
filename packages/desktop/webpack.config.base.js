@@ -50,7 +50,8 @@ export default {
         use: {
           loader: 'babel-loader',
           options: {
-            cacheDirectory: true
+            cacheDirectory: true,
+            rootMode: 'upward',
           }
         }
       }

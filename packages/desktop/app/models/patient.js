@@ -3,11 +3,14 @@ import {
   each, clone, get, filter, capitalize, concat,
 } from 'lodash';
 import moment from 'moment';
-import BaseModel from './base';
-import { pregnancyOutcomes, dateFormat, LAB_REQUEST_STATUSES } from '../constants';
-import LabRequestsCollection from '../collections/labRequests';
 
-export default BaseModel.extend({
+import { register } from './register';
+import BaseModel from './base';
+import { pregnancyOutcomes, dateFormat } from '../constants';
+import LabRequestsCollection from '../collections/labRequests';
+import VisitsCollection from '../collections/visits';
+
+export default register('Patient', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/patient`,
   defaults: () => ({
     ...BaseModel.prototype.defaults,
@@ -69,49 +72,49 @@ export default BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'appointments',
-      relatedModel: () => require('./appointment'),
+      relatedModel: 'Appointment',
       serialize: '_id',
     },
     {
       type: Backbone.Many,
       key: 'additionalContacts',
-      relatedModel: () => require('./patientContact'),
+      relatedModel: 'PatientContact',
       serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'allergies',
-      relatedModel: () => require('./allergy'),
+      relatedModel: 'Allergy',
       serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'conditions',
-      relatedModel: () => require('./condition'),
+      relatedModel: 'Condition',
       serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'operationReports',
-      relatedModel: () => require('./operationReport'),
+      relatedModel: 'OperationReport',
       serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'operativePlans',
-      relatedModel: () => require('./operativePlan'),
+      relatedModel: 'OperativePlan',
       serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'pregnancies',
-      relatedModel: () => require('./pregnancy'),
+      relatedModel: 'Pregnancy',
       serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'surveyResponses',
-      relatedModel: () => require('./surveyResponse'),
+      relatedModel: 'SurveyResponse',
       serialize: '_id',
     }, {
       type: Backbone.Many,
       key: 'visits',
-      relatedModel: () => require('./visit'),
-      collectionType: require('../collections/visits'),
+      relatedModel: 'Visit',
+      collectionType: VisitsCollection,
       serialize: '_id',
     },
     ...BaseModel.prototype.relations,
@@ -275,4 +278,4 @@ export default BaseModel.extend({
     });
     return labTests;
   },
-});
+}));

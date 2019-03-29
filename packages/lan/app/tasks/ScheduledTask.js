@@ -1,6 +1,6 @@
-const { scheduleJob } = require('node-schedule');
+import { scheduleJob } from 'node-schedule';
 
-class ScheduledTask {
+export class ScheduledTask {
   getName() {
     // get class name from reflection
     return this.constructor.name;
@@ -11,6 +11,7 @@ class ScheduledTask {
     this.job = null;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   async run() {
     throw new Error('Not implemented');
   }
@@ -34,5 +35,3 @@ class ScheduledTask {
     }
   }
 }
-
-module.exports = { ScheduledTask };

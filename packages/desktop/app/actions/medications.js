@@ -1,3 +1,4 @@
+import shortid from 'shortid';
 import {
   CREATE_MEDICATION_REQUEST,
   CREATE_MEDICATION_SUCCESS,
@@ -9,7 +10,6 @@ import {
   FETCH_MEDICATIONS_SUCCESS,
   FETCH_MEDICATIONS_FAILED,
 } from './types';
-import { idGenerator } from '../constants';
 
 export function createMedicationRequest() {
   return {
@@ -72,7 +72,7 @@ export const createMedication = medication => dispatch => {
   dispatch(createMedicationRequest());
   const existingMedications = JSON.parse(localStorage.getItem('medications')) || [];
   const medicationInfo = medication;
-  medicationInfo.id = idGenerator();
+  medicationInfo.id = shortid.generate();
   existingMedications.push(medicationInfo);
   localStorage.setItem('medications', JSON.stringify(existingMedications));
 };
@@ -81,7 +81,7 @@ export const createDispense = dispense => dispatch => {
   dispatch(createMedicationRequest());
   const existingDispenses = JSON.parse(localStorage.getItem('dispense')) || [];
   const dispenseInfo = dispense;
-  dispenseInfo.id = idGenerator();
+  dispenseInfo.id = shortid.generate();
   existingDispenses.push(dispenseInfo);
   localStorage.setItem('dispense', JSON.stringify(existingDispenses));
 };

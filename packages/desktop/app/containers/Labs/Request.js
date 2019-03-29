@@ -5,7 +5,7 @@ import { Grid } from '@material-ui/core';
 import moment from 'moment';
 import { capitalize, isEmpty } from 'lodash';
 import styled from 'styled-components';
-import { request as labRequestActions } from '../../actions/labs';
+import * as labRequestActions from '../../actions/labs';
 import TopRow from '../Patients/components/TopRow';
 import {
   TopBar,

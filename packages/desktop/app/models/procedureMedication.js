@@ -1,7 +1,8 @@
 import { defaults, isEmpty } from 'lodash';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('ProcedureMedication', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/procedureMedication`,
   defaults: () => defaults({
     medication: '',
@@ -14,4 +15,4 @@ export default BaseModel.extend({
     if (!attrs.quantity) errors.push('quantity is required!');
     if (!isEmpty(errors)) return errors;
   },
-});
+}));

@@ -2,8 +2,9 @@ import Backbone from 'backbone-associations';
 import { defaults, isEmpty } from 'lodash';
 import moment from 'moment';
 import BaseModel from './base';
+import { register } from './register';
 
-export default BaseModel.extend({
+export default register('Procedure', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/procedure`,
   defaults: () => defaults({
     anesthesiaType: '',
@@ -26,7 +27,7 @@ export default BaseModel.extend({
     {
       type: Backbone.Many,
       key: 'medication',
-      relatedModel: () => require('./procedureMedication'),
+      relatedModel: 'ProcedureMedication',
     },
     ...BaseModel.prototype.relations,
   ],
@@ -38,4 +39,4 @@ export default BaseModel.extend({
     if (!attrs.physician) errors.push('physician is required!');
     if (!isEmpty(errors)) return errors;
   },
-});
+}));
