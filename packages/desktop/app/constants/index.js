@@ -979,12 +979,6 @@ export const programsPatientsColumns = [
 
 export const medicationColumns = [
   {
-    accessor: 'prescriptionDate',
-    Header: 'Date',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 100,
-  }, {
     accessor: 'patient',
     Header: 'Patient',
     headerStyle,

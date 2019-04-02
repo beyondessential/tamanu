@@ -6,7 +6,7 @@ import {
   medicationColumns, medicationStatuses, headerStyle, columnStyle,
 } from '../../constants';
 import {
-  TextButton, Button, TopBar, BrowsableTable,
+  TextButton, Button, TopBar, BrowsableTable, DateDisplay,
 } from '../../components';
 
 const ActionsColumn = () => (
@@ -19,6 +19,14 @@ const ActionsColumn = () => (
 );
 
 const getTableColumns = () => ([
+  {
+    accessor: 'prescriptionDate',
+    Header: 'Date',
+    headerStyle,
+    style: columnStyle,
+    minWidth: 100,
+    Cell: date => <DateDisplay date={date} />,
+  },
   ...medicationColumns,
   {
     id: 'actions',
