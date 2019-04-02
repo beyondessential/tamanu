@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import { MedicationHistoryModel, PatientModel } from '../../../models';
 import {
   NewButton, TabHeader, UndoIconButton, TickIconButton, Button,
-  ClientSideTable,
+  SimpleTable,
 } from '../../../components';
 import {
   patientMedicationColumns, momentSimpleCalender,
@@ -271,7 +271,7 @@ export default class Medication extends Component {
                   {this.PaginationNav(index)}
                 </Grid>
                 <Grid item xs={12}>
-                  <ClientSideTable
+                  <SimpleTable
                     data={medication}
                     noDataText="No medication found"
                     columns={tableColumns}

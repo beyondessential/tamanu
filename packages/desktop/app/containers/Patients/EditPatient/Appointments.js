@@ -5,7 +5,7 @@ import { capitalize } from 'lodash';
 import { Grid } from '@material-ui/core';
 import { patientAppointmentsColumns, dateFormat } from '../../../constants';
 import {
-  NewButton, EditButton, TabHeader, ClientSideTable,
+  NewButton, EditButton, TabHeader, SimpleTable,
 } from '../../../components';
 import { PatientModel } from '../../../models';
 
@@ -68,7 +68,7 @@ export default class Appointments extends Component {
           </NewButton>
         </TabHeader>
         <Grid container item>
-          <ClientSideTable
+          <SimpleTable
             data={appointments}
             columns={tableColumns}
             emptyNotification="No appointments found."

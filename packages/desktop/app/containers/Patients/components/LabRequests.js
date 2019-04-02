@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import ReactTable from 'react-table';
 import moment from 'moment';
 import { Typography, Grid } from '@material-ui/core';
 import PropTypes from 'prop-types';
-import { Button, Notification, ClientSideTable } from '../../../components';
+import { Button, Notification, SimpleTable } from '../../../components';
 import {
   columnStyle, headerStyle, dateFormat, pageSizes, MUI_SPACING_UNIT as spacing,
 } from '../../../constants';
@@ -167,13 +166,13 @@ export default class LabRequests extends Component {
         </Grid>
         <Grid container>
           <Grid item xs={2}>
-            <ClientSideTable
+            <SimpleTable
               data={labTests}
               columns={getFixedTableColumns()}
             />
           </Grid>
           <Grid item xs={10} style={{ overflowX: 'auto' }}>
-            <ClientSideTable
+            <SimpleTable
               data={labTests}
               columns={columns}
             />

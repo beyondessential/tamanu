@@ -3,7 +3,7 @@ import { Grid } from '@material-ui/core';
 import { pregnancyColumns, PREGNANCY_PROGRAM_ID } from '../../../constants';
 import PregnancyModal from '../components/PregnancyModal';
 import {
-  Button, TabHeader, NewButton, ButtonGroup, ClientSideTable,
+  Button, TabHeader, NewButton, ButtonGroup, SimpleTable,
 } from '../../../components';
 
 export default class Pregnancy extends Component {
@@ -108,7 +108,7 @@ export default class Pregnancy extends Component {
           </NewButton>
         </TabHeader>
         <Grid container item>
-          <ClientSideTable
+          <SimpleTable
             data={pregnancies}
             columns={pregnancyColumns}
             emptyNotification="No pregnancies found."

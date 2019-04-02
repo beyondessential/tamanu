@@ -3,11 +3,11 @@ import ReactTable from 'react-table';
 import PropTypes from 'prop-types';
 import { Notification } from './Notification';
 
-export function ClientSideTable({
+export function SimpleTable({
   data, columns, emptyNotification, ...props
 }) {
   return (
-    data
+    data && data.length > 0
       ? (
         <ReactTable
           style={{ flexGrow: 1 }}
@@ -25,12 +25,12 @@ export function ClientSideTable({
   );
 }
 
-ClientSideTable.propTypes = {
+SimpleTable.propTypes = {
   data: PropTypes.arrayOf(Object).isRequired,
   columns: PropTypes.arrayOf(Object).isRequired,
   emptyNotification: PropTypes.node,
 };
 
-ClientSideTable.defaultProps = {
+SimpleTable.defaultProps = {
   emptyNotification: '',
 };

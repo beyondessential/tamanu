@@ -4,7 +4,7 @@ import { capitalize } from 'lodash';
 import { Grid } from '@material-ui/core';
 import { visitsColumns, dateFormat } from '../../../constants';
 import {
-  NewButton, EditButton, TabHeader, ClientSideTable,
+  NewButton, EditButton, TabHeader, SimpleTable,
 } from '../../../components';
 
 const DiagnosisColumn = ({ diagnoses }) => (
@@ -78,7 +78,7 @@ export default class Visits extends Component {
           </NewButton>
         </TabHeader>
         <Grid container item>
-          <ClientSideTable
+          <SimpleTable
             data={visits}
             columns={tableColumns}
             emptyNotification="No visits found."

@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { isEmpty } from 'lodash';
-import ReactTable from 'react-table';
 import { admittedPatientsColumns, pageSizes } from '../../constants';
 import { PatientsCollection } from '../../collections';
-import { Button, TopBar } from '../../components';
+import { Button, TopBar, SimpleTable } from '../../components';
 
 class AdmittedPatients extends Component {
   constructor(props) {
@@ -124,15 +123,11 @@ Discharge
             )
             : (
               <div>
-                <ReactTable
-                  keyField="_id"
+                <SimpleTable
                   data={admittedPatients}
-                  pages={this.props.collection.totalPages}
                   defaultPageSize={pageSizes.patients}
                   loading={this.state.loading}
                   columns={admittedPatientsColumns}
-                  className="-striped"
-                  defaultSortDirection="asc"
                 />
               </div>
             )

@@ -17,7 +17,7 @@ export * from './Preloader';
 export * from './Dialog';
 export * from './Modal';
 export * from './BrowsableTable';
-export * from './ClientSideTable';
+export * from './SimpleTable';
 export * from './Button';
 export * from './IconButton';
 export * from './Notification';

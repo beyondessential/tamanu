@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Grid } from '@material-ui/core';
 import {
-  Button, NewButton, TabHeader, ClientSideTable,
+  Button, NewButton, TabHeader, SimpleTable,
 } from '../../../components';
 import {
   patientImagingRequestsColumns as tableColumns,
@@ -46,7 +46,7 @@ export default function Imaging({ patientModel }) {
         </NewButton>
       </TabHeader>
       <Grid container item>
-        <ClientSideTable
+        <SimpleTable
           data={imagingRequests}
           columns={getTableColumns()}
           emptyNotification="No imaging requests found."
