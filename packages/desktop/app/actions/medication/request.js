@@ -44,13 +44,13 @@ export const saveMedication = ({
       medicationModel.set('patient', { _id: patientId });
       const endDate = medicationModel.get('endDate');
       if (endDate instanceof moment && !endDate.isValid()) medicationModel.set('endDate', null, { silent: true });
-      const Model = await medicationModel.save(null, { silent: true });
+      await medicationModel.save(null, { silent: true });
       // Attach to visit
       if (action === 'new') {
         const visitModel = new VisitModel();
         visitModel.set('_id', medicationModel.get('visit'));
         await visitModel.fetch();
-        visitModel.get('medication').add(Model);
+        visitModel.get('medication').add(medicationModel);
         await visitModel.save(null, { silent: true });
       }
       dispatch({ type: SAVE_MEDICATION_SUCCESS });
