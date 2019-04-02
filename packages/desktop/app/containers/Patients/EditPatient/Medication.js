@@ -90,7 +90,7 @@ export default class Medication extends Component {
       <Grid container spacing={8}>
         <React.Fragment>
           <Grid container item xs justify="flex-end">
-            {moment(moment().format()).isSame(original.currentDate)
+            {moment().isSame(original.currentDate)
               && isTaken
               && (
                 <UndoIconButtonStyled
