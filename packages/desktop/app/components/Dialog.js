@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Dialog as MuiDialog, DialogTitle, DialogContent, DialogActions,
-} from '@material-ui/core';
+import { Modal } from './Modal';
 import { Button } from './Button';
 
 export function Dialog({
@@ -10,20 +8,25 @@ export function Dialog({
   onClose, onConfirm, okText, cancelText,
 }) {
   return (
-    <MuiDialog open={isVisible} onClose={onClose}>
-      <DialogTitle>{headerTitle}</DialogTitle>
-      <DialogContent>{contentText}</DialogContent>
-      <DialogActions>
-        {dialogType === 'confirm' && <Button variant="outlined" onClick={onClose}>{cancelText}</Button>}
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={dialogType === 'confirm' ? onConfirm : onClose}
-        >
-          {okText}
-        </Button>
-      </DialogActions>
-    </MuiDialog>
+    <Modal
+      isVisible={isVisible}
+      onClose={onClose}
+      title={headerTitle}
+      actions={(
+        <React.Fragment>
+          {dialogType === 'confirm' && <Button variant="outlined" onClick={onClose}>{cancelText}</Button>}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={dialogType === 'confirm' ? onConfirm : onClose}
+          >
+            {okText}
+          </Button>
+        </React.Fragment>
+      )}
+    >
+      {contentText}
+    </Modal>
   );
 }
 
