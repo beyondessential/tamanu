@@ -19,7 +19,7 @@ export const CheckInput = ({ label, value, ...props }) => (
 export const CheckField = ({ field, ...props }) => (
   <CheckInput
     name={field.name}
-    value={field.value || ''}
+    value={field.value || false}
     onChange={field.onChange}
     {...props}
   />
