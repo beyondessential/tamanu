@@ -61,32 +61,6 @@ export default class Medication extends Component {
     this.handleChange(newProps);
   }
 
-  setActionsCol = (row) => {
-    const id = `__${row.original._id}`;
-    return (
-      <div className="dropdown is-hoverable">
-        <div className="dropdown-trigger" aria-haspopup="true" aria-controls={id}>
-          <button className="button" type="button">
-            <span>Taken</span>
-            <span className="icon is-small">
-              <i className="fa fa-angle-down" />
-            </span>
-          </button>
-        </div>
-        <div className="dropdown-menu" id={id} role="menu">
-          <div className="dropdown-content">
-            <a href="#" className="dropdown-item">
-              Overview
-            </a>
-            <a href="#" className="dropdown-item">
-              Modifiers
-            </a>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   renderMedicineColumn = row => {
     const { original: medicine, value } = row;
     return (
@@ -195,6 +169,41 @@ export default class Medication extends Component {
     return `${moment(date).format(dateFormatText)}`;
   }
 
+  PaginationNav = (index = 0) => (
+    <Grid container item xs justify="flex-end">
+      <Button
+        style={{ padding: 0, visibility: index === 0 ? 'visible' : 'hidden' }}
+        onClick={this.goToPrev}
+      >
+        Prev
+      </Button>
+      <Button
+        style={{ padding: 0, visibility: index === 0 ? 'visible' : 'hidden' }}
+        onClick={this.goToNext}
+      >
+        Next
+      </Button>
+    </Grid>
+  )
+
+  handleChange(props = this.props) {
+    const { patientModel } = props;
+    const { from, to, tableColumns } = this.state;
+    let medicationHistory = patientModel.getMedicationHistory(from.clone(), to.clone());
+    medicationHistory = medicationHistory.map(obj => ({
+      date: obj.date,
+      medication: obj.medication.map(model => ({ currentDate: obj.date, ...model.toJSON({ relations: true }) })),
+    }));
+
+    // Add actions column for our table
+    tableColumns[0].Cell = this.renderMedicineColumn;
+    tableColumns[1].Cell = this.renderQtyColumn;
+    tableColumns[2].Cell = this.renderQtyColumn;
+    tableColumns[3].Cell = this.renderQtyColumn;
+    tableColumns[4].Cell = this.renderQtyColumn;
+    this.setState({ medicationHistory, tableColumns });
+  }
+
   async markTaken(id, date, field, value) {
     const { patientModel } = this.props;
     const { from, to } = this.state;
@@ -220,42 +229,6 @@ export default class Medication extends Component {
       toast('Something went wrong while updating, please try again later.', { type: 'error' });
     }
   }
-
-  handleChange(props = this.props) {
-    const { patientModel } = props;
-    const { from, to, tableColumns } = this.state;
-    let medicationHistory = patientModel.getMedicationHistory(from.clone(), to.clone());
-    medicationHistory = medicationHistory.map(obj => ({
-      date: obj.date,
-      medication: obj.medication.map(model => ({ currentDate: obj.date, ...model.toJSON({ relations: true }) })),
-    }));
-
-    // Add actions column for our table
-    // tableColumns[tableColumns.length - 1].Cell = this.setActionsCol;
-    tableColumns[0].Cell = this.renderMedicineColumn;
-    tableColumns[1].Cell = this.renderQtyColumn;
-    tableColumns[2].Cell = this.renderQtyColumn;
-    tableColumns[3].Cell = this.renderQtyColumn;
-    tableColumns[4].Cell = this.renderQtyColumn;
-    this.setState({ medicationHistory, tableColumns });
-  }
-
-  PaginationNav = (index = 0) => (
-    <Grid container item xs justify="flex-end">
-      <Button
-        style={{ padding: 0, visibility: index === 0 ? 'visible' : 'hidden' }}
-        onClick={this.goToPrev}
-      >
-        Prev
-      </Button>
-      <Button
-        style={{ padding: 0, visibility: index === 0 ? 'visible' : 'hidden' }}
-        onClick={this.goToNext}
-      >
-        Next
-      </Button>
-    </Grid>
-  )
 
   render() {
     const { patientModel } = this.props;
