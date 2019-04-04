@@ -1,36 +1,26 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
-import { has, capitalize, parseInt } from 'lodash';
+import PropTypes from 'prop-types';
+import { capitalize } from 'lodash';
+import { Grid } from '@material-ui/core';
 import actions from '../../actions/scheduling';
 import PatientsTopRow from '../Patients/components/TopRow';
 import {
-  visitOptions,
-  appointmentStatusList,
-  timeSelectOptions,
-  dateFormat,
-  dateTimeFormat,
+  visitOptions, appointmentStatusList, MUI_SPACING_UNIT as spacing,
 } from '../../constants';
 import {
-  Preloader,
-  PatientAutocomplete,
-  InputGroup,
-  CheckboxGroup,
-  TextareaGroup,
-  DatepickerGroup,
-  SelectGroup,
-  AddButton,
-  UpdateButton,
-  BackButton,
-  TopBar,
+  Preloader, PatientAutocomplete, TextInput, CheckInput, DateInput,
+  SelectInput, AddButton, UpdateButton, BackButton, TopBar, Container,
+  ButtonGroup, FormRow, TimeInput, DateTimeInput,
 } from '../../components';
 
 class Appointment extends Component {
   state = {
     action: 'new',
-    appointmentData: null,
     patient: null,
     loading: true,
+    formIsValid: false,
   }
 
   componentWillMount() {
@@ -39,124 +29,72 @@ class Appointment extends Component {
   }
 
   componentWillReceiveProps(newProps) {
+    const { appointmentModel, loading } = newProps;
     if (this.props.location.pathname !== newProps.location.pathname) {
       const { id, patientId } = newProps.match.params;
       this.props.fetchAppointment({ id, patientId });
-    } else {
-      this.handleChange(newProps);
+    } else if (!loading) {
+      const formIsValid = true; appointmentModel.isValid();
+      this.setState({ ...appointmentModel.attributes, formIsValid, loading });
+      appointmentModel.off('change');
+      appointmentModel.on('change', this.handleChange);
     }
   }
 
-  handleChange(props = this.props) {
-    const { id } = props.match.params;
-    const { appointmentModel, loading } = props;
-    let {
-      admissionStartDate,
-      admissionEndDate,
-      admissionAllDay,
-      othersDate,
-      othersStartTimeHrs,
-      othersStartTimeMins,
-      othersEndTimeHrs,
-      othersEndTimeMins,
-      othersAllDay,
-    } = props;
-    let { action } = this.state;
-    if (id) action = 'update';
-    if (!loading) {
-      // Set initials
-      if (id) {
-        switch (appointmentModel.get('appointmentType')) {
-          case 'admission':
-            admissionStartDate = moment(appointmentModel.get('startDate'));
-            admissionEndDate = moment(appointmentModel.get('endDate'));
-            admissionAllDay = appointmentModel.get('allDay');
-            break;
-          default:
-            othersDate = moment(appointmentModel.get('startDate'));
-            othersStartTimeHrs = parseInt(moment(appointmentModel.get('startDate')).format('HH'));
-            othersStartTimeMins = parseInt(moment(appointmentModel.get('startDate')).format('mm'));
-            othersEndTimeHrs = parseInt(moment(appointmentModel.get('endDate')).format('HH')) || 0;
-            othersEndTimeMins = parseInt(moment(appointmentModel.get('endDate')).format('mm')) || 0;
-            othersAllDay = appointmentModel.get('allDay');
-            break;
-        }
-      }
+  handleUserInput = (event) => {
+    const { name, value } = event.target;
+    this.handleFormInput(name, value);
+  }
 
-      this.setState({
-        action,
-        loading,
-        admissionStartDate,
-        admissionEndDate,
-        admissionAllDay,
-        othersDate,
-        othersStartTimeHrs,
-        othersStartTimeMins,
-        othersEndTimeHrs,
-        othersEndTimeMins,
-        othersAllDay,
-        appointmentData: appointmentModel.toJSON(),
-      });
+  handleAutoCompleteInput = ({ _id }, name) => {
+    this.handleFormInput(name, _id);
+  }
+
+  handleCheckboxInput = (event) => {
+    const { name, checked } = event.target;
+    this.handleFormInput(name, checked);
+  }
+
+  handleDateTimeInput = (event) => {
+    const { appointmentModel } = this.props;
+    const { name, value } = event.target;
+    this.handleFormInput(name, value);
+    // Update startDate
+    if (name === 'startTime') {
+      const [hour, minute] = value.split(':');
+      const startDate = moment(appointmentModel.get('startDate'))
+        .set('hour', hour)
+        .set('minute', minute)
+        .format();
+      this.handleFormInput('startDate', startDate);
+    }
+    // Update endDate
+    if (name === 'endTime') {
+      const [hour, minute] = value.split(':');
+      const endDate = moment(appointmentModel.get('startDate'))
+        .set('hour', hour)
+        .set('minute', minute)
+        .format();
+      this.handleFormInput('endDate', endDate);
     }
   }
 
-  handleUserInput = (e, field) => {
-    let name = '';
-    let value = '';
-    if (typeof field !== 'undefined') {
-      name = field;
-      value = e;
-    } else {
-      ({ name } = e.target);
-      value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    }
-
-    if (has(this.state, name)) {
-      this.setState({ [name]: value }, this.parseDates);
-    } else {
-      const { appointmentModel } = this.props;
-      appointmentModel.set(name, value, { silent: true });
-      this.setState({ appointmentData: appointmentModel.toJSON() }, this.parseDates);
-    }
+  handleChange = () => {
+    const { appointmentModel } = this.props;
+    const formIsValid = appointmentModel.isValid();
+    const changedAttributes = appointmentModel.changedAttributes();
+    this.setState({ ...changedAttributes, formIsValid });
   }
 
-  parseDates() {
-    const { surgery, appointmentModel } = this.props;
-    const {
-      admissionStartDate,
-      admissionEndDate,
-      admissionAllDay,
-      othersDate,
-      othersStartTimeHrs,
-      othersStartTimeMins,
-      othersEndTimeHrs,
-      othersEndTimeMins,
-      othersAllDay,
-    } = this.state;
-
-    if (appointmentModel.get('appointmentType') === 'admission' && !surgery) {
-      appointmentModel.set({
-        startDate: admissionStartDate,
-        endDate: admissionEndDate,
-        allDay: admissionAllDay,
-      }, { silent: true });
-    } else {
-      appointmentModel.set({
-        startDate: moment(othersDate).hours(othersStartTimeHrs).minutes(othersStartTimeMins),
-        endDate: moment(othersDate).hours(othersEndTimeHrs).minutes(othersEndTimeMins),
-        allDay: othersAllDay,
-      }, { silent: true });
-    }
-    // Update state
-    this.setState({ appointmentData: appointmentModel.toJSON() });
+  handleFormInput(name, value) {
+    const { appointmentModel } = this.props;
+    appointmentModel.set(name, value);
   }
 
-  submitForm(e) {
+  submitForm(event) {
+    event.preventDefault();
     const { surgery, appointmentModel } = this.props;
     const { action, patient } = this.state;
-    e.preventDefault();
-    // Parse out dates
-    this.parseDates();
     // Set defaults for surgery
     if (surgery) {
       appointmentModel.set('appointmentType', 'surgery', { silent: true });
@@ -171,184 +109,140 @@ class Appointment extends Component {
     });
   }
 
-  renderDatesAdmission() {
+  renderAdmissionDates() {
     const {
-      othersDate,
-      othersStartTimeHrs,
-      othersStartTimeMins,
-      othersEndTimeHrs,
-      othersEndTimeMins,
-      othersAllDay,
+      startDate, startTime, endTime, allDay,
     } = this.state;
-
     return (
-      <React.Fragment>
-        <DatepickerGroup
-          className="column is-3"
+      <FormRow>
+        <DateInput
           label="Date"
-          name="othersDate"
-          value={othersDate}
-          onChange={this.handleUserInput}
+          name="startDate"
+          value={startDate}
+          onChange={this.handleDateTimeInput}
           required
         />
-        {!othersAllDay
+        {!allDay
           && (
-          <React.Fragment>
-            <SelectGroup
-              className="column is-1"
-              label="Start Time"
-              name="othersStartTimeHrs"
-              options={timeSelectOptions.hours}
-              value={othersStartTimeHrs}
-              onChange={this.handleUserInput}
-              searchable
-              required
-            />
-            <SelectGroup
-              className="column is-1 p-t-40"
-              label={false}
-              name="othersStartTimeMins"
-              options={timeSelectOptions.minutes}
-              value={othersStartTimeMins}
-              onChange={this.handleUserInput}
-              searchable
-            />
-            <SelectGroup
-              className="column is-1"
-              label="End Time"
-              name="othersEndTimeHrs"
-              options={timeSelectOptions.hours}
-              value={othersEndTimeHrs}
-              onChange={this.handleUserInput}
-              required
-            />
-            <SelectGroup
-              className="column is-1 p-t-40"
-              label={false}
-              name="othersEndTimeMins"
-              options={timeSelectOptions.minutes}
-              value={othersEndTimeMins}
-              onChange={this.handleUserInput}
-            />
-          </React.Fragment>
+            <Grid container item>
+              <Grid item xs>
+                <TimeInput
+                  label="Start Time"
+                  name="startTime"
+                  value={startTime}
+                  onChange={this.handleDateTimeInput}
+                  required
+                />
+              </Grid>
+              <Grid item xs>
+                <TimeInput
+                  label="End Time"
+                  name="endTime"
+                  value={endTime}
+                  onChange={this.handleDateTimeInput}
+                  required
+                />
+              </Grid>
+            </Grid>
           )
         }
-        <CheckboxGroup
+        <CheckInput
           label="All Day"
-          name="othersAllDay"
-          defaultChecked={othersAllDay}
-          onChange={this.handleUserInput}
-          value
+          name="allDay"
+          onChange={this.handleCheckboxInput}
+          value={allDay}
         />
-      </React.Fragment>
+      </FormRow>
     );
   }
 
-  renderDatesOthers() {
-    const {
-      admissionStartDate,
-      admissionEndDate,
-      admissionAllDay,
-    } = this.state;
-
+  renderOtherDates() {
+    const { startDate, endDate, allDay } = this.state;
+    const DateComponent = allDay ? DateInput : DateTimeInput;
     return (
-      <React.Fragment>
-        <DatepickerGroup
-          className="column is-3"
+      <FormRow>
+        <DateComponent
           label="Start Date"
-          name="admissionStartDate"
-          value={admissionStartDate}
+          name="startDate"
+          value={startDate}
           onChange={this.handleUserInput}
-          showTimeSelect={!admissionAllDay}
-          dateFormat={admissionAllDay ? dateFormat : dateTimeFormat}
-          timeIntervals={30}
           required
         />
-        <DatepickerGroup
-          className="column is-3"
+        <DateComponent
           label="End Date"
-          name="admissionEndDate"
-          value={admissionEndDate}
+          name="endDate"
+          value={endDate}
           onChange={this.handleUserInput}
-          showTimeSelect={!admissionAllDay}
-          dateFormat={admissionAllDay ? dateFormat : dateTimeFormat}
-          minDate={admissionStartDate}
-          timeIntervals={30}
           required
         />
-        <CheckboxGroup
+        <CheckInput
           label="All Day"
-          name="admissionAllDay"
-          defaultChecked={admissionAllDay}
-          onChange={this.handleUserInput}
-          value
+          name="allDay"
+          onChange={this.handleCheckboxInput}
+          value={allDay}
         />
-      </React.Fragment>
+      </FormRow>
     );
   }
 
-  renderFieldsOthers() {
-    const { appointmentData } = this.state;
+  renderFields() {
+    const {
+      appointmentType, provider, location, status,
+    } = this.state;
     return (
       <React.Fragment>
-        <div className="columns">
-          <SelectGroup
-            className="column is-5"
+        <FormRow>
+          <SelectInput
             name="appointmentType"
             label="Type"
             options={visitOptions}
-            value={appointmentData.appointmentType}
+            value={appointmentType}
             onChange={this.handleUserInput}
             required
           />
-          <InputGroup
-            className="column is-4"
+          <TextInput
             name="provider"
             label="With"
-            value={appointmentData.provider}
+            value={provider}
             onChange={this.handleUserInput}
           />
-        </div>
-        <div className="columns">
-          <InputGroup
-            className="column is-5"
+        </FormRow>
+        <FormRow>
+          <TextInput
             name="location"
             label="Location"
-            value={appointmentData.location}
+            value={location}
             onChange={this.handleUserInput}
           />
-          <SelectGroup
-            className="column is-4"
+          <SelectInput
             name="status"
             label="Status"
             options={appointmentStatusList}
-            value={appointmentData.status}
+            value={status}
             onChange={this.handleUserInput}
           />
-        </div>
+        </FormRow>
       </React.Fragment>
     );
   }
 
-  renderFieldsSurgery() {
-    const { appointmentData } = this.state;
+  renderSurgeryFields() {
+    const { provider, location } = this.state;
     return (
-      <div className="columns">
-        <InputGroup
-          className="column is-4"
+      <FormRow>
+        <TextInput
           name="provider"
           label="With"
-          value={appointmentData.provider}
+          value={provider}
           onChange={this.handleUserInput}
         />
-        <InputGroup
-          className="column is-5"
+        <TextInput
           name="location"
           label="Location"
-          value={appointmentData.location}
+          value={location}
           onChange={this.handleUserInput}
         />
-      </div>
+      </FormRow>
     );
   }
 
@@ -356,96 +250,90 @@ class Appointment extends Component {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
 
-    const { surgery, appointmentModel, patient } = this.props;
-    const {
-      action,
-      appointmentData,
-    } = this.state;
-
+    const { surgery, patient } = this.props;
+    const { action, formIsValid, ...form } = this.state;
     return (
-      <div className="create-content">
-        <TopBar title={`${capitalize(action)} ${surgery ? 'Surgical' : ''} Appointment`} />
-        <form
-          className="create-container"
-          onSubmit={(e) => this.submitForm(e)}
-        >
-          {patient
-            && (
-            <div className="form p-b-15">
-              <PatientsTopRow
-                patient={patient.toJSON()}
-              />
-            </div>
-            )}
-          <div className="form  with-padding">
-            {!patient && (
-            <div className="columns">
-              <PatientAutocomplete
-                label="Patient"
-                name="patient"
-                value={appointmentData.patient}
-                onChange={this.handleUserInput}
-                required
-              />
-            </div>
-            )}
-            <div className="columns">
-              {(appointmentData.appointmentType !== 'admission' || surgery)
-                && this.renderDatesAdmission()
+      <React.Fragment>
+        <TopBar
+          title={`${capitalize(action)} ${surgery ? 'Surgical' : ''} Appointment`}
+        />
+        <form onSubmit={(e) => this.submitForm(e)}>
+          <Container>
+            <Grid container spacing={spacing * 2} direction="column">
+              <Grid item>
+                {patient
+                  ? <PatientsTopRow patient={patient.toJSON()} />
+                  : (
+                    <PatientAutocomplete
+                      label="Patient"
+                      name="patient"
+                      value={form.patient}
+                      onChange={this.handleAutoCompleteInput}
+                      required
+                    />
+                  )
+                }
+              </Grid>
+              {(form.appointmentType !== 'admission' || surgery)
+                && this.renderAdmissionDates()
               }
-
-              {appointmentData.appointmentType === 'admission' && !surgery
-                && this.renderDatesOthers()
+              {form.appointmentType === 'admission' && !surgery
+                && this.renderOtherDates()
               }
-            </div>
-            {!surgery
-              && this.renderFieldsOthers()
-            }
-            {surgery
-              && this.renderFieldsSurgery()
-            }
-            <div className="columns">
-              <TextareaGroup
-                label="Notes"
-                name="notes"
-                value={appointmentData.notes}
-                onChange={this.handleUserInput}
-              />
-            </div>
-            <div className="column has-text-right">
-              <BackButton />
-              {action === 'new' && (
-              <AddButton
-                type="submit"
-                disabled={!appointmentModel.isValid()}
-                can={{ do: 'update', on: 'appointment' }}
-              />
-              )}
-              {action === 'update' && (
-              <UpdateButton
-                type="submit"
-                disabled={!appointmentModel.isValid()}
-                can={{ do: 'update', on: 'appointment' }}
-              />
-              )}
-            </div>
-          </div>
+              {surgery
+                ? this.renderSurgeryFields()
+                : this.renderFields()
+              }
+              <Grid item>
+                <TextInput
+                  label="Notes"
+                  name="notes"
+                  value={form.notes}
+                  onChange={this.handleUserInput}
+                  multiline
+                  rows={3}
+                />
+              </Grid>
+              <Grid container item justify="flex-end">
+                <ButtonGroup>
+                  <BackButton />
+                  {action === 'new'
+                    ? (
+                      <AddButton
+                        type="submit"
+                        disabled={!formIsValid}
+                        can={{ do: 'update', on: 'appointment' }}
+                      />
+                    )
+                    : (
+                      <UpdateButton
+                        type="submit"
+                        disabled={!formIsValid}
+                        can={{ do: 'update', on: 'appointment' }}
+                      />
+                    )
+                  }
+                </ButtonGroup>
+              </Grid>
+            </Grid>
+          </Container>
         </form>
-      </div>
+      </React.Fragment>
     );
   }
 }
 
+Appointment.propTypes = {
+  appointmentModel: PropTypes.instanceOf(Object).isRequired,
+  fetchAppointment: PropTypes.func.isRequired,
+  saveAppointment: PropTypes.func.isRequired,
+  surgery: PropTypes.bool,
+  patient: PropTypes.instanceOf(Object),
+};
+
 Appointment.defaultProps = {
-  admissionStartDate: moment().startOf('day'),
-  admissionEndDate: moment().endOf('day'),
-  admissionAllDay: true,
-  othersDate: moment(),
-  othersStartTimeHrs: 0,
-  othersStartTimeMins: 0,
-  othersEndTimeHrs: 0,
-  othersEndTimeMins: 0,
-  othersAllDay: false,
+  surgery: false,
+  patient: {},
 };
 
 function mapStateToProps(state) {

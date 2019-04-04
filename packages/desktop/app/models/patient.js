@@ -1,6 +1,6 @@
 import Backbone from 'backbone-associations';
 import {
-  defaults, each, clone, get, filter, capitalize, concat,
+  each, clone, get, filter, capitalize, concat,
 } from 'lodash';
 import moment from 'moment';
 
@@ -12,7 +12,8 @@ import VisitsCollection from '../collections/visits';
 
 export default register('Patient', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/patient`,
-  defaults: () => defaults({
+  defaults: () => ({
+    ...BaseModel.prototype.defaults,
     displayId: '',
     admitted: false,
     address: '',
@@ -64,7 +65,7 @@ export default register('Patient', BaseModel.extend({
     pregnancies: [],
     surveyResponses: [],
     visits: [],
-  }, BaseModel.prototype.defaults),
+  }),
 
   // Associations
   relations: [
@@ -122,6 +123,13 @@ export default register('Patient', BaseModel.extend({
   validate(attrs) {
     if (attrs.firstName === '') return 'firstName is required!';
     if (attrs.lastName === '') return 'lastName is required!';
+  },
+
+  toJSON() {
+    return {
+      ...BaseModel.prototype.toJSON.call(this),
+      displayName: this.getDisplayName(),
+    };
   },
 
   getDisplayName() {
@@ -235,8 +243,9 @@ export default register('Patient', BaseModel.extend({
     while (from.isSameOrBefore(to)) {
       const date = from.clone();
       medication.push({
-        date: date.format(dateFormat),
-        medication: allMedication.filter(({ attributes }) => (date.isSameOrAfter(attributes.prescriptionDate) && (date.isSameOrBefore(attributes.endDate) || attributes.endDate === null))),
+        date: date.format(),
+        medication: allMedication.filter(({ attributes }) => (date.isSameOrAfter(attributes.prescriptionDate)
+          && (date.isSameOrBefore(attributes.endDate) || attributes.endDate === null))),
       });
       from.add(1, 'days');
     }

@@ -13,10 +13,10 @@ export default {
     ...state,
     loading: true,
   }),
-  [FETCH_MEDICATION_SUCCESS]: ({ patient, medication }, state) => ({
+  [FETCH_MEDICATION_SUCCESS]: ({ patient, medicationModel }, state) => ({
     ...state,
     patient,
-    medication,
+    medicationModel,
     loading: false,
   }),
   [FETCH_MEDICATION_FAILED]: ({ error }, state) => ({

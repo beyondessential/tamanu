@@ -1,5 +1,5 @@
 import React from 'react';
-
+import PropTypes from 'prop-types';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
@@ -24,3 +24,15 @@ export const CheckField = ({ field, ...props }) => (
     {...props}
   />
 );
+
+CheckInput.propTypes = {
+  name: PropTypes.string.isRequired,
+  value: PropTypes.bool,
+  label: PropTypes.bool,
+  onChange: PropTypes.func.isRequired,
+};
+
+CheckInput.defaultProps = {
+  value: false,
+  label: '',
+};

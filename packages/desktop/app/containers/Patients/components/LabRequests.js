@@ -1,37 +1,40 @@
 import React, { Component } from 'react';
-import ReactTable from 'react-table';
 import moment from 'moment';
 import { Typography, Grid } from '@material-ui/core';
 import PropTypes from 'prop-types';
-import { Button, Notification } from '../../../components';
+import { Button, Notification, SimpleTable } from '../../../components';
 import {
-  columnStyle, headerStyle, dateFormat, pageSizes,
+  columnStyle, headerStyle, dateFormat, pageSizes, MUI_SPACING_UNIT as spacing,
 } from '../../../constants';
+
+const newColumnStyle = {
+  ...columnStyle,
+  padding: spacing,
+  height: 85,
+};
 
 const getActionsColumn = () => ({
   id: 'actions',
   Header: 'Actions',
   headerStyle,
-  style: columnStyle,
+  style: newColumnStyle,
   Cell: (props) => <ActionsColumn {...props} />,
 });
 
 const ActionsColumn = ({ original: { _id, requestId } }) => (
-  <div key={_id}>
-    <Button
-      variant="contained"
-      color="primary"
-      size="small"
-      to={`/labs/request/${requestId}`}
-    >
-View
-    </Button>
-  </div>
+  <Button
+    variant="contained"
+    color="primary"
+    size="small"
+    to={`/labs/request/${requestId}`}
+  >
+    View
+  </Button>
 );
 
 const TestType = ({ name, category, range }) => (
   <Grid container direction="column">
-    <Typography variant="subtitle1">{name}</Typography>
+    <Typography variant="subtitle2">{name}</Typography>
     <Typography variant="caption">{range.join(' - ')}</Typography>
     <Typography variant="caption">{category.name}</Typography>
   </Grid>
@@ -89,7 +92,7 @@ const generateDataColumns = labTests => {
       Header: moment(date).format(dateFormat),
       accessor,
       headerStyle,
-      style: columnStyle,
+      style: newColumnStyle,
       Cell: ({ original: { [accessor]: props } }) => <TestResult {...props} />,
     });
   });
@@ -101,7 +104,7 @@ const getFixedTableColumns = () => ([{
   accessor: 'testType',
   Header: 'Test',
   headerStyle,
-  style: columnStyle,
+  style: newColumnStyle,
   minWidth: 100,
   Cell: ({ original: { testType: props } }) => <TestType {...props} />,
 }]);
@@ -152,36 +155,26 @@ export default class LabRequests extends Component {
             disabled={!this.labRequestsCollection.hasPreviousPage()}
             onClick={this.prevPage}
           >
-Prev
+            Prev
           </Button>
           <Button
             disabled={!this.labRequestsCollection.hasNextPage()}
             onClick={this.nextPage}
           >
-Next
+            Next
           </Button>
         </Grid>
         <Grid container>
-          <Grid item xs={1}>
-            <ReactTable
-              keyField="_id"
+          <Grid item xs={2}>
+            <SimpleTable
               data={labTests}
-              pageSize={labTests.length}
               columns={getFixedTableColumns()}
-              className="-striped"
-              defaultSortDirection="asc"
-              showPagination={false}
             />
           </Grid>
-          <Grid item xs={11} style={{ overflowX: 'auto' }}>
-            <ReactTable
-              keyField="_id"
+          <Grid item xs={10} style={{ overflowX: 'auto' }}>
+            <SimpleTable
               data={labTests}
-              pageSize={labTests.length}
               columns={columns}
-              className="-striped"
-              defaultSortDirection="asc"
-              showPagination={false}
             />
           </Grid>
         </Grid>

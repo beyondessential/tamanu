@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { SelectField } from './SelectField';
 
 export const RelationField = ({ type, ...props }) => (

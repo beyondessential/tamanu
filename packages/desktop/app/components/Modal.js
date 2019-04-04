@@ -1,65 +1,41 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import Modal from 'react-responsive-modal';
+import {
+  Dialog as MuiDialog, DialogTitle, DialogContent, DialogActions,
+} from '@material-ui/core';
+import { MUI_SPACING_UNIT as spacing } from '../constants';
 
-import { Button } from './Button';
+export const ModalActions = (props) => (
+  <DialogActions style={{ marginTop: spacing * 2 }} {...props} />
+);
 
-class ModalView extends Component {
-  static propTypes = {
-    modalType: PropTypes.oneOf(['alert', 'confirm']),
-    headerTitle: PropTypes.string.isRequired,
-    contentText: PropTypes.string.isRequired,
-    isVisible: PropTypes.bool.isRequired,
-    onClose: PropTypes.func.isRequired,
-    onConfirm: PropTypes.func,
-    okText: PropTypes.string,
-    cancelText: PropTypes.string,
-  }
-
-  static defaultProps = {
-    modalType: 'alert',
-    okText: 'OK',
-    cancelText: 'Cancel',
-    onConfirm: () => {},
-  }
-
-  render() {
-    const {
-      modalType,
-      headerTitle,
-      contentText,
-      isVisible,
-      onClose,
-      onConfirm,
-      okText,
-      cancelText,
-    } = this.props;
-
-    return (
-      <Modal open={isVisible} onClose={onClose} little>
-        <div className="tamanu-error-modal">
-          <div className="modal-header">
-            <h2>{headerTitle}</h2>
-          </div>
-          <div className="modal-content">
-            <span className="modal-text">{contentText}</span>
-          </div>
-          <div className="modal-footer">
-            <div className="column has-text-right">
-              {modalType === 'confirm' && <Button variant="outlined" onClick={onClose}>{cancelText}</Button>}
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={modalType === 'confirm' ? onConfirm : onClose}
-              >
-                {okText}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Modal>
-    );
-  }
+export function Modal({
+  title, children, isVisible,
+  onClose, actions, ...props
+}) {
+  return (
+    <MuiDialog
+      fullWidth
+      maxWidth="sm"
+      {...props}
+      open={isVisible}
+      onClose={onClose}
+    >
+      <DialogTitle>{title}</DialogTitle>
+      <DialogContent>{children}</DialogContent>
+      {actions && <ModalActions>{actions}</ModalActions>}
+    </MuiDialog>
+  );
 }
 
-export default ModalView;
+Modal.propTypes = {
+  title: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
+  actions: PropTypes.node,
+  isVisible: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+Modal.defaultProps = {
+  actions: null,
+};

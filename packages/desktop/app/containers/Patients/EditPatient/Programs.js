@@ -1,13 +1,6 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { Notification } from '../../../components';
 
-class Programs extends Component {
-  render() {
-    return (
-      <div>
-        No Programs available.
-      </div>
-    );
-  }
-}
-
-export default Programs;
+export default () => (
+  <Notification message="No Programs available." />
+);

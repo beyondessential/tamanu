@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import ReactTable from 'react-table';
+import { Grid } from '@material-ui/core';
 import { pregnancyColumns, PREGNANCY_PROGRAM_ID } from '../../../constants';
 import PregnancyModal from '../components/PregnancyModal';
-import { Button } from '../../../components';
+import {
+  Button, TabHeader, NewButton, ButtonGroup, SimpleTable,
+} from '../../../components';
 
-class Pregnancy extends Component {
+export default class Pregnancy extends Component {
   state = {
     modalVisible: false,
     action: 'new',
@@ -29,43 +31,57 @@ class Pregnancy extends Component {
     const { patient } = this.props;
     const item = row.original;
     return (
-      <div key={row._id}>
+      <ButtonGroup>
         {item.child
           && (
           <Button
             variant="outlined"
+            color="primary"
+            size="small"
             onClick={() => this.viewPatient(item.child.id)}
           >
-View Child
+            View Child
           </Button>
           )
         }
         {item.child
           && (
           <Button
+            color="primary"
+            variant="outlined"
+            size="small"
             onClick={() => this.viewPatient(item.father.id)}
           >
-View Father
+            View Father
           </Button>
           )
         }
         <Button
+          color="primary"
+          variant="contained"
+          size="small"
           onClick={() => this.editItem(row)}
         >
-Edit Pregnancy
+          Edit Pregnancy
         </Button>
         <Button
+          color="primary"
+          variant="contained"
+          size="small"
           to={`/programs/${PREGNANCY_PROGRAM_ID}/${patient._id}/surveys/module/${item._id}`}
         >
-Add Form
+          Add Form
         </Button>
         <Button
+          color="primary"
+          variant="contained"
+          size="small"
           to={`/programs/${PREGNANCY_PROGRAM_ID}/${patient._id}/surveys/module/${item._id}`}
           disabled={item.surveyResponses.length <= 0}
         >
-View Forms
+          View Forms
         </Button>
-      </div>
+      </ButtonGroup>
     );
   }
 
@@ -83,41 +99,21 @@ View Forms
     lastCol.Cell = this.setActionsCol;
 
     return (
-      <div>
-        <div className="column p-t-0 p-b-0">
-          <a className="button is-primary is-pulled-right is-block" onClick={() => this.setState({ modalVisible: true, action: 'new', item: null })}>
-            <i className="fa fa-plus" />
-            {' '}
-Add Pregnancy
-          </a>
-          <div className="is-clearfix" />
-        </div>
-        <div className="column">
-          {pregnancies.length > 0
-            && (
-            <div>
-              <ReactTable
-                keyField="_id"
-                data={pregnancies}
-                pageSize={pregnancies.length}
-                columns={pregnancyColumns}
-                className="-striped"
-                defaultSortDirection="asc"
-                showPagination={false}
-              />
-            </div>
-            )
-          }
-          {pregnancies.length === 0
-            && (
-            <div className="notification">
-              <span>
-                No pregnancies found.
-              </span>
-            </div>
-            )
-          }
-        </div>
+      <Grid container>
+        <TabHeader>
+          <NewButton
+            onClick={() => this.setState({ modalVisible: true, action: 'new', item: null })}
+          >
+            Add Pregnancy
+          </NewButton>
+        </TabHeader>
+        <Grid container item>
+          <SimpleTable
+            data={pregnancies}
+            columns={pregnancyColumns}
+            emptyNotification="No pregnancies found."
+          />
+        </Grid>
         <PregnancyModal
           item={item}
           patient={patient}
@@ -127,9 +123,7 @@ Add Pregnancy
           onClose={this.onCloseModal}
           little
         />
-      </div>
+      </Grid>
     );
   }
 }
-
-export default Pregnancy;

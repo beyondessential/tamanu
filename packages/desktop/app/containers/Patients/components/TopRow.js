@@ -1,56 +1,69 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import moment from 'moment';
+import { Grid, Typography, Chip } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
 import { getDifferenceDate } from '../../../constants';
 
-const FullWidthWrapper = styled.div`
-  flex-grow: 1
-`;
+const styles = ({ spacing }) => ({
+  container: {
+    position: 'relative',
+    marginBottom: spacing.unit,
+  },
+  chip: {
+    position: 'absolute',
+    top: spacing.unit / 2,
+    right: 0,
+    padding: spacing.unit / 2,
+  },
+});
 
-class TopRow extends Component {
-  static propTypes = {
-    patient: PropTypes.object.isRequired,
-  }
+const RenderRow = ({ label, value }) => (
+  <Grid container item alignItems="center" spacing={8}>
+    <Grid item>
+      <Typography variant="body2">
+        {`${label}:`}
+      </Typography>
+    </Grid>
+    <Grid item>
+      <Typography variant="body1">
+        {value}
+      </Typography>
+    </Grid>
+  </Grid>
+);
 
-  render() {
-    const { patient } = this.props;
-    return (
-      <FullWidthWrapper>
-        <div className="columns is-multiline is-variable m-b-0 p-b-15">
-          <div className="column p-b-0 is-8">
-            <div className="column p-b-5 p-t-0">
-              <span className="title">Name: </span>
-              <span className="full-name">
-                {patient.firstName}
-                {' '}
-                {patient.lastName}
-              </span>
-            </div>
-            <div className="column p-b-5 p-t-5">
-              <span className="title is-medium">Sex: </span>
-              <span className="is-medium">
-                {patient.sex}
-              </span>
-            </div>
-            <div className="column p-t-5 p-b-5">
-              <span className="title is-medium">Age: </span>
-              <span className="is-medium">
-                {getDifferenceDate(moment(), patient.dateOfBirth)}
-              </span>
-            </div>
-          </div>
-          <div className="column p-b-0 is-4">
-            <div className="align-left">
-              <div className="card-info">
-                {patient.displayId}
-              </div>
-            </div>
-          </div>
-        </div>
-      </FullWidthWrapper>
-    );
-  }
+function TopRow({ classes, patient }) {
+  return (
+    <Grid
+      container
+      spacing={8}
+      direction="row"
+      className={classes.container}
+    >
+      <Chip
+        className={classes.chip}
+        label={patient.displayId}
+      />
+      <RenderRow
+        label="Name"
+        value={patient.displayName}
+      />
+      <RenderRow
+        label="Sex"
+        value={patient.sex}
+      />
+      <RenderRow
+        label="Age"
+        value={getDifferenceDate(moment(), patient.dateOfBirth)}
+      />
+    </Grid>
+  );
 }
 
-export default TopRow;
+TopRow.propTypes = {
+  patient: PropTypes.instanceOf(Object).isRequired,
+  classes: PropTypes.objectOf(PropTypes.string).isRequired,
+};
+
+export default withStyles(styles)(TopRow);

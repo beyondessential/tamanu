@@ -12,6 +12,8 @@ import {
 
 import { availableReports } from '../containers/Reports/dummyReports';
 
+export const MUI_SPACING_UNIT = 8;
+
 export const REMEMBER_EMAIL_KEY = 'remember-email';
 
 export const DISPLAY_ID_PLACEHOLDER = '-TMP-';
@@ -977,12 +979,6 @@ export const programsPatientsColumns = [
 
 export const medicationColumns = [
   {
-    accessor: 'prescriptionDate',
-    Header: 'Date',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 100,
-  }, {
     accessor: 'patient',
     Header: 'Patient',
     headerStyle,
@@ -1040,15 +1036,6 @@ export const medicationColumns = [
     headerStyle,
     style: columnStyle,
     minWidth: 100,
-  }, {
-    accessor: row => ({ _id: row._id, admitted: row.admitted }),
-    id: 'actions',
-    Header: 'Actions',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 200,
-    Cell: null,
-    filterable: false,
   },
 ];
 
@@ -1538,14 +1525,5 @@ export const patientImagingRequestsColumns = [
     headerStyle,
     style: columnStyle,
     minWidth: 100,
-  }, {
-    id: 'actions',
-    Header: 'Actions',
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor,
-    },
-    style: columnStyle,
-    minWidth: 250,
-    Cell: null,
   },
 ];

@@ -20,7 +20,7 @@ export default Backbone.AssociatedModel.extend({
     let newAttributes = clone(attributes);
     if (isArray(newAttributes)) newAttributes = head(newAttributes);
     Backbone.AssociatedModel.apply(this, [newAttributes, options]);
-    this._parseParents();
+    this.parseParents();
   },
 
   defaults: {
@@ -59,7 +59,7 @@ export default Backbone.AssociatedModel.extend({
     try {
       const res = await Backbone.Model.prototype.fetch.apply(this, [options]);
       this.lastSyncedAttributes = this.toJSON();
-      this._parseParents();
+      this.parseParents();
       return res;
     } catch (err) {
       console.error(`Error: ${err}`);
@@ -89,7 +89,7 @@ export default Backbone.AssociatedModel.extend({
       if (modifiedFields) modifiedFields = Object.keys(modifiedFields).map(field => field.split('__')[0]);
 
       // Set last modified times
-      modifiedAttributes = this._setModifiedFields({
+      modifiedAttributes = this.setModifiedFields({
         modifiedFields, defaultAttributes, attributes, ModifiedFieldModel, secret, modifiedAttributes,
       });
 
@@ -106,7 +106,7 @@ export default Backbone.AssociatedModel.extend({
     }
   },
 
-  _setModifiedFields({
+  setModifiedFields({
     modifiedFields, defaultAttributes, attributes, ModifiedFieldModel, secret, modifiedAttributes,
   }) {
     let modifiedAttributesNew = modifiedAttributes;
@@ -141,7 +141,6 @@ export default Backbone.AssociatedModel.extend({
     }
     return modifiedAttributesNew;
   },
-
 
   toJSON() {
     const json = Backbone.AssociatedModel.prototype.toJSON.call(this);
@@ -180,7 +179,7 @@ export default Backbone.AssociatedModel.extend({
     });
   },
 
-  _parseParents() {
+  parseParents() {
     const parents = [];
     const { attributes } = this;
     if (typeof this.reverseRelations === 'object') {

@@ -2,8 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { toLower } from 'lodash';
+import { Paper } from '@material-ui/core';
 import actions from '../../../actions/scheduling';
-import { Modal, Button, BrowsableTable } from '../../../components';
+import {
+  Dialog, Button, BrowsableTable, ButtonGroup,
+} from '../../../components';
 import { AppointmentsCollection } from '../../../collections';
 import { appointmentsColumns } from '../../../constants';
 
@@ -17,51 +20,45 @@ const prepareRow = (model) => {
 
 class AppointmentsTable extends Component {
   state = {
-    appointments: [{}],
-    loading: true,
     deleteModalVisible: false,
     selectedAppointment: null,
-    keys: this.props.keys,
   }
 
   componentWillMount() {
     appointmentsColumns[appointmentsColumns.length - 1].Cell = this.setActionsColumn;
   }
 
-  setActionsColumn = _row => {
-    const row = _row.original;
-    return (
-      <div key={row._id}>
+  setActionsColumn = ({ original: row }) => (
+    <ButtonGroup>
+      <Button
+        onClick={() => this.goEdit(row._id)}
+        color="secondary"
+        variant="contained"
+        can={{ do: 'update', on: 'appointment' }}
+      >
+        Edit
+      </Button>
+      {toLower(row.status) === 'scheduled'
+        && (
         <Button
-          onClick={() => this.goEdit(row._id)}
-          color="secondary"
-          variant="contained"
-          can={{ do: 'update', on: 'appointment' }}
-        >
-          Edit
-        </Button>
-        {toLower(row.status) === 'scheduled'
-          && (
-          <Button
-            onClick={() => this.checkIn(row.patients[0]._id)}
-            color="primary"
-            variant="contained"
-          >
-            Check In
-          </Button>
-          )
-        }
-        <Button
-          onClick={() => this.showDeleteModal(row)}
+          onClick={() => this.checkIn(row.patients[0]._id)}
           color="primary"
-          variant="outlined"
-          can={{ do: 'delete', on: 'appointment' }}
+          variant="contained"
         >
-          Delete
+          Check In
         </Button>
-      </div>
-    );
-  }
+        )
+      }
+      <Button
+        onClick={() => this.showDeleteModal(row)}
+        color="primary"
+        variant="outlined"
+        can={{ do: 'delete', on: 'appointment' }}
+      >
+        Delete
+      </Button>
+    </ButtonGroup>
+  )
 
   goEdit = (id) => {
     this.props.history.push(`/appointments/appointment/${id}`);
@@ -88,33 +85,32 @@ class AppointmentsTable extends Component {
   }
 
   render() {
-    const { filters } = this.props;
+    const { filters, collection } = this.props;
     return (
-      <React.Fragment>
-        <div className="detail">
-          <BrowsableTable
-            collection={this.props.collection}
-            columns={appointmentsColumns}
-            emptyNotification="No appointments found"
-            transformRow={prepareRow}
-            fetchOptions={filters}
-          />
-        </div>
-        <Modal
-          modalType="confirm"
+      <Paper elevation={0}>
+        <BrowsableTable
+          collection={collection}
+          columns={appointmentsColumns}
+          emptyNotification="No appointments found"
+          transformRow={prepareRow}
+          fetchOptions={filters}
+        />
+        <Dialog
+          dialogType="confirm"
           headerTitle="Confirm"
           contentText="Are you sure you want to delete this appointment?"
           isVisible={this.state.deleteModalVisible}
-          onConfirm={this.deleteAppointment.bind(this)}
-          onClose={this.onCloseModal.bind(this)}
+          onConfirm={this.deleteAppointment}
+          onClose={this.onCloseModal}
         />
-      </React.Fragment>
+      </Paper>
     );
   }
 }
 
 AppointmentsTable.propTypes = {
-  filters: PropTypes.object.isRequired,
+  filters: PropTypes.instanceOf(Object).isRequired,
+  deleteAppointment: PropTypes.func.isRequired,
   autoFetch: PropTypes.bool,
 };
 

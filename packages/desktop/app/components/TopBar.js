@@ -1,15 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
+import { grey } from '@material-ui/core/colors';
+import { AppBar, Toolbar, Typography, Grid } from '@material-ui/core';
 import { values, mapValues, isArray } from 'lodash';
 import { NewButton, SearchBar } from '.';
 
 const styles = theme => ({
   root: {
     flexGrow: 1,
+    backgroundColor: grey[200],
+    borderBottom: `2px solid ${grey[300]}`,
+    marginBottom: 3,
   },
   h3: {
     marginBottom: '0 !important',
@@ -19,6 +21,7 @@ const styles = theme => ({
   },
   noShadow: {
     boxShadow: 'none',
+    background: 'none',
   },
   buttonBarItems: {
     marginLeft: '5px',
@@ -28,7 +31,7 @@ const styles = theme => ({
 });
 
 const TopBar = ({ classes, ...children }) => (
-  <div className={classes.root}>
+  <Grid className={classes.root}>
     <AppBar
       position="static"
       color="inherit"
@@ -42,7 +45,7 @@ const TopBar = ({ classes, ...children }) => (
         </DrawChildren>
       </Toolbar>
     </AppBar>
-  </div>
+  </Grid>
 );
 
 const DrawChildren = ({ classes, children }) => values(mapValues(children, (childNode, key) => {

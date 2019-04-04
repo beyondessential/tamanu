@@ -12,7 +12,7 @@ const styles = ({ spacing }) => {
     list: {
       flexGrow: 1,
       backgroundColor: grey[200],
-      marginTop: spacing.unit * 2,
+      marginBottom: spacing.unit,
       padding: 0,
       fontSize: 2,
     },
@@ -111,6 +111,7 @@ class HistoryItem extends Component {
       item, patientId, changeTab, ...props
     } = this.props;
     switch (props.objectType) {
+      default:
       case 'visit':
         return (
           <React.Fragment>
@@ -122,11 +123,15 @@ class HistoryItem extends Component {
               endDate={item.endDate}
               onClick={() => this.gotoLink(`/patients/visit/${patientId}/${item._id}`)}
             />
-            <Procedures
-              {...item}
-              classes={props.classes}
-              patientId={patientId}
-            />
+            {item.procedures.length > 0
+              && (
+                <Procedures
+                  {...item}
+                  classes={props.classes}
+                  patientId={patientId}
+                />
+              )
+            }
           </React.Fragment>
         );
       case 'medication':

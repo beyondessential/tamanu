@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
-import Select from 'react-select';
 import moment from 'moment';
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-
+import { Grid } from '@material-ui/core';
 import Contacts from '../components/Contacts';
+import { PatientModel } from '../../../models';
 import {
-  InputGroup, DatepickerGroup, RadioGroup, UpdateButton, BackButton,
+  TextInput, DateInput, RadioInput, UpdateButton, BackButton,
+  FormRow, SelectInput,
 } from '../../../components';
-import { bloodOptions, sexOptions, getDifferenceDate } from '../../../constants';
+import {
+  bloodOptions, sexOptions, getDifferenceDate, MUI_SPACING_UNIT as spacing,
+} from '../../../constants';
 
-class General extends Component {
+export default class General extends Component {
   constructor(props) {
     super(props);
     this.submitForm = this.submitForm.bind(this);
@@ -29,7 +31,7 @@ class General extends Component {
     this.handleChange(newProps);
   }
 
-  handleChange(props = this.props) {
+  handleChange = (props = this.props) => {
     const { patientModel } = props;
     let { age } = this.state;
     if (patientModel.get('dateOfBirth') !== null) patientModel.set('dateOfBirth', moment(patientModel.get('dateOfBirth')));
@@ -38,19 +40,14 @@ class General extends Component {
     this.setState({ age, patientModel });
   }
 
-  handleUserInput = (e, field) => {
+  handleUserInput = (event) => {
     const { patientModel } = this.props;
     let { age } = this.state;
-    if (typeof field !== 'undefined') {
-      patientModel.set(field, e, { silent: true });
-    } else {
-      const { name } = e.target;
-      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-      patientModel.set(name, value, { silent: true });
-    }
+    const { name, value } = event.target;
+    patientModel.set(name, value, { silent: true });
 
     // Get age
-    if (field === 'dateOfBirth') age = getDifferenceDate(moment(), e);
+    if (name === 'dateOfBirth') age = getDifferenceDate(moment(), event);
     this.setState({ age, patientModel });
   }
 
@@ -60,294 +57,198 @@ class General extends Component {
     this.props.savePatient({ Model: patientModel });
   }
 
-  // updatePatient = async (patient) => {
-  //   const { history, model: patientModel } = this.props;
-  //   const updatedPatient = patient;
-  //   updatedPatient.birthday = moment(this.props.updatedBirthday).format('YYYY-MM-DD');
-  //   updatedPatient.referredDate = moment(this.props.updatedReferredDate).format('YYYY-MM-DD');
-  //   console.log({ updatedPatient });
-  //   patientModel.set(updatedPatient);
-  //   if (patientModel.isValid()) {
-  //     await patientModel.save();
-  //     history.push('/patients');
-  //   }
-  // }
-
   render() {
     const {
       patientModel,
       age,
     } = this.state;
     const { attributes: form } = patientModel;
-    return (
-      <div>
-        <form
-          id="generalForm"
-          onSubmit={this.submitForm}
-        />
-        <div className="form no-margin">
-          <div className="columns">
-            <div className="column">
-              <InputGroup
-                name="firstName"
-                label="First Name"
-                value={form.firstName}
-                onChange={this.handleUserInput}
-                required
-                tabIndex={1}
-              />
-            </div>
-            <div className="column">
-              <InputGroup
-                name="status"
-                label="Patient Status"
-                value={form.status}
-                onChange={this.handleUserInput}
-                tabIndex={7}
-              />
-            </div>
-          </div>
-          <div className="columns">
-            <div className="column">
-              <InputGroup
-                name="middleName"
-                label="Middle Name"
-                value={form.middleName}
-                onChange={this.handleUserInput}
-                tabIndex={2}
-              />
-            </div>
-            <div className="column">
-              <InputGroup
-                name="externalPatientId"
-                label="External Patient Id"
-                value={form.externalPatientId}
-                onChange={this.handleUserInput}
-                tabIndex={8}
-              />
-            </div>
-          </div>
-          <div className="columns">
-            <div className="column">
-              <InputGroup
-                name="lastName"
-                label="Last Name"
-                value={form.lastName}
-                onChange={this.handleUserInput}
-                required
-                tabIndex={3}
-              />
-            </div>
-            <div className="column">
-              <div className="column">
-                <span className="header">
-                  Blood Type
-                </span>
-                <Select
-                  options={bloodOptions}
-                  simpleValue
-                  name="bloodType"
-                  value={form.bloodType}
-                  onChange={val => this.handleUserInput(val, 'bloodType')}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="columns">
-            <div className="column">
-              <InputGroup
-                name="culturalName"
-                label="Cultural or Traditional Name"
-                value={form.culturalName}
-                onChange={this.handleUserInput}
-                tabIndex={4}
-              />
-            </div>
-            <div className="column">
-              <InputGroup
-                name="clinic"
-                label="Clinic Site"
-                value={form.clinic}
-                onChange={this.handleUserInput}
-                tabIndex={9}
-              />
-            </div>
-          </div>
-          <div className="columns">
-            <div className="column">
-              <div className="column">
-                <span className="header">
-                  Sex
-                </span>
-                <Select
-                  options={sexOptions}
-                  simpleValue
-                  name="sex"
-                  value={form.sex}
-                  onChange={val => this.handleUserInput(val, 'sex')}
-                />
-              </div>
-            </div>
-            <div className="column">
-              <InputGroup
-                name="referredBy"
-                label="Referred By"
-                value={form.referredBy}
-                onChange={this.handleUserInput}
-                tabIndex={10}
-              />
-            </div>
-          </div>
-          <div className="columns">
-            <div className="column">
-              <DatepickerGroup
-                label="Date Of Birth"
-                name="dateOfBirth"
-                onChange={this.handleUserInput}
-                value={form.dateOfBirth}
-              />
-            </div>
-            <div className="column">
-              <DatepickerGroup
-                label="Referred Date"
-                name="referredDate"
-                onChange={this.handleUserInput}
-                value={form.referredDate}
-              />
-            </div>
-          </div>
-          <div className="columns">
-            <div className="column">
-              <div className="column">
-                <span className="header">
-                  Age
-                </span>
-                <p name="age" value={age}>
-                  {age}
-                </p>
-              </div>
-            </div>
-            <div className="column">
-              <InputGroup
-                name="religion"
-                label="Religion"
-                value={form.religion}
-                onChange={this.handleUserInput}
-                tabIndex={11}
-              />
-            </div>
-          </div>
-          <div className="columns">
-            <div className="column">
-              <InputGroup
-                name="placeOfBirth"
-                label="Place of Birth"
-                value={form.placeOfBirth}
-                onChange={this.handleUserInput}
-                tabIndex={5}
-              />
-            </div>
-            <div className="column">
-              <InputGroup
-                name="parent"
-                label="Parent/Guardian"
-                value={form.parent}
-                onChange={this.handleUserInput}
-                tabIndex={12}
-              />
-            </div>
-          </div>
-          <div className="columns">
-            <div className="column">
-              <InputGroup
-                name="occupation"
-                label="Occupation"
-                value={form.occupation}
-                onChange={this.handleUserInput}
-                tabIndex={6}
-              />
-            </div>
-            <div className="column">
-              {/* Not sure about this type */}
-              <InputGroup
-                name="paymentProfile"
-                label="Payment Profile"
-                value={form.paymentProfile}
-                onChange={this.handleUserInput}
-                tabIndex={13}
-              />
-            </div>
-          </div>
-          <div className="columns">
-            <div className="column is-6">
-              <RadioGroup
-                name="patientType"
-                className="column"
-                label="Patient Type"
-                value={form.patientType}
-                options={[{ value: 'charity', label: 'Charity' }, { value: 'private', label: 'Private' }]}
-                onChange={this.handleUserInput}
-                stacked
-              />
-            </div>
-          </div>
-          <div className="columns">
-            <div className="column">
-              <InputGroup
-                name="phone"
-                label="Phone"
-                value={form.phone}
-                onChange={this.handleUserInput}
-                tabIndex={14}
-              />
-              <InputGroup
-                name="address"
-                label="Address"
-                value={form.address}
-                onChange={this.handleUserInput}
-                tabIndex={15}
-              />
-            </div>
-            <div className="column">
-              <InputGroup
-                name="email"
-                label="Email"
-                value={form.email}
-                onChange={this.handleUserInput}
-                tabIndex={16}
-              />
-              <InputGroup
-                name="country"
-                label="Country"
-                value={form.country}
-                onChange={this.handleUserInput}
-                tabIndex={17}
-              />
-            </div>
-          </div>
-          <div className="formLayout">
-            <Contacts
-              patientModel={patientModel}
-            />
-          </div>
-        </div>
-        <div className="column has-text-right">
-          <BackButton to="/patients" />
-          <UpdateButton
-            form="generalForm"
-            type="submit"
-            disabled={!patientModel.isValid()}
-            can={{ do: 'update', on: 'patient' }}
-          />
-        </div>
 
-      </div>
+    return (
+      <Grid container spacing={24} direction="row">
+        <form id="generalForm" onSubmit={this.submitForm} />
+        <FormRow>
+          <TextInput
+            name="firstName"
+            label="First Name"
+            value={form.firstName}
+            onChange={this.handleUserInput}
+            required
+          />
+          <TextInput
+            name="status"
+            label="Patient Status"
+            value={form.status}
+            onChange={this.handleUserInput}
+          />
+        </FormRow>
+        <FormRow>
+          <TextInput
+            name="middleName"
+            label="Middle Name"
+            value={form.middleName}
+            onChange={this.handleUserInput}
+          />
+          <TextInput
+            name="externalPatientId"
+            label="External Patient Id"
+            value={form.externalPatientId}
+            onChange={this.handleUserInput}
+          />
+        </FormRow>
+        <FormRow>
+          <TextInput
+            name="lastName"
+            label="Last Name"
+            value={form.lastName}
+            onChange={this.handleUserInput}
+            required
+          />
+          <SelectInput
+            label="Blood Type"
+            options={bloodOptions}
+            name="bloodType"
+            value={form.bloodType}
+            onChange={this.handleUserInput}
+          />
+        </FormRow>
+        <FormRow>
+          <TextInput
+            name="culturalName"
+            label="Cultural or Traditional Name"
+            value={form.culturalName}
+            onChange={this.handleUserInput}
+          />
+          <TextInput
+            name="clinic"
+            label="Clinic Site"
+            value={form.clinic}
+            onChange={this.handleUserInput}
+          />
+        </FormRow>
+        <FormRow>
+          <SelectInput
+            label="Sex"
+            options={sexOptions}
+            name="sex"
+            value={form.sex}
+            onChange={this.handleUserInput}
+          />
+          <TextInput
+            name="referredBy"
+            label="Referred By"
+            value={form.referredBy}
+            onChange={this.handleUserInput}
+          />
+        </FormRow>
+        <FormRow>
+          <DateInput
+            label="Date Of Birth"
+            name="dateOfBirth"
+            onChange={this.handleUserInput}
+            value={form.dateOfBirth}
+            helperText={age && `${age} of age`}
+          />
+          <DateInput
+            label="Referred Date"
+            name="referredDate"
+            onChange={this.handleUserInput}
+            value={form.referredDate}
+          />
+        </FormRow>
+        <FormRow>
+          <TextInput
+            name="religion"
+            label="Religion"
+            value={form.religion}
+            onChange={this.handleUserInput}
+          />
+          <TextInput
+            name="placeOfBirth"
+            label="Place of Birth"
+            value={form.placeOfBirth}
+            onChange={this.handleUserInput}
+          />
+        </FormRow>
+        <FormRow>
+          <TextInput
+            name="parent"
+            label="Parent/Guardian"
+            value={form.parent}
+            onChange={this.handleUserInput}
+          />
+          <TextInput
+            name="occupation"
+            label="Occupation"
+            value={form.occupation}
+            onChange={this.handleUserInput}
+          />
+        </FormRow>
+        <FormRow>
+          <TextInput
+            name="paymentProfile"
+            label="Payment Profile"
+            value={form.paymentProfile}
+            onChange={this.handleUserInput}
+          />
+          <RadioInput
+            name="patientType"
+            label="Patient Type"
+            value={form.patientType}
+            options={[{ value: 'charity', label: 'Charity' }, { value: 'private', label: 'Private' }]}
+            onChange={this.handleUserInput}
+            style={{ flexDirection: 'row' }}
+          />
+        </FormRow>
+        <FormRow>
+          <TextInput
+            name="phone"
+            label="Phone"
+            value={form.phone}
+            onChange={this.handleUserInput}
+          />
+          <TextInput
+            name="address"
+            label="Address"
+            value={form.address}
+            onChange={this.handleUserInput}
+          />
+        </FormRow>
+        <FormRow>
+          <TextInput
+            name="email"
+            label="Email"
+            value={form.email}
+            onChange={this.handleUserInput}
+          />
+          <TextInput
+            name="country"
+            label="Country"
+            value={form.country}
+            onChange={this.handleUserInput}
+          />
+        </FormRow>
+        <Contacts
+          patientModel={patientModel}
+          style={{ marginTop: spacing * 2, marginBottom: spacing * 2 }}
+        />
+        <Grid container item justify="flex-end">
+          <Grid item>
+            <BackButton to="/patients" />
+            <UpdateButton
+              form="generalForm"
+              type="submit"
+              disabled={!patientModel.isValid()}
+              can={{ do: 'update', on: 'patient' }}
+            />
+          </Grid>
+        </Grid>
+      </Grid>
     );
   }
 }
 
 General.propTypes = {
   savePatient: PropTypes.func.isRequired,
+  patientModel: PropTypes.instanceOf(PatientModel).isRequired,
 };
-
-export default General;

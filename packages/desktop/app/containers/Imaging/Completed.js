@@ -1,10 +1,11 @@
 import React from 'react';
+import { Grid } from '@material-ui/core';
 import { TopBar } from '../../components';
 import ImagingRequestsTable from './components/ImagingRequestsTable';
 import { IMAGING_REQUEST_STATUSES } from '../../constants';
 
-const CompletedImagingRequests = () => (
-  <div className="content">
+export default () => (
+  <React.Fragment>
     <TopBar
       title="Completed Imaging Requests"
       button={{
@@ -13,10 +14,8 @@ const CompletedImagingRequests = () => (
         can: { do: 'create', on: 'imaging' },
       }}
     />
-    <div className="detail">
+    <Grid container item>
       <ImagingRequestsTable status={IMAGING_REQUEST_STATUSES.COMPLETED} />
-    </div>
-  </div>
+    </Grid>
+  </React.Fragment>
 );
-
-export default CompletedImagingRequests;

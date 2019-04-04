@@ -17,15 +17,13 @@ const getActionsColumn = () => ({
 });
 
 const ActionsColumn = ({ original: { _id } }) => (
-  <div key={_id}>
-    <Button
-      variant="contained"
-      color="primary"
-      to={`/imaging/request/${_id}`}
-    >
-View
-    </Button>
-  </div>
+  <Button
+    variant="contained"
+    color="primary"
+    to={`/imaging/request/${_id}`}
+  >
+    View
+  </Button>
 );
 
 const transformRow = (imagingModel) => {
@@ -61,14 +59,13 @@ class ImagingRequestsTable extends Component {
 
   render() {
     const { status } = this.props;
-
     return (
       <BrowsableTable
         collection={this.collection}
         columns={this.columns}
         emptyNotification="No requests found"
         transformRow={transformRow}
-        fetchOptions={{ data: { status } }}
+        fetchOptions={{ status }}
       />
     );
   }

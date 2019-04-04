@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import {
-  isEmpty, has, head, last,
-} from 'lodash';
+import { Grid } from '@material-ui/core';
 import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
 import actions from '../../actions/scheduling';
 import FiltersForm from './components/FiltersForm';
-import { REALM_DATE_FORMAT } from '../../constants';
-import { TopBar } from '../../components';
+import { REALM_DATE_FORMAT, MUI_SPACING_UNIT as spacing } from '../../constants';
+import { TopBar, Container } from '../../components';
 
 BigCalendar.momentLocalizer(moment);
 
@@ -39,11 +37,6 @@ class AppointmentsCalendar extends Component {
     this.handleChange(newProps);
   }
 
-  handleChange(props = this.props) {
-    const { appointments, loading } = props;
-    if (!loading) this.setState({ appointments, loading });
-  }
-
   viewAppointment = ({ _id }) => {
     const { surgery } = this.props;
     this.props.history.push(`/appointments/${!surgery ? 'appointment' : 'surgery'}/${_id}`);
@@ -52,12 +45,12 @@ class AppointmentsCalendar extends Component {
   setDates = dates => {
     let startDate;
     let endDate;
-    if (has(dates, 'start') && has(dates, 'end')) {
+    if (dates.start && dates.end) {
       startDate = moment(dates.start).startOf('day').toISOString();
       endDate = moment(dates.end).endOf('day').toISOString();
-    } else if (!isEmpty(dates)) {
-      startDate = moment(head(dates)).startOf('day').toISOString();
-      endDate = moment(last(dates)).endOf('day').toISOString();
+    } else if (!Array.isEmpty(dates)) {
+      startDate = moment(dates[0]).startOf('day').toISOString();
+      endDate = moment(dates[dates.length - 1]).endOf('day').toISOString();
     }
 
     this.setState({ startDate, endDate }, this.fetchData);
@@ -93,6 +86,11 @@ class AppointmentsCalendar extends Component {
     this.props.fetchCalender({ filters });
   }
 
+  handleChange(props = this.props) {
+    const { appointments, loading } = props;
+    if (!loading) this.setState({ appointments, loading });
+  }
+
   render() {
     const { surgery } = this.props;
     const {
@@ -102,7 +100,7 @@ class AppointmentsCalendar extends Component {
     } = this.state;
 
     return (
-      <div className="create-content">
+      <React.Fragment>
         <TopBar
           title={!surgery ? 'Appointments Calendar' : 'Theatre Schedule'}
           buttons={[{
@@ -116,28 +114,27 @@ class AppointmentsCalendar extends Component {
             onClick: () => this.setState({ filtersOn: !filtersOn }),
           }]}
         />
-        <div className="create-container">
-          <div className="form with-padding">
-            <FiltersForm
-              surgery={surgery}
-              loading={loading}
-              collapse={filtersOn}
-              onSubmit={this.setFilters}
-            />
-            <div className="columns">
-              <div className="column">
-                <div className="column calendar-height">
-                  <BigCalendar
-                    events={appointments}
-                    onRangeChange={this.setDates}
-                    onSelectEvent={this.viewAppointment}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        <Container noPadding>
+          <Grid container spacing={spacing * 2} direction="column">
+            <Grid item>
+              <FiltersForm
+                surgery={surgery}
+                loading={loading}
+                collapse={filtersOn}
+                onSubmit={this.setFilters}
+              />
+            </Grid>
+            <Grid item>
+              <BigCalendar
+                style={{ height: 'calc(100vh - 95px)' }}
+                events={appointments}
+                onRangeChange={this.setDates}
+                onSelectEvent={this.viewAppointment}
+              />
+            </Grid>
+          </Grid>
+        </Container>
+      </React.Fragment>
     );
   }
 }

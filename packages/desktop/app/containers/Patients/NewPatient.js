@@ -1,384 +1,269 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import Select from 'react-select';
-import DatePicker from 'react-datepicker';
 import moment from 'moment';
-
+import { Grid } from '@material-ui/core';
 import actions from '../../actions/patients';
 import {
-  Modal as ModalView, InputGroup, CustomDateInput,
-  BackButton, Button, AddButton, TopBar,
+  TextInput, SelectInput, DateInput, RadioInput, Container,
+  BackButton, AddButton, TopBar, FormRow,
 } from '../../components';
-import Serializer from '../../utils/form-serialize';
-import { bloodOptions, sexOptions, getDifferenceDate } from '../../constants';
+import {
+  bloodOptions, sexOptions, getDifferenceDate, MUI_SPACING_UNIT as spacing,
+} from '../../constants';
 import { PatientModel } from '../../models';
 
 class NewPatient extends Component {
   state = {
-    formError: false,
-    bloodType: '',
-    dateOfBirth: moment(),
-    sex: '',
+    formIsValid: false,
     age: '0 months 0 days',
-    referredDate: moment(),
+    patientType: 'charity',
   }
 
-  onCloseModal = () => {
-    this.setState({ formError: false });
+  componentDidMount() {
+    const { patientModel } = this.props;
+    patientModel.on('change', this.handleChange);
   }
 
-  updateBloodValue = (newValue) => {
-    this.setState({
-      bloodType: newValue,
-    });
+  handleUserInput = (event) => {
+    const { patientModel } = this.props;
+    const { name, value } = event.target;
+    patientModel.set(name, value);
   }
 
-  updateSexValue = (newValue) => {
-    this.setState({
-      sex: newValue,
-    });
+  onChangeDOB = (event) => {
+    const { patientModel } = this.props;
+    const { name, value } = event.target;
+    this.setState({ age: getDifferenceDate(moment(), value) });
+    patientModel.set(name, value);
   }
 
-  onChangeDate = (date) => {
-    this.setState({
-      dateOfBirth: date,
-      age: getDifferenceDate(moment(), date),
-    });
+  handleChange = () => {
+    const { patientModel } = this.props;
+    const formIsValid = patientModel.isValid();
+    const changedAttributes = patientModel.changedAttributes();
+    this.setState({ ...changedAttributes, formIsValid });
   }
 
-  onChangeReferredDate = (date) => {
-    this.setState({
-      referredDate: date,
-    });
+  submitForm = (event) => {
+    event.preventDefault();
+    const { patientModel } = this.props;
+    this.props.createPatient(patientModel);
   }
 
   render() {
     const {
-      formError,
-      dateOfBirth,
-      age,
-      referredDate,
-      patientInProgress,
+      age, patientInProgress, formIsValid, ...form
     } = this.state;
     return (
-      <div className="create-content">
+      <React.Fragment>
+        <TopBar
+          title="New Patient"
+          buttons={(
+            <React.Fragment>
+              <BackButton to="/patients" />
+              <AddButton
+                type="submit"
+                disabled={patientInProgress}
+              />
+            </React.Fragment>
+          )}
+        />
         <form
-          className="create-container"
-          onSubmit={async (e) => {
-            // TODO: move this to the model
-            e.preventDefault();
-            const patient = Serializer.serialize(e.target, { hash: true });
-            patient.dateOfBirth = moment(dateOfBirth).format('YYYY-MM-DD');
-            patient.referredDate = moment(referredDate).format('YYYY-MM-DD');
-            patient.age = age;
-
-            // Clear the model to refresh id
-            const _patient = new PatientModel(patient);
-            if (_patient.isValid()) {
-              this.props.createPatient(_patient);
-            } else {
-              this.setState({ formError: true });
-            }
-          }}
+          onSubmit={this.submitForm}
         >
-          <TopBar
-            title="New Patient"
-            buttons={(
-              <React.Fragment>
-                <BackButton to="/patients" />
-                <AddButton
-                  type="submit"
-                  disabled={patientInProgress}
-                />
-              </React.Fragment>
-            )}
-          />
-          <div className="form">
-            <div className="columns">
-              <div className="column">
-                <InputGroup
+          <Container style={{ paddingTop: spacing * 2 }}>
+            <Grid container spacing={spacing * 3} direction="row">
+              <FormRow>
+                <TextInput
                   name="firstName"
                   label="First Name"
+                  onChange={this.handleUserInput}
+                  value={form.firstName}
                   required
-                  tabIndex={1}
                 />
-              </div>
-              <div className="column">
-                <InputGroup
-                  name="patientStatus"
+                <TextInput
+                  name="status"
                   label="Patient Status"
-                  tabIndex={7}
+                  onChange={this.handleUserInput}
+                  value={form.status}
                 />
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column">
-                <InputGroup
+              </FormRow>
+              <FormRow>
+                <TextInput
                   name="middleName"
                   label="Middle Name"
-                  tabIndex={2}
+                  onChange={this.handleUserInput}
+                  value={form.middleName}
                 />
-              </div>
-              <div className="column">
-                <InputGroup
+                <TextInput
                   name="externalPatientId"
                   label="External Patient Id"
-                  tabIndex={8}
+                  onChange={this.handleUserInput}
+                  value={form.externalPatientId}
                 />
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column">
-                <InputGroup
+              </FormRow>
+              <FormRow>
+                <TextInput
                   name="lastName"
                   label="Last Name"
+                  onChange={this.handleUserInput}
+                  value={form.lastName}
                   required
-                  tabIndex={3}
                 />
-              </div>
-              <div className="column">
-                <div className="column">
-                  <span className="header">
-                    Blood Type
-                  </span>
-                  <Select
-                    id="state-select"
-                    ref={(ref) => { this.select = ref; }}
-                    onBlurResetsInput={false}
-                    onSelectResetsInput={false}
-                    options={bloodOptions}
-                    simpleValue
-                    clearable
-                    name="bloodType"
-                    disabled={this.state.disabled}
-                    value={this.state.bloodType}
-                    onChange={this.updateBloodValue}
-                    rtl={this.state.rtl}
-                    searchable={this.state.searchable}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column">
-                <InputGroup
+                <SelectInput
+                  label="Blood Type"
+                  options={bloodOptions}
+                  name="bloodType"
+                  onChange={this.handleUserInput}
+                  value={form.bloodType}
+                />
+              </FormRow>
+              <FormRow>
+                <TextInput
                   name="culturalName"
                   label="Cultural or Traditional Name"
-                  tabIndex={4}
+                  onChange={this.handleUserInput}
+                  value={form.culturalName}
                 />
-              </div>
-              <div className="column">
-                <InputGroup
-                  name="clinicSite"
+                <TextInput
+                  name="clinic"
                   label="Clinic Site"
-                  tabIndex={9}
+                  onChange={this.handleUserInput}
+                  value={form.clinic}
                 />
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column">
-                <div className="column">
-                  <span className="header">
-                    Sex
-                  </span>
-                  <Select
-                    id="state-select"
-                    ref={(ref) => { this.select = ref; }}
-                    onBlurResetsInput={false}
-                    onSelectResetsInput={false}
-                    options={sexOptions}
-                    simpleValue
-                    clearable
-                    name="sex"
-                    disabled={this.state.disabled}
-                    value={this.state.sex}
-                    onChange={this.updateSexValue}
-                    rtl={this.state.rtl}
-                    searchable={this.state.searchable}
-                  />
-                </div>
-              </div>
-              <div className="column">
-                <InputGroup
+              </FormRow>
+              <FormRow>
+                <SelectInput
+                  label="Sex"
+                  options={sexOptions}
+                  name="sex"
+                  onChange={this.handleUserInput}
+                  value={form.sex}
+                />
+                <TextInput
                   name="referredBy"
                   label="Referred By"
-                  tabIndex={10}
+                  onChange={this.handleUserInput}
+                  value={form.referredBy}
                 />
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column">
-                <div className="column">
-                  <span className="header">
-                    Date Of Birth
-                  </span>
-                  <DatePicker
-                    name="dateOfBirth"
-                    autoFocus
-                    customInput={<CustomDateInput />}
-                    selected={dateOfBirth}
-                    onChange={this.onChangeDate}
-                    peekNextMonth
-                    showMonthDropdown
-                    value={moment(dateOfBirth).format('YYYY-MM-DD')}
-                    showYearDropdown
-                    type="button"
-                    dropdownMode="select"
-                  />
-                </div>
-              </div>
-              <div className="column">
-                <div className="column">
-                  <span className="header">
-                    Referred Date
-                  </span>
-                  <DatePicker
-                    name="referredDate"
-                    autoFocus
-                    customInput={<CustomDateInput />}
-                    selected={referredDate}
-                    onChange={this.onChangeReferredDate}
-                    peekNextMonth
-                    showMonthDropdown
-                    showYearDropdown
-                    dropdownMode="select"
-                    value={moment(referredDate).format('YYYY-MM-DD')}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column">
-                <div className="column">
-                  <span className="header">
-                    Age
-                  </span>
-                  <p name="age" value={age}>
-                    {age}
-                  </p>
-                </div>
-              </div>
-              <div className="column">
-                <InputGroup
+              </FormRow>
+              <FormRow>
+                <DateInput
+                  label="Date Of Birth"
+                  name="dateOfBirth"
+                  onChange={this.onChangeDOB}
+                  value={form.dateOfBirth}
+                  helperText={age && `${age} of age`}
+                />
+                <DateInput
+                  label="Referred Date"
+                  name="referredDate"
+                  onChange={this.handleUserInput}
+                  value={form.referredDate}
+                />
+              </FormRow>
+              <FormRow>
+                <TextInput
                   name="religion"
                   label="Religion"
-                  tabIndex={11}
+                  onChange={this.handleUserInput}
+                  value={form.religion}
                 />
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column">
-                <InputGroup
+                <TextInput
                   name="placeOfBirth"
                   label="Place of Birth"
-                  tabIndex={5}
+                  onChange={this.handleUserInput}
+                  value={form.placeOfBirth}
                 />
-              </div>
-              <div className="column">
-                <InputGroup
+              </FormRow>
+              <FormRow>
+                <TextInput
                   name="parent"
                   label="Parent/Guardian"
-                  tabIndex={12}
+                  onChange={this.handleUserInput}
+                  value={form.parent}
                 />
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column">
-                <InputGroup
+                <TextInput
                   name="occupation"
                   label="Occupation"
-                  tabIndex={6}
+                  onChange={this.handleUserInput}
+                  value={form.occupation}
                 />
-              </div>
-              <div className="column">
-                <InputGroup
+              </FormRow>
+              <FormRow>
+                <TextInput
                   name="paymentProfile"
                   label="Payment Profile"
-                  tabIndex={13}
+                  onChange={this.handleUserInput}
+                  value={form.paymentProfile}
                 />
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column is-6">
-                <div className="column">
-                  <span className="header">
-                    Patient Type
-                  </span>
-                  <div>
-                    <label className="radio">
-                      <input type="radio" name="patientType" value="Charity" />
-                      <span>Charity</span>
-                    </label>
-                    <label className="radio">
-                      <input type="radio" name="patientType" value="Private" />
-                      <span>Private</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column">
-                <div className="column has-text-right">
-                  <Button
-                    variant="contained"
-                    onClick={() => this.setState({ contactModalVisible: true })}
-                  >
-+ Add Contact
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="columns second-form">
-            <div className="column">
-              <InputGroup
-                name="phone"
-                label="Phone"
-                tabIndex={14}
-              />
-              <InputGroup
-                name="address"
-                label="Address"
-                tabIndex={15}
-              />
-            </div>
-            <div className="column">
-              <InputGroup
-                name="email"
-                label="Email"
-                tabIndex={16}
-              />
-              <InputGroup
-                name="country"
-                label="Country"
-                tabIndex={17}
-              />
-              <div className="column has-text-right">
-                <BackButton to="/patients" />
-                <AddButton
-                  type="submit"
-                  disabled={patientInProgress}
+                <RadioInput
+                  name="patientType"
+                  label="Patient Type"
+                  options={[{ value: 'charity', label: 'Charity' }, { value: 'private', label: 'Private' }]}
+                  onChange={this.handleUserInput}
+                  style={{ flexDirection: 'row' }}
+                  value={form.patientType}
                 />
-              </div>
-            </div>
-          </div>
+              </FormRow>
+              <FormRow>
+                <TextInput
+                  name="phone"
+                  label="Phone"
+                  onChange={this.handleUserInput}
+                  value={form.phone}
+                />
+                <TextInput
+                  name="address"
+                  label="Address"
+                  onChange={this.handleUserInput}
+                  value={form.address}
+                />
+              </FormRow>
+              <FormRow>
+                <TextInput
+                  name="email"
+                  label="Email"
+                  onChange={this.handleUserInput}
+                  value={form.email}
+                />
+                <TextInput
+                  name="country"
+                  label="Country"
+                  onChange={this.handleUserInput}
+                  value={form.country}
+                />
+              </FormRow>
+              <Grid
+                container
+                item
+                justify="flex-end"
+                style={{ paddingTop: spacing * 2 }}
+              >
+                <Grid item>
+                  <BackButton to="/patients" />
+                  <AddButton
+                    type="submit"
+                    disabled={!formIsValid}
+                    can={{ do: 'create', on: 'patient' }}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+          </Container>
         </form>
-        <ModalView
-          isVisible={formError}
-          onClose={this.onCloseModal}
-          headerTitle="Warning!!!!"
-          contentText="Please fill in required fields (marked with *) and correct the errors before saving."
-          little
-        />
-      </div>
+      </React.Fragment>
     );
   }
 }
 
 function mapStateToProps(state) {
   const { createPatientSuccess, patientInProgress } = state.patients;
-  return { createPatientSuccess, patientInProgress };
+  return {
+    createPatientSuccess,
+    patientInProgress,
+    patientModel: new PatientModel(),
+  };
 }
 
 const { patient: patientActions } = actions;

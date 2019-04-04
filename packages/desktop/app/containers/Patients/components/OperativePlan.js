@@ -1,45 +1,46 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
+import { Grid, Typography } from '@material-ui/core';
 import { TextButton } from '../../../components';
+import { PatientModel } from '../../../models';
 
-class Dignosis extends Component {
-  static propTypes = {
-    patientModel: PropTypes.object.isRequired,
-  }
-
-  render() {
-    const { patientModel } = this.props;
-    const operationPlan = patientModel.getOpenPlan();
-    return (
-      <div className="column">
-        <span className="title">Operative Plan </span>
-        {isEmpty(operationPlan) && (
-        <TextButton
-          can={{ do: 'create', on: 'operativePlan' }}
-          to={`/patients/operativePlan/${patientModel.id}`}
-        >
-          {' '}
-+ Add Operative Plan
-        </TextButton>
-        )}
-        {!isEmpty(operationPlan)
+function OperativePlan({ patientModel }) {
+  const operationPlan = patientModel.getOpenPlan();
+  return (
+    <Grid container item spacing={8}>
+      <Grid item>
+        <Typography variant="body2" inline>
+          Operative Plan
+        </Typography>
+      </Grid>
+      <Grid item>
+        {!operationPlan
           && (
-          <React.Fragment>
-            <br />
             <TextButton
-              can={{ do: 'read', on: 'operativePlan' }}
-              to={`/patients/operativePlan/${patientModel.id}/${operationPlan._id}`}
+              can={{ do: 'create', on: 'operativePlan' }}
+              to={`/patients/operativePlan/${patientModel.id}`}
             >
-              {' '}
-Current Operative Plan
+              + Add Operative Plan
             </TextButton>
-          </React.Fragment>
           )
         }
-      </div>
-    );
-  }
+      </Grid>
+      {operationPlan
+        && (
+          <TextButton
+            can={{ do: 'read', on: 'operativePlan' }}
+            to={`/patients/operativePlan/${patientModel.id}/${operationPlan._id}`}
+          >
+            Current Operative Plan
+          </TextButton>
+        )
+      }
+    </Grid>
+  );
 }
 
-export default Dignosis;
+OperativePlan.propTypes = {
+  patientModel: PropTypes.instanceOf(PatientModel).isRequired,
+};
+
+export default OperativePlan;

@@ -1,35 +1,35 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-
+import PropTypes from 'prop-types';
+import { CssBaseline } from '@material-ui/core';
 import Routes from '../routes';
 import { initClient } from '../utils';
-import Preloader from '../components/Preloader';
+import { Preloader } from '../components';
 import { ThemeProvider } from '../components/ThemeProvider';
 
-export default class Root extends Component {
-  render() {
-    const {
-      store,
-      history,
-      persistor,
-    } = this.props;
-
-    return (
-      <Provider store={store}>
-        <PersistGate
-          loading={<Preloader />}
-          persistor={persistor}
-          onBeforeLift={initClient()}
-        >
-          <ConnectedRouter history={history}>
-            <ThemeProvider>
-              <Routes />
-            </ThemeProvider>
-          </ConnectedRouter>
-        </PersistGate>
-      </Provider>
-    );
-  }
+export default function Root({ store, history, persistor }) {
+  return (
+    <Provider store={store}>
+      <PersistGate
+        loading={<Preloader />}
+        persistor={persistor}
+        onBeforeLift={initClient()}
+      >
+        <ConnectedRouter history={history}>
+          <ThemeProvider>
+            <CssBaseline />
+            <Routes />
+          </ThemeProvider>
+        </ConnectedRouter>
+      </PersistGate>
+    </Provider>
+  );
 }
+
+Root.propTypes = {
+  store: PropTypes.instanceOf(Object).isRequired,
+  history: PropTypes.instanceOf(Object).isRequired,
+  persistor: PropTypes.instanceOf(Object).isRequired,
+};

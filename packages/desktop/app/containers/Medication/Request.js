@@ -1,18 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import Select from 'react-select';
+import { Grid, Typography } from '@material-ui/core';
+import PropTypes from 'prop-types';
 import actions from '../../actions/medication';
 import TopRow from '../Patients/components/TopRow';
-import { medicationStatuses } from '../../constants';
+import { medicationStatuses, MUI_SPACING_UNIT as spacing } from '../../constants';
 import {
-  Preloader,
-  PatientAutocomplete,
-  InputGroup,
-  DrugAutocomplete,
-  TextareaGroup,
-  DatepickerGroup,
+  Preloader, PatientAutocomplete, TextInput, DrugAutocomplete,
+  DateInput, BackButton, AddButton, UpdateButton,
+  TopBar, FormRow, Container, SelectInput,
 } from '../../components';
-import { BackButton, AddButton, UpdateButton } from '../../components/Button';
 
 class NewMedication extends Component {
   constructor(props) {
@@ -23,10 +20,9 @@ class NewMedication extends Component {
 
   state = {
     action: 'new',
-    visit: '',
-    drugId: '',
     patient: {},
     medication: {},
+    formIsValid: false,
     visits: [],
     loading: true,
     byPatient: false,
@@ -38,39 +34,40 @@ class NewMedication extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    this.handleChange(newProps);
+    this.handleNewProps(newProps);
   }
 
-  componentWillUnmount() {
-    // const { visit } = this.props;
-    // visit.off('change');
-  }
-
-  selectPatient = (patientId) => {
+  selectPatient = ({ _id: patientId }) => {
     const { id } = this.props.match.params;
     this.props.fetchMedication({ patientId, id });
   }
 
-  selectVisit = (visitId) => {
-    const { id } = this.props.match.params;
-    this.setState({ visit: visitId });
-    // this.props.fetchMedication({ visitId, id });
+  selectDrug = ({ _id: drugId }, name) => {
+    this.handleFormInput(name, { _id: drugId });
   }
 
-  selectDrug = (drugId) => {
-    this.setState({ drugId });
+  handleUserInput = (event) => {
+    const { name, value } = event.target;
+    this.handleFormInput(name, value);
   }
 
-  handleChange(props = this.props) {
+  handleFormInput = (name, value) => {
+    const { medicationModel } = this.props;
+    medicationModel.set(name, value, { silent: true });
+    this.setState({
+      medication: medicationModel.toJSON(),
+      formIsValid: medicationModel.isValid(),
+    });
+  }
+
+  handleNewProps(props = this.props) {
     const { patientId } = this.props.match.params;
-    const { patient, medication, loading } = props;
+    const { patient, loading } = props;
     let byPatient = false;
     if (!loading) {
       if (patientId) byPatient = true;
       this.setState({
         patient,
-        medicationModel: medication,
-        medication: medication.toJSON(),
         visits: patient.getVisitsSelect(),
         loading,
         byPatient,
@@ -78,33 +75,17 @@ class NewMedication extends Component {
     }
   }
 
-  handleUserInput = (e, field) => {
-    const { medicationModel } = this.state;
-    if (typeof field !== 'undefined') {
-      medicationModel.set(field, e, { silent: true });
-    } else {
-      const { name } = e.target;
-      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-      medicationModel.set(name, value, { silent: true });
-    }
-    this.setState({ medicationModel });
-  }
-
-  submitForm(e) {
-    e.preventDefault();
-    const { dispense } = this.props;
-    const {
-      action, medicationModel, patient, visit, drugId,
-    } = this.state;
+  submitForm(event) {
+    event.preventDefault();
+    const { dispense, medicationModel } = this.props;
+    const { action, patient } = this.state;
     if (dispense) {
       medicationModel.set('dispense', true);
       medicationModel.set('status', medicationStatuses.FULFILLED);
     }
     this.props.saveMedication({
       action,
-      model: medicationModel,
-      visitId: visit,
-      drugId,
+      medicationModel,
       patientId: patient.id,
       history: this.props.history,
     });
@@ -117,36 +98,24 @@ class NewMedication extends Component {
     const { dispense } = this.props;
     const {
       action,
-      visit,
       visits,
-      medicationModel,
-      medication,
       patient,
       byPatient,
+      medication,
+      formIsValid,
     } = this.state;
     return (
-      <div>
-        <div className="create-content">
-          <div className="create-top-bar">
-            <span>
-              {' '}
-              { dispense ? 'Dispense Medication' : 'New Medication Request' }
-              {' '}
-            </span>
-          </div>
-          <form
-            className="create-container"
-            onSubmit={this.submitForm}
-          >
-            {byPatient
-              && (
-              <div className="form p-d-15">
-                <TopRow patient={patient.toJSON()} />
-              </div>
-              )
-            }
-            <div className="form with-padding">
-              <div className="columns">
+      <React.Fragment>
+        <TopBar
+          title={dispense ? 'Dispense Medication' : 'New Medication Request'}
+        />
+        <form onSubmit={this.submitForm}>
+          <Container>
+            <Grid container spacing={spacing * 2} direction="column">
+              {byPatient
+                && <TopRow patient={patient.toJSON()} />
+              }
+              <FormRow>
                 {!byPatient
                   && (
                   <PatientAutocomplete
@@ -158,23 +127,15 @@ class NewMedication extends Component {
                   />
                   )
                 }
-                <div className="column is-half">
-                  <span className="header">
-                    Visit
-                    {' '}
-                    <span className="isRequired">*</span>
-                  </span>
-                  <Select
-                    options={visits}
-                    simpleValue
-                    name="visit"
-                    value={visit}
-                    onChange={this.selectVisit}
-                    placeholder={visits.length > 0 ? 'Select a Visit' : 'Add a Visit'}
-                  />
-                </div>
-              </div>
-              <div className="columns">
+                <SelectInput
+                  label="Visit"
+                  options={visits}
+                  name="visit"
+                  value={medication.visit}
+                  onChange={this.handleUserInput}
+                />
+              </FormRow>
+              <Grid item>
                 <DrugAutocomplete
                   name="drug"
                   label="Medication"
@@ -182,148 +143,138 @@ class NewMedication extends Component {
                   value={medication.drug}
                   required
                 />
-              </div>
-              <div className="columns">
-                <div className="column">
-                  <TextareaGroup
-                    className="field"
-                    name="prescription"
-                    label="Prescription"
-                    onChange={this.handleUserInput}
-                    value={medication.prescription}
-                    required
-                  />
-                </div>
-              </div>
-              <div className="columns">
-                <DatepickerGroup
+              </Grid>
+              <Grid item>
+                <TextInput
+                  name="prescription"
+                  label="Prescription"
+                  onChange={this.handleUserInput}
+                  value={medication.prescription}
+                  rows="2"
+                  multiline
+                  required
+                />
+              </Grid>
+              <FormRow>
+                <DateInput
                   label="Prescription Date"
                   name="prescriptionDate"
-                  className="is-3"
                   onChange={this.handleUserInput}
                   value={medication.prescriptionDate}
                 />
-              </div>
-              <div className="columns">
-                <div className="column is-4">
-                  <span className="header">
-                    { dispense && 'Dispense' }
-                    {' '}
-Quantity
-                  </span>
-                  <div className="columns is-gapless">
-                    <div className="column">
-                      <InputGroup
-                        type="number"
-                        label="Morning"
-                        className="is-horizontal m-b-0"
-                        labelClass="column is-5 p-t-10 p-l-3 p-r-0"
-                        inputClass="column is-7 p-t-5"
-                        name="qtyMorning"
-                        value={medication.qtyMorning}
-                        onChange={this.handleUserInput}
-                        tabIndex={1}
-                        required
-                      />
-                      <InputGroup
-                        type="number"
-                        label="Evening"
-                        className="is-horizontal m-b-0"
-                        labelClass="column is-5 p-t-10 p-l-3 p-r-0"
-                        inputClass="column is-7 p-t-5"
-                        name="qtyEvening"
-                        value={medication.qtyEvening}
-                        onChange={this.handleUserInput}
-                        tabIndex={3}
-                        required
-                      />
-                    </div>
-                    <div className="column">
-                      <InputGroup
-                        type="number"
-                        label="Lunch"
-                        className="is-horizontal m-b-0"
-                        labelClass="column is-5 p-t-10 p-l-3 p-r-0"
-                        inputClass="column is-7 p-t-5"
-                        name="qtyLunch"
-                        value={medication.qtyLunch}
-                        onChange={this.handleUserInput}
-                        tabIndex={2}
-                        required
-                      />
-                      <InputGroup
-                        type="number"
-                        label="Night"
-                        className="is-horizontal m-b-0"
-                        labelClass="column is-5 p-t-10 p-l-3 p-r-0"
-                        inputClass="column is-7 p-t-5"
-                        name="qtyNight"
-                        value={medication.qtyNight}
-                        onChange={this.handleUserInput}
-                        tabIndex={4}
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="column is-4">
-                  <TextareaGroup
-                    name="notes"
-                    label="Notes"
-                    onChange={this.handleUserInput}
-                    value={medication.notes}
-                    tabIndex={5}
-                  />
-                </div>
-              </div>
-              <div className="columns">
-                <DatepickerGroup
+                <DateInput
                   label="End Date"
                   name="endDate"
-                  className="is-3 p-t-0"
                   onChange={this.handleUserInput}
                   value={medication.endDate}
-                  tabIndex={6}
                 />
-              </div>
-              <div className="column has-text-right">
+              </FormRow>
+              <Grid container item>
+                <TextInput
+                  name="notes"
+                  label="Notes"
+                  onChange={this.handleUserInput}
+                  value={medication.notes}
+                  rows="2"
+                  multiline
+                />
+              </Grid>
+              <Grid
+                container
+                item
+                style={{ paddingTop: spacing * 2 }}
+                xs={6}
+                spacing={spacing * 2}
+              >
+                <Grid item style={{ paddingBottom: 0 }}>
+                  <Typography variant="h6">
+                    Quantity
+                  </Typography>
+                </Grid>
+                <FormRow>
+                  <TextInput
+                    type="number"
+                    label="Morning"
+                    name="qtyMorning"
+                    value={medication.qtyMorning}
+                    onChange={this.handleUserInput}
+                    required
+                  />
+                  <TextInput
+                    type="number"
+                    label="Evening"
+                    name="qtyEvening"
+                    value={medication.qtyEvening}
+                    onChange={this.handleUserInput}
+                    required
+                  />
+                </FormRow>
+                <FormRow>
+                  <TextInput
+                    type="number"
+                    label="Lunch"
+                    name="qtyLunch"
+                    value={medication.qtyLunch}
+                    onChange={this.handleUserInput}
+                    required
+                  />
+                  <TextInput
+                    type="number"
+                    label="Night"
+                    name="qtyNight"
+                    value={medication.qtyNight}
+                    onChange={this.handleUserInput}
+                    required
+                  />
+                </FormRow>
+              </Grid>
+              <Grid container item justify="flex-end">
                 <BackButton />
-                {action === 'new' && (
-                <AddButton
-                  type="submit"
-                  disabled={!medicationModel.isValid()}
-                  can={{ do: 'create', on: 'medication' }}
-                />
-                )}
-                {action !== 'new' && (
-                <UpdateButton
-                  type="submit"
-                  disabled={!medicationModel.isValid()}
-                  can={{ do: 'update', on: 'medication' }}
-                />
-                )}
-              </div>
-            </div>
-          </form>
-        </div>
-        {/* <ModalView
-          isVisible={formError}
-          onClose={this.onCloseModal}
-          headerTitle="Warning!!!!"
-          contentText="Please fill in required fields (marked with *) and correct the errors before saving."
-          little
-        /> */}
-      </div>
+                {action === 'new'
+                  ? (
+                    <AddButton
+                      type="submit"
+                      disabled={!formIsValid}
+                      can={{ do: 'create', on: 'medication' }}
+                    />
+                  )
+                  : (
+                    <UpdateButton
+                      type="submit"
+                      disabled={!formIsValid}
+                      can={{ do: 'update', on: 'medication' }}
+                    />
+                  )
+                }
+              </Grid>
+            </Grid>
+          </Container>
+        </form>
+      </React.Fragment>
     );
   }
 }
 
+NewMedication.propTypes = {
+  fetchMedication: PropTypes.func.isRequired,
+  saveMedication: PropTypes.func.isRequired,
+  dispense: PropTypes.bool,
+  medicationModel: PropTypes.instanceOf(Object).isRequired,
+};
+
+NewMedication.defaultProps = {
+  dispense: false,
+};
+
 function mapStateToProps(state) {
   const {
-    patient, medication, loading, error,
+    patient, medicationModel, loading, error,
   } = state.medication;
   return {
-    patient, medication, loading, error,
+    medicationModel,
+    patient,
+    loading,
+    error,
   };
 }
 

@@ -2,19 +2,16 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { clone } from 'lodash';
-import { connect } from 'react-redux';
-import Button from '@material-ui/core/Button';
+import { Grid } from '@material-ui/core';
 import {
-  InputGroup,
-  DatepickerGroup,
-  SelectGroup,
+  TextInput, DateInput, SelectInput, Button, Container,
 } from '../../../components';
 import {
-  visitOptions as visitOptionsOriginal,
+  visitOptions as visitOptionsOriginal, MUI_SPACING_UNIT as spacing,
   appointmentStatusList as appointmentStatusListOriginal,
 } from '../../../constants';
 
-class SearchForm extends Component {
+export default class SearchForm extends Component {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
     loading: PropTypes.bool,
@@ -59,6 +56,17 @@ class SearchForm extends Component {
     this.setState({ visitOptions, appointmentStatusList });
   }
 
+  onSubmit(e) {
+    const { startDate, practitioner } = this.state;
+    let { status, type } = this.state;
+    if (status === 'all') status = '';
+    if (type === 'all') type = '';
+    e.preventDefault();
+    this.props.onSubmit({
+      startDate, status, type, practitioner,
+    });
+  }
+
   handleInputChange(event, field) {
     let name = '';
     let value = '';
@@ -71,17 +79,6 @@ class SearchForm extends Component {
     }
 
     this.setState({ [name]: value });
-  }
-
-  onSubmit(e) {
-    const { startDate, practitioner } = this.state;
-    let { status, type } = this.state;
-    if (status === 'all') status = '';
-    if (type === 'all') type = '';
-    e.preventDefault();
-    this.props.onSubmit({
-      startDate, status, type, practitioner,
-    });
   }
 
   resetForm() {
@@ -108,55 +105,53 @@ class SearchForm extends Component {
 
     return (
       <form onSubmit={this.onSubmit}>
-        <div className="columns">
-          <DatepickerGroup
-            className="column is-3"
-            name="startDate"
-            label="Start Date"
-            onChange={this.handleInputChange}
-            value={startDate}
-          />
-          <SelectGroup
-            className="column is-3"
-            label="Status"
-            name="status"
-            options={appointmentStatusList}
-            onChange={this.handleInputChange}
-            value={status}
-          />
-          <SelectGroup
-            className="column is-3"
-            label="Type"
-            name="type"
-            options={visitOptions}
-            onChange={this.handleInputChange}
-            value={type}
-          />
-          <InputGroup
-            name="practitioner"
-            label="With"
-            onChange={this.handleInputChange}
-            value={practitioner}
-            placeholder="Practitioner"
-          />
-        </div>
-        <div className="columns">
-          <div className="column">
-            <div className="column has-text-right">
+        <Container autoHeight>
+          <Grid container spacing={spacing * 2}>
+            <Grid item xs>
+              <DateInput
+                className="column is-3"
+                name="startDate"
+                label="Start Date"
+                onChange={this.handleInputChange}
+                value={startDate}
+              />
+            </Grid>
+            <Grid item xs>
+              <SelectInput
+                className="column is-3"
+                label="Status"
+                name="status"
+                options={appointmentStatusList}
+                onChange={this.handleInputChange}
+                value={status}
+              />
+            </Grid>
+            <Grid item xs>
+              <SelectInput
+                className="column is-3"
+                label="Type"
+                name="type"
+                options={visitOptions}
+                onChange={this.handleInputChange}
+                value={type}
+              />
+            </Grid>
+            <Grid item xs>
+              <TextInput
+                name="practitioner"
+                label="With"
+                onChange={this.handleInputChange}
+                value={practitioner}
+                placeholder="Practitioner"
+              />
+            </Grid>
+            <Grid container item xs={12} justify="flex-end">
               <Button color="default" variant="contained" onClick={this.resetForm} classes={{ root: 'm-r-5' }}>Reset</Button>
               <Button color="primary" variant="contained" type="submit" disabled={loading}>Search</Button>
-            </div>
-          </div>
-        </div>
+            </Grid>
+          </Grid>
+        </Container>
       </form>
     );
   }
 }
-
-function mapStateToProps(state) {
-  return {
-    currentPath: state.router.location.pathname,
-  };
-}
-
-export default connect(mapStateToProps, {})(SearchForm);
