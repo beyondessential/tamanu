@@ -84,6 +84,14 @@ export const VisitSchema = {
       type: 'list',
       objectType: 'report',
     },
+    operationReports: {
+      type: 'list',
+      objectType: 'operationReport',
+    },
+    operativePlans: {
+      type: 'list',
+      objectType: 'operativePlan',
+    },
     // reverse links
     patient: {
       type: 'linkingObjects',

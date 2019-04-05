@@ -4,9 +4,16 @@ import patient from './patient';
 import patients from './patients';
 import visits from './visits';
 import procedures from './procedures';
+import operativePlan from './operativePlan';
+import operationReport from './operationReport';
 
 const stateChanges = {
-  ...patient, ...patients, ...visits, ...procedures,
+  ...patient,
+  ...patients,
+  ...visits,
+  ...procedures,
+  ...operativePlan,
+  ...operationReport,
 };
 const initialState = {
   patient: {},
@@ -16,7 +23,9 @@ const initialState = {
   updatedBirthday: moment(),
   updatedReferredDate: moment(),
   visit: {},
-  procedure: {},
+  procedureModel: {},
+  operativePlanModel: {},
+  operationReportModel: {},
   action: '',
   saved: false,
 };

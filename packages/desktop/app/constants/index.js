@@ -413,11 +413,16 @@ export const visitOptions = [
   { value: 'pharmacy', label: 'Pharmacy' },
 ];
 
-export const operativePlanStatusList = [
-  { value: 'planned', label: 'Planned' },
-  { value: 'dropped', label: 'Dropped' },
-  { value: 'completed', label: 'Completed' },
-];
+export const operativePlanStatuses = {
+  PLANNED: 'planned',
+  DROPPED: 'dropped',
+  COMPLETED: 'completed',
+};
+
+export const operativePlanStatusList = Object.values(operativePlanStatuses).map(status => ({
+  value: status,
+  label: capitalize(status),
+}));
 
 export const appointmentStatusList = [
   { value: 'attended', label: 'Attended' },

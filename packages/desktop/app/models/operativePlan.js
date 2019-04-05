@@ -4,13 +4,13 @@ import BaseModel from './base';
 import { register } from './register';
 
 export default register('OperativePlan', BaseModel.extend({
-  urlRoot: `${BaseModel.prototype.urlRoot}/operationPlan`,
+  urlRoot: `${BaseModel.prototype.urlRoot}/operativePlan`,
   defaults: () => defaults({
     additionalNotes: null,
     admissionInstructions: null,
     caseComplexity: null,
     operationDescription: null,
-    procedures: [],
+    actionsTaken: [],
     status: null,
     surgeon: null,
     diagnoses: [],
@@ -25,6 +25,18 @@ export default register('OperativePlan', BaseModel.extend({
     },
     ...BaseModel.prototype.relations,
   ],
+
+  reverseRelations: [
+    {
+      type: Backbone.One,
+      key: 'visit',
+      model: 'Visit',
+    },
+  ],
+
+  getVisit() {
+    return this.parents.visit;
+  },
 
   // validate: (attrs) => {
   //   if (attrs.firstName === '') return 'firstName is required!';

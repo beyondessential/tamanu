@@ -1,355 +1,193 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment';
-import Select from 'react-select';
-import { isUndefined, each, has } from 'lodash';
-
-// import Serializer from '../../../utils/form-serialize';
-import Allergy from './Allergy';
-import Diagnosis from './Diagnosis';
-import Procedure from './Procedure';
-import ModalView from '../../../components/Modal';
-import InputGroup from '../../../components/InputGroup';
-import TextareaGroup from '../../../components/TextareaGroup';
-
-// import Serializer from '../../../utils/form-serialize';
-import { PatientModel, OperationReportModel, PatientDiagnosisModel } from '../../../models';
-import { getDifferenceDate, operativePlanStatusList } from '../../../constants';
+import PropTypes from 'prop-types';
+import { capitalize } from 'lodash';
+import TopRow from '../components/TopRow';
+import ActionsTaken from '../components/ActionsTaken';
+import PreOpDiagnosis from './PreOpDiagnosis';
+import {
+  TextInput, Container, TopBar, Preloader, DateInput,
+  FormRow, BottomBar, UpdateButton, BackButton,
+} from '../../../components';
+import { MUI_SPACING_UNIT as spacing } from '../../../constants';
+import actions from '../../../actions/patients';
+import { PatientModel, OperationReportModel } from '../../../models';
 
 class OperationReport extends Component {
-  constructor(props) {
-    super(props);
-    this.goBack = this.goBack.bind(this);
-    this.setForm = this.setForm.bind(this);
+  static propTypes = {
+    action: PropTypes.string.isRequired,
+    fetchOperationReport: PropTypes.func.isRequired,
+    saveOperationReport: PropTypes.func.isRequired,
+    operationReportModel: PropTypes.oneOfType([
+      PropTypes.instanceOf(OperationReportModel),
+      PropTypes.instanceOf(Object),
+    ]).isRequired,
+    patientModel: PropTypes.oneOfType([
+      PropTypes.instanceOf(PatientModel),
+      PropTypes.instanceOf(Object),
+    ]).isRequired,
   }
 
   state = {
-    formError: false,
-    formSuccess: false,
-    patient: this.props.patient.attributes,
-    preOpDiagnoses: this.props.operationReport.attributes.preOpDiagnoses,
-    action: 'update',
-    form: {
-      additionalNotes: '',
-      admissionInstructions: '',
-      caseComplexity: '',
-      operationDescription: '',
-      procedures: [],
-      status: 'planned',
-      surgeon: '',
-    },
+    loading: true,
+    isFormValid: false,
+    action: 'new',
   }
 
-  async componentDidMount() {
-    const { patientId, id } = this.props.match.params;
-    let _action = 'new';
-    this.props.patient.on('change', this.handleChange);
-    this.props.patient.set({ _id: patientId });
-    await this.props.patient.fetch({ relations: true, deep: false });
+  componentDidMount() {
+    const { fetchOperationReport } = this.props;
+    fetchOperationReport();
+  }
 
-    if (!isUndefined(id)) {
-      _action = 'update';
-      this.props.operationReport.on('change', this.handleChange);
-      this.props.operationReport.set({ _id: id });
-      await this.props.operationReport.fetch();
+  componentWillReceiveProps(newProps) {
+    const { action, loading, operationReportModel } = newProps;
+    if (!loading) {
+      // update state on model change
+      operationReportModel
+        .off('change')
+        .on('change', this.handleChange);
+      this.setState({
+        ...operationReportModel.toJSON(),
+        action,
+        loading,
+      });
     }
-
-    this.setForm(_action);
   }
 
   componentWillUnmount() {
-    this.props.patient.off('change', this.handleChange);
-    this.props.operationReport.off('change', this.handleChange);
+    const { operationReportModel } = this.props;
+    if (operationReportModel && typeof operationReportModel !== 'undefined') operationReportModel.off('change');
   }
 
-  handleChange = async () => {
-    try {
-      const patient = await this.props.patient.toJSON({ relations: true });
-      if (patient.dateOfBirth !== '') patient.age = getDifferenceDate(moment(), moment(patient.dateOfBirth));
-      this.setState({ patient });
-    } catch (err) {
-      console.error('Error: ', err);
-    }
+  handleActionsTakenChange = (actionsTaken) => {
+    const { operationReportModel } = this.props;
+    operationReportModel.set('actionsTaken', actionsTaken);
   }
 
-  handleUserInput = (e, field) => {
-    const { form } = this.state;
-    if (typeof field !== 'undefined') {
-      form[field] = e;
-    } else {
-      const { name } = e.target;
-      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-      form[name] = value;
-    }
-
-    this.setState({ form });
+  handleUserInput = (event) => {
+    const { operationReportModel } = this.props;
+    const { name, value } = event.target;
+    operationReportModel.set(name, value);
   }
 
-  setForm = (_action) => {
-    const data = this.props.operationReport.toJSON();
-    const preOpDiagnoses = (_action === 'new' ? this.props.patient.get('preOpDiagnoses') : this.props.operationReport.get('preOpDiagnoses'));
-    const { form } = this.state;
-    each(form, (value, key) => { form[key] = (has(data, key) ? data[key] : value); });
-    this.setState({ form, action: _action, preOpDiagnoses: preOpDiagnoses.models });
+  handleChange = () => {
+    const { operationReportModel } = this.props;
+    const isFormValid = operationReportModel.isValid();
+    const changedAttributes = operationReportModel.changedAttributes();
+    this.setState({ ...changedAttributes, isFormValid });
   }
 
-  goBack() {
-    this.props.history.push(`/patients/editPatient/${this.state.patient._id}`);
-  }
-
-  onCloseErrorModal = () => {
-    this.setState({ formError: false });
-  }
-
-  onCloseSuccessModal = () => {
-    this.setState({ formSuccess: false });
-  }
-
-  markComplete = (e) => {
-    e.preventDefault();
-    const { form } = this.state;
-    this.setState({
-      form: {
-        ...form,
-        status: 'completed',
-      },
-    }, async () => {
-      await this.submitForm(e);
-    });
-  }
-
-  submitForm = async (e) => {
-    e.preventDefault();
-    const { patient, operationReport } = this.props;
-    const { form, action } = this.state;
-    if (!this.state.form.procedures.length) return this.setState({ formError: true });
-
-    try {
-      // const operativePlan = new OperationReportModel();
-      operationReport.set(form);
-      await operationReport.save();
-
-      // Attached operativePlan to patient object
-      if (action === 'new') {
-        // Duplicate diagnostics to operation plan
-        const preOpDiagnoses = patient.get('preOpDiagnoses');
-        if (preOpDiagnoses.length > 0) {
-          const tasks = [];
-          each(preOpDiagnoses.models, (diagnosis) => {
-            const attributes = diagnosis.cloneAttributes();
-
-            const patientDiagnosisModel = new PatientDiagnosisModel();
-            patientDiagnosisModel.set(attributes);
-            tasks.push(patientDiagnosisModel.save());
-          });
-
-          const patientDiagnosisModels = await Promise.all(tasks);
-          patientDiagnosisModels.forEach((patientDiagnosisModel) => {
-            operationReport.get('preOpDiagnoses').add(patientDiagnosisModel);
-          });
-
-          await operationReport.save();
-        }
-
-        patient.get('operativePlans').add(operationReport);
-        await patient.save();
-        this.props.history.replace(`/patients/operativePlan/${patient._id}/${operationReport._id}`);
-        this.setState({ action: 'update' });
-      } else {
-        patient.trigger('change');
-      }
-
-      this.setState({ formSuccess: true });
-    } catch (err) {
-      console.error('Error: ', err);
-    }
+  submitForm = (event) => {
+    event.preventDefault();
+    const { action, saveOperationReport, operationReportModel } = this.props;
+    saveOperationReport({ action, operationReportModel });
   }
 
   render() {
+    const { patientModel, operationReportModel } = this.props;
     const {
-      patient,
-      formError,
-      formSuccess,
-      form,
-      action,
-      preOpDiagnoses,
+      loading, isFormValid, action, ...form
     } = this.state;
 
+    if (loading) return <Preloader />;
     return (
-      <div>
-        <div className="create-content">
-          <div className="create-top-bar">
-            <span>Edit Operation Report</span>
-          </div>
+      <React.Fragment>
+        <TopBar title={`${capitalize(action)} Operation Report`} />
+        <Container>
+          <TopRow
+            patient={patientModel.toJSON()}
+            style={{ marginBottom: spacing * 2 }}
+          />
+          <PreOpDiagnosis operationReportModel={operationReportModel} />
           <form
             name="opPlanForm"
-            className="create-container"
             onSubmit={this.submitForm}
           >
-            <div className="form">
-              <div className="columns">
-                <div className="column">
-                  <div className="columns is-multiline is-variable m-b-0">
-                    <div className="column is-8">
-                      <div className="column p-b-5">
-                        <span className="title">Name: </span>
-                        <span className="full-name">
-                          {patient.firstName}
-                          {' '}
-                          {patient.lastName}
-                        </span>
-                      </div>
-                      <div className="column p-b-5 p-t-5">
-                        <span className="title is-medium">Sex: </span>
-                        <span className="is-medium">
-                          {patient.sex}
-                        </span>
-                      </div>
-                      <div className="column p-t-5 p-b-5">
-                        <span className="title is-medium">Age: </span>
-                        <span className="is-medium">
-                          {patient.age}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="column is-4">
-                      <div className="align-left">
-                        <div className="card-info">
-                          {patient.displayId}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="columns border-bottom">
-                    <div className="column">
-                      <Diagnosis diagnoses={preOpDiagnoses} parentModel={this.props.patient} readonly />
-                      <Diagnosis diagnoses={preOpDiagnoses} parentModel={this.props.patient} showSecondary readonly />
-                    </div>
-                    <div className="column">
-                      <Allergy patient={patient} patientModel={this.props.patient} readonly />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="columns">
-                <div className="column">
-                  <TextareaGroup
-                    name="operationDescription"
-                    label="Operation Description"
-                    tabIndex={1}
-                    onChange={this.handleUserInput}
-                    value={form.operationDescription}
-                  />
-                </div>
-              </div>
-              <Procedure procedures={form.procedures} onChange={this.handleUserInput} />
-              <div className="columns">
-                <div className="column is-10">
-                  <div className="columns">
-                    <div className="column">
-                      <InputGroup
-                        name="surgeon"
-                        label="Surgeon"
-                        tabIndex={4}
-                        onChange={this.handleUserInput}
-                        value={form.surgeon}
-                      />
-                    </div>
-                    <div className="column">
-                      <div className="column">
-                        <span className="header">
-                          Status
-                        </span>
-                        <Select
-                          id="state-select"
-                          onBlurResetsInput={false}
-                          onSelectResetsInput={false}
-                          clearable={false}
-                          options={operativePlanStatusList}
-                          placeholder="Status"
-                          simpleValue
-                          name="status"
-                          disabled={this.state.disabled}
-                          value={form.status}
-                          onChange={(value) => { this.handleUserInput(value, 'status'); }}
-                        />
-                      </div>
-                    </div>
-                    <div className="column">
-                      <InputGroup
-                        name="caseComplexity"
-                        label="Case Complexity"
-                        tabIndex={9}
-                        onChange={this.handleUserInput}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="columns">
-                <div className="column">
-                  <TextareaGroup
-                    name="admissionInstructions"
-                    label="Instructions Upon Admission"
-                    tabIndex={1}
-                    onChange={this.handleUserInput}
-                    value={form.admissionInstructions}
-                  />
-                </div>
-              </div>
-              <div className="columns">
-                <div className="column">
-                  <TextareaGroup
-                    name="additionalNotes"
-                    label="Additional Notes"
-                    tabIndex={1}
-                    onChange={this.handleUserInput}
-                    value={form.additionalNotes}
-                  />
-                </div>
-              </div>
-              <div className="columns">
-                <div className="column">
-                  <div className="column has-text-right">
-                    <button className="button is-danger m-r-5" onClick={this.goBack}>Cancel</button>
-                    <button className="button is-primary m-r-5" onClick={this.submitForm}>Update</button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <FormRow>
+              <TextInput
+                name="operationDescription"
+                label="Operation Description"
+                onChange={this.handleUserInput}
+                value={form.operationDescription}
+                multiline
+                rows="3"
+              />
+            </FormRow>
+            <ActionsTaken
+              actionsTaken={form.actionsTaken}
+              patientModel={patientModel}
+              onChange={this.handleActionsTakenChange}
+            />
+            <FormRow>
+              <DateInput
+                name="surgeryDate"
+                label="Surgery Date"
+                onChange={this.handleUserInput}
+                value={form.surgeryDate}
+              />
+              <TextInput
+                name="surgeon"
+                label="Surgeon"
+                onChange={this.handleUserInput}
+                value={form.surgeon}
+              />
+              <TextInput
+                name="assistant"
+                label="Assistant"
+                onChange={this.handleUserInput}
+                value={form.surgeon}
+              />
+              <TextInput
+                name="caseComplexity"
+                label="Case Complexity"
+                onChange={this.handleUserInput}
+                value={form.caseComplexity}
+              />
+            </FormRow>
+            <FormRow>
+              <TextInput
+                name="additionalNotes"
+                label="Additional Notes"
+                onChange={this.handleUserInput}
+                value={form.additionalNotes}
+                multiline
+                rows="3"
+              />
+            </FormRow>
+            <BottomBar>
+              <BackButton />
+              <UpdateButton
+                type="submit"
+                disabled={!isFormValid}
+              />
+            </BottomBar>
           </form>
-        </div>
-        <ModalView
-          isVisible={formError}
-          onClose={this.onCloseErrorModal}
-          headerTitle="Warning!!!!"
-          contentText="Please fill in required fields (marked with *) and correct the errors before saving."
-          little
-        />
-        <ModalView
-          isVisible={formSuccess}
-          onClose={this.onCloseSuccessModal}
-          headerTitle="Success!"
-          contentText="Operative Plan was successfully saved!"
-          little
-        />
-      </div>
+        </Container>
+      </React.Fragment>
     );
   }
 }
 
-// function mapStateToProps(state) {
-//   const { onePatient, updatedBirthday, updatedReferredDate } = state.patients;
-//   return {
-//     patient: onePatient,
-//     updatedBirthday,
-//     updatedReferredDate
-//   };
-// }
+function mapStateToProps({ patients }, { match: { params: { patientId, visitId, id } } }) {
+  const {
+    patient: patientModel, operationReportModel, loading, action,
+  } = patients;
+  return {
+    patientModel, operationReportModel, loading, action, patientId, visitId, id,
+  };
+}
 
-const mapDispatchToProps = () => ({
-  patient: new PatientModel(),
-  operationReport: new OperationReportModel(),
+const { operationReport: operationReportActions } = actions;
+const { fetchOperationReport, saveOperationReport } = operationReportActions;
+const mapDispatchToProps = (dispatch, {
+  history,
+  match: { params: { id = null, patientId } },
+}) => ({
+  fetchOperationReport: () => dispatch(fetchOperationReport({ id, patientId })),
+  saveOperationReport: ({ ...props }) => dispatch(saveOperationReport({
+    ...props,
+    history,
+  })),
 });
 
-export default connect(undefined, mapDispatchToProps)(OperationReport);
+export default connect(mapStateToProps, mapDispatchToProps)(OperationReport);

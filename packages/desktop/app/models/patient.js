@@ -1,6 +1,7 @@
+/* eslint-disable react/no-this-in-sfc */
 import Backbone from 'backbone-associations';
 import {
-  each, clone, get, filter, capitalize, concat,
+  clone, get, filter, capitalize, concat,
 } from 'lodash';
 import moment from 'moment';
 
@@ -60,8 +61,6 @@ export default register('Patient', BaseModel.extend({
     additionalContacts: [],
     allergies: [],
     conditions: [],
-    operationReports: [],
-    operativePlans: [],
     pregnancies: [],
     surveyResponses: [],
     visits: [],
@@ -89,16 +88,6 @@ export default register('Patient', BaseModel.extend({
       type: Backbone.Many,
       key: 'conditions',
       relatedModel: 'Condition',
-      serialize: '_id',
-    }, {
-      type: Backbone.Many,
-      key: 'operationReports',
-      relatedModel: 'OperationReport',
-      serialize: '_id',
-    }, {
-      type: Backbone.Many,
-      key: 'operativePlans',
-      relatedModel: 'OperativePlan',
       serialize: '_id',
     }, {
       type: Backbone.Many,
@@ -137,16 +126,14 @@ export default register('Patient', BaseModel.extend({
     return [firstName, lastName].join(' ');
   },
 
-  getOpenPlan() {
-    let _return = {};
-    if (this.attributes.operativePlans.models.length > 0) {
-      each(this.attributes.operativePlans.models, (opPlan) => {
-        const operationPlan = clone(opPlan.attributes);
-        if (operationPlan.status === 'planned') _return = opPlan.toJSON();
-      });
-    }
-
-    return _return;
+  getCurrentOperativePlan() {
+    let currentPlan;
+    const visits = this.get('visits');
+    visits.forEach(visit => {
+      const visitsOperativePlan = visit.getCurrentOperativePlan();
+      if (visitsOperativePlan) currentPlan = visitsOperativePlan;
+    });
+    return currentPlan;
   },
 
   getProcedures() {

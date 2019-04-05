@@ -25,7 +25,7 @@ export const OpReportSchema = {
       type: 'date',
       optional: true,
     },
-    procedures: 'string[]',
+    actionsTaken: 'string[]',
     preOpDiagnoses: {
       type: 'list',
       objectType: 'patientDiagnosis',
@@ -33,6 +33,11 @@ export const OpReportSchema = {
     postOpDiagnoses: {
       type: 'list',
       objectType: 'patientDiagnosis',
+    },
+    visit: {
+      type: 'linkingObjects',
+      objectType: 'visit',
+      property: 'operationReports',
     },
     ...defaults,
   },

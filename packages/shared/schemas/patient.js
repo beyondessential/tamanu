@@ -189,14 +189,6 @@ export const PatientSchema = {
       type: 'list',
       objectType: 'condition',
     },
-    operationReports: {
-      type: 'list',
-      objectType: 'operationReport',
-    },
-    operativePlans: {
-      type: 'list',
-      objectType: 'operationPlan',
-    },
     pregnancies: {
       type: 'list',
       objectType: 'pregnancy',
