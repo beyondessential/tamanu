@@ -10,8 +10,8 @@ import { checkAbility } from '../utils/ability-context';
 import { history } from '../utils';
 
 export const ButtonBase = (props) => {
-  const allowed = _isAllowed(props);
-  const locationsProps = _getLocationProps(props);
+  const allowed = isAllowed(props);
+  const locationsProps = getLocationProps(props);
   return (
     <MuiButtonBase
       {...props}
@@ -22,8 +22,8 @@ export const ButtonBase = (props) => {
 };
 
 export const Button = (props) => {
-  const allowed = _isAllowed(props);
-  const locationsProps = _getLocationProps(props);
+  const allowed = isAllowed(props);
+  const locationsProps = getLocationProps(props);
   return (
     <MuiButton
       {...props}
@@ -205,7 +205,7 @@ export const TextButton = withStyles(textButtonStyles)(({ children, ...props }) 
   </Button>
 ));
 
-const _isAllowed = ({ can = {} }) => {
+const isAllowed = ({ can = {} }) => {
   let allowed = true;
   const { do: action, on: subject, field } = can;
   if (!isEmpty(can)) {
@@ -214,7 +214,7 @@ const _isAllowed = ({ can = {} }) => {
   return allowed;
 };
 
-const _getLocationProps = ({ to }) => {
+const getLocationProps = ({ to }) => {
   if (to) {
     return { component: Link, to };
   }

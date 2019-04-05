@@ -30,7 +30,7 @@ export const initSurvey = ({ patientId, programId, surveyId }) => async dispatch
   programModel.set({ _id: programId });
   surveyModel.set({ _id: surveyId });
   await Promise.all([
-    surveyModel.fetch({ relations: true }),
+    surveyModel.fetch({ data: { objects_max_depth: 15 } }),
     patientModel.fetch(),
     programModel.fetch(),
   ]);

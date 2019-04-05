@@ -12,9 +12,9 @@ export default {
     ...state,
     loading: true,
   }),
-  [FETCH_PROCEDURE_SUCCESS]: ({ procedure, action }, state) => ({
+  [FETCH_PROCEDURE_SUCCESS]: ({ procedureModel, action }, state) => ({
     ...state,
-    procedure,
+    procedureModel,
     action,
     loading: false,
   }),
@@ -27,10 +27,10 @@ export default {
     ...state,
     loading: true,
   }),
-  [SAVE_PROCEDURE_SUCCESS]: ({ patient, procedure }, state) => ({
+  [SAVE_PROCEDURE_SUCCESS]: ({ patientModel, procedureModel }, state) => ({
     ...state,
-    patient,
-    procedure,
+    patient: patientModel,
+    procedureModel,
     action: 'edit',
     loading: false,
   }),

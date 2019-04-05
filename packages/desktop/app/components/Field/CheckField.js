@@ -28,7 +28,7 @@ export const CheckField = ({ field, ...props }) => (
 CheckInput.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.bool,
-  label: PropTypes.bool,
+  label: PropTypes.string,
   onChange: PropTypes.func.isRequired,
 };
 

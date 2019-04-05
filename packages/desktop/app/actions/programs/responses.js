@@ -15,8 +15,8 @@ export const initResponses = ({
   patient.set({ _id: patientId });
   program.set({ _id: programId });
   const [error] = await to(Promise.all([
-    patient.fetch({ relations: true, deep: false }),
-    program.fetch({ relations: true, deep: false }),
+    patient.fetch(),
+    program.fetch(),
   ]));
 
   // Fetch all the responses

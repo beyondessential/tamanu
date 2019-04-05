@@ -5,22 +5,19 @@ import { SelectInput } from './Field';
 
 export default class PatientRelationSelect extends Component {
   static propTypes = {
-    patient: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+    patient: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(PatientModel)]),
     relation: PropTypes.string.isRequired,
     template: PropTypes.func.isRequired,
     label: PropTypes.string.isRequired,
     required: PropTypes.bool,
+    value: PropTypes.string,
     name: PropTypes.string.isRequired,
-    className: PropTypes.string,
-    simpleValue: PropTypes.bool,
     onChange: PropTypes.func,
   }
 
   static defaultProps = {
     patient: null,
     required: false,
-    className: '',
-    simpleValue: true,
     onChange: () => {},
     value: '',
   }
@@ -53,12 +50,14 @@ export default class PatientRelationSelect extends Component {
       patient, relation, template,
     } = props;
     if (patient) {
+      let patientModel = patient;
       if (typeof patient === 'string') {
         this.patientModel.set({ _id: patient });
         await this.patientModel.fetch();
+        patientModel = this.patientModel;
       }
 
-      let { [relation]: options } = this.patientModel.toJSON();
+      let { [relation]: options } = patientModel.toJSON();
       options = options.map(item => ({ value: item._id, label: template(item) }));
       this.setState({ options });
     }
@@ -67,6 +66,7 @@ export default class PatientRelationSelect extends Component {
   render() {
     const {
       label,
+      template,
       name,
       ...props
     } = this.props;
