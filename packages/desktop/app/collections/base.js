@@ -23,14 +23,10 @@ export default Backbone.PageableCollection.extend({
     pageSize: 'page_size',
   },
 
-  fetch(options = {}) {
+  fetch({ data, ...options } = {}) {
     const { keyword, fields } = this.filters;
-    if (!options.data) options.data = {};
-    if (keyword) {
-      options.data.keyword = keyword;
-      options.data.fields = fields.join(',');
-    }
-    return Backbone.PageableCollection.prototype.fetch.apply(this, [options]);
+    const newOptions = { ...options, data: { ...data, keyword, fields: fields.join(',') } };
+    return Backbone.PageableCollection.prototype.fetch.apply(this, [newOptions]);
   },
 
   fetchAll(options = {}) {
