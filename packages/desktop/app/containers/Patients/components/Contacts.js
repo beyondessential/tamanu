@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ReactTable from 'react-table';
-import { Grid, Typography } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import ContactModal from './ContactModal';
 import {
   Dialog as ConfirmDeleteDialog, EditButton, DeleteButton,
-  ButtonGroup, Notification, NewButton,
+  ButtonGroup, NewButton, SubHeader, SimpleTable,
 } from '../../../components';
 import { patientContactColumns } from '../../../constants';
 import { PatientModel } from '../../../models';
@@ -85,41 +84,18 @@ export default class Contacts extends Component {
     } = this.state;
     const contacts = additionalContacts.toJSON();
     return (
-      <Grid
-        container
-        item
-        direction="row"
-        spacing={16}
-        style={style}
-      >
-        <Grid container spacing={16} style={{ padding: '0 10px' }}>
-          <Grid item xs>
-            <Typography variant="h6">
-              Additional Contacts
-            </Typography>
-          </Grid>
-          <Grid container item xs justify="flex-end">
-            <NewButton onClick={() => this.showModal()}>
-              Add Contact
-            </NewButton>
-          </Grid>
-        </Grid>
+      <React.Fragment>
+        <SubHeader title="Additional Contacts">
+          <NewButton onClick={() => this.showModal()}>
+            Add Contact
+          </NewButton>
+        </SubHeader>
         <Grid container item xs={12}>
-          {additionalContacts.length > 0
-            ? (
-              <ReactTable
-                style={{ flexGrow: 1 }}
-                keyField="_id"
-                data={contacts}
-                pageSize={contacts.length}
-                columns={tableColumns}
-                className="-striped"
-                defaultSortDirection="asc"
-                showPagination={false}
-              />
-            )
-            : <Notification message="No contacts found." />
-          }
+          <SimpleTable
+            data={contacts}
+            columns={tableColumns}
+            emptyNotification="No contacts found."
+          />
         </Grid>
         <ConfirmDeleteDialog
           dialogType="confirm"
@@ -136,7 +112,7 @@ export default class Contacts extends Component {
           onClose={this.onCloseModal}
           little
         />
-      </Grid>
+      </React.Fragment>
     );
   }
 }

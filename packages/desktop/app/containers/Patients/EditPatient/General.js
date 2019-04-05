@@ -65,169 +65,171 @@ export default class General extends Component {
     const { attributes: form } = patientModel;
 
     return (
-      <Grid container spacing={24} direction="row">
-        <form id="generalForm" onSubmit={this.submitForm} />
-        <FormRow>
-          <TextInput
-            name="firstName"
-            label="First Name"
-            value={form.firstName}
-            onChange={this.handleUserInput}
-            required
-          />
-          <TextInput
-            name="status"
-            label="Patient Status"
-            value={form.status}
-            onChange={this.handleUserInput}
-          />
-        </FormRow>
-        <FormRow>
-          <TextInput
-            name="middleName"
-            label="Middle Name"
-            value={form.middleName}
-            onChange={this.handleUserInput}
-          />
-          <TextInput
-            name="externalPatientId"
-            label="External Patient Id"
-            value={form.externalPatientId}
-            onChange={this.handleUserInput}
-          />
-        </FormRow>
-        <FormRow>
-          <TextInput
-            name="lastName"
-            label="Last Name"
-            value={form.lastName}
-            onChange={this.handleUserInput}
-            required
-          />
-          <SelectInput
-            label="Blood Type"
-            options={bloodOptions}
-            name="bloodType"
-            value={form.bloodType}
-            onChange={this.handleUserInput}
-          />
-        </FormRow>
-        <FormRow>
-          <TextInput
-            name="culturalName"
-            label="Cultural or Traditional Name"
-            value={form.culturalName}
-            onChange={this.handleUserInput}
-          />
-          <TextInput
-            name="clinic"
-            label="Clinic Site"
-            value={form.clinic}
-            onChange={this.handleUserInput}
-          />
-        </FormRow>
-        <FormRow>
-          <SelectInput
-            label="Sex"
-            options={sexOptions}
-            name="sex"
-            value={form.sex}
-            onChange={this.handleUserInput}
-          />
-          <TextInput
-            name="referredBy"
-            label="Referred By"
-            value={form.referredBy}
-            onChange={this.handleUserInput}
-          />
-        </FormRow>
-        <FormRow>
-          <DateInput
-            label="Date Of Birth"
-            name="dateOfBirth"
-            onChange={this.handleUserInput}
-            value={form.dateOfBirth}
-            helperText={age && `${age} of age`}
-          />
-          <DateInput
-            label="Referred Date"
-            name="referredDate"
-            onChange={this.handleUserInput}
-            value={form.referredDate}
-          />
-        </FormRow>
-        <FormRow>
-          <TextInput
-            name="religion"
-            label="Religion"
-            value={form.religion}
-            onChange={this.handleUserInput}
-          />
-          <TextInput
-            name="placeOfBirth"
-            label="Place of Birth"
-            value={form.placeOfBirth}
-            onChange={this.handleUserInput}
-          />
-        </FormRow>
-        <FormRow>
-          <TextInput
-            name="parent"
-            label="Parent/Guardian"
-            value={form.parent}
-            onChange={this.handleUserInput}
-          />
-          <TextInput
-            name="occupation"
-            label="Occupation"
-            value={form.occupation}
-            onChange={this.handleUserInput}
-          />
-        </FormRow>
-        <FormRow>
-          <TextInput
-            name="paymentProfile"
-            label="Payment Profile"
-            value={form.paymentProfile}
-            onChange={this.handleUserInput}
-          />
-          <RadioInput
-            name="patientType"
-            label="Patient Type"
-            value={form.patientType}
-            options={[{ value: 'charity', label: 'Charity' }, { value: 'private', label: 'Private' }]}
-            onChange={this.handleUserInput}
-            style={{ flexDirection: 'row' }}
-          />
-        </FormRow>
-        <FormRow>
-          <TextInput
-            name="phone"
-            label="Phone"
-            value={form.phone}
-            onChange={this.handleUserInput}
-          />
-          <TextInput
-            name="address"
-            label="Address"
-            value={form.address}
-            onChange={this.handleUserInput}
-          />
-        </FormRow>
-        <FormRow>
-          <TextInput
-            name="email"
-            label="Email"
-            value={form.email}
-            onChange={this.handleUserInput}
-          />
-          <TextInput
-            name="country"
-            label="Country"
-            value={form.country}
-            onChange={this.handleUserInput}
-          />
-        </FormRow>
+      <React.Fragment>
+        <Grid container spacing={24} direction="row">
+          <form id="generalForm" onSubmit={this.submitForm} />
+          <FormRow>
+            <TextInput
+              name="firstName"
+              label="First Name"
+              value={form.firstName}
+              onChange={this.handleUserInput}
+              required
+            />
+            <TextInput
+              name="status"
+              label="Patient Status"
+              value={form.status}
+              onChange={this.handleUserInput}
+            />
+          </FormRow>
+          <FormRow>
+            <TextInput
+              name="middleName"
+              label="Middle Name"
+              value={form.middleName}
+              onChange={this.handleUserInput}
+            />
+            <TextInput
+              name="externalPatientId"
+              label="External Patient Id"
+              value={form.externalPatientId}
+              onChange={this.handleUserInput}
+            />
+          </FormRow>
+          <FormRow>
+            <TextInput
+              name="lastName"
+              label="Last Name"
+              value={form.lastName}
+              onChange={this.handleUserInput}
+              required
+            />
+            <SelectInput
+              label="Blood Type"
+              options={bloodOptions}
+              name="bloodType"
+              value={form.bloodType}
+              onChange={this.handleUserInput}
+            />
+          </FormRow>
+          <FormRow>
+            <TextInput
+              name="culturalName"
+              label="Cultural or Traditional Name"
+              value={form.culturalName}
+              onChange={this.handleUserInput}
+            />
+            <TextInput
+              name="clinic"
+              label="Clinic Site"
+              value={form.clinic}
+              onChange={this.handleUserInput}
+            />
+          </FormRow>
+          <FormRow>
+            <SelectInput
+              label="Sex"
+              options={sexOptions}
+              name="sex"
+              value={form.sex}
+              onChange={this.handleUserInput}
+            />
+            <TextInput
+              name="referredBy"
+              label="Referred By"
+              value={form.referredBy}
+              onChange={this.handleUserInput}
+            />
+          </FormRow>
+          <FormRow>
+            <DateInput
+              label="Date Of Birth"
+              name="dateOfBirth"
+              onChange={this.handleUserInput}
+              value={form.dateOfBirth}
+              helperText={age && `${age} of age`}
+            />
+            <DateInput
+              label="Referred Date"
+              name="referredDate"
+              onChange={this.handleUserInput}
+              value={form.referredDate}
+            />
+          </FormRow>
+          <FormRow>
+            <TextInput
+              name="religion"
+              label="Religion"
+              value={form.religion}
+              onChange={this.handleUserInput}
+            />
+            <TextInput
+              name="placeOfBirth"
+              label="Place of Birth"
+              value={form.placeOfBirth}
+              onChange={this.handleUserInput}
+            />
+          </FormRow>
+          <FormRow>
+            <TextInput
+              name="parent"
+              label="Parent/Guardian"
+              value={form.parent}
+              onChange={this.handleUserInput}
+            />
+            <TextInput
+              name="occupation"
+              label="Occupation"
+              value={form.occupation}
+              onChange={this.handleUserInput}
+            />
+          </FormRow>
+          <FormRow>
+            <TextInput
+              name="paymentProfile"
+              label="Payment Profile"
+              value={form.paymentProfile}
+              onChange={this.handleUserInput}
+            />
+            <RadioInput
+              name="patientType"
+              label="Patient Type"
+              value={form.patientType}
+              options={[{ value: 'charity', label: 'Charity' }, { value: 'private', label: 'Private' }]}
+              onChange={this.handleUserInput}
+              style={{ flexDirection: 'row' }}
+            />
+          </FormRow>
+          <FormRow>
+            <TextInput
+              name="phone"
+              label="Phone"
+              value={form.phone}
+              onChange={this.handleUserInput}
+            />
+            <TextInput
+              name="address"
+              label="Address"
+              value={form.address}
+              onChange={this.handleUserInput}
+            />
+          </FormRow>
+          <FormRow>
+            <TextInput
+              name="email"
+              label="Email"
+              value={form.email}
+              onChange={this.handleUserInput}
+            />
+            <TextInput
+              name="country"
+              label="Country"
+              value={form.country}
+              onChange={this.handleUserInput}
+            />
+          </FormRow>
+        </Grid>
         <Contacts
           patientModel={patientModel}
           style={{ marginTop: spacing * 2, marginBottom: spacing * 2 }}
@@ -243,7 +245,7 @@ export default class General extends Component {
             />
           </Grid>
         </Grid>
-      </Grid>
+      </React.Fragment>
     );
   }
 }

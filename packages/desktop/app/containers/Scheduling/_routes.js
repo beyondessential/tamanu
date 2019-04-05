@@ -12,21 +12,19 @@ import SurgeryAppointment from './SurgeryAppointment';
 
 export default function Routes({ url }) {
   return (
-    <div>
-      <Switch>
-        <Route exact path={url} component={WeeksAppointments} />
-        <Route path={`${url}/week`} component={WeeksAppointments} />
-        <Route path={`${url}/today`} component={TodaysAppointments} />
-        <Route path={`${url}/search`} component={SearchAppointment} />
-        <Route path={`${url}/calendar`} component={AppointmentsCalendar} />
-        <Route path={`${url}/appointmentByPatient/:patientId`} component={Appointment} />
-        <Route path={`${url}/appointment/new`} component={Appointment} />
-        <Route path={`${url}/appointment/:id`} component={Appointment} />
-        <Route path={`${url}/theater`} component={TheaterSchedule} />
-        <Route path={`${url}/surgery/new`} component={SurgeryAppointment} />
-        <Route path={`${url}/surgery/:id`} component={SurgeryAppointment} />
-      </Switch>
-    </div>
+    <Switch>
+      <Route exact path={url} component={WeeksAppointments} />
+      <Route path={`${url}/week`} component={WeeksAppointments} />
+      <Route path={`${url}/today`} component={TodaysAppointments} />
+      <Route path={`${url}/search`} component={SearchAppointment} />
+      <Route path={`${url}/calendar`} component={AppointmentsCalendar} />
+      <Route path={`${url}/appointmentByPatient/:patientId`} component={Appointment} />
+      <Route path={`${url}/appointment/new`} component={Appointment} />
+      <Route path={`${url}/appointment/:id`} component={Appointment} />
+      <Route path={`${url}/theater`} component={TheaterSchedule} />
+      <Route path={`${url}/surgery/new`} component={SurgeryAppointment} />
+      <Route path={`${url}/surgery/:id`} component={SurgeryAppointment} />
+    </Switch>
   );
 }
 

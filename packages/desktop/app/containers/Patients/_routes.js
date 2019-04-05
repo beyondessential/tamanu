@@ -23,9 +23,12 @@ export default function Routes({ url }) {
         <Route path={`${url}/edit/new`} component={NewPatient} />
         <Route path={`${url}/reports`} component={NotActive} />
         <Route path={`${url}/editPatient/:id`} component={EditPatient} />
-        <Route path={`${url}/operativePlan/:patientId/:id`} component={OperativePlan} />
-        <Route path={`${url}/operativePlan/:patientId`} component={OperativePlan} />
-        <Route path={`${url}/operationReport/:patientId/:id`} component={OperationReport} />
+
+        <Route path={`${url}/patient::patientId/visit/operationReport::id`} component={OperationReport} />
+        <Route path={`${url}/patient::patientId/visit::visitId/operativePlan`} component={OperativePlan} />
+        <Route path={`${url}/patient::patientId/visit/operativePlan`} component={OperativePlan} />
+        <Route path={`${url}/patient::patientId/visit/operativePlan::id`} component={OperativePlan} />
+
         <Route path={`${url}/visit/:patientId/:visitId/procedure/:id`} component={Procedure} />
         <Route path={`${url}/visit/:patientId/:visitId/procedure`} component={Procedure} />
         <Route path={`${url}/visit/:patientId/:id`} component={Visit} />

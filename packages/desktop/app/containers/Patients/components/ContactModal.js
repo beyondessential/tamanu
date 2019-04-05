@@ -85,7 +85,6 @@ export default class ContactModal extends Component {
         <form
           id="contactForm"
           name="contactForm"
-          className="create-container"
           onSubmit={this.submitForm}
         />
         <Grid container spacing={spacing * 2} direction="column">

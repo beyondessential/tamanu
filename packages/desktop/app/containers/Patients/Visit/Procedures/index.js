@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import ReactTable from 'react-table';
+import { Grid } from '@material-ui/core';
 import { proceduresColumns } from '../../../../constants';
 import {
-  Modal, DeleteButton, EditButton, NewButton,
+  Dialog, DeleteButton, EditButton, NewButton,
+  TabHeader, SimpleTable,
 } from '../../../../components';
 
 class Procedures extends Component {
@@ -29,29 +30,6 @@ class Procedures extends Component {
     this.setState({ procedures: procedures.toJSON() });
   }
 
-  editItem(itemId) {
-    const { visitModel, patientModel } = this.props;
-    this.props.history.push(`/patients/visit/${patientModel.id}/${visitModel.id}/procedure/${itemId}`);
-  }
-
-  deleteConfirm(itemId = null) {
-    this.setState({ deleteModalVisible: true, itemId });
-  }
-
-  async deleteItem() {
-    const { visitModel } = this.props;
-    const { itemId } = this.state;
-    try {
-      const item = visitModel.get('procedures').findWhere({ _id: itemId });
-      visitModel.get('procedures').remove({ _id: itemId });
-      await visitModel.save();
-      await item.destroy();
-      this.setState({ deleteModalVisible: false });
-    } catch (err) {
-      console.error('Error: ', err);
-    }
-  }
-
   setActionsCol = (row) => (
     <div key={row._id}>
       <EditButton
@@ -67,52 +45,60 @@ class Procedures extends Component {
     </div>
   )
 
+  deleteItem = async () => {
+    const { visitModel } = this.props;
+    const { itemId } = this.state;
+    try {
+      const item = visitModel.get('procedures').findWhere({ _id: itemId });
+      visitModel.get('procedures').remove({ _id: itemId });
+      await visitModel.save();
+      await item.destroy();
+      this.setState({ deleteModalVisible: false });
+    } catch (err) {
+      console.error('Error: ', err);
+    }
+  }
+
+  editItem(itemId) {
+    const { visitModel, patientModel } = this.props;
+    this.props.history.push(`/patients/visit/${patientModel.id}/${visitModel.id}/procedure/${itemId}`);
+  }
+
+  deleteConfirm(itemId = null) {
+    this.setState({ deleteModalVisible: true, itemId });
+  }
+
   render() {
     const { visitModel, patientModel } = this.props;
     const { procedures, tableColumns } = this.state;
     return (
-      <div>
-        <div className="column p-t-0 p-b-0">
-          <NewButton
-            className="is-pulled-right"
-            to={`/patients/visit/${patientModel.id}/${visitModel.id}/procedure`}
-            can={{ do: 'create', on: 'procedure' }}
-          >
-New Procedure
-          </NewButton>
-          <div className="is-clearfix" />
-        </div>
-        <div className="column">
-          {procedures.length > 0
-            && (
-            <ReactTable
-              keyField="_id"
+      <React.Fragment>
+        <Grid container>
+          <TabHeader>
+            <NewButton
+              to={`/patients/visit/${patientModel.id}/${visitModel.id}/procedure`}
+              can={{ do: 'create', on: 'procedure' }}
+            >
+              New Procedure
+            </NewButton>
+          </TabHeader>
+          <Grid container item>
+            <SimpleTable
               data={procedures}
-              pageSize={procedures.length}
               columns={tableColumns}
-              className="-striped"
-              defaultSortDirection="asc"
-              showPagination={false}
+              emptyNotification="No procedures found."
             />
-            )
-          }
-          {procedures.length <= 0
-            && (
-            <div className="notification">
-              <span> No procedures found. </span>
-            </div>
-            )
-          }
-        </div>
-        <Modal
-          modalType="confirm"
+          </Grid>
+        </Grid>
+        <Dialog
+          dialogType="confirm"
           headerTitle="Confirm"
           contentText="Are you sure you want to delete this item?"
           isVisible={this.state.deleteModalVisible}
-          onConfirm={this.deleteItem.bind(this)}
+          onConfirm={this.deleteItem}
           onClose={() => this.setState({ deleteModalVisible: false })}
         />
-      </div>
+      </React.Fragment>
     );
   }
 }

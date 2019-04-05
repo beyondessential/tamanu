@@ -5,7 +5,7 @@ import { toLower } from 'lodash';
 import { Paper } from '@material-ui/core';
 import actions from '../../../actions/scheduling';
 import {
-  Dialog, Button, BrowsableTable, ButtonGroup,
+  Dialog, Button, BrowsableTable, ButtonGroup, Container,
 } from '../../../components';
 import { AppointmentsCollection } from '../../../collections';
 import { appointmentsColumns } from '../../../constants';
@@ -87,7 +87,10 @@ class AppointmentsTable extends Component {
   render() {
     const { filters, collection } = this.props;
     return (
-      <Paper elevation={0}>
+      <Container
+        autoHeight
+        noPadding
+      >
         <BrowsableTable
           collection={collection}
           columns={appointmentsColumns}
@@ -103,7 +106,7 @@ class AppointmentsTable extends Component {
           onConfirm={this.deleteAppointment}
           onClose={this.onCloseModal}
         />
-      </Paper>
+      </Container>
     );
   }
 }

@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import {
-  Paper, Grid, Tabs, Tab,
-} from '@material-ui/core';
+import { Grid, Tabs, Tab } from '@material-ui/core';
 import {
   Preloader, BackButton, TopBar, Container,
 } from '../../../components';
@@ -190,12 +188,14 @@ class EditPatient extends Component {
         <Container style={{ paddingBottom: 90 }}>
           <TopRow patient={patient} />
           <Grid container spacing={8} style={{ paddingBottom: 16 }}>
-            <Grid container item xs spacing={8}>
+            <Grid item xs>
               <Condition patientModel={patientModel} />
-              <Procedure patientModel={patientModel} />
-              <OperativePlan patientModel={patientModel} />
+              <OperativePlan
+                parentModel={patientModel}
+                patientId={patientModel.id}
+              />
             </Grid>
-            <Grid container item xs>
+            <Grid item xs>
               <Allergy patientModel={patientModel} />
             </Grid>
           </Grid>

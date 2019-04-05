@@ -35,7 +35,7 @@ export default class Condition extends Component {
     this.setState({ modalVisible: false });
   }
 
-  editItem(itemId = null) {
+  editItem = (itemId = null) => () => {
     const { patientModel } = this.props;
     let { conditionModel } = this.state;
     const item = patientModel.get('conditions').findWhere({ _id: itemId });
@@ -70,7 +70,7 @@ export default class Condition extends Component {
           <Grid item>
             <TextButton
               can={{ do: 'create', on: 'condition' }}
-              onClick={() => this.editItem()}
+              onClick={this.editItem()}
             >
               + Add Condition
             </TextButton>
@@ -83,7 +83,7 @@ export default class Condition extends Component {
                   {k > 0 ? ', ' : ''}
                   <TextButton
                     can={{ do: 'read', on: 'condition' }}
-                    onClick={() => this.editItem(_id)}
+                    onClick={this.editItem(_id)}
                   >
                     {`${condition} (${moment(date).format(dateFormat)})`}
                   </TextButton>

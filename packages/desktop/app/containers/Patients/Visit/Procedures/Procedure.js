@@ -1,20 +1,29 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { capitalize } from 'lodash';
+import { Grid } from '@material-ui/core';
 import Medication from './Medication';
 import actions from '../../../../actions/patients';
 import {
-  Preloader,
-  InputGroup,
-  TextareaGroup,
-  DatepickerGroup,
-  AddButton,
-  UpdateButton,
-  CancelButton,
+  Preloader, TextInput, DateInput, BottomBar, Container,
+  AddButton, UpdateButton, CancelButton, TopBar, FormRow,
 } from '../../../../components';
+import { ProcedureModel } from '../../../../models';
+import { MUI_SPACING_UNIT as spacing } from '../../../../constants';
 
 class Procedure extends Component {
+  static propTypes = {
+    fetchProcedure: PropTypes.func.isRequired,
+    patientId: PropTypes.string.isRequired,
+    visitId: PropTypes.string.isRequired,
+    procedureModel: PropTypes.oneOfType([
+      PropTypes.instanceOf(ProcedureModel),
+      PropTypes.instanceOf(Object),
+    ]).isRequired,
+    saveProcedure: PropTypes.func.isRequired,
+  }
+
   constructor(props) {
     super(props);
     this.submitForm = this.submitForm.bind(this);
@@ -22,56 +31,61 @@ class Procedure extends Component {
 
   state = {
     action: 'new',
-    procedure: {},
     loading: true,
+    formIsValid: false,
   }
 
   componentWillMount() {
-    const { patientId, id } = this.props.match.params;
+    const { patientId, id } = this.props;
     this.props.fetchProcedure({ patientId, id });
   }
 
   componentWillReceiveProps(newProps) {
-    this.handleChange(newProps);
-  }
-
-  componentWillUnmount() {
-    const { procedureModel } = this.state;
-    procedureModel.off('change');
-  }
-
-  handleChange(props = this.props) {
-    const { procedure, action, loading } = props;
+    const { procedureModel, action, loading } = newProps;
     if (!loading) {
-      procedure.on('change', () => this.forceUpdate());
+      procedureModel.on('change', this.handleChange);
       this.setState({
-        procedureModel: procedure,
-        procedure: procedure.toJSON(),
+        ...procedureModel.toJSON(),
+        formIsValid: procedureModel.isValid(),
         action,
         loading,
       });
     }
   }
 
-  handleUserInput = (e, field) => {
-    const { procedureModel } = this.state;
-    if (typeof field !== 'undefined') {
-      procedureModel.set(field, e, { silent: true });
-    } else {
-      const { name } = e.target;
-      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-      procedureModel.set(name, value, { silent: true });
-    }
+  componentWillUnmount() {
+    const { procedureModel } = this.props;
+    procedureModel.off('change');
+  }
+
+  handleUserInput = (event) => {
+    const { procedureModel } = this.props;
+    const { name, value } = event.target;
+    procedureModel.set(name, value);
+    // if (typeof field !== 'undefined') {
+    // } else {
+    //   const { name } = e.target;
+    //   const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    //   procedureModel.set(name, value, { silent: true });
+    // }
+    // this.setState({
+    //   procedureModel,
+    //   procedure: procedureModel.toJSON(),
+    // });
+  }
+
+  handleChange = () => {
+    const { procedureModel } = this.props;
     this.setState({
-      procedureModel,
-      procedure: procedureModel.toJSON(),
+      ...procedureModel.changedAttributes(),
+      formIsValid: procedureModel.isValid(),
     });
   }
 
-  submitForm(e) {
-    e.preventDefault();
-    const { visitId } = this.props.match.params;
-    const { action, procedureModel } = this.state;
+  submitForm(event) {
+    event.preventDefault();
+    const { procedureModel, visitId } = this.props;
+    const { action } = this.state;
     this.props.saveProcedure({
       action,
       procedureModel,
@@ -84,163 +98,141 @@ class Procedure extends Component {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
 
-    const { patientId, visitId } = this.props.match.params;
-    const { action, procedureModel, procedure } = this.state;
+    const {
+      procedureModel, patientId, visitId,
+    } = this.props;
+    const {
+      action, formIsValid, ...form
+    } = this.state;
     return (
-      <div>
-        <div className="create-content">
-          <div className="create-top-bar">
-            <span>{`${capitalize(action)} Procedure`}</span>
-          </div>
-          <form
-            className="create-container"
-            onSubmit={this.submitForm}
-          >
-            <div className="form formLayout">
-              <div className="columns">
-                <InputGroup
-                  label="Procedure"
-                  name="description"
-                  value={procedure.description}
-                  onChange={this.handleUserInput}
-                  required
-                />
-              </div>
-              <div className="columns">
-                <InputGroup
-                  label="CPT Code"
-                  name="cptCode"
-                  value={procedure.cptCode}
-                  onChange={this.handleUserInput}
-                />
-              </div>
-              <div className="columns">
-                <InputGroup
-                  label="Procedure Location"
-                  name="location"
-                  className="column is-3"
-                  value={procedure.location}
-                  onChange={this.handleUserInput}
-                />
-                <DatepickerGroup
-                  label="Procedure Date"
-                  name="procedureDate"
-                  className="column is-3"
-                  value={procedure.procedureDate}
-                  onChange={(date) => { this.handleUserInput(date, 'procedureDate'); }}
-                  required
-                />
-                <InputGroup
-                  label="Time Start"
-                  name="timeStarted"
-                  className="column is-3"
-                  value={procedure.timeStarted}
-                  onChange={this.handleUserInput}
-                />
-                <InputGroup
-                  label="Time Ended"
-                  name="timeEnded"
-                  className="column is-3"
-                  value={procedure.timeEnded}
-                  onChange={this.handleUserInput}
-                />
-              </div>
-              <div className="columns">
-                <InputGroup
-                  label="Physician"
-                  name="physician"
-                  className="column is-4"
-                  value={procedure.physician}
-                  onChange={this.handleUserInput}
-                  required
-                />
-                <InputGroup
-                  label="Assistant"
-                  name="assistant"
-                  className="column is-4"
-                  value={procedure.assistant}
-                  onChange={this.handleUserInput}
-                />
-                <InputGroup
-                  label="Anesthesiologist"
-                  name="anesthesiologist"
-                  className="column is-4"
-                  value={procedure.anesthesiologist}
-                  onChange={this.handleUserInput}
-                />
-              </div>
-              <div className="columns">
-                <InputGroup
-                  label="Anesthesia Type"
-                  name="anesthesiaType"
-                  className="column is-4"
-                  value={procedure.anesthesiaType}
-                  onChange={this.handleUserInput}
-                />
-              </div>
-              <div className="columns">
-                <div className="column">
-                  <TextareaGroup
-                    label="Notes"
-                    name="notes"
-                    value={procedure.notes}
-                    onChange={this.handleUserInput}
-                  />
-                </div>
-              </div>
-              {action === 'edit'
-                && (
-                <Medication
-                  procedureModel={procedureModel}
-                />
-                )
-              }
-              <div className="column has-text-right">
-                <CancelButton
-                  to={`/patients/visit/${patientId}/${visitId}`}
-                />
-                {action === 'new' && (
-                <AddButton
-                  type="submit"
-                  disabled={!procedureModel.isValid()}
-                  can={{ do: 'create', on: 'procedure' }}
-                />
-                ) }
-                {action !== 'new' && (
-                <UpdateButton
-                  type="submit"
-                  disabled={!procedureModel.isValid()}
-                  can={{ do: 'update', on: 'procedure' }}
-                />
-                ) }
-              </div>
-            </div>
-          </form>
-        </div>
-        {/* <ModalView
-            isVisible={formError}
-            onClose={this.onCloseModal}
-            headerTitle="Warning!!!!"
-            contentText="Please fill in required fields (marked with *) and correct the errors before saving."
-            little
-          /> */}
-      </div>
+      <React.Fragment>
+        <TopBar
+          title={`${capitalize(action)} Procedure`}
+        />
+        <form onSubmit={this.submitForm}>
+          <Container>
+            <FormRow>
+              <TextInput
+                label="Procedure"
+                name="description"
+                value={form.description}
+                onChange={this.handleUserInput}
+                required
+              />
+              <TextInput
+                label="CPT Code"
+                name="cptCode"
+                value={form.cptCode}
+                onChange={this.handleUserInput}
+              />
+            </FormRow>
+            <FormRow>
+              <TextInput
+                label="Procedure Location"
+                name="location"
+                value={form.location}
+                onChange={this.handleUserInput}
+              />
+              <DateInput
+                label="Procedure Date"
+                name="procedureDate"
+                value={form.procedureDate}
+                onChange={(date) => { this.handleUserInput(date, 'procedureDate'); }}
+                required
+              />
+              <TextInput
+                label="Time Start"
+                name="timeStarted"
+                value={form.timeStarted}
+                onChange={this.handleUserInput}
+              />
+              <TextInput
+                label="Time Ended"
+                name="timeEnded"
+                value={form.timeEnded}
+                onChange={this.handleUserInput}
+              />
+            </FormRow>
+            <FormRow>
+              <TextInput
+                label="Physician"
+                name="physician"
+                value={form.physician}
+                onChange={this.handleUserInput}
+                required
+              />
+              <TextInput
+                label="Assistant"
+                name="assistant"
+                value={form.assistant}
+                onChange={this.handleUserInput}
+              />
+            </FormRow>
+            <FormRow>
+              <TextInput
+                label="Anesthesiologist"
+                name="anesthesiologist"
+                value={form.anesthesiologist}
+                onChange={this.handleUserInput}
+              />
+              <TextInput
+                label="Anesthesia Type"
+                name="anesthesiaType"
+                value={form.anesthesiaType}
+                onChange={this.handleUserInput}
+              />
+            </FormRow>
+            <FormRow>
+              <TextInput
+                label="Notes"
+                name="notes"
+                value={form.notes}
+                onChange={this.handleUserInput}
+                multiline
+                rows="3"
+              />
+            </FormRow>
+            {action === 'edit'
+              && <Medication procedureModel={procedureModel} />
+            }
+            <BottomBar>
+              <CancelButton
+                to={`/patients/visit/${patientId}/${visitId}`}
+              />
+              {action === 'new' && (
+              <AddButton
+                type="submit"
+                disabled={!formIsValid}
+                can={{ do: 'create', on: 'procedure' }}
+              />
+              ) }
+              {action !== 'new' && (
+              <UpdateButton
+                type="submit"
+                disabled={!formIsValid}
+                can={{ do: 'update', on: 'procedure' }}
+              />
+              ) }
+            </BottomBar>
+          </Container>
+        </form>
+      </React.Fragment>
     );
   }
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, { match: { params: { patientId, visitId, id } } }) {
   const {
-    procedure, action, loading, error,
+    procedureModel, action, loading, error,
   } = state.patients;
   return {
-    procedure, action, loading, error,
+    procedureModel, action, loading, error, patientId, visitId, id,
   };
 }
 
 const { procedure: procedureActions } = actions;
 const { fetchProcedure, saveProcedure } = procedureActions;
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = (dispatch) => ({
   fetchProcedure: (params) => dispatch(fetchProcedure(params)),
   saveProcedure: (params) => dispatch(saveProcedure(params)),
 });

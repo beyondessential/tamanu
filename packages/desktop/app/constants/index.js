@@ -560,14 +560,6 @@ export const admittedPatientsColumns = [
     headerStyle,
     style: columnStyle,
     minWidth: 100,
-  }, {
-    accessor: 'actiomns',
-    id: 'actions',
-    Header: 'Actions',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 250,
-    Cell: {},
   },
 ];
 
@@ -967,17 +959,6 @@ export const programsPatientsColumns = [
     headerStyle,
     style: columnStyle,
     minWidth: 100,
-    filterable: false,
-  }, {
-    accessor: row => ({ _id: row._id, admitted: row.admitted }),
-    id: 'actions',
-    Header: 'Actions',
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor,
-    },
-    style: columnStyle,
-    minWidth: 350,
-    Cell: null,
     filterable: false,
   },
 ];

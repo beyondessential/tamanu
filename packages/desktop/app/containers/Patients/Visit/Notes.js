@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import ReactTable from 'react-table';
+import { Grid } from '@material-ui/core';
 import { notesColumns } from '../../../constants';
 import NoteModal from '../components/NoteModal';
 import {
-  Modal, EditButton, DeleteButton, NewButton,
+  Dialog, EditButton, DeleteButton, NewButton,
+  TabHeader, SimpleTable, ButtonGroup,
 } from '../../../components';
 
-class Notes extends Component {
+export default class Notes extends Component {
   state = {
     modalVisible: false,
     deleteModalVisible: false,
@@ -36,15 +37,20 @@ class Notes extends Component {
     this.setState({ modalVisible: false });
   }
 
-  editItem(itemId = null) {
-    this.setState({ modalVisible: true, action: (itemId !== null ? 'edit' : 'new'), itemId });
-  }
+  setActionsCol = (row) => (
+    <ButtonGroup>
+      <EditButton
+        size="small"
+        onClick={() => this.editItem(row.original._id)}
+      />
+      <DeleteButton
+        size="small"
+        onClick={() => this.deleteConfirm(row.original._id)}
+      />
+    </ButtonGroup>
+  )
 
-  deleteConfirm(itemId = null) {
-    this.setState({ deleteModalVisible: true, itemId });
-  }
-
-  async deleteItem() {
+  deleteItem = async () => {
     const { parentModel } = this.props;
     const { itemId } = this.state;
     try {
@@ -58,18 +64,13 @@ class Notes extends Component {
     }
   }
 
-  setActionsCol = (row) => (
-    <div key={row._id}>
-      <EditButton
-        size="small"
-        onClick={() => this.editItem(row.original._id)}
-      />
-      <DeleteButton
-        size="small"
-        onClick={() => this.deleteConfirm(row.original._id)}
-      />
-    </div>
-  )
+  editItem(itemId = null) {
+    this.setState({ modalVisible: true, action: (itemId !== null ? 'edit' : 'new'), itemId });
+  }
+
+  deleteConfirm(itemId = null) {
+    this.setState({ deleteModalVisible: true, itemId });
+  }
 
   render() {
     const { parentModel, patientModel } = this.props;
@@ -77,44 +78,29 @@ class Notes extends Component {
       modalVisible, action, itemId, notes, tableColumns,
     } = this.state;
     return (
-      <div>
-        <div className="column p-t-0 p-b-0">
-          <NewButton
-            className="is-pulled-right"
-            onClick={() => this.editItem()}
-          >
-Add Note
-          </NewButton>
-          <div className="is-clearfix" />
-        </div>
-        <div className="column">
-          {notes.length > 0
-            && (
-            <ReactTable
-              keyField="_id"
+      <React.Fragment>
+        <Grid container>
+          <TabHeader>
+            <NewButton
+              onClick={() => this.editItem()}
+            >
+              Add Note
+            </NewButton>
+          </TabHeader>
+          <Grid container item>
+            <SimpleTable
               data={notes}
-              pageSize={notes.length}
               columns={tableColumns}
-              className="-striped"
-              defaultSortDirection="asc"
-              showPagination={false}
+              emptyNotification="No notes found."
             />
-            )
-          }
-          {notes.length <= 0
-            && (
-            <div className="notification">
-              <span> No notes found. </span>
-            </div>
-            )
-          }
-        </div>
-        <Modal
-          modalType="confirm"
+          </Grid>
+        </Grid>
+        <Dialog
+          dialogType="confirm"
           headerTitle="Confirm"
           contentText="Are you sure you want to delete this item?"
           isVisible={this.state.deleteModalVisible}
-          onConfirm={this.deleteItem.bind(this)}
+          onConfirm={this.deleteItem}
           onClose={() => this.setState({ deleteModalVisible: false })}
         />
         <NoteModal
@@ -126,9 +112,7 @@ Add Note
           onClose={this.onCloseModal}
           little
         />
-      </div>
+      </React.Fragment>
     );
   }
 }
-
-export default Notes;

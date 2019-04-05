@@ -166,15 +166,18 @@ export default class PregnancyModal extends Component {
                 </Grid>
               )
             }
-            <Grid item xs={12}>
-              <TextInput
-                name="gestationalAge"
-                label="Gestational Age"
-                value={form.gestationalAge}
-                onChange={this.handleUserInput}
-                className={`is-one-third ${form.outcome !== 'fetalDeath' ? 'is-hidden' : ''}`}
-              />
-            </Grid>
+            {form.outcome === 'fetalDeath'
+              && (
+                <Grid item xs={12}>
+                  <TextInput
+                    name="gestationalAge"
+                    label="Gestational Age"
+                    value={form.gestationalAge}
+                    onChange={this.handleUserInput}
+                  />
+                </Grid>
+              )
+            }
           </Grid>
           <ModalActions>
             <CancelButton onClick={onClose} />

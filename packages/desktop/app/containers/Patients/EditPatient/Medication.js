@@ -238,7 +238,6 @@ export default class Medication extends Component {
       <Grid container>
         <TabHeader>
           <NewButton
-            className="is-pulled-right"
             to={`/medication/request/by-patient/${patientModel.id}`}
             can={{ do: 'create', on: 'visit' }}
           >

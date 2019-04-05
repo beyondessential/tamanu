@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
-import Modal from 'react-responsive-modal';
 import moment from 'moment';
 import {
-  InputGroup, DatepickerGroup, AddButton,
-  UpdateButton, CancelButton,
+  TextInput, DateInput, AddButton, ModalActions,
+  UpdateButton, CancelButton, FormRow, Modal,
 } from '../../../components';
 import { VitalModel } from '../../../models';
 import { dateTimeFormat } from '../../../constants';
 
-class VisitModal extends Component {
+export default class VisitModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -70,147 +69,124 @@ class VisitModal extends Component {
     const { Model } = this.state;
     const form = Model.toJSON();
     return (
-      <Modal open={this.state.isVisible} onClose={onClose} little>
+      <Modal
+        title={`${action === 'new' ? 'Add' : 'Update'} Vitals`}
+        isVisible={this.state.isVisible}
+        onClose={onClose}
+      >
         <form
           id="vitalForm"
           name="vitalForm"
-          className="create-container"
           onSubmit={this.submitForm}
         >
-          <div className="tamanu-error-modal diagnosis-modal">
-            <div className="modal-header">
-              <h2>
-                {action === 'new' ? 'Add' : 'Update'}
-                {' '}
-Vitals
-              </h2>
-            </div>
-            <div className="modal-content">
-              <DatepickerGroup
-                label="Recorded At"
-                name="dateRecorded"
-                className="is-5"
-                popperModifiers={{
-                  offset: {
-                    enabled: true,
-                    offset: '0px, 30px',
-                  },
-                }}
-                onChange={this.handleUserInput}
-                value={form.dateRecorded}
-                showTimeSelect
-                dateFormat={dateTimeFormat}
-                timeIntervals={30}
-              />
-              <div className="columns p-l-10 p-t-10">
-                <InputGroup
-                  type="number"
-                  label="Temperature (°C)"
-                  name="temperature"
-                  className="column m-b-0 is-4"
-                  inputClass="column is-6 no-padding"
-                  onChange={this.handleUserInput}
-                  value={form.temperature}
-                />
-                <InputGroup
-                  type="number"
-                  label="Blood Sugar Level (mmol/L)"
-                  name="bloodSugarLevel"
-                  className="column m-b-0 is-4"
-                  inputClass="column is-6 no-padding"
-                  onChange={this.handleUserInput}
-                  value={form.bloodSugarLevel}
-                />
-              </div>
-              <div className="columns p-l-10 p-t-10">
-                <InputGroup
-                  type="number"
-                  label="Weight (kg)"
-                  name="weight"
-                  className="column m-b-0 is-4"
-                  inputClass="column is-6 no-padding"
-                  onChange={this.handleUserInput}
-                  value={form.weight}
-                />
-                <InputGroup
-                  type="number"
-                  label="Height (cm)"
-                  name="height"
-                  className="column m-b-0 is-4"
-                  inputClass="column is-6 no-padding"
-                  onChange={this.handleUserInput}
-                  value={form.height}
-                />
-              </div>
-              <div className="columns p-l-10 p-t-10">
-                <InputGroup
-                  type="number"
-                  label="SBP"
-                  name="sbp"
-                  className="column m-b-0 is-4"
-                  inputClass="column is-6 no-padding"
-                  onChange={this.handleUserInput}
-                  value={form.sbp}
-                />
-                <InputGroup
-                  type="number"
-                  label="DBP"
-                  name="dbp"
-                  className="column m-b-0 is-4"
-                  inputClass="column is-6 no-padding"
-                  onChange={this.handleUserInput}
-                  value={form.dbp}
-                />
-              </div>
-              <div className="columns p-l-10 p-t-10">
-                <InputGroup
-                  type="number"
-                  label="Heart Rate"
-                  name="heartRate"
-                  className="column m-b-0 is-4"
-                  inputClass="column is-6 no-padding"
-                  onChange={this.handleUserInput}
-                  value={form.heartRate}
-                />
-                <InputGroup
-                  type="number"
-                  label="Respiratory Rate"
-                  name="respiratoryRate"
-                  className="column m-b-0 is-4"
-                  inputClass="column is-6 no-padding"
-                  onChange={this.handleUserInput}
-                  value={form.respiratoryRate}
-                />
-              </div>
-            </div>
-            <div className="modal-footer">
-              <div className="column has-text-right">
-                <CancelButton
-                  onClick={onClose}
-                />
-                {action === 'new' && (
+          <FormRow>
+            <DateInput
+              label="Recorded At"
+              name="dateRecorded"
+              popperModifiers={{
+                offset: {
+                  enabled: true,
+                  offset: '0px, 30px',
+                },
+              }}
+              onChange={this.handleUserInput}
+              value={form.dateRecorded}
+              showTimeSelect
+              dateFormat={dateTimeFormat}
+              timeIntervals={30}
+            />
+          </FormRow>
+          <FormRow>
+            <TextInput
+              type="number"
+              label="Temperature (°C)"
+              name="temperature"
+              onChange={this.handleUserInput}
+              value={form.temperature}
+            />
+            <TextInput
+              type="number"
+              label="Blood Sugar Level (mmol/L)"
+              name="bloodSugarLevel"
+              onChange={this.handleUserInput}
+              value={form.bloodSugarLevel}
+            />
+          </FormRow>
+          <FormRow>
+            <TextInput
+              type="number"
+              label="Weight (kg)"
+              name="weight"
+              onChange={this.handleUserInput}
+              value={form.weight}
+            />
+            <TextInput
+              type="number"
+              label="Height (cm)"
+              name="height"
+              onChange={this.handleUserInput}
+              value={form.height}
+            />
+          </FormRow>
+          <FormRow>
+            <TextInput
+              type="number"
+              label="SBP"
+              name="sbp"
+              onChange={this.handleUserInput}
+              value={form.sbp}
+            />
+            <TextInput
+              type="number"
+              label="DBP"
+              name="dbp"
+              onChange={this.handleUserInput}
+              value={form.dbp}
+            />
+          </FormRow>
+          <FormRow>
+            <TextInput
+              type="number"
+              label="Heart Rate"
+              name="heartRate"
+              onChange={this.handleUserInput}
+              value={form.heartRate}
+            />
+            <TextInput
+              type="number"
+              label="Respiratory Rate"
+              name="respiratoryRate"
+              onChange={this.handleUserInput}
+              value={form.respiratoryRate}
+            />
+          </FormRow>
+          <ModalActions>
+            <CancelButton
+              onClick={onClose}
+            />
+            {action === 'new'
+              && (
                 <AddButton
                   type="submit"
                   form="vitalForm"
                   can={{ do: 'create', on: 'vital' }}
                   disabled={!Model.isValid()}
                 />
-                )}
-                {action !== 'new' && (
+              )
+            }
+            {action !== 'new'
+              && (
                 <UpdateButton
                   type="submit"
                   form="vitalForm"
                   can={{ do: 'update', on: 'vital' }}
                   disabled={!Model.isValid()}
                 />
-                )}
-              </div>
-            </div>
-          </div>
+              )
+            }
+          </ModalActions>
         </form>
       </Modal>
     );
   }
 }
-
-export default VisitModal;

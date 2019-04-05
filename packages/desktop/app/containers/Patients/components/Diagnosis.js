@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
+import { Grid, Typography } from '@material-ui/core';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import DiagnosisModal from './DiagnosisModal';
-import { dateFormat } from '../../../constants';
+import { dateFormat, MUI_SPACING_UNIT as spacing } from '../../../constants';
 import { TextButton } from '../../../components';
 import { PatientDiagnosisModel } from '../../../models';
 
@@ -63,20 +64,25 @@ class Diagnosis extends Component {
     // filter diagnosis type i-e primary or secondary
     const diagnoses = allDiagnoses.toJSON().filter(diagnosis => diagnosis.active && diagnosis.secondaryDiagnosis === showSecondary);
 
+    if (showSecondary && !diagnoses.length) return null;
     return (
-      <div>
-        <div className={`column p-b-0 ${!diagnoses.length && showSecondary ? 'is-hidden' : ''}`}>
-          <span className="title">{`${showSecondary ? 'Secondary' : 'Primary'} Diagnosis `}</span>
-          <TextButton
-            className={showSecondary ? 'is-hidden' : ''}
-            can={{ do: 'create', on: 'diagnosis' }}
-            onClick={() => this.editItem()}
-          >
-            {' '}
-+ Add Diagnosis
-            {' '}
-          </TextButton>
-          <div className="clearfix" />
+      <React.Fragment>
+        <Grid container item>
+          <Grid item style={{ paddingRight: spacing }}>
+            <Typography variant="body2">
+              {`${showSecondary ? 'Secondary' : 'Primary'} Diagnosis`}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <TextButton
+              can={{ do: 'create', on: 'diagnosis' }}
+              onClick={() => this.editItem()}
+            >
+              + Add Diagnosis
+            </TextButton>
+          </Grid>
+        </Grid>
+        <Grid container item xs={12} style={{ paddingTop: 0 }}>
           {diagnoses.map((diagnosis, k) => {
             const { diagnosis: { name: diagnosisName = '' } = {} } = diagnosis;
             return (
@@ -91,7 +97,7 @@ class Diagnosis extends Component {
               </React.Fragment>
             );
           })}
-        </div>
+        </Grid>
         <DiagnosisModal
           patientDiagnosisModel={patientDiagnosisModel}
           parentModel={parentModel}
@@ -100,7 +106,7 @@ class Diagnosis extends Component {
           onClose={this.onCloseModal}
           little
         />
-      </div>
+      </React.Fragment>
     );
   }
 }

@@ -12,7 +12,7 @@ export default function Appointments({ duration, history }) {
   };
 
   return (
-    <div className="content">
+    <React.Fragment>
       <TopBar
         title={duration === 'day' ? "Today's Appointments" : 'Appointments This Week'}
         buttons={{
@@ -26,7 +26,7 @@ export default function Appointments({ duration, history }) {
         history={history}
         autoFetch
       />
-    </div>
+    </React.Fragment>
   );
 }
 
