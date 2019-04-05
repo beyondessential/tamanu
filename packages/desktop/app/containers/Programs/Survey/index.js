@@ -1,8 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import ModalView from '../../../components/Modal';
-import Preloader from '../../../components/Preloader';
-import { Button } from '../../../components/Button';
+import { Grid, Typography } from '@material-ui/core';
+import { MUI_SPACING_UNIT as spacing } from '../../../constants';
+import {
+  Dialog, Preloader, Button, TopBar, Container, ButtonGroup,
+} from '../../../components';
 import actions from '../../../actions/programs';
 import QuestionScreen from './QuestionScreen';
 
@@ -34,7 +36,20 @@ class Survey extends Component {
     });
   }
 
-  buttonPrevClick() {
+  submitSurvey = () => {
+    const { patient: patientModel, history } = this.props;
+    const { programId, surveyId, moduleId } = this.props.match.params;
+    this.props.submitSurvey({
+      patientModel, programId, surveyId, moduleId, history,
+    });
+  }
+
+  cancelSurvey = () => {
+    const { patientId, programId } = this.props.match.params;
+    this.props.history.push(`/programs/${programId}/${patientId}/surveys`);
+  }
+
+  buttonPrevClick = () => {
     let { currentScreenIndex } = this.state;
     if (currentScreenIndex > 0) { // Prev
       currentScreenIndex -= 1;
@@ -44,7 +59,7 @@ class Survey extends Component {
     }
   }
 
-  buttonNextClick() {
+  buttonNextClick = () => {
     let { currentScreenIndex } = this.state;
     const { totalScreens } = this.state;
     if (currentScreenIndex < (totalScreens - 1)) {
@@ -53,19 +68,6 @@ class Survey extends Component {
     } else {
       this.setState({ submitSurveyModalVisible: true });
     }
-  }
-
-  submitSurvey() {
-    const { patient: patientModel, history } = this.props;
-    const { programId, surveyId, moduleId } = this.props.match.params;
-    this.props.submitSurvey({
-      patientModel, programId, surveyId, moduleId, history,
-    });
-  }
-
-  cancelSurvey() {
-    const { patientId, programId } = this.props.match.params;
-    this.props.history.push(`/programs/${programId}/${patientId}/surveys`);
   }
 
   render() {
@@ -77,53 +79,56 @@ class Survey extends Component {
     } = this.state;
     const isFirstScreen = (currentScreenIndex === 0);
     const isLastScreen = (currentScreenIndex === (totalScreens - 1));
-
     return (
       <Fragment>
-        <div className="content headerFixed">
-          <div className="view-top-bar">
-            <span>{program.name}</span>
-            <span className="tag is-info survey-title">{survey.name}</span>
-            <span className="tag is-white survey-steps m-r-10">{`Step ${currentScreenIndex + 1} of ${totalScreens}`}</span>
-          </div>
-          <div className="survey-details">
-            <QuestionScreen
-              surveyModel={this.props.survey}
-              screenIndex={currentScreenIndex}
-            />
-            <div className="bottom-buttons">
+        <TopBar title={`${survey.name} - ${program.name}`}>
+          <Typography variant="subheading">
+            {`Step ${currentScreenIndex + 1} of ${totalScreens}`}
+          </Typography>
+        </TopBar>
+        <Container>
+          <QuestionScreen
+            surveyModel={this.props.survey}
+            screenIndex={currentScreenIndex}
+          />
+          <Grid
+            container
+            item
+            justify="flex-end"
+            style={{ paddingTop: spacing * 2 }}
+          >
+            <ButtonGroup>
               <Button
                 variant="outlined"
-                onClick={this.buttonPrevClick.bind(this)}
+                onClick={this.buttonPrevClick}
               >
                 {isFirstScreen ? 'Cancel' : 'Previous'}
               </Button>
               <Button
                 variant="contained"
                 color="primary"
-                onClick={this.buttonNextClick.bind(this)}
+                onClick={this.buttonNextClick}
               >
                 {isLastScreen ? 'Submit' : 'Next'}
               </Button>
-            </div>
-          </div>
-        </div>
+            </ButtonGroup>
+          </Grid>
+        </Container>
 
-        <ModalView
-          modalType="confirm"
+        <Dialog
+          dialogType="confirm"
           headerTitle="Confirm"
           contentText="Are you sure you want to cancel this survey?"
           isVisible={this.state.cancelSurveyModalVisible}
-          onConfirm={this.cancelSurvey.bind(this)}
+          onConfirm={this.cancelSurvey}
           onClose={() => this.setState({ cancelSurveyModalVisible: false })}
         />
-
-        <ModalView
-          modalType="confirm"
+        <Dialog
+          dialogType="confirm"
           headerTitle="Submit your survey"
           contentText="You are now ready to submit your answers. Once submitted, your survey answers will be synced automatically."
           isVisible={this.state.submitSurveyModalVisible}
-          onConfirm={this.submitSurvey.bind(this)}
+          onConfirm={this.submitSurvey}
           onClose={() => this.setState({ submitSurveyModalVisible: false })}
           okText="Submit"
         />

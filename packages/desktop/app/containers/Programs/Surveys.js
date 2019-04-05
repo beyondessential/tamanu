@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { isEmpty, capitalize } from 'lodash';
-import Select from 'react-select';
-import { Colors, pageSizes } from '../../constants';
+import { capitalize } from 'lodash';
+import { Grid, Typography, ListItem } from '@material-ui/core';
+import { MUI_SPACING_UNIT as spacing } from '../../constants';
 import actions from '../../actions/programs';
-import { Preloader, Modal } from '../../components';
-import { BackButton } from '../../components/Button';
+import {
+  Preloader, Dialog, TopBar, Container, SelectInput,
+  BackButton,
+} from '../../components';
 
 const { surveys: surveysActions } = actions;
 const { initSurveys, getCompletedSurveys } = surveysActions;
@@ -23,7 +25,6 @@ class Surveys extends Component {
     availableSurveys: [],
     completedSurveys: [],
     modules: [],
-    moduleSelectedLabel: '',
     moduleSelectedValue: '',
     showMessage: false,
     message: {
@@ -42,39 +43,19 @@ class Surveys extends Component {
     this.handleChange(newProps);
   }
 
-  async handleChange(props = this.props) {
-    const { moduleId } = this.props.match.params;
-    const {
-      patient: patientModel,
-      program: programModel,
-      availableSurveys,
-      completedSurveys,
-      modules,
-      loading,
-    } = props;
-
-    if (!loading) {
-      console.log('-modules-', modules);
-      this.setState({
-        patient: patientModel.toJSON(),
-        program: programModel.toJSON(),
-        availableSurveys,
-        completedSurveys,
-        modules,
-      });
-    }
+  onCloseModal = () => {
+    const showMessage = false;
+    this.setState({ showMessage });
   }
 
-  selectModule = ({ label, value }) => {
+  selectModule = (event) => {
     const { program } = this.state;
+    const { value } = event.target;
     this.props.getCompletedSurveys({
       moduleType: program.programType,
       moduleId: value,
     });
-    this.setState({
-      moduleSelectedLabel: label,
-      moduleSelectedValue: value,
-    });
+    this.setState({ moduleSelectedValue: value });
   }
 
   gotoSurvey = (surveyId) => {
@@ -97,6 +78,28 @@ class Surveys extends Component {
     }
   }
 
+  async handleChange(props = this.props) {
+    const { moduleId } = this.props.match.params;
+    const {
+      patient: patientModel,
+      program: programModel,
+      availableSurveys,
+      completedSurveys,
+      modules,
+      loading,
+    } = props;
+
+    if (!loading) {
+      this.setState({
+        patient: patientModel.toJSON(),
+        program: programModel.toJSON(),
+        availableSurveys,
+        completedSurveys,
+        modules,
+      });
+    }
+  }
+
   viewCompleted(listing, surveyId, responseId) {
     const { patientId, programId } = this.props.match.params;
     const { moduleSelectedValue } = this.state;
@@ -116,11 +119,6 @@ class Surveys extends Component {
     this.props.history.push(`/programs/${programId}/patients`);
   }
 
-  onCloseModal() {
-    const showMessage = false;
-    this.setState({ showMessage });
-  }
-
   render() {
     const { loading } = this.props;
     if (loading) return <Preloader />;
@@ -129,7 +127,6 @@ class Surveys extends Component {
       patient,
       program,
       modules,
-      moduleSelectedLabel,
       moduleSelectedValue,
       availableSurveys,
       completedSurveys,
@@ -137,92 +134,101 @@ class Surveys extends Component {
       message,
     } = this.state;
     return (
-      <div>
-        <div className="content">
-          <div className="view-top-bar">
-            <span>{program.name}</span>
-          </div>
-          <div className="details">
-            <div className="pregnancy-top p-l-10">
-              <div className="columns">
-                <div className="column pregnancy-name is-7">
-                  <span className="pregnancy-name-title">
-                    Patient
-                  </span>
-                  <span className="pregnancy-name-details">
-                    {`${patient.firstName} ${patient.lastName}`}
-                  </span>
-                </div>
+      <React.Fragment>
+        <TopBar title={program.name} />
+        <Container>
+          <Grid container>
+            <Grid container item xs spacing={spacing}>
+              <Grid item>
+                <Typography variant="subtitle1">
+                  Patient:
+                </Typography>
+              </Grid>
+              <Grid item xs>
+                <Typography variant="subtitle1" style={{ fontWeight: 500 }}>
+                  {`${patient.firstName} ${patient.lastName}`}
+                </Typography>
+              </Grid>
+            </Grid>
+            {program.programType !== 'direct'
+              && (
+                <Grid container item xs spacing={spacing}>
+                  <Grid item>
+                    <Typography variant="subtitle1">
+                      {capitalize(program.programType)}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs>
+                    <SelectInput
+                      options={modules}
+                      name="moduleType"
+                      value={moduleSelectedValue}
+                      onChange={this.selectModule}
+                      required
+                    />
+                  </Grid>
+                </Grid>
+              )
+            }
+          </Grid>
 
-                {program.programType !== 'direct'
-                  && (
-                  <div className="column is-5">
-                    <div className="columns">
-                      <div className="column pregnancy-name is-narrow is-size-5">
-                        {capitalize(program.programType)}
-                      </div>
-                      <div className="column is-8">
-                        <Select
-                          options={modules}
-                          name="moduleType"
-                          value={moduleSelectedValue}
-                          onChange={this.selectModule}
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  )
-                }
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column pregnancy-button-details m-l-10">
-                <div className="pregnancy-options-title is-size-5 has-text-weight-semibold">Forms available</div>
-                {!availableSurveys.length && <div className="p-t-10">No forms available</div>}
-                {availableSurveys.length > 0 && availableSurveys.map(survey => (
-                  <div className="button-details" key={survey._id}>
-                    <button className="button is-primary pregnancies-button " onClick={() => this.gotoSurvey(survey._id)}>{survey.name}</button>
-                  </div>
-                ))}
-              </div>
+          <Grid container style={{ marginTop: spacing * 5 }}>
+            <Grid item xs>
+              <Typography variant="h6">
+                Forms available
+              </Typography>
+              {!availableSurveys.length && <div className="p-t-10">No forms available</div>}
+              {availableSurveys.length > 0 && availableSurveys.map(survey => (
+                <ListItem
+                  button
+                  onClick={() => this.gotoSurvey(survey._id)}
+                  component="div"
+                  key={survey._id}
+                >
+                  {survey.name}
+                </ListItem>
+              ))}
+            </Grid>
+            <Grid item xs>
               {completedSurveys.length > 0
                 && (
-                <div className="column pregnancy-button-details">
-                  <div className="pregnancy-options-title">
-Previously Submitted
-                    {!moduleSelectedValue && '- All'}
-                  </div>
-                  {completedSurveys.map(survey => (
-                    <div className="button-details" key={survey._id}>
-                      <button className="button is-info pregnancies-button " onClick={() => this.viewCompleted(survey.canRedo, survey._id)}>{`${survey.name} (${survey.count})`}</button>
-                    </div>
-                  ))}
-                </div>
+                  <React.Fragment>
+                    <Typography variant="h6">
+                      Previously Submitted
+                      {!moduleSelectedValue && ' - All'}
+                    </Typography>
+                    {completedSurveys.map(survey => (
+                      <ListItem
+                        button
+                        onClick={() => this.viewCompleted(survey.canRedo, survey._id)}
+                        component="div"
+                        key={survey._id}
+                      >
+                        {`${survey.name} (${survey.count})`}
+                      </ListItem>
+                    ))}
+                  </React.Fragment>
                 )
               }
-            </div>
-            <div className="bottom-buttons p-l-10">
-              <BackButton
-                onClick={this.goBack.bind(this)}
-              />
-            </div>
-          </div>
-        </div>
-        <Modal
+            </Grid>
+          </Grid>
+
+          <Grid container item style={{ paddingTop: spacing * 3 }}>
+            <BackButton />
+          </Grid>
+        </Container>
+        <Dialog
           isVisible={showMessage}
-          onClose={() => this.onCloseModal()}
+          onClose={this.onCloseModal}
           headerTitle={message.header}
           contentText={message.text}
-          little
         />
-      </div>
+      </React.Fragment>
     );
   }
 }
 
 function mapStateToProps(state) {
-  console.log({ programs: state.programs });
   const {
     patient, program, modules, availableSurveys, completedSurveys, loading,
   } = state.programs;
