@@ -11,7 +11,7 @@ export const CheckInput = ({ label, value, ...props }) => (
         value="checked"
         {...props}
       />
-)}
+    )}
     label={label}
   />
 );
