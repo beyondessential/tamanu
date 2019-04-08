@@ -5,7 +5,6 @@ import { action } from '@storybook/addon-actions';
 
 import {
   TextInput,
-  Button,
   CheckInput,
   RadioInput,
   DateInput,
@@ -13,8 +12,14 @@ import {
   DateTimeInput,
   NumberInput,
   SelectInput,
+
+  TextField,
+  SelectField,
+  Button,
 } from '../app/components';
 import { CommonAutocomplete } from '../app/components/CommonAutocomplete';
+
+import { Form, Field } from '../app/components/Field/Form';
 import Login from '../app/containers/Auth/Login';
 
 class StoryControlWrapper extends React.PureComponent {
@@ -47,8 +52,42 @@ storiesOf('FormControls', module)
       { value: 'VU', label: 'Vanuatu' }, 
       { value: 'CK', label: 'Cook Islands' }, 
     ]} />)
+
+storiesOf('Advanced form controls', module)
   .add('Autocomplete', () => <StoryControlWrapper Component={CommonAutocomplete} label="Language" />)
   .add('AsyncAutocomplete', () => <StoryControlWrapper Component={TextInput} label="Patient name" />)
+  .add('ArrayInput', () => <div>WIP</div>)
 
 storiesOf('Forms', module)
+  .add('ExampleForm', () => (
+    <Form
+      onSubmit={action('submit')}
+      initialValues={{
+        city: '' 
+      }}
+      render={() => (
+        <div>
+          <Field 
+            name="city" 
+            label="City"
+            component={TextField} 
+          />
+          <Field 
+            name="country" 
+            label="Country"
+            component={SelectField} 
+            options={[
+              { value: 'TO', label: 'Tonga' }, 
+              { value: 'VU', label: 'Vanuatu' }, 
+              { value: 'CK', label: 'Cook Islands' }, 
+            ]}
+          />
+          <Button type="submit">Submit</Button>
+        </div>
+      )}
+    />
+  ))
+  .add('PaginatedForm', () => (
+    <div>WIP</div>
+  ))
   .add('LoginForm', () => <Login login={action('login')} />);
