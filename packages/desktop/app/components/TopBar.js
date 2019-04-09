@@ -51,55 +51,54 @@ const TopBar = ({ classes, ...children }) => (
 );
 
 const DrawChildren = ({ classes, children }) => values(mapValues(children, (childNode, key) => {
-  if (childNode) {
-    const elementKey = `topBar-${key}`;
-    let child = childNode;
-    switch (key) {
-      default:
-        return null;
-      case 'title':
-        return (
-          <Typography
-            key={elementKey}
-            variant="h3"
-            color="inherit"
-            className={classes.h3}
-          >
-            {child}
-          </Typography>
-        );
-      case 'subTitle':
-        return (
-          <Chip
-            key={elementKey}
-            color="secondary"
-            label={(
-              <Typography variant="subtitle2" component="span">
-                {child}
-              </Typography>
-            )}
-          />
-        );
-      case 'search':
-        return (
-          <SearchBar key={elementKey} {...child} />
-        );
-      case 'button':
-      case 'buttons':
-        if (React.isValidElement(child)) return { ...child, key: elementKey };
-        if (!isArray(child)) child = [child];
-        return (child.map(({ text, children, ...props }, buttonKey) => (
-          <NewButton
-            key={`${elementKey}-${buttonKey}`}
-            color="primary"
-            variant="outlined"
-            className={classes.buttonBarItems}
-            {...props}
-          >
-            {text || children}
-          </NewButton>
-        )));
-    }
+  if (!childNode) return null;
+  const elementKey = `topBar-${key}`;
+  let child = childNode;
+  switch (key) {
+    default:
+      return null;
+    case 'title':
+      return (
+        <Typography
+          key={elementKey}
+          variant="h3"
+          color="inherit"
+          className={classes.h3}
+        >
+          {child}
+        </Typography>
+      );
+    case 'subTitle':
+      return (
+        <Chip
+          key={elementKey}
+          color="secondary"
+          label={(
+            <Typography variant="subtitle2" component="span">
+              {child}
+            </Typography>
+          )}
+        />
+      );
+    case 'search':
+      return (
+        <SearchBar key={elementKey} {...child} />
+      );
+    case 'button':
+    case 'buttons':
+      if (React.isValidElement(child)) return { ...child, key: elementKey };
+      if (!isArray(child)) child = [child];
+      return (child.map(({ text, children, ...props }, buttonKey) => (
+        <NewButton
+          key={`${elementKey}-${buttonKey}`}
+          color="primary"
+          variant="outlined"
+          className={classes.buttonBarItems}
+          {...props}
+        >
+          {text || children}
+        </NewButton>
+      )));
   }
 }));
 
