@@ -64,11 +64,13 @@ export class LabRequestsTable extends Component {
     },
   ]
 
+  collection = new LabRequestsCollection();
+
   render() {
     return (
       <BrowsableTable
         transformRow={requestWithPatientInfo}
-        collection={new LabRequestsCollection()}
+        collection={this.collection}
         columns={LabRequestsTable.columns}
         emptyNotification="No requests found"
       />
