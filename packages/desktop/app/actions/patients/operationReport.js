@@ -44,12 +44,12 @@ export const saveOperationReport = ({ operationReportModel }) => async dispatch 
       notifySuccess('Operation Report saved successfully.');
       dispatch({ type: SAVE_OPERATION_REPORT_SUCCESS, operationReportModel });
     } catch (error) {
-      console.log({ error });
+      console.error({ error });
       dispatch({ type: SAVE_OPERATION_REPORT_FAILED, error });
     }
   } else {
     const error = operationReportModel.validationError;
-    console.log({ error });
+    console.error({ error });
     dispatch({ type: SAVE_OPERATION_REPORT_FAILED, error });
   }
 };
