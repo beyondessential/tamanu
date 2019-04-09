@@ -16,7 +16,7 @@ export default function OperationReport({ parentModel, patientId }) {
         </Typography>
       </Grid>
       {operationReports.map((operationReportModel, k) => (
-        <React.Fragment>
+        <React.Fragment key={operationReportModel.id}>
           {k > 0 ? ', ' : ''}
           <TextButton
             can={{ do: 'read', on: 'operationReport' }}

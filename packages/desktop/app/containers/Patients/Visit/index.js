@@ -205,7 +205,7 @@ class EditVisit extends Component {
               <Grid container spacing={8} style={{ paddingBottom: 16 }}>
                 <Grid item xs>
                   <Diagnosis parentModel={visitModel} patientModel={patientModel} />
-                  <Procedure patientModel={patientModel} />
+                  {/* <Procedure patientModel={patientModel} /> */}
                   <OperativePlan
                     parentModel={visitModel}
                     patientId={patientModel.id}
