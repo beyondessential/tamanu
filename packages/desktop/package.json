@@ -224,7 +224,6 @@
     "fs-jetpack": "^2.2.2",
     "history": "^4.7.2",
     "jquery": "^3.3.1",
-    "json-diff": "^0.5.3",
     "lodash": "^4.17.10",
     "moment": "^2.22.1",
     "nano": "^6.4.4",

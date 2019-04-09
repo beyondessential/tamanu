@@ -75,3 +75,21 @@ export const flattenRequest = (object, deep = true) => {
     throw new Error(err);
   }
 };
+
+export const jsonDiff = (objectA, objectB) => {
+  const modifiedFields = [];
+  Object.keys(objectA).forEach(key => {
+    const valueA = objectA[key];
+    const valueB = objectB[key];
+    // compare types
+    if (typeof valueA === typeof valueB) {
+      if (typeof valueA === 'object') { // stringify objects and compare
+        if (JSON.stringify(valueA) !== JSON.stringify(valueB)) modifiedFields.push(key);
+      } else if (valueA !== valueB) modifiedFields.push(key); // compare non-object values
+    } else {
+      modifiedFields.push(key);
+    }
+  });
+
+  return modifiedFields;
+};
