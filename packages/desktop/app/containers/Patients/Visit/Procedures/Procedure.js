@@ -62,16 +62,6 @@ class Procedure extends Component {
     const { procedureModel } = this.props;
     const { name, value } = event.target;
     procedureModel.set(name, value);
-    // if (typeof field !== 'undefined') {
-    // } else {
-    //   const { name } = e.target;
-    //   const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    //   procedureModel.set(name, value, { silent: true });
-    // }
-    // this.setState({
-    //   procedureModel,
-    //   procedure: procedureModel.toJSON(),
-    // });
   }
 
   handleChange = () => {

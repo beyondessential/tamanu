@@ -56,8 +56,6 @@ class EditVisit extends Component {
 
   onCloseModal() {
     this.props.resetSaved();
-    // const visitSaved = false;
-    // this.setState({ visitSaved });
   }
 
   changeTab = (tabName) => {

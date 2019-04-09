@@ -13,7 +13,6 @@ export const fetchOperationReport = ({ id, patientId }) => async dispatch => {
   dispatch({ type: FETCH_OPERATION_REPORT_REQUEST });
   let error;
   const action = id ? 'edit' : 'new';
-  // const { patients: { patientModel, operationReportModel } } = getState();
   const operationReportModel = new OperationReportModel();
   const patientModel = new PatientModel({ _id: patientId });
   try {
