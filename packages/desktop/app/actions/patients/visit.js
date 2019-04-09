@@ -10,6 +10,7 @@ import {
   SAVE_VISIT_SUCCESS,
   SAVE_VISIT_FAILED,
   SAVE_VISIT_RESET,
+  CLEAR_REDIRECT_LOCATION,
 } from '../types';
 import { PatientModel, VisitModel } from '../../models';
 
@@ -40,7 +41,7 @@ export const initVisit = ({ patientId, id }) => async dispatch => {
 };
 
 export const submitForm = ({
-  action, visitModel, patientModel, history, setStatus,
+  action, visitModel, patientModel, history, setStatus, redirectLocation,
 }) => async dispatch => {
   dispatch({ type: SAVE_VISIT_REQUEST });
   if (visitModel.isValid()) {
@@ -57,6 +58,11 @@ export const submitForm = ({
         visit: visitModel,
       });
       toast('Visit saved successfully.', { type: toast.TYPE.SUCCESS });
+      // redirect back to last screen
+      if (redirectLocation && action === 'new') {
+        dispatch({ type: CLEAR_REDIRECT_LOCATION });
+        return history.push(redirectLocation);
+      }
       return history.push(`/patients/visit/${patientModel.id}/${visitModel.id}`);
     } catch (error) {
       console.error({ error });

@@ -9,6 +9,7 @@ import labs from './labs';
 import imaging from './imaging';
 import programs from './programs';
 import scheduling from './scheduling';
+import misc from './misc';
 
 const rootReducer = combineReducers({
   auth,
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   imaging,
   programs,
   scheduling,
+  misc,
 });
 
 export default rootReducer;

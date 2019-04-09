@@ -61,15 +61,10 @@ class EditVisit extends Component {
     this.setState({ selectedTab: tabName });
   }
 
-  handleUserInput = (e, field) => {
+  handleUserInput = (event) => {
     const { visitModel } = this.state;
-    if (typeof field !== 'undefined') {
-      visitModel.set(field, e, { silent: true });
-    } else {
-      const { name } = e.target;
-      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-      visitModel.set(name, value, { silent: true });
-    }
+    const { name, value } = event.target;
+    visitModel.set(name, value, { silent: true });
     this.setState({ visitModel });
   }
 
@@ -111,9 +106,11 @@ class EditVisit extends Component {
   }
 
   submitForm(setStatus = true) {
+    const { redirectLocation } = this.props;
     const { action, patientModel, visitModel } = this.state;
     this.props.submitForm({
-      action, visitModel, patientModel, history: this.props.history, setStatus,
+      action, visitModel, patientModel, redirectLocation,
+      history: this.props.history, setStatus,
     });
   }
 
@@ -266,7 +263,7 @@ class EditVisit extends Component {
                   label="Visit Type"
                   name="visitType"
                   value={form.visitType}
-                  onChange={(value) => this.handleUserInput(value, 'visitType')}
+                  onChange={this.handleUserInput}
                   disabled={action === 'edit'}
                 />
                 <TextInput
@@ -347,10 +344,13 @@ class EditVisit extends Component {
 
 function mapStateToProps(state) {
   const {
-    patient, visit, action, loading, error,
-  } = state.patients;
+    patients: {
+      patient, visit, action, loading, error,
+    },
+    misc: { redirectTo },
+  } = state;
   const mappedProps = {
-    patient, action, loading, error,
+    patient, action, loading, error, redirectLocation: redirectTo,
   };
   if (visit instanceof VisitModel) mappedProps.visit = visit;
   return mappedProps;
@@ -358,7 +358,7 @@ function mapStateToProps(state) {
 
 const { visit: visitActions } = actions;
 const { initVisit, submitForm, resetSaved } = visitActions;
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = dispatch => ({
   initVisit: (params) => dispatch(initVisit(params)),
   submitForm: (params) => dispatch(submitForm(params)),
   resetSaved: (params) => dispatch(resetSaved(params)),

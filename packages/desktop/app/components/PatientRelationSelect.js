@@ -1,14 +1,20 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { PatientModel } from '../models';
 import { SelectInput } from './Field';
+import { setRedirectLocation } from '../actions/misc';
+import { history } from '../store';
 
-export default class PatientRelationSelect extends Component {
+const ADD_NEW_VISIT = 'addNewVisit';
+
+class PatientRelationSelect extends Component {
   static propTypes = {
     patient: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(PatientModel)]),
     relation: PropTypes.string.isRequired,
     template: PropTypes.func.isRequired,
     label: PropTypes.string.isRequired,
+    dispatchSetRedirectTo: PropTypes.func.isRequired,
     required: PropTypes.bool,
     value: PropTypes.string,
     name: PropTypes.string.isRequired,
@@ -43,10 +49,15 @@ export default class PatientRelationSelect extends Component {
     }
   }
 
-  handleChange = (value) => {
-    const { onChange } = this.props;
-    if (onChange) onChange(value);
-    this.setState({ value });
+  handleOnChange = event => {
+    const { onChange, dispatchSetRedirectTo } = this.props;
+    const { value } = event.target;
+    // save current location and redirect
+    if (ADD_NEW_VISIT === value) {
+      dispatchSetRedirectTo();
+      return history.push(`/patients/visit/${this.patientModel.id}`);
+    }
+    onChange(event);
   }
 
   async loadRelations(props = this.props) {
@@ -87,6 +98,7 @@ export default class PatientRelationSelect extends Component {
       template,
       name,
       value,
+      dispatchSetRedirectTo: _, // strip prop
       ...props
     } = this.props;
     const { options, initValue } = this.state;
@@ -102,3 +114,14 @@ export default class PatientRelationSelect extends Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  const { location } = state.misc;
+  return { location };
+}
+
+const mapDispatchToProps = dispatch => ({
+  dispatchSetRedirectTo: () => dispatch(setRedirectLocation(history.location.pathname)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(PatientRelationSelect);

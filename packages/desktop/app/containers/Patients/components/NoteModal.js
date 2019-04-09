@@ -16,7 +16,6 @@ export default class NoteModal extends Component {
     this.state = {
       isVisible: false,
       noteModel: new NoteModel(),
-      visitId: '',
     };
 
     this.submitForm = this.submitForm.bind(this);
@@ -35,35 +34,27 @@ export default class NoteModal extends Component {
     this.setState({ isVisible, noteModel });
   }
 
-  handleUserInput = (e, field) => {
+  handleUserInput = event => {
     const { noteModel } = this.state;
-    if (field === 'visit') {
-      this.setState({ visitId: e });
-    } else {
-      if (typeof field !== 'undefined') {
-        noteModel.set(field, e, { silent: true });
-      } else {
-        const { name } = e.target;
-        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-        noteModel.set(name, value, { silent: true });
-      }
-      this.setState({ noteModel });
-    }
+    const { name, value } = event.target;
+    noteModel.set(name, value, { silent: true });
+    this.setState({ noteModel });
   }
 
   submitForm = async (e) => {
     e.preventDefault();
     const { action, parentModel } = this.props;
-    const { noteModel, visitId } = this.state;
-    if (visitId !== '') {
-      parentModel.set({ _id: visitId });
+    const { noteModel } = this.state;
+    if (noteModel.get('visit') !== '') {
+      parentModel.set({ _id: noteModel.get('visit') });
       await parentModel.fetch();
     }
+
     try {
       await noteModel.save();
       if (action === 'new') {
         parentModel.get('notes').add(noteModel);
-        await parentModel.save(null, { silent: true });
+        await parentModel.save();
       } else {
         parentModel.trigger('change');
       }
@@ -112,7 +103,7 @@ export default class NoteModal extends Component {
                     template={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
                     label="Visit"
                     name="visit"
-                    onChange={val => this.handleUserInput(val, 'visit')}
+                    onChange={this.handleUserInput}
                     required
                   />
                 </FormRow>

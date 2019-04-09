@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { defaults, padStart, capitalize } from 'lodash';
+import { padStart, capitalize } from 'lodash';
 import {
   patientIcon,
   scheduleIcon,

@@ -79,14 +79,6 @@ class Request extends Component {
     this.setState({ selectedPatientId });
   }
 
-  handleVisitChange = (visit) => {
-    this.handleFormChange({ visit });
-  }
-
-  handleTypeChange = (imagingTypeId, name) => {
-    this.handleFormChange({ [name]: { _id: imagingTypeId } });
-  }
-
   handleDiagnosisChange = (selectedDiagnosis, name) => {
     this.handleFormChange({ [name]: selectedDiagnosis });
   }
@@ -169,7 +161,7 @@ class Request extends Component {
                     name="visit"
                     patient={selectedPatientId}
                     value={visit}
-                    onChange={this.handleVisitChange}
+                    onChange={this.handleFormInput}
                   />
                 </FormRow>
                 )
@@ -198,8 +190,7 @@ class Request extends Component {
                   label="Type"
                   name="type"
                   options={imagingTypes}
-                  className="column"
-                  onChange={this.handleTypeChange}
+                  onChange={this.handleFormInput}
                   value={type}
                 />
                 <TextInput
