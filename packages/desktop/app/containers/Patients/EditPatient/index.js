@@ -59,7 +59,7 @@ class EditPatient extends Component {
       // visit.on('change', () => this.forceUpdate());
       updates = Object.assign(updates, {
         patientModel: patient,
-        patient: patient.toJSON({ relations: true }),
+        patient: patient.toJSON(),
         action,
         loading,
       });

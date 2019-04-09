@@ -18,7 +18,7 @@ export const fetchProcedure = ({ id }) => async dispatch => {
   procedureModel.set({ _id: id });
   if (action === 'edit') {
     procedureModel.set({ _id: id });
-    [error] = await to(procedureModel.fetch({ relations: true, deep: false }));
+    [error] = await to(procedureModel.fetch());
     const procedureDate = procedureModel.get('procedureDate');
     if (typeof procedureDate === 'string') procedureModel.set('procedureDate', moment(procedureDate));
   }
@@ -51,12 +51,12 @@ export const saveProcedure = ({
       });
       if (action === 'new') history.push(`/patients/visit/${visitId}/procedure/${procedureModel.id}`);
     } catch (error) {
-      console.log({ error });
+      console.error({ error });
       dispatch({ type: SAVE_PROCEDURE_FAILED, error });
     }
   } else {
     const error = procedureModel.validationError;
-    console.log({ error });
+    console.error({ error });
     dispatch({ type: SAVE_PROCEDURE_FAILED, error });
   }
 };

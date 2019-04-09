@@ -24,13 +24,13 @@ export const initResponses = ({
   const filters = { surveyId };
   if (moduleId) filters.moduleId = moduleId;
   const responses = patient.get('surveyResponses').where(filters);
-  responses.forEach(response => tasks.push(response.fetch({ relations: true })));
+  responses.forEach(response => tasks.push(response.fetch()));
   await Promise.all(tasks);
 
   if (error) return dispatch({ type: LOAD_RESPONSES_FAILED, error });
   const survey = new SurveyModel(); // await program.getSurvey(surveyId).promise();
   survey.set('_id', surveyId);
-  await survey.fetch({ relations: true });
+  await survey.fetch();
   dispatch({
     type: LOAD_RESPONSES_SUCCESS,
     patient,

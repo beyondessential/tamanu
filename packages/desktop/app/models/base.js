@@ -32,7 +32,10 @@ export default Backbone.AssociatedModel.extend({
     modifiedBy: '',
     modifiedAt: null,
   },
-  ignoreRequestKeys: [],
+
+  // set for fields that will be ignored during a HTTP request
+  // can be used to define some local fields that would never be sent to the server
+  ignoreRequestKeys: new Set(),
 
   // Associations
   relations: [
@@ -54,13 +57,23 @@ export default Backbone.AssociatedModel.extend({
   ],
 
   /**
+   * This method sets the last synced attributes
+   * Last synced attributes are used to maintain modified fields
+   * This is a workaround as Backbone's default change detection only works with Model.set()
+   */
+  setLastSyncedAttributes() {
+    // prune JSON to MAX_NESTED_COMPARE levels
+    this.lastSyncedAttributes = JSON.parse(jsonPrune(this.toJSON(), MAX_NESTED_COMPARE));
+  },
+
+  /**
    * Override backbone's default fetch method to record `lastSyncedAttributes`
    * @param {object} options Options sent to XHR request
    */
   async fetch(options) {
     try {
-      const res = await Backbone.Model.prototype.fetch.apply(this, [options]);
-      this.lastSyncedAttributes = this.toJSON();
+      const res = await Backbone.AssociatedModel.prototype.fetch.apply(this, [options]);
+      this.setLastSyncedAttributes();
       this.parseParents();
       return res;
     } catch (err) {
@@ -162,35 +175,10 @@ export default Backbone.AssociatedModel.extend({
     return json;
   },
 
-  fetchRelations(options) { //
-    return new Promise(async (resolve, reject) => {
-      const { relation } = options;
-      const { type } = relation;
-      // Fetch the models
-      if (type === 'Many') {
-        const { models } = this.attributes[relation.key];
-        if (models.length > 0) {
-          const tasks = models.map(model => model.fetch({ relations: options.deep }));
-          try {
-            await Promise.all(tasks);
-            resolve();
-          } catch (err) {
-            reject(err);
-          }
-        } else {
-          resolve();
-        }
-      } else {
-        const model = this.attributes[relation.key];
-        if (model) {
-          const [err] = await to(model.fetch());
-          if (err) return reject(err);
-        }
-        return resolve();
-      }
-    });
-  },
-
+  /**
+   * This method is used to parse model's parents after a HTTP request
+   * Parent(s) are mounted to the Model.parents attribute
+   */
   parseParents() {
     const parents = [];
     const { attributes } = this;

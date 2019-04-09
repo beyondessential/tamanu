@@ -26,7 +26,7 @@ export const fetchAppointment = ({ id, patientId }) => async dispatch => {
   const appointmentModel = new AppointmentModel();
   if (action === 'update' && id && !error) {
     appointmentModel.set({ _id: id });
-    [error] = await to(appointmentModel.fetch({ relations: true, deep: false }));
+    [error] = await to(appointmentModel.fetch());
     // Set patient
     const { parents } = appointmentModel;
     if (has(parents, 'patients') && !isEmpty(parents.patients)) {
