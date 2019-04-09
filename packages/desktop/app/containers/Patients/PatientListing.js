@@ -182,7 +182,7 @@ class PatientListing extends Component {
       });
     }
 
-    this.forceUpdate();ButtonGroup
+    this.forceUpdate();
   }
 
   searchSubmit(keyword) {
