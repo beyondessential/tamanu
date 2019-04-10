@@ -21,8 +21,8 @@ export const initSurveys = ({ patientId, programId, moduleId }) => async dispatc
   patientModel.set({ _id: patientId });
   programModel.set({ _id: programId });
   const [error] = await to(Promise.all([
-    patientModel.fetch({ relations: true }),
-    programModel.fetch({ relations: true, deep: false }),
+    patientModel.fetch(),
+    programModel.fetch(),
   ]));
   if (error) return dispatch({ type: LOAD_SURVEYS_FAILED, error });
 

@@ -19,7 +19,7 @@ export const initVisit = ({ patientId, id }) => async dispatch => {
   const patientModel = new PatientModel();
   const visitModel = new VisitModel();
   patientModel.set({ _id: patientId });
-  let [error] = await to(patientModel.fetch({ relations: true, deep: false }));
+  let [error] = await to(patientModel.fetch());
   if (action === 'edit' && !error) {
     visitModel.set({ _id: id });
     [error] = await to(visitModel.fetch({

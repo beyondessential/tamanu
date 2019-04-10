@@ -132,7 +132,7 @@ export const submitSurvey = ({
     if (programModel.get('programType') !== 'direct') {
       const collection = programModel.get('collection');
       const moduleModel = patientModel.get(collection).findWhere({ _id: moduleId });
-      await moduleModel.fetch({ relations: true, deep: false });
+      await moduleModel.fetch();
       moduleModel.get('surveyResponses').add(responseModel);
       await moduleModel.save();
     }

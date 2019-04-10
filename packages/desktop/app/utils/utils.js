@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { isArray, toString, each } from 'lodash';
 import { toast } from 'react-toastify';
-import jsonPrune from 'json-prune';
+import deepEqual from 'deep-equal';
 import shortid from 'shortid';
 import { createHashHistory } from 'history';
 
@@ -74,4 +74,14 @@ export const flattenRequest = (object, deep = true) => {
   } catch (err) {
     throw new Error(err);
   }
+};
+
+export const getModifiedFieldNames = (objectA, objectB) => {
+  const modifiedFields = [];
+  Object.keys(objectA).forEach(key => {
+    const valueA = objectA[key];
+    const valueB = objectB[key];
+    if (!deepEqual(valueA, valueB)) modifiedFields.push(key);
+  });
+  return modifiedFields;
 };
