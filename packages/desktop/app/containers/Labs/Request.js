@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Grid } from '@material-ui/core';
-import moment from 'moment';
-import { capitalize } from 'lodash';
 import styled from 'styled-components';
 import * as labRequestActions from '../../actions/labs';
 import TopRow from '../Patients/components/TopRow';
@@ -12,7 +10,7 @@ import {
   TextInput, AddButton, CancelButton, Preloader, FormRow,
 } from '../../components';
 import TestTypesList from './components/TestTypesList';
-import { dateFormat } from '../../constants';
+import { VISIT_SELECT_TEMPLATE } from '../../constants';
 import { LabRequestModel, LabTestModel } from '../../models';
 
 const ButtonsContainer = styled.div`
@@ -135,7 +133,7 @@ class Request extends Component {
                 <PatientRelationSelect
                   patient={selectedPatientId}
                   relation="visits"
-                  template={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
+                  template={VISIT_SELECT_TEMPLATE}
                   label="Visit"
                   name="visit"
                   value={visit}
