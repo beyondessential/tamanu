@@ -142,7 +142,7 @@ addStories('SelectInput', (props) => (
 
 storiesOf('Advanced form controls', module)
   .add('Autocomplete', () => <StoryControlWrapper Component={CommonAutocomplete} label="Language" />)
-  .add('AsyncAutocomplete', () => <StoryControlWrapper Component={TextInput} label="Patient name" />)
+  .add('AsyncAutocomplete', () => <div>WIP</div>)
   .add('ArrayInput', () => <div>WIP</div>);
 
 storiesOf('Forms', module)
