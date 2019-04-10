@@ -35,23 +35,72 @@ class StoryControlWrapper extends React.PureComponent {
   }
 }
 
-storiesOf('FormControls', module)
-  .add('CheckInput', () => <StoryControlWrapper Component={CheckInput} label="Enable" />)
-  .add('TextInput', () => <StoryControlWrapper Component={TextInput} label="Display name" />)
-  .add('NumberInput', () => <StoryControlWrapper Component={NumberInput} label="Amount" />)
-  .add('NumberInput:limited', () => <StoryControlWrapper Component={NumberInput} label="How many fingers am I holding up?" min={0} max={10} />)
-  .add('RadioInput', () => <StoryControlWrapper Component={RadioInput} label="Fruit type" options={[
-      { value: 'apples', label: 'Apples' }, 
-      { value: 'oranges', label: 'Oranges' }, 
-      { value: 'bananas', label: 'Bananas' }, 
-    ]} />)
-  .add('DateInput', () => <StoryControlWrapper Component={DateInput} label="Date of birth" />)
-  .add('DateTimeInput', () => <StoryControlWrapper Component={DateTimeInput} label="Sample taken" />)
-  .add('SelectInput', () => <StoryControlWrapper Component={SelectInput} label="Country" options={[
-      { value: 'TO', label: 'Tonga' }, 
-      { value: 'VU', label: 'Vanuatu' }, 
-      { value: 'CK', label: 'Cook Islands' }, 
-    ]} />)
+function addStories(name, Component) {
+  return storiesOf('FormControls/' + name, module)
+    .add('Default', () => <Component />)
+    .add('Required', () => <Component required />)
+    .add('Disabled', () => <Component disabled />)
+    .add('With help text', () => <Component helperText="Here is some help text" />)
+    .add('With error', () => <Component error helperText="Here is an error message" />);
+}
+
+addStories('TextInput', (props) => <StoryControlWrapper 
+  Component={TextInput}
+  label="Display name"
+  {...props}
+/>);
+
+addStories('CheckInput', (props) => <StoryControlWrapper 
+  Component={CheckInput}
+  label="Enable"
+  {...props}
+/>);
+
+addStories('DateInput', (props) => <StoryControlWrapper 
+  Component={DateInput}
+  label="Date of birth"
+  {...props}
+/>);
+
+addStories('DateTimeInput', (props) => <StoryControlWrapper 
+  Component={DateTimeInput}
+  label="Sample taken"
+  {...props}
+/>);
+
+addStories('NumberInput', (props) => <StoryControlWrapper 
+  Component={NumberInput}
+  label="Amount"
+  {...props}
+/>)
+  .add('With limited range', () => <StoryControlWrapper 
+    Component={NumberInput}
+    label="How many fingers am I holding up?" 
+    min={0}
+    max={10} 
+  />)
+
+addStories('RadioInput', (props) => <StoryControlWrapper 
+  Component={RadioInput}
+  label="Fruit"
+  options={[
+    { value: 'apples', label: 'Apples' }, 
+    { value: 'oranges', label: 'Oranges' }, 
+    { value: 'bananas', label: 'Bananas' }, 
+  ]}
+  {...props}
+/>);
+
+addStories('SelectInput', (props) => <StoryControlWrapper 
+  Component={SelectInput}
+  label="Fruit"
+  options={[
+    { value: 'apples', label: 'Apples' }, 
+    { value: 'oranges', label: 'Oranges' }, 
+    { value: 'bananas', label: 'Bananas' }, 
+  ]}
+  {...props}
+/>);
 
 storiesOf('Advanced form controls', module)
   .add('Autocomplete', () => <StoryControlWrapper Component={CommonAutocomplete} label="Language" />)
@@ -63,7 +112,8 @@ storiesOf('Forms', module)
     <Form
       onSubmit={action('submit')}
       initialValues={{
-        city: '' 
+        city: '',
+        country: 'VU',
       }}
       render={() => (
         <div>
