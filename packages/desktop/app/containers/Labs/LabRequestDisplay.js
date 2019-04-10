@@ -1,9 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
-
-import { DateDisplay } from '../../components/DateDisplay';
-import { TopBar, Preloader } from '../../components';
+import {
+  ListItem, Typography, Table, TableBody, TableRow,
+  TableCell, TableHead, Grid,
+} from '@material-ui/core';
+import {
+  DateDisplay, Container, TopBar, Preloader, BackButton,
+} from '../../components';
 import { LabRequestModel } from '../../models';
 import { toTitleCase } from '../../utils';
 
@@ -17,24 +20,37 @@ const DataSection = styled.div`
 
 const DataLabel = styled.span`
   font-weight: bold;
+  display: inline-block;
+  padding-right: 4px;
 `;
 
 const DataValue = styled.span`
 `;
 
+const StyledListItem = styled(ListItem)`
+  padding-left: 0 !important;
+`;
+
+const StyledTableHead = styled(TableHead)`
+  th {
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+`;
+
 const DataItem = ({ label, value }) => (
-  <li>
+  <StyledListItem component="div">
     <DataLabel>
       {label}
-:
     </DataLabel>
-    {' '}
-    <DataValue>{value}</DataValue>
-  </li>
+    <DataValue>
+      {value}
+    </DataValue>
+  </StyledListItem>
 );
 
 const NoteContent = styled.p`
-  font-size: 14pt;
+  font-size: 1rem;
 `;
 
 const PLACEHOLDER_PATIENT = {
@@ -87,56 +103,65 @@ export class LabRequestDisplay extends React.Component {
     };
 
     const tests = labRequestData.tests.map(t => (
-      <tr key={t._id}>
-        <td>{t.type.name}</td>
-        <td>
+      <TableRow key={t._id}>
+        <TableCell>
+          {t.type.name}
+        </TableCell>
+        <TableCell>
           {t.result || '– '}
           <Unit>{t.type.unit}</Unit>
-        </td>
-        <td>{getReferenceRange(t)}</td>
-      </tr>
+        </TableCell>
+        <TableCell>
+          {getReferenceRange(t)}
+        </TableCell>
+      </TableRow>
     ));
 
     return (
-      <div className="content">
+      <React.Fragment>
         <TopBar title="Lab request information" />
-        <div className="detail">
+        <Container>
           <DataSection>
-            <ul>
-              <DataItem label="Patient" value={patientData.getDisplayName()} />
-              <DataItem label="Requested by" value={labRequestData.requestedBy.displayName} />
-              <DataItem label="Status" value={toTitleCase(labRequestData.status)} />
-              <DataItem label="Category" value={labRequestData.category.name} />
-              <DataItem label="Requested date" value={<DateDisplay date={labRequestData.requestedDate} />} />
-              <DataItem label="Sample date" value={<DateDisplay day={labRequestData.sampleDate} />} />
-              <DataItem label="Sample ID" value={labRequestData.sampleId || 'processing'} />
-            </ul>
+            <DataItem label="Patient" value={patientData.getDisplayName()} />
+            <DataItem label="Requested by" value={labRequestData.requestedBy.displayName} />
+            <DataItem label="Status" value={toTitleCase(labRequestData.status)} />
+            <DataItem label="Category" value={labRequestData.category.name} />
+            <DataItem label="Requested date" value={<DateDisplay date={labRequestData.requestedDate} />} />
+            <DataItem label="Sample date" value={<DateDisplay day={labRequestData.sampleDate} />} />
+            <DataItem label="Sample ID" value={labRequestData.sampleId || 'processing'} />
           </DataSection>
 
           <DataSection>
-            <h3>Results</h3>
-            <table>
-              <tbody>
-                <tr>
-                  <th>Test</th>
-                  <th>Result</th>
-                  <th>
-Reference (
-                    {patientSex}
-)
-                  </th>
-                </tr>
+            <Typography variant="h6">
+              Results
+            </Typography>
+            <Table>
+              <StyledTableHead>
+                <TableRow>
+                  <TableCell>Test</TableCell>
+                  <TableCell>Result</TableCell>
+                  <TableCell>
+                    {`Reference (${patientSex})`}
+                  </TableCell>
+                </TableRow>
+              </StyledTableHead>
+              <TableBody>
                 {tests}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </DataSection>
 
           <DataSection>
-            <h3>Notes</h3>
+            <Typography variant="h6">
+              Notes
+            </Typography>
             <NoteContent>{labRequestData.notes || 'No notes.'}</NoteContent>
           </DataSection>
-        </div>
-      </div>
+          <Grid container item style={{ paddingTop: 16 }}>
+            <BackButton />
+          </Grid>
+        </Container>
+      </React.Fragment>
     );
   }
 }

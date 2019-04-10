@@ -2,34 +2,34 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Grid, Typography } from '@material-ui/core';
 import { TextButton } from '../../../components';
-import { PatientModel } from '../../../models';
+import { PatientModel, VisitModel } from '../../../models';
 
-function OperativePlan({ patientModel }) {
-  const operationPlan = patientModel.getOpenPlan();
+export default function OperativePlan({ parentModel, patientId }) {
+  const operativePlan = parentModel.getCurrentOperativePlan();
   return (
     <Grid container item spacing={8}>
       <Grid item>
-        <Typography variant="body2" inline>
+        <Typography variant="body2">
           Operative Plan
         </Typography>
       </Grid>
       <Grid item>
-        {!operationPlan
+        {!operativePlan
           && (
             <TextButton
               can={{ do: 'create', on: 'operativePlan' }}
-              to={`/patients/operativePlan/${patientModel.id}`}
+              to={`/patients/patient:${patientId}/visit/operativePlan`}
             >
               + Add Operative Plan
             </TextButton>
           )
         }
       </Grid>
-      {operationPlan
+      {operativePlan
         && (
           <TextButton
             can={{ do: 'read', on: 'operativePlan' }}
-            to={`/patients/operativePlan/${patientModel.id}/${operationPlan._id}`}
+            to={`/patients/patient:${patientId}/visit/operativePlan:${operativePlan.id}`}
           >
             Current Operative Plan
           </TextButton>
@@ -40,7 +40,9 @@ function OperativePlan({ patientModel }) {
 }
 
 OperativePlan.propTypes = {
-  patientModel: PropTypes.instanceOf(PatientModel).isRequired,
+  parentModel: PropTypes.oneOfType([
+    PropTypes.instanceOf(PatientModel),
+    PropTypes.instanceOf(VisitModel),
+  ]).isRequired,
+  patientId: PropTypes.string.isRequired,
 };
-
-export default OperativePlan;

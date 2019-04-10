@@ -1,6 +1,6 @@
 import Backbone from 'backbone-associations';
 import {
-  pick, set, isArray, each, isObject, difference,
+  pick, set, each, isObject, difference,
 } from 'lodash';
 import { getClient, history, notify } from '.';
 import { AUTH_LOGOUT } from '../actions/types';
@@ -9,20 +9,20 @@ export default (store) => {
   const originalSyncFunc = Backbone.sync;
   Backbone.Model.prototype.idAttribute = '_id';
   Backbone.sync = (method, model, options = {}) => {
-    const _newError = () => (xhr, textStatus, error) => {
-      _errorHandler({ xhr, textStatus, error });
+    const newError = () => (xhr, textStatus, error) => {
+      errorHandler({ xhr, textStatus, error });
       return originalError(xhr, textStatus, error);
     };
 
-    const _getOptions = () => {
+    const getOptions = () => {
       let { headers } = options;
-      headers = { ...headers, ..._getHeaders() };
+      headers = { ...headers, ...getHeaders() };
       return { ...options, headers };
     };
 
-    const _getHeaders = () => ({ Authorization: `Basic ${_encodeCredentials()}` });
+    const getHeaders = () => ({ Authorization: `Basic ${encodeCredentials()}` });
 
-    const _encodeCredentials = () => {
+    const encodeCredentials = () => {
       const clientId = getClient();
       const { auth } = store.getState();
       const { secret } = auth;
@@ -30,7 +30,7 @@ export default (store) => {
       return btoa(unescape(encodeURIComponent([clientId, secret].join(':'))));
     };
 
-    const _errorHandler = ({ xhr }) => {
+    const errorHandler = ({ xhr }) => {
       const { status } = xhr;
       // 500 - Server error
       if (status === 500) {
@@ -53,13 +53,13 @@ export default (store) => {
       }
     };
 
-    const newOptions = _getOptions(options);
+    const newOptions = getOptions(options);
     const { error: originalError } = newOptions;
-    newOptions.error = _newError();
+    newOptions.error = newError();
 
     if (method === 'create' || method === 'patch') {
       let { attrs } = options;
-      attrs = _pickDefaults.call(model, (attrs || model.toJSON()));
+      attrs = pickDefaults.call(model, (attrs || model.toJSON()));
       newOptions.attrs = attrs;
     }
 
@@ -72,7 +72,7 @@ export default (store) => {
     return new Promise(async (resolve, reject) => {
       const { auth } = store.getState();
       const { userId } = auth;
-      const dataFiltered = _pickDefaults.call(this, data);
+      const dataFiltered = pickDefaults.call(this, data);
 
       // Add created / modified by
       const user = { _id: userId };
@@ -82,13 +82,16 @@ export default (store) => {
       // Fix relations
       each(dataFiltered, (value, field) => {
         if (field === 'modifiedFields' || field === 'objectsFullySynced') return;
-        if (isArray(value)) {
-          const newValue = value.map(({ _id }) => ({ _id }));
-          set(dataFiltered, field, newValue);
-        } else if (isObject(value)) {
+        if (Array.isArray(value)) {
+          if (isObject(value[0])) { // is collection
+            const newValue = value.map(({ _id }) => ({ _id }));
+            set(dataFiltered, field, newValue);
+          }
+        } else if (isObject(value)) { // is object
           set(dataFiltered, field, pick(value, ['_id']));
         }
       });
+
       const newOptions = {
         ...options,
         wait: true,
@@ -97,7 +100,6 @@ export default (store) => {
       };
 
       const sent = originalSave.apply(this, [dataFiltered, newOptions]);
-
       // In some cases the save method will not dispatch a request at all - for eg
       // if validation fails. This means the success/error functions in the options
       // object will never be called -- so we check for a falsy return value and
@@ -136,7 +138,7 @@ export default (store) => {
   };
 };
 
-function _pickDefaults(data) {
+function pickDefaults(data) {
   const defaults = this.defaults() || this.defaults;
   const ignoreRequestKeys = this.ignoreRequestKeys || [];
   const modelKeys = difference(Object.keys(defaults), ignoreRequestKeys);

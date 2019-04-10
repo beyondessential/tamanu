@@ -1,5 +1,6 @@
 import Backbone from 'backbone-associations';
 import { defaults } from 'lodash';
+import moment from 'moment';
 import BaseModel from './base';
 import { register } from './register';
 
@@ -8,10 +9,10 @@ export default register('OperationReport', BaseModel.extend({
   defaults: () => defaults({
     additionalNotes: null,
     caseComplexity: null,
-    procedures: [],
+    actionsTaken: [],
     operationDescription: null,
     surgeon: null,
-    surgeryDate: Date,
+    surgeryDate: moment(),
     preOpDiagnoses: [],
     postOpDiagnoses: [],
   },
@@ -30,6 +31,14 @@ export default register('OperationReport', BaseModel.extend({
       relatedModel: 'Diagnosis',
     },
     ...BaseModel.prototype.relations,
+  ],
+
+  reverseRelations: [
+    {
+      type: Backbone.Many,
+      key: 'visits',
+      model: 'Visit',
+    },
   ],
 
   // validate: (attrs) => {

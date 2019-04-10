@@ -17,7 +17,7 @@ export * from './medication-history';
 export * from './medication';
 export * from './modified-field';
 export * from './note';
-export * from './operation-plan';
+export * from './operative-plan';
 export * from './operation.report';
 export * from './patient-contact';
 export * from './patient-diagnosis';

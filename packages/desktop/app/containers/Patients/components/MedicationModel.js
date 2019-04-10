@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import Modal from 'react-responsive-modal';
-import { InputGroup } from '../../../components';
+import {
+  TextInput, Modal, FormRow, ModalActions,
+  CancelButton, AddButton, UpdateButton,
+} from '../../../components';
 import { ProcedureMedicationModel } from '../../../models';
 
 class NoteModal extends Component {
@@ -40,8 +42,8 @@ class NoteModal extends Component {
     this.setState({ Model });
   }
 
-  submitForm = async (e) => {
-    e.preventDefault();
+  submitForm = async (event) => {
+    event.preventDefault();
     const { action, procedureModel } = this.props;
     const { Model } = this.state;
 
@@ -64,48 +66,53 @@ class NoteModal extends Component {
     const { Model } = this.state;
     const form = Model.toJSON();
     return (
-      <Modal open={this.state.isVisible} onClose={onClose} little>
+      <Modal
+        title={`${action === 'new' ? 'Add' : 'Update'} Medication Used`}
+        isVisible={this.state.isVisible}
+        onClose={onClose}
+      >
         <form
           id="noteForm"
           name="noteForm"
-          className="create-container"
           onSubmit={this.submitForm}
         >
-          <div className="tamanu-error-modal diagnosis-modal">
-            <div className="modal-header">
-              <h2>
-                {action === 'new' ? 'Add' : 'Update'}
-                {' '}
-Medication Used
-              </h2>
-            </div>
-            <div className="modal-content">
-              <InputGroup
-                label="Medication Used"
-                name="medication"
-                className="column m-b-0"
-                inputClass="column no-padding"
-                onChange={this.handleUserInput}
-                value={form.medication}
-                required
-              />
-              <InputGroup
-                label="Quantity"
-                name="quantity"
-                className="column m-b-0"
-                inputClass="column no-padding"
-                onChange={this.handleUserInput}
-                value={form.quantity}
-                required
-              />
-            </div>
-            <div className="modal-footer">
-              <div className="column has-text-right">
-                <button className="button is-default" type="button" onClick={onClose}>Cancel</button>
-                <button className="button is-primary" type="submit" form="noteForm" disabled={!Model.isValid()}>{action === 'new' ? 'Add' : 'Update'}</button>
-              </div>
-            </div>
-          </div>
+          <FormRow>
+            <TextInput
+              label="Medication Used"
+              name="medication"
+              onChange={this.handleUserInput}
+              value={form.medication}
+              required
+            />
+          </FormRow>
+          <FormRow>
+            <TextInput
+              label="Quantity"
+              name="quantity"
+              onChange={this.handleUserInput}
+              value={form.quantity}
+              required
+            />
+          </FormRow>
+          <ModalActions>
+            <CancelButton onClick={onClose} />
+            {action === 'new'
+              ? (
+                <AddButton
+                  type="submit"
+                  disabled={!Model.isValid()}
+                  can={{ do: 'create', on: 'ProcedureMedication' }}
+                />
+              )
+              : (
+                <UpdateButton
+                  type="submit"
+                  disabled={!Model.isValid()}
+                  can={{ do: 'update', on: 'ProcedureMedication' }}
+                />
+              )
+            }
+          </ModalActions>
         </form>
       </Modal>
     );

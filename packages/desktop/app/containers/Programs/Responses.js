@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { isEmpty, clone } from 'lodash';
+import { Typography, Grid } from '@material-ui/core';
+import { clone } from 'lodash';
 import moment from 'moment';
-import ReactTable from 'react-table';
 import {
-  Colors, pageSizes, surveyResponsesColumns, dateFormat, timeFormat,
+  Colors, surveyResponsesColumns, dateFormat, timeFormat,
+  MUI_SPACING_UNIT as spacing,
 } from '../../constants';
 import actions from '../../actions/programs';
-import Preloader from '../../components/Preloader';
-
-import { BackButton, Button } from '../../components/Button';
+import {
+  Preloader, BackButton, Button, TopBar, Container, SimpleTable,
+} from '../../components';
 
 const { responses: responseActions } = actions;
 const { initResponses } = responseActions;
@@ -39,26 +40,6 @@ class Responses extends Component {
 
   componentWillReceiveProps(newProps) {
     this.handleChange(newProps);
-  }
-
-  async handleChange(props = this.props) {
-    const {
-      survey: surveyModel,
-      program: programModel,
-      patient: patientModel,
-      responses,
-      loading,
-    } = props;
-
-    if (!loading) {
-      this.setState({
-        survey: surveyModel.toJSON(),
-        program: programModel.toJSON(),
-        patient: patientModel.toJSON(),
-        headers: surveyModel.getHeaders(),
-        responses,
-      });
-    }
   }
 
   getHeaderColumns() {
@@ -108,10 +89,15 @@ class Responses extends Component {
           color="primary"
           onClick={() => _this.viewResponse(row._id)}
         >
-View Form
+          View Form
         </Button>
       </div>
     );
+  }
+
+  startSurvey = () => {
+    const { patientId, programId, surveyId } = this.props.match.params;
+    this.props.history.push(`/programs/${programId}/${patientId}/surveys/${surveyId}`);
   }
 
   viewResponse(responseId) {
@@ -124,9 +110,24 @@ View Form
     this.props.history.push(`/programs/${programId}/${patientId}/surveys`);
   }
 
-  startSurvey = () => {
-    const { patientId, programId, surveyId } = this.props.match.params;
-    this.props.history.push(`/programs/${programId}/${patientId}/surveys/${surveyId}`);
+  async handleChange(props = this.props) {
+    const {
+      survey: surveyModel,
+      program: programModel,
+      patient: patientModel,
+      responses,
+      loading,
+    } = props;
+
+    if (!loading) {
+      this.setState({
+        survey: surveyModel.toJSON(),
+        program: programModel.toJSON(),
+        patient: patientModel.toJSON(),
+        headers: surveyModel.getHeaders(),
+        responses,
+      });
+    }
   }
 
   render() {
@@ -135,60 +136,42 @@ View Form
 
     const { survey, program, patient } = this.state;
     return (
-      <div className="content">
-        <div className="view-top-bar">
-          <span>{program.name}</span>
-          <span className="tag is-info survey-title">{survey.name}</span>
-        </div>
-        <div className="survey-details details">
-          <div className="pregnancy-top m-b-10">
-            <div className="columns">
-              <div className="column pregnancy-name is-pulled-left">
-                <span className="has-text-weight-normal is-size-6">
-                  Patient
-                </span>
-                <span className="has-text-weight-bold is-size-5 p-l-10">
+      <React.Fragment>
+        <TopBar
+          title={program.name}
+          buttons={{
+            text: 'Add New',
+            style: { marginRight: spacing },
+            onClick: this.startSurvey,
+          }}
+          subTitle={survey.name}
+        />
+        <Container>
+          <Grid container spacing={spacing * 2} direction="column">
+            <Grid container item spacing={spacing}>
+              <Grid item>
+                <Typography variant="subtitle1">
+                  Patient:
+                </Typography>
+              </Grid>
+              <Grid item xs>
+                <Typography variant="subtitle1" style={{ fontWeight: 500 }}>
                   {`${patient.firstName} ${patient.lastName}`}
-                </span>
-              </div>
-              <div className="column pregnancy-name is-pulled-right">
-                <Button
-                  variant="outlined"
-                  onClick={this.startSurvey.bind(this)}
-                >
-Add new
-                </Button>
-              </div>
-            </div>
-            {/* <div className="columns">
-              <div className="column pregnancy-name">
-                <span className="pregnancy-name-tit1le">
-                  Patient
-                </span>
-                <span className="pregnancy-name-details">
-                  {`${patient.firstName} ${patient.lastName}`}
-                </span>
-              </div>
-            </div> */}
-          </div>
-          <ReactTable
-            manual
-            keyField="_id"
-            data={this.getDataColumns()}
-            // pages={this.props.collection.totalPages}
-            defaultPageSize={pageSizes.surveyResponses}
-            loading={this.state.loading}
-            columns={this.getHeaderColumns()}
-            className="-striped"
-          // onFetchData={this.onFetchData}
-          />
-          <div className="question-table-buttons p-t-20">
-            <BackButton
-              onClick={this.goBack.bind(this)}
-            />
-          </div>
-        </div>
-      </div>
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid item>
+              <SimpleTable
+                data={this.getDataColumns()}
+                columns={this.getHeaderColumns()}
+              />
+            </Grid>
+            <Grid item>
+              <BackButton />
+            </Grid>
+          </Grid>
+        </Container>
+      </React.Fragment>
     );
   }
 }

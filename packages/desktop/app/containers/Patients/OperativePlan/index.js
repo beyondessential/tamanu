@@ -1,411 +1,247 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import moment from 'moment';
-import Select from 'react-select';
+import { capitalize } from 'lodash';
+import TopRow from '../components/TopRow';
+import ActionsTaken from '../components/ActionsTaken';
 import {
-  clone, isUndefined, each, has, capitalize, pick,
-} from 'lodash';
-
-// import Serializer from '../../../utils/form-serialize';
-import Allergy from '../components/Allergy';
-import Diagnosis from '../components/Diagnosis';
-import Procedure from '../components/Procedure';
-import ModalView from '../../../components/Modal';
-import InputGroup from '../../../components/InputGroup';
-import TextareaGroup from '../../../components/TextareaGroup';
-
-// import Serializer from '../../../utils/form-serialize';
+  TextInput, Container, TopBar, Preloader,
+  FormRow, BottomBar, AddButton, UpdateButton, CancelButton,
+  Button, SelectInput, PatientRelationSelect,
+} from '../../../components';
 import {
-  PatientModel, OperativePlanModel, PatientDiagnosisModel, OperationReportModel,
-} from '../../../models';
-import { getDifferenceDate, operativePlanStatusList, dateFormat } from '../../../constants';
+  MUI_SPACING_UNIT as spacing, operativePlanStatuses,
+  operativePlanStatusList, dateFormat,
+} from '../../../constants';
+import actions from '../../../actions/patients';
+import { PatientModel, OperativePlanModel } from '../../../models';
 
 class OperativePlan extends Component {
-  constructor(props) {
-    super(props);
-    this.goBack = this.goBack.bind(this);
-    this.onCloseCompletedModal = this.onCloseCompletedModal.bind(this);
-    this.setForm = this.setForm.bind(this);
+  static propTypes = {
+    action: PropTypes.string.isRequired,
+    fetchOperativePlan: PropTypes.func.isRequired,
+    saveOperativePlan: PropTypes.func.isRequired,
+    operativePlanModel: PropTypes.oneOfType([
+      PropTypes.instanceOf(OperativePlanModel),
+      PropTypes.instanceOf(Object),
+    ]).isRequired,
+    patientModel: PropTypes.oneOfType([
+      PropTypes.instanceOf(PatientModel),
+      PropTypes.instanceOf(Object),
+    ]).isRequired,
   }
 
   state = {
-    formError: false,
-    formSuccess: false,
-    markedCompleted: false,
-    patient: this.props.patient.attributes,
+    loading: true,
+    isFormValid: false,
     action: 'new',
-    opReportId: '',
-    form: {
-      additionalNotes: '',
-      admissionInstructions: '',
-      caseComplexity: '',
-      operationDescription: '',
-      procedures: [],
-      status: 'planned',
-      surgeon: '',
-    },
   }
 
-  async componentDidMount() {
-    const { patientId, id } = this.props.match.params;
-    let _action = 'new';
-    this.props.patient.on('change', this.handleChange);
-    this.props.patient.set({ _id: patientId });
-    await this.props.patient.fetch({ relations: true, deep: false });
+  componentDidMount() {
+    const { fetchOperativePlan } = this.props;
+    fetchOperativePlan();
+  }
 
-    if (!isUndefined(id)) {
-      _action = 'update';
-      this.props.operationReport.on('change', this.handleChange);
-      this.props.operationReport.set({ _id: id });
-      await this.props.operationReport.fetch();
+  componentWillReceiveProps(newProps) {
+    const { action, loading, operativePlanModel } = newProps;
+    if (!loading) {
+      // update state on model change
+      operativePlanModel
+        .off('change')
+        .on('change', this.handleChange);
+      this.setState({
+        ...operativePlanModel.toJSON(),
+        action,
+        loading,
+      });
     }
-
-    this.setForm(_action);
   }
 
   componentWillUnmount() {
-    this.props.patient.off('change', this.handleChange);
-    this.props.operationReport.off('change', this.handleChange);
+    const { operativePlanModel } = this.props;
+    if (operativePlanModel && typeof operativePlanModel !== 'undefined') operativePlanModel.off('change');
   }
 
-  handleChange = async () => {
-    try {
-      const patient = await this.props.patient.toJSON({ relations: true });
-      if (patient.dateOfBirth !== '') patient.age = getDifferenceDate(moment(), moment(patient.dateOfBirth));
-      this.setState({ patient }, () => this.forceUpdate());
-    } catch (err) {
-      console.error('Error: ', err);
-    }
+  handleActionsTakenChange = (actionsTaken) => {
+    const { operativePlanModel } = this.props;
+    operativePlanModel.set({ actionsTaken });
   }
 
-  handleUserInput = (e, field) => {
-    const { form } = this.state;
-    if (typeof field !== 'undefined') {
-      form[field] = e;
-    } else {
-      const { name } = e.target;
-      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-      form[name] = value;
-    }
-
-    this.setState({ form });
+  handleUserInput = (event) => {
+    const { operativePlanModel } = this.props;
+    const { name, value } = event.target;
+    operativePlanModel.set({ [name]: value });
   }
 
-  setForm = (_action) => {
-    const data = this.props.operationReport.toJSON();
-    const { form } = this.state;
-    each(form, (value, key) => { form[key] = (has(data, key) ? data[key] : value); });
-    this.setState({ form, action: _action });
+  handleChange = () => {
+    const { operativePlanModel } = this.props;
+    const isFormValid = operativePlanModel.isValid();
+    const changedAttributes = operativePlanModel.changedAttributes();
+    this.setState({ ...changedAttributes, isFormValid });
   }
 
-  goBack() {
-    this.props.history.push(`/patients/editPatient/${this.state.patient._id}`);
+  markComplete = (event) => {
+    const { operativePlanModel } = this.props;
+    operativePlanModel.set({ status: operativePlanStatuses.COMPLETED });
+    this.submitForm(event);
   }
 
-  onCloseErrorModal = () => {
-    this.setState({ formError: false });
-  }
-
-  onCloseSuccessModal = () => {
-    this.setState({ formSuccess: false });
-  }
-
-  onCloseCompletedModal() {
-    const { opReportId } = this.state;
-    this.props.history.push(`/patients/operationReport/${this.state.patient._id}/${opReportId}`);
-  }
-
-  markComplete = (e) => {
-    e.preventDefault();
-    const { form } = this.state;
-    form.status = 'completed';
-    this.setState({ form }, async () => {
-      await this.submitForm(e);
-    });
-  }
-
-  submitForm = async (e) => {
-    e.preventDefault();
-    const { patient, operationReport } = this.props;
-    const { form, action } = this.state;
-    if (!this.state.form.procedures.length) return this.setState({ formError: true });
-
-    try {
-      // const operativePlan = new OperativePlanModel();
-      operationReport.set(form);
-      await operationReport.save();
-
-      // Attached operativePlan to patient object
-      if (action === 'new') {
-        // Duplicate diagnostics to operation plan
-        const diagnoses = patient.get('diagnoses');
-        if (diagnoses.length > 0) {
-          const tasks = [];
-          each(diagnoses.models, (diagnosis) => {
-            const attributes = diagnosis.cloneAttributes();
-
-            const patientDiagnosisModel = new PatientDiagnosisModel();
-            patientDiagnosisModel.set(attributes);
-            tasks.push(patientDiagnosisModel.save());
-          });
-
-          const resp = await Promise.all(tasks);
-          resp.forEach((m) => {
-            operationReport.get('diagnoses').add(m);
-          });
-
-          await operationReport.save();
-        }
-
-        patient.get('operativePlans').add(operationReport);
-        await patient.save();
-        this.props.history.push(`/patients/operativePlan/${patient._id}/${operationReport._id}`);
-        this.setState({ action: 'update' });
-      } else {
-        patient.trigger('change');
-      }
-
-      // Create operation report
-      if (operationReport.get('status') === 'completed') {
-        const id = await this.createOperationReport();
-        this.setState({
-          opReportId: id,
-          markedCompleted: true,
-        });
-      } else {
-        this.setState({ formSuccess: true });
-      }
-    } catch (err) {
-      console.error('Error: ', err);
-    }
-  }
-
-  createOperationReport() {
-    return new Promise(async (resolve, reject) => {
-      const { patient } = this.props;
-      let { operationReport } = this.props;
-      operationReport = operationReport.toJSON();
-      const toCopy = pick(operationReport, ['additionalNotes', 'caseComplexity', 'procedures', 'operationDescription', 'surgeon', 'diagnoses']);
-      const { diagnoses } = toCopy;
-      delete toCopy.diagnoses;
-      toCopy.patient = patient.id;
-      toCopy.surgeryDate = moment().format(dateFormat);
-
-      try {
-        const operationReportModel = new OperationReportModel();
-        operationReportModel.set(toCopy);
-        operationReportModel.get('preOpDiagnoses').set(diagnoses.models);
-        await operationReportModel.save();
-        this.props.patient.get('operationReports').add(operationReportModel);
-        await this.props.patient.save();
-        resolve(operationReportModel.id);
-      } catch (err) {
-        reject(err);
-      }
-    });
+  submitForm = (event) => {
+    event.preventDefault();
+    const { action, saveOperativePlan, operativePlanModel } = this.props;
+    saveOperativePlan({ action, operativePlanModel });
   }
 
   render() {
+    const { patientModel } = this.props;
     const {
-      patient,
-      formError,
-      formSuccess,
-      markedCompleted,
-      form,
-      action,
+      loading, isFormValid, action, ...form
     } = this.state;
 
+    if (loading) return <Preloader />;
     return (
-      <div>
-        <div className="create-content">
-          <div className="create-top-bar">
-            <span>{`${capitalize(action)} Operative Plan`}</span>
-          </div>
+      <React.Fragment>
+        <TopBar title={`${capitalize(action)} Operative Plan`} />
+        <Container>
+          <TopRow
+            patient={patientModel.toJSON()}
+            style={{ marginBottom: spacing * 2 }}
+          />
           <form
             name="opPlanForm"
-            className="create-container"
             onSubmit={this.submitForm}
           >
-            <div className="form">
-              <div className="columns">
-                <div className="column">
-                  <div className="columns is-multiline is-variable m-b-0">
-                    <div className="column is-8">
-                      <div className="column p-b-5">
-                        <span className="title">Name: </span>
-                        <span className="full-name">
-                          {patient.firstName}
-                          {' '}
-                          {patient.lastName}
-                        </span>
-                      </div>
-                      <div className="column p-b-5 p-t-5">
-                        <span className="title is-medium">Sex: </span>
-                        <span className="is-medium">
-                          {patient.sex}
-                        </span>
-                      </div>
-                      <div className="column p-t-5 p-b-5">
-                        <span className="title is-medium">Age: </span>
-                        <span className="is-medium">
-                          {patient.age}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="column is-4">
-                      <div className="align-left">
-                        <div className="card-info">
-                          {patient.displayId}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="columns border-bottom">
-                    <div className="column">
-                      <Diagnosis parentModel={this.props.patient} readonly />
-                      <Diagnosis parentModel={this.props.patient} showSecondary readonly />
-                    </div>
-                    <div className="column">
-                      <Allergy patientModel={this.props.patient} readonly />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="columns">
-                <div className="column">
-                  <TextareaGroup
-                    name="operationDescription"
-                    label="Operation Description"
-                    tabIndex={1}
+            {action === 'new'
+              && (
+                <FormRow xs={5}>
+                  <PatientRelationSelect
+                    patient={patientModel}
+                    relation="visits"
+                    template={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
+                    label="Visit"
+                    name="visit"
                     onChange={this.handleUserInput}
-                    value={form.operationDescription}
+                    value={form.visit}
                   />
-                </div>
-              </div>
-              <Procedure
-                patientModel={this.props.patient}
+                </FormRow>
+              )
+            }
+            <FormRow>
+              <TextInput
+                name="operationDescription"
+                label="Operation Description"
                 onChange={this.handleUserInput}
+                value={form.operationDescription}
+                multiline
+                rows="3"
               />
-              <div className="columns">
-                <div className="column is-10">
-                  <div className="columns">
-                    <div className="column">
-                      <InputGroup
-                        name="surgeon"
-                        label="Surgeon"
-                        tabIndex={4}
-                        onChange={this.handleUserInput}
-                        value={form.surgeon}
-                      />
-                    </div>
-                    <div className="column">
-                      <div className="column">
-                        <span className="header">
-                          Status
-                        </span>
-                        <Select
-                          id="state-select"
-                          onBlurResetsInput={false}
-                          onSelectResetsInput={false}
-                          clearable={false}
-                          options={operativePlanStatusList}
-                          placeholder="Status"
-                          simpleValue
-                          name="status"
-                          disabled={this.state.disabled}
-                          value={form.status}
-                          onChange={(value) => { this.handleUserInput(value, 'status'); }}
-                        />
-                      </div>
-                    </div>
-                    <div className="column">
-                      <InputGroup
-                        name="caseComplexity"
-                        label="Case Complexity"
-                        tabIndex={9}
-                        onChange={this.handleUserInput}
-                        value={form.caseComplexity}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="columns">
-                <div className="column">
-                  <TextareaGroup
-                    name="admissionInstructions"
-                    label="Instructions Upon Admission"
-                    tabIndex={1}
-                    onChange={this.handleUserInput}
-                    value={form.admissionInstructions}
-                  />
-                </div>
-              </div>
-              <div className="columns">
-                <div className="column">
-                  <TextareaGroup
-                    name="additionalNotes"
-                    label="Additional Notes"
-                    tabIndex={1}
-                    onChange={this.handleUserInput}
-                    value={form.additionalNotes}
-                  />
-                </div>
-              </div>
-              <div className="columns">
-                <div className="column">
-                  <div className="column has-text-right">
-                    <button className="button is-danger m-r-5" onClick={this.goBack}>{action === 'new' ? 'Cancel' : 'Return'}</button>
-                    <button className="button is-primary m-r-5" onClick={this.submitForm}>{action === 'new' ? 'Add' : 'Update'}</button>
-                    <button className={`button is-primary ${(action === 'new' ? 'is-hidden' : '')}`} onClick={this.markComplete}>
-                      <i className="fa fa-check inline-block m-r-5" />
-                      {' '}
-Complete Plan
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            </FormRow>
+            <ActionsTaken
+              actionsTaken={form.actionsTaken}
+              patientModel={patientModel}
+              onChange={this.handleActionsTakenChange}
+            />
+            <FormRow>
+              <TextInput
+                name="surgeon"
+                label="Surgeon"
+                onChange={this.handleUserInput}
+                value={form.surgeon}
+              />
+              <SelectInput
+                label="Status"
+                options={operativePlanStatusList}
+                name="status"
+                disabled={this.state.disabled}
+                value={form.status}
+                onChange={(value) => { this.handleUserInput(value, 'status'); }}
+              />
+              <TextInput
+                name="caseComplexity"
+                label="Case Complexity"
+                onChange={this.handleUserInput}
+                value={form.caseComplexity}
+              />
+            </FormRow>
+            <FormRow>
+              <TextInput
+                name="admissionInstructions"
+                label="Instructions Upon Admission"
+                onChange={this.handleUserInput}
+                value={form.admissionInstructions}
+                multiline
+                rows="3"
+              />
+            </FormRow>
+            <FormRow>
+              <TextInput
+                name="additionalNotes"
+                label="Additional Notes"
+                onChange={this.handleUserInput}
+                value={form.additionalNotes}
+                multiline
+                rows="3"
+              />
+            </FormRow>
+            <BottomBar>
+              <CancelButton
+                to={`/patients/editPatient/${patientModel.id}`}
+              />
+              {action === 'new'
+                ? (
+                  <AddButton type="submit" />
+                )
+                : (
+                  <React.Fragment>
+                    <UpdateButton type="submit" />
+                    <Button
+                      onClick={this.markComplete}
+                      color="secondary"
+                      variant="contained"
+                    >
+                      Complete Plan
+                    </Button>
+                  </React.Fragment>
+                )
+              }
+            </BottomBar>
           </form>
-        </div>
-        <ModalView
-          isVisible={formError}
-          onClose={this.onCloseErrorModal}
-          headerTitle="Warning!!!!"
-          contentText="Please fill in required fields (marked with *) and correct the errors before saving."
-          little
-        />
-        <ModalView
-          isVisible={formSuccess}
-          onClose={this.onCloseSuccessModal}
-          headerTitle="Success!"
-          contentText="Operative Plan was saved successfully!"
-          little
-        />
-        <ModalView
+        </Container>
+        {/*
+        <Dialog
           isVisible={markedCompleted}
           onClose={this.onCloseCompletedModal}
           headerTitle="Success!"
           contentText="Operative Plan was marked completed successfully, you'll be redirected to Operation Report now"
           little
-        />
-      </div>
+        /> */}
+      </React.Fragment>
     );
   }
 }
 
-// function mapStateToProps(state) {
-//   const { onePatient, updatedBirthday, updatedReferredDate } = state.patients;
-//   return {
-//     patient: onePatient,
-//     updatedBirthday,
-//     updatedReferredDate
-//   };
-// }
+function mapStateToProps({ patients }, { match: { params: { patientId, visitId, id } } }) {
+  const {
+    patient: patientModel, operativePlanModel, loading, action,
+  } = patients;
+  return {
+    patientModel, operativePlanModel, loading, action, patientId, visitId, id,
+  };
+}
 
-const mapDispatchToProps = () => ({
-  patient: new PatientModel(),
-  operationReport: new OperativePlanModel(),
+const { operativePlan: operativePlanActions } = actions;
+const { fetchOperativePlan, saveOperativePlan } = operativePlanActions;
+const mapDispatchToProps = (dispatch, {
+  history,
+  match: { params: { id = null, patientId } },
+}) => ({
+  fetchOperativePlan: () => dispatch(fetchOperativePlan({ id, patientId })),
+  saveOperativePlan: ({ ...props }) => dispatch(saveOperativePlan({
+    ...props,
+    history,
+    patientId,
+  })),
 });
 
-export default connect(undefined, mapDispatchToProps)(OperativePlan);
+export default connect(mapStateToProps, mapDispatchToProps)(OperativePlan);

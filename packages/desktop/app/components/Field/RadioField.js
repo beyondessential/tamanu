@@ -12,7 +12,7 @@ export const RadioInput = ({
     <RadioGroup
       aria-label={name}
       name={name}
-      value={value}
+      value={value || ''}
       {...props}
     >
       {options.map(option => (

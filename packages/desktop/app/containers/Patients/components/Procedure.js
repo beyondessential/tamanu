@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Grid, Typography } from '@material-ui/core';
 import PropTypes from 'prop-types';
+import { TextButton } from '../../../components';
+import { PatientModel } from '../../../models';
+import { MUI_SPACING_UNIT as spacing } from '../../../constants';
 
-class Procedure extends Component {
+export default class Procedure extends Component {
   static propTypes = {
-    patientModel: PropTypes.object.isRequired,
+    patientModel: PropTypes.instanceOf(PatientModel).isRequired,
   }
 
   state = {
@@ -26,25 +29,28 @@ class Procedure extends Component {
   render() {
     const { patientModel } = this.props;
     const { procedures } = this.state;
+    if (!procedures.length) return null;
     return (
-      <div>
-        {procedures.length > 0
-          && (
-          <div className="column p-b-0">
-            <span className="title">Procedures</span>
-            <div className="is-clearfix" />
-            {procedures.map((procedure, k) => (
-              <React.Fragment key={`procedure-${k}`}>
-                {k > 0 ? ', ' : ''}
-                <Link className="add-button" to={`/patients/operationReport/${patientModel.id}/${procedure.operationReportId}`}>{`${procedure.name} (${procedure.date})`}</Link>
-              </React.Fragment>
-            ))}
-          </div>
-          )
-        }
-      </div>
+      <React.Fragment>
+        <Grid container item style={{ paddingRight: spacing }}>
+          <Typography variant="body2">
+            Procedures
+          </Typography>
+        </Grid>
+        <Grid container item xs={12} style={{ paddingTop: 0 }}>
+          {procedures.map((procedure, k) => (
+            <React.Fragment key={procedure._id}>
+              {k > 0 ? ', ' : ''}
+              <TextButton
+                can={{ do: 'create', on: 'procedure' }}
+                to={`/patients/operationReport/${patientModel.id}/${procedure.operationReportId}`}
+              >
+                {`${procedure.name} (${procedure.date})`}
+              </TextButton>
+            </React.Fragment>
+          ))}
+        </Grid>
+      </React.Fragment>
     );
   }
 }
-
-export default Procedure;

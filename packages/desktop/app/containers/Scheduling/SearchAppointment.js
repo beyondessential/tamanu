@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
+import { Grid } from '@material-ui/core';
 import SearchForm from './components/SearchForm';
 import actions from '../../actions/scheduling';
 import AppointmentsTable from './components/AppointmentsTable';
@@ -38,7 +39,7 @@ class SearchAppointment extends Component {
     } = this.state;
 
     return (
-      <div className="create-content">
+      <React.Fragment>
         <TopBar
           title="Search Appointments"
           buttons={{
@@ -47,24 +48,16 @@ class SearchAppointment extends Component {
             children: 'New Appointment',
           }}
         />
-        <div className="create-container">
-          <div className="form with-padding">
-            <SearchForm
-              loading={loading}
-              onSubmit={this.submitForm}
-            />
-            <div className="columns">
-              <div className="column">
-                <AppointmentsTable
-                  filters={filters}
-                  history={this.props.history}
-                  onLoading={this.onLoading}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        <SearchForm
+          loading={loading}
+          onSubmit={this.submitForm}
+        />
+        <AppointmentsTable
+          filters={filters}
+          history={this.props.history}
+          onLoading={this.onLoading}
+        />
+      </React.Fragment>
     );
   }
 }

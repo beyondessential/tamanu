@@ -2,12 +2,10 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import { capitalize } from 'lodash';
 import PropTypes from 'prop-types';
+import { Grid } from '@material-ui/core';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions, Grid,
-} from '@material-ui/core';
-import {
-  TextInput, PatientRelationSelect,
-  AddButton, UpdateButton, CancelButton,
+  TextInput, PatientRelationSelect, Modal, ModalActions,
+  AddButton, UpdateButton, CancelButton, FormRow,
 } from '../../../components';
 import { NoteModel, VisitModel } from '../../../models';
 import { dateFormat } from '../../../constants';
@@ -82,36 +80,32 @@ export default class NoteModal extends Component {
     const { noteModel } = this.state;
     const form = noteModel.toJSON();
     return (
-      <Dialog
-        fullWidth
-        open={this.state.isVisible}
+      <Modal
+        title={`${action === 'new' ? 'Add' : 'Update'} Note`}
+        isVisible={this.state.isVisible}
         onClose={onClose}
-        maxWidth="sm"
       >
-        <DialogTitle>{`${action === 'new' ? 'Add' : 'Update'} Note`}</DialogTitle>
-        <DialogContent>
-          <form
-            id="noteForm"
-            name="noteForm"
-            className="create-container"
-            onSubmit={this.submitForm}
-          >
-            <Grid container spacing={16} direction="row">
-              <Grid item xs={12}>
-                <TextInput
-                  label="Note"
-                  name="content"
-                  onChange={this.handleUserInput}
-                  value={form.content}
-                  rows={5}
-                  variant="outlined"
-                  multiline
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                {showVisits
-                  && (
+        <form
+          id="noteForm"
+          name="noteForm"
+          onSubmit={this.submitForm}
+        >
+          <Grid container spacing={16}>
+            <FormRow>
+              <TextInput
+                label="Note"
+                name="content"
+                onChange={this.handleUserInput}
+                value={form.content}
+                rows={3}
+                variant="outlined"
+                multiline
+                required
+              />
+            </FormRow>
+            {showVisits
+              && (
+                <FormRow>
                   <PatientRelationSelect
                     patient={patientModel.id}
                     relation="visits"
@@ -121,42 +115,41 @@ export default class NoteModal extends Component {
                     onChange={val => this.handleUserInput(val, 'visit')}
                     required
                   />
-                  )
-                }
-              </Grid>
-              <Grid item xs={12}>
-                <TextInput
-                  label="On Behalf Of"
-                  name="attribution"
-                  onChange={this.handleUserInput}
-                  value={form.attribution}
+                </FormRow>
+              )
+            }
+            <FormRow>
+              <TextInput
+                label="On Behalf Of"
+                name="attribution"
+                onChange={this.handleUserInput}
+                value={form.attribution}
+              />
+            </FormRow>
+          </Grid>
+          <ModalActions>
+            <CancelButton onClick={onClose} />
+            {action === 'new'
+              ? (
+                <AddButton
+                  form="noteForm"
+                  type="submit"
+                  disabled={!noteModel.isValid()}
+                  can={{ do: 'create', on: 'note' }}
                 />
-              </Grid>
-            </Grid>
-          </form>
-        </DialogContent>
-        <DialogActions>
-          <CancelButton onClick={onClose} />
-          {action === 'new'
-            ? (
-              <AddButton
-                form="noteForm"
-                type="submit"
-                disabled={!noteModel.isValid()}
-                can={{ do: 'create', on: 'note' }}
-              />
-            )
-            : (
-              <UpdateButton
-                form="noteForm"
-                type="submit"
-                disabled={!noteModel.isValid()}
-                can={{ do: 'update', on: 'note' }}
-              />
-            )
-          }
-        </DialogActions>
-      </Dialog>
+              )
+              : (
+                <UpdateButton
+                  form="noteForm"
+                  type="submit"
+                  disabled={!noteModel.isValid()}
+                  can={{ do: 'update', on: 'note' }}
+                />
+              )
+            }
+          </ModalActions>
+        </form>
+      </Modal>
     );
   }
 }
@@ -165,7 +158,7 @@ NoteModal.propTypes = {
   action: PropTypes.string,
   itemId: PropTypes.string,
   isVisible: PropTypes.bool.isRequired,
-  parentModel: PropTypes.any,
+  parentModel: PropTypes.instanceOf(VisitModel),
   showVisits: PropTypes.bool,
 };
 

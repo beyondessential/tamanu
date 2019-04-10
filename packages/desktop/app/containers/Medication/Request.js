@@ -111,10 +111,10 @@ class NewMedication extends Component {
         />
         <form onSubmit={this.submitForm}>
           <Container>
+            {byPatient
+              && <TopRow patient={patient.toJSON()} />
+            }
             <Grid container spacing={spacing * 2} direction="column">
-              {byPatient
-                && <TopRow patient={patient.toJSON()} />
-              }
               <FormRow>
                 {!byPatient
                   && (

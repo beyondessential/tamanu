@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
-import { AppBar, Toolbar, Typography, Grid } from '@material-ui/core';
+import {
+  AppBar, Toolbar, Typography, Grid, Chip,
+} from '@material-ui/core';
 import { values, mapValues, isArray } from 'lodash';
 import { NewButton, SearchBar } from '.';
 
@@ -49,11 +51,12 @@ const TopBar = ({ classes, ...children }) => (
 );
 
 const DrawChildren = ({ classes, children }) => values(mapValues(children, (childNode, key) => {
+  if (!childNode) return null;
   const elementKey = `topBar-${key}`;
   let child = childNode;
   switch (key) {
     default:
-      return;
+      return null;
     case 'title':
       return (
         <Typography
@@ -64,6 +67,18 @@ const DrawChildren = ({ classes, children }) => values(mapValues(children, (chil
         >
           {child}
         </Typography>
+      );
+    case 'subTitle':
+      return (
+        <Chip
+          key={elementKey}
+          color="secondary"
+          label={(
+            <Typography variant="subtitle2" component="span">
+              {child}
+            </Typography>
+          )}
+        />
       );
     case 'search':
       return (

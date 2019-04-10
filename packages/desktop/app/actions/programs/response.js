@@ -17,14 +17,14 @@ export const initResponse = ({
   program.set({ _id: programId });
   response.set({ _id: responseId });
   const [error] = await to(Promise.all([
-    patient.fetch({}),
-    program.fetch({ relations: true, deep: false }),
-    response.fetch({ relations: true, deep: false }),
+    patient.fetch(),
+    program.fetch(),
+    response.fetch(),
   ]));
 
   if (error) return dispatch({ type: LOAD_RESPONSE_FAILED, error });
   const survey = program.getSurvey(surveyId);
-  await survey.fetch({ relations: true });
+  await survey.fetch({ data: { objects_max_depth: 15 } });
   dispatch({
     type: LOAD_RESPONSE_SUCCESS,
     patient,

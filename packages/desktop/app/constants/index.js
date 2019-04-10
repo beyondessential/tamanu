@@ -413,11 +413,16 @@ export const visitOptions = [
   { value: 'pharmacy', label: 'Pharmacy' },
 ];
 
-export const operativePlanStatusList = [
-  { value: 'planned', label: 'Planned' },
-  { value: 'dropped', label: 'Dropped' },
-  { value: 'completed', label: 'Completed' },
-];
+export const operativePlanStatuses = {
+  PLANNED: 'planned',
+  DROPPED: 'dropped',
+  COMPLETED: 'completed',
+};
+
+export const operativePlanStatusList = Object.values(operativePlanStatuses).map(status => ({
+  value: status,
+  label: capitalize(status),
+}));
 
 export const appointmentStatusList = [
   { value: 'attended', label: 'Attended' },
@@ -555,14 +560,6 @@ export const admittedPatientsColumns = [
     headerStyle,
     style: columnStyle,
     minWidth: 100,
-  }, {
-    accessor: 'actiomns',
-    id: 'actions',
-    Header: 'Actions',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 250,
-    Cell: {},
   },
 ];
 
@@ -962,17 +959,6 @@ export const programsPatientsColumns = [
     headerStyle,
     style: columnStyle,
     minWidth: 100,
-    filterable: false,
-  }, {
-    accessor: row => ({ _id: row._id, admitted: row.admitted }),
-    id: 'actions',
-    Header: 'Actions',
-    headerStyle: {
-      backgroundColor: Colors.searchTintColor,
-    },
-    style: columnStyle,
-    minWidth: 350,
-    Cell: null,
     filterable: false,
   },
 ];

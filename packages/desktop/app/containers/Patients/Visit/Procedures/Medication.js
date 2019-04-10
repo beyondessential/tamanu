@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import ReactTable from 'react-table';
+import { Grid } from '@material-ui/core';
 import { proceduresMedicationColumns } from '../../../../constants';
 import MedicationModal from '../../components/MedicationModel';
 import {
-  Modal, EditButton, DeleteButton, NewButton,
+  Dialog, EditButton, DeleteButton, SimpleTable, TopBar,
+  SubHeader, NewButton,
 } from '../../../../components';
 
-class Medication extends Component {
+export default class Medication extends Component {
   state = {
     modalVisible: false,
     deleteModalVisible: false,
@@ -36,15 +37,7 @@ class Medication extends Component {
     this.setState({ modalVisible: false });
   }
 
-  editItem(itemId = null) {
-    this.setState({ modalVisible: true, action: (itemId !== null ? 'edit' : 'new'), itemId });
-  }
-
-  deleteConfirm(itemId = null) {
-    this.setState({ deleteModalVisible: true, itemId });
-  }
-
-  async deleteItem() {
+  deleteItem = async () => {
     const { procedureModel } = this.props;
     const { itemId } = this.state;
     try {
@@ -73,66 +66,52 @@ class Medication extends Component {
     </div>
   )
 
+  editItem = (itemId = null) => {
+    this.setState({ modalVisible: true, action: (itemId !== null ? 'edit' : 'new'), itemId });
+  }
+
+  deleteConfirm(itemId = null) {
+    this.setState({ deleteModalVisible: true, itemId });
+  }
+
   render() {
     const { procedureModel } = this.props;
     const {
       modalVisible, action, itemId, medication, tableColumns,
     } = this.state;
     return (
-      <div>
-        <div className="columns m-b-0 m-t-10">
-          <div className="column visit-header">
-            <span>Medication Used</span>
-            <NewButton
-              className="is-pulled-right"
-              onClick={() => this.editItem()}
-              can={{ do: 'create', on: 'medication' }}
-            >
-Add Medication
-            </NewButton>
-          </div>
-        </div>
-        <div className="column">
-          {medication.length > 0
-            && (
-            <ReactTable
-              keyField="_id"
-              data={medication}
-              pageSize={medication.length}
-              columns={tableColumns}
-              className="-striped"
-              defaultSortDirection="asc"
-              showPagination={false}
-            />
-            )
-          }
-          {medication.length <= 0
-            && (
-            <div className="notification">
-              <span> No medication found. </span>
-            </div>
-            )
-          }
-        </div>
+      <React.Fragment>
+        <SubHeader title="Medication Used">
+          <NewButton
+            onClick={() => this.editItem()}
+            can={{ do: 'create', on: 'medication' }}
+          >
+            Add Medication
+          </NewButton>
+        </SubHeader>
+        <Grid container item>
+          <SimpleTable
+            data={medication}
+            columns={tableColumns}
+            emptyNotification="No medication found."
+          />
+        </Grid>
         <MedicationModal
           itemId={itemId}
           procedureModel={procedureModel}
           action={action}
           isVisible={modalVisible}
           onClose={this.onCloseModal}
-          little
         />
-        <Modal
-          modalType="confirm"
+        <Dialog
+          dialogType="confirm"
           headerTitle="Confirm"
           contentText="Are you sure you want to delete this item?"
           isVisible={this.state.deleteModalVisible}
-          onConfirm={this.deleteItem.bind(this)}
+          onConfirm={this.deleteItem}
           onClose={() => this.setState({ deleteModalVisible: false })}
         />
-      </div>
+      </React.Fragment>
     );
   }
 }
-
-export default Medication;

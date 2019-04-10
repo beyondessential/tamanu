@@ -1,131 +1,76 @@
 import React, { Component } from 'react';
-import { map, head } from 'lodash';
-import ReactTable from 'react-table';
-
-import { pageSizes, programsPatientsColumns } from '../../constants';
+import { Grid } from '@material-ui/core';
+import { TopBar, BrowsableTable, Button } from '../../components';
 import { PatientsCollection } from '../../collections';
 import { ProgramModel } from '../../models';
-import { TopBar } from '../../components';
-import { Button } from '../../components/Button';
+import { programsPatientsColumns, headerStyle, columnStyle } from '../../constants';
 
-const DEFAULT_PAGE_SIZE = pageSizes.patients;
+export default class ProgramPatients extends Component {
+  patientsCollection = new PatientsCollection();
 
-class Patients extends Component {
-  constructor(props) {
-    super(props);
-    this.onFetchData = this.onFetchData.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.setActionsCol = this.setActionsCol.bind(this);
-    this.searchSubmit = this.searchSubmit.bind(this);
-    this.searchReset = this.searchReset.bind(this);
-  }
+  programModel = new ProgramModel();
 
   state = {
-    programLoaded: false,
-    keyword: '',
-    tableClass: '',
+    program: null,
   }
 
-  async componentWillMount() {
-    this.props.collection.on('update', this.handleChange);
-    this.loadProgram(this.props);
+  componentWillMount() {
+    this.programModel.on('change', this.handleChange);
+    this.fetchProgram();
   }
 
   componentWillReceiveProps(newProps) {
-    this.loadProgram(newProps);
-  }
-
-  componentWillUnmount() {
-    this.props.collection.off('update', this.handleChange);
-  }
-
-  async loadProgram(props) {
-    const { programId } = props.match.params;
-    this.props.programModel.set({ _id: programId });
-    await this.props.programModel.fetch();
-    const program = this.props.programModel.toJSON();
-    this.setState({ program, programLoaded: true });
-  }
-
-  handleChange() {
-    this.forceUpdate();
+    this.fetchProgram(newProps);
   }
 
   selectPatient = (patientId) => {
-    const { programId } = this.props.match.params;
-    this.props.history.push(`/programs/${programId}/${patientId}/surveys`);
+    const { history, match: { params: { programId } }} = this.props;
+    history.push(`/programs/${programId}/${patientId}/surveys`);
   }
 
-  onFetchData = async (childTableState = {}) => {
-    const { keyword, program } = this.state;
-    const { sorted, page = 0, pageSize = DEFAULT_PAGE_SIZE } = childTableState;
-    const { patientFilters: patientFiltersString } = program;
-    this.setState({ loading: true });
-
-    try {
-      // Reset keyword
-      this.props.collection.setKeyword('');
-      // Set pagination options
-      if (sorted && sorted.length > 0) {
-        const sort = head(sorted);
-        this.props.collection.setSorting(sort.id, sort.desc ? 1 : -1);
-      }
-      if (keyword) this.props.collection.setKeyword(keyword);
-
-      const patientFilters = JSON.parse(patientFiltersString);
-      await this.props.collection.getPage(page, { data: patientFilters, pageSize });
-      this.setState({ loading: false });
-    } catch (err) {
-      this.setState({ loading: false });
-      console.error(err);
-    }
-  }
-
-  setActionsCol(row) {
-    const _this = this;
-    return (
-      <div key={row._id}>
+  getTableColumns = () => ([
+    ...programsPatientsColumns,
+    {
+      id: 'actions',
+      Header: 'Actions',
+      headerStyle,
+      style: columnStyle,
+      Cell: ({ original: { _id } }) => (
         <Button
           variant="contained"
           color="primary"
-          onClick={() => _this.selectPatient(row.value._id)}
+          onClick={() => this.selectPatient(_id)}
         >
-Select Patient
+          Select Patient
         </Button>
-      </div>
-    );
+      ),
+      filterable: false,
+    },
+  ])
+
+  searchSubmit = (keyword) => {
+    this.patientsCollection.setKeyword(keyword);
+    this.forceUpdate();
   }
 
-  searchSubmit(keyword) {
-    const { tableState } = this.state;
-    this.setState({ keyword }, () => {
-      this.onFetchData(tableState);
-    });
+  handleChange = () => {
+    this.setState({ program: this.programModel.toJSON() });
   }
 
-  searchReset() {
-    const { tableState } = this.state;
-    this.setState({ keyword: '' }, () => {
-      this.onFetchData(tableState);
-    });
+  fetchProgram(props = this.props) {
+    const { match: { params: { programId } } } = props;
+    this.programModel.set('_id', programId).fetch();
   }
 
   render() {
-    const { program, programLoaded, tableClass } = this.state;
-    let { models: patients } = this.props.collection;
-    if (patients.length > 0) patients = map(patients, patient => patient.toJSON());
-
-    // Set actions col for our table
-    const lastCol = programsPatientsColumns[programsPatientsColumns.length - 1];
-    lastCol.Cell = this.setActionsCol;
-
+    const { program } = this.state;
     return (
-      <div className="content">
+      <React.Fragment>
         <TopBar
-          title={program ? program.name : 'Patients'}
+          title={program && program.name ? program.name : 'Patients'}
           search={{
             onSubmit: this.searchSubmit,
-            onClear: this.searchReset,
+            onClear: this.searchSubmit,
           }}
           buttons={[{
             to: '/patients/edit/new',
@@ -133,33 +78,14 @@ Select Patient
             children: 'New Patient',
           }]}
         />
-        <div className="detail">
-          {programLoaded
-            && (
-            <ReactTable
-              manual
-              keyField="_id"
-              data={patients}
-              pages={this.props.collection.totalPages}
-              defaultPageSize={DEFAULT_PAGE_SIZE}
-              loading={this.state.loading && programLoaded}
-              columns={programsPatientsColumns}
-              className={`-striped ${tableClass}`}
-              defaultSortDirection="asc"
-              onFetchData={this.onFetchData}
-            />
-            )
-          }
-        </div>
-      </div>
+        <Grid container item>
+          <BrowsableTable
+            collection={this.patientsCollection}
+            columns={this.getTableColumns()}
+            emptyNotification="No requests found"
+          />
+        </Grid>
+      </React.Fragment>
     );
   }
 }
-
-Patients.defaultProps = {
-  programModel: new ProgramModel(),
-  collection: new PatientsCollection(),
-  patients: [],
-};
-
-export default Patients;

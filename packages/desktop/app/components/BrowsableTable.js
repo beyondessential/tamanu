@@ -9,6 +9,9 @@ const defaultTransformRow = model => model.toJSON();
 
 export class BrowsableTable extends Component {
   static propTypes = {
+    collection: PropTypes.instanceOf(Object).isRequired,
+    columns: PropTypes.arrayOf(Object).isRequired,
+    emptyNotification: PropTypes.node,
     transformRow: PropTypes.func,
     fetchOptions: PropTypes.instanceOf(Object),
   }
@@ -16,10 +19,10 @@ export class BrowsableTable extends Component {
   static defaultProps = {
     transformRow: defaultTransformRow,
     fetchOptions: {},
+    emptyNotification: '',
   }
 
   state = {
-    tableClass: '',
     tableState: {},
     loading: true,
   }
@@ -73,7 +76,7 @@ export class BrowsableTable extends Component {
     const {
       collection, columns, emptyNotification, transformRow,
     } = this.props;
-    const { tableClass, loading } = this.state;
+    const { loading } = this.state;
 
     // transform data
     const items = collection.models.map(transformRow);

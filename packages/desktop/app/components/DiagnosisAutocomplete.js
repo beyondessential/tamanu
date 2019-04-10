@@ -40,7 +40,6 @@ const renderInputComponent = (inputProps) => {
         id="diagnosis-autocomplete"
         className="input"
         fullWidth
-        disableUnderline
         inputRef={node => {
           ref(node);
           inputRef(node);
@@ -83,6 +82,22 @@ class DiagnosisAutocomplete extends Component {
     this.props.diagnosesCollection.setPageSize(MAX_AUTO_COMPLETE_ITEMS.DIAGNOSES);
   }
 
+  handleChange = (event, { newValue }) => {
+    this.setState({
+      value: newValue,
+    });
+  }
+
+  getSuggestionValue = suggestion => {
+    const { onChange, name } = this.props;
+    if (suggestion && onChange) onChange(suggestion, name);
+    return suggestion ? suggestion.name : '';
+  }
+
+  clearSuggestions() {
+    this.setState({ suggestions: [] });
+  }
+
   async fetchSuggestions({ value }) {
     const { diagnosesCollection } = this.props;
     try {
@@ -95,22 +110,6 @@ class DiagnosisAutocomplete extends Component {
     } catch (err) {
       console.error(err);
     }
-  }
-
-  clearSuggestions() {
-    this.setState({ suggestions: [] });
-  }
-
-  handleChange = (event, { newValue }) => {
-    this.setState({
-      value: newValue,
-    });
-  }
-
-  getSuggestionValue = suggestion => {
-    const { onChange, name } = this.props;
-    if (suggestion && onChange) onChange(suggestion, name);
-    return suggestion ? suggestion.name : '';
   }
 
   renderSuggestionsContainer() {

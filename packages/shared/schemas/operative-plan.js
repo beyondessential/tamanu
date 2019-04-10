@@ -1,8 +1,8 @@
 import defaults from './defaults';
 import { OPERATION_PLAN_STATUSES } from '../constants';
 
-export const OpPlanSchema = {
-  name: 'operationPlan',
+export const OperativePlanSchema = {
+  name: 'operativePlan',
   primaryKey: '_id',
   properties: {
     _id: 'string',
@@ -22,7 +22,7 @@ export const OpPlanSchema = {
       type: 'string',
       optional: true,
     },
-    procedures: 'string[]',
+    actionsTaken: 'string[]',
     status: {
       type: 'string',
       optional: true,
@@ -35,6 +35,11 @@ export const OpPlanSchema = {
     diagnoses: {
       type: 'list',
       objectType: 'patientDiagnosis',
+    },
+    visit: {
+      type: 'linkingObjects',
+      objectType: 'visit',
+      property: 'operativePlans',
     },
     ...defaults,
   },

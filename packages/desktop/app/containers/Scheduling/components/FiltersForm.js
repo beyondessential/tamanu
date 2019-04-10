@@ -103,7 +103,6 @@ export default class FiltersForm extends Component {
             <Grid container spacing={spacing * 2}>
               <Grid item xs>
                 <SelectInput
-                  className="column is-3"
                   label="Status"
                   name="status"
                   options={appointmentStatusList}
@@ -115,7 +114,6 @@ export default class FiltersForm extends Component {
                 && (
                   <Grid item xs>
                     <SelectInput
-                      className="column is-3"
                       label="Type"
                       name="type"
                       options={visitOptions}

@@ -97,7 +97,8 @@ export default Backbone.AssociatedModel.extend({
       if (!this.isNew()) options.patch = true;
 
       // Proxy the call to the original save function
-      const res = await Backbone.Model.prototype.save.apply(this, [modifiedAttributes, options]);
+      // TODO: refactor change detection
+      const res = await Backbone.Model.prototype.save.apply(this, [{ ...this.toJSON(), ...modifiedAttributes }, options]);
       this.lastSyncedAttributes = this.toJSON();
       return res;
     } catch (err) {

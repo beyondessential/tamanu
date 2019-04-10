@@ -33,13 +33,14 @@ const RenderRow = ({ label, value }) => (
   </Grid>
 );
 
-function TopRow({ classes, patient }) {
+function TopRow({ classes, patient, ...props }) {
   return (
     <Grid
       container
       spacing={8}
-      direction="row"
+      direction="column"
       className={classes.container}
+      {...props}
     >
       <Chip
         className={classes.chip}

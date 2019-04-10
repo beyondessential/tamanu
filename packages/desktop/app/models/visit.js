@@ -4,7 +4,7 @@ import moment from 'moment';
 import { register } from './register';
 import BaseModel from './base';
 import PatientModel from './patient';
-import { LAB_REQUEST_STATUSES } from '../constants';
+import { LAB_REQUEST_STATUSES, operativePlanStatuses } from '../constants';
 import LabRequestsCollection from '../collections/labRequests';
 
 export default register('Visit', BaseModel.extend({
@@ -30,6 +30,8 @@ export default register('Visit', BaseModel.extend({
     procedures: [],
     vitals: [],
     reports: [],
+    operationReports: [],
+    operativePlans: [],
   }, BaseModel.prototype.defaults),
 
   // Associations
@@ -74,6 +76,16 @@ export default register('Visit', BaseModel.extend({
       key: 'reports',
       relatedModel: 'Report',
       serialize: '_id',
+    }, {
+      type: Backbone.Many,
+      key: 'operationReports',
+      relatedModel: 'OperationReport',
+      serialize: '_id',
+    }, {
+      type: Backbone.Many,
+      key: 'operativePlans',
+      relatedModel: 'OperativePlan',
+      serialize: '_id',
     },
     ...BaseModel.prototype.relations,
   ],
@@ -115,5 +127,13 @@ export default register('Visit', BaseModel.extend({
         )),
       { mode: 'client' },
     );
+  },
+
+  getCurrentOperativePlan() {
+    return this.get('operativePlans').findWhere({ status: operativePlanStatuses.PLANNED });
+  },
+
+  getOperationReports() {
+    return this.get('operationReports');
   },
 }));

@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import ReactTable from 'react-table';
+import { Grid } from '@material-ui/core';
 import { vitalsColumns } from '../../../constants';
 import VitalModal from '../components/VitalModal';
 import {
-  Modal, NewButton, EditButton, DeleteButton,
+  Dialog, NewButton, EditButton, DeleteButton,
+  SimpleTable, TabHeader,
 } from '../../../components';
 
-class Vitals extends Component {
+export default class Vitals extends Component {
   state = {
     modalVisible: false,
     deleteModalVisible: false,
@@ -35,36 +36,8 @@ class Vitals extends Component {
     this.setState({ vitals: vitals.toJSON() });
   }
 
-  handleChange() {
-    const { visitModel } = this.props;
-    const { vitals } = visitModel.changedAttributes();
-    if (vitals) this.setState({ vitals: vitals.toJSON() });
-  }
-
   onCloseModal = () => {
     this.setState({ modalVisible: false });
-  }
-
-  editItem(itemId = null) {
-    this.setState({ modalVisible: true, action: (itemId !== null ? 'edit' : 'new'), itemId });
-  }
-
-  deleteConfirm(itemId = null) {
-    this.setState({ deleteModalVisible: true, itemId });
-  }
-
-  async deleteItem() {
-    const { visitModel } = this.props;
-    const { itemId } = this.state;
-    try {
-      const item = visitModel.get('vitals').findWhere({ _id: itemId });
-      visitModel.get('vitals').remove({ _id: itemId });
-      await visitModel.save();
-      await item.destroy();
-      this.setState({ deleteModalVisible: false });
-    } catch (err) {
-      console.error('Error: ', err);
-    }
   }
 
   setActionsCol = (row) => (
@@ -82,45 +55,58 @@ class Vitals extends Component {
     </div>
   )
 
+  deleteItem = async () => {
+    const { visitModel } = this.props;
+    const { itemId } = this.state;
+    try {
+      const item = visitModel.get('vitals').findWhere({ _id: itemId });
+      visitModel.get('vitals').remove({ _id: itemId });
+      await visitModel.save();
+      await item.destroy();
+      this.setState({ deleteModalVisible: false });
+    } catch (err) {
+      console.error('Error: ', err);
+    }
+  }
+
+  deleteConfirm(itemId = null) {
+    this.setState({ deleteModalVisible: true, itemId });
+  }
+
+  editItem(itemId = null) {
+    this.setState({ modalVisible: true, action: (itemId !== null ? 'edit' : 'new'), itemId });
+  }
+
+  handleChange() {
+    const { visitModel } = this.props;
+    const { vitals } = visitModel.changedAttributes();
+    if (vitals) this.setState({ vitals: vitals.toJSON() });
+  }
+
   render() {
     const { visitModel } = this.props;
     const {
       modalVisible, action, itemId, vitals, tableColumns,
     } = this.state;
     return (
-      <div>
-        <div className="column p-t-0 p-b-0">
-          <NewButton
-            className="is-pulled-right"
-            onClick={() => this.editItem()}
-            can={{ do: 'create', on: 'vital' }}
-          >
-Add Vitals
-          </NewButton>
-          <div className="is-clearfix" />
-        </div>
-        <div className="column">
-          {vitals.length > 0
-            && (
-            <ReactTable
-              keyField="_id"
+      <React.Fragment>
+        <Grid container>
+          <TabHeader>
+            <NewButton
+              onClick={() => this.editItem()}
+              can={{ do: 'create', on: 'vital' }}
+            >
+              Add Vitals
+            </NewButton>
+          </TabHeader>
+          <Grid container item>
+            <SimpleTable
               data={vitals}
-              pageSize={vitals.length}
               columns={tableColumns}
-              className="-striped"
-              defaultSortDirection="asc"
-              showPagination={false}
+              emptyNotification="No vitals found."
             />
-            )
-          }
-          {vitals.length <= 0
-            && (
-            <div className="notification">
-              <span> No vitals found. </span>
-            </div>
-            )
-          }
-        </div>
+          </Grid>
+        </Grid>
         <VitalModal
           itemId={itemId}
           visitModel={visitModel}
@@ -129,17 +115,15 @@ Add Vitals
           onClose={this.onCloseModal}
           little
         />
-        <Modal
-          modalType="confirm"
+        <Dialog
+          dialogType="confirm"
           headerTitle="Confirm"
           contentText="Are you sure you want to delete this item?"
           isVisible={this.state.deleteModalVisible}
-          onConfirm={this.deleteItem.bind(this)}
+          onConfirm={this.deleteItem}
           onClose={() => this.setState({ deleteModalVisible: false })}
         />
-      </div>
+      </React.Fragment>
     );
   }
 }
-
-export default Vitals;

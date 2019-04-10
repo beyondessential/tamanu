@@ -118,7 +118,6 @@ export default class AllergyModal extends Component {
         >
           <form
             name="allergyForm"
-            className="create-container"
             onSubmit={this.submitForm}
           >
             <TextInput

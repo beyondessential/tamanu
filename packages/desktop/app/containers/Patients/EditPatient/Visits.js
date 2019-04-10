@@ -70,7 +70,6 @@ export default class Visits extends Component {
       <Grid container>
         <TabHeader>
           <NewButton
-            className="is-pulled-right"
             to={`/patients/visit/${patientModel.id}`}
             can={{ do: 'create', on: 'visit' }}
           >

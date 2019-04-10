@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
+import { Grid } from '@material-ui/core';
 import { TopBar, Button } from '../../components';
 import { BrowsableTable } from '../../components/BrowsableTable';
 import { DateDisplay } from '../../components/DateDisplay';
 import { LabRequestsCollection } from '../../collections';
 import { toTitleCase } from '../../utils';
+import { headerStyle, columnStyle } from '../../constants';
 
+const cellStyles = { headerStyle, style: columnStyle };
 const requestWithPatientInfo = (row) => {
   const data = row.toJSON();
 
@@ -18,21 +21,33 @@ const requestWithPatientInfo = (row) => {
 };
 
 export class LabRequestsTable extends Component {
-  collection = new LabRequestsCollection();
-
   static columns = [
     {
       Header: 'Status',
       accessor: 'status',
       Cell: ({ original }) => toTitleCase(original.status),
+      ...cellStyles,
     },
-    { Header: 'Category', accessor: 'category.name' },
-    { Header: 'Patient name', accessor: 'patientName' },
-    { Header: 'Requested by', accessor: 'requestedBy.displayName' },
+    {
+      Header: 'Category',
+      accessor: 'category.name',
+      ...cellStyles,
+    },
+    {
+      Header: 'Patient name',
+      accessor: 'patientName',
+      ...cellStyles,
+    },
+    {
+      Header: 'Requested by',
+      accessor: 'requestedBy.displayName',
+      ...cellStyles,
+    },
     {
       Header: 'Date',
       accessor: 'requestedDate',
       Cell: ({ original }) => <DateDisplay date={original.requestedDate} />,
+      ...cellStyles,
     },
     {
       Header: 'Actions',
@@ -42,11 +57,14 @@ export class LabRequestsTable extends Component {
           variant="contained"
           to={`/labs/request/${labRequestData._id}`}
         >
-View
+          View
         </Button>
       ),
+      ...cellStyles,
     },
   ]
+
+  collection = new LabRequestsCollection();
 
   render() {
     return (
@@ -60,11 +78,18 @@ View
   }
 }
 
-export const LabRequests = ({}) => (
-  <div className="content">
-    <TopBar title="Lab Requests" />
-    <div className="detail">
+export const LabRequests = () => (
+  <React.Fragment>
+    <TopBar
+      title="Lab Requests"
+      buttons={{
+        to: '/labs/request',
+        text: 'New Request',
+        can: { do: 'create', on: 'lab' },
+      }}
+    />
+    <Grid container item>
       <LabRequestsTable />
-    </div>
-  </div>
+    </Grid>
+  </React.Fragment>
 );

@@ -1,16 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import DatePicker from 'react-datepicker';
 import moment from 'moment';
-import Select from 'react-select';
-import { map, isEmpty } from 'lodash';
-import ReactTable from 'react-table';
-import CustomDateInput from '../../components/CustomDateInput';
 import {
-  outPatientColumns, locationOptions, pageSizes, columnStyle, headerStyle,
+  outPatientColumns, columnStyle, headerStyle,
 } from '../../constants';
 import { PatientsCollection } from '../../collections';
-import { SearchButton, TopBar, Button } from '../../components';
+import {
+  SearchButton, TopBar, Button, Container, FormRow,
+  DateInput, SelectInput, SimpleTable,
+} from '../../components';
 
 const getActionsColumn = () => ({
   id: 'actions',
@@ -28,7 +26,7 @@ const ActionsColumn = ({ original: { _id } }) => (
       color="primary"
       to={`/patients/editPatient/${_id}`}
     >
-View
+    View
     </Button>
   </div>
 );
@@ -54,14 +52,14 @@ class Outpatient extends Component {
     this.props.collection.off('update', this.handleChange);
   }
 
-  handleChange() {
-    this.forceUpdate();
-  }
-
   onChangeDate = (date) => {
     this.setState({
       startDate: date,
     });
+  }
+
+  getPatients() {
+    this.props.collection.fetch({ data: { 'visits.@count': '>|0', admitted: false } });
   }
 
   updateValue = (newValue) => {
@@ -70,15 +68,15 @@ class Outpatient extends Component {
     });
   }
 
-  getPatients() {
-    this.props.collection.fetch({ data: { 'visits.@count': '>|0', admitted: false } });
+  handleChange() {
+    this.forceUpdate();
   }
 
   render() {
     const { startDate } = this.state;
     const patients = this.props.collection.toJSON();
     return (
-      <div className="create-content">
+      <React.Fragment>
         <TopBar
           title="Outpatients"
           button={{
@@ -87,61 +85,30 @@ class Outpatient extends Component {
             children: 'New Patient',
           }}
         />
-        <div className="create-container">
-          <div className="columns form">
-            <div className="column is-4">
-              <span className="header">
-                Visit Date
-              </span>
-              <DatePicker
-                customInput={<CustomDateInput />}
-                selected={startDate}
-                onChange={this.onChangeDate}
-                peekNextMonth
-                showMonthDropdown
-                showYearDropdown
-                dropdownMode="select"
-              />
-            </div>
-            <div className="column is-4">
-              <span className="header">
-                Location
-              </span>
-              <Select
-                id="state-select"
-                ref={(ref) => { this.select = ref; }}
-                onBlurResetsInput={false}
-                onSelectResetsInput={false}
-                options={locationOptions}
-                simpleValue
-                clearable
-                name="selected-state"
-                disabled={this.state.disabled}
-                value={this.state.selectValue}
-                onChange={this.updateValue}
-                rtl={this.state.rtl}
-                searchable={this.state.searchable}
-              />
-            </div>
-            <div className="column is-4" style={{ paddingTop: 37 }}>
-              <SearchButton />
-            </div>
-          </div>
-          <div className="columns">
-            <div className="column">
-              <ReactTable
-                keyField="_id"
-                data={patients}
-                pages={this.props.collection.totalPages}
-                defaultPageSize={pageSizes.patients}
-                columns={this.columns}
-                className="-striped"
-                defaultSortDirection="asc"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+        <Container autoHeight>
+          <FormRow>
+            <DateInput
+              label="Visit Date"
+              onChange={this.onChangeDate}
+              name="visitDate"
+            />
+            <SelectInput
+              label="Location"
+              name="selected-state"
+              value={this.state.selectValue}
+              onChange={this.updateValue}
+            />
+          </FormRow>
+          <FormRow>
+            <SearchButton />
+          </FormRow>
+        </Container>
+        <SimpleTable
+          data={patients}
+          columns={this.columns}
+          emptyNotification="No patients found."
+        />
+      </React.Fragment>
     );
   }
 }

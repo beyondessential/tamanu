@@ -104,12 +104,11 @@ export default class SearchForm extends Component {
     const { loading } = this.props;
 
     return (
-      <form onSubmit={this.onSubmit}>
-        <Container autoHeight>
+      <Container autoHeight>
+        <form onSubmit={this.onSubmit}>
           <Grid container spacing={spacing * 2}>
             <Grid item xs>
               <DateInput
-                className="column is-3"
                 name="startDate"
                 label="Start Date"
                 onChange={this.handleInputChange}
@@ -118,7 +117,6 @@ export default class SearchForm extends Component {
             </Grid>
             <Grid item xs>
               <SelectInput
-                className="column is-3"
                 label="Status"
                 name="status"
                 options={appointmentStatusList}
@@ -128,7 +126,6 @@ export default class SearchForm extends Component {
             </Grid>
             <Grid item xs>
               <SelectInput
-                className="column is-3"
                 label="Type"
                 name="type"
                 options={visitOptions}
@@ -150,8 +147,8 @@ export default class SearchForm extends Component {
               <Button color="primary" variant="contained" type="submit" disabled={loading}>Search</Button>
             </Grid>
           </Grid>
-        </Container>
-      </form>
+        </form>
+      </Container>
     );
   }
 }

@@ -25,7 +25,7 @@ export const fetchProcedure = ({ id }) => async dispatch => {
   if (error) return dispatch({ type: FETCH_PROCEDURE_FAILED, error });
   dispatch({
     type: FETCH_PROCEDURE_SUCCESS,
-    procedure: procedureModel,
+    procedureModel,
     action,
     loading: false,
   });
@@ -47,7 +47,7 @@ export const saveProcedure = ({
       }
       dispatch({
         type: SAVE_PROCEDURE_SUCCESS,
-        procedure: procedureModel,
+        procedureModel,
       });
       if (action === 'new') history.push(`/patients/visit/${visitId}/procedure/${procedureModel.id}`);
     } catch (error) {

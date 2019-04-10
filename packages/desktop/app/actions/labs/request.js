@@ -7,6 +7,9 @@ import {
   SAVE_LAB_REQUEST_REQUEST,
   SAVE_LAB_REQUEST_SUCCESS,
   SAVE_LAB_REQUEST_FAILED,
+  FILTER_LAB_TEST_TYPES_REQUEST,
+  FILTER_LAB_TEST_TYPES_SUCCESS,
+  FILTER_LAB_TEST_TYPES_FAILED,
 } from '../types';
 import {
   LabRequestModel,
@@ -39,6 +42,23 @@ export const initLabRequest = (patientId) => async dispatch => {
   }
 };
 
+export const filterTestTypes = (keyword) => async dispatch => {
+  dispatch({ type: FILTER_LAB_TEST_TYPES_REQUEST });
+  try {
+    const labTestTypesCollection = new LabTestTypesCollection();
+    labTestTypesCollection.setKeyword(keyword);
+    await labTestTypesCollection.fetchAll();
+
+    dispatch({
+      type: FILTER_LAB_TEST_TYPES_SUCCESS,
+      labTestTypes: labTestTypesCollection.toJSON(),
+      isLoading: false,
+    });
+  } catch (error) {
+    dispatch({ type: FILTER_LAB_TEST_TYPES_FAILED, error });
+  }
+};
+
 export const createLabRequest = ({ labRequestModel }) => async (dispatch, getState) => {
   dispatch({ type: SAVE_LAB_REQUEST_REQUEST });
   if (labRequestModel.isValid()) {
@@ -68,7 +88,7 @@ export const createLabRequest = ({ labRequestModel }) => async (dispatch, getSta
 
       await Promise.all(labRequestModel.get('tests').map(labTestModel => labTestModel.save()));
       const labRequestModels = await Promise.all(Object.values(labTypesFiltered).map(labRequestModel => labRequestModel.save()));
-      _updateVisit(visitId, labRequestModels);
+      updateVisit(visitId, labRequestModels);
 
       dispatch({ type: SAVE_LAB_REQUEST_SUCCESS });
       notifySuccess('Lab request was created successfully.');
@@ -88,7 +108,7 @@ export const createLabRequest = ({ labRequestModel }) => async (dispatch, getSta
   }
 };
 
-const _updateVisit = async (visitId, labRequestModels) => {
+const updateVisit = async (visitId, labRequestModels) => {
   // link lab requests to visit
   const visitModel = new VisitModel({ _id: visitId });
   await visitModel.fetch();

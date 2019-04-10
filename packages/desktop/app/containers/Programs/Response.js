@@ -1,15 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { isEmpty, clone } from 'lodash';
-import moment from 'moment';
-import ReactTable from 'react-table';
-import {
-  Colors, pageSizes, dateFormat, timeFormat,
-} from '../../constants';
+import { Grid, Typography } from '@material-ui/core';
+import { MUI_SPACING_UNIT as spacing } from '../../constants';
 import actions from '../../actions/programs';
-import Preloader from '../../components/Preloader';
 import QuestionScreen from './Survey/QuestionScreen';
-import { BackButton } from '../../components/Button';
+import {
+  BackButton, Preloader, TopBar, Container, DateDisplay,
+} from '../../components';
 
 const { response: responseActions } = actions;
 const { initResponse } = responseActions;
@@ -41,6 +38,20 @@ class Response extends Component {
     this.handleChange(newProps);
   }
 
+  setActionsCol(row) {
+    const _this = this;
+    return (
+      <div key={row._id}>
+        <button className="button is-primary is-outlined column-button" onClick={() => _this.selectPatient(row.value._id)}>View Form</button>
+      </div>
+    );
+  }
+
+  gotoSurvey = (surveyId) => {
+    const { patientId, programId } = this.props.match.params;
+    this.props.history.push(`/programs/${programId}/${patientId}/surveys/${surveyId}`);
+  }
+
   async handleChange(props = this.props) {
     const {
       survey: surveyModel,
@@ -63,20 +74,6 @@ class Response extends Component {
     }
   }
 
-  setActionsCol(row) {
-    const _this = this;
-    return (
-      <div key={row._id}>
-        <button className="button is-primary is-outlined column-button" onClick={() => _this.selectPatient(row.value._id)}>View Form</button>
-      </div>
-    );
-  }
-
-  gotoSurvey = (surveyId) => {
-    const { patientId, programId } = this.props.match.params;
-    this.props.history.push(`/programs/${programId}/${patientId}/surveys/${surveyId}`);
-  }
-
   viewCompleted(listing, surveyId, responseId) {
     const { patientId } = this.props.match.params;
     const url = listing ? `/programs/${patientId}/${surveyId}/responses` : `/programs/${patientId}/${surveyId}/response/${responseId}`;
@@ -96,46 +93,65 @@ class Response extends Component {
       survey, program, patient, response, answers,
     } = this.state;
     return (
-      <div className="content">
-        <div className="view-top-bar">
-          <span>{program.name}</span>
-          <span className="tag is-info survey-title">{survey.name}</span>
-        </div>
-        <div className="survey-details details">
-          <div className="pregnancy-top m-b-10">
-            <div className="columns m-b-20">
-              <div className="column pregnancy-name is-pulled-left">
-                <span className="has-text-weight-normal is-size-6">
-                  Patient
-                </span>
-                <span className="has-text-weight-bold is-size-5 p-l-10">
+      <React.Fragment>
+        <TopBar
+          title={program.name}
+          subTitle={survey.name}
+        />
+        <Container>
+          <Grid container>
+            <Grid container item spacing={spacing} xs>
+              <Grid item>
+                <Typography variant="subtitle1">
+                  Patient:
+                </Typography>
+              </Grid>
+              <Grid item xs>
+                <Typography variant="subtitle1" style={{ fontWeight: 500 }}>
                   {`${patient.firstName} ${patient.lastName}`}
-                </span>
-              </div>
-              <div className="column pregnancy-name is-pulled-right">
-                <span className="has-text-weight-normal is-size-6">
-                  Date Submitted
-                </span>
-                <span className="has-text-weight-bold is-size-6 p-l-10 p-t-5 is-inline-block">
-                  {`${moment(response.endTime).format(dateFormat)} ${moment(response.endTime).format(timeFormat)}`}
-                </span>
-              </div>
-            </div>
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container item spacing={spacing} xs>
+              <Grid item>
+                <Typography variant="subtitle1">
+                  Date Submitted:
+                </Typography>
+              </Grid>
+              <Grid item xs>
+                <Typography variant="subtitle1" style={{ fontWeight: 500 }}>
+                  <DateDisplay date={response.endTime} />
+                </Typography>
+              </Grid>
+            </Grid>
+          </Grid>
+
+          <Grid
+            container
+            spacing={spacing * 2}
+            direction="column"
+            style={{ marginTop: spacing * 3 }}
+          >
             {survey.screens.map((screen, index) => (
               <QuestionScreen
-                key={`${survey._id}-${index}`}
+                key={screen.screenNumber}
                 surveyModel={this.props.survey}
                 screenIndex={index}
                 answers={answers}
                 readOnly
               />
             ))}
-          </div>
-          <div className="question-table-buttons p-t-15">
-            <BackButton onClick={this.goBack.bind(this)} />
-          </div>
-        </div>
-      </div>
+          </Grid>
+
+          <Grid
+            container
+            item
+            style={{ marginTop: spacing * 3 }}
+          >
+            <BackButton />
+          </Grid>
+        </Container>
+      </React.Fragment>
     );
   }
 }

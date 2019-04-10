@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import { map, isEmpty, head } from 'lodash';
 import ReactTable from 'react-table';
 import { toast } from 'react-toastify';
-import { Button, SyncIconButton, TopBar } from '../../components';
+import {
+  Button, SyncIconButton, TopBar, ButtonGroup,
+} from '../../components';
 import { pageSizes, patientColumns } from '../../constants';
 import { PatientsCollection } from '../../collections';
 import { HospitalModel } from '../../models';
@@ -32,26 +34,6 @@ class PatientListing extends Component {
 
   componentWillUnmount() {
     this.props.collection.off('update', this.handleChange());
-  }
-
-  handleChange() {
-    let { models: patients } = this.props.collection;
-    if (patients.length > 0) {
-      patients = map(patients, async patient => {
-        const { attributes } = patient;
-        if (attributes.admitted) {
-          const admission = await patient.getCurrentAdmission();
-          if (!isEmpty(admission)) attributes.dischargeUrl = `/patients/visit/${patient.id}/${admission.id}`;
-        }
-        return attributes;
-      });
-    }
-
-    this.forceUpdate();
-  }
-
-  goEdit = (patientId) => {
-    this.props.history.push(`/patients/editPatient/${patientId}`);
   }
 
   goAdmit = (patientId) => {
@@ -93,6 +75,10 @@ class PatientListing extends Component {
       this.setState({ loading: false });
       console.error(err);
     }
+  }
+
+  goEdit = (patientId) => {
+    this.props.history.push(`/patients/editPatient/${patientId}`);
   }
 
   setSyncStatus = _row => {
@@ -163,7 +149,7 @@ class PatientListing extends Component {
   setActionsColumn = _row => {
     const row = _row.original;
     return (
-      <div key={row._id}>
+      <ButtonGroup>
         <Button
           onClick={() => this.goEdit(row._id)}
           can={{ do: 'read', on: 'patient' }}
@@ -179,8 +165,24 @@ class PatientListing extends Component {
         >
           {row.admitted ? 'Discharge' : 'Admit'}
         </Button>
-      </div>
+      </ButtonGroup>
     );
+  }
+
+  handleChange() {
+    let { models: patients } = this.props.collection;
+    if (patients.length > 0) {
+      patients = map(patients, async patient => {
+        const { attributes } = patient;
+        if (attributes.admitted) {
+          const admission = await patient.getCurrentAdmission();
+          if (!isEmpty(admission)) attributes.dischargeUrl = `/patients/visit/${patient.id}/${admission.id}`;
+        }
+        return attributes;
+      });
+    }
+
+    this.forceUpdate();
   }
 
   searchSubmit(keyword) {
