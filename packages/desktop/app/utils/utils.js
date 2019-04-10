@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { isArray, toString, each } from 'lodash';
 import { toast } from 'react-toastify';
-import jsonPrune from 'json-prune';
+import deepEqual from 'deep-equal';
 import shortid from 'shortid';
 import { createHashHistory } from 'history';
 
@@ -81,15 +81,7 @@ export const jsonDiff = (objectA, objectB) => {
   Object.keys(objectA).forEach(key => {
     const valueA = objectA[key];
     const valueB = objectB[key];
-    // compare types
-    if (typeof valueA === typeof valueB) {
-      if (typeof valueA === 'object') { // stringify objects and compare
-        if (JSON.stringify(valueA) !== JSON.stringify(valueB)) modifiedFields.push(key);
-      } else if (valueA !== valueB) modifiedFields.push(key); // compare non-object values
-    } else {
-      modifiedFields.push(key);
-    }
+    if (!deepEqual(valueA, valueB)) modifiedFields.push(key);
   });
-
   return modifiedFields;
 };

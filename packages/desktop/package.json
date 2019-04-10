@@ -216,6 +216,7 @@
     "bluebird": "^3.5.1",
     "bulma": "^0.7.1",
     "classnames": "^2.2.5",
+    "deep-equal": "^1.0.1",
     "devtron": "^1.4.0",
     "dotenv-webpack": "^1.5.7",
     "electron-debug": "^2.0.0",
