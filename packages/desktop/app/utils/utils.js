@@ -76,7 +76,7 @@ export const flattenRequest = (object, deep = true) => {
   }
 };
 
-export const jsonDiff = (objectA, objectB) => {
+export const getModifiedFieldNames = (objectA, objectB) => {
   const modifiedFields = [];
   Object.keys(objectA).forEach(key => {
     const valueA = objectA[key];

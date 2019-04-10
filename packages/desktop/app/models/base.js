@@ -6,7 +6,7 @@ import jsonPrune from 'json-prune';
 import {
   isEmpty, clone, each, has, head, isArray,
 } from 'lodash';
-import { concatSelf, jsonDiff } from '../utils';
+import { concatSelf, getModifiedFieldNames } from '../utils';
 import { store } from '../store';
 import { ModifiedFieldsCollection } from '../collections';
 import { getModel } from './register';
@@ -94,7 +94,7 @@ export default Backbone.AssociatedModel.extend({
       const defaultAttributes = this.defaults() || this.defaults;
       if (this.isNew()) this.lastSyncedAttributes = defaultAttributes;
 
-      const modifiedFields = jsonDiff(this.lastSyncedAttributes, this.toJSON());
+      const modifiedFields = getModifiedFieldNames(this.lastSyncedAttributes, this.toJSON());
       // Set last modified timestamps
       const modifiedAttributes = this.setModifiedFields(modifiedFields);
 
