@@ -19,12 +19,12 @@ export const fetchMedication = ({ patientId, id }) => async dispatch => {
   const patientModel = new PatientModel();
   if (patientId) {
     patientModel.set({ _id: patientId });
-    [error] = await to(patientModel.fetch({ relations: true, deep: false }));
+    [error] = await to(patientModel.fetch());
   }
   const medicationModel = new MedicationModel();
   if (action === 'edit' && id && !error) {
     medicationModel.set({ _id: id });
-    [error] = await to(medicationModel.fetch({ relations: true, deep: false }));
+    [error] = await to(medicationModel.fetch());
   }
   if (error) return dispatch({ type: FETCH_MEDICATION_FAILED, error });
   return dispatch({
@@ -56,12 +56,12 @@ export const saveMedication = ({
       dispatch({ type: SAVE_MEDICATION_SUCCESS });
       if (action === 'new') history.push('/medication/requests');
     } catch (error) {
-      console.log({ error });
+      console.error({ error });
       dispatch({ type: SAVE_MEDICATION_FAILED, error });
     }
   } else {
     const error = medicationModel.validationError;
-    console.log({ error });
+    console.error({ error });
     dispatch({ type: SAVE_MEDICATION_FAILED, error });
   }
 };

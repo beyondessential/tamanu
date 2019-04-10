@@ -73,12 +73,12 @@ export const saveOperativePlan = ({
       notifySuccess('Operative Plan saved successfully.');
       if (action === 'new') history.push(`/patients/patient:${patientId}/visit:${visitModel.id}/operativePlan:${operativePlanModel.id}`);
     } catch (error) {
-      console.log({ error });
+      console.error({ error });
       dispatch({ type: SAVE_OPERATIVE_PLAN_FAILED, error });
     }
   } else {
     const error = operativePlanModel.validationError;
-    console.log({ error });
+    console.error({ error });
     dispatch({ type: SAVE_OPERATIVE_PLAN_FAILED, error });
   }
 };

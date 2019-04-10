@@ -48,6 +48,7 @@ class OperationReport extends Component {
         .on('change', this.handleChange);
       this.setState({
         ...operationReportModel.toJSON(),
+        isFormValid: operationReportModel.isValid(),
         action,
         loading,
       });

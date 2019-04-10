@@ -74,12 +74,12 @@ export default (store) => {
       const { userId } = auth;
       const dataFiltered = pickDefaults.call(this, data);
 
-      // Add created / modified by
+      // add created / modified by fields
       const user = { _id: userId };
       if (userId && this.isNew()) dataFiltered.createdBy = user;
       if (userId) dataFiltered.modifiedBy = user;
 
-      // Fix relations
+      // only send relation ids instead of the whole object
       each(dataFiltered, (value, field) => {
         if (field === 'modifiedFields' || field === 'objectsFullySynced') return;
         if (Array.isArray(value)) {
@@ -99,7 +99,7 @@ export default (store) => {
         error: reject,
       };
 
-      const sent = originalSave.apply(this, [dataFiltered, newOptions]);
+      const sent = originalSave.call(this, dataFiltered, newOptions);
       // In some cases the save method will not dispatch a request at all - for eg
       // if validation fails. This means the success/error functions in the options
       // object will never be called -- so we check for a falsy return value and

@@ -41,8 +41,8 @@ export default register('OperationReport', BaseModel.extend({
     },
   ],
 
-  // validate: (attrs) => {
-  //   if (attrs.firstName === '') return 'firstName is required!';
-  //   if (attrs.lastName === '') return 'lastName is required!';
-  // }
+  validate: (attrs) => {
+    if (!moment(attrs.surgeryDate).isValid()) return 'surgeryDate is required!';
+    if (attrs.surgeon === '') return 'surgeon is required!';
+  }
 }));

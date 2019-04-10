@@ -1,15 +1,17 @@
 import Backbone from 'backbone-associations';
 import moment from 'moment';
-import jsonDiff from 'json-diff';
 import shortid from 'shortid';
+import jsonPrune from 'json-prune';
+
 import {
   isEmpty, clone, each, has, head, isArray,
 } from 'lodash';
-import { to } from 'await-to-js';
-import { concatSelf } from '../utils';
+import { concatSelf, getModifiedFieldNames } from '../utils';
 import { store } from '../store';
 import { ModifiedFieldsCollection } from '../collections';
 import { getModel } from './register';
+
+const MAX_NESTED_COMPARE = 5;
 
 export default Backbone.AssociatedModel.extend({
   urlRoot: `${process.env.HOST}${process.env.REALM_PATH}`,
@@ -30,7 +32,10 @@ export default Backbone.AssociatedModel.extend({
     modifiedBy: '',
     modifiedAt: null,
   },
-  ignoreRequestKeys: [],
+
+  // set for fields that will be ignored during a HTTP request
+  // can be used to define some local fields that would never be sent to the server
+  ignoreRequestKeys: new Set(),
 
   // Associations
   relations: [
@@ -52,13 +57,23 @@ export default Backbone.AssociatedModel.extend({
   ],
 
   /**
+   * This method sets the last synced attributes
+   * Last synced attributes are used to maintain modified fields
+   * This is a workaround as Backbone's default change detection only works with Model.set()
+   */
+  setLastSyncedAttributes() {
+    // prune JSON to MAX_NESTED_COMPARE levels
+    this.lastSyncedAttributes = JSON.parse(jsonPrune(this.toJSON(), MAX_NESTED_COMPARE));
+  },
+
+  /**
    * Override backbone's default fetch method to record `lastSyncedAttributes`
    * @param {object} options Options sent to XHR request
    */
   async fetch(options) {
     try {
-      const res = await Backbone.Model.prototype.fetch.apply(this, [options]);
-      this.lastSyncedAttributes = this.toJSON();
+      const res = await Backbone.AssociatedModel.prototype.fetch.apply(this, [options]);
+      this.setLastSyncedAttributes();
       this.parseParents();
       return res;
     } catch (err) {
@@ -74,73 +89,82 @@ export default Backbone.AssociatedModel.extend({
    */
   async save(attrs = {}, options = {}) {
     try {
-      const ModifiedFieldModel = getModel('ModifiedField');
-      const { auth } = store.getState();
-      let { secret } = auth;
-      secret = btoa(secret);
-
+      const originalSave = Backbone.AssociatedModel.prototype.save;
       if (!isEmpty(attrs)) this.set(attrs, { silent: true });
-      const { attributes } = this;
-      let modifiedAttributes = {};
       const defaultAttributes = this.defaults() || this.defaults;
       if (this.isNew()) this.lastSyncedAttributes = defaultAttributes;
 
-      let modifiedFields = jsonDiff.diff(this.lastSyncedAttributes, this.toJSON());
-      if (modifiedFields) modifiedFields = Object.keys(modifiedFields).map(field => field.split('__')[0]);
+      const modifiedFields = getModifiedFieldNames(this.lastSyncedAttributes, this.toJSON());
+      // Set last modified timestamps
+      const modifiedAttributes = this.setModifiedFields(modifiedFields);
 
-      // Set last modified times
-      modifiedAttributes = this.setModifiedFields({
-        modifiedFields, defaultAttributes, attributes, ModifiedFieldModel, secret, modifiedAttributes,
-      });
-
-      // Use match method for instead of PUT
-      if (!this.isNew()) options.patch = true;
-
-      // Proxy the call to the original save function
-      // TODO: refactor change detection
-      const res = await Backbone.Model.prototype.save.apply(this, [{ ...this.toJSON(), ...modifiedAttributes }, options]);
-      this.lastSyncedAttributes = this.toJSON();
-      return res;
+      // call original save method with modified attributes
+      const response = await originalSave.apply(this, [modifiedAttributes, { ...options, patch: true }]);
+      this.setLastSyncedAttributes();
+      return response;
     } catch (err) {
       console.error(`Error: ${err}`);
       return Promise.reject(err);
     }
   },
 
-  setModifiedFields({
-    modifiedFields, defaultAttributes, attributes, ModifiedFieldModel, secret, modifiedAttributes,
-  }) {
-    let modifiedAttributesNew = modifiedAttributes;
+  /**
+   * This method iterates through modified fields and returns
+   * a new object with only the modified attributes and a collection
+   * of all modified fields with updated timestamps and a JWT token each
+   * @param {*} modifiedFields Array of modified keys
+   */
+  setModifiedFields(modifiedFields) {
+    // get user's secret
+    const { auth } = store.getState();
+    let { secret } = auth;
+    secret = btoa(secret);
+
+    const ModifiedFieldModel = getModel('ModifiedField');
+    const { attributes } = this;
+    const defaultAttributes = this.defaults() || this.defaults;
+    const modifiedAttributes = {};
 
     // if modified field is a default attribute
     if (modifiedFields && has(defaultAttributes, 'modifiedFields')) {
-      let { modifiedFields: originalModifiedFields } = attributes;
+      let { modifiedFields: originalModifiedFields } = attributes; // cache current modified fields
       if (!originalModifiedFields) {
         originalModifiedFields = new ModifiedFieldsCollection();
       }
 
       modifiedFields.forEach(key => {
         if (has(defaultAttributes, key)) {
-          const _id = `${this.id || shortid.generate()}-${key}`;
-          const _model = new ModifiedFieldModel({
-            _id,
-            token: secret,
-            field: key,
-            time: new Date().getTime(),
-          });
-          originalModifiedFields.set([_model], { remove: false });
+          // overwrite existing keys
+          const existingModifiedField = originalModifiedFields.findWhere({ field: key });
+          if (existingModifiedField) {
+            existingModifiedField.set({
+              token: secret,
+              time: new Date().getTime(),
+            });
+          } else {
+            const modifiedFieldsModel = new ModifiedFieldModel({
+              _id: `${this.id || shortid.generate()}-${key}`,
+              token: secret,
+              field: key,
+              time: new Date().getTime(),
+            });
+            originalModifiedFields.set([modifiedFieldsModel], { remove: false });
+          }
           // Set new value
           let value = this.get(key);
           if (value && typeof value.toJSON === 'function') value = value.toJSON();
-          modifiedAttributesNew[key] = value;
+          modifiedAttributes[key] = value;
         }
       });
 
-      modifiedAttributesNew = { ...modifiedAttributesNew, modifiedFields: originalModifiedFields };
+      // add modified fields
+      modifiedAttributes.modifiedFields = originalModifiedFields;
+      return modifiedAttributes;
     } else if (!has(defaultAttributes, 'modifiedFields')) {
-      modifiedAttributesNew = attributes;
+      return attributes;
     }
-    return modifiedAttributesNew;
+
+    return {};
   },
 
   toJSON() {
@@ -151,35 +175,10 @@ export default Backbone.AssociatedModel.extend({
     return json;
   },
 
-  fetchRelations(options) { //
-    return new Promise(async (resolve, reject) => {
-      const { relation } = options;
-      const { type } = relation;
-      // Fetch the models
-      if (type === 'Many') {
-        const { models } = this.attributes[relation.key];
-        if (models.length > 0) {
-          const tasks = models.map(model => model.fetch({ relations: options.deep }));
-          try {
-            await Promise.all(tasks);
-            resolve();
-          } catch (err) {
-            reject(err);
-          }
-        } else {
-          resolve();
-        }
-      } else {
-        const model = this.attributes[relation.key];
-        if (model) {
-          const [err] = await to(model.fetch());
-          if (err) return reject(err);
-        }
-        return resolve();
-      }
-    });
-  },
-
+  /**
+   * This method is used to parse model's parents after a HTTP request
+   * Parent(s) are mounted to the Model.parents attribute
+   */
   parseParents() {
     const parents = [];
     const { attributes } = this;

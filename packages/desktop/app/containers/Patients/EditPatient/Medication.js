@@ -192,7 +192,7 @@ export default class Medication extends Component {
     let medicationHistory = patientModel.getMedicationHistory(from.clone(), to.clone());
     medicationHistory = medicationHistory.map(obj => ({
       date: obj.date,
-      medication: obj.medication.map(model => ({ currentDate: obj.date, ...model.toJSON({ relations: true }) })),
+      medication: obj.medication.map(model => ({ currentDate: obj.date, ...model.toJSON() })),
     }));
 
     // Add actions column for our table

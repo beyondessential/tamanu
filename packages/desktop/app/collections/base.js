@@ -1,8 +1,4 @@
 import Backbone from 'backbone-associations';
-import {
-  keys, set, isEmpty,
-} from 'lodash';
-
 import 'backbone.paginator';
 
 export default Backbone.PageableCollection.extend({
@@ -29,75 +25,19 @@ export default Backbone.PageableCollection.extend({
     return Backbone.PageableCollection.prototype.fetch.apply(this, [newOptions]);
   },
 
-  fetchAll(options = {}) {
-    options.data = { ...options.data, page_size: 9999 };
-    return this.fetch(options);
+  /**
+   * Helper method to fetch all results from the server without using pagination
+   */
+  fetchAll({ data, ...options } = {}) {
+    return this.fetch({ ...options, data: { ...data, page_size: 9999 } });
   },
 
-  fetchResults(opts = {}) {
-    const { model: Model } = this;
-    const model = new Model();
-    const { docType } = model.attributes;
-    const fields = (opts && opts.fields) || keys(model.attributes);
-    const selector = (opts && opts.selector) || {};
-    const limit = this.pageSize;
-    const skip = (this.currentPage * this.pageSize);
-    set(selector, 'docType', docType);
-
-    const params = {
-      fetchRelations: opts.fetchRelations || false,
-      success: (opts ? opts.success : null),
-      error: (opts ? opts.error : null),
-      fetch: 'find',
-      options: {
-        find: {
-          selector,
-          fields,
-          limit,
-          skip,
-        },
-      },
-    };
-    return this.fetch(params);
-  },
-
-  find(opts = {}) {
-    const { model: Model } = this;
-    const model = new Model();
-    const { docType } = model.attributes;
-    const fields = (opts && opts.fields) || keys(model.attributes);
-    let selector = (opts && opts.selector) || {};
-    const limit = (opts && opts.limit) || 10;
-    if (!isEmpty(selector)) {
-      selector = {
-        $and: selector.concat([
-          { docType },
-        ]),
-      };
-    } else {
-      selector = { docType };
-    }
-
-    return this.fetch({
-      fetchRelations: opts.fetchRelations || false,
-      success: (opts ? opts.success : null),
-      error: (opts ? opts.error : null),
-      fetch: 'find',
-      options: {
-        find: { selector, fields, limit },
-      },
-    });
-  },
-
-  async fetchRelations(props = { relations: true, deep: false }) {
-    const { relations, deep } = props;
-    const tasks = [];
-    this.models.forEach(model => {
-      tasks.push(model.fetch({ relations, deep }));
-    });
-    await Promise.all(tasks);
-  },
-
+  /**
+   * Set keyword for the collection that will be sent to the server for filtering
+   *
+   * @param {String} keyword keyword used for filtering
+   * @param {[]} fields array of fields that will be searched for this keyword
+   */
   setKeyword(keyword, fields = null) {
     this.filters = {
       keyword,
@@ -106,6 +46,9 @@ export default Backbone.PageableCollection.extend({
     return this;
   },
 
+  /**
+   * Shorthand method to fetch a single page from the server
+   */
   getPage(page, options = {}) {
     const { pageSize } = options;
     if (pageSize) this.state.pageSize = pageSize;
