@@ -22,6 +22,10 @@ import { CommonAutocomplete } from '../app/components/CommonAutocomplete';
 import { Form, Field } from '../app/components/Field/Form';
 import Login from '../app/containers/Auth/Login';
 
+// All Input components are hardcoded to be bound to a containing state
+// (ie, if they're just used without value/onChange parameters they will
+// behave as read-only). This component creates that containing state
+// so we don't have to do it individually for each item.
 class StoryControlWrapper extends React.PureComponent {
   state = { value: null };
   onChange = (e) => { 
@@ -35,8 +39,11 @@ class StoryControlWrapper extends React.PureComponent {
   }
 }
 
-function addStories(name, Component) {
+// Helper function to add a bunch of standard variants for a given control.
+// Returns the chain so additional variants can be added easily when necessary.
+function addStories(name, Component, note) {
   return storiesOf('FormControls/' + name, module)
+    .addParameters({ note })
     .add('Default', () => <Component />)
     .add('Required', () => <Component required />)
     .add('Disabled', () => <Component disabled />)
@@ -48,7 +55,7 @@ addStories('TextInput', (props) => <StoryControlWrapper
   Component={TextInput}
   label="Display name"
   {...props}
-/>);
+/>, "Free text input.");
 
 addStories('CheckInput', (props) => <StoryControlWrapper 
   Component={CheckInput}
@@ -89,7 +96,7 @@ addStories('RadioInput', (props) => <StoryControlWrapper
     { value: 'bananas', label: 'Bananas' }, 
   ]}
   {...props}
-/>);
+/>, "Should only be used for <=5 items. If there're a lot, prefer a SelectInput instead.");
 
 addStories('SelectInput', (props) => <StoryControlWrapper 
   Component={SelectInput}
@@ -98,6 +105,11 @@ addStories('SelectInput', (props) => <StoryControlWrapper
     { value: 'apples', label: 'Apples' }, 
     { value: 'oranges', label: 'Oranges' }, 
     { value: 'bananas', label: 'Bananas' }, 
+    { value: 'pomegrantes', label: 'Pomegranates' }, 
+    { value: 'durian', label: 'Durian' }, 
+    { value: 'dragonfruit', label: 'Dragonfruit' }, 
+    { value: 'tomatoes', label: 'Tomatoes' }, 
+    { value: 'cherries', label: 'Cherries' }, 
   ]}
   {...props}
 />);
