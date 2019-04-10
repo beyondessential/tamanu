@@ -10,6 +10,6 @@ storiesOf('Notification', module)
 
 storiesOf('DateDisplay', module)
   .addParameters({
-    note: `Shows a JS date in a locale-appropriate format. User can hover to see a more verbose date.`,
+    note: 'Shows a JS date in a locale-appropriate format. User can hover to see a more verbose date.',
   })
   .add('placeholder', () => <DateDisplay date={new Date()} />);

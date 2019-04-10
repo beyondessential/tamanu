@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Radio,
-  RadioGroup, 
+  RadioGroup,
   FormLabel,
-  FormControlLabel, 
+  FormControlLabel,
   FormControl,
   FormHelperText,
 } from '@material-ui/core';
