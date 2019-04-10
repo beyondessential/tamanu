@@ -22,6 +22,8 @@ export const PREGNANCY_PROGRAM_ID = 'program-pregnancy';
 
 export const REALM_DATE_FORMAT = 'YYYY-MM-DD@HH:MM:SS';
 
+export const VISIT_SELECT_TEMPLATE = visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`;
+
 export const DB_OBJECTS_MAX_DEPTH = {
   PATIENT_MAIN: 10,
   VISIT_MAIN: 7,

@@ -5,7 +5,6 @@ import request from 'request';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Grid } from '@material-ui/core';
-import moment from 'moment';
 import { capitalize } from 'lodash';
 import styled from 'styled-components';
 import * as imagingRequestActions from '../../actions/imaging';
@@ -15,7 +14,7 @@ import {
   AddButton, UpdateButton, BackButton, DiagnosisAutocomplete, SelectInput,
   Button, Preloader, Container, FormRow, ButtonGroup,
 } from '../../components';
-import { dateFormat, IMAGING_REQUEST_STATUSES, MUI_SPACING_UNIT as spacing } from '../../constants';
+import { VISIT_SELECT_TEMPLATE, IMAGING_REQUEST_STATUSES, MUI_SPACING_UNIT as spacing } from '../../constants';
 import { ImagingRequestModel } from '../../models';
 
 const { dialog, shell } = electron;
@@ -156,7 +155,7 @@ class Request extends Component {
                   <PatientRelationSelect
                     className=""
                     relation="visits"
-                    template={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
+                    template={VISIT_SELECT_TEMPLATE}
                     label="Visit"
                     name="visit"
                     patient={selectedPatientId}

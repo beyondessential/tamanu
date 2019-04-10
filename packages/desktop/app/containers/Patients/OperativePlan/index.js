@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import { capitalize } from 'lodash';
 import TopRow from '../components/TopRow';
 import ActionsTaken from '../components/ActionsTaken';
@@ -12,7 +11,7 @@ import {
 } from '../../../components';
 import {
   MUI_SPACING_UNIT as spacing, operativePlanStatuses,
-  operativePlanStatusList, dateFormat,
+  operativePlanStatusList, VISIT_SELECT_TEMPLATE,
 } from '../../../constants';
 import actions from '../../../actions/patients';
 import { PatientModel, OperativePlanModel } from '../../../models';
@@ -118,7 +117,7 @@ class OperativePlan extends Component {
                   <PatientRelationSelect
                     patient={patientModel}
                     relation="visits"
-                    template={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
+                    template={VISIT_SELECT_TEMPLATE}
                     label="Visit"
                     name="visit"
                     onChange={this.handleUserInput}

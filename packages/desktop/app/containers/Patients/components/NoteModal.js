@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import moment from 'moment';
-import { capitalize } from 'lodash';
 import PropTypes from 'prop-types';
 import { Grid } from '@material-ui/core';
 import {
@@ -8,7 +7,7 @@ import {
   AddButton, UpdateButton, CancelButton, FormRow,
 } from '../../../components';
 import { NoteModel, VisitModel } from '../../../models';
-import { dateFormat } from '../../../constants';
+import { VISIT_SELECT_TEMPLATE } from '../../../constants';
 
 export default class NoteModal extends Component {
   constructor(props) {
@@ -100,7 +99,7 @@ export default class NoteModal extends Component {
                   <PatientRelationSelect
                     patient={patientModel.id}
                     relation="visits"
-                    template={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
+                    template={VISIT_SELECT_TEMPLATE}
                     label="Visit"
                     name="visit"
                     onChange={this.handleUserInput}
