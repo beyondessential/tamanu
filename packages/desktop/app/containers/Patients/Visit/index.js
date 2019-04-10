@@ -7,7 +7,6 @@ import { Grid, Tab, Tabs } from '@material-ui/core';
 import TopRow from '../components/TopRow';
 import Allergy from '../components/Allergy';
 import Diagnosis from '../components/Diagnosis';
-import Procedure from '../components/Procedure';
 import OperativePlan from '../components/OperativePlan';
 import OperationReport from '../components/OperationReport';
 import LabRequests from '../components/LabRequests';
@@ -207,7 +206,6 @@ class EditVisit extends Component {
               <Grid container spacing={8} style={{ paddingBottom: 16 }}>
                 <Grid item xs>
                   <Diagnosis parentModel={visitModel} patientModel={patientModel} />
-                  {/* <Procedure patientModel={patientModel} /> */}
                   <OperativePlan
                     parentModel={visitModel}
                     patientId={patientModel.id}
