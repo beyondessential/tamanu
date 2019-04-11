@@ -106,7 +106,7 @@ export default class NoteModal extends Component {
               && (
                 <FormRow>
                   <PatientRelationSelect
-                    patient={patientModel.id}
+                    patientModel={patientModel}
                     relation="visits"
                     template={VISIT_SELECT_TEMPLATE}
                     label="Visit"

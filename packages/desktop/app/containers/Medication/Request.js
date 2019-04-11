@@ -108,7 +108,7 @@ class NewMedication extends Component {
                 <PatientRelationSelect
                   label="Visit"
                   relation="visits"
-                  patient={patientModel}
+                  patientModel={patientModel}
                   template={VISIT_SELECT_TEMPLATE}
                   name="visit"
                   value={medication.visit}

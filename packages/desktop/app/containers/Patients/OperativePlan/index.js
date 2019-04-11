@@ -115,7 +115,7 @@ class OperativePlan extends Component {
               && (
                 <FormRow xs={5}>
                   <PatientRelationSelect
-                    patient={patientModel}
+                    patientModel={patientModel}
                     relation="visits"
                     template={VISIT_SELECT_TEMPLATE}
                     label="Visit"

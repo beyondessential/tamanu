@@ -15,7 +15,7 @@ import {
   Button, Preloader, Container, FormRow, ButtonGroup,
 } from '../../components';
 import { VISIT_SELECT_TEMPLATE, IMAGING_REQUEST_STATUSES, MUI_SPACING_UNIT as spacing } from '../../constants';
-import { ImagingRequestModel } from '../../models';
+import { ImagingRequestModel, PatientModel } from '../../models';
 
 const { dialog, shell } = electron;
 const ViewImageButton = styled(Button)`
@@ -34,7 +34,6 @@ class Request extends Component {
       visit: null,
       isFormValid: false,
       isLoading: true,
-      selectedPatientId: '',
     };
   }
 
@@ -51,7 +50,7 @@ class Request extends Component {
   }
 
   handleFetchedImagingRequest = (props = this.props) => {
-    const { patient: { _id: selectedPatientId }, isLoading, imagingRequestModel } = props;
+    const { isLoading, imagingRequestModel } = props;
     if (!isLoading) {
       const formData = prepareFormData({
         ...imagingRequestModel.attributes,
@@ -60,7 +59,6 @@ class Request extends Component {
       this.setState({
         ...formData,
         isLoading,
-        selectedPatientId,
         isFormValid: imagingRequestModel.isValid(),
       });
     }
@@ -68,14 +66,13 @@ class Request extends Component {
 
   handleModelChange = () => {
     const { imagingRequestModel } = this.props;
-    const { selectedPatientId } = this.state;
     const formData = prepareFormData(imagingRequestModel.changedAttributes());
-    const isFormValid = imagingRequestModel.isValid(); //&& !!selectedPatientId && !!visit;
+    const isFormValid = imagingRequestModel.isValid();
     this.setState({ ...formData, isFormValid });
   }
 
-  handlePatientChange = ({ _id: selectedPatientId }) => {
-    this.setState({ selectedPatientId });
+  handlePatientChange = ({ _id }) => {
+    this.props.initImagingRequest({ patientId: _id });
   }
 
   handleVisitChange = (visit) => {
@@ -132,10 +129,10 @@ class Request extends Component {
     if (isLoading) return <Preloader />;
 
     const {
-      action, patient, isPatientSelected, imagingTypes,
+      action, patientModel, isPatientSelected, imagingTypes,
     } = this.props;
     const {
-      selectedPatientId, visit, location, type, notes,
+      visit, location, type, notes,
       detail, isFormValid, diagnosis, status,
     } = this.state;
 
@@ -148,25 +145,28 @@ class Request extends Component {
         >
           <Container>
             {isPatientSelected
-              && <TopRow patient={patient} />
+              && <TopRow patient={patientModel.toJSON()} />
             }
             <Grid container spacing={spacing * 2} direction="column">
               {action === 'new'
                 && (
                 <FormRow>
-                  <PatientAutocomplete
-                    label="Patient"
-                    name="patient"
-                    onChange={this.handlePatientChange}
-                    required
-                  />
+                  {!isPatientSelected
+                    && (
+                      <PatientAutocomplete
+                        label="Patient"
+                        name="patient"
+                        onChange={this.handlePatientChange}
+                        required
+                      />
+                    )
+                  }
                   <PatientRelationSelect
-                    className=""
                     relation="visits"
                     template={VISIT_SELECT_TEMPLATE}
                     label="Visit"
                     name="visit"
-                    patient={selectedPatientId}
+                    patientModel={patientModel}
                     value={visit}
                     onChange={this.handleVisitChange}
                   />
@@ -281,7 +281,7 @@ Request.propTypes = {
 };
 
 Request.defaultProps = {
-  patient: {},
+  patient: new PatientModel(),
   imagingTypes: [],
   isLoading: true,
   error: {},
@@ -294,12 +294,12 @@ function mapStateToProps({
 },
 { match: { params: { patientId, id } = {} } }) {
   return {
-    patient,
+    patientModel: patient,
     imagingTypes,
     isLoading,
     imagingRequestModel,
     error,
-    isPatientSelected: !!patientId || !!id,
+    isPatientSelected: !!patientId,
     action: id ? 'edit' : 'new',
   };
 }
@@ -311,7 +311,7 @@ const mapDispatchToProps = (
   dispatch,
   { match: { params: { patientId, id } = {} } },
 ) => ({
-  initImagingRequest: () => dispatch(initImagingRequest(patientId, id)),
+  initImagingRequest: (props) => dispatch(initImagingRequest({ patientId, id, ...props })),
   saveImagingRequest: (params) => dispatch(saveImagingRequest(params)),
   markImagingRequestCompleted: (params) => dispatch(markImagingRequestCompleted(params)),
 });
