@@ -4,33 +4,23 @@ import { Grid, Typography } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import actions from '../../actions/medication';
 import TopRow from '../Patients/components/TopRow';
-import { medicationStatuses, MUI_SPACING_UNIT as spacing } from '../../constants';
+import { medicationStatuses, MUI_SPACING_UNIT as spacing, VISIT_SELECT_TEMPLATE } from '../../constants';
 import {
   Preloader, PatientAutocomplete, TextInput, DrugAutocomplete,
-  DateInput, BackButton, AddButton, UpdateButton,
-  TopBar, FormRow, Container, SelectInput,
+  DateInput, BackButton, AddButton, UpdateButton, PatientVisitSelect,
+  TopBar, FormRow, Container,
 } from '../../components';
 
 class NewMedication extends Component {
-  constructor(props) {
-    super(props);
-    this.selectPatient = this.selectPatient.bind(this);
-    this.submitForm = this.submitForm.bind(this);
-  }
-
   state = {
     action: 'new',
-    patient: {},
     medication: {},
     formIsValid: false,
-    visits: [],
     loading: true,
-    byPatient: false,
   }
 
   componentWillMount() {
-    const { patientId, id } = this.props.match.params;
-    this.props.fetchMedication({ patientId, id });
+    this.props.fetchMedication();
   }
 
   componentWillReceiveProps(newProps) {
@@ -38,8 +28,7 @@ class NewMedication extends Component {
   }
 
   selectPatient = ({ _id: patientId }) => {
-    const { id } = this.props.match.params;
-    this.props.fetchMedication({ patientId, id });
+    this.props.fetchMedication({ patientId });
   }
 
   selectDrug = ({ _id: drugId }, name) => {
@@ -60,25 +49,10 @@ class NewMedication extends Component {
     });
   }
 
-  handleNewProps(props = this.props) {
-    const { patientId } = this.props.match.params;
-    const { patient, loading } = props;
-    let byPatient = false;
-    if (!loading) {
-      if (patientId) byPatient = true;
-      this.setState({
-        patient,
-        visits: patient.getVisitsSelect(),
-        loading,
-        byPatient,
-      });
-    }
-  }
-
-  submitForm(event) {
+  submitForm = (event) => {
     event.preventDefault();
-    const { dispense, medicationModel } = this.props;
-    const { action, patient } = this.state;
+    const { dispense, medicationModel, patientModel } = this.props;
+    const { action } = this.state;
     if (dispense) {
       medicationModel.set('dispense', true);
       medicationModel.set('status', medicationStatuses.FULFILLED);
@@ -86,21 +60,25 @@ class NewMedication extends Component {
     this.props.saveMedication({
       action,
       medicationModel,
-      patientId: patient.id,
+      patientId: patientModel.id,
       history: this.props.history,
     });
+  }
+
+  handleNewProps(props = this.props) {
+    const { id, loading } = props;
+    if (!loading) {
+      this.setState({ loading, action: id ? 'edit' : 'new' });
+    }
   }
 
   render() {
     const { loading } = this.state;
     if (loading) return <Preloader />; // TODO: make this automatic
 
-    const { dispense } = this.props;
+    const { dispense, patientModel, byPatient } = this.props;
     const {
       action,
-      visits,
-      patient,
-      byPatient,
       medication,
       formIsValid,
     } = this.state;
@@ -112,7 +90,7 @@ class NewMedication extends Component {
         <form onSubmit={this.submitForm}>
           <Container>
             {byPatient
-              && <TopRow patient={patient.toJSON()} />
+              && <TopRow patient={patientModel.toJSON()} />
             }
             <Grid container spacing={spacing * 2} direction="column">
               <FormRow>
@@ -127,10 +105,8 @@ class NewMedication extends Component {
                   />
                   )
                 }
-                <SelectInput
-                  label="Visit"
-                  options={visits}
-                  name="visit"
+                <PatientVisitSelect
+                  patientModel={patientModel}
                   value={medication.visit}
                   onChange={this.handleUserInput}
                 />
@@ -260,29 +236,33 @@ NewMedication.propTypes = {
   saveMedication: PropTypes.func.isRequired,
   dispense: PropTypes.bool,
   medicationModel: PropTypes.instanceOf(Object).isRequired,
+  patientModel: PropTypes.instanceOf(Object),
+  byPatient: PropTypes.bool,
 };
 
 NewMedication.defaultProps = {
   dispense: false,
+  byPatient: false,
+  patientModel: {},
 };
 
-function mapStateToProps(state) {
-  const {
+const mapStateToProps = ({
+  medication: {
     patient, medicationModel, loading, error,
-  } = state.medication;
-  return {
-    medicationModel,
-    patient,
-    loading,
-    error,
-  };
-}
+  },
+}) => ({
+  medicationModel,
+  patientModel: patient,
+  loading,
+  error,
+});
 
 const { request: requestActions } = actions;
 const { fetchMedication, saveMedication } = requestActions;
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  fetchMedication: (params) => dispatch(fetchMedication(params)),
+const mapDispatchToProps = (dispatch, { match: { params: { patientId, id } } }) => ({
+  fetchMedication: props => dispatch(fetchMedication({ patientId, id, ...props })),
   saveMedication: (params) => dispatch(saveMedication(params)),
+  byPatient: !!patientId,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewMedication);

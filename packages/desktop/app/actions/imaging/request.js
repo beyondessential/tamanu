@@ -15,7 +15,7 @@ import {
   UserModel,
 } from '../../models';
 
-export const initImagingRequest = (patientId, id) => async dispatch => {
+export const initImagingRequest = ({ patientId, id }) => async dispatch => {
   dispatch({ type: FETCH_IMAGING_REQUEST_REQUEST });
   try {
     let patientModel = new PatientModel();
@@ -47,7 +47,7 @@ export const initImagingRequest = (patientId, id) => async dispatch => {
 
     dispatch({
       type: FETCH_IMAGING_REQUEST_SUCCESS,
-      patient: patientModel.toJSON(),
+      patient: patientModel,
       imagingTypes,
       isLoading: false,
       imagingRequestModel,
