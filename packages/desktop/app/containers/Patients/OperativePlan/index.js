@@ -7,7 +7,7 @@ import ActionsTaken from '../components/ActionsTaken';
 import {
   TextInput, Container, TopBar, Preloader,
   FormRow, BottomBar, AddButton, UpdateButton, CancelButton,
-  Button, SelectInput, PatientRelationSelect,
+  Button, SelectInput, PatientVisitSelect,
 } from '../../../components';
 import {
   MUI_SPACING_UNIT as spacing, operativePlanStatuses,
@@ -114,12 +114,8 @@ class OperativePlan extends Component {
             {action === 'new'
               && (
                 <FormRow xs={5}>
-                  <PatientRelationSelect
+                  <PatientVisitSelect
                     patientModel={patientModel}
-                    relation="visits"
-                    template={VISIT_SELECT_TEMPLATE}
-                    label="Visit"
-                    name="visit"
                     onChange={this.handleUserInput}
                     value={form.visit}
                   />

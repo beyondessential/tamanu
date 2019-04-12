@@ -7,7 +7,7 @@ import TopRow from '../Patients/components/TopRow';
 import { medicationStatuses, MUI_SPACING_UNIT as spacing, VISIT_SELECT_TEMPLATE } from '../../constants';
 import {
   Preloader, PatientAutocomplete, TextInput, DrugAutocomplete,
-  DateInput, BackButton, AddButton, UpdateButton, PatientRelationSelect,
+  DateInput, BackButton, AddButton, UpdateButton, PatientVisitSelect,
   TopBar, FormRow, Container,
 } from '../../components';
 
@@ -105,12 +105,8 @@ class NewMedication extends Component {
                   />
                   )
                 }
-                <PatientRelationSelect
-                  label="Visit"
-                  relation="visits"
+                <PatientVisitSelect
                   patientModel={patientModel}
-                  template={VISIT_SELECT_TEMPLATE}
-                  name="visit"
                   value={medication.visit}
                   onChange={this.handleUserInput}
                 />

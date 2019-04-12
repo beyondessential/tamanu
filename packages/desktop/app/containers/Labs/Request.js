@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import * as labRequestActions from '../../actions/labs';
 import TopRow from '../Patients/components/TopRow';
 import {
-  TopBar, PatientAutocomplete, PatientRelationSelect, Container,
+  TopBar, PatientAutocomplete, PatientVisitSelect, Container,
   TextInput, AddButton, CancelButton, Preloader, FormRow,
 } from '../../components';
 import TestTypesList from './components/TestTypesList';
@@ -127,12 +127,8 @@ class Request extends Component {
                     />
                   )
                 }
-                <PatientRelationSelect
+                <PatientVisitSelect
                   patientModel={patientModel}
-                  relation="visits"
-                  template={VISIT_SELECT_TEMPLATE}
-                  label="Visit"
-                  name="visit"
                   value={visit}
                   onChange={this.handleFormInput}
                 />

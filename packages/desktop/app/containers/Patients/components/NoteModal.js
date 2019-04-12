@@ -3,7 +3,7 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import { Grid } from '@material-ui/core';
 import {
-  TextInput, PatientRelationSelect, Modal, ModalActions,
+  TextInput, PatientVisitSelect, Modal, ModalActions,
   AddButton, UpdateButton, CancelButton, FormRow,
 } from '../../../components';
 import { NoteModel, VisitModel } from '../../../models';
@@ -105,12 +105,8 @@ export default class NoteModal extends Component {
             {showVisits
               && (
                 <FormRow>
-                  <PatientRelationSelect
+                  <PatientVisitSelect
                     patientModel={patientModel}
-                    relation="visits"
-                    template={VISIT_SELECT_TEMPLATE}
-                    label="Visit"
-                    name="visit"
                     onChange={val => this.handleUserInput(val, 'visit')}
                     required
                   />

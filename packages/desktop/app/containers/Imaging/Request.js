@@ -10,11 +10,11 @@ import styled from 'styled-components';
 import * as imagingRequestActions from '../../actions/imaging';
 import TopRow from '../Patients/components/TopRow';
 import {
-  TopBar, PatientAutocomplete, PatientRelationSelect, TextInput,
+  TopBar, PatientAutocomplete, TextInput, PatientVisitSelect,
   AddButton, UpdateButton, BackButton, DiagnosisAutocomplete, SelectInput,
   Button, Preloader, Container, FormRow, ButtonGroup,
 } from '../../components';
-import { VISIT_SELECT_TEMPLATE, IMAGING_REQUEST_STATUSES, MUI_SPACING_UNIT as spacing } from '../../constants';
+import { IMAGING_REQUEST_STATUSES, MUI_SPACING_UNIT as spacing } from '../../constants';
 import { ImagingRequestModel, PatientModel } from '../../models';
 
 const { dialog, shell } = electron;
@@ -73,10 +73,6 @@ class Request extends Component {
 
   handlePatientChange = ({ _id }) => {
     this.props.initImagingRequest({ patientId: _id });
-  }
-
-  handleVisitChange = (visit) => {
-    this.handleFormChange({ visit });
   }
 
   handleTypeChange = (imagingTypeId, name) => {
@@ -161,14 +157,10 @@ class Request extends Component {
                       />
                     )
                   }
-                  <PatientRelationSelect
-                    relation="visits"
-                    template={VISIT_SELECT_TEMPLATE}
-                    label="Visit"
-                    name="visit"
+                  <PatientVisitSelect
                     patientModel={patientModel}
                     value={visit}
-                    onChange={this.handleVisitChange}
+                    onChange={this.handleFormInput}
                   />
                 </FormRow>
                 )
