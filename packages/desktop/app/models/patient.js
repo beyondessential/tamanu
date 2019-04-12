@@ -4,6 +4,7 @@ import {
   clone, get, filter, capitalize, concat,
 } from 'lodash';
 import moment from 'moment';
+import * as Yup from 'yup';
 
 import { register } from './register';
 import BaseModel from './base';
@@ -109,10 +110,14 @@ export default register('Patient', BaseModel.extend({
     ...BaseModel.prototype.relations,
   ],
 
-  validate(attrs) {
-    if (attrs.firstName === '') return 'firstName is required!';
-    if (attrs.lastName === '') return 'lastName is required!';
-  },
+  validationSchema: Yup.object().shape({
+    firstName: Yup.string()
+      .min(2, 'Too Short!')
+      .required('Required'),
+    lastName: Yup.string()
+      .min(2, 'Too Short!')
+      .required('Required'),
+  }),
 
   toJSON() {
     return {
