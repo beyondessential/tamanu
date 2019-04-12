@@ -1,237 +1,178 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import { Grid } from '@material-ui/core';
+import PropTypes from 'prop-types';
 import actions from '../../actions/patients';
 import {
-  TextInput, SelectInput, DateInput, RadioInput, Container,
-  BackButton, AddButton, TopBar, FormRow,
+  SelectField, DateField, RadioField, Container,
+  BackButton, AddButton, TopBar, FormRow, Form, Field, TextField,
 } from '../../components';
 import {
   bloodOptions, sexOptions, getDifferenceDate, MUI_SPACING_UNIT as spacing,
 } from '../../constants';
 import { PatientModel } from '../../models';
 
-class NewPatient extends Component {
-  state = {
-    formIsValid: false,
-    age: '0 months 0 days',
-    patientType: 'charity',
-  }
+const getAge = value => `${getDifferenceDate(moment(), value)} of age`;
 
-  componentDidMount() {
-    const { patientModel } = this.props;
-    patientModel.on('change', this.handleChange);
-  }
+function NewPatient({ createPatient, patientInProgress }) {
+  const patientModel = new PatientModel();
 
-  handleUserInput = (event) => {
-    const { patientModel } = this.props;
-    const { name, value } = event.target;
-    patientModel.set(name, value);
-  }
+  const submitForm = values => {
+    patientModel.set(values);
+    createPatient(patientModel);
+  };
 
-  onChangeDOB = (event) => {
-    const { patientModel } = this.props;
-    const { name, value } = event.target;
-    this.setState({ age: getDifferenceDate(moment(), value) });
-    patientModel.set(name, value);
-  }
-
-  handleChange = () => {
-    const { patientModel } = this.props;
-    const formIsValid = patientModel.isValid();
-    const changedAttributes = patientModel.changedAttributes();
-    this.setState({ ...changedAttributes, formIsValid });
-  }
-
-  submitForm = (event) => {
-    event.preventDefault();
-    const { patientModel } = this.props;
-    this.props.createPatient(patientModel);
-  }
-
-  render() {
-    const {
-      age, patientInProgress, formIsValid, ...form
-    } = this.state;
-    return (
-      <React.Fragment>
-        <TopBar
-          title="New Patient"
-          buttons={(
-            <React.Fragment>
-              <BackButton to="/patients" />
-              <AddButton
-                type="submit"
-                disabled={patientInProgress}
-              />
-            </React.Fragment>
-          )}
-        />
-        <form
-          onSubmit={this.submitForm}
-        >
-          <Container style={{ paddingTop: spacing * 2 }}>
+  return (
+    <React.Fragment>
+      <TopBar title="New Patient" />
+      <Container style={{ paddingTop: spacing * 2 }}>
+        <Form
+          onSubmit={submitForm}
+          validationSchema={patientModel.validationSchema}
+          render={({ isValid }) => (
             <Grid container spacing={spacing * 3} direction="row">
               <FormRow>
-                <TextInput
+                <Field
+                  component={TextField}
                   name="firstName"
                   label="First Name"
-                  onChange={this.handleUserInput}
-                  value={form.firstName}
                   required
                 />
-                <TextInput
+                <Field
+                  component={TextField}
                   name="status"
                   label="Patient Status"
-                  onChange={this.handleUserInput}
-                  value={form.status}
                 />
               </FormRow>
               <FormRow>
-                <TextInput
+                <Field
+                  component={TextField}
                   name="middleName"
                   label="Middle Name"
-                  onChange={this.handleUserInput}
-                  value={form.middleName}
                 />
-                <TextInput
+                <Field
+                  component={TextField}
                   name="externalPatientId"
                   label="External Patient Id"
-                  onChange={this.handleUserInput}
-                  value={form.externalPatientId}
                 />
               </FormRow>
               <FormRow>
-                <TextInput
+                <Field
+                  component={TextField}
                   name="lastName"
                   label="Last Name"
-                  onChange={this.handleUserInput}
-                  value={form.lastName}
                   required
                 />
-                <SelectInput
+                <Field
+                  component={SelectField}
                   label="Blood Type"
                   options={bloodOptions}
                   name="bloodType"
-                  onChange={this.handleUserInput}
-                  value={form.bloodType}
                 />
               </FormRow>
               <FormRow>
-                <TextInput
+                <Field
+                  component={TextField}
                   name="culturalName"
                   label="Cultural or Traditional Name"
-                  onChange={this.handleUserInput}
-                  value={form.culturalName}
                 />
-                <TextInput
+                <Field
+                  component={TextField}
                   name="clinic"
                   label="Clinic Site"
-                  onChange={this.handleUserInput}
-                  value={form.clinic}
                 />
               </FormRow>
               <FormRow>
-                <SelectInput
+                <Field
+                  component={SelectField}
                   label="Sex"
                   options={sexOptions}
                   name="sex"
-                  onChange={this.handleUserInput}
-                  value={form.sex}
                 />
-                <TextInput
+                <Field
+                  component={TextField}
                   name="referredBy"
                   label="Referred By"
-                  onChange={this.handleUserInput}
-                  value={form.referredBy}
                 />
               </FormRow>
               <FormRow>
-                <DateInput
+                <Field
                   label="Date Of Birth"
                   name="dateOfBirth"
-                  onChange={this.onChangeDOB}
-                  value={form.dateOfBirth}
-                  helperText={age && `${age} of age`}
+                  render={({ field: { value, ...field } }) => (
+                    <DateField
+                      helperText={value && getAge(value)}
+                      field={{ value, ...field }}
+                    />
+                  )}
                 />
-                <DateInput
+                <Field
+                  component={DateField}
                   label="Referred Date"
                   name="referredDate"
-                  onChange={this.handleUserInput}
-                  value={form.referredDate}
                 />
               </FormRow>
               <FormRow>
-                <TextInput
+                <Field
+                  component={TextField}
                   name="religion"
                   label="Religion"
-                  onChange={this.handleUserInput}
-                  value={form.religion}
                 />
-                <TextInput
+                <Field
+                  component={TextField}
                   name="placeOfBirth"
                   label="Place of Birth"
-                  onChange={this.handleUserInput}
-                  value={form.placeOfBirth}
                 />
               </FormRow>
               <FormRow>
-                <TextInput
+                <Field
+                  component={TextField}
                   name="parent"
                   label="Parent/Guardian"
-                  onChange={this.handleUserInput}
-                  value={form.parent}
                 />
-                <TextInput
+                <Field
+                  component={TextField}
                   name="occupation"
                   label="Occupation"
-                  onChange={this.handleUserInput}
-                  value={form.occupation}
                 />
               </FormRow>
               <FormRow>
-                <TextInput
+                <Field
+                  component={TextField}
                   name="paymentProfile"
                   label="Payment Profile"
-                  onChange={this.handleUserInput}
-                  value={form.paymentProfile}
                 />
-                <RadioInput
+                <Field
+                  component={RadioField}
                   name="patientType"
                   label="Patient Type"
                   options={[{ value: 'charity', label: 'Charity' }, { value: 'private', label: 'Private' }]}
-                  onChange={this.handleUserInput}
                   style={{ flexDirection: 'row' }}
-                  value={form.patientType}
                 />
               </FormRow>
               <FormRow>
-                <TextInput
+                <Field
+                  component={TextField}
                   name="phone"
                   label="Phone"
-                  onChange={this.handleUserInput}
-                  value={form.phone}
                 />
-                <TextInput
+                <Field
+                  component={TextField}
                   name="address"
                   label="Address"
-                  onChange={this.handleUserInput}
-                  value={form.address}
                 />
               </FormRow>
               <FormRow>
-                <TextInput
+                <Field
+                  component={TextField}
                   name="email"
                   label="Email"
-                  onChange={this.handleUserInput}
-                  value={form.email}
                 />
-                <TextInput
+                <Field
+                  component={TextField}
                   name="country"
                   label="Country"
-                  onChange={this.handleUserInput}
-                  value={form.country}
                 />
               </FormRow>
               <Grid
@@ -244,25 +185,33 @@ class NewPatient extends Component {
                   <BackButton to="/patients" />
                   <AddButton
                     type="submit"
-                    disabled={!formIsValid}
+                    disabled={!isValid || patientInProgress}
                     can={{ do: 'create', on: 'patient' }}
                   />
                 </Grid>
               </Grid>
             </Grid>
-          </Container>
-        </form>
-      </React.Fragment>
-    );
-  }
+          )}
+        />
+      </Container>
+    </React.Fragment>
+  );
 }
+
+NewPatient.propTypes = {
+  createPatient: PropTypes.func.isRequired,
+  patientInProgress: PropTypes.bool,
+};
+
+NewPatient.defaultProps = {
+  patientInProgress: false,
+};
 
 function mapStateToProps(state) {
   const { createPatientSuccess, patientInProgress } = state.patients;
   return {
     createPatientSuccess,
     patientInProgress,
-    patientModel: new PatientModel(),
   };
 }
 
