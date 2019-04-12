@@ -12,7 +12,7 @@ import {
 export const RadioInput = ({
   options, name, value, label, helperText, ...props
 }) => (
-  <FormControl {...props}>
+  <FormControl>
     <FormLabel>{label}</FormLabel>
     <RadioGroup
       aria-label={name}

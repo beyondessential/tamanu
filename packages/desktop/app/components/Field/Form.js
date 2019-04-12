@@ -24,9 +24,9 @@ export class Form extends React.PureComponent {
     return (
       <Formik
         onSubmit={onSubmit}
-        render={({ handleSubmit }) => (
+        render={({ handleSubmit, ...formProps }) => (
           <form onSubmit={handleSubmit}>
-            {render()}
+            {render(formProps)}
           </form>
         )}
         {...props}
