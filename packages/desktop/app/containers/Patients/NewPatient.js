@@ -15,7 +15,7 @@ import { PatientModel } from '../../models';
 
 const getAge = value => `${getDifferenceDate(moment(), value)} of age`;
 
-function NewPatient({ createPatient, patientInProgress }) {
+function NewPatient({ createPatient }) {
   const patientModel = new PatientModel();
 
   const submitForm = values => {
@@ -30,7 +30,7 @@ function NewPatient({ createPatient, patientInProgress }) {
         <Form
           onSubmit={submitForm}
           validationSchema={patientModel.validationSchema}
-          render={({ isSubmitting }) => (
+          render={({ isSubmitting, values }) => (
             <Grid container spacing={spacing * 3} direction="row">
               <FormRow>
                 <Field
@@ -100,12 +100,8 @@ function NewPatient({ createPatient, patientInProgress }) {
                 <Field
                   label="Date Of Birth"
                   name="dateOfBirth"
-                  render={({ field: { value, ...field } }) => (
-                    <DateField
-                      helperText={value && getAge(value)}
-                      field={{ value, ...field }}
-                    />
-                  )}
+                  component={DateField}
+                  helperText={values.dateOfBirth && getAge(values.dateOfBirth)}
                 />
                 <Field
                   component={DateField}
