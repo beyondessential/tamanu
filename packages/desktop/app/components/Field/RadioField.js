@@ -1,18 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  Radio, RadioGroup, FormLabel, FormControlLabel,
+  Radio,
+  RadioGroup,
+  FormLabel,
+  FormControlLabel,
+  FormControl,
+  FormHelperText,
 } from '@material-ui/core';
 
 export const RadioInput = ({
-  options, name, value, label, ...props
+  options, name, value, label, helperText, inline, ...props
 }) => (
-  <React.Fragment>
+  <FormControl {...props}>
     <FormLabel>{label}</FormLabel>
     <RadioGroup
       aria-label={name}
       name={name}
       value={value || ''}
+      style={{ flexDirection: inline ? 'row' : 'column' }}
       {...props}
     >
       {options.map(option => (
@@ -24,7 +30,8 @@ export const RadioInput = ({
         />
       ))}
     </RadioGroup>
-  </React.Fragment>
+    {helperText && <FormHelperText>{helperText}</FormHelperText>}
+  </FormControl>
 );
 
 export const RadioField = ({ field, ...props }) => (
@@ -42,8 +49,10 @@ RadioInput.propTypes = {
   value: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   options: PropTypes.arrayOf(PropTypes.instanceOf(Object)).isRequired,
+  inline: PropTypes.bool, // display radio options in single line
 };
 
 RadioInput.defaultProps = {
   value: false,
+  inline: false,
 };
