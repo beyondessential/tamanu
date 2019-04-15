@@ -111,12 +111,9 @@ export default register('Patient', BaseModel.extend({
   ],
 
   validationSchema: Yup.object().shape({
-    firstName: Yup.string()
-      .min(2, 'Too Short!')
-      .required('Required'),
-    lastName: Yup.string()
-      .min(2, 'Too Short!')
-      .required('Required'),
+    firstName: Yup.string().required('is required'),
+    lastName: Yup.string().required('is required'),
+    dateOfBirth: Yup.date().required('is required'),
   }),
 
   toJSON() {
