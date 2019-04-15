@@ -6,10 +6,13 @@ import { dateFormat } from '../constants';
 
 export const VISIT_SELECT_TEMPLATE = visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`;
 
-const getCurrentVisit = patientModel => {
+const getCurrentVisit = ({ patientModel, onChange, name }) => {
   const collection = patientModel.get('visits');
   const currentVisit = collection.getCurrentVisit();
-  if (currentVisit) return currentVisit.get('_id');
+  if (currentVisit) {
+    onChange({ target: { name, value: currentVisit.get('_id') } }); // trigger change
+    return currentVisit.get('_id');
+  }
   return null;
 };
 
@@ -23,7 +26,15 @@ export const PatientVisitSelect = ({
     template={VISIT_SELECT_TEMPLATE}
     name={name}
     onChange={onChange}
-    value={value || getCurrentVisit(patientModel)}
+    value={value || getCurrentVisit({ patientModel, name, onChange })}
+    {...props}
+  />
+);
+
+export const PatientVisitSelectField = ({ field, ...props }) => (
+  <PatientVisitSelect
+    value={field.value || ''}
+    {...field}
     {...props}
   />
 );
