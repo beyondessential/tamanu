@@ -32,6 +32,8 @@ export default Backbone.AssociatedModel.extend({
   },
   ignoreRequestKeys: [],
 
+  validationSchema: {},
+
   // Associations
   relations: [
     {

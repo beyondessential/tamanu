@@ -10,3 +10,6 @@ export * from './RadioField';
 // fancy fields
 export * from './AutoField';
 export * from './RelationField';
+
+// form helpers
+export * from './Form';
