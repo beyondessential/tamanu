@@ -148,7 +148,7 @@ function NewPatient({ createPatient, patientInProgress }) {
                   name="patientType"
                   label="Patient Type"
                   options={[{ value: 'charity', label: 'Charity' }, { value: 'private', label: 'Private' }]}
-                  style={{ flexDirection: 'row' }}
+                  inline
                 />
               </FormRow>
               <FormRow>

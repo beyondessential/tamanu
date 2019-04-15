@@ -10,14 +10,15 @@ import {
 } from '@material-ui/core';
 
 export const RadioInput = ({
-  options, name, value, label, helperText, ...props
+  options, name, value, label, helperText, inline, ...props
 }) => (
-  <FormControl>
+  <FormControl {...props}>
     <FormLabel>{label}</FormLabel>
     <RadioGroup
       aria-label={name}
       name={name}
       value={value || ''}
+      style={{ flexDirection: inline ? 'row' : 'column' }}
       {...props}
     >
       {options.map(option => (
@@ -48,8 +49,10 @@ RadioInput.propTypes = {
   value: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   options: PropTypes.arrayOf(PropTypes.instanceOf(Object)).isRequired,
+  inline: PropTypes.bool, // display radio options in single line
 };
 
 RadioInput.defaultProps = {
   value: false,
+  inline: false,
 };
