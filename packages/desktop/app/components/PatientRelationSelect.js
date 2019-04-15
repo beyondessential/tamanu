@@ -1,85 +1,38 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { PatientModel } from '../models';
 import { SelectInput } from './Field';
 
-export default class PatientRelationSelect extends Component {
-  static propTypes = {
-    patient: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(PatientModel)]),
-    relation: PropTypes.string.isRequired,
-    template: PropTypes.func.isRequired,
-    label: PropTypes.string.isRequired,
-    required: PropTypes.bool,
-    value: PropTypes.string,
-    name: PropTypes.string.isRequired,
-    onChange: PropTypes.func,
-  }
+const getOptions = ({ patientModel, relation, template }) => {
+  const collection = patientModel.get(relation);
+  if (!collection.length) return [];
+  return collection.map(model => ({
+    value: model.get('_id'),
+    label: template(model.toJSON()),
+  }));
+};
 
-  static defaultProps = {
-    patient: null,
-    required: false,
-    onChange: () => {},
-    value: '',
-  }
-
-  constructor(props) {
-    super(props);
-    this.patientModel = new PatientModel();
-  }
-
-  state = {
-    options: [],
-  }
-
-  componentDidMount() {
-    this.loadRelations();
-  }
-
-  componentWillReceiveProps(newProps) {
-    if (newProps.patient !== this.props.patient) this.loadRelations(newProps);
-  }
-
-  handleChange = (value) => {
-    const { onChange } = this.props;
-    if (onChange) onChange(value);
-    this.setState({ value });
-  }
-
-  async loadRelations(props = this.props) {
-    const {
-      patient, relation, template,
-    } = props;
-    if (patient) {
-      let patientModel = patient;
-      if (typeof patient === 'string') {
-        this.patientModel.set({ _id: patient });
-        await this.patientModel.fetch();
-        patientModel = this.patientModel;
-      }
-
-      let { [relation]: options } = patientModel.toJSON();
-      options = options.map(item => ({ value: item._id, label: template(item) }));
-      this.setState({ options });
-    }
-  }
-
-  render() {
-    const {
-      label,
-      template,
-      name,
-      ...props
-    } = this.props;
-    const { options, value } = this.state;
-    return (
-      <SelectInput
-        label={label}
-        options={options}
-        name={name}
-        value={value}
-        onChange={this.handleChange}
-        {...props}
-      />
-    );
-  }
+export function PatientRelationSelect({
+  patientModel, relation, template, ...props
+}) {
+  return (
+    <SelectInput
+      options={getOptions({ patientModel, relation, template })}
+      {...props}
+    />
+  );
 }
+
+PatientRelationSelect.propTypes = {
+  patientModel: PropTypes.instanceOf(PatientModel),
+  relation: PropTypes.string.isRequired,
+  template: PropTypes.func.isRequired,
+  value: PropTypes.string,
+  onChange: PropTypes.func,
+};
+
+PatientRelationSelect.defaultProps = {
+  patientModel: new PatientModel(),
+  onChange: () => {},
+  value: '',
+};

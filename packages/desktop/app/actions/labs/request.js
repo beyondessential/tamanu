@@ -19,7 +19,7 @@ import {
   UserModel,
 } from '../../models';
 
-export const initLabRequest = (patientId) => async dispatch => {
+export const initLabRequest = ({ patientId }) => async dispatch => {
   dispatch({ type: FETCH_LAB_REQUEST_REQUEST });
   try {
     // fetch all tests
@@ -33,7 +33,7 @@ export const initLabRequest = (patientId) => async dispatch => {
     }
     dispatch({
       type: FETCH_LAB_REQUEST_SUCCESS,
-      patient: patientModel.toJSON(),
+      patient: patientModel,
       labTestTypes: labTestTypesCollection.toJSON(),
       isLoading: false,
     });

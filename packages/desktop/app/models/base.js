@@ -37,6 +37,8 @@ export default Backbone.AssociatedModel.extend({
   // can be used to define some local fields that would never be sent to the server
   ignoreRequestKeys: new Set(),
 
+  validationSchema: {},
+
   // Associations
   relations: [
     {

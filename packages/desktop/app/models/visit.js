@@ -113,6 +113,10 @@ export default register('Visit', BaseModel.extend({
     return errors.length ? errors : null;
   },
 
+  isCurrentVisit() {
+    return this.get('visitType') === 'admission' && !this.get('endDate');
+  },
+
   getPatient() {
     const [patient] = this.attributes.patient;
     return patient && new PatientModel(patient);

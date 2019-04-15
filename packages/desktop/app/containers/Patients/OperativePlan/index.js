@@ -1,18 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import { capitalize } from 'lodash';
 import TopRow from '../components/TopRow';
 import ActionsTaken from '../components/ActionsTaken';
 import {
   TextInput, Container, TopBar, Preloader,
   FormRow, BottomBar, AddButton, UpdateButton, CancelButton,
-  Button, SelectInput, PatientRelationSelect,
+  Button, SelectInput, PatientVisitSelect,
 } from '../../../components';
 import {
   MUI_SPACING_UNIT as spacing, operativePlanStatuses,
-  operativePlanStatusList, dateFormat,
+  operativePlanStatusList, VISIT_SELECT_TEMPLATE,
 } from '../../../constants';
 import actions from '../../../actions/patients';
 import { PatientModel, OperativePlanModel } from '../../../models';
@@ -115,12 +114,8 @@ class OperativePlan extends Component {
             {action === 'new'
               && (
                 <FormRow xs={5}>
-                  <PatientRelationSelect
-                    patient={patientModel}
-                    relation="visits"
-                    template={visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`}
-                    label="Visit"
-                    name="visit"
+                  <PatientVisitSelect
+                    patientModel={patientModel}
                     onChange={this.handleUserInput}
                     value={form.visit}
                   />
