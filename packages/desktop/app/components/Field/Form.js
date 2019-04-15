@@ -63,7 +63,7 @@ export class Form extends React.PureComponent {
           render={({
             isValid, isSubmitting, validateForm, handleSubmit, ...formProps
           }) => (
-            <form onSubmit={this.handleSubmit({ validateForm, handleSubmit, isSubmitting })}>
+            <form onSubmit={this.handleSubmit({ validateForm, handleSubmit, isSubmitting })} noValidate>
               {render({ ...formProps, isValid, isSubmitting })}
             </form>
           )}
