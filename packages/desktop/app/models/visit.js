@@ -1,6 +1,7 @@
 import Backbone from 'backbone-associations';
 import { defaults } from 'lodash';
 import moment from 'moment';
+import * as Yup from 'yup';
 import { register } from './register';
 import BaseModel from './base';
 import PatientModel from './patient';
@@ -97,6 +98,11 @@ export default register('Visit', BaseModel.extend({
       model: 'Patient',
     },
   ],
+
+  validationSchema: Yup.object().shape({
+    startDate: Yup.date().required('is required'),
+    visitType: Yup.string().required('is required'),
+  }),
 
   parse({ startDate, endDate, ...attributes }) {
     return {
