@@ -185,7 +185,7 @@ function NewPatient({ createPatient, patientInProgress }) {
                   <BackButton to="/patients" />
                   <AddButton
                     type="submit"
-                    disabled={!isValid || patientInProgress}
+                    disabled={isSubmitting}
                     can={{ do: 'create', on: 'patient' }}
                   />
                 </Grid>
@@ -207,18 +207,10 @@ NewPatient.defaultProps = {
   patientInProgress: false,
 };
 
-function mapStateToProps(state) {
-  const { createPatientSuccess, patientInProgress } = state.patients;
-  return {
-    createPatientSuccess,
-    patientInProgress,
-  };
-}
-
 const { patient: patientActions } = actions;
 const { savePatient } = patientActions;
 const mapDispatchToProps = (dispatch) => ({
   createPatient: patient => dispatch(savePatient({ Model: patient })),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewPatient);
+export default connect(null, mapDispatchToProps)(NewPatient);
