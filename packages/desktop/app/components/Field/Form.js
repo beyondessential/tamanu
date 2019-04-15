@@ -62,11 +62,18 @@ export class Form extends React.PureComponent {
           validateOnBlur={false}
           render={({
             isValid, isSubmitting, validateForm, handleSubmit, ...formProps
-          }) => (
-            <form onSubmit={this.handleSubmit({ validateForm, handleSubmit, isSubmitting })} noValidate>
-              {render({ ...formProps, isValid, isSubmitting })}
-            </form>
-          )}
+          }) => {
+            // we need this func for nested forms
+            // as the original submitForm() will trigger validation automatically
+            const submitForm = this.handleSubmit({ validateForm, handleSubmit, isSubmitting });
+            return (
+              <form onSubmit={submitForm} noValidate>
+                {render({
+                  ...formProps, isValid, isSubmitting, submitForm,
+                })}
+              </form>
+            );
+          }}
           {...props}
         />
 
