@@ -33,7 +33,7 @@ export function Dialog({
 Dialog.propTypes = {
   dialogType: PropTypes.oneOf(['alert', 'confirm']),
   headerTitle: PropTypes.string.isRequired,
-  contentText: PropTypes.string.isRequired,
+  contentText: PropTypes.node.isRequired,
   isVisible: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onConfirm: PropTypes.func,

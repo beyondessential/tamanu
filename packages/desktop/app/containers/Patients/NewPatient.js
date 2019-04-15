@@ -30,7 +30,7 @@ function NewPatient({ createPatient, patientInProgress }) {
         <Form
           onSubmit={submitForm}
           validationSchema={patientModel.validationSchema}
-          render={({ isValid }) => (
+          render={({ isSubmitting }) => (
             <Grid container spacing={spacing * 3} direction="row">
               <FormRow>
                 <Field
