@@ -1,6 +1,6 @@
 import Backbone from 'backbone-associations';
 import moment from 'moment';
-import { isEmpty } from 'lodash';
+import * as Yup from 'yup';
 
 import BaseModel from './base';
 import { register } from './register';
@@ -27,10 +27,7 @@ export default register('Condition', BaseModel.extend({
     return { ...res, date: moment(res.date) };
   },
 
-  validate(attrs) {
-    const errors = [];
-    if (isEmpty(attrs.condition)) errors.push('condition is required!');
-    if (!moment(attrs.date).isValid()) errors.push('date is required!');
-    if (!isEmpty(errors)) return errors;
-  },
+  validationSchema: Yup.object().shape({
+    name: Yup.mixed().required('is required'),
+  }),
 }));
