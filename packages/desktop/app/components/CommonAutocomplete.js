@@ -84,7 +84,7 @@ class AutocompleteComponent extends Component {
   handleSuggestionChange = option => {
     const { formatOptionLabel } = this.props;
     const { onChange, name } = this.props;
-    if (option && onChange) onChange(option, name);
+    if (option && onChange) onChange({ target: { value: option._id, name } });
     return formatOptionLabel(option);
   }
 
