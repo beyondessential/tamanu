@@ -1,85 +1,41 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { pick } from 'lodash';
 import {
-  TextInput, AddButton, DeleteButton, UpdateButton,
-  Modal, ModalActions, Dialog as DeleteConfirmDialog, ButtonGroup,
+  TextField, AddButton, DeleteButton, UpdateButton, Form, Field,
+  Modal, ModalActions, Dialog as DeleteConfirmDialog,
 } from '../../../components';
-import { AllergyModel, PatientModel } from '../../../models';
+import { PatientModel } from '../../../models';
 
 export default class AllergyModal extends Component {
-  static propTypes = {
-    patientModel: PropTypes.instanceOf(PatientModel).isRequired,
-    action: PropTypes.string,
-    onClose: PropTypes.func,
-    isVisible: PropTypes.bool.isRequired,
+  state = {
+    isDeleteModalVisible: false,
   }
 
-  static defaultProps = {
-    action: 'new',
-    onClose: () => {},
-  }
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      formValid: false,
-      form: {},
-      item: {},
-      deleteModalVisible: false,
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { action, itemId, patientModel } = nextProps;
-    if (action === 'edit') {
-      const item = patientModel.get('allergies').findWhere({ _id: itemId });
-      if (item) {
-        const form = pick(item.attributes, ['name']);
-        this.setState({ form, item }, () => this.validateField('name'));
-      }
-    } else {
-      this.resetForm();
-    }
-  }
-
-  handleUserInput = (e) => {
-    const { form } = this.state;
-    const { name } = e.target;
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    form[name] = value;
-    this.setState({ form }, () => { this.validateField(name); });
-  }
-
-  submitForm = async (e) => {
-    e.preventDefault();
-    const { action, patientModel } = this.props;
-    const { item, form } = this.state;
+  submitForm = async values => {
+    const { patientModel, allergyModel, onClose } = this.props;
 
     try {
-      if (action === 'new') {
-        const allergy = new AllergyModel(form);
-        await allergy.save();
-        patientModel.get('allergies').add(allergy);
+      const isNew = allergyModel.isNew();
+      allergyModel.set(values);
+      await allergyModel.save();
+      if (isNew) {
+        patientModel.get('allergies').add(allergyModel);
         await patientModel.save();
-      } else {
-        item.set(form);
-        await item.save();
       }
 
-      this.props.onClose();
+      patientModel.trigger('change');
+      onClose();
     } catch (err) {
       console.error('Error: ', err);
     }
   }
 
   deleteItem = async () => {
-    const { itemId: _id, patientModel } = this.props;
-    const { item } = this.state;
+    const { patientModel, allergyModel } = this.props;
     try {
-      patientModel.get('allergies').remove({ _id });
+      patientModel.get('allergies').remove({ _id: allergyModel.id });
       await patientModel.save();
-      await item.destroy();
+      await allergyModel.destroy();
       this.deleteModalClose();
       this.props.onClose();
     } catch (err) {
@@ -87,78 +43,74 @@ export default class AllergyModal extends Component {
     }
   }
 
-  resetForm = () => {
-    const form = { name: '' };
-    this.setState({ form });
-  }
-
   deleteModalClose = () => {
-    this.setState({ deleteModalVisible: false });
+    this.setState({ isDeleteModalVisible: false });
   }
 
-  deleteItemConfirm = () => {
-    this.setState({ deleteModalVisible: true });
-  }
-
-  validateField(name) {
-    let valid = true;
-    if (this.state.form[name] === '') valid = false;
-    this.setState({ formValid: valid });
+  confirmToDelete = () => {
+    this.setState({ isDeleteModalVisible: true });
   }
 
   render() {
-    const { onClose, action, isVisible } = this.props;
-    const { form, deleteModalVisible } = this.state;
+    const { onClose, isVisible, allergyModel } = this.props;
+    const { isDeleteModalVisible } = this.state;
+    const isNew = allergyModel.isNew();
     return (
       <React.Fragment>
         <Modal
-          title={`${action === 'new' ? 'Add' : 'Update'} Allergy`}
+          title={`${isNew ? 'Add' : 'Update'} Allergy`}
           isVisible={isVisible}
           onClose={onClose}
         >
-          <form
-            name="allergyForm"
+          <Form
+            showInlineErrorsOnly
             onSubmit={this.submitForm}
-          >
-            <TextInput
-              name="name"
-              label="Name"
-              value={form.name}
-              onChange={this.handleUserInput}
-              autoFocus
-              required
-            />
-            <ModalActions>
-              {action !== 'new'
-                && (
-                <React.Fragment>
-                  <DeleteButton
-                    can={{ do: 'delete', on: 'allergy' }}
-                    onClick={this.deleteItemConfirm}
-                  />
-                  <UpdateButton
-                    can={{ do: 'update', on: 'allergy' }}
-                    type="submit"
-                    disabled={!this.state.formValid}
-                  />
-                </React.Fragment>
-                )}
-              {action === 'new'
-                && (
-                <AddButton
-                  can={{ do: 'create', on: 'allergy' }}
-                  type="submit"
-                  disabled={!this.state.formValid}
+            initialValues={allergyModel.toJSON() || {}}
+            validationSchema={allergyModel.validationSchema}
+            render={({ isSubmitting, submitForm }) => (
+              <React.Fragment>
+                <Field
+                  component={TextField}
+                  name="name"
+                  label="Name"
+                  required
                 />
-                )}
-            </ModalActions>
-          </form>
+                <ModalActions>
+                  {isNew
+                    ? (
+                      <AddButton
+                        type="button"
+                        disabled={isSubmitting}
+                        can={{ do: 'create', on: 'allergy' }}
+                        onClick={submitForm}
+                      />
+                    )
+                    : (
+                      <React.Fragment>
+                        <DeleteButton
+                          can={{ do: 'delete', on: 'allergy' }}
+                          onClick={this.confirmToDelete}
+                        />
+                        <UpdateButton
+                          type="button"
+                          disabled={isSubmitting}
+                          can={{ do: 'update', on: 'allergy' }}
+                          onClick={submitForm}
+                        />
+                      </React.Fragment>
+                    )
+                  }
+                </ModalActions>
+              </React.Fragment>
+
+            )}
+          />
         </Modal>
         <DeleteConfirmDialog
           dialogType="confirm"
           headerTitle="Delete Allergy?"
           contentText="Are you sure you want to delete this allergy?"
-          isVisible={deleteModalVisible}
+          isVisible={isDeleteModalVisible}
           onConfirm={this.deleteItem}
           onClose={this.deleteModalClose}
         />
@@ -166,3 +118,14 @@ export default class AllergyModal extends Component {
     );
   }
 }
+
+AllergyModal.propTypes = {
+  patientModel: PropTypes.instanceOf(PatientModel).isRequired,
+  allergyModel: PropTypes.instanceOf(Object).isRequired,
+  onClose: PropTypes.func,
+  isVisible: PropTypes.bool.isRequired,
+};
+
+AllergyModal.defaultProps = {
+  onClose: () => {},
+};
