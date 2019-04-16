@@ -1,21 +1,37 @@
 import React from 'react';
-import { Formik } from 'formik';
+import { Formik, Field as FormikField, connect } from 'formik';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import { Dialog } from '../Dialog';
 
-const FormErrors = ({ errors }) => Object.keys(errors).map(field => (
-  <Typography key={field} variant="subtitle2">
-    {`${field} ${errors[field]}`}
+const ErrorMessage = ({ errors, name }) => `${name} ${errors[name]}`;
+
+const FormErrors = ({ errors }) => Object.keys(errors).map(name => (
+  <Typography key={name} variant="subtitle2">
+    <ErrorMessage errors={errors} name={name} />
   </Typography>
 ));
 
-export { Field } from 'formik';
+export const Field = connect(({ formik: { errors }, name, ...props }) => {
+  const errorProps = {};
+  if (errors[name]) {
+    errorProps.error = true;
+    errorProps.helperText = <ErrorMessage errors={errors} name={name} />;
+  }
+  return (
+    <FormikField {...props} {...errorProps} name={name} />
+  );
+});
 
 export class Form extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
     render: PropTypes.func.isRequired,
+    showInlineErrorsOnly: PropTypes.bool,
+  }
+
+  static defaultProps = {
+    showInlineErrorsOnly: false,
   }
 
   state = {
@@ -44,7 +60,7 @@ export class Form extends React.PureComponent {
 
   render() {
     const {
-      onSubmit, render, ...props
+      onSubmit, render, showInlineErrorsOnly, ...props
     } = this.props;
     const { validationErrors, isErrorDialogVisible } = this.state;
 
@@ -61,11 +77,15 @@ export class Form extends React.PureComponent {
           validateOnChange={false}
           validateOnBlur={false}
           render={({
-            isValid, isSubmitting, validateForm, handleSubmit, ...formProps
+            isValid, isSubmitting, validateForm, handleSubmit,
+            submitForm: originalSubmitForm, ...formProps
           }) => {
-            // we need this func for nested forms
-            // as the original submitForm() will trigger validation automatically
-            const submitForm = this.handleSubmit({ validateForm, handleSubmit, isSubmitting });
+            // we need to expose this func for nested forms
+            // use originalSubmitForm() to display only inline error messages
+            // use handleSubmit() to display error messages in a popup
+            const submitForm = showInlineErrorsOnly
+              ? originalSubmitForm
+              : this.handleSubmit({ validateForm, handleSubmit, isSubmitting });
             return (
               <form onSubmit={submitForm} noValidate>
                 {render({
