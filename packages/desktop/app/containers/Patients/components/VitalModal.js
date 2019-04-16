@@ -6,7 +6,7 @@ import {
 } from '../../../components';
 import { VitalModel } from '../../../models';
 
-export default function VisitModal({
+export default function VitalModal({
   onClose, action, isVisible, itemId, visitModel,
 }) {
   let vitalModel = new VitalModel();
