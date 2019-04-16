@@ -1,63 +1,35 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
-  AddButton, CancelButton, DiagnosisAutocomplete,
-  DeleteButton, UpdateButton, CheckInput, SelectInput,
-  DateInput, Dialog as ConditionConfirmDialog, FormRow,
-  ModalActions, Modal,
+  AddButton, CancelButton, DiagnosisAutocompleteField,
+  DeleteButton, UpdateButton, CheckField, SelectField,
+  DateField, Dialog as ConditionConfirmDialog, FormRow,
+  ModalActions, Modal, Form, Field,
 } from '../../../components';
 import { diagnosisCertainty } from '../../../constants';
-import { ConditionModel } from '../../../models';
+import { ConditionModel, PatientModel } from '../../../models';
 import { notifyError, notifySuccess } from '../../../utils';
 
 export default class DiagnosisModal extends Component {
-  constructor(props) {
-    super(props);
-    const { patientDiagnosisModel: { attributes } } = this.props;
-    this.state = {
-      ...attributes,
-      formIsValid: false,
-      isConditionModalVisible: false,
-    };
+  state = {
+    isConditionModalVisible: false,
   }
 
-  componentWillReceiveProps(newProps) {
-    const { attributes } = newProps.patientDiagnosisModel;
-    const formIsValid = newProps.patientDiagnosisModel.isValid();
-    this.setState({ ...attributes, formIsValid });
-    // handle patientDiagnosisModel's change
-    newProps.patientDiagnosisModel.off('change');
-    newProps.patientDiagnosisModel.on('change', this.handleChange);
-  }
-
-  handleAutocompleteInput = (suggestion) => {
-    this.handleUserInput({ _id: suggestion._id }, 'diagnosis');
-  }
-
-  handleFormInput = (event) => {
-    const { name, value } = event.target;
-    this.handleUserInput(value, name);
-  }
-
-  handleUserInput = (fieldValue, fieldName) => {
-    const { patientDiagnosisModel } = this.props;
-    patientDiagnosisModel.set({ [fieldName]: fieldValue });
-  }
-
-  submitForm = async (event) => {
-    event.preventDefault();
-    const { action, patientDiagnosisModel, parentModel } = this.props;
+  submitForm = async values => {
+    const { patientDiagnosisModel, parentModel, onClose } = this.props;
+    const isNew = patientDiagnosisModel.isNew();
 
     try {
+      patientDiagnosisModel.set(values);
       await patientDiagnosisModel.save();
-      if (action === 'new') {
+      if (isNew) {
         parentModel.get('diagnoses').add(patientDiagnosisModel);
         await parentModel.save();
       } else {
         parentModel.trigger('change');
       }
 
-      this.props.onClose();
+      onClose();
     } catch (err) {
       console.error('Error: ', err);
     }
@@ -87,13 +59,6 @@ export default class DiagnosisModal extends Component {
     this.setState({ isConditionModalVisible: false });
   }
 
-  handleChange = () => {
-    const { patientDiagnosisModel } = this.props;
-    const formIsValid = patientDiagnosisModel.isValid();
-    const changedAttributes = patientDiagnosisModel.changedAttributes();
-    this.setState({ ...changedAttributes, formIsValid });
-  }
-
   deleteItem = async () => {
     const { itemId: _id, patientDiagnosisModel, parentModel } = this.props;
     try {
@@ -113,89 +78,84 @@ export default class DiagnosisModal extends Component {
   render() {
     const {
       onClose,
-      action,
       isVisible,
+      patientDiagnosisModel,
     } = this.props;
-    const {
-      diagnosis,
-      date,
-      certainty,
-      secondaryDiagnosis,
-      formIsValid,
-      isConditionModalVisible,
-    } = this.state;
+    const { isConditionModalVisible } = this.state;
+    const isNew = patientDiagnosisModel.isNew();
 
     return (
       <React.Fragment>
         <Modal
-          title={`${action === 'new' ? 'Add' : 'Update'} Diagnosis`}
+          title={`${isNew ? 'Add' : 'Update'} Diagnosis`}
           isVisible={isVisible}
           onClose={onClose}
         >
-          <form
-            name="allergyForm"
+          <Form
+            showInlineErrorsOnly
             onSubmit={this.submitForm}
-          >
-            <FormRow>
-              <DiagnosisAutocomplete
-                label="Diagnosis"
-                name="diagnosis"
-                value={diagnosis}
-                onChange={this.handleAutocompleteInput}
-                required
-              />
-            </FormRow>
-            <FormRow>
-              <DateInput
-                label="Date"
-                name="date"
-                value={date}
-                onChange={this.handleFormInput}
-              />
-              <SelectInput
-                label="Certainty"
-                name="certainty"
-                options={diagnosisCertainty}
-                value={certainty}
-                onChange={this.handleFormInput}
-              />
-            </FormRow>
-            <FormRow>
-              <CheckInput
-                label="Secondary Diagnosis"
-                name="secondaryDiagnosis"
-                value={secondaryDiagnosis}
-                onChange={this.handleFormInput}
-              />
-            </FormRow>
-            <ModalActions>
-              <CancelButton onClick={onClose} />
-              {action !== 'new'
-                && (
-                <React.Fragment>
-                  <DeleteButton
-                    can={{ do: 'delete', on: 'diagnosis' }}
-                    onClick={this.deleteItem}
+            initialValues={patientDiagnosisModel.toJSON()}
+            validationSchema={patientDiagnosisModel.validationSchema}
+            render={({ submitForm, isSubmitting }) => (
+              <React.Fragment>
+                <FormRow>
+                  <Field
+                    component={DiagnosisAutocompleteField}
+                    label="Diagnosis"
+                    name="diagnosis._id"
+                    required
                   />
-                  <UpdateButton
-                    can={{ do: 'update', on: 'diagnosis' }}
-                    type="submit"
-                    disabled={!formIsValid}
+                </FormRow>
+                <FormRow>
+                  <Field
+                    component={DateField}
+                    label="Date"
+                    name="date"
                   />
-                </React.Fragment>
-                )
-              }
-              {action === 'new'
-                && (
-                <AddButton
-                  can={{ do: 'create', on: 'diagnosis' }}
-                  type="submit"
-                  disabled={!formIsValid}
-                />
-                )
-              }
-            </ModalActions>
-          </form>
+                  <Field
+                    component={SelectField}
+                    label="Certainty"
+                    name="certainty"
+                    options={diagnosisCertainty}
+                  />
+                </FormRow>
+                <FormRow>
+                  <Field
+                    component={CheckField}
+                    label="Secondary Diagnosis"
+                    name="secondaryDiagnosis"
+                  />
+                </FormRow>
+                <ModalActions>
+                  <CancelButton onClick={onClose} />
+                  {isNew
+                    ? (
+                      <AddButton
+                        type="button"
+                        onClick={submitForm}
+                        disabled={isSubmitting}
+                        can={{ do: 'create', on: 'diagnosis' }}
+                      />
+                    )
+                    : (
+                      <React.Fragment>
+                        <DeleteButton
+                          can={{ do: 'delete', on: 'diagnosis' }}
+                          onClick={this.deleteItem}
+                        />
+                        <UpdateButton
+                          type="button"
+                          onClick={submitForm}
+                          disabled={isSubmitting}
+                          can={{ do: 'update', on: 'diagnosis' }}
+                        />
+                      </React.Fragment>
+                    )
+                  }
+                </ModalActions>
+              </React.Fragment>
+            )}
+          />
         </Modal>
         <ConditionConfirmDialog
           dialogType="confirm"
@@ -211,5 +171,12 @@ export default class DiagnosisModal extends Component {
 }
 
 DiagnosisModal.propTypes = {
-  patientDiagnosisModel: PropTypes.object.isRequired,
+  patientDiagnosisModel: PropTypes.instanceOf(Object).isRequired,
+  parentModel: PropTypes.instanceOf(Object).isRequired,
+  patientModel: PropTypes.instanceOf(Object),
+  onClose: PropTypes.func.isRequired,
+};
+
+DiagnosisModal.defaultProps = {
+  patientModel: new PatientModel(),
 };
