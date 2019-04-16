@@ -1,122 +1,94 @@
-import React, { Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import {
-  TextInput, Modal, FormRow, ModalActions,
-  CancelButton, AddButton, UpdateButton,
+  TextField, Modal, FormRow, ModalActions, Field,
+  CancelButton, AddButton, UpdateButton, Form,
 } from '../../../components';
-import { ProcedureMedicationModel } from '../../../models';
 
-class NoteModal extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isVisible: false,
-      Model: new ProcedureMedicationModel(),
-    };
-
-    this.submitForm = this.submitForm.bind(this);
-    this.handleUserInput = this.handleUserInput.bind(this);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const {
-      action, itemId, isVisible, procedureModel,
-    } = nextProps;
-    let Model;
-    if (action === 'edit') {
-      Model = procedureModel.get('medication').findWhere({ _id: itemId });
-    } else {
-      Model = new ProcedureMedicationModel();
-    }
-    this.setState({ isVisible, Model });
-  }
-
-  handleUserInput = (e, field) => {
-    const { Model } = this.state;
-    if (typeof field !== 'undefined') {
-      Model.set(field, e, { silent: true });
-    } else {
-      const { name } = e.target;
-      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-      Model.set(name, value, { silent: true });
-    }
-    this.setState({ Model });
-  }
-
-  submitForm = async (event) => {
-    event.preventDefault();
-    const { action, procedureModel } = this.props;
-    const { Model } = this.state;
-
+export default function MedicationModal({
+  medicationModel, isVisible, onClose, procedureModel,
+}) {
+  const isNew = medicationModel.isNew();
+  const handleFormSubmit = async values => {
     try {
-      await Model.save();
-      if (action === 'new') {
-        procedureModel.get('medication').add(Model);
-        await procedureModel.save(null, { silent: true });
+      medicationModel.set(values);
+      await medicationModel.save();
+      if (isNew) {
+        procedureModel.get('medication').add(medicationModel);
+        await procedureModel.save();
       } else {
         procedureModel.trigger('change');
       }
-      this.props.onClose();
+      onClose();
     } catch (err) {
       console.error('Error: ', err);
     }
-  }
+  };
 
-  render() {
-    const { onClose, action } = this.props;
-    const { Model } = this.state;
-    const form = Model.toJSON();
-    return (
-      <Modal
-        title={`${action === 'new' ? 'Add' : 'Update'} Medication Used`}
-        isVisible={this.state.isVisible}
-        onClose={onClose}
-      >
-        <form
-          id="noteForm"
-          name="noteForm"
-          onSubmit={this.submitForm}
-        >
-          <FormRow>
-            <TextInput
-              label="Medication Used"
-              name="medication"
-              onChange={this.handleUserInput}
-              value={form.medication}
-              required
-            />
-          </FormRow>
-          <FormRow>
-            <TextInput
-              label="Quantity"
-              name="quantity"
-              onChange={this.handleUserInput}
-              value={form.quantity}
-              required
-            />
-          </FormRow>
-          <ModalActions>
-            <CancelButton onClick={onClose} />
-            {action === 'new'
-              ? (
-                <AddButton
-                  type="submit"
-                  disabled={!Model.isValid()}
-                  can={{ do: 'create', on: 'ProcedureMedication' }}
-                />
-              )
-              : (
-                <UpdateButton
-                  type="submit"
-                  disabled={!Model.isValid()}
-                  can={{ do: 'update', on: 'ProcedureMedication' }}
-                />
-              )
-            }
-          </ModalActions>
-        </form>
-      </Modal>
-    );
-  }
+  return (
+    <Modal
+      title={`${isNew ? 'Add' : 'Update'} Medication Used`}
+      isVisible={isVisible}
+      onClose={onClose}
+    >
+      <Form
+        showInlineErrorsOnly
+        onSubmit={handleFormSubmit}
+        initialValues={medicationModel.toJSON()}
+        validationSchema={medicationModel.validationSchema}
+        render={({ isSubmitting, submitForm }) => (
+          <React.Fragment>
+            <FormRow>
+              <Field
+                component={TextField}
+                label="Medication Used"
+                name="medication"
+                required
+              />
+            </FormRow>
+            <FormRow>
+              <Field
+                component={TextField}
+                label="Quantity"
+                name="quantity"
+                required
+              />
+            </FormRow>
+            <ModalActions>
+              <CancelButton onClick={onClose} />
+              {isNew
+                ? (
+                  <AddButton
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={submitForm}
+                    can={{ do: 'create', on: 'ProcedureMedication' }}
+                  />
+                )
+                : (
+                  <UpdateButton
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={submitForm}
+                    can={{ do: 'update', on: 'ProcedureMedication' }}
+                  />
+                )
+              }
+            </ModalActions>
+          </React.Fragment>
+        )}
+      />
+    </Modal>
+  );
 }
 
-export default NoteModal;
+MedicationModal.propTypes = {
+  medicationModel: PropTypes.instanceOf(Object).isRequired,
+  procedureModel: PropTypes.instanceOf(Object).isRequired,
+  isVisible: PropTypes.bool,
+  onClose: PropTypes.func.isRequired,
+};
+
+MedicationModal.defaultProps = {
+  isVisible: false,
+};
