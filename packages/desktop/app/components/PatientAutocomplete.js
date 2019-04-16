@@ -1,10 +1,17 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import { PatientsCollection } from '../collections';
 import { PatientModel } from '../models';
 import { CommonAutocomplete } from './CommonAutocomplete';
 
-const PatientAutocomplete = ({
+export const PatientAutocompleteField = ({ field, ...props }) => (
+  <PatientAutocomplete
+    {...field}
+    {...props}
+  />
+);
+
+export const PatientAutocomplete = ({
   label,
   required,
   name,
@@ -26,11 +33,10 @@ const PatientAutocomplete = ({
   />
 );
 
-function mapStateToProps(state) {
-  return {
-    currentPath: state.router.location.pathname,
-    collection: new PatientsCollection(),
-  };
-}
+PatientAutocomplete.propTypes = {
+  collection: PropTypes.instanceOf(Object),
+};
 
-export default connect(mapStateToProps)(PatientAutocomplete);
+PatientAutocomplete.defaultProps = {
+  collection: new PatientsCollection(),
+};
