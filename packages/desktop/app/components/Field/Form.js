@@ -31,7 +31,9 @@ export class Form extends React.PureComponent {
     this.setState({ isErrorDialogVisible: false });
   }
 
-  handleSubmit = ({ validateForm, handleSubmit, isSubmitting }) => async event => {
+  createSubmissionHandler = ({
+    validateForm, handleSubmit, isSubmitting,
+  }) => async event => {
     event.preventDefault();
     event.persist();
     const formErrors = await validateForm();
@@ -65,7 +67,11 @@ export class Form extends React.PureComponent {
           }) => {
             // we need this func for nested forms
             // as the original submitForm() will trigger validation automatically
-            const submitForm = this.handleSubmit({ validateForm, handleSubmit, isSubmitting });
+            const submitForm = this.createSubmissionHandler({
+              validateForm,
+              handleSubmit,
+              isSubmitting,
+            });
             return (
               <form onSubmit={submitForm} noValidate>
                 {render({
