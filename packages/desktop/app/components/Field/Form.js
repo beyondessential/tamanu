@@ -48,8 +48,10 @@ export class Form extends React.PureComponent {
   }
 
   handleSubmit = ({ validateForm, handleSubmit, isSubmitting }) => async event => {
-    event.preventDefault();
-    event.persist();
+    if (event) {
+      event.preventDefault();
+      event.persist();
+    }
     const formErrors = await validateForm();
     if (Object.entries(formErrors).length) return this.setErrors(formErrors);
     // avoid multiple submissions
