@@ -4,7 +4,7 @@ import { isEmpty } from 'lodash';
 import { Link } from 'react-router-dom';
 import MuiButtonBase from '@material-ui/core/ButtonBase';
 import MuiButton from '@material-ui/core/Button';
-import { withStyles } from '@material-ui/core';
+import { withStyles, Icon } from '@material-ui/core';
 import { red } from '@material-ui/core/colors';
 import { checkAbility } from '../utils/ability-context';
 import { history } from '../utils';
@@ -21,15 +21,27 @@ export const ButtonBase = (props) => {
   );
 };
 
-export const Button = (props) => {
+export const Button = ({
+  children, isSubmitting, disabled, ...props
+}) => {
   const allowed = isAllowed(props);
   const locationsProps = getLocationProps(props);
   return (
     <MuiButton
       {...props}
       {...locationsProps}
-      disabled={!allowed || props.disabled}
-    />
+      disabled={!allowed || disabled || isSubmitting}
+    >
+      {isSubmitting
+        && (
+          <Icon
+            className="fa fa-spinner fa-spin"
+            style={{ marginRight: 4, fontSize: 18 }}
+          />
+        )
+      }
+      {children}
+    </MuiButton>
   );
 };
 
