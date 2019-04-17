@@ -3,15 +3,14 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { capitalize } from 'lodash';
 import TopRow from '../components/TopRow';
-import ActionsTaken from '../components/ActionsTaken';
 import {
-  TextInput, Container, TopBar, Preloader,
+  TextField, Container, TopBar, Preloader, ArrayField,
   FormRow, BottomBar, AddButton, UpdateButton, CancelButton,
-  Button, SelectInput, PatientVisitSelect,
+  Button, SelectField, PatientVisitSelectField, Form, Field,
 } from '../../../components';
 import {
   MUI_SPACING_UNIT as spacing, operativePlanStatuses,
-  operativePlanStatusList, VISIT_SELECT_TEMPLATE,
+  operativePlanStatusList,
 } from '../../../constants';
 import actions from '../../../actions/patients';
 import { PatientModel, OperativePlanModel } from '../../../models';
@@ -33,8 +32,6 @@ class OperativePlan extends Component {
 
   state = {
     loading: true,
-    isFormValid: false,
-    action: 'new',
   }
 
   componentDidMount() {
@@ -43,62 +40,26 @@ class OperativePlan extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { action, loading, operativePlanModel } = newProps;
-    if (!loading) {
-      // update state on model change
-      operativePlanModel
-        .off('change')
-        .on('change', this.handleChange);
-      this.setState({
-        ...operativePlanModel.toJSON(),
-        action,
-        loading,
-      });
-    }
+    const { loading } = newProps;
+    if (!loading) this.setState({ loading });
   }
 
-  componentWillUnmount() {
-    const { operativePlanModel } = this.props;
-    if (operativePlanModel && typeof operativePlanModel !== 'undefined') operativePlanModel.off('change');
+  markComplete = ({ setFieldValue, submitForm }) => () => {
+    setFieldValue('status', operativePlanStatuses.COMPLETED);
+    submitForm();
   }
 
-  handleActionsTakenChange = (actionsTaken) => {
-    const { operativePlanModel } = this.props;
-    operativePlanModel.set({ actionsTaken });
-  }
-
-  handleUserInput = (event) => {
-    const { operativePlanModel } = this.props;
-    const { name, value } = event.target;
-    operativePlanModel.set({ [name]: value });
-  }
-
-  handleChange = () => {
-    const { operativePlanModel } = this.props;
-    const isFormValid = operativePlanModel.isValid();
-    const changedAttributes = operativePlanModel.changedAttributes();
-    this.setState({ ...changedAttributes, isFormValid });
-  }
-
-  markComplete = (event) => {
-    const { operativePlanModel } = this.props;
-    operativePlanModel.set({ status: operativePlanStatuses.COMPLETED });
-    this.submitForm(event);
-  }
-
-  submitForm = (event) => {
-    event.preventDefault();
+  handleFormSubmit = (values, { setSubmitting }) => {
     const { action, saveOperativePlan, operativePlanModel } = this.props;
-    saveOperativePlan({ action, operativePlanModel });
+    operativePlanModel.set(values);
+    saveOperativePlan({ action, operativePlanModel, setSubmitting });
   }
 
   render() {
-    const { patientModel } = this.props;
-    const {
-      loading, isFormValid, action, ...form
-    } = this.state;
-
+    const { action, patientModel, operativePlanModel } = this.props;
+    const { loading } = this.state;
     if (loading) return <Preloader />;
+
     return (
       <React.Fragment>
         <TopBar title={`${capitalize(action)} Operative Plan`} />
@@ -107,110 +68,107 @@ class OperativePlan extends Component {
             patient={patientModel.toJSON()}
             style={{ marginBottom: spacing * 2 }}
           />
-          <form
-            name="opPlanForm"
-            onSubmit={this.submitForm}
-          >
-            {action === 'new'
-              && (
-                <FormRow xs={5}>
-                  <PatientVisitSelect
-                    patientModel={patientModel}
-                    onChange={this.handleUserInput}
-                    value={form.visit}
+          <Form
+            onSubmit={this.handleFormSubmit}
+            initialValues={operativePlanModel.toJSON()}
+            validationSchema={operativePlanModel.validationSchema}
+            render={({ isSubmitting, ...formActions }) => (
+              <React.Fragment>
+                {action === 'new'
+                  && (
+                    <FormRow xs={5}>
+                      <Field
+                        component={PatientVisitSelectField}
+                        patientModel={patientModel}
+                        name="visit"
+                      />
+                    </FormRow>
+                  )
+                }
+                <FormRow>
+                  <Field
+                    component={TextField}
+                    name="operationDescription"
+                    label="Operation Description"
+                    multiline
+                    rows="3"
                   />
                 </FormRow>
-              )
-            }
-            <FormRow>
-              <TextInput
-                name="operationDescription"
-                label="Operation Description"
-                onChange={this.handleUserInput}
-                value={form.operationDescription}
-                multiline
-                rows="3"
-              />
-            </FormRow>
-            <ActionsTaken
-              actionsTaken={form.actionsTaken}
-              patientModel={patientModel}
-              onChange={this.handleActionsTakenChange}
-            />
-            <FormRow>
-              <TextInput
-                name="surgeon"
-                label="Surgeon"
-                onChange={this.handleUserInput}
-                value={form.surgeon}
-              />
-              <SelectInput
-                label="Status"
-                options={operativePlanStatusList}
-                name="status"
-                disabled={this.state.disabled}
-                value={form.status}
-                onChange={(value) => { this.handleUserInput(value, 'status'); }}
-              />
-              <TextInput
-                name="caseComplexity"
-                label="Case Complexity"
-                onChange={this.handleUserInput}
-                value={form.caseComplexity}
-              />
-            </FormRow>
-            <FormRow>
-              <TextInput
-                name="admissionInstructions"
-                label="Instructions Upon Admission"
-                onChange={this.handleUserInput}
-                value={form.admissionInstructions}
-                multiline
-                rows="3"
-              />
-            </FormRow>
-            <FormRow>
-              <TextInput
-                name="additionalNotes"
-                label="Additional Notes"
-                onChange={this.handleUserInput}
-                value={form.additionalNotes}
-                multiline
-                rows="3"
-              />
-            </FormRow>
-            <BottomBar>
-              <CancelButton
-                to={`/patients/editPatient/${patientModel.id}`}
-              />
-              {action === 'new'
-                ? (
-                  <AddButton type="submit" />
-                )
-                : (
-                  <React.Fragment>
-                    <UpdateButton type="submit" />
-                    <Button
-                      onClick={this.markComplete}
-                      color="secondary"
-                      variant="contained"
-                    >
-                      Complete Plan
-                    </Button>
-                  </React.Fragment>
-                )
-              }
-            </BottomBar>
-          </form>
+                <Field
+                  name="actionsTaken"
+                  label="Actions Taken"
+                  buttonLabel="Add Action"
+                  component={ArrayField}
+                />
+                <FormRow>
+                  <Field
+                    component={TextField}
+                    name="surgeon"
+                    label="Surgeon"
+                  />
+                  <Field
+                    component={SelectField}
+                    label="Status"
+                    options={operativePlanStatusList}
+                    name="status"
+                  />
+                  <Field
+                    component={TextField}
+                    name="caseComplexity"
+                    label="Case Complexity"
+                  />
+                </FormRow>
+                <FormRow>
+                  <Field
+                    component={TextField}
+                    name="admissionInstructions"
+                    label="Instructions Upon Admission"
+                    multiline
+                    rows="3"
+                  />
+                </FormRow>
+                <FormRow>
+                  <Field
+                    component={TextField}
+                    name="additionalNotes"
+                    label="Additional Notes"
+                    multiline
+                    rows="3"
+                  />
+                </FormRow>
+                <BottomBar>
+                  <CancelButton o={`/patients/editPatient/${patientModel.id}`} />
+                  {action === 'new'
+                    ? (
+                      <AddButton
+                        type="submit"
+                        isSubmitting={isSubmitting}
+                        can={{ do: 'create', on: 'operativePlan' }}
+                      />
+                    )
+                    : (
+                      <React.Fragment>
+                        <UpdateButton
+                          type="submit"
+                          isSubmitting={isSubmitting}
+                          can={{ do: 'update', on: 'operativePlan' }}
+                        />
+                        <Button
+                          onClick={this.markComplete(formActions)}
+                          color="secondary"
+                          variant="contained"
+                          disabled={isSubmitting}
+                        >
+                          Complete Plan
+                        </Button>
+                      </React.Fragment>
+                    )
+                  }
+                </BottomBar>
+              </React.Fragment>
+            )}
+          />
         </Container>
-        {/*
-        <Dialog
-          isVisible={markedCompleted}
-          onClose={this.onCloseCompletedModal}
-          headerTitle="Success!"
-          contentText="Operative Plan was marked completed successfully, you'll be redirected to Operation Report now"
-          little
-        /> */}
       </React.Fragment>
     );
   }

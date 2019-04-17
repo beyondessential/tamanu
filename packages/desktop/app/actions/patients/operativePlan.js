@@ -40,47 +40,43 @@ export const fetchOperativePlan = ({ id, patientId }) => async dispatch => {
 };
 
 export const saveOperativePlan = ({
-  action, operativePlanModel, patientId, history,
+  action, operativePlanModel, patientId, history, setSubmitting,
 }) => async dispatch => {
   dispatch({ type: SAVE_OPERATIVE_PLAN_REQUEST });
-  if (operativePlanModel.isValid()) {
-    try {
-      const visitId = operativePlanModel.get('visit');
-      let visitModel = new VisitModel();
+  try {
+    const visitId = operativePlanModel.get('visit');
+    let visitModel = new VisitModel();
+    await operativePlanModel.save();
+    if (action === 'new') {
+      visitModel.set({ _id: visitId });
+      await visitModel.fetch();
+      // link visit diagnoses to the operation plan
+      const diagnoses = visitModel.get('diagnoses');
+      operativePlanModel.set('diagnoses', diagnoses);
       await operativePlanModel.save();
-      if (action === 'new') {
-        visitModel.set({ _id: visitId });
-        await visitModel.fetch();
-        // link visit diagnoses to the operation plan
-        const diagnoses = visitModel.get('diagnoses');
-        operativePlanModel.set('diagnoses', diagnoses);
-        await operativePlanModel.save();
-        // link operative plan to the visit
-        visitModel.get('operativePlans').add(operativePlanModel);
-        await visitModel.save();
-      } else if (action === 'edit') {
-        visitModel = operativePlanModel.getVisit();
-      }
-
-      // create operative report if marked as completed
-      if (operativePlanModel.get('status') === operativePlanStatuses.COMPLETED) {
-        const operationReportModel = await createOperationReport({ operativePlanModel, visitModel });
-        notifySuccess('Operation Report was generated successfully.');
-        return history.push(`/patients/patient:${patientId}/operationReport:${operationReportModel.id}`);
-      }
-
-      dispatch({ type: SAVE_OPERATIVE_PLAN_SUCCESS, operativePlanModel });
-      notifySuccess('Operative Plan saved successfully.');
-      if (action === 'new') history.push(`/patients/patient:${patientId}/visit:${visitModel.id}/operativePlan:${operativePlanModel.id}`);
-    } catch (error) {
-      console.error({ error });
-      dispatch({ type: SAVE_OPERATIVE_PLAN_FAILED, error });
+      // link operative plan to the visit
+      visitModel.get('operativePlans').add(operativePlanModel);
+      await visitModel.save();
+    } else if (action === 'edit') {
+      visitModel = operativePlanModel.getVisit();
     }
-  } else {
-    const error = operativePlanModel.validationError;
+
+    // create operative report if marked as completed
+    if (operativePlanModel.get('status') === operativePlanStatuses.COMPLETED) {
+      const operationReportModel = await createOperationReport({ operativePlanModel, visitModel });
+      notifySuccess('Operation Report was generated successfully.');
+      return history.push(`/patients/patient:${patientId}/visit/operationReport:${operationReportModel.id}`);
+    }
+
+    dispatch({ type: SAVE_OPERATIVE_PLAN_SUCCESS, operativePlanModel });
+    notifySuccess('Operative Plan saved successfully.');
+    if (action === 'new') history.push(`/patients/patient:${patientId}/visit:${visitModel.id}/operativePlan:${operativePlanModel.id}`);
+  } catch (error) {
     console.error({ error });
     dispatch({ type: SAVE_OPERATIVE_PLAN_FAILED, error });
   }
+  // reset `isSubmitting`
+  setSubmitting(false);
 };
 
 const createOperationReport = async ({ operativePlanModel, visitModel }) => {
