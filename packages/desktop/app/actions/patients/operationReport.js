@@ -35,20 +35,15 @@ export const fetchOperationReport = ({ id, patientId }) => async dispatch => {
   }
 };
 
-export const saveOperationReport = ({ operationReportModel }) => async dispatch => {
+export const saveOperationReport = ({ operationReportModel, setSubmitting }) => async dispatch => {
   dispatch({ type: SAVE_OPERATION_REPORT_REQUEST });
-  if (operationReportModel.isValid()) {
-    try {
-      await operationReportModel.save();
-      notifySuccess('Operation Report saved successfully.');
-      dispatch({ type: SAVE_OPERATION_REPORT_SUCCESS, operationReportModel });
-    } catch (error) {
-      console.error({ error });
-      dispatch({ type: SAVE_OPERATION_REPORT_FAILED, error });
-    }
-  } else {
-    const error = operationReportModel.validationError;
+  try {
+    await operationReportModel.save();
+    notifySuccess('Operation Report saved successfully.');
+    dispatch({ type: SAVE_OPERATION_REPORT_SUCCESS, operationReportModel });
+  } catch (error) {
     console.error({ error });
     dispatch({ type: SAVE_OPERATION_REPORT_FAILED, error });
   }
+  setSubmitting(false);
 };

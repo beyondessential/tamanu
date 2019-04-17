@@ -1,22 +1,23 @@
 import Backbone from 'backbone-associations';
-import { defaults } from 'lodash';
+import * as Yup from 'yup';
 import moment from 'moment';
 import BaseModel from './base';
 import { register } from './register';
 
 export default register('OperationReport', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/operationReport`,
-  defaults: () => defaults({
+  defaults: () => ({
+    ...BaseModel.prototype.defaults,
     additionalNotes: null,
     caseComplexity: null,
     actionsTaken: [],
     operationDescription: null,
     surgeon: null,
+    assistant: null,
     surgeryDate: moment(),
     preOpDiagnoses: [],
     postOpDiagnoses: [],
-  },
-  BaseModel.prototype.defaults),
+  }),
 
   // Associations
   relations: [
@@ -41,8 +42,8 @@ export default register('OperationReport', BaseModel.extend({
     },
   ],
 
-  validate: (attrs) => {
-    if (!moment(attrs.surgeryDate).isValid()) return 'surgeryDate is required!';
-    if (attrs.surgeon === '') return 'surgeon is required!';
-  }
+  validationSchema: Yup.object().shape({
+    surgeryDate: Yup.date().required('is required'),
+    surgeon: Yup.string().required('is required'),
+  }),
 }));
