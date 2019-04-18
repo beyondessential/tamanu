@@ -6,11 +6,10 @@ import styled from 'styled-components';
 import * as labRequestActions from '../../actions/labs';
 import TopRow from '../Patients/components/TopRow';
 import {
-  TopBar, PatientAutocomplete, PatientVisitSelect, Container,
-  TextInput, AddButton, CancelButton, Preloader, FormRow,
+  TopBar, PatientVisitSelectField, PatientAutocompleteField, Container,
+  TextField, AddButton, CancelButton, Preloader, FormRow, Form, Field,
 } from '../../components';
 import TestTypesList from './components/TestTypesList';
-import { VISIT_SELECT_TEMPLATE } from '../../constants';
 import { LabRequestModel, LabTestModel, PatientModel } from '../../models';
 
 const ButtonsContainer = styled.div`
@@ -25,8 +24,6 @@ class Request extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedTests: [],
-      isFormValid: false,
       isLoading: true,
       selectedPatientId: '',
     };
@@ -37,128 +34,104 @@ class Request extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { labRequestModel } = newProps;
-    if (labRequestModel instanceof LabRequestModel) {
-      labRequestModel.on('change', this.handleModelsChange);
-    }
-    this.handleFetchedLabRequest(newProps);
+    const { isLoading } = newProps;
+    if (!isLoading) this.setState({ isLoading });
   }
 
-  handleModelsChange = () => {
+  handlePatientChange = handleChange => event => {
+    const { value } = event.target;
+    handleChange(event);
+    // load patient
+    this.props.initLabRequest({ patientId: value });
+  }
+
+  buildTestTypeCollection = selectedTests => (
+    this.props.labTestTypes
+      .filter(({ _id }) => selectedTests.includes(_id))
+      .map((labTestTypeModel) => new LabTestModel({ type: labTestTypeModel }))
+  )
+
+  handleTestTypesFilter = event => {
+    const { filterTestTypes } = this.props;
+    const { value } = event.target;
+    filterTestTypes(value);
+  }
+
+  submitForm = ({ tests, ...values }) => {
     const { labRequestModel } = this.props;
-    const changedAttributes = labRequestModel.changedAttributes();
-    const isFormValid = labRequestModel.isValid();
-    this.setState({ ...changedAttributes, isFormValid });
-  }
-
-  handlePatientChange = ({ _id }) => {
-    this.props.initLabRequest({ patientId: _id });
-  }
-
-  handleTestsListChange = (selectedTests) => {
-    const testTypesCollection = this.props.labTestTypes
-      .filter(({ _id }) => selectedTests.has(_id))
-      .map((labTestTypeModel) => new LabTestModel({ type: labTestTypeModel }));
-    this.handleFormChange({ tests: testTypesCollection });
-  }
-
-  handleFormInput = (event) => {
-    const { target: { name, value } } = event;
-    this.handleFormChange({ [name]: value });
-  }
-
-  submitForm = (event) => {
-    event.preventDefault();
-    const { labRequestModel } = this.props;
+    labRequestModel.set({ tests: this.buildTestTypeCollection(tests), ...values });
     this.props.createLabRequest({ labRequestModel });
   }
 
-  updateFormsStatus() {
-    const { visit, selectedTests } = this.state;
-    let isFormValid = false;
-    if (visit && selectedTests) isFormValid = true;
-    this.setState({ isFormValid });
-  }
-
-  handleFormChange(change) {
-    const { labRequestModel } = this.props;
-    labRequestModel.set(change);
-  }
-
-  handleFetchedLabRequest(props = this.props) {
-    const { isLoading } = props;
-    if (!isLoading) {
-      this.setState({ isLoading });
-    }
-  }
-
   render() {
+    const {
+      labRequestModel, isPatientSelected, labTestTypes, patientModel,
+    } = this.props;
     const { isLoading } = this.state;
     if (isLoading) return <Preloader />;
 
-    const {
-      labRequestModel, isPatientSelected, labTestTypes, patientModel, filterTestTypes,
-    } = this.props;
-    const {
-      visit, notes, isFormValid,
-    } = this.state;
-    const { tests: selectedTests } = labRequestModel.toJSON();
     return (
       <React.Fragment>
         <TopBar title="New Lab Request" />
-        <form onSubmit={this.submitForm}>
-          <Container>
-            <Grid container spacing={16} direction="column">
-              {isPatientSelected
-                && (
-                  <Grid item container xs={12}>
-                    <TopRow patient={patientModel.toJSON()} />
-                  </Grid>
-                )
-              }
-              <FormRow>
-                {!isPatientSelected
+        <Form
+          onSubmit={this.submitForm}
+          initialValues={labRequestModel.toJSON()}
+          validationSchema={labRequestModel.validationSchema}
+          render={({ isSubmitting, handleChange }) => (
+            <Container>
+              <Grid container spacing={16} direction="column">
+                {isPatientSelected
                   && (
-                    <PatientAutocomplete
-                      label="Patient"
-                      name="patient"
-                      onChange={this.handlePatientChange}
-                      required
-                    />
+                    <Grid item container xs={12}>
+                      <TopRow patient={patientModel.toJSON()} />
+                    </Grid>
                   )
                 }
-                <PatientVisitSelect
-                  patientModel={patientModel}
-                  value={visit}
-                  onChange={this.handleFormInput}
+                <FormRow>
+                  {!isPatientSelected
+                    && (
+                      <Field
+                        component={PatientAutocompleteField}
+                        label="Patient"
+                        name="patient"
+                        onChange={this.handlePatientChange(handleChange)}
+                        required
+                      />
+                    )
+                  }
+                  <Field
+                    component={PatientVisitSelectField}
+                    patientModel={patientModel}
+                    name="visit"
+                  />
+                </FormRow>
+                <Field
+                  component={TestTypesList}
+                  name="tests"
+                  onFilter={this.handleTestTypesFilter}
+                  labTestTypes={labTestTypes}
                 />
-              </FormRow>
-              <TestTypesList
-                labTestTypes={labTestTypes}
-                selectedTests={selectedTests}
-                onChange={this.handleTestsListChange}
-                onFilter={filterTestTypes}
-              />
-              <FormRow>
-                <TextInput
-                  label="Notes"
-                  name="notes"
-                  value={notes}
-                  onChange={this.handleFormInput}
-                  rows="3"
-                  multiline
+                <FormRow>
+                  <Field
+                    component={TextField}
+                    label="Notes"
+                    name="notes"
+                    rows="3"
+                    multiline
+                  />
+                </FormRow>
+              </Grid>
+              <ButtonsContainer>
+                <CancelButton to="/labs" />
+                <AddButton
+                  type="submit"
+                  isSubmitting={isSubmitting}
+                  can={{ do: 'create', on: 'labRequest' }}
                 />
-              </FormRow>
-            </Grid>
-            <ButtonsContainer>
-              <CancelButton to="/labs" />
-              <AddButton
-                type="submit"
-                disabled={!isFormValid}
-              />
-            </ButtonsContainer>
-          </Container>
-        </form>
+              </ButtonsContainer>
+            </Container>
+          )}
+        />
       </React.Fragment>
     );
   }

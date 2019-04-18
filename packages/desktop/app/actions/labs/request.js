@@ -61,48 +61,42 @@ export const filterTestTypes = (keyword) => async dispatch => {
 
 export const createLabRequest = ({ labRequestModel }) => async (dispatch, getState) => {
   dispatch({ type: SAVE_LAB_REQUEST_REQUEST });
-  if (labRequestModel.isValid()) {
-    try {
-      const labTypesFiltered = {};
-      const { auth: { userId } } = getState();
-      const requestedBy = new UserModel({ _id: userId });
-      const visitId = labRequestModel.get('visit');
+  try {
+    const labTypesFiltered = {};
+    const { auth: { userId } } = getState();
+    const requestedBy = new UserModel({ _id: userId });
+    const visitId = labRequestModel.get('visit');
 
-      labRequestModel.get('tests').forEach(labTestModel => {
-        const categoryId = labTestModel.get('type').get('category').get('_id');
-        const testCategoryModel = new LabTestCategoryModel({ _id: categoryId });
-        if (labTypesFiltered[categoryId]) {
-          const currentLabRequestModel = labTypesFiltered[categoryId];
-          currentLabRequestModel.get('tests').push(labTestModel);
-          currentLabRequestModel.set('category', testCategoryModel);
-          currentLabRequestModel.set('requestedBy', requestedBy);
-        } else {
-          const { attributes } = labRequestModel;
-          const newLabRequestModel = new LabRequestModel({ ...attributes, tests: [] });
-          newLabRequestModel.get('tests').push(labTestModel);
-          newLabRequestModel.set('category', testCategoryModel);
-          newLabRequestModel.set('requestedBy', requestedBy);
-          labTypesFiltered[categoryId] = newLabRequestModel;
-        }
-      });
-
-      await Promise.all(labRequestModel.get('tests').map(labTestModel => labTestModel.save()));
-      const labRequestModels = await Promise.all(Object.values(labTypesFiltered).map(labRequestModel => labRequestModel.save()));
-      updateVisit(visitId, labRequestModels);
-
-      dispatch({ type: SAVE_LAB_REQUEST_SUCCESS });
-      notifySuccess('Lab request was created successfully.');
-      if (labRequestModels.length > 1) {
-        history.push('/labs');
+    labRequestModel.get('tests').forEach(labTestModel => {
+      const categoryId = labTestModel.get('type').get('category').get('_id');
+      const testCategoryModel = new LabTestCategoryModel({ _id: categoryId });
+      if (labTypesFiltered[categoryId]) {
+        const currentLabRequestModel = labTypesFiltered[categoryId];
+        currentLabRequestModel.get('tests').push(labTestModel);
+        currentLabRequestModel.set('category', testCategoryModel);
+        currentLabRequestModel.set('requestedBy', requestedBy);
       } else {
-        history.push(`/labs/request/${labRequestModels[0].id}`);
+        const { attributes } = labRequestModel;
+        const newLabRequestModel = new LabRequestModel({ ...attributes, tests: [] });
+        newLabRequestModel.get('tests').push(labTestModel);
+        newLabRequestModel.set('category', testCategoryModel);
+        newLabRequestModel.set('requestedBy', requestedBy);
+        labTypesFiltered[categoryId] = newLabRequestModel;
       }
-    } catch (error) {
-      console.error({ error });
-      dispatch({ type: SAVE_LAB_REQUEST_FAILED, error });
+    });
+
+    await Promise.all(labRequestModel.get('tests').map(labTestModel => labTestModel.save()));
+    const labRequestModels = await Promise.all(Object.values(labTypesFiltered).map(model => model.save()));
+    updateVisit(visitId, labRequestModels);
+
+    dispatch({ type: SAVE_LAB_REQUEST_SUCCESS });
+    notifySuccess('Lab request was created successfully.');
+    if (labRequestModels.length > 1) {
+      history.push('/labs');
+    } else {
+      history.push(`/labs/request/${labRequestModels[0].id}`);
     }
-  } else {
-    const error = labRequestModel.validationError;
+  } catch (error) {
     console.error({ error });
     dispatch({ type: SAVE_LAB_REQUEST_FAILED, error });
   }
