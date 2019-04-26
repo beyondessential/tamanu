@@ -16,11 +16,11 @@ export const PregnancySchema = {
       indexed: true,
     }, // estimated
     child: {
-      type: 'string',
+      type: 'patient',
       optional: true,
     },
     father: {
-      type: 'string',
+      type: 'patient',
       optional: true,
     }, // biological father
     outcome: {

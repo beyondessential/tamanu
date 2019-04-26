@@ -1,20 +1,21 @@
 import Backbone from 'backbone-associations';
-import { defaults, clone } from 'lodash';
+import * as Yup from 'yup';
+import moment from 'moment';
 import BaseModel from './base';
 import { register } from './register';
 
 export default register('Pregnancy', BaseModel.extend({
   urlRoot: `${BaseModel.prototype.urlRoot}/pregnancy`,
-  defaults: () => defaults({
-    conceiveDate: Date, // estimated
-    deliveryDate: Date, // estimated
-    child: '',
-    father: '', // biological father
+  defaults: () => ({
+    ...BaseModel.prototype.defaults,
+    conceiveDate: moment(), // estimated
+    deliveryDate: null, // estimated
+    child: null,
+    father: null, // biological father
     outcome: '',
     gestationalAge: '',
     surveyResponses: [],
-  },
-  BaseModel.prototype.defaults),
+  }),
 
   relations: [
     {
@@ -35,11 +36,7 @@ export default register('Pregnancy', BaseModel.extend({
     ...BaseModel.prototype.relations,
   ],
 
-  cloneAttributes() {
-    const attributes = clone(this.attributes);
-    delete attributes._id;
-    delete attributes._rev;
-    delete attributes.modifiedFields;
-    return attributes;
-  },
+  validationSchema: Yup.object().shape({
+    conceiveDate: Yup.date().required('is required'),
+  }),
 }));

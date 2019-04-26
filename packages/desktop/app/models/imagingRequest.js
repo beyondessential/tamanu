@@ -1,5 +1,6 @@
 import Backbone from 'backbone-associations';
 import moment from 'moment';
+import * as Yup from 'yup';
 import BaseModel from './base';
 import { IMAGING_REQUEST_STATUSES } from '../constants';
 import PatientModel from './patient';
@@ -61,13 +62,15 @@ export default register('ImagingRequest', BaseModel.extend({
     return patientModel.toJSON();
   },
 
-  validate(attributes) {
-    const errors = [];
-    if (!attributes.type) errors.push('type is required');
-    if (attributes._id) {
-      if (!attributes.diagnosis) errors.push('diagnosis is required');
-      if (!attributes.detail) errors.push('detail is required');
+  validationSchema() {
+    const rules = {
+      type: Yup.mixed().required('is required'),
+      visit: Yup.mixed().required('is required'),
+    };
+    if (this.get('_id')) {
+      rules.diagnosis = Yup.mixed().required('is required');
+      rules.detail = Yup.mixed().required('is required');
     }
-    if (errors.length >= 1) return errors;
+    return Yup.object().shape(rules);
   },
 }));

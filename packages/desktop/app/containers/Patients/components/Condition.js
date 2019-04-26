@@ -15,7 +15,6 @@ export default class Condition extends Component {
 
   state = {
     modalVisible: false,
-    action: 'new',
     conditionModel: new ConditionModel(),
   }
 
@@ -46,7 +45,6 @@ export default class Condition extends Component {
     }
     this.setState({
       modalVisible: true,
-      action: isEmpty(item) ? 'new' : 'update',
       conditionModel,
     });
   }
@@ -55,7 +53,6 @@ export default class Condition extends Component {
     const { patientModel } = this.props;
     const {
       modalVisible,
-      action,
       conditionModel,
       conditions,
     } = this.state;
@@ -94,7 +91,6 @@ export default class Condition extends Component {
           <ConditionModal
             conditionModel={conditionModel}
             patientModel={patientModel}
-            action={action}
             isVisible={modalVisible}
             onClose={this.onCloseModal}
             little

@@ -7,16 +7,11 @@ import {
   ButtonGroup, NewButton, SubHeader, SimpleTable,
 } from '../../../components';
 import { patientContactColumns } from '../../../constants';
-import { PatientModel } from '../../../models';
+import { PatientModel, PatientContact } from '../../../models';
 
 export default class Contacts extends Component {
   static propTypes = {
     patientModel: PropTypes.instanceOf(PatientModel).isRequired,
-    style: PropTypes.instanceOf(Object),
-  }
-
-  static defaultProps = {
-    style: {},
   }
 
   state = {
@@ -78,7 +73,7 @@ export default class Contacts extends Component {
   }
 
   render() {
-    const { patientModel, style } = this.props;
+    const { patientModel } = this.props;
     const {
       modalVisible, additionalContacts, tableColumns, itemId,
     } = this.state;
@@ -106,7 +101,7 @@ export default class Contacts extends Component {
           onClose={() => this.setState({ deleteModalVisible: false })}
         />
         <ContactModal
-          itemId={itemId}
+          contactModel={patientModel.get('additionalContacts').findWhere({ _id: itemId }) || new PatientContact()}
           patientModel={patientModel}
           isVisible={modalVisible}
           onClose={this.onCloseModal}
