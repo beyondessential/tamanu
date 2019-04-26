@@ -25,6 +25,10 @@ export const OpReportSchema = {
       type: 'date',
       optional: true,
     },
+    assistant: {
+      type: 'string',
+      optional: true,
+    },
     actionsTaken: 'string[]',
     preOpDiagnoses: {
       type: 'list',

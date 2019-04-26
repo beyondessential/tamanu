@@ -26,6 +26,7 @@ export default function Routes({ url }) {
 
         <Route path={`${url}/patient::patientId/visit/operationReport::id`} component={OperationReport} />
         <Route path={`${url}/patient::patientId/visit::visitId/operativePlan`} component={OperativePlan} />
+        <Route path={`${url}/patient::patientId/visit::visitId/operativePlan::id`} component={OperativePlan} />
         <Route path={`${url}/patient::patientId/visit/operativePlan`} component={OperativePlan} />
         <Route path={`${url}/patient::patientId/visit/operativePlan::id`} component={OperativePlan} />
 

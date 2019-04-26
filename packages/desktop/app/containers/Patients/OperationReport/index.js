@@ -3,11 +3,11 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { capitalize } from 'lodash';
 import TopRow from '../components/TopRow';
-import ActionsTaken from '../components/ActionsTaken';
+// import ActionsTaken from '../components/ActionsTaken';
 import PreOpDiagnosis from './PreOpDiagnosis';
 import {
-  TextInput, Container, TopBar, Preloader, DateInput,
-  FormRow, BottomBar, UpdateButton, BackButton,
+  TextField, Container, TopBar, Preloader, DateField, Form,
+  FormRow, BottomBar, UpdateButton, BackButton, Field, ArrayField,
 } from '../../../components';
 import { MUI_SPACING_UNIT as spacing } from '../../../constants';
 import actions from '../../../actions/patients';
@@ -30,8 +30,6 @@ class OperationReport extends Component {
 
   state = {
     loading: true,
-    isFormValid: false,
-    action: 'new',
   }
 
   componentDidMount() {
@@ -40,57 +38,21 @@ class OperationReport extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { action, loading, operationReportModel } = newProps;
-    if (!loading) {
-      // update state on model change
-      operationReportModel
-        .off('change')
-        .on('change', this.handleChange);
-      this.setState({
-        ...operationReportModel.toJSON(),
-        isFormValid: operationReportModel.isValid(),
-        action,
-        loading,
-      });
-    }
+    const { loading } = newProps;
+    if (!loading) this.setState({ loading });
   }
 
-  componentWillUnmount() {
-    const { operationReportModel } = this.props;
-    if (operationReportModel && typeof operationReportModel !== 'undefined') operationReportModel.off('change');
-  }
-
-  handleActionsTakenChange = (actionsTaken) => {
-    const { operationReportModel } = this.props;
-    operationReportModel.set('actionsTaken', actionsTaken);
-  }
-
-  handleUserInput = (event) => {
-    const { operationReportModel } = this.props;
-    const { name, value } = event.target;
-    operationReportModel.set(name, value);
-  }
-
-  handleChange = () => {
-    const { operationReportModel } = this.props;
-    const isFormValid = operationReportModel.isValid();
-    const changedAttributes = operationReportModel.changedAttributes();
-    this.setState({ ...changedAttributes, isFormValid });
-  }
-
-  submitForm = (event) => {
-    event.preventDefault();
+  submitForm = (values, { setSubmitting }) => {
     const { action, saveOperationReport, operationReportModel } = this.props;
-    saveOperationReport({ action, operationReportModel });
+    operationReportModel.set(values);
+    saveOperationReport({ action, operationReportModel, setSubmitting });
   }
 
   render() {
-    const { patientModel, operationReportModel } = this.props;
-    const {
-      loading, isFormValid, action, ...form
-    } = this.state;
-
+    const { patientModel, operationReportModel, action } = this.props;
+    const { loading } = this.state;
     if (loading) return <Preloader />;
+
     return (
       <React.Fragment>
         <TopBar title={`${capitalize(action)} Operation Report`} />
@@ -100,69 +62,69 @@ class OperationReport extends Component {
             style={{ marginBottom: spacing * 2 }}
           />
           <PreOpDiagnosis operationReportModel={operationReportModel} />
-          <form
-            name="opPlanForm"
+          <Form
+            initialValues={operationReportModel.toJSON()}
             onSubmit={this.submitForm}
-          >
-            <FormRow>
-              <TextInput
-                name="operationDescription"
-                label="Operation Description"
-                onChange={this.handleUserInput}
-                value={form.operationDescription}
-                multiline
-                rows="3"
-              />
-            </FormRow>
-            <ActionsTaken
-              actionsTaken={form.actionsTaken}
-              patientModel={patientModel}
-              onChange={this.handleActionsTakenChange}
-            />
-            <FormRow>
-              <DateInput
-                name="surgeryDate"
-                label="Surgery Date"
-                onChange={this.handleUserInput}
-                value={form.surgeryDate}
-              />
-              <TextInput
-                name="surgeon"
-                label="Surgeon"
-                onChange={this.handleUserInput}
-                value={form.surgeon}
-              />
-              <TextInput
-                name="assistant"
-                label="Assistant"
-                onChange={this.handleUserInput}
-                value={form.surgeon}
-              />
-              <TextInput
-                name="caseComplexity"
-                label="Case Complexity"
-                onChange={this.handleUserInput}
-                value={form.caseComplexity}
-              />
-            </FormRow>
-            <FormRow>
-              <TextInput
-                name="additionalNotes"
-                label="Additional Notes"
-                onChange={this.handleUserInput}
-                value={form.additionalNotes}
-                multiline
-                rows="3"
-              />
-            </FormRow>
-            <BottomBar>
-              <BackButton />
-              <UpdateButton
-                type="submit"
-                disabled={!isFormValid}
-              />
-            </BottomBar>
-          </form>
+            validationSchema={operationReportModel.validationSchema}
+            render={({ isSubmitting }) => (
+              <React.Fragment>
+                <FormRow>
+                  <Field
+                    component={TextField}
+                    name="operationDescription"
+                    label="Operation Description"
+                    multiline
+                    rows="3"
+                  />
+                </FormRow>
+                <Field
+                  name="actionsTaken"
+                  label="Actions Taken"
+                  buttonLabel="Add Action"
+                  component={ArrayField}
+                />
+                <FormRow>
+                  <Field
+                    component={DateField}
+                    name="surgeryDate"
+                    label="Surgery Date"
+                  />
+                  <Field
+                    component={TextField}
+                    name="surgeon"
+                    label="Surgeon"
+                  />
+                  <Field
+                    component={TextField}
+                    name="assistant"
+                    label="Assistant"
+                  />
+                  <Field
+                    component={TextField}
+                    name="caseComplexity"
+                    label="Case Complexity"
+                  />
+                </FormRow>
+                <FormRow>
+                  <Field
+                    component={TextField}
+                    name="additionalNotes"
+                    label="Additional Notes"
+                    multiline
+                    rows="3"
+                  />
+                </FormRow>
+                <BottomBar>
+                  <BackButton />
+                  <UpdateButton
+                    type="submit"
+                    isSubmitting={isSubmitting}
+                    can={{ do: 'update', on: 'operationReport' }}
+                  />
+                </BottomBar>
+              </React.Fragment>
+            )}
+          />
         </Container>
       </React.Fragment>
     );
