@@ -47,11 +47,11 @@ export class Form extends React.PureComponent {
     this.setState({ isErrorDialogVisible: false });
   }
 
-  handleSubmit = ({ validateForm, handleSubmit, isSubmitting }) => async event => {
-    if (event) {
-      event.preventDefault();
-      event.persist();
-    }
+  createSubmissionHandler = ({
+    validateForm, handleSubmit, isSubmitting,
+  }) => async event => {
+    event.preventDefault();
+    event.persist();
     const formErrors = await validateForm();
     if (Object.entries(formErrors).length) return this.setErrors(formErrors);
     // avoid multiple submissions
@@ -82,12 +82,13 @@ export class Form extends React.PureComponent {
             isValid, isSubmitting, validateForm, handleSubmit,
             submitForm: originalSubmitForm, ...formProps
           }) => {
-            // we need to expose this func for nested forms
-            // use originalSubmitForm() to display only inline error messages
-            // use handleSubmit() to display error messages in a popup
-            const submitForm = showInlineErrorsOnly
-              ? originalSubmitForm
-              : this.handleSubmit({ validateForm, handleSubmit, isSubmitting });
+            // we need this func for nested forms
+            // as the original submitForm() will trigger validation automatically
+            const submitForm = this.createSubmissionHandler({
+              validateForm,
+              handleSubmit,
+              isSubmitting,
+            });
             return (
               <form onSubmit={submitForm} noValidate>
                 {render({
