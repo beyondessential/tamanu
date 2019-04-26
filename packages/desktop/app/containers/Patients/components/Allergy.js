@@ -3,7 +3,7 @@ import { Grid, Typography } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import AllergyModal from './AllergyModal';
 import { TextButton } from '../../../components';
-import { PatientModel } from '../../../models';
+import { PatientModel, AllergyModel } from '../../../models';
 import { MUI_SPACING_UNIT as spacing } from '../../../constants';
 
 export default class Allergy extends Component {
@@ -13,21 +13,7 @@ export default class Allergy extends Component {
 
   state = {
     modalVisible: false,
-    action: 'new',
     itemId: null,
-    allergies: [],
-  }
-
-  componentWillMount() {
-    const { patientModel } = this.props;
-    const { allergies } = patientModel.attributes;
-    this.setState({ allergies });
-  }
-
-  componentWillReceiveProps(newProps) {
-    const { patientModel } = newProps;
-    const { allergies } = patientModel.attributes;
-    this.setState({ allergies });
   }
 
   onCloseModal = () => {
@@ -35,18 +21,18 @@ export default class Allergy extends Component {
   }
 
   editAllergy = (itemId) => () => {
-    this.setState({ modalVisible: true, action: 'edit', itemId });
+    this.setState({ modalVisible: true, itemId });
   }
 
   newAllergy = () => {
-    this.setState({ modalVisible: true, action: 'new', itemId: null });
+    this.setState({ modalVisible: true, itemId: null });
   }
 
   render() {
     const { patientModel } = this.props;
-    const {
-      modalVisible, action, itemId, allergies,
-    } = this.state;
+    const { modalVisible, itemId } = this.state;
+    const { allergies } = patientModel.toJSON();
+
     return (
       <React.Fragment>
         <Grid container item>
@@ -65,8 +51,8 @@ export default class Allergy extends Component {
           </Grid>
         </Grid>
         <Grid container item xs={12} style={{ paddingTop: 0 }}>
-          {allergies.toJSON().map(({ _id, name }, k) => (
-            <React.Fragment key={_id}>
+          {allergies.map(({ _id, name }, k) => (
+            <Grid item key={_id}>
               {k > 0 ? ', ' : ''}
               <TextButton
                 can={{ do: 'create', on: 'allergy' }}
@@ -74,13 +60,12 @@ export default class Allergy extends Component {
               >
                 {name}
               </TextButton>
-            </React.Fragment>
+            </Grid>
           ))}
         </Grid>
         <AllergyModal
-          itemId={itemId}
+          allergyModel={(patientModel.get('allergies').findWhere({ _id: itemId }) || new AllergyModel())}
           patientModel={patientModel}
-          action={action}
           isVisible={modalVisible}
           onClose={this.onCloseModal}
         />

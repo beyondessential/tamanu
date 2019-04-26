@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Grid } from '@material-ui/core';
 import {
-  TextInput, AddButton, CancelButton,
-  DeleteButton, UpdateButton, DateInput,
+  TextField, AddButton, CancelButton, Field,
+  DeleteButton, UpdateButton, DateField, Form,
   Dialog as DeleteConfirmDialog, Modal, ModalActions,
 } from '../../../components';
 import { ConditionModel, PatientModel } from '../../../models';
@@ -12,13 +12,11 @@ export default class ConditionModal extends Component {
   static propTypes = {
     conditionModel: PropTypes.instanceOf(ConditionModel).isRequired,
     patientModel: PropTypes.instanceOf(PatientModel).isRequired,
-    action: PropTypes.string,
     onClose: PropTypes.func,
     isVisible: PropTypes.bool.isRequired,
   }
 
   static defaultProps = {
-    action: 'new',
     onClose: () => {},
   }
 
@@ -27,47 +25,25 @@ export default class ConditionModal extends Component {
     const { conditionModel: { attributes } } = this.props;
     this.state = {
       ...attributes,
-      formIsValid: false,
       deleteModalVisible: false,
     };
   }
 
-  componentWillReceiveProps(newProps) {
-    const { attributes } = newProps.conditionModel;
-    const formIsValid = newProps.conditionModel.isValid();
-    this.setState({ ...attributes, formIsValid });
-    // handle conditionModel's change
-    newProps.conditionModel.off('change');
-    newProps.conditionModel.on('change', this.handleChange);
-  }
-
-  handleFormInput = (event) => {
-    const {
-      name: fieldName, type, checked, value,
-    } = event.target;
-    const fieldValue = type === 'checkbox' ? checked : value;
-    this.handleUserInput(fieldValue, fieldName);
-  }
-
-  handleUserInput = (fieldValue, fieldName) => {
-    const { conditionModel } = this.props;
-    conditionModel.set({ [fieldName]: fieldValue });
-  }
-
-  submitForm = async (event) => {
-    event.preventDefault();
-    const { action, conditionModel, patientModel } = this.props;
+  submitForm = async values => {
+    const { conditionModel, patientModel, onClose } = this.props;
+    const isNew = conditionModel.isNew();
 
     try {
+      conditionModel.set(values);
       await conditionModel.save();
-      if (action === 'new') {
+      if (isNew) {
         patientModel.get('conditions').add(conditionModel);
         await patientModel.save();
       } else {
         patientModel.trigger('change');
       }
 
-      this.props.onClose();
+      onClose();
     } catch (err) {
       console.error('Error: ', err);
     }
@@ -95,92 +71,83 @@ export default class ConditionModal extends Component {
     this.setState({ deleteModalVisible: false });
   }
 
-  handleChange = () => {
-    const { conditionModel } = this.props;
-    const formIsValid = conditionModel.isValid();
-    const changedAttributes = conditionModel.changedAttributes();
-    this.setState({ ...changedAttributes, formIsValid });
-  }
-
   deleteItemConfirm = () => {
     this.setState({ deleteModalVisible: true });
   }
 
   render() {
-    const {
-      condition,
-      date,
-      deleteModalVisible,
-      formIsValid,
-    } = this.state;
+    const { deleteModalVisible } = this.state;
     const {
       onClose,
-      action,
       isVisible,
+      conditionModel,
     } = this.props;
 
     return (
       <React.Fragment>
         <Modal
-          title={`${action === 'new' ? 'Add' : 'Update'} Condition`}
+          title={`${conditionModel.isNew() ? 'Add' : 'Update'} Condition`}
           isVisible={isVisible}
           onClose={onClose}
         >
-          <form
-            name="conditionForm"
+          <Form
+            showInlineErrorsOnly
             onSubmit={this.submitForm}
-          >
-            <Grid container spacing={16} direction="row">
-              <Grid container item>
-                <TextInput
-                  name="condition"
-                  label="Condition"
-                  value={condition}
-                  onChange={this.handleFormInput}
-                  autoFocus
-                  required
-                />
-              </Grid>
-              <Grid container item>
-                <DateInput
-                  label="Date of Diagnosis"
-                  name="date"
-                  value={date}
-                  onChange={this.handleFormInput}
-                  required
-                />
-              </Grid>
-            </Grid>
-            <ModalActions>
-              {action !== 'new'
-                && (
-                <React.Fragment>
-                  <DeleteButton
-                    can={{ do: 'delete', on: 'condition' }}
-                    onClick={this.deleteItemConfirm}
-                  />
-                  <UpdateButton
-                    can={{ do: 'update', on: 'condition' }}
-                    type="submit"
-                    disabled={!formIsValid}
-                  />
-                </React.Fragment>
-                )
-              }
-              {action === 'new'
-                && (
-                <React.Fragment>
-                  <CancelButton onClick={onClose} />
-                  <AddButton
-                    can={{ do: 'create', on: 'condition' }}
-                    type="submit"
-                    disabled={!formIsValid}
-                  />
-                </React.Fragment>
-                )
-              }
-            </ModalActions>
-          </form>
+            initialValues={conditionModel.toJSON()}
+            validationSchema={conditionModel.validationSchema}
+            render={({ isSubmitting, submitForm }) => (
+              <React.Fragment>
+                <Grid container spacing={16} direction="row">
+                  <Grid container item>
+                    <Field
+                      component={TextField}
+                      name="condition"
+                      label="Condition"
+                      autoFocus
+                      required
+                    />
+                  </Grid>
+                  <Grid container item>
+                    <Field
+                      component={DateField}
+                      label="Date of Diagnosis"
+                      name="date"
+                      required
+                    />
+                  </Grid>
+                </Grid>
+                <ModalActions>
+                  {conditionModel.isNew()
+                    ? (
+                      <React.Fragment>
+                        <CancelButton onClick={onClose} />
+                        <AddButton
+                          type="button"
+                          onClick={submitForm}
+                          disabled={isSubmitting}
+                          can={{ do: 'create', on: 'condition' }}
+                        />
+                      </React.Fragment>
+                    )
+                    : (
+                      <React.Fragment>
+                        <DeleteButton
+                          can={{ do: 'delete', on: 'condition' }}
+                          onClick={this.deleteItemConfirm}
+                        />
+                        <UpdateButton
+                          type="button"
+                          onClick={submitForm}
+                          disabled={isSubmitting}
+                          can={{ do: 'update', on: 'condition' }}
+                        />
+                      </React.Fragment>
+                    )
+                  }
+                </ModalActions>
+              </React.Fragment>
+            )}
+          />
         </Modal>
 
         <DeleteConfirmDialog

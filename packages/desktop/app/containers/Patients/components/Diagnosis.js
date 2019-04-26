@@ -9,7 +9,7 @@ import { PatientDiagnosisModel } from '../../../models';
 
 class Diagnosis extends Component {
   static propTypes = {
-    parentModel: PropTypes.object.isRequired,
+    parentModel: PropTypes.instanceOf(Object).isRequired,
     showSecondary: PropTypes.bool,
   }
 
@@ -86,7 +86,7 @@ class Diagnosis extends Component {
           {diagnoses.map((diagnosis, k) => {
             const { diagnosis: { name: diagnosisName = '' } = {} } = diagnosis;
             return (
-              <React.Fragment key={diagnosis._id}>
+              <Grid item key={diagnosis._id}>
                 {k > 0 ? ', ' : ''}
                 <TextButton
                   can={{ do: 'read', on: 'diagnosis' }}
@@ -94,7 +94,7 @@ class Diagnosis extends Component {
                 >
                   {`${diagnosisName} (${moment(diagnosis.date).format(dateFormat)})`}
                 </TextButton>
-              </React.Fragment>
+              </Grid>
             );
           })}
         </Grid>

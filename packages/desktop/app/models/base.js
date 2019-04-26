@@ -22,6 +22,9 @@ export default Backbone.AssociatedModel.extend({
     let newAttributes = clone(attributes);
     if (isArray(newAttributes)) newAttributes = head(newAttributes);
     Backbone.AssociatedModel.apply(this, [newAttributes, options]);
+    // set lastSyncedAttributes when Model initializes
+    // useful when loading nested collections / models
+    this.setLastSyncedAttributes(newAttributes);
     this.parseParents();
   },
 
@@ -63,9 +66,9 @@ export default Backbone.AssociatedModel.extend({
    * Last synced attributes are used to maintain modified fields
    * This is a workaround as Backbone's default change detection only works with Model.set()
    */
-  setLastSyncedAttributes() {
+  setLastSyncedAttributes(attributes = this.toJSON()) {
     // prune JSON to MAX_NESTED_COMPARE levels
-    this.lastSyncedAttributes = JSON.parse(jsonPrune(this.toJSON(), MAX_NESTED_COMPARE));
+    this.lastSyncedAttributes = JSON.parse(jsonPrune(attributes, MAX_NESTED_COMPARE));
   },
 
   /**

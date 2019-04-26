@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import { FieldArray } from 'formik';
 import { grey } from '@material-ui/core/colors';
 import {
   List, ListItem, ListItemText, Checkbox, Grid, Typography, Input,
@@ -21,69 +22,50 @@ const styles = () => ({
   },
 });
 
-class TestsList extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selectedTests: new Set(),
-    };
-    this.handleListItemChange = this.handleListItemChange.bind(this);
+const handleListItemChange = ({ fieldHelpers, values, value }) => () => {
+  if (values.includes(value)) {
+    fieldHelpers.remove(values.indexOf(value));
+  } else {
+    fieldHelpers.push(value);
   }
+};
 
-  filterTestTypeList = (event) => {
-    const { onFilter } = this.props;
-    const { target: { value = '' } } = event;
-    onFilter(value);
-  }
-
-  handleListItemChange = (_id) => () => {
-    const { onChange } = this.props;
-    const { selectedTests } = this.state;
-    if (selectedTests.has(_id)) {
-      selectedTests.delete(_id);
-    } else {
-      selectedTests.add(_id);
-    }
-
-    if (onChange) onChange(selectedTests);
-    this.setState({ selectedTests });
-  }
-
-  render() {
-    const { labTestTypes, classes } = this.props;
-    const { selectedTests } = this.state;
-
-    return (
-      <Grid container item direction="column">
-        <Grid
-          container
-          item
-          style={{
-            backgroundColor: grey[200],
-            padding: `${spacing}px ${spacing * 2}px`,
-            borderBottom: `1px solid ${grey[300]}`,
-          }}
-        >
-          <Grid item xs>
-            <Typography variant="subtitle1" component="span">
-              Tests Available
-            </Typography>
-          </Grid>
-          <Grid container item xs justify="flex-end">
-            <Input
-              placeholder="Filter"
-              onChange={this.filterTestTypeList}
-            />
-          </Grid>
-        </Grid>
-        <Grid item>
-          <List disablePadding className={classes.root}>
-            {labTestTypes.map(({
+const TestsList = ({
+  field: { name: fieldName, value: valueArray }, labTestTypes, classes, onFilter,
+}) => (
+  <Grid container item direction="column">
+    <Grid
+      container
+      item
+      style={{
+        backgroundColor: grey[200],
+        padding: `${spacing}px ${spacing * 2}px`,
+        borderBottom: `1px solid ${grey[300]}`,
+      }}
+    >
+      <Grid item xs>
+        <Typography variant="subtitle1" component="span">
+          Tests Available
+        </Typography>
+      </Grid>
+      <Grid container item xs justify="flex-end">
+        <Input
+          placeholder="Filter"
+          onChange={onFilter}
+        />
+      </Grid>
+    </Grid>
+    <Grid item>
+      <List disablePadding className={classes.root}>
+        <FieldArray
+          name={fieldName}
+          render={fieldHelpers => (
+            labTestTypes.map(({
               _id, name, unit, category: { name: categoryName },
             } = {}) => (
               <ListItem
                 key={_id}
-                onClick={this.handleListItemChange(_id)}
+                onClick={handleListItemChange({ fieldHelpers, values: valueArray, value: _id})}
                 disableGutters
                 button
               >
@@ -92,7 +74,7 @@ class TestsList extends Component {
                   className={classes.checkBox}
                   tabIndex={-1}
                   disableRipple
-                  checked={selectedTests.has(_id)}
+                  checked={valueArray.includes(_id)}
                 />
                 <ListItemText
                   className={classes.listItemText}
@@ -106,17 +88,16 @@ class TestsList extends Component {
                   )}
                 />
               </ListItem>
-            ))}
-          </List>
-        </Grid>
-      </Grid>
-    );
-  }
-}
+            ))
+          )}
+        />
+      </List>
+    </Grid>
+  </Grid>
+);
 
 TestsList.propTypes = {
   labTestTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
-  onChange: PropTypes.func.isRequired,
   onFilter: PropTypes.func.isRequired,
 };
 

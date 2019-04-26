@@ -1,163 +1,107 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Grid } from '@material-ui/core';
-import { PatientContact } from '../../../models';
 import {
-  TextInput, Modal, ModalActions, CancelButton,
-  AddButton, UpdateButton,
+  TextField, Modal, ModalActions, CancelButton,
+  AddButton, UpdateButton, Form, Field,
 } from '../../../components';
 import { MUI_SPACING_UNIT as spacing } from '../../../constants';
 
-export default class ContactModal extends Component {
-  constructor(props) {
-    super(props);
-    this.submitForm = this.submitForm.bind(this);
-    this.handleUserInput = this.handleUserInput.bind(this);
-  }
-
-  state = {
-    action: 'new',
-    isVisible: false,
-    contactModel: new PatientContact(),
-  };
-
-  componentWillMount() {
-    this.handleChange();
-  }
-
-  componentWillReceiveProps(newProps) {
-    this.handleChange(newProps);
-  }
-
-  handleUserInput = (e, field) => {
-    const { contactModel } = this.state;
-    if (typeof field !== 'undefined') {
-      contactModel.set(field, e, { silent: true });
-    } else {
-      const { name } = e.target;
-      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-      contactModel.set(name, value, { silent: true });
-    }
-    this.setState({ contactModel });
-  }
-
-  submitForm = async (e) => {
-    e.preventDefault();
-    const { action, patientModel } = this.props;
-    const { contactModel } = this.state;
-
+export default function ContactModal({
+  isVisible, patientModel, contactModel, onClose,
+}) {
+  const isNew = contactModel.isNew();
+  const handleFormSubmit = async values => {
     try {
+      contactModel.set(values);
       await contactModel.save();
-      if (action === 'new') {
+      if (isNew) {
         patientModel.get('additionalContacts').add(contactModel);
         await patientModel.save(null, { silent: true });
       } else {
         patientModel.trigger('change');
       }
-      this.props.onClose();
+      onClose();
     } catch (err) {
       console.error('Error: ', err);
     }
-  }
+  };
 
-  handleChange(props = this.props) {
-    const { itemId, isVisible, patientModel } = props;
-    const action = itemId ? 'edit' : 'new';
-    let contactModel;
-    if (action === 'edit') {
-      contactModel = patientModel.get('additionalContacts').findWhere({ _id: itemId });
-    } else {
-      contactModel = new PatientContact();
-    }
-    this.setState({ action, isVisible, contactModel });
-  }
-
-  render() {
-    const { onClose } = this.props;
-    const { action, isVisible, contactModel } = this.state;
-    const { attributes: form } = contactModel;
-    return (
-      <Modal
-        title="Add Contact"
-        isVisible={isVisible}
-        onClose={onClose}
-      >
-        <form
-          id="contactForm"
-          name="contactForm"
-          onSubmit={this.submitForm}
-        />
-        <Grid container spacing={spacing * 2} direction="column">
-          <Grid item>
-            <TextInput
-              name="name"
-              label="Name"
-              onChange={this.handleUserInput}
-              value={form.name}
-              required
-            />
+  return (
+    <Modal
+      title={`${isNew ? 'Add' : 'Update'} Contact`}
+      isVisible={isVisible}
+      onClose={onClose}
+    >
+      <Form
+        showInlineErrorsOnly
+        onSubmit={handleFormSubmit}
+        initialValues={contactModel.toJSON()}
+        validationSchema={contactModel.validationSchema}
+        render={({ isSubmitting, submitForm }) => (
+          <Grid container spacing={spacing * 2} direction="column">
+            <Grid item>
+              <Field
+                component={TextField}
+                name="name"
+                label="Name"
+                required
+              />
+            </Grid>
+            <Grid item>
+              <Field
+                component={TextField}
+                name="phone"
+                label="Phone"
+                required
+              />
+            </Grid>
+            <Grid item>
+              <Field
+                component={TextField}
+                type="email"
+                name="email"
+                label="Email"
+              />
+            </Grid>
+            <Grid item>
+              <Field
+                component={TextField}
+                name="relationship"
+                label="Relationship"
+              />
+            </Grid>
+            <ModalActions>
+              <CancelButton onClick={onClose} />
+              {isNew
+                ? (
+                  <AddButton
+                    type="button"
+                    onClick={submitForm}
+                    disabled={isSubmitting}
+                    can={{ do: 'create', on: 'condition' }}
+                  />
+                )
+                : (
+                  <UpdateButton
+                    type="button"
+                    onClick={submitForm}
+                    disabled={isSubmitting}
+                    can={{ do: 'create', on: 'condition' }}
+                  />
+                )
+              }
+            </ModalActions>
           </Grid>
-          <Grid item>
-            <TextInput
-              name="phone"
-              label="Phone"
-              onChange={this.handleUserInput}
-              value={form.phone}
-              required
-            />
-          </Grid>
-          <Grid item>
-            <TextInput
-              type="email"
-              name="email"
-              label="Email"
-              onChange={this.handleUserInput}
-              value={form.email}
-            />
-          </Grid>
-          <Grid item>
-            <TextInput
-              name="relationship"
-              label="Relationship"
-              onChange={this.handleUserInput}
-              value={form.relationship}
-            />
-          </Grid>
-          <ModalActions>
-            <CancelButton onClick={onClose} />
-            {action === 'new'
-              ? (
-                <AddButton
-                  can={{ do: 'create', on: 'condition' }}
-                  type="submit"
-                  form="contactForm"
-                  disabled={!contactModel.isValid()}
-                />
-              )
-              : (
-                <UpdateButton
-                  can={{ do: 'create', on: 'condition' }}
-                  type="submit"
-                  form="contactForm"
-                  disabled={!contactModel.isValid()}
-                />
-              )
-            }
-          </ModalActions>
-        </Grid>
-      </Modal>
-    );
-  }
+        )}
+      />
+    </Modal>
+  );
 }
 
 ContactModal.propTypes = {
-  patientModel: PropTypes.object.isRequired,
-  itemId: PropTypes.string,
+  patientModel: PropTypes.instanceOf(Object).isRequired,
+  contactModel: PropTypes.instanceOf(Object).isRequired,
   isVisible: PropTypes.bool.isRequired,
-  action: PropTypes.string,
-};
-
-ContactModal.defaultProps = {
-  action: 'new',
-  itemId: '',
+  onClose: PropTypes.func.isRequired,
 };

@@ -5,12 +5,12 @@ import PregnancyModal from '../components/PregnancyModal';
 import {
   Button, TabHeader, NewButton, ButtonGroup, SimpleTable,
 } from '../../../components';
+import { PregnancyModel } from '../../../models';
 
 export default class Pregnancy extends Component {
   state = {
     modalVisible: false,
-    action: 'new',
-    item: null,
+    itemId: null,
   }
 
   onCloseModal = () => {
@@ -21,10 +21,8 @@ export default class Pregnancy extends Component {
     this.props.history.push(`/patients/editPatient/${patientId}`);
   }
 
-  editItem = (row) => {
-    const { pregnancies: pregnanciesCollection } = this.props.patientModel.attributes;
-    const item = pregnanciesCollection.findWhere({ _id: row.original._id });
-    this.setState({ modalVisible: true, action: 'edit', item });
+  editItem = row => () => {
+    this.setState({ modalVisible: true, itemId: row ? row.original._id : null });
   }
 
   setActionsCol = (row) => {
@@ -60,7 +58,7 @@ export default class Pregnancy extends Component {
           color="primary"
           variant="contained"
           size="small"
-          onClick={() => this.editItem(row)}
+          onClick={this.editItem(row)}
         >
           Edit Pregnancy
         </Button>
@@ -90,8 +88,7 @@ export default class Pregnancy extends Component {
     const pregnancies = patientModel.getPregnancies();
     const {
       modalVisible,
-      action,
-      item,
+      itemId,
     } = this.state;
 
     // Set actions col for our table
@@ -102,7 +99,7 @@ export default class Pregnancy extends Component {
       <Grid container>
         <TabHeader>
           <NewButton
-            onClick={() => this.setState({ modalVisible: true, action: 'new', item: null })}
+            onClick={this.editItem()}
           >
             Add Pregnancy
           </NewButton>
@@ -115,10 +112,8 @@ export default class Pregnancy extends Component {
           />
         </Grid>
         <PregnancyModal
-          item={item}
-          patient={patient}
+          pregnancyModel={patientModel.get('pregnancies').findWhere({ _id: itemId }) || new PregnancyModel()}
           patientModel={patientModel}
-          action={action}
           isVisible={modalVisible}
           onClose={this.onCloseModal}
           little
