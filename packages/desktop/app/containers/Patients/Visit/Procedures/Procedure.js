@@ -2,15 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { capitalize } from 'lodash';
-import { Grid } from '@material-ui/core';
 import Medication from './Medication';
 import actions from '../../../../actions/patients';
 import {
-  Preloader, TextInput, DateInput, BottomBar, Container,
+  Preloader, TextField, DateField, BottomBar, Container,
   AddButton, UpdateButton, CancelButton, TopBar, FormRow,
+  Form, Field,
 } from '../../../../components';
 import { ProcedureModel } from '../../../../models';
-import { MUI_SPACING_UNIT as spacing } from '../../../../constants';
 
 class Procedure extends Component {
   static propTypes = {
@@ -22,17 +21,15 @@ class Procedure extends Component {
       PropTypes.instanceOf(Object),
     ]).isRequired,
     saveProcedure: PropTypes.func.isRequired,
+    action: PropTypes.string,
   }
 
-  constructor(props) {
-    super(props);
-    this.submitForm = this.submitForm.bind(this);
+  static defaultProps = {
+    action: 'new',
   }
 
   state = {
-    action: 'new',
     loading: true,
-    formIsValid: false,
   }
 
   componentWillMount() {
@@ -41,46 +38,18 @@ class Procedure extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { procedureModel, action, loading } = newProps;
-    if (!loading) {
-      procedureModel.on('change', this.handleChange);
-      this.setState({
-        ...procedureModel.toJSON(),
-        formIsValid: procedureModel.isValid(),
-        action,
-        loading,
-      });
-    }
+    const { loading } = newProps;
+    if (!loading) this.setState({ loading: false });
   }
 
-  componentWillUnmount() {
-    const { procedureModel } = this.props;
-    procedureModel.off('change');
-  }
-
-  handleUserInput = (event) => {
-    const { procedureModel } = this.props;
-    const { name, value } = event.target;
-    procedureModel.set(name, value);
-  }
-
-  handleChange = () => {
-    const { procedureModel } = this.props;
-    this.setState({
-      ...procedureModel.changedAttributes(),
-      formIsValid: procedureModel.isValid(),
-    });
-  }
-
-  submitForm(event) {
-    event.preventDefault();
-    const { procedureModel, visitId } = this.props;
-    const { action } = this.state;
+  submitForm = (values, { setSubmitting }) => {
+    const { procedureModel, visitId, action } = this.props;
+    procedureModel.set(values);
     this.props.saveProcedure({
       action,
       procedureModel,
       visitId,
-      history: this.props.history,
+      setSubmitting,
     });
   }
 
@@ -89,123 +58,114 @@ class Procedure extends Component {
     if (loading) return <Preloader />; // TODO: make this automatic
 
     const {
-      procedureModel, patientId, visitId,
+      procedureModel, patientId, visitId, action,
     } = this.props;
-    const {
-      action, formIsValid, ...form
-    } = this.state;
     return (
       <React.Fragment>
-        <TopBar
-          title={`${capitalize(action)} Procedure`}
+        <TopBar title={`${capitalize(action)} Procedure`} />
+        <Form
+          onSubmit={this.submitForm}
+          initialValues={procedureModel.toJSON()}
+          validationSchema={procedureModel.validationSchema}
+          render={({ isSubmitting }) => (
+            <Container>
+              <FormRow>
+                <Field
+                  component={TextField}
+                  label="Procedure"
+                  name="description"
+                  required
+                />
+                <Field
+                  component={TextField}
+                  label="CPT Code"
+                  name="cptCode"
+                />
+              </FormRow>
+              <FormRow>
+                <Field
+                  component={TextField}
+                  label="Procedure Location"
+                  name="location"
+                />
+                <Field
+                  component={DateField}
+                  label="Procedure Date"
+                  name="procedureDate"
+                  required
+                />
+                <Field
+                  component={TextField}
+                  label="Time Start"
+                  name="timeStarted"
+                />
+                <Field
+                  component={TextField}
+                  label="Time Ended"
+                  name="timeEnded"
+                />
+              </FormRow>
+              <FormRow>
+                <Field
+                  component={TextField}
+                  label="Physician"
+                  name="physician"
+                  required
+                />
+                <Field
+                  component={TextField}
+                  label="Assistant"
+                  name="assistant"
+                />
+              </FormRow>
+              <FormRow>
+                <Field
+                  component={TextField}
+                  label="Anesthesiologist"
+                  name="anesthesiologist"
+                />
+                <Field
+                  component={TextField}
+                  label="Anesthesia Type"
+                  name="anesthesiaType"
+                />
+              </FormRow>
+              <FormRow>
+                <Field
+                  component={TextField}
+                  label="Notes"
+                  name="notes"
+                  multiline
+                  rows="3"
+                />
+              </FormRow>
+              {action === 'edit'
+                && <Medication procedureModel={procedureModel} />
+              }
+              <BottomBar>
+                <CancelButton
+                  to={`/patients/visit/${patientId}/${visitId}`}
+                />
+                {action === 'new'
+                  ? (
+                    <AddButton
+                      type="submit"
+                      isSubmitting={isSubmitting}
+                      can={{ do: 'create', on: 'procedure' }}
+                    />
+                  )
+                  : (
+                    <UpdateButton
+                      type="submit"
+                      isSubmitting={isSubmitting}
+                      can={{ do: 'update', on: 'procedure' }}
+                    />
+                  )
+                }
+              </BottomBar>
+            </Container>
+          )}
         />
-        <form onSubmit={this.submitForm}>
-          <Container>
-            <FormRow>
-              <TextInput
-                label="Procedure"
-                name="description"
-                value={form.description}
-                onChange={this.handleUserInput}
-                required
-              />
-              <TextInput
-                label="CPT Code"
-                name="cptCode"
-                value={form.cptCode}
-                onChange={this.handleUserInput}
-              />
-            </FormRow>
-            <FormRow>
-              <TextInput
-                label="Procedure Location"
-                name="location"
-                value={form.location}
-                onChange={this.handleUserInput}
-              />
-              <DateInput
-                label="Procedure Date"
-                name="procedureDate"
-                value={form.procedureDate}
-                onChange={(date) => { this.handleUserInput(date, 'procedureDate'); }}
-                required
-              />
-              <TextInput
-                label="Time Start"
-                name="timeStarted"
-                value={form.timeStarted}
-                onChange={this.handleUserInput}
-              />
-              <TextInput
-                label="Time Ended"
-                name="timeEnded"
-                value={form.timeEnded}
-                onChange={this.handleUserInput}
-              />
-            </FormRow>
-            <FormRow>
-              <TextInput
-                label="Physician"
-                name="physician"
-                value={form.physician}
-                onChange={this.handleUserInput}
-                required
-              />
-              <TextInput
-                label="Assistant"
-                name="assistant"
-                value={form.assistant}
-                onChange={this.handleUserInput}
-              />
-            </FormRow>
-            <FormRow>
-              <TextInput
-                label="Anesthesiologist"
-                name="anesthesiologist"
-                value={form.anesthesiologist}
-                onChange={this.handleUserInput}
-              />
-              <TextInput
-                label="Anesthesia Type"
-                name="anesthesiaType"
-                value={form.anesthesiaType}
-                onChange={this.handleUserInput}
-              />
-            </FormRow>
-            <FormRow>
-              <TextInput
-                label="Notes"
-                name="notes"
-                value={form.notes}
-                onChange={this.handleUserInput}
-                multiline
-                rows="3"
-              />
-            </FormRow>
-            {action === 'edit'
-              && <Medication procedureModel={procedureModel} />
-            }
-            <BottomBar>
-              <CancelButton
-                to={`/patients/visit/${patientId}/${visitId}`}
-              />
-              {action === 'new' && (
-              <AddButton
-                type="submit"
-                disabled={!formIsValid}
-                can={{ do: 'create', on: 'procedure' }}
-              />
-              ) }
-              {action !== 'new' && (
-              <UpdateButton
-                type="submit"
-                disabled={!formIsValid}
-                can={{ do: 'update', on: 'procedure' }}
-              />
-              ) }
-            </BottomBar>
-          </Container>
-        </form>
       </React.Fragment>
     );
   }
@@ -222,9 +182,9 @@ function mapStateToProps(state, { match: { params: { patientId, visitId, id } } 
 
 const { procedure: procedureActions } = actions;
 const { fetchProcedure, saveProcedure } = procedureActions;
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch, { history }) => ({
   fetchProcedure: (params) => dispatch(fetchProcedure(params)),
-  saveProcedure: (params) => dispatch(saveProcedure(params)),
+  saveProcedure: (params) => dispatch(saveProcedure({ history, ...params })),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Procedure);

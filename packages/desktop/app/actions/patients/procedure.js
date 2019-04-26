@@ -1,5 +1,6 @@
 import { to } from 'await-to-js';
 import moment from 'moment';
+import { notifySuccess } from '../../utils';
 import {
   FETCH_PROCEDURE_REQUEST,
   FETCH_PROCEDURE_SUCCESS,
@@ -32,31 +33,28 @@ export const fetchProcedure = ({ id }) => async dispatch => {
 };
 
 export const saveProcedure = ({
-  action, procedureModel, visitId, history,
+  action, procedureModel, visitId, history, setSubmitting,
 }) => async dispatch => {
   dispatch({ type: SAVE_PROCEDURE_REQUEST });
-  if (procedureModel.isValid()) {
-    try {
-      await procedureModel.save(null, { silent: true });
-      if (action === 'new') {
-        const visitModel = new VisitModel();
-        visitModel.set({ _id: visitId });
-        await visitModel.fetch();
-        visitModel.get('procedures').add(procedureModel);
-        await visitModel.save(null, { silent: true });
-      }
-      dispatch({
-        type: SAVE_PROCEDURE_SUCCESS,
-        procedureModel,
-      });
-      if (action === 'new') history.push(`/patients/visit/${visitId}/procedure/${procedureModel.id}`);
-    } catch (error) {
-      console.error({ error });
-      dispatch({ type: SAVE_PROCEDURE_FAILED, error });
+  try {
+    await procedureModel.save(null, { silent: true });
+    if (action === 'new') {
+      const visitModel = new VisitModel();
+      visitModel.set({ _id: visitId });
+      await visitModel.fetch();
+      visitModel.get('procedures').add(procedureModel);
+      await visitModel.save(null, { silent: true });
     }
-  } else {
-    const error = procedureModel.validationError;
+    dispatch({
+      type: SAVE_PROCEDURE_SUCCESS,
+      procedureModel,
+    });
+    notifySuccess('Procedure was saved successfully.');
+    if (action === 'new') history.push(`/patients/visit/${visitId}/procedure/${procedureModel.id}`);
+  } catch (error) {
     console.error({ error });
     dispatch({ type: SAVE_PROCEDURE_FAILED, error });
   }
+  // reset `isSubmitting` status
+  setSubmitting(false);
 };
