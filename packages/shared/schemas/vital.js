@@ -11,31 +11,31 @@ export const VitalSchema = {
       indexed: true,
     },
     temperature: {
-      type: 'string',
+      type: 'double',
       optional: true,
     },
     weight: {
-      type: 'string',
+      type: 'double',
       optional: true,
     },
     height: {
-      type: 'string',
+      type: 'double',
       optional: true,
     },
     sbp: {
-      type: 'string',
+      type: 'double',
       optional: true,
     },
     dbp: {
-      type: 'string',
+      type: 'double',
       optional: true,
     },
     heartRate: {
-      type: 'string',
+      type: 'double',
       optional: true,
     },
     respiratoryRate: {
-      type: 'string',
+      type: 'double',
       optional: true,
     },
     ...defaults,

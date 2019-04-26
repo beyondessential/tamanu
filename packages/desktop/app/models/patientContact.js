@@ -1,4 +1,5 @@
 import { defaults } from 'lodash';
+import * as Yup from 'yup';
 import BaseModel from './base';
 import { register } from './register';
 
@@ -12,10 +13,8 @@ export default register('PatientContact', BaseModel.extend({
   },
   BaseModel.prototype.defaults),
 
-  validate: (attrs) => {
-    const errors = [];
-    if (attrs.name === '') errors.push('name is required!');
-    if (attrs.phone === '') errors.push('phone is required!');
-    if (errors.length) return errors;
-  },
+  validationSchema: Yup.object().shape({
+    name: Yup.mixed().required('is required'),
+    phone: Yup.mixed().required('is required'),
+  }),
 }));

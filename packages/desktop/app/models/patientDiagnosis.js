@@ -1,5 +1,6 @@
 import Backbone from 'backbone-associations';
 import { defaults, clone, isEmpty } from 'lodash';
+import * as Yup from 'yup';
 import moment from 'moment';
 import BaseModel from './base';
 import { register } from './register';
@@ -34,23 +35,13 @@ export default register('PatientDiagnosis', BaseModel.extend({
     return !isEmpty(condition);
   },
 
-  cloneAttributes() {
-    const attributes = clone(this.attributes);
-    delete attributes._id;
-    delete attributes._rev;
-    delete attributes.modifiedFields;
-    return attributes;
-  },
-
   parse(response) {
     return { ...response, date: moment(response.date) };
   },
 
-  validate(attributes) {
-    const errors = [];
-    if (isEmpty(attributes.diagnosis)) errors.push('diagnosis is required!');
-    if (!moment(attributes.date).isValid()) errors.push('date is required!');
-    if (isEmpty(attributes.certainty)) errors.push('certainty is required!');
-    if (!isEmpty(errors)) return errors;
-  },
+  validationSchema: Yup.object().shape({
+    diagnosis: Yup.mixed().required('is required'),
+    date: Yup.date().required('is required'),
+    certainty: Yup.mixed().required('is required'),
+  }),
 }));

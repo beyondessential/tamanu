@@ -1,4 +1,5 @@
 import Backbone from 'backbone-associations';
+import * as Yup from 'yup';
 import moment from 'moment';
 import BaseModel from './base';
 
@@ -33,6 +34,11 @@ export default register('LabRequest', BaseModel.extend({
     },
     ...BaseModel.prototype.relations,
   ],
+
+  validationSchema: Yup.object().shape({
+    visit: Yup.string().required('is required'),
+    tests: Yup.array().required('is required'),
+  }),
 
   getPatient() {
     const visit = this.getVisit();

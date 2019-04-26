@@ -6,6 +6,7 @@ import {
   Dialog, EditButton, DeleteButton, SimpleTable, TopBar,
   SubHeader, NewButton,
 } from '../../../../components';
+import { ProcedureMedicationModel } from '../../../../models';
 
 export default class Medication extends Component {
   state = {
@@ -97,9 +98,8 @@ export default class Medication extends Component {
           />
         </Grid>
         <MedicationModal
-          itemId={itemId}
+          medicationModel={procedureModel.get('medication').findWhere({ _id: itemId }) || new ProcedureMedicationModel()}
           procedureModel={procedureModel}
-          action={action}
           isVisible={modalVisible}
           onClose={this.onCloseModal}
         />

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import { capitalize } from 'lodash';
 import { Grid, Tab, Tabs } from '@material-ui/core';
@@ -15,9 +16,8 @@ import Notes from './Notes';
 import Procedures from './Procedures';
 import actions from '../../../actions/patients';
 import {
-  Preloader, TextInput, DateInput, TopBar, BottomBar,
-  AddButton, UpdateButton, CancelButton, SelectInput,
-  DischargeButton, CheckOutButton, Container, FormRow,
+  Preloader, TextField, DateField, TopBar, BottomBar, AddButton, UpdateButton,
+  CancelButton, SelectField, DischargeButton, CheckOutButton, Container, FormRow, Field, Form,
 } from '../../../components';
 import { visitOptions, visitStatuses, MUI_SPACING_UNIT as spacing } from '../../../constants';
 import { VisitModel } from '../../../models';
@@ -30,18 +30,12 @@ class EditVisit extends Component {
   }
 
   state = {
-    checkIn: false,
-    action: 'new',
-    patient: {},
-    visitModel: new VisitModel(),
-    loading: true,
-    patientModel: {},
     selectedTab: 'vitals',
+    updateVisitStatus: false,
   }
 
   componentWillMount() {
-    const { patientId, id } = this.props.match.params;
-    this.props.initVisit({ patientId, id });
+    this.props.initVisit();
   }
 
   componentWillReceiveProps(newProps) {
@@ -61,60 +55,46 @@ class EditVisit extends Component {
     this.setState({ selectedTab: tabName });
   }
 
-  handleUserInput = (e, field) => {
-    const { visitModel } = this.state;
-    if (typeof field !== 'undefined') {
-      visitModel.set(field, e, { silent: true });
-    } else {
-      const { name } = e.target;
-      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-      visitModel.set(name, value, { silent: true });
-    }
-    this.setState({ visitModel });
-  }
-
-  discharge = () => {
-    const { visitModel, patientModel } = this.state;
+  discharge = submitForm => () => {
+    const { visitModel, patientModel } = this.props;
     visitModel.set('status', visitStatuses.DISCHARGED);
     if (visitModel.get('endDate') === null || visitModel.get('endDate') === '') visitModel.set('endDate', moment());
     patientModel.set('admitted', false);
-    this.submitForm(false);
+    this.setState({ updateVisitStatus: true });
+    submitForm();
   }
 
-  checkOut = () => {
-    const { visitModel } = this.state;
+  checkOut = submitForm => () => {
+    const { visitModel } = this.props;
     visitModel.set('status', visitStatuses.DISCHARGED);
     visitModel.set('endDate', moment());
-    this.submitForm(false);
+    this.setState({ updateVisitStatus: true });
+    submitForm();
+  }
+
+  handleFormSubmit = ({ status, endDate, ...values }) => {
+    const { updateVisitStatus } = this.state;
+    const { action, patientModel, visitModel } = this.props;
+    visitModel.set(values, { silent: true });
+    if (!updateVisitStatus) visitModel.set({ status, endDate }, { silent: true });
+    this.props.submitForm({
+      action,
+      visitModel,
+      patientModel,
+      history: this.props.history,
+      setStatus: updateVisitStatus,
+    });
   }
 
   handleChange(props = this.props) {
-    let updates = {};
-    const {
-      patient, visit, action, loading,
-    } = props;
-    if (this.props.match.path.indexOf('checkin') !== -1) {
-      updates.checkIn = true;
-    }
+    const { visitModel, loading } = props;
     if (!loading) {
       // handle model's change
-      if (visit.on) visit.on('change', () => this.forceUpdate());
-      updates = Object.assign(updates, {
-        patientModel: patient,
-        patient: patient.toJSON(),
-        visitModel: visit,
-        action,
-        loading,
-      });
+      if (visitModel instanceof VisitModel) {
+        visitModel.off('change');
+        visitModel.on('change', () => this.forceUpdate());
+      }
     }
-    this.setState(updates);
-  }
-
-  submitForm(setStatus = true) {
-    const { action, patientModel, visitModel } = this.state;
-    this.props.submitForm({
-      action, visitModel, patientModel, history: this.props.history, setStatus,
-    });
   }
 
   renderTabs() {
@@ -144,7 +124,8 @@ class EditVisit extends Component {
   }
 
   renderTabsContent() {
-    const { selectedTab, visitModel, patientModel } = this.state;
+    const { selectedTab } = this.state;
+    const { visitModel, patientModel } = this.props;
     switch (selectedTab) {
       default:
         return null;
@@ -179,26 +160,19 @@ class EditVisit extends Component {
   }
 
   render() {
-    const { loading } = this.state;
+    const {
+      loading, action, patientModel, visitModel, checkIn,
+    } = this.props;
     if (loading) return <Preloader />; // TODO: make this automatic
 
-    const {
-      checkIn,
-      action,
-      patientModel,
-      patient,
-      visitModel,
-    } = this.state;
-    const { attributes: form } = visitModel;
     return (
       <React.Fragment>
         <TopBar
           title={checkIn ? 'Patient Check In' : `${capitalize(action)} Visit`}
-          subTitle={action === 'new' ? form.status : null}
+          subTitle={action === 'new' ? visitModel.get('status') : null}
         />
         <Container>
-          <TopRow patient={patient} />
-
+          <TopRow patient={patientModel.toJSON()} />
           {action !== 'new'
             && (
               <Grid container spacing={8} style={{ paddingBottom: 16 }}>
@@ -222,144 +196,162 @@ class EditVisit extends Component {
               </Grid>
             )
           }
-
-          <form
-            id="visitForm"
-            onSubmit={(e) => {
-              e.preventDefault();
-              this.submitForm();
-            }}
-          >
-            <Grid
-              container
-              spacing={spacing * 2}
-              style={{ paddingTop: spacing * 2 }}
-            >
-              <FormRow>
-                <DateInput
-                  label={form.visitType !== 'admission' ? 'Check-in' : 'Admission Date'}
-                  name="startDate"
-                  value={form.startDate}
-                  onChange={this.handleUserInput}
-                  required
-                />
-                {form.visitType === 'admission'
-                  && (
-                    <DateInput
-                      label="Discharge Date"
-                      name="endDate"
-                      value={form.endDate}
-                      onChange={this.handleUserInput}
+          <Form
+            onSubmit={this.handleFormSubmit}
+            initialValues={visitModel.toJSON()}
+            validationSchema={visitModel.validationSchema}
+            render={({ isSubmitting, values, submitForm }) => (
+              <React.Fragment>
+                <Grid
+                  container
+                  spacing={spacing * 2}
+                  style={{ paddingTop: spacing * 2 }}
+                >
+                  <FormRow>
+                    <Field
+                      component={DateField}
+                      label={values.visitType !== 'admission' ? 'Check-in' : 'Admission Date'}
+                      name="startDate"
+                      required
                     />
-                  )
-                }
-                <TextInput
-                  name="location"
-                  label="Location"
-                  value={form.location}
-                  onChange={this.handleUserInput}
-                />
-              </FormRow>
-              <FormRow>
-                <SelectInput
-                  options={visitOptions}
-                  label="Visit Type"
-                  name="visitType"
-                  value={form.visitType}
-                  onChange={(value) => this.handleUserInput(value, 'visitType')}
-                  disabled={action === 'edit'}
-                />
-                <TextInput
-                  name="examiner"
-                  label="Doctor/Nurse"
-                  value={form.examiner}
-                  onChange={this.handleUserInput}
-                />
-              </FormRow>
-              <FormRow>
-                <TextInput
-                  label="Reason For Visit"
-                  name="reasonForVisit"
-                  value={form.reasonForVisit}
-                  onChange={this.handleUserInput}
-                  multiline
-                  rows="3"
-                />
-              </FormRow>
-              {action === 'edit'
-                && (
-                  <Grid
-                    container
-                    spacing={8}
-                    style={{ paddingTop: spacing * 3 }}
-                  >
-                    { this.renderTabs() }
-                    <Grid container>
-                      { this.renderTabsContent() }
-                    </Grid>
-                  </Grid>
-                )
-              }
-            </Grid>
-            <BottomBar>
-              <CancelButton
-                to={`/patients/editPatient/${patient._id}`}
-              />
-              {action === 'new' && (
-              <AddButton
-                disabled={!visitModel.isValid()}
-                type="submit"
-                form="visitForm"
-                can={{ do: 'create', on: 'visit' }}
-              />
-              )}
-              {action !== 'new' && (
-              <UpdateButton
-                disabled={!visitModel.isValid()}
-                type="submit"
-                form="visitForm"
-                can={{ do: 'update', on: 'visit' }}
-              />
-              )}
-              {form.status === visitStatuses.ADMITTED
-                && (
-                <DischargeButton
-                  onClick={this.discharge}
-                  can={{ do: 'update', on: 'visit', field: 'status' }}
-                />
-                )
-              }
-              {form.status === visitStatuses.CHECKED_IN
-                && (
-                <CheckOutButton
-                  onClick={this.checkOut}
-                  can={{ do: 'update', on: 'visit', field: 'status' }}
-                />
-                )
-              }
-            </BottomBar>
-          </form>
+                    {values.visitType === 'admission'
+                      && (
+                        <Field
+                          component={DateField}
+                          label="Discharge Date"
+                          name="endDate"
+                        />
+                      )
+                    }
+                    <Field
+                      component={TextField}
+                      name="location"
+                      label="Location"
+                    />
+                  </FormRow>
+                  <FormRow>
+                    <Field
+                      component={SelectField}
+                      options={visitOptions}
+                      label="Visit Type"
+                      name="visitType"
+                      disabled={action === 'edit'}
+                    />
+                    <Field
+                      component={TextField}
+                      name="examiner"
+                      label="Doctor/Nurse"
+                    />
+                  </FormRow>
+                  <FormRow>
+                    <Field
+                      component={TextField}
+                      label="Reason For Visit"
+                      name="reasonForVisit"
+                      multiline
+                      rows="3"
+                    />
+                  </FormRow>
+                  {action === 'edit'
+                    && (
+                      <Grid
+                        container
+                        spacing={8}
+                        style={{ paddingTop: spacing * 3 }}
+                      >
+                        { this.renderTabs() }
+                        <Grid container>
+                          { this.renderTabsContent() }
+                        </Grid>
+                      </Grid>
+                    )
+                  }
+                </Grid>
+                <BottomBar>
+                  <CancelButton
+                    to={`/patients/editPatient/${patientModel.get('_id')}`}
+                  />
+                  {action === 'new' && (
+                  <AddButton
+                    type="button"
+                    disabled={isSubmitting}
+                    can={{ do: 'create', on: 'visit' }}
+                    onClick={submitForm}
+                  />
+                  )}
+                  {action !== 'new' && (
+                  <UpdateButton
+                    type="button"
+                    disabled={isSubmitting}
+                    can={{ do: 'update', on: 'visit' }}
+                    onClick={submitForm}
+                  />
+                  )}
+                  {values.status === visitStatuses.ADMITTED
+                    && (
+                    <DischargeButton
+                      onClick={this.discharge(submitForm)}
+                      disabled={isSubmitting}
+                      can={{ do: 'update', on: 'visit', field: 'status' }}
+                    />
+                    )
+                  }
+                  {values.status === visitStatuses.CHECKED_IN
+                    && (
+                    <CheckOutButton
+                      onClick={this.checkOut(submitForm)}
+                      disabled={isSubmitting}
+                      can={{ do: 'update', on: 'visit', field: 'status' }}
+                    />
+                    )
+                  }
+                </BottomBar>
+              </React.Fragment>
+            )}
+          />
         </Container>
       </React.Fragment>
     );
   }
 }
 
-function mapStateToProps(state) {
+EditVisit.propTypes = {
+  initVisit: PropTypes.func.isRequired,
+  submitForm: PropTypes.func.isRequired,
+  resetSaved: PropTypes.func.isRequired,
+  patientModel: PropTypes.instanceOf(Object).isRequired,
+  visitModel: PropTypes.instanceOf(Object),
+  checkIn: PropTypes.bool,
+  action: PropTypes.string,
+  loading: PropTypes.bool,
+};
+
+EditVisit.defaultProps = {
+  visitModel: new VisitModel(),
+  checkIn: false,
+  action: 'new',
+  loading: true,
+};
+
+function mapStateToProps(state, { match: { path } }) {
   const {
     patient, visit, action, loading, error,
   } = state.patients;
   const mappedProps = {
-    patient, action, loading, error,
+    patientModel: patient,
+    action,
+    loading,
+    error,
+    checkIn: path.indexOf('check-in') !== -1,
   };
-  if (visit instanceof VisitModel) mappedProps.visit = visit;
+  if (visit instanceof VisitModel) mappedProps.visitModel = visit;
   return mappedProps;
 }
 
 const { visit: visitActions } = actions;
 const { initVisit, submitForm, resetSaved } = visitActions;
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  initVisit: (params) => dispatch(initVisit(params)),
+const mapDispatchToProps = (dispatch, { match: { params: { patientId, id } } }) => ({
+  initVisit: (props) => dispatch(initVisit({ patientId, id, ...props })),
   submitForm: (params) => dispatch(submitForm(params)),
   resetSaved: (params) => dispatch(resetSaved(params)),
 });
