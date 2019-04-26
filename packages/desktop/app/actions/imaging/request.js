@@ -57,30 +57,27 @@ export const initImagingRequest = ({ patientId, id }) => async dispatch => {
   }
 };
 
-export const saveImagingRequest = ({ imagingRequestModel, action }) => async (dispatch, getState) => {
+export const saveImagingRequest = ({
+  imagingRequestModel, action, setSubmitting,
+}) => async (dispatch, getState) => {
   dispatch({ type: SAVE_IMAGING_REQUEST_REQUEST });
-  if (imagingRequestModel.isValid()) {
-    try {
-      const { auth: { userId } } = getState();
-      const visitId = imagingRequestModel.get('visit');
-      const requestedBy = new UserModel({ _id: userId });
-      imagingRequestModel.set({ requestedBy });
+  try {
+    const { auth: { userId } } = getState();
+    const visitId = imagingRequestModel.get('visit');
+    const requestedBy = new UserModel({ _id: userId });
+    imagingRequestModel.set({ requestedBy });
 
-      await imagingRequestModel.save(null, { validate: false });
-      await _updateVisit(visitId, imagingRequestModel);
+    await imagingRequestModel.save(null, { validate: false });
+    await updateVisit(visitId, imagingRequestModel);
 
-      dispatch({ type: SAVE_IMAGING_REQUEST_SUCCESS, imagingRequestModel });
-      notifySuccess('Imaging request was saved successfully.');
-      if (action === 'new') history.push(`/imaging/request/${imagingRequestModel.id}`);
-    } catch (error) {
-      console.error({ error });
-      dispatch({ type: SAVE_IMAGING_REQUEST_FAILED, error });
-    }
-  } else {
-    const error = imagingRequestModel.validationError;
+    dispatch({ type: SAVE_IMAGING_REQUEST_SUCCESS, imagingRequestModel });
+    notifySuccess('Imaging request was saved successfully.');
+    if (action === 'new') history.push(`/imaging/request/${imagingRequestModel.id}`);
+  } catch (error) {
     console.error({ error });
     dispatch({ type: SAVE_IMAGING_REQUEST_FAILED, error });
   }
+  setSubmitting(false);
 };
 
 export const markImagingRequestCompleted = ({ imagingRequestModel }) => async (dispatch) => {
@@ -96,7 +93,7 @@ export const markImagingRequestCompleted = ({ imagingRequestModel }) => async (d
   }
 };
 
-const _updateVisit = async (visitId, imagingRequestModel) => {
+const updateVisit = async (visitId, imagingRequestModel) => {
   // link imaging request to visit
   const visitModel = new VisitModel({ _id: visitId });
   await visitModel.fetch();

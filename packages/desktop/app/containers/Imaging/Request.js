@@ -10,94 +10,47 @@ import styled from 'styled-components';
 import * as imagingRequestActions from '../../actions/imaging';
 import TopRow from '../Patients/components/TopRow';
 import {
-  TopBar, PatientAutocomplete, TextInput, PatientVisitSelect,
-  AddButton, UpdateButton, BackButton, DiagnosisAutocomplete, SelectInput,
-  Button, Preloader, Container, FormRow, ButtonGroup,
+  TopBar, PatientAutocompleteField, TextField, PatientVisitSelectField,
+  AddButton, UpdateButton, BackButton, DiagnosisAutocompleteField, SelectField,
+  Button, Preloader, Container, FormRow, ButtonGroup, Form, Field,
 } from '../../components';
 import { IMAGING_REQUEST_STATUSES, MUI_SPACING_UNIT as spacing } from '../../constants';
-import { ImagingRequestModel, PatientModel } from '../../models';
+import { PatientModel } from '../../models';
 
 const { dialog, shell } = electron;
 const ViewImageButton = styled(Button)`
   float: left;
 `;
 
-const prepareFormData = ({ type, ...attributes }) => {
-  if (!type) return attributes;
-  return { ...attributes, type: type.id };
-};
-
 class Request extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      visit: null,
-      isFormValid: false,
-      isLoading: true,
-    };
-  }
+  state = {
+    isLoading: true,
+  };
 
   componentDidMount() {
     this.props.initImagingRequest();
   }
 
   componentWillReceiveProps(newProps) {
-    const { imagingRequestModel } = newProps;
-    if (imagingRequestModel instanceof ImagingRequestModel) {
-      imagingRequestModel.on('change', this.handleModelChange);
-    }
-    this.handleFetchedImagingRequest(newProps);
+    const { isLoading } = newProps;
+    if (!isLoading) this.setState({ isLoading });
   }
 
-  handleFetchedImagingRequest = (props = this.props) => {
-    const { isLoading, imagingRequestModel } = props;
-    if (!isLoading) {
-      const formData = prepareFormData({
-        ...imagingRequestModel.attributes,
-        diagnosis: imagingRequestModel.get('diagnosis'),
-      });
-      this.setState({
-        ...formData,
-        isLoading,
-        isFormValid: imagingRequestModel.isValid(),
-      });
-    }
+  handlePatientChange = handleChange => event => {
+    const { value } = event.target;
+    handleChange(event);
+    this.props.initImagingRequest({ patientId: value });
   }
 
-  handleModelChange = () => {
-    const { imagingRequestModel } = this.props;
-    const formData = prepareFormData(imagingRequestModel.changedAttributes());
-    const isFormValid = imagingRequestModel.isValid();
-    this.setState({ ...formData, isFormValid });
-  }
-
-  handlePatientChange = ({ _id }) => {
-    this.props.initImagingRequest({ patientId: _id });
-  }
-
-  handleTypeChange = (imagingTypeId, name) => {
-    this.handleFormChange({ [name]: { _id: imagingTypeId } });
-  }
-
-  handleDiagnosisChange = (selectedDiagnosis, name) => {
-    this.handleFormChange({ [name]: selectedDiagnosis });
-  }
-
-  handleFormInput = (event) => {
-    const { target: { name, value } } = event;
-    this.handleFormChange({ [name]: value });
-  }
-
-  submitForm = (event) => {
-    event.preventDefault();
+  submitForm = (values, { setSubmitting }) => {
     const { imagingRequestModel, action } = this.props;
-    this.props.saveImagingRequest({ imagingRequestModel, action });
+    imagingRequestModel.set(values);
+    this.props.saveImagingRequest({ imagingRequestModel, action, setSubmitting });
   }
 
-  markAsCompleted = () => {
-    const { imagingRequestModel, markImagingRequestCompleted } = this.props;
-    imagingRequestModel.set('status', IMAGING_REQUEST_STATUSES.COMPLETED);
-    markImagingRequestCompleted({ imagingRequestModel });
+  markAsCompleted = ({ setFieldValue, submitForm }) => () => {
+    setFieldValue('status', IMAGING_REQUEST_STATUSES.COMPLETED);
+    submitForm();
   }
 
   viewImage = () => {
@@ -115,147 +68,139 @@ class Request extends Component {
     }
   }
 
-  handleFormChange(change) {
-    const { imagingRequestModel } = this.props;
-    imagingRequestModel.set(change);
-  }
-
   render() {
+    const {
+      action, patientModel, isPatientSelected, imagingTypes, imagingRequestModel,
+    } = this.props;
     const { isLoading } = this.state;
     if (isLoading) return <Preloader />;
-
-    const {
-      action, patientModel, isPatientSelected, imagingTypes,
-    } = this.props;
-    const {
-      visit, location, type, notes,
-      detail, isFormValid, diagnosis, status,
-    } = this.state;
 
     return (
       <React.Fragment>
         <TopBar title={`${capitalize(action)} Imaging Request`} />
-        <form
-          className="create-container"
-          onSubmit={this.submitForm}
-        >
-          <Container>
-            {isPatientSelected
-              && <TopRow patient={patientModel.toJSON()} />
-            }
-            <Grid container spacing={spacing * 2} direction="column">
-              {action === 'new'
-                && (
-                <FormRow>
-                  {!isPatientSelected
-                    && (
-                      <PatientAutocomplete
-                        label="Patient"
-                        name="patient"
-                        onChange={this.handlePatientChange}
-                        required
-                      />
-                    )
-                  }
-                  <PatientVisitSelect
-                    patientModel={patientModel}
-                    value={visit}
-                    onChange={this.handleFormInput}
-                  />
-                </FormRow>
-                )
-              }
-              {action !== 'new'
-                && (
-                <FormRow>
-                  <DiagnosisAutocomplete
-                    label="Diagnosis"
-                    name="diagnosis"
-                    onChange={this.handleDiagnosisChange}
-                    value={diagnosis}
-                  />
-                  <TextInput
-                    label="Detail"
-                    name="detail"
-                    onChange={this.handleFormInput}
-                    value={detail}
-                    required
-                  />
-                </FormRow>
-                )
-              }
-              <FormRow>
-                <SelectInput
-                  label="Type"
-                  name="type"
-                  options={imagingTypes}
-                  className="column"
-                  onChange={this.handleTypeChange}
-                  value={type}
-                />
-                <TextInput
-                  label="Location"
-                  name="location"
-                  onChange={this.handleFormInput}
-                  value={location}
-                />
-              </FormRow>
-              <FormRow>
-                <TextInput
-                  label="Notes"
-                  name="notes"
-                  onChange={this.handleFormInput}
-                  value={notes}
-                  rows="2"
-                  multiline
-                />
-              </FormRow>
-              <Grid container item justify="flex-end">
-                <ButtonGroup>
-                  {status === IMAGING_REQUEST_STATUSES.COMPLETED
-                    && (
-                    <ViewImageButton
-                      color="secondary"
-                      variant="contained"
-                      onClick={this.viewImage}
-                    >
-                      View Image
-                    </ViewImageButton>
-                    )
-                  }
-                  <BackButton />
-                  {action === 'new'
-                    ? (
-                      <AddButton
-                        type="submit"
-                        disabled={!isFormValid}
-                        can={{ do: 'create', on: 'imaging' }}
-                      />
-                    )
-                    : (
-                      <React.Fragment>
-                        <Button
-                          color="secondary"
-                          variant="contained"
-                          can={{ do: 'update', on: 'imaging', field: 'status' }}
-                          onClick={this.markAsCompleted}
-                          disabled={status === IMAGING_REQUEST_STATUSES.COMPLETED || !isFormValid}
-                        >
-                          {status !== IMAGING_REQUEST_STATUSES.COMPLETED ? 'Mark as Completed' : 'Completed'}
-                        </Button>
-                        <UpdateButton
-                          type="submit"
-                          disabled={!isFormValid || status === IMAGING_REQUEST_STATUSES.COMPLETED}
-                          can={{ do: 'update', on: 'imaging' }}
+        <Container>
+          {isPatientSelected
+            && <TopRow patient={patientModel.toJSON()} />
+          }
+          <Form
+            onSubmit={this.submitForm}
+            initialValues={imagingRequestModel.toJSON()}
+            validationSchema={imagingRequestModel.validationSchema()}
+            render={({
+              isSubmitting, handleChange, values, ...formActions
+            }) => (
+              <Grid container spacing={spacing * 2} direction="column">
+                {action === 'new'
+                  && (
+                  <FormRow>
+                    {!isPatientSelected
+                      && (
+                        <Field
+                          component={PatientAutocompleteField}
+                          label="Patient"
+                          name="patient"
+                          onChange={this.handlePatientChange(handleChange)}
+                          required
                         />
-                      </React.Fragment>
-                    )
-                  }
-                </ButtonGroup>
+                      )
+                    }
+                    <Field
+                      component={PatientVisitSelectField}
+                      patientModel={patientModel}
+                      name="visit"
+                    />
+                  </FormRow>
+                  )
+                }
+                {action !== 'new'
+                  && (
+                  <FormRow>
+                    <Field
+                      component={DiagnosisAutocompleteField}
+                      label="Diagnosis"
+                      name="diagnosis._id"
+                    />
+                    <Field
+                      component={TextField}
+                      label="Detail"
+                      name="detail"
+                      required
+                    />
+                  </FormRow>
+                  )
+                }
+                <FormRow>
+                  <Field
+                    component={SelectField}
+                    label="Type"
+                    name="type._id"
+                    options={imagingTypes}
+                    className="column"
+                  />
+                  <Field
+                    component={TextField}
+                    label="Location"
+                    name="location"
+                  />
+                </FormRow>
+                <FormRow>
+                  <Field
+                    component={TextField}
+                    label="Notes"
+                    name="notes"
+                    rows="2"
+                    multiline
+                  />
+                </FormRow>
+                <Grid container item justify="flex-end">
+                  <ButtonGroup>
+                    {values.status === IMAGING_REQUEST_STATUSES.COMPLETED
+                      && (
+                      <ViewImageButton
+                        color="secondary"
+                        variant="contained"
+                        onClick={this.viewImage}
+                      >
+                        View Image
+                      </ViewImageButton>
+                      )
+                    }
+                    <BackButton />
+                    {action === 'new'
+                      ? (
+                        <AddButton
+                          type="submit"
+                          isSubmitting={isSubmitting}
+                          can={{ do: 'create', on: 'imaging' }}
+                        />
+                      )
+                      : (
+                        <React.Fragment>
+                          <Button
+                            color="secondary"
+                            variant="contained"
+                            can={{ do: 'update', on: 'imaging', field: 'status' }}
+                            onClick={this.markAsCompleted(formActions)}
+                            isSubmitting={isSubmitting}
+                            disabled={values.status === IMAGING_REQUEST_STATUSES.COMPLETED}
+                          >
+                            {values.status !== IMAGING_REQUEST_STATUSES.COMPLETED ? 'Mark as Completed' : 'Completed'}
+                          </Button>
+                          <UpdateButton
+                            type="submit"
+                            isSubmitting={isSubmitting}
+                            disabled={values.status === IMAGING_REQUEST_STATUSES.COMPLETED}
+                            can={{ do: 'update', on: 'imaging' }}
+                          />
+                        </React.Fragment>
+                      )
+                    }
+                  </ButtonGroup>
+                </Grid>
               </Grid>
-            </Grid>
-          </Container>
-        </form>
+            )}
+          />
+        </Container>
       </React.Fragment>
     );
   }
@@ -267,7 +212,7 @@ Request.propTypes = {
   markImagingRequestCompleted: PropTypes.func.isRequired,
   patient: PropTypes.instanceOf(Object),
   imagingTypes: PropTypes.arrayOf(PropTypes.object),
-  imagingRequestModel: PropTypes.instanceOf(ImagingRequestModel).isRequired,
+  imagingRequestModel: PropTypes.instanceOf(Object).isRequired,
   isLoading: PropTypes.bool,
   error: PropTypes.object,
 };
