@@ -134,7 +134,7 @@ export default function VitalModal({
   );
 }
 
-VisitModal.propTypes = {
+VitalModal.propTypes = {
   visitModel: PropTypes.instanceOf(Object).isRequired,
   onClose: PropTypes.func.isRequired,
   itemId: PropTypes.string,
@@ -142,7 +142,7 @@ VisitModal.propTypes = {
   action: PropTypes.string,
 };
 
-VisitModal.defaultProps = {
+VitalModal.defaultProps = {
   itemId: '',
   isVisible: false,
   action: 'new',
