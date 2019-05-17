@@ -1,4 +1,4 @@
-import SharedSettings from 'SHared/services/settings';
+import SharedSettings from 'shared/services/settings';
 
 export default class Settings extends SharedSettings {
   constructor(props) {

@@ -28,8 +28,9 @@ echo "unzip ${filename} > ${dir_tmp}"
 cd ${dir_tmp}
 $pm2 delete "${app_name}"
 rm -rf ${dir_tmp}/**/node_modules
-yarn install --cwd ${dir_tmp}/packages/server
-yarn install --cwd ${dir_tmp}/packages/shared
+# Use production=false to ensure devDependencies are installed so we have webpack
+yarn install --cwd ${dir_tmp}/packages/server --production=false
+yarn install --cwd ${dir_tmp}/packages/shared --production=false
 
 echo "${dir} > ${dir_bk}" \
   && mv ${dir} ${dir_bk} || echo " " \
