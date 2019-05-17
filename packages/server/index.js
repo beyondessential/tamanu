@@ -71,7 +71,7 @@ const ENV = process.env.NODE_ENV || 'development';
     app.set('realm', database);
 
     // Initialize seeds
-    // if (ENV === 'development') await seed(database);
+    await seed(database);
   } catch (err) {
     throw new Error(err);
   }
