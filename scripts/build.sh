@@ -22,7 +22,7 @@ mkdir -p ${SERVER_ROOT}/config/ &&
   printf '%s\n' "${!server_config}" > ${SERVER_ROOT}/config/production.json &&
   echo ${SERVER_ROOT}/config/production.json
 
-yarn --cwd ${DESKTOP_ROOT} run package-all
+yarn --cwd ${DESKTOP_ROOT} run package-win
 yarn --cwd ${LAN_ROOT} run package
 
 ./scripts/pack.sh ${type}
