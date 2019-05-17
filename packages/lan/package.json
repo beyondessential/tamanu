@@ -16,7 +16,7 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "npm test -- --watch",
-    "build": "pkg . --targets node10-win-x64 --output ./release/server.exe",
+    "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js && pkg . --targets node10-win-x64 --output ./release/server.exe",
     "package": "./scripts/package.sh",
     "lint": "eslint app",
     "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
