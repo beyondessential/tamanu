@@ -3,7 +3,6 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import compression from 'compression';
-import service from 'os-service';
 
 import { schemas, version as schemaVersion } from 'Shared/schemas';
 import routes from './app/routes';
@@ -18,11 +17,6 @@ const port = config.port || 4500;
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 (async () => {
-  // Start os-service
-  // service.run(() => {
-  //   console.log('Service runninFg.');
-  // });
-
   // // Init our app
   const app = express();
   app.use(compression());
