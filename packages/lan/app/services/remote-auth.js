@@ -85,7 +85,7 @@ export default class RemoteAuth {
       method: 'POST',
       url: `${this.mainServer}/auth/login`,
       json: {
-        ...this.credentials, clientId, hospitalId, firstTimeLogin,
+        ...this.credentials, clientId, hospital: hospitalId, firstTimeLogin,
       },
     }));
 
