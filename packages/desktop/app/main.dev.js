@@ -22,7 +22,7 @@ import MenuBuilder from './menu';
 let mainWindow = null;
 
 const isProduction = (process.env.NODE_ENV === 'production');
-const isDebug = (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true');
+const isDebug = true; // (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true');
 
 if (isProduction) {
   sourceMapSupport.install();
