@@ -49,6 +49,23 @@ export default merge.smart(baseConfig, {
           },
         },
       },
+      // css support - pipe to style.css
+      {
+        test: /\.css$/,
+        use: [
+          {
+            // Extracts the CSS into a separate file and uses the
+            // defined configurations in the 'plugins' section
+            loader: MiniCssExtractPlugin.loader
+          },
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 2
+            },
+          },
+        ],
+      },
       // SASS support - compile all .scss files and pipe it to style.css
       {
         test: /\.scss$/,
