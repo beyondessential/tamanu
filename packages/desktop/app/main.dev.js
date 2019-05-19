@@ -78,7 +78,10 @@ app.on('ready', async () => {
     }
   });
 
-  mainWindow.loadURL(`file://${__dirname}/app.html`);
+  const htmlLocation = __dirname.indexOf('dist') > 0
+    ? `file://${__dirname}/../app.html`
+    : `file://${__dirname}/app.html`
+  mainWindow.loadURL(htmlLocation);
 
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
