@@ -14,24 +14,23 @@ import sourceMapSupport from 'source-map-support';
 
 // debug only
 // TODO: exclude these from production builds entirely
-// NOTE: all debug stuff currently commented out in order to get a
-// import electronDebug from 'electron-debug';
-// import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
+import electronDebug from 'electron-debug';
+import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 
 import MenuBuilder from './menu';
 
 let mainWindow = null;
 
 const isProduction = (process.env.NODE_ENV === 'production');
-// const isDebug = (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true');
+const isDebug = true; // Using debug in release build for now (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true');
 
 if (isProduction) {
   sourceMapSupport.install();
 }
 
-// if (isDebug) {
-//   electronDebug();
-// }
+if (isDebug) {
+  electronDebug({ isEnabled: true });
+}
 
 const installExtensions = async () => {
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
@@ -64,9 +63,9 @@ app.on('window-all-closed', () => {
 
 
 app.on('ready', async () => {
-  // if (isDebug) {
-  //   await installExtensions();
-  // }
+  if (isDebug) {
+    await installExtensions();
+  }
 
   mainWindow = new BrowserWindow({
     show: false,
