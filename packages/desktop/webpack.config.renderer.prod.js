@@ -49,54 +49,27 @@ export default merge.smart(baseConfig, {
           },
         },
       },
-      {
-        test: /\.global\.css$/,
-        use: [
-          {
-            loader: 'style-loader',
-          },
-          {
-            loader: 'css-loader',
-            options: {
-              sourceMap: true,
-            },
-          },
-        ],
-      },
-      {
-        test: /^((?!\.global).)*\.css$/,
-        use: [
-          {
-            loader: 'style-loader',
-          },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: true,
-              sourceMap: true,
-              importLoaders: 1,
-              localIdentName: '[name]__[local]__[hash:base64:5]',
-            },
-          },
-        ],
-      },
       // SASS support - compile all .scss files and pipe it to style.css
       {
-        test: /\.(scss|sass)$/,
-        exclude: /node_modules/,
+        test: /\.scss$/,
         use: [
           {
-            loader: 'style-loader',
+            // Extracts the CSS into a separate file and uses the
+            // defined configurations in the 'plugins' section
+            loader: MiniCssExtractPlugin.loader
           },
           {
-            loader: 'css-loader',
+            // Interprets CSS
+            loader: "css-loader",
             options: {
-              sourceMap: true,
-            },
+              importLoaders: 2
+            }
           },
           {
-            loader: 'sass-loader',
-          },
+            // Adds support for Sass files, if using Less, then
+            // use the less-loader
+            loader: "sass-loader"
+          }
         ],
       },
       // WOFF Font
