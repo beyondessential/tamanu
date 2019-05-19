@@ -15,6 +15,6 @@
     "password": "admin"
   },
   "mainServer": "http://13.210.104.94:3000",
-  "offlineMode": true,
+  "offlineMode": false,
   "sessionTimeout": 300000
 }
