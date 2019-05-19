@@ -29,10 +29,6 @@
       "**/webpack/**",
       "**/fbjs-scripts",
       "**/fbjs-scripts/**",
-      "**/electron",
-      "**/electron/**",
-      "**/electron-*",
-      "**/electron-*/**",
       "**/config",
       "**/config/**"
     ]
