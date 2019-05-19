@@ -73,6 +73,9 @@ app.on('ready', async () => {
     // height: 728
     width: 1500,
     height: 900,
+    webPreferences: {
+      webSecurity: false,
+    }
   });
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
