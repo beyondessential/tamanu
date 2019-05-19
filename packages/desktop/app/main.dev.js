@@ -72,10 +72,7 @@ app.on('ready', async () => {
     // width: 1024,
     // height: 728
     width: 1500,
-    height: 900,
-    webPreferences: {
-      webSecurity: false,
-    }
+    height: 900
   });
 
   const htmlLocation = __dirname.indexOf('dist') > 0
