@@ -30,7 +30,9 @@ class StoryControlWrapper extends React.PureComponent {
   state = { value: null };
 
   onChange = (e) => {
+    const { onChange } = this.props;
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    if(onChange) onChange(value);
     this.setState({ value });
   }
 
@@ -141,7 +143,11 @@ addStories('SelectInput', (props) => (
 ));
 
 storiesOf('Advanced form controls', module)
-  .add('Autocomplete', () => <StoryControlWrapper Component={CommonAutocomplete} label="Language" />)
+  .add('Autocomplete', () => <StoryControlWrapper
+    Component={CommonAutocomplete}
+    label="Language"
+    onChange={action('change')}
+  />)
   .add('AsyncAutocomplete', () => <div>WIP</div>)
   .add('ArrayInput', () => <div>WIP</div>);
 

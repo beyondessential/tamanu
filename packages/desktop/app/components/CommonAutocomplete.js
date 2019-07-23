@@ -45,6 +45,7 @@ const renderInputComponent = (inputProps) => {
   );
 };
 
+/*
 class AutocompleteComponent extends Component {
   static propTypes = {
     collection: PropTypes.instanceOf(Object).isRequired,
@@ -128,6 +129,78 @@ class AutocompleteComponent extends Component {
       label, required, name, classes,
     } = this.props;
     return (
+    );
+  }
+}
+*/
+
+class BaseAutocomplete extends Component {
+  static propTypes = {
+    label: PropTypes.string.isRequired,
+    required: PropTypes.bool,
+    name: PropTypes.string.isRequired,
+    className: PropTypes.string,
+    onChange: PropTypes.func.isRequired,
+    value: PropTypes.string,
+
+    fetchSuggestions: PropTypes.func,
+  }
+
+  static defaultProps = {
+    required: false,
+    className: '',
+    value: '',
+    fetchSuggestions: () => ['a', 'b', 'c', 'd'].map(x => ({ label: `test${x}`, value: x })),
+  }
+
+  state = {
+    suggestions: [],
+    displayedValue: '',
+  }
+
+  handleSuggestionChange = option => {
+    const { onChange } = this.props;
+    const { value, label } = option;
+
+    onChange({ target: { value }});
+    return option.label;
+  }
+
+  fetchSuggestions = async ({ value }) => {
+    const { fetchSuggestions } = this.props;
+    const suggestions = await fetchSuggestions(value);
+    this.setState({ suggestions });
+  }
+
+  handleInputChange = (event, { newValue }) => {
+    if (typeof newValue !== 'undefined') {
+      this.setState({ displayedValue: newValue });
+    }
+  }
+
+  clearSuggestions = () => {
+    this.setState({ suggestions: [] });
+  }
+
+  renderSuggestion = (suggestion, { isHighlighted }) => {
+    return (
+      <MenuItem selected={isHighlighted} component="div" style={{ padding: 8 }}>
+        <Typography variant="body2">
+          {suggestion.label}
+        </Typography>
+      </MenuItem>
+    );
+  }
+
+  onPopperRef = popper => {
+    this.popperNode = popper;
+  }
+
+  render() {
+    const { displayedValue, suggestions } = this.state;
+    const { label, required, name, classes } = this.props;
+
+    return (
       <Autosuggest
         suggestions={suggestions}
         onSuggestionsFetchRequested={this.fetchSuggestions}
@@ -156,11 +229,9 @@ class AutocompleteComponent extends Component {
           required,
           name,
           classes,
-          value,
+          value: displayedValue,
           onChange: this.handleInputChange,
-          inputRef: node => {
-            this.popperNode = node;
-          },
+          inputRef: this.onPopperRef,
         }}
         theme={{
           suggestionsList: classes.suggestionsList,
@@ -171,4 +242,5 @@ class AutocompleteComponent extends Component {
   }
 }
 
-export const CommonAutocomplete = withStyles(styles)(AutocompleteComponent);
+export const CommonAutocomplete = withStyles(styles)(BaseAutocomplete);
+
