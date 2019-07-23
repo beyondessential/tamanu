@@ -45,31 +45,16 @@ const renderInputComponent = (inputProps) => {
   );
 };
 
-/*
-class AutocompleteComponent extends Component {
+class CollectionAutocomplete extends Component {
   static propTypes = {
     collection: PropTypes.instanceOf(Object).isRequired,
     ModelClass: PropTypes.func.isRequired,
-    label: PropTypes.string.isRequired,
-    required: PropTypes.bool,
-    name: PropTypes.string.isRequired,
-    className: PropTypes.string,
-    onChange: PropTypes.func.isRequired,
     formatOptionLabel: PropTypes.func.isRequired,
-    value: PropTypes.string,
     filterModels: PropTypes.func,
   }
 
   static defaultProps = {
-    required: false,
-    className: '',
-    value: '',
     filterModels: () => true,
-  }
-
-  state = {
-    suggestions: [],
-    value: '',
   }
 
   async componentWillMount() {
@@ -82,57 +67,32 @@ class AutocompleteComponent extends Component {
     }
   }
 
-  handleSuggestionChange = option => {
-    const { formatOptionLabel } = this.props;
-    const { onChange, name } = this.props;
-    if (option && onChange) onChange({ target: { value: option._id, name } });
-    return formatOptionLabel(option);
-  }
-
   fetchSuggestions = async ({ value }) => {
-    if (value) {
-      const { collection, filterModels } = this.props;
-      try {
-        collection.setKeyword(value);
-        await collection.fetch({ data: { page_size: 15 } });
-        this.setState({ suggestions: collection.models.map((model) => model.attributes).filter(filterModels) });
-      } catch (err) {
-        console.error(err);
-      }
-    } else {
-      this.setState({ suggestions: [] });
+    if (!value) {
+      return [];
+    }
+
+    const { collection, filterModels } = this.props;
+    try {
+      collection.setKeyword(value);
+      await collection.fetch({ data: { page_size: 15 } });
+      return collection.models
+        .map((model) => model.attributes)
+        .filter(filterModels);
+    } catch (err) {
+      console.error(err);
+      return [];
     }
   }
 
-  handleInputChange = (event, { newValue }) => {
-    if (typeof newValue !== 'undefined') this.setState({ value: newValue });
-  }
-
-  clearSuggestions = () => {
-    this.setState({ suggestions: [] });
-  }
-
-  renderSuggestion = (suggestion, { isHighlighted }) => {
-    const { formatOptionLabel } = this.props;
-    return (
-      <MenuItem selected={isHighlighted} component="div" style={{ padding: 8 }}>
-        <Typography variant="body2">
-          {formatOptionLabel(suggestion)}
-        </Typography>
-      </MenuItem>
-    );
-  }
-
   render() {
-    const { value, suggestions } = this.state;
-    const {
-      label, required, name, classes,
-    } = this.props;
     return (
+      <BaseAutocomplete
+        fetchSuggestions={this.fetchSuggestions}
+      />
     );
   }
 }
-*/
 
 class BaseAutocomplete extends Component {
   static propTypes = {
