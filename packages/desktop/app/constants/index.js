@@ -852,10 +852,12 @@ export const notesColumns = [
     style: columnStyle,
     minWidth: 100,
   }, {
-    accessor: 'authoredBy',
+    id: 'authoredBy',
     Header: 'Authored By',
     headerStyle,
     style: columnStyle,
+    // TODO: this prevents a crash, but is definitely still broken
+    accessor: row => "" + row.authoredBy,
     minWidth: 100,
   }, {
     accessor: 'content',
