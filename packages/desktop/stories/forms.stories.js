@@ -72,7 +72,15 @@ addStories('TextInput', (props) => (
     label="Display name"
     {...props}
   />
-), 'Free text input.');
+), 'Free text input.')
+  .add('Multiline', () => (
+    <StoryControlWrapper
+      Component={TextInput}
+      label="Life story"
+      multiline
+      rows={4}
+    />
+  ));
 
 addStories('CheckInput', (props) => (
   <StoryControlWrapper
@@ -160,7 +168,6 @@ addStories('Autocomplete', (props) => (
 ));
 
 storiesOf('Advanced form controls', module)
-  .add('AsyncAutocomplete', () => <div>WIP</div>)
   .add('ArrayInput', () => <div>WIP</div>);
 
 storiesOf('Forms', module)
