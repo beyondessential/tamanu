@@ -120,6 +120,26 @@ class BaseAutocomplete extends Component {
     this.popperNode = popper;
   }
 
+  renderContainer = (option) => {
+    const { classes } = this.props;
+    return (
+      <Popper
+        className={classes.popperContainer}
+        anchorEl={this.popperNode}
+        open={!!option.children}
+        disablePortal
+      >
+        <Paper
+          square
+          {...option.containerProps}
+          style={{ width: this.popperNode ? this.popperNode.clientWidth : null }}
+        >
+          {option.children}
+        </Paper>
+      </Popper>
+    );
+  }
+
   render() {
     const { displayedValue, suggestions } = this.state;
     const {
@@ -137,22 +157,7 @@ class BaseAutocomplete extends Component {
         suggestions={suggestions}
         onSuggestionsFetchRequested={this.fetchOptions}
         onSuggestionsClearRequested={this.clearOptions}
-        renderSuggestionsContainer={option => (
-          <Popper
-            className={classes.popperContainer}
-            anchorEl={this.popperNode}
-            open={!!option.children}
-            disablePortal
-          >
-            <Paper
-              square
-              {...option.containerProps}
-              style={{ width: this.popperNode ? this.popperNode.clientWidth : null }}
-            >
-              {option.children}
-            </Paper>
-          </Popper>
-        )}
+        renderSuggestionsContainer={this.renderContainer}
         getSuggestionValue={this.handleSuggestionChange}
         renderSuggestion={this.renderSuggestion}
         renderInputComponent={renderInputComponent}
