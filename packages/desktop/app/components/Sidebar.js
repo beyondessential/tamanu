@@ -353,15 +353,12 @@ class Sidebar extends Component {
     selectedParentItem: '',
   }
 
+  programsCollection = new ProgramsCollection();
+
   async componentWillMount() {
-    this.props.programsCollection.fetchAll({
+    this.programsCollection.fetchAll({
       success: ({ models: programModels }) => this.updateProgramsMenu(programModels),
     });
-  }
-
-  componentWillReceiveProps(newProps) {
-    const { programsCollection = {} } = newProps;
-    this.updateProgramsMenu(programsCollection.models);
   }
 
   updateProgramsMenu = (programs) => {
@@ -369,16 +366,13 @@ class Sidebar extends Component {
     const programsNav = find(sidebarInfo, { key: 'programs' });
     if (!isEmpty(programs)) {
       programsNav.hidden = false;
-      programsNav.children = [];
-      programs.forEach((programString, key) => {
+      programsNav.children = programs.map((programString, key) => {
         const program = programString.toJSON();
-        programsNav.children.push({
+        return {
           label: program.name,
           path: `/programs/${program._id}/patients`,
           icon: submenuIcons.action,
-        });
-
-        if (key === 0) programsNav.path = `/programs/${program._id}/patients`;
+        };
       });
     }
 
@@ -450,10 +444,7 @@ class Sidebar extends Component {
 
 function mapStateToProps(state) {
   const { pathname: currentPath } = state.router.location;
-  const programsCollection = new ProgramsCollection();
-  return {
-    currentPath, programsCollection,
-  };
+  return { currentPath };
 }
 
 const mapDispatchToProps = (dispatch) => ({

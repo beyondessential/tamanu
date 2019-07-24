@@ -1,8 +1,6 @@
 import moment from 'moment';
 import { padStart, capitalize } from 'lodash';
 
-import { availableReports } from '../containers/Reports/dummyReports';
-
 export const MUI_SPACING_UNIT = 8;
 
 export const REMEMBER_EMAIL_KEY = 'remember-email';
