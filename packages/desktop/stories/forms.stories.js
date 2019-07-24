@@ -145,6 +145,7 @@ addStories('Autocomplete', (props) => (
     Component={CommonAutocomplete} 
     label="Fruit"
     options={FRUITS}
+    {...props}
   />
 )).add('Asynchronous options', () => (
   <StoryControlWrapper 

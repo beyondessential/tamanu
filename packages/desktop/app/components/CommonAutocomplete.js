@@ -32,7 +32,6 @@ const renderInputComponent = (inputProps) => {
     classes, inputRef = () => {}, ref, ...other
   } = inputProps;
   return (
-    <div className="control">
       <TextField
         fullWidth
         inputRef={node => {
@@ -41,7 +40,6 @@ const renderInputComponent = (inputProps) => {
         }}
         {...other}
       />
-    </div>
   );
 };
 
@@ -49,6 +47,9 @@ class BaseAutocomplete extends Component {
   static propTypes = {
     label: PropTypes.string.isRequired,
     required: PropTypes.bool,
+    disabled: PropTypes.bool,
+    error: PropTypes.bool,
+    helperText: PropTypes.string,
     name: PropTypes.string.isRequired,
     className: PropTypes.string,
     onChange: PropTypes.func.isRequired,
@@ -63,6 +64,9 @@ class BaseAutocomplete extends Component {
 
   static defaultProps = {
     required: false,
+    error: false,
+    disabled: false,
+    helperText: '',
     className: '',
     value: '',
     fetchOptions: null,
@@ -118,7 +122,15 @@ class BaseAutocomplete extends Component {
 
   render() {
     const { displayedValue, suggestions } = this.state;
-    const { label, required, name, classes } = this.props;
+    const {
+      label, 
+      required, 
+      name, 
+      classes,
+      disabled,
+      error,
+      helperText,
+    } = this.props;
 
     return (
       <Autosuggest
@@ -147,6 +159,9 @@ class BaseAutocomplete extends Component {
         inputProps={{
           label,
           required,
+          disabled,
+          error,
+          helperText,
           name,
           classes,
           value: displayedValue,
