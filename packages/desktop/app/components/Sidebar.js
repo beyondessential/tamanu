@@ -69,56 +69,36 @@ const LogoutItem = ({ onClick }) => (
 );
 
 const PrimarySidebarItem = ({
-  item, ability, selected, onClick,
+  icon, label, children, selected, onClick,
 }) => (
   <React.Fragment>
     <ListItem button onClick={onClick} selected={selected}>
-      <SidebarPrimaryIcon src={item.icon} />
-      <SidebarItemText inset disableTypography primary={item.label} />
+      <SidebarPrimaryIcon src={icon} />
+      <SidebarItemText inset disableTypography primary={label} />
     </ListItem>
     <Collapse in={selected} timeout="auto" unmountOnExit>
       <List component="div" disablePadding>
-        {item.children.map(child => (
-          <SecondarySidebarItem
-            item={child}
-            key={child.path}
-            parentAbility={ability}
-          />
-        ))}
+        {children}
       </List>
     </Collapse>
   </React.Fragment>
 );
 
-const SecondarySidebarItem = withRouter(({ item, location, parentAbility }) => {
-  const ability = { ...parentAbility, ...(item.ability || {}) };
-  const { action, subject } = ability;
-  if (!action || !subject) {
-    throw new Error('Invalid ability provided to sidebar item');
-  }
-  const allowed = checkAbility({ action, subject });
-
-  return (
-    <ListItem
-      button
-      component={Link}
-      to={item.path}
-      selected={item.path === location.pathname}
-      disabled={!allowed}
-      replace={item.path === location.pathname}
-    >
-      <i className={item.icon} />
-      <SidebarItemText disableTypography primary={item.label} />
-    </ListItem>
-  );
-});
+const SecondarySidebarItem = withRouter(({ path, icon, label, location, disabled }) => (
+  <ListItem
+    button
+    component={Link}
+    to={path}
+    disabled={disabled}
+    selected={path === location.pathname}
+    replace={path === location.pathname}
+  >
+    <i className={icon} />
+    <SidebarItemText disableTypography primary={label} />
+  </ListItem>
+));
 
 class Sidebar extends Component {
-  constructor(props) {
-    super(props);
-    this.updateProgramsMenu = this.updateProgramsMenu.bind(this);
-  }
-
   state = {
     selectedParentItem: '',
   }
@@ -147,7 +127,7 @@ class Sidebar extends Component {
     }
   }
 
-  updateProgramsMenu(programs) {
+  updateProgramsMenu = (programs) => {
     // Prepare programs sub-menu
     const programsNav = find(sidebarInfo, { key: 'programs' });
     if (!isEmpty(programs)) {
@@ -176,15 +156,24 @@ class Sidebar extends Component {
           <List component="nav">
             {
               sidebarInfo.map((item) => {
-                const { ability = {} } = item;
                 return (
                   <PrimarySidebarItem
-                    item={item}
+                    icon={item.icon}
+                    label={item.label}
                     key={item.key}
-                    ability={ability}
                     selected={selectedParentItem === item.key}
                     onClick={() => this.clickedParentItem(item)}
-                  />
+                  >
+                    {item.children.map(child => (
+                      <SecondarySidebarItem
+                        key={child.path}
+                        path={child.path}
+                        icon={child.icon}
+                        label={child.label}
+                        disabled={!checkAbility({...item.ability, ...child.ability})}
+                      />
+                    ))}
+                  </PrimarySidebarItem>
                 );
               })
             }
