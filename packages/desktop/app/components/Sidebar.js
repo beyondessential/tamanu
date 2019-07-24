@@ -11,15 +11,263 @@ import Divider from '@material-ui/core/Divider';
 import { grey } from '@material-ui/core/colors';
 
 import styled from 'styled-components';
-import { sidebarInfo, submenuIcons } from '../constants';
 import { ProgramsCollection } from '../collections';
 import actions from '../actions/auth';
 import { checkAbility } from '../utils/ability-context';
 
-import { logoutIcon } from '../constants/images';
+import {
+  patientIcon,
+  scheduleIcon,
+  medicationIcon,
+  labsIcon,
+  administrationIcon,
+  programsIcon,
+  radiologyIcon,
+  logoutIcon,
+} from '../constants/images';
+import { availableReports } from '../containers/Reports/dummyReports';
+
 import { TamanuLogo } from './TamanuLogo';
 
 import { Translated } from './Translated';
+
+const submenuIcons = {
+  calendar: 'fa fa-calendar',
+  new: 'fa fa-plus',
+  search: 'fa fa-search',
+  table: 'fa fa-th-list',
+  users: 'fa fa-users',
+  permissions: 'fa fa-lock',
+  cog: 'fa fa-cog',
+  report: 'fa fa-chevron-circle-right',
+  action: 'fa fa-chevron-circle-right',
+};
+
+const sidebarInfo = [
+  {
+    key: 'patients',
+    label: 'Patients',
+    path: '/patients',
+    icon: patientIcon,
+    ability: { subject: 'patient' },
+    children: [
+      {
+        label: 'Patient Listing',
+        path: '/patients',
+        icon: submenuIcons.table,
+        ability: { action: 'read' },
+      },
+      {
+        label: 'Admitted Patients',
+        path: '/patients/admitted',
+        icon: submenuIcons.table,
+        ability: { action: 'read' },
+      },
+      {
+        label: 'Outpatients',
+        path: '/patients/outpatient',
+        icon: submenuIcons.table,
+        ability: { action: 'read' },
+      },
+      {
+        label: 'New Patient',
+        path: '/patients/edit/new',
+        icon: submenuIcons.new,
+        ability: { action: 'create' },
+      },
+    ],
+  },
+  {
+    key: 'scheduling',
+    label: 'Scheduling',
+    path: '/appointments',
+    icon: scheduleIcon,
+    ability: { subject: 'appointment' },
+    children: [
+      {
+        label: 'Appointments This Week',
+        path: '/appointments/week',
+        icon: submenuIcons.table,
+        ability: { action: 'read' },
+      },
+      {
+        label: "Today's Appointments",
+        path: '/appointments/today',
+        icon: submenuIcons.table,
+        ability: { action: 'read' },
+      },
+      {
+        label: 'Search Appointments',
+        path: '/appointments/search',
+        icon: submenuIcons.search,
+        ability: { action: 'read' },
+      },
+      {
+        label: 'Appointments Calendar',
+        path: '/appointments/calendar',
+        icon: submenuIcons.calendar,
+        ability: { action: 'read' },
+      },
+      {
+        label: 'Add Appointment',
+        path: '/appointments/appointment/new',
+        icon: submenuIcons.new,
+        ability: { action: 'create' },
+      },
+      {
+        label: 'Theater Schedule',
+        path: '/appointments/theater',
+        icon: submenuIcons.calendar,
+        ability: { action: 'read' },
+      },
+      {
+        label: 'Schedule Surgery',
+        path: '/appointments/surgery/new',
+        icon: submenuIcons.new,
+        ability: { action: 'create' },
+      },
+    ],
+  },
+  {
+    key: 'medication',
+    label: 'Medication',
+    path: '/medication',
+    icon: medicationIcon,
+    ability: { subject: 'medication' },
+    children: [
+      {
+        label: 'Requests',
+        path: '/medication/requests',
+        icon: submenuIcons.table,
+        ability: { action: 'read' },
+      },
+      {
+        label: 'Completed',
+        path: '/medication/completed',
+        icon: submenuIcons.table,
+        ability: { action: 'read' },
+      },
+      {
+        label: 'New Request',
+        path: '/medication/request',
+        icon: submenuIcons.new,
+        ability: { action: 'create' },
+      },
+      {
+        label: 'Dispense',
+        path: '/medication/dispense',
+        icon: submenuIcons.action,
+        ability: { action: 'create' },
+      },
+    ],
+  },
+  {
+    key: 'imaging',
+    label: 'Imaging',
+    path: '/imaging',
+    icon: radiologyIcon,
+    ability: { subject: 'imaging' },
+    children: [
+      {
+        label: 'Requests',
+        path: '/imaging',
+        icon: submenuIcons.table,
+        ability: { action: 'read' },
+      },
+      {
+        label: 'Completed',
+        path: '/imaging/completed',
+        icon: submenuIcons.table,
+        ability: { action: 'read' },
+      },
+      {
+        label: 'New Request',
+        path: '/imaging/request',
+        icon: submenuIcons.new,
+        ability: { action: 'create' },
+      },
+    ],
+  },
+  {
+    key: 'labs',
+    label: 'Labs',
+    path: '/labs',
+    icon: labsIcon,
+    ability: { subject: 'lab' },
+    children: [
+      {
+        label: 'Requests',
+        path: '/labs',
+        icon: submenuIcons.table,
+        ability: { action: 'read' },
+      },
+      {
+        label: 'Completed',
+        path: '/labs/completed',
+        icon: submenuIcons.table,
+        ability: { action: 'read' },
+      },
+      {
+        label: 'New Request',
+        path: '/labs/edit/new',
+        icon: submenuIcons.new,
+        ability: { action: 'create' },
+      },
+    ],
+  },
+  {
+    key: 'admin',
+    label: 'Administration',
+    path: '/admin',
+    icon: administrationIcon,
+    ability: { subject: 'user', action: 'read' },
+    children: [
+      {
+        label: 'Settings',
+        path: '/admin/settings',
+        icon: submenuIcons.cog,
+      },
+      {
+        label: 'Users',
+        path: '/admin/users',
+        icon: submenuIcons.users,
+        ability: { action: 'read', subject: 'user' },
+      },
+      {
+        label: 'Permissions',
+        path: '/admin/permissions',
+        icon: submenuIcons.permissions,
+        ability: { action: 'read', subject: 'userRole' },
+      },
+      {
+        label: 'New User',
+        path: '/admin/users/edit/new',
+        icon: submenuIcons.new,
+        ability: { action: 'create', subject: 'user' },
+      },
+    ],
+  },
+  {
+    key: 'programs',
+    label: 'Programs',
+    path: '/programs',
+    icon: programsIcon,
+    ability: { action: 'read', subject: 'program' },
+    children: [],
+  },
+  {
+    key: 'reports',
+    label: 'Reports',
+    path: '/reports',
+    icon: scheduleIcon,
+    ability: { action: 'read', subject: 'report' },
+    children: availableReports.map(report => ({
+      label: report.name,
+      path: `/reports/${report.id}`,
+      icon: submenuIcons.report,
+    })),
+  },
+];
 
 const { login: loginActions } = actions;
 const { logout } = loginActions;
@@ -84,19 +332,21 @@ const PrimarySidebarItem = ({
   </React.Fragment>
 );
 
-const SecondarySidebarItem = withRouter(({ path, icon, label, location, disabled }) => (
+const SecondarySidebarItem = ({
+  path, icon, label, isCurrent, disabled 
+}) => (
   <ListItem
     button
     component={Link}
     to={path}
     disabled={disabled}
-    selected={path === location.pathname}
-    replace={path === location.pathname}
+    selected={isCurrent}
+    replace={isCurrent}
   >
     <i className={icon} />
     <SidebarItemText disableTypography primary={label} />
   </ListItem>
-));
+);
 
 class Sidebar extends Component {
   state = {
@@ -112,19 +362,6 @@ class Sidebar extends Component {
   componentWillReceiveProps(newProps) {
     const { programsCollection = {} } = newProps;
     this.updateProgramsMenu(programsCollection.models);
-  }
-
-  clickedParentItem = ({ key }) => {
-    const { selectedParentItem } = this.state;
-    if (selectedParentItem !== key) {
-      this.setState({
-        selectedParentItem: key,
-      });
-    } else {
-      this.setState({
-        selectedParentItem: '',
-      });
-    }
   }
 
   updateProgramsMenu = (programs) => {
@@ -148,8 +385,25 @@ class Sidebar extends Component {
     this.forceUpdate();
   }
 
+  onLogout = () => {
+    const { onLogout } = this.props;
+    if(onLogout) {
+      onLogout();
+    }
+  }
+
+  clickedParentItem = ({ key }) => {
+    const { selectedParentItem } = this.state;
+    if (selectedParentItem === key) {
+      this.setState({ selectedParentItem: '' });
+    } else {
+      this.setState({ selectedParentItem: key });
+    }
+  }
+
   render() {
     const { selectedParentItem } = this.state;
+    const { currentPath } = this.props;
     return (
       <SidebarContainer>
         <SidebarMenuContainer>
@@ -168,6 +422,7 @@ class Sidebar extends Component {
                       <SecondarySidebarItem
                         key={child.path}
                         path={child.path}
+                        isCurrent={currentPath === child.path}
                         icon={child.icon}
                         label={child.label}
                         disabled={!checkAbility({...item.ability, ...child.ability})}
@@ -180,7 +435,7 @@ class Sidebar extends Component {
           </List>
           <Divider />
           <List>
-            <LogoutItem onClick={this.props.logout} />
+            <LogoutItem onClick={this.onLogout} />
           </List>
         </SidebarMenuContainer>
         <LogoContainer>
@@ -194,16 +449,15 @@ class Sidebar extends Component {
 }
 
 function mapStateToProps(state) {
-  const { userId, displayName } = state.auth;
   const { pathname: currentPath } = state.router.location;
   const programsCollection = new ProgramsCollection();
   return {
-    userId, displayName, currentPath, programsCollection,
+    currentPath, programsCollection,
   };
 }
 
 const mapDispatchToProps = (dispatch) => ({
-  logout: (params) => dispatch(logout(params)),
+  onLogout: (params) => dispatch(logout(params)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);
