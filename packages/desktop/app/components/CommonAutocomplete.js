@@ -32,7 +32,6 @@ const renderInputComponent = (inputProps) => {
     classes, inputRef = () => {}, ref, ...other
   } = inputProps;
   return (
-    <div className="control">
       <TextField
         fullWidth
         inputRef={node => {
@@ -41,126 +40,138 @@ const renderInputComponent = (inputProps) => {
         }}
         {...other}
       />
-    </div>
   );
 };
 
-class AutocompleteComponent extends Component {
+class BaseAutocomplete extends Component {
   static propTypes = {
-    collection: PropTypes.instanceOf(Object).isRequired,
-    ModelClass: PropTypes.func.isRequired,
     label: PropTypes.string.isRequired,
     required: PropTypes.bool,
+    disabled: PropTypes.bool,
+    error: PropTypes.bool,
+    helperText: PropTypes.string,
     name: PropTypes.string.isRequired,
     className: PropTypes.string,
     onChange: PropTypes.func.isRequired,
-    formatOptionLabel: PropTypes.func.isRequired,
     value: PropTypes.string,
-    filterModels: PropTypes.func,
+
+    fetchOptions: PropTypes.func,
+    options: PropTypes.arrayOf(PropTypes.shape({
+      label: PropTypes.string,
+      value: PropTypes.oneOfType(PropTypes.string, PropTypes.number),
+    })),
   }
 
   static defaultProps = {
     required: false,
+    error: false,
+    disabled: false,
+    helperText: '',
     className: '',
     value: '',
-    filterModels: () => true,
+    fetchOptions: null,
+    options: [],
   }
 
   state = {
     suggestions: [],
-    value: '',
-  }
-
-  async componentWillMount() {
-    const { value: _id, formatOptionLabel, ModelClass } = this.props;
-    if (_id) {
-      const model = new ModelClass();
-      model.set({ _id });
-      await model.fetch();
-      this.setState({ value: formatOptionLabel(model.attributes) });
-    }
+    displayedValue: '',
   }
 
   handleSuggestionChange = option => {
-    const { formatOptionLabel } = this.props;
-    const { onChange, name } = this.props;
-    if (option && onChange) onChange({ target: { value: option._id, name } });
-    return formatOptionLabel(option);
+    const { onChange } = this.props;
+    const { value, label } = option;
+
+    onChange({ target: { value }});
+    return option.label;
   }
 
-  fetchSuggestions = async ({ value }) => {
-    if (value) {
-      const { collection, filterModels } = this.props;
-      try {
-        collection.setKeyword(value);
-        await collection.fetch({ data: { page_size: 15 } });
-        this.setState({ suggestions: collection.models.map((model) => model.attributes).filter(filterModels) });
-      } catch (err) {
-        console.error(err);
-      }
-    } else {
-      this.setState({ suggestions: [] });
-    }
+  fetchOptions = async ({ value }) => {
+    const { fetchOptions, options } = this.props;
+
+    const suggestions = fetchOptions
+      ? await fetchOptions(value)
+      : options.filter(x => x.label.toLowerCase().includes(value.toLowerCase()));
+
+    this.setState({ suggestions });
   }
 
   handleInputChange = (event, { newValue }) => {
-    if (typeof newValue !== 'undefined') this.setState({ value: newValue });
+    if (typeof newValue !== 'undefined') {
+      this.setState({ displayedValue: newValue });
+    }
   }
 
-  clearSuggestions = () => {
+  clearOptions = () => {
     this.setState({ suggestions: [] });
   }
 
   renderSuggestion = (suggestion, { isHighlighted }) => {
-    const { formatOptionLabel } = this.props;
     return (
       <MenuItem selected={isHighlighted} component="div" style={{ padding: 8 }}>
         <Typography variant="body2">
-          {formatOptionLabel(suggestion)}
+          {suggestion.label}
         </Typography>
       </MenuItem>
     );
   }
 
+  onPopperRef = popper => {
+    this.popperNode = popper;
+  }
+
+  renderContainer = (option) => {
+    const { classes } = this.props;
+    return (
+      <Popper
+        className={classes.popperContainer}
+        anchorEl={this.popperNode}
+        open={!!option.children}
+        disablePortal
+      >
+        <Paper
+          square
+          {...option.containerProps}
+          style={{ width: this.popperNode ? this.popperNode.clientWidth : null }}
+        >
+          {option.children}
+        </Paper>
+      </Popper>
+    );
+  }
+
   render() {
-    const { value, suggestions } = this.state;
+    const { displayedValue, suggestions } = this.state;
     const {
-      label, required, name, classes,
+      label, 
+      required, 
+      name, 
+      classes,
+      disabled,
+      error,
+      helperText,
     } = this.props;
+
     return (
       <Autosuggest
         suggestions={suggestions}
-        onSuggestionsFetchRequested={this.fetchSuggestions}
-        onSuggestionsClearRequested={this.clearSuggestions}
-        renderSuggestionsContainer={option => (
-          <Popper
-            className={classes.popperContainer}
-            anchorEl={this.popperNode}
-            open={!!option.children}
-            disablePortal
-          >
-            <Paper
-              square
-              {...option.containerProps}
-              style={{ width: this.popperNode ? this.popperNode.clientWidth : null }}
-            >
-              {option.children}
-            </Paper>
-          </Popper>
-        )}
+        onSuggestionsFetchRequested={this.fetchOptions}
+        onSuggestionsClearRequested={this.clearOptions}
+        renderSuggestionsContainer={this.renderContainer}
         getSuggestionValue={this.handleSuggestionChange}
         renderSuggestion={this.renderSuggestion}
         renderInputComponent={renderInputComponent}
         inputProps={{
           label,
           required,
+          disabled,
+          error,
+          helperText,
           name,
           classes,
-          value,
+          value: displayedValue,
           onChange: this.handleInputChange,
-          inputRef: node => {
-            this.popperNode = node;
-          },
+          inputRef: this.onPopperRef,
         }}
         theme={{
           suggestionsList: classes.suggestionsList,
@@ -171,4 +182,5 @@ class AutocompleteComponent extends Component {
   }
 }
 
-export const CommonAutocomplete = withStyles(styles)(AutocompleteComponent);
+export const CommonAutocomplete = withStyles(styles)(BaseAutocomplete);
+
