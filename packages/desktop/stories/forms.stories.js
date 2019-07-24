@@ -22,6 +22,17 @@ import { CommonAutocomplete } from '../app/components/CommonAutocomplete';
 import { Form, Field } from '../app/components/Field/Form';
 import Login from '../app/containers/Auth/Login';
 
+const FRUITS = [
+  { value: 'apples', label: 'Apples' },
+  { value: 'oranges', label: 'Oranges' },
+  { value: 'bananas', label: 'Bananas' },
+  { value: 'pomegrantes', label: 'Pomegranates' },
+  { value: 'durian', label: 'Durian' },
+  { value: 'dragonfruit', label: 'Dragonfruit' },
+  { value: 'tomatoes', label: 'Tomatoes' },
+  { value: 'cherries', label: 'Cherries' },
+];
+
 // All Input components are hardcoded to be bound to a containing state
 // (ie, if they're just used without value/onChange parameters they will
 // behave as read-only). This component creates that containing state
@@ -32,7 +43,7 @@ class StoryControlWrapper extends React.PureComponent {
   onChange = (e) => {
     const { onChange } = this.props;
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    if(onChange) onChange(value);
+    action("change")(value);
     this.setState({ value });
   }
 
@@ -115,11 +126,7 @@ addStories('RadioInput', (props) => (
   <StoryControlWrapper
     Component={RadioInput}
     label="Fruit"
-    options={[
-      { value: 'apples', label: 'Apples' },
-      { value: 'oranges', label: 'Oranges' },
-      { value: 'bananas', label: 'Bananas' },
-    ]}
+    options={FRUITS.slice(0, 3)}
     {...props}
   />
 ), "Should only be used for <=5 items. If there're a lot, prefer a SelectInput instead.");
@@ -128,26 +135,30 @@ addStories('SelectInput', (props) => (
   <StoryControlWrapper
     Component={SelectInput}
     label="Fruit"
-    options={[
-      { value: 'apples', label: 'Apples' },
-      { value: 'oranges', label: 'Oranges' },
-      { value: 'bananas', label: 'Bananas' },
-      { value: 'pomegrantes', label: 'Pomegranates' },
-      { value: 'durian', label: 'Durian' },
-      { value: 'dragonfruit', label: 'Dragonfruit' },
-      { value: 'tomatoes', label: 'Tomatoes' },
-      { value: 'cherries', label: 'Cherries' },
-    ]}
+    options={FRUITS}
     {...props}
   />
 ));
 
-storiesOf('Advanced form controls', module)
-  .add('Autocomplete', () => <StoryControlWrapper
-    Component={CommonAutocomplete}
+addStories('Autocomplete', (props) => (
+  <StoryControlWrapper 
+    Component={CommonAutocomplete} 
+    label="Fruit"
+    options={FRUITS}
+  />
+)).add('Asynchronous options', () => (
+  <StoryControlWrapper 
+    Component={CommonAutocomplete} 
     label="Language"
-    onChange={action('change')}
-  />)
+    fetchOptions={async (search) => {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      return FRUITS
+        .filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
+    }}
+  />
+));
+
+storiesOf('Advanced form controls', module)
   .add('AsyncAutocomplete', () => <div>WIP</div>)
   .add('ArrayInput', () => <div>WIP</div>);
 

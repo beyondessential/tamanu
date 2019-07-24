@@ -45,55 +45,6 @@ const renderInputComponent = (inputProps) => {
   );
 };
 
-class CollectionAutocomplete extends Component {
-  static propTypes = {
-    collection: PropTypes.instanceOf(Object).isRequired,
-    ModelClass: PropTypes.func.isRequired,
-    formatOptionLabel: PropTypes.func.isRequired,
-    filterModels: PropTypes.func,
-  }
-
-  static defaultProps = {
-    filterModels: () => true,
-  }
-
-  async componentWillMount() {
-    const { value: _id, formatOptionLabel, ModelClass } = this.props;
-    if (_id) {
-      const model = new ModelClass();
-      model.set({ _id });
-      await model.fetch();
-      this.setState({ value: formatOptionLabel(model.attributes) });
-    }
-  }
-
-  fetchSuggestions = async ({ value }) => {
-    if (!value) {
-      return [];
-    }
-
-    const { collection, filterModels } = this.props;
-    try {
-      collection.setKeyword(value);
-      await collection.fetch({ data: { page_size: 15 } });
-      return collection.models
-        .map((model) => model.attributes)
-        .filter(filterModels);
-    } catch (err) {
-      console.error(err);
-      return [];
-    }
-  }
-
-  render() {
-    return (
-      <BaseAutocomplete
-        fetchSuggestions={this.fetchSuggestions}
-      />
-    );
-  }
-}
-
 class BaseAutocomplete extends Component {
   static propTypes = {
     label: PropTypes.string.isRequired,
@@ -103,14 +54,19 @@ class BaseAutocomplete extends Component {
     onChange: PropTypes.func.isRequired,
     value: PropTypes.string,
 
-    fetchSuggestions: PropTypes.func,
+    fetchOptions: PropTypes.func,
+    options: PropTypes.arrayOf(PropTypes.shape({
+      label: PropTypes.string,
+      value: PropTypes.oneOfType(PropTypes.string, PropTypes.number),
+    })),
   }
 
   static defaultProps = {
     required: false,
     className: '',
     value: '',
-    fetchSuggestions: () => ['a', 'b', 'c', 'd'].map(x => ({ label: `test${x}`, value: x })),
+    fetchOptions: null,
+    options: [],
   }
 
   state = {
@@ -126,9 +82,13 @@ class BaseAutocomplete extends Component {
     return option.label;
   }
 
-  fetchSuggestions = async ({ value }) => {
-    const { fetchSuggestions } = this.props;
-    const suggestions = await fetchSuggestions(value);
+  fetchOptions = async ({ value }) => {
+    const { fetchOptions, options } = this.props;
+
+    const suggestions = fetchOptions
+      ? await fetchOptions(value)
+      : options.filter(x => x.label.toLowerCase().includes(value.toLowerCase()));
+
     this.setState({ suggestions });
   }
 
@@ -138,7 +98,7 @@ class BaseAutocomplete extends Component {
     }
   }
 
-  clearSuggestions = () => {
+  clearOptions = () => {
     this.setState({ suggestions: [] });
   }
 
@@ -163,8 +123,8 @@ class BaseAutocomplete extends Component {
     return (
       <Autosuggest
         suggestions={suggestions}
-        onSuggestionsFetchRequested={this.fetchSuggestions}
-        onSuggestionsClearRequested={this.clearSuggestions}
+        onSuggestionsFetchRequested={this.fetchOptions}
+        onSuggestionsClearRequested={this.clearOptions}
         renderSuggestionsContainer={option => (
           <Popper
             className={classes.popperContainer}
