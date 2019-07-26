@@ -167,7 +167,7 @@ addStories('Autocomplete', (props) => (
   />
 ));
 
-storiesOf('Advanced form controls', module)
+storiesOf('FormControls/ArrayInput', module)
   .add('ArrayInput', () => <div>WIP</div>);
 
 storiesOf('Forms', module)

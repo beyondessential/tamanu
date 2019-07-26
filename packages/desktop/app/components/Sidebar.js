@@ -309,14 +309,14 @@ const SidebarItemText = styled(ListItemText)`
   font-size: 1.05rem;
 `;
 
-const LogoutItem = ({ onClick }) => (
+const LogoutItem = React.memo(({ onClick }) => (
   <ListItem button onClick={onClick}>
     <SidebarPrimaryIcon src={logoutIcon} />
     <SidebarItemText disableTypography inset primary={<Translated id="logout" />} />
   </ListItem>
-);
+));
 
-const PrimarySidebarItem = ({
+const PrimarySidebarItem = React.memo(({
   icon, label, children, selected, onClick,
 }) => (
   <React.Fragment>
@@ -330,9 +330,9 @@ const PrimarySidebarItem = ({
       </List>
     </Collapse>
   </React.Fragment>
-);
+));
 
-const SecondarySidebarItem = ({
+const SecondarySidebarItem = React.memo(({
   path, icon, label, isCurrent, disabled 
 }) => (
   <ListItem
@@ -346,37 +346,11 @@ const SecondarySidebarItem = ({
     <i className={icon} />
     <SidebarItemText disableTypography primary={label} />
   </ListItem>
-);
+));
 
-class Sidebar extends Component {
+export class Sidebar extends Component {
   state = {
     selectedParentItem: '',
-  }
-
-  programsCollection = new ProgramsCollection();
-
-  async componentWillMount() {
-    this.programsCollection.fetchAll({
-      success: ({ models: programModels }) => this.updateProgramsMenu(programModels),
-    });
-  }
-
-  updateProgramsMenu = (programs) => {
-    // Prepare programs sub-menu
-    const programsNav = find(sidebarInfo, { key: 'programs' });
-    if (!isEmpty(programs)) {
-      programsNav.hidden = false;
-      programsNav.children = programs.map((programString, key) => {
-        const program = programString.toJSON();
-        return {
-          label: program.name,
-          path: `/programs/${program._id}/patients`,
-          icon: submenuIcons.action,
-        };
-      });
-    }
-
-    this.forceUpdate();
   }
 
   onLogout = () => {
@@ -397,13 +371,13 @@ class Sidebar extends Component {
 
   render() {
     const { selectedParentItem } = this.state;
-    const { currentPath } = this.props;
+    const { currentPath, items } = this.props;
     return (
       <SidebarContainer>
         <SidebarMenuContainer>
           <List component="nav">
             {
-              sidebarInfo.map((item) => {
+              items.map((item) => {
                 return (
                   <PrimarySidebarItem
                     icon={item.icon}
@@ -442,13 +416,47 @@ class Sidebar extends Component {
   }
 }
 
+class SidebarWithPrograms extends Component {
+
+  async updateProgramsInPlace() {
+    const programsCollection = new ProgramsCollection();
+
+    const programs = await new Promise((resolve) => {
+      programsCollection.fetchAll({ success: ({ models }) => resolve(models) });
+    });
+
+    const programsNav = find(sidebarInfo, { key: 'programs' });
+    if (!isEmpty(programs)) {
+      programsNav.hidden = false;
+      programsNav.children = programs.map((programString, key) => {
+        const program = programString.toJSON();
+        return {
+          label: program.name,
+          path: `/programs/${program._id}/patients`,
+          icon: submenuIcons.action,
+        };
+      });
+    }
+  }
+
+  async componentWillMount() {
+    await this.updateProgramsInPlace();
+    this.forceUpdate();
+  }
+
+  render() {
+    return <Sidebar {...this.props} />;
+  }
+}
+
 function mapStateToProps(state) {
   const { pathname: currentPath } = state.router.location;
-  return { currentPath };
+  const items = sidebarInfo;
+  return { currentPath, items };
 }
 
 const mapDispatchToProps = (dispatch) => ({
   onLogout: (params) => dispatch(logout(params)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);
+export const ConnectedSidebar = connect(mapStateToProps, mapDispatchToProps)(SidebarWithPrograms);

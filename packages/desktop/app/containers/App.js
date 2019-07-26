@@ -4,7 +4,7 @@ import { ToastContainer, Slide } from 'react-toastify';
 import styled from 'styled-components';
 import 'typeface-roboto';
 
-import Sidebar from '../components/Sidebar';
+import { ConnectedSidebar } from '../components/Sidebar';
 import actions from '../actions/auth';
 import Login from './Auth/Login';
 
@@ -48,7 +48,7 @@ class App extends Component {
 
     return (
       <AppContainer>
-        <Sidebar />
+        <ConnectedSidebar />
         <AppContentsContainer>
           { this.props.children }
         </AppContentsContainer>
