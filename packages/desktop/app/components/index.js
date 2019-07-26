@@ -7,7 +7,6 @@ export QuickLinks from './QuickLinks';
 export RadioGroup from './RadioGroup';
 export SelectGroup from './SelectGroup';
 export SearchBar from './SearchBar';
-export Sidebar from './Sidebar';
 export TextareaGroup from './TextareaGroup';
 export TopBar from './TopBar';
 export * from './PatientAutocomplete';
