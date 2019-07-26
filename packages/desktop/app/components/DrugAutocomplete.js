@@ -26,7 +26,6 @@ const DrugAutocomplete = ({
 
 function mapStateToProps(state) {
   return {
-    currentPath: state.router.location.pathname,
     collection: new DrugsCollection(),
   };
 }

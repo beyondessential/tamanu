@@ -5,7 +5,7 @@ import Select from 'react-select';
 import { head, isEmpty } from 'lodash';
 import shortid from 'shortid';
 
-class SelectGroup extends Component {
+export default class SelectGroup extends Component {
   static propTypes = {
     label: PropTypes.any.isRequired,
     required: PropTypes.bool,
@@ -112,11 +112,3 @@ class SelectGroup extends Component {
     );
   }
 }
-
-function mapStateToProps(state) {
-  return {
-    currentPath: state.router.location.pathname,
-  };
-}
-
-export default connect(mapStateToProps, {})(SelectGroup);

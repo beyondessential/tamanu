@@ -6,7 +6,7 @@ import moment from 'moment';
 import CustomDateInput from './CustomDateInput';
 import { dateFormat, timeFormat } from '../constants';
 
-class DatepickerGroup extends Component {
+export default class DatepickerGroup extends Component {
   static propTypes = {
     label: PropTypes.any.isRequired,
     required: PropTypes.bool,
@@ -117,11 +117,3 @@ class DatepickerGroup extends Component {
     );
   }
 }
-
-function mapStateToProps(state) {
-  return {
-    currentPath: state.router.location.pathname,
-  };
-}
-
-export default connect(mapStateToProps, {})(DatepickerGroup);

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import shortid from 'shortid';
 
-class TextareaGroup extends Component {
+export default class TextareaGroup extends Component {
   static propTypes = {
     label: PropTypes.any.isRequired,
     required: PropTypes.bool,
@@ -70,11 +70,3 @@ class TextareaGroup extends Component {
     );
   }
 }
-
-function mapStateToProps(state) {
-  return {
-    currentPath: state.router.location.pathname,
-  };
-}
-
-export default connect(mapStateToProps, {})(TextareaGroup);
