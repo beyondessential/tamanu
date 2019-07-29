@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { find, isEmpty } from 'lodash';
+import { push } from 'react-router-redux';
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -302,6 +302,7 @@ const LogoContainer = styled.div`
 const SidebarPrimaryIcon = styled.img`
   width: 2.2em;
   height: 2.2em;
+  border: none;
 `;
 
 const SidebarItemText = styled(ListItemText)`
@@ -321,7 +322,7 @@ const PrimarySidebarItem = React.memo(({
 }) => (
   <React.Fragment>
     <ListItem button onClick={onClick} selected={selected}>
-      <SidebarPrimaryIcon src={icon} />
+      <SidebarPrimaryIcon src={icon || administrationIcon} />
       <SidebarItemText inset disableTypography primary={label} />
     </ListItem>
     <Collapse in={selected} timeout="auto" unmountOnExit>
@@ -333,15 +334,14 @@ const PrimarySidebarItem = React.memo(({
 ));
 
 const SecondarySidebarItem = React.memo(({
-  path, icon, label, isCurrent, disabled 
+  path, icon, label, isCurrent, disabled, onClick,
 }) => (
   <ListItem
     button
-    component={Link}
     to={path}
     disabled={disabled}
     selected={isCurrent}
-    replace={isCurrent}
+    onClick={onClick}
   >
     <i className={icon} />
     <SidebarItemText disableTypography primary={label} />
@@ -371,7 +371,7 @@ export class Sidebar extends Component {
 
   render() {
     const { selectedParentItem } = this.state;
-    const { currentPath, items } = this.props;
+    const { currentPath, items, onPathChanged, permissionCheck = () => true } = this.props;
     return (
       <SidebarContainer>
         <SidebarMenuContainer>
@@ -393,7 +393,8 @@ export class Sidebar extends Component {
                         isCurrent={currentPath === child.path}
                         icon={child.icon}
                         label={child.label}
-                        disabled={!checkAbility({...item.ability, ...child.ability})}
+                        disabled={!permissionCheck(child, item)}
+                        onClick={() => onPathChanged(child.path)}
                       />
                     ))}
                   </PrimarySidebarItem>
@@ -407,9 +408,9 @@ export class Sidebar extends Component {
           </List>
         </SidebarMenuContainer>
         <LogoContainer>
-          <Link to="/">
+          <div onClick={() => onPathChanged("/")}>
             <TamanuLogo size="120px" />
-          </Link>
+          </div>
         </LogoContainer>
       </SidebarContainer>
     );
@@ -452,10 +453,20 @@ class SidebarWithPrograms extends Component {
 function mapStateToProps(state) {
   const { pathname: currentPath } = state.router.location;
   const items = sidebarInfo;
-  return { currentPath, items };
+
+  const permissionCheck = (child, parent) => {
+    const ability = {...child.ability, ...parent.ability};
+    if(!ability.subject || !ability.action) {
+      return true;
+    }
+    return checkAbility(ability);
+  };
+
+  return { currentPath, items, permissionCheck };
 }
 
 const mapDispatchToProps = (dispatch) => ({
+  onPathChanged: (newPath) => dispatch(push(newPath)),
   onLogout: (params) => dispatch(logout(params)),
 });
 
