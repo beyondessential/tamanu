@@ -60,9 +60,38 @@ export class Form extends React.PureComponent {
     if (!isSubmitting) handleSubmit(event);
   }
 
+  renderFormContents = ({
+    isValid,
+    isSubmitting,
+    validateForm,
+    handleSubmit,
+    submitForm: originalSubmitForm,
+    ...formProps
+  }) => {
+    // we need this func for nested forms
+    // as the original submitForm() will trigger validation automatically
+    const submitForm = this.createSubmissionHandler({
+      validateForm,
+      handleSubmit,
+      isSubmitting,
+    });
+
+    const { render } = this.props;
+
+    return (
+      <form onSubmit={submitForm} noValidate>
+        {render({
+          ...formProps, isValid, isSubmitting, submitForm 
+        })}
+      </form>
+    );
+  };
+
   render() {
     const {
-      onSubmit, render, showInlineErrorsOnly, ...props
+      onSubmit, 
+      showInlineErrorsOnly, 
+      ...props
     } = this.props;
     const { validationErrors, isErrorDialogVisible } = this.state;
 
@@ -78,26 +107,11 @@ export class Form extends React.PureComponent {
           onSubmit={onSubmit}
           validateOnChange={false}
           validateOnBlur={false}
-          render={({
-            isValid, isSubmitting, validateForm, handleSubmit,
-            submitForm: originalSubmitForm, ...formProps
-          }) => {
-            // we need this func for nested forms
-            // as the original submitForm() will trigger validation automatically
-            const submitForm = this.createSubmissionHandler({
-              validateForm,
-              handleSubmit,
-              isSubmitting,
-            });
-            return (
-              <form onSubmit={submitForm} noValidate>
-                {render({
-                  ...formProps, isValid, isSubmitting, submitForm,
-                })}
-              </form>
-            );
+          initialStatus={{
+            page: 1,
           }}
           {...props}
+          render={this.renderFormContents}
         />
 
         <Dialog
