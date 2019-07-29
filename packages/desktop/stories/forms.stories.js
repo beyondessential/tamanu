@@ -20,6 +20,7 @@ import {
 import { CommonAutocomplete } from '../app/components/CommonAutocomplete';
 
 import { Form, Field } from '../app/components/Field/Form';
+import { PaginatedForm } from '../app/components/Field/PaginatedForm';
 import Login from '../app/containers/Auth/Login';
 
 const FRUITS = [
@@ -201,6 +202,40 @@ storiesOf('Forms', module)
     />
   ))
   .add('PaginatedForm', () => (
-    <div>WIP</div>
+    <PaginatedForm
+      onSubmit={action('submit')}
+      initialValues={{
+        city: '',
+        country: 'VU',
+      }}
+      pages={[
+        () => (
+          <Field
+            name="city"
+            label="City"
+            component={TextField}
+          />
+        ),
+        () => (
+          <Field
+            name="country"
+            label="Country"
+            component={SelectField}
+            options={[
+              { value: 'TO', label: 'Tonga' },
+              { value: 'VU', label: 'Vanuatu' },
+              { value: 'CK', label: 'Cook Islands' },
+            ]}
+          />
+        ),
+        () => (
+          <Field
+            name="comment"
+            label="Comment"
+            component={TextField}
+          />
+        ),
+      ]}
+    />
   ))
   .add('LoginForm', () => <Login login={action('login')} />);
