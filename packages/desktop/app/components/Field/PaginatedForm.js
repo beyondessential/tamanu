@@ -18,7 +18,7 @@ export class PaginatedForm extends React.PureComponent {
     }
   };
 
-  advancePage = () => {
+  stepForward = () => {
     const { pageIndex } = this.state;
     const { pages } = this.props;
 
@@ -45,7 +45,7 @@ export class PaginatedForm extends React.PureComponent {
           )) }
           <Button 
             color="primary" 
-            onClick={this.advancePage}
+            onClick={this.stepForward}
             disabled={pageIndex === pages.length-1}
           >Next</Button>
           <Button
