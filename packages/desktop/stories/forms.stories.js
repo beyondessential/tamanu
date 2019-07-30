@@ -12,8 +12,10 @@ import {
   DateTimeInput,
   NumberInput,
   SelectInput,
+  ArrayInput,
 
   TextField,
+  ArrayField,
   SelectField,
   Button,
 } from '../app/components';
@@ -169,7 +171,43 @@ addStories('Autocomplete', (props) => (
 ));
 
 storiesOf('FormControls/ArrayInput', module)
-  .add('ArrayInput', () => <div>WIP</div>);
+  .add('ArrayInput', () => (
+    <StoryControlWrapper
+      Component={ArrayField}
+      label="Contact"
+      subform={({ submitForm }) => (
+        <React.Fragment>
+          <Field component={TextField} name="name" label="Name" />
+          <Button onClick={submitForm}>Add</Button>
+        </React.Fragment>
+      )}
+    />
+  ))
+  .add('In form', () => (
+    <Form
+      onSubmit={action('submit')}
+      initialValues={{
+        many: [],
+        title: '',
+      }}
+      render={({ submitForm }) => (
+        <div>
+          <Field
+            name="many"
+            component={ArrayField}
+            subform={({ submitForm }) => (
+              <React.Fragment>
+                <Field component={TextField} name="name" label="Name" />
+                <Button onClick={submitForm}>Add</Button>
+              </React.Fragment>
+            )}
+          />
+          <hr />
+          <Button onClick={submitForm}>Submit</Button>
+        </div>
+      )}
+    />
+  ));
 
 storiesOf('Forms', module)
   .add('ExampleForm', () => (
@@ -179,7 +217,7 @@ storiesOf('Forms', module)
         city: '',
         country: 'VU',
       }}
-      render={() => (
+      render={({ submitForm }) => (
         <div>
           <Field
             name="city"
@@ -196,7 +234,7 @@ storiesOf('Forms', module)
               { value: 'CK', label: 'Cook Islands' },
             ]}
           />
-          <Button type="submit">Submit</Button>
+          <Button onClick={submitForm}>Submit</Button>
         </div>
       )}
     />

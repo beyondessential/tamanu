@@ -28,10 +28,12 @@ export class Form extends React.PureComponent {
     onSubmit: PropTypes.func.isRequired,
     render: PropTypes.func.isRequired,
     showInlineErrorsOnly: PropTypes.bool,
+    component: PropTypes.oneOfType(PropTypes.string, PropTypes.func),
   }
 
   static defaultProps = {
     showInlineErrorsOnly: false,
+    component: "form",
   }
 
   state = {
@@ -76,14 +78,14 @@ export class Form extends React.PureComponent {
       isSubmitting,
     });
 
-    const { render } = this.props;
+    const { render, component="form" } = this.props;
 
     return (
-      <form onSubmit={submitForm} noValidate>
+      <component onSubmit={submitForm} noValidate>
         {render({
           ...formProps, isValid, isSubmitting, submitForm 
         })}
-      </form>
+      </component>
     );
   };
 
@@ -91,6 +93,7 @@ export class Form extends React.PureComponent {
     const {
       onSubmit, 
       showInlineErrorsOnly, 
+      component,
       ...props
     } = this.props;
     const { validationErrors, isErrorDialogVisible } = this.state;

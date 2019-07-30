@@ -11,6 +11,7 @@ export * from './RadioField';
 export * from './AutoField';
 export * from './RelationField';
 export * from './ArrayField';
+export * from './FileField';
 
 // form helpers
 export * from './Form';

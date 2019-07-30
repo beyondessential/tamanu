@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { Grid, Typography, Chip } from '@material-ui/core';
 import { NewButton, TextField, Field } from '../index';
 import { MUI_SPACING_UNIT as spacing } from '../../constants';
+import { Form } from './Form';
 
 const ChipWithMargin = styled(Chip)`
   margin-right: ${spacing * 2}px;
@@ -17,78 +18,37 @@ export const ArrayField = ({ field, ...props }) => (
   />
 );
 
-export const ArrayInput = ({
-  name,
-  value: valueArray,
-  label,
-  form: { values, setFieldValue },
-  buttonLabel = 'Add',
-}) => (
-  <FieldArray
-    name={name}
-    render={({ push, remove }) => (
-      <Grid
-        container
-        spacing={spacing * 2}
-        style={{ marginBottom: spacing * 2 }}
-      >
-        <Grid container item spacing={spacing * 2}>
-          <Grid item md={8} xs>
-            <Field
-              component={TextField}
-              name="fieldArrayValue"
-              label="Action"
-            />
-          </Grid>
-          <Grid container item md={4} alignItems="flex-end">
-            <NewButton
-              disabled={!values.fieldArrayValue}
-              size="small"
-              onClick={() => {
-                push(values.fieldArrayValue);
-                setFieldValue('fieldArrayValue', null);
-              }}
-            >
-              {buttonLabel}
-            </NewButton>
-          </Grid>
-        </Grid>
+export class ArrayInput extends React.PureComponent {
 
-
-        {valueArray && valueArray.length > 0
-          && (
-            <Grid
-              container
-              item
-              spacing={spacing * 2}
-              direction="column"
-            >
-              <Grid item>
-                <Typography variant="subtitle1">
-                  {label}
-                </Typography>
-              </Grid>
-              <Grid item>
-                {valueArray.map((value, index) => (
-                  <ChipWithMargin
-                    key={value}
-                    label={value}
-                    onDelete={() => remove(index)}
-                  />
-                ))}
-              </Grid>
-            </Grid>
-          )
-        }
-      </Grid>
-    )}
-  />
-);
+  render() {
+    const { value, onChange, name, subform } = this.props;
+    const valueItems = value || [];
+    return (
+      <div>
+        <ul>
+          { valueItems.map(x => <li>{JSON.stringify(x)}</li>) }
+        </ul>
+        <Form 
+          key={valueItems.length}
+          component="div"
+          onSubmit={(newItem) => onChange({ 
+            target: {
+              name,
+              value: [...valueItems, newItem] 
+            }
+          })}
+          render={subform}
+        />
+      </div>
+    );
+  }
+}
 
 ArrayInput.propTypes = {
   name: PropTypes.string.isRequired,
-  value: PropTypes.arrayOf(PropTypes.string),
+  value: PropTypes.arrayOf(PropTypes.any),
   label: PropTypes.string.isRequired,
+  subform: PropTypes.func.isRequired,
   buttonLabel: PropTypes.string,
 };
 
