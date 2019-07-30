@@ -50,7 +50,7 @@ is maddening)
 Any settings in `config/local.json` will take priority over those in `config/default.json`.
 The [`config` docs](https://github.com/lorenwest/node-config/wiki/Configuration-Files) have more info on how that works.
 
-Now run `cd /packages/lan && node index` to start the LAN server.
+Now run `cd /packages/lan && yarn start-dev` to start the LAN server.
 When you run the lan-server with these settings, you'll be prompted for login
 credentials. These are in LastPass under "Tamanu main sync server".
 
