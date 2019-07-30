@@ -8,4 +8,4 @@ Setup and configuration instructions can be found in the [main README file](../.
 
 ## Running
 
-Start the server with `yarn run start`.
+Start the server with `yarn run start-dev`.

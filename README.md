@@ -5,7 +5,8 @@
 
 ## Install
 
-> **Note: requires a node version >= 10.14.0 and a yarn version > 1.2.0**
+> **Note: requires a node version >= 10.14.0 and < 11 (the upper bound restriction is Realm, which supports Node 8 and 10 only at time of writing)**
+> **Note: requires a yarn version > 1.2.0**
 
 First, clone the repo via git:
 
@@ -49,7 +50,7 @@ is maddening)
 Any settings in `config/local.json` will take priority over those in `config/default.json`.
 The [`config` docs](https://github.com/lorenwest/node-config/wiki/Configuration-Files) have more info on how that works.
 
-Now run `cd /packages/lan/config && node index` to start the LAN server.
+Now run `cd /packages/lan && node index` to start the LAN server.
 When you run the lan-server with these settings, you'll be prompted for login
 credentials. These are in LastPass under "Tamanu main sync server".
 
