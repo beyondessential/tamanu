@@ -22,7 +22,7 @@ const visitTypes = [
 
 export class VisitForm extends React.PureComponent {
 
-  propTypes = {
+  static propTypes = {
     fetchLocations: PropTypes.func.isRequired,
     fetchPractitioners: PropTypes.func.isRequired,
     onSubmit: PropTypes.func.isRequired,
