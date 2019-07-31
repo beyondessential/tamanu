@@ -12,8 +12,8 @@ import { ConditionModel, PatientModel } from '../../../models';
 import { notifyError, notifySuccess } from '../../../utils';
 
 async function fetchDiagnoses(search) {
-  const result = await fetch(`http://localhost:4000/values/icd10?q=${search}`);
-  const data = await result.json();
+  const response = await fetch(`${process.env.HOST}/values/icd10?q=${search}`);
+  const data = await response.json();
   return data.map(({ name, code, _id }) => ({
     value: _id,
     label: `[${code}] ${name}`
