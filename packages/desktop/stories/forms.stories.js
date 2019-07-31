@@ -12,6 +12,7 @@ import {
   DateTimeInput,
   NumberInput,
   SelectInput,
+  ArrayInput,
 
   TextField,
   SelectField,
@@ -22,6 +23,7 @@ import { CommonAutocomplete } from '../app/components/CommonAutocomplete';
 import { Form, Field } from '../app/components/Field/Form';
 import { PaginatedForm } from '../app/components/Field/PaginatedForm';
 import Login from '../app/containers/Auth/Login';
+import { VisitForm } from '../app/forms/VisitForm';
 
 const FRUITS = [
   { value: 'apples', label: 'Apples' },
@@ -238,4 +240,5 @@ storiesOf('Forms', module)
       ]}
     />
   ))
-  .add('LoginForm', () => <Login login={action('login')} />);
+  .add('LoginForm', () => <Login login={action('login')} />)
+  .add('VisitForm', () => <VisitForm onSubmit={action('submit')} />)
