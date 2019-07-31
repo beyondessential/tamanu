@@ -82,6 +82,9 @@ $ mv example.env .env
 $ yarn start-dev # To run in production, use yarn start
 ```
 
+Note that we also use storybook to develop components in isolation, which you can run from within
+the desktop directory using `yarn storybook`
+
 ## Integrations
 
 ### Senaite
