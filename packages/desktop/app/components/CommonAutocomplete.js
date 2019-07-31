@@ -79,10 +79,10 @@ class BaseAutocomplete extends Component {
   }
 
   handleSuggestionChange = option => {
-    const { onChange } = this.props;
+    const { onChange, name } = this.props;
     const { value, label } = option;
 
-    onChange({ target: { value }});
+    onChange({ target: { value, name }});
     return option.label;
   }
 
@@ -183,4 +183,14 @@ class BaseAutocomplete extends Component {
 }
 
 export const CommonAutocomplete = withStyles(styles)(BaseAutocomplete);
+
+export const AutocompleteInput = CommonAutocomplete;
+export const AutocompleteField = ({ field, ...props }) => (
+  <AutocompleteInput
+    name={field.name}
+    value={field.value || ''}
+    onChange={field.onChange}
+    {...props}
+  />
+);
 

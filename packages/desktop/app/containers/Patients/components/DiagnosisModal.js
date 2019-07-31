@@ -1,14 +1,24 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
-  AddButton, CancelButton, DiagnosisAutocompleteField,
+  AddButton, CancelButton,
   DeleteButton, UpdateButton, CheckField, SelectField,
   DateField, Dialog as ConditionConfirmDialog, FormRow,
   ModalActions, Modal, Form, Field,
 } from '../../../components';
+import { AutocompleteField } from '../../../components/CommonAutocomplete';
 import { diagnosisCertainty } from '../../../constants';
 import { ConditionModel, PatientModel } from '../../../models';
 import { notifyError, notifySuccess } from '../../../utils';
+
+async function fetchDiagnoses(search) {
+  const response = await fetch(`${process.env.HOST}/quicksearch/icd10?q=${search}`);
+  const data = await response.json();
+  return data.map(({ name, code, _id }) => ({
+    value: _id,
+    label: `[${code}] ${name}`
+  }));
+}
 
 export default class DiagnosisModal extends Component {
   state = {
@@ -100,9 +110,10 @@ export default class DiagnosisModal extends Component {
               <React.Fragment>
                 <FormRow>
                   <Field
-                    component={DiagnosisAutocompleteField}
+                    component={AutocompleteField}
                     label="Diagnosis"
                     name="diagnosis._id"
+                    fetchOptions={fetchDiagnoses}
                     required
                   />
                 </FormRow>
