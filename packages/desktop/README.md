@@ -4,8 +4,8 @@
 
 ## Install
 
-* **Note: requires a node version >= 7 and an npm version >= 4.**
-* **If you have installation or compilation issues with this project, please see [our debugging guide](https://github.com/chentsulin/electron-react-boilerplate/issues/400)**
+- **Note: requires a node version >= 7 and an npm version >= 4.**
+- **If you have installation or compilation issues with this project, please see [our debugging guide](https://github.com/chentsulin/electron-react-boilerplate/issues/400)**
 
 First, clone the repo via git:
 
@@ -39,6 +39,14 @@ If you don't need autofocus when your files was changed, then run `dev` with env
 
 ```bash
 $ START_MINIMIZED=true yarn dev
+```
+
+## Storybook
+
+We use storybook to develop a lot of our common UI components in isolation. To run storybook, use:
+
+```
+yarn storybook
 ```
 
 ## Packaging
@@ -77,10 +85,11 @@ $ yarn test-e2e
 ```
 
 :bulb: You can debug your production build with devtools by simply setting the `DEBUG_PROD` env variable:
+
 ```bash
 DEBUG_PROD=true yarn package
 ```
 
-## References 
+## References
 
-* [electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate) 
+- [electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate)
