@@ -18,7 +18,7 @@ import {
   SelectField,
   Button,
 } from '../app/components';
-import { CommonAutocomplete } from '../app/components/CommonAutocomplete';
+import { AutocompleteInput } from '../app/components/Field/AutocompleteField';
 
 import { Form, Field } from '../app/components/Field/Form';
 import { PaginatedForm } from '../app/components/Field/PaginatedForm';
@@ -153,14 +153,14 @@ addStories('SelectInput', (props) => (
 
 addStories('Autocomplete', (props) => (
   <StoryControlWrapper 
-    Component={CommonAutocomplete} 
+    Component={AutocompleteInput} 
     label="Fruit"
     options={FRUITS}
     {...props}
   />
 )).add('Asynchronous options', () => (
   <StoryControlWrapper 
-    Component={CommonAutocomplete} 
+    Component={AutocompleteInput} 
     label="Language"
     fetchOptions={async (search) => {
       await new Promise((resolve) => setTimeout(resolve, 1000));

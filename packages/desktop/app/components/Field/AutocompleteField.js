@@ -182,9 +182,7 @@ class BaseAutocomplete extends Component {
   }
 }
 
-export const CommonAutocomplete = withStyles(styles)(BaseAutocomplete);
-
-export const AutocompleteInput = CommonAutocomplete;
+export const AutocompleteInput = withStyles(styles)(BaseAutocomplete);
 export const AutocompleteField = ({ field, ...props }) => (
   <AutocompleteInput
     name={field.name}

@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { DrugsCollection } from '../collections';
 import { DrugModel } from '../models';
-import { CommonAutocomplete } from './CommonAutocomplete';
+import { AutocompleteInput } from './Field/AutocompleteField';
 
 const DrugAutocomplete = ({
   label,
@@ -12,7 +12,7 @@ const DrugAutocomplete = ({
   collection,
   onChange,
 }) => (
-  <CommonAutocomplete
+  <AutocompleteInput
     label={label}
     required={required}
     name={name}
