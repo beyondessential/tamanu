@@ -11,7 +11,7 @@ import * as imagingRequestActions from '../../actions/imaging';
 import TopRow from '../Patients/components/TopRow';
 import {
   TopBar, PatientAutocompleteField, TextField, PatientVisitSelectField,
-  AddButton, UpdateButton, BackButton, DiagnosisAutocompleteField, SelectField,
+  AddButton, UpdateButton, BackButton, SelectField,
   Button, Preloader, Container, FormRow, ButtonGroup, Form, Field,
 } from '../../components';
 import { IMAGING_REQUEST_STATUSES, MUI_SPACING_UNIT as spacing } from '../../constants';
@@ -90,45 +90,24 @@ class Request extends Component {
               isSubmitting, handleChange, values, ...formActions
             }) => (
               <Grid container spacing={spacing * 2} direction="column">
-                {action === 'new'
-                  && (
-                  <FormRow>
-                    {!isPatientSelected
-                      && (
-                        <Field
-                          component={PatientAutocompleteField}
-                          label="Patient"
-                          name="patient"
-                          onChange={this.handlePatientChange(handleChange)}
-                          required
-                        />
-                      )
-                    }
-                    <Field
-                      component={PatientVisitSelectField}
-                      patientModel={patientModel}
-                      name="visit"
-                    />
-                  </FormRow>
-                  )
-                }
-                {action !== 'new'
-                  && (
-                  <FormRow>
-                    <Field
-                      component={DiagnosisAutocompleteField}
-                      label="Diagnosis"
-                      name="diagnosis._id"
-                    />
-                    <Field
-                      component={TextField}
-                      label="Detail"
-                      name="detail"
-                      required
-                    />
-                  </FormRow>
-                  )
-                }
+                <FormRow>
+                  {!isPatientSelected
+                    && (
+                      <Field
+                        component={PatientAutocompleteField}
+                        label="Patient"
+                        name="patient"
+                        onChange={this.handlePatientChange(handleChange)}
+                        required
+                      />
+                    )
+                  }
+                  <Field
+                    component={PatientVisitSelectField}
+                    patientModel={patientModel}
+                    name="visit"
+                  />
+                </FormRow>
                 <FormRow>
                   <Field
                     component={SelectField}

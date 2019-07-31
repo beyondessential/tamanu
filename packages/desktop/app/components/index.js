@@ -10,7 +10,6 @@ export SearchBar from './SearchBar';
 export TextareaGroup from './TextareaGroup';
 export TopBar from './TopBar';
 export * from './PatientAutocomplete';
-export * from './DiagnosisAutocomplete';
 export * from './PatientRelationSelect';
 export * from './PatientVisitSelect';
 export * from './Preloader';
