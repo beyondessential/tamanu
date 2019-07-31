@@ -1,28 +1,24 @@
 {
-  "extends": [
-    "@beyondessential/eslint-config-beyondessential"
-  ],
+  "extends": ["@beyondessential/eslint-config-beyondessential", "plugin:prettier/recommended"],
   "parser": "babel-eslint",
   "env": {
     "browser": true,
     "node": true
   },
-  rules: {
+  "rules": {
     // get around an issue in how electron sets up its packages
     // where it can't detect certain dependencies even if they're installed
     // (missing deps should break CI anyway so it's not a big deal)
     // https://github.com/benmosher/eslint-plugin-import/issues/479
-    "import/no-extraneous-dependencies": false,
+    "import/no-extraneous-dependencies": false
   },
-  overrides: [
+  "overrides": [
     {
-      files: [
-        "**/*.test.js"
-      ],
-      env: {
-        jest: true // now **/*.test.js files' env has both es6 *and* jest
+      "files": ["**/*.test.js"],
+      "env": {
+        "jest": true // now **/*.test.js files' env has both es6 *and* jest
       },
-      plugins: ["jest"],
+      "plugins": ["jest"]
     }
-  ],
+  ]
 }
