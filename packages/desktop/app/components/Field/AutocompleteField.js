@@ -32,14 +32,14 @@ const renderInputComponent = (inputProps) => {
     classes, inputRef = () => {}, ref, ...other
   } = inputProps;
   return (
-      <TextField
-        fullWidth
-        inputRef={node => {
-          ref(node);
-          inputRef(node);
-        }}
-        {...other}
-      />
+    <TextField
+      fullWidth
+      inputRef={node => {
+        ref(node);
+        inputRef(node);
+      }}
+      {...other}
+    />
   );
 };
 
