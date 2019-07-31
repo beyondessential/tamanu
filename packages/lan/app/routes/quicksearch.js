@@ -1,8 +1,8 @@
 import express from 'express';
 
-export const valueRoutes = express.Router();
+export const quicksearchRoutes = express.Router();
 
-valueRoutes.get('/icd10', (req, res) => {
+quicksearchRoutes.get('/icd10', (req, res) => {
   const db = req.app.get('database');
   const { query } = req;
   const { q = '' } = query;
