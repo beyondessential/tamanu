@@ -126,7 +126,6 @@ const dummySuggester = {
   },
   fetchLabel: async value => {
     await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log(value, FRUITS);
     return FRUITS.find(x => x.value === value);
   },
 };
