@@ -5,11 +5,23 @@ import { Grid } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import actions from '../../actions/patients';
 import {
-  SelectField, DateField, RadioField, Container,
-  BackButton, AddButton, TopBar, FormRow, Form, Field, TextField,
+  SelectField,
+  DateField,
+  RadioField,
+  Container,
+  BackButton,
+  AddButton,
+  TopBar,
+  FormRow,
+  Form,
+  Field,
+  TextField,
 } from '../../components';
 import {
-  bloodOptions, sexOptions, getDifferenceDate, MUI_SPACING_UNIT as spacing,
+  bloodOptions,
+  sexOptions,
+  getDifferenceDate,
+  MUI_SPACING_UNIT as spacing,
 } from '../../constants';
 import { PatientModel } from '../../models';
 
@@ -33,37 +45,15 @@ function NewPatient({ createPatient }) {
           render={({ isSubmitting, values }) => (
             <Grid container spacing={spacing * 3} direction="row">
               <FormRow>
-                <Field
-                  component={TextField}
-                  name="firstName"
-                  label="First Name"
-                  required
-                />
-                <Field
-                  component={TextField}
-                  name="status"
-                  label="Patient Status"
-                />
+                <Field component={TextField} name="firstName" label="First Name" required />
+                <Field component={TextField} name="status" label="Patient Status" />
               </FormRow>
               <FormRow>
-                <Field
-                  component={TextField}
-                  name="middleName"
-                  label="Middle Name"
-                />
-                <Field
-                  component={TextField}
-                  name="externalPatientId"
-                  label="External Patient Id"
-                />
+                <Field component={TextField} name="middleName" label="Middle Name" />
+                <Field component={TextField} name="externalPatientId" label="External Patient Id" />
               </FormRow>
               <FormRow>
-                <Field
-                  component={TextField}
-                  name="lastName"
-                  label="Last Name"
-                  required
-                />
+                <Field component={TextField} name="lastName" label="Last Name" required />
                 <Field
                   component={SelectField}
                   label="Blood Type"
@@ -77,24 +67,11 @@ function NewPatient({ createPatient }) {
                   name="culturalName"
                   label="Cultural or Traditional Name"
                 />
-                <Field
-                  component={TextField}
-                  name="clinic"
-                  label="Clinic Site"
-                />
+                <Field component={TextField} name="clinic" label="Clinic Site" />
               </FormRow>
               <FormRow>
-                <Field
-                  component={SelectField}
-                  label="Sex"
-                  options={sexOptions}
-                  name="sex"
-                />
-                <Field
-                  component={TextField}
-                  name="referredBy"
-                  label="Referred By"
-                />
+                <Field component={SelectField} label="Sex" options={sexOptions} name="sex" />
+                <Field component={TextField} name="referredBy" label="Referred By" />
               </FormRow>
               <FormRow>
                 <Field
@@ -103,80 +80,38 @@ function NewPatient({ createPatient }) {
                   component={DateField}
                   helperText={values.dateOfBirth && getAge(values.dateOfBirth)}
                 />
-                <Field
-                  component={DateField}
-                  label="Referred Date"
-                  name="referredDate"
-                />
+                <Field component={DateField} label="Referred Date" name="referredDate" />
               </FormRow>
               <FormRow>
-                <Field
-                  component={TextField}
-                  name="religion"
-                  label="Religion"
-                />
-                <Field
-                  component={TextField}
-                  name="placeOfBirth"
-                  label="Place of Birth"
-                />
+                <Field component={TextField} name="religion" label="Religion" />
+                <Field component={TextField} name="placeOfBirth" label="Place of Birth" />
               </FormRow>
               <FormRow>
-                <Field
-                  component={TextField}
-                  name="parent"
-                  label="Parent/Guardian"
-                />
-                <Field
-                  component={TextField}
-                  name="occupation"
-                  label="Occupation"
-                />
+                <Field component={TextField} name="parent" label="Parent/Guardian" />
+                <Field component={TextField} name="occupation" label="Occupation" />
               </FormRow>
               <FormRow>
-                <Field
-                  component={TextField}
-                  name="paymentProfile"
-                  label="Payment Profile"
-                />
+                <Field component={TextField} name="paymentProfile" label="Payment Profile" />
                 <Field
                   component={RadioField}
                   name="patientType"
                   label="Patient Type"
-                  options={[{ value: 'charity', label: 'Charity' }, { value: 'private', label: 'Private' }]}
+                  options={[
+                    { value: 'charity', label: 'Charity' },
+                    { value: 'private', label: 'Private' },
+                  ]}
                   inline
                 />
               </FormRow>
               <FormRow>
-                <Field
-                  component={TextField}
-                  name="phone"
-                  label="Phone"
-                />
-                <Field
-                  component={TextField}
-                  name="address"
-                  label="Address"
-                />
+                <Field component={TextField} name="phone" label="Phone" />
+                <Field component={TextField} name="address" label="Address" />
               </FormRow>
               <FormRow>
-                <Field
-                  component={TextField}
-                  name="email"
-                  label="Email"
-                />
-                <Field
-                  component={TextField}
-                  name="country"
-                  label="Country"
-                />
+                <Field component={TextField} name="email" label="Email" />
+                <Field component={TextField} name="country" label="Country" />
               </FormRow>
-              <Grid
-                container
-                item
-                justify="flex-end"
-                style={{ paddingTop: spacing * 2 }}
-              >
+              <Grid container item justify="flex-end" style={{ paddingTop: spacing * 2 }}>
                 <Grid item>
                   <BackButton to="/patients" />
                   <AddButton
@@ -205,8 +140,11 @@ NewPatient.defaultProps = {
 
 const { patient: patientActions } = actions;
 const { savePatient } = patientActions;
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = dispatch => ({
   createPatient: patient => dispatch(savePatient({ Model: patient })),
 });
 
-export default connect(null, mapDispatchToProps)(NewPatient);
+export default connect(
+  null,
+  mapDispatchToProps,
+)(NewPatient);

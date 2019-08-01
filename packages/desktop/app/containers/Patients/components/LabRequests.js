@@ -4,7 +4,11 @@ import { Typography, Grid } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { Button, Notification, SimpleTable } from '../../../components';
 import {
-  columnStyle, headerStyle, dateFormat, pageSizes, MUI_SPACING_UNIT as spacing,
+  columnStyle,
+  headerStyle,
+  dateFormat,
+  pageSizes,
+  MUI_SPACING_UNIT as spacing,
 } from '../../../constants';
 
 const newColumnStyle = {
@@ -18,16 +22,11 @@ const getActionsColumn = () => ({
   Header: 'Actions',
   headerStyle,
   style: newColumnStyle,
-  Cell: (props) => <ActionsColumn {...props} />,
+  Cell: props => <ActionsColumn {...props} />,
 });
 
 const ActionsColumn = ({ original: { _id, requestId } }) => (
-  <Button
-    variant="contained"
-    color="primary"
-    size="small"
-    to={`/labs/request/${requestId}`}
-  >
+  <Button variant="contained" color="primary" size="small" to={`/labs/request/${requestId}`}>
     View
   </Button>
 );
@@ -46,11 +45,7 @@ const TestResult = ({ range, result, unit }) => {
     try {
       const resultParsed = parseFloat(result);
       if (resultParsed < range[0] || resultParsed > range[1]) {
-        return (
-          <span style={{ fontWeight: 'bold' }}>
-            {`${result} ${unit || ''}`}
-          </span>
-        );
+        return <span style={{ fontWeight: 'bold' }}>{`${result} ${unit || ''}`}</span>;
       }
     } catch (err) {
       console.error(err);
@@ -64,9 +59,7 @@ const getTestsFromLabRequests = (labRequests, sex) => {
   labRequests.forEach(labRequestModel => {
     const { _id: requestId, tests, requestedDate } = labRequestModel.toJSON();
     const accessorPrefix = moment(requestedDate).unix();
-    tests.forEach(({
-      _id, type, result, ...attributes
-    }) => {
+    tests.forEach(({ _id, type, result, ...attributes }) => {
       const range = type[`${sex}Range`];
       const testObject = {
         ...attributes,
@@ -76,7 +69,7 @@ const getTestsFromLabRequests = (labRequests, sex) => {
         [`${accessorPrefix}-result`]: { range, result, unit: type.unit },
       };
 
-      labTestsById[type._id] = { ...labTestsById[type._id] || {}, ...testObject };
+      labTestsById[type._id] = { ...(labTestsById[type._id] || {}), ...testObject };
     });
   });
   return Object.values(labTestsById);
@@ -100,28 +93,30 @@ const generateDataColumns = labTests => {
   return columns;
 };
 
-const getFixedTableColumns = () => ([{
-  accessor: 'testType',
-  Header: 'Test',
-  headerStyle,
-  style: newColumnStyle,
-  minWidth: 100,
-  Cell: ({ original: { testType: props } }) => <TestType {...props} />,
-}]);
+const getFixedTableColumns = () => [
+  {
+    accessor: 'testType',
+    Header: 'Test',
+    headerStyle,
+    style: newColumnStyle,
+    minWidth: 100,
+    Cell: ({ original: { testType: props } }) => <TestType {...props} />,
+  },
+];
 
 export default class LabRequests extends Component {
   state = {
     columns: [],
     labTests: [],
-  }
+  };
 
   static propTypes = {
     patientSex: PropTypes.string.isRequired,
-  }
+  };
 
   static propTypes = {
     parentModel: PropTypes.instanceOf(Object).isRequired,
-  }
+  };
 
   componentWillMount() {
     const { parentModel } = this.props;
@@ -135,15 +130,15 @@ export default class LabRequests extends Component {
     const labTests = getTestsFromLabRequests(this.labRequestsCollection.models, patientSex);
     const columns = generateDataColumns(labTests);
     this.setState({ labTests, columns });
-  }
+  };
 
   prevPage = () => {
     this.labRequestsCollection.getPreviousPage();
-  }
+  };
 
   nextPage = () => {
     this.labRequestsCollection.getNextPage();
-  }
+  };
 
   render() {
     const { labTests, columns } = this.state;
@@ -151,31 +146,19 @@ export default class LabRequests extends Component {
     return (
       <React.Fragment>
         <Grid container item justify="flex-end">
-          <Button
-            disabled={!this.labRequestsCollection.hasPreviousPage()}
-            onClick={this.prevPage}
-          >
+          <Button disabled={!this.labRequestsCollection.hasPreviousPage()} onClick={this.prevPage}>
             Prev
           </Button>
-          <Button
-            disabled={!this.labRequestsCollection.hasNextPage()}
-            onClick={this.nextPage}
-          >
+          <Button disabled={!this.labRequestsCollection.hasNextPage()} onClick={this.nextPage}>
             Next
           </Button>
         </Grid>
         <Grid container>
           <Grid item xs={2}>
-            <SimpleTable
-              data={labTests}
-              columns={getFixedTableColumns()}
-            />
+            <SimpleTable data={labTests} columns={getFixedTableColumns()} />
           </Grid>
           <Grid item xs={10} style={{ overflowX: 'auto' }}>
-            <SimpleTable
-              data={labTests}
-              columns={columns}
-            />
+            <SimpleTable data={labTests} columns={columns} />
           </Grid>
         </Grid>
       </React.Fragment>

@@ -2,23 +2,16 @@ import React from 'react';
 import { Grid } from '@material-ui/core';
 import { MedicationCollection } from '../../collections';
 import { prepareMedication } from '../../actions/medication/requests';
-import {
-  medicationColumns, medicationStatuses, headerStyle, columnStyle,
-} from '../../constants';
-import {
-  TextButton, Button, TopBar, BrowsableTable, DateDisplay,
-} from '../../components';
+import { medicationColumns, medicationStatuses, headerStyle, columnStyle } from '../../constants';
+import { TextButton, Button, TopBar, BrowsableTable, DateDisplay } from '../../components';
 
 const ActionsColumn = () => (
-  <Button
-    variant="contained"
-    color="primary"
-  >
+  <Button variant="contained" color="primary">
     Fulfill
   </Button>
 );
 
-const getTableColumns = () => ([
+const getTableColumns = () => [
   {
     accessor: 'prescriptionDate',
     Header: 'Date',
@@ -37,24 +30,27 @@ const getTableColumns = () => ([
     Cell: <ActionsColumn />,
     filterable: false,
   },
-]);
+];
 
 export default function Requests() {
   return (
     <React.Fragment>
       <TopBar
         title="Medication Requests"
-        buttons={[{
-          to: '/medication/request',
-          text: 'New Request',
-          can: { do: 'create', on: 'medication' },
-        }, {
-          variant: 'contained',
-          color: 'secondary',
-          to: '/medication/dispense',
-          text: 'Dispense Medication',
-          can: { do: 'create', on: 'medication' },
-        }]}
+        buttons={[
+          {
+            to: '/medication/request',
+            text: 'New Request',
+            can: { do: 'create', on: 'medication' },
+          },
+          {
+            variant: 'contained',
+            color: 'secondary',
+            to: '/medication/dispense',
+            text: 'Dispense Medication',
+            can: { do: 'create', on: 'medication' },
+          },
+        ]}
       />
       <Grid container item>
         <BrowsableTable
@@ -62,7 +58,7 @@ export default function Requests() {
           columns={getTableColumns()}
           fetchOptions={{ status: medicationStatuses.REQUESTED }}
           transformRow={prepareMedication}
-          emptyNotification={(
+          emptyNotification={
             <React.Fragment>
               No medications found.
               <TextButton
@@ -73,7 +69,7 @@ export default function Requests() {
                 Create a new medication record?
               </TextButton>
             </React.Fragment>
-          )}
+          }
         />
       </Grid>
     </React.Fragment>

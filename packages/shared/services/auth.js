@@ -3,10 +3,7 @@ import { to } from 'await-to-js';
 import jwt from 'jsonwebtoken';
 import { Ability } from '@casl/ability';
 import { permittedFieldsOf } from '@casl/ability/extra';
-import {
-  isEmpty, head, isNumber,
-  find, difference, template,
-} from 'lodash';
+import { isEmpty, head, isNumber, find, difference, template } from 'lodash';
 import { objectToJSON } from '../utils';
 import { schemas, schemaClasses } from '../schemas';
 
@@ -42,8 +39,13 @@ export default class Auth {
     if (!validPassword || err) return Promise.reject(new Error(this.errors.InvalidCredentials));
 
     // Validate hospital
-    const checkHospitalResponse = this.checkHospital({ hospitals, hospitalSelected, firstTimeLogin });
-    if (checkHospitalResponse === false) return Promise.reject(new Error(this.errors.InvalidHospital));
+    const checkHospitalResponse = this.checkHospital({
+      hospitals,
+      hospitalSelected,
+      firstTimeLogin,
+    });
+    if (checkHospitalResponse === false)
+      return Promise.reject(new Error(this.errors.InvalidHospital));
     if (Array.isArray(checkHospitalResponse)) {
       return {
         action: 'select-hospital',
@@ -57,7 +59,11 @@ export default class Auth {
     // Register the client
     const clientSecret = this.generateJWTToken({ hospitalId, userId });
     return this.addClient({
-      hospitalId, userId, clientId, clientSecret, expiry,
+      hospitalId,
+      userId,
+      clientId,
+      clientSecret,
+      expiry,
     });
   }
 
@@ -81,7 +87,7 @@ export default class Auth {
     }
 
     if (hospitalSelected) {
-      const hospital = hospitals.find(({ _id }) => (_id === hospitalSelected));
+      const hospital = hospitals.find(({ _id }) => _id === hospitalSelected);
       if (hospital) return hospital;
     }
 
@@ -89,19 +95,21 @@ export default class Auth {
     return false;
   }
 
-  addClient({
-    hospitalId, userId, clientId, clientSecret, expiry,
-  }) {
+  addClient({ hospitalId, userId, clientId, clientSecret, expiry }) {
     let client;
     this.database.write(() => {
-      client = this.database.create('client', {
-        hospitalId,
-        userId,
-        clientId,
-        clientSecret,
-        expiry,
-        date: new Date(),
-      }, true);
+      client = this.database.create(
+        'client',
+        {
+          hospitalId,
+          userId,
+          clientId,
+          clientSecret,
+          expiry,
+          date: new Date(),
+        },
+        true,
+      );
     });
     return client;
   }
@@ -156,9 +164,7 @@ export default class Auth {
    * Validate user permissions
    * @param {user, hospitalId, action, subject, fields} param
    */
-  validatePermissions({
-    user, hospitalId, action, subject, fields,
-  }) {
+  validatePermissions({ user, hospitalId, action, subject, fields }) {
     if (!user || !hospitalId || !action || !subject) return false;
     if (typeof user === 'string') user = this.database.findOne('user', user);
     this.user = user;

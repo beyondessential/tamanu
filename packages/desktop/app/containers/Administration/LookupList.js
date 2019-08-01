@@ -5,13 +5,13 @@ import { lookupOptions } from '../../constants';
 class LookupList extends Component {
   state = {
     selectValue: 'Billing Categories',
-  }
+  };
 
-  updateValue = (newValue) => {
+  updateValue = newValue => {
     this.setState({
       selectValue: newValue,
     });
-  }
+  };
 
   render() {
     const { selectValue } = this.state;
@@ -20,21 +20,19 @@ class LookupList extends Component {
     return (
       <div className="create-content">
         <div className="create-top-bar">
-          <span>
-            Lookup Lists
-          </span>
+          <span>Lookup Lists</span>
         </div>
         <div className="create-container">
           <div className="form">
             <div className="columns">
               <div className="column is-4">
                 <div className="column">
-                  <span className="input-group-title">
-                    Visit
-                  </span>
+                  <span className="input-group-title">Visit</span>
                   <Select
                     id="state-select"
-                    ref={(ref) => { this.select = ref; }}
+                    ref={ref => {
+                      this.select = ref;
+                    }}
                     onBlurResetsInput={false}
                     onSelectResetsInput={false}
                     options={lookupOptions}
@@ -51,15 +49,15 @@ class LookupList extends Component {
           </div>
           <div className="form margin-t-30">
             <div className="form-header">
-              <span>
-                {(filterdArray && filterdArray.label) || 'Billing Categories'}
-              </span>
+              <span>{(filterdArray && filterdArray.label) || 'Billing Categories'}</span>
             </div>
             <div className="columns">
               <div className="column">
                 <div className="column">
                   <div className="has-text-right">
-                    <button className="button" type="submit">Add Value</button>
+                    <button className="button" type="submit">
+                      Add Value
+                    </button>
                   </div>
                 </div>
               </div>

@@ -17,7 +17,7 @@ export function register(name, model) {
 // the backbone internals -- this function allows us to keep using strings.
 export function getModel(nameOrModel) {
   // this should be callable with a full model object, which is just a no-op
-  if (typeof (nameOrModel) !== 'string') {
+  if (typeof nameOrModel !== 'string') {
     return nameOrModel;
   }
 

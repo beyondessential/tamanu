@@ -3,8 +3,13 @@ import { Grid } from '@material-ui/core';
 import { proceduresMedicationColumns } from '../../../../constants';
 import MedicationModal from '../../components/MedicationModel';
 import {
-  Dialog, EditButton, DeleteButton, SimpleTable, TopBar,
-  SubHeader, NewButton,
+  Dialog,
+  EditButton,
+  DeleteButton,
+  SimpleTable,
+  TopBar,
+  SubHeader,
+  NewButton,
 } from '../../../../components';
 import { ProcedureMedicationModel } from '../../../../models';
 
@@ -16,7 +21,7 @@ export default class Medication extends Component {
     itemId: null,
     medication: [],
     tableColumns: proceduresMedicationColumns,
-  }
+  };
 
   componentWillMount() {
     const { tableColumns } = this.state;
@@ -36,7 +41,7 @@ export default class Medication extends Component {
 
   onCloseModal = () => {
     this.setState({ modalVisible: false });
-  }
+  };
 
   deleteItem = async () => {
     const { procedureModel } = this.props;
@@ -50,9 +55,9 @@ export default class Medication extends Component {
     } catch (err) {
       console.error('Error: ', err);
     }
-  }
+  };
 
-  setActionsCol = (row) => (
+  setActionsCol = row => (
     <div key={row._id}>
       <EditButton
         size="small"
@@ -65,11 +70,11 @@ export default class Medication extends Component {
         can={{ do: 'delete', on: 'medication' }}
       />
     </div>
-  )
+  );
 
   editItem = (itemId = null) => {
-    this.setState({ modalVisible: true, action: (itemId !== null ? 'edit' : 'new'), itemId });
-  }
+    this.setState({ modalVisible: true, action: itemId !== null ? 'edit' : 'new', itemId });
+  };
 
   deleteConfirm(itemId = null) {
     this.setState({ deleteModalVisible: true, itemId });
@@ -77,16 +82,11 @@ export default class Medication extends Component {
 
   render() {
     const { procedureModel } = this.props;
-    const {
-      modalVisible, action, itemId, medication, tableColumns,
-    } = this.state;
+    const { modalVisible, action, itemId, medication, tableColumns } = this.state;
     return (
       <React.Fragment>
         <SubHeader title="Medication Used">
-          <NewButton
-            onClick={() => this.editItem()}
-            can={{ do: 'create', on: 'medication' }}
-          >
+          <NewButton onClick={() => this.editItem()} can={{ do: 'create', on: 'medication' }}>
             Add Medication
           </NewButton>
         </SubHeader>
@@ -98,7 +98,10 @@ export default class Medication extends Component {
           />
         </Grid>
         <MedicationModal
-          medicationModel={procedureModel.get('medication').findWhere({ _id: itemId }) || new ProcedureMedicationModel()}
+          medicationModel={
+            procedureModel.get('medication').findWhere({ _id: itemId }) ||
+            new ProcedureMedicationModel()
+          }
           procedureModel={procedureModel}
           isVisible={modalVisible}
           onClose={this.onCloseModal}

@@ -1,6 +1,4 @@
-import {
-  filter, chain, set, template,
-} from 'lodash';
+import { filter, chain, set, template } from 'lodash';
 import moment from 'moment';
 import { to } from 'await-to-js';
 import { dateFormat, timeFormat } from '../../constants';
@@ -20,10 +18,7 @@ export const initSurveys = ({ patientId, programId, moduleId }) => async dispatc
   const programModel = new ProgramModel();
   patientModel.set({ _id: patientId });
   programModel.set({ _id: programId });
-  const [error] = await to(Promise.all([
-    patientModel.fetch(),
-    programModel.fetch(),
-  ]));
+  const [error] = await to(Promise.all([patientModel.fetch(), programModel.fetch()]));
   if (error) return dispatch({ type: LOAD_SURVEYS_FAILED, error });
 
   let modules = [];
@@ -35,7 +30,10 @@ export const initSurveys = ({ patientId, programId, moduleId }) => async dispatc
       modules = patientModel.get(collection).toJSON();
       modules = modules.map(module => ({
         label: template(label)({
-          moment, dateFormat, timeFormat, ...module,
+          moment,
+          dateFormat,
+          timeFormat,
+          ...module,
         }),
         value: module[value],
       }));
@@ -43,13 +41,22 @@ export const initSurveys = ({ patientId, programId, moduleId }) => async dispatc
   }
 
   let filters = {};
-  const surveys = programModel.get('surveys').sort().toJSON();
+  const surveys = programModel
+    .get('surveys')
+    .sort()
+    .toJSON();
   const surveyResponses = patientModel.get('surveyResponses');
   const surveysDone = surveyResponses.toJSON().map(survey => survey.surveyId);
-  const availableSurveys = filter(surveys, survey => survey.canRedo || !surveysDone.includes(survey._id));
+  const availableSurveys = filter(
+    surveys,
+    survey => survey.canRedo || !surveysDone.includes(survey._id),
+  );
   if (moduleId) filters = { moduleType: programModel.get('programType'), moduleId };
   const completedSurveys = _getCompletedSurveys({
-    surveys, surveysDone, surveyResponses, ...filters,
+    surveys,
+    surveysDone,
+    surveyResponses,
+    ...filters,
   });
   dispatch({
     type: LOAD_SURVEYS_SUCCESS,
@@ -71,7 +78,11 @@ export const getCompletedSurveys = ({ moduleType, moduleId }) => async (dispatch
   const { programs } = getState();
   const { surveys, surveysDone, surveyResponses } = programs;
   const completedSurveys = _getCompletedSurveys({
-    surveys, surveysDone, surveyResponses, moduleType, moduleId,
+    surveys,
+    surveysDone,
+    surveyResponses,
+    moduleType,
+    moduleId,
   });
   dispatch({
     type: LOAD_COMPLETED_SURVEYS_SUCCESS,
@@ -79,9 +90,7 @@ export const getCompletedSurveys = ({ moduleType, moduleId }) => async (dispatch
   });
 };
 
-const _getCompletedSurveys = ({
-  surveys, surveysDone, surveyResponses, moduleType, moduleId,
-}) => {
+const _getCompletedSurveys = ({ surveys, surveysDone, surveyResponses, moduleType, moduleId }) => {
   let filters = {};
   if (moduleType && moduleId) filters = { moduleType, moduleId };
   return chain(surveys)

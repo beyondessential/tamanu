@@ -21,7 +21,8 @@ export const fetchProcedure = ({ id }) => async dispatch => {
     procedureModel.set({ _id: id });
     [error] = await to(procedureModel.fetch());
     const procedureDate = procedureModel.get('procedureDate');
-    if (typeof procedureDate === 'string') procedureModel.set('procedureDate', moment(procedureDate));
+    if (typeof procedureDate === 'string')
+      procedureModel.set('procedureDate', moment(procedureDate));
   }
   if (error) return dispatch({ type: FETCH_PROCEDURE_FAILED, error });
   dispatch({
@@ -33,7 +34,11 @@ export const fetchProcedure = ({ id }) => async dispatch => {
 };
 
 export const saveProcedure = ({
-  action, procedureModel, visitId, history, setSubmitting,
+  action,
+  procedureModel,
+  visitId,
+  history,
+  setSubmitting,
 }) => async dispatch => {
   dispatch({ type: SAVE_PROCEDURE_REQUEST });
   try {

@@ -1,9 +1,7 @@
-import {
-  parseInt, ceil, head, isEmpty,
-} from 'lodash';
+import { parseInt, ceil, head, isEmpty } from 'lodash';
 import { objectToJSON } from '../../utils';
 
-export default function (req, res) {
+export default function(req, res) {
   const realm = req.app.get('database');
   const { params, query } = req;
   const { model: modelName, id } = params;
@@ -36,7 +34,7 @@ export default function (req, res) {
       // Add keyword filter
       if (keyword && fields) {
         const conditions = [];
-        fields.split(',').forEach((field) => {
+        fields.split(',').forEach(field => {
           conditions.push(` ${field} CONTAINS[c] "${keyword}" `);
         });
         filters.push(`(${conditions.join(' OR ')})`);

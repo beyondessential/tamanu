@@ -21,6 +21,4 @@ schemas.forEach(({ name, properties }) => {
   Object.defineProperty(schemaClasses[name], 'name', { value: name });
 });
 
-export {
-  schemas, version, schemaClasses, defaults,
-};
+export { schemas, version, schemaClasses, defaults };

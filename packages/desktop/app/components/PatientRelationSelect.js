@@ -12,15 +12,8 @@ const getOptions = ({ patientModel, relation, template }) => {
   }));
 };
 
-export function PatientRelationSelect({
-  patientModel, relation, template, ...props
-}) {
-  return (
-    <SelectInput
-      options={getOptions({ patientModel, relation, template })}
-      {...props}
-    />
-  );
+export function PatientRelationSelect({ patientModel, relation, template, ...props }) {
+  return <SelectInput options={getOptions({ patientModel, relation, template })} {...props} />;
 }
 
 PatientRelationSelect.propTypes = {

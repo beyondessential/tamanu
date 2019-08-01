@@ -15,7 +15,7 @@ export default class Listeners {
   }
 
   addDatabaseListeners() {
-    each(schemas, (schema) => {
+    each(schemas, schema => {
       if (schema.sync === SYNC_MODES.ON || schema.sync === SYNC_MODES.LOCAL_TO_REMOTE) {
         this.addListener(schema.name);
       }
@@ -24,7 +24,7 @@ export default class Listeners {
   }
 
   removeDatabaseListeners() {
-    each(schemas, (schema) => {
+    each(schemas, schema => {
       if (schema.sync === SYNC_MODES.ON || schema.sync === SYNC_MODES.LOCAL_TO_REMOTE) {
         this.removeListener(schema.name);
       }
@@ -55,5 +55,5 @@ export default class Listeners {
     this.database.removeListener(recordType);
   }
 
-  _toJSON = (object) => JSON.parse(JSON.stringify(object));
+  _toJSON = object => JSON.parse(JSON.stringify(object));
 }

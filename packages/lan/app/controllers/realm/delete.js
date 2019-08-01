@@ -1,6 +1,6 @@
 import { head, isEmpty } from 'lodash';
 
-export default function (req, res) {
+export default function(req, res) {
   const realm = req.app.get('database');
   const { params } = req;
   const { model, id } = params;

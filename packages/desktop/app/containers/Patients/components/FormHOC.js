@@ -15,7 +15,7 @@ export default (ComposedComponent, mapStatetoProps, actionCreators) => {
 
     state = {
       form: this.props.form,
-    }
+    };
 
     handleUserInput = (e, field) => {
       const form = clone(this.state.form);
@@ -28,7 +28,7 @@ export default (ComposedComponent, mapStatetoProps, actionCreators) => {
       }
 
       this.setState({ form });
-    }
+    };
 
     render() {
       return (

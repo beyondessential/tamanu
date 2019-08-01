@@ -9,37 +9,20 @@ import { red } from '@material-ui/core/colors';
 import { checkAbility } from '../utils/ability-context';
 import { history } from '../utils';
 
-export const ButtonBase = (props) => {
+export const ButtonBase = props => {
   const allowed = isAllowed(props);
   const locationsProps = getLocationProps(props);
-  return (
-    <MuiButtonBase
-      {...props}
-      {...locationsProps}
-      disabled={!allowed || props.disabled}
-    />
-  );
+  return <MuiButtonBase {...props} {...locationsProps} disabled={!allowed || props.disabled} />;
 };
 
-export const Button = ({
-  children, isSubmitting, disabled, ...props
-}) => {
+export const Button = ({ children, isSubmitting, disabled, ...props }) => {
   const allowed = isAllowed(props);
   const locationsProps = getLocationProps(props);
   return (
-    <MuiButton
-      {...props}
-      {...locationsProps}
-      disabled={!allowed || disabled || isSubmitting}
-    >
-      {isSubmitting
-        && (
-          <Icon
-            className="fa fa-spinner fa-spin"
-            style={{ marginRight: 4, fontSize: 18 }}
-          />
-        )
-      }
+    <MuiButton {...props} {...locationsProps} disabled={!allowed || disabled || isSubmitting}>
+      {isSubmitting && (
+        <Icon className="fa fa-spinner fa-spin" style={{ marginRight: 4, fontSize: 18 }} />
+      )}
       {children}
     </MuiButton>
   );
@@ -52,32 +35,21 @@ export const BackButton = ({ to, onClick, ...props }) => {
     newClick = () => goBack();
   }
   return (
-    <Button
-      variant="outlined"
-      to={to}
-      onClick={newClick}
-      {...props}
-    >
-Back
+    <Button variant="outlined" to={to} onClick={newClick} {...props}>
+      Back
     </Button>
   );
 };
 
-export const ClearButton = (props) => (
-  <Button
-    variant="outlined"
-    {...props}
-  >
-Clear
+export const ClearButton = props => (
+  <Button variant="outlined" {...props}>
+    Clear
   </Button>
 );
 
-export const CancelButton = (props) => (
-  <Button
-    variant="contained"
-    {...props}
-  >
-Cancel
+export const CancelButton = props => (
+  <Button variant="contained" {...props}>
+    Cancel
   </Button>
 );
 
@@ -91,101 +63,62 @@ const deleteButtonStyles = theme => ({
   },
 });
 
-export const DeleteButton = withStyles(deleteButtonStyles)((props) => (
-  <Button
-    variant="contained"
-    {...props}
-  >
-Delete
+export const DeleteButton = withStyles(deleteButtonStyles)(props => (
+  <Button variant="contained" {...props}>
+    Delete
   </Button>
 ));
 
-export const SearchButton = (props) => (
-  <Button
-    variant="contained"
-    color="primary"
-    {...props}
-  >
-Search
+export const SearchButton = props => (
+  <Button variant="contained" color="primary" {...props}>
+    Search
   </Button>
 );
 
-export const DischargeButton = (props) => (
-  <Button
-    variant="contained"
-    color="secondary"
-    {...props}
-  >
-Discharge
+export const DischargeButton = props => (
+  <Button variant="contained" color="secondary" {...props}>
+    Discharge
   </Button>
 );
 
-export const CheckInButton = (props) => (
-  <Button
-    variant="contained"
-    color="secondary"
-    {...props}
-  >
-Check In
+export const CheckInButton = props => (
+  <Button variant="contained" color="secondary" {...props}>
+    Check In
   </Button>
 );
 
-export const CheckOutButton = (props) => (
-  <Button
-    variant="contained"
-    color="secondary"
-    {...props}
-    s
-  >
-Check Out
+export const CheckOutButton = props => (
+  <Button variant="contained" color="secondary" {...props} s>
+    Check Out
   </Button>
 );
 
-export const AddButton = (props) => (
-  <Button
-    variant="contained"
-    color="primary"
-    {...props}
-  >
-Add
+export const AddButton = props => (
+  <Button variant="contained" color="primary" {...props}>
+    Add
   </Button>
 );
 
-export const EditButton = (props) => (
-  <Button
-    variant="contained"
-    color="secondary"
-    {...props}
-  >
-Edit
+export const EditButton = props => (
+  <Button variant="contained" color="secondary" {...props}>
+    Edit
   </Button>
 );
 
-export const FilterButton = (props) => (
-  <Button
-    variant="contained"
-    color="primary"
-    {...props}
-  >
-Filter
+export const FilterButton = props => (
+  <Button variant="contained" color="primary" {...props}>
+    Filter
   </Button>
 );
 
-export const UpdateButton = (props) => (
-  <Button
-    variant="contained"
-    color="primary"
-    {...props}
-  >
-Update
+export const UpdateButton = props => (
+  <Button variant="contained" color="primary" {...props}>
+    Update
   </Button>
 );
 
 export const NewButton = ({ children, ...props }) => (
-  <Button
-    variant="outlined"
-    {...props}
-  >
+  <Button variant="outlined" {...props}>
     {children}
   </Button>
 );
@@ -208,11 +141,7 @@ const textButtonStyles = theme => ({
 });
 
 export const TextButton = withStyles(textButtonStyles)(({ children, ...props }) => (
-  <Button
-    variant="text"
-    color="primary"
-    {...props}
-  >
+  <Button variant="text" color="primary" {...props}>
     {children}
   </Button>
 ));

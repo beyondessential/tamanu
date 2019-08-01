@@ -7,15 +7,9 @@ export default function PreOpDiagnosis({ operationReportModel }) {
   const diagnoses = operationReportModel.get('preOpDiagnoses');
   if (diagnoses.length === 0) return null;
   return (
-    <Grid
-      container
-      direction="column"
-      style={{ marginBottom: spacing * 2 }}
-    >
+    <Grid container direction="column" style={{ marginBottom: spacing * 2 }}>
       <Grid item>
-        <Typography variant="body2">
-          Pre Op Diagnosis
-        </Typography>
+        <Typography variant="body2">Pre Op Diagnosis</Typography>
       </Grid>
       <Grid item style={{ paddingTop: 0 }}>
         {diagnoses.map((diagnosis, k) => {

@@ -57,9 +57,7 @@ const updateComponentState = (state, screenIndex, componentIndex, updateComponen
 };
 
 const stateChanges = {
-  [INIT_SURVEY]: ({
-    assessorId, loading, patient, survey, program, startTime,
-  }, state) => ({
+  [INIT_SURVEY]: ({ assessorId, loading, patient, survey, program, startTime }, state) => ({
     ...state,
     answers: initialState.answers,
     assessorId,
@@ -87,17 +85,28 @@ const stateChanges = {
     ...state,
     currentScreenIndex: screenIndex,
   }),
-  [EXTRA_PROPS_CHANGE]: ({ componentIndex, newProps }, state) => updateComponentState(state, state.currentScreenIndex, componentIndex, (component) => {
-    component.extraProps = { ...component.extraProps, ...newProps };
-    return component;
-  }),
+  [EXTRA_PROPS_CHANGE]: ({ componentIndex, newProps }, state) =>
+    updateComponentState(state, state.currentScreenIndex, componentIndex, component => {
+      component.extraProps = { ...component.extraProps, ...newProps };
+      return component;
+    }),
   [LOAD_SURVEYS_REQUEST]: (_, state) => ({
     ...state,
     loading: true,
   }),
-  [LOAD_SURVEYS_SUCCESS]: ({
-    patient, program, modules, availableSurveys, completedSurveys, surveys, surveysDone, surveyResponses,
-  }, state) => ({
+  [LOAD_SURVEYS_SUCCESS]: (
+    {
+      patient,
+      program,
+      modules,
+      availableSurveys,
+      completedSurveys,
+      surveys,
+      surveysDone,
+      surveyResponses,
+    },
+    state,
+  ) => ({
     ...state,
     patient,
     program,
@@ -122,9 +131,7 @@ const stateChanges = {
     ...state,
     loading: true,
   }),
-  [LOAD_RESPONSES_SUCCESS]: ({
-    patient, program, survey, responses,
-  }, state) => ({
+  [LOAD_RESPONSES_SUCCESS]: ({ patient, program, survey, responses }, state) => ({
     ...state,
     survey,
     patient,
@@ -141,9 +148,7 @@ const stateChanges = {
     ...state,
     loading: true,
   }),
-  [LOAD_RESPONSE_SUCCESS]: ({
-    patient, program, survey, response,
-  }, state) => ({
+  [LOAD_RESPONSE_SUCCESS]: ({ patient, program, survey, response }, state) => ({
     ...state,
     survey,
     patient,

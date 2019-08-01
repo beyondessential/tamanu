@@ -21,43 +21,21 @@ const styles = ({ spacing }) => ({
 const RenderRow = ({ label, value }) => (
   <Grid container item alignItems="center" spacing={8}>
     <Grid item>
-      <Typography variant="body2">
-        {`${label}:`}
-      </Typography>
+      <Typography variant="body2">{`${label}:`}</Typography>
     </Grid>
     <Grid item>
-      <Typography variant="body1">
-        {value}
-      </Typography>
+      <Typography variant="body1">{value}</Typography>
     </Grid>
   </Grid>
 );
 
 function TopRow({ classes, patient, ...props }) {
   return (
-    <Grid
-      container
-      spacing={8}
-      direction="column"
-      className={classes.container}
-      {...props}
-    >
-      <Chip
-        className={classes.chip}
-        label={patient.displayId}
-      />
-      <RenderRow
-        label="Name"
-        value={patient.displayName}
-      />
-      <RenderRow
-        label="Sex"
-        value={patient.sex}
-      />
-      <RenderRow
-        label="Age"
-        value={getDifferenceDate(moment(), patient.dateOfBirth)}
-      />
+    <Grid container spacing={8} direction="column" className={classes.container} {...props}>
+      <Chip className={classes.chip} label={patient.displayId} />
+      <RenderRow label="Name" value={patient.displayName} />
+      <RenderRow label="Sex" value={patient.sex} />
+      <RenderRow label="Age" value={getDifferenceDate(moment(), patient.dateOfBirth)} />
     </Grid>
   );
 }

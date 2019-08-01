@@ -6,13 +6,23 @@ import { capitalize } from 'lodash';
 import { Grid } from '@material-ui/core';
 import actions from '../../actions/scheduling';
 import PatientsTopRow from '../Patients/components/TopRow';
+import { visitOptions, appointmentStatusList, MUI_SPACING_UNIT as spacing } from '../../constants';
 import {
-  visitOptions, appointmentStatusList, MUI_SPACING_UNIT as spacing,
-} from '../../constants';
-import {
-  Preloader, PatientAutocomplete, TextInput, CheckInput, DateInput,
-  SelectInput, AddButton, UpdateButton, BackButton, TopBar, Container,
-  ButtonGroup, FormRow, TimeInput, DateTimeInput,
+  Preloader,
+  PatientAutocomplete,
+  TextInput,
+  CheckInput,
+  DateInput,
+  SelectInput,
+  AddButton,
+  UpdateButton,
+  BackButton,
+  TopBar,
+  Container,
+  ButtonGroup,
+  FormRow,
+  TimeInput,
+  DateTimeInput,
 } from '../../components';
 
 class Appointment extends Component {
@@ -21,7 +31,7 @@ class Appointment extends Component {
     patient: null,
     loading: true,
     formIsValid: false,
-  }
+  };
 
   componentWillMount() {
     const { id, patientId } = this.props.match.params;
@@ -34,28 +44,29 @@ class Appointment extends Component {
       const { id, patientId } = newProps.match.params;
       this.props.fetchAppointment({ id, patientId });
     } else if (!loading) {
-      const formIsValid = true; appointmentModel.isValid();
+      const formIsValid = true;
+      appointmentModel.isValid();
       this.setState({ ...appointmentModel.attributes, formIsValid, loading });
       appointmentModel.off('change');
       appointmentModel.on('change', this.handleChange);
     }
   }
 
-  handleUserInput = (event) => {
+  handleUserInput = event => {
     const { name, value } = event.target;
     this.handleFormInput(name, value);
-  }
+  };
 
   handleAutoCompleteInput = ({ _id }, name) => {
     this.handleFormInput(name, _id);
-  }
+  };
 
-  handleCheckboxInput = (event) => {
+  handleCheckboxInput = event => {
     const { name, checked } = event.target;
     this.handleFormInput(name, checked);
-  }
+  };
 
-  handleDateTimeInput = (event) => {
+  handleDateTimeInput = event => {
     const { appointmentModel } = this.props;
     const { name, value } = event.target;
     this.handleFormInput(name, value);
@@ -77,14 +88,14 @@ class Appointment extends Component {
         .format();
       this.handleFormInput('endDate', endDate);
     }
-  }
+  };
 
   handleChange = () => {
     const { appointmentModel } = this.props;
     const formIsValid = appointmentModel.isValid();
     const changedAttributes = appointmentModel.changedAttributes();
     this.setState({ ...changedAttributes, formIsValid });
-  }
+  };
 
   handleFormInput(name, value) {
     const { appointmentModel } = this.props;
@@ -110,9 +121,7 @@ class Appointment extends Component {
   }
 
   renderAdmissionDates() {
-    const {
-      startDate, startTime, endTime, allDay,
-    } = this.state;
+    const { startDate, startTime, endTime, allDay } = this.state;
     return (
       <FormRow>
         <DateInput
@@ -122,30 +131,28 @@ class Appointment extends Component {
           onChange={this.handleDateTimeInput}
           required
         />
-        {!allDay
-          && (
-            <Grid container item>
-              <Grid item xs>
-                <TimeInput
-                  label="Start Time"
-                  name="startTime"
-                  value={startTime}
-                  onChange={this.handleDateTimeInput}
-                  required
-                />
-              </Grid>
-              <Grid item xs>
-                <TimeInput
-                  label="End Time"
-                  name="endTime"
-                  value={endTime}
-                  onChange={this.handleDateTimeInput}
-                  required
-                />
-              </Grid>
+        {!allDay && (
+          <Grid container item>
+            <Grid item xs>
+              <TimeInput
+                label="Start Time"
+                name="startTime"
+                value={startTime}
+                onChange={this.handleDateTimeInput}
+                required
+              />
             </Grid>
-          )
-        }
+            <Grid item xs>
+              <TimeInput
+                label="End Time"
+                name="endTime"
+                value={endTime}
+                onChange={this.handleDateTimeInput}
+                required
+              />
+            </Grid>
+          </Grid>
+        )}
         <CheckInput
           label="All Day"
           name="allDay"
@@ -186,9 +193,7 @@ class Appointment extends Component {
   }
 
   renderFields() {
-    const {
-      appointmentType, provider, location, status,
-    } = this.state;
+    const { appointmentType, provider, location, status } = this.state;
     return (
       <React.Fragment>
         <FormRow>
@@ -230,12 +235,7 @@ class Appointment extends Component {
     const { provider, location } = this.state;
     return (
       <FormRow>
-        <TextInput
-          name="provider"
-          label="With"
-          value={provider}
-          onChange={this.handleUserInput}
-        />
+        <TextInput name="provider" label="With" value={provider} onChange={this.handleUserInput} />
         <TextInput
           name="location"
           label="Location"
@@ -254,36 +254,26 @@ class Appointment extends Component {
     const { action, formIsValid, ...form } = this.state;
     return (
       <React.Fragment>
-        <TopBar
-          title={`${capitalize(action)} ${surgery ? 'Surgical' : ''} Appointment`}
-        />
-        <form onSubmit={(e) => this.submitForm(e)}>
+        <TopBar title={`${capitalize(action)} ${surgery ? 'Surgical' : ''} Appointment`} />
+        <form onSubmit={e => this.submitForm(e)}>
           <Container>
             <Grid container spacing={spacing * 2} direction="column">
               <Grid item>
-                {patient
-                  ? <PatientsTopRow patient={patient.toJSON()} />
-                  : (
-                    <PatientAutocomplete
-                      label="Patient"
-                      name="patient"
-                      value={form.patient}
-                      onChange={this.handleAutoCompleteInput}
-                      required
-                    />
-                  )
-                }
+                {patient ? (
+                  <PatientsTopRow patient={patient.toJSON()} />
+                ) : (
+                  <PatientAutocomplete
+                    label="Patient"
+                    name="patient"
+                    value={form.patient}
+                    onChange={this.handleAutoCompleteInput}
+                    required
+                  />
+                )}
               </Grid>
-              {(form.appointmentType !== 'admission' || surgery)
-                && this.renderAdmissionDates()
-              }
-              {form.appointmentType === 'admission' && !surgery
-                && this.renderOtherDates()
-              }
-              {surgery
-                ? this.renderSurgeryFields()
-                : this.renderFields()
-              }
+              {(form.appointmentType !== 'admission' || surgery) && this.renderAdmissionDates()}
+              {form.appointmentType === 'admission' && !surgery && this.renderOtherDates()}
+              {surgery ? this.renderSurgeryFields() : this.renderFields()}
               <Grid item>
                 <TextInput
                   label="Notes"
@@ -297,22 +287,19 @@ class Appointment extends Component {
               <Grid container item justify="flex-end">
                 <ButtonGroup>
                   <BackButton />
-                  {action === 'new'
-                    ? (
-                      <AddButton
-                        type="submit"
-                        disabled={!formIsValid}
-                        can={{ do: 'update', on: 'appointment' }}
-                      />
-                    )
-                    : (
-                      <UpdateButton
-                        type="submit"
-                        disabled={!formIsValid}
-                        can={{ do: 'update', on: 'appointment' }}
-                      />
-                    )
-                  }
+                  {action === 'new' ? (
+                    <AddButton
+                      type="submit"
+                      disabled={!formIsValid}
+                      can={{ do: 'update', on: 'appointment' }}
+                    />
+                  ) : (
+                    <UpdateButton
+                      type="submit"
+                      disabled={!formIsValid}
+                      can={{ do: 'update', on: 'appointment' }}
+                    />
+                  )}
                 </ButtonGroup>
               </Grid>
             </Grid>
@@ -337,9 +324,7 @@ Appointment.defaultProps = {
 };
 
 function mapStateToProps(state) {
-  const {
-    appointment, patient, loading, error,
-  } = state.scheduling;
+  const { appointment, patient, loading, error } = state.scheduling;
   return {
     loading,
     error,
@@ -350,9 +335,12 @@ function mapStateToProps(state) {
 
 const { appointment: appointmentActions } = actions;
 const { fetchAppointment, saveAppointment } = appointmentActions;
-const mapDispatchToProps = (dispatch) => ({
-  fetchAppointment: (params) => dispatch(fetchAppointment(params)),
-  saveAppointment: (params) => dispatch(saveAppointment(params)),
+const mapDispatchToProps = dispatch => ({
+  fetchAppointment: params => dispatch(fetchAppointment(params)),
+  saveAppointment: params => dispatch(saveAppointment(params)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Appointment);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Appointment);

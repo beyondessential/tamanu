@@ -2,20 +2,10 @@ import React from 'react';
 import MuiTextField from '@material-ui/core/TextField';
 import PropTypes from 'prop-types';
 
-export const TextInput = ({ value, ...props }) => (
-  <MuiTextField
-    value={value || ''}
-    {...props}
-  />
-);
+export const TextInput = ({ value, ...props }) => <MuiTextField value={value || ''} {...props} />;
 
 export const TextField = ({ field, ...props }) => (
-  <TextInput
-    name={field.name}
-    value={field.value || ''}
-    onChange={field.onChange}
-    {...props}
-  />
+  <TextInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
 );
 
 TextInput.propTypes = {

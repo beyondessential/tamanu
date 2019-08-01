@@ -6,8 +6,9 @@ import { LAB_REQUEST_STATUSES } from '../../../../shared/constants';
 import { LabRequestsTable } from './LabRequests';
 
 const PublishedLabRequestsTable = () => {
-  const collection = (new LabRequestsCollection())
-    .setKeyword(LAB_REQUEST_STATUSES.PUBLISHED, ['status']);
+  const collection = new LabRequestsCollection().setKeyword(LAB_REQUEST_STATUSES.PUBLISHED, [
+    'status',
+  ]);
   return (
     <BrowsableTable
       collection={collection}

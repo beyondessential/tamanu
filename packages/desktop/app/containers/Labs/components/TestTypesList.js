@@ -2,9 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FieldArray } from 'formik';
 import { grey } from '@material-ui/core/colors';
-import {
-  List, ListItem, ListItemText, Checkbox, Grid, Typography, Input,
-} from '@material-ui/core';
+import { List, ListItem, ListItemText, Checkbox, Grid, Typography, Input } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { MUI_SPACING_UNIT as spacing } from '../../../constants';
 
@@ -31,7 +29,10 @@ const handleListItemChange = ({ fieldHelpers, values, value }) => () => {
 };
 
 const TestsList = ({
-  field: { name: fieldName, value: valueArray }, labTestTypes, classes, onFilter,
+  field: { name: fieldName, value: valueArray },
+  labTestTypes,
+  classes,
+  onFilter,
 }) => (
   <Grid container item direction="column">
     <Grid
@@ -49,23 +50,18 @@ const TestsList = ({
         </Typography>
       </Grid>
       <Grid container item xs justify="flex-end">
-        <Input
-          placeholder="Filter"
-          onChange={onFilter}
-        />
+        <Input placeholder="Filter" onChange={onFilter} />
       </Grid>
     </Grid>
     <Grid item>
       <List disablePadding className={classes.root}>
         <FieldArray
           name={fieldName}
-          render={fieldHelpers => (
-            labTestTypes.map(({
-              _id, name, unit, category: { name: categoryName },
-            } = {}) => (
+          render={fieldHelpers =>
+            labTestTypes.map(({ _id, name, unit, category: { name: categoryName } } = {}) => (
               <ListItem
                 key={_id}
-                onClick={handleListItemChange({ fieldHelpers, values: valueArray, value: _id})}
+                onClick={handleListItemChange({ fieldHelpers, values: valueArray, value: _id })}
                 disableGutters
                 button
               >
@@ -80,16 +76,16 @@ const TestsList = ({
                   className={classes.listItemText}
                   primary={name}
                   primaryTypographyProps={{ variant: 'subtitle1' }}
-                  secondary={(
+                  secondary={
                     <Typography variant="subtitle2" component="span">
                       {categoryName}
                       {unit && ` ( ${unit} )`}
                     </Typography>
-                  )}
+                  }
                 />
               </ListItem>
             ))
-          )}
+          }
         />
       </List>
     </Grid>

@@ -15,7 +15,7 @@ export default class Login extends Component {
     email: '',
     password: '',
     rememberMe: false,
-  }
+  };
 
   componentDidMount() {
     const { userId, secret } = this.props;
@@ -35,7 +35,7 @@ export default class Login extends Component {
       form[name] = value;
     }
     this.setState(form);
-  }
+  };
 
   submitForm(event) {
     event.preventDefault();
@@ -89,11 +89,7 @@ export default class Login extends Component {
                     onChange={this.handleUserInput}
                   />
                   <div className="column is-half has-text-right">
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                    >
+                    <Button type="submit" variant="contained" color="primary">
                       Login
                     </Button>
                   </div>

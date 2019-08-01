@@ -22,7 +22,7 @@ export default class DatepickerGroup extends Component {
     timeFormat: PropTypes.string,
     timeIntervals: PropTypes.number,
     timeCaption: PropTypes.string,
-  }
+  };
 
   static defaultProps = {
     required: false,
@@ -37,7 +37,7 @@ export default class DatepickerGroup extends Component {
     timeFormat: '',
     timeIntervals: 15,
     timeCaption: 'Time',
-  }
+  };
 
   componentWillMount() {
     this.parseValue(this.props, true);
@@ -83,18 +83,13 @@ export default class DatepickerGroup extends Component {
 
     return (
       <div className={className}>
-        {label !== false
-          && (
+        {label !== false && (
           <span className={labelClass}>
-            {label}
-            {' '}
-            {required && <span className="isRequired">*</span>}
+            {label} {required && <span className="isRequired">*</span>}
           </span>
-          )
-        }
+        )}
         {readOnly && <CustomDateInput styleName={inputClass} value={value} />}
-        {!readOnly
-          && (
+        {!readOnly && (
           <DatePicker
             name={name}
             tabIndex={tabIndex}
@@ -111,8 +106,7 @@ export default class DatepickerGroup extends Component {
             dropdownMode="select"
             {...others}
           />
-          )
-        }
+        )}
       </div>
     );
   }

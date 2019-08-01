@@ -4,8 +4,8 @@ import { splashImages } from '../../constants/images';
 
 class HomePage extends Component {
   state: {
-    splashStyle: {}
-  }
+    splashStyle: {},
+  };
 
   componentWillMount() {
     const numImages = 3;
@@ -22,9 +22,7 @@ class HomePage extends Component {
         <div className="content">
           <div className="splash-screen" style={splashStyle}>
             <div className="view-top-bar">
-              <span>
-                Welcome to Tamanu!
-              </span>
+              <span>Welcome to Tamanu!</span>
             </div>
           </div>
         </div>

@@ -9,6 +9,4 @@ const LogoImage = styled.img`
   width: ${p => p.size};
 `;
 
-export const TamanuLogo = ({ size }) => (
-  <LogoImage src={tamanuLogo} size={size} />
-);
+export const TamanuLogo = ({ size }) => <LogoImage src={tamanuLogo} size={size} />;

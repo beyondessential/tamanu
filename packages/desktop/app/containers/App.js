@@ -8,7 +8,6 @@ import { ConnectedSidebar } from '../components/Sidebar';
 import actions from '../actions/auth';
 import Login from './Auth/Login';
 
-
 const { login: loginActions } = actions;
 const { login } = loginActions;
 
@@ -25,7 +24,7 @@ const AppContentsContainer = styled.div`
 class App extends Component {
   state = {
     userId: null,
-  }
+  };
 
   componentWillMount() {
     this.handleChange();
@@ -49,9 +48,7 @@ class App extends Component {
     return (
       <AppContainer>
         <ConnectedSidebar />
-        <AppContentsContainer>
-          { this.props.children }
-        </AppContentsContainer>
+        <AppContentsContainer>{this.props.children}</AppContentsContainer>
       </AppContainer>
     );
   }
@@ -59,11 +56,8 @@ class App extends Component {
   render() {
     return (
       <div>
-        { this.renderAppContents() }
-        <ToastContainer
-          autoClose={3000}
-          transition={Slide}
-        />
+        {this.renderAppContents()}
+        <ToastContainer autoClose={3000} transition={Slide} />
       </div>
     );
   }
@@ -74,8 +68,11 @@ function mapStateToProps(state) {
   return { userId, secret, history };
 }
 
-const mapDispatchToProps = (dispatch) => ({
-  login: (params) => dispatch(login(params)),
+const mapDispatchToProps = dispatch => ({
+  login: params => dispatch(login(params)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(App);

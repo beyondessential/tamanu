@@ -13,9 +13,7 @@ export const NotificationContainer = styled(Grid)`
 
 export const Notification = ({ message }) => (
   <NotificationContainer container item>
-    <Typography variant="body1">
-      {message}
-    </Typography>
+    <Typography variant="body1">{message}</Typography>
   </NotificationContainer>
 );
 

@@ -2,36 +2,33 @@ import React, { Component } from 'react';
 import { Grid } from '@material-ui/core';
 import { pregnancyColumns, PREGNANCY_PROGRAM_ID } from '../../../constants';
 import PregnancyModal from '../components/PregnancyModal';
-import {
-  Button, TabHeader, NewButton, ButtonGroup, SimpleTable,
-} from '../../../components';
+import { Button, TabHeader, NewButton, ButtonGroup, SimpleTable } from '../../../components';
 import { PregnancyModel } from '../../../models';
 
 export default class Pregnancy extends Component {
   state = {
     modalVisible: false,
     itemId: null,
-  }
+  };
 
   onCloseModal = () => {
     this.setState({ modalVisible: false });
-  }
+  };
 
-  viewPatient = (patientId) => {
+  viewPatient = patientId => {
     this.props.history.push(`/patients/editPatient/${patientId}`);
-  }
+  };
 
   editItem = row => () => {
     this.setState({ modalVisible: true, itemId: row ? row.original._id : null });
-  }
+  };
 
-  setActionsCol = (row) => {
+  setActionsCol = row => {
     const { patient } = this.props;
     const item = row.original;
     return (
       <ButtonGroup>
-        {item.child
-          && (
+        {item.child && (
           <Button
             variant="outlined"
             color="primary"
@@ -40,10 +37,8 @@ export default class Pregnancy extends Component {
           >
             View Child
           </Button>
-          )
-        }
-        {item.child
-          && (
+        )}
+        {item.child && (
           <Button
             color="primary"
             variant="outlined"
@@ -52,14 +47,8 @@ export default class Pregnancy extends Component {
           >
             View Father
           </Button>
-          )
-        }
-        <Button
-          color="primary"
-          variant="contained"
-          size="small"
-          onClick={this.editItem(row)}
-        >
+        )}
+        <Button color="primary" variant="contained" size="small" onClick={this.editItem(row)}>
           Edit Pregnancy
         </Button>
         <Button
@@ -81,15 +70,12 @@ export default class Pregnancy extends Component {
         </Button>
       </ButtonGroup>
     );
-  }
+  };
 
   render() {
     const { patient, patientModel } = this.props;
     const pregnancies = patientModel.getPregnancies();
-    const {
-      modalVisible,
-      itemId,
-    } = this.state;
+    const { modalVisible, itemId } = this.state;
 
     // Set actions col for our table
     const lastCol = pregnancyColumns[pregnancyColumns.length - 1];
@@ -98,11 +84,7 @@ export default class Pregnancy extends Component {
     return (
       <Grid container>
         <TabHeader>
-          <NewButton
-            onClick={this.editItem()}
-          >
-            Add Pregnancy
-          </NewButton>
+          <NewButton onClick={this.editItem()}>Add Pregnancy</NewButton>
         </TabHeader>
         <Grid container item>
           <SimpleTable
@@ -112,7 +94,9 @@ export default class Pregnancy extends Component {
           />
         </Grid>
         <PregnancyModal
-          pregnancyModel={patientModel.get('pregnancies').findWhere({ _id: itemId }) || new PregnancyModel()}
+          pregnancyModel={
+            patientModel.get('pregnancies').findWhere({ _id: itemId }) || new PregnancyModel()
+          }
           patientModel={patientModel}
           isVisible={modalVisible}
           onClose={this.onCloseModal}

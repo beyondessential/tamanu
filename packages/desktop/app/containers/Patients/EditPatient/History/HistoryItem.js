@@ -41,24 +41,18 @@ const styles = ({ spacing }) => {
   };
 };
 
-const Procedures = ({
-  classes, _id: visitId, procedures, patientId,
-}) => (
+const Procedures = ({ classes, _id: visitId, procedures, patientId }) => (
   <Grid container className={classes.procedures} spacing={8}>
     {procedures.map(procedure => (
       <Grid item key={procedure._id}>
-        <Typography variant="button">
-          Procedure
-        </Typography>
+        <Typography variant="button">Procedure</Typography>
         <Link to={`/patients/visit/${patientId}/${visitId}/procedure/${procedure._id}`}>
           <Typography variant="subtitle1">
             <Grid container spacing={8}>
               <Grid item>
                 <DateDisplay date={procedure.procedureDate} />
               </Grid>
-              <Grid item>
-                {procedure.description}
-              </Grid>
+              <Grid item>{procedure.description}</Grid>
             </Grid>
           </Typography>
         </Link>
@@ -67,35 +61,27 @@ const Procedures = ({
   </Grid>
 );
 
-const Item = ({
-  classes, onClick, date, startDate, endDate, caption, title,
-}) => (
-  <ListItem
-    component="div"
-    className={classes.list}
-    disableGutters
-    button
-    onClick={onClick}
-  >
+const Item = ({ classes, onClick, date, startDate, endDate, caption, title }) => (
+  <ListItem component="div" className={classes.list} disableGutters button onClick={onClick}>
     <Grid container>
       <Grid item className={classes.date}>
         <Typography variant="subtitle1">
           <DateDisplay date={startDate || date} />
-          {endDate
-            && (
+          {endDate && (
             <React.Fragment>
               <span> - </span>
               <DateDisplay date={endDate} />
             </React.Fragment>
-            )
-          }
+          )}
         </Typography>
       </Grid>
       <Grid item xs className={classes.titleText}>
         <Typography variant="subtitle1">{title}</Typography>
       </Grid>
       <Grid item className={classes.captionText}>
-        <Typography variant="button" color="inherit">{caption}</Typography>
+        <Typography variant="button" color="inherit">
+          {caption}
+        </Typography>
       </Grid>
     </Grid>
   </ListItem>
@@ -107,9 +93,7 @@ class HistoryItem extends Component {
   }
 
   render() {
-    const {
-      item, patientId, changeTab, ...props
-    } = this.props;
+    const { item, patientId, changeTab, ...props } = this.props;
     switch (props.objectType) {
       default:
       case 'visit':
@@ -123,15 +107,9 @@ class HistoryItem extends Component {
               endDate={item.endDate}
               onClick={() => this.gotoLink(`/patients/visit/${patientId}/${item._id}`)}
             />
-            {item.procedures.length > 0
-              && (
-                <Procedures
-                  {...item}
-                  classes={props.classes}
-                  patientId={patientId}
-                />
-              )
-            }
+            {item.procedures.length > 0 && (
+              <Procedures {...item} classes={props.classes} patientId={patientId} />
+            )}
           </React.Fragment>
         );
       case 'medication':

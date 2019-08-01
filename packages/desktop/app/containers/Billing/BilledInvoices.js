@@ -7,16 +7,10 @@ class BilledInvoices extends Component {
       <div>
         <div className="content">
           <div className="view-top-bar">
-            <span>
-              Billed Invoices
-            </span>
+            <span>Billed Invoices</span>
             <div className="view-action-buttons">
-              <button>
-                + New Invoice
-              </button>
-              <button>
-                + Add Deposit
-              </button>
+              <button>+ New Invoice</button>
+              <button>+ Add Deposit</button>
             </div>
           </div>
           <div className="detail">
@@ -36,9 +30,7 @@ class BilledInvoices extends Component {
             </div>
             <div className="bill-notification">
               <span>
-                No invoices found.
-                {' '}
-                <Link to="/invoices/edit/new">Create an invoice?</Link>
+                No invoices found. <Link to="/invoices/edit/new">Create an invoice?</Link>
               </span>
             </div>
           </div>

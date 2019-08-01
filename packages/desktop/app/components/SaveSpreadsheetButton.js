@@ -6,18 +6,20 @@ import ReactTable from 'react-table';
 import { SaveFileButton } from './SaveFileButton';
 
 // for save file dialog
-const filters = [{
-  name: 'Excel files (*.xlsx)',
-  extensions: ['xlsx'],
-}];
+const filters = [
+  {
+    name: 'Excel files (*.xlsx)',
+    extensions: ['xlsx'],
+  },
+];
 
 export class SaveSpreadsheetButton extends Component {
   static propTypes = {
     ...ReactTable.propTypes,
     filename: PropTypes.string,
-  }
+  };
 
-  writeData = async (path) => {
+  writeData = async path => {
     const { data, columns } = this.props;
 
     // exclude columns that have exporter explicitly set to null
@@ -31,7 +33,7 @@ export class SaveSpreadsheetButton extends Component {
         return exporter(row);
       } else if (accessor) {
         // accessor can be a callback or a string key
-        return (typeof (accessor) === 'function') ? accessor(row) : row[accessor];
+        return typeof accessor === 'function' ? accessor(row) : row[accessor];
       }
       // nothing set for this cell
       return '';
@@ -48,16 +50,12 @@ export class SaveSpreadsheetButton extends Component {
     const book = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(book, sheet);
     XLSX.writeFile(book, path);
-  }
+  };
 
   render() {
     return (
-      <SaveFileButton
-        {...this.props}
-        filters={filters}
-        writeFunction={this.writeData}
-      >
-Export to Excel
+      <SaveFileButton {...this.props} filters={filters} writeFunction={this.writeData}>
+        Export to Excel
       </SaveFileButton>
     );
   }

@@ -4,5 +4,8 @@ import * as responses from './responses';
 import * as response from './response';
 
 export default {
-  surveys, survey, responses, response,
+  surveys,
+  survey,
+  responses,
+  response,
 };

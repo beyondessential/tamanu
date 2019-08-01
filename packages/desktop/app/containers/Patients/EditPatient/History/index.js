@@ -8,7 +8,7 @@ export default class HistoryTab extends Component {
   state = {
     noteModalVisible: false,
     patientsHistory: [],
-  }
+  };
 
   componentWillMount() {
     this.handleChange();
@@ -20,7 +20,7 @@ export default class HistoryTab extends Component {
 
   onCloseModal = () => {
     this.setState({ noteModalVisible: false });
-  }
+  };
 
   handleChange(props = this.props) {
     const { patientModel } = props;

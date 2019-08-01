@@ -9,22 +9,26 @@ import SearchBar from '../app/components/SearchBar';
 import TopBar from '../app/components/TopBar';
 
 storiesOf('TopBar', module)
-  .add("Plain", () => (
-    <TopBar title="Title" />
-  ))
-  .add("With button", () => (
+  .add('Plain', () => <TopBar title="Title" />)
+  .add('With button', () => (
     <TopBar title="With button">
-      <Button color="primary" variant="contained" onClick={action("save")}>Save</Button>
+      <Button color="primary" variant="contained" onClick={action('save')}>
+        Save
+      </Button>
     </TopBar>
   ))
-  .add("With two buttons", () => (
+  .add('With two buttons', () => (
     <TopBar title="With two buttons">
-      <Button variant="outlined" onClick={action("cancel")}>Cancel</Button>
-      <Button color="primary" variant="contained" onClick={action("save")}>Save</Button>
+      <Button variant="outlined" onClick={action('cancel')}>
+        Cancel
+      </Button>
+      <Button color="primary" variant="contained" onClick={action('save')}>
+        Save
+      </Button>
     </TopBar>
   ))
-  .add("With search input", () => (
+  .add('With search input', () => (
     <TopBar title="With search input">
-      <SearchBar onChange={action("searchChange")} />
+      <SearchBar onChange={action('searchChange')} />
     </TopBar>
-  ))
+  ));

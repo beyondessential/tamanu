@@ -14,32 +14,23 @@ import InputGroup from '../../components/InputGroup';
 import { Button } from '../../components/Button';
 
 import { sexOptions } from '../../constants';
-import {
-  diagnosisOptions,
-  locationOptions,
-  prescriberOptions,
-} from './dummyReports';
-
+import { diagnosisOptions, locationOptions, prescriberOptions } from './dummyReports';
 
 const LabeledSelect = ({ label, ...props }) => (
   <div>
-    <span className="input-group-title">{ label }</span>
+    <span className="input-group-title">{label}</span>
     <Select {...props} />
   </div>
 );
 
-const ExpanderSection = ({
-  heading, subheading, children, ...props
-}) => (
+const ExpanderSection = ({ heading, subheading, children, ...props }) => (
   <ExpansionPanel {...props}>
     <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-      <div style={{ minWidth: '14em' }}>{ heading }</div>
-      <small>{ subheading }</small>
+      <div style={{ minWidth: '14em' }}>{heading}</div>
+      <small>{subheading}</small>
     </ExpansionPanelSummary>
     <ExpansionPanelDetails>
-      <div style={{ flexBasis: '100%' }}>
-        { children }
-      </div>
+      <div style={{ flexBasis: '100%' }}>{children}</div>
     </ExpansionPanelDetails>
   </ExpansionPanel>
 );
@@ -50,15 +41,15 @@ export class ReportFilters extends Component {
       end: moment(),
       start: moment().subtract(30, 'days'),
     },
-  }
+  };
 
   static propTypes = {
     onApply: PropTypes.func.isRequired,
-  }
+  };
 
   apply = () => {
     this.props.onApply(this.state);
-  }
+  };
 
   componentDidMount() {
     this.apply();
@@ -132,9 +123,10 @@ export class ReportFilters extends Component {
           </ExpanderSection>
         </div>
         <div className="column" style={{ textAlign: 'right', marginTop: '-1em' }}>
-          <Button>Advanced filters</Button>
-          { ' ' }
-          <Button onClick={this.apply} primary>Generate report</Button>
+          <Button>Advanced filters</Button>{' '}
+          <Button onClick={this.apply} primary>
+            Generate report
+          </Button>
         </div>
       </div>
     );

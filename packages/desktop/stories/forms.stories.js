@@ -3,10 +3,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
-import {
-  TextField,
-  SelectField,
-} from '../app/components';
+import { TextField, SelectField } from '../app/components';
 
 import { Form, Field } from '../app/components/Field/Form';
 import { PaginatedForm } from '../app/components/Field/PaginatedForm';
@@ -16,11 +13,11 @@ import { VisitForm } from '../app/forms/VisitForm';
 function createDummyGetter(options) {
   const selectableOptions = options.map(o => ({
     label: o,
-    value: o.replace(/\W/g, '').toLowerCase()
+    value: o.replace(/\W/g, '').toLowerCase(),
   }));
 
-  return (search) => selectableOptions
-    .filter(({ label }) => label.toLowerCase().includes(search.toLowerCase()));
+  return search =>
+    selectableOptions.filter(({ label }) => label.toLowerCase().includes(search.toLowerCase()));
 }
 
 storiesOf('Forms', module)
@@ -32,13 +29,7 @@ storiesOf('Forms', module)
         country: 'VU',
       }}
       pages={[
-        () => (
-          <Field
-            name="city"
-            label="City"
-            component={TextField}
-          />
-        ),
+        () => <Field name="city" label="City" component={TextField} />,
         () => (
           <Field
             name="country"
@@ -51,21 +42,15 @@ storiesOf('Forms', module)
             ]}
           />
         ),
-        () => (
-          <Field
-            name="comment"
-            label="Comment"
-            component={TextField}
-          />
-        ),
+        () => <Field name="comment" label="Comment" component={TextField} />,
       ]}
     />
   ))
   .add('LoginForm', () => <Login login={action('login')} />)
   .add('VisitForm', () => (
-    <VisitForm 
-      onSubmit={action('submit')} 
-      fetchLocations={createDummyGetter(["Ward 1", "Ward 2", "Ward 3"])}
-      fetchPractitioners={createDummyGetter(["Doctor 1", "Nurse 2", "Doctor 3"])}
+    <VisitForm
+      onSubmit={action('submit')}
+      fetchLocations={createDummyGetter(['Ward 1', 'Ward 2', 'Ward 3'])}
+      fetchPractitioners={createDummyGetter(['Doctor 1', 'Nurse 2', 'Doctor 3'])}
     />
-  ))
+  ));

@@ -1,16 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Grid } from '@material-ui/core';
-import {
-  Button, NewButton, TabHeader, SimpleTable,
-} from '../../../components';
+import { Button, NewButton, TabHeader, SimpleTable } from '../../../components';
 import {
   patientImagingRequestsColumns as tableColumns,
-  headerStyle, columnStyle,
+  headerStyle,
+  columnStyle,
 } from '../../../constants';
 import { PatientModel } from '../../../models';
 
-const getTableColumns = () => ([
+const getTableColumns = () => [
   ...tableColumns,
   {
     id: 'actions',
@@ -18,17 +17,12 @@ const getTableColumns = () => ([
     headerStyle,
     style: columnStyle,
     minWidth: 250,
-    Cell: (row) => <ActionsColumn {...row} />,
+    Cell: row => <ActionsColumn {...row} />,
   },
-]);
+];
 
 const ActionsColumn = ({ original: { _id } }) => (
-  <Button
-    key={_id}
-    variant="contained"
-    color="primary"
-    to={`/imaging/request/${_id}`}
-  >
+  <Button key={_id} variant="contained" color="primary" to={`/imaging/request/${_id}`}>
     View
   </Button>
 );

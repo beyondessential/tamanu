@@ -15,38 +15,36 @@ class QuestionScreen extends React.Component {
 
   getAnswer(questionId) {
     const { answers } = this.props;
-    const answer = find(answers, (_answer => _answer.questionId === questionId));
+    const answer = find(answers, _answer => _answer.questionId === questionId);
     if (answer && answer.newAnswer) return answer.newAnswer;
     if (answer && answer.body) return answer.body;
     return '';
   }
 
-  answerChanged = (event) => {
+  answerChanged = event => {
     const { changeAnswer } = this.props;
     const { name, value } = event.target;
     changeAnswer(name, 'Radio', value);
-  }
+  };
 
   render() {
     const { questions, screenIndex, readOnly } = this.props;
-    return (
-      questions.map((questionModel) => {
-        const question = questionModel.toJSON();
-        return (
-          <Grid item xs>
-            <Question
-              key={question._id}
-              screenIndex={screenIndex}
-              answer={this.getAnswer(question._id)}
-              readOnly={readOnly}
-              singleLine={questionModel.isSingleLine()}
-              onChange={this.answerChanged}
-              {...question}
-            />
-          </Grid>
-        );
-      })
-    );
+    return questions.map(questionModel => {
+      const question = questionModel.toJSON();
+      return (
+        <Grid item xs>
+          <Question
+            key={question._id}
+            screenIndex={screenIndex}
+            answer={this.getAnswer(question._id)}
+            readOnly={readOnly}
+            singleLine={questionModel.isSingleLine()}
+            onChange={this.answerChanged}
+            {...question}
+          />
+        </Grid>
+      );
+    });
   }
 }
 
@@ -68,9 +66,14 @@ const mapStateToProps = ({ programs: { answers } }, { surveyModel, screenIndex, 
   return mappedProps;
 };
 
-const { survey: { changeAnswer } } = actions;
-const mapDispatchToProps = (dispatch) => ({
+const {
+  survey: { changeAnswer },
+} = actions;
+const mapDispatchToProps = dispatch => ({
   changeAnswer: (...props) => dispatch(changeAnswer(...props)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(QuestionScreen);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(QuestionScreen);

@@ -21,7 +21,7 @@ export default class SelectGroup extends Component {
     simpleValue: PropTypes.bool,
     searchable: PropTypes.bool,
     showDefault: PropTypes.bool,
-  }
+  };
 
   static defaultProps = {
     required: false,
@@ -36,7 +36,7 @@ export default class SelectGroup extends Component {
     simpleValue: true,
     searchable: false,
     showDefault: true,
-  }
+  };
 
   componentWillMount() {
     this.parseValue(this.props, true);
@@ -47,10 +47,7 @@ export default class SelectGroup extends Component {
   }
 
   parseValue(props) {
-    const {
-      options,
-      showDefault,
-    } = props;
+    const { options, showDefault } = props;
 
     // Set default value
     let { value } = props;
@@ -89,15 +86,11 @@ export default class SelectGroup extends Component {
 
     return (
       <div className={className}>
-        {label !== false
-          && (
+        {label !== false && (
           <label className={labelClass} htmlFor={selectMenuId}>
-            {label}
-            {' '}
-            {required && <span className="isRequired">*</span>}
+            {label} {required && <span className="isRequired">*</span>}
           </label>
-          )
-        }
+        )}
         <Select
           id={selectMenuId}
           name={name}

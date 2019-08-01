@@ -1,11 +1,7 @@
 import React from 'react';
-import {
-  has, isEmpty, set, concat, capitalize, head,
-} from 'lodash';
+import { has, isEmpty, set, concat, capitalize, head } from 'lodash';
 import moment from 'moment';
-import {
-  pageSizes,
-} from '../../constants';
+import { pageSizes } from '../../constants';
 import {
   FETCH_APPOINTMENTS_REQUEST,
   FETCH_APPOINTMENTS_SUCCESS,
@@ -32,7 +28,12 @@ export const fetchAppointments = ({
     const appointments = appointmentsCollection.models.map(object => {
       const { parents } = object;
       let name = '';
-      if (has(parents, 'patients') && !isEmpty(parents.patients)) name = set(object.attributes, 'patientsName', `${parents.patients[0].get('firstName')} ${parents.patients[0].get('lastName')}`);
+      if (has(parents, 'patients') && !isEmpty(parents.patients))
+        name = set(
+          object.attributes,
+          'patientsName',
+          `${parents.patients[0].get('firstName')} ${parents.patients[0].get('lastName')}`,
+        );
       return { name, ...object.toJSON() };
     });
 
@@ -52,15 +53,15 @@ export const fetchCalender = ({ filters = {} }) => async dispatch => {
     dispatch({ type: FETCH_APPOINTMENTS_REQUEST });
     const appointmentsCollection = new AppointmentsCollection();
     await appointmentsCollection.fetchAll({ data: filters });
-    const appointments = appointmentsCollection.toJSON().map(({
-      _id, startDate, endDate, allDay, patients, location,
-    }) => ({
-      _id,
-      allDay,
-      start: moment(startDate).toDate(),
-      end: moment(endDate).toDate(),
-      title: _getTitle({ patients, location }),
-    }));
+    const appointments = appointmentsCollection
+      .toJSON()
+      .map(({ _id, startDate, endDate, allDay, patients, location }) => ({
+        _id,
+        allDay,
+        start: moment(startDate).toDate(),
+        end: moment(endDate).toDate(),
+        title: _getTitle({ patients, location }),
+      }));
 
     dispatch({
       type: FETCH_APPOINTMENTS_SUCCESS,
@@ -81,11 +82,7 @@ const _getTitle = ({ patients, location }) => {
 
   return (
     <span className="is-size-7">
-      {patient}
-      {' '}
-      {location && <br />}
-      {' '}
-      {location}
+      {patient} {location && <br />} {location}
     </span>
   );
 };

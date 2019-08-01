@@ -8,13 +8,9 @@ class ImagingPricing extends Component {
       <div>
         <div className="content">
           <div className="view-top-bar">
-            <span>
-              Imaging Pricing
-            </span>
+            <span>Imaging Pricing</span>
             <div className="view-action-buttons">
-              <button>
-                + New Item
-              </button>
+              <button>+ New Item</button>
             </div>
           </div>
           <div className="detail">
@@ -40,8 +36,7 @@ class ImagingPricing extends Component {
             </div>
             <div className="bill-notification">
               <span>
-                No pricing items found.
-                {' '}
+                No pricing items found.{' '}
                 <Link to="/invoices/pricing/edit/new">Create a new record?</Link>
               </span>
             </div>

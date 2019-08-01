@@ -4,11 +4,24 @@ import { Grid, Typography } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import actions from '../../actions/medication';
 import TopRow from '../Patients/components/TopRow';
-import { medicationStatuses, MUI_SPACING_UNIT as spacing, VISIT_SELECT_TEMPLATE } from '../../constants';
 import {
-  Preloader, PatientAutocomplete, TextInput, DrugAutocomplete,
-  DateInput, BackButton, AddButton, UpdateButton, PatientVisitSelect,
-  TopBar, FormRow, Container,
+  medicationStatuses,
+  MUI_SPACING_UNIT as spacing,
+  VISIT_SELECT_TEMPLATE,
+} from '../../constants';
+import {
+  Preloader,
+  PatientAutocomplete,
+  TextInput,
+  DrugAutocomplete,
+  DateInput,
+  BackButton,
+  AddButton,
+  UpdateButton,
+  PatientVisitSelect,
+  TopBar,
+  FormRow,
+  Container,
 } from '../../components';
 
 class NewMedication extends Component {
@@ -17,7 +30,7 @@ class NewMedication extends Component {
     medication: {},
     formIsValid: false,
     loading: true,
-  }
+  };
 
   componentWillMount() {
     this.props.fetchMedication();
@@ -29,16 +42,16 @@ class NewMedication extends Component {
 
   selectPatient = ({ _id: patientId }) => {
     this.props.fetchMedication({ patientId });
-  }
+  };
 
   selectDrug = ({ _id: drugId }, name) => {
     this.handleFormInput(name, { _id: drugId });
-  }
+  };
 
-  handleUserInput = (event) => {
+  handleUserInput = event => {
     const { name, value } = event.target;
     this.handleFormInput(name, value);
-  }
+  };
 
   handleFormInput = (name, value) => {
     const { medicationModel } = this.props;
@@ -47,9 +60,9 @@ class NewMedication extends Component {
       medication: medicationModel.toJSON(),
       formIsValid: medicationModel.isValid(),
     });
-  }
+  };
 
-  submitForm = (event) => {
+  submitForm = event => {
     event.preventDefault();
     const { dispense, medicationModel, patientModel } = this.props;
     const { action } = this.state;
@@ -63,7 +76,7 @@ class NewMedication extends Component {
       patientId: patientModel.id,
       history: this.props.history,
     });
-  }
+  };
 
   handleNewProps(props = this.props) {
     const { id, loading } = props;
@@ -77,25 +90,16 @@ class NewMedication extends Component {
     if (loading) return <Preloader />; // TODO: make this automatic
 
     const { dispense, patientModel, byPatient } = this.props;
-    const {
-      action,
-      medication,
-      formIsValid,
-    } = this.state;
+    const { action, medication, formIsValid } = this.state;
     return (
       <React.Fragment>
-        <TopBar
-          title={dispense ? 'Dispense Medication' : 'New Medication Request'}
-        />
+        <TopBar title={dispense ? 'Dispense Medication' : 'New Medication Request'} />
         <form onSubmit={this.submitForm}>
           <Container>
-            {byPatient
-              && <TopRow patient={patientModel.toJSON()} />
-            }
+            {byPatient && <TopRow patient={patientModel.toJSON()} />}
             <Grid container spacing={spacing * 2} direction="column">
               <FormRow>
-                {!byPatient
-                  && (
+                {!byPatient && (
                   <PatientAutocomplete
                     label="Patient"
                     name="patient"
@@ -103,8 +107,7 @@ class NewMedication extends Component {
                     value={medication.patient}
                     required
                   />
-                  )
-                }
+                )}
                 <PatientVisitSelect
                   patientModel={patientModel}
                   value={medication.visit}
@@ -155,17 +158,9 @@ class NewMedication extends Component {
                   multiline
                 />
               </Grid>
-              <Grid
-                container
-                item
-                style={{ paddingTop: spacing * 2 }}
-                xs={6}
-                spacing={spacing * 2}
-              >
+              <Grid container item style={{ paddingTop: spacing * 2 }} xs={6} spacing={spacing * 2}>
                 <Grid item style={{ paddingBottom: 0 }}>
-                  <Typography variant="h6">
-                    Quantity
-                  </Typography>
+                  <Typography variant="h6">Quantity</Typography>
                 </Grid>
                 <FormRow>
                   <TextInput
@@ -206,22 +201,19 @@ class NewMedication extends Component {
               </Grid>
               <Grid container item justify="flex-end">
                 <BackButton />
-                {action === 'new'
-                  ? (
-                    <AddButton
-                      type="submit"
-                      disabled={!formIsValid}
-                      can={{ do: 'create', on: 'medication' }}
-                    />
-                  )
-                  : (
-                    <UpdateButton
-                      type="submit"
-                      disabled={!formIsValid}
-                      can={{ do: 'update', on: 'medication' }}
-                    />
-                  )
-                }
+                {action === 'new' ? (
+                  <AddButton
+                    type="submit"
+                    disabled={!formIsValid}
+                    can={{ do: 'create', on: 'medication' }}
+                  />
+                ) : (
+                  <UpdateButton
+                    type="submit"
+                    disabled={!formIsValid}
+                    can={{ do: 'update', on: 'medication' }}
+                  />
+                )}
               </Grid>
             </Grid>
           </Container>
@@ -246,11 +238,7 @@ NewMedication.defaultProps = {
   patientModel: {},
 };
 
-const mapStateToProps = ({
-  medication: {
-    patient, medicationModel, loading, error,
-  },
-}) => ({
+const mapStateToProps = ({ medication: { patient, medicationModel, loading, error } }) => ({
   medicationModel,
   patientModel: patient,
   loading,
@@ -259,10 +247,20 @@ const mapStateToProps = ({
 
 const { request: requestActions } = actions;
 const { fetchMedication, saveMedication } = requestActions;
-const mapDispatchToProps = (dispatch, { match: { params: { patientId, id } } }) => ({
+const mapDispatchToProps = (
+  dispatch,
+  {
+    match: {
+      params: { patientId, id },
+    },
+  },
+) => ({
   fetchMedication: props => dispatch(fetchMedication({ patientId, id, ...props })),
-  saveMedication: (params) => dispatch(saveMedication(params)),
+  saveMedication: params => dispatch(saveMedication(params)),
   byPatient: !!patientId,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewMedication);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(NewMedication);

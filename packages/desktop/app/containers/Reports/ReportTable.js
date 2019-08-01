@@ -27,16 +27,8 @@ const buttonContainerStyle = {
 export const ReportTable = ({ data }) => (
   <div>
     <div style={buttonContainerStyle}>
-      <SaveSpreadsheetButton
-        filename="report"
-        data={data}
-        columns={dataColumns}
-      />
+      <SaveSpreadsheetButton filename="report" data={data} columns={dataColumns} />
     </div>
-    <ReactTable
-      data={data}
-      columns={dataColumns}
-      minRows={1}
-    />
+    <ReactTable data={data} columns={dataColumns} minRows={1} />
   </div>
 );

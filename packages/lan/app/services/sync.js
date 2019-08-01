@@ -18,34 +18,40 @@ export default class Sync {
 
   setup() {
     const clientId = this.database.getSetting('CLIENT_ID');
-    const subscription = this.client.subscribe(`/${config.sync.channelIn}/${clientId}`).withChannel((channel, message) => {
-      const { action, recordType: type, recordId: id } = message;
-      const schema = find(schemas, ({ name }) => name === type);
-      if (!schema) {
-        throw new Error(`Invalid recordType [${type}]`);
-      }
-      if (schema.sync !== SYNC_MODES.ON && schema.sync !== SYNC_MODES.REMOTE_TO_LOCAL) {
-        throw new Error(`Schema sync not allowed [${schema.sync}]`);
-      }
-      console.log(`[MessageIn - ${config.sync.channelIn}/${clientId}] - [${channel}]`, { action, type, id });
-      switch (message.action) {
-        case SYNC_ACTIONS.SAVE:
-          this.saveRecord(message);
-          break;
-        case SYNC_ACTIONS.REMOVE:
-          this.removeRecord(message);
-          break;
-        default:
-          throw new Error('No action specified');
-      }
-    });
+    const subscription = this.client
+      .subscribe(`/${config.sync.channelIn}/${clientId}`)
+      .withChannel((channel, message) => {
+        const { action, recordType: type, recordId: id } = message;
+        const schema = find(schemas, ({ name }) => name === type);
+        if (!schema) {
+          throw new Error(`Invalid recordType [${type}]`);
+        }
+        if (schema.sync !== SYNC_MODES.ON && schema.sync !== SYNC_MODES.REMOTE_TO_LOCAL) {
+          throw new Error(`Schema sync not allowed [${schema.sync}]`);
+        }
+        console.log(`[MessageIn - ${config.sync.channelIn}/${clientId}] - [${channel}]`, {
+          action,
+          type,
+          id,
+        });
+        switch (message.action) {
+          case SYNC_ACTIONS.SAVE:
+            this.saveRecord(message);
+            break;
+          case SYNC_ACTIONS.REMOVE:
+            this.removeRecord(message);
+            break;
+          default:
+            throw new Error('No action specified');
+        }
+      });
 
     subscription.callback(() => {
       this.synchronize();
       console.log('[SUBSCRIBE SUCCEEDED]');
     });
 
-    subscription.errback((error) => {
+    subscription.errback(error => {
       console.log('[SUBSCRIBE FAILED]', error);
     });
 
@@ -62,7 +68,9 @@ export default class Sync {
     try {
       const lastSyncTime = this.database.getSetting('LAST_SYNC_OUT');
       console.log('lastSyncTime', lastSyncTime);
-      const changes = this.database.find('change', `timestamp >= "${lastSyncTime}"`).sorted('timestamp', false);
+      const changes = this.database
+        .find('change', `timestamp >= "${lastSyncTime}"`)
+        .sorted('timestamp', false);
       const tasks = [];
       changes.forEach(change => tasks.push(this.publishMessage(objectToJSON(change))));
       Promise.all(tasks);
@@ -84,7 +92,11 @@ export default class Sync {
 
       // // Update last sync out date
       this.database.setSetting('LAST_SYNC_OUT', new Date().getTime());
-      console.log('[MessageOut]', `/${config.sync.channelOut}`, { action: change.action, type: change.recordType, id: change.recordId });
+      console.log('[MessageOut]', `/${config.sync.channelOut}`, {
+        action: change.action,
+        type: change.recordType,
+        id: change.recordId,
+      });
     } catch (err) {
       throw new Error(err);
     }

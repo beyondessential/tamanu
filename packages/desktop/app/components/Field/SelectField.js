@@ -21,12 +21,7 @@ export const SelectInput = ({ options, value, ...props }) => (
 );
 
 export const SelectField = ({ field, ...props }) => (
-  <SelectInput
-    name={field.name}
-    value={field.value || ''}
-    onChange={field.onChange}
-    {...props}
-  />
+  <SelectInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
 );
 
 SelectInput.propTypes = {

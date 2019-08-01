@@ -10,12 +10,7 @@ import { ScheduledTask } from './ScheduledTask';
 // for a demo
 const SENAITE_ERROR_STATUS = 'manual';
 
-const TARGET_STATES = [
-  'verified',
-  'published',
-  'invalid',
-  SENAITE_ERROR_STATUS,
-];
+const TARGET_STATES = ['verified', 'published', 'invalid', SENAITE_ERROR_STATUS];
 const BASE_URL = config.senaite.server;
 
 function formatForSenaite(datetime) {
@@ -118,7 +113,8 @@ export class SenaitePoller extends ScheduledTask {
     // Get all requests that need a senaite record created. That is:
     // - no senaite ID
     // - status is not senaite error (ie, previously attempted and failed)
-    const labRequestsToBeCreated = this.database.objects('labRequest')
+    const labRequestsToBeCreated = this.database
+      .objects('labRequest')
       .filtered('senaiteId == NULL && status != $0', SENAITE_ERROR_STATUS);
 
     for (let i = 0; i < labRequestsToBeCreated.length; ++i) {
@@ -141,9 +137,7 @@ export class SenaitePoller extends ScheduledTask {
     console.log('CREATING', labRequestRealmId);
 
     // get analyses that have associated senaite IDs
-    const testIDs = labRequest.tests
-      .map(x => x.type.senaiteId)
-      .filter(x => x);
+    const testIDs = labRequest.tests.map(x => x.type.senaiteId).filter(x => x);
 
     if (!testIDs.length) {
       throw new Error(`No valid test types on labRequest:${labRequest._id}`);
@@ -152,14 +146,17 @@ export class SenaitePoller extends ScheduledTask {
     const dateTime = formatForSenaite(labRequest.requestedDate);
 
     // generate string of the format 0dddddddd
-    const sampleId = (`000000000${Math.floor(Math.random() * 99999999)}`).slice(-9);
+    const sampleId = `000000000${Math.floor(Math.random() * 99999999)}`.slice(-9);
 
     const result = await new Promise((resolve, reject) => {
-      const request = post({
-        url,
-        jar: this.jar,
-        rejectUnauthorized: false,
-      }, (err, response, body) => (err ? reject(err) : resolve(body)));
+      const request = post(
+        {
+          url,
+          jar: this.jar,
+          rejectUnauthorized: false,
+        },
+        (err, response, body) => (err ? reject(err) : resolve(body)),
+      );
 
       // append form data to the request
       // TODO: use json api
@@ -205,18 +202,17 @@ export class SenaitePoller extends ScheduledTask {
     const requestStatus = (statusData || {}).status;
 
     // fetch individual lab results
-    const analysisTasks = labRequest.Analyses
-      .map(r => `${r.uid}?workflow=y`)
-      .map(url => this.apiRequest(url));
+    const analysisTasks = labRequest.Analyses.map(r => `${r.uid}?workflow=y`).map(url =>
+      this.apiRequest(url),
+    );
 
     // get the relevant bits that we want
     const analysisResults = await Promise.all(analysisTasks);
-    const analysisData = analysisResults
-      .map(item => ({
-        result: item.Result,
-        status: item.workflow_info[0].review_state,
-        serviceId: item.AnalysisService.uid,
-      }));
+    const analysisData = analysisResults.map(item => ({
+      result: item.Result,
+      status: item.workflow_info[0].review_state,
+      serviceId: item.AnalysisService.uid,
+    }));
 
     return {
       tests: analysisData,
@@ -232,13 +228,9 @@ export class SenaitePoller extends ScheduledTask {
     // Realm doesn't have an "in array" query so we assemble the
     // query by concatenation.
 
-    const query = [
-      'senaiteId != NULL',
-      ...TARGET_STATES.map(x => `status != "${x}"`),
-    ].join(' && ');
+    const query = ['senaiteId != NULL', ...TARGET_STATES.map(x => `status != "${x}"`)].join(' && ');
 
-    return this.database.objects('labRequest')
-      .filtered(query);
+    return this.database.objects('labRequest').filtered(query);
   }
 
   async processLabRequest(realmLabRequest) {
@@ -250,10 +242,18 @@ export class SenaitePoller extends ScheduledTask {
       realmLabRequest.tests.map(realmTest => {
         const senaiteResult = results.tests.find(x => x.serviceId === realmTest.type.senaiteId);
         if (senaiteResult) {
-          if (realmTest.status !== senaiteResult.status
-            || realmTest.result !== senaiteResult.result
+          if (
+            realmTest.status !== senaiteResult.status ||
+            realmTest.result !== senaiteResult.result
           ) {
-            console.log('Updated', realmTest.type.name, realmTest.status, '=>', senaiteResult.status, `(${senaiteResult.result})`);
+            console.log(
+              'Updated',
+              realmTest.type.name,
+              realmTest.status,
+              '=>',
+              senaiteResult.status,
+              `(${senaiteResult.result})`,
+            );
             realmTest.result = senaiteResult.result;
             realmTest.status = senaiteResult.status;
           }

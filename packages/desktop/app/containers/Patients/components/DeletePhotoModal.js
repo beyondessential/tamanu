@@ -3,11 +3,7 @@ import Modal from 'react-responsive-modal';
 
 class DeletePhotoModal extends Component {
   render() {
-    const {
-      isVisible,
-      onClose,
-      deletePhoto,
-    } = this.props;
+    const { isVisible, onClose, deletePhoto } = this.props;
     return (
       <Modal open={isVisible} onClose={onClose} little>
         <div className="tamanu-error-modal">
@@ -16,15 +12,17 @@ class DeletePhotoModal extends Component {
           </div>
           <div className="modal-content">
             <div className="alert">
-              <span>
-                Are you sure you wish to delete?
-              </span>
+              <span>Are you sure you wish to delete?</span>
             </div>
           </div>
           <div className="modal-footer">
             <div className="column has-text-right">
-              <button className="button is-danger cancel" onClick={onClose}>Cancel</button>
-              <button className="button is-primary" onClick={deletePhoto}>Delete</button>
+              <button className="button is-danger cancel" onClick={onClose}>
+                Cancel
+              </button>
+              <button className="button is-primary" onClick={deletePhoto}>
+                Delete
+              </button>
             </div>
           </div>
         </div>

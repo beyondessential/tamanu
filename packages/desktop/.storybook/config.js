@@ -27,10 +27,10 @@ const NoteHeader = styled.div`
 configure(loadStories, module);
 addDecorator((story, context, info) => {
   const note = context.parameters.note;
-  if(!note) return story();
+  if (!note) return story();
 
   return (
-    <div> 
+    <div>
       {story()}
       <NoteDisplay>
         <NoteHeader>Note:</NoteHeader>
@@ -39,8 +39,4 @@ addDecorator((story, context, info) => {
     </div>
   );
 });
-addDecorator((story, context, info) => (
-  <ThemeProvider>
-    {story()}
-  </ThemeProvider>
-));
+addDecorator((story, context, info) => <ThemeProvider>{story()}</ThemeProvider>);

@@ -11,17 +11,17 @@ class Diagnosis extends Component {
   static propTypes = {
     parentModel: PropTypes.instanceOf(Object).isRequired,
     showSecondary: PropTypes.bool,
-  }
+  };
 
   static defaultProps = {
     showSecondary: false,
-  }
+  };
 
   state = {
     modalVisible: false,
     action: 'new',
     patientDiagnosisModel: new PatientDiagnosisModel(),
-  }
+  };
 
   componentWillMount() {
     const { parentModel } = this.props;
@@ -37,7 +37,7 @@ class Diagnosis extends Component {
 
   onCloseModal = () => {
     this.setState({ modalVisible: false });
-  }
+  };
 
   editItem(itemId = null) {
     const { parentModel } = this.props;
@@ -51,18 +51,12 @@ class Diagnosis extends Component {
   }
 
   render() {
-    const {
-      parentModel,
-      showSecondary,
-    } = this.props;
-    const {
-      modalVisible,
-      action,
-      patientDiagnosisModel,
-      diagnoses: allDiagnoses,
-    } = this.state;
+    const { parentModel, showSecondary } = this.props;
+    const { modalVisible, action, patientDiagnosisModel, diagnoses: allDiagnoses } = this.state;
     // filter diagnosis type i-e primary or secondary
-    const diagnoses = allDiagnoses.toJSON().filter(diagnosis => diagnosis.active && diagnosis.secondaryDiagnosis === showSecondary);
+    const diagnoses = allDiagnoses
+      .toJSON()
+      .filter(diagnosis => diagnosis.active && diagnosis.secondaryDiagnosis === showSecondary);
 
     if (showSecondary && !diagnoses.length) return null;
     return (
@@ -74,10 +68,7 @@ class Diagnosis extends Component {
             </Typography>
           </Grid>
           <Grid item>
-            <TextButton
-              can={{ do: 'create', on: 'diagnosis' }}
-              onClick={() => this.editItem()}
-            >
+            <TextButton can={{ do: 'create', on: 'diagnosis' }} onClick={() => this.editItem()}>
               + Add Diagnosis
             </TextButton>
           </Grid>

@@ -4,13 +4,21 @@ import AuthService from '../../services/auth';
 
 const checkBody = buildCheckFunction(['body']);
 const validateBody = [
-  checkBody('clientId').exists().withMessage('clientId is required'),
-  checkBody('clientSecret').isEmail().exists().withMessage('clientSecret is required'),
+  checkBody('clientId')
+    .exists()
+    .withMessage('clientId is required'),
+  checkBody('clientSecret')
+    .isEmail()
+    .exists()
+    .withMessage('clientSecret is required'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({
-        error: chain(errors.array()).map('msg').uniq().value(),
+        error: chain(errors.array())
+          .map('msg')
+          .uniq()
+          .value(),
       });
     }
     return next();

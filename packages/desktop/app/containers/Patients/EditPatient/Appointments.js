@@ -4,15 +4,13 @@ import moment from 'moment';
 import { capitalize } from 'lodash';
 import { Grid } from '@material-ui/core';
 import { patientAppointmentsColumns, dateFormat } from '../../../constants';
-import {
-  NewButton, EditButton, TabHeader, SimpleTable,
-} from '../../../components';
+import { NewButton, EditButton, TabHeader, SimpleTable } from '../../../components';
 import { PatientModel } from '../../../models';
 
 export default class Appointments extends Component {
   static propTypes = {
     patientModel: PropTypes.instanceOf(PatientModel).isRequired,
-  }
+  };
 
   state = {
     appointments: [],
@@ -27,7 +25,7 @@ export default class Appointments extends Component {
     this.handleChange(newProps);
   }
 
-  setActionsCol = (row) => (
+  setActionsCol = row => (
     <div key={row.original._id}>
       <EditButton
         to={`/appointments/appointment/${row.original._id}`}
@@ -35,7 +33,7 @@ export default class Appointments extends Component {
         can={{ do: 'update', on: 'appointment' }}
       />
     </div>
-  )
+  );
 
   handleChange(props = this.props) {
     const { patient } = props;
@@ -46,7 +44,10 @@ export default class Appointments extends Component {
       if (endDate !== null) endDate = moment(endDate).format(`${dateFormat}`);
       appointmentType = capitalize(appointmentType);
       return {
-        ...appointment, startDate, endDate, appointmentType,
+        ...appointment,
+        startDate,
+        endDate,
+        appointmentType,
       };
     });
     // Add actions column for our table

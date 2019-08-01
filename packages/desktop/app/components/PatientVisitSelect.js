@@ -4,7 +4,8 @@ import { capitalize } from 'lodash';
 import { PatientRelationSelect } from './PatientRelationSelect';
 import { dateFormat } from '../constants';
 
-export const VISIT_SELECT_TEMPLATE = visit => `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`;
+export const VISIT_SELECT_TEMPLATE = visit =>
+  `${moment(visit.startDate).format(dateFormat)} (${capitalize(visit.visitType)})`;
 
 const getCurrentVisit = ({ patientModel, onChange, name }) => {
   const collection = patientModel.get('visits');
@@ -17,7 +18,12 @@ const getCurrentVisit = ({ patientModel, onChange, name }) => {
 };
 
 export const PatientVisitSelect = ({
-  onChange, value, patientModel, name="visit", label="Visits", ...props
+  onChange,
+  value,
+  patientModel,
+  name = 'visit',
+  label = 'Visits',
+  ...props
 }) => (
   <PatientRelationSelect
     label={label}
@@ -32,9 +38,5 @@ export const PatientVisitSelect = ({
 );
 
 export const PatientVisitSelectField = ({ field, ...props }) => (
-  <PatientVisitSelect
-    value={field.value || ''}
-    {...field}
-    {...props}
-  />
+  <PatientVisitSelect value={field.value || ''} {...field} {...props} />
 );

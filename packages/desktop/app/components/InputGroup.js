@@ -14,7 +14,7 @@ export default class InputGroupNew extends Component {
     overwriteClass: PropTypes.bool,
     autoFocus: PropTypes.bool,
     note: PropTypes.string,
-  }
+  };
 
   static defaultProps = {
     type: 'text',
@@ -25,15 +25,15 @@ export default class InputGroupNew extends Component {
     overwriteClass: false,
     autoFocus: false,
     note: '',
-  }
+  };
 
   constructor(props) {
     super(props);
-    this.state = { value: (props.value ? props.value : '') };
+    this.state = { value: props.value ? props.value : '' };
   }
 
   componentWillReceiveProps(newProps) {
-    this.setState({ value: (newProps.value ? newProps.value : '') });
+    this.setState({ value: newProps.value ? newProps.value : '' });
   }
 
   handleChange(event) {
@@ -61,15 +61,11 @@ export default class InputGroupNew extends Component {
 
     return (
       <div className={className}>
-        {label !== false
-          && (
+        {label !== false && (
           <label className={labelClass}>
-            {label}
-            {' '}
-            {required && <span className="isRequired">*</span>}
+            {label} {required && <span className="isRequired">*</span>}
           </label>
-          )
-        }
+        )}
         <div className={inputClass}>
           <input
             className="input"
@@ -89,4 +85,3 @@ export default class InputGroupNew extends Component {
     );
   }
 }
-

@@ -15,37 +15,28 @@ class Users extends Component {
     return (
       <div className="content">
         <div className="view-top-bar">
-          <span>
-            User Listing
-          </span>
+          <span>User Listing</span>
           <div className="view-action-buttons">
-            <Link to="/admin/users/edit/new">
-              + New User
-            </Link>
+            <Link to="/admin/users/edit/new">+ New User</Link>
           </div>
         </div>
         <div className="detail">
-          {patients.length === 0
-            ? (
-              <div className="notification">
-                <span>
-                No patients found.
-                  {' '}
-                  <Link to="/patients/edit/new">Create a new patient record?</Link>
-                </span>
-              </div>
-            )
-            : (
-              <div>
-                <BootstrapTable
-                  keyField="id"
-                  data={patients}
-                  columns={patientColumns}
-                  defaultSortDirection="asc"
-                />
-              </div>
-            )
-          }
+          {patients.length === 0 ? (
+            <div className="notification">
+              <span>
+                No patients found. <Link to="/patients/edit/new">Create a new patient record?</Link>
+              </span>
+            </div>
+          ) : (
+            <div>
+              <BootstrapTable
+                keyField="id"
+                data={patients}
+                columns={patientColumns}
+                defaultSortDirection="asc"
+              />
+            </div>
+          )}
         </div>
       </div>
     );
@@ -62,4 +53,7 @@ const mapDispatchToProps = dispatch => ({
   fetchPatients: () => dispatch(fetchPatients()),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Users);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Users);

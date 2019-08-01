@@ -6,8 +6,18 @@ import TopRow from '../components/TopRow';
 // import ActionsTaken from '../components/ActionsTaken';
 import PreOpDiagnosis from './PreOpDiagnosis';
 import {
-  TextField, Container, TopBar, Preloader, DateField, Form,
-  FormRow, BottomBar, UpdateButton, BackButton, Field, ArrayField,
+  TextField,
+  Container,
+  TopBar,
+  Preloader,
+  DateField,
+  Form,
+  FormRow,
+  BottomBar,
+  UpdateButton,
+  BackButton,
+  Field,
+  ArrayField,
 } from '../../../components';
 import { MUI_SPACING_UNIT as spacing } from '../../../constants';
 import actions from '../../../actions/patients';
@@ -26,11 +36,11 @@ class OperationReport extends Component {
       PropTypes.instanceOf(PatientModel),
       PropTypes.instanceOf(Object),
     ]).isRequired,
-  }
+  };
 
   state = {
     loading: true,
-  }
+  };
 
   componentDidMount() {
     const { fetchOperationReport } = this.props;
@@ -46,7 +56,7 @@ class OperationReport extends Component {
     const { action, saveOperationReport, operationReportModel } = this.props;
     operationReportModel.set(values);
     saveOperationReport({ action, operationReportModel, setSubmitting });
-  }
+  };
 
   render() {
     const { patientModel, operationReportModel, action } = this.props;
@@ -57,10 +67,7 @@ class OperationReport extends Component {
       <React.Fragment>
         <TopBar title={`${capitalize(action)} Operation Report`} />
         <Container>
-          <TopRow
-            patient={patientModel.toJSON()}
-            style={{ marginBottom: spacing * 2 }}
-          />
+          <TopRow patient={patientModel.toJSON()} style={{ marginBottom: spacing * 2 }} />
           <PreOpDiagnosis operationReportModel={operationReportModel} />
           <Form
             initialValues={operationReportModel.toJSON()}
@@ -84,26 +91,10 @@ class OperationReport extends Component {
                   component={ArrayField}
                 />
                 <FormRow>
-                  <Field
-                    component={DateField}
-                    name="surgeryDate"
-                    label="Surgery Date"
-                  />
-                  <Field
-                    component={TextField}
-                    name="surgeon"
-                    label="Surgeon"
-                  />
-                  <Field
-                    component={TextField}
-                    name="assistant"
-                    label="Assistant"
-                  />
-                  <Field
-                    component={TextField}
-                    name="caseComplexity"
-                    label="Case Complexity"
-                  />
+                  <Field component={DateField} name="surgeryDate" label="Surgery Date" />
+                  <Field component={TextField} name="surgeon" label="Surgeon" />
+                  <Field component={TextField} name="assistant" label="Assistant" />
+                  <Field component={TextField} name="caseComplexity" label="Case Complexity" />
                 </FormRow>
                 <FormRow>
                   <Field
@@ -131,26 +122,48 @@ class OperationReport extends Component {
   }
 }
 
-function mapStateToProps({ patients }, { match: { params: { patientId, visitId, id } } }) {
-  const {
-    patient: patientModel, operationReportModel, loading, action,
-  } = patients;
+function mapStateToProps(
+  { patients },
+  {
+    match: {
+      params: { patientId, visitId, id },
+    },
+  },
+) {
+  const { patient: patientModel, operationReportModel, loading, action } = patients;
   return {
-    patientModel, operationReportModel, loading, action, patientId, visitId, id,
+    patientModel,
+    operationReportModel,
+    loading,
+    action,
+    patientId,
+    visitId,
+    id,
   };
 }
 
 const { operationReport: operationReportActions } = actions;
 const { fetchOperationReport, saveOperationReport } = operationReportActions;
-const mapDispatchToProps = (dispatch, {
-  history,
-  match: { params: { id = null, patientId } },
-}) => ({
-  fetchOperationReport: () => dispatch(fetchOperationReport({ id, patientId })),
-  saveOperationReport: ({ ...props }) => dispatch(saveOperationReport({
-    ...props,
+const mapDispatchToProps = (
+  dispatch,
+  {
     history,
-  })),
+    match: {
+      params: { id = null, patientId },
+    },
+  },
+) => ({
+  fetchOperationReport: () => dispatch(fetchOperationReport({ id, patientId })),
+  saveOperationReport: ({ ...props }) =>
+    dispatch(
+      saveOperationReport({
+        ...props,
+        history,
+      }),
+    ),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(OperationReport);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(OperationReport);

@@ -6,19 +6,22 @@ export const availableReports = [
     id: 'patients-per-day',
     name: 'Patients per day',
     graphType: 'line',
-    getCountKey: (row) => moment(row.date).startOf('day').toDate(),
+    getCountKey: row =>
+      moment(row.date)
+        .startOf('day')
+        .toDate(),
   },
   {
     id: 'patients-per-clinician',
     graphType: 'bar',
     name: 'Patients per clinician',
-    getCountKey: (row) => row.prescriber,
+    getCountKey: row => row.prescriber,
   },
   {
     id: 'breakdown-of-age-groups',
     graphType: 'pie',
     name: 'Age group breakdown',
-    getCountKey: (row) => {
+    getCountKey: row => {
       const lowBound = Math.floor(row.age / 10) * 10;
       return `${lowBound}-${lowBound + 10}`;
     },
@@ -37,13 +40,14 @@ const randomDate = () => {
   return moment().subtract(Math.floor(offset), 'days');
 };
 
-const randomChoice = (array) => {
+const randomChoice = array => {
   const idx = Math.floor(Math.random() * array.length);
   return array[idx];
 };
 
 function generateDummyOptions(values) {
-  return values.split(/\s*\n\s*/g)
+  return values
+    .split(/\s*\n\s*/g)
     .filter(x => x)
     .sort()
     .map(x => ({
@@ -95,12 +99,11 @@ export const prescriberOptions = generateDummyOptions(`
   Ms Ian Ianson
 `);
 
-export const dummyData = (new Array(220)).fill(0)
-  .map(x => ({
-    date: randomDate().toDate(),
-    diagnosis: randomChoice(diagnosisOptions).value,
-    location: randomChoice(locationOptions).value,
-    prescriber: randomChoice(prescriberOptions).value,
-    age: Math.floor(Math.random() * 40) + Math.floor(Math.random() * 30),
-    sex: (Math.random() < 0.5) ? 'male' : 'female',
-  }));
+export const dummyData = new Array(220).fill(0).map(x => ({
+  date: randomDate().toDate(),
+  diagnosis: randomChoice(diagnosisOptions).value,
+  location: randomChoice(locationOptions).value,
+  prescriber: randomChoice(prescriberOptions).value,
+  age: Math.floor(Math.random() * 40) + Math.floor(Math.random() * 30),
+  sex: Math.random() < 0.5 ? 'male' : 'female',
+}));

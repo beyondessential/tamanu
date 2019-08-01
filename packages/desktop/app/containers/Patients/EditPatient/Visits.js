@@ -3,9 +3,7 @@ import moment from 'moment';
 import { capitalize } from 'lodash';
 import { Grid } from '@material-ui/core';
 import { visitsColumns, dateFormat } from '../../../constants';
-import {
-  NewButton, EditButton, TabHeader, SimpleTable,
-} from '../../../components';
+import { NewButton, EditButton, TabHeader, SimpleTable } from '../../../components';
 
 const DiagnosisColumn = ({ diagnoses }) => (
   <Grid container direction="column" alignItems="center">
@@ -38,15 +36,13 @@ export default class Visits extends Component {
         can={{ do: 'update', on: 'visit' }}
       />
     );
-  }
+  };
 
   handleChange(props = this.props) {
     const { patient } = props;
     const { tableColumns } = this.state;
     const visits = patient.visits.map(visit => {
-      let {
-        startDate, endDate, visitType, diagnoses,
-      } = visit;
+      let { startDate, endDate, visitType, diagnoses } = visit;
       if (startDate) startDate = moment(startDate).format(`${dateFormat}`);
       if (endDate) endDate = moment(endDate).format(`${dateFormat}`);
       visitType = capitalize(visitType);
@@ -69,19 +65,12 @@ export default class Visits extends Component {
     return (
       <Grid container>
         <TabHeader>
-          <NewButton
-            to={`/patients/visit/${patientModel.id}`}
-            can={{ do: 'create', on: 'visit' }}
-          >
+          <NewButton to={`/patients/visit/${patientModel.id}`} can={{ do: 'create', on: 'visit' }}>
             New Visit
           </NewButton>
         </TabHeader>
         <Grid container item>
-          <SimpleTable
-            data={visits}
-            columns={tableColumns}
-            emptyNotification="No visits found."
-          />
+          <SimpleTable data={visits} columns={tableColumns} emptyNotification="No visits found." />
         </Grid>
       </Grid>
     );

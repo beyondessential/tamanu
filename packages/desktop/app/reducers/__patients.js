@@ -34,9 +34,7 @@ const initialState = {
   visit: {},
 };
 
-const stateChanges = {
-
-};
+const stateChanges = {};
 
 //  default (state = initialState, action) => {
 //   switch (action.type) {

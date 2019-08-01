@@ -65,17 +65,15 @@ class SearchBar extends Component {
     if (value === '' && onClear) onClear();
   }
 
-  onSubmit = (event) => {
+  onSubmit = event => {
     event.preventDefault();
     const { onSubmit: originalSubmit } = this.props;
     const { value } = this.state;
     if (typeof originalSubmit === 'function') originalSubmit(value);
-  }
+  };
 
   render() {
-    const {
-      classes, onClear, value: externalValue, ...props
-    } = this.props;
+    const { classes, onClear, value: externalValue, ...props } = this.props;
     const { value: internalValue } = this.state;
     // Use externally controlled value if provided. Otherwise use state
     const value = externalValue === undefined ? internalValue : externalValue;

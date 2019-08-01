@@ -9,7 +9,7 @@ import { createLogger } from 'redux-logger';
 import rootReducer from '../reducers';
 import * as actions from '../actions/patients';
 
-export const configureStore = (initialState) => {
+export const configureStore = initialState => {
   const history = createHashHistory();
 
   // Redux Configuration
@@ -44,9 +44,9 @@ export const configureStore = (initialState) => {
   /* eslint-disable no-underscore-dangle */
   const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
-      // Options: http://zalmoxisus.github.io/redux-devtools-extension/API/Arguments.html
-      actionCreators,
-    })
+        // Options: http://zalmoxisus.github.io/redux-devtools-extension/API/Arguments.html
+        actionCreators,
+      })
     : compose;
   /* eslint-enable no-underscore-dangle */
 
@@ -71,6 +71,9 @@ export const configureStore = (initialState) => {
 
   const persistor = persistStore(store);
   return {
-    store, persistor, persistConfig, history,
+    store,
+    persistor,
+    persistConfig,
+    history,
   };
 };

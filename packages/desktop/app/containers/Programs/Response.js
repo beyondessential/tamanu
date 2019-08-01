@@ -4,9 +4,7 @@ import { Grid, Typography } from '@material-ui/core';
 import { MUI_SPACING_UNIT as spacing } from '../../constants';
 import actions from '../../actions/programs';
 import QuestionScreen from './Survey/QuestionScreen';
-import {
-  BackButton, Preloader, TopBar, Container, DateDisplay,
-} from '../../components';
+import { BackButton, Preloader, TopBar, Container, DateDisplay } from '../../components';
 
 const { response: responseActions } = actions;
 const { initResponse } = responseActions;
@@ -23,14 +21,15 @@ class Response extends Component {
     program: {},
     response: [],
     loading: true,
-  }
+  };
 
   componentWillMount() {
-    const {
-      patientId, programId, surveyId, responseId,
-    } = this.props.match.params;
+    const { patientId, programId, surveyId, responseId } = this.props.match.params;
     this.props.initResponse({
-      patientId, programId, surveyId, responseId,
+      patientId,
+      programId,
+      surveyId,
+      responseId,
     });
   }
 
@@ -42,15 +41,20 @@ class Response extends Component {
     const _this = this;
     return (
       <div key={row._id}>
-        <button className="button is-primary is-outlined column-button" onClick={() => _this.selectPatient(row.value._id)}>View Form</button>
+        <button
+          className="button is-primary is-outlined column-button"
+          onClick={() => _this.selectPatient(row.value._id)}
+        >
+          View Form
+        </button>
       </div>
     );
   }
 
-  gotoSurvey = (surveyId) => {
+  gotoSurvey = surveyId => {
     const { patientId, programId } = this.props.match.params;
     this.props.history.push(`/programs/${programId}/${patientId}/surveys/${surveyId}`);
-  }
+  };
 
   async handleChange(props = this.props) {
     const {
@@ -76,7 +80,9 @@ class Response extends Component {
 
   viewCompleted(listing, surveyId, responseId) {
     const { patientId } = this.props.match.params;
-    const url = listing ? `/programs/${patientId}/${surveyId}/responses` : `/programs/${patientId}/${surveyId}/response/${responseId}`;
+    const url = listing
+      ? `/programs/${patientId}/${surveyId}/responses`
+      : `/programs/${patientId}/${surveyId}/response/${responseId}`;
     this.props.history.push(url);
   }
 
@@ -89,22 +95,15 @@ class Response extends Component {
     const { loading } = this.state;
     if (loading) return <Preloader />;
 
-    const {
-      survey, program, patient, response, answers,
-    } = this.state;
+    const { survey, program, patient, response, answers } = this.state;
     return (
       <React.Fragment>
-        <TopBar
-          title={program.name}
-          subTitle={survey.name}
-        />
+        <TopBar title={program.name} subTitle={survey.name} />
         <Container>
           <Grid container>
             <Grid container item spacing={spacing} xs>
               <Grid item>
-                <Typography variant="subtitle1">
-                  Patient:
-                </Typography>
+                <Typography variant="subtitle1">Patient:</Typography>
               </Grid>
               <Grid item xs>
                 <Typography variant="subtitle1" style={{ fontWeight: 500 }}>
@@ -114,9 +113,7 @@ class Response extends Component {
             </Grid>
             <Grid container item spacing={spacing} xs>
               <Grid item>
-                <Typography variant="subtitle1">
-                  Date Submitted:
-                </Typography>
+                <Typography variant="subtitle1">Date Submitted:</Typography>
               </Grid>
               <Grid item xs>
                 <Typography variant="subtitle1" style={{ fontWeight: 500 }}>
@@ -143,11 +140,7 @@ class Response extends Component {
             ))}
           </Grid>
 
-          <Grid
-            container
-            item
-            style={{ marginTop: spacing * 3 }}
-          >
+          <Grid container item style={{ marginTop: spacing * 3 }}>
             <BackButton />
           </Grid>
         </Container>
@@ -157,16 +150,21 @@ class Response extends Component {
 }
 
 function mapStateToProps(state) {
-  const {
-    patient, program, survey, response, loading,
-  } = state.programs;
+  const { patient, program, survey, response, loading } = state.programs;
   return {
-    patient, program, survey, response, loading,
+    patient,
+    program,
+    survey,
+    response,
+    loading,
   };
 }
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  initResponse: (params) => dispatch(initResponse(params)),
+  initResponse: params => dispatch(initResponse(params)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Response);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Response);

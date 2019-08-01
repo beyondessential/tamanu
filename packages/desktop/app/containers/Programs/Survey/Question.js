@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-  TextInput, RadioInput, CheckInput, DateInput,
-} from '../../../components';
+import { TextInput, RadioInput, CheckInput, DateInput } from '../../../components';
 
 export function Question({ type, ...props }) {
   switch (type) {
@@ -22,16 +20,14 @@ export function Question({ type, ...props }) {
   }
 }
 
-const mapBinaryProps = (props) => mapRadioProps({ ...props, options: ['Yes', 'No'] });
+const mapBinaryProps = props => mapRadioProps({ ...props, options: ['Yes', 'No'] });
 
 const mapRadioProps = ({ options, ...props }) => {
   const optionsMapped = options.map(option => ({ value: option.toLowerCase(), label: option }));
   return { ...mapBaseProps(props), options: optionsMapped };
 };
 
-const mapBaseProps = ({
-  _id, text, answer, onChange, readOnly,
-}) => ({
+const mapBaseProps = ({ _id, text, answer, onChange, readOnly }) => ({
   name: _id,
   value: answer,
   label: text,
