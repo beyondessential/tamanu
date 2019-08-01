@@ -20,7 +20,7 @@ const FRUITS = [
   { value: 'apples', label: 'Apples' },
   { value: 'oranges', label: 'Oranges' },
   { value: 'bananas', label: 'Bananas' },
-  { value: 'pomegrantes', label: 'Pomegranates' },
+  { value: 'pomegranates', label: 'Pomegranates' },
   { value: 'durian', label: 'Durian' },
   { value: 'dragonfruit', label: 'Dragonfruit' },
   { value: 'tomatoes', label: 'Tomatoes' },
@@ -33,6 +33,13 @@ const FRUITS = [
 // so we don't have to do it individually for each item.
 class StoryControlWrapper extends React.PureComponent {
   state = { value: null };
+
+  componentWillMount() {
+    const { value } = this.props;
+    if(value) {
+      this.setState({ value });
+    }
+  }
 
   onChange = e => {
     const { onChange } = this.props;
@@ -116,7 +123,12 @@ const dummySuggester = {
   fetchSuggestions: async search => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     return FRUITS.filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
-  }
+  },
+  fetchLabel: async value => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log(value, FRUITS);
+    return FRUITS.find(x => x.value === value);
+  },
 };
 
 addStories('Autocomplete', props => (
@@ -124,7 +136,14 @@ addStories('Autocomplete', props => (
 )).add('Asynchronous options', () => (
   <StoryControlWrapper
     Component={AutocompleteInput}
-    label="Language"
+    label="Fruit"
+    suggester={dummySuggester}
+  />
+)).add('Async with existing value', () => (
+  <StoryControlWrapper
+    Component={AutocompleteInput}
+    value="pomegranates"
+    label="Fruit"
     suggester={dummySuggester}
   />
 ));

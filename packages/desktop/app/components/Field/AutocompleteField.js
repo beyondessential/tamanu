@@ -138,6 +138,14 @@ class BaseAutocomplete extends Component {
     );
   };
 
+  async componentDidMount() {
+    const { value, suggester } = this.props;
+    if(value && suggester) {
+      const label = await suggester.fetchLabel(value);
+      this.setState({ displayedValue: label.label });
+    }
+  }
+
   render() {
     const { displayedValue, suggestions } = this.state;
     const { label, required, name, classes, disabled, error, helperText } = this.props;
