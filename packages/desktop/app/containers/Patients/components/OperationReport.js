@@ -11,9 +11,7 @@ export default function OperationReport({ parentModel, patientId }) {
   return (
     <Grid container item spacing={8}>
       <Grid item>
-        <Typography variant="body2">
-          Operation Reports
-        </Typography>
+        <Typography variant="body2">Operation Reports</Typography>
       </Grid>
       {operationReports.map((operationReportModel, k) => (
         <React.Fragment key={operationReportModel.id}>

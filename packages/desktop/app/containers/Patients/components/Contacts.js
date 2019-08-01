@@ -3,8 +3,13 @@ import PropTypes from 'prop-types';
 import { Grid } from '@material-ui/core';
 import ContactModal from './ContactModal';
 import {
-  Dialog as ConfirmDeleteDialog, EditButton, DeleteButton,
-  ButtonGroup, NewButton, SubHeader, SimpleTable,
+  Dialog as ConfirmDeleteDialog,
+  EditButton,
+  DeleteButton,
+  ButtonGroup,
+  NewButton,
+  SubHeader,
+  SimpleTable,
 } from '../../../components';
 import { patientContactColumns } from '../../../constants';
 import { PatientModel, PatientContact } from '../../../models';
@@ -12,14 +17,14 @@ import { PatientModel, PatientContact } from '../../../models';
 export default class Contacts extends Component {
   static propTypes = {
     patientModel: PropTypes.instanceOf(PatientModel).isRequired,
-  }
+  };
 
   state = {
     itemId: null,
     modalVisible: false,
     tableColumns: patientContactColumns,
     deleteModalVisible: false,
-  }
+  };
 
   componentWillMount() {
     this.handleChange();
@@ -31,20 +36,17 @@ export default class Contacts extends Component {
 
   onCloseModal = () => {
     this.setState({ modalVisible: false });
-  }
+  };
 
   setActionsColumn = ({ original: { _id } }) => (
     <ButtonGroup>
-      <EditButton
-        size="small"
-        onClick={() => this.showModal(_id)}
-      />
+      <EditButton size="small" onClick={() => this.showModal(_id)} />
       <DeleteButton
         size="small"
         onClick={() => this.setState({ deleteModalVisible: true, itemId: _id })}
       />
     </ButtonGroup>
-  )
+  );
 
   deleteItem = async () => {
     const { patientModel } = this.props;
@@ -58,11 +60,11 @@ export default class Contacts extends Component {
     } catch (err) {
       console.error('Error: ', err);
     }
-  }
+  };
 
   showModal = (itemId = '') => {
     this.setState({ modalVisible: true, itemId });
-  }
+  };
 
   handleChange(props = this.props) {
     const { patientModel } = props;
@@ -74,16 +76,12 @@ export default class Contacts extends Component {
 
   render() {
     const { patientModel } = this.props;
-    const {
-      modalVisible, additionalContacts, tableColumns, itemId,
-    } = this.state;
+    const { modalVisible, additionalContacts, tableColumns, itemId } = this.state;
     const contacts = additionalContacts.toJSON();
     return (
       <React.Fragment>
         <SubHeader title="Additional Contacts">
-          <NewButton onClick={() => this.showModal()}>
-            Add Contact
-          </NewButton>
+          <NewButton onClick={() => this.showModal()}>Add Contact</NewButton>
         </SubHeader>
         <Grid container item xs={12}>
           <SimpleTable
@@ -101,7 +99,10 @@ export default class Contacts extends Component {
           onClose={() => this.setState({ deleteModalVisible: false })}
         />
         <ContactModal
-          contactModel={patientModel.get('additionalContacts').findWhere({ _id: itemId }) || new PatientContact()}
+          contactModel={
+            patientModel.get('additionalContacts').findWhere({ _id: itemId }) ||
+            new PatientContact()
+          }
           patientModel={patientModel}
           isVisible={modalVisible}
           onClose={this.onCloseModal}

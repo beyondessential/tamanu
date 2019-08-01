@@ -3,9 +3,7 @@ import { Link } from 'react-router-dom';
 import { map, isEmpty, head } from 'lodash';
 import ReactTable from 'react-table';
 import { toast } from 'react-toastify';
-import {
-  Button, SyncIconButton, TopBar, ButtonGroup,
-} from '../../components';
+import { Button, SyncIconButton, TopBar, ButtonGroup } from '../../components';
 import { pageSizes, patientColumns } from '../../constants';
 import { PatientsCollection } from '../../collections';
 import { HospitalModel } from '../../models';
@@ -24,7 +22,7 @@ class PatientListing extends Component {
     tableClass: '',
     tableState: {},
     loading: true,
-  }
+  };
 
   async componentDidMount() {
     patientColumns[0].Cell = this.setSyncStatus;
@@ -36,7 +34,7 @@ class PatientListing extends Component {
     this.props.collection.off('update', this.handleChange());
   }
 
-  goAdmit = (patientId) => {
+  goAdmit = patientId => {
     const patient = this.props.collection.where({ _id: patientId })[0];
     if (patient.get('admitted')) {
       let dischargeUrl = '';
@@ -46,7 +44,7 @@ class PatientListing extends Component {
     } else {
       this.props.history.push(`/patients/check-in/${patientId}`);
     }
-  }
+  };
 
   async onFetchData(state = {}) {
     const { keyword } = this.state;
@@ -66,10 +64,7 @@ class PatientListing extends Component {
         this.props.collection.setKeyword('');
       }
 
-      await this.props.collection.getPage(
-        state.page,
-        { pageSize: state.pageSize },
-      );
+      await this.props.collection.getPage(state.page, { pageSize: state.pageSize });
       this.setState({ loading: false });
     } catch (err) {
       this.setState({ loading: false });
@@ -77,51 +72,39 @@ class PatientListing extends Component {
     }
   }
 
-  goEdit = (patientId) => {
+  goEdit = patientId => {
     this.props.history.push(`/patients/editPatient/${patientId}`);
-  }
+  };
 
   setSyncStatus = _row => {
     const row = _row.original;
     return (
       <div key={row._id}>
-        {!row.fullySynced
-          && this._drawSyncBtn(row, _row.value)
-        }
+        {!row.fullySynced && this._drawSyncBtn(row, _row.value)}
 
-        {row.fullySynced
-          && this._drawSyncedIcon(_row.value)
-        }
+        {row.fullySynced && this._drawSyncedIcon(_row.value)}
       </div>
     );
-  }
+  };
 
   _drawSyncBtn = (row, text) => (
     <React.Fragment>
       <SyncIconButton
-        onClick={(e) => {
+        onClick={e => {
           e.preventDefault();
           this.syncItem(row);
         }}
       />
-      <span>
-        {' '}
-        {text}
-        {' '}
-      </span>
+      <span> {text} </span>
     </React.Fragment>
-  )
+  );
 
-  _drawSyncedIcon = (text) => (
+  _drawSyncedIcon = text => (
     <React.Fragment>
       <SyncIconButton disabled />
-      <span>
-        {' '}
-        {text}
-        {' '}
-      </span>
+      <span> {text} </span>
     </React.Fragment>
-  )
+  );
 
   syncItem = async ({ _id }) => {
     try {
@@ -144,7 +127,7 @@ class PatientListing extends Component {
       console.error(e);
       toast('Something west wrong, please try again later.', { type: toast.TYPE.ERROR });
     }
-  }
+  };
 
   setActionsColumn = _row => {
     const row = _row.original;
@@ -167,7 +150,7 @@ class PatientListing extends Component {
         </Button>
       </ButtonGroup>
     );
-  }
+  };
 
   handleChange() {
     let { models: patients } = this.props.collection;
@@ -176,7 +159,8 @@ class PatientListing extends Component {
         const { attributes } = patient;
         if (attributes.admitted) {
           const admission = await patient.getCurrentAdmission();
-          if (!isEmpty(admission)) attributes.dischargeUrl = `/patients/visit/${patient.id}/${admission.id}`;
+          if (!isEmpty(admission))
+            attributes.dischargeUrl = `/patients/visit/${patient.id}/${admission.id}`;
         }
         return attributes;
       });
@@ -211,31 +195,31 @@ class PatientListing extends Component {
             onSubmit: this.searchSubmit,
             onClear: this.searchReset,
           }}
-          buttons={[{
-            to: '/patients/edit/new',
-            color: 'secondary',
-            variant: 'contained',
-            children: 'Advanced Search',
-          }, {
-            to: '/patients/edit/new',
-            can: { do: 'create', on: 'patient' },
-            children: 'New Patient',
-          }]}
+          buttons={[
+            {
+              to: '/patients/edit/new',
+              color: 'secondary',
+              variant: 'contained',
+              children: 'Advanced Search',
+            },
+            {
+              to: '/patients/edit/new',
+              can: { do: 'create', on: 'patient' },
+              children: 'New Patient',
+            },
+          ]}
         />
         <div className="detail">
-          {patients.length === 0 && !loading // Loaded and no records
-            && (
-            <div className="notification">
-              <span>
-                No patients found.
-                {' '}
-                <Link to="/patients/edit/new">Create a new patient record?</Link>
-              </span>
-            </div>
-            )
-          }
-          {(patients.length > 0 || loading) // Loading or there's records
-            && (
+          {patients.length === 0 &&
+          !loading && ( // Loaded and no records
+              <div className="notification">
+                <span>
+                  No patients found.{' '}
+                  <Link to="/patients/edit/new">Create a new patient record?</Link>
+                </span>
+              </div>
+            )}
+          {(patients.length > 0 || loading) && ( // Loading or there's records
             <div>
               <ReactTable
                 manual
@@ -250,8 +234,7 @@ class PatientListing extends Component {
                 onFetchData={this.onFetchData}
               />
             </div>
-            )
-          }
+          )}
         </div>
       </div>
     );

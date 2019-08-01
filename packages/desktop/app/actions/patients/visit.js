@@ -22,11 +22,13 @@ export const initVisit = ({ patientId, id }) => async dispatch => {
   let [error] = await to(patientModel.fetch());
   if (action === 'edit' && !error) {
     visitModel.set({ _id: id });
-    [error] = await to(visitModel.fetch({
-      data: {
-        objects_max_depth: DB_OBJECTS_MAX_DEPTH.VISIT_MAIN,
-      },
-    }));
+    [error] = await to(
+      visitModel.fetch({
+        data: {
+          objects_max_depth: DB_OBJECTS_MAX_DEPTH.VISIT_MAIN,
+        },
+      }),
+    );
   }
   if (error) return dispatch({ type: FETCH_VISIT_FAILED, error });
   return dispatch({
@@ -40,13 +42,18 @@ export const initVisit = ({ patientId, id }) => async dispatch => {
 };
 
 export const submitForm = ({
-  action, visitModel, patientModel, history, setStatus,
+  action,
+  visitModel,
+  patientModel,
+  history,
+  setStatus,
 }) => async dispatch => {
   dispatch({ type: SAVE_VISIT_REQUEST });
   if (visitModel.isValid()) {
     try {
       const endDate = visitModel.get('endDate');
-      if (endDate instanceof moment && !endDate.isValid()) visitModel.set('endDate', null, { silent: true });
+      if (endDate instanceof moment && !endDate.isValid())
+        visitModel.set('endDate', null, { silent: true });
       if (setStatus) updateStatus({ visitModel, patientModel });
       await visitModel.save(null, { silent: true });
       if (action === 'new') patientModel.get('visits').add(visitModel);
@@ -72,9 +79,11 @@ export const submitForm = ({
 export const resetSaved = () => dispatch => dispatch({ type: SAVE_VISIT_RESET });
 
 const updateStatus = ({ visitModel, patientModel }) => {
-  if (moment(visitModel.get('startDate')).isSameOrBefore(moment())
-    && (visitModel.get('endDate') === null
-        || moment(visitModel.get('endDate')).isSameOrAfter(moment()))) {
+  if (
+    moment(visitModel.get('startDate')).isSameOrBefore(moment()) &&
+    (visitModel.get('endDate') === null ||
+      moment(visitModel.get('endDate')).isSameOrAfter(moment()))
+  ) {
     if (visitModel.get('visitType') === 'admission') {
       visitModel.set('status', visitStatuses.ADMITTED);
       patientModel.set('admitted', true);

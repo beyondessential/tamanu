@@ -16,8 +16,21 @@ import Notes from './Notes';
 import Procedures from './Procedures';
 import actions from '../../../actions/patients';
 import {
-  Preloader, TextField, DateField, TopBar, BottomBar, AddButton, UpdateButton,
-  CancelButton, SelectField, DischargeButton, CheckOutButton, Container, FormRow, Field, Form,
+  Preloader,
+  TextField,
+  DateField,
+  TopBar,
+  BottomBar,
+  AddButton,
+  UpdateButton,
+  CancelButton,
+  SelectField,
+  DischargeButton,
+  CheckOutButton,
+  Container,
+  FormRow,
+  Field,
+  Form,
 } from '../../../components';
 import { visitOptions, visitStatuses, MUI_SPACING_UNIT as spacing } from '../../../constants';
 import { VisitModel } from '../../../models';
@@ -32,7 +45,7 @@ class EditVisit extends Component {
   state = {
     selectedTab: 'vitals',
     updateVisitStatus: false,
-  }
+  };
 
   componentWillMount() {
     this.props.initVisit();
@@ -51,18 +64,19 @@ class EditVisit extends Component {
     this.props.resetSaved();
   }
 
-  changeTab = (tabName) => {
+  changeTab = tabName => {
     this.setState({ selectedTab: tabName });
-  }
+  };
 
   discharge = submitForm => () => {
     const { visitModel, patientModel } = this.props;
     visitModel.set('status', visitStatuses.DISCHARGED);
-    if (visitModel.get('endDate') === null || visitModel.get('endDate') === '') visitModel.set('endDate', moment());
+    if (visitModel.get('endDate') === null || visitModel.get('endDate') === '')
+      visitModel.set('endDate', moment());
     patientModel.set('admitted', false);
     this.setState({ updateVisitStatus: true });
     submitForm();
-  }
+  };
 
   checkOut = submitForm => () => {
     const { visitModel } = this.props;
@@ -70,7 +84,7 @@ class EditVisit extends Component {
     visitModel.set('endDate', moment());
     this.setState({ updateVisitStatus: true });
     submitForm();
-  }
+  };
 
   handleFormSubmit = ({ status, endDate, ...values }) => {
     const { updateVisitStatus } = this.state;
@@ -84,7 +98,7 @@ class EditVisit extends Component {
       history: this.props.history,
       setStatus: updateVisitStatus,
     });
-  }
+  };
 
   handleChange(props = this.props) {
     const { visitModel, loading } = props;
@@ -101,24 +115,21 @@ class EditVisit extends Component {
     const { selectedTab } = this.state;
     return (
       <Tabs value={selectedTab} style={{ marginBottom: spacing }}>
-        {
-          [
-            { value: 'vitals', label: 'Vitals' },
-            { value: 'notes', label: 'Notes' },
-            { value: 'procedures', label: 'Procedures' },
-            { value: 'labs', label: 'Labs' },
-            { value: 'reports', label: 'Reports' },
-          ]
-            .map(({ label, value }) => (
-              <Tab
-                key={value}
-                style={{ minWidth: 'auto' }}
-                label={label}
-                value={value}
-                onClick={() => this.changeTab(value)}
-              />
-            ))
-        }
+        {[
+          { value: 'vitals', label: 'Vitals' },
+          { value: 'notes', label: 'Notes' },
+          { value: 'procedures', label: 'Procedures' },
+          { value: 'labs', label: 'Labs' },
+          { value: 'reports', label: 'Reports' },
+        ].map(({ label, value }) => (
+          <Tab
+            key={value}
+            style={{ minWidth: 'auto' }}
+            label={label}
+            value={value}
+            onClick={() => this.changeTab(value)}
+          />
+        ))}
       </Tabs>
     );
   }
@@ -132,12 +143,7 @@ class EditVisit extends Component {
       case 'vitals':
         return <Vitals visitModel={visitModel} />;
       case 'notes':
-        return (
-          <Notes
-            parentModel={visitModel}
-            patientModel={patientModel}
-          />
-        );
+        return <Notes parentModel={visitModel} patientModel={patientModel} />;
       case 'procedures':
         return (
           <Procedures
@@ -160,9 +166,7 @@ class EditVisit extends Component {
   }
 
   render() {
-    const {
-      loading, action, patientModel, visitModel, checkIn,
-    } = this.props;
+    const { loading, action, patientModel, visitModel, checkIn } = this.props;
     if (loading) return <Preloader />; // TODO: make this automatic
 
     return (
@@ -173,40 +177,34 @@ class EditVisit extends Component {
         />
         <Container>
           <TopRow patient={patientModel.toJSON()} />
-          {action !== 'new'
-            && (
-              <Grid container spacing={8} style={{ paddingBottom: 16 }}>
-                <Grid item xs>
-                  <Diagnosis parentModel={visitModel} patientModel={patientModel} />
-                  <OperativePlan
-                    parentModel={visitModel}
-                    patientId={patientModel.id}
-                    history={this.props.history}
-                  />
-                </Grid>
-                <Grid item xs>
-                  <Diagnosis parentModel={visitModel} patientModel={patientModel} showSecondary />
-                  <Allergy patientModel={patientModel} />
-                  <OperationReport
-                    parentModel={visitModel}
-                    patientId={patientModel.id}
-                    history={this.props.history}
-                  />
-                </Grid>
+          {action !== 'new' && (
+            <Grid container spacing={8} style={{ paddingBottom: 16 }}>
+              <Grid item xs>
+                <Diagnosis parentModel={visitModel} patientModel={patientModel} />
+                <OperativePlan
+                  parentModel={visitModel}
+                  patientId={patientModel.id}
+                  history={this.props.history}
+                />
               </Grid>
-            )
-          }
+              <Grid item xs>
+                <Diagnosis parentModel={visitModel} patientModel={patientModel} showSecondary />
+                <Allergy patientModel={patientModel} />
+                <OperationReport
+                  parentModel={visitModel}
+                  patientId={patientModel.id}
+                  history={this.props.history}
+                />
+              </Grid>
+            </Grid>
+          )}
           <Form
             onSubmit={this.handleFormSubmit}
             initialValues={visitModel.toJSON()}
             validationSchema={visitModel.validationSchema}
             render={({ isSubmitting, values, submitForm }) => (
               <React.Fragment>
-                <Grid
-                  container
-                  spacing={spacing * 2}
-                  style={{ paddingTop: spacing * 2 }}
-                >
+                <Grid container spacing={spacing * 2} style={{ paddingTop: spacing * 2 }}>
                   <FormRow>
                     <Field
                       component={DateField}
@@ -214,20 +212,10 @@ class EditVisit extends Component {
                       name="startDate"
                       required
                     />
-                    {values.visitType === 'admission'
-                      && (
-                        <Field
-                          component={DateField}
-                          label="Discharge Date"
-                          name="endDate"
-                        />
-                      )
-                    }
-                    <Field
-                      component={TextField}
-                      name="location"
-                      label="Location"
-                    />
+                    {values.visitType === 'admission' && (
+                      <Field component={DateField} label="Discharge Date" name="endDate" />
+                    )}
+                    <Field component={TextField} name="location" label="Location" />
                   </FormRow>
                   <FormRow>
                     <Field
@@ -237,11 +225,7 @@ class EditVisit extends Component {
                       name="visitType"
                       disabled={action === 'edit'}
                     />
-                    <Field
-                      component={TextField}
-                      name="examiner"
-                      label="Doctor/Nurse"
-                    />
+                    <Field component={TextField} name="examiner" label="Doctor/Nurse" />
                   </FormRow>
                   <FormRow>
                     <Field
@@ -252,59 +236,45 @@ class EditVisit extends Component {
                       rows="3"
                     />
                   </FormRow>
-                  {action === 'edit'
-                    && (
-                      <Grid
-                        container
-                        spacing={8}
-                        style={{ paddingTop: spacing * 3 }}
-                      >
-                        { this.renderTabs() }
-                        <Grid container>
-                          { this.renderTabsContent() }
-                        </Grid>
-                      </Grid>
-                    )
-                  }
+                  {action === 'edit' && (
+                    <Grid container spacing={8} style={{ paddingTop: spacing * 3 }}>
+                      {this.renderTabs()}
+                      <Grid container>{this.renderTabsContent()}</Grid>
+                    </Grid>
+                  )}
                 </Grid>
                 <BottomBar>
-                  <CancelButton
-                    to={`/patients/editPatient/${patientModel.get('_id')}`}
-                  />
+                  <CancelButton to={`/patients/editPatient/${patientModel.get('_id')}`} />
                   {action === 'new' && (
-                  <AddButton
-                    type="button"
-                    disabled={isSubmitting}
-                    can={{ do: 'create', on: 'visit' }}
-                    onClick={submitForm}
-                  />
+                    <AddButton
+                      type="button"
+                      disabled={isSubmitting}
+                      can={{ do: 'create', on: 'visit' }}
+                      onClick={submitForm}
+                    />
                   )}
                   {action !== 'new' && (
-                  <UpdateButton
-                    type="button"
-                    disabled={isSubmitting}
-                    can={{ do: 'update', on: 'visit' }}
-                    onClick={submitForm}
-                  />
+                    <UpdateButton
+                      type="button"
+                      disabled={isSubmitting}
+                      can={{ do: 'update', on: 'visit' }}
+                      onClick={submitForm}
+                    />
                   )}
-                  {values.status === visitStatuses.ADMITTED
-                    && (
+                  {values.status === visitStatuses.ADMITTED && (
                     <DischargeButton
                       onClick={this.discharge(submitForm)}
                       disabled={isSubmitting}
                       can={{ do: 'update', on: 'visit', field: 'status' }}
                     />
-                    )
-                  }
-                  {values.status === visitStatuses.CHECKED_IN
-                    && (
+                  )}
+                  {values.status === visitStatuses.CHECKED_IN && (
                     <CheckOutButton
                       onClick={this.checkOut(submitForm)}
                       disabled={isSubmitting}
                       can={{ do: 'update', on: 'visit', field: 'status' }}
                     />
-                    )
-                  }
+                  )}
                 </BottomBar>
               </React.Fragment>
             )}
@@ -334,9 +304,7 @@ EditVisit.defaultProps = {
 };
 
 function mapStateToProps(state, { match: { path } }) {
-  const {
-    patient, visit, action, loading, error,
-  } = state.patients;
+  const { patient, visit, action, loading, error } = state.patients;
   const mappedProps = {
     patientModel: patient,
     action,
@@ -350,10 +318,20 @@ function mapStateToProps(state, { match: { path } }) {
 
 const { visit: visitActions } = actions;
 const { initVisit, submitForm, resetSaved } = visitActions;
-const mapDispatchToProps = (dispatch, { match: { params: { patientId, id } } }) => ({
-  initVisit: (props) => dispatch(initVisit({ patientId, id, ...props })),
-  submitForm: (params) => dispatch(submitForm(params)),
-  resetSaved: (params) => dispatch(resetSaved(params)),
+const mapDispatchToProps = (
+  dispatch,
+  {
+    match: {
+      params: { patientId, id },
+    },
+  },
+) => ({
+  initVisit: props => dispatch(initVisit({ patientId, id, ...props })),
+  submitForm: params => dispatch(submitForm(params)),
+  resetSaved: params => dispatch(resetSaved(params)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditVisit);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(EditVisit);

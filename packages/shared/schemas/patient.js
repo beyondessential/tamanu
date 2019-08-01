@@ -218,7 +218,7 @@ export const PatientSchema = {
   selectors: ['displayId', 'firstName', 'lastName', 'dateOfBirth', 'sex', 'status', 'admitted'],
 };
 
-const generateTempDisplayId = (db) => {
+const generateTempDisplayId = db => {
   let idSeq = db.getSetting('TEMP_DISPLAY_ID_SEQ');
   idSeq = parseInt(idSeq);
   idSeq += 1;

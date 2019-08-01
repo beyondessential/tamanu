@@ -15,19 +15,19 @@ class NewInvoice extends Component {
   state = {
     billDate: moment(),
     selectValue: '',
-  }
+  };
 
-  onChangeDate = (date) => {
+  onChangeDate = date => {
     this.setState({
       billDate: date,
     });
-  }
+  };
 
-  updateValue = (newValue) => {
+  updateValue = newValue => {
     this.setState({
       selectValue: newValue,
     });
-  }
+  };
 
   render() {
     const { billDate } = this.state;
@@ -36,16 +36,10 @@ class NewInvoice extends Component {
       <div>
         <div className="content">
           <div className="view-top-bar">
-            <span>
-              New Invoice
-            </span>
+            <span>New Invoice</span>
             <div className="view-action-buttons">
-              <button>
-                + New Invoice
-              </button>
-              <button>
-                + Add Deposit
-              </button>
+              <button>+ New Invoice</button>
+              <button>+ Add Deposit</button>
             </div>
           </div>
           <div className="detail">
@@ -67,9 +61,7 @@ class NewInvoice extends Component {
               <div className="columns">
                 <div className="column is-4">
                   <div className="column">
-                    <span className="input-group-title">
-                      Bill Date
-                    </span>
+                    <span className="input-group-title">Bill Date</span>
                     <DatePicker
                       name="billDate"
                       customInput={<CustomDateInput />}
@@ -83,20 +75,16 @@ class NewInvoice extends Component {
                   </div>
                 </div>
                 <div className="column is-4">
-                  <InputGroup
-                    name="patient"
-                    label="Patient"
-                    required
-                  />
+                  <InputGroup name="patient" label="Patient" required />
                 </div>
                 <div className="column is-4">
                   <div className="column">
-                    <span className="input-group-title">
-                      Visit
-                    </span>
+                    <span className="input-group-title">Visit</span>
                     <Select
                       id="state-select"
-                      ref={(ref) => { this.select = ref; }}
+                      ref={ref => {
+                        this.select = ref;
+                      }}
                       onBlurResetsInput={false}
                       onSelectResetsInput={false}
                       options={visitOptions}
@@ -114,19 +102,16 @@ class NewInvoice extends Component {
               </div>
               <div className="columns">
                 <div className="column is-4">
-                  <InputGroup
-                    name="patient"
-                    label="External Invoice #"
-                  />
+                  <InputGroup name="patient" label="External Invoice #" />
                 </div>
                 <div className="column is-4">
                   <div className="column">
-                    <span className="input-group-title">
-                      Payment Profile
-                    </span>
+                    <span className="input-group-title">Payment Profile</span>
                     <Select
                       id="state-select"
-                      ref={(ref) => { this.select = ref; }}
+                      ref={ref => {
+                        this.select = ref;
+                      }}
                       onBlurResetsInput={false}
                       onSelectResetsInput={false}
                       options={visitOptions}
@@ -146,9 +131,7 @@ class NewInvoice extends Component {
                 <div className="column">
                   <div className="column">
                     <div className="panel-heading">
-                      <span className="panel-title">
-                        Line Items
-                      </span>
+                      <span className="panel-title">Line Items</span>
                       <button className="button is-primary align-right">+ Add Line Item</button>
                     </div>
                     <div>
@@ -160,17 +143,13 @@ class NewInvoice extends Component {
                       />
                     </div>
                     <div className="panel-heading margin-t-30">
-                      <span className="panel-title">
-                        Remarks
-                      </span>
+                      <span className="panel-title">Remarks</span>
                     </div>
                     <div className="margin-t-10">
                       <textarea className="textarea" />
                     </div>
                     <div className="panel-heading margin-t-30">
-                      <span className="panel-title">
-                        Payments
-                      </span>
+                      <span className="panel-title">Payments</span>
                       <button className="button is-primary align-right">+ Add Payment</button>
                     </div>
                     <div>
@@ -188,8 +167,12 @@ class NewInvoice extends Component {
                 <div className="column">
                   <div className="column">
                     <div className="has-text-right margin-t-30">
-                      <Link className="button is-danger cancel" to="/invoices">Cancel</Link>
-                      <button className="button" type="submit">Add</button>
+                      <Link className="button is-danger cancel" to="/invoices">
+                        Cancel
+                      </Link>
+                      <button className="button" type="submit">
+                        Add
+                      </button>
                       <button className="button">Print</button>
                     </div>
                   </div>
@@ -213,4 +196,7 @@ const mapDispatchToProps = dispatch => ({
   fetchInvoices: () => dispatch(fetchInvoices()),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewInvoice);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(NewInvoice);

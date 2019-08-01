@@ -10,13 +10,13 @@ async function getDetails() {
   });
 }
 
-const token = [process.argv[2], process.argv[3]].filter(x=>x).join(' ');
+const token = [process.argv[2], process.argv[3]].filter(x => x).join(' ');
 const OPTIONS = {
   url: 'http://localhost:4000/realm/patient',
   json: true,
   headers: {
-    'Authorization': token,
-  }
+    Authorization: token,
+  },
 };
 
 async function createPatient(body) {
@@ -32,13 +32,15 @@ function titleCase(str) {
 }
 
 async function run() {
-  if(!token) {
-    console.log("No auth token provided. Copy one from a web request sent by the app and call this script again: \n$ node packages/scripts/generatePatients.js Basic abc123xyz");
+  if (!token) {
+    console.log(
+      'No auth token provided. Copy one from a web request sent by the app and call this script again: \n$ node packages/scripts/generatePatients.js Basic abc123xyz',
+    );
     return;
   }
   const details = await getDetails();
-  const users = JSON.parse(details).results
-    
+  const users = JSON.parse(details).results;
+
   users.map(async r => {
     const user = {
       sex: r.gender,

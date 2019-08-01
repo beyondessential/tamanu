@@ -1,15 +1,22 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
-  TextField, AddButton, DeleteButton, UpdateButton, Form, Field,
-  Modal, ModalActions, Dialog as DeleteConfirmDialog,
+  TextField,
+  AddButton,
+  DeleteButton,
+  UpdateButton,
+  Form,
+  Field,
+  Modal,
+  ModalActions,
+  Dialog as DeleteConfirmDialog,
 } from '../../../components';
 import { PatientModel } from '../../../models';
 
 export default class AllergyModal extends Component {
   state = {
     isDeleteModalVisible: false,
-  }
+  };
 
   submitForm = async values => {
     const { patientModel, allergyModel, onClose } = this.props;
@@ -28,7 +35,7 @@ export default class AllergyModal extends Component {
     } catch (err) {
       console.error('Error: ', err);
     }
-  }
+  };
 
   deleteItem = async () => {
     const { patientModel, allergyModel } = this.props;
@@ -41,15 +48,15 @@ export default class AllergyModal extends Component {
     } catch (err) {
       console.error('Error: ', err);
     }
-  }
+  };
 
   deleteModalClose = () => {
     this.setState({ isDeleteModalVisible: false });
-  }
+  };
 
   confirmToDelete = () => {
     this.setState({ isDeleteModalVisible: true });
-  }
+  };
 
   render() {
     const { onClose, isVisible, allergyModel } = this.props;
@@ -69,40 +76,31 @@ export default class AllergyModal extends Component {
             validationSchema={allergyModel.validationSchema}
             render={({ isSubmitting, submitForm }) => (
               <React.Fragment>
-                <Field
-                  component={TextField}
-                  name="name"
-                  label="Name"
-                  required
-                />
+                <Field component={TextField} name="name" label="Name" required />
                 <ModalActions>
-                  {isNew
-                    ? (
-                      <AddButton
+                  {isNew ? (
+                    <AddButton
+                      type="button"
+                      disabled={isSubmitting}
+                      can={{ do: 'create', on: 'allergy' }}
+                      onClick={submitForm}
+                    />
+                  ) : (
+                    <React.Fragment>
+                      <DeleteButton
+                        can={{ do: 'delete', on: 'allergy' }}
+                        onClick={this.confirmToDelete}
+                      />
+                      <UpdateButton
                         type="button"
                         disabled={isSubmitting}
-                        can={{ do: 'create', on: 'allergy' }}
+                        can={{ do: 'update', on: 'allergy' }}
                         onClick={submitForm}
                       />
-                    )
-                    : (
-                      <React.Fragment>
-                        <DeleteButton
-                          can={{ do: 'delete', on: 'allergy' }}
-                          onClick={this.confirmToDelete}
-                        />
-                        <UpdateButton
-                          type="button"
-                          disabled={isSubmitting}
-                          can={{ do: 'update', on: 'allergy' }}
-                          onClick={submitForm}
-                        />
-                      </React.Fragment>
-                    )
-                  }
+                    </React.Fragment>
+                  )}
                 </ModalActions>
               </React.Fragment>
-
             )}
           />
         </Modal>

@@ -24,38 +24,38 @@ const doc = new GoogleSpreadsheet(DOC_ID);
 const log = console.log;
 
 function login() {
-  log("Logging in...");
+  log('Logging in...');
   return new Promise(resolve => doc.useServiceAccountAuth(creds, resolve));
 }
 
 function getWorksheets() {
-  log("Getting worksheets...");
-  return new Promise((resolve, reject) => 
+  log('Getting worksheets...');
+  return new Promise((resolve, reject) =>
     doc.getInfo((err, info) => {
-      if(err) return reject(err);
+      if (err) return reject(err);
 
       resolve(info.worksheets);
-    })
+    }),
   );
 }
 
 function getRows(sheet) {
-  return new Promise((resolve, reject) => 
+  return new Promise((resolve, reject) =>
     sheet.getRows((err, rows) => {
-      if(err) return reject(err);
+      if (err) return reject(err);
 
       resolve(rows);
-    })
+    }),
   );
 }
 
 async function processSheet(sheet) {
-  log("Processing sheet", sheet.title);
+  log('Processing sheet', sheet.title);
 
   // get all rows and check which languages we have
   const rows = await getRows(sheet);
   const keys = Object.keys(rows[0]).filter(k => !OMIT_COLUMNS.includes(k));
-  const translations = keys.reduce((obj, k) => ({...obj, [k]: {}}), {});
+  const translations = keys.reduce((obj, k) => ({ ...obj, [k]: {} }), {});
 
   // put all languages into their own key-value pair object
   rows
@@ -63,7 +63,7 @@ async function processSheet(sheet) {
     .map(row => {
       keys.map(key => {
         const value = row[key];
-        if(value) {
+        if (value) {
           translations[key][row.id] = value;
         }
       });
@@ -80,7 +80,7 @@ async function processSheet(sheet) {
 
     log('Writing', path);
     return new Promise((resolve, reject) => {
-      writeFile(path, data, (err) => err ? reject(err) : resolve());
+      writeFile(path, data, err => (err ? reject(err) : resolve()));
     });
   });
 
@@ -88,15 +88,15 @@ async function processSheet(sheet) {
 }
 
 async function run() {
-  await login(); 
+  await login();
   const sheets = await getWorksheets();
-  
+
   const sheetTasks = sheets.map(processSheet);
   await Promise.all(sheetTasks);
 }
 
 try {
   run();
-} catch(e) {
+} catch (e) {
   console.log(e);
 }

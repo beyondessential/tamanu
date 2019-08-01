@@ -8,7 +8,7 @@ import { toTitleCase } from '../../utils';
 import { headerStyle, columnStyle } from '../../constants';
 
 const cellStyles = { headerStyle, style: columnStyle };
-const requestWithPatientInfo = (row) => {
+const requestWithPatientInfo = row => {
   const data = row.toJSON();
 
   const patient = row.getPatient();
@@ -52,17 +52,13 @@ export class LabRequestsTable extends Component {
     {
       Header: 'Actions',
       Cell: ({ original: labRequestData }) => (
-        <Button
-          color="primary"
-          variant="contained"
-          to={`/labs/request/${labRequestData._id}`}
-        >
+        <Button color="primary" variant="contained" to={`/labs/request/${labRequestData._id}`}>
           View
         </Button>
       ),
       ...cellStyles,
     },
-  ]
+  ];
 
   collection = new LabRequestsCollection();
 

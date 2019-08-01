@@ -1,63 +1,67 @@
-import {
-  defaults, isObject, concat, chain, pick,
-} from 'lodash';
+import { defaults, isObject, concat, chain, pick } from 'lodash';
 import Backbone from 'backbone-associations';
 import BaseModel from './base';
 import { register } from './register';
 
-export default register('Survey', BaseModel.extend({
-  urlRoot: `${BaseModel.prototype.urlRoot}/survey`,
-  defaults: () => defaults({
-    name: null,
-    code: null,
-    imageData: null,
-    permissionGroupId: null,
-    surveyGroupId: null,
-    screens: [],
-    canRedo: false, // Can submit multiple times
-    order: 0,
-  },
-  BaseModel.prototype.defaults),
+export default register(
+  'Survey',
+  BaseModel.extend({
+    urlRoot: `${BaseModel.prototype.urlRoot}/survey`,
+    defaults: () =>
+      defaults(
+        {
+          name: null,
+          code: null,
+          imageData: null,
+          permissionGroupId: null,
+          surveyGroupId: null,
+          screens: [],
+          canRedo: false, // Can submit multiple times
+          order: 0,
+        },
+        BaseModel.prototype.defaults,
+      ),
 
-  relations: [
-    {
-      type: Backbone.Many,
-      key: 'screens',
-      relatedModel: 'SurveyScreen',
+    relations: [
+      {
+        type: Backbone.Many,
+        key: 'screens',
+        relatedModel: 'SurveyScreen',
+      },
+      ...BaseModel.prototype.relations,
+    ],
+
+    getQuestions(screenIndex) {
+      const { screens } = this.attributes;
+      let questions = [];
+      const screen = screens.at(screenIndex);
+      if (isObject(screen)) {
+        const { components } = screen.attributes;
+        questions = components.models.map(component => component.get('question'));
+      }
+      return questions;
     },
-    ...BaseModel.prototype.relations,
-  ],
 
-  getQuestions(screenIndex) {
-    const { screens } = this.attributes;
-    let questions = [];
-    const screen = screens.at(screenIndex);
-    if (isObject(screen)) {
-      const { components } = screen.attributes;
-      questions = components.models.map(component => component.get('question'));
-    }
-    return questions;
-  },
+    getTotalScreens() {
+      return this.attributes.screens.length;
+    },
 
-  getTotalScreens() {
-    return this.attributes.screens.length;
-  },
-
-  getHeaders() {
-    const { screens } = this.attributes;
-    let allQuestions = [];
-    screens.forEach(screen => {
-      const { components } = screen.attributes;
-      allQuestions = concat(
-        allQuestions,
-        chain(components.models)
-          .map(component => component.get('question'))
-          .filter(question => question.isHeader())
-          .mapKeys((value, key) => (key === 'indicator' ? 'text' : key))
-          .map(question => pick(question.toJSON(), ['text', '_id']))
-          .value(),
-      );
-    });
-    return allQuestions;
-  },
-}));
+    getHeaders() {
+      const { screens } = this.attributes;
+      let allQuestions = [];
+      screens.forEach(screen => {
+        const { components } = screen.attributes;
+        allQuestions = concat(
+          allQuestions,
+          chain(components.models)
+            .map(component => component.get('question'))
+            .filter(question => question.isHeader())
+            .mapKeys((value, key) => (key === 'indicator' ? 'text' : key))
+            .map(question => pick(question.toJSON(), ['text', '_id']))
+            .value(),
+        );
+      });
+      return allQuestions;
+    },
+  }),
+);

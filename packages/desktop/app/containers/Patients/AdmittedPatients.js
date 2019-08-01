@@ -1,13 +1,11 @@
 import React from 'react';
 import { admittedPatientsColumns, headerStyle, columnStyle } from '../../constants';
 import { PatientsCollection } from '../../collections';
-import {
-  TopBar, BrowsableTable, ButtonGroup, Button,
-} from '../../components';
+import { TopBar, BrowsableTable, ButtonGroup, Button } from '../../components';
 
 const patientsCollection = new PatientsCollection();
 
-const addDischargeLink = (patientModel) => {
+const addDischargeLink = patientModel => {
   const admission = patientModel.getCurrentAdmission();
   return {
     ...patientModel.toJSON(),
@@ -17,23 +15,16 @@ const addDischargeLink = (patientModel) => {
 
 const ActionsColumns = ({ original: { _id, dischargeLink } }) => (
   <ButtonGroup>
-    <Button
-      variant="outlined"
-      to={`/patients/editPatient/${_id}`}
-    >
+    <Button variant="outlined" to={`/patients/editPatient/${_id}`}>
       View Patient
     </Button>
-    <Button
-      variant="contained"
-      color="primary"
-      to={dischargeLink}
-    >
+    <Button variant="contained" color="primary" to={dischargeLink}>
       Discharge
     </Button>
   </ButtonGroup>
 );
 
-const getTableColumns = () => ([
+const getTableColumns = () => [
   ...admittedPatientsColumns,
   {
     id: 'actions',
@@ -43,7 +34,7 @@ const getTableColumns = () => ([
     minWidth: 250,
     Cell: row => <ActionsColumns {...row} />,
   },
-]);
+];
 
 export default function AdmittedPatients() {
   return (

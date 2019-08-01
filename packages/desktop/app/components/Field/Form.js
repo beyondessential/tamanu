@@ -1,43 +1,42 @@
 import React from 'react';
-import { Formik, Field as FormikField, connect } from 'formik';
+import { Formik, Field as FormikField, connect as formikConnect } from 'formik';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import { Dialog } from '../Dialog';
 
 const ErrorMessage = ({ errors, name }) => `${name} ${errors[name]}`;
 
-const FormErrors = ({ errors }) => Object.keys(errors).map(name => (
-  <Typography key={name} variant="subtitle2">
-    <ErrorMessage errors={errors} name={name} />
-  </Typography>
-));
+const FormErrors = ({ errors }) =>
+  Object.keys(errors).map(name => (
+    <Typography key={name} variant="subtitle2">
+      <ErrorMessage errors={errors} name={name} />
+    </Typography>
+  ));
 
-export const Field = connect(({ formik: { errors }, name, ...props }) => {
-  const errorProps = {};
-  if (errors[name]) {
-    errorProps.error = true;
-    errorProps.helperText = <ErrorMessage errors={errors} name={name} />;
-  }
-  return (
-    <FormikField {...props} {...errorProps} name={name} />
-  );
-});
+export const Field = formikConnect(({ formik: { errors }, name, helperText, ...props }) => (
+  <FormikField
+    {...props}
+    error={!!errors[name]}
+    helperText={errors[name] || helperText}
+    name={name}
+  />
+));
 
 export class Form extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
     render: PropTypes.func.isRequired,
     showInlineErrorsOnly: PropTypes.bool,
-  }
+  };
 
   static defaultProps = {
     showInlineErrorsOnly: false,
-  }
+  };
 
   state = {
     validationErrors: {},
     isErrorDialogVisible: false,
-  }
+  };
 
   setErrors(validationErrors) {
     this.setState({ validationErrors, isErrorDialogVisible: true });
@@ -45,11 +44,9 @@ export class Form extends React.PureComponent {
 
   hideErrorDialog = () => {
     this.setState({ isErrorDialogVisible: false });
-  }
+  };
 
-  createSubmissionHandler = ({
-    validateForm, handleSubmit, isSubmitting,
-  }) => async event => {
+  createSubmissionHandler = ({ validateForm, handleSubmit, isSubmitting }) => async event => {
     event.preventDefault();
     event.persist();
     const formErrors = await validateForm();
@@ -58,7 +55,7 @@ export class Form extends React.PureComponent {
     // `submitForm()` can be used but `handleSubmit()`
     // will take care of `isSubmitting` and other props
     if (!isSubmitting) handleSubmit(event);
-  }
+  };
 
   renderFormContents = ({
     isValid,
@@ -81,18 +78,17 @@ export class Form extends React.PureComponent {
     return (
       <form onSubmit={submitForm} noValidate>
         {render({
-          ...formProps, isValid, isSubmitting, submitForm 
+          ...formProps,
+          isValid,
+          isSubmitting,
+          submitForm,
         })}
       </form>
     );
   };
 
   render() {
-    const {
-      onSubmit, 
-      showInlineErrorsOnly, 
-      ...props
-    } = this.props;
+    const { onSubmit, showInlineErrorsOnly, ...props } = this.props;
     const { validationErrors, isErrorDialogVisible } = this.state;
 
     // read children from additional props rather than destructuring so
@@ -118,9 +114,7 @@ export class Form extends React.PureComponent {
           isVisible={isErrorDialogVisible}
           onClose={this.hideErrorDialog}
           headerTitle="Please fix below errors to continue"
-          contentText={(
-            <FormErrors errors={validationErrors} />
-          )}
+          contentText={<FormErrors errors={validationErrors} />}
         />
       </React.Fragment>
     );

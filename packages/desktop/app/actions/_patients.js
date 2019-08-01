@@ -205,15 +205,18 @@ export function getReferredDateFailed() {
 
 export const createPatientIndexes = () => dispatch => {
   dispatch(createPatientIndexesRequest());
-  mainDB.createIndex({
-    index: {
-      fields: ['_id', 'admitted'],
-    },
-  }).then((result) => {
-    dispatch(createPatientIndexesSuccess(result));
-  }).catch((err) => {
-    dispatch(createPatientIndexesFailed(err));
-  });
+  mainDB
+    .createIndex({
+      index: {
+        fields: ['_id', 'admitted'],
+      },
+    })
+    .then(result => {
+      dispatch(createPatientIndexesSuccess(result));
+    })
+    .catch(err => {
+      dispatch(createPatientIndexesFailed(err));
+    });
 };
 
 export const createPatient = (patient, history) => async dispatch => {
@@ -230,47 +233,56 @@ export const createPatient = (patient, history) => async dispatch => {
 
 export const fetchPatients = () => dispatch => {
   dispatch(fetchPatientsRequest());
-  mainDB.allDocs({
-    include_docs: true,
-    attachments: true,
-  }).then((result) => {
-    const patients = [];
-    result.rows.map(row => {
-      if (row.doc.firstName) {
-        patients.push(row.doc);
-      }
+  mainDB
+    .allDocs({
+      include_docs: true,
+      attachments: true,
+    })
+    .then(result => {
+      const patients = [];
+      result.rows.map(row => {
+        if (row.doc.firstName) {
+          patients.push(row.doc);
+        }
+      });
+      dispatch(fetchPatientsSuccess(patients));
+    })
+    .catch(err => {
+      console.log(err);
     });
-    dispatch(fetchPatientsSuccess(patients));
-  }).catch((err) => {
-    console.log(err);
-  });
 };
 
 export const fetchAdmittedPatients = () => dispatch => {
   dispatch(fetchAdmittedPatientsRequest());
-  mainDB.allDocs({
-    selector: { admitted: { $eq: true } },
-  }).then((filteredResult) => {
-    dispatch(fetchAdmittedPatientsSuccess(filteredResult.docs));
-  }).catch((err) => {
-    dispatch(fetchAdmittedPatientsFailed(err));
-  });
+  mainDB
+    .allDocs({
+      selector: { admitted: { $eq: true } },
+    })
+    .then(filteredResult => {
+      dispatch(fetchAdmittedPatientsSuccess(filteredResult.docs));
+    })
+    .catch(err => {
+      dispatch(fetchAdmittedPatientsFailed(err));
+    });
 };
 
-export const fetchOnePatient = (id) => dispatch => {
+export const fetchOnePatient = id => dispatch => {
   dispatch(fetchOnePatientRequest());
-  mainDB.allDocs({
-    selector: { _id: { $eq: id } },
-  }).then((filteredResult) => {
-    dispatch(fetchOnePatientSuccess(filteredResult.docs[0]));
-  }).catch((err) => {
-    dispatch(fetchAdmittedPatientsFailed(err));
-  });
+  mainDB
+    .allDocs({
+      selector: { _id: { $eq: id } },
+    })
+    .then(filteredResult => {
+      dispatch(fetchOnePatientSuccess(filteredResult.docs[0]));
+    })
+    .catch(err => {
+      dispatch(fetchAdmittedPatientsFailed(err));
+    });
 };
 
-export const deletePatient = (patient) => dispatch => {
+export const deletePatient = patient => dispatch => {
   dispatch(deletePatientRequest());
-  mainDB.destroy(patient._id, patient._rev, (result) => {
+  mainDB.destroy(patient._id, patient._rev, result => {
     dispatch(deletePatientSuccess(result));
   });
 };
@@ -279,12 +291,12 @@ export const checkInPatient = () => dispatch => {
   dispatch(checkInPatientRequest());
 };
 
-export const setUpdatedBirthday = (date) => dispatch => {
+export const setUpdatedBirthday = date => dispatch => {
   dispatch(getBirthdayRequest());
   dispatch(getBirthdaySuccess(date));
 };
 
-export const setUpdatedReferredDate = (date) => dispatch => {
+export const setUpdatedReferredDate = date => dispatch => {
   dispatch(getReferredDateRequest());
   dispatch(getReferredDateSuccess(date));
 };

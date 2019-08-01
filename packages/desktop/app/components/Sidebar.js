@@ -317,9 +317,7 @@ const LogoutItem = React.memo(({ onClick }) => (
   </ListItem>
 ));
 
-const PrimarySidebarItem = React.memo(({
-  icon, label, children, selected, onClick,
-}) => (
+const PrimarySidebarItem = React.memo(({ icon, label, children, selected, onClick }) => (
   <React.Fragment>
     <ListItem button onClick={onClick} selected={selected}>
       <SidebarPrimaryIcon src={icon || administrationIcon} />
@@ -333,16 +331,8 @@ const PrimarySidebarItem = React.memo(({
   </React.Fragment>
 ));
 
-const SecondarySidebarItem = React.memo(({
-  path, icon, label, isCurrent, disabled, onClick,
-}) => (
-  <ListItem
-    button
-    to={path}
-    disabled={disabled}
-    selected={isCurrent}
-    onClick={onClick}
-  >
+const SecondarySidebarItem = React.memo(({ path, icon, label, isCurrent, disabled, onClick }) => (
+  <ListItem button to={path} disabled={disabled} selected={isCurrent} onClick={onClick}>
     <i className={icon} />
     <SidebarItemText disableTypography primary={label} />
   </ListItem>
@@ -351,14 +341,14 @@ const SecondarySidebarItem = React.memo(({
 export class Sidebar extends Component {
   state = {
     selectedParentItem: '',
-  }
+  };
 
   onLogout = () => {
     const { onLogout } = this.props;
-    if(onLogout) {
+    if (onLogout) {
       onLogout();
     }
-  }
+  };
 
   clickedParentItem = ({ key }) => {
     const { selectedParentItem } = this.state;
@@ -367,7 +357,7 @@ export class Sidebar extends Component {
     } else {
       this.setState({ selectedParentItem: key });
     }
-  }
+  };
 
   render() {
     const { selectedParentItem } = this.state;
@@ -376,31 +366,29 @@ export class Sidebar extends Component {
       <SidebarContainer>
         <SidebarMenuContainer>
           <List component="nav">
-            {
-              items.map((item) => {
-                return (
-                  <PrimarySidebarItem
-                    icon={item.icon}
-                    label={item.label}
-                    key={item.key}
-                    selected={selectedParentItem === item.key}
-                    onClick={() => this.clickedParentItem(item)}
-                  >
-                    {item.children.map(child => (
-                      <SecondarySidebarItem
-                        key={child.path}
-                        path={child.path}
-                        isCurrent={currentPath === child.path}
-                        icon={child.icon}
-                        label={child.label}
-                        disabled={!permissionCheck(child, item)}
-                        onClick={() => onPathChanged(child.path)}
-                      />
-                    ))}
-                  </PrimarySidebarItem>
-                );
-              })
-            }
+            {items.map(item => {
+              return (
+                <PrimarySidebarItem
+                  icon={item.icon}
+                  label={item.label}
+                  key={item.key}
+                  selected={selectedParentItem === item.key}
+                  onClick={() => this.clickedParentItem(item)}
+                >
+                  {item.children.map(child => (
+                    <SecondarySidebarItem
+                      key={child.path}
+                      path={child.path}
+                      isCurrent={currentPath === child.path}
+                      icon={child.icon}
+                      label={child.label}
+                      disabled={!permissionCheck(child, item)}
+                      onClick={() => onPathChanged(child.path)}
+                    />
+                  ))}
+                </PrimarySidebarItem>
+              );
+            })}
           </List>
           <Divider />
           <List>
@@ -408,7 +396,7 @@ export class Sidebar extends Component {
           </List>
         </SidebarMenuContainer>
         <LogoContainer>
-          <div onClick={() => onPathChanged("/")}>
+          <div onClick={() => onPathChanged('/')}>
             <TamanuLogo size="120px" />
           </div>
         </LogoContainer>
@@ -418,11 +406,10 @@ export class Sidebar extends Component {
 }
 
 class SidebarWithPrograms extends Component {
-
   async updateProgramsInPlace() {
     const programsCollection = new ProgramsCollection();
 
-    const programs = await new Promise((resolve) => {
+    const programs = await new Promise(resolve => {
       programsCollection.fetchAll({ success: ({ models }) => resolve(models) });
     });
 
@@ -455,8 +442,8 @@ function mapStateToProps(state) {
   const items = sidebarInfo;
 
   const permissionCheck = (child, parent) => {
-    const ability = {...child.ability, ...parent.ability};
-    if(!ability.subject || !ability.action) {
+    const ability = { ...child.ability, ...parent.ability };
+    if (!ability.subject || !ability.action) {
       return true;
     }
     return checkAbility(ability);
@@ -465,9 +452,12 @@ function mapStateToProps(state) {
   return { currentPath, items, permissionCheck };
 }
 
-const mapDispatchToProps = (dispatch) => ({
-  onPathChanged: (newPath) => dispatch(push(newPath)),
-  onLogout: (params) => dispatch(logout(params)),
+const mapDispatchToProps = dispatch => ({
+  onPathChanged: newPath => dispatch(push(newPath)),
+  onLogout: params => dispatch(logout(params)),
 });
 
-export const ConnectedSidebar = connect(mapStateToProps, mapDispatchToProps)(SidebarWithPrograms);
+export const ConnectedSidebar = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(SidebarWithPrograms);

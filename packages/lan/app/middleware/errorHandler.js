@@ -1,4 +1,5 @@
-export default function errorHandler(err, req, res, next) { // eslint-disable-line no-unused-vars
+export default function errorHandler(err, req, res, next) {
+  // eslint-disable-line no-unused-vars
   const { field, message = 'An error occurred', status = 500 } = err;
 
   const error = {};

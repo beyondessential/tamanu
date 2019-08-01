@@ -15,11 +15,7 @@ const FabBottomRight = styled(Fab)`
 `;
 
 const QuickLinksItem = ({ to, text, ...props }) => (
-  <MenuItem
-    component={ButtonBase}
-    to={to}
-    {...props}
-  >
+  <MenuItem component={ButtonBase} to={to} {...props}>
     {text}
   </MenuItem>
 );
@@ -31,7 +27,7 @@ class QuickLinks extends Component {
 
   state = {
     anchorEl: null,
-  }
+  };
 
   handleClick = event => {
     this.setState({ anchorEl: event.currentTarget });
@@ -53,19 +49,9 @@ class QuickLinks extends Component {
             <AddIcon />
           </FabBottomRight>
         </Zoom>
-        <Menu
-          id={`${key}-m`}
-          anchorEl={anchorEl}
-          open={open}
-          onClose={this.handleClose}
-        >
+        <Menu id={`${key}-m`} anchorEl={anchorEl} open={open} onClose={this.handleClose}>
           {links.map(({ to, text, ...props }) => (
-            <QuickLinksItem
-              key={text}
-              to={to}
-              text={text}
-              {...props}
-            />
+            <QuickLinksItem key={text} to={to} text={text} {...props} />
           ))}
         </Menu>
       </React.Fragment>

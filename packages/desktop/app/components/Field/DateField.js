@@ -14,41 +14,24 @@ function fromDate(changeEvent, format) {
   return changeEvent;
 }
 
-export const TimeInput = (props) => (
-  <DateInput
-    type="time"
-    format="HH:mm"
-    {...props}
-  />
+export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
+
+export const DateTimeInput = props => (
+  <DateInput type="datetime-local" format="YYYY-MM-DDTHH:mm" {...props} />
 );
 
-export const DateTimeInput = (props) => (
-  <DateInput
-    type="datetime-local"
-    format="YYYY-MM-DDTHH:mm"
-    {...props}
-  />
-);
-
-export const DateInput = ({
-  value, format, onChange, ...props
-}) => (
+export const DateInput = ({ value, format, onChange, ...props }) => (
   <TextInput
     type="date"
     InputLabelProps={{ shrink: true }}
     {...props}
     value={toDate(value, format)}
-    onChange={(e) => onChange(fromDate(e, format))}
+    onChange={e => onChange(fromDate(e, format))}
   />
 );
 
 export const DateField = ({ field, ...props }) => (
-  <DateInput
-    name={field.name}
-    value={field.value}
-    onChange={field.onChange}
-    {...props}
-  />
+  <DateInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
 );
 
 DateInput.propTypes = {

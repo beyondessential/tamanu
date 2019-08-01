@@ -34,32 +34,13 @@ export const AutoField = ({ definitions, field, ...overrides }) => {
   const { type, isRelation, ...otherProps } = definition;
 
   if (isRelation) {
-    return (
-      <FastField
-        name={field}
-        type={type}
-        component={RelationField}
-        {...otherProps}
-      />
-    );
+    return <FastField name={field} type={type} component={RelationField} {...otherProps} />;
   }
 
   const component = getComponentForField(definition);
 
-  return (
-    <FastField
-      name={field}
-      component={component}
-      {...otherProps}
-      {...overrides}
-    />
-  );
+  return <FastField name={field} component={component} {...otherProps} {...overrides} />;
 };
 
-export const MultiAutoField = ({ definitions, fields }) => fields.map(f => (
-  <AutoField
-    key={f}
-    field={f}
-    definitions={definitions}
-  />
-));
+export const MultiAutoField = ({ definitions, fields }) =>
+  fields.map(f => <AutoField key={f} field={f} definitions={definitions} />);

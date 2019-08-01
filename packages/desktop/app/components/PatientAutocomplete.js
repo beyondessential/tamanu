@@ -2,13 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { PatientsCollection } from '../collections';
 import { PatientModel } from '../models';
-import { CommonAutocomplete } from './CommonAutocomplete';
+import { AutocompleteInput } from './Field';
 
 export const PatientAutocompleteField = ({ field, ...props }) => (
-  <PatientAutocomplete
-    {...field}
-    {...props}
-  />
+  <PatientAutocomplete {...field} {...props} />
 );
 
 export const PatientAutocomplete = ({
@@ -20,7 +17,7 @@ export const PatientAutocomplete = ({
   onChange,
   ...props
 }) => (
-  <CommonAutocomplete
+  <AutocompleteInput
     label={label}
     required={required}
     name={name}
@@ -28,7 +25,9 @@ export const PatientAutocomplete = ({
     ModelClass={PatientModel}
     collection={collection}
     onChange={onChange}
-    formatOptionLabel={({ displayId, firstName, lastName }) => `${displayId} - ${firstName} ${lastName}`}
+    formatOptionLabel={({ displayId, firstName, lastName }) =>
+      `${displayId} - ${firstName} ${lastName}`
+    }
     {...props}
   />
 );

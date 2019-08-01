@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
-import {
-  TextField, MenuItem, Popper, Paper, Typography,
-} from '@material-ui/core';
+import { TextField, MenuItem, Popper, Paper, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = () => ({
@@ -27,19 +25,17 @@ const styles = () => ({
   },
 });
 
-const renderInputComponent = (inputProps) => {
-  const {
-    classes, inputRef = () => {}, ref, ...other
-  } = inputProps;
+const renderInputComponent = inputProps => {
+  const { classes, inputRef = () => {}, ref, ...other } = inputProps;
   return (
-      <TextField
-        fullWidth
-        inputRef={node => {
-          ref(node);
-          inputRef(node);
-        }}
-        {...other}
-      />
+    <TextField
+      fullWidth
+      inputRef={node => {
+        ref(node);
+        inputRef(node);
+      }}
+      {...other}
+    />
   );
 };
 
@@ -56,11 +52,13 @@ class BaseAutocomplete extends Component {
     value: PropTypes.string,
 
     fetchOptions: PropTypes.func,
-    options: PropTypes.arrayOf(PropTypes.shape({
-      label: PropTypes.string,
-      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    })),
-  }
+    options: PropTypes.arrayOf(
+      PropTypes.shape({
+        label: PropTypes.string,
+        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      }),
+    ),
+  };
 
   static defaultProps = {
     required: false,
@@ -71,20 +69,20 @@ class BaseAutocomplete extends Component {
     value: '',
     fetchOptions: null,
     options: [],
-  }
+  };
 
   state = {
     suggestions: [],
     displayedValue: '',
-  }
+  };
 
   handleSuggestionChange = option => {
     const { onChange, name } = this.props;
     const { value, label } = option;
 
-    onChange({ target: { value, name }});
+    onChange({ target: { value, name } });
     return option.label;
-  }
+  };
 
   fetchOptions = async ({ value }) => {
     const { fetchOptions, options } = this.props;
@@ -94,33 +92,31 @@ class BaseAutocomplete extends Component {
       : options.filter(x => x.label.toLowerCase().includes(value.toLowerCase()));
 
     this.setState({ suggestions });
-  }
+  };
 
   handleInputChange = (event, { newValue }) => {
     if (typeof newValue !== 'undefined') {
       this.setState({ displayedValue: newValue });
     }
-  }
+  };
 
   clearOptions = () => {
     this.setState({ suggestions: [] });
-  }
+  };
 
   renderSuggestion = (suggestion, { isHighlighted }) => {
     return (
       <MenuItem selected={isHighlighted} component="div" style={{ padding: 8 }}>
-        <Typography variant="body2">
-          {suggestion.label}
-        </Typography>
+        <Typography variant="body2">{suggestion.label}</Typography>
       </MenuItem>
     );
-  }
+  };
 
   onPopperRef = popper => {
     this.popperNode = popper;
-  }
+  };
 
-  renderContainer = (option) => {
+  renderContainer = option => {
     const { classes } = this.props;
     return (
       <Popper
@@ -138,19 +134,11 @@ class BaseAutocomplete extends Component {
         </Paper>
       </Popper>
     );
-  }
+  };
 
   render() {
     const { displayedValue, suggestions } = this.state;
-    const {
-      label, 
-      required, 
-      name, 
-      classes,
-      disabled,
-      error,
-      helperText,
-    } = this.props;
+    const { label, required, name, classes, disabled, error, helperText } = this.props;
 
     return (
       <Autosuggest
@@ -182,9 +170,7 @@ class BaseAutocomplete extends Component {
   }
 }
 
-export const CommonAutocomplete = withStyles(styles)(BaseAutocomplete);
-
-export const AutocompleteInput = CommonAutocomplete;
+export const AutocompleteInput = withStyles(styles)(BaseAutocomplete);
 export const AutocompleteField = ({ field, ...props }) => (
   <AutocompleteInput
     name={field.name}
@@ -193,4 +179,3 @@ export const AutocompleteField = ({ field, ...props }) => (
     {...props}
   />
 );
-

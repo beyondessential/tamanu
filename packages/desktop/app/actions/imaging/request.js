@@ -8,12 +8,7 @@ import {
   SAVE_IMAGING_REQUEST_SUCCESS,
   SAVE_IMAGING_REQUEST_FAILED,
 } from '../types';
-import {
-  ImagingRequestModel,
-  PatientModel,
-  VisitModel,
-  UserModel,
-} from '../../models';
+import { ImagingRequestModel, PatientModel, VisitModel, UserModel } from '../../models';
 
 export const initImagingRequest = ({ patientId, id }) => async dispatch => {
   dispatch({ type: FETCH_IMAGING_REQUEST_REQUEST });
@@ -32,10 +27,18 @@ export const initImagingRequest = ({ patientId, id }) => async dispatch => {
       imagingRequestModel.set({ _id: id });
       await imagingRequestModel.fetch();
       // set visit `id` only
-      const { parents: { visit: { id: visitId } } } = imagingRequestModel;
+      const {
+        parents: {
+          visit: { id: visitId },
+        },
+      } = imagingRequestModel;
       imagingRequestModel.set('visit', visitId);
       // get the patient
-      const { parents: { visit: { parents } } } = imagingRequestModel;
+      const {
+        parents: {
+          visit: { parents },
+        },
+      } = imagingRequestModel;
       patientModel = parents.patient;
     }
 
@@ -57,12 +60,15 @@ export const initImagingRequest = ({ patientId, id }) => async dispatch => {
   }
 };
 
-export const saveImagingRequest = ({
-  imagingRequestModel, action, setSubmitting,
-}) => async (dispatch, getState) => {
+export const saveImagingRequest = ({ imagingRequestModel, action, setSubmitting }) => async (
+  dispatch,
+  getState,
+) => {
   dispatch({ type: SAVE_IMAGING_REQUEST_REQUEST });
   try {
-    const { auth: { userId } } = getState();
+    const {
+      auth: { userId },
+    } = getState();
     const visitId = imagingRequestModel.get('visit');
     const requestedBy = new UserModel({ _id: userId });
     imagingRequestModel.set({ requestedBy });
@@ -80,7 +86,7 @@ export const saveImagingRequest = ({
   setSubmitting(false);
 };
 
-export const markImagingRequestCompleted = ({ imagingRequestModel }) => async (dispatch) => {
+export const markImagingRequestCompleted = ({ imagingRequestModel }) => async dispatch => {
   dispatch({ type: SAVE_IMAGING_REQUEST_REQUEST });
   try {
     await imagingRequestModel.save();

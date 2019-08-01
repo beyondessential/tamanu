@@ -1,13 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
-import {
-  outPatientColumns, columnStyle, headerStyle,
-} from '../../constants';
+import { outPatientColumns, columnStyle, headerStyle } from '../../constants';
 import { PatientsCollection } from '../../collections';
 import {
-  SearchButton, TopBar, Button, Container, FormRow,
-  DateInput, SelectInput, SimpleTable,
+  SearchButton,
+  TopBar,
+  Button,
+  Container,
+  FormRow,
+  DateInput,
+  SelectInput,
+  SimpleTable,
 } from '../../components';
 
 const getActionsColumn = () => ({
@@ -16,17 +20,13 @@ const getActionsColumn = () => ({
   headerStyle,
   style: columnStyle,
   minWidth: 100,
-  Cell: (props) => <ActionsColumn {...props} />,
+  Cell: props => <ActionsColumn {...props} />,
 });
 
 const ActionsColumn = ({ original: { _id } }) => (
   <div key={_id}>
-    <Button
-      variant="contained"
-      color="primary"
-      to={`/patients/editPatient/${_id}`}
-    >
-    View
+    <Button variant="contained" color="primary" to={`/patients/editPatient/${_id}`}>
+      View
     </Button>
   </div>
 );
@@ -40,10 +40,13 @@ class Outpatient extends Component {
   state = {
     startDate: moment(),
     selectValue: '',
-  }
+  };
 
   componentWillMount() {
-    this.columns = [...outPatientColumns.slice(0, outPatientColumns.length - 1), getActionsColumn()];
+    this.columns = [
+      ...outPatientColumns.slice(0, outPatientColumns.length - 1),
+      getActionsColumn(),
+    ];
     this.props.collection.on('update', this.handleChange);
     this.getPatients();
   }
@@ -52,21 +55,21 @@ class Outpatient extends Component {
     this.props.collection.off('update', this.handleChange);
   }
 
-  onChangeDate = (date) => {
+  onChangeDate = date => {
     this.setState({
       startDate: date,
     });
-  }
+  };
 
   getPatients() {
     this.props.collection.fetch({ data: { 'visits.@count': '>|0', admitted: false } });
   }
 
-  updateValue = (newValue) => {
+  updateValue = newValue => {
     this.setState({
       selectValue: newValue,
     });
-  }
+  };
 
   handleChange() {
     this.forceUpdate();
@@ -87,11 +90,7 @@ class Outpatient extends Component {
         />
         <Container autoHeight>
           <FormRow>
-            <DateInput
-              label="Visit Date"
-              onChange={this.onChangeDate}
-              name="visitDate"
-            />
+            <DateInput label="Visit Date" onChange={this.onChangeDate} name="visitDate" />
             <SelectInput
               label="Location"
               name="selected-state"
@@ -123,4 +122,7 @@ const mapDispatchToProps = () => ({
   collection: new PatientsCollection(),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Outpatient);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Outpatient);

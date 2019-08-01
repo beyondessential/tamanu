@@ -9,9 +9,9 @@ class Photos extends Component {
     addPhotoModalVisible: false,
     editPhotoModalVisible: false,
     deletePhotoModalVisible: false,
-  }
+  };
 
-  addPhoto = (file) => {
+  addPhoto = file => {
     this.setState({ addPhotoModalVisible: false });
     const { photos } = this.state;
     const selectedFiles = photos;
@@ -19,27 +19,27 @@ class Photos extends Component {
     this.setState({
       photos: selectedFiles,
     });
-  }
+  };
 
   editPhoto = () => {
     this.setState({ editPhotoModalVisible: false });
-  }
+  };
 
   deletePhoto = () => {
     this.setState({ deletePhotoModalVisible: false });
-  }
+  };
 
   onCloseAddModal = () => {
     this.setState({ addPhotoModalVisible: false });
-  }
+  };
 
   onCloseEditModal = () => {
     this.setState({ editPhotoModalVisible: false });
-  }
+  };
 
   onCloseDeleteModal = () => {
     this.setState({ deletePhotoModalVisible: false });
-  }
+  };
 
   render() {
     const {
@@ -51,7 +51,12 @@ class Photos extends Component {
     return (
       <div>
         <div className="column has-text-right">
-          <button className="button is-primary" onClick={() => this.setState({ addPhotoModalVisible: true })}>+ New Photo</button>
+          <button
+            className="button is-primary"
+            onClick={() => this.setState({ addPhotoModalVisible: true })}
+          >
+            + New Photo
+          </button>
         </div>
         <div className="column">
           <div className="columns is-multiline">
@@ -61,13 +66,21 @@ class Photos extends Component {
                   <div className="column">
                     <div onClick={() => this.setState({ editPhotoModalVisible: true })}>
                       <img src={photo.preview} alt="preview" />
-                      <span>
-                        {photo.caption}
-                      </span>
+                      <span>{photo.caption}</span>
                     </div>
                     <div className="btn-group">
-                      <button className="button is-small" onClick={() => this.setState({ editPhotoModalVisible: true })}>Edit</button>
-                      <button className="button is-danger is-small" onClick={() => this.setState({ deletePhotoModalVisible: true })}>Delete</button>
+                      <button
+                        className="button is-small"
+                        onClick={() => this.setState({ editPhotoModalVisible: true })}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="button is-danger is-small"
+                        onClick={() => this.setState({ deletePhotoModalVisible: true })}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 </div>

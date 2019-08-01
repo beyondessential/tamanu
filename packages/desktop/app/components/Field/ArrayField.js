@@ -10,12 +10,7 @@ const ChipWithMargin = styled(Chip)`
   margin-right: ${spacing * 2}px;
 `;
 
-export const ArrayField = ({ field, ...props }) => (
-  <ArrayInput
-    {...field}
-    {...props}
-  />
-);
+export const ArrayField = ({ field, ...props }) => <ArrayInput {...field} {...props} />;
 
 export const ArrayInput = ({
   name,
@@ -27,18 +22,10 @@ export const ArrayInput = ({
   <FieldArray
     name={name}
     render={({ push, remove }) => (
-      <Grid
-        container
-        spacing={spacing * 2}
-        style={{ marginBottom: spacing * 2 }}
-      >
+      <Grid container spacing={spacing * 2} style={{ marginBottom: spacing * 2 }}>
         <Grid container item spacing={spacing * 2}>
           <Grid item md={8} xs>
-            <Field
-              component={TextField}
-              name="fieldArrayValue"
-              label="Action"
-            />
+            <Field component={TextField} name="fieldArrayValue" label="Action" />
           </Grid>
           <Grid container item md={4} alignItems="flex-end">
             <NewButton
@@ -54,32 +41,18 @@ export const ArrayInput = ({
           </Grid>
         </Grid>
 
-
-        {valueArray && valueArray.length > 0
-          && (
-            <Grid
-              container
-              item
-              spacing={spacing * 2}
-              direction="column"
-            >
-              <Grid item>
-                <Typography variant="subtitle1">
-                  {label}
-                </Typography>
-              </Grid>
-              <Grid item>
-                {valueArray.map((value, index) => (
-                  <ChipWithMargin
-                    key={value}
-                    label={value}
-                    onDelete={() => remove(index)}
-                  />
-                ))}
-              </Grid>
+        {valueArray && valueArray.length > 0 && (
+          <Grid container item spacing={spacing * 2} direction="column">
+            <Grid item>
+              <Typography variant="subtitle1">{label}</Typography>
             </Grid>
-          )
-        }
+            <Grid item>
+              {valueArray.map((value, index) => (
+                <ChipWithMargin key={value} label={value} onDelete={() => remove(index)} />
+              ))}
+            </Grid>
+          </Grid>
+        )}
       </Grid>
     )}
   />

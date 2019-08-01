@@ -17,15 +17,18 @@ class SearchAppointment extends Component {
   state = {
     filters: {},
     loading: false,
-  }
+  };
 
-  onLoading = (loading) => {
+  onLoading = loading => {
     this.setState({ loading });
-  }
+  };
 
   submitForm(form) {
     const filters = {};
-    if (form.startDate) filters.startDate = `>|${moment(form.startDate).startOf('day').format(REALM_DATE_FORMAT)}`;
+    if (form.startDate)
+      filters.startDate = `>|${moment(form.startDate)
+        .startOf('day')
+        .format(REALM_DATE_FORMAT)}`;
     if (form.status) filters.status = `LIKE|${form.status}`;
     if (form.type) filters.appointmentType = `LIKE|${form.type}`;
     if (form.practitioner) filters.provider = `CONTAINS[c]|${form.practitioner}`;
@@ -33,10 +36,7 @@ class SearchAppointment extends Component {
   }
 
   render() {
-    const {
-      filters,
-      loading,
-    } = this.state;
+    const { filters, loading } = this.state;
 
     return (
       <React.Fragment>
@@ -48,10 +48,7 @@ class SearchAppointment extends Component {
             children: 'New Appointment',
           }}
         />
-        <SearchForm
-          loading={loading}
-          onSubmit={this.submitForm}
-        />
+        <SearchForm loading={loading} onSubmit={this.submitForm} />
         <AppointmentsTable
           filters={filters}
           history={this.props.history}
@@ -63,18 +60,22 @@ class SearchAppointment extends Component {
 }
 
 function mapStateToProps(state) {
-  const {
-    appointments, totalPages, loading, error,
-  } = state.scheduling;
+  const { appointments, totalPages, loading, error } = state.scheduling;
   return {
-    appointments, totalPages, loading, error,
+    appointments,
+    totalPages,
+    loading,
+    error,
   };
 }
 
 const { appointments: appointmentsActions } = actions;
 const { fetchAppointments } = appointmentsActions;
 const mapDispatchToProps = dispatch => ({
-  fetchAppointments: (props) => dispatch(fetchAppointments(props)),
+  fetchAppointments: props => dispatch(fetchAppointments(props)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(SearchAppointment);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(SearchAppointment);

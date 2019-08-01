@@ -2,9 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Grid, Typography } from '@material-ui/core';
 import { MUI_SPACING_UNIT as spacing } from '../../../constants';
-import {
-  Dialog, Preloader, Button, TopBar, Container, ButtonGroup,
-} from '../../../components';
+import { Dialog, Preloader, Button, TopBar, Container, ButtonGroup } from '../../../components';
 import actions from '../../../actions/programs';
 import QuestionScreen from './QuestionScreen';
 
@@ -17,7 +15,7 @@ class Survey extends Component {
     cancelSurveyModalVisible: false,
     submitSurveyModalVisible: false,
     loading: true,
-  }
+  };
 
   componentDidMount() {
     const { patientId, programId, surveyId } = this.props.match.params;
@@ -25,14 +23,16 @@ class Survey extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const {
-      currentScreenIndex, survey: surveyModel, program: programModel, loading,
-    } = newProps;
+    const { currentScreenIndex, survey: surveyModel, program: programModel, loading } = newProps;
     const program = programModel.toJSON();
     const survey = surveyModel.toJSON();
     const totalScreens = surveyModel.getTotalScreens();
     this.setState({
-      currentScreenIndex, totalScreens, program, survey, loading,
+      currentScreenIndex,
+      totalScreens,
+      program,
+      survey,
+      loading,
     });
   }
 
@@ -40,45 +40,49 @@ class Survey extends Component {
     const { patient: patientModel, history } = this.props;
     const { programId, surveyId, moduleId } = this.props.match.params;
     this.props.submitSurvey({
-      patientModel, programId, surveyId, moduleId, history,
+      patientModel,
+      programId,
+      surveyId,
+      moduleId,
+      history,
     });
-  }
+  };
 
   cancelSurvey = () => {
     const { patientId, programId } = this.props.match.params;
     this.props.history.push(`/programs/${programId}/${patientId}/surveys`);
-  }
+  };
 
   buttonPrevClick = () => {
     let { currentScreenIndex } = this.state;
-    if (currentScreenIndex > 0) { // Prev
+    if (currentScreenIndex > 0) {
+      // Prev
       currentScreenIndex -= 1;
       this.setState({ currentScreenIndex });
-    } else { // Cancel
+    } else {
+      // Cancel
       this.setState({ cancelSurveyModalVisible: true });
     }
-  }
+  };
 
   buttonNextClick = () => {
     let { currentScreenIndex } = this.state;
     const { totalScreens } = this.state;
-    if (currentScreenIndex < (totalScreens - 1)) {
+    if (currentScreenIndex < totalScreens - 1) {
       currentScreenIndex += 1;
       this.setState({ currentScreenIndex });
     } else {
       this.setState({ submitSurveyModalVisible: true });
     }
-  }
+  };
 
   render() {
     const { loading } = this.state;
     if (loading) return <Preloader />;
 
-    const {
-      currentScreenIndex, totalScreens, program, survey,
-    } = this.state;
-    const isFirstScreen = (currentScreenIndex === 0);
-    const isLastScreen = (currentScreenIndex === (totalScreens - 1));
+    const { currentScreenIndex, totalScreens, program, survey } = this.state;
+    const isFirstScreen = currentScreenIndex === 0;
+    const isLastScreen = currentScreenIndex === totalScreens - 1;
     return (
       <Fragment>
         <TopBar title={`${survey.name} - ${program.name}`}>
@@ -87,28 +91,13 @@ class Survey extends Component {
           </Typography>
         </TopBar>
         <Container>
-          <QuestionScreen
-            surveyModel={this.props.survey}
-            screenIndex={currentScreenIndex}
-          />
-          <Grid
-            container
-            item
-            justify="flex-end"
-            style={{ paddingTop: spacing * 2 }}
-          >
+          <QuestionScreen surveyModel={this.props.survey} screenIndex={currentScreenIndex} />
+          <Grid container item justify="flex-end" style={{ paddingTop: spacing * 2 }}>
             <ButtonGroup>
-              <Button
-                variant="outlined"
-                onClick={this.buttonPrevClick}
-              >
+              <Button variant="outlined" onClick={this.buttonPrevClick}>
                 {isFirstScreen ? 'Cancel' : 'Previous'}
               </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={this.buttonNextClick}
-              >
+              <Button variant="contained" color="primary" onClick={this.buttonNextClick}>
                 {isLastScreen ? 'Submit' : 'Next'}
               </Button>
             </ButtonGroup>
@@ -138,17 +127,24 @@ class Survey extends Component {
 }
 
 function mapStateToProps(state) {
-  const {
-    patient, survey, program, currentScreenIndex, loading,
-  } = state.programs;
+  const { patient, survey, program, currentScreenIndex, loading } = state.programs;
   return {
-    patient, survey, program, currentScreenIndex, loading,
+    patient,
+    survey,
+    program,
+    currentScreenIndex,
+    loading,
   };
 }
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  initSurvey: (patientId, programId, surveyId) => dispatch(initSurvey(patientId, programId, surveyId)),
-  submitSurvey: (patientModel, programId, surveyId, history) => dispatch(submitSurvey(patientModel, programId, surveyId, history)),
+  initSurvey: (patientId, programId, surveyId) =>
+    dispatch(initSurvey(patientId, programId, surveyId)),
+  submitSurvey: (patientModel, programId, surveyId, history) =>
+    dispatch(submitSurvey(patientModel, programId, surveyId, history)),
 });
 // , questions, startTime
-export default connect(mapStateToProps, mapDispatchToProps)(Survey);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Survey);

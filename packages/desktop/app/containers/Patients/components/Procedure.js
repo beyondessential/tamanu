@@ -8,11 +8,11 @@ import { MUI_SPACING_UNIT as spacing } from '../../../constants';
 export default class Procedure extends Component {
   static propTypes = {
     patientModel: PropTypes.instanceOf(PatientModel).isRequired,
-  }
+  };
 
   state = {
     procedures: [],
-  }
+  };
 
   componentWillMount() {
     const { patientModel } = this.props;
@@ -33,9 +33,7 @@ export default class Procedure extends Component {
     return (
       <React.Fragment>
         <Grid container item style={{ paddingRight: spacing }}>
-          <Typography variant="body2">
-            Procedures
-          </Typography>
+          <Typography variant="body2">Procedures</Typography>
         </Grid>
         <Grid container item xs={12} style={{ paddingTop: 0 }}>
           {procedures.map((procedure, k) => (

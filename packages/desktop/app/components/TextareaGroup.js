@@ -11,21 +11,21 @@ export default class TextareaGroup extends Component {
     onChange: PropTypes.func.isRequired,
     className: PropTypes.string,
     labelClass: PropTypes.string,
-  }
+  };
 
   static defaultProps = {
     required: false,
     className: 'field column',
     labelClass: 'label',
-  }
+  };
 
   constructor(props) {
     super(props);
-    this.state = { value: (props.value ? props.value : '') };
+    this.state = { value: props.value ? props.value : '' };
   }
 
   componentWillReceiveProps(newProps) {
-    this.setState({ value: (newProps.value ? newProps.value : '') });
+    this.setState({ value: newProps.value ? newProps.value : '' });
   }
 
   handleChange(event) {
@@ -34,26 +34,15 @@ export default class TextareaGroup extends Component {
   }
 
   render() {
-    const {
-      label,
-      required,
-      name,
-      tabIndex,
-      labelClass,
-      className,
-    } = this.props;
+    const { label, required, name, tabIndex, labelClass, className } = this.props;
     const fiedlId = `textarea-${shortid.generate()}`;
     return (
       <div className={className}>
-        {label
-          && (
+        {label && (
           <label className={labelClass} htmlFor={fiedlId}>
-            {label}
-            {' '}
-            {required && <span className="isRequired">*</span>}
+            {label} {required && <span className="isRequired">*</span>}
           </label>
-          )
-        }
+        )}
         <div className="control">
           <textarea
             id={fiedlId}

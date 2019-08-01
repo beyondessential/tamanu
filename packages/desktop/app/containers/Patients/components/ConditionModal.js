@@ -2,9 +2,17 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Grid } from '@material-ui/core';
 import {
-  TextField, AddButton, CancelButton, Field,
-  DeleteButton, UpdateButton, DateField, Form,
-  Dialog as DeleteConfirmDialog, Modal, ModalActions,
+  TextField,
+  AddButton,
+  CancelButton,
+  Field,
+  DeleteButton,
+  UpdateButton,
+  DateField,
+  Form,
+  Dialog as DeleteConfirmDialog,
+  Modal,
+  ModalActions,
 } from '../../../components';
 import { ConditionModel, PatientModel } from '../../../models';
 
@@ -14,15 +22,17 @@ export default class ConditionModal extends Component {
     patientModel: PropTypes.instanceOf(PatientModel).isRequired,
     onClose: PropTypes.func,
     isVisible: PropTypes.bool.isRequired,
-  }
+  };
 
   static defaultProps = {
     onClose: () => {},
-  }
+  };
 
   constructor(props) {
     super(props);
-    const { conditionModel: { attributes } } = this.props;
+    const {
+      conditionModel: { attributes },
+    } = this.props;
     this.state = {
       ...attributes,
       deleteModalVisible: false,
@@ -47,14 +57,10 @@ export default class ConditionModal extends Component {
     } catch (err) {
       console.error('Error: ', err);
     }
-  }
+  };
 
   deleteItem = async () => {
-    const {
-      itemId: _id,
-      conditionModel,
-      patientModel,
-    } = this.props;
+    const { itemId: _id, conditionModel, patientModel } = this.props;
 
     try {
       this.deleteModalClose();
@@ -65,23 +71,19 @@ export default class ConditionModal extends Component {
     } catch (err) {
       console.error('Error: ', err);
     }
-  }
+  };
 
   deleteModalClose = () => {
     this.setState({ deleteModalVisible: false });
-  }
+  };
 
   deleteItemConfirm = () => {
     this.setState({ deleteModalVisible: true });
-  }
+  };
 
   render() {
     const { deleteModalVisible } = this.state;
-    const {
-      onClose,
-      isVisible,
-      conditionModel,
-    } = this.props;
+    const { onClose, isVisible, conditionModel } = this.props;
 
     return (
       <React.Fragment>
@@ -108,42 +110,34 @@ export default class ConditionModal extends Component {
                     />
                   </Grid>
                   <Grid container item>
-                    <Field
-                      component={DateField}
-                      label="Date of Diagnosis"
-                      name="date"
-                      required
-                    />
+                    <Field component={DateField} label="Date of Diagnosis" name="date" required />
                   </Grid>
                 </Grid>
                 <ModalActions>
-                  {conditionModel.isNew()
-                    ? (
-                      <React.Fragment>
-                        <CancelButton onClick={onClose} />
-                        <AddButton
-                          type="button"
-                          onClick={submitForm}
-                          disabled={isSubmitting}
-                          can={{ do: 'create', on: 'condition' }}
-                        />
-                      </React.Fragment>
-                    )
-                    : (
-                      <React.Fragment>
-                        <DeleteButton
-                          can={{ do: 'delete', on: 'condition' }}
-                          onClick={this.deleteItemConfirm}
-                        />
-                        <UpdateButton
-                          type="button"
-                          onClick={submitForm}
-                          disabled={isSubmitting}
-                          can={{ do: 'update', on: 'condition' }}
-                        />
-                      </React.Fragment>
-                    )
-                  }
+                  {conditionModel.isNew() ? (
+                    <React.Fragment>
+                      <CancelButton onClick={onClose} />
+                      <AddButton
+                        type="button"
+                        onClick={submitForm}
+                        disabled={isSubmitting}
+                        can={{ do: 'create', on: 'condition' }}
+                      />
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <DeleteButton
+                        can={{ do: 'delete', on: 'condition' }}
+                        onClick={this.deleteItemConfirm}
+                      />
+                      <UpdateButton
+                        type="button"
+                        onClick={submitForm}
+                        disabled={isSubmitting}
+                        can={{ do: 'update', on: 'condition' }}
+                      />
+                    </React.Fragment>
+                  )}
                 </ModalActions>
               </React.Fragment>
             )}

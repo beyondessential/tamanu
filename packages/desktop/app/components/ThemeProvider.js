@@ -23,6 +23,4 @@ const themeName = 'Tamanu';
 const typography = { useNextVariants: true, fontSize: 15 };
 const theme = createMuiTheme({ palette, themeName, typography });
 
-export const ThemeProvider = (props) => (
-  <MuiThemeProvider theme={theme} {...props} />
-);
+export const ThemeProvider = props => <MuiThemeProvider theme={theme} {...props} />;

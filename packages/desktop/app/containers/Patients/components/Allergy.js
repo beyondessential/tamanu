@@ -9,24 +9,24 @@ import { MUI_SPACING_UNIT as spacing } from '../../../constants';
 export default class Allergy extends Component {
   static propTypes = {
     patientModel: PropTypes.instanceOf(PatientModel).isRequired,
-  }
+  };
 
   state = {
     modalVisible: false,
     itemId: null,
-  }
+  };
 
   onCloseModal = () => {
     this.setState({ modalVisible: false });
-  }
+  };
 
-  editAllergy = (itemId) => () => {
+  editAllergy = itemId => () => {
     this.setState({ modalVisible: true, itemId });
-  }
+  };
 
   newAllergy = () => {
     this.setState({ modalVisible: true, itemId: null });
-  }
+  };
 
   render() {
     const { patientModel } = this.props;
@@ -37,15 +37,10 @@ export default class Allergy extends Component {
       <React.Fragment>
         <Grid container item>
           <Grid item style={{ paddingRight: spacing }}>
-            <Typography variant="body2">
-              Patient Allergies
-            </Typography>
+            <Typography variant="body2">Patient Allergies</Typography>
           </Grid>
           <Grid item>
-            <TextButton
-              can={{ do: 'create', on: 'allergy' }}
-              onClick={this.newAllergy}
-            >
+            <TextButton can={{ do: 'create', on: 'allergy' }} onClick={this.newAllergy}>
               + Add Allergy
             </TextButton>
           </Grid>
@@ -54,17 +49,16 @@ export default class Allergy extends Component {
           {allergies.map(({ _id, name }, k) => (
             <Grid item key={_id}>
               {k > 0 ? ', ' : ''}
-              <TextButton
-                can={{ do: 'create', on: 'allergy' }}
-                onClick={this.editAllergy(_id)}
-              >
+              <TextButton can={{ do: 'create', on: 'allergy' }} onClick={this.editAllergy(_id)}>
                 {name}
               </TextButton>
             </Grid>
           ))}
         </Grid>
         <AllergyModal
-          allergyModel={(patientModel.get('allergies').findWhere({ _id: itemId }) || new AllergyModel())}
+          allergyModel={
+            patientModel.get('allergies').findWhere({ _id: itemId }) || new AllergyModel()
+          }
           patientModel={patientModel}
           isVisible={modalVisible}
           onClose={this.onCloseModal}

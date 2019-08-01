@@ -6,5 +6,9 @@ import * as operativePlan from './operativePlan';
 import * as operationReport from './operationReport';
 
 export default {
-  patient, procedure, visit, operativePlan, operationReport,
+  patient,
+  procedure,
+  visit,
+  operativePlan,
+  operationReport,
 };

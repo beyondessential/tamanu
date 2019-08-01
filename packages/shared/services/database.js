@@ -45,7 +45,7 @@ export default class Database extends Realm {
     if (!objects || objects.length === 0) return;
 
     // Go through each object, call its destructor, and alert any change listeners
-    objects.forEach((obj) => {
+    objects.forEach(obj => {
       const schema = obj.objectSchema();
       const type = schema.name;
       const record = { _id: obj._id }; // If it is being deleted, only alert with the id
@@ -101,14 +101,14 @@ export default class Database extends Realm {
   }
 
   /**
-  * Returns the database object with the given id, if it exists, or creates a
-  * placeholder with that id if it doesn't.
-  * @param  {string} type             The type of database object
-  * @param  {string} primaryKey       The primary key of the database object, usually its id
-  * @param  {string} primaryKeyField  The field used as the primary key, defaults to 'id'
-  * @return {Realm.object}            Either the existing database object with the given
-  *                                   primary key, or a placeholder if none
-  */
+   * Returns the database object with the given id, if it exists, or creates a
+   * placeholder with that id if it doesn't.
+   * @param  {string} type             The type of database object
+   * @param  {string} primaryKey       The primary key of the database object, usually its id
+   * @param  {string} primaryKeyField  The field used as the primary key, defaults to 'id'
+   * @return {Realm.object}            Either the existing database object with the given
+   *                                   primary key, or a placeholder if none
+   */
   getOrCreate(type, primaryKey, primaryKeyField = '_id') {
     const object = { [primaryKeyField]: primaryKey };
     return this.update(type, object);
@@ -142,7 +142,7 @@ export default class Database extends Realm {
 
   getSettings(settingsKeys) {
     const settings = {};
-    settingsKeys.forEach((settingKey) => {
+    settingsKeys.forEach(settingKey => {
       settings[settingKey] = this.getSetting(settingKey);
     });
     return settings;

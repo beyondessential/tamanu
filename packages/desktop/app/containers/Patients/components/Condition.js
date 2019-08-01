@@ -11,12 +11,12 @@ import { ConditionModel, PatientModel } from '../../../models';
 export default class Condition extends Component {
   static propTypes = {
     patientModel: PropTypes.instanceOf(PatientModel).isRequired,
-  }
+  };
 
   state = {
     modalVisible: false,
     conditionModel: new ConditionModel(),
-  }
+  };
 
   componentWillMount() {
     const { patientModel } = this.props;
@@ -32,7 +32,7 @@ export default class Condition extends Component {
 
   onCloseModal = () => {
     this.setState({ modalVisible: false });
-  }
+  };
 
   editItem = (itemId = null) => () => {
     const { patientModel } = this.props;
@@ -47,28 +47,19 @@ export default class Condition extends Component {
       modalVisible: true,
       conditionModel,
     });
-  }
+  };
 
   render() {
     const { patientModel } = this.props;
-    const {
-      modalVisible,
-      conditionModel,
-      conditions,
-    } = this.state;
+    const { modalVisible, conditionModel, conditions } = this.state;
     return (
       <React.Fragment>
         <Grid container item spacing={8}>
           <Grid item>
-            <Typography variant="body2">
-              Ongoing Conditions
-            </Typography>
+            <Typography variant="body2">Ongoing Conditions</Typography>
           </Grid>
           <Grid item>
-            <TextButton
-              can={{ do: 'create', on: 'condition' }}
-              onClick={this.editItem()}
-            >
+            <TextButton can={{ do: 'create', on: 'condition' }} onClick={this.editItem()}>
               + Add Condition
             </TextButton>
           </Grid>
@@ -78,10 +69,7 @@ export default class Condition extends Component {
               return (
                 <React.Fragment key={_id}>
                   {k > 0 ? ', ' : ''}
-                  <TextButton
-                    can={{ do: 'read', on: 'condition' }}
-                    onClick={this.editItem(_id)}
-                  >
+                  <TextButton can={{ do: 'read', on: 'condition' }} onClick={this.editItem(_id)}>
                     {`${condition} (${moment(date).format(dateFormat)})`}
                   </TextButton>
                 </React.Fragment>

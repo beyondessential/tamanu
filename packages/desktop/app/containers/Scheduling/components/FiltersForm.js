@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Grid, Collapse } from '@material-ui/core';
+import { TextInput, SelectInput, ClearButton, FilterButton, Container } from '../../../components';
 import {
-  TextInput, SelectInput, ClearButton,
-  FilterButton, Container,
-} from '../../../components';
-import {
-  visitOptions as visitOptionsOriginal, MUI_SPACING_UNIT as spacing,
+  visitOptions as visitOptionsOriginal,
+  MUI_SPACING_UNIT as spacing,
   appointmentStatusList as appointmentStatusListOriginal,
 } from '../../../constants';
 
@@ -22,7 +20,7 @@ export default class FiltersForm extends Component {
     status: PropTypes.string,
     type: PropTypes.string,
     practitioner: PropTypes.string,
-  }
+  };
 
   static defaultProps = {
     loading: false,
@@ -31,13 +29,11 @@ export default class FiltersForm extends Component {
     type: '',
     practitioner: '',
     location: '',
-  }
+  };
 
   constructor(props) {
     super(props);
-    const {
-      status, type, practitioner, location,
-    } = props;
+    const { status, type, practitioner, location } = props;
     this.state = {
       status,
       type,
@@ -46,16 +42,19 @@ export default class FiltersForm extends Component {
     };
   }
 
-  onSubmit = (e) => {
+  onSubmit = e => {
     e.preventDefault();
     const { location, practitioner } = this.state;
     let { status, type } = this.state;
     if (status === 'all') status = '';
     if (type === 'all') type = '';
     this.props.onSubmit({
-      location, status, type, practitioner,
+      location,
+      status,
+      type,
+      practitioner,
     });
-  }
+  };
 
   handleInputChange = (event, field) => {
     let name = '';
@@ -69,32 +68,31 @@ export default class FiltersForm extends Component {
     }
 
     this.setState({ [name]: value });
-  }
+  };
 
   resetForm = () => {
-    const {
-      location, status, type, practitioner,
-    } = this.props;
-    this.setState({
-      location, status, type, practitioner,
-    }, () => this.props.onSubmit({
-      location, status, type, practitioner,
-    }));
-  }
+    const { location, status, type, practitioner } = this.props;
+    this.setState(
+      {
+        location,
+        status,
+        type,
+        practitioner,
+      },
+      () =>
+        this.props.onSubmit({
+          location,
+          status,
+          type,
+          practitioner,
+        }),
+    );
+  };
 
   render() {
-    const {
-      status,
-      type,
-      practitioner,
-      location,
-    } = this.state;
+    const { status, type, practitioner, location } = this.state;
 
-    const {
-      loading,
-      collapse,
-      surgery,
-    } = this.props;
+    const { loading, collapse, surgery } = this.props;
 
     return (
       <Collapse in={collapse}>
@@ -110,19 +108,17 @@ export default class FiltersForm extends Component {
                   value={status}
                 />
               </Grid>
-              {!surgery
-                && (
-                  <Grid item xs>
-                    <SelectInput
-                      label="Type"
-                      name="type"
-                      options={visitOptions}
-                      onChange={this.handleInputChange}
-                      value={type}
-                    />
-                  </Grid>
-                )
-              }
+              {!surgery && (
+                <Grid item xs>
+                  <SelectInput
+                    label="Type"
+                    name="type"
+                    options={visitOptions}
+                    onChange={this.handleInputChange}
+                    value={type}
+                  />
+                </Grid>
+              )}
               <Grid item xs>
                 <TextInput
                   name="practitioner"

@@ -13,34 +13,31 @@ export class ReportViewer extends Component {
     const { data, filters, report } = this.props;
 
     const { ageMin, ageMax, range } = filters;
-    const checkEqualFilter = (row, key) => !filters[key] || (filters[key] === row[key]);
-    const filteredValues = data
-      .filter(row => {
-        if (!checkEqualFilter(row, 'diagnosis')) return false;
-        if (!checkEqualFilter(row, 'location')) return false;
-        if (!checkEqualFilter(row, 'sex')) return false;
-        if (!checkEqualFilter(row, 'prescriber')) return false;
-        if (ageMin && ageMin > row.age) return false;
-        if (ageMax && ageMax < row.age) return false;
-        if (range) {
-          if (range.start.isAfter(row.date)) return false;
-          if (range.end.isBefore(row.date)) return false;
-        }
-        return true;
-      });
+    const checkEqualFilter = (row, key) => !filters[key] || filters[key] === row[key];
+    const filteredValues = data.filter(row => {
+      if (!checkEqualFilter(row, 'diagnosis')) return false;
+      if (!checkEqualFilter(row, 'location')) return false;
+      if (!checkEqualFilter(row, 'sex')) return false;
+      if (!checkEqualFilter(row, 'prescriber')) return false;
+      if (ageMin && ageMin > row.age) return false;
+      if (ageMax && ageMax < row.age) return false;
+      if (range) {
+        if (range.start.isAfter(row.date)) return false;
+        if (range.end.isBefore(row.date)) return false;
+      }
+      return true;
+    });
 
-    const valuesByKey = filteredValues
-      .reduce((totals, row) => {
-        const key = report.getCountKey(row);
-        return {
-          ...totals,
-          [key]: (totals[key] || 0) + 1,
-        };
-      }, {});
-
+    const valuesByKey = filteredValues.reduce((totals, row) => {
+      const key = report.getCountKey(row);
+      return {
+        ...totals,
+        [key]: (totals[key] || 0) + 1,
+      };
+    }, {});
 
     // ensure a continuous date range by filling out missing counts with 0
-    const isReportDateBased = (report.graphType === 'line');
+    const isReportDateBased = report.graphType === 'line';
 
     if (range && isReportDateBased) {
       const dateIterator = moment(range.start).startOf('day');
@@ -63,7 +60,7 @@ export class ReportViewer extends Component {
       amount: valuesByKey[key],
     });
 
-    const format = (isReportDateBased) ? formatDateRange : formatValueRange;
+    const format = isReportDateBased ? formatDateRange : formatValueRange;
     const values = Object.keys(valuesByKey)
       .map(format)
       .sort((a, b) => a.sort - b.sort);

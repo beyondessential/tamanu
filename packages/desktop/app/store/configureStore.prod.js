@@ -25,6 +25,9 @@ export function configureStore(initialState) {
 
   const persistor = persistStore(store);
   return {
-    store, persistor, persistConfig, history,
+    store,
+    persistor,
+    persistConfig,
+    history,
   };
 }

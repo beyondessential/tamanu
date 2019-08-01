@@ -10,7 +10,7 @@ export default class Auth extends BaseAuth {
     super(props);
     this.user = null;
     this.client = '';
-    this.sessionTimeout = (60 * 60 * 120 * 1000); // config.sessionTimeout
+    this.sessionTimeout = 60 * 60 * 120 * 1000; // config.sessionTimeout
     // ? config.sessionTimeout
     // : (60 * 60 * 5 * 1000);
     // TODO: add keep-alive functionality
@@ -53,20 +53,18 @@ export default class Auth extends BaseAuth {
 
   validateRequestPermissions(req, res, next) {
     let subject;
-    const {
-      params, method, user, client, body,
-    } = req;
+    const { params, method, user, client, body } = req;
     const { model, id } = params;
     const { hospitalId } = client;
     const fields = Object.keys(body);
     const reject = (error = 'Invalid permissions', code = 405) => res.status(code).send(error);
 
     switch (true) {
-      case (method === 'GET' && !isEmpty(id)):
+      case method === 'GET' && !isEmpty(id):
         Object.defineProperty(schemaClasses[model], 'name', { value: model });
         subject = new schemaClasses[model]({ _id: id });
         break;
-      case (['PUT', 'PATCH', 'POST'].includes(method) && !isEmpty(id)):
+      case ['PUT', 'PATCH', 'POST'].includes(method) && !isEmpty(id):
         Object.defineProperty(schemaClasses[model], 'name', { value: model });
         subject = new schemaClasses[model]({ _id: id, ...body });
         break;

@@ -3,11 +3,10 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { clone } from 'lodash';
 import { Grid } from '@material-ui/core';
+import { TextInput, DateInput, SelectInput, Button, Container } from '../../../components';
 import {
-  TextInput, DateInput, SelectInput, Button, Container,
-} from '../../../components';
-import {
-  visitOptions as visitOptionsOriginal, MUI_SPACING_UNIT as spacing,
+  visitOptions as visitOptionsOriginal,
+  MUI_SPACING_UNIT as spacing,
   appointmentStatusList as appointmentStatusListOriginal,
 } from '../../../constants';
 
@@ -19,7 +18,7 @@ export default class SearchForm extends Component {
     status: PropTypes.string,
     type: PropTypes.string,
     practitioner: PropTypes.string,
-  }
+  };
 
   static defaultProps = {
     loading: false,
@@ -27,13 +26,11 @@ export default class SearchForm extends Component {
     status: '',
     type: '',
     practitioner: '',
-  }
+  };
 
   constructor(props) {
     super(props);
-    const {
-      startDate, status, type, practitioner,
-    } = props;
+    const { startDate, status, type, practitioner } = props;
     this.state = {
       startDate,
       status,
@@ -63,7 +60,10 @@ export default class SearchForm extends Component {
     if (type === 'all') type = '';
     e.preventDefault();
     this.props.onSubmit({
-      startDate, status, type, practitioner,
+      startDate,
+      status,
+      type,
+      practitioner,
     });
   }
 
@@ -82,14 +82,22 @@ export default class SearchForm extends Component {
   }
 
   resetForm() {
-    const {
-      startDate, status, type, practitioner,
-    } = this.props;
-    this.setState({
-      startDate, status, type, practitioner,
-    }, () => this.props.onSubmit({
-      startDate, status, type, practitioner,
-    }));
+    const { startDate, status, type, practitioner } = this.props;
+    this.setState(
+      {
+        startDate,
+        status,
+        type,
+        practitioner,
+      },
+      () =>
+        this.props.onSubmit({
+          startDate,
+          status,
+          type,
+          practitioner,
+        }),
+    );
   }
 
   render() {
@@ -143,8 +151,17 @@ export default class SearchForm extends Component {
               />
             </Grid>
             <Grid container item xs={12} justify="flex-end">
-              <Button color="default" variant="contained" onClick={this.resetForm} classes={{ root: 'm-r-5' }}>Reset</Button>
-              <Button color="primary" variant="contained" type="submit" disabled={loading}>Search</Button>
+              <Button
+                color="default"
+                variant="contained"
+                onClick={this.resetForm}
+                classes={{ root: 'm-r-5' }}
+              >
+                Reset
+              </Button>
+              <Button color="primary" variant="contained" type="submit" disabled={loading}>
+                Search
+              </Button>
             </Grid>
           </Grid>
         </form>
