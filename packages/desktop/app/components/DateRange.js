@@ -8,9 +8,9 @@ const groupStyle = {
 };
 
 export class DateRange extends Component {
-  updateStart = (start) => this.updateValue({ start })
+  updateStart = start => this.updateValue({ start });
 
-  updateEnd = (end) => this.updateValue({ end })
+  updateEnd = end => this.updateValue({ end });
 
   updateValue(newValue) {
     const { onChange, value } = this.props;

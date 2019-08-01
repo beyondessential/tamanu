@@ -9,9 +9,7 @@ import {
   FormHelperText,
 } from '@material-ui/core';
 
-export const RadioInput = ({
-  options, name, value, label, helperText, inline, ...props
-}) => (
+export const RadioInput = ({ options, name, value, label, helperText, inline, ...props }) => (
   <FormControl {...props}>
     <FormLabel>{label}</FormLabel>
     <RadioGroup
@@ -35,12 +33,7 @@ export const RadioInput = ({
 );
 
 export const RadioField = ({ field, ...props }) => (
-  <RadioInput
-    name={field.name}
-    value={field.value || ''}
-    onChange={field.onChange}
-    {...props}
-  />
+  <RadioInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
 );
 
 RadioInput.propTypes = {

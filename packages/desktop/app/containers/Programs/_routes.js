@@ -11,10 +11,19 @@ export default function Routes({ url }) {
   return (
     <Switch>
       <Route exact path={url} component={Patients} />
-      <Route path={`${url}/:programId/:patientId/:surveyId/responses/:responseId`} component={Response} />
-      <Route path={`${url}/:programId/:patientId/:surveyId/:moduleId/responses`} component={Responses} />
+      <Route
+        path={`${url}/:programId/:patientId/:surveyId/responses/:responseId`}
+        component={Response}
+      />
+      <Route
+        path={`${url}/:programId/:patientId/:surveyId/:moduleId/responses`}
+        component={Responses}
+      />
       <Route path={`${url}/:programId/:patientId/:surveyId/responses`} component={Responses} />
-      <Route path={`${url}/:programId/:patientId/surveys/:surveyId/module/:moduleId`} component={Survey} />
+      <Route
+        path={`${url}/:programId/:patientId/surveys/:surveyId/module/:moduleId`}
+        component={Survey}
+      />
       <Route path={`${url}/:programId/:patientId/surveys/module/:moduleId`} component={Surveys} />
       <Route path={`${url}/:programId/:patientId/surveys/:surveyId`} component={Survey} />
       <Route path={`${url}/:programId/:patientId/surveys`} component={Surveys} />

@@ -1,11 +1,9 @@
 import Backbone from 'backbone-associations';
-import {
-  pick, set, each, isObject, difference,
-} from 'lodash';
+import { pick, set, each, isObject, difference } from 'lodash';
 import { getClient, history, notify } from '.';
 import { AUTH_LOGOUT } from '../actions/types';
 
-export default (store) => {
+export default store => {
   const originalSyncFunc = Backbone.sync;
   Backbone.Model.prototype.idAttribute = '_id';
   Backbone.sync = (method, model, options = {}) => {
@@ -59,7 +57,7 @@ export default (store) => {
 
     if (method === 'create' || method === 'patch') {
       let { attrs } = options;
-      attrs = pickDefaults.call(model, (attrs || model.toJSON()));
+      attrs = pickDefaults.call(model, attrs || model.toJSON());
       newOptions.attrs = attrs;
     }
 
@@ -83,11 +81,13 @@ export default (store) => {
       each(dataFiltered, (value, field) => {
         if (field === 'modifiedFields' || field === 'objectsFullySynced') return;
         if (Array.isArray(value)) {
-          if (isObject(value[0])) { // is collection
+          if (isObject(value[0])) {
+            // is collection
             const newValue = value.map(({ _id }) => ({ _id }));
             set(dataFiltered, field, newValue);
           }
-        } else if (isObject(value)) { // is object
+        } else if (isObject(value)) {
+          // is object
           set(dataFiltered, field, pick(value, ['_id']));
         }
       });

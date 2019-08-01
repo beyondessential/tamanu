@@ -5,10 +5,7 @@ class CustomDateInput extends Component {
   render() {
     const { styleName, onClick, value } = this.props;
     return (
-      <div
-        className={styleName}
-        onClick={onClick}
-      >
+      <div className={styleName} onClick={onClick}>
         {value}
       </div>
     );

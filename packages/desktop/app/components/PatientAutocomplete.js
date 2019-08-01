@@ -5,10 +5,7 @@ import { PatientModel } from '../models';
 import { AutocompleteInput } from './Field';
 
 export const PatientAutocompleteField = ({ field, ...props }) => (
-  <PatientAutocomplete
-    {...field}
-    {...props}
-  />
+  <PatientAutocomplete {...field} {...props} />
 );
 
 export const PatientAutocomplete = ({
@@ -28,7 +25,9 @@ export const PatientAutocomplete = ({
     ModelClass={PatientModel}
     collection={collection}
     onChange={onChange}
-    formatOptionLabel={({ displayId, firstName, lastName }) => `${displayId} - ${firstName} ${lastName}`}
+    formatOptionLabel={({ displayId, firstName, lastName }) =>
+      `${displayId} - ${firstName} ${lastName}`
+    }
     {...props}
   />
 );

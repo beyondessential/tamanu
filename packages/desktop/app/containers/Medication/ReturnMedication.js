@@ -17,23 +17,23 @@ class ReturnMedication extends Component {
     // formError: false,
     selectValue: '',
     prescriptionDate: moment(),
-  }
+  };
 
   // onCloseModal = () => {
   //   this.setState({ formError: false });
   // }
 
-  updateValue = (newValue) => {
+  updateValue = newValue => {
     this.setState({
       selectValue: newValue,
     });
-  }
+  };
 
-  onChangeDate = (date) => {
+  onChangeDate = date => {
     this.setState({
       prescriptionDate: date,
     });
-  }
+  };
 
   render() {
     const { prescriptionDate } = this.state;
@@ -41,27 +41,24 @@ class ReturnMedication extends Component {
       <div>
         <div className="create-content">
           <div className="create-top-bar">
-            <span>
-              New Medication Request
-            </span>
+            <span>New Medication Request</span>
             <div className="view-action-buttons">
-              <button>
-                + New Request
-              </button>
-              <button>
-                Dispense Medication
-              </button>
-              <button>
-                Return Medication
-              </button>
+              <button>+ New Request</button>
+              <button>Dispense Medication</button>
+              <button>Return Medication</button>
             </div>
           </div>
           <form
             className="create-container"
-            onSubmit={(e) => {
+            onSubmit={e => {
               e.preventDefault();
               const dispense = Serializer.serialize(e.target, { hash: true });
-              if (dispense.patient && dispense.visit && dispense.medication && dispense.prescription) {
+              if (
+                dispense.patient &&
+                dispense.visit &&
+                dispense.medication &&
+                dispense.prescription
+              ) {
                 this.props.createDispense(dispense);
               } else {
                 // this.setState({ formError: true });
@@ -71,29 +68,21 @@ class ReturnMedication extends Component {
             <div className="form">
               <div className="columns">
                 <div className="column">
-                  <InputGroup
-                    name="medication"
-                    label="Medication"
-                    required
-                  />
+                  <InputGroup name="medication" label="Medication" required />
                 </div>
               </div>
               <div className="columns">
                 <div className="column">
-                  <InputGroup
-                    name="patient"
-                    label="Patient"
-                    required
-                  />
+                  <InputGroup name="patient" label="Patient" required />
                 </div>
                 <div className="column">
                   <div className="column">
-                    <span className="header">
-                      Visit
-                    </span>
+                    <span className="header">Visit</span>
                     <Select
                       id="state-select"
-                      ref={(ref) => { this.select = ref; }}
+                      ref={ref => {
+                        this.select = ref;
+                      }}
                       onBlurResetsInput={false}
                       onSelectResetsInput={false}
                       options={visitOptions}
@@ -111,42 +100,24 @@ class ReturnMedication extends Component {
               </div>
               <div className="columns">
                 <div className="column is-4">
-                  <InputGroup
-                    name="patient"
-                    label="Quantity To Return"
-                    required
-                  />
+                  <InputGroup name="patient" label="Quantity To Return" required />
                 </div>
                 <div className="column is-4">
-                  <InputGroup
-                    name="patient"
-                    label="Return Location"
-                    required
-                  />
+                  <InputGroup name="patient" label="Return Location" required />
                 </div>
                 <div className="column is-4">
-                  <InputGroup
-                    name="patient"
-                    label="Return Aisle"
-                    required
-                  />
+                  <InputGroup name="patient" label="Return Aisle" required />
                 </div>
               </div>
               <div className="columns">
                 <div className="column">
-                  <InputGroup
-                    name="quantity"
-                    label="Return Reason/Notes"
-                    required
-                  />
+                  <InputGroup name="quantity" label="Return Reason/Notes" required />
                 </div>
               </div>
               <div className="columns">
                 <div className="column is-4">
                   <div className="column">
-                    <span className="header">
-                      Adjustment Date
-                    </span>
+                    <span className="header">Adjustment Date</span>
                     <DatePicker
                       name="prescriptionDate"
                       customInput={<CustomDateInput />}
@@ -160,16 +131,16 @@ class ReturnMedication extends Component {
                   </div>
                 </div>
                 <div className="column is-8">
-                  <InputGroup
-                    name="billTo"
-                    label="Credit To Account"
-                    required
-                  />
+                  <InputGroup name="billTo" label="Credit To Account" required />
                 </div>
               </div>
               <div className="column has-text-right">
-                <Link className="button is-danger cancel" to="/medication">Cancel</Link>
-                <button className="button" type="submit">Return Medication</button>
+                <Link className="button is-danger cancel" to="/medication">
+                  Cancel
+                </Link>
+                <button className="button" type="submit">
+                  Return Medication
+                </button>
               </div>
             </div>
           </form>
@@ -190,4 +161,7 @@ const mapDispatchToProps = dispatch => ({
   createDispense: dispense => dispatch(createDispense(dispense)),
 });
 
-export default connect(undefined, mapDispatchToProps)(ReturnMedication);
+export default connect(
+  undefined,
+  mapDispatchToProps,
+)(ReturnMedication);

@@ -4,13 +4,11 @@ import { connect } from 'react-redux';
 import { toLower } from 'lodash';
 import { Paper } from '@material-ui/core';
 import actions from '../../../actions/scheduling';
-import {
-  Dialog, Button, BrowsableTable, ButtonGroup, Container,
-} from '../../../components';
+import { Dialog, Button, BrowsableTable, ButtonGroup, Container } from '../../../components';
 import { AppointmentsCollection } from '../../../collections';
 import { appointmentsColumns } from '../../../constants';
 
-const prepareRow = (model) => {
+const prepareRow = model => {
   const patient = model.parents.patients[0];
   return {
     ...model.toJSON(),
@@ -22,7 +20,7 @@ class AppointmentsTable extends Component {
   state = {
     deleteModalVisible: false,
     selectedAppointment: null,
-  }
+  };
 
   componentWillMount() {
     appointmentsColumns[appointmentsColumns.length - 1].Cell = this.setActionsColumn;
@@ -38,8 +36,7 @@ class AppointmentsTable extends Component {
       >
         Edit
       </Button>
-      {toLower(row.status) === 'scheduled'
-        && (
+      {toLower(row.status) === 'scheduled' && (
         <Button
           onClick={() => this.checkIn(row.patients[0]._id)}
           color="primary"
@@ -47,8 +44,7 @@ class AppointmentsTable extends Component {
         >
           Check In
         </Button>
-        )
-      }
+      )}
       <Button
         onClick={() => this.showDeleteModal(row)}
         color="primary"
@@ -58,39 +54,36 @@ class AppointmentsTable extends Component {
         Delete
       </Button>
     </ButtonGroup>
-  )
+  );
 
-  goEdit = (id) => {
+  goEdit = id => {
     this.props.history.push(`/appointments/appointment/${id}`);
-  }
+  };
 
-  checkIn = (patientId) => {
+  checkIn = patientId => {
     this.props.history.push(`/patients/check-in/${patientId}`);
-  }
+  };
 
-  showDeleteModal = (appointment) => {
+  showDeleteModal = appointment => {
     this.setState({
       deleteModalVisible: true,
       selectedAppointment: appointment,
     });
-  }
+  };
 
   onCloseModal = () => {
     this.setState({ deleteModalVisible: false });
-  }
+  };
 
   deleteAppointment = () => {
     const { selectedAppointment } = this.state;
     this.props.deleteAppointment(selectedAppointment);
-  }
+  };
 
   render() {
     const { filters, collection } = this.props;
     return (
-      <Container
-        autoHeight
-        noPadding
-      >
+      <Container autoHeight noPadding>
         <BrowsableTable
           collection={collection}
           columns={appointmentsColumns}
@@ -122,9 +115,7 @@ AppointmentsTable.defaultProps = {
 };
 
 function mapStateToProps(state) {
-  const {
-    appointments, totalPages, loading, reFetch, error,
-  } = state.scheduling;
+  const { appointments, totalPages, loading, reFetch, error } = state.scheduling;
   return {
     appointments,
     totalPages,
@@ -135,15 +126,15 @@ function mapStateToProps(state) {
   };
 }
 
-const {
-  appointments: appointmentsActions,
-  appointment: appointmentActions,
-} = actions;
+const { appointments: appointmentsActions, appointment: appointmentActions } = actions;
 const { fetchAppointments } = appointmentsActions;
 const { deleteAppointment } = appointmentActions;
 const mapDispatchToProps = dispatch => ({
-  fetchAppointments: (props) => dispatch(fetchAppointments(props)),
-  deleteAppointment: (props) => dispatch(deleteAppointment(props)),
+  fetchAppointments: props => dispatch(fetchAppointments(props)),
+  deleteAppointment: props => dispatch(deleteAppointment(props)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(AppointmentsTable);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(AppointmentsTable);

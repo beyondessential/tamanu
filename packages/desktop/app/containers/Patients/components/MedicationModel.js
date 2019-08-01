@@ -1,13 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  TextField, Modal, FormRow, ModalActions, Field,
-  CancelButton, AddButton, UpdateButton, Form,
+  TextField,
+  Modal,
+  FormRow,
+  ModalActions,
+  Field,
+  CancelButton,
+  AddButton,
+  UpdateButton,
+  Form,
 } from '../../../components';
 
-export default function MedicationModal({
-  medicationModel, isVisible, onClose, procedureModel,
-}) {
+export default function MedicationModal({ medicationModel, isVisible, onClose, procedureModel }) {
   const isNew = medicationModel.isNew();
   const handleFormSubmit = async values => {
     try {
@@ -39,41 +44,28 @@ export default function MedicationModal({
         render={({ isSubmitting, submitForm }) => (
           <React.Fragment>
             <FormRow>
-              <Field
-                component={TextField}
-                label="Medication Used"
-                name="medication"
-                required
-              />
+              <Field component={TextField} label="Medication Used" name="medication" required />
             </FormRow>
             <FormRow>
-              <Field
-                component={TextField}
-                label="Quantity"
-                name="quantity"
-                required
-              />
+              <Field component={TextField} label="Quantity" name="quantity" required />
             </FormRow>
             <ModalActions>
               <CancelButton onClick={onClose} />
-              {isNew
-                ? (
-                  <AddButton
-                    type="button"
-                    disabled={isSubmitting}
-                    onClick={submitForm}
-                    can={{ do: 'create', on: 'ProcedureMedication' }}
-                  />
-                )
-                : (
-                  <UpdateButton
-                    type="button"
-                    disabled={isSubmitting}
-                    onClick={submitForm}
-                    can={{ do: 'update', on: 'ProcedureMedication' }}
-                  />
-                )
-              }
+              {isNew ? (
+                <AddButton
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={submitForm}
+                  can={{ do: 'create', on: 'ProcedureMedication' }}
+                />
+              ) : (
+                <UpdateButton
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={submitForm}
+                  can={{ do: 'update', on: 'ProcedureMedication' }}
+                />
+              )}
             </ModalActions>
           </React.Fragment>
         )}

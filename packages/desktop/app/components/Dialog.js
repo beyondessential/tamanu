@@ -4,17 +4,27 @@ import { Modal } from './Modal';
 import { Button } from './Button';
 
 export function Dialog({
-  dialogType, headerTitle, contentText, isVisible,
-  onClose, onConfirm, okText, cancelText,
+  dialogType,
+  headerTitle,
+  contentText,
+  isVisible,
+  onClose,
+  onConfirm,
+  okText,
+  cancelText,
 }) {
   return (
     <Modal
       isVisible={isVisible}
       onClose={onClose}
       title={headerTitle}
-      actions={(
+      actions={
         <React.Fragment>
-          {dialogType === 'confirm' && <Button variant="outlined" onClick={onClose}>{cancelText}</Button>}
+          {dialogType === 'confirm' && (
+            <Button variant="outlined" onClick={onClose}>
+              {cancelText}
+            </Button>
+          )}
           <Button
             variant="contained"
             color="primary"
@@ -23,7 +33,7 @@ export function Dialog({
             {okText}
           </Button>
         </React.Fragment>
-      )}
+      }
     >
       {contentText}
     </Modal>

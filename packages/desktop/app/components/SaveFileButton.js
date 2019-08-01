@@ -7,26 +7,31 @@ import { Button } from './Button';
 
 export class SaveFileButton extends Component {
   static propTypes = {
-    filters: PropTypes.arrayOf(PropTypes.shape({
-      name: PropTypes.string,
-      extensions: PropTypes.arrayOf(PropTypes.string),
-    })),
+    filters: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+        extensions: PropTypes.arrayOf(PropTypes.string),
+      }),
+    ),
     writeFunction: PropTypes.func.isRequired,
     children: PropTypes.node,
-  }
+  };
 
   state = {
     isWriting: false,
-  }
+  };
 
   showDialog() {
     const { filters, filename } = this.props;
 
     return new Promise((resolve, reject) => {
-      remote.dialog.showSaveDialog({
-        filters,
-        defaultPath: filename,
-      }, path => resolve(path));
+      remote.dialog.showSaveDialog(
+        {
+          filters,
+          defaultPath: filename,
+        },
+        path => resolve(path),
+      );
     });
   }
 
@@ -50,15 +55,12 @@ export class SaveFileButton extends Component {
     if (!filePath) return;
 
     await this.write(filePath);
-  }
+  };
 
   render() {
     return (
-      <Button
-        onClick={this.onClick}
-        disabled={this.state.isWriting}
-      >
-        { this.props.children || 'Save' }
+      <Button onClick={this.onClick} disabled={this.state.isWriting}>
+        {this.props.children || 'Save'}
       </Button>
     );
   }

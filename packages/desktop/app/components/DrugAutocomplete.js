@@ -4,14 +4,7 @@ import { DrugsCollection } from '../collections';
 import { DrugModel } from '../models';
 import { AutocompleteInput } from './Field/AutocompleteField';
 
-const DrugAutocomplete = ({
-  label,
-  required,
-  name,
-  className,
-  collection,
-  onChange,
-}) => (
+const DrugAutocomplete = ({ label, required, name, className, collection, onChange }) => (
   <AutocompleteInput
     label={label}
     required={required}

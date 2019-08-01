@@ -4,13 +4,14 @@ import { Typography, Grid } from '@material-ui/core';
 import { clone } from 'lodash';
 import moment from 'moment';
 import {
-  Colors, surveyResponsesColumns, dateFormat, timeFormat,
+  Colors,
+  surveyResponsesColumns,
+  dateFormat,
+  timeFormat,
   MUI_SPACING_UNIT as spacing,
 } from '../../constants';
 import actions from '../../actions/programs';
-import {
-  Preloader, BackButton, Button, TopBar, Container, SimpleTable,
-} from '../../components';
+import { Preloader, BackButton, Button, TopBar, Container, SimpleTable } from '../../components';
 
 const { responses: responseActions } = actions;
 const { initResponses } = responseActions;
@@ -27,14 +28,15 @@ class Responses extends Component {
     program: {},
     headers: [],
     responses: [],
-  }
+  };
 
   componentDidMount() {
-    const {
-      patientId, programId, surveyId, moduleId,
-    } = this.props.match.params;
+    const { patientId, programId, surveyId, moduleId } = this.props.match.params;
     this.props.initResponses({
-      patientId, programId, surveyId, moduleId,
+      patientId,
+      programId,
+      surveyId,
+      moduleId,
     });
   }
 
@@ -72,7 +74,9 @@ class Responses extends Component {
     responses.forEach(response => {
       const columns = [];
       const answers = response.get('answers').toJSON();
-      answers.forEach(answer => { columns[answer.questionId] = answer.body; });
+      answers.forEach(answer => {
+        columns[answer.questionId] = answer.body;
+      });
       columns.date = moment(response.attributes.startTime).format(`${dateFormat} ${timeFormat}`);
       columns.actions = this.setActionsCol(response.toJSON());
       rows.push(columns);
@@ -84,11 +88,7 @@ class Responses extends Component {
     const _this = this;
     return (
       <div key={row._id}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => _this.viewResponse(row._id)}
-        >
+        <Button variant="contained" color="primary" onClick={() => _this.viewResponse(row._id)}>
           View Form
         </Button>
       </div>
@@ -98,11 +98,13 @@ class Responses extends Component {
   startSurvey = () => {
     const { patientId, programId, surveyId } = this.props.match.params;
     this.props.history.push(`/programs/${programId}/${patientId}/surveys/${surveyId}`);
-  }
+  };
 
   viewResponse(responseId) {
     const { programId, patientId, surveyId } = this.props.match.params;
-    this.props.history.push(`/programs/${programId}/${patientId}/${surveyId}/responses/${responseId}`);
+    this.props.history.push(
+      `/programs/${programId}/${patientId}/${surveyId}/responses/${responseId}`,
+    );
   }
 
   goBack() {
@@ -150,9 +152,7 @@ class Responses extends Component {
           <Grid container spacing={spacing * 2} direction="column">
             <Grid container item spacing={spacing}>
               <Grid item>
-                <Typography variant="subtitle1">
-                  Patient:
-                </Typography>
+                <Typography variant="subtitle1">Patient:</Typography>
               </Grid>
               <Grid item xs>
                 <Typography variant="subtitle1" style={{ fontWeight: 500 }}>
@@ -161,10 +161,7 @@ class Responses extends Component {
               </Grid>
             </Grid>
             <Grid item>
-              <SimpleTable
-                data={this.getDataColumns()}
-                columns={this.getHeaderColumns()}
-              />
+              <SimpleTable data={this.getDataColumns()} columns={this.getHeaderColumns()} />
             </Grid>
             <Grid item>
               <BackButton />
@@ -177,15 +174,20 @@ class Responses extends Component {
 }
 
 function mapStateToProps(state) {
-  const {
-    patient, program, survey, responses, loading,
-  } = state.programs;
+  const { patient, program, survey, responses, loading } = state.programs;
   return {
-    patient, program, survey, responses, loading,
+    patient,
+    program,
+    survey,
+    responses,
+    loading,
   };
 }
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  initResponses: (params) => dispatch(initResponses(params)),
+  initResponses: params => dispatch(initResponses(params)),
 });
-export default connect(mapStateToProps, mapDispatchToProps)(Responses);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Responses);

@@ -9,32 +9,26 @@ export default function OperativePlan({ parentModel, patientId }) {
   return (
     <Grid container item spacing={8}>
       <Grid item>
-        <Typography variant="body2">
-          Operative Plan
-        </Typography>
+        <Typography variant="body2">Operative Plan</Typography>
       </Grid>
       <Grid item>
-        {!operativePlan
-          && (
-            <TextButton
-              can={{ do: 'create', on: 'operativePlan' }}
-              to={`/patients/patient:${patientId}/visit/operativePlan`}
-            >
-              + Add Operative Plan
-            </TextButton>
-          )
-        }
-      </Grid>
-      {operativePlan
-        && (
+        {!operativePlan && (
           <TextButton
-            can={{ do: 'read', on: 'operativePlan' }}
-            to={`/patients/patient:${patientId}/visit/operativePlan:${operativePlan.id}`}
+            can={{ do: 'create', on: 'operativePlan' }}
+            to={`/patients/patient:${patientId}/visit/operativePlan`}
           >
-            Current Operative Plan
+            + Add Operative Plan
           </TextButton>
-        )
-      }
+        )}
+      </Grid>
+      {operativePlan && (
+        <TextButton
+          can={{ do: 'read', on: 'operativePlan' }}
+          to={`/patients/patient:${patientId}/visit/operativePlan:${operativePlan.id}`}
+        >
+          Current Operative Plan
+        </TextButton>
+      )}
     </Grid>
   );
 }

@@ -4,13 +4,9 @@ export default () => (
   <div>
     <div className="content">
       <div className="view-top-bar">
-        <span>
-          Incident Report
-        </span>
+        <span>Incident Report</span>
         <div className="view-action-buttons">
-          <button>
-            + New Incident
-          </button>
+          <button>+ New Incident</button>
         </div>
       </div>
     </div>

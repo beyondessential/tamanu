@@ -13,6 +13,4 @@ function formatLong(date) {
   return moment(date).format('LLLL'); // "Monday, March 4, 2019 10:22 AM"
 }
 
-export const DateDisplay = ({ date }) => (
-  <abbr title={formatLong(date)}>{formatShort(date)}</abbr>
-);
+export const DateDisplay = ({ date }) => <abbr title={formatLong(date)}>{formatShort(date)}</abbr>;

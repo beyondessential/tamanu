@@ -12,11 +12,7 @@ import { ThemeProvider } from '../components/ThemeProvider';
 export default function Root({ store, history, persistor }) {
   return (
     <Provider store={store}>
-      <PersistGate
-        loading={<Preloader />}
-        persistor={persistor}
-        onBeforeLift={initClient()}
-      >
+      <PersistGate loading={<Preloader />} persistor={persistor} onBeforeLift={initClient()}>
         <ConnectedRouter history={history}>
           <ThemeProvider>
             <CssBaseline />

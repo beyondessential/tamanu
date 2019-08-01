@@ -23,36 +23,25 @@ const graphStyle = {
 };
 
 const graphRenderers = {
-  line: (data) => (
+  line: data => (
     <LineChart data={data}>
       <XAxis dataKey="formatted" />
       <YAxis />
       <Tooltip />
       <CartesianGrid stroke="#eee" />
-      <Line
-        type="monotone"
-        isAnimationActive={false}
-        dataKey="amount"
-        stroke="#000"
-      />
+      <Line type="monotone" isAnimationActive={false} dataKey="amount" stroke="#000" />
     </LineChart>
   ),
-  bar: (data) => (
-    <BarChart
-      data={data.sort((a, b) => a.formatted.localeCompare(b.formatted))}
-    >
+  bar: data => (
+    <BarChart data={data.sort((a, b) => a.formatted.localeCompare(b.formatted))}>
       <XAxis dataKey="formatted" />
       <YAxis />
       <Tooltip />
       <CartesianGrid stroke="#eee" />
-      <Bar
-        isAnimationActive={false}
-        dataKey="amount"
-        stroke="#000"
-      />
+      <Bar isAnimationActive={false} dataKey="amount" stroke="#000" />
     </BarChart>
   ),
-  pie: (data) => (
+  pie: data => (
     <PieChart>
       <Pie
         data={data.sort((a, b) => a.amount - b.amount)}
@@ -65,7 +54,6 @@ const graphRenderers = {
       <Legend />
     </PieChart>
   ),
-
 };
 
 // this has to be a function, not a component, as recharts
@@ -78,8 +66,6 @@ function renderGraph(report, data) {
 
 export const ReportGraph = ({ report, data }) => (
   <div style={graphStyle}>
-    <ResponsiveContainer>
-      { renderGraph(report, data) }
-    </ResponsiveContainer>
+    <ResponsiveContainer>{renderGraph(report, data)}</ResponsiveContainer>
   </div>
 );

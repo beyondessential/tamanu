@@ -13,10 +13,14 @@ export default class Settings {
 
   set(key, value) {
     this.database.write(() => {
-      this.database.create('setting', {
-        key,
-        value: value.toString(),
-      }, true);
+      this.database.create(
+        'setting',
+        {
+          key,
+          value: value.toString(),
+        },
+        true,
+      );
     });
   }
 

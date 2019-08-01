@@ -3,9 +3,7 @@ import moment from 'moment';
 import shortid from 'shortid';
 import jsonPrune from 'json-prune';
 
-import {
-  isEmpty, clone, each, has, head, isArray,
-} from 'lodash';
+import { isEmpty, clone, each, has, head, isArray } from 'lodash';
 import { concatSelf, getModifiedFieldNames } from '../utils';
 import { store } from '../store';
 import { ModifiedFieldsCollection } from '../collections';
@@ -48,12 +46,14 @@ export default Backbone.AssociatedModel.extend({
       type: Backbone.Many,
       key: 'modifiedFields',
       relatedModel: 'ModifiedField',
-    }, {
+    },
+    {
       type: Backbone.One,
       key: 'createdBy',
       relatedModel: 'User',
       serialize: '_id',
-    }, {
+    },
+    {
       type: Backbone.One,
       key: 'modifiedBy',
       relatedModel: 'User',
@@ -104,7 +104,10 @@ export default Backbone.AssociatedModel.extend({
       const modifiedAttributes = this.setModifiedFields(modifiedFields);
 
       // call original save method with modified attributes
-      const response = await originalSave.apply(this, [modifiedAttributes, { ...options, patch: true }]);
+      const response = await originalSave.apply(this, [
+        modifiedAttributes,
+        { ...options, patch: true },
+      ]);
       this.setLastSyncedAttributes();
       return response;
     } catch (err) {
@@ -204,7 +207,9 @@ export default Backbone.AssociatedModel.extend({
           case Backbone.One:
             if (!parents[key]) parents[key] = {};
             if (has(attributes, key) && attributes[key]) {
-              const modelsAttributes = Array.isArray(attributes[key]) ? attributes[key][0] : attributes[key];
+              const modelsAttributes = Array.isArray(attributes[key])
+                ? attributes[key][0]
+                : attributes[key];
               parents[key] = new Model(modelsAttributes);
             }
             break;

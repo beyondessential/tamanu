@@ -12,7 +12,7 @@ export default class ProgramPatients extends Component {
 
   state = {
     program: null,
-  }
+  };
 
   componentWillMount() {
     this.programModel.on('change', this.handleChange);
@@ -23,12 +23,17 @@ export default class ProgramPatients extends Component {
     this.fetchProgram(newProps);
   }
 
-  selectPatient = (patientId) => {
-    const { history, match: { params: { programId } }} = this.props;
+  selectPatient = patientId => {
+    const {
+      history,
+      match: {
+        params: { programId },
+      },
+    } = this.props;
     history.push(`/programs/${programId}/${patientId}/surveys`);
-  }
+  };
 
-  getTableColumns = () => ([
+  getTableColumns = () => [
     ...programsPatientsColumns,
     {
       id: 'actions',
@@ -36,29 +41,29 @@ export default class ProgramPatients extends Component {
       headerStyle,
       style: columnStyle,
       Cell: ({ original: { _id } }) => (
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => this.selectPatient(_id)}
-        >
+        <Button variant="contained" color="primary" onClick={() => this.selectPatient(_id)}>
           Select Patient
         </Button>
       ),
       filterable: false,
     },
-  ])
+  ];
 
-  searchSubmit = (keyword) => {
+  searchSubmit = keyword => {
     this.patientsCollection.setKeyword(keyword);
     this.forceUpdate();
-  }
+  };
 
   handleChange = () => {
     this.setState({ program: this.programModel.toJSON() });
-  }
+  };
 
   fetchProgram(props = this.props) {
-    const { match: { params: { programId } } } = props;
+    const {
+      match: {
+        params: { programId },
+      },
+    } = props;
     this.programModel.set('_id', programId).fetch();
   }
 
@@ -72,11 +77,13 @@ export default class ProgramPatients extends Component {
             onSubmit: this.searchSubmit,
             onClear: this.searchSubmit,
           }}
-          buttons={[{
-            to: '/patients/edit/new',
-            can: { do: 'create', on: 'patient' },
-            children: 'New Patient',
-          }]}
+          buttons={[
+            {
+              to: '/patients/edit/new',
+              can: { do: 'create', on: 'patient' },
+              children: 'New Patient',
+            },
+          ]}
         />
         <Grid container item>
           <BrowsableTable

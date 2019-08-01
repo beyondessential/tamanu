@@ -3,8 +3,13 @@ import { Grid } from '@material-ui/core';
 import { notesColumns } from '../../../constants';
 import NoteModal from '../components/NoteModal';
 import {
-  Dialog, EditButton, DeleteButton, NewButton,
-  TabHeader, SimpleTable, ButtonGroup,
+  Dialog,
+  EditButton,
+  DeleteButton,
+  NewButton,
+  TabHeader,
+  SimpleTable,
+  ButtonGroup,
 } from '../../../components';
 
 export default class Notes extends Component {
@@ -15,7 +20,7 @@ export default class Notes extends Component {
     itemId: null,
     notes: [],
     tableColumns: notesColumns,
-  }
+  };
 
   componentWillMount() {
     const { tableColumns } = this.state;
@@ -35,20 +40,14 @@ export default class Notes extends Component {
 
   onCloseModal = () => {
     this.setState({ modalVisible: false });
-  }
+  };
 
-  setActionsCol = (row) => (
+  setActionsCol = row => (
     <ButtonGroup>
-      <EditButton
-        size="small"
-        onClick={() => this.editItem(row.original._id)}
-      />
-      <DeleteButton
-        size="small"
-        onClick={() => this.deleteConfirm(row.original._id)}
-      />
+      <EditButton size="small" onClick={() => this.editItem(row.original._id)} />
+      <DeleteButton size="small" onClick={() => this.deleteConfirm(row.original._id)} />
     </ButtonGroup>
-  )
+  );
 
   deleteItem = async () => {
     const { parentModel } = this.props;
@@ -62,10 +61,10 @@ export default class Notes extends Component {
     } catch (err) {
       console.error('Error: ', err);
     }
-  }
+  };
 
   editItem(itemId = null) {
-    this.setState({ modalVisible: true, action: (itemId !== null ? 'edit' : 'new'), itemId });
+    this.setState({ modalVisible: true, action: itemId !== null ? 'edit' : 'new', itemId });
   }
 
   deleteConfirm(itemId = null) {
@@ -74,25 +73,15 @@ export default class Notes extends Component {
 
   render() {
     const { parentModel, patientModel } = this.props;
-    const {
-      modalVisible, action, itemId, notes, tableColumns,
-    } = this.state;
+    const { modalVisible, action, itemId, notes, tableColumns } = this.state;
     return (
       <React.Fragment>
         <Grid container>
           <TabHeader>
-            <NewButton
-              onClick={() => this.editItem()}
-            >
-              Add Note
-            </NewButton>
+            <NewButton onClick={() => this.editItem()}>Add Note</NewButton>
           </TabHeader>
           <Grid container item>
-            <SimpleTable
-              data={notes}
-              columns={tableColumns}
-              emptyNotification="No notes found."
-            />
+            <SimpleTable data={notes} columns={tableColumns} emptyNotification="No notes found." />
           </Grid>
         </Grid>
         <Dialog

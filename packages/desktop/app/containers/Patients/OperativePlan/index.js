@@ -4,12 +4,25 @@ import PropTypes from 'prop-types';
 import { capitalize } from 'lodash';
 import TopRow from '../components/TopRow';
 import {
-  TextField, Container, TopBar, Preloader, ArrayField,
-  FormRow, BottomBar, AddButton, UpdateButton, CancelButton,
-  Button, SelectField, PatientVisitSelectField, Form, Field,
+  TextField,
+  Container,
+  TopBar,
+  Preloader,
+  ArrayField,
+  FormRow,
+  BottomBar,
+  AddButton,
+  UpdateButton,
+  CancelButton,
+  Button,
+  SelectField,
+  PatientVisitSelectField,
+  Form,
+  Field,
 } from '../../../components';
 import {
-  MUI_SPACING_UNIT as spacing, operativePlanStatuses,
+  MUI_SPACING_UNIT as spacing,
+  operativePlanStatuses,
   operativePlanStatusList,
 } from '../../../constants';
 import actions from '../../../actions/patients';
@@ -28,11 +41,11 @@ class OperativePlan extends Component {
       PropTypes.instanceOf(PatientModel),
       PropTypes.instanceOf(Object),
     ]).isRequired,
-  }
+  };
 
   state = {
     loading: true,
-  }
+  };
 
   componentDidMount() {
     const { fetchOperativePlan } = this.props;
@@ -47,13 +60,13 @@ class OperativePlan extends Component {
   markComplete = ({ setFieldValue, submitForm }) => () => {
     setFieldValue('status', operativePlanStatuses.COMPLETED);
     submitForm();
-  }
+  };
 
   handleFormSubmit = (values, { setSubmitting }) => {
     const { action, saveOperativePlan, operativePlanModel } = this.props;
     operativePlanModel.set(values);
     saveOperativePlan({ action, operativePlanModel, setSubmitting });
-  }
+  };
 
   render() {
     const { action, patientModel, operativePlanModel } = this.props;
@@ -64,27 +77,22 @@ class OperativePlan extends Component {
       <React.Fragment>
         <TopBar title={`${capitalize(action)} Operative Plan`} />
         <Container>
-          <TopRow
-            patient={patientModel.toJSON()}
-            style={{ marginBottom: spacing * 2 }}
-          />
+          <TopRow patient={patientModel.toJSON()} style={{ marginBottom: spacing * 2 }} />
           <Form
             onSubmit={this.handleFormSubmit}
             initialValues={operativePlanModel.toJSON()}
             validationSchema={operativePlanModel.validationSchema}
             render={({ isSubmitting, ...formActions }) => (
               <React.Fragment>
-                {action === 'new'
-                  && (
-                    <FormRow xs={5}>
-                      <Field
-                        component={PatientVisitSelectField}
-                        patientModel={patientModel}
-                        name="visit"
-                      />
-                    </FormRow>
-                  )
-                }
+                {action === 'new' && (
+                  <FormRow xs={5}>
+                    <Field
+                      component={PatientVisitSelectField}
+                      patientModel={patientModel}
+                      name="visit"
+                    />
+                  </FormRow>
+                )}
                 <FormRow>
                   <Field
                     component={TextField}
@@ -101,22 +109,14 @@ class OperativePlan extends Component {
                   component={ArrayField}
                 />
                 <FormRow>
-                  <Field
-                    component={TextField}
-                    name="surgeon"
-                    label="Surgeon"
-                  />
+                  <Field component={TextField} name="surgeon" label="Surgeon" />
                   <Field
                     component={SelectField}
                     label="Status"
                     options={operativePlanStatusList}
                     name="status"
                   />
-                  <Field
-                    component={TextField}
-                    name="caseComplexity"
-                    label="Case Complexity"
-                  />
+                  <Field component={TextField} name="caseComplexity" label="Case Complexity" />
                 </FormRow>
                 <FormRow>
                   <Field
@@ -138,32 +138,29 @@ class OperativePlan extends Component {
                 </FormRow>
                 <BottomBar>
                   <CancelButton o={`/patients/editPatient/${patientModel.id}`} />
-                  {action === 'new'
-                    ? (
-                      <AddButton
+                  {action === 'new' ? (
+                    <AddButton
+                      type="submit"
+                      isSubmitting={isSubmitting}
+                      can={{ do: 'create', on: 'operativePlan' }}
+                    />
+                  ) : (
+                    <React.Fragment>
+                      <UpdateButton
                         type="submit"
                         isSubmitting={isSubmitting}
-                        can={{ do: 'create', on: 'operativePlan' }}
+                        can={{ do: 'update', on: 'operativePlan' }}
                       />
-                    )
-                    : (
-                      <React.Fragment>
-                        <UpdateButton
-                          type="submit"
-                          isSubmitting={isSubmitting}
-                          can={{ do: 'update', on: 'operativePlan' }}
-                        />
-                        <Button
-                          onClick={this.markComplete(formActions)}
-                          color="secondary"
-                          variant="contained"
-                          disabled={isSubmitting}
-                        >
-                          Complete Plan
-                        </Button>
-                      </React.Fragment>
-                    )
-                  }
+                      <Button
+                        onClick={this.markComplete(formActions)}
+                        color="secondary"
+                        variant="contained"
+                        disabled={isSubmitting}
+                      >
+                        Complete Plan
+                      </Button>
+                    </React.Fragment>
+                  )}
                 </BottomBar>
               </React.Fragment>
             )}
@@ -174,27 +171,49 @@ class OperativePlan extends Component {
   }
 }
 
-function mapStateToProps({ patients }, { match: { params: { patientId, visitId, id } } }) {
-  const {
-    patient: patientModel, operativePlanModel, loading, action,
-  } = patients;
+function mapStateToProps(
+  { patients },
+  {
+    match: {
+      params: { patientId, visitId, id },
+    },
+  },
+) {
+  const { patient: patientModel, operativePlanModel, loading, action } = patients;
   return {
-    patientModel, operativePlanModel, loading, action, patientId, visitId, id,
+    patientModel,
+    operativePlanModel,
+    loading,
+    action,
+    patientId,
+    visitId,
+    id,
   };
 }
 
 const { operativePlan: operativePlanActions } = actions;
 const { fetchOperativePlan, saveOperativePlan } = operativePlanActions;
-const mapDispatchToProps = (dispatch, {
-  history,
-  match: { params: { id = null, patientId } },
-}) => ({
-  fetchOperativePlan: () => dispatch(fetchOperativePlan({ id, patientId })),
-  saveOperativePlan: ({ ...props }) => dispatch(saveOperativePlan({
-    ...props,
+const mapDispatchToProps = (
+  dispatch,
+  {
     history,
-    patientId,
-  })),
+    match: {
+      params: { id = null, patientId },
+    },
+  },
+) => ({
+  fetchOperativePlan: () => dispatch(fetchOperativePlan({ id, patientId })),
+  saveOperativePlan: ({ ...props }) =>
+    dispatch(
+      saveOperativePlan({
+        ...props,
+        history,
+        patientId,
+      }),
+    ),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(OperativePlan);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(OperativePlan);

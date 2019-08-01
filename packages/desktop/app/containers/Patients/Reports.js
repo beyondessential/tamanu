@@ -14,33 +14,33 @@ class Reports extends Component {
     endDate: moment(),
     selectValue: '',
     generated: false,
-  }
+  };
 
   componentDidMount() {
     this.props.fetchPatients();
   }
 
-  onChangeStartDate = (date) => {
+  onChangeStartDate = date => {
     this.setState({
       startDate: date,
     });
-  }
+  };
 
-  onChangeEndDate = (date) => {
+  onChangeEndDate = date => {
     this.setState({
       endDate: date,
     });
-  }
+  };
 
-  updateValue = (newValue) => {
+  updateValue = newValue => {
     this.setState({
       selectValue: newValue,
     });
-  }
+  };
 
   generateReport = () => {
     this.setState({ generated: true });
-  }
+  };
 
   render() {
     const { startDate, endDate, generated } = this.state;
@@ -48,13 +48,9 @@ class Reports extends Component {
     return (
       <div className="create-content">
         <div className="create-top-bar">
-          <span>
-            Patient Report
-          </span>
+          <span>Patient Report</span>
           <div className="view-action-buttons">
-            <button>
-              Patient Check In
-            </button>
+            <button>Patient Check In</button>
           </div>
         </div>
         <div className="create-container">
@@ -62,12 +58,12 @@ class Reports extends Component {
             <div className="columns">
               <div className="column is-6">
                 <div className="column">
-                  <span className="header">
-                    Report Type
-                  </span>
+                  <span className="header">Report Type</span>
                   <Select
                     id="state-select"
-                    ref={(ref) => { this.select = ref; }}
+                    ref={ref => {
+                      this.select = ref;
+                    }}
                     onBlurResetsInput={false}
                     onSelectResetsInput={false}
                     options={reportOptions}
@@ -86,9 +82,7 @@ class Reports extends Component {
             <div className="columns">
               <div className="column is-4">
                 <div className="column">
-                  <span className="header">
-                    Start Date
-                  </span>
+                  <span className="header">Start Date</span>
                   <DatePicker
                     name="startDate"
                     customInput={<CustomDateInput />}
@@ -103,9 +97,7 @@ class Reports extends Component {
               </div>
               <div className="column is-4">
                 <div className="column">
-                  <span className="header">
-                    End Date
-                  </span>
+                  <span className="header">End Date</span>
                   <DatePicker
                     name="endDate"
                     customInput={<CustomDateInput />}
@@ -120,20 +112,16 @@ class Reports extends Component {
               </div>
             </div>
             <div className="column has-text-right">
-              <button className="button is-primary" onClick={this.generateReport}>Generate Report</button>
+              <button className="button is-primary" onClick={this.generateReport}>
+                Generate Report
+              </button>
             </div>
           </div>
-          {generated
-            && (
+          {generated && (
             <div className="form">
               <div className="form-header">
                 <span>
-                  Diagnostic Testing Report
-                  {' '}
-                  {moment(startDate).format('MM/DD/YYYY')}
-                  {' '}
--
-                  {' '}
+                  Diagnostic Testing Report {moment(startDate).format('MM/DD/YYYY')} -{' '}
                   {moment(endDate).format('MM/DD/YYYY')}
                 </span>
               </div>
@@ -147,13 +135,14 @@ class Reports extends Component {
                     defaultSortDirection="asc"
                   />
                   <div className="column has-text-right">
-                    <button className="button is-primary" onClick={this.generateReport}>Export Report</button>
+                    <button className="button is-primary" onClick={this.generateReport}>
+                      Export Report
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
-            )
-          }
+          )}
         </div>
       </div>
     );
@@ -170,4 +159,7 @@ const mapDispatchToProps = dispatch => ({
   fetchPatients: () => dispatch(fetchPatients()),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Reports);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Reports);

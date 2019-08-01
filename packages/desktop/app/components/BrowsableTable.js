@@ -14,18 +14,18 @@ export class BrowsableTable extends Component {
     emptyNotification: PropTypes.node,
     transformRow: PropTypes.func,
     fetchOptions: PropTypes.instanceOf(Object),
-  }
+  };
 
   static defaultProps = {
     transformRow: defaultTransformRow,
     fetchOptions: {},
     emptyNotification: '',
-  }
+  };
 
   state = {
     tableState: {},
     loading: true,
-  }
+  };
 
   componentWillMount() {
     this.props.collection.on('pageable:state:change', this.handleChange);
@@ -53,29 +53,24 @@ export class BrowsableTable extends Component {
         state.sorted.map(s => collection.setSorting(s.id, s.desc ? 1 : -1));
       }
 
-      await collection.getPage(
-        state.page || 0,
-        {
-          data: fetchOptions,
-          pageSize: state.pageSize || 10,
-        },
-      );
+      await collection.getPage(state.page || 0, {
+        data: fetchOptions,
+        pageSize: state.pageSize || 10,
+      });
 
       this.setState({ loading: false });
     } catch (err) {
       this.setState({ loading: false });
       console.error(err);
     }
-  }
+  };
 
   handleChange = () => {
     this.forceUpdate();
-  }
+  };
 
   render() {
-    const {
-      collection, columns, emptyNotification, transformRow,
-    } = this.props;
+    const { collection, columns, emptyNotification, transformRow } = this.props;
     const { loading } = this.state;
 
     // transform data

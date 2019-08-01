@@ -15,4 +15,4 @@ import detectPort from 'detect-port';
       process.exit(0);
     }
   });
-}());
+})();

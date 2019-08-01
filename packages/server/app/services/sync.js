@@ -1,20 +1,14 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable import/no-unresolved */
 import config from 'config';
-import {
-  has, isEmpty, toLower, pick, keys, set, isFunction, chain, difference,
-} from 'lodash';
+import { has, isEmpty, toLower, pick, keys, set, isFunction, chain, difference } from 'lodash';
 import moment from 'moment';
 import { to } from 'await-to-js';
 import { defaults as defaultFields } from 'Shared/schemas';
-import {
-  objectToJSON, parseObjectForSync, incoming, findSchema,
-} from '../utils';
+import { objectToJSON, parseObjectForSync, incoming, findSchema } from '../utils';
 import AuthService from './auth';
 
-import {
-  HTTP_METHOD_TO_ACTION, ENVIRONMENT_TYPE, SYNC_ACTIONS,
-} from '../constants';
+import { HTTP_METHOD_TO_ACTION, ENVIRONMENT_TYPE, SYNC_ACTIONS } from '../constants';
 
 export default class Sync {
   constructor(database, faye, queueManager) {
@@ -28,7 +22,10 @@ export default class Sync {
   }
 
   async synchronize() {
-    const fromTime = moment().subtract(30, 'minutes').toDate().getTime();
+    const fromTime = moment()
+      .subtract(30, 'minutes')
+      .toDate()
+      .getTime();
     const clients = this.database.find('client', `lastActive > ${fromTime}`);
     const [err] = await to(Promise.all(clients.map(client => this.sync(client))));
     if (err) throw err;
@@ -41,11 +38,11 @@ export default class Sync {
       if (changes && changes.length > 0) {
         const hospital = this.database.findOne('hospital', hospitalId);
         const maxTimestamp = changes.max('timestamp');
-        const [err] = await to(Promise.all(changes.map(change => this.publishMessage(
-          objectToJSON(change),
-          client,
-          hospital,
-        ))));
+        const [err] = await to(
+          Promise.all(
+            changes.map(change => this.publishMessage(objectToJSON(change), client, hospital)),
+          ),
+        );
         if (err) return new Error(err);
 
         // Update sync date
@@ -63,14 +60,18 @@ export default class Sync {
 
   setup() {
     // On handshake
-    this.client.on('handshake', (clientId) => {
+    this.client.on('handshake', clientId => {
       console.log('Client connected', clientId);
     });
 
     // On new message
     this.client.on('publish', (clientId, channel, message) => {
       if (channel === `/${config.sync.channelIn}`) {
-        console.log(`[MessageIn - ${config.sync.channelIn}]`, { action: message.action, type: message.recordType, id: message.recordId });
+        console.log(`[MessageIn - ${config.sync.channelIn}]`, {
+          action: message.action,
+          type: message.recordType,
+          id: message.recordId,
+        });
         switch (message.action) {
           case SYNC_ACTIONS.SAVE:
             this.saveRecord(message);
@@ -100,7 +101,7 @@ export default class Sync {
   disconnectClients(condition = 'lastActive != 0') {
     const activeClients = this.database.find('client', condition);
     this.database.write(() => {
-      activeClients.forEach((client) => {
+      activeClients.forEach(client => {
         // eslint-disable-next-line no-param-reassign
         if (client) client.lastActive = 0;
       });
@@ -116,7 +117,11 @@ export default class Sync {
         if (typeof schema.filter === 'function') {
           const sendItem = schema.filter(record, client, change);
           if (!sendItem) {
-            console.log(`Object [${change.recordType} - ${change.recordId}] not authorized to be synced, skipping..`);
+            console.log(
+              `Object [${change.recordType} - ${
+                change.recordId
+              }] not authorized to be synced, skipping..`,
+            );
             return true;
           }
         }
@@ -134,7 +139,11 @@ export default class Sync {
           ...change,
         });
 
-        console.log('[MessageOut]', { action: change.action, type: change.recordType, id: change.recordId });
+        console.log('[MessageOut]', {
+          action: change.action,
+          type: change.recordType,
+          id: change.recordId,
+        });
         return true;
       }
 
@@ -162,7 +171,7 @@ export default class Sync {
       filteredRecord.fullySynced = true;
     }
     return filteredRecord;
-  }
+  };
 
   /**
    * This function is called when a record needs to be saved ( CREATE or UPDATE ) to the database
@@ -218,7 +227,7 @@ export default class Sync {
     });
 
     return newRecord;
-  }
+  };
 
   mergeChanges(currentRecord = {}, updatedRecord, recordType, action, record) {
     const newRecord = record;
@@ -235,15 +244,24 @@ export default class Sync {
         const subject = recordType;
         const user = userId;
         const validPermissions = this.auth.validatePermissions({
-          user, hospitalId, action, subject, fields,
+          user,
+          hospitalId,
+          action,
+          subject,
+          fields,
         });
 
-        if (validPermissions) { // TODO: add generous relations update
-          if (has(currentModifiedFields, field)) { // if key already has an old value stored
-            const lastUpdatedValue = updateTime > currentModifiedFields[field].time
-              ? updatedRecord[field] : currentRecord[field];
+        if (validPermissions) {
+          // TODO: add generous relations update
+          if (has(currentModifiedFields, field)) {
+            // if key already has an old value stored
+            const lastUpdatedValue =
+              updateTime > currentModifiedFields[field].time
+                ? updatedRecord[field]
+                : currentRecord[field];
             newRecord[field] = lastUpdatedValue;
-          } else { // Set the new value
+          } else {
+            // Set the new value
             newRecord[field] = updatedRecord[field];
           }
         } else {
@@ -285,7 +303,7 @@ export default class Sync {
 
   pushNewlySyncedItems({ oldSyncedItems, newSyncedItems }) {
     const newlyAdded = difference(newSyncedItems, oldSyncedItems);
-    newlyAdded.forEach((item) => {
+    newlyAdded.forEach(item => {
       const [recordType, recordId] = item.split(/-(.+)/);
       this.queueManager.push({
         action: SYNC_ACTIONS.SAVE,

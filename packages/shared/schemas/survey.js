@@ -29,7 +29,8 @@ export const SurveySchema = {
       type: 'list',
       objectType: 'surveyScreen',
     },
-    canRedo: { // Can submit multiple times
+    canRedo: {
+      // Can submit multiple times
       type: 'bool',
       default: false,
     },

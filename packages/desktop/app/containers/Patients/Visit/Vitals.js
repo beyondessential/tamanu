@@ -3,8 +3,12 @@ import { Grid } from '@material-ui/core';
 import { vitalsColumns } from '../../../constants';
 import VitalModal from '../components/VitalModal';
 import {
-  Dialog, NewButton, EditButton, DeleteButton,
-  SimpleTable, TabHeader,
+  Dialog,
+  NewButton,
+  EditButton,
+  DeleteButton,
+  SimpleTable,
+  TabHeader,
 } from '../../../components';
 
 export default class Vitals extends Component {
@@ -15,7 +19,7 @@ export default class Vitals extends Component {
     itemId: null,
     vitals: [],
     tableColumns: vitalsColumns,
-  }
+  };
 
   componentWillMount() {
     const { tableColumns } = this.state;
@@ -38,9 +42,9 @@ export default class Vitals extends Component {
 
   onCloseModal = () => {
     this.setState({ modalVisible: false });
-  }
+  };
 
-  setActionsCol = (row) => (
+  setActionsCol = row => (
     <div key={row._id}>
       <EditButton
         size="small"
@@ -53,7 +57,7 @@ export default class Vitals extends Component {
         can={{ do: 'delete', on: 'vital' }}
       />
     </div>
-  )
+  );
 
   deleteItem = async () => {
     const { visitModel } = this.props;
@@ -67,14 +71,14 @@ export default class Vitals extends Component {
     } catch (err) {
       console.error('Error: ', err);
     }
-  }
+  };
 
   deleteConfirm(itemId = null) {
     this.setState({ deleteModalVisible: true, itemId });
   }
 
   editItem(itemId = null) {
-    this.setState({ modalVisible: true, action: (itemId !== null ? 'edit' : 'new'), itemId });
+    this.setState({ modalVisible: true, action: itemId !== null ? 'edit' : 'new', itemId });
   }
 
   handleChange() {
@@ -85,17 +89,12 @@ export default class Vitals extends Component {
 
   render() {
     const { visitModel } = this.props;
-    const {
-      modalVisible, action, itemId, vitals, tableColumns,
-    } = this.state;
+    const { modalVisible, action, itemId, vitals, tableColumns } = this.state;
     return (
       <React.Fragment>
         <Grid container>
           <TabHeader>
-            <NewButton
-              onClick={() => this.editItem()}
-              can={{ do: 'create', on: 'vital' }}
-            >
+            <NewButton onClick={() => this.editItem()} can={{ do: 'create', on: 'vital' }}>
               Add Vitals
             </NewButton>
           </TabHeader>

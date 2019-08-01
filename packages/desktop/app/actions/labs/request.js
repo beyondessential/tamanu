@@ -42,7 +42,7 @@ export const initLabRequest = ({ patientId }) => async dispatch => {
   }
 };
 
-export const filterTestTypes = (keyword) => async dispatch => {
+export const filterTestTypes = keyword => async dispatch => {
   dispatch({ type: FILTER_LAB_TEST_TYPES_REQUEST });
   try {
     const labTestTypesCollection = new LabTestTypesCollection();
@@ -63,12 +63,17 @@ export const createLabRequest = ({ labRequestModel }) => async (dispatch, getSta
   dispatch({ type: SAVE_LAB_REQUEST_REQUEST });
   try {
     const labTypesFiltered = {};
-    const { auth: { userId } } = getState();
+    const {
+      auth: { userId },
+    } = getState();
     const requestedBy = new UserModel({ _id: userId });
     const visitId = labRequestModel.get('visit');
 
     labRequestModel.get('tests').forEach(labTestModel => {
-      const categoryId = labTestModel.get('type').get('category').get('_id');
+      const categoryId = labTestModel
+        .get('type')
+        .get('category')
+        .get('_id');
       const testCategoryModel = new LabTestCategoryModel({ _id: categoryId });
       if (labTypesFiltered[categoryId]) {
         const currentLabRequestModel = labTypesFiltered[categoryId];
@@ -86,7 +91,9 @@ export const createLabRequest = ({ labRequestModel }) => async (dispatch, getSta
     });
 
     await Promise.all(labRequestModel.get('tests').map(labTestModel => labTestModel.save()));
-    const labRequestModels = await Promise.all(Object.values(labTypesFiltered).map(model => model.save()));
+    const labRequestModels = await Promise.all(
+      Object.values(labTypesFiltered).map(model => model.save()),
+    );
     updateVisit(visitId, labRequestModels);
 
     dispatch({ type: SAVE_LAB_REQUEST_SUCCESS });

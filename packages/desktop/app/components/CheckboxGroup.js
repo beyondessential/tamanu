@@ -12,7 +12,7 @@ class CheckboxGroup extends Component {
     labelClass: PropTypes.string,
     overwriteClass: PropTypes.bool,
     note: PropTypes.string,
-  }
+  };
 
   static defaultProps = {
     type: 'checkbox',
@@ -20,15 +20,15 @@ class CheckboxGroup extends Component {
     labelClass: 'label',
     overwriteClass: false,
     note: '',
-  }
+  };
 
   constructor(props) {
     super(props);
-    this.state = { value: (props.value ? props.value : '') };
+    this.state = { value: props.value ? props.value : '' };
   }
 
   componentWillReceiveProps(newProps) {
-    this.setState({ value: (newProps.value ? newProps.value : '') });
+    this.setState({ value: newProps.value ? newProps.value : '' });
   }
 
   handleChange(event) {
@@ -75,4 +75,7 @@ class CheckboxGroup extends Component {
   }
 }
 
-export default connect(null, {})(CheckboxGroup);
+export default connect(
+  null,
+  {},
+)(CheckboxGroup);

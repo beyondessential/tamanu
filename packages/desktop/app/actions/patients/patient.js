@@ -21,7 +21,9 @@ export const fetchPatient = ({ id }) => async dispatch => {
   const patientModel = new PatientModel();
   if (action === 'edit') {
     patientModel.set({ _id: id });
-    [error] = await to(patientModel.fetch({ data: { objects_max_depth: DB_OBJECTS_MAX_DEPTH.PATIENT_MAIN } }));
+    [error] = await to(
+      patientModel.fetch({ data: { objects_max_depth: DB_OBJECTS_MAX_DEPTH.PATIENT_MAIN } }),
+    );
     const { dateOfBirth, referredDate } = patientModel.attributes;
     if (dateOfBirth !== null) patientModel.set('dateOfBirth', moment(dateOfBirth));
     if (referredDate !== null) patientModel.set('referredDate', moment(referredDate));

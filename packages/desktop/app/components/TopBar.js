@@ -2,9 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
-import {
-  AppBar, Toolbar, Typography, Grid, Chip,
-} from '@material-ui/core';
+import { AppBar, Toolbar, Typography, Grid, Chip } from '@material-ui/core';
 import { values, mapValues, isArray } from 'lodash';
 import { NewButton, SearchBar } from '.';
 
@@ -35,13 +33,9 @@ const styles = theme => ({
 const TopBar = React.memo(({ classes, title, subtitle, children }) => {
   return (
     <Grid className={classes.root}>
-      <AppBar
-        position="static"
-        color="inherit"
-        className={classes.noShadow}
-      >
+      <AppBar position="static" color="inherit" className={classes.noShadow}>
         <Toolbar>
-          <Typography variant="h3" color="inherit" className={classes.h3} >
+          <Typography variant="h3" color="inherit" className={classes.h3}>
             {title}
           </Typography>
           {children}

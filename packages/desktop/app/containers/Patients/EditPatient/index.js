@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Grid, Tabs, Tab } from '@material-ui/core';
-import {
-  Preloader, BackButton, TopBar, Container,
-} from '../../../components';
+import { Preloader, BackButton, TopBar, Container } from '../../../components';
 import { MUI_SPACING_UNIT as spacing } from '../../../constants';
 import actions from '../../../actions/patients';
 import Allergy from '../components/Allergy';
@@ -29,7 +27,7 @@ class EditPatient extends Component {
     loading: true,
     patientModel: {},
     selectedTab: 'history',
-  }
+  };
 
   componentDidMount() {
     const { id } = this.props.match.params;
@@ -47,9 +45,9 @@ class EditPatient extends Component {
     }
   }
 
-  changeTab = (tabName) => {
+  changeTab = tabName => {
     this.setState({ selectedTab: tabName });
-  }
+  };
 
   handleChange(props = this.props) {
     let updates = {};
@@ -84,36 +82,13 @@ class EditPatient extends Component {
       case 'photos':
         return <Photos />;
       case 'appointment':
-        return (
-          <Appointments
-            history={history}
-            patient={patient}
-            patientModel={patientModel}
-          />
-        );
+        return <Appointments history={history} patient={patient} patientModel={patientModel} />;
       case 'visit':
-        return (
-          <Visits
-            history={history}
-            patient={patient}
-            patientModel={patientModel}
-          />
-        );
+        return <Visits history={history} patient={patient} patientModel={patientModel} />;
       case 'medication':
-        return (
-          <Medication
-            history={history}
-            patient={patient}
-            patientModel={patientModel}
-          />
-        );
+        return <Medication history={history} patient={patient} patientModel={patientModel} />;
       case 'imaging':
-        return (
-          <Imaging
-            history={history}
-            patientModel={patientModel}
-          />
-        );
+        return <Imaging history={history} patientModel={patientModel} />;
       case 'labs':
         return (
           <LabRequests
@@ -125,22 +100,10 @@ class EditPatient extends Component {
       case 'programs':
         return <Programs />;
       case 'pregnancy':
-        return (
-          <Pregnancy
-            history={history}
-            patient={patient}
-            patientModel={patientModel}
-          />
-        );
+        return <Pregnancy history={history} patient={patient} patientModel={patientModel} />;
       case 'history':
       default:
-        return (
-          <History
-            history={history}
-            patientModel={patientModel}
-            changeTab={this.changeTab}
-          />
-        );
+        return <History history={history} patientModel={patientModel} changeTab={this.changeTab} />;
     }
   }
 
@@ -149,30 +112,28 @@ class EditPatient extends Component {
 
     return (
       <Tabs value={selectedTab} style={{ marginBottom: spacing }}>
-        {
-          [
-            { value: 'history', label: 'History' },
-            { value: 'general', label: 'General' },
-            { value: 'photos', label: 'Photos' },
-            { value: 'appointment', label: 'Appointment' },
-            { value: 'visit', label: 'Visit' },
-            { value: 'medication', label: 'Medication' },
-            { value: 'imaging', label: 'Imaging' },
-            { value: 'labs', label: 'Labs' },
-            { value: 'pregnancy', label: 'Pregnancy', condition: () => patient.sex === 'female' },
-            { value: 'programs', label: 'Programs' },
-          ]
-            .filter(item => !item.condition || item.condition())
-            .map(({ value, label }) => (
-              <Tab
-                key={value}
-                style={{ minWidth: 'auto' }}
-                label={label}
-                value={value}
-                onClick={() => this.changeTab(value)}
-              />
-            ))
-        }
+        {[
+          { value: 'history', label: 'History' },
+          { value: 'general', label: 'General' },
+          { value: 'photos', label: 'Photos' },
+          { value: 'appointment', label: 'Appointment' },
+          { value: 'visit', label: 'Visit' },
+          { value: 'medication', label: 'Medication' },
+          { value: 'imaging', label: 'Imaging' },
+          { value: 'labs', label: 'Labs' },
+          { value: 'pregnancy', label: 'Pregnancy', condition: () => patient.sex === 'female' },
+          { value: 'programs', label: 'Programs' },
+        ]
+          .filter(item => !item.condition || item.condition())
+          .map(({ value, label }) => (
+            <Tab
+              key={value}
+              style={{ minWidth: 'auto' }}
+              label={label}
+              value={value}
+              onClick={() => this.changeTab(value)}
+            />
+          ))}
       </Tabs>
     );
   }
@@ -190,27 +151,20 @@ class EditPatient extends Component {
           <Grid container spacing={8} style={{ paddingBottom: 16 }}>
             <Grid item xs>
               <Condition patientModel={patientModel} />
-              <OperativePlan
-                parentModel={patientModel}
-                patientId={patientModel.id}
-              />
+              <OperativePlan parentModel={patientModel} patientId={patientModel.id} />
             </Grid>
             <Grid item xs>
               <Allergy patientModel={patientModel} />
             </Grid>
           </Grid>
           <Grid container spacing={8}>
-            { this.renderTabs() }
-            <Grid container>
-              { this.renderTabContents() }
-            </Grid>
-            {selectedTab !== 'general'
-              && (
-                <Grid item style={{ marginTop: spacing, padding: 0 }}>
-                  <BackButton to="/patients" />
-                </Grid>
-              )
-            }
+            {this.renderTabs()}
+            <Grid container>{this.renderTabContents()}</Grid>
+            {selectedTab !== 'general' && (
+              <Grid item style={{ marginTop: spacing, padding: 0 }}>
+                <BackButton to="/patients" />
+              </Grid>
+            )}
           </Grid>
         </Container>
         <PatientQuickLinks patient={patient} />
@@ -220,19 +174,24 @@ class EditPatient extends Component {
 }
 
 function mapStateToProps(state) {
-  const {
-    patient, action, loading, saved, error,
-  } = state.patients;
+  const { patient, action, loading, saved, error } = state.patients;
   return {
-    patient, action, loading, saved, error,
+    patient,
+    action,
+    loading,
+    saved,
+    error,
   };
 }
 
 const { patient: patientActions } = actions;
 const { fetchPatient, savePatient } = patientActions;
 const mapDispatchToProps = dispatch => ({
-  fetchPatient: (params) => dispatch(fetchPatient(params)),
-  savePatient: (params) => dispatch(savePatient(params)),
+  fetchPatient: params => dispatch(fetchPatient(params)),
+  savePatient: params => dispatch(savePatient(params)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditPatient);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(EditPatient);

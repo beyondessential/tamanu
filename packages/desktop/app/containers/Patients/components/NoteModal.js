@@ -2,13 +2,27 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Grid } from '@material-ui/core';
 import {
-  TextField, PatientVisitSelectField, Modal, ModalActions,
-  AddButton, UpdateButton, CancelButton, FormRow, Form, Field,
+  TextField,
+  PatientVisitSelectField,
+  Modal,
+  ModalActions,
+  AddButton,
+  UpdateButton,
+  CancelButton,
+  FormRow,
+  Form,
+  Field,
 } from '../../../components';
 import { NoteModel, VisitModel } from '../../../models';
 
 export default function NoteModal({
-  action, itemId, isVisible, parentModel, onClose, showVisits, patientModel,
+  action,
+  itemId,
+  isVisible,
+  parentModel,
+  onClose,
+  showVisits,
+  patientModel,
 }) {
   let noteModel = new NoteModel();
   if (itemId) noteModel = parentModel.get('notes').findWhere({ _id: itemId });
@@ -58,46 +72,37 @@ export default function NoteModal({
                   required
                 />
               </FormRow>
-              {showVisits
-                && (
-                  <FormRow>
-                    <Field
-                      component={PatientVisitSelectField}
-                      patientModel={patientModel}
-                      name="visit"
-                      required
-                    />
-                  </FormRow>
-                )
-              }
+              {showVisits && (
+                <FormRow>
+                  <Field
+                    component={PatientVisitSelectField}
+                    patientModel={patientModel}
+                    name="visit"
+                    required
+                  />
+                </FormRow>
+              )}
               <FormRow>
-                <Field
-                  component={TextField}
-                  label="On Behalf Of"
-                  name="attribution"
-                />
+                <Field component={TextField} label="On Behalf Of" name="attribution" />
               </FormRow>
             </Grid>
             <ModalActions>
               <CancelButton onClick={onClose} />
-              {action === 'new'
-                ? (
-                  <AddButton
-                    type="button"
-                    disabled={isSubmitting}
-                    can={{ do: 'create', on: 'note' }}
-                    onClick={submitForm}
-                  />
-                )
-                : (
-                  <UpdateButton
-                    type="submit"
-                    disabled={isSubmitting}
-                    can={{ do: 'update', on: 'note' }}
-                    onClick={submitForm}
-                  />
-                )
-              }
+              {action === 'new' ? (
+                <AddButton
+                  type="button"
+                  disabled={isSubmitting}
+                  can={{ do: 'create', on: 'note' }}
+                  onClick={submitForm}
+                />
+              ) : (
+                <UpdateButton
+                  type="submit"
+                  disabled={isSubmitting}
+                  can={{ do: 'update', on: 'note' }}
+                  onClick={submitForm}
+                />
+              )}
             </ModalActions>
           </React.Fragment>
         )}

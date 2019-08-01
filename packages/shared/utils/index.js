@@ -3,7 +3,7 @@ import { schemas } from '../schemas';
 
 export * from './parse-object';
 
-export const jsonParse = (object) => {
+export const jsonParse = object => {
   try {
     return JSON.parse(jsonPrune(object));
   } catch (err) {
@@ -11,4 +11,4 @@ export const jsonParse = (object) => {
   }
 };
 
-export const findSchema = (type) => schemas.find(schema => schema.name === type);
+export const findSchema = type => schemas.find(schema => schema.name === type);

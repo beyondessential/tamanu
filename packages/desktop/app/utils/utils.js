@@ -7,11 +7,13 @@ import { createHashHistory } from 'history';
 
 export const history = createHashHistory();
 
-export const toTitleCase = text => (text
-  ? text.split(' ')
-    .map(t => t.slice(0, 1).toUpperCase() + t.slice(1))
-    .join(' ')
-  : '');
+export const toTitleCase = text =>
+  text
+    ? text
+        .split(' ')
+        .map(t => t.slice(0, 1).toUpperCase() + t.slice(1))
+        .join(' ')
+    : '';
 
 export const concatSelf = (array, ...items) => {
   items.map(item => {
@@ -23,11 +25,13 @@ export const concatSelf = (array, ...items) => {
   });
 };
 
-export const prepareToastMessage = (msg) => {
+export const prepareToastMessage = msg => {
   const messages = isArray(msg) ? msg : [msg];
   return (
     <Fragment>
-      {messages.map((text, key) => (<div key={`err-msg-${key}`}>{toString(text)}</div>))}
+      {messages.map((text, key) => (
+        <div key={`err-msg-${key}`}>{toString(text)}</div>
+      ))}
     </Fragment>
   );
 };

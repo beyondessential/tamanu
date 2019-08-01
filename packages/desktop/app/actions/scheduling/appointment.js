@@ -13,10 +13,7 @@ import {
   DELETE_APPOINTMENT_REQUEST,
   DELETE_APPOINTMENT_SUCCESS,
 } from '../types';
-import {
-  PatientModel,
-  AppointmentModel,
-} from '../../models';
+import { PatientModel, AppointmentModel } from '../../models';
 
 export const fetchAppointment = ({ id, patientId }) => async dispatch => {
   dispatch({ type: FETCH_APPOINTMENT_REQUEST });
@@ -53,7 +50,11 @@ export const fetchAppointment = ({ id, patientId }) => async dispatch => {
 };
 
 export const saveAppointment = ({
-  action, model, patient, history, surgery = false,
+  action,
+  model,
+  patient,
+  history,
+  surgery = false,
 }) => async dispatch => {
   dispatch({ type: SAVE_APPOINTMENT_REQUEST });
   if (model.isValid()) {

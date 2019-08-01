@@ -34,12 +34,12 @@ const FRUITS = [
 class StoryControlWrapper extends React.PureComponent {
   state = { value: null };
 
-  onChange = (e) => {
+  onChange = e => {
     const { onChange } = this.props;
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    action("change")(value);
+    action('change')(value);
     this.setState({ value });
-  }
+  };
 
   render() {
     const { Component, ...props } = this.props;
@@ -60,107 +60,69 @@ function addStories(name, Component, note) {
     .add('With error', () => <Component error helperText="Here is an error message" />);
 }
 
-addStories('TextInput', (props) => (
-  <StoryControlWrapper
-    Component={TextInput}
-    label="Display name"
-    {...props}
-  />
-), 'Free text input.')
-  .add('Multiline', () => (
-    <StoryControlWrapper
-      Component={TextInput}
-      label="Life story"
-      multiline
-      rows={4}
-    />
-  ));
-
-addStories('CheckInput', (props) => (
-  <StoryControlWrapper
-    Component={CheckInput}
-    label="Enable"
-    {...props}
-  />
+addStories(
+  'TextInput',
+  props => <StoryControlWrapper Component={TextInput} label="Display name" {...props} />,
+  'Free text input.',
+).add('Multiline', () => (
+  <StoryControlWrapper Component={TextInput} label="Life story" multiline rows={4} />
 ));
 
-addStories('DateInput', (props) => (
-  <StoryControlWrapper
-    Component={DateInput}
-    label="Date of birth"
-    {...props}
-  />
+addStories('CheckInput', props => (
+  <StoryControlWrapper Component={CheckInput} label="Enable" {...props} />
 ));
 
-addStories('DateTimeInput', (props) => (
-  <StoryControlWrapper
-    Component={DateTimeInput}
-    label="Sample taken"
-    {...props}
-  />
+addStories('DateInput', props => (
+  <StoryControlWrapper Component={DateInput} label="Date of birth" {...props} />
 ));
 
-addStories('TimeInput', (props) => (
-  <StoryControlWrapper
-    Component={TimeInput}
-    label="Time"
-    {...props}
-  />
+addStories('DateTimeInput', props => (
+  <StoryControlWrapper Component={DateTimeInput} label="Sample taken" {...props} />
 ));
 
-addStories('NumberInput', (props) => (
+addStories('TimeInput', props => (
+  <StoryControlWrapper Component={TimeInput} label="Time" {...props} />
+));
+
+addStories('NumberInput', props => (
+  <StoryControlWrapper Component={NumberInput} label="Amount" {...props} />
+)).add('With limited range', () => (
   <StoryControlWrapper
     Component={NumberInput}
-    label="Amount"
-    {...props}
-  />
-))
-  .add('With limited range', () => (
-    <StoryControlWrapper
-      Component={NumberInput}
-      label="How many fingers am I holding up?"
-      min={0}
-      max={10}
-    />
-  ));
-
-addStories('RadioInput', (props) => (
-  <StoryControlWrapper
-    Component={RadioInput}
-    label="Fruit"
-    options={FRUITS.slice(0, 3)}
-    {...props}
-  />
-), "Should only be used for <=5 items. If there're a lot, prefer a SelectInput instead.");
-
-addStories('SelectInput', (props) => (
-  <StoryControlWrapper
-    Component={SelectInput}
-    label="Fruit"
-    options={FRUITS}
-    {...props}
+    label="How many fingers am I holding up?"
+    min={0}
+    max={10}
   />
 ));
 
-addStories('Autocomplete', (props) => (
-  <StoryControlWrapper 
-    Component={AutocompleteInput} 
-    label="Fruit"
-    options={FRUITS}
-    {...props}
-  />
+addStories(
+  'RadioInput',
+  props => (
+    <StoryControlWrapper
+      Component={RadioInput}
+      label="Fruit"
+      options={FRUITS.slice(0, 3)}
+      {...props}
+    />
+  ),
+  "Should only be used for <=5 items. If there're a lot, prefer a SelectInput instead.",
+);
+
+addStories('SelectInput', props => (
+  <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />
+));
+
+addStories('Autocomplete', props => (
+  <StoryControlWrapper Component={AutocompleteInput} label="Fruit" options={FRUITS} {...props} />
 )).add('Asynchronous options', () => (
-  <StoryControlWrapper 
-    Component={AutocompleteInput} 
+  <StoryControlWrapper
+    Component={AutocompleteInput}
     label="Language"
-    fetchOptions={async (search) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      return FRUITS
-        .filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
+    fetchOptions={async search => {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return FRUITS.filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
     }}
   />
 ));
 
-storiesOf('FormControls/ArrayInput', module)
-  .add('ArrayInput', () => <div>WIP</div>);
-
+storiesOf('FormControls/ArrayInput', module).add('ArrayInput', () => <div>WIP</div>);

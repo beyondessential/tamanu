@@ -10,14 +10,7 @@ export default {
     ...state,
     loading: true,
   }),
-  [AUTH_LOGIN_SUCCESS]: ({
-    userId,
-    hospitalId,
-    displayName,
-    email,
-    secret,
-    abilities,
-  }, state) => ({
+  [AUTH_LOGIN_SUCCESS]: ({ userId, hospitalId, displayName, email, secret, abilities }, state) => ({
     ...state,
     userId,
     hospitalId,

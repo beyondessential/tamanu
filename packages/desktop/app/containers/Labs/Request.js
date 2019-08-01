@@ -6,8 +6,17 @@ import styled from 'styled-components';
 import * as labRequestActions from '../../actions/labs';
 import TopRow from '../Patients/components/TopRow';
 import {
-  TopBar, PatientVisitSelectField, PatientAutocompleteField, Container,
-  TextField, AddButton, CancelButton, Preloader, FormRow, Form, Field,
+  TopBar,
+  PatientVisitSelectField,
+  PatientAutocompleteField,
+  Container,
+  TextField,
+  AddButton,
+  CancelButton,
+  Preloader,
+  FormRow,
+  Form,
+  Field,
 } from '../../components';
 import TestTypesList from './components/TestTypesList';
 import { LabRequestModel, LabTestModel, PatientModel } from '../../models';
@@ -16,7 +25,7 @@ const ButtonsContainer = styled.div`
   padding: 8px 8px 32px 8px;
   text-align: right;
   > button {
-    margin-right: 8px
+    margin-right: 8px;
   }
 `;
 
@@ -43,30 +52,27 @@ class Request extends Component {
     handleChange(event);
     // load patient
     this.props.initLabRequest({ patientId: value });
-  }
+  };
 
-  buildTestTypeCollection = selectedTests => (
+  buildTestTypeCollection = selectedTests =>
     this.props.labTestTypes
       .filter(({ _id }) => selectedTests.includes(_id))
-      .map((labTestTypeModel) => new LabTestModel({ type: labTestTypeModel }))
-  )
+      .map(labTestTypeModel => new LabTestModel({ type: labTestTypeModel }));
 
   handleTestTypesFilter = event => {
     const { filterTestTypes } = this.props;
     const { value } = event.target;
     filterTestTypes(value);
-  }
+  };
 
   submitForm = ({ tests, ...values }) => {
     const { labRequestModel } = this.props;
     labRequestModel.set({ tests: this.buildTestTypeCollection(tests), ...values });
     this.props.createLabRequest({ labRequestModel });
-  }
+  };
 
   render() {
-    const {
-      labRequestModel, isPatientSelected, labTestTypes, patientModel,
-    } = this.props;
+    const { labRequestModel, isPatientSelected, labTestTypes, patientModel } = this.props;
     const { isLoading } = this.state;
     if (isLoading) return <Preloader />;
 
@@ -80,25 +86,21 @@ class Request extends Component {
           render={({ isSubmitting, handleChange }) => (
             <Container>
               <Grid container spacing={16} direction="column">
-                {isPatientSelected
-                  && (
-                    <Grid item container xs={12}>
-                      <TopRow patient={patientModel.toJSON()} />
-                    </Grid>
-                  )
-                }
+                {isPatientSelected && (
+                  <Grid item container xs={12}>
+                    <TopRow patient={patientModel.toJSON()} />
+                  </Grid>
+                )}
                 <FormRow>
-                  {!isPatientSelected
-                    && (
-                      <Field
-                        component={PatientAutocompleteField}
-                        label="Patient"
-                        name="patient"
-                        onChange={this.handlePatientChange(handleChange)}
-                        required
-                      />
-                    )
-                  }
+                  {!isPatientSelected && (
+                    <Field
+                      component={PatientAutocompleteField}
+                      label="Patient"
+                      name="patient"
+                      onChange={this.handlePatientChange(handleChange)}
+                      required
+                    />
+                  )}
                   <Field
                     component={PatientVisitSelectField}
                     patientModel={patientModel}
@@ -112,13 +114,7 @@ class Request extends Component {
                   labTestTypes={labTestTypes}
                 />
                 <FormRow>
-                  <Field
-                    component={TextField}
-                    label="Notes"
-                    name="notes"
-                    rows="3"
-                    multiline
-                  />
+                  <Field component={TextField} label="Notes" name="notes" rows="3" multiline />
                 </FormRow>
               </Grid>
               <ButtonsContainer>
@@ -158,25 +154,27 @@ Request.defaultProps = {
   error: {},
 };
 
-function mapStateToProps({
-  labs: {
-    patient, labTestTypes, isLoading, error,
-  },
-},
-{ match: { params: { patientId = false } = {} } }) {
+function mapStateToProps(
+  { labs: { patient, labTestTypes, isLoading, error } },
+  { match: { params: { patientId = false } = {} } },
+) {
   return {
-    patientModel: patient, labTestTypes, isLoading, error, isPatientSelected: !!patientId,
+    patientModel: patient,
+    labTestTypes,
+    isLoading,
+    error,
+    isPatientSelected: !!patientId,
   };
 }
 
 const { initLabRequest, createLabRequest, filterTestTypes } = labRequestActions;
-const mapDispatchToProps = (
-  dispatch,
-  { match: { params: { patientId } = {} } },
-) => ({
-  initLabRequest: (props) => dispatch(initLabRequest({ patientId, ...props })),
-  createLabRequest: (params) => dispatch(createLabRequest(params)),
-  filterTestTypes: (params) => dispatch(filterTestTypes(params)),
+const mapDispatchToProps = (dispatch, { match: { params: { patientId } = {} } }) => ({
+  initLabRequest: props => dispatch(initLabRequest({ patientId, ...props })),
+  createLabRequest: params => dispatch(createLabRequest(params)),
+  filterTestTypes: params => dispatch(filterTestTypes(params)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Request);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Request);

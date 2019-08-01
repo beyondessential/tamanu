@@ -1,6 +1,4 @@
-import {
-  isEmpty, uniq, filter, isArray, every, has, isString,
-} from 'lodash';
+import { isEmpty, uniq, filter, isArray, every, has, isString } from 'lodash';
 
 export default (objs, Model) => {
   if (!isEmpty(objs)) console.log({ objs }, new Model());
@@ -10,7 +8,7 @@ export default (objs, Model) => {
   if (has(objs, '_id')) return objs;
 
   if (isArray(objs)) {
-    if (every(objs, (v) => v instanceof Model)) return objs;
+    if (every(objs, v => v instanceof Model)) return objs;
 
     // const ids = filter(uniq(map(objs, '_id')), obj => { return typeof obj !== 'undefined'; });
     const ids = filter(uniq(objs), ({ _id }) => typeof _id !== 'undefined');

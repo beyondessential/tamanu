@@ -21,7 +21,7 @@ export default class Auth {
   }
 
   isLoggedIn() {
-    return (this.clientId && this.clientSecret && this.user !== null);
+    return this.clientId && this.clientSecret && this.user !== null;
   }
 
   async verifyToken() {

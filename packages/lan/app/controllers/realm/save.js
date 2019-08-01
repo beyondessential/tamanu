@@ -1,12 +1,10 @@
-import {
-  has, set, find, isFunction,
-} from 'lodash';
+import { has, set, find, isFunction } from 'lodash';
 import shortId from 'shortid';
 import { schemas } from 'Shared/schemas';
 import { objectToJSON } from '../../utils';
 import { ENVIRONMENT_TYPE } from '../../constants';
 
-export default function (req, res) {
+export default function(req, res) {
   const realm = req.app.get('database');
   let { body } = req;
   const { params } = req;

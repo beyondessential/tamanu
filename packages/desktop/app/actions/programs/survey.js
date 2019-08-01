@@ -1,8 +1,5 @@
 import { getFileInDocumentsPath, imageDataIsFileName } from '../../utils';
-import {
-  getAnswers,
-  getStartTime,
-} from './selectors';
+import { getAnswers, getStartTime } from './selectors';
 import {
   ANSWER_CHANGE,
   ASSESSMENT_CLINIC_SELECT,
@@ -19,7 +16,11 @@ import {
 } from '../types';
 import { validateAnswer } from './validation';
 import {
-  AnswerModel, PatientModel, ProgramModel, SurveyModel, SurveyResponseModel,
+  AnswerModel,
+  PatientModel,
+  ProgramModel,
+  SurveyModel,
+  SurveyResponseModel,
 } from '../../models';
 
 export const initSurvey = ({ patientId, programId, surveyId }) => async dispatch => {
@@ -60,7 +61,12 @@ export const changeExtraProps = (componentIndex, newProps) => ({
 });
 
 export const submitSurvey = ({
-  patientModel, programId, surveyId, moduleId, history, shouldRepeat = false,
+  patientModel,
+  programId,
+  surveyId,
+  moduleId,
+  history,
+  shouldRepeat = false,
 }) => async (dispatch, getState) => {
   const { id: patientId } = patientModel;
   const startTime = getStartTime(getState());
@@ -184,7 +190,8 @@ const processAnswerForDatabase = ({ questionId, questionType, newAnswer: answer 
     processedAnswer = answer.processed;
   }
 
-  processedAnswer = typeof processedAnswer === 'string' ? processedAnswer : JSON.stringify(processedAnswer);
+  processedAnswer =
+    typeof processedAnswer === 'string' ? processedAnswer : JSON.stringify(processedAnswer);
 
   return {
     questionId,
@@ -193,4 +200,5 @@ const processAnswerForDatabase = ({ questionId, questionType, newAnswer: answer 
   };
 };
 
-const gotoProgram = (patientId, programId, history) => dispatch => history.push(`/programs/${programId}/${patientId}/surveys`);
+const gotoProgram = (patientId, programId, history) => dispatch =>
+  history.push(`/programs/${programId}/${patientId}/surveys`);

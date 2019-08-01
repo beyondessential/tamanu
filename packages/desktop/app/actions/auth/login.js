@@ -1,10 +1,5 @@
 import { getClient, notify, history } from '../../utils';
-import {
-  AUTH_LOGIN_FAILED,
-  AUTH_LOGIN_REQUEST,
-  AUTH_LOGIN_SUCCESS,
-  AUTH_LOGOUT,
-} from '../types';
+import { AUTH_LOGIN_FAILED, AUTH_LOGIN_REQUEST, AUTH_LOGIN_SUCCESS, AUTH_LOGOUT } from '../types';
 
 export const login = ({ email, password }) => async dispatch => {
   dispatch({ type: AUTH_LOGIN_REQUEST });

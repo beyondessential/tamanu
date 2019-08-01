@@ -2,8 +2,12 @@ import React, { Component } from 'react';
 import { Grid } from '@material-ui/core';
 import { proceduresColumns } from '../../../../constants';
 import {
-  Dialog, DeleteButton, EditButton, NewButton,
-  TabHeader, SimpleTable,
+  Dialog,
+  DeleteButton,
+  EditButton,
+  NewButton,
+  TabHeader,
+  SimpleTable,
 } from '../../../../components';
 
 class Procedures extends Component {
@@ -12,7 +16,7 @@ class Procedures extends Component {
     itemId: null,
     procedures: [],
     tableColumns: proceduresColumns,
-  }
+  };
 
   componentWillMount() {
     const { tableColumns } = this.state;
@@ -30,7 +34,7 @@ class Procedures extends Component {
     this.setState({ procedures: procedures.toJSON() });
   }
 
-  setActionsCol = (row) => (
+  setActionsCol = row => (
     <div key={row._id}>
       <EditButton
         size="small"
@@ -43,7 +47,7 @@ class Procedures extends Component {
         can={{ do: 'delete', on: 'procedure' }}
       />
     </div>
-  )
+  );
 
   deleteItem = async () => {
     const { visitModel } = this.props;
@@ -57,11 +61,13 @@ class Procedures extends Component {
     } catch (err) {
       console.error('Error: ', err);
     }
-  }
+  };
 
   editItem(itemId) {
     const { visitModel, patientModel } = this.props;
-    this.props.history.push(`/patients/visit/${patientModel.id}/${visitModel.id}/procedure/${itemId}`);
+    this.props.history.push(
+      `/patients/visit/${patientModel.id}/${visitModel.id}/procedure/${itemId}`,
+    );
   }
 
   deleteConfirm(itemId = null) {

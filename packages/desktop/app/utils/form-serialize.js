@@ -125,7 +125,7 @@ function strSerialize(result, key, val) {
 
   // spaces should be '+' rather than '%20'.
   value = value.replace(/%20/g, '+');
-  return `${result}${(result ? '&' : '')}${encodeURIComponent(key)}=${value}`;
+  return `${result}${result ? '&' : ''}${encodeURIComponent(key)}=${value}`;
 }
 
 // serializes form fields
@@ -147,8 +147,8 @@ function serialize(form, opt) {
     options.hash = true;
   }
 
-  let result = (options.hash) ? {} : '';
-  const serializer = options.serializer || ((options.hash) ? hashSerializer : strSerialize);
+  let result = options.hash ? {} : '';
+  const serializer = options.serializer || (options.hash ? hashSerializer : strSerialize);
 
   const elements = form && form.elements ? form.elements : [];
 
@@ -164,8 +164,7 @@ function serialize(form, opt) {
       continue;
     }
     // ignore anyhting that is not considered a success field
-    if (!kRSuccessContrls.test(element.nodeName)
-      || kRSubmitter.test(element.type)) {
+    if (!kRSuccessContrls.test(element.nodeName) || kRSubmitter.test(element.type)) {
       // eslint-disable-next-line
       continue;
     }
@@ -219,7 +218,7 @@ function serialize(form, opt) {
       for (let j = 0; j < selectOptions.length; ++j) {
         const option = selectOptions[j];
         const allowedEmpty = options.empty && !option.value;
-        const hasValue = (option.value || allowedEmpty);
+        const hasValue = option.value || allowedEmpty;
         if (option.selected && hasValue) {
           isSelectedOptions = true;
 
@@ -249,7 +248,7 @@ function serialize(form, opt) {
 
   // Check for all empty radio buttons and serialize them with key=""
   if (options.empty) {
-    Object.keys(radioStore).forEach((key) => {
+    Object.keys(radioStore).forEach(key => {
       if (!radioStore[key]) {
         result = serializer(result, key, '');
       }

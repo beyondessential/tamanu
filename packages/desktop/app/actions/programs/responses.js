@@ -1,23 +1,14 @@
 import { to } from 'await-to-js';
-import {
-  LOAD_RESPONSES_REQUEST,
-  LOAD_RESPONSES_SUCCESS,
-  LOAD_RESPONSES_FAILED,
-} from '../types';
+import { LOAD_RESPONSES_REQUEST, LOAD_RESPONSES_SUCCESS, LOAD_RESPONSES_FAILED } from '../types';
 import { ProgramModel, PatientModel, SurveyModel } from '../../models';
 
-export const initResponses = ({
-  patientId, programId, surveyId, moduleId,
-}) => async dispatch => {
+export const initResponses = ({ patientId, programId, surveyId, moduleId }) => async dispatch => {
   dispatch({ type: LOAD_RESPONSES_REQUEST });
   const patient = new PatientModel();
   const program = new ProgramModel();
   patient.set({ _id: patientId });
   program.set({ _id: programId });
-  const [error] = await to(Promise.all([
-    patient.fetch(),
-    program.fetch(),
-  ]));
+  const [error] = await to(Promise.all([patient.fetch(), program.fetch()]));
 
   // Fetch all the responses
   const tasks = [];

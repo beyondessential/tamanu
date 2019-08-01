@@ -7,13 +7,9 @@ class PricingProfiles extends Component {
       <div>
         <div className="content">
           <div className="view-top-bar">
-            <span>
-              Pricing Profiles
-            </span>
+            <span>Pricing Profiles</span>
             <div className="view-action-buttons">
-              <button>
-                + New Item
-              </button>
+              <button>+ New Item</button>
             </div>
           </div>
           <div className="detail">
@@ -39,8 +35,7 @@ class PricingProfiles extends Component {
             </div>
             <div className="bill-notification">
               <span>
-                No pricing profiles found.
-                {' '}
+                No pricing profiles found.{' '}
                 <Link to="/invoices/pricing/edit/new">Create a new record?</Link>
               </span>
             </div>

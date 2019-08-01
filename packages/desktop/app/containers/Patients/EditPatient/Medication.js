@@ -9,12 +9,18 @@ import { grey } from '@material-ui/core/colors';
 import PropTypes from 'prop-types';
 import { MedicationHistoryModel, PatientModel } from '../../../models';
 import {
-  NewButton, TabHeader, UndoIconButton, TickIconButton, Button,
+  NewButton,
+  TabHeader,
+  UndoIconButton,
+  TickIconButton,
+  Button,
   SimpleTable,
 } from '../../../components';
 import {
-  patientMedicationColumns, momentSimpleCalender,
-  dateFormatText, MUI_SPACING_UNIT as spacing,
+  patientMedicationColumns,
+  momentSimpleCalender,
+  dateFormatText,
+  MUI_SPACING_UNIT as spacing,
 } from '../../../constants';
 
 const PaddedIcon = styled(Icon)`
@@ -38,7 +44,7 @@ const TickIconButtonStyled = styled(TickIconButton)`
 export default class Medication extends Component {
   static propTypes = {
     patientModel: PropTypes.instanceOf(PatientModel).isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -51,7 +57,7 @@ export default class Medication extends Component {
     from: moment().subtract(1, 'days'),
     to: moment().add(1, 'days'),
     tableColumns: patientMedicationColumns,
-  }
+  };
 
   componentWillMount() {
     this.handleChange();
@@ -69,7 +75,7 @@ export default class Medication extends Component {
         {medicine.dispense && ' ** '}
       </React.Fragment>
     );
-  }
+  };
 
   renderQtyColumn = row => {
     const { original, column } = row;
@@ -90,36 +96,19 @@ export default class Medication extends Component {
       <Grid container spacing={8}>
         <React.Fragment>
           <Grid container item xs justify="flex-end">
-            {moment().isSame(original.currentDate)
-              && isTaken
-              && (
-                <UndoIconButtonStyled
-                  onClick={() => this.markTaken(
-                    original._id,
-                    original.currentDate,
-                    fieldName,
-                    false,
-                  )}
-                  data-tip="Undo"
-                />
-              )
-            }
+            {moment().isSame(original.currentDate) && isTaken && (
+              <UndoIconButtonStyled
+                onClick={() => this.markTaken(original._id, original.currentDate, fieldName, false)}
+                data-tip="Undo"
+              />
+            )}
           </Grid>
-          <Grid
-            container
-            item
-            xs
-            justify="center"
-            alignItems="center"
-          >
-            <Typography variant="body2">
-              {row.value}
-            </Typography>
+          <Grid container item xs justify="center" alignItems="center">
+            <Typography variant="body2">{row.value}</Typography>
           </Grid>
         </React.Fragment>
-        {(moment(original.currentDate).isBefore(moment().format())
-          || isTaken) && !original.dispense
-          && (
+        {(moment(original.currentDate).isBefore(moment().format()) || isTaken) &&
+          !original.dispense && (
             <Grid item xs>
               <PaddedIcon
                 className={`fa ${isTaken ? 'fa-check-circle' : 'fa-times-circle'}`}
@@ -127,47 +116,40 @@ export default class Medication extends Component {
                 style={{ color: isTaken ? 'green' : 'red' }}
               />
             </Grid>
-          )
-        }
-        {moment(moment().format()).isSame(original.currentDate) && !isTaken && !original.dispense
-          && (
-            <Grid item xs>
-              <TickIconButtonStyled
-                data-tip="Mark as taken"
-                onClick={() => this.markTaken(
-                  original._id,
-                  original.currentDate,
-                  fieldName,
-                  true,
-                )}
-              />
-            </Grid>
-          )
-        }
+          )}
+        {moment(moment().format()).isSame(original.currentDate) && !isTaken && !original.dispense && (
+          <Grid item xs>
+            <TickIconButtonStyled
+              data-tip="Mark as taken"
+              onClick={() => this.markTaken(original._id, original.currentDate, fieldName, true)}
+            />
+          </Grid>
+        )}
       </Grid>
     );
-  }
+  };
 
   goToPrev = () => {
     const { from, to } = this.state;
     from.subtract(1, 'days');
     to.subtract(1, 'days');
     this.setState({ from, to }, this.handleChange);
-  }
+  };
 
   goToNext = () => {
     const { from, to } = this.state;
     from.add(1, 'days');
     to.add(1, 'days');
     this.setState({ from, to }, this.handleChange);
-  }
+  };
 
-  getHeaderText = (date) => {
+  getHeaderText = date => {
     const days = ['Yesterday', 'Today', 'Tomorrow'];
     const calenderText = moment(date).calendar(null, momentSimpleCalender);
-    if (days.includes(calenderText)) return `${calenderText} - ${moment(date).format(dateFormatText)}`;
+    if (days.includes(calenderText))
+      return `${calenderText} - ${moment(date).format(dateFormatText)}`;
     return `${moment(date).format(dateFormatText)}`;
-  }
+  };
 
   PaginationNav = (index = 0) => (
     <Grid container item xs justify="flex-end">
@@ -184,7 +166,7 @@ export default class Medication extends Component {
         Next
       </Button>
     </Grid>
-  )
+  );
 
   handleChange(props = this.props) {
     const { patientModel } = props;
@@ -217,7 +199,9 @@ export default class Medication extends Component {
     try {
       const { history } = recordModel.attributes;
       // Find model
-      let historyModel = history.models.find(model => moment(date).isSame(model.get('date'), 'day'));
+      let historyModel = history.models.find(model =>
+        moment(date).isSame(model.get('date'), 'day'),
+      );
       if (!historyModel) historyModel = new MedicationHistoryModel();
       historyModel.set({ date, [field]: value });
       await historyModel.save(null, { silent: true });
@@ -233,7 +217,9 @@ export default class Medication extends Component {
   render() {
     const { patientModel } = this.props;
     const { medicationHistory, tableColumns } = this.state;
-    const hasMedication = medicationHistory.some(medicationObject => medicationObject.medication.length > 0);
+    const hasMedication = medicationHistory.some(
+      medicationObject => medicationObject.medication.length > 0,
+    );
     return (
       <Grid container>
         <TabHeader>
@@ -245,43 +231,31 @@ export default class Medication extends Component {
           </NewButton>
         </TabHeader>
         <Grid container item>
-          {
-            medicationHistory.map(({ date, medication }, index) => (
-              <Grid key={date} container item direction="row" style={{ marginTop: (index && spacing * 5) }}>
-                <Grid
-                  container
-                  item
-                  xs={12}
-                  spacing={spacing}
-                  style={{ backgroundColor: grey[100] }}
-                >
-                  <Grid item xs />
-                  <Grid
-                    container
-                    item
-                    xs
-                    justify="center"
-                    alignItems="center"
-                  >
-                    <Typography variant="button">
-                      {this.getHeaderText(date)}
-                    </Typography>
-                  </Grid>
-                  {this.PaginationNav(index)}
+          {medicationHistory.map(({ date, medication }, index) => (
+            <Grid
+              key={date}
+              container
+              item
+              direction="row"
+              style={{ marginTop: index && spacing * 5 }}
+            >
+              <Grid container item xs={12} spacing={spacing} style={{ backgroundColor: grey[100] }}>
+                <Grid item xs />
+                <Grid container item xs justify="center" alignItems="center">
+                  <Typography variant="button">{this.getHeaderText(date)}</Typography>
                 </Grid>
-                <Grid item xs={12}>
-                  <SimpleTable
-                    data={medication}
-                    noDataText="No medication found"
-                    columns={tableColumns}
-                  />
-                </Grid>
+                {this.PaginationNav(index)}
               </Grid>
-            ))
-          }
-          <Typography variant="caption">
-            ** dispensed medication
-          </Typography>
+              <Grid item xs={12}>
+                <SimpleTable
+                  data={medication}
+                  noDataText="No medication found"
+                  columns={tableColumns}
+                />
+              </Grid>
+            </Grid>
+          ))}
+          <Typography variant="caption">** dispensed medication</Typography>
         </Grid>
         <ReactTooltip />
       </Grid>

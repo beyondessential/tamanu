@@ -22,7 +22,7 @@ class CheckInPatient extends Component {
   state = {
     // formError: false,
     prescriptionDate: moment(),
-  }
+  };
 
   componentDidMount() {
     const { patientModel } = this.props;
@@ -37,11 +37,11 @@ class CheckInPatient extends Component {
     patientModel.off('change', this.handleChange);
   }
 
-  onChangeDate = (date) => {
+  onChangeDate = date => {
     this.setState({
       prescriptionDate: date,
     });
-  }
+  };
 
   handleChange() {
     this.forceUpdate();
@@ -53,18 +53,18 @@ class CheckInPatient extends Component {
 
   render() {
     const { prescriptionDate } = this.state;
-    const { patientModel: { attributes: patient } } = this.props;
+    const {
+      patientModel: { attributes: patient },
+    } = this.props;
     return (
       <div>
         <div className="create-content">
           <div className="create-top-bar">
-            <span>
-              Patient Check In
-            </span>
+            <span>Patient Check In</span>
           </div>
           <form
             className="create-container"
-            onSubmit={(e) => {
+            onSubmit={e => {
               e.preventDefault();
               const patientValue = Serializer.serialize(e.target, { hash: true });
               this.props.checkInPatient(patientValue);
@@ -74,9 +74,7 @@ class CheckInPatient extends Component {
               <div className="columns">
                 <div className="column">
                   <div className="column visit-header">
-                    <span>
-                      Visit Information
-                    </span>
+                    <span>Visit Information</span>
                   </div>
                 </div>
               </div>
@@ -87,16 +85,12 @@ class CheckInPatient extends Component {
                       <div className="column">
                         <span>Name: </span>
                         <span>
-                          {patient.firstName}
-                          {' '}
-                          {patient.lastName}
+                          {patient.firstName} {patient.lastName}
                         </span>
                       </div>
                     </div>
                     <div className="column level-left">
-                      <div className="card-info">
-                        {patient.displayId}
-                      </div>
+                      <div className="card-info">{patient.displayId}</div>
                     </div>
                   </div>
                 </div>
@@ -104,9 +98,7 @@ class CheckInPatient extends Component {
               <div className="columns">
                 <div className="column is-4">
                   <div className="column">
-                    <span className="header">
-                      Admission Date
-                    </span>
+                    <span className="header">Admission Date</span>
                     <DatePicker
                       name="prescriptionDate"
                       customInput={<CustomDateInput />}
@@ -121,9 +113,7 @@ class CheckInPatient extends Component {
                 </div>
                 <div className="column is-4">
                   <div className="column">
-                    <span className="header">
-                      Discharge Date
-                    </span>
+                    <span className="header">Discharge Date</span>
                     <DatePicker
                       name="prescriptionDate"
                       customInput={<CustomDateInput />}
@@ -137,21 +127,18 @@ class CheckInPatient extends Component {
                   </div>
                 </div>
                 <div className="column is-4">
-                  <InputGroup
-                    name="location"
-                    label="Location"
-                  />
+                  <InputGroup name="location" label="Location" />
                 </div>
               </div>
               <div className="columns">
                 <div className="column is-4">
                   <div className="column">
-                    <span className="header">
-                      Blood Type
-                    </span>
+                    <span className="header">Blood Type</span>
                     <Select
                       id="state-select"
-                      ref={(ref) => { this.select = ref; }}
+                      ref={ref => {
+                        this.select = ref;
+                      }}
                       onBlurResetsInput={false}
                       onSelectResetsInput={false}
                       options={visitOptions}
@@ -167,25 +154,24 @@ class CheckInPatient extends Component {
                   </div>
                 </div>
                 <div className="column is-4">
-                  <InputGroup
-                    name="examiner"
-                    label="Doctor/Nurse"
-                  />
+                  <InputGroup name="examiner" label="Doctor/Nurse" />
                 </div>
               </div>
               <div className="columns">
                 <div className="column">
                   <div className="column">
-                    <span className="header">
-                      Reason For Visit
-                    </span>
+                    <span className="header">Reason For Visit</span>
                     <textarea className="textarea" />
                   </div>
                 </div>
               </div>
               <div className="column has-text-right">
-                <Link className="button is-danger cancel" to="/patients">Cancel</Link>
-                <button className="button is-primary" type="submit">Admit</button>
+                <Link className="button is-danger cancel" to="/patients">
+                  Cancel
+                </Link>
+                <button className="button is-primary" type="submit">
+                  Admit
+                </button>
               </div>
             </div>
           </form>
@@ -214,4 +200,7 @@ const mapDispatchToProps = dispatch => ({
   checkInPatient: patient => dispatch(checkInPatient(patient)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(CheckInPatient);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(CheckInPatient);
