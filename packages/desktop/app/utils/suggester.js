@@ -6,9 +6,12 @@ export class Suggester {
     this.formatLabel = formatLabel;
   }
 
-  fetchLabel = async (value) => {
+  fetchCurrentOption = async (value) => {
     const response = await fetch(`${process.env.HOST}/suggestions/${this.endpoint}/${value}`);
     const data = await response.json();
+    if(!data) {
+      return null;
+    }
     return this.formatLabel(data);
   }
 

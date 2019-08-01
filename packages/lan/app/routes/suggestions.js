@@ -8,7 +8,8 @@ function createSuggestionRoute(path, table, filter, transform = (x) => x) {
     const { id } = req.params;
     const object = db.objectForPrimaryKey(table, id);
     if(!object) {
-      
+      res.status(404).send(`Could not find object with id "${id}" in table "${table}"`);
+      return;
     }
     res.send(transform(object));
   });

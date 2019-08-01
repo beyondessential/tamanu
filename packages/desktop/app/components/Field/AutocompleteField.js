@@ -52,7 +52,7 @@ class BaseAutocomplete extends Component {
     value: PropTypes.string,
 
     suggester: PropTypes.shape({
-      fetchLabel: PropTypes.func.isRequired,
+      fetchCurrentOption: PropTypes.func.isRequired,
       fetchSuggestions: PropTypes.func.isRequired,
     }),
     options: PropTypes.arrayOf(
@@ -141,8 +141,12 @@ class BaseAutocomplete extends Component {
   async componentDidMount() {
     const { value, suggester } = this.props;
     if(value && suggester) {
-      const label = await suggester.fetchLabel(value);
-      this.setState({ displayedValue: label.label });
+      const currentOption = await suggester.fetchCurrentOption(value);
+      if(currentOption) {
+        this.setState({ displayedValue: currentOption.label });
+      } else {
+        this.handleSuggestionChange({ value: null, label: '' });
+      }
     }
   }
 

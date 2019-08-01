@@ -124,7 +124,7 @@ const dummySuggester = {
     await new Promise(resolve => setTimeout(resolve, 1000));
     return FRUITS.filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
   },
-  fetchLabel: async value => {
+  fetchCurrentOption: async value => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     return FRUITS.find(x => x.value === value);
   },
@@ -145,6 +145,17 @@ addStories('Autocomplete', props => (
     label="Fruit"
     suggester={dummySuggester}
   />
-));
+)).add('Async with invalid existing value', () => (
+  <StoryControlWrapper
+    Component={AutocompleteInput}
+    value="not a fruit"
+    label="Fruit"
+    suggester={dummySuggester}
+  />
+  ), { note: `
+    When the server responds informing the control that it's current value
+    is invalid, it will dispatch an onChange event setting its value to null.
+  ` }
+);
 
 storiesOf('FormControls/ArrayInput', module).add('ArrayInput', () => <div>WIP</div>);
