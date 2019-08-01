@@ -118,7 +118,7 @@ export default class DiagnosisModal extends Component {
                     component={AutocompleteField}
                     label="Diagnosis"
                     name="diagnosis._id"
-                    fetchOptions={suggester.fetchSuggestions}
+                    suggester={suggester}
                     required
                   />
                 </FormRow>

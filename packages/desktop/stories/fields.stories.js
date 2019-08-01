@@ -112,16 +112,20 @@ addStories('SelectInput', props => (
   <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />
 ));
 
+const dummySuggester = {
+  fetchSuggestions: async search => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return FRUITS.filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
+  }
+};
+
 addStories('Autocomplete', props => (
   <StoryControlWrapper Component={AutocompleteInput} label="Fruit" options={FRUITS} {...props} />
 )).add('Asynchronous options', () => (
   <StoryControlWrapper
     Component={AutocompleteInput}
     label="Language"
-    fetchOptions={async search => {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return FRUITS.filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
-    }}
+    suggester={dummySuggester}
   />
 ));
 
