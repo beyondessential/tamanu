@@ -6,7 +6,7 @@ import {
   DateField, Dialog as ConditionConfirmDialog, FormRow,
   ModalActions, Modal, Form, Field,
 } from '../../../components';
-import { AutocompleteField } from '../../../components/CommonAutocomplete';
+import { AutocompleteField } from '../../../components/Field';
 import { diagnosisCertainty } from '../../../constants';
 import { ConditionModel, PatientModel } from '../../../models';
 import { notifyError, notifySuccess } from '../../../utils';

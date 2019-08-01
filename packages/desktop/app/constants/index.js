@@ -158,10 +158,9 @@ export const diagnosisCertainty = [
 export const visitOptions = [
   { value: 'admission', label: 'Admission' },
   { value: 'clinic', label: 'Clinic' },
-  { value: 'followup', label: 'Followup' },
   { value: 'imaging', label: 'Imaging' },
   { value: 'lab', label: 'Lab' },
-  { value: 'pharmacy', label: 'Pharmacy' },
+  { value: 'emergency', label: 'Emergency' },
 ];
 
 export const operativePlanStatuses = {
