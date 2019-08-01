@@ -1,9 +1,13 @@
 {
   "name": "desktop",
   "productName": "Tamanu",
-  "version": "0.13.2",
+  "version": "0.0.1",
   "description": "Tamanu Desktop application",
   "private": true,
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
+  "repository": "git@github.com:beyondessential/tamanu.git",
+  "author": "Beyond Essential Systems Pty. Ltd.",
+  "license": "GNU AGPL",
   "scripts": {
     "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
     "build-dll": "cross-env NODE_ENV=development CONFIG=webpack.config.renderer.dev.dll node babel-register-pack",
@@ -44,7 +48,7 @@
   },
   "build": {
     "productName": "Tamanu",
-    "appId": "org.develar.ElectronReact",
+    "appId": "org.beyondessential.Tamanu",
     "files": [
       "dist/",
       "node_modules/",
@@ -84,31 +88,6 @@
       "output": "release"
     }
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/beyondessential/tamanu-desktop.git"
-  },
-  "author": {
-    "name": "C. T. Lin",
-    "email": "chentsulin@gmail.com",
-    "url": "https://github.com/chentsulin"
-  },
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/chentsulin/electron-react-boilerplate/issues"
-  },
-  "keywords": [
-    "electron",
-    "boilerplate",
-    "react",
-    "redux",
-    "flow",
-    "sass",
-    "webpack",
-    "hot",
-    "reload"
-  ],
-  "homepage": "https://github.com/chentsulin/electron-react-boilerplate#readme",
   "jest": {
     "testURL": "http://localhost/",
     "moduleNameMapper": {

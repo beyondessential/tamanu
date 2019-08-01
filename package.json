@@ -1,11 +1,12 @@
 {
   "name": "tamanu",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "This repo contains all the packages for Tamanu",
   "main": "index.js",
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
-  "author": "Salman Amjad",
-  "license": "MIT",
+  "author": "Beyond Essential Systems Pty. Ltd.",
+  "license": "GNU AGPL",
   "scripts": {
     "test": "yarn workspaces run test",
     "lint-all": "eslint packages/desktop/app packages/server/app packages/lan/app packages/shared/schemas packages/shared/services packages/shared/constants packages/shared/utils",
