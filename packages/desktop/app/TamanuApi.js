@@ -7,6 +7,11 @@ export class TamanuApi {
   constructor(host) {
     this.host = host;
     this.auth = {};
+    this.reduxStore = null;
+  }
+
+  injectReduxStore(store) {
+    this.reduxStore = store;
   }
 
   setAuthToken(token) {

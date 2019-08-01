@@ -1,31 +1,32 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
-import { persistReducer } from 'redux-persist';
-import BackboneSync from './utils/backbone-sync';
+import { applyMiddleware, createStore, compose } from 'redux';
+import { persistStore, persistCombineReducers } from 'redux-persist';
+import { routerMiddleware } from 'react-router-redux';
+import thunk from 'redux-thunk';
+import { createHashHistory } from 'history';
+
 import Root from './containers/Root';
-import { store, persistor, persistConfig, history } from './store';
 import './styles/app.global.scss';
 
-(async () => {
-  BackboneSync(store);
+import { TamanuApi } from './TamanuApi';
+import { reducers } from './reducers';
 
-  render(
-    <AppContainer>
-      <Root persistor={persistor} store={store} history={history} />
-    </AppContainer>,
-    document.getElementById('root'),
-  );
+const history = createHashHistory();
+const router = routerMiddleware(history);
+const api = new TamanuApi(process.env.HOST);
+const enhancers = compose(applyMiddleware(router, thunk.withExtraArgument({ api })));
+const persistedReducers = persistCombineReducers({}, reducers);
+const store = createStore(persistedReducers, {}, enhancers);
+const persistedStore = persistStore(store);
+// persistedStore.purge(); // Uncomment this to wipe bad redux state during development
 
-  if (module.hot) {
-    module.hot.accept('./containers/Root', () => {
-      store.replaceReducer(persistReducer(persistConfig, Root));
-      render(
-        <AppContainer>
-          <Root store={store} history={history} />
-        </AppContainer>,
-        document.getElementById('root'),
-      );
-    });
-  }
-})();
+api.injectReduxStore(store);
+
+render(
+  <AppContainer>
+    <Root persistedStore={persistedStore} store={store} history={history} />
+  </AppContainer>,
+  document.getElementById('root'),
+);
