@@ -19,15 +19,15 @@ import { AutocompleteField } from '../../../components/Field';
 import { diagnosisCertainty } from '../../../constants';
 import { ConditionModel, PatientModel } from '../../../models';
 import { notifyError, notifySuccess } from '../../../utils';
+import { Suggester } from '../../../utils/suggester';
 
-async function fetchDiagnoses(search) {
-  const response = await fetch(`${process.env.HOST}/suggestions/icd10?q=${search}`);
-  const data = await response.json();
-  return data.map(({ name, code, _id }) => ({
+const suggester = new Suggester(
+  'icd10',
+  ({ name, code, _id }) => ({
     value: _id,
     label: `[${code}] ${name}`,
-  }));
-}
+  })
+);
 
 export default class DiagnosisModal extends Component {
   state = {
@@ -118,7 +118,7 @@ export default class DiagnosisModal extends Component {
                     component={AutocompleteField}
                     label="Diagnosis"
                     name="diagnosis._id"
-                    fetchOptions={fetchDiagnoses}
+                    fetchOptions={suggester.fetchSuggestions}
                     required
                   />
                 </FormRow>
