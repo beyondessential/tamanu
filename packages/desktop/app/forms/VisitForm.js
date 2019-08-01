@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types'; 
+import * as yup from 'yup';
 
 import {
   Form,
@@ -92,6 +93,14 @@ export class VisitForm extends React.PureComponent {
         initialValues={{
           startDate: new Date(),
         }}
+        validationSchema={
+          yup.object().shape({
+            practitioner: yup.string().required(),
+            location: yup.string().required(),
+            startDate: yup.date().required(),
+            type: yup.mixed().oneOf(visitTypes.map(x => x.value)).required(),
+          })
+        }
       />
     );
   }
