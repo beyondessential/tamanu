@@ -13,13 +13,7 @@ import {
 import { FormGrid } from '../components/FormGrid';
 import { Button } from '../components/Button';
 
-const visitTypes = [
-  { label: "Admission", value: "admission" },
-  { label: "Clinic", value: "clinic" },
-  { label: "Imaging", value: "imaging" },
-  { label: "Lab", value: "lab" },
-  { label: "Emergency", value: "emergency" },
-];
+import { visitOptions } from '../constants';
 
 export class VisitForm extends React.PureComponent {
 
@@ -42,14 +36,14 @@ export class VisitForm extends React.PureComponent {
           label="Visit type"
           required
           component={SelectField}
-          options={visitTypes}
+          options={visitOptions}
         />
         <Field
           name="startDate"
           label="Check-in"
           required
           component={DateField}
-          options={visitTypes}
+          options={visitOptions}
         />
         <Field
           name="location"
@@ -98,7 +92,7 @@ export class VisitForm extends React.PureComponent {
             practitioner: yup.string().required(),
             location: yup.string().required(),
             startDate: yup.date().required(),
-            type: yup.mixed().oneOf(visitTypes.map(x => x.value)).required(),
+            type: yup.mixed().oneOf(visitOptions.map(x => x.value)).required(),
           })
         }
       />
