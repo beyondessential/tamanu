@@ -1,7 +1,7 @@
 import shortid from 'shortid';
 import { isArray } from 'lodash';
 
-export default class Auth {
+export class Auth {
   constructor() {
     this.clientId = localStorage.getItem('clientId');
     this.clientSecret = localStorage.getItem('clientSecret');

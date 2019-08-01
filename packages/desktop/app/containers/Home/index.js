@@ -8,7 +8,6 @@ class HomePage extends Component {
   };
 
   componentWillMount() {
-    const numImages = 3;
     const imgData = splashImages[random(0, splashImages.length - 1)];
     const splashStyle = { backgroundImage: `url(${imgData})` };
     this.setState({ splashStyle });
