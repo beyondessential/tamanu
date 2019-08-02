@@ -25,8 +25,6 @@ import {
   UpdateButton,
   CancelButton,
   SelectField,
-  DischargeButton,
-  CheckOutButton,
   Container,
   FormRow,
   Field,
@@ -34,14 +32,13 @@ import {
 } from '../../../components';
 import { visitOptions, visitStatuses, MUI_SPACING_UNIT as spacing } from '../../../constants';
 import { VisitModel } from '../../../models';
+import { VisitForm } from '../../../forms/VisitForm';
+import { Suggester } from '../../../utils/suggester';
+
+const practitionerSuggester = new Suggester('practitioner');
+const locationSuggester = new Suggester('location');
 
 class EditVisit extends Component {
-  constructor(props) {
-    super(props);
-    this.discharge = this.discharge.bind(this);
-    this.checkOut = this.checkOut.bind(this);
-  }
-
   state = {
     selectedTab: 'vitals',
     updateVisitStatus: false,
@@ -66,24 +63,6 @@ class EditVisit extends Component {
 
   changeTab = tabName => {
     this.setState({ selectedTab: tabName });
-  };
-
-  discharge = submitForm => () => {
-    const { visitModel, patientModel } = this.props;
-    visitModel.set('status', visitStatuses.DISCHARGED);
-    if (visitModel.get('endDate') === null || visitModel.get('endDate') === '')
-      visitModel.set('endDate', moment());
-    patientModel.set('admitted', false);
-    this.setState({ updateVisitStatus: true });
-    submitForm();
-  };
-
-  checkOut = submitForm => () => {
-    const { visitModel } = this.props;
-    visitModel.set('status', visitStatuses.DISCHARGED);
-    visitModel.set('endDate', moment());
-    this.setState({ updateVisitStatus: true });
-    submitForm();
   };
 
   handleFormSubmit = ({ status, endDate, ...values }) => {
@@ -198,86 +177,11 @@ class EditVisit extends Component {
               </Grid>
             </Grid>
           )}
-          <Form
+          <VisitForm
             onSubmit={this.handleFormSubmit}
-            initialValues={visitModel.toJSON()}
-            validationSchema={visitModel.validationSchema}
-            render={({ isSubmitting, values, submitForm }) => (
-              <React.Fragment>
-                <Grid container spacing={spacing * 2} style={{ paddingTop: spacing * 2 }}>
-                  <FormRow>
-                    <Field
-                      component={DateField}
-                      label={values.visitType !== 'admission' ? 'Check-in' : 'Admission Date'}
-                      name="startDate"
-                      required
-                    />
-                    {values.visitType === 'admission' && (
-                      <Field component={DateField} label="Discharge Date" name="endDate" />
-                    )}
-                    <Field component={TextField} name="location" label="Location" />
-                  </FormRow>
-                  <FormRow>
-                    <Field
-                      component={SelectField}
-                      options={visitOptions}
-                      label="Visit Type"
-                      name="visitType"
-                      disabled={action === 'edit'}
-                    />
-                    <Field component={TextField} name="examiner" label="Doctor/Nurse" />
-                  </FormRow>
-                  <FormRow>
-                    <Field
-                      component={TextField}
-                      label="Reason For Visit"
-                      name="reasonForVisit"
-                      multiline
-                      rows="3"
-                    />
-                  </FormRow>
-                  {action === 'edit' && (
-                    <Grid container spacing={8} style={{ paddingTop: spacing * 3 }}>
-                      {this.renderTabs()}
-                      <Grid container>{this.renderTabsContent()}</Grid>
-                    </Grid>
-                  )}
-                </Grid>
-                <BottomBar>
-                  <CancelButton to={`/patients/editPatient/${patientModel.get('_id')}`} />
-                  {action === 'new' && (
-                    <AddButton
-                      type="button"
-                      disabled={isSubmitting}
-                      can={{ do: 'create', on: 'visit' }}
-                      onClick={submitForm}
-                    />
-                  )}
-                  {action !== 'new' && (
-                    <UpdateButton
-                      type="button"
-                      disabled={isSubmitting}
-                      can={{ do: 'update', on: 'visit' }}
-                      onClick={submitForm}
-                    />
-                  )}
-                  {values.status === visitStatuses.ADMITTED && (
-                    <DischargeButton
-                      onClick={this.discharge(submitForm)}
-                      disabled={isSubmitting}
-                      can={{ do: 'update', on: 'visit', field: 'status' }}
-                    />
-                  )}
-                  {values.status === visitStatuses.CHECKED_IN && (
-                    <CheckOutButton
-                      onClick={this.checkOut(submitForm)}
-                      disabled={isSubmitting}
-                      can={{ do: 'update', on: 'visit', field: 'status' }}
-                    />
-                  )}
-                </BottomBar>
-              </React.Fragment>
-            )}
+            editedObject={visitModel.toJSON()}
+            practitionerSuggester={practitionerSuggester}
+            locationSuggester={locationSuggester}
           />
         </Container>
       </React.Fragment>

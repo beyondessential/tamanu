@@ -1,21 +1,28 @@
+const defaultFormatter = ({ name, _id }) => ({ label: name, value: _id });
+
 export class Suggester {
-  constructor(endpoint, formatLabel) {
+  constructor(endpoint, formatLabel = defaultFormatter) {
     this.endpoint = endpoint;
     this.formatLabel = formatLabel;
   }
 
   fetchCurrentOption = async value => {
     const response = await fetch(`${process.env.HOST}/suggestions/${this.endpoint}/${value}`);
-    if (response.code !== 200) {
-      return null;
+    try {
+      const data = await response.json();
+      return this.formatLabel(data);
+    } catch(e) {
+      return undefined;
     }
-    const data = await response.json();
-    return this.formatLabel(data);
   };
 
   fetchSuggestions = async search => {
     const response = await fetch(`${process.env.HOST}/suggestions/${this.endpoint}?q=${search}`);
-    const data = await response.json();
-    return data.map(this.formatLabel);
+    try {
+      const data = await response.json();
+      return data.map(this.formatLabel);
+    } catch(e) {
+      return [];
+    }
   };
 }
