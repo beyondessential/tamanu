@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { capitalize } from 'lodash';
 import { Grid, Tab, Tabs } from '@material-ui/core';
+import { push } from 'react-router-redux';
 
 import TopRow from '../components/TopRow';
 import Allergy from '../components/Allergy';
@@ -29,6 +30,7 @@ import {
   FormRow,
   Field,
   Form,
+  Button,
 } from '../../../components';
 import { visitOptions, visitStatuses, MUI_SPACING_UNIT as spacing } from '../../../constants';
 import { VisitModel } from '../../../models';
@@ -145,7 +147,7 @@ class EditVisit extends Component {
   }
 
   render() {
-    const { loading, action, patientModel, visitModel, checkIn } = this.props;
+    const { loading, action, patientModel, visitModel, checkIn, onCancel } = this.props;
     if (loading) return <Preloader />; // TODO: make this automatic
 
     return (
@@ -153,7 +155,9 @@ class EditVisit extends Component {
         <TopBar
           title={checkIn ? 'Patient Check In' : `${capitalize(action)} Visit`}
           subTitle={action === 'new' ? visitModel.get('status') : null}
-        />
+        >
+          <Button onClick={onCancel} variant="outlined">Back</Button>
+        </TopBar>
         <Container>
           <TopRow patient={patientModel.toJSON()} />
           {action !== 'new' && (
@@ -231,6 +235,7 @@ const mapDispatchToProps = (
   },
 ) => ({
   initVisit: props => dispatch(initVisit({ patientId, id, ...props })),
+  onCancel: props => dispatch(push(`/patients/editPatient/${patientId}`)),
   submitForm: params => dispatch(submitForm(params)),
   resetSaved: params => dispatch(resetSaved(params)),
 });
