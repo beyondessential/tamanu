@@ -6,10 +6,10 @@ export class Suggester {
 
   fetchCurrentOption = async value => {
     const response = await fetch(`${process.env.HOST}/suggestions/${this.endpoint}/${value}`);
-    const data = await response.json();
-    if (!data) {
+    if (response.code !== 200) {
       return null;
     }
+    const data = await response.json();
     return this.formatLabel(data);
   };
 

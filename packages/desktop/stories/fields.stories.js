@@ -36,7 +36,7 @@ class StoryControlWrapper extends React.PureComponent {
 
   componentWillMount() {
     const { value } = this.props;
-    if(value) {
+    if (value) {
       this.setState({ value });
     }
   }
@@ -132,30 +132,34 @@ const dummySuggester = {
 
 addStories('Autocomplete', props => (
   <StoryControlWrapper Component={AutocompleteInput} label="Fruit" options={FRUITS} {...props} />
-)).add('Asynchronous options', () => (
-  <StoryControlWrapper
-    Component={AutocompleteInput}
-    label="Fruit"
-    suggester={dummySuggester}
-  />
-)).add('Async with existing value', () => (
-  <StoryControlWrapper
-    Component={AutocompleteInput}
-    value="pomegranates"
-    label="Fruit"
-    suggester={dummySuggester}
-  />
-)).add('Async with invalid existing value', () => (
-  <StoryControlWrapper
-    Component={AutocompleteInput}
-    value="not a fruit"
-    label="Fruit"
-    suggester={dummySuggester}
-  />
-  ), { note: `
+))
+  .add('Asynchronous options', () => (
+    <StoryControlWrapper Component={AutocompleteInput} label="Fruit" suggester={dummySuggester} />
+  ))
+  .add('Async with existing value', () => (
+    <StoryControlWrapper
+      Component={AutocompleteInput}
+      value="pomegranates"
+      label="Fruit"
+      suggester={dummySuggester}
+    />
+  ))
+  .add(
+    'Async with invalid existing value',
+    () => (
+      <StoryControlWrapper
+        Component={AutocompleteInput}
+        value="not a fruit"
+        label="Fruit"
+        suggester={dummySuggester}
+      />
+    ),
+    {
+      note: `
     When the server responds informing the control that it's current value
     is invalid, it will dispatch an onChange event setting its value to null.
-  ` }
-);
+  `,
+    },
+  );
 
 storiesOf('FormControls/ArrayInput', module).add('ArrayInput', () => <div>WIP</div>);
