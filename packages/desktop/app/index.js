@@ -16,7 +16,8 @@ import { reducers } from './reducers';
 const history = createHashHistory();
 const router = routerMiddleware(history);
 const api = new TamanuApi(process.env.HOST);
-const enhancers = compose(applyMiddleware(router, thunk.withExtraArgument({ api })));
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose; // eslint-disable-line no-underscore-dangle
+const enhancers = composeEnhancers(applyMiddleware(router, thunk.withExtraArgument({ api })));
 const persistedReducers = persistCombineReducers({ key: 'tamanu', storage }, reducers);
 const store = createStore(persistedReducers, {}, enhancers);
 const persistor = persistStore(store);
