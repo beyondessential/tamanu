@@ -1,5 +1,5 @@
 import { createReducer } from '../utils/createReducer';
-import { LOGIN, LOGOUT } from './actions';
+import { LOGIN, LOGOUT } from './authActions';
 
 const defaultState = {
   user: null,
@@ -14,4 +14,4 @@ const actionHandlers = {
   }),
 };
 
-export const reducer = createReducer(defaultState, actionHandlers);
+export const authReducer = createReducer(defaultState, actionHandlers);

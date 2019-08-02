@@ -1,4 +1,4 @@
 export { Auth } from './Auth';
-export { reducer } from './reducer';
-export { login, logout } from './actions';
-export { checkIsLoggedIn } from './selectors';
+export { authReducer } from './authReducer';
+export { login, logout } from './authActions';
+export { checkIsLoggedIn } from './authSelectors';
