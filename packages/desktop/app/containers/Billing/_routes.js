@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Route, Switch } from 'react-router-dom';
 
-import NotActive from '../NotActive';
+import { NotActive } from '../NotActive';
 
 export default function Routes({ url }) {
   return (

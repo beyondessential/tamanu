@@ -3,7 +3,7 @@ import { random } from 'lodash';
 import { splashImages } from '../../constants/images';
 
 class HomePage extends Component {
-  state: {
+  state = {
     splashStyle: {},
   };
 

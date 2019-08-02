@@ -17,8 +17,8 @@ const history = createHashHistory();
 const router = routerMiddleware(history);
 const api = new TamanuApi(process.env.HOST);
 const enhancers = compose(applyMiddleware(router, thunk.withExtraArgument({ api })));
-const persistedReducers = persistCombineReducers({}, reducers);
-const store = createStore(persistedReducers, {}, enhancers);
+const persistedReducers = persistCombineReducers({ key: 'tamanu' }, reducers);
+const store = createStore(persistedReducers, { key: 'tamanu' }, enhancers);
 const persistedStore = persistStore(store);
 // persistedStore.purge(); // Uncomment this to wipe bad redux state during development
 
