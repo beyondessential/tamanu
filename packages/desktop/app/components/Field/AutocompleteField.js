@@ -140,9 +140,9 @@ class BaseAutocomplete extends Component {
 
   async componentDidMount() {
     const { value, suggester } = this.props;
-    if(value && suggester) {
+    if (value && suggester) {
       const currentOption = await suggester.fetchCurrentOption(value);
-      if(currentOption) {
+      if (currentOption) {
         this.setState({ displayedValue: currentOption.label });
       } else {
         this.handleSuggestionChange({ value: null, label: '' });
