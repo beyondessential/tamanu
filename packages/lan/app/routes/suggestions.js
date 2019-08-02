@@ -43,9 +43,7 @@ function createDummySuggestionRoute(path, values) {
     const db = req.app.get('database');
     const { q = '', limit = 10 } = req.query;
     const query = q.toLowerCase();
-    const data = values
-      .filter(x => x.name.toLowerCase().includes(query))
-      .slice(0, limit);
+    const data = values.filter(x => x.name.toLowerCase().includes(query)).slice(0, limit);
 
     res.send(data);
   });

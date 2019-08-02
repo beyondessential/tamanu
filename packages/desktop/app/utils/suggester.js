@@ -11,7 +11,7 @@ export class Suggester {
     try {
       const data = await response.json();
       return this.formatLabel(data);
-    } catch(e) {
+    } catch (e) {
       return undefined;
     }
   };
@@ -21,7 +21,7 @@ export class Suggester {
     try {
       const data = await response.json();
       return data.map(this.formatLabel);
-    } catch(e) {
+    } catch (e) {
       return [];
     }
   };
