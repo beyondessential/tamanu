@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { Grid, Paper } from '@material-ui/core';
 import { TextInput, Button, CheckInput } from '../../components';
 import { TamanuLogo } from '../../components/TamanuLogo';
-import { history } from '../../utils';
 import { REMEMBER_EMAIL_KEY } from '../../constants';
 
 const LogoContainer = styled.div`
@@ -18,9 +17,6 @@ export default class Login extends Component {
   };
 
   componentDidMount() {
-    const { userId, secret } = this.props;
-    if (userId && secret) history.push('/');
-
     const rememberEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
     if (rememberEmail) this.setState({ email: rememberEmail, rememberMe: true });
   }
@@ -39,14 +35,14 @@ export default class Login extends Component {
 
   submitForm(event) {
     event.preventDefault();
-    const { login } = this.props;
+    const { onLogin } = this.props;
     const { email, rememberMe } = this.state;
     if (rememberMe) {
       localStorage.setItem(REMEMBER_EMAIL_KEY, email);
     } else {
       localStorage.removeItem(REMEMBER_EMAIL_KEY);
     }
-    login(this.state);
+    onLogin(this.state);
   }
 
   render() {
@@ -83,7 +79,7 @@ export default class Login extends Component {
                 <Grid item xs={12}>
                   <CheckInput
                     name="rememberMe"
-                    value="yes"
+                    value
                     label="Remember me"
                     checked={rememberMe}
                     onChange={this.handleUserInput}

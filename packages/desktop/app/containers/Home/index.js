@@ -3,12 +3,11 @@ import { random } from 'lodash';
 import { splashImages } from '../../constants/images';
 
 class HomePage extends Component {
-  state: {
+  state = {
     splashStyle: {},
   };
 
   componentWillMount() {
-    const numImages = 3;
     const imgData = splashImages[random(0, splashImages.length - 1)];
     const splashStyle = { backgroundImage: `url(${imgData})` };
     this.setState({ splashStyle });

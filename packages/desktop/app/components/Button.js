@@ -6,7 +6,7 @@ import MuiButtonBase from '@material-ui/core/ButtonBase';
 import MuiButton from '@material-ui/core/Button';
 import { withStyles, Icon } from '@material-ui/core';
 import { red } from '@material-ui/core/colors';
-import { checkAbility } from '../utils/ability-context';
+import { checkAbility } from '../utils/ability';
 import { history } from '../utils';
 
 export const ButtonBase = props => {

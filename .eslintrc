@@ -10,7 +10,8 @@
     // where it can't detect certain dependencies even if they're installed
     // (missing deps should break CI anyway so it's not a big deal)
     // https://github.com/benmosher/eslint-plugin-import/issues/479
-    "import/no-extraneous-dependencies": false
+    "import/no-extraneous-dependencies": false,
+    "react/prop-types": false
   },
   "overrides": [
     {
