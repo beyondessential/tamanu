@@ -1,11 +1,12 @@
 {
   "name": "shared",
-  "version": "1.0.0",
-  "description": "This repo contains all the packages for Tamanu",
+  "version": "0.0.1",
+  "description": "Common code across Tamanu packages",
   "main": "index.js",
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
-  "author": "Salman Amjad",
-  "license": "MIT",
+  "author": "Beyond Essential Systems Pty. Ltd.",
+  "license": "GNU AGPL",
   "scripts": {
     "test": "jest",
     "test:coverage": "jest --coverage",

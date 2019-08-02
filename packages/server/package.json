@@ -1,9 +1,14 @@
 {
   "name": "server",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "NODE_ENV='development' index.js",
   "bin": "index.js",
   "description": "Remote server for Tamanu desktop app",
+  "private": true,
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
+  "repository": "git@github.com:beyondessential/tamanu.git",
+  "author": "Beyond Essential Systems Pty. Ltd.",
+  "license": "GNU AGPL",
   "scripts": {
     "test": "jest",
     "test:coverage": "jest --coverage",
@@ -11,13 +16,6 @@
     "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.js",
     "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:beyondessential/tamanu.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "devDependencies": {
     "@babel/core": "^7.3.4",
     "@babel/plugin-proposal-class-properties": "^7.3.4",

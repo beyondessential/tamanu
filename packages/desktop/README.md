@@ -10,13 +10,13 @@
 First, clone the repo via git:
 
 ```bash
-git clone https://github.com/beyondessential/tamanu-desktop.git
+git clone https://github.com/beyondessential/tamanu.git
 ```
 
 And then install dependencies with yarn.
 
 ```bash
-$ cd tamanu-desktop
+$ cd tamanu/packages/desktop
 $ yarn
 ```
 
