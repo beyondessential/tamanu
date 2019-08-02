@@ -41,10 +41,8 @@ export default merge.smart(baseConfig, {
             plugins: [
               // Here, we include babel plugins that are only required for the
               // renderer process. The 'transform-*' plugins must be included
-              // before react-hot-loader/babel
               'transform-class-properties',
               'transform-es2015-classes',
-              'react-hot-loader/babel',
             ],
           },
         },
@@ -56,12 +54,12 @@ export default merge.smart(baseConfig, {
           {
             // Extracts the CSS into a separate file and uses the
             // defined configurations in the 'plugins' section
-            loader: MiniCssExtractPlugin.loader
+            loader: MiniCssExtractPlugin.loader,
           },
           {
             loader: 'css-loader',
             options: {
-              importLoaders: 2
+              importLoaders: 2,
             },
           },
         ],
@@ -73,20 +71,20 @@ export default merge.smart(baseConfig, {
           {
             // Extracts the CSS into a separate file and uses the
             // defined configurations in the 'plugins' section
-            loader: MiniCssExtractPlugin.loader
+            loader: MiniCssExtractPlugin.loader,
           },
           {
             // Interprets CSS
-            loader: "css-loader",
+            loader: 'css-loader',
             options: {
-              importLoaders: 2
-            }
+              importLoaders: 2,
+            },
           },
           {
             // Adds support for Sass files, if using Less, then
             // use the less-loader
-            loader: "sass-loader"
-          }
+            loader: 'sass-loader',
+          },
         ],
       },
       // WOFF Font
@@ -183,8 +181,7 @@ export default merge.smart(baseConfig, {
     }),
 
     new BundleAnalyzerPlugin({
-      analyzerMode:
-        process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
+      analyzerMode: process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
       openAnalyzer: process.env.OPEN_ANALYZER === 'true',
     }),
   ],

@@ -3,9 +3,6 @@ import { isArray, toString, each } from 'lodash';
 import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
 import shortid from 'shortid';
-import { createHashHistory } from 'history';
-
-export const history = createHashHistory();
 
 export const toTitleCase = text =>
   text

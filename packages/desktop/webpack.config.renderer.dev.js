@@ -1,12 +1,5 @@
 /* eslint global-require: 0, import/no-dynamic-require: 0 */
 
-/**
- * Build config for development electron renderer process that uses
- * Hot-Module-Replacement
- *
- * https://webpack.js.org/concepts/hot-module-replacement/
- */
-
 import path from 'path';
 import fs from 'fs';
 import webpack from 'webpack';
@@ -29,8 +22,8 @@ const requiredByDLLConfig = module.parent.filename.includes('webpack.config.rend
 if (!requiredByDLLConfig && !(fs.existsSync(dll) && fs.existsSync(manifest))) {
   console.log(
     chalk.black.bgYellow.bold(
-      'The DLL files are missing. Sit back while we build them for you with "yarn build-dll"'
-    )
+      'The DLL files are missing. Sit back while we build them for you with "yarn build-dll"',
+    ),
   );
   execSync('yarn build-dll');
 }
@@ -43,9 +36,7 @@ export default merge.smart(baseConfig, {
   target: 'electron-renderer',
 
   entry: [
-    'react-hot-loader/patch',
     `webpack-dev-server/client?http://localhost:${port}/`,
-    'webpack/hot/only-dev-server',
     path.join(__dirname, 'app/index.js'),
   ],
 
@@ -66,10 +57,8 @@ export default merge.smart(baseConfig, {
             plugins: [
               // Here, we include babel plugins that are only required for the
               // renderer process. The 'transform-*' plugins must be included
-              // before react-hot-loader/babel
               'transform-class-properties',
               'transform-es2015-classes',
-              'react-hot-loader/babel',
             ],
           },
         },
@@ -260,7 +249,6 @@ export default merge.smart(baseConfig, {
     stats: 'errors-only',
     inline: true,
     lazy: false,
-    hot: true,
     headers: { 'Access-Control-Allow-Origin': '*' },
     contentBase: path.join(__dirname, 'dist'),
     watchOptions: {

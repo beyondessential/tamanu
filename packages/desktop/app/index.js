@@ -1,8 +1,8 @@
 import React from 'react';
 import { render } from 'react-dom';
-import { AppContainer } from 'react-hot-loader';
 import { applyMiddleware, createStore, compose } from 'redux';
 import { persistStore, persistCombineReducers } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 import { routerMiddleware } from 'react-router-redux';
 import thunk from 'redux-thunk';
 import { createHashHistory } from 'history';
@@ -17,16 +17,14 @@ const history = createHashHistory();
 const router = routerMiddleware(history);
 const api = new TamanuApi(process.env.HOST);
 const enhancers = compose(applyMiddleware(router, thunk.withExtraArgument({ api })));
-const persistedReducers = persistCombineReducers({ key: 'tamanu' }, reducers);
-const store = createStore(persistedReducers, { key: 'tamanu' }, enhancers);
-const persistedStore = persistStore(store);
-// persistedStore.purge(); // Uncomment this to wipe bad redux state during development
+const persistedReducers = persistCombineReducers({ key: 'tamanu', storage }, reducers);
+const store = createStore(persistedReducers, {}, enhancers);
+const persistor = persistStore(store);
+// persistor.purge(); // Uncomment this to wipe bad redux state during development
 
 api.injectReduxStore(store);
 
 render(
-  <AppContainer>
-    <Root persistedStore={persistedStore} store={store} history={history} />
-  </AppContainer>,
+  <Root persistor={persistor} store={store} history={history} />,
   document.getElementById('root'),
 );
