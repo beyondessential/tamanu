@@ -5,11 +5,7 @@ import styled from 'styled-components';
 import 'typeface-roboto';
 
 import { ConnectedSidebar } from '../components/Sidebar';
-import actions from '../actions/auth';
 import Login from './Auth/Login';
-
-const { login: loginActions } = actions;
-const { login } = loginActions;
 
 const AppContainer = styled.div`
   display: flex;
@@ -63,13 +59,15 @@ class App extends Component {
   }
 }
 
-function mapStateToProps(state) {
+const mapStateToProps = state => {
   const { userId, secret, history } = state.auth;
   return { userId, secret, history };
-}
+};
 
-const mapDispatchToProps = dispatch => ({
-  login: params => dispatch(login(params)),
+const mapDispatchToProps = () => ({
+  login: () => {
+    throw new Error('Not implemented');
+  },
 });
 
 export default connect(

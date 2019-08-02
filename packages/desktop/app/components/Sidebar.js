@@ -11,8 +11,6 @@ import Divider from '@material-ui/core/Divider';
 import { grey } from '@material-ui/core/colors';
 
 import styled from 'styled-components';
-import { ProgramsCollection } from '../collections';
-import actions from '../actions/auth';
 import { checkAbility } from '../utils/ability-context';
 
 import {
@@ -269,9 +267,6 @@ const sidebarInfo = [
   },
 ];
 
-const { login: loginActions } = actions;
-const { logout } = loginActions;
-
 const SidebarContainer = styled.div`
   min-width: 275px;
   height: 100vh;
@@ -407,11 +402,7 @@ export class Sidebar extends Component {
 
 class SidebarWithPrograms extends Component {
   async updateProgramsInPlace() {
-    const programsCollection = new ProgramsCollection();
-
-    const programs = await new Promise(resolve => {
-      programsCollection.fetchAll({ success: ({ models }) => resolve(models) });
-    });
+    const programs = []; // TODO fetch programs from api
 
     const programsNav = find(sidebarInfo, { key: 'programs' });
     if (!isEmpty(programs)) {
@@ -454,7 +445,9 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = dispatch => ({
   onPathChanged: newPath => dispatch(push(newPath)),
-  onLogout: params => dispatch(logout(params)),
+  onLogout: () => {
+    throw new Error('Not implemented');
+  },
 });
 
 export const ConnectedSidebar = connect(

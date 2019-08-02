@@ -1,17 +1,12 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
 
 import { TopBar, Notification } from '../components';
 
-class NotActive extends Component {
-  render() {
-    return (
-      <React.Fragment>
-        <TopBar title="Not Active Yet" />
-        <Notification message="This section is not activated yet." />
-      </React.Fragment>
-    );
-  }
+export function NotActive() {
+  return (
+    <React.Fragment>
+      <TopBar title="Not Active Yet" />
+      <Notification message="This section is not activated yet." />
+    </React.Fragment>
+  );
 }
-
-export default NotActive;
