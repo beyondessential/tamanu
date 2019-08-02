@@ -1,18 +1,3 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { find, isEmpty } from 'lodash';
-import { push } from 'react-router-redux';
-
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import Collapse from '@material-ui/core/Collapse';
-import Divider from '@material-ui/core/Divider';
-import { grey } from '@material-ui/core/colors';
-
-import styled from 'styled-components';
-import { checkAbility } from '../utils/ability-context';
-
 import {
   patientIcon,
   scheduleIcon,
@@ -21,15 +6,10 @@ import {
   administrationIcon,
   programsIcon,
   radiologyIcon,
-  logoutIcon,
-} from '../constants/images';
-import { availableReports } from '../containers/Reports/dummyReports';
+} from '../../constants/images';
+import { availableReports } from '../../containers/Reports/dummyReports';
 
-import { TamanuLogo } from './TamanuLogo';
-
-import { Translated } from './Translated';
-
-const submenuIcons = {
+export const submenuIcons = {
   calendar: 'fa fa-calendar',
   new: 'fa fa-plus',
   search: 'fa fa-search',
@@ -41,7 +21,7 @@ const submenuIcons = {
   action: 'fa fa-chevron-circle-right',
 };
 
-const sidebarInfo = [
+export const items = [
   {
     key: 'patients',
     label: 'Patients',
@@ -266,191 +246,3 @@ const sidebarInfo = [
     })),
   },
 ];
-
-const SidebarContainer = styled.div`
-  min-width: 275px;
-  height: 100vh;
-  position: relative;
-  background: #2f4358;
-  color: #fff;
-  flex-grow: 0;
-  flex-shrink: 0;
-
-  display: flex;
-  flex-direction: column;
-
-  i {
-    color: #fff;
-  }
-`;
-
-const SidebarMenuContainer = styled.div`
-  flex-grow: 1;
-  overflow: auto;
-`;
-
-const LogoContainer = styled.div`
-  width: 100%;
-  text-align: center;
-`;
-
-const SidebarPrimaryIcon = styled.img`
-  width: 2.2em;
-  height: 2.2em;
-  border: none;
-`;
-
-const SidebarItemText = styled(ListItemText)`
-  color: ${grey[100]};
-  font-size: 1.05rem;
-`;
-
-const LogoutItem = React.memo(({ onClick }) => (
-  <ListItem button onClick={onClick}>
-    <SidebarPrimaryIcon src={logoutIcon} />
-    <SidebarItemText disableTypography inset primary={<Translated id="logout" />} />
-  </ListItem>
-));
-
-const PrimarySidebarItem = React.memo(({ icon, label, children, selected, onClick }) => (
-  <React.Fragment>
-    <ListItem button onClick={onClick} selected={selected}>
-      <SidebarPrimaryIcon src={icon || administrationIcon} />
-      <SidebarItemText inset disableTypography primary={label} />
-    </ListItem>
-    <Collapse in={selected} timeout="auto" unmountOnExit>
-      <List component="div" disablePadding>
-        {children}
-      </List>
-    </Collapse>
-  </React.Fragment>
-));
-
-const SecondarySidebarItem = React.memo(({ path, icon, label, isCurrent, disabled, onClick }) => (
-  <ListItem button to={path} disabled={disabled} selected={isCurrent} onClick={onClick}>
-    <i className={icon} />
-    <SidebarItemText disableTypography primary={label} />
-  </ListItem>
-));
-
-export class Sidebar extends Component {
-  state = {
-    selectedParentItem: '',
-  };
-
-  onLogout = () => {
-    const { onLogout } = this.props;
-    if (onLogout) {
-      onLogout();
-    }
-  };
-
-  clickedParentItem = ({ key }) => {
-    const { selectedParentItem } = this.state;
-    if (selectedParentItem === key) {
-      this.setState({ selectedParentItem: '' });
-    } else {
-      this.setState({ selectedParentItem: key });
-    }
-  };
-
-  render() {
-    const { selectedParentItem } = this.state;
-    const { currentPath, items, onPathChanged, permissionCheck = () => true } = this.props;
-    return (
-      <SidebarContainer>
-        <SidebarMenuContainer>
-          <List component="nav">
-            {items.map(item => {
-              return (
-                <PrimarySidebarItem
-                  icon={item.icon}
-                  label={item.label}
-                  key={item.key}
-                  selected={selectedParentItem === item.key}
-                  onClick={() => this.clickedParentItem(item)}
-                >
-                  {item.children.map(child => (
-                    <SecondarySidebarItem
-                      key={child.path}
-                      path={child.path}
-                      isCurrent={currentPath === child.path}
-                      icon={child.icon}
-                      label={child.label}
-                      disabled={!permissionCheck(child, item)}
-                      onClick={() => onPathChanged(child.path)}
-                    />
-                  ))}
-                </PrimarySidebarItem>
-              );
-            })}
-          </List>
-          <Divider />
-          <List>
-            <LogoutItem onClick={this.onLogout} />
-          </List>
-        </SidebarMenuContainer>
-        <LogoContainer>
-          <div onClick={() => onPathChanged('/')}>
-            <TamanuLogo size="120px" />
-          </div>
-        </LogoContainer>
-      </SidebarContainer>
-    );
-  }
-}
-
-class SidebarWithPrograms extends Component {
-  async updateProgramsInPlace() {
-    const programs = []; // TODO fetch programs from api
-
-    const programsNav = find(sidebarInfo, { key: 'programs' });
-    if (!isEmpty(programs)) {
-      programsNav.hidden = false;
-      programsNav.children = programs.map((programString, key) => {
-        const program = programString.toJSON();
-        return {
-          label: program.name,
-          path: `/programs/${program._id}/patients`,
-          icon: submenuIcons.action,
-        };
-      });
-    }
-  }
-
-  async componentWillMount() {
-    await this.updateProgramsInPlace();
-    this.forceUpdate();
-  }
-
-  render() {
-    return <Sidebar {...this.props} />;
-  }
-}
-
-function mapStateToProps(state) {
-  const { pathname: currentPath } = state.router.location;
-  const items = sidebarInfo;
-
-  const permissionCheck = (child, parent) => {
-    const ability = { ...child.ability, ...parent.ability };
-    if (!ability.subject || !ability.action) {
-      return true;
-    }
-    return checkAbility(ability);
-  };
-
-  return { currentPath, items, permissionCheck };
-}
-
-const mapDispatchToProps = dispatch => ({
-  onPathChanged: newPath => dispatch(push(newPath)),
-  onLogout: () => {
-    throw new Error('Not implemented');
-  },
-});
-
-export const ConnectedSidebar = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(SidebarWithPrograms);
