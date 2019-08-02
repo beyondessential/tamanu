@@ -51,7 +51,10 @@ class BaseAutocomplete extends Component {
     onChange: PropTypes.func.isRequired,
     value: PropTypes.string,
 
-    fetchOptions: PropTypes.func,
+    suggester: PropTypes.shape({
+      fetchCurrentOption: PropTypes.func.isRequired,
+      fetchSuggestions: PropTypes.func.isRequired,
+    }),
     options: PropTypes.arrayOf(
       PropTypes.shape({
         label: PropTypes.string,
@@ -67,7 +70,6 @@ class BaseAutocomplete extends Component {
     helperText: '',
     className: '',
     value: '',
-    fetchOptions: null,
     options: [],
   };
 
@@ -85,10 +87,10 @@ class BaseAutocomplete extends Component {
   };
 
   fetchOptions = async ({ value }) => {
-    const { fetchOptions, options } = this.props;
+    const { suggester, options } = this.props;
 
-    const suggestions = fetchOptions
-      ? await fetchOptions(value)
+    const suggestions = suggester
+      ? await suggester.fetchSuggestions(value)
       : options.filter(x => x.label.toLowerCase().includes(value.toLowerCase()));
 
     this.setState({ suggestions });
@@ -135,6 +137,18 @@ class BaseAutocomplete extends Component {
       </Popper>
     );
   };
+
+  async componentDidMount() {
+    const { value, suggester } = this.props;
+    if (value && suggester) {
+      const currentOption = await suggester.fetchCurrentOption(value);
+      if (currentOption) {
+        this.setState({ displayedValue: currentOption.label });
+      } else {
+        this.handleSuggestionChange({ value: null, label: '' });
+      }
+    }
+  }
 
   render() {
     const { displayedValue, suggestions } = this.state;

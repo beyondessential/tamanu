@@ -20,7 +20,7 @@ const FRUITS = [
   { value: 'apples', label: 'Apples' },
   { value: 'oranges', label: 'Oranges' },
   { value: 'bananas', label: 'Bananas' },
-  { value: 'pomegrantes', label: 'Pomegranates' },
+  { value: 'pomegranates', label: 'Pomegranates' },
   { value: 'durian', label: 'Durian' },
   { value: 'dragonfruit', label: 'Dragonfruit' },
   { value: 'tomatoes', label: 'Tomatoes' },
@@ -33,6 +33,13 @@ const FRUITS = [
 // so we don't have to do it individually for each item.
 class StoryControlWrapper extends React.PureComponent {
   state = { value: null };
+
+  componentWillMount() {
+    const { value } = this.props;
+    if (value) {
+      this.setState({ value });
+    }
+  }
 
   onChange = e => {
     const { onChange } = this.props;
@@ -112,17 +119,47 @@ addStories('SelectInput', props => (
   <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />
 ));
 
+const dummySuggester = {
+  fetchSuggestions: async search => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return FRUITS.filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
+  },
+  fetchCurrentOption: async value => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return FRUITS.find(x => x.value === value);
+  },
+};
+
 addStories('Autocomplete', props => (
   <StoryControlWrapper Component={AutocompleteInput} label="Fruit" options={FRUITS} {...props} />
-)).add('Asynchronous options', () => (
-  <StoryControlWrapper
-    Component={AutocompleteInput}
-    label="Language"
-    fetchOptions={async search => {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return FRUITS.filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
-    }}
-  />
-));
+))
+  .add('Asynchronous options', () => (
+    <StoryControlWrapper Component={AutocompleteInput} label="Fruit" suggester={dummySuggester} />
+  ))
+  .add('Async with existing value', () => (
+    <StoryControlWrapper
+      Component={AutocompleteInput}
+      value="pomegranates"
+      label="Fruit"
+      suggester={dummySuggester}
+    />
+  ))
+  .add(
+    'Async with invalid existing value',
+    () => (
+      <StoryControlWrapper
+        Component={AutocompleteInput}
+        value="not a fruit"
+        label="Fruit"
+        suggester={dummySuggester}
+      />
+    ),
+    {
+      note: `
+    When the server responds informing the control that it's current value
+    is invalid, it will dispatch an onChange event setting its value to null.
+  `,
+    },
+  );
 
 storiesOf('FormControls/ArrayInput', module).add('ArrayInput', () => <div>WIP</div>);
