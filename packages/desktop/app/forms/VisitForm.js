@@ -21,7 +21,12 @@ export class VisitForm extends React.PureComponent {
   };
 
   renderForm = ({ isValid, isSubmitting, submitForm }) => {
-    const { locationSuggester, practitionerSuggester } = this.props;
+    const { 
+      locationSuggester,
+      practitionerSuggester,
+      editedObject,
+    } = this.props;
+    const buttonText = editedObject ? "Update visit" : "Start visit";
     return (
       <FormGrid>
         <Field
@@ -62,7 +67,7 @@ export class VisitForm extends React.PureComponent {
         />
         <div style={{ gridColumn: 2, textAlign: 'right' }}>
           <Button variant="contained" onClick={submitForm} color="primary">
-            Start visit
+            { buttonText }
           </Button>
         </div>
       </FormGrid>
