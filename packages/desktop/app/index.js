@@ -1,31 +1,31 @@
 import React from 'react';
 import { render } from 'react-dom';
-import { AppContainer } from 'react-hot-loader';
-import { persistReducer } from 'redux-persist';
-import BackboneSync from './utils/backbone-sync';
+import { applyMiddleware, createStore, compose } from 'redux';
+import { persistStore, persistCombineReducers } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+import { routerMiddleware } from 'react-router-redux';
+import thunk from 'redux-thunk';
+import { createHashHistory } from 'history';
+
 import Root from './containers/Root';
-import { store, persistor, persistConfig, history } from './store';
 import './styles/app.global.scss';
 
-(async () => {
-  BackboneSync(store);
+import { TamanuApi } from './TamanuApi';
+import { reducers } from './reducers';
 
-  render(
-    <AppContainer>
-      <Root persistor={persistor} store={store} history={history} />
-    </AppContainer>,
-    document.getElementById('root'),
-  );
+const history = createHashHistory();
+const router = routerMiddleware(history);
+const api = new TamanuApi(process.env.HOST);
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose; // eslint-disable-line no-underscore-dangle
+const enhancers = composeEnhancers(applyMiddleware(router, thunk.withExtraArgument({ api })));
+const persistedReducers = persistCombineReducers({ key: 'tamanu', storage }, reducers);
+const store = createStore(persistedReducers, {}, enhancers);
+const persistor = persistStore(store);
+// persistor.purge(); // Uncomment this to wipe bad redux state during development
 
-  if (module.hot) {
-    module.hot.accept('./containers/Root', () => {
-      store.replaceReducer(persistReducer(persistConfig, Root));
-      render(
-        <AppContainer>
-          <Root store={store} history={history} />
-        </AppContainer>,
-        document.getElementById('root'),
-      );
-    });
-  }
-})();
+api.injectReduxStore(store);
+
+render(
+  <Root persistor={persistor} store={store} history={history} />,
+  document.getElementById('root'),
+);

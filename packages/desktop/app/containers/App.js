@@ -5,11 +5,8 @@ import styled from 'styled-components';
 import 'typeface-roboto';
 
 import { ConnectedSidebar } from '../components/Sidebar';
-import actions from '../actions/auth';
+import { login, checkIsLoggedIn } from '../auth';
 import Login from './Auth/Login';
-
-const { login: loginActions } = actions;
-const { login } = loginActions;
 
 const AppContainer = styled.div`
   display: flex;
@@ -22,26 +19,9 @@ const AppContentsContainer = styled.div`
 `;
 
 class App extends Component {
-  state = {
-    userId: null,
-  };
-
-  componentWillMount() {
-    this.handleChange();
-  }
-
-  componentWillReceiveProps(newProps) {
-    this.handleChange(newProps);
-  }
-
-  handleChange(props = this.props) {
-    const { userId, secret } = props;
-    this.setState({ userId, secret });
-  }
-
   renderAppContents() {
-    const { userId, secret } = this.state;
-    if (!userId || !secret) {
+    const { isUserLoggedIn } = this.props;
+    if (!isUserLoggedIn) {
       return <Login {...this.props} />;
     }
 
@@ -63,13 +43,10 @@ class App extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  const { userId, secret, history } = state.auth;
-  return { userId, secret, history };
-}
+const mapStateToProps = state => ({ isUserLoggedIn: checkIsLoggedIn(state) });
 
 const mapDispatchToProps = dispatch => ({
-  login: params => dispatch(login(params)),
+  onLogin: () => dispatch(login()),
 });
 
 export default connect(

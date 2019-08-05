@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 import { Grid } from '@material-ui/core';
 import { capitalize } from 'lodash';
 import styled from 'styled-components';
-import * as imagingRequestActions from '../../actions/imaging';
 import TopRow from '../Patients/components/TopRow';
 import {
   TopBar,
@@ -27,7 +26,6 @@ import {
   Field,
 } from '../../components';
 import { IMAGING_REQUEST_STATUSES, MUI_SPACING_UNIT as spacing } from '../../constants';
-import { PatientModel } from '../../models';
 
 const { dialog, shell } = electron;
 const ViewImageButton = styled(Button)`
@@ -55,9 +53,9 @@ class Request extends Component {
   };
 
   submitForm = (values, { setSubmitting }) => {
-    const { imagingRequestModel, action } = this.props;
+    const { imagingRequestModel } = this.props;
     imagingRequestModel.set(values);
-    this.props.saveImagingRequest({ imagingRequestModel, action, setSubmitting });
+    this.props.saveImagingRequest({ imagingRequestModel, setSubmitting });
   };
 
   markAsCompleted = ({ setFieldValue, submitForm }) => () => {

@@ -1,0 +1,1 @@
+export { ConnectedSidebar } from './ConnectedSidebar';

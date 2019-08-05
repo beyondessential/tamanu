@@ -13,4 +13,13 @@ function formatLong(date) {
   return moment(date).format('LLLL'); // "Monday, March 4, 2019 10:22 AM"
 }
 
-export const DateDisplay = ({ date }) => <abbr title={formatLong(date)}>{formatShort(date)}</abbr>;
+function formatDuration(date) {
+  return moment(date).from(moment(), true);
+}
+
+export const DateDisplay = React.memo(({ date, showDuration = false }) => (
+  <abbr title={formatLong(date)}>
+    {formatShort(date)}
+    {showDuration && ` (${formatDuration(date)})`}
+  </abbr>
+));
