@@ -1,3 +1,5 @@
+@import '../global/colors.scss';
+
 .custom-date-input {
   background: rgba(219, 235, 255, 0.2);
   border: 1px solid #dee2e7;
@@ -101,7 +103,7 @@ a:hover {
   display: block !important;
 
   input {
-    @extend .input;
+    // @extend .input;
     @extend .is-primary;
     // width: 500px;
   }
@@ -115,7 +117,7 @@ a:hover {
       border-bottom: 1px solid $grey-lighter;
       cursor: pointer;
       &:hover {
-        background: $white-ter !important;
+        background: $grey-lighter !important;
       }
     }
   }

@@ -16,6 +16,8 @@ import { Button } from '../../components/Button';
 import { sexOptions } from '../../constants';
 import { diagnosisOptions, locationOptions, prescriberOptions } from './dummyReports';
 
+import '../../styles/components/custom.scss';
+
 const LabeledSelect = ({ label, ...props }) => (
   <div>
     <span className="input-group-title">{label}</span>
@@ -122,7 +124,7 @@ export class ReportFilters extends Component {
             />
           </ExpanderSection>
         </div>
-        <div className="column" style={{ textAlign: 'right', marginTop: '-1em' }}>
+        <div className="column" style={{ textAlign: 'right', marginTop: '0.5em' }}>
           <Button>Advanced filters</Button>{' '}
           <Button onClick={this.apply} primary>
             Generate report

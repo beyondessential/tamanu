@@ -94,7 +94,7 @@ export default merge.smart(baseConfig, {
           },
         ],
       },
-      // SASS support - compile all .global.scss files and pipe it to style.css
+       // SASS support - compile all .global.scss files
       {
         test: /\.global\.(scss|sass)$/,
         use: [
@@ -115,17 +115,16 @@ export default merge.smart(baseConfig, {
           },
         ],
       },
-      // SASS support - compile all other .scss files and pipe it to style.css
+      // SASS support - compile all other .scss files
       {
         test: /^((?!\.global).)*\.(scss|sass)$/,
         use: [
           {
-            loader: 'style-loader',
+            loader: 'style-loader'
           },
           {
             loader: 'css-loader',
             options: {
-              modules: true,
               sourceMap: true,
               importLoaders: 1,
               localIdentName: '[name]__[local]__[hash:base64:5]',
