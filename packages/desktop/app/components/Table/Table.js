@@ -47,10 +47,12 @@ export class Table extends React.PureComponent {
 
   renderHeaders = () => this.props.columns.map(({ Header }) => <TableCell>{Header}</TableCell>);
 
-  renderRowContent = ({ accessor, Cell }, data) => {
-    const value = data[accessor];
+  renderRowContent = ({ key, accessor, Cell }, data) => {
+    const value = accessor ? accessor(data) : data[key];
     return (
-      <TableCell>{Cell ? <Cell value={value} data={data} accessor={accessor} /> : value}</TableCell>
+      <TableCell>
+        {Cell ? <Cell value={value} data={data} key={key} accessor={accessor} /> : value}
+      </TableCell>
     );
   };
 
@@ -113,22 +115,30 @@ export class Table extends React.PureComponent {
 
 Table.propTypes = {
   columns: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  data: PropTypes.arrayOf(PropTypes.shape({})),
+  data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   errorMessage: PropTypes.string,
-  isLoading: PropTypes.bool.isRequired,
+  isLoading: PropTypes.bool,
   count: PropTypes.number,
-  onChangePage: PropTypes.func.isRequired,
-  onChangeRowsPerPage: PropTypes.func.isRequired,
-  onSortedChange: PropTypes.func.isRequired,
-  page: PropTypes.number.isRequired,
-  rowsPerPage: PropTypes.number.isRequired,
-  sorting: PropTypes.array.isRequired,
+  onChangePage: PropTypes.func,
+  onChangeRowsPerPage: PropTypes.func,
+  onChangeOrderBy: PropTypes.func,
+  orderBy: PropTypes.string,
+  order: PropTypes.string,
+  page: PropTypes.number,
+  rowsPerPage: PropTypes.number,
   RowComponent: PropTypes.element,
 };
 
 Table.defaultProps = {
-  data: [],
   errorMessage: '',
   count: 0,
   RowComponent: Row,
+  isLoading: false,
+  onChangePage: null,
+  onChangeRowsPerPage: null,
+  onChangeOrderBy: null,
+  orderBy: null,
+  order: null,
+  page: null,
+  rowsPerPage: null,
 };

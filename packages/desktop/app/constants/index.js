@@ -223,7 +223,7 @@ export const pregnancyOutcomes = [
 
 export const patientColumns = [
   {
-    accessor: 'displayId',
+    key: 'displayId',
     Header: 'Id',
     headerStyle,
     style: {
@@ -234,28 +234,28 @@ export const patientColumns = [
     Cell: () => {},
   },
   {
-    accessor: 'firstName',
+    key: 'firstName',
     Header: 'First Name',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'lastName',
+    key: 'lastName',
     Header: 'Last Name',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'sex',
+    key: 'sex',
     Header: 'Sex',
     headerStyle,
     style: columnStyle,
     minWidth: 80,
   },
   {
-    id: 'dateOfBirth',
+    key: 'dateOfBirth',
     accessor: row => moment(row.dateOfBirth).format(dateFormat),
     Header: 'DOB',
     headerStyle,
@@ -263,7 +263,7 @@ export const patientColumns = [
     minWidth: 100,
   },
   {
-    id: 'actions',
+    key: 'actions',
     Header: 'Actions',
     headerStyle,
     style: columnStyle,
@@ -274,49 +274,49 @@ export const patientColumns = [
 
 export const admittedPatientsColumns = [
   {
-    accessor: 'displayId',
+    key: 'displayId',
     Header: 'Id',
     headerStyle,
     style: columnStyle,
     minWidth: 80,
   },
   {
-    accessor: 'location',
+    key: 'location',
     Header: 'Location',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'firstName',
+    key: 'firstName',
     Header: 'First Name',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'firstName',
+    key: 'firstName',
     Header: 'First Name',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'lastName',
+    key: 'lastName',
     Header: 'Last Name',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'sex',
+    key: 'sex',
     Header: 'Sex',
     headerStyle,
     style: columnStyle,
     minWidth: 80,
   },
   {
-    id: 'dateOfBirth',
+    key: 'dateOfBirth',
     accessor: row => moment(row.dateOfBirth).format(dateFormat),
     Header: 'DOB',
     headerStyle,
@@ -327,35 +327,35 @@ export const admittedPatientsColumns = [
 
 export const outPatientColumns = [
   {
-    accessor: 'displayId',
+    key: 'displayId',
     Header: 'Id',
     headerStyle,
     style: columnStyle,
     minWidth: 80,
   },
   {
-    accessor: 'firstName',
+    key: 'firstName',
     Header: 'First Name',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'lastName',
+    key: 'lastName',
     Header: 'Last Name',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'sex',
+    key: 'sex',
     Header: 'Sex',
     headerStyle,
     style: columnStyle,
     minWidth: 80,
   },
   {
-    id: 'dateOfBirth',
+    key: 'dateOfBirth',
     accessor: row => moment(row.dateOfBirth).format(dateFormat),
     Header: 'DOB',
     headerStyle,
@@ -363,7 +363,7 @@ export const outPatientColumns = [
     minWidth: 100,
   },
   {
-    id: 'actions',
+    key: 'actions',
     Header: 'Actions',
     headerStyle,
     style: columnStyle,
@@ -374,35 +374,35 @@ export const outPatientColumns = [
 
 export const patientContactColumns = [
   {
-    accessor: 'name',
+    key: 'name',
     Header: 'Name',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'phone',
+    key: 'phone',
     Header: 'Phone',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'email',
+    key: 'email',
     Header: 'Email',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'relationship',
+    key: 'relationship',
     Header: 'Relationship',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    id: 'actions',
+    key: 'actions',
     Header: 'Actions',
     headerStyle: {
       backgroundColor: Colors.searchTintColor,
@@ -415,7 +415,7 @@ export const patientContactColumns = [
 
 export const patientMedicationColumns = [
   {
-    accessor: 'drug.name',
+    key: 'drug.name',
     Header: 'Medicine',
     headerStyle,
     style: {
@@ -426,35 +426,35 @@ export const patientMedicationColumns = [
     minWidth: 100,
   },
   {
-    accessor: 'qtyMorning',
+    key: 'qtyMorning',
     Header: 'Morning',
     headerStyle,
     style: columnStyleSlim,
     maxWidth: 150,
   },
   {
-    accessor: 'qtyLunch',
+    key: 'qtyLunch',
     Header: 'Lunch',
     headerStyle,
     style: columnStyleSlim,
     maxWidth: 150,
   },
   {
-    accessor: 'qtyEvening',
+    key: 'qtyEvening',
     Header: 'Evening',
     headerStyle,
     style: columnStyleSlim,
     maxWidth: 150,
   },
   {
-    accessor: 'qtyNight',
+    key: 'qtyNight',
     Header: 'Night',
     headerStyle,
     style: columnStyleSlim,
     maxWidth: 150,
   },
   {
-    accessor: 'notes',
+    key: 'notes',
     Header: 'Notes',
     headerStyle,
     style: columnStyleSlim,
@@ -464,28 +464,28 @@ export const patientMedicationColumns = [
 
 export const pregnancyColumns = [
   {
-    accessor: 'label',
+    key: 'label',
     Header: 'Pregnancies',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'conceiveDate',
+    key: 'conceiveDate',
     Header: 'Conception Date',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'deliveryDate',
+    key: 'deliveryDate',
     Header: 'Delivery Date',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'outcomeLabel',
+    key: 'outcomeLabel',
     Header: 'Outcome',
     headerStyle,
     style: columnStyle,
@@ -493,7 +493,7 @@ export const pregnancyColumns = [
   },
   {
     accessor: row => ({ _id: row._id, admitted: row.admitted }),
-    id: 'actions',
+    key: 'actions',
     Header: 'Actions',
     headerStyle: {
       backgroundColor: Colors.searchTintColor,
@@ -506,41 +506,41 @@ export const pregnancyColumns = [
 
 export const visitsColumns = [
   {
-    accessor: 'startDate',
+    key: 'startDate',
     Header: 'Start Date',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'endDate',
+    key: 'endDate',
     Header: 'End Date',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'diagnosis',
+    key: 'diagnosis',
     Header: 'Diagnosis',
     headerStyle,
     style: columnStyle,
   },
   {
-    accessor: 'examiner',
+    key: 'examiner',
     Header: 'Provider',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'location',
+    key: 'location',
     Header: 'Location',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'visitType',
+    key: 'visitType',
     Header: 'Type',
     headerStyle,
     style: columnStyle,
@@ -548,7 +548,7 @@ export const visitsColumns = [
   },
   {
     accessor: row => ({ _id: row._id, admitted: row.admitted }),
-    id: 'actions',
+    key: 'actions',
     Header: 'Actions',
     headerStyle: {
       backgroundColor: Colors.searchTintColor,
@@ -562,14 +562,14 @@ export const visitsColumns = [
 export const vitalsColumns = [
   // TODO Add back in after the vitals taker is recorded
   // {
-  //   accessor: 'taken',
+  //   key: 'taken',
   //   Header: 'Taken By',
   //   headerStyle,
   //   style: columnStyle,
   //   minWidth: 100
   // },
   {
-    id: 'dateRecorded',
+    key: 'dateRecorded',
     accessor: row => moment(row.dateRecorded).format(dateTimeFormat),
     Header: 'Date',
     headerStyle,
@@ -577,56 +577,56 @@ export const vitalsColumns = [
     minWidth: 200,
   },
   {
-    accessor: 'temperature',
+    key: 'temperature',
     Header: 'Temperature',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'weight',
+    key: 'weight',
     Header: 'Weight',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'height',
+    key: 'height',
     Header: 'Height',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'sbp',
+    key: 'sbp',
     Header: 'SBP',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'dbp',
+    key: 'dbp',
     Header: 'DBP',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'heartRate',
+    key: 'heartRate',
     Header: 'Heart Rate',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'respiratoryRate',
+    key: 'respiratoryRate',
     Header: 'Respiratory Rate',
     headerStyle,
     style: columnStyle,
     minWidth: 150,
   },
   {
-    id: 'actions',
+    key: 'actions',
     Header: 'Actions',
     headerStyle: {
       backgroundColor: Colors.searchTintColor,
@@ -639,7 +639,7 @@ export const vitalsColumns = [
 
 export const notesColumns = [
   {
-    id: 'date',
+    key: 'date',
     accessor: row => moment(row.date).format(dateFormat),
     Header: 'Date',
     headerStyle,
@@ -647,7 +647,7 @@ export const notesColumns = [
     minWidth: 100,
   },
   {
-    id: 'authoredBy',
+    key: 'authoredBy',
     Header: 'Authored By',
     headerStyle,
     style: columnStyle,
@@ -656,14 +656,14 @@ export const notesColumns = [
     minWidth: 100,
   },
   {
-    accessor: 'content',
+    key: 'content',
     Header: 'Note',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    id: 'actions',
+    key: 'actions',
     Header: 'Actions',
     headerStyle: {
       backgroundColor: Colors.searchTintColor,
@@ -676,7 +676,7 @@ export const notesColumns = [
 
 export const proceduresColumns = [
   {
-    id: 'date',
+    key: 'date',
     accessor: row => moment(row.date).format(dateFormat),
     Header: 'Date',
     headerStyle,
@@ -684,14 +684,14 @@ export const proceduresColumns = [
     minWidth: 100,
   },
   {
-    accessor: 'description',
+    key: 'description',
     Header: 'Procedure',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    id: 'actions',
+    key: 'actions',
     Header: 'Actions',
     headerStyle: {
       backgroundColor: Colors.searchTintColor,
@@ -704,21 +704,21 @@ export const proceduresColumns = [
 
 export const proceduresMedicationColumns = [
   {
-    accessor: 'medication',
+    key: 'medication',
     Header: 'Item',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'quantity',
+    key: 'quantity',
     Header: 'Quantity',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    id: 'actions',
+    key: 'actions',
     Header: 'Actions',
     headerStyle: {
       backgroundColor: Colors.searchTintColor,
@@ -731,28 +731,28 @@ export const proceduresMedicationColumns = [
 
 export const programsPatientsColumns = [
   {
-    accessor: 'displayId',
+    key: 'displayId',
     Header: 'Patient ID',
     headerStyle,
     style: columnStyle,
     minWidth: 80,
   },
   {
-    accessor: 'firstName',
+    key: 'firstName',
     Header: 'First Name',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'lastName',
+    key: 'lastName',
     Header: 'Last Name',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'sex',
+    key: 'sex',
     Header: 'Sex',
     headerStyle,
     style: columnStyle,
@@ -760,7 +760,7 @@ export const programsPatientsColumns = [
     filterable: false,
   },
   {
-    id: 'dateOfBirth',
+    key: 'dateOfBirth',
     accessor: row => moment(row.dateOfBirth).format(dateFormat),
     Header: 'DOB',
     headerStyle,
@@ -772,21 +772,21 @@ export const programsPatientsColumns = [
 
 export const medicationColumns = [
   {
-    accessor: 'patient',
+    key: 'patient',
     Header: 'Patient',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'prescriber',
+    key: 'prescriber',
     Header: 'Prescriber',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'drug',
+    key: 'drug',
     Header: 'Medication',
     headerStyle,
     style: {
@@ -796,7 +796,7 @@ export const medicationColumns = [
     minWidth: 300,
   },
   {
-    accessor: 'quantity',
+    key: 'quantity',
     Header: 'Quantity',
     headerStyle,
     style: columnStyle,
@@ -804,28 +804,28 @@ export const medicationColumns = [
     columns: [
       {
         Header: 'Morning',
-        accessor: 'qtyMorning',
+        key: 'qtyMorning',
         headerStyle,
         style: columnStyle,
         maxWidth: 80,
       },
       {
         Header: 'Lunch',
-        accessor: 'qtyLunch',
+        key: 'qtyLunch',
         headerStyle,
         style: columnStyle,
         maxWidth: 80,
       },
       {
         Header: 'Evening',
-        accessor: 'qtyEvening',
+        key: 'qtyEvening',
         headerStyle,
         style: columnStyle,
         maxWidth: 80,
       },
       {
         Header: 'Night',
-        accessor: 'qtyNight',
+        key: 'qtyNight',
         headerStyle,
         style: columnStyle,
         maxWidth: 80,
@@ -833,7 +833,7 @@ export const medicationColumns = [
     ],
   },
   {
-    accessor: 'status',
+    key: 'status',
     Header: 'Status',
     headerStyle,
     style: columnStyle,
@@ -843,14 +843,14 @@ export const medicationColumns = [
 
 export const medicationCompletedColumns = [
   {
-    accessor: 'prescriptionDate',
+    key: 'prescriptionDate',
     Header: 'Date',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    id: 'end-date',
+    key: 'end-date',
     accessor: row => (moment(row.endDate).isValid() ? moment(row.endDate).format(dateFormat) : '-'),
     Header: 'End Date',
     headerStyle,
@@ -858,28 +858,28 @@ export const medicationCompletedColumns = [
     minWidth: 100,
   },
   {
-    accessor: 'patient',
+    key: 'patient',
     Header: 'Patient',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'prescriber',
+    key: 'prescriber',
     Header: 'Prescriber',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'drug',
+    key: 'drug',
     Header: 'Medication',
     headerStyle,
     style: columnStyle,
     minWidth: 300,
   },
   {
-    accessor: 'quantity',
+    key: 'quantity',
     Header: 'Quantity',
     headerStyle,
     style: columnStyle,
@@ -887,28 +887,28 @@ export const medicationCompletedColumns = [
     columns: [
       {
         Header: 'Morning',
-        accessor: 'qtyMorning',
+        key: 'qtyMorning',
         headerStyle,
         style: columnStyle,
         maxWidth: 80,
       },
       {
         Header: 'Lunch',
-        accessor: 'qtyLunch',
+        key: 'qtyLunch',
         headerStyle,
         style: columnStyle,
         maxWidth: 80,
       },
       {
         Header: 'Evening',
-        accessor: 'qtyEvening',
+        key: 'qtyEvening',
         headerStyle,
         style: columnStyle,
         maxWidth: 80,
       },
       {
         Header: 'Night',
-        accessor: 'qtyNight',
+        key: 'qtyNight',
         headerStyle,
         style: columnStyle,
         maxWidth: 80,
@@ -916,7 +916,7 @@ export const medicationCompletedColumns = [
     ],
   },
   {
-    accessor: 'status',
+    key: 'status',
     Header: 'Status',
     headerStyle,
     style: columnStyle,
@@ -1145,28 +1145,28 @@ export const labsColumns = [
 
 export const appointments = [
   {
-    id: 0,
+    key: 0,
     title: 'Board meeting',
     start: new Date(2018, 4, 11, 9, 0, 0),
     end: new Date(2018, 4, 13, 13, 0, 0),
     resourceId: 1,
   },
   {
-    id: 1,
+    key: 1,
     title: 'MS training',
     start: new Date(2018, 4, 29, 14, 0, 0),
     end: new Date(2018, 4, 29, 16, 30, 0),
     resourceId: 2,
   },
   {
-    id: 2,
+    key: 2,
     title: 'Team lead meeting',
     start: new Date(2018, 4, 29, 8, 30, 0),
     end: new Date(2018, 4, 29, 12, 30, 0),
     resourceId: 3,
   },
   {
-    id: 11,
+    key: 11,
     title: 'Birthday Party',
     start: new Date(2018, 4, 30, 7, 0, 0),
     end: new Date(2018, 4, 30, 10, 30, 0),
@@ -1176,14 +1176,14 @@ export const appointments = [
 
 export const surveyResponsesColumns = [
   {
-    accessor: 'date',
+    key: 'date',
     Header: 'Date',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'actions',
+    key: 'actions',
     Header: 'Actions',
     headerStyle,
     style: columnStyle,
@@ -1193,7 +1193,7 @@ export const surveyResponsesColumns = [
 
 export const appointmentsColumns = [
   {
-    id: 'startDate',
+    key: 'startDate',
     accessor: row => moment(row.startDate).format(dateFormat),
     Header: 'Date',
     headerStyle,
@@ -1201,7 +1201,7 @@ export const appointmentsColumns = [
     minWidth: 100,
   },
   {
-    accessor: 'patientsName',
+    key: 'patientsName',
     Header: 'Name',
     headerStyle,
     style: columnStyle,
@@ -1209,7 +1209,7 @@ export const appointmentsColumns = [
     sortable: false,
   },
   {
-    id: 'appointmentType',
+    key: 'appointmentType',
     accessor: row => capitalize(row.appointmentType),
     Header: 'Type',
     headerStyle,
@@ -1217,21 +1217,21 @@ export const appointmentsColumns = [
     minWidth: 80,
   },
   {
-    accessor: 'location',
+    key: 'location',
     Header: 'Location',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'provider',
+    key: 'provider',
     Header: 'With',
     headerStyle,
     style: columnStyle,
     minWidth: 80,
   },
   {
-    id: 'status',
+    key: 'status',
     accessor: row => capitalize(row.status),
     Header: 'Status',
     headerStyle,
@@ -1239,7 +1239,7 @@ export const appointmentsColumns = [
     minWidth: 80,
   },
   {
-    id: 'actions',
+    key: 'actions',
     Header: 'Actions',
     headerStyle: {
       backgroundColor: Colors.searchTintColor,
@@ -1253,7 +1253,7 @@ export const appointmentsColumns = [
 
 export const patientAppointmentsColumns = [
   {
-    id: 'startDate',
+    key: 'startDate',
     accessor: row => moment(row.startDate).format(dateFormat),
     Header: 'Date',
     headerStyle,
@@ -1261,7 +1261,7 @@ export const patientAppointmentsColumns = [
     minWidth: 100,
   },
   {
-    id: 'appointmentType',
+    key: 'appointmentType',
     accessor: row => capitalize(row.appointmentType),
     Header: 'Type',
     headerStyle,
@@ -1269,21 +1269,21 @@ export const patientAppointmentsColumns = [
     minWidth: 80,
   },
   {
-    accessor: 'location',
+    key: 'location',
     Header: 'Location',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'provider',
+    key: 'provider',
     Header: 'With',
     headerStyle,
     style: columnStyle,
     minWidth: 80,
   },
   {
-    id: 'status',
+    key: 'status',
     accessor: row => capitalize(row.status),
     Header: 'Status',
     headerStyle,
@@ -1291,7 +1291,7 @@ export const patientAppointmentsColumns = [
     minWidth: 80,
   },
   {
-    id: 'actions',
+    key: 'actions',
     Header: 'Actions',
     headerStyle: {
       backgroundColor: Colors.searchTintColor,
@@ -1305,21 +1305,21 @@ export const patientAppointmentsColumns = [
 
 export const imagingRequestsColumns = [
   {
-    accessor: 'patientName',
+    key: 'patientName',
     Header: 'Patient',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'typeName',
+    key: 'typeName',
     Header: 'Type',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    id: 'requestedDate',
+    key: 'requestedDate',
     accessor: row => moment(row.requestedDate).format(dateTimeFormat),
     Header: 'Date & Time of Request',
     headerStyle,
@@ -1327,21 +1327,21 @@ export const imagingRequestsColumns = [
     minWidth: 150,
   },
   {
-    accessor: 'requestedBy',
+    key: 'requestedBy',
     Header: 'Requested By',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'location',
+    key: 'location',
     Header: 'Location',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'detail',
+    key: 'detail',
     Header: 'Detail',
     headerStyle,
     style: columnStyle,
@@ -1351,7 +1351,7 @@ export const imagingRequestsColumns = [
 
 export const patientImagingRequestsColumns = [
   {
-    id: 'typeName',
+    key: 'typeName',
     accessor: ({ type }) => type.name,
     Header: 'Type',
     headerStyle,
@@ -1359,7 +1359,7 @@ export const patientImagingRequestsColumns = [
     minWidth: 100,
   },
   {
-    id: 'requestedDate',
+    key: 'requestedDate',
     accessor: row => moment(row.requestedDate).format(dateTimeFormat),
     Header: 'Date & Time of Request',
     headerStyle,
@@ -1367,7 +1367,7 @@ export const patientImagingRequestsColumns = [
     minWidth: 150,
   },
   {
-    id: 'requestedBy',
+    key: 'requestedBy',
     accessor: ({ requestedBy }) => requestedBy.name,
     Header: 'Requested By',
     headerStyle,
@@ -1375,21 +1375,21 @@ export const patientImagingRequestsColumns = [
     minWidth: 100,
   },
   {
-    accessor: 'location',
+    key: 'location',
     Header: 'Location',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    accessor: 'detail',
+    key: 'detail',
     Header: 'Detail',
     headerStyle,
     style: columnStyle,
     minWidth: 100,
   },
   {
-    id: 'status',
+    key: 'status',
     accessor: ({ status }) => capitalize(status),
     Header: 'Status',
     headerStyle,

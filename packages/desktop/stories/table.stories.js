@@ -5,47 +5,40 @@ import { action } from '@storybook/addon-actions';
 
 import { Table } from '../app/components/Table/Table';
 
-class TableStateWrapper extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      page: 0,
-      rowsPerPage: 10,
-      numberOfRecords: 500,
-      errorMessage: null,
-    };
+function TableStateWrapper({ columns, data }) {
+  const [order, setOrder] = React.useState('asc');
+  const [orderBy, setOrderBy] = React.useState(columns[0].key);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+
+  function changeSort(columnKey) {
+    const isDesc = orderBy === columnKey && order === 'desc';
+    setOrder(isDesc ? 'asc' : 'desc');
+    setOrderBy(columnKey);
   }
 
-  changePage = page => {
-    this.setState({ page });
-  };
+  const sortedData = data.sort(({ [orderBy]: a }, { [orderBy]: b }) => a.localeCompare(b));
 
-  changeRowsPerPage = rowsPerPage => {
-    this.setState({ rowsPerPage });
-  };
-
-  render() {
-    const { columns, data } = this.props;
-    const { errorMessage, page, rowsPerPage, numberOfRecords } = this.state;
-    return (
-      <Table
-        columns={columns}
-        data={data}
-        errorMessage={errorMessage}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        count={numberOfRecords}
-        onChangePage={this.changePage}
-        onChangeRowsPerPage={this.changeRowsPerPage}
-        onRowClick={action('row clicked')}
-      />
-    );
-  }
+  return (
+    <Table
+      columns={columns}
+      data={sortedData}
+      page={page}
+      rowsPerPage={rowsPerPage}
+      count={500}
+      onChangePage={setPage}
+      onChangeRowsPerPage={setRowsPerPage}
+      onChangeSort={changeSort}
+      onRowClick={action('row clicked')}
+    />
+  );
 }
 
-const dummyColumns = [
-  { accessor: 'name', Header: 'Fruit' },
-  { accessor: 'quantity', Header: 'Quantity' },
+const dummyColumns = [{ key: 'name', Header: 'Fruit' }, { key: 'quantity', Header: 'Quantity' }];
+
+const sortableColumns = [
+  { key: 'name', Header: 'Fruit' },
+  { key: 'quantity', Header: 'Quantity', sortable: true },
 ];
 
 const dummyData = [
@@ -61,4 +54,5 @@ storiesOf('Table', module)
     <Table columns={dummyColumns} errorMessage="Something has gone wrong with all this fruit!" />
   ))
   .add('In loading state', () => <Table columns={dummyColumns} isLoading />)
-  .add('With no data', () => <Table columns={dummyColumns} data={[]} />);
+  .add('With no data', () => <Table columns={dummyColumns} data={[]} />)
+  .add('With sorting', () => <TableStateWrapper columns={sortableColumns} data={dummyData} />);

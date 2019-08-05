@@ -8,10 +8,10 @@ import { TextInput, DateDisplay } from '.';
 const DateOfBirthCell = ({ value }) => <DateDisplay date={value} showDuration />;
 
 const COLUMNS = [
-  { accessor: 'name', Header: 'Name' },
-  { accessor: 'sex', Header: 'Sex' },
-  { accessor: 'dateOfBirth', Header: 'Date of Birth', Cell: DateOfBirthCell },
-  { accessor: '_id', Header: 'ID' },
+  { key: 'name', Header: 'Name' },
+  { key: 'sex', Header: 'Sex' },
+  { key: 'dateOfBirth', Header: 'Date of Birth', Cell: DateOfBirthCell },
+  { key: '_id', Header: 'ID' },
 ];
 
 export class PatientSearch extends React.PureComponent {
