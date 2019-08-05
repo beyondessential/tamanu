@@ -115,6 +115,7 @@
     "@storybook/addons": "^5.0.1",
     "@storybook/react": "^5.0.1",
     "chalk": "^2.4.1",
+    "chance": "^1.0.18",
     "concurrently": "^3.6.1",
     "cross-env": "^5.2.0",
     "cross-spawn": "^6.0.5",

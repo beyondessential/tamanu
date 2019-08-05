@@ -5,29 +5,21 @@ import { action } from '@storybook/addon-actions';
 
 import { PatientSearch } from '../app/components/PatientSearch';
 
-const firstNames = `
-  Alan Brenda Charlie Diego Eunice Frank Giorno Harriet Ingrid Jotaro Klaus 
-  Leon Marisha Nico Olivia Prue Quincy Richard Sasha Theo Ursula Victoria 
-  Wendy Xavier Yolande Zack
-`.split(/\s/g).map(x => x.trim()).filter(x=>x);
+import Chance from 'chance';
 
-const surnames = `
-  Alda Berenstain Cooper Dunwich Escobar Finch Giovanna Humperdinck Ishii 
-  Jackson Kepler Lang Morrison Newton Onassis Pemberton Quagmire Roper
-  Smith Tucker Usher Vandermeer Winslow Xi Yearwood Zambrero
-`.split(/\s/g).map(x => x.trim()).filter(x=>x);
+const generator = new Chance();
 
-const pick = (arr) => {
-  const idx = Math.floor(Math.random() * arr.length);
-  return arr[idx];
-};
+function fakePatient(i) {
+  const gender = Math.random() < 0.5 ? "male" : "female";
+  return {
+    _id: `patient-${i}`,
+    name: generator.name({ gender }),
+    sex: gender,
+    dateOfBirth: generator.birthday(),
+  };
+}
 
-const patients = (new Array(200)).fill(0).map((x, i) => ({
-  _id: `patient-${i}`,
-  name: `${pick(firstNames)} ${pick(surnames)}`,
-  sex: pick(['male', 'female']),
-  age: 4 + Math.floor(Math.random() * 80),
-}));
+const patients = (new Array(400)).fill(0).map((x, i) => (fakePatient(i)));
 
 const suggester = {
   fetchSuggestions: async (search) => {
