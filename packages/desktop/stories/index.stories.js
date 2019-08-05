@@ -12,4 +12,5 @@ storiesOf('DateDisplay', module)
     note:
       'Shows a JS date in a locale-appropriate format. User can hover to see a more verbose date.',
   })
-  .add('placeholder', () => <DateDisplay date={new Date()} />);
+  .add('placeholder', () => <DateDisplay date={new Date()} />)
+  .add('with duration', () => <DateDisplay date={new Date(2010, 10, 10)} showDuration />);
