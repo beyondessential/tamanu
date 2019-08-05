@@ -18,7 +18,7 @@ const PatientRow = React.memo(({ _id, name, dateOfBirth, sex, onClick }) => (
   >
     <TableCell>{name}</TableCell>
     <TableCell>{sex}</TableCell>
-    <TableCell><DateDisplay date={dateOfBirth}/></TableCell>
+    <TableCell><DateDisplay date={dateOfBirth} showDuration /></TableCell>
     <TableCell>{_id}</TableCell>
   </TableRow>
 ));
