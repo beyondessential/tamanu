@@ -20,6 +20,6 @@ function formatDuration(date) {
 export const DateDisplay = React.memo(({ date, showDuration = false }) => (
   <abbr title={formatLong(date)}>
     {formatShort(date)}
-    { showDuration && ` (${formatDuration(date)})`}
+    {showDuration && ` (${formatDuration(date)})`}
   </abbr>
 ));
