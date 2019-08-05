@@ -1,6 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { push } from 'react-router-redux';
 import Collapse from '@material-ui/core/Collapse';
 
 import Table from '@material-ui/core/Table';
@@ -38,10 +36,10 @@ export class PatientSearch extends React.PureComponent {
 
     if (searchTerm.length > 0) {
       const suggestions = await suggester.fetchSuggestions(searchTerm);
-      this.setState({
+      this.setState(state => ({
         suggestions,
-        expanded: this.state.expanded || suggestions.length > 0,
-      });
+        expanded: state.expanded || suggestions.length > 0,
+      }));
     } else {
       this.setState({ expanded: false });
     }

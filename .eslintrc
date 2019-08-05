@@ -11,6 +11,7 @@
     // (missing deps should break CI anyway so it's not a big deal)
     // https://github.com/benmosher/eslint-plugin-import/issues/479
     "import/no-extraneous-dependencies": false,
+    "no-underscore-dangle": "off",
     "react/prop-types": false
   },
   "overrides": [
