@@ -23,6 +23,10 @@ const LabeledSelect = ({ label, ...props }) => (
   </div>
 );
 
+LabeledSelect.propTypes = {
+  label: PropTypes.string.isRequired,
+};
+
 const ExpanderSection = ({ heading, subheading, children, ...props }) => (
   <ExpansionPanel {...props}>
     <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
@@ -35,7 +39,21 @@ const ExpanderSection = ({ heading, subheading, children, ...props }) => (
   </ExpansionPanel>
 );
 
+ExpanderSection.propTypes = {
+  heading: PropTypes.string.isRequired,
+  subheading: PropTypes.string,
+  children: PropTypes.arrayOf(PropTypes.node).isRequired,
+};
+
+ExpanderSection.defaultProps = {
+  subheading: '',
+};
+
 export class ReportFilters extends Component {
+  static propTypes = {
+    onApply: PropTypes.func.isRequired,
+  }
+
   state = {
     range: {
       end: moment(),
@@ -47,13 +65,13 @@ export class ReportFilters extends Component {
     onApply: PropTypes.func.isRequired,
   };
 
-  apply = () => {
-    this.props.onApply(this.state);
-  };
-
   componentDidMount() {
     this.apply();
   }
+
+  apply = () => {
+    this.props.onApply(this.state);
+  };
 
   render() {
     return (
@@ -123,10 +141,9 @@ export class ReportFilters extends Component {
           </ExpanderSection>
         </div>
         <div className="column" style={{ textAlign: 'right', marginTop: '-1em' }}>
-          <Button>Advanced filters</Button>{' '}
-          <Button onClick={this.apply} primary>
-            Generate report
-          </Button>
+          <Button>Advanced filters</Button>
+          {' '}
+          <Button onClick={this.apply}>Generate report</Button>
         </div>
       </div>
     );
