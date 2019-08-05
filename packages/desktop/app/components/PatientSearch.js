@@ -8,10 +8,10 @@ import { TextInput, DateDisplay } from '.';
 const DateOfBirthCell = ({ value }) => <DateDisplay date={value} showDuration />;
 
 const COLUMNS = [
-  { key: 'name', Header: 'Name' },
-  { key: 'sex', Header: 'Sex' },
-  { key: 'dateOfBirth', Header: 'Date of Birth', Cell: DateOfBirthCell },
-  { key: '_id', Header: 'ID' },
+  { key: 'name', title: 'Name' },
+  { key: 'sex', title: 'Sex' },
+  { key: 'dateOfBirth', title: 'Date of Birth', CellComponent: DateOfBirthCell },
+  { key: '_id', title: 'ID' },
 ];
 
 export class PatientSearch extends React.PureComponent {
@@ -47,7 +47,12 @@ export class PatientSearch extends React.PureComponent {
       <div>
         <TextInput label="Patient name" value={searchTerm} onChange={this.updateSearchTerm} />
         <Collapse in={expanded}>
-          <Table columns={COLUMNS} data={suggestions} onRowClick={onPatientSelect} />
+          <Table
+            columns={COLUMNS}
+            data={suggestions}
+            onRowClick={onPatientSelect}
+            noDataMessage="No patients found matching your search"
+          />
         </Collapse>
       </div>
     );

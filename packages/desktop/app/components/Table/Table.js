@@ -9,9 +9,12 @@ import MaterialTable from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
 import TableRow from '@material-ui/core/TableRow';
 import TableFooter from '@material-ui/core/TableFooter';
 import TablePagination from '@material-ui/core/TablePagination';
+
+const ROWS_PER_PAGE_OPTIONS = [5, 10, 25];
 
 const Row = React.memo(({ children, onClick, data }) => (
   <TableRow onClick={() => onClick(data)} style={{ marginTop: '1rem' }}>
@@ -19,104 +22,139 @@ const Row = React.memo(({ children, onClick, data }) => (
   </TableRow>
 ));
 
-const ErrorCell = React.memo(({ colSpan, errorMessage }) => (
-  <TableCell colSpan={colSpan} align="center">
-    {errorMessage}
+const ErrorRow = React.memo(({ colSpan, message }) => (
+  <Row>
+    <TableCell colSpan={colSpan} align="center">
+      {message}
+    </TableCell>
+  </Row>
+));
+
+const Cell = React.memo(({ value, CellComponent, sortDirection, align }) => (
+  <TableCell sortDirection={sortDirection} align={align}>
+    {CellComponent ? <CellComponent value={value} /> : value}
   </TableCell>
 ));
 
-export class Table extends React.PureComponent {
-  getErrorMessage() {
-    const { errorMessage, data, isLoading } = this.props;
-    if (isLoading) return 'Loading...';
-    if (errorMessage) return errorMessage;
-    if (data.length === 0) return 'No data found';
-    return null;
-  }
-
-  handleChangePage = (event, page) => {
-    const { onChangePage } = this.props;
-    if (onChangePage) onChangePage(page);
-  };
-
-  handleChangeRowsPerPage = event => {
-    const { value: rowsPerPage } = event.target;
-    const { onChangeRowsPerPage } = this.props;
-    if (onChangeRowsPerPage) onChangeRowsPerPage(rowsPerPage);
-  };
-
-  renderHeaders = () => this.props.columns.map(({ Header }) => <TableCell>{Header}</TableCell>);
-
-  renderRowContent = ({ key, accessor, Cell }, data) => {
-    const value = accessor ? accessor(data) : data[key];
-    return (
-      <TableCell>
-        {Cell ? <Cell value={value} data={data} key={key} accessor={accessor} /> : value}
-      </TableCell>
-    );
-  };
-
-  renderRow = data => {
-    const { columns, onRowClick, RowComponent } = this.props;
-    const rowContent = columns.map(column => this.renderRowContent(column, data));
-    return <RowComponent onClick={() => onRowClick(data)}>{rowContent}</RowComponent>;
-  };
-
-  renderError = errorMessage => {
-    const { columns, RowComponent } = this.props;
-    return (
-      <RowComponent>
-        <ErrorCell colSpan={columns.length} errorMessage={errorMessage} />
-      </RowComponent>
-    );
-  };
-
-  renderBodyContent = () => {
-    const { data } = this.props;
-    const errorMessage = this.getErrorMessage();
-    if (errorMessage) {
-      return this.renderError(errorMessage);
+export const Table = React.memo(
+  ({
+    columns,
+    data,
+    errorMessage,
+    noDataMessage,
+    isLoading,
+    order,
+    orderBy,
+    count,
+    page,
+    rowsPerPage,
+    onChangePage,
+    onChangeOrderBy,
+    onChangeRowsPerPage,
+    onRowClick,
+  }) => {
+    function getErrorMessage() {
+      if (isLoading) return 'Loading...';
+      if (errorMessage) return errorMessage;
+      if (data.length === 0) return noDataMessage;
+      return null;
     }
-    return data.map(rowData => this.renderRow(rowData));
-  };
 
-  renderPaginator = () => {
-    const { count, page, rowsPerPage } = this.props;
-    return (
-      <TableRow>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          colSpan={3}
-          page={page}
-          count={count}
-          rowsPerPage={rowsPerPage}
-          SelectProps={{
-            inputProps: { 'aria-label': 'rows per page' },
-            native: true,
-          }}
-          onChangePage={this.handleChangePage}
-          onChangeRowsPerPage={this.handleChangeRowsPerPage}
+    function handleChangePage(event, newPage) {
+      if (onChangePage) onChangePage(newPage);
+    }
+
+    function handleChangeRowsPerPage(event) {
+      const { value: newRowsPerPage } = parseInt(event.target, 10);
+      if (onChangeRowsPerPage) onChangeRowsPerPage(newRowsPerPage);
+    }
+
+    function renderHeaders() {
+      return columns.map(({ key, title, numeric, sortable = true }) => {
+        if (sortable) {
+          return (
+            <TableCell
+              key={key}
+              align={numeric ? 'right' : 'left'}
+              sortDirection={orderBy === key ? order : false}
+            >
+              <TableSortLabel
+                active={orderBy === key}
+                direction={order}
+                onClick={() => onChangeOrderBy(key)}
+              >
+                {title}
+              </TableSortLabel>
+            </TableCell>
+          );
+        }
+        return (
+          <TableCell key={key} align={numeric ? 'right' : 'left'}>
+            {title}
+          </TableCell>
+        );
+      });
+    }
+
+    function renderRow(rowData) {
+      const cells = columns.map(({ key, accessor, CellComponent, numeric }) => (
+        <Cell
+          key={key}
+          value={accessor ? accessor(rowData) : rowData[key]}
+          align={numeric ? 'right' : 'left'}
+          sortDirection={orderBy === key ? order : false}
+          CellComponent={CellComponent}
         />
-      </TableRow>
-    );
-  };
+      ));
+      return <Row onClick={() => onRowClick(rowData)}>{cells}</Row>;
+    }
 
-  render() {
-    const { page } = this.props;
+    function renderBodyContent() {
+      const error = getErrorMessage();
+      if (error) {
+        return <ErrorRow message={error} colSpan={columns.length} />;
+      }
+      return data.map(renderRow);
+    }
+
+    function renderPaginator() {
+      return (
+        <TableRow>
+          <TablePagination
+            rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+            colSpan={columns.length}
+            page={page}
+            count={count}
+            rowsPerPage={rowsPerPage}
+            onChangePage={handleChangePage}
+            onChangeRowsPerPage={handleChangeRowsPerPage}
+          />
+        </TableRow>
+      );
+    }
+
     return (
       <MaterialTable>
-        <TableHead>{this.renderHeaders()}</TableHead>
-        <TableBody>{this.renderBodyContent()}</TableBody>
-        {page !== undefined && <TableFooter>{this.renderPaginator()}</TableFooter>}
+        <TableHead>{renderHeaders()}</TableHead>
+        <TableBody>{renderBodyContent()}</TableBody>
+        {page !== null && <TableFooter>{renderPaginator()}</TableFooter>}
       </MaterialTable>
     );
-  }
-}
+  },
+);
 
 Table.propTypes = {
-  columns: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  columns: PropTypes.arrayOf(
+    PropTypes.shape({
+      key: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+      accessor: PropTypes.func,
+      sortable: PropTypes.bool,
+    }),
+  ).isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   errorMessage: PropTypes.string,
+  noDataMessage: PropTypes.string,
   isLoading: PropTypes.bool,
   count: PropTypes.number,
   onChangePage: PropTypes.func,
@@ -126,13 +164,12 @@ Table.propTypes = {
   order: PropTypes.string,
   page: PropTypes.number,
   rowsPerPage: PropTypes.number,
-  RowComponent: PropTypes.element,
 };
 
 Table.defaultProps = {
   errorMessage: '',
+  noDataMessage: 'No data found',
   count: 0,
-  RowComponent: Row,
   isLoading: false,
   onChangePage: null,
   onChangeRowsPerPage: null,

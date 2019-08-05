@@ -34,11 +34,14 @@ function TableStateWrapper({ columns, data }) {
   );
 }
 
-const dummyColumns = [{ key: 'name', Header: 'Fruit' }, { key: 'quantity', Header: 'Quantity' }];
+const dummyColumns = [
+  { key: 'name', title: 'Fruit', sortable: false },
+  { key: 'quantity', title: 'Quantity', sortable: false, numeric: true },
+];
 
 const sortableColumns = [
-  { key: 'name', Header: 'Fruit' },
-  { key: 'quantity', Header: 'Quantity', sortable: true },
+  { key: 'name', title: 'Fruit' },
+  { key: 'quantity', title: 'Quantity', numeric: true },
 ];
 
 const dummyData = [
