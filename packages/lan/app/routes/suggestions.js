@@ -29,18 +29,16 @@ function createSuggestionRoute(path, table, filter, transform = defaultTransform
 
 function createDummySuggestionRoute(path, values) {
   suggestionRoutes.get(`/${path}/:id`, (req, res) => {
-    const db = req.app.get('database');
     const { id } = req.params;
     const object = values.find(x => x._id === id);
     if (!object) {
-      res.status(404).send(`Could not find object with id "${id}" in table "${table}"`);
+      res.status(404).send(`Could not find object with id "${id}" (dummy model)`);
       return;
     }
     res.send(object);
   });
 
   suggestionRoutes.get(`/${path}`, (req, res) => {
-    const db = req.app.get('database');
     const { q = '', limit = 10 } = req.query;
     const query = q.toLowerCase();
     const data = values.filter(x => x.name.toLowerCase().includes(query)).slice(0, limit);

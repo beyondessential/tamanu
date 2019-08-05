@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import { capitalize } from 'lodash';
 import { Grid, Tab, Tabs } from '@material-ui/core';
 import { push } from 'react-router-redux';
@@ -15,25 +14,8 @@ import LabRequests from '../components/LabRequests';
 import Vitals from './Vitals';
 import Notes from './Notes';
 import Procedures from './Procedures';
-import actions from '../../../actions/patients';
-import {
-  Preloader,
-  TextField,
-  DateField,
-  TopBar,
-  BottomBar,
-  AddButton,
-  UpdateButton,
-  CancelButton,
-  SelectField,
-  Container,
-  FormRow,
-  Field,
-  Form,
-  Button,
-} from '../../../components';
-import { visitOptions, visitStatuses, MUI_SPACING_UNIT as spacing } from '../../../constants';
-import { VisitModel } from '../../../models';
+import { Preloader, TopBar, Container, Button } from '../../../components';
+import { MUI_SPACING_UNIT as spacing } from '../../../constants';
 import { VisitForm } from '../../../forms/VisitForm';
 import { Suggester } from '../../../utils/suggester';
 
@@ -43,21 +25,7 @@ const locationSuggester = new Suggester('location');
 class EditVisit extends Component {
   state = {
     selectedTab: 'vitals',
-    updateVisitStatus: false,
   };
-
-  componentWillMount() {
-    this.props.initVisit();
-  }
-
-  componentWillReceiveProps(newProps) {
-    this.handleChange(newProps);
-  }
-
-  componentWillUnmount() {
-    const { visitModel } = this.state;
-    if (visitModel) visitModel.off('change');
-  }
 
   onCloseModal() {
     this.props.resetSaved();
@@ -67,30 +35,7 @@ class EditVisit extends Component {
     this.setState({ selectedTab: tabName });
   };
 
-  handleFormSubmit = ({ status, endDate, ...values }) => {
-    const { updateVisitStatus } = this.state;
-    const { action, patientModel, visitModel } = this.props;
-    visitModel.set(values, { silent: true });
-    if (!updateVisitStatus) visitModel.set({ status, endDate }, { silent: true });
-    this.props.submitForm({
-      action,
-      visitModel,
-      patientModel,
-      history: this.props.history,
-      setStatus: updateVisitStatus,
-    });
-  };
-
-  handleChange(props = this.props) {
-    const { visitModel, loading } = props;
-    if (!loading) {
-      // handle model's change
-      if (visitModel instanceof VisitModel) {
-        visitModel.off('change');
-        visitModel.on('change', () => this.forceUpdate());
-      }
-    }
-  }
+  handleFormSubmit = () => {};
 
   renderTabs() {
     const { selectedTab } = this.state;
@@ -156,7 +101,9 @@ class EditVisit extends Component {
           title={checkIn ? 'Patient Check In' : `${capitalize(action)} Visit`}
           subTitle={action === 'new' ? visitModel.get('status') : null}
         >
-          <Button onClick={onCancel} variant="outlined">Back</Button>
+          <Button onClick={onCancel} variant="outlined">
+            Back
+          </Button>
         </TopBar>
         <Container>
           <TopRow patient={patientModel.toJSON()} />
@@ -194,8 +141,6 @@ class EditVisit extends Component {
 }
 
 EditVisit.propTypes = {
-  initVisit: PropTypes.func.isRequired,
-  submitForm: PropTypes.func.isRequired,
   resetSaved: PropTypes.func.isRequired,
   patientModel: PropTypes.instanceOf(Object).isRequired,
   visitModel: PropTypes.instanceOf(Object),
@@ -205,7 +150,6 @@ EditVisit.propTypes = {
 };
 
 EditVisit.defaultProps = {
-  visitModel: new VisitModel(),
   checkIn: false,
   action: 'new',
   loading: true,
@@ -213,19 +157,15 @@ EditVisit.defaultProps = {
 
 function mapStateToProps(state, { match: { path } }) {
   const { patient, visit, action, loading, error } = state.patients;
-  const mappedProps = {
+  return {
     patientModel: patient,
     action,
     loading,
     error,
     checkIn: path.indexOf('check-in') !== -1,
   };
-  if (visit instanceof VisitModel) mappedProps.visitModel = visit;
-  return mappedProps;
 }
 
-const { visit: visitActions } = actions;
-const { initVisit, submitForm, resetSaved } = visitActions;
 const mapDispatchToProps = (
   dispatch,
   {
@@ -234,10 +174,7 @@ const mapDispatchToProps = (
     },
   },
 ) => ({
-  initVisit: props => dispatch(initVisit({ patientId, id, ...props })),
-  onCancel: props => dispatch(push(`/patients/editPatient/${patientId}`)),
-  submitForm: params => dispatch(submitForm(params)),
-  resetSaved: params => dispatch(resetSaved(params)),
+  onCancel: () => dispatch(push(`/patients/editPatient/${patientId}`)),
 });
 
 export default connect(

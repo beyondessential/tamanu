@@ -20,13 +20,9 @@ export class VisitForm extends React.PureComponent {
     onSubmit: PropTypes.func.isRequired,
   };
 
-  renderForm = ({ isValid, isSubmitting, submitForm }) => {
-    const { 
-      locationSuggester,
-      practitionerSuggester,
-      editedObject,
-    } = this.props;
-    const buttonText = editedObject ? "Update visit" : "Start visit";
+  renderForm = ({ submitForm }) => {
+    const { locationSuggester, practitionerSuggester, editedObject } = this.props;
+    const buttonText = editedObject ? 'Update visit' : 'Start visit';
     return (
       <FormGrid>
         <Field
@@ -67,7 +63,7 @@ export class VisitForm extends React.PureComponent {
         />
         <div style={{ gridColumn: 2, textAlign: 'right' }}>
           <Button variant="contained" onClick={submitForm} color="primary">
-            { buttonText }
+            {buttonText}
           </Button>
         </div>
       </FormGrid>
