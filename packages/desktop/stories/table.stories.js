@@ -1,0 +1,61 @@
+import React from 'react';
+
+import { storiesOf } from '@storybook/react';
+import { action } from '@storybook/addon-actions';
+
+import { Table } from '../app/components/Table/Table';
+
+class TableStateWrapper extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      filters: {},
+      sorting: {},
+      page: 0,
+      rowsPerPage: 10,
+      numberOfRecords: 500,
+      errorMessage: null,
+    };
+  }
+
+  changePage = page => {
+    this.setState({ page });
+  };
+
+  changeRowsPerPage = rowsPerPage => {
+    this.setState({ rowsPerPage });
+  };
+
+  render() {
+    const { columns, data } = this.props;
+    const { filters, sorting, errorMessage, page, rowsPerPage, numberOfRecords } = this.state;
+    return (
+      <Table
+        columns={columns}
+        data={data}
+        filters={filters}
+        sorting={sorting}
+        errorMessage={errorMessage}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        count={numberOfRecords}
+        onChangePage={this.changePage}
+        onChangeRowsPerPage={this.changeRowsPerPage}
+        onSortedChange={action('changed sort')}
+        onRowClick={action('row clicked')}
+      />
+    );
+  }
+}
+
+const dummyColumns = [{ name: 'Fruit', key: 'name' }, { name: 'Quantity', key: 'quantity' }];
+
+const dummyData = [
+  { name: 'Apples', quantity: 53 },
+  { name: 'Bananas', quantity: 14 },
+  { name: 'Persimmon', quantity: 6 },
+];
+
+storiesOf('Table', module)
+  .add('Plain', () => <Table columns={dummyColumns} data={dummyData} />)
+  .add('With Pagination', () => <TableStateWrapper columns={dummyColumns} data={dummyData} />);
