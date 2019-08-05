@@ -53,11 +53,9 @@ const dummyData = [
 
 storiesOf('Table', module)
   .add('Plain', () => <Table columns={dummyColumns} data={dummyData} />)
-  .add('With Pagination', () => <TableStateWrapper columns={dummyColumns} data={dummyData} />)
-  .add('In Error State', () => (
-    <Table
-      columns={dummyColumns}
-      data={dummyData}
-      errorMessage="Something has gone wrong with all this fruit!"
-    />
-  ));
+  .add('With pagination', () => <TableStateWrapper columns={dummyColumns} data={dummyData} />)
+  .add('In error state', () => (
+    <Table columns={dummyColumns} errorMessage="Something has gone wrong with all this fruit!" />
+  ))
+  .add('In loading state', () => <Table columns={dummyColumns} isLoading />)
+  .add('With no data', () => <Table columns={dummyColumns} data={[]} />);

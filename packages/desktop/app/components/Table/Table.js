@@ -37,6 +37,14 @@ export class Table extends React.PureComponent {
     if (onChangeRowsPerPage) onChangeRowsPerPage(rowsPerPage);
   };
 
+  getErrorMessage() {
+    const { errorMessage, data, isLoading } = this.props;
+    if (isLoading) return 'Loading...';
+    if (errorMessage) return errorMessage;
+    if (data.length === 0) return 'No data found';
+    return null;
+  }
+
   renderHeaders = () =>
     Object.values(this.props.columns).map(name => <TableCell>{name}</TableCell>);
 
@@ -67,13 +75,12 @@ export class Table extends React.PureComponent {
   };
 
   renderBodyContent = () => {
-    const { data, errorMessage } = this.props;
+    const { data } = this.props;
+    const errorMessage = this.getErrorMessage();
     if (errorMessage) {
       return this.renderError(errorMessage);
     }
-    return data.length > 0
-      ? data.map(rowData => this.renderRow(rowData))
-      : this.renderError('No data found');
+    return data.map(rowData => this.renderRow(rowData));
   };
 
   renderPaginator = () => {
@@ -113,11 +120,14 @@ Table.propTypes = {
   columns: PropTypes.shape({}).isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({})),
   errorMessage: PropTypes.string,
+  isLoading: PropTypes.bool.isRequired,
   count: PropTypes.number,
   onChangePage: PropTypes.func.isRequired,
   onChangeRowsPerPage: PropTypes.func.isRequired,
+  onSortedChange: PropTypes.func.isRequired,
   page: PropTypes.number.isRequired,
   rowsPerPage: PropTypes.number.isRequired,
+  sorting: PropTypes.array.isRequired,
   CustomCellComponents: PropTypes.shape({}),
   RowComponent: PropTypes.element,
 };
