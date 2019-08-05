@@ -61,10 +61,6 @@ export class ReportFilters extends Component {
     },
   };
 
-  static propTypes = {
-    onApply: PropTypes.func.isRequired,
-  };
-
   componentDidMount() {
     this.apply();
   }
