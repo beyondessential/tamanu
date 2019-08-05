@@ -17,17 +17,16 @@ import { visitOptions } from '../constants';
 
 export class VisitForm extends React.PureComponent {
   static propTypes = {
-    fetchLocations: PropTypes.func.isRequired,
-    fetchPractitioners: PropTypes.func.isRequired,
     onSubmit: PropTypes.func.isRequired,
   };
 
-  renderForm = ({ isValid, isSubmitting, submitForm }) => {
-    const { fetchLocations, fetchPractitioners } = this.props;
+  renderForm = ({ submitForm }) => {
+    const { locationSuggester, practitionerSuggester, editedObject } = this.props;
+    const buttonText = editedObject ? 'Update visit' : 'Start visit';
     return (
       <FormGrid>
         <Field
-          name="type"
+          name="visitType"
           label="Visit type"
           required
           component={SelectField}
@@ -45,14 +44,14 @@ export class VisitForm extends React.PureComponent {
           label="Location"
           required
           component={AutocompleteField}
-          fetchOptions={fetchLocations}
+          suggester={locationSuggester}
         />
         <Field
-          name="practitioner"
+          name="examiner"
           label="Practitioner"
           required
           component={AutocompleteField}
-          fetchOptions={fetchPractitioners}
+          suggester={practitionerSuggester}
         />
         <Field
           name="reasonForVisit"
@@ -64,7 +63,7 @@ export class VisitForm extends React.PureComponent {
         />
         <div style={{ gridColumn: 2, textAlign: 'right' }}>
           <Button variant="contained" onClick={submitForm} color="primary">
-            Start visit
+            {buttonText}
           </Button>
         </div>
       </FormGrid>
@@ -72,19 +71,20 @@ export class VisitForm extends React.PureComponent {
   };
 
   render() {
-    const { onSubmit } = this.props;
+    const { onSubmit, editedObject } = this.props;
     return (
       <Form
         onSubmit={onSubmit}
         render={this.renderForm}
         initialValues={{
           startDate: new Date(),
+          ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          practitioner: yup.string().required(),
+          examiner: yup.string().required(),
           location: yup.string().required(),
           startDate: yup.date().required(),
-          type: yup
+          visitType: yup
             .mixed()
             .oneOf(visitOptions.map(x => x.value))
             .required(),
