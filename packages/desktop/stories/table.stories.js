@@ -43,7 +43,10 @@ class TableStateWrapper extends React.Component {
   }
 }
 
-const dummyColumns = { name: 'Fruit', quantity: 'Quantity' };
+const dummyColumns = [
+  { accessor: 'name', Header: 'Fruit' },
+  { accessor: 'quantity', Header: 'Quantity' },
+];
 
 const dummyData = [
   { name: 'Apples', quantity: 53 },

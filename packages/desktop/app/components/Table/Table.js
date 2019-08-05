@@ -45,23 +45,18 @@ export class Table extends React.PureComponent {
     if (onChangeRowsPerPage) onChangeRowsPerPage(rowsPerPage);
   };
 
-  renderHeaders = () =>
-    Object.values(this.props.columns).map(name => <TableCell>{name}</TableCell>);
+  renderHeaders = () => this.props.columns.map(({ Header }) => <TableCell>{Header}</TableCell>);
 
-  renderRowContent = (data, key) => {
-    const { CustomCellComponents } = this.props;
-    const value = data[key];
-    const CustomComponent = CustomCellComponents[key];
+  renderRowContent = ({ accessor, Cell }, data) => {
+    const value = data[accessor];
     return (
-      <TableCell>
-        {CustomComponent ? <CustomComponent value={value} data={data} key={key} /> : value}
-      </TableCell>
+      <TableCell>{Cell ? <Cell value={value} data={data} accessor={accessor} /> : value}</TableCell>
     );
   };
 
   renderRow = data => {
     const { columns, onRowClick, RowComponent } = this.props;
-    const rowContent = Object.keys(columns).map(key => this.renderRowContent(data, key));
+    const rowContent = columns.map(column => this.renderRowContent(column, data));
     return <RowComponent onClick={() => onRowClick(data)}>{rowContent}</RowComponent>;
   };
 
@@ -69,7 +64,7 @@ export class Table extends React.PureComponent {
     const { columns, RowComponent } = this.props;
     return (
       <RowComponent>
-        <ErrorCell colSpan={Object.keys(columns).length} errorMessage={errorMessage} />
+        <ErrorCell colSpan={columns.length} errorMessage={errorMessage} />
       </RowComponent>
     );
   };
@@ -117,7 +112,7 @@ export class Table extends React.PureComponent {
 }
 
 Table.propTypes = {
-  columns: PropTypes.shape({}).isRequired,
+  columns: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({})),
   errorMessage: PropTypes.string,
   isLoading: PropTypes.bool.isRequired,
@@ -128,7 +123,6 @@ Table.propTypes = {
   page: PropTypes.number.isRequired,
   rowsPerPage: PropTypes.number.isRequired,
   sorting: PropTypes.array.isRequired,
-  CustomCellComponents: PropTypes.shape({}),
   RowComponent: PropTypes.element,
 };
 
@@ -136,6 +130,5 @@ Table.defaultProps = {
   data: [],
   errorMessage: '',
   count: 0,
-  CustomCellComponents: {},
   RowComponent: Row,
 };

@@ -5,14 +5,14 @@ import { Table } from './Table';
 
 import { TextInput, DateDisplay } from '.';
 
-const COLUMNS = {
-  name: 'Name',
-  sex: 'Sex',
-  dateOfBirth: 'Date of Birth',
-  _id: 'ID',
-};
-
 const DateOfBirthCell = ({ value }) => <DateDisplay date={value} showDuration />;
+
+const COLUMNS = [
+  { accessor: 'name', Header: 'Name' },
+  { accessor: 'sex', Header: 'Sex' },
+  { accessor: 'dateOfBirth', Header: 'Date of Birth', Cell: DateOfBirthCell },
+  { accessor: '_id', Header: 'ID' },
+];
 
 export class PatientSearch extends React.PureComponent {
   state = {
@@ -47,14 +47,7 @@ export class PatientSearch extends React.PureComponent {
       <div>
         <TextInput label="Patient name" value={searchTerm} onChange={this.updateSearchTerm} />
         <Collapse in={expanded}>
-          <Table
-            columns={COLUMNS}
-            data={suggestions}
-            CustomCellComponents={{
-              dateOfBirth: DateOfBirthCell,
-            }}
-            onRowClick={onPatientSelect}
-          />
+          <Table columns={COLUMNS} data={suggestions} onRowClick={onPatientSelect} />
         </Collapse>
       </div>
     );
