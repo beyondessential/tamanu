@@ -26,6 +26,14 @@ const ErrorCell = React.memo(({ colSpan, errorMessage }) => (
 ));
 
 export class Table extends React.PureComponent {
+  getErrorMessage() {
+    const { errorMessage, data, isLoading } = this.props;
+    if (isLoading) return 'Loading...';
+    if (errorMessage) return errorMessage;
+    if (data.length === 0) return 'No data found';
+    return null;
+  }
+
   handleChangePage = (event, page) => {
     const { onChangePage } = this.props;
     if (onChangePage) onChangePage(page);
@@ -36,14 +44,6 @@ export class Table extends React.PureComponent {
     const { onChangeRowsPerPage } = this.props;
     if (onChangeRowsPerPage) onChangeRowsPerPage(rowsPerPage);
   };
-
-  getErrorMessage() {
-    const { errorMessage, data, isLoading } = this.props;
-    if (isLoading) return 'Loading...';
-    if (errorMessage) return errorMessage;
-    if (data.length === 0) return 'No data found';
-    return null;
-  }
 
   renderHeaders = () =>
     Object.values(this.props.columns).map(name => <TableCell>{name}</TableCell>);
