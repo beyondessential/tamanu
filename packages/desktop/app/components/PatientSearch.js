@@ -3,7 +3,25 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import Collapse from '@material-ui/core/Collapse';
 
-import { TextInput } from './';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+
+import { TextInput, DateDisplay } from './';
+
+const PatientRow = React.memo(({ _id, name, dateOfBirth, sex, onClick }) => (
+  <TableRow 
+    onClick={() => onClick(_id)}
+    style={{ marginTop: '1rem' }}
+  >
+    <TableCell>{name}</TableCell>
+    <TableCell>{sex}</TableCell>
+    <TableCell><DateDisplay date={dateOfBirth}/></TableCell>
+    <TableCell>{_id}</TableCell>
+  </TableRow>
+));
 
 export class PatientSearch extends React.PureComponent {
 
@@ -35,15 +53,17 @@ export class PatientSearch extends React.PureComponent {
     const { onPatientSelect } = this.props;
     const { searchTerm, suggestions, expanded } = this.state;
 
-    const rows = suggestions.map(s => (
-      <div 
-        onClick={() => onPatientSelect(s._id)}
-        style={{ marginTop: '1rem' }}
-      >
-        <div><b>{s.name}</b> <span>{`(ID#${s._id})`}</span></div>
-        <div>{`${s.sex}, age ${s.age}`}</div>
-      </div>
-    ));
+    const rows = suggestions.length > 0 
+      ? suggestions.map(s => (
+        <PatientRow
+          {...s} 
+          key={s._id} 
+          onClick={() => onPatientSelect(s)}
+        />
+      ))
+      : <TableRow>
+        <TableCell colSpan="4" align="center">No patients found.</TableCell>
+      </TableRow>;
 
     return (
       <div>
@@ -53,7 +73,17 @@ export class PatientSearch extends React.PureComponent {
           onChange={this.updateSearchTerm}
         />
         <Collapse in={expanded}>
-          { rows }
+          <Table>
+            <TableHead>
+              <TableCell>Name</TableCell>
+              <TableCell>Sex</TableCell>
+              <TableCell>Date of birth</TableCell>
+              <TableCell>ID</TableCell>
+            </TableHead>
+            <TableBody>
+              { rows }
+            </TableBody>
+          </Table>
         </Collapse>
       </div>
     );
