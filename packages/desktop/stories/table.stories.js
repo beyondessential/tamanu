@@ -9,8 +9,6 @@ class TableStateWrapper extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      filters: {},
-      sorting: {},
       page: 0,
       rowsPerPage: 10,
       numberOfRecords: 500,
@@ -28,27 +26,24 @@ class TableStateWrapper extends React.Component {
 
   render() {
     const { columns, data } = this.props;
-    const { filters, sorting, errorMessage, page, rowsPerPage, numberOfRecords } = this.state;
+    const { errorMessage, page, rowsPerPage, numberOfRecords } = this.state;
     return (
       <Table
         columns={columns}
         data={data}
-        filters={filters}
-        sorting={sorting}
         errorMessage={errorMessage}
         page={page}
         rowsPerPage={rowsPerPage}
         count={numberOfRecords}
         onChangePage={this.changePage}
         onChangeRowsPerPage={this.changeRowsPerPage}
-        onSortedChange={action('changed sort')}
         onRowClick={action('row clicked')}
       />
     );
   }
 }
 
-const dummyColumns = [{ name: 'Fruit', key: 'name' }, { name: 'Quantity', key: 'quantity' }];
+const dummyColumns = { name: 'Fruit', quantity: 'Quantity' };
 
 const dummyData = [
   { name: 'Apples', quantity: 53 },
