@@ -59,7 +59,7 @@ const graphRenderers = {
 // this has to be a function, not a component, as recharts
 // will break if its components get wrapped in non-recharts
 // components
-function renderGraph(report, data) {
+const renderGraph = (report, data) => {
   const render = graphRenderers[report.graphType] || graphRenderers.line;
   return render(data);
 }

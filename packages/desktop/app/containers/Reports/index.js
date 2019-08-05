@@ -13,5 +13,5 @@ export const Reports = ({ match }) => (
 );
 
 Reports.propTypes = {
-  match: PropTypes.string.isRequired
+  match: PropTypes.shape({url: PropTypes.string}).isRequired
 };
