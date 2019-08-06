@@ -13,17 +13,15 @@ const Content = styled.div`
   margin-bottom: 0 !important;
 `;
 
-const _Reports = ({ match, theme }) => (
+export const Reports = withTheme()(({ match, theme }) => (
   <Content theme={theme}>
     <Switch>
       <Route path={`${match.url}/:reportId`} component={ReportGenerator} />
     </Switch>
   </Content>
-);
+));
 
-_Reports.propTypes = {
+Reports.propTypes = {
   match: PropTypes.shape({url: PropTypes.string}).isRequired,
   theme: PropTypes.object.isRequired
 };
-
-export const Reports = withTheme()(_Reports);
