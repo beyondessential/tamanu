@@ -16,13 +16,13 @@ import TablePagination from '@material-ui/core/TablePagination';
 
 const ROWS_PER_PAGE_OPTIONS = [5, 10, 25];
 
-const RowContainer = React.memo(({ children, onClick, data }) => (
-  <TableRow onClick={() => onClick(data)} style={{ marginTop: '1rem' }}>
+const RowContainer = React.memo(({ children, onClick }) => (
+  <TableRow onClick={onClick} style={{ marginTop: '1rem' }}>
     {children}
   </TableRow>
 ));
 
-const Row = React.memo(({ columns, data, onClick }) => {
+const Row = React.memo(({ columns, data, onClick = () => null }) => {
   const cells = columns.map(({ key, accessor, CellComponent, numeric }) => {
     const value = accessor ? accessor(data) : data[key];
     return (
@@ -64,6 +64,7 @@ export class Table extends React.Component {
     order: PropTypes.string,
     page: PropTypes.number,
     rowsPerPage: PropTypes.number,
+    onRowClick: PropTypes.func,
   };
 
   static defaultProps = {
@@ -78,6 +79,7 @@ export class Table extends React.Component {
     order: 'asc',
     page: null,
     rowsPerPage: null,
+    onRowClick: () => null,
   };
 
   getErrorMessage() {
