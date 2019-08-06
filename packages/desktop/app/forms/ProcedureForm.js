@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import Collapse from '@material-ui/core/Collapse';
 
 import {
   Form,
@@ -32,7 +33,7 @@ export class ProcedureForm extends React.PureComponent {
   };
 
   static defaultProps = {
-    editedObject: {},
+    editedObject: null,
   };
 
   onCancel = () => {
@@ -40,7 +41,14 @@ export class ProcedureForm extends React.PureComponent {
     if (onCancel) onCancel();
   };
 
-  renderForm = ({ submitForm }) => {
+  getButtonText(isCompleted) {
+    const { editedObject } = this.props;
+    if(isCompleted) return 'Finalise';
+    if(editedObject) return 'Update';
+    return 'Create';
+  }
+
+  renderForm = ({ submitForm, values }) => {
     const {
       anesthesiaSuggester,
       cptCodeSuggester,
@@ -48,7 +56,8 @@ export class ProcedureForm extends React.PureComponent {
       practitionerSuggester,
       editedObject,
     } = this.props;
-    const buttonText = editedObject ? 'Update' : 'Create';
+    const isCompleted = !!values.completed;
+    const buttonText = this.getButtonText(isCompleted);
     return (
       <FormGrid>
         <Field
@@ -112,14 +121,15 @@ export class ProcedureForm extends React.PureComponent {
           style={{ gridColumn: 'span 2' }}
         />
         <Field name="completed" label="Completed" component={CheckField} />
-        <Field
-          name="completedNotes"
-          label="Notes on completed procedure"
-          component={TextField}
-          multiline
-          rows={4}
-          style={{ gridColumn: 'span 2' }}
-        />
+        <Collapse in={isCompleted} style={{ gridColumn: 'span 2' }}>
+          <Field
+            name="completedNotes"
+            label="Notes on completed procedure"
+            component={TextField}
+            multiline
+            rows={4}
+          />
+        </Collapse>
         <div style={{ gridColumn: 2, textAlign: 'right' }}>
           <Button variant="contained" onClick={this.onCancel}>
             Cancel
