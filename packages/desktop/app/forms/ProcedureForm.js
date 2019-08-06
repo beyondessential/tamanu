@@ -65,7 +65,6 @@ export class ProcedureForm extends React.PureComponent {
           label="Procedure"
           required
           component={TextField}
-          helperText="Is this a dropdown or text or what?"
         />
         <Field
           name="cptCode"
@@ -75,13 +74,13 @@ export class ProcedureForm extends React.PureComponent {
         />
         <Field
           name="location"
-          label="Location"
+          label="Procedure Location"
           required
           component={AutocompleteField}
           suggester={locationSuggester}
         />
         <FormGrid columns={3}>
-          <Field name="date" label="Date" required component={DateField} />
+          <Field name="date" label="Procedure Date" required component={DateField} />
           <Field name="startTime" label="Time Started" component={TimeField} />
           <Field name="endTime" label="Time Ended" component={TimeField} />
         </FormGrid>
