@@ -7,7 +7,9 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import CustomDateInput from '../../components/CustomDateInput';
 import { fetchPatients } from '../../actions/patients/patients';
 import { patientColumns, reportOptions } from '../../constants';
+
 import styled from 'styled-components';
+import { withTheme } from '@material-ui/core/styles';
 
 const CreateContent = styled.div`
   height: 100vh;
@@ -16,7 +18,7 @@ const CreateContent = styled.div`
 const CreateTopBar = styled.div`
   margin: 0 auto;
   border-bottom: 1px solid #d2dae3;
-  background: $main-white-color;
+  background: ${props => props.theme.palette.background.paper};
   padding: 0 15px;
   height: 55px;
   > span {
@@ -24,225 +26,52 @@ const CreateTopBar = styled.div`
     margin: 0;
     line-height: 55px;
     letter-spacing: -1px;
-    color: $main-light-dark-color;
+    color: ${props => props.theme.palette.primary.textMedium};
     font-size: 28px;
     font-weight: 600;
-    &.title {
-      font-size: 18px !important;
-      padding: 10px 30px !important;
-      margin-top: 8px !important;
-      float: right;
-      color: $main-white-color;
-    }
-    &.sub-title {
-      font-size: 15px !important;
-      padding: 18px !important;
-      margin-top: 8px !important;
-      float: right;
-      color: $main-light-dark-color;
-    }
-  }
-  .view-action-buttons {
-    float: right;
-    button.button {
-      margin: 10px 0 10px 15px;
-      border: 1px solid $main-green-color;
-      background-color: transparent;
-      color: $main-green-color;
-      font-size: 14px;
-      padding: 7px;
-      border-radius: 5px;
-    }
-    a.button {
-      margin: 10px 0 10px 15px;
-      border: 1px solid $main-green-color;
-      background-color: transparent;
-      color: $main-green-color;
-      font-size: 14px;
-      padding: 7px;
-      border-radius: 5px;
-      display: inline-block;
-    }
   }
 `;
-
+const ViewActionButtons = styled.div`
+  float: right;
+`;
+const Column = styled.div`
+  padding: 0rem;
+`;
+const Columns = styled.div`
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+`;
+const Header = styled.div`
+  color: ${props => props.theme.palette.primary.textMedium};
+  display: inline-block;
+  margin-bottom: 5px;
+  font-weight: bold;
+`;
+const FormHeader = styled.div`
+  padding: 10px;
+  background: #428bca;
+  span {
+    color: ${props => props.theme.palette.primary.textLight};
+    font-size: 24px;
+    font-weight: bold;
+  }
+`;
+const FormTable = styled.div`
+  margin: 20px 20px;
+  background: white;
+  .table {
+    width: 100%;
+  }
+`;
 const CreateForm = styled.div`
-    margin: 20px 20px;
-    background: white;
-    &.with-padding {
-      padding: 0 15px;
-    }
-    .visit-header {
-      margin: 10px;
-      background: $main-light-blue-color;
-      > span {
-        font-size: 24px;
-        color: #2e4359;
-      }
-    }
-    .medication-header {
-      margin: 5px 3px;
-      background: $main-light-blue-color;
-      margin: 0;
-      text-align: center;
-      span.text {
-        font-size: 18px;
-        color: #2e4359;
-      }
-    }
-    .medication-chart-cell {
-      text-align: center;
-      width: 100%;
-      position: relative;
-      .button,
-      .icon {
-        position: absolute;
-        right: 0;
-        &.is-pulled-left {
-          right: auto;
-          left: 0;
-        }
-      }
-    }
-    .rt-td.taken {
-      background: rgb(230, 255, 230);
-    }
-    .rt-td.not-taken {
-      background: rgb(255, 230, 230);
-    }
-    .isRequired {
-      color: red;
-    }
-    .cancel {
-      margin-right: 5px;
-    }
-    .header {
-      color: $main-light-dark-color;
-      display: inline-block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-    p:not(.help) {
-      font-size: 18px;
-    }
-    .radio {
-      span {
-        margin-left: 5px;
-      }
-    }
-    .search {
-      margin-top: 25px;
-    }
-    .form-header {
-      padding: 10px;
-      background: #428bca;
-      span {
-        color: $main-white-color;
-        font-size: 24px;
-        font-weight: bold;
-      }
-    }
-    table {
-      width: 100%;
-    }
-    .calendar-height {
-      height: 500px;
-      min-height: calc(100vh - 120px);
-    }
-    .card-info {
-      width: 120px;
-      height: 40px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: $main-light-gray-color;
-      border-radius: 5px;
-      margin-right: 10px;
-    }
-    .title {
-      font-size: 16px;
-      font-weight: 400;
-    }
-    .full-name {
-      font-size: 22px;
-      font-weight: 600;
-    }
-    .add-button {
-      color: #428bca;
-      text-decoration: none;
-      padding: 0;
-      text-transform: none;
-      cursor: pointer;
-      background: transparent;
-      font-size: 16px;
-      border: none;
-      font-weight: bold;
-    }
-    .border-bottom {
-      border-bottom: 2px solid #eff2f5;
-    }
-    .tabs {
-      a {
-        color: #6784a2;
-      }
-      .selected {
-        color: #2f4358;
-        font-weight: 600;
-      }
-    }
-    .tab-content {
-      .history-pane {
-        padding: 0;
-        background: #dee2e7;
-        .header {
-          background: #eff2f5;
-          width: 100%;
-          margin: 0;
-          cursor: pointer;
-          span {
-            background: #ccc;
-            display: inline-block;
-            padding: 5px 15px;
-            margin-right: 15px;
-          }
-        }
-        .text {
-          background: #f7f9fa;
-          padding: 15px 15px 20px;
-          font-weight: bold;
-        }
-        a {
-          color: #32425a;
-          background: transparent;
-          & :hover {
-            border: none;
-          }
-        }
-      }
-    }
-    .checkbox {
-      padding: 30px;
-      span {
-        padding: 10px;
-      }
-    }
+  margin: 20px 20px;
+  background: white;
+  table {
+    width: 100%;
   }
-  .form-table {
-    margin: 20px 20px;
-    background: white;
-    .table {
-      width: 100%;
-    }
-  }
-  .second-form {
-    margin: 20px 20px;
-    background: white;
-    .isRequired {
-      color: red;
-    }
-    .cancel {
-      margin-right: 5px;
-    }
+`;
+const PrimaryButton = styled.button`
+  border: 0.5px solid #333 !important;
 `;
 
 class Reports extends Component {
@@ -286,16 +115,16 @@ class Reports extends Component {
       <CreateContent>
         <CreateTopBar>
           <span>Patient Report</span>
-          <div className="view-action-buttons">
+          <ViewActionButtons>
             <button>Patient Check In</button>
-          </div>
+          </ViewActionButtons>
         </CreateTopBar>
         <div>
           <CreateForm>
-            <div className="columns">
-              <div className="column is-6">
-                <div className="column">
-                  <span className="header">Report Type</span>
+            <Columns>
+              <Column>
+                <Column>
+                  <Header>Report Type</Header>
                   <Select
                     id="state-select"
                     ref={ref => {
@@ -313,13 +142,13 @@ class Reports extends Component {
                     rtl={this.state.rtl}
                     searchable={this.state.searchable}
                   />
-                </div>
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column is-4">
-                <div className="column">
-                  <span className="header">Start Date</span>
+                </Column>
+              </Column>
+            </Columns>
+            <Columns>
+              <Column>
+                <Column>
+                  <Header>Start Date</Header>
                   <DatePicker
                     name="startDate"
                     customInput={<CustomDateInput />}
@@ -330,11 +159,11 @@ class Reports extends Component {
                     showYearDropdown
                     dropdownMode="select"
                   />
-                </div>
-              </div>
-              <div className="column is-4">
-                <div className="column">
-                  <span className="header">End Date</span>
+                </Column>
+              </Column>
+              <Column>
+                <Column>
+                  <Header>End Date</Header>
                   <DatePicker
                     name="endDate"
                     customInput={<CustomDateInput />}
@@ -345,39 +174,38 @@ class Reports extends Component {
                     showYearDropdown
                     dropdownMode="select"
                   />
-                </div>
-              </div>
-            </div>
-            <div className="column has-text-right">
-              <button className="button is-primary" onClick={this.generateReport}>
+                </Column>
+              </Column>
+            </Columns>
+            <Column>
+              <PrimaryButton onClick={this.generateReport}>
                 Generate Report
-              </button>
-            </div>
+              </PrimaryButton>
+            </Column>
           </CreateForm>
           {generated && (
             <CreateForm>
-              <div className="form-header">
+              <FormHeader>
                 <span>
                   Diagnostic Testing Report {moment(startDate).format('MM/DD/YYYY')} -{' '}
                   {moment(endDate).format('MM/DD/YYYY')}
                 </span>
-              </div>
-              <div className="columns">
-                <div className="form-table">
+              </FormHeader>
+              <Columns>
+                <FormTable>
                   <BootstrapTable
                     keyField="id"
-                    className="custom-table"
                     data={patients}
                     columns={patientColumns}
                     defaultSortDirection="asc"
                   />
-                  <div className="column has-text-right">
-                    <button className="button is-primary" onClick={this.generateReport}>
+                  <Column>
+                    <PrimaryButton onClick={this.generateReport}>
                       Export Report
-                    </button>
-                  </div>
-                </div>
-              </div>
+                    </PrimaryButton>
+                  </Column>
+                </FormTable>
+              </Columns>
             </CreateForm>
           )}
         </div>
@@ -396,7 +224,9 @@ const mapDispatchToProps = dispatch => ({
   fetchPatients: () => dispatch(fetchPatients()),
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Reports);
+export default withTheme()(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(Reports),
+);

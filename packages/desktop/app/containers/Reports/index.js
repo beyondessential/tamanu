@@ -23,7 +23,7 @@ const _Reports = ({ match, theme }) => (
 
 _Reports.propTypes = {
   match: PropTypes.shape({url: PropTypes.string}).isRequired,
-  theme: PropTypes.theme.isRequired
+  theme: PropTypes.object.isRequired
 };
 
 export const Reports = withTheme()(_Reports);
