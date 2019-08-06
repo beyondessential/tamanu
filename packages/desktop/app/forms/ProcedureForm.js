@@ -14,8 +14,6 @@ import {
 import { FormGrid } from '../components/FormGrid';
 import { Button } from '../components/Button';
 
-import { visitOptions } from '../constants';
-
 export class ProcedureForm extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
@@ -23,16 +21,16 @@ export class ProcedureForm extends React.PureComponent {
 
   onCancel = () => {
     const { onCancel } = this.props;
-    if(onCancel) onCancel();
+    if (onCancel) onCancel();
   };
 
   renderForm = ({ submitForm }) => {
-    const { 
-      locationSuggester, 
+    const {
+      locationSuggester,
       practitionerSuggester,
       cptCodeSuggester,
       anesthesiaSuggester,
-      editedObject
+      editedObject,
     } = this.props;
     const buttonText = editedObject ? 'Update' : 'Create';
     return (
@@ -58,22 +56,9 @@ export class ProcedureForm extends React.PureComponent {
           suggester={locationSuggester}
         />
         <FormGrid columns={3}>
-          <Field
-            name="date"
-            label="Date"
-            required
-            component={DateField}
-          />
-          <Field
-            name="startTime"
-            label="Time Started"
-            component={TimeField}
-          />
-          <Field
-            name="endTime"
-            label="Time Ended"
-            component={TimeField}
-          />
+          <Field name="date" label="Date" required component={DateField} />
+          <Field name="startTime" label="Time Started" component={TimeField} />
+          <Field name="endTime" label="Time Ended" component={TimeField} />
         </FormGrid>
         <Field
           name="physician"
@@ -110,11 +95,7 @@ export class ProcedureForm extends React.PureComponent {
           rows={4}
           style={{ gridColumn: 'span 2' }}
         />
-        <Field
-          name="completed"
-          label="Completed"
-          component={CheckField}
-        />
+        <Field name="completed" label="Completed" component={CheckField} />
         <Field
           name="completedNotes"
           label="Notes on completed procedure"
@@ -144,8 +125,7 @@ export class ProcedureForm extends React.PureComponent {
         initialValues={{
           ...editedObject,
         }}
-        validationSchema={yup.object().shape({
-        })}
+        validationSchema={yup.object().shape({})}
       />
     );
   }

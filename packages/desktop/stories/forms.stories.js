@@ -5,7 +5,7 @@ import { action } from '@storybook/addon-actions';
 
 import { TextField, SelectField } from '../app/components';
 
-import { Form, Field } from '../app/components/Field/Form';
+import { Field } from '../app/components/Field/Form';
 import { PaginatedForm } from '../app/components/Field/PaginatedForm';
 import Login from '../app/containers/Auth/Login';
 import { VisitForm } from '../app/forms/VisitForm';
