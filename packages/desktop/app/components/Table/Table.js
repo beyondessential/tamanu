@@ -16,18 +16,30 @@ import TablePagination from '@material-ui/core/TablePagination';
 
 const ROWS_PER_PAGE_OPTIONS = [5, 10, 25];
 
-const Row = React.memo(({ children, onClick, data }) => (
+const RowContainer = React.memo(({ children, onClick, data }) => (
   <TableRow onClick={() => onClick(data)} style={{ marginTop: '1rem' }}>
     {children}
   </TableRow>
 ));
 
+const Row = React.memo(({ columns, data, onClick }) => {
+  const cells = columns.map(({ key, accessor, CellComponent, numeric }) => (
+    <Cell
+      key={key}
+      value={accessor ? accessor(data) : data[key]}
+      align={numeric ? 'right' : 'left'}
+      CellComponent={CellComponent}
+    />
+  ));
+  return <RowContainer onClick={() => onClick(data)}>{cells}</RowContainer>;
+});
+
 const ErrorRow = React.memo(({ colSpan, message }) => (
-  <Row>
+  <RowContainer>
     <TableCell colSpan={colSpan} align="center">
       {message}
     </TableCell>
-  </Row>
+  </RowContainer>
 ));
 
 const Cell = React.memo(({ value, CellComponent, sortDirection, align }) => (
@@ -84,27 +96,13 @@ export class Table extends React.Component {
     });
   }
 
-  renderRow = rowData => {
-    const { columns, orderBy, order, onRowClick } = this.props;
-    const cells = columns.map(({ key, accessor, CellComponent, numeric }) => (
-      <Cell
-        key={key}
-        value={accessor ? accessor(rowData) : rowData[key]}
-        align={numeric ? 'right' : 'left'}
-        sortDirection={orderBy === key ? order : false}
-        CellComponent={CellComponent}
-      />
-    ));
-    return <Row onClick={() => onRowClick(rowData)}>{cells}</Row>;
-  };
-
   renderBodyContent() {
-    const { data, columns } = this.props;
+    const { data, columns, onRowClick } = this.props;
     const error = this.getErrorMessage();
     if (error) {
       return <ErrorRow message={error} colSpan={columns.length} />;
     }
-    return data.map(this.renderRow);
+    return data.map(rowData => <Row data={rowData} columns={columns} onClick={onRowClick} />);
   }
 
   renderPaginator() {
