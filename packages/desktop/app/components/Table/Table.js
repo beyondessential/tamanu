@@ -49,6 +49,43 @@ const Cell = React.memo(({ value, CellComponent, sortDirection, align }) => (
 ));
 
 export class Table extends React.Component {
+  static propTypes = {
+    columns: PropTypes.arrayOf(
+      PropTypes.shape({
+        key: PropTypes.string.isRequired,
+        title: PropTypes.string.isRequired,
+        accessor: PropTypes.func,
+        sortable: PropTypes.bool,
+      }),
+    ).isRequired,
+    data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+    errorMessage: PropTypes.string,
+    noDataMessage: PropTypes.string,
+    isLoading: PropTypes.bool,
+    count: PropTypes.number,
+    onChangePage: PropTypes.func,
+    onChangeRowsPerPage: PropTypes.func,
+    onChangeOrderBy: PropTypes.func,
+    orderBy: PropTypes.string,
+    order: PropTypes.string,
+    page: PropTypes.number,
+    rowsPerPage: PropTypes.number,
+  };
+
+  static defaultProps = {
+    errorMessage: '',
+    noDataMessage: 'No data found',
+    count: 0,
+    isLoading: false,
+    onChangePage: null,
+    onChangeRowsPerPage: null,
+    onChangeOrderBy: null,
+    orderBy: null,
+    order: 'asc',
+    page: null,
+    rowsPerPage: null,
+  };
+
   getErrorMessage() {
     const { isLoading, errorMessage, data, noDataMessage } = this.props;
     if (isLoading) return 'Loading...';
@@ -133,40 +170,3 @@ export class Table extends React.Component {
     );
   }
 }
-
-Table.propTypes = {
-  columns: PropTypes.arrayOf(
-    PropTypes.shape({
-      key: PropTypes.string.isRequired,
-      title: PropTypes.string.isRequired,
-      accessor: PropTypes.func,
-      sortable: PropTypes.bool,
-    }),
-  ).isRequired,
-  data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  errorMessage: PropTypes.string,
-  noDataMessage: PropTypes.string,
-  isLoading: PropTypes.bool,
-  count: PropTypes.number,
-  onChangePage: PropTypes.func,
-  onChangeRowsPerPage: PropTypes.func,
-  onChangeOrderBy: PropTypes.func,
-  orderBy: PropTypes.string,
-  order: PropTypes.string,
-  page: PropTypes.number,
-  rowsPerPage: PropTypes.number,
-};
-
-Table.defaultProps = {
-  errorMessage: '',
-  noDataMessage: 'No data found',
-  count: 0,
-  isLoading: false,
-  onChangePage: null,
-  onChangeRowsPerPage: null,
-  onChangeOrderBy: null,
-  orderBy: null,
-  order: 'asc',
-  page: null,
-  rowsPerPage: null,
-};
