@@ -1,18 +1,5 @@
-.custom-date-input {
-  background: rgba(219, 235, 255, 0.2);
-  border: 1px solid #dee2e7;
-  display: block;
-  padding: 6px;
-  width: 100%;
-  font-size: 16px;
-  color: #555;
-  background-color: $main-white-color;
-  background-image: none;
-  border-radius: 3px;
-  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
-  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
-  text-align: left;
-}
+@import '../global/colors.scss';
+
 .react-datepicker-wrapper {
   width: 100%;
   .react-datepicker__input-container {
@@ -44,13 +31,6 @@ a:hover {
   opacity: 1;
   text-decoration: none;
   cursor: pointer;
-}
-
-.input-group-title {
-  color: $main-light-dark-color;
-  display: inline-block;
-  margin-bottom: 5px;
-  font-weight: bold;
 }
 
 .align-right {
@@ -101,7 +81,7 @@ a:hover {
   display: block !important;
 
   input {
-    @extend .input;
+    // @extend .input;
     @extend .is-primary;
     // width: 500px;
   }
@@ -115,7 +95,7 @@ a:hover {
       border-bottom: 1px solid $grey-lighter;
       cursor: pointer;
       &:hover {
-        background: $white-ter !important;
+        background: $grey-lighter !important;
       }
     }
   }

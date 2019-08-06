@@ -16,15 +16,30 @@ import { Button } from '../../components/Button';
 import { sexOptions } from '../../constants';
 import { diagnosisOptions, locationOptions, prescriberOptions } from './dummyReports';
 
+import styled from 'styled-components';
+import { withTheme } from '@material-ui/core/styles';
+
+const Column = styled.div`
+  padding: 0rem;
+`;
+
+const GroupTitle = styled.span`
+  color: ${props => props.theme.palette.primary.textMedium};
+  display: inline-block;
+  margin-bottom: 5px;
+  font-weight: bold;
+`;
+
 const LabeledSelect = ({ label, ...props }) => (
   <div>
-    <span className="input-group-title">{label}</span>
+    <GroupTitle theme={props.theme}>{label}</GroupTitle>
     <Select {...props} />
   </div>
 );
 
 LabeledSelect.propTypes = {
   label: PropTypes.string.isRequired,
+  theme: PropTypes.object.isRequired
 };
 
 const ExpanderSection = ({ heading, subheading, children, ...props }) => (
@@ -49,9 +64,10 @@ ExpanderSection.defaultProps = {
   subheading: '',
 };
 
-export class ReportFilters extends Component {
+class _ReportFilters extends Component {
   static propTypes = {
     onApply: PropTypes.func.isRequired,
+    theme: PropTypes.object.isRequired
   }
 
   state = {
@@ -70,9 +86,10 @@ export class ReportFilters extends Component {
   };
 
   render() {
+    const { theme } = this.props;
     return (
       <div>
-        <div className="column">
+        <Column>
           <ExpanderSection heading="Report details" defaultExpanded>
             <LabeledSelect
               label="Location"
@@ -81,6 +98,7 @@ export class ReportFilters extends Component {
               onChange={location => this.setState({ location })}
               value={this.state.location}
               simpleValue
+              theme={theme}
             />
             <div style={{ display: 'flex', width: '100%' }}>
               <DateRange
@@ -98,6 +116,7 @@ export class ReportFilters extends Component {
               onChange={prescriber => this.setState({ prescriber })}
               value={this.state.prescriber}
               simpleValue
+              theme={theme}
             />
             <LabeledSelect
               label="Diagnosis"
@@ -106,6 +125,7 @@ export class ReportFilters extends Component {
               onChange={diagnosis => this.setState({ diagnosis })}
               value={this.state.diagnosis}
               simpleValue
+              theme={theme}
             />
           </ExpanderSection>
           <ExpanderSection heading="Patient demographics">
@@ -133,15 +153,18 @@ export class ReportFilters extends Component {
               value={this.state.sex}
               onChange={sex => this.setState({ sex })}
               simpleValue
+              theme={theme}
             />
           </ExpanderSection>
-        </div>
-        <div className="column" style={{ textAlign: 'right', marginTop: '-1em' }}>
+        </Column>
+        <Column style={{ textAlign: 'right', marginTop: '0.5em' }}>
           <Button>Advanced filters</Button>
           {' '}
-          <Button onClick={this.apply}>Generate report</Button>
-        </div>
+          <Button onClick={this.apply} primary>Generate report</Button>
+        </Column>
       </div>
     );
   }
 }
+
+export const ReportFilters = withTheme()(_ReportFilters);

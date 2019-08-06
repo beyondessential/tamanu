@@ -1,10 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import CustomDateInput from './CustomDateInput';
 import { dateFormat, timeFormat } from '../constants';
+
+import styled from 'styled-components';
+
+const GroupTitle = styled.span`
+  color: $main-light-dark-color;
+  display: inline-block;
+  margin-bottom: 5px;
+  font-weight: bold;
+`;
 
 export default class DatepickerGroup extends Component {
   static propTypes = {
@@ -13,7 +21,6 @@ export default class DatepickerGroup extends Component {
     name: PropTypes.string.isRequired,
     className: PropTypes.string,
     inputClass: PropTypes.string,
-    labelClass: PropTypes.string,
     overwriteClass: PropTypes.bool,
     showTimeSelect: PropTypes.bool,
     value: PropTypes.any,
@@ -27,8 +34,6 @@ export default class DatepickerGroup extends Component {
   static defaultProps = {
     required: false,
     className: '',
-    inputClass: 'input custom-date-input',
-    labelClass: 'input-group-title',
     overwriteClass: false,
     showTimeSelect: false,
     value: moment(),
@@ -84,16 +89,16 @@ export default class DatepickerGroup extends Component {
     return (
       <div className={className}>
         {label !== false && (
-          <span className={labelClass}>
+          <GroupTitle>
             {label} {required && <span className="isRequired">*</span>}
-          </span>
+          </GroupTitle>
         )}
-        {readOnly && <CustomDateInput styleName={inputClass} value={value} />}
+        {readOnly && <CustomDateInput value={value} />}
         {!readOnly && (
           <DatePicker
             name={name}
             tabIndex={tabIndex}
-            customInput={<CustomDateInput styleName={inputClass} />}
+            customInput={<CustomDateInput />}
             selected={value}
             onChange={this.handleChange.bind(this)}
             showTimeSelect={showTimeSelect}

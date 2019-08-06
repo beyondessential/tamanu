@@ -11,7 +11,6 @@ export default class SelectGroup extends Component {
     required: PropTypes.bool,
     name: PropTypes.string.isRequired,
     className: PropTypes.string,
-    inputClass: PropTypes.string,
     labelClass: PropTypes.string,
     value: PropTypes.any,
     readOnly: PropTypes.bool,
@@ -26,7 +25,6 @@ export default class SelectGroup extends Component {
   static defaultProps = {
     required: false,
     className: '',
-    inputClass: 'input custom-date-input',
     labelClass: 'label',
     value: '',
     readOnly: false,
@@ -73,7 +71,6 @@ export default class SelectGroup extends Component {
       options,
       disabled,
       className,
-      inputClass,
       labelClass,
       readOnly,
       onChange,
