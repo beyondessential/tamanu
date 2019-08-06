@@ -5,7 +5,7 @@ import { Table } from './Table';
 
 import { TextInput, DateDisplay } from '.';
 
-const DateOfBirthCell = ({ value }) => <DateDisplay date={value} showDuration />;
+const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} showDuration />);
 
 const COLUMNS = [
   { key: 'name', title: 'Name' },
