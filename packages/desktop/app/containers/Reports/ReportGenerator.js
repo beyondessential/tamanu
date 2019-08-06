@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 import { TopBar } from '../../components';
 
@@ -12,25 +13,34 @@ const Detail = styled.div`
   padding: 10px;
 `;
 const Notification = styled.div`
-    padding: 10px;
-    background: #ffffe4;
+  padding: 10px;
+  background: #ffffe4;
 `;
 
 const ReportNotFound = ({ missingId }) => (
   <div>
     <TopBar title="Report not found" />
     <Detail>
-      <Notification>
-        Could not find report with id "{missingId}
-        ".
-      </Notification>
+      <Notification>{`Could not find report with id ${missingId}.`}</Notification>
     </Detail>
   </div>
 );
 
+ReportNotFound.propTypes = {
+  missingId: PropTypes.string.isRequired,
+};
+
 export class ReportGenerator extends Component {
+  static propTypes = {
+    match: PropTypes.shape({ params: PropTypes.object.isRequired }).isRequired,
+  };
+
   state = {
     filters: {},
+  };
+
+  updateState = filters => {
+    this.setState({ filters });
   };
 
   render() {
@@ -46,7 +56,7 @@ export class ReportGenerator extends Component {
       <div>
         <TopBar title={report.name} />
         <Detail>
-          <ReportFilters onApply={filters => this.setState({ filters })} />
+          <ReportFilters onApply={this.updateState} />
           <hr />
           <ReportViewer report={report} data={dummyData} filters={this.state.filters} />
         </Detail>

@@ -1,5 +1,6 @@
 import React from 'react';
 import moment from 'moment';
+import styled from 'styled-components';
 
 function formatShort(date) {
   if (!date) return '--/--/----';
@@ -17,9 +18,13 @@ function formatDuration(date) {
   return moment(date).from(moment(), true);
 }
 
+const StyledAbbr = styled.abbr`
+  text-decoration: none;
+`;
+
 export const DateDisplay = React.memo(({ date, showDuration = false }) => (
-  <abbr title={formatLong(date)}>
+  <StyledAbbr title={formatLong(date)}>
     {formatShort(date)}
     {showDuration && ` (${formatDuration(date)})`}
-  </abbr>
+  </StyledAbbr>
 ));

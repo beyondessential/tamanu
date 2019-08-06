@@ -1,4 +1,6 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+
 import { Route, Switch } from 'react-router-dom';
 import { ReportGenerator } from './ReportGenerator';
 
@@ -19,5 +21,9 @@ const _Reports = ({ match, theme }) => (
   </Content>
 );
 
-export const Reports = withTheme()(_Reports);
+_Reports.propTypes = {
+  match: PropTypes.shape({url: PropTypes.string}).isRequired,
+  theme: PropTypes.theme.isRequired
+};
 
+export const Reports = withTheme()(_Reports);
