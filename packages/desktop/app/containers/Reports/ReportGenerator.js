@@ -6,15 +6,25 @@ import { availableReports, dummyData } from './dummyReports';
 import { ReportViewer } from './ReportViewer';
 import { ReportFilters } from './ReportFilters';
 
+import styled from 'styled-components';
+
+const Detail = styled.div`
+  padding: 10px;
+`;
+const Notification = styled.div`
+    padding: 10px;
+    background: #ffffe4;
+`;
+
 const ReportNotFound = ({ missingId }) => (
   <div>
     <TopBar title="Report not found" />
-    <div className="detail">
-      <div className="notification">
+    <Detail>
+      <Notification>
         Could not find report with id "{missingId}
         ".
-      </div>
-    </div>
+      </Notification>
+    </Detail>
   </div>
 );
 
@@ -35,11 +45,11 @@ export class ReportGenerator extends Component {
     return (
       <div>
         <TopBar title={report.name} />
-        <div className="detail">
+        <Detail>
           <ReportFilters onApply={filters => this.setState({ filters })} />
           <hr />
           <ReportViewer report={report} data={dummyData} filters={this.state.filters} />
-        </div>
+        </Detail>
       </div>
     );
   }

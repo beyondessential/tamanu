@@ -14,6 +14,7 @@ const palette = {
   background: {
     paper: 'white',
     default: grey[200],
+    main: '#eff2f5' // taken from colors.scss::$main-bg-color
   },
   spacing: {
     unit: MUI_SPACING_UNIT,

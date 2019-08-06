@@ -16,11 +16,22 @@ import { Button } from '../../components/Button';
 import { sexOptions } from '../../constants';
 import { diagnosisOptions, locationOptions, prescriberOptions } from './dummyReports';
 
-import '../../styles/components/custom.scss';
+import styled from 'styled-components';
+
+const Column = styled.div`
+  padding: 0rem;
+`;
+
+const GroupTitle = styled.span`
+  color: $main-light-dark-color;
+  display: inline-block;
+  margin-bottom: 5px;
+  font-weight: bold;
+`;
 
 const LabeledSelect = ({ label, ...props }) => (
   <div>
-    <span className="input-group-title">{label}</span>
+    <GroupTitle>{label}</GroupTitle>
     <Select {...props} />
   </div>
 );
@@ -60,7 +71,7 @@ export class ReportFilters extends Component {
   render() {
     return (
       <div>
-        <div className="column">
+        <Column>
           <ExpanderSection heading="Report details" defaultExpanded>
             <LabeledSelect
               label="Location"
@@ -123,13 +134,13 @@ export class ReportFilters extends Component {
               simpleValue
             />
           </ExpanderSection>
-        </div>
-        <div className="column" style={{ textAlign: 'right', marginTop: '0.5em' }}>
+        </Column>
+        <Column style={{ textAlign: 'right', marginTop: '0.5em' }}>
           <Button>Advanced filters</Button>{' '}
           <Button onClick={this.apply} primary>
             Generate report
           </Button>
-        </div>
+        </Column>
       </div>
     );
   }
