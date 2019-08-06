@@ -23,14 +23,14 @@ const RowContainer = React.memo(({ children, onClick, data }) => (
 ));
 
 const Row = React.memo(({ columns, data, onClick }) => {
-  const cells = columns.map(({ key, accessor, CellComponent, numeric }) => (
-    <Cell
-      key={key}
-      value={accessor ? accessor(data) : data[key]}
-      align={numeric ? 'right' : 'left'}
-      CellComponent={CellComponent}
-    />
-  ));
+  const cells = columns.map(({ key, accessor, CellComponent, numeric }) => {
+    const value = accessor ? accessor(data) : data[key];
+    return (
+      <TableCell key={key} align={numeric ? 'right' : 'left'}>
+        {CellComponent ? <CellComponent value={value} /> : value}
+      </TableCell>
+    );
+  });
   return <RowContainer onClick={() => onClick(data)}>{cells}</RowContainer>;
 });
 
@@ -40,12 +40,6 @@ const ErrorRow = React.memo(({ colSpan, message }) => (
       {message}
     </TableCell>
   </RowContainer>
-));
-
-const Cell = React.memo(({ value, CellComponent, sortDirection, align }) => (
-  <TableCell sortDirection={sortDirection} align={align}>
-    {CellComponent ? <CellComponent value={value} /> : value}
-  </TableCell>
 ));
 
 export class Table extends React.Component {
