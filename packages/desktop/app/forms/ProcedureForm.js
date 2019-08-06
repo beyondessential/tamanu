@@ -14,9 +14,25 @@ import {
 import { FormGrid } from '../components/FormGrid';
 import { Button } from '../components/Button';
 
+const suggesterType = PropTypes.shape({
+  fetchSuggestions: PropTypes.func,
+  fetchCurrentOption: PropTypes.func,
+});
+
 export class ProcedureForm extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    editedObject: PropTypes.shape({}),
+
+    anesthesiaSuggester: suggesterType.isRequired,
+    cptCodeSuggester: suggesterType.isRequired,
+    locationSuggester: suggesterType.isRequired,
+    practitionerSuggester: suggesterType.isRequired,
+  };
+
+  static defaultProps = {
+    editedObject: {},
   };
 
   onCancel = () => {
@@ -26,10 +42,10 @@ export class ProcedureForm extends React.PureComponent {
 
   renderForm = ({ submitForm }) => {
     const {
+      anesthesiaSuggester,
+      cptCodeSuggester,
       locationSuggester,
       practitionerSuggester,
-      cptCodeSuggester,
-      anesthesiaSuggester,
       editedObject,
     } = this.props;
     const buttonText = editedObject ? 'Update' : 'Create';
@@ -125,7 +141,21 @@ export class ProcedureForm extends React.PureComponent {
         initialValues={{
           ...editedObject,
         }}
-        validationSchema={yup.object().shape({})}
+        validationSchema={yup.object().shape({
+          procedure: yup.string().required(),
+          cptCode: yup.string(),
+          location: yup.string().required(),
+          date: yup.string().required(),
+          startTime: yup.string(),
+          endTime: yup.string(),
+          physician: yup.string().required(),
+          assistant: yup.string(),
+          anesthesiologist: yup.string(),
+          anesthesiaType: yup.string(),
+          note: yup.string(),
+          completed: yup.boolean(),
+          completedNotes: yup.string(),
+        })}
       />
     );
   }
