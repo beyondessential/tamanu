@@ -11,3 +11,7 @@ export const Reports = ({ match }) => (
     </Switch>
   </div>
 );
+
+Reports.propTypes = {
+  match: PropTypes.shape({url: PropTypes.string}).isRequired
+};
