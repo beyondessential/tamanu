@@ -36,39 +36,28 @@ const Cell = React.memo(({ value, CellComponent, sortDirection, align }) => (
   </TableCell>
 ));
 
-export function Table({
-  columns,
-  data,
-  errorMessage,
-  noDataMessage,
-  isLoading,
-  order,
-  orderBy,
-  count,
-  page,
-  rowsPerPage,
-  onChangePage,
-  onChangeOrderBy,
-  onChangeRowsPerPage,
-  onRowClick,
-}) {
-  function getErrorMessage() {
+export class Table extends React.Component {
+  getErrorMessage() {
+    const { isLoading, errorMessage, data, noDataMessage } = this.props;
     if (isLoading) return 'Loading...';
     if (errorMessage) return errorMessage;
     if (data.length === 0) return noDataMessage;
     return null;
   }
 
-  function handleChangePage(event, newPage) {
+  handleChangePage = (event, newPage) => {
+    const { onChangePage } = this.props;
     if (onChangePage) onChangePage(newPage);
-  }
+  };
 
-  function handleChangeRowsPerPage(event) {
+  handleChangeRowsPerPage = event => {
+    const { onChangeRowsPerPage } = this.props;
     const { value: newRowsPerPage } = parseInt(event.target, 10);
     if (onChangeRowsPerPage) onChangeRowsPerPage(newRowsPerPage);
-  }
+  };
 
-  function renderHeaders() {
+  renderHeaders() {
+    const { columns, order, orderBy, onChangeOrderBy } = this.props;
     return columns.map(({ key, title, numeric, sortable = true }) => {
       if (sortable) {
         return (
@@ -95,7 +84,8 @@ export function Table({
     });
   }
 
-  function renderRow(rowData) {
+  renderRow = rowData => {
+    const { columns, orderBy, order, onRowClick } = this.props;
     const cells = columns.map(({ key, accessor, CellComponent, numeric }) => (
       <Cell
         key={key}
@@ -106,17 +96,19 @@ export function Table({
       />
     ));
     return <Row onClick={() => onRowClick(rowData)}>{cells}</Row>;
-  }
+  };
 
-  function renderBodyContent() {
-    const error = getErrorMessage();
+  renderBodyContent() {
+    const { data, columns } = this.props;
+    const error = this.getErrorMessage();
     if (error) {
       return <ErrorRow message={error} colSpan={columns.length} />;
     }
-    return data.map(renderRow);
+    return data.map(this.renderRow);
   }
 
-  function renderPaginator() {
+  renderPaginator() {
+    const { columns, page, count, rowsPerPage } = this.props;
     return (
       <TableRow>
         <TablePagination
@@ -125,20 +117,23 @@ export function Table({
           page={page}
           count={count}
           rowsPerPage={rowsPerPage}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
+          onChangePage={this.handleChangePage}
+          onChangeRowsPerPage={this.handleChangeRowsPerPage}
         />
       </TableRow>
     );
   }
 
-  return (
-    <MaterialTable>
-      <TableHead>{renderHeaders()}</TableHead>
-      <TableBody>{renderBodyContent()}</TableBody>
-      {page !== null && <TableFooter>{renderPaginator()}</TableFooter>}
-    </MaterialTable>
-  );
+  render() {
+    const { page } = this.props;
+    return (
+      <MaterialTable>
+        <TableHead>{this.renderHeaders()}</TableHead>
+        <TableBody>{this.renderBodyContent()}</TableBody>
+        {page !== null && <TableFooter>{this.renderPaginator()}</TableFooter>}
+      </MaterialTable>
+    );
+  }
 }
 
 Table.propTypes = {
