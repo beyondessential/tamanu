@@ -78,8 +78,49 @@ export class ReportViewer extends Component {
     }
   }
 
+  getVisualisation({visualisation}) {
+    if (visualisation) {
+      if (visualisation === 'pie-chart') {
+        return ({ 
+          graphType: 'pie', 
+          getCountKey: row => {
+            const lowBound = Math.floor(row.age / 10) * 10;
+            return `${lowBound}-${lowBound + 10}`;
+          }
+        });
+      }
+      if (visualisation === 'line-graph') {
+        return ({ 
+          graphType: 'line', 
+          getCountKey: row =>
+            moment(row.date)
+              .startOf('day')
+              .toDate(),
+        });
+      }
+      if (visualisation === 'bar-chart') {
+        return ({ 
+          graphType: 'bar', 
+          getCountKey: row => row.prescriber,
+        });
+      }
+    }
+  };
+
   render() {
-    const { report } = this.props;
+    const { filters, report } = this.props;
+
+    const { id: reportId } = report;
+
+    if (reportId === 'custom-report') {
+      const visualisation = this.getVisualisation(filters);
+
+      if (visualisation) {
+        const { graphType, getCountKey } = visualisation;
+        report.graphType = graphType;
+        report.getCountKey = getCountKey;
+      }
+    }
 
     return (
       <div>

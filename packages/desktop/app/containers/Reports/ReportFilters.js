@@ -14,7 +14,7 @@ import InputGroup from '../../components/InputGroup';
 import { Button } from '../../components/Button';
 
 import { sexOptions } from '../../constants';
-import { diagnosisOptions, locationOptions, prescriberOptions } from './dummyReports';
+import { diagnosisOptions, locationOptions, prescriberOptions, datasetOptions, visualisationOptions } from './dummyReports';
 
 const LabeledSelect = ({ label, ...props }) => (
   <div>
@@ -124,6 +124,56 @@ export class ReportFilters extends Component {
         </div>
         <div className="column" style={{ textAlign: 'right', marginTop: '-1em' }}>
           <Button>Advanced filters</Button>{' '}
+          <Button onClick={this.apply} primary>
+            Generate report
+          </Button>
+        </div>
+      </div>
+    );
+  }
+}
+
+export class CustomReportFilters extends Component {
+  static propTypes = {
+    onApply: PropTypes.func.isRequired,
+  };
+
+  state = {};
+
+  apply = () => {
+    this.props.onApply(this.state);
+  };
+
+  componentDidMount() {
+    this.apply();
+  }
+
+  render() {
+    return (
+      <div>
+        <div className="column">
+          <ExpanderSection heading="Report details" defaultExpanded>
+            <LabeledSelect
+              label="Dataset"
+              name="dataset"
+              options={datasetOptions}
+              onChange={dataset => this.setState({ dataset })}
+              value={this.state.dataset}
+              simpleValue
+            />
+          </ExpanderSection>
+          <ExpanderSection heading="Visualisation">
+            <LabeledSelect
+              label="Visualisation"
+              name="visualisation"
+              options={visualisationOptions}
+              onChange={visualisation => this.setState({ visualisation })}
+              value={this.state.visualisation}
+              simpleValue
+            />
+          </ExpanderSection>
+        </div>
+        <div className="column" style={{ textAlign: 'right', marginTop: '-1em' }}>
           <Button onClick={this.apply} primary>
             Generate report
           </Button>
