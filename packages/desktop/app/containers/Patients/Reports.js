@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
 import BootstrapTable from 'react-bootstrap-table-next';
-import CustomDateInput from '../../components/CustomDateInput';
+import { CustomDateInput, TopBar } from '../../components';
 import { fetchPatients } from '../../actions/patients/patients';
 import { patientColumns, reportOptions } from '../../constants';
 
@@ -14,22 +14,6 @@ import { withTheme } from '@material-ui/core/styles';
 const CreateContent = styled.div`
   height: 100vh;
   font-size: 15px;
-`;
-const CreateTopBar = styled.div`
-  margin: 0 auto;
-  border-bottom: 1px solid #d2dae3;
-  background: ${props => props.theme.palette.background.paper};
-  padding: 0 15px;
-  height: 55px;
-  > span {
-    float: left;
-    margin: 0;
-    line-height: 55px;
-    letter-spacing: -1px;
-    color: ${props => props.theme.palette.primary.textMedium};
-    font-size: 28px;
-    font-weight: 600;
-  }
 `;
 const ViewActionButtons = styled.div`
   float: right;
@@ -113,12 +97,11 @@ class Reports extends Component {
     const { patients } = this.props;
     return (
       <CreateContent>
-        <CreateTopBar>
-          <span>Patient Report</span>
+        <TopBar title="Patient Report">
           <ViewActionButtons>
             <button>Patient Check In</button>
           </ViewActionButtons>
-        </CreateTopBar>
+        </TopBar>
         <div>
           <CreateForm>
             <Columns>
@@ -178,9 +161,7 @@ class Reports extends Component {
               </Column>
             </Columns>
             <Column>
-              <PrimaryButton onClick={this.generateReport}>
-                Generate Report
-              </PrimaryButton>
+              <PrimaryButton onClick={this.generateReport}>Generate Report</PrimaryButton>
             </Column>
           </CreateForm>
           {generated && (
@@ -200,9 +181,7 @@ class Reports extends Component {
                     defaultSortDirection="asc"
                   />
                   <Column>
-                    <PrimaryButton onClick={this.generateReport}>
-                      Export Report
-                    </PrimaryButton>
+                    <PrimaryButton onClick={this.generateReport}>Export Report</PrimaryButton>
                   </Column>
                 </FormTable>
               </Columns>
