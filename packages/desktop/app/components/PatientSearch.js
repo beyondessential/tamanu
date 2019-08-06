@@ -1,24 +1,18 @@
 import React from 'react';
 import Collapse from '@material-ui/core/Collapse';
 
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
+import { Table } from './Table';
 
 import { TextInput, DateDisplay } from '.';
 
-const PatientRow = React.memo(({ _id, name, dateOfBirth, sex, onClick }) => (
-  <TableRow onClick={() => onClick(_id)} style={{ marginTop: '1rem' }}>
-    <TableCell>{name}</TableCell>
-    <TableCell>{sex}</TableCell>
-    <TableCell>
-      <DateDisplay date={dateOfBirth} showDuration />
-    </TableCell>
-    <TableCell>{_id}</TableCell>
-  </TableRow>
-));
+const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} showDuration />);
+
+const COLUMNS = [
+  { key: 'name', title: 'Name' },
+  { key: 'sex', title: 'Sex' },
+  { key: 'dateOfBirth', title: 'Date of Birth', CellComponent: DateOfBirthCell },
+  { key: '_id', title: 'ID' },
+];
 
 export class PatientSearch extends React.PureComponent {
   state = {
@@ -49,30 +43,16 @@ export class PatientSearch extends React.PureComponent {
     const { onPatientSelect } = this.props;
     const { searchTerm, suggestions, expanded } = this.state;
 
-    const rows =
-      suggestions.length > 0 ? (
-        suggestions.map(s => <PatientRow {...s} key={s._id} onClick={() => onPatientSelect(s)} />)
-      ) : (
-        <TableRow>
-          <TableCell colSpan="4" align="center">
-            No patients found.
-          </TableCell>
-        </TableRow>
-      );
-
     return (
       <div>
         <TextInput label="Patient name" value={searchTerm} onChange={this.updateSearchTerm} />
         <Collapse in={expanded}>
-          <Table>
-            <TableHead>
-              <TableCell>Name</TableCell>
-              <TableCell>Sex</TableCell>
-              <TableCell>Date of birth</TableCell>
-              <TableCell>ID</TableCell>
-            </TableHead>
-            <TableBody>{rows}</TableBody>
-          </Table>
+          <Table
+            columns={COLUMNS}
+            data={suggestions}
+            onRowClick={onPatientSelect}
+            noDataMessage="No patients found matching your search"
+          />
         </Collapse>
       </div>
     );
