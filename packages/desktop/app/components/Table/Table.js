@@ -104,11 +104,7 @@ export class Table extends React.Component {
     return columns.map(({ key, title, numeric, sortable = true }) => {
       if (sortable) {
         return (
-          <TableCell
-            key={key}
-            align={numeric ? 'right' : 'left'}
-            sortDirection={orderBy === key ? order : false}
-          >
+          <TableCell key={key} align={numeric ? 'right' : 'left'}>
             <TableSortLabel
               active={orderBy === key}
               direction={order}
