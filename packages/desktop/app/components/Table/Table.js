@@ -175,7 +175,7 @@ Table.defaultProps = {
   onChangeRowsPerPage: null,
   onChangeOrderBy: null,
   orderBy: null,
-  order: null,
+  order: 'asc',
   page: null,
   rowsPerPage: null,
 };

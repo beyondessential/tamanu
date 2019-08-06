@@ -11,13 +11,15 @@ function TableStateWrapper({ columns, data }) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-  function changeSort(columnKey) {
+  function changeOrderBy(columnKey) {
     const isDesc = orderBy === columnKey && order === 'desc';
     setOrder(isDesc ? 'asc' : 'desc');
     setOrderBy(columnKey);
   }
 
-  const sortedData = data.sort(({ [orderBy]: a }, { [orderBy]: b }) => a.localeCompare(b));
+  const sortedData = data.sort(({ [orderBy]: a }, { [orderBy]: b }) =>
+    order === 'asc' ? a.localeCompare(b) : b.localeCompare(a),
+  );
 
   return (
     <Table
@@ -26,9 +28,11 @@ function TableStateWrapper({ columns, data }) {
       page={page}
       rowsPerPage={rowsPerPage}
       count={500}
+      orderBy={orderBy}
+      order={order}
       onChangePage={setPage}
       onChangeRowsPerPage={setRowsPerPage}
-      onChangeSort={changeSort}
+      onChangeOrderBy={changeOrderBy}
       onRowClick={action('row clicked')}
     />
   );
@@ -41,7 +45,7 @@ const dummyColumns = [
 
 const sortableColumns = [
   { key: 'name', title: 'Fruit' },
-  { key: 'quantity', title: 'Quantity', numeric: true },
+  { key: 'quantity', title: 'Quantity', numeric: true, sortable: false },
 ];
 
 const dummyData = [
