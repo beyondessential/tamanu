@@ -9,15 +9,21 @@ import { Form, Field } from '../app/components/Field/Form';
 import { PaginatedForm } from '../app/components/Field/PaginatedForm';
 import Login from '../app/containers/Auth/Login';
 import { VisitForm } from '../app/forms/VisitForm';
+import { ProcedureForm } from '../app/forms/ProcedureForm';
 
-function createDummyGetter(options) {
+function createDummySuggester(options) {
   const selectableOptions = options.map(o => ({
     label: o,
     value: o.replace(/\W/g, '').toLowerCase(),
   }));
 
-  return search =>
-    selectableOptions.filter(({ label }) => label.toLowerCase().includes(search.toLowerCase()));
+  return {
+    fetchSuggestions: search => {
+      const filter = ({ label }) => label.toLowerCase().includes(search.toLowerCase());
+      return selectableOptions.filter(filter);
+    },
+    fetchCurrentOption: value => selectableOptions.find(s => s.value === value),
+  };
 }
 
 storiesOf('Forms', module)
@@ -50,7 +56,16 @@ storiesOf('Forms', module)
   .add('VisitForm', () => (
     <VisitForm
       onSubmit={action('submit')}
-      fetchLocations={createDummyGetter(['Ward 1', 'Ward 2', 'Ward 3'])}
-      fetchPractitioners={createDummyGetter(['Doctor 1', 'Nurse 2', 'Doctor 3'])}
+      locationSuggester={createDummySuggester(['Ward 1', 'Ward 2', 'Ward 3'])}
+      practitionerSuggester={createDummySuggester(['Doctor 1', 'Nurse 2', 'Doctor 3'])}
+    />
+  ))
+  .add('ProcedureForm', () => (
+    <ProcedureForm
+      onSubmit={action('submit')}
+      locationSuggester={createDummySuggester(['Ward 1', 'Ward 2', 'Ward 3'])}
+      practitionerSuggester={createDummySuggester(['Doctor 1', 'Nurse 2', 'Doctor 3'])}
+      cptCodeSuggester={createDummySuggester(['CPT 1', 'CPT 2', 'CPT 3', 'CPT 4'])}
+      anesthesiaSuggester={createDummySuggester(['Anesthesia 1', 'Anesthesia 2', 'Anesthesia 3'])}
     />
   ));

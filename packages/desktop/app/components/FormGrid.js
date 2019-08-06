@@ -9,9 +9,8 @@ const equalSplitColumns = ({ columns = 2 }) =>
 export const FormGrid = styled.div`
   display: grid;
 
-  margin: 0rem 3rem;
   grid-column-gap: 0.7rem;
-  grid-row-gap: 1.5rem;
+  grid-row-gap: 1.2rem;
 
   grid-template-columns: ${equalSplitColumns};
 `;
