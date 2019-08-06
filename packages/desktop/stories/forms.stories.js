@@ -63,6 +63,7 @@ storiesOf('Forms', module)
   .add('ProcedureForm', () => (
     <ProcedureForm
       onSubmit={action('submit')}
+      onCancel={action('cancel')}
       locationSuggester={createDummySuggester(['Ward 1', 'Ward 2', 'Ward 3'])}
       practitionerSuggester={createDummySuggester(['Doctor 1', 'Nurse 2', 'Doctor 3'])}
       cptCodeSuggester={createDummySuggester(['CPT 1', 'CPT 2', 'CPT 3', 'CPT 4'])}

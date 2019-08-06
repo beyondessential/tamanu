@@ -21,6 +21,11 @@ export class ProcedureForm extends React.PureComponent {
     onSubmit: PropTypes.func.isRequired,
   };
 
+  onCancel = () => {
+    const { onCancel } = this.props;
+    if(onCancel) onCancel();
+  };
+
   renderForm = ({ submitForm }) => {
     const { 
       locationSuggester, 
@@ -99,7 +104,7 @@ export class ProcedureForm extends React.PureComponent {
         />
         <Field
           name="notes"
-          label="Notes"
+          label="Notes or additional instructions"
           component={TextField}
           multiline
           rows={4}
@@ -119,6 +124,9 @@ export class ProcedureForm extends React.PureComponent {
           style={{ gridColumn: 'span 2' }}
         />
         <div style={{ gridColumn: 2, textAlign: 'right' }}>
+          <Button variant="contained" onClick={this.onCancel}>
+            Cancel
+          </Button>
           <Button variant="contained" onClick={submitForm} color="primary">
             {buttonText}
           </Button>
