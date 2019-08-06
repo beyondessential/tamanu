@@ -17,9 +17,12 @@ function TableStateWrapper({ columns, data }) {
     setOrderBy(columnKey);
   }
 
-  const sortedData = data.sort(({ [orderBy]: a }, { [orderBy]: b }) =>
-    order === 'asc' ? a.localeCompare(b) : b.localeCompare(a),
-  );
+  const sortedData = data.sort(({ [orderBy]: a }, { [orderBy]: b }) => {
+    if (typeof a === 'string') {
+      return order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+    }
+    return order === 'asc' ? a - b : b - a;
+  });
 
   return (
     <Table
@@ -45,7 +48,7 @@ const dummyColumns = [
 
 const sortableColumns = [
   { key: 'name', title: 'Fruit' },
-  { key: 'quantity', title: 'Quantity', numeric: true, sortable: false },
+  { key: 'quantity', title: 'Quantity', numeric: true },
 ];
 
 const dummyData = [
