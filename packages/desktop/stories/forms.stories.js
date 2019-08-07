@@ -11,6 +11,7 @@ import Login from '../app/containers/Auth/Login';
 import { VisitForm } from '../app/forms/VisitForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
 import { AllergyForm } from '../app/forms/AllergyForm';
+import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
 
 function createDummySuggester(options) {
   const selectableOptions = options.map(o => ({
@@ -76,6 +77,13 @@ storiesOf('Forms', module)
   ))
   .add('AllergyForm', () => (
     <AllergyForm
+      onSubmit={action('submit')}
+      onCancel={action('cancel')}
+      practitionerSuggester={practitionerSuggester}
+    />
+  ))
+  .add('OngoingConditionForm', () => (
+    <OngoingConditionForm
       onSubmit={action('submit')}
       onCancel={action('cancel')}
       practitionerSuggester={practitionerSuggester}
