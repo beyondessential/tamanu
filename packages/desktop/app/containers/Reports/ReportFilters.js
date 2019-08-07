@@ -169,12 +169,10 @@ class Filters extends Component {
     );
   }
 }
-
-export const ReportFilters = withTheme()(Filters);
-
-export class CustomReportFilters extends Component {
+class CustomFilters extends Component {
   static propTypes = {
     onApply: PropTypes.func.isRequired,
+    theme: PropTypes.shape({}).isRequired,
   };
 
   state = {};
@@ -188,6 +186,8 @@ export class CustomReportFilters extends Component {
   }
 
   render() {
+    const { theme } = this.props;
+
     return (
       <div>
         <div className="column">
@@ -199,6 +199,7 @@ export class CustomReportFilters extends Component {
               onChange={dataset => this.setState({ dataset })}
               value={this.state.dataset}
               simpleValue
+              theme={theme}
             />
           </ExpanderSection>
           <ExpanderSection heading="Visualisation">
@@ -209,11 +210,12 @@ export class CustomReportFilters extends Component {
               onChange={visualisation => this.setState({ visualisation })}
               value={this.state.visualisation}
               simpleValue
+              theme={theme}
             />
           </ExpanderSection>
         </div>
-        <div className="column" style={{ textAlign: 'right', marginTop: '-1em' }}>
-          <Button onClick={this.apply} primary>
+        <div className="column" style={{ textAlign: 'right', marginTop: '0.5em' }}>
+          <Button onClick={this.apply} color="primary">
             Generate report
           </Button>
         </div>
@@ -221,3 +223,7 @@ export class CustomReportFilters extends Component {
     );
   }
 }
+
+
+export const ReportFilters = withTheme()(Filters);
+export const CustomReportFilters = withTheme()(CustomFilters);

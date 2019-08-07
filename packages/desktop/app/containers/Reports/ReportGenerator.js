@@ -44,6 +44,7 @@ export class ReportGenerator extends Component {
   static propTypes = {
     match: PropTypes.shape({ params: PropTypes.object.isRequired }).isRequired,
   };
+
   constructor(props) {
     super(props);
 
@@ -56,6 +57,7 @@ export class ReportGenerator extends Component {
   updateState = filters => {
     this.setState({ filters });
   };
+
   getReportId = () => {
     const { match } = this.props;
     const { params } = match;
