@@ -10,6 +10,8 @@ export class TamanuApi {
     this.reduxStore = null;
   }
 
+  todo = message => console.log(`YET TO IMPLEMENT: ${message}`);
+
   injectReduxStore(store) {
     this.reduxStore = store;
   }
