@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
 
 import { TopBar } from '../../components';
 
@@ -6,16 +8,26 @@ import { availableReports, datasetOptions, generateData } from './dummyReports';
 import { ReportViewer } from './ReportViewer';
 import { ReportFilters, CustomReportFilters } from './ReportFilters';
 
+const Detail = styled.div`
+  padding: 10px;
+`;
+const Notification = styled.div`
+  padding: 10px;
+  background: #ffffe4;
+`;
+
 const ReportNotFound = ({ missingId }) => (
   <div>
     <TopBar title="Report not found" />
-    <div className="detail">
-      <div className="notification">
-        {`Could not find report with id ${missingId}.`}
-      </div>
-    </div>
+    <Detail>
+      <Notification>{`Could not find report with id ${missingId}.`}</Notification>
+    </Detail>
   </div>
 );
+
+ReportNotFound.propTypes = {
+  missingId: PropTypes.string.isRequired,
+};
 
 const Report = ({reportName, reportFilters, reportViewer}) => (
   <div>
@@ -29,6 +41,9 @@ const Report = ({reportName, reportFilters, reportViewer}) => (
 );
 
 export class ReportGenerator extends Component {
+  static propTypes = {
+    match: PropTypes.shape({ params: PropTypes.object.isRequired }).isRequired,
+  };
   constructor(props) {
     super(props);
 
@@ -38,6 +53,9 @@ export class ReportGenerator extends Component {
     this.state = { datasets, filters }
   };
 
+  updateState = filters => {
+    this.setState({ filters });
+  };
   getReportId = () => {
     const { match } = this.props;
     const { params } = match;

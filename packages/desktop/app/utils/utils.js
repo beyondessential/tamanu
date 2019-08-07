@@ -86,3 +86,9 @@ export const getModifiedFieldNames = (objectA, objectB) => {
   });
   return modifiedFields;
 };
+
+export const history = {
+  goBack: () => {
+    window.history.back();
+  }
+}
