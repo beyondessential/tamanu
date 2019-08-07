@@ -111,6 +111,8 @@ export const prescriberOptions = generateDummyOptions(`
 export const datasetOptions = generateDummyOptions(`
   Dataset A
   Dataset B
+  Dataset C
+  Dataset D
 `);
 
 export const visualisationOptions = generateDummyOptions(`
@@ -119,30 +121,13 @@ export const visualisationOptions = generateDummyOptions(`
   Bar chart
 `);
 
-export const dummyData = new Array(220).fill(0).map(x => ({
-  date: randomDate().toDate(),
-  diagnosis: randomChoice(diagnosisOptions).value,
-  location: randomChoice(locationOptions).value,
-  prescriber: randomChoice(prescriberOptions).value,
-  age: Math.floor(Math.random() * 40) + Math.floor(Math.random() * 30),
-  sex: Math.random() < 0.5 ? 'male' : 'female',
-}));
-
-export const datasetA = new Array(220).fill(0).map(x => ({
-  date: randomDate().toDate(),
-  diagnosis: randomChoice(diagnosisOptions).value,
-  location: randomChoice(locationOptions).value,
-  prescriber: randomChoice(prescriberOptions).value,
-  age: Math.floor(Math.random() * 40) + Math.floor(Math.random() * 30),
-  sex: Math.random() < 0.5 ? 'male' : 'female',
-}));
-
-
-export const datasetB = new Array(220).fill(0).map(x => ({
-  date: randomDate().toDate(),
-  diagnosis: randomChoice(diagnosisOptions).value,
-  location: randomChoice(locationOptions).value,
-  prescriber: randomChoice(prescriberOptions).value,
-  age: Math.floor(Math.random() * 40) + Math.floor(Math.random() * 30),
-  sex: Math.random() < 0.5 ? 'male' : 'female',
-}));
+export const generateData = () => {
+  return new Array(220).fill(0).map(_ => ({
+    date: randomDate().toDate(),
+    diagnosis: randomChoice(diagnosisOptions).value,
+    location: randomChoice(locationOptions).value,
+    prescriber: randomChoice(prescriberOptions).value,
+    age: Math.floor(Math.random() * 40) + Math.floor(Math.random() * 30),
+    sex: Math.random() < 0.5 ? 'male' : 'female',
+  }));
+}
