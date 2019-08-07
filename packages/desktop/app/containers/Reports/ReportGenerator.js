@@ -61,13 +61,7 @@ export class ReportGenerator extends Component {
     this.setState({ filters });
   };
 
-  getReportId = () => {
-    const { match } = this.props;
-    const { params } = match;
-    const { reportId } = params;
-
-    return reportId;
-  };
+  getReportId = () => this.props.match.params.reportId;
 
   getData = () => {
     const { datasets, filters } = this.state;
