@@ -35,17 +35,25 @@ export class OngoingConditionForm extends React.PureComponent {
           name="name"
           label="Condition name"
           component={TextField}
+          disabled={resolving}
           required
           style={{ gridColumn: 'span 2' }}
         />
-        <Field name="date" label="Date recorded" component={DateField} />
+        <Field name="date" label="Date recorded" component={DateField} disabled={resolving} />
         <Field
           name="practitioner"
           label="Doctor/Nurse"
+          disabled={resolving}
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field name="note" label="Notes" component={TextField} style={{ gridColumn: 'span 2' }} />
+        <Field
+          name="note"
+          label="Notes"
+          component={TextField}
+          style={{ gridColumn: 'span 2' }}
+          disabled={resolving}
+        />
         <Field name="resolved" label="Resolved" component={CheckField} />
         <Collapse in={resolving} style={{ gridColumn: 'span 2' }}>
           <FormGrid>
