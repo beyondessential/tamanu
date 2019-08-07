@@ -62,7 +62,7 @@ const graphRenderers = {
 const renderGraph = (report, data) => {
   const render = graphRenderers[report.graphType] || graphRenderers.line;
   return render(data);
-}
+};
 
 export const ReportGraph = ({ report, data }) => (
   <div style={graphStyle}>

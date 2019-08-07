@@ -37,10 +37,10 @@ export const availableReports = [
     graphType: 'line',
     name: 'Custom report',
     getCountKey: row =>
-        moment(row.date)
-          .startOf('day')
-          .toDate(),
-  }
+      moment(row.date)
+        .startOf('day')
+        .toDate(),
+  },
 ];
 
 // generate some visits on some random dates
@@ -130,4 +130,4 @@ export const generateData = () => {
     age: Math.floor(Math.random() * 40) + Math.floor(Math.random() * 30),
     sex: Math.random() < 0.5 ? 'male' : 'female',
   }));
-}
+};

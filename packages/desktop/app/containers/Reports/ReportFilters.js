@@ -17,7 +17,13 @@ import InputGroup from '../../components/InputGroup';
 import { Button } from '../../components/Button';
 
 import { sexOptions } from '../../constants';
-import { diagnosisOptions, locationOptions, prescriberOptions, datasetOptions, visualisationOptions } from './dummyReports';
+import {
+  diagnosisOptions,
+  locationOptions,
+  prescriberOptions,
+  datasetOptions,
+  visualisationOptions,
+} from './dummyReports';
 
 const Column = styled.div`
   padding: 0rem;
@@ -159,8 +165,7 @@ class Filters extends Component {
           </ExpanderSection>
         </Column>
         <Column style={{ textAlign: 'right', marginTop: '0.5em' }}>
-          <Button>Advanced filters</Button>
-          {' '}
+          <Button>Advanced filters</Button>{' '}
           <Button onClick={this.apply} color="primary">
             Generate report
           </Button>
@@ -223,7 +228,6 @@ class CustomFilters extends Component {
     );
   }
 }
-
 
 export const ReportFilters = withTheme()(Filters);
 export const CustomReportFilters = withTheme()(CustomFilters);

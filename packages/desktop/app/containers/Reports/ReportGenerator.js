@@ -29,12 +29,12 @@ ReportNotFound.propTypes = {
   missingId: PropTypes.string.isRequired,
 };
 
-const Report = ({reportName, reportFilters, reportViewer}) => (
+const Report = ({ reportName, reportFilters, reportViewer }) => (
   <div>
-    <TopBar title={reportName} />    
+    <TopBar title={reportName} />
     <div className="detail">
       {reportFilters}
-      <hr/>
+      <hr />
       {reportViewer}
     </div>
   </div>
@@ -48,11 +48,14 @@ export class ReportGenerator extends Component {
   constructor(props) {
     super(props);
 
-    const datasets = datasetOptions.reduce((acc, { value: dataset }) => ({[dataset]: generateData(), ...acc}),{});
+    const datasets = datasetOptions.reduce(
+      (acc, { value: dataset }) => ({ [dataset]: generateData(), ...acc }),
+      {},
+    );
     const filters = {};
 
-    this.state = { datasets, filters }
-  };
+    this.state = { datasets, filters };
+  }
 
   updateState = filters => {
     this.setState({ filters });
@@ -64,32 +67,34 @@ export class ReportGenerator extends Component {
     const { reportId } = params;
 
     return reportId;
-  }
+  };
 
   getData = () => {
     const { datasets, filters } = this.state;
     const { dataset } = filters;
     return dataset ? datasets[dataset] : Object.values(datasets)[0];
-  }
+  };
 
   getReport = () => {
     const reportId = this.getReportId();
     return availableReports.find(r => r.id === reportId);
-  }
+  };
 
   getReportFilters = () => {
     const reportId = this.getReportId();
-    return reportId === 'custom-report' 
-      ? <CustomReportFilters onApply={filters => this.setState({filters})}/> 
-      : <ReportFilters onApply={filters => this.setState({filters})}/>;
-  }
+    return reportId === 'custom-report' ? (
+      <CustomReportFilters onApply={filters => this.setState({ filters })} />
+    ) : (
+      <ReportFilters onApply={filters => this.setState({ filters })} />
+    );
+  };
 
   getReportViewer = () => {
     const { filters } = this.state;
     const report = this.getReport();
     const data = this.getData();
-    return <ReportViewer report={report} data={data} filters={filters}/>;
-  }
+    return <ReportViewer report={report} data={data} filters={filters} />;
+  };
 
   render() {
     const report = this.getReport();
@@ -97,12 +102,14 @@ export class ReportGenerator extends Component {
     if (!report) {
       const id = this.getReportId();
       return <ReportNotFound missingId={id} />;
-    } 
+    }
 
     const { name: reportName } = report;
     const reportFilters = this.getReportFilters();
     const reportViewer = this.getReportViewer();
 
-    return <Report reportName={reportName} reportFilters={reportFilters} reportViewer={reportViewer}/>
+    return (
+      <Report reportName={reportName} reportFilters={reportFilters} reportViewer={reportViewer} />
+    );
   }
 }
