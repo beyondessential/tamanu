@@ -64,7 +64,7 @@ ExpanderSection.defaultProps = {
   subheading: '',
 };
 
-class _ReportFilters extends Component {
+class Filters extends Component {
   static propTypes = {
     onApply: PropTypes.func.isRequired,
     theme: PropTypes.object.isRequired
@@ -160,11 +160,11 @@ class _ReportFilters extends Component {
         <Column style={{ textAlign: 'right', marginTop: '0.5em' }}>
           <Button>Advanced filters</Button>
           {' '}
-          <Button onClick={this.apply} primary>Generate report</Button>
+          <Button onClick={this.apply} color="primary">Generate report</Button>
         </Column>
       </div>
     );
   }
 }
 
-export const ReportFilters = withTheme()(_ReportFilters);
+export const ReportFilters = withTheme()(Filters);
