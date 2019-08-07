@@ -10,6 +10,9 @@ const Row = styled.div`
   grid-template-columns: auto repeat(${p => p.items}, 8rem);
 `;
 
+// Add an empty div at the start to fill up any excess space.
+// Also note the 'auto' as the first element of grid-template-columns,
+// which corresponds to this div.
 export const ButtonRow = React.memo(({ children, ...props }) => (
   <Row items={children.length} {...props}>
     <div />
