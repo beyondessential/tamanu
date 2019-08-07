@@ -77,9 +77,9 @@ export class ReportGenerator extends Component {
 
   getReportFilters = () => {
     const reportId = this.getReportId();
-    return reportId === 'custom-report' ? 
-      <CustomReportFilters onApply={filters => this.setState({filters})}/> :
-      <ReportFilters onApply={filters => this.setState({filters})}/>;
+    return reportId === 'custom-report' 
+      ? <CustomReportFilters onApply={filters => this.setState({filters})}/> 
+      : <ReportFilters onApply={filters => this.setState({filters})}/>;
   }
 
   getReportViewer = () => {
