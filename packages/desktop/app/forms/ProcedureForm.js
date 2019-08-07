@@ -59,13 +59,16 @@ export class ProcedureForm extends React.PureComponent {
     const buttonText = this.getButtonText(isCompleted);
     return (
       <FormGrid>
-        <Field name="procedure" label="Procedure" required component={TextField} />
+        <div style={{ gridColumn: 'span 2' }}>
         <Field
           name="cptCode"
-          label="CPT Code"
+          label="Procedure"
+          required
           component={AutocompleteField}
           suggester={cptCodeSuggester}
+          style={{ background: '#f0f' }}
         />
+        </div>
         <Field
           name="location"
           label="Procedure Location"
@@ -143,8 +146,7 @@ export class ProcedureForm extends React.PureComponent {
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          procedure: yup.string().required(),
-          cptCode: yup.string(),
+          cptCode: yup.string().required(),
           location: yup.string().required(),
           date: yup.string().required(),
           startTime: yup.string(),
