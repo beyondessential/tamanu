@@ -99,9 +99,10 @@ export const prescriberOptions = generateDummyOptions(`
   Ms Ian Ianson
 `);
 
-export const dummyData = new Array(220).fill(0).map(x => ({
+export const dummyData = new Array(220).fill(0).map((x, idx) => ({
   date: randomDate().toDate(),
   diagnosis: randomChoice(diagnosisOptions).value,
+  id: idx,
   location: randomChoice(locationOptions).value,
   prescriber: randomChoice(prescriberOptions).value,
   age: Math.floor(Math.random() * 40) + Math.floor(Math.random() * 30),
