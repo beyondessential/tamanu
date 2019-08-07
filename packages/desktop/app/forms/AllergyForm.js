@@ -1,22 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import Collapse from '@material-ui/core/Collapse';
 
-import {
-  Form,
-  Field,
-  DateField,
-  TimeField,
-  CheckField,
-  AutocompleteField,
-  TextField,
-} from '../components/Field';
+import { Form, Field, DateField, AutocompleteField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
 export class AllergyForm extends React.PureComponent {
-  
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
@@ -28,12 +18,8 @@ export class AllergyForm extends React.PureComponent {
   };
 
   renderForm = ({ submitForm }) => {
-    const {
-      editedObject,
-      onCancel,
-      practitionerSuggester,
-    } = this.props;
-    const buttonText = editedObject ? "Save" : "Create";
+    const { editedObject, onCancel, practitionerSuggester } = this.props;
+    const buttonText = editedObject ? 'Save' : 'Create';
     return (
       <FormGrid>
         <Field
@@ -43,23 +29,14 @@ export class AllergyForm extends React.PureComponent {
           required
           style={{ gridColumn: 'span 2' }}
         />
-        <Field
-          name="date"
-          label="Date recorded"
-          component={DateField}
-        />
+        <Field name="date" label="Date recorded" component={DateField} />
         <Field
           name="practitioner"
           label="Doctor/Nurse"
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field
-          name="note"
-          label="Notes"
-          component={TextField}
-          style={{ gridColumn: 'span 2' }}
-        />
+        <Field name="note" label="Notes" component={TextField} style={{ gridColumn: 'span 2' }} />
         <ConfirmCancelRow
           style={{ gridColumn: 2 }}
           onCancel={onCancel}
