@@ -26,8 +26,9 @@ const Column = styled.div`
 const GroupTitle = styled.span`
   color: ${props => props.theme.palette.primary.textMedium};
   display: inline-block;
-  margin-bottom: 5px;
   font-weight: bold;
+  margin-bottom: 5px;
+  margin-top: 8px;
 `;
 
 const LabeledSelect = ({ label, ...props }) => (
