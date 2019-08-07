@@ -60,14 +60,13 @@ export class ProcedureForm extends React.PureComponent {
     return (
       <FormGrid>
         <div style={{ gridColumn: 'span 2' }}>
-        <Field
-          name="cptCode"
-          label="Procedure"
-          required
-          component={AutocompleteField}
-          suggester={cptCodeSuggester}
-          style={{ background: '#f0f' }}
-        />
+          <Field
+            name="cptCode"
+            label="Procedure"
+            required
+            component={AutocompleteField}
+            suggester={cptCodeSuggester}
+          />
         </div>
         <Field
           name="location"
