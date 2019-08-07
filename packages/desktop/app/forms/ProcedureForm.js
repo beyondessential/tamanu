@@ -13,7 +13,6 @@ import {
   TextField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { Button } from '../components/Button';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
 const suggesterType = PropTypes.shape({
@@ -27,7 +26,7 @@ export class ProcedureForm extends React.PureComponent {
     onCancel: PropTypes.func.isRequired,
     editedObject: PropTypes.shape({}),
 
-    anesthesiaSuggester: suggesterType.isRequired,
+    anaesthesiaSuggester: suggesterType.isRequired,
     cptCodeSuggester: suggesterType.isRequired,
     locationSuggester: suggesterType.isRequired,
     practitionerSuggester: suggesterType.isRequired,
@@ -44,8 +43,8 @@ export class ProcedureForm extends React.PureComponent {
 
   getButtonText(isCompleted) {
     const { editedObject } = this.props;
-    if(isCompleted) return 'Finalise';
-    if(editedObject) return 'Update';
+    if (isCompleted) return 'Finalise';
+    if (editedObject) return 'Update';
     return 'Create';
   }
 
@@ -55,18 +54,12 @@ export class ProcedureForm extends React.PureComponent {
       cptCodeSuggester,
       locationSuggester,
       practitionerSuggester,
-      editedObject,
     } = this.props;
     const isCompleted = !!values.completed;
     const buttonText = this.getButtonText(isCompleted);
     return (
       <FormGrid>
-        <Field
-          name="procedure"
-          label="Procedure"
-          required
-          component={TextField}
-        />
+        <Field name="procedure" label="Procedure" required component={TextField} />
         <Field
           name="cptCode"
           label="CPT Code"

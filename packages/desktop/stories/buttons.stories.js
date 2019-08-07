@@ -8,39 +8,36 @@ import { ButtonRow, ConfirmCancelRow } from '../app/components/ButtonRow';
 
 storiesOf('Buttons/ButtonRow', module)
   .add('ConfirmCancel', () => (
-    <ConfirmCancelRow
-      onConfirm={action("confirm")}
-      onCancel={action("confirm")}
-    />
+    <ConfirmCancelRow onConfirm={action('confirm')} onCancel={action('confirm')} />
   ))
   .add('With custom text', () => (
     <ConfirmCancelRow
-      onConfirm={action("confirm")}
-      onCancel={action("confirm")}
+      onConfirm={action('confirm')}
+      onCancel={action('confirm')}
       confirmText="OK"
       cancelText="Back"
     />
   ))
   .add('With long custom text', () => (
     <ConfirmCancelRow
-      onConfirm={action("confirm")}
-      onCancel={action("confirm")}
+      onConfirm={action('confirm')}
+      onCancel={action('confirm')}
       confirmText="Assign patient diagnosis"
       cancelText="Return to previous state"
     />
   ))
   .add('With custom buttons', () => (
     <ButtonRow>
-      <Button onClick={action("plier")} variant="contained" color="primary">
+      <Button onClick={action('plier')} variant="contained" color="primary">
         Plier
       </Button>
-      <Button onClick={action("etendre")} variant="contained" color="secondary">
+      <Button onClick={action('etendre')} variant="contained" color="secondary">
         Etendre
       </Button>
-      <Button onClick={action("relever")} variant="contained" color="tertiary">
+      <Button onClick={action('relever')} variant="contained" color="tertiary">
         Relever
       </Button>
-      <Button onClick={action("glisser")} variant="contained">
+      <Button onClick={action('glisser')} variant="contained">
         Glisser
       </Button>
     </ButtonRow>

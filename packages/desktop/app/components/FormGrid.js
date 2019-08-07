@@ -6,5 +6,5 @@ export const FormGrid = styled.div`
   grid-column-gap: 0.7rem;
   grid-row-gap: 1.2rem;
 
-  grid-template-columns: repeat(${({columns=2}) => columns}, 1fr);
+  grid-template-columns: repeat(${({ columns = 2 }) => columns}, 1fr);
 `;
