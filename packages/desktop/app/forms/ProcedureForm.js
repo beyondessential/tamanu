@@ -51,7 +51,7 @@ export class ProcedureForm extends React.PureComponent {
 
   renderForm = ({ submitForm, values }) => {
     const {
-      anesthesiaSuggester,
+      anaesthesiaSuggester,
       cptCodeSuggester,
       locationSuggester,
       practitionerSuggester,
@@ -99,16 +99,16 @@ export class ProcedureForm extends React.PureComponent {
           suggester={practitionerSuggester}
         />
         <Field
-          name="anesthesiologist"
-          label="Anesthesiologist"
+          name="anaesthetist"
+          label="Anaesthetist"
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
         <Field
-          name="anesthesiaType"
-          label="Anesthesia Type"
+          name="anaesthesiaType"
+          label="Anaesthesia Type"
           component={AutocompleteField}
-          suggester={anesthesiaSuggester}
+          suggester={anaesthesiaSuggester}
           rows={4}
           style={{ gridColumn: 'span 2' }}
         />
@@ -158,8 +158,8 @@ export class ProcedureForm extends React.PureComponent {
           endTime: yup.string(),
           physician: yup.string().required(),
           assistant: yup.string(),
-          anesthesiologist: yup.string(),
-          anesthesiaType: yup.string(),
+          anaesthetist: yup.string(),
+          anaesthesiaType: yup.string(),
           note: yup.string(),
           completed: yup.boolean(),
           completedNotes: yup.string(),
