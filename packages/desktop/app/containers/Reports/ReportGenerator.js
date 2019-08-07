@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 
 import { TopBar } from '../../components';
 
 import { availableReports, dummyData } from './dummyReports';
 import { ReportViewer } from './ReportViewer';
 import { ReportFilters } from './ReportFilters';
-
-import styled from 'styled-components';
 
 const Detail = styled.div`
   padding: 10px;
