@@ -14,6 +14,7 @@ import {
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { Button } from '../components/Button';
+import { ConfirmCancelRow } from '../components/ButtonRow';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
@@ -129,14 +130,12 @@ export class ProcedureForm extends React.PureComponent {
             rows={4}
           />
         </Collapse>
-        <div style={{ gridColumn: 2, textAlign: 'right' }}>
-          <Button variant="contained" onClick={this.onCancel}>
-            Cancel
-          </Button>
-          <Button variant="contained" onClick={submitForm} color="primary">
-            {buttonText}
-          </Button>
-        </div>
+        <ConfirmCancelRow
+          style={{ gridColumn: 2 }}
+          onCancel={this.onCancel}
+          onConfirm={submitForm}
+          confirmText={buttonText}
+        />
       </FormGrid>
     );
   };
