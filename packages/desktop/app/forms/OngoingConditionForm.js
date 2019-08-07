@@ -3,10 +3,16 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 
-import { Form, Field, DateField, AutocompleteField, TextField } from '../components/Field';
-import { Button } from '../components/Button';
+import {
+  Form,
+  Field,
+  DateField,
+  AutocompleteField,
+  TextField,
+  CheckField,
+} from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ButtonRow } from '../components/ButtonRow';
+import { ConfirmCancelRow } from '../components/ButtonRow';
 
 export class OngoingConditionForm extends React.PureComponent {
   static propTypes = {
@@ -19,7 +25,7 @@ export class OngoingConditionForm extends React.PureComponent {
     editedObject: null,
   };
 
-  renderForm = ({ submitForm, values, setFieldValue }) => {
+  renderForm = ({ submitForm, values }) => {
     const { editedObject, onCancel, practitionerSuggester } = this.props;
     const resolving = values.resolved;
     const buttonText = editedObject ? 'Save' : 'Create';
@@ -27,7 +33,7 @@ export class OngoingConditionForm extends React.PureComponent {
       <FormGrid>
         <Field
           name="name"
-          label="Condition Name"
+          label="Condition name"
           component={TextField}
           required
           style={{ gridColumn: 'span 2' }}
@@ -40,9 +46,10 @@ export class OngoingConditionForm extends React.PureComponent {
           suggester={practitionerSuggester}
         />
         <Field name="note" label="Notes" component={TextField} style={{ gridColumn: 'span 2' }} />
+        <Field name="resolved" label="Resolved" component={CheckField} />
         <Collapse in={resolving} style={{ gridColumn: 'span 2' }}>
           <FormGrid>
-            <Field name="resolutionDate" label="Date Resolved" component={DateField} />
+            <Field name="resolutionDate" label="Date resolved" component={DateField} />
             <Field
               name="resolutionPractitioner"
               label="Doctor/Nurse confirming resolution"
@@ -51,28 +58,18 @@ export class OngoingConditionForm extends React.PureComponent {
             />
             <Field
               name="resolutionNote"
-              label="Notes"
+              label="Notes on resolution"
               component={TextField}
               style={{ gridColumn: 'span 2' }}
             />
           </FormGrid>
         </Collapse>
-        <ButtonRow style={{ gridColumn: 'span 2' }}>
-          <Button variant="contained" onClick={onCancel}>
-            Close
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => setFieldValue('resolved', true)}
-            disabled={resolving}
-          >
-            Resolve
-          </Button>
-          <Button variant="contained" color="primary" onClick={submitForm}>
-            {buttonText}
-          </Button>
-        </ButtonRow>
+        <ConfirmCancelRow
+          style={{ gridColumn: 2 }}
+          onCancel={onCancel}
+          onConfirm={submitForm}
+          confirmText={buttonText}
+        />
       </FormGrid>
     );
   };
