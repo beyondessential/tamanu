@@ -9,15 +9,15 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
+import styled from 'styled-components';
+import { withTheme } from '@material-ui/core/styles';
+
 import { DateRange } from '../../components/DateRange';
 import InputGroup from '../../components/InputGroup';
 import { Button } from '../../components/Button';
 
 import { sexOptions } from '../../constants';
 import { diagnosisOptions, locationOptions, prescriberOptions } from './dummyReports';
-
-import styled from 'styled-components';
-import { withTheme } from '@material-ui/core/styles';
 
 const Column = styled.div`
   padding: 0rem;
@@ -39,7 +39,7 @@ const LabeledSelect = ({ label, ...props }) => (
 
 LabeledSelect.propTypes = {
   label: PropTypes.string.isRequired,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.shape({}).isRequired,
 };
 
 const ExpanderSection = ({ heading, subheading, children, ...props }) => (
@@ -67,8 +67,8 @@ ExpanderSection.defaultProps = {
 class Filters extends Component {
   static propTypes = {
     onApply: PropTypes.func.isRequired,
-    theme: PropTypes.object.isRequired
-  }
+    theme: PropTypes.shape({}).isRequired,
+  };
 
   state = {
     range: {
@@ -160,7 +160,9 @@ class Filters extends Component {
         <Column style={{ textAlign: 'right', marginTop: '0.5em' }}>
           <Button>Advanced filters</Button>
           {' '}
-          <Button onClick={this.apply} color="primary">Generate report</Button>
+          <Button onClick={this.apply} color="primary">
+            Generate report
+          </Button>
         </Column>
       </div>
     );
