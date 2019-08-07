@@ -27,7 +27,7 @@ export class OngoingConditionForm extends React.PureComponent {
       <FormGrid>
         <Field
           name="name"
-          label="Name"
+          label="Condition Name"
           component={TextField}
           required
           style={{ gridColumn: 'span 2' }}
@@ -42,7 +42,7 @@ export class OngoingConditionForm extends React.PureComponent {
         <Field name="note" label="Notes" component={TextField} style={{ gridColumn: 'span 2' }} />
         <Collapse in={resolving} style={{ gridColumn: 'span 2' }}>
           <FormGrid>
-            <Field name="resolutionDate" label="Date resolved" component={DateField} />
+            <Field name="resolutionDate" label="Date Resolved" component={DateField} />
             <Field
               name="resolutionPractitioner"
               label="Doctor/Nurse confirming resolution"

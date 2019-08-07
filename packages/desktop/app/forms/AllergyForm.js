@@ -24,7 +24,7 @@ export class AllergyForm extends React.PureComponent {
       <FormGrid>
         <Field
           name="name"
-          label="Name"
+          label="Allergy Name"
           component={TextField}
           required
           style={{ gridColumn: 'span 2' }}
