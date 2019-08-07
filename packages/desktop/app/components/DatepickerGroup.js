@@ -1,29 +1,33 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { withTheme } from '@material-ui/core/styles';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import CustomDateInput from './CustomDateInput';
 import { dateFormat, timeFormat } from '../constants';
 
-import styled from 'styled-components';
-
+const Column = styled.div`
+  margin-top: 8px;
+  padding: 0rem;
+`;
 const GroupTitle = styled.span`
-  color: $main-light-dark-color;
+  color: ${props => props.theme.palette.primary.textMedium};
   display: inline-block;
   margin-bottom: 5px;
   font-weight: bold;
 `;
 
-export default class DatepickerGroup extends Component {
+class DatepickerGroup extends Component {
   static propTypes = {
-    label: PropTypes.any.isRequired,
+    label: PropTypes.string.isRequired,
     required: PropTypes.bool,
     name: PropTypes.string.isRequired,
     className: PropTypes.string,
     inputClass: PropTypes.string,
     overwriteClass: PropTypes.bool,
     showTimeSelect: PropTypes.bool,
-    value: PropTypes.any,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.shape({})]),
     readOnly: PropTypes.bool,
     todayAsDefault: PropTypes.bool,
     timeFormat: PropTypes.string,
@@ -32,17 +36,23 @@ export default class DatepickerGroup extends Component {
   };
 
   static defaultProps = {
-    required: false,
     className: '',
+    inputClass: '',
     overwriteClass: false,
-    showTimeSelect: false,
-    value: moment(),
     readOnly: false,
-    todayAsDefault: true,
+    required: false,
+    showTimeSelect: false,
+    timeCaption: 'Time',
     timeFormat: '',
     timeIntervals: 15,
-    timeCaption: 'Time',
+    todayAsDefault: true,
+    value: moment(),
   };
+
+  constructor(props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+  }
 
   componentWillMount() {
     this.parseValue(this.props, true);
@@ -52,10 +62,8 @@ export default class DatepickerGroup extends Component {
     this.parseValue(newProps);
   }
 
-  parseValue(props, init = false) {
-    const { value, todayAsDefault } = props;
-    // value = moment(value);
-    // if (init) value = todayAsDefault ? moment() : null;
+  parseValue(props) {
+    const { value } = props;
     this.setState({ value });
   }
 
@@ -79,6 +87,7 @@ export default class DatepickerGroup extends Component {
       todayAsDefault,
       onChange,
       value: _,
+      theme,
       ...others
     } = this.props;
     let { value } = this.state;
@@ -87,10 +96,12 @@ export default class DatepickerGroup extends Component {
     if (!overwriteClass) className = `column ${className}`;
 
     return (
-      <div className={className}>
+      <Column className={className}>
         {label !== false && (
-          <GroupTitle>
-            {label} {required && <span className="isRequired">*</span>}
+          <GroupTitle theme={theme}>
+            {label}
+            {' '}
+            {required && <span className="isRequired">*</span>}
           </GroupTitle>
         )}
         {readOnly && <CustomDateInput value={value} />}
@@ -100,7 +111,7 @@ export default class DatepickerGroup extends Component {
             tabIndex={tabIndex}
             customInput={<CustomDateInput />}
             selected={value}
-            onChange={this.handleChange.bind(this)}
+            onChange={this.handleChange}
             showTimeSelect={showTimeSelect}
             timeFormat={timeFormat}
             timeIntervals={10}
@@ -112,7 +123,9 @@ export default class DatepickerGroup extends Component {
             {...others}
           />
         )}
-      </div>
+      </Column>
     );
   }
 }
+
+export default withTheme()(DatepickerGroup);

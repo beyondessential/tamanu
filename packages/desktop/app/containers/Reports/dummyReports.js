@@ -32,6 +32,15 @@ export const availableReports = [
     name: 'Diagnosis breakdown',
     getCountKey: row => row.diagnosis,
   },
+  {
+    id: 'custom-report',
+    graphType: 'line',
+    name: 'Custom report',
+    getCountKey: row =>
+      moment(row.date)
+        .startOf('day')
+        .toDate(),
+  },
 ];
 
 // generate some visits on some random dates
@@ -99,12 +108,28 @@ export const prescriberOptions = generateDummyOptions(`
   Ms Ian Ianson
 `);
 
-export const dummyData = new Array(220).fill(0).map((x, idx) => ({
-  date: randomDate().toDate(),
-  diagnosis: randomChoice(diagnosisOptions).value,
-  id: idx,
-  location: randomChoice(locationOptions).value,
-  prescriber: randomChoice(prescriberOptions).value,
-  age: Math.floor(Math.random() * 40) + Math.floor(Math.random() * 30),
-  sex: Math.random() < 0.5 ? 'male' : 'female',
-}));
+export const datasetOptions = generateDummyOptions(`
+  Dataset A
+  Dataset B
+  Dataset C
+  Dataset D
+`);
+
+export const visualisationOptions = generateDummyOptions(`
+  Pie chart
+  Line graph
+  Bar chart
+`);
+
+export const generateData = ((data, index)) => {
+  return new Array(220).fill(0).map(_ => ({
+    date: randomDate().toDate(),
+    diagnosis: randomChoice(diagnosisOptions).value,
+    id: index,
+    location: randomChoice(locationOptions).value,
+    prescriber: randomChoice(prescriberOptions).value,
+    age: Math.floor(Math.random() * 40) + Math.floor(Math.random() * 30),
+    sex: Math.random() < 0.5 ? 'male' : 'female',
+  }));
+};
+

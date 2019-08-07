@@ -9,15 +9,21 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
+import styled from 'styled-components';
+import { withTheme } from '@material-ui/core/styles';
+
 import { DateRange } from '../../components/DateRange';
 import InputGroup from '../../components/InputGroup';
 import { Button } from '../../components/Button';
 
 import { sexOptions } from '../../constants';
-import { diagnosisOptions, locationOptions, prescriberOptions } from './dummyReports';
-
-import styled from 'styled-components';
-import { withTheme } from '@material-ui/core/styles';
+import {
+  diagnosisOptions,
+  locationOptions,
+  prescriberOptions,
+  datasetOptions,
+  visualisationOptions,
+} from './dummyReports';
 
 const Column = styled.div`
   padding: 0rem;
@@ -26,8 +32,9 @@ const Column = styled.div`
 const GroupTitle = styled.span`
   color: ${props => props.theme.palette.primary.textMedium};
   display: inline-block;
-  margin-bottom: 5px;
   font-weight: bold;
+  margin-bottom: 5px;
+  margin-top: 8px;
 `;
 
 const LabeledSelect = ({ label, ...props }) => (
@@ -39,7 +46,7 @@ const LabeledSelect = ({ label, ...props }) => (
 
 LabeledSelect.propTypes = {
   label: PropTypes.string.isRequired,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.shape({}).isRequired,
 };
 
 const ExpanderSection = ({ heading, subheading, children, ...props }) => (
@@ -64,11 +71,11 @@ ExpanderSection.defaultProps = {
   subheading: '',
 };
 
-class _ReportFilters extends Component {
+class Filters extends Component {
   static propTypes = {
     onApply: PropTypes.func.isRequired,
-    theme: PropTypes.object.isRequired
-  }
+    theme: PropTypes.shape({}).isRequired,
+  };
 
   state = {
     range: {
@@ -158,13 +165,69 @@ class _ReportFilters extends Component {
           </ExpanderSection>
         </Column>
         <Column style={{ textAlign: 'right', marginTop: '0.5em' }}>
-          <Button>Advanced filters</Button>
-          {' '}
-          <Button onClick={this.apply} primary>Generate report</Button>
+          <Button>Advanced filters</Button>{' '}
+          <Button onClick={this.apply} color="primary">
+            Generate report
+          </Button>
         </Column>
       </div>
     );
   }
 }
+class CustomFilters extends Component {
+  static propTypes = {
+    onApply: PropTypes.func.isRequired,
+    theme: PropTypes.shape({}).isRequired,
+  };
 
-export const ReportFilters = withTheme()(_ReportFilters);
+  state = {};
+
+  apply = () => {
+    this.props.onApply(this.state);
+  };
+
+  componentDidMount() {
+    this.apply();
+  }
+
+  render() {
+    const { theme } = this.props;
+
+    return (
+      <div>
+        <div className="column">
+          <ExpanderSection heading="Report details" defaultExpanded>
+            <LabeledSelect
+              label="Dataset"
+              name="dataset"
+              options={datasetOptions}
+              onChange={dataset => this.setState({ dataset })}
+              value={this.state.dataset}
+              simpleValue
+              theme={theme}
+            />
+          </ExpanderSection>
+          <ExpanderSection heading="Visualisation">
+            <LabeledSelect
+              label="Visualisation"
+              name="visualisation"
+              options={visualisationOptions}
+              onChange={visualisation => this.setState({ visualisation })}
+              value={this.state.visualisation}
+              simpleValue
+              theme={theme}
+            />
+          </ExpanderSection>
+        </div>
+        <div className="column" style={{ textAlign: 'right', marginTop: '0.5em' }}>
+          <Button onClick={this.apply} color="primary">
+            Generate report
+          </Button>
+        </div>
+      </div>
+    );
+  }
+}
+
+export const ReportFilters = withTheme()(Filters);
+export const CustomReportFilters = withTheme()(CustomFilters);
