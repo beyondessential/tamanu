@@ -9,6 +9,16 @@ import { Modal } from '../components/Modal';
 import { ButtonRow } from '../components/ButtonRow';
 import { Button } from '../components/Button';
 
+import { DateDisplay } from '../components/DateDisplay';
+
+const DataTable = ({ children }) => <table>{children}</table>;
+const DataRow = ({ label, value, children }) => (
+  <tr>
+    <td>{label}</td>
+    <td>{value || children}</td>
+  </tr>
+);
+
 const ContentPane = React.memo(({ children }) => <div>{children}</div>);
 
 const DataList = styled.ul`
@@ -26,7 +36,9 @@ const ListDisplay = React.memo(({ items = [], title, onEdit }) => (
         <li style={{ opacity: 0.5 }}>None recorded</li>
       )}
     </DataList>
-    <Button variant="contained" onClick={onEdit}>Edit</Button>
+    <Button variant="contained" onClick={onEdit}>
+      Edit
+    </Button>
   </div>
 ));
 
@@ -121,6 +133,13 @@ export const PatientView = React.memo(({ patient }) => {
       <AlertsDialog alerts={patient.alerts || []} />
       <ContentPane>
         <FormGrid columns={2}>
+          <DataTable>
+            <DataRow label="Name" value={patient.name} />
+            <DataRow label="Sex" value={patient.sex} />
+            <DataRow label="Date of birth">
+              <DateDisplay date={patient.dateOfBirth} showDuration />
+            </DataRow>
+          </DataTable>
           <OngoingConditionDisplay patient={patient} />
           <AllergyDisplay patient={patient} />
           <OperativePlanDisplay patient={patient} />
