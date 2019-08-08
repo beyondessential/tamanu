@@ -22,7 +22,7 @@ function sleep(milliseconds) {
 }
 
 class DummyApi {
-  get = async (endpoint, { sorting }) => {
+  getRecords = async (endpoint, { sorting }) => {
     await sleep(1000);
     const { orderBy, order } = sorting;
     const sortedData = dummyData.sort(({ [orderBy]: a }, { [orderBy]: b }) => {

@@ -61,7 +61,7 @@ function DataFetchingTableComponent({ columns, fetchData }) {
 
 function mapApiToProps(api, { endpoint }) {
   return {
-    fetchData: queryParameters => api.get(endpoint, queryParameters),
+    fetchData: queryParameters => api.getRecords(endpoint, queryParameters),
   };
 }
 
