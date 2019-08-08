@@ -35,7 +35,7 @@ export const availableReports = [
   {
     id: 'custom-report',
     graphType: 'line',
-    name: 'Custom report',
+    name: 'Report Builder',
     getCountKey: row =>
       moment(row.date)
         .startOf('day')
