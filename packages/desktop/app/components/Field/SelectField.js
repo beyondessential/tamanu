@@ -6,10 +6,9 @@ import PropTypes from 'prop-types';
 export const SelectInput = ({ options, value, ...props }) => (
   <MuiTextField
     select
-    InputLabelProps={{
-      shrink: !!value,
-    }}
+    InputLabelProps={{ shrink: true }}
     value={value || ''}
+    variant="outlined"
     {...props}
   >
     {options.map(o => (
