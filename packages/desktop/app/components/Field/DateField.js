@@ -34,6 +34,10 @@ export const DateField = ({ field, ...props }) => (
   <DateInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
 );
 
+export const TimeField = ({ field, ...props }) => (
+  <TimeInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
+);
+
 DateInput.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(moment)]),

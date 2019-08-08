@@ -1,20 +1,20 @@
-import React from 'react';
-import ReactTable from 'react-table';
-
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import { Table } from '../../components/Table';
 import { SaveSpreadsheetButton } from '../../components/SaveSpreadsheetButton';
 
 const dataColumns = [
   {
-    Header: 'Date',
-    id: 'key',
-    accessor: row => row.sort,
-    sortMethod: (a, b) => a - b,
-    Cell: record => record.original.formatted,
-    exporter: row => row.formatted,
+    accessor: record => record.formatted,
+    key: 'item',
+    sortable: true,
+    title: 'Item',
   },
   {
-    Header: 'Amount',
-    accessor: 'amount',
+    accessor: record => record.amount,
+    key: 'amount',
+    sortable: true,
+    title: 'Amount',
   },
 ];
 
@@ -23,11 +23,48 @@ const buttonContainerStyle = {
   textAlign: 'right',
 };
 
-export const ReportTable = ({ data }) => (
-  <div>
-    <div style={buttonContainerStyle}>
-      <SaveSpreadsheetButton filename="report" data={data} columns={dataColumns} />
+export const ReportTable = ({ data }) => {
+  const [order, setOrder] = useState('asc');
+  const [orderBy, setOrderBy] = useState(dataColumns[0].key);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const sortedData = data.sort(({ [orderBy]: a }, { [orderBy]: b }) => {
+    if (typeof a === 'string') {
+      return order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+    }
+    return order === 'asc' ? a - b : b - a;
+  });
+
+  const pagedData = sortedData.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+
+  const changeOrderBy = columnKey => {
+    const isDesc = orderBy === columnKey && order === 'desc';
+    setOrder(isDesc ? 'asc' : 'desc');
+    setOrderBy(columnKey);
+  };
+
+  return (
+    <div>
+      <div style={buttonContainerStyle}>
+        <SaveSpreadsheetButton filename="report" data={data} columns={dataColumns} />
+      </div>
+      <Table
+        columns={dataColumns}
+        count={data.length}
+        data={pagedData}
+        onChangeOrderBy={changeOrderBy}
+        onChangePage={setPage}
+        onChangeRowsPerPage={setRowsPerPage}
+        order={order}
+        orderBy={orderBy}
+        page={page}
+        rowsPerPage={rowsPerPage}
+      />
     </div>
-    <ReactTable data={data} columns={dataColumns} minRows={1} />
-  </div>
-);
+  );
+};
+
+ReportTable.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+};

@@ -14,3 +14,4 @@ export * from './AutocompleteField';
 
 // form helpers
 export * from './Form';
+export * from './FormGroup';

@@ -4,9 +4,59 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Select from 'react-select';
 import BootstrapTable from 'react-bootstrap-table-next';
-import CustomDateInput from '../../components/CustomDateInput';
+import { CustomDateInput, TopBar } from '../../components';
 import { fetchPatients } from '../../actions/patients/patients';
 import { patientColumns, reportOptions } from '../../constants';
+
+import styled from 'styled-components';
+import { withTheme } from '@material-ui/core/styles';
+
+const CreateContent = styled.div`
+  height: 100vh;
+  font-size: 15px;
+`;
+const ViewActionButtons = styled.div`
+  float: right;
+`;
+const Column = styled.div`
+  padding: 0rem;
+`;
+const Columns = styled.div`
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+`;
+const Header = styled.div`
+  color: ${props => props.theme.palette.primary.textMedium};
+  display: inline-block;
+  margin-bottom: 5px;
+  font-weight: bold;
+`;
+const FormHeader = styled.div`
+  padding: 10px;
+  background: #428bca;
+  span {
+    color: ${props => props.theme.palette.primary.textLight};
+    font-size: 24px;
+    font-weight: bold;
+  }
+`;
+const FormTable = styled.div`
+  margin: 20px 20px;
+  background: white;
+  .table {
+    width: 100%;
+  }
+`;
+const CreateForm = styled.div`
+  margin: 20px 20px;
+  background: white;
+  table {
+    width: 100%;
+  }
+`;
+const PrimaryButton = styled.button`
+  border: 0.5px solid #333 !important;
+`;
 
 class Reports extends Component {
   state = {
@@ -46,19 +96,18 @@ class Reports extends Component {
     const { startDate, endDate, generated } = this.state;
     const { patients } = this.props;
     return (
-      <div className="create-content">
-        <div className="create-top-bar">
-          <span>Patient Report</span>
-          <div className="view-action-buttons">
+      <CreateContent>
+        <TopBar title="Patient Report">
+          <ViewActionButtons>
             <button>Patient Check In</button>
-          </div>
-        </div>
-        <div className="create-container">
-          <div className="form">
-            <div className="columns">
-              <div className="column is-6">
-                <div className="column">
-                  <span className="header">Report Type</span>
+          </ViewActionButtons>
+        </TopBar>
+        <div>
+          <CreateForm>
+            <Columns>
+              <Column>
+                <Column>
+                  <Header>Report Type</Header>
                   <Select
                     id="state-select"
                     ref={ref => {
@@ -76,13 +125,13 @@ class Reports extends Component {
                     rtl={this.state.rtl}
                     searchable={this.state.searchable}
                   />
-                </div>
-              </div>
-            </div>
-            <div className="columns">
-              <div className="column is-4">
-                <div className="column">
-                  <span className="header">Start Date</span>
+                </Column>
+              </Column>
+            </Columns>
+            <Columns>
+              <Column>
+                <Column>
+                  <Header>Start Date</Header>
                   <DatePicker
                     name="startDate"
                     customInput={<CustomDateInput />}
@@ -93,11 +142,11 @@ class Reports extends Component {
                     showYearDropdown
                     dropdownMode="select"
                   />
-                </div>
-              </div>
-              <div className="column is-4">
-                <div className="column">
-                  <span className="header">End Date</span>
+                </Column>
+              </Column>
+              <Column>
+                <Column>
+                  <Header>End Date</Header>
                   <DatePicker
                     name="endDate"
                     customInput={<CustomDateInput />}
@@ -108,43 +157,38 @@ class Reports extends Component {
                     showYearDropdown
                     dropdownMode="select"
                   />
-                </div>
-              </div>
-            </div>
-            <div className="column has-text-right">
-              <button className="button is-primary" onClick={this.generateReport}>
-                Generate Report
-              </button>
-            </div>
-          </div>
+                </Column>
+              </Column>
+            </Columns>
+            <Column>
+              <PrimaryButton onClick={this.generateReport}>Generate Report</PrimaryButton>
+            </Column>
+          </CreateForm>
           {generated && (
-            <div className="form">
-              <div className="form-header">
+            <CreateForm>
+              <FormHeader>
                 <span>
                   Diagnostic Testing Report {moment(startDate).format('MM/DD/YYYY')} -{' '}
                   {moment(endDate).format('MM/DD/YYYY')}
                 </span>
-              </div>
-              <div className="columns">
-                <div className="form-table">
+              </FormHeader>
+              <Columns>
+                <FormTable>
                   <BootstrapTable
                     keyField="id"
-                    className="custom-table"
                     data={patients}
                     columns={patientColumns}
                     defaultSortDirection="asc"
                   />
-                  <div className="column has-text-right">
-                    <button className="button is-primary" onClick={this.generateReport}>
-                      Export Report
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+                  <Column>
+                    <PrimaryButton onClick={this.generateReport}>Export Report</PrimaryButton>
+                  </Column>
+                </FormTable>
+              </Columns>
+            </CreateForm>
           )}
         </div>
-      </div>
+      </CreateContent>
     );
   }
 }
@@ -159,7 +203,9 @@ const mapDispatchToProps = dispatch => ({
   fetchPatients: () => dispatch(fetchPatients()),
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Reports);
+export default withTheme()(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(Reports),
+);

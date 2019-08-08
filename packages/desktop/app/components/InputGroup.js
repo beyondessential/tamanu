@@ -1,11 +1,20 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import styled from 'styled-components';
+import { withTheme } from '@material-ui/core/styles';
 
-export default class InputGroupNew extends Component {
+const GroupTitle = styled.label`
+  color: ${props => props.theme.palette.primary.textMedium};
+  display: inline-block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  margin-top: 8px;
+`;
+
+class InputGroupNew extends Component {
   static propTypes = {
     type: PropTypes.string,
-    label: PropTypes.any.isRequired,
+    label: PropTypes.string.isRequired,
     required: PropTypes.bool,
     name: PropTypes.string.isRequired,
     className: PropTypes.string,
@@ -55,6 +64,7 @@ export default class InputGroupNew extends Component {
       autoFocus,
       note,
       placeholder,
+      theme,
     } = this.props;
     let { className } = this.props;
     if (!overwriteClass) className = `field ${className}`;
@@ -62,9 +72,9 @@ export default class InputGroupNew extends Component {
     return (
       <div className={className}>
         {label !== false && (
-          <label className={labelClass}>
+          <GroupTitle className={labelClass} theme={theme}>
             {label} {required && <span className="isRequired">*</span>}
-          </label>
+          </GroupTitle>
         )}
         <div className={inputClass}>
           <input
@@ -85,3 +95,5 @@ export default class InputGroupNew extends Component {
     );
   }
 }
+
+export default withTheme()(InputGroupNew);
