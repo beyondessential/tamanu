@@ -63,7 +63,7 @@ const graphRenderers = {
         endAngle={360 + 90}
       >
         {data.map((entry, index) => (
-          <Cell key={`cell-${entry.id}`} fill={palette[index % palette.length]} />
+          <Cell key={`cell-${entry.sort}`} fill={palette[index % palette.length]} />
         ))}
       </Pie>
       <Tooltip />

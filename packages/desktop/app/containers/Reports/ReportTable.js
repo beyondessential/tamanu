@@ -49,7 +49,6 @@ export const ReportTable = ({ data }) => {
       <div style={buttonContainerStyle}>
         <SaveSpreadsheetButton filename="report" data={data} columns={dataColumns} />
       </div>
-      <div>{rowsPerPage}</div>
       <Table
         columns={dataColumns}
         count={data.length}

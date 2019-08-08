@@ -121,15 +121,13 @@ export const visualisationOptions = generateDummyOptions(`
   Bar chart
 `);
 
-export const generateData = ((data, index)) => {
+export const generateData = () => {
   return new Array(220).fill(0).map(_ => ({
     date: randomDate().toDate(),
     diagnosis: randomChoice(diagnosisOptions).value,
-    id: index,
     location: randomChoice(locationOptions).value,
     prescriber: randomChoice(prescriberOptions).value,
     age: Math.floor(Math.random() * 40) + Math.floor(Math.random() * 30),
     sex: Math.random() < 0.5 ? 'male' : 'female',
   }));
 };
-

@@ -104,26 +104,24 @@ export class Table extends React.Component {
 
   renderHeaders() {
     const { columns, order, orderBy, onChangeOrderBy } = this.props;
-    return columns.map(({ key, title, numeric, sortable = true }) => {
-      if (sortable) {
-        return (
-          <TableCell key={key} align={numeric ? 'right' : 'left'}>
-            <TableSortLabel
-              active={orderBy === key}
-              direction={order}
-              onClick={() => onChangeOrderBy(key)}
-            >
-              {title}
-            </TableSortLabel>
-          </TableCell>
-        );
-      }
-      return (
-        <TableCell key={key} align={numeric ? 'right' : 'left'}>
+    const getContent = (key, sortable, title) =>
+      sortable ? (
+        <TableSortLabel
+          active={orderBy === key}
+          direction={order}
+          onClick={() => onChangeOrderBy(key)}
+        >
           {title}
-        </TableCell>
+        </TableSortLabel>
+      ) : (
+        title
       );
-    });
+
+    return columns.map(({ key, title, numeric, sortable = true }) => (
+      <TableCell key={key} align={numeric ? 'right' : 'left'}>
+        {getContent(key, sortable, title)}
+      </TableCell>
+    ));
   }
 
   renderBodyContent() {
@@ -133,7 +131,7 @@ export class Table extends React.Component {
       return <ErrorRow message={error} colSpan={columns.length} />;
     }
     return data.map(rowData => (
-      <Row data={rowData} key={rowData.id} columns={columns} onClick={onRowClick} />
+      <Row data={rowData} key={rowData.sort} columns={columns} onClick={onRowClick} />
     ));
   }
 
