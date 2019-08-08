@@ -10,16 +10,37 @@ const ContentPane = React.memo(({ children }) => (
   <div>{children}</div>
 ));
 
+const ListDisplay = React.memo(({ items = [], title, onEdit }) => (
+  <div>
+    <b>{title}</b>
+    <ul>
+      { items.length > 0 
+      ? items.map(x => <li key={x}>{x}</li>)
+      : <li style={{ opacity: 0.5 }}>None recorded</li>
+      }
+    </ul>
+  </div>
+));
+
 const OngoingConditionDisplay = React.memo(({ patient }) => (
-  <div>condition</div>
+  <ListDisplay 
+    title="Conditions"
+    items={patient.conditions}
+  />
 ));
 
 const AllergyDisplay = React.memo(({ patient }) => (
-  <div>allergies</div>
+  <ListDisplay 
+    title="Allergies"
+    items={patient.allergies}
+  />
 ));
 
 const OperativePlanDisplay = React.memo(({ patient }) => (
-  <div>operative plan</div>
+  <ListDisplay 
+    title="Operative Plan"
+    items={patient.operativePlan}
+  />
 ));
 
 const PatientIssuesDisplay = React.memo(({ patient }) => (
