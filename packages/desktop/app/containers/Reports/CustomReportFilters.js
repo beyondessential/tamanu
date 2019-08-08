@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { withTheme, withStyles } from '@material-ui/core/styles';
 
 import { reportLine, reportBar, reportPie, reportRaw, reportTable } from '../../constants/images';
-
+import { REPORT_TYPES } from '../../constants';
 import { Button } from '../../components/Button';
 
 import { datasetOptions, visualisationOptions } from './dummyReports';
@@ -60,27 +60,27 @@ const DatasetItem = withStyles({
   },
 })(StyledDatasetItem);
 
-const GetVisualisationImage = label => {
-  switch (label) {
-    case 'Pie chart':
+const GetVisualisationImage = value => {
+  switch (value) {
+    case REPORT_TYPES.PIE_CHART:
       return reportPie;
-    case 'Line graph':
+    case REPORT_TYPES.LINE_CHART:
       return reportLine;
-    case 'Bar chart':
+    case REPORT_TYPES.BAR_CHART:
       return reportBar;
-    case 'Raw data':
+    case REPORT_TYPES.RAW:
       return reportRaw;
-    case 'Table':
+    case REPORT_TYPES.TABLE:
       return reportTable;
     default:
-      return reportBar;
+      return '';
   }
 };
 const VisualisationButton = ({ visualisation, selected, onClick }) => {
   const { label, value } = visualisation;
   return (
     <ListItem button title={label} onClick={() => onClick(value)} selected={selected === value}>
-      <VisualisationImage src={GetVisualisationImage(label)} alt={label} />
+      <VisualisationImage src={GetVisualisationImage(value)} alt={label} />
     </ListItem>
   );
 };
