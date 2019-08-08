@@ -6,7 +6,8 @@ import { TopBar } from '../../components';
 
 import { availableReports, datasetOptions, generateData } from './dummyReports';
 import { ReportViewer } from './ReportViewer';
-import { ReportFilters, CustomReportFilters } from './ReportFilters';
+import { CustomReportFilters } from './CustomReportFilters';
+import { ReportFilters } from './ReportFilters';
 
 const Detail = styled.div`
   padding: 10px;
