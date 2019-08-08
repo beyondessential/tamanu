@@ -10,6 +10,8 @@ import { PaginatedForm } from '../app/components/Field/PaginatedForm';
 import Login from '../app/containers/Auth/Login';
 import { VisitForm } from '../app/forms/VisitForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
+import { AllergyForm } from '../app/forms/AllergyForm';
+import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
 
 function createDummySuggester(options) {
   const selectableOptions = options.map(o => ({
@@ -25,6 +27,9 @@ function createDummySuggester(options) {
     fetchCurrentOption: value => selectableOptions.find(s => s.value === value),
   };
 }
+
+const practitionerSuggester = createDummySuggester(['Doctor 1', 'Nurse 2', 'Doctor 3']);
+const locationSuggester = createDummySuggester(['Ward 1', 'Ward 2', 'Ward 3']);
 
 storiesOf('Forms', module)
   .add('PaginatedForm', () => (
@@ -56,17 +61,31 @@ storiesOf('Forms', module)
   .add('VisitForm', () => (
     <VisitForm
       onSubmit={action('submit')}
-      locationSuggester={createDummySuggester(['Ward 1', 'Ward 2', 'Ward 3'])}
-      practitionerSuggester={createDummySuggester(['Doctor 1', 'Nurse 2', 'Doctor 3'])}
+      locationSuggester={locationSuggester}
+      practitionerSuggester={practitionerSuggester}
     />
   ))
   .add('ProcedureForm', () => (
     <ProcedureForm
       onSubmit={action('submit')}
       onCancel={action('cancel')}
-      locationSuggester={createDummySuggester(['Ward 1', 'Ward 2', 'Ward 3'])}
-      practitionerSuggester={createDummySuggester(['Doctor 1', 'Nurse 2', 'Doctor 3'])}
+      locationSuggester={locationSuggester}
+      practitionerSuggester={practitionerSuggester}
       cptCodeSuggester={createDummySuggester(['CPT 1', 'CPT 2', 'CPT 3', 'CPT 4'])}
       anesthesiaSuggester={createDummySuggester(['Anesthesia 1', 'Anesthesia 2', 'Anesthesia 3'])}
+    />
+  ))
+  .add('AllergyForm', () => (
+    <AllergyForm
+      onSubmit={action('submit')}
+      onCancel={action('cancel')}
+      practitionerSuggester={practitionerSuggester}
+    />
+  ))
+  .add('OngoingConditionForm', () => (
+    <OngoingConditionForm
+      onSubmit={action('submit')}
+      onCancel={action('cancel')}
+      practitionerSuggester={practitionerSuggester}
     />
   ));
