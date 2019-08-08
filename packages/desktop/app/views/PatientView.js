@@ -5,21 +5,16 @@ import { Tabs, Tab } from '@material-ui/core';
 
 import TopBar from '../components/TopBar';
 import { FormGrid } from '../components/FormGrid';
-import { Modal } from '../components/Modal';
-import { ButtonRow } from '../components/ButtonRow';
 import { Button } from '../components/Button';
 
 import { DateDisplay } from '../components/DateDisplay';
+import { PatientAlert } from '../components/PatientAlert';
 
-const DataTable = ({ children }) => <table>{children}</table>;
-const DataRow = ({ label, value, children }) => (
-  <tr>
-    <td>{label}</td>
-    <td>{value || children}</td>
-  </tr>
-);
+import { DetailTable, DetailRow } from '../components/DetailTable';
 
-const ContentPane = React.memo(({ children }) => <div>{children}</div>);
+const ContentPane = styled.div`
+  margin: 1rem;
+`;
 
 const DataList = styled.ul`
   margin: 0.5rem 1rem;
@@ -55,27 +50,6 @@ const OperativePlanDisplay = React.memo(({ patient }) => (
 ));
 
 const PatientIssuesDisplay = React.memo(({ patient }) => <div>issues</div>);
-
-const AlertsDialog = React.memo(({ alerts }) => {
-  const alertExists = alerts.length > 0;
-  const [alertVisible, setAlertVisible] = React.useState(alertExists);
-  const close = () => setAlertVisible(false);
-
-  return (
-    <Modal title="Patient warnings" isVisible={alertVisible}>
-      <ul>
-        {alerts.map(a => (
-          <li key={a}>{a}</li>
-        ))}
-      </ul>
-      <ButtonRow>
-        <Button variant="contained" color="primary" onClick={close}>
-          OK
-        </Button>
-      </ButtonRow>
-    </Modal>
-  );
-});
 
 const TABS = [
   {
@@ -119,7 +93,7 @@ const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect }) => {
   return (
     <div>
       <Tabs value={currentTab}>{buttons}</Tabs>
-      <div>{currentTabData.render()}</div>
+      <ContentPane>{currentTabData.render()}</ContentPane>
     </div>
   );
 });
@@ -130,22 +104,22 @@ export const PatientView = React.memo(({ patient }) => {
   return (
     <React.Fragment>
       <TopBar title={patient.name} />
-      <AlertsDialog alerts={patient.alerts || []} />
+      <PatientAlert alerts={patient.alerts || []} />
       <ContentPane>
         <FormGrid columns={2}>
-          <DataTable>
-            <DataRow label="Name" value={patient.name} />
-            <DataRow label="Sex" value={patient.sex} />
-            <DataRow label="Date of birth">
+          <DetailTable>
+            <DetailRow label="Name" value={patient.name} />
+            <DetailRow label="Sex" value={patient.sex} />
+            <DetailRow label="Date of birth">
               <DateDisplay date={patient.dateOfBirth} showDuration />
-            </DataRow>
-          </DataTable>
+            </DetailRow>
+          </DetailTable>
           <OngoingConditionDisplay patient={patient} />
           <AllergyDisplay patient={patient} />
           <OperativePlanDisplay patient={patient} />
         </FormGrid>
-        <TabDisplay tabs={TABS} currentTab={currentTab} onTabSelect={setCurrentTab} />
       </ContentPane>
+      <TabDisplay tabs={TABS} currentTab={currentTab} onTabSelect={setCurrentTab} />
     </React.Fragment>
   );
 });
