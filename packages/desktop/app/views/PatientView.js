@@ -49,7 +49,9 @@ const OperativePlanDisplay = React.memo(({ patient }) => (
   <ListDisplay title="Operative Plan" items={patient.operativePlan} />
 ));
 
-const PatientIssuesDisplay = React.memo(({ patient }) => <div>issues</div>);
+const PatientIssuesDisplay = React.memo(({ patient }) => (
+  <ListDisplay title="Other issues" items={patient.issues} />
+));
 
 const TABS = [
   {
@@ -114,6 +116,7 @@ export const PatientView = React.memo(({ patient }) => {
               <DateDisplay date={patient.dateOfBirth} showDuration />
             </DetailRow>
           </DetailTable>
+          <PatientIssuesDisplay patient={patient} />
           <OngoingConditionDisplay patient={patient} />
           <AllergyDisplay patient={patient} />
           <OperativePlanDisplay patient={patient} />
