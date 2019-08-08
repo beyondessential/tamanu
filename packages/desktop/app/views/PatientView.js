@@ -106,7 +106,7 @@ export const PatientView = React.memo(({ patient }) => {
   return (
     <React.Fragment>
       <TopBar title={patient.name} />
-      <PatientAlert alerts={patient.alerts || []} />
+      <PatientAlert alerts={patient.alerts} />
       <ContentPane>
         <FormGrid columns={2}>
           <DetailTable>
