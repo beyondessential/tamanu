@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { TextField, MenuItem, Popper, Paper, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import Search from '@material-ui/icons/Search';
 
 const styles = () => ({
   root: {
@@ -31,6 +33,14 @@ const renderInputComponent = inputProps => {
     <TextField
       variant="outlined"
       InputLabelProps={{ shrink: true }}
+      InputProps={{
+        endAdornment: <InputAdornment position="end" style={{ 
+          paddingRight: '14px',
+        }}><Search style={{ opacity: 0.5 }} /></InputAdornment>,
+        style: {
+          paddingRight: 0,
+        }
+      }}
       fullWidth
       inputRef={node => {
         ref(node);
