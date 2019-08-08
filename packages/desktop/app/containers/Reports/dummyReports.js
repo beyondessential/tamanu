@@ -109,10 +109,11 @@ export const prescriberOptions = generateDummyOptions(`
 `);
 
 export const datasetOptions = generateDummyOptions(`
-  Dataset A
-  Dataset B
-  Dataset C
-  Dataset D
+  Diagnoses
+  Procedures
+  Visits
+  Medications
+  Custom...
 `);
 
 export const visualisationOptions = generateDummyOptions(`
