@@ -11,6 +11,7 @@ import {
   CheckField,
   AutocompleteField,
   TextField,
+  FormGroup,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
@@ -58,80 +59,86 @@ export class ProcedureForm extends React.PureComponent {
     const isCompleted = !!values.completed;
     const buttonText = this.getButtonText(isCompleted);
     return (
-      <FormGrid>
-        <div style={{ gridColumn: 'span 2' }}>
-          <Field
-            name="cptCode"
-            label="Procedure"
-            required
-            component={AutocompleteField}
-            suggester={cptCodeSuggester}
+      <div>
+        <FormGroup disabled={isCompleted}>
+          <FormGrid>
+            <div style={{ gridColumn: 'span 2' }}>
+              <Field
+                name="cptCode"
+                label="Procedure"
+                required
+                component={AutocompleteField}
+                suggester={cptCodeSuggester}
+              />
+            </div>
+            <Field
+              name="location"
+              label="Procedure Location"
+              required
+              component={AutocompleteField}
+              suggester={locationSuggester}
+            />
+            <FormGrid columns={3}>
+              <Field name="date" label="Procedure Date" required component={DateField} />
+              <Field name="startTime" label="Time Started" component={TimeField} />
+              <Field name="endTime" label="Time Ended" component={TimeField} />
+            </FormGrid>
+            <Field
+              name="physician"
+              label="Physician"
+              required
+              component={AutocompleteField}
+              suggester={practitionerSuggester}
+            />
+            <Field
+              name="assistant"
+              label="Assistant"
+              component={AutocompleteField}
+              suggester={practitionerSuggester}
+            />
+            <Field
+              name="anaesthetist"
+              label="Anaesthetist"
+              component={AutocompleteField}
+              suggester={practitionerSuggester}
+            />
+            <Field
+              name="anaesthesiaType"
+              label="Anaesthesia Type"
+              component={AutocompleteField}
+              suggester={anaesthesiaSuggester}
+              rows={4}
+              style={{ gridColumn: 'span 2' }}
+            />
+            <Field
+              name="notes"
+              label="Notes or additional instructions"
+              component={TextField}
+              multiline
+              rows={4}
+              style={{ gridColumn: 'span 2' }}
+            />
+          </FormGrid>
+        </FormGroup>
+        <FormGrid>
+          <Field name="completed" label="Completed" component={CheckField} />
+          <Collapse in={isCompleted} style={{ gridColumn: 'span 2' }}>
+            <Field
+              name="completedNotes"
+              label="Notes on completed procedure"
+              component={TextField}
+              multiline
+              rows={4}
+            />
+          </Collapse>
+          <ConfirmCancelRow
+            style={{ gridColumn: 2 }}
+            onCancel={this.onCancel}
+            onConfirm={submitForm}
+            confirmText={buttonText}
           />
-        </div>
-        <Field
-          name="location"
-          label="Procedure Location"
-          required
-          component={AutocompleteField}
-          suggester={locationSuggester}
-        />
-        <FormGrid columns={3}>
-          <Field name="date" label="Procedure Date" required component={DateField} />
-          <Field name="startTime" label="Time Started" component={TimeField} />
-          <Field name="endTime" label="Time Ended" component={TimeField} />
         </FormGrid>
-        <Field
-          name="physician"
-          label="Physician"
-          required
-          component={AutocompleteField}
-          suggester={practitionerSuggester}
-        />
-        <Field
-          name="assistant"
-          label="Assistant"
-          component={AutocompleteField}
-          suggester={practitionerSuggester}
-        />
-        <Field
-          name="anaesthetist"
-          label="Anaesthetist"
-          component={AutocompleteField}
-          suggester={practitionerSuggester}
-        />
-        <Field
-          name="anaesthesiaType"
-          label="Anaesthesia Type"
-          component={AutocompleteField}
-          suggester={anaesthesiaSuggester}
-          rows={4}
-          style={{ gridColumn: 'span 2' }}
-        />
-        <Field
-          name="notes"
-          label="Notes or additional instructions"
-          component={TextField}
-          multiline
-          rows={4}
-          style={{ gridColumn: 'span 2' }}
-        />
-        <Field name="completed" label="Completed" component={CheckField} />
-        <Collapse in={isCompleted} style={{ gridColumn: 'span 2' }}>
-          <Field
-            name="completedNotes"
-            label="Notes on completed procedure"
-            component={TextField}
-            multiline
-            rows={4}
-          />
-        </Collapse>
-        <ConfirmCancelRow
-          style={{ gridColumn: 2 }}
-          onCancel={this.onCancel}
-          onConfirm={submitForm}
-          confirmText={buttonText}
-        />
-      </FormGrid>
+      </div>
     );
   };
 
