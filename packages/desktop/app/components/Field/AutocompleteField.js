@@ -34,12 +34,19 @@ const renderInputComponent = inputProps => {
       variant="outlined"
       InputLabelProps={{ shrink: true }}
       InputProps={{
-        endAdornment: <InputAdornment position="end" style={{ 
-          paddingRight: '14px',
-        }}><Search style={{ opacity: 0.5 }} /></InputAdornment>,
+        endAdornment: (
+          <InputAdornment
+            position="end"
+            style={{
+              paddingRight: '14px',
+            }}
+          >
+            <Search style={{ opacity: 0.5 }} />
+          </InputAdornment>
+        ),
         style: {
           paddingRight: 0,
-        }
+        },
       }}
       fullWidth
       inputRef={node => {
@@ -83,6 +90,7 @@ class BaseAutocomplete extends Component {
     className: '',
     value: '',
     options: [],
+    suggester: null,
   };
 
   state = {
@@ -95,7 +103,7 @@ class BaseAutocomplete extends Component {
     const { value, label } = option;
 
     onChange({ target: { value, name } });
-    return option.label;
+    return label;
   };
 
   fetchOptions = async ({ value }) => {
