@@ -6,7 +6,7 @@ export function connectApi(mapApiToProps) {
     return ownProps => (
       <ApiContext.Consumer>
         {api => {
-          const apiProps = mapApiToProps(api);
+          const apiProps = mapApiToProps(api, ownProps);
           return <WrappedComponent {...apiProps} {...ownProps} />;
         }}
       </ApiContext.Consumer>

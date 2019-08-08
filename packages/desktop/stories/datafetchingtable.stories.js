@@ -4,10 +4,6 @@ import { storiesOf } from '@storybook/react';
 import { ApiContext } from '../app/api';
 import { DataFetchingTable } from '../app/components/Table';
 
-class DummyApi {
-  todo = () => console.log('You are using the dummy api');
-}
-
 const dummyColumns = [
   { key: 'name', title: 'Fruit' },
   { key: 'quantity', title: 'Quantity', numeric: true },
@@ -19,8 +15,24 @@ const dummyData = [
   { name: 'Persimmon', quantity: 6 },
 ];
 
+function sleep(milliseconds) {
+  return new Promise(resolve => {
+    setTimeout(resolve, milliseconds);
+  });
+}
+
+class DummyApi {
+  get = async () => {
+    await sleep(1000);
+    return {
+      data: dummyData,
+      count: 500,
+    };
+  };
+}
+
 storiesOf('DataFetchingTable', module).add('Plain', () => (
   <ApiContext.Provider value={new DummyApi()}>
-    <DataFetchingTable columns={dummyColumns} data={dummyData} />
+    <DataFetchingTable columns={dummyColumns} />
   </ApiContext.Provider>
 ));
