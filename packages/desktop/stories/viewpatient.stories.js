@@ -9,21 +9,20 @@ import { createDummyPatient } from './dummyPatient';
 
 storiesOf('PatientView', module)
   .add('With visit', () => (
-    <PatientView patient={createDummyPatient({
-      visits: [
-        { name: 1 },
-      ],
-    })}/>
+    <PatientView
+      patient={createDummyPatient({
+        visits: [{ name: 1 }],
+      })}
+    />
   ))
-  .add('With no visit', () => (
-    <PatientView patient={createDummyPatient({
-    })}/>
-  ))
+  .add('With no visit', () => <PatientView patient={createDummyPatient({})} />)
   .add('With alerts', () => (
-    <PatientView patient={createDummyPatient({
-      alerts: [
-        "The patient has shown violent tendencies",
-        "The patient has multiple criminal convictions",
-      ],
-    })}/>
-  ))
+    <PatientView
+      patient={createDummyPatient({
+        alerts: [
+          'The patient has shown violent tendencies',
+          'The patient has multiple criminal convictions',
+        ],
+      })}
+    />
+  ));

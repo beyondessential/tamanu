@@ -7,7 +7,7 @@ import { PatientSearch } from '../app/components/PatientSearch';
 
 import { createDummyPatient } from './dummyPatient';
 
-const patients = new Array(400).fill(0).map(x => createDummyPatient());
+const patients = new Array(400).fill(0).map(() => createDummyPatient());
 
 const suggester = {
   fetchSuggestions: async search => {

@@ -8,8 +8,7 @@ function randomAllergy() {
 }
 
 function randomAllergies() {
-  return (new Array(Math.floor(Math.random() * 3))).fill(0)
-    .map(randomAllergy);
+  return new Array(Math.floor(Math.random() * 3)).fill(0).map(randomAllergy);
 }
 
 function randomCondition() {
@@ -17,12 +16,11 @@ function randomCondition() {
 }
 
 function randomConditions() {
-  return (new Array(Math.floor(Math.random() * 3))).fill(0)
-    .map(randomCondition);
+  return new Array(Math.floor(Math.random() * 3)).fill(0).map(randomCondition);
 }
 
 export function createDummyPatient(overrides = {}) {
-  const gender = overrides.gender || ((Math.random() < 0.5) ? 'male' : 'female');
+  const gender = overrides.gender || (Math.random() < 0.5 ? 'male' : 'female');
   return {
     _id: shortid.generate(),
     name: generator.name({ gender }),
