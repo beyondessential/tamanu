@@ -97,32 +97,31 @@ export class Table extends React.Component {
 
   handleChangeRowsPerPage = event => {
     const { onChangeRowsPerPage } = this.props;
-    const { value: newRowsPerPage } = parseInt(event.target, 10);
-    if (onChangeRowsPerPage) onChangeRowsPerPage(newRowsPerPage);
+    const { value: newRowsPerPage } = event.target;
+
+    if (onChangeRowsPerPage) onChangeRowsPerPage(parseInt(newRowsPerPage, 10));
   };
 
   renderHeaders() {
     const { columns, order, orderBy, onChangeOrderBy } = this.props;
-    return columns.map(({ key, title, numeric, sortable = true }) => {
-      if (sortable) {
-        return (
-          <TableCell key={key} align={numeric ? 'right' : 'left'}>
-            <TableSortLabel
-              active={orderBy === key}
-              direction={order}
-              onClick={() => onChangeOrderBy(key)}
-            >
-              {title}
-            </TableSortLabel>
-          </TableCell>
-        );
-      }
-      return (
-        <TableCell key={key} align={numeric ? 'right' : 'left'}>
+    const getContent = (key, sortable, title) =>
+      sortable ? (
+        <TableSortLabel
+          active={orderBy === key}
+          direction={order}
+          onClick={() => onChangeOrderBy(key)}
+        >
           {title}
-        </TableCell>
+        </TableSortLabel>
+      ) : (
+        title
       );
-    });
+
+    return columns.map(({ key, title, numeric, sortable = true }) => (
+      <TableCell key={key} align={numeric ? 'right' : 'left'}>
+        {getContent(key, sortable, title)}
+      </TableCell>
+    ));
   }
 
   renderBodyContent() {
@@ -131,7 +130,9 @@ export class Table extends React.Component {
     if (error) {
       return <ErrorRow message={error} colSpan={columns.length} />;
     }
-    return data.map(rowData => <Row data={rowData} columns={columns} onClick={onRowClick} />);
+    return data.map(rowData => (
+      <Row data={rowData} key={rowData.sort} columns={columns} onClick={onRowClick} />
+    ));
   }
 
   renderPaginator() {
@@ -155,7 +156,9 @@ export class Table extends React.Component {
     const { page } = this.props;
     return (
       <MaterialTable>
-        <TableHead>{this.renderHeaders()}</TableHead>
+        <TableHead>
+          <TableRow>{this.renderHeaders()}</TableRow>
+        </TableHead>
         <TableBody>{this.renderBodyContent()}</TableBody>
         {page !== null && <TableFooter>{this.renderPaginator()}</TableFooter>}
       </MaterialTable>

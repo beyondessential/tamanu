@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {
+  Cell,
   LineChart,
   Line,
   PieChart,
@@ -21,6 +22,17 @@ const graphStyle = {
   height: '20em',
   display: 'block',
 };
+const palette = [
+  '#2f4358',
+  '#ffdb00',
+  '#2a6790',
+  '#E16338',
+  '#279D64',
+  '#876C43',
+  '#4312AE',
+  '#E9FB00',
+  '#8206A9',
+];
 
 const graphRenderers = {
   line: data => (
@@ -38,7 +50,7 @@ const graphRenderers = {
       <YAxis />
       <Tooltip />
       <CartesianGrid stroke="#eee" />
-      <Bar isAnimationActive={false} dataKey="amount" stroke="#000" />
+      <Bar isAnimationActive={false} dataKey="amount" stroke="#2f4358" fill="#ffdb00" />
     </BarChart>
   ),
   pie: data => (
@@ -49,7 +61,11 @@ const graphRenderers = {
         nameKey="formatted"
         startAngle={90}
         endAngle={360 + 90}
-      />
+      >
+        {data.map((entry, index) => (
+          <Cell key={`cell-${entry.sort}`} fill={palette[index % palette.length]} />
+        ))}
+      </Pie>
       <Tooltip />
       <Legend />
     </PieChart>
