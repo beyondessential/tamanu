@@ -29,6 +29,8 @@ const renderInputComponent = inputProps => {
   const { classes, inputRef = () => {}, ref, ...other } = inputProps;
   return (
     <TextField
+      variant="outlined"
+      InputLabelProps={{ shrink: true }}
       fullWidth
       inputRef={node => {
         ref(node);
