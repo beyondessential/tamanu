@@ -4,10 +4,48 @@ import moment from 'moment';
 import { ReportTable } from './ReportTable';
 import { ReportGraph } from './ReportGraph';
 
+const getVisualisation = ({ visualisation }) => {
+  switch (visualisation) {
+    case 'pie-chart':
+      return {
+        graphType: 'pie',
+        getCountKey: row => {
+          const lowBound = Math.floor(row.age / 10) * 10;
+          return `${lowBound}-${lowBound + 10}`;
+        },
+      };
+    case 'line-graph':
+      return {
+        graphType: 'line',
+        getCountKey: row =>
+          moment(row.date)
+            .startOf('day')
+            .toDate(),
+      };
+    case 'bar-chart':
+      return {
+        graphType: 'bar',
+        getCountKey: row => row.prescriber,
+      };
+    default:
+      return undefined;
+  }
+};
+
 export class ReportViewer extends Component {
   state = {
     values: [],
   };
+
+  componentDidMount() {
+    this.recalculate();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (JSON.stringify(prevProps.filters) !== JSON.stringify(this.props.filters)) {
+      this.recalculate();
+    }
+  }
 
   recalculate() {
     const { data, filters, report } = this.props;
@@ -41,7 +79,7 @@ export class ReportViewer extends Component {
 
     if (range && isReportDateBased) {
       const dateIterator = moment(range.start).startOf('day');
-      console.log(valuesByKey);
+
       while (dateIterator.isBefore(range.end)) {
         const dateKey = dateIterator.toDate();
         valuesByKey[dateKey] = valuesByKey[dateKey] || 0;
@@ -68,52 +106,13 @@ export class ReportViewer extends Component {
     this.setState({ values });
   }
 
-  componentDidMount() {
-    this.recalculate();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (JSON.stringify(prevProps.filters) !== JSON.stringify(this.props.filters)) {
-      this.recalculate();
-    }
-  }
-
-  getVisualisation({ visualisation }) {
-    if (visualisation) {
-      if (visualisation === 'pie-chart') {
-        return {
-          graphType: 'pie',
-          getCountKey: row => {
-            const lowBound = Math.floor(row.age / 10) * 10;
-            return `${lowBound}-${lowBound + 10}`;
-          },
-        };
-      }
-      if (visualisation === 'line-graph') {
-        return {
-          graphType: 'line',
-          getCountKey: row =>
-            moment(row.date)
-              .startOf('day')
-              .toDate(),
-        };
-      }
-      if (visualisation === 'bar-chart') {
-        return {
-          graphType: 'bar',
-          getCountKey: row => row.prescriber,
-        };
-      }
-    }
-  }
-
   render() {
     const { filters, report } = this.props;
 
     const { id: reportId } = report;
 
     if (reportId === 'custom-report') {
-      const visualisation = this.getVisualisation(filters);
+      const visualisation = getVisualisation(filters);
 
       if (visualisation) {
         const { graphType, getCountKey } = visualisation;
