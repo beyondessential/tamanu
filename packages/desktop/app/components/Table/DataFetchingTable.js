@@ -40,6 +40,7 @@ function DataFetchingTableComponent({ columns, fetchData }) {
   }, [page, rowsPerPage, sorting]);
 
   const { data, count, isLoading, errorMessage } = fetchState;
+  const { order, orderBy } = sorting;
   return (
     <Table
       isLoading={isLoading}
@@ -52,6 +53,8 @@ function DataFetchingTableComponent({ columns, fetchData }) {
       onChangePage={setPage}
       onChangeRowsPerPage={setRowsPerPage}
       onChangeOrderBy={handleChangeOrderBy}
+      order={order}
+      orderBy={orderBy}
     />
   );
 }
