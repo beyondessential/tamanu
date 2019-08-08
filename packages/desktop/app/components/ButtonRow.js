@@ -14,7 +14,7 @@ const Row = styled.div`
 // Also note the 'auto' as the first element of grid-template-columns,
 // which corresponds to this div.
 export const ButtonRow = React.memo(({ children, ...props }) => (
-  <Row items={children.length} {...props}>
+  <Row items={children.length || 1} {...props}>
     <div />
     {children}
   </Row>

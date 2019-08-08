@@ -29,6 +29,7 @@ export function createDummyPatient(overrides = {}) {
     sex: gender,
     dateOfBirth: generator.birthday(),
     visits: [],
+    alerts: [],
     allergies: randomAllergies(),
     conditions: randomConditions(),
     ...overrides,

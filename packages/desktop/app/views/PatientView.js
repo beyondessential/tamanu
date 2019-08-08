@@ -1,24 +1,33 @@
 import React from 'react';
+import styled from 'styled-components';
 
 import { Tabs, Tab } from '@material-ui/core';
 
 import TopBar from '../components/TopBar';
 import { FormGrid } from '../components/FormGrid';
 import { Modal } from '../components/Modal';
+import { ButtonRow } from '../components/ButtonRow';
+import { Button } from '../components/Button';
 
 const ContentPane = React.memo(({ children }) => (
   <div>{children}</div>
 ));
 
+const DataList = styled.ul`
+  margin: 0.5rem 1rem;
+  padding: 0;
+`;
+
 const ListDisplay = React.memo(({ items = [], title, onEdit }) => (
   <div>
     <b>{title}</b>
-    <ul>
+    <DataList>
       { items.length > 0 
       ? items.map(x => <li key={x}>{x}</li>)
       : <li style={{ opacity: 0.5 }}>None recorded</li>
       }
-    </ul>
+    </DataList>
+    <Button variant="contained">OK</Button>
   </div>
 ));
 
@@ -50,13 +59,22 @@ const PatientIssuesDisplay = React.memo(({ patient }) => (
 const AlertsDialog = React.memo(({ alerts }) => {
   const alertExists = alerts.length > 0;
   const [alertVisible, setAlertVisible] = React.useState(alertExists);
+  const close = () => setAlertVisible(false);
 
   return (
     <Modal 
       title="Patient warnings" 
       isVisible={alertVisible}
-      onClose={() => setAlertVisible(false)}
-    ><ul>{alerts.map(a => <li key={a}>{a}</li>)}</ul></Modal>
+    >
+      <ul>{alerts.map(a => <li key={a}>{a}</li>)}</ul>
+      <ButtonRow>
+        <Button 
+          variant="contained"
+          color="primary"
+          onClick={close}
+        >OK</Button>
+      </ButtonRow>
+    </Modal>
   );
 });
 
