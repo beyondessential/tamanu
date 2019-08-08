@@ -83,13 +83,13 @@ const TABS = [
 
 const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect }) => {
   const currentTabData = tabs.find(t => t.key === currentTab);
-  const buttons = tabs.map(t => (
+  const buttons = tabs.map(({ key, label }) => (
     <Tab
-      key={t.key}
+      key={key}
       style={{ minWidth: 'auto' }}
-      label={t.label}
-      value={t.key}
-      onClick={() => onTabSelect(t.key)}
+      label={label}
+      value={key}
+      onClick={() => onTabSelect(key)}
     />
   ));
   return (
@@ -100,8 +100,13 @@ const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect }) => {
   );
 });
 
+function getCurrentVisit(patient) {
+  // TODO: retrieve a current visit if one exists
+  return patient.visits[0];
+}
+
 export const PatientView = React.memo(({ patient }) => {
-  const currentVisit = patient.visits[0];
+  const currentVisit = getCurrentVisit(patient);
   const [currentTab, setCurrentTab] = React.useState(currentVisit ? 'visit' : 'history');
   return (
     <React.Fragment>
