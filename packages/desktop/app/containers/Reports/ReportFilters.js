@@ -17,13 +17,7 @@ import InputGroup from '../../components/InputGroup';
 import { Button } from '../../components/Button';
 
 import { sexOptions } from '../../constants';
-import {
-  diagnosisOptions,
-  locationOptions,
-  prescriberOptions,
-  datasetOptions,
-  visualisationOptions,
-} from './dummyReports';
+import { diagnosisOptions, locationOptions, prescriberOptions } from './dummyReports';
 
 const Column = styled.div`
   padding: 0rem;
@@ -165,7 +159,8 @@ class Filters extends Component {
           </ExpanderSection>
         </Column>
         <Column style={{ textAlign: 'right', marginTop: '0.5em' }}>
-          <Button>Advanced filters</Button>{' '}
+          <Button>Advanced filters</Button>
+          {' '}
           <Button onClick={this.apply} color="primary">
             Generate report
           </Button>
@@ -174,60 +169,5 @@ class Filters extends Component {
     );
   }
 }
-class CustomFilters extends Component {
-  static propTypes = {
-    onApply: PropTypes.func.isRequired,
-    theme: PropTypes.shape({}).isRequired,
-  };
-
-  state = {};
-
-  apply = () => {
-    this.props.onApply(this.state);
-  };
-
-  componentDidMount() {
-    this.apply();
-  }
-
-  render() {
-    const { theme } = this.props;
-
-    return (
-      <div>
-        <div className="column">
-          <ExpanderSection heading="Report details" defaultExpanded>
-            <LabeledSelect
-              label="Dataset"
-              name="dataset"
-              options={datasetOptions}
-              onChange={dataset => this.setState({ dataset })}
-              value={this.state.dataset}
-              simpleValue
-              theme={theme}
-            />
-          </ExpanderSection>
-          <ExpanderSection heading="Visualisation">
-            <LabeledSelect
-              label="Visualisation"
-              name="visualisation"
-              options={visualisationOptions}
-              onChange={visualisation => this.setState({ visualisation })}
-              value={this.state.visualisation}
-              simpleValue
-              theme={theme}
-            />
-          </ExpanderSection>
-        </div>
-        <div className="column" style={{ textAlign: 'right', marginTop: '0.5em' }}>
-          <Button onClick={this.apply} color="primary">
-            Generate report
-          </Button>
-        </div>
-      </div>
-    );
-  }
-}
 
 export const ReportFilters = withTheme()(Filters);
-export const CustomReportFilters = withTheme()(CustomFilters);

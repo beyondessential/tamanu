@@ -12,3 +12,9 @@ export pregnancyIcon from '../assets/images/pregnancy.png';
 export programsIcon from '../assets/images/programs.png';
 export radiologyIcon from '../assets/images/radiology.png';
 export logoutIcon from '../assets/images/logout.png';
+
+export reportLine from '../assets/images/report_line.png';
+export reportBar from '../assets/images/report_bar.png';
+export reportPie from '../assets/images/report_pie.png';
+export reportTable from '../assets/images/report_table.png';
+export reportRaw from '../assets/images/report_raw.png';

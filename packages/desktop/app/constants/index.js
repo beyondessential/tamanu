@@ -652,7 +652,7 @@ export const notesColumns = [
     headerStyle,
     style: columnStyle,
     // TODO: this prevents a crash, but is definitely still broken
-    accessor: row => '' + row.authoredBy,
+    accessor: row => `${row.authoredBy}`,
     minWidth: 100,
   },
   {
@@ -1397,3 +1397,11 @@ export const patientImagingRequestsColumns = [
     minWidth: 100,
   },
 ];
+
+export const REPORT_TYPES = {
+  PIE_CHART: 'pie-chart',
+  BAR_CHART: 'bar-chart',
+  LINE_CHART: 'line-graph',
+  RAW: 'raw',
+  TABLE: 'table',
+};

@@ -1,13 +1,50 @@
 import React, { Component } from 'react';
 import moment from 'moment';
+import deepEqual from 'deep-equal';
 
 import { ReportTable } from './ReportTable';
 import { ReportGraph } from './ReportGraph';
+
+import { visualisationOptions } from './dummyReports';
+
+const aggregationGranularity = 10;
+
+const getVisualisation = ({ visualisation }) => {
+  const params = visualisationOptions.find(vo => vo.value === visualisation);
+  if (!params) return undefined;
+
+  switch (params.dataType) {
+    case 'aggregated':
+      params.getCountKey = row => {
+        const lowBound =
+          Math.floor(row[params.rowKey] / aggregationGranularity) * aggregationGranularity;
+        return `${lowBound}-${lowBound + aggregationGranularity}`;
+      };
+      break;
+    case 'datetime':
+      params.getCountKey = row =>
+        moment(row[params.rowKey])
+          .startOf('day')
+          .toDate();
+      break;
+    default:
+      params.getCountKey = row => row[params.rowKey];
+  }
+  return params;
+};
 
 export class ReportViewer extends Component {
   state = {
     values: [],
   };
+
+  componentDidMount() {
+    this.recalculate();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!deepEqual(prevProps.filters, this.props.filters)) this.recalculate();
+  }
 
   recalculate() {
     const { data, filters, report } = this.props;
@@ -41,7 +78,7 @@ export class ReportViewer extends Component {
 
     if (range && isReportDateBased) {
       const dateIterator = moment(range.start).startOf('day');
-      console.log(valuesByKey);
+
       while (dateIterator.isBefore(range.end)) {
         const dateKey = dateIterator.toDate();
         valuesByKey[dateKey] = valuesByKey[dateKey] || 0;
@@ -68,52 +105,12 @@ export class ReportViewer extends Component {
     this.setState({ values });
   }
 
-  componentDidMount() {
-    this.recalculate();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (JSON.stringify(prevProps.filters) !== JSON.stringify(this.props.filters)) {
-      this.recalculate();
-    }
-  }
-
-  getVisualisation({ visualisation }) {
-    if (visualisation) {
-      if (visualisation === 'pie-chart') {
-        return {
-          graphType: 'pie',
-          getCountKey: row => {
-            const lowBound = Math.floor(row.age / 10) * 10;
-            return `${lowBound}-${lowBound + 10}`;
-          },
-        };
-      }
-      if (visualisation === 'line-graph') {
-        return {
-          graphType: 'line',
-          getCountKey: row =>
-            moment(row.date)
-              .startOf('day')
-              .toDate(),
-        };
-      }
-      if (visualisation === 'bar-chart') {
-        return {
-          graphType: 'bar',
-          getCountKey: row => row.prescriber,
-        };
-      }
-    }
-  }
-
   render() {
     const { filters, report } = this.props;
-
     const { id: reportId } = report;
 
     if (reportId === 'custom-report') {
-      const visualisation = this.getVisualisation(filters);
+      const visualisation = getVisualisation(filters);
 
       if (visualisation) {
         const { graphType, getCountKey } = visualisation;
