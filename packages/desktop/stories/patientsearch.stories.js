@@ -3,22 +3,11 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
-import Chance from 'chance';
 import { PatientSearch } from '../app/components/PatientSearch';
 
-const generator = new Chance();
+import { createDummyPatient } from './dummyPatient';
 
-function fakePatient(i) {
-  const gender = Math.random() < 0.5 ? 'male' : 'female';
-  return {
-    _id: `patient-${i}`,
-    name: generator.name({ gender }),
-    sex: gender,
-    dateOfBirth: generator.birthday(),
-  };
-}
-
-const patients = new Array(400).fill(0).map((x, i) => fakePatient(i));
+const patients = new Array(400).fill(0).map(() => createDummyPatient());
 
 const suggester = {
   fetchSuggestions: async search => {
