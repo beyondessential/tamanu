@@ -22,17 +22,13 @@ function DataFetchingTableComponent({ columns, fetchData }) {
   );
 
   useEffect(() => {
-    let updateFetchState = newFetchState =>
-      setFetchState({
-        ...defaultFetchState,
-        ...newFetchState,
-      });
+    let updateFetchState = newFetchState => setFetchState({ ...fetchState, ...newFetchState });
 
-    updateFetchState({ ...defaultFetchState, isLoading: true });
+    updateFetchState({ isLoading: true });
     (async () => {
       try {
         const { data, count } = await fetchData({ page, rowsPerPage, ...sorting });
-        updateFetchState({ data, count, isLoading: false });
+        updateFetchState({ ...defaultFetchState, data, count, isLoading: false });
       } catch (error) {
         updateFetchState({ ...defaultFetchState, errorMessage: error.message, isLoading: false });
       }

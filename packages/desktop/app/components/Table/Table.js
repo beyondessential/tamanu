@@ -92,13 +92,12 @@ export class Table extends React.Component {
 
   handleChangePage = (event, newPage) => {
     const { onChangePage } = this.props;
-    console.log(newPage);
     if (onChangePage) onChangePage(newPage);
   };
 
   handleChangeRowsPerPage = event => {
     const { onChangeRowsPerPage } = this.props;
-    const { value: newRowsPerPage } = parseInt(event.target, 10);
+    const newRowsPerPage = parseInt(event.target.value, 10);
     if (onChangeRowsPerPage) onChangeRowsPerPage(newRowsPerPage);
   };
 
