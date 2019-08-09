@@ -34,7 +34,7 @@ const Row = React.memo(({ columns, data, onClick = () => null }) => {
 });
 
 const ErrorText = styled.span`
-  color: red;
+  color: #ff0000;
 `;
 
 const ErrorRow = React.memo(({ colSpan, message }) => (
