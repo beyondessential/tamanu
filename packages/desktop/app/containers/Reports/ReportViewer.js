@@ -10,8 +10,8 @@ import { visualisationOptions } from './dummyReports';
 const aggregationGranularity = 10;
 
 const getVisualisation = ({ visualisation, dataset }) => {
-  const params = {...visualisationOptions.find(vo => vo.value === visualisation)};
-  if (!params) return undefined;
+  const params = { ...visualisationOptions.find(vo => vo.value === visualisation) };
+  if (!params.dataType) return undefined;
 
   if (params.dataType === 'datetime') {
     params.rowKey = 'date';
@@ -19,11 +19,11 @@ const getVisualisation = ({ visualisation, dataset }) => {
     switch (dataset) {
       case 'diagnoses':
         params.dataType = params.dataType === 'aggregated' ? 'numeric' : params.dataType;
-        params.rowKey = 'diagnosis'
+        params.rowKey = 'diagnosis';
         break;
       case 'visits':
-        params.dataType = 'datetime'
-        params.rowKey = 'date'
+        params.dataType = 'datetime';
+        params.rowKey = 'date';
         break;
       case 'medications':
         params.dataType = params.dataType === 'aggregated' ? 'numeric' : params.dataType;
@@ -33,6 +33,7 @@ const getVisualisation = ({ visualisation, dataset }) => {
         params.dataType = params.dataType === 'aggregated' ? 'numeric' : params.dataType;
         params.rowKey = 'procedure';
         break;
+      default:
     }
   }
 
@@ -55,7 +56,7 @@ const getVisualisation = ({ visualisation, dataset }) => {
   }
 
   return params;
-}
+};
 
 export class ReportViewer extends Component {
   state = {
