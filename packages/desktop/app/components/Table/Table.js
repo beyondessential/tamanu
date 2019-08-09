@@ -79,7 +79,7 @@ export class Table extends React.Component {
     page: null,
     rowsPerPage: null,
     onRowClick: () => null,
-    rowsPerPageOptions: null,
+    rowsPerPageOptions: [],
   };
 
   getErrorMessage() {

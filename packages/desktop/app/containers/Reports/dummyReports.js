@@ -114,7 +114,6 @@ export const datasetOptions = generateDummyOptions(`
   Procedures
   Visits
   Medications
-  Custom...
 `);
 
 export const medicationOptions = generateDummyOptions(`
