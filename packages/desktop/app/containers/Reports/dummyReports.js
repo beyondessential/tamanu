@@ -152,6 +152,12 @@ export const visualisationOptions = [
     label: 'Pie chart',
     value: REPORT_TYPES.PIE_CHART,
   },
+  {
+    dataType: 'numeric',
+    graphType: 'table',
+    label: 'Table',
+    value: REPORT_TYPES.TABLE,
+  },
 ];
 
 export const generateData = () => {
