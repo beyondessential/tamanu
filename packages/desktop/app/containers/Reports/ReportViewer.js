@@ -4,32 +4,32 @@ import moment from 'moment';
 import { ReportTable } from './ReportTable';
 import { ReportGraph } from './ReportGraph';
 
+import { visualisationOptions } from './dummyReports';
+
+const aggregationGranularity = 10;
+
 const getVisualisation = ({ visualisation }) => {
-  switch (visualisation) {
-    case 'pie-chart':
-      return {
-        graphType: 'pie',
-        getCountKey: row => {
-          const lowBound = Math.floor(row.age / 10) * 10;
-          return `${lowBound}-${lowBound + 10}`;
-        },
+  const params = visualisationOptions.find(vo => vo.value === visualisation);
+  if (!params) return undefined;
+
+  switch (params.dataType) {
+    case 'aggregated':
+      params.getCountKey = row => {
+        const lowBound =
+          Math.floor(row[params.rowKey] / aggregationGranularity) * aggregationGranularity;
+        return `${lowBound}-${lowBound + aggregationGranularity}`;
       };
-    case 'line-graph':
-      return {
-        graphType: 'line',
-        getCountKey: row =>
-          moment(row.date)
-            .startOf('day')
-            .toDate(),
-      };
-    case 'bar-chart':
-      return {
-        graphType: 'bar',
-        getCountKey: row => row.prescriber,
-      };
+      break;
+    case 'datetime':
+      params.getCountKey = row =>
+        moment(row[params.rowKey])
+          .startOf('day')
+          .toDate();
+      break;
     default:
-      return undefined;
+      params.getCountKey = row => row[params.rowKey];
   }
+  return params;
 };
 
 export class ReportViewer extends Component {
@@ -108,7 +108,6 @@ export class ReportViewer extends Component {
 
   render() {
     const { filters, report } = this.props;
-
     const { id: reportId } = report;
 
     if (reportId === 'custom-report') {

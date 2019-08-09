@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { REPORT_TYPES } from '../../constants';
 
 // hardcoded reports to click through to
 export const availableReports = [
@@ -116,11 +117,29 @@ export const datasetOptions = generateDummyOptions(`
   Custom...
 `);
 
-export const visualisationOptions = generateDummyOptions(`
-  Pie chart
-  Line graph
-  Bar chart
-`);
+export const visualisationOptions = [
+  {
+    dataType: 'datetime',
+    graphType: 'line',
+    label: 'Line graph',
+    rowKey: 'data',
+    value: REPORT_TYPES.LINE_CHART,
+  },
+  {
+    dataType: 'numeric',
+    graphType: 'bar',
+    label: 'Bar chart',
+    rowKey: 'prescriber',
+    value: REPORT_TYPES.BAR_CHART,
+  },
+  {
+    dataType: 'aggregated',
+    graphType: 'pie',
+    label: 'Pie chart',
+    rowKey: 'age',
+    value: REPORT_TYPES.PIE_CHART,
+  },
+];
 
 export const generateData = () => {
   return new Array(220).fill(0).map(_ => ({
