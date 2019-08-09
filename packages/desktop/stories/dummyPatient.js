@@ -4,6 +4,9 @@ import moment from 'moment';
 
 import { visitOptions } from '../app/constants';
 
+const HOUR = 1000 * 60 * 60;
+const DAY = HOUR * 24;
+
 const generator = new Chance();
 
 const makeId = s => s.trim().replace(/\s/g, '-').replace(/\W/g, '').toLowerCase();
@@ -79,8 +82,9 @@ const CONDITIONS = split(`
 `);
 
 
-function randomDate() {
-  return new Date();
+function randomDate(minDaysAgo = 1, maxDaysAgo = 365) {
+  const ago = chance.natural({ min: DAY * minDaysAgo, max: DAY * maxDaysAgo });
+  return new Date(+new Date() - ago);
 }
 
 function randomConditions() {
@@ -106,10 +110,8 @@ function randomVitals(overrides) {
   };
 }
 
-export function createDummyVisit(current) {
-  const HOUR = 1000 * 60 * 60;
-  const ago = current ? 0 : chance.natural({ min: HOUR * 24, max: HOUR * 24 * 365 });
-  const endDate = new Date(+new Date() - ago);
+export function createDummyVisit(current = false) {
+  const endDate = current ? new Date() : randomDate();
 
   const duration = chance.natural({ min: HOUR, max: HOUR * 10 });
   const startDate = new Date(+endDate - duration);
@@ -117,7 +119,7 @@ export function createDummyVisit(current) {
   return {
     visitType: chance.pick(visitOptions).value,
     startDate: startDate,
-    endDate: current ? new Date(+ new Date) : undefined,
+    endDate: current ? undefined : new Date(+ new Date),
     location: chance.pick(LOCATIONS).value,
     examiner: chance.pick(PRACTITIONERS).value,
     reasonForVisit: '',
@@ -139,7 +141,11 @@ export function createDummyPatient(overrides = {}) {
     name: generator.name({ gender }),
     sex: gender,
     dateOfBirth: generator.birthday(),
-    visits: [],
+    visits: [
+      createDummyVisit(false),
+      createDummyVisit(false),
+      createDummyVisit(false),
+    ],
     alerts: [],
     allergies: randomAllergies(),
     conditions: randomConditions(),
