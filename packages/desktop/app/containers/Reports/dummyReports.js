@@ -117,26 +117,39 @@ export const datasetOptions = generateDummyOptions(`
   Custom...
 `);
 
+export const medicationOptions = generateDummyOptions(`
+  Medication A
+  Medication B
+  Medication C
+  Medication D
+  Medication E
+`);
+
+export const procedureOptions = generateDummyOptions(`
+  Procedure A
+  Procedure B
+  Procedure C
+  Procedure D
+  Procedure E
+`);
+
 export const visualisationOptions = [
   {
     dataType: 'datetime',
     graphType: 'line',
     label: 'Line graph',
-    rowKey: 'data',
     value: REPORT_TYPES.LINE_CHART,
   },
   {
     dataType: 'numeric',
     graphType: 'bar',
     label: 'Bar chart',
-    rowKey: 'prescriber',
     value: REPORT_TYPES.BAR_CHART,
   },
   {
     dataType: 'aggregated',
     graphType: 'pie',
     label: 'Pie chart',
-    rowKey: 'age',
     value: REPORT_TYPES.PIE_CHART,
   },
 ];
@@ -147,6 +160,8 @@ export const generateData = () => {
     diagnosis: randomChoice(diagnosisOptions).value,
     location: randomChoice(locationOptions).value,
     prescriber: randomChoice(prescriberOptions).value,
+    medication: randomChoice(medicationOptions).value,
+    procedure: randomChoice(procedureOptions).value,
     age: Math.floor(Math.random() * 40) + Math.floor(Math.random() * 30),
     sex: Math.random() < 0.5 ? 'male' : 'female',
   }));

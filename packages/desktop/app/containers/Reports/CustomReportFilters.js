@@ -85,8 +85,8 @@ const VisualisationButton = ({ visualisation, selected, onClick }) => {
   );
 };
 
-const DatasetButton = ({ visualisation, selected, onClick }) => {
-  const { label, value } = visualisation;
+const DatasetButton = ({ dataset, selected, onClick }) => {
+  const { label, value } = dataset;
   return (
     <DatasetItem button title={label} onClick={() => onClick(value)} selected={selected === value}>
       {label}
@@ -142,7 +142,7 @@ class CustomFilters extends Component {
                 <DatasetButton
                   key={dataset.value}
                   selected={this.state.dataset}
-                  visualisation={dataset}
+                  dataset={dataset}
                   onClick={this.setDataset}
                 />
               ))}

@@ -49,13 +49,10 @@ export class ReportGenerator extends Component {
   constructor(props) {
     super(props);
 
-    const datasets = datasetOptions.reduce(
-      (acc, { value: dataset }) => ({ [dataset]: generateData(), ...acc }),
-      {},
-    );
+    const data = generateData();
     const filters = {};
 
-    this.state = { datasets, filters };
+    this.state = { data, filters };
   }
 
   updateState = filters => {
@@ -63,12 +60,6 @@ export class ReportGenerator extends Component {
   };
 
   getReportId = () => this.props.match.params.reportId;
-
-  getData = () => {
-    const { datasets, filters } = this.state;
-    const { dataset } = filters;
-    return dataset ? datasets[dataset] : Object.values(datasets)[0];
-  };
 
   getReport = () => {
     const reportId = this.getReportId();
@@ -85,9 +76,10 @@ export class ReportGenerator extends Component {
   };
 
   getReportViewer = () => {
-    const { filters } = this.state;
+    const { data, filters } = this.state;
+
     const report = this.getReport();
-    const data = this.getData();
+
     return <ReportViewer report={report} data={data} filters={filters} />;
   };
 
