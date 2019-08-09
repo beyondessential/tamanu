@@ -78,9 +78,18 @@ const CONDITIONS = split(`
   Stroke
 `);
 
+
+function randomDate() {
+  return new Date();
+}
+
 function randomConditions() {
   const amount = chance.natural({ max: 3});
-  return chance.pickset(CONDITIONS, amount);
+  return chance.pickset(CONDITIONS, amount).map(condition => ({
+    name: condition,
+    practitioner: chance.pick(PRACTITIONERS).value,
+    date: randomDate(),
+  }));
 }
 
 function randomVitals(overrides) {

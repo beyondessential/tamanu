@@ -38,7 +38,7 @@ const ListDisplay = React.memo(({ items = [], title, onEdit }) => (
 ));
 
 const OngoingConditionDisplay = React.memo(({ patient }) => (
-  <ListDisplay title="Conditions" items={patient.conditions} />
+  <ListDisplay title="Conditions" items={patient.conditions.map(x => x.name)} />
 ));
 
 const AllergyDisplay = React.memo(({ patient }) => (
