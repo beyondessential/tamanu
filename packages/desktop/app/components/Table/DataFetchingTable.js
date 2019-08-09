@@ -2,9 +2,11 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Table } from './Table';
 import { connectApi } from '../../api';
 
+const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
+
 function DataFetchingTableComponent({ columns, fetchData }) {
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10); // TODO fix magic number
+  const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
   const [sorting, setSorting] = useState({ order: 'asc', orderBy: null });
   const defaultFetchState = { data: null, count: 0, errorMessage: null, isLoading: true };
   const [fetchState, setFetchState] = useState(defaultFetchState);
@@ -20,23 +22,25 @@ function DataFetchingTableComponent({ columns, fetchData }) {
   );
 
   useEffect(() => {
-    let isCanceled = false;
-    const asyncFetch = async () => {
+    let updateFetchState = newFetchState =>
+      setFetchState({
+        ...defaultFetchState,
+        ...newFetchState,
+      });
+
+    updateFetchState({ ...defaultFetchState, isLoading: true });
+    (async () => {
       try {
-        setFetchState({ ...defaultFetchState, isLoading: true });
-        const { data, count } = await fetchData({ page, rowsPerPage, sorting });
-        if (isCanceled) return;
-        setFetchState({ data, count, isLoading: false });
+        const { data, count } = await fetchData({ page, rowsPerPage, ...sorting });
+        updateFetchState({ data, count, isLoading: false });
       } catch (error) {
-        if (isCanceled) return;
-        setFetchState({ ...defaultFetchState, errorMessage: error.message, isLoading: false });
+        updateFetchState({ ...defaultFetchState, errorMessage: error.message, isLoading: false });
       }
+    })();
+
+    return () => {
+      updateFetchState = () => {}; // discard the fetch state update if this request is stale
     };
-    asyncFetch();
-    const cleanupOnStateChange = () => {
-      isCanceled = true; // throw away the stale fetch when state changes
-    };
-    return cleanupOnStateChange;
   }, [page, rowsPerPage, sorting]);
 
   const { data, count, isLoading, errorMessage } = fetchState;
@@ -55,13 +59,14 @@ function DataFetchingTableComponent({ columns, fetchData }) {
       onChangeOrderBy={handleChangeOrderBy}
       order={order}
       orderBy={orderBy}
+      rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
     />
   );
 }
 
 function mapApiToProps(api, { endpoint }) {
   return {
-    fetchData: queryParameters => api.getRecords(endpoint, queryParameters),
+    fetchData: queryParameters => api.get(endpoint, queryParameters),
   };
 }
 

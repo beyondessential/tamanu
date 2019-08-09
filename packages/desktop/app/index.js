@@ -22,8 +22,6 @@ const store = createStore(persistedReducers, {}, enhancers);
 const persistor = persistStore(store);
 // persistor.purge(); // Uncomment this to wipe bad redux state during development
 
-API.injectReduxStore(store);
-
 render(
   <Root persistor={persistor} store={store} history={history} />,
   document.getElementById('root'),

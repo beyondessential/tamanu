@@ -6,20 +6,7 @@ const encodeQueryString = query =>
 export class TamanuApi {
   constructor(host) {
     this.host = host;
-    this.auth = {};
-    this.reduxStore = null;
-  }
-
-  getRecords = message => console.log(`YET TO IMPLEMENT: ${message}`);
-
-  injectReduxStore(store) {
-    this.reduxStore = store;
-  }
-
-  setAuthToken(token) {
-    this.auth = {
-      Authorization: `Basic ${token}`,
-    };
+    this.authHeader = null;
   }
 
   async fetch(endpoint, query = {}, config) {
@@ -27,7 +14,7 @@ export class TamanuApi {
     const url = `${this.host}/${endpoint}${query ? `?${queryString}` : ''}`;
     const response = await fetch(url, {
       headers: {
-        ...this.auth,
+        ...this.authHeader,
       },
       ...config,
     });

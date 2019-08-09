@@ -1,18 +1,25 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
+import Chance from 'chance';
 
 import { ApiContext } from '../app/api';
 import { DataFetchingTable } from '../app/components/Table';
 
-const dummyColumns = [
-  { key: 'name', title: 'Fruit' },
-  { key: 'quantity', title: 'Quantity', numeric: true },
-];
+const chance = new Chance();
 
-const dummyData = [
-  { name: 'Apples', quantity: 53 },
-  { name: 'Bananas', quantity: 14 },
-  { name: 'Persimmon', quantity: 6 },
+function fakePatient() {
+  const gender = chance.pick(['male', 'female']);
+  return {
+    name: chance.name({ gender }),
+    age: chance.age(),
+  };
+}
+
+const dummyData = new Array(500).fill(0).map(fakePatient);
+
+const dummyColumns = [
+  { key: 'name', title: 'Patient' },
+  { key: 'age', title: 'Age', numeric: true },
 ];
 
 function sleep(milliseconds) {
@@ -21,25 +28,39 @@ function sleep(milliseconds) {
   });
 }
 
-class DummyApi {
-  getRecords = async (endpoint, { sorting }) => {
+const dummyApi = {
+  get: async (endpoint, { order, orderBy, page, rowsPerPage }) => {
     await sleep(1000);
-    const { orderBy, order } = sorting;
     const sortedData = dummyData.sort(({ [orderBy]: a }, { [orderBy]: b }) => {
       if (typeof a === 'string') {
         return order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
       }
       return order === 'asc' ? a - b : b - a;
     });
+    const startIndex = page * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
     return {
-      data: sortedData,
-      count: 500,
+      data: sortedData.slice(startIndex, endIndex),
+      count: dummyData.length,
     };
-  };
-}
+  },
+};
 
-storiesOf('DataFetchingTable', module).add('Plain', () => (
-  <ApiContext.Provider value={new DummyApi()}>
-    <DataFetchingTable endpoint="fruit" columns={dummyColumns} />
-  </ApiContext.Provider>
-));
+const paginationErrorApi = {
+  get: async (endpoint, query) => {
+    if (query.page > 1) throw new Error('Hardcoded pagination error.');
+    return dummyApi.get(endpoint, query);
+  },
+};
+
+storiesOf('DataFetchingTable', module)
+  .add('Plain', () => (
+    <ApiContext.Provider value={dummyApi}>
+      <DataFetchingTable endpoint="ages" columns={dummyColumns} />
+    </ApiContext.Provider>
+  ))
+  .add('With error', () => (
+    <ApiContext.Provider value={paginationErrorApi}>
+      <DataFetchingTable endpoint="ages" columns={dummyColumns} />
+    </ApiContext.Provider>
+  ));
