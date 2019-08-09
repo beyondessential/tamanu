@@ -1,9 +1,39 @@
 import Chance from 'chance';
 import shortid from 'shortid';
+import moment from 'moment';
+
+import { visitOptions } from '../app/constants';
 
 const generator = new Chance();
 
+const makeId = s => s.trim().replace(/\s/g, '-').replace(/\W/g, '').toLowerCase();
 const split = s => s.split(/[\r\n]+/g).map(x => x.trim()).filter(x => x);
+const splitIds = s => split(s).map(s => ({ label: s, value: makeId(s) }));
+
+export const LOCATIONS = splitIds(`
+  Ward 1
+  Ward 2
+  Ward 3
+  Ward 4
+  Emergency
+`);
+
+export const PRACTITIONERS = splitIds(`
+  Dr Philip Rogers
+  Dr Salvatore Mathis
+  Dr Billy Faulkner
+  Dr Davis Morales
+  Dr Jacquelyn Kirby
+  Dr Evelin Cortez
+  Dr Hana Pitts
+  Dr Melody Moon
+  Dr Aiyana Stewart
+  Johnathan Dixon
+  Kinley Farmer
+  Karla Jenkins
+  Mikayla Hull
+  Marissa Bautista
+`);
 
 const ALLERGIES = split(`
   Penicillin
@@ -51,6 +81,46 @@ const CONDITIONS = split(`
 function randomConditions() {
   const amount = chance.natural({ max: 3});
   return chance.pickset(CONDITIONS, amount);
+}
+
+function randomVitals(overrides) {
+  return {
+    dateRecorded: +new Date(),
+    weight: chance.floating({ min: 60, max: 150 }),
+    height: chance.floating({ min: 130, max: 190 }),
+    sbp: chance.floating({ min: 115, max: 125 }),
+    dbp: chance.floating({ min: 75, max: 85 }),
+    temperature: chance.floating({ min: 36, max: 38 }),
+    heartRate: chance.floating({ min: 40, max: 140 }),
+    respiratoryRate: chance.floating({ min: 10, max: 18 }),
+    ...overrides,
+  };
+}
+
+export function createDummyVisit(current) {
+  const HOUR = 1000 * 60 * 60;
+  const ago = current ? 0 : chance.natural({ min: HOUR * 24, max: HOUR * 24 * 365 });
+  const endDate = new Date(+new Date() - ago);
+
+  const duration = chance.natural({ min: HOUR, max: HOUR * 10 });
+  const startDate = new Date(+endDate - duration);
+
+  return {
+    visitType: chance.pick(visitOptions).value,
+    startDate: startDate,
+    endDate: current ? new Date(+ new Date) : undefined,
+    location: chance.pick(LOCATIONS).value,
+    examiner: chance.pick(PRACTITIONERS).value,
+    reasonForVisit: '',
+
+    vitals: [randomVitals({ dateRecorded: startDate })],
+    notes: [],
+    procedures: [],
+    labs: [],
+    imaging: [],
+    medication: [],
+    documents: [],
+  };
 }
 
 export function createDummyPatient(overrides = {}) {

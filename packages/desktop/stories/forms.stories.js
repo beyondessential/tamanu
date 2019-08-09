@@ -13,23 +13,20 @@ import { ProcedureForm } from '../app/forms/ProcedureForm';
 import { AllergyForm } from '../app/forms/AllergyForm';
 import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
 
-function createDummySuggester(options) {
-  const selectableOptions = options.map(o => ({
-    label: o,
-    value: o.replace(/\W/g, '').toLowerCase(),
-  }));
+import { createDummyVisit, LOCATIONS, PRACTITIONERS } from './dummyPatient';
 
+function createDummySuggester(options) {
   return {
     fetchSuggestions: search => {
       const filter = ({ label }) => label.toLowerCase().includes(search.toLowerCase());
-      return selectableOptions.filter(filter);
+      return options.filter(filter);
     },
-    fetchCurrentOption: value => selectableOptions.find(s => s.value === value),
+    fetchCurrentOption: value => options.find(s => s.value === value),
   };
 }
 
-const practitionerSuggester = createDummySuggester(['Doctor 1', 'Nurse 2', 'Doctor 3']);
-const locationSuggester = createDummySuggester(['Ward 1', 'Ward 2', 'Ward 3']);
+const practitionerSuggester = createDummySuggester(PRACTITIONERS);
+const locationSuggester = createDummySuggester(LOCATIONS);
 
 storiesOf('Forms', module)
   .add('PaginatedForm', () => (
@@ -56,15 +53,29 @@ storiesOf('Forms', module)
         () => <Field name="comment" label="Comment" component={TextField} />,
       ]}
     />
-  ))
+  ));
+
+storiesOf('Forms', module)
   .add('LoginForm', () => <Login login={action('login')} />)
-  .add('VisitForm', () => (
+
+storiesOf('Forms/VisitForm', module)
+  .add('Default', () => (
     <VisitForm
       onSubmit={action('submit')}
       locationSuggester={locationSuggester}
       practitionerSuggester={practitionerSuggester}
     />
   ))
+  .add('Editing', () => (
+    <VisitForm
+      onSubmit={action('submit')}
+      locationSuggester={locationSuggester}
+      practitionerSuggester={practitionerSuggester}
+      editedObject={createDummyVisit()}
+    />
+  ));
+
+storiesOf('Forms', module)
   .add('ProcedureForm', () => (
     <ProcedureForm
       onSubmit={action('submit')}
@@ -75,6 +86,8 @@ storiesOf('Forms', module)
       anesthesiaSuggester={createDummySuggester(['Anesthesia 1', 'Anesthesia 2', 'Anesthesia 3'])}
     />
   ))
+
+storiesOf('Forms', module)
   .add('AllergyForm', () => (
     <AllergyForm
       onSubmit={action('submit')}
@@ -82,6 +95,8 @@ storiesOf('Forms', module)
       practitionerSuggester={practitionerSuggester}
     />
   ))
+
+storiesOf('Forms', module)
   .add('OngoingConditionForm', () => (
     <OngoingConditionForm
       onSubmit={action('submit')}
