@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import moment from 'moment';
+import deepEqual from 'deep-equal';
 
 import { ReportTable } from './ReportTable';
 import { ReportGraph } from './ReportGraph';
@@ -42,9 +43,7 @@ export class ReportViewer extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (JSON.stringify(prevProps.filters) !== JSON.stringify(this.props.filters)) {
-      this.recalculate();
-    }
+    if (!deepEqual(prevProps.filters, this.props.filters)) this.recalculate();
   }
 
   recalculate() {
