@@ -30,7 +30,7 @@ function DataFetchingTableComponent({ columns, fetchData }) {
         const { data, count } = await fetchData({ page, rowsPerPage, ...sorting });
         updateFetchState({ ...defaultFetchState, data, count, isLoading: false });
       } catch (error) {
-        updateFetchState({ ...defaultFetchState, errorMessage: error.message, isLoading: false });
+        updateFetchState({ errorMessage: error.message, isLoading: false });
       }
     })();
 
