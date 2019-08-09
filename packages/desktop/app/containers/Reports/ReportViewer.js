@@ -9,9 +9,33 @@ import { visualisationOptions } from './dummyReports';
 
 const aggregationGranularity = 10;
 
-const getVisualisation = ({ visualisation }) => {
-  const params = visualisationOptions.find(vo => vo.value === visualisation);
-  if (!params) return undefined;
+const getVisualisation = ({ visualisation, dataset }) => {
+  const params = { ...visualisationOptions.find(vo => vo.value === visualisation) };
+  if (!params.dataType) return undefined;
+
+  if (params.dataType === 'datetime') {
+    params.rowKey = 'date';
+  } else {
+    switch (dataset) {
+      case 'diagnoses':
+        params.dataType = params.dataType === 'aggregated' ? 'numeric' : params.dataType;
+        params.rowKey = 'diagnosis';
+        break;
+      case 'visits':
+        params.dataType = 'datetime';
+        params.rowKey = 'date';
+        break;
+      case 'medications':
+        params.dataType = params.dataType === 'aggregated' ? 'numeric' : params.dataType;
+        params.rowKey = 'medication';
+        break;
+      case 'procedures':
+        params.dataType = params.dataType === 'aggregated' ? 'numeric' : params.dataType;
+        params.rowKey = 'procedure';
+        break;
+      default:
+    }
+  }
 
   switch (params.dataType) {
     case 'aggregated':
@@ -30,6 +54,7 @@ const getVisualisation = ({ visualisation }) => {
     default:
       params.getCountKey = row => row[params.rowKey];
   }
+
   return params;
 };
 
@@ -110,10 +135,10 @@ export class ReportViewer extends Component {
     const { id: reportId } = report;
 
     if (reportId === 'custom-report') {
-      const visualisation = getVisualisation(filters);
+      const reportView = getVisualisation(filters);
 
-      if (visualisation) {
-        const { graphType, getCountKey } = visualisation;
+      if (reportView) {
+        const { graphType, getCountKey } = reportView;
         report.graphType = graphType;
         report.getCountKey = getCountKey;
       }
