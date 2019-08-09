@@ -5,6 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import MaterialTable from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -32,10 +33,14 @@ const Row = React.memo(({ columns, data, onClick = () => null }) => {
   return <RowContainer onClick={() => onClick(data)}>{cells}</RowContainer>;
 });
 
+const ErrorText = styled.span`
+  color: #ff0000;
+`;
+
 const ErrorRow = React.memo(({ colSpan, message }) => (
   <RowContainer>
     <TableCell colSpan={colSpan} align="center">
-      {message}
+      <ErrorText>{message}</ErrorText>
     </TableCell>
   </RowContainer>
 ));
