@@ -14,8 +14,6 @@ import TableRow from '@material-ui/core/TableRow';
 import TableFooter from '@material-ui/core/TableFooter';
 import TablePagination from '@material-ui/core/TablePagination';
 
-const ROWS_PER_PAGE_OPTIONS = [5, 10, 25];
-
 const RowContainer = React.memo(({ children, onClick }) => (
   <TableRow onClick={onClick} style={{ marginTop: '1rem' }}>
     {children}
@@ -65,6 +63,7 @@ export class Table extends React.Component {
     page: PropTypes.number,
     rowsPerPage: PropTypes.number,
     onRowClick: PropTypes.func,
+    rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
   };
 
   static defaultProps = {
@@ -80,6 +79,7 @@ export class Table extends React.Component {
     page: null,
     rowsPerPage: null,
     onRowClick: () => null,
+    rowsPerPageOptions: null,
   };
 
   getErrorMessage() {
@@ -97,9 +97,8 @@ export class Table extends React.Component {
 
   handleChangeRowsPerPage = event => {
     const { onChangeRowsPerPage } = this.props;
-    const { value: newRowsPerPage } = event.target;
-
-    if (onChangeRowsPerPage) onChangeRowsPerPage(parseInt(newRowsPerPage, 10));
+    const newRowsPerPage = parseInt(event.target.value, 10);
+    if (onChangeRowsPerPage) onChangeRowsPerPage(newRowsPerPage);
   };
 
   renderHeaders() {
@@ -136,11 +135,11 @@ export class Table extends React.Component {
   }
 
   renderPaginator() {
-    const { columns, page, count, rowsPerPage } = this.props;
+    const { columns, page, count, rowsPerPage, rowsPerPageOptions } = this.props;
     return (
       <TableRow>
         <TablePagination
-          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+          rowsPerPageOptions={rowsPerPageOptions}
           colSpan={columns.length}
           page={page}
           count={count}

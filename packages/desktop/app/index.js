@@ -10,20 +10,17 @@ import { createHashHistory } from 'history';
 import Root from './containers/Root';
 import './styles/app.global.scss';
 
-import { TamanuApi } from './TamanuApi';
 import { reducers } from './reducers';
+import { API } from './api';
 
 const history = createHashHistory();
 const router = routerMiddleware(history);
-const api = new TamanuApi(process.env.HOST);
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose; // eslint-disable-line no-underscore-dangle
-const enhancers = composeEnhancers(applyMiddleware(router, thunk.withExtraArgument({ api })));
+const enhancers = composeEnhancers(applyMiddleware(router, thunk.withExtraArgument({ api: API })));
 const persistedReducers = persistCombineReducers({ key: 'tamanu', storage }, reducers);
 const store = createStore(persistedReducers, {}, enhancers);
 const persistor = persistStore(store);
 // persistor.purge(); // Uncomment this to wipe bad redux state during development
-
-api.injectReduxStore(store);
 
 render(
   <Root persistor={persistor} store={store} history={history} />,
