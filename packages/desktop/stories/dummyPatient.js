@@ -7,10 +7,19 @@ import { visitOptions } from '../app/constants';
 const HOUR = 1000 * 60 * 60;
 const DAY = HOUR * 24;
 
-const generator = new Chance();
+const chance = new Chance();
 
-const makeId = s => s.trim().replace(/\s/g, '-').replace(/\W/g, '').toLowerCase();
-const split = s => s.split(/[\r\n]+/g).map(x => x.trim()).filter(x => x);
+const makeId = s =>
+  s
+    .trim()
+    .replace(/\s/g, '-')
+    .replace(/\W/g, '')
+    .toLowerCase();
+const split = s =>
+  s
+    .split(/[\r\n]+/g)
+    .map(x => x.trim())
+    .filter(x => x);
 const splitIds = s => split(s).map(s => ({ label: s, value: makeId(s) }));
 
 export const LOCATIONS = splitIds(`
@@ -57,7 +66,7 @@ const ALLERGIES = split(`
 `);
 
 function randomAllergies() {
-  const amount = chance.natural({ max: 3});
+  const amount = chance.natural({ max: 3 });
   return chance.pickset(ALLERGIES, amount);
 }
 
@@ -81,14 +90,13 @@ const CONDITIONS = split(`
   Stroke
 `);
 
-
 function randomDate(minDaysAgo = 1, maxDaysAgo = 365) {
   const ago = chance.natural({ min: DAY * minDaysAgo, max: DAY * maxDaysAgo });
   return new Date(+new Date() - ago);
 }
 
 function randomConditions() {
-  const amount = chance.natural({ max: 3});
+  const amount = chance.natural({ max: 3 });
   return chance.pickset(CONDITIONS, amount).map(condition => ({
     name: condition,
     practitioner: chance.pick(PRACTITIONERS).value,
@@ -119,7 +127,7 @@ export function createDummyVisit(current = false) {
   return {
     visitType: chance.pick(visitOptions).value,
     startDate: startDate,
-    endDate: current ? undefined : new Date(+ new Date),
+    endDate: current ? undefined : new Date(+new Date()),
     location: chance.pick(LOCATIONS).value,
     examiner: chance.pick(PRACTITIONERS).value,
     reasonForVisit: '',
@@ -138,14 +146,10 @@ export function createDummyPatient(overrides = {}) {
   const gender = overrides.gender || chance.pick(['male', 'female']);
   return {
     _id: shortid.generate(),
-    name: generator.name({ gender }),
+    name: chance.name({ gender }),
     sex: gender,
-    dateOfBirth: generator.birthday(),
-    visits: [
-      createDummyVisit(false),
-      createDummyVisit(false),
-      createDummyVisit(false),
-    ],
+    dateOfBirth: chance.birthday(),
+    visits: [createDummyVisit(false), createDummyVisit(false), createDummyVisit(false)],
     alerts: [],
     allergies: randomAllergies(),
     conditions: randomConditions(),

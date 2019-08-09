@@ -11,11 +11,7 @@ storiesOf('PatientView', module)
   .add('With visit', () => (
     <PatientView
       patient={createDummyPatient({
-        visits: [
-          createDummyVisit(true),
-          createDummyVisit(false),
-          createDummyVisit(false),
-        ]
+        visits: [createDummyVisit(true), createDummyVisit(false), createDummyVisit(false)],
       })}
     />
   ))

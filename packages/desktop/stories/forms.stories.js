@@ -28,35 +28,33 @@ function createDummySuggester(options) {
 const practitionerSuggester = createDummySuggester(PRACTITIONERS);
 const locationSuggester = createDummySuggester(LOCATIONS);
 
-storiesOf('Forms', module)
-  .add('PaginatedForm', () => (
-    <PaginatedForm
-      onSubmit={action('submit')}
-      initialValues={{
-        city: '',
-        country: 'VU',
-      }}
-      pages={[
-        () => <Field name="city" label="City" component={TextField} />,
-        () => (
-          <Field
-            name="country"
-            label="Country"
-            component={SelectField}
-            options={[
-              { value: 'TO', label: 'Tonga' },
-              { value: 'VU', label: 'Vanuatu' },
-              { value: 'CK', label: 'Cook Islands' },
-            ]}
-          />
-        ),
-        () => <Field name="comment" label="Comment" component={TextField} />,
-      ]}
-    />
-  ));
+storiesOf('Forms', module).add('PaginatedForm', () => (
+  <PaginatedForm
+    onSubmit={action('submit')}
+    initialValues={{
+      city: '',
+      country: 'VU',
+    }}
+    pages={[
+      () => <Field name="city" label="City" component={TextField} />,
+      () => (
+        <Field
+          name="country"
+          label="Country"
+          component={SelectField}
+          options={[
+            { value: 'TO', label: 'Tonga' },
+            { value: 'VU', label: 'Vanuatu' },
+            { value: 'CK', label: 'Cook Islands' },
+          ]}
+        />
+      ),
+      () => <Field name="comment" label="Comment" component={TextField} />,
+    ]}
+  />
+));
 
-storiesOf('Forms', module)
-  .add('LoginForm', () => <Login login={action('login')} />)
+storiesOf('Forms', module).add('LoginForm', () => <Login login={action('login')} />);
 
 storiesOf('Forms/VisitForm', module)
   .add('Default', () => (
@@ -75,32 +73,29 @@ storiesOf('Forms/VisitForm', module)
     />
   ));
 
-storiesOf('Forms', module)
-  .add('ProcedureForm', () => (
-    <ProcedureForm
-      onSubmit={action('submit')}
-      onCancel={action('cancel')}
-      locationSuggester={locationSuggester}
-      practitionerSuggester={practitionerSuggester}
-      cptCodeSuggester={createDummySuggester(['CPT 1', 'CPT 2', 'CPT 3', 'CPT 4'])}
-      anesthesiaSuggester={createDummySuggester(['Anesthesia 1', 'Anesthesia 2', 'Anesthesia 3'])}
-    />
-  ))
+storiesOf('Forms', module).add('ProcedureForm', () => (
+  <ProcedureForm
+    onSubmit={action('submit')}
+    onCancel={action('cancel')}
+    locationSuggester={locationSuggester}
+    practitionerSuggester={practitionerSuggester}
+    cptCodeSuggester={createDummySuggester(['CPT 1', 'CPT 2', 'CPT 3', 'CPT 4'])}
+    anesthesiaSuggester={createDummySuggester(['Anesthesia 1', 'Anesthesia 2', 'Anesthesia 3'])}
+  />
+));
 
-storiesOf('Forms', module)
-  .add('AllergyForm', () => (
-    <AllergyForm
-      onSubmit={action('submit')}
-      onCancel={action('cancel')}
-      practitionerSuggester={practitionerSuggester}
-    />
-  ))
+storiesOf('Forms', module).add('AllergyForm', () => (
+  <AllergyForm
+    onSubmit={action('submit')}
+    onCancel={action('cancel')}
+    practitionerSuggester={practitionerSuggester}
+  />
+));
 
-storiesOf('Forms', module)
-  .add('OngoingConditionForm', () => (
-    <OngoingConditionForm
-      onSubmit={action('submit')}
-      onCancel={action('cancel')}
-      practitionerSuggester={practitionerSuggester}
-    />
-  ));
+storiesOf('Forms', module).add('OngoingConditionForm', () => (
+  <OngoingConditionForm
+    onSubmit={action('submit')}
+    onCancel={action('cancel')}
+    practitionerSuggester={practitionerSuggester}
+  />
+));

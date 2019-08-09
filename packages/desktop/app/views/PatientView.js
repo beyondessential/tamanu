@@ -137,7 +137,7 @@ export const PatientView = React.memo(({ patient }) => {
           <OperativePlanDisplay patient={patient} />
         </FormGrid>
       </ContentPane>
-      <TabDisplay 
+      <TabDisplay
         patient={patient}
         tabs={TABS}
         currentTab={currentTab}

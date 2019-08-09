@@ -652,7 +652,7 @@ export const notesColumns = [
     headerStyle,
     style: columnStyle,
     // TODO: this prevents a crash, but is definitely still broken
-    accessor: row => '' + row.authoredBy,
+    accessor: row => `${row.authoredBy}`,
     minWidth: 100,
   },
   {
