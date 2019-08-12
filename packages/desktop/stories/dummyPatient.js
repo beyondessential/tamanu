@@ -125,6 +125,8 @@ export function createDummyVisit(current = false) {
   const startDate = new Date(+endDate - duration);
 
   return {
+    _id: shortid.generate(),
+
     visitType: chance.pick(visitOptions).value,
     startDate: startDate,
     endDate: current ? undefined : new Date(+new Date()),
