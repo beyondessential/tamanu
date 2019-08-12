@@ -38,7 +38,7 @@ const ListDisplay = React.memo(({ items = [], title, onEdit }) => (
 ));
 
 const OngoingConditionDisplay = React.memo(({ patient }) => (
-  <ListDisplay title="Conditions" items={patient.conditions} />
+  <ListDisplay title="Conditions" items={patient.conditions.map(x => x.name)} />
 ));
 
 const AllergyDisplay = React.memo(({ patient }) => (
@@ -57,12 +57,22 @@ const TABS = [
   {
     label: 'Current visit',
     key: 'visit',
-    render: () => <div>visit</div>,
+    render: ({ patient }) => {
+      const visit = getCurrentVisit(patient);
+      if (!visit) return "No visit";
+      return (
+        <div>{ visit.visitType }</div>
+      );
+    },
   },
   {
     label: 'History',
     key: 'history',
-    render: () => <div>history</div>,
+    render: ({ patient }) => (
+      <div>
+        { patient.visits.map(v => v.visitType).join(" - ") }
+      </div>
+    ),
   },
   {
     label: 'Details',
@@ -81,7 +91,7 @@ const TABS = [
   },
 ];
 
-const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect }) => {
+const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect, patient }) => {
   const currentTabData = tabs.find(t => t.key === currentTab);
   const buttons = tabs.map(({ key, label }) => (
     <Tab
@@ -95,14 +105,17 @@ const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect }) => {
   return (
     <div>
       <Tabs value={currentTab}>{buttons}</Tabs>
-      <ContentPane>{currentTabData.render()}</ContentPane>
+      <ContentPane>{currentTabData.render({ patient })}</ContentPane>
     </div>
   );
 });
 
+function isVisitCurrent(visit) {
+  return !visit.endDate;
+}
+
 function getCurrentVisit(patient) {
-  // TODO: retrieve a current visit if one exists
-  return patient.visits[0];
+  return patient.visits.find(isVisitCurrent);
 }
 
 export const PatientView = React.memo(({ patient }) => {
@@ -127,7 +140,12 @@ export const PatientView = React.memo(({ patient }) => {
           <OperativePlanDisplay patient={patient} />
         </FormGrid>
       </ContentPane>
-      <TabDisplay tabs={TABS} currentTab={currentTab} onTabSelect={setCurrentTab} />
+      <TabDisplay
+        patient={patient}
+        tabs={TABS}
+        currentTab={currentTab}
+        onTabSelect={setCurrentTab}
+      />
     </React.Fragment>
   );
 });

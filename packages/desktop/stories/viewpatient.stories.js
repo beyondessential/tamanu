@@ -5,13 +5,13 @@ import { action } from '@storybook/addon-actions';
 
 import { PatientView } from '../app/views/PatientView';
 
-import { createDummyPatient } from './dummyPatient';
+import { createDummyPatient, createDummyVisit } from './dummyPatient';
 
 storiesOf('PatientView', module)
   .add('With visit', () => (
     <PatientView
       patient={createDummyPatient({
-        visits: [{ name: 1 }],
+        visits: [createDummyVisit(true), createDummyVisit(false), createDummyVisit(false)],
       })}
     />
   ))

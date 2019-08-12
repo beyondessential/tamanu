@@ -1,9 +1,51 @@
 import Chance from 'chance';
 import shortid from 'shortid';
+import moment from 'moment';
 
-const generator = new Chance();
+import { visitOptions } from '../app/constants';
 
-const split = s => s.split(/[\r\n]+/g).map(x => x.trim()).filter(x => x);
+const HOUR = 1000 * 60 * 60;
+const DAY = HOUR * 24;
+
+const chance = new Chance();
+
+const makeId = s =>
+  s
+    .trim()
+    .replace(/\s/g, '-')
+    .replace(/[^\w-]/g, '')
+    .toLowerCase();
+const split = s =>
+  s
+    .split(/[\r\n]+/g)
+    .map(x => x.trim())
+    .filter(x => x);
+const splitIds = s => split(s).map(s => ({ label: s, value: makeId(s) }));
+
+export const LOCATIONS = splitIds(`
+  Ward 1
+  Ward 2
+  Ward 3
+  Ward 4
+  Emergency
+`);
+
+export const PRACTITIONERS = splitIds(`
+  Dr Philip Rogers
+  Dr Salvatore Mathis
+  Dr Billy Faulkner
+  Dr Davis Morales
+  Dr Jacquelyn Kirby
+  Dr Evelin Cortez
+  Dr Hana Pitts
+  Dr Melody Moon
+  Dr Aiyana Stewart
+  Johnathan Dixon
+  Kinley Farmer
+  Karla Jenkins
+  Mikayla Hull
+  Marissa Bautista
+`);
 
 const ALLERGIES = split(`
   Penicillin
@@ -24,7 +66,7 @@ const ALLERGIES = split(`
 `);
 
 function randomAllergies() {
-  const amount = chance.natural({ max: 3});
+  const amount = chance.natural({ max: 3 });
   return chance.pickset(ALLERGIES, amount);
 }
 
@@ -48,19 +90,68 @@ const CONDITIONS = split(`
   Stroke
 `);
 
+function randomDate(minDaysAgo = 1, maxDaysAgo = 365) {
+  const ago = chance.natural({ min: DAY * minDaysAgo, max: DAY * maxDaysAgo });
+  return new Date(Date.now() - ago);
+}
+
 function randomConditions() {
-  const amount = chance.natural({ max: 3});
-  return chance.pickset(CONDITIONS, amount);
+  const amount = chance.natural({ max: 3 });
+  return chance.pickset(CONDITIONS, amount).map(condition => ({
+    name: condition,
+    practitioner: chance.pick(PRACTITIONERS).value,
+    date: randomDate(),
+  }));
+}
+
+function randomVitals(overrides) {
+  return {
+    dateRecorded: randomDate(),
+    weight: chance.floating({ min: 60, max: 150 }),
+    height: chance.floating({ min: 130, max: 190 }),
+    sbp: chance.floating({ min: 115, max: 125 }),
+    dbp: chance.floating({ min: 75, max: 85 }),
+    temperature: chance.floating({ min: 36, max: 38 }),
+    heartRate: chance.floating({ min: 40, max: 140 }),
+    respiratoryRate: chance.floating({ min: 10, max: 18 }),
+    ...overrides,
+  };
+}
+
+export function createDummyVisit(current = false) {
+  const endDate = current ? new Date() : randomDate();
+
+  const duration = chance.natural({ min: HOUR, max: HOUR * 10 });
+  const startDate = new Date(endDate.getTime() - duration);
+
+  return {
+    _id: shortid.generate(),
+
+    visitType: chance.pick(visitOptions).value,
+    startDate: startDate,
+    endDate: current ? undefined : endDate,
+    location: chance.pick(LOCATIONS).value,
+    examiner: chance.pick(PRACTITIONERS).value,
+    reasonForVisit: '',
+
+    vitals: [randomVitals({ dateRecorded: startDate })],
+    notes: [],
+    procedures: [],
+    labs: [],
+    imaging: [],
+    medication: [],
+    documents: [],
+  };
 }
 
 export function createDummyPatient(overrides = {}) {
   const gender = overrides.gender || chance.pick(['male', 'female']);
   return {
     _id: shortid.generate(),
-    name: generator.name({ gender }),
+    name: chance.name({ gender }),
     sex: gender,
-    dateOfBirth: generator.birthday(),
-    visits: [],
+    dateOfBirth: chance.birthday(),
+    visits: new Array(chance.natural({ max: 5 })).fill(0).map(() => createDummyVisit(false)),
     alerts: [],
     allergies: randomAllergies(),
     conditions: randomConditions(),
