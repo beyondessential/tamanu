@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
 
 import { PatientView } from '../app/views/PatientView';
 import { VisitView } from '../app/views/VisitView';

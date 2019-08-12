@@ -20,4 +20,3 @@ export const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect, ...tabPro
     </div>
   );
 });
-

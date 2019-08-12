@@ -1,13 +1,8 @@
 import React from 'react';
-import styled from 'styled-components';
-
-import { Tabs, Tab } from '@material-ui/core';
 
 import TopBar from '../components/TopBar';
 
 import { TabDisplay } from '../components/TabDisplay';
-import { PatientAlert } from '../components/PatientAlert';
-import { PatientHistory } from '../components/PatientHistory';
 import { PatientHeader } from '../components/PatientHeader';
 import { ContentPane } from '../components/ContentPane';
 
@@ -46,12 +41,7 @@ export const VisitView = React.memo(({ visit, patient }) => {
     <React.Fragment>
       <TopBar title={patient.name} />
       <PatientHeader patient={patient} />
-      <TabDisplay
-        tabs={TABS}
-        currentTab={currentTab}
-        onTabSelect={setCurrentTab}
-        visit={visit}
-      />
+      <TabDisplay tabs={TABS} currentTab={currentTab} onTabSelect={setCurrentTab} visit={visit} />
     </React.Fragment>
   );
 });

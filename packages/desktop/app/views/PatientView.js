@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 
 import TopBar from '../components/TopBar';
 
@@ -15,10 +14,8 @@ const TABS = [
     key: 'visit',
     render: ({ patient }) => {
       const visit = getCurrentVisit(patient);
-      if (!visit) return "No visit";
-      return (
-        <ContentPane>{ visit.visitType }</ContentPane>
-      );
+      if (!visit) return 'No visit';
+      return <ContentPane>{visit.visitType}</ContentPane>;
     },
   },
   {
