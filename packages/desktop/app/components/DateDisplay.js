@@ -22,8 +22,8 @@ const StyledAbbr = styled.abbr`
   text-decoration: none;
 `;
 
-export const DateDisplay = React.memo(({ date, showDuration = false }) => (
-  <StyledAbbr title={formatLong(date)}>
+export const DateDisplay = React.memo(({ date, showDuration = false, ...props }) => (
+  <StyledAbbr {...props} title={formatLong(date)}>
     {formatShort(date)}
     {showDuration && ` (${formatDuration(date)})`}
   </StyledAbbr>

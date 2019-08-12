@@ -9,6 +9,7 @@ import { Button } from '../components/Button';
 
 import { DateDisplay } from '../components/DateDisplay';
 import { PatientAlert } from '../components/PatientAlert';
+import { PatientHistory } from '../components/PatientHistory';
 
 import { DetailTable, DetailRow } from '../components/DetailTable';
 
@@ -61,33 +62,29 @@ const TABS = [
       const visit = getCurrentVisit(patient);
       if (!visit) return "No visit";
       return (
-        <div>{ visit.visitType }</div>
+        <ContentPane>{ visit.visitType }</ContentPane>
       );
     },
   },
   {
     label: 'History',
     key: 'history',
-    render: ({ patient }) => (
-      <div>
-        { patient.visits.map(v => v.visitType).join(" - ") }
-      </div>
-    ),
+    render: ({ patient }) => <PatientHistory items={patient.visits} />,
   },
   {
     label: 'Details',
     key: 'details',
-    render: () => <div>details</div>,
+    render: () => <ContentPane>details</ContentPane>,
   },
   {
     label: 'Appointments',
     key: 'appointments',
-    render: () => <div>appointments</div>,
+    render: () => <ContentPane>appointments</ContentPane>,
   },
   {
     label: 'Documents',
     key: 'documents',
-    render: () => <div>documents</div>,
+    render: () => <ContentPane>documents</ContentPane>,
   },
 ];
 
@@ -105,7 +102,7 @@ const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect, patient }) => {
   return (
     <div>
       <Tabs value={currentTab}>{buttons}</Tabs>
-      <ContentPane>{currentTabData.render({ patient })}</ContentPane>
+      <div>{currentTabData.render({ patient })}</div>
     </div>
   );
 });
