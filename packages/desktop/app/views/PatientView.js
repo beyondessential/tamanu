@@ -110,9 +110,12 @@ const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect, patient }) => {
   );
 });
 
+function isVisitCurrent(visit) {
+  return !visit.endDate;
+}
+
 function getCurrentVisit(patient) {
-  // TODO: retrieve a current visit if one exists
-  return patient.visits.find(v => !v.endDate);
+  return patient.visits.find(isVisitCurrent);
 }
 
 export const PatientView = React.memo(({ patient }) => {
