@@ -11,8 +11,6 @@ import { PatientHistory } from '../components/PatientHistory';
 import { PatientHeader } from '../components/PatientHeader';
 import { ContentPane } from '../components/ContentPane';
 
-import { VisitForm } from '../forms/VisitForm';
-
 const TABS = [
   {
     label: 'Vitals',
@@ -48,7 +46,6 @@ export const VisitView = React.memo(({ visit, patient }) => {
     <React.Fragment>
       <TopBar title={patient.name} />
       <PatientHeader patient={patient} />
-      <VisitForm editedObject={visit} />
       <TabDisplay
         tabs={TABS}
         currentTab={currentTab}
