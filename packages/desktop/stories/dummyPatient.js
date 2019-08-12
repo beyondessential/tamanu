@@ -13,7 +13,7 @@ const makeId = s =>
   s
     .trim()
     .replace(/\s/g, '-')
-    .replace(/\W/g, '')
+    .replace(/[^\w-]/g, '')
     .toLowerCase();
 const split = s =>
   s
@@ -129,7 +129,7 @@ export function createDummyVisit(current = false) {
 
     visitType: chance.pick(visitOptions).value,
     startDate: startDate,
-    endDate: current ? undefined : new Date(+new Date()),
+    endDate: current ? undefined : endDate,
     location: chance.pick(LOCATIONS).value,
     examiner: chance.pick(PRACTITIONERS).value,
     reasonForVisit: '',
