@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Tabs, Tab } from '@material-ui/core';
-
 import TopBar from '../components/TopBar';
 
+import { TabDisplay } from '../components/TabDisplay';
 import { PatientAlert } from '../components/PatientAlert';
 import { PatientHistory } from '../components/PatientHistory';
 import { PatientHeader } from '../components/PatientHeader';
@@ -44,25 +43,6 @@ const TABS = [
   },
 ];
 
-const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect, patient }) => {
-  const currentTabData = tabs.find(t => t.key === currentTab);
-  const buttons = tabs.map(({ key, label }) => (
-    <Tab
-      key={key}
-      style={{ minWidth: 'auto' }}
-      label={label}
-      value={key}
-      onClick={() => onTabSelect(key)}
-    />
-  ));
-  return (
-    <div>
-      <Tabs value={currentTab}>{buttons}</Tabs>
-      <div>{currentTabData.render({ patient })}</div>
-    </div>
-  );
-});
-
 function isVisitCurrent(visit) {
   return !visit.endDate;
 }
@@ -80,10 +60,10 @@ export const PatientView = React.memo(({ patient }) => {
       <PatientAlert alerts={patient.alerts} />
       <PatientHeader patient={patient} />
       <TabDisplay
-        patient={patient}
         tabs={TABS}
         currentTab={currentTab}
         onTabSelect={setCurrentTab}
+        patient={patient}
       />
     </React.Fragment>
   );
