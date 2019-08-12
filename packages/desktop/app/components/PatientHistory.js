@@ -5,11 +5,16 @@ import { DateDisplay } from './DateDisplay';
 
 const HistoryRow = styled.div`
   display: grid;
-  min-height: 3rem;
-  grid-template-columns: 6rem 1rem 6rem auto;
+  grid-template-columns: 5rem 1rem 5rem auto;
   align-items: stretch;
-  grid-column-gap: 1rem;
-  background: #eee;
+  grid-column-gap: 0.5rem;
+  background: ${ p => p.highlight ? "#ffe" : "#eee" };
+  padding: 0.8rem 0rem;
+
+  cursor: pointer;
+  &:hover {
+    background: #fafafa;
+  }
 `;
 
 const HistoryCell = styled.div`
@@ -18,7 +23,7 @@ const HistoryCell = styled.div`
 `;
 
 const HistoryItem = ({ item }) => (
-  <HistoryRow>
+  <HistoryRow highlight={!item.endDate}>
     <HistoryCell><DateDisplay date={item.startDate} /></HistoryCell>
     <div>&mdash;</div>
     <HistoryCell>{ item.endDate ? <DateDisplay date={item.endDate} /> : "CURRENT" }</HistoryCell>
