@@ -8,7 +8,6 @@ import thunk from 'redux-thunk';
 import { createHashHistory } from 'history';
 
 import Root from './containers/Root';
-import './styles/app.global.scss';
 
 import { reducers } from './reducers';
 import { API } from './api';
