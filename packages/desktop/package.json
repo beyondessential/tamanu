@@ -10,7 +10,6 @@
   "license": "GNU AGPL",
   "scripts": {
     "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
-    "build-dll": "cross-env NODE_ENV=development CONFIG=webpack.config.renderer.dev.dll node babel-register-pack",
     "build-main": "cross-env NODE_ENV=production CONFIG=webpack.config.main.prod node babel-register-pack",
     "build-renderer": "cross-env NODE_ENV=production CONFIG=webpack.config.renderer.prod node babel-register-pack",
     "dev": "cross-env START_HOT=1 node -r ./babel-register ./internals/scripts/CheckPortInUse.js && cross-env START_HOT=1 npm run start-renderer-dev",
@@ -221,7 +220,6 @@
     "react-mixin-manager": "^1.0.2",
     "react-redux": "^7.1.0",
     "react-responsive-modal": "^2.1.0",
-    "react-router": "^4.2.0",
     "react-router-dom": "^5.0.1",
     "react-select": "^1.2.1",
     "react-table": "^6.8.6",
