@@ -13,7 +13,7 @@ const makeId = s =>
   s
     .trim()
     .replace(/\s/g, '-')
-    .replace(/\W/g, '')
+    .replace(/[^\w-]/g, '')
     .toLowerCase();
 const split = s =>
   s
@@ -92,7 +92,7 @@ const CONDITIONS = split(`
 
 function randomDate(minDaysAgo = 1, maxDaysAgo = 365) {
   const ago = chance.natural({ min: DAY * minDaysAgo, max: DAY * maxDaysAgo });
-  return new Date(+new Date() - ago);
+  return new Date(Date.now() - ago);
 }
 
 function randomConditions() {
@@ -106,7 +106,7 @@ function randomConditions() {
 
 function randomVitals(overrides) {
   return {
-    dateRecorded: +new Date(),
+    dateRecorded: randomDate(),
     weight: chance.floating({ min: 60, max: 150 }),
     height: chance.floating({ min: 130, max: 190 }),
     sbp: chance.floating({ min: 115, max: 125 }),
@@ -122,14 +122,14 @@ export function createDummyVisit(current = false) {
   const endDate = current ? new Date() : randomDate();
 
   const duration = chance.natural({ min: HOUR, max: HOUR * 10 });
-  const startDate = new Date(+endDate - duration);
+  const startDate = new Date(endDate.getTime() - duration);
 
   return {
     _id: shortid.generate(),
 
     visitType: chance.pick(visitOptions).value,
     startDate: startDate,
-    endDate: current ? undefined : new Date(+new Date()),
+    endDate: current ? undefined : endDate,
     location: chance.pick(LOCATIONS).value,
     examiner: chance.pick(PRACTITIONERS).value,
     reasonForVisit: '',
@@ -151,7 +151,7 @@ export function createDummyPatient(overrides = {}) {
     name: chance.name({ gender }),
     sex: gender,
     dateOfBirth: chance.birthday(),
-    visits: [createDummyVisit(false), createDummyVisit(false), createDummyVisit(false)],
+    visits: new Array(chance.natural({ max: 5 })).fill(0).map(() => createDummyVisit(false)),
     alerts: [],
     allergies: randomAllergies(),
     conditions: randomConditions(),
