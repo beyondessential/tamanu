@@ -8,10 +8,12 @@ import { TextField, SelectField } from '../app/components';
 import { Field } from '../app/components/Field/Form';
 import { PaginatedForm } from '../app/components/Field/PaginatedForm';
 import Login from '../app/containers/Auth/Login';
+
 import { VisitForm } from '../app/forms/VisitForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
 import { AllergyForm } from '../app/forms/AllergyForm';
 import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
+import { DischargeForm } from '../app/forms/DischargeForm';
 
 import { createDummyVisit, LOCATIONS, PRACTITIONERS } from './dummyPatient';
 
@@ -94,6 +96,15 @@ storiesOf('Forms', module).add('AllergyForm', () => (
 
 storiesOf('Forms', module).add('OngoingConditionForm', () => (
   <OngoingConditionForm
+    onSubmit={action('submit')}
+    onCancel={action('cancel')}
+    practitionerSuggester={practitionerSuggester}
+  />
+));
+
+storiesOf('Forms', module).add('DischargeForm', () => (
+  <DischargeForm
+    visit={createDummyVisit(false)}
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
