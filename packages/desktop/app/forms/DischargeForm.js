@@ -13,7 +13,7 @@ import {
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
-import { DetailTable, DetailRow } from '../components/DetailTable';
+import { DetailTable, DetailRow, FullWidthDetailRow } from '../components/DetailTable';
 import { DateDisplay } from '../components/DateDisplay';
 
 const Column = styled.div`
@@ -26,13 +26,13 @@ const Column = styled.div`
 `;
 
 const VisitOverview = React.memo(({ visit }) => (
-  <DetailTable>
+  <DetailTable width="12rem">
     <DetailRow label="Admission date"><DateDisplay date={visit.startDate} /></DetailRow>
-    <DetailRow label="Supervising physician">{visit.physician}</DetailRow>
-    <DetailRow label="Reason for visit">{visit.reasonForVisit}</DetailRow>
-    <DetailRow label="Diagnoses">{visit.physician}</DetailRow>
-    <DetailRow label="Procedures">{visit.physician}</DetailRow>
-    <DetailRow label="Discharge medicines">{visit.physician}</DetailRow>
+    <DetailRow label="Supervising physician">{visit.examiner}</DetailRow>
+    <DetailRow label="Reason for visit">{visit.reasonForVisit || "Not specified"}</DetailRow>
+    <FullWidthDetailRow label="Diagnoses">diagnoses</FullWidthDetailRow>
+    <FullWidthDetailRow label="Procedures">procedures</FullWidthDetailRow>
+    <FullWidthDetailRow label="Discharge medicines">medicines</FullWidthDetailRow>
   </DetailTable>
 ));
 
