@@ -133,22 +133,27 @@ export class ReportViewer extends Component {
   render() {
     const { filters, report } = this.props;
     const { id: reportId } = report;
+    const hide = { graph: false, table: false };
 
     if (reportId === 'custom-report') {
+      hide.graph = true;
+      hide.table = true;
       const reportView = getVisualisation(filters);
 
       if (reportView) {
         const { graphType, getCountKey } = reportView;
         report.graphType = graphType;
         report.getCountKey = getCountKey;
+        hide.graph = graphType === 'table';
+        hide.table = !hide.graph;
       }
     }
 
     return (
       <div>
-        <ReportGraph report={report} data={this.state.values} />
-        <hr />
-        <ReportTable data={this.state.values} />
+        <ReportGraph report={report} data={this.state.values} hidden={hide.graph} />
+        {!hide.graph && !hide.table && <hr />}
+        <ReportTable data={this.state.values} hidden={hide.table} />
       </div>
     );
   }

@@ -52,8 +52,10 @@ const DatasetItem = withStyles({
     backgroundColor: '#ffdb00',
     border: '1px solid #2f4358',
     borderRadius: 15,
+    justifyContent: 'center',
     marginLeft: 5,
     marginRight: 5,
+    maxWidth: 150,
   },
   selected: {
     backgroundColor: '#fff !important',
@@ -137,7 +139,7 @@ class CustomFilters extends Component {
               ))}
             </VisualisationList>
             <GroupTitle theme={theme}>Reporting on</GroupTitle>
-            <HorizontalList>
+            <HorizontalList style={{ paddingLeft: 50 }}>
               {datasetOptions.map(dataset => (
                 <DatasetButton
                   key={dataset.value}
