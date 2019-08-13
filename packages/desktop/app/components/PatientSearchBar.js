@@ -41,8 +41,11 @@ const PaddedSearchIcon = styled(SearchIcon)`
 
 const Section = styled.div`
   padding: 30px;
-  border-left: ${({ isFirstSection }) => (isFirstSection ? `0px` : `1px solid #dedede`)};
-  margin: ${({ alignContent }) => (alignContent === 'center' ? 'auto' : '0px')};
+`;
+
+const RightSection = styled(Section)`
+  border-left: 1px solid #dedede;
+  margin: auto;
 `;
 
 const renderSearchBar = ({ submitForm }) => (
@@ -64,11 +67,11 @@ export const PatientSearchBar = memo(({ onSearch }) => {
 
   return (
     <Container>
-      <Section isFirstSection>
+      <Section>
         <SectionLabel>Search for patients</SectionLabel>
         <Form onSubmit={handleSearch} render={renderSearchBar} />
       </Section>
-      <Section alignContent="center">
+      <Section>
         <div style={{ margin: 'auto' }}>
           <ScanFingerprintButton fontSize="large" />
         </div>
