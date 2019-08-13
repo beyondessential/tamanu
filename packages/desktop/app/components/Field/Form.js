@@ -46,7 +46,12 @@ export class Form extends React.PureComponent {
     this.setState({ isErrorDialogVisible: false });
   };
 
-  createSubmissionHandler = ({ validateForm, handleSubmit, isSubmitting, setSubmitting }) => async event => {
+  createSubmissionHandler = ({
+    validateForm,
+    handleSubmit,
+    isSubmitting,
+    setSubmitting,
+  }) => async event => {
     event.preventDefault();
     event.persist();
 
@@ -60,7 +65,7 @@ export class Form extends React.PureComponent {
     // avoid multiple submissions
     // `submitForm()` can be used but `handleSubmit()`
     // will take care of `isSubmitting` and other props
-    if (!isSubmitting) { 
+    if (!isSubmitting) {
       await handleSubmit(event);
       setSubmitting(false);
     }
