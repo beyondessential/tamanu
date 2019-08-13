@@ -1,6 +1,5 @@
 import Chance from 'chance';
 import shortid from 'shortid';
-import moment from 'moment';
 
 import { visitOptions } from '../app/constants';
 
@@ -20,7 +19,7 @@ const split = s =>
     .split(/[\r\n]+/g)
     .map(x => x.trim())
     .filter(x => x);
-const splitIds = s => split(s).map(s => ({ label: s, value: makeId(s) }));
+const splitIds = ids => split(ids).map(s => ({ label: s, value: makeId(s) }));
 
 export const LOCATIONS = splitIds(`
   Ward 1
@@ -141,6 +140,7 @@ export function createDummyVisit(current = false) {
     imaging: [],
     medication: [],
     documents: [],
+    diagnoses: [],
   };
 }
 

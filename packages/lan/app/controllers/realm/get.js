@@ -1,18 +1,19 @@
 import { parseInt, isEmpty } from 'lodash';
 import { objectToJSON } from '../../utils';
 
+const OBJECTS_MAX_DEPTH = 5;
+
 export default function(req, res) {
   const realm = req.app.get('database');
   const { params, query } = req;
   const { model: modelName, id } = params;
   const {
-    sort_by: sortBy,
+    orderBy,
     order,
     keyword,
     fields,
-    current_page: currentPageString,
-    page_size: pageSizeString,
-    objects_max_depth: objectsMaxDepth = 5,
+    page: currentPageString,
+    rowsPerPage: pageSizeString,
     ...restOfQuery
   } = query;
   const defaultPageSize = 10;
@@ -27,7 +28,7 @@ export default function(req, res) {
         objects = objects.filtered(`_id = '${id}'`);
         if (objects.length <= 0) return res.status(404).end();
         // Get first item from the list
-        const object = objectToJSON(head(objects), objectsMaxDepth);
+        const object = objectToJSON(objects[0], OBJECTS_MAX_DEPTH);
         return res.json(object);
       }
 
@@ -58,10 +59,10 @@ export default function(req, res) {
       if (!isEmpty(filters)) objects = objects.filtered(filters.join(' AND '));
 
       // Sort results
-      if (sortBy) objects = objects.sorted(sortBy, order === 'desc');
+      if (orderBy) objects = objects.sorted(orderBy, order === 'desc');
 
       // Create pagination options before limiting
-      const paginationParams = { total_entries: objects.length };
+      const response = { count: objects.length };
 
       // Limit results
       if (currentPageString) {
@@ -70,12 +71,10 @@ export default function(req, res) {
         const start = currentPage * pageSize;
         const end = start + pageSize;
         objects = objects.slice(start, end);
-        paginationParams.total_pages = ceil(paginationParams.total_entries / pageSize);
       }
 
       // Convert to JSON as response
-      objects = objects.map(object => objectToJSON(object, objectsMaxDepth));
-      const response = [paginationParams, objects];
+      response.data = objects.map(object => objectToJSON(object, OBJECTS_MAX_DEPTH));
       return res.send(response);
     });
   } catch (err) {
