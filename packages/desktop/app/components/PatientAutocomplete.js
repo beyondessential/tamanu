@@ -22,7 +22,7 @@ export class PatientAutocomplete extends React.PureComponent {
   };
 
   updateSearchTerm = async ({ target }) => {
-    const suggester = this.props.suggester;
+    const { suggester } = this.props;
     const searchTerm = target.value;
     this.setState({
       searchTerm,

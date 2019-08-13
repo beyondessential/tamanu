@@ -28,7 +28,7 @@ export const PatientListing = React.memo(() => {
   return (
     <PageContainer>
       <TopBar title="Patient listing">
-        <Button color="primary" variant="contained" onClick={() => push('/this-goes-nowhere')}>
+        <Button color="primary" variant="contained" onClick={() => push('/patient/new')}>
           Create new patient
         </Button>
       </TopBar>
