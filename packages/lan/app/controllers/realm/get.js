@@ -10,8 +10,6 @@ export default function(req, res) {
   const {
     orderBy,
     order,
-    keyword,
-    fields,
     page: currentPageString,
     rowsPerPage: pageSizeString,
     ...restOfQuery
@@ -32,15 +30,6 @@ export default function(req, res) {
         return res.json(object);
       }
 
-      // Add keyword filter
-      if (keyword && fields) {
-        const conditions = [];
-        fields.split(',').forEach(field => {
-          conditions.push(` ${field} CONTAINS[c] "${keyword}" `);
-        });
-        filters.push(`(${conditions.join(' OR ')})`);
-      }
-
       // Add any additional filters from query parameters
       const { properties: fieldSchemata } = realm.schema.find(({ name }) => name === modelName);
       Object.entries(restOfQuery).forEach(([field, value]) => {
@@ -48,10 +37,14 @@ export default function(req, res) {
         let newValue = value;
         if (/([|])/.test(value)) {
           [operator, newValue] = value.split('|');
+        } else if (value.startsWith('~')) {
+          // one day this could be proper fuzzy matching!
+          operator = 'CONTAINS[c]';
+          newValue = value.substring(1);
         }
         const fieldSchema = fieldSchemata[field] || {};
         const isString = fieldSchema === 'string' || fieldSchema.type === 'string';
-        const valueString = isString ? `'${newValue}'` : newValue;
+        const valueString = isString ? `"${newValue}"` : newValue;
         filters.push(`${field} ${operator} ${valueString}`);
       });
 

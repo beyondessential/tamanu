@@ -25,6 +25,11 @@ const COLUMNS = [
 export const PatientListing = React.memo(() => {
   const [searchParameters, setSearchParameters] = useState({});
 
+  const fetchOptions = {};
+  Object.entries(searchParameters).forEach(
+    ([field, searchTerm]) => (fetchOptions[field] = `~${searchTerm}`),
+  );
+
   return (
     <PageContainer>
       <TopBar title="Patient listing">
@@ -36,7 +41,7 @@ export const PatientListing = React.memo(() => {
       <DataFetchingTable
         endpoint={ENDPOINT}
         columns={COLUMNS}
-        fetchOptions={searchParameters}
+        fetchOptions={fetchOptions}
         noDataMessage="No patients found"
       />
     </PageContainer>
