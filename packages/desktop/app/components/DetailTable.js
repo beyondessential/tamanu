@@ -7,21 +7,33 @@ export const DetailTable = styled.div`
   grid-column-gap: 0.7rem;
   grid-row-gap: 0.7rem;
 
-  grid-template-columns: 8rem auto;
+  grid-template-columns: ${p => p.width || '8rem'} auto;
 
   align-content: start;
 `;
 
-const DetailTableKey = styled.div`
+const DetailKey = styled.div`
   font-weight: bold;
   border-bottom: 1px solid #ccc;
 `;
 
-const DetailTableValue = styled.div``;
+const DetailValue = styled.div``;
+
+const FullWidthDetailValue = styled.div`
+  grid-column: span 2;
+`;
 
 export const DetailRow = ({ label, value, children }) => (
   <React.Fragment>
-    <DetailTableKey>{label}</DetailTableKey>
-    <DetailTableValue>{value || children}</DetailTableValue>
+    <DetailKey>{label}</DetailKey>
+    <DetailValue>{value || children}</DetailValue>
+  </React.Fragment>
+);
+
+export const FullWidthDetailRow = ({ label, value, children }) => (
+  <React.Fragment>
+    <DetailKey>{label}</DetailKey>
+    <div />
+    <FullWidthDetailValue>{value || children}</FullWidthDetailValue>
   </React.Fragment>
 );
