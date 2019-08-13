@@ -3,7 +3,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
-import { PatientSearch } from '../app/components/PatientSearch';
+import { PatientAutocomplete } from '../app/components/PatientAutocomplete';
 
 import { createDummyPatient } from './dummyPatient';
 
@@ -16,6 +16,6 @@ const suggester = {
   },
 };
 
-storiesOf('PatientSearch', module).add('Default', () => (
-  <PatientSearch suggester={suggester} onPatientSelect={action('patientSelect')} />
+storiesOf('PatientAutocomplete', module).add('Default', () => (
+  <PatientAutocomplete suggester={suggester} onPatientSelect={action('patientSelect')} />
 ));

@@ -4,7 +4,7 @@ import { connectApi } from '../../api';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
-function DataFetchingTableComponent({ columns, fetchData, noDataMessage }) {
+function DataFetchingTableComponent({ columns, fetchData, noDataMessage, fetchOptions }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
   const [sorting, setSorting] = useState({ order: 'asc', orderBy: undefined });
@@ -37,7 +37,7 @@ function DataFetchingTableComponent({ columns, fetchData, noDataMessage }) {
     return () => {
       updateFetchState = () => {}; // discard the fetch state update if this request is stale
     };
-  }, [page, rowsPerPage, sorting]);
+  }, [page, rowsPerPage, sorting, fetchOptions]);
 
   const { data, count, isLoading, errorMessage } = fetchState;
   const { order, orderBy } = sorting;
