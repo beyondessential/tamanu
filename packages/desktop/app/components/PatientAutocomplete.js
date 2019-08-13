@@ -1,41 +1,60 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { PatientsCollection } from '../collections';
-import { PatientModel } from '../models';
-import { AutocompleteInput } from './Field';
+import Collapse from '@material-ui/core/Collapse';
 
-export const PatientAutocompleteField = ({ field, ...props }) => (
-  <PatientAutocomplete {...field} {...props} />
-);
+import { Table } from './Table';
 
-export const PatientAutocomplete = ({
-  label,
-  required,
-  name,
-  className,
-  collection,
-  onChange,
-  ...props
-}) => (
-  <AutocompleteInput
-    label={label}
-    required={required}
-    name={name}
-    className={className}
-    ModelClass={PatientModel}
-    collection={collection}
-    onChange={onChange}
-    formatOptionLabel={({ displayId, firstName, lastName }) =>
-      `${displayId} - ${firstName} ${lastName}`
+import { TextInput, DateDisplay } from '.';
+
+const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} showDuration />);
+
+const COLUMNS = [
+  { key: 'name', title: 'Name' },
+  { key: 'sex', title: 'Sex' },
+  { key: 'dateOfBirth', title: 'Date of Birth', CellComponent: DateOfBirthCell },
+  { key: '_id', title: 'ID' },
+];
+
+export class PatientAutocomplete extends React.PureComponent {
+  state = {
+    searchTerm: '',
+    suggestions: [],
+    expanded: false,
+  };
+
+  updateSearchTerm = async ({ target }) => {
+    const suggester = this.props.suggester;
+    const searchTerm = target.value;
+    this.setState({
+      searchTerm,
+    });
+
+    if (searchTerm.length > 0) {
+      const suggestions = await suggester.fetchSuggestions(searchTerm);
+      this.setState(state => ({
+        suggestions,
+        expanded: state.expanded || suggestions.length > 0,
+      }));
+    } else {
+      this.setState({ expanded: false });
     }
-    {...props}
-  />
-);
+  };
 
-PatientAutocomplete.propTypes = {
-  collection: PropTypes.instanceOf(Object),
-};
+  render() {
+    const { onPatientSelect } = this.props;
+    const { searchTerm, suggestions, expanded } = this.state;
 
-PatientAutocomplete.defaultProps = {
-  collection: new PatientsCollection(),
-};
+    return (
+      <div>
+        <TextInput label="Patient name" value={searchTerm} onChange={this.updateSearchTerm} />
+        <Collapse in={expanded}>
+          <Table
+            columns={COLUMNS}
+            data={suggestions}
+            onRowClick={onPatientSelect}
+            noDataMessage="No patients found matching your search"
+          />
+        </Collapse>
+      </div>
+    );
+  }
+}

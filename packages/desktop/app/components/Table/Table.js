@@ -140,8 +140,8 @@ export class Table extends React.Component {
         </ErrorRow>
       );
     }
-    return data.map(rowData => (
-      <Row data={rowData} key={rowData.sort} columns={columns} onClick={onRowClick} />
+    return data.map((rowData, i) => (
+      <Row data={rowData} key={i} columns={columns} onClick={onRowClick} />
     ));
   }
 

@@ -221,57 +221,6 @@ export const pregnancyOutcomes = [
   { value: 'fetalDeath', label: 'Fetal Death' },
 ];
 
-export const patientColumns = [
-  {
-    key: 'displayId',
-    title: 'Id',
-    headerStyle,
-    style: {
-      ...columnStyle,
-      justifyContent: 'left',
-    },
-    minWidth: 80,
-    CellComponent: () => {},
-  },
-  {
-    key: 'firstName',
-    title: 'First Name',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 100,
-  },
-  {
-    key: 'lastName',
-    title: 'Last Name',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 100,
-  },
-  {
-    key: 'sex',
-    title: 'Sex',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 80,
-  },
-  {
-    key: 'dateOfBirth',
-    accessor: row => moment(row.dateOfBirth).format(dateFormat),
-    title: 'DOB',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 100,
-  },
-  {
-    key: 'actions',
-    title: 'Actions',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 250,
-    CellComponent: () => {},
-  },
-];
-
 export const outPatientColumns = [
   {
     key: 'displayId',

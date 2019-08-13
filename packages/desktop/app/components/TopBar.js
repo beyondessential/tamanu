@@ -2,14 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
-import { AppBar, Toolbar, Typography, Grid, Chip } from '@material-ui/core';
-import { values, mapValues, isArray } from 'lodash';
-import { NewButton, SearchBar } from '.';
+import { AppBar, Toolbar, Typography, Grid } from '@material-ui/core';
 
 const styles = theme => ({
   root: {
     flexGrow: 1,
-    backgroundColor: grey[200],
+    backgroundColor: '#fff',
     borderBottom: `2px solid ${grey[300]}`,
     marginBottom: 3,
   },
@@ -30,7 +28,7 @@ const styles = theme => ({
   },
 });
 
-const TopBar = React.memo(({ classes, title, subtitle, children }) => {
+const TopBar = React.memo(({ classes, title, children }) => {
   return (
     <Grid className={classes.root}>
       <AppBar position="static" color="inherit" className={classes.noShadow}>
