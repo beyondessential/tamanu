@@ -35,14 +35,14 @@ const Row = React.memo(({ columns, data, onClick = () => null }) => {
   return <RowContainer onClick={() => onClick(data)}>{cells}</RowContainer>;
 });
 
-const ErrorText = styled.span`
+const ErrorSpan = styled.span`
   color: #ff0000;
 `;
 
-const ErrorRow = React.memo(({ colSpan, message }) => (
+const ErrorRow = React.memo(({ colSpan, children }) => (
   <RowContainer>
     <TableCell colSpan={colSpan} align="center">
-      <ErrorText>{message}</ErrorText>
+      {children}
     </TableCell>
   </RowContainer>
 ));
@@ -131,10 +131,14 @@ export class Table extends React.Component {
   }
 
   renderBodyContent() {
-    const { data, columns, onRowClick } = this.props;
+    const { data, columns, onRowClick, errorMessage } = this.props;
     const error = this.getErrorMessage();
     if (error) {
-      return <ErrorRow message={error} colSpan={columns.length} />;
+      return (
+        <ErrorRow colSpan={columns.length}>
+          {errorMessage ? <ErrorSpan>{error}</ErrorSpan> : error}
+        </ErrorRow>
+      );
     }
     return data.map(rowData => (
       <Row data={rowData} key={rowData.sort} columns={columns} onClick={onRowClick} />

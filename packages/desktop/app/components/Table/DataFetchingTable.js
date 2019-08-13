@@ -7,8 +7,8 @@ const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 function DataFetchingTableComponent({ columns, fetchData }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
-  const [sorting, setSorting] = useState({ order: 'asc', orderBy: null });
-  const defaultFetchState = { data: null, count: 0, errorMessage: null, isLoading: true };
+  const [sorting, setSorting] = useState({ order: 'asc', orderBy: undefined });
+  const defaultFetchState = { data: [], count: 0, errorMessage: '', isLoading: true };
   const [fetchState, setFetchState] = useState(defaultFetchState);
 
   const handleChangeOrderBy = useCallback(
@@ -28,6 +28,7 @@ function DataFetchingTableComponent({ columns, fetchData }) {
     (async () => {
       try {
         const { data, count } = await fetchData({ page, rowsPerPage, ...sorting });
+        console.log(data, count);
         updateFetchState({ ...defaultFetchState, data, count, isLoading: false });
       } catch (error) {
         updateFetchState({ errorMessage: error.message, isLoading: false });
@@ -56,13 +57,14 @@ function DataFetchingTableComponent({ columns, fetchData }) {
       order={order}
       orderBy={orderBy}
       rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+      noDataMessage="No admitted patients match your search"
     />
   );
 }
 
-function mapApiToProps(api, { endpoint }) {
+function mapApiToProps(api, { endpoint, fetchOptions }) {
   return {
-    fetchData: queryParameters => api.get(endpoint, queryParameters),
+    fetchData: queryParameters => api.get(endpoint, { ...queryParameters, ...fetchOptions }),
   };
 }
 

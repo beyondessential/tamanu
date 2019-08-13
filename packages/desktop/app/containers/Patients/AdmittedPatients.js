@@ -19,11 +19,6 @@ const COLUMNS = [
     minWidth: 100,
   },
   {
-    key: 'firstName',
-    title: 'First Name',
-    minWidth: 100,
-  },
-  {
     key: 'lastName',
     title: 'Last Name',
     minWidth: 100,
@@ -45,7 +40,7 @@ export const AdmittedPatients = React.memo(() => (
   <React.Fragment>
     <TopBar title="Admitted Patients" />
     <DataFetchingTable
-      endpoint="patients"
+      endpoint="patient"
       columns={COLUMNS}
       noDataMessage="No patients found."
       fetchOptions={{ admitted: true }}
