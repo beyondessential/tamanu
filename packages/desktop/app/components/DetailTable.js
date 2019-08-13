@@ -12,28 +12,28 @@ export const DetailTable = styled.div`
   align-content: start;
 `;
 
-const DetailTableKey = styled.div`
+const DetailKey = styled.div`
   font-weight: bold;
   border-bottom: 1px solid #ccc;
 `;
 
-const DetailTableValue = styled.div``;
+const DetailValue = styled.div``;
 
-const FullWidthDetailTableValue = styled.div`
+const FullWidthDetailValue = styled.div`
   grid-column: span 2;
 `;
 
 export const DetailRow = ({ label, value, children }) => (
   <React.Fragment>
-    <DetailTableKey>{label}</DetailTableKey>
-    <DetailTableValue>{value || children}</DetailTableValue>
+    <DetailKey>{label}</DetailKey>
+    <DetailValue>{value || children}</DetailValue>
   </React.Fragment>
 );
 
 export const FullWidthDetailRow = ({ label, value, children }) => (
   <React.Fragment>
-    <DetailTableKey>{label}</DetailTableKey>
+    <DetailKey>{label}</DetailKey>
     <div />
-    <FullWidthDetailTableValue>{value || children}</FullWidthDetailTableValue>
+    <FullWidthDetailValue>{value || children}</FullWidthDetailValue>
   </React.Fragment>
 );
