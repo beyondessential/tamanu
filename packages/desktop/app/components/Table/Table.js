@@ -15,6 +15,8 @@ import TableRow from '@material-ui/core/TableRow';
 import TableFooter from '@material-ui/core/TableFooter';
 import TablePagination from '@material-ui/core/TablePagination';
 
+const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
+
 const RowContainer = React.memo(({ children, onClick }) => (
   <TableRow onClick={onClick} style={{ marginTop: '1rem' }}>
     {children}
@@ -82,9 +84,9 @@ export class Table extends React.Component {
     orderBy: null,
     order: 'asc',
     page: null,
-    rowsPerPage: null,
     onRowClick: () => null,
-    rowsPerPageOptions: null,
+    rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
+    rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,
   };
 
   getErrorMessage() {

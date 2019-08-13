@@ -12,21 +12,6 @@ import CheckNodeEnv from './internals/scripts/CheckNodeEnv';
 CheckNodeEnv('development');
 const port = process.env.PORT || 1212;
 const publicPath = `http://localhost:${port}/dist`;
-const dll = path.resolve(process.cwd(), 'dll');
-const manifest = path.resolve(dll, 'renderer.json');
-const requiredByDLLConfig = module.parent.filename.includes('webpack.config.renderer.dev.dll');
-
-/**
- * Warn if the DLL is not built
- */
-if (!requiredByDLLConfig && !(fs.existsSync(dll) && fs.existsSync(manifest))) {
-  console.log(
-    chalk.black.bgYellow.bold(
-      'The DLL files are missing. Sit back while we build them for you with "yarn build-dll"',
-    ),
-  );
-  execSync('yarn build-dll');
-}
 
 export default merge.smart(baseConfig, {
   devtool: 'inline-source-map',
@@ -94,7 +79,7 @@ export default merge.smart(baseConfig, {
           },
         ],
       },
-       // SASS support - compile all .global.scss files
+      // SASS support - compile all .global.scss files
       {
         test: /\.global\.(scss|sass)$/,
         use: [
@@ -120,7 +105,7 @@ export default merge.smart(baseConfig, {
         test: /^((?!\.global).)*\.(scss|sass)$/,
         use: [
           {
-            loader: 'style-loader'
+            loader: 'style-loader',
           },
           {
             loader: 'css-loader',
@@ -196,14 +181,6 @@ export default merge.smart(baseConfig, {
   },
 
   plugins: [
-    requiredByDLLConfig
-      ? null
-      : new webpack.DllReferencePlugin({
-          context: process.cwd(),
-          manifest: require(manifest),
-          sourceType: 'var',
-        }),
-
     new webpack.HotModuleReplacementPlugin({
       multiStep: true,
     }),
