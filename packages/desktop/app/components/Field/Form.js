@@ -66,7 +66,11 @@ export class Form extends React.PureComponent {
     // `submitForm()` can be used but `handleSubmit()`
     // will take care of `isSubmitting` and other props
     if (!isSubmitting) {
-      await handleSubmit(event);
+      try {
+        await handleSubmit(event);
+      } catch (e) {
+        console.error('Error submitting form: ', e);
+      }
       setSubmitting(false);
     }
   };
