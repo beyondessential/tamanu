@@ -5,6 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import MaterialTable from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -13,6 +14,8 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import TableRow from '@material-ui/core/TableRow';
 import TableFooter from '@material-ui/core/TableFooter';
 import TablePagination from '@material-ui/core/TablePagination';
+
+const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
 const RowContainer = React.memo(({ children, onClick }) => (
   <TableRow onClick={onClick} style={{ marginTop: '1rem' }}>
@@ -32,10 +35,14 @@ const Row = React.memo(({ columns, data, onClick = () => null }) => {
   return <RowContainer onClick={() => onClick(data)}>{cells}</RowContainer>;
 });
 
-const ErrorRow = React.memo(({ colSpan, message }) => (
+const ErrorSpan = styled.span`
+  color: #ff0000;
+`;
+
+const ErrorRow = React.memo(({ colSpan, children }) => (
   <RowContainer>
     <TableCell colSpan={colSpan} align="center">
-      {message}
+      {children}
     </TableCell>
   </RowContainer>
 ));
@@ -77,9 +84,9 @@ export class Table extends React.Component {
     orderBy: null,
     order: 'asc',
     page: null,
-    rowsPerPage: null,
     onRowClick: () => null,
-    rowsPerPageOptions: [],
+    rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
+    rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,
   };
 
   getErrorMessage() {
@@ -124,10 +131,14 @@ export class Table extends React.Component {
   }
 
   renderBodyContent() {
-    const { data, columns, onRowClick } = this.props;
+    const { data, columns, onRowClick, errorMessage } = this.props;
     const error = this.getErrorMessage();
     if (error) {
-      return <ErrorRow message={error} colSpan={columns.length} />;
+      return (
+        <ErrorRow colSpan={columns.length}>
+          {errorMessage ? <ErrorSpan>{error}</ErrorSpan> : error}
+        </ErrorRow>
+      );
     }
     return data.map(rowData => (
       <Row data={rowData} key={rowData.sort} columns={columns} onClick={onRowClick} />

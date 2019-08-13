@@ -46,15 +46,33 @@ export class Form extends React.PureComponent {
     this.setState({ isErrorDialogVisible: false });
   };
 
-  createSubmissionHandler = ({ validateForm, handleSubmit, isSubmitting }) => async event => {
+  createSubmissionHandler = ({
+    validateForm,
+    handleSubmit,
+    isSubmitting,
+    setSubmitting,
+  }) => async event => {
     event.preventDefault();
     event.persist();
+
     const formErrors = await validateForm();
-    if (Object.entries(formErrors).length) return this.setErrors(formErrors);
+    if (Object.entries(formErrors).length) {
+      this.setErrors(formErrors);
+      setSubmitting(false);
+      return;
+    }
+
     // avoid multiple submissions
     // `submitForm()` can be used but `handleSubmit()`
     // will take care of `isSubmitting` and other props
-    if (!isSubmitting) handleSubmit(event);
+    if (!isSubmitting) {
+      try {
+        await handleSubmit(event);
+      } catch (e) {
+        console.error('Error submitting form: ', e);
+      }
+      setSubmitting(false);
+    }
   };
 
   renderFormContents = ({
@@ -62,6 +80,7 @@ export class Form extends React.PureComponent {
     isSubmitting,
     validateForm,
     handleSubmit,
+    setSubmitting,
     submitForm: originalSubmitForm,
     ...formProps
   }) => {
@@ -71,6 +90,7 @@ export class Form extends React.PureComponent {
       validateForm,
       handleSubmit,
       isSubmitting,
+      setSubmitting,
     });
 
     const { render } = this.props;

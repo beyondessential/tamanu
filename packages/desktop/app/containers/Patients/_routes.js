@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Route, Switch } from 'react-router-dom';
 
+import { AdmittedPatients } from './AdmittedPatients';
 import { NotActive } from '../NotActive';
 
 export default function Routes({ url }) {
@@ -9,7 +10,7 @@ export default function Routes({ url }) {
     <div>
       <Switch>
         <Route exact path={url} component={NotActive} />
-        <Route path={`${url}/admitted`} component={NotActive} />
+        <Route path={`${url}/admitted`} component={AdmittedPatients} />
         <Route path={`${url}/outpatient`} component={NotActive} />
         <Route path={`${url}/edit/new`} component={NotActive} />
         <Route path={`${url}/reports`} component={NotActive} />

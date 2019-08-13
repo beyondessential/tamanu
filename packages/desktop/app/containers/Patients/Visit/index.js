@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { capitalize } from 'lodash';
 import { Grid, Tab, Tabs } from '@material-ui/core';
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 
 import TopRow from '../components/TopRow';
 import Allergy from '../components/Allergy';

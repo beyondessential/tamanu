@@ -1,17 +1,17 @@
 import React from 'react';
 
 import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
 
 import { PatientView } from '../app/views/PatientView';
+import { VisitView } from '../app/views/VisitView';
 
-import { createDummyPatient } from './dummyPatient';
+import { createDummyPatient, createDummyVisit } from './dummyPatient';
 
-storiesOf('PatientView', module)
+storiesOf('Views/PatientView', module)
   .add('With visit', () => (
     <PatientView
       patient={createDummyPatient({
-        visits: [{ name: 1 }],
+        visits: [createDummyVisit(true), createDummyVisit(false), createDummyVisit(false)],
       })}
     />
   ))
@@ -26,3 +26,8 @@ storiesOf('PatientView', module)
       })}
     />
   ));
+
+const patient = createDummyPatient();
+storiesOf('Views/VisitView', module)
+  .add('Current', () => <VisitView patient={patient} visit={createDummyVisit(true)} />)
+  .add('Checked out', () => <VisitView patient={patient} visit={createDummyVisit(true)} />);
