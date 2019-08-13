@@ -7,7 +7,7 @@ export const DetailTable = styled.div`
   grid-column-gap: 0.7rem;
   grid-row-gap: 0.7rem;
 
-  grid-template-columns: ${ p => p.width || '8rem' } auto;
+  grid-template-columns: ${p => p.width || '8rem'} auto;
 
   align-content: start;
 `;
@@ -19,7 +19,7 @@ const DetailTableKey = styled.div`
 
 const DetailTableValue = styled.div``;
 
-const DetailTableValueFullWidth = styled.div`
+const FullWidthDetailTableValue = styled.div`
   grid-column: span 2;
 `;
 
@@ -34,6 +34,6 @@ export const FullWidthDetailRow = ({ label, value, children }) => (
   <React.Fragment>
     <DetailTableKey>{label}</DetailTableKey>
     <div />
-    <DetailTableValueFullWidth>{value || children}</DetailTableValueFullWidth>
+    <FullWidthDetailTableValue>{value || children}</FullWidthDetailTableValue>
   </React.Fragment>
 );

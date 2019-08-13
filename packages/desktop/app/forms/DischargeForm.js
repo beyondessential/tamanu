@@ -3,15 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import {
-  Form,
-  Field,
-  DateField,
-  AutocompleteField,
-  TextField,
-  CheckField,
-} from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
+import { Form, Field, AutocompleteField, TextField, CheckField } from '../components/Field';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DetailTable, DetailRow, FullWidthDetailRow } from '../components/DetailTable';
 import { DateDisplay } from '../components/DateDisplay';
@@ -25,34 +17,38 @@ const Column = styled.div`
   }
 `;
 
-const DiagnosisRow = ({ icd10 }) => (
-  <div>{ icd10 }</div>
-);
+const DiagnosisRow = ({ icd10 }) => <div>{icd10}</div>;
 
-const ProcedureRow = ({ cpt }) => (
-  <div>{ cpt }</div>
-);
+const ProcedureRow = ({ cpt }) => <div>{cpt}</div>;
 
 const MedicineRow = ({ drug, prescription }) => (
   <React.Fragment>
-    <div>{ drug }</div>
-    <div>{ prescription }</div>
+    <div>{drug}</div>
+    <div>{prescription}</div>
   </React.Fragment>
 );
 
 const VisitOverview = React.memo(({ visit }) => (
   <DetailTable width="12rem">
-    <DetailRow label="Admission date"><DateDisplay date={visit.startDate} /></DetailRow>
+    <DetailRow label="Admission date">
+      <DateDisplay date={visit.startDate} />
+    </DetailRow>
     <DetailRow label="Supervising physician">{visit.examiner}</DetailRow>
-    <DetailRow label="Reason for visit">{visit.reasonForVisit || "Not specified"}</DetailRow>
+    <DetailRow label="Reason for visit">{visit.reasonForVisit || 'Not specified'}</DetailRow>
     <FullWidthDetailRow label="Diagnoses">
-      { visit.diagnoses.map(d => <DiagnosisRow key={d} icd10={d} />) }
+      {visit.diagnoses.map(d => (
+        <DiagnosisRow key={d} icd10={d} />
+      ))}
     </FullWidthDetailRow>
     <FullWidthDetailRow label="Procedures">
-      { visit.procedures.map(p => <ProcedureRow key={p.code} cpt={p.code} />) }
+      {visit.procedures.map(p => (
+        <ProcedureRow key={p.code} cpt={p.code} />
+      ))}
     </FullWidthDetailRow>
     <FullWidthDetailRow label="Discharge medicines">
-      { visit.medication.map(m => <MedicineRow key={m} icd10={d} />) }
+      {visit.medication.map(m => (
+        <MedicineRow key={m} icd10={m} />
+      ))}
     </FullWidthDetailRow>
   </DetailTable>
 ));
