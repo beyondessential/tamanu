@@ -71,6 +71,7 @@ export class Table extends React.Component {
     rowsPerPage: PropTypes.number,
     onRowClick: PropTypes.func,
     rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
+    rowIdKey: PropTypes.string,
   };
 
   static defaultProps = {
@@ -87,6 +88,7 @@ export class Table extends React.Component {
     onRowClick: () => null,
     rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
     rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,
+    rowIdKey: '_id', // specific to data expected for tamanu REST api fetches
   };
 
   getErrorMessage() {
@@ -131,7 +133,7 @@ export class Table extends React.Component {
   }
 
   renderBodyContent() {
-    const { data, columns, onRowClick, errorMessage } = this.props;
+    const { data, columns, onRowClick, errorMessage, rowIdKey } = this.props;
     const error = this.getErrorMessage();
     if (error) {
       return (
@@ -140,9 +142,10 @@ export class Table extends React.Component {
         </ErrorRow>
       );
     }
-    return data.map((rowData, i) => (
-      <Row data={rowData} key={i} columns={columns} onClick={onRowClick} />
-    ));
+    return data.map(rowData => {
+      const key = rowData[rowIdKey] || rowData[columns[0].key];
+      return <Row data={rowData} key={key} columns={columns} onClick={onRowClick} />;
+    });
   }
 
   renderPaginator() {
