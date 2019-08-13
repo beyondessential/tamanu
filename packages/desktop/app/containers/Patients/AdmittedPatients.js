@@ -44,6 +44,7 @@ export const AdmittedPatients = React.memo(() => (
       columns={COLUMNS}
       noDataMessage="No patients found."
       fetchOptions={{ admitted: true }}
+      noDataMessage="No admitted patients match your search"
     />
   </React.Fragment>
 ));

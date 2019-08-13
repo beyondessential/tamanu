@@ -28,7 +28,7 @@ export default function(req, res) {
         objects = objects.filtered(`_id = '${id}'`);
         if (objects.length <= 0) return res.status(404).end();
         // Get first item from the list
-        const object = objectToJSON(head(objects), OBJECTS_MAX_DEPTH);
+        const object = objectToJSON(objects[0], OBJECTS_MAX_DEPTH);
         return res.json(object);
       }
 
