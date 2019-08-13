@@ -25,14 +25,35 @@ const Column = styled.div`
   }
 `;
 
+const DiagnosisRow = ({ icd10 }) => (
+  <div>{ icd10 }</div>
+);
+
+const ProcedureRow = ({ cpt }) => (
+  <div>{ cpt }</div>
+);
+
+const MedicineRow = ({ drug, prescription }) => (
+  <React.Fragment>
+    <div>{ drug }</div>
+    <div>{ prescription }</div>
+  </React.Fragment>
+);
+
 const VisitOverview = React.memo(({ visit }) => (
   <DetailTable width="12rem">
     <DetailRow label="Admission date"><DateDisplay date={visit.startDate} /></DetailRow>
     <DetailRow label="Supervising physician">{visit.examiner}</DetailRow>
     <DetailRow label="Reason for visit">{visit.reasonForVisit || "Not specified"}</DetailRow>
-    <FullWidthDetailRow label="Diagnoses">diagnoses</FullWidthDetailRow>
-    <FullWidthDetailRow label="Procedures">procedures</FullWidthDetailRow>
-    <FullWidthDetailRow label="Discharge medicines">medicines</FullWidthDetailRow>
+    <FullWidthDetailRow label="Diagnoses">
+      { visit.diagnoses.map(d => <DiagnosisRow key={d} icd10={d} />) }
+    </FullWidthDetailRow>
+    <FullWidthDetailRow label="Procedures">
+      { visit.procedures.map(p => <ProcedureRow key={p.code} cpt={p.code} />) }
+    </FullWidthDetailRow>
+    <FullWidthDetailRow label="Discharge medicines">
+      { visit.medication.map(m => <MedicineRow key={m} icd10={d} />) }
+    </FullWidthDetailRow>
   </DetailTable>
 ));
 
