@@ -23,7 +23,9 @@ const buttonContainerStyle = {
   textAlign: 'right',
 };
 
-export const ReportTable = ({ data }) => {
+export const ReportTable = ({ data, hidden }) => {
+  if (hidden) return null;
+
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState(dataColumns[0].key);
   const [page, setPage] = useState(0);

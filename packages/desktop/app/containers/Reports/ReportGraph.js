@@ -80,8 +80,12 @@ const renderGraph = (report, data) => {
   return render(data);
 };
 
-export const ReportGraph = ({ report, data }) => (
-  <div style={graphStyle}>
-    <ResponsiveContainer>{renderGraph(report, data)}</ResponsiveContainer>
-  </div>
-);
+export const ReportGraph = ({ report, data, hidden }) => {
+  if (hidden) return null;
+
+  return (
+    <div style={graphStyle}>
+      <ResponsiveContainer>{renderGraph(report, data)}</ResponsiveContainer>
+    </div>
+  );
+};

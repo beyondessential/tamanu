@@ -114,7 +114,6 @@ export const datasetOptions = generateDummyOptions(`
   Procedures
   Visits
   Medications
-  Custom...
 `);
 
 export const medicationOptions = generateDummyOptions(`
@@ -151,6 +150,12 @@ export const visualisationOptions = [
     graphType: 'pie',
     label: 'Pie chart',
     value: REPORT_TYPES.PIE_CHART,
+  },
+  {
+    dataType: 'numeric',
+    graphType: 'table',
+    label: 'Table',
+    value: REPORT_TYPES.TABLE,
   },
 ];
 
