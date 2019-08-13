@@ -29,7 +29,7 @@ export const PatientListing = React.memo(() => {
     <PageContainer>
       <TopBar title="Patient listing">
         <Button color="primary" variant="contained" onClick={() => push('/this-goes-nowhere')}>
-          New patient
+          Create new patient
         </Button>
       </TopBar>
       <PatientSearchBar onSearch={setSearchParameters} />
