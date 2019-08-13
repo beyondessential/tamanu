@@ -1,4 +1,4 @@
-import { parseInt, ceil, head, isEmpty } from 'lodash';
+import { parseInt, isEmpty } from 'lodash';
 import { objectToJSON } from '../../utils';
 
 export default function(req, res) {
