@@ -19,12 +19,10 @@ export class TamanuApi {
       },
       ...config,
     });
-    if(response.ok) {
+    if (response.ok) {
       return response.json();
-    } else {
-      console.warn(response);
-      throw new Error(response.status);
     }
+    throw new Error(response.status);
   }
 
   async get(endpoint, query) {

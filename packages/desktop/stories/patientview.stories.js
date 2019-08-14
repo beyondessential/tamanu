@@ -4,9 +4,8 @@ import { storiesOf } from '@storybook/react';
 
 import { PatientHeader } from '../app/components/PatientHeader';
 
-import { createDummyPatient, createDummyVisit } from './dummyPatient';
+import { createDummyPatient } from './dummyPatient';
 
-storiesOf('PatientHeader', module)
-  .add('Default', () => (
-    <PatientHeader patient={createDummyPatient()} />
-  ))
+storiesOf('PatientHeader', module).add('Default', () => (
+  <PatientHeader patient={createDummyPatient()} />
+));

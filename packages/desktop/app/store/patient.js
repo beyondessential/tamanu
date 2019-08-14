@@ -1,5 +1,4 @@
 import { createReducer } from '../utils/createReducer';
-import { createDummyPatient } from '../../stories/dummyPatient';
 
 // actions
 const PATIENT_LOAD_START = 'PATIENT_LOAD_START';

@@ -64,16 +64,6 @@ const ALLERGIES = split(`
   Nevirapine
 `);
 
-function randomAllergies() {
-  const amount = chance.natural({ max: 3 });
-  return chance.pickset(ALLERGIES, amount).map(allergy => ({
-    _id: shortid.generate(),
-    name: allergy,
-    practitioner: chance.pick(PRACTITIONERS).value,
-    date: randomDate(),
-  }));
-}
-
 const CONDITIONS = split(`
   Alzheimer
   Amputated left arm
@@ -99,7 +89,17 @@ function randomDate(minDaysAgo = 1, maxDaysAgo = 365) {
   return new Date(Date.now() - ago);
 }
 
-function randomConditions() {
+export function randomAllergies() {
+  const amount = chance.natural({ max: 3 });
+  return chance.pickset(ALLERGIES, amount).map(allergy => ({
+    _id: shortid.generate(),
+    name: allergy,
+    practitioner: chance.pick(PRACTITIONERS).value,
+    date: randomDate(),
+  }));
+}
+
+export function randomConditions() {
   const amount = chance.natural({ max: 3 });
   return chance.pickset(CONDITIONS, amount).map(condition => ({
     _id: shortid.generate(),
@@ -109,7 +109,7 @@ function randomConditions() {
   }));
 }
 
-function randomVitals(overrides) {
+export function randomVitals(overrides) {
   return {
     _id: shortid.generate(),
     dateRecorded: randomDate(),

@@ -34,9 +34,9 @@ const AllergyDisplay = React.memo(({ patient }) => (
   <ListDisplay items={patient.allergies.map(x => x.name)} />
 ));
 
-const OperativePlanDisplay = React.memo(({ patient }) => <ListDisplay items={[]} />);
+const OperativePlanDisplay = React.memo(() => <ListDisplay items={[]} />);
 
-const PatientIssuesDisplay = React.memo(({ patient }) => <ListDisplay items={[]} />);
+const PatientIssuesDisplay = React.memo(() => <ListDisplay items={[]} />);
 
 export const PatientHeader = React.memo(({ patient }) => (
   <ContentPane>
