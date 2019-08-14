@@ -8,12 +8,32 @@ import { LoadingIndicator } from '../components/LoadingIndicator';
 import { TabDisplay } from '../components/TabDisplay';
 import { PatientHeader } from '../components/PatientHeader';
 import { ContentPane } from '../components/ContentPane';
+import { Table } from '../components/Table';
+
+const vitalsColumns = [
+  { key: 'dateRecorded', title: 'Date' },
+  { key: 'height', title: 'Height' },
+  { key: 'weight', title: 'Weight' },
+  { key: 'temperature', title: 'Temperature' },
+  { key: 'sbp', title: 'SBP' },
+  { key: 'dbp', title: 'DBP' },
+  { key: 'heartRate', title: 'Heart rate' },
+  { key: 'respiratoryRate', title: 'Respiratory rate' },
+];
+
+const VitalsDisplay = connect(state => ({ readings: state.visit.vitals }))(({ readings }) => {
+  return (
+    <div>
+      <Table columns={vitalsColumns} data={readings} />
+    </div>
+  );
+});
 
 const TABS = [
   {
     label: 'Vitals',
     key: 'vitals',
-    render: () => <ContentPane>Vitals</ContentPane>,
+    render: () => <VitalsDisplay />,
   },
   {
     label: 'Notes',
