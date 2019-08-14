@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import { connect } from 'react-redux';
+import { push } from 'connected-react-router';
 
 import TopBar from '../components/TopBar';
 
@@ -9,11 +11,28 @@ import { PatientHistory } from '../components/PatientHistory';
 import { PatientHeader } from '../components/PatientHeader';
 import { ContentPane } from '../components/ContentPane';
 
+import { viewVisit } from '../store/visit';
+
+const ConnectedPatientHeader = connect(
+  state => ({ ...state.patient }),
+)(({ loading, ...patient }) => (
+  loading 
+    ? <div>{ `Loading patient ${patient.id}` }</div>
+    : <PatientHeader patient={patient} />
+));
+
+const ConnectedPatientHistory = connect(
+  state => ({ items: state.patient.visits }),
+  dispatch => ({
+    onItemClick: item => dispatch(viewVisit(item._id)),
+  }),
+)(PatientHistory);
+
 const TABS = [
   {
     label: 'History',
     key: 'history',
-    render: ({ patient }) => <PatientHistory items={patient.visits} />,
+    render: () => <ConnectedPatientHistory />,
   },
   {
     label: 'Details',
@@ -32,14 +51,6 @@ const TABS = [
   },
 ];
 
-function isVisitCurrent(visit) {
-  return !visit.endDate;
-}
-
-function getCurrentVisit(patient) {
-  return patient.visits.find(isVisitCurrent);
-}
-
 const Preloader = ({ loading, children }) => (
   loading 
     ? <div>Loading...</div>
@@ -52,8 +63,7 @@ const Columns = styled.div`
 `;
 
 export const PatientView = React.memo(({ patient, loading }) => {
-  const currentVisit = getCurrentVisit(patient);
-  const [currentTab, setCurrentTab] = React.useState(currentVisit ? 'visit' : 'history');
+  const [currentTab, setCurrentTab] = React.useState('history');
   return (
     <React.Fragment>
       <TopBar title={patient.name} />
@@ -72,3 +82,7 @@ export const PatientView = React.memo(({ patient, loading }) => {
     </React.Fragment>
   );
 });
+
+export const PatientView = connect(
+  state => ({ loading: state.patient.loading, patient: state.patient })
+)(DumbPatientView);

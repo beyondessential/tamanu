@@ -22,17 +22,17 @@ const HistoryCell = styled.div`
   text-align: center;
 `;
 
-const HistoryItem = ({ item }) => (
-  <HistoryRow highlight={!item.endDate}>
+const HistoryItem = React.memo(({ item, onClick }) => (
+  <HistoryRow highlight={!item.endDate} onClick={() => onClick && onClick(item)}>
     <HistoryCell><DateDisplay date={item.startDate} /></HistoryCell>
     <div>&mdash;</div>
     <HistoryCell>{ item.endDate ? <DateDisplay date={item.endDate} /> : "CURRENT" }</HistoryCell>
     <div>{ item.visitType }</div>
   </HistoryRow>
-);
+));
 
-export const PatientHistory = ({ items }) => (
+export const PatientHistory = ({ items, onItemClick }) => (
   <div>
-    { items.map(v => <HistoryItem item={v} key={v._id} />) }
+    { items.map(v => <HistoryItem item={v} onClick={onItemClick} key={v._id} />) }
   </div>
 );
