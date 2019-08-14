@@ -46,7 +46,6 @@ export default function(req, res) {
         const valueString = isString ? `"${newValue}"` : newValue;
         filters.push(`${field} ${operator} ${valueString}`);
       });
-      console.log(filters);
 
       // Filter collection on all filters
       if (!isEmpty(filters)) objects = objects.filtered(filters.join(' AND '));
