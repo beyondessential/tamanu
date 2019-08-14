@@ -23,7 +23,17 @@ const persistedReducers = persistCombineReducers(
 );
 const store = createStore(persistedReducers, {}, enhancers);
 const persistor = persistStore(store);
-// persistor.purge(); // Uncomment this to wipe bad redux state during development
+
+// if you run into problems with redux state, call "purge()" in the dev console
+if(window.localStorage.getItem("queuePurge") === true) {
+  persistor.purge();
+  window.localStorage.setItem("queuePurge", false);
+}
+
+window.purge = () => {
+  window.localStorage.setItem("queuePurge", true);
+  window.location.reload();
+}
 
 render(
   <Root persistor={persistor} store={store} history={history} />,
