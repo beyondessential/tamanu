@@ -7,16 +7,13 @@ import { createDummyVisit } from '../../stories/dummyPatient';
 const VISIT_LOAD_START = 'VISIT_LOAD_START';
 const VISIT_LOAD_FINISH = 'VISIT_LOAD_FINISH';
 
-export const viewVisit = id => async dispatch => {
+export const viewVisit = id => async (dispatch, getState, { api }) => {
   dispatch({ type: VISIT_LOAD_START, id });
   dispatch(push('/patients/visit'));
 
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  const visit = await api.get(`visit/${id}`);
 
-  dispatch({
-    type: VISIT_LOAD_FINISH,
-    visit: createDummyVisit({ _id: id }),
-  });
+  dispatch({ type: VISIT_LOAD_FINISH, visit });
 };
 
 // reducers
