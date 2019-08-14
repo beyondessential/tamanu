@@ -8,8 +8,8 @@ import {
 } from '../../components';
 import { push } from 'connected-react-router';
 import { displayId, firstName, lastName, sex, dateOfBirth } from './columns';
+import { PATIENT_SEARCH_ENDPOINT } from './constants';
 
-const ENDPOINT = 'patient';
 const COLUMNS = [
   displayId,
   firstName,
@@ -34,7 +34,7 @@ export const PatientListing = React.memo(() => {
       </TopBar>
       <PatientSearchBar onSearch={setSearchParameters} />
       <DataFetchingTable
-        endpoint={ENDPOINT}
+        endpoint={PATIENT_SEARCH_ENDPOINT}
         columns={COLUMNS}
         fetchOptions={searchParameters}
         noDataMessage="No patients found"
