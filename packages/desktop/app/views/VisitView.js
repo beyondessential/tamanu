@@ -9,6 +9,7 @@ import { TabDisplay } from '../components/TabDisplay';
 import { PatientHeader } from '../components/PatientHeader';
 import { ContentPane } from '../components/ContentPane';
 import { Table } from '../components/Table';
+import { DateDisplay } from '../components/DateDisplay';
 
 const vitalsColumns = [
   { key: 'dateRecorded', title: 'Date' },
@@ -60,7 +61,14 @@ const TABS = [
 export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
 
-  const title = `${patient.firstName} ${patient.lastName} – ${visit.visitType}`;
+  const title = (
+    <span>
+      <span>{`${patient.firstName} ${patient.lastName}`}</span>
+      <span>{` – ${visit.visitType}`}</span>
+      <span> – </span>
+      <DateDisplay date={visit.startDate} />
+    </span>
+  );
 
   return (
     <React.Fragment>
