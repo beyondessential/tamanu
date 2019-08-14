@@ -1,3 +1,5 @@
+import { push } from 'connected-react-router';
+
 import { createReducer } from '../utils/createReducer';
 import { createDummyVisit } from '../../stories/dummyPatient';
 
@@ -7,6 +9,7 @@ const VISIT_LOAD_FINISH = "VISIT_LOAD_FINISH";
 
 export const viewVisit = (id) => async dispatch => {
   dispatch({ type: VISIT_LOAD_START, id });
+  dispatch(push("/patients/visit"));
 
   await new Promise(resolve => setTimeout(resolve, 1000));
 

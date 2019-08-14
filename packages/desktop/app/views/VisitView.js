@@ -1,7 +1,11 @@
 import React from 'react';
+import styled from 'styled-components';
+import { connect } from 'react-redux';
 
 import TopBar from '../components/TopBar';
 
+import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
+import { LoadingIndicator } from '../components/LoadingIndicator';
 import { TabDisplay } from '../components/TabDisplay';
 import { PatientHeader } from '../components/PatientHeader';
 import { ContentPane } from '../components/ContentPane';
@@ -34,14 +38,33 @@ const TABS = [
   },
 ];
 
-export const VisitView = React.memo(({ visit, patient }) => {
+export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
+
+  const title = `${patient.name} – ${visit.visitType}`;
 
   return (
     <React.Fragment>
-      <TopBar title={patient.name} />
-      <PatientHeader patient={patient} />
-      <TabDisplay tabs={TABS} currentTab={currentTab} onTabSelect={setCurrentTab} visit={visit} />
+      <TopBar title={title} />
+      <LoadingIndicator loading={loading}>
+        <TwoColumnDisplay>
+          <PatientHeader patient={patient} />
+          <TabDisplay
+            tabs={TABS}
+            currentTab={currentTab}
+            onTabSelect={setCurrentTab}
+            visit={visit}
+          />
+        </TwoColumnDisplay>
+      </LoadingIndicator>
     </React.Fragment>
   );
 });
+
+export const VisitView = connect(
+  state => ({ 
+    loading: state.visit.loading, 
+    visit: state.visit,
+    patient: state.patient
+  })
+)(DumbVisitView);

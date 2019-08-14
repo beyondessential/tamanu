@@ -6,6 +6,8 @@ import { push } from 'connected-react-router';
 import TopBar from '../components/TopBar';
 
 import { TabDisplay } from '../components/TabDisplay';
+import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
+import { LoadingIndicator } from '../components/LoadingIndicator';
 import { PatientAlert } from '../components/PatientAlert';
 import { PatientHistory } from '../components/PatientHistory';
 import { PatientHeader } from '../components/PatientHeader';
@@ -51,25 +53,14 @@ const TABS = [
   },
 ];
 
-const Preloader = ({ loading, children }) => (
-  loading 
-    ? <div>Loading...</div>
-    : children
-);
-
-const Columns = styled.div`
-  display: grid;
-  grid-template-columns: 20rem auto;
-`;
-
-export const PatientView = React.memo(({ patient, loading }) => {
+export const DumbPatientView = React.memo(({ patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('history');
   return (
     <React.Fragment>
       <TopBar title={patient.name} />
-      <Preloader loading={loading}>
+      <LoadingIndicator loading={loading}>
         <PatientAlert alerts={patient.alerts} />
-        <Columns>
+        <TwoColumnDisplay>
           <PatientHeader patient={patient} />
           <TabDisplay
             tabs={TABS}
@@ -77,8 +68,8 @@ export const PatientView = React.memo(({ patient, loading }) => {
             onTabSelect={setCurrentTab}
             patient={patient}
           />
-        </Columns>
-      </Preloader>
+        </TwoColumnDisplay>
+      </LoadingIndicator>
     </React.Fragment>
   );
 });
