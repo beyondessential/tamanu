@@ -66,7 +66,12 @@ const ALLERGIES = split(`
 
 function randomAllergies() {
   const amount = chance.natural({ max: 3 });
-  return chance.pickset(ALLERGIES, amount);
+  return chance.pickset(ALLERGIES, amount).map(allergy => ({
+    _id: shortid.generate(),
+    name: allergy,
+    practitioner: chance.pick(PRACTITIONERS).value,
+    date: randomDate(),
+  }));
 }
 
 const CONDITIONS = split(`
@@ -97,7 +102,8 @@ function randomDate(minDaysAgo = 1, maxDaysAgo = 365) {
 function randomConditions() {
   const amount = chance.natural({ max: 3 });
   return chance.pickset(CONDITIONS, amount).map(condition => ({
-    name: condition,
+    _id: shortid.generate(),
+    condition,
     practitioner: chance.pick(PRACTITIONERS).value,
     date: randomDate(),
   }));
@@ -155,8 +161,8 @@ export function createDummyPatient(overrides = {}) {
     dateOfBirth: chance.birthday(),
     visits: new Array(chance.natural({ max: 5 })).fill(0).map(() => createDummyVisit(false)),
     alerts: [],
-    allergies: randomAllergies(),
-    conditions: randomConditions(),
+    allergies: [],
+    conditions: [],
     ...overrides,
   };
 }
