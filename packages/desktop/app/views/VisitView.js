@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 import { connect } from 'react-redux';
 
 import TopBar from '../components/TopBar';
@@ -61,10 +60,8 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   );
 });
 
-export const VisitView = connect(
-  state => ({ 
-    loading: state.visit.loading, 
-    visit: state.visit,
-    patient: state.patient
-  })
-)(DumbVisitView);
+export const VisitView = connect(state => ({
+  loading: state.visit.loading,
+  visit: state.visit,
+  patient: state.patient,
+}))(DumbVisitView);

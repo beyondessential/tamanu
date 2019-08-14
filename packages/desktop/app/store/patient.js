@@ -2,16 +2,16 @@ import { createReducer } from '../utils/createReducer';
 import { createDummyPatient } from '../../stories/dummyPatient';
 
 // actions
-const PATIENT_LOAD_START = "PATIENT_LOAD_START";
-const PATIENT_LOAD_FINISH = "PATIENT_LOAD_FINISH";
+const PATIENT_LOAD_START = 'PATIENT_LOAD_START';
+const PATIENT_LOAD_FINISH = 'PATIENT_LOAD_FINISH';
 
-export const viewPatient = (id) => async dispatch => {
+export const viewPatient = id => async dispatch => {
   dispatch({ type: PATIENT_LOAD_START, id });
 
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   dispatch({
-    type: PATIENT_LOAD_FINISH, 
+    type: PATIENT_LOAD_FINISH,
     patient: createDummyPatient({ _id: id }),
   });
 };
@@ -24,11 +24,11 @@ const defaultState = {
 };
 
 const handlers = {
-  [PATIENT_LOAD_START]: (action) => ({ 
+  [PATIENT_LOAD_START]: action => ({
     loading: true,
     id: action.id,
   }),
-  [PATIENT_LOAD_FINISH]: (action) => ({ 
+  [PATIENT_LOAD_FINISH]: action => ({
     loading: false,
     ...action.patient,
   }),

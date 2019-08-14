@@ -4,8 +4,8 @@ import { authReducer } from './auth';
 import { patientReducer } from './store/patient';
 import { visitReducer } from './store/visit';
 
-export const createReducers = history => ({ 
-  auth: authReducer, 
+export const createReducers = history => ({
+  auth: authReducer,
   router: connectRouter(history),
   patient: patientReducer,
   visit: visitReducer,

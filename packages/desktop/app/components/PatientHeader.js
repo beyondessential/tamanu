@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Button } from './Button';
-import { FormGrid } from './FormGrid';
 import { DateDisplay } from './DateDisplay';
 import { DetailTable, DetailRow, FullWidthDetailRow } from './DetailTable';
 import { ContentPane } from './ContentPane';
@@ -12,7 +11,7 @@ const DataList = styled.ul`
   padding: 0;
 `;
 
-const ListDisplay = React.memo(({ items = [], title, onEdit }) => (
+const ListDisplay = React.memo(({ items = [], onEdit }) => (
   <div>
     <DataList>
       {items.length > 0 ? (
@@ -28,20 +27,16 @@ const ListDisplay = React.memo(({ items = [], title, onEdit }) => (
 ));
 
 const OngoingConditionDisplay = React.memo(({ patient }) => (
-  <ListDisplay title="Conditions" items={patient.conditions.map(x => x.name)} />
+  <ListDisplay items={patient.conditions.map(x => x.name)} />
 ));
 
-const AllergyDisplay = React.memo(({ patient }) => (
-  <ListDisplay title="Allergies" items={patient.allergies} />
-));
+const AllergyDisplay = React.memo(({ patient }) => <ListDisplay items={patient.allergies} />);
 
 const OperativePlanDisplay = React.memo(({ patient }) => (
-  <ListDisplay title="Operative Plan" items={patient.operativePlan} />
+  <ListDisplay items={patient.operativePlan} />
 ));
 
-const PatientIssuesDisplay = React.memo(({ patient }) => (
-  <ListDisplay title="Other issues" items={patient.issues} />
-));
+const PatientIssuesDisplay = React.memo(({ patient }) => <ListDisplay items={patient.issues} />);
 
 export const PatientHeader = React.memo(({ patient }) => (
   <ContentPane>

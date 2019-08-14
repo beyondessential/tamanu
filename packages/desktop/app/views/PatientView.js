@@ -1,7 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { push } from 'connected-react-router';
 
 import TopBar from '../components/TopBar';
 
@@ -14,14 +12,6 @@ import { PatientHeader } from '../components/PatientHeader';
 import { ContentPane } from '../components/ContentPane';
 
 import { viewVisit } from '../store/visit';
-
-const ConnectedPatientHeader = connect(
-  state => ({ ...state.patient }),
-)(({ loading, ...patient }) => (
-  loading 
-    ? <div>{ `Loading patient ${patient.id}` }</div>
-    : <PatientHeader patient={patient} />
-));
 
 const ConnectedPatientHistory = connect(
   state => ({ items: state.patient.visits }),
@@ -74,6 +64,7 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
   );
 });
 
-export const PatientView = connect(
-  state => ({ loading: state.patient.loading, patient: state.patient })
-)(DumbPatientView);
+export const PatientView = connect(state => ({
+  loading: state.patient.loading,
+  patient: state.patient,
+}))(DumbPatientView);
