@@ -22,6 +22,7 @@ export class TamanuApi {
     if (response.ok) {
       return response.json();
     }
+    console.error(response);
     throw new Error(response.status);
   }
 
