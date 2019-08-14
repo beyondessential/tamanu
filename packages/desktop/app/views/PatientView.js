@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 
 import TopBar from '../components/TopBar';
 
@@ -9,15 +10,6 @@ import { PatientHeader } from '../components/PatientHeader';
 import { ContentPane } from '../components/ContentPane';
 
 const TABS = [
-  {
-    label: 'Current visit',
-    key: 'visit',
-    render: ({ patient }) => {
-      const visit = getCurrentVisit(patient);
-      if (!visit) return 'No visit';
-      return <ContentPane>{visit.visitType}</ContentPane>;
-    },
-  },
   {
     label: 'History',
     key: 'history',
@@ -48,20 +40,35 @@ function getCurrentVisit(patient) {
   return patient.visits.find(isVisitCurrent);
 }
 
-export const PatientView = React.memo(({ patient }) => {
+const Preloader = ({ loading, children }) => (
+  loading 
+    ? <div>Loading...</div>
+    : children
+);
+
+const Columns = styled.div`
+  display: grid;
+  grid-template-columns: 20rem auto;
+`;
+
+export const PatientView = React.memo(({ patient, loading }) => {
   const currentVisit = getCurrentVisit(patient);
   const [currentTab, setCurrentTab] = React.useState(currentVisit ? 'visit' : 'history');
   return (
     <React.Fragment>
       <TopBar title={patient.name} />
-      <PatientAlert alerts={patient.alerts} />
-      <PatientHeader patient={patient} />
-      <TabDisplay
-        tabs={TABS}
-        currentTab={currentTab}
-        onTabSelect={setCurrentTab}
-        patient={patient}
-      />
+      <Preloader loading={loading}>
+        <PatientAlert alerts={patient.alerts} />
+        <Columns>
+          <PatientHeader patient={patient} />
+          <TabDisplay
+            tabs={TABS}
+            currentTab={currentTab}
+            onTabSelect={setCurrentTab}
+            patient={patient}
+          />
+        </Columns>
+      </Preloader>
     </React.Fragment>
   );
 });

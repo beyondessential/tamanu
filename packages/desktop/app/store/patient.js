@@ -5,7 +5,7 @@ import { createDummyPatient } from '../../stories/dummyPatient';
 const PATIENT_LOAD_START = "PATIENT_LOAD_START";
 const PATIENT_LOAD_FINISH = "PATIENT_LOAD_FINISH";
 
-export const loadPatient = (id) => async dispatch => {
+export const viewPatient = (id) => async dispatch => {
   dispatch({ type: PATIENT_LOAD_START, id });
 
   await new Promise(resolve => setTimeout(resolve, 1000));

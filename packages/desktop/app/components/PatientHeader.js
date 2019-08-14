@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Button } from './Button';
 import { FormGrid } from './FormGrid';
 import { DateDisplay } from './DateDisplay';
-import { DetailTable, DetailRow } from './DetailTable';
+import { DetailTable, DetailRow, FullWidthDetailRow } from './DetailTable';
 import { ContentPane } from './ContentPane';
 
 const DataList = styled.ul`
@@ -14,7 +14,6 @@ const DataList = styled.ul`
 
 const ListDisplay = React.memo(({ items = [], title, onEdit }) => (
   <div>
-    <b>{title}</b>
     <DataList>
       {items.length > 0 ? (
         items.map(x => <li key={x}>{x}</li>)
@@ -46,18 +45,24 @@ const PatientIssuesDisplay = React.memo(({ patient }) => (
 
 export const PatientHeader = React.memo(({ patient }) => (
   <ContentPane>
-    <FormGrid columns={2}>
-      <DetailTable>
-        <DetailRow label="Name" value={patient.name} />
-        <DetailRow label="Sex" value={patient.sex} />
-        <DetailRow label="Date of birth">
-          <DateDisplay date={patient.dateOfBirth} showDuration />
-        </DetailRow>
-      </DetailTable>
-      <PatientIssuesDisplay patient={patient} />
-      <OngoingConditionDisplay patient={patient} />
-      <AllergyDisplay patient={patient} />
-      <OperativePlanDisplay patient={patient} />
-    </FormGrid>
+    <DetailTable>
+      <DetailRow label="Name" value={patient.name} />
+      <DetailRow label="Sex" value={patient.sex} />
+      <DetailRow label="Date of birth">
+        <DateDisplay date={patient.dateOfBirth} showDuration />
+      </DetailRow>
+      <FullWidthDetailRow label="Ongoing conditions">
+        <OngoingConditionDisplay patient={patient} />
+      </FullWidthDetailRow>
+      <FullWidthDetailRow label="Allergies">
+        <AllergyDisplay patient={patient} />
+      </FullWidthDetailRow>
+      <FullWidthDetailRow label="Operative plan">
+        <OperativePlanDisplay patient={patient} />
+      </FullWidthDetailRow>
+      <FullWidthDetailRow label="Other issues">
+        <PatientIssuesDisplay patient={patient} />
+      </FullWidthDetailRow>
+    </DetailTable>
   </ContentPane>
 ));
