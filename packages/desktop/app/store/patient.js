@@ -1,0 +1,37 @@
+import { createReducer } from '../utils/createReducer';
+import { createDummyPatient } from '../../stories/dummyPatient';
+
+// actions
+const PATIENT_LOAD_START = "PATIENT_LOAD_START";
+const PATIENT_LOAD_FINISH = "PATIENT_LOAD_FINISH";
+
+export const loadPatient = (id) => async dispatch => {
+  dispatch({ type: PATIENT_LOAD_START, id });
+
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  dispatch({
+    type: PATIENT_LOAD_FINISH, 
+    patient: createDummyPatient({ _id: id }),
+  });
+};
+
+// reducers
+
+const defaultState = {
+  loading: true,
+  id: null,
+};
+
+const handlers = {
+  [PATIENT_LOAD_START]: (action) => ({ 
+    loading: true,
+    id: action.id,
+  }),
+  [PATIENT_LOAD_FINISH]: (action) => ({ 
+    loading: false,
+    ...action.patient,
+  }),
+};
+
+export const patientReducer = createReducer(defaultState, handlers);
