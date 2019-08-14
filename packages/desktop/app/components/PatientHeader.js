@@ -41,7 +41,7 @@ const PatientIssuesDisplay = React.memo(({ patient }) => <ListDisplay items={pat
 export const PatientHeader = React.memo(({ patient }) => (
   <ContentPane>
     <DetailTable>
-      <DetailRow label="Name" value={patient.name} />
+      <DetailRow label="Name" value={`${patient.firstName} ${patient.lastName}`} />
       <DetailRow label="Sex" value={patient.sex} />
       <DetailRow label="Date of birth">
         <DateDisplay date={patient.dateOfBirth} showDuration />

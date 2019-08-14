@@ -5,15 +5,12 @@ import { createDummyPatient } from '../../stories/dummyPatient';
 const PATIENT_LOAD_START = 'PATIENT_LOAD_START';
 const PATIENT_LOAD_FINISH = 'PATIENT_LOAD_FINISH';
 
-export const viewPatient = id => async dispatch => {
+export const viewPatient = id => async (dispatch, getState, { api }) => {
   dispatch({ type: PATIENT_LOAD_START, id });
 
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  const patient = await api.get(`patient/${id}`);
 
-  dispatch({
-    type: PATIENT_LOAD_FINISH,
-    patient: createDummyPatient({ _id: id }),
-  });
+  dispatch({ type: PATIENT_LOAD_FINISH, patient });
 };
 
 // reducers

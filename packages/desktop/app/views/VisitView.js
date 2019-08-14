@@ -40,7 +40,7 @@ const TABS = [
 export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
 
-  const title = `${patient.name} – ${visit.visitType}`;
+  const title = `${patient.firstName} ${patient.lastName} – ${visit.visitType}`;
 
   return (
     <React.Fragment>

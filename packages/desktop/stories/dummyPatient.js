@@ -105,6 +105,7 @@ function randomConditions() {
 
 function randomVitals(overrides) {
   return {
+    _id: shortid.generate(),
     dateRecorded: randomDate(),
     weight: chance.floating({ min: 60, max: 150 }),
     height: chance.floating({ min: 130, max: 190 }),
@@ -148,7 +149,8 @@ export function createDummyPatient(overrides = {}) {
   const gender = overrides.gender || chance.pick(['male', 'female']);
   return {
     _id: shortid.generate(),
-    name: chance.name({ gender }),
+    firstName: chance.first({ gender }),
+    lastName: chance.last(),
     sex: gender,
     dateOfBirth: chance.birthday(),
     visits: new Array(chance.natural({ max: 5 })).fill(0).map(() => createDummyVisit(false)),

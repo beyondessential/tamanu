@@ -47,7 +47,7 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('history');
   return (
     <React.Fragment>
-      <TopBar title={patient.name} />
+      <TopBar title={`${patient.firstName} ${patient.lastName}`} />
       <LoadingIndicator loading={loading}>
         <PatientAlert alerts={patient.alerts} />
         <TwoColumnDisplay>
