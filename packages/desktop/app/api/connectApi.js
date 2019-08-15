@@ -9,3 +9,10 @@ export const connectApi = mapApiToProps => WrappedComponent => ownProps => (
     }}
   </ApiContext.Consumer>
 );
+
+export const APIForm = connectApi(api => ({ api }))(
+  ({ api, form, endpoint, extraParams, ...otherProps }) => {
+    const onSubmit = data => api.post(endpoint, { ...extraParams, ...data });
+    return React.createElement(form, { ...otherProps, onSubmit });
+  },
+);

@@ -1,39 +1,26 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { push } from 'connected-react-router';
 
 import TopBar from '../components/TopBar';
 
+import { Button } from '../components/Button';
 import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 import { TabDisplay } from '../components/TabDisplay';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { ContentPane } from '../components/ContentPane';
-import { Table } from '../components/Table';
+import { VitalsTable } from '../components/VitalsTable';
 
-const vitalsColumns = [
-  { key: 'dateRecorded', title: 'Date' },
-  { key: 'height', title: 'Height' },
-  { key: 'weight', title: 'Weight' },
-  { key: 'temperature', title: 'Temperature' },
-  { key: 'sbp', title: 'SBP' },
-  { key: 'dbp', title: 'DBP' },
-  { key: 'heartRate', title: 'Heart rate' },
-  { key: 'respiratoryRate', title: 'Respiratory rate' },
-];
-
-const VitalsDisplay = connect(state => ({ readings: state.visit.vitals }))(({ readings }) => {
-  return (
-    <div>
-      <Table columns={vitalsColumns} data={readings} />
-    </div>
-  );
-});
+import { FormGrid } from '../components/FormGrid';
+import { SelectInput, DateInput, TextInput } from '../components/Field';
+import { visitOptions } from '../constants';
 
 const TABS = [
   {
     label: 'Vitals',
     key: 'vitals',
-    render: () => <VitalsDisplay />,
+    render: () => <VitalsTable />,
   },
   {
     label: 'Notes',
@@ -57,23 +44,49 @@ const TABS = [
   },
 ];
 
+const BackLink = connect(
+  null,
+  dispatch => ({ onClick: () => dispatch(push('/patients/view')) }),
+)(({ onClick }) => <Button onClick={onClick}>&lt; Back to patient information</Button>);
+
+const VisitInfoPane = React.memo(({ visit }) => (
+  <FormGrid columns={3}>
+    <DateInput value={visit.startDate} label="Admission date" />
+    <DateInput value={visit.endDate} label="Discharge date" />
+    <TextInput value={visit.location} label="Location" />
+    <SelectInput value={visit.visitType} label="Visit type" options={visitOptions} />
+    <TextInput value={visit.examiner} label="Doctor/nurse" />
+    <TextInput
+      value={visit.reasonForVisit}
+      label="Reason for visit"
+      style={{ gridColumn: 'span 3' }}
+    />
+  </FormGrid>
+));
+
 export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
 
-  const title = `${patient.firstName} ${patient.lastName} – ${visit.visitType}`;
-
   return (
     <React.Fragment>
-      <TopBar title={title} />
+      <TopBar title="Patient visit">
+        <Button>Discharge patient</Button>
+      </TopBar>
       <LoadingIndicator loading={loading}>
         <TwoColumnDisplay>
           <PatientInfoPane patient={patient} />
-          <TabDisplay
-            tabs={TABS}
-            currentTab={currentTab}
-            onTabSelect={setCurrentTab}
-            visit={visit}
-          />
+          <div>
+            <BackLink />
+            <ContentPane>
+              <VisitInfoPane visit={visit} />
+            </ContentPane>
+            <TabDisplay
+              tabs={TABS}
+              currentTab={currentTab}
+              onTabSelect={setCurrentTab}
+              visit={visit}
+            />
+          </div>
         </TwoColumnDisplay>
       </LoadingIndicator>
     </React.Fragment>

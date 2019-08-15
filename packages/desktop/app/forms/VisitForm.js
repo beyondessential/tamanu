@@ -58,7 +58,7 @@ export class VisitForm extends React.PureComponent {
           label="Reason for visit"
           component={TextField}
           multiline
-          rows={4}
+          rows={2}
           style={{ gridColumn: 'span 2' }}
         />
         <div style={{ gridColumn: 2, textAlign: 'right' }}>
