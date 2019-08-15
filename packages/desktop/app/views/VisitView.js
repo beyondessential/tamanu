@@ -1,12 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
-import styled from 'styled-components';
 
 import TopBar from '../components/TopBar';
-
-import { APIForm } from '../api/connectApi';
-import { VisitForm } from '../forms/VisitForm';
 
 import { Button } from '../components/Button';
 import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
@@ -15,7 +11,6 @@ import { TabDisplay } from '../components/TabDisplay';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { ContentPane } from '../components/ContentPane';
 import { VitalsTable } from '../components/VitalsTable';
-import { DateDisplay } from '../components/DateDisplay';
 
 import { FormGrid } from '../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../components/Field';
@@ -61,7 +56,11 @@ const VisitInfoPane = React.memo(({ visit }) => (
     <TextInput value={visit.location} label="Location" />
     <SelectInput value={visit.visitType} label="Visit type" options={visitOptions} />
     <TextInput value={visit.examiner} label="Doctor/nurse" />
-    <TextInput value={visit.reasonForVisit} label="Reason for visit" style={{ gridColumn: "span 3" }} />
+    <TextInput
+      value={visit.reasonForVisit}
+      label="Reason for visit"
+      style={{ gridColumn: 'span 3' }}
+    />
   </FormGrid>
 ));
 
