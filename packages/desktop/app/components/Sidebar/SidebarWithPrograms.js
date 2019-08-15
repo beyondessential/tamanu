@@ -1,34 +1,34 @@
-import React from 'react';
-import { find, isEmpty } from 'lodash';
-import { items, submenuIcons } from './config';
+import React, { useEffect, useState, memo } from 'react';
+import { find } from 'lodash';
+import { submenuIcons } from './config';
 import { Sidebar } from './Sidebar';
 
-export class SidebarWithPrograms extends React.Component {
-  async componentWillMount() {
-    await this.updateProgramsInPlace();
-    this.forceUpdate();
+// TODO fetch programs from api
+const DUMMY_PROGRAM = { name: 'Pregnancy', _id: 'pregnancy' };
+const fetchPrograms = async () => [DUMMY_PROGRAM];
+
+export const SidebarWithPrograms = memo(({ items, ...restOfProps }) => {
+  const [programs, setPrograms] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      const programs = await fetchPrograms();
+      setPrograms(programs);
+    })();
+  }, []); // [] means it will run only once, on first mount
+
+  const itemsWithPrograms = [...items];
+  const programsNav = find(itemsWithPrograms, { key: 'programs' });
+  if (programs.length > 0) {
+    programsNav.hidden = false;
+    programsNav.children = programs.map(({ name, _id: id }) => {
+      return {
+        label: name,
+        path: `/programs/${id}/patients`,
+        icon: submenuIcons.action,
+      };
+    });
   }
 
-  fetchPrograms = async () => []; // TODO fetch programs from api
-
-  async updateProgramsInPlace() {
-    const programs = await this.fetchPrograms();
-
-    const programsNav = find(items, { key: 'programs' });
-    if (!isEmpty(programs)) {
-      programsNav.hidden = false;
-      programsNav.children = programs.map(programString => {
-        const program = programString.toJSON();
-        return {
-          label: program.name,
-          path: `/programs/${program._id}/patients`,
-          icon: submenuIcons.action,
-        };
-      });
-    }
-  }
-
-  render() {
-    return <Sidebar {...this.props} />;
-  }
-}
+  return <Sidebar items={itemsWithPrograms} {...restOfProps} />;
+});

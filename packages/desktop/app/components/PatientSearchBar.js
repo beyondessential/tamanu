@@ -73,7 +73,7 @@ const renderSearchBar = ({ submitForm }) => (
 
 export const PatientSearchBar = memo(({ onSearch }) => {
   // We can't use onSearch directly as formik will call it with an unwanted second param
-  const handleSearch = useCallback(newParams => onSearch(newParams));
+  const handleSearch = useCallback(newParams => onSearch(newParams), [onSearch]);
 
   return (
     <Container>
