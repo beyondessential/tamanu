@@ -13,8 +13,8 @@ export const logout = () => ({
 });
 
 // selectors
-export const checkIsLoggedIn = state => !!getCurrentUser(state);
 export const getCurrentUser = ({ auth }) => auth.user;
+export const checkIsLoggedIn = state => !!getCurrentUser(state);
 
 // reducer
 const defaultState = {
