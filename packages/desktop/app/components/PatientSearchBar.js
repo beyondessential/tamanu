@@ -12,11 +12,20 @@ const Container = styled.div`
   background: #fff;
 `;
 
-const ScanFingerprintButton = styled(FingerprintIcon)`
-  display: block;
-  background: #ffcc24;
-  padding: 12px 10px;
+const ScanFingerprintIcon = styled(FingerprintIcon)`
+  color: #ffcc24;
 `;
+
+const ScanFingerprintButtonContainer = styled.div`
+  text-align: center;
+  margin: auto;
+`;
+
+const ScanFingerprintButton = memo(() => (
+  <ScanFingerprintButtonContainer>
+    <ScanFingerprintIcon fontSize="large" />
+  </ScanFingerprintButtonContainer>
+));
 
 const ScanFingerprintLabel = styled.div`
   font-size: 12px;
@@ -33,6 +42,7 @@ const SectionLabel = styled.div`
 const SearchInputContainer = styled.div`
   display: grid;
   grid-template-columns: 2fr 2fr 2fr 1fr 1fr;
+  grid-column-gap: 7px;
 `;
 
 const PaddedSearchIcon = styled(SearchIcon)`
@@ -71,12 +81,10 @@ export const PatientSearchBar = memo(({ onSearch }) => {
         <SectionLabel>Search for patients</SectionLabel>
         <Form onSubmit={handleSearch} render={renderSearchBar} />
       </Section>
-      <Section>
-        <div style={{ margin: 'auto' }}>
-          <ScanFingerprintButton fontSize="large" />
-        </div>
+      <RightSection>
+        <ScanFingerprintButton />
         <ScanFingerprintLabel>Scan fingerprint</ScanFingerprintLabel>
-      </Section>
+      </RightSection>
     </Container>
   );
 });
