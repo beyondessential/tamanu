@@ -15,7 +15,7 @@ import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
 export const NewPatientForm = memo(
-  ({ editedObject, onCancel, onSubmit, generateId, patientSuggester }) => {
+  ({ editedObject, onCancel, onSubmit, generateId, patientSuggester, facilitySuggester }) => {
     const renderForm = ({ submitForm, values }) => {
       const revealAdditionalFields = values.revealAdditionalFields;
       return (
@@ -47,7 +47,7 @@ export const NewPatientForm = memo(
                 component={AutocompleteField}
                 suggester={patientSuggester}
               />
-              <Field name="externalId" label="External Patient Id" component={TextField} />
+              <Field name="externalId" label="External patient ID" component={TextField} />
               <Field
                 component={RadioField}
                 name="patientType"
@@ -57,6 +57,16 @@ export const NewPatientForm = memo(
                   { value: 'private', label: 'Private' },
                 ]}
                 inline
+              />
+              <Field name="bloodType" label="Blood type" component={TextField} />
+              <Field name="placeOfBirth" label="Place of birth" component={TextField} />
+              <Field name="referredBy" label="Referred by" component={TextField} />
+              <Field name="referredDate" label="Referred date" component={DateField} />
+              <Field
+                name="homeClinic"
+                label="Home clinic"
+                component={AutocompleteField}
+                suggester={facilitySuggester}
               />
             </FormGrid>
           </Collapse>

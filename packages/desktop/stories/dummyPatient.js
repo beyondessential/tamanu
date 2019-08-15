@@ -46,6 +46,20 @@ export const PRACTITIONERS = splitIds(`
   Marissa Bautista
 `);
 
+export const FACILITIES = splitIds(`
+  Balwyn
+  Hawthorn East
+  Kerang
+  Lake Charm
+  Marla
+  Mont Albert
+  National Medical
+  Port Douglas
+  Swan Hill
+  Thornbury
+  Traralgon
+`);
+
 const ALLERGIES = split(`
   Penicillin
   Peanuts

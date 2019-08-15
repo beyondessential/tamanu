@@ -17,7 +17,7 @@ import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
 import { DischargeForm } from '../app/forms/DischargeForm';
 import { NewPatientForm } from '../app/forms/NewPatientForm';
 
-import { createDummyVisit, PATIENTS, LOCATIONS, PRACTITIONERS } from './dummyPatient';
+import { createDummyVisit, PATIENTS, LOCATIONS, PRACTITIONERS, FACILITIES } from './dummyPatient';
 
 function createDummySuggester(options) {
   return {
@@ -31,6 +31,7 @@ function createDummySuggester(options) {
 
 const practitionerSuggester = createDummySuggester(PRACTITIONERS);
 const locationSuggester = createDummySuggester(LOCATIONS);
+const facilitySuggester = createDummySuggester(FACILITIES);
 const patientSuggester = createDummySuggester(
   PATIENTS.map(({ firstName, lastName, _id }) => ({
     label: `${firstName} ${lastName}`,
@@ -124,6 +125,7 @@ storiesOf('Forms', module).add('NewPatientForm', () => (
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     generateId={shortid.generate}
+    facilitySuggester={facilitySuggester}
     patientSuggester={patientSuggester}
   />
 ));
