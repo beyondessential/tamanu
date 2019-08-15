@@ -2,14 +2,18 @@ import { createReducer } from '../utils/createReducer';
 
 // actions
 const PATIENT_LOAD_START = 'PATIENT_LOAD_START';
+const PATIENT_LOAD_ERROR = 'PATIENT_LOAD_ERROR';
 const PATIENT_LOAD_FINISH = 'PATIENT_LOAD_FINISH';
 
 export const viewPatient = id => async (dispatch, getState, { api }) => {
   dispatch({ type: PATIENT_LOAD_START, id });
 
-  const patient = await api.get(`patient/${id}`);
-
-  dispatch({ type: PATIENT_LOAD_FINISH, patient });
+  try {
+    const patient = await api.get(`patient/${id}`);
+    dispatch({ type: PATIENT_LOAD_FINISH, patient });
+  } catch(e) {
+    dispatch({ type: PATIENT_LOAD_ERROR, error: e.message });
+  }
 };
 
 // reducers
@@ -17,12 +21,17 @@ export const viewPatient = id => async (dispatch, getState, { api }) => {
 const defaultState = {
   loading: true,
   id: null,
+  error: "",
 };
 
 const handlers = {
   [PATIENT_LOAD_START]: action => ({
     loading: true,
     id: action.id,
+  }),
+  [PATIENT_LOAD_ERROR]: action => ({
+    loading: false,
+    error: action.error,
   }),
   [PATIENT_LOAD_FINISH]: action => ({
     loading: false,
