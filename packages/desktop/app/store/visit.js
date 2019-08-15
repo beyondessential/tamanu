@@ -1,7 +1,6 @@
 import { push } from 'connected-react-router';
 
 import { createReducer } from '../utils/createReducer';
-import { createDummyVisit } from '../../stories/dummyPatient';
 
 // actions
 const VISIT_LOAD_START = 'VISIT_LOAD_START';

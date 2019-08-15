@@ -38,7 +38,7 @@ const OperativePlanDisplay = React.memo(() => <ListDisplay items={[]} />);
 
 const PatientIssuesDisplay = React.memo(() => <ListDisplay items={[]} />);
 
-export const PatientHeader = React.memo(({ patient }) => (
+export const PatientInfoPane = React.memo(({ patient }) => (
   <ContentPane>
     <DetailTable>
       <DetailRow label="Name" value={`${patient.firstName} ${patient.lastName}`} />

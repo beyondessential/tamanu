@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { push } from 'connected-react-router';
 
 import TopBar from '../components/TopBar';
 
@@ -10,7 +11,7 @@ import { Button } from '../components/Button';
 import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 import { TabDisplay } from '../components/TabDisplay';
-import { PatientHeader } from '../components/PatientHeader';
+import { PatientInfoPane } from '../components/PatientInfoPane';
 import { ContentPane } from '../components/ContentPane';
 import { VitalsTable } from '../components/VitalsTable';
 import { DateDisplay } from '../components/DateDisplay';
@@ -43,11 +44,12 @@ const TABS = [
   },
 ];
 
-const BackLink = () => (
-  <div>
-    <a href="/patients/view" onClick={() => null}>Back to patient information</a>
-  </div>
-);
+const BackLink = connect(
+  null,
+  dispatch => ({ onClick: () => dispatch(push("/patients/view")) }),
+)(({ onClick }) => (
+  <div onClick={onClick}>Back to patient information</div>
+));
 
 export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
@@ -68,7 +70,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
       </TopBar>
       <LoadingIndicator loading={loading}>
         <TwoColumnDisplay>
-          <PatientHeader patient={patient} />
+          <PatientInfoPane patient={patient} />
           <div>
             <BackLink />
             <ContentPane>
