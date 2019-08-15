@@ -10,6 +10,7 @@ import { PaginatedForm } from '../app/components/Field/PaginatedForm';
 import Login from '../app/containers/Auth/Login';
 
 import { VisitForm } from '../app/forms/VisitForm';
+import { VitalsForm } from '../app/forms/VitalsForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
 import { AllergyForm } from '../app/forms/AllergyForm';
 import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
@@ -108,5 +109,12 @@ storiesOf('Forms', module).add('DischargeForm', () => (
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
+  />
+));
+
+storiesOf('Forms', module).add('VitalsForm', () => (
+  <VitalsForm
+    onSubmit={action('submit')}
+    onCancel={action('cancel')}
   />
 ));
