@@ -10,8 +10,8 @@ export class TamanuApi {
     this.authHeader = null;
   }
 
-  async fetch(endpoint, query = {}, config) {
-    const queryString = encodeQueryString(query);
+  async fetch(endpoint, query, config) {
+    const queryString = encodeQueryString(query || {});
     const url = `${this.host}/${endpoint}${query ? `?${queryString}` : ''}`;
     const response = await fetch(url, {
       headers: {
@@ -19,7 +19,11 @@ export class TamanuApi {
       },
       ...config,
     });
-    return response.json();
+    if (response.ok) {
+      return response.json();
+    }
+    console.error(response);
+    throw new Error(response.status);
   }
 
   async get(endpoint, query) {
@@ -29,6 +33,16 @@ export class TamanuApi {
   async post(endpoint, body) {
     return this.fetch(endpoint, null, {
       method: 'POST',
+      body: body && JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
+  async put(endpoint, body) {
+    return this.fetch(endpoint, null, {
+      method: 'PUT',
       body: body && JSON.stringify(body),
       headers: {
         'Content-Type': 'application/json',

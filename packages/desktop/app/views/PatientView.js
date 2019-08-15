@@ -1,27 +1,30 @@
 import React from 'react';
+import { connect } from 'react-redux';
 
 import TopBar from '../components/TopBar';
 
 import { TabDisplay } from '../components/TabDisplay';
+import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
+import { LoadingIndicator } from '../components/LoadingIndicator';
 import { PatientAlert } from '../components/PatientAlert';
 import { PatientHistory } from '../components/PatientHistory';
-import { PatientHeader } from '../components/PatientHeader';
+import { PatientInfoPane } from '../components/PatientInfoPane';
 import { ContentPane } from '../components/ContentPane';
+
+import { viewVisit } from '../store/visit';
+
+const ConnectedPatientHistory = connect(
+  state => ({ items: state.patient.visits }),
+  dispatch => ({
+    onItemClick: item => dispatch(viewVisit(item._id)),
+  }),
+)(PatientHistory);
 
 const TABS = [
   {
-    label: 'Current visit',
-    key: 'visit',
-    render: ({ patient }) => {
-      const visit = getCurrentVisit(patient);
-      if (!visit) return 'No visit';
-      return <ContentPane>{visit.visitType}</ContentPane>;
-    },
-  },
-  {
     label: 'History',
     key: 'history',
-    render: ({ patient }) => <PatientHistory items={patient.visits} />,
+    render: () => <ConnectedPatientHistory />,
   },
   {
     label: 'Details',
@@ -40,28 +43,28 @@ const TABS = [
   },
 ];
 
-function isVisitCurrent(visit) {
-  return !visit.endDate;
-}
-
-function getCurrentVisit(patient) {
-  return patient.visits.find(isVisitCurrent);
-}
-
-export const PatientView = React.memo(({ patient }) => {
-  const currentVisit = getCurrentVisit(patient);
-  const [currentTab, setCurrentTab] = React.useState(currentVisit ? 'visit' : 'history');
+export const DumbPatientView = React.memo(({ patient, loading }) => {
+  const [currentTab, setCurrentTab] = React.useState('history');
   return (
     <React.Fragment>
-      <TopBar title={patient.name} />
-      <PatientAlert alerts={patient.alerts} />
-      <PatientHeader patient={patient} />
-      <TabDisplay
-        tabs={TABS}
-        currentTab={currentTab}
-        onTabSelect={setCurrentTab}
-        patient={patient}
-      />
+      <TopBar title={`${patient.firstName} ${patient.lastName}`} />
+      <LoadingIndicator loading={loading}>
+        <PatientAlert alerts={patient.alerts} />
+        <TwoColumnDisplay>
+          <PatientInfoPane patient={patient} />
+          <TabDisplay
+            tabs={TABS}
+            currentTab={currentTab}
+            onTabSelect={setCurrentTab}
+            patient={patient}
+          />
+        </TwoColumnDisplay>
+      </LoadingIndicator>
     </React.Fragment>
   );
 });
+
+export const PatientView = connect(state => ({
+  loading: state.patient.loading,
+  patient: state.patient,
+}))(DumbPatientView);

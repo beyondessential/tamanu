@@ -8,7 +8,7 @@ const HistoryRow = styled.div`
   grid-template-columns: 5rem 1rem 5rem auto;
   align-items: stretch;
   grid-column-gap: 0.5rem;
-  background: ${ p => p.highlight ? "#ffe" : "#eee" };
+  background: ${p => (p.highlight ? '#ffe' : '#eee')};
   padding: 0.8rem 0rem;
 
   cursor: pointer;
@@ -22,17 +22,21 @@ const HistoryCell = styled.div`
   text-align: center;
 `;
 
-const HistoryItem = ({ item }) => (
-  <HistoryRow highlight={!item.endDate}>
-    <HistoryCell><DateDisplay date={item.startDate} /></HistoryCell>
+const HistoryItem = React.memo(({ item, onClick }) => (
+  <HistoryRow highlight={!item.endDate} onClick={() => onClick && onClick(item)}>
+    <HistoryCell>
+      <DateDisplay date={item.startDate} />
+    </HistoryCell>
     <div>&mdash;</div>
-    <HistoryCell>{ item.endDate ? <DateDisplay date={item.endDate} /> : "CURRENT" }</HistoryCell>
-    <div>{ item.visitType }</div>
+    <HistoryCell>{item.endDate ? <DateDisplay date={item.endDate} /> : 'CURRENT'}</HistoryCell>
+    <div>{item.visitType}</div>
   </HistoryRow>
-);
+));
 
-export const PatientHistory = ({ items }) => (
+export const PatientHistory = ({ items, onItemClick }) => (
   <div>
-    { items.map(v => <HistoryItem item={v} key={v._id} />) }
+    {items.map(v => (
+      <HistoryItem item={v} onClick={onItemClick} key={v._id} />
+    ))}
   </div>
 );

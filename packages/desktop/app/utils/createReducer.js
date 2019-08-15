@@ -8,7 +8,7 @@ export const createReducer = (defaultState = {}, actionHandlers = {}, onRehydrat
   state = defaultState,
   action,
 ) => {
-  const { type, payload } = action;
+  const { type, ...payload } = action;
 
   // if this reducer supplied a rehydration handler and we're rehydrating, use it
   if (type === REHYDRATE) {

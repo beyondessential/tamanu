@@ -64,11 +64,6 @@ const ALLERGIES = split(`
   Nevirapine
 `);
 
-function randomAllergies() {
-  const amount = chance.natural({ max: 3 });
-  return chance.pickset(ALLERGIES, amount);
-}
-
 const CONDITIONS = split(`
   Alzheimer
   Amputated left arm
@@ -94,17 +89,29 @@ function randomDate(minDaysAgo = 1, maxDaysAgo = 365) {
   return new Date(Date.now() - ago);
 }
 
-function randomConditions() {
+export function randomAllergies() {
   const amount = chance.natural({ max: 3 });
-  return chance.pickset(CONDITIONS, amount).map(condition => ({
-    name: condition,
+  return chance.pickset(ALLERGIES, amount).map(allergy => ({
+    _id: shortid.generate(),
+    name: allergy,
     practitioner: chance.pick(PRACTITIONERS).value,
     date: randomDate(),
   }));
 }
 
-function randomVitals(overrides) {
+export function randomConditions() {
+  const amount = chance.natural({ max: 3 });
+  return chance.pickset(CONDITIONS, amount).map(condition => ({
+    _id: shortid.generate(),
+    condition,
+    practitioner: chance.pick(PRACTITIONERS).value,
+    date: randomDate(),
+  }));
+}
+
+export function randomVitals(overrides) {
   return {
+    _id: shortid.generate(),
     dateRecorded: randomDate(),
     weight: chance.floating({ min: 60, max: 150 }),
     height: chance.floating({ min: 130, max: 190 }),
@@ -148,13 +155,14 @@ export function createDummyPatient(overrides = {}) {
   const gender = overrides.gender || chance.pick(['male', 'female']);
   return {
     _id: shortid.generate(),
-    name: chance.name({ gender }),
+    firstName: chance.first({ gender }),
+    lastName: chance.last(),
     sex: gender,
     dateOfBirth: chance.birthday(),
     visits: new Array(chance.natural({ max: 5 })).fill(0).map(() => createDummyVisit(false)),
     alerts: [],
-    allergies: randomAllergies(),
-    conditions: randomConditions(),
+    allergies: [],
+    conditions: [],
     ...overrides,
   };
 }
