@@ -3,38 +3,23 @@ import { connect } from 'react-redux';
 
 import TopBar from '../components/TopBar';
 
+import { APIForm } from '../api/connectApi';
+import { VisitForm } from '../forms/VisitForm';
+
+import { Button } from '../components/Button';
 import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 import { TabDisplay } from '../components/TabDisplay';
 import { PatientHeader } from '../components/PatientHeader';
 import { ContentPane } from '../components/ContentPane';
-import { Table } from '../components/Table';
+import { VitalsTable } from '../components/VitalsTable';
 import { DateDisplay } from '../components/DateDisplay';
-
-const vitalsColumns = [
-  { key: 'dateRecorded', title: 'Date' },
-  { key: 'height', title: 'Height' },
-  { key: 'weight', title: 'Weight' },
-  { key: 'temperature', title: 'Temperature' },
-  { key: 'sbp', title: 'SBP' },
-  { key: 'dbp', title: 'DBP' },
-  { key: 'heartRate', title: 'Heart rate' },
-  { key: 'respiratoryRate', title: 'Respiratory rate' },
-];
-
-const VitalsDisplay = connect(state => ({ readings: state.visit.vitals }))(({ readings }) => {
-  return (
-    <div>
-      <Table columns={vitalsColumns} data={readings} />
-    </div>
-  );
-});
 
 const TABS = [
   {
     label: 'Vitals',
     key: 'vitals',
-    render: () => <VitalsDisplay />,
+    render: () => <VitalsTable />,
   },
   {
     label: 'Notes',
@@ -58,6 +43,12 @@ const TABS = [
   },
 ];
 
+const BackLink = () => (
+  <div>
+    <a href="/patients/view" onClick={() => null}>Back to patient information</a>
+  </div>
+);
+
 export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
 
@@ -72,16 +63,24 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
 
   return (
     <React.Fragment>
-      <TopBar title={title} />
+      <TopBar title="Patient visit">
+        <Button>Discharge patient</Button>
+      </TopBar>
       <LoadingIndicator loading={loading}>
         <TwoColumnDisplay>
           <PatientHeader patient={patient} />
-          <TabDisplay
-            tabs={TABS}
-            currentTab={currentTab}
-            onTabSelect={setCurrentTab}
-            visit={visit}
-          />
+          <div>
+            <BackLink />
+            <ContentPane>
+              <VisitForm editedObject={visit} onSubmit={() => null} />
+            </ContentPane>
+            <TabDisplay
+              tabs={TABS}
+              currentTab={currentTab}
+              onTabSelect={setCurrentTab}
+              visit={visit}
+            />
+          </div>
         </TwoColumnDisplay>
       </LoadingIndicator>
     </React.Fragment>
