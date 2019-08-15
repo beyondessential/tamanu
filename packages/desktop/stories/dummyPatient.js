@@ -167,3 +167,5 @@ export function createDummyPatient(overrides = {}) {
     ...overrides,
   };
 }
+
+export const PATIENTS = new Array(50).fill(0).map(() => createDummyPatient());

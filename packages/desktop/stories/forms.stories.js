@@ -1,5 +1,6 @@
 import React from 'react';
 
+import shortid from 'shortid';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
@@ -14,8 +15,9 @@ import { ProcedureForm } from '../app/forms/ProcedureForm';
 import { AllergyForm } from '../app/forms/AllergyForm';
 import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
 import { DischargeForm } from '../app/forms/DischargeForm';
+import { NewPatientForm } from '../app/forms/NewPatientForm';
 
-import { createDummyVisit, LOCATIONS, PRACTITIONERS } from './dummyPatient';
+import { createDummyVisit, PATIENTS, LOCATIONS, PRACTITIONERS } from './dummyPatient';
 
 function createDummySuggester(options) {
   return {
@@ -29,6 +31,12 @@ function createDummySuggester(options) {
 
 const practitionerSuggester = createDummySuggester(PRACTITIONERS);
 const locationSuggester = createDummySuggester(LOCATIONS);
+const patientSuggester = createDummySuggester(
+  PATIENTS.map(({ firstName, lastName, _id }) => ({
+    label: `${firstName} ${lastName}`,
+    value: _id,
+  })),
+);
 
 storiesOf('Forms', module).add('PaginatedForm', () => (
   <PaginatedForm
@@ -108,5 +116,14 @@ storiesOf('Forms', module).add('DischargeForm', () => (
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
+  />
+));
+
+storiesOf('Forms', module).add('NewPatientForm', () => (
+  <NewPatientForm
+    onSubmit={action('submit')}
+    onCancel={action('cancel')}
+    generateId={shortid.generate}
+    patientSuggester={patientSuggester}
   />
 ));
