@@ -13,7 +13,7 @@ router.post('/log', (req, res) => {
   res.send({});
 });
 
-// this middleware must be added last as it includes a 
+// this middleware must be added last as it includes a
 // catch-all url that will supersede anything below it
 router.use('/', restfulRoutes);
 

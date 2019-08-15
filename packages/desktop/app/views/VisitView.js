@@ -46,22 +46,11 @@ const TABS = [
 
 const BackLink = connect(
   null,
-  dispatch => ({ onClick: () => dispatch(push("/patients/view")) }),
-)(({ onClick }) => (
-  <div onClick={onClick}>Back to patient information</div>
-));
+  dispatch => ({ onClick: () => dispatch(push('/patients/view')) }),
+)(({ onClick }) => <Button onClick={onClick}>&lt; Back to patient information</Button>);
 
 export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
-
-  const title = (
-    <span>
-      <span>{`${patient.firstName} ${patient.lastName}`}</span>
-      <span>{` – ${visit.visitType}`}</span>
-      <span> – </span>
-      <DateDisplay date={visit.startDate} />
-    </span>
-  );
 
   return (
     <React.Fragment>

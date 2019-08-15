@@ -15,23 +15,29 @@ const vitalsRows = [
 
 const DumbVitalsTable = React.memo(({ readings }) => {
   // create a column for each reading
-  const dataColumns = [{ key: 'title', title: 'Measure' }, ...readings.map(r => ({ 
-    title: r.dateRecorded, 
-    key: r.dateRecorded 
-  }))];
+  const dataColumns = [
+    { key: 'title', title: 'Measure' },
+    ...readings.map(r => ({
+      title: r.dateRecorded,
+      key: r.dateRecorded,
+    })),
+  ];
   // function to create an object containing a single metric's value for each reading
-  const dateZip = key => readings.reduce((state, current) => ({ 
-    ...state,
-    [current.dateRecorded]: current[key].toFixed(1),
-  }), {});
+  const dateZip = key =>
+    readings.reduce(
+      (state, current) => ({
+        ...state,
+        [current.dateRecorded]: current[key].toFixed(1),
+      }),
+      {},
+    );
   // assemble the rows for the table
   const rows = vitalsRows.map(row => ({
     title: row.title,
-    ...dateZip(row.key)
+    ...dateZip(row.key),
   }));
   // and return the table
   return <Table columns={dataColumns} data={rows} />;
 });
 
 export const VitalsTable = connect(state => ({ readings: state.visit.vitals }))(DumbVitalsTable);
-
