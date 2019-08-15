@@ -16,9 +16,9 @@ export const TextField = ({ field, ...props }) => (
 );
 
 TextInput.propTypes = {
-  name: PropTypes.string.isRequired,
+  name: PropTypes.string,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   fullWidth: PropTypes.bool,
 };
 
