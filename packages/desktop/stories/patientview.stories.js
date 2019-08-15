@@ -2,10 +2,10 @@ import React from 'react';
 
 import { storiesOf } from '@storybook/react';
 
-import { PatientHeader } from '../app/components/PatientHeader';
+import { PatientInfoPane } from '../app/components/PatientInfoPane';
 
 import { createDummyPatient } from './dummyPatient';
 
-storiesOf('PatientHeader', module).add('Default', () => (
-  <PatientHeader patient={createDummyPatient()} />
+storiesOf('PatientInfoPane', module).add('Default', () => (
+  <PatientInfoPane patient={createDummyPatient()} />
 ));

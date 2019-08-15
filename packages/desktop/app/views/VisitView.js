@@ -6,7 +6,7 @@ import TopBar from '../components/TopBar';
 import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 import { TabDisplay } from '../components/TabDisplay';
-import { PatientHeader } from '../components/PatientHeader';
+import { PatientInfoPane } from '../components/PatientInfoPane';
 import { ContentPane } from '../components/ContentPane';
 import { Table } from '../components/Table';
 
@@ -67,7 +67,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
       <TopBar title={title} />
       <LoadingIndicator loading={loading}>
         <TwoColumnDisplay>
-          <PatientHeader patient={patient} />
+          <PatientInfoPane patient={patient} />
           <TabDisplay
             tabs={TABS}
             currentTab={currentTab}

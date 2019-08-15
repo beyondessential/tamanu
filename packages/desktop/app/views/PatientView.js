@@ -8,7 +8,7 @@ import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 import { PatientAlert } from '../components/PatientAlert';
 import { PatientHistory } from '../components/PatientHistory';
-import { PatientHeader } from '../components/PatientHeader';
+import { PatientInfoPane } from '../components/PatientInfoPane';
 import { ContentPane } from '../components/ContentPane';
 
 import { viewVisit } from '../store/visit';
@@ -51,7 +51,7 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
       <LoadingIndicator loading={loading}>
         <PatientAlert alerts={patient.alerts} />
         <TwoColumnDisplay>
-          <PatientHeader patient={patient} />
+          <PatientInfoPane patient={patient} />
           <TabDisplay
             tabs={TABS}
             currentTab={currentTab}
