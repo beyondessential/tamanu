@@ -1,6 +1,6 @@
 import { connectRouter } from 'connected-react-router';
-import { authReducer } from './auth';
 
+import { authReducer } from './store/auth';
 import { patientReducer } from './store/patient';
 import { visitReducer } from './store/visit';
 
