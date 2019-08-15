@@ -157,6 +157,7 @@ export function createDummyPatient(overrides = {}) {
     _id: shortid.generate(),
     firstName: chance.first({ gender }),
     lastName: chance.last(),
+    culturalName: chance.last(),
     sex: gender,
     dateOfBirth: chance.birthday(),
     visits: new Array(chance.natural({ max: 5 })).fill(0).map(() => createDummyVisit(false)),

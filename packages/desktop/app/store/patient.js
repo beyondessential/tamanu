@@ -1,4 +1,5 @@
 import { createReducer } from '../utils/createReducer';
+import { push } from 'connected-react-router';
 
 // actions
 const PATIENT_LOAD_START = 'PATIENT_LOAD_START';
@@ -7,6 +8,7 @@ const PATIENT_LOAD_FINISH = 'PATIENT_LOAD_FINISH';
 
 export const viewPatient = id => async (dispatch, getState, { api }) => {
   dispatch({ type: PATIENT_LOAD_START, id });
+  dispatch(push('/patients/view'));
 
   try {
     const patient = await api.get(`patient/${id}`);
