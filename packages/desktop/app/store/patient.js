@@ -11,7 +11,7 @@ export const viewPatient = id => async (dispatch, getState, { api }) => {
   try {
     const patient = await api.get(`patient/${id}`);
     dispatch({ type: PATIENT_LOAD_FINISH, patient });
-  } catch(e) {
+  } catch (e) {
     dispatch({ type: PATIENT_LOAD_ERROR, error: e.message });
   }
 };
@@ -21,7 +21,7 @@ export const viewPatient = id => async (dispatch, getState, { api }) => {
 const defaultState = {
   loading: true,
   id: null,
-  error: "",
+  error: '',
 };
 
 const handlers = {
