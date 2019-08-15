@@ -20,6 +20,12 @@ export const lastName = {
   minWidth: 100,
 };
 
+export const culturalName = {
+  key: 'culturalName',
+  title: 'Cultural Name',
+  minWidth: 100,
+};
+
 export const sex = {
   key: 'sex',
   title: 'Sex',

@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
+import { push } from 'connected-react-router';
+import { viewPatient } from '../../store/patient';
 import {
   TopBar,
   PageContainer,
@@ -6,14 +9,14 @@ import {
   PatientSearchBar,
   DataFetchingTable,
 } from '../../components';
-import { push } from 'connected-react-router';
-import { displayId, firstName, lastName, sex, dateOfBirth } from './columns';
+import { displayId, firstName, lastName, culturalName, sex, dateOfBirth } from './columns';
 import { PATIENT_SEARCH_ENDPOINT } from './constants';
 
 const COLUMNS = [
   displayId,
   firstName,
   lastName,
+  culturalName,
   sex,
   dateOfBirth,
   {
@@ -22,7 +25,7 @@ const COLUMNS = [
   },
 ];
 
-export const PatientListing = React.memo(() => {
+const DumbPatientListing = React.memo(({ handleRowClick }) => {
   const [searchParameters, setSearchParameters] = useState({});
 
   return (
@@ -38,7 +41,13 @@ export const PatientListing = React.memo(() => {
         columns={COLUMNS}
         fetchOptions={searchParameters}
         noDataMessage="No patients found"
+        onRowClick={handleRowClick}
       />
     </PageContainer>
   );
 });
+
+export const PatientListing = connect(
+  null,
+  dispatch => ({ handleRowClick: ({ _id }) => dispatch(viewPatient(_id)) }),
+)(DumbPatientListing);
