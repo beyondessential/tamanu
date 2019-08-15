@@ -52,7 +52,7 @@ export class Table extends React.Component {
     columns: PropTypes.arrayOf(
       PropTypes.shape({
         key: PropTypes.string.isRequired,
-        title: PropTypes.string.isRequired,
+        title: PropTypes.node.isRequired,
         accessor: PropTypes.func,
         sortable: PropTypes.bool,
       }),

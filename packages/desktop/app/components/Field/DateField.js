@@ -39,9 +39,9 @@ export const TimeField = ({ field, ...props }) => (
 );
 
 DateInput.propTypes = {
-  name: PropTypes.string.isRequired,
+  name: PropTypes.string,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(moment)]),
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   fullWidth: PropTypes.bool,
   format: PropTypes.string,
 };
