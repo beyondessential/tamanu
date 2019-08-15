@@ -4,7 +4,7 @@ import { push } from 'connected-react-router';
 import { items } from './config';
 import { checkAbility } from '../../utils/ability';
 import { SidebarWithPrograms } from './SidebarWithPrograms';
-import { logout } from '../../auth';
+import { logout } from '../../store/auth';
 
 const permissionCheck = (child, parent) => {
   const ability = { ...child.ability, ...parent.ability };

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import 'typeface-roboto';
 
 import { ConnectedSidebar } from '../components/Sidebar';
-import { login, checkIsLoggedIn } from '../auth';
+import { login, checkIsLoggedIn } from '../store/auth';
 import Login from './Auth/Login';
 
 const AppContainer = styled.div`
