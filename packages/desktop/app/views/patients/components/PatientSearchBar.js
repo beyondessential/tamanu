@@ -2,8 +2,7 @@ import React, { memo, useCallback } from 'react';
 import styled from 'styled-components';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
 import SearchIcon from '@material-ui/icons/Search';
-import { Form, Field, TextField } from './Field';
-import { Button } from './Button';
+import { Button, Form, Field, TextField } from '../../../components';
 
 const Container = styled.div`
   display: grid;

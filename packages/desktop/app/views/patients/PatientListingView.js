@@ -1,14 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
-import { push } from 'connected-react-router';
 import { viewPatient } from '../../store/patient';
-import {
-  TopBar,
-  PageContainer,
-  Button,
-  PatientSearchBar,
-  DataFetchingTable,
-} from '../../components';
+import { TopBar, PageContainer, Button, DataFetchingTable } from '../../components';
+import { PatientSearchBar, NewPatientModal } from './components';
 import { displayId, firstName, lastName, culturalName, sex, dateOfBirth } from './columns';
 import { PATIENT_SEARCH_ENDPOINT } from './constants';
 
@@ -27,11 +21,16 @@ const COLUMNS = [
 
 const DumbPatientListingView = React.memo(({ handleRowClick }) => {
   const [searchParameters, setSearchParameters] = useState({});
+  const [creatingPatient, setCreatingPatient] = useState(false);
+
+  const toggleCreatingPatient = useCallback(() => {
+    setCreatingPatient(!creatingPatient);
+  }, [creatingPatient]);
 
   return (
     <PageContainer>
       <TopBar title="Patient listing">
-        <Button color="primary" variant="contained" onClick={() => push('/patient/new')}>
+        <Button color="primary" variant="contained" onClick={toggleCreatingPatient}>
           Create new patient
         </Button>
       </TopBar>
@@ -42,6 +41,11 @@ const DumbPatientListingView = React.memo(({ handleRowClick }) => {
         fetchOptions={searchParameters}
         noDataMessage="No patients found"
         onRowClick={handleRowClick}
+      />
+      <NewPatientModal
+        title="New patient"
+        open={creatingPatient}
+        onCancel={toggleCreatingPatient}
       />
     </PageContainer>
   );

@@ -5,6 +5,7 @@ import { capitalize } from 'lodash';
 import { Grid, Tab, Tabs } from '@material-ui/core';
 import { push } from 'connected-react-router';
 
+import { connectApi } from '../../../api';
 import TopRow from '../components/TopRow';
 import Allergy from '../components/Allergy';
 import Diagnosis from '../components/Diagnosis';
@@ -18,9 +19,6 @@ import { Preloader, TopBar, Container, Button } from '../../../components';
 import { MUI_SPACING_UNIT as spacing } from '../../../constants';
 import { VisitForm } from '../../../forms/VisitForm';
 import { Suggester } from '../../../utils/suggester';
-
-const practitionerSuggester = new Suggester('practitioner');
-const locationSuggester = new Suggester('location');
 
 class EditVisit extends Component {
   state = {
@@ -92,7 +90,16 @@ class EditVisit extends Component {
   }
 
   render() {
-    const { loading, action, patientModel, visitModel, checkIn, onCancel } = this.props;
+    const {
+      loading,
+      action,
+      patientModel,
+      visitModel,
+      checkIn,
+      onCancel,
+      practitionerSuggester,
+      locationSuggester,
+    } = this.props;
     if (loading) return <Preloader />; // TODO: make this automatic
 
     return (
@@ -156,7 +163,7 @@ EditVisit.defaultProps = {
 };
 
 function mapStateToProps(state, { match: { path } }) {
-  const { patient, visit, action, loading, error } = state.patients;
+  const { patient, action, loading, error } = state.patients;
   return {
     patientModel: patient,
     action,
@@ -170,14 +177,21 @@ const mapDispatchToProps = (
   dispatch,
   {
     match: {
-      params: { patientId, id },
+      params: { patientId },
     },
   },
 ) => ({
   onCancel: () => dispatch(push(`/patients/editPatient/${patientId}`)),
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(EditVisit);
+const mapApiToProps = api => ({
+  practitionerSuggester: new Suggester(api, 'practitioner'),
+  locationSuggester: new Suggester(api, 'location'),
+});
+
+export default connectApi(mapApiToProps)(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(EditVisit),
+);
