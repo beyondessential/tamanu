@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { TopBar } from '../../components';
 
-import { availableReports, datasetOptions, generateData } from './dummyReports';
+import { availableReports, generateData } from './dummyReports';
 import { ReportViewer } from './ReportViewer';
 import { CustomReportFilters } from './CustomReportFilters';
 import { ReportFilters } from './ReportFilters';
