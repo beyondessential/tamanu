@@ -1,26 +1,28 @@
 import React from 'react';
-import { Modal } from './Modal';
+import { Modal, ModalActions } from './Modal';
 import { ButtonRow } from './ButtonRow';
 import { Button } from './Button';
 
 export const PatientAlert = React.memo(({ alerts = [] }) => {
-  if(alerts.length === 0) return null;
+  if (alerts.length === 0) return null;
 
   const [alertVisible, setAlertVisible] = React.useState(true);
   const close = () => setAlertVisible(false);
 
   return (
-    <Modal title="Patient warnings" isVisible={alertVisible}>
+    <Modal title="Patient warnings" open={alertVisible}>
       <ul>
         {alerts.map(a => (
           <li key={a}>{a}</li>
         ))}
       </ul>
-      <ButtonRow>
-        <Button variant="contained" color="primary" onClick={close}>
-          OK
-        </Button>
-      </ButtonRow>
+      <ModalActions>
+        <ButtonRow>
+          <Button variant="contained" color="primary" onClick={close}>
+            OK
+          </Button>
+        </ButtonRow>
+      </ModalActions>
     </Modal>
   );
 });

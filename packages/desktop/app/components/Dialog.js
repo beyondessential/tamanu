@@ -1,24 +1,21 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Modal } from './Modal';
+import React, { memo } from 'react';
+import { Modal, ModalActions } from './Modal';
 import { Button } from './Button';
 
-export function Dialog({
-  dialogType,
-  headerTitle,
-  contentText,
-  isVisible,
-  onClose,
-  onConfirm,
-  okText,
-  cancelText,
-}) {
-  return (
-    <Modal
-      isVisible={isVisible}
-      onClose={onClose}
-      title={headerTitle}
-      actions={
+export const Dialog = memo(
+  ({
+    dialogType = 'alert',
+    headerTitle,
+    contentText,
+    isVisible,
+    onClose,
+    onConfirm,
+    okText = 'OK',
+    cancelText = 'Cancel',
+  }) => (
+    <Modal open={isVisible} onClose={onClose} title={headerTitle}>
+      {contentText}
+      <ModalActions>
         <React.Fragment>
           {dialogType === 'confirm' && (
             <Button variant="outlined" onClick={onClose}>
@@ -33,27 +30,7 @@ export function Dialog({
             {okText}
           </Button>
         </React.Fragment>
-      }
-    >
-      {contentText}
+      </ModalActions>
     </Modal>
-  );
-}
-
-Dialog.propTypes = {
-  dialogType: PropTypes.oneOf(['alert', 'confirm']),
-  headerTitle: PropTypes.string.isRequired,
-  contentText: PropTypes.node.isRequired,
-  isVisible: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  onConfirm: PropTypes.func,
-  okText: PropTypes.string,
-  cancelText: PropTypes.string,
-};
-
-Dialog.defaultProps = {
-  dialogType: 'alert',
-  okText: 'OK',
-  cancelText: 'Cancel',
-  onConfirm: () => {},
-};
+  ),
+);
