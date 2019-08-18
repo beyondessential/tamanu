@@ -23,7 +23,7 @@ export class VitalsForm extends React.PureComponent {
   renderForm = ({ submitForm }) => {
     const { locationSuggester, practitionerSuggester, editedObject, onCancel } = this.props;
     return (
-      <FormGrid columns={1}>
+      <FormGrid columns={2}>
         <Field
           name="dateRecorded"
           label="Date recorded"

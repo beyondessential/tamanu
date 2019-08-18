@@ -11,16 +11,29 @@ import { TabDisplay } from '../components/TabDisplay';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { ContentPane } from '../components/ContentPane';
 import { VitalsTable } from '../components/VitalsTable';
+import { VitalsModal } from '../components/VitalsModal';
 
 import { FormGrid } from '../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../components/Field';
 import { visitOptions } from '../constants';
 
+const VitalsPane = React.memo(() => {
+  const [modalOpen, setModalOpen] = React.useState(true);
+
+  return (
+    <div>
+      { modalOpen && <VitalsModal onClose={() => setModalOpen(false)} /> }
+      <Button onClick={() => setModalOpen(true)}>open</Button>
+      <VitalsTable />
+    </div>
+  );
+});
+
 const TABS = [
   {
     label: 'Vitals',
     key: 'vitals',
-    render: () => <VitalsTable />,
+    render: () => <VitalsPane />,
   },
   {
     label: 'Notes',

@@ -5,48 +5,13 @@ import { Table } from './Table';
 import { DateDisplay } from './DateDisplay';
 
 const vitalsRows = [
-  {
-    key: 'height',
-    title: 'Height',
-    rounding: 0,
-    unit: 'cm',
-  },
-  {
-    key: 'weight',
-    title: 'Weight',
-    rounding: 1,
-    unit: 'kg',
-  },
-  {
-    key: 'temperature',
-    title: 'Temperature',
-    rounding: 1,
-    unit: 'ºC',
-  },
-  {
-    key: 'sbp',
-    title: 'SBP',
-    rounding: 0,
-    unit: '',
-  },
-  {
-    key: 'dbp',
-    title: 'DBP',
-    rounding: 0,
-    unit: '',
-  },
-  {
-    key: 'heartRate',
-    title: 'Heart rate',
-    rounding: 0,
-    unit: '/min',
-  },
-  {
-    key: 'respiratoryRate',
-    title: 'Respiratory rate',
-    rounding: 0,
-    unit: '/min',
-  },
+  { key: 'height', title: 'Height', rounding: 0, unit: 'cm', },
+  { key: 'weight', title: 'Weight', rounding: 1, unit: 'kg', },
+  { key: 'temperature', title: 'Temperature', rounding: 1, unit: 'ºC', },
+  { key: 'sbp', title: 'SBP', rounding: 0, unit: '', },
+  { key: 'dbp', title: 'DBP', rounding: 0, unit: '', },
+  { key: 'heartRate', title: 'Heart rate', rounding: 0, unit: '/min', },
+  { key: 'respiratoryRate', title: 'Respiratory rate', rounding: 0, unit: '/min', },
 ];
 
 const UnitDisplay = React.memo(({ amount, unit, rounding }) => (
