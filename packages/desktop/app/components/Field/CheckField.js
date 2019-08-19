@@ -10,8 +10,14 @@ export const CheckInput = ({ label, value, ...props }) => (
   />
 );
 
-export const CheckField = ({ field, ...props }) => (
-  <CheckInput name={field.name} value={field.value || false} onChange={field.onChange} {...props} />
+export const CheckField = ({ field, error, ...props }) => (
+  <CheckInput
+    name={field.name}
+    value={field.value || false}
+    onChange={field.onChange}
+    error={error || undefined}
+    {...props}
+  />
 );
 
 CheckInput.propTypes = {
