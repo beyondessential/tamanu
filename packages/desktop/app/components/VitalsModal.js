@@ -13,7 +13,7 @@ export const VitalsModal = connectApi(api => ({ api }))(React.memo(({ api, onClo
   };
 
   return (
-    <Modal title="" isVisible={true} onClose={onClose}>
+    <Modal title="Record vitals" isVisible={true} onClose={onClose}>
       <VitalsForm
         form={VitalsForm}
         onSubmit={onSubmit}
