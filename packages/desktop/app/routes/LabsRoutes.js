@@ -6,15 +6,15 @@ import { NotActiveView } from '../views';
 export const LabsRoutes = React.memo(({ match }) => {
   return (
     <Switch>
-      <Route exact path={match.url} component={NotActiveView} />
-      <Route path={`${match.url}/requests`} component={NotActiveView} />
-      <Route path={`${match.url}/request/by-patient/:patientId/:id`} component={NotActiveView} />
-      <Route path={`${match.url}/request/by-patient/:patientId`} component={NotActiveView} />
-      <Route path={`${match.url}/request/:id`} component={NotActiveView} />
-      <Route path={`${match.url}/request`} component={NotActiveView} />
-      <Route path={`${match.url}/completed`} component={NotActiveView} />
-      <Route path={`${match.url}/edit/new`} component={NotActiveView} />
-      <Route path={`${match.url}/edit/:id`} component={NotActiveView} />
+      <Route exact path={match.path} component={NotActiveView} />
+      <Route path={`${match.path}/requests`} component={NotActiveView} />
+      <Route path={`${match.path}/request/by-patient/:patientId/:id`} component={NotActiveView} />
+      <Route path={`${match.path}/request/by-patient/:patientId`} component={NotActiveView} />
+      <Route path={`${match.path}/request/:id`} component={NotActiveView} />
+      <Route path={`${match.path}/request`} component={NotActiveView} />
+      <Route path={`${match.path}/completed`} component={NotActiveView} />
+      <Route path={`${match.path}/edit/new`} component={NotActiveView} />
+      <Route path={`${match.path}/edit/:id`} component={NotActiveView} />
     </Switch>
   );
 });

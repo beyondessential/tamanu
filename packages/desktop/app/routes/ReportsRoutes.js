@@ -7,7 +7,7 @@ export const ReportsRoutes = React.memo(({ match }) => {
   return (
     <div>
       <Switch>
-        <Route path={`${match.url}/:reportId`} component={ReportGenerator} />
+        <Route path={`${match.path}/:reportId`} component={ReportGenerator} />
       </Switch>
     </div>
   );
