@@ -17,12 +17,12 @@ import { FormGrid } from '../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../components/Field';
 import { visitOptions } from '../constants';
 
-const VitalsPane = React.memo(() => {
+const VitalsPane = React.memo(({ visit }) => {
   const [modalOpen, setModalOpen] = React.useState(true);
 
   return (
     <div>
-      { modalOpen && <VitalsModal onClose={() => setModalOpen(false)} /> }
+      { modalOpen && <VitalsModal visitId={visit._id} onClose={() => setModalOpen(false)} /> }
       <Button onClick={() => setModalOpen(true)}>open</Button>
       <VitalsTable />
     </div>
@@ -33,7 +33,7 @@ const TABS = [
   {
     label: 'Vitals',
     key: 'vitals',
-    render: () => <VitalsPane />,
+    render: ({ visit }) => <VitalsPane visit={visit} />,
   },
   {
     label: 'Notes',

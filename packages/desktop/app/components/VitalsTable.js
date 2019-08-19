@@ -14,21 +14,27 @@ const vitalsRows = [
   { key: 'respiratoryRate', title: 'Respiratory rate', rounding: 0, unit: '/min', },
 ];
 
-const UnitDisplay = React.memo(({ amount, unit, rounding }) => (
-  <span>
-    {amount.toFixed(rounding)}
-    <span>{unit}</span>
-  </span>
-));
+const UnitDisplay = React.memo(({ amount, unit, rounding }) => {
+  if(typeof amount !== "number") return "-";
+
+  return (
+    <span>
+      {amount.toFixed(rounding)}
+      <span>{unit}</span>
+    </span>
+  );
+});
 
 const DumbVitalsTable = React.memo(({ readings }) => {
   // create a column for each reading
   const dataColumns = [
     { key: 'title', title: 'Measure' },
-    ...readings.map(r => ({
-      title: <DateDisplay date={r.dateRecorded} />,
-      key: r.dateRecorded,
-    })),
+    ...readings
+      .sort((a, b) => b.dateRecorded.localeCompare(a.dateRecorded))
+      .map(r => ({
+        title: <DateDisplay date={r.dateRecorded} />,
+        key: r.dateRecorded,
+      })),
   ];
   // function to create an object containing a single metric's value for each reading
   const transposeColumnToRow = ({ key, rounding, unit }) =>
