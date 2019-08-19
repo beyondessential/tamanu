@@ -7,7 +7,7 @@ import { routerMiddleware } from 'connected-react-router';
 import thunk from 'redux-thunk';
 import { createHashHistory } from 'history';
 
-import Root from './containers/Root';
+import Root from './Root';
 import './fonts.scss';
 
 import { createReducers } from './createReducers';
