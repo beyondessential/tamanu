@@ -122,10 +122,7 @@ storiesOf('Forms', module).add('DischargeForm', () => (
 ));
 
 storiesOf('Forms', module).add('VitalsForm', () => (
-  <VitalsForm
-    onSubmit={action('submit')}
-    onCancel={action('cancel')}
-  />
+  <VitalsForm onSubmit={action('submit')} onCancel={action('cancel')} />
 ));
 
 storiesOf('Forms', module).add('NewPatientForm', () => (

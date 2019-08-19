@@ -1,9 +1,16 @@
 import express from 'express';
-import RealmController from '../controllers/realm';
 import shortid from 'shortid';
+import RealmController from '../controllers/realm';
 
 export const restfulRoutes = express.Router();
-restfulRoutes.get('/:model/search', (req, res, next) => { req.params.fuzzy = true; next(); }, RealmController.GET);
+restfulRoutes.get(
+  '/:model/search',
+  (req, res, next) => {
+    req.params.fuzzy = true;
+    next();
+  },
+  RealmController.GET,
+);
 restfulRoutes.get('/:model/:id', RealmController.GET);
 restfulRoutes.get('/:model', RealmController.GET);
 restfulRoutes.patch('/:model/:id', RealmController.PATCH);
@@ -18,18 +25,15 @@ restfulRoutes.post('/visit/:id/vitals', (req, res) => {
   const reading = {
     _id: shortid(),
     ...req.body,
-  }
+  };
 
   // TODO: validate
-  
+
   db.write(() => {
-    visit.vitals = [
-      ...visit.vitals,
-      reading,
-    ];
+    visit.vitals = [...visit.vitals, reading];
   });
 
-  res.send({ 
+  res.send({
     success: true,
   });
 });

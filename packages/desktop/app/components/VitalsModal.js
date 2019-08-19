@@ -8,22 +8,20 @@ import { viewVisit } from '../store/visit';
 
 import { VitalsForm } from '../forms/VitalsForm';
 
-export const VitalsModal = connect()(connectApi(api => ({ api }))(
-  React.memo(({ api, onClose, open, visitId, dispatch }) => {
-    const onSubmit = async (data) => {
-      const resp = await api.post(`visit/${visitId}/vitals`, data);
-      dispatch(viewVisit(visitId));
-      onClose();
-    };
+export const VitalsModal = connect()(
+  connectApi(api => ({ api }))(
+    React.memo(({ api, onClose, visitId, dispatch }) => {
+      const onSubmit = async data => {
+        await api.post(`visit/${visitId}/vitals`, data);
+        dispatch(viewVisit(visitId));
+        onClose();
+      };
 
-    return (
-      <Modal title="Record vitals" isVisible={true} onClose={onClose}>
-        <VitalsForm
-          form={VitalsForm}
-          onSubmit={onSubmit}
-          onCancel={onClose}
-        />
-      </Modal>
-    );
-  })
-));
+      return (
+        <Modal title="Record vitals" isVisible onClose={onClose}>
+          <VitalsForm form={VitalsForm} onSubmit={onSubmit} onCancel={onClose} />
+        </Modal>
+      );
+    }),
+  ),
+);

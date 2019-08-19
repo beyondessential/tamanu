@@ -22,14 +22,12 @@ const VitalsPane = React.memo(({ visit }) => {
 
   return (
     <div>
-      { modalOpen && <VitalsModal visitId={visit._id} onClose={() => setModalOpen(false)} /> }
+      {modalOpen && <VitalsModal visitId={visit._id} onClose={() => setModalOpen(false)} />}
       <VitalsTable />
       <ContentPane>
-        <Button 
-          onClick={() => setModalOpen(true)}
-          variant="contained"
-          color="primary"
-        >New record</Button>
+        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+          New record
+        </Button>
       </ContentPane>
     </div>
   );
