@@ -8,7 +8,7 @@ import { TextField, SelectField } from '../app/components';
 
 import { Field } from '../app/components/Field/Form';
 import { PaginatedForm } from '../app/components/Field/PaginatedForm';
-import Login from '../app/containers/Auth/Login';
+import { LoginView } from '../app/views/LoginView';
 
 import { VisitForm } from '../app/forms/VisitForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
@@ -65,7 +65,7 @@ storiesOf('Forms', module).add('PaginatedForm', () => (
   />
 ));
 
-storiesOf('Forms', module).add('LoginForm', () => <Login login={action('login')} />);
+storiesOf('Forms', module).add('LoginForm', () => <LoginView login={action('login')} />);
 
 storiesOf('Forms/VisitForm', module)
   .add('Default', () => (

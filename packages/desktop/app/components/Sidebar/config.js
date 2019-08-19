@@ -7,7 +7,7 @@ import {
   programsIcon,
   radiologyIcon,
 } from '../../constants/images';
-import { availableReports } from '../../containers/Reports/dummyReports';
+import { availableReports } from '../../views/reports/dummyReports';
 
 export const submenuIcons = {
   calendar: 'fa fa-calendar',
