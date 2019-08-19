@@ -10,21 +10,34 @@ import { PatientAlert } from '../../components/PatientAlert';
 import { PatientHistory } from '../../components/PatientHistory';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { ContentPane } from '../../components/ContentPane';
+import { VisitModal } from '../../components/VisitModal';
+import { Button } from '../../components/Button';
 
 import { viewVisit } from '../../store/visit';
 
-const ConnectedPatientHistory = connect(
-  state => ({ items: state.patient.visits }),
-  dispatch => ({
-    onItemClick: item => dispatch(viewVisit(item._id)),
-  }),
-)(PatientHistory);
+const HistoryPane = connect(
+  state => ({ visits: state.patient.visits })
+)(React.memo(({ visits, dispatch }) => {
+  const [modalOpen, setModalOpen] = React.useState(false);
+
+  return (
+    <div>
+      {modalOpen && <VisitModal onClose={() => setModalOpen(false)} />}
+      <ContentPane>
+        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+          Check in
+        </Button>
+      </ContentPane>
+      <PatientHistory items={visits} onItemClick={item => dispatch(viewVisit(item._id))} />
+    </div>
+  );
+}));
 
 const TABS = [
   {
     label: 'History',
     key: 'history',
-    render: () => <ConnectedPatientHistory />,
+    render: () => <HistoryPane />,
   },
   {
     label: 'Details',

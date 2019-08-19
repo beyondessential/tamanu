@@ -56,10 +56,4 @@ createSuggestionRoute(
 
 createSuggestionRoute('practitioner', 'user', 'name CONTAINS[c] $0');
 
-createDummySuggestionRoute('location', [
-  { name: 'Ward 1', _id: 'ward1' },
-  { name: 'Ward 2', _id: 'ward2' },
-  { name: 'Ward 3', _id: 'ward3' },
-  { name: 'Emergency', _id: 'emergency' },
-  { name: 'Radiology', _id: 'radiology' },
-]);
+createSuggestionRoute('location', 'location', 'name CONTAINS[c] $0');
