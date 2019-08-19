@@ -18,13 +18,19 @@ import { SelectInput, DateInput, TextInput } from '../components/Field';
 import { visitOptions } from '../constants';
 
 const VitalsPane = React.memo(({ visit }) => {
-  const [modalOpen, setModalOpen] = React.useState(true);
+  const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
     <div>
       { modalOpen && <VitalsModal visitId={visit._id} onClose={() => setModalOpen(false)} /> }
-      <Button onClick={() => setModalOpen(true)}>open</Button>
       <VitalsTable />
+      <ContentPane>
+        <Button 
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+        >New record</Button>
+      </ContentPane>
     </div>
   );
 });
