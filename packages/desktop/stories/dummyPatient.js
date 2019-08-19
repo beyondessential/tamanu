@@ -46,6 +46,20 @@ export const PRACTITIONERS = splitIds(`
   Marissa Bautista
 `);
 
+export const FACILITIES = splitIds(`
+  Balwyn
+  Hawthorn East
+  Kerang
+  Lake Charm
+  Marla
+  Mont Albert
+  National Medical
+  Port Douglas
+  Swan Hill
+  Thornbury
+  Traralgon
+`);
+
 const ALLERGIES = split(`
   Penicillin
   Peanuts
@@ -167,3 +181,5 @@ export function createDummyPatient(overrides = {}) {
     ...overrides,
   };
 }
+
+export const PATIENTS = new Array(50).fill(0).map(() => createDummyPatient());

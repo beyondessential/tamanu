@@ -22,3 +22,5 @@ export * from './PatientSearchBar';
 export * from './Preloader';
 export * from './SimpleTable';
 export * from './Table';
+export * from './ThemeProvider';
+export * from './TamanuLogo';
