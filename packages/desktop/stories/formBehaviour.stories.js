@@ -50,7 +50,7 @@ storiesOf('FormBehaviour', module).add('Async submission form', () => (
     render={({ submitForm, isSubmitting }) => (
       <FormGrid>
         <Field name="value" label="Value" component={TextField} />
-        <Button onClick={submitForm} disabled={isSubmitting}>
+        <Button onClick={submitForm} disabled={isSubmitting} color="primary" variant="contained">
           {isSubmitting ? '...' : 'Submit'}
         </Button>
       </FormGrid>
@@ -76,7 +76,7 @@ storiesOf('FormBehaviour', module).add('With async error', () => (
     render={({ submitForm, isSubmitting }) => (
       <FormGrid>
         <Field name="value" label="Value" component={TextField} />
-        <Button onClick={submitForm} disabled={isSubmitting}>
+        <Button onClick={submitForm} disabled={isSubmitting} color="primary" variant="contained">
           {isSubmitting ? '...' : 'Submit'}
         </Button>
       </FormGrid>
