@@ -24,7 +24,7 @@ export class VitalsForm extends React.PureComponent {
         <Field name="heartRate" label="Heart rate" component={NumberField} />
         <Field name="respiratoryRate" label="Respiratory rate" component={NumberField} />
         <Field name="temperature" label="Temperature (ºC)" component={NumberField} />
-        <ButtonRow>
+        <ButtonRow style={{ gridColumn: 'span 2' }}>
           <Button variant="contained" onClick={onCancel} color="">
             Cancel
           </Button>
