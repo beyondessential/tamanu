@@ -64,7 +64,7 @@ async function asyncSubmitWithError(data, { setErrors }) {
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   setErrors({
-    value: 'This will not work',
+    message: 'This will not work',
   });
 
   action('submitEnd')(data);
