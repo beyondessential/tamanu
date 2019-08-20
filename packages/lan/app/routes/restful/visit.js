@@ -1,4 +1,7 @@
 import express from 'express';
+import shortid from 'shortid';
+
+import { objectToJSON } from '../../utils';
 
 export const visitRoutes = express.Router();
 
@@ -16,5 +19,5 @@ visitRoutes.post('/visit/:id/vitals', (req, res) => {
     visit.vitals = [...visit.vitals, reading];
   });
 
-  res.send(visit);
+  res.send(objectToJSON(reading));
 });
