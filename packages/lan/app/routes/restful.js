@@ -1,5 +1,4 @@
 import express from 'express';
-import shortid from 'shortid';
 import RealmController from '../controllers/realm';
 
 import { visitRoutes } from './restful/visit';
