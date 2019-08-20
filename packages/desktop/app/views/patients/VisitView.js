@@ -26,7 +26,7 @@ const VitalsPane = React.memo(({ visit }) => {
       <VitalsTable />
       <ContentPane>
         <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
-          New record
+          Record vitals
         </Button>
       </ContentPane>
     </div>
