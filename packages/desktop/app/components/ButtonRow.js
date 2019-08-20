@@ -22,7 +22,7 @@ export const ButtonRow = React.memo(({ children, ...props }) => (
 
 export const ConfirmCancelRow = React.memo(
   ({ onCancel, onConfirm, confirmText = 'Confirm', cancelText = 'Cancel', ...props }) => (
-    <ButtonRow {...props}>
+    <ButtonRow style={{ gridColumn: 'span 1 / -1' }} {...props}>
       <Button variant="contained" onClick={onCancel}>
         {cancelText}
       </Button>

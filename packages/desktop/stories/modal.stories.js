@@ -3,23 +3,25 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
-import { Modal, ModalActions, ModalContent } from '../app/components/Modal';
+import { Modal } from '../app/components/Modal';
 import { Button } from '../app/components/Button';
 import { ButtonRow, ConfirmCancelRow } from '../app/components/ButtonRow';
 
 storiesOf('Modal', module)
   .add('ConfirmCancel', () => (
-    <Modal title="Confirm/Cancel modal" open>
-      <ModalContent>Some modal content</ModalContent>
-      <ModalActions>
-        <ConfirmCancelRow onConfirm={action('confirm')} onCancel={action('cancel')} />
-      </ModalActions>
+    <Modal
+      title="Confirm/Cancel modal"
+      open
+      actions={() => <ConfirmCancelRow onConfirm={action('confirm')} onCancel={action('cancel')} />}
+    >
+      Some modal content
     </Modal>
   ))
   .add('With custom buttons', () => (
-    <Modal title="Custom buttons modal" open>
-      <ModalContent>Some modal content</ModalContent>
-      <ModalActions>
+    <Modal
+      title="Custom buttons modal"
+      open
+      actions={() => (
         <ButtonRow>
           <Button onClick={action('plier')} variant="contained" color="primary">
             Plier
@@ -34,6 +36,8 @@ storiesOf('Modal', module)
             Glisser
           </Button>
         </ButtonRow>
-      </ModalActions>
+      )}
+    >
+      Some modal content
     </Modal>
   ));

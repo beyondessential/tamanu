@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Modal, ModalActions } from './Modal';
+import { Modal } from './Modal';
 import { Button } from './Button';
 
 export const Dialog = memo(
@@ -13,9 +13,11 @@ export const Dialog = memo(
     okText = 'OK',
     cancelText = 'Cancel',
   }) => (
-    <Modal open={isVisible} onClose={onClose} title={headerTitle}>
-      {contentText}
-      <ModalActions>
+    <Modal
+      open={isVisible}
+      onClose={onClose}
+      title={headerTitle}
+      actions={() => (
         <React.Fragment>
           {dialogType === 'confirm' && (
             <Button variant="outlined" onClick={onClose}>
@@ -30,7 +32,9 @@ export const Dialog = memo(
             {okText}
           </Button>
         </React.Fragment>
-      </ModalActions>
+      )}
+    >
+      {contentText}
     </Modal>
   ),
 );
