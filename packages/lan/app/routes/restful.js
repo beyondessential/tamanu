@@ -2,6 +2,8 @@ import express from 'express';
 import shortid from 'shortid';
 import RealmController from '../controllers/realm';
 
+import { visitRoutes } from './restful/visit';
+
 export const restfulRoutes = express.Router();
 restfulRoutes.get(
   '/:model/search',
@@ -19,21 +21,4 @@ restfulRoutes.put('/:model', RealmController.PUT);
 restfulRoutes.post('/:model', RealmController.POST);
 restfulRoutes.delete('/:model/:id', RealmController.DELETE);
 
-restfulRoutes.post('/visit/:id/vitals', (req, res) => {
-  const db = req.app.get('database');
-  const visit = db.objectForPrimaryKey('visit', req.params.id);
-  const reading = {
-    _id: shortid(),
-    ...req.body,
-  };
-
-  // TODO: validate
-
-  db.write(() => {
-    visit.vitals = [...visit.vitals, reading];
-  });
-
-  res.send({
-    success: true,
-  });
-});
+restfulRoutes.use(visitRoutes);
