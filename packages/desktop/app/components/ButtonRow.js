@@ -20,9 +20,11 @@ export const ButtonRow = React.memo(({ children, ...props }) => (
   </Row>
 ));
 
+// by default, stretch across all columns of any containing grid so it displays in its own row
+const defaultConfirmCancelStyle = { gridColumn: 'span 1 / -1' };
 export const ConfirmCancelRow = React.memo(
-  ({ onCancel, onConfirm, confirmText = 'Confirm', cancelText = 'Cancel', ...props }) => (
-    <ButtonRow style={{ gridColumn: 'span 1 / -1' }} {...props}>
+  ({ onCancel, onConfirm, confirmText = 'Confirm', cancelText = 'Cancel', style, ...props }) => (
+    <ButtonRow style={{ ...defaultConfirmCancelStyle, ...style }} {...props}>
       <Button variant="contained" onClick={onCancel}>
         {cancelText}
       </Button>

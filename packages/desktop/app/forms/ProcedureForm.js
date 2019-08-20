@@ -132,7 +132,6 @@ export class ProcedureForm extends React.PureComponent {
             />
           </Collapse>
           <ConfirmCancelRow
-            style={{ gridColumn: 2 }}
             onCancel={this.onCancel}
             onConfirm={submitForm}
             confirmText={buttonText}
