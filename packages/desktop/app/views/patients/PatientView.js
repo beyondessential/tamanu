@@ -15,23 +15,26 @@ import { Button } from '../../components/Button';
 
 import { viewVisit } from '../../store/visit';
 
-const HistoryPane = connect(
-  state => ({ visits: state.patient.visits, patientId: state.patient._id })
-)(React.memo(({ visits, dispatch, patientId }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+const HistoryPane = connect(state => ({
+  visits: state.patient.visits,
+  patientId: state.patient._id,
+}))(
+  React.memo(({ visits, dispatch, patientId }) => {
+    const [modalOpen, setModalOpen] = React.useState(false);
 
-  return (
-    <div>
-      {modalOpen && <VisitModal onClose={() => setModalOpen(false)} patientId={patientId} />}
-      <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
-          Check in
-        </Button>
-      </ContentPane>
-      <PatientHistory items={visits} onItemClick={item => dispatch(viewVisit(item._id))} />
-    </div>
-  );
-}));
+    return (
+      <div>
+        {modalOpen && <VisitModal onClose={() => setModalOpen(false)} patientId={patientId} />}
+        <ContentPane>
+          <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+            Check in
+          </Button>
+        </ContentPane>
+        <PatientHistory items={visits} onItemClick={item => dispatch(viewVisit(item._id))} />
+      </div>
+    );
+  }),
+);
 
 const TABS = [
   {
