@@ -53,9 +53,9 @@ const VisitInfoPane = React.memo(({ visit }) => (
   <FormGrid columns={3}>
     <DateInput value={visit.startDate} label="Admission date" />
     <DateInput value={visit.endDate} label="Discharge date" />
-    <TextInput value={visit.location} label="Location" />
+    <TextInput value={visit.location.name} label="Location" />
     <SelectInput value={visit.visitType} label="Visit type" options={visitOptions} />
-    <TextInput value={visit.examiner} label="Doctor/nurse" />
+    <TextInput value={visit.examiner.name} label="Doctor/nurse" />
     <TextInput
       value={visit.reasonForVisit}
       label="Reason for visit"

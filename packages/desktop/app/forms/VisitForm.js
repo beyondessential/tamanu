@@ -40,14 +40,14 @@ export class VisitForm extends React.PureComponent {
           options={visitOptions}
         />
         <Field
-          name="location"
+          name="location._id"
           label="Location"
           required
           component={AutocompleteField}
           suggester={locationSuggester}
         />
         <Field
-          name="examiner"
+          name="examiner._id"
           label="Practitioner"
           required
           component={AutocompleteField}

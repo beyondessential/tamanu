@@ -13,12 +13,7 @@ export const VisitModal = connect()(
   connectApi(api => ({ api }))(
     React.memo(({ api, onClose, visitId, dispatch }) => {
       const onSubmit = async data => {
-        const expandedData = {
-          ...data,
-          location: { _id: data.location },
-          examiner: { _id: data.examiner },
-        };
-        const createdVisit = await api.post('visit', expandedData);
+        const createdVisit = await api.post('visit', data);
         dispatch(viewVisit(createdVisit._id));
         onClose();
       };
