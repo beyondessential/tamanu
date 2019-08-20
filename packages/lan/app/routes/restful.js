@@ -12,6 +12,14 @@ restfulRoutes.get(
   },
   RealmController.GET,
 );
+
+// specific handlers for different models
+// NB we don't mount as `restfulRoutes.use('/visit', visitRoutes);`
+// as this would stop that path from being picked up by the generic realm
+// controllers below.
+restfulRoutes.use(visitRoutes);
+
+// generic catch-all routes
 restfulRoutes.get('/:model/:id', RealmController.GET);
 restfulRoutes.get('/:model', RealmController.GET);
 restfulRoutes.patch('/:model/:id', RealmController.PATCH);
@@ -19,5 +27,3 @@ restfulRoutes.put('/:model/:id', RealmController.PUT);
 restfulRoutes.put('/:model', RealmController.PUT);
 restfulRoutes.post('/:model', RealmController.POST);
 restfulRoutes.delete('/:model/:id', RealmController.DELETE);
-
-restfulRoutes.use(visitRoutes);
