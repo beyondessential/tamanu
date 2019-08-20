@@ -8,6 +8,7 @@ const Row = styled.div`
   grid-auto-flow: column;
   grid-column-gap: 0.7rem;
   grid-template-columns: auto repeat(${p => p.items}, 8rem);
+  grid-column: span 1 / -1;
 `;
 
 // Add an empty div at the start to fill up any excess space.
@@ -20,11 +21,9 @@ export const ButtonRow = React.memo(({ children, ...props }) => (
   </Row>
 ));
 
-// by default, stretch across all columns of any containing grid so it displays in its own row
-const defaultConfirmCancelStyle = { gridColumn: 'span 1 / -1' };
 export const ConfirmCancelRow = React.memo(
-  ({ onCancel, onConfirm, confirmText = 'Confirm', cancelText = 'Cancel', style, ...props }) => (
-    <ButtonRow style={{ ...defaultConfirmCancelStyle, ...style }} {...props}>
+  ({ onCancel, onConfirm, confirmText = 'Confirm', cancelText = 'Cancel', ...props }) => (
+    <ButtonRow {...props}>
       <Button variant="contained" onClick={onCancel}>
         {cancelText}
       </Button>
