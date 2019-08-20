@@ -4,13 +4,7 @@ import shortid from 'shortid';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
-import { TextField, SelectField } from '../app/components';
-
-import { FormGrid } from '../app/components/FormGrid';
-import { Field, Form } from '../app/components/Field/Form';
-import { PaginatedForm } from '../app/components/Field/PaginatedForm';
 import { LoginView } from '../app/views/LoginView';
-
 import { VisitForm } from '../app/forms/VisitForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
 import { AllergyForm } from '../app/forms/AllergyForm';

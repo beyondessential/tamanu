@@ -5,6 +5,7 @@ import { action } from '@storybook/addon-actions';
 
 import { TextField, SelectField } from '../app/components';
 
+import { Button } from '../app/components/Button';
 import { FormGrid } from '../app/components/FormGrid';
 import { Field, Form } from '../app/components/Field/Form';
 import { PaginatedForm } from '../app/components/Field/PaginatedForm';
@@ -48,17 +49,14 @@ storiesOf('FormBehaviour', module).add('Async submission form', () => (
     onSubmit={asyncSubmit}
     render={({ submitForm, isSubmitting }) => (
       <FormGrid>
-        <Field
-          name="value"
-          label="Value"
-          component={TextField}
-        />
-        <span>isSubmitting: { isSubmitting ? "true" : "false" }</span>
+        <Field name="value" label="Value" component={TextField} />
+        <Button onClick={submitForm} disabled={isSubmitting}>
+          {isSubmitting ? '...' : 'Submit'}
+        </Button>
       </FormGrid>
     )}
   />
 ));
-
 
 async function asyncSubmitWithError(data, { setErrors }) {
   action('submitStart')(data);
@@ -66,7 +64,7 @@ async function asyncSubmitWithError(data, { setErrors }) {
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   setErrors({
-    value: "This will not work"
+    value: 'This will not work',
   });
 
   action('submitEnd')(data);
@@ -77,12 +75,10 @@ storiesOf('FormBehaviour', module).add('With async error', () => (
     onSubmit={asyncSubmitWithError}
     render={({ submitForm, isSubmitting }) => (
       <FormGrid>
-        <Field
-          name="value"
-          label="Value"
-          component={TextField}
-        />
-        <span>isSubmitting: { isSubmitting ? "true" : "false" }</span>
+        <Field name="value" label="Value" component={TextField} />
+        <Button onClick={submitForm} disabled={isSubmitting}>
+          {isSubmitting ? '...' : 'Submit'}
+        </Button>
       </FormGrid>
     )}
   />

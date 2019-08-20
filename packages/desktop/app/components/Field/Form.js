@@ -38,7 +38,7 @@ export class Form extends React.PureComponent {
     isErrorDialogVisible: false,
   };
 
-  setErrors = (validationErrors) => {
+  setErrors = validationErrors => {
     this.setState({ validationErrors, isErrorDialogVisible: true });
   };
 
@@ -52,13 +52,13 @@ export class Form extends React.PureComponent {
     isSubmitting,
     setSubmitting,
     values,
-    ...rest,
+    ...rest
   }) => async event => {
     event.preventDefault();
     event.persist();
 
     // avoid multiple submissions
-    if(isSubmitting) {
+    if (isSubmitting) {
       return;
     }
 
@@ -77,7 +77,7 @@ export class Form extends React.PureComponent {
     try {
       await onSubmit(values, {
         ...rest,
-        setErrors: this.setErrors 
+        setErrors: this.setErrors,
       });
     } catch (e) {
       console.error('Error submitting form: ', e);
