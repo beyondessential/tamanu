@@ -6,6 +6,7 @@ import { action } from '@storybook/addon-actions';
 
 import { LoginView } from '../app/views/LoginView';
 import { VisitForm } from '../app/forms/VisitForm';
+import { VitalsForm } from '../app/forms/VitalsForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
 import { AllergyForm } from '../app/forms/AllergyForm';
 import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
@@ -87,6 +88,10 @@ storiesOf('Forms', module).add('DischargeForm', () => (
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
   />
+));
+
+storiesOf('Forms', module).add('VitalsForm', () => (
+  <VitalsForm onSubmit={action('submit')} onCancel={action('cancel')} />
 ));
 
 storiesOf('Forms', module).add('NewPatientForm', () => (
