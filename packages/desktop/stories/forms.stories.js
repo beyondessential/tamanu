@@ -4,13 +4,9 @@ import shortid from 'shortid';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
-import { TextField, SelectField } from '../app/components';
-
-import { Field } from '../app/components/Field/Form';
-import { PaginatedForm } from '../app/components/Field/PaginatedForm';
 import { LoginView } from '../app/views/LoginView';
-
 import { VisitForm } from '../app/forms/VisitForm';
+import { VitalsForm } from '../app/forms/VitalsForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
 import { AllergyForm } from '../app/forms/AllergyForm';
 import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
@@ -38,32 +34,6 @@ const patientSuggester = createDummySuggester(
     value: _id,
   })),
 );
-
-storiesOf('Forms', module).add('PaginatedForm', () => (
-  <PaginatedForm
-    onSubmit={action('submit')}
-    initialValues={{
-      city: '',
-      country: 'VU',
-    }}
-    pages={[
-      () => <Field name="city" label="City" component={TextField} />,
-      () => (
-        <Field
-          name="country"
-          label="Country"
-          component={SelectField}
-          options={[
-            { value: 'TO', label: 'Tonga' },
-            { value: 'VU', label: 'Vanuatu' },
-            { value: 'CK', label: 'Cook Islands' },
-          ]}
-        />
-      ),
-      () => <Field name="comment" label="Comment" component={TextField} />,
-    ]}
-  />
-));
 
 storiesOf('Forms', module).add('LoginForm', () => <LoginView login={action('login')} />);
 
@@ -118,6 +88,10 @@ storiesOf('Forms', module).add('DischargeForm', () => (
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
   />
+));
+
+storiesOf('Forms', module).add('VitalsForm', () => (
+  <VitalsForm onSubmit={action('submit')} onCancel={action('cancel')} />
 ));
 
 storiesOf('Forms', module).add('NewPatientForm', () => (

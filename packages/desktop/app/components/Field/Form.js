@@ -38,9 +38,9 @@ export class Form extends React.PureComponent {
     isErrorDialogVisible: false,
   };
 
-  setErrors(validationErrors) {
+  setErrors = validationErrors => {
     this.setState({ validationErrors, isErrorDialogVisible: true });
-  }
+  };
 
   hideErrorDialog = () => {
     this.setState({ isErrorDialogVisible: false });
@@ -51,10 +51,20 @@ export class Form extends React.PureComponent {
     handleSubmit,
     isSubmitting,
     setSubmitting,
+    values,
+    ...rest
   }) => async event => {
     event.preventDefault();
     event.persist();
 
+    // avoid multiple submissions
+    if (isSubmitting) {
+      return;
+    }
+
+    setSubmitting(true);
+
+    // validation phase
     const formErrors = await validateForm();
     if (Object.entries(formErrors).length) {
       this.setErrors(formErrors);
@@ -62,35 +72,31 @@ export class Form extends React.PureComponent {
       return;
     }
 
-    // avoid multiple submissions
-    // `submitForm()` can be used but `handleSubmit()`
-    // will take care of `isSubmitting` and other props
-    if (!isSubmitting) {
-      try {
-        await handleSubmit(event);
-      } catch (e) {
-        console.error('Error submitting form: ', e);
-      }
-      setSubmitting(false);
+    // submission phase
+    const { onSubmit } = this.props;
+    try {
+      await onSubmit(values, {
+        ...rest,
+        setErrors: this.setErrors,
+      });
+    } catch (e) {
+      console.error('Error submitting form: ', e);
     }
+
+    setSubmitting(false);
   };
 
   renderFormContents = ({
     isValid,
     isSubmitting,
-    validateForm,
-    handleSubmit,
-    setSubmitting,
     submitForm: originalSubmitForm,
     ...formProps
   }) => {
     // we need this func for nested forms
     // as the original submitForm() will trigger validation automatically
     const submitForm = this.createSubmissionHandler({
-      validateForm,
-      handleSubmit,
       isSubmitting,
-      setSubmitting,
+      ...formProps,
     });
 
     const { render } = this.props;
