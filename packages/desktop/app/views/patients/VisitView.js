@@ -12,6 +12,7 @@ import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { ContentPane } from '../../components/ContentPane';
 import { VitalsTable } from '../../components/VitalsTable';
 import { VitalsModal } from '../../components/VitalsModal';
+import { DischargeModal } from '../../components/DischargeModal';
 
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
@@ -81,13 +82,28 @@ const VisitInfoPane = React.memo(({ visit }) => (
   </FormGrid>
 ));
 
+const DischargeView = connect(
+  state => ({
+    modalOpen: state.router.location.pathname.endsWith('discharge'),
+  }),
+  dispatch => ({
+    onModalOpen: () => dispatch(push('/patients/visit/discharge')),
+    onModalClose: () => dispatch(push('/patients/visit')),
+  }),
+)(({ modalOpen, onModalOpen, onModalClose, visit }) => (
+  <React.Fragment>
+    <Button onClick={onModalOpen}>Discharge patient</Button>
+    <DischargeModal open={modalOpen} onClose={onModalClose} visit={visit} />
+  </React.Fragment>
+));
+
 export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
 
   return (
     <React.Fragment>
       <TopBar title="Patient visit">
-        <Button>Discharge patient</Button>
+        <DischargeView visit={visit} />
       </TopBar>
       <LoadingIndicator loading={loading}>
         <TwoColumnDisplay>

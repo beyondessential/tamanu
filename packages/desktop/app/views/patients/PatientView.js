@@ -20,7 +20,7 @@ const HistoryPane = connect(
   state => ({
     visits: state.patient.visits,
     patientId: state.patient._id,
-    path: state.router.location.pathname,
+    modalOpen: state.router.location.pathname.endsWith('checkin'),
   }),
   dispatch => ({
     onViewVisit: id => dispatch(viewVisit(id)),
@@ -28,10 +28,8 @@ const HistoryPane = connect(
     onModalClose: () => dispatch(push('/patients/view')),
   }),
 )(
-  React.memo(({ visits, patientId, path, onModalClose, onModalOpen, onViewVisit }) => {
-    const modalOpen = path.endsWith('checkin');
-
-    return (
+  React.memo(({ visits, patientId, modalOpen, onModalClose, onModalOpen, onViewVisit }) => 
+    (
       <div>
         <VisitModal open={modalOpen} onClose={onModalClose} patientId={patientId} />
         <ContentPane>
@@ -41,8 +39,8 @@ const HistoryPane = connect(
         </ContentPane>
         <PatientHistory items={visits} onItemClick={item => onViewVisit(item._id)} />
       </div>
-    );
-  }),
+    )
+  ),
 );
 
 const TABS = [

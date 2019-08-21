@@ -33,7 +33,7 @@ const VisitOverview = React.memo(({ visit }) => (
     <DetailRow label="Admission date">
       <DateDisplay date={visit.startDate} />
     </DetailRow>
-    <DetailRow label="Supervising physician">{visit.examiner}</DetailRow>
+    <DetailRow label="Supervising physician">{visit.examiner.name}</DetailRow>
     <DetailRow label="Reason for visit">{visit.reasonForVisit || 'Not specified'}</DetailRow>
     <FullWidthDetailRow label="Diagnoses">
       {visit.diagnoses.map(d => (
@@ -58,7 +58,7 @@ export class DischargeForm extends React.PureComponent {
     onSubmit: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
     practitionerSuggester: PropTypes.shape({}).isRequired,
-    editedObject: PropTypes.shape({}).isRequired,
+    visit: PropTypes.shape({}).isRequired,
   };
 
   renderForm = ({ submitForm }) => {

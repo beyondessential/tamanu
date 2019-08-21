@@ -8,11 +8,10 @@ import { viewVisit } from '../store/visit';
 
 import { DischargeForm } from '../forms/DischargeForm';
 
-const DumbVisitModal = React.memo(
+const DumbDischargeModal = React.memo(
   ({
     open,
-    patientId,
-    visitId,
+    visit,
     locationSuggester,
     practitionerSuggester,
     onClose,
@@ -22,9 +21,9 @@ const DumbVisitModal = React.memo(
     const onSubmit = React.useCallback(
       async data => {
         const createdVisit = await onDischarge(data);
-        onViewVisit(visitId);
+        onViewVisit(visit._id);
       },
-      [visitId],
+      [visit._id],
     );
 
     return (
@@ -32,6 +31,7 @@ const DumbVisitModal = React.memo(
         <DischargeForm
           onSubmit={onSubmit}
           onCancel={onClose}
+          visit={visit}
           practitionerSuggester={practitionerSuggester}
         />
       </Modal>
@@ -39,8 +39,8 @@ const DumbVisitModal = React.memo(
   },
 );
 
-export const VisitModal = connectApi((api, dispatch, { patientId, visitId }) => ({
-  onDischarge: data => api.post(`patient/${patientId}/visits/${visitId}/discharge`, data),
-  onViewVisit: visitId => dispatch(viewVisit(visitId)),
+export const DischargeModal = connectApi((api, dispatch, { visit }) => ({
+  onDischarge: data => api.post(`visits/${visit._id}/discharge`, data),
+  onViewVisit: visitId => dispatch(viewVisit(visit._id)),
   practitionerSuggester: new Suggester(api, 'practitioner'),
-}))(DumbVisitModal);
+}))(DumbDischargeModal);
