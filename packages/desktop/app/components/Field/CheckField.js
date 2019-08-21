@@ -11,15 +11,13 @@ export const CheckInput = ({ label, value, style, ...props }) => (
   />
 );
 
-export const CheckField = ({ field, error, label, disabled, required }) => (
+export const CheckField = ({ field, error, ...props }) => (
   <CheckInput
     name={field.name}
     value={field.value || false}
     onChange={field.onChange}
-    label={label}
     error={error || undefined}
-    disabled={disabled}
-    required={required}
+    {...props}
   />
 );
 
