@@ -8,7 +8,7 @@ import { viewVisit } from '../store/visit';
 import { VitalsForm } from '../forms/VitalsForm';
 
 const DumbVitalsModal = React.memo(({ onClose, onSubmit }) => (
-  <Modal title="Record vitals" isVisible onClose={onClose}>
+  <Modal title="Record vitals" open onClose={onClose}>
     <VitalsForm form={VitalsForm} onSubmit={onSubmit} onCancel={onClose} />
   </Modal>
 ));
