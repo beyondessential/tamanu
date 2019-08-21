@@ -1,11 +1,17 @@
 import React, { memo } from 'react';
-import { Dialog as MuiDialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
+import styled from 'styled-components';
+import { Dialog as MuiDialog, DialogTitle, DialogActions } from '@material-ui/core';
 
-export const Modal = memo(({ title, children, open, onClose, actions, ...props }) => {
+const ModalContent = styled.div`
+  flex: 1 1 auto;
+  padding: 0 24px 24px;
+`;
+
+export const Modal = memo(({ title, children, actions, ...props }) => {
   return (
-    <MuiDialog fullWidth maxWidth="sm" {...props} open={open} onClose={onClose}>
+    <MuiDialog fullWidth maxWidth="sm" {...props}>
       <DialogTitle>{title}</DialogTitle>
-      <DialogContent>{children}</DialogContent>
+      <ModalContent>{children}</ModalContent>
       <DialogActions>{actions}</DialogActions>
     </MuiDialog>
   );
