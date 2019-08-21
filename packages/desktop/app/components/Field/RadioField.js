@@ -32,8 +32,14 @@ export const RadioInput = ({ options, name, value, label, helperText, inline, ..
   </FormControl>
 );
 
-export const RadioField = ({ field, ...props }) => (
-  <RadioInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
+export const RadioField = ({ field, error, ...props }) => (
+  <RadioInput
+    name={field.name}
+    value={field.value || ''}
+    onChange={field.onChange}
+    error={error || undefined}
+    {...props}
+  />
 );
 
 RadioInput.propTypes = {

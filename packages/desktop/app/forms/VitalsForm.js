@@ -4,9 +4,7 @@ import * as yup from 'yup';
 
 import { Form, Field, DateField, NumberField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { Button } from '../components/Button';
-import { ButtonRow } from '../components/ButtonRow';
-
+import { ConfirmCancelRow } from '../components/ButtonRow';
 export class VitalsForm extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
@@ -24,14 +22,7 @@ export class VitalsForm extends React.PureComponent {
         <Field name="heartRate" label="Heart rate" component={NumberField} />
         <Field name="respiratoryRate" label="Respiratory rate" component={NumberField} />
         <Field name="temperature" label="Temperature (ºC)" component={NumberField} />
-        <ButtonRow style={{ gridColumn: 'span 2' }}>
-          <Button variant="contained" onClick={onCancel} color="">
-            Cancel
-          </Button>
-          <Button variant="contained" onClick={submitForm} color="primary">
-            Record
-          </Button>
-        </ButtonRow>
+        <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onCancel} />
       </FormGrid>
     );
   };

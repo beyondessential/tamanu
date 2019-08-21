@@ -78,9 +78,8 @@ export class LoginView extends Component {
                 <Grid item xs={12}>
                   <CheckInput
                     name="rememberMe"
-                    value
+                    value={rememberMe}
                     label="Remember me"
-                    checked={rememberMe}
                     onChange={this.handleUserInput}
                   />
                   <div className="column is-half has-text-right">

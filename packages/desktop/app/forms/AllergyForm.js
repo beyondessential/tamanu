@@ -37,12 +37,7 @@ export class AllergyForm extends React.PureComponent {
           suggester={practitionerSuggester}
         />
         <Field name="note" label="Notes" component={TextField} style={{ gridColumn: 'span 2' }} />
-        <ConfirmCancelRow
-          style={{ gridColumn: 2 }}
-          onCancel={onCancel}
-          onConfirm={submitForm}
-          confirmText={buttonText}
-        />
+        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText={buttonText} />
       </FormGrid>
     );
   };

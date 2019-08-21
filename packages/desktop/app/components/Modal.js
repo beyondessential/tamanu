@@ -1,37 +1,18 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Dialog as MuiDialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
-import { MUI_SPACING_UNIT as spacing } from '../constants';
-import { ButtonGroup } from './Layout';
+import React, { memo } from 'react';
+import styled from 'styled-components';
+import { Dialog as MuiDialog, DialogTitle, DialogActions } from '@material-ui/core';
 
-export const ModalActions = ({ children, ...props }) => (
-  <DialogActions style={{ marginTop: spacing * 2 }} {...props}>
-    <ButtonGroup>{children}</ButtonGroup>
-  </DialogActions>
-);
+const ModalContent = styled.div`
+  flex: 1 1 auto;
+  padding: 0 24px 24px;
+`;
 
-ModalActions.propTypes = {
-  children: PropTypes.node.isRequired,
-};
-
-export function Modal({ title, children, isVisible, onClose, actions, ...props }) {
+export const Modal = memo(({ title, children, actions, ...props }) => {
   return (
-    <MuiDialog fullWidth maxWidth="sm" {...props} open={isVisible} onClose={onClose}>
+    <MuiDialog fullWidth maxWidth="sm" {...props}>
       <DialogTitle>{title}</DialogTitle>
-      <DialogContent>{children}</DialogContent>
-      {actions && <ModalActions>{actions}</ModalActions>}
+      <ModalContent>{children}</ModalContent>
+      <DialogActions>{actions}</DialogActions>
     </MuiDialog>
   );
-}
-
-Modal.propTypes = {
-  title: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired,
-  actions: PropTypes.node,
-  isVisible: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-};
-
-Modal.defaultProps = {
-  actions: null,
-};
+});

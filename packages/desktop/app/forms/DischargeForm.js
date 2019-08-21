@@ -85,12 +85,7 @@ export class DischargeForm extends React.PureComponent {
           multiline
           rows={4}
         />
-        <ConfirmCancelRow
-          style={{ gridColumn: 2 }}
-          onCancel={onCancel}
-          onConfirm={submitForm}
-          confirmText="Finalise"
-        />
+        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText="Finalise" />
       </Column>
     );
   };

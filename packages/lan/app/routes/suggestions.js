@@ -27,7 +27,19 @@ function createSuggestionRoute(path, table, filter, transform = defaultTransform
   });
 }
 
-function createDummySuggestionRoute(path, values) {
+function createDummySuggestionRoute(path, valuesTemplate) {
+  const makeId = s =>
+    s
+      .trim()
+      .replace(/\s/g, '-')
+      .replace(/[^\w-]/g, '')
+      .toLowerCase();
+  const split = s =>
+    s
+      .split(/[\r\n]+/g)
+      .map(x => x.trim())
+      .filter(x => x);
+  const values = split(valuesTemplate).map(s => ({ name: s, _id: makeId(s) }));
   suggestionRoutes.get(`/${path}/:id`, (req, res) => {
     const { id } = req.params;
     const object = values.find(x => x._id === id);
@@ -56,4 +68,37 @@ createSuggestionRoute(
 
 createSuggestionRoute('practitioner', 'user', 'name CONTAINS[c] $0');
 
-createSuggestionRoute('location', 'location', 'name CONTAINS[c] $0');
+createSuggestionRoute(
+  'patient',
+  'patient',
+  'firstName CONTAINS[c] $0 OR lastName CONTAINS[c] $0',
+  ({ _id, firstName, lastName }) => ({ _id, firstName, lastName }),
+);
+
+createDummySuggestionRoute(
+  'facility',
+  `
+  Balwyn
+  Hawthorn East
+  Kerang
+  Lake Charm
+  Marla
+  Mont Albert
+  National Medical
+  Port Douglas
+  Swan Hill
+  Thornbury
+  Traralgon
+  `,
+);
+
+createDummySuggestionRoute(
+  'location',
+  `
+  Ward 1
+  Ward 2
+  Ward 3
+  Emergency
+  Radiology
+  `,
+);

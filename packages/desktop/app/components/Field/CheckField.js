@@ -3,15 +3,22 @@ import PropTypes from 'prop-types';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
-export const CheckInput = ({ label, value, ...props }) => (
+export const CheckInput = ({ label, value, style, ...props }) => (
   <FormControlLabel
     control={<Checkbox checked={value} value="checked" {...props} />}
+    style={style}
     label={label}
   />
 );
 
-export const CheckField = ({ field, ...props }) => (
-  <CheckInput name={field.name} value={field.value || false} onChange={field.onChange} {...props} />
+export const CheckField = ({ field, error, helperText, ...props }) => (
+  <CheckInput
+    name={field.name}
+    value={field.value || false}
+    onChange={field.onChange}
+    error={error || undefined}
+    {...props}
+  />
 );
 
 CheckInput.propTypes = {
