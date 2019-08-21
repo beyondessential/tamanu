@@ -41,7 +41,7 @@ export const TimeField = ({ field, ...props }) => (
 DateInput.propTypes = {
   name: PropTypes.string,
   value: PropTypes.oneOfType([
-    PropTypes.string, 
+    PropTypes.string,
     PropTypes.instanceOf(moment),
     PropTypes.instanceOf(Date),
   ]),
@@ -51,6 +51,8 @@ DateInput.propTypes = {
 };
 
 DateInput.defaultProps = {
+  name: '',
+  onChange: () => null,
   value: '',
   fullWidth: true,
   format: 'YYYY-MM-DD',

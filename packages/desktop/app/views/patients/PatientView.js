@@ -23,13 +23,13 @@ const HistoryPane = connect(
     path: state.router.location.pathname,
   }),
   dispatch => ({
-    onViewVisit: (id) => dispatch(viewVisit(id)),
-    onModalOpen: () => dispatch(push("/patients/view/checkin")),
-    onModalClose: () => dispatch(push("/patients/view")),
+    onViewVisit: id => dispatch(viewVisit(id)),
+    onModalOpen: () => dispatch(push('/patients/view/checkin')),
+    onModalClose: () => dispatch(push('/patients/view')),
   }),
 )(
   React.memo(({ visits, patientId, path, onModalClose, onModalOpen, onViewVisit }) => {
-    const modalOpen = path.endsWith("checkin");
+    const modalOpen = path.endsWith('checkin');
 
     return (
       <div>

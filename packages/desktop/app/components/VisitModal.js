@@ -9,7 +9,7 @@ import { viewVisit } from '../store/visit';
 
 import { VisitForm } from '../forms/VisitForm';
 
-const DumbVisitModal = React.memo(({ api, onClose, open, visitId, patientId, onViewVisit }) => {
+const DumbVisitModal = React.memo(({ api, onClose, open, patientId, onViewVisit }) => {
   const onSubmit = React.useCallback(
     async data => {
       const createdVisit = await api.post(`patient/${patientId}/visits`, data);
