@@ -9,8 +9,17 @@ import {
   FormHelperText,
 } from '@material-ui/core';
 
-export const RadioInput = ({ options, name, value, label, helperText, inline, ...props }) => (
-  <FormControl {...props}>
+export const RadioInput = ({
+  options,
+  name,
+  value,
+  label,
+  helperText,
+  inline,
+  style,
+  ...props
+}) => (
+  <FormControl style={style} {...props}>
     <FormLabel>{label}</FormLabel>
     <RadioGroup
       aria-label={name}

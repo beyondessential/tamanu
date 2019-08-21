@@ -27,6 +27,19 @@ export const NewPatientForm = memo(
           <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
           <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
           <Field
+            name="sex"
+            label="Sex"
+            component={RadioField}
+            style={{ gridColumn: 'span 2' }}
+            options={[
+              { value: 'male', label: 'Male' },
+              { value: 'female', label: 'Female' },
+              { value: 'other', label: 'Other' },
+            ]}
+            inline
+            required
+          />
+          <Field
             name="revealAdditionalFields"
             label="Add additional information (religion, occupation, blood type...)"
             component={CheckField}
