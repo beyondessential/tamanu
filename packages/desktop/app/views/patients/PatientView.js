@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { push } from 'connected-react-router';
 
 import TopBar from '../../components/TopBar';
 
@@ -15,22 +16,30 @@ import { Button } from '../../components/Button';
 
 import { viewVisit } from '../../store/visit';
 
-const HistoryPane = connect(state => ({
-  visits: state.patient.visits,
-  patientId: state.patient._id,
-}))(
-  React.memo(({ visits, dispatch, patientId }) => {
-    const [modalOpen, setModalOpen] = React.useState(false);
+const HistoryPane = connect(
+  state => ({
+    visits: state.patient.visits,
+    patientId: state.patient._id,
+    path: state.router.location.pathname,
+  }),
+  dispatch => ({
+    onViewVisit: (id) => dispatch(viewVisit(id)),
+    onModalOpen: () => dispatch(push("/patients/view/checkin")),
+    onModalClose: () => dispatch(push("/patients/view")),
+  }),
+)(
+  React.memo(({ visits, patientId, path, onModalClose, onModalOpen, onViewVisit }) => {
+    const modalOpen = path.endsWith("checkin");
 
     return (
       <div>
-        {modalOpen && <VisitModal onClose={() => setModalOpen(false)} patientId={patientId} />}
+        <VisitModal open={modalOpen} onClose={onModalClose} patientId={patientId} />
         <ContentPane>
-          <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+          <Button onClick={onModalOpen} variant="contained" color="primary">
             Check in
           </Button>
         </ContentPane>
-        <PatientHistory items={visits} onItemClick={item => dispatch(viewVisit(item._id))} />
+        <PatientHistory items={visits} onItemClick={item => onViewVisit(item._id)} />
       </div>
     );
   }),

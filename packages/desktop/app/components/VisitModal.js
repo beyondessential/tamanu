@@ -9,7 +9,7 @@ import { viewVisit } from '../store/visit';
 
 import { VisitForm } from '../forms/VisitForm';
 
-const DumbVisitModal = React.memo(({ api, onClose, visitId, patientId, onViewVisit }) => {
+const DumbVisitModal = React.memo(({ api, onClose, open, visitId, patientId, onViewVisit }) => {
   const onSubmit = React.useCallback(
     async data => {
       const createdVisit = await api.post(`patient/${patientId}/visits`, data);
@@ -20,12 +20,12 @@ const DumbVisitModal = React.memo(({ api, onClose, visitId, patientId, onViewVis
   );
 
   return (
-    <Modal title="Check in" isVisible onClose={onClose}>
+    <Modal title="Check in" open={open} onClose={onClose}>
       <VisitForm
         onSubmit={onSubmit}
         onCancel={onClose}
-        locationSuggester={new Suggester('location')}
-        practitionerSuggester={new Suggester('practitioner')}
+        locationSuggester={new Suggester(api, 'location')}
+        practitionerSuggester={new Suggester(api, 'practitioner')}
       />
     </Modal>
   );
