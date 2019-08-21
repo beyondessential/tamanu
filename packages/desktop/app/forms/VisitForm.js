@@ -83,8 +83,8 @@ export class VisitForm extends React.PureComponent {
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          examiner: foreignKey("Examiner is required"),
-          location: foreignKey("Location is required"),
+          examiner: foreignKey('Examiner is required'),
+          location: foreignKey('Location is required'),
           startDate: yup.date().required(),
           visitType: yup
             .mixed()

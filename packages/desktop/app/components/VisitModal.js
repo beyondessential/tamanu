@@ -9,34 +9,36 @@ import { viewVisit } from '../store/visit';
 
 import { VisitForm } from '../forms/VisitForm';
 
-const DumbVisitModal = React.memo(({ 
-  open,
-  patientId,
-  locationSuggester,
-  practitionerSuggester,
-  onClose, 
-  onCreateVisit,
-  onViewVisit,
-}) => {
-  const onSubmit = React.useCallback(
-    async data => {
-      const createdVisit = await onCreateVisit(data);
-      onViewVisit(createdVisit._id);
-    },
-    [patientId],
-  );
+const DumbVisitModal = React.memo(
+  ({
+    open,
+    patientId,
+    locationSuggester,
+    practitionerSuggester,
+    onClose,
+    onCreateVisit,
+    onViewVisit,
+  }) => {
+    const onSubmit = React.useCallback(
+      async data => {
+        const createdVisit = await onCreateVisit(data);
+        onViewVisit(createdVisit._id);
+      },
+      [patientId],
+    );
 
-  return (
-    <Modal title="Check in" open={open} onClose={onClose}>
-      <VisitForm
-        onSubmit={onSubmit}
-        onCancel={onClose}
-        locationSuggester={locationSuggester}
-        practitionerSuggester={practitionerSuggester}
-      />
-    </Modal>
-  );
-});
+    return (
+      <Modal title="Check in" open={open} onClose={onClose}>
+        <VisitForm
+          onSubmit={onSubmit}
+          onCancel={onClose}
+          locationSuggester={locationSuggester}
+          practitionerSuggester={practitionerSuggester}
+        />
+      </Modal>
+    );
+  },
+);
 
 export const VisitModal = connectApi((api, dispatch, { patientId }) => ({
   onCreateVisit: data => api.post(`patient/${patientId}/visits`, data),
