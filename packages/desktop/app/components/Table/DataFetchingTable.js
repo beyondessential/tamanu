@@ -64,7 +64,7 @@ const DumbDataFetchingTable = memo(
   },
 );
 
-function mapApiToProps(api, { endpoint, fetchOptions }) {
+function mapApiToProps(api, dispatch, { endpoint, fetchOptions }) {
   return {
     fetchData: queryParameters => api.get(endpoint, { ...fetchOptions, ...queryParameters }),
   };
