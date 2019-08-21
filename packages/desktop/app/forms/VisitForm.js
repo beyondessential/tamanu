@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 
+import { foreignKey } from '../utils/validation';
+
 import {
   Form,
   Field,
@@ -81,8 +83,8 @@ export class VisitForm extends React.PureComponent {
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          examiner: yup.string().required(),
-          location: yup.string().required(),
+          examiner: foreignKey("Examiner is required"),
+          location: foreignKey("Location is required"),
           startDate: yup.date().required(),
           visitType: yup
             .mixed()
