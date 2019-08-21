@@ -2,6 +2,7 @@ import express from 'express';
 import RealmController from '../controllers/realm';
 
 import { visitRoutes } from './restful/visit';
+import { patientRoutes } from './restful/patient';
 
 export const restfulRoutes = express.Router();
 restfulRoutes.get(
@@ -18,6 +19,7 @@ restfulRoutes.get(
 // as this would stop that path from being picked up by the generic realm
 // controllers below.
 restfulRoutes.use(visitRoutes);
+restfulRoutes.use(patientRoutes);
 
 // generic catch-all routes
 restfulRoutes.get('/:model/:id', RealmController.GET);

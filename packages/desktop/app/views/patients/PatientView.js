@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { push } from 'connected-react-router';
 
 import TopBar from '../../components/TopBar';
 
@@ -10,21 +11,45 @@ import { PatientAlert } from '../../components/PatientAlert';
 import { PatientHistory } from '../../components/PatientHistory';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { ContentPane } from '../../components/ContentPane';
+import { VisitModal } from '../../components/VisitModal';
+import { Button } from '../../components/Button';
 
 import { viewVisit } from '../../store/visit';
 
-const ConnectedPatientHistory = connect(
-  state => ({ items: state.patient.visits }),
-  dispatch => ({
-    onItemClick: item => dispatch(viewVisit(item._id)),
+const HistoryPane = connect(
+  state => ({
+    visits: state.patient.visits,
+    patientId: state.patient._id,
+    path: state.router.location.pathname,
   }),
-)(PatientHistory);
+  dispatch => ({
+    onViewVisit: id => dispatch(viewVisit(id)),
+    onModalOpen: () => dispatch(push('/patients/view/checkin')),
+    onModalClose: () => dispatch(push('/patients/view')),
+  }),
+)(
+  React.memo(({ visits, patientId, path, onModalClose, onModalOpen, onViewVisit }) => {
+    const modalOpen = path.endsWith('checkin');
+
+    return (
+      <div>
+        <VisitModal open={modalOpen} onClose={onModalClose} patientId={patientId} />
+        <ContentPane>
+          <Button onClick={onModalOpen} variant="contained" color="primary">
+            Check in
+          </Button>
+        </ContentPane>
+        <PatientHistory items={visits} onItemClick={item => onViewVisit(item._id)} />
+      </div>
+    );
+  }),
+);
 
 const TABS = [
   {
     label: 'History',
     key: 'history',
-    render: () => <ConnectedPatientHistory />,
+    render: () => <HistoryPane />,
   },
   {
     label: 'Details',
