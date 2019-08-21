@@ -28,19 +28,17 @@ const HistoryPane = connect(
     onModalClose: () => dispatch(push('/patients/view')),
   }),
 )(
-  React.memo(({ visits, patientId, modalOpen, onModalClose, onModalOpen, onViewVisit }) => 
-    (
-      <div>
-        <VisitModal open={modalOpen} onClose={onModalClose} patientId={patientId} />
-        <ContentPane>
-          <Button onClick={onModalOpen} variant="contained" color="primary">
-            Check in
-          </Button>
-        </ContentPane>
-        <PatientHistory items={visits} onItemClick={item => onViewVisit(item._id)} />
-      </div>
-    )
-  ),
+  React.memo(({ visits, patientId, modalOpen, onModalClose, onModalOpen, onViewVisit }) => (
+    <div>
+      <VisitModal open={modalOpen} onClose={onModalClose} patientId={patientId} />
+      <ContentPane>
+        <Button onClick={onModalOpen} variant="contained" color="primary">
+          Check in
+        </Button>
+      </ContentPane>
+      <PatientHistory items={visits} onItemClick={item => onViewVisit(item._id)} />
+    </div>
+  )),
 );
 
 const TABS = [

@@ -5,7 +5,14 @@ import styled from 'styled-components';
 
 import { foreignKey } from '../utils/validation';
 
-import { Form, Field, AutocompleteField, TextField, CheckField, DateField } from '../components/Field';
+import {
+  Form,
+  Field,
+  AutocompleteField,
+  TextField,
+  CheckField,
+  DateField,
+} from '../components/Field';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DetailTable, DetailRow, FullWidthDetailRow } from '../components/DetailTable';
 import { DateDisplay } from '../components/DateDisplay';
@@ -73,12 +80,7 @@ export class DischargeForm extends React.PureComponent {
           component={CheckField}
           helperText="Requires mSupply"
         />
-        <Field
-          name="endDate"
-          label="Discharge date"
-          component={DateField}
-          required
-        />
+        <Field name="endDate" label="Discharge date" component={DateField} required />
         <Field
           name="dischargePhysician._id"
           label="Discharging physician"
