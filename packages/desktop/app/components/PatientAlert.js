@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, ModalActions } from './Modal';
+import { Modal } from './Modal';
 import { ButtonRow } from './ButtonRow';
 import { Button } from './Button';
 
@@ -16,13 +16,11 @@ export const PatientAlert = React.memo(({ alerts = [] }) => {
           <li key={a}>{a}</li>
         ))}
       </ul>
-      <ModalActions>
-        <ButtonRow>
-          <Button variant="contained" color="primary" onClick={close}>
-            OK
-          </Button>
-        </ButtonRow>
-      </ModalActions>
+      <ButtonRow>
+        <Button variant="contained" color="primary" onClick={close}>
+          OK
+        </Button>
+      </ButtonRow>
     </Modal>
   );
 });

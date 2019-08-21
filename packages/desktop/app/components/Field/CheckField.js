@@ -11,7 +11,7 @@ export const CheckInput = ({ label, value, style, ...props }) => (
   />
 );
 
-export const CheckField = ({ field, error, ...props }) => (
+export const CheckField = ({ field, error, helperText, ...props }) => (
   <CheckInput
     name={field.name}
     value={field.value || false}
