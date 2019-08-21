@@ -25,7 +25,7 @@ export const NewPatientForm = memo(
           <Field name="middleName" label="Middle name" component={TextField} />
           <Field name="lastName" label="Last name" component={TextField} required />
           <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
-          <Field name="dateOfBirth" label="Date of birth" component={DateField} />
+          <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
           <Field
             name="revealAdditionalFields"
             label="Add additional information (religion, occupation, blood type...)"
@@ -90,7 +90,7 @@ export const NewPatientForm = memo(
           middleName: yup.string(),
           lastName: yup.string().required(),
           culturalName: yup.string(),
-          dateOfBirth: yup.date(),
+          dateOfBirth: yup.date().required(),
           sex: yup.string().oneOf(['male', 'female', 'other']),
 
           religion: yup.string(),
