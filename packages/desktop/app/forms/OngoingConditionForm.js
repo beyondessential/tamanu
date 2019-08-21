@@ -72,12 +72,7 @@ export class OngoingConditionForm extends React.PureComponent {
             />
           </FormGrid>
         </Collapse>
-        <ConfirmCancelRow
-          style={{ gridColumn: 2 }}
-          onCancel={onCancel}
-          onConfirm={submitForm}
-          confirmText={buttonText}
-        />
+        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText={buttonText} />
       </FormGrid>
     );
   };

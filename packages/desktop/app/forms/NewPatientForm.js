@@ -15,7 +15,7 @@ import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
 export const NewPatientForm = memo(
-  ({ editedObject, onCancel, onSubmit, generateId, patientSuggester, facilitySuggester }) => {
+  ({ editedObject, onSubmit, onCancel, generateId, patientSuggester, facilitySuggester }) => {
     const renderForm = ({ submitForm, values }) => {
       const revealAdditionalFields = values.revealAdditionalFields;
       return (
@@ -25,11 +25,12 @@ export const NewPatientForm = memo(
           <Field name="middleName" label="Middle name" component={TextField} />
           <Field name="lastName" label="Last name" component={TextField} required />
           <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
-          <Field name="dateOfBirth" label="Date of birth" component={DateField} />
+          <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
           <Field
             name="revealAdditionalFields"
             label="Add additional information (religion, occupation, blood type...)"
             component={CheckField}
+            style={{ gridColumn: 'span 2' }}
           />
           <Collapse in={revealAdditionalFields} style={{ gridColumn: 'span 2' }}>
             <FormGrid>
@@ -70,12 +71,7 @@ export const NewPatientForm = memo(
               />
             </FormGrid>
           </Collapse>
-          <ConfirmCancelRow
-            style={{ gridColumn: 2 }}
-            onCancel={onCancel}
-            onConfirm={submitForm}
-            confirmText="Create patient"
-          />
+          <ConfirmCancelRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
         </FormGrid>
       );
     };
@@ -94,7 +90,7 @@ export const NewPatientForm = memo(
           middleName: yup.string(),
           lastName: yup.string().required(),
           culturalName: yup.string(),
-          dateOfBirth: yup.date(),
+          dateOfBirth: yup.date().required(),
           sex: yup.string().oneOf(['male', 'female', 'other']),
 
           religion: yup.string(),
