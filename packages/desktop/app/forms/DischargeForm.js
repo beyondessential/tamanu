@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { Form, Field, AutocompleteField, TextField, CheckField } from '../components/Field';
+import { foreignKey } from '../utils/validation';
+
+import { Form, Field, AutocompleteField, TextField, CheckField, DateField } from '../components/Field';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DetailTable, DetailRow, FullWidthDetailRow } from '../components/DetailTable';
 import { DateDisplay } from '../components/DateDisplay';
@@ -72,7 +74,13 @@ export class DischargeForm extends React.PureComponent {
           helperText="Requires mSupply"
         />
         <Field
-          name="dischargePhysician"
+          name="endDate"
+          label="Discharge date"
+          component={DateField}
+          required
+        />
+        <Field
+          name="dischargePhysician._id"
           label="Discharging physician"
           component={AutocompleteField}
           suggester={practitionerSuggester}
@@ -99,11 +107,11 @@ export class DischargeForm extends React.PureComponent {
           onSubmit={onSubmit}
           render={this.renderForm}
           initialValues={{
-            dischargeDate: new Date(),
+            endDate: new Date(),
           }}
           validationSchema={yup.object().shape({
-            dischargePhysician: yup.string().required(),
-            dischargeDate: yup.date().required(),
+            endDate: yup.date().required(),
+            dischargePhysician: foreignKey('Discharging physician is a required field'),
             dischargeNotes: yup.string(),
           })}
         />

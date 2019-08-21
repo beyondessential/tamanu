@@ -16,6 +16,9 @@ export const VisitSchema = {
     examiner: { type: 'user', optional: true },
     location: { type: 'location', optional: true },
 
+    dischargePhysician: { type: 'user', optional: true },
+    dischargeNotes: { type: 'string', optional: true },
+
     // has-many
     medications: { type: 'list', objectType: 'medication' },
     diagnoses: { type: 'list', objectType: 'patientDiagnosis' },

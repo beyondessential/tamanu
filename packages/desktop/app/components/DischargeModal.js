@@ -15,7 +15,7 @@ const DumbDischargeModal = React.memo(
     locationSuggester,
     practitionerSuggester,
     onClose,
-    onCreateVisit,
+    onDischarge,
     onViewVisit,
   }) => {
     const onSubmit = React.useCallback(
@@ -40,7 +40,7 @@ const DumbDischargeModal = React.memo(
 );
 
 export const DischargeModal = connectApi((api, dispatch, { visit }) => ({
-  onDischarge: data => api.post(`visits/${visit._id}/discharge`, data),
+  onDischarge: data => api.post(`visit/${visit._id}/discharge`, data),
   onViewVisit: visitId => dispatch(viewVisit(visit._id)),
   practitionerSuggester: new Suggester(api, 'practitioner'),
 }))(DumbDischargeModal);
