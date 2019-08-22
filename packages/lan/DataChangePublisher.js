@@ -32,6 +32,9 @@ export class DataChangePublisher {
     const payload = {};
     switch (recordType) {
       case 'visit': {
+        // TODO may only want to publish if relevant changes have been made, e.g. fully new
+        // or discharge status has changed, otherwise we'll be reloading patient history too
+        // often! That same optimisation could sit client side
         const patient = record.patient[0];
         payload.patientId = patient._id;
         break;
