@@ -11,12 +11,10 @@ import { VisitForm } from '../forms/VisitForm';
 const DumbVisitModal = React.memo(
   ({
     open,
-    patientId,
     locationSuggester,
     practitionerSuggester,
     onClose,
     onCreateVisit,
-    onViewVisit,
   }) => {
     return (
       <Modal title="Check in" open={open} onClose={onClose}>

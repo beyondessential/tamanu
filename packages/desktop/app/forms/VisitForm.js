@@ -25,23 +25,23 @@ const SelectorGrid = styled.div`
   grid-gap: 0.7rem;
 `;
 
-const VisitOptionButton = ({ label, value, onClick }) => (
-  <Button variant="contained" onClick={onClick}>{label}</Button>
+const VisitOptionButton = ({ label, onClick }) => (
+  <Button variant="contained" onClick={onClick}>
+    {label}
+  </Button>
 );
 
 const StartPage = ({ setValue }) => {
-  const items = visitOptions.map(({label, value}) => (
-    <VisitOptionButton 
+  const items = visitOptions.map(({ label, value }) => (
+    <VisitOptionButton
       key={value}
-      label={label} 
+      label={label}
       value={value}
-      onClick={() => setValue("visitType", value)}
+      onClick={() => setValue('visitType', value)}
     />
   ));
 
-  return (
-    <SelectorGrid>{ items }</SelectorGrid>
-  );
+  return <SelectorGrid>{items}</SelectorGrid>;
 };
 
 export class VisitForm extends React.PureComponent {
@@ -50,8 +50,8 @@ export class VisitForm extends React.PureComponent {
   };
 
   renderForm = ({ values, setFieldValue, submitForm }) => {
-    if(!values.visitType) {
-      return <StartPage setValue={setFieldValue} />
+    if (!values.visitType) {
+      return <StartPage setValue={setFieldValue} />;
     }
 
     const { locationSuggester, practitionerSuggester, editedObject } = this.props;
