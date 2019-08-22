@@ -18,18 +18,10 @@ const DumbVisitModal = React.memo(
     onCreateVisit,
     onViewVisit,
   }) => {
-    const onSubmit = React.useCallback(
-      async data => {
-        const createdVisit = await onCreateVisit(data);
-        onViewVisit(createdVisit._id);
-      },
-      [patientId],
-    );
-
     return (
       <Modal title="Check in" open={open} onClose={onClose}>
         <VisitForm
-          onSubmit={onSubmit}
+          onSubmit={onCreateVisit}
           onCancel={onClose}
           locationSuggester={locationSuggester}
           practitionerSuggester={practitionerSuggester}
@@ -40,8 +32,10 @@ const DumbVisitModal = React.memo(
 );
 
 export const VisitModal = connectApi((api, dispatch, { patientId }) => ({
-  onCreateVisit: data => api.post(`patient/${patientId}/visits`, data),
-  onViewVisit: visitId => dispatch(viewVisit(visitId)),
+  onCreateVisit: async data => {
+    const createdVisit = await api.post(`patient/${patientId}/visits`, data);
+    dispatch(viewVisit(createdVisit._id));
+  },
   locationSuggester: new Suggester(api, 'location'),
   practitionerSuggester: new Suggester(api, 'practitioner'),
 }))(DumbVisitModal);
