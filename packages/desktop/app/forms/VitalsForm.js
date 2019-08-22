@@ -37,7 +37,16 @@ export class VitalsForm extends React.PureComponent {
           dateRecorded: new Date(),
           ...editedObject,
         }}
-        validationSchema={yup.object().shape({})}
+        validationSchema={yup.object().shape({
+          dateRecorded: yup.date().required(),
+          height: yup.number(),
+          weight: yup.number(),
+          sbp: yup.number(),
+          dbp: yup.number(),
+          heartRate: yup.number(),
+          respiratoryRate: yup.number(),
+          temperature: yup.number(),
+        })}
       />
     );
   }
