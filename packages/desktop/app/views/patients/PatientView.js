@@ -17,12 +17,14 @@ import { Button } from '../../components/Button';
 import { viewVisit } from '../../store/visit';
 
 import { getCurrentRouteEndsWith } from '../../store/router';
+import { getCurrentVisit } from '../../store/patient';
 
 const HistoryPane = connect(
   state => ({
     visits: state.patient.visits,
     patientId: state.patient._id,
-    modalOpen: getCurrentRouteEndsWith(state, 'checkin'),
+    isModalOpen: getCurrentRouteEndsWith(state, 'checkin'),
+    isCheckInAvailable: !getCurrentVisit(state),
   }),
   dispatch => ({
     onViewVisit: id => dispatch(viewVisit(id)),
@@ -30,11 +32,11 @@ const HistoryPane = connect(
     onModalClose: () => dispatch(push('/patients/view')),
   }),
 )(
-  React.memo(({ visits, patientId, modalOpen, onModalClose, onModalOpen, onViewVisit }) => (
+  React.memo(({ visits, patientId, isModalOpen, onModalClose, onModalOpen, onViewVisit, isCheckInAvailable }) => (
     <div>
-      <VisitModal open={modalOpen} onClose={onModalClose} patientId={patientId} />
+      <VisitModal open={isModalOpen} onClose={onModalClose} patientId={patientId} />
       <ContentPane>
-        <Button onClick={onModalOpen} variant="contained" color="primary">
+        <Button disabled={!isCheckInAvailable} onClick={onModalOpen} variant="contained" color="primary">
           Check in
         </Button>
       </ContentPane>

@@ -18,6 +18,10 @@ export const viewPatient = id => async (dispatch, getState, { api }) => {
   }
 };
 
+// selectors
+
+export const getCurrentVisit = (state) => state.patient.visits.find(x => !x.endDate);
+
 // reducers
 
 const defaultState = {
