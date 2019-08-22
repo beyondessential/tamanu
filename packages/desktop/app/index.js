@@ -25,13 +25,13 @@ const store = createStore(persistedReducers, {}, enhancers);
 const persistor = persistStore(store);
 
 // if you run into problems with redux state, call "purge()" in the dev console
-if (window.localStorage.getItem('queuePurge') === true) {
+if (window.localStorage.getItem('queuePurge')) {
   persistor.purge();
-  window.localStorage.setItem('queuePurge', false);
+  window.localStorage.setItem('queuePurge', '');
 }
 
 window.purge = () => {
-  window.localStorage.setItem('queuePurge', true);
+  window.localStorage.setItem('queuePurge', 'true');
   window.location.reload();
 };
 
