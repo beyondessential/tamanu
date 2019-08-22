@@ -16,11 +16,13 @@ import { Button } from '../../components/Button';
 
 import { viewVisit } from '../../store/visit';
 
+import { getCurrentRouteEndsWith } from '../../store/router';
+
 const HistoryPane = connect(
   state => ({
     visits: state.patient.visits,
     patientId: state.patient._id,
-    path: state.router.location.pathname,
+    modalOpen: getCurrentRouteEndsWith(state, 'checkin'),
   }),
   dispatch => ({
     onViewVisit: id => dispatch(viewVisit(id)),
@@ -28,21 +30,17 @@ const HistoryPane = connect(
     onModalClose: () => dispatch(push('/patients/view')),
   }),
 )(
-  React.memo(({ visits, patientId, path, onModalClose, onModalOpen, onViewVisit }) => {
-    const modalOpen = path.endsWith('checkin');
-
-    return (
-      <div>
-        <VisitModal open={modalOpen} onClose={onModalClose} patientId={patientId} />
-        <ContentPane>
-          <Button onClick={onModalOpen} variant="contained" color="primary">
-            Check in
-          </Button>
-        </ContentPane>
-        <PatientHistory items={visits} onItemClick={item => onViewVisit(item._id)} />
-      </div>
-    );
-  }),
+  React.memo(({ visits, patientId, modalOpen, onModalClose, onModalOpen, onViewVisit }) => (
+    <div>
+      <VisitModal open={modalOpen} onClose={onModalClose} patientId={patientId} />
+      <ContentPane>
+        <Button onClick={onModalOpen} variant="contained" color="primary">
+          Check in
+        </Button>
+      </ContentPane>
+      <PatientHistory items={visits} onItemClick={item => onViewVisit(item._id)} />
+    </div>
+  )),
 );
 
 const TABS = [

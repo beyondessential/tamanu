@@ -3,7 +3,16 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { Form, Field, AutocompleteField, TextField, CheckField } from '../components/Field';
+import { foreignKey } from '../utils/validation';
+
+import {
+  Form,
+  Field,
+  AutocompleteField,
+  TextField,
+  CheckField,
+  DateField,
+} from '../components/Field';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DetailTable, DetailRow, FullWidthDetailRow } from '../components/DetailTable';
 import { DateDisplay } from '../components/DateDisplay';
@@ -33,7 +42,7 @@ const VisitOverview = React.memo(({ visit }) => (
     <DetailRow label="Admission date">
       <DateDisplay date={visit.startDate} />
     </DetailRow>
-    <DetailRow label="Supervising physician">{visit.examiner}</DetailRow>
+    <DetailRow label="Supervising physician">{visit.examiner.name}</DetailRow>
     <DetailRow label="Reason for visit">{visit.reasonForVisit || 'Not specified'}</DetailRow>
     <FullWidthDetailRow label="Diagnoses">
       {visit.diagnoses.map(d => (
@@ -58,7 +67,7 @@ export class DischargeForm extends React.PureComponent {
     onSubmit: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
     practitionerSuggester: PropTypes.shape({}).isRequired,
-    editedObject: PropTypes.shape({}).isRequired,
+    visit: PropTypes.shape({}).isRequired,
   };
 
   renderForm = ({ submitForm }) => {
@@ -71,8 +80,9 @@ export class DischargeForm extends React.PureComponent {
           component={CheckField}
           helperText="Requires mSupply"
         />
+        <Field name="endDate" label="Discharge date" component={DateField} required />
         <Field
-          name="dischargePhysician"
+          name="dischargePhysician._id"
           label="Discharging physician"
           component={AutocompleteField}
           suggester={practitionerSuggester}
@@ -99,11 +109,11 @@ export class DischargeForm extends React.PureComponent {
           onSubmit={onSubmit}
           render={this.renderForm}
           initialValues={{
-            dischargeDate: new Date(),
+            endDate: new Date(),
           }}
           validationSchema={yup.object().shape({
-            dischargePhysician: yup.string().required(),
-            dischargeDate: yup.date().required(),
+            endDate: yup.date().required(),
+            dischargePhysician: foreignKey('Discharging physician is a required field'),
             dischargeNotes: yup.string(),
           })}
         />
