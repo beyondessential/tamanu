@@ -21,18 +21,3 @@ visitRoutes.post('/visit/:id/vitals', (req, res) => {
 
   res.send(objectToJSON(reading));
 });
-
-visitRoutes.post('/visit/:id/discharge', (req, res) => {
-  const db = req.app.get('database');
-  const visit = db.objectForPrimaryKey('visit', req.params.id);
-
-  // TODO: validate
-
-  // TODO: send discharge prescription to pharmacy via msupply
-
-  db.write(() => {
-    Object.assign(visit, req.body);
-  });
-
-  res.send(objectToJSON(visit));
-});
