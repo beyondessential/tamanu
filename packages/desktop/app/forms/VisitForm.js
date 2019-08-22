@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import styled from 'styled-components';
 
 import { foreignKey } from '../utils/validation';
 
@@ -17,12 +18,42 @@ import { Button } from '../components/Button';
 
 import { visitOptions } from '../constants';
 
+const SelectorGrid = styled.div`
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-auto-rows: 4rem;
+  grid-gap: 0.7rem;
+`;
+
+const VisitOptionButton = ({ label, value, onClick }) => (
+  <Button variant="contained" onClick={onClick}>{label}</Button>
+);
+
+const StartPage = ({ setValue }) => {
+  const items = visitOptions.map(({label, value}) => (
+    <VisitOptionButton 
+      key={value}
+      label={label} 
+      value={value}
+      onClick={() => setValue("visitType", value)}
+    />
+  ));
+
+  return (
+    <SelectorGrid>{ items }</SelectorGrid>
+  );
+};
+
 export class VisitForm extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
   };
 
-  renderForm = ({ submitForm }) => {
+  renderForm = ({ values, setFieldValue, submitForm }) => {
+    if(!values.visitType) {
+      return <StartPage setValue={setFieldValue} />
+    }
+
     const { locationSuggester, practitionerSuggester, editedObject } = this.props;
     const buttonText = editedObject ? 'Update visit' : 'Start visit';
     return (
@@ -30,7 +61,7 @@ export class VisitForm extends React.PureComponent {
         <Field
           name="visitType"
           label="Visit type"
-          required
+          disabled
           component={SelectField}
           options={visitOptions}
         />
