@@ -94,7 +94,9 @@ const DischargeView = connect(
   }),
 )(({ modalOpen, onModalOpen, onModalClose, visit }) => (
   <React.Fragment>
-    <Button onClick={onModalOpen}>Discharge patient</Button>
+    <Button onClick={onModalOpen} disabled={!!visit.endDate}>
+      Discharge patient
+    </Button>
     <DischargeModal open={modalOpen} onClose={onModalClose} visit={visit} />
   </React.Fragment>
 ));
