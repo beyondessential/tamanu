@@ -12,6 +12,7 @@ import Listeners from './app/services/listeners';
 import RemoteAuth from './app/services/remote-auth';
 
 import { startScheduledTasks } from './app/tasks';
+import { DataChangePublisher } from './DataChangePublisher';
 
 const port = config.port || 4500;
 const isDevelopment = process.env.NODE_ENV === 'development';
@@ -38,10 +39,12 @@ const isDevelopment = process.env.NODE_ENV === 'development';
     res.status(404).end();
   });
 
-  const startServer = (database) => {
-    app.listen(port, () => {
+  const startServer = database => {
+    const server = app.listen(port, () => {
       console.log(`Server is running on port ${port}!`);
     });
+    // Set up change publishing
+    new DataChangePublisher(server, database);
 
     startScheduledTasks(database);
   };

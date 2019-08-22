@@ -12,6 +12,7 @@ import './fonts.scss';
 
 import { createReducers } from './createReducers';
 import { API } from './api';
+import { DataChangeResponder } from './DataChangeResponder';
 
 const history = createHashHistory();
 const router = routerMiddleware(history);
@@ -22,6 +23,10 @@ const persistedReducers = persistCombineReducers(
   createReducers(history),
 );
 const store = createStore(persistedReducers, {}, enhancers);
+
+// set up data change responder to trigger reloads when relevant data changes server-side
+new DataChangeResponder(API, store);
+
 const persistor = persistStore(store);
 
 // if you run into problems with redux state, call "purge()" in the dev console

@@ -6,9 +6,13 @@ const PATIENT_LOAD_START = 'PATIENT_LOAD_START';
 const PATIENT_LOAD_ERROR = 'PATIENT_LOAD_ERROR';
 const PATIENT_LOAD_FINISH = 'PATIENT_LOAD_FINISH';
 
-export const viewPatient = id => async (dispatch, getState, { api }) => {
-  dispatch({ type: PATIENT_LOAD_START, id });
+export const viewPatient = id => async dispatch => {
+  dispatch(reloadPatient(id));
   dispatch(push('/patients/view'));
+};
+
+export const reloadPatient = id => async (dispatch, getState, { api }) => {
+  dispatch({ type: PATIENT_LOAD_START, id });
 
   try {
     const patient = await api.get(`patient/${id}`);

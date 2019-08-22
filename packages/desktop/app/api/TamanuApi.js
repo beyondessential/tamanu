@@ -1,3 +1,5 @@
+import faye from 'faye';
+
 const encodeQueryString = query =>
   Object.entries(query)
     .filter(([key, value]) => value !== undefined)
@@ -8,6 +10,7 @@ export class TamanuApi {
   constructor(host) {
     this.host = host;
     this.authHeader = null;
+    this.fayeClient = new faye.Client(`${host}/faye`);
   }
 
   async fetch(endpoint, query, config) {
@@ -48,5 +51,13 @@ export class TamanuApi {
         'Content-Type': 'application/json',
       },
     });
+  }
+
+  /**
+   * @param {*} changeType  Current one of save, remove, wipe, or * for all
+   */
+  async subscribeToChanges(recordType, changeType, callback) {
+    const channel = `/${recordType}${changeType ? `/${changeType}` : '/*'}`;
+    return this.fayeClient.subscribe(channel, callback);
   }
 }

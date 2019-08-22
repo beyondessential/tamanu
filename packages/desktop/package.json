@@ -198,6 +198,7 @@
     "dotenv-webpack": "^1.5.7",
     "electron-debug": "^2.0.0",
     "electron-devtools-installer": "^2.2.4",
+    "faye": "^1.2.4",
     "font-awesome": "^4.7.0",
     "formik": "^1.5.2",
     "fs-jetpack": "^2.2.2",
