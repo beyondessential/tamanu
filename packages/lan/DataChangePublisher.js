@@ -39,7 +39,6 @@ export class DataChangePublisher {
       default:
         return; // clients don't care about this record type (yet)
     }
-    console.log(payload);
     this.fayeClient.publish(`/${recordType}/${changeType}`, payload);
   }
 }
