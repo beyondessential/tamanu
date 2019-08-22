@@ -55,7 +55,7 @@ const VisitOverview = React.memo(({ visit }) => (
       ))}
     </FullWidthDetailRow>
     <FullWidthDetailRow label="Discharge medicines">
-      {visit.medication.map(m => (
+      {visit.medications.map(m => (
         <MedicineRow key={m} icd10={m} />
       ))}
     </FullWidthDetailRow>
