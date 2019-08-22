@@ -103,7 +103,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
 
   return (
-    <React.Fragment key={visit._id}>
+    <React.Fragment>
       <TopBar title="Patient visit">
         <DischargeView visit={visit} />
       </TopBar>
