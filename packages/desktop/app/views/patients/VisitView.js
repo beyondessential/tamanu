@@ -18,6 +18,8 @@ import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
 import { visitOptions } from '../../constants';
 
+import { getCurrentRouteEndsWith } from '../../store/router';
+
 const VitalsPane = React.memo(({ visit }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
@@ -84,7 +86,7 @@ const VisitInfoPane = React.memo(({ visit }) => (
 
 const DischargeView = connect(
   state => ({
-    modalOpen: state.router.location.pathname.endsWith('discharge'),
+    modalOpen: getCurrentRouteEndsWith(state, 'discharge'),
   }),
   dispatch => ({
     onModalOpen: () => dispatch(push('/patients/visit/discharge')),

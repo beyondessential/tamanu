@@ -16,11 +16,13 @@ import { Button } from '../../components/Button';
 
 import { viewVisit } from '../../store/visit';
 
+import { getCurrentRouteEndsWith } from '../../store/router';
+
 const HistoryPane = connect(
   state => ({
     visits: state.patient.visits,
     patientId: state.patient._id,
-    modalOpen: state.router.location.pathname.endsWith('checkin'),
+    modalOpen: getCurrentRouteEndsWith(state, 'checkin'),
   }),
   dispatch => ({
     onViewVisit: id => dispatch(viewVisit(id)),
