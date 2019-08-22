@@ -30,12 +30,6 @@ export const items = [
     ability: { subject: 'patient' },
     children: [
       {
-        label: 'View Patient (debug)',
-        path: '/patients/view',
-        icon: submenuIcons.new,
-        ability: { action: 'read' },
-      },
-      {
         label: 'Patient Listing',
         path: '/patients',
         icon: submenuIcons.table,
