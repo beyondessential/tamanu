@@ -1,5 +1,5 @@
-import { createReducer } from '../utils/createReducer';
 import { push } from 'connected-react-router';
+import { createReducer } from '../utils/createReducer';
 
 // actions
 const PATIENT_LOAD_START = 'PATIENT_LOAD_START';
@@ -20,7 +20,7 @@ export const viewPatient = id => async (dispatch, getState, { api }) => {
 
 // selectors
 
-export const getCurrentVisit = (state) => state.patient.visits.find(x => !x.endDate);
+export const getCurrentVisit = state => state.patient.visits.find(x => !x.endDate);
 
 // reducers
 
