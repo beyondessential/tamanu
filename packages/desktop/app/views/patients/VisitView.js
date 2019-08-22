@@ -13,6 +13,7 @@ import { ContentPane } from '../../components/ContentPane';
 import { VitalsTable } from '../../components/VitalsTable';
 import { VitalsModal } from '../../components/VitalsModal';
 import { DischargeModal } from '../../components/DischargeModal';
+import { DiagnosisView } from '../../components/DiagnosisView';
 
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
@@ -116,6 +117,9 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
             <BackLink />
             <ContentPane>
               <VisitInfoPane visit={visit} />
+            </ContentPane>
+            <ContentPane>
+              <DiagnosisView />
             </ContentPane>
             <TabDisplay
               tabs={TABS}
