@@ -4,35 +4,69 @@ function channelToRecordType(channel) {
   return channel.split('/')[1]; // because '/visit/*' becomes ['', 'visit', '*']
 }
 
+const SUBSCRIBE_CHANNEL = '/meta/subscribe';
+const UNSUBSCRIBE_CHANNEL = '/meta/unsubscribe';
+const DISCONNECT_CHANNEL = '/meta/disconnect';
+
 class DataChangePublisher {
   constructor(server, database) {
     this.database = database;
     const fayeInstance = new faye.NodeAdapter({ mount: '/faye', timeout: 45 });
     fayeInstance.attach(server);
+    fayeInstance.addExtension({ incoming: this.handleClientConnection });
     this.fayeClient = fayeInstance.getClient();
-    this.client.on('subscribe', this.handleSubscribe);
-    this.client.on('unsubscribe', this.handleUnsubscribe);
     this.subscriptions = {};
   }
 
+  handleClientConnection = (message, callback) => {
+    const { channel, subscription, clientId } = message;
+    switch (channel) {
+      case SUBSCRIBE_CHANNEL:
+        this.handleSubscribe(clientId, subscription);
+        break;
+      case UNSUBSCRIBE_CHANNEL:
+        this.handleUnsubscribe(clientId, subscription);
+        break;
+      case DISCONNECT_CHANNEL:
+        this.handleDisconnect(clientId);
+        break;
+      default:
+      // do nothing
+    }
+    callback(message); // continue with regular faye behaviour
+  };
+
   handleSubscribe = (clientId, channel) => {
+    console.log('handling');
     const recordType = channelToRecordType(channel);
     if (this.subscriptions[recordType]) {
-      this.subscriptions[recordType].subscribers++;
+      this.subscriptions[recordType].subscribers.add(clientId);
     } else {
       // subscribe to changes
       const collection = this.database.objects(recordType);
       collection.addListener(this.publishChangesToClients);
-      this.subscriptions[recordType] = { collection, subscribers: 0 };
+      this.subscriptions[recordType] = { collection, subscribers: new Set() };
     }
   };
 
-  handleUnsubscribe = (client, channel) => {
+  handleUnsubscribe = (clientId, channel) => {
     const recordType = channelToRecordType(channel);
-    const subscription = this.subscriptions[recordType];
-    subscription.subscribers--;
-    if (!subscription.subscribers) {
-      const { collection } = subscription;
+    this.subscriptions[recordType].subscribers.delete(clientId);
+    this.removeListenerIfOrphaned(recordType);
+  };
+
+  handleDisconnect = clientId => {
+    Object.entries(this.subscriptions).forEach(([recordType, { subscribers }]) => {
+      if (subscribers.has(clientId)) {
+        subscribers.delete(clientId);
+        this.removeListenerIfOrphaned(recordType);
+      }
+    });
+  };
+
+  removeListenerIfOrphaned = recordType => {
+    const { collection, subscribers } = this.subscriptions[recordType];
+    if (subscribers.length === 0) {
       collection.removeListener(this.publishChangesToClients);
       delete this.subscriptions[recordType];
     }
