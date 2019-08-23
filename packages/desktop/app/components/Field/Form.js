@@ -74,8 +74,10 @@ export class Form extends React.PureComponent {
 
     // strip out nested stuff -- prevents deep editing of relations
     const strippedValues = { ...values };
+
+    // eslint-disable-next-line array-callback-return
     Object.entries(strippedValues).map(([key, value]) => {
-      if(value && value._id) {
+      if (value && value._id) {
         strippedValues[key] = { _id: value._id };
       }
     });
