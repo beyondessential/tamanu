@@ -142,7 +142,7 @@ export const DiagnosisView = React.memo(({ visitId }) => {
       <DiagnosisGrid>
         <div>Diagnosis:</div>
         <DiagnosisList onEditDiagnosis={d => editDiagnosis(d)} />
-        <Button onClick={() => editDiagnosis({})}>Add diagnosis</Button>
+        <Button onClick={() => editDiagnosis({})} variant="outlined" color="primary">Add diagnosis</Button>
       </DiagnosisGrid>
     </React.Fragment>
   );
