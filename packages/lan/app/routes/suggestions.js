@@ -62,7 +62,7 @@ function createDummySuggestionRoute(path, valuesTemplate) {
 createSuggestionRoute(
   'icd10',
   'diagnosis',
-  'name CONTAINS[c] $0 OR code CONTAINS[c] $0',
+  '(name CONTAINS[c] $0 OR code CONTAINS[c] $0) AND type = "icd10"',
   ({ name, code, _id }) => ({ name, code, _id }),
 );
 
