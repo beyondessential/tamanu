@@ -1,6 +1,8 @@
 import faye from 'faye';
 
-const TRACKED_RECORD_TYPES = ['visit'];
+function channelToRecordType(channel) {
+  return channel.split('/')[1]; // because '/visit/*' becomes ['', 'visit', '*']
+}
 
 class DataChangePublisher {
   constructor(server, database) {
@@ -8,11 +10,33 @@ class DataChangePublisher {
     const fayeInstance = new faye.NodeAdapter({ mount: '/faye', timeout: 45 });
     fayeInstance.attach(server);
     this.fayeClient = fayeInstance.getClient();
-    TRACKED_RECORD_TYPES.forEach(recordType => {
-      const allObjects = database.objects(recordType);
-      allObjects.addListener(this.publishChangesToClients);
-    });
+    this.client.on('subscribe', this.handleSubscribe);
+    this.client.on('unsubscribe', this.handleUnsubscribe);
+    this.subscriptions = {};
   }
+
+  handleSubscribe = (clientId, channel) => {
+    const recordType = channelToRecordType(channel);
+    if (this.subscriptions[recordType]) {
+      this.subscriptions[recordType].subscribers++;
+    } else {
+      // subscribe to changes
+      const collection = this.database.objects(recordType);
+      collection.addListener(this.publishChangesToClients);
+      this.subscriptions[recordType] = { collection, subscribers: 0 };
+    }
+  };
+
+  handleUnsubscribe = (client, channel) => {
+    const recordType = channelToRecordType(channel);
+    const subscription = this.subscriptions[recordType];
+    subscription.subscribers--;
+    if (!subscription.subscribers) {
+      const { collection } = subscription;
+      collection.removeListener(this.publishChangesToClients);
+      delete this.subscriptions[recordType];
+    }
+  };
 
   publishChangesToClients = (
     collection,
