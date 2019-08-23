@@ -12,7 +12,7 @@ import './fonts.scss';
 
 import { createReducers } from './createReducers';
 import { API } from './api';
-import { DataChangeResponder } from './DataChangeResponder';
+import { startDataChangeResponder } from './DataChangeResponder';
 
 const history = createHashHistory();
 const router = routerMiddleware(history);
@@ -25,7 +25,7 @@ const persistedReducers = persistCombineReducers(
 const store = createStore(persistedReducers, {}, enhancers);
 
 // set up data change responder to trigger reloads when relevant data changes server-side
-new DataChangeResponder(API, store);
+startDataChangeResponder(API, store);
 
 const persistor = persistStore(store);
 

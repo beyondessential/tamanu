@@ -1,12 +1,12 @@
 import { reloadPatient } from './store/patient';
+import { reloadVisit } from './store/visit';
 
 const ALL_CHANGES = '*';
 
-export class DataChangeResponder {
+class DataChangeResponder {
   constructor(api, store) {
     this.api = api;
     this.store = store;
-    this.handleVisitChange = this.handleVisitChange.bind(this);
 
     const listeners = {
       visit: this.handleVisitChange,
@@ -16,10 +16,20 @@ export class DataChangeResponder {
     );
   }
 
-  handleVisitChange({ patientId }) {
+  handleVisitChange = ({ patientId, visitId }) => {
+    // TODO should only reload patient/visit if relevant changes have been made, e.g. fully new
+    // or discharge status has changed, otherwise we'll be reloading things too often!
     const state = this.store.getState();
     if (state.patient.id === patientId) {
       this.store.dispatch(reloadPatient(patientId));
     }
-  }
+    if (state.visit.id === visitId) {
+      this.store.dispatch(reloadVisit(visitId));
+    }
+  };
+}
+
+export function startDataChangeResponder(api, database) {
+  const responder = new DataChangeResponder(api, database);
+  return responder;
 }
