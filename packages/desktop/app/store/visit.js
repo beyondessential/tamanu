@@ -6,11 +6,16 @@ import { createReducer } from '../utils/createReducer';
 const VISIT_LOAD_START = 'VISIT_LOAD_START';
 const VISIT_LOAD_FINISH = 'VISIT_LOAD_FINISH';
 
-export const viewVisit = id => async (dispatch, getState, { api }) => {
-  dispatch({ type: VISIT_LOAD_START, id });
+export const viewVisit = id => async dispatch => {
+  dispatch(reloadVisit(id));
   dispatch(push('/patients/visit'));
+};
+
+export const reloadVisit = id => async (dispatch, getState, { api }) => {
+  dispatch({ type: VISIT_LOAD_START, id });
 
   const visit = await api.get(`visit/${id}`);
+  // TODO handle error state
 
   dispatch({ type: VISIT_LOAD_FINISH, visit });
 };
