@@ -19,7 +19,10 @@ function createSuggestionRoute(path, table, filter, transform = defaultTransform
   suggestionRoutes.get(`/${path}`, (req, res) => {
     const db = req.app.get('database');
     const { q = '', limit = 10 } = req.query;
-    const candidates = db.objects(table).filtered(filter, q);
+    const candidates = db
+      .objects(table)
+      .filtered(filter, q)
+      .sorted('name');
 
     const data = candidates.slice(0, limit).map(transform);
 

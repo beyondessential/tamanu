@@ -72,10 +72,18 @@ export class Form extends React.PureComponent {
       return;
     }
 
+    // strip out nested stuff -- prevents deep editing of relations
+    const strippedValues = { ...values };
+    Object.entries(strippedValues).map(([key, value]) => {
+      if(value && value._id) {
+        strippedValues[key] = { _id: value._id };
+      }
+    });
+
     // submission phase
     const { onSubmit } = this.props;
     try {
-      await onSubmit(values, {
+      await onSubmit(strippedValues, {
         ...rest,
         setErrors: this.setErrors,
       });

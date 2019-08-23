@@ -11,13 +11,24 @@ import { Button } from './Button';
 import { ConfirmCancelRow } from './ButtonRow';
 import { Modal } from './Modal';
 import { FormGrid } from './FormGrid';
-import { Form, Field, SelectField, CheckField, AutocompleteField, DateField } from './Field';
+import { Form, Field, TextField, SelectField, CheckField, AutocompleteField, DateField } from './Field';
 
 
-const DiagnosisItem = React.memo(({ _id, diagnosis: { name, code }, isPrimary }) => (
-  <div>
-    {`[${code}] ${name} ${isPrimary ? "" : "2ndary"}`}
-  </div>
+const DiagnosisItemContainer = styled.div`
+  margin-right: 1rem;
+  padding: 1rem;
+  background: #ececfc;
+  display: inline-block;
+  border-radius: 0.1rem;
+  cursor: pointer;
+`;
+
+const DiagnosisItem = React.memo(({ _id, diagnosis: { name, code }, isPrimary, onClick }) => (
+  <DiagnosisItemContainer onClick={onClick}>
+    <span>{isPrimary ? "Primary" : "Secondary"}</span>
+    <span>: </span>
+    <span><b>{name}</b></span>
+  </DiagnosisItemContainer>
 ));
 
 function compareDiagnosis(a, b) {
@@ -29,25 +40,31 @@ function compareDiagnosis(a, b) {
   if(b.isPrimary) return 1;
 }
 
+const DiagnosisListContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+`;
+
 const DiagnosisList = connect(
   state => ({ 
-    diagnoses: getDiagnoses(state),
+    diagnoses: getDiagnoses(state)
+      .filter(d => d.diagnosis)
+      .sort(compareDiagnosis)
   })
 )(React.memo(({ diagnoses, onEditDiagnosis }) => {
   if(diagnoses.length === 0) {
-    return <div>No diagnosis recorded.</div>
+    return <DiagnosisListContainer>No diagnosis recorded.</DiagnosisListContainer>
   }
 
   return (
-    <div>
-      <div>Diagnosis:</div>
+    <DiagnosisListContainer>
       { 
       diagnoses
-        .filter(d => d.diagnosis)
-        .sort(compareDiagnosis)
-        .map(d => <DiagnosisItem key={d._id} {...d} />)
+        .map(d => <DiagnosisItem key={d._id} {...d} onClick={() => onEditDiagnosis(d)} />)
       }
-    </div>
+    </DiagnosisListContainer>
   );
 }));
 
@@ -60,11 +77,11 @@ const DiagnosisForm = React.memo(({
 }) => (
   <Form
     onSubmit={onSave}
-    editedObject={diagnosis}
     initialValues={{
       date: new Date(),
       isPrimary: true,
       certainty: 'confirmed',
+      ...diagnosis
     }}
     render={({ submitForm }) => (
       <FormGrid>
@@ -99,23 +116,34 @@ const DumbDiagnosisModal = React.memo(({ diagnosis, onClose, onSaveDiagnosis, ic
 
 const DiagnosisModal = connectApi((api, dispatch, { visitId, onClose }) => ({
   onSaveDiagnosis: async data => {
-    const createdDiagnosis = await api.post(`visit/${visitId}/diagnosis`, data);
+    if(data._id) {
+      await api.put(`patientDiagnosis/${data._id}`, data); 
+    } else {
+      await api.post(`visit/${visitId}/diagnosis`, data);
+    }
+
     onClose();
     dispatch(viewVisit(visitId));
   },
   icd10Suggester: new Suggester(api, 'icd10'),
 }))(DumbDiagnosisModal);
 
+const DiagnosisGrid = styled.div`
+  display: grid;
+  grid-template-columns: max-content auto max-content;
+`;
+
 export const DiagnosisView = React.memo(({ visitId }) => {
   const [diagnosis, editDiagnosis] = React.useState(null);
 
-  // TODO: actually save diagnoses, reload diagnoses, be able to edit diagnoses, 
-  // pass visitid thru to form
   return (
-    <div>
+    <React.Fragment>
       <DiagnosisModal diagnosis={diagnosis} visitId={visitId} onClose={() => editDiagnosis(null)} />
-      <DiagnosisList onEditDiagnosis={d => editDiagnosis(d)} />
-      <Button onClick={() => editDiagnosis({})}>Add diagnosis</Button>
-    </div>
+      <DiagnosisGrid>
+        <div>Diagnosis:</div>
+        <DiagnosisList onEditDiagnosis={d => editDiagnosis(d)} />
+        <Button onClick={() => editDiagnosis({})}>Add diagnosis</Button>
+      </DiagnosisGrid>
+    </React.Fragment>
   );
 });
