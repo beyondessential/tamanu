@@ -20,6 +20,15 @@ const DiagnosisItem = React.memo(({ _id, diagnosis: { name, code }, isPrimary })
   </div>
 ));
 
+function compareDiagnosis(a, b) {
+  if(a.isPrimary === b.isPrimary) {
+    return a.diagnosis.name.localeCompare(b.diagnosis.name);
+  } 
+  
+  if(a.isPrimary) return -1;
+  if(b.isPrimary) return 1;
+}
+
 const DiagnosisList = connect(
   state => ({ 
     diagnoses: getDiagnoses(state),
@@ -35,6 +44,7 @@ const DiagnosisList = connect(
       { 
       diagnoses
         .filter(d => d.diagnosis)
+        .sort(compareDiagnosis)
         .map(d => <DiagnosisItem key={d._id} {...d} />)
       }
     </div>
