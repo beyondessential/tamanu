@@ -1,63 +1,132 @@
-import React from 'react';
+import React, { memo } from 'react';
 import styled from 'styled-components';
+import { grey } from '@material-ui/core/colors';
 
-import { Button } from './Button';
 import { DateDisplay } from './DateDisplay';
-import { DetailTable, DetailRow, FullWidthDetailRow } from './DetailTable';
-import { ContentPane } from './ContentPane';
+import { InfoPaneList } from './InfoPaneList';
+import { PatientInitialsIcon } from './PatientInitialsIcon';
 
-const DataList = styled.ul`
-  margin: 0.5rem 1rem;
-  padding: 0;
+const Container = styled.div`
+  background: #fff;
+  padding: 1rem;
+  height: 100%;
 `;
 
-const ListDisplay = React.memo(({ items = [], onEdit }) => (
-  <div>
-    <DataList>
-      {items.length > 0 ? (
-        items.map(x => <li key={x}>{x}</li>)
-      ) : (
-        <li style={{ opacity: 0.5 }}>None recorded</li>
-      )}
-    </DataList>
-    <Button variant="contained" onClick={onEdit}>
-      Edit
-    </Button>
-  </div>
+const NameSection = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+`;
+
+const NameText = styled.span`
+  font-size: 30px;
+  margin-left: 10px;
+`;
+
+const CoreInfoSection = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+`;
+
+const CoreInfoCellContainer = styled.div`
+  border: 1px solid ${grey[300]};
+  padding: 10px 0px;
+`;
+
+const CoreInfoLabel = styled.div`
+  color: ${grey[400]};
+  font-size: 14px;
+`;
+
+const CoreInfoValue = styled.div`
+  color: ${grey[600]};
+  font-size: 16px;
+  margin-top: 5px;
+  font-weight: bold;
+`;
+
+const CoreInfoCell = memo(({ label, children }) => (
+  <CoreInfoCellContainer>
+    <CoreInfoLabel>{label}</CoreInfoLabel>
+    <CoreInfoValue>{children}</CoreInfoValue>
+  </CoreInfoCellContainer>
 ));
 
-const OngoingConditionDisplay = React.memo(({ patient }) => (
-  <ListDisplay items={patient.conditions.map(x => x.name)} />
+const HealthIdContainer = styled.div`
+  background: #326699;
+  color: #ffcc24;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+`;
+
+const HealthIdLabel = styled.div`
+  background: #ffcc24;
+  color: #000;
+  border-radius: 3px;
+  padding: 5px;
+  font-size: 14px;
+  font-weight: bold;
+`;
+
+const HealthIdLabelText = styled.div`
+  font-size: 12px;
+`;
+
+const HealthIdDisplay = memo(({ patient }) => (
+  <HealthIdContainer>
+    <HealthIdLabelText>Health Identification Number</HealthIdLabelText>
+    <HealthIdLabel>{patient.displayId}</HealthIdLabel>
+  </HealthIdContainer>
 ));
 
-const AllergyDisplay = React.memo(({ patient }) => (
-  <ListDisplay items={patient.allergies.map(x => x.name)} />
+const CoreInfoDisplay = memo(({ patient }) => (
+  <React.Fragment>
+    <NameSection>
+      <PatientInitialsIcon patient={patient} />
+      <NameText>{`${patient.firstName} ${patient.lastName}`}</NameText>
+    </NameSection>
+    <CoreInfoSection>
+      <CoreInfoCell label="Sex">{patient.sex}</CoreInfoCell>
+      <CoreInfoCell label="DOB">
+        <DateDisplay date={patient.dateOfBirth} />
+      </CoreInfoCell>
+    </CoreInfoSection>
+    <HealthIdDisplay patient={patient} />
+  </React.Fragment>
 ));
 
-const OperativePlanDisplay = React.memo(() => <ListDisplay items={[]} />);
+const ListsSection = styled.div`
+  margin-top: 15px;
+`;
 
-const PatientIssuesDisplay = React.memo(() => <ListDisplay items={[]} />);
+const OngoingConditionDisplay = memo(({ patient }) => (
+  <InfoPaneList title="Ongoing conditions" items={patient.conditions.map(x => x.name)} />
+));
 
-export const PatientInfoPane = React.memo(({ patient }) => (
-  <ContentPane>
-    <DetailTable>
-      <DetailRow label="Name" value={`${patient.firstName} ${patient.lastName}`} />
-      <DetailRow label="Sex" value={patient.sex} />
-      <DetailRow label="Date of birth">
-        <DateDisplay date={patient.dateOfBirth} showDuration />
-      </DetailRow>
-      <FullWidthDetailRow label="Ongoing conditions">
-        <OngoingConditionDisplay patient={patient} />
-      </FullWidthDetailRow>
-      <FullWidthDetailRow label="Allergies">
-        <AllergyDisplay patient={patient} />
-      </FullWidthDetailRow>
-      <FullWidthDetailRow label="Operative plan">
-        <OperativePlanDisplay patient={patient} />
-      </FullWidthDetailRow>
-      <FullWidthDetailRow label="Other issues">
-        <PatientIssuesDisplay patient={patient} />
-      </FullWidthDetailRow>
-    </DetailTable>
-  </ContentPane>
+const AllergyDisplay = memo(({ patient }) => (
+  <InfoPaneList title="Allergies" items={patient.allergies.map(x => x.name)} />
+));
+
+const FamilyHistoryDisplay = memo(() => <InfoPaneList title="Family history" items={[]} />);
+
+const PatientIssuesDisplay = memo(() => <InfoPaneList title="Other patient isues" items={[]} />);
+
+const ListsDisplay = memo(({ patient }) => (
+  <ListsSection>
+    <OngoingConditionDisplay patient={patient} />
+    <AllergyDisplay patient={patient} />
+    <FamilyHistoryDisplay patient={patient} />
+    <PatientIssuesDisplay patient={patient} />
+  </ListsSection>
+));
+
+export const PatientInfoPane = memo(({ patient }) => (
+  <Container>
+    <CoreInfoDisplay patient={patient} />
+    <ListsDisplay patient={patient} />
+  </Container>
 ));
