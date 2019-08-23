@@ -10,7 +10,7 @@ import { Button } from './Button';
 import { ConfirmCancelRow } from './ButtonRow';
 import { Modal } from './Modal';
 import { FormGrid } from './FormGrid';
-import { Form, Field, TextField, CheckField } from './Field';
+import { Form, Field, TextField, CheckField, AutocompleteField } from './Field';
 
 
 const DiagnosisItem = React.memo(({ _id, name, code, isPrimary }) => (
@@ -40,6 +40,7 @@ const DiagnosisForm = React.memo(({
   onCancel, 
   onSave,
   diagnosis,
+  icd10Suggester,
   visitId
 }) => (
   <Form
@@ -47,7 +48,14 @@ const DiagnosisForm = React.memo(({
     editedObject={diagnosis}
     render={({ submitForm }) => (
       <FormGrid>
-        <Field name="code" label="ICD10 Code" component={TextField} style={{ gridColumn: 'span 2' }} />
+        <div style={{ gridColumn: 'span 2' }}>
+          <Field 
+            name="code" 
+            label="ICD10 Code" 
+            component={AutocompleteField} 
+            suggester={icd10Suggester}
+          />
+        </div>
         <Field name="isPrimary" label="Is primary" component={CheckField} />
         <Field name="certainty" label="Certainty" component={TextField} />
         <ConfirmCancelRow onConfirm={submitForm} onCancel={onCancel}/>
@@ -56,9 +64,14 @@ const DiagnosisForm = React.memo(({
   />
 ));
 
-const DumbDiagnosisModal = React.memo(({ diagnosis, onClose, onSaveDiagnosis }) => (
+const DumbDiagnosisModal = React.memo(({ diagnosis, onClose, onSaveDiagnosis, icd10Suggester }) => (
   <Modal title="Diag" open={!!diagnosis} onClose={onClose}>
-    <DiagnosisForm onSave={onSaveDiagnosis} onCancel={onClose} diagnosis={diagnosis} />
+    <DiagnosisForm 
+      onSave={onSaveDiagnosis} 
+      onCancel={onClose}
+      diagnosis={diagnosis}
+      icd10Suggester={icd10Suggester}
+    />
   </Modal>
 ));
 
@@ -68,7 +81,7 @@ const DiagnosisModal = connectApi((api, dispatch, { visitId, onClose }) => ({
     onClose();
     dispatch(viewVisit(visitId));
   },
-  locationSuggester: new Suggester(api, 'location'),
+  icd10Suggester: new Suggester(api, 'icd10'),
 }))(DumbDiagnosisModal);
 
 export const DiagnosisView = React.memo(() => {
