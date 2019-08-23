@@ -2,18 +2,19 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
+import { diagnosisCertainty } from '../constants';
 import { connectApi } from '../api/connectApi';
 import { Suggester } from '../utils/suggester';
-import { getDiagnoses } from '../store/visit';
+import { getDiagnoses, viewVisit } from '../store/visit';
 
 import { Button } from './Button';
 import { ConfirmCancelRow } from './ButtonRow';
 import { Modal } from './Modal';
 import { FormGrid } from './FormGrid';
-import { Form, Field, TextField, CheckField, AutocompleteField } from './Field';
+import { Form, Field, SelectField, CheckField, AutocompleteField, DateField } from './Field';
 
 
-const DiagnosisItem = React.memo(({ _id, name, code, isPrimary }) => (
+const DiagnosisItem = React.memo(({ _id, diagnosis: { name, code }, isPrimary }) => (
   <div>
     {`[${code}] ${name} ${isPrimary ? "" : "2ndary"}`}
   </div>
@@ -31,7 +32,11 @@ const DiagnosisList = connect(
   return (
     <div>
       <div>Diagnosis:</div>
-      { diagnoses.map(d => <DiagnosisItem key={d._id} {...d} />) }
+      { 
+      diagnoses
+        .filter(d => d.diagnosis)
+        .map(d => <DiagnosisItem key={d._id} {...d} />)
+      }
     </div>
   );
 }));
@@ -46,18 +51,25 @@ const DiagnosisForm = React.memo(({
   <Form
     onSubmit={onSave}
     editedObject={diagnosis}
+    initialValues={{
+      date: new Date(),
+      isPrimary: true,
+      certainty: 'confirmed',
+    }}
     render={({ submitForm }) => (
       <FormGrid>
         <div style={{ gridColumn: 'span 2' }}>
           <Field 
-            name="code" 
+            name="diagnosis._id" 
             label="ICD10 Code" 
             component={AutocompleteField} 
             suggester={icd10Suggester}
+            required
           />
         </div>
         <Field name="isPrimary" label="Is primary" component={CheckField} />
-        <Field name="certainty" label="Certainty" component={TextField} />
+        <Field name="certainty" label="Certainty" component={SelectField} options={diagnosisCertainty} required />
+        <Field name="date" label="Date" component={DateField} required />
         <ConfirmCancelRow onConfirm={submitForm} onCancel={onCancel}/>
       </FormGrid>
     )}
@@ -84,12 +96,14 @@ const DiagnosisModal = connectApi((api, dispatch, { visitId, onClose }) => ({
   icd10Suggester: new Suggester(api, 'icd10'),
 }))(DumbDiagnosisModal);
 
-export const DiagnosisView = React.memo(() => {
+export const DiagnosisView = React.memo(({ visitId }) => {
   const [diagnosis, editDiagnosis] = React.useState(null);
 
+  // TODO: actually save diagnoses, reload diagnoses, be able to edit diagnoses, 
+  // pass visitid thru to form
   return (
     <div>
-      <DiagnosisModal diagnosis={diagnosis} onClose={() => editDiagnosis(null)} />
+      <DiagnosisModal diagnosis={diagnosis} visitId={visitId} onClose={() => editDiagnosis(null)} />
       <DiagnosisList onEditDiagnosis={d => editDiagnosis(d)} />
       <Button onClick={() => editDiagnosis({})}>Add diagnosis</Button>
     </div>

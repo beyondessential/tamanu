@@ -119,7 +119,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
               <VisitInfoPane visit={visit} />
             </ContentPane>
             <ContentPane>
-              <DiagnosisView />
+              <DiagnosisView visitId={visit._id} />
             </ContentPane>
             <TabDisplay
               tabs={TABS}
