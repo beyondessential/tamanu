@@ -19,16 +19,10 @@ export class AllergyForm extends React.PureComponent {
 
   renderForm = ({ submitForm }) => {
     const { editedObject, onCancel, practitionerSuggester } = this.props;
-    const buttonText = editedObject ? 'Save' : 'Create';
+    const buttonText = editedObject ? 'Save' : 'Add';
     return (
-      <FormGrid>
-        <Field
-          name="name"
-          label="Allergy name"
-          component={TextField}
-          required
-          style={{ gridColumn: 'span 2' }}
-        />
+      <FormGrid columns={1}>
+        <Field name="name" label="Allergy name" component={TextField} required />
         <Field name="date" label="Date recorded" component={DateField} />
         <Field
           name="practitioner"
@@ -36,7 +30,7 @@ export class AllergyForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field name="note" label="Notes" component={TextField} style={{ gridColumn: 'span 2' }} />
+        <Field name="note" label="Notes" component={TextField} />
         <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText={buttonText} />
       </FormGrid>
     );

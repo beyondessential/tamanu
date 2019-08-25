@@ -5,6 +5,7 @@ import { grey } from '@material-ui/core/colors';
 import { DateDisplay } from './DateDisplay';
 import { InfoPaneList } from './InfoPaneList';
 import { PatientInitialsIcon } from './PatientInitialsIcon';
+import { AllergyForm, OngoingConditionForm } from '../forms';
 
 const Container = styled.div`
   background: #fff;
@@ -104,29 +105,39 @@ const ListsSection = styled.div`
 `;
 
 const OngoingConditionDisplay = memo(({ patient }) => (
-  <InfoPaneList title="Ongoing conditions" items={patient.conditions.map(x => x.name)} />
+  <InfoPaneList
+    title="Ongoing conditions"
+    endpoint="condition"
+    suggesterEndpoints={['practitioner']}
+    items={patient.conditions.map(x => x.name)}
+    Form={OngoingConditionForm}
+  />
 ));
 
 const AllergyDisplay = memo(({ patient }) => (
-  <InfoPaneList title="Allergies" items={patient.allergies.map(x => x.name)} />
+  <InfoPaneList
+    title="Allergies"
+    endpoint="allergy"
+    suggesterEndpoints={['practitioner']}
+    items={patient.allergies.map(x => x.name)}
+    Form={AllergyForm}
+  />
 ));
 
 const FamilyHistoryDisplay = memo(() => <InfoPaneList title="Family history" items={[]} />);
 
 const PatientIssuesDisplay = memo(() => <InfoPaneList title="Other patient isues" items={[]} />);
 
-const ListsDisplay = memo(({ patient }) => (
+const InfoPaneLists = memo(({ patient }) => (
   <ListsSection>
     <OngoingConditionDisplay patient={patient} />
     <AllergyDisplay patient={patient} />
-    <FamilyHistoryDisplay patient={patient} />
-    <PatientIssuesDisplay patient={patient} />
   </ListsSection>
 ));
 
 export const PatientInfoPane = memo(({ patient }) => (
   <Container>
     <CoreInfoDisplay patient={patient} />
-    <ListsDisplay patient={patient} />
+    <InfoPaneLists patient={patient} />
   </Container>
 ));
