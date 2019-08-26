@@ -34,12 +34,20 @@ const SelectorContainer = styled.div`
 export const TestSelectorInput = ({ name, tests, value={}, onChange, ...props }) => {
   const [filter, setFilter] = React.useState("");
   const updateValue = React.useCallback((v) => {
-    onChange({ target: { name, value: v } });
-  }, [onChange, name]);
+    const filteredValue = {};
+    Object.entries(v)
+      .filter(x => x[1])  // only include true values
+      .filter(x => tests.some(t => t.value === x[0]))  // only include available values
+      .forEach(function([k, v]) {
+        filteredValue[k] = true;
+      });
 
+    onChange({ target: { name, value: filteredValue } });
+  }, [onChange, name, tests]);
+
+  // clear filter whenever tests change
   React.useEffect(() => {
     setFilter("");
-    updateValue({});
   }, [tests]);
   
   const displayedTests = tests
