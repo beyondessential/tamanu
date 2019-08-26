@@ -110,7 +110,6 @@ storiesOf('Forms', module).add('LabRequestForm', () => (
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     generateId={shortid.generate}
-    locationSuggester={locationSuggester}
     practitionerSuggester={practitionerSuggester}
   />
 ));
