@@ -20,16 +20,9 @@ import { TestSelectorField } from '../components/TestSelector';
 import { FormGrid } from '../components/FormGrid';
 import { Button } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
+import { FormSeparatorLine } from '../components/FormSeparatorLine';
 
 import { labRequestOptions } from '../constants';
-
-const FormHR = styled.hr`
-  display: block;
-  grid-column: 1 / -1;
-  border: none;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  width: 100%;
-`;
 
 const testTypes = {
   general: [
@@ -112,7 +105,7 @@ export class LabRequestForm extends React.PureComponent {
           <Field name="specimenAttached" label="Specimen attached?" component={CheckField} />
           <Field name="urgent" label="Urgent?" component={CheckField} />
         </div>
-        <FormHR />
+        <FormSeparatorLine />
         <Field
           name="visit._id"
           label="Visit"
@@ -137,7 +130,7 @@ export class LabRequestForm extends React.PureComponent {
           style={{ gridColumn: '1 / -1' }}
           rows={3}
         />
-        <FormHR />
+        <FormSeparatorLine />
         <Field
           name="notes"
           label="Notes"
