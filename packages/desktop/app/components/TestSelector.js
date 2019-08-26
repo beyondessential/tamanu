@@ -5,7 +5,7 @@ import { TextInput, CheckInput } from './Field';
 
 const TestRow = styled.div`
   border-bottom: 1px solid rgba(0,0,0,0.2);
-  padding: 0.7rem;
+  padding: 0.2rem;
 `;
 
 const TestItem = ({ value, label, checked, onCheck }) => (
@@ -20,13 +20,19 @@ const SelectorTable = styled.div`
   overflow-y: scroll;
 `;
 
+const SelectorContainer = styled.div`
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 0.3rem;
+`;
+
 export const TestSelectorInput = ({ name, tests, value={}, onChange, ...props }) => {
   const [filter, setFilter] = React.useState("");
 
   return (
-    <div {...props}>
+    <SelectorContainer {...props}>
       <TextInput 
-        label="Filter"
+        label="Filter tests"
         value={filter}
         onChange={t => setFilter(t.target.value)} 
       />
@@ -43,7 +49,7 @@ export const TestSelectorInput = ({ name, tests, value={}, onChange, ...props })
           ))
         }
       </SelectorTable>
-    </div>
+    </SelectorContainer>
   );
 };
 
