@@ -7,12 +7,14 @@ export const DiagnosisSchema = {
     _id: 'string',
     name: {
       type: 'string',
-      optional: true,
       indexed: true,
     },
     code: {
       type: 'string',
-      optional: true,
+      indexed: true,
+    },
+    type: {
+      type: 'string',
       indexed: true,
     },
     ...defaults,

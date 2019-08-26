@@ -7,11 +7,6 @@ export const ConditionsSchema = {
     _id: 'string',
     date: 'date',
     condition: 'string',
-    diagnosis: {
-      type: 'linkingObjects',
-      objectType: 'patientDiagnosis',
-      property: 'condition',
-    },
     ...defaults,
   },
 };
