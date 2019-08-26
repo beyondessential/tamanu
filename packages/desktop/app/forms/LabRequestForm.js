@@ -26,7 +26,7 @@ const labRequestOptions = [
   { label: "General lab", value: "general" },
   { label: "Microbiology", value: "microbiology" },
   { label: "Haematology", value: "haematology" },
-  { label: "U&E", value: "ue" },
+  { label: "U&E", value: "une" },
 ];
 
 const FormHR = styled.hr`
@@ -78,6 +78,8 @@ const testTypes = {
 { "label": "Eosinophils", "value": "esin" },
 { "label": "Basophils", "value": "baso" },
   ],
+  haematology: [],
+  une: [],
 };
 
 export class LabRequestForm extends React.PureComponent {

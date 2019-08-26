@@ -28,9 +28,18 @@ const SelectorContainer = styled.div`
 
 export const TestSelectorInput = ({ name, tests, value={}, onChange, ...props }) => {
   const [filter, setFilter] = React.useState("");
+  const updateValue = React.useCallback((v) => {
+    onChange({ target: { name, value: v } });
+  }, [onChange, name]);
+
+  React.useEffect(() => {
+    setFilter("");
+    updateValue({});
+  }, [tests]);
 
   return (
     <SelectorContainer {...props}>
+      <div><span>Selected: </span><span>{JSON.stringify(value)}</span></div>
       <TextInput 
         label="Filter tests"
         value={filter}
@@ -44,7 +53,7 @@ export const TestSelectorInput = ({ name, tests, value={}, onChange, ...props })
               {...t} 
               key={t.value} 
               checked={value[t.value]}
-              onCheck={(v) => onChange({ target: { name, value: { ...value, [t.value]: v}}})}
+              onCheck={(v) => updateValue({ ...value, [t.value]: v })}
             />
           ))
         }
