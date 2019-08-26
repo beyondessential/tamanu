@@ -2,28 +2,29 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
+import Chip from '@material-ui/core/Chip';
+
 import { getDiagnoses } from '../store/visit';
 
 import { Button } from './Button';
 import { DiagnosisModal } from './DiagnosisModal';
 
-const DiagnosisItemContainer = styled.div`
+const DiagnosisHeading = styled.div`
+  margin-top: 0.4rem;
   margin-right: 1rem;
-  padding: 1rem;
-  background: #ececfc;
-  display: inline-block;
-  border-radius: 0.1rem;
-  cursor: pointer;
+`;
+
+const DiagnosisChip = styled(Chip)`
+  margin-right: 0.3rem;
 `;
 
 const DiagnosisItem = React.memo(({ diagnosis: { name }, isPrimary, onClick }) => (
-  <DiagnosisItemContainer onClick={onClick}>
-    <span>{isPrimary ? 'Primary' : 'Secondary'}</span>
-    <span>: </span>
-    <span>
-      <b>{name}</b>
-    </span>
-  </DiagnosisItemContainer>
+  <DiagnosisChip 
+    onClick={onClick}
+    label={`${isPrimary ? 'Primary' : 'Secondary'}: ${name}`}
+    variant="outlined"
+    color={isPrimary ? 'primary' : ''}
+  />
 ));
 
 function compareDiagnosis(a, b) {
@@ -76,7 +77,7 @@ export const DiagnosisView = React.memo(({ visitId }) => {
     <React.Fragment>
       <DiagnosisModal diagnosis={diagnosis} visitId={visitId} onClose={() => editDiagnosis(null)} />
       <DiagnosisGrid>
-        <div>Diagnosis:</div>
+        <DiagnosisHeading>Diagnosis:</DiagnosisHeading>
         <DiagnosisList onEditDiagnosis={d => editDiagnosis(d)} />
         <Button onClick={() => editDiagnosis({})} variant="outlined" color="primary">
           Add diagnosis
