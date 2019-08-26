@@ -8,8 +8,8 @@ const styles = theme => ({
   root: {
     flexGrow: 1,
     backgroundColor: '#fff',
-    borderBottom: `2px solid ${grey[300]}`,
-    marginBottom: 3,
+    boxShadow: `0px 1px 0px ${grey[300]}`,
+    padding: '12px 0',
   },
   h3: {
     marginBottom: '0 !important',
