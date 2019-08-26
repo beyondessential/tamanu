@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
+import shortid from 'shortid';
 
 import { foreignKey } from '../utils/validation';
 
@@ -178,13 +179,13 @@ export class LabRequestForm extends React.PureComponent {
   };
 
   render() {
-    const { onSubmit, editedObject } = this.props;
+    const { onSubmit, editedObject, generateId = shortid } = this.props;
     return (
       <Form
         onSubmit={onSubmit}
         render={this.renderForm}
         initialValues={{
-          _id: (10000 + Math.random() * 9999).toFixed(0),
+          _id: generateId(),
           orderDate: new Date(),
           labRequestType: 'general',
           ...editedObject,
