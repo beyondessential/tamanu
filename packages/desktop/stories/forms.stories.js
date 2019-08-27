@@ -13,6 +13,7 @@ import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
 import { DischargeForm } from '../app/forms/DischargeForm';
 import { NewPatientForm } from '../app/forms/NewPatientForm';
 import { LabRequestForm } from '../app/forms/LabRequestForm';
+import { TestSelectorInput } from '../app/components/TestSelector';
 
 import { createDummyVisit, PATIENTS, LOCATIONS, PRACTITIONERS, FACILITIES } from './dummyPatient';
 
@@ -105,18 +106,47 @@ storiesOf('Forms', module).add('NewPatientForm', () => (
   />
 ));
 
-storiesOf('Forms', module).add('LabRequestForm', () => (
-  <LabRequestForm
-    onSubmit={action('submit')}
-    onCancel={action('cancel')}
-    visit={{
-      visitType: 'admission',
-      startDate: new Date(),
-      examiner: {
-        displayName: 'Dr Jim Taylor',
-      },
-    }}
-    generateId={shortid.generate}
-    practitionerSuggester={practitionerSuggester}
-  />
-));
+const StorybookableTestSelector = () => {
+  const [value, setValue] = React.useState([]);
+  const changeAction = action("change");
+  const onChange = React.useCallback((e) => {
+    const value = e.target.value;
+    changeAction(value);
+    setValue(value);
+  }, [setValue]);
+
+  return (
+    <TestSelectorInput
+      testTypes={[
+        { label: "Grape", value: "grape" },
+        { label: "Vanilla", value: "vanilla" },
+        { label: "Chocolate", value: "chocolate" },
+        { label: "Boysenberry", value: "boysenberry" },
+        { label: "Strawberry", value: "strawb" },
+        { label: "Lemon", value: "lemon" },
+      ]}
+      value={value}
+      onChange={onChange}
+    />
+  );
+};
+
+storiesOf('Forms/LabRequestForm', module)
+  .add('LabRequestForm', () => (
+    <LabRequestForm
+      onSubmit={action('submit')}
+      onCancel={action('cancel')}
+      visit={{
+        visitType: 'admission',
+        startDate: new Date(),
+        examiner: {
+          displayName: 'Dr Jim Taylor',
+        },
+      }}
+      generateId={shortid.generate}
+      practitionerSuggester={practitionerSuggester}
+    />
+  ))
+  .add('TestSelector', () => (
+    <StorybookableTestSelector />
+  ));

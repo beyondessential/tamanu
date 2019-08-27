@@ -126,7 +126,7 @@ export class LabRequestForm extends React.PureComponent {
           name="tests"
           label="Tests"
           required
-          tests={testTypes[values.labRequestType]}
+          testTypes={testTypes[values.labRequestType]}
           component={TestSelectorField}
           multiline
           style={{ gridColumn: '1 / -1' }}

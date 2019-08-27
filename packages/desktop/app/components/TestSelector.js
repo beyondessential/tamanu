@@ -31,33 +31,33 @@ const SelectorContainer = styled.div`
   border-radius: 0.3rem;
 `;
 
-const filterValueObject = (value, tests) => {
-  const filteredValue = {};
-  Object.entries(value)
-    .filter(x => x[1]) // only include true values
-    .filter(x => tests.some(t => t.value === x[0])) // only include available values
-    .forEach(([k]) => {
-      filteredValue[k] = true;
-    });
-  return filteredValue;
-};
-
-export const TestSelectorInput = ({ name, tests, value = {}, onChange, ...props }) => {
+export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...props }) => {
   const [filter, setFilter] = React.useState('');
+  const validValues = new Set(testTypes.map(x => x.value));
+  const isTestSelected = React.useCallback(
+    testId => value.some(x => x === testId),
+    [value],
+  );
   const updateValue = React.useCallback(
-    newValue => {
-      const filteredValue = filterValueObject(newValue, tests);
-      onChange({ target: { name, value: filteredValue } });
+    (testId, isSelected) => {
+      const filteredValue = value.filter(v => testTypes.some(x => v === x.value));
+      console.log(filteredValue);
+      const selectedTests = new Set(filteredValue);
+      if(isSelected)
+        selectedTests.add(testId);
+      else
+        selectedTests.delete(testId);
+      onChange({ target: { name, value: [...selectedTests] } });
     },
-    [onChange, name, tests],
+    [onChange, name, value, testTypes],
   );
 
-  // clear filter whenever tests change
+  // clear filter whenever testTypes change
   React.useEffect(() => {
     setFilter('');
-  }, [tests]);
+  }, [testTypes]);
 
-  const displayedTests = tests.filter(t => t.label.toLowerCase().includes(filter.toLowerCase()));
+  const displayedTests = testTypes.filter(t => t.label.toLowerCase().includes(filter.toLowerCase()));
 
   const testDisplay =
     displayedTests.length > 0 ? (
@@ -65,8 +65,8 @@ export const TestSelectorInput = ({ name, tests, value = {}, onChange, ...props 
         <TestItem
           {...t}
           key={t.value}
-          checked={value[t.value]}
-          onCheck={v => updateValue({ ...value, [t.value]: v })}
+          checked={isTestSelected(t.value)}
+          onCheck={v => updateValue(t.value, v)}
         />
       ))
     ) : (
@@ -75,6 +75,7 @@ export const TestSelectorInput = ({ name, tests, value = {}, onChange, ...props 
 
   return (
     <SelectorContainer {...props}>
+      <div>{JSON.stringify(value)}</div>
       <TextInput label="Filter tests" value={filter} onChange={t => setFilter(t.target.value)} />
       <SelectorTable>{testDisplay}</SelectorTable>
     </SelectorContainer>
