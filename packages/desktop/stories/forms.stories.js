@@ -118,12 +118,12 @@ const StorybookableTestSelector = () => {
   return (
     <TestSelectorInput
       testTypes={[
-        { label: "Grape", value: "grape" },
-        { label: "Vanilla", value: "vanilla" },
-        { label: "Chocolate", value: "chocolate" },
-        { label: "Boysenberry", value: "boysenberry" },
-        { label: "Strawberry", value: "strawb" },
-        { label: "Lemon", value: "lemon" },
+        { name: "Grape", _id: "grape" },
+        { name: "Vanilla", _id: "vanilla" },
+        { name: "Chocolate", _id: "chocolate" },
+        { name: "Boysenberry", _id: "boysenberry" },
+        { name: "Strawberry", _id: "strawb" },
+        { name: "Lemon", _id: "lemon" },
       ]}
       value={value}
       onChange={onChange}

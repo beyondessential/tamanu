@@ -33,21 +33,22 @@ const SelectorContainer = styled.div`
 
 export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...props }) => {
   const [filter, setFilter] = React.useState('');
-  const validValues = new Set(testTypes.map(x => x.value));
+  const validValues = new Set(testTypes.map(x => x._id));
+
   const isTestSelected = React.useCallback(
-    testId => value.some(x => x === testId),
+    testId => value.some(x => x._id === testId),
     [value],
   );
+
   const updateValue = React.useCallback(
     (testId, isSelected) => {
-      const filteredValue = value.filter(v => testTypes.some(x => v === x.value));
-      console.log(filteredValue);
-      const selectedTests = new Set(filteredValue);
+      const filteredValue = value.filter(v => testTypes.some(x => v._id === x._id));
+      let selectedTests = [...filteredValue];
       if(isSelected)
-        selectedTests.add(testId);
+        selectedTests.push({ _id: testId });
       else
-        selectedTests.delete(testId);
-      onChange({ target: { name, value: [...selectedTests] } });
+        selectedTests = selectedTests.filter(x => x._id !== testId);
+      onChange({ target: { name, value: selectedTests } });
     },
     [onChange, name, value, testTypes],
   );
@@ -57,16 +58,16 @@ export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...pr
     setFilter('');
   }, [testTypes]);
 
-  const displayedTests = testTypes.filter(t => t.label.toLowerCase().includes(filter.toLowerCase()));
+  const displayedTests = testTypes.filter(t => t.name.toLowerCase().includes(filter.toLowerCase()));
 
   const testDisplay =
     displayedTests.length > 0 ? (
       displayedTests.map(t => (
         <TestItem
-          {...t}
-          key={t.value}
-          checked={isTestSelected(t.value)}
-          onCheck={v => updateValue(t.value, v)}
+          label={t.name}
+          key={t._id}
+          checked={isTestSelected(t._id)}
+          onCheck={v => updateValue(t._id, v)}
         />
       ))
     ) : (
