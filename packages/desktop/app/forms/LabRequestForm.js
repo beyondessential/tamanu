@@ -178,7 +178,19 @@ export class LabRequestForm extends React.PureComponent {
         validationSchema={yup.object().shape({
           requestingDoctor: foreignKey('Requesting doctor is required'),
           sampleTime: yup.date().required(),
+          labRequestType: yup.string().required(),
+          orderDate: yup.date().required(),
         })}
+        validate={(values) => {
+          // there's a bug in formik for handling `yup.mixed.test` so just do it manually here
+          const { tests = {} } = values;
+          if(Object.keys(tests).length === 0) {
+            return { 
+              tests: "At least one test must be selected", 
+            };
+          }
+          return {};
+        }}
       />
     );
   }
