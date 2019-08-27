@@ -87,14 +87,14 @@ export class LabRequestForm extends React.PureComponent {
 
   renderForm = ({ values, submitForm }) => {
     const { practitionerSuggester, onCancel, visit = {} } = this.props;
-    const { supervisingDoctor = {} } = visit;
-    const supervisingDoctorLabel = supervisingDoctor.displayName;
+    const { examiner = {} } = visit;
+    const examinerLabel = examiner.displayName;
     const visitLabel = getVisitLabel(visit);
     return (
       <FormGrid>
         <Field name="_id" label="Lab request number" disabled component={TextField} />
-        <Field name="orderDate" label="Order date" required component={DateField} />
-        <TextInput label="Supervising doctor" disabled value={supervisingDoctorLabel} />
+        <Field name="requestedDate" label="Order date" required component={DateField} />
+        <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
           name="requestingDoctor._id"
           label="Requesting doctor"
@@ -162,7 +162,7 @@ export class LabRequestForm extends React.PureComponent {
         render={this.renderForm}
         initialValues={{
           _id: generateId(),
-          orderDate: new Date(),
+          requestedDate: new Date(),
           labRequestType: 'general',
           ...editedObject,
         }}
@@ -170,7 +170,7 @@ export class LabRequestForm extends React.PureComponent {
           requestingDoctor: foreignKey('Requesting doctor is required'),
           sampleTime: yup.date().required(),
           labRequestType: yup.string().required(),
-          orderDate: yup.date().required(),
+          requestedDate: yup.date().required(),
         })}
         validate={values => {
           // there's a bug in formik for handling `yup.mixed.test` so just do it manually here

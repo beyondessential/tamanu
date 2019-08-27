@@ -22,6 +22,23 @@ visitRoutes.post('/visit/:id/diagnosis', (req, res) => {
   res.send(objectToJSON(diagnosis));
 });
 
+visitRoutes.post('/visit/:id/labRequest', (req, res) => {
+  const db = req.app.get('database');
+  const visit = db.objectForPrimaryKey('visit', req.params.id);
+  const request = {
+    // _id: shortid(),
+    ...req.body,
+  };
+
+  // TODO: validate
+
+  db.write(() => {
+    visit.labRequests = [...visit.labRequests, request];
+  });
+
+  res.send(objectToJSON(request));
+});
+
 visitRoutes.post('/visit/:id/vitals', (req, res) => {
   const db = req.app.get('database');
   const visit = db.objectForPrimaryKey('visit', req.params.id);

@@ -112,7 +112,7 @@ storiesOf('Forms', module).add('LabRequestForm', () => (
     visit={{
       visitType: 'admission',
       startDate: new Date(),
-      supervisingDoctor: {
+      examiner: {
         displayName: 'Dr Jim Taylor',
       },
     }}

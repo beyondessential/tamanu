@@ -11,7 +11,7 @@ import { LabRequestForm } from '../forms/LabRequestForm';
 
 const DumbLabRequestModal = React.memo(
   ({ open, visit, practitionerSuggester, onClose, onSubmit }) => (
-    <Modal title="New lab request" open={open} onClose={onClose}>
+    <Modal width="md" title="New lab request" open={open} onClose={onClose}>
       <LabRequestForm
         onSubmit={onSubmit}
         onCancel={onClose}
@@ -25,8 +25,9 @@ const DumbLabRequestModal = React.memo(
 
 export const LabRequestModal = connectApi((api, dispatch, { visit }) => ({
   onSubmit: async data => {
-    await api.put(`visit/${visit._id}`, data);
-    dispatch(viewVisit(visit._id));
+    const visitId = visit._id;
+    await api.post(`visit/${visitId}/labRequest`, data);
+    dispatch(viewVisit(visitId));
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
 }))(DumbLabRequestModal);
