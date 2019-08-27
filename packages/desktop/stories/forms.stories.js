@@ -108,22 +108,25 @@ storiesOf('Forms', module).add('NewPatientForm', () => (
 
 const StorybookableTestSelector = () => {
   const [value, setValue] = React.useState([]);
-  const changeAction = action("change");
-  const onChange = React.useCallback((e) => {
-    const value = e.target.value;
-    changeAction(value);
-    setValue(value);
-  }, [setValue]);
+  const changeAction = action('change');
+  const onChange = React.useCallback(
+    e => {
+      const newValue = e.target.value;
+      changeAction(newValue);
+      setValue(newValue);
+    },
+    [setValue],
+  );
 
   return (
     <TestSelectorInput
       testTypes={[
-        { name: "Grape", _id: "grape" },
-        { name: "Vanilla", _id: "vanilla" },
-        { name: "Chocolate", _id: "chocolate" },
-        { name: "Boysenberry", _id: "boysenberry" },
-        { name: "Strawberry", _id: "strawb" },
-        { name: "Lemon", _id: "lemon" },
+        { name: 'Grape', _id: 'grape' },
+        { name: 'Vanilla', _id: 'vanilla' },
+        { name: 'Chocolate', _id: 'chocolate' },
+        { name: 'Boysenberry', _id: 'boysenberry' },
+        { name: 'Strawberry', _id: 'strawb' },
+        { name: 'Lemon', _id: 'lemon' },
       ]}
       value={value}
       onChange={onChange}
@@ -147,6 +150,4 @@ storiesOf('Forms/LabRequestForm', module)
       practitionerSuggester={practitionerSuggester}
     />
   ))
-  .add('TestSelector', () => (
-    <StorybookableTestSelector />
-  ));
+  .add('TestSelector', () => <StorybookableTestSelector />);

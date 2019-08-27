@@ -38,9 +38,9 @@ const VitalsPane = React.memo(({ visit }) => {
   );
 });
 
-const LabsTable = React.memo(({ labs=[] }) => {
-  const items = labs.map(x => (<div key={x._id}>{JSON.stringify(x)}</div>));
-  return (<div>{items}</div>);
+const LabsTable = React.memo(({ labs = [] }) => {
+  const items = labs.map(x => <div key={x._id}>{JSON.stringify(x)}</div>);
+  return <div>{items}</div>;
 });
 
 const LabsPane = React.memo(({ visit }) => {

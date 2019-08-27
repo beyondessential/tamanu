@@ -33,21 +33,15 @@ const SelectorContainer = styled.div`
 
 export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...props }) => {
   const [filter, setFilter] = React.useState('');
-  const validValues = new Set(testTypes.map(x => x._id));
 
-  const isTestSelected = React.useCallback(
-    testId => value.some(x => x._id === testId),
-    [value],
-  );
+  const isTestSelected = React.useCallback(testId => value.some(x => x._id === testId), [value]);
 
   const updateValue = React.useCallback(
     (testId, isSelected) => {
       const filteredValue = value.filter(v => testTypes.some(x => v._id === x._id));
       let selectedTests = [...filteredValue];
-      if(isSelected)
-        selectedTests.push({ _id: testId });
-      else
-        selectedTests = selectedTests.filter(x => x._id !== testId);
+      if (isSelected) selectedTests.push({ _id: testId });
+      else selectedTests = selectedTests.filter(x => x._id !== testId);
       onChange({ target: { name, value: selectedTests } });
     },
     [onChange, name, value, testTypes],
@@ -76,7 +70,6 @@ export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...pr
 
   return (
     <SelectorContainer {...props}>
-      <div>{JSON.stringify(value)}</div>
       <TextInput label="Filter tests" value={filter} onChange={t => setFilter(t.target.value)} />
       <SelectorTable>{testDisplay}</SelectorTable>
     </SelectorContainer>

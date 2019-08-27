@@ -7,7 +7,7 @@ const ModalContent = styled.div`
   padding: 0 24px 24px;
 `;
 
-export const Modal = memo(({ title, children, actions, width="sm", ...props }) => {
+export const Modal = memo(({ title, children, actions, width = 'sm', ...props }) => {
   return (
     <MuiDialog fullWidth maxWidth={width} {...props}>
       <DialogTitle>{title}</DialogTitle>

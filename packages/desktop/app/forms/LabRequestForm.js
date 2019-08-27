@@ -142,7 +142,9 @@ export class LabRequestForm extends React.PureComponent {
           rows={3}
         />
         <ButtonRow>
-          <Button variant="contained" onClick={onCancel}>Cancel</Button>
+          <Button variant="contained" onClick={onCancel}>
+            Cancel
+          </Button>
           <Button variant="contained" onClick={submitForm} color="primary">
             Finalise and print
           </Button>
