@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import styled from 'styled-components';
 import shortid from 'shortid';
 
 import { foreignKey } from '../utils/validation';
@@ -30,7 +29,7 @@ function getVisitTypeLabel(type) {
   return visitOptions.find(x => x.value === type).label;
 }
 
-function getVisitLabel(visit) { 
+function getVisitLabel(visit) {
   const visitDate = DateDisplay.rawFormat(visit.startDate);
   const visitTypeLabel = getVisitTypeLabel(visit.visitType);
   return `${visitDate} (${visitTypeLabel})`;
@@ -95,11 +94,7 @@ export class LabRequestForm extends React.PureComponent {
       <FormGrid>
         <Field name="_id" label="Lab request number" disabled component={TextField} />
         <Field name="orderDate" label="Order date" required component={DateField} />
-        <TextInput
-          label="Supervising doctor"
-          disabled
-          value={supervisingDoctorLabel}
-        />
+        <TextInput label="Supervising doctor" disabled value={supervisingDoctorLabel} />
         <Field
           name="requestingDoctor._id"
           label="Requesting doctor"
@@ -119,11 +114,7 @@ export class LabRequestForm extends React.PureComponent {
           <Field name="urgent" label="Urgent?" component={CheckField} />
         </div>
         <FormSeparatorLine />
-        <TextInput
-          label="Visit"
-          disabled
-          value={visitLabel}
-        />
+        <TextInput label="Visit" disabled value={visitLabel} />
         <Field
           name="labRequestType"
           label="Lab request type"
@@ -181,12 +172,12 @@ export class LabRequestForm extends React.PureComponent {
           labRequestType: yup.string().required(),
           orderDate: yup.date().required(),
         })}
-        validate={(values) => {
+        validate={values => {
           // there's a bug in formik for handling `yup.mixed.test` so just do it manually here
           const { tests = {} } = values;
-          if(Object.keys(tests).length === 0) {
-            return { 
-              tests: "At least one test must be selected", 
+          if (Object.keys(tests).length === 0) {
+            return {
+              tests: 'At least one test must be selected',
             };
           }
           return {};

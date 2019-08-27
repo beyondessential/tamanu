@@ -113,8 +113,8 @@ storiesOf('Forms', module).add('LabRequestForm', () => (
       visitType: 'admission',
       startDate: new Date(),
       supervisingDoctor: {
-        displayName: "Dr Jim Taylor"
-      }
+        displayName: 'Dr Jim Taylor',
+      },
     }}
     generateId={shortid.generate}
     practitionerSuggester={practitionerSuggester}

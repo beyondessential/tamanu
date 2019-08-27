@@ -174,7 +174,6 @@ export const labRequestOptions = [
   { label: 'U&E', value: 'une' },
 ];
 
-
 export const operativePlanStatuses = {
   PLANNED: 'planned',
   DROPPED: 'dropped',
