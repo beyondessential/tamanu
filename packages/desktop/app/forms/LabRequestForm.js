@@ -86,7 +86,7 @@ export class LabRequestForm extends React.PureComponent {
   };
 
   renderForm = ({ values, submitForm }) => {
-    const { practitionerSuggester, visit = {} } = this.props;
+    const { practitionerSuggester, onCancel, visit = {} } = this.props;
     const { supervisingDoctor = {} } = visit;
     const supervisingDoctorLabel = supervisingDoctor.displayName;
     const visitLabel = getVisitLabel(visit);
@@ -142,7 +142,7 @@ export class LabRequestForm extends React.PureComponent {
           rows={3}
         />
         <ButtonRow>
-          <Button variant="contained">Cancel</Button>
+          <Button variant="contained" onClick={onCancel}>Cancel</Button>
           <Button variant="contained" onClick={submitForm} color="primary">
             Finalise and print
           </Button>
