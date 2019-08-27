@@ -38,6 +38,10 @@ export const TimeField = ({ field, ...props }) => (
   <TimeInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
 );
 
+export const DateTimeField = ({ field, ...props }) => (
+  <DateTimeInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
+);
+
 DateInput.propTypes = {
   name: PropTypes.string,
   value: PropTypes.oneOfType([

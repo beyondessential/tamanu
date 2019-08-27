@@ -12,6 +12,7 @@ import { AllergyForm } from '../app/forms/AllergyForm';
 import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
 import { DischargeForm } from '../app/forms/DischargeForm';
 import { NewPatientForm } from '../app/forms/NewPatientForm';
+import { LabRequestForm } from '../app/forms/LabRequestForm';
 
 import { createDummyVisit, PATIENTS, LOCATIONS, PRACTITIONERS, FACILITIES } from './dummyPatient';
 
@@ -101,5 +102,21 @@ storiesOf('Forms', module).add('NewPatientForm', () => (
     generateId={shortid.generate}
     facilitySuggester={facilitySuggester}
     patientSuggester={patientSuggester}
+  />
+));
+
+storiesOf('Forms', module).add('LabRequestForm', () => (
+  <LabRequestForm
+    onSubmit={action('submit')}
+    onCancel={action('cancel')}
+    visit={{
+      visitType: 'admission',
+      startDate: new Date(),
+      supervisingDoctor: {
+        displayName: 'Dr Jim Taylor',
+      },
+    }}
+    generateId={shortid.generate}
+    practitionerSuggester={practitionerSuggester}
   />
 ));
