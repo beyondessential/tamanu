@@ -15,14 +15,26 @@ import {
   TextField,
   DateTimeField,
   CheckField,
+  TextInput,
 } from '../components/Field';
 import { TestSelectorField } from '../components/TestSelector';
 import { FormGrid } from '../components/FormGrid';
 import { Button } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
+import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 
-import { labRequestOptions } from '../constants';
+import { labRequestOptions, visitOptions } from '../constants';
+
+function getVisitTypeLabel(type) {
+  return visitOptions.find(x => x.value === type).label;
+}
+
+function getVisitLabel(visit) { 
+  const visitDate = DateDisplay.rawFormat(visit.startDate);
+  const visitTypeLabel = getVisitTypeLabel(visit.visitType);
+  return `${visitDate} (${visitTypeLabel})`;
+}
 
 const testTypes = {
   general: [
@@ -75,17 +87,18 @@ export class LabRequestForm extends React.PureComponent {
   };
 
   renderForm = ({ values, submitForm }) => {
-    const { practitionerSuggester } = this.props;
+    const { practitionerSuggester, visit = {} } = this.props;
+    const { supervisingDoctor = {} } = visit;
+    const supervisingDoctorLabel = supervisingDoctor.displayName;
+    const visitLabel = getVisitLabel(visit);
     return (
       <FormGrid>
         <Field name="_id" label="Lab request number" disabled component={TextField} />
         <Field name="orderDate" label="Order date" required component={DateField} />
-        <Field
-          name="supervisingDoctor._id"
+        <TextInput
           label="Supervising doctor"
           disabled
-          component={AutocompleteField}
-          suggester={practitionerSuggester}
+          value={supervisingDoctorLabel}
         />
         <Field
           name="requestingDoctor._id"
@@ -106,12 +119,10 @@ export class LabRequestForm extends React.PureComponent {
           <Field name="urgent" label="Urgent?" component={CheckField} />
         </div>
         <FormSeparatorLine />
-        <Field
-          name="visit._id"
+        <TextInput
           label="Visit"
           disabled
-          component={AutocompleteField}
-          suggester={practitionerSuggester}
+          value={visitLabel}
         />
         <Field
           name="labRequestType"

@@ -109,6 +109,13 @@ storiesOf('Forms', module).add('LabRequestForm', () => (
   <LabRequestForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
+    visit={{
+      visitType: 'admission',
+      startDate: new Date(),
+      supervisingDoctor: {
+        displayName: "Dr Jim Taylor"
+      }
+    }}
     generateId={shortid.generate}
     practitionerSuggester={practitionerSuggester}
   />

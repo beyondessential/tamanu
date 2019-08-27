@@ -28,3 +28,5 @@ export const DateDisplay = React.memo(({ date, showDuration = false, ...props })
     {showDuration && ` (${formatDuration(date)})`}
   </StyledAbbr>
 ));
+
+DateDisplay.rawFormat = formatShort;
