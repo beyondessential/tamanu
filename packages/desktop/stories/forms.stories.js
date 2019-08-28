@@ -106,13 +106,23 @@ storiesOf('Forms', module).add('NewPatientForm', () => (
   />
 ));
 
+const testCategories = [{ label: 'Sweet', value: 'sweet' }, { label: 'Savoury', value: 'savoury' }];
+
 const testTypes = [
-  { name: 'Grape', _id: 'grape' },
-  { name: 'Vanilla', _id: 'vanilla' },
-  { name: 'Chocolate', _id: 'chocolate' },
-  { name: 'Boysenberry', _id: 'boysenberry' },
-  { name: 'Strawberry', _id: 'strawb' },
-  { name: 'Lemon', _id: 'lemon' },
+  { name: 'Grape', _id: 'grape', category: { _id: 'sweet' } },
+  { name: 'Vanilla', _id: 'vanilla', category: { _id: 'sweet' } },
+  { name: 'Chocolate', _id: 'chocolate', category: { _id: 'sweet' } },
+  { name: 'Boysenberry', _id: 'boysenberry', category: { _id: 'sweet' } },
+  { name: 'Strawberry', _id: 'strawb', category: { _id: 'sweet' } },
+  { name: 'Lemon', _id: 'lemon', category: { _id: 'sweet' } },
+  { name: 'Pepper', _id: 'pepper', category: { _id: 'savoury' } },
+  { name: 'Cabbage', _id: 'cabbage', category: { _id: 'savoury' } },
+  { name: 'Sprout', _id: 'sprout', category: { _id: 'savoury' } },
+  { name: 'Yeast', _id: 'yeast', category: { _id: 'savoury' } },
+  { name: 'Zucchini', _id: 'zuc', category: { _id: 'savoury' } },
+  { name: 'Egg', _id: 'egg', category: { _id: 'savoury' } },
+  { name: 'Chicken', _id: 'chicken', category: { _id: 'savoury' } },
+  { name: 'Leek', _id: 'leek', category: { _id: 'savoury' } },
 ];
 
 const StorybookableTestSelector = () => {
@@ -127,13 +137,7 @@ const StorybookableTestSelector = () => {
     [setValue],
   );
 
-  return (
-    <TestSelectorInput
-      testTypes={testTypes}
-      value={value}
-      onChange={onChange}
-    />
-  );
+  return <TestSelectorInput testTypes={testTypes} value={value} onChange={onChange} />;
 };
 
 storiesOf('Forms/LabRequestForm', module)
@@ -149,9 +153,7 @@ storiesOf('Forms/LabRequestForm', module)
         },
       }}
       testTypes={testTypes}
-      testCategories={[
-
-      ]}
+      testCategories={testCategories}
       generateId={shortid.generate}
       practitionerSuggester={practitionerSuggester}
     />

@@ -5,7 +5,7 @@ import shortid from 'shortid';
 import { connect } from 'react-redux';
 
 import { foreignKey } from '../utils/validation';
-import { labRequestOptions, visitOptions } from '../constants';
+import { visitOptions } from '../constants';
 import { getLabTestTypes, getLabTestCategories, loadOptions } from '../store/options';
 
 import {
@@ -26,7 +26,6 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 
-
 function getVisitTypeLabel(type) {
   return visitOptions.find(x => x.value === type).label;
 }
@@ -44,14 +43,16 @@ export class LabRequestForm extends React.PureComponent {
 
   componentDidMount() {
     const { onMount } = this.props;
-    if(onMount) onMount();
+    if (onMount) onMount();
   }
 
   renderForm = ({ values, submitForm }) => {
-    const { practitionerSuggester, onCancel, testTypes, visit = {} } = this.props;
+    const { practitionerSuggester, onCancel, testTypes, visit = {}, testCategories } = this.props;
     const { examiner = {} } = visit;
     const examinerLabel = examiner.displayName;
     const visitLabel = getVisitLabel(visit);
+    const filteredTestTypes = testTypes.filter(x => x.category._id === values.labRequestType);
+
     return (
       <FormGrid>
         <Field name="_id" label="Lab request number" disabled component={TextField} />
@@ -82,13 +83,13 @@ export class LabRequestForm extends React.PureComponent {
           label="Lab request type"
           required
           component={SelectField}
-          options={labRequestOptions}
+          options={testCategories}
         />
         <Field
           name="testTypes"
           label="Tests"
           required
-          testTypes={testTypes}
+          testTypes={filteredTestTypes}
           component={TestSelectorField}
           style={{ gridColumn: '1 / -1' }}
         />
@@ -125,7 +126,7 @@ export class LabRequestForm extends React.PureComponent {
         initialValues={{
           _id: generateId(),
           requestedDate: new Date(),
-          labRequestType: 'general',
+          labRequestType: '',
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
@@ -152,9 +153,12 @@ export class LabRequestForm extends React.PureComponent {
 export const ConnectedLabRequestForm = connect(
   state => ({
     testTypes: getLabTestTypes(state),
-    testCategories: getLabTestCategories(state),
+    testCategories: getLabTestCategories(state).map(({ _id, name }) => ({
+      value: _id,
+      label: name,
+    })),
   }),
   dispatch => ({
     onMount: () => dispatch(loadOptions()),
-  })
+  }),
 )(LabRequestForm);

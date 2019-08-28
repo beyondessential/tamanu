@@ -12,18 +12,18 @@ export const loadOptions = () => async (dispatch, getState, { api }) => {
   const labTestCategories = (await api.get(`labTestCategory`)).data;
 
   dispatch({
-    type: OPTIONS_LOAD_FINISH, 
+    type: OPTIONS_LOAD_FINISH,
     options: {
       labTestTypes,
       labTestCategories,
-    }
+    },
   });
 };
 
 // selectors
 
-export const getLabTestTypes = (state, categoryId) => state.options.labTestTypes;
-export const getLabTestCategories = (state) => state.options.labTestCategories;
+export const getLabTestTypes = state => state.options.labTestTypes;
+export const getLabTestCategories = state => state.options.labTestCategories;
 
 // reducers
 
@@ -34,7 +34,7 @@ const defaultState = {
 };
 
 const handlers = {
-  [OPTIONS_LOAD_START]: action => ({
+  [OPTIONS_LOAD_START]: () => ({
     loading: true,
   }),
   [OPTIONS_LOAD_FINISH]: action => ({
@@ -44,4 +44,3 @@ const handlers = {
 };
 
 export const optionsReducer = createReducer(defaultState, handlers);
-

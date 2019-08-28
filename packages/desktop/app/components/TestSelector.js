@@ -15,12 +15,7 @@ const TestRow = styled.div`
 
 const TestItem = ({ value, label, checked, onCheck }) => (
   <TestRow>
-    <CheckInput 
-      name={value}
-      value={checked}
-      label={label}
-      onChange={() => onCheck(!checked)} 
-    />
+    <CheckInput name={value} value={checked} label={label} onChange={() => onCheck(!checked)} />
   </TestRow>
 );
 

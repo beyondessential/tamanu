@@ -31,7 +31,7 @@ visitRoutes.post('/visit/:id/labRequest', (req, res) => {
   };
 
   // TODO: validate
-  
+
   // create tests for each testType given
   request.tests = request.testTypes.map(({ _id: typeId }) => ({
     _id: shortid(),
