@@ -5,16 +5,17 @@ import { push } from 'connected-react-router';
 import TopBar from '../../components/TopBar';
 
 import { Button } from '../../components/Button';
-import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { TabDisplay } from '../../components/TabDisplay';
-import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { ContentPane } from '../../components/ContentPane';
-import { VitalsTable } from '../../components/VitalsTable';
-import { VitalsModal } from '../../components/VitalsModal';
-import { LabRequestModal } from '../../components/LabRequestModal';
-import { DischargeModal } from '../../components/DischargeModal';
 import { DiagnosisView } from '../../components/DiagnosisView';
+import { DischargeModal } from '../../components/DischargeModal';
+import { LabRequestModal } from '../../components/LabRequestModal';
+import { LabRequestsTable } from '../../components/LabRequestsTable';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { PatientInfoPane } from '../../components/PatientInfoPane';
+import { TabDisplay } from '../../components/TabDisplay';
+import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
+import { VitalsModal } from '../../components/VitalsModal';
+import { VitalsTable } from '../../components/VitalsTable';
 
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
@@ -38,18 +39,13 @@ const VitalsPane = React.memo(({ visit }) => {
   );
 });
 
-const LabsTable = React.memo(({ labs = [] }) => {
-  const items = labs.map(x => <div key={x._id}>{JSON.stringify(x)}</div>);
-  return <div>{items}</div>;
-});
-
 const LabsPane = React.memo(({ visit }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
     <div>
       <LabRequestModal open={modalOpen} visit={visit} onClose={() => setModalOpen(false)} />
-      <LabsTable labs={visit.labs} />
+      <LabRequestsTable labs={visit.labRequests} />
       <ContentPane>
         <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
           New lab request
