@@ -12,12 +12,12 @@ const TitleContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   flex-grow: 1;
-  border-bottom: 2px solid #ffcc24;
+  border-bottom: 1px solid #dedede;
   padding-bottom: 0.5rem;
 `;
 
 const TitleText = styled.span`
-  font-weight: bold;
+  font-weight: 500;
   display: flex;
 `;
 
