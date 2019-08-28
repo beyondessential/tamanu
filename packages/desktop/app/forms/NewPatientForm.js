@@ -20,12 +20,12 @@ export const NewPatientForm = memo(
       const revealAdditionalFields = values.revealAdditionalFields;
       return (
         <FormGrid>
-          <Field name="_id" label="National health ID" component={TextField} />
-          <Field name="firstName" label="First name" component={TextField} required />
-          <Field name="middleName" label="Middle name" component={TextField} />
-          <Field name="lastName" label="Last name" component={TextField} required />
-          <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
-          <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
+          <Field name="_id" outerlabel="National health ID" component={TextField} />
+          <Field name="firstName" outerlabel="First name" component={TextField} required />
+          <Field name="middleName" outerlabel="Middle name" component={TextField} />
+          <Field name="lastName" outerlabel="Last name" component={TextField} required />
+          <Field name="culturalName" outerlabel="Cultural/Traditional name" component={TextField} />
+          <Field name="dateOfBirth" outerlabel="Date of birth" component={DateField} required />
           <Field
             name="sex"
             label="Sex"

@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Formik, Field as FormikField, connect as formikConnect } from 'formik';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
@@ -47,14 +48,29 @@ const FormErrors = ({ errors }) =>
     </Typography>
   ));
 
-export const Field = formikConnect(({ formik: { errors }, name, helperText, ...props }) => (
-  <FormikField
-    {...props}
-    error={!!errors[name]}
-    helperText={errors[name] || helperText}
-    name={name}
-  />
-));
+const OuterLabelRequired = styled.span`
+  color: red;
+  padding-left: 2px;
+`;
+
+export const Field = formikConnect(
+  ({ formik: { errors }, name, helperText, outerlabel, required, ...props }) => (
+    <div>
+      {outerlabel && (
+        <span>
+          {outerlabel}
+          <OuterLabelRequired>{required && '*'}</OuterLabelRequired>
+        </span>
+      )}
+      <FormikField
+        {...props}
+        error={!!errors[name]}
+        helperText={errors[name] || helperText}
+        name={name}
+      />
+    </div>
+  ),
+);
 
 export class Form extends React.PureComponent {
   static propTypes = {
