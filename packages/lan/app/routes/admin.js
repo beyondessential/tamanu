@@ -54,7 +54,7 @@ function addOrUpdateMany(db, table, items, findExisting, defaultValues = {}) {
   return recordsWritten;
 }
 
-adminRoutes.put('/diagnoses', (req, res) => {
+adminRoutes.put('/diagnosis', (req, res) => {
   const db = req.app.get('database');
   const items = req.body;
 
@@ -64,6 +64,37 @@ adminRoutes.put('/diagnoses', (req, res) => {
     items,
     (objects, item) => objects.filtered('code = $0', item.code)[0],
     { type: 'icd10' },
+  );
+
+  res.send(recordsWritten);
+});
+
+adminRoutes.put('/labTestType', (req, res) => {
+  const db = req.app.get('database');
+  const items = req.body;
+
+  // create/update categories
+  const categories = db.objects('labTestCategory');
+  const categorisedItems = items.map((testType) => {
+    const { category } = testType;
+    const existing = categories.filtered('_id = $0 OR name = $1', category._id, category.name)[0];
+    if(existing) {
+      return { ...testType, category: existing };
+    } else {
+      const newCategory = { _id: shortid(), ...category };
+      db.write(() => {
+        const created = db.create('labTestCategory', newCategory);
+        category._id = created._id;
+      });
+      return { ...testType, category: newCategory };
+    }
+  });
+
+  const recordsWritten = addOrUpdateMany(
+    db,
+    'labTestType',
+    categorisedItems, 
+    (objects, item) => objects.filtered('_id = $0 OR name = $1', item._id, item.name)[0],
   );
 
   res.send(recordsWritten);
