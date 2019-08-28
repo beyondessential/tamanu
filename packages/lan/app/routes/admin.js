@@ -9,6 +9,10 @@ function updateObject(base, patch) {
   const flattenedObject = objectToJSON(base);
   const updates = Object.entries(flattenedObject).map(([key, value]) => {
     const updatedValue = patch[key];
+    if (base[key] && updatedValue && updatedValue._id === base[key]._id) {
+      // unchanged foreign key
+      return false;
+    }
     if (patch.hasOwnProperty(key) && value !== updatedValue) {
       // eslint-disable-next-line no-param-reassign
       base[key] = updatedValue;
