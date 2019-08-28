@@ -1,6 +1,11 @@
 import React from 'react';
+import styled from 'styled-components';
 
 import { Tabs, Tab } from '@material-ui/core';
+
+const TabContainer = styled(Tabs)`
+  background: #fff;
+`;
 
 export const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect, ...tabProps }) => {
   const currentTabData = tabs.find(t => t.key === currentTab);
@@ -15,7 +20,7 @@ export const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect, ...tabPro
   ));
   return (
     <div>
-      <Tabs value={currentTab}>{buttons}</Tabs>
+      <TabContainer value={currentTab}>{buttons}</TabContainer>
       <div>{currentTabData.render({ ...tabProps })}</div>
     </div>
   );
