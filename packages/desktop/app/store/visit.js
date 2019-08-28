@@ -20,6 +20,10 @@ export const reloadVisit = id => async (dispatch, getState, { api }) => {
   dispatch({ type: VISIT_LOAD_FINISH, visit });
 };
 
+// selectors
+
+export const getDiagnoses = state => state.visit.diagnoses;
+
 // reducers
 
 const defaultState = {

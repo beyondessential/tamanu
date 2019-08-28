@@ -37,7 +37,6 @@ class DataChangePublisher {
   };
 
   handleSubscribe = (clientId, channel) => {
-    console.log('handling');
     const recordType = channelToRecordType(channel);
     if (this.subscriptions[recordType]) {
       this.subscriptions[recordType].subscribers.add(clientId);

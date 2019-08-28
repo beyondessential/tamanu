@@ -19,7 +19,10 @@ function createSuggestionRoute(path, table, filter, transform = defaultTransform
   suggestionRoutes.get(`/${path}`, (req, res) => {
     const db = req.app.get('database');
     const { q = '', limit = 10 } = req.query;
-    const candidates = db.objects(table).filtered(filter, q);
+    const candidates = db
+      .objects(table)
+      .filtered(filter, q)
+      .sorted('name');
 
     const data = candidates.slice(0, limit).map(transform);
 
@@ -62,7 +65,7 @@ function createDummySuggestionRoute(path, valuesTemplate) {
 createSuggestionRoute(
   'icd10',
   'diagnosis',
-  'name CONTAINS[c] $0 OR code CONTAINS[c] $0',
+  '(name CONTAINS[c] $0 OR code CONTAINS[c] $0) AND type = "icd10"',
   ({ name, code, _id }) => ({ name, code, _id }),
 );
 

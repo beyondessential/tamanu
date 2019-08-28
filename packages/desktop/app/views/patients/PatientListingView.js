@@ -30,7 +30,7 @@ const DumbPatientListingView = React.memo(({ handleRowClick }) => {
   return (
     <PageContainer>
       <TopBar title="Patient listing">
-        <Button color="primary" variant="contained" onClick={toggleCreatingPatient}>
+        <Button color="primary" variant="outlined" onClick={toggleCreatingPatient}>
           Create new patient
         </Button>
       </TopBar>

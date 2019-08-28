@@ -18,6 +18,10 @@ const ScanFingerprintIcon = styled(FingerprintIcon)`
 const ScanFingerprintButtonContainer = styled.div`
   text-align: center;
   margin: auto;
+
+  svg {
+    font-size: 46px;
+  }
 `;
 
 const ScanFingerprintButton = memo(() => (
@@ -34,14 +38,45 @@ const ScanFingerprintLabel = styled.div`
 
 const SectionLabel = styled.div`
   font-size: 16px;
+  font-weight: 500;
   color: #326699;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
 `;
 
 const SearchInputContainer = styled.div`
   display: grid;
   grid-template-columns: 2fr 2fr 2fr 1fr 1fr;
-  grid-column-gap: 7px;
+
+  > div {
+    :hover {
+      border-right: 1px solid #326699;
+    }
+
+    :focus-within {
+      border-right: 2px solid #326699;
+    }
+  }
+
+  fieldset {
+    border-radius: 0;
+    border-right: none;
+  }
+
+  > :first-child {
+    fieldset {
+      border-radius: 4px 0 0 4px;
+    }
+  }
+
+  button {
+    border-radius: 0;
+  }
+
+  :last-child {
+    button {
+      border-radius: 0 4px 4px 0;
+    }
+  }
 `;
 
 const PaddedSearchIcon = styled(SearchIcon)`
@@ -54,15 +89,14 @@ const Section = styled.div`
 
 const RightSection = styled(Section)`
   border-left: 1px solid #dedede;
-  margin: auto;
 `;
 
 const renderSearchBar = ({ submitForm }) => (
   <SearchInputContainer>
-    <Field component={TextField} label="First name" name="firstName" />
-    <Field component={TextField} label="Last name" name="lastName" />
-    <Field component={TextField} label="Cultural/Traditional name" name="culturalName" />
-    <Field component={TextField} label="Health ID" name="healthId" />
+    <Field component={TextField} placeholder="First name" name="firstName" />
+    <Field component={TextField} placeholder="Last name" name="lastName" />
+    <Field component={TextField} placeholder="Cultural/Traditional name" name="culturalName" />
+    <Field component={TextField} placeholder="Health ID" name="healthId" />
     <Button color="primary" variant="contained" onClick={submitForm}>
       <PaddedSearchIcon />
       Search
