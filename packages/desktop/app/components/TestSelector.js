@@ -13,9 +13,14 @@ const TestRow = styled.div`
   padding: 0.2rem;
 `;
 
-const TestItem = ({ label, checked, onCheck }) => (
+const TestItem = ({ value, label, checked, onCheck }) => (
   <TestRow>
-    <CheckInput value={checked} label={label} onChange={() => onCheck(!checked)} />
+    <CheckInput 
+      name={value}
+      value={checked}
+      label={label}
+      onChange={() => onCheck(!checked)} 
+    />
   </TestRow>
 );
 
@@ -59,6 +64,7 @@ export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...pr
       displayedTests.map(t => (
         <TestItem
           label={t.name}
+          value={t._id}
           key={t._id}
           checked={isTestSelected(t._id)}
           onCheck={v => updateValue(t._id, v)}
