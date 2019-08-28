@@ -8,8 +8,8 @@ const OPTIONS_LOAD_FINISH = 'OPTIONS_LOAD_FINISH';
 export const loadOptions = () => async (dispatch, getState, { api }) => {
   dispatch({ type: OPTIONS_LOAD_START });
 
-  const labTestTypes = await api.get(`labTestType`);
-  const labTestCategories = await api.get(`labTestCategory`);
+  const labTestTypes = (await api.get(`labTestType`)).data;
+  const labTestCategories = (await api.get(`labTestCategory`)).data;
 
   dispatch({
     type: OPTIONS_LOAD_FINISH, 

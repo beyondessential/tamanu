@@ -1,5 +1,5 @@
 
-export * from './store/auth';
-export * from './store/options';
-export * from './store/patient';
-export * from './store/visit';
+export * from './auth';
+export * from './options';
+export * from './patient';
+export * from './visit';

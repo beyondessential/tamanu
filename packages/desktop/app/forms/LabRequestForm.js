@@ -2,8 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import shortid from 'shortid';
+import { connect } from 'react-redux';
 
 import { foreignKey } from '../utils/validation';
+import { labRequestOptions, visitOptions } from '../constants';
+import { getLabTestTypes, getLabTestCategories, loadOptions } from '../store/options';
 
 import {
   Form,
@@ -23,7 +26,6 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 
-import { labRequestOptions, visitOptions } from '../constants';
 
 function getVisitTypeLabel(type) {
   return visitOptions.find(x => x.value === type).label;
@@ -35,58 +37,18 @@ function getVisitLabel(visit) {
   return `${visitDate} (${visitTypeLabel})`;
 }
 
-const testTypes = {
-  general: [
-    { name: 'INR', _id: 'inr' },
-    { name: 'Blood Glucose', _id: 'bloodglucose' },
-    { name: 'Cholesterol', _id: 'cholesterol' },
-    { name: 'HbA1C', _id: 'hba1c' },
-    { name: 'CD4', _id: 'cd4' },
-    { name: 'Bilibubin', _id: 'bili' },
-    { name: 'ALP', _id: 'alp' },
-    { name: 'AST', _id: 'ast' },
-    { name: 'ALT', _id: 'alt' },
-    { name: 'GGT', _id: 'ggt' },
-    { name: 'Albumin', _id: 'albumin' },
-    { name: 'Prothrombin Time', _id: 'prothro' },
-    { name: 'Sodium', _id: 'sodium' },
-    { name: 'Potassium', _id: 'potass' },
-    { name: 'Chloride', _id: 'chlor' },
-    { name: 'Bicarbonate', _id: 'bicarb' },
-    { name: 'Urea', _id: 'urea' },
-    { name: 'Calcium', _id: 'calci' },
-    { name: 'Magnesium', _id: 'magne' },
-    { name: 'Phosphate', _id: 'phosph' },
-    { name: 'Creatinine', _id: 'cratin' },
-  ],
-  microbiology: [
-    { name: 'eGFR', _id: 'egfr' },
-    { name: 'HGB', _id: 'hgb' },
-    { name: 'WBC', _id: 'wbc' },
-    { name: 'PLT', _id: 'plt' },
-    { name: 'MCV', _id: 'mcv' },
-    { name: 'PCV', _id: 'pcv' },
-    { name: 'RBC', _id: 'rbc' },
-    { name: 'MCH', _id: 'mch' },
-    { name: 'MCHC', _id: 'mchc' },
-    { name: 'RDW-CV', _id: 'rdw' },
-    { name: 'Neutrophils', _id: 'neutro' },
-    { name: 'Lymphocytes', _id: 'lympho' },
-    { name: 'Monocytes', _id: 'mono' },
-    { name: 'Eosinophils', _id: 'esin' },
-    { name: 'Basophils', _id: 'baso' },
-  ],
-  haematology: [],
-  une: [],
-};
-
 export class LabRequestForm extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
   };
 
+  componentDidMount() {
+    const { onMount } = this.props;
+    if(onMount) onMount();
+  }
+
   renderForm = ({ values, submitForm }) => {
-    const { practitionerSuggester, onCancel, visit = {} } = this.props;
+    const { practitionerSuggester, onCancel, testTypes, visit = {} } = this.props;
     const { examiner = {} } = visit;
     const examinerLabel = examiner.displayName;
     const visitLabel = getVisitLabel(visit);
@@ -123,14 +85,12 @@ export class LabRequestForm extends React.PureComponent {
           options={labRequestOptions}
         />
         <Field
-          name="tests"
+          name="testTypeIds"
           label="Tests"
           required
-          testTypes={testTypes[values.labRequestType]}
+          testTypes={testTypes}
           component={TestSelectorField}
-          multiline
           style={{ gridColumn: '1 / -1' }}
-          rows={3}
         />
         <FormSeparatorLine />
         <Field
@@ -176,10 +136,10 @@ export class LabRequestForm extends React.PureComponent {
         })}
         validate={values => {
           // there's a bug in formik for handling `yup.mixed.test` so just do it manually here
-          const { tests = {} } = values;
-          if (Object.keys(tests).length === 0) {
+          const { testTypeIds = {} } = values;
+          if (Object.keys(testTypeIds).length === 0) {
             return {
-              tests: 'At least one test must be selected',
+              testTypeIds: 'At least one test must be selected',
             };
           }
           return {};
@@ -188,3 +148,13 @@ export class LabRequestForm extends React.PureComponent {
     );
   }
 }
+
+export const ConnectedLabRequestForm = connect(
+  state => ({
+    testTypes: getLabTestTypes(state),
+    testCategories: getLabTestCategories(state),
+  }),
+  dispatch => ({
+    onMount: () => dispatch(loadOptions()),
+  })
+)(LabRequestForm);

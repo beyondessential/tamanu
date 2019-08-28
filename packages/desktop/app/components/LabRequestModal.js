@@ -7,12 +7,12 @@ import { Suggester } from '../utils/suggester';
 import { connectApi } from '../api/connectApi';
 import { viewVisit } from '../store/visit';
 
-import { LabRequestForm } from '../forms/LabRequestForm';
+import { ConnectedLabRequestForm } from '../forms/LabRequestForm';
 
 const DumbLabRequestModal = React.memo(
   ({ open, visit, practitionerSuggester, onClose, onSubmit }) => (
     <Modal width="md" title="New lab request" open={open} onClose={onClose}>
-      <LabRequestForm
+      <ConnectedLabRequestForm
         onSubmit={onSubmit}
         onCancel={onClose}
         visit={visit}

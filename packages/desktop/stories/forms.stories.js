@@ -106,6 +106,15 @@ storiesOf('Forms', module).add('NewPatientForm', () => (
   />
 ));
 
+const testTypes = [
+  { name: 'Grape', _id: 'grape' },
+  { name: 'Vanilla', _id: 'vanilla' },
+  { name: 'Chocolate', _id: 'chocolate' },
+  { name: 'Boysenberry', _id: 'boysenberry' },
+  { name: 'Strawberry', _id: 'strawb' },
+  { name: 'Lemon', _id: 'lemon' },
+];
+
 const StorybookableTestSelector = () => {
   const [value, setValue] = React.useState([]);
   const changeAction = action('change');
@@ -120,14 +129,7 @@ const StorybookableTestSelector = () => {
 
   return (
     <TestSelectorInput
-      testTypes={[
-        { name: 'Grape', _id: 'grape' },
-        { name: 'Vanilla', _id: 'vanilla' },
-        { name: 'Chocolate', _id: 'chocolate' },
-        { name: 'Boysenberry', _id: 'boysenberry' },
-        { name: 'Strawberry', _id: 'strawb' },
-        { name: 'Lemon', _id: 'lemon' },
-      ]}
+      testTypes={testTypes}
       value={value}
       onChange={onChange}
     />
@@ -146,6 +148,10 @@ storiesOf('Forms/LabRequestForm', module)
           displayName: 'Dr Jim Taylor',
         },
       }}
+      testTypes={testTypes}
+      testCategories={[
+
+      ]}
       generateId={shortid.generate}
       practitionerSuggester={practitionerSuggester}
     />
