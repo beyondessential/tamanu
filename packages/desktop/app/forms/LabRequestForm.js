@@ -58,7 +58,7 @@ export class LabRequestForm extends React.PureComponent {
         <Field name="requestedDate" label="Order date" required component={DateField} />
         <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
-          name="requestingDoctor._id"
+          name="requestedBy._id"
           label="Requesting doctor"
           required
           component={AutocompleteField}
@@ -85,7 +85,7 @@ export class LabRequestForm extends React.PureComponent {
           options={labRequestOptions}
         />
         <Field
-          name="testTypeIds"
+          name="testTypes"
           label="Tests"
           required
           testTypes={testTypes}
@@ -129,17 +129,17 @@ export class LabRequestForm extends React.PureComponent {
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          requestingDoctor: foreignKey('Requesting doctor is required'),
+          requestedBy: foreignKey('Requesting doctor is required'),
           sampleTime: yup.date().required(),
           labRequestType: yup.string().required(),
           requestedDate: yup.date().required(),
         })}
         validate={values => {
           // there's a bug in formik for handling `yup.mixed.test` so just do it manually here
-          const { testTypeIds = {} } = values;
-          if (Object.keys(testTypeIds).length === 0) {
+          const { testTypes = {} } = values;
+          if (Object.keys(testTypes).length === 0) {
             return {
-              testTypeIds: 'At least one test must be selected',
+              testTypes: 'At least one test must be selected',
             };
           }
           return {};

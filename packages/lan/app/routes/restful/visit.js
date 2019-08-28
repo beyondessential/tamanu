@@ -26,11 +26,17 @@ visitRoutes.post('/visit/:id/labRequest', (req, res) => {
   const db = req.app.get('database');
   const visit = db.objectForPrimaryKey('visit', req.params.id);
   const request = {
-    // _id: shortid(),
+    _id: shortid(),
     ...req.body,
   };
 
   // TODO: validate
+  
+  // create tests for each testType given
+  request.tests = request.testTypes.map(({ _id: typeId }) => ({
+    _id: shortid(),
+    type: { _id: typeId },
+  }));
 
   db.write(() => {
     visit.labRequests = [...visit.labRequests, request];
