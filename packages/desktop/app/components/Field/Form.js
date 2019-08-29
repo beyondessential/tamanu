@@ -48,21 +48,30 @@ const FormErrors = ({ errors }) =>
     </Typography>
   ));
 
+const OuterLabel = styled.span`
+  color: #666666;
+  font-weight: 500;
+`;
+
 const OuterLabelRequired = styled.span`
-  color: red;
+  color: #f76853;
   padding-left: 2px;
+`;
+
+const FieldComponent = styled(FormikField)`
+  background: '#fff';
 `;
 
 export const Field = formikConnect(
   ({ formik: { errors }, name, helperText, outerlabel, required, ...props }) => (
     <div>
       {outerlabel && (
-        <span>
+        <OuterLabel>
           {outerlabel}
           <OuterLabelRequired>{required && '*'}</OuterLabelRequired>
-        </span>
+        </OuterLabel>
       )}
-      <FormikField
+      <FieldComponent
         {...props}
         error={!!errors[name]}
         helperText={errors[name] || helperText}
