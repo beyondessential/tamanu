@@ -16,13 +16,16 @@ const styles = () => ({
     margin: 0,
     padding: '15px 8px',
     border: '1px solid rgba(0, 0, 0, 0.23)',
-    '& span:last-of-type': { // target: label
+    '& span:last-of-type': {
+      // target: label
       color: '#999999',
     },
-    '& span': { // targets: radio and label
+    '& span': {
+      // targets: radio and label
       padding: '0 3px 0 0',
     },
-    '&:not(:last-of-type)': { // targets: options
+    '&:not(:last-of-type)': {
+      // targets: options
       borderRight: 'none',
     },
     '&:first-of-type': {
@@ -34,7 +37,8 @@ const styles = () => ({
   },
   checkedControl: {
     background: '#FAFAFA',
-    '& span:last-of-type': { // target: label
+    '& span:last-of-type': {
+      // target: label
       color: '#666666',
     },
   },
@@ -87,7 +91,6 @@ export const RadioField = ({ field, error, ...props }) => (
 );
 
 RadioInput.propTypes = {
-  label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   value: PropTypes.string,
   onChange: PropTypes.func.isRequired,

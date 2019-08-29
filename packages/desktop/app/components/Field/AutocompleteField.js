@@ -60,7 +60,6 @@ const renderInputComponent = inputProps => {
 
 class BaseAutocomplete extends Component {
   static propTypes = {
-    label: PropTypes.string.isRequired,
     required: PropTypes.bool,
     disabled: PropTypes.bool,
     error: PropTypes.bool,

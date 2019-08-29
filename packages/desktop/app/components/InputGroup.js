@@ -14,7 +14,6 @@ const GroupTitle = styled.label`
 class InputGroupNew extends Component {
   static propTypes = {
     type: PropTypes.string,
-    label: PropTypes.string.isRequired,
     required: PropTypes.bool,
     name: PropTypes.string.isRequired,
     className: PropTypes.string,

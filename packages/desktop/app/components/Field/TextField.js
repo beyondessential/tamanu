@@ -1,15 +1,22 @@
 import React from 'react';
 import MuiTextField from '@material-ui/core/TextField';
+import { withStyles } from '@material-ui/core';
 import PropTypes from 'prop-types';
 
-export const TextInput = ({ value, ...props }) => (
+const styles = () => ({
+  root: {
+    background: '#fff',
+  },
+});
+
+export const TextInput = withStyles(styles)(({ value, ...props }) => (
   <MuiTextField
     value={value || ''}
     variant="outlined"
     InputLabelProps={{ shrink: true }}
     {...props}
   />
-);
+));
 
 export const TextField = ({ field, ...props }) => (
   <TextInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />

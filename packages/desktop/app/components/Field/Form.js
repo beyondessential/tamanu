@@ -58,20 +58,16 @@ const OuterLabelRequired = styled.span`
   padding-left: 2px;
 `;
 
-const FieldComponent = styled(FormikField)`
-  background: '#fff';
-`;
-
 export const Field = formikConnect(
-  ({ formik: { errors }, name, helperText, outerlabel, required, style, ...props }) => (
+  ({ formik: { errors }, name, helperText, outerlabel, required, style, label, ...props }) => (
     <div style={style}>
-      {outerlabel && (
+      {label && (
         <OuterLabel>
-          {outerlabel}
+          {label}
           <OuterLabelRequired>{required && '*'}</OuterLabelRequired>
         </OuterLabel>
       )}
-      <FieldComponent
+      <FormikField
         {...props}
         error={!!errors[name]}
         helperText={errors[name] || helperText}

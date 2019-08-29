@@ -20,7 +20,6 @@ const GroupTitle = styled.span`
 
 class DatepickerGroup extends Component {
   static propTypes = {
-    label: PropTypes.string.isRequired,
     required: PropTypes.bool,
     name: PropTypes.string.isRequired,
     className: PropTypes.string,
@@ -99,9 +98,7 @@ class DatepickerGroup extends Component {
       <Column className={className}>
         {label !== false && (
           <GroupTitle theme={theme}>
-            {label}
-            {' '}
-            {required && <span className="isRequired">*</span>}
+            {label} {required && <span className="isRequired">*</span>}
           </GroupTitle>
         )}
         {readOnly && <CustomDateInput value={value} />}

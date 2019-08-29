@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import styled from 'styled-components';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 
@@ -14,6 +15,13 @@ import {
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
+const ActionRow = styled(ConfirmCancelRow)`
+  grid-column: span 2;
+  margin: -18px;
+  border-top: 1px solid #dedede;
+  padding: 18px 18px 0 0;
+`;
+
 export const NewPatientForm = memo(
   ({ editedObject, onSubmit, onCancel, generateId, patientSuggester, facilitySuggester }) => {
     const renderForm = ({ submitForm, values }) => {
@@ -22,15 +30,15 @@ export const NewPatientForm = memo(
         <FormGrid>
           <Field
             name="_id"
-            outerlabel="National health ID"
+            label="National health ID"
             component={TextField}
             style={{ gridColumn: 'span 2' }}
           />
-          <Field name="firstName" outerlabel="First name" component={TextField} required />
-          <Field name="middleName" outerlabel="Middle name" component={TextField} />
-          <Field name="lastName" outerlabel="Last name" component={TextField} required />
-          <Field name="culturalName" outerlabel="Cultural/Traditional name" component={TextField} />
-          <Field name="dateOfBirth" outerlabel="Date of birth" component={DateField} required />
+          <Field name="firstName" label="First name" component={TextField} required />
+          <Field name="middleName" label="Middle name" component={TextField} />
+          <Field name="lastName" label="Last name" component={TextField} required />
+          <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
+          <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
           <Field
             name="sex"
             label="Sex"
@@ -88,7 +96,7 @@ export const NewPatientForm = memo(
               />
             </FormGrid>
           </Collapse>
-          <ConfirmCancelRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
+          <ActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
         </FormGrid>
       );
     };

@@ -12,7 +12,7 @@ const ModalContainer = styled.div`
 `;
 
 const DialogTitleComponent = styled(DialogTitle)`
-  padding: 14px !important;
+  padding: 14px 14px 14px 20px !important;
 `;
 
 export const Modal = memo(({ title, children, actions, ...props }) => {
