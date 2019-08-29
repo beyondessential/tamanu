@@ -20,7 +20,12 @@ export const NewPatientForm = memo(
       const revealAdditionalFields = values.revealAdditionalFields;
       return (
         <FormGrid>
-          <Field name="_id" outerlabel="National health ID" component={TextField} />
+          <Field
+            name="_id"
+            outerlabel="National health ID"
+            component={TextField}
+            style={{ gridColumn: 'span 2' }}
+          />
           <Field name="firstName" outerlabel="First name" component={TextField} required />
           <Field name="middleName" outerlabel="Middle name" component={TextField} />
           <Field name="lastName" outerlabel="Last name" component={TextField} required />
@@ -30,7 +35,6 @@ export const NewPatientForm = memo(
             name="sex"
             label="Sex"
             component={RadioField}
-            style={{ gridColumn: 'span 2' }}
             options={[
               { value: 'male', label: 'Male' },
               { value: 'female', label: 'Female' },

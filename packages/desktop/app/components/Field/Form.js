@@ -63,8 +63,8 @@ const FieldComponent = styled(FormikField)`
 `;
 
 export const Field = formikConnect(
-  ({ formik: { errors }, name, helperText, outerlabel, required, ...props }) => (
-    <div>
+  ({ formik: { errors }, name, helperText, outerlabel, required, style, ...props }) => (
+    <div style={style}>
       {outerlabel && (
         <OuterLabel>
           {outerlabel}
