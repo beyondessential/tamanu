@@ -39,6 +39,11 @@ function getVisitLabel(visit) {
 export class LabRequestForm extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
+    onMount: PropTypes.func,
+  };
+
+  static defaultProps = {
+    onMount: null,
   };
 
   componentDidMount() {
