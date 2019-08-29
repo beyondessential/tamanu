@@ -13,6 +13,7 @@ import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
 import { DischargeForm } from '../app/forms/DischargeForm';
 import { NewPatientForm } from '../app/forms/NewPatientForm';
 import { LabRequestForm } from '../app/forms/LabRequestForm';
+import { TestSelectorInput } from '../app/components/TestSelector';
 
 import { createDummyVisit, PATIENTS, LOCATIONS, PRACTITIONERS, FACILITIES } from './dummyPatient';
 
@@ -105,18 +106,56 @@ storiesOf('Forms', module).add('NewPatientForm', () => (
   />
 ));
 
-storiesOf('Forms', module).add('LabRequestForm', () => (
-  <LabRequestForm
-    onSubmit={action('submit')}
-    onCancel={action('cancel')}
-    visit={{
-      visitType: 'admission',
-      startDate: new Date(),
-      supervisingDoctor: {
-        displayName: 'Dr Jim Taylor',
-      },
-    }}
-    generateId={shortid.generate}
-    practitionerSuggester={practitionerSuggester}
-  />
-));
+const testCategories = [{ label: 'Sweet', value: 'sweet' }, { label: 'Savoury', value: 'savoury' }];
+
+const testTypes = [
+  { name: 'Grape', _id: 'grape', category: { _id: 'sweet' } },
+  { name: 'Vanilla', _id: 'vanilla', category: { _id: 'sweet' } },
+  { name: 'Chocolate', _id: 'chocolate', category: { _id: 'sweet' } },
+  { name: 'Boysenberry', _id: 'boysenberry', category: { _id: 'sweet' } },
+  { name: 'Strawberry', _id: 'strawb', category: { _id: 'sweet' } },
+  { name: 'Lemon', _id: 'lemon', category: { _id: 'sweet' } },
+  { name: 'Pepper', _id: 'pepper', category: { _id: 'savoury' } },
+  { name: 'Cabbage', _id: 'cabbage', category: { _id: 'savoury' } },
+  { name: 'Sprout', _id: 'sprout', category: { _id: 'savoury' } },
+  { name: 'Yeast', _id: 'yeast', category: { _id: 'savoury' } },
+  { name: 'Zucchini', _id: 'zuc', category: { _id: 'savoury' } },
+  { name: 'Egg', _id: 'egg', category: { _id: 'savoury' } },
+  { name: 'Chicken', _id: 'chicken', category: { _id: 'savoury' } },
+  { name: 'Leek', _id: 'leek', category: { _id: 'savoury' } },
+];
+
+const StorybookableTestSelector = () => {
+  const [value, setValue] = React.useState([]);
+  const changeAction = action('change');
+  const onChange = React.useCallback(
+    e => {
+      const newValue = e.target.value;
+      changeAction(newValue);
+      setValue(newValue);
+    },
+    [setValue],
+  );
+
+  return <TestSelectorInput testTypes={testTypes} value={value} onChange={onChange} />;
+};
+
+storiesOf('Forms/LabRequestForm', module)
+  .add('LabRequestForm', () => (
+    <LabRequestForm
+      onSubmit={action('submit')}
+      onCancel={action('cancel')}
+      visit={{
+        visitType: 'admission',
+        startDate: new Date(),
+        examiner: {
+          displayName: 'Dr Jim Taylor',
+        },
+      }}
+      testTypes={testTypes}
+      testCategories={testCategories}
+      generateId={shortid.generate}
+      practitionerSuggester={practitionerSuggester}
+    />
+  ))
+  .add('TestSelector', () => <StorybookableTestSelector />);

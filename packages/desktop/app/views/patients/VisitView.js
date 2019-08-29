@@ -12,6 +12,7 @@ import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { ContentPane } from '../../components/ContentPane';
 import { VitalsTable } from '../../components/VitalsTable';
 import { VitalsModal } from '../../components/VitalsModal';
+import { LabRequestModal } from '../../components/LabRequestModal';
 import { DischargeModal } from '../../components/DischargeModal';
 import { DiagnosisView } from '../../components/DiagnosisView';
 
@@ -37,6 +38,27 @@ const VitalsPane = React.memo(({ visit }) => {
   );
 });
 
+const LabsTable = React.memo(({ labs = [] }) => {
+  const items = labs.map(x => <div key={x._id}>{JSON.stringify(x)}</div>);
+  return <div>{items}</div>;
+});
+
+const LabsPane = React.memo(({ visit }) => {
+  const [modalOpen, setModalOpen] = React.useState(false);
+
+  return (
+    <div>
+      <LabRequestModal open={modalOpen} visit={visit} onClose={() => setModalOpen(false)} />
+      <LabsTable labs={visit.labs} />
+      <ContentPane>
+        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+          New lab request
+        </Button>
+      </ContentPane>
+    </div>
+  );
+});
+
 const TABS = [
   {
     label: 'Vitals',
@@ -56,7 +78,7 @@ const TABS = [
   {
     label: 'Labs',
     key: 'labs',
-    render: () => <ContentPane>Labs</ContentPane>,
+    render: ({ visit }) => <LabsPane visit={visit} />,
   },
   {
     label: 'Documents',
