@@ -1,12 +1,11 @@
 import { connectRouter } from 'connected-react-router';
 
-import { authReducer } from './store/auth';
-import { patientReducer } from './store/patient';
-import { visitReducer } from './store/visit';
+import { authReducer, patientReducer, visitReducer, optionsReducer } from './store';
 
 export const createReducers = history => ({
-  auth: authReducer,
   router: connectRouter(history),
+  auth: authReducer,
   patient: patientReducer,
   visit: visitReducer,
+  options: optionsReducer,
 });

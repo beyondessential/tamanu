@@ -15,9 +15,9 @@ const DialogTitleComponent = styled(DialogTitle)`
   padding: 14px 14px 14px 32px !important;
 `;
 
-export const Modal = memo(({ title, children, actions, ...props }) => {
+export const Modal = memo(({ title, children, actions, width = 'sm', ...props }) => {
   return (
-    <MuiDialog fullWidth maxWidth="sm" {...props}>
+    <MuiDialog fullWidth maxWidth={width} {...props}>
       <DialogTitleComponent>{title}</DialogTitleComponent>
       <ModalContainer>
         <ModalContent>{children}</ModalContent>

@@ -2,8 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
-import TopBar from '../../components/TopBar';
-
 import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -87,7 +85,6 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('history');
   return (
     <React.Fragment>
-      <TopBar title={`${patient.firstName} ${patient.lastName}`} />
       <LoadingIndicator loading={loading}>
         <PatientAlert alerts={patient.alerts} />
         <TwoColumnDisplay>

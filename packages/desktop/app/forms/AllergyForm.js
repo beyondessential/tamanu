@@ -6,6 +6,8 @@ import { Form, Field, DateField, AutocompleteField, TextField } from '../compone
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
+import { foreignKey } from '../utils/validation';
+
 export class AllergyForm extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
@@ -18,25 +20,25 @@ export class AllergyForm extends React.PureComponent {
   };
 
   renderForm = ({ submitForm }) => {
-    const { editedObject, onCancel, practitionerSuggester } = this.props;
-    const buttonText = editedObject ? 'Save' : 'Create';
+    const { editedObject, onCancel, practitionerSuggester, allergySuggester } = this.props;
+    const buttonText = editedObject ? 'Save' : 'Add';
     return (
-      <FormGrid>
+      <FormGrid columns={1}>
         <Field
-          name="name"
+          name="allergy._id"
           label="Allergy name"
-          component={TextField}
+          component={AutocompleteField}
+          suggester={allergySuggester}
           required
-          style={{ gridColumn: 'span 2' }}
         />
         <Field name="date" label="Date recorded" component={DateField} />
         <Field
-          name="practitioner"
+          name="practitioner._id"
           label="Doctor/Nurse"
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field name="note" label="Notes" component={TextField} style={{ gridColumn: 'span 2' }} />
+        <Field name="note" label="Notes" component={TextField} />
         <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText={buttonText} />
       </FormGrid>
     );
@@ -50,10 +52,11 @@ export class AllergyForm extends React.PureComponent {
         render={this.renderForm}
         initialValues={{
           date: new Date(),
+          allergy: {},
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          name: yup.string().required(),
+          allergy: foreignKey('An allergy must be selected'),
         })}
       />
     );

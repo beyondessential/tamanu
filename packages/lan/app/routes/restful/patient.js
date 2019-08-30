@@ -17,3 +17,18 @@ patientRoutes.post('/patient/:id/visits', (req, res) => {
 
   res.send(visit);
 });
+
+patientRoutes.post('/patient/:id/allergies', (req, res) => {
+  const db = req.app.get('database');
+  const patient = db.objectForPrimaryKey('patient', req.params.id);
+  const allergy = {
+    _id: shortid(),
+    ...req.body,
+  };
+
+  db.write(() => {
+    patient.allergies = [...patient.allergies, allergy];
+  });
+
+  res.send(allergy);
+});
