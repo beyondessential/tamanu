@@ -9,7 +9,6 @@ import {
   DateField,
   AutocompleteField,
   TextField,
-  ExpandSectionCheckField,
   RadioField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
