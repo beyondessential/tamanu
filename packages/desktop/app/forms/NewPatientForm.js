@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
@@ -9,23 +9,50 @@ import {
   DateField,
   AutocompleteField,
   TextField,
-  CheckField,
+  ExpandSectionCheckField,
   RadioField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
+import { PlusIconButton, MinusIconButton } from '../components';
 
 const ActionRow = styled(ConfirmCancelRow)`
   grid-column: span 2;
-  margin: -18px;
+  margin: 0 -32px;
   border-top: 1px solid #dedede;
-  padding: 18px 18px 0 0;
+  padding: 18px 32px 0 0;
+`;
+
+const AdditionalInformationRow = styled.div`
+  grid-column: span 2;
+  border-top: 1px solid #dedede;
+  padding: 10px 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  div {
+    font-weight: 500;
+    font-size: 17px;
+    color: #444444;
+  }
+
+  button {
+    padding: 0;
+    color: #4285f4;
+  }
+
+  div span {
+    font-weight: 200;
+    font-size: 14px;
+    color: #999999;
+  }
 `;
 
 export const NewPatientForm = memo(
   ({ editedObject, onSubmit, onCancel, generateId, patientSuggester, facilitySuggester }) => {
+    const [isRevealed, toggleRevealed] = useState(false);
     const renderForm = ({ submitForm, values }) => {
-      const revealAdditionalFields = values.revealAdditionalFields;
       return (
         <FormGrid>
           <Field
@@ -51,13 +78,17 @@ export const NewPatientForm = memo(
             inline
             required
           />
-          <Field
-            name="revealAdditionalFields"
-            label="Add additional information (religion, occupation, blood type...)"
-            component={CheckField}
-            style={{ gridColumn: 'span 2' }}
-          />
-          <Collapse in={revealAdditionalFields} style={{ gridColumn: 'span 2' }}>
+          <AdditionalInformationRow>
+            <div>
+              Add additional information <span>(religion, occupation, blood type...)</span>
+            </div>
+            {isRevealed ? (
+              <MinusIconButton onClick={() => toggleRevealed(!isRevealed)} />
+            ) : (
+              <PlusIconButton onClick={() => toggleRevealed(!isRevealed)} />
+            )}
+          </AdditionalInformationRow>
+          <Collapse in={isRevealed} style={{ gridColumn: 'span 2' }}>
             <FormGrid>
               <Field name="religion" label="Religion" component={TextField} />
               <Field name="occupation" label="Occupation" component={TextField} />
@@ -107,7 +138,6 @@ export const NewPatientForm = memo(
         render={renderForm}
         initialValues={{
           _id: generateId(),
-          revealAdditionalFields: false,
           ...editedObject,
         }}
         validationSchema={yup.object().shape({

@@ -11,10 +11,14 @@ import {
 } from '@material-ui/core';
 
 const styles = () => ({
-  control: {
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  labelControl: {
     background: '#fff',
     margin: 0,
-    padding: '15px 8px',
+    padding: '15px 6px',
     border: '1px solid rgba(0, 0, 0, 0.23)',
     '& span:last-of-type': {
       // target: label
@@ -42,6 +46,9 @@ const styles = () => ({
       color: '#666666',
     },
   },
+  radioGroup: {
+    flexWrap: 'nowrap',
+  },
   radio: {
     color: '#cccccc',
   },
@@ -54,18 +61,20 @@ const styles = () => ({
 
 export const RadioInput = withStyles(styles)(
   ({ options, name, value, label, helperText, inline, style, classes, ...props }) => (
-    <FormControl style={style} {...props}>
+    <FormControl style={style} className={classes.root} {...props}>
       <FormLabel>{label}</FormLabel>
       <RadioGroup
         aria-label={name}
         name={name}
         value={value || ''}
+        className={classes.radioGroup}
         style={{ flexDirection: inline ? 'row' : 'column' }}
         {...props}
       >
         {options.map(option => (
           <FormControlLabel
-            className={`${classes.control} ${value === option.value && classes.checkedControl}`}
+            className={`${classes.labelControl} ${value === option.value &&
+              classes.checkedControl}`}
             key={option.value}
             control={
               <Radio className={classes.radio} classes={{ checked: classes.checkedRadio }} />

@@ -46,6 +46,7 @@ const renderInputComponent = inputProps => {
         ),
         style: {
           paddingRight: 0,
+          background: '#fff',
         },
       }}
       fullWidth

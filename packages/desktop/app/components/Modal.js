@@ -4,7 +4,7 @@ import { Dialog as MuiDialog, DialogTitle, DialogActions } from '@material-ui/co
 
 const ModalContent = styled.div`
   flex: 1 1 auto;
-  padding: 18px;
+  padding: 18px 32px;
 `;
 
 const ModalContainer = styled.div`
@@ -12,7 +12,7 @@ const ModalContainer = styled.div`
 `;
 
 const DialogTitleComponent = styled(DialogTitle)`
-  padding: 14px 14px 14px 20px !important;
+  padding: 14px 14px 14px 32px !important;
 `;
 
 export const Modal = memo(({ title, children, actions, ...props }) => {
