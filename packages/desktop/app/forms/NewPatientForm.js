@@ -59,6 +59,7 @@ export const NewPatientForm = memo(
             label="National health ID"
             component={TextField}
             style={{ gridColumn: 'span 2' }}
+            disabled
           />
           <Field name="firstName" label="First name" component={TextField} required />
           <Field name="middleName" label="Middle name" component={TextField} />
