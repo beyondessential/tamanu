@@ -183,7 +183,7 @@ export const PatientSchema = {
     },
     allergies: {
       type: 'list',
-      objectType: 'allergy',
+      objectType: 'patientAllergy',
     },
     conditions: {
       type: 'list',
