@@ -65,7 +65,7 @@ const AddEditForm = connectApi(
   (api, dispatch, { patient, endpoint, onClose, suggesterEndpoints }) => {
     const apiProps = {
       onSubmit: async data => {
-        await api.post(`/patient/${patient._id}/${endpoint}`, data);
+        await api.post(`patient/${patient._id}/${endpoint}`, data);
         onClose();
       },
     };
@@ -82,7 +82,7 @@ const AddEditForm = connectApi(
   )),
 );
 
-export const InfoPaneList = memo(({ title, Form, items = [], endpoint, suggesterEndpoints }) => {
+export const InfoPaneList = memo(({ patient, title, Form, items = [], endpoint, suggesterEndpoints }) => {
   const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
   const { adding, editKey } = addEditState;
 
@@ -105,6 +105,7 @@ export const InfoPaneList = memo(({ title, Form, items = [], endpoint, suggester
       <DataList>
         <Collapse in={adding}>
           <AddEditForm
+            patient={patient}
             Form={Form}
             endpoint={endpoint}
             suggesterEndpoints={suggesterEndpoints}

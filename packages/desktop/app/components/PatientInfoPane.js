@@ -8,6 +8,7 @@ import { AllergyForm, OngoingConditionForm } from '../forms';
 
 const OngoingConditionDisplay = memo(({ patient }) => (
   <InfoPaneList
+    patient={patient}
     title="Ongoing conditions"
     endpoint="condition"
     suggesterEndpoints={['practitioner']}
@@ -18,9 +19,10 @@ const OngoingConditionDisplay = memo(({ patient }) => (
 
 const AllergyDisplay = memo(({ patient }) => (
   <InfoPaneList
+    patient={patient}
     title="Allergies"
-    endpoint="allergy"
-    suggesterEndpoints={['practitioner']}
+    endpoint="allergies"
+    suggesterEndpoints={['practitioner', 'allergy']}
     items={patient.allergies.map(x => x.name)}
     Form={AllergyForm}
   />

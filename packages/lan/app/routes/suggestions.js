@@ -69,6 +69,13 @@ createSuggestionRoute(
   ({ name, code, _id }) => ({ name, code, _id }),
 );
 
+createSuggestionRoute(
+  'allergy',
+  'allergy',
+  '(name CONTAINS[c] $0)',
+  ({ name, _id }) => ({ name, _id }),
+);
+
 createSuggestionRoute('practitioner', 'user', 'name CONTAINS[c] $0');
 
 createSuggestionRoute(
