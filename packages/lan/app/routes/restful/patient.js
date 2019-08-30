@@ -19,5 +19,16 @@ patientRoutes.post('/patient/:id/visits', (req, res) => {
 });
 
 patientRoutes.post('/patient/:id/allergies', (req, res) => {
-  throw new Error('Not implemented');
+  const db = req.app.get('database');
+  const patient = db.objectForPrimaryKey('patient', req.params.id);
+  const allergy = {
+    _id: shortid(),
+    ...req.body,
+  };
+
+  db.write(() => {
+    patient.allergies = [...patient.allergies, allergy];
+  });
+
+  res.send(allergy);
 });

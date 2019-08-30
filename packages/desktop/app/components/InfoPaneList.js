@@ -82,8 +82,15 @@ const AddEditForm = connectApi(
   )),
 );
 
-export const InfoPaneList = memo(
-  ({ patient, title, Form, items = [], endpoint, suggesterEndpoints }) => {
+export const InfoPaneList = memo(({ 
+  patient,
+  title,
+  Form,
+  items = [],
+  endpoint,
+  suggesterEndpoints,
+  getName = () => "???",
+}) => {
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
     const { adding, editKey } = addEditState;
 
@@ -92,7 +99,7 @@ export const InfoPaneList = memo(
       [adding],
     );
     const handleRowClick = useCallback(
-      ({ name }) => setAddEditState({ adding: false, editKey: name }),
+      ({ id }) => setAddEditState({ adding: false, editKey: id }),
       [],
     );
     const handleCloseForm = useCallback(
@@ -117,15 +124,16 @@ export const InfoPaneList = memo(
             />
           </Collapse>
           {items.map(item => {
-            const { name } = item;
+            const id = item._id;
+            const name = getName(item);
             return (
-              <React.Fragment>
-                <Collapse in={editKey !== name}>
-                  <ListItem key={name} onClick={handleRowClick}>
+              <React.Fragment key={id}>
+                <Collapse in={editKey !== id}>
+                  <ListItem onClick={() => handleRowClick(id)}>
                     {name}
                   </ListItem>
                 </Collapse>
-                <Collapse in={editKey === name}>
+                <Collapse in={editKey === id}>
                   <AddEditForm
                     Form={Form}
                     endpoint={endpoint}

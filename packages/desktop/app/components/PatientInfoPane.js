@@ -12,7 +12,7 @@ const OngoingConditionDisplay = memo(({ patient }) => (
     title="Ongoing conditions"
     endpoint="condition"
     suggesterEndpoints={['practitioner']}
-    items={patient.conditions.map(x => x.name)}
+    items={patient.conditions}
     Form={OngoingConditionForm}
   />
 ));
@@ -23,8 +23,9 @@ const AllergyDisplay = memo(({ patient }) => (
     title="Allergies"
     endpoint="allergies"
     suggesterEndpoints={['practitioner', 'allergy']}
-    items={patient.allergies.map(x => x.name)}
+    items={patient.allergies}
     Form={AllergyForm}
+    getName={allergy => allergy.allergy.name}
   />
 ));
 
