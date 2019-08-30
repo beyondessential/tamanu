@@ -21,6 +21,7 @@ export * from './note';
 export * from './operation.report';
 export * from './operative-plan';
 export * from './patient';
+export * from './patient-allergy';
 export * from './patient-contact';
 export * from './patient-diagnosis';
 export * from './photo';

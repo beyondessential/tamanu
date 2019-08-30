@@ -33,7 +33,7 @@ export class AllergyForm extends React.PureComponent {
         />
         <Field name="date" label="Date recorded" component={DateField} />
         <Field
-          name="practitioner"
+          name="practitioner._id"
           label="Doctor/Nurse"
           component={AutocompleteField}
           suggester={practitionerSuggester}
