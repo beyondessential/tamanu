@@ -19,7 +19,7 @@ const DiagnosisChip = styled(Chip)`
 `;
 
 const DiagnosisItem = React.memo(({ diagnosis: { name }, isPrimary, onClick }) => (
-  <DiagnosisChip 
+  <DiagnosisChip
     onClick={onClick}
     label={`${isPrimary ? 'Primary' : 'Secondary'}: ${name}`}
     variant="outlined"

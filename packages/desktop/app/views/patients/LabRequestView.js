@@ -2,40 +2,27 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
-import TopBar from '../../components/TopBar';
-
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
-import { DiagnosisView } from '../../components/DiagnosisView';
-import { DischargeModal } from '../../components/DischargeModal';
-import { LabRequestModal } from '../../components/LabRequestModal';
-import { LabRequestsTable } from '../../components/LabRequestsTable';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
-import { VitalsModal } from '../../components/VitalsModal';
 import { Table } from '../../components/Table';
 
 import { FormGrid } from '../../components/FormGrid';
-import { SelectInput, DateInput, TextInput, DateTimeInput } from '../../components/Field';
-import { visitOptions } from '../../constants';
-
-import { getCurrentRouteEndsWith } from '../../store/router';
+import { DateInput, TextInput, DateTimeInput } from '../../components/Field';
 
 const NotesPane = React.memo(({ labRequest }) => <ContentPane>{labRequest.notes}</ContentPane>);
 
 const columns = [
-  { title: "Test", key: "type", accessor: (row) => row.type.name },
-  { title: "Result", key: "result", accessor: (row) => row.result },
-  { title: "Reference", key: "reference", accessor: (row) => row.type.maleRange.join("-") },
+  { title: 'Test', key: 'type', accessor: row => row.type.name },
+  { title: 'Result', key: 'result', accessor: row => row.result },
+  { title: 'Reference', key: 'reference', accessor: row => row.type.maleRange.join('-') },
 ];
 
 const ResultsPane = React.memo(({ labRequest }) => (
-  <Table
-    columns={columns}
-    data={labRequest.tests}
-  />
+  <Table columns={columns} data={labRequest.tests} />
 ));
 
 const TABS = [
@@ -60,16 +47,11 @@ const LabRequestInfoPane = React.memo(({ labRequest }) => (
   <FormGrid columns={3}>
     <TextInput value={labRequest._id} label="Request ID" />
     <TextInput value={(labRequest.category || {}).name} label="Request type" />
-    <TextInput value={"TODO"} label="Urgency" />
+    <TextInput value="TODO" label="Urgency" />
     <TextInput value={labRequest.status} label="Status" />
     <DateInput value={labRequest.requestedDate} label="Requested date" />
     <DateTimeInput value={labRequest.sampleTime} label="Sample date" />
-    <TextInput 
-      multiline 
-      value={labRequest.notes}
-      label="Notes"
-      style={{ gridColumn: '1 / -1' }}
-    />
+    <TextInput multiline value={labRequest.notes} label="Notes" style={{ gridColumn: '1 / -1' }} />
   </FormGrid>
 ));
 

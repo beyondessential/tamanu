@@ -45,14 +45,10 @@ const columns = [
 ];
 
 const DumbLabRequestsTable = React.memo(({ labs, onLabSelect }) => (
-  <Table 
-    columns={columns} 
-    data={labs} 
-    onRowClick={row => onLabSelect(row)}
-  />
+  <Table columns={columns} data={labs} onRowClick={row => onLabSelect(row)} />
 ));
 
 export const LabRequestsTable = connect(
   null,
-  dispatch => ({ onLabSelect: (lab) => dispatch(viewLab(lab._id)) })
+  dispatch => ({ onLabSelect: lab => dispatch(viewLab(lab._id)) }),
 )(DumbLabRequestsTable);

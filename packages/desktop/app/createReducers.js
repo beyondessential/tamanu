@@ -1,8 +1,8 @@
 import { connectRouter } from 'connected-react-router';
 
-import { 
-  authReducer, 
-  patientReducer, 
+import {
+  authReducer,
+  patientReducer,
   visitReducer,
   optionsReducer,
   labRequestReducer,
