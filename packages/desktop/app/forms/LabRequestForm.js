@@ -56,7 +56,7 @@ export class LabRequestForm extends React.PureComponent {
     const { examiner = {} } = visit;
     const examinerLabel = examiner.displayName;
     const visitLabel = getVisitLabel(visit);
-    const filteredTestTypes = testTypes.filter(x => x.category._id === values.labRequestType);
+    const filteredTestTypes = testTypes.filter(x => x.category._id === values.category._id);
 
     return (
       <FormGrid>
@@ -84,7 +84,7 @@ export class LabRequestForm extends React.PureComponent {
         <FormSeparatorLine />
         <TextInput label="Visit" disabled value={visitLabel} />
         <Field
-          name="labRequestType"
+          name="category._id"
           label="Lab request type"
           required
           component={SelectField}
@@ -131,13 +131,13 @@ export class LabRequestForm extends React.PureComponent {
         initialValues={{
           _id: generateId(),
           requestedDate: new Date(),
-          labRequestType: '',
+          category: {},
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
           requestedBy: foreignKey('Requesting doctor is required'),
+          category: foreignKey('Lab request type must be selected'),
           sampleTime: yup.date().required(),
-          labRequestType: yup.string().required(),
           requestedDate: yup.date().required(),
         })}
         validate={values => {

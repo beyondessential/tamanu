@@ -29,16 +29,17 @@ const StatusDisplay = React.memo(({ status }) => {
   }
 });
 
+const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || 'Unknown';
+const getStatus = ({ status }) => <StatusDisplay status={status} />;
+const getRequestType = ({ category }) => (category || {}).name || 'Unknown';
+const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
+
 const columns = [
   { key: '_id', title: 'Request ID' },
-  { key: 'labRequestType', title: 'Type' },
-  { key: 'status', title: 'Status', accessor: row => <StatusDisplay status={row.status} /> },
-  { key: 'displayName', title: 'Requested by', accessor: row => row.requestedBy.displayName },
-  {
-    key: 'requestedDate',
-    title: 'Date',
-    accessor: row => <DateDisplay date={row.requestedDate} />,
-  },
+  { key: 'labRequestType', title: 'Type', accessor: getRequestType },
+  { key: 'status', title: 'Status', accessor: getStatus },
+  { key: 'displayName', title: 'Requested by', accessor: getDisplayName },
+  { key: 'requestedDate', title: 'Date', accessor: getDate },
 ];
 
 export const LabRequestsTable = React.memo(({ labs }) => <Table columns={columns} data={labs} />);
