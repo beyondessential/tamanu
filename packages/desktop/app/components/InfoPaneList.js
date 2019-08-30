@@ -82,58 +82,63 @@ const AddEditForm = connectApi(
   )),
 );
 
-export const InfoPaneList = memo(({ patient, title, Form, items = [], endpoint, suggesterEndpoints }) => {
-  const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
-  const { adding, editKey } = addEditState;
+export const InfoPaneList = memo(
+  ({ patient, title, Form, items = [], endpoint, suggesterEndpoints }) => {
+    const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
+    const { adding, editKey } = addEditState;
 
-  const handleAddButtonClick = useCallback(
-    () => setAddEditState({ adding: !adding, editKey: null }),
-    [adding],
-  );
-  const handleRowClick = useCallback(
-    ({ name }) => setAddEditState({ adding: false, editKey: name }),
-    [],
-  );
-  const handleCloseForm = useCallback(() => setAddEditState({ adding: false, editKey: null }), []);
+    const handleAddButtonClick = useCallback(
+      () => setAddEditState({ adding: !adding, editKey: null }),
+      [adding],
+    );
+    const handleRowClick = useCallback(
+      ({ name }) => setAddEditState({ adding: false, editKey: name }),
+      [],
+    );
+    const handleCloseForm = useCallback(
+      () => setAddEditState({ adding: false, editKey: null }),
+      [],
+    );
 
-  return (
-    <React.Fragment>
-      <TitleContainer>
-        <TitleText>{title}</TitleText>
-        <AddButton onClick={handleAddButtonClick} />
-      </TitleContainer>
-      <DataList>
-        <Collapse in={adding}>
-          <AddEditForm
-            patient={patient}
-            Form={Form}
-            endpoint={endpoint}
-            suggesterEndpoints={suggesterEndpoints}
-            onClose={handleCloseForm}
-          />
-        </Collapse>
-        {items.map(item => {
-          const { name } = item;
-          return (
-            <React.Fragment>
-              <Collapse in={editKey !== name}>
-                <ListItem key={name} onClick={handleRowClick}>
-                  {name}
-                </ListItem>
-              </Collapse>
-              <Collapse in={editKey === name}>
-                <AddEditForm
-                  Form={Form}
-                  endpoint={endpoint}
-                  suggesterEndpoints={suggesterEndpoints}
-                  item={item}
-                  onClose={handleCloseForm}
-                />
-              </Collapse>
-            </React.Fragment>
-          );
-        })}
-      </DataList>
-    </React.Fragment>
-  );
-});
+    return (
+      <React.Fragment>
+        <TitleContainer>
+          <TitleText>{title}</TitleText>
+          <AddButton onClick={handleAddButtonClick} />
+        </TitleContainer>
+        <DataList>
+          <Collapse in={adding}>
+            <AddEditForm
+              patient={patient}
+              Form={Form}
+              endpoint={endpoint}
+              suggesterEndpoints={suggesterEndpoints}
+              onClose={handleCloseForm}
+            />
+          </Collapse>
+          {items.map(item => {
+            const { name } = item;
+            return (
+              <React.Fragment>
+                <Collapse in={editKey !== name}>
+                  <ListItem key={name} onClick={handleRowClick}>
+                    {name}
+                  </ListItem>
+                </Collapse>
+                <Collapse in={editKey === name}>
+                  <AddEditForm
+                    Form={Form}
+                    endpoint={endpoint}
+                    suggesterEndpoints={suggesterEndpoints}
+                    item={item}
+                    onClose={handleCloseForm}
+                  />
+                </Collapse>
+              </React.Fragment>
+            );
+          })}
+        </DataList>
+      </React.Fragment>
+    );
+  },
+);

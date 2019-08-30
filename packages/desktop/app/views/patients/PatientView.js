@@ -2,8 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
-import TopBar from '../../components/TopBar';
-
 import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';

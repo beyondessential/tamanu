@@ -24,7 +24,7 @@ export class AllergyForm extends React.PureComponent {
     const buttonText = editedObject ? 'Save' : 'Add';
     return (
       <FormGrid columns={1}>
-        <Field 
+        <Field
           name="allergy._id"
           label="Allergy name"
           component={AutocompleteField}

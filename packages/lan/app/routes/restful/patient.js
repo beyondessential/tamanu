@@ -19,5 +19,5 @@ patientRoutes.post('/patient/:id/visits', (req, res) => {
 });
 
 patientRoutes.post('/patient/:id/allergies', (req, res) => {
-  throw new Error("Not implemented");
+  throw new Error('Not implemented');
 });
