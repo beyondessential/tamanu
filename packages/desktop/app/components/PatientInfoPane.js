@@ -1,63 +1,58 @@
-import React from 'react';
+import React, { memo } from 'react';
 import styled from 'styled-components';
 
-import { Button } from './Button';
-import { DateDisplay } from './DateDisplay';
-import { DetailTable, DetailRow, FullWidthDetailRow } from './DetailTable';
-import { ContentPane } from './ContentPane';
+import { InfoPaneList } from './InfoPaneList';
+import { CoreInfoDisplay } from './PatientCoreInfo';
 
-const DataList = styled.ul`
-  margin: 0.5rem 1rem;
-  padding: 0;
+import { AllergyForm, OngoingConditionForm } from '../forms';
+
+const OngoingConditionDisplay = memo(({ patient }) => (
+  <InfoPaneList
+    patient={patient}
+    title="Ongoing conditions"
+    endpoint="condition"
+    suggesterEndpoints={['practitioner']}
+    items={patient.conditions.map(x => x.name)}
+    Form={OngoingConditionForm}
+  />
+));
+
+const AllergyDisplay = memo(({ patient }) => (
+  <InfoPaneList
+    patient={patient}
+    title="Allergies"
+    endpoint="allergies"
+    suggesterEndpoints={['practitioner', 'allergy']}
+    items={patient.allergies.map(x => x.name)}
+    Form={AllergyForm}
+  />
+));
+
+const FamilyHistoryDisplay = memo(() => <InfoPaneList title="Family history" items={[]} />);
+
+const PatientIssuesDisplay = memo(() => <InfoPaneList title="Other patient isues" items={[]} />);
+
+const Container = styled.div`
+  background: #fff;
+  height: 100vh;
+  border-right: 1px solid #dedede;
 `;
 
-const ListDisplay = React.memo(({ items = [], onEdit }) => (
-  <div>
-    <DataList>
-      {items.length > 0 ? (
-        items.map(x => <li key={x}>{x}</li>)
-      ) : (
-        <li style={{ opacity: 0.5 }}>None recorded</li>
-      )}
-    </DataList>
-    <Button variant="contained" onClick={onEdit}>
-      Edit
-    </Button>
-  </div>
+const ListsSection = styled.div`
+  margin-top: 15px;
+  padding: 20px;
+`;
+
+const InfoPaneLists = memo(({ patient }) => (
+  <ListsSection>
+    <OngoingConditionDisplay patient={patient} />
+    <AllergyDisplay patient={patient} />
+  </ListsSection>
 ));
 
-const OngoingConditionDisplay = React.memo(({ patient }) => (
-  <ListDisplay items={patient.conditions.map(x => x.name)} />
-));
-
-const AllergyDisplay = React.memo(({ patient }) => (
-  <ListDisplay items={patient.allergies.map(x => x.name)} />
-));
-
-const OperativePlanDisplay = React.memo(() => <ListDisplay items={[]} />);
-
-const PatientIssuesDisplay = React.memo(() => <ListDisplay items={[]} />);
-
-export const PatientInfoPane = React.memo(({ patient }) => (
-  <ContentPane>
-    <DetailTable>
-      <DetailRow label="Name" value={`${patient.firstName} ${patient.lastName}`} />
-      <DetailRow label="Sex" value={patient.sex} />
-      <DetailRow label="Date of birth">
-        <DateDisplay date={patient.dateOfBirth} showDuration />
-      </DetailRow>
-      <FullWidthDetailRow label="Ongoing conditions">
-        <OngoingConditionDisplay patient={patient} />
-      </FullWidthDetailRow>
-      <FullWidthDetailRow label="Allergies">
-        <AllergyDisplay patient={patient} />
-      </FullWidthDetailRow>
-      <FullWidthDetailRow label="Operative plan">
-        <OperativePlanDisplay patient={patient} />
-      </FullWidthDetailRow>
-      <FullWidthDetailRow label="Other issues">
-        <PatientIssuesDisplay patient={patient} />
-      </FullWidthDetailRow>
-    </DetailTable>
-  </ContentPane>
+export const PatientInfoPane = memo(({ patient }) => (
+  <Container>
+    <CoreInfoDisplay patient={patient} />
+    <InfoPaneLists patient={patient} />
+  </Container>
 ));

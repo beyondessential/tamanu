@@ -28,16 +28,15 @@ export class OngoingConditionForm extends React.PureComponent {
   renderForm = ({ submitForm, values }) => {
     const { editedObject, onCancel, practitionerSuggester } = this.props;
     const resolving = values.resolved;
-    const buttonText = editedObject ? 'Save' : 'Create';
+    const buttonText = editedObject ? 'Save' : 'Add';
     return (
-      <FormGrid>
+      <FormGrid columns={1}>
         <Field
           name="name"
           label="Condition name"
           component={TextField}
           disabled={resolving}
           required
-          style={{ gridColumn: 'span 2' }}
         />
         <Field name="date" label="Date recorded" component={DateField} disabled={resolving} />
         <Field
@@ -47,16 +46,10 @@ export class OngoingConditionForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field
-          name="note"
-          label="Notes"
-          component={TextField}
-          style={{ gridColumn: 'span 2' }}
-          disabled={resolving}
-        />
+        <Field name="note" label="Notes" component={TextField} disabled={resolving} />
         <Field name="resolved" label="Resolved" component={CheckField} />
-        <Collapse in={resolving} style={{ gridColumn: 'span 2' }}>
-          <FormGrid>
+        <Collapse in={resolving}>
+          <FormGrid columns={1}>
             <Field name="resolutionDate" label="Date resolved" component={DateField} />
             <Field
               name="resolutionPractitioner"
@@ -64,12 +57,7 @@ export class OngoingConditionForm extends React.PureComponent {
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
-            <Field
-              name="resolutionNote"
-              label="Notes on resolution"
-              component={TextField}
-              style={{ gridColumn: 'span 2' }}
-            />
+            <Field name="resolutionNote" label="Notes on resolution" component={TextField} />
           </FormGrid>
         </Collapse>
         <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText={buttonText} />
