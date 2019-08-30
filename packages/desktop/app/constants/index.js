@@ -167,13 +167,6 @@ export const visitOptions = [
   { value: 'emergency', label: 'Emergency' },
 ];
 
-export const labRequestOptions = [
-  { label: 'General lab', value: 'general' },
-  { label: 'Microbiology', value: 'microbiology' },
-  { label: 'Haematology', value: 'haematology' },
-  { label: 'U&E', value: 'une' },
-];
-
 export const operativePlanStatuses = {
   PLANNED: 'planned',
   DROPPED: 'dropped',
