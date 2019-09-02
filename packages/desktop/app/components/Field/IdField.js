@@ -81,14 +81,13 @@ export const IdField = ({ field, ...props }) => (
   <IdInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
 );
 
-// TextInput.propTypes = {
-//   name: PropTypes.string,
-//   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-//   onChange: PropTypes.func,
-//   fullWidth: PropTypes.bool,
-// };
+IdInput.propTypes = {
+  name: PropTypes.string.isRequired,
+  value: PropTypes.number,
+  onChange: PropTypes.func,
+};
 
-// TextInput.defaultProps = {
-//   value: '',
-//   fullWidth: true,
-// };
+TextInput.defaultProps = {
+  value: '',
+  fullWidth: true,
+};

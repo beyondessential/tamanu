@@ -61,6 +61,7 @@ export const ArrayInput = ({
 ArrayInput.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.arrayOf(PropTypes.string),
+  label: PropTypes.string.isRequired,
   buttonLabel: PropTypes.string,
 };
 
