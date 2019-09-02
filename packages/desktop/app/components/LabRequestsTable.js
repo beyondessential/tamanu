@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { Table } from './Table';
 import { DateDisplay } from './DateDisplay';
 
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_COLORS } from '../constants';
+import { LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_COLORS } from '../constants';
 import { viewLab } from '../store/labRequest';
 
 const StatusLabel = styled.div`
