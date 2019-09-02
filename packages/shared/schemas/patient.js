@@ -27,7 +27,7 @@ export const PatientSchema = {
     referredDate: { type: 'date', optional: true },
     referredBy: { type: 'string', optional: true },
 
-    // has-one
+    // has-many
     appointments: { type: 'list', objectType: 'appointment' },
     additionalContacts: { type: 'list', objectType: 'patientContact' },
     allergies: { type: 'list', objectType: 'patientAllergy' },
@@ -35,6 +35,7 @@ export const PatientSchema = {
     pregnancies: { type: 'list', objectType: 'pregnancy' },
     surveyResponses: { type: 'list', objectType: 'surveyResponse' },
     visits: { type: 'list', objectType: 'visit' },
+    referrals: { type: 'list', objectType: 'referral' },
 
     ...defaults,
   },
