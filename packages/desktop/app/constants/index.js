@@ -33,6 +33,14 @@ export const LAB_REQUEST_STATUSES = {
   PUBLISHED: 'published',
 };
 
+export const LAB_REQUEST_STATUS_LABELS = {
+  [LAB_REQUEST_STATUSES.RECEPTION_PENDING]: 'Reception pending',
+  [LAB_REQUEST_STATUSES.RESULTS_PENDING]: 'Results pending',
+  [LAB_REQUEST_STATUSES.TO_BE_VERIFIED]: 'To be verified',
+  [LAB_REQUEST_STATUSES.VERIFIED]: 'Verified',
+  [LAB_REQUEST_STATUSES.PUBLISHED]: 'Published',
+};
+
 export const IMAGING_REQUEST_STATUSES = {
   PENDING: 'pending',
   COMPLETED: 'completed',

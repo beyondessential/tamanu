@@ -13,6 +13,8 @@ import { Table } from '../../components/Table';
 import { FormGrid } from '../../components/FormGrid';
 import { DateInput, TextInput, DateTimeInput } from '../../components/Field';
 
+import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
+
 const NotesPane = React.memo(({ labRequest }) => <ContentPane>{labRequest.notes}</ContentPane>);
 
 const columns = [
@@ -47,8 +49,8 @@ const LabRequestInfoPane = React.memo(({ labRequest }) => (
   <FormGrid columns={3}>
     <TextInput value={labRequest._id} label="Request ID" />
     <TextInput value={(labRequest.category || {}).name} label="Request type" />
-    <TextInput value="TODO" label="Urgency" />
-    <TextInput value={labRequest.status} label="Status" />
+    <TextInput value={labRequest.urgent ? "Urgent" : "Standard"} label="Urgency" />
+    <TextInput value={LAB_REQUEST_STATUS_LABELS[labRequest.status] || "Unknown"} label="Status" />
     <DateInput value={labRequest.requestedDate} label="Requested date" />
     <DateTimeInput value={labRequest.sampleTime} label="Sample date" />
     <TextInput multiline value={labRequest.notes} label="Notes" style={{ gridColumn: '1 / -1' }} />
