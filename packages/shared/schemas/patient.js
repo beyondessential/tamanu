@@ -36,36 +36,6 @@ export const PatientSchema = {
     surveyResponses: { type: 'list', objectType: 'surveyResponse' },
     visits: { type: 'list', objectType: 'visit' },
 
-    // unused / deprecated / ??? / needs cleanup
-    /*
-    otherIncome: { type: 'string', optional: true, },
-    parent: { type: 'string', optional: true, },
-    phone: { type: 'string', optional: true, indexed: true, },
-    socialActionTaken: { type: 'string', optional: true, },
-    socialRecommendation: { type: 'string', optional: true, },
-    status: { type: 'string', optional: true, indexed: true, },
-    displayId: { type: 'string', optional: true, indexed: true, },
-    admitted: { type: 'bool', default: false, },
-    address: { type: 'string', optional: true, },
-    address2: { type: 'string', optional: true, },
-    address3: { type: 'string', optional: true, },
-    address4: { type: 'string', optional: true, },
-    clinic: { type: 'string', optional: true, },
-    country: { type: 'string', optional: true, },
-    checkedIn: { type: 'bool', default: false, },
-    economicClassification: { type: 'string', optional: true, },
-    email: { type: 'string', optional: true, },
-    familySupport1: { type: 'string', optional: true, },
-    familySupport2: { type: 'string', optional: true, },
-    familySupport3: { type: 'string', optional: true, },
-    familySupport4: { type: 'string', optional: true, },
-    familySupport5: { type: 'string', optional: true, },
-    history: { type: 'string', optional: true, }, // No longer used
-    insurance: { type: 'string', optional: true, },
-    livingArrangement: { type: 'string', optional: true, },
-    notes: { type: 'string', optional: true, },
-    */
-
     ...defaults,
   },
   beforeSave: (db, object, env) => {
@@ -73,10 +43,6 @@ export const PatientSchema = {
     if (object.displayId === DISPLAY_ID_PLACEHOLDER && env === ENVIRONMENT_TYPE.LAN) {
       displayId = generateTempDisplayId(db);
     }
-
-    // if (object.displayId === DISPLAY_ID_PLACEHOLDER && env === ENVIRONMENT_TYPE.SERVER){
-    //  displayId = generateTempDisplayId(db);
-    // }
 
     return { ...object, displayId };
   },
