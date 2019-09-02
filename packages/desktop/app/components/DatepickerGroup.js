@@ -99,7 +99,9 @@ class DatepickerGroup extends Component {
       <Column className={className}>
         {label !== false && (
           <GroupTitle theme={theme}>
-            {label} {' '} {required && <span className="isRequired">*</span>}
+            {label}
+            {' '}
+            {required && <span className="isRequired">*</span>}
           </GroupTitle>
         )}
         {readOnly && <CustomDateInput value={value} />}
