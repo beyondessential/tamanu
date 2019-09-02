@@ -13,9 +13,17 @@ import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
 import { DischargeForm } from '../app/forms/DischargeForm';
 import { NewPatientForm } from '../app/forms/NewPatientForm';
 import { LabRequestForm } from '../app/forms/LabRequestForm';
+import { ReferralForm } from '../app/forms/ReferralForm';
 import { TestSelectorInput } from '../app/components/TestSelector';
 
-import { createDummyVisit, PATIENTS, LOCATIONS, PRACTITIONERS, FACILITIES } from './dummyPatient';
+import {
+  createDummyVisit,
+  PATIENTS,
+  LOCATIONS,
+  PRACTITIONERS,
+  FACILITIES,
+  DIAGNOSES,
+} from './dummyPatient';
 
 function createDummySuggester(options) {
   return {
@@ -30,6 +38,7 @@ function createDummySuggester(options) {
 const practitionerSuggester = createDummySuggester(PRACTITIONERS);
 const locationSuggester = createDummySuggester(LOCATIONS);
 const facilitySuggester = createDummySuggester(FACILITIES);
+const icd10Suggester = createDummySuggester(DIAGNOSES);
 const patientSuggester = createDummySuggester(
   PATIENTS.map(({ firstName, lastName, _id }) => ({
     label: `${firstName} ${lastName}`,
@@ -139,6 +148,15 @@ const StorybookableTestSelector = () => {
 
   return <TestSelectorInput testTypes={testTypes} value={value} onChange={onChange} />;
 };
+
+storiesOf('Forms', module).add('ReferralForm', () => (
+  <ReferralForm
+    onSubmit={action('submit')}
+    onCancel={action('cancel')}
+    practitionerSuggester={practitionerSuggester}
+    icd10Suggester={icd10Suggester}
+  />
+));
 
 storiesOf('Forms/LabRequestForm', module)
   .add('LabRequestForm', () => (
