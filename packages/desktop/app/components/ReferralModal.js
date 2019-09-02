@@ -25,7 +25,7 @@ const DumbReferralModal = React.memo(
 
 export const ReferralModal = connectApi((api, dispatch, { visitId }) => ({
   onCreateReferral: async data => {
-    await api.post(`visit/${visitId}/referrals`, data);
+    await api.post(`visit/${visitId}/referral`, data);
     dispatch(reloadVisit(visitId));
   },
   icd10Suggester: new Suggester(api, 'icd10'),

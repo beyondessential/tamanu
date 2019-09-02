@@ -61,3 +61,20 @@ visitRoutes.post('/visit/:id/vitals', (req, res) => {
 
   res.send(objectToJSON(reading));
 });
+
+visitRoutes.post('/visit/:id/referral', (req, res) => {
+  const db = req.app.get('database');
+  const visit = db.objectForPrimaryKey('visit', req.params.id);
+  const referral = {
+    _id: shortid(),
+    ...req.body,
+  };
+
+  // TODO: validate
+
+  db.write(() => {
+    // visit.referrals = [...visit.referrals, referral];
+  });
+
+  res.send(objectToJSON(referral));
+});
