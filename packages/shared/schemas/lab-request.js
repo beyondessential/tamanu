@@ -9,10 +9,13 @@ export const LabRequest = {
     date: 'date?',
     requestedBy: 'user',
     requestedDate: 'date',
+    sampleTime: 'date?',
     category: 'labTestCategory',
     senaiteId: 'string?',
     sampleId: 'string?',
     notes: 'string?',
+    urgent: 'bool',
+    specimenAttached: 'bool',
     status: {
       type: 'string',
       optional: true,
