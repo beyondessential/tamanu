@@ -1,6 +1,6 @@
 import React from 'react';
 import { IconButton, Icon } from '@material-ui/core';
-import { AddBoxOutlined, IndeterminateCheckBox } from '@material-ui/icons';
+import { AddBoxOutlined, IndeterminateCheckBox, Autorenew } from '@material-ui/icons';
 
 const MuiIconButton = ({ primary, ...props }) => <IconButton {...props} />;
 
@@ -31,5 +31,11 @@ export const PlusIconButton = ({ ...props }) => (
 export const MinusIconButton = ({ ...props }) => (
   <MuiIconButton color="primary" {...props}>
     <IndeterminateCheckBox fontSize="inherit" />
+  </MuiIconButton>
+);
+
+export const AutorenewIconButton = ({ ...props }) => (
+  <MuiIconButton color="primary" {...props}>
+    <Autorenew fontSize="inherit" />
   </MuiIconButton>
 );

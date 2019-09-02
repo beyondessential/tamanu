@@ -10,6 +10,7 @@ import {
   AutocompleteField,
   TextField,
   RadioField,
+  IdField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
@@ -20,6 +21,11 @@ const ActionRow = styled(ConfirmCancelRow)`
   margin: 0 -32px;
   border-top: 1px solid #dedede;
   padding: 18px 32px 0 0;
+`;
+
+const IdBanner = styled.div`
+  margin: -20px -32px 0 -32px;
+  grid-column: span 2;
 `;
 
 const AdditionalInformationRow = styled.div`
@@ -54,13 +60,9 @@ export const NewPatientForm = memo(
     const renderForm = ({ submitForm, values }) => {
       return (
         <FormGrid>
-          <Field
-            name="_id"
-            label="National health ID"
-            component={TextField}
-            style={{ gridColumn: 'span 2' }}
-            disabled
-          />
+          <IdBanner>
+            <Field name="_id" component={IdField} regenerateId={generateId} disabled />
+          </IdBanner>
           <Field name="firstName" label="First name" component={TextField} required />
           <Field name="middleName" label="Middle name" component={TextField} />
           <Field name="lastName" label="Last name" component={TextField} required />

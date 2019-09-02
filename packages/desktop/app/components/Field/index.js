@@ -15,3 +15,6 @@ export * from './AutocompleteField';
 // form helpers
 export * from './Form';
 export * from './FormGroup';
+
+// very specific fields
+export * from './IdField';
