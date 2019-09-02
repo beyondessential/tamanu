@@ -5,23 +5,8 @@ import { connect } from 'react-redux';
 import { Table } from './Table';
 import { DateDisplay } from './DateDisplay';
 
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '../constants';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_COLORS } from '../constants';
 import { viewLab } from '../store/labRequest';
-
-const LAB_REQUEST_COLORS = {
-  [LAB_REQUEST_STATUSES.RECEPTION_PENDING]: '#faa',
-  [LAB_REQUEST_STATUSES.RESULTS_PENDING]: '#aaf',
-  [LAB_REQUEST_STATUSES.TO_BE_VERIFIED]: '#caf',
-  [LAB_REQUEST_STATUSES.VERIFIED]: '#5af',
-  [LAB_REQUEST_STATUSES.PUBLISHED]: '#afa',
-  unknown: '#333',
-};
-
-const getLabRequestColor = (status) => {
-  switch(status) {
-    
-  }
-}
 
 const StatusLabel = styled.div`
   background: ${p => p.color};
@@ -30,10 +15,9 @@ const StatusLabel = styled.div`
 `;
 
 const StatusDisplay = React.memo(({ status }) => (
-  <StatusLabel
-    color={LAB_REQUEST_COLORS[status] || LAB_REQUEST_COLORS.unknown}
-  >{LAB_REQUEST_STATUS_LABELS[status] || "Unknown"}
-    </StatusLabel>
+  <StatusLabel color={LAB_REQUEST_COLORS[status] || LAB_REQUEST_COLORS.unknown}>
+    {LAB_REQUEST_STATUS_LABELS[status] || 'Unknown'}
+  </StatusLabel>
 ));
 
 const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || 'Unknown';

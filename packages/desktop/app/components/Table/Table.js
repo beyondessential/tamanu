@@ -20,12 +20,15 @@ const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const StyledTableRow = styled(TableRow)`
   margin-top: 1rem;
 
-  ${p => p.onClick ?  `
+  ${p =>
+    p.onClick
+      ? `
   cursor: pointer;
   &:hover {
     background: rgba(255,255,255,0.6);
   }
-  ` : ''}
+  `
+      : ''}
 `;
 
 const RowContainer = React.memo(({ children, onClick }) => (
