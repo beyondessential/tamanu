@@ -4,7 +4,7 @@ import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
 import { connectApi } from '../api/connectApi';
-import { reloadVisit } from '../store/visit';
+import { reloadPatient } from '../store/patient';
 
 import { ReferralForm } from '../forms/ReferralForm';
 
@@ -23,10 +23,10 @@ const DumbReferralModal = React.memo(
   },
 );
 
-export const ReferralModal = connectApi((api, dispatch, { visitId }) => ({
+export const ReferralModal = connectApi((api, dispatch, { patientId }) => ({
   onCreateReferral: async data => {
-    await api.post(`visit/${visitId}/referral`, data);
-    dispatch(reloadVisit(visitId));
+    await api.post(`patient/${patientId}/referral`, data);
+    dispatch(reloadPatient(patientId));
   },
   icd10Suggester: new Suggester(api, 'icd10'),
   practitionerSuggester: new Suggester(api, 'practitioner'),

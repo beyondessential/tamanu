@@ -16,31 +16,12 @@ import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { VitalsModal } from '../../components/VitalsModal';
 import { VitalsTable } from '../../components/VitalsTable';
-import { ReferralModal } from '../../components/ReferralModal';
 
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
 import { visitOptions } from '../../constants';
 
 import { getCurrentRouteEndsWith } from '../../store/router';
-
-const ReferralTable = () => <div>referral table</div>;
-
-const ReferralPane = React.memo(({ visit }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
-
-  return (
-    <div>
-      <ReferralModal open={modalOpen} visitId={visit._id} onClose={() => setModalOpen(false)} />
-      <ReferralTable />
-      <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
-          New referral
-        </Button>
-      </ContentPane>
-    </div>
-  );
-});
 
 const VitalsPane = React.memo(({ visit }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -94,11 +75,6 @@ const TABS = [
     label: 'Labs',
     key: 'labs',
     render: ({ visit }) => <LabsPane visit={visit} />,
-  },
-  {
-    label: 'Referrals',
-    key: 'referrals',
-    render: ({ visit }) => <ReferralPane visit={visit} />,
   },
   {
     label: 'Documents',
