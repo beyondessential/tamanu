@@ -86,8 +86,3 @@ IdInput.propTypes = {
   value: PropTypes.number,
   onChange: PropTypes.func,
 };
-
-TextInput.defaultProps = {
-  value: '',
-  fullWidth: true,
-};
