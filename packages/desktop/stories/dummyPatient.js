@@ -78,6 +78,13 @@ const ALLERGIES = split(`
   Nevirapine
 `);
 
+export const DIAGNOSES = splitIds(`
+  Cold
+  Flu
+  Gastro
+  Injury
+`);
+
 const CONDITIONS = split(`
   Alzheimer
   Amputated left arm

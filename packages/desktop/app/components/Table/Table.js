@@ -17,13 +17,27 @@ import TablePagination from '@material-ui/core/TablePagination';
 
 const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
+const StyledTableRow = styled(TableRow)`
+  margin-top: 1rem;
+
+  ${p =>
+    p.onClick
+      ? `
+  cursor: pointer;
+  &:hover {
+    background: rgba(255,255,255,0.6);
+  }
+  `
+      : ''}
+`;
+
 const RowContainer = React.memo(({ children, onClick }) => (
-  <TableRow onClick={onClick} style={{ marginTop: '1rem' }}>
+  <StyledTableRow onClick={onClick} style={{ marginTop: '1rem' }}>
     {children}
-  </TableRow>
+  </StyledTableRow>
 ));
 
-const Row = React.memo(({ columns, data, onClick = () => null }) => {
+const Row = React.memo(({ columns, data, onClick }) => {
   const cells = columns.map(({ key, accessor, CellComponent, numeric }) => {
     const value = accessor ? accessor(data) : data[key];
     return (
@@ -32,7 +46,7 @@ const Row = React.memo(({ columns, data, onClick = () => null }) => {
       </TableCell>
     );
   });
-  return <RowContainer onClick={() => onClick(data)}>{cells}</RowContainer>;
+  return <RowContainer onClick={onClick && (() => onClick(data))}>{cells}</RowContainer>;
 });
 
 const ErrorSpan = styled.span`
@@ -85,7 +99,7 @@ export class Table extends React.Component {
     orderBy: null,
     order: 'asc',
     page: null,
-    onRowClick: () => null,
+    onRowClick: null,
     rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
     rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,
     rowIdKey: '_id', // specific to data expected for tamanu REST api fetches
