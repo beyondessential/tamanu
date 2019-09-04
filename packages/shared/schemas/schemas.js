@@ -31,6 +31,7 @@ export * from './procedure-medication';
 export * from './program';
 export * from './question';
 export * from './report';
+export * from './referral';
 export * from './role';
 export * from './setting';
 export * from './survey';
