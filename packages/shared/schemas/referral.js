@@ -17,8 +17,8 @@ export const ReferralSchema = {
     referringDoctor: { type: 'user', optional: true },
     diagnosis: { type: 'diagnosis', optional: true },
 
-    // referredFacility: TODO
-    // department: TODO
+    facility: 'hospital?',
+    location: 'location?',
 
     // reverse links
     patient: { type: 'linkingObjects', objectType: 'patient', property: 'referrals' },
