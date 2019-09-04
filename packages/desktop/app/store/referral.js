@@ -8,6 +8,7 @@ const REFERRAL_LOAD_FINISH = 'REFERRAL_LOAD_FINISH';
 
 export const viewReferral = id => async dispatch => {
   dispatch(reloadReferral(id));
+  // TODO: display completed referral form
   // dispatch(push('/patients/referral'));
 };
 

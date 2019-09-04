@@ -12,7 +12,7 @@ export const ReferralSchema = {
 
     status: 'string',
     closedDate: { type: 'date', optional: true },
-    
+
     // has-one
     referringDoctor: { type: 'user', optional: true },
     diagnosis: { type: 'diagnosis', optional: true },

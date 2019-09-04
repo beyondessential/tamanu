@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 import { connect } from 'react-redux';
 
 import { Table } from './Table';
@@ -8,23 +7,28 @@ import { DateDisplay } from './DateDisplay';
 import { viewReferral } from '../store/referral';
 
 const StatusDisplay = React.memo(({ status, closedDate }) => {
-  switch(status) {
-    case "pending":
-      return "Pending";
-    case "completed":
-      return <span>Completed (<DateDisplay date={closedDate} />)</span>;
-    case "cancelled":
-      return <span>Cancelled (<DateDisplay date={closedDate} />)</span>;
+  const dateDisplay = <DateDisplay date={closedDate} />;
+  switch (status) {
+    case 'pending':
+      return 'Pending';
+    case 'completed':
+      // eslint-disable-next-line
+      return <span>Completed ({dateDisplay})</span>;
+    case 'cancelled':
+      // eslint-disable-next-line
+      return <span>Cancelled ({dateDisplay})</span>;
     default:
-      return "Unknown";
+      return 'Unknown';
   }
 });
 
 const getDate = ({ date }) => <DateDisplay date={date} />;
-const getDepartment = () => "todo";
-const getFacility = () => "todo";
+const getDepartment = () => 'todo';
+const getFacility = () => 'todo';
 const getDisplayName = ({ referringDoctor }) => (referringDoctor || {}).displayName || 'Unknown';
-const getStatus = ({ status, closedDate }) => <StatusDisplay status={status} closedDate={closedDate} />;
+const getStatus = ({ status, closedDate }) => (
+  <StatusDisplay status={status} closedDate={closedDate} />
+);
 
 const columns = [
   { key: 'date', title: 'Referral date', accessor: getDate },
