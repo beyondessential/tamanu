@@ -12,7 +12,7 @@ export const AdmittedPatientsView = React.memo(() => (
     <DataFetchingTable
       endpoint={PATIENT_SEARCH_ENDPOINT}
       columns={COLUMNS}
-      fetchOptions={{ "visits.endDate": null }}
+      fetchOptions={{ 'visits.endDate': null }}
       noDataMessage="No admitted patients found"
     />
   </PageContainer>

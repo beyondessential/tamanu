@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 
 import { Table } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -19,7 +18,6 @@ const StatusDisplay = React.memo(({ status }) => {
 
 const getDate = ({ date }) => <DateDisplay date={date} />;
 const getDepartment = ({ location }) => (location ? location.name : 'Unknown');
-const getFacility = ({ facility }) => (facility ? facility.name : 'Unknown');
 const getDisplayName = ({ practitioner }) => (practitioner || {}).displayName || 'Unknown';
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 
