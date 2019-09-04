@@ -38,10 +38,10 @@ const FamilyHistoryDisplay = memo(({ patient }) => (
     patient={patient}
     title="Family history" 
     endpoint="familyHistory" 
-    suggesterEndpoints={[]}
-    items={patient.familyHistory || []}
+    suggesterEndpoints={['practitioner', 'icd10']}
+    items={patient.familyHistory}
     Form={FamilyHistoryForm}
-    getName={historyItem => historyItem.text}
+    getName={historyItem => historyItem.diagnosis.name}
   />
 ));
 

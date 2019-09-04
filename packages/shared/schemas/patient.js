@@ -36,6 +36,7 @@ export const PatientSchema = {
     surveyResponses: { type: 'list', objectType: 'surveyResponse' },
     visits: { type: 'list', objectType: 'visit' },
     referrals: { type: 'list', objectType: 'referral' },
+    familyHistory: { type: 'list', objectType: 'familyHistoryItem' },
 
     ...defaults,
   },

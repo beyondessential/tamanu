@@ -41,7 +41,7 @@ export class FamilyHistoryForm extends React.PureComponent {
           component={DateField}
         />
         <Field
-          name="examiner._id"
+          name="practitioner._id"
           label="Doctor/nurse"
           required
           component={AutocompleteField}
@@ -71,7 +71,7 @@ export class FamilyHistoryForm extends React.PureComponent {
         }}
         validationSchema={yup.object().shape({
           diagnosis: foreignKey('Diagnosis is required'),
-          examiner: foreignKey('Examiner is required'),
+          practitioner: foreignKey('Doctor/nurse is required'),
           date: yup.date().required(),
         })}
       />

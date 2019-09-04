@@ -35,6 +35,21 @@ patientRoutes.post('/patient/:id/allergies', (req, res) => {
   res.send(allergy);
 });
 
+patientRoutes.post('/patient/:id/familyHistory', (req, res) => {
+  const db = req.app.get('database');
+  const patient = db.objectForPrimaryKey('patient', req.params.id);
+  const historyItem = {
+    _id: shortid(),
+    ...req.body,
+  };
+
+  db.write(() => {
+    patient.familyHistory = [...patient.familyHistory, historyItem];
+  });
+
+  res.send(historyItem);
+});
+
 patientRoutes.post('/patient/:id/referral', (req, res) => {
   const db = req.app.get('database');
   const patient = db.objectForPrimaryKey('patient', req.params.id);
