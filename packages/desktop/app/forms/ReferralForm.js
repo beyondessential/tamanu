@@ -16,7 +16,15 @@ import {
 } from '../components/Field';
 
 export const ReferralForm = React.memo(
-  ({ onCancel, onSubmit, referral, icd10Suggester, practitionerSuggester }) => (
+  ({
+    onCancel,
+    onSubmit,
+    referral,
+    icd10Suggester,
+    practitionerSuggester,
+    locationSuggester,
+    facilitySuggester,
+  }) => (
     <Form
       onSubmit={onSubmit}
       initialValues={{
@@ -40,9 +48,19 @@ export const ReferralForm = React.memo(
             suggester={practitionerSuggester}
             required
           />
-          <Field name="referredFacility" label="Referred facility" component={TextField} />
+          <Field
+            name="facility._id"
+            label="Referred facility"
+            component={AutocompleteField}
+            suggester={facilitySuggester}
+          />
           <Field name="date" label="Date" component={DateField} required />
-          <Field name="department" label="Department" component={TextField} />
+          <Field
+            name="location._id"
+            label="Department"
+            component={AutocompleteField}
+            suggester={locationSuggester}
+          />
           <Field name="urgent" label="Urgent priority" component={CheckField} required />
           <FormSeparatorLine />
           <Field

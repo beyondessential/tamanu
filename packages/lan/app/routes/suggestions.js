@@ -83,30 +83,5 @@ createSuggestionRoute(
   ({ _id, firstName, lastName }) => ({ _id, firstName, lastName }),
 );
 
-createDummySuggestionRoute(
-  'facility',
-  `
-  Balwyn
-  Hawthorn East
-  Kerang
-  Lake Charm
-  Marla
-  Mont Albert
-  National Medical
-  Port Douglas
-  Swan Hill
-  Thornbury
-  Traralgon
-  `,
-);
-
-createDummySuggestionRoute(
-  'location',
-  `
-  Ward 1
-  Ward 2
-  Ward 3
-  Emergency
-  Radiology
-  `,
-);
+createSuggestionRoute('facility', 'hospital', 'name CONTAINS[c] $0');
+createSuggestionRoute('location', 'location', 'name CONTAINS[c] $0');
