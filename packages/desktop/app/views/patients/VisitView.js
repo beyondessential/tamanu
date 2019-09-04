@@ -1,8 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
-
-import TopBar from '../../components/TopBar';
+import styled from 'styled-components';
 
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
@@ -120,35 +119,38 @@ const DischargeView = connect(
   </React.Fragment>
 ));
 
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
 export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
 
   return (
-    <React.Fragment>
-      <TopBar title="Patient visit">
-        <DischargeView visit={visit} />
-      </TopBar>
-      <LoadingIndicator loading={loading}>
-        <TwoColumnDisplay>
-          <PatientInfoPane patient={patient} />
-          <div>
+    <LoadingIndicator loading={loading}>
+      <TwoColumnDisplay>
+        <PatientInfoPane patient={patient} />
+        <div>
+          <Header>
             <BackLink />
-            <ContentPane>
-              <VisitInfoPane visit={visit} />
-            </ContentPane>
-            <ContentPane>
-              <DiagnosisView visitId={visit._id} />
-            </ContentPane>
-            <TabDisplay
-              tabs={TABS}
-              currentTab={currentTab}
-              onTabSelect={setCurrentTab}
-              visit={visit}
-            />
-          </div>
-        </TwoColumnDisplay>
-      </LoadingIndicator>
-    </React.Fragment>
+            <DischargeView visit={visit} />
+          </Header>
+          <ContentPane>
+            <VisitInfoPane visit={visit} />
+          </ContentPane>
+          <ContentPane>
+            <DiagnosisView visitId={visit._id} />
+          </ContentPane>
+          <TabDisplay
+            tabs={TABS}
+            currentTab={currentTab}
+            onTabSelect={setCurrentTab}
+            visit={visit}
+          />
+        </div>
+      </TwoColumnDisplay>
+    </LoadingIndicator>
   );
 });
 
