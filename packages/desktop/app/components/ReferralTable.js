@@ -7,13 +7,24 @@ import { DateDisplay } from './DateDisplay';
 
 import { viewReferral } from '../store/referral';
 
-const StatusDisplay = React.memo(({ status }) => ("Completed"));
+const StatusDisplay = React.memo(({ status, closedDate }) => {
+  switch(status) {
+    case "pending":
+      return "Pending";
+    case "completed":
+      return <span>Completed (<DateDisplay date={closedDate} />)</span>;
+    case "cancelled":
+      return <span>Cancelled (<DateDisplay date={closedDate} />)</span>;
+    default:
+      return "Unknown";
+  }
+});
 
 const getDate = ({ date }) => <DateDisplay date={date} />;
 const getDepartment = () => "todo";
 const getFacility = () => "todo";
 const getDisplayName = ({ referringDoctor }) => (referringDoctor || {}).displayName || 'Unknown';
-const getStatus = ({ status }) => <StatusDisplay status={status} />;
+const getStatus = ({ status, closedDate }) => <StatusDisplay status={status} closedDate={closedDate} />;
 
 const columns = [
   { key: 'date', title: 'Referral date', accessor: getDate },

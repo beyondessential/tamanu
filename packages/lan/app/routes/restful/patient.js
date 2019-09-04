@@ -40,6 +40,7 @@ patientRoutes.post('/patient/:id/referral', (req, res) => {
   const patient = db.objectForPrimaryKey('patient', req.params.id);
   const referral = {
     _id: shortid(),
+    status: 'pending',
     ...req.body,
   };
 
