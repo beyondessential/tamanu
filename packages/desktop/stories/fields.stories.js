@@ -15,8 +15,8 @@ import {
   SelectInput,
   ArrayInput,
   AutocompleteInput,
-  IdInput,
 } from '../app/components';
+import { IdInput } from '../app/components/Field/IdField';
 
 const FRUITS = [
   { value: 'apples', label: 'Apples' },

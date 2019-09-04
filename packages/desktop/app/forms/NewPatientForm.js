@@ -10,26 +10,27 @@ import {
   AutocompleteField,
   TextField,
   RadioField,
-  IdField,
 } from '../components/Field';
+import { IdField } from '../components/Field/IdField';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { PlusIconButton, MinusIconButton } from '../components';
+import { IdBanner } from '../components/IdBanner';
 
 const ActionRow = styled(ConfirmCancelRow)`
-  grid-column: span 2;
+  grid-column: 1 / -1;
   margin: 0 -32px;
   border-top: 1px solid #dedede;
   padding: 18px 32px 0 0;
 `;
 
-const IdBanner = styled.div`
+const IdBannerContainer = styled.div`
   margin: -20px -32px 0 -32px;
-  grid-column: span 2;
+  grid-column: 1 / -1;
 `;
 
 const AdditionalInformationRow = styled.div`
-  grid-column: span 2;
+  grid-column: 1 / -1;
   border-top: 1px solid #dedede;
   padding: 10px 0;
   display: flex;
@@ -56,13 +57,20 @@ const AdditionalInformationRow = styled.div`
 
 export const NewPatientForm = memo(
   ({ editedObject, onSubmit, onCancel, generateId, patientSuggester, facilitySuggester }) => {
-    const [isRevealed, toggleRevealed] = useState(false);
+    const [isRevealed, setReavealed] = useState(false);
     const renderForm = ({ submitForm, values }) => {
       return (
         <FormGrid>
-          <IdBanner>
-            <Field name="_id" component={IdField} regenerateId={generateId} disabled />
-          </IdBanner>
+          <IdBannerContainer>
+            <IdBanner>
+              <Field
+                name="_id"
+                component={IdField}
+                regenerateId={generateId}
+                styled={{ color: '#fff' }}
+              />
+            </IdBanner>
+          </IdBannerContainer>
           <Field name="firstName" label="First name" component={TextField} required />
           <Field name="middleName" label="Middle name" component={TextField} />
           <Field name="lastName" label="Last name" component={TextField} required />
@@ -85,9 +93,9 @@ export const NewPatientForm = memo(
               Add additional information <span>(religion, occupation, blood type...)</span>
             </div>
             {isRevealed ? (
-              <MinusIconButton onClick={() => toggleRevealed(!isRevealed)} />
+              <MinusIconButton onClick={() => setReavealed(false)} />
             ) : (
-              <PlusIconButton onClick={() => toggleRevealed(!isRevealed)} />
+              <PlusIconButton onClick={() => setReavealed(true)} />
             )}
           </AdditionalInformationRow>
           <Collapse in={isRevealed} style={{ gridColumn: 'span 2' }}>
