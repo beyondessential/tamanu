@@ -46,7 +46,7 @@ patientRoutes.post('/patient/:id/referral', (req, res) => {
   // TODO: validate
 
   db.write(() => {
-    // patient.referrals = [...patient.referrals, referral];
+    patient.referrals = [...patient.referrals, referral];
   });
 
   res.send(objectToJSON(referral));

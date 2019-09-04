@@ -11,6 +11,7 @@ import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { ContentPane } from '../../components/ContentPane';
 import { VisitModal } from '../../components/VisitModal';
 import { ReferralModal } from '../../components/ReferralModal';
+import { ReferralTable } from '../../components/ReferralTable';
 import { Button } from '../../components/Button';
 
 import { viewVisit } from '../../store/visit';
@@ -18,15 +19,13 @@ import { viewVisit } from '../../store/visit';
 import { getCurrentRouteEndsWith } from '../../store/router';
 import { getCurrentVisit } from '../../store/patient';
 
-const ReferralTable = () => <div>referral table</div>;
-
 const ReferralPane = React.memo(({ patient }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
     <div>
       <ReferralModal open={modalOpen} patientId={patient._id} onClose={() => setModalOpen(false)} />
-      <ReferralTable />
+      <ReferralTable referrals={patient.referrals} />
       <ContentPane>
         <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
           New referral
