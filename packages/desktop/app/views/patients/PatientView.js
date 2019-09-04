@@ -12,12 +12,34 @@ import { ContentPane } from '../../components/ContentPane';
 import { VisitModal } from '../../components/VisitModal';
 import { ReferralModal } from '../../components/ReferralModal';
 import { ReferralTable } from '../../components/ReferralTable';
+import { AppointmentModal } from '../../components/AppointmentModal';
+import { AppointmentTable } from '../../components/AppointmentTable';
 import { Button } from '../../components/Button';
 
 import { viewVisit } from '../../store/visit';
 
 import { getCurrentRouteEndsWith } from '../../store/router';
 import { getCurrentVisit } from '../../store/patient';
+
+const AppointmentPane = React.memo(({ patient }) => {
+  const [modalOpen, setModalOpen] = React.useState(false);
+
+  return (
+    <div>
+      <AppointmentModal
+        open={modalOpen}
+        patientId={patient._id}
+        onClose={() => setModalOpen(false)}
+      />
+      <AppointmentTable appointments={patient.appointments} />
+      <ContentPane>
+        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+          New appointment
+        </Button>
+      </ContentPane>
+    </div>
+  );
+});
 
 const ReferralPane = React.memo(({ patient }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -90,7 +112,7 @@ const TABS = [
   {
     label: 'Appointments',
     key: 'appointments',
-    render: () => <ContentPane>appointments</ContentPane>,
+    render: ({ patient }) => <AppointmentPane patient={patient} />,
   },
   {
     label: 'Referrals',
