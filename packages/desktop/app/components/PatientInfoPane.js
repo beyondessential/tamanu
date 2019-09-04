@@ -4,7 +4,11 @@ import styled from 'styled-components';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
 
-import { AllergyForm, OngoingConditionForm } from '../forms';
+import { 
+  AllergyForm, 
+  OngoingConditionForm,
+  FamilyHistoryForm,
+} from '../forms';
 
 const OngoingConditionDisplay = memo(({ patient }) => (
   <InfoPaneList
@@ -29,7 +33,17 @@ const AllergyDisplay = memo(({ patient }) => (
   />
 ));
 
-const FamilyHistoryDisplay = memo(() => <InfoPaneList title="Family history" items={[]} />);
+const FamilyHistoryDisplay = memo(({ patient }) => (
+  <InfoPaneList
+    patient={patient}
+    title="Family history" 
+    endpoint="familyHistory" 
+    suggesterEndpoints={[]}
+    items={patient.familyHistory || []}
+    Form={FamilyHistoryForm}
+    getName={historyItem => historyItem.text}
+  />
+));
 
 const PatientIssuesDisplay = memo(() => <InfoPaneList title="Other patient isues" items={[]} />);
 
@@ -48,6 +62,7 @@ const InfoPaneLists = memo(({ patient }) => (
   <ListsSection>
     <OngoingConditionDisplay patient={patient} />
     <AllergyDisplay patient={patient} />
+    <FamilyHistoryDisplay patient={patient} />
   </ListsSection>
 ));
 
