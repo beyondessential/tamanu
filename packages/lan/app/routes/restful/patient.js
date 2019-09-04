@@ -50,6 +50,24 @@ patientRoutes.post('/patient/:id/familyHistory', (req, res) => {
   res.send(historyItem);
 });
 
+patientRoutes.post('/patient/:id/appointment', (req, res) => {
+  const db = req.app.get('database');
+  const patient = db.objectForPrimaryKey('patient', req.params.id);
+  const appointment = {
+    _id: shortid(),
+    status: 'scheduled',
+    ...req.body,
+  };
+
+  // TODO: validate
+
+  db.write(() => {
+    patient.appointments = [...patient.appointments, appointment];
+  });
+
+  res.send(objectToJSON(appointment));
+});
+
 patientRoutes.post('/patient/:id/referral', (req, res) => {
   const db = req.app.get('database');
   const patient = db.objectForPrimaryKey('patient', req.params.id);
