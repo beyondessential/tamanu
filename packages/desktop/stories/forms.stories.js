@@ -155,6 +155,8 @@ storiesOf('Forms', module).add('FamilyHistoryForm', () => (
   <FamilyHistoryForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
+    practitionerSuggester={practitionerSuggester}
+    icd10Suggester={icd10Suggester}
   />
 ));
 
