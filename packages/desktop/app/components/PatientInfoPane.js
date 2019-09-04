@@ -4,11 +4,7 @@ import styled from 'styled-components';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
 
-import { 
-  AllergyForm, 
-  OngoingConditionForm,
-  FamilyHistoryForm,
-} from '../forms';
+import { AllergyForm, OngoingConditionForm, FamilyHistoryForm } from '../forms';
 
 const OngoingConditionDisplay = memo(({ patient }) => (
   <InfoPaneList
@@ -36,8 +32,8 @@ const AllergyDisplay = memo(({ patient }) => (
 const FamilyHistoryDisplay = memo(({ patient }) => (
   <InfoPaneList
     patient={patient}
-    title="Family history" 
-    endpoint="familyHistory" 
+    title="Family history"
+    endpoint="familyHistory"
     suggesterEndpoints={['practitioner', 'icd10']}
     items={patient.familyHistory}
     Form={FamilyHistoryForm}

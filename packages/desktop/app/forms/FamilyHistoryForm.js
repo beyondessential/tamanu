@@ -1,22 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import styled from 'styled-components';
 
-import {
-  Form,
-  Field,
-  DateField,
-  SelectField,
-  AutocompleteField,
-  TextField,
-} from '../components/Field';
+import { Form, Field, DateField, AutocompleteField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { Button } from '../components/Button';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { foreignKey } from '../utils/validation';
-import { visitOptions } from '../constants';
 
 export class FamilyHistoryForm extends React.PureComponent {
   static propTypes = {
@@ -34,12 +24,7 @@ export class FamilyHistoryForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={icd10Suggester}
         />
-        <Field
-          name="date"
-          label="Date recorded"
-          required
-          component={DateField}
-        />
+        <Field name="date" label="Date recorded" required component={DateField} />
         <Field
           name="practitioner._id"
           label="Doctor/nurse"
@@ -47,13 +32,7 @@ export class FamilyHistoryForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field
-          name="notes"
-          label="Notes"
-          component={TextField}
-          multiline
-          rows={2}
-        />
+        <Field name="notes" label="Notes" component={TextField} multiline rows={2} />
         <ConfirmCancelRow variant="contained" onClick={submitForm} onCancel={onClose} />
       </FormGrid>
     );
