@@ -4,6 +4,7 @@ import MUIAddIcon from '@material-ui/icons/Add';
 import { Collapse } from '@material-ui/core';
 import { connectApi } from '../api';
 import { Suggester } from '../utils/suggester';
+import { reloadPatient } from '../store/patient';
 
 const TitleContainer = styled.div`
   color: #326699;
@@ -66,6 +67,7 @@ const AddEditForm = connectApi(
     const apiProps = {
       onSubmit: async data => {
         await api.post(`patient/${patient._id}/${endpoint}`, data);
+        dispatch(reloadPatient(patient._id));
         onClose();
       },
     };

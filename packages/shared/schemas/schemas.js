@@ -6,6 +6,7 @@ export * from './client';
 export * from './condition';
 export * from './diagnosis';
 export * from './drug';
+export * from './familyHistory';
 export * from './hospital';
 export * from './imaging-request';
 export * from './imaging-type';

@@ -14,6 +14,8 @@ import { DischargeForm } from '../app/forms/DischargeForm';
 import { NewPatientForm } from '../app/forms/NewPatientForm';
 import { LabRequestForm } from '../app/forms/LabRequestForm';
 import { ReferralForm } from '../app/forms/ReferralForm';
+import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
+
 import { TestSelectorInput } from '../app/components/TestSelector';
 
 import {
@@ -148,6 +150,15 @@ const StorybookableTestSelector = () => {
 
   return <TestSelectorInput testTypes={testTypes} value={value} onChange={onChange} />;
 };
+
+storiesOf('Forms', module).add('FamilyHistoryForm', () => (
+  <FamilyHistoryForm
+    onSubmit={action('submit')}
+    onCancel={action('cancel')}
+    practitionerSuggester={practitionerSuggester}
+    icd10Suggester={icd10Suggester}
+  />
+));
 
 storiesOf('Forms', module).add('ReferralForm', () => (
   <ReferralForm
