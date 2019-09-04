@@ -26,7 +26,7 @@ const Column = styled.div`
   }
 `;
 
-const DiagnosisRow = ({ icd10 }) => <div>{icd10}</div>;
+const DiagnosisRow = ({ diagnosis }) => <div>{diagnosis.name}</div>;
 
 const ProcedureRow = ({ cpt }) => <div>{cpt}</div>;
 
@@ -46,7 +46,7 @@ const VisitOverview = React.memo(({ visit }) => (
     <DetailRow label="Reason for visit">{visit.reasonForVisit || 'Not specified'}</DetailRow>
     <FullWidthDetailRow label="Diagnoses">
       {visit.diagnoses.map(d => (
-        <DiagnosisRow key={d} icd10={d} />
+        <DiagnosisRow key={d._id} diagnosis={d.diagnosis} />
       ))}
     </FullWidthDetailRow>
     <FullWidthDetailRow label="Procedures">
