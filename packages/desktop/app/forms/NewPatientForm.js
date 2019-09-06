@@ -50,18 +50,13 @@ const AdditionalInformationRow = styled.div`
 
 export const NewPatientForm = memo(
   ({ editedObject, onSubmit, onCancel, generateId, patientSuggester, facilitySuggester }) => {
-    const [isRevealed, setExpanded] = useState(false);
+    const [isExpanded, setExpanded] = useState(false);
     const renderForm = ({ submitForm, values }) => {
       return (
         <FormGrid>
           <IdBannerContainer>
             <IdBanner>
-              <Field
-                name="_id"
-                component={IdField}
-                regenerateId={generateId}
-                styled={{ color: '#fff' }}
-              />
+              <Field name="_id" component={IdField} regenerateId={generateId} />
             </IdBanner>
           </IdBannerContainer>
           <Field name="firstName" label="First name" component={TextField} required />
@@ -85,13 +80,13 @@ export const NewPatientForm = memo(
             <div>
               Add additional information <span>(religion, occupation, blood type...)</span>
             </div>
-            {isRevealed ? (
+            {isExpanded ? (
               <MinusIconButton onClick={() => setExpanded(false)} />
             ) : (
               <PlusIconButton onClick={() => setExpanded(true)} />
             )}
           </AdditionalInformationRow>
-          <Collapse in={isRevealed} style={{ gridColumn: 'span 2' }}>
+          <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
             <FormGrid>
               <Field name="religion" label="Religion" component={TextField} />
               <Field name="occupation" label="Occupation" component={TextField} />
