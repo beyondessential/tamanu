@@ -9,7 +9,7 @@ const Row = styled.div`
   grid-auto-flow: column;
   grid-column-gap: 0.7rem;
   grid-template-columns: auto repeat(${p => p.items}, 8rem);
-  grid-column: span 1 / -1;
+  grid-column: 1 / -1;
 `;
 
 // Add an empty div at the start to fill up any excess space.
@@ -38,7 +38,7 @@ export const ConfirmCancelRow = React.memo(
 const ActionRow = styled(ConfirmCancelRow)`
   border-top: 1px solid #dedede;
   padding: 18px 32px 0 0;
-  grid-column: span 1 / -1;
+  grid-column: 1 / -1;
 `;
 
 export const ModalActionRow = props => (

@@ -6,6 +6,7 @@ import { action } from '@storybook/addon-actions';
 
 import { LoginView } from '../app/views/LoginView';
 import { VisitForm } from '../app/forms/VisitForm';
+import { TriageForm } from '../app/forms/TriageForm';
 import { VitalsForm } from '../app/forms/VitalsForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
 import { AllergyForm } from '../app/forms/AllergyForm';
@@ -65,6 +66,15 @@ storiesOf('Forms/VisitForm', module)
       locationSuggester={locationSuggester}
       practitionerSuggester={practitionerSuggester}
       editedObject={createDummyVisit()}
+    />
+  ));
+
+storiesOf('Forms', module)
+  .add('TriageForm', () => (
+    <TriageForm
+      onSubmit={action('submit')}
+      locationSuggester={locationSuggester}
+      practitionerSuggester={practitionerSuggester}
     />
   ));
 
