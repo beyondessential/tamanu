@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-// import { AutorenewIconButton } from '../../components';
 import { Autorenew } from '@material-ui/icons';
 import PropTypes from 'prop-types';
 
@@ -49,8 +48,13 @@ export const IdInput = ({ value, name, onChange, regenerateId }) => {
   );
 };
 
-export const IdField = (props) => (
-  <IdInput name={props.field.name} value={props.field.value} onChange={props.field.onChange} {...props} />
+export const IdField = props => (
+  <IdInput
+    name={props.field.name}
+    value={props.field.value}
+    onChange={props.field.onChange}
+    {...props}
+  />
 );
 
 IdInput.propTypes = {

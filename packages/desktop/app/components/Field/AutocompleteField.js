@@ -5,6 +5,7 @@ import { TextField, MenuItem, Popper, Paper, Typography } from '@material-ui/cor
 import { withStyles } from '@material-ui/core/styles';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Search from '@material-ui/icons/Search';
+import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
 const styles = () => ({
   root: {
@@ -28,34 +29,38 @@ const styles = () => ({
 });
 
 const renderInputComponent = inputProps => {
-  const { classes, inputRef = () => {}, ref, ...other } = inputProps;
+  const { classes, inputRef = () => {}, ref, label, ...other } = inputProps;
   return (
-    <TextField
-      variant="outlined"
-      InputLabelProps={{ shrink: true }}
-      InputProps={{
-        endAdornment: (
-          <InputAdornment
-            position="end"
-            style={{
-              paddingRight: '14px',
-            }}
-          >
-            <Search style={{ opacity: 0.5 }} />
-          </InputAdornment>
-        ),
-        style: {
-          paddingRight: 0,
-          background: '#fff',
-        },
-      }}
-      fullWidth
-      inputRef={node => {
-        ref(node);
-        inputRef(node);
-      }}
-      {...other}
-    />
+    <div>
+      <OuterLabelFieldWrapper label={label} {...inputProps}>
+        <TextField
+          variant="outlined"
+          InputLabelProps={{ shrink: true }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment
+                position="end"
+                style={{
+                  paddingRight: '14px',
+                }}
+              >
+                <Search style={{ opacity: 0.5 }} />
+              </InputAdornment>
+            ),
+            style: {
+              paddingRight: 0,
+              background: '#fff',
+            },
+          }}
+          fullWidth
+          inputRef={node => {
+            ref(node);
+            inputRef(node);
+          }}
+          {...other}
+        />
+      </OuterLabelFieldWrapper>
+    </div>
   );
 };
 

@@ -2,6 +2,7 @@ import React from 'react';
 import MuiTextField from '@material-ui/core/TextField';
 import { withStyles } from '@material-ui/core';
 import PropTypes from 'prop-types';
+import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
 const styles = () => ({
   root: {
@@ -9,13 +10,15 @@ const styles = () => ({
   },
 });
 
-export const TextInput = withStyles(styles)(({ value, ...props }) => (
-  <MuiTextField
-    value={value || ''}
-    variant="outlined"
-    InputLabelProps={{ shrink: true }}
-    {...props}
-  />
+export const TextInput = withStyles(styles)(({ value, label, ...props }) => (
+  <OuterLabelFieldWrapper label={label} {...props}>
+    <MuiTextField
+      value={value || ''}
+      variant="outlined"
+      InputLabelProps={{ shrink: true }}
+      {...props}
+    />
+  </OuterLabelFieldWrapper>
 ));
 
 export const TextField = ({ field, ...props }) => (

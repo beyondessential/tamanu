@@ -57,12 +57,28 @@ const styles = () => ({
       color: '#4285F4',
     },
   },
+  required: {
+    color: '#f76853',
+  },
+  label: {
+    // mui still overrides this style on the 'focused' class of the label,
+    // !important brute forces it into submission here.
+    color: '#666666 !important',
+    fontWeight: '500',
+  },
 });
 
 export const RadioInput = withStyles(styles)(
   ({ options, name, value, label, helperText, inline, style, classes, ...props }) => (
     <FormControl style={style} className={classes.root} {...props}>
-      <FormLabel>{label}</FormLabel>
+      <FormLabel
+        classes={{
+          asterisk: classes.required,
+          root: classes.label,
+        }}
+      >
+        {label}
+      </FormLabel>
       <RadioGroup
         aria-label={name}
         name={name}
