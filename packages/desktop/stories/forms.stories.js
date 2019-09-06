@@ -69,14 +69,13 @@ storiesOf('Forms/VisitForm', module)
     />
   ));
 
-storiesOf('Forms', module)
-  .add('TriageForm', () => (
-    <TriageForm
-      onSubmit={action('submit')}
-      locationSuggester={locationSuggester}
-      practitionerSuggester={practitionerSuggester}
-    />
-  ));
+storiesOf('Forms', module).add('TriageForm', () => (
+  <TriageForm
+    onSubmit={action('submit')}
+    locationSuggester={locationSuggester}
+    practitionerSuggester={practitionerSuggester}
+  />
+));
 
 storiesOf('Forms', module).add('ProcedureForm', () => (
   <ProcedureForm

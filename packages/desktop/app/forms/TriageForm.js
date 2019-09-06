@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import styled from 'styled-components';
 
 import { foreignKey } from '../utils/validation';
 
@@ -9,7 +8,6 @@ import {
   Form,
   Field,
   DateTimeField,
-  SelectField,
   AutocompleteField,
   TextField,
   RadioField,
@@ -32,7 +30,7 @@ export class TriageForm extends React.PureComponent {
     onSubmit: PropTypes.func.isRequired,
   };
 
-  renderForm = ({ values, setFieldValue, submitForm }) => {
+  renderForm = ({ submitForm }) => {
     const { locationSuggester, practitionerSuggester, editedObject } = this.props;
     const buttonText = editedObject ? 'Update visit' : 'Start visit';
     return (
@@ -117,24 +115,30 @@ export class TriageForm extends React.PureComponent {
     );
   };
 
-  onSubmit = (values) => {
+  onSubmit = values => {
     const { onSubmit } = this.props;
 
     const notes = [
-      values.checkLostConsciousness && "Patient received a blow to the head or lost consciousness",
-      values.checkPregnant && "Patient is pregnant (or possibly pregnant)",
-      values.checkDrugsOrAlcohol && "Patient has had drugs or alcohol",
-      values.checkCrime && "A crime has possibly been committed",
+      values.checkLostConsciousness && 'Patient received a blow to the head or lost consciousness',
+      values.checkPregnant && 'Patient is pregnant (or possibly pregnant)',
+      values.checkDrugsOrAlcohol && 'Patient has had drugs or alcohol',
+      values.checkCrime && 'A crime has possibly been committed',
       values.medicineNotes,
     ];
 
-    values.notes = notes.map(x => x && x.trim()).filter(x => x).join("\n");
+    const updatedValues = {
+      ...values,
+      notes: notes
+        .map(x => x && x.trim())
+        .filter(x => x)
+        .join('\n'),
+    };
 
-    onSubmit(values);
-  }
+    onSubmit(updatedValues);
+  };
 
   render() {
-    const { onSubmit, editedObject } = this.props;
+    const { editedObject } = this.props;
     return (
       <Form
         onSubmit={this.onSubmit}
@@ -145,6 +149,7 @@ export class TriageForm extends React.PureComponent {
         }}
         validationSchema={yup.object().shape({
           triageTime: yup.date().required(),
+          practitioner: foreignKey('Triage nurse/doctor must be selected'),
           score: yup
             .string()
             .oneOf(trafficLights.map(x => x.value))
