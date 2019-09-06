@@ -48,6 +48,14 @@ const InfoPopup = React.memo(() => {
   );
 });
 
+const InfoPopupLabel = React.memo(() => (
+  <span>
+    <span>Triage score</span>
+    <span> </span>
+    <InfoPopup />
+  </span>
+));
+
 export class TriageForm extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
@@ -80,7 +88,7 @@ export class TriageForm extends React.PureComponent {
         />
         <Field
           name="score"
-          label={<span><span>Triage score</span> <InfoPopup /></span>}
+          label={<InfoPopupLabel />}
           inline
           component={RadioField}
           options={trafficLights}
