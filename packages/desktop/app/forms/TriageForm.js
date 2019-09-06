@@ -125,8 +125,10 @@ export class TriageForm extends React.PureComponent {
       values.checkPregnant && "Patient is pregnant (or possibly pregnant)",
       values.checkDrugsOrAlcohol && "Patient has had drugs or alcohol",
       values.checkCrime && "A crime has possibly been committed",
-      values.notes,
+      values.medicineNotes,
     ];
+
+    values.notes = notes.map(x => x && x.trim()).filter(x => x).join("\n");
 
     onSubmit(values);
   }
