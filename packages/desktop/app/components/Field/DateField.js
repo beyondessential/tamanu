@@ -23,7 +23,6 @@ export const DateTimeInput = props => (
 export const DateInput = ({ value, format, onChange, ...props }) => (
   <TextInput
     type="date"
-    InputLabelProps={{ shrink: true }}
     {...props}
     value={toDate(value, format)}
     onChange={e => onChange(fromDate(e, format))}

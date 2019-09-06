@@ -1,4 +1,5 @@
 import React from 'react';
+import shortid from 'shortid';
 
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
@@ -15,6 +16,7 @@ import {
   ArrayInput,
   AutocompleteInput,
 } from '../app/components';
+import { IdInput } from '../app/components/Field/IdField';
 
 const FRUITS = [
   { value: 'apples', label: 'Apples' },
@@ -161,5 +163,9 @@ addStories('Autocomplete', props => (
   `,
     },
   );
+
+addStories('IdInput', props => (
+  <StoryControlWrapper Component={IdInput} regenerateId={shortid.generate} {...props} />
+));
 
 storiesOf('FormControls/ArrayInput', module).add('ArrayInput', () => <div>WIP</div>);

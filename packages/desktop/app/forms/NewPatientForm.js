@@ -1,4 +1,5 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
+import styled from 'styled-components';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 
@@ -8,19 +9,56 @@ import {
   DateField,
   AutocompleteField,
   TextField,
-  CheckField,
   RadioField,
 } from '../components/Field';
+import { IdField } from '../components/Field/IdField';
 import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { ModalActionRow } from '../components/ButtonRow';
+import { PlusIconButton, MinusIconButton } from '../components';
+import { IdBanner } from '../components/IdBanner';
+
+const IdBannerContainer = styled.div`
+  margin: -20px -32px 0 -32px;
+  grid-column: 1 / -1;
+`;
+
+const AdditionalInformationRow = styled.div`
+  grid-column: 1 / -1;
+  border-top: 1px solid #dedede;
+  padding: 10px 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  div {
+    font-weight: 500;
+    font-size: 17px;
+    color: #444444;
+  }
+
+  button {
+    padding: 0;
+    color: #4285f4;
+  }
+
+  div span {
+    font-weight: 200;
+    font-size: 14px;
+    color: #999999;
+  }
+`;
 
 export const NewPatientForm = memo(
   ({ editedObject, onSubmit, onCancel, generateId, patientSuggester, facilitySuggester }) => {
+    const [isExpanded, setExpanded] = useState(false);
     const renderForm = ({ submitForm, values }) => {
-      const revealAdditionalFields = values.revealAdditionalFields;
       return (
         <FormGrid>
-          <Field name="_id" label="National health ID" component={TextField} />
+          <IdBannerContainer>
+            <IdBanner>
+              <Field name="_id" component={IdField} regenerateId={generateId} />
+            </IdBanner>
+          </IdBannerContainer>
           <Field name="firstName" label="First name" component={TextField} required />
           <Field name="middleName" label="Middle name" component={TextField} />
           <Field name="lastName" label="Last name" component={TextField} required />
@@ -30,7 +68,6 @@ export const NewPatientForm = memo(
             name="sex"
             label="Sex"
             component={RadioField}
-            style={{ gridColumn: 'span 2' }}
             options={[
               { value: 'male', label: 'Male' },
               { value: 'female', label: 'Female' },
@@ -39,13 +76,17 @@ export const NewPatientForm = memo(
             inline
             required
           />
-          <Field
-            name="revealAdditionalFields"
-            label="Add additional information (religion, occupation, blood type...)"
-            component={CheckField}
-            style={{ gridColumn: 'span 2' }}
-          />
-          <Collapse in={revealAdditionalFields} style={{ gridColumn: 'span 2' }}>
+          <AdditionalInformationRow>
+            <div>
+              Add additional information <span>(religion, occupation, blood type...)</span>
+            </div>
+            {isExpanded ? (
+              <MinusIconButton onClick={() => setExpanded(false)} />
+            ) : (
+              <PlusIconButton onClick={() => setExpanded(true)} />
+            )}
+          </AdditionalInformationRow>
+          <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
             <FormGrid>
               <Field name="religion" label="Religion" component={TextField} />
               <Field name="occupation" label="Occupation" component={TextField} />
@@ -84,7 +125,7 @@ export const NewPatientForm = memo(
               />
             </FormGrid>
           </Collapse>
-          <ConfirmCancelRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
+          <ModalActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
         </FormGrid>
       );
     };
@@ -95,7 +136,6 @@ export const NewPatientForm = memo(
         render={renderForm}
         initialValues={{
           _id: generateId(),
-          revealAdditionalFields: false,
           ...editedObject,
         }}
         validationSchema={yup.object().shape({

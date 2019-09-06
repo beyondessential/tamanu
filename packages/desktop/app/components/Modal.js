@@ -1,18 +1,39 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
-import { Dialog as MuiDialog, DialogTitle, DialogActions } from '@material-ui/core';
+import { Dialog as MuiDialog, DialogTitle, DialogActions, withStyles } from '@material-ui/core';
+
+const MODAL_PADDING = 32;
 
 const ModalContent = styled.div`
   flex: 1 1 auto;
-  padding: 0 24px 24px;
+  padding: 18px ${MODAL_PADDING}px;
 `;
 
-export const Modal = memo(({ title, children, actions, width = 'sm', ...props }) => {
-  return (
-    <MuiDialog fullWidth maxWidth={width} {...props}>
-      <DialogTitle>{title}</DialogTitle>
-      <ModalContent>{children}</ModalContent>
-      <DialogActions>{actions}</DialogActions>
-    </MuiDialog>
-  );
+const ModalContainer = styled.div`
+  background: #f3f5f7;
+`;
+
+export const FullWidthRow = styled.div`
+  margin: 0 -${MODAL_PADDING}px;
+  grid-column: 1 / -1;
+`;
+
+const styles = () => ({
+  title: {
+    padding: '14px 14px 14px 32px',
+  },
 });
+
+export const Modal = memo(
+  withStyles(styles)(({ title, children, actions, width = 'sm', ...props }) => {
+    return (
+      <MuiDialog fullWidth maxWidth={width} {...props}>
+        <DialogTitle className={props.classes.title}>{title}</DialogTitle>
+        <ModalContainer>
+          <ModalContent>{children}</ModalContent>
+          <DialogActions>{actions}</DialogActions>
+        </ModalContainer>
+      </MuiDialog>
+    );
+  }),
+);

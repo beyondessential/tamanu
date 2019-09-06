@@ -39,7 +39,6 @@ const LabeledSelect = ({ label, ...props }) => (
 );
 
 LabeledSelect.propTypes = {
-  label: PropTypes.string.isRequired,
   theme: PropTypes.shape({}).isRequired,
 };
 
