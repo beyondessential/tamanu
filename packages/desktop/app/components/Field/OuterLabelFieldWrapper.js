@@ -11,8 +11,8 @@ const OuterLabelRequired = styled.span`
   padding-left: 2px;
 `;
 
-export const OuterLabelFieldWrapper = ({ children, required, label }) => (
-  <div>
+export const OuterLabelFieldWrapper = ({ children, required, label, ...props }) => (
+  <div {...props}>
     {label && (
       <OuterLabel>
         {label}

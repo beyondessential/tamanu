@@ -13,16 +13,9 @@ import {
 } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
 import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { ModalActionRow } from '../components/ButtonRow';
 import { PlusIconButton, MinusIconButton } from '../components';
 import { IdBanner } from '../components/IdBanner';
-
-const ActionRow = styled(ConfirmCancelRow)`
-  grid-column: 1 / -1;
-  margin: 0 -32px;
-  border-top: 1px solid #dedede;
-  padding: 18px 32px 0 0;
-`;
 
 const IdBannerContainer = styled.div`
   margin: -20px -32px 0 -32px;
@@ -57,7 +50,7 @@ const AdditionalInformationRow = styled.div`
 
 export const NewPatientForm = memo(
   ({ editedObject, onSubmit, onCancel, generateId, patientSuggester, facilitySuggester }) => {
-    const [isRevealed, setReavealed] = useState(false);
+    const [isRevealed, setExpanded] = useState(false);
     const renderForm = ({ submitForm, values }) => {
       return (
         <FormGrid>
@@ -93,9 +86,9 @@ export const NewPatientForm = memo(
               Add additional information <span>(religion, occupation, blood type...)</span>
             </div>
             {isRevealed ? (
-              <MinusIconButton onClick={() => setReavealed(false)} />
+              <MinusIconButton onClick={() => setExpanded(false)} />
             ) : (
-              <PlusIconButton onClick={() => setReavealed(true)} />
+              <PlusIconButton onClick={() => setExpanded(true)} />
             )}
           </AdditionalInformationRow>
           <Collapse in={isRevealed} style={{ gridColumn: 'span 2' }}>
@@ -137,7 +130,7 @@ export const NewPatientForm = memo(
               />
             </FormGrid>
           </Collapse>
-          <ActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
+          <ModalActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
         </FormGrid>
       );
     };

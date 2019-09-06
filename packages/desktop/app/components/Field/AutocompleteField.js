@@ -31,36 +31,33 @@ const styles = () => ({
 const renderInputComponent = inputProps => {
   const { classes, inputRef = () => {}, ref, label, ...other } = inputProps;
   return (
-    <div>
-      <OuterLabelFieldWrapper label={label} {...inputProps}>
-        <TextField
-          variant="outlined"
-          InputLabelProps={{ shrink: true }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment
-                position="end"
-                style={{
-                  paddingRight: '14px',
-                }}
-              >
-                <Search style={{ opacity: 0.5 }} />
-              </InputAdornment>
-            ),
-            style: {
-              paddingRight: 0,
-              background: '#fff',
-            },
-          }}
-          fullWidth
-          inputRef={node => {
-            ref(node);
-            inputRef(node);
-          }}
-          {...other}
-        />
-      </OuterLabelFieldWrapper>
-    </div>
+    <OuterLabelFieldWrapper label={label} {...inputProps}>
+      <TextField
+        variant="outlined"
+        InputProps={{
+          endAdornment: (
+            <InputAdornment
+              position="end"
+              style={{
+                paddingRight: '14px',
+              }}
+            >
+              <Search style={{ opacity: 0.5 }} />
+            </InputAdornment>
+          ),
+          style: {
+            paddingRight: 0,
+            background: '#fff',
+          },
+        }}
+        fullWidth
+        inputRef={node => {
+          ref(node);
+          inputRef(node);
+        }}
+        {...other}
+      />
+    </OuterLabelFieldWrapper>
   );
 };
 

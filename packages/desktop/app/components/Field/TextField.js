@@ -12,12 +12,7 @@ const styles = () => ({
 
 export const TextInput = withStyles(styles)(({ value, label, ...props }) => (
   <OuterLabelFieldWrapper label={label} {...props}>
-    <MuiTextField
-      value={value || ''}
-      variant="outlined"
-      InputLabelProps={{ shrink: true }}
-      {...props}
-    />
+    <MuiTextField value={value || ''} variant="outlined" {...props} />
   </OuterLabelFieldWrapper>
 ));
 

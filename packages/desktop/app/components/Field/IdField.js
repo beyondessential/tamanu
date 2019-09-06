@@ -58,7 +58,7 @@ export const IdField = props => (
 );
 
 IdInput.propTypes = {
-  name: PropTypes.string.isRequired,
+  name: PropTypes.string,
   value: PropTypes.number,
   onChange: PropTypes.func,
 };

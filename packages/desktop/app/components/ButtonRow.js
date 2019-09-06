@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Button } from './Button';
+import { FullWidthRow } from './Modal';
 
 const Row = styled.div`
   display: grid;
@@ -32,4 +33,16 @@ export const ConfirmCancelRow = React.memo(
       </Button>
     </ButtonRow>
   ),
+);
+
+const ActionRow = styled(ConfirmCancelRow)`
+  border-top: 1px solid #dedede;
+  padding: 18px 32px 0 0;
+  grid-column: span 1 / -1;
+`;
+
+export const ModalActionRow = props => (
+  <FullWidthRow>
+    <ActionRow {...props} />
+  </FullWidthRow>
 );

@@ -5,23 +5,15 @@ import PropTypes from 'prop-types';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
 export const SelectInput = ({ options, value, label, ...props }) => (
-  <div>
-    <OuterLabelFieldWrapper label={label} {...props}>
-      <MuiTextField
-        select
-        InputLabelProps={{ shrink: true }}
-        value={value || ''}
-        variant="outlined"
-        {...props}
-      >
-        {options.map(o => (
-          <MuiMenuItem key={o.value} value={o.value}>
-            {o.label}
-          </MuiMenuItem>
-        ))}
-      </MuiTextField>
-    </OuterLabelFieldWrapper>
-  </div>
+  <OuterLabelFieldWrapper label={label} {...props}>
+    <MuiTextField select value={value || ''} variant="outlined" {...props}>
+      {options.map(o => (
+        <MuiMenuItem key={o.value} value={o.value}>
+          {o.label}
+        </MuiMenuItem>
+      ))}
+    </MuiTextField>
+  </OuterLabelFieldWrapper>
 );
 
 export const SelectField = ({ field, ...props }) => (
