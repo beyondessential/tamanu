@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { foreignKey } from '../utils/validation';
@@ -13,9 +14,13 @@ import {
   RadioField,
   CheckField,
 } from '../components/Field';
+import { InfoButton } from '../components/InfoButton';
+import { Modal } from '../components/Modal';
 import { FormGrid } from '../components/FormGrid';
 import { Button } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
+
+import triageFlowchart from '../assets/images/triage-flowchart.png';
 
 import { visitOptions } from '../constants';
 
@@ -24,6 +29,24 @@ const trafficLights = [
   { value: '2', label: 'Priority' },
   { value: '1', label: 'Emergency' },
 ];
+
+const FullSizeImg = styled.img`
+  max-width: 100%;
+  max-height: 100%;
+`;
+
+const InfoPopup = React.memo(() => {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <React.Fragment>
+      <Modal width="lg" open={open} onClose={() => setOpen(false)}>
+        <FullSizeImg src={triageFlowchart} />
+      </Modal>
+      <InfoButton onClick={() => setOpen(true)} />
+    </React.Fragment>
+  );
+});
 
 export class TriageForm extends React.PureComponent {
   static propTypes = {
@@ -57,7 +80,7 @@ export class TriageForm extends React.PureComponent {
         />
         <Field
           name="score"
-          label="Triage score"
+          label={<span><span>Triage score</span> <InfoPopup /></span>}
           inline
           component={RadioField}
           options={trafficLights}
