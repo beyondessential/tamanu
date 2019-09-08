@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { foreignKey } from '../utils/validation';
@@ -14,8 +13,7 @@ import {
   RadioField,
   CheckField,
 } from '../components/Field';
-import { InfoButton } from '../components/InfoButton';
-import { Modal } from '../components/Modal';
+import { ImageInfoModal } from '../components/InfoModal';
 import { FormGrid } from '../components/FormGrid';
 import { Button } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
@@ -30,29 +28,10 @@ const trafficLights = [
   { value: '1', label: 'Emergency' },
 ];
 
-const FullSizeImg = styled.img`
-  max-width: 100%;
-  max-height: 100%;
-`;
-
-const InfoPopup = React.memo(() => {
-  const [open, setOpen] = React.useState(false);
-
-  return (
-    <React.Fragment>
-      <Modal width="lg" open={open} onClose={() => setOpen(false)}>
-        <FullSizeImg src={triageFlowchart} />
-      </Modal>
-      <InfoButton onClick={() => setOpen(true)} />
-    </React.Fragment>
-  );
-});
-
 const InfoPopupLabel = React.memo(() => (
   <span>
-    <span>Triage score</span>
-    <span> </span>
-    <InfoPopup />
+    <span>Triage score </span>
+    <ImageInfoModal src={triageFlowchart} />
   </span>
 ));
 
@@ -149,6 +128,8 @@ export class TriageForm extends React.PureComponent {
   onSubmit = values => {
     const { onSubmit } = this.props;
 
+    // These fields are just stored in the database as a single freetext note, so assign
+    // strings and concatenate
     const notes = [
       values.checkLostConsciousness && 'Patient received a blow to the head or lost consciousness',
       values.checkPregnant && 'Patient is pregnant (or possibly pregnant)',
