@@ -42,7 +42,6 @@ export class TriageForm extends React.PureComponent {
 
   renderForm = ({ submitForm }) => {
     const { locationSuggester, practitionerSuggester, editedObject } = this.props;
-    const buttonText = editedObject ? 'Update visit' : 'Start visit';
     return (
       <FormGrid>
         <Field
@@ -118,7 +117,7 @@ export class TriageForm extends React.PureComponent {
         />
         <ButtonRow>
           <Button variant="contained" onClick={submitForm} color="primary">
-            {buttonText}
+            Save
           </Button>
         </ButtonRow>
       </FormGrid>

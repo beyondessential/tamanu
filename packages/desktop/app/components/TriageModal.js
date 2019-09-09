@@ -20,7 +20,7 @@ const DumbTriageModal = React.memo(
     triage,
   }) => {
     return (
-      <Modal title="Check in" width="lg" open={open} onClose={onClose}>
+      <Modal title="Triage" width="lg" open={open} onClose={onClose}>
         <TriageForm
           onSubmit={onCreateTriage}
           onCancel={onClose}
