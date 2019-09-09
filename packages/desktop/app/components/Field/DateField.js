@@ -23,6 +23,11 @@ export const DateTimeInput = props => (
 );
 
 const dateStyles = () => ({
+  root: {
+    '& fieldset': {
+      marginRight: '14px', // offsets adornment padding
+    },
+  },
   calendarIcon: {
     color: '#cccccc',
   },
