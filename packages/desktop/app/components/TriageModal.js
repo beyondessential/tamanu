@@ -17,6 +17,7 @@ const DumbTriageModal = React.memo(
     practitionerSuggester,
     onClose,
     onCreateTriage,
+    triage,
   }) => {
     return (
       <Modal title="Check in" width="lg" open={open} onClose={onClose}>
@@ -25,6 +26,7 @@ const DumbTriageModal = React.memo(
           onCancel={onClose}
           locationSuggester={locationSuggester}
           practitionerSuggester={practitionerSuggester}
+          editedObject={triage}
         />
       </Modal>
     );

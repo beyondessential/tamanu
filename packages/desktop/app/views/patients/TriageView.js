@@ -9,12 +9,19 @@ import { displayId, firstName, lastName, culturalName, sex, dateOfBirth } from '
 
 const TRIAGE_ENDPOINT = 'triage';
 
+const MINUTE = 60 * 1000;
+
 const Timer = React.memo(({ startTime }) => {
-  const [shownTime, setShownTime] = React.useState("");
+  const [_, forceRender] = React.useState({});
+  React.useEffect(() => {
+    const i = setInterval(() => forceRender({}), MINUTE);
+    return () => clearTimeout(i);
+  }, []);
 
   const diff = new Date() - new Date(startTime);
+  const minutes = Math.floor(diff / MINUTE);
 
-  return Math.floor(diff / 1000);
+  return `${minutes} minutes`;
 });
 
 const COLUMNS = [
@@ -23,18 +30,22 @@ const COLUMNS = [
   { key: 'sex', title: 'Sex', accessor: ({patient}) => patient.sex },
   { key: 'dateOfBirth', title: 'Date of birth', accessor: ({patient}) => <DateDisplay date={patient.dateOfBirth} /> },
   { key: 'score', title: 'Triage score', },
-  { key: 'status', title: 'Status', accessor: () => "Waiting" },
+  { key: 'status', title: 'Status' },
   { key: 'location', title: 'Location', accessor: ({ location }) => location.name },
   { key: 'triageTime', title: 'Waiting time', accessor: (triage) => <Timer startTime={triage.triageTime} /> }
 ];
 
 const DumbTriageView = React.memo(({ handleRowClick }) => {
   const [isTriageOpen, setTriageOpen] = useState(false);
+  const [editedTriage, setEditedTriage] = useState(null);
 
   return (
     <PageContainer>
       <TopBar title="Emergency department list">
-        <Button color="primary" variant="outlined" onClick={() => setTriageOpen(true)}>
+        <Button color="primary" variant="outlined" onClick={() => {
+          setEditedTriage(null);
+          setTriageOpen(true);
+        }}>
           New triage
         </Button>
       </TopBar>
@@ -42,11 +53,15 @@ const DumbTriageView = React.memo(({ handleRowClick }) => {
         endpoint={TRIAGE_ENDPOINT}
         columns={COLUMNS}
         noDataMessage="No patients waiting"
-        onRowClick={handleRowClick}
+        onRowClick={(triage) => {
+          setEditedTriage(triage);
+          setTriageOpen(true);
+        }}
       />
       <TriageModal
         title="Triage"
         open={isTriageOpen}
+        triage={editedTriage}
         onClose={() => setTriageOpen(false)}
       />
     </PageContainer>
@@ -55,5 +70,5 @@ const DumbTriageView = React.memo(({ handleRowClick }) => {
 
 export const TriageView = connect(
   null,
-  dispatch => ({ handleRowClick: ({ _id }) => dispatch(viewPatient(_id)) }),
+  dispatch => ({ handleRowClick: ({ _id }) => dispatch(viewTriage(_id)) }),
 )(DumbTriageView);

@@ -16,9 +16,9 @@ export const TriageSchema = {
     referredFrom: 'string?',
     reasonForVisit: 'string',
 
-    score: 'int',
-
+    score: 'string',
     notes: 'string',
+    status: { type: 'string', default: 'waiting' },
 
     ...defaults,
   },
