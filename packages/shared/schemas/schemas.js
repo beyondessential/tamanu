@@ -40,6 +40,7 @@ export * from './survey-group';
 export * from './survey-response';
 export * from './survey-screen';
 export * from './survey-screen-component';
+export * from './triage';
 export * from './user';
 export * from './user-role';
 export * from './view';

@@ -46,19 +46,6 @@ export class TriageForm extends React.PureComponent {
     return (
       <FormGrid>
         <Field
-          name="arrivalTime"
-          label="Arrival time"
-          component={DateTimeField}
-          helperText="If different from triage time"
-        />
-        <Field
-          name="location._id"
-          label="Location"
-          required
-          component={AutocompleteField}
-          suggester={locationSuggester}
-        />
-        <Field
           name="triageTime"
           label="Triage time"
           required
@@ -71,6 +58,19 @@ export class TriageForm extends React.PureComponent {
           inline
           component={RadioField}
           options={trafficLights}
+        />
+        <Field
+          name="arrivalTime"
+          label="Arrival time"
+          component={DateTimeField}
+          helperText="If different from triage time"
+        />
+        <Field
+          name="location._id"
+          label="Location"
+          required
+          component={AutocompleteField}
+          suggester={locationSuggester}
         />
         <FormGrid columns={1} style={{ gridColumn: '1 / -1' }}>
           <Field

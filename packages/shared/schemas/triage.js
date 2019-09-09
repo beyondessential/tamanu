@@ -14,11 +14,11 @@ export const TriageSchema = {
     practitioner: 'user?',
 
     referredFrom: 'string?',
-    visitReason: 'string',
+    reasonForVisit: 'string',
 
     score: 'int',
 
-    note: 'string',
+    notes: 'string',
 
     ...defaults,
   },
