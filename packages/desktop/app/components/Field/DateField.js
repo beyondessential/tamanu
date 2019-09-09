@@ -17,7 +17,7 @@ function fromDate(changeEvent, format) {
 export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
 
 export const DateTimeInput = props => (
-  <DateInput type="datetime-local" format="YYYY-MM-DD HH:mm" {...props} />
+  <DateInput type="datetime-local" format="YYYY-MM-DDTHH:mm" {...props} />
 );
 
 export const DateInput = ({ value, format, onChange, ...props }) => (
