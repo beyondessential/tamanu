@@ -3,3 +3,4 @@ export { AdmittedPatientsView } from './AdmittedPatientsView';
 export { PatientView } from './PatientView';
 export { VisitView } from './VisitView';
 export { LabRequestView } from './LabRequestView';
+export { TriageView } from './TriageView';

@@ -48,6 +48,12 @@ export const items = [
         ability: { action: 'read' },
       },
       {
+        label: 'Emergency',
+        path: '/patients/triage',
+        icon: submenuIcons.table,
+        ability: { action: 'read' },
+      },
+      {
         label: 'New Patient',
         path: '/patients/edit/new',
         icon: submenuIcons.new,
