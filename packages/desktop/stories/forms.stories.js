@@ -17,6 +17,7 @@ import { NewPatientForm } from '../app/forms/NewPatientForm';
 import { LabRequestForm } from '../app/forms/LabRequestForm';
 import { ReferralForm } from '../app/forms/ReferralForm';
 import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
+import { NoteForm } from '../app/forms/NoteForm';
 
 import { TestSelectorInput } from '../app/components/TestSelector';
 
@@ -68,6 +69,10 @@ storiesOf('Forms/VisitForm', module)
       editedObject={createDummyVisit()}
     />
   ));
+
+storiesOf('Forms', module).add('NoteForm', () => (
+  <NoteForm onSubmit={action('submit')} practitionerSuggester={practitionerSuggester} />
+));
 
 storiesOf('Forms', module).add('TriageForm', () => (
   <TriageForm
