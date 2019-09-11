@@ -24,7 +24,7 @@ const styles = () => ({
     },
     '& span': {
       // targets: radio and label
-      padding: '0 3px 0 0',
+      padding: '0.5px 3px 0 0',
     },
     '&:not(:last-of-type)': {
       // targets: options
@@ -46,6 +46,7 @@ const styles = () => ({
   },
   radioGroup: {
     flexWrap: 'nowrap',
+    // height: '57px',
   },
   radio: {
     color: '#cccccc',
