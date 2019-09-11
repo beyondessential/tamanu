@@ -5,6 +5,26 @@ import { TopBar, PageContainer, Button, DataFetchingTable } from '../../componen
 import { PatientSearchBar, NewPatientModal } from './components';
 import { displayId, firstName, lastName, culturalName, sex, dateOfBirth } from './columns';
 import { PATIENT_SEARCH_ENDPOINT } from './constants';
+import { DropdownButton } from '../../components/DropdownButton';
+
+const DumbPatientActions = React.memo(({ onView, onAdmit, onTriage }) => (
+  <DropdownButton
+    actions={[
+      { label: "View", onClick: onView },
+      { label: "Admit", onClick: onAdmit },
+      { label: "Triage", onClick: onTriage },
+    ]}
+  />
+));
+
+const PatientActions = connect(
+  null,
+  (dispatch, { patient }) => ({
+    onView: () => dispatch(viewPatient(patient._id)),
+    onAdmit: () => dispatch(viewPatient(patient._id)),
+    onTriage: () => dispatch(viewPatient(patient._id)),
+  })
+)(DumbPatientActions);
 
 const COLUMNS = [
   displayId,
@@ -16,10 +36,11 @@ const COLUMNS = [
   {
     key: 'actions',
     title: 'Actions',
+    accessor: (row) => <PatientActions patient={row} />,
   },
 ];
 
-const DumbPatientTable = React.memo(({ ...props }) => (
+const PatientTable = React.memo(({ ...props }) => (
   <DataFetchingTable
     endpoint={PATIENT_SEARCH_ENDPOINT}
     columns={COLUMNS}
@@ -27,11 +48,6 @@ const DumbPatientTable = React.memo(({ ...props }) => (
     {...props}
   />
 ));
-
-export const PatientTable = connect(
-  null,
-  dispatch => ({ onRowClick: ({ _id }) => dispatch(viewPatient(_id)) }),
-)(DumbPatientTable);
 
 export const PatientListingView = React.memo(() => {
   const [searchParameters, setSearchParameters] = useState({});
