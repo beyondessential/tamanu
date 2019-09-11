@@ -25,10 +25,11 @@ const styles = () => ({
 });
 
 export const Modal = memo(
-  withStyles(styles)(({ title, children, actions, width = 'sm', ...props }) => {
+  withStyles(styles)(({ title, children, actions, width = 'sm', classes, ...props }) => {
+    const { title: titleClass, ...otherClasses } = classes;
     return (
-      <MuiDialog fullWidth maxWidth={width} {...props}>
-        <DialogTitle className={props.classes.title}>{title}</DialogTitle>
+      <MuiDialog fullWidth maxWidth={width} classes={otherClasses} {...props}>
+        <DialogTitle className={titleClass}>{title}</DialogTitle>
         <ModalContainer>
           <ModalContent>{children}</ModalContent>
           <DialogActions>{actions}</DialogActions>
