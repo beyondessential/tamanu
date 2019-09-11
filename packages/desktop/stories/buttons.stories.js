@@ -48,7 +48,7 @@ storiesOf('Buttons/DropdownButton', module)
   .add('Default', () => (
     <DropdownButton
       color="primary"
-      options={[
+      actions={[
         { label: 'Plier', onClick: action('plier') },
         { label: 'Etendre', onClick: action('etendre') },
         { label: 'Relever', onClick: action('relever') },
@@ -60,7 +60,7 @@ storiesOf('Buttons/DropdownButton', module)
     <DropdownButton
       color="primary"
       dropdownColor="secondary"
-      options={[
+      actions={[
         { label: 'Plier', onClick: action('plier') },
         { label: 'Etendre', onClick: action('etendre') },
         { label: 'Relever', onClick: action('relever') },
@@ -75,7 +75,7 @@ storiesOf('Buttons/DropdownButton', module)
       </Button>
       <DropdownButton
         color="primary"
-        options={[
+        actions={[
           { label: 'Plier', onClick: action('plier') },
           { label: 'Etendre', onClick: action('etendre') },
           { label: 'Relever', onClick: action('relever') },
