@@ -5,6 +5,7 @@ import { action } from '@storybook/addon-actions';
 
 import { Button } from '../app/components/Button';
 import { ButtonRow, ConfirmCancelRow } from '../app/components/ButtonRow';
+import { DropdownButton } from '../app/components/DropdownButton';
 
 storiesOf('Buttons/ButtonRow', module)
   .add('ConfirmCancel', () => (
@@ -42,3 +43,42 @@ storiesOf('Buttons/ButtonRow', module)
       </Button>
     </ButtonRow>
   ));
+
+storiesOf("Buttons/DropdownButton", module)
+  .add('Default', () => (
+    <DropdownButton 
+      color="primary"
+      options={[
+        { label: "Plier", onClick: action("plier") },
+        { label: "Etendre", onClick: action("etendre") },
+        { label: "Relever", onClick: action("relever") },
+        { label: "Glisser", onClick: action("glisser") },
+      ]}
+    />
+  ))
+  .add('With split color', () => (
+    <DropdownButton 
+      color="primary"
+      dropdownColor="secondary"
+      options={[
+        { label: "Plier", onClick: action("plier") },
+        { label: "Etendre", onClick: action("etendre") },
+        { label: "Relever", onClick: action("relever") },
+        { label: "Glisser", onClick: action("glisser") },
+      ]}
+    />
+  ))
+  .add('In button row', () => (
+    <ButtonRow>
+      <Button onClick={action('other')} variant="contained">Other</Button>
+      <DropdownButton 
+        color="primary"
+        options={[
+          { label: "Plier", onClick: action("plier") },
+          { label: "Etendre", onClick: action("etendre") },
+          { label: "Relever", onClick: action("relever") },
+          { label: "Glisser", onClick: action("glisser") },
+        ]}
+      />
+    </ButtonRow>
+  ))
