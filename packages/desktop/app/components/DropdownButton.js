@@ -1,5 +1,4 @@
 import React from 'react';
-import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
@@ -36,7 +35,7 @@ export const DropdownButton = React.memo(({ options, color, dropdownColor, ...pr
   return (
     <span {...props}>
       <ButtonGroup variant="contained" color={color} ref={anchorRef} aria-label="split button">
-        <Button onClick={(event) => handleClick(event, 0)}>{mainOption.label}</Button>
+        <Button onClick={event => handleClick(event, 0)}>{mainOption.label}</Button>
         <Button
           color={dropdownColor || color}
           size="small"

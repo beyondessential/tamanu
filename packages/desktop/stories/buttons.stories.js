@@ -44,41 +44,43 @@ storiesOf('Buttons/ButtonRow', module)
     </ButtonRow>
   ));
 
-storiesOf("Buttons/DropdownButton", module)
+storiesOf('Buttons/DropdownButton', module)
   .add('Default', () => (
-    <DropdownButton 
+    <DropdownButton
       color="primary"
       options={[
-        { label: "Plier", onClick: action("plier") },
-        { label: "Etendre", onClick: action("etendre") },
-        { label: "Relever", onClick: action("relever") },
-        { label: "Glisser", onClick: action("glisser") },
+        { label: 'Plier', onClick: action('plier') },
+        { label: 'Etendre', onClick: action('etendre') },
+        { label: 'Relever', onClick: action('relever') },
+        { label: 'Glisser', onClick: action('glisser') },
       ]}
     />
   ))
   .add('With split color', () => (
-    <DropdownButton 
+    <DropdownButton
       color="primary"
       dropdownColor="secondary"
       options={[
-        { label: "Plier", onClick: action("plier") },
-        { label: "Etendre", onClick: action("etendre") },
-        { label: "Relever", onClick: action("relever") },
-        { label: "Glisser", onClick: action("glisser") },
+        { label: 'Plier', onClick: action('plier') },
+        { label: 'Etendre', onClick: action('etendre') },
+        { label: 'Relever', onClick: action('relever') },
+        { label: 'Glisser', onClick: action('glisser') },
       ]}
     />
   ))
   .add('In button row', () => (
     <ButtonRow>
-      <Button onClick={action('other')} variant="contained">Other</Button>
-      <DropdownButton 
+      <Button onClick={action('other')} variant="contained">
+        Other
+      </Button>
+      <DropdownButton
         color="primary"
         options={[
-          { label: "Plier", onClick: action("plier") },
-          { label: "Etendre", onClick: action("etendre") },
-          { label: "Relever", onClick: action("relever") },
-          { label: "Glisser", onClick: action("glisser") },
+          { label: 'Plier', onClick: action('plier') },
+          { label: 'Etendre', onClick: action('etendre') },
+          { label: 'Relever', onClick: action('relever') },
+          { label: 'Glisser', onClick: action('glisser') },
         ]}
       />
     </ButtonRow>
-  ))
+  ));
