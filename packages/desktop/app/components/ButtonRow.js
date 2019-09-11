@@ -39,6 +39,10 @@ const ActionRow = styled(ConfirmCancelRow)`
   border-top: 1px solid #dedede;
   padding: 18px 32px 0 0;
   grid-column: 1 / -1;
+
+  button {
+    width: max-content;
+  }
 `;
 
 export const ModalActionRow = props => (

@@ -15,8 +15,7 @@ import {
 } from '../components/Field';
 import { ImageInfoModal } from '../components/InfoModal';
 import { FormGrid } from '../components/FormGrid';
-import { Button } from '../components/Button';
-import { ButtonRow } from '../components/ButtonRow';
+import { ModalActionRow } from '../components/ButtonRow';
 
 import triageFlowchart from '../assets/images/triage-flowchart.png';
 
@@ -41,7 +40,7 @@ export class TriageForm extends React.PureComponent {
   };
 
   renderForm = ({ submitForm }) => {
-    const { locationSuggester, practitionerSuggester, editedObject } = this.props;
+    const { locationSuggester, practitionerSuggester, editedObject, onCancel } = this.props;
     const buttonText = editedObject ? 'Update visit' : 'Start visit';
     return (
       <FormGrid>
@@ -116,11 +115,7 @@ export class TriageForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <ButtonRow>
-          <Button variant="contained" onClick={submitForm} color="primary">
-            {buttonText}
-          </Button>
-        </ButtonRow>
+        <ModalActionRow confirmText="Start Admission" onConfirm={submitForm} onCancel={onCancel} />
       </FormGrid>
     );
   };
