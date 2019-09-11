@@ -2,6 +2,9 @@ import React from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
+import { withStyles } from '@material-ui/core/styles';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import CalendarToday from '@material-ui/icons/CalendarToday';
 
 function toDate(momentValue, format) {
   return momentValue ? moment(momentValue, format).format(format) : '';
@@ -20,14 +23,32 @@ export const DateTimeInput = props => (
   <DateInput type="datetime-local" format="YYYY-MM-DDTHH:mm" {...props} />
 );
 
-export const DateInput = ({ value, format, onChange, ...props }) => (
+const dateStyles = () => ({
+  root: {
+    '& fieldset': {
+      marginRight: '14px', // offsets adornment padding
+    },
+  },
+  calendarIcon: {
+    color: '#cccccc',
+  },
+});
+
+export const DateInput = withStyles(dateStyles)(({ value, format, onChange, ...props }) => (
   <TextInput
     type="date"
     {...props}
     value={toDate(value, format)}
     onChange={e => onChange(fromDate(e, format))}
+    InputProps={{
+      startAdornment: (
+        <InputAdornment position="start">
+          <CalendarToday className={props.classes.calendarIcon} />
+        </InputAdornment>
+      ),
+    }}
   />
-);
+));
 
 export const DateField = ({ field, ...props }) => (
   <DateInput name={field.name} value={field.value} onChange={field.onChange} {...props} />

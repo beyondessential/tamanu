@@ -1,7 +1,7 @@
 import React from 'react';
 import MuiTextField from '@material-ui/core/TextField';
-import { withStyles } from '@material-ui/core';
 import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
 const styles = () => ({

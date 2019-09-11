@@ -1,6 +1,9 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
-import { Dialog as MuiDialog, DialogTitle, DialogActions, withStyles } from '@material-ui/core';
+import MuiDialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogActions from '@material-ui/core/DialogActions';
+import { withStyles } from '@material-ui/core/styles';
 
 const MODAL_PADDING = 32;
 

@@ -1,14 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Radio,
-  RadioGroup,
-  FormLabel,
-  FormControlLabel,
-  FormControl,
-  FormHelperText,
-  withStyles,
-} from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
 const styles = () => ({
   root: {
@@ -26,7 +24,7 @@ const styles = () => ({
     },
     '& span': {
       // targets: radio and label
-      padding: '0 3px 0 0',
+      padding: '0.5px 3px 0 0',
     },
     '&:not(:last-of-type)': {
       // targets: options
@@ -48,6 +46,7 @@ const styles = () => ({
   },
   radioGroup: {
     flexWrap: 'nowrap',
+    // height: '57px',
   },
   radio: {
     color: '#cccccc',
@@ -57,51 +56,36 @@ const styles = () => ({
       color: '#4285F4',
     },
   },
-  required: {
-    color: '#f76853',
-  },
-  label: {
-    // mui still overrides this style on the 'focused' class of the label,
-    // !important brute forces it into submission here.
-    color: '#666666 !important',
-    fontWeight: '500',
-  },
 });
 
 export const RadioInput = withStyles(styles)(
   ({ options, name, value, label, helperText, inline, style, classes, ...props }) => (
-    <FormControl style={style} className={classes.root} {...props}>
-      <FormLabel
-        classes={{
-          asterisk: classes.required,
-          root: classes.label,
-        }}
-      >
-        {label}
-      </FormLabel>
-      <RadioGroup
-        aria-label={name}
-        name={name}
-        value={value || ''}
-        className={classes.radioGroup}
-        style={{ flexDirection: inline ? 'row' : 'column' }}
-        {...props}
-      >
-        {options.map(option => (
-          <FormControlLabel
-            className={`${classes.labelControl} ${value === option.value &&
-              classes.checkedControl}`}
-            key={option.value}
-            control={
-              <Radio className={classes.radio} classes={{ checked: classes.checkedRadio }} />
-            }
-            label={option.label}
-            value={option.value}
-          />
-        ))}
-      </RadioGroup>
-      {helperText && <FormHelperText>{helperText}</FormHelperText>}
-    </FormControl>
+    <OuterLabelFieldWrapper label={label} {...props}>
+      <FormControl style={style} className={classes.root} {...props}>
+        <RadioGroup
+          aria-label={name}
+          name={name}
+          value={value || ''}
+          className={classes.radioGroup}
+          style={{ flexDirection: inline ? 'row' : 'column' }}
+          {...props}
+        >
+          {options.map(option => (
+            <FormControlLabel
+              className={`${classes.labelControl} ${value === option.value &&
+                classes.checkedControl}`}
+              key={option.value}
+              control={
+                <Radio className={classes.radio} classes={{ checked: classes.checkedRadio }} />
+              }
+              label={option.label}
+              value={option.value}
+            />
+          ))}
+        </RadioGroup>
+        {helperText && <FormHelperText>{helperText}</FormHelperText>}
+      </FormControl>
+    </OuterLabelFieldWrapper>
   ),
 );
 
