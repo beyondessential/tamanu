@@ -107,7 +107,6 @@ const TABS = [
   {
     label: 'Details',
     key: 'details',
-    render: () => <ContentPane>details</ContentPane>,
   },
   {
     label: 'Appointments',
@@ -122,7 +121,6 @@ const TABS = [
   {
     label: 'Documents',
     key: 'documents',
-    render: () => <ContentPane>documents</ContentPane>,
   },
 ];
 

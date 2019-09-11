@@ -63,12 +63,10 @@ const TABS = [
   {
     label: 'Notes',
     key: 'notes',
-    render: () => <ContentPane>Notes</ContentPane>,
   },
   {
     label: 'Procedures',
     key: 'procedures',
-    render: () => <ContentPane>Procedures</ContentPane>,
   },
   {
     label: 'Labs',
