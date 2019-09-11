@@ -7,24 +7,16 @@ import { displayId, firstName, lastName, culturalName, sex, dateOfBirth } from '
 import { PATIENT_SEARCH_ENDPOINT } from './constants';
 import { DropdownButton } from '../../components/DropdownButton';
 
-const DumbPatientActions = React.memo(({ onView, onAdmit, onTriage }) => (
-  <DropdownButton
-    actions={[
-      { label: "View", onClick: onView },
-      { label: "Admit", onClick: onAdmit },
-      { label: "Triage", onClick: onTriage },
-    ]}
-  />
-));
-
 const PatientActions = connect(
   null,
   (dispatch, { patient }) => ({
-    onView: () => dispatch(viewPatient(patient._id)),
-    onAdmit: () => dispatch(viewPatient(patient._id)),
-    onTriage: () => dispatch(viewPatient(patient._id)),
+    actions: [
+      { label: "View", onClick: () => dispatch(viewPatient(patient._id)) },
+      { label: "Admit", onClick: () => dispatch(viewPatient(patient._id)) },
+      { label: "Triage", onClick: () => dispatch(viewPatient(patient._id)) },
+    ]
   })
-)(DumbPatientActions);
+)(DropdownButton);
 
 const COLUMNS = [
   displayId,
