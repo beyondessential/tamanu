@@ -34,6 +34,14 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
 
   const [mainAction, ...otherActions] = actions;
 
+  if(!mainAction) {
+    return <Button {...props} variant="contained" disabled>No action</Button>;
+  }
+
+  if(otherActions.length === 0) {
+    return <Button {...props} variant="contained" color={color} onClick={event => handleClick(event, 0)}>{mainAction.label}</Button>;
+  }
+
   return (
     <span {...props}>
       <ButtonGroup variant="contained" color={color} ref={anchorRef} aria-label="split button">
