@@ -128,4 +128,4 @@ class DatepickerGroup extends Component {
   }
 }
 
-export default withTheme()(DatepickerGroup);
+export default withTheme(DatepickerGroup);

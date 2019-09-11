@@ -168,4 +168,4 @@ class Filters extends Component {
   }
 }
 
-export const ReportFilters = withTheme()(Filters);
+export const ReportFilters = withTheme(Filters);
