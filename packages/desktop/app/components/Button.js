@@ -125,7 +125,7 @@ export const NewButton = ({ children, ...props }) => (
 
 const textButtonStyles = theme => ({
   root: {
-    fontSize: theme.spacing.unit * 2,
+    fontSize: theme.spacing(2),
     textTransform: 'capitalize',
     fontWeight: 400,
     padding: 0,

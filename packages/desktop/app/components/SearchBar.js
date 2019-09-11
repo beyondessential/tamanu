@@ -16,12 +16,12 @@ const styles = theme => ({
     marginLeft: 0,
     width: '100%',
     [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing.unit,
+      marginLeft: theme.spacing(1),
       width: 'auto',
     },
   },
   searchIcon: {
-    width: theme.spacing.unit * 6,
+    width: theme.spacing(6),
     height: '100%',
     position: 'absolute',
     pointerEvents: 'none',
@@ -34,14 +34,14 @@ const styles = theme => ({
     width: '100%',
   },
   inputInput: {
-    paddingTop: theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit * 7,
+    paddingTop: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(7),
     transition: theme.transitions.create('width'),
     width: '100%',
-    lineHeight: `${theme.spacing.unit * 2}px`,
-    fontSize: `${theme.spacing.unit * 2}px`,
+    lineHeight: `${theme.spacing(2)}px`,
+    fontSize: `${theme.spacing(2)}px`,
     [theme.breakpoints.up('sm')]: {
       width: 120,
       '&:focus': {
