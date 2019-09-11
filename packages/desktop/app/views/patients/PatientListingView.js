@@ -19,7 +19,21 @@ const COLUMNS = [
   },
 ];
 
-const DumbPatientListingView = React.memo(({ handleRowClick }) => {
+const DumbPatientTable = React.memo(({ ...props }) => (
+  <DataFetchingTable
+    endpoint={PATIENT_SEARCH_ENDPOINT}
+    columns={COLUMNS}
+    noDataMessage="No patients found"
+    {...props}
+  />
+));
+
+export const PatientTable = connect(
+  null,
+  dispatch => ({ onRowClick: ({ _id }) => dispatch(viewPatient(_id)) }),
+)(DumbPatientTable);
+
+export const PatientListingView = React.memo(() => {
   const [searchParameters, setSearchParameters] = useState({});
   const [creatingPatient, setCreatingPatient] = useState(false);
 
@@ -35,13 +49,7 @@ const DumbPatientListingView = React.memo(({ handleRowClick }) => {
         </Button>
       </TopBar>
       <PatientSearchBar onSearch={setSearchParameters} />
-      <DataFetchingTable
-        endpoint={PATIENT_SEARCH_ENDPOINT}
-        columns={COLUMNS}
-        fetchOptions={searchParameters}
-        noDataMessage="No patients found"
-        onRowClick={handleRowClick}
-      />
+      <PatientTable fetchOptions={searchParameters} />
       <NewPatientModal
         title="New patient"
         open={creatingPatient}
@@ -51,7 +59,19 @@ const DumbPatientListingView = React.memo(({ handleRowClick }) => {
   );
 });
 
-export const PatientListingView = connect(
-  null,
-  dispatch => ({ handleRowClick: ({ _id }) => dispatch(viewPatient(_id)) }),
-)(DumbPatientListingView);
+export const AdmittedPatientsView = React.memo(() => {
+  const [searchParameters, setSearchParameters] = useState({});
+
+  const fullParameters = {
+    'visits.endDate': null,
+    ...searchParameters,
+  };
+
+  return (
+    <PageContainer>
+      <TopBar title="Admitted patient listing" />
+      <PatientSearchBar onSearch={setSearchParameters} />
+      <PatientTable fetchOptions={fullParameters} />
+    </PageContainer>
+  );
+});

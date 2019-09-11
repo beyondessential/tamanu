@@ -85,8 +85,8 @@ const BackLink = connect(
   dispatch => ({ onClick: () => dispatch(push('/patients/view')) }),
 )(({ onClick }) => <Button onClick={onClick}>&lt; Back to patient information</Button>);
 
-const getLocationName = ({ location }) => location ? location.name : "Unknown";
-const getExaminerName = ({ examiner }) => examiner ? examiner.displayName : "Unknown";
+const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
+const getExaminerName = ({ examiner }) => (examiner ? examiner.displayName : 'Unknown');
 
 const VisitInfoPane = React.memo(({ visit }) => (
   <FormGrid columns={3}>
