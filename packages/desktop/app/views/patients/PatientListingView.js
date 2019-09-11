@@ -11,11 +11,11 @@ const PatientActions = connect(
   null,
   (dispatch, { patient }) => ({
     actions: [
-      { label: "View", onClick: () => dispatch(viewPatient(patient._id)) },
-      { label: "Admit", onClick: () => dispatch(viewPatient(patient._id)) },
-      { label: "Triage", onClick: () => dispatch(viewPatient(patient._id)) },
-    ]
-  })
+      { label: 'View', onClick: () => dispatch(viewPatient(patient._id)) },
+      { label: 'Admit', onClick: () => dispatch(viewPatient(patient._id)) },
+      { label: 'Triage', onClick: () => dispatch(viewPatient(patient._id)) },
+    ],
+  }),
 )(DropdownButton);
 
 const COLUMNS = [
@@ -28,7 +28,7 @@ const COLUMNS = [
   {
     key: 'actions',
     title: 'Actions',
-    accessor: (row) => <PatientActions patient={row} />,
+    accessor: row => <PatientActions patient={row} />,
   },
 ];
 

@@ -48,7 +48,13 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
           <ArrowDropDownIcon />
         </Button>
       </ButtonGroup>
-      <Popper open={open} anchorEl={anchorRef.current} transition disablePortal style={{ zIndex: 10 }}>
+      <Popper
+        open={open}
+        anchorEl={anchorRef.current}
+        transition
+        disablePortal
+        style={{ zIndex: 10 }}
+      >
         {({ TransitionProps, placement }) => (
           <Grow
             {...TransitionProps}
