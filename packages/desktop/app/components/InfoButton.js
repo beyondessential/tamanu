@@ -11,7 +11,9 @@ const InfoIcon = styled.div`
   cursor: pointer;
   text-align: center;
   color: white;
-  vertical-align: super;
+  vertical-align: bottom;
+  top: -3px;
+  position: relative;
 `;
 
 export const InfoButton = ({ onClick }) => <InfoIcon onClick={onClick}>i</InfoIcon>;

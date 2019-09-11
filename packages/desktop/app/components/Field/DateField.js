@@ -2,8 +2,9 @@ import React from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
-import { InputAdornment, withStyles } from '@material-ui/core';
-import { CalendarToday } from '@material-ui/icons';
+import { withStyles } from '@material-ui/core/styles';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import CalendarToday from '@material-ui/icons/CalendarToday';
 
 function toDate(momentValue, format) {
   return momentValue ? moment(momentValue, format).format(format) : '';

@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Checkbox, FormControlLabel, withStyles } from '@material-ui/core';
-import { CheckBoxOutlined } from '@material-ui/icons';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import { withStyles } from '@material-ui/core/styles';
+import CheckBoxOutlined from '@material-ui/icons/CheckBoxOutlined';
 
 const inputStyles = () => ({
   root: {
