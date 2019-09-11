@@ -9,11 +9,12 @@ const TabContainer = styled(Tabs)`
 
 export const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect, ...tabProps }) => {
   const currentTabData = tabs.find(t => t.key === currentTab);
-  const buttons = tabs.map(({ key, label }) => (
+  const buttons = tabs.map(({ key, label, render }) => (
     <Tab
       key={key}
       style={{ minWidth: 'auto' }}
       label={label}
+      disabled={!render}
       value={key}
       onClick={() => onTabSelect(key)}
     />

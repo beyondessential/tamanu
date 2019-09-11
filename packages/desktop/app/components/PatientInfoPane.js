@@ -45,7 +45,7 @@ const PatientIssuesDisplay = memo(() => <InfoPaneList title="Other patient isues
 
 const Container = styled.div`
   background: #fff;
-  height: 100vh;
+  min-height: 100vh;
   border-right: 1px solid #dedede;
 `;
 
