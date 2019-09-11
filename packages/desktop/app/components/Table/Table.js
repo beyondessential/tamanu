@@ -39,7 +39,7 @@ const RowContainer = React.memo(({ children, onClick }) => (
 
 const Row = React.memo(({ columns, data, onClick }) => {
   const cells = columns.map(({ key, accessor, CellComponent, numeric }) => {
-    const value = accessor ? accessor(data) : data[key];
+    const value = accessor ? React.createElement(accessor, data) : data[key];
     return (
       <TableCell key={key} align={numeric ? 'right' : 'left'}>
         {CellComponent ? <CellComponent value={value} /> : value}
