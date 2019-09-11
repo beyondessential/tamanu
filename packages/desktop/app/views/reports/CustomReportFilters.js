@@ -165,4 +165,4 @@ class CustomFilters extends Component {
   }
 }
 
-export const CustomReportFilters = withTheme()(CustomFilters);
+export const CustomReportFilters = withTheme(CustomFilters);

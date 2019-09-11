@@ -27,7 +27,7 @@ const styles = theme => ({
   buttonBarItems: {
     marginLeft: '5px',
     boxShadow: 'none !important',
-    lineHeight: `${theme.spacing.unit * 2}px`,
+    lineHeight: `${theme.spacing(2)}px`,
   },
 });
 

@@ -95,4 +95,4 @@ class InputGroupNew extends Component {
   }
 }
 
-export default withTheme()(InputGroupNew);
+export default withTheme(InputGroupNew);

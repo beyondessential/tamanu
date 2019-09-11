@@ -29,7 +29,7 @@ storiesOf('Modal', module)
           <Button onClick={action('etendre')} variant="contained" color="secondary">
             Etendre
           </Button>
-          <Button onClick={action('relever')} variant="contained" color="tertiary">
+          <Button onClick={action('relever')} variant="contained">
             Relever
           </Button>
           <Button onClick={action('glisser')} variant="contained">
