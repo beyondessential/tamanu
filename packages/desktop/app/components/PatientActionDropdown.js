@@ -58,8 +58,8 @@ export const PatientActionDropdown = connect(
   }),
   (dispatch, { patient }) => ({
     onView: () => dispatch(viewPatient(patient._id)),
-    onAdmit: () => dispatch(viewPatient(patient._id)),
-    onDischarge: (visitId) => dispatch(viewPatientVisit(patient._id, visitId)),
-    onTriage: () => dispatch(viewPatient(patient._id)),
+    onAdmit: () => dispatch(viewPatient(patient._id, 'admit')),
+    onDischarge: (visitId) => dispatch(viewPatientVisit(patient._id, visitId, 'discharge')),
+    onTriage: () => dispatch(viewPatient(patient._id, 'triage')),
   })
 )(DumbPatientActionDropdown);

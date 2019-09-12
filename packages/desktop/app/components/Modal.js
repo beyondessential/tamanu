@@ -1,4 +1,9 @@
 import React, { memo } from 'react';
+
+import { connect } from 'react-redux';
+import { push } from 'connected-react-router';
+import { getCurrentRouteEndsWith } from '../store/router';
+
 import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -39,5 +44,15 @@ export const Modal = memo(
         </ModalContainer>
       </MuiDialog>
     );
+  }),
+);
+
+export const connectRoutedModal = (baseRoute, suffix) => connect(
+  state => ({
+    isModalOpen: getCurrentRouteEndsWith(state, suffix),
+  }),
+  dispatch => ({
+    onModalOpen: () => dispatch(push(`${baseRoute}/${suffix}`)),
+    onModalClose: () => dispatch(push(baseRoute)),
   }),
 );
