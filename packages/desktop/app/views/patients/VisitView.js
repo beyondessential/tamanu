@@ -21,8 +21,6 @@ import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
 import { visitOptions } from '../../constants';
 
-import { getCurrentRouteEndsWith } from '../../store/router';
-
 const VitalsPane = React.memo(({ visit }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
@@ -108,7 +106,7 @@ const RoutedDischargeModal = connectRoutedModal('/patients/visit', 'discharge')(
 
 const DischargeView = connect(
   null,
-  dispatch => ({ onModalOpen: () => dispatch(push('/patients/visit/discharge')) })
+  dispatch => ({ onModalOpen: () => dispatch(push('/patients/visit/discharge')) }),
 )(({ onModalOpen, visit }) => (
   <React.Fragment>
     <Button onClick={onModalOpen} disabled={!!visit.endDate}>

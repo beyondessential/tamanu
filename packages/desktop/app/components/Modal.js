@@ -2,13 +2,13 @@ import React, { memo } from 'react';
 
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
-import { getCurrentRouteEndsWith } from '../store/router';
 
 import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import { withStyles } from '@material-ui/core/styles';
+import { getCurrentRouteEndsWith } from '../store/router';
 
 const MODAL_PADDING = 32;
 
@@ -47,11 +47,12 @@ export const Modal = memo(
   }),
 );
 
-export const connectRoutedModal = (baseRoute, suffix) => connect(
-  state => ({
-    open: getCurrentRouteEndsWith(state, suffix),
-  }),
-  dispatch => ({
-    onClose: () => dispatch(push(baseRoute)),
-  }),
-);
+export const connectRoutedModal = (baseRoute, suffix) =>
+  connect(
+    state => ({
+      open: getCurrentRouteEndsWith(state, suffix),
+    }),
+    dispatch => ({
+      onClose: () => dispatch(push(baseRoute)),
+    }),
+  );

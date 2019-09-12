@@ -57,19 +57,9 @@ storiesOf('Buttons/DropdownButton', module)
     />
   ))
   .add('Only one action', () => (
-    <DropdownButton
-      color="primary"
-      actions={[
-        { label: 'Plier', onClick: action('plier') },
-      ]}
-    />
+    <DropdownButton color="primary" actions={[{ label: 'Plier', onClick: action('plier') }]} />
   ))
-  .add('No actions', () => (
-    <DropdownButton
-      color="primary"
-      actions={[ ]}
-    />
-  ))
+  .add('No actions', () => <DropdownButton color="primary" actions={[]} />)
   .add('With split color', () => (
     <DropdownButton
       color="primary"

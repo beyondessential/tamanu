@@ -20,7 +20,6 @@ import { connectRoutedModal } from '../../components/Modal';
 
 import { viewVisit } from '../../store/visit';
 
-import { getCurrentRouteEndsWith } from '../../store/router';
 import { getCurrentVisit } from '../../store/patient';
 
 const AppointmentPane = React.memo(({ patient }) => {
@@ -65,7 +64,6 @@ const RoutedTriageModal = connectRoutedModal('/patients/view', 'triage')(TriageM
 const HistoryPane = connect(
   state => ({
     visits: state.patient.visits,
-    patientId: state.patient._id,
     isCheckInAvailable: !getCurrentVisit(state),
   }),
   dispatch => ({
@@ -74,38 +72,29 @@ const HistoryPane = connect(
     onOpenTriage: () => dispatch(push('/patients/view/triage')),
   }),
 )(
-  React.memo(
-    ({
-      visits,
-      patientId,
-      onOpenCheckin,
-      onOpenTriage,
-      onViewVisit,
-      isCheckInAvailable,
-    }) => (
-      <div>
-        <ContentPane>
-          <Button
-            disabled={!isCheckInAvailable}
-            onClick={onOpenCheckin}
-            variant="contained"
-            color="primary"
-          >
-            Check in
-          </Button>
-          <Button
-            disabled={!isCheckInAvailable}
-            onClick={onOpenTriage}
-            variant="contained"
-            color="primary"
-          >
-            Triage
-          </Button>
-        </ContentPane>
-        <PatientHistory items={visits} onItemClick={item => onViewVisit(item._id)} />
-      </div>
-    ),
-  ),
+  React.memo(({ visits, onOpenCheckin, onOpenTriage, onViewVisit, isCheckInAvailable }) => (
+    <div>
+      <ContentPane>
+        <Button
+          disabled={!isCheckInAvailable}
+          onClick={onOpenCheckin}
+          variant="contained"
+          color="primary"
+        >
+          Check in
+        </Button>
+        <Button
+          disabled={!isCheckInAvailable}
+          onClick={onOpenTriage}
+          variant="contained"
+          color="primary"
+        >
+          Triage
+        </Button>
+      </ContentPane>
+      <PatientHistory items={visits} onItemClick={item => onViewVisit(item._id)} />
+    </div>
+  )),
 );
 
 const TABS = [
