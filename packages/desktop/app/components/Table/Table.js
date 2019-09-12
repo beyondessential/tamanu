@@ -6,6 +6,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { withStyles } from '@material-ui/core/styles';
 import MaterialTable from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -29,6 +30,10 @@ const StyledTableRow = styled(TableRow)`
   }
   `
       : ''}
+`;
+
+const StyledTableContainer = styled.div`
+  margin: 24px;
 `;
 
 const RowContainer = React.memo(({ children, onClick }) => (
@@ -61,7 +66,23 @@ const ErrorRow = React.memo(({ colSpan, children }) => (
   </RowContainer>
 ));
 
-export class Table extends React.Component {
+const tableStyles = () => ({
+  root: {
+    border: '1px solid #DEDEDE',
+    borderRadius: '3px 3px 0 0',
+    borderCollapse: 'unset',
+    background: '#fff',
+
+    '&:last-child': {
+      borderBottom: 'none',
+    },
+  },
+  tableHead: {
+    background: '#F3F5F7',
+  },
+});
+
+class TableComponent extends React.Component {
   static propTypes = {
     columns: PropTypes.arrayOf(
       PropTypes.shape({
@@ -180,15 +201,19 @@ export class Table extends React.Component {
   }
 
   render() {
-    const { page } = this.props;
+    const { page, classes } = this.props;
     return (
-      <MaterialTable>
-        <TableHead>
-          <TableRow>{this.renderHeaders()}</TableRow>
-        </TableHead>
-        <TableBody>{this.renderBodyContent()}</TableBody>
-        {page !== null && <TableFooter>{this.renderPaginator()}</TableFooter>}
-      </MaterialTable>
+      <StyledTableContainer>
+        <MaterialTable classes={{ root: classes.root }}>
+          <TableHead className={classes.tableHead}>
+            <TableRow>{this.renderHeaders()}</TableRow>
+          </TableHead>
+          <TableBody>{this.renderBodyContent()}</TableBody>
+          {page !== null && <TableFooter>{this.renderPaginator()}</TableFooter>}
+        </MaterialTable>
+      </StyledTableContainer>
     );
   }
 }
+
+export const Table = withStyles(tableStyles)(TableComponent);
