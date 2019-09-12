@@ -29,13 +29,15 @@ export const PatientSchema = {
 
     // has-many
     appointments: { type: 'list', objectType: 'appointment' },
-    additionalContacts: { type: 'list', objectType: 'patientContact' },
-    allergies: { type: 'list', objectType: 'patientAllergy' },
-    conditions: { type: 'list', objectType: 'condition' },
-    pregnancies: { type: 'list', objectType: 'pregnancy' },
-    surveyResponses: { type: 'list', objectType: 'surveyResponse' },
+    triages: { type: 'list', objectType: 'triage' },
     visits: { type: 'list', objectType: 'visit' },
     referrals: { type: 'list', objectType: 'referral' },
+    allergies: { type: 'list', objectType: 'patientAllergy' },
+    conditions: { type: 'list', objectType: 'condition' },
+
+    additionalContacts: { type: 'list', objectType: 'patientContact' },
+    pregnancies: { type: 'list', objectType: 'pregnancy' },
+    surveyResponses: { type: 'list', objectType: 'surveyResponse' },
     familyHistory: { type: 'list', objectType: 'familyHistoryItem' },
 
     ...defaults,
