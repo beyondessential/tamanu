@@ -24,31 +24,28 @@ export const DateTimeInput = props => (
 );
 
 const dateStyles = () => ({
-  root: {
-    '& fieldset': {
-      marginRight: '14px', // offsets adornment padding
-    },
-  },
-  calendarIcon: {
+  icon: {
     color: '#cccccc',
   },
 });
 
-export const DateInput = withStyles(dateStyles)(({ value, format, onChange, ...props }) => (
-  <TextInput
-    type="date"
-    {...props}
-    value={toDate(value, format)}
-    onChange={e => onChange(fromDate(e, format))}
-    InputProps={{
-      startAdornment: (
-        <InputAdornment position="start">
-          <CalendarToday className={props.classes.calendarIcon} />
-        </InputAdornment>
-      ),
-    }}
-  />
-));
+export const DateInput = withStyles(dateStyles)(
+  ({ value, format, onChange, classes, ...props }) => (
+    <TextInput
+      type="date"
+      {...props}
+      value={toDate(value, format)}
+      onChange={e => onChange(fromDate(e, format))}
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">
+            <CalendarToday classes={{ root: classes.icon }} />
+          </InputAdornment>
+        ),
+      }}
+    />
+  ),
+);
 
 export const DateField = ({ field, ...props }) => (
   <DateInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
