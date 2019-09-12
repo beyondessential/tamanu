@@ -10,6 +10,7 @@ import { PatientHistory } from '../../components/PatientHistory';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { ContentPane } from '../../components/ContentPane';
 import { VisitModal } from '../../components/VisitModal';
+import { TriageModal } from '../../components/TriageModal';
 import { ReferralModal } from '../../components/ReferralModal';
 import { ReferralTable } from '../../components/ReferralTable';
 import { AppointmentModal } from '../../components/AppointmentModal';
@@ -59,7 +60,7 @@ const ReferralPane = React.memo(({ patient }) => {
 });
 
 const RoutedVisitModal = connectRoutedModal('/patients/view', 'checkin')(VisitModal);
-const RoutedTriageModal = connectRoutedModal('/patients/view', 'triage')(VisitModal);
+const RoutedTriageModal = connectRoutedModal('/patients/view', 'triage')(TriageModal);
 
 const HistoryPane = connect(
   state => ({
@@ -69,16 +70,16 @@ const HistoryPane = connect(
   }),
   dispatch => ({
     onViewVisit: id => dispatch(viewVisit(id)),
-    onModalOpen: () => dispatch(push('/patients/view/checkin')),
+    onOpenCheckin: () => dispatch(push('/patients/view/checkin')),
+    onOpenTriage: () => dispatch(push('/patients/view/triage')),
   }),
 )(
   React.memo(
     ({
       visits,
       patientId,
-      isModalOpen,
-      onModalClose,
-      onModalOpen,
+      onOpenCheckin,
+      onOpenTriage,
       onViewVisit,
       isCheckInAvailable,
     }) => (
@@ -86,11 +87,19 @@ const HistoryPane = connect(
         <ContentPane>
           <Button
             disabled={!isCheckInAvailable}
-            onClick={onModalOpen}
+            onClick={onOpenCheckin}
             variant="contained"
             color="primary"
           >
             Check in
+          </Button>
+          <Button
+            disabled={!isCheckInAvailable}
+            onClick={onOpenTriage}
+            variant="contained"
+            color="primary"
+          >
+            Triage
           </Button>
         </ContentPane>
         <PatientHistory items={visits} onItemClick={item => onViewVisit(item._id)} />
