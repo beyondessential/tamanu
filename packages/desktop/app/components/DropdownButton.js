@@ -11,13 +11,13 @@ import MenuList from '@material-ui/core/MenuList';
 
 // mostly cribbed from the mui example at https://material-ui.com/components/buttons/#split-button
 
-export const DropdownButton = React.memo(({ options, color, dropdownColor, ...props }) => {
+export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...props }) => {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
 
   function handleClick(event, index) {
     setOpen(false);
-    options[index].onClick(event);
+    actions[index].onClick(event);
   }
 
   function handleToggle() {
@@ -32,12 +32,12 @@ export const DropdownButton = React.memo(({ options, color, dropdownColor, ...pr
     setOpen(false);
   }
 
-  const [mainOption, ...otherOptions] = options;
+  const [mainAction, ...otherActions] = actions;
 
   return (
     <span {...props}>
       <ButtonGroup variant="contained" color={color} ref={anchorRef} aria-label="split button">
-        <Button onClick={event => handleClick(event, 0)}>{mainOption.label}</Button>
+        <Button onClick={event => handleClick(event, 0)}>{mainAction.label}</Button>
         <Button
           color={dropdownColor || color}
           size="small"
@@ -48,7 +48,13 @@ export const DropdownButton = React.memo(({ options, color, dropdownColor, ...pr
           <ArrowDropDownIcon />
         </Button>
       </ButtonGroup>
-      <Popper open={open} anchorEl={anchorRef.current} transition disablePortal>
+      <Popper
+        open={open}
+        anchorEl={anchorRef.current}
+        transition
+        disablePortal
+        style={{ zIndex: 10 }}
+      >
         {({ TransitionProps, placement }) => (
           <Grow
             {...TransitionProps}
@@ -59,13 +65,13 @@ export const DropdownButton = React.memo(({ options, color, dropdownColor, ...pr
             <Paper id="menu-list-grow">
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList>
-                  {otherOptions.map((option, index) => (
+                  {otherActions.map((action, index) => (
                     <MenuItem
-                      key={option.label}
-                      disabled={!option.onClick}
+                      key={action.label}
+                      disabled={!action.onClick}
                       onClick={event => handleClick(event, index + 1)}
                     >
-                      {option.label}
+                      {action.label}
                     </MenuItem>
                   ))}
                 </MenuList>
