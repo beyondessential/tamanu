@@ -15,6 +15,7 @@ import { ReferralTable } from '../../components/ReferralTable';
 import { AppointmentModal } from '../../components/AppointmentModal';
 import { AppointmentTable } from '../../components/AppointmentTable';
 import { Button } from '../../components/Button';
+import { connectRoutedModal } from '../../components/Modal';
 
 import { viewVisit } from '../../store/visit';
 
@@ -57,17 +58,19 @@ const ReferralPane = React.memo(({ patient }) => {
   );
 });
 
+const RoutedVisitModal = connectRoutedModal('/patients/view', 'checkin')(({
+  isModalOpen, onModalClose, patientId,
+}) => <VisitModal open={isModalOpen} onClose={onModalClose} patientId={patientId} />);
+
 const HistoryPane = connect(
   state => ({
     visits: state.patient.visits,
     patientId: state.patient._id,
-    isModalOpen: getCurrentRouteEndsWith(state, 'checkin'),
     isCheckInAvailable: !getCurrentVisit(state),
   }),
   dispatch => ({
     onViewVisit: id => dispatch(viewVisit(id)),
     onModalOpen: () => dispatch(push('/patients/view/checkin')),
-    onModalClose: () => dispatch(push('/patients/view')),
   }),
 )(
   React.memo(
@@ -81,7 +84,6 @@ const HistoryPane = connect(
       isCheckInAvailable,
     }) => (
       <div>
-        <VisitModal open={isModalOpen} onClose={onModalClose} patientId={patientId} />
         <ContentPane>
           <Button
             disabled={!isCheckInAvailable}
@@ -140,6 +142,7 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
           />
         </TwoColumnDisplay>
       </LoadingIndicator>
+      <RoutedVisitModal patientId={patient._id} />
     </React.Fragment>
   );
 });
