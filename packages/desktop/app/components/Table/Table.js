@@ -33,7 +33,7 @@ const StyledTableRow = styled(TableRow)`
 `;
 
 const StyledTableContainer = styled.div`
-  margin: 24px;
+  margin: 1rem;
 `;
 
 const RowContainer = React.memo(({ children, onClick }) => (
