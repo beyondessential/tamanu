@@ -33,7 +33,7 @@ const StyledTableRow = styled(TableRow)`
 `;
 
 const StyledTableContainer = styled.div`
-  margin: 24px;
+  margin: 1rem;
 `;
 
 const RowContainer = React.memo(({ children, onClick }) => (
@@ -195,6 +195,7 @@ class TableComponent extends React.Component {
           rowsPerPage={rowsPerPage}
           onChangePage={this.handleChangePage}
           onChangeRowsPerPage={this.handleChangeRowsPerPage}
+          y
         />
       </TableRow>
     );
