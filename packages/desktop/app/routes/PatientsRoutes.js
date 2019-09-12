@@ -3,6 +3,7 @@ import { Route, Switch } from 'react-router-dom';
 
 import {
   PatientListingView,
+  TriageListingView,
   AdmittedPatientsView,
   PatientView,
   VisitView,
@@ -15,6 +16,8 @@ export const PatientsRoutes = React.memo(({ match }) => {
     <div>
       <Switch>
         <Route exact path={match.path} component={PatientListingView} />
+
+        <Route path={`${match.path}/triage`} component={TriageListingView} />
 
         <Route path={`${match.path}/admitted`} component={AdmittedPatientsView} />
         <Route path={`${match.path}/new`} component={NotActiveView} />

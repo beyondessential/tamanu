@@ -13,8 +13,8 @@ export const TriageSchema = {
     practitioner: 'user?',
 
     score: 'string',
-
-    note: 'string',
+    status: { type: 'string', default: 'waiting' },
+    note: { type: 'string', default: '' },
 
     // reverse links
     patient: { type: 'linkingObjects', objectType: 'patient', property: 'triages' },

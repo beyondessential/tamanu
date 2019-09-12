@@ -36,6 +36,12 @@ export const items = [
         ability: { action: 'read' },
       },
       {
+        label: 'Emergency',
+        path: '/patients/triage',
+        icon: submenuIcons.table,
+        ability: { action: 'read' },
+      },
+      {
         label: 'Admitted Patients',
         path: '/patients/admitted',
         icon: submenuIcons.table,

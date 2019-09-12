@@ -11,7 +11,6 @@ patientRoutes.post('/patient/:id/triages', (req, res) => {
   const triage = {
     _id: shortid(),
     arrivalTime: req.body.triageTime,
-    note: '',
     ...req.body,
   };
 
