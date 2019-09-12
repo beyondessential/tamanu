@@ -34,7 +34,6 @@ export const DateInput = withStyles(dateStyles)(
     <TextInput
       type="date"
       {...props}
-      classes={{ root: classes.root }}
       value={toDate(value, format)}
       onChange={e => onChange(fromDate(e, format))}
       InputProps={{
