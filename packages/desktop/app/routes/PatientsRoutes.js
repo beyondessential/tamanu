@@ -11,22 +11,20 @@ import {
   LabRequestView,
 } from '../views';
 
-export const PatientsRoutes = React.memo(({ match }) => {
-  return (
-    <div>
-      <Switch>
-        <Route exact path={match.path} component={PatientListingView} />
+export const PatientsRoutes = React.memo(({ match }) => (
+  <div>
+    <Switch>
+      <Route exact path={match.path} component={PatientListingView} />
 
-        <Route path={`${match.path}/triage`} component={TriageListingView} />
+      <Route path={`${match.path}/triage`} component={TriageListingView} />
 
-        <Route path={`${match.path}/admitted`} component={AdmittedPatientsView} />
-        <Route path={`${match.path}/new`} component={NotActiveView} />
+      <Route path={`${match.path}/admitted`} component={AdmittedPatientsView} />
+      <Route path={`${match.path}/new`} component={NotActiveView} />
 
-        <Route path={`${match.path}/view`} component={PatientView} />
-        <Route path={`${match.path}/visit/labRequest`} component={LabRequestView} />
-        <Route path={`${match.path}/visit`} component={VisitView} />
-        <NotActiveView />
-      </Switch>
-    </div>
-  );
-});
+      <Route path={`${match.path}/view`} component={PatientView} />
+      <Route path={`${match.path}/visit/labRequest`} component={LabRequestView} />
+      <Route path={`${match.path}/visit`} component={VisitView} />
+      <NotActiveView />
+    </Switch>
+  </div>
+));

@@ -51,7 +51,7 @@ const Row = React.memo(({ columns, data, onClick }) => {
           {CellComponent ? <CellComponent value={value} /> : value}
         </TableCell>
       );
-    } catch(e) {
+    } catch (e) {
       console.error(e);
       return <TableCell key={key}>ERR</TableCell>;
     }

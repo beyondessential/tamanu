@@ -1,6 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { TopBar, PageContainer, Button, DataFetchingTable } from '../components';
-import { PatientActionDropdown } from '../components/PatientActionDropdown';
+import React from 'react';
+import { TopBar, PageContainer, DataFetchingTable } from '../components';
 import { DateDisplay } from '../components/DateDisplay';
 import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
 
@@ -13,11 +12,6 @@ const COLUMNS = [
   { key: 'status', title: 'Status' },
   { key: 'location', title: 'Location', accessor: row => row.location.name },
   { key: 'waitingTime', title: 'Waiting time', accessor: row => <LiveDurationDisplay startTime={row.triageTime} /> },
-  {
-    key: 'actions',
-    title: 'Actions',
-    accessor: row => (<div></div>),
-  },
 ];
 
 const TriageTable = React.memo(({ ...props }) => (
@@ -30,17 +24,10 @@ const TriageTable = React.memo(({ ...props }) => (
 ));
 
 export const TriageListingView = React.memo(() => {
-  const [searchParameters, setSearchParameters] = useState({});
-  const [creatingPatient, setCreatingPatient] = useState(false);
-
-  const toggleCreatingPatient = useCallback(() => {
-    setCreatingPatient(!creatingPatient);
-  }, [creatingPatient]);
-
   return (
     <PageContainer>
       <TopBar title="Emergency waiting list" />
-      <TriageTable fetchOptions={searchParameters} />
+      <TriageTable />
     </PageContainer>
   );
 });

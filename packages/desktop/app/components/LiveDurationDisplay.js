@@ -15,8 +15,8 @@ export const LiveDurationDisplay = React.memo(({ startTime }) => {
 
   const time = new Date() - new Date(startTime);
   const hours = Math.floor(time / HOUR);
-  const minutes = Math.floor((time - (hours * HOUR)) / MINUTE);
-  if(hours === 0) {
+  const minutes = Math.floor((time - hours * HOUR) / MINUTE);
+  if (hours === 0) {
     return <span>{`${minutes}m`}</span>;
   }
   return <span>{`${hours}h : ${minutes}m`}</span>;
