@@ -195,7 +195,6 @@ class TableComponent extends React.Component {
           rowsPerPage={rowsPerPage}
           onChangePage={this.handleChangePage}
           onChangeRowsPerPage={this.handleChangeRowsPerPage}
-          y
         />
       </TableRow>
     );
