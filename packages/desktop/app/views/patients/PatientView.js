@@ -58,9 +58,8 @@ const ReferralPane = React.memo(({ patient }) => {
   );
 });
 
-const RoutedVisitModal = connectRoutedModal('/patients/view', 'checkin')(({
-  isModalOpen, onModalClose, patientId,
-}) => <VisitModal open={isModalOpen} onClose={onModalClose} patientId={patientId} />);
+const RoutedVisitModal = connectRoutedModal('/patients/view', 'checkin')(VisitModal);
+const RoutedTriageModal = connectRoutedModal('/patients/view', 'triage')(VisitModal);
 
 const HistoryPane = connect(
   state => ({
@@ -143,6 +142,7 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
         </TwoColumnDisplay>
       </LoadingIndicator>
       <RoutedVisitModal patientId={patient._id} />
+      <RoutedTriageModal patientId={patient._id} />
     </React.Fragment>
   );
 });

@@ -49,10 +49,9 @@ export const Modal = memo(
 
 export const connectRoutedModal = (baseRoute, suffix) => connect(
   state => ({
-    isModalOpen: getCurrentRouteEndsWith(state, suffix),
+    open: getCurrentRouteEndsWith(state, suffix),
   }),
   dispatch => ({
-    onModalOpen: () => dispatch(push(`${baseRoute}/${suffix}`)),
-    onModalClose: () => dispatch(push(baseRoute)),
+    onClose: () => dispatch(push(baseRoute)),
   }),
 );

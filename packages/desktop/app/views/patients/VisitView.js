@@ -104,14 +104,17 @@ const VisitInfoPane = React.memo(({ visit }) => (
   </FormGrid>
 ));
 
-const DischargeView = connectRoutedModal(
-  '/patients/visit', 'discharge'
-)(({ isModalOpen, onModalOpen, onModalClose, visit }) => (
+const RoutedDischargeModal = connectRoutedModal('/patients/visit', 'discharge')(DischargeModal);
+
+const DischargeView = connect(
+  null,
+  dispatch => ({ onModalOpen: () => dispatch(push('/patients/visit/discharge')) })
+)(({ onModalOpen, visit }) => (
   <React.Fragment>
     <Button onClick={onModalOpen} disabled={!!visit.endDate}>
       Discharge patient
     </Button>
-    <DischargeModal open={isModalOpen} onClose={onModalClose} visit={visit} />
+    <RoutedDischargeModal visit={visit} />
   </React.Fragment>
 ));
 
