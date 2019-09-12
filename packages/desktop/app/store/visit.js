@@ -6,9 +6,9 @@ import { createReducer } from '../utils/createReducer';
 const VISIT_LOAD_START = 'VISIT_LOAD_START';
 const VISIT_LOAD_FINISH = 'VISIT_LOAD_FINISH';
 
-export const viewVisit = id => async dispatch => {
+export const viewVisit = (id, modal) => async dispatch => {
   dispatch(reloadVisit(id));
-  dispatch(push('/patients/visit'));
+  dispatch(push(`/patients/visit/${modal}`));
 };
 
 export const reloadVisit = id => async (dispatch, getState, { api }) => {
