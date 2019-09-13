@@ -17,10 +17,7 @@ import { VitalsModal } from '../../components/VitalsModal';
 import { VitalsTable } from '../../components/VitalsTable';
 import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
-
-import { Table } from '../../components/Table';
-import { DateDisplay } from '../../components/DateDisplay';
-import {noteTypes } from '../../constants';
+import { NoteTable } from '../../components/NoteTable';
 
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
@@ -42,26 +39,13 @@ const VitalsPane = React.memo(({ visit }) => {
   );
 });
 
-const getTypeLabel = ({ type }) => noteTypes.find(x => x.value === type).label;
-
-const NotesTable = ({ notes }) => (
-  <Table
-    columns={[
-      { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
-      { key: 'type', title: 'Type', accessor: getTypeLabel },
-      { key: 'content', title: 'Content' },
-    ]}
-    data={notes}
-  />
-);
-
 const NotesPane = React.memo(({ visit }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
     <div>
       <NoteModal open={modalOpen} visitId={visit._id} onClose={() => setModalOpen(false)} />
-      <NotesTable notes={visit.notes} />
+      <NoteTable notes={visit.notes} />
       <ContentPane>
         <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
           New note 
