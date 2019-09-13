@@ -5,26 +5,13 @@ export const NoteSchema = {
   primaryKey: '_id',
   properties: {
     _id: 'string',
-    attribution: {
-      type: 'string',
-      optional: true,
-    },
-    content: {
-      type: 'string',
-      optional: true,
-    },
-    createdBy: {
-      type: 'string',
-      optional: true,
-    },
-    date: {
-      type: 'date',
-      default: new Date(),
-    },
-    noteType: {
-      type: 'string',
-      optional: true,
-    },
+
+    author: 'user',
+    type: 'string',
+    content: 'string',
+    priority: { type: 'bool', default: 'false' },
+    date: { type: 'date', default: new Date(), },
+    
     ...defaults,
   },
 };

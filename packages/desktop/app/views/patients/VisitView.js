@@ -16,6 +16,9 @@ import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { VitalsModal } from '../../components/VitalsModal';
 import { VitalsTable } from '../../components/VitalsTable';
 import { connectRoutedModal } from '../../components/Modal';
+import { NoteModal } from '../../components/NoteModal';
+
+import { Table } from '../../components/Table';
 
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
@@ -31,6 +34,33 @@ const VitalsPane = React.memo(({ visit }) => {
       <ContentPane>
         <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
           Record vitals
+        </Button>
+      </ContentPane>
+    </div>
+  );
+});
+
+const NotesTable = ({ notes }) => (
+  <Table
+    columns={[
+      { key: '_id', label: 'ID' },
+      { key: 'type', label: 'Type' },
+      { key: 'content', label: 'Content' },
+    ]}
+    data={notes}
+  />
+);
+
+const NotesPane = React.memo(({ visit }) => {
+  const [modalOpen, setModalOpen] = React.useState(false);
+
+  return (
+    <div>
+      <NoteModal open={modalOpen} visitId={visit._id} onClose={() => setModalOpen(false)} />
+      <NotesTable notes={visit.notes} />
+      <ContentPane>
+        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+          New note 
         </Button>
       </ContentPane>
     </div>
@@ -62,6 +92,7 @@ const TABS = [
   {
     label: 'Notes',
     key: 'notes',
+    render: ({ visit }) => <NotesPane visit={visit} />,
   },
   {
     label: 'Procedures',
@@ -75,7 +106,6 @@ const TABS = [
   {
     label: 'Documents',
     key: 'documents',
-    render: () => <ContentPane>Documents</ContentPane>,
   },
 ];
 
