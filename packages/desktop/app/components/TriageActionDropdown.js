@@ -4,8 +4,13 @@ import { DropdownButton } from './DropdownButton';
 
 import { getCurrentRoute } from '../store/router';
 import { viewPatient } from '../store/patient';
+import { viewVisit } from '../store/visit';
 
-const DumbTriageActionDropdown = React.memo(({ onDischarge, onAdmit }) => {
+const DumbTriageActionDropdown = React.memo(({ triage, onDischarge, onAdmit, onViewVisit }) => {
+  if(triage.visit) {
+    return <DropdownButton actions={[{ label: "View visit", onClick: onViewVisit }]} />;
+  }
+
   const actions = [
     {
       label: 'See patient',
@@ -21,11 +26,10 @@ const DumbTriageActionDropdown = React.memo(({ onDischarge, onAdmit }) => {
 });
 
 export const TriageActionDropdown = connect(
-  state => ({
-    isOnPatientPage: getCurrentRoute(state) === '/patients/view',
-  }),
+  null,
   (dispatch, { triage }) => ({
     onAdmit: () => dispatch(viewPatient(triage.patient[0]._id, `checkin/triage`)),
+    onViewVisit: () => dispatch(viewVisit(triage.visit._id)),
     onDischarge: () => console.log('TODO: cancel triage without visit'),
   }),
 )(DumbTriageActionDropdown);
