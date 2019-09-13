@@ -48,7 +48,7 @@ const NotesPane = React.memo(({ visit }) => {
       <NoteTable notes={visit.notes} />
       <ContentPane>
         <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
-          New note 
+          New note
         </Button>
       </ContentPane>
     </div>

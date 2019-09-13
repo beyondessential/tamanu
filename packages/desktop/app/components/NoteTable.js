@@ -12,10 +12,4 @@ const COLUMNS = [
   { key: 'content', title: 'Content' },
 ];
 
-export const NoteTable = React.memo(({ notes }) => (
-  <Table
-    columns={COLUMNS}
-    data={notes}
-  />
-));
-
+export const NoteTable = React.memo(({ notes }) => <Table columns={COLUMNS} data={notes} />);

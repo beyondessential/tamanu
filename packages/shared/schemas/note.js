@@ -10,8 +10,8 @@ export const NoteSchema = {
     type: 'string',
     content: 'string',
     priority: { type: 'bool', default: false },
-    date: { type: 'date', default: new Date(), },
-    
+    date: { type: 'date', default: new Date() },
+
     ...defaults,
   },
 };
