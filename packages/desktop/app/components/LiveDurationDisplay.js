@@ -7,7 +7,7 @@ export const LiveDurationDisplay = React.memo(({ startTime, endTime }) => {
   const [_, updateState] = React.useState({});
 
   // recalculate every 30 seconds
-  if(!endTime) {
+  if (!endTime) {
     React.useEffect(() => {
       const interval = setInterval(() => updateState({}), MINUTE * 0.5);
 

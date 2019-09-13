@@ -36,7 +36,7 @@ patientRoutes.post('/patient/:id/visits', (req, res) => {
   db.write(() => {
     patient.visits = [...patient.visits, visit];
 
-    if(triage) {
+    if (triage) {
       triage.visit = visit;
       triage.closedTime = new Date();
     }

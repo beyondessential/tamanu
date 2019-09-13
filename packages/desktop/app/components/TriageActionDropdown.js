@@ -5,22 +5,20 @@ import { DropdownButton } from './DropdownButton';
 import { getCurrentRoute } from '../store/router';
 import { viewPatient } from '../store/patient';
 
-const DumbTriageActionDropdown = React.memo(
-  ({ onDischarge, onAdmit }) => {
-    const actions = [
-      {
-        label: 'See patient',
-        onClick: () => onAdmit(),
-      },
-      {
-        label: 'Discharge',
-        onClick: onDischarge,
-      }
-    ];
+const DumbTriageActionDropdown = React.memo(({ onDischarge, onAdmit }) => {
+  const actions = [
+    {
+      label: 'See patient',
+      onClick: () => onAdmit(),
+    },
+    {
+      label: 'Discharge',
+      onClick: onDischarge,
+    },
+  ];
 
-    return <DropdownButton actions={actions} color="primary" />;
-  },
-);
+  return <DropdownButton actions={actions} color="primary" />;
+});
 
 export const TriageActionDropdown = connect(
   state => ({
@@ -28,6 +26,6 @@ export const TriageActionDropdown = connect(
   }),
   (dispatch, { triage }) => ({
     onAdmit: () => dispatch(viewPatient(triage.patient[0]._id, `checkin/triage`)),
-    onDischarge: () => console.log("TODO: cancel triage without visit"),
+    onDischarge: () => console.log('TODO: cancel triage without visit'),
   }),
 )(DumbTriageActionDropdown);
