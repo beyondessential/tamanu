@@ -176,6 +176,19 @@ export const diagnosisCertainty = [
   { value: 'confirmed', label: 'Confirmed' },
 ];
 
+export const noteTypes = [
+  { value: 'treatmentPlan', label: 'Treatment plan' },
+  { value: 'medical', label: 'Medical' },
+  { value: 'surgical', label: 'Surgical' },
+  { value: 'nursing', label: 'Nursing' },
+  { value: 'dietary', label: 'Dietary' },
+  { value: 'pharmacy', label: 'Pharmacy' },
+  { value: 'physiotherapy', label: 'Physiotherapy' },
+  { value: 'social', label: 'Social welfare' },
+  { value: 'discharge', label: 'Discharge planning' },
+  { value: 'other', label: 'Other' },
+];
+
 export const visitOptions = [
   { value: 'admission', label: 'Admission' },
   { value: 'clinic', label: 'Clinic' },

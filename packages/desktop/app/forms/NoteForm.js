@@ -16,18 +16,7 @@ import {
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
-const noteTypes = [
-  { value: 'treatmentPlan', label: 'Treatment plan' },
-  { value: 'medical', label: 'Medical' },
-  { value: 'surgical', label: 'Surgical' },
-  { value: 'nursing', label: 'Nursing' },
-  { value: 'dietary', label: 'Dietary' },
-  { value: 'pharmacy', label: 'Pharmacy' },
-  { value: 'physiotherapy', label: 'Physiotherapy' },
-  { value: 'social', label: 'Social welfare' },
-  { value: 'discharge', label: 'Discharge planning' },
-  { value: 'other', label: 'Other' },
-];
+import { noteTypes } from '../constants';
 
 export class NoteForm extends React.PureComponent {
   static propTypes = {
