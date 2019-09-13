@@ -2,6 +2,7 @@ import React from 'react';
 import { TopBar, PageContainer, DataFetchingTable } from '../components';
 import { DateDisplay } from '../components/DateDisplay';
 import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
+import { TriageActionDropdown } from '../components/TriageActionDropdown';
 
 const COLUMNS = [
   { key: '_id', title: 'ID' },
@@ -12,6 +13,7 @@ const COLUMNS = [
   { key: 'status', title: 'Status' },
   { key: 'location', title: 'Location', accessor: row => row.location.name },
   { key: 'waitingTime', title: 'Waiting time', accessor: row => <LiveDurationDisplay startTime={row.triageTime} /> },
+  { key: 'actions', title: 'Actions', accessor: row => <TriageActionDropdown triage={row} /> },
 ];
 
 const TriageTable = React.memo(({ ...props }) => (

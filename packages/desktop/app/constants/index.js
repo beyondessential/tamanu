@@ -182,6 +182,7 @@ export const visitOptions = [
   { value: 'imaging', label: 'Imaging' },
   { value: 'lab', label: 'Lab' },
   { value: 'emergency', label: 'Emergency' },
+  { value: 'observation', label: 'Observation' },
 ];
 
 export const operativePlanStatuses = {
