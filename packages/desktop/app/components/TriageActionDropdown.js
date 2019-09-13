@@ -9,16 +9,8 @@ const DumbTriageActionDropdown = React.memo(
   ({ onDischarge, onAdmit }) => {
     const actions = [
       {
-        label: 'Admit (ED)',
-        onClick: () => onAdmit('emergency'),
-      },
-      {
-        label: 'Admit (Hospital)',
-        onClick: () => onAdmit('hospital'),
-      },
-      {
-        label: 'Observation',
-        onClick: () => onAdmit('observation'),
+        label: 'See patient',
+        onClick: () => onAdmit(),
       },
       {
         label: 'Discharge',
@@ -35,7 +27,7 @@ export const TriageActionDropdown = connect(
     isOnPatientPage: getCurrentRoute(state) === '/patients/view',
   }),
   (dispatch, { triage }) => ({
-    onAdmit: type => dispatch(viewPatient(triage.patient[0]._id, `checkin/${type}`)),
+    onAdmit: () => dispatch(viewPatient(triage.patient[0]._id, `checkin/triage`)),
     onDischarge: () => console.log("TODO: cancel triage without visit"),
   }),
 )(DumbTriageActionDropdown);

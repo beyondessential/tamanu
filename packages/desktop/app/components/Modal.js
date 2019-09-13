@@ -8,7 +8,7 @@ import MuiDialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import { withStyles } from '@material-ui/core/styles';
-import { getCurrentRouteEndsWith } from '../store/router';
+import { getCurrentRoute } from '../store/router';
 
 const MODAL_PADDING = 32;
 
@@ -50,7 +50,7 @@ export const Modal = memo(
 export const connectRoutedModal = (baseRoute, suffix) =>
   connect(
     state => ({
-      open: getCurrentRouteEndsWith(state, suffix),
+      open: getCurrentRoute(state).startsWith(`${baseRoute}/${suffix}`),
     }),
     dispatch => ({
       onClose: () => dispatch(push(baseRoute)),

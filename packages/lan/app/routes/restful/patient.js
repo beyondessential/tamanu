@@ -29,8 +29,17 @@ patientRoutes.post('/patient/:id/visits', (req, res) => {
     ...req.body,
   };
 
+  // check if there's an open triage - if there is, close it with
+  // this visit.
+  const triage = patient.triages.filtered('visit == null')[0];
+
   db.write(() => {
     patient.visits = [...patient.visits, visit];
+
+    if(triage) {
+      triage.visit = visit;
+      triage.closedTime = new Date();
+    }
   });
 
   res.send(visit);

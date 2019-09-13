@@ -7,6 +7,21 @@ import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
 import { TriageActionDropdown } from '../components/TriageActionDropdown';
 import { triagePriorities } from '../constants';
 
+const StatusDisplay = React.memo(({ status, visit, closedTime }) => {
+  if(!closedTime) {
+    return 'Waiting';
+  }
+
+  if(visit) {
+    if(visit.visitType === 'observation') {
+      return 'Seen';
+    }
+    return 'Admitted';
+  }
+
+  return 'Discharged';
+});
+
 const PriorityText = styled.span`
   color: ${ p => p.color };
 `;
@@ -24,9 +39,9 @@ const COLUMNS = [
   { key: 'patientDoB', title: 'Date of birth', accessor: row => <DateDisplay date={row.patient[0].dateOfBirth} /> },
   { key: 'patientSex', title: 'Sex', accessor: row => row.patient[0].sex },
   { key: 'score', title: 'Triage score', accessor: row => <PriorityDisplay score={row.score} /> },
-  { key: 'status', title: 'Status' },
+  { key: 'status', title: 'Status', accessor: row => <StatusDisplay status={row.status} visit={row.visit} closedTime={row.closedTime} /> },
   { key: 'location', title: 'Location', accessor: row => row.location.name },
-  { key: 'waitingTime', title: 'Waiting time', accessor: row => <LiveDurationDisplay startTime={row.triageTime} /> },
+  { key: 'waitingTime', title: 'Waiting time', accessor: row => <LiveDurationDisplay startTime={row.triageTime} endTime={row.closedTime} /> },
   { key: 'actions', title: 'Actions', accessor: row => <TriageActionDropdown triage={row} /> },
 ];
 
