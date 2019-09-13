@@ -5,6 +5,24 @@ import { objectToJSON } from '../../utils';
 
 export const visitRoutes = express.Router();
 
+visitRoutes.post('/visit/:id/note', (req, res) => {
+  const db = req.app.get('database');
+  const visit = db.objectForPrimaryKey('visit', req.params.id);
+  const note = {
+    _id: shortid(),
+    ...req.body,
+  };
+
+  // TODO: validate
+  console.log(JSON.stringify(note));
+
+  db.write(() => {
+    visit.notes = [...visit.notes, note];
+  });
+
+  res.send(objectToJSON(note));
+});
+
 visitRoutes.post('/visit/:id/diagnosis', (req, res) => {
   const db = req.app.get('database');
   const visit = db.objectForPrimaryKey('visit', req.params.id);

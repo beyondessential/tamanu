@@ -9,7 +9,7 @@ export const NoteSchema = {
     author: 'user',
     type: 'string',
     content: 'string',
-    priority: { type: 'bool', default: 'false' },
+    priority: { type: 'bool', default: false },
     date: { type: 'date', default: new Date(), },
     
     ...defaults,

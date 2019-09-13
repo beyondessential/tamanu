@@ -19,6 +19,8 @@ import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
 
 import { Table } from '../../components/Table';
+import { DateDisplay } from '../../components/DateDisplay';
+import {noteTypes } from '../../constants';
 
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
@@ -40,12 +42,14 @@ const VitalsPane = React.memo(({ visit }) => {
   );
 });
 
+const getTypeLabel = ({ type }) => noteTypes.find(x => x.value === type).label;
+
 const NotesTable = ({ notes }) => (
   <Table
     columns={[
-      { key: '_id', label: 'ID' },
-      { key: 'type', label: 'Type' },
-      { key: 'content', label: 'Content' },
+      { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
+      { key: 'type', title: 'Type', accessor: getTypeLabel },
+      { key: 'content', title: 'Content' },
     ]}
     data={notes}
   />
