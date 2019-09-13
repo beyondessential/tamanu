@@ -15,12 +15,11 @@ import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { VitalsModal } from '../../components/VitalsModal';
 import { VitalsTable } from '../../components/VitalsTable';
+import { connectRoutedModal } from '../../components/Modal';
 
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
 import { visitOptions } from '../../constants';
-
-import { getCurrentRouteEndsWith } from '../../store/router';
 
 const VitalsPane = React.memo(({ visit }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -103,20 +102,17 @@ const VisitInfoPane = React.memo(({ visit }) => (
   </FormGrid>
 ));
 
+const RoutedDischargeModal = connectRoutedModal('/patients/visit', 'discharge')(DischargeModal);
+
 const DischargeView = connect(
-  state => ({
-    modalOpen: getCurrentRouteEndsWith(state, 'discharge'),
-  }),
-  dispatch => ({
-    onModalOpen: () => dispatch(push('/patients/visit/discharge')),
-    onModalClose: () => dispatch(push('/patients/visit')),
-  }),
-)(({ modalOpen, onModalOpen, onModalClose, visit }) => (
+  null,
+  dispatch => ({ onModalOpen: () => dispatch(push('/patients/visit/discharge')) }),
+)(({ onModalOpen, visit }) => (
   <React.Fragment>
     <Button onClick={onModalOpen} disabled={!!visit.endDate}>
       Discharge patient
     </Button>
-    <DischargeModal open={modalOpen} onClose={onModalClose} visit={visit} />
+    <RoutedDischargeModal visit={visit} />
   </React.Fragment>
 ));
 

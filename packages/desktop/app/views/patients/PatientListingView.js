@@ -1,22 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { connect } from 'react-redux';
-import { viewPatient } from '../../store/patient';
 import { TopBar, PageContainer, Button, DataFetchingTable } from '../../components';
 import { PatientSearchBar, NewPatientModal } from './components';
 import { displayId, firstName, lastName, culturalName, sex, dateOfBirth } from './columns';
 import { PATIENT_SEARCH_ENDPOINT } from './constants';
-import { DropdownButton } from '../../components/DropdownButton';
-
-const PatientActions = connect(
-  null,
-  (dispatch, { patient }) => ({
-    actions: [
-      { label: 'View', onClick: () => dispatch(viewPatient(patient._id)) },
-      { label: 'Admit', onClick: () => dispatch(viewPatient(patient._id)) },
-      { label: 'Triage', onClick: () => dispatch(viewPatient(patient._id)) },
-    ],
-  }),
-)(DropdownButton);
+import { PatientActionDropdown } from '../../components/PatientActionDropdown';
 
 const COLUMNS = [
   displayId,
@@ -28,7 +15,7 @@ const COLUMNS = [
   {
     key: 'actions',
     title: 'Actions',
-    accessor: row => <PatientActions patient={row} />,
+    accessor: row => <PatientActionDropdown patient={row} showView />,
   },
 ];
 

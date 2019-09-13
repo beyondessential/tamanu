@@ -6,19 +6,18 @@ export const TriageSchema = {
   properties: {
     _id: 'string',
 
-    patient: 'patient',
     arrivalTime: 'date',
     triageTime: 'date',
 
     location: 'location?',
     practitioner: 'user?',
 
-    referredFrom: 'string?',
-    visitReason: 'string',
+    score: 'string',
+    status: { type: 'string', default: 'waiting' },
+    note: { type: 'string', default: '' },
 
-    score: 'int',
-
-    note: 'string',
+    // reverse links
+    patient: { type: 'linkingObjects', objectType: 'patient', property: 'triages' },
 
     ...defaults,
   },

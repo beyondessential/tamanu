@@ -1,14 +1,22 @@
 import { push } from 'connected-react-router';
 import { createReducer } from '../utils/createReducer';
 
+import { reloadVisit } from './visit';
+
 // actions
 const PATIENT_LOAD_START = 'PATIENT_LOAD_START';
 const PATIENT_LOAD_ERROR = 'PATIENT_LOAD_ERROR';
 const PATIENT_LOAD_FINISH = 'PATIENT_LOAD_FINISH';
 
-export const viewPatient = id => async dispatch => {
+export const viewPatientVisit = (patientId, visitId, modal) => async dispatch => {
+  dispatch(reloadPatient(patientId));
+  dispatch(reloadVisit(visitId));
+  dispatch(push(`/patients/visit/${modal}`));
+};
+
+export const viewPatient = (id, modal) => async dispatch => {
   dispatch(reloadPatient(id));
-  dispatch(push('/patients/view'));
+  dispatch(push(`/patients/view/${modal}`));
 };
 
 export const reloadPatient = id => async (dispatch, getState, { api }) => {
