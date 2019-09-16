@@ -19,13 +19,7 @@ import { ModalActionRow } from '../components/ButtonRow';
 
 import triageFlowchart from '../assets/images/triage-flowchart.png';
 
-import { visitOptions } from '../constants';
-
-const trafficLights = [
-  { value: '3', label: 'Non-urgent' },
-  { value: '2', label: 'Priority' },
-  { value: '1', label: 'Emergency' },
-];
+import { visitOptions, triagePriorities } from '../constants';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
@@ -69,7 +63,7 @@ export class TriageForm extends React.PureComponent {
           label={<InfoPopupLabel />}
           inline
           component={RadioField}
-          options={trafficLights}
+          options={triagePriorities}
         />
         <FormGrid columns={1} style={{ gridColumn: '1 / -1' }}>
           <Field
@@ -159,7 +153,7 @@ export class TriageForm extends React.PureComponent {
           practitioner: foreignKey('Triage nurse/doctor must be selected'),
           score: yup
             .string()
-            .oneOf(trafficLights.map(x => x.value))
+            .oneOf(triagePriorities.map(x => x.value))
             .required(),
         })}
       />

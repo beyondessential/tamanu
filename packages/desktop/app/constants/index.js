@@ -195,6 +195,13 @@ export const visitOptions = [
   { value: 'imaging', label: 'Imaging' },
   { value: 'lab', label: 'Lab' },
   { value: 'emergency', label: 'Emergency' },
+  { value: 'observation', label: 'Observation' },
+];
+
+export const triagePriorities = [
+  { value: '3', label: 'Non-urgent', color: '#2e9c2e' },
+  { value: '2', label: 'Priority', color: '#de931b' },
+  { value: '1', label: 'Emergency', color: '#ff2700' },
 ];
 
 export const operativePlanStatuses = {

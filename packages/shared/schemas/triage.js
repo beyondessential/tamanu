@@ -8,9 +8,11 @@ export const TriageSchema = {
 
     arrivalTime: 'date',
     triageTime: 'date',
+    closedTime: 'date?',
 
     location: 'location?',
     practitioner: 'user?',
+    visit: 'visit?',
 
     score: 'string',
     status: { type: 'string', default: 'waiting' },
