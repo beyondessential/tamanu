@@ -1,13 +1,12 @@
 import React from 'react';
 
+import { push } from 'connected-react-router';
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
 import { connectApi } from '../api/connectApi';
 
 import { TriageForm } from '../forms/TriageForm';
-
-import { push } from 'connected-react-router';
 
 const DumbTriageModal = React.memo(
   ({ open, visit, practitionerSuggester, locationSuggester, onClose, onSubmit }) => (

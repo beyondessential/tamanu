@@ -34,8 +34,7 @@ export class TriageForm extends React.PureComponent {
   };
 
   renderForm = ({ submitForm }) => {
-    const { locationSuggester, practitionerSuggester, editedObject, onCancel } = this.props;
-    const buttonText = editedObject ? 'Update visit' : 'Start visit';
+    const { locationSuggester, practitionerSuggester, onCancel } = this.props;
     return (
       <FormGrid>
         <Field
@@ -109,7 +108,7 @@ export class TriageForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <ModalActionRow confirmText="Start Admission" onConfirm={submitForm} onCancel={onCancel} />
+        <ModalActionRow confirmText="Submit triage" onConfirm={submitForm} onCancel={onCancel} />
       </FormGrid>
     );
   };

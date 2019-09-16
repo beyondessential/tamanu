@@ -7,7 +7,7 @@ import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
 import { TriageActionDropdown } from '../components/TriageActionDropdown';
 import { triagePriorities } from '../constants';
 
-const StatusDisplay = React.memo(({ status, visit, closedTime }) => {
+const StatusDisplay = React.memo(({ visit, closedTime }) => {
   if (!closedTime) {
     return 'Waiting';
   }
@@ -35,14 +35,22 @@ const PriorityDisplay = React.memo(({ score, startTime, endTime }) => {
   const priority = triagePriorities.find(x => x.value === score);
   return (
     <PriorityText color={priority.color}>
-      <div><LiveDurationDisplay startTime={startTime} endTime={endTime} /></div>
+      <div>
+        <LiveDurationDisplay startTime={startTime} endTime={endTime} />
+      </div>
       <div>Triage at xx:xxpm</div>
     </PriorityText>
   );
 });
 
 const COLUMNS = [
-  { key: 'score', title: 'Wait time', accessor: row => <PriorityDisplay score={row.score} startTime={row.triageTime} endTime={row.closedTime} /> },
+  {
+    key: 'score',
+    title: 'Wait time',
+    accessor: row => (
+      <PriorityDisplay score={row.score} startTime={row.triageTime} endTime={row.closedTime} />
+    ),
+  },
   {
     key: 'reasonForVisit',
     title: 'Reason for visit',

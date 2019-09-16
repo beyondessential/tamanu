@@ -11,23 +11,21 @@ const ErrorMessage = styled.div`
 `;
 
 export class ErrorBoundary extends React.PureComponent {
-  
   state = { error: null };
+
+  showMessage = () => {
+    console.log(this.state.error);
+  };
 
   componentDidCatch(error) {
     this.setState({ error });
   }
 
-  showMessage = () => {
-    console.log(this.state.error);
-  }
-
   render() {
-    if(this.state.error) {
+    if (this.state.error) {
       return <ErrorMessage onClick={this.showMessage}>ERROR</ErrorMessage>;
     }
 
     return this.props.children || null;
   }
-
 }

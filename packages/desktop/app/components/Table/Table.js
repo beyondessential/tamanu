@@ -49,9 +49,7 @@ const Row = React.memo(({ columns, data, onClick }) => {
     const value = accessor ? React.createElement(accessor, data) : data[key];
     return (
       <TableCell key={key} align={numeric ? 'right' : 'left'}>
-        <ErrorBoundary>
-          {CellComponent ? <CellComponent value={value} /> : value}
-        </ErrorBoundary>
+        <ErrorBoundary>{CellComponent ? <CellComponent value={value} /> : value}</ErrorBoundary>
       </TableCell>
     );
   });
