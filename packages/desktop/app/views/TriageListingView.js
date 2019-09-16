@@ -54,7 +54,7 @@ const COLUMNS = [
   {
     key: 'reasonForVisit',
     title: 'Reason for visit',
-    accessor: row => row.note || '',
+    accessor: row => row.reasonForVisit || '',
   },
   { key: '_id', title: 'ID' },
   {

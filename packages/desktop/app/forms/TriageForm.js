@@ -69,8 +69,7 @@ export class TriageForm extends React.PureComponent {
             name="reasonForVisit"
             label="Reason for visit"
             component={TextField}
-            multiline
-            rows={2}
+            required
           />
           <Field
             name="checkLostConsciousness"
@@ -151,6 +150,7 @@ export class TriageForm extends React.PureComponent {
           triageTime: yup.date().required(),
           practitioner: foreignKey('Triage nurse/doctor must be selected'),
           location: foreignKey('Location must be selected'),
+          reasonForVisit: yup.string().required(),
           score: yup
             .string()
             .oneOf(triagePriorities.map(x => x.value))

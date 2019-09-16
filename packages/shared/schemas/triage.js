@@ -14,8 +14,8 @@ export const TriageSchema = {
     practitioner: 'user?',
     visit: 'visit?',
 
+    reasonForVisit: 'string',
     score: 'string',
-    status: { type: 'string', default: 'waiting' },
     notes: { type: 'string', default: '' },
 
     // reverse links
