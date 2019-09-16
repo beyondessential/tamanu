@@ -16,6 +16,8 @@ import TableRow from '@material-ui/core/TableRow';
 import TableFooter from '@material-ui/core/TableFooter';
 import TablePagination from '@material-ui/core/TablePagination';
 
+import { ErrorBoundary } from '../ErrorBoundary';
+
 const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
 const StyledTableRow = styled(TableRow)`
@@ -44,17 +46,14 @@ const RowContainer = React.memo(({ children, onClick }) => (
 
 const Row = React.memo(({ columns, data, onClick }) => {
   const cells = columns.map(({ key, accessor, CellComponent, numeric }) => {
-    try {
-      const value = accessor ? React.createElement(accessor, data) : data[key];
-      return (
-        <TableCell key={key} align={numeric ? 'right' : 'left'}>
+    const value = accessor ? React.createElement(accessor, data) : data[key];
+    return (
+      <TableCell key={key} align={numeric ? 'right' : 'left'}>
+        <ErrorBoundary>
           {CellComponent ? <CellComponent value={value} /> : value}
-        </TableCell>
-      );
-    } catch (e) {
-      console.error(e);
-      return <TableCell key={key}>ERR</TableCell>;
-    }
+        </ErrorBoundary>
+      </TableCell>
+    );
   });
   return <RowContainer onClick={onClick && (() => onClick(data))}>{cells}</RowContainer>;
 });
