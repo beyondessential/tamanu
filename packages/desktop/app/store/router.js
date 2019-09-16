@@ -3,5 +3,3 @@
 // selectors
 
 export const getCurrentRoute = state => state.router.location.pathname;
-
-export const getCurrentRouteEndsWith = (state, suffix) => getCurrentRoute(state).endsWith(suffix);
