@@ -23,15 +23,31 @@ const StatusDisplay = React.memo(({ status, visit, closedTime }) => {
 });
 
 const PriorityText = styled.span`
-  color: ${p => p.color};
+  background: ${p => p.color};
+  color: white;
+  font-weight: bold;
+  display: block;
+  width: 100%;
+  text-align: center;
 `;
 
-const PriorityDisplay = React.memo(({ score }) => {
+const PriorityDisplay = React.memo(({ score, startTime, endTime }) => {
   const priority = triagePriorities.find(x => x.value === score);
-  return <PriorityText color={priority.color}>{`${score} (${priority.label})`}</PriorityText>;
+  return (
+    <PriorityText color={priority.color}>
+      <div><LiveDurationDisplay startTime={startTime} endTime={endTime} /></div>
+      <div>Triage at xx:xxpm</div>
+    </PriorityText>
+  );
 });
 
 const COLUMNS = [
+  { key: 'score', title: 'Wait time', accessor: row => <PriorityDisplay score={row.score} startTime={row.triageTime} endTime={row.closedTime} /> },
+  {
+    key: 'reasonForVisit',
+    title: 'Reason for visit',
+    accessor: row => row.note || '',
+  },
   { key: '_id', title: 'ID' },
   {
     key: 'patientName',
@@ -44,7 +60,6 @@ const COLUMNS = [
     accessor: row => <DateDisplay date={row.patient[0].dateOfBirth} />,
   },
   { key: 'patientSex', title: 'Sex', accessor: row => row.patient[0].sex },
-  { key: 'score', title: 'Triage score', accessor: row => <PriorityDisplay score={row.score} /> },
   {
     key: 'status',
     title: 'Status',
@@ -53,11 +68,6 @@ const COLUMNS = [
     ),
   },
   { key: 'location', title: 'Location', accessor: row => row.location.name },
-  {
-    key: 'waitingTime',
-    title: 'Waiting time',
-    accessor: row => <LiveDurationDisplay startTime={row.triageTime} endTime={row.closedTime} />,
-  },
   { key: 'actions', title: 'Actions', accessor: row => <TriageActionDropdown triage={row} /> },
 ];
 
