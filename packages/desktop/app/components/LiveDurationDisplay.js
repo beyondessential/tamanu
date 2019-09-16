@@ -7,13 +7,13 @@ export const LiveDurationDisplay = React.memo(({ startTime, endTime }) => {
   const [_, updateState] = React.useState({});
 
   // recalculate every 30 seconds
-  if (!endTime) {
-    React.useEffect(() => {
+  React.useEffect(() => {
+    if (!endTime) {
       const interval = setInterval(() => updateState({}), MINUTE * 0.5);
 
       return () => clearInterval(interval);
-    }, []);
-  }
+    }
+  }, [endTime]);
 
   const time = (endTime ? new Date(endTime) : new Date()) - new Date(startTime);
   const hours = Math.floor(time / HOUR);
