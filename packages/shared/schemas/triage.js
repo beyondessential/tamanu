@@ -16,7 +16,7 @@ export const TriageSchema = {
 
     score: 'string',
     status: { type: 'string', default: 'waiting' },
-    note: { type: 'string', default: '' },
+    notes: { type: 'string', default: '' },
 
     // reverse links
     patient: { type: 'linkingObjects', objectType: 'patient', property: 'triages' },
