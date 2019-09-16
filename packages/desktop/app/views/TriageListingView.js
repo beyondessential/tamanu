@@ -63,7 +63,7 @@ const COLUMNS = [
 
 const TriageTable = React.memo(({ ...props }) => (
   <DataFetchingTable
-    endpoint="triage/search"
+    endpoint="triage"
     columns={COLUMNS}
     noDataMessage="No patients found"
     {...props}
