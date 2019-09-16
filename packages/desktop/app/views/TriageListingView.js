@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import moment from 'moment';
 
 import { TopBar, PageContainer, DataFetchingTable } from '../components';
 import { DateDisplay } from '../components/DateDisplay';
@@ -7,7 +8,7 @@ import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
 import { TriageActionDropdown } from '../components/TriageActionDropdown';
 import { triagePriorities } from '../constants';
 
-const StatusDisplay = React.memo(({ status, visit, closedTime }) => {
+const StatusDisplay = React.memo(({ visit, closedTime }) => {
   if (!closedTime) {
     return 'Waiting';
   }
@@ -23,15 +24,41 @@ const StatusDisplay = React.memo(({ status, visit, closedTime }) => {
 });
 
 const PriorityText = styled.span`
-  color: ${p => p.color};
+  background: ${p => p.color};
+  color: white;
+  font-weight: bold;
+  display: block;
+  width: 100%;
+  text-align: center;
 `;
 
-const PriorityDisplay = React.memo(({ score }) => {
+const PriorityDisplay = React.memo(({ score, startTime, endTime }) => {
   const priority = triagePriorities.find(x => x.value === score);
-  return <PriorityText color={priority.color}>{`${score} (${priority.label})`}</PriorityText>;
+  return (
+    <PriorityText color={priority.color}>
+      <div>
+        <LiveDurationDisplay startTime={startTime} endTime={endTime} />
+      </div>
+      <div>
+        <small>{`Triage at ${moment(startTime).format('h:mma')}`}</small>
+      </div>
+    </PriorityText>
+  );
 });
 
 const COLUMNS = [
+  {
+    key: 'score',
+    title: 'Wait time',
+    accessor: row => (
+      <PriorityDisplay score={row.score} startTime={row.triageTime} endTime={row.closedTime} />
+    ),
+  },
+  {
+    key: 'reasonForVisit',
+    title: 'Reason for visit',
+    accessor: row => row.reasonForVisit || '',
+  },
   { key: '_id', title: 'ID' },
   {
     key: 'patientName',
@@ -44,7 +71,6 @@ const COLUMNS = [
     accessor: row => <DateDisplay date={row.patient[0].dateOfBirth} />,
   },
   { key: 'patientSex', title: 'Sex', accessor: row => row.patient[0].sex },
-  { key: 'score', title: 'Triage score', accessor: row => <PriorityDisplay score={row.score} /> },
   {
     key: 'status',
     title: 'Status',
@@ -53,17 +79,12 @@ const COLUMNS = [
     ),
   },
   { key: 'location', title: 'Location', accessor: row => row.location.name },
-  {
-    key: 'waitingTime',
-    title: 'Waiting time',
-    accessor: row => <LiveDurationDisplay startTime={row.triageTime} endTime={row.closedTime} />,
-  },
   { key: 'actions', title: 'Actions', accessor: row => <TriageActionDropdown triage={row} /> },
 ];
 
 const TriageTable = React.memo(({ ...props }) => (
   <DataFetchingTable
-    endpoint="triage/search"
+    endpoint="triage"
     columns={COLUMNS}
     noDataMessage="No patients found"
     {...props}

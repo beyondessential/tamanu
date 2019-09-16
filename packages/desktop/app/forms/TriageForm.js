@@ -34,8 +34,7 @@ export class TriageForm extends React.PureComponent {
   };
 
   renderForm = ({ submitForm }) => {
-    const { locationSuggester, practitionerSuggester, editedObject, onCancel } = this.props;
-    const buttonText = editedObject ? 'Update visit' : 'Start visit';
+    const { locationSuggester, practitionerSuggester, onCancel } = this.props;
     return (
       <FormGrid>
         <Field
@@ -66,13 +65,7 @@ export class TriageForm extends React.PureComponent {
           options={triagePriorities}
         />
         <FormGrid columns={1} style={{ gridColumn: '1 / -1' }}>
-          <Field
-            name="reasonForVisit"
-            label="Reason for visit"
-            component={TextField}
-            multiline
-            rows={2}
-          />
+          <Field name="reasonForVisit" label="Reason for visit" component={TextField} required />
           <Field
             name="checkLostConsciousness"
             label="Did the patient receive a blow to the head or lose consciousness at any time?"
@@ -109,7 +102,7 @@ export class TriageForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <ModalActionRow confirmText="Start Admission" onConfirm={submitForm} onCancel={onCancel} />
+        <ModalActionRow confirmText="Submit triage" onConfirm={submitForm} onCancel={onCancel} />
       </FormGrid>
     );
   };
@@ -151,6 +144,8 @@ export class TriageForm extends React.PureComponent {
         validationSchema={yup.object().shape({
           triageTime: yup.date().required(),
           practitioner: foreignKey('Triage nurse/doctor must be selected'),
+          location: foreignKey('Location must be selected'),
+          reasonForVisit: yup.string().required(),
           score: yup
             .string()
             .oneOf(triagePriorities.map(x => x.value))

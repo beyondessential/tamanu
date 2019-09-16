@@ -34,8 +34,6 @@ const DumbPatientActionDropdown = React.memo(
       },
     ].filter(action => !action.condition || action.condition());
 
-    console.log(patient.lastName, isCheckedIn, isTriaged, patient.triages);
-
     return <DropdownButton actions={actions} color={isCheckedIn ? 'secondary' : 'primary'} />;
   },
 );

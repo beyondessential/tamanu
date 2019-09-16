@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { push } from 'connected-react-router';
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
@@ -24,9 +25,8 @@ const DumbTriageModal = React.memo(
 export const TriageModal = connectApi((api, dispatch, { patientId }) => ({
   onSubmit: async data => {
     await api.post(`patient/${patientId}/triages`, data);
-    dispatch(viewPatient(patientId));
+    dispatch(push('/patients/triage'));
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
-
   locationSuggester: new Suggester(api, 'location'),
 }))(DumbTriageModal);

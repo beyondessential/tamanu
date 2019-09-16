@@ -199,9 +199,9 @@ export const visitOptions = [
 ];
 
 export const triagePriorities = [
-  { value: '3', label: 'Non-urgent', color: '#2e9c2e' },
-  { value: '2', label: 'Priority', color: '#de931b' },
-  { value: '1', label: 'Emergency', color: '#ff2700' },
+  { value: '3', label: 'Non-urgent', color: '#47CA80' },
+  { value: '2', label: 'Priority', color: '#FFB630' },
+  { value: '1', label: 'Emergency', color: '#F76853' },
 ];
 
 export const operativePlanStatuses = {

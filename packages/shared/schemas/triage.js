@@ -10,13 +10,13 @@ export const TriageSchema = {
     triageTime: 'date',
     closedTime: 'date?',
 
-    location: 'location?',
+    location: 'location',
     practitioner: 'user?',
     visit: 'visit?',
 
+    reasonForVisit: 'string',
     score: 'string',
-    status: { type: 'string', default: 'waiting' },
-    note: { type: 'string', default: '' },
+    notes: { type: 'string', default: '' },
 
     // reverse links
     patient: { type: 'linkingObjects', objectType: 'patient', property: 'triages' },
