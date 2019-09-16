@@ -1,7 +1,9 @@
 import React from 'react';
 import { DateDisplay } from '../../components';
 const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} />);
-const SexCell = React.memo(({ value = "" }) => <span>{ value.slice(0, 1).toUpperCase() + value.slice(1) }</span>);
+const SexCell = React.memo(({ value = '' }) => (
+  <span>{value.slice(0, 1).toUpperCase() + value.slice(1)}</span>
+));
 
 export const displayId = {
   key: 'displayId',

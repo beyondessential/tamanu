@@ -70,11 +70,11 @@ const COLUMNS = [
     title: 'Date of birth',
     accessor: row => <DateDisplay date={row.patient[0].dateOfBirth} />,
   },
-  { 
-    key: 'patientSex', 
+  {
+    key: 'patientSex',
     title: 'Sex',
     accessor: row => {
-      const sex = row.patient[0].sex || "";
+      const sex = row.patient[0].sex || '';
       return sex.slice(0, 1).toUpperCase() + sex.slice(1);
     },
   },
