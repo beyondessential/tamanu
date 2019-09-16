@@ -3,12 +3,13 @@ import { connect } from 'react-redux';
 import { DropdownButton } from './DropdownButton';
 
 import { getCurrentRoute } from '../store/router';
-import { viewPatient, viewPatientVisit } from '../store/patient';
+import { viewPatient, viewPatientVisit, hasActiveTriage } from '../store/patient';
 
 const DumbPatientActionDropdown = React.memo(
   ({ isOnPatientPage, patient, onView, onAdmit, onTriage, onDischarge }) => {
     const visit = patient.visits.find(x => !x.endDate);
     const isCheckedIn = !!visit;
+    const isTriaged = hasActiveTriage(patient);
 
     const actions = [
       {
@@ -29,9 +30,11 @@ const DumbPatientActionDropdown = React.memo(
       {
         label: 'Triage',
         onClick: onTriage,
-        condition: () => !isCheckedIn,
+        condition: () => !isCheckedIn && !isTriaged,
       },
     ].filter(action => !action.condition || action.condition());
+
+    console.log(patient.lastName, isCheckedIn, isTriaged, patient.triages);
 
     return <DropdownButton actions={actions} color={isCheckedIn ? 'secondary' : 'primary'} />;
   },
