@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import moment from 'moment';
 
 import { TopBar, PageContainer, DataFetchingTable } from '../components';
 import { DateDisplay } from '../components/DateDisplay';
@@ -38,7 +39,9 @@ const PriorityDisplay = React.memo(({ score, startTime, endTime }) => {
       <div>
         <LiveDurationDisplay startTime={startTime} endTime={endTime} />
       </div>
-      <div>Triage at xx:xxpm</div>
+      <div>
+        <small>{`Triage at ${moment(startTime).format('h:mma')}`}</small>
+      </div>
     </PriorityText>
   );
 });
