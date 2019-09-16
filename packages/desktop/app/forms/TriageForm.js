@@ -151,6 +151,7 @@ export class TriageForm extends React.PureComponent {
         validationSchema={yup.object().shape({
           triageTime: yup.date().required(),
           practitioner: foreignKey('Triage nurse/doctor must be selected'),
+          location: foreignKey('Location must be selected'),
           score: yup
             .string()
             .oneOf(triagePriorities.map(x => x.value))

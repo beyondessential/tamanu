@@ -10,7 +10,7 @@ export const TriageSchema = {
     triageTime: 'date',
     closedTime: 'date?',
 
-    location: 'location?',
+    location: 'location',
     practitioner: 'user?',
     visit: 'visit?',
 
