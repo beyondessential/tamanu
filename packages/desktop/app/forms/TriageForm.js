@@ -65,12 +65,7 @@ export class TriageForm extends React.PureComponent {
           options={triagePriorities}
         />
         <FormGrid columns={1} style={{ gridColumn: '1 / -1' }}>
-          <Field
-            name="reasonForVisit"
-            label="Reason for visit"
-            component={TextField}
-            required
-          />
+          <Field name="reasonForVisit" label="Reason for visit" component={TextField} required />
           <Field
             name="checkLostConsciousness"
             label="Did the patient receive a blow to the head or lose consciousness at any time?"
