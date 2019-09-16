@@ -98,7 +98,7 @@ const CoreInfoCell = memo(({ label, children }) => (
 const HealthIdDisplay = memo(({ patient }) => (
   <HealthIdContainer>
     <HealthIdLabelText>Health Identification Number</HealthIdLabelText>
-    <HealthIdLabel>{patient.displayId}</HealthIdLabel>
+    <HealthIdLabel>{patient._id}</HealthIdLabel>
   </HealthIdContainer>
 ));
 

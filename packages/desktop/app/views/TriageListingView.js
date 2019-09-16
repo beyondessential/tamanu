@@ -59,7 +59,7 @@ const COLUMNS = [
     title: 'Reason for visit',
     accessor: row => row.reasonForVisit || '',
   },
-  { key: '_id', title: 'ID' },
+  { key: '_id', title: 'ID', accessor: row => row.patient[0]._id },
   {
     key: 'patientName',
     title: 'Patient',

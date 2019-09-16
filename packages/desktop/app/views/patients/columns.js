@@ -7,6 +7,7 @@ export const displayId = {
   key: 'displayId',
   title: 'ID',
   minWidth: 80,
+  accessor: row => row._id,
 };
 
 export const firstName = {
