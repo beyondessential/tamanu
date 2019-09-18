@@ -15,15 +15,19 @@ function loadStories() {
 
 const NoteDisplay = styled.div`
   padding: 0.5rem 0.2rem;
-  margin: 1rem 0;
-  background: #eee;
-  color: #555;
+  margin: 1rem 0.2rem;
+  border: 1px solid #DEDEDE;
+  border-radius: 0.2rem;
   font-family: sans-serif;
 `;
 
 const NoteHeader = styled.div`
   color: #666;
   font-size: 10pt;
+`;
+
+const ColouredBackground = styled.div`
+  background: #F3F5F7;
 `;
 
 configure(loadStories, module);
@@ -41,4 +45,4 @@ addDecorator((story, context, info) => {
     </div>
   );
 });
-addDecorator((story, context, info) => <ThemeProvider>{story()}</ThemeProvider>);
+addDecorator((story, context, info) => <ThemeProvider><ColouredBackground>{story()}</ColouredBackground></ThemeProvider>);
