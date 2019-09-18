@@ -68,7 +68,7 @@ class BaseAutocomplete extends Component {
     disabled: PropTypes.bool,
     error: PropTypes.bool,
     helperText: PropTypes.string,
-    name: PropTypes.string.isRequired,
+    name: PropTypes.string,
     className: PropTypes.string,
     onChange: PropTypes.func.isRequired,
     value: PropTypes.string,
