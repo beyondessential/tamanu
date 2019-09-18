@@ -1,12 +1,19 @@
 import React from 'react';
 import MuiTextField from '@material-ui/core/TextField';
 import MuiMenuItem from '@material-ui/core/MenuItem';
+import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
-export const SelectInput = ({ options, value, label, ...props }) => (
+const styles = () => ({
+  root: {
+    background: '#fff',
+  },
+});
+
+export const SelectInput = withStyles(styles)(({ options, value, label, classes, ...props }) => (
   <OuterLabelFieldWrapper label={label} {...props}>
-    <MuiTextField select value={value || ''} variant="outlined" {...props}>
+    <MuiTextField select value={value || ''} variant="outlined" classes={classes} {...props}>
       {options.map(o => (
         <MuiMenuItem key={o.value} value={o.value}>
           {o.label}
@@ -14,7 +21,7 @@ export const SelectInput = ({ options, value, label, ...props }) => (
       ))}
     </MuiTextField>
   </OuterLabelFieldWrapper>
-);
+));
 
 export const SelectField = ({ field, ...props }) => (
   <SelectInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
