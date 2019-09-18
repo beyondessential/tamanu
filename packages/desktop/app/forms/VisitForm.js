@@ -33,11 +33,11 @@ const VisitOptionButton = ({ label, onClick }) => (
 );
 
 const getReferralLabel = referral => {
-  const { date, referringDoctor = {}, location = {} } = referral;
+  const { date, referringDoctor, location } = referral;
   const parts = [
     DateDisplay.rawFormat(referral.date) + ':',
-    location.name,
-    referringDoctor.displayName && `(by ${referringDoctor.displayName})`
+    location && location.name,
+    referringDoctor && referringDoctor.displayName && `(by ${referringDoctor.displayName})`
   ];
   return parts.filter(x => x).join(' ');
 };
