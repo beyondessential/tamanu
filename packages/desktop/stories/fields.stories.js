@@ -36,7 +36,7 @@ const FRUITS = [
 class StoryControlWrapper extends React.PureComponent {
   state = { value: null };
 
-  componentWillMount() {
+  componentDidMount() {
     const { value } = this.props;
     if (value) {
       this.setState({ value });
