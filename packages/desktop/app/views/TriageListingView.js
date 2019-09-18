@@ -8,9 +8,28 @@ import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
 import { TriageActionDropdown } from '../components/TriageActionDropdown';
 import { triagePriorities } from '../constants';
 
-const StatusDisplay = React.memo(({ visit, closedTime }) => {
+const PriorityText = styled.span`
+  background: ${p => p.color};
+  color: white;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: center;
+`;
+
+const ADMITTED_PRIORITY = {
+  color: '#bdbdbd',
+};
+
+const StatusDisplay = React.memo(({ visit, startTime, closedTime }) => {
   if (!closedTime) {
-    return 'Waiting';
+    return (
+      <React.Fragment>
+        <LiveDurationDisplay startTime={startTime} />
+        <small>{`Triage at ${moment(startTime).format('h:mma')}`}</small>
+      </React.Fragment>
+    );
   }
 
   if (visit) {
@@ -23,25 +42,11 @@ const StatusDisplay = React.memo(({ visit, closedTime }) => {
   return 'Discharged';
 });
 
-const PriorityText = styled.span`
-  background: ${p => p.color};
-  color: white;
-  font-weight: bold;
-  display: block;
-  width: 100%;
-  text-align: center;
-`;
-
-const PriorityDisplay = React.memo(({ score, startTime, endTime }) => {
-  const priority = triagePriorities.find(x => x.value === score);
+const PriorityDisplay = React.memo(({ score, startTime, visit, closedTime }) => {
+  const priority = visit ? ADMITTED_PRIORITY : triagePriorities.find(x => x.value === score);
   return (
     <PriorityText color={priority.color}>
-      <div>
-        <LiveDurationDisplay startTime={startTime} endTime={endTime} />
-      </div>
-      <div>
-        <small>{`Triage at ${moment(startTime).format('h:mma')}`}</small>
-      </div>
+      <StatusDisplay visit={visit} startTime={startTime} closedTime={closedTime} />
     </PriorityText>
   );
 });
@@ -51,7 +56,12 @@ const COLUMNS = [
     key: 'score',
     title: 'Wait time',
     accessor: row => (
-      <PriorityDisplay score={row.score} startTime={row.triageTime} endTime={row.closedTime} />
+      <PriorityDisplay
+        score={row.score}
+        startTime={row.triageTime}
+        closedTime={row.closedTime}
+        visit={row.visit}
+      />
     ),
   },
   {
@@ -77,13 +87,6 @@ const COLUMNS = [
       const sex = row.patient[0].sex || '';
       return sex.slice(0, 1).toUpperCase() + sex.slice(1);
     },
-  },
-  {
-    key: 'status',
-    title: 'Status',
-    accessor: row => (
-      <StatusDisplay status={row.status} visit={row.visit} closedTime={row.closedTime} />
-    ),
   },
   { key: 'location', title: 'Location', accessor: row => row.location.name },
   { key: 'actions', title: 'Actions', accessor: row => <TriageActionDropdown triage={row} /> },
