@@ -13,7 +13,6 @@ import {
   DateTimeInput,
   NumberInput,
   SelectInput,
-  ArrayInput,
   AutocompleteInput,
 } from '../app/components';
 import { IdInput } from '../app/components/Field/IdField';
@@ -36,7 +35,7 @@ const FRUITS = [
 class StoryControlWrapper extends React.PureComponent {
   state = { value: null };
 
-  componentWillMount() {
+  componentDidMount() {
     const { value } = this.props;
     if (value) {
       this.setState({ value });
@@ -44,7 +43,6 @@ class StoryControlWrapper extends React.PureComponent {
   }
 
   onChange = e => {
-    const { onChange } = this.props;
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     action('change')(value);
     this.setState({ value });
@@ -167,5 +165,3 @@ addStories('Autocomplete', props => (
 addStories('IdInput', props => (
   <StoryControlWrapper Component={IdInput} regenerateId={shortid.generate} {...props} />
 ));
-
-storiesOf('FormControls/ArrayInput', module).add('ArrayInput', () => <div>WIP</div>);

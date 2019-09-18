@@ -8,22 +8,27 @@ import styled from 'styled-components';
 // automatically import all files ending in *.stories.js
 const req = require.context('../stories', true, /.stories.js$/);
 function loadStories() {
-  const keys = req.keys()
+  const keys = req
+    .keys()
     .sort()
     .forEach(filename => req(filename));
 }
 
 const NoteDisplay = styled.div`
   padding: 0.5rem 0.2rem;
-  margin: 1rem 0;
-  background: #eee;
-  color: #555;
+  margin: 1rem 0.2rem;
+  border: 1px solid #dedede;
+  border-radius: 0.2rem;
   font-family: sans-serif;
 `;
 
 const NoteHeader = styled.div`
   color: #666;
   font-size: 10pt;
+`;
+
+const ColouredBackground = styled.div`
+  background: #f3f5f7;
 `;
 
 configure(loadStories, module);
@@ -41,4 +46,8 @@ addDecorator((story, context, info) => {
     </div>
   );
 });
-addDecorator((story, context, info) => <ThemeProvider>{story()}</ThemeProvider>);
+addDecorator((story, context, info) => (
+  <ThemeProvider>
+    <ColouredBackground>{story()}</ColouredBackground>
+  </ThemeProvider>
+));

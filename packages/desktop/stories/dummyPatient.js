@@ -166,7 +166,7 @@ export function createDummyVisit(current = false) {
     procedures: [],
     labs: [],
     imaging: [],
-    medication: [],
+    medications: [],
     documents: [],
     diagnoses: [],
   };

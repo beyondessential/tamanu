@@ -68,7 +68,7 @@ class BaseAutocomplete extends Component {
     disabled: PropTypes.bool,
     error: PropTypes.bool,
     helperText: PropTypes.string,
-    name: PropTypes.string.isRequired,
+    name: PropTypes.string,
     className: PropTypes.string,
     onChange: PropTypes.func.isRequired,
     value: PropTypes.string,
@@ -89,6 +89,7 @@ class BaseAutocomplete extends Component {
     required: false,
     error: false,
     disabled: false,
+    name: undefined,
     helperText: '',
     className: '',
     value: '',
@@ -100,6 +101,18 @@ class BaseAutocomplete extends Component {
     suggestions: [],
     displayedValue: '',
   };
+
+  async componentDidMount() {
+    const { value, suggester } = this.props;
+    if (value && suggester) {
+      const currentOption = await suggester.fetchCurrentOption(value);
+      if (currentOption) {
+        this.setState({ displayedValue: currentOption.label });
+      } else {
+        this.handleSuggestionChange({ value: null, label: '' });
+      }
+    }
+  }
 
   handleSuggestionChange = option => {
     const { onChange, name } = this.props;
@@ -129,13 +142,11 @@ class BaseAutocomplete extends Component {
     this.setState({ suggestions: [] });
   };
 
-  renderSuggestion = (suggestion, { isHighlighted }) => {
-    return (
-      <MenuItem selected={isHighlighted} component="div" style={{ padding: 8 }}>
-        <Typography variant="body2">{suggestion.label}</Typography>
-      </MenuItem>
-    );
-  };
+  renderSuggestion = (suggestion, { isHighlighted }) => (
+    <MenuItem selected={isHighlighted} component="div" style={{ padding: 8 }}>
+      <Typography variant="body2">{suggestion.label}</Typography>
+    </MenuItem>
+  );
 
   onPopperRef = popper => {
     this.popperNode = popper;
@@ -160,18 +171,6 @@ class BaseAutocomplete extends Component {
       </Popper>
     );
   };
-
-  async componentDidMount() {
-    const { value, suggester } = this.props;
-    if (value && suggester) {
-      const currentOption = await suggester.fetchCurrentOption(value);
-      if (currentOption) {
-        this.setState({ displayedValue: currentOption.label });
-      } else {
-        this.handleSuggestionChange({ value: null, label: '' });
-      }
-    }
-  }
 
   render() {
     const { displayedValue, suggestions } = this.state;
