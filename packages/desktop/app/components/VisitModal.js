@@ -15,6 +15,7 @@ const DumbVisitModal = React.memo(
     practitionerSuggester,
     onClose,
     onCreateVisit,
+    referrals,
   }) => {
     return (
       <Modal title="Check in" open={open} onClose={onClose}>
@@ -23,6 +24,7 @@ const DumbVisitModal = React.memo(
           onCancel={onClose}
           locationSuggester={locationSuggester}
           practitionerSuggester={practitionerSuggester}
+          referrals={referrals}
         />
       </Modal>
     );
