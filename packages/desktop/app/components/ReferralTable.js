@@ -6,19 +6,14 @@ import { DateDisplay } from './DateDisplay';
 
 import { viewReferral } from '../store/referral';
 
-const StatusDisplay = React.memo(({ status, closedDate }) => {
+const StatusDisplay = React.memo(({ visit, closedDate }) => {
   const dateDisplay = <DateDisplay date={closedDate} />;
-  switch (status) {
-    case 'pending':
-      return 'Pending';
-    case 'completed':
-      // eslint-disable-next-line
-      return <span>Completed ({dateDisplay})</span>;
-    case 'cancelled':
-      // eslint-disable-next-line
-      return <span>Cancelled ({dateDisplay})</span>;
-    default:
-      return 'Unknown';
+  if(visit) {
+    return <span>Completed ({dateDisplay})</span>;
+  } else if(closedDate) {
+    return <span>Cancelled ({dateDisplay})</span>;
+  } else {
+    return 'Pending';
   }
 });
 
@@ -26,8 +21,8 @@ const getDate = ({ date }) => <DateDisplay date={date} />;
 const getDepartment = ({ location }) => (location ? location.name : 'Unknown');
 const getFacility = ({ facility }) => (facility ? facility.name : 'Unknown');
 const getDisplayName = ({ referringDoctor }) => (referringDoctor || {}).displayName || 'Unknown';
-const getStatus = ({ status, closedDate }) => (
-  <StatusDisplay status={status} closedDate={closedDate} />
+const getStatus = ({ visit, closedDate }) => (
+  <StatusDisplay visit={visit} closedDate={closedDate} />
 );
 
 const columns = [

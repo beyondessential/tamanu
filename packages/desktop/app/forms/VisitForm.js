@@ -45,7 +45,7 @@ const getReferralLabel = referral => {
 const ReferralField = ({ referrals = [] }) => {
   const referralOptions = [{ value: null, label: "No linked referral" }].concat(
     referrals
-      .filter(r => !r.visit)
+      .filter(r => !r.closedDate)
       .map(r => ({
         value: r._id,
         label: getReferralLabel(r),
