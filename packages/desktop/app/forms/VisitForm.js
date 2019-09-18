@@ -35,21 +35,21 @@ const VisitOptionButton = ({ label, onClick }) => (
 const getReferralLabel = referral => {
   const { date, referringDoctor, location } = referral;
   const parts = [
-    DateDisplay.rawFormat(referral.date) + ':',
+    `${DateDisplay.rawFormat(date)}:`,
     location && location.name,
-    referringDoctor && referringDoctor.displayName && `(by ${referringDoctor.displayName})`
+    referringDoctor && referringDoctor.displayName && `(by ${referringDoctor.displayName})`,
   ];
   return parts.filter(x => x).join(' ');
 };
 
 const ReferralField = ({ referrals = [] }) => {
-  const referralOptions = [{ value: null, label: "No linked referral" }].concat(
+  const referralOptions = [{ value: null, label: 'No linked referral' }].concat(
     referrals
       .filter(r => !r.closedDate)
       .map(r => ({
         value: r._id,
         label: getReferralLabel(r),
-      }))
+      })),
   );
 
   return (
@@ -62,7 +62,7 @@ const ReferralField = ({ referrals = [] }) => {
       style={{ gridColumn: 'span 2' }}
     />
   );
-}
+};
 
 const StartPage = ({ setValue }) => {
   const items = visitOptions.map(({ label, value }) => (
@@ -89,7 +89,7 @@ export class VisitForm extends React.PureComponent {
 
     const { locationSuggester, practitionerSuggester, editedObject, referrals } = this.props;
     const buttonText = editedObject ? 'Update visit' : 'Start visit';
-    
+
     return (
       <FormGrid>
         <Field
