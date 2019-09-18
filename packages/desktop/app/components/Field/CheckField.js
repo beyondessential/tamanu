@@ -39,12 +39,12 @@ export const CheckInput = withStyles(inputStyles)(({ label, value, style, error,
   </FormControl>
 ));
 
-export const CheckField = ({ field, error, helperText, ...props }) => (
+export const CheckField = ({ field, error, ...props }) => (
   <CheckInput
     name={field.name}
     value={field.value || false}
     onChange={field.onChange}
-    error={error || undefined}
+    error={error}
     {...props}
   />
 );
