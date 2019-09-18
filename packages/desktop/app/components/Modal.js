@@ -33,18 +33,20 @@ const styles = () => ({
 });
 
 export const Modal = memo(
-  withStyles(styles)(({ title, children, actions, width = 'sm', classes, open = false, ...props }) => {
-    const { title: titleClass, ...otherClasses } = classes;
-    return (
-      <MuiDialog fullWidth maxWidth={width} classes={otherClasses} open={open} {...props}>
-        <DialogTitle className={titleClass}>{title}</DialogTitle>
-        <ModalContainer>
-          <ModalContent>{children}</ModalContent>
-          <DialogActions>{actions}</DialogActions>
-        </ModalContainer>
-      </MuiDialog>
-    );
-  }),
+  withStyles(styles)(
+    ({ title, children, actions, width = 'sm', classes, open = false, ...props }) => {
+      const { title: titleClass, ...otherClasses } = classes;
+      return (
+        <MuiDialog fullWidth maxWidth={width} classes={otherClasses} open={open} {...props}>
+          <DialogTitle className={titleClass}>{title}</DialogTitle>
+          <ModalContainer>
+            <ModalContent>{children}</ModalContent>
+            <DialogActions>{actions}</DialogActions>
+          </ModalContainer>
+        </MuiDialog>
+      );
+    },
+  ),
 );
 
 export const connectRoutedModal = (baseRoute, suffix) =>

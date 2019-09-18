@@ -18,28 +18,32 @@ const inputStyles = () => ({
   },
 });
 
-export const CheckInput = withStyles(inputStyles)(({ label, value, style, error, helperText, classes, ...props }) => (
-  <FormControl style={style} error={error}>
-    <FormControlLabel
-      className={classes.controlLabel}
-      control={
-        <Checkbox
-          checkedIcon={<CheckBoxOutlined />}
-          color="primary"
-          checked={value}
-          value="checked"
-          classes={{root: classes.root}}
-          {...props}
-        />
-      }
-      style={style}
-      label={label}
-    />
-    {helperText && <FormHelperText>{helperText}</FormHelperText>}
-  </FormControl>
+const CheckControl = React.memo(({ value, classes, ...props }) => (
+  <Checkbox
+    checkedIcon={<CheckBoxOutlined />}
+    color="primary"
+    checked={value}
+    value="checked"
+    classes={classes}
+    {...props}
+  />
 ));
 
-export const CheckField = ({ field, error, ...props }) => (
+export const CheckInput = withStyles(inputStyles)(
+  React.memo(({ label, value, style, error, helperText, classes, ...props }) => (
+    <FormControl style={style} error={error}>
+      <FormControlLabel
+        className={classes.controlLabel}
+        control={<CheckControl value={value} classes={{ root: classes.root }} {...props} />}
+        style={style}
+        label={label}
+      />
+      {helperText && <FormHelperText>{helperText}</FormHelperText>}
+    </FormControl>
+  )),
+);
+
+export const CheckField = React.memo(({ field, error, ...props }) => (
   <CheckInput
     name={field.name}
     value={field.value || false}
@@ -47,7 +51,7 @@ export const CheckField = ({ field, error, ...props }) => (
     error={error}
     {...props}
   />
-);
+));
 
 CheckInput.propTypes = {
   name: PropTypes.string,

@@ -43,7 +43,6 @@ class StoryControlWrapper extends React.PureComponent {
   }
 
   onChange = e => {
-    const { onChange } = this.props;
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     action('change')(value);
     this.setState({ value });
@@ -166,4 +165,3 @@ addStories('Autocomplete', props => (
 addStories('IdInput', props => (
   <StoryControlWrapper Component={IdInput} regenerateId={shortid.generate} {...props} />
 ));
-
