@@ -13,7 +13,6 @@ import {
   DateTimeInput,
   NumberInput,
   SelectInput,
-  ArrayInput,
   AutocompleteInput,
 } from '../app/components';
 import { IdInput } from '../app/components/Field/IdField';
@@ -168,4 +167,3 @@ addStories('IdInput', props => (
   <StoryControlWrapper Component={IdInput} regenerateId={shortid.generate} {...props} />
 ));
 
-storiesOf('FormControls/ArrayInput', module).add('ArrayInput', () => <div>WIP</div>);
