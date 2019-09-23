@@ -1,6 +1,6 @@
 import React from 'react';
+import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControl from '@material-ui/core/FormControl';
@@ -8,85 +8,82 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
-const styles = () => ({
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  labelControl: {
-    background: '#fff',
-    margin: 0,
-    padding: '15px 4px',
-    border: '1px solid rgba(0, 0, 0, 0.23)',
-    '& span:last-of-type': {
-      // target: label
-      color: '#999999',
-    },
-    '& span': {
-      // targets: radio and label
-      fontSize: '1rem',
-      padding: '0.5px 3px 0 0',
-    },
-    '&:not(:last-of-type)': {
-      // targets: options
-      borderRight: 'none',
-    },
-    '&:first-of-type': {
-      borderRadius: '3px 0 0 3px',
-    },
-    '&:last-of-type': {
-      borderRadius: '0 3px 3px 0',
-    },
-  },
-  checkedControl: {
-    background: '#FAFAFA',
-    '& span:last-of-type': {
-      // target: label
-      color: '#666666',
-    },
-  },
-  radioGroup: {
-    flexWrap: 'nowrap',
-  },
-  radio: {
-    color: '#cccccc',
-  },
-  checkedRadio: {
-    '&$checkedRadio': {
-      color: '#4285F4',
-    },
-  },
-});
+const StyledFormControl = styled(FormControl)`
+  display: flex;
+  flex-direction: column;
+`;
 
-export const RadioInput = withStyles(styles)(
-  ({ options, name, value, label, helperText, inline, style, classes, ...props }) => (
-    <OuterLabelFieldWrapper label={label} {...props}>
-      <FormControl style={style} className={classes.root} {...props}>
-        <RadioGroup
-          aria-label={name}
-          name={name}
-          value={value || ''}
-          className={classes.radioGroup}
-          style={{ flexDirection: inline ? 'row' : 'column' }}
-          {...props}
-        >
-          {options.map(option => (
-            <FormControlLabel
-              className={`${classes.labelControl} ${value === option.value &&
-                classes.checkedControl}`}
-              key={option.value}
-              control={
-                <Radio className={classes.radio} classes={{ checked: classes.checkedRadio }} />
-              }
-              label={option.label}
-              value={option.value}
-            />
-          ))}
-        </RadioGroup>
-        {helperText && <FormHelperText>{helperText}</FormHelperText>}
-      </FormControl>
-    </OuterLabelFieldWrapper>
-  ),
+const StyledRadioGroup = styled(RadioGroup)`
+  flex-direction: ${props => (props.inline ? 'row' : 'column')};
+  flex-wrap: nowrap;
+`;
+
+const StyledRadio = styled(Radio)`
+  svg {
+    color: ${props => (props.value === props.selected ? '#4285F4' : '#cccccc')};
+  }
+`;
+
+const ControlLabel = styled(FormControlLabel)`
+  background: ${props => (props.value === props.selected ? '#fafafa' : '#fff')};
+  margin: 0;
+  padding: 15px 4px;
+  border: 1px solid rgba(0, 0, 0, 0.23);
+
+  span {
+    font-size: 1rem;
+    padding: 0.5px 3px 0 0;
+  }
+
+  span:last-of-type {
+    color: ${props => (props.value === props.selected ? '#666666' : '#999999')};
+  }
+
+  :not(:last-of-type) {
+    border-right: none;
+  }
+
+  :first-of-type {
+    border-radius: 3px 0 0 3px;
+  }
+
+  :last-of-type {
+    border-radius: 0 3px 3px 0;
+  }
+`;
+
+export const RadioInput = ({
+  options,
+  name,
+  value,
+  label,
+  helperText,
+  inline,
+  style,
+  ...props
+}) => (
+  <OuterLabelFieldWrapper label={label} {...props}>
+    <StyledFormControl style={style} {...props}>
+      <StyledRadioGroup
+        inline={inline}
+        aria-label={name}
+        name={name}
+        value={value || ''}
+        {...props}
+      >
+        {options.map(option => (
+          <ControlLabel
+            key={option.value}
+            control={<StyledRadio value={option.value} selected={value} />}
+            label={option.label}
+            value={option.value}
+            selected={value}
+          />
+        ))}
+      </StyledRadioGroup>
+      {helperText && <FormHelperText>{helperText}</FormHelperText>}
+    </StyledFormControl>
+  </OuterLabelFieldWrapper>
 );
 
 export const RadioField = ({ field, error, ...props }) => (

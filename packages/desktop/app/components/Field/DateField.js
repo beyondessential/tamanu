@@ -1,8 +1,8 @@
 import React from 'react';
+import styled from 'styled-components';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
-import { withStyles } from '@material-ui/core/styles';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import CalendarToday from '@material-ui/icons/CalendarToday';
 
@@ -23,28 +23,24 @@ export const DateTimeInput = props => (
   <DateInput type="datetime-local" format="YYYY-MM-DDTHH:mm" {...props} />
 );
 
-const dateStyles = () => ({
-  icon: {
-    color: '#cccccc',
-  },
-});
+const CalendarIcon = styled(CalendarToday)`
+  color: #cccccc;
+`;
 
-export const DateInput = withStyles(dateStyles)(
-  ({ value, format, onChange, classes, ...props }) => (
-    <TextInput
-      type="date"
-      {...props}
-      value={toDate(value, format)}
-      onChange={e => onChange(fromDate(e, format))}
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <CalendarToday classes={{ root: classes.icon }} />
-          </InputAdornment>
-        ),
-      }}
-    />
-  ),
+export const DateInput = ({ value, format, onChange, classes, ...props }) => (
+  <TextInput
+    type="date"
+    {...props}
+    value={toDate(value, format)}
+    onChange={e => onChange(fromDate(e, format))}
+    InputProps={{
+      startAdornment: (
+        <InputAdornment position="start">
+          <CalendarIcon />
+        </InputAdornment>
+      ),
+    }}
+  />
 );
 
 export const DateField = ({ field, ...props }) => (

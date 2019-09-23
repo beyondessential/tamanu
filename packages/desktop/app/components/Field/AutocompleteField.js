@@ -1,35 +1,29 @@
 import React, { Component } from 'react';
+import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { TextField, MenuItem, Popper, Paper, Typography } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Search from '@material-ui/icons/Search';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
-const styles = () => ({
-  root: {
-    height: 250,
-    flexGrow: 1,
-  },
-  suggestion: {
-    display: 'block',
-  },
-  suggestionsList: {
-    margin: 0,
-    padding: 0,
-    listStyleType: 'none',
-  },
-  popperContainer: {
-    zIndex: 999,
-    top: 'initial !important',
-    left: 'initial !important',
-    transform: 'none !important',
-  },
-});
+const SuggestionsContainer = styled(Popper)`
+  z-index: 999;
+  top: initial;
+  left: initial;
+  transform: none;
+`;
+
+const SuggestionsList = styled(Paper)`
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+  }
+`;
 
 const renderInputComponent = inputProps => {
-  const { classes, inputRef = () => {}, ref, label, ...other } = inputProps;
+  const { inputRef = () => {}, ref, label, ...other } = inputProps;
   return (
     <OuterLabelFieldWrapper label={label} {...inputProps}>
       <TextField
@@ -143,7 +137,7 @@ class BaseAutocomplete extends Component {
   };
 
   renderSuggestion = (suggestion, { isHighlighted }) => (
-    <MenuItem selected={isHighlighted} component="div" style={{ padding: 8 }}>
+    <MenuItem selected={isHighlighted} component="div">
       <Typography variant="body2">{suggestion.label}</Typography>
     </MenuItem>
   );
@@ -153,28 +147,22 @@ class BaseAutocomplete extends Component {
   };
 
   renderContainer = option => {
-    const { classes } = this.props;
     return (
-      <Popper
-        className={classes.popperContainer}
-        anchorEl={this.popperNode}
-        open={!!option.children}
-        disablePortal
-      >
-        <Paper
+      <SuggestionsContainer anchorEl={this.popperNode} open={!!option.children} disablePortal>
+        <SuggestionsList
           square
           {...option.containerProps}
           style={{ width: this.popperNode ? this.popperNode.clientWidth : null }}
         >
           {option.children}
-        </Paper>
-      </Popper>
+        </SuggestionsList>
+      </SuggestionsContainer>
     );
   };
 
   render() {
     const { displayedValue, suggestions } = this.state;
-    const { label, required, name, classes, disabled, error, helperText } = this.props;
+    const { label, required, name, disabled, error, helperText } = this.props;
 
     return (
       <Autosuggest
@@ -192,21 +180,19 @@ class BaseAutocomplete extends Component {
           error,
           helperText,
           name,
-          classes,
           value: displayedValue,
           onChange: this.handleInputChange,
           inputRef: this.onPopperRef,
-        }}
-        theme={{
-          suggestionsList: classes.suggestionsList,
-          suggestion: classes.suggestion,
         }}
       />
     );
   }
 }
 
-export const AutocompleteInput = withStyles(styles)(BaseAutocomplete);
+export const AutocompleteInput = styled(BaseAutocomplete)`
+  height: 250px;
+  flex-grow: 1;
+`;
 export const AutocompleteField = ({ field, ...props }) => (
   <AutocompleteInput
     name={field.name}
