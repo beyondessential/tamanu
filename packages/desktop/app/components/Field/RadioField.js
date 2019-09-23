@@ -16,7 +16,7 @@ const styles = () => ({
   labelControl: {
     background: '#fff',
     margin: 0,
-    padding: '15px 6px',
+    padding: '15px 4px',
     border: '1px solid rgba(0, 0, 0, 0.23)',
     '& span:last-of-type': {
       // target: label
@@ -24,6 +24,7 @@ const styles = () => ({
     },
     '& span': {
       // targets: radio and label
+      fontSize: '1rem',
       padding: '0.5px 3px 0 0',
     },
     '&:not(:last-of-type)': {
@@ -46,7 +47,6 @@ const styles = () => ({
   },
   radioGroup: {
     flexWrap: 'nowrap',
-    // height: '57px',
   },
   radio: {
     color: '#cccccc',
