@@ -9,6 +9,6 @@ import { SidebarPrimaryIcon } from './SidebarPrimaryIcon';
 export const LogoutItem = React.memo(({ onClick }) => (
   <ListItem button onClick={onClick}>
     <SidebarPrimaryIcon src={logoutIcon} />
-    <SidebarItemText disableTypography inset primary={<Translated id="logout" />} />
+    <SidebarItemText disableTypography primary={<Translated id="logout" />} />
   </ListItem>
 ));
