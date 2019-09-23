@@ -11,7 +11,7 @@ export const PrimarySidebarItem = React.memo(({ icon, label, children, selected,
   <React.Fragment>
     <ListItem button onClick={onClick} selected={selected}>
       <SidebarPrimaryIcon src={icon || administrationIcon} />
-      <SidebarItemText inset disableTypography primary={label} />
+      <SidebarItemText disableTypography primary={label} />
     </ListItem>
     <Collapse in={selected} timeout="auto" unmountOnExit>
       <List component="div" disablePadding>
