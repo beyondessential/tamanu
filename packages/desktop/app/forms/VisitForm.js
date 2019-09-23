@@ -1,7 +1,9 @@
 import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
+import Avatar from '@material-ui/core/Avatar';
 
 import { foreignKey } from '../utils/validation';
 
@@ -20,23 +22,39 @@ import { visitOptions } from '../constants';
 
 const SelectorGrid = styled.div`
   display: grid;
-  grid-template-columns: auto auto;
-  grid-auto-rows: 4rem;
+  grid-template-columns: auto auto auto;
   grid-gap: 0.7rem;
 `;
 
-const VisitOptionButton = ({ label, onClick }) => (
-  <Button variant="contained" onClick={onClick}>
-    {label}
-  </Button>
+const visitOptionButtonStyles = () => ({
+  root: {
+    background: '#fff',
+    display: 'grid',
+    justifyContent: 'center',
+    textAlign: '-webkit-center',
+    height: '9rem',
+  },
+  avatar: {
+    marginBottom: '10px',
+  },
+});
+
+const VisitOptionButton = withStyles(visitOptionButtonStyles)(
+  ({ label, image, onClick, classes }) => (
+    <Button classes={classes} variant="contained" onClick={onClick}>
+      <Avatar className={classes.avatar} alt={label} src={image} />
+      {label}
+    </Button>
+  ),
 );
 
 const StartPage = ({ setValue }) => {
-  const items = visitOptions.map(({ label, value }) => (
+  const items = visitOptions.map(({ label, value, image }) => (
     <VisitOptionButton
       key={value}
       label={label}
       value={value}
+      image={image}
       onClick={() => setValue('visitType', value)}
     />
   ));
