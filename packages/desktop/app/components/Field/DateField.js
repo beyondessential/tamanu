@@ -27,7 +27,7 @@ const CalendarIcon = styled(CalendarToday)`
   color: #cccccc;
 `;
 
-export const DateInput = ({ value, format, onChange, classes, ...props }) => (
+export const DateInput = ({ value, format, onChange, ...props }) => (
   <TextInput
     type="date"
     {...props}

@@ -7,13 +7,12 @@ import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import CheckBoxOutlined from '@material-ui/icons/CheckBoxOutlined';
 
-const CheckControl = React.memo(({ value, classes, ...props }) => (
+const CheckControl = React.memo(({ value, ...props }) => (
   <Checkbox
     checkedIcon={<CheckBoxOutlined />}
     color="primary"
     checked={value}
     value="checked"
-    classes={classes}
     {...props}
   />
 ));
