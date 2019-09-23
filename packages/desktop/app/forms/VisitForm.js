@@ -1,5 +1,4 @@
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
@@ -30,23 +29,19 @@ const TypeImage = styled(Avatar)`
   margin-bottom: 10px;
 `;
 
-const visitOptionButtonStyles = () => ({
-  root: {
-    background: '#fff',
-    display: 'grid',
-    justifyContent: 'center',
-    textAlign: '-webkit-center',
-    height: '9rem',
-  },
-});
+const VisitOptionTypeButton = styled(Button)`
+  background: #fff;
+  display: grid;
+  justify-content: center;
+  text-align: -webkit-center;
+  height: 9rem;
+`;
 
-const VisitOptionButton = withStyles(visitOptionButtonStyles)(
-  ({ label, image, onClick, classes }) => (
-    <Button classes={classes} variant="contained" onClick={onClick}>
-      <TypeImage alt={label} src={image} />
-      {label}
-    </Button>
-  ),
+const VisitOptionButton = ({ label, image, onClick }) => (
+  <VisitOptionTypeButton variant="contained" onClick={onClick}>
+    <TypeImage alt={label} src={image} />
+    {label}
+  </VisitOptionTypeButton>
 );
 
 const StartPage = ({ setValue }) => {

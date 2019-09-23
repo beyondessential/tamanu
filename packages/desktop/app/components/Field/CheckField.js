@@ -1,47 +1,38 @@
 import React from 'react';
+import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
-import { withStyles } from '@material-ui/core/styles';
 import CheckBoxOutlined from '@material-ui/icons/CheckBoxOutlined';
 
-const inputStyles = () => ({
-  root: {
-    paddingTop: 0,
-    paddingBottom: 0,
-    width: 'max-content',
-  },
-  controlLabel: {
-    width: 'max-content',
-  },
-});
-
-const CheckControl = React.memo(({ value, classes, ...props }) => (
+const CheckControl = React.memo(({ value, ...props }) => (
   <Checkbox
     checkedIcon={<CheckBoxOutlined />}
     color="primary"
     checked={value}
     value="checked"
-    classes={classes}
     {...props}
   />
 ));
 
-export const CheckInput = withStyles(inputStyles)(
-  React.memo(({ label, value, style, error, helperText, classes, ...props }) => (
-    <FormControl style={style} error={error}>
-      <FormControlLabel
-        className={classes.controlLabel}
-        control={<CheckControl value={value} classes={{ root: classes.root }} {...props} />}
-        style={style}
-        label={label}
-      />
-      {helperText && <FormHelperText>{helperText}</FormHelperText>}
-    </FormControl>
-  )),
-);
+const ControlLabel = styled(FormControlLabel)`
+  width: max-content;
+`;
+
+const ControlCheck = styled(CheckControl)`
+  padding-top: 0;
+  padding-bottom: 0px;
+  width: max-content;
+`;
+
+export const CheckInput = React.memo(({ label, value, style, error, helperText, ...props }) => (
+  <FormControl style={style} error={error}>
+    <ControlLabel control={<ControlCheck value={value} {...props} />} style={style} label={label} />
+    {helperText && <FormHelperText>{helperText}</FormHelperText>}
+  </FormControl>
+));
 
 export const CheckField = React.memo(({ field, error, ...props }) => (
   <CheckInput
