@@ -26,6 +26,10 @@ const SelectorGrid = styled.div`
   grid-gap: 0.7rem;
 `;
 
+const TypeImage = styled(Avatar)`
+  margin-bottom: 10px;
+`;
+
 const visitOptionButtonStyles = () => ({
   root: {
     background: '#fff',
@@ -34,15 +38,12 @@ const visitOptionButtonStyles = () => ({
     textAlign: '-webkit-center',
     height: '9rem',
   },
-  avatar: {
-    marginBottom: '10px',
-  },
 });
 
 const VisitOptionButton = withStyles(visitOptionButtonStyles)(
   ({ label, image, onClick, classes }) => (
     <Button classes={classes} variant="contained" onClick={onClick}>
-      <Avatar className={classes.avatar} alt={label} src={image} />
+      <TypeImage alt={label} src={image} />
       {label}
     </Button>
   ),
