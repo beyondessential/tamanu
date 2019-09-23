@@ -190,12 +190,12 @@ export const noteTypes = [
 ];
 
 export const visitOptions = [
-  { value: 'admission', label: 'Admission' },
-  { value: 'clinic', label: 'Clinic' },
-  { value: 'imaging', label: 'Imaging' },
-  { value: 'lab', label: 'Lab' },
-  { value: 'emergency', label: 'Emergency' },
-  { value: 'observation', label: 'Observation' },
+  { value: 'admission', label: 'Admission', image: './assets/images/medication.png' },
+  { value: 'clinic', label: 'Clinic', image: './assets/images/administration.png' },
+  { value: 'imaging', label: 'Imaging', image: './assets/images/radiology.png' },
+  { value: 'lab', label: 'Lab', image: './assets/images/labs.png' },
+  { value: 'emergency', label: 'Emergency', image: './assets/images/schedule.png' },
+  { value: 'observation', label: 'Observation', image: './assets/images/patient.png' },
 ];
 
 export const triagePriorities = [
