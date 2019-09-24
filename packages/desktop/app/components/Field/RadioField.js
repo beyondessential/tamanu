@@ -14,7 +14,7 @@ const StyledFormControl = styled(FormControl)`
 `;
 
 const StyledRadioGroup = styled(RadioGroup)`
-  flex-direction: ${props => (props.inline ? 'row' : 'column')};
+  flex-direction: ${props => (props.row ? 'row' : 'column')};
   flex-wrap: nowrap;
 `;
 
@@ -64,13 +64,7 @@ export const RadioInput = ({
 }) => (
   <OuterLabelFieldWrapper label={label} {...props}>
     <StyledFormControl style={style} {...props}>
-      <StyledRadioGroup
-        inline={inline}
-        aria-label={name}
-        name={name}
-        value={value || ''}
-        {...props}
-      >
+      <StyledRadioGroup row={inline} aria-label={name} name={name} value={value || ''} {...props}>
         {options.map(option => (
           <ControlLabel
             key={option.value}
