@@ -14,6 +14,7 @@ const TabContainer = styled(Tabs)`
 const StyledTab = styled(Tab)`
   span {
     flex-direction: row;
+    text-transform: capitalize;
   }
 
   && i:first-child {
