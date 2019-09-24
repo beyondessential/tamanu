@@ -101,25 +101,30 @@ const TABS = [
   {
     label: 'History',
     key: 'history',
+    icon: 'fa fa-user-md',
     render: () => <HistoryPane />,
   },
   {
     label: 'Details',
     key: 'details',
+    icon: 'fa fa-user-md',
   },
   {
     label: 'Appointments',
     key: 'appointments',
+    icon: 'fa fa-user-md',
     render: ({ patient }) => <AppointmentPane patient={patient} />,
   },
   {
     label: 'Referrals',
     key: 'Referrals',
+    icon: 'fa fa-user-md',
     render: ({ patient }) => <ReferralPane patient={patient} />,
   },
   {
     label: 'Documents',
     key: 'documents',
+    icon: 'fa fa-user-md',
   },
 ];
 
