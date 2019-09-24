@@ -5,6 +5,10 @@ import { Tabs, Tab, SvgIcon } from '@material-ui/core';
 
 const TabContainer = styled(Tabs)`
   background: #fff;
+
+  .MuiTabs-indicator {
+    background-color: #326699;
+  }
 `;
 
 const StyledTab = styled(Tab)`
