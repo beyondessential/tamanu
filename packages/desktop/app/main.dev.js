@@ -74,6 +74,9 @@ app.on('ready', async () => {
     // height: 728
     width: 1500,
     height: 900,
+    webPreferences: {
+      nodeIntegration: true,
+    },
   });
 
   const htmlLocation =
