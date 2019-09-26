@@ -142,6 +142,21 @@ export const TextButton = ({ children, ...props }) => (
   </StyledTextButton>
 );
 
+const StyledImageButton = styled(Button)`
+  background: #fff;
+  img {
+    max-width: 62px;
+    max-height: 62px;
+  }
+`;
+
+export const ImageButton = ({ children, ...props }) => (
+  <StyledImageButton variant="contained">
+    <img src={props.src} />
+    {children}
+  </StyledImageButton>
+);
+
 const isAllowed = ({ can = {} }) => {
   let allowed = true;
   const { do: action, on: subject, field } = can;
