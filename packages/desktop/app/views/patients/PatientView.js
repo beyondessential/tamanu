@@ -90,7 +90,7 @@ const HistoryPane = connect(
           src="./assets/images/medication.svg"
           title="Check in"
           disabled={!isCheckInAvailable}
-          action={onOpenCheckin}
+          onClick={onOpenCheckin}
         >
           Check In
         </ImageButton>
@@ -98,7 +98,7 @@ const HistoryPane = connect(
           src="./assets/images/profile.svg"
           title="Triage"
           disabled={!isCheckInAvailable}
-          action={onOpenTriage}
+          onClick={onOpenTriage}
         >
           Triage
         </ImageButton>

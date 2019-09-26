@@ -148,6 +148,7 @@ export const TextButton = ({ children, ...props }) => (
 
 const StyledImageButton = styled(Button)`
   background: #fff;
+  padding: 16px;
   img {
     max-width: 52px;
     max-height: 52px;
@@ -156,7 +157,7 @@ const StyledImageButton = styled(Button)`
 `;
 
 export const ImageButton = ({ children, ...props }) => (
-  <StyledImageButton variant="contained">
+  <StyledImageButton variant="contained" {...props}>
     <img src={props.src} />
     {children}
   </StyledImageButton>
