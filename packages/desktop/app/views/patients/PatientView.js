@@ -88,13 +88,13 @@ const HistoryPane = connect(
     <div>
       <CallToActionRow>
         <CallToActionCard
-          avatar="./assets/images/medication.png"
+          avatar="./assets/images/medication.svg"
           title="Check in"
           disabled={!isCheckInAvailable}
           action={onOpenCheckin}
         />
         <CallToActionCard
-          avatar="./assets/images/profile.png"
+          avatar="./assets/images/profile.svg"
           title="Triage"
           disabled={!isCheckInAvailable}
           action={onOpenTriage}
