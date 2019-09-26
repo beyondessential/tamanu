@@ -31,9 +31,9 @@ if (isProduction) {
   sourceMapSupport.install();
 }
 
-if (isDebug) {
-  electronDebug({ isEnabled: true });
-}
+// if (isDebug) { temporarily allowing debug on prod
+electronDebug({ isEnabled: true });
+// }
 
 const installExtensions = async () => {
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
@@ -64,9 +64,9 @@ app.on('window-all-closed', () => {
 });
 
 app.on('ready', async () => {
-  if (isDebug) {
-    await installExtensions();
-  }
+  // if (isDebug) { temporarily allowing debug on prod
+  await installExtensions();
+  // }
 
   mainWindow = new BrowserWindow({
     show: false,
