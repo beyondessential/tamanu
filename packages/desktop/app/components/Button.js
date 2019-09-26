@@ -15,16 +15,20 @@ export const ButtonBase = props => {
   return <MuiButtonBase {...props} {...locationsProps} disabled={!allowed || props.disabled} />;
 };
 
+const StyledButton = styled(MuiButton)`
+  text-transform: capitalize;
+`;
+
 export const Button = ({ children, isSubmitting, disabled, ...props }) => {
   const allowed = isAllowed(props);
   const locationsProps = getLocationProps(props);
   return (
-    <MuiButton {...props} {...locationsProps} disabled={!allowed || disabled || isSubmitting}>
+    <StyledButton {...props} {...locationsProps} disabled={!allowed || disabled || isSubmitting}>
       {isSubmitting && (
         <Icon className="fa fa-spinner fa-spin" style={{ marginRight: 4, fontSize: 18 }} />
       )}
       {children}
-    </MuiButton>
+    </StyledButton>
   );
 };
 
