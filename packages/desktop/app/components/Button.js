@@ -145,8 +145,9 @@ export const TextButton = ({ children, ...props }) => (
 const StyledImageButton = styled(Button)`
   background: #fff;
   img {
-    max-width: 62px;
-    max-height: 62px;
+    max-width: 52px;
+    max-height: 52px;
+    padding-right: 10px;
   }
 `;
 
