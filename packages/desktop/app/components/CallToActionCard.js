@@ -7,6 +7,11 @@ import Avatar from '@material-ui/core/Avatar';
 
 const CardContainer = styled.div`
   display: flex;
+
+  > div {
+    background: ${props => (props.disabled ? '#cccccc' : '#fff')};
+    min-width: 140px;
+  }
 `;
 
 const Content = styled.div`
@@ -21,17 +26,17 @@ const Title = styled.div`
 
 const Description = styled.div`
   font-size: 14px;
-  color: #b8b8b8;
+  color: ${props => (props.disabled ? '#fff' : '#b8b8b8')};
 `;
 
-export const CallToActionCard = ({ avatar, title, description, action }) => {
+export const CallToActionCard = ({ avatar, title, description, action, disabled }) => {
   return (
-    <CardContainer onClick={action}>
+    <CardContainer disabled={disabled} onClick={disabled ? () => {} : action}>
       <Card>
         <CardHeader avatar={<Avatar src={avatar} />} />
         <Content>
           <Title>{title}</Title>
-          <Description>{description}</Description>
+          <Description disabled={disabled}>{description}</Description>
         </Content>
       </Card>
     </CardContainer>
