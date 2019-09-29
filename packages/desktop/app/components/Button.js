@@ -15,16 +15,20 @@ export const ButtonBase = props => {
   return <MuiButtonBase {...props} {...locationsProps} disabled={!allowed || props.disabled} />;
 };
 
+const StyledButton = styled(MuiButton)`
+  text-transform: capitalize;
+`;
+
 export const Button = ({ children, isSubmitting, disabled, ...props }) => {
   const allowed = isAllowed(props);
   const locationsProps = getLocationProps(props);
   return (
-    <MuiButton {...props} {...locationsProps} disabled={!allowed || disabled || isSubmitting}>
+    <StyledButton {...props} {...locationsProps} disabled={!allowed || disabled || isSubmitting}>
       {isSubmitting && (
         <Icon className="fa fa-spinner fa-spin" style={{ marginRight: 4, fontSize: 18 }} />
       )}
       {children}
-    </MuiButton>
+    </StyledButton>
   );
 };
 
@@ -140,6 +144,23 @@ export const TextButton = ({ children, ...props }) => (
   <StyledTextButton variant="text" color="primary" {...props}>
     {children}
   </StyledTextButton>
+);
+
+const StyledImageButton = styled(Button)`
+  background: #fff;
+  padding: 16px;
+  img {
+    max-width: 52px;
+    max-height: 52px;
+    padding-right: 10px;
+  }
+`;
+
+export const ImageButton = ({ children, ...props }) => (
+  <StyledImageButton variant="contained" {...props}>
+    <img src={props.src} />
+    {children}
+  </StyledImageButton>
 );
 
 const isAllowed = ({ can = {} }) => {

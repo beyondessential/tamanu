@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
+import styled from 'styled-components';
 
 import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
@@ -15,12 +16,22 @@ import { ReferralModal } from '../../components/ReferralModal';
 import { ReferralTable } from '../../components/ReferralTable';
 import { AppointmentModal } from '../../components/AppointmentModal';
 import { AppointmentTable } from '../../components/AppointmentTable';
-import { Button } from '../../components/Button';
+import { Button, ImageButton } from '../../components/Button';
 import { connectRoutedModal } from '../../components/Modal';
 
 import { viewVisit } from '../../store/visit';
 
 import { getCurrentVisit } from '../../store/patient';
+
+const CallToActionRow = styled(ContentPane)`
+  display: flex;
+
+  > button {
+    :not(:last-child) {
+      margin-right: 10px;
+    }
+  }
+`;
 
 const AppointmentPane = React.memo(({ patient }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -74,24 +85,24 @@ const HistoryPane = connect(
 )(
   React.memo(({ visits, onOpenCheckin, onOpenTriage, onViewVisit, isCheckInAvailable }) => (
     <div>
-      <ContentPane>
-        <Button
+      <CallToActionRow>
+        <ImageButton
+          src="./assets/images/medication.svg"
+          title="Check in"
           disabled={!isCheckInAvailable}
           onClick={onOpenCheckin}
-          variant="contained"
-          color="primary"
         >
-          Check in
-        </Button>
-        <Button
+          Check In
+        </ImageButton>
+        <ImageButton
+          src="./assets/images/profile.svg"
+          title="Triage"
           disabled={!isCheckInAvailable}
           onClick={onOpenTriage}
-          variant="contained"
-          color="primary"
         >
           Triage
-        </Button>
-      </ContentPane>
+        </ImageButton>
+      </CallToActionRow>
       <PatientHistory items={visits} onItemClick={item => onViewVisit(item._id)} />
     </div>
   )),
@@ -101,13 +112,13 @@ const TABS = [
   {
     label: 'History',
     key: 'history',
-    icon: 'fa fa-user-md',
+    icon: 'fa fa-calendar-day',
     render: () => <HistoryPane />,
   },
   {
     label: 'Details',
     key: 'details',
-    icon: 'fa fa-user-md',
+    icon: 'fa fa-info-circle',
   },
   {
     label: 'Appointments',
@@ -118,13 +129,13 @@ const TABS = [
   {
     label: 'Referrals',
     key: 'Referrals',
-    icon: 'fa fa-user-md',
+    icon: 'fa fa-hospital',
     render: ({ patient }) => <ReferralPane patient={patient} />,
   },
   {
     label: 'Documents',
     key: 'documents',
-    icon: 'fa fa-user-md',
+    icon: 'fa fa-file-medical-alt',
   },
 ];
 

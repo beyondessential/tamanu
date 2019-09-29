@@ -9,6 +9,7 @@ import { LoginView } from './views';
 
 const AppContainer = styled.div`
   display: flex;
+  background: #f7f9fb;
 `;
 
 const AppContentsContainer = styled.div`
