@@ -3,14 +3,12 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 
 import { PatientStatisticsCard } from '../app/components/PatientStatisticsCard';
-import { Colors } from '../app/constants';
 
 storiesOf('Cards', module).add('PatientStatisticsCard', () => (
   <PatientStatisticsCard
-    title="Level 1 Patient"
     numberOfPatients={28}
     percentageIncrease={15}
-    averageWaitTime="1hr 8mins"
-    themeColor={Colors.alert}
+    averageWaitTime={68}
+    priorityLevel={1}
   />
 ));

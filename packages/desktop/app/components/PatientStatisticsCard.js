@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import People from '@material-ui/icons/People';
@@ -6,6 +7,12 @@ import ArrowUpward from '@material-ui/icons/ArrowUpward';
 import ArrowDownward from '@material-ui/icons/ArrowDownward';
 import AccessTime from '@material-ui/icons/AccessTime';
 import { Colors } from '../constants';
+
+const priorityLevelColors = {
+  1: Colors.alert,
+  2: Colors.secondary,
+  3: Colors.safe,
+};
 
 const Container = styled.div`
   width: 230px;
@@ -59,7 +66,7 @@ const PercentageText = styled.div`
 `;
 
 const Footer = styled.div`
-  margin: 0 15px 15px 15px;
+  margin: 0 10px 10px 10px;
   padding-top: 10px;
   text-align: center;
   border-top: 1px solid ${Colors.outline};
@@ -80,40 +87,47 @@ const FooterTime = styled.span`
 `;
 
 export const PatientStatisticsCard = ({
-  title,
   numberOfPatients,
   percentageIncrease,
   averageWaitTime,
-  themeColor,
-}) => (
-  <Container>
-    <Header background={themeColor}>
-      <PeopleIcon />
-      <Title>{title}</Title>
-    </Header>
+  priorityLevel,
+}) => {
+  const colorTheme = priorityLevelColors[priorityLevel];
+  const title = `Level ${priorityLevel} Patient`;
+  const momentDuration = moment.duration(averageWaitTime, 'minutes'); // assumes av. duration passed as mins
+  const hours = momentDuration.hours();
+  const mins = momentDuration.minutes();
+  const averageDuration = `${hours}${hours > 1 ? 'hrs' : 'hr'} ${mins}${mins > 1 ? 'mins' : 'min'}`;
 
-    <BottomContainer>
-      <Content>
-        <PatientText color={themeColor}>{numberOfPatients}</PatientText>
-        <PercentageText percentage={percentageIncrease}>
-          {percentageIncrease > 0 ? <ArrowUpward /> : <ArrowDownward />}
-          <span>{Math.abs(percentageIncrease)}%</span>
-        </PercentageText>
-      </Content>
+  return (
+    <Container>
+      <Header background={colorTheme}>
+        <PeopleIcon />
+        <Title>{title}</Title>
+      </Header>
 
-      <Footer>
-        <AccessTime htmlColor={themeColor} />
-        <FooterLabel>Avg. wait time: </FooterLabel>
-        <FooterTime>{averageWaitTime}</FooterTime>
-      </Footer>
-    </BottomContainer>
-  </Container>
-);
+      <BottomContainer>
+        <Content>
+          <PatientText color={colorTheme}>{numberOfPatients}</PatientText>
+          <PercentageText percentage={percentageIncrease}>
+            {percentageIncrease > 0 ? <ArrowUpward /> : <ArrowDownward />}
+            <span>{Math.abs(percentageIncrease)}%</span>
+          </PercentageText>
+        </Content>
+
+        <Footer>
+          <AccessTime htmlColor={colorTheme} />
+          <FooterLabel>Avg. wait time: </FooterLabel>
+          <FooterTime>{averageDuration}</FooterTime>
+        </Footer>
+      </BottomContainer>
+    </Container>
+  );
+};
 
 PatientStatisticsCard.propTypes = {
-  title: PropTypes.string,
   numberOfPatients: PropTypes.number,
   percentageIncrease: PropTypes.number,
-  averageWaitTime: PropTypes.string,
-  themeColor: PropTypes.string,
+  averageWaitTime: PropTypes.number,
+  priorityLevel: PropTypes.number,
 };
