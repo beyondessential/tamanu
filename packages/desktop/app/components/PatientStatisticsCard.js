@@ -31,7 +31,7 @@ const PeopleIcon = styled(People)`
 `;
 
 const BottomContainer = styled.div`
-  border: 1px solid #dedede;
+  border: 1px solid ${Colors.outline};
   border-top: none;
 `;
 
@@ -47,7 +47,7 @@ const PatientText = styled.span`
 `;
 
 const PercentageText = styled.div`
-  color: #888888;
+  color: ${Colors.midText};
   font-size: 18px;
   align-self: center;
   display: ${props => props.percentage === 0 && 'none'};
@@ -62,7 +62,7 @@ const Footer = styled.div`
   margin: 0 15px 15px 15px;
   padding-top: 10px;
   text-align: center;
-  border-top: 1px solid #dedede;
+  border-top: 1px solid ${Colors.outline};
 
   svg {
     vertical-align: text-bottom;
@@ -72,11 +72,11 @@ const Footer = styled.div`
 `;
 
 const FooterLabel = styled.span`
-  color: #444444;
+  color: ${Colors.darkestText};
 `;
 
 const FooterTime = styled.span`
-  color: #888888;
+  color: ${Colors.midText};
 `;
 
 export const PatientStatisticsCard = ({
