@@ -8,6 +8,7 @@ import Icon from '@material-ui/core/Icon';
 import { red } from '@material-ui/core/colors';
 import { checkAbility } from '../utils/ability';
 import { history } from '../utils';
+import { Colors } from '../constants';
 
 export const ButtonBase = props => {
   const allowed = isAllowed(props);
@@ -59,7 +60,7 @@ export const CancelButton = props => (
 
 const StyledDeleteButton = styled(Button)`
   background: ${red[600]};
-  color: #fff;
+  color: ${Colors.white};
 
   :hover {
     background: ${red[800]};
@@ -147,7 +148,7 @@ export const TextButton = ({ children, ...props }) => (
 );
 
 const StyledImageButton = styled(Button)`
-  background: #fff;
+  background: ${Colors.white};
   padding: 16px;
   img {
     max-width: 52px;

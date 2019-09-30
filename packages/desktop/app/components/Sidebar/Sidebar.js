@@ -7,13 +7,14 @@ import { TamanuLogo } from '../TamanuLogo';
 import { LogoutItem } from './LogoutItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
+import { Colors } from '../../constants';
 
 const SidebarContainer = styled.div`
   min-width: 275px;
   height: 100vh;
   position: relative;
-  background: #2f4358;
-  color: #fff;
+  background: ${Colors.primaryDark};
+  color: ${Colors.white};
   flex-grow: 0;
   flex-shrink: 0;
 
@@ -21,7 +22,7 @@ const SidebarContainer = styled.div`
   flex-direction: column;
 
   i {
-    color: #fff;
+    color: ${Colors.white};
   }
 `;
 

@@ -1,13 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Colors } from '../constants';
 
 const InfoIcon = styled.div`
   display: inline-block;
-  border: 1px solid #b8b8b8;
+  border: 1px solid ${Colors.softText};
   border-radius: 4em;
   width: 1em;
   height: 1em;
-  background: #b8b8b8;
+  background: ${Colors.softText};
   cursor: pointer;
   text-align: center;
   color: white;
