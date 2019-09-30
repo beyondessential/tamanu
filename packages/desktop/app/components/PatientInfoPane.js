@@ -5,6 +5,7 @@ import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
 
 import { AllergyForm, OngoingConditionForm, FamilyHistoryForm } from '../forms';
+import { Colors } from '../constants';
 
 const OngoingConditionDisplay = memo(({ patient }) => (
   <InfoPaneList
@@ -44,9 +45,9 @@ const FamilyHistoryDisplay = memo(({ patient }) => (
 const PatientIssuesDisplay = memo(() => <InfoPaneList title="Other patient isues" items={[]} />);
 
 const Container = styled.div`
-  background: #fff;
+  background: ${Colors.white};
   min-height: 100vh;
-  border-right: 1px solid #dedede;
+  border-right: 1px solid ${Colors.outline};
 `;
 
 const ListsSection = styled.div`

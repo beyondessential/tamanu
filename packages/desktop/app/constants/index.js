@@ -16,9 +16,23 @@ export const DB_OBJECTS_MAX_DEPTH = {
   VISIT_MAIN: 7,
 };
 
+// Should only be colours that are defined as constants in Figma
+// (with the exception of searchTintColor)
 export const Colors = {
-  searchTintColor: '#d2dae3',
+  primary: '#326699',
+  primaryDark: '#2f4358',
+  secondary: '#ffcc24',
+  alert: '#f76853',
+  safe: '#47ca80',
+  darkestText: '#444444',
+  darkText: '#666666',
+  midText: '#888888',
+  softText: '#b8b8b8',
+  outline: '#dedede',
+  background: '#f3f5f7',
   white: '#ffffff',
+  brightBlue: '#67A6E3',
+  searchTintColor: '#d2dae3',
 };
 
 export const MAX_AUTO_COMPLETE_ITEMS = {
@@ -58,7 +72,7 @@ export const IMAGING_REQUEST_STATUSES = {
 export const columnStyle = {
   backgroundColor: Colors.white,
   height: '60px',
-  color: '#2f4358',
+  color: Colors.primaryDark,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -67,7 +81,7 @@ export const columnStyle = {
 export const columnStyleSlim = {
   backgroundColor: Colors.white,
   height: '40px',
-  color: '#2f4358',
+  color: Colors.primaryDark,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -201,7 +215,7 @@ export const visitOptions = [
 export const triagePriorities = [
   { value: '3', label: 'Non-urgent', color: '#47CA80' },
   { value: '2', label: 'Priority', color: '#FFB630' },
-  { value: '1', label: 'Emergency', color: '#F76853' },
+  { value: '1', label: 'Emergency', color: Colors.alert },
 ];
 
 export const operativePlanStatuses = {

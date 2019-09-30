@@ -9,6 +9,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import { withStyles } from '@material-ui/core/styles';
 import { getCurrentRoute } from '../store/router';
+import { Colors } from '../constants';
 
 const MODAL_PADDING = 32;
 
@@ -18,7 +19,7 @@ const ModalContent = styled.div`
 `;
 
 const ModalContainer = styled.div`
-  background: #f3f5f7;
+  background: ${Colors.background};
 `;
 
 export const FullWidthRow = styled.div`

@@ -17,6 +17,7 @@ import TableFooter from '@material-ui/core/TableFooter';
 import TablePagination from '@material-ui/core/TablePagination';
 
 import { ErrorBoundary } from '../ErrorBoundary';
+import { Colors } from '../../constants';
 
 const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
@@ -70,17 +71,17 @@ const ErrorRow = React.memo(({ colSpan, children }) => (
 
 const tableStyles = () => ({
   root: {
-    border: '1px solid #DEDEDE',
+    border: `1px solid ${Colors.outline}`,
     borderRadius: '3px 3px 0 0',
     borderCollapse: 'unset',
-    background: '#fff',
+    background: Colors.white,
 
     '&:last-child': {
       borderBottom: 'none',
     },
   },
   tableHead: {
-    background: '#F3F5F7',
+    background: Colors.background,
   },
 });
 

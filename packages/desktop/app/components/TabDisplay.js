@@ -2,12 +2,13 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Tabs, Tab } from '@material-ui/core';
+import { Colors } from '../constants';
 
 const TabContainer = styled(Tabs)`
-  background: #fff;
+  background: ${Colors.white};
 
   .MuiTabs-indicator {
-    background-color: #326699;
+    background-color: ${Colors.primary};
   }
 `;
 
@@ -33,7 +34,12 @@ export const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect, ...tabPro
   const buttons = tabs.map(({ key, label, render, icon }) => (
     <StyledTab
       key={key}
-      icon={<Icon className={icon} color={currentTabData.key === key ? '#326699' : '#b8b8b8'} />}
+      icon={
+        <Icon
+          className={icon}
+          color={currentTabData.key === key ? Colors.primary : Colors.softText}
+        />
+      }
       style={{ minWidth: 'auto' }}
       label={label}
       disabled={!render}

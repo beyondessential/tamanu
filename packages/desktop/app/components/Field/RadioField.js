@@ -7,6 +7,7 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
+import { Colors } from '../../constants';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -20,12 +21,12 @@ const StyledRadioGroup = styled(RadioGroup)`
 
 const StyledRadio = styled(Radio)`
   svg {
-    color: ${props => (props.value === props.selected ? '#4285F4' : '#cccccc')};
+    color: ${props => (props.value === props.selected ? Colors.primary : '#cccccc')};
   }
 `;
 
 const ControlLabel = styled(FormControlLabel)`
-  background: ${props => (props.value === props.selected ? '#fafafa' : '#fff')};
+  background: ${props => (props.value === props.selected ? '#fafafa' : Colors.white)};
   margin: 0;
   padding: 15px 4px;
   border: 1px solid rgba(0, 0, 0, 0.23);
@@ -36,7 +37,7 @@ const ControlLabel = styled(FormControlLabel)`
   }
 
   span:last-of-type {
-    color: ${props => (props.value === props.selected ? '#666666' : '#999999')};
+    color: ${props => (props.value === props.selected ? Colors.darkText : Colors.midText)};
   }
 
   :not(:last-of-type) {
