@@ -1,16 +1,18 @@
 import React from 'react';
-import styled from 'styled-components';
-import { Autorenew } from '@material-ui/icons';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
+
+import { Autorenew } from '@material-ui/icons';
+import { Colors } from '../../constants';
 
 const IdControl = styled.div`
   display: flex;
-  color: #2f4358;
+  color: ${Colors.primaryDark};
 `;
 
 const Id = styled.div`
   font-weight: 600;
-  background: #ffcc24;
+  background: ${Colors.secondary};
   border-radius: 4px;
   height: max-content;
   width: max-content;
@@ -24,7 +26,7 @@ const RegenerateId = styled.div`
   cursor: pointer;
 
   svg {
-    color: #2f4358;
+    color: ${Colors.primaryDark};
     padding: 0;
     margin-right: 5px;
   }

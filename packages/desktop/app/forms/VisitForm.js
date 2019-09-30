@@ -17,7 +17,7 @@ import {
 import { FormGrid } from '../components/FormGrid';
 import { Button } from '../components/Button';
 
-import { visitOptions } from '../constants';
+import { visitOptions, Colors } from '../constants';
 
 const SelectorGrid = styled.div`
   display: grid;
@@ -30,7 +30,7 @@ const TypeImage = styled(Avatar)`
 `;
 
 const VisitOptionTypeButton = styled(Button)`
-  background: #fff;
+  background: ${Colors.white};
   display: grid;
   justify-content: center;
   text-align: -webkit-center;

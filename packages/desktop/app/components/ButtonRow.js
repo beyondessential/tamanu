@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { Button } from './Button';
 import { FullWidthRow } from './Modal';
+import { Colors } from '../constants';
 
 const Row = styled.div`
   display: grid;
@@ -36,7 +37,7 @@ export const ConfirmCancelRow = React.memo(
 );
 
 const ActionRow = styled(ConfirmCancelRow)`
-  border-top: 1px solid #dedede;
+  border-top: 1px solid ${Colors.outline};
   padding: 18px 32px 0 0;
   grid-column: 1 / -1;
   display: flex;

@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { withTheme, withStyles } from '@material-ui/core/styles';
 
 import { reportLine, reportBar, reportPie, reportRaw, reportTable } from '../../constants/images';
-import { REPORT_TYPES } from '../../constants';
+import { REPORT_TYPES, Colors } from '../../constants';
 import { Button } from '../../components/Button';
 
 import { datasetOptions, visualisationOptions } from './dummyReports';
@@ -50,7 +50,7 @@ const StyledDatasetItem = styled(ListItem)`
 const DatasetItem = withStyles({
   root: {
     backgroundColor: '#ffdb00',
-    border: '1px solid #2f4358',
+    border: `1px solid ${Colors.primaryDark}`,
     borderRadius: 15,
     justifyContent: 'center',
     marginLeft: 5,
@@ -58,7 +58,7 @@ const DatasetItem = withStyles({
     maxWidth: 150,
   },
   selected: {
-    backgroundColor: '#fff !important',
+    backgroundColor: `${Colors.white} !important`,
   },
 })(StyledDatasetItem);
 

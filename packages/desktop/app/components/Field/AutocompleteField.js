@@ -6,6 +6,7 @@ import { TextField, MenuItem, Popper, Paper, Typography } from '@material-ui/cor
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Search from '@material-ui/icons/Search';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
+import { Colors } from '../../constants';
 
 const SuggestionsContainer = styled(Popper)`
   z-index: 999;
@@ -41,7 +42,7 @@ const renderInputComponent = inputProps => {
           ),
           style: {
             paddingRight: 0,
-            background: '#fff',
+            background: Colors.white,
           },
         }}
         fullWidth

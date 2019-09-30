@@ -6,11 +6,12 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
+import { Colors } from '../constants';
 
 const styles = theme => ({
   root: {
     flexGrow: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.white,
     boxShadow: `0px 1px 0px ${grey[300]}`,
     padding: '12px 0',
   },

@@ -4,10 +4,11 @@ import MuiMenuItem from '@material-ui/core/MenuItem';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
+import { Colors } from '../../constants';
 
 const styles = () => ({
   root: {
-    background: '#fff',
+    background: Colors.white,
   },
 });
 
