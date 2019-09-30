@@ -6,13 +6,7 @@ import People from '@material-ui/icons/People';
 import ArrowUpward from '@material-ui/icons/ArrowUpward';
 import ArrowDownward from '@material-ui/icons/ArrowDownward';
 import AccessTime from '@material-ui/icons/AccessTime';
-import { Colors } from '../constants';
-
-const priorityLevelColors = {
-  1: Colors.alert,
-  2: Colors.secondary,
-  3: Colors.safe,
-};
+import { Colors, PATIENT_PRIORITY_LEVEL_COLORS } from '../constants';
 
 const Container = styled.div`
   width: 230px;
@@ -92,7 +86,7 @@ export const PatientStatisticsCard = ({
   averageWaitTime,
   priorityLevel,
 }) => {
-  const colorTheme = priorityLevelColors[priorityLevel];
+  const colorTheme = PATIENT_PRIORITY_LEVEL_COLORS[priorityLevel];
   const title = `Level ${priorityLevel} Patient`;
   const momentDuration = moment.duration(averageWaitTime, 'minutes'); // assumes av. duration passed as mins
   const hours = momentDuration.hours();

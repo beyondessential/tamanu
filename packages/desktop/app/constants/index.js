@@ -55,6 +55,12 @@ export const LAB_REQUEST_STATUS_LABELS = {
   [LAB_REQUEST_STATUSES.PUBLISHED]: 'Published',
 };
 
+export const PATIENT_PRIORITY_LEVEL_COLORS = {
+  1: Colors.alert,
+  2: Colors.secondary,
+  3: Colors.safe,
+};
+
 export const LAB_REQUEST_COLORS = {
   [LAB_REQUEST_STATUSES.RECEPTION_PENDING]: '#faa',
   [LAB_REQUEST_STATUSES.RESULTS_PENDING]: '#aaf',
