@@ -125,9 +125,13 @@ export const PatientStatisticsCard = ({
   );
 };
 
+PatientStatisticsCard.defaultProps = {
+  percentageIncrease: 0,
+};
+
 PatientStatisticsCard.propTypes = {
-  numberOfPatients: PropTypes.number,
+  numberOfPatients: PropTypes.number.isRequired,
   percentageIncrease: PropTypes.number,
-  averageWaitTime: PropTypes.number,
-  priorityLevel: PropTypes.number,
+  averageWaitTime: PropTypes.number.isRequired,
+  priorityLevel: PropTypes.number.isRequired,
 };
