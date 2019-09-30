@@ -1,28 +1,28 @@
 import React from 'react';
+import styled from 'styled-components';
 import MuiTextField from '@material-ui/core/TextField';
 import MuiMenuItem from '@material-ui/core/MenuItem';
-import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 
-const styles = () => ({
-  root: {
-    background: Colors.white,
-  },
-});
+const StyledTextField = styled(MuiTextField)`
+  div:first-child {
+    background: ${Colors.white};
+  }
+`;
 
-export const SelectInput = withStyles(styles)(({ options, value, label, classes, ...props }) => (
+export const SelectInput = ({ options, value, label, classes, ...props }) => (
   <OuterLabelFieldWrapper label={label} {...props}>
-    <MuiTextField select value={value || ''} variant="outlined" classes={classes} {...props}>
+    <StyledTextField select value={value || ''} variant="outlined" classes={classes} {...props}>
       {options.map(o => (
         <MuiMenuItem key={o.value} value={o.value}>
           {o.label}
         </MuiMenuItem>
       ))}
-    </MuiTextField>
+    </StyledTextField>
   </OuterLabelFieldWrapper>
-));
+);
 
 export const SelectField = ({ field, ...props }) => (
   <SelectInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
