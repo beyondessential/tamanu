@@ -60,7 +60,7 @@ export const CancelButton = props => (
 
 const StyledDeleteButton = styled(Button)`
   background: ${red[600]};
-  color: ;
+  color: ${Colors.white};
 
   :hover {
     background: ${red[800]};
