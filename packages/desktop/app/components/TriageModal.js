@@ -46,46 +46,37 @@ const DetailValue = styled.span`
 `;
 
 const DumbTriageModal = React.memo(
-  ({
-    open,
-    visit,
-    practitionerSuggester,
-    locationSuggester,
-    onClose,
-    onSubmit,
-    firstName,
-    lastName,
-    sex,
-    dateOfBirth,
-    patientId,
-  }) => (
-    <Modal title="New Emergency Triage" open={open} width="lg" onClose={onClose}>
-      <PatientDetails>
-        <div>
-          Patient Details<span>{patientId}</span>
-        </div>
-        <div>
-          <DetailLabel>First Name:</DetailLabel> <DetailValue>{firstName}</DetailValue>
-          <DetailLabel>Last Name:</DetailLabel> <DetailValue>{lastName}</DetailValue>
-          <DetailLabel>Sex:</DetailLabel> <DetailValue>{sex}</DetailValue>
-          <DetailLabel>Date of Birth:</DetailLabel>
-          <DetailValue>{moment(dateOfBirth).format('MM/DD/YYYY')}</DetailValue>
-        </div>
-      </PatientDetails>
-      <TriageForm
-        onSubmit={onSubmit}
-        onCancel={onClose}
-        visit={visit}
-        practitionerSuggester={practitionerSuggester}
-        locationSuggester={locationSuggester}
-      />
-    </Modal>
-  ),
+  ({ open, visit, practitionerSuggester, locationSuggester, onClose, onSubmit, patient }) => {
+    const { _id, firstName, lastName, sex, dateOfBirth } = patient;
+    return (
+      <Modal title="New Emergency Triage" open={open} width="lg" onClose={onClose}>
+        <PatientDetails>
+          <div>
+            Patient Details<span>{_id}</span>
+          </div>
+          <div>
+            <DetailLabel>First Name:</DetailLabel> <DetailValue>{firstName}</DetailValue>
+            <DetailLabel>Last Name:</DetailLabel> <DetailValue>{lastName}</DetailValue>
+            <DetailLabel>Sex:</DetailLabel> <DetailValue>{sex}</DetailValue>
+            <DetailLabel>Date of Birth:</DetailLabel>
+            <DetailValue>{moment(dateOfBirth).format('MM/DD/YYYY')}</DetailValue>
+          </div>
+        </PatientDetails>
+        <TriageForm
+          onSubmit={onSubmit}
+          onCancel={onClose}
+          visit={visit}
+          practitionerSuggester={practitionerSuggester}
+          locationSuggester={locationSuggester}
+        />
+      </Modal>
+    );
+  },
 );
 
-export const TriageModal = connectApi((api, dispatch, { patientId }) => ({
+export const TriageModal = connectApi((api, dispatch, { patient }) => ({
   onSubmit: async data => {
-    await api.post(`patient/${patientId}/triages`, data);
+    await api.post(`patient/${patient._id}/triages`, data);
     dispatch(push('/patients/triage'));
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
