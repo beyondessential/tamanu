@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
-import { withStyles } from '@material-ui/core/styles';
+import CloseIcon from '@material-ui/icons/Close';
 import { getCurrentRoute } from '../store/router';
 import { Colors } from '../constants';
 
@@ -27,26 +27,33 @@ export const FullWidthRow = styled.div`
   grid-column: 1 / -1;
 `;
 
-const styles = () => ({
-  title: {
-    padding: '14px 14px 14px 32px',
-  },
-});
+const ModalTitle = styled(DialogTitle)`
+  padding: 14px 14px 14px 32px;
+
+  h2 {
+    display: flex;
+    justify-content: space-between;
+
+    svg {
+      font-size: 2rem;
+      cursor: pointer;
+      margin-top: -10px;
+      margin-right: -10px;
+    }
+  }
+`;
 
 export const Modal = memo(
-  withStyles(styles)(
-    ({ title, children, actions, width = 'sm', classes, open = false, ...props }) => {
-      const { title: titleClass, ...otherClasses } = classes;
-      return (
-        <MuiDialog fullWidth maxWidth={width} classes={otherClasses} open={open} {...props}>
-          <DialogTitle className={titleClass}>{title}</DialogTitle>
-          <ModalContainer>
-            <ModalContent>{children}</ModalContent>
-            <DialogActions>{actions}</DialogActions>
-          </ModalContainer>
-        </MuiDialog>
-      );
-    },
+  ({ title, children, actions, width = 'sm', classes, open = false, ...props }) => (
+    <MuiDialog fullWidth maxWidth={width} classes={{ ...classes }} open={open} {...props}>
+      <ModalTitle>
+        <span>{title}</span> <CloseIcon onClick={() => props.onClose()} />
+      </ModalTitle>
+      <ModalContainer>
+        <ModalContent>{children}</ModalContent>
+        <DialogActions>{actions}</DialogActions>
+      </ModalContainer>
+    </MuiDialog>
   ),
 );
 

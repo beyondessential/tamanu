@@ -141,6 +141,7 @@ const TABS = [
 
 export const DumbPatientView = React.memo(({ patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('history');
+
   return (
     <React.Fragment>
       <LoadingIndicator loading={loading}>
@@ -156,7 +157,7 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
         </TwoColumnDisplay>
       </LoadingIndicator>
       <RoutedVisitModal patientId={patient._id} />
-      <RoutedTriageModal patientId={patient._id} />
+      <RoutedTriageModal patient={patient} />
     </React.Fragment>
   );
 });
