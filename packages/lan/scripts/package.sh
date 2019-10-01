@@ -13,8 +13,8 @@ mkdir ${LAN_ROOT}/release/data && touch ${LAN_ROOT}/release/data/.keep
 ${LAN_ROOT}/.bin/msi-packager \
   ${LAN_ROOT}/release \
   ${LAN_ROOT}/release/setup.msi \
-  --name 'Tamanu Server' \
-  --version 1.0.0 \
+  --name 'Tamanu Lan Server' \
+  --version 0.0.1 \
   --manufacturer 'beyondessential.com.au' \
   --upgrade-code 'ABCD-EFGH-IJKL' \
   --icon "${LAN_ROOT}/app/assets/images/logo.ico" \
