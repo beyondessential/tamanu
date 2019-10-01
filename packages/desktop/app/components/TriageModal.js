@@ -39,10 +39,13 @@ const PatientDetails = styled.div`
 
 const DetailLabel = styled.span`
   color: ${Colors.midText};
+  padding-bottom: 5px;
 `;
 
 const DetailValue = styled.span`
   color: ${Colors.darkText};
+  padding-bottom: 5px;
+  text-transform: capitalize;
 `;
 
 const DumbTriageModal = React.memo(
