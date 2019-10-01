@@ -89,9 +89,11 @@ export default class RemoteAuth {
   async _login() {
     const clientId = this.database.getSetting('CLIENT_ID');
     const hospitalId = this.database.getSetting('HOSPITAL_ID');
-    console.log('******hospital id**********');
-    console.log(hospitalId);
-    console.log('***************************');
+    prompts(
+      { type: 'text', message: `Hospital is ${hospitalId}`, name: 'alert' },
+      () => {},
+      () => {},
+    );
     let firstTimeLogin = false;
     if (!hospitalId) firstTimeLogin = true;
 
