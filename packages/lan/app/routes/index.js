@@ -3,12 +3,13 @@ import { restfulRoutes } from './restful';
 import AuthRoutes from './auth';
 import { suggestionRoutes } from './suggestions';
 import { adminRoutes } from './admin';
-import { authMiddleware } from '../controllers/auth/middleware';
+import { authMiddleware, loginHandler } from '../controllers/auth/middleware';
 
 const router = express.Router();
 router.use('/auth', AuthRoutes);
 
 // any route added _after_ this one will require a correctly authed user
+router.use('/login', loginHandler);
 router.use(authMiddleware);
 
 router.use('/suggestions', suggestionRoutes);

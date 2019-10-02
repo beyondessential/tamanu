@@ -1,10 +1,37 @@
+import { sign, verify } from 'jsonwebtoken';
+
+const SECRET_KEY = '123abc';
+const TOKEN_DURATION = '1h';
+
+// TODO: this should live somewhere else
+function getToken(user) {
+  return sign(
+    {
+      userId: user._id,
+    },
+    SECRET_KEY,
+    { expiresIn: TOKEN_DURATION },
+  );
+}
+
+export function loginHandler(req, res) {
+  const db = req.app.get('database');
+  const { email, password } = req.body;
+
+  const user = db.objects('user').filtered('email = $0 AND password = $1', email, password)[0];
+
+  if (!user) {
+    res.status(401);
+    res.end();
+    return;
+  }
+
+  const token = getToken(user);
+  res.send({ token });
+}
 
 function decodeToken(token) {
-  if(token.match(/debug/)) {
-    return { userId: "debug" };
-  } else {
-    return null;
-  }
+  return verify(token, SECRET_KEY);
 }
 
 function findUser(db, userId) {
@@ -12,27 +39,26 @@ function findUser(db, userId) {
 }
 
 function getUserFromToken(request) {
-  const authHeader = request.headers.authorization || "";
+  const authHeader = request.headers.authorization || '';
   const bearer = authHeader.match(/Bearer (\S*)/);
-  if(!bearer) return null;
+  if (!bearer) return null;
 
   const token = bearer[1];
   try {
     const { userId } = decodeToken(token);
     return findUser(request.app.get('database'), userId);
-  } catch(e) {
+  } catch (e) {
     return null;
   }
 }
 
 export const authMiddleware = (req, res, next) => {
   const user = getUserFromToken(req);
-  if(!user) {
+  if (!user) {
     res.status(403);
-    throw new Error("This action can only be performed by an authenticated user.");
+    throw new Error('This action can only be performed by an authenticated user.');
   }
 
   req.user = user;
   next();
 };
-
