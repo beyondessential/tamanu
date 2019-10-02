@@ -16,6 +16,7 @@ import { DischargeForm } from '../app/forms/DischargeForm';
 import { NewPatientForm } from '../app/forms/NewPatientForm';
 import { LabRequestForm } from '../app/forms/LabRequestForm';
 import { ReferralForm } from '../app/forms/ReferralForm';
+import { MedicationForm } from '../app/forms/MedicationForm';
 import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
 import { NoteForm } from '../app/forms/NoteForm';
 
@@ -182,6 +183,15 @@ storiesOf('Forms', module).add('FamilyHistoryForm', () => (
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
     icd10Suggester={icd10Suggester}
+  />
+));
+
+storiesOf('Forms', module).add('MedicationForm', () => (
+  <MedicationForm
+    onSubmit={action('submit')}
+    onCancel={action('cancel')}
+    practitionerSuggester={practitionerSuggester}
+    drugSuggester={icd10Suggester}
   />
 ));
 
