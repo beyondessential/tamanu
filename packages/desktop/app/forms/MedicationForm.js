@@ -42,7 +42,7 @@ export const MedicationForm = React.memo(
       render={({ submitForm }) => (
         <FormGrid>
           <Field
-            name="medication._id"
+            name="drug._id"
             label="Medication"
             component={AutocompleteField}
             suggester={drugSuggester}
