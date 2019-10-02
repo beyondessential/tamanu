@@ -2,6 +2,7 @@ import React from 'react';
 import { configure, addDecorator } from '@storybook/react';
 
 import { ThemeProvider } from '../app/components/ThemeProvider';
+import { Colors } from '../app/constants';
 
 import styled from 'styled-components';
 
@@ -17,7 +18,7 @@ function loadStories() {
 const NoteDisplay = styled.div`
   padding: 0.5rem 0.2rem;
   margin: 1rem 0.2rem;
-  border: 1px solid #dedede;
+  border: 1px solid ${Colors.outline};
   border-radius: 0.2rem;
   font-family: sans-serif;
 `;
@@ -28,7 +29,7 @@ const NoteHeader = styled.div`
 `;
 
 const ColouredBackground = styled.div`
-  background: #f3f5f7;
+  background: ${Colors.background};
 `;
 
 configure(loadStories, module);

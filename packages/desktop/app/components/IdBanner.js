@@ -1,9 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import { PersonAdd } from '@material-ui/icons';
+import { Colors } from '../constants';
 
 const IdFieldContainer = styled.div`
-  background: #326699;
+  background: ${Colors.primary};
   padding: 33px;
   display: grid;
   grid-template-columns: 1fr 150px;
@@ -11,12 +12,12 @@ const IdFieldContainer = styled.div`
 
   svg,
   p {
-    color: #fff;
+    color: ${Colors.white};
   }
 `;
 
 const IdFieldTitle = styled.div`
-  color: #ffcc24;
+  color: ${Colors.secondary};
   font-weight: 500;
   font-size: 18px;
 `;
@@ -26,7 +27,7 @@ const AddUserIcon = styled.div`
   grid-row: 1 / 3;
 
   svg {
-    color: #2f4358;
+    color: ${Colors.primaryDark};
     height: 80px;
     width: 100px;
     float: right;

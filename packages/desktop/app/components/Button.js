@@ -1,14 +1,14 @@
 import React from 'react';
 import { isEmpty } from 'lodash';
-
+import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import MuiButtonBase from '@material-ui/core/ButtonBase';
 import MuiButton from '@material-ui/core/Button';
 import Icon from '@material-ui/core/Icon';
-import { withStyles } from '@material-ui/core/styles';
 import { red } from '@material-ui/core/colors';
 import { checkAbility } from '../utils/ability';
 import { history } from '../utils';
+import { Colors } from '../constants';
 
 export const ButtonBase = props => {
   const allowed = isAllowed(props);
@@ -16,16 +16,20 @@ export const ButtonBase = props => {
   return <MuiButtonBase {...props} {...locationsProps} disabled={!allowed || props.disabled} />;
 };
 
+const StyledButton = styled(MuiButton)`
+  text-transform: capitalize;
+`;
+
 export const Button = ({ children, isSubmitting, disabled, ...props }) => {
   const allowed = isAllowed(props);
   const locationsProps = getLocationProps(props);
   return (
-    <MuiButton {...props} {...locationsProps} disabled={!allowed || disabled || isSubmitting}>
+    <StyledButton {...props} {...locationsProps} disabled={!allowed || disabled || isSubmitting}>
       {isSubmitting && (
         <Icon className="fa fa-spinner fa-spin" style={{ marginRight: 4, fontSize: 18 }} />
       )}
       {children}
-    </MuiButton>
+    </StyledButton>
   );
 };
 
@@ -54,21 +58,20 @@ export const CancelButton = props => (
   </Button>
 );
 
-const deleteButtonStyles = theme => ({
-  root: {
-    backgroundColor: red[600],
-    color: theme.palette.common.white,
-    '&:hover': {
-      backgroundColor: red[800],
-    },
-  },
-});
+const StyledDeleteButton = styled(Button)`
+  background: ${red[600]};
+  color: ${Colors.white};
 
-export const DeleteButton = withStyles(deleteButtonStyles)(props => (
-  <Button variant="contained" {...props}>
+  :hover {
+    background: ${red[800]};
+  }
+`;
+
+export const DeleteButton = props => (
+  <StyledDeleteButton variant="contained" {...props}>
     Delete
-  </Button>
-));
+  </StyledDeleteButton>
+);
 
 export const SearchButton = props => (
   <Button variant="contained" color="primary" {...props}>
@@ -124,28 +127,42 @@ export const NewButton = ({ children, ...props }) => (
   </Button>
 );
 
-const textButtonStyles = theme => ({
-  root: {
-    fontSize: theme.spacing(2),
-    textTransform: 'capitalize',
-    fontWeight: 400,
-    padding: 0,
-    minHeight: 'auto',
-    minWidth: 'auto',
-    color: theme.palette.primary.light,
-    '&:hover': {
-      backgroundColor: 'rgba(0,0,0,0)',
-      color: theme.palette.primary.dark,
-      fontWeight: 500,
-    },
-  },
-});
+const StyledTextButton = styled(Button)`
+  font-size: 16px;
+  text-transform: capitalize;
+  padding: 0;
+  min-height: auto;
+  min-width: auto;
+  color: #5b84ad;
+  :hover {
+    background: rgba(0, 0, 0, 0);
+    color: #23476b;
+    font-weight: 500;
+  }
+`;
 
-export const TextButton = withStyles(textButtonStyles)(({ children, ...props }) => (
-  <Button variant="text" color="primary" {...props}>
+export const TextButton = ({ children, ...props }) => (
+  <StyledTextButton variant="text" color="primary" {...props}>
     {children}
-  </Button>
-));
+  </StyledTextButton>
+);
+
+const StyledImageButton = styled(Button)`
+  background: ${Colors.white};
+  padding: 16px;
+  img {
+    max-width: 52px;
+    max-height: 52px;
+    padding-right: 10px;
+  }
+`;
+
+export const ImageButton = ({ children, ...props }) => (
+  <StyledImageButton variant="contained" {...props}>
+    <img src={props.src} />
+    {children}
+  </StyledImageButton>
+);
 
 const isAllowed = ({ can = {} }) => {
   let allowed = true;

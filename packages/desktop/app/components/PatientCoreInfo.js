@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { grey } from '@material-ui/core/colors';
 import { DateDisplay } from './DateDisplay';
 import { PatientInitialsIcon } from './PatientInitialsIcon';
+import { Colors } from '../constants';
 
 const NameSection = styled.div`
   display: flex;
@@ -65,8 +66,8 @@ const CoreInfoValue = styled.div`
 `;
 
 const HealthIdContainer = styled.div`
-  background: #326699;
-  color: #ffcc24;
+  background: ${Colors.primary};
+  color: ${Colors.secondary};
   font-weight: 600;
   display: flex;
   flex-direction: row;
@@ -76,7 +77,7 @@ const HealthIdContainer = styled.div`
 `;
 
 const HealthIdLabel = styled.div`
-  background: #ffcc24;
+  background: ${Colors.secondary};
   color: #000;
   border-radius: 3px;
   padding: 5px;

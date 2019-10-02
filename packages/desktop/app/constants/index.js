@@ -16,9 +16,23 @@ export const DB_OBJECTS_MAX_DEPTH = {
   VISIT_MAIN: 7,
 };
 
+// Should only be colours that are defined as constants in Figma
+// (with the exception of searchTintColor)
 export const Colors = {
-  searchTintColor: '#d2dae3',
+  primary: '#326699',
+  primaryDark: '#2f4358',
+  secondary: '#ffcc24',
+  alert: '#f76853',
+  safe: '#47ca80',
+  darkestText: '#444444',
+  darkText: '#666666',
+  midText: '#888888',
+  softText: '#b8b8b8',
+  outline: '#dedede',
+  background: '#f3f5f7',
   white: '#ffffff',
+  brightBlue: '#67A6E3',
+  searchTintColor: '#d2dae3',
 };
 
 export const MAX_AUTO_COMPLETE_ITEMS = {
@@ -41,6 +55,12 @@ export const LAB_REQUEST_STATUS_LABELS = {
   [LAB_REQUEST_STATUSES.PUBLISHED]: 'Published',
 };
 
+export const PATIENT_PRIORITY_LEVEL_COLORS = {
+  1: Colors.alert,
+  2: Colors.secondary,
+  3: Colors.safe,
+};
+
 export const LAB_REQUEST_COLORS = {
   [LAB_REQUEST_STATUSES.RECEPTION_PENDING]: '#faa',
   [LAB_REQUEST_STATUSES.RESULTS_PENDING]: '#aaf',
@@ -58,7 +78,7 @@ export const IMAGING_REQUEST_STATUSES = {
 export const columnStyle = {
   backgroundColor: Colors.white,
   height: '60px',
-  color: '#2f4358',
+  color: Colors.primaryDark,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -67,7 +87,7 @@ export const columnStyle = {
 export const columnStyleSlim = {
   backgroundColor: Colors.white,
   height: '40px',
-  color: '#2f4358',
+  color: Colors.primaryDark,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -190,18 +210,18 @@ export const noteTypes = [
 ];
 
 export const visitOptions = [
-  { value: 'admission', label: 'Admission' },
-  { value: 'clinic', label: 'Clinic' },
-  { value: 'imaging', label: 'Imaging' },
-  { value: 'lab', label: 'Lab' },
-  { value: 'emergency', label: 'Emergency' },
-  { value: 'observation', label: 'Observation' },
+  { value: 'admission', label: 'Admission', image: './assets/images/medication.svg' },
+  { value: 'clinic', label: 'Clinic', image: './assets/images/administration.svg' },
+  { value: 'imaging', label: 'Imaging', image: './assets/images/radiology.png' },
+  { value: 'lab', label: 'Lab', image: './assets/images/labs.svg' },
+  { value: 'emergency', label: 'Emergency', image: './assets/images/schedule.svg' },
+  { value: 'observation', label: 'Observation', image: './assets/images/patient.svg' },
 ];
 
 export const triagePriorities = [
   { value: '3', label: 'Non-urgent', color: '#47CA80' },
   { value: '2', label: 'Priority', color: '#FFB630' },
-  { value: '1', label: 'Emergency', color: '#F76853' },
+  { value: '1', label: 'Emergency', color: Colors.alert },
 ];
 
 export const operativePlanStatuses = {

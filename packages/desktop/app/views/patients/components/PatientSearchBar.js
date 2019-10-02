@@ -3,16 +3,17 @@ import styled from 'styled-components';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
 import SearchIcon from '@material-ui/icons/Search';
 import { Button, Form, Field, TextField } from '../../../components';
+import { Colors } from '../../../constants';
 
 const Container = styled.div`
   display: grid;
   grid-template-columns: 1fr 120px;
-  border: 1px solid #dedede;
-  background: #fff;
+  border: 1px solid ${Colors.outline};
+  background: ${Colors.white};
 `;
 
 const ScanFingerprintIcon = styled(FingerprintIcon)`
-  color: #ffcc24;
+  color: ${Colors.secondary};
 `;
 
 const ScanFingerprintButtonContainer = styled.div`
@@ -33,13 +34,13 @@ const ScanFingerprintButton = memo(() => (
 const ScanFingerprintLabel = styled.div`
   font-size: 12px;
   text-align: center;
-  color: #326699;
+  color: ${Colors.primary};
 `;
 
 const SectionLabel = styled.div`
   font-size: 16px;
   font-weight: 500;
-  color: #326699;
+  color: ${Colors.primary};
   margin-bottom: 5px;
 `;
 
@@ -49,11 +50,11 @@ const SearchInputContainer = styled.div`
 
   > div {
     :hover {
-      border-right: 1px solid #326699;
+      border-right: 1px solid ${Colors.primary};
     }
 
     :focus-within {
-      border-right: 2px solid #326699;
+      border-right: 2px solid ${Colors.primary};
     }
   }
 
@@ -88,7 +89,7 @@ const Section = styled.div`
 `;
 
 const RightSection = styled(Section)`
-  border-left: 1px solid #dedede;
+  border-left: 1px solid ${Colors.outline};
 `;
 
 const renderSearchBar = ({ submitForm }) => (

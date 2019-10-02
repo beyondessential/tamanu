@@ -1,11 +1,12 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
+import { Colors } from '../constants';
 
 const Container = styled.div`
   padding: 7px;
   border-radius: 200px;
-  background: #326699;
-  color: #fff;
+  background: ${Colors.primary};
+  color: ${Colors.white};
   font-size: 16px;
   width: 40px;
   height: 40px;

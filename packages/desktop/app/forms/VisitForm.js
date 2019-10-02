@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
+import Avatar from '@material-ui/core/Avatar';
 
 import { foreignKey } from '../utils/validation';
 
@@ -17,19 +18,31 @@ import { FormGrid } from '../components/FormGrid';
 import { DateDisplay } from '../components/DateDisplay';
 import { Button } from '../components/Button';
 
-import { visitOptions } from '../constants';
+import { visitOptions, Colors } from '../constants';
 
 const SelectorGrid = styled.div`
   display: grid;
-  grid-template-columns: auto auto;
-  grid-auto-rows: 4rem;
+  grid-template-columns: auto auto auto;
   grid-gap: 0.7rem;
 `;
 
-const VisitOptionButton = ({ label, onClick }) => (
-  <Button variant="contained" onClick={onClick}>
+const TypeImage = styled(Avatar)`
+  margin-bottom: 10px;
+`;
+
+const VisitOptionTypeButton = styled(Button)`
+  background: ${Colors.white};
+  display: grid;
+  justify-content: center;
+  text-align: -webkit-center;
+  height: 9rem;
+`;
+
+const VisitOptionButton = ({ label, image, onClick }) => (
+  <VisitOptionTypeButton variant="contained" onClick={onClick}>
+    <TypeImage alt={label} src={image} />
     {label}
-  </Button>
+  </VisitOptionTypeButton>
 );
 
 const getReferralLabel = referral => {
@@ -65,11 +78,12 @@ const ReferralField = ({ referrals = [] }) => {
 };
 
 const StartPage = ({ setValue }) => {
-  const items = visitOptions.map(({ label, value }) => (
+  const items = visitOptions.map(({ label, value, image }) => (
     <VisitOptionButton
       key={value}
       label={label}
       value={value}
+      image={image}
       onClick={() => setValue('visitType', value)}
     />
   ));

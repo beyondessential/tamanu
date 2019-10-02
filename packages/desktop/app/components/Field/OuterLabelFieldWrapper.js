@@ -1,13 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { Colors } from '../../constants';
+
 const OuterLabel = styled.span`
-  color: #666666;
+  color: ${Colors.darkText};
   font-weight: 500;
 `;
 
 const OuterLabelRequired = styled.span`
-  color: #f76853;
+  color: ${Colors.alert};
   padding-left: 2px;
 `;
 

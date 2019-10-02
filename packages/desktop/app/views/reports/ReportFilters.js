@@ -16,7 +16,7 @@ import { DateRange } from '../../components/DateRange';
 import InputGroup from '../../components/InputGroup';
 import { Button } from '../../components/Button';
 
-import { sexOptions } from '../../constants';
+import { sexOptions, Colors } from '../../constants';
 import { diagnosisOptions, locationOptions, prescriberOptions } from './dummyReports';
 
 const Column = styled.div`
@@ -24,7 +24,7 @@ const Column = styled.div`
 `;
 
 const GroupTitle = styled.span`
-  color: #2f4358;
+  color: ${Colors.primaryDark};
   display: inline-block;
   font-weight: bold;
   margin-bottom: 5px;

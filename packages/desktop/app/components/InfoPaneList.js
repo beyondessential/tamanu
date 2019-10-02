@@ -5,15 +5,16 @@ import { Collapse } from '@material-ui/core';
 import { connectApi } from '../api';
 import { Suggester } from '../utils/suggester';
 import { reloadPatient } from '../store/patient';
+import { Colors } from '../constants';
 
 const TitleContainer = styled.div`
-  color: #326699;
+  color: ${Colors.primary};
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   flex-grow: 1;
-  border-bottom: 1px solid #dedede;
+  border-bottom: 1px solid ${Colors.outline};
   padding-bottom: 0.5rem;
 `;
 
@@ -35,8 +36,8 @@ const AddText = styled.span`
 `;
 
 const AddIcon = styled(MUIAddIcon)`
-  background: #ffcc24;
-  color: #fff;
+  background: ${Colors.secondary};
+  color: ${Colors.white};
   border-radius: 100px;
   padding: 2px;
 `;

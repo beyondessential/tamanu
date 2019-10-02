@@ -16,6 +16,7 @@ import { FormGrid } from '../components/FormGrid';
 import { ModalActionRow } from '../components/ButtonRow';
 import { PlusIconButton, MinusIconButton } from '../components';
 import { IdBanner } from '../components/IdBanner';
+import { Colors } from '../constants';
 
 const IdBannerContainer = styled.div`
   margin: -20px -32px 0 -32px;
@@ -24,7 +25,7 @@ const IdBannerContainer = styled.div`
 
 const AdditionalInformationRow = styled.div`
   grid-column: 1 / -1;
-  border-top: 1px solid #dedede;
+  border-top: 1px solid ${Colors.outline};
   padding: 10px 0;
   display: flex;
   flex-direction: row;
@@ -33,12 +34,12 @@ const AdditionalInformationRow = styled.div`
   div {
     font-weight: 500;
     font-size: 17px;
-    color: #444444;
+    color: ${Colors.darkestText};
   }
 
   button {
     padding: 0;
-    color: #4285f4;
+    color: ${Colors.primary};
   }
 
   div span {
