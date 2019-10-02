@@ -15,13 +15,13 @@ export const MedicationSchema = {
     indication: 'string?',
     route: 'string',
 
-    date: { type: 'date', default: new Date(), },
+    date: { type: 'date', default: new Date() },
     endDate: 'date?',
 
-    qtyMorning: { type: 'float', default: 0, },
-    qtyLunch: { type: 'float', default: 0, },
-    qtyEvening: { type: 'float', default: 0, },
-    qtyNight: { type: 'float', default: 0, },
+    qtyMorning: { type: 'float', default: 0 },
+    qtyLunch: { type: 'float', default: 0 },
+    qtyEvening: { type: 'float', default: 0 },
+    qtyNight: { type: 'float', default: 0 },
 
     // reverse links
     visits: { type: 'linkingObjects', objectType: 'visit', property: 'medications' },
