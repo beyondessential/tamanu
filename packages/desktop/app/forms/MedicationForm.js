@@ -72,7 +72,7 @@ export const MedicationForm = React.memo(
             required
             style={{ gridColumn: '1/-1' }}
           />
-          <FormGrid>
+          <FormGrid nested>
             <h3 style={{ gridColumn: '1/-1' }}>Quantity</h3>
             <Field name="qtyMorning" label="Morning" component={NumberField} required />
             <Field name="qtyLunch" label="Lunch" component={NumberField} required />
