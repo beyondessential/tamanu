@@ -8,7 +8,17 @@ import { viewPatient } from '../store/patient';
 import { viewVisit } from '../store/visit';
 
 const StyledDropdownButton = styled(DropdownButton)`
-  width: 100%;
+  width: 100%; /* targets single action button */
+
+  div:first-of-type {
+    /* targets dropdown button container, ignoring actions container */
+    width: 100%;
+
+    button:first-of-type {
+      /* targets action button, ignoring dropdown button */
+      width: 100%;
+    }
+  }
 `;
 
 const DumbTriageActionDropdown = React.memo(({ triage, onDischarge, onAdmit, onViewVisit }) => {
@@ -27,7 +37,7 @@ const DumbTriageActionDropdown = React.memo(({ triage, onDischarge, onAdmit, onV
     },
   ];
 
-  return <DropdownButton actions={actions} color="primary" />;
+  return <StyledDropdownButton actions={actions} color="primary" />;
 });
 
 export const TriageActionDropdown = connect(
