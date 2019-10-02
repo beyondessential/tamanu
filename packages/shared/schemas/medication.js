@@ -23,6 +23,9 @@ export const MedicationSchema = {
     qtyEvening: { type: 'float', default: 0, },
     qtyNight: { type: 'float', default: 0, },
 
+    // reverse links
+    visits: { type: 'linkingObjects', objectType: 'visit', property: 'medications' },
+
     ...defaults,
   },
 };
