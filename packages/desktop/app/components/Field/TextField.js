@@ -11,9 +11,9 @@ const StyledTextField = styled(MuiTextField)`
   }
 `;
 
-export const TextInput = ({ value, label, ...props }) => (
+export const TextInput = ({ value = '', label, ...props }) => (
   <OuterLabelFieldWrapper label={label} {...props}>
-    <StyledTextField value={value || ''} variant="outlined" {...props} />
+    <StyledTextField value={value} variant="outlined" {...props} />
   </OuterLabelFieldWrapper>
 );
 
