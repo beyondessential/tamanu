@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { DropdownButton } from './DropdownButton';
 
@@ -6,9 +7,13 @@ import { getCurrentRoute } from '../store/router';
 import { viewPatient } from '../store/patient';
 import { viewVisit } from '../store/visit';
 
+const StyledDropdownButton = styled(DropdownButton)`
+  width: 100%;
+`;
+
 const DumbTriageActionDropdown = React.memo(({ triage, onDischarge, onAdmit, onViewVisit }) => {
-  if(triage.visit) {
-    return <DropdownButton actions={[{ label: "View visit", onClick: onViewVisit }]} />;
+  if (triage.visit) {
+    return <StyledDropdownButton actions={[{ label: 'View visit', onClick: onViewVisit }]} />;
   }
 
   const actions = [
