@@ -85,3 +85,4 @@ createSuggestionRoute(
 
 createSuggestionRoute('facility', 'hospital', 'name CONTAINS[c] $0');
 createSuggestionRoute('location', 'location', 'name CONTAINS[c] $0');
+createSuggestionRoute('drug', 'drug', 'name CONTAINS[c] $0');
