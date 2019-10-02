@@ -30,6 +30,7 @@ function createSuggestionRoute(path, table, filter, transform = defaultTransform
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 function createDummySuggestionRoute(path, valuesTemplate) {
   const makeId = s =>
     s

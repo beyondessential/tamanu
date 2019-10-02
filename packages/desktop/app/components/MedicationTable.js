@@ -14,4 +14,6 @@ const COLUMNS = [
   { key: 'qtyNight', title: 'Night' },
 ];
 
-export const MedicationTable = React.memo(({ medications }) => <Table columns={COLUMNS} data={medications} />);
+export const MedicationTable = React.memo(({ medications }) => (
+  <Table columns={COLUMNS} data={medications} />
+));

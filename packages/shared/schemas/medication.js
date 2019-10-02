@@ -1,5 +1,4 @@
 import defaults from './defaults';
-import { MEDICATION_STATUSES } from '../constants';
 
 export const MedicationSchema = {
   name: 'medication',
