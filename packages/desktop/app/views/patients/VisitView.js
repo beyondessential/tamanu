@@ -14,6 +14,7 @@ import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { VitalsModal } from '../../components/VitalsModal';
+import { MedicationModal } from '../../components/MedicationModal';
 import { VitalsTable } from '../../components/VitalsTable';
 import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
@@ -71,6 +72,21 @@ const LabsPane = React.memo(({ visit }) => {
   );
 });
 
+const MedicationPane = React.memo(({ visit }) => {
+  const [modalOpen, setModalOpen] = React.useState(false);
+
+  return (
+    <div>
+      <MedicationModal open={modalOpen} visitId={visit.id} onClose={() => setModalOpen(false)} />
+      <ContentPane>
+        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+          New prescription
+        </Button>
+      </ContentPane>
+    </div>
+  );
+});
+
 const TABS = [
   {
     label: 'Vitals',
@@ -90,6 +106,11 @@ const TABS = [
     label: 'Labs',
     key: 'labs',
     render: ({ visit }) => <LabsPane visit={visit} />,
+  },
+  {
+    label: 'Medication',
+    key: 'medication',
+    render: ({ visit }) => <MedicationPane visit={visit} />,
   },
   {
     label: 'Documents',
