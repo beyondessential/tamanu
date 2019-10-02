@@ -7,6 +7,10 @@ function decodeToken(token) {
   }
 }
 
+function findUser(db, userId) {
+  return db.objectForPrimaryKey('user', userId);
+}
+
 function getUserFromToken(request) {
   const authHeader = request.headers.authorization || "";
   const bearer = authHeader.match(/Bearer (\S*)/);
@@ -15,7 +19,7 @@ function getUserFromToken(request) {
   const token = bearer[1];
   try {
     const { userId } = decodeToken(token);
-    return { _id: userId };
+    return findUser(request.app.get('database'), userId);
   } catch(e) {
     return null;
   }
