@@ -29,6 +29,8 @@ TextInput.propTypes = {
 };
 
 TextInput.defaultProps = {
+  name: undefined,
+  onChange: undefined,
   value: '',
   fullWidth: true,
 };
