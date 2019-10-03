@@ -35,7 +35,7 @@ export const MedicationForm = React.memo(
       initialValues={{
         date: new Date(),
         qtyMorning: 0,
-        qtyLunch: 4,
+        qtyLunch: 0,
         qtyEvening: 0,
         qtyNight: 0,
       }}
