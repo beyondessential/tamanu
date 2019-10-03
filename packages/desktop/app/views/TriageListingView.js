@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import moment from 'moment';
 
 import { TopBar, PageContainer, DataFetchingTable } from '../components';
-import { PatientStatisticsCard } from '../components/PatientStatisticsCard';
+import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
 
 import { DateDisplay } from '../components/DateDisplay';
 import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
@@ -108,7 +108,7 @@ const TriageTable = React.memo(({ ...props }) => (
 export const TriageListingView = React.memo(() => (
   <PageContainer>
     <TopBar title="Emergency Department" />
-    <PatientStatisticsCard priorityLevel={2} />
+    <TriageStatisticsCard priorityLevel={2} />
     <TriageTable />
   </PageContainer>
 ));

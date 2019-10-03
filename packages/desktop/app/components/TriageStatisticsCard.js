@@ -83,7 +83,7 @@ const FooterTime = styled.span`
   color: ${Colors.midText};
 `;
 
-const DataFetchingPatientStatisticsCard = memo(({ priorityLevel, fetchData }) => {
+const DataFetchingTriageStatisticsCard = memo(({ priorityLevel, fetchData }) => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
@@ -96,7 +96,7 @@ const DataFetchingPatientStatisticsCard = memo(({ priorityLevel, fetchData }) =>
 
   if (data.length === 0)
     return (
-      <DumbPatientStatisticsCard
+      <DumbTriageStatisticsCard
         numberOfPatients={0}
         averageWaitTime={0}
         priorityLevel={priorityLevel}
@@ -110,7 +110,7 @@ const DataFetchingPatientStatisticsCard = memo(({ priorityLevel, fetchData }) =>
     priorityLevelData.length;
 
   return (
-    <DumbPatientStatisticsCard
+    <DumbTriageStatisticsCard
       numberOfPatients={priorityLevelData.length}
       averageWaitTime={averageWaitTime}
       priorityLevel={priorityLevel}
@@ -118,7 +118,7 @@ const DataFetchingPatientStatisticsCard = memo(({ priorityLevel, fetchData }) =>
   );
 });
 
-export const DumbPatientStatisticsCard = ({
+export const DumbTriageStatisticsCard = ({
   numberOfPatients,
   percentageIncrease,
   averageWaitTime,
@@ -158,11 +158,11 @@ export const DumbPatientStatisticsCard = ({
   );
 };
 
-DumbPatientStatisticsCard.defaultProps = {
+DumbTriageStatisticsCard.defaultProps = {
   percentageIncrease: 0,
 };
 
-DumbPatientStatisticsCard.propTypes = {
+DumbTriageStatisticsCard.propTypes = {
   numberOfPatients: PropTypes.number.isRequired,
   percentageIncrease: PropTypes.number,
   averageWaitTime: PropTypes.number.isRequired,
@@ -175,4 +175,4 @@ function mapApiToProps(api, dispatch) {
   };
 }
 
-export const PatientStatisticsCard = connectApi(mapApiToProps)(DataFetchingPatientStatisticsCard);
+export const TriageStatisticsCard = connectApi(mapApiToProps)(DataFetchingTriageStatisticsCard);
