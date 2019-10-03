@@ -12,7 +12,7 @@ const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 
 const Container = styled.div`
-  width: 230px;
+  width: 250px;
   background: ${Colors.white};
 `;
 
@@ -92,6 +92,9 @@ const DataFetchingTriageStatisticsCard = memo(({ priorityLevel, fetchData }) => 
       setData(data);
     }
     fetchTriageData();
+    // update data every 30 seconds
+    const interval = setInterval(() => fetchTriageData(), MINUTE * 0.5);
+    return () => clearInterval(interval);
   }, []);
 
   if (data.length === 0)

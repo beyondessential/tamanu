@@ -20,6 +20,19 @@ const PriorityText = styled.span`
   text-align: center;
 `;
 
+const StatisticsRow = styled.div`
+  display: flex;
+  padding: 16px 16px 0 16px;
+
+  div {
+    &:not(:last-of-type) {
+      div:last-child {
+        border-right: none;
+      }
+    }
+  }
+`;
+
 const ADMITTED_PRIORITY = {
   color: '#bdbdbd',
 };
@@ -108,7 +121,11 @@ const TriageTable = React.memo(({ ...props }) => (
 export const TriageListingView = React.memo(() => (
   <PageContainer>
     <TopBar title="Emergency Department" />
-    <TriageStatisticsCard priorityLevel={2} />
+    <StatisticsRow>
+      <TriageStatisticsCard priorityLevel={1} />
+      <TriageStatisticsCard priorityLevel={2} />
+      <TriageStatisticsCard priorityLevel={3} />
+    </StatisticsRow>
     <TriageTable />
   </PageContainer>
 ));
