@@ -29,6 +29,7 @@ import {
   PRACTITIONERS,
   FACILITIES,
   DIAGNOSES,
+  DRUGS,
 } from './dummyPatient';
 
 function createDummySuggester(options) {
@@ -51,6 +52,7 @@ const patientSuggester = createDummySuggester(
     value: _id,
   })),
 );
+const drugSuggester = createDummySuggester(DRUGS);
 
 storiesOf('Forms', module).add('LoginForm', () => <LoginView login={action('login')} />);
 
@@ -191,7 +193,7 @@ storiesOf('Forms', module).add('MedicationForm', () => (
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
-    drugSuggester={icd10Suggester}
+    drugSuggester={drugSuggester}
   />
 ));
 
