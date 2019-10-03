@@ -23,7 +23,8 @@ const PriorityText = styled.span`
 
 const StatisticsRow = styled(Paper)`
   display: flex;
-  padding: 16px 16px 0 16px;
+  margin: 16px 16px 0 16px;
+  width: fit-content;
 
   > div {
     &:first-child {
