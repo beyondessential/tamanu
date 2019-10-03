@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
+import Paper from '@material-ui/core/Paper';
 
 import { TopBar, PageContainer, DataFetchingTable } from '../components';
 import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
@@ -20,11 +21,33 @@ const PriorityText = styled.span`
   text-align: center;
 `;
 
-const StatisticsRow = styled.div`
+const StatisticsRow = styled(Paper)`
   display: flex;
   padding: 16px 16px 0 16px;
 
-  div {
+  > div {
+    &:first-child {
+      div:first-of-type {
+        border-top-left-radius: 3px;
+      }
+      div:last-of-type {
+        border-bottom-left-radius: 3px;
+      }
+    }
+
+    &:last-child {
+      div:first-of-type {
+        border-top-right-radius: 3px;
+      }
+      div:last-of-type {
+        border-bottom-right-radius: 3px;
+      }
+    }
+
+    &:last-child {
+      border-radius: 0 3px 3px 0;
+    }
+
     &:not(:last-of-type) {
       div:last-child {
         border-right: none;
