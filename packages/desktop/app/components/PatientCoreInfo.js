@@ -5,6 +5,7 @@ import { grey } from '@material-ui/core/colors';
 import { DateDisplay } from './DateDisplay';
 import { PatientInitialsIcon } from './PatientInitialsIcon';
 import { Colors } from '../constants';
+import { InvertedDisplayIdLabel } from './DisplayIdLabel';
 
 const NameSection = styled.div`
   display: flex;
@@ -76,15 +77,6 @@ const HealthIdContainer = styled.div`
   padding: 1rem;
 `;
 
-const HealthIdLabel = styled.div`
-  background: ${Colors.secondary};
-  color: #000;
-  border-radius: 3px;
-  padding: 5px;
-  font-size: 14px;
-  font-weight: bold;
-`;
-
 const HealthIdLabelText = styled.div`
   font-size: 12px;
 `;
@@ -99,7 +91,7 @@ const CoreInfoCell = memo(({ label, children }) => (
 const HealthIdDisplay = memo(({ patient }) => (
   <HealthIdContainer>
     <HealthIdLabelText>Health Identification Number</HealthIdLabelText>
-    <HealthIdLabel>{patient._id}</HealthIdLabel>
+    <InvertedDisplayIdLabel>{patient.displayId}</InvertedDisplayIdLabel>
   </HealthIdContainer>
 ));
 

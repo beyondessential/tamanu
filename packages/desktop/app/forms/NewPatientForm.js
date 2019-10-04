@@ -52,7 +52,7 @@ const AdditionalInformationRow = styled.div`
 export const NewPatientForm = memo(
   ({ editedObject, onSubmit, onCancel, generateId, patientSuggester, facilitySuggester }) => {
     const [isExpanded, setExpanded] = useState(false);
-    const renderForm = ({ submitForm, values }) => {
+    const renderForm = ({ submitForm }) => {
       return (
         <FormGrid>
           <IdBannerContainer>
