@@ -1,9 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
+import moment from 'moment';
 import styled from 'styled-components';
+import CalendarIcon from '@material-ui/icons/CalendarToday';
+import SubjectIcon from '@material-ui/icons/Subject';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 
-import { Button } from '../../components/Button';
+import { Button, TextButton, DischargeButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
@@ -18,10 +22,11 @@ import { VitalsTable } from '../../components/VitalsTable';
 import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
 import { NoteTable } from '../../components/NoteTable';
+import { TopBar } from '../../components';
 
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
-import { visitOptions } from '../../constants';
+import { visitOptions, Colors } from '../../constants';
 
 const VitalsPane = React.memo(({ visit }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -97,10 +102,19 @@ const TABS = [
   },
 ];
 
+const BackButton = styled(TextButton)`
+  color: ${Colors.primary};
+  font-size: 14px;
+`;
+
 const BackLink = connect(
   null,
   dispatch => ({ onClick: () => dispatch(push('/patients/view')) }),
-)(({ onClick }) => <Button onClick={onClick}>&lt; Back to patient information</Button>);
+)(({ onClick }) => (
+  <BackButton onClick={onClick}>
+    <ChevronLeftIcon /> Back to patient information
+  </BackButton>
+));
 
 const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
 const getExaminerName = ({ examiner }) => (examiner ? examiner.displayName : 'Unknown');
@@ -125,18 +139,51 @@ const RoutedDischargeModal = connectRoutedModal('/patients/visit', 'discharge')(
 const DischargeView = connect(
   null,
   dispatch => ({ onModalOpen: () => dispatch(push('/patients/visit/discharge')) }),
-)(({ onModalOpen, visit }) => (
+)(({ onModalOpen, visit, className }) => (
   <React.Fragment>
-    <Button onClick={onModalOpen} disabled={!!visit.endDate}>
-      Discharge patient
-    </Button>
+    <DischargeButton
+      className={className}
+      variant="outlined"
+      onClick={onModalOpen}
+      disabled={!!visit.endDate}
+    />
     <RoutedDischargeModal visit={visit} />
   </React.Fragment>
 ));
 
-const Header = styled.div`
+const StyledDischargeView = styled(DischargeView)`
+  justify-self: flex-end;
+`;
+
+const StyledTopBar = styled(TopBar)`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+`;
+
+const AdmissionInfoRow = styled.div`
   display: flex;
-  justify-content: space-between;
+  font-size: 14px;
+  text-transform: capitalize;
+  color: ${Colors.midText};
+
+  span:first-child {
+    margin-right: 10px;
+  }
+`;
+
+const AdmissionInfo = styled.span`
+  > span {
+    color: ${Colors.darkText};
+    font-weight: 500;
+  }
+
+  svg {
+    vertical-align: sub;
+    width: 16px;
+    height: 16px;
+    color: ${Colors.outline};
+    margin-right: 3px;
+  }
 `;
 
 export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
@@ -147,11 +194,21 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
       <TwoColumnDisplay>
         <PatientInfoPane patient={patient} />
         <div>
-          <Header>
-            <BackLink />
-            <DischargeView visit={visit} />
-          </Header>
+          <StyledTopBar title="Patient Visit">
+            <StyledDischargeView visit={visit} />
+            <AdmissionInfoRow>
+              <AdmissionInfo>
+                <SubjectIcon />
+                <span>Type:</span> {visit.visitType}
+              </AdmissionInfo>
+              <AdmissionInfo>
+                <CalendarIcon />
+                <span>Admission:</span> {moment(visit.startDate).format('DD/MM/YYYY')}
+              </AdmissionInfo>
+            </AdmissionInfoRow>
+          </StyledTopBar>
           <ContentPane>
+            <BackLink />
             <VisitInfoPane visit={visit} />
           </ContentPane>
           <ContentPane>
