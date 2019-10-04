@@ -6,9 +6,10 @@ export const FamilyHistorySchema = {
   properties: {
     _id: 'string',
     date: 'date',
-    notes: 'string',
+    relationship: 'string',
     practitioner: 'user',
     diagnosis: 'diagnosis',
+    notes: 'string?',
 
     ...defaults,
   },
