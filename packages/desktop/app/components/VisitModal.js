@@ -9,24 +9,17 @@ import { viewVisit } from '../store/visit';
 import { VisitForm } from '../forms/VisitForm';
 
 const DumbVisitModal = React.memo(
-  ({
-    open,
-    locationSuggester,
-    practitionerSuggester,
-    onClose,
-    onCreateVisit,
-  }) => {
-    return (
-      <Modal title="Check in" open={open} onClose={onClose}>
-        <VisitForm
-          onSubmit={onCreateVisit}
-          onCancel={onClose}
-          locationSuggester={locationSuggester}
-          practitionerSuggester={practitionerSuggester}
-        />
-      </Modal>
-    );
-  },
+  ({ open, locationSuggester, practitionerSuggester, onClose, onCreateVisit, referrals }) => (
+    <Modal title="Check in" open={open} onClose={onClose}>
+      <VisitForm
+        onSubmit={onCreateVisit}
+        onCancel={onClose}
+        locationSuggester={locationSuggester}
+        practitionerSuggester={practitionerSuggester}
+        referrals={referrals}
+      />
+    </Modal>
+  ),
 );
 
 export const VisitModal = connectApi((api, dispatch, { patientId }) => ({
