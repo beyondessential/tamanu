@@ -97,7 +97,7 @@ const DataFetchingTriageStatisticsCard = memo(({ priorityLevel, fetchData }) => 
     return () => clearInterval(interval);
   }, []);
 
-  if (data.length === 0)
+  if (data.length === 0) {
     return (
       <DumbTriageStatisticsCard
         numberOfPatients={0}
@@ -105,12 +105,14 @@ const DataFetchingTriageStatisticsCard = memo(({ priorityLevel, fetchData }) => 
         priorityLevel={priorityLevel}
       />
     );
+  }
 
   const priorityLevelData = data.filter(p => parseInt(p.score) === priorityLevel && !p.visit);
   const timeSinceTriage = triageTime => Math.round(new Date() - new Date(triageTime));
-  const averageWaitTime =
-    priorityLevelData.reduce((prev, curr) => prev + timeSinceTriage(curr.triageTime), 0) /
-    priorityLevelData.length;
+  const summedWaitTime = priorityLevelData.reduce((prev, curr) => {
+    return prev + timeSinceTriage(curr.triageTime);
+  }, 0);
+  const averageWaitTime = summedWaitTime / priorityLevelData.length;
 
   return (
     <DumbTriageStatisticsCard
@@ -131,9 +133,8 @@ export const DumbTriageStatisticsCard = ({
   const title = `Level ${priorityLevel} Patient`;
   const hours = Math.floor(averageWaitTime / HOUR);
   const minutes = Math.floor((averageWaitTime - hours * HOUR) / MINUTE);
-  const averageDuration = `${hours}${hours > 1 ? 'hrs' : 'hr'} ${minutes}${
-    minutes > 1 ? 'mins' : 'min'
-  }`;
+  const pluralise = (amount, suffix) => `${amount}${suffix}${amount === 1 ? '' : 's'}`;
+  const averageDuration = `${pluralise(hours, 'hr')} ${pluralise(minutes, 'min')}`;
 
   return (
     <Container>
