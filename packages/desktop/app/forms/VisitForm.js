@@ -15,6 +15,7 @@ import {
   TextField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
+import { DateDisplay } from '../components/DateDisplay';
 import { Button } from '../components/Button';
 
 import { visitOptions, Colors } from '../constants';
@@ -44,6 +45,38 @@ const VisitOptionButton = ({ label, image, onClick }) => (
   </VisitOptionTypeButton>
 );
 
+const getReferralLabel = referral => {
+  const { date, referringDoctor, location } = referral;
+  const parts = [
+    `${DateDisplay.rawFormat(date)}:`,
+    location && location.name,
+    referringDoctor && referringDoctor.displayName && `(by ${referringDoctor.displayName})`,
+  ];
+  return parts.filter(x => x).join(' ');
+};
+
+const ReferralField = ({ referrals = [] }) => {
+  const referralOptions = [{ value: null, label: 'No linked referral' }].concat(
+    referrals
+      .filter(r => !r.closedDate)
+      .map(r => ({
+        value: r._id,
+        label: getReferralLabel(r),
+      })),
+  );
+
+  return (
+    <Field
+      name="referral._id"
+      label="Referral"
+      disabled={referrals.length === 0}
+      component={SelectField}
+      options={referralOptions}
+      style={{ gridColumn: 'span 2' }}
+    />
+  );
+};
+
 const StartPage = ({ setValue }) => {
   const items = visitOptions.map(({ label, value, image }) => (
     <VisitOptionButton
@@ -68,8 +101,9 @@ export class VisitForm extends React.PureComponent {
       return <StartPage setValue={setFieldValue} />;
     }
 
-    const { locationSuggester, practitionerSuggester, editedObject } = this.props;
+    const { locationSuggester, practitionerSuggester, editedObject, referrals } = this.props;
     const buttonText = editedObject ? 'Update visit' : 'Start visit';
+
     return (
       <FormGrid>
         <Field
@@ -100,6 +134,7 @@ export class VisitForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
+        <ReferralField referrals={referrals} />
         <Field
           name="reasonForVisit"
           label="Reason for visit"

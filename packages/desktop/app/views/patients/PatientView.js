@@ -156,7 +156,7 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
           />
         </TwoColumnDisplay>
       </LoadingIndicator>
-      <RoutedVisitModal patientId={patient._id} />
+      <RoutedVisitModal patientId={patient._id} referrals={patient.referrals} />
       <RoutedTriageModal patient={patient} />
     </React.Fragment>
   );
