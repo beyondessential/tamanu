@@ -201,6 +201,7 @@ export const noteTypes = [
   { value: 'social', label: 'Social welfare' },
   { value: 'discharge', label: 'Discharge planning' },
   { value: 'other', label: 'Other' },
+  { value: 'system', label: 'System', hideFromDropdown: true },
 ];
 
 export const visitOptions = [
