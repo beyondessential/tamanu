@@ -1,4 +1,5 @@
 import { sign, verify } from 'jsonwebtoken';
+import { compare } from 'bcrypt';
 
 const SECRET_KEY = '123abc';
 const TOKEN_DURATION = '1h';
@@ -14,15 +15,33 @@ function getToken(user) {
   );
 }
 
-export function loginHandler(req, res) {
+async function comparePassword(user, password) {
+  try {
+    const passwordHash = user && user.password;
+
+    // do the password comparison even if the user is invalid so
+    // that the login check doesn't reveal whether a user exists or not
+    const passwordMatch = await compare(password, passwordHash || 'invalid-hash');
+
+    return user && passwordMatch;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+}
+
+export async function loginHandler(req, res) {
   const db = req.app.get('database');
   const { email, password } = req.body;
 
-  const user = db.objects('user').filtered('email = $0 AND password = $1', email, password)[0];
+  const user = db.objects('user').filtered('email = $0', email, password)[0];
+  const passwordMatch = await comparePassword(user, password);
 
-  if (!user) {
+  if (!passwordMatch) {
     res.status(401);
-    res.end();
+    res.send({
+      error: 'Invalid credentials.',
+    });
     return;
   }
 
