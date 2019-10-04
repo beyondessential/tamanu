@@ -11,25 +11,13 @@ import { connectApi } from '../api/connectApi';
 
 import { TriageForm } from '../forms/TriageForm';
 
+import { DisplayIdLabel } from './DisplayIdLabel';
+
 const PatientDetails = styled.div`
   padding: 10px;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   margin-bottom: 15px;
-
-  div:first-child {
-    display: flex;
-    justify-content: space-between;
-    font-weight: 600;
-    color: ${Colors.darkestText};
-
-    span {
-      background: ${Colors.primary};
-      color: ${Colors.secondary};
-      padding: 5px;
-      border-radius: 3px;
-    }
-  }
 
   div:last-child {
     display: grid;
@@ -48,15 +36,23 @@ const DetailValue = styled.span`
   text-transform: capitalize;
 `;
 
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  color: ${Colors.darkestText};
+`;
+
 const DumbTriageModal = React.memo(
   ({ open, visit, practitionerSuggester, locationSuggester, onClose, onSubmit, patient }) => {
-    const { _id, firstName, lastName, sex, dateOfBirth } = patient;
+    const { displayId, firstName, lastName, sex, dateOfBirth } = patient;
     return (
       <Modal title="New Emergency Triage" open={open} width="lg" onClose={onClose}>
         <PatientDetails>
-          <div>
-            Patient Details<span>{_id}</span>
-          </div>
+          <Header>
+            <span>Patient Details</span>
+            <DisplayIdLabel>{displayId}</DisplayIdLabel>
+          </Header>
           <div>
             <DetailLabel>First Name:</DetailLabel> <DetailValue>{firstName}</DetailValue>
             <DetailLabel>Last Name:</DetailLabel> <DetailValue>{lastName}</DetailValue>

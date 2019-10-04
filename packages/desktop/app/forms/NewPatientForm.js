@@ -52,12 +52,12 @@ const AdditionalInformationRow = styled.div`
 export const NewPatientForm = memo(
   ({ editedObject, onSubmit, onCancel, generateId, patientSuggester, facilitySuggester }) => {
     const [isExpanded, setExpanded] = useState(false);
-    const renderForm = ({ submitForm, values }) => {
+    const renderForm = ({ submitForm }) => {
       return (
         <FormGrid>
           <IdBannerContainer>
             <IdBanner>
-              <Field name="_id" component={IdField} regenerateId={generateId} />
+              <Field name="displayId" component={IdField} regenerateId={generateId} />
             </IdBanner>
           </IdBannerContainer>
           <Field name="firstName" label="First name" component={TextField} required />
@@ -136,7 +136,7 @@ export const NewPatientForm = memo(
         onSubmit={onSubmit}
         render={renderForm}
         initialValues={{
-          _id: generateId(),
+          displayId: generateId(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
