@@ -79,3 +79,20 @@ visitRoutes.post('/visit/:id/vitals', (req, res) => {
 
   res.send(objectToJSON(reading));
 });
+
+visitRoutes.post('/visit/:id/medications', (req, res) => {
+  const db = req.app.get('database');
+  const visit = db.objectForPrimaryKey('visit', req.params.id);
+  const medication = {
+    _id: shortid(),
+    ...req.body,
+  };
+
+  // TODO: validate
+
+  db.write(() => {
+    visit.medications = [...visit.medications, medication];
+  });
+
+  res.send(objectToJSON(medication));
+});
