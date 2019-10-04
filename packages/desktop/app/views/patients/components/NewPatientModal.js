@@ -1,5 +1,4 @@
 import React, { memo } from 'react';
-import shortid from 'shortid';
 
 import { Modal } from '../../../components';
 import { NewPatientForm } from '../../../forms';

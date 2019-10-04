@@ -5,6 +5,20 @@ import { objectToJSON } from '../../utils';
 
 export const patientRoutes = express.Router();
 
+patientRoutes.post('/patient', (req, res) => {
+  const db = req.app.get('database');
+  const patient = {
+    _id: shortid(),
+    ...req.body,
+  };
+
+  db.write(() => {
+    db.create('patient', patient);
+  });
+
+  res.send(patient);
+});
+
 patientRoutes.post('/patient/:id/triages', (req, res) => {
   const db = req.app.get('database');
   const patient = db.objectForPrimaryKey('patient', req.params.id);
