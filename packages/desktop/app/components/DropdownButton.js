@@ -12,20 +12,6 @@ import MenuList from '@material-ui/core/MenuList';
 
 // mostly cribbed from the mui example at https://material-ui.com/components/buttons/#split-button
 
-export const FullWidthDropdownButton = styled(DropdownButton)`
-  width: 100%; /* targets single action button */
-
-  div:first-of-type {
-    /* targets dropdown button container, ignoring actions container */
-    width: 100%;
-
-    button:first-of-type {
-      /* targets action button, ignoring dropdown button */
-      width: 100%;
-    }
-  }
-`;
-
 export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...props }) => {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
@@ -114,3 +100,17 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
     </span>
   );
 });
+
+export const FullWidthDropdownButton = styled(DropdownButton)`
+  width: 100%; /* targets single action button */
+
+  div:first-of-type {
+    /* targets dropdown button container, ignoring actions container */
+    width: 100%;
+
+    button:first-of-type {
+      /* targets action button, ignoring dropdown button */
+      width: 100%;
+    }
+  }
+`;
