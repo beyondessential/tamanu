@@ -25,6 +25,7 @@ export class FamilyHistoryForm extends React.PureComponent {
           suggester={icd10Suggester}
         />
         <Field name="date" label="Date recorded" required component={DateField} />
+        <Field name="relationship" label="Relation to patient" component={TextField} />
         <Field
           name="practitioner._id"
           label="Doctor/nurse"
