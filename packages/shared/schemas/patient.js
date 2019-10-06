@@ -8,6 +8,7 @@ export const PatientSchema = {
   properties: {
     // primary fields
     _id: 'string',
+    displayId: 'string',
     firstName: { type: 'string', optional: true, indexed: true },
     middleName: { type: 'string', optional: true, indexed: true },
     lastName: { type: 'string', optional: true, indexed: true },

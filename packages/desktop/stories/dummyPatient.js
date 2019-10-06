@@ -85,6 +85,19 @@ export const DIAGNOSES = splitIds(`
   Injury
 `);
 
+export const DRUGS = splitIds(`
+  Hydrocodone
+  Simvastatin
+  Lisinopril
+  Levothyroxine
+  Amlodipine besylate
+  Omeprazole
+  Azithromycin
+  Amoxicillin
+  Metformin
+  Hydrochlorothiazide
+`);
+
 const CONDITIONS = split(`
   Alzheimer
   Amputated left arm

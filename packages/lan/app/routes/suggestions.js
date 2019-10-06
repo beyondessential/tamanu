@@ -30,6 +30,7 @@ function createSuggestionRoute(path, table, filter, transform = defaultTransform
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 function createDummySuggestionRoute(path, valuesTemplate) {
   const makeId = s =>
     s
@@ -85,3 +86,4 @@ createSuggestionRoute(
 
 createSuggestionRoute('facility', 'hospital', 'name CONTAINS[c] $0');
 createSuggestionRoute('location', 'location', 'name CONTAINS[c] $0');
+createSuggestionRoute('drug', 'drug', 'name CONTAINS[c] $0');

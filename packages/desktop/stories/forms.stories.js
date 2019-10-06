@@ -16,6 +16,7 @@ import { DischargeForm } from '../app/forms/DischargeForm';
 import { NewPatientForm } from '../app/forms/NewPatientForm';
 import { LabRequestForm } from '../app/forms/LabRequestForm';
 import { ReferralForm } from '../app/forms/ReferralForm';
+import { MedicationForm } from '../app/forms/MedicationForm';
 import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
 import { NoteForm } from '../app/forms/NoteForm';
 
@@ -28,6 +29,7 @@ import {
   PRACTITIONERS,
   FACILITIES,
   DIAGNOSES,
+  DRUGS,
 } from './dummyPatient';
 
 function createDummySuggester(options) {
@@ -50,6 +52,7 @@ const patientSuggester = createDummySuggester(
     value: _id,
   })),
 );
+const drugSuggester = createDummySuggester(DRUGS);
 
 storiesOf('Forms', module).add('LoginForm', () => <LoginView login={action('login')} />);
 
@@ -182,6 +185,15 @@ storiesOf('Forms', module).add('FamilyHistoryForm', () => (
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
     icd10Suggester={icd10Suggester}
+  />
+));
+
+storiesOf('Forms', module).add('MedicationForm', () => (
+  <MedicationForm
+    onSubmit={action('submit')}
+    onCancel={action('cancel')}
+    practitionerSuggester={practitionerSuggester}
+    drugSuggester={drugSuggester}
   />
 ));
 

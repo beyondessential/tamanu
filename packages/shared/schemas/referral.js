@@ -8,14 +8,14 @@ export const ReferralSchema = {
     date: 'date',
     certainty: 'string', // suspected or confirmed
     urgent: { type: 'bool', default: false },
-    notes: { type: 'string', optional: true },
+    notes: { type: 'string', default: '' },
 
-    status: 'string',
-    closedDate: { type: 'date', optional: true },
+    closedDate: 'date?',
 
     // has-one
-    referringDoctor: { type: 'user', optional: true },
-    diagnosis: { type: 'diagnosis', optional: true },
+    referringDoctor: 'user?',
+    diagnosis: 'diagnosis?',
+    visit: 'visit?',
 
     facility: 'hospital?',
     location: 'location?',
