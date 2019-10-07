@@ -1,13 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
-import moment from 'moment';
 import styled from 'styled-components';
 import CalendarIcon from '@material-ui/icons/CalendarToday';
 import SubjectIcon from '@material-ui/icons/Subject';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 
-import { Button, TextButton, DischargeButton } from '../../components/Button';
+import { Button, DischargeButton, BackButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
@@ -126,20 +124,6 @@ const TABS = [
   },
 ];
 
-const BackButton = styled(TextButton)`
-  color: ${Colors.primary};
-  font-size: 14px;
-`;
-
-const BackLink = connect(
-  null,
-  dispatch => ({ onClick: () => dispatch(push('/patients/view')) }),
-)(({ onClick }) => (
-  <BackButton onClick={onClick}>
-    <ChevronLeftIcon /> Back to patient information
-  </BackButton>
-));
-
 const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
 const getExaminerName = ({ examiner }) => (examiner ? examiner.displayName : 'Unknown');
 
@@ -219,7 +203,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
             </AdmissionInfoRow>
           </TopBar>
           <ContentPane>
-            <BackLink />
+            <BackButton />
             <VisitInfoPane visit={visit} />
           </ContentPane>
           <ContentPane>

@@ -5,15 +5,7 @@ import { grey } from '@material-ui/core/colors';
 import MuiAppBar from '@material-ui/core/AppBar';
 import MuiToolbar from '@material-ui/core/Toolbar';
 import MuiTypography from '@material-ui/core/Typography';
-import MuiGrid from '@material-ui/core/Grid';
 import { Colors } from '../constants';
-
-const Grid = styled(MuiGrid)`
-  flex-grow: 1;
-  background-color: ${Colors.white};
-  box-shadow: 0px 1px 0px ${grey[300]};
-  padding: 12px 0;
-`;
 
 const Typography = styled(MuiTypography)`
   margin-bottom: 0;
@@ -25,33 +17,27 @@ const Typography = styled(MuiTypography)`
 const AppBar = styled(MuiAppBar)`
   box-shadow: none;
   background: none;
+  flex-grow: 1;
+  background-color: ${Colors.white};
+  box-shadow: 0px 1px 0px ${grey[300]};
+  padding: 12px 0;
 `;
 
 const Toolbar = styled(MuiToolbar)`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-
-  *:nth-child(2n + 2) {
-    justify-self: flex-end;
-  }
-
-  * {
-    width: fit-content;
-  }
+  grid-template-columns: auto max-content;
 `;
 
 const TopBar = React.memo(({ title, children, className }) => {
   return (
-    <Grid>
-      <AppBar position="static" color="inherit">
-        <Toolbar className={className}>
-          <Typography variant="h3" color="inherit">
-            {title}
-          </Typography>
-          {children}
-        </Toolbar>
-      </AppBar>
-    </Grid>
+    <AppBar position="static" color="inherit">
+      <Toolbar className={className}>
+        <Typography variant="h3" color="inherit">
+          {title}
+        </Typography>
+        {children}
+      </Toolbar>
+    </AppBar>
   );
 });
 

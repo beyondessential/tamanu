@@ -2,9 +2,11 @@ import React from 'react';
 import { isEmpty } from 'lodash';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+
 import MuiButtonBase from '@material-ui/core/ButtonBase';
 import MuiButton from '@material-ui/core/Button';
 import Icon from '@material-ui/core/Icon';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { red } from '@material-ui/core/colors';
 import { checkAbility } from '../utils/ability';
 import { history } from '../utils';
@@ -30,19 +32,6 @@ export const Button = ({ children, isSubmitting, disabled, ...props }) => {
       )}
       {children}
     </StyledButton>
-  );
-};
-
-export const BackButton = ({ to, onClick, ...props }) => {
-  const { goBack } = history;
-  let newClick = onClick;
-  if (!to && !onClick) {
-    newClick = () => goBack();
-  }
-  return (
-    <Button variant="outlined" to={to} onClick={newClick} {...props}>
-      Back
-    </Button>
   );
 };
 
@@ -155,6 +144,24 @@ export const TextButton = ({ children, ...props }) => (
     {children}
   </StyledTextButton>
 );
+
+const StyledBackButton = styled(TextButton)`
+  color: ${Colors.primary};
+  font-size: 14px;
+`;
+
+export const BackButton = ({ to, onClick, ...props }) => {
+  const { goBack } = history;
+  let newClick = onClick;
+  if (!to && !onClick) {
+    newClick = () => goBack();
+  }
+  return (
+    <StyledBackButton to={to} onClick={newClick} {...props}>
+      <ChevronLeftIcon /> Back
+    </StyledBackButton>
+  );
+};
 
 const StyledImageButton = styled(Button)`
   background: ${Colors.white};
