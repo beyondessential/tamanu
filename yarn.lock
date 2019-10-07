@@ -15941,7 +15941,7 @@ readdirp@^3.1.1:
   dependencies:
     picomatch "^2.0.4"
 
-realm@^2.17.0, realm@^2.18.0, realm@^2.25.0:
+realm@^2.18.0, realm@^2.25.0:
   version "2.29.1"
   resolved "https://registry.yarnpkg.com/realm/-/realm-2.29.1.tgz#24b3d1b6b66c08f51969932ee1e3268df0446d93"
   integrity sha512-8oHCRrzz9vXNbr6PLnEDnNLCt+WKFO+JsJLCmY3raoPlamzPHBJndTAl3+x0Z1S0xR8Z0g86a53ptgCVOnfuQA==
@@ -15957,6 +15957,22 @@ realm@^2.17.0, realm@^2.18.0, realm@^2.25.0:
     node-machine-id "^1.1.10"
     node-pre-gyp "^0.11.0"
     progress "^2.0.3"
+    prop-types "^15.6.2"
+    request "^2.88.0"
+    stream-counter "^1.0.0"
+    sync-request "^3.0.1"
+    url-parse "^1.4.4"
+
+realm@~2.25.0:
+  version "2.25.0"
+  resolved "https://registry.yarnpkg.com/realm/-/realm-2.25.0.tgz#bdd7c5c9d898e9b19b06be6947195e3c2427eced"
+  integrity sha512-FyZ4onOwJtOH70rszJxkICjZHrZW7yGfTNOT78Gc9unPW9l2QrePvUfg4vC9sXlMfT0upchnZg9i3u6Yvmzvng==
+  dependencies:
+    deepmerge "2.1.0"
+    nan "^2.12.1"
+    node-fetch "^1.7.3"
+    node-machine-id "^1.1.10"
+    node-pre-gyp "^0.11.0"
     prop-types "^15.6.2"
     request "^2.88.0"
     stream-counter "^1.0.0"
