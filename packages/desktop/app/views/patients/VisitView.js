@@ -25,6 +25,7 @@ import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
 import { NoteTable } from '../../components/NoteTable';
 import { TopBar } from '../../components';
+import { DateDisplay } from '../../components';
 
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
@@ -226,7 +227,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
               </AdmissionInfo>
               <AdmissionInfo>
                 <CalendarIcon />
-                <span>Admission:</span> {moment(visit.startDate).format('DD/MM/YYYY')}
+                <span>Admission:</span> <DateDisplay date={visit.startDate} />
               </AdmissionInfo>
             </AdmissionInfoRow>
           </StyledTopBar>
