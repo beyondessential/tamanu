@@ -10,7 +10,6 @@ rm -rf ${LAN_ROOT}/release && mkdir ${LAN_ROOT}/release
 yarn workspace lan run build
 cp ${LAN_ROOT}/.bin/*.node ${LAN_ROOT}/release/
 mkdir ${LAN_ROOT}/release/data && touch ${LAN_ROOT}/release/data/.keep
-touch ${LAN_ROOT}/release/config/.keep
 ${LAN_ROOT}/.bin/msi-packager \
   ${LAN_ROOT}/release \
   ${LAN_ROOT}/release/setup.msi \
