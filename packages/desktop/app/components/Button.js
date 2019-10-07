@@ -79,7 +79,7 @@ export const SearchButton = props => (
   </Button>
 );
 
-const StyledDischargeButton = styled(Button)`
+const AlertButton = styled(Button)`
   color: ${Colors.alert};
   border: 1px solid ${Colors.alert};
 
@@ -89,9 +89,9 @@ const StyledDischargeButton = styled(Button)`
 `;
 
 export const DischargeButton = props => (
-  <StyledDischargeButton variant="contained" {...props}>
+  <AlertButton variant="contained" {...props}>
     Discharge Patient
-  </StyledDischargeButton>
+  </AlertButton>
 );
 
 export const CheckInButton = props => (
