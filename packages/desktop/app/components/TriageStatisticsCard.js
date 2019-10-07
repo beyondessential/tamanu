@@ -1,15 +1,18 @@
-import React from 'react';
-import moment from 'moment';
+import React, { useEffect, useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import People from '@material-ui/icons/People';
 import ArrowUpward from '@material-ui/icons/ArrowUpward';
 import ArrowDownward from '@material-ui/icons/ArrowDownward';
 import AccessTime from '@material-ui/icons/AccessTime';
-import { Colors, PATIENT_PRIORITY_LEVEL_COLORS } from '../constants';
+import { Colors, TRIAGE_COLORS_BY_LEVEL } from '../constants';
+import { connectApi } from '../api';
+
+const MINUTE = 60 * 1000;
+const HOUR = 60 * MINUTE;
 
 const Container = styled.div`
-  width: 230px;
+  width: 250px;
   background: ${Colors.white};
 `;
 
@@ -80,18 +83,58 @@ const FooterTime = styled.span`
   color: ${Colors.midText};
 `;
 
-export const PatientStatisticsCard = ({
+const DataFetchingTriageStatisticsCard = memo(({ priorityLevel, fetchData }) => {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    async function fetchTriageData() {
+      const { data } = await fetchData();
+      setData(data);
+    }
+    fetchTriageData();
+    // update data every 30 seconds
+    const interval = setInterval(() => fetchTriageData(), MINUTE * 0.5);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (data.length === 0) {
+    return (
+      <DumbTriageStatisticsCard
+        numberOfPatients={0}
+        averageWaitTime={0}
+        priorityLevel={priorityLevel}
+      />
+    );
+  }
+
+  const priorityLevelData = data.filter(p => parseInt(p.score) === priorityLevel && !p.visit);
+  const timeSinceTriage = triageTime => Math.round(new Date() - new Date(triageTime));
+  const summedWaitTime = priorityLevelData.reduce((prev, curr) => {
+    return prev + timeSinceTriage(curr.triageTime);
+  }, 0);
+  const averageWaitTime = summedWaitTime / priorityLevelData.length;
+
+  return (
+    <DumbTriageStatisticsCard
+      numberOfPatients={priorityLevelData.length}
+      averageWaitTime={averageWaitTime}
+      priorityLevel={priorityLevel}
+    />
+  );
+});
+
+export const DumbTriageStatisticsCard = ({
   numberOfPatients,
   percentageIncrease,
   averageWaitTime,
   priorityLevel,
 }) => {
-  const colorTheme = PATIENT_PRIORITY_LEVEL_COLORS[priorityLevel];
+  const colorTheme = TRIAGE_COLORS_BY_LEVEL[priorityLevel];
   const title = `Level ${priorityLevel} Patient`;
-  const momentDuration = moment.duration(averageWaitTime, 'minutes'); // assumes av. duration passed as mins
-  const hours = momentDuration.hours();
-  const mins = momentDuration.minutes();
-  const averageDuration = `${hours}${hours > 1 ? 'hrs' : 'hr'} ${mins}${mins > 1 ? 'mins' : 'min'}`;
+  const hours = Math.floor(averageWaitTime / HOUR);
+  const minutes = Math.floor((averageWaitTime - hours * HOUR) / MINUTE);
+  const pluralise = (amount, suffix) => `${amount}${suffix}${amount === 1 ? '' : 's'}`;
+  const averageDuration = `${pluralise(hours, 'hr')} ${pluralise(minutes, 'min')}`;
 
   return (
     <Container>
@@ -119,13 +162,21 @@ export const PatientStatisticsCard = ({
   );
 };
 
-PatientStatisticsCard.defaultProps = {
+DumbTriageStatisticsCard.defaultProps = {
   percentageIncrease: 0,
 };
 
-PatientStatisticsCard.propTypes = {
+DumbTriageStatisticsCard.propTypes = {
   numberOfPatients: PropTypes.number.isRequired,
   percentageIncrease: PropTypes.number,
   averageWaitTime: PropTypes.number.isRequired,
   priorityLevel: PropTypes.number.isRequired,
 };
+
+function mapApiToProps(api, dispatch) {
+  return {
+    fetchData: () => api.get('triage'),
+  };
+}
+
+export const TriageStatisticsCard = connectApi(mapApiToProps)(DataFetchingTriageStatisticsCard);

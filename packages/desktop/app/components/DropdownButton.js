@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
@@ -36,7 +37,7 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
 
   if (!mainAction) {
     return (
-      <Button {...props} variant="contained" disabled>
+      <Button {...props} variant="outlined" color={color} disabled>
         No action
       </Button>
     );
@@ -44,7 +45,7 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
 
   if (otherActions.length === 0) {
     return (
-      <Button {...props} variant="contained" color={color} onClick={event => handleClick(event, 0)}>
+      <Button {...props} variant="outlined" color={color} onClick={event => handleClick(event, 0)}>
         {mainAction.label}
       </Button>
     );
@@ -52,7 +53,7 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
 
   return (
     <span {...props}>
-      <ButtonGroup variant="contained" color={color} ref={anchorRef} aria-label="split button">
+      <ButtonGroup variant="outlined" color={color} ref={anchorRef} aria-label="split button">
         <Button onClick={event => handleClick(event, 0)}>{mainAction.label}</Button>
         <Button
           color={dropdownColor || color}
@@ -99,3 +100,17 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
     </span>
   );
 });
+
+export const FullWidthDropdownButton = styled(DropdownButton)`
+  width: 100%; /* targets single action button */
+
+  div:first-of-type {
+    /* targets dropdown button container, ignoring actions container */
+    width: 100%;
+
+    button:first-of-type {
+      /* targets action button, ignoring dropdown button */
+      width: 100%;
+    }
+  }
+`;
