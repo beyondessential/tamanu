@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { grey } from '@material-ui/core/colors';
 import MuiAppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
+import MuiToolbar from '@material-ui/core/Toolbar';
 import MuiTypography from '@material-ui/core/Typography';
 import MuiGrid from '@material-ui/core/Grid';
 import { Colors } from '../constants';
@@ -25,6 +25,19 @@ const Typography = styled(MuiTypography)`
 const AppBar = styled(MuiAppBar)`
   box-shadow: none;
   background: none;
+`;
+
+const Toolbar = styled(MuiToolbar)`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  *:nth-child(2n + 2) {
+    justify-self: flex-end;
+  }
+
+  * {
+    width: fit-content;
+  }
 `;
 
 const TopBar = React.memo(({ title, children, className }) => {

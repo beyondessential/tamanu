@@ -163,26 +163,12 @@ const RoutedDischargeModal = connectRoutedModal('/patients/visit', 'discharge')(
 const DischargeView = connect(
   null,
   dispatch => ({ onModalOpen: () => dispatch(push('/patients/visit/discharge')) }),
-)(({ onModalOpen, visit, className }) => (
+)(({ onModalOpen, visit }) => (
   <React.Fragment>
-    <DischargeButton
-      className={className}
-      variant="outlined"
-      onClick={onModalOpen}
-      disabled={!!visit.endDate}
-    />
+    <DischargeButton variant="outlined" onClick={onModalOpen} disabled={!!visit.endDate} />
     <RoutedDischargeModal visit={visit} />
   </React.Fragment>
 ));
-
-const StyledDischargeView = styled(DischargeView)`
-  justify-self: flex-end;
-`;
-
-const StyledTopBar = styled(TopBar)`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-`;
 
 const AdmissionInfoRow = styled.div`
   display: flex;
@@ -195,12 +181,12 @@ const AdmissionInfoRow = styled.div`
   }
 `;
 
-const AdmissionInfo = styled.span`
-  > span {
-    color: ${Colors.darkText};
-    font-weight: 500;
-  }
+const AdmissionInfoLabel = styled.span`
+  color: ${Colors.darkText};
+  font-weight: 500;
+`;
 
+const AdmissionInfo = styled.span`
   svg {
     vertical-align: sub;
     width: 16px;
@@ -218,19 +204,20 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
       <TwoColumnDisplay>
         <PatientInfoPane patient={patient} />
         <div>
-          <StyledTopBar title="Patient Visit">
-            <StyledDischargeView visit={visit} />
+          <TopBar title="Patient Visit">
+            <DischargeView visit={visit} />
             <AdmissionInfoRow>
               <AdmissionInfo>
                 <SubjectIcon />
-                <span>Type:</span> {visit.visitType}
+                <AdmissionInfoLabel>Type: </AdmissionInfoLabel> {visit.visitType}
               </AdmissionInfo>
               <AdmissionInfo>
                 <CalendarIcon />
-                <span>Admission:</span> <DateDisplay date={visit.startDate} />
+                <AdmissionInfoLabel>Admission: </AdmissionInfoLabel>
+                <DateDisplay date={visit.startDate} />
               </AdmissionInfo>
             </AdmissionInfoRow>
-          </StyledTopBar>
+          </TopBar>
           <ContentPane>
             <BackLink />
             <VisitInfoPane visit={visit} />
