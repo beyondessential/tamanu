@@ -2,8 +2,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
+import CalendarIcon from '@material-ui/icons/CalendarToday';
+import SubjectIcon from '@material-ui/icons/Subject';
 
-import { Button } from '../../components/Button';
+import { Button, DischargeButton, BackButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
@@ -20,10 +22,12 @@ import { VitalsTable } from '../../components/VitalsTable';
 import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
 import { NoteTable } from '../../components/NoteTable';
+import { TopBar } from '../../components';
+import { DateDisplay } from '../../components';
 
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
-import { visitOptions } from '../../constants';
+import { visitOptions, Colors } from '../../constants';
 
 const VitalsPane = React.memo(({ visit }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -120,11 +124,6 @@ const TABS = [
   },
 ];
 
-const BackLink = connect(
-  null,
-  dispatch => ({ onClick: () => dispatch(push('/patients/view')) }),
-)(({ onClick }) => <Button onClick={onClick}>&lt; Back to patient information</Button>);
-
 const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
 const getExaminerName = ({ examiner }) => (examiner ? examiner.displayName : 'Unknown');
 
@@ -150,16 +149,35 @@ const DischargeView = connect(
   dispatch => ({ onModalOpen: () => dispatch(push('/patients/visit/discharge')) }),
 )(({ onModalOpen, visit }) => (
   <React.Fragment>
-    <Button onClick={onModalOpen} disabled={!!visit.endDate}>
-      Discharge patient
-    </Button>
+    <DischargeButton variant="outlined" onClick={onModalOpen} disabled={!!visit.endDate} />
     <RoutedDischargeModal visit={visit} />
   </React.Fragment>
 ));
 
-const Header = styled.div`
+const AdmissionInfoRow = styled.div`
   display: flex;
-  justify-content: space-between;
+  font-size: 14px;
+  text-transform: capitalize;
+  color: ${Colors.midText};
+
+  span:first-child {
+    margin-right: 10px;
+  }
+`;
+
+const AdmissionInfoLabel = styled.span`
+  color: ${Colors.darkText};
+  font-weight: 500;
+`;
+
+const AdmissionInfo = styled.span`
+  svg {
+    vertical-align: sub;
+    width: 16px;
+    height: 16px;
+    color: ${Colors.outline};
+    margin-right: 3px;
+  }
 `;
 
 export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
@@ -170,11 +188,22 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
       <TwoColumnDisplay>
         <PatientInfoPane patient={patient} />
         <div>
-          <Header>
-            <BackLink />
+          <TopBar title="Patient Visit">
             <DischargeView visit={visit} />
-          </Header>
+            <AdmissionInfoRow>
+              <AdmissionInfo>
+                <SubjectIcon />
+                <AdmissionInfoLabel>Type: </AdmissionInfoLabel> {visit.visitType}
+              </AdmissionInfo>
+              <AdmissionInfo>
+                <CalendarIcon />
+                <AdmissionInfoLabel>Admission: </AdmissionInfoLabel>
+                <DateDisplay date={visit.startDate} />
+              </AdmissionInfo>
+            </AdmissionInfoRow>
+          </TopBar>
           <ContentPane>
+            <BackButton />
             <VisitInfoPane visit={visit} />
           </ContentPane>
           <ContentPane>
