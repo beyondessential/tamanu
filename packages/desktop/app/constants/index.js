@@ -55,12 +55,6 @@ export const LAB_REQUEST_STATUS_LABELS = {
   [LAB_REQUEST_STATUSES.PUBLISHED]: 'Published',
 };
 
-export const PATIENT_PRIORITY_LEVEL_COLORS = {
-  1: Colors.alert,
-  2: Colors.secondary,
-  3: Colors.safe,
-};
-
 export const LAB_REQUEST_COLORS = {
   [LAB_REQUEST_STATUSES.RECEPTION_PENDING]: '#faa',
   [LAB_REQUEST_STATUSES.RESULTS_PENDING]: '#aaf',
@@ -218,10 +212,16 @@ export const visitOptions = [
   { value: 'observation', label: 'Observation', image: './assets/images/patient.svg' },
 ];
 
+export const TRIAGE_COLORS_BY_LEVEL = {
+  1: Colors.alert,
+  2: Colors.secondary,
+  3: Colors.safe,
+};
+
 export const triagePriorities = [
-  { value: '3', label: 'Non-urgent', color: '#47CA80' },
-  { value: '2', label: 'Priority', color: '#FFB630' },
-  { value: '1', label: 'Emergency', color: Colors.alert },
+  { value: '3', label: 'Non-urgent' },
+  { value: '2', label: 'Priority' },
+  { value: '1', label: 'Emergency' },
 ];
 
 export const operativePlanStatuses = {
