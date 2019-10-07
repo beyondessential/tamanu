@@ -7,7 +7,10 @@
  * `./app/dist/main.prod.js` using webpack. This gives us some performance wins.
  *
  */
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 // production only
 import sourceMapSupport from 'source-map-support';
@@ -105,4 +108,19 @@ app.on('ready', async () => {
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
+});
+
+ipcMain.on('print-to-pdf', (event, fileName) => {
+  const pdfPath = path.join(os.tmpdir(), `${new Date().toDateString()}_${fileName}.html`);
+  const win = BrowserWindow.fromWebContents(event.sender);
+
+  win.webContents.print({ landscape: true, pageSize: 'A4', marginsType: 1 }, (error, data) => {
+    if (error) return console.log(error.message);
+
+    fs.writeFile(pdfPath, data, err => {
+      if (err) return console.log(err.message);
+      shell.openExternal('file://' + pdfPath);
+      console.log('created file: ', pdfPath);
+    });
+  });
 });

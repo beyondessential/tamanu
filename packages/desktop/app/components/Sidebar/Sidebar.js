@@ -10,6 +10,10 @@ import { PrimarySidebarItem } from './PrimarySidebarItem';
 import { Colors } from '../../constants';
 
 const SidebarContainer = styled.div`
+  @media print {
+    display: none;
+  }
+
   min-width: 275px;
   height: 100vh;
   position: relative;

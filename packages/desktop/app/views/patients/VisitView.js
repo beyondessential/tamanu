@@ -154,6 +154,11 @@ const DischargeView = connect(
   </React.Fragment>
 ));
 
+const DischargeSummaryView = connect(
+  null,
+  dispatch => ({ viewSummary: () => dispatch(push('/patients/visit/summary')) }),
+)(({ viewSummary }) => <Button onClick={viewSummary}>View Summary</Button>);
+
 const AdmissionInfoRow = styled.div`
   display: flex;
   font-size: 14px;
@@ -204,6 +209,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
           </TopBar>
           <ContentPane>
             <BackButton />
+            <DischargeSummaryView />
             <VisitInfoPane visit={visit} />
           </ContentPane>
           <ContentPane>
