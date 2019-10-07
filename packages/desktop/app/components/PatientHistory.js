@@ -1,42 +1,19 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Table } from './Table';
 
 import { DateDisplay } from './DateDisplay';
 
-const HistoryRow = styled.div`
-  display: grid;
-  grid-template-columns: 5rem 1rem 5rem auto;
-  align-items: stretch;
-  grid-column-gap: 0.5rem;
-  background: ${p => (p.highlight ? '#ffe' : '#eee')};
-  padding: 0.8rem 0rem;
+const getDate = ({ endDate }) => <DateDisplay date={endDate} />;
+const getType = ({ visitType }) => <p>{visitType}</p>;
+const getDescription = ({ reasonForVisit }) => <p>{reasonForVisit}</p>;
 
-  cursor: pointer;
-  &:hover {
-    background: #fafafa;
-  }
-`;
+const columns = [
+  { key: 'date', title: 'Date', accessor: getDate },
+  { key: 'type', title: 'Type', accessor: getType },
+  { key: 'description', title: 'Description', accessor: getDescription },
+];
 
-const HistoryCell = styled.div`
-  display: block;
-  text-align: center;
-`;
-
-const HistoryItem = React.memo(({ item, onClick }) => (
-  <HistoryRow highlight={!item.endDate} onClick={() => onClick && onClick(item)}>
-    <HistoryCell>
-      <DateDisplay date={item.startDate} />
-    </HistoryCell>
-    <div>&mdash;</div>
-    <HistoryCell>{item.endDate ? <DateDisplay date={item.endDate} /> : 'CURRENT'}</HistoryCell>
-    <div>{item.visitType}</div>
-  </HistoryRow>
-));
-
-export const PatientHistory = ({ items, onItemClick }) => (
-  <div>
-    {items.map(v => (
-      <HistoryItem item={v} onClick={onItemClick} key={v._id} />
-    ))}
-  </div>
-);
+export const PatientHistory = ({ items, onItemClick }) => {
+  return <Table columns={columns} data={items} onRowClick={row => onItemClick(row)} />;
+};
