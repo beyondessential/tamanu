@@ -14,7 +14,7 @@ touch ${LAN_ROOT}/release/config/.keep
 ${LAN_ROOT}/.bin/msi-packager \
   ${LAN_ROOT}/release \
   ${LAN_ROOT}/release/setup.msi \
-  --name 'Tamanu Server' \
+  --name 'Tamanu LAN Server' \
   --version 0.0.1 \
   --manufacturer 'beyondessential.com.au' \
   --upgrade-code 'ABCD-EFGH-IJKL' \
