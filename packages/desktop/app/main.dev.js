@@ -110,17 +110,10 @@ app.on('ready', async () => {
   menuBuilder.buildMenu();
 });
 
-ipcMain.on('print-to-pdf', (event, fileName) => {
-  const pdfPath = path.join(os.tmpdir(), `${new Date().toDateString()}_${fileName}.html`);
+ipcMain.on('print-to-pdf', event => {
   const win = BrowserWindow.fromWebContents(event.sender);
 
-  win.webContents.print({ landscape: true, pageSize: 'A4', marginsType: 1 }, (error, data) => {
+  win.webContents.print({}, (error, data) => {
     if (error) return console.log(error.message);
-
-    fs.writeFile(pdfPath, data, err => {
-      if (err) return console.log(err.message);
-      shell.openExternal('file://' + pdfPath);
-      console.log('created file: ', pdfPath);
-    });
   });
 });
