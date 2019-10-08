@@ -21,6 +21,7 @@ import installExtension, {
 } from 'electron-devtools-installer';
 
 import MenuBuilder from './menu';
+import { PRINT_EVENT } from './print';
 
 let mainWindow = null;
 
@@ -107,7 +108,7 @@ app.on('ready', async () => {
   menuBuilder.buildMenu();
 });
 
-ipcMain.on('print-to-pdf', event => {
+ipcMain.on(PRINT_EVENT, event => {
   const win = BrowserWindow.fromWebContents(event.sender);
 
   win.webContents.print({}, (error, data) => {
