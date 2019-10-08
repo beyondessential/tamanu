@@ -2,7 +2,6 @@ import basicAuth from 'basic-auth';
 import { set, isEmpty } from 'lodash';
 import BaseAuth from 'Shared/services/auth';
 import { schemaClasses } from 'Shared/schemas';
-import database from './database';
 import { HTTP_METHOD_TO_ACTION } from '../constants';
 
 export default class Auth extends BaseAuth {

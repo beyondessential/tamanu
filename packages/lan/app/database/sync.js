@@ -6,7 +6,7 @@ import { objectToJSON } from '../utils';
 import { outgoing } from '../utils/faye-extensions';
 import { SYNC_MODES, SYNC_ACTIONS } from '../constants';
 
-export default class Sync {
+export class Sync {
   constructor(database, listeners) {
     this.database = database;
     this.listeners = listeners;

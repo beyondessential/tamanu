@@ -83,6 +83,7 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "shortid": "^2.2.13",
+    "supertest": "^4.0.2",
     "uuid": "^3.3.2"
   }
 }
