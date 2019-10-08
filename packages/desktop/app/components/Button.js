@@ -1,5 +1,3 @@
-import { ipcRenderer } from 'electron';
-
 import React from 'react';
 import { isEmpty } from 'lodash';
 import styled from 'styled-components';
@@ -188,14 +186,6 @@ export const ImageButton = ({ children, ...props }) => (
     {children}
   </StyledImageButton>
 );
-
-export const PrintPageButton = ({ fileName }) => {
-  return (
-    <TextButton onClick={() => ipcRenderer.send('print-to-pdf', fileName)}>
-      Print {fileName}
-    </TextButton>
-  );
-};
 
 const isAllowed = ({ can = {} }) => {
   let allowed = true;

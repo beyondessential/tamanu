@@ -7,10 +7,7 @@
  * `./app/dist/main.prod.js` using webpack. This gives us some performance wins.
  *
  */
-import { app, BrowserWindow, ipcMain, shell } from 'electron';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
+import { app, BrowserWindow, ipcMain } from 'electron';
 
 // production only
 import sourceMapSupport from 'source-map-support';

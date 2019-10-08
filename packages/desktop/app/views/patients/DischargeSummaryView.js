@@ -1,9 +1,11 @@
+import { ipcRenderer } from 'electron';
+
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { PrintPageButton, BackButton } from '../../components/Button';
+import { TextButton, BackButton } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
 
@@ -101,7 +103,7 @@ const DumbDischargeSummaryView = React.memo(({ visit, patient, loading }) => {
   return (
     <LoadingIndicator loading={loading}>
       <PrintFriendlyTopbar title="Patient Discharge Summary">
-        <PrintPageButton fileName="Summary" />
+        <TextButton onClick={() => ipcRenderer.send('print-to-pdf')}>Print Summary</TextButton>
         <BackButton />
       </PrintFriendlyTopbar>
       <SummaryPage>
