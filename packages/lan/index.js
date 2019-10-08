@@ -37,7 +37,7 @@ const isDevelopment = process.env.NODE_ENV === 'development';
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(errorHandler);
-  app.use((err, req, res, next) => {
+  app.use((req, res, next) => {
     req.db = database;
     next();
   });
