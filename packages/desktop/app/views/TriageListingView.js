@@ -61,7 +61,7 @@ const ADMITTED_PRIORITY = {
 };
 
 const StatusDisplay = React.memo(({ visit, startTime, closedTime }) => {
-  switch(visit.visitType) {
+  switch (visit.visitType) {
     case 'triage':
       return (
         <React.Fragment>
@@ -85,7 +85,7 @@ const PriorityDisplay = React.memo(({ startTime, visit, closedTime }) => {
 });
 
 function getRowColor({ visit, score }) {
-  switch(visit.visitType) {
+  switch (visit.visitType) {
     case 'triage':
       return TRIAGE_COLORS_BY_LEVEL[score];
     default:

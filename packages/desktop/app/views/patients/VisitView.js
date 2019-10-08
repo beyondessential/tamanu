@@ -23,8 +23,8 @@ import { VitalsTable } from '../../components/VitalsTable';
 import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
 import { NoteTable } from '../../components/NoteTable';
-import { TopBar } from '../../components';
-import { DateDisplay } from '../../components';
+import { TopBar, DateDisplay } from '../../components';
+
 import { DropdownButton } from '../../components/DropdownButton';
 
 import { FormGrid } from '../../components/FormGrid';
@@ -149,34 +149,29 @@ const RoutedChangeTypeModal = connectRoutedModal('/patients/visit', 'changeType'
 
 const VisitActionDropdown = connect(
   null,
-  dispatch => ({ 
+  dispatch => ({
     onDischargeOpen: () => dispatch(push('/patients/visit/discharge')),
-    onChangeVisitType: (newType) => dispatch(push(`/patients/visit/changeType/${newType}`)),
+    onChangeVisitType: newType => dispatch(push(`/patients/visit/changeType/${newType}`)),
   }),
 )(({ visit, onDischargeOpen, onChangeVisitType }) => {
-  if(visit.endDate) {
+  if (visit.endDate) {
     // no actions available - patient is already discharged
     return null;
   }
 
   const actions = [
-    { 
-      label: "Admit", 
+    {
+      label: 'Admit',
       onClick: () => onChangeVisitType('admission'),
-      condition: () => visit.visitType === 'triage' 
+      condition: () => visit.visitType === 'triage',
     },
-    { 
-      label: "Discharge",
-      onClick: onDischargeOpen 
+    {
+      label: 'Discharge',
+      onClick: onDischargeOpen,
     },
   ].filter(action => !action.condition || action.condition());
 
-  return (
-    <DropdownButton 
-      variant="outlined"
-      actions={actions}
-    />
-  );
+  return <DropdownButton variant="outlined" actions={actions} />;
 });
 
 const DischargeView = ({ visit }) => (
@@ -214,15 +209,15 @@ const AdmissionInfo = styled.span`
 `;
 
 function getHeaderText({ visitType }) {
-  switch(visitType) {
-    case "triage":
-      return "Triaged patient";
-    case "emergency":
-      return "Emergency admission";
-    case "observation":
-      return "Patient under observation";
+  switch (visitType) {
+    case 'triage':
+      return 'Triaged patient';
+    case 'emergency':
+      return 'Emergency admission';
+    case 'observation':
+      return 'Patient under observation';
     default:
-      return "Patient visit";
+      return 'Patient visit';
   }
 }
 
