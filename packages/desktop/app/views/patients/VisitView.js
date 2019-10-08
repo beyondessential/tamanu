@@ -9,6 +9,7 @@ import { Button, DischargeButton, BackButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
+import { ChangeTypeModal } from '../../components/ChangeTypeModal';
 import { LabRequestModal } from '../../components/LabRequestModal';
 import { LabRequestsTable } from '../../components/LabRequestsTable';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -24,6 +25,7 @@ import { NoteModal } from '../../components/NoteModal';
 import { NoteTable } from '../../components/NoteTable';
 import { TopBar } from '../../components';
 import { DateDisplay } from '../../components';
+import { DropdownButton } from '../../components/DropdownButton';
 
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
@@ -143,16 +145,47 @@ const VisitInfoPane = React.memo(({ visit }) => (
 ));
 
 const RoutedDischargeModal = connectRoutedModal('/patients/visit', 'discharge')(DischargeModal);
+const RoutedChangeTypeModal = connectRoutedModal('/patients/visit', 'changeType')(ChangeTypeModal);
 
-const DischargeView = connect(
+const VisitActionDropdown = connect(
   null,
-  dispatch => ({ onModalOpen: () => dispatch(push('/patients/visit/discharge')) }),
-)(({ onModalOpen, visit }) => (
+  dispatch => ({ 
+    onDischargeOpen: () => dispatch(push('/patients/visit/discharge')),
+    onChangeVisitType: (newType) => dispatch(push(`/patients/visit/changeType/${newType}`)),
+  }),
+)(({ visit, onDischargeOpen, onChangeVisitType }) => {
+  if(visit.endDate) {
+    // no actions available - patient is already discharged
+    return null;
+  }
+
+  const actions = [
+    { 
+      label: "Admit", 
+      onClick: () => onChangeVisitType('admission'),
+      condition: () => visit.visitType === 'triage' 
+    },
+    { 
+      label: "Discharge",
+      onClick: onDischargeOpen 
+    },
+  ].filter(action => !action.condition || action.condition());
+
+  return (
+    <DropdownButton 
+      variant="outlined"
+      actions={actions}
+    />
+  );
+});
+
+const DischargeView = ({ visit }) => (
   <React.Fragment>
-    <DischargeButton variant="outlined" onClick={onModalOpen} disabled={!!visit.endDate} />
+    <VisitActionDropdown visit={visit} />
     <RoutedDischargeModal visit={visit} />
+    <RoutedChangeTypeModal visit={visit} />
   </React.Fragment>
-));
+);
 
 const AdmissionInfoRow = styled.div`
   display: flex;
