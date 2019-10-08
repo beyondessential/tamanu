@@ -9,16 +9,6 @@ import { TextButton, BackButton } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
 
-const PrintFriendlyTopbar = styled(TopBar)`
-  button {
-    width: max-content;
-
-    @media print {
-      display: none;
-    }
-  }
-`;
-
 const SummaryPage = styled.div`
   margin: 0 50px 50px 50px;
 `;
@@ -102,10 +92,10 @@ const DumbDischargeSummaryView = React.memo(({ visit, patient, loading }) => {
 
   return (
     <LoadingIndicator loading={loading}>
-      <PrintFriendlyTopbar title="Patient Discharge Summary">
+      <TopBar title="Patient Discharge Summary">
         <TextButton onClick={() => ipcRenderer.send('print-to-pdf')}>Print Summary</TextButton>
         <BackButton />
-      </PrintFriendlyTopbar>
+      </TopBar>
       <SummaryPage>
         <Header>
           <h4>
