@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import CalendarIcon from '@material-ui/icons/CalendarToday';
 import SubjectIcon from '@material-ui/icons/Subject';
 
-import { Button, DischargeButton, BackButton } from '../../components/Button';
+import { Button, DischargeButton, BackButton, ForwardButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
@@ -157,7 +157,7 @@ const DischargeView = connect(
 const DischargeSummaryView = connect(
   null,
   dispatch => ({ viewSummary: () => dispatch(push('/patients/visit/summary')) }),
-)(({ viewSummary }) => <Button onClick={viewSummary}>View Summary</Button>);
+)(({ viewSummary }) => <ForwardButton onClick={viewSummary}>View Summary</ForwardButton>);
 
 const AdmissionInfoRow = styled.div`
   display: flex;
@@ -185,6 +185,11 @@ const AdmissionInfo = styled.span`
   }
 `;
 
+const NavButtons = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
 export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
 
@@ -208,8 +213,10 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
             </AdmissionInfoRow>
           </TopBar>
           <ContentPane>
-            <BackButton />
-            <DischargeSummaryView />
+            <NavButtons>
+              <BackButton />
+              <DischargeSummaryView />
+            </NavButtons>
             <VisitInfoPane visit={visit} />
           </ContentPane>
           <ContentPane>
