@@ -210,6 +210,7 @@ export const visitOptions = [
   { value: 'lab', label: 'Lab', image: './assets/images/labs.svg' },
   { value: 'emergency', label: 'Emergency', image: './assets/images/schedule.svg' },
   { value: 'observation', label: 'Observation', image: './assets/images/patient.svg' },
+  { value: 'triage', label: 'Triage', image: './assets/images/patient.svg', hideFromOptions: true },
 ];
 
 export const TRIAGE_COLORS_BY_LEVEL = {

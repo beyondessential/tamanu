@@ -78,15 +78,17 @@ const ReferralField = ({ referrals = [] }) => {
 };
 
 const StartPage = ({ setValue }) => {
-  const items = visitOptions.map(({ label, value, image }) => (
-    <VisitOptionButton
-      key={value}
-      label={label}
-      value={value}
-      image={image}
-      onClick={() => setValue('visitType', value)}
-    />
-  ));
+  const items = visitOptions
+    .filter(option => !option.hideFromOptions)
+    .map(({ label, value, image }) => (
+      <VisitOptionButton
+        key={value}
+        label={label}
+        value={value}
+        image={image}
+        onClick={() => setValue('visitType', value)}
+      />
+    ));
 
   return <SelectorGrid>{items}</SelectorGrid>;
 };
