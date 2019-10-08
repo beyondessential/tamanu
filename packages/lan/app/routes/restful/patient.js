@@ -6,7 +6,7 @@ import { objectToJSON } from '../../utils';
 export const patientRoutes = express.Router();
 
 patientRoutes.post('/patient', (req, res) => {
-  const db = req.app.get('database');
+  const { db } = req;
   const patient = {
     _id: shortid(),
     ...req.body,
@@ -20,7 +20,7 @@ patientRoutes.post('/patient', (req, res) => {
 });
 
 patientRoutes.post('/patient/:id/triages', (req, res) => {
-  const db = req.app.get('database');
+  const { db } = req;
   const patient = db.objectForPrimaryKey('patient', req.params.id);
   const triage = {
     _id: shortid(),
@@ -36,7 +36,7 @@ patientRoutes.post('/patient/:id/triages', (req, res) => {
 });
 
 patientRoutes.post('/patient/:id/visits', (req, res) => {
-  const db = req.app.get('database');
+  const { db } = req;
   const patient = db.objectForPrimaryKey('patient', req.params.id);
   const visit = {
     _id: shortid(),
@@ -69,7 +69,7 @@ patientRoutes.post('/patient/:id/visits', (req, res) => {
 });
 
 patientRoutes.post('/patient/:id/allergies', (req, res) => {
-  const db = req.app.get('database');
+  const { db } = req;
   const patient = db.objectForPrimaryKey('patient', req.params.id);
   const allergy = {
     _id: shortid(),
@@ -84,7 +84,7 @@ patientRoutes.post('/patient/:id/allergies', (req, res) => {
 });
 
 patientRoutes.post('/patient/:id/familyHistory', (req, res) => {
-  const db = req.app.get('database');
+  const { db } = req;
   const patient = db.objectForPrimaryKey('patient', req.params.id);
   const historyItem = {
     _id: shortid(),
@@ -99,7 +99,7 @@ patientRoutes.post('/patient/:id/familyHistory', (req, res) => {
 });
 
 patientRoutes.post('/patient/:id/appointment', (req, res) => {
-  const db = req.app.get('database');
+  const { db } = req;
   const patient = db.objectForPrimaryKey('patient', req.params.id);
   const appointment = {
     _id: shortid(),
@@ -117,7 +117,7 @@ patientRoutes.post('/patient/:id/appointment', (req, res) => {
 });
 
 patientRoutes.post('/patient/:id/referral', (req, res) => {
-  const db = req.app.get('database');
+  const { db } = req;
   const patient = db.objectForPrimaryKey('patient', req.params.id);
   const referral = {
     _id: shortid(),

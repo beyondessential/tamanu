@@ -7,7 +7,7 @@ export const triageRoutes = express.Router();
 const TRIAGE_OBJECT_DEPTH = 3;
 
 triageRoutes.get('/triage', (req, res) => {
-  const db = req.app.get('database');
+  const { db } = req;
 
   const triages = db
     .objects('triage')

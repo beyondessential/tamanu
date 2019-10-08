@@ -6,7 +6,7 @@ import { objectToJSON } from '../../utils';
 export const visitRoutes = express.Router();
 
 visitRoutes.post('/visit/:id/note', (req, res) => {
-  const db = req.app.get('database');
+  const { db } = req;
   const visit = db.objectForPrimaryKey('visit', req.params.id);
   const note = {
     _id: shortid(),
@@ -24,7 +24,7 @@ visitRoutes.post('/visit/:id/note', (req, res) => {
 });
 
 visitRoutes.post('/visit/:id/diagnosis', (req, res) => {
-  const db = req.app.get('database');
+  const { db } = req;
   const visit = db.objectForPrimaryKey('visit', req.params.id);
   const diagnosis = {
     _id: shortid(),
@@ -41,7 +41,7 @@ visitRoutes.post('/visit/:id/diagnosis', (req, res) => {
 });
 
 visitRoutes.post('/visit/:id/labRequest', (req, res) => {
-  const db = req.app.get('database');
+  const { db } = req;
   const visit = db.objectForPrimaryKey('visit', req.params.id);
   const request = {
     _id: shortid(),
@@ -64,7 +64,7 @@ visitRoutes.post('/visit/:id/labRequest', (req, res) => {
 });
 
 visitRoutes.post('/visit/:id/vitals', (req, res) => {
-  const db = req.app.get('database');
+  const { db } = req;
   const visit = db.objectForPrimaryKey('visit', req.params.id);
   const reading = {
     _id: shortid(),
@@ -81,7 +81,7 @@ visitRoutes.post('/visit/:id/vitals', (req, res) => {
 });
 
 visitRoutes.post('/visit/:id/medications', (req, res) => {
-  const db = req.app.get('database');
+  const { db } = req;
   const visit = db.objectForPrimaryKey('visit', req.params.id);
   const medication = {
     _id: shortid(),

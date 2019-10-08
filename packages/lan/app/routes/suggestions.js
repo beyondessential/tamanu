@@ -6,8 +6,8 @@ const defaultTransform = ({ name, _id }) => ({ name, _id });
 
 function createSuggestionRoute(path, table, filter, transform = defaultTransform) {
   suggestionRoutes.get(`/${path}/:id`, (req, res) => {
-    const db = req.app.get('database');
-    const { id } = req.params;
+    const { db, params } = req;
+    const { id } = params;
     const object = db.objectForPrimaryKey(table, id);
     if (!object) {
       res.status(404).send(`Could not find object with id "${id}" in table "${table}"`);
@@ -17,8 +17,8 @@ function createSuggestionRoute(path, table, filter, transform = defaultTransform
   });
 
   suggestionRoutes.get(`/${path}`, (req, res) => {
-    const db = req.app.get('database');
-    const { q = '', limit = 10 } = req.query;
+    const { db, query } = req;
+    const { q = '', limit = 10 } = query;
     const candidates = db
       .objects(table)
       .filtered(filter, q)

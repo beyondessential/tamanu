@@ -55,8 +55,8 @@ function addOrUpdateMany(db, table, items, findExisting, defaultValues = {}) {
 }
 
 adminRoutes.put('/diagnosis', (req, res) => {
-  const db = req.app.get('database');
-  const items = req.body;
+  const { db, body } = req;
+  const items = body;
 
   const recordsWritten = addOrUpdateMany(
     db,
@@ -70,8 +70,8 @@ adminRoutes.put('/diagnosis', (req, res) => {
 });
 
 adminRoutes.put('/labTestType', (req, res) => {
-  const db = req.app.get('database');
-  const items = req.body;
+  const { db, body } = req;
+  const items = body;
 
   // create/update categories
   const categories = db.objects('labTestCategory');
