@@ -1,4 +1,3 @@
-console.log('Starting Tamanu LAN Server');
 import config from 'config';
 import express from 'express';
 import bodyParser from 'body-parser';
@@ -15,12 +14,8 @@ import RemoteAuth from './app/services/remote-auth';
 import { startScheduledTasks } from './app/tasks';
 import { startDataChangePublisher } from './DataChangePublisher';
 
-console.log('Imported index.js dependencies');
-
 const port = config.port || 4500;
 const isDevelopment = process.env.NODE_ENV === 'development';
-
-console.log('Read process.env.NODE_ENV');
 
 (async () => {
   // // Init our app

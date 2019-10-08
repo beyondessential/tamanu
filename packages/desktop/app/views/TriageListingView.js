@@ -1,12 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
+import Paper from '@material-ui/core/Paper';
 
 import { TopBar, PageContainer, DataFetchingTable } from '../components';
+import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
+
 import { DateDisplay } from '../components/DateDisplay';
 import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
 import { TriageActionDropdown } from '../components/TriageActionDropdown';
-import { triagePriorities } from '../constants';
+import { TRIAGE_COLORS_BY_LEVEL } from '../constants';
 
 const PriorityText = styled.span`
   background: ${p => p.color};
@@ -16,6 +19,42 @@ const PriorityText = styled.span`
   flex-direction: column;
   width: 100%;
   text-align: center;
+`;
+
+const StatisticsRow = styled(Paper)`
+  display: flex;
+  margin: 16px 16px 0 16px;
+  width: fit-content;
+
+  > div {
+    &:first-child {
+      div:first-of-type {
+        border-top-left-radius: 3px;
+      }
+      div:last-of-type {
+        border-bottom-left-radius: 3px;
+      }
+    }
+
+    &:last-child {
+      div:first-of-type {
+        border-top-right-radius: 3px;
+      }
+      div:last-of-type {
+        border-bottom-right-radius: 3px;
+      }
+    }
+
+    &:last-child {
+      border-radius: 0 3px 3px 0;
+    }
+
+    &:not(:last-of-type) {
+      div:last-child {
+        border-right: none;
+      }
+    }
+  }
 `;
 
 const ADMITTED_PRIORITY = {
@@ -43,9 +82,10 @@ const StatusDisplay = React.memo(({ visit, startTime, closedTime }) => {
 });
 
 const PriorityDisplay = React.memo(({ score, startTime, visit, closedTime }) => {
-  const priority = visit ? ADMITTED_PRIORITY : triagePriorities.find(x => x.value === score);
+  const color = visit ? ADMITTED_PRIORITY.color : TRIAGE_COLORS_BY_LEVEL[score];
+
   return (
-    <PriorityText color={priority.color}>
+    <PriorityText color={color}>
       <StatusDisplay visit={visit} startTime={startTime} closedTime={closedTime} />
     </PriorityText>
   );
@@ -55,6 +95,7 @@ const COLUMNS = [
   {
     key: 'score',
     title: 'Wait time',
+    cellColor: row => (row.visit ? ADMITTED_PRIORITY.color : TRIAGE_COLORS_BY_LEVEL[row.score]),
     accessor: row => (
       <PriorityDisplay
         score={row.score}
@@ -103,7 +144,12 @@ const TriageTable = React.memo(({ ...props }) => (
 
 export const TriageListingView = React.memo(() => (
   <PageContainer>
-    <TopBar title="Emergency waiting list" />
+    <TopBar title="Emergency Department" />
+    <StatisticsRow>
+      <TriageStatisticsCard priorityLevel={1} />
+      <TriageStatisticsCard priorityLevel={2} />
+      <TriageStatisticsCard priorityLevel={3} />
+    </StatisticsRow>
     <TriageTable />
   </PageContainer>
 ));
