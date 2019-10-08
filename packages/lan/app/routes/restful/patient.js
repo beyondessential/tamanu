@@ -28,8 +28,20 @@ patientRoutes.post('/patient/:id/triages', (req, res) => {
     ...req.body,
   };
 
+  const visit = {
+    _id: shortid(),
+    visitType: 'triage',
+    startDate: req.body.triageTime,
+    reasonForVisit: triage.reasonForVisit,
+    examiner: triage.practitioner,
+    location: triage.location,
+  };
+
+  triage.visit = visit;
+
   db.write(() => {
     patient.triages = [...patient.triages, triage];
+    patient.visits = [...patient.visits, visit];
   });
 
   res.send(triage);
