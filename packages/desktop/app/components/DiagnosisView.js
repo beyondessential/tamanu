@@ -57,6 +57,7 @@ const DiagnosisList = connect(state => ({
 
     return (
       <DiagnosisListContainer>
+        <DiagnosisHeading>Diagnosis:</DiagnosisHeading>
         {diagnoses.map(d => (
           <DiagnosisItem key={d._id} {...d} onClick={() => onEditDiagnosis(d)} />
         ))}
@@ -77,7 +78,6 @@ export const DiagnosisView = React.memo(({ visitId }) => {
     <React.Fragment>
       <DiagnosisModal diagnosis={diagnosis} visitId={visitId} onClose={() => editDiagnosis(null)} />
       <DiagnosisGrid>
-        <DiagnosisHeading>Diagnosis:</DiagnosisHeading>
         <DiagnosisList onEditDiagnosis={d => editDiagnosis(d)} />
         <Button onClick={() => editDiagnosis({})} variant="outlined" color="primary">
           Add diagnosis
