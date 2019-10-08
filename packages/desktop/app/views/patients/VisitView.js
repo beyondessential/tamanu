@@ -180,6 +180,19 @@ const AdmissionInfo = styled.span`
   }
 `;
 
+function getHeaderText({ visitType }) {
+  switch(visitType) {
+    case "triage":
+      return "Triaged patient";
+    case "emergency":
+      return "Emergency admission";
+    case "observation":
+      return "Patient under observation";
+    default:
+      return "Patient visit";
+  }
+}
+
 export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
 
@@ -188,7 +201,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
       <TwoColumnDisplay>
         <PatientInfoPane patient={patient} />
         <div>
-          <TopBar title="Patient Visit">
+          <TopBar title={getHeaderText(visit)}>
             <DischargeView visit={visit} />
             <AdmissionInfoRow>
               <AdmissionInfo>
