@@ -54,21 +54,24 @@ function addOrUpdateMany(db, table, items, findExisting, defaultValues = {}) {
   return recordsWritten;
 }
 
-adminRoutes.put('/diagnosis', (req, res) => {
-  const { db, body } = req;
-  const items = body;
+function addAdminRoute(resource, uniqueFieldName, defaultValue) {
+  adminRoutes.put(`/${resource}`, (req, res) => {
+    const { db, body } = req;
+    const items = body;
 
-  const recordsWritten = addOrUpdateMany(
-    db,
-    'diagnosis',
-    items,
-    (objects, item) => objects.filtered('code = $0', item.code)[0],
-    { type: 'icd10' },
-  );
+    const findExisting = (objects, item) =>
+      objects.filtered(`${uniqueFieldName} = $0`, item[uniqueFieldName])[0];
+    const recordsWritten = addOrUpdateMany(db, resource, items, findExisting, defaultValue);
 
-  res.send(recordsWritten);
-});
+    res.send(recordsWritten);
+  });
+}
 
+addAdminRoute('diagnosis', 'code', { type: 'icd10' });
+
+addAdminRoute('location', 'name');
+
+// labTestType is a bit more custom
 adminRoutes.put('/labTestType', (req, res) => {
   const { db, body } = req;
   const items = body;
