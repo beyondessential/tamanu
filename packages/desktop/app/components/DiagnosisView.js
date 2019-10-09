@@ -2,8 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import Chip from '@material-ui/core/Chip';
-
 import { getDiagnoses } from '../store/visit';
 
 import { Button } from './Button';
@@ -11,21 +9,26 @@ import { DiagnosisModal } from './DiagnosisModal';
 import { Colors } from '../constants';
 
 const DiagnosisHeading = styled.div`
-  margin-top: 0.4rem;
   margin-right: 1rem;
+  font-weight: 500;
 `;
 
-const DiagnosisChip = styled(Chip)`
+const DiagnosisChip = styled.div`
+  background: rgba(50, 102, 153, 0.1);
   margin-right: 0.3rem;
+  padding: 12px;
+  border-radius: 3px;
+`;
+
+const DiagnosisName = styled.span`
+  font-weight: 500;
 `;
 
 const DiagnosisItem = React.memo(({ diagnosis: { name }, isPrimary, onClick }) => (
-  <DiagnosisChip
-    onClick={onClick}
-    label={`${isPrimary ? 'Primary' : 'Secondary'}: ${name}`}
-    variant="outlined"
-    color={isPrimary ? 'primary' : 'default'}
-  />
+  <DiagnosisChip onClick={onClick}>
+    {`${isPrimary ? 'Primary' : 'Secondary'}: `}
+    <DiagnosisName>{name}</DiagnosisName>
+  </DiagnosisChip>
 ));
 
 function compareDiagnosis(a, b) {
@@ -54,7 +57,11 @@ const DiagnosisList = connect(state => ({
 }))(
   React.memo(({ diagnoses, onEditDiagnosis }) => {
     if (diagnoses.length === 0) {
-      return <DiagnosisListContainer>No diagnosis recorded.</DiagnosisListContainer>;
+      return (
+        <DiagnosisListContainer>
+          <DiagnosisHeading>No diagnoses recorded.</DiagnosisHeading>
+        </DiagnosisListContainer>
+      );
     }
 
     return (
