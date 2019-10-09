@@ -29,10 +29,10 @@ const validateBody = [
 ];
 
 const login = async (req, res) => {
-  const database = req.app.get('database');
-  const { email, password, hospital, clientId } = req.body;
+  const { db, body } = req;
+  const { email, password, hospital, clientId } = body;
   try {
-    const authService = new AuthService(database);
+    const authService = new AuthService(db);
     const doLogin = await authService.login({
       email,
       password,

@@ -4,8 +4,7 @@ import { objectToJSON } from '../../utils';
 const OBJECTS_MAX_DEPTH = 5;
 
 export default function(req, res) {
-  const realm = req.app.get('database');
-  const { params, query } = req;
+  const { db, params, query } = req;
   const { model: modelName, id, fuzzy } = params;
   const {
     orderBy,
@@ -17,8 +16,8 @@ export default function(req, res) {
   const defaultPageSize = 10;
 
   try {
-    return realm.write(() => {
-      let objects = realm.objects(modelName);
+    return db.write(() => {
+      let objects = db.objects(modelName);
       const filters = [];
 
       // If id is provided, return single object
@@ -31,7 +30,7 @@ export default function(req, res) {
       }
 
       // Add any additional filters from query parameters
-      const { properties: fieldSchemata } = realm.schema.find(({ name }) => name === modelName);
+      const { properties: fieldSchemata } = db.schema.find(({ name }) => name === modelName);
       Object.entries(restOfQuery).forEach(([field, value]) => {
         const fieldSchema = fieldSchemata[field] || {};
         const isString = fieldSchema === 'string' || fieldSchema.type === 'string';
