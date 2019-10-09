@@ -6,9 +6,9 @@ import { objectToJSON } from '../../utils';
 export const visitRoutes = express.Router();
 
 visitRoutes.put('/visit/:id/visitType', (req, res) => {
-  const db = req.app.get('database');
-  const visit = db.objectForPrimaryKey('visit', req.params.id);
-  const { visitType } = req.body;
+  const { db, params, body } = req;
+  const visit = db.objectForPrimaryKey('visit', params.id);
+  const { visitType } = body;
 
   if (visitType !== visit.visitType) {
     const note = {
