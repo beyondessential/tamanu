@@ -47,7 +47,7 @@ const DumbTriageModal = React.memo(
   ({ open, visit, practitionerSuggester, locationSuggester, onClose, onSubmit, patient }) => {
     const { displayId, firstName, lastName, sex, dateOfBirth } = patient;
     return (
-      <Modal title="New Emergency Triage" open={open} width="lg" onClose={onClose}>
+      <Modal title="New Emergency Triage" open={open} width="md" onClose={onClose}>
         <PatientDetails>
           <Header>
             <span>Patient Details</span>
