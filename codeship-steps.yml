@@ -1,15 +1,15 @@
 - name: copy_files
   service: app
-  tag: ^(master|dev)
   command: /.tmp/scripts/copy_files.sh
 - name: reinstate_ssh
   service: app
-  tag: ^(master|dev)
   command: ./scripts/fix_ssh.sh
 - name: install
   service: app
-  tag: ^(master|dev)
   command: ./scripts/install.sh
+- name: test
+  service: app
+  command: ./scripts/test.sh
 - name: build_pack
   service: app
   tag: ^(master|dev)
