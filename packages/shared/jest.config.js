@@ -6,5 +6,4 @@ module.exports = {
   transform: {
     '^.+\\.js$': path.resolve(__dirname, './jest.babel.js'),
   },
-  maxWorkers: 10,
 };
