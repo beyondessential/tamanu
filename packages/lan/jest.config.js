@@ -7,4 +7,7 @@ module.exports = {
     '^.+\\.js$': path.resolve(__dirname, './jest.babel.js'),
   },
   testRegex: '(\\.|/)(test|spec)\\.[jt]sx?$',
+  moduleNameMapper: {
+    'Shared(.*)$': '<rootDir>/../shared$1',
+  },
 };
