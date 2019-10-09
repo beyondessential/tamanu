@@ -20,6 +20,7 @@ const DiagnosisChip = styled.div`
   margin: 0.3rem;
   padding: 10px;
   border-radius: 3px;
+  cursor: pointer;
 `;
 
 const DiagnosisName = styled.span`
