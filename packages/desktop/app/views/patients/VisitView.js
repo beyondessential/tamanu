@@ -131,7 +131,7 @@ const getExaminerName = ({ examiner }) => (examiner ? examiner.displayName : 'Un
 
 const VisitInfoPane = React.memo(({ visit }) => (
   <FormGrid columns={3}>
-    <DateInput value={visit.startDate} label="Admission date" />
+    <DateInput value={visit.startDate} label="Arrival date" />
     <DateInput value={visit.endDate} label="Discharge date" />
     <TextInput value={getLocationName(visit)} label="Location" />
     <SelectInput value={visit.visitType} label="Visit type" options={visitOptions} />
@@ -238,7 +238,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
               </AdmissionInfo>
               <AdmissionInfo>
                 <CalendarIcon />
-                <AdmissionInfoLabel>Admission: </AdmissionInfoLabel>
+                <AdmissionInfoLabel>Arrival: </AdmissionInfoLabel>
                 <DateDisplay date={visit.startDate} />
               </AdmissionInfo>
             </AdmissionInfoRow>
