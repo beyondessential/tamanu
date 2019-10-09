@@ -8,6 +8,7 @@ import { getDiagnoses } from '../store/visit';
 
 import { Button } from './Button';
 import { DiagnosisModal } from './DiagnosisModal';
+import { Colors } from '../constants';
 
 const DiagnosisHeading = styled.div`
   margin-top: 0.4rem;
@@ -42,7 +43,8 @@ const DiagnosisListContainer = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
+  color: ${Colors.primary};
 `;
 
 const DiagnosisList = connect(state => ({
@@ -68,7 +70,7 @@ const DiagnosisList = connect(state => ({
 
 const DiagnosisGrid = styled.div`
   display: grid;
-  grid-template-columns: max-content auto max-content;
+  grid-template-columns: auto max-content;
 `;
 
 export const DiagnosisView = React.memo(({ visitId }) => {
