@@ -10,10 +10,10 @@ visitRoutes.put('/visit/:id/visitType', (req, res) => {
   const visit = db.objectForPrimaryKey('visit', req.params.id);
   const { visitType } = req.body;
 
-  if(visitType !== visit.visitType) {
+  if (visitType !== visit.visitType) {
     const note = {
       _id: shortid(),
-      type: "system",
+      type: 'system',
       content: `Changed from ${visit.visitType} to ${visitType}`,
     };
 

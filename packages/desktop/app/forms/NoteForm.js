@@ -29,7 +29,13 @@ export class NoteForm extends React.PureComponent {
     const { practitionerSuggester, onCancel } = this.props;
     return (
       <FormGrid columns={1}>
-        <Field name="type" label="Type" required component={SelectField} options={selectableNoteTypes} />
+        <Field
+          name="type"
+          label="Type"
+          required
+          component={SelectField}
+          options={selectableNoteTypes}
+        />
         <Field
           name="author._id"
           label="Written by (or on behalf of)"

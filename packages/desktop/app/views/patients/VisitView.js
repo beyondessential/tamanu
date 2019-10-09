@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import CalendarIcon from '@material-ui/icons/CalendarToday';
 import SubjectIcon from '@material-ui/icons/Subject';
 
-import { Button, DischargeButton, BackButton } from '../../components/Button';
+import { Button, BackButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';

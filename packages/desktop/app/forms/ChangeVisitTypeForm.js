@@ -5,8 +5,7 @@ import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
 export class ChangeVisitTypeForm extends React.PureComponent {
-  
-  renderForm = ({ submitForm, values }) => { 
+  renderForm = ({ submitForm, values }) => {
     const { onCancel, visit } = this.props;
     const currentType = visit.visitType;
     return (
@@ -30,4 +29,3 @@ export class ChangeVisitTypeForm extends React.PureComponent {
     );
   }
 }
-

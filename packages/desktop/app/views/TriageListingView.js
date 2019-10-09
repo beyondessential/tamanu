@@ -60,7 +60,7 @@ const ADMITTED_PRIORITY = {
   color: '#bdbdbd',
 };
 
-const StatusDisplay = React.memo(({ visit, startTime, closedTime }) => {
+const StatusDisplay = React.memo(({ visit, startTime }) => {
   switch (visit.visitType) {
     case 'triage':
       return (
