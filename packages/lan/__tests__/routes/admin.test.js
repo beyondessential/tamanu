@@ -8,8 +8,9 @@ describe('admin routes', () => {
   const db = setupDatabase();
   const app = supertest(createApp(db));
 
-  afterAll(() => {
+  afterAll(done => {
     clearTestData(db);
+    done();
   });
 
   it('should add a location', async () => {
