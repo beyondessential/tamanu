@@ -65,7 +65,9 @@ function addAdminRoute(resource, uniqueFieldName, defaultValue) {
     const items = body;
 
     const findExisting = (objects, item) =>
-      objects.filtered(`${uniqueFieldName} = $0`, item[uniqueFieldName])[0];
+      item[uniqueFieldName]
+        ? objects.filtered(`${uniqueFieldName} = $0`, item[uniqueFieldName])[0]
+        : null;
     const recordsWritten = addOrUpdateMany(db, resource, items, findExisting, defaultValue);
 
     res.send(recordsWritten);
@@ -75,6 +77,8 @@ function addAdminRoute(resource, uniqueFieldName, defaultValue) {
 addAdminRoute('diagnosis', 'code', { type: 'icd10' });
 
 addAdminRoute('location', 'name');
+
+addAdminRoute('user', '_id');
 
 // labTestType is a bit more custom
 adminRoutes.put('/labTestType', (req, res) => {

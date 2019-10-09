@@ -3,15 +3,19 @@ import { schemas } from 'Shared/schemas';
 
 const TEST_ID_PREFIX = 'test_';
 
-function deleteTestObjects(db, objectType) {
+function deleteTestObjects(db, objectType, primaryKey) {
   return db.write(() => {
-    const testObjects = db.objects(objectType).filtered('_id BEGINSWITH $0', TEST_ID_PREFIX);
+    const testObjects = db
+      .objects(objectType)
+      .filtered(`${primaryKey} BEGINSWITH $0`, TEST_ID_PREFIX);
     db.delete(testObjects);
   });
 }
 
 export function clearTestData(db) {
-  schemas.forEach(({ name: objectType }) => deleteTestObjects(db, objectType));
+  schemas.forEach(({ name: objectType, primaryKey }) => {
+    deleteTestObjects(db, objectType, primaryKey);
+  });
 }
 
 export function generateTestId() {

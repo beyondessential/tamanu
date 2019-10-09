@@ -47,4 +47,24 @@ describe('admin routes', () => {
       expect(storedCode).toEqual(code);
     });
   });
+
+  describe('adding a user', () => {
+    const id = generateTestId();
+
+    it('should add a diagnosis', async () => {
+      const name = 'Test Fred Hollows';
+      await app.put('/admin/user').send([{ _id: id, name }]);
+      const results = db.objects('user').filtered('_id = $0', id);
+      expect(results.length).toEqual(1);
+      expect(results[0].name).toEqual(name);
+    });
+
+    it('should update a diagnosis', async () => {
+      const newName = 'Test Freddie Mercury';
+      await app.put('/admin/user').send([{ _id: id, name: newName }]);
+      const results = db.objects('user').filtered('_id = $0', id);
+      expect(results.length).toEqual(1);
+      expect(results[0].name).toEqual(newName);
+    });
+  });
 });
