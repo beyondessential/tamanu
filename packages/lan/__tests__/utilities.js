@@ -1,4 +1,5 @@
 import shortid from 'shortid';
+import { schemas } from 'Shared/schemas';
 
 const TEST_ID_PREFIX = 'test_';
 
@@ -10,7 +11,7 @@ function deleteTestObjects(db, objectType) {
 }
 
 export function clearTestData(db) {
-  deleteTestObjects(db, 'location');
+  schemas.forEach(({ name: objectType }) => deleteTestObjects(db, objectType));
 }
 
 export function generateTestId() {

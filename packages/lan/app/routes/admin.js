@@ -9,7 +9,12 @@ function updateObject(base, patch) {
   const flattenedObject = objectToJSON(base);
   const updates = Object.entries(flattenedObject).map(([key, value]) => {
     const updatedValue = patch[key];
-    if (base[key] && updatedValue && updatedValue._id === base[key]._id) {
+    if (
+      base[key] &&
+      base[key].hasOwnProperty('_id') &&
+      updatedValue &&
+      updatedValue._id === base[key]._id
+    ) {
       // unchanged foreign key
       return false;
     }
@@ -21,7 +26,7 @@ function updateObject(base, patch) {
     return false;
   });
 
-  // return true iff any keys were updated
+  // return the new object iff any keys were updated
   if (updates.some(x => x)) {
     return base; // now with updated fields
   }
