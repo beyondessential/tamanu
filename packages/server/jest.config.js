@@ -9,4 +9,5 @@ module.exports = {
   moduleNameMapper: {
     'Shared(.*)$': '<rootDir>/../shared$1',
   },
+  maxWorkers: 10,
 };
