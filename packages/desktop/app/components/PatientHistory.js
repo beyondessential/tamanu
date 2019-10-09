@@ -1,12 +1,11 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Table } from './Table';
 
 import { DateDisplay } from './DateDisplay';
 
 const getDate = ({ endDate }) => <DateDisplay date={endDate} />;
-const getType = ({ visitType }) => <p>{visitType}</p>;
-const getDescription = ({ reasonForVisit }) => <p>{reasonForVisit}</p>;
+const getType = ({ visitType }) => <div>{visitType}</div>;
+const getDescription = ({ reasonForVisit }) => <div>{reasonForVisit}</div>;
 
 const columns = [
   { key: 'date', title: 'Date', accessor: getDate },
