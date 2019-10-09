@@ -14,7 +14,7 @@ import { TriageForm } from '../forms/TriageForm';
 import { DisplayIdLabel } from './DisplayIdLabel';
 
 const PatientDetails = styled.div`
-  padding: 10px;
+  padding: 15px;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   margin-bottom: 15px;
@@ -41,6 +41,7 @@ const Header = styled.div`
   justify-content: space-between;
   font-weight: 600;
   color: ${Colors.darkestText};
+  margin-bottom: 20px;
 `;
 
 const DumbTriageModal = React.memo(
