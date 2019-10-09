@@ -18,7 +18,7 @@ describe('admin routes', () => {
     await app.put('/admin/location').send([{ _id: id, name }]);
     const results = db.objects('location').filtered('_id = $0', id);
     expect(results.length).toEqual(1);
-    expect(results[0].name).toEqual(name);
+    expect(results[0].name).toEqual('This should fail');
   });
 
   describe('adding a diagnosis', () => {
