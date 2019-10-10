@@ -97,7 +97,7 @@ const DumbDischargeSummaryView = React.memo(({ visit, patient, loading }) => {
     <LoadingIndicator loading={loading}>
       <TopBar title="Patient Discharge Summary">
         <TextButton onClick={printPage}>Print Summary</TextButton>
-        <BackButton />
+        <BackButton to="/patients/visit" />
       </TopBar>
       <SummaryPage>
         <Header>
