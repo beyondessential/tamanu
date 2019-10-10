@@ -1,6 +1,11 @@
 import React from 'react';
-import ListItem from '@material-ui/core/ListItem';
+import styled from 'styled-components';
+import MuiListItem from '@material-ui/core/ListItem';
 import { SidebarItemText } from './SidebarItemText';
+
+const ListItem = styled(MuiListItem)`
+  padding: 2px 0 2px 32px;
+`;
 
 export const SecondarySidebarItem = React.memo(
   ({ path, icon, label, isCurrent, disabled, onClick }) => (
