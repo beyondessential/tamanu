@@ -15,21 +15,40 @@ const StyledFormControl = styled(FormControl)`
 `;
 
 const StyledRadioGroup = styled(RadioGroup)`
-  flex-direction: ${props => (props.row ? 'row' : 'column')};
-  flex-wrap: nowrap;
+  display: grid;
+  grid-auto-flow: ${props => (props.row ? 'row' : 'column')};
+  grid-template-columns: ${props => `repeat(${props.length}, 1fr)`};
+  width: max-content;
 `;
 
 const StyledRadio = styled(Radio)`
   svg {
-    color: ${props => (props.value === props.selected ? Colors.primary : '#cccccc')};
+    color: ${props => {
+      if (props.theme) {
+        if (props.value === props.selected) return Colors.white;
+        return props.theme;
+      }
+
+      if (props.value === props.selected) return Colors.primary;
+      else return '#cccccc';
+    }};
   }
 `;
 
 const ControlLabel = styled(FormControlLabel)`
-  background: ${props => (props.value === props.selected ? '#fafafa' : Colors.white)};
   margin: 0;
   padding: 15px 4px;
   border: 1px solid rgba(0, 0, 0, 0.23);
+  justify-content: center;
+  background: ${props => {
+    if (props.theme) {
+      if (props.value === props.selected) return props.theme;
+      return Colors.white;
+    }
+
+    if (props.value === props.selected) return '#fafafa';
+    else return Colors.white;
+  }};
 
   span {
     font-size: 1rem;
@@ -37,7 +56,15 @@ const ControlLabel = styled(FormControlLabel)`
   }
 
   span:last-of-type {
-    color: ${props => (props.value === props.selected ? Colors.darkText : Colors.midText)};
+    color: ${props => {
+      if (props.theme) {
+        if (props.value === props.selected) return Colors.white;
+        return props.theme;
+      }
+
+      if (props.value === props.selected) return Colors.darkText;
+      else return Colors.midText;
+    }};
   }
 
   :not(:last-of-type) {
@@ -59,20 +86,28 @@ export const RadioInput = ({
   value,
   label,
   helperText,
-  inline,
+  inline = false,
   style,
   ...props
 }) => (
   <OuterLabelFieldWrapper label={label} {...props}>
     <StyledFormControl style={style} {...props}>
-      <StyledRadioGroup row={inline} aria-label={name} name={name} value={value || ''} {...props}>
+      <StyledRadioGroup
+        length={options.length}
+        row={inline}
+        aria-label={name}
+        name={name}
+        value={value || ''}
+        {...props}
+      >
         {options.map(option => (
           <ControlLabel
             key={option.value}
-            control={<StyledRadio value={option.value} selected={value} />}
+            control={<StyledRadio theme={option.color} value={option.value} selected={value} />}
             label={option.label}
             value={option.value}
             selected={value}
+            theme={option.color}
           />
         ))}
       </StyledRadioGroup>
