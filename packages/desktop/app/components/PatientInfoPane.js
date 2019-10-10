@@ -11,10 +11,11 @@ const OngoingConditionDisplay = memo(({ patient }) => (
   <InfoPaneList
     patient={patient}
     title="Ongoing conditions"
-    endpoint="condition"
-    suggesterEndpoints={['practitioner']}
+    endpoint="conditions"
+    suggesterEndpoints={['practitioner', 'icd10']}
     items={patient.conditions}
     Form={OngoingConditionForm}
+    getName={({ condition }) => condition.name}
   />
 ));
 
