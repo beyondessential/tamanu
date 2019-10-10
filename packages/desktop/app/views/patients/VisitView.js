@@ -277,7 +277,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
           </TopBar>
           <ContentPane>
             <NavButtons>
-              <BackButton />
+              <BackButton to="/patients/view" />
               <DischargeSummaryView />
             </NavButtons>
             <VisitInfoPane visit={visit} />

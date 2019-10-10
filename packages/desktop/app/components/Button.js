@@ -158,13 +158,8 @@ export const ForwardButton = ({ children, ...props }) => (
 );
 
 export const BackButton = ({ to, onClick, ...props }) => {
-  const { goBack } = history;
-  let newClick = onClick;
-  if (!to && !onClick) {
-    newClick = () => goBack();
-  }
   return (
-    <StyledNavButton to={to} onClick={newClick} {...props}>
+    <StyledNavButton to={to} onClick={onClick} {...props}>
       <ChevronLeftIcon /> Back
     </StyledNavButton>
   );
