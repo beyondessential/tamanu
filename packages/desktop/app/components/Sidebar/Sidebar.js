@@ -34,6 +34,8 @@ const SidebarContainer = styled.div`
 const SidebarMenuContainer = styled.div`
   flex-grow: 1;
   overflow: auto;
+  display: grid;
+  grid-template-rows: auto 1fr;
 `;
 
 export class Sidebar extends Component {
@@ -88,10 +90,10 @@ export class Sidebar extends Component {
               );
             })}
           </List>
-          <Divider />
-          <List>
+          <div>
+            <Divider />
             <LogoutItem onClick={this.onLogout} />
-          </List>
+          </div>
         </SidebarMenuContainer>
       </SidebarContainer>
     );

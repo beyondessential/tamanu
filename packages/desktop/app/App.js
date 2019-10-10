@@ -11,6 +11,7 @@ import { LoginView } from './views';
 import { Colors } from './constants';
 
 const AppContainer = styled.div`
+  height: 100vh;
   display: grid;
   background: #f7f9fb;
   grid-template-columns: 1fr 4fr;
