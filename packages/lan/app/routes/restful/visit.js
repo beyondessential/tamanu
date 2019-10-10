@@ -5,6 +5,27 @@ import { objectToJSON } from '../../utils';
 
 export const visitRoutes = express.Router();
 
+visitRoutes.put('/visit/:id/visitType', (req, res) => {
+  const { db, params, body } = req;
+  const visit = db.objectForPrimaryKey('visit', params.id);
+  const { visitType } = body;
+
+  if (visitType !== visit.visitType) {
+    const note = {
+      _id: shortid(),
+      type: 'system',
+      content: `Changed from ${visit.visitType} to ${visitType}`,
+    };
+
+    db.write(() => {
+      visit.visitType = visitType;
+      visit.notes = [...visit.notes, note];
+    });
+  }
+
+  res.send(objectToJSON(visit));
+});
+
 visitRoutes.post('/visit/:id/note', (req, res) => {
   const { db, params, body } = req;
   const visit = db.objectForPrimaryKey('visit', params.id);
