@@ -1,11 +1,11 @@
 import {
-  patientIcon,
-  scheduleIcon,
-  medicationIcon,
-  labsIcon,
   administrationIcon,
+  labsIcon,
+  medicationIcon,
+  patientIcon,
   programsIcon,
   radiologyIcon,
+  scheduleIcon,
 } from '../../constants/images';
 import { availableReports } from '../../views/reports/dummyReports';
 
