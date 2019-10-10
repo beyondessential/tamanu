@@ -133,11 +133,11 @@ const DumbDischargeSummaryView = React.memo(({ visit, patient, loading }) => {
 
             <TwoColumnSection>
               <Label>Supervising physician: </Label>
-              <div>{visit.examiner.displayName}</div>
+              <div>{visit.examiner && visit.examiner.displayName}</div>
             </TwoColumnSection>
             <TwoColumnSection>
               <Label>Discharge physician: </Label>
-              <div>{visit.dischargePhysician.displayName}</div>
+              <div>{visit.dischargePhysician && visit.dischargePhysician.displayName}</div>
             </TwoColumnSection>
 
             <hr />

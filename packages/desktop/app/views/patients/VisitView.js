@@ -179,8 +179,8 @@ const VisitActionDropdown = connect(
     },
     {
       label: 'Admit to hospital',
-      onClick: () => onChangeVisitType('hospital'),
-      condition: () => isProgressionForward(visit.visitType, 'hospital'),
+      onClick: () => onChangeVisitType('admission'),
+      condition: () => isProgressionForward(visit.visitType, 'admission'),
     },
     {
       label: 'Discharge',
@@ -243,6 +243,11 @@ function getHeaderText({ visitType }) {
       return 'Emergency admission';
     case 'observation':
       return 'Patient under observation';
+    case 'admission':
+      return 'Hospital admission';
+    case 'clinic':
+    case 'lab':
+    case 'imaging':
     default:
       return 'Patient visit';
   }
