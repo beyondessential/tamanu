@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import List from '@material-ui/core/List';
 
-import { TamanuLogo } from '../TamanuLogo';
 import { LogoutItem } from './LogoutItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
@@ -35,11 +34,6 @@ const SidebarContainer = styled.div`
 const SidebarMenuContainer = styled.div`
   flex-grow: 1;
   overflow: auto;
-`;
-
-const LogoContainer = styled.div`
-  width: 100%;
-  text-align: center;
 `;
 
 export class Sidebar extends Component {
