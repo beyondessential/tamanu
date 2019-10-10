@@ -80,6 +80,21 @@ patientRoutes.post('/patient/:id/visits', (req, res) => {
   res.send(visit);
 });
 
+patientRoutes.post('/patient/:id/conditions', (req, res) => {
+  const { db, params, body } = req;
+  const patient = db.objectForPrimaryKey('patient', params.id);
+  const condition = {
+    _id: shortid(),
+    ...body,
+  };
+
+  db.write(() => {
+    patient.conditions = [...patient.conditions, condition];
+  });
+
+  res.send(condition);
+});
+
 patientRoutes.post('/patient/:id/allergies', (req, res) => {
   const { db, params, body } = req;
   const patient = db.objectForPrimaryKey('patient', params.id);
