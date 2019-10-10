@@ -243,6 +243,11 @@ function getHeaderText({ visitType }) {
       return 'Emergency admission';
     case 'observation':
       return 'Patient under observation';
+    case 'admission':
+      return 'Hospital admission';
+    case 'clinic':
+    case 'lab':
+    case 'imaging':
     default:
       return 'Patient visit';
   }
