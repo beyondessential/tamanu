@@ -5,9 +5,8 @@ import { objectToJSON } from '../../utils';
 import { ENVIRONMENT_TYPE } from '../../constants';
 
 export default function(req, res) {
-  const realm = req.app.get('database');
   let { body } = req;
-  const { params } = req;
+  const { db, params } = req;
   const { model, id } = params;
 
   try {
@@ -16,9 +15,9 @@ export default function(req, res) {
     // Find schema
     const schema = find(schemas, ({ name }) => name === model);
     if (!schema) return res.status(500).send('Schema not found');
-    if (isFunction(schema.beforeSave)) body = schema.beforeSave(realm, body, ENVIRONMENT_TYPE.LAN);
-    return realm.write(() => {
-      const result = realm.create(model, body, true);
+    if (isFunction(schema.beforeSave)) body = schema.beforeSave(db, body, ENVIRONMENT_TYPE.LAN);
+    return db.write(() => {
+      const result = db.create(model, body, true);
       return res.json(objectToJSON(result));
     });
   } catch (err) {

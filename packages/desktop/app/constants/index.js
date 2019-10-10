@@ -201,6 +201,7 @@ export const noteTypes = [
   { value: 'social', label: 'Social welfare' },
   { value: 'discharge', label: 'Discharge planning' },
   { value: 'other', label: 'Other' },
+  { value: 'system', label: 'System', hideFromDropdown: true },
 ];
 
 export const visitOptions = [
@@ -210,6 +211,7 @@ export const visitOptions = [
   { value: 'lab', label: 'Lab', image: './assets/images/labs.svg' },
   { value: 'emergency', label: 'Emergency', image: './assets/images/schedule.svg' },
   { value: 'observation', label: 'Observation', image: './assets/images/patient.svg' },
+  { value: 'triage', label: 'Triage', image: './assets/images/patient.svg', hideFromOptions: true },
 ];
 
 export const TRIAGE_COLORS_BY_LEVEL = {

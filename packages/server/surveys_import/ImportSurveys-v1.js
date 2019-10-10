@@ -1,7 +1,7 @@
 /**
-* Tupaia MediTrak
-* Copyright (c) 2017 Beyond Essential Systems Pty Ltd
-**/
+ * Tupaia MediTrak
+ * Copyright (c) 2017 Beyond Essential Systems Pty Ltd
+ **/
 
 import xlsx from 'xlsx';
 import { compareTwoStrings } from 'string-similarity';
@@ -13,11 +13,11 @@ import { PermissionGroup, Question } from '../models';
 import { ObjectValidator, constructIsOneOf, hasContent, isNumber } from '../validation';
 
 /**
-* Responds to POST requests to the /surveys endpoint
-*/
+ * Responds to POST requests to the /surveys endpoint
+ */
 export async function importSurveys(req, res) {
-  const { database } = req;
-  if (!req.query || !req.query.surveyNames) {
+  const { db, query } = req;
+  if (!query || !query.surveyNames) {
     throw new ValidationError('HTTP query should contain surveyNames');
   }
   const requestedSurveyNames = splitStringOnComma(req.query.surveyNames);
@@ -27,19 +27,18 @@ export async function importSurveys(req, res) {
   const workbook = xlsx.readFile(req.file.path);
   const objectValidator = new ObjectValidator(FIELD_VALIDATORS);
   try {
-    const permissionGroup = await PermissionGroup.findOne({ name: req.query.permissionGroup || 'Public' });
+    const permissionGroup = await PermissionGroup.findOne({
+      name: req.query.permissionGroup || 'Public',
+    });
     if (!permissionGroup) {
       throw new DatabaseError('finding permission group');
     }
 
     let surveyGroup;
     if (req.query.surveyGroup) {
-      surveyGroup = await database.findOrCreate(
-        TYPES.SURVEY_GROUP,
-        {
-          name: req.query.surveyGroup,
-        },
-      );
+      surveyGroup = await db.findOrCreate(TYPES.SURVEY_GROUP, {
+        name: req.query.surveyGroup,
+      });
     }
 
     // Go through each sheet, and make a survey for each
@@ -49,27 +48,31 @@ export async function importSurveys(req, res) {
       for (const requestedSurveyName of requestedSurveyNames) {
         // To deal with the character limit in Excel tabs, the tab name may be just the start of
         // the survey name, so we check for partial matches
-        if (requestedSurveyName.startsWith(tabName) &&    // Test it at least partially matches &
-            compareTwoStrings(requestedSurveyName, tabName) >
-            compareTwoStrings(surveyName, tabName)) { // The existing match isn't closer
+        if (
+          requestedSurveyName.startsWith(tabName) && // Test it at least partially matches &
+          compareTwoStrings(requestedSurveyName, tabName) > compareTwoStrings(surveyName, tabName)
+        ) {
+          // The existing match isn't closer
           surveyName = requestedSurveyName;
         }
       }
       if (surveyName.length === 0) {
-        throw new ImportValidationError(`The tab ${tabName} was not listed as a survey name in the HTTP query`);
+        throw new ImportValidationError(
+          `The tab ${tabName} was not listed as a survey name in the HTTP query`,
+        );
       }
 
-
       // Get the survey based on the name of the sheet/tab
-      const survey = await database.findOrCreate(
+      const survey = await db.findOrCreate(
         TYPES.SURVEY,
         {
           name: surveyName,
         },
-        { // If no survey with that name is found, give it a code and public permissions
+        {
+          // If no survey with that name is found, give it a code and public permissions
           code: generateSurveyCode(surveyName),
           permission_group_id: permissionGroup.id,
-        }
+        },
       );
       if (!survey) {
         throw new DatabaseError('creating survey, check format of import file');
@@ -95,16 +98,11 @@ export async function importSurveys(req, res) {
       }
       // Update the survey based on the fields to force update
       if (Object.keys(fieldsToForceUpdate).length > 0) {
-        await database.updateById(
-          TYPES.SURVEY,
-          survey.id,
-          fieldsToForceUpdate,
-        );
+        await db.updateById(TYPES.SURVEY, survey.id, fieldsToForceUpdate);
       }
 
-
       // Delete all existing survey screens and components that were attached to this survey
-      await deleteScreensForSurvey(database, survey.id);
+      await deleteScreensForSurvey(db, survey.id);
       const questionObjects = xlsx.utils.sheet_to_json(sheet);
       if (!questionObjects || questionObjects.length === 0) {
         throw new ImportValidationError('No questions listed in import file');
@@ -117,9 +115,14 @@ export async function importSurveys(req, res) {
       for (let rowIndex = 0; rowIndex < questionObjects.length; rowIndex++) {
         const questionObject = questionObjects[rowIndex];
         const excelRowNumber = rowIndex + 2; // +2 to make up for header and 0 index
-        const constructImportValidationError = (message, field) => new ImportValidationError(message, excelRowNumber, field, tabName);
+        const constructImportValidationError = (message, field) =>
+          new ImportValidationError(message, excelRowNumber, field, tabName);
         await objectValidator.validate(questionObject, constructImportValidationError);
-        if (questionObject.code && questionObject.code.length > 0 && questionCodes.includes(questionObject.code)) {
+        if (
+          questionObject.code &&
+          questionObject.code.length > 0 &&
+          questionCodes.includes(questionObject.code)
+        ) {
           throw new ImportValidationError('Question code is not unique', excelRowNumber);
         }
         questionCodes.push(questionObject.code);
@@ -152,61 +155,57 @@ export async function importSurveys(req, res) {
         // Either create or update the question depending on if there exists a matching code
         let question;
         if (code) {
-          question = await database.updateOrCreate(
-            TYPES.QUESTION,
-            { code },
-            questionToUpsert,
-          );
-        } else { // No code in spreadsheet, can't match so just create a new question
-          question = await database.create(
-            TYPES.QUESTION,
-            questionToUpsert,
-          );
+          question = await db.updateOrCreate(TYPES.QUESTION, { code }, questionToUpsert);
+        } else {
+          // No code in spreadsheet, can't match so just create a new question
+          question = await db.create(TYPES.QUESTION, questionToUpsert);
         }
 
         // Generate the screen and screen component
         const shouldStartNewScreen = caseAndSpaceInsensitiveEquals(newScreen, 'yes');
-        if (!currentScreen || shouldStartNewScreen) { // Spreadsheet indicates this question starts a new screen
+        if (!currentScreen || shouldStartNewScreen) {
+          // Spreadsheet indicates this question starts a new screen
           // Create a new survey screen
-          currentScreen = await database.create(
-            TYPES.SURVEY_SCREEN,
-            {
-              survey_id: survey.id,
-              screen_number: currentScreen ? currentScreen.screen_number + 1 : 1, // Next screen
-            },
-          );
+          currentScreen = await db.create(TYPES.SURVEY_SCREEN, {
+            survey_id: survey.id,
+            screen_number: currentScreen ? currentScreen.screen_number + 1 : 1, // Next screen
+          });
           // Clear existing survey screen component
           currentSurveyScreenComponent = undefined;
         }
 
         // Create a new survey screen component to display this question
-        const visibilityCriteriaObject = await convertCellToJson(visibilityCriteria, splitStringOnComma);
-        const processedVisibilityCriteria = {};
-        await Promise.all(Object.entries(visibilityCriteriaObject).map(async ([questionCode, answers]) => {
-          if (questionCode === '_conjunction') {
-            // This is the special _conjunction key, extract the 'and' or the 'or' from answers,
-            // i.e. { conjunction: ['and'] } -> { conjunction: 'and' }
-            processedVisibilityCriteria._conjunction = answers[0];
-          } else {
-            const { id: questionId } = await Question.findOne({ code: questionCode });
-            processedVisibilityCriteria[questionId] = answers;
-          }
-        }));
-        currentSurveyScreenComponent = await database.create(
-          TYPES.SURVEY_SCREEN_COMPONENT,
-          {
-            screen_id: currentScreen.id,
-            question_id: question.id,
-            component_number: currentSurveyScreenComponent ?
-              currentSurveyScreenComponent.component_number + 1 :
-              1,
-            visibility_criteria: JSON.stringify(processedVisibilityCriteria),
-            validation_criteria: JSON.stringify(convertCellToJson(validationCriteria, processValidationCriteriaValue)),
-          },
+        const visibilityCriteriaObject = await convertCellToJson(
+          visibilityCriteria,
+          splitStringOnComma,
         );
+        const processedVisibilityCriteria = {};
+        await Promise.all(
+          Object.entries(visibilityCriteriaObject).map(async ([questionCode, answers]) => {
+            if (questionCode === '_conjunction') {
+              // This is the special _conjunction key, extract the 'and' or the 'or' from answers,
+              // i.e. { conjunction: ['and'] } -> { conjunction: 'and' }
+              processedVisibilityCriteria._conjunction = answers[0];
+            } else {
+              const { id: questionId } = await Question.findOne({ code: questionCode });
+              processedVisibilityCriteria[questionId] = answers;
+            }
+          }),
+        );
+        currentSurveyScreenComponent = await db.create(TYPES.SURVEY_SCREEN_COMPONENT, {
+          screen_id: currentScreen.id,
+          question_id: question.id,
+          component_number: currentSurveyScreenComponent
+            ? currentSurveyScreenComponent.component_number + 1
+            : 1,
+          visibility_criteria: JSON.stringify(processedVisibilityCriteria),
+          validation_criteria: JSON.stringify(
+            convertCellToJson(validationCriteria, processValidationCriteriaValue),
+          ),
+        });
       }
       // Clear any orphaned questions (i.e. questions no longer included in a survey)
-      await deleteOrphanQuestions(database);
+      await deleteOrphanQuestions(db);
     }
   } catch (error) {
     if (error.respond) {
@@ -218,7 +217,10 @@ export async function importSurveys(req, res) {
 }
 
 function generateSurveyCode(surveyName) {
-  return surveyName.match(/\b(\w)/g).join('').toUpperCase();
+  return surveyName
+    .match(/\b(\w)/g)
+    .join('')
+    .toUpperCase();
 }
 
 function splitOnNewLinesOrCommas(string) {
@@ -227,7 +229,7 @@ function splitOnNewLinesOrCommas(string) {
 }
 
 function splitStringOn(string, splitCharacter) {
-  return string ? string.split(splitCharacter).map((segment) => segment.trim()) : [];
+  return string ? string.split(splitCharacter).map(segment => segment.trim()) : [];
 }
 
 function splitStringOnComma(string) {
@@ -245,9 +247,9 @@ function splitStringOnComma(string) {
  * }
  * @param {string} cellString The string representing the cell in Excel
  */
-function convertCellToJson(cellString, processValue = (value) => value) {
+function convertCellToJson(cellString, processValue = value => value) {
   const jsonObject = {};
-  splitStringOn(cellString, '\n').forEach((line) => {
+  splitStringOn(cellString, '\n').forEach(line => {
     const [key, value] = splitStringOn(line, ':');
     jsonObject[key] = processValue(value);
   });
@@ -309,9 +311,9 @@ const VALID_QUESTION_TYPES = [
   'YearsSince',
 ];
 
-const isEmpty = (cell) => cell === undefined || cell === null || cell.length === 0;
-const isYesOrNo = (cell) => caseAndSpaceInsensitiveEquals(cell, 'yes') ||
-                            caseAndSpaceInsensitiveEquals(cell, 'no');
+const isEmpty = cell => cell === undefined || cell === null || cell.length === 0;
+const isYesOrNo = cell =>
+  caseAndSpaceInsensitiveEquals(cell, 'yes') || caseAndSpaceInsensitiveEquals(cell, 'no');
 const optionsValidators = [
   (cell, row) => {
     if (!isEmpty(cell) && row.type !== 'Radio') {
@@ -319,7 +321,7 @@ const optionsValidators = [
     }
     return true;
   },
-  (cell) => {
+  cell => {
     if (!isEmpty(cell) && splitOnNewLinesOrCommas(cell).length <= 1) {
       throw new Error('When defining options, include at least two separated by a comma');
     }
@@ -329,36 +331,34 @@ const optionsValidators = [
 const DHIS_MAX_NAME_LENGTH = 230; // In DHIS2, the field is capped at 230 characters
 const FIELD_VALIDATORS = {
   code: [
-    (cell, row) => { // Not required for Instruction lines
+    (cell, row) => {
+      // Not required for Instruction lines
       if (row.type === 'Instruction') {
         return true;
       }
       return hasContent(cell);
     },
   ],
-  type: [
-    hasContent,
-    constructIsOneOf(VALID_QUESTION_TYPES),
-  ],
+  type: [hasContent, constructIsOneOf(VALID_QUESTION_TYPES)],
   indicator: [
-    (cell, questionObject) => { // Not required for Instruction lines
+    (cell, questionObject) => {
+      // Not required for Instruction lines
       if (questionObject.type === 'Instruction') {
         return true;
       }
       return hasContent(cell);
     },
-    (cell) => {
+    cell => {
       if (cell && cell.length > DHIS_MAX_NAME_LENGTH) {
-        throw new Error(`Question indicators must be shorter than ${DHIS_MAX_NAME_LENGTH} characters`);
+        throw new Error(
+          `Question indicators must be shorter than ${DHIS_MAX_NAME_LENGTH} characters`,
+        );
       }
       return true;
     },
   ],
-  text: [
-    hasContent,
-  ],
-  detail: [
-  ],
+  text: [hasContent],
+  detail: [],
   options: [
     ...optionsValidators,
     (cell, row) => {
@@ -367,8 +367,8 @@ const FIELD_VALIDATORS = {
       }
       return true;
     },
-    (cell) => {
-      if (!isEmpty(cell) && splitOnNewLinesOrCommas(cell).some((option) => option.length === 0)) {
+    cell => {
+      if (!isEmpty(cell) && splitOnNewLinesOrCommas(cell).some(option => option.length === 0)) {
         throw new Error('All options should be at least one character long');
       }
       return true;
@@ -378,33 +378,35 @@ const FIELD_VALIDATORS = {
     ...optionsValidators,
     (cell, row) => {
       if (splitOnNewLinesOrCommas(cell).length > splitOnNewLinesOrCommas(row.options).length) {
-        throw new Error(
-          'There are more labels than options.'
-        );
+        throw new Error('There are more labels than options.');
       }
     },
   ],
   optionColors: [
     ...optionsValidators,
-    (cell) => {
+    cell => {
       const stringFormat = '#xxxxxx';
-      if (!isEmpty(cell) && splitOnNewLinesOrCommas(cell).some((color) =>
-        !color.startsWith('#') || color.length !== stringFormat.length)) {
+      if (
+        !isEmpty(cell) &&
+        splitOnNewLinesOrCommas(cell).some(
+          color => !color.startsWith('#') || color.length !== stringFormat.length,
+        )
+      ) {
         throw new Error(`Option colors must be valid hex values in the format ${stringFormat}`);
       }
       return true;
     },
   ],
   newScreen: [
-    (cell) => {
+    cell => {
       if (!isEmpty(cell) && !isYesOrNo(cell)) {
         throw new Error('The newScreen field should contain either Yes or No or be empty');
       }
       return true;
-    }
+    },
   ],
   visibilityCriteria: [
-    async (cell) => {
+    async cell => {
       if (isEmpty(cell)) {
         return true; // No follow up answers defined, so is valid
       }
@@ -419,32 +421,41 @@ const FIELD_VALIDATORS = {
           const question = await Question.findOne({ code: questionCode });
           switch (question.type) {
             case 'Radio':
-              if (!answers.every((answer) =>
-                question.options.some((option) => {
-                  if (option === answer) {
-                    return true;
-                  }
-                  // The option may be a JSON string in the form { value: x, ... }
-                  try {
-                    if (JSON.parse(option).value === answer){
+              if (
+                !answers.every(answer =>
+                  question.options.some(option => {
+                    if (option === answer) {
                       return true;
                     }
-                  } catch (error) {
+                    // The option may be a JSON string in the form { value: x, ... }
+                    try {
+                      if (JSON.parse(option).value === answer) {
+                        return true;
+                      }
+                    } catch (error) {
+                      return false;
+                    }
                     return false;
-                  }
-                  return false;
-                }))) {
-                throw new Error('Every answer in the visibility criteria should be one of the options defined for the question');
+                  }),
+                )
+              ) {
+                throw new Error(
+                  'Every answer in the visibility criteria should be one of the options defined for the question',
+                );
               }
               break;
             case 'Binary':
-              if (!answers.every((answer) => isYesOrNo(answer))) {
-                throw new Error('All answers in the visibility criteria for binary questions should be either Yes or No');
+              if (!answers.every(answer => isYesOrNo(answer))) {
+                throw new Error(
+                  'All answers in the visibility criteria for binary questions should be either Yes or No',
+                );
               }
               break;
             case 'Number':
-              if (!answers.every((answer) => !isNaN(answer))) {
-                throw new Error('All answers in the visibility criteria for a number question should be numbers');
+              if (!answers.every(answer => !isNaN(answer))) {
+                throw new Error(
+                  'All answers in the visibility criteria for a number question should be numbers',
+                );
               }
               break;
             default:
@@ -453,12 +464,12 @@ const FIELD_VALIDATORS = {
         }
       }
       return true;
-    }
+    },
   ],
   validationCriteria: [
-    (cell) => {
+    cell => {
       const VALIDATION_CRITERIA_VALIDATORS = {
-        mandatory: (value) => {
+        mandatory: value => {
           if (!['true', 'false'].includes(value)) {
             throw new Error('The validation criteria "mandatory" must be either true or false');
           }
@@ -472,11 +483,13 @@ const FIELD_VALIDATORS = {
       const criteria = Object.entries(convertCellToJson(cell));
       criteria.forEach(([key, value]) => {
         if (VALIDATION_CRITERIA_VALIDATORS[key] === undefined) {
-          throw new Error(`Validation criteria can only be one of ${Object.keys(VALIDATION_CRITERIA_VALIDATORS)}`);
+          throw new Error(
+            `Validation criteria can only be one of ${Object.keys(VALIDATION_CRITERIA_VALIDATORS)}`,
+          );
         }
         VALIDATION_CRITERIA_VALIDATORS[key](value);
       });
       return true;
-    }
-  ]
+    },
+  ],
 };

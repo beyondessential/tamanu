@@ -5,12 +5,33 @@ import { objectToJSON } from '../../utils';
 
 export const visitRoutes = express.Router();
 
+visitRoutes.put('/visit/:id/visitType', (req, res) => {
+  const { db, params, body } = req;
+  const visit = db.objectForPrimaryKey('visit', params.id);
+  const { visitType } = body;
+
+  if (visitType !== visit.visitType) {
+    const note = {
+      _id: shortid(),
+      type: 'system',
+      content: `Changed from ${visit.visitType} to ${visitType}`,
+    };
+
+    db.write(() => {
+      visit.visitType = visitType;
+      visit.notes = [...visit.notes, note];
+    });
+  }
+
+  res.send(objectToJSON(visit));
+});
+
 visitRoutes.post('/visit/:id/note', (req, res) => {
-  const db = req.app.get('database');
-  const visit = db.objectForPrimaryKey('visit', req.params.id);
+  const { db, params, body } = req;
+  const visit = db.objectForPrimaryKey('visit', params.id);
   const note = {
     _id: shortid(),
-    ...req.body,
+    ...body,
   };
 
   // TODO: validate
@@ -24,11 +45,11 @@ visitRoutes.post('/visit/:id/note', (req, res) => {
 });
 
 visitRoutes.post('/visit/:id/diagnosis', (req, res) => {
-  const db = req.app.get('database');
-  const visit = db.objectForPrimaryKey('visit', req.params.id);
+  const { db, params, body } = req;
+  const visit = db.objectForPrimaryKey('visit', params.id);
   const diagnosis = {
     _id: shortid(),
-    ...req.body,
+    ...body,
   };
 
   // TODO: validate
@@ -41,11 +62,11 @@ visitRoutes.post('/visit/:id/diagnosis', (req, res) => {
 });
 
 visitRoutes.post('/visit/:id/labRequest', (req, res) => {
-  const db = req.app.get('database');
-  const visit = db.objectForPrimaryKey('visit', req.params.id);
+  const { db, params, body } = req;
+  const visit = db.objectForPrimaryKey('visit', params.id);
   const request = {
     _id: shortid(),
-    ...req.body,
+    ...body,
   };
 
   // TODO: validate
@@ -64,11 +85,11 @@ visitRoutes.post('/visit/:id/labRequest', (req, res) => {
 });
 
 visitRoutes.post('/visit/:id/vitals', (req, res) => {
-  const db = req.app.get('database');
-  const visit = db.objectForPrimaryKey('visit', req.params.id);
+  const { db, params, body } = req;
+  const visit = db.objectForPrimaryKey('visit', params.id);
   const reading = {
     _id: shortid(),
-    ...req.body,
+    ...body,
   };
 
   // TODO: validate
@@ -81,11 +102,11 @@ visitRoutes.post('/visit/:id/vitals', (req, res) => {
 });
 
 visitRoutes.post('/visit/:id/medications', (req, res) => {
-  const db = req.app.get('database');
-  const visit = db.objectForPrimaryKey('visit', req.params.id);
+  const { db, params, body } = req;
+  const visit = db.objectForPrimaryKey('visit', params.id);
   const medication = {
     _id: shortid(),
-    ...req.body,
+    ...body,
   };
 
   // TODO: validate
