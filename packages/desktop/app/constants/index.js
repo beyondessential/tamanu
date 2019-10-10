@@ -1,6 +1,8 @@
 import moment from 'moment';
 import { padStart, capitalize } from 'lodash';
 
+import { createValueIndex } from '../../../shared/utils/valueIndex';
+
 export const MUI_SPACING_UNIT = 8;
 
 export const REMEMBER_EMAIL_KEY = 'remember-email';
@@ -213,6 +215,8 @@ export const visitOptions = [
   { value: 'observation', label: 'Observation', image: './assets/images/patient.svg' },
   { value: 'triage', label: 'Triage', image: './assets/images/patient.svg', hideFromOptions: true },
 ];
+
+export const VISIT_OPTIONS_BY_VALUE = createValueIndex(visitOptions);
 
 export const TRIAGE_COLORS_BY_LEVEL = {
   1: Colors.alert,
