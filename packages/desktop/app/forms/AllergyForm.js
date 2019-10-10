@@ -31,14 +31,15 @@ export class AllergyForm extends React.PureComponent {
           suggester={allergySuggester}
           required
         />
-        <Field name="date" label="Date recorded" component={DateField} />
+        <Field name="date" label="Date recorded" component={DateField} required />
         <Field
           name="practitioner._id"
           label="Doctor/Nurse"
           component={AutocompleteField}
           suggester={practitionerSuggester}
+
         />
-        <Field name="note" label="Notes" component={TextField} />
+        <Field name="notes" label="Notes" component={TextField} />
         <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText={buttonText} />
       </FormGrid>
     );
@@ -57,6 +58,7 @@ export class AllergyForm extends React.PureComponent {
         }}
         validationSchema={yup.object().shape({
           allergy: foreignKey('An allergy must be selected'),
+          date: yup.date().required(),
         })}
       />
     );
