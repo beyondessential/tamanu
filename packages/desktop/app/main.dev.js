@@ -7,7 +7,7 @@
  * `./app/dist/main.prod.js` using webpack. This gives us some performance wins.
  *
  */
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 
 // production only
 import sourceMapSupport from 'source-map-support';
@@ -21,7 +21,7 @@ import installExtension, {
 } from 'electron-devtools-installer';
 
 import MenuBuilder from './menu';
-import { PRINT_EVENT } from './print';
+import { registerPrintListener } from './print';
 
 let mainWindow = null;
 
@@ -108,10 +108,4 @@ app.on('ready', async () => {
   menuBuilder.buildMenu();
 });
 
-ipcMain.on(PRINT_EVENT, event => {
-  const win = BrowserWindow.fromWebContents(event.sender);
-
-  win.webContents.print({}, (error, data) => {
-    if (error) return console.log(error.message);
-  });
-});
+registerPrintListener();

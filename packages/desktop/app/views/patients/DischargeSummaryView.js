@@ -57,6 +57,10 @@ const ListColumn = styled.div`
 const Row = styled.div`
   display: flex;
   justify-content: space-between;
+
+  div:first-of-type {
+    margin-right: 10px;
+  }
 `;
 
 const DiagnosesList = ({ diagnoses }) => {
