@@ -14,8 +14,10 @@ const SidebarContainer = styled.div`
     display: none;
   }
 
+  grid-row: 2 / -1;
+  grid-column: 1 / 2;
+
   min-width: 275px;
-  height: 100vh;
   position: relative;
   background: ${Colors.primaryDark};
   color: ${Colors.white};
@@ -97,11 +99,6 @@ export class Sidebar extends Component {
             <LogoutItem onClick={this.onLogout} />
           </List>
         </SidebarMenuContainer>
-        <LogoContainer>
-          <div onClick={() => onPathChanged('/')}>
-            <TamanuLogo size="120px" />
-          </div>
-        </LogoContainer>
       </SidebarContainer>
     );
   }
