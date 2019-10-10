@@ -3,12 +3,15 @@ import styled from 'styled-components';
 import moment from 'moment';
 import Paper from '@material-ui/core/Paper';
 
+import { connect } from 'react-redux';
+
+import { viewPatientVisit } from '../store/patient';
+
 import { TopBar, PageContainer, DataFetchingTable } from '../components';
 import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
 
 import { DateDisplay } from '../components/DateDisplay';
 import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
-import { TriageActionDropdown } from '../components/TriageActionDropdown';
 import { TRIAGE_COLORS_BY_LEVEL } from '../constants';
 
 const PriorityText = styled.span`
@@ -132,17 +135,20 @@ const COLUMNS = [
     },
   },
   { key: 'location', title: 'Location', accessor: row => row.location.name },
-  { key: 'actions', title: 'Actions', accessor: row => <TriageActionDropdown triage={row} /> },
 ];
 
-const TriageTable = React.memo(({ ...props }) => (
+const TriageTable = connect(
+  null,
+  dispatch => ({ onViewVisit: (triage) => dispatch(viewPatientVisit(triage.patient[0]._id, triage.visit._id)) })
+)(React.memo(({ onViewVisit, ...props }) => (
   <DataFetchingTable
     endpoint="triage"
     columns={COLUMNS}
     noDataMessage="No patients found"
+    onRowClick={onViewVisit}
     {...props}
   />
-));
+)));
 
 export const TriageListingView = React.memo(() => (
   <PageContainer>
