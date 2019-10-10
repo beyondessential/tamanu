@@ -220,7 +220,7 @@ export const visitOptions = [
   { value: 'imaging', label: 'Imaging', image: radiologyIcon },
   { value: 'lab', label: 'Lab', image: labsIcon },
   { value: 'emergency', label: 'Emergency', image: scheduleIcon },
-  { value: 'observation', label: 'Observation', image: patientIcon },
+  { value: 'observation', label: 'Observation', image: patientIcon, hideFromOptions: true },
   { value: 'triage', label: 'Triage', image: patientIcon, hideFromOptions: true },
 ];
 
