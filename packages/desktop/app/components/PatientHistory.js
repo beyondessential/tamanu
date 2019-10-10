@@ -15,5 +15,6 @@ const columns = [
 ];
 
 export const PatientHistory = ({ items, onItemClick }) => {
-  return <Table columns={columns} data={items} onRowClick={row => onItemClick(row)} />;
+  const sortedItems = items.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+  return <Table columns={columns} data={sortedItems} onRowClick={row => onItemClick(row)} />;
 };
