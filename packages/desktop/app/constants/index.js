@@ -1,5 +1,15 @@
 import moment from 'moment';
 import { padStart, capitalize } from 'lodash';
+import {
+  medicationIcon,
+  administrationIcon,
+  radiologyIcon,
+  labsIcon,
+  scheduleIcon,
+  patientIcon,
+} from './images';
+
+import { createValueIndex } from '../../../shared/utils/valueIndex';
 
 export const MUI_SPACING_UNIT = 8;
 
@@ -205,14 +215,16 @@ export const noteTypes = [
 ];
 
 export const visitOptions = [
-  { value: 'admission', label: 'Admission', image: './assets/images/medication.svg' },
-  { value: 'clinic', label: 'Clinic', image: './assets/images/administration.svg' },
-  { value: 'imaging', label: 'Imaging', image: './assets/images/radiology.png' },
-  { value: 'lab', label: 'Lab', image: './assets/images/labs.svg' },
-  { value: 'emergency', label: 'Emergency', image: './assets/images/schedule.svg' },
-  { value: 'observation', label: 'Observation', image: './assets/images/patient.svg' },
-  { value: 'triage', label: 'Triage', image: './assets/images/patient.svg', hideFromOptions: true },
+  { value: 'admission', label: 'Admission', image: medicationIcon },
+  { value: 'clinic', label: 'Clinic', image: administrationIcon },
+  { value: 'imaging', label: 'Imaging', image: radiologyIcon },
+  { value: 'lab', label: 'Lab', image: labsIcon },
+  { value: 'emergency', label: 'Emergency', image: scheduleIcon },
+  { value: 'observation', label: 'Observation', image: patientIcon },
+  { value: 'triage', label: 'Triage', image: patientIcon, hideFromOptions: true },
 ];
+
+export const VISIT_OPTIONS_BY_VALUE = createValueIndex(visitOptions);
 
 export const TRIAGE_COLORS_BY_LEVEL = {
   1: Colors.alert,

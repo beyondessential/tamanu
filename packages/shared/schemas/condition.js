@@ -6,7 +6,9 @@ export const ConditionsSchema = {
   properties: {
     _id: 'string',
     date: 'date',
-    condition: 'string',
+    condition: 'diagnosis',
+    notes: 'string?',
+    resolved: { type: 'bool', default: false },
     ...defaults,
   },
 };

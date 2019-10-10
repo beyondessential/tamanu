@@ -22,6 +22,7 @@ import { connectRoutedModal } from '../../components/Modal';
 import { viewVisit } from '../../store/visit';
 
 import { getCurrentVisit } from '../../store/patient';
+import { medicationIcon, profileIcon } from '../../constants/images';
 
 const CallToActionRow = styled(ContentPane)`
   display: flex;
@@ -87,7 +88,7 @@ const HistoryPane = connect(
     <div>
       <CallToActionRow>
         <ImageButton
-          src="./assets/images/medication.svg"
+          src={medicationIcon}
           title="Check in"
           disabled={!isCheckInAvailable}
           onClick={onOpenCheckin}
@@ -95,7 +96,7 @@ const HistoryPane = connect(
           Check In
         </ImageButton>
         <ImageButton
-          src="./assets/images/profile.svg"
+          src={profileIcon}
           title="Triage"
           disabled={!isCheckInAvailable}
           onClick={onOpenTriage}

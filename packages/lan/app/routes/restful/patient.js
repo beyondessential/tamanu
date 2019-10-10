@@ -60,7 +60,7 @@ patientRoutes.post('/patient/:id/visits', (req, res) => {
   const triage = patient.triages.filtered('closedTime == null')[0];
 
   // check if there was a referral selected, and close it with this visit
-  const referralId = visit.referral._id;
+  const referralId = visit.referral && visit.referral._id;
   const referral = patient.referrals.filtered('_id == $0', referralId)[0];
 
   db.write(() => {
@@ -78,6 +78,21 @@ patientRoutes.post('/patient/:id/visits', (req, res) => {
   });
 
   res.send(visit);
+});
+
+patientRoutes.post('/patient/:id/conditions', (req, res) => {
+  const { db, params, body } = req;
+  const patient = db.objectForPrimaryKey('patient', params.id);
+  const condition = {
+    _id: shortid(),
+    ...body,
+  };
+
+  db.write(() => {
+    patient.conditions = [...patient.conditions, condition];
+  });
+
+  res.send(condition);
 });
 
 patientRoutes.post('/patient/:id/allergies', (req, res) => {

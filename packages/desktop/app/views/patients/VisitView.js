@@ -159,11 +159,28 @@ const VisitActionDropdown = connect(
     return null;
   }
 
+  const progression = {
+    'triage': 0,
+    'observation': 1,
+    'emergency': 2,
+    'hospital': 3,
+  };
+  const isProgressionForward = (currentState, nextState) => progression[nextState] > progression[currentState];
   const actions = [
     {
-      label: 'Admit',
-      onClick: () => onChangeVisitType('admission'),
-      condition: () => visit.visitType === 'triage',
+      label: 'Keep under observation',
+      onClick: () => onChangeVisitType('observation'),
+      condition: () => isProgressionForward(visit.visitType, 'observation'),
+    },
+    {
+      label: 'Admit to emergency',
+      onClick: () => onChangeVisitType('emergency'),
+      condition: () => isProgressionForward(visit.visitType, 'emergency'),
+    },
+    {
+      label: 'Admit to hospital',
+      onClick: () => onChangeVisitType('hospital'),
+      condition: () => isProgressionForward(visit.visitType, 'hospital'),
     },
     {
       label: 'Discharge',
