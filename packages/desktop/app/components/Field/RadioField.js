@@ -18,6 +18,7 @@ const StyledRadioGroup = styled(RadioGroup)`
   display: grid;
   grid-auto-flow: ${props => (props.row ? 'row' : 'column')};
   grid-template-columns: ${props => `repeat(${props.length}, 1fr)`};
+  width: max-content;
 `;
 
 const StyledRadio = styled(Radio)`
@@ -102,11 +103,11 @@ export const RadioInput = ({
         {options.map(option => (
           <ControlLabel
             key={option.value}
-            control={<StyledRadio theme={option.theme} value={option.value} selected={value} />}
+            control={<StyledRadio theme={option.color} value={option.value} selected={value} />}
             label={option.label}
             value={option.value}
             selected={value}
-            theme={option.theme}
+            theme={option.color}
           />
         ))}
       </StyledRadioGroup>

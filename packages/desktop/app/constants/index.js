@@ -219,9 +219,9 @@ export const TRIAGE_COLORS_BY_LEVEL = {
 };
 
 export const triagePriorities = [
-  { value: '1', label: 'Emergency', theme: TRIAGE_COLORS_BY_LEVEL[1] },
-  { value: '2', label: 'Priority', theme: TRIAGE_COLORS_BY_LEVEL[2] },
-  { value: '3', label: 'Non-urgent', theme: TRIAGE_COLORS_BY_LEVEL[3] },
+  { value: '1', label: 'Emergency', color: TRIAGE_COLORS_BY_LEVEL[1] },
+  { value: '2', label: 'Priority', color: TRIAGE_COLORS_BY_LEVEL[2] },
+  { value: '3', label: 'Non-urgent', color: TRIAGE_COLORS_BY_LEVEL[3] },
 ];
 
 export const operativePlanStatuses = {
