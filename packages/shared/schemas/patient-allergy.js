@@ -7,7 +7,7 @@ export const PatientAllergySchema = {
     _id: 'string',
     date: 'date',
     allergy: 'allergy',
-    note: 'string',
+    notes: 'string?',
     practitioner: 'user?',
     ...defaults,
   },
