@@ -179,8 +179,8 @@ const VisitActionDropdown = connect(
     },
     {
       label: 'Admit to hospital',
-      onClick: () => onChangeVisitType('hospital'),
-      condition: () => isProgressionForward(visit.visitType, 'hospital'),
+      onClick: () => onChangeVisitType('admission'),
+      condition: () => isProgressionForward(visit.visitType, 'admission'),
     },
     {
       label: 'Discharge',
