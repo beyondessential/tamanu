@@ -23,15 +23,7 @@ const StyledRadioGroup = styled(RadioGroup)`
 
 const StyledRadio = styled(Radio)`
   svg {
-    color: ${props => {
-      if (props.theme) {
-        if (props.value === props.selected) return Colors.white;
-        return props.theme;
-      }
-
-      if (props.value === props.selected) return Colors.primary;
-      else return '#cccccc';
-    }};
+    color: ${props => (props.selected ? props.theme.selected : props.theme.default)};
   }
 `;
 
@@ -40,15 +32,8 @@ const ControlLabel = styled(FormControlLabel)`
   padding: 15px 4px;
   border: 1px solid rgba(0, 0, 0, 0.23);
   justify-content: center;
-  background: ${props => {
-    if (props.theme) {
-      if (props.value === props.selected) return props.theme;
-      return Colors.white;
-    }
-
-    if (props.value === props.selected) return '#fafafa';
-    else return Colors.white;
-  }};
+  background: ${props =>
+    props.selected ? props.theme.background.selected : props.theme.background.default};
 
   span {
     font-size: 1rem;
@@ -56,15 +41,7 @@ const ControlLabel = styled(FormControlLabel)`
   }
 
   span:last-of-type {
-    color: ${props => {
-      if (props.theme) {
-        if (props.value === props.selected) return Colors.white;
-        return props.theme;
-      }
-
-      if (props.value === props.selected) return Colors.darkText;
-      else return Colors.midText;
-    }};
+    color: ${props => (props.selected ? props.theme.text.selected : props.theme.text.default)};
   }
 
   :not(:last-of-type) {
@@ -103,11 +80,31 @@ export const RadioInput = ({
         {options.map(option => (
           <ControlLabel
             key={option.value}
-            control={<StyledRadio theme={option.color} value={option.value} selected={value} />}
+            control={
+              <StyledRadio
+                theme={
+                  option.color
+                    ? { default: option.color, selected: Colors.white }
+                    : { default: '#cccccc', selected: Colors.primary }
+                }
+                value={option.value}
+                selected={value === option.value}
+              />
+            }
             label={option.label}
             value={option.value}
-            selected={value}
-            theme={option.color}
+            selected={value === option.value}
+            theme={
+              option.color
+                ? {
+                    background: { default: Colors.white, selected: option.color },
+                    text: { default: option.color, selected: Colors.white },
+                  }
+                : {
+                    background: { default: Colors.white, selected: '#fafafa' },
+                    text: { default: Colors.midText, selected: Colors.primary },
+                  }
+            }
           />
         ))}
       </StyledRadioGroup>
