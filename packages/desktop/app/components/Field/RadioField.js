@@ -9,23 +9,10 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 
-const getRadioTheme = color => {
-  if (color) return { default: color, selected: Colors.white };
-  return { default: Colors.outline, selected: Colors.primary };
-};
-
-const getLabelTheme = color => {
-  if (color) {
-    return {
-      background: { default: Colors.white, selected: color },
-      text: { default: color, selected: Colors.white },
-    };
-  }
-
-  return {
-    background: { default: Colors.white, selected: Colors.offWhite },
-    text: { default: Colors.midText, selected: Colors.primary },
-  };
+const DEFAULT_RADIO_THEME = { default: Colors.outline, selected: Colors.primary };
+const DEFAULT_LABEL_THEME = {
+  background: { default: Colors.white, selected: Colors.offWhite },
+  text: { default: Colors.midText, selected: Colors.primary },
 };
 
 const StyledFormControl = styled(FormControl)`
@@ -101,7 +88,11 @@ export const RadioInput = ({
             key={option.value}
             control={
               <StyledRadio
-                theme={getRadioTheme(option.color)}
+                theme={
+                  option.color
+                    ? { default: option.color, selected: Colors.white }
+                    : DEFAULT_RADIO_THEME
+                }
                 value={option.value}
                 selected={value === option.value}
               />
@@ -109,7 +100,14 @@ export const RadioInput = ({
             label={option.label}
             value={option.value}
             selected={value === option.value}
-            theme={getLabelTheme(option.color)}
+            theme={
+              option.color
+                ? {
+                    background: { default: Colors.white, selected: option.color },
+                    text: { default: option.color, selected: Colors.white },
+                  }
+                : DEFAULT_LABEL_THEME
+            }
           />
         ))}
       </StyledRadioGroup>
