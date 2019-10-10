@@ -9,6 +9,12 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 
+const DEFAULT_RADIO_THEME = { default: Colors.outline, selected: Colors.primary };
+const DEFAULT_LABEL_THEME = {
+  background: { default: Colors.white, selected: Colors.offWhite },
+  text: { default: Colors.midText, selected: Colors.primary },
+};
+
 const StyledFormControl = styled(FormControl)`
   display: flex;
   flex-direction: column;
@@ -83,9 +89,9 @@ export const RadioInput = ({
             control={
               <StyledRadio
                 theme={
-                  option.color
-                    ? { default: option.color, selected: Colors.white }
-                    : { default: '#cccccc', selected: Colors.primary }
+                  !option.color
+                    ? DEFAULT_RADIO_THEME
+                    : { default: option.color, selected: Colors.white }
                 }
                 value={option.value}
                 selected={value === option.value}
@@ -95,14 +101,11 @@ export const RadioInput = ({
             value={option.value}
             selected={value === option.value}
             theme={
-              option.color
-                ? {
+              !option.color
+                ? DEFAULT_LABEL_THEME
+                : {
                     background: { default: Colors.white, selected: option.color },
                     text: { default: option.color, selected: Colors.white },
-                  }
-                : {
-                    background: { default: Colors.white, selected: '#fafafa' },
-                    text: { default: Colors.midText, selected: Colors.primary },
                   }
             }
           />
