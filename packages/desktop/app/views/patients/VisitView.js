@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import CalendarIcon from '@material-ui/icons/CalendarToday';
 import SubjectIcon from '@material-ui/icons/Subject';
 
-import { Button, BackButton } from '../../components/Button';
+import { Button, DischargeButton, BackButton, ForwardButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
@@ -182,6 +182,11 @@ const DischargeView = ({ visit }) => (
   </React.Fragment>
 );
 
+const DischargeSummaryView = connect(
+  null,
+  dispatch => ({ viewSummary: () => dispatch(push('/patients/visit/summary')) }),
+)(({ viewSummary }) => <ForwardButton onClick={viewSummary}>View Summary</ForwardButton>);
+
 const AdmissionInfoRow = styled.div`
   display: flex;
   font-size: 14px;
@@ -206,6 +211,11 @@ const AdmissionInfo = styled.span`
     color: ${Colors.outline};
     margin-right: 3px;
   }
+`;
+
+const NavButtons = styled.div`
+  display: flex;
+  justify-content: space-between;
 `;
 
 function getHeaderText({ visitType }) {
@@ -244,7 +254,10 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
             </AdmissionInfoRow>
           </TopBar>
           <ContentPane>
-            <BackButton />
+            <NavButtons>
+              <BackButton />
+              <DischargeSummaryView />
+            </NavButtons>
             <VisitInfoPane visit={visit} />
           </ContentPane>
           <ContentPane>
