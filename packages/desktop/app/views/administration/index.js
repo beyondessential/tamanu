@@ -1,0 +1,1 @@
+export { LocationAdminView } from './LocationAdminView';

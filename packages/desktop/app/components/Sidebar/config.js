@@ -10,15 +10,16 @@ import {
 import { availableReports } from '../../views/reports/dummyReports';
 
 export const submenuIcons = {
+  action: 'fa fa-chevron-circle-right',
   calendar: 'fa fa-calendar',
+  cog: 'fa fa-cog',
+  location: 'fa fa-location-arrow',
   new: 'fa fa-plus',
+  permissions: 'fa fa-lock',
+  report: 'fa fa-chevron-circle-right',
   search: 'fa fa-search',
   table: 'fa fa-th-list',
   users: 'fa fa-users',
-  permissions: 'fa fa-lock',
-  cog: 'fa fa-cog',
-  report: 'fa fa-chevron-circle-right',
-  action: 'fa fa-chevron-circle-right',
 };
 
 export const items = [
@@ -210,6 +211,12 @@ export const items = [
         path: '/admin/users',
         icon: submenuIcons.users,
         ability: { action: 'read', subject: 'user' },
+      },
+      {
+        label: 'Locations',
+        path: '/admin/locations',
+        icon: submenuIcons.location,
+        ability: { action: 'read', subject: 'location' },
       },
       {
         label: 'Permissions',
