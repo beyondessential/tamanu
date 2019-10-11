@@ -4,6 +4,10 @@ const path = require('path');
 // our babel config in a separate file rather than inline
 module.exports = {
   transform: {
-    "^.+\\.js$": path.resolve(__dirname, './jest.babel.js'),
+    '^.+\\.js$': path.resolve(__dirname, './jest.babel.js'),
+  },
+  testRegex: '(\\.|/)(test|spec)\\.[jt]sx?$',
+  moduleNameMapper: {
+    'Shared(.*)$': '<rootDir>/../shared$1',
   },
 };

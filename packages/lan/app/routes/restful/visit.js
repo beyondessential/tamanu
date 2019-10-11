@@ -12,7 +12,7 @@ visitRoutes.put('/visit/:id/visitType', (req, res) => {
 
   if (visitType !== visit.visitType) {
     const note = {
-      _id: shortid(),
+      _id: shortid.generate(),
       type: 'system',
       content: `Changed from ${visit.visitType} to ${visitType}`,
     };
@@ -30,7 +30,7 @@ visitRoutes.post('/visit/:id/note', (req, res) => {
   const { db, params, body } = req;
   const visit = db.objectForPrimaryKey('visit', params.id);
   const note = {
-    _id: shortid(),
+    _id: shortid.generate(),
     ...body,
   };
 
@@ -48,7 +48,7 @@ visitRoutes.post('/visit/:id/diagnosis', (req, res) => {
   const { db, params, body } = req;
   const visit = db.objectForPrimaryKey('visit', params.id);
   const diagnosis = {
-    _id: shortid(),
+    _id: shortid.generate(),
     ...body,
   };
 
@@ -65,7 +65,7 @@ visitRoutes.post('/visit/:id/labRequest', (req, res) => {
   const { db, params, body } = req;
   const visit = db.objectForPrimaryKey('visit', params.id);
   const request = {
-    _id: shortid(),
+    _id: shortid.generate(),
     ...body,
   };
 
@@ -73,7 +73,7 @@ visitRoutes.post('/visit/:id/labRequest', (req, res) => {
 
   // create tests for each testType given
   request.tests = request.testTypes.map(({ _id: typeId }) => ({
-    _id: shortid(),
+    _id: shortid.generate(),
     type: { _id: typeId },
   }));
 
@@ -88,7 +88,7 @@ visitRoutes.post('/visit/:id/vitals', (req, res) => {
   const { db, params, body } = req;
   const visit = db.objectForPrimaryKey('visit', params.id);
   const reading = {
-    _id: shortid(),
+    _id: shortid.generate(),
     ...body,
   };
 
@@ -105,7 +105,7 @@ visitRoutes.post('/visit/:id/medications', (req, res) => {
   const { db, params, body } = req;
   const visit = db.objectForPrimaryKey('visit', params.id);
   const medication = {
-    _id: shortid(),
+    _id: shortid.generate(),
     ...body,
   };
 

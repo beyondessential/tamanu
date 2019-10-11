@@ -1,7 +1,7 @@
 import shortid from 'shortid';
 import SharedSettings from 'Shared/services/settings';
 
-export default class Settings extends SharedSettings {
+export class Settings extends SharedSettings {
   constructor(props) {
     super(props, {
       LAST_SYNC_IN: '0',
