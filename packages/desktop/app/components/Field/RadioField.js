@@ -9,27 +9,37 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 
+const DEFAULT_RADIO_THEME = { default: Colors.outline, selected: Colors.primary };
+const DEFAULT_LABEL_THEME = {
+  background: { default: Colors.white, selected: Colors.offWhite },
+  text: { default: Colors.midText, selected: Colors.primary },
+};
+
 const StyledFormControl = styled(FormControl)`
   display: flex;
   flex-direction: column;
 `;
 
 const StyledRadioGroup = styled(RadioGroup)`
-  flex-direction: ${props => (props.row ? 'row' : 'column')};
-  flex-wrap: nowrap;
+  display: grid;
+  grid-auto-flow: ${props => (props.row ? 'row' : 'column')};
+  grid-template-columns: ${props => `repeat(${props.length}, 1fr)`};
+  width: max-content;
 `;
 
 const StyledRadio = styled(Radio)`
   svg {
-    color: ${props => (props.value === props.selected ? Colors.primary : '#cccccc')};
+    color: ${props => (props.selected ? props.theme.selected : props.theme.default)};
   }
 `;
 
 const ControlLabel = styled(FormControlLabel)`
-  background: ${props => (props.value === props.selected ? '#fafafa' : Colors.white)};
   margin: 0;
   padding: 15px 4px;
   border: 1px solid rgba(0, 0, 0, 0.23);
+  justify-content: center;
+  background: ${props =>
+    props.selected ? props.theme.background.selected : props.theme.background.default};
 
   span {
     font-size: 1rem;
@@ -37,7 +47,7 @@ const ControlLabel = styled(FormControlLabel)`
   }
 
   span:last-of-type {
-    color: ${props => (props.value === props.selected ? Colors.darkText : Colors.midText)};
+    color: ${props => (props.selected ? props.theme.text.selected : props.theme.text.default)};
   }
 
   :not(:last-of-type) {
@@ -59,20 +69,45 @@ export const RadioInput = ({
   value,
   label,
   helperText,
-  inline,
+  inline = false,
   style,
   ...props
 }) => (
   <OuterLabelFieldWrapper label={label} {...props}>
     <StyledFormControl style={style} {...props}>
-      <StyledRadioGroup row={inline} aria-label={name} name={name} value={value || ''} {...props}>
+      <StyledRadioGroup
+        length={options.length}
+        row={inline}
+        aria-label={name}
+        name={name}
+        value={value || ''}
+        {...props}
+      >
         {options.map(option => (
           <ControlLabel
             key={option.value}
-            control={<StyledRadio value={option.value} selected={value} />}
+            control={
+              <StyledRadio
+                theme={
+                  option.color
+                    ? { default: option.color, selected: Colors.white }
+                    : DEFAULT_RADIO_THEME
+                }
+                value={option.value}
+                selected={value === option.value}
+              />
+            }
             label={option.label}
             value={option.value}
-            selected={value}
+            selected={value === option.value}
+            theme={
+              option.color
+                ? {
+                    background: { default: Colors.white, selected: option.color },
+                    text: { default: option.color, selected: Colors.white },
+                  }
+                : DEFAULT_LABEL_THEME
+            }
           />
         ))}
       </StyledRadioGroup>

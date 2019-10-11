@@ -26,6 +26,16 @@ const AppBar = styled(MuiAppBar)`
 const Toolbar = styled(MuiToolbar)`
   display: grid;
   grid-template-columns: auto max-content;
+
+  button {
+    width: max-content;
+  }
+
+  @media print {
+    button {
+      display: none;
+    }
+  }
 `;
 
 const TopBar = React.memo(({ title, children, className }) => {

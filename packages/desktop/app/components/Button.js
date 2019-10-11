@@ -7,6 +7,7 @@ import MuiButtonBase from '@material-ui/core/ButtonBase';
 import MuiButton from '@material-ui/core/Button';
 import Icon from '@material-ui/core/Icon';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import { red } from '@material-ui/core/colors';
 import { checkAbility } from '../utils/ability';
 import { history } from '../utils';
@@ -145,21 +146,22 @@ export const TextButton = ({ children, ...props }) => (
   </StyledTextButton>
 );
 
-const StyledBackButton = styled(TextButton)`
+const StyledNavButton = styled(TextButton)`
   color: ${Colors.primary};
   font-size: 14px;
 `;
 
+export const ForwardButton = ({ children, ...props }) => (
+  <StyledNavButton {...props}>
+    {children} <ChevronRightIcon />
+  </StyledNavButton>
+);
+
 export const BackButton = ({ to, onClick, ...props }) => {
-  const { goBack } = history;
-  let newClick = onClick;
-  if (!to && !onClick) {
-    newClick = () => goBack();
-  }
   return (
-    <StyledBackButton to={to} onClick={newClick} {...props}>
+    <StyledNavButton to={to} onClick={onClick} {...props}>
       <ChevronLeftIcon /> Back
-    </StyledBackButton>
+    </StyledNavButton>
   );
 };
 

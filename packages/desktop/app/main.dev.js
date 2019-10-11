@@ -21,6 +21,7 @@ import installExtension, {
 } from 'electron-devtools-installer';
 
 import MenuBuilder from './menu';
+import { registerPrintListener } from './print';
 
 let mainWindow = null;
 
@@ -106,3 +107,5 @@ app.on('ready', async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 });
+
+registerPrintListener();

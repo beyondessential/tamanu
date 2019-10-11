@@ -107,12 +107,12 @@ const DataFetchingTriageStatisticsCard = memo(({ priorityLevel, fetchData }) => 
     );
   }
 
-  const priorityLevelData = data.filter(p => parseInt(p.score) === priorityLevel && !p.visit);
+  const priorityLevelData = data.filter(p => parseInt(p.score) === priorityLevel);
   const timeSinceTriage = triageTime => Math.round(new Date() - new Date(triageTime));
   const summedWaitTime = priorityLevelData.reduce((prev, curr) => {
     return prev + timeSinceTriage(curr.triageTime);
   }, 0);
-  const averageWaitTime = summedWaitTime / priorityLevelData.length;
+  const averageWaitTime = summedWaitTime / priorityLevelData.length || 0;
 
   return (
     <DumbTriageStatisticsCard

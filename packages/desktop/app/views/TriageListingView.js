@@ -3,16 +3,18 @@ import styled from 'styled-components';
 import moment from 'moment';
 import Paper from '@material-ui/core/Paper';
 
+import { connect } from 'react-redux';
+
+import { viewPatientVisit } from '../store/patient';
+
 import { TopBar, PageContainer, DataFetchingTable } from '../components';
 import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
 
 import { DateDisplay } from '../components/DateDisplay';
 import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
-import { TriageActionDropdown } from '../components/TriageActionDropdown';
 import { TRIAGE_COLORS_BY_LEVEL } from '../constants';
 
 const PriorityText = styled.span`
-  background: ${p => p.color};
   color: white;
   font-weight: bold;
   display: flex;
@@ -61,41 +63,44 @@ const ADMITTED_PRIORITY = {
   color: '#bdbdbd',
 };
 
-const StatusDisplay = React.memo(({ visit, startTime, closedTime }) => {
-  if (!closedTime) {
-    return (
-      <React.Fragment>
-        <LiveDurationDisplay startTime={startTime} />
-        <small>{`Triage at ${moment(startTime).format('h:mma')}`}</small>
-      </React.Fragment>
-    );
-  }
-
-  if (visit) {
-    if (visit.visitType === 'observation') {
+const StatusDisplay = React.memo(({ visit, startTime }) => {
+  switch (visit.visitType) {
+    case 'triage':
+      return (
+        <React.Fragment>
+          <LiveDurationDisplay startTime={startTime} />
+          <small>{`Triage at ${moment(startTime).format('h:mma')}`}</small>
+        </React.Fragment>
+      );
+    case 'observation':
       return 'Seen';
-    }
-    return 'Admitted';
+    default:
+      return 'Admitted';
   }
-
-  return 'Discharged';
 });
 
-const PriorityDisplay = React.memo(({ score, startTime, visit, closedTime }) => {
-  const color = visit ? ADMITTED_PRIORITY.color : TRIAGE_COLORS_BY_LEVEL[score];
-
+const PriorityDisplay = React.memo(({ startTime, visit, closedTime }) => {
   return (
-    <PriorityText color={color}>
+    <PriorityText>
       <StatusDisplay visit={visit} startTime={startTime} closedTime={closedTime} />
     </PriorityText>
   );
 });
 
+function getRowColor({ visit, score }) {
+  switch (visit.visitType) {
+    case 'triage':
+      return TRIAGE_COLORS_BY_LEVEL[score];
+    default:
+      return ADMITTED_PRIORITY.color;
+  }
+}
+
 const COLUMNS = [
   {
     key: 'score',
     title: 'Wait time',
-    cellColor: row => (row.visit ? ADMITTED_PRIORITY.color : TRIAGE_COLORS_BY_LEVEL[row.score]),
+    cellColor: getRowColor,
     accessor: row => (
       <PriorityDisplay
         score={row.score}
@@ -110,7 +115,7 @@ const COLUMNS = [
     title: 'Reason for visit',
     accessor: row => row.reasonForVisit || '',
   },
-  { key: '_id', title: 'ID', accessor: row => row.patient[0]._id },
+  { key: '_id', title: 'ID', accessor: row => row.patient[0].displayId },
   {
     key: 'patientName',
     title: 'Patient',
@@ -130,17 +135,20 @@ const COLUMNS = [
     },
   },
   { key: 'location', title: 'Location', accessor: row => row.location.name },
-  { key: 'actions', title: 'Actions', accessor: row => <TriageActionDropdown triage={row} /> },
 ];
 
-const TriageTable = React.memo(({ ...props }) => (
+const TriageTable = connect(
+  null,
+  dispatch => ({ onViewVisit: (triage) => dispatch(viewPatientVisit(triage.patient[0]._id, triage.visit._id)) })
+)(React.memo(({ onViewVisit, ...props }) => (
   <DataFetchingTable
     endpoint="triage"
     columns={COLUMNS}
     noDataMessage="No patients found"
+    onRowClick={onViewVisit}
     {...props}
   />
-));
+)));
 
 export const TriageListingView = React.memo(() => (
   <PageContainer>

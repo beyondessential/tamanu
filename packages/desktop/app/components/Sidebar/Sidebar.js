@@ -3,15 +3,20 @@ import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import List from '@material-ui/core/List';
 
-import { TamanuLogo } from '../TamanuLogo';
 import { LogoutItem } from './LogoutItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
 import { Colors } from '../../constants';
 
 const SidebarContainer = styled.div`
+  @media print {
+    display: none;
+  }
+
+  grid-row: 2 / -1;
+  grid-column: 1 / 2;
+
   min-width: 275px;
-  height: 100vh;
   position: relative;
   background: ${Colors.primaryDark};
   color: ${Colors.white};
@@ -29,11 +34,8 @@ const SidebarContainer = styled.div`
 const SidebarMenuContainer = styled.div`
   flex-grow: 1;
   overflow: auto;
-`;
-
-const LogoContainer = styled.div`
-  width: 100%;
-  text-align: center;
+  display: grid;
+  grid-template-rows: auto 1fr;
 `;
 
 export class Sidebar extends Component {
@@ -88,16 +90,11 @@ export class Sidebar extends Component {
               );
             })}
           </List>
-          <Divider />
-          <List>
+          <div>
+            <Divider />
             <LogoutItem onClick={this.onLogout} />
-          </List>
-        </SidebarMenuContainer>
-        <LogoContainer>
-          <div onClick={() => onPathChanged('/')}>
-            <TamanuLogo size="120px" />
           </div>
-        </LogoContainer>
+        </SidebarMenuContainer>
       </SidebarContainer>
     );
   }

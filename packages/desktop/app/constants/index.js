@@ -1,5 +1,15 @@
 import moment from 'moment';
 import { padStart, capitalize } from 'lodash';
+import {
+  medicationIcon,
+  administrationIcon,
+  radiologyIcon,
+  labsIcon,
+  scheduleIcon,
+  patientIcon,
+} from './images';
+
+import { createValueIndex } from '../../../shared/utils/valueIndex';
 
 export const MUI_SPACING_UNIT = 8;
 
@@ -31,6 +41,7 @@ export const Colors = {
   outline: '#dedede',
   background: '#f3f5f7',
   white: '#ffffff',
+  offWhite: '#fafafa',
   brightBlue: '#67A6E3',
   searchTintColor: '#d2dae3',
 };
@@ -201,16 +212,20 @@ export const noteTypes = [
   { value: 'social', label: 'Social welfare' },
   { value: 'discharge', label: 'Discharge planning' },
   { value: 'other', label: 'Other' },
+  { value: 'system', label: 'System', hideFromDropdown: true },
 ];
 
 export const visitOptions = [
-  { value: 'admission', label: 'Admission', image: './assets/images/medication.svg' },
-  { value: 'clinic', label: 'Clinic', image: './assets/images/administration.svg' },
-  { value: 'imaging', label: 'Imaging', image: './assets/images/radiology.png' },
-  { value: 'lab', label: 'Lab', image: './assets/images/labs.svg' },
-  { value: 'emergency', label: 'Emergency', image: './assets/images/schedule.svg' },
-  { value: 'observation', label: 'Observation', image: './assets/images/patient.svg' },
+  { value: 'admission', label: 'Admission', image: medicationIcon },
+  { value: 'clinic', label: 'Clinic', image: administrationIcon },
+  { value: 'imaging', label: 'Imaging', image: radiologyIcon },
+  { value: 'lab', label: 'Lab', image: labsIcon },
+  { value: 'emergency', label: 'Emergency', image: scheduleIcon },
+  { value: 'observation', label: 'Observation', image: patientIcon, hideFromOptions: true },
+  { value: 'triage', label: 'Triage', image: patientIcon, hideFromOptions: true },
 ];
+
+export const VISIT_OPTIONS_BY_VALUE = createValueIndex(visitOptions);
 
 export const TRIAGE_COLORS_BY_LEVEL = {
   1: Colors.alert,
@@ -219,9 +234,9 @@ export const TRIAGE_COLORS_BY_LEVEL = {
 };
 
 export const triagePriorities = [
-  { value: '3', label: 'Non-urgent' },
-  { value: '2', label: 'Priority' },
-  { value: '1', label: 'Emergency' },
+  { value: '1', label: 'Emergency', color: TRIAGE_COLORS_BY_LEVEL[1] },
+  { value: '2', label: 'Priority', color: TRIAGE_COLORS_BY_LEVEL[2] },
+  { value: '3', label: 'Non-urgent', color: TRIAGE_COLORS_BY_LEVEL[3] },
 ];
 
 export const operativePlanStatuses = {

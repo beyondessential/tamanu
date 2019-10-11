@@ -13,6 +13,17 @@ import { Colors } from '../constants';
 
 const MODAL_PADDING = 32;
 
+/*  To keep consistent use of styled-components,
+    re-define dialog paper classes here instead of
+    through withStyles(). The global classes for each rule
+    can be found in the docs: https://material-ui.com/api/dialog/#css
+*/
+const Dialog = styled(MuiDialog)`
+  .MuiDialog-paperWidthMd {
+    max-width: 830px;
+  }
+`;
+
 const ModalContent = styled.div`
   flex: 1 1 auto;
   padding: 18px ${MODAL_PADDING}px;
@@ -45,7 +56,7 @@ const ModalTitle = styled(DialogTitle)`
 
 export const Modal = memo(
   ({ title, children, actions, width = 'sm', classes, open = false, ...props }) => (
-    <MuiDialog fullWidth maxWidth={width} classes={{ ...classes }} open={open} {...props}>
+    <Dialog fullWidth maxWidth={width} classes={classes} open={open} {...props}>
       <ModalTitle>
         <span>{title}</span> <CloseIcon onClick={() => props.onClose()} />
       </ModalTitle>
@@ -53,7 +64,7 @@ export const Modal = memo(
         <ModalContent>{children}</ModalContent>
         <DialogActions>{actions}</DialogActions>
       </ModalContainer>
-    </MuiDialog>
+    </Dialog>
   ),
 );
 
@@ -61,6 +72,7 @@ export const connectRoutedModal = (baseRoute, suffix) =>
   connect(
     state => ({
       open: getCurrentRoute(state).startsWith(`${baseRoute}/${suffix}`),
+      extraRoute: getCurrentRoute(state).replace(`${baseRoute}/${suffix}/`, ''),
     }),
     dispatch => ({
       onClose: () => dispatch(push(baseRoute)),

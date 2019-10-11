@@ -1,11 +1,11 @@
 import {
-  patientIcon,
-  scheduleIcon,
-  medicationIcon,
-  labsIcon,
   administrationIcon,
+  labsIcon,
+  medicationIcon,
+  patientIcon,
   programsIcon,
   radiologyIcon,
+  scheduleIcon,
 } from '../../constants/images';
 import { availableReports } from '../../views/reports/dummyReports';
 
@@ -30,20 +30,20 @@ export const items = [
     ability: { subject: 'patient' },
     children: [
       {
-        label: 'Patient Listing',
+        label: 'All patients',
         path: '/patients',
         icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
-        label: 'Emergency',
-        path: '/patients/triage',
+        label: 'Inpatients',
+        path: '/patients/admitted',
         icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
-        label: 'Admitted Patients',
-        path: '/patients/admitted',
+        label: 'Emergency patients',
+        path: '/patients/triage',
         icon: submenuIcons.table,
         ability: { action: 'read' },
       },
@@ -52,12 +52,6 @@ export const items = [
         path: '/patients/outpatient',
         icon: submenuIcons.table,
         ability: { action: 'read' },
-      },
-      {
-        label: 'New Patient',
-        path: '/patients/edit/new',
-        icon: submenuIcons.new,
-        ability: { action: 'create' },
       },
     ],
   },

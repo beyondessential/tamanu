@@ -5,10 +5,11 @@ import styled from 'styled-components';
 import CalendarIcon from '@material-ui/icons/CalendarToday';
 import SubjectIcon from '@material-ui/icons/Subject';
 
-import { Button, DischargeButton, BackButton } from '../../components/Button';
+import { Button, DischargeButton, BackButton, ForwardButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
+import { ChangeTypeModal } from '../../components/ChangeTypeModal';
 import { LabRequestModal } from '../../components/LabRequestModal';
 import { LabRequestsTable } from '../../components/LabRequestsTable';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -22,8 +23,9 @@ import { VitalsTable } from '../../components/VitalsTable';
 import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
 import { NoteTable } from '../../components/NoteTable';
-import { TopBar } from '../../components';
-import { DateDisplay } from '../../components';
+import { TopBar, DateDisplay } from '../../components';
+
+import { DropdownButton } from '../../components/DropdownButton';
 
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
@@ -129,7 +131,7 @@ const getExaminerName = ({ examiner }) => (examiner ? examiner.displayName : 'Un
 
 const VisitInfoPane = React.memo(({ visit }) => (
   <FormGrid columns={3}>
-    <DateInput value={visit.startDate} label="Admission date" />
+    <DateInput value={visit.startDate} label="Arrival date" />
     <DateInput value={visit.endDate} label="Discharge date" />
     <TextInput value={getLocationName(visit)} label="Location" />
     <SelectInput value={visit.visitType} label="Visit type" options={visitOptions} />
@@ -143,16 +145,64 @@ const VisitInfoPane = React.memo(({ visit }) => (
 ));
 
 const RoutedDischargeModal = connectRoutedModal('/patients/visit', 'discharge')(DischargeModal);
+const RoutedChangeTypeModal = connectRoutedModal('/patients/visit', 'changeType')(ChangeTypeModal);
 
-const DischargeView = connect(
+const VisitActionDropdown = connect(
   null,
-  dispatch => ({ onModalOpen: () => dispatch(push('/patients/visit/discharge')) }),
-)(({ onModalOpen, visit }) => (
+  dispatch => ({
+    onDischargeOpen: () => dispatch(push('/patients/visit/discharge')),
+    onChangeVisitType: newType => dispatch(push(`/patients/visit/changeType/${newType}`)),
+  }),
+)(({ visit, onDischargeOpen, onChangeVisitType }) => {
+  if (visit.endDate) {
+    // no actions available - patient is already discharged
+    return null;
+  }
+
+  const progression = {
+    'triage': 0,
+    'observation': 1,
+    'emergency': 2,
+    'hospital': 3,
+  };
+  const isProgressionForward = (currentState, nextState) => progression[nextState] > progression[currentState];
+  const actions = [
+    {
+      label: 'Keep under observation',
+      onClick: () => onChangeVisitType('observation'),
+      condition: () => isProgressionForward(visit.visitType, 'observation'),
+    },
+    {
+      label: 'Admit to emergency',
+      onClick: () => onChangeVisitType('emergency'),
+      condition: () => isProgressionForward(visit.visitType, 'emergency'),
+    },
+    {
+      label: 'Admit to hospital',
+      onClick: () => onChangeVisitType('admission'),
+      condition: () => isProgressionForward(visit.visitType, 'admission'),
+    },
+    {
+      label: 'Discharge',
+      onClick: onDischargeOpen,
+    },
+  ].filter(action => !action.condition || action.condition());
+
+  return <DropdownButton variant="outlined" actions={actions} />;
+});
+
+const DischargeView = ({ visit }) => (
   <React.Fragment>
-    <DischargeButton variant="outlined" onClick={onModalOpen} disabled={!!visit.endDate} />
+    <VisitActionDropdown visit={visit} />
     <RoutedDischargeModal visit={visit} />
+    <RoutedChangeTypeModal visit={visit} />
   </React.Fragment>
-));
+);
+
+const DischargeSummaryView = connect(
+  null,
+  dispatch => ({ viewSummary: () => dispatch(push('/patients/visit/summary')) }),
+)(({ viewSummary }) => <ForwardButton onClick={viewSummary}>View Summary</ForwardButton>);
 
 const AdmissionInfoRow = styled.div`
   display: flex;
@@ -180,6 +230,29 @@ const AdmissionInfo = styled.span`
   }
 `;
 
+const NavButtons = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+function getHeaderText({ visitType }) {
+  switch (visitType) {
+    case 'triage':
+      return 'Triaged patient';
+    case 'emergency':
+      return 'Emergency admission';
+    case 'observation':
+      return 'Patient under observation';
+    case 'admission':
+      return 'Hospital admission';
+    case 'clinic':
+    case 'lab':
+    case 'imaging':
+    default:
+      return 'Patient visit';
+  }
+}
+
 export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
 
@@ -188,7 +261,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
       <TwoColumnDisplay>
         <PatientInfoPane patient={patient} />
         <div>
-          <TopBar title="Patient Visit">
+          <TopBar title={getHeaderText(visit)}>
             <DischargeView visit={visit} />
             <AdmissionInfoRow>
               <AdmissionInfo>
@@ -197,13 +270,16 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
               </AdmissionInfo>
               <AdmissionInfo>
                 <CalendarIcon />
-                <AdmissionInfoLabel>Admission: </AdmissionInfoLabel>
+                <AdmissionInfoLabel>Arrival: </AdmissionInfoLabel>
                 <DateDisplay date={visit.startDate} />
               </AdmissionInfo>
             </AdmissionInfoRow>
           </TopBar>
           <ContentPane>
-            <BackButton />
+            <NavButtons>
+              <BackButton to="/patients/view" />
+              <DischargeSummaryView />
+            </NavButtons>
             <VisitInfoPane visit={visit} />
           </ContentPane>
           <ContentPane>

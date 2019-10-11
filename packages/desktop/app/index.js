@@ -18,10 +18,11 @@ const history = createHashHistory();
 const router = routerMiddleware(history);
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose; // eslint-disable-line no-underscore-dangle
 const enhancers = composeEnhancers(applyMiddleware(router, thunk.withExtraArgument({ api: API })));
-const persistedReducers = persistCombineReducers(
-  { key: 'tamanu', storage },
-  createReducers(history),
-);
+const persistConfig = { key: 'tamanu', storage };
+if (process.env.NODE_ENV !== 'development') {
+  persistConfig.whitelist = []; // persist used for a dev experience, but not required in production
+}
+const persistedReducers = persistCombineReducers(persistConfig, createReducers(history));
 const store = createStore(persistedReducers, {}, enhancers);
 
 // set up data change responder to trigger reloads when relevant data changes server-side

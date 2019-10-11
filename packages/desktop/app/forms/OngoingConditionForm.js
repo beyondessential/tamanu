@@ -14,6 +14,8 @@ import {
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
+import { foreignKey } from '../utils/validation';
+
 export class OngoingConditionForm extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
@@ -26,15 +28,16 @@ export class OngoingConditionForm extends React.PureComponent {
   };
 
   renderForm = ({ submitForm, values }) => {
-    const { editedObject, onCancel, practitionerSuggester } = this.props;
+    const { editedObject, onCancel, practitionerSuggester, icd10Suggester } = this.props;
     const resolving = values.resolved;
     const buttonText = editedObject ? 'Save' : 'Add';
     return (
       <FormGrid columns={1}>
         <Field
-          name="name"
+          name="condition._id"
           label="Condition name"
-          component={TextField}
+          component={AutocompleteField}
+          suggester={icd10Suggester}
           disabled={resolving}
           required
         />
@@ -90,7 +93,7 @@ export class OngoingConditionForm extends React.PureComponent {
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          name: yup.string().required(),
+          condition: foreignKey('Condition is a required field'),
           date: yup.date(),
           practitioner: yup.string(),
           note: yup.string(),
