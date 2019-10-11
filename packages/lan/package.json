@@ -17,8 +17,8 @@
   },
   "scripts": {
     "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.js",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
+    "test": "NODE_ENV=test jest --maxWorkers=10 && rm -rf ./data/test*",
+    "test:coverage": "NODE_ENV=test jest --coverage && rm -rf ./data/test*",
     "test:watch": "npm test -- --watch",
     "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js && pkg . --targets node10-win-x64 --output ./release/server.exe",
     "package": "./scripts/package.sh",
@@ -49,7 +49,7 @@
     "nodemon": "^1.17.3",
     "nodemon-webpack-plugin": "^4.0.8",
     "pkg": "~4.3.4",
-    "supertest": "^3.0.0",
+    "supertest": "^4.0.2",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
     "webpack-node-externals": "^1.7.2"
