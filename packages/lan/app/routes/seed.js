@@ -1,6 +1,8 @@
 import express from 'express';
 import shortid from 'shortid';
 
+import { LOCATIONS, PRACTITIONERS, createDummyPatient } from 'Shared/utils';
+
 export const seedRoutes = express.Router();
 
 function addSeedRoute(resource, generateItems) {
@@ -27,4 +29,6 @@ function addSeedRoute(resource, generateItems) {
   });
 }
 
-addSeedRoute('location');
+addSeedRoute('location', () => LOCATIONS);
+addSeedRoute('practitioner', () => PRACTITIONERS);
+addSeedRoute('patient', count => new Array(count).fill(0).map(() => createDummyPatient());

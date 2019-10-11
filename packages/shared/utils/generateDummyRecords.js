@@ -19,7 +19,8 @@ const split = s =>
     .split(/[\r\n]+/g)
     .map(x => x.trim())
     .filter(x => x);
-const splitIds = ids => split(ids).map(s => ({ label: s, value: makeId(s) }));
+const splitIds = ids => split(ids).map(s => ({ _id: makeId(s), name: s }));
+const mapToSuggestions = objects => objects.map(({ _id, name }) => ({ label: name, value: _id }));
 
 export const LOCATIONS = splitIds(`
   Ward 1
@@ -29,6 +30,13 @@ export const LOCATIONS = splitIds(`
   Emergency
 `);
 
+export const LOCATION_SUGGESTIONS = mapToSuggestions(LOCATIONS);
+
+const buildUser = u => ({
+  ...u,
+  displayName: u.name,
+  email: `${u._id}@xyz.com`,
+});
 export const PRACTITIONERS = splitIds(`
   Dr Philip Rogers
   Dr Salvatore Mathis
@@ -44,7 +52,9 @@ export const PRACTITIONERS = splitIds(`
   Karla Jenkins
   Mikayla Hull
   Marissa Bautista
-`);
+`).map(buildUser);
+
+export const PRACTITIONER_SUGGESTIONS = mapToSuggestions(PRACTITIONERS);
 
 export const FACILITIES = splitIds(`
   Balwyn
@@ -59,6 +69,8 @@ export const FACILITIES = splitIds(`
   Thornbury
   Traralgon
 `);
+
+export const FACILITY_SUGGESTIONS = mapToSuggestions(FACILITIES);
 
 const ALLERGIES = split(`
   Penicillin
@@ -85,6 +97,8 @@ export const DIAGNOSES = splitIds(`
   Injury
 `);
 
+export const DIAGNOSIS_SUGGESTIONS = mapToSuggestions(DIAGNOSES);
+
 export const DRUGS = splitIds(`
   Hydrocodone
   Simvastatin
@@ -97,6 +111,8 @@ export const DRUGS = splitIds(`
   Metformin
   Hydrochlorothiazide
 `);
+
+export const DRUG_SUGGESTIONS = mapToSuggestions(DRUGS);
 
 const CONDITIONS = split(`
   Alzheimer

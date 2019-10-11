@@ -7,11 +7,11 @@ import { action } from '@storybook/addon-actions';
 import {
   createDummyVisit,
   PATIENTS,
-  LOCATIONS,
-  PRACTITIONERS,
-  FACILITIES,
-  DIAGNOSES,
-  DRUGS,
+  LOCATION_SUGGESTIONS,
+  PRACTITIONER_SUGGESTIONS,
+  FACILITY_SUGGESTIONS,
+  DIAGNOSIS_SUGGESTIONS,
+  DRUG_SUGGESTIONS,
 } from 'Shared/utils';
 import { LoginView } from '../app/views/LoginView';
 import { VisitForm } from '../app/forms/VisitForm';
@@ -41,17 +41,17 @@ function createDummySuggester(options) {
   };
 }
 
-const practitionerSuggester = createDummySuggester(PRACTITIONERS);
-const locationSuggester = createDummySuggester(LOCATIONS);
-const facilitySuggester = createDummySuggester(FACILITIES);
-const icd10Suggester = createDummySuggester(DIAGNOSES);
+const practitionerSuggester = createDummySuggester(PRACTITIONER_SUGGESTIONS);
+const locationSuggester = createDummySuggester(LOCATION_SUGGESTIONS);
+const facilitySuggester = createDummySuggester(FACILITY_SUGGESTIONS);
+const icd10Suggester = createDummySuggester(DIAGNOSIS_SUGGESTIONS);
 const patientSuggester = createDummySuggester(
   PATIENTS.map(({ firstName, lastName, _id }) => ({
     label: `${firstName} ${lastName}`,
     value: _id,
   })),
 );
-const drugSuggester = createDummySuggester(DRUGS);
+const drugSuggester = createDummySuggester(DRUG_SUGGESTIONS);
 
 storiesOf('Forms', module).add('LoginForm', () => <LoginView login={action('login')} />);
 

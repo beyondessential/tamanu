@@ -8,7 +8,8 @@ import { TextInput, DateDisplay } from '.';
 const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} showDuration />);
 
 const COLUMNS = [
-  { key: 'name', title: 'Name' },
+  { key: 'firstName', title: 'First Name' },
+  { key: 'lastName', title: 'Last Name' },
   { key: 'sex', title: 'Sex' },
   { key: 'dateOfBirth', title: 'Date of Birth', CellComponent: DateOfBirthCell },
   { key: '_id', title: 'ID' },
