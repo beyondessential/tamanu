@@ -4,6 +4,15 @@ import shortid from 'shortid';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
+import {
+  createDummyVisit,
+  PATIENTS,
+  LOCATIONS,
+  PRACTITIONERS,
+  FACILITIES,
+  DIAGNOSES,
+  DRUGS,
+} from 'Shared/utils';
 import { LoginView } from '../app/views/LoginView';
 import { VisitForm } from '../app/forms/VisitForm';
 import { TriageForm } from '../app/forms/TriageForm';
@@ -21,16 +30,6 @@ import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
 import { NoteForm } from '../app/forms/NoteForm';
 
 import { TestSelectorInput } from '../app/components/TestSelector';
-
-import {
-  createDummyVisit,
-  PATIENTS,
-  LOCATIONS,
-  PRACTITIONERS,
-  FACILITIES,
-  DIAGNOSES,
-  DRUGS,
-} from './dummyPatient';
 
 function createDummySuggester(options) {
   return {

@@ -1,6 +1,7 @@
 import jsonPrune from 'json-prune';
 import { schemas } from '../schemas';
 
+export * from './generateDummyRecords';
 export * from './parse-object';
 
 export const jsonParse = object => {

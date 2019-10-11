@@ -3,9 +3,9 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
-import { PatientAutocomplete } from '../app/components/PatientAutocomplete';
+import { createDummyPatient } from 'Shared/utils';
 
-import { createDummyPatient } from './dummyPatient';
+import { PatientAutocomplete } from '../app/components/PatientAutocomplete';
 
 const patients = new Array(400).fill(0).map(() => createDummyPatient());
 
