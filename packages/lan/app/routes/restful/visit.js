@@ -9,7 +9,7 @@ visitRoutes.post('/visit/:id/note', (req, res) => {
   const { db } = req;
   const visit = db.objectForPrimaryKey('visit', req.params.id);
   const note = {
-    _id: shortid(),
+    _id: shortid.generate(),
     ...req.body,
   };
 
@@ -27,7 +27,7 @@ visitRoutes.post('/visit/:id/diagnosis', (req, res) => {
   const { db } = req;
   const visit = db.objectForPrimaryKey('visit', req.params.id);
   const diagnosis = {
-    _id: shortid(),
+    _id: shortid.generate(),
     ...req.body,
   };
 
@@ -44,7 +44,7 @@ visitRoutes.post('/visit/:id/labRequest', (req, res) => {
   const { db } = req;
   const visit = db.objectForPrimaryKey('visit', req.params.id);
   const request = {
-    _id: shortid(),
+    _id: shortid.generate(),
     ...req.body,
   };
 
@@ -52,7 +52,7 @@ visitRoutes.post('/visit/:id/labRequest', (req, res) => {
 
   // create tests for each testType given
   request.tests = request.testTypes.map(({ _id: typeId }) => ({
-    _id: shortid(),
+    _id: shortid.generate(),
     type: { _id: typeId },
   }));
 
@@ -67,7 +67,7 @@ visitRoutes.post('/visit/:id/vitals', (req, res) => {
   const { db } = req;
   const visit = db.objectForPrimaryKey('visit', req.params.id);
   const reading = {
-    _id: shortid(),
+    _id: shortid.generate(),
     ...req.body,
   };
 
@@ -84,7 +84,7 @@ visitRoutes.post('/visit/:id/medications', (req, res) => {
   const { db } = req;
   const visit = db.objectForPrimaryKey('visit', req.params.id);
   const medication = {
-    _id: shortid(),
+    _id: shortid.generate(),
     ...req.body,
   };
 

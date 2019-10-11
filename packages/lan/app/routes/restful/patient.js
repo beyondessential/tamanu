@@ -8,7 +8,7 @@ export const patientRoutes = express.Router();
 patientRoutes.post('/patient', (req, res) => {
   const { db } = req;
   const patient = {
-    _id: shortid(),
+    _id: shortid.generate(),
     ...req.body,
   };
 
@@ -23,7 +23,7 @@ patientRoutes.post('/patient/:id/triages', (req, res) => {
   const { db } = req;
   const patient = db.objectForPrimaryKey('patient', req.params.id);
   const triage = {
-    _id: shortid(),
+    _id: shortid.generate(),
     arrivalTime: req.body.triageTime,
     ...req.body,
   };
@@ -39,7 +39,7 @@ patientRoutes.post('/patient/:id/visits', (req, res) => {
   const { db } = req;
   const patient = db.objectForPrimaryKey('patient', req.params.id);
   const visit = {
-    _id: shortid(),
+    _id: shortid.generate(),
     ...req.body,
   };
 
@@ -72,7 +72,7 @@ patientRoutes.post('/patient/:id/allergies', (req, res) => {
   const { db } = req;
   const patient = db.objectForPrimaryKey('patient', req.params.id);
   const allergy = {
-    _id: shortid(),
+    _id: shortid.generate(),
     ...req.body,
   };
 
@@ -87,7 +87,7 @@ patientRoutes.post('/patient/:id/familyHistory', (req, res) => {
   const { db } = req;
   const patient = db.objectForPrimaryKey('patient', req.params.id);
   const historyItem = {
-    _id: shortid(),
+    _id: shortid.generate(),
     ...req.body,
   };
 
@@ -102,7 +102,7 @@ patientRoutes.post('/patient/:id/appointment', (req, res) => {
   const { db } = req;
   const patient = db.objectForPrimaryKey('patient', req.params.id);
   const appointment = {
-    _id: shortid(),
+    _id: shortid.generate(),
     status: 'scheduled',
     ...req.body,
   };
@@ -120,7 +120,7 @@ patientRoutes.post('/patient/:id/referral', (req, res) => {
   const { db } = req;
   const patient = db.objectForPrimaryKey('patient', req.params.id);
   const referral = {
-    _id: shortid(),
+    _id: shortid.generate(),
     status: 'pending',
     ...req.body,
   };

@@ -1,50 +1,53 @@
 import supertest from 'supertest';
+import shortid from 'shortid';
 
 import { setupDatabase } from '../../app/database';
 import { createApp } from '../../createApp';
 import { clearTestData, generateTestId } from '../utilities';
 
+jest.mock('shortid');
+
 describe('admin routes', () => {
   const db = setupDatabase();
   const app = supertest(createApp(db));
 
+  beforeAll(() => {
+    shortid.generate.mockImplementation(generateTestId);
+  });
+
   afterAll(() => {
     clearTestData(db);
+    // clear stubbed shortid
+    shortid.generate.mockClear();
   });
 
   it('should add a location', async () => {
-    const id = generateTestId();
     const name = 'Test Ward 1';
-    await app.put('/admin/location').send([{ _id: id, name }]);
-    const results = db.objects('location').filtered('_id = $0', id);
+    await app.put('/admin/location').send([{ name }]);
+    const results = db.objects('location').filtered('name = $0', name);
     expect(results.length).toEqual(1);
-    expect(results[0].name).toEqual(name);
   });
 
   describe('adding a diagnosis', () => {
-    const id = generateTestId();
     const code = 'Test TB_1';
 
     it('should add a diagnosis', async () => {
       const name = 'Test Tuberculosis';
       const defaultType = 'icd10';
-      await app.put('/admin/diagnosis').send([{ _id: id, code, name }]);
-      const results = db.objects('diagnosis').filtered('_id = $0', id);
+      await app.put('/admin/diagnosis').send([{ code, name }]);
+      const results = db.objects('diagnosis').filtered('code = $0', code);
       expect(results.length).toEqual(1);
-      const { name: storedName, code: storedCode, type: storedType } = results[0];
+      const { name: storedName, type: storedType } = results[0];
       expect(storedName).toEqual(name);
-      expect(storedCode).toEqual(code);
       expect(storedType).toEqual(defaultType);
     });
 
     it('should update a diagnosis', async () => {
       const newName = 'Test TB';
       await app.put('/admin/diagnosis').send([{ code, name: newName }]);
-      const results = db.objects('diagnosis').filtered('_id = $0', id);
+      const results = db.objects('diagnosis').filtered('code = $0', code);
       expect(results.length).toEqual(1);
-      const { name: storedName, code: storedCode } = results[0];
-      expect(storedName).toEqual(newName);
-      expect(storedCode).toEqual(code);
+      expect(results[0].name).toEqual(newName);
     });
   });
 

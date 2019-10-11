@@ -1,4 +1,3 @@
-import shortid from 'shortid';
 import { schemas } from 'Shared/schemas';
 
 const TEST_ID_PREFIX = 'test_';
@@ -19,5 +18,5 @@ export function clearTestData(db) {
 }
 
 export function generateTestId() {
-  return `${TEST_ID_PREFIX}${shortid.generate()}`;
+  return `${TEST_ID_PREFIX}${jest.requireActual('shortid').generate()}`; //eslint-disable-line no-undef
 }

@@ -47,7 +47,7 @@ function addOrUpdateMany(db, table, items, findExisting, defaultValues = {}) {
         }
 
         const newItem = {
-          _id: shortid(),
+          _id: shortid.generate(),
           ...defaultValues,
           ...item,
         };
@@ -93,7 +93,7 @@ adminRoutes.put('/labTestType', (req, res) => {
     if (existing) {
       return { ...testType, category: existing };
     }
-    const newCategory = { _id: shortid(), ...category };
+    const newCategory = { _id: shortid.generate(), ...category };
     db.write(() => {
       const created = db.create('labTestCategory', newCategory);
       category._id = created._id;
