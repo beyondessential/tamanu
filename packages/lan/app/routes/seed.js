@@ -31,4 +31,4 @@ function addSeedRoute(resource, generateItems) {
 
 addSeedRoute('location', () => LOCATIONS);
 addSeedRoute('practitioner', () => PRACTITIONERS);
-addSeedRoute('patient', count => new Array(count).fill(0).map(() => createDummyPatient());
+addSeedRoute('patient', count => new Array(count).fill(0).map(() => createDummyPatient()));

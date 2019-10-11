@@ -12,7 +12,7 @@ const DumbSeedRecordsModal = memo(({ open, onSubmit, onCancel }) => (
 
 export const SeedRecordsModal = connectApi((api, dispatch, { endpoint, onCancel }) => ({
   onSubmit: async data => {
-    await api.post(`seed/${endpoint}`, data);
+    await api.put(`seed/${endpoint}`, data);
     onCancel();
   },
 }))(DumbSeedRecordsModal);
