@@ -1,7 +1,7 @@
 import Chance from 'chance';
 import shortid from 'shortid';
 
-import { visitOptions } from '../../desktop/app/constants';
+import { VISIT_TYPES } from '../constants';
 
 const HOUR = 1000 * 60 * 60;
 const DAY = HOUR * 24;
@@ -183,7 +183,7 @@ export function createDummyVisit(current = false) {
   return {
     _id: shortid.generate(),
 
-    visitType: chance.pick(visitOptions).value,
+    visitType: chance.pick(Object.values(VISIT_TYPES)),
     startDate: startDate,
     endDate: current ? undefined : endDate,
     location: chance.pick(LOCATIONS).value,
