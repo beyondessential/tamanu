@@ -7,11 +7,11 @@ import { VISIT_OPTIONS_BY_VALUE } from '../constants';
 const getDate = ({ startDate }) => <DateDisplay date={startDate} />;
 const getType = ({ visitType }) => VISIT_OPTIONS_BY_VALUE[visitType].label;
 const getDescription = ({ reasonForVisit }) => <div>{reasonForVisit}</div>;
-const getEndDate = ({ endDate }) => endDate ? <DateDisplay date={endDate} /> : "Current";
+const getEndDate = ({ endDate }) => (endDate ? <DateDisplay date={endDate} /> : 'Current');
 
 const columns = [
-  { key: 'date', title: 'Start date', accessor: getDate },
-  { key: 'date', title: 'End date', accessor: getEndDate },
+  { key: 'startDate', title: 'Start date', accessor: getDate },
+  { key: 'endDate', title: 'End date', accessor: getEndDate },
   { key: 'type', title: 'Type', accessor: getType },
   { key: 'description', title: 'Description', accessor: getDescription },
 ];

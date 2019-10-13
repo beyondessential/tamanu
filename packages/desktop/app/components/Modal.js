@@ -58,7 +58,7 @@ export const Modal = memo(
   ({ title, children, actions, width = 'sm', classes, open = false, ...props }) => (
     <Dialog fullWidth maxWidth={width} classes={classes} open={open} {...props}>
       <ModalTitle>
-        <span>{title}</span> <CloseIcon onClick={() => props.onClose()} />
+        <span>{title}</span> <CloseIcon onClick={props.onClose} />
       </ModalTitle>
       <ModalContainer>
         <ModalContent>{children}</ModalContent>
