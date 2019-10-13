@@ -14,7 +14,7 @@ const DumbNewPatientModal = memo(({ open, ...formProps }) => (
   </Modal>
 ));
 
-export const NewPatientModal = connectApi((api, dispatch, { onClose }) => ({
+export const NewPatientModal = connectApi((api, dispatch, { onCancel }) => ({
   patientSuggester: new Suggester(api, 'patient', ({ _id, firstName, lastName }) => ({
     value: _id,
     label: `${firstName} ${lastName}`,
@@ -22,7 +22,7 @@ export const NewPatientModal = connectApi((api, dispatch, { onClose }) => ({
   facilitySuggester: new Suggester(api, 'facility'),
   onSubmit: async data => {
     const { _id: patientId } = await api.post('patient', data);
-    onClose();
+    onCancel();
     dispatch(viewPatient(patientId));
   },
 }))(DumbNewPatientModal);
