@@ -163,12 +163,12 @@ const VisitActionDropdown = connect(
     'triage': 0,
     'observation': 1,
     'emergency': 2,
-    'hospital': 3,
+    'admission': 3,
   };
   const isProgressionForward = (currentState, nextState) => progression[nextState] > progression[currentState];
   const actions = [
     {
-      label: 'Keep under observation',
+      label: 'Place under observation',
       onClick: () => onChangeVisitType('observation'),
       condition: () => isProgressionForward(visit.visitType, 'observation'),
     },
