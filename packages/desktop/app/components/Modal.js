@@ -55,10 +55,10 @@ const ModalTitle = styled(DialogTitle)`
 `;
 
 export const Modal = memo(
-  ({ title, children, actions, width = 'sm', classes, open = false, ...props }) => (
-    <Dialog fullWidth maxWidth={width} classes={classes} open={open} {...props}>
+  ({ title, children, actions, width = 'sm', classes, open = false, onClose, ...props }) => (
+    <Dialog fullWidth maxWidth={width} classes={classes} open={open} onClose={onClose} {...props}>
       <ModalTitle>
-        <span>{title}</span> <CloseIcon onClick={props.onClose} />
+        <span>{title}</span> <CloseIcon onClick={onClose} />
       </ModalTitle>
       <ModalContainer>
         <ModalContent>{children}</ModalContent>
