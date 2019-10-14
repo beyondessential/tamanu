@@ -21,7 +21,7 @@ export const reloadLab = id => async (dispatch, getState, { api }) => {
   // TODO handle error state
 
   const visit = labRequest.visits[0];
-  if(visit) {
+  if (visit) {
     dispatch(reloadVisit(visit._id));
     dispatch(reloadPatient(visit.patient[0]._id));
   }
