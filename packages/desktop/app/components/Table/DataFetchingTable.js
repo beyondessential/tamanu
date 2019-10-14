@@ -3,12 +3,14 @@ import { Table } from './Table';
 import { connectApi } from '../../api';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
+const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
 
 const DumbDataFetchingTable = memo(
-  ({ columns, fetchData, noDataMessage, fetchOptions, onRowClick }) => {
+  ({ columns, fetchData, noDataMessage, fetchOptions, onRowClick, initialSort = DEFAULT_SORT
+  }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
-    const [sorting, setSorting] = useState({ order: 'asc', orderBy: undefined });
+    const [sorting, setSorting] = useState(initialSort);
     const defaultFetchState = { data: [], count: 0, errorMessage: '', isLoading: true };
     const [fetchState, setFetchState] = useState(defaultFetchState);
 
