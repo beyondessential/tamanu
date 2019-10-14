@@ -6,8 +6,7 @@ const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
 
 const DumbDataFetchingTable = memo(
-  ({ columns, fetchData, noDataMessage, fetchOptions, onRowClick, initialSort = DEFAULT_SORT
-  }) => {
+  ({ columns, fetchData, noDataMessage, fetchOptions, onRowClick, initialSort = DEFAULT_SORT }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
     const [sorting, setSorting] = useState(initialSort);

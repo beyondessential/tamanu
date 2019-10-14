@@ -1,12 +1,8 @@
 import React from 'react';
-import styled from 'styled-components';
-import moment from 'moment';
-import Paper from '@material-ui/core/Paper';
 
 import { connect } from 'react-redux';
 
 import { TopBar, PageContainer, DataFetchingTable } from '../components';
-import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
 
 import { DateDisplay } from '../components/DateDisplay';
 
@@ -31,16 +27,19 @@ const COLUMNS = [
 
 const AppointmentTable = connect(
   null,
-  dispatch => ({ onViewVisit: (triage) => dispatch(viewPatientVisit(triage.patient[0]._id, triage.visit._id)) })
-)(React.memo(({ onViewVisit, ...props }) => (
-  <DataFetchingTable
-    endpoint="appointment"
-    columns={COLUMNS}
-    noDataMessage="No patients found"
-    initialSort={{ order: 'asc', orderBy: 'date' }}
-    {...props}
-  />
-)));
+  dispatch => ({ onViewAppointment: appointment => null }),
+)(
+  React.memo(({ onViewAppointment, ...props }) => (
+    <DataFetchingTable
+      endpoint="appointment"
+      columns={COLUMNS}
+      noDataMessage="No patients found"
+      initialSort={{ order: 'asc', orderBy: 'date' }}
+      onRowClick={onViewAppointment}
+      {...props}
+    />
+  )),
+);
 
 export const AppointmentListingView = React.memo(() => (
   <PageContainer>
