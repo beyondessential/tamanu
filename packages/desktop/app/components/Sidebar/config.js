@@ -63,6 +63,12 @@ export const items = [
     ability: { subject: 'appointment' },
     children: [
       {
+        label: 'Upcoming Appointments',
+        path: '/appointments',
+        icon: submenuIcons.table,
+        ability: { action: 'read' },
+      },
+      {
         label: 'Appointments This Week',
         path: '/appointments/week',
         icon: submenuIcons.table,
