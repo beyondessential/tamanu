@@ -64,6 +64,7 @@ const CoreInfoValue = styled.div`
   font-size: 16px;
   margin-top: 5px;
   font-weight: bold;
+  text-transform: capitalize;
 `;
 
 const HealthIdContainer = styled.div`
