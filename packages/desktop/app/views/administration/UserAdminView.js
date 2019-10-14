@@ -35,14 +35,18 @@ export const UserAdminView = React.memo(() => {
   const [searchParameters, setSearchParameters] = useState({});
   const [creatingUser, setCreatingUser] = useState(false);
 
-  const toggleCreatingUser = useCallback(() => {
-    setCreatingUser(!creatingUser);
-  }, [creatingUser]);
+  const showCreatingUserModal = useCallback(() => {
+    setCreatingUser(true);
+  }, []);
+
+  const hideCreatingUserModal = useCallback(() => {
+    setCreatingUser(false);
+  }, []);
 
   return (
     <PageContainer>
       <TopBar title="Users">
-        <Button color="primary" variant="outlined" onClick={toggleCreatingUser}>
+        <Button color="primary" variant="outlined" onClick={showCreatingUserModal}>
           Add new user
         </Button>
       </TopBar>
@@ -52,7 +56,7 @@ export const UserAdminView = React.memo(() => {
         title="Create new user"
         endpoint="user"
         open={creatingUser}
-        onCancel={toggleCreatingUser}
+        onCancel={hideCreatingUserModal}
         Form={NewUserForm}
       />
     </PageContainer>

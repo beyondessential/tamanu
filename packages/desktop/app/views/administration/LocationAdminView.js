@@ -25,14 +25,18 @@ export const LocationAdminView = React.memo(() => {
   const [searchParameters, setSearchParameters] = useState({});
   const [creatingLocation, setCreatingLocation] = useState(false);
 
-  const toggleCreatingLocation = useCallback(() => {
-    setCreatingLocation(!creatingLocation);
-  }, [creatingLocation]);
+  const showCreatingLocationModal = useCallback(() => {
+    setCreatingLocation(true);
+  }, []);
+
+  const hideCreatingLocationModal = useCallback(() => {
+    setCreatingLocation(false);
+  }, []);
 
   return (
     <PageContainer>
       <TopBar title="Locations">
-        <Button color="primary" variant="outlined" onClick={toggleCreatingLocation}>
+        <Button color="primary" variant="outlined" onClick={showCreatingLocationModal}>
           Add new location
         </Button>
       </TopBar>
@@ -42,7 +46,7 @@ export const LocationAdminView = React.memo(() => {
         title="Create new location"
         endpoint="location"
         open={creatingLocation}
-        onCancel={toggleCreatingLocation}
+        onCancel={hideCreatingLocationModal}
         Form={NewLocationForm}
       />
     </PageContainer>
