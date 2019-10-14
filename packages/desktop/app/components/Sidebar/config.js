@@ -18,6 +18,7 @@ export const submenuIcons = {
   permissions: 'fa fa-lock',
   report: 'fa fa-chevron-circle-right',
   search: 'fa fa-search',
+  seed: 'fa fa-seedling',
   table: 'fa fa-th-list',
   users: 'fa fa-users',
 };
@@ -225,10 +226,9 @@ export const items = [
         ability: { action: 'read', subject: 'userRole' },
       },
       {
-        label: 'New User',
-        path: '/admin/users/edit/new',
-        icon: submenuIcons.new,
-        ability: { action: 'create', subject: 'user' },
+        label: 'Seed database',
+        path: '/admin/seed',
+        icon: submenuIcons.seed,
       },
     ],
   },
