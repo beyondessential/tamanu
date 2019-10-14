@@ -49,3 +49,16 @@ export const location = {
   title: 'Location',
   minWidth: 100,
 };
+
+export const status = {
+  key: 'status',
+  title: 'Status',
+  minWidth: 100,
+  accessor: row => {
+    const visit = row.visits.find(x => !x.endDate);
+    if (!visit) return '';
+    else if (visit.visitType === 'emergency') return 'Emergency';
+    // TODO: include "Outpatient" status
+    return 'Inpatient';
+  },
+};
