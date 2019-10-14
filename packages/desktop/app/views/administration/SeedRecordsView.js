@@ -28,7 +28,5 @@ const DumbSeedRecordsView = memo(({ onSubmit, onCancel }) => {
 });
 
 export const SeedRecordsView = connectApi(api => ({
-  onSubmit: async data => {
-    await api.put(`seed`, data);
-  },
+  onSubmit: async data => api.put('seed', data),
 }))(DumbSeedRecordsView);

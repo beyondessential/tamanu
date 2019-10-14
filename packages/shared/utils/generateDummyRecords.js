@@ -2,6 +2,7 @@ import Chance from 'chance';
 import shortid from 'shortid';
 
 import { VISIT_TYPES } from '../constants';
+import { generateId } from './generateId';
 
 const HOUR = 1000 * 60 * 60;
 const DAY = HOUR * 24;
@@ -205,6 +206,7 @@ export function createDummyPatient(overrides = {}) {
   const gender = overrides.gender || chance.pick(['male', 'female']);
   return {
     _id: shortid.generate(),
+    displayId: generateId(),
     firstName: chance.first({ gender }),
     lastName: chance.last(),
     culturalName: chance.last(),

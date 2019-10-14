@@ -3,13 +3,13 @@ import { restfulRoutes } from './restful';
 import AuthRoutes from './auth';
 import { suggestionRoutes } from './suggestions';
 import { adminRoutes } from './admin';
-import { seedRoutes } from './seed';
+import { seed } from './seed';
 
 const router = express.Router();
 router.use('/auth', AuthRoutes);
 router.use('/suggestions', suggestionRoutes);
 router.use('/admin', adminRoutes);
-router.use('/seed', seedRoutes);
+router.put('/seed', seed);
 
 // no-op route for debugging
 router.post('/log', (req, res) => {
