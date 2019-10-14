@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
-import List from '@material-ui/core/List';
+import MuiList from '@material-ui/core/List';
 
 import { LogoutItem } from './LogoutItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
@@ -19,6 +19,7 @@ const SidebarContainer = styled.div`
   min-width: 275px;
   position: relative;
   background: ${Colors.primaryDark};
+  box-shadow: 1px 0px 4px rgba(0, 0, 0, 0.15);
   color: ${Colors.white};
   flex-grow: 0;
   flex-shrink: 0;
@@ -36,6 +37,10 @@ const SidebarMenuContainer = styled.div`
   overflow: auto;
   display: grid;
   grid-template-rows: auto 1fr;
+`;
+
+const List = styled(MuiList)`
+  padding-top: 0;
 `;
 
 export class Sidebar extends Component {

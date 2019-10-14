@@ -8,9 +8,9 @@ import { viewPatient } from '../../../store/patient';
 
 import { generateId } from '../../../../../shared/utils/generateId';
 
-const DumbNewPatientModal = memo(({ open, ...formProps }) => (
-  <Modal title="Create new patient" open={open}>
-    <NewPatientForm generateId={generateId} {...formProps} />
+const DumbNewPatientModal = memo(({ open, onCancel, ...formProps }) => (
+  <Modal title="Create new patient" onClose={onCancel} open={open}>
+    <NewPatientForm generateId={generateId} onCancel={onCancel} {...formProps} />
   </Modal>
 ));
 

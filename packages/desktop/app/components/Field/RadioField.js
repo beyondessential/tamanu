@@ -29,6 +29,8 @@ const StyledRadioGroup = styled(RadioGroup)`
 
 const StyledRadio = styled(Radio)`
   svg {
+    width: 0.8em;
+    height: 0.8em;
     color: ${props => (props.selected ? props.theme.selected : props.theme.default)};
   }
 `;
@@ -43,7 +45,7 @@ const ControlLabel = styled(FormControlLabel)`
 
   span {
     font-size: 1rem;
-    padding: 0.5px 3px 0 0;
+    padding: 0;
   }
 
   span:last-of-type {
