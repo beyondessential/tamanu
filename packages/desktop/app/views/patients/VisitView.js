@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import CalendarIcon from '@material-ui/icons/CalendarToday';
 import SubjectIcon from '@material-ui/icons/Subject';
 
-import { Button, DischargeButton, BackButton, ForwardButton } from '../../components/Button';
+import { Button, BackButton, ForwardButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
@@ -160,12 +160,13 @@ const VisitActionDropdown = connect(
   }
 
   const progression = {
-    'triage': 0,
-    'observation': 1,
-    'emergency': 2,
-    'admission': 3,
+    triage: 0,
+    observation: 1,
+    emergency: 2,
+    admission: 3,
   };
-  const isProgressionForward = (currentState, nextState) => progression[nextState] > progression[currentState];
+  const isProgressionForward = (currentState, nextState) =>
+    progression[nextState] > progression[currentState];
   const actions = [
     {
       label: 'Place under observation',

@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { push } from 'connected-react-router';
 
 import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
@@ -64,15 +65,21 @@ const RoutedTriageModal = connectRoutedModal('/patients/view', 'triage')(TriageM
 const HistoryPane = connect(
   state => ({
     visits: state.patient.visits,
-    isCheckInAvailable: !getCurrentVisit(state),
   }),
   dispatch => ({
     onViewVisit: id => dispatch(viewVisit(id)),
+    onOpenCheckin: () => dispatch(push('/patients/view/checkin')),
+    onOpenTriage: () => dispatch(push('/patients/view/triage')),
   }),
 )(
-  React.memo(({ visits, onViewVisit }) => (
+  React.memo(({ visits, onViewVisit, onOpenCheckin, onOpenTriage }) => (
     <div>
-      <PatientVisitSummary visits={visits} viewVisit={onViewVisit} />
+      <PatientVisitSummary
+        visits={visits}
+        viewVisit={onViewVisit}
+        openCheckin={onOpenCheckin}
+        openTriage={onOpenTriage}
+      />
       <PatientHistory items={visits} onItemClick={item => onViewVisit(item._id)} />
     </div>
   )),

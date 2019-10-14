@@ -69,12 +69,12 @@ export const SearchButton = props => (
   </Button>
 );
 
-const AlertButton = styled(Button)`
-  color: ${Colors.alert};
-  border: 1px solid ${Colors.alert};
+export const AlertButton = styled(Button)`
+  color: ${Colors.white};
+  background: ${Colors.alert};
 
   :hover {
-    background: rgba(247, 104, 83, 0.08);
+    background: rgba(247, 104, 83, 0.9);
   }
 `;
 
@@ -91,7 +91,7 @@ export const CheckInButton = props => (
 );
 
 export const CheckOutButton = props => (
-  <Button variant="contained" color="secondary" {...props} s>
+  <Button variant="contained" color="secondary" {...props}>
     Check Out
   </Button>
 );

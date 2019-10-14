@@ -1,29 +1,47 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { Colors } from '../../../constants';
+import { Button, AlertButton } from '../../../components/Button';
 import { DateDisplay } from '../../../components/DateDisplay';
 
 const Grid = styled.div`
   display: grid;
   grid-template-rows: repeat(4, 1fr);
   grid-template-columns: 1fr auto;
-  border: 1px solid black;
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
   margin: 1rem auto;
-  padding: 16px;
   height: min-content;
   width: fit-content;
-  text-transform: capitalize;
+  background: ${Colors.white};
 `;
 
-const Title = styled.h4`
-  margin: 0;
+const LeftColumn = styled.div`
+  padding: 16px;
+`;
+
+const Title = styled.h3`
+  margin: ${props => (props.isAdmitted ? '0 0 5px 0' : '1em')};
 `;
 
 const FlexRow = styled.div`
   display: flex;
+  margin-bottom: 5px;
+  text-transform: capitalize;
 
   > div {
     margin-right: 2rem;
+  }
+`;
+
+const ButtonsContainer = styled.div`
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: 1fr 1fr;
+
+  button:last-of-type {
+    border-radius: 0;
   }
 `;
 
@@ -31,17 +49,45 @@ const Label = styled.span`
   font-weight: 500;
 `;
 
-export const PatientVisitSummary = ({ visits }) => {
+const Divider = styled.hr`
+  width: 50px;
+  border-top: 1px solid ${Colors.outline};
+  border-bottom: 0;
+  border-left: 0;
+  border-right: 0;
+`;
+
+const ViewButton = styled(Button)`
+  border-radius: 0;
+  min-width: 80px;
+`;
+
+export const PatientVisitSummary = ({ visits, viewVisit, openCheckin, openTriage }) => {
   const visit = visits.find(x => !x.endDate);
-  console.log(visit);
 
-  if (!visit) return null;
+  if (!visit) {
+    return (
+      <Grid>
+        <LeftColumn>
+          <Title isAdmitted={!!visit}>Not currently admitted</Title>
+        </LeftColumn>
+        <ButtonsContainer>
+          <ViewButton onClick={() => openCheckin()} variant="contained" color="primary">
+            Admit
+          </ViewButton>
+          <AlertButton onClick={() => openTriage()} variant="contained">
+            Triage
+          </AlertButton>
+        </ButtonsContainer>
+      </Grid>
+    );
+  }
 
-  const { startDate, location, visitType, reasonForVisit } = visit;
+  const { startDate, location, visitType, reasonForVisit, _id } = visit;
   return (
     <Grid>
-      <div>
-        <Title>Current Visit</Title>
+      <LeftColumn>
+        <Title isAdmitted={!!visit}>Current Visit</Title>
         <FlexRow>
           <div>
             <Label>Admitted: </Label>
@@ -55,12 +101,12 @@ export const PatientVisitSummary = ({ visits }) => {
             <Label>Type: </Label> {visitType}
           </div>
         </FlexRow>
-        <div>
-          <hr />
-          {reasonForVisit}
-        </div>
-      </div>
-      <div style={{ margin: '10px' }}>View</div>
+        <Divider />
+        <div>{reasonForVisit}</div>
+      </LeftColumn>
+      <ViewButton onClick={() => viewVisit(_id)} variant="contained" color="primary">
+        View
+      </ViewButton>
     </Grid>
   );
 };
