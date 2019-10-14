@@ -33,7 +33,7 @@ const AppointmentTable = connect(
     <DataFetchingTable
       endpoint="appointment"
       columns={COLUMNS}
-      noDataMessage="No patients found"
+      noDataMessage="No appointments found"
       initialSort={{ order: 'asc', orderBy: 'date' }}
       onRowClick={onViewAppointment}
       {...props}
