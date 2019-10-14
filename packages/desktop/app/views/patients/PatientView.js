@@ -1,7 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { push } from 'connected-react-router';
-import styled from 'styled-components';
 
 import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
@@ -16,23 +14,13 @@ import { ReferralModal } from '../../components/ReferralModal';
 import { ReferralTable } from '../../components/ReferralTable';
 import { AppointmentModal } from '../../components/AppointmentModal';
 import { AppointmentTable } from '../../components/AppointmentTable';
-import { Button, ImageButton } from '../../components/Button';
+import { Button } from '../../components/Button';
 import { connectRoutedModal } from '../../components/Modal';
+import { PatientVisitSummary } from './components/PatientVisitSummary';
 
 import { viewVisit } from '../../store/visit';
 
 import { getCurrentVisit } from '../../store/patient';
-import { medicationIcon, profileIcon } from '../../constants/images';
-
-const CallToActionRow = styled(ContentPane)`
-  display: flex;
-
-  > button {
-    :not(:last-child) {
-      margin-right: 10px;
-    }
-  }
-`;
 
 const AppointmentPane = React.memo(({ patient }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -80,30 +68,11 @@ const HistoryPane = connect(
   }),
   dispatch => ({
     onViewVisit: id => dispatch(viewVisit(id)),
-    onOpenCheckin: () => dispatch(push('/patients/view/checkin')),
-    onOpenTriage: () => dispatch(push('/patients/view/triage')),
   }),
 )(
-  React.memo(({ visits, onOpenCheckin, onOpenTriage, onViewVisit, isCheckInAvailable }) => (
+  React.memo(({ visits, onViewVisit }) => (
     <div>
-      <CallToActionRow>
-        <ImageButton
-          src={medicationIcon}
-          title="Check in"
-          disabled={!isCheckInAvailable}
-          onClick={onOpenCheckin}
-        >
-          Check In
-        </ImageButton>
-        <ImageButton
-          src={profileIcon}
-          title="Triage"
-          disabled={!isCheckInAvailable}
-          onClick={onOpenTriage}
-        >
-          Triage
-        </ImageButton>
-      </CallToActionRow>
+      <PatientVisitSummary visits={visits} viewVisit={onViewVisit} />
       <PatientHistory items={visits} onItemClick={item => onViewVisit(item._id)} />
     </div>
   )),
