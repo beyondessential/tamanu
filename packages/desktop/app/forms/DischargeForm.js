@@ -16,17 +16,34 @@ import {
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DetailTable, DetailRow, FullWidthDetailRow } from '../components/DetailTable';
 import { DateDisplay } from '../components/DateDisplay';
+import { DiagnosisList } from '../components/DiagnosisView';
 
-const Column = styled.div`
+const DisabledFields = styled.div`
   display: grid;
-  grid-row-gap: 1.2rem;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 8px;
+  margin-bottom: 1.2rem;
+`;
 
-  > * {
-    grid-column: 1 !important;
+const EditFields = styled.div`
+  display: grid;
+  grid-template-columns: 100%;
+  grid-row-gap: 1.2rem;
+`;
+
+const FullWidthFields = styled.div`
+  grid-column: 1 / -1;
+
+  > div:first-child {
+    margin-bottom: 4px;
   }
 `;
 
-const DiagnosisRow = ({ diagnosis }) => <div>{diagnosis.name}</div>;
+const Diagnoses = styled(DiagnosisList)`
+  & > div {
+    margin: 0;
+  }
+`;
 
 const ProcedureRow = ({ cpt }) => <div>{cpt}</div>;
 
@@ -39,16 +56,6 @@ const MedicineRow = ({ drug, prescription }) => (
 
 const VisitOverview = React.memo(({ visit }) => (
   <DetailTable width="12rem">
-    <DetailRow label="Admission date">
-      <DateDisplay date={visit.startDate} />
-    </DetailRow>
-    <DetailRow label="Supervising physician">{visit.examiner.name}</DetailRow>
-    <DetailRow label="Reason for visit">{visit.reasonForVisit || 'Not specified'}</DetailRow>
-    <FullWidthDetailRow label="Diagnoses">
-      {visit.diagnoses.map(d => (
-        <DiagnosisRow key={d._id} diagnosis={d.diagnosis} />
-      ))}
-    </FullWidthDetailRow>
     <FullWidthDetailRow label="Procedures">
       {visit.procedures.map(({ code }) => (
         <ProcedureRow key={code} cpt={code} />
@@ -71,32 +78,50 @@ export class DischargeForm extends React.PureComponent {
   };
 
   renderForm = ({ submitForm }) => {
-    const { practitionerSuggester, onCancel } = this.props;
+    const { practitionerSuggester, onCancel, visit } = this.props;
     return (
-      <Column>
-        <Field
-          name="sendToPharmacy"
-          label="Send discharge prescription to pharmacy"
-          component={CheckField}
-          helperText="Requires mSupply"
-        />
-        <Field name="endDate" label="Discharge date" component={DateField} required />
-        <Field
-          name="dischargePhysician._id"
-          label="Discharging physician"
-          component={AutocompleteField}
-          suggester={practitionerSuggester}
-          required
-        />
-        <Field
-          name="dischargeNotes"
-          label="Discharge treatment plan and follow-up notes"
-          component={TextField}
-          multiline
-          rows={4}
-        />
-        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText="Finalise" />
-      </Column>
+      <div>
+        <DisabledFields>
+          <Field name="admissionDate" label="Admission date" component={DateField} disabled />
+          <Field
+            name="supervisingPhysician"
+            label="Supervising Physician"
+            component={TextField}
+            disabled
+          />
+          <FullWidthFields>
+            <Field name="reasonForVisit" label="Reason for visit" component={TextField} disabled />
+            <div>
+              <span>Diagnoses</span>
+              <Diagnoses diagnoses={visit.diagnoses} onEditDiagnosis={() => {}} />
+            </div>
+          </FullWidthFields>
+        </DisabledFields>
+        <EditFields>
+          <Field name="endDate" label="Discharge date" component={DateField} required />
+          <Field
+            name="sendToPharmacy"
+            label="Send discharge prescription to pharmacy"
+            component={CheckField}
+            helperText="Requires mSupply"
+          />
+          <Field
+            name="dischargePhysician._id"
+            label="Discharging physician"
+            component={AutocompleteField}
+            suggester={practitionerSuggester}
+            required
+          />
+          <Field
+            name="dischargeNotes"
+            label="Discharge treatment plan and follow-up notes"
+            component={TextField}
+            multiline
+            rows={4}
+          />
+          <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText="Finalise" />
+        </EditFields>
+      </div>
     );
   };
 
@@ -109,6 +134,9 @@ export class DischargeForm extends React.PureComponent {
           onSubmit={onSubmit}
           render={this.renderForm}
           initialValues={{
+            admissionDate: visit.startDate,
+            supervisingPhysician: visit.examiner.name,
+            reasonForVisit: visit.reasonForVisit,
             endDate: new Date(),
           }}
           validationSchema={yup.object().shape({

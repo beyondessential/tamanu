@@ -61,7 +61,7 @@ const DiagnosisLabel = React.memo(({ numberOfDiagnoses }) => {
   return <DiagnosisHeading>Diagnosis:</DiagnosisHeading>;
 });
 
-const DiagnosisList = React.memo(({ diagnoses, onEditDiagnosis }) => {
+export const DiagnosisList = React.memo(({ diagnoses, onEditDiagnosis }) => {
   return (
     <DiagnosisListContainer>
       {diagnoses.map(d => (

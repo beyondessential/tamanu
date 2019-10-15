@@ -5,11 +5,11 @@ import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
-import CheckBoxOutlined from '@material-ui/icons/CheckBoxOutlined';
 
 const CheckControl = React.memo(({ value, ...props }) => (
   <Checkbox
-    checkedIcon={<CheckBoxOutlined />}
+    icon={<i class="far fa-square" />}
+    checkedIcon={<i class="far fa-check-square" />}
     color="primary"
     checked={value}
     value="checked"
@@ -19,6 +19,10 @@ const CheckControl = React.memo(({ value, ...props }) => (
 
 const ControlLabel = styled(FormControlLabel)`
   width: max-content;
+
+  > span {
+    font-size: 16px;
+  }
 `;
 
 const ControlCheck = styled(CheckControl)`
