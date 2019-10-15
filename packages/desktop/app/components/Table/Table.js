@@ -70,8 +70,11 @@ const RowContainer = React.memo(({ children, onClick }) => (
 
 const Row = React.memo(({ columns, data, onClick }) => {
   const cells = columns.map(({ key, accessor, CellComponent, numeric, cellColor }) => {
-    const value = accessor ? React.createElement(accessor, data) : data[key];
+    let value = data[key];
+    if (accessor) value = React.createElement(accessor, data);
+    if (value === 0) value = '0';
     const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
+
     return (
       <StyledTableCell background={backgroundColor} key={key} align={numeric ? 'right' : 'left'}>
         <ErrorBoundary>{CellComponent ? <CellComponent value={value} /> : value}</ErrorBoundary>
