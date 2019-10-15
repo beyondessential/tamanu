@@ -1,0 +1,1 @@
+export { NewRecordModal } from './NewRecordModal';

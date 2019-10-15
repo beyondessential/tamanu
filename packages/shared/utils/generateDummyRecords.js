@@ -1,7 +1,8 @@
 import Chance from 'chance';
 import shortid from 'shortid';
 
-import { visitOptions } from '../app/constants';
+import { VISIT_TYPES } from '../constants';
+import { generateId } from './generateId';
 
 const HOUR = 1000 * 60 * 60;
 const DAY = HOUR * 24;
@@ -19,7 +20,8 @@ const split = s =>
     .split(/[\r\n]+/g)
     .map(x => x.trim())
     .filter(x => x);
-const splitIds = ids => split(ids).map(s => ({ label: s, value: makeId(s) }));
+const splitIds = ids => split(ids).map(s => ({ _id: makeId(s), name: s }));
+const mapToSuggestions = objects => objects.map(({ _id, name }) => ({ label: name, value: _id }));
 
 export const LOCATIONS = splitIds(`
   Ward 1
@@ -29,6 +31,13 @@ export const LOCATIONS = splitIds(`
   Emergency
 `);
 
+export const LOCATION_SUGGESTIONS = mapToSuggestions(LOCATIONS);
+
+const buildUser = u => ({
+  ...u,
+  displayName: u.name,
+  email: `${u._id}@xyz.com`,
+});
 export const PRACTITIONERS = splitIds(`
   Dr Philip Rogers
   Dr Salvatore Mathis
@@ -44,7 +53,9 @@ export const PRACTITIONERS = splitIds(`
   Karla Jenkins
   Mikayla Hull
   Marissa Bautista
-`);
+`).map(buildUser);
+
+export const PRACTITIONER_SUGGESTIONS = mapToSuggestions(PRACTITIONERS);
 
 export const FACILITIES = splitIds(`
   Balwyn
@@ -59,6 +70,8 @@ export const FACILITIES = splitIds(`
   Thornbury
   Traralgon
 `);
+
+export const FACILITY_SUGGESTIONS = mapToSuggestions(FACILITIES);
 
 const ALLERGIES = split(`
   Penicillin
@@ -85,6 +98,8 @@ export const DIAGNOSES = splitIds(`
   Injury
 `);
 
+export const DIAGNOSIS_SUGGESTIONS = mapToSuggestions(DIAGNOSES);
+
 export const DRUGS = splitIds(`
   Hydrocodone
   Simvastatin
@@ -97,6 +112,8 @@ export const DRUGS = splitIds(`
   Metformin
   Hydrochlorothiazide
 `);
+
+export const DRUG_SUGGESTIONS = mapToSuggestions(DRUGS);
 
 const CONDITIONS = split(`
   Alzheimer
@@ -167,7 +184,7 @@ export function createDummyVisit(current = false) {
   return {
     _id: shortid.generate(),
 
-    visitType: chance.pick(visitOptions).value,
+    visitType: chance.pick(Object.values(VISIT_TYPES)),
     startDate: startDate,
     endDate: current ? undefined : endDate,
     location: chance.pick(LOCATIONS).value,
@@ -189,6 +206,7 @@ export function createDummyPatient(overrides = {}) {
   const gender = overrides.gender || chance.pick(['male', 'female']);
   return {
     _id: shortid.generate(),
+    displayId: generateId(),
     firstName: chance.first({ gender }),
     lastName: chance.last(),
     culturalName: chance.last(),

@@ -5,7 +5,12 @@ import { TextInput } from './TextField';
 export const NumberInput = props => <TextInput {...props} type="number" />;
 
 export const NumberField = ({ field, ...props }) => (
-  <NumberInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
+  <NumberInput
+    name={field.name}
+    value={field.value === '' ? 0 : field.value}
+    onChange={field.onChange}
+    {...props}
+  />
 );
 
 NumberInput.propTypes = {
