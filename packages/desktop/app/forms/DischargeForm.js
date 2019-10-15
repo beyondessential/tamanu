@@ -14,8 +14,6 @@ import {
   DateField,
 } from '../components/Field';
 import { ConfirmCancelRow } from '../components/ButtonRow';
-import { DetailTable, DetailRow, FullWidthDetailRow } from '../components/DetailTable';
-import { DateDisplay } from '../components/DateDisplay';
 import { DiagnosisList } from '../components/DiagnosisView';
 
 const DisabledFields = styled.div`
@@ -23,6 +21,16 @@ const DisabledFields = styled.div`
   grid-template-columns: 1fr 1fr;
   grid-gap: 8px;
   margin-bottom: 1.2rem;
+
+  ul {
+    margin: 5px 0;
+    padding-left: 25px;
+  }
+`;
+
+const Label = styled.span`
+  color: #666666;
+  font-weight: 500;
 `;
 
 const EditFields = styled.div`
@@ -45,29 +53,16 @@ const Diagnoses = styled(DiagnosisList)`
   }
 `;
 
-const ProcedureRow = ({ cpt }) => <div>{cpt}</div>;
+const ProcedureRow = ({ cpt }) => <li>{cpt}</li>;
 
-const MedicineRow = ({ drug, prescription }) => (
+const MedicineRow = ({ medication }) => (
   <React.Fragment>
-    <div>{drug}</div>
-    <div>{prescription}</div>
+    <li>
+      <div></div>
+      {medication.drug.name} ({medication.prescription})
+    </li>
   </React.Fragment>
 );
-
-const VisitOverview = React.memo(({ visit }) => (
-  <DetailTable width="12rem">
-    <FullWidthDetailRow label="Procedures">
-      {visit.procedures.map(({ code }) => (
-        <ProcedureRow key={code} cpt={code} />
-      ))}
-    </FullWidthDetailRow>
-    <FullWidthDetailRow label="Discharge medicines">
-      {visit.medications.map(m => (
-        <MedicineRow key={m} icd10={m} />
-      ))}
-    </FullWidthDetailRow>
-  </DetailTable>
-));
 
 export class DischargeForm extends React.PureComponent {
   static propTypes = {
@@ -89,10 +84,26 @@ export class DischargeForm extends React.PureComponent {
             component={TextField}
             disabled
           />
+          <div>
+            <Label>Discharge medicines</Label>
+            <ul>
+              {visit.medications.map(m => (
+                <MedicineRow key={m} medication={m} />
+              ))}
+            </ul>
+          </div>
+          <div>
+            <Label>Procedures</Label>
+            <ul>
+              {visit.procedures.map(({ cptCode }) => (
+                <ProcedureRow key={cptCode} cpt={cptCode} />
+              ))}
+            </ul>
+          </div>
           <FullWidthFields>
             <Field name="reasonForVisit" label="Reason for visit" component={TextField} disabled />
             <div>
-              <span>Diagnoses</span>
+              <Label>Diagnoses</Label>
               <Diagnoses diagnoses={visit.diagnoses} onEditDiagnosis={() => {}} />
             </div>
           </FullWidthFields>
@@ -129,7 +140,6 @@ export class DischargeForm extends React.PureComponent {
     const { onSubmit, visit } = this.props;
     return (
       <div>
-        <VisitOverview visit={visit} />
         <Form
           onSubmit={onSubmit}
           render={this.renderForm}
