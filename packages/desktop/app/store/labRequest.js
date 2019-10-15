@@ -23,7 +23,11 @@ export const reloadLab = id => async (dispatch, getState, { api }) => {
   const visit = labRequest.visits[0];
   if (visit) {
     dispatch(reloadVisit(visit._id));
-    dispatch(reloadPatient(visit.patient[0]._id));
+
+    const patient = visit.patient[0];
+    if (patient) {
+      dispatch(reloadPatient(patient._id));
+    }
   }
 
   dispatch({ type: LAB_LOAD_FINISH, labRequest });
