@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { TopBar, PageContainer, Button, DataFetchingTable } from '../../components';
+import { TopBar, PageContainer, Button, DataFetchingTable, SearchBar } from '../../components';
 import { NewUserForm } from '../../forms';
-import { SearchBar, NewRecordModal } from './components';
+import { NewRecordModal } from './components';
 import { USER_SEARCH_ENDPOINT } from './constants';
 
 const COLUMNS = [
