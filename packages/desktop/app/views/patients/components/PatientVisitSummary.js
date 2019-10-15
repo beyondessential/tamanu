@@ -11,7 +11,7 @@ const Grid = styled.div`
   grid-template-columns: 1fr auto;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
-  margin: 1rem auto;
+  margin: 1rem;
   height: min-content;
   width: fit-content;
   background: ${Colors.white};
