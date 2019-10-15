@@ -17,6 +17,10 @@ const Label = styled.span`
   font-weight: 500;
 `;
 
+const StyledBackButton = styled(BackButton)`
+  width: fit-content;
+`;
+
 const Centered = styled.div`
   text-align: center;
 `;
@@ -97,7 +101,7 @@ const DumbDischargeSummaryView = React.memo(({ visit, patient, loading }) => {
     <LoadingIndicator loading={loading}>
       <TopBar title="Patient Discharge Summary">
         <TextButton onClick={printPage}>Print Summary</TextButton>
-        <BackButton to="/patients/visit" />
+        <StyledBackButton to="/patients/visit" />
       </TopBar>
       <SummaryPage>
         <Header>

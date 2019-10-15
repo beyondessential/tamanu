@@ -4,6 +4,10 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 
 const StyledAppbar = styled.div`
+  @media print {
+    display: none;
+  }
+
   grid-row: 1 / 2;
   grid-column: 2 / -1;
 
