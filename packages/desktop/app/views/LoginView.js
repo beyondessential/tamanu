@@ -4,12 +4,14 @@ import { Paper } from '@material-ui/core';
 import { TextInput, Button, CheckInput, TamanuLogo } from '../components';
 import { REMEMBER_EMAIL_KEY } from '../constants';
 
+import backgroundImage from '../assets/images/splashscreens/screen_2.jpg';
+
 const Grid = styled.div`
   display: grid;
   height: 100vh;
   justify-content: center;
   align-items: center;
-  background-image: url('./assets/images/splashscreens/screen_2.jpg');
+  background-image: url(${backgroundImage});
 `;
 
 const LoginContainer = styled(Paper)`
