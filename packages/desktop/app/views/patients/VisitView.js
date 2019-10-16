@@ -138,6 +138,7 @@ const VisitInfoPane = React.memo(({ visit }) => (
     <TextInput value={getLocationName(visit)} label="Location" />
     <SelectInput value={visit.visitType} label="Visit type" options={visitOptions} />
     <TextInput value={getExaminerName(visit)} label="Doctor/nurse" />
+    { visit.plannedLocation && (<TextInput value={visit.plannedLocation.name} label="Planned location" />) }
     <TextInput
       value={visit.reasonForVisit}
       label="Reason for visit"
