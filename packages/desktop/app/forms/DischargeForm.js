@@ -14,7 +14,7 @@ import {
   DateField,
 } from '../components/Field';
 import { ConfirmCancelRow } from '../components/ButtonRow';
-import { DiagnosisList } from '../components/DiagnosisView';
+import { DiagnosisList } from '../components/DiagnosisList';
 
 const DisabledFields = styled.div`
   display: grid;
@@ -47,22 +47,52 @@ const FullWidthFields = styled.div`
   }
 `;
 
-const Diagnoses = styled(DiagnosisList)`
-  & > div {
-    margin: 0;
-  }
-`;
-
 const ProcedureRow = ({ cpt }) => <li>{cpt}</li>;
 
 const MedicineRow = ({ medication }) => (
   <React.Fragment>
     <li>
-      <div></div>
       {medication.drug.name} ({medication.prescription})
     </li>
   </React.Fragment>
 );
+
+const ReadonlyFields = () => {
+  return (
+    <DisabledFields>
+      <Field name="admissionDate" label="Admission date" component={DateField} disabled />
+      <Field
+        name="supervisingPhysician"
+        label="Supervising Physician"
+        component={TextField}
+        disabled
+      />
+      <div>
+        <Label>Discharge medicines</Label>
+        <ul>
+          {visit.medications.map(m => (
+            <MedicineRow key={m} medication={m} />
+          ))}
+        </ul>
+      </div>
+      <div>
+        <Label>Procedures</Label>
+        <ul>
+          {visit.procedures.map(({ cptCode }) => (
+            <ProcedureRow key={cptCode} cpt={cptCode} />
+          ))}
+        </ul>
+      </div>
+      <FullWidthFields>
+        <Field name="reasonForVisit" label="Reason for visit" component={TextField} disabled />
+        <div>
+          <Label>Diagnoses</Label>
+          <DiagnosisList diagnoses={visit.diagnoses} />
+        </div>
+      </FullWidthFields>
+    </DisabledFields>
+  );
+};
 
 export class DischargeForm extends React.PureComponent {
   static propTypes = {
@@ -76,38 +106,6 @@ export class DischargeForm extends React.PureComponent {
     const { practitionerSuggester, onCancel, visit } = this.props;
     return (
       <div>
-        <DisabledFields>
-          <Field name="admissionDate" label="Admission date" component={DateField} disabled />
-          <Field
-            name="supervisingPhysician"
-            label="Supervising Physician"
-            component={TextField}
-            disabled
-          />
-          <div>
-            <Label>Discharge medicines</Label>
-            <ul>
-              {visit.medications.map(m => (
-                <MedicineRow key={m} medication={m} />
-              ))}
-            </ul>
-          </div>
-          <div>
-            <Label>Procedures</Label>
-            <ul>
-              {visit.procedures.map(({ cptCode }) => (
-                <ProcedureRow key={cptCode} cpt={cptCode} />
-              ))}
-            </ul>
-          </div>
-          <FullWidthFields>
-            <Field name="reasonForVisit" label="Reason for visit" component={TextField} disabled />
-            <div>
-              <Label>Diagnoses</Label>
-              <Diagnoses diagnoses={visit.diagnoses} onEditDiagnosis={() => {}} />
-            </div>
-          </FullWidthFields>
-        </DisabledFields>
         <EditFields>
           <Field name="endDate" label="Discharge date" component={DateField} required />
           <Field

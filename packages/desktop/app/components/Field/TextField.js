@@ -7,7 +7,7 @@ import { Colors } from '../../constants';
 
 const StyledTextField = styled(MuiTextField)`
   div:first-child {
-    background: ${props => (props.disabled ? 'rgba(0, 0, 0, 0)' : Colors.white)};
+    background: ${props => (props.disabled ? 'none' : Colors.white)};
     color: ${Colors.darkText};
   }
 `;

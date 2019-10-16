@@ -6,6 +6,7 @@ import { getDiagnoses } from '../store/visit';
 
 import { Button } from './Button';
 import { DiagnosisModal } from './DiagnosisModal';
+import { DiagnosisList } from './DiagnosisList';
 import { Colors } from '../constants';
 
 const DiagnosisHeading = styled.div`
@@ -14,25 +15,6 @@ const DiagnosisHeading = styled.div`
   font-weight: 500;
   color: ${Colors.primary};
 `;
-
-const DiagnosisChip = styled.div`
-  background: rgba(50, 102, 153, 0.1);
-  margin: 0.3rem;
-  padding: 10px;
-  border-radius: 3px;
-  cursor: pointer;
-`;
-
-const DiagnosisName = styled.span`
-  font-weight: 500;
-`;
-
-const DiagnosisItem = React.memo(({ diagnosis: { name }, isPrimary, onClick }) => (
-  <DiagnosisChip onClick={onClick}>
-    {`${isPrimary ? 'Primary' : 'Secondary'}: `}
-    <DiagnosisName>{name}</DiagnosisName>
-  </DiagnosisChip>
-));
 
 function compareDiagnosis(a, b) {
   if (a.isPrimary === b.isPrimary) {
@@ -45,30 +27,12 @@ function compareDiagnosis(a, b) {
   return 1;
 }
 
-const DiagnosisListContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  color: ${Colors.primary};
-`;
-
 const DiagnosisLabel = React.memo(({ numberOfDiagnoses }) => {
   if (numberOfDiagnoses === 0) {
     return <DiagnosisHeading>No diagnoses recorded.</DiagnosisHeading>;
   }
 
   return <DiagnosisHeading>Diagnosis:</DiagnosisHeading>;
-});
-
-export const DiagnosisList = React.memo(({ diagnoses, onEditDiagnosis }) => {
-  return (
-    <DiagnosisListContainer>
-      {diagnoses.map(d => (
-        <DiagnosisItem key={d._id} {...d} onClick={() => onEditDiagnosis(d)} />
-      ))}
-    </DiagnosisListContainer>
-  );
 });
 
 const DiagnosisGrid = styled.div`
@@ -97,7 +61,7 @@ export const DiagnosisView = connect(state => ({
         />
         <DiagnosisGrid>
           <DiagnosisLabel numberOfDiagnoses={diagnoses.length} />
-          <DiagnosisList diagnoses={diagnoses} onEditDiagnosis={d => editDiagnosis(d)} />
+          <DiagnosisList diagnoses={diagnoses} onEditDiagnosis={editDiagnosis} />
           <AddDiagnosisButton onClick={() => editDiagnosis({})} variant="outlined" color="primary">
             Add diagnosis
           </AddDiagnosisButton>

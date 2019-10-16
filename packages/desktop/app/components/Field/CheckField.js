@@ -8,8 +8,8 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 
 const CheckControl = React.memo(({ value, ...props }) => (
   <Checkbox
-    icon={<i class="far fa-square" />}
-    checkedIcon={<i class="far fa-check-square" />}
+    icon={<i className="far fa-square" />}
+    checkedIcon={<i className="far fa-check-square" />}
     color="primary"
     checked={value}
     value="checked"
