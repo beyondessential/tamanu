@@ -13,10 +13,13 @@ import {
   CheckField,
   DateField,
 } from '../components/Field';
+import { DateInput } from '../components/Field/DateField';
+import { TextInput } from '../components/Field/TextField';
+
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 
-const DisabledFields = styled.div`
+const ReadonlyFields = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-gap: 8px;
@@ -57,16 +60,11 @@ const MedicineRow = ({ medication }) => (
   </React.Fragment>
 );
 
-const ReadonlyFields = () => {
+const VisitOverview = ({ visit }) => {
   return (
-    <DisabledFields>
-      <Field name="admissionDate" label="Admission date" component={DateField} disabled />
-      <Field
-        name="supervisingPhysician"
-        label="Supervising Physician"
-        component={TextField}
-        disabled
-      />
+    <ReadonlyFields>
+      <DateInput label="Admission date" value={visit.startDate} disabled />
+      <TextInput label="Supervising Physician" value={visit.examiner.name} disabled />
       <div>
         <Label>Discharge medicines</Label>
         <ul>
@@ -84,13 +82,13 @@ const ReadonlyFields = () => {
         </ul>
       </div>
       <FullWidthFields>
-        <Field name="reasonForVisit" label="Reason for visit" component={TextField} disabled />
+        <TextInput label="Reason for visit" value={visit.reasonForVisit} disabled />
         <div>
           <Label>Diagnoses</Label>
           <DiagnosisList diagnoses={visit.diagnoses} />
         </div>
       </FullWidthFields>
-    </DisabledFields>
+    </ReadonlyFields>
   );
 };
 
@@ -106,6 +104,7 @@ export class DischargeForm extends React.PureComponent {
     const { practitionerSuggester, onCancel, visit } = this.props;
     return (
       <div>
+        <VisitOverview visit={visit} />
         <EditFields>
           <Field name="endDate" label="Discharge date" component={DateField} required />
           <Field
@@ -135,16 +134,13 @@ export class DischargeForm extends React.PureComponent {
   };
 
   render() {
-    const { onSubmit, visit } = this.props;
+    const { onSubmit } = this.props;
     return (
       <div>
         <Form
           onSubmit={onSubmit}
           render={this.renderForm}
           initialValues={{
-            admissionDate: visit.startDate,
-            supervisingPhysician: visit.examiner.name,
-            reasonForVisit: visit.reasonForVisit,
             endDate: new Date(),
           }}
           validationSchema={yup.object().shape({
