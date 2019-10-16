@@ -16,6 +16,7 @@ export const DiagnosisSchema = {
     type: {
       type: 'string',
       indexed: true,
+      default: 'icd10',
     },
     ...defaults,
   },

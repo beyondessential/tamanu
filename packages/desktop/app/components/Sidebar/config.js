@@ -10,15 +10,17 @@ import {
 import { availableReports } from '../../views/reports/dummyReports';
 
 export const submenuIcons = {
+  action: 'fa fa-chevron-circle-right',
   calendar: 'fa fa-calendar',
+  cog: 'fa fa-cog',
+  location: 'fa fa-location-arrow',
   new: 'fa fa-plus',
+  permissions: 'fa fa-lock',
+  report: 'fa fa-chevron-circle-right',
   search: 'fa fa-search',
+  seed: 'fa fa-seedling',
   table: 'fa fa-th-list',
   users: 'fa fa-users',
-  permissions: 'fa fa-lock',
-  cog: 'fa fa-cog',
-  report: 'fa fa-chevron-circle-right',
-  action: 'fa fa-chevron-circle-right',
 };
 
 export const items = [
@@ -218,16 +220,21 @@ export const items = [
         ability: { action: 'read', subject: 'user' },
       },
       {
+        label: 'Locations',
+        path: '/admin/locations',
+        icon: submenuIcons.location,
+        ability: { action: 'read', subject: 'location' },
+      },
+      {
         label: 'Permissions',
         path: '/admin/permissions',
         icon: submenuIcons.permissions,
         ability: { action: 'read', subject: 'userRole' },
       },
       {
-        label: 'New User',
-        path: '/admin/users/edit/new',
-        icon: submenuIcons.new,
-        ability: { action: 'create', subject: 'user' },
+        label: 'Seed database',
+        path: '/admin/seed',
+        icon: submenuIcons.seed,
       },
     ],
   },

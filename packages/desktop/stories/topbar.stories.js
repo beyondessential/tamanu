@@ -4,7 +4,6 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
 import { Button } from '../app/components/Button';
-import SearchBar from '../app/components/SearchBar';
 
 import TopBar from '../app/components/TopBar';
 
@@ -25,10 +24,5 @@ storiesOf('TopBar', module)
       <Button color="primary" variant="contained" onClick={action('save')}>
         Save
       </Button>
-    </TopBar>
-  ))
-  .add('With search input', () => (
-    <TopBar title="With search input">
-      <SearchBar onChange={action('searchChange')} />
     </TopBar>
   ));
