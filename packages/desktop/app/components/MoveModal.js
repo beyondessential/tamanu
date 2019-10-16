@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Form, Field, AutocompleteField } from './Field';
 import { ConfirmCancelRow } from './ButtonRow';
+import { FormGrid } from './FormGrid';
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
@@ -10,7 +11,7 @@ import { viewVisit } from '../store/visit';
 
 const BeginMoveForm = ({ onSubmit, onClose, visit, locationSuggester }) => {
   const renderForm = React.useCallback(({ submitForm }) => (
-    <div>
+    <FormGrid columns={1}>
       <Field
         name="plannedLocation._id"
         component={AutocompleteField}
@@ -19,7 +20,7 @@ const BeginMoveForm = ({ onSubmit, onClose, visit, locationSuggester }) => {
         required
       />
       <ConfirmCancelRow onConfirm={submitForm} onCancel={onClose} />
-    </div>
+    </FormGrid>
   ));
 
   return (
