@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import CalendarIcon from '@material-ui/icons/CalendarToday';
 import SubjectIcon from '@material-ui/icons/Subject';
 
-import { Button, BackButton, ForwardButton } from '../../components/Button';
+import { Button, BackButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
@@ -192,18 +192,26 @@ const VisitActionDropdown = connect(
   return <DropdownButton variant="outlined" actions={actions} />;
 });
 
-const DischargeView = ({ visit }) => (
-  <React.Fragment>
-    <VisitActionDropdown visit={visit} />
-    <RoutedDischargeModal visit={visit} />
-    <RoutedChangeTypeModal visit={visit} />
-  </React.Fragment>
-);
+const DischargeView = ({ visit }) => {
+  if (visit.endDate) return <DischargeSummaryView />;
+
+  return (
+    <React.Fragment>
+      <VisitActionDropdown visit={visit} />
+      <RoutedDischargeModal visit={visit} />
+      <RoutedChangeTypeModal visit={visit} />
+    </React.Fragment>
+  );
+};
 
 const DischargeSummaryView = connect(
   null,
   dispatch => ({ viewSummary: () => dispatch(push('/patients/visit/summary')) }),
-)(({ viewSummary }) => <ForwardButton onClick={viewSummary}>View Summary</ForwardButton>);
+)(({ viewSummary }) => (
+  <Button variant="outlined" color="primary" onClick={viewSummary}>
+    View Summary
+  </Button>
+));
 
 const AdmissionInfoRow = styled.div`
   display: flex;
@@ -229,11 +237,6 @@ const AdmissionInfo = styled.span`
     color: ${Colors.outline};
     margin-right: 3px;
   }
-`;
-
-const NavButtons = styled.div`
-  display: flex;
-  justify-content: space-between;
 `;
 
 function getHeaderText({ visitType }) {
@@ -277,10 +280,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
             </AdmissionInfoRow>
           </TopBar>
           <ContentPane>
-            <NavButtons>
-              <BackButton to="/patients/view" />
-              <DischargeSummaryView />
-            </NavButtons>
+            <BackButton to="/patients/view" />
             <VisitInfoPane visit={visit} />
           </ContentPane>
           <ContentPane>

@@ -76,10 +76,6 @@ function addAdminRoute(resource, uniqueFieldName, defaultValue) {
 
 addAdminRoute('diagnosis', 'code', { type: 'icd10' });
 
-addAdminRoute('location', 'name');
-
-addAdminRoute('user', '_id');
-
 // labTestType is a bit more custom
 adminRoutes.put('/labTestType', (req, res) => {
   const { db, body } = req;

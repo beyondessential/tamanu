@@ -9,7 +9,8 @@ import {
   patientIcon,
 } from './images';
 
-import { createValueIndex } from '../../../shared/utils/valueIndex';
+import { createValueIndex } from 'Shared/utils';
+import { VISIT_TYPES } from 'Shared/constants';
 
 export const MUI_SPACING_UNIT = 8;
 
@@ -216,13 +217,13 @@ export const noteTypes = [
 ];
 
 export const visitOptions = [
-  { value: 'admission', label: 'Admission', image: medicationIcon },
-  { value: 'clinic', label: 'Clinic', image: administrationIcon },
-  { value: 'imaging', label: 'Imaging', image: radiologyIcon },
-  { value: 'lab', label: 'Lab', image: labsIcon },
-  { value: 'emergency', label: 'Emergency', image: scheduleIcon },
-  { value: 'observation', label: 'Observation', image: patientIcon, hideFromOptions: true },
-  { value: 'triage', label: 'Triage', image: patientIcon, hideFromOptions: true },
+  { value: VISIT_TYPES.ADMISSION, label: 'Admission', image: medicationIcon },
+  { value: VISIT_TYPES.CLINIC, label: 'Clinic', image: administrationIcon },
+  { value: VISIT_TYPES.IMAGING, label: 'Imaging', image: radiologyIcon },
+  { value: VISIT_TYPES.LAB, label: 'Lab', image: labsIcon },
+  { value: VISIT_TYPES.EMERGENCY, label: 'Emergency', image: scheduleIcon },
+  { value: VISIT_TYPES.OBSERVATION, label: 'Observation', image: patientIcon, hideFromOptions: true },
+  { value: VISIT_TYPES.TRIAGE, label: 'Triage', image: patientIcon, hideFromOptions: true },
 ];
 
 export const VISIT_OPTIONS_BY_VALUE = createValueIndex(visitOptions);
