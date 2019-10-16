@@ -50,14 +50,18 @@ visitRoutes.put('/visit/:id/department', (req, res) => {
 
 visitRoutes.put('/visit/:id/plannedLocation', (req, res) => {
   const { db, params, body } = req;
-  const { department } = body;
+  const { plannedLocation } = body;
 
   const visit = db.objectForPrimaryKey('visit', params.id);
 
-  if (!visit.plannedLocation || plannedLocation._id !== visit.plannedLocation._id) {
-    const newLocation = db.objectForPrimaryKey('location', plannedLocation._id);
+  if (!visit.plannedLocation || !plannedLocation || plannedLocation._id !== visit.plannedLocation._id) {
     db.write(() => {
-      addSystemNote(visit, `Planned location change to ${newLocation.name}`);
+      if(plannedLocation) {
+        const newLocation = db.objectForPrimaryKey('location', plannedLocation._id);
+        addSystemNote(visit, `Planned location change to ${newLocation.name}`);
+      } else {
+        addSystemNote(visit, 'Cancelled location change.');
+      }
       visit.plannedLocation = plannedLocation;
     });
   }

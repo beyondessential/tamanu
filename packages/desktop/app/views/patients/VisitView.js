@@ -9,7 +9,9 @@ import { Button, BackButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
+import { BeginMoveModal, FinaliseMoveModal, CancelMoveModal } from '../../components/MoveModal';
 import { ChangeTypeModal } from '../../components/ChangeTypeModal';
+import { ChangeDepartmentModal } from '../../components/ChangeDepartmentModal';
 import { LabRequestModal } from '../../components/LabRequestModal';
 import { LabRequestsTable } from '../../components/LabRequestsTable';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -146,6 +148,10 @@ const VisitInfoPane = React.memo(({ visit }) => (
 
 const RoutedDischargeModal = connectRoutedModal('/patients/visit', 'discharge')(DischargeModal);
 const RoutedChangeTypeModal = connectRoutedModal('/patients/visit', 'changeType')(ChangeTypeModal);
+const RoutedChangeDepartmentModal = connectRoutedModal('/patients/visit', 'changeDepartment')(ChangeDepartmentModal);
+const RoutedBeginMoveModal = connectRoutedModal('/patients/visit', 'beginMove')(BeginMoveModal);
+const RoutedCancelMoveModal = connectRoutedModal('/patients/visit', 'cancelMove')(CancelMoveModal);
+const RoutedFinaliseMoveModal = connectRoutedModal('/patients/visit', 'finaliseMove')(FinaliseMoveModal);
 
 const VisitActionDropdown = connect(
   null,
@@ -153,8 +159,21 @@ const VisitActionDropdown = connect(
     onDischargeOpen: () => dispatch(push('/patients/visit/discharge')),
     onChangeVisitType: newType => dispatch(push(`/patients/visit/changeType/${newType}`)),
     onViewSummary: () => dispatch(push('/patients/visit/summary')),
+    onChangeLocation: () => dispatch(push('/patients/visit/beginMove')),
+    onCancelLocationChange: () => dispatch(push('/patients/visit/cancelMove')),
+    onFinaliseLocationChange: () => dispatch(push('/patients/visit/finaliseMove')),
+    onChangeDepartment: () => dispatch(push('/patients/visit/changeDepartment')),
   }),
-)(({ visit, onDischargeOpen, onChangeVisitType, onViewSummary }) => {
+)(({ 
+  visit, 
+  onDischargeOpen, 
+  onChangeVisitType,
+  onChangeLocation,
+  onCancelLocationChange,
+  onFinaliseLocationChange,
+  onChangeDepartment,
+  onViewSummary,
+}) => {
 
   if (visit.endDate) {
     return (
@@ -189,20 +208,43 @@ const VisitActionDropdown = connect(
       condition: () => isProgressionForward(visit.visitType, 'admission'),
     },
     {
+      label: 'Finalise location change',
+      condition: () => visit.plannedLocation,
+      onClick: onFinaliseLocationChange,
+    },
+    {
+      label: 'Cancel location change',
+      condition: () => visit.plannedLocation,
+      onClick: onCancelLocationChange,
+    },
+    {
       label: 'Discharge',
       onClick: onDischargeOpen,
+    },
+    {
+      label: 'Change department',
+      onClick: onChangeDepartment,
+    },
+    {
+      label: 'Change location',
+      condition: () => !visit.plannedLocation,
+      onClick: onChangeLocation,
     },
   ].filter(action => !action.condition || action.condition());
 
   return <DropdownButton variant="outlined" actions={actions} />;
 });
 
-const DischargeView = ({ visit }) => {
+const VisitActions = ({ visit }) => {
   return (
     <React.Fragment>
       <VisitActionDropdown visit={visit} />
       <RoutedDischargeModal visit={visit} />
       <RoutedChangeTypeModal visit={visit} />
+      <RoutedChangeDepartmentModal visit={visit} />
+      <RoutedBeginMoveModal visit={visit} />
+      <RoutedCancelMoveModal visit={visit} />
+      <RoutedFinaliseMoveModal visit={visit} />
     </React.Fragment>
   );
 };
@@ -260,7 +302,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
         <PatientInfoPane patient={patient} />
         <div>
           <TopBar title={getHeaderText(visit)}>
-            <DischargeView visit={visit} />
+            <VisitActions visit={visit} />
             <AdmissionInfoRow>
               <AdmissionInfo>
                 <SubjectIcon />
