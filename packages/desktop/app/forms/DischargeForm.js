@@ -60,37 +60,35 @@ const MedicineRow = ({ medication }) => (
   </React.Fragment>
 );
 
-const VisitOverview = ({ visit }) => {
-  return (
-    <ReadonlyFields>
-      <DateInput label="Admission date" value={visit.startDate} disabled />
-      <TextInput label="Supervising Physician" value={visit.examiner.name} disabled />
+const VisitOverview = ({ visit }) => (
+  <ReadonlyFields>
+    <DateInput label="Admission date" value={visit.startDate} disabled />
+    <TextInput label="Supervising Physician" value={visit.examiner.name} disabled />
+    <div>
+      <Label>Discharge medicines</Label>
+      <ul>
+        {visit.medications.map(m => (
+          <MedicineRow key={m} medication={m} />
+        ))}
+      </ul>
+    </div>
+    <div>
+      <Label>Procedures</Label>
+      <ul>
+        {visit.procedures.map(({ cptCode }) => (
+          <ProcedureRow key={cptCode} cpt={cptCode} />
+        ))}
+      </ul>
+    </div>
+    <FullWidthFields>
+      <TextInput label="Reason for visit" value={visit.reasonForVisit} disabled />
       <div>
-        <Label>Discharge medicines</Label>
-        <ul>
-          {visit.medications.map(m => (
-            <MedicineRow key={m} medication={m} />
-          ))}
-        </ul>
+        <Label>Diagnoses</Label>
+        <DiagnosisList diagnoses={visit.diagnoses} />
       </div>
-      <div>
-        <Label>Procedures</Label>
-        <ul>
-          {visit.procedures.map(({ cptCode }) => (
-            <ProcedureRow key={cptCode} cpt={cptCode} />
-          ))}
-        </ul>
-      </div>
-      <FullWidthFields>
-        <TextInput label="Reason for visit" value={visit.reasonForVisit} disabled />
-        <div>
-          <Label>Diagnoses</Label>
-          <DiagnosisList diagnoses={visit.diagnoses} />
-        </div>
-      </FullWidthFields>
-    </ReadonlyFields>
-  );
-};
+    </FullWidthFields>
+  </ReadonlyFields>
+);
 
 export class DischargeForm extends React.PureComponent {
   static propTypes = {
