@@ -95,7 +95,7 @@ export class LoginView extends Component {
               label="Remember me"
               onChange={this.handleUserInput}
             />
-            <div className="column is-half has-text-right">
+            <div>
               <Button fullWidth type="submit" variant="contained" color="primary">
                 Login
               </Button>
@@ -104,54 +104,5 @@ export class LoginView extends Component {
         </LoginContainer>
       </Grid>
     );
-
-    // return (
-    //   <Grid container justify="center" alignItems="center" style={{ minHeight: '100vh' }}>
-    //     <Grid item xs={3}>
-    //       <Paper elevation={0} style={{ padding: '0 24px 24px' }}>
-    //         <LogoContainer>
-    //           <TamanuLogo size="240px" />
-    //         </LogoContainer>
-    // <form onSubmit={this.submitForm.bind(this)}>
-    //   <Grid container spacing={16}>
-    //     <Grid item xs={12}>
-    //       <TextInput
-    //         name="email"
-    //         type="email"
-    //         label="Email"
-    //         value={email}
-    //         onChange={this.handleUserInput}
-    //         required
-    //       />
-    //     </Grid>
-    //     <Grid item xs={12}>
-    //       <TextInput
-    //         name="password"
-    //         type="password"
-    //         label="Password"
-    //         value={password}
-    //         onChange={this.handleUserInput}
-    //         required
-    //       />
-    //     </Grid>
-    //     <Grid item xs={12}>
-    //       <CheckInput
-    //         name="rememberMe"
-    //         value={rememberMe}
-    //         label="Remember me"
-    //         onChange={this.handleUserInput}
-    //       />
-    //       <div className="column is-half has-text-right">
-    //         <Button type="submit" variant="contained" color="primary">
-    //           Login
-    //         </Button>
-    //       </div>
-    //     </Grid>
-    //   </Grid>
-    // </form>;
-    //       </Paper>
-    //     </Grid>
-    //   </Grid>
-    // );
   }
 }
