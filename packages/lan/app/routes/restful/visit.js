@@ -54,17 +54,37 @@ visitRoutes.put('/visit/:id/plannedLocation', (req, res) => {
 
   const visit = db.objectForPrimaryKey('visit', params.id);
 
-  if (!visit.plannedLocation || !plannedLocation || plannedLocation._id !== visit.plannedLocation._id) {
-    db.write(() => {
-      if(plannedLocation) {
-        const newLocation = db.objectForPrimaryKey('location', plannedLocation._id);
-        addSystemNote(visit, `Planned location change to ${newLocation.name}`);
-      } else {
+  // cancel a planned change
+  if(visit.plannedLocation) {
+    if(!plannedLocation) {
+      db.write(() => {
         addSystemNote(visit, 'Cancelled location change.');
-      }
-      visit.plannedLocation = plannedLocation;
-    });
+        visit.plannedLocation = plannedLocation;
+      });
+      res.send(objectToJSON(visit));
+      return;
+    }
+    throw new Error("A location change is already planned");
   }
+
+  // plan a new change
+  if (!plannedLocation) {
+    throw new Error("Planned location invalid!");
+  }
+    
+  if(plannedLocation._id === visit.location._id) {
+    throw new Error("Planned location must be different to current location.");
+  }
+
+  const newLocation = db.objectForPrimaryKey('location', plannedLocation._id);
+  if (!newLocation) {
+    throw new Error("Planned location invalid!");
+  }
+
+  db.write(() => {
+    addSystemNote(visit, `Planned location change to ${newLocation.name}`);
+    visit.plannedLocation = plannedLocation;
+  });
 
   res.send(objectToJSON(visit));
 });
