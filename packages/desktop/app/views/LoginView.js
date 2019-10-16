@@ -3,15 +3,14 @@ import styled from 'styled-components';
 import { Paper } from '@material-ui/core';
 import { TextInput, Button, CheckInput, TamanuLogo } from '../components';
 import { REMEMBER_EMAIL_KEY } from '../constants';
-
-import backgroundImage from '../assets/images/splashscreens/screen_2.jpg';
+import { splashImages } from '../constants/images';
 
 const Grid = styled.div`
   display: grid;
   height: 100vh;
   justify-content: center;
   align-items: center;
-  background-image: url(${backgroundImage});
+  background-image: url(${splashImages[1]});
 `;
 
 const LoginContainer = styled(Paper)`
