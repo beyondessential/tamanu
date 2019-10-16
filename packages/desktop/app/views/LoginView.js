@@ -14,7 +14,7 @@ const Grid = styled.div`
 
 const LoginContainer = styled(Paper)`
   padding: 30px;
-  min-width: 500px;
+  min-width: 400px;
 `;
 
 const LogoContainer = styled.div`
@@ -70,7 +70,7 @@ export class LoginView extends Component {
       <Grid>
         <LoginContainer>
           <LogoContainer>
-            <TamanuLogo size="240px" />
+            <TamanuLogo size="150px" />
           </LogoContainer>
           <Form onSubmit={this.submitForm.bind(this)}>
             <TextInput
