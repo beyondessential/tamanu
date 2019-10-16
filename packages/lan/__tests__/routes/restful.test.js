@@ -28,6 +28,13 @@ describe('restful routes', () => {
     expect(results.length).toEqual(1);
   });
 
+  it('should add a department', async () => {
+    const name = 'Test Department 1';
+    await app.post('/department').send({ name });
+    const results = db.objects('department').filtered('name = $0', name);
+    expect(results.length).toEqual(1);
+  });
+
   describe('adding a diagnosis', () => {
     const id = generateTestId();
     const code = 'Test TB_1';
