@@ -74,4 +74,17 @@ describe('restful routes', () => {
       expect(results[0].name).toEqual(newName);
     });
   });
+
+  xdescribe('patient journey', () => {
+    
+    it('should create a visit', async () => { }); 
+    it('should change the department', async () => { }); 
+    it('should plan a move', async () => { }); 
+    it('should execute a move', async () => { }); 
+    it('should fail to execute a move without planning it first', () => { }); 
+    it('should cancel a planned move', async () => { }); 
+    it('should fail to cancel a planned move if none exists', async () => { }); 
+    it('should update the visit type', async () => { });
+
+  });
 });
