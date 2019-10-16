@@ -152,11 +152,16 @@ const VisitActionDropdown = connect(
   dispatch => ({
     onDischargeOpen: () => dispatch(push('/patients/visit/discharge')),
     onChangeVisitType: newType => dispatch(push(`/patients/visit/changeType/${newType}`)),
+    onViewSummary: () => dispatch(push('/patients/visit/summary')),
   }),
-)(({ visit, onDischargeOpen, onChangeVisitType }) => {
+)(({ visit, onDischargeOpen, onChangeVisitType, onViewSummary }) => {
+
   if (visit.endDate) {
-    // no actions available - patient is already discharged
-    return null;
+    return (
+      <Button variant="outlined" color="primary" onClick={onViewSummary}>
+        View discharge summary
+      </Button>
+    );
   }
 
   const progression = {
@@ -193,8 +198,6 @@ const VisitActionDropdown = connect(
 });
 
 const DischargeView = ({ visit }) => {
-  if (visit.endDate) return <DischargeSummaryView />;
-
   return (
     <React.Fragment>
       <VisitActionDropdown visit={visit} />
@@ -203,15 +206,6 @@ const DischargeView = ({ visit }) => {
     </React.Fragment>
   );
 };
-
-const DischargeSummaryView = connect(
-  null,
-  dispatch => ({ viewSummary: () => dispatch(push('/patients/visit/summary')) }),
-)(({ viewSummary }) => (
-  <Button variant="outlined" color="primary" onClick={viewSummary}>
-    View Summary
-  </Button>
-));
 
 const AdmissionInfoRow = styled.div`
   display: flex;
