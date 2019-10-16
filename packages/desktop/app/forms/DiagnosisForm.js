@@ -24,7 +24,7 @@ export const DiagnosisForm = React.memo(({ onCancel, onSave, diagnosis, icd10Sug
     }}
     render={({ submitForm }) => (
       <FormGrid>
-        <div style={{ gridColumn: 'span 2' }}>
+        <div style={{ gridColumn: '1 / -1' }}>
           <Field
             name="diagnosis._id"
             label="ICD10 Code"
@@ -33,7 +33,12 @@ export const DiagnosisForm = React.memo(({ onCancel, onSave, diagnosis, icd10Sug
             required
           />
         </div>
-        <Field name="isPrimary" label="Is primary" component={CheckField} />
+        <Field
+          style={{ gridColumn: '1 / -1' }}
+          name="isPrimary"
+          label="Is primary"
+          component={CheckField}
+        />
         <Field
           name="certainty"
           label="Certainty"

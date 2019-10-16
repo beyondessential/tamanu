@@ -13,21 +13,31 @@ const DiagnosisListContainer = styled.div`
 `;
 
 const DiagnosisChip = styled.div`
-  background: rgba(50, 102, 153, 0.1);
   margin: 0.3rem;
-  padding: 10px;
-  border-radius: 3px;
   cursor: pointer;
+  display: flex;
+`;
+
+const Category = styled.div`
+  background: ${props => (props.isPrimary ? Colors.primary : Colors.alert)};
+  font-weight: 900;
+  padding: 10px 5px;
+  color: ${Colors.white};
+  border-radius: 3px 0 0 3px;
 `;
 
 const DiagnosisName = styled.span`
+  background: ${props => (props.isPrimary ? 'rgba(50,102,153,0.1)' : 'rgba(247, 104, 83, 0.1)')};
+  color: ${props => (props.isPrimary ? Colors.primary : Colors.alert)};
   font-weight: 500;
+  padding: 10px;
+  border-radius: 0 3px 3px 0;
 `;
 
 const DiagnosisItem = React.memo(({ diagnosis: { name }, isPrimary, onClick }) => (
-  <DiagnosisChip onClick={onClick}>
-    {`${isPrimary ? 'Primary' : 'Secondary'}: `}
-    <DiagnosisName>{name}</DiagnosisName>
+  <DiagnosisChip isPrimary={isPrimary} onClick={onClick}>
+    <Category isPrimary={isPrimary}>{isPrimary ? 'P' : 'S'}</Category>
+    <DiagnosisName isPrimary={isPrimary}>{name}</DiagnosisName>
   </DiagnosisChip>
 ));
 
