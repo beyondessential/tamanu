@@ -2,8 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Colors } from '../../../constants';
-import { Button, AlertButton } from '../../../components/Button';
+import { ImageButton, Button } from '../../../components/Button';
 import { DateDisplay } from '../../../components/DateDisplay';
+
+import { medicationIcon, profileIcon } from '../../../constants/images';
 
 const Grid = styled.div`
   display: grid;
@@ -40,8 +42,9 @@ const ButtonsContainer = styled.div`
   grid-auto-flow: column;
   grid-template-columns: 1fr 1fr;
 
-  button:last-of-type {
-    border-radius: 0;
+  button:first-of-type {
+    border-left: 1px solid ${Colors.outline};
+    border-right: 1px solid ${Colors.outline};
   }
 `;
 
@@ -57,6 +60,11 @@ const Divider = styled.hr`
   border-right: 0;
 `;
 
+const StyledImageButton = styled(ImageButton)`
+  border-radius: 0;
+  box-shadow: none;
+`;
+
 const ViewButton = styled(Button)`
   border-radius: 0;
   min-width: 80px;
@@ -69,15 +77,15 @@ export const PatientVisitSummary = ({ visits, viewVisit, openCheckin, openTriage
     return (
       <Grid>
         <LeftColumn>
-          <Title isAdmitted={!!visit}>Not currently admitted</Title>
+          <Title isAdmitted={!!visit}>No current admission</Title>
         </LeftColumn>
         <ButtonsContainer>
-          <ViewButton onClick={() => openCheckin()} variant="contained" color="primary">
+          <StyledImageButton src={medicationIcon} title="Admit" onClick={openCheckin}>
             Admit
-          </ViewButton>
-          <AlertButton onClick={() => openTriage()} variant="contained">
+          </StyledImageButton>
+          <StyledImageButton src={profileIcon} title="Triage" onClick={openTriage}>
             Triage
-          </AlertButton>
+          </StyledImageButton>
         </ButtonsContainer>
       </Grid>
     );
