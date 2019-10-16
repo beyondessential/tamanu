@@ -138,7 +138,9 @@ const VisitInfoPane = React.memo(({ visit }) => (
     <TextInput value={getLocationName(visit)} label="Location" />
     <SelectInput value={visit.visitType} label="Visit type" options={visitOptions} />
     <TextInput value={getExaminerName(visit)} label="Doctor/nurse" />
-    { visit.plannedLocation && (<TextInput value={visit.plannedLocation.name} label="Planned location" />) }
+    {visit.plannedLocation && (
+      <TextInput value={visit.plannedLocation.name} label="Planned location" />
+    )}
     <TextInput
       value={visit.reasonForVisit}
       label="Reason for visit"
@@ -149,10 +151,14 @@ const VisitInfoPane = React.memo(({ visit }) => (
 
 const RoutedDischargeModal = connectRoutedModal('/patients/visit', 'discharge')(DischargeModal);
 const RoutedChangeTypeModal = connectRoutedModal('/patients/visit', 'changeType')(ChangeTypeModal);
-const RoutedChangeDepartmentModal = connectRoutedModal('/patients/visit', 'changeDepartment')(ChangeDepartmentModal);
+const RoutedChangeDepartmentModal = connectRoutedModal('/patients/visit', 'changeDepartment')(
+  ChangeDepartmentModal,
+);
 const RoutedBeginMoveModal = connectRoutedModal('/patients/visit', 'beginMove')(BeginMoveModal);
 const RoutedCancelMoveModal = connectRoutedModal('/patients/visit', 'cancelMove')(CancelMoveModal);
-const RoutedFinaliseMoveModal = connectRoutedModal('/patients/visit', 'finaliseMove')(FinaliseMoveModal);
+const RoutedFinaliseMoveModal = connectRoutedModal('/patients/visit', 'finaliseMove')(
+  FinaliseMoveModal,
+);
 
 const VisitActionDropdown = connect(
   null,
@@ -165,90 +171,89 @@ const VisitActionDropdown = connect(
     onFinaliseLocationChange: () => dispatch(push('/patients/visit/finaliseMove')),
     onChangeDepartment: () => dispatch(push('/patients/visit/changeDepartment')),
   }),
-)(({ 
-  visit, 
-  onDischargeOpen, 
-  onChangeVisitType,
-  onChangeLocation,
-  onCancelLocationChange,
-  onFinaliseLocationChange,
-  onChangeDepartment,
-  onViewSummary,
-}) => {
+)(
+  ({
+    visit,
+    onDischargeOpen,
+    onChangeVisitType,
+    onChangeLocation,
+    onCancelLocationChange,
+    onFinaliseLocationChange,
+    onChangeDepartment,
+    onViewSummary,
+  }) => {
+    if (visit.endDate) {
+      return (
+        <Button variant="outlined" color="primary" onClick={onViewSummary}>
+          View discharge summary
+        </Button>
+      );
+    }
 
-  if (visit.endDate) {
-    return (
-      <Button variant="outlined" color="primary" onClick={onViewSummary}>
-        View discharge summary
-      </Button>
-    );
-  }
+    const progression = {
+      triage: 0,
+      observation: 1,
+      emergency: 2,
+      admission: 3,
+    };
+    const isProgressionForward = (currentState, nextState) =>
+      progression[nextState] > progression[currentState];
+    const actions = [
+      {
+        label: 'Place under observation',
+        onClick: () => onChangeVisitType('observation'),
+        condition: () => isProgressionForward(visit.visitType, 'observation'),
+      },
+      {
+        label: 'Admit to emergency',
+        onClick: () => onChangeVisitType('emergency'),
+        condition: () => isProgressionForward(visit.visitType, 'emergency'),
+      },
+      {
+        label: 'Admit to hospital',
+        onClick: () => onChangeVisitType('admission'),
+        condition: () => isProgressionForward(visit.visitType, 'admission'),
+      },
+      {
+        label: 'Finalise location change',
+        condition: () => visit.plannedLocation,
+        onClick: onFinaliseLocationChange,
+      },
+      {
+        label: 'Cancel location change',
+        condition: () => visit.plannedLocation,
+        onClick: onCancelLocationChange,
+      },
+      {
+        label: 'Discharge',
+        onClick: onDischargeOpen,
+      },
+      {
+        label: 'Change department',
+        onClick: onChangeDepartment,
+      },
+      {
+        label: 'Change location',
+        condition: () => !visit.plannedLocation,
+        onClick: onChangeLocation,
+      },
+    ].filter(action => !action.condition || action.condition());
 
-  const progression = {
-    triage: 0,
-    observation: 1,
-    emergency: 2,
-    admission: 3,
-  };
-  const isProgressionForward = (currentState, nextState) =>
-    progression[nextState] > progression[currentState];
-  const actions = [
-    {
-      label: 'Place under observation',
-      onClick: () => onChangeVisitType('observation'),
-      condition: () => isProgressionForward(visit.visitType, 'observation'),
-    },
-    {
-      label: 'Admit to emergency',
-      onClick: () => onChangeVisitType('emergency'),
-      condition: () => isProgressionForward(visit.visitType, 'emergency'),
-    },
-    {
-      label: 'Admit to hospital',
-      onClick: () => onChangeVisitType('admission'),
-      condition: () => isProgressionForward(visit.visitType, 'admission'),
-    },
-    {
-      label: 'Finalise location change',
-      condition: () => visit.plannedLocation,
-      onClick: onFinaliseLocationChange,
-    },
-    {
-      label: 'Cancel location change',
-      condition: () => visit.plannedLocation,
-      onClick: onCancelLocationChange,
-    },
-    {
-      label: 'Discharge',
-      onClick: onDischargeOpen,
-    },
-    {
-      label: 'Change department',
-      onClick: onChangeDepartment,
-    },
-    {
-      label: 'Change location',
-      condition: () => !visit.plannedLocation,
-      onClick: onChangeLocation,
-    },
-  ].filter(action => !action.condition || action.condition());
+    return <DropdownButton variant="outlined" actions={actions} />;
+  },
+);
 
-  return <DropdownButton variant="outlined" actions={actions} />;
-});
-
-const VisitActions = ({ visit }) => {
-  return (
-    <React.Fragment>
-      <VisitActionDropdown visit={visit} />
-      <RoutedDischargeModal visit={visit} />
-      <RoutedChangeTypeModal visit={visit} />
-      <RoutedChangeDepartmentModal visit={visit} />
-      <RoutedBeginMoveModal visit={visit} />
-      <RoutedCancelMoveModal visit={visit} />
-      <RoutedFinaliseMoveModal visit={visit} />
-    </React.Fragment>
-  );
-};
+const VisitActions = ({ visit }) => (
+  <React.Fragment>
+    <VisitActionDropdown visit={visit} />
+    <RoutedDischargeModal visit={visit} />
+    <RoutedChangeTypeModal visit={visit} />
+    <RoutedChangeDepartmentModal visit={visit} />
+    <RoutedBeginMoveModal visit={visit} />
+    <RoutedCancelMoveModal visit={visit} />
+    <RoutedFinaliseMoveModal visit={visit} />
+  </React.Fragment>
+);
 
 const AdmissionInfoRow = styled.div`
   display: flex;

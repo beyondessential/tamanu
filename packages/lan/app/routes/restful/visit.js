@@ -40,7 +40,10 @@ visitRoutes.put('/visit/:id/department', (req, res) => {
   if (department._id !== visit.department._id) {
     const newDepartment = db.objectForPrimaryKey('department', department._id);
     db.write(() => {
-      addSystemNote(visit, `Changed department from ${visit.department.name} to ${newDepartment.name}`);
+      addSystemNote(
+        visit,
+        `Changed department from ${visit.department.name} to ${newDepartment.name}`,
+      );
       visit.department = department;
     });
   }
@@ -55,8 +58,8 @@ visitRoutes.put('/visit/:id/plannedLocation', (req, res) => {
   const visit = db.objectForPrimaryKey('visit', params.id);
 
   // cancel a planned change
-  if(visit.plannedLocation) {
-    if(!plannedLocation) {
+  if (visit.plannedLocation) {
+    if (!plannedLocation) {
       db.write(() => {
         addSystemNote(visit, 'Cancelled location change.');
         visit.plannedLocation = plannedLocation;
@@ -64,21 +67,21 @@ visitRoutes.put('/visit/:id/plannedLocation', (req, res) => {
       res.send(objectToJSON(visit));
       return;
     }
-    throw new Error("A location change is already planned");
+    throw new Error('A location change is already planned');
   }
 
   // plan a new change
   if (!plannedLocation) {
-    throw new Error("Planned location invalid!");
+    throw new Error('Planned location invalid!');
   }
-    
-  if(plannedLocation._id === visit.location._id) {
-    throw new Error("Planned location must be different to current location.");
+
+  if (plannedLocation._id === visit.location._id) {
+    throw new Error('Planned location must be different to current location.');
   }
 
   const newLocation = db.objectForPrimaryKey('location', plannedLocation._id);
   if (!newLocation) {
-    throw new Error("Planned location invalid!");
+    throw new Error('Planned location invalid!');
   }
 
   db.write(() => {

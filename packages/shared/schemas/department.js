@@ -1,4 +1,3 @@
-
 import defaults from './defaults';
 
 export const DepartmentSchema = {

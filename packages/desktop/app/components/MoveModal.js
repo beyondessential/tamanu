@@ -35,18 +35,21 @@ const BeginMoveForm = ({ onSubmit, onClose, visit, locationSuggester }) => {
 const FinaliseMoveForm = ({ onSubmit, visit, onClose }) => (
   <FormGrid columns={1}>
     <div>{`Are you sure you want to move ${visit.patient[0].firstName} to ${visit.plannedLocation.name}?`}</div>
-    <ConfirmCancelRow onConfirm={() => onSubmit({ location: visit.plannedLocation })} onCancel={onClose} />
+    <ConfirmCancelRow
+      onConfirm={() => onSubmit({ location: visit.plannedLocation })}
+      onCancel={onClose}
+    />
   </FormGrid>
 );
 
 const CancelMoveForm = ({ onSubmit, visit, onClose }) => (
   <FormGrid columns={1}>
     <div>{`Are you sure you want to cancel ${visit.patient[0].firstName}'s scheduled move to ${visit.plannedLocation.name}?`}</div>
-    <ConfirmCancelRow 
-      onConfirm={() => onSubmit({ plannedLocation: null })} 
+    <ConfirmCancelRow
+      onConfirm={() => onSubmit({ plannedLocation: null })}
       confirmText="Yes, cancel"
       cancelText="Keep it"
-      onCancel={onClose} 
+      onCancel={onClose}
     />
   </FormGrid>
 );
@@ -63,6 +66,22 @@ const MoverModal = connectApi((api, dispatch, { visit, endpoint }) => ({
   </Modal>
 ));
 
-export const BeginMoveModal = (props) => <MoverModal {...props} Component={BeginMoveForm} title="Move patient" endpoint="plannedLocation" />;
-export const FinaliseMoveModal = (props) => <MoverModal {...props} Component={FinaliseMoveForm} title="Finalise move" endpoint="location" />;
-export const CancelMoveModal = (props) => <MoverModal {...props} Component={CancelMoveForm} title="Cancel move" endpoint="plannedLocation" />;
+export const BeginMoveModal = props => (
+  <MoverModal
+    {...props}
+    Component={BeginMoveForm}
+    title="Move patient"
+    endpoint="plannedLocation"
+  />
+);
+export const FinaliseMoveModal = props => (
+  <MoverModal {...props} Component={FinaliseMoveForm} title="Finalise move" endpoint="location" />
+);
+export const CancelMoveModal = props => (
+  <MoverModal
+    {...props}
+    Component={CancelMoveForm}
+    title="Cancel move"
+    endpoint="plannedLocation"
+  />
+);

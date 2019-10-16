@@ -24,7 +24,7 @@ export class ChangeDepartmentForm extends React.PureComponent {
     return (
       <Form
         initialValues={{
-          department: visit.department
+          department: visit.department,
         }}
         render={this.renderForm}
         onSubmit={onSubmit}
