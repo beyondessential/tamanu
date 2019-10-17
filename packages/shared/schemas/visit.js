@@ -14,7 +14,10 @@ export const VisitSchema = {
 
     // has-one
     examiner: { type: 'user', optional: true },
-    location: { type: 'location', optional: true },
+
+    location: 'location',
+    department: 'department',
+    plannedLocation: 'location?',
 
     dischargePhysician: { type: 'user', optional: true },
     dischargeNotes: { type: 'string', optional: true },

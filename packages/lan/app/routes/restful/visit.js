@@ -5,21 +5,113 @@ import { objectToJSON } from '../../utils';
 
 export const visitRoutes = express.Router();
 
+function addSystemNote(visit, content) {
+  const note = {
+    _id: shortid.generate(),
+    type: 'system',
+    content,
+  };
+
+  visit.notes = [...visit.notes, note];
+}
+
 visitRoutes.put('/visit/:id/visitType', (req, res) => {
   const { db, params, body } = req;
-  const visit = db.objectForPrimaryKey('visit', params.id);
   const { visitType } = body;
 
+  const visit = db.objectForPrimaryKey('visit', params.id);
+
   if (visitType !== visit.visitType) {
-    const note = {
-      _id: shortid.generate(),
-      type: 'system',
-      content: `Changed from ${visit.visitType} to ${visitType}`,
-    };
+    db.write(() => {
+      addSystemNote(visit, `Changed from ${visit.visitType} to ${visitType}`);
+      visit.visitType = visitType;
+    });
+  }
+
+  res.send(objectToJSON(visit));
+});
+
+visitRoutes.put('/visit/:id/department', (req, res) => {
+  const { db, params, body } = req;
+  const { department } = body;
+
+  const visit = db.objectForPrimaryKey('visit', params.id);
+
+  if (department._id !== visit.department._id) {
+    const newDepartment = db.objectForPrimaryKey('department', department._id);
+    if (!newDepartment) {
+      throw new Error('Invalid department ID');
+    }
 
     db.write(() => {
-      visit.visitType = visitType;
-      visit.notes = [...visit.notes, note];
+      addSystemNote(
+        visit,
+        `Changed department from ${visit.department.name} to ${newDepartment.name}`,
+      );
+      visit.department = department;
+    });
+  }
+
+  res.send(objectToJSON(visit));
+});
+
+visitRoutes.put('/visit/:id/plannedLocation', (req, res) => {
+  const { db, params, body } = req;
+  const { plannedLocation } = body;
+
+  const visit = db.objectForPrimaryKey('visit', params.id);
+
+  // cancel a planned change
+  if (visit.plannedLocation) {
+    if (!plannedLocation) {
+      db.write(() => {
+        addSystemNote(visit, 'Cancelled location change.');
+        visit.plannedLocation = plannedLocation;
+      });
+      res.send(objectToJSON(visit));
+      return;
+    }
+    throw new Error('A location change is already planned');
+  }
+
+  // plan a new change
+  if (!plannedLocation) {
+    throw new Error('Planned location invalid!');
+  }
+
+  if (plannedLocation._id === visit.location._id) {
+    throw new Error('Planned location must be different to current location.');
+  }
+
+  const newLocation = db.objectForPrimaryKey('location', plannedLocation._id);
+  if (!newLocation) {
+    throw new Error('Planned location invalid!');
+  }
+
+  db.write(() => {
+    addSystemNote(visit, `Planned location change to ${newLocation.name}`);
+    visit.plannedLocation = plannedLocation;
+  });
+
+  res.send(objectToJSON(visit));
+});
+
+visitRoutes.put('/visit/:id/location', (req, res) => {
+  const { db, params, body } = req;
+  const { location } = body;
+
+  const visit = db.objectForPrimaryKey('visit', params.id);
+  const newLocation = db.objectForPrimaryKey('location', location._id);
+
+  if (!visit.plannedLocation || location._id !== visit.plannedLocation._id) {
+    throw new Error('Location cannot be updated without being planned first');
+  }
+
+  if (location._id !== visit.location._id) {
+    db.write(() => {
+      addSystemNote(visit, `Completed move from ${visit.location.name} to ${newLocation.name}`);
+      visit.plannedLocation = null;
+      visit.location = location;
     });
   }
 
@@ -35,7 +127,6 @@ visitRoutes.post('/visit/:id/note', (req, res) => {
   };
 
   // TODO: validate
-  console.log(JSON.stringify(note));
 
   db.write(() => {
     visit.notes = [...visit.notes, note];

@@ -28,6 +28,13 @@ describe('restful routes', () => {
     expect(results.length).toEqual(1);
   });
 
+  it('should add a department', async () => {
+    const name = 'Test Department 1';
+    await app.post('/department').send({ name });
+    const results = db.objects('department').filtered('name = $0', name);
+    expect(results.length).toEqual(1);
+  });
+
   describe('adding a diagnosis', () => {
     const id = generateTestId();
     const code = 'Test TB_1';
@@ -73,5 +80,16 @@ describe('restful routes', () => {
       expect(results.length).toEqual(1);
       expect(results[0].name).toEqual(newName);
     });
+  });
+
+  xdescribe('patient journey', () => {
+    it('should create a visit', async () => {});
+    it('should change the department', async () => {});
+    it('should plan a move', async () => {});
+    it('should execute a move', async () => {});
+    it('should fail to execute a move without planning it first', () => {});
+    it('should cancel a planned move', async () => {});
+    it('should fail to cancel a planned move if none exists', async () => {});
+    it('should update the visit type', async () => {});
   });
 });

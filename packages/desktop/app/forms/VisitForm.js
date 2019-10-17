@@ -72,7 +72,6 @@ const ReferralField = ({ referrals = [] }) => {
       disabled={referrals.length === 0}
       component={SelectField}
       options={referralOptions}
-      style={{ gridColumn: 'span 2' }}
     />
   );
 };
@@ -103,7 +102,7 @@ export class VisitForm extends React.PureComponent {
       return <StartPage setValue={setFieldValue} />;
     }
 
-    const { locationSuggester, practitionerSuggester, editedObject, referrals } = this.props;
+    const { locationSuggester, practitionerSuggester, departmentSuggester, editedObject, referrals } = this.props;
     const buttonText = editedObject ? 'Update visit' : 'Start visit';
 
     return (
@@ -121,6 +120,13 @@ export class VisitForm extends React.PureComponent {
           required
           component={DateField}
           options={visitOptions}
+        />
+        <Field
+          name="department._id"
+          label="Department"
+          required
+          component={AutocompleteField}
+          suggester={departmentSuggester}
         />
         <Field
           name="location._id"
@@ -167,6 +173,7 @@ export class VisitForm extends React.PureComponent {
         validationSchema={yup.object().shape({
           examiner: foreignKey('Examiner is required'),
           location: foreignKey('Location is required'),
+          department: foreignKey('Department is required'),
           startDate: yup.date().required(),
           visitType: yup
             .mixed()
