@@ -69,21 +69,6 @@ export const SearchButton = props => (
   </Button>
 );
 
-export const AlertButton = styled(Button)`
-  color: ${Colors.white};
-  background: ${Colors.alert};
-
-  :hover {
-    background: ${hexToRgba(Colors.alert, 0.08)};
-  }
-`;
-
-export const DischargeButton = props => (
-  <AlertButton variant="contained" {...props}>
-    Discharge Patient
-  </AlertButton>
-);
-
 export const CheckInButton = props => (
   <Button variant="contained" color="secondary" {...props}>
     Check In
