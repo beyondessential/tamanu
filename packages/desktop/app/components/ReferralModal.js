@@ -15,17 +15,17 @@ const DumbReferralModal = React.memo(
     practitionerSuggester,
     onClose,
     onCreateReferral,
-    locationSuggester,
+    departmentSuggester,
     facilitySuggester,
   }) => {
     return (
-      <Modal title="Check in" open={open} onClose={onClose}>
+      <Modal title="New referral" open={open} onClose={onClose}>
         <ReferralForm
           onSubmit={onCreateReferral}
           onCancel={onClose}
           practitionerSuggester={practitionerSuggester}
           icd10Suggester={icd10Suggester}
-          locationSuggester={locationSuggester}
+          departmentSuggester={departmentSuggester}
           facilitySuggester={facilitySuggester}
         />
       </Modal>
@@ -41,5 +41,5 @@ export const ReferralModal = connectApi((api, dispatch, { patientId }) => ({
   icd10Suggester: new Suggester(api, 'icd10'),
   practitionerSuggester: new Suggester(api, 'practitioner'),
   facilitySuggester: new Suggester(api, 'facility'),
-  locationSuggester: new Suggester(api, 'location'),
+  departmentSuggester: new Suggester(api, 'department'),
 }))(DumbReferralModal);
