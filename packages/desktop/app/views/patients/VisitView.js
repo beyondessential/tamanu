@@ -14,6 +14,8 @@ import { ChangeTypeModal } from '../../components/ChangeTypeModal';
 import { ChangeDepartmentModal } from '../../components/ChangeDepartmentModal';
 import { LabRequestModal } from '../../components/LabRequestModal';
 import { LabRequestsTable } from '../../components/LabRequestsTable';
+import { ImagingRequestModal } from '../../components/ImagingRequestModal';
+import { ImagingRequestsTable } from '../../components/ImagingRequestsTable';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { TabDisplay } from '../../components/TabDisplay';
@@ -81,6 +83,22 @@ const LabsPane = React.memo(({ visit }) => {
   );
 });
 
+const ImagingPane = React.memo(({ visit }) => {
+  const [modalOpen, setModalOpen] = React.useState(false);
+
+  return (
+    <div>
+      <ImagingRequestModal open={modalOpen} visit={visit} onClose={() => setModalOpen(false)} />
+      <ImagingRequestsTable imagingRequests={visit.imagingRequests} />
+      <ContentPane>
+        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+          New imaging request
+        </Button>
+      </ContentPane>
+    </div>
+  );
+});
+
 const MedicationPane = React.memo(({ visit }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
@@ -116,6 +134,11 @@ const TABS = [
     label: 'Labs',
     key: 'labs',
     render: ({ visit }) => <LabsPane visit={visit} />,
+  },
+  {
+    label: 'Imaging',
+    key: 'imaging',
+    render: ({ visit }) => <ImagingPane visit={visit} />,
   },
   {
     label: 'Medication',

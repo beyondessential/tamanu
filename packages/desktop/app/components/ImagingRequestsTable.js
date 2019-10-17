@@ -22,12 +22,12 @@ const StatusDisplay = React.memo(({ status }) => (
 
 const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || 'Unknown';
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
-const getRequestType = ({ category }) => (category || {}).name || 'Unknown';
+const getRequestType = ({ type }) => (type || {}).name || 'Unknown';
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
 
 const columns = [
   { key: '_id', title: 'Request ID' },
-  { key: 'imagingRequestType', title: 'Type', accessor: getRequestType },
+  { key: 'type', title: 'Type', accessor: getRequestType },
   { key: 'status', title: 'Status', accessor: getStatus },
   { key: 'displayName', title: 'Requested by', accessor: getDisplayName },
   { key: 'requestedDate', title: 'Date', accessor: getDate },

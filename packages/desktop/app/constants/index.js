@@ -81,6 +81,17 @@ export const IMAGING_REQUEST_STATUSES = {
   COMPLETED: 'completed',
 };
 
+export const IMAGING_REQUEST_STATUS_LABELS = {
+  [IMAGING_REQUEST_STATUSES.PENDING]: 'Pending',
+  [IMAGING_REQUEST_STATUSES.COMPLETED]: 'Completed',
+};
+
+export const IMAGING_REQUEST_COLORS = {
+  [IMAGING_REQUEST_STATUSES.PENDING]: '#aaf',
+  [IMAGING_REQUEST_STATUSES.COMPLETED]: '#afa',
+  unknown: '#333',
+};
+
 export const columnStyle = {
   backgroundColor: Colors.white,
   height: '60px',

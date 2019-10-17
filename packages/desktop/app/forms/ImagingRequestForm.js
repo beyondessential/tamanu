@@ -140,16 +140,6 @@ export class ImagingRequestForm extends React.PureComponent {
           sampleTime: yup.date().required(),
           requestedDate: yup.date().required(),
         })}
-        validate={values => {
-          // there's a bug in formik for handling `yup.mixed.test` so just do it manually here
-          const { testTypes = {} } = values;
-          if (Object.keys(testTypes).length === 0) {
-            return {
-              testTypes: 'At least one test must be selected',
-            };
-          }
-          return {};
-        }}
       />
     );
   }
