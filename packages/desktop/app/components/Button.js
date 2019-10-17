@@ -10,7 +10,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import { red } from '@material-ui/core/colors';
 import { checkAbility } from '../utils/ability';
-import { history } from '../utils';
+import { hexToRgba } from '../utils';
 import { Colors } from '../constants';
 
 export const ButtonBase = props => {
@@ -74,7 +74,7 @@ const AlertButton = styled(Button)`
   border: 1px solid ${Colors.alert};
 
   :hover {
-    background: rgba(247, 104, 83, 0.08);
+    background: ${hexToRgba(Colors.alert, 0.08)};
   }
 `;
 
