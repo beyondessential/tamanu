@@ -63,21 +63,25 @@ const MedicineRow = ({ medication }) => (
 const VisitOverview = ({ visit }) => (
   <ReadonlyFields>
     <DateInput label="Admission date" value={visit.startDate} disabled />
-    <TextInput label="Supervising Physician" value={visit.examiner.name} disabled />
+    <TextInput
+      label="Supervising Physician"
+      value={visit.examiner ? visit.examiner.displayName : '-'}
+      disabled
+    />
     <div>
       <Label>Discharge medicines</Label>
       <ul>
-        {visit.medications.map(m => (
-          <MedicineRow key={m} medication={m} />
-        ))}
+        {visit.medications.length > 0
+          ? visit.medications.map(m => <MedicineRow key={m} medication={m} />)
+          : 'N/a'}
       </ul>
     </div>
     <div>
       <Label>Procedures</Label>
       <ul>
-        {visit.procedures.map(({ cptCode }) => (
-          <ProcedureRow key={cptCode} cpt={cptCode} />
-        ))}
+        {visit.procedures.length > 0
+          ? visit.procedures.map(({ cptCode }) => <ProcedureRow key={cptCode} cpt={cptCode} />)
+          : 'N/a'}
       </ul>
     </div>
     <FullWidthFields>
