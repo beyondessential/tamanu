@@ -5,10 +5,10 @@ import { objectToJSON } from '../../utils';
 
 export const visitRoutes = express.Router();
 
-function addSystemNote(visit, content, type = 'system') {
+function addSystemNote(visit, content) {
   const note = {
     _id: shortid.generate(),
-    type,
+    type: 'system',
     content,
   };
 
@@ -39,6 +39,10 @@ visitRoutes.put('/visit/:id/department', (req, res) => {
 
   if (department._id !== visit.department._id) {
     const newDepartment = db.objectForPrimaryKey('department', department._id);
+    if (!newDepartment) {
+      throw new Error('Invalid department ID');
+    }
+
     db.write(() => {
       addSystemNote(
         visit,

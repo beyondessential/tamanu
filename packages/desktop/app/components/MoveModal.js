@@ -54,7 +54,7 @@ const CancelMoveForm = ({ onSubmit, visit, onClose }) => (
   </FormGrid>
 );
 
-const MoverModal = connectApi((api, dispatch, { visit, endpoint }) => ({
+const BaseMoveModal = connectApi((api, dispatch, { visit, endpoint }) => ({
   locationSuggester: new Suggester(api, 'location'),
   onSubmit: async data => {
     await api.put(`visit/${visit._id}/${endpoint}`, data);
@@ -67,18 +67,25 @@ const MoverModal = connectApi((api, dispatch, { visit, endpoint }) => ({
 ));
 
 export const BeginMoveModal = props => (
-  <MoverModal
+  <BaseMoveModal
     {...props}
     Component={BeginMoveForm}
     title="Move patient"
     endpoint="plannedLocation"
   />
 );
+
 export const FinaliseMoveModal = props => (
-  <MoverModal {...props} Component={FinaliseMoveForm} title="Finalise move" endpoint="location" />
+  <BaseMoveModal
+    {...props}
+    Component={FinaliseMoveForm}
+    title="Finalise move"
+    endpoint="location"
+  />
 );
+
 export const CancelMoveModal = props => (
-  <MoverModal
+  <BaseMoveModal
     {...props}
     Component={CancelMoveForm}
     title="Cancel move"
