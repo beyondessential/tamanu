@@ -18,7 +18,9 @@
   service: awsdeployment
   tag: dev
   command: ./scripts/push.sh
-- name: deploy
+
+- type: manual
+  name: deploy_demo_server
   service: app
   tag: dev
   command: ./scripts/deploy.sh demo
