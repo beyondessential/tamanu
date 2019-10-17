@@ -8,7 +8,7 @@ import { Modal } from './Modal';
 import { DiagnosisForm } from '../forms/DiagnosisForm';
 
 const DumbDiagnosisModal = React.memo(({ diagnosis, onClose, onSaveDiagnosis, icd10Suggester }) => (
-  <Modal title="Diag" open={!!diagnosis} onClose={onClose}>
+  <Modal title="Diagnosis" open={!!diagnosis} onClose={onClose}>
     <DiagnosisForm
       onSave={onSaveDiagnosis}
       onCancel={onClose}
