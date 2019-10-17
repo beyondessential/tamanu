@@ -91,7 +91,7 @@ const StyledImageButton = styled(ImageButton)`
   box-shadow: none;
 `;
 
-const AdmitButton = styled(StyledImageButton)`
+const FirstButton = styled(StyledImageButton)`
   border-left: 1px solid ${Colors.outline};
   border-right: 1px solid ${Colors.outline};
 `;
@@ -110,9 +110,9 @@ export const PatientVisitSummary = ({ visits, viewVisit, openCheckin, openTriage
         <Content notAdmitted>
           <Title notAdmitted>Not currently admitted</Title>
           <Actions>
-            <AdmitButton src={medicationIcon} title="Admit" onClick={openCheckin}>
+            <FirstButton src={medicationIcon} title="Admit" onClick={openCheckin}>
               Admit
-            </AdmitButton>
+            </FirstButton>
             <StyledImageButton src={profileIcon} title="Triage" onClick={openTriage}>
               Triage
             </StyledImageButton>

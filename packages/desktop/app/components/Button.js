@@ -10,7 +10,6 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import { red } from '@material-ui/core/colors';
 import { checkAbility } from '../utils/ability';
-import { hexToRgba } from '../utils';
 import { Colors } from '../constants';
 
 export const ButtonBase = props => {
