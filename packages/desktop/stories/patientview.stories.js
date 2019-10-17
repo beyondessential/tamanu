@@ -2,7 +2,7 @@ import React from 'react';
 
 import { storiesOf } from '@storybook/react';
 
-import { createDummyPatient } from 'Shared/utils';
+import { createDummyPatient } from 'Shared/demoData';
 
 import { PatientInfoPane } from '../app/components/PatientInfoPane';
 import { InfoPaneList } from '../app/components/InfoPaneList';

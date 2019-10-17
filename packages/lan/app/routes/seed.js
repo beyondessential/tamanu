@@ -1,6 +1,6 @@
 import shortid from 'shortid';
 
-import { LOCATIONS, PRACTITIONERS, createDummyPatient } from 'Shared/utils';
+import { LOCATIONS, PRACTITIONERS, createDummyPatient } from 'Shared/demoData';
 
 const GENERATORS = {
   location: () => LOCATIONS,

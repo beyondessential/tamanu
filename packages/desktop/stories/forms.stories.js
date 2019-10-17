@@ -12,7 +12,7 @@ import {
   FACILITY_SUGGESTIONS,
   DIAGNOSIS_SUGGESTIONS,
   DRUG_SUGGESTIONS,
-} from 'Shared/utils';
+} from 'Shared/demoData';
 import { LoginView } from '../app/views/LoginView';
 import { VisitForm } from '../app/forms/VisitForm';
 import { TriageForm } from '../app/forms/TriageForm';
