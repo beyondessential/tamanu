@@ -10,7 +10,6 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import { red } from '@material-ui/core/colors';
 import { checkAbility } from '../utils/ability';
-import { hexToRgba } from '../utils';
 import { Colors } from '../constants';
 
 export const ButtonBase = props => {
@@ -69,21 +68,6 @@ export const SearchButton = props => (
   </Button>
 );
 
-const AlertButton = styled(Button)`
-  color: ${Colors.alert};
-  border: 1px solid ${Colors.alert};
-
-  :hover {
-    background: ${hexToRgba(Colors.alert, 0.08)};
-  }
-`;
-
-export const DischargeButton = props => (
-  <AlertButton variant="contained" {...props}>
-    Discharge Patient
-  </AlertButton>
-);
-
 export const CheckInButton = props => (
   <Button variant="contained" color="secondary" {...props}>
     Check In
@@ -91,7 +75,7 @@ export const CheckInButton = props => (
 );
 
 export const CheckOutButton = props => (
-  <Button variant="contained" color="secondary" {...props} s>
+  <Button variant="contained" color="secondary" {...props}>
     Check Out
   </Button>
 );
