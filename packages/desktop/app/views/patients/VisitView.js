@@ -128,6 +128,7 @@ const TABS = [
   },
 ];
 
+const getDepartmentName = ({ department }) => (department ? department.name : 'Unknown');
 const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
 const getExaminerName = ({ examiner }) => (examiner ? examiner.displayName : 'Unknown');
 
@@ -135,6 +136,7 @@ const VisitInfoPane = React.memo(({ visit }) => (
   <FormGrid columns={3}>
     <DateInput value={visit.startDate} label="Arrival date" />
     <DateInput value={visit.endDate} label="Discharge date" />
+    <TextInput value={getDepartmentName(visit)} label="Department" />
     <TextInput value={getLocationName(visit)} label="Location" />
     <SelectInput value={visit.visitType} label="Visit type" options={visitOptions} />
     <TextInput value={getExaminerName(visit)} label="Doctor/nurse" />
