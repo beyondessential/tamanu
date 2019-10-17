@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import { Colors } from '../constants';
+import { hexToRgba } from '../utils';
 
 const DiagnosisListContainer = styled.div`
   display: flex;
@@ -27,7 +28,8 @@ const Category = styled.div`
 `;
 
 const DiagnosisName = styled.span`
-  background: ${props => (props.isPrimary ? 'rgba(50,102,153,0.1)' : 'rgba(247, 104, 83, 0.1)')};
+  background: ${props =>
+    props.isPrimary ? `${hexToRgba(Colors.primary, 0.1)}` : `${hexToRgba(Colors.alert, 0.1)}`};
   color: ${props => (props.isPrimary ? Colors.primary : Colors.alert)};
   font-weight: 500;
   padding: 10px;
