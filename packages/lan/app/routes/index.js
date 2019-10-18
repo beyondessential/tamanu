@@ -3,15 +3,21 @@ import { restfulRoutes } from './restful';
 import AuthRoutes from './auth';
 import { suggestionRoutes } from './suggestions';
 import { adminRoutes } from './admin';
-import { authMiddleware, loginHandler } from '../controllers/auth/middleware';
+import { getAuthMiddleware, loginHandler } from '../controllers/auth/middleware';
 import { seed } from './seed';
+import { objectToJSON } from '../utils';
 
 const router = express.Router();
 router.use('/auth', AuthRoutes);
 
 // any route added _after_ this one will require a correctly authed user
 router.use('/login', loginHandler);
-router.use(authMiddleware);
+
+router.use(getAuthMiddleware());
+
+router.use('/whoami', (req, res) => {
+  res.send(objectToJSON(req.user));
+});
 
 router.use('/suggestions', suggestionRoutes);
 router.use('/admin', adminRoutes);

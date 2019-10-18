@@ -65,13 +65,13 @@ function getUserFromToken(request) {
   const token = bearer[1];
   try {
     const { userId } = decodeToken(token);
-    return findUser(request.app.get('database'), userId);
+    return findUser(request.db, userId);
   } catch (e) {
     return null;
   }
 }
 
-export const authMiddleware = (req, res, next) => {
+const authMiddleware = (req, res, next) => {
   const user = getUserFromToken(req);
   if (!user) {
     res.status(403);
@@ -80,4 +80,26 @@ export const authMiddleware = (req, res, next) => {
 
   req.user = user;
   next();
+};
+
+function getDebugUser(req) {
+  const { db } = req;
+  const user = db.objects('user')[0];
+  return user;
+}
+
+const debugAuthMiddleware = (req, res, next) => {
+  const user = getUserFromToken(req) || getDebugUser(req);
+  req.user = user;
+  next();
+};
+
+export const getAuthMiddleware = () => {
+  switch(process.env.NODE_ENV) {
+    case 'test':
+    case 'development':
+      return debugAuthMiddleware;
+    default:
+      return authMiddleware;
+  }
 };
