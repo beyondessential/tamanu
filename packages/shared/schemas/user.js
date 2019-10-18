@@ -50,17 +50,17 @@ export const UserSchema = {
       type: 'list',
       objectType: 'userRole',
     },
-    hospitals: {
+    facilities: {
       type: 'linkingObjects',
-      objectType: 'hospital',
+      objectType: 'facility',
       property: 'users',
     },
     ...defaults,
   },
   filter: (object, client) => {
     let valid = false;
-    object.hospitals.forEach(hospital => {
-      if (hospital._id === client.hospitalId) valid = true;
+    object.facilities.forEach(facility => {
+      if (facility._id === client.facilityId) valid = true;
     });
     return valid;
   },

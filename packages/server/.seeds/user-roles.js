@@ -1,83 +1,135 @@
-export default (database) => {
+export default database => {
   const baseRules = [
-    { // allow 'read' for [models]
+    {
+      // allow 'read' for [models]
       actions: ['read'],
-      subject: ['userRole', 'user', 'view', 'role']
-    }, { // allow 'read' for [models]
+      subject: ['userRole', 'user', 'view', 'role'],
+    },
+    {
+      // allow 'read' for [models]
       actions: ['read'],
-      subject: ['hospital'],
-      conditions: { "_id": "${hospitalId}" }
-    }, {
+      subject: ['facility'],
+      conditions: { _id: '${facilityId}' },
+    },
+    {
       actions: ['manage'],
-      subject: ['modifiedField']
-    }, {
+      subject: ['modifiedField'],
+    },
+    {
       actions: ['update'],
-      subject: ['hospital'],
+      subject: ['facility'],
       fields: ['objectsFullySynced', 'modifiedBy', 'modifiedAt', 'modifiedFields', 'fullySynced'],
-    }, { // don't allow 'delete' action for [model]
+    },
+    {
+      // don't allow 'delete' action for [model]
       actions: ['delete'],
       subject: [
-        'userRole', 'user', 'view', 'program', 'question', 'surveyGroup', 'modifiedField',
-        'surveyResponse', 'surveyScreenComponent', 'surveyScreen', 'survey', 'answer'
+        'userRole',
+        'user',
+        'view',
+        'program',
+        'question',
+        'surveyGroup',
+        'modifiedField',
+        'surveyResponse',
+        'surveyScreenComponent',
+        'surveyScreen',
+        'survey',
+        'answer',
       ],
-      inverted: true
-    }
+      inverted: true,
+    },
   ];
 
   const fillSurveys = [
-    { // allow 'create' for [models]
+    {
+      // allow 'create' for [models]
       actions: ['create'],
-      subject: ['surveyResponse', 'answer']
-    }, { // allow 'read' for [models]
+      subject: ['surveyResponse', 'answer'],
+    },
+    {
+      // allow 'read' for [models]
       actions: ['read'],
       subject: [
-        'program', 'question', 'surveyGroup', 'surveyResponse',
-        'surveyScreenComponent', 'surveyScreen', 'survey'
-      ]
-    }
+        'program',
+        'question',
+        'surveyGroup',
+        'surveyResponse',
+        'surveyScreenComponent',
+        'surveyScreen',
+        'survey',
+      ],
+    },
   ];
 
   const seniorDoctor = [
     ...baseRules,
     ...fillSurveys,
-    { // allow CRUD actions for [models]
+    {
+      // allow CRUD actions for [models]
       actions: ['manage'],
       subject: [
-        'allergy', 'answer', 'appointment', 'diagnosis', 'condition', 'lab', 'imaging', 'medicationHistory', 'medication', 'note',
-        'operationPlan', 'operationReport', 'patientContact', 'patient', 'photo', 'pregnancy',
-        'procedureMedication', 'procedure', 'report', 'visit', 'vital'
-      ]
-    }, { // don't allow create / update actions for patient's model
+        'allergy',
+        'answer',
+        'appointment',
+        'diagnosis',
+        'condition',
+        'lab',
+        'imaging',
+        'medicationHistory',
+        'medication',
+        'note',
+        'operationPlan',
+        'operationReport',
+        'patientContact',
+        'patient',
+        'photo',
+        'pregnancy',
+        'procedureMedication',
+        'procedure',
+        'report',
+        'visit',
+        'vital',
+      ],
+    },
+    {
+      // don't allow create / update actions for patient's model
       actions: ['create', 'delete'],
       subject: ['patient'],
-      inverted: true
-    }, { // don't allow 'update' for medication's `status` field
+      inverted: true,
+    },
+    {
+      // don't allow 'update' for medication's `status` field
       actions: ['update'],
       subject: ['medication'],
       fields: ['status'],
-      inverted: true
-    }
+      inverted: true,
+    },
   ];
 
   const juniorDoctor = [
-    ...seniorDoctor,  // all abilities from `seniorDoctor`
-    { // don't allow 'update' for [model]
+    ...seniorDoctor, // all abilities from `seniorDoctor`
+    {
+      // don't allow 'update' for [model]
       actions: ['update'],
       subject: ['lab', 'imaging'],
       fields: ['status'],
-      inverted: true
-    }, {
+      inverted: true,
+    },
+    {
       actions: ['delete'],
       subject: ['lab', 'imaging'],
-    }
+    },
   ];
 
-  const seniorNurse = [ // all abilities from `juniorDoctor`
+  const seniorNurse = [
+    // all abilities from `juniorDoctor`
     ...juniorDoctor,
-    { // don't allow 'delete' for [model]
+    {
+      // don't allow 'delete' for [model]
       actions: ['create'],
       subject: ['operationPlan', 'operationReport'],
-      inverted: true
+      inverted: true,
     },
   ];
 
@@ -87,10 +139,11 @@ export default (database) => {
     {
       actions: ['read'],
       subject: ['appointment', 'patient', 'medication', 'lab', 'imaging'],
-    }, {
+    },
+    {
       actions: ['create'],
       subject: ['note', 'vital'],
-    }
+    },
   ];
 
   const midwife = [
@@ -98,20 +151,22 @@ export default (database) => {
     {
       actions: ['create'],
       subject: ['appointment', 'diagnosis', 'condition'],
-      inverted: true
-    }, {
+      inverted: true,
+    },
+    {
       actions: ['create', 'delete'],
       subject: ['medication'],
-      inverted: true
+      inverted: true,
     },
   ];
 
   const pharmacy = [
     ...midwife,
-    { // don't allow 'update' for medication's `status` field
+    {
+      // don't allow 'update' for medication's `status` field
       actions: ['update'],
       subject: ['medication'],
-    }
+    },
   ];
 
   const appliedHealth = [
@@ -120,10 +175,11 @@ export default (database) => {
     {
       actions: ['read'],
       subject: ['appointment', 'patient', 'medication', 'lab'],
-    }, {
+    },
+    {
       actions: ['create'],
       subject: ['medication'],
-    }
+    },
   ];
 
   const admin = [
@@ -132,10 +188,11 @@ export default (database) => {
     {
       actions: ['manage'],
       subject: ['user', 'role', 'userRole', 'view', 'patient'],
-    }, {
+    },
+    {
       actions: ['read'],
       subject: ['medication'],
-    }
+    },
   ];
 
   const finance = [
@@ -144,7 +201,7 @@ export default (database) => {
     {
       actions: ['read'],
       subject: ['appointment', 'patient', 'medication'],
-    }
+    },
   ];
 
   const radiology = [
@@ -153,10 +210,11 @@ export default (database) => {
     {
       actions: ['read'],
       subject: ['appointment', 'patient', 'medication', 'lab'],
-    }, {
+    },
+    {
       actions: ['manage'],
       subject: ['imaging'],
-    }
+    },
   ];
 
   const lab = [
@@ -165,9 +223,10 @@ export default (database) => {
     {
       actions: ['read'],
       subject: ['appointment', 'patient', 'medication'],
-    }, {
+    },
+    {
       actions: ['manage'],
-      subject: ['lab']
+      subject: ['lab'],
     },
   ];
 
@@ -175,69 +234,69 @@ export default (database) => {
     {
       actions: ['manage'],
       subject: ['all'],
-    }
+    },
   ];
 
   const roles = [
     {
       _id: 'senior-doctor',
       name: 'Senior Doctor',
-      abilities: JSON.stringify(seniorDoctor)
+      abilities: JSON.stringify(seniorDoctor),
     },
     {
       _id: 'junior-doctor',
       name: 'Junior Doctor',
-      abilities: JSON.stringify(juniorDoctor)
+      abilities: JSON.stringify(juniorDoctor),
     },
     {
       _id: 'senior-nurse',
       name: 'Senior Nurse',
-      abilities: JSON.stringify(seniorNurse)
+      abilities: JSON.stringify(seniorNurse),
     },
     {
       _id: 'junior-nurse',
       name: 'Junior Nurse',
-      abilities: JSON.stringify(juniorNurse)
+      abilities: JSON.stringify(juniorNurse),
     },
     {
       _id: 'midwife',
       name: 'Midwife',
-      abilities: JSON.stringify(midwife)
+      abilities: JSON.stringify(midwife),
     },
     {
       _id: 'pharmacy',
       name: 'Pharmacy',
-      abilities: JSON.stringify(pharmacy)
+      abilities: JSON.stringify(pharmacy),
     },
     {
       _id: 'applied-health',
       name: 'Applied Health',
-      abilities: JSON.stringify(appliedHealth)
+      abilities: JSON.stringify(appliedHealth),
     },
     {
       _id: 'admin',
       name: 'Admin',
-      abilities: JSON.stringify(admin)
+      abilities: JSON.stringify(admin),
     },
     {
       _id: 'finance',
       name: 'Finance',
-      abilities: JSON.stringify(finance)
+      abilities: JSON.stringify(finance),
     },
     {
       _id: 'radiology',
       name: 'Radiology',
-      abilities: JSON.stringify(radiology)
+      abilities: JSON.stringify(radiology),
     },
     {
       _id: 'lab',
       name: 'Lab',
-      abilities: JSON.stringify(lab)
+      abilities: JSON.stringify(lab),
     },
     {
       _id: 'super',
       name: 'Super',
-      abilities: JSON.stringify(superUser)
+      abilities: JSON.stringify(superUser),
     },
   ];
 

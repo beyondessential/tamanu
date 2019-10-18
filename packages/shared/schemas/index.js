@@ -8,7 +8,7 @@ const defaultSchema = {
   properties: {},
 };
 const schemas = Object.values(schemaObjects).map(schema => ({ ...defaultSchema, ...schema }));
-const version = 113;
+const version = 114;
 const schemaClasses = [];
 schemas.forEach(({ name, properties }) => {
   schemaClasses[name] = class {

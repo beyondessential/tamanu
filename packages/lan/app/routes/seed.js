@@ -1,32 +1,41 @@
 import shortid from 'shortid';
 
-import { LOCATIONS, PRACTITIONERS, createDummyPatient } from 'Shared/utils';
+import {
+  ALLERGIES,
+  createDummyPatient,
+  DEPARTMENTS,
+  DIAGNOSES,
+  DRUGS,
+  FACILITIES,
+  LOCATIONS,
+  USERS,
+} from 'Shared/demoData';
 
 const GENERATORS = {
+  allergy: () => ALLERGIES,
+  department: () => DEPARTMENTS,
+  diagnosis: () => DIAGNOSES,
+  drug: () => DRUGS,
+  facility: () => FACILITIES,
   location: () => LOCATIONS,
-  practitioner: () => PRACTITIONERS,
-  patient: count => new Array(count).fill(0).map(() => createDummyPatient()),
-};
-
-const RESOURCE_TO_RECORD_TYPE = {
-  practitioner: 'user',
+  patient: (db, count) => new Array(count).fill(0).map(() => createDummyPatient(db)),
+  user: () => USERS,
 };
 
 const generateAndWrite = (db, resource, count) => {
-  const items = GENERATORS[resource](count);
+  const items = GENERATORS[resource](db, count);
   let recordsWritten = [];
   db.write(() => {
     recordsWritten = items
       .map(({ _id, ...restOfItem }) => {
-        const recordType = RESOURCE_TO_RECORD_TYPE[resource] || resource;
-        if (db.objects(recordType).filtered('_id = $0', _id).length > 0) {
+        if (db.objects(resource).filtered('_id = $0', _id).length > 0) {
           return null; // no need to re-seed this, as it already exists in the db
         }
         const newItem = {
           _id: _id || shortid.generate(),
           ...restOfItem,
         };
-        db.create(recordType, newItem);
+        db.create(resource, newItem);
         return newItem;
       })
       .filter(x => x);
@@ -34,12 +43,16 @@ const generateAndWrite = (db, resource, count) => {
   return recordsWritten;
 };
 
+const SPECIAL_PLURALS = { diagnoses: 'diagnosis' };
+const singularise = plural =>
+  SPECIAL_PLURALS[plural] || plural.replace(/(s)$/, '').replace(/(ie)$/, 'y');
+
 export const seed = (req, res) => {
   const { db, body } = req;
   const recordsWritten = Object.entries(body)
     .filter(([key, shouldSeed]) => !!shouldSeed)
     .map(([key, count]) => {
-      const resource = key.replace(/(s|(Count))$/, '');
+      const resource = singularise(key.replace(/(Count)$/, ''));
       return generateAndWrite(db, resource, count);
     });
 

@@ -30,21 +30,21 @@ const validateBody = [
 
 const login = async (req, res) => {
   const { db, body } = req;
-  const { email, password, hospital, clientId } = body;
+  const { email, password, facility, clientId } = body;
   try {
     const authService = new AuthService(db);
     const doLogin = await authService.login({
       email,
       password,
-      hospital,
+      facility,
       clientId,
     });
     if (doLogin !== false) {
-      const { userId, hospitalId, displayName, clientSecret: secret } = doLogin;
-      const abilities = authService.getAbilities({ userId, hospitalId });
+      const { userId, facilityId, displayName, clientSecret: secret } = doLogin;
+      const abilities = authService.getAbilities({ userId, facilityId });
       return res.json({
         userId,
-        hospitalId,
+        facilityId,
         displayName,
         clientId,
         secret,

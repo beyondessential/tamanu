@@ -15,7 +15,7 @@ export default class Auth {
     this.issuer = 'realm-sync';
     this.errors = {
       InvalidCredentials: 'Invalid email or password entered.',
-      InvalidHospital: 'User not linked to any facility.',
+      InvalidFacility: 'User not linked to any facility.',
       invalidToken: 'Invalid credentials.',
     };
   }
@@ -23,14 +23,14 @@ export default class Auth {
   async login({
     email,
     password: passwordEntered,
-    hospital: hospitalSelected,
+    facility: facilitySelected,
     clientId,
     firstTimeLogin = false,
   }) {
     if (!isNumber(this.sessionTimeout)) throw new Error('Invalid session timeout.');
     const expiry = new Date().getTime() + this.sessionTimeout;
 
-    const { _id: userId, password, hospitals } = this.userExists({ email });
+    const { _id: userId, password, facilities } = this.userExists({ email });
     if (!userId) return Promise.reject(new Error(this.errors.InvalidCredentials));
 
     // Check user's password
@@ -38,28 +38,28 @@ export default class Auth {
     if (err) console.error(err);
     if (!validPassword || err) return Promise.reject(new Error(this.errors.InvalidCredentials));
 
-    // Validate hospital
-    const checkHospitalResponse = this.checkHospital({
-      hospitals,
-      hospitalSelected,
+    // Validate facility
+    const checkFacilityResponse = this.checkFacility({
+      facilities,
+      facilitySelected,
       firstTimeLogin,
     });
-    if (checkHospitalResponse === false)
-      return Promise.reject(new Error(this.errors.InvalidHospital));
-    if (Array.isArray(checkHospitalResponse)) {
+    if (checkFacilityResponse === false)
+      return Promise.reject(new Error(this.errors.InvalidFacility));
+    if (Array.isArray(checkFacilityResponse)) {
       return {
-        action: 'select-hospital',
-        options: checkHospitalResponse,
+        action: 'select-facility',
+        options: checkFacilityResponse,
       };
     }
 
-    const { _id: hospitalId } = checkHospitalResponse;
-    if (!hospitalId) return Promise.reject(new Error(this.errors.InvalidHospital));
+    const { _id: facilityId } = checkFacilityResponse;
+    if (!facilityId) return Promise.reject(new Error(this.errors.InvalidFacility));
 
     // Register the client
-    const clientSecret = this.generateJWTToken({ hospitalId, userId });
+    const clientSecret = this.generateJWTToken({ facilityId, userId });
     return this.addClient({
-      hospitalId,
+      facilityId,
       userId,
       clientId,
       clientSecret,
@@ -80,28 +80,28 @@ export default class Auth {
     return false;
   }
 
-  checkHospital({ hospitals, hospitalSelected, firstTimeLogin }) {
-    if (isEmpty(hospitals)) throw this.errors.InvalidHospital;
-    if (hospitals.length > 1 && !hospitalSelected) {
-      return hospitals.map(({ _id, name }) => ({ _id, name }));
+  checkFacility({ facilities, facilitySelected, firstTimeLogin }) {
+    if (isEmpty(facilities)) throw this.errors.InvalidFacility;
+    if (facilities.length > 1 && !facilitySelected) {
+      return facilities.map(({ _id, name }) => ({ _id, name }));
     }
 
-    if (hospitalSelected) {
-      const hospital = hospitals.find(({ _id }) => _id === hospitalSelected);
-      if (hospital) return hospital;
+    if (facilitySelected) {
+      const facility = facilities.find(({ _id }) => _id === facilitySelected);
+      if (facility) return facility;
     }
 
-    if (firstTimeLogin && hospitals.length > 0) return head(hospitals);
+    if (firstTimeLogin && facilities.length > 0) return head(facilities);
     return false;
   }
 
-  addClient({ hospitalId, userId, clientId, clientSecret, expiry }) {
+  addClient({ facilityId, userId, clientId, clientSecret, expiry }) {
     let client;
     this.database.write(() => {
       client = this.database.create(
         'client',
         {
-          hospitalId,
+          facilityId,
           userId,
           clientId,
           clientSecret,
@@ -134,9 +134,9 @@ export default class Auth {
     }
   }
 
-  generateJWTToken({ userId, hospitalId, ...opts }) {
+  generateJWTToken({ userId, facilityId, ...opts }) {
     if (!this.secret) throw new Error('JWT secret not set');
-    const payload = { userId, hospitalId };
+    const payload = { userId, facilityId };
     return jwt.sign(payload, this.secret, {
       expiresIn: '2w',
       issuer: this.issuer,
@@ -162,10 +162,10 @@ export default class Auth {
 
   /**
    * Validate user permissions
-   * @param {user, hospitalId, action, subject, fields} param
+   * @param {user, facilityId, action, subject, fields} param
    */
-  validatePermissions({ user, hospitalId, action, subject, fields }) {
-    if (!user || !hospitalId || !action || !subject) return false;
+  validatePermissions({ user, facilityId, action, subject, fields }) {
+    if (!user || !facilityId || !action || !subject) return false;
     if (typeof user === 'string') user = this.database.findOne('user', user);
     this.user = user;
 
@@ -179,7 +179,7 @@ export default class Auth {
       return false;
     }
 
-    const abilities = this.getAbilities({ userId: user._id, hospitalId });
+    const abilities = this.getAbilities({ userId: user._id, facilityId });
     if (abilities === false) {
       console.error('No abilities for user', user._id);
       return false;
@@ -207,7 +207,7 @@ export default class Auth {
     return true;
   }
 
-  getAbilities({ hospitalId, userId, ...props }) {
+  getAbilities({ facilityId, userId, ...props }) {
     try {
       let { user } = this;
       if (!user && userId) {
@@ -215,12 +215,12 @@ export default class Auth {
       }
       if (!user) return false;
       const { roles } = user;
-      const userRole = roles.find(({ hospital }) => hospital._id === hospitalId);
+      const userRole = roles.find(({ facility }) => facility._id === facilityId);
       if (!userRole) return false;
 
       const { role } = userRole;
       let { abilities } = role;
-      abilities = template(abilities)({ hospitalId, ...props });
+      abilities = template(abilities)({ facilityId, ...props });
       if (abilities) abilities = JSON.parse(abilities);
       return abilities;
     } catch (error) {
