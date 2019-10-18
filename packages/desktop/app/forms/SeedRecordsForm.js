@@ -1,6 +1,5 @@
 import React, { memo, useCallback } from 'react';
 import { Collapse } from '@material-ui/core';
-import * as yup from 'yup';
 
 import { Form, Field, CheckField, CheckInput, NumberField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
@@ -20,6 +19,8 @@ export const SeedRecordsForm = memo(({ onSubmit }) => {
         <Field name="diagnoses" label="Diagnoses" component={CheckField} />
         <Field name="drugs" label="Drugs" component={CheckField} />
         <Field name="facilities" label="Facilities" component={CheckField} />
+        <Field name="imagingTypes" label="Imaging types" component={CheckField} />
+        <Field name="labTestTypes" label="Lab test types" component={CheckField} />
         <Field name="locations" label="Locations" component={CheckField} />
         <Field name="users" label="Users" component={CheckField} />
         <CheckInput
@@ -50,20 +51,12 @@ export const SeedRecordsForm = memo(({ onSubmit }) => {
         diagnoses: true,
         drugs: true,
         facilities: true,
+        imagingTypes: true,
+        labTestTypes: true,
         locations: true,
         users: true,
         patientCount: DEFAULT_PATIENT_COUNT,
       }}
-      validationSchema={yup.object().shape({
-        allergies: yup.boolean(),
-        departments: yup.boolean(),
-        diagnoses: yup.boolean(),
-        drugs: yup.boolean(),
-        facilities: yup.boolean(),
-        locations: yup.boolean(),
-        users: yup.boolean(),
-        patientCount: yup.number(),
-      })}
     />
   );
 });
