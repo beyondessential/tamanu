@@ -20,8 +20,8 @@ export const ImagingRequestSchema = {
     },
     requestedBy: 'user',
     requestedDate: 'date',
-    reviewedBy: 'user',
-    reviewedDate: 'date',
+    reviewedBy: 'user?',
+    reviewedDate: 'date?',
     visit: {
       type: 'linkingObjects',
       objectType: 'visit',
