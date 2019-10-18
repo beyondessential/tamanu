@@ -15,7 +15,9 @@ import { DateInput, TextInput, DateTimeInput } from '../../components/Field';
 
 import { IMAGING_REQUEST_STATUS_LABELS } from '../../constants';
 
-const NotesPane = React.memo(({ imagingRequest }) => <ContentPane>{imagingRequest.notes}</ContentPane>);
+const NotesPane = React.memo(({ imagingRequest }) => (
+  <ContentPane>{imagingRequest.notes}</ContentPane>
+));
 
 const columns = [
   { title: 'Test', key: 'type', accessor: row => row.type.name },
@@ -50,10 +52,18 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest }) => (
     <TextInput value={imagingRequest._id} label="Request ID" />
     <TextInput value={(imagingRequest.category || {}).name} label="Request type" />
     <TextInput value={imagingRequest.urgent ? 'Urgent' : 'Standard'} label="Urgency" />
-    <TextInput value={IMAGING_REQUEST_STATUS_LABELS[imagingRequest.status] || 'Unknown'} label="Status" />
+    <TextInput
+      value={IMAGING_REQUEST_STATUS_LABELS[imagingRequest.status] || 'Unknown'}
+      label="Status"
+    />
     <DateInput value={imagingRequest.requestedDate} label="Requested date" />
     <DateTimeInput value={imagingRequest.sampleTime} label="Sample date" />
-    <TextInput multiline value={imagingRequest.notes} label="Notes" style={{ gridColumn: '1 / -1' }} />
+    <TextInput
+      multiline
+      value={imagingRequest.notes}
+      label="Notes"
+      style={{ gridColumn: '1 / -1' }}
+    />
   </FormGrid>
 ));
 
