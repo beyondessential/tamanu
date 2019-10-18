@@ -20,6 +20,10 @@ function randomDate(minDaysAgo = 1, maxDaysAgo = 365) {
   return new Date(Date.now() - ago);
 }
 
+function randomDateBetween(start, end) {
+  return new Date(chance.natural({ min: start.getTime(), max: end.getTime() }));
+}
+
 const randomRecord = (db, recordType, dummyData) => {
   const allRecords = db ? db.objects(recordType) : dummyData;
   return chance.pick(allRecords);
@@ -28,6 +32,7 @@ const randomRecord = (db, recordType, dummyData) => {
 const randomUser = db => randomRecord(db, 'user', USERS);
 const randomLocation = db => randomRecord(db, 'location', LOCATIONS);
 const randomDepartment = db => randomRecord(db, 'department', DEPARTMENTS);
+const randomDiagnosis = db => randomRecord(db, 'diagnosis', DIAGNOSES);
 
 function randomAllergies(db) {
   const amount = chance.natural({ max: 3 });
@@ -43,10 +48,9 @@ function randomAllergies(db) {
 function randomConditions(db) {
   if (!db) return [];
   const amount = chance.natural({ max: 3 });
-  const allDiagnoses = db ? db.objects('diagnosis').slice() : DIAGNOSES;
-  return chance.pickset(allDiagnoses, amount).map(condition => ({
+  return new Array(amount).fill(0).map(() => ({
     _id: shortid.generate(),
-    condition,
+    condition: randomDiagnosis(db),
     practitioner: randomUser(db),
     date: randomDate(),
   }));
@@ -67,11 +71,29 @@ function randomVitals(overrides) {
   };
 }
 
+function randomPatientDiagnosis(db, overrides) {
+  return {
+    _id: shortid.generate(),
+    date: randomDate(),
+    diagnosis: randomDiagnosis(db),
+    certainty: chance.pick(['suspected', 'confirmed']),
+    isPrimary: false,
+    ...overrides,
+  };
+}
+
 export function createDummyVisit(db, current = false) {
   const endDate = current ? new Date() : randomDate();
 
   const duration = chance.natural({ min: HOUR, max: HOUR * 10 });
   const startDate = new Date(endDate.getTime() - duration);
+  const primaryDiagnosis = randomPatientDiagnosis(db, {
+    date: randomDateBetween(startDate, endDate),
+    isPrimary: true,
+  });
+  const secondaryDiagnoses = new Array(chance.natural({ max: 3 }))
+    .fill(0)
+    .map(() => randomPatientDiagnosis(db, { date: randomDateBetween(startDate, endDate) }));
 
   return {
     _id: shortid.generate(),
@@ -91,7 +113,7 @@ export function createDummyVisit(db, current = false) {
     imaging: [],
     medications: [],
     documents: [],
-    diagnoses: [],
+    diagnoses: [primaryDiagnosis, ...secondaryDiagnoses],
   };
 }
 
