@@ -30,6 +30,7 @@ const Grid = styled.div`
   border-radius: 5px;
   background: ${Colors.white};
   width: ${props => props.notAdmitted && 'fit-content'};
+  cursor: pointer;
 `;
 
 const Header = styled.div`
@@ -124,7 +125,7 @@ export const PatientVisitSummary = ({ visits, viewVisit, openCheckin, openTriage
 
   const { startDate, location, visitType, reasonForVisit, _id, examiner } = visit;
   return (
-    <Grid visitType={visitType}>
+    <Grid visitType={visitType} onClick={() => viewVisit(_id)}>
       <Header>
         <HeaderInfo>
           <SubTitle>Current Admission</SubTitle>
@@ -134,7 +135,7 @@ export const PatientVisitSummary = ({ visits, viewVisit, openCheckin, openTriage
           </div>
         </HeaderInfo>
         <Actions>
-          <ViewButton onClick={() => viewVisit(_id)} variant="contained" color="primary">
+          <ViewButton variant="contained" color="primary">
             View
           </ViewButton>
         </Actions>
