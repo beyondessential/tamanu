@@ -7,6 +7,8 @@ import {
   DIAGNOSES,
   DRUGS,
   FACILITIES,
+  IMAGING_TYPES,
+  generateLabTestTypes,
   LOCATIONS,
   USERS,
 } from 'Shared/demoData';
@@ -17,15 +19,17 @@ const GENERATORS = {
   diagnosis: () => DIAGNOSES,
   drug: () => DRUGS,
   facility: () => FACILITIES,
+  imagingType: () => IMAGING_TYPES,
+  labTestType: generateLabTestTypes,
   location: () => LOCATIONS,
   patient: (db, count) => new Array(count).fill(0).map(() => createDummyPatient(db)),
   user: () => USERS,
 };
 
 const generateAndWrite = (db, resource, count) => {
-  const items = GENERATORS[resource](db, count);
-  let recordsWritten = [];
+  let recordsWritten;
   db.write(() => {
+    const items = GENERATORS[resource](db, count);
     recordsWritten = items
       .map(({ _id, ...restOfItem }) => {
         if (db.objects(resource).filtered('_id = $0', _id).length > 0) {

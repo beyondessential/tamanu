@@ -1,11 +1,10 @@
-import shortid from 'shortid';
-import { split } from './utils';
+import { splitIds } from './splitIds';
 
-const buildDiagnosis = d => {
-  const [name, code] = d.split(/\t/);
-  return { id: shortid.generate(), name, code };
+const buildDiagnosis = ({ _id, name: nameAndCode }) => {
+  const [name, code] = nameAndCode.split(/\t/);
+  return { _id, name, code };
 };
-export const DIAGNOSES = split(`
+export const DIAGNOSES = splitIds(`
   Acute axillary lymphadenitis	L04.2
   Acute bacterial infection	A49.9
   Acute bacterial otitis externa	H60.5

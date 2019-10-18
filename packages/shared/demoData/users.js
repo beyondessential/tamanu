@@ -1,4 +1,4 @@
-import { splitIds } from './utils';
+import { splitIds } from './splitIds';
 
 const buildUser = u => ({
   ...u,

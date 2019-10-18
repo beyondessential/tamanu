@@ -1,10 +1,10 @@
-export const makeId = s =>
+const makeId = s =>
   s
     .trim()
     .replace(/\s/g, '-')
     .replace(/[^\w-]/g, '')
     .toLowerCase();
-export const split = s =>
+const split = s =>
   s
     .split(/[\r\n]+/g)
     .map(x => x.trim())
