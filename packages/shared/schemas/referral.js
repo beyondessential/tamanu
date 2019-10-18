@@ -17,7 +17,7 @@ export const ReferralSchema = {
     diagnosis: 'diagnosis?',
     visit: 'visit?',
 
-    facility: 'hospital?',
+    facility: 'facility?',
     location: 'location?',
 
     // reverse links

@@ -1,8 +1,9 @@
-import { split, mapToSuggestions } from './utils';
+import shortid from 'shortid';
+import { split } from './utils';
 
 const buildDiagnosis = d => {
   const [name, code] = d.split(/\t/);
-  return { name, code };
+  return { id: shortid.generate(), name, code };
 };
 export const DIAGNOSES = split(`
   Acute axillary lymphadenitis	L04.2
@@ -5668,5 +5669,3 @@ export const DIAGNOSES = split(`
   Zoster	B02.9
   Zygomycosis	B46.9
 `).map(buildDiagnosis);
-
-export const DIAGNOSIS_SUGGESTIONS = mapToSuggestions(DIAGNOSES);

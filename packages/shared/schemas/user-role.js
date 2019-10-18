@@ -4,10 +4,10 @@ export const UserRoleSchema = {
   name: 'userRole',
   primaryKey: '_id',
   properties: {
-    // should be 'user._id:hospital._id:role._id'
+    // should be 'user._id:facility._id:role._id'
     _id: 'string',
-    hospital: {
-      type: 'hospital',
+    facility: {
+      type: 'facility',
     },
     role: {
       type: 'role',
@@ -19,10 +19,10 @@ export const UserRoleSchema = {
     },
     ...defaults,
   },
-  beforeSave: (db, { hospital, role, ...object }) => ({
+  beforeSave: (db, { facility, role, ...object }) => ({
     ...object,
-    hospital,
+    facility,
     role,
-    _id: `${hospital._id}:${role._id}`,
+    _id: `${facility._id}:${role._id}`,
   }),
 };

@@ -1,7 +1,7 @@
 import defaults from './defaults';
 
-export const HospitalSchema = {
-  name: 'hospital',
+export const FacilitySchema = {
+  name: 'facility',
   primaryKey: '_id',
   // sync: false,
   properties: {
@@ -20,7 +20,7 @@ export const HospitalSchema = {
   },
   filter: (object, client) => {
     let valid = false;
-    if (object._id === client.hospitalId) valid = true;
+    if (object._id === client.facilityId) valid = true;
     return valid;
   },
 };

@@ -1,4 +1,4 @@
-import { splitIds, mapToSuggestions } from './utils';
+import { splitIds } from './utils';
 
 export const FACILITIES = splitIds(`
   Balwyn
@@ -13,5 +13,3 @@ export const FACILITIES = splitIds(`
   Thornbury
   Traralgon
 `);
-
-export const FACILITY_SUGGESTIONS = mapToSuggestions(FACILITIES);

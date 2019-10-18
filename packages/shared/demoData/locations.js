@@ -1,11 +1,12 @@
-import { splitIds, mapToSuggestions } from './utils';
+import { splitIds } from './utils';
 
 export const LOCATIONS = splitIds(`
-  Ward 1
-  Ward 2
-  Ward 3
-  Ward 4
-  Emergency
+  Bed 1
+  Bed 2
+  Bed 3
+  Diabetes Clinic
+  Resuscitation
+  Short-Stay
+  Acute Area
+  Waiting Area
 `);
-
-export const LOCATION_SUGGESTIONS = mapToSuggestions(LOCATIONS);

@@ -8,7 +8,7 @@ export const ClientSchema = {
   properties: {
     _id: 'string',
     userId: 'string',
-    hospitalId: 'string',
+    facilityId: 'string',
     clientId: 'string',
     clientSecret: 'string',
     lastActive: {
