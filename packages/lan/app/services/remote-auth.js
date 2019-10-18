@@ -8,7 +8,7 @@ export default class RemoteAuth {
     this.mainServer = config.mainServer;
     this.database = database;
     this.credentials = {};
-    this.hospitalOptions = [];
+    this.facilityOptions = [];
     this.schema = [
       {
         type: 'text',
@@ -29,13 +29,13 @@ export default class RemoteAuth {
         validate: password => password.length,
       },
     ];
-    this.schemaHospital = [
+    this.schemaFacility = [
       {
         type: 'select',
-        message: 'Select hospital',
-        name: 'hospital',
+        message: 'Select facility',
+        name: 'facility',
         required: true,
-        choices: () => this.hospitalOptions,
+        choices: () => this.facilityOptions,
       },
     ];
   }
@@ -43,11 +43,11 @@ export default class RemoteAuth {
   async promptLogin(cb, verifyCredentials = true, schema = this.schema) {
     const clientId = this.database.getSetting('CLIENT_ID');
     const clientSecret = this.database.getSetting('CLIENT_SECRET');
-    const hospitalId = this.database.getSetting('HOSPITAL_ID');
+    const facilityId = this.database.getSetting('FACILITY_ID');
 
-    if (clientId && clientSecret && hospitalId && verifyCredentials) {
+    if (clientId && clientSecret && facilityId && verifyCredentials) {
       const [err, valid] = await to(
-        this._verifyCredentials({ clientId, clientSecret, hospitalId }),
+        this._verifyCredentials({ clientId, clientSecret, facilityId }),
       );
       if (!err && valid && valid.clientId && valid.clientSecret) return cb();
     }
@@ -67,16 +67,16 @@ export default class RemoteAuth {
     if (this.credentials.email && this.credentials.password) {
       const [err, res] = await to(this._login());
       if (!err) {
-        if (res.action === 'select-hospital') {
-          this.hospitalOptions = res.options.map(({ _id: value, name: title }) => ({
+        if (res.action === 'select-facility') {
+          this.facilityOptions = res.options.map(({ _id: value, name: title }) => ({
             title,
             value,
           }));
-          this.promptLogin(cb, false, this.schemaHospital);
+          this.promptLogin(cb, false, this.schemaFacility);
         } else {
           // Save user auth secret
           this.database.setSetting('CLIENT_SECRET', res.clientSecret);
-          this.database.setSetting('HOSPITAL_ID', res.hospitalId);
+          this.database.setSetting('FACILITY_ID', res.facilityId);
           cb();
         }
       } else {
@@ -88,9 +88,9 @@ export default class RemoteAuth {
 
   async _login() {
     const clientId = this.database.getSetting('CLIENT_ID');
-    const hospitalId = this.database.getSetting('HOSPITAL_ID');
+    const facilityId = this.database.getSetting('FACILITY_ID');
     let firstTimeLogin = false;
-    if (!hospitalId) firstTimeLogin = true;
+    if (!facilityId) firstTimeLogin = true;
 
     const [err, res] = await to(
       request({
@@ -99,7 +99,7 @@ export default class RemoteAuth {
         json: {
           ...this.credentials,
           clientId,
-          hospital: hospitalId,
+          facility: facilityId,
           firstTimeLogin,
         },
       }),
@@ -109,12 +109,12 @@ export default class RemoteAuth {
     return res;
   }
 
-  async _verifyCredentials({ clientId, clientSecret, hospitalId }) {
+  async _verifyCredentials({ clientId, clientSecret, facilityId }) {
     const [err, res] = await to(
       request({
         method: 'POST',
         url: `${this.mainServer}/auth/verify-credentials`,
-        json: { clientId, clientSecret, hospitalId },
+        json: { clientId, clientSecret, facilityId },
       }),
     );
 

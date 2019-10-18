@@ -15,8 +15,13 @@ export const SeedRecordsForm = memo(({ onSubmit }) => {
     };
     return (
       <FormGrid columns={1}>
+        <Field name="allergies" label="Allergies" component={CheckField} />
+        <Field name="departments" label="Departments" component={CheckField} />
+        <Field name="diagnoses" label="Diagnoses" component={CheckField} />
+        <Field name="drugs" label="Drugs" component={CheckField} />
+        <Field name="facilities" label="Facilities" component={CheckField} />
         <Field name="locations" label="Locations" component={CheckField} />
-        <Field name="practitioners" label="Practitioners" component={CheckField} />
+        <Field name="users" label="Users" component={CheckField} />
         <CheckInput
           label="Patients"
           onChange={handleIncludePatients}
@@ -39,9 +44,24 @@ export const SeedRecordsForm = memo(({ onSubmit }) => {
     <Form
       onSubmit={onSubmit}
       render={renderForm}
+      initialValues={{
+        allergies: true,
+        departments: true,
+        diagnoses: true,
+        drugs: true,
+        facilities: true,
+        locations: true,
+        users: true,
+        patientCount: DEFAULT_PATIENT_COUNT,
+      }}
       validationSchema={yup.object().shape({
+        allergies: yup.boolean(),
+        departments: yup.boolean(),
+        diagnoses: yup.boolean(),
+        drugs: yup.boolean(),
+        facilities: yup.boolean(),
         locations: yup.boolean(),
-        practitioners: yup.boolean(),
+        users: yup.boolean(),
         patientCount: yup.number(),
       })}
     />

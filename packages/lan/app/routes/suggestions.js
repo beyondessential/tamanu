@@ -84,7 +84,7 @@ createSuggestionRoute(
   ({ _id, firstName, lastName }) => ({ _id, firstName, lastName }),
 );
 
-createSuggestionRoute('facility', 'hospital', 'name CONTAINS[c] $0');
+createSuggestionRoute('facility', 'facility', 'name CONTAINS[c] $0');
 createSuggestionRoute('location', 'location', 'name CONTAINS[c] $0');
 createSuggestionRoute('drug', 'drug', 'name CONTAINS[c] $0');
 createSuggestionRoute('department', 'department', 'name CONTAINS[c] $0');

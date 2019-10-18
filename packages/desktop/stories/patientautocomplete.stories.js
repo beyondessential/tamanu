@@ -3,7 +3,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
-import { createDummyPatient } from 'Shared/utils';
+import { createDummyPatient } from 'Shared/demoData';
 
 import { PatientAutocomplete } from '../app/components/PatientAutocomplete';
 

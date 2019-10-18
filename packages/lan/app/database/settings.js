@@ -8,7 +8,7 @@ export class Settings extends SharedSettings {
       LAST_SYNC_OUT: '0',
       CLIENT_ID: shortid.generate(),
       CLIENT_SECRET: '',
-      HOSPITAL_ID: '',
+      FACILITY_ID: '',
       TEMP_DISPLAY_ID_SEQ: '0',
     });
   }
