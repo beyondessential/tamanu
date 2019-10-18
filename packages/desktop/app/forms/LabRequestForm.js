@@ -75,7 +75,6 @@ export class LabRequestForm extends React.PureComponent {
           label="Sample time"
           required
           component={DateTimeField}
-          suggester={practitionerSuggester}
         />
         <div>
           <Field name="specimenAttached" label="Specimen attached?" component={CheckField} />
@@ -123,7 +122,7 @@ export class LabRequestForm extends React.PureComponent {
   };
 
   render() {
-    const { onSubmit, editedObject, generateId = shortid } = this.props;
+    const { onSubmit, editedObject, generateId = shortid.generate } = this.props;
     return (
       <Form
         onSubmit={onSubmit}

@@ -7,12 +7,12 @@ import { Suggester } from '../utils/suggester';
 import { connectApi } from '../api/connectApi';
 import { viewVisit } from '../store/visit';
 
-import { ConnectedImagingRequestForm } from '../forms/ImagingRequestForm';
+import { ImagingRequestForm } from '../forms/ImagingRequestForm';
 
 const DumbImagingRequestModal = React.memo(
   ({ open, visit, practitionerSuggester, onClose, onSubmit }) => (
     <Modal width="md" title="New imaging request" open={open} onClose={onClose}>
-      <ConnectedImagingRequestForm
+      <ImagingRequestForm
         onSubmit={onSubmit}
         onCancel={onClose}
         visit={visit}

@@ -35,7 +35,7 @@ function getVisitLabel(visit) {
   return `${visitDate} (${visitTypeLabel})`;
 }
 
-export class ImagingRequestForm extends React.PureComponent {
+class DumbImagingRequestForm extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
     onMount: PropTypes.func,
@@ -58,7 +58,7 @@ export class ImagingRequestForm extends React.PureComponent {
 
     return (
       <FormGrid>
-        <Field name="_id" label="Imaging request number" disabled component={TextField} />
+        <Field name="_id" label="Imaging request code" disabled component={TextField} />
         <Field name="requestedDate" label="Order date" required component={DateField} />
         <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
@@ -73,7 +73,6 @@ export class ImagingRequestForm extends React.PureComponent {
           label="Sample time"
           required
           component={DateTimeField}
-          suggester={practitionerSuggester}
         />
         <div>
           <Field name="urgent" label="Urgent?" component={CheckField} />
@@ -111,7 +110,7 @@ export class ImagingRequestForm extends React.PureComponent {
   };
 
   render() {
-    const { onSubmit, editedObject, generateId = shortid } = this.props;
+    const { onSubmit, editedObject, generateId = shortid.generate } = this.props;
     return (
       <Form
         onSubmit={onSubmit}
@@ -132,7 +131,7 @@ export class ImagingRequestForm extends React.PureComponent {
   }
 }
 
-export const ConnectedImagingRequestForm = connect(
+export const ImagingRequestForm = connect(
   state => ({
     imagingTypes: getImagingTypes(state).map(({ _id, name }) => ({
       value: _id,
@@ -142,4 +141,4 @@ export const ConnectedImagingRequestForm = connect(
   dispatch => ({
     onMount: () => dispatch(loadOptions()),
   }),
-)(ImagingRequestForm);
+)(DumbImagingRequestForm);
