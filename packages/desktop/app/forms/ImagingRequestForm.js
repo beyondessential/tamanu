@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 
 import { foreignKey } from '../utils/validation';
 import { visitOptions } from '../constants';
-import { getLabTestTypes, getLabTestCategories, loadOptions } from '../store/options';
+import { getImagingTypes, loadOptions } from '../store/options';
 
 import {
   Form,
@@ -19,7 +19,6 @@ import {
   CheckField,
   TextInput,
 } from '../components/Field';
-import { TestSelectorField } from '../components/TestSelector';
 import { FormGrid } from '../components/FormGrid';
 import { Button } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
@@ -36,7 +35,7 @@ function getVisitLabel(visit) {
   return `${visitDate} (${visitTypeLabel})`;
 }
 
-export class LabRequestForm extends React.PureComponent {
+class DumbImagingRequestForm extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
     onMount: PropTypes.func,
@@ -51,16 +50,15 @@ export class LabRequestForm extends React.PureComponent {
     if (onMount) onMount();
   }
 
-  renderForm = ({ values, submitForm }) => {
-    const { practitionerSuggester, onCancel, testTypes, visit = {}, testCategories } = this.props;
+  renderForm = ({ submitForm }) => {
+    const { practitionerSuggester, onCancel, imagingTypes, visit = {} } = this.props;
     const { examiner = {} } = visit;
     const examinerLabel = examiner.displayName;
     const visitLabel = getVisitLabel(visit);
-    const filteredTestTypes = testTypes.filter(x => x.category._id === values.category._id);
 
     return (
       <FormGrid>
-        <Field name="_id" label="Lab request number" disabled component={TextField} />
+        <Field name="_id" label="Imaging request code" disabled component={TextField} />
         <Field name="requestedDate" label="Order date" required component={DateField} />
         <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
@@ -77,27 +75,17 @@ export class LabRequestForm extends React.PureComponent {
           component={DateTimeField}
         />
         <div>
-          <Field name="specimenAttached" label="Specimen attached?" component={CheckField} />
           <Field name="urgent" label="Urgent?" component={CheckField} />
         </div>
         <FormSeparatorLine />
         <TextInput label="Visit" disabled value={visitLabel} />
         <Field
-          name="category._id"
-          label="Lab request type"
+          name="type._id"
+          label="Imaging request type"
           required
           component={SelectField}
-          options={testCategories}
+          options={imagingTypes}
         />
-        <Field
-          name="testTypes"
-          label="Tests"
-          required
-          testTypes={filteredTestTypes}
-          component={TestSelectorField}
-          style={{ gridColumn: '1 / -1' }}
-        />
-        <FormSeparatorLine />
         <Field
           name="notes"
           label="Notes"
@@ -130,34 +118,22 @@ export class LabRequestForm extends React.PureComponent {
         initialValues={{
           _id: generateId(),
           requestedDate: new Date(),
-          category: {},
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
           requestedBy: foreignKey('Requesting doctor is required'),
-          category: foreignKey('Lab request type must be selected'),
+          type: foreignKey('Imaging request type must be selected'),
           sampleTime: yup.date().required(),
           requestedDate: yup.date().required(),
         })}
-        validate={values => {
-          // there's a bug in formik for handling `yup.mixed.test` so just do it manually here
-          const { testTypes = {} } = values;
-          if (Object.keys(testTypes).length === 0) {
-            return {
-              testTypes: 'At least one test must be selected',
-            };
-          }
-          return {};
-        }}
       />
     );
   }
 }
 
-export const ConnectedLabRequestForm = connect(
+export const ImagingRequestForm = connect(
   state => ({
-    testTypes: getLabTestTypes(state),
-    testCategories: getLabTestCategories(state).map(({ _id, name }) => ({
+    imagingTypes: getImagingTypes(state).map(({ _id, name }) => ({
       value: _id,
       label: name,
     })),
@@ -165,4 +141,4 @@ export const ConnectedLabRequestForm = connect(
   dispatch => ({
     onMount: () => dispatch(loadOptions()),
   }),
-)(LabRequestForm);
+)(DumbImagingRequestForm);

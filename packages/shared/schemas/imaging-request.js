@@ -11,6 +11,7 @@ export const ImagingRequestSchema = {
     detail: 'string?',
     location: 'string?',
     diagnosis: 'diagnosis?',
+    urgent: { type: 'bool', default: false },
     notes: 'string?',
     imageSource: 'string?',
     status: {
@@ -20,9 +21,9 @@ export const ImagingRequestSchema = {
     },
     requestedBy: 'user',
     requestedDate: 'date',
-    reviewedBy: 'user',
-    reviewedDate: 'date',
-    visit: {
+    reviewedBy: 'user?',
+    reviewedDate: 'date?',
+    visits: {
       type: 'linkingObjects',
       objectType: 'visit',
       property: 'imagingRequests',

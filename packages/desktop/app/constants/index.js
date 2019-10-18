@@ -1,5 +1,8 @@
 import moment from 'moment';
 import { padStart, capitalize } from 'lodash';
+
+import { createValueIndex } from 'Shared/utils';
+import { VISIT_TYPES } from 'Shared/constants';
 import {
   medicationIcon,
   administrationIcon,
@@ -8,9 +11,6 @@ import {
   scheduleIcon,
   patientIcon,
 } from './images';
-
-import { createValueIndex } from 'Shared/utils';
-import { VISIT_TYPES } from 'Shared/constants';
 
 export const MUI_SPACING_UNIT = 8;
 
@@ -79,6 +79,17 @@ export const LAB_REQUEST_COLORS = {
 export const IMAGING_REQUEST_STATUSES = {
   PENDING: 'pending',
   COMPLETED: 'completed',
+};
+
+export const IMAGING_REQUEST_STATUS_LABELS = {
+  [IMAGING_REQUEST_STATUSES.PENDING]: 'Pending',
+  [IMAGING_REQUEST_STATUSES.COMPLETED]: 'Completed',
+};
+
+export const IMAGING_REQUEST_COLORS = {
+  [IMAGING_REQUEST_STATUSES.PENDING]: '#aaf',
+  [IMAGING_REQUEST_STATUSES.COMPLETED]: '#afa',
+  unknown: '#333',
 };
 
 export const columnStyle = {
@@ -222,7 +233,12 @@ export const visitOptions = [
   { value: VISIT_TYPES.IMAGING, label: 'Imaging', image: radiologyIcon },
   { value: VISIT_TYPES.LAB, label: 'Lab', image: labsIcon },
   { value: VISIT_TYPES.EMERGENCY, label: 'Emergency', image: scheduleIcon },
-  { value: VISIT_TYPES.OBSERVATION, label: 'Observation', image: patientIcon, hideFromOptions: true },
+  {
+    value: VISIT_TYPES.OBSERVATION,
+    label: 'Observation',
+    image: patientIcon,
+    hideFromOptions: true,
+  },
   { value: VISIT_TYPES.TRIAGE, label: 'Triage', image: patientIcon, hideFromOptions: true },
 ];
 
