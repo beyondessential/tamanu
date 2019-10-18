@@ -66,7 +66,7 @@ function createDummySuggestionRoute(path, valuesTemplate) {
 createSuggestionRoute(
   'icd10',
   'diagnosis',
-  '(name CONTAINS[c] $0 OR code CONTAINS[c] $0) AND type = "icd10"',
+  '(name CONTAINS[c] $0 OR code BEGINSWITH[c] $0) AND type = "icd10"',
   ({ name, code, _id }) => ({ name, code, _id }),
 );
 
@@ -86,5 +86,5 @@ createSuggestionRoute(
 
 createSuggestionRoute('facility', 'hospital', 'name CONTAINS[c] $0');
 createSuggestionRoute('location', 'location', 'name CONTAINS[c] $0');
-createSuggestionRoute('drug', 'drug', 'name CONTAINS[c] $0');
+createSuggestionRoute('drug', 'drug', 'name BEGINSWITH[c] $0');
 createSuggestionRoute('department', 'department', 'name CONTAINS[c] $0');
