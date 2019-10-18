@@ -18,7 +18,7 @@ export const ReferralSchema = {
     visit: 'visit?',
 
     facility: 'facility?',
-    location: 'location?',
+    department: 'department?',
 
     // reverse links
     patient: { type: 'linkingObjects', objectType: 'patient', property: 'referrals' },

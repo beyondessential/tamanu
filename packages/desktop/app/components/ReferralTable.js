@@ -62,7 +62,7 @@ const StatusDisplay = React.memo(({ visit, closedDate }) => {
 });
 
 const getDate = ({ date }) => <DateDisplay date={date} />;
-const getDepartment = ({ location }) => (location ? location.name : 'Unknown');
+const getDepartment = ({ department }) => (department ? department.name : 'Unknown');
 const getFacility = ({ facility }) => (facility ? facility.name : 'Unknown');
 const getDisplayName = ({ referringDoctor }) => (referringDoctor || {}).displayName || 'Unknown';
 const getStatus = ({ visit, closedDate }) => (
