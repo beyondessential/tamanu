@@ -4,6 +4,7 @@ import AuthRoutes from './auth';
 import { suggestionRoutes } from './suggestions';
 import { adminRoutes } from './admin';
 import { authMiddleware, loginHandler } from '../controllers/auth/middleware';
+import { seed } from './seed';
 
 const router = express.Router();
 router.use('/auth', AuthRoutes);
@@ -14,6 +15,7 @@ router.use(authMiddleware);
 
 router.use('/suggestions', suggestionRoutes);
 router.use('/admin', adminRoutes);
+router.put('/seed', seed);
 
 // no-op route for debugging
 router.post('/log', (req, res) => {

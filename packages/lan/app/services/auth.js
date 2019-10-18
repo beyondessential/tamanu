@@ -2,7 +2,6 @@ import basicAuth from 'basic-auth';
 import { set, isEmpty } from 'lodash';
 import BaseAuth from 'Shared/services/auth';
 import { schemaClasses } from 'Shared/schemas';
-import database from './database';
 import { HTTP_METHOD_TO_ACTION } from '../constants';
 
 export default class Auth extends BaseAuth {
@@ -17,11 +16,11 @@ export default class Auth extends BaseAuth {
   }
 
   async login(props) {
-    const hospitalId = this.database.getSetting('HOSPITAL_ID');
+    const facilityId = this.database.getSetting('FACILITY_ID');
     const newProps = {
       ...props,
       firstTimeLogin: false,
-      hospital: hospitalId,
+      facility: facilityId,
     };
     return super.login(newProps);
   }
@@ -55,7 +54,7 @@ export default class Auth extends BaseAuth {
     let subject;
     const { params, method, user, client, body } = req;
     const { model, id } = params;
-    const { hospitalId } = client;
+    const { facilityId } = client;
     const fields = Object.keys(body);
     const reject = (error = 'Invalid permissions', code = 405) => res.status(code).send(error);
 
@@ -77,7 +76,7 @@ export default class Auth extends BaseAuth {
       const action = HTTP_METHOD_TO_ACTION[method];
       const permissionsValid = this.validatePermissions({
         user,
-        hospitalId,
+        facilityId,
         action,
         subject,
         fields,

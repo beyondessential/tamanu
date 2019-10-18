@@ -4,16 +4,16 @@ import styled from 'styled-components';
 
 import { Autorenew } from '@material-ui/icons';
 import { Colors } from '../../constants';
+import { InvertedDisplayIdLabel } from '../DisplayIdLabel';
 
 const IdControl = styled.div`
   display: flex;
   color: ${Colors.primaryDark};
 `;
 
-const Id = styled.div`
+const Id = styled(InvertedDisplayIdLabel)`
+  display: block;
   font-weight: 600;
-  background: ${Colors.secondary};
-  border-radius: 4px;
   height: max-content;
   width: max-content;
   padding: 10px;
@@ -63,4 +63,10 @@ IdInput.propTypes = {
   name: PropTypes.string,
   value: PropTypes.string,
   onChange: PropTypes.func,
+};
+
+IdInput.defaultProps = {
+  name: undefined,
+  value: undefined,
+  onChange: undefined,
 };

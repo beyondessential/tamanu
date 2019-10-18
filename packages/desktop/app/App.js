@@ -3,19 +3,44 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import 'typeface-roboto';
 
+import { TamanuLogoWhite } from './components/TamanuLogo';
 import { ConnectedSidebar } from './components/Sidebar';
+import { Appbar } from './components/Appbar';
 import { login, checkIsLoggedIn } from './store/auth';
 import { LoginView } from './views';
+import { Colors } from './constants';
 
 const AppContainer = styled.div`
-  display: flex;
+  height: 100vh;
+  display: grid;
   background: #f7f9fb;
+  grid-template-columns: 1fr 4fr;
+  grid-template-rows: 64px auto;
 `;
 
 const AppContentsContainer = styled.div`
-  height: 100vh;
+  @media print {
+    grid-column: 1 / -1;
+  }
+
   overflow-x: hidden;
   flex-grow: 1;
+  grid-row: 2 / -1;
+  grid-column: 2 / -1;
+`;
+
+const AppBadge = styled.div`
+  @media print {
+    display: none;
+  }
+
+  grid-row: 1 / 2;
+  grid-column: 1 / 2;
+  background: ${Colors.primary};
+  display: flex;
+  z-index: 1101;
+  box-shadow: 1px 0px 4px rgba(0, 0, 0, 0.15);
+  padding-left: 16px;
 `;
 
 class DumbApp extends Component {
@@ -27,6 +52,10 @@ class DumbApp extends Component {
 
     return (
       <AppContainer>
+        <AppBadge>
+          <TamanuLogoWhite />
+        </AppBadge>
+        <Appbar />
         <ConnectedSidebar />
         <AppContentsContainer>{this.props.children}</AppContentsContainer>
       </AppContainer>

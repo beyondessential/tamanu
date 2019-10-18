@@ -1,24 +1,24 @@
 - name: copy_files
   service: app
-  tag: ^(master|dev)
   command: /.tmp/scripts/copy_files.sh
 - name: reinstate_ssh
   service: app
-  tag: ^(master|dev)
   command: ./scripts/fix_ssh.sh
-- name: install
+- name: install_dependencies
   service: app
-  tag: ^(master|dev)
   command: ./scripts/install.sh
-- name: build_pack
+- name: test
+  service: app
+  command: ./scripts/test.sh
+- name: build_lan_and_desktop_installers
   service: app
   tag: ^(master|dev)
   command: ./scripts/build.sh demo
-- name: push
+- name: push_artefacts_to_s3
   service: awsdeployment
   tag: dev
   command: ./scripts/push.sh
-- name: deploy
+- name: deploy_demo_server
   service: app
   tag: dev
   command: ./scripts/deploy.sh demo

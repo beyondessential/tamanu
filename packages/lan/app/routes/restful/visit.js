@@ -5,16 +5,128 @@ import { objectToJSON } from '../../utils';
 
 export const visitRoutes = express.Router();
 
-visitRoutes.post('/visit/:id/note', (req, res) => {
-  const db = req.app.get('database');
-  const visit = db.objectForPrimaryKey('visit', req.params.id);
+function addSystemNote(visit, content) {
   const note = {
-    _id: shortid(),
-    ...req.body,
+    _id: shortid.generate(),
+    type: 'system',
+    content,
+  };
+
+  visit.notes = [...visit.notes, note];
+}
+
+visitRoutes.put('/visit/:id/visitType', (req, res) => {
+  const { db, params, body } = req;
+  const { visitType } = body;
+
+  const visit = db.objectForPrimaryKey('visit', params.id);
+
+  if (visitType !== visit.visitType) {
+    db.write(() => {
+      addSystemNote(visit, `Changed from ${visit.visitType} to ${visitType}`);
+      visit.visitType = visitType;
+    });
+  }
+
+  res.send(objectToJSON(visit));
+});
+
+visitRoutes.put('/visit/:id/department', (req, res) => {
+  const { db, params, body } = req;
+  const { department } = body;
+
+  const visit = db.objectForPrimaryKey('visit', params.id);
+
+  if (department._id !== visit.department._id) {
+    const newDepartment = db.objectForPrimaryKey('department', department._id);
+    if (!newDepartment) {
+      throw new Error('Invalid department ID');
+    }
+
+    db.write(() => {
+      addSystemNote(
+        visit,
+        `Changed department from ${visit.department.name} to ${newDepartment.name}`,
+      );
+      visit.department = department;
+    });
+  }
+
+  res.send(objectToJSON(visit));
+});
+
+visitRoutes.put('/visit/:id/plannedLocation', (req, res) => {
+  const { db, params, body } = req;
+  const { plannedLocation } = body;
+
+  const visit = db.objectForPrimaryKey('visit', params.id);
+
+  // cancel a planned change
+  if (visit.plannedLocation) {
+    if (!plannedLocation) {
+      db.write(() => {
+        addSystemNote(visit, 'Cancelled location change.');
+        visit.plannedLocation = plannedLocation;
+      });
+      res.send(objectToJSON(visit));
+      return;
+    }
+    throw new Error('A location change is already planned');
+  }
+
+  // plan a new change
+  if (!plannedLocation) {
+    throw new Error('Planned location invalid!');
+  }
+
+  if (plannedLocation._id === visit.location._id) {
+    throw new Error('Planned location must be different to current location.');
+  }
+
+  const newLocation = db.objectForPrimaryKey('location', plannedLocation._id);
+  if (!newLocation) {
+    throw new Error('Planned location invalid!');
+  }
+
+  db.write(() => {
+    addSystemNote(visit, `Planned location change to ${newLocation.name}`);
+    visit.plannedLocation = plannedLocation;
+  });
+
+  res.send(objectToJSON(visit));
+});
+
+visitRoutes.put('/visit/:id/location', (req, res) => {
+  const { db, params, body } = req;
+  const { location } = body;
+
+  const visit = db.objectForPrimaryKey('visit', params.id);
+  const newLocation = db.objectForPrimaryKey('location', location._id);
+
+  if (!visit.plannedLocation || location._id !== visit.plannedLocation._id) {
+    throw new Error('Location cannot be updated without being planned first');
+  }
+
+  if (location._id !== visit.location._id) {
+    db.write(() => {
+      addSystemNote(visit, `Completed move from ${visit.location.name} to ${newLocation.name}`);
+      visit.plannedLocation = null;
+      visit.location = location;
+    });
+  }
+
+  res.send(objectToJSON(visit));
+});
+
+visitRoutes.post('/visit/:id/note', (req, res) => {
+  const { db, params, body } = req;
+  const visit = db.objectForPrimaryKey('visit', params.id);
+  const note = {
+    _id: shortid.generate(),
+    ...body,
   };
 
   // TODO: validate
-  console.log(JSON.stringify(note));
 
   db.write(() => {
     visit.notes = [...visit.notes, note];
@@ -24,11 +136,11 @@ visitRoutes.post('/visit/:id/note', (req, res) => {
 });
 
 visitRoutes.post('/visit/:id/diagnosis', (req, res) => {
-  const db = req.app.get('database');
-  const visit = db.objectForPrimaryKey('visit', req.params.id);
+  const { db, params, body } = req;
+  const visit = db.objectForPrimaryKey('visit', params.id);
   const diagnosis = {
-    _id: shortid(),
-    ...req.body,
+    _id: shortid.generate(),
+    ...body,
   };
 
   // TODO: validate
@@ -41,18 +153,18 @@ visitRoutes.post('/visit/:id/diagnosis', (req, res) => {
 });
 
 visitRoutes.post('/visit/:id/labRequest', (req, res) => {
-  const db = req.app.get('database');
-  const visit = db.objectForPrimaryKey('visit', req.params.id);
+  const { db, params, body } = req;
+  const visit = db.objectForPrimaryKey('visit', params.id);
   const request = {
-    _id: shortid(),
-    ...req.body,
+    _id: shortid.generate(),
+    ...body,
   };
 
   // TODO: validate
 
   // create tests for each testType given
   request.tests = request.testTypes.map(({ _id: typeId }) => ({
-    _id: shortid(),
+    _id: shortid.generate(),
     type: { _id: typeId },
   }));
 
@@ -63,12 +175,29 @@ visitRoutes.post('/visit/:id/labRequest', (req, res) => {
   res.send(objectToJSON(request));
 });
 
+visitRoutes.post('/visit/:id/imagingRequest', (req, res) => {
+  const { db, params, body } = req;
+  const visit = db.objectForPrimaryKey('visit', params.id);
+  const request = {
+    _id: shortid.generate(),
+    ...body,
+  };
+
+  // TODO: validate
+
+  db.write(() => {
+    visit.imagingRequests = [...visit.imagingRequests, request];
+  });
+
+  res.send(objectToJSON(request));
+});
+
 visitRoutes.post('/visit/:id/vitals', (req, res) => {
-  const db = req.app.get('database');
-  const visit = db.objectForPrimaryKey('visit', req.params.id);
+  const { db, params, body } = req;
+  const visit = db.objectForPrimaryKey('visit', params.id);
   const reading = {
-    _id: shortid(),
-    ...req.body,
+    _id: shortid.generate(),
+    ...body,
   };
 
   // TODO: validate
@@ -78,4 +207,21 @@ visitRoutes.post('/visit/:id/vitals', (req, res) => {
   });
 
   res.send(objectToJSON(reading));
+});
+
+visitRoutes.post('/visit/:id/medications', (req, res) => {
+  const { db, params, body } = req;
+  const visit = db.objectForPrimaryKey('visit', params.id);
+  const medication = {
+    _id: shortid.generate(),
+    ...body,
+  };
+
+  // TODO: validate
+
+  db.write(() => {
+    visit.medications = [...visit.medications, medication];
+  });
+
+  res.send(objectToJSON(medication));
 });

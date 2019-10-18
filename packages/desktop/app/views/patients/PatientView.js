@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
-import styled from 'styled-components';
 
 import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
@@ -16,22 +15,13 @@ import { ReferralModal } from '../../components/ReferralModal';
 import { ReferralTable } from '../../components/ReferralTable';
 import { AppointmentModal } from '../../components/AppointmentModal';
 import { AppointmentTable } from '../../components/AppointmentTable';
-import { Button, ImageButton } from '../../components/Button';
+import { Button } from '../../components/Button';
 import { connectRoutedModal } from '../../components/Modal';
+import { PatientVisitSummary } from './components/PatientVisitSummary';
 
 import { viewVisit } from '../../store/visit';
 
 import { getCurrentVisit } from '../../store/patient';
-
-const CallToActionRow = styled(ContentPane)`
-  display: flex;
-
-  > button {
-    :not(:last-child) {
-      margin-right: 10px;
-    }
-  }
-`;
 
 const AppointmentPane = React.memo(({ patient }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -75,7 +65,6 @@ const RoutedTriageModal = connectRoutedModal('/patients/view', 'triage')(TriageM
 const HistoryPane = connect(
   state => ({
     visits: state.patient.visits,
-    isCheckInAvailable: !getCurrentVisit(state),
   }),
   dispatch => ({
     onViewVisit: id => dispatch(viewVisit(id)),
@@ -83,26 +72,14 @@ const HistoryPane = connect(
     onOpenTriage: () => dispatch(push('/patients/view/triage')),
   }),
 )(
-  React.memo(({ visits, onOpenCheckin, onOpenTriage, onViewVisit, isCheckInAvailable }) => (
+  React.memo(({ visits, onViewVisit, onOpenCheckin, onOpenTriage }) => (
     <div>
-      <CallToActionRow>
-        <ImageButton
-          src="./assets/images/medication.svg"
-          title="Check in"
-          disabled={!isCheckInAvailable}
-          onClick={onOpenCheckin}
-        >
-          Check In
-        </ImageButton>
-        <ImageButton
-          src="./assets/images/profile.svg"
-          title="Triage"
-          disabled={!isCheckInAvailable}
-          onClick={onOpenTriage}
-        >
-          Triage
-        </ImageButton>
-      </CallToActionRow>
+      <PatientVisitSummary
+        visits={visits}
+        viewVisit={onViewVisit}
+        openCheckin={onOpenCheckin}
+        openTriage={onOpenTriage}
+      />
       <PatientHistory items={visits} onItemClick={item => onViewVisit(item._id)} />
     </div>
   )),
@@ -156,7 +133,7 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
           />
         </TwoColumnDisplay>
       </LoadingIndicator>
-      <RoutedVisitModal patientId={patient._id} />
+      <RoutedVisitModal patientId={patient._id} referrals={patient.referrals} />
       <RoutedTriageModal patient={patient} />
     </React.Fragment>
   );

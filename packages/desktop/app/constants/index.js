@@ -1,6 +1,17 @@
 import moment from 'moment';
 import { padStart, capitalize } from 'lodash';
 
+import { createValueIndex } from 'Shared/utils';
+import { VISIT_TYPES } from 'Shared/constants';
+import {
+  medicationIcon,
+  administrationIcon,
+  radiologyIcon,
+  labsIcon,
+  scheduleIcon,
+  patientIcon,
+} from './images';
+
 export const MUI_SPACING_UNIT = 8;
 
 export const REMEMBER_EMAIL_KEY = 'remember-email';
@@ -31,6 +42,7 @@ export const Colors = {
   outline: '#dedede',
   background: '#f3f5f7',
   white: '#ffffff',
+  offWhite: '#fafafa',
   brightBlue: '#67A6E3',
   searchTintColor: '#d2dae3',
 };
@@ -55,12 +67,6 @@ export const LAB_REQUEST_STATUS_LABELS = {
   [LAB_REQUEST_STATUSES.PUBLISHED]: 'Published',
 };
 
-export const PATIENT_PRIORITY_LEVEL_COLORS = {
-  1: Colors.alert,
-  2: Colors.secondary,
-  3: Colors.safe,
-};
-
 export const LAB_REQUEST_COLORS = {
   [LAB_REQUEST_STATUSES.RECEPTION_PENDING]: '#faa',
   [LAB_REQUEST_STATUSES.RESULTS_PENDING]: '#aaf',
@@ -73,6 +79,17 @@ export const LAB_REQUEST_COLORS = {
 export const IMAGING_REQUEST_STATUSES = {
   PENDING: 'pending',
   COMPLETED: 'completed',
+};
+
+export const IMAGING_REQUEST_STATUS_LABELS = {
+  [IMAGING_REQUEST_STATUSES.PENDING]: 'Pending',
+  [IMAGING_REQUEST_STATUSES.COMPLETED]: 'Completed',
+};
+
+export const IMAGING_REQUEST_COLORS = {
+  [IMAGING_REQUEST_STATUSES.PENDING]: '#aaf',
+  [IMAGING_REQUEST_STATUSES.COMPLETED]: '#afa',
+  unknown: '#333',
 };
 
 export const columnStyle = {
@@ -207,21 +224,36 @@ export const noteTypes = [
   { value: 'social', label: 'Social welfare' },
   { value: 'discharge', label: 'Discharge planning' },
   { value: 'other', label: 'Other' },
+  { value: 'system', label: 'System', hideFromDropdown: true },
 ];
 
 export const visitOptions = [
-  { value: 'admission', label: 'Admission', image: './assets/images/medication.svg' },
-  { value: 'clinic', label: 'Clinic', image: './assets/images/administration.svg' },
-  { value: 'imaging', label: 'Imaging', image: './assets/images/radiology.png' },
-  { value: 'lab', label: 'Lab', image: './assets/images/labs.svg' },
-  { value: 'emergency', label: 'Emergency', image: './assets/images/schedule.svg' },
-  { value: 'observation', label: 'Observation', image: './assets/images/patient.svg' },
+  { value: VISIT_TYPES.ADMISSION, label: 'Admission', image: medicationIcon },
+  { value: VISIT_TYPES.CLINIC, label: 'Clinic', image: administrationIcon },
+  { value: VISIT_TYPES.IMAGING, label: 'Imaging', image: radiologyIcon },
+  { value: VISIT_TYPES.LAB, label: 'Lab', image: labsIcon },
+  { value: VISIT_TYPES.EMERGENCY, label: 'Emergency', image: scheduleIcon },
+  {
+    value: VISIT_TYPES.OBSERVATION,
+    label: 'Observation',
+    image: patientIcon,
+    hideFromOptions: true,
+  },
+  { value: VISIT_TYPES.TRIAGE, label: 'Triage', image: patientIcon, hideFromOptions: true },
 ];
 
+export const VISIT_OPTIONS_BY_VALUE = createValueIndex(visitOptions);
+
+export const TRIAGE_COLORS_BY_LEVEL = {
+  1: Colors.alert,
+  2: Colors.secondary,
+  3: Colors.safe,
+};
+
 export const triagePriorities = [
-  { value: '3', label: 'Non-urgent', color: '#47CA80' },
-  { value: '2', label: 'Priority', color: '#FFB630' },
-  { value: '1', label: 'Emergency', color: Colors.alert },
+  { value: '1', label: 'Emergency', color: TRIAGE_COLORS_BY_LEVEL[1] },
+  { value: '2', label: 'Priority', color: TRIAGE_COLORS_BY_LEVEL[2] },
+  { value: '3', label: 'Non-urgent', color: TRIAGE_COLORS_BY_LEVEL[3] },
 ];
 
 export const operativePlanStatuses = {

@@ -2,10 +2,10 @@ import React from 'react';
 
 import { storiesOf } from '@storybook/react';
 
-import { PatientStatisticsCard } from '../app/components/PatientStatisticsCard';
+import { DumbTriageStatisticsCard } from '../app/components/TriageStatisticsCard';
 
-storiesOf('Cards', module).add('PatientStatisticsCard', () => (
-  <PatientStatisticsCard
+storiesOf('Cards', module).add('TriageStatisticsCard', () => (
+  <DumbTriageStatisticsCard
     numberOfPatients={28}
     percentageIncrease={15}
     averageWaitTime={68}

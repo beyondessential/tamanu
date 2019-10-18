@@ -24,9 +24,7 @@ function filterDepWithoutEntryPoints(dep) {
     if (!fs.existsSync(`${rootNodeModules}/${dep}/package.json`)) {
       modulesPath = localNodeModules;
     }
-    const pgkString = fs
-      .readFileSync(`${modulesPath}/${dep}/package.json`)
-      .toString();
+    const pgkString = fs.readFileSync(`${modulesPath}/${dep}/package.json`).toString();
     const pkg = JSON.parse(pgkString);
     const fields = ['main', 'module', 'jsnext:main', 'browser'];
     return !fields.some(field => field in pkg);
@@ -39,7 +37,7 @@ function filterDepWithoutEntryPoints(dep) {
 export default {
   externals: [
     ...Object.keys(externals || {}),
-    ...Object.keys(possibleExternals || {}).filter(filterDepWithoutEntryPoints)
+    ...Object.keys(possibleExternals || {}).filter(filterDepWithoutEntryPoints),
   ],
 
   module: {
@@ -52,16 +50,16 @@ export default {
           options: {
             cacheDirectory: true,
             rootMode: 'upward',
-          }
-        }
-      }
-    ]
+          },
+        },
+      },
+    ],
   },
 
   output: {
     path: path.join(__dirname, 'app'),
     // https://github.com/webpack/webpack/issues/1114
-    libraryTarget: 'commonjs2'
+    libraryTarget: 'commonjs2',
   },
 
   /**
@@ -69,12 +67,15 @@ export default {
    */
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
-    modules: [path.join(__dirname, 'app'), 'node_modules']
+    modules: [path.join(__dirname, 'app'), 'node_modules'],
+    alias: {
+      Shared: path.resolve(__dirname, '../shared/'),
+    },
   },
 
   plugins: [
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production'
+      NODE_ENV: 'production',
     }),
     new webpack.NamedModulesPlugin(),
     new Dotenv(),

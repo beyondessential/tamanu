@@ -1,5 +1,4 @@
 import React, { memo } from 'react';
-import shortid from 'shortid';
 
 import { Modal } from '../../../components';
 import { NewPatientForm } from '../../../forms';
@@ -7,9 +6,11 @@ import { connectApi } from '../../../api';
 import { Suggester } from '../../../utils/suggester';
 import { viewPatient } from '../../../store/patient';
 
-const DumbNewPatientModal = memo(({ open, ...formProps }) => (
-  <Modal title="Create new patient" open={open}>
-    <NewPatientForm generateId={shortid.generate} {...formProps} />
+import { generateId } from '../../../../../shared/utils/generateId';
+
+const DumbNewPatientModal = memo(({ open, onCancel, ...formProps }) => (
+  <Modal title="Create new patient" onClose={onCancel} open={open}>
+    <NewPatientForm generateId={generateId} onCancel={onCancel} {...formProps} />
   </Modal>
 ));
 

@@ -18,7 +18,7 @@ const DumbAppointmentModal = React.memo(
     onCreateAppointment,
   }) => {
     return (
-      <Modal title="Check in" open={open} onClose={onClose}>
+      <Modal title="New appointment" open={open} onClose={onClose}>
         <AppointmentForm
           onSubmit={onCreateAppointment}
           onCancel={onClose}

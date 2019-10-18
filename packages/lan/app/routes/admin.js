@@ -9,7 +9,12 @@ function updateObject(base, patch) {
   const flattenedObject = objectToJSON(base);
   const updates = Object.entries(flattenedObject).map(([key, value]) => {
     const updatedValue = patch[key];
-    if (base[key] && updatedValue && updatedValue._id === base[key]._id) {
+    if (
+      base[key] &&
+      base[key].hasOwnProperty('_id') &&
+      updatedValue &&
+      updatedValue._id === base[key]._id
+    ) {
       // unchanged foreign key
       return false;
     }
@@ -21,7 +26,7 @@ function updateObject(base, patch) {
     return false;
   });
 
-  // return true iff any keys were updated
+  // return the new object iff any keys were updated
   if (updates.some(x => x)) {
     return base; // now with updated fields
   }
@@ -42,7 +47,7 @@ function addOrUpdateMany(db, table, items, findExisting, defaultValues = {}) {
         }
 
         const newItem = {
-          _id: shortid(),
+          _id: shortid.generate(),
           ...defaultValues,
           ...item,
         };
@@ -54,24 +59,27 @@ function addOrUpdateMany(db, table, items, findExisting, defaultValues = {}) {
   return recordsWritten;
 }
 
-adminRoutes.put('/diagnosis', (req, res) => {
-  const db = req.app.get('database');
-  const items = req.body;
+function addAdminRoute(resource, uniqueFieldName, defaultValue) {
+  adminRoutes.put(`/${resource}`, (req, res) => {
+    const { db, body } = req;
+    const items = body;
 
-  const recordsWritten = addOrUpdateMany(
-    db,
-    'diagnosis',
-    items,
-    (objects, item) => objects.filtered('code = $0', item.code)[0],
-    { type: 'icd10' },
-  );
+    const findExisting = (objects, item) =>
+      item[uniqueFieldName]
+        ? objects.filtered(`${uniqueFieldName} = $0`, item[uniqueFieldName])[0]
+        : null;
+    const recordsWritten = addOrUpdateMany(db, resource, items, findExisting, defaultValue);
 
-  res.send(recordsWritten);
-});
+    res.send(recordsWritten);
+  });
+}
 
+addAdminRoute('diagnosis', 'code', { type: 'icd10' });
+
+// labTestType is a bit more custom
 adminRoutes.put('/labTestType', (req, res) => {
-  const db = req.app.get('database');
-  const items = req.body;
+  const { db, body } = req;
+  const items = body;
 
   // create/update categories
   const categories = db.objects('labTestCategory');
@@ -81,7 +89,7 @@ adminRoutes.put('/labTestType', (req, res) => {
     if (existing) {
       return { ...testType, category: existing };
     }
-    const newCategory = { _id: shortid(), ...category };
+    const newCategory = { _id: shortid.generate(), ...category };
     db.write(() => {
       const created = db.create('labTestCategory', newCategory);
       category._id = created._id;

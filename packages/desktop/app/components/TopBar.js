@@ -1,49 +1,51 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import styled from 'styled-components';
 import { grey } from '@material-ui/core/colors';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
+import MuiAppBar from '@material-ui/core/AppBar';
+import MuiToolbar from '@material-ui/core/Toolbar';
+import MuiTypography from '@material-ui/core/Typography';
 import { Colors } from '../constants';
 
-const styles = theme => ({
-  root: {
-    flexGrow: 1,
-    backgroundColor: Colors.white,
-    boxShadow: `0px 1px 0px ${grey[300]}`,
-    padding: '12px 0',
-  },
-  h3: {
-    marginBottom: '0 !important',
-    flexGrow: 1,
-    fontSize: '30px !important',
-    fontWeight: '400 !important',
-  },
-  noShadow: {
-    boxShadow: 'none',
-    background: 'none',
-  },
-  buttonBarItems: {
-    marginLeft: '5px',
-    boxShadow: 'none !important',
-    lineHeight: `${theme.spacing(2)}px`,
-  },
-});
+const Typography = styled(MuiTypography)`
+  margin-bottom: 0;
+  flex-grow: 1;
+  font-size: 30px;
+  font-weight: 400;
+`;
 
-const TopBar = React.memo(({ classes, title, children }) => {
+const AppBar = styled(MuiAppBar)`
+  @media print {
+    display: none;
+  }
+
+  box-shadow: none;
+  background: none;
+  flex-grow: 1;
+  background-color: ${Colors.white};
+  box-shadow: 0px 1px 0px ${grey[300]};
+  padding: 12px 0;
+`;
+
+const Toolbar = styled(MuiToolbar)`
+  display: grid;
+  grid-template-columns: auto max-content;
+
+  button {
+    width: max-content;
+  }
+`;
+
+const TopBar = React.memo(({ title, children, className }) => {
   return (
-    <Grid className={classes.root}>
-      <AppBar position="static" color="inherit" className={classes.noShadow}>
-        <Toolbar>
-          <Typography variant="h3" color="inherit" className={classes.h3}>
-            {title}
-          </Typography>
-          {children}
-        </Toolbar>
-      </AppBar>
-    </Grid>
+    <AppBar position="static" color="inherit">
+      <Toolbar className={className}>
+        <Typography variant="h3" color="inherit">
+          {title}
+        </Typography>
+        {children}
+      </Toolbar>
+    </AppBar>
   );
 });
 
@@ -51,4 +53,4 @@ TopBar.propTypes = {
   title: PropTypes.string.isRequired,
 };
 
-export default withStyles(styles)(TopBar);
+export default TopBar;

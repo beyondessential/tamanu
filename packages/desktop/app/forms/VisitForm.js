@@ -15,6 +15,7 @@ import {
   TextField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
+import { DateDisplay } from '../components/DateDisplay';
 import { Button } from '../components/Button';
 
 import { visitOptions, Colors } from '../constants';
@@ -44,16 +45,49 @@ const VisitOptionButton = ({ label, image, onClick }) => (
   </VisitOptionTypeButton>
 );
 
-const StartPage = ({ setValue }) => {
-  const items = visitOptions.map(({ label, value, image }) => (
-    <VisitOptionButton
-      key={value}
-      label={label}
-      value={value}
-      image={image}
-      onClick={() => setValue('visitType', value)}
+const getReferralLabel = referral => {
+  const { date, referringDoctor, location } = referral;
+  const parts = [
+    `${DateDisplay.rawFormat(date)}:`,
+    location && location.name,
+    referringDoctor && referringDoctor.displayName && `(by ${referringDoctor.displayName})`,
+  ];
+  return parts.filter(x => x).join(' ');
+};
+
+const ReferralField = ({ referrals = [] }) => {
+  const referralOptions = [{ value: null, label: 'No linked referral' }].concat(
+    referrals
+      .filter(r => !r.closedDate)
+      .map(r => ({
+        value: r._id,
+        label: getReferralLabel(r),
+      })),
+  );
+
+  return (
+    <Field
+      name="referral._id"
+      label="Referral"
+      disabled={referrals.length === 0}
+      component={SelectField}
+      options={referralOptions}
     />
-  ));
+  );
+};
+
+const StartPage = ({ setValue }) => {
+  const items = visitOptions
+    .filter(option => !option.hideFromOptions)
+    .map(({ label, value, image }) => (
+      <VisitOptionButton
+        key={value}
+        label={label}
+        value={value}
+        image={image}
+        onClick={() => setValue('visitType', value)}
+      />
+    ));
 
   return <SelectorGrid>{items}</SelectorGrid>;
 };
@@ -68,8 +102,9 @@ export class VisitForm extends React.PureComponent {
       return <StartPage setValue={setFieldValue} />;
     }
 
-    const { locationSuggester, practitionerSuggester, editedObject } = this.props;
+    const { locationSuggester, practitionerSuggester, departmentSuggester, editedObject, referrals } = this.props;
     const buttonText = editedObject ? 'Update visit' : 'Start visit';
+
     return (
       <FormGrid>
         <Field
@@ -87,6 +122,13 @@ export class VisitForm extends React.PureComponent {
           options={visitOptions}
         />
         <Field
+          name="department._id"
+          label="Department"
+          required
+          component={AutocompleteField}
+          suggester={departmentSuggester}
+        />
+        <Field
           name="location._id"
           label="Location"
           required
@@ -100,6 +142,7 @@ export class VisitForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
+        <ReferralField referrals={referrals} />
         <Field
           name="reasonForVisit"
           label="Reason for visit"
@@ -130,6 +173,7 @@ export class VisitForm extends React.PureComponent {
         validationSchema={yup.object().shape({
           examiner: foreignKey('Examiner is required'),
           location: foreignKey('Location is required'),
+          department: foreignKey('Department is required'),
           startDate: yup.date().required(),
           visitType: yup
             .mixed()

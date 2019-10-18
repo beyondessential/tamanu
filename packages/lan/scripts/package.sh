@@ -9,11 +9,12 @@ fi
 rm -rf ${LAN_ROOT}/release && mkdir ${LAN_ROOT}/release
 yarn workspace lan run build
 cp ${LAN_ROOT}/.bin/*.node ${LAN_ROOT}/release/
+mkdir ${LAN_ROOT}/release/config && cp ${LAN_ROOT}/config/*.json ${LAN_ROOT}/release/config/
 mkdir ${LAN_ROOT}/release/data && touch ${LAN_ROOT}/release/data/.keep
 ${LAN_ROOT}/.bin/msi-packager \
   ${LAN_ROOT}/release \
   ${LAN_ROOT}/release/setup.msi \
-  --name 'Tamanu Lan Server' \
+  --name 'Tamanu LAN Server' \
   --version 0.0.1 \
   --manufacturer 'beyondessential.com.au' \
   --upgrade-code 'ABCD-EFGH-IJKL' \

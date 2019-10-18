@@ -1,10 +1,10 @@
 import { toUpper } from 'lodash';
 import shortid from 'shortid';
 import request from 'request-promise';
-const apiURL = 'https://api.universalcodes.msupply.org.nz/v1/items';
+const API_URL = 'https://api.universalcodes.msupply.org.nz/v1/items';
 const modelName = 'drug';
 
-export default async (database) => {
+export default async database => {
   try {
     const drugs = await fetchDrugs();
     database.write(() => {
@@ -12,18 +12,22 @@ export default async (database) => {
         const { code, name } = drug;
         const drugObject = database.findOne(modelName, name, 'name');
         if (!drugObject || drugObject.length <= 0) {
-          database.create(modelName, {
-            _id: shortid.generate(),
-            name,
-            code: toUpper(code)
-          }, true);
+          database.create(
+            modelName,
+            {
+              _id: shortid.generate(),
+              name,
+              code: toUpper(code),
+            },
+            true,
+          );
         }
       });
     });
   } catch (error) {
     console.error(`Error happened while fetching drugs ${error}`);
   }
-}
+};
 
 const fetchDrugs = async () => {
   const apiURL = 'https://api.universalcodes.msupply.org.nz/v1/items';

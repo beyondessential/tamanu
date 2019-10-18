@@ -6,7 +6,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { withStyles } from '@material-ui/core/styles';
 import MaterialTable from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -27,16 +26,40 @@ const StyledTableRow = styled(TableRow)`
   ${p =>
     p.onClick
       ? `
-  cursor: pointer;
-  &:hover {
-    background: rgba(255,255,255,0.6);
-  }
-  `
+      cursor: pointer;
+      &:hover {
+        background: rgba(255,255,255,0.6);
+      }
+    `
       : ''}
 `;
 
 const StyledTableContainer = styled.div`
   margin: 1rem;
+`;
+
+const StyledTableCell = styled(TableCell)`
+  padding: 16px;
+  background: ${props => props.background};
+`;
+
+const StyledTable = styled(MaterialTable)`
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px 3px 0 0;
+  border-collapse: unset;
+  background: ${Colors.white};
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const StyledTableHead = styled(TableHead)`
+  background: ${Colors.background};
+`;
+
+const StyledTableFooter = styled(TableFooter)`
+  background: ${Colors.background};
 `;
 
 const RowContainer = React.memo(({ children, onClick }) => (
@@ -46,12 +69,17 @@ const RowContainer = React.memo(({ children, onClick }) => (
 ));
 
 const Row = React.memo(({ columns, data, onClick }) => {
-  const cells = columns.map(({ key, accessor, CellComponent, numeric }) => {
+  const cells = columns.map(({ key, accessor, CellComponent, numeric, cellColor }) => {
     const value = accessor ? React.createElement(accessor, data) : data[key];
+    const displayValue = value === 0 ? '0' : value;
+    const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
+
     return (
-      <TableCell key={key} align={numeric ? 'right' : 'left'}>
-        <ErrorBoundary>{CellComponent ? <CellComponent value={value} /> : value}</ErrorBoundary>
-      </TableCell>
+      <StyledTableCell background={backgroundColor} key={key} align={numeric ? 'right' : 'left'}>
+        <ErrorBoundary>
+          {CellComponent ? <CellComponent value={displayValue} /> : displayValue}
+        </ErrorBoundary>
+      </StyledTableCell>
     );
   });
   return <RowContainer onClick={onClick && (() => onClick(data))}>{cells}</RowContainer>;
@@ -63,27 +91,11 @@ const ErrorSpan = styled.span`
 
 const ErrorRow = React.memo(({ colSpan, children }) => (
   <RowContainer>
-    <TableCell colSpan={colSpan} align="center">
+    <StyledTableCell colSpan={colSpan} align="center">
       {children}
-    </TableCell>
+    </StyledTableCell>
   </RowContainer>
 ));
-
-const tableStyles = () => ({
-  root: {
-    border: `1px solid ${Colors.outline}`,
-    borderRadius: '3px 3px 0 0',
-    borderCollapse: 'unset',
-    background: Colors.white,
-
-    '&:last-child': {
-      borderBottom: 'none',
-    },
-  },
-  tableHead: {
-    background: Colors.background,
-  },
-});
 
 class TableComponent extends React.Component {
   static propTypes = {
@@ -164,9 +176,9 @@ class TableComponent extends React.Component {
       );
 
     return columns.map(({ key, title, numeric, sortable = true }) => (
-      <TableCell key={key} align={numeric ? 'right' : 'left'}>
+      <StyledTableCell key={key} align={numeric ? 'right' : 'left'}>
         {getContent(key, sortable, title)}
-      </TableCell>
+      </StyledTableCell>
     ));
   }
 
@@ -204,19 +216,19 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { page, classes } = this.props;
+    const { page } = this.props;
     return (
       <StyledTableContainer>
-        <MaterialTable classes={{ root: classes.root }}>
-          <TableHead className={classes.tableHead}>
+        <StyledTable>
+          <StyledTableHead>
             <TableRow>{this.renderHeaders()}</TableRow>
-          </TableHead>
+          </StyledTableHead>
           <TableBody>{this.renderBodyContent()}</TableBody>
-          {page !== null && <TableFooter>{this.renderPaginator()}</TableFooter>}
-        </MaterialTable>
+          {page !== null && <StyledTableFooter>{this.renderPaginator()}</StyledTableFooter>}
+        </StyledTable>
       </StyledTableContainer>
     );
   }
 }
 
-export const Table = withStyles(tableStyles)(TableComponent);
+export const Table = TableComponent;

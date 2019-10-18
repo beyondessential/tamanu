@@ -8,7 +8,7 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "AGPL-3.0-only",
   "scripts": {
-    "test": "jest",
+    "test": "jest --maxWorkers=10",
     "test:coverage": "jest --coverage",
     "test:watch": "npm test -- --watch",
     "lint": "eslint schemas utils constants services",
@@ -24,6 +24,7 @@
     "await-to-js": "^2.0.1",
     "babel-jest": "^24.5.0",
     "bcrypt": "^3.0.1",
+    "chance": "^1.0.18",
     "eslint": "^5.15.2",
     "jest": "^24.5.0",
     "json-prune": "^1.1.0",

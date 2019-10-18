@@ -3,7 +3,7 @@ import styled from 'styled-components';
 export const FormGrid = styled.div`
   display: grid;
 
-  margin-top: 0.3rem;
+  ${p => !p.nested && 'margin-top: 0.3rem;'}
   grid-column-gap: 0.7rem;
   grid-row-gap: 1.2rem;
 

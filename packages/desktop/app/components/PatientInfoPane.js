@@ -11,10 +11,11 @@ const OngoingConditionDisplay = memo(({ patient }) => (
   <InfoPaneList
     patient={patient}
     title="Ongoing conditions"
-    endpoint="condition"
-    suggesterEndpoints={['practitioner']}
+    endpoint="conditions"
+    suggesterEndpoints={['practitioner', 'icd10']}
     items={patient.conditions}
     Form={OngoingConditionForm}
+    getName={({ condition }) => condition.name}
   />
 ));
 
@@ -38,7 +39,12 @@ const FamilyHistoryDisplay = memo(({ patient }) => (
     suggesterEndpoints={['practitioner', 'icd10']}
     items={patient.familyHistory}
     Form={FamilyHistoryForm}
-    getName={historyItem => historyItem.diagnosis.name}
+    getName={historyItem => {
+      const name = historyItem.diagnosis.name;
+      const relation = historyItem.relationship;
+      if (!relation) return name;
+      return `${name} (${relation})`;
+    }}
   />
 ));
 

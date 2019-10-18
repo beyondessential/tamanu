@@ -26,11 +26,11 @@ const validateBody = [
 ];
 
 const verifyCredentials = async (req, res) => {
-  const database = req.app.get('database');
-  const { clientId, clientSecret } = req.body;
+  const { db, body } = req;
+  const { clientId, clientSecret } = body;
 
   try {
-    const authService = new AuthService(database);
+    const authService = new AuthService(db);
     const loginCheck = await authService.verifyExtendToken({ clientId, clientSecret });
     return res.json({
       userId: loginCheck.userId,

@@ -30,14 +30,14 @@ const validateBody = [
 
 const login = async (req, res) => {
   const database = req.app.get('realm');
-  const { email, password, hospital, clientId, firstTimeLogin } = req.body;
+  const { email, password, facility, clientId, firstTimeLogin } = req.body;
 
   try {
     const authService = new AuthService(database);
     const doLogin = await authService.login({
       email,
       password,
-      hospital,
+      facility,
       clientId,
       firstTimeLogin,
     });

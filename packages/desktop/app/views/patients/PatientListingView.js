@@ -1,32 +1,27 @@
 import React, { useState, useCallback } from 'react';
+import { connect } from 'react-redux';
+import { viewPatient } from '../../store/patient';
 import { TopBar, PageContainer, Button, DataFetchingTable } from '../../components';
 import { PatientSearchBar, NewPatientModal } from './components';
-import { displayId, firstName, lastName, culturalName, sex, dateOfBirth } from './columns';
+import { displayId, firstName, lastName, culturalName, sex, dateOfBirth, status } from './columns';
 import { PATIENT_SEARCH_ENDPOINT } from './constants';
-import { PatientActionDropdown } from '../../components/PatientActionDropdown';
 
-const COLUMNS = [
-  displayId,
-  firstName,
-  lastName,
-  culturalName,
-  sex,
-  dateOfBirth,
-  {
-    key: 'actions',
-    title: 'Actions',
-    accessor: row => <PatientActionDropdown patient={row} showView />,
-  },
-];
+const COLUMNS = [displayId, firstName, lastName, culturalName, sex, dateOfBirth, status];
 
-const PatientTable = React.memo(({ ...props }) => (
-  <DataFetchingTable
-    endpoint={PATIENT_SEARCH_ENDPOINT}
-    columns={COLUMNS}
-    noDataMessage="No patients found"
-    {...props}
-  />
-));
+const PatientTable = connect(
+  null,
+  dispatch => ({ viewPatient: id => dispatch(viewPatient(id)) }),
+)(
+  React.memo(({ viewPatient, ...props }) => (
+    <DataFetchingTable
+      endpoint={PATIENT_SEARCH_ENDPOINT}
+      columns={COLUMNS}
+      noDataMessage="No patients found"
+      onRowClick={row => viewPatient(row._id)}
+      {...props}
+    />
+  )),
+);
 
 export const PatientListingView = React.memo(() => {
   const [searchParameters, setSearchParameters] = useState({});

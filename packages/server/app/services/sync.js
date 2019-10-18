@@ -33,14 +33,14 @@ export default class Sync {
 
   async sync(client) {
     try {
-      const { syncOut: lastSyncTime, hospitalId } = client;
+      const { syncOut: lastSyncTime, facilityId } = client;
       const changes = this.database.find('change', `timestamp > "${lastSyncTime}"`);
       if (changes && changes.length > 0) {
-        const hospital = this.database.findOne('hospital', hospitalId);
+        const facility = this.database.findOne('facility', facilityId);
         const maxTimestamp = changes.max('timestamp');
         const [err] = await to(
           Promise.all(
-            changes.map(change => this.publishMessage(objectToJSON(change), client, hospital)),
+            changes.map(change => this.publishMessage(objectToJSON(change), client, facility)),
           ),
         );
         if (err) return new Error(err);
@@ -108,7 +108,7 @@ export default class Sync {
     });
   }
 
-  async publishMessage(change, client, hospital) {
+  async publishMessage(change, client, facility) {
     try {
       let record = this.database.findOne(change.recordType, change.recordId);
       const schema = findSchema(change.recordType);
@@ -118,9 +118,7 @@ export default class Sync {
           const sendItem = schema.filter(record, client, change);
           if (!sendItem) {
             console.log(
-              `Object [${change.recordType} - ${
-                change.recordId
-              }] not authorized to be synced, skipping..`,
+              `Object [${change.recordType} - ${change.recordId}] not authorized to be synced, skipping..`,
             );
             return true;
           }
@@ -129,11 +127,11 @@ export default class Sync {
         if (record) record = parseObjectForSync(record);
         // Apply selectors  if defined
         if (toLower(change.action) === 'save') {
-          record = this.applySelectors(schema, hospital, change, record);
+          record = this.applySelectors(schema, facility, change, record);
           // Reset modified fields
           record.modifiedFields = [];
         }
-        // if (record._id === 'hospital-demo-10') console.log('-out-', { users: record.users });
+        // if (record._id === 'facility-demo-10') console.log('-out-', { users: record.users });
         await this.client.getClient().publish(`/${config.sync.channelOut}/${client.clientId}`, {
           record,
           ...change,
@@ -153,12 +151,12 @@ export default class Sync {
     }
   }
 
-  applySelectors = (schema, hospital, change, record) => {
+  applySelectors = (schema, facility, change, record) => {
     let filteredRecord = record;
     filteredRecord.fullySynced = false; // reset
     if (schema.selectors && !isEmpty(schema.selectors)) {
       const key = `${change.recordType}-${change.recordId}`;
-      const objectsFullySynced = Array.from(hospital.objectsFullySynced);
+      const objectsFullySynced = Array.from(facility.objectsFullySynced);
       if (objectsFullySynced.includes(key)) filteredRecord.fullySynced = true;
 
       // Send selected fields only
@@ -239,13 +237,13 @@ export default class Sync {
       const tokenPayload = this.auth.verifyJWTToken(token);
 
       if (tokenPayload !== false) {
-        const { userId, hospitalId } = tokenPayload;
+        const { userId, facilityId } = tokenPayload;
         const fields = updatedModifiedFields.map(({ field: f }) => f);
         const subject = recordType;
         const user = userId;
         const validPermissions = this.auth.validatePermissions({
           user,
-          hospitalId,
+          facilityId,
           action,
           subject,
           fields,

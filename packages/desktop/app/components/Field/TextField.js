@@ -7,13 +7,14 @@ import { Colors } from '../../constants';
 
 const StyledTextField = styled(MuiTextField)`
   div:first-child {
-    background: ${Colors.white};
+    background: ${props => (props.disabled ? 'none' : Colors.white)};
+    color: ${Colors.darkText};
   }
 `;
 
-export const TextInput = ({ value, label, ...props }) => (
+export const TextInput = ({ value = '', label, ...props }) => (
   <OuterLabelFieldWrapper label={label} {...props}>
-    <StyledTextField value={value || ''} variant="outlined" {...props} />
+    <StyledTextField value={value} variant="outlined" {...props} />
   </OuterLabelFieldWrapper>
 );
 
@@ -29,6 +30,8 @@ TextInput.propTypes = {
 };
 
 TextInput.defaultProps = {
+  name: undefined,
+  onChange: undefined,
   value: '',
   fullWidth: true,
 };

@@ -6,8 +6,8 @@ const defaultTransform = ({ name, _id }) => ({ name, _id });
 
 function createSuggestionRoute(path, table, filter, transform = defaultTransform) {
   suggestionRoutes.get(`/${path}/:id`, (req, res) => {
-    const db = req.app.get('database');
-    const { id } = req.params;
+    const { db, params } = req;
+    const { id } = params;
     const object = db.objectForPrimaryKey(table, id);
     if (!object) {
       res.status(404).send(`Could not find object with id "${id}" in table "${table}"`);
@@ -17,8 +17,8 @@ function createSuggestionRoute(path, table, filter, transform = defaultTransform
   });
 
   suggestionRoutes.get(`/${path}`, (req, res) => {
-    const db = req.app.get('database');
-    const { q = '', limit = 10 } = req.query;
+    const { db, query } = req;
+    const { q = '', limit = 10 } = query;
     const candidates = db
       .objects(table)
       .filtered(filter, q)
@@ -30,6 +30,7 @@ function createSuggestionRoute(path, table, filter, transform = defaultTransform
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 function createDummySuggestionRoute(path, valuesTemplate) {
   const makeId = s =>
     s
@@ -65,7 +66,7 @@ function createDummySuggestionRoute(path, valuesTemplate) {
 createSuggestionRoute(
   'icd10',
   'diagnosis',
-  '(name CONTAINS[c] $0 OR code CONTAINS[c] $0) AND type = "icd10"',
+  '(name CONTAINS[c] $0 OR code BEGINSWITH[c] $0) AND type = "icd10"',
   ({ name, code, _id }) => ({ name, code, _id }),
 );
 
@@ -83,5 +84,7 @@ createSuggestionRoute(
   ({ _id, firstName, lastName }) => ({ _id, firstName, lastName }),
 );
 
-createSuggestionRoute('facility', 'hospital', 'name CONTAINS[c] $0');
+createSuggestionRoute('facility', 'facility', 'name CONTAINS[c] $0');
 createSuggestionRoute('location', 'location', 'name CONTAINS[c] $0');
+createSuggestionRoute('drug', 'drug', 'name BEGINSWITH[c] $0');
+createSuggestionRoute('department', 'department', 'name CONTAINS[c] $0');

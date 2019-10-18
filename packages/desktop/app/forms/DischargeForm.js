@@ -13,54 +13,86 @@ import {
   CheckField,
   DateField,
 } from '../components/Field';
+import { DateInput } from '../components/Field/DateField';
+import { TextInput } from '../components/Field/TextField';
+
 import { ConfirmCancelRow } from '../components/ButtonRow';
-import { DetailTable, DetailRow, FullWidthDetailRow } from '../components/DetailTable';
-import { DateDisplay } from '../components/DateDisplay';
+import { DiagnosisList } from '../components/DiagnosisList';
 
-const Column = styled.div`
+const ReadonlyFields = styled.div`
   display: grid;
-  grid-row-gap: 1.2rem;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 8px;
+  margin-bottom: 1.2rem;
 
-  > * {
-    grid-column: 1 !important;
+  ul {
+    margin: 5px 0;
+    padding-left: 25px;
   }
 `;
 
-const DiagnosisRow = ({ diagnosis }) => <div>{diagnosis.name}</div>;
+const Label = styled.span`
+  color: #666666;
+  font-weight: 500;
+`;
 
-const ProcedureRow = ({ cpt }) => <div>{cpt}</div>;
+const EditFields = styled.div`
+  display: grid;
+  grid-template-columns: 100%;
+  grid-row-gap: 1.2rem;
+`;
 
-const MedicineRow = ({ drug, prescription }) => (
+const FullWidthFields = styled.div`
+  grid-column: 1 / -1;
+
+  > div:first-child {
+    margin-bottom: 4px;
+  }
+`;
+
+const ProcedureRow = ({ cpt }) => <li>{cpt}</li>;
+
+const MedicineRow = ({ medication }) => (
   <React.Fragment>
-    <div>{drug}</div>
-    <div>{prescription}</div>
+    <li>
+      {medication.drug.name} ({medication.prescription})
+    </li>
   </React.Fragment>
 );
 
-const VisitOverview = React.memo(({ visit }) => (
-  <DetailTable width="12rem">
-    <DetailRow label="Admission date">
-      <DateDisplay date={visit.startDate} />
-    </DetailRow>
-    <DetailRow label="Supervising physician">{visit.examiner.name}</DetailRow>
-    <DetailRow label="Reason for visit">{visit.reasonForVisit || 'Not specified'}</DetailRow>
-    <FullWidthDetailRow label="Diagnoses">
-      {visit.diagnoses.map(d => (
-        <DiagnosisRow key={d._id} diagnosis={d.diagnosis} />
-      ))}
-    </FullWidthDetailRow>
-    <FullWidthDetailRow label="Procedures">
-      {visit.procedures.map(({ code }) => (
-        <ProcedureRow key={code} cpt={code} />
-      ))}
-    </FullWidthDetailRow>
-    <FullWidthDetailRow label="Discharge medicines">
-      {visit.medications.map(m => (
-        <MedicineRow key={m} icd10={m} />
-      ))}
-    </FullWidthDetailRow>
-  </DetailTable>
-));
+const VisitOverview = ({ visit }) => (
+  <ReadonlyFields>
+    <DateInput label="Admission date" value={visit.startDate} disabled />
+    <TextInput
+      label="Supervising Physician"
+      value={visit.examiner ? visit.examiner.displayName : '-'}
+      disabled
+    />
+    <div>
+      <Label>Discharge medicines</Label>
+      <ul>
+        {visit.medications.length > 0
+          ? visit.medications.map(m => <MedicineRow key={m} medication={m} />)
+          : 'N/a'}
+      </ul>
+    </div>
+    <div>
+      <Label>Procedures</Label>
+      <ul>
+        {visit.procedures.length > 0
+          ? visit.procedures.map(({ cptCode }) => <ProcedureRow key={cptCode} cpt={cptCode} />)
+          : 'N/a'}
+      </ul>
+    </div>
+    <FullWidthFields>
+      <TextInput label="Reason for visit" value={visit.reasonForVisit} disabled />
+      <div>
+        <Label>Diagnoses</Label>
+        <DiagnosisList diagnoses={visit.diagnoses} />
+      </div>
+    </FullWidthFields>
+  </ReadonlyFields>
+);
 
 export class DischargeForm extends React.PureComponent {
   static propTypes = {
@@ -71,40 +103,42 @@ export class DischargeForm extends React.PureComponent {
   };
 
   renderForm = ({ submitForm }) => {
-    const { practitionerSuggester, onCancel } = this.props;
+    const { practitionerSuggester, onCancel, visit } = this.props;
     return (
-      <Column>
-        <Field
-          name="sendToPharmacy"
-          label="Send discharge prescription to pharmacy"
-          component={CheckField}
-          helperText="Requires mSupply"
-        />
-        <Field name="endDate" label="Discharge date" component={DateField} required />
-        <Field
-          name="dischargePhysician._id"
-          label="Discharging physician"
-          component={AutocompleteField}
-          suggester={practitionerSuggester}
-          required
-        />
-        <Field
-          name="dischargeNotes"
-          label="Discharge treatment plan and follow-up notes"
-          component={TextField}
-          multiline
-          rows={4}
-        />
-        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText="Finalise" />
-      </Column>
+      <div>
+        <VisitOverview visit={visit} />
+        <EditFields>
+          <Field name="endDate" label="Discharge date" component={DateField} required />
+          <Field
+            name="sendToPharmacy"
+            label="Send discharge prescription to pharmacy"
+            component={CheckField}
+            helperText="Requires mSupply"
+          />
+          <Field
+            name="dischargePhysician._id"
+            label="Discharging physician"
+            component={AutocompleteField}
+            suggester={practitionerSuggester}
+            required
+          />
+          <Field
+            name="dischargeNotes"
+            label="Discharge treatment plan and follow-up notes"
+            component={TextField}
+            multiline
+            rows={4}
+          />
+          <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText="Finalise" />
+        </EditFields>
+      </div>
     );
   };
 
   render() {
-    const { onSubmit, visit } = this.props;
+    const { onSubmit } = this.props;
     return (
       <div>
-        <VisitOverview visit={visit} />
         <Form
           onSubmit={onSubmit}
           render={this.renderForm}

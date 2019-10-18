@@ -9,7 +9,7 @@ export const displayId = {
   key: 'displayId',
   title: 'ID',
   minWidth: 80,
-  accessor: row => row._id,
+  accessor: row => row.displayId || `(${row._id})`,
 };
 
 export const firstName = {
@@ -48,4 +48,17 @@ export const location = {
   key: 'location',
   title: 'Location',
   minWidth: 100,
+};
+
+export const status = {
+  key: 'status',
+  title: 'Status',
+  minWidth: 100,
+  accessor: row => {
+    const visit = row.visits.find(x => !x.endDate);
+    if (!visit) return '';
+    else if (visit.visitType === 'emergency') return 'Emergency';
+    // TODO: include "Outpatient" status
+    return 'Inpatient';
+  },
 };

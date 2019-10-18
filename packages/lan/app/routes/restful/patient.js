@@ -5,33 +5,63 @@ import { objectToJSON } from '../../utils';
 
 export const patientRoutes = express.Router();
 
-patientRoutes.post('/patient/:id/triages', (req, res) => {
-  const db = req.app.get('database');
-  const patient = db.objectForPrimaryKey('patient', req.params.id);
-  const triage = {
-    _id: shortid(),
-    arrivalTime: req.body.triageTime,
-    ...req.body,
+patientRoutes.post('/patient', (req, res) => {
+  const { db, body } = req;
+  const patient = {
+    _id: shortid.generate(),
+    ...body,
   };
 
   db.write(() => {
+    db.create('patient', patient);
+  });
+
+  res.send(patient);
+});
+
+patientRoutes.post('/patient/:id/triages', (req, res) => {
+  const { db, params, body } = req;
+  const patient = db.objectForPrimaryKey('patient', params.id);
+  const triage = {
+    _id: shortid.generate(),
+    arrivalTime: body.triageTime,
+    ...body,
+  };
+
+  const visit = {
+    _id: shortid.generate(),
+    visitType: 'triage',
+    startDate: req.body.triageTime,
+    reasonForVisit: triage.reasonForVisit,
+    examiner: triage.practitioner,
+    location: triage.location,
+  };
+
+  triage.visit = visit;
+
+  db.write(() => {
     patient.triages = [...patient.triages, triage];
+    patient.visits = [...patient.visits, visit];
   });
 
   res.send(triage);
 });
 
 patientRoutes.post('/patient/:id/visits', (req, res) => {
-  const db = req.app.get('database');
-  const patient = db.objectForPrimaryKey('patient', req.params.id);
+  const { db, params, body } = req;
+  const patient = db.objectForPrimaryKey('patient', params.id);
   const visit = {
-    _id: shortid(),
-    ...req.body,
+    _id: shortid.generate(),
+    ...body,
   };
 
   // check if there's an open triage - if there is, close it with
   // this visit.
   const triage = patient.triages.filtered('closedTime == null')[0];
+
+  // check if there was a referral selected, and close it with this visit
+  const referralId = visit.referral && visit.referral._id;
+  const referral = patient.referrals.filtered('_id == $0', referralId)[0];
 
   db.write(() => {
     patient.visits = [...patient.visits, visit];
@@ -40,17 +70,37 @@ patientRoutes.post('/patient/:id/visits', (req, res) => {
       triage.visit = visit;
       triage.closedTime = visit.startDate;
     }
+
+    if (referral) {
+      referral.visit = visit;
+      referral.closedDate = visit.startDate;
+    }
   });
 
   res.send(visit);
 });
 
-patientRoutes.post('/patient/:id/allergies', (req, res) => {
-  const db = req.app.get('database');
-  const patient = db.objectForPrimaryKey('patient', req.params.id);
-  const allergy = {
+patientRoutes.post('/patient/:id/conditions', (req, res) => {
+  const { db, params, body } = req;
+  const patient = db.objectForPrimaryKey('patient', params.id);
+  const condition = {
     _id: shortid(),
-    ...req.body,
+    ...body,
+  };
+
+  db.write(() => {
+    patient.conditions = [...patient.conditions, condition];
+  });
+
+  res.send(condition);
+});
+
+patientRoutes.post('/patient/:id/allergies', (req, res) => {
+  const { db, params, body } = req;
+  const patient = db.objectForPrimaryKey('patient', params.id);
+  const allergy = {
+    _id: shortid.generate(),
+    ...body,
   };
 
   db.write(() => {
@@ -61,11 +111,11 @@ patientRoutes.post('/patient/:id/allergies', (req, res) => {
 });
 
 patientRoutes.post('/patient/:id/familyHistory', (req, res) => {
-  const db = req.app.get('database');
-  const patient = db.objectForPrimaryKey('patient', req.params.id);
+  const { db, params, body } = req;
+  const patient = db.objectForPrimaryKey('patient', params.id);
   const historyItem = {
-    _id: shortid(),
-    ...req.body,
+    _id: shortid.generate(),
+    ...body,
   };
 
   db.write(() => {
@@ -76,12 +126,12 @@ patientRoutes.post('/patient/:id/familyHistory', (req, res) => {
 });
 
 patientRoutes.post('/patient/:id/appointment', (req, res) => {
-  const db = req.app.get('database');
-  const patient = db.objectForPrimaryKey('patient', req.params.id);
+  const { db, params, body } = req;
+  const patient = db.objectForPrimaryKey('patient', params.id);
   const appointment = {
-    _id: shortid(),
+    _id: shortid.generate(),
     status: 'scheduled',
-    ...req.body,
+    ...body,
   };
 
   // TODO: validate
@@ -94,12 +144,12 @@ patientRoutes.post('/patient/:id/appointment', (req, res) => {
 });
 
 patientRoutes.post('/patient/:id/referral', (req, res) => {
-  const db = req.app.get('database');
-  const patient = db.objectForPrimaryKey('patient', req.params.id);
+  const { db, params, body } = req;
+  const patient = db.objectForPrimaryKey('patient', params.id);
   const referral = {
-    _id: shortid(),
+    _id: shortid.generate(),
     status: 'pending',
-    ...req.body,
+    ...body,
   };
 
   // TODO: validate

@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 
-import { Table } from './Table';
+import { Table, DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
 import { LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_COLORS } from '../constants';
@@ -41,3 +41,15 @@ export const LabRequestsTable = connect(
   null,
   dispatch => ({ onLabSelect: lab => dispatch(viewLab(lab._id)) }),
 )(DumbLabRequestsTable);
+
+export const DataFetchingLabRequestsTable = connect(
+  null,
+  dispatch => ({ onLabSelect: lab => dispatch(viewLab(lab._id)) }),
+)(({ onLabSelect }) => (
+  <DataFetchingTable
+    endpoint="labRequest"
+    columns={columns}
+    noDataMessage="No lab requests found"
+    onRowClick={onLabSelect}
+  />
+));

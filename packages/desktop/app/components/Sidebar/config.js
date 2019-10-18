@@ -1,24 +1,26 @@
 import {
-  patientIcon,
-  scheduleIcon,
-  medicationIcon,
-  labsIcon,
   administrationIcon,
+  labsIcon,
+  medicationIcon,
+  patientIcon,
   programsIcon,
   radiologyIcon,
+  scheduleIcon,
 } from '../../constants/images';
 import { availableReports } from '../../views/reports/dummyReports';
 
 export const submenuIcons = {
+  action: 'fa fa-chevron-circle-right',
   calendar: 'fa fa-calendar',
+  cog: 'fa fa-cog',
+  location: 'fa fa-location-arrow',
   new: 'fa fa-plus',
+  permissions: 'fa fa-lock',
+  report: 'fa fa-chevron-circle-right',
   search: 'fa fa-search',
+  seed: 'fa fa-seedling',
   table: 'fa fa-th-list',
   users: 'fa fa-users',
-  permissions: 'fa fa-lock',
-  cog: 'fa fa-cog',
-  report: 'fa fa-chevron-circle-right',
-  action: 'fa fa-chevron-circle-right',
 };
 
 export const items = [
@@ -30,20 +32,20 @@ export const items = [
     ability: { subject: 'patient' },
     children: [
       {
-        label: 'Patient Listing',
+        label: 'All patients',
         path: '/patients',
         icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
-        label: 'Emergency',
-        path: '/patients/triage',
+        label: 'Inpatients',
+        path: '/patients/admitted',
         icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
-        label: 'Admitted Patients',
-        path: '/patients/admitted',
+        label: 'Emergency patients',
+        path: '/patients/triage',
         icon: submenuIcons.table,
         ability: { action: 'read' },
       },
@@ -52,12 +54,6 @@ export const items = [
         path: '/patients/outpatient',
         icon: submenuIcons.table,
         ability: { action: 'read' },
-      },
-      {
-        label: 'New Patient',
-        path: '/patients/edit/new',
-        icon: submenuIcons.new,
-        ability: { action: 'create' },
       },
     ],
   },
@@ -68,6 +64,12 @@ export const items = [
     icon: scheduleIcon,
     ability: { subject: 'appointment' },
     children: [
+      {
+        label: 'Upcoming Appointments',
+        path: '/appointments',
+        icon: submenuIcons.table,
+        ability: { action: 'read' },
+      },
       {
         label: 'Appointments This Week',
         path: '/appointments/week',
@@ -218,16 +220,21 @@ export const items = [
         ability: { action: 'read', subject: 'user' },
       },
       {
+        label: 'Locations',
+        path: '/admin/locations',
+        icon: submenuIcons.location,
+        ability: { action: 'read', subject: 'location' },
+      },
+      {
         label: 'Permissions',
         path: '/admin/permissions',
         icon: submenuIcons.permissions,
         ability: { action: 'read', subject: 'userRole' },
       },
       {
-        label: 'New User',
-        path: '/admin/users/edit/new',
-        icon: submenuIcons.new,
-        ability: { action: 'create', subject: 'user' },
+        label: 'Seed database',
+        path: '/admin/seed',
+        icon: submenuIcons.seed,
       },
     ],
   },

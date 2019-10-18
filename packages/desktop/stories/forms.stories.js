@@ -4,6 +4,15 @@ import shortid from 'shortid';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
+import {
+  createDummyVisit,
+  DIAGNOSES,
+  DRUGS,
+  FACILITIES,
+  LOCATIONS,
+  PATIENTS,
+  USERS,
+} from 'Shared/demoData';
 import { LoginView } from '../app/views/LoginView';
 import { VisitForm } from '../app/forms/VisitForm';
 import { TriageForm } from '../app/forms/TriageForm';
@@ -16,19 +25,11 @@ import { DischargeForm } from '../app/forms/DischargeForm';
 import { NewPatientForm } from '../app/forms/NewPatientForm';
 import { LabRequestForm } from '../app/forms/LabRequestForm';
 import { ReferralForm } from '../app/forms/ReferralForm';
+import { MedicationForm } from '../app/forms/MedicationForm';
 import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
 import { NoteForm } from '../app/forms/NoteForm';
 
 import { TestSelectorInput } from '../app/components/TestSelector';
-
-import {
-  createDummyVisit,
-  PATIENTS,
-  LOCATIONS,
-  PRACTITIONERS,
-  FACILITIES,
-  DIAGNOSES,
-} from './dummyPatient';
 
 function createDummySuggester(options) {
   return {
@@ -40,16 +41,18 @@ function createDummySuggester(options) {
   };
 }
 
-const practitionerSuggester = createDummySuggester(PRACTITIONERS);
-const locationSuggester = createDummySuggester(LOCATIONS);
-const facilitySuggester = createDummySuggester(FACILITIES);
-const icd10Suggester = createDummySuggester(DIAGNOSES);
+const mapToSuggestions = objects => objects.map(({ _id, name }) => ({ label: name, value: _id }));
+const practitionerSuggester = createDummySuggester(mapToSuggestions(USERS));
+const locationSuggester = createDummySuggester(mapToSuggestions(LOCATIONS));
+const facilitySuggester = createDummySuggester(mapToSuggestions(FACILITIES));
+const icd10Suggester = createDummySuggester(mapToSuggestions(DIAGNOSES));
 const patientSuggester = createDummySuggester(
   PATIENTS.map(({ firstName, lastName, _id }) => ({
     label: `${firstName} ${lastName}`,
     value: _id,
   })),
 );
+const drugSuggester = createDummySuggester(mapToSuggestions(DRUGS));
 
 storiesOf('Forms', module).add('LoginForm', () => <LoginView login={action('login')} />);
 
@@ -121,7 +124,7 @@ storiesOf('Forms', module).add('OngoingConditionForm', () => (
 
 storiesOf('Forms', module).add('DischargeForm', () => (
   <DischargeForm
-    visit={createDummyVisit(false)}
+    visit={createDummyVisit()}
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
@@ -182,6 +185,15 @@ storiesOf('Forms', module).add('FamilyHistoryForm', () => (
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
     icd10Suggester={icd10Suggester}
+  />
+));
+
+storiesOf('Forms', module).add('MedicationForm', () => (
+  <MedicationForm
+    onSubmit={action('submit')}
+    onCancel={action('cancel')}
+    practitionerSuggester={practitionerSuggester}
+    drugSuggester={drugSuggester}
   />
 ));
 

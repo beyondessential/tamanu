@@ -14,8 +14,8 @@ export const LabRequest = {
     senaiteId: 'string?',
     sampleId: 'string?',
     notes: 'string?',
-    urgent: 'bool',
-    specimenAttached: 'bool',
+    urgent: { type: 'bool', default: false },
+    specimenAttached: { type: 'bool', default: false },
     status: {
       type: 'string',
       optional: true,

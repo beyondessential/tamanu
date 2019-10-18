@@ -1,111 +1,73 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import React, { memo, useCallback } from 'react';
+import styled from 'styled-components';
 import SearchIcon from '@material-ui/icons/Search';
-import InputBase from '@material-ui/core/InputBase';
-import { fade } from '@material-ui/core/styles/colorManipulator';
+import { Button } from './Button';
+import { Form, Field, TextField } from './Field';
+import { Colors } from '../constants';
 
-const styles = theme => ({
-  root: {
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.primary.dark, 0.15),
-    '&:hover': {
-      backgroundColor: fade(theme.palette.primary.dark, 0.25),
-    },
-    marginLeft: 0,
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing(1),
-      width: 'auto',
-    },
-  },
-  searchIcon: {
-    width: theme.spacing(6),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  inputRoot: {
-    color: 'inherit',
-    width: '100%',
-  },
-  inputInput: {
-    paddingTop: theme.spacing(1),
-    paddingRight: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-    paddingLeft: theme.spacing(7),
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    lineHeight: `${theme.spacing(2)}px`,
-    fontSize: `${theme.spacing(2)}px`,
-    [theme.breakpoints.up('sm')]: {
-      width: 120,
-      '&:focus': {
-        width: 200,
-      },
-    },
-  },
+const Container = styled.div`
+  border: 1px solid ${Colors.outline};
+  background: ${Colors.white};
+`;
+
+const SearchInputContainer = styled.div`
+  display: grid;
+  grid-template-columns: auto 150px;
+  padding: 30px;
+
+  > div {
+    :hover {
+      border-right: 1px solid ${Colors.primary};
+    }
+
+    :focus-within {
+      border-right: 2px solid ${Colors.primary};
+    }
+  }
+
+  fieldset {
+    border-radius: 0;
+    border-right: none;
+  }
+
+  > :first-child {
+    fieldset {
+      border-radius: 4px 0 0 4px;
+    }
+  }
+
+  button {
+    border-radius: 0;
+  }
+
+  :last-child {
+    button {
+      border-radius: 0 4px 4px 0;
+    }
+  }
+`;
+
+const PaddedSearchIcon = styled(SearchIcon)`
+  padding-right: 3px;
+`;
+
+const renderSearchBar = ({ placeholder, submitForm }) => (
+  <SearchInputContainer>
+    <Field component={TextField} placeholder={placeholder} name="name" />
+    <Button color="primary" variant="contained" onClick={submitForm}>
+      <PaddedSearchIcon />
+      Search
+    </Button>
+  </SearchInputContainer>
+);
+
+export const SearchBar = memo(({ onSearch }) => {
+  // We can't use onSearch directly as formik will call it with an unwanted second param
+  const handleSearch = useCallback(newParams => onSearch(newParams), [onSearch]);
+
+  return (
+    <Container>
+      <Form onSubmit={handleSearch} render={renderSearchBar} />
+    </Container>
+  );
 });
-
-class SearchBar extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { value: '' };
-  }
-
-  handleChange(event) {
-    const { onChange, onClear } = this.props;
-    const { value } = event.target;
-    this.setState({ value });
-    if (onChange) onChange(value);
-    if (value === '' && onClear) onClear();
-  }
-
-  onSubmit = event => {
-    event.preventDefault();
-    const { onSubmit: originalSubmit } = this.props;
-    const { value } = this.state;
-    if (typeof originalSubmit === 'function') originalSubmit(value);
-  };
-
-  render() {
-    const { classes, onClear, value: externalValue, ...props } = this.props;
-    const { value: internalValue } = this.state;
-    // Use externally controlled value if provided. Otherwise use state
-    const value = externalValue === undefined ? internalValue : externalValue;
-
-    return (
-      <form onSubmit={this.onSubmit.bind(this)}>
-        <div className={classes.root}>
-          <div className={classes.searchIcon}>
-            <SearchIcon />
-          </div>
-          <InputBase
-            placeholder="Search..."
-            classes={{
-              root: classes.inputRoot,
-              input: classes.inputInput,
-            }}
-            onChange={this.handleChange.bind(this)}
-            value={value}
-            {...props}
-          />
-        </div>
-      </form>
-    );
-  }
-}
-
-SearchBar.defaultProps = {
-  value: undefined,
-};
-
-SearchBar.propTypes = {
-  value: PropTypes.string,
-};
-
-export default withStyles(styles)(SearchBar);
