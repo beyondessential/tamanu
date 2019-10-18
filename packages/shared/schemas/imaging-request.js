@@ -11,6 +11,7 @@ export const ImagingRequestSchema = {
     detail: 'string?',
     location: 'string?',
     diagnosis: 'diagnosis?',
+    urgent: { type: 'bool', default: false },
     notes: 'string?',
     imageSource: 'string?',
     status: {

@@ -76,7 +76,6 @@ export class ImagingRequestForm extends React.PureComponent {
           suggester={practitionerSuggester}
         />
         <div>
-          <Field name="specimenAttached" label="Specimen attached?" component={CheckField} />
           <Field name="urgent" label="Urgent?" component={CheckField} />
         </div>
         <FormSeparatorLine />
