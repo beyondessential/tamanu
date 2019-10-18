@@ -6,6 +6,7 @@ import {
   visitReducer,
   optionsReducer,
   labRequestReducer,
+  imagingRequestReducer,
 } from './store';
 
 export const createReducers = history => ({
@@ -15,4 +16,5 @@ export const createReducers = history => ({
   visit: visitReducer,
   options: optionsReducer,
   labRequest: labRequestReducer,
+  imagingRequest: imagingRequestReducer,
 });

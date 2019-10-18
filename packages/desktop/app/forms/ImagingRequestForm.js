@@ -51,12 +51,7 @@ export class ImagingRequestForm extends React.PureComponent {
   }
 
   renderForm = ({ submitForm }) => {
-    const {
-      practitionerSuggester,
-      onCancel,
-      imagingTypes,
-      visit = {},
-    } = this.props;
+    const { practitionerSuggester, onCancel, imagingTypes, visit = {} } = this.props;
     const { examiner = {} } = visit;
     const examinerLabel = examiner.displayName;
     const visitLabel = getVisitLabel(visit);
