@@ -1,9 +1,10 @@
 import { sign, verify } from 'jsonwebtoken';
-import { compare } from 'bcrypt';
+import { compare, hash } from 'bcrypt';
 import { auth } from 'config';
 
 const { 
   tokenDuration,
+  saltRounds,
   passwordSecretKey,
 } = auth;
 
@@ -31,6 +32,29 @@ async function comparePassword(user, password) {
     console.error(e);
     return false;
   }
+}
+
+async function setPassword(db, user, password) {
+  const hashed = await hash(password, saltRounds);
+  db.write(() => {
+    user.password = hashed;
+  });
+}
+
+export async function changePasswordHandler(req, res) {
+  const { body, db } = req;
+  const { email, password } = body;
+
+  const user = db.objects('user').filtered('email = $0', email)[0];
+
+  if(!user) {
+    res.send({ error: 'Invalid credentials' });
+    return;
+  }
+
+  await setPassword(db, user, password);
+
+  res.send({ user });
 }
 
 export async function loginHandler(req, res) {
