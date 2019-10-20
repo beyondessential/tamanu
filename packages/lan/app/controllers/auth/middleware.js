@@ -5,8 +5,14 @@ import { auth } from 'config';
 const { 
   tokenDuration,
   saltRounds,
-  passwordSecretKey,
+  jwtSecretKey,
 } = auth;
+
+if(!['development', 'test'].includes(process.env.NODE_ENV)) {
+  if(jwtSecretKey === 'DEFAULT_SECRET_KEY') {
+    throw new Error("Please configure the JWT secret key for running in production.");
+  }
+}
 
 // TODO: this should live somewhere else
 function getToken(user) {
@@ -14,7 +20,7 @@ function getToken(user) {
     {
       userId: user._id,
     },
-    passwordSecretKey,
+    jwtSecretKey,
     { expiresIn: tokenDuration },
   );
 }
@@ -77,7 +83,7 @@ export async function loginHandler(req, res) {
 }
 
 function decodeToken(token) {
-  return verify(token, passwordSecretKey);
+  return verify(token, jwtSecretKey);
 }
 
 function findUser(db, userId) {

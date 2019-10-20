@@ -20,6 +20,6 @@
   "auth": {
     "saltRounds": 10,
     "tokenDuration": "1h",
-    "passwordSecretKey": "DEFAULT_SECRET_KEY"
+    "jwtSecretKey": "DEFAULT_SECRET_KEY"
   }
 }
