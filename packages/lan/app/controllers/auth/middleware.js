@@ -1,8 +1,11 @@
 import { sign, verify } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
+import { auth } from 'config';
 
-const SECRET_KEY = '123abc';
-const TOKEN_DURATION = '1h';
+const { 
+  tokenDuration,
+  passwordSecretKey,
+} = auth;
 
 // TODO: this should live somewhere else
 function getToken(user) {
@@ -10,8 +13,8 @@ function getToken(user) {
     {
       userId: user._id,
     },
-    SECRET_KEY,
-    { expiresIn: TOKEN_DURATION },
+    passwordSecretKey,
+    { expiresIn: tokenDuration },
   );
 }
 

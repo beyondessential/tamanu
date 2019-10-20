@@ -16,5 +16,10 @@
   },
   "mainServer": "http://13.210.104.94:3000",
   "offlineMode": true,
-  "sessionTimeout": 300000
+  "sessionTimeout": 300000,
+  "auth": {
+    "saltRounds": 10,
+    "tokenDuration": "1h",
+    "passwordSecretKey": "DEFAULT_SECRET_KEY"
+  }
 }
