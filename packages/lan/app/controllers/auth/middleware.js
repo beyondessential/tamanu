@@ -34,10 +34,10 @@ async function comparePassword(user, password) {
 }
 
 export async function loginHandler(req, res) {
-  const db = req.app.get('database');
-  const { email, password } = req.body;
+  const { body, db } = req;
+  const { email, password } = body;
 
-  const user = db.objects('user').filtered('email = $0', email, password)[0];
+  const user = db.objects('user').filtered('email = $0', email)[0];
   const passwordMatch = await comparePassword(user, password);
 
   if (!passwordMatch) {
