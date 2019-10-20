@@ -77,7 +77,7 @@ export async function loginHandler(req, res) {
 }
 
 function decodeToken(token) {
-  return verify(token, SECRET_KEY);
+  return verify(token, passwordSecretKey);
 }
 
 function findUser(db, userId) {
