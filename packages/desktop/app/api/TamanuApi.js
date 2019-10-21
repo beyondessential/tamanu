@@ -13,6 +13,19 @@ export class TamanuApi {
     this.fayeClient = new faye.Client(`${host}/faye`);
   }
 
+  async login(email, password) {
+    const response = await this.post('login', { email, password });
+    const { token } = response;
+    this.setToken(token);
+
+    const user = await this.get('me');
+    return { user, token };
+  }
+
+  setToken(token) {
+    this.authHeader = { authorization: `Bearer ${token}` };
+  }
+
   async fetch(endpoint, query, config) {
     const queryString = encodeQueryString(query || {});
     const url = `${this.host}/${endpoint}${query ? `?${queryString}` : ''}`;

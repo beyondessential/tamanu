@@ -25,7 +25,6 @@ export default database => {
           name,
           email: `demo-${_id}@xyz.com`,
           password: hash,
-          secret: `${_id}-secret-key`,
         },
         true,
       );
