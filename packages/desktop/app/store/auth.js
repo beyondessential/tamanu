@@ -3,7 +3,7 @@ import { createReducer } from '../utils/createReducer';
 // actions
 const LOGIN_START = 'LOGIN_START';
 const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
-const LOGIN_FAILED = 'LOGIN_FAILED';
+const LOGIN_FAILURE = 'LOGIN_FAILURE';
 const LOGOUT = 'LOGOUT';
 
 export const login = (email, password) => async (dispatch, getState, { api }) => {
@@ -13,7 +13,7 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
     const { user, token } = await api.login(email, password);
     dispatch({ type: LOGIN_SUCCESS, user, token });
   } catch (error) {
-    dispatch({ type: LOGIN_FAILED, error: error.message });
+    dispatch({ type: LOGIN_FAILURE, error: error.message });
   }
 };
 
@@ -44,7 +44,7 @@ const actionHandlers = {
     error: defaultState.error,
     token: action.token,
   }),
-  [LOGIN_FAILED]: action => ({
+  [LOGIN_FAILURE]: action => ({
     loading: false,
     error: action.error,
   }),
