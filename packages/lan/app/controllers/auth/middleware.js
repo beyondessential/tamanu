@@ -60,7 +60,8 @@ function decodeToken(token) {
 }
 
 function getUserFromToken(request) {
-  const authHeader = request.headers.authorization || '';
+  const { db, headers } = request;
+  const authHeader = headers.authorization || '';
   const bearer = authHeader.match(/Bearer (\S*)/);
   if (!bearer) return null;
 
