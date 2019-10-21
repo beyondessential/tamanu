@@ -36,29 +36,6 @@ async function comparePassword(user, password) {
   }
 }
 
-async function setPassword(db, user, password) {
-  const hashed = await hash(password, saltRounds);
-  db.write(() => {
-    user.password = hashed;
-  });
-}
-
-export async function changePasswordHandler(req, res) {
-  const { body, db } = req;
-  const { email, password } = body;
-
-  const user = db.objects('user').filtered('email = $0', email)[0];
-
-  if (!user) {
-    res.send({ error: 'Invalid credentials' });
-    return;
-  }
-
-  await setPassword(db, user, password);
-
-  res.send({ user });
-}
-
 export async function loginHandler(req, res) {
   const { body, db } = req;
   const { email, password } = body;
