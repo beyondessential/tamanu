@@ -70,7 +70,7 @@ class DumbApp extends Component {
 const mapStateToProps = state => ({ isUserLoggedIn: checkIsLoggedIn(state) });
 
 const mapDispatchToProps = dispatch => ({
-  onLogin: () => dispatch(login()),
+  onLogin: ({ email, password }) => dispatch(login(email, password)),
 });
 
 export const App = connect(
