@@ -28,7 +28,10 @@ const store = createStore(persistedReducers, {}, enhancers);
 // set up data change responder to trigger reloads when relevant data changes server-side
 startDataChangeResponder(API, store);
 
-const persistor = persistStore(store);
+const persistor = persistStore(store, null, () => {
+  const { auth } = store.getState();
+  API.setToken(auth.token);
+});
 
 // if you run into problems with redux state, call "purge()" in the dev console
 if (window.localStorage.getItem('queuePurge')) {

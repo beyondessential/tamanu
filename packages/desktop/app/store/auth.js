@@ -10,8 +10,8 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
   dispatch({ type: LOGIN_START });
 
   try {
-    const user = await api.login(email, password);
-    dispatch({ type: LOGIN_SUCCESS, user });
+    const { user, token } = await api.login(email, password);
+    dispatch({ type: LOGIN_SUCCESS, user, token });
   } catch(error) {
     dispatch({ type: LOGIN_FAILED, error: error.message });
   }
@@ -42,6 +42,7 @@ const actionHandlers = {
     loading: false,
     user: action.user,
     error: defaultState.error,
+    token: action.token,
   }),
   [LOGIN_FAILED]: action => ({
     loading: false,

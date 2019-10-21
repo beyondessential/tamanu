@@ -16,10 +16,14 @@ export class TamanuApi {
   async login(email, password) {
     const response = await this.post('login', { email, password });
     const { token } = response;
-    this.authHeader = { authorization: `Bearer ${token}` };
+    this.setToken(token);
 
     const user = await this.get('whoami');
-    return user;
+    return { user, token };
+  }
+
+  setToken(token) {
+    this.authHeader = { authorization: `Bearer ${token}` };
   }
 
   async fetch(endpoint, query, config) {
