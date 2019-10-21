@@ -2,19 +2,15 @@ import { sign, verify } from 'jsonwebtoken';
 import { compare, hash } from 'bcrypt';
 import { auth } from 'config';
 
-const { 
-  tokenDuration,
-  saltRounds,
-  jwtSecretKey,
-} = auth;
+const { tokenDuration, saltRounds, jwtSecretKey } = auth;
 
-if(!['development', 'test'].includes(process.env.NODE_ENV)) {
-  if(jwtSecretKey === 'DEFAULT_SECRET_KEY') {
-    throw new Error("Please configure the JWT secret key for running in production.");
+// don't even let things start if the key hasn't been configured in prod
+if (!['development', 'test'].includes(process.env.NODE_ENV)) {
+  if (jwtSecretKey === 'DEFAULT_SECRET_KEY') {
+    throw new Error('Please configure the JWT secret key for running in production.');
   }
 }
 
-// TODO: this should live somewhere else
 function getToken(user) {
   return sign(
     {
@@ -53,7 +49,7 @@ export async function changePasswordHandler(req, res) {
 
   const user = db.objects('user').filtered('email = $0', email)[0];
 
-  if(!user) {
+  if (!user) {
     res.send({ error: 'Invalid credentials' });
     return;
   }
@@ -128,7 +124,7 @@ const debugAuthMiddleware = (req, res, next) => {
 };
 
 export const getAuthMiddleware = () => {
-  switch(process.env.NODE_ENV) {
+  switch (process.env.NODE_ENV) {
     case 'test':
     case 'development':
       return debugAuthMiddleware;

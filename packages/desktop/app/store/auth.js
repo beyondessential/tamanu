@@ -12,7 +12,7 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
   try {
     const { user, token } = await api.login(email, password);
     dispatch({ type: LOGIN_SUCCESS, user, token });
-  } catch(error) {
+  } catch (error) {
     dispatch({ type: LOGIN_FAILED, error: error.message });
   }
 };
@@ -33,7 +33,7 @@ const defaultState = {
 };
 
 const actionHandlers = {
-  [LOGIN_START]: action => ({
+  [LOGIN_START]: () => ({
     loading: true,
     user: defaultState.user,
     error: defaultState.error,
