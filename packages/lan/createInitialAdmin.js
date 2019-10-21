@@ -35,15 +35,15 @@ function getDetailsAutomatic() {
 }
 
 export async function createInitialAdmin(db) {
-  console.log("No users found in database. Creating admin user...");
+  console.log('No users found in database. Creating admin user...');
 
-  const response = (['development', 'test'].includes(process.env.NODE_ENV))
+  const response = ['development', 'test'].includes(process.env.NODE_ENV)
     ? await getDetailsAutomatic()
     : await getDetailsInteractive();
 
   const { displayName, email, password } = response;
-  if(!(displayName && email && password)) {
-    throw new Error("Could not create admin user - invalid details provided.");
+  if (!(displayName && email && password)) {
+    throw new Error('Could not create admin user - invalid details provided.');
   }
 
   const hashedPassword = await hash(password, saltRounds);
@@ -51,7 +51,7 @@ export async function createInitialAdmin(db) {
   db.write(() => {
     db.create('user', {
       _id: shortid.generate(),
-      displayName, 
+      displayName,
       email,
       password: hashedPassword,
     });

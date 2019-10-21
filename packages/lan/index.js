@@ -23,7 +23,7 @@ const startServer = () => {
 };
 
 async function start() {
-  if(database.objects('user').length === 0) {
+  if (database.objects('user').length === 0) {
     await createInitialAdmin(database);
   }
 
