@@ -18,7 +18,7 @@ export class TamanuApi {
     const { token } = response;
     this.setToken(token);
 
-    const user = await this.get('whoami');
+    const user = await this.get('me');
     return { user, token };
   }
 

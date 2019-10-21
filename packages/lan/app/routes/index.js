@@ -13,7 +13,7 @@ router.use('/login', loginHandler);
 
 router.use(getAuthMiddleware());
 
-router.use('/whoami', (req, res) => {
+router.use('/me', (req, res) => {
   res.send(objectToJSON(req.user));
 });
 
