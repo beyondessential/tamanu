@@ -5,6 +5,8 @@ import { startDataChangePublisher } from './DataChangePublisher';
 import { setupDatabase, setupListeners } from './app/database';
 import { createApp } from './createApp';
 
+import { createInitialAdmin } from './createInitialAdmin';
+
 const port = config.port;
 const database = setupDatabase();
 const listeners = setupListeners(database);
@@ -20,13 +22,21 @@ const startServer = () => {
   startScheduledTasks(database);
 };
 
-if (config.offlineMode) {
-  startServer(database);
-} else {
-  // Prompt user to login before activating sync
-  const authService = new RemoteAuth(database);
-  authService.promptLogin(() => {
+async function start() {
+  if(database.objects('user').length === 0) {
+    await createInitialAdmin(database);
+  }
+
+  if (config.offlineMode) {
     startServer(database);
-    listeners.setupSync();
-  });
+  } else {
+    // Prompt user to login before activating sync
+    const authService = new RemoteAuth(database);
+    authService.promptLogin(() => {
+      startServer(database);
+      listeners.setupSync();
+    });
+  }
 }
+
+start();
