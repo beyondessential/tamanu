@@ -6,7 +6,7 @@ const { tokenDuration, saltRounds, jwtSecretKey } = auth;
 
 // don't even let things start if the key hasn't been configured in prod
 if (!['development', 'test'].includes(process.env.NODE_ENV)) {
-  if (jwtSecretKey === 'DEFAULT_SECRET_KEY') {
+  if (!jwtSecretKey || jwtSecretKey === 'DEFAULT_SECRET_KEY') {
     throw new Error('Please configure the JWT secret key for running in production.');
   }
 }
