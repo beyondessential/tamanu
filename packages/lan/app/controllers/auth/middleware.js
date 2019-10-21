@@ -103,8 +103,8 @@ const debugAuthMiddleware = (req, res, next) => {
 export const getAuthMiddleware = () => {
   switch (process.env.NODE_ENV) {
     case 'test':
-    case 'development':
       return debugAuthMiddleware;
+    case 'development':
     default:
       return authMiddleware;
   }
