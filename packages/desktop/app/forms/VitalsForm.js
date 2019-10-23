@@ -39,7 +39,7 @@ export class VitalsForm extends React.PureComponent {
         }}
         validationSchema={yup.object().shape({
           dateRecorded: yup.date().required(),
-          height: yup.number(),
+          height: yup.number().required(),
           weight: yup.number(),
           sbp: yup.number(),
           dbp: yup.number(),
@@ -47,6 +47,15 @@ export class VitalsForm extends React.PureComponent {
           respiratoryRate: yup.number(),
           temperature: yup.number(),
         })}
+        validate={values => {
+          const errors = {};
+
+          if (!Object.values(values).some(x => x && typeof x === 'number')) {
+            errors.form = 'At least one recording must be entered.';
+          }
+
+          return errors;
+        }}
       />
     );
   }
