@@ -39,7 +39,7 @@ export class VitalsForm extends React.PureComponent {
         }}
         validationSchema={yup.object().shape({
           dateRecorded: yup.date().required(),
-          height: yup.number().required(),
+          height: yup.number(),
           weight: yup.number(),
           sbp: yup.number(),
           dbp: yup.number(),
