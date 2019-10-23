@@ -24,9 +24,9 @@ const SuggestionsList = styled(Paper)`
 `;
 
 const renderInputComponent = inputProps => {
-  const { inputRef = () => {}, ref, label, ...other } = inputProps;
+  const { inputRef = () => {}, ref, label, required, className, ...other } = inputProps;
   return (
-    <OuterLabelFieldWrapper label={label} {...inputProps}>
+    <OuterLabelFieldWrapper label={label} required={required} className={className} ref={ref}>
       <TextField
         variant="outlined"
         InputProps={{
@@ -46,10 +46,7 @@ const renderInputComponent = inputProps => {
           },
         }}
         fullWidth
-        inputRef={node => {
-          ref(node);
-          inputRef(node);
-        }}
+        inputRef={inputRef}
         {...other}
       />
     </OuterLabelFieldWrapper>
@@ -147,19 +144,17 @@ class BaseAutocomplete extends Component {
     this.popperNode = popper;
   };
 
-  renderContainer = option => {
-    return (
-      <SuggestionsContainer anchorEl={this.popperNode} open={!!option.children} disablePortal>
-        <SuggestionsList
-          square
-          {...option.containerProps}
-          style={{ width: this.popperNode ? this.popperNode.clientWidth : null }}
-        >
-          {option.children}
-        </SuggestionsList>
-      </SuggestionsContainer>
-    );
-  };
+  renderContainer = option => (
+    <SuggestionsContainer anchorEl={this.popperNode} open={!!option.children} disablePortal>
+      <SuggestionsList
+        square
+        {...option.containerProps}
+        style={{ width: this.popperNode ? this.popperNode.clientWidth : null }}
+      >
+        {option.children}
+      </SuggestionsList>
+    </SuggestionsContainer>
+  );
 
   render() {
     const { displayedValue, suggestions } = this.state;
