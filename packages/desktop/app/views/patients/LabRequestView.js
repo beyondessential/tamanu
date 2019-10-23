@@ -6,7 +6,6 @@ import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
-import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { Table } from '../../components/Table';
 import { ManualLabResultModal } from '../../components/ManualLabResultModal';
@@ -25,10 +24,13 @@ const columns = [
 const ResultsPane = React.memo(({ labRequest }) => {
   const [activeTest, setActiveTest] = React.useState(null);
   const clearActiveTest = React.useCallback(() => setActiveTest(null), [setActiveTest]);
-  const openModal = React.useCallback((test) => {
-    if(test.result) return;
-    setActiveTest(test)
-  }, [setActiveTest]);
+  const openModal = React.useCallback(
+    test => {
+      if (test.result) return;
+      setActiveTest(test);
+    },
+    [setActiveTest],
+  );
 
   return (
     <div>
@@ -59,26 +61,22 @@ const LabRequestInfoPane = React.memo(({ labRequest }) => (
   </FormGrid>
 ));
 
-export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) => {
-  const [currentTab, setCurrentTab] = React.useState('results');
-
-  return (
-    <React.Fragment>
-      <LoadingIndicator loading={loading}>
-        <TwoColumnDisplay>
-          <PatientInfoPane patient={patient} />
-          <div>
-            <BackLink />
-            <ContentPane>
-              <LabRequestInfoPane labRequest={labRequest} />
-            </ContentPane>
-            <ResultsPane labRequest={labRequest} />
-          </div>
-        </TwoColumnDisplay>
-      </LoadingIndicator>
-    </React.Fragment>
-  );
-});
+export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) => (
+  <React.Fragment>
+    <LoadingIndicator loading={loading}>
+      <TwoColumnDisplay>
+        <PatientInfoPane patient={patient} />
+        <div>
+          <BackLink />
+          <ContentPane>
+            <LabRequestInfoPane labRequest={labRequest} />
+          </ContentPane>
+          <ResultsPane labRequest={labRequest} />
+        </div>
+      </TwoColumnDisplay>
+    </LoadingIndicator>
+  </React.Fragment>
+));
 
 export const LabRequestView = connect(state => ({
   loading: state.visit.loading,

@@ -7,17 +7,10 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 export const ManualLabResultForm = ({ onSubmit, onClose }) => {
   const renderForm = React.useCallback(({ submitForm }) => (
     <FormGrid columns={1}>
-      <Field
-        name="result"
-        required
-        component={NumberField}
-      />
+      <Field name="result" required component={NumberField} />
       <ConfirmCancelRow onConfirm={submitForm} onCancel={onClose} />
     </FormGrid>
   ));
 
-  return (<Form
-    onSubmit={onSubmit}
-    render={renderForm}
-  />);
+  return <Form onSubmit={onSubmit} render={renderForm} />;
 };
