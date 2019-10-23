@@ -14,8 +14,8 @@ const OuterLabelRequired = styled.span`
 `;
 
 export const OuterLabelFieldWrapper = React.memo(
-  ({ children, required, label, style, className }) => (
-    <div style={style} className={className}>
+  React.forwardRef(({ children, required, label, style, className }, ref) => (
+    <div style={style} className={className} ref={ref}>
       {label && (
         <OuterLabel>
           {label}
@@ -24,5 +24,5 @@ export const OuterLabelFieldWrapper = React.memo(
       )}
       {children}
     </div>
-  ),
+  )),
 );
