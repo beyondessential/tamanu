@@ -38,7 +38,7 @@ function stripNestedRealmObjects(data) {
   return strippedValues;
 }
 
-const ErrorMessage = ({ errors, name }) => `${name} ${errors[name]}`;
+const ErrorMessage = ({ errors, name }) => `${errors[name]}`;
 
 const FormErrors = ({ errors }) =>
   Object.keys(errors).map(name => (
