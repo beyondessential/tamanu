@@ -28,16 +28,12 @@ const ResultsPane = React.memo(({ labRequest }) => {
 
   return (
     <div>
-      <ManualLabResultModal 
+      <ManualLabResultModal
         labRequest={labRequest}
-        labTest={activeTest} 
+        labTest={activeTest}
         onClose={clearActiveTest}
       />
-      <Table
-        columns={columns} 
-        data={labRequest.tests} 
-        onRowClick={setActiveTest}
-      />
+      <Table columns={columns} data={labRequest.tests} onRowClick={setActiveTest} />
     </div>
   );
 });
