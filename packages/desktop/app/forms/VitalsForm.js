@@ -47,6 +47,15 @@ export class VitalsForm extends React.PureComponent {
           respiratoryRate: yup.number(),
           temperature: yup.number(),
         })}
+        validate={values => {
+          const errors = {};
+
+          if (!Object.values(values).some(x => x && typeof x === 'number')) {
+            errors.form = 'At least one recording must be entered.';
+          }
+
+          return errors;
+        }}
       />
     );
   }
