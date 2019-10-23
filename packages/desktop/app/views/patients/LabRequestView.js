@@ -9,13 +9,12 @@ import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { Table } from '../../components/Table';
+import { ManualLabResultModal } from '../../components/ManualLabResultModal';
 
 import { FormGrid } from '../../components/FormGrid';
 import { DateInput, TextInput, DateTimeInput } from '../../components/Field';
 
 import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
-
-const NotesPane = React.memo(({ labRequest }) => <ContentPane>{labRequest.notes}</ContentPane>);
 
 const columns = [
   { title: 'Test', key: 'type', accessor: row => row.type.name },
@@ -23,22 +22,25 @@ const columns = [
   { title: 'Reference', key: 'reference', accessor: row => row.type.maleRange.join('-') },
 ];
 
-const ResultsPane = React.memo(({ labRequest }) => (
-  <Table columns={columns} data={labRequest.tests} />
-));
+const ResultsPane = React.memo(({ labRequest }) => {
+  const [activeTest, setActiveTest] = React.useState(null);
+  const clearActiveTest = React.useCallback(() => setActiveTest(null), [setActiveTest]);
 
-const TABS = [
-  {
-    label: 'Results',
-    key: 'results',
-    render: ({ labRequest }) => <ResultsPane labRequest={labRequest} />,
-  },
-  {
-    label: 'Notes',
-    key: 'notes',
-    render: ({ labRequest }) => <NotesPane labRequest={labRequest} />,
-  },
-];
+  return (
+    <div>
+      <ManualLabResultModal 
+        labRequest={labRequest}
+        labTest={activeTest} 
+        onClose={clearActiveTest}
+      />
+      <Table
+        columns={columns} 
+        data={labRequest.tests} 
+        onRowClick={setActiveTest}
+      />
+    </div>
+  );
+});
 
 const BackLink = connect(
   null,
@@ -70,12 +72,7 @@ export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) 
             <ContentPane>
               <LabRequestInfoPane labRequest={labRequest} />
             </ContentPane>
-            <TabDisplay
-              tabs={TABS}
-              currentTab={currentTab}
-              onTabSelect={setCurrentTab}
-              labRequest={labRequest}
-            />
+            <ResultsPane labRequest={labRequest} />
           </div>
         </TwoColumnDisplay>
       </LoadingIndicator>
