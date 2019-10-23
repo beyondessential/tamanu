@@ -27,13 +27,15 @@ export class TamanuApi {
   }
 
   async fetch(endpoint, query, config) {
+    const { headers, ...otherConfig } = config;
     const queryString = encodeQueryString(query || {});
     const url = `${this.host}/${endpoint}${query ? `?${queryString}` : ''}`;
     const response = await fetch(url, {
       headers: {
         ...this.authHeader,
+        ...headers,
       },
-      ...config,
+      ...otherConfig,
     });
     if (response.ok) {
       return response.json();
