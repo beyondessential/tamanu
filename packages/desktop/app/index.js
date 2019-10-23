@@ -14,6 +14,10 @@ import { createReducers } from './createReducers';
 import { API } from './api';
 import { startDataChangeResponder } from './DataChangeResponder';
 
+import { registerYup } from './utils/errorMessages';
+
+registerYup();
+
 const history = createHashHistory();
 const router = routerMiddleware(history);
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose; // eslint-disable-line no-underscore-dangle
