@@ -79,13 +79,11 @@ const StatusDisplay = React.memo(({ visit, startTime }) => {
   }
 });
 
-const PriorityDisplay = React.memo(({ startTime, visit, closedTime }) => {
-  return (
-    <PriorityText>
-      <StatusDisplay visit={visit} startTime={startTime} closedTime={closedTime} />
-    </PriorityText>
-  );
-});
+const PriorityDisplay = React.memo(({ startTime, visit, closedTime }) => (
+  <PriorityText>
+    <StatusDisplay visit={visit} startTime={startTime} closedTime={closedTime} />
+  </PriorityText>
+));
 
 function getRowColor({ visit, score }) {
   switch (visit.visitType) {
@@ -112,7 +110,7 @@ const COLUMNS = [
   },
   {
     key: 'reasonForVisit',
-    title: 'Reason for visit',
+    title: 'Chief complaint',
     accessor: row => row.reasonForVisit || '',
   },
   { key: '_id', title: 'ID', accessor: row => row.patient[0].displayId },
@@ -139,16 +137,20 @@ const COLUMNS = [
 
 const TriageTable = connect(
   null,
-  dispatch => ({ onViewVisit: (triage) => dispatch(viewPatientVisit(triage.patient[0]._id, triage.visit._id)) })
-)(React.memo(({ onViewVisit, ...props }) => (
-  <DataFetchingTable
-    endpoint="triage"
-    columns={COLUMNS}
-    noDataMessage="No patients found"
-    onRowClick={onViewVisit}
-    {...props}
-  />
-)));
+  dispatch => ({
+    onViewVisit: triage => dispatch(viewPatientVisit(triage.patient[0]._id, triage.visit._id)),
+  }),
+)(
+  React.memo(({ onViewVisit, ...props }) => (
+    <DataFetchingTable
+      endpoint="triage"
+      columns={COLUMNS}
+      noDataMessage="No patients found"
+      onRowClick={onViewVisit}
+      {...props}
+    />
+  )),
+);
 
 export const TriageListingView = React.memo(() => (
   <PageContainer>
