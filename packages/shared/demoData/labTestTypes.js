@@ -9,12 +9,18 @@ const LAB_TEST_CATEGORY_LFT = {
 };
 
 const LAB_TEST_CATEGORY_U_AND_E = {
-  _id: 'test-category-lft',
+  _id: 'test-category-une',
   name: 'U&E',
 };
+
 const LAB_TEST_CATEGORY_FBC = {
   _id: 'test-category-fbc',
   name: 'FBC',
+};
+
+const LAB_TEST_CATEGORY_MALARIA = {
+  _id: 'test-category-malaria',
+  name: 'Malaria microscopy',
 };
 
 const LAB_TEST_TYPES = [
@@ -282,6 +288,19 @@ const LAB_TEST_TYPES = [
     name: 'Basophils',
     maleRange: [0, 0.1],
     femaleRange: [0, 0.1],
+    questionType: 'number',
+  },
+  {
+    category: LAB_TEST_CATEGORY_MALARIA,
+    name: 'Malaria type',
+    questionType: 'string',
+    options: [
+      "vivax", "falciparum", "mixed", "none",
+    ]
+  },
+  {
+    category: LAB_TEST_CATEGORY_MALARIA,
+    name: 'Parasite count',
     questionType: 'number',
   },
 ];
