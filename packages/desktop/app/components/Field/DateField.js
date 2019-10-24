@@ -2,12 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { TextInput } from './TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import CalendarToday from '@material-ui/icons/CalendarToday';
+import { TextInput } from './TextField';
 
 function fromRFC3339(rfc3339Date, format) {
-  if(!rfc3339Date) return;
+  if (!rfc3339Date) return '';
 
   return moment.utc(rfc3339Date).format(format);
 }
@@ -26,21 +26,31 @@ const CalendarIcon = styled(CalendarToday)`
   color: #cccccc;
 `;
 
-export const DateInput = ({ type="date", value, format="YYYY-MM-DD", onChange, name, ...props }) => {
+export const DateInput = ({
+  type = 'date',
+  value,
+  format = 'YYYY-MM-DD',
+  onChange,
+  name,
+  ...props
+}) => {
   const [currentValue, setCurrentValue] = React.useState(fromRFC3339(value, format));
 
-  const onValueChange = React.useCallback((event) => {
-    const formattedValue = event.target.value;
-    const rfcValue = toRFC3339(formattedValue, format);
+  const onValueChange = React.useCallback(
+    event => {
+      const formattedValue = event.target.value;
+      const rfcValue = toRFC3339(formattedValue, format);
 
-    setCurrentValue(value);
-    if(rfcValue === "Invalid date") {
-      onChange({ target: { value: '', name } });
-      return;
-    }
+      setCurrentValue(value);
+      if (rfcValue === 'Invalid date') {
+        onChange({ target: { value: '', name } });
+        return;
+      }
 
-    onChange({ target: { value: rfcValue, name } });
-  }, [onChange, format]);
+      onChange({ target: { value: rfcValue, name } });
+    },
+    [onChange, format],
+  );
 
   React.useEffect(() => {
     const formattedValue = fromRFC3339(value, format);
@@ -62,7 +72,7 @@ export const DateInput = ({ type="date", value, format="YYYY-MM-DD", onChange, n
       {...props}
     />
   );
-}
+};
 
 export const DateField = ({ field, ...props }) => (
   <DateInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
