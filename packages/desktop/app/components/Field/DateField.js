@@ -51,14 +51,14 @@ export const DateInput = ({
   name,
   ...props
 }) => {
-  const [currentValue, setCurrentValue] = React.useState(fromRFC3339(value, format));
+  const [currentText, setCurrentText] = React.useState(fromRFC3339(value, format));
 
   const onValueChange = React.useCallback(
     event => {
       const formattedValue = event.target.value;
       const rfcValue = toRFC3339(formattedValue, format);
 
-      setCurrentValue(value);
+      setCurrentText(value);
       if (rfcValue === 'Invalid date') {
         onChange({ target: { value: '', name } });
         return;
@@ -71,13 +71,13 @@ export const DateInput = ({
 
   React.useEffect(() => {
     const formattedValue = fromRFC3339(value, format);
-    setCurrentValue(formattedValue);
+    setCurrentText(formattedValue);
   }, [value, format]);
 
   return (
     <TextInput
       type={type}
-      value={currentValue}
+      value={currentText}
       onChange={onValueChange}
       InputProps={{
         startAdornment: (
