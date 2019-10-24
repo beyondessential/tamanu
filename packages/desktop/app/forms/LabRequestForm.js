@@ -70,12 +70,7 @@ export class LabRequestForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field
-          name="sampleTime"
-          label="Sample time"
-          required
-          component={DateTimeField}
-        />
+        <Field name="sampleTime" label="Sample time" required component={DateTimeField} />
         <div>
           <Field name="specimenAttached" label="Specimen attached?" component={CheckField} />
           <Field name="urgent" label="Urgent?" component={CheckField} />
@@ -131,6 +126,7 @@ export class LabRequestForm extends React.PureComponent {
           _id: generateId(),
           requestedDate: new Date(),
           category: {},
+          sampleTime: new Date(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({

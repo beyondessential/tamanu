@@ -65,7 +65,7 @@ export class TriageForm extends React.PureComponent {
           options={triagePriorities}
         />
         <FormGrid columns={1} style={{ gridColumn: '1 / -1' }}>
-          <Field name="reasonForVisit" label="Reason for visit" component={TextField} required />
+          <Field name="reasonForVisit" label="Chief complaint" component={TextField} required />
           <Field
             name="checkLostConsciousness"
             label="Did the patient receive a blow to the head or lose consciousness at any time?"
@@ -89,7 +89,7 @@ export class TriageForm extends React.PureComponent {
           />
           <Field
             name="medicineNotes"
-            label="Have any medicines already been taken? (include time taken if known)"
+            label="Have any medicines been taken in the last 12 hours? (include time taken if known)"
             component={TextField}
             multiline
             rows={3}
@@ -97,7 +97,7 @@ export class TriageForm extends React.PureComponent {
         </FormGrid>
         <Field
           name="practitioner._id"
-          label="Triage nurse/doctor"
+          label="Triage clinician"
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
@@ -143,7 +143,7 @@ export class TriageForm extends React.PureComponent {
         }}
         validationSchema={yup.object().shape({
           triageTime: yup.date().required(),
-          practitioner: foreignKey('Triage nurse/doctor must be selected'),
+          practitioner: foreignKey('Triage clinician must be selected'),
           location: foreignKey('Location must be selected'),
           reasonForVisit: yup.string().required(),
           score: yup

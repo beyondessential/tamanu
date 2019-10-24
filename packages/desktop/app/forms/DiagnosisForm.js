@@ -19,7 +19,7 @@ export const DiagnosisForm = React.memo(({ onCancel, onSave, diagnosis, icd10Sug
     initialValues={{
       date: new Date(),
       isPrimary: true,
-      certainty: 'confirmed',
+      certainty: 'suspected',
       ...diagnosis,
     }}
     render={({ submitForm }) => (
