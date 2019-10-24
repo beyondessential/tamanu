@@ -2,9 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 
+import styled from 'styled-components';
+
 import { Form, Field, DateField, NumberField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
+
+const BloodPressureFieldsContainer = styled.div`
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-gap: 0.5rem;
+`;
+
 export class VitalsForm extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
@@ -15,10 +24,13 @@ export class VitalsForm extends React.PureComponent {
     return (
       <FormGrid columns={2}>
         <Field name="dateRecorded" label="Date recorded" component={DateField} />
+        <div></div>
         <Field name="height" label="Height (cm)" component={NumberField} />
         <Field name="weight" label="Weight (kg)" component={NumberField} />
-        <Field name="sbp" label="SBP" component={NumberField} />
-        <Field name="dbp" label="DBP" component={NumberField} />
+        <BloodPressureFieldsContainer>
+          <Field name="sbp" label="SBP" component={NumberField} />
+          <Field name="dbp" label="DBP" component={NumberField} />
+        </BloodPressureFieldsContainer>
         <Field name="heartRate" label="Heart rate" component={NumberField} />
         <Field name="respiratoryRate" label="Respiratory rate" component={NumberField} />
         <Field name="temperature" label="Temperature (ºC)" component={NumberField} />
