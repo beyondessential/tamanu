@@ -89,7 +89,7 @@ export class TriageForm extends React.PureComponent {
           />
           <Field
             name="medicineNotes"
-            label="Have any medicines already been taken in the last 12 hours? (include time taken if known)"
+            label="Have any medicines been taken in the last 12 hours? (include time taken if known)"
             component={TextField}
             multiline
             rows={3}
