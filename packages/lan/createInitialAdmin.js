@@ -52,6 +52,7 @@ export async function createInitialAdmin(db) {
     db.create('user', {
       _id: shortid.generate(),
       displayName,
+      name: displayName,
       email,
       password: hashedPassword,
     });
