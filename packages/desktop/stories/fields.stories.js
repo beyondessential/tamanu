@@ -81,14 +81,35 @@ addStories('CheckInput', props => (
 
 addStories('DateInput', props => (
   <StoryControlWrapper Component={DateInput} label="Date of birth" {...props} />
+)).add('With prefilled date', props => (
+  <StoryControlWrapper
+    Component={DateInput}
+    label="Prefilled"
+    value="2019-10-04T08:30:56.200Z"
+    {...props}
+  />
 ));
 
 addStories('DateTimeInput', props => (
   <StoryControlWrapper Component={DateTimeInput} label="Sample taken" {...props} />
+)).add('With prefilled date', props => (
+  <StoryControlWrapper
+    Component={DateTimeInput}
+    label="Prefilled"
+    value="2019-10-04T08:30:56.200Z"
+    {...props}
+  />
 ));
 
 addStories('TimeInput', props => (
   <StoryControlWrapper Component={TimeInput} label="Time" {...props} />
+)).add('With prefilled time', props => (
+  <StoryControlWrapper
+    Component={TimeInput}
+    label="Prefilled"
+    value="2019-10-04T08:30:56.200Z"
+    {...props}
+  />
 ));
 
 addStories('NumberInput', props => (

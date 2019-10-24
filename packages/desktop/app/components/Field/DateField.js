@@ -2,19 +2,35 @@ import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { TextInput } from './TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import CalendarToday from '@material-ui/icons/CalendarToday';
+import { TextInput } from './TextField';
 
-function toDate(momentValue, format) {
-  return momentValue ? moment(momentValue, format).format(format) : '';
+// This component is pretty tricky! It has to keep track of two layers of state:
+//
+//  - actual date, received from `value` and emitted through `onChange`
+//    this is always in RFC3339 format (which looks like "1996-12-19T16:39:57")
+//
+//  - currently entered date, which might be only partially entered
+//    this is a string in whatever format that has been given to the 
+//    component through the `format` prop.
+//
+// As the string formats don't contain timezone information, the RFC3339 dates are
+// always in UTC - leaving it up to the local timezone can introduce some wacky
+// behaviour as the dates get converted back and forth.
+//
+// Care has to be taken with setting the string value, as the native date control 
+// has some unusual input handling (switching focus between day/month/year etc) that
+// a value change will interfere with.
+
+function fromRFC3339(rfc3339Date, format) {
+  if (!rfc3339Date) return '';
+
+  return moment.utc(rfc3339Date).format(format);
 }
 
-function fromDate(changeEvent, format) {
-  changeEvent.persist();
-  const { value } = changeEvent.target;
-  changeEvent.target.value = moment(value, format).format(format);
-  return changeEvent;
+function toRFC3339(date, format) {
+  return moment.utc(date, format).format();
 }
 
 export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
@@ -27,21 +43,53 @@ const CalendarIcon = styled(CalendarToday)`
   color: #cccccc;
 `;
 
-export const DateInput = ({ value, format, onChange, ...props }) => (
-  <TextInput
-    type="date"
-    {...props}
-    value={toDate(value, format)}
-    onChange={e => onChange(fromDate(e, format))}
-    InputProps={{
-      startAdornment: (
-        <InputAdornment position="start">
-          <CalendarIcon />
-        </InputAdornment>
-      ),
-    }}
-  />
-);
+export const DateInput = ({
+  type = 'date',
+  value,
+  format = 'YYYY-MM-DD',
+  onChange,
+  name,
+  ...props
+}) => {
+  const [currentText, setCurrentText] = React.useState(fromRFC3339(value, format));
+
+  const onValueChange = React.useCallback(
+    event => {
+      const formattedValue = event.target.value;
+      const rfcValue = toRFC3339(formattedValue, format);
+
+      setCurrentText(value);
+      if (rfcValue === 'Invalid date') {
+        onChange({ target: { value: '', name } });
+        return;
+      }
+
+      onChange({ target: { value: rfcValue, name } });
+    },
+    [onChange, format],
+  );
+
+  React.useEffect(() => {
+    const formattedValue = fromRFC3339(value, format);
+    setCurrentText(formattedValue);
+  }, [value, format]);
+
+  return (
+    <TextInput
+      type={type}
+      value={currentText}
+      onChange={onValueChange}
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">
+            <CalendarIcon />
+          </InputAdornment>
+        ),
+      }}
+      {...props}
+    />
+  );
+};
 
 export const DateField = ({ field, ...props }) => (
   <DateInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
