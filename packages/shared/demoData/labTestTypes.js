@@ -294,9 +294,7 @@ const LAB_TEST_TYPES = [
     category: LAB_TEST_CATEGORY_MALARIA,
     name: 'Malaria type',
     questionType: 'string',
-    options: [
-      "vivax", "falciparum", "mixed", "none",
-    ]
+    options: ['vivax', 'falciparum', 'mixed', 'none'],
   },
   {
     category: LAB_TEST_CATEGORY_MALARIA,
@@ -305,8 +303,8 @@ const LAB_TEST_TYPES = [
   },
 ];
 
-export const generateLabTestTypes = db => {
-  return LAB_TEST_TYPES.map(({ category, ...restOfTestType }) => {
+export const generateLabTestTypes = db =>
+  LAB_TEST_TYPES.map(({ category, ...restOfTestType }) => {
     const labTestCategory =
       db.objectForPrimaryKey('labTestCategory', category._id) ||
       db.create('labTestCategory', category);
@@ -315,4 +313,3 @@ export const generateLabTestTypes = db => {
       ...restOfTestType,
     };
   });
-};

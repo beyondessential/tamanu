@@ -24,7 +24,7 @@ export class VitalsForm extends React.PureComponent {
     return (
       <FormGrid columns={2}>
         <Field name="dateRecorded" label="Date recorded" component={DateField} />
-        <div></div>
+        <div />
         <Field name="height" label="Height (cm)" component={NumberField} />
         <Field name="weight" label="Weight (kg)" component={NumberField} />
         <BloodPressureFieldsContainer>
