@@ -81,6 +81,8 @@ addStories('CheckInput', props => (
 
 addStories('DateInput', props => (
   <StoryControlWrapper Component={DateInput} label="Date of birth" {...props} />
+)).add('With prefilled date', props => (
+  <StoryControlWrapper Component={DateInput} label="Prefilled" value="1985-12-03" {...props} />
 ));
 
 addStories('DateTimeInput', props => (

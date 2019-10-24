@@ -6,42 +6,42 @@ import { TextInput } from './TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import CalendarToday from '@material-ui/icons/CalendarToday';
 
-function toDate(momentValue, format) {
-  return momentValue ? moment(momentValue, format).format(format) : '';
-}
-
-function fromDate(changeEvent, format) {
-  changeEvent.persist();
-  const { value } = changeEvent.target;
-  changeEvent.target.value = moment(value, format).format(format);
-  return changeEvent;
-}
-
-export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
+export const TimeInput = props => <DateInput type="time" {...props} />;
 
 export const DateTimeInput = props => (
-  <DateInput type="datetime-local" format="YYYY-MM-DDTHH:mm" {...props} />
+  <DateInput type="datetime-local" {...props} />
 );
 
 const CalendarIcon = styled(CalendarToday)`
   color: #cccccc;
 `;
 
-export const DateInput = ({ value, format, onChange, ...props }) => (
-  <TextInput
-    type="date"
-    {...props}
-    value={toDate(value, format)}
-    onChange={e => onChange(fromDate(e, format))}
-    InputProps={{
-      startAdornment: (
-        <InputAdornment position="start">
-          <CalendarIcon />
-        </InputAdornment>
-      ),
-    }}
-  />
-);
+export const DateInput = ({ type="date", value, format, onChange, ...props }) => {
+  const [currentValue, setCurrentValue] = React.useState(value);
+  const change = React.useCallback((event) => {
+    const value = event.target.value;
+    setCurrentValue(value);
+    onChange({ target: { value } });
+  }, [onChange]);
+
+  React.useEffect(() => setCurrentValue(value), [value]);
+
+  return (
+    <TextInput
+      type={type}
+      value={currentValue}
+      onChange={change}
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">
+            <CalendarIcon />
+          </InputAdornment>
+        ),
+      }}
+      {...props}
+    />
+  );
+}
 
 export const DateField = ({ field, ...props }) => (
   <DateInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
