@@ -131,6 +131,7 @@ export class LabRequestForm extends React.PureComponent {
           _id: generateId(),
           requestedDate: new Date(),
           category: {},
+          sampleTime: new Date(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
