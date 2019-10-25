@@ -1,11 +1,11 @@
 import { setLocale } from 'yup';
+import { capitaliseFirstLetter } from './capitalise';
 
 const camelCaseTest = /(?=[A-Z])/;
 function splitFieldName(name) {
   const splitField = name.split(camelCaseTest);
   const fieldNameAsWords = splitField.join(' ');
-  const joined =
-    fieldNameAsWords.slice(0, 1).toUpperCase() + fieldNameAsWords.slice(1).toLowerCase();
+  const joined = capitaliseFirstLetter(fieldNameAsWords.toLowerCase());
   return joined;
 }
 

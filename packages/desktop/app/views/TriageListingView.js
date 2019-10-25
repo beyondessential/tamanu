@@ -13,6 +13,7 @@ import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
 import { DateDisplay } from '../components/DateDisplay';
 import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
 import { TRIAGE_COLORS_BY_LEVEL } from '../constants';
+import { capitaliseFirstLetter } from '../../utils/capitalise';
 
 const PriorityText = styled.span`
   color: white;
@@ -129,7 +130,7 @@ const COLUMNS = [
     title: 'Sex',
     accessor: row => {
       const sex = row.patient[0].sex || '';
-      return sex.slice(0, 1).toUpperCase() + sex.slice(1);
+      return capitaliseFirstLetter(sex);
     },
   },
   { key: 'location', title: 'Location', accessor: row => row.location.name },

@@ -4,14 +4,6 @@ import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
 import shortid from 'shortid';
 
-export const toTitleCase = text =>
-  text
-    ? text
-        .split(' ')
-        .map(t => t.slice(0, 1).toUpperCase() + t.slice(1))
-        .join(' ')
-    : '';
-
 export const concatSelf = (array, ...items) => {
   items.map(item => {
     if (isArray(item)) {
