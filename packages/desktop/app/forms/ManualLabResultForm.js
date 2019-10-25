@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import { Form, Field, NumberField, TextField, SelectField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
+import { capitaliseFirstLetter } from '../utils/capitalise';
 
 function getComponentForTest(questionType, options) {
   if (options && options.length) return SelectField;
@@ -16,7 +17,7 @@ function renderOptions(options) {
 
   return options.map(value => ({
     value,
-    label: value.slice(0, 1).toUpperCase() + value.slice(1),
+    label: capitaliseFirstLetter(value),
   }));
 }
 

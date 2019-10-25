@@ -15,9 +15,11 @@ import { DateInput, TextInput, DateTimeInput } from '../../components/Field';
 
 import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 
+import { capitaliseFirstLetter } from '../../utils/capitalise';
+
 const columns = [
   { title: 'Test', key: 'type', accessor: row => row.type.name },
-  { title: 'Result', key: 'result', accessor: row => row.result },
+  { title: 'Result', key: 'result', accessor: row => capitaliseFirstLetter(row.result) },
   { title: 'Reference', key: 'reference', accessor: row => row.type.maleRange.join('-') },
 ];
 
