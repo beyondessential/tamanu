@@ -15,19 +15,24 @@ import { DateInput, TextInput, DateTimeInput } from '../../components/Field';
 
 import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 
+import { capitaliseFirstLetter } from '../../utils/capitalise';
+
 const columns = [
   { title: 'Test', key: 'type', accessor: row => row.type.name },
-  { title: 'Result', key: 'result', accessor: row => row.result },
+  { title: 'Result', key: 'result', accessor: row => capitaliseFirstLetter(row.result) },
   { title: 'Reference', key: 'reference', accessor: row => row.type.maleRange.join('-') },
 ];
 
 const ResultsPane = React.memo(({ labRequest }) => {
   const [activeTest, setActiveTest] = React.useState(null);
-  const clearActiveTest = React.useCallback(() => setActiveTest(null), [setActiveTest]);
+  const [isModalOpen, setModalOpen] = React.useState(false);
+
+  const closeModal = React.useCallback(() => setModalOpen(false), [setModalOpen]);
   const openModal = React.useCallback(
     test => {
       if (test.result) return;
       setActiveTest(test);
+      setModalOpen(true);
     },
     [setActiveTest],
   );
@@ -35,9 +40,10 @@ const ResultsPane = React.memo(({ labRequest }) => {
   return (
     <div>
       <ManualLabResultModal
+        open={isModalOpen}
         labRequest={labRequest}
         labTest={activeTest}
-        onClose={clearActiveTest}
+        onClose={closeModal}
       />
       <Table columns={columns} data={labRequest.tests} onRowClick={openModal} />
     </div>
