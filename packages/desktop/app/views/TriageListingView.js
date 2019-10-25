@@ -13,7 +13,7 @@ import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
 import { DateDisplay } from '../components/DateDisplay';
 import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
 import { TRIAGE_COLORS_BY_LEVEL } from '../constants';
-import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { capitaliseFirstLetter } from '../utils/capitalise';
 
 const PriorityText = styled.span`
   color: white;
