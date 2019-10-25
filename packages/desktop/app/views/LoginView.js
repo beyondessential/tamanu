@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Paper } from '@material-ui/core';
-import { TextInput, Button, CheckInput, TamanuLogo } from '../components';
+import * as yup from 'yup';
+import { Button, TamanuLogo } from '../components';
 import { REMEMBER_EMAIL_KEY } from '../constants';
 import { splashImages } from '../constants/images';
+
+import { Form, Field, TextField, CheckField } from '../components/Field';
+import { FormGrid } from '../components/FormGrid';
 
 const Grid = styled.div`
   display: grid;
@@ -22,50 +26,35 @@ const LogoContainer = styled.div`
   text-align: center;
 `;
 
-const Form = styled.form`
-  > div {
-    margin: 10px;
-  }
-`;
-
 export class LoginView extends Component {
-  state = {
-    email: '',
-    password: '',
-    rememberMe: false,
-  };
-
-  componentDidMount() {
-    const rememberEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
-    if (rememberEmail) this.setState({ email: rememberEmail, rememberMe: true });
-  }
-
-  handleUserInput = (e, field) => {
-    const form = {};
-    if (typeof field !== 'undefined') {
-      form[field] = e;
-    } else {
-      const { name } = e.target;
-      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-      form[name] = value;
-    }
-    this.setState(form);
-  };
-
-  submitForm(event) {
-    event.preventDefault();
+  onSubmit = data => {
     const { onLogin } = this.props;
-    const { email, rememberMe } = this.state;
+    const { email, password, rememberMe } = data;
+
     if (rememberMe) {
       localStorage.setItem(REMEMBER_EMAIL_KEY, email);
     } else {
       localStorage.removeItem(REMEMBER_EMAIL_KEY);
     }
-    onLogin(this.state);
-  }
+
+    onLogin({ email, password });
+  };
+
+  renderForm = ({ submitForm }) => (
+    <FormGrid columns={1}>
+      <Field name="email" type="email" label="Email" required component={TextField} />
+      <Field name="password" label="Password" type="password" required component={TextField} />
+      <Field name="rememberMe" label="Remember me" component={CheckField} />
+      <div>
+        <Button fullWidth variant="contained" color="primary" onClick={submitForm}>
+          Login
+        </Button>
+      </div>
+    </FormGrid>
+  );
 
   render() {
-    const { email, password, rememberMe } = this.state;
+    const rememberEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
 
     return (
       <Grid>
@@ -73,35 +62,21 @@ export class LoginView extends Component {
           <LogoContainer>
             <TamanuLogo size="150px" />
           </LogoContainer>
-          <Form onSubmit={this.submitForm.bind(this)}>
-            <TextInput
-              name="email"
-              type="email"
-              label="Email"
-              value={email}
-              onChange={this.handleUserInput}
-              required
-            />
-            <TextInput
-              name="password"
-              type="password"
-              label="Password"
-              value={password}
-              onChange={this.handleUserInput}
-              required
-            />
-            <CheckInput
-              name="rememberMe"
-              value={rememberMe}
-              label="Remember me"
-              onChange={this.handleUserInput}
-            />
-            <div>
-              <Button fullWidth type="submit" variant="contained" color="primary">
-                Login
-              </Button>
-            </div>
-          </Form>
+          <Form
+            onSubmit={this.onSubmit}
+            render={this.renderForm}
+            initialValues={{
+              email: rememberEmail,
+              rememberMe: !!rememberEmail,
+            }}
+            validationSchema={yup.object().shape({
+              email: yup
+                .string()
+                .email('Must enter a valid email')
+                .required(),
+              password: yup.string().required(),
+            })}
+          />
         </LoginContainer>
       </Grid>
     );
