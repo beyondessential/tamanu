@@ -1,8 +1,10 @@
 import React from 'react';
 import { DateDisplay } from '../../components';
+import { capitaliseFirstLetter } from '../../utils/capitalise';
+
 const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} />);
 const SexCell = React.memo(({ value = '' }) => (
-  <span>{value.slice(0, 1).toUpperCase() + value.slice(1)}</span>
+  <span>{capitaliseFirstLetter(value)}</span>
 ));
 
 export const displayId = {
