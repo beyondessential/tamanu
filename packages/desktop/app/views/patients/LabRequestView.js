@@ -23,11 +23,14 @@ const columns = [
 
 const ResultsPane = React.memo(({ labRequest }) => {
   const [activeTest, setActiveTest] = React.useState(null);
-  const clearActiveTest = React.useCallback(() => setActiveTest(null), [setActiveTest]);
+  const [isModalOpen, setModalOpen] = React.useState(false);
+
+  const closeModal = React.useCallback(() => setModalOpen(false), [setModalOpen]);
   const openModal = React.useCallback(
     test => {
       if (test.result) return;
       setActiveTest(test);
+      setModalOpen(true);
     },
     [setActiveTest],
   );
@@ -35,9 +38,10 @@ const ResultsPane = React.memo(({ labRequest }) => {
   return (
     <div>
       <ManualLabResultModal
+        open={isModalOpen}
         labRequest={labRequest}
         labTest={activeTest}
-        onClose={clearActiveTest}
+        onClose={closeModal}
       />
       <Table columns={columns} data={labRequest.tests} onRowClick={openModal} />
     </div>
