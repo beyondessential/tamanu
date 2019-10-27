@@ -19,7 +19,7 @@ import { capitaliseFirstLetter } from '../../utils/capitalise';
 
 const columns = [
   { title: 'Test', key: 'type', accessor: row => row.type.name },
-  { title: 'Result', key: 'result', accessor: row => capitaliseFirstLetter(row.result) },
+  { title: 'Result', key: 'result', accessor: ({ result }) => result ? capitaliseFirstLetter(result) : '' },
   { title: 'Reference', key: 'reference', accessor: row => row.type.maleRange.join('-') },
 ];
 
