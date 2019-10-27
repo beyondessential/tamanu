@@ -34,7 +34,7 @@ const store = createStore(persistedReducers, {}, enhancers);
 // set up data change responder to trigger reloads when relevant data changes server-side
 startDataChangeResponder(API, store);
 
-API.setAuthFailureHandler((response) => {
+API.setAuthFailureHandler(response => {
   store.dispatch(authFailure());
 });
 

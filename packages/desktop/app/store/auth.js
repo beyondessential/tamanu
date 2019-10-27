@@ -18,9 +18,9 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
   }
 };
 
-export const authFailure = () => async (dispatch, getState, { api }) => {
-  dispatch({ 
-    type: TOKEN_REJECTION, 
+export const authFailure = () => async dispatch => {
+  dispatch({
+    type: TOKEN_REJECTION,
     error: 'Your session has expired. Please log in again.',
   });
 };

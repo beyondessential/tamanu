@@ -46,7 +46,7 @@ export class LoginView extends Component {
 
     return (
       <FormGrid columns={1}>
-        <div>{ errorMessage }</div>
+        <div>{errorMessage}</div>
         <Field name="email" type="email" label="Email" required component={TextField} />
         <Field name="password" label="Password" type="password" required component={TextField} />
         <Field name="rememberMe" label="Remember me" component={CheckField} />
@@ -89,7 +89,4 @@ export class LoginView extends Component {
   }
 }
 
-export const ConnectedLoginView = connect(
-  state => ({ errorMessage: state.auth.error })
-)(LoginView);
-
+export const ConnectedLoginView = connect(state => ({ errorMessage: state.auth.error }))(LoginView);
