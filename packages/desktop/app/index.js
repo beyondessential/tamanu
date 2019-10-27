@@ -16,6 +16,8 @@ import { startDataChangeResponder } from './DataChangeResponder';
 
 import { registerYup } from './utils/errorMessages';
 
+import { authFailure } from './store/auth';
+
 registerYup();
 
 const history = createHashHistory();
@@ -31,6 +33,10 @@ const store = createStore(persistedReducers, {}, enhancers);
 
 // set up data change responder to trigger reloads when relevant data changes server-side
 startDataChangeResponder(API, store);
+
+API.setAuthFailureHandler((response) => {
+  store.dispatch(authFailure());
+});
 
 const persistor = persistStore(store, null, () => {
   const { auth } = store.getState();

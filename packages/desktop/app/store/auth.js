@@ -17,6 +17,11 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
   }
 };
 
+export const authFailure = () => async (dispatch, getState, { api }) => {
+  // TODO: read message from response and display appropriate message on login form
+  dispatch({ type: 'LOGOUT' });
+};
+
 export const logout = () => ({
   type: LOGOUT,
 });
