@@ -3,23 +3,33 @@ import { connect } from 'react-redux';
 import { viewPatient } from '../../store/patient';
 import { TopBar, PageContainer, Button, DataFetchingTable } from '../../components';
 import { PatientSearchBar, NewPatientModal } from './components';
-import { displayId, firstName, lastName, culturalName, sex, dateOfBirth, status, location, department } from './columns';
+import {
+  displayId,
+  firstName,
+  lastName,
+  culturalName,
+  sex,
+  dateOfBirth,
+  status,
+  location,
+  department,
+} from './columns';
 import { PATIENT_SEARCH_ENDPOINT } from './constants';
 
 const BASE_COLUMNS = [displayId, firstName, lastName, culturalName, sex, dateOfBirth];
-const LISTING_COLUMNS = [...BASE_COLUMNS, status]; 
+const LISTING_COLUMNS = [...BASE_COLUMNS, status];
 const INPATIENT_COLUMNS = [...BASE_COLUMNS, location, department];
 
 const PatientTable = connect(
   null,
-  dispatch => ({ viewPatient: id => dispatch(viewPatient(id)) }),
+  dispatch => ({ onViewPatient: id => dispatch(viewPatient(id)) }),
 )(
-  React.memo(({ viewPatient, columns, ...props }) => (
+  React.memo(({ onViewPatient, columns, ...props }) => (
     <DataFetchingTable
       endpoint={PATIENT_SEARCH_ENDPOINT}
       columns={columns}
       noDataMessage="No patients found"
-      onRowClick={row => viewPatient(row._id)}
+      onRowClick={row => onViewPatient(row._id)}
       {...props}
     />
   )),
