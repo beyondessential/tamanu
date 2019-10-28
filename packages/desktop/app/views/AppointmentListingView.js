@@ -10,7 +10,7 @@ const COLUMNS = [
   {
     key: 'date',
     title: 'Date',
-    accessor: row => <DateDisplay date={row.date} />,
+    accessor: row => <DateDisplay date={row.date} showTime />,
   },
   {
     key: 'patientName',

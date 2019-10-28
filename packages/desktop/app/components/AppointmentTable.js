@@ -16,7 +16,7 @@ const StatusDisplay = React.memo(({ status }) => {
   }
 });
 
-const getDate = ({ date }) => <DateDisplay date={date} />;
+const getDate = ({ date }) => <DateDisplay date={date} showTime />;
 const getDepartment = ({ location }) => (location ? location.name : 'Unknown');
 const getDisplayName = ({ practitioner }) => (practitioner || {}).displayName || 'Unknown';
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
