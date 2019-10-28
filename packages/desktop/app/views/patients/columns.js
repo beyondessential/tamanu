@@ -52,6 +52,20 @@ export const location = {
   key: 'location',
   title: 'Location',
   minWidth: 100,
+  accessor: (row) => {
+    const visit = getCurrentVisit(row);
+    return visit && visit.location && visit.location.name;
+  }
+};
+
+export const department = {
+  key: 'department',
+  title: 'Department',
+  minWidth: 100,
+  accessor: (row) => {
+    const visit = getCurrentVisit(row);
+    return visit && visit.department && visit.department.name;
+  }
 };
 
 export const status = {
