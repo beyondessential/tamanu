@@ -21,7 +21,11 @@ import { capitaliseFirstLetter } from '../../utils/capitalise';
 
 const columns = [
   { title: 'Test', key: 'type', accessor: row => row.type.name },
-  { title: 'Result', key: 'result', accessor: ({ result }) => result ? capitaliseFirstLetter(result) : '' },
+  {
+    title: 'Result',
+    key: 'result',
+    accessor: ({ result }) => (result ? capitaliseFirstLetter(result) : ''),
+  },
   { title: 'Reference', key: 'reference', accessor: row => row.type.maleRange.join('-') },
 ];
 
@@ -60,9 +64,15 @@ const BackLink = connect(
 const ChangeLabStatusButton = React.memo(({ labRequest }) => {
   const [isModalOpen, setModalOpen] = React.useState(false);
   return (
-    <React.Fragment> 
-      <Button variant="outlined" onClick={() => setModalOpen(true)}>Change status</Button>
-      <ChangeLabStatusModal labRequest={labRequest} open={isModalOpen} onClose={() => setModalOpen(false)} />
+    <React.Fragment>
+      <Button variant="outlined" onClick={() => setModalOpen(true)}>
+        Change status
+      </Button>
+      <ChangeLabStatusModal
+        labRequest={labRequest}
+        open={isModalOpen}
+        onClose={() => setModalOpen(false)}
+      />
     </React.Fragment>
   );
 });
