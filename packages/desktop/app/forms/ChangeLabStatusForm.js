@@ -28,7 +28,7 @@ export class ChangeLabStatusForm extends React.PureComponent {
     return (
       <Form
         initialValues={{
-          ...labRequest,
+          status: labRequest.status,
         }}
         render={this.renderForm}
         onSubmit={onSubmit}

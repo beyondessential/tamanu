@@ -13,6 +13,6 @@ export const ChangeLabStatusModal = connectApi((api, dispatch, { labRequest }) =
   },
 }))(({ labRequest, onClose, open, onSubmit }) => (
   <Modal open={open} onClose={onClose} title="Change lab request status">
-    <ChangeLabStatusForm labRequest={labRequest} onSubmit={onSubmit} onClose={onClose} />
+    <ChangeLabStatusForm labRequest={labRequest} onSubmit={onSubmit} onCancel={onClose} />
   </Modal>
 ));
