@@ -63,15 +63,17 @@ const BackLink = connect(
 
 const ChangeLabStatusButton = React.memo(({ labRequest }) => {
   const [isModalOpen, setModalOpen] = React.useState(false);
+  const openModal = React.useCallback(() => setModalOpen(true), [setModalOpen]);
+  const closeModal = React.useCallback(() => setModalOpen(false), [setModalOpen]);
   return (
     <React.Fragment>
-      <Button variant="outlined" onClick={() => setModalOpen(true)}>
+      <Button variant="outlined" onClick={openModal}>
         Change status
       </Button>
       <ChangeLabStatusModal
         labRequest={labRequest}
         open={isModalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={closeModal}
       />
     </React.Fragment>
   );
