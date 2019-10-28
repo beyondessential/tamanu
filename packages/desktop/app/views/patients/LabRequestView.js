@@ -70,11 +70,7 @@ const ChangeLabStatusButton = React.memo(({ labRequest }) => {
       <Button variant="outlined" onClick={openModal}>
         Change status
       </Button>
-      <ChangeLabStatusModal
-        labRequest={labRequest}
-        open={isModalOpen}
-        onClose={closeModal}
-      />
+      <ChangeLabStatusModal labRequest={labRequest} open={isModalOpen} onClose={closeModal} />
     </React.Fragment>
   );
 });

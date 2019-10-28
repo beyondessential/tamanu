@@ -14,7 +14,7 @@ const labStatuses = [
 
 export class ChangeLabStatusForm extends React.PureComponent {
   renderForm = ({ submitForm }) => {
-    const { onCancel, labRequest } = this.props;
+    const { onCancel } = this.props;
     return (
       <FormGrid columns={1}>
         <Field label="Status" name="status" component={SelectField} options={labStatuses} />
