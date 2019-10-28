@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { Paper } from '@material-ui/core';
 import * as yup from 'yup';
@@ -40,18 +41,23 @@ export class LoginView extends Component {
     onLogin({ email, password });
   };
 
-  renderForm = ({ submitForm }) => (
-    <FormGrid columns={1}>
-      <Field name="email" type="email" label="Email" required component={TextField} />
-      <Field name="password" label="Password" type="password" required component={TextField} />
-      <Field name="rememberMe" label="Remember me" component={CheckField} />
-      <div>
-        <Button fullWidth variant="contained" color="primary" onClick={submitForm}>
-          Login
-        </Button>
-      </div>
-    </FormGrid>
-  );
+  renderForm = ({ submitForm }) => {
+    const { errorMessage } = this.props;
+
+    return (
+      <FormGrid columns={1}>
+        <div>{errorMessage}</div>
+        <Field name="email" type="email" label="Email" required component={TextField} />
+        <Field name="password" label="Password" type="password" required component={TextField} />
+        <Field name="rememberMe" label="Remember me" component={CheckField} />
+        <div>
+          <Button fullWidth variant="contained" color="primary" onClick={submitForm}>
+            Login
+          </Button>
+        </div>
+      </FormGrid>
+    );
+  };
 
   render() {
     const rememberEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
@@ -82,3 +88,5 @@ export class LoginView extends Component {
     );
   }
 }
+
+export const ConnectedLoginView = connect(state => ({ errorMessage: state.auth.error }))(LoginView);

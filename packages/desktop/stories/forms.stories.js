@@ -54,7 +54,14 @@ const patientSuggester = createDummySuggester(
 );
 const drugSuggester = createDummySuggester(mapToSuggestions(DRUGS));
 
-storiesOf('Forms', module).add('LoginForm', () => <LoginView login={action('login')} />);
+storiesOf('Forms/LoginForm', module)
+  .add('default', () => <LoginView login={action('login')} />)
+  .add('expired', () => (
+    <LoginView
+      login={action('login')}
+      errorMessage="Your session has expired. Please log in again."
+    />
+  ));
 
 storiesOf('Forms/VisitForm', module)
   .add('Default', () => (

@@ -1,4 +1,4 @@
-export { LoginView } from './LoginView';
+export { LoginView, ConnectedLoginView } from './LoginView';
 export { NotActiveView } from './NotActiveView';
 export { TriageListingView } from './TriageListingView';
 export * from './patients';

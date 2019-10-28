@@ -5,6 +5,7 @@ const LOGIN_START = 'LOGIN_START';
 const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 const LOGIN_FAILURE = 'LOGIN_FAILURE';
 const LOGOUT = 'LOGOUT';
+const TOKEN_REJECTION = 'TOKEN_REJECTION';
 
 export const login = (email, password) => async (dispatch, getState, { api }) => {
   dispatch({ type: LOGIN_START });
@@ -15,6 +16,13 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
   }
+};
+
+export const authFailure = () => async dispatch => {
+  dispatch({
+    type: TOKEN_REJECTION,
+    error: 'Your session has expired. Please log in again.',
+  });
 };
 
 export const logout = () => ({
@@ -46,6 +54,10 @@ const actionHandlers = {
   }),
   [LOGIN_FAILURE]: action => ({
     loading: false,
+    error: action.error,
+  }),
+  [TOKEN_REJECTION]: action => ({
+    user: defaultState.user,
     error: action.error,
   }),
   [LOGOUT]: () => ({

@@ -9,8 +9,13 @@ const encodeQueryString = query =>
 export class TamanuApi {
   constructor(host) {
     this.host = host;
+    this.onAuthFailure = null;
     this.authHeader = null;
     this.fayeClient = new faye.Client(`${host}/faye`);
+  }
+
+  setAuthFailureHandler(handler) {
+    this.onAuthFailure = handler;
   }
 
   async login(email, password) {
@@ -41,6 +46,13 @@ export class TamanuApi {
       return response.json();
     }
     console.error(response);
+
+    if (response.status === 403) {
+      if (this.onAuthFailure) {
+        this.onAuthFailure(response);
+      }
+    }
+
     throw new Error(response.status);
   }
 

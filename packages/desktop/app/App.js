@@ -7,7 +7,7 @@ import { TamanuLogoWhite } from './components/TamanuLogo';
 import { ConnectedSidebar } from './components/Sidebar';
 import { Appbar } from './components/Appbar';
 import { login, checkIsLoggedIn } from './store/auth';
-import { LoginView } from './views';
+import { ConnectedLoginView } from './views';
 import { Colors } from './constants';
 
 const AppContainer = styled.div`
@@ -47,7 +47,7 @@ class DumbApp extends Component {
   renderAppContents() {
     const { isUserLoggedIn } = this.props;
     if (!isUserLoggedIn) {
-      return <LoginView {...this.props} />;
+      return <ConnectedLoginView {...this.props} />;
     }
 
     return (
