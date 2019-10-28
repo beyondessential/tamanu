@@ -2,10 +2,10 @@ import React from 'react';
 import { DateDisplay } from '../../components';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 
+import { getCurrentVisit } from '../../store/patient';
+
 const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} />);
-const SexCell = React.memo(({ value = '' }) => (
-  <span>{capitaliseFirstLetter(value)}</span>
-));
+const SexCell = React.memo(({ value = '' }) => <span>{capitaliseFirstLetter(value)}</span>);
 
 export const displayId = {
   key: 'displayId',
@@ -50,6 +50,20 @@ export const location = {
   key: 'location',
   title: 'Location',
   minWidth: 100,
+  accessor: row => {
+    const visit = getCurrentVisit(row);
+    return visit && visit.location && visit.location.name;
+  },
+};
+
+export const department = {
+  key: 'department',
+  title: 'Department',
+  minWidth: 100,
+  accessor: row => {
+    const visit = getCurrentVisit(row);
+    return visit && visit.department && visit.department.name;
+  },
 };
 
 export const status = {
@@ -57,7 +71,7 @@ export const status = {
   title: 'Status',
   minWidth: 100,
   accessor: row => {
-    const visit = row.visits.find(x => !x.endDate);
+    const visit = getCurrentVisit(row);
     if (!visit) return '';
     else if (visit.visitType === 'emergency') return 'Emergency';
     // TODO: include "Outpatient" status

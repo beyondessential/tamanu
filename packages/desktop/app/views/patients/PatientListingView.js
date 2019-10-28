@@ -3,21 +3,33 @@ import { connect } from 'react-redux';
 import { viewPatient } from '../../store/patient';
 import { TopBar, PageContainer, Button, DataFetchingTable } from '../../components';
 import { PatientSearchBar, NewPatientModal } from './components';
-import { displayId, firstName, lastName, culturalName, sex, dateOfBirth, status } from './columns';
+import {
+  displayId,
+  firstName,
+  lastName,
+  culturalName,
+  sex,
+  dateOfBirth,
+  status,
+  location,
+  department,
+} from './columns';
 import { PATIENT_SEARCH_ENDPOINT } from './constants';
 
-const COLUMNS = [displayId, firstName, lastName, culturalName, sex, dateOfBirth, status];
+const BASE_COLUMNS = [displayId, firstName, lastName, culturalName, sex, dateOfBirth];
+const LISTING_COLUMNS = [...BASE_COLUMNS, status];
+const INPATIENT_COLUMNS = [...BASE_COLUMNS, location, department];
 
 const PatientTable = connect(
   null,
-  dispatch => ({ viewPatient: id => dispatch(viewPatient(id)) }),
+  dispatch => ({ onViewPatient: id => dispatch(viewPatient(id)) }),
 )(
-  React.memo(({ viewPatient, ...props }) => (
+  React.memo(({ onViewPatient, columns, ...props }) => (
     <DataFetchingTable
       endpoint={PATIENT_SEARCH_ENDPOINT}
-      columns={COLUMNS}
+      columns={columns}
       noDataMessage="No patients found"
-      onRowClick={row => viewPatient(row._id)}
+      onRowClick={row => onViewPatient(row._id)}
       {...props}
     />
   )),
@@ -39,7 +51,7 @@ export const PatientListingView = React.memo(() => {
         </Button>
       </TopBar>
       <PatientSearchBar onSearch={setSearchParameters} />
-      <PatientTable fetchOptions={searchParameters} />
+      <PatientTable fetchOptions={searchParameters} columns={LISTING_COLUMNS} />
       <NewPatientModal
         title="New patient"
         open={creatingPatient}
@@ -61,7 +73,7 @@ export const AdmittedPatientsView = React.memo(() => {
     <PageContainer>
       <TopBar title="Admitted patient listing" />
       <PatientSearchBar onSearch={setSearchParameters} />
-      <PatientTable fetchOptions={fullParameters} />
+      <PatientTable fetchOptions={fullParameters} columns={INPATIENT_COLUMNS} />
     </PageContainer>
   );
 });
