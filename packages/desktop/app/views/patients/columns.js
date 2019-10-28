@@ -2,6 +2,8 @@ import React from 'react';
 import { DateDisplay } from '../../components';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 
+import { getCurrentVisit } from '../../store/patient';
+
 const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} />);
 const SexCell = React.memo(({ value = '' }) => (
   <span>{capitaliseFirstLetter(value)}</span>
@@ -57,10 +59,11 @@ export const status = {
   title: 'Status',
   minWidth: 100,
   accessor: row => {
-    const visit = row.visits.find(x => !x.endDate);
+    const visit = getCurrentVisit(row);
     if (!visit) return '';
     else if (visit.visitType === 'emergency') return 'Emergency';
     // TODO: include "Outpatient" status
     return 'Inpatient';
   },
 };
+

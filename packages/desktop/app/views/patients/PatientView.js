@@ -21,8 +21,6 @@ import { PatientVisitSummary } from './components/PatientVisitSummary';
 
 import { viewVisit } from '../../store/visit';
 
-import { getCurrentVisit } from '../../store/patient';
-
 const AppointmentPane = React.memo(({ patient }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
