@@ -36,7 +36,7 @@ const Toolbar = styled(MuiToolbar)`
   }
 `;
 
-const TopBar = React.memo(({ title, children, className }) => {
+export const TopBar = React.memo(({ title, children, className }) => {
   return (
     <AppBar position="static" color="inherit">
       <Toolbar className={className}>
@@ -52,5 +52,3 @@ const TopBar = React.memo(({ title, children, className }) => {
 TopBar.propTypes = {
   title: PropTypes.string.isRequired,
 };
-
-export default TopBar;

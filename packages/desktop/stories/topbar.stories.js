@@ -5,7 +5,7 @@ import { action } from '@storybook/addon-actions';
 
 import { Button } from '../app/components/Button';
 
-import TopBar from '../app/components/TopBar';
+import { TopBar } from '../app/components/TopBar';
 
 storiesOf('TopBar', module)
   .add('Plain', () => <TopBar title="Title" />)

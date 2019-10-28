@@ -10,9 +10,11 @@ import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { Table } from '../../components/Table';
 import { ManualLabResultModal } from '../../components/ManualLabResultModal';
 
+import { TopBar } from '../../components/TopBar';
 import { FormGrid } from '../../components/FormGrid';
 import { DateInput, TextInput, DateTimeInput } from '../../components/Field';
 
+import { ChangeLabStatusModal } from '../../components/ChangeLabStatusModal';
 import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 
 import { capitaliseFirstLetter } from '../../utils/capitalise';
@@ -55,6 +57,16 @@ const BackLink = connect(
   dispatch => ({ onClick: () => dispatch(push('/patients/visit')) }),
 )(({ onClick }) => <Button onClick={onClick}>&lt; Back to visit information</Button>);
 
+const ChangeLabStatusButton = React.memo(({ labRequest }) => {
+  const [isModalOpen, setModalOpen] = React.useState(false);
+  return (
+    <React.Fragment> 
+      <Button variant="outlined" onClick={() => setModalOpen(true)}>Change status</Button>
+      <ChangeLabStatusModal labRequest={labRequest} open={isModalOpen} onClose={() => setModalOpen(false)} />
+    </React.Fragment>
+  );
+});
+
 const LabRequestInfoPane = React.memo(({ labRequest }) => (
   <FormGrid columns={3}>
     <TextInput value={labRequest._id} label="Request ID" />
@@ -73,6 +85,9 @@ export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) 
       <TwoColumnDisplay>
         <PatientInfoPane patient={patient} />
         <div>
+          <TopBar title="Lab request">
+            <ChangeLabStatusButton labRequest={labRequest} />
+          </TopBar>
           <BackLink />
           <ContentPane>
             <LabRequestInfoPane labRequest={labRequest} />

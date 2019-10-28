@@ -6,7 +6,7 @@ export QuickLinks from './QuickLinks';
 export RadioGroup from './RadioGroup';
 export SelectGroup from './SelectGroup';
 export TextareaGroup from './TextareaGroup';
-export TopBar from './TopBar';
+export * from './TopBar';
 export * from './Button';
 export * from './ButtonRow';
 export * from './DateDisplay';
