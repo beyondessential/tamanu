@@ -96,13 +96,12 @@ const ProceduresList = ({ procedures }) => {
 const MedicationsList = ({ medications }) => {
   if (medications.length === 0) return <span>N/A</span>;
 
-  return medications.map(({ drug, prescription }) => {
-    return (
-      <li>
-        {drug.name}: {prescription}
-      </li>
-    );
-  });
+  return medications.map(({ drug, prescription }) => (
+    <li>
+      <span>{drug.name}</span>
+      {prescription && <span><br />{prescription}</span>}
+    </li>
+  ));
 };
 
 const DumbDischargeSummaryView = React.memo(({ visit, patient, loading }) => {
