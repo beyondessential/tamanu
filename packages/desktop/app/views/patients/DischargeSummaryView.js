@@ -93,6 +93,17 @@ const ProceduresList = ({ procedures }) => {
   });
 };
 
+const MedicationsList = ({ medications }) => {
+  if (medications.length === 0) return <span>N/A</span>;
+
+  return medications.map(({ drug, prescription }) => (
+    <li>
+      <span>{drug.name}</span>
+      {prescription && <span><br />{prescription}</span>}
+    </li>
+  ));
+};
+
 const DumbDischargeSummaryView = React.memo(({ visit, patient, loading }) => {
   const primaryDiagnoses = visit.diagnoses.filter(d => d.isPrimary);
   const secondaryDiagnoses = visit.diagnoses.filter(d => !d.isPrimary);
@@ -107,11 +118,11 @@ const DumbDischargeSummaryView = React.memo(({ visit, patient, loading }) => {
         <Header>
           <h4>
             <Label>Patient name: </Label>
-            {patient.firstName} {patient.lastName}
+            <span>{patient.firstName} {patient.lastName}</span>
           </h4>
           <h4>
             <Label>UID: </Label>
-            {patient.externalPatientId}
+            <span>{patient.displayId}</span>
           </h4>
         </Header>
 
@@ -178,8 +189,17 @@ const DumbDischargeSummaryView = React.memo(({ visit, patient, loading }) => {
               </ListColumn>
             </TwoColumnSection>
 
+            <TwoColumnSection>
+              <Label>Medications: </Label>
+              <ListColumn>
+                <ul>
+                  <MedicationsList medications={visit.medications} />
+                </ul>
+              </ListColumn>
+            </TwoColumnSection>
+
             <div>
-              <Label>Discharge treatment plan and follow-up notes:</Label>
+              <Label>Discharge planning notes:</Label>
               <div>{visit.dischargeNotes}</div>
             </div>
           </Content>
