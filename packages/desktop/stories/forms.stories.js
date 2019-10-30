@@ -23,6 +23,7 @@ import { AppointmentForm } from '../app/forms/AppointmentForm';
 import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
 import { DischargeForm } from '../app/forms/DischargeForm';
 import { NewPatientForm } from '../app/forms/NewPatientForm';
+import { PatientDetailsForm } from '../app/forms/PatientDetailsForm';
 import { LabRequestForm } from '../app/forms/LabRequestForm';
 import { ReferralForm } from '../app/forms/ReferralForm';
 import { MedicationForm } from '../app/forms/MedicationForm';
@@ -144,6 +145,16 @@ storiesOf('Forms', module).add('VitalsForm', () => (
 
 storiesOf('Forms', module).add('NewPatientForm', () => (
   <NewPatientForm
+    onSubmit={action('submit')}
+    onCancel={action('cancel')}
+    generateId={shortid.generate}
+    facilitySuggester={facilitySuggester}
+    patientSuggester={patientSuggester}
+  />
+));
+
+storiesOf('Forms', module).add('PatientDetailsForm', () => (
+  <PatientDetailsForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     generateId={shortid.generate}
