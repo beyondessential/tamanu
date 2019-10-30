@@ -93,11 +93,13 @@ const ConnectedPatientDetailsForm = connectApi((api, dispatch, { patient }) => (
     await api.put(`patient/${patient._id}`, data);
     dispatch(reloadPatient(patient._id));
   },
-}))(React.memo(props => (
-  <ContentPane>
-    <PatientDetailsForm {...props} />
-  </ContentPane>
-)));
+}))(
+  React.memo(props => (
+    <ContentPane>
+      <PatientDetailsForm {...props} />
+    </ContentPane>
+  )),
+);
 
 const TABS = [
   {

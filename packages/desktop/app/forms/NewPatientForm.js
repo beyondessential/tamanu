@@ -92,10 +92,7 @@ export const SecondaryDetailsGroup = ({ patientSuggester, facilitySuggester }) =
       component={RadioField}
       name="patientType"
       label="Patient Type"
-      options={[
-        { value: 'charity', label: 'Charity' },
-        { value: 'private', label: 'Private' },
-      ]}
+      options={[{ value: 'charity', label: 'Charity' }, { value: 'private', label: 'Private' }]}
       inline
     />
     <Field name="bloodType" label="Blood type" component={TextField} />
@@ -108,40 +105,39 @@ export const SecondaryDetailsGroup = ({ patientSuggester, facilitySuggester }) =
       component={AutocompleteField}
       suggester={facilitySuggester}
     />
-</React.Fragment>
+  </React.Fragment>
 );
 
 export const NewPatientForm = memo(
   ({ editedObject, onSubmit, onCancel, generateId, patientSuggester, facilitySuggester }) => {
     const [isExpanded, setExpanded] = useState(false);
-    const renderForm = ({ submitForm }) => {
-      return (
-        <FormGrid>
-          <IdBannerContainer>
-            <IdBanner>
-              <Field name="displayId" component={IdField} regenerateId={generateId} />
-            </IdBanner>
-          </IdBannerContainer>
-          <PrimaryDetailsGroup />
-          <AdditionalInformationRow>
-            <div>
-              Add additional information <span>(religion, occupation, blood type...)</span>
-            </div>
-            {isExpanded ? (
-              <MinusIconButton onClick={() => setExpanded(false)} />
-            ) : (
-              <PlusIconButton onClick={() => setExpanded(true)} />
-            )}
-          </AdditionalInformationRow>
-          <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
-            <FormGrid>
-              <SecondaryDetailsGroup patientSuggester={patientSuggester} facilitySuggester={facilitySuggester} />
-            </FormGrid>
-          </Collapse>
-          <ModalActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
-        </FormGrid>
-      );
-    };
+    const renderForm = ({ submitForm }) => (
+      <FormGrid>
+        <IdBannerContainer>
+          <IdBanner>
+            <Field name="displayId" component={IdField} regenerateId={generateId} />
+          </IdBanner>
+        </IdBannerContainer>
+        <PrimaryDetailsGroup />
+        <AdditionalInformationRow>
+          <div>Add additional information <span>(religion, occupation, blood type...)</span></div>
+          {isExpanded ? (
+            <MinusIconButton onClick={() => setExpanded(false)} />
+          ) : (
+            <PlusIconButton onClick={() => setExpanded(true)} />
+          )}
+        </AdditionalInformationRow>
+        <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
+          <FormGrid>
+            <SecondaryDetailsGroup
+              patientSuggester={patientSuggester}
+              facilitySuggester={facilitySuggester}
+            />
+          </FormGrid>
+        </Collapse>
+        <ModalActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
+      </FormGrid>
+    );
 
     return (
       <Form
