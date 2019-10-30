@@ -3,7 +3,7 @@ import { objectToJSON } from '../../utils';
 
 const OBJECTS_MAX_DEPTH = 5;
 
-export default function(req, res) {
+export function handleGenericGetRequest(req, res, prefilters = null) {
   const { db, params, query } = req;
   const { model: modelName, id, fuzzy } = params;
   const {
@@ -26,7 +26,11 @@ export default function(req, res) {
     }
 
     // Add any additional filters from query parameters
-    const { properties: fieldSchemata } = db.schema.find(({ name }) => name === modelName);
+    const schema = db.schema.find(({ name }) => name === modelName);
+    if(!schema) {
+      throw new Error(`No schema for ${modelName}`);
+    }
+    const { properties: fieldSchemata } = schema;
     const filters = Object.entries(restOfQuery).map(([field, value]) => {
       const fieldSchema = fieldSchemata[field] || {};
       const isString = fieldSchema === 'string' || fieldSchema.type === 'string';
@@ -43,6 +47,10 @@ export default function(req, res) {
     });
 
     let objects = db.objects(modelName);
+
+    if(prefilters) {
+      objects = prefilters(objects);
+    }
 
     // Filter collection on all filters
     if (!isEmpty(filters)) objects = objects.filtered(filters.join(' AND '));
@@ -69,4 +77,8 @@ export default function(req, res) {
     console.error(err);
     return res.status(500).send(err.toString());
   }
+}
+
+export default function(req, res) {
+  handleGenericGetRequest(req, res);
 }

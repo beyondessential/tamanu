@@ -67,18 +67,13 @@ export const PatientListingView = React.memo(() => {
 export const AdmittedPatientsView = React.memo(() => {
   const [searchParameters, setSearchParameters] = useState({});
 
-  const fullParameters = {
-    'endDate': null,
-    'visitType': 'admission',
-  };
-
   return (
     <PageContainer>
       <TopBar title="Admitted patient listing" />
       <PatientSearchBar onSearch={setSearchParameters} />
       <PatientTable 
-        endpoint="visit"
-        fetchOptions={fullParameters} 
+        endpoint="outpatient"
+        fetchOptions={searchParameters} 
         transformRow={visit => ({ ...visit, ...visit.patient[0], visits: [visit] })}
         columns={INPATIENT_COLUMNS}
       />
