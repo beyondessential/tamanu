@@ -2,6 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
+import { connectApi } from '../../api';
+
 import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -19,7 +21,10 @@ import { Button } from '../../components/Button';
 import { connectRoutedModal } from '../../components/Modal';
 import { PatientVisitSummary } from './components/PatientVisitSummary';
 
+import { PatientDetailsForm } from '../../forms/PatientDetailsForm';
+
 import { viewVisit } from '../../store/visit';
+import { reloadPatient } from '../../store/patient';
 
 const AppointmentPane = React.memo(({ patient }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -83,6 +88,17 @@ const HistoryPane = connect(
   )),
 );
 
+const ConnectedPatientDetailsForm = connectApi((api, dispatch, { patient }) => ({
+  onSubmit: async data => {
+    await api.put(`patient/${patient._id}`, data);
+    dispatch(reloadPatient(patient._id));
+  },
+}))(React.memo(props => (
+  <ContentPane>
+    <PatientDetailsForm {...props} />
+  </ContentPane>
+)));
+
 const TABS = [
   {
     label: 'History',
@@ -94,6 +110,7 @@ const TABS = [
     label: 'Details',
     key: 'details',
     icon: 'fa fa-info-circle',
+    render: ({ patient }) => <ConnectedPatientDetailsForm patient={patient} />,
   },
   {
     label: 'Appointments',
