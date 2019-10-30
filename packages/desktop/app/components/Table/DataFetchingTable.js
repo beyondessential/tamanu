@@ -6,7 +6,15 @@ const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
 
 const DumbDataFetchingTable = memo(
-  ({ columns, fetchData, noDataMessage, fetchOptions, onRowClick, initialSort = DEFAULT_SORT }) => {
+  ({
+    columns,
+    fetchData,
+    noDataMessage, 
+    fetchOptions,
+    onRowClick,
+    transformRow,
+    initialSort = DEFAULT_SORT
+  }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
     const [sorting, setSorting] = useState(initialSort);
@@ -30,7 +38,8 @@ const DumbDataFetchingTable = memo(
       (async () => {
         try {
           const { data, count } = await fetchData({ page, rowsPerPage, ...sorting });
-          updateFetchState({ ...defaultFetchState, data, count, isLoading: false });
+          const transformedData = transformRow ? data.map(transformRow) : data;
+          updateFetchState({ ...defaultFetchState, data: transformedData, count, isLoading: false });
         } catch (error) {
           updateFetchState({ errorMessage: error.message, isLoading: false });
         }
