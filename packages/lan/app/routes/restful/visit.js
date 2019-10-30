@@ -6,7 +6,7 @@ import { handleGenericGetRequest } from '../../controllers/realm/get';
 
 export const visitRoutes = express.Router();
 
-visitRoutes.get('/outpatient', (req, res) => {
+visitRoutes.get('/inpatient', (req, res) => {
   req.params = { model: 'visit' };
   handleGenericGetRequest(req, res, objects =>
     objects
@@ -15,7 +15,7 @@ visitRoutes.get('/outpatient', (req, res) => {
   );
 });
 
-visitRoutes.get('/inpatient', (req, res) => {
+visitRoutes.get('/outpatient', (req, res) => {
   req.params = { model: 'visit' };
   handleGenericGetRequest(req, res, objects =>
     objects

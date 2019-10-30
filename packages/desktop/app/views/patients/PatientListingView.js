@@ -64,6 +64,15 @@ export const PatientListingView = React.memo(() => {
   );
 });
 
+// Allow a "patient view" table to receive a list of visits instead
+function annotateVisitWithPatientData(visit) {
+  return {
+    ...visit,
+    ...visit.patient[0],
+    visits: [visit],
+  };
+}
+
 export const AdmittedPatientsView = React.memo(() => {
   const [searchParameters, setSearchParameters] = useState({});
 
@@ -72,9 +81,26 @@ export const AdmittedPatientsView = React.memo(() => {
       <TopBar title="Admitted patient listing" />
       <PatientSearchBar onSearch={setSearchParameters} />
       <PatientTable
+        endpoint="inpatient"
+        fetchOptions={searchParameters}
+        transformRow={annotateVisitWithPatientData}
+        columns={INPATIENT_COLUMNS}
+      />
+    </PageContainer>
+  );
+});
+
+export const OutpatientsView = React.memo(() => {
+  const [searchParameters, setSearchParameters] = useState({});
+
+  return (
+    <PageContainer>
+      <TopBar title="Outpatient listing" />
+      <PatientSearchBar onSearch={setSearchParameters} />
+      <PatientTable
         endpoint="outpatient"
         fetchOptions={searchParameters}
-        transformRow={visit => ({ ...visit, ...visit.patient[0], visits: [visit] })}
+        transformRow={annotateVisitWithPatientData}
         columns={INPATIENT_COLUMNS}
       />
     </PageContainer>
