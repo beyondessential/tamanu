@@ -27,7 +27,7 @@ export function handleGenericGetRequest(req, res, prefilters = null) {
 
     // Add any additional filters from query parameters
     const schema = db.schema.find(({ name }) => name === modelName);
-    if(!schema) {
+    if (!schema) {
       throw new Error(`No schema for ${modelName}`);
     }
     const { properties: fieldSchemata } = schema;
@@ -48,7 +48,7 @@ export function handleGenericGetRequest(req, res, prefilters = null) {
 
     let objects = db.objects(modelName);
 
-    if(prefilters) {
+    if (prefilters) {
       objects = prefilters(objects);
     }
 

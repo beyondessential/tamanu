@@ -9,11 +9,11 @@ const DumbDataFetchingTable = memo(
   ({
     columns,
     fetchData,
-    noDataMessage, 
+    noDataMessage,
     fetchOptions,
     onRowClick,
     transformRow,
-    initialSort = DEFAULT_SORT
+    initialSort = DEFAULT_SORT,
   }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
@@ -39,7 +39,12 @@ const DumbDataFetchingTable = memo(
         try {
           const { data, count } = await fetchData({ page, rowsPerPage, ...sorting });
           const transformedData = transformRow ? data.map(transformRow) : data;
-          updateFetchState({ ...defaultFetchState, data: transformedData, count, isLoading: false });
+          updateFetchState({
+            ...defaultFetchState,
+            data: transformedData,
+            count,
+            isLoading: false,
+          });
         } catch (error) {
           updateFetchState({ errorMessage: error.message, isLoading: false });
         }

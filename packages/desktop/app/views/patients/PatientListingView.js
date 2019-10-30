@@ -50,9 +50,9 @@ export const PatientListingView = React.memo(() => {
         </Button>
       </TopBar>
       <PatientSearchBar onSearch={setSearchParameters} />
-      <PatientTable 
+      <PatientTable
         endpoint={PATIENT_SEARCH_ENDPOINT}
-        fetchOptions={searchParameters} 
+        fetchOptions={searchParameters}
         columns={LISTING_COLUMNS}
       />
       <NewPatientModal
@@ -71,9 +71,9 @@ export const AdmittedPatientsView = React.memo(() => {
     <PageContainer>
       <TopBar title="Admitted patient listing" />
       <PatientSearchBar onSearch={setSearchParameters} />
-      <PatientTable 
+      <PatientTable
         endpoint="outpatient"
-        fetchOptions={searchParameters} 
+        fetchOptions={searchParameters}
         transformRow={visit => ({ ...visit, ...visit.patient[0], visits: [visit] })}
         columns={INPATIENT_COLUMNS}
       />
