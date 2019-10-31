@@ -17,8 +17,14 @@ import {
 import { PATIENT_SEARCH_ENDPOINT } from './constants';
 
 const BASE_COLUMNS = [displayId, firstName, lastName, culturalName, sex, dateOfBirth];
+
+const BASE_COLUMNS_ON_PATIENT = BASE_COLUMNS.map(column => ({
+  ...column,
+  sortable: false,
+}));
+
 const LISTING_COLUMNS = [...BASE_COLUMNS, status];
-const INPATIENT_COLUMNS = [...BASE_COLUMNS, location, department];
+const INPATIENT_COLUMNS = [...BASE_COLUMNS_ON_PATIENT, location, department];
 
 const PatientTable = connect(
   null,
@@ -73,36 +79,24 @@ function annotateVisitWithPatientData(visit) {
   };
 }
 
-export const AdmittedPatientsView = React.memo(() => {
-  const [searchParameters, setSearchParameters] = useState({});
+export const AdmittedPatientsView = React.memo(() => (
+  <PageContainer>
+    <TopBar title="Admitted patient listing" />
+    <PatientTable
+      endpoint="inpatient"
+      transformRow={annotateVisitWithPatientData}
+      columns={INPATIENT_COLUMNS}
+    />
+  </PageContainer>
+));
 
-  return (
-    <PageContainer>
-      <TopBar title="Admitted patient listing" />
-      <PatientSearchBar onSearch={setSearchParameters} />
-      <PatientTable
-        endpoint="inpatient"
-        fetchOptions={searchParameters}
-        transformRow={annotateVisitWithPatientData}
-        columns={INPATIENT_COLUMNS}
-      />
-    </PageContainer>
-  );
-});
-
-export const OutpatientsView = React.memo(() => {
-  const [searchParameters, setSearchParameters] = useState({});
-
-  return (
-    <PageContainer>
-      <TopBar title="Outpatient listing" />
-      <PatientSearchBar onSearch={setSearchParameters} />
-      <PatientTable
-        endpoint="outpatient"
-        fetchOptions={searchParameters}
-        transformRow={annotateVisitWithPatientData}
-        columns={INPATIENT_COLUMNS}
-      />
-    </PageContainer>
-  );
-});
+export const OutpatientsView = React.memo(() => (
+  <PageContainer>
+    <TopBar title="Outpatient listing" />
+    <PatientTable
+      endpoint="outpatient"
+      transformRow={annotateVisitWithPatientData}
+      columns={INPATIENT_COLUMNS}
+    />
+  </PageContainer>
+));
