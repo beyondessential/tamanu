@@ -25,7 +25,7 @@ export const DeathForm = React.memo(({ onCancel, onSubmit, practitionerSuggester
           required
         />
         <Field
-          name="physician"
+          name="physician._id"
           label="Attending physician"
           component={AutocompleteField}
           suggester={practitionerSuggester}

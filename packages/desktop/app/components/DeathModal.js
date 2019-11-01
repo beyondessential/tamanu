@@ -20,7 +20,7 @@ const DumbDeathModal = React.memo(({ open, onClose, onSave, icd10Suggester, prac
 
 export const DeathModal = connectApi((api, dispatch, { patientId, open, onClose }) => ({
   onSave: async data => {
-    await api.post(`patient/${patientId}/death`, data);
+    await api.put(`patient/${patientId}/death`, data);
 
     onClose();
     dispatch(viewPatient(patientId));

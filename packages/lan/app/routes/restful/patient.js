@@ -160,3 +160,21 @@ patientRoutes.post('/patient/:id/referral', (req, res) => {
 
   res.send(objectToJSON(referral));
 });
+
+patientRoutes.put('/patient/:id/death', (req, res) => {
+  const { db, params, body } = req;
+  const patient = db.objectForPrimaryKey('patient', params.id);
+  const death = {
+    _id: shortid.generate(),
+    ...patient.death,
+    ...body,
+  };
+
+  // TODO: validate
+
+  db.write(() => {
+    patient.death = death;
+  });
+
+  res.send(objectToJSON(death));
+});
