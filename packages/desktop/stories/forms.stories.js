@@ -28,6 +28,7 @@ import { LabRequestForm } from '../app/forms/LabRequestForm';
 import { ReferralForm } from '../app/forms/ReferralForm';
 import { MedicationForm } from '../app/forms/MedicationForm';
 import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
+import { DeathForm } from '../app/forms/DeathForm';
 import { NoteForm } from '../app/forms/NoteForm';
 
 import { TestSelectorInput } from '../app/components/TestSelector';
@@ -36,7 +37,7 @@ function createDummySuggester(options) {
   return {
     fetchSuggestions: search => {
       const filter = ({ label }) => label.toLowerCase().includes(search.toLowerCase());
-      return options.filter(filter);
+      return options.filter(filter).slice(0, 20);
     },
     fetchCurrentOption: value => options.find(s => s.value === value),
   };
@@ -217,6 +218,15 @@ storiesOf('Forms', module).add('MedicationForm', () => (
 
 storiesOf('Forms', module).add('ReferralForm', () => (
   <ReferralForm
+    onSubmit={action('submit')}
+    onCancel={action('cancel')}
+    practitionerSuggester={practitionerSuggester}
+    icd10Suggester={icd10Suggester}
+  />
+));
+
+storiesOf('Forms', module).add('DeathForm', () => (
+  <DeathForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
