@@ -10,5 +10,5 @@ export const DeathSchema = {
     physician: 'user',
 
     ...defaults,
-  }
+  },
 };
