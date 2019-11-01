@@ -41,6 +41,8 @@ export const PatientSchema = {
     surveyResponses: { type: 'list', objectType: 'surveyResponse' },
     familyHistory: { type: 'list', objectType: 'familyHistoryItem' },
 
+    death: 'death?',
+
     ...defaults,
   },
   beforeSave: (db, object, env) => {
