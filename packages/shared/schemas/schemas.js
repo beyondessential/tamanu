@@ -5,6 +5,7 @@ export * from './change';
 export * from './client';
 export * from './condition';
 export * from './department';
+export * from './death';
 export * from './diagnosis';
 export * from './drug';
 export * from './facility';
