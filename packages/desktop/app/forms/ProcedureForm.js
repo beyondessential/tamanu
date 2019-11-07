@@ -73,15 +73,15 @@ export class ProcedureForm extends React.PureComponent {
             </div>
             <Field
               name="location"
-              label="Procedure Location"
+              label="Procedure location"
               required
               component={AutocompleteField}
               suggester={locationSuggester}
             />
             <FormGrid columns={3}>
-              <Field name="date" label="Procedure Date" required component={DateField} />
-              <Field name="startTime" label="Time Started" component={TimeField} />
-              <Field name="endTime" label="Time Ended" component={TimeField} />
+              <Field name="date" label="Procedure date" required component={DateField} />
+              <Field name="startTime" label="Time started" component={TimeField} />
+              <Field name="endTime" label="Time ended" component={TimeField} />
             </FormGrid>
             <Field
               name="physician"
