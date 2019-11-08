@@ -11,6 +11,7 @@ import {
   generateLabTestTypes,
   LOCATIONS,
   USERS,
+  PROCEDURE_TYPES,
 } from 'Shared/demoData';
 
 const GENERATORS = {
@@ -18,6 +19,7 @@ const GENERATORS = {
   department: () => DEPARTMENTS,
   diagnosis: () => DIAGNOSES,
   drug: () => DRUGS,
+  procedureType: () => PROCEDURE_TYPES,
   facility: () => FACILITIES,
   imagingType: () => IMAGING_TYPES,
   labTestType: generateLabTestTypes,

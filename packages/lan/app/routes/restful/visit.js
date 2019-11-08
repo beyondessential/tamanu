@@ -152,6 +152,23 @@ visitRoutes.post('/visit/:id/diagnosis', (req, res) => {
   res.send(objectToJSON(diagnosis));
 });
 
+visitRoutes.post('/visit/:id/procedure', (req, res) => {
+  const { db, params, body } = req;
+  const visit = db.objectForPrimaryKey('visit', params.id);
+  const procedure = {
+    _id: shortid.generate(),
+    ...body,
+  };
+
+  // TODO: validate
+
+  db.write(() => {
+    visit.procedures = [...visit.procedures, procedure];
+  });
+
+  res.send(objectToJSON(procedure));
+});
+
 visitRoutes.post('/visit/:id/labRequest', (req, res) => {
   const { db, params, body } = req;
   const visit = db.objectForPrimaryKey('visit', params.id);

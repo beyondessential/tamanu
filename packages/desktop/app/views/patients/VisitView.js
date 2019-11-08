@@ -23,6 +23,8 @@ import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { VitalsModal } from '../../components/VitalsModal';
 import { MedicationModal } from '../../components/MedicationModal';
 import { MedicationTable } from '../../components/MedicationTable';
+import { ProcedureModal } from '../../components/ProcedureModal';
+import { ProcedureTable } from '../../components/ProcedureTable';
 import { VitalsTable } from '../../components/VitalsTable';
 import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
@@ -115,6 +117,22 @@ const MedicationPane = React.memo(({ visit }) => {
   );
 });
 
+const ProcedurePane = React.memo(({ visit }) => {
+  const [modalOpen, setModalOpen] = React.useState(false);
+
+  return (
+    <div>
+      <ProcedureModal open={modalOpen} visitId={visit.id} onClose={() => setModalOpen(false)} />
+      <ProcedureTable procedures={visit.procedures} />
+      <ContentPane>
+        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+          New procedure
+        </Button>
+      </ContentPane>
+    </div>
+  );
+});
+
 const TABS = [
   {
     label: 'Vitals',
@@ -129,6 +147,7 @@ const TABS = [
   {
     label: 'Procedures',
     key: 'procedures',
+    render: ({ visit }) => <ProcedurePane visit={visit} />,
   },
   {
     label: 'Labs',
