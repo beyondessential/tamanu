@@ -22,7 +22,7 @@ const DumbProcedureModal = React.memo(
 
 export const ProcedureModal = connectApi((api, dispatch, { visitId }) => ({
   onCreateProcedure: async data => {
-    // const createdProcedure = await api.post(`visit/${visitId}`, data);
+    await api.post(`visit/${visitId}/procedure`, data);
     dispatch(viewVisit(visitId));
   },
   locationSuggester: new Suggester(api, 'location'),

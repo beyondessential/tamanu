@@ -66,7 +66,7 @@ export class ProcedureForm extends React.PureComponent {
           <FormGrid>
             <div style={{ gridColumn: 'span 2' }}>
               <Field
-                name="cptCode._id"
+                name="type._id"
                 label="Procedure"
                 required
                 component={AutocompleteField}
@@ -150,10 +150,12 @@ export class ProcedureForm extends React.PureComponent {
         onSubmit={onSubmit}
         render={this.renderForm}
         initialValues={{
+          date: new Date(),
+          startTime: new Date(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          cptCode: foreignKey().required(),
+          type: foreignKey().required(),
           location: foreignKey().required(),
           date: yup.date().required(),
           startTime: yup.date(),
@@ -162,7 +164,7 @@ export class ProcedureForm extends React.PureComponent {
           assistant: foreignKey(),
           anaesthetist: foreignKey(),
           anaesthesiaType: foreignKey(),
-          note: yup.string(),
+          notes: yup.string(),
           completed: yup.boolean(),
           completedNotes: yup.string(),
         })}
