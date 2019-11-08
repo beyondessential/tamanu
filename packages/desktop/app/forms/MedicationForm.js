@@ -41,20 +41,15 @@ export const MedicationForm = React.memo(
       }}
       render={({ submitForm }) => (
         <FormGrid>
-          <Field
-            name="drug._id"
-            label="Medication"
-            component={AutocompleteField}
-            suggester={drugSuggester}
-            required
-          />
-          <Field
-            name="prescriber._id"
-            label="Prescriber"
-            component={AutocompleteField}
-            suggester={practitionerSuggester}
-            required
-          />
+          <div style={{ gridColumn: '1 / -1' }}>
+            <Field
+              name="drug._id"
+              label="Medication"
+              component={AutocompleteField}
+              suggester={drugSuggester}
+              required
+            />
+          </div>
           <Field name="prescription" label="Prescription" component={TextField} required />
           <Field
             name="route"
@@ -65,6 +60,13 @@ export const MedicationForm = React.memo(
           />
           <Field name="date" label="Prescription date" component={DateField} required />
           <Field name="endDate" label="End date" component={DateField} required />
+          <Field
+            name="prescriber._id"
+            label="Prescriber"
+            component={AutocompleteField}
+            suggester={practitionerSuggester}
+            required
+          />
           <Field
             name="notes"
             label="Notes"
