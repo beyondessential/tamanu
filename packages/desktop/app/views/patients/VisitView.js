@@ -24,6 +24,7 @@ import { VitalsModal } from '../../components/VitalsModal';
 import { MedicationModal } from '../../components/MedicationModal';
 import { MedicationTable } from '../../components/MedicationTable';
 import { ProcedureModal } from '../../components/ProcedureModal';
+import { ProcedureTable } from '../../components/ProcedureTable';
 import { VitalsTable } from '../../components/VitalsTable';
 import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
@@ -115,10 +116,6 @@ const MedicationPane = React.memo(({ visit }) => {
     </div>
   );
 });
-
-const ProcedureTable = React.memo(() => (
-  <div></div>
-));
 
 const ProcedurePane = React.memo(({ visit }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
