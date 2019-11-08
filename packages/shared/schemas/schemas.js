@@ -30,6 +30,7 @@ export * from './patient-diagnosis';
 export * from './photo';
 export * from './pregnancy';
 export * from './procedure';
+export * from './procedure-type';
 export * from './procedure-medication';
 export * from './program';
 export * from './question';
