@@ -12,4 +12,6 @@ const COLUMNS = [
   { key: 'type', title: 'Procedure', accessor: getProcedureLabel },
 ];
 
-export const ProcedureTable = React.memo(({ procedures }) => <Table columns={COLUMNS} data={procedures} />);
+export const ProcedureTable = React.memo(({ procedures }) => (
+  <Table columns={COLUMNS} data={procedures} />
+));
