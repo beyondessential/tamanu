@@ -73,7 +73,7 @@ createSuggestionRoute(
 createSuggestionRoute(
   'procedure',
   'procedureType',
-  '(name CONTAINS[c] $0 OR code BEGINSWITH[c] $0)',
+  '(name BEGINSWITH[c] $0 OR code BEGINSWITH[c] $0)',
   ({ name, code, _id }) => ({ name, code, _id }),
 );
 
