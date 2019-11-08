@@ -30,7 +30,7 @@ export class ProcedureForm extends React.PureComponent {
     editedObject: PropTypes.shape({}),
 
     anaesthesiaSuggester: suggesterType.isRequired,
-    cptCodeSuggester: suggesterType.isRequired,
+    procedureSuggester: suggesterType.isRequired,
     locationSuggester: suggesterType.isRequired,
     practitionerSuggester: suggesterType.isRequired,
   };
@@ -54,7 +54,7 @@ export class ProcedureForm extends React.PureComponent {
   renderForm = ({ submitForm, values }) => {
     const {
       anaesthesiaSuggester,
-      cptCodeSuggester,
+      procedureSuggester,
       locationSuggester,
       practitionerSuggester,
     } = this.props;
@@ -70,7 +70,7 @@ export class ProcedureForm extends React.PureComponent {
                 label="Procedure"
                 required
                 component={AutocompleteField}
-                suggester={cptCodeSuggester}
+                suggester={procedureSuggester}
               />
             </div>
             <Field

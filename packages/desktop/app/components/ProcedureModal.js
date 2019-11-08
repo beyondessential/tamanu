@@ -9,7 +9,7 @@ import { viewVisit } from '../store/visit';
 import { ProcedureForm } from '../forms/ProcedureForm';
 
 const DumbProcedureModal = React.memo(({ open, onClose, onCreateProcedure, ...rest }) => (
-  <Modal width="md" title="Check in" open={open} onClose={onClose}>
+  <Modal width="md" title="New procedure" open={open} onClose={onClose}>
     <ProcedureForm onSubmit={onCreateProcedure} onCancel={onClose} {...rest} />
   </Modal>
 ));
@@ -21,6 +21,6 @@ export const ProcedureModal = connectApi((api, dispatch, { visitId }) => ({
   },
   locationSuggester: new Suggester(api, 'location'),
   practitionerSuggester: new Suggester(api, 'practitioner'),
-  cptCodeSuggester: new Suggester(api, 'procedure'),
+  procedureSuggester: new Suggester(api, 'procedure'),
   anaesthesiaSuggester: new Suggester(api, 'drug'),
 }))(DumbProcedureModal);
