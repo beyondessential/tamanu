@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import { Table } from './Table';
 import { DateDisplay } from './DateDisplay';
 
+import { capitaliseFirstLetter } from '../utils/capitalise';
+
 const vitalsRows = [
   { key: 'height', title: 'Height', rounding: 0, unit: 'cm' },
   { key: 'weight', title: 'Weight', rounding: 1, unit: 'kg' },
@@ -12,9 +14,12 @@ const vitalsRows = [
   { key: 'dbp', title: 'DBP', rounding: 0, unit: '' },
   { key: 'heartRate', title: 'Heart rate', rounding: 0, unit: '/min' },
   { key: 'respiratoryRate', title: 'Respiratory rate', rounding: 0, unit: '/min' },
+  { key: 'svo2', title: 'SvO2', rounding: 0, unit: '%' },
+  { key: 'avpu', title: 'AVPU', rounding: 0, unit: '/min' },
 ];
 
 const UnitDisplay = React.memo(({ amount, unit, rounding }) => {
+  if (typeof amount === 'string') return capitaliseFirstLetter(amount);
   if (typeof amount !== 'number') return '-';
 
   return (

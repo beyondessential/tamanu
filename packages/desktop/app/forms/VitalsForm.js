@@ -4,9 +4,11 @@ import * as yup from 'yup';
 
 import styled from 'styled-components';
 
-import { Form, Field, DateField, NumberField } from '../components/Field';
+import { Form, Field, DateField, NumberField, SelectField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
+
+import { AVPU_OPTIONS } from '../constants';
 
 const BloodPressureFieldsContainer = styled.div`
   display: grid;
@@ -34,6 +36,8 @@ export class VitalsForm extends React.PureComponent {
         <Field name="heartRate" label="Heart rate" component={NumberField} />
         <Field name="respiratoryRate" label="Respiratory rate" component={NumberField} />
         <Field name="temperature" label="Temperature (ºC)" component={NumberField} />
+        <Field name="svo2" label="SvO2" component={NumberField} />
+        <Field name="avpu" label="AVPU" component={SelectField} options={AVPU_OPTIONS} />
         <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onCancel} />
       </FormGrid>
     );
@@ -58,6 +62,8 @@ export class VitalsForm extends React.PureComponent {
           heartRate: yup.number(),
           respiratoryRate: yup.number(),
           temperature: yup.number(),
+          svo2: yup.number(),
+          avpu: yup.string(),
         })}
         validate={values => {
           const errors = {};
