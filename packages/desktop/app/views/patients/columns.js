@@ -47,7 +47,7 @@ export const dateOfBirth = {
 };
 
 export const location = {
-  key: 'location',
+  key: 'location.name',
   title: 'Location',
   minWidth: 100,
   accessor: row => {
@@ -57,7 +57,7 @@ export const location = {
 };
 
 export const department = {
-  key: 'department',
+  key: 'department.name',
   title: 'Department',
   minWidth: 100,
   accessor: row => {

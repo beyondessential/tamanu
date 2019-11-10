@@ -2,8 +2,27 @@ import express from 'express';
 import shortid from 'shortid';
 
 import { objectToJSON } from '../../utils';
+import { handleGenericGetRequest } from '../../controllers/realm/get';
 
 export const visitRoutes = express.Router();
+
+visitRoutes.get('/inpatient', (req, res) => {
+  req.params = { model: 'visit' };
+  handleGenericGetRequest(req, res, objects =>
+    objects
+      .filtered('endDate = null')
+      .filtered('visitType = "emergency" OR visitType = "admission"'),
+  );
+});
+
+visitRoutes.get('/outpatient', (req, res) => {
+  req.params = { model: 'visit' };
+  handleGenericGetRequest(req, res, objects =>
+    objects
+      .filtered('endDate = null')
+      .filtered('NOT (visitType = "emergency" OR visitType = "admission")'),
+  );
+});
 
 function addSystemNote(visit, content) {
   const note = {
