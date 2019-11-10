@@ -10,34 +10,15 @@ export const VitalSchema = {
       default: new Date(),
       indexed: true,
     },
-    temperature: {
-      type: 'double',
-      optional: true,
-    },
-    weight: {
-      type: 'double',
-      optional: true,
-    },
-    height: {
-      type: 'double',
-      optional: true,
-    },
-    sbp: {
-      type: 'double',
-      optional: true,
-    },
-    dbp: {
-      type: 'double',
-      optional: true,
-    },
-    heartRate: {
-      type: 'double',
-      optional: true,
-    },
-    respiratoryRate: {
-      type: 'double',
-      optional: true,
-    },
+    temperature: 'double?',
+    weight: 'double?',
+    height: 'double?',
+    sbp: 'double?',
+    dbp: 'double?',
+    heartRate: 'double?',
+    respiratoryRate: 'double?',
+    svo2: 'double?',
+    avpu: 'string?',
     ...defaults,
   },
 };
