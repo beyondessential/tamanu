@@ -15,7 +15,7 @@ const vitalsRows = [
   { key: 'heartRate', title: 'Heart rate', rounding: 0, unit: '/min' },
   { key: 'respiratoryRate', title: 'Respiratory rate', rounding: 0, unit: '/min' },
   { key: 'svo2', title: 'SvO2', rounding: 0, unit: '%' },
-  { key: 'avpu', title: 'AVPU', rounding: 0, unit: '/min' },
+  { key: 'avpu', title: 'AVPU', unit: '/min' },
 ];
 
 const UnitDisplay = React.memo(({ amount, unit, rounding }) => {
