@@ -14,7 +14,10 @@ import {
   location,
   department,
 } from './columns';
-import { PATIENT_SEARCH_ENDPOINT } from './constants';
+
+const PATIENT_SEARCH_ENDPOINT = 'patient/search';
+const INPATIENT_ENDPOINT = 'inpatient';
+const OUTPATIENT_ENDPOINT = 'outpatient';
 
 const BASE_COLUMNS = [displayId, firstName, lastName, culturalName, sex, dateOfBirth];
 
@@ -83,7 +86,7 @@ export const AdmittedPatientsView = React.memo(() => (
   <PageContainer>
     <TopBar title="Admitted patient listing" />
     <PatientTable
-      endpoint="inpatient"
+      endpoint={INPATIENT_ENDPOINT}
       transformRow={annotateVisitWithPatientData}
       columns={INPATIENT_COLUMNS}
     />
@@ -94,7 +97,7 @@ export const OutpatientsView = React.memo(() => (
   <PageContainer>
     <TopBar title="Outpatient listing" />
     <PatientTable
-      endpoint="outpatient"
+      endpoint={OUTPATIENT_ENDPOINT}
       transformRow={annotateVisitWithPatientData}
       columns={INPATIENT_COLUMNS}
     />
