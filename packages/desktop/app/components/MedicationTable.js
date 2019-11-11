@@ -1,19 +1,41 @@
 import React from 'react';
+import { connect } from 'react-redux';
 
-import { Table } from './Table';
+import { Table, DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
+
+import { viewVisit } from '../store/visit';
 
 const getDrugName = ({ drug }) => drug.name;
 
 const COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
-  { key: 'drug', title: 'Drug', accessor: getDrugName },
-  { key: 'qtyMorning', title: 'Morning' },
-  { key: 'qtyLunch', title: 'Lunch' },
-  { key: 'qtyEvening', title: 'Evening' },
-  { key: 'qtyNight', title: 'Night' },
+  { key: 'drug.name', title: 'Drug', accessor: getDrugName },
+  { key: 'prescription', title: 'Prescription' },
 ];
 
-export const MedicationTable = React.memo(({ medications }) => (
+const PATIENT_COLUMNS = [
+  {
+    key: 'name',
+    title: 'Patient',
+    accessor: ({ visits }) => `${visits[0].patient[0].firstName} ${visits[0].patient[0].lastName}`,
+    sortable: false,
+  },
+  ...COLUMNS,
+];
+
+export const VisitMedicationTable = React.memo(({ medications }) => (
   <Table columns={COLUMNS} data={medications} />
+));
+
+export const DataFetchingMedicationTable = connect(
+  null,
+  dispatch => ({ onMedicationSelect: medication => dispatch(viewVisit(medication.visits[0]._id)) }),
+)(({ onMedicationSelect }) => (
+  <DataFetchingTable
+    endpoint="medication"
+    columns={PATIENT_COLUMNS}
+    noDataMessage="No medication requests found"
+    onRowClick={onMedicationSelect}
+  />
 ));
