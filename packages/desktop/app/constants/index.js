@@ -292,7 +292,14 @@ export const bloodOptions = [
   { value: 'O-', label: 'O-' },
 ];
 
-export const sexOptions = [{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }];
+export const sexOptions = [
+  { value: 'male', label: 'Male' },
+  { value: 'female', label: 'Female' },
+  { value: 'other', label: 'Other' },
+];
+
+export const SEX_VALUE_INDEX = createValueIndex(sexOptions);
+console.log(SEX_VALUE_INDEX);
 
 export const lookupOptions = [
   { value: 'billing_categories', label: 'Billing Categories' },
