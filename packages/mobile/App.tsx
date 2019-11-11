@@ -1,11 +1,11 @@
 import React from 'react';
-import { Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
 
 const App = () => {
   return (
-    <>
-      <Text style={styles.center}>Tamanu app</Text>
-    </>
+    <View style={styles.center}>
+      <Text>Tamanu app</Text>
+    </View>
   );
 };
 
