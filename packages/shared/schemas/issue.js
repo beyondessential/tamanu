@@ -1,6 +1,4 @@
-import { parseInt, padStart } from 'lodash';
 import defaults from './defaults';
-import { DISPLAY_ID_PLACEHOLDER, ENVIRONMENT_TYPE } from '../constants';
 
 export const IssueSchema = {
   name: 'issue',

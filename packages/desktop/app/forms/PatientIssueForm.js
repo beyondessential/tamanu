@@ -11,10 +11,12 @@ import { foreignKey } from '../utils/validation';
 export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
   const renderForm = React.useCallback(({ submitForm }) => (
     <FormGrid columns={1}>
-      <Field name="type" label="Type" component={SelectField} options={[
-        { value: 'issue', label: 'Issue' },
-        { value: 'warning', label: 'Warning' },
-      ]} />
+      <Field
+        name="type"
+        label="Type"
+        component={SelectField}
+        options={[{ value: 'issue', label: 'Issue' }, { value: 'warning', label: 'Warning' }]}
+      />
       <Field name="notes" label="Notes" component={TextField} multiline rows={2} />
       <Field name="date" label="Date recorded" component={DateField} required />
       <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} />

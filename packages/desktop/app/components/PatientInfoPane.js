@@ -51,18 +51,15 @@ const FamilyHistoryDisplay = memo(({ patient }) => (
 
 const PatientIssuesDisplay = memo(({ patient }) => {
   const { issues } = patient;
-  const warnings = issues.filter(({ type }) => type === "warning");
-  const sortedIssues = [
-    ...warnings,
-    ...issues.filter(({ type }) => type !== "warning"),
-  ];
-  
+  const warnings = issues.filter(({ type }) => type === 'warning');
+  const sortedIssues = [...warnings, ...issues.filter(({ type }) => type !== 'warning')];
+
   return (
     <React.Fragment>
       <PatientAlert alerts={warnings} />
-      <InfoPaneList 
+      <InfoPaneList
         patient={patient}
-        title="Other patient issues" 
+        title="Other patient issues"
         endpoint="issue"
         items={sortedIssues}
         Form={PatientIssueForm}
