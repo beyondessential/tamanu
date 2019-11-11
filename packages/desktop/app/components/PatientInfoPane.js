@@ -49,10 +49,15 @@ const FamilyHistoryDisplay = memo(({ patient }) => (
   />
 ));
 
+const shouldShowIssueInWarningModal = ({ type }) => type === 'warning';
+
 const PatientIssuesDisplay = memo(({ patient }) => {
   const { issues } = patient;
-  const warnings = issues.filter(({ type }) => type === 'warning');
-  const sortedIssues = [...warnings, ...issues.filter(({ type }) => type !== 'warning')];
+  const warnings = issues.filter(shouldShowIssueInWarningModal);
+  const sortedIssues = [
+    ...warnings,
+    ...issues.filter(issue => !shouldShowIssueInWarningModal(issue)),
+  ];
 
   return (
     <React.Fragment>
