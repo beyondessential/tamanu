@@ -5,10 +5,12 @@
 
 function loadStories() {
 	require('../App/components/Button/index.stories');
+	require('../App/components/Icons/index.stories');
 }
 
 const stories = [
-	'../App/components/Button/index.stories'
+	'../App/components/Button/index.stories',
+	'../App/components/Icons/index.stories'
 ];
 
 module.exports = {
