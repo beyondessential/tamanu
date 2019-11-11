@@ -35,6 +35,7 @@ export const PatientSchema = {
     referrals: { type: 'list', objectType: 'referral' },
     allergies: { type: 'list', objectType: 'patientAllergy' },
     conditions: { type: 'list', objectType: 'condition' },
+    issues: { type: 'list', objectType: 'issue' },
 
     additionalContacts: { type: 'list', objectType: 'patientContact' },
     pregnancies: { type: 'list', objectType: 'pregnancy' },

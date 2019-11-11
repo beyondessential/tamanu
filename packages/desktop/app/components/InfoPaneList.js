@@ -27,6 +27,7 @@ const AddButtonSection = styled.span`
   display: flex;
   flex-direction: row;
   align-items: center;
+  cursor: pointer;
 `;
 
 const AddText = styled.span`
@@ -64,7 +65,7 @@ const FormContainer = styled.div`
 `;
 
 const AddEditForm = connectApi(
-  (api, dispatch, { patient, endpoint, onClose, suggesterEndpoints }) => {
+  (api, dispatch, { patient, endpoint, onClose, suggesterEndpoints = [] }) => {
     const apiProps = {
       onSubmit: async data => {
         await api.post(`patient/${patient._id}/${endpoint}`, data);

@@ -12,6 +12,7 @@ export * from './facility';
 export * from './familyHistory';
 export * from './imaging-request';
 export * from './imaging-type';
+export * from './issue';
 export * from './lab-request';
 export * from './lab-test';
 export * from './lab-test-category';
