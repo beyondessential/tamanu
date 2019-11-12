@@ -1,0 +1,17 @@
+export default {
+  colors: {
+    MAIN_SUPER_DARK: '#2F4358',
+    PRIMARY_MAIN: '#326699',
+    BRIGHT_BLUE: '#67A6E3',
+    SECONDARY_MAIN: '#FFCC24',
+    TEXT_SOFT: '#B8B8B8',
+    TEXT_MID: '#888888',
+    TEXT_DARK: '#666666',
+    ALERT: '#F76853',
+    TEXT_SUPER_DARK: '#444444',
+    SAFE: '#47CA80',
+    BACKGROUND_GREY: '#F3F5F7',
+    BOX_OUTLINE: '#DEDEDE',
+    WHITE: '#FFFFFF',
+  },
+};
