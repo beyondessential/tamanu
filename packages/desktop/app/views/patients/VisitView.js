@@ -22,7 +22,7 @@ import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { VitalsModal } from '../../components/VitalsModal';
 import { MedicationModal } from '../../components/MedicationModal';
-import { MedicationTable } from '../../components/MedicationTable';
+import { VisitMedicationTable } from '../../components/MedicationTable';
 import { ProcedureModal } from '../../components/ProcedureModal';
 import { ProcedureTable } from '../../components/ProcedureTable';
 import { VitalsTable } from '../../components/VitalsTable';
@@ -107,7 +107,7 @@ const MedicationPane = React.memo(({ visit }) => {
   return (
     <div>
       <MedicationModal open={modalOpen} visitId={visit.id} onClose={() => setModalOpen(false)} />
-      <MedicationTable medications={visit.medications} />
+      <VisitMedicationTable medications={visit.medications} />
       <ContentPane>
         <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
           New prescription
