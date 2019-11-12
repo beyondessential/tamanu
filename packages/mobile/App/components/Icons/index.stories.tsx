@@ -2,6 +2,8 @@ import React from 'react';
 import Icons from './index';
 import CenterView from '../CenterView';
 import { storiesOf } from '@storybook/react-native';
+import theme from '../../styled/theme';
+import { Svg } from 'react-native-svg';
 
 const stories = storiesOf('Icons', module);
 
@@ -53,5 +55,16 @@ stories.add('Stethoscope', () => <Icons.Stethoscope />);
 stories.add('Sync', () => <Icons.Sync />);
 stories.add('TakenNotOnTime', () => <Icons.TakenNotOnTime />);
 stories.add('TakenOnTime', () => <Icons.TakenOnTime />);
-stories.add('User', () => <Icons.User />);
+stories.add('User', () => (
+  <Icons.User
+    stroke={theme.colors.MAIN_SUPER_DARK}
+    fill={theme.colors.MAIN_SUPER_DARK}
+  />
+));
+stories.add('User with color', () => (
+  <Icons.User
+    stroke={theme.colors.SECONDARY_MAIN}
+    fill={theme.colors.SECONDARY_MAIN}
+  />
+));
 stories.add('Vaccine', () => <Icons.Vaccine />);
