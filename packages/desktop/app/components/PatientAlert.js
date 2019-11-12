@@ -13,7 +13,7 @@ export const PatientAlert = React.memo(({ alerts = [] }) => {
     <Modal title="Patient warnings" open={alertVisible}>
       <ul>
         {alerts.map(a => (
-          <li key={a}>{a}</li>
+          <li key={a._id}>{a.notes}</li>
         ))}
       </ul>
       <ButtonRow>

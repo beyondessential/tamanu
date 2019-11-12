@@ -3,8 +3,9 @@ import styled from 'styled-components';
 
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
+import { PatientAlert } from './PatientAlert';
 
-import { AllergyForm, OngoingConditionForm, FamilyHistoryForm } from '../forms';
+import { AllergyForm, OngoingConditionForm, FamilyHistoryForm, PatientIssueForm } from '../forms';
 import { Colors } from '../constants';
 
 const OngoingConditionDisplay = memo(({ patient }) => (
@@ -48,7 +49,30 @@ const FamilyHistoryDisplay = memo(({ patient }) => (
   />
 ));
 
-const PatientIssuesDisplay = memo(() => <InfoPaneList title="Other patient isues" items={[]} />);
+const shouldShowIssueInWarningModal = ({ type }) => type === 'warning';
+
+const PatientIssuesDisplay = memo(({ patient }) => {
+  const { issues } = patient;
+  const warnings = issues.filter(shouldShowIssueInWarningModal);
+  const sortedIssues = [
+    ...warnings,
+    ...issues.filter(issue => !shouldShowIssueInWarningModal(issue)),
+  ];
+
+  return (
+    <React.Fragment>
+      <PatientAlert alerts={warnings} />
+      <InfoPaneList
+        patient={patient}
+        title="Other patient issues"
+        endpoint="issue"
+        items={sortedIssues}
+        Form={PatientIssueForm}
+        getName={issue => issue.notes}
+      />
+    </React.Fragment>
+  );
+});
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -66,6 +90,7 @@ const InfoPaneLists = memo(({ patient }) => (
     <OngoingConditionDisplay patient={patient} />
     <AllergyDisplay patient={patient} />
     <FamilyHistoryDisplay patient={patient} />
+    <PatientIssuesDisplay patient={patient} />
   </ListsSection>
 ));
 
