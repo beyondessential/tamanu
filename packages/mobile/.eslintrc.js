@@ -1,6 +1,9 @@
 module.exports = {
   root: true,
-  extends: '@react-native-community',
+  extends: [
+    '@beyondessential/eslint-config-beyondessential',
+    '@react-native-community',
+  ],
   env: {
     jest: true,
     jasmine: true,
