@@ -1,22 +1,58 @@
 import React from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { storiesOf } from '@storybook/react-native';
 import { action } from '@storybook/addon-actions';
 
 import Button from './index';
-
-import CenterView from '../CenterView';
+import theme from '../../styled/theme';
+import Icons from '../Icons';
+import { RotateView, CenterView } from '../../styled/common';
 
 storiesOf('Button', module)
-  .addDecorator(getStory => <CenterView>{getStory()}</CenterView>)
-  .add('with text', () => (
-    <Button onPress={action('clicked-text')}>
-      <Text>Hello Button</Text>
+  .addDecorator((getStory: any) => <CenterView>{getStory()}</CenterView>)
+  .add('Outline', () => (
+    <Button
+      children
+      onPress={action('clicked-text')}
+      outline
+      width={'250'}
+      buttonText={'Button'}
+    />
+  ))
+  .add('Filled', () => (
+    <Button width={'250'} onPress={action('clicked-filled')}>
+      <Text>😀 😎 👍 💯</Text>
     </Button>
   ))
-  .add('with some emoji', () => (
-    <Button onPress={action('clicked-emoji')}>
+  .add('Filled with transparency', () => (
+    <Button
+      width={'250'}
+      backgroundColor={`${theme.colors.MAIN_SUPER_DARK}E0`}
+      onPress={action('clicked-filled')}>
       <Text>😀 😎 👍 💯</Text>
+    </Button>
+  ))
+  .add('Rounded', () => (
+    <Button
+      width={'250'}
+      backgroundColor={`${theme.colors.MAIN_SUPER_DARK}E0`}
+      bordered
+      textColor={theme.colors.WHITE}
+      onPress={action('rounded')}
+      buttonText={'Filters'}
+    />
+  ))
+  .add('Rounded with Icon', () => (
+    <Button
+      width={'250'}
+      backgroundColor={`${theme.colors.MAIN_SUPER_DARK}`}
+      bordered
+      textColor={theme.colors.WHITE}
+      onPress={action('rounded')}
+      buttonText={'Filters'}>
+      <RotateView>
+        <Icons.OptionsGlyph fill={'white'} height={20} />
+      </RotateView>
     </Button>
   ));

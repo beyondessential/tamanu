@@ -8,13 +8,12 @@ describe('<Button />', () => {
     onPress: jest.fn(),
   };
   it('should Render <Button/> ', () => {
-    const { debug, getByText } = render(
+    const { getByText } = render(
       <Button {...props}>
         <Text>123456</Text>
       </Button>,
     );
     expect(getByText('123456')).not.toBe(null);
-    console.log(debug());
   });
 
   it('should trigger onPress ', () => {

@@ -16,9 +16,11 @@
     "@types/react": "^16.9.11",
     "@types/react-native": "^0.60.22",
     "@types/react-test-renderer": "^16.9.1",
+    "native-base": "^2.13.8",
     "react": "16.9.0",
     "react-native": "0.61.4",
     "react-native-svg": "^9.13.3",
+    "styled-components": "^4.4.1",
     "typescript": "^3.7.2"
   },
   "devDependencies": {
@@ -31,6 +33,7 @@
     "@storybook/addons": "^5.2.6",
     "@storybook/react-native": "^5.2.6",
     "@storybook/react-native-server": "^5.2.6",
+    "@types/styled-components": "^4.4.0",
     "babel-jest": "^24.9.0",
     "babel-loader": "^8.0.6",
     "eslint": "^6.6.0",
