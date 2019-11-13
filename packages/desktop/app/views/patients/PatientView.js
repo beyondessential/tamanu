@@ -26,6 +26,8 @@ import { PatientDetailsForm } from '../../forms/PatientDetailsForm';
 import { viewVisit } from '../../store/visit';
 import { reloadPatient } from '../../store/patient';
 
+import { PatientStickerLabelPage } from '../../components/PatientStickerLabel';
+
 const AppointmentPane = React.memo(({ patient }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
@@ -130,6 +132,12 @@ const TABS = [
     label: 'Documents',
     key: 'documents',
     icon: 'fa fa-file-medical-alt',
+  },
+  {
+    label: 'Stickers',
+    key: 'stickers',
+    icon: '',
+    render: ({ patient }) => <PatientStickerLabelPage patient={patient} />,
   },
 ];
 

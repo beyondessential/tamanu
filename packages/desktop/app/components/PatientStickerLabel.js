@@ -5,6 +5,10 @@ import Barcode from 'react-barcode';
 
 import { SEX_VALUE_INDEX } from '../constants';
 import { DateDisplay } from './DateDisplay';
+import { Button } from './Button';
+import { ContentPane } from './ContentPane';
+
+import { printPage, PrintPortal } from '../print';
 
 const Sticker = styled.div`
   font-family: monospace;
@@ -63,13 +67,24 @@ const LabelPage = styled.div`
 `;
 
 export const PatientStickerLabelPage = ({ patient }) => (
-  <LetterPage>
-    <LabelPage>
-      { 
-        new Array(30)
-          .fill(0)
-          .map((x, i) => (<PatientStickerLabel key={i} patient={patient} />))
-      }
-    </LabelPage>
-  </LetterPage>
+  <React.Fragment>
+    <ContentPane>
+      <Button 
+        onClick={() => printPage()}
+        variant="contained"
+        color="primary"
+      >Print page</Button>
+    </ContentPane>
+    <PrintPortal>
+      <LetterPage>
+        <LabelPage>
+          { 
+            new Array(30)
+              .fill(0)
+              .map((x, i) => (<PatientStickerLabel key={i} patient={patient} />))
+          }
+        </LabelPage>
+      </LetterPage>
+    </PrintPortal>
+  </React.Fragment>
 );
