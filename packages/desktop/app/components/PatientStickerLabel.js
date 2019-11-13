@@ -52,7 +52,6 @@ export const PatientStickerLabel = ({ patient }) => (
 
 const LetterPage = styled.div`
   background: white;
-  border: 1px solid green;
   width: 8.5in;
   height: 11in;
 `;
