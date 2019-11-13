@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import Barcode from 'react-barcode';
+
 import { SEX_VALUE_INDEX } from '../constants';
 import { DateDisplay } from './DateDisplay';
 
@@ -8,30 +10,36 @@ const Sticker = styled.div`
   font-family: monospace;
   display: flex;
   flex-direction: row;
-  border: 1px solid blue;
   padding: 0.2rem;
 `;
 
 const BarcodeFrame = styled.div`
-  width: 3cm;
-  height: 1cm;
-  border: 1px solid blue;
+  width: 128px;
+  height: 35px;
   margin-right: 1rem;
+  overflow: hidden;
 `;
 
-const Barcode = ({ patient }) => (
-  <div>
-    <BarcodeFrame />
-    <div>{patient.displayId}</div>
-  </div>
+const PatientBarcode = ({ patient }) => (
+  <BarcodeFrame>
+    <Barcode 
+      value={patient.displayId} 
+      width="1"
+      height="35"
+      margin="0"
+    />
+  </BarcodeFrame>
 );
 
 export const PatientStickerLabel = ({ patient }) => (
   <Sticker>
-    <Barcode patient={patient} />
     <div>
+      <PatientBarcode patient={patient} />
+      <div><strong>{patient.displayId}</strong></div>
       <div>{`${patient.firstName} ${patient.lastName}`}</div>
-      <div>{patient.culturalName}</div>
+      {patient.culturalName && <div>{`(${patient.culturalName})`}</div>}
+    </div>
+    <div>
       <div>{SEX_VALUE_INDEX[patient.sex].label}</div>
       <div><DateDisplay date={patient.dateOfBirth} showDuration /></div>
     </div>
