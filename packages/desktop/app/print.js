@@ -17,18 +17,15 @@ export function registerPrintListener() {
 }
 
 export const PrintPortal = React.memo(({ children }) => {
-  const el = document.createElement("div");
+  const el = document.createElement('div');
 
   React.useEffect(() => {
-    const root = document.querySelector("#print-root");
+    const root = document.querySelector('#print-root');
     root.appendChild(el);
     return () => {
       root.removeChild(el);
     };
   });
 
-  return createPortal(
-    children,
-    el,
-  );
+  return createPortal(children, el);
 });
