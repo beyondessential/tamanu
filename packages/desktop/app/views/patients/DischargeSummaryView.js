@@ -1,14 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { printPage } from '../../print';
+import { printPage, PrintPortal } from '../../print';
 
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { TextButton, BackButton } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
 
-const SummaryPage = styled.div`
+const SummaryPageContainer = styled.div`
   margin: 0 50px 50px 50px;
 `;
 
@@ -104,107 +104,116 @@ const MedicationsList = ({ medications }) => {
   ));
 };
 
-const DumbDischargeSummaryView = React.memo(({ visit, patient, loading }) => {
+const SummaryPage = React.memo(({ patient, visit }) => {
   const primaryDiagnoses = visit.diagnoses.filter(d => d.isPrimary);
   const secondaryDiagnoses = visit.diagnoses.filter(d => !d.isPrimary);
 
+  return (
+    <SummaryPageContainer>
+      <Header>
+        <h4>
+          <Label>Patient name: </Label>
+          <span>{patient.firstName} {patient.lastName}</span>
+        </h4>
+        <h4>
+          <Label>UID: </Label>
+          <span>{patient.displayId}</span>
+        </h4>
+      </Header>
+
+      <Centered>
+        <Content>
+          <Row>
+            <div>
+              <Label>Admission date: </Label>
+              <DateDisplay date={visit.startDate} />
+            </div>
+            <div>
+              <Label>Discharge date: </Label>
+              <DateDisplay date={visit.endDate} />
+            </div>
+          </Row>
+
+          <div>
+            <Label>Department: </Label>
+            {visit.location && visit.location.name}
+          </div>
+
+          <hr />
+
+          <TwoColumnSection>
+            <Label>Supervising physician: </Label>
+            <div>{visit.examiner && visit.examiner.displayName}</div>
+          </TwoColumnSection>
+          <TwoColumnSection>
+            <Label>Discharge physician: </Label>
+            <div>{visit.dischargePhysician && visit.dischargePhysician.displayName}</div>
+          </TwoColumnSection>
+
+          <hr />
+
+          <TwoColumnSection>
+            <Label>Reason for visit: </Label>
+            <div>{visit.reasonForVisit}</div>
+          </TwoColumnSection>
+
+          <TwoColumnSection>
+            <Label>Primary diagnoses: </Label>
+            <ListColumn>
+              <ul>
+                <DiagnosesList diagnoses={primaryDiagnoses} />
+              </ul>
+            </ListColumn>
+          </TwoColumnSection>
+
+          <TwoColumnSection>
+            <Label>Secondary diagnoses: </Label>
+            <ListColumn>
+              <ul>
+                <DiagnosesList diagnoses={secondaryDiagnoses} />
+              </ul>
+            </ListColumn>
+          </TwoColumnSection>
+
+          <TwoColumnSection>
+            <Label>Procedures: </Label>
+            <ListColumn>
+              <ul>
+                <ProceduresList procedures={visit.procedures} />
+              </ul>
+            </ListColumn>
+          </TwoColumnSection>
+
+          <TwoColumnSection>
+            <Label>Medications: </Label>
+            <ListColumn>
+              <ul>
+                <MedicationsList medications={visit.medications} />
+              </ul>
+            </ListColumn>
+          </TwoColumnSection>
+
+          <div>
+            <Label>Discharge planning notes:</Label>
+            <div>{visit.dischargeNotes}</div>
+          </div>
+        </Content>
+      </Centered>
+    </SummaryPageContainer>
+  );
+});
+
+const DumbDischargeSummaryView = React.memo(({ visit, patient, loading }) => {
   return (
     <LoadingIndicator loading={loading}>
       <TopBar title="Patient Discharge Summary">
         <TextButton onClick={printPage}>Print Summary</TextButton>
         <StyledBackButton to="/patients/visit" />
+        <SummaryPage patient={patient} visit={visit} />
+        <PrintPortal>
+          <SummaryPage patient={patient} visit={visit} />
+        </PrintPortal>
       </TopBar>
-      <SummaryPage>
-        <Header>
-          <h4>
-            <Label>Patient name: </Label>
-            <span>{patient.firstName} {patient.lastName}</span>
-          </h4>
-          <h4>
-            <Label>UID: </Label>
-            <span>{patient.displayId}</span>
-          </h4>
-        </Header>
-
-        <Centered>
-          <Content>
-            <Row>
-              <div>
-                <Label>Admission date: </Label>
-                <DateDisplay date={visit.startDate} />
-              </div>
-              <div>
-                <Label>Discharge date: </Label>
-                <DateDisplay date={visit.endDate} />
-              </div>
-            </Row>
-
-            <div>
-              <Label>Department: </Label>
-              {visit.location && visit.location.name}
-            </div>
-
-            <hr />
-
-            <TwoColumnSection>
-              <Label>Supervising physician: </Label>
-              <div>{visit.examiner && visit.examiner.displayName}</div>
-            </TwoColumnSection>
-            <TwoColumnSection>
-              <Label>Discharge physician: </Label>
-              <div>{visit.dischargePhysician && visit.dischargePhysician.displayName}</div>
-            </TwoColumnSection>
-
-            <hr />
-
-            <TwoColumnSection>
-              <Label>Reason for visit: </Label>
-              <div>{visit.reasonForVisit}</div>
-            </TwoColumnSection>
-
-            <TwoColumnSection>
-              <Label>Primary diagnoses: </Label>
-              <ListColumn>
-                <ul>
-                  <DiagnosesList diagnoses={primaryDiagnoses} />
-                </ul>
-              </ListColumn>
-            </TwoColumnSection>
-
-            <TwoColumnSection>
-              <Label>Secondary diagnoses: </Label>
-              <ListColumn>
-                <ul>
-                  <DiagnosesList diagnoses={secondaryDiagnoses} />
-                </ul>
-              </ListColumn>
-            </TwoColumnSection>
-
-            <TwoColumnSection>
-              <Label>Procedures: </Label>
-              <ListColumn>
-                <ul>
-                  <ProceduresList procedures={visit.procedures} />
-                </ul>
-              </ListColumn>
-            </TwoColumnSection>
-
-            <TwoColumnSection>
-              <Label>Medications: </Label>
-              <ListColumn>
-                <ul>
-                  <MedicationsList medications={visit.medications} />
-                </ul>
-              </ListColumn>
-            </TwoColumnSection>
-
-            <div>
-              <Label>Discharge planning notes:</Label>
-              <div>{visit.dischargeNotes}</div>
-            </div>
-          </Content>
-        </Centered>
-      </SummaryPage>
     </LoadingIndicator>
   );
 });
