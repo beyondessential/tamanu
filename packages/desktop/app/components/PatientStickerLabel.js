@@ -26,12 +26,7 @@ const BarcodeFrame = styled.div`
 
 const PatientBarcode = ({ patient }) => (
   <BarcodeFrame>
-    <Barcode 
-      value={patient.displayId} 
-      width="1"
-      height="35"
-      margin="0"
-    />
+    <Barcode value={patient.displayId} width="1" height="35" margin="0" />
   </BarcodeFrame>
 );
 
@@ -39,13 +34,17 @@ export const PatientStickerLabel = ({ patient }) => (
   <Sticker>
     <div>
       <PatientBarcode patient={patient} />
-      <div><strong>{patient.displayId}</strong></div>
+      <div>
+        <strong>{patient.displayId}</strong>
+      </div>
       <div>{`${patient.firstName} ${patient.lastName}`}</div>
       {patient.culturalName && <div>{`(${patient.culturalName})`}</div>}
     </div>
     <div>
       <div>{SEX_VALUE_INDEX[patient.sex].label}</div>
-      <div><DateDisplay date={patient.dateOfBirth} showDuration /></div>
+      <div>
+        <DateDisplay date={patient.dateOfBirth} showDuration />
+      </div>
     </div>
   </Sticker>
 );
@@ -68,20 +67,16 @@ const LabelPage = styled.div`
 export const PatientStickerLabelPage = ({ patient }) => (
   <React.Fragment>
     <ContentPane>
-      <Button 
-        onClick={() => printPage()}
-        variant="contained"
-        color="primary"
-      >Print page</Button>
+      <Button onClick={() => printPage()} variant="contained" color="primary">
+        Print page
+      </Button>
     </ContentPane>
     <PrintPortal>
       <LetterPage>
         <LabelPage>
-          { 
-            new Array(30)
-              .fill(0)
-              .map((x, i) => (<PatientStickerLabel key={i} patient={patient} />))
-          }
+          {new Array(30).fill(0).map((x, i) => (
+            <PatientStickerLabel key={i} patient={patient} />
+          ))}
         </LabelPage>
       </LetterPage>
     </PrintPortal>

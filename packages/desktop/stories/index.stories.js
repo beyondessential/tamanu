@@ -2,11 +2,13 @@ import React from 'react';
 
 import { storiesOf } from '@storybook/react';
 
+import { PATIENTS } from 'Shared/demoData';
 import { Notification } from '../app/components/Notification';
 import { DateDisplay } from '../app/components/DateDisplay';
-import { PatientStickerLabel, PatientStickerLabelPage } from '../app/components/PatientStickerLabel';
-
-import { PATIENTS } from 'Shared/demoData';
+import {
+  PatientStickerLabel,
+  PatientStickerLabelPage,
+} from '../app/components/PatientStickerLabel';
 
 storiesOf('Notification', module).add('placeholder', () => <Notification message="Hello" />);
 
