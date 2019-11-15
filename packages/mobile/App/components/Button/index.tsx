@@ -20,19 +20,16 @@ export interface StyledButtonProps {
   children?: ReactNode;
 }
 
-const StyledButton = styled.TouchableOpacity`
+const StyledButton = styled.TouchableOpacity<StyledButtonProps>`
   flex-direction: row;
   border-radius: 5px;
   align-items: center;
   justify-content: center;
-  height: ${(props: StyledButtonProps) =>
-    props.height ? props.height : '50px'};
-  width: ${(props: StyledButtonProps) => (props.width ? props.width : '100%')};
-  border-width: ${(props: StyledButtonProps) =>
-    props.outline ? '1px' : '0px'};
-  border-color: ${(props: StyledButtonProps) =>
-    props.borderColor || theme.colors.MAIN_SUPER_DARK};
-  border-radius: ${(props: StyledButtonProps) => {
+  height: ${props => (props.height ? props.height : '50px')};
+  width: ${props => (props.width ? props.width : '100%')};
+  border-width: ${props => (props.outline ? '1px' : '0px')};
+  border-color: ${props => props.borderColor || theme.colors.MAIN_SUPER_DARK};
+  border-radius: ${props => {
     if (props.borderRadius) {
       return props.borderRadius;
     } else if (props.bordered) {
@@ -58,12 +55,10 @@ interface ButtonTextProps {
   fontWeight?: string;
   borderColor?: string;
 }
-const StyledButtonText = styled.Text`
-  font-size: ${(props: ButtonTextProps) =>
-    props.fontSize ? props.fontSize : '16px'};
-  font-weight: ${(props: ButtonTextProps) =>
-    props.fontWeight ? props.fontWeight : 'bold'};
-  color: ${(props: ButtonTextProps) => {
+const StyledButtonText = styled.Text<ButtonTextProps>`
+  font-size: ${props => (props.fontSize ? props.fontSize : '16px')};
+  font-weight: ${props => (props.fontWeight ? props.fontWeight : 'bold')};
+  color: ${props => {
     if (props.outline) {
       return props.borderColor || theme.colors.MAIN_SUPER_DARK;
     } else if (props.textColor) {
@@ -75,17 +70,23 @@ const StyledButtonText = styled.Text`
 
 export default function Button({
   onPress,
+  children,
+  outline,
+  borderColor,
+  fontSize,
+  fontWeight,
+  textColor,
   ...rest
 }: StyledButtonProps): FunctionComponentElement<{}> {
   return (
     <StyledButton {...rest} onPress={() => onPress()}>
-      {rest.children}
+      {children}
       <StyledButtonText
-        outline={rest.outline}
-        borderColor={rest.borderColor}
-        textColor={rest.textColor}
-        fontSize={rest.fontSize}
-        fontWeight={rest.fontWeight}>
+        outline={outline}
+        borderColor={borderColor}
+        textColor={textColor}
+        fontSize={fontSize}
+        fontWeight={fontWeight}>
         {rest.buttonText}
       </StyledButtonText>
     </StyledButton>
