@@ -19,10 +19,6 @@ const AppContainer = styled.div`
 `;
 
 const AppContentsContainer = styled.div`
-  @media print {
-    grid-column: 1 / -1;
-  }
-
   overflow-x: hidden;
   flex-grow: 1;
   grid-row: 2 / -1;
@@ -30,10 +26,6 @@ const AppContentsContainer = styled.div`
 `;
 
 const AppBadge = styled.div`
-  @media print {
-    display: none;
-  }
-
   grid-row: 1 / 2;
   grid-column: 1 / 2;
   background: ${Colors.primary};

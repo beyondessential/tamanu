@@ -9,10 +9,6 @@ import { PrimarySidebarItem } from './PrimarySidebarItem';
 import { Colors } from '../../constants';
 
 const SidebarContainer = styled.div`
-  @media print {
-    display: none;
-  }
-
   grid-row: 2 / -1;
   grid-column: 1 / 2;
 

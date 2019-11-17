@@ -15,10 +15,6 @@ const Typography = styled(MuiTypography)`
 `;
 
 const AppBar = styled(MuiAppBar)`
-  @media print {
-    display: none;
-  }
-
   box-shadow: none;
   background: none;
   flex-grow: 1;

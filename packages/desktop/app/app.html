@@ -14,9 +14,23 @@
         }
       })();
     </script>
+    <style>
+      @media print {
+        #root {
+          display: none;
+        }
+      }
+
+      @media screen {
+        #print-root {
+          display: none;
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
+    <div id="print-root"></div>
     <script>
       {
         const scripts = [];
