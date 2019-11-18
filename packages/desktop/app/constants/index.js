@@ -216,8 +216,9 @@ export const diagnosisCertaintyOptions = [
 
 export const CERTAINTY_OPTIONS_BY_VALUE = createValueIndex(diagnosisCertaintyOptions);
 
-export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions
-  .filter(x => x.value !== CERTAINTY_OPTIONS_BY_VALUE.emergency.value);
+export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.filter(
+  x => x.value !== CERTAINTY_OPTIONS_BY_VALUE.emergency.value,
+);
 
 export const noteTypes = [
   { value: 'treatmentPlan', label: 'Treatment plan' },

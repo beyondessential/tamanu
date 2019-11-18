@@ -1,6 +1,10 @@
 import React from 'react';
 
-import { diagnosisCertaintyOptions, nonEmergencyDiagnosisCertaintyOptions, CERTAINTY_OPTIONS_BY_VALUE } from '../constants';
+import {
+  diagnosisCertaintyOptions,
+  nonEmergencyDiagnosisCertaintyOptions,
+  CERTAINTY_OPTIONS_BY_VALUE,
+} from '../constants';
 
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';

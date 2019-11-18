@@ -7,9 +7,9 @@ import { viewVisit } from '../store/visit';
 import { Modal } from './Modal';
 import { DiagnosisForm } from '../forms/DiagnosisForm';
 
-const DumbDiagnosisModal = React.memo(({ diagnosis, onClose, ...rest }) => (
+const DumbDiagnosisModal = React.memo(({ diagnosis, onClose, onSaveDiagnosis, ...rest }) => (
   <Modal title="Diagnosis" open={!!diagnosis} onClose={onClose}>
-    <DiagnosisForm onCancel={onClose} diagnosis={diagnosis} {...rest} />
+    <DiagnosisForm onCancel={onClose} diagnosis={diagnosis} onSave={onSaveDiagnosis} {...rest} />
   </Modal>
 ));
 
