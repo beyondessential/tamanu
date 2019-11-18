@@ -269,8 +269,14 @@ const VisitActionDropdown = connect(
         onClick: onCancelLocationChange,
       },
       {
+        label: 'Discharge without being seen',
+        onClick: onDischargeOpen,
+        condition: () => visit.visitType === 'triage',
+      },
+      {
         label: 'Discharge',
         onClick: onDischargeOpen,
+        condition: () => visit.visitType !== 'triage',
       },
       {
         label: 'Change department',
