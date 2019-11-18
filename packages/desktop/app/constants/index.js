@@ -208,11 +208,16 @@ export const reportOptions = [
   { value: 'visit', label: 'Visit', className: 'State-NT' },
 ];
 
-export const diagnosisCertainty = [
+export const diagnosisCertaintyOptions = [
   { value: 'emergency', label: 'ED Diagnosis' },
   { value: 'suspected', label: 'Suspected' },
   { value: 'confirmed', label: 'Confirmed' },
 ];
+
+export const CERTAINTY_OPTIONS_BY_VALUE = createValueIndex(diagnosisCertaintyOptions);
+
+export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions
+  .filter(x => x.value !== CERTAINTY_OPTIONS_BY_VALUE.emergency.value);
 
 export const noteTypes = [
   { value: 'treatmentPlan', label: 'Treatment plan' },

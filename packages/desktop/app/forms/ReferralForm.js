@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { diagnosisCertainty } from '../constants';
+import { nonEmergencyDiagnosisCertaintyOptions } from '../constants';
 
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
@@ -73,7 +73,7 @@ export const ReferralForm = React.memo(
             name="certainty"
             label="Certainty"
             component={SelectField}
-            options={diagnosisCertainty}
+            options={nonEmergencyDiagnosisCertaintyOptions}
             required
           />
           <Field

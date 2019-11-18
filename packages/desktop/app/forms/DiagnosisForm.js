@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { diagnosisCertainty } from '../constants';
+import { diagnosisCertaintyOptions, nonEmergencyDiagnosisCertaintyOptions, CERTAINTY_OPTIONS_BY_VALUE } from '../constants';
 
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
@@ -13,15 +13,18 @@ import {
   DateField,
 } from '../components/Field';
 
+const CERTAINTY_EMERGENCY = CERTAINTY_OPTIONS_BY_VALUE.emergency.value;
+const CERTAINTY_SUSPECTED = CERTAINTY_OPTIONS_BY_VALUE.suspected.value;
+
 export const DiagnosisForm = React.memo(
   ({ isTriage = false, onCancel, onSave, diagnosis, icd10Suggester }) => {
     // don't show the "ED Diagnosis" option if we're just on a regular visit
     // (unless we're editing a diagnosis with ED certainty already set)
     const certaintyOptions =
-      isTriage || (diagnosis && diagnosis.certainty === 'emergency')
-        ? diagnosisCertainty
-        : diagnosisCertainty.filter(x => x.value !== 'emergency');
-    const defaultCertainty = isTriage ? 'emergency' : 'suspected';
+      isTriage || (diagnosis && diagnosis.certainty === CERTAINTY_EMERGENCY)
+        ? diagnosisCertaintyOptions
+        : nonEmergencyDiagnosisCertaintyOptions;
+    const defaultCertainty = isTriage ? CERTAINTY_EMERGENCY : CERTAINTY_SUSPECTED;
 
     return (
       <Form
