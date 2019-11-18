@@ -1,9 +1,8 @@
 import React from 'react';
 import Icons from './index';
-import CenterView from '../CenterView';
+import { CenterView } from '../../styled/common';
 import { storiesOf } from '@storybook/react-native';
 import theme from '../../styled/theme';
-import { Svg } from 'react-native-svg';
 
 const stories = storiesOf('Icons', module);
 
