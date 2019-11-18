@@ -9,11 +9,7 @@ import { DiagnosisForm } from '../forms/DiagnosisForm';
 
 const DumbDiagnosisModal = React.memo(({ diagnosis, onClose, ...rest }) => (
   <Modal title="Diagnosis" open={!!diagnosis} onClose={onClose}>
-    <DiagnosisForm
-      onCancel={onClose}
-      diagnosis={diagnosis}
-      {...rest}
-    />
+    <DiagnosisForm onCancel={onClose} diagnosis={diagnosis} {...rest} />
   </Modal>
 ));
 

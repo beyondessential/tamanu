@@ -102,7 +102,13 @@ export class VisitForm extends React.PureComponent {
       return <StartPage setValue={setFieldValue} />;
     }
 
-    const { locationSuggester, practitionerSuggester, departmentSuggester, editedObject, referrals } = this.props;
+    const {
+      locationSuggester,
+      practitionerSuggester,
+      departmentSuggester,
+      editedObject,
+      referrals,
+    } = this.props;
     const buttonText = editedObject ? 'Update visit' : 'Start visit';
 
     return (
