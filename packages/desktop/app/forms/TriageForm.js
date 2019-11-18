@@ -145,7 +145,7 @@ export class TriageForm extends React.PureComponent {
           triageTime: yup.date().required(),
           practitioner: foreignKey('Triage clinician must be selected'),
           location: foreignKey('Location must be selected'),
-          reasonForVisit: yup.string().required(),
+          reasonForVisit: yup.string().required('Chief complaint is a required field'),
           score: yup
             .string()
             .oneOf(triagePriorities.map(x => x.value))
