@@ -208,10 +208,17 @@ export const reportOptions = [
   { value: 'visit', label: 'Visit', className: 'State-NT' },
 ];
 
-export const diagnosisCertainty = [
+export const diagnosisCertaintyOptions = [
+  { value: 'emergency', label: 'ED Diagnosis' },
   { value: 'suspected', label: 'Suspected' },
   { value: 'confirmed', label: 'Confirmed' },
 ];
+
+export const CERTAINTY_OPTIONS_BY_VALUE = createValueIndex(diagnosisCertaintyOptions);
+
+export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.filter(
+  x => x.value !== CERTAINTY_OPTIONS_BY_VALUE.emergency.value,
+);
 
 export const noteTypes = [
   { value: 'treatmentPlan', label: 'Treatment plan' },
@@ -237,9 +244,9 @@ export const visitOptions = [
     value: VISIT_TYPES.OBSERVATION,
     label: 'Observation',
     image: patientIcon,
-    hideFromOptions: true,
+    triageFlowOnly: true,
   },
-  { value: VISIT_TYPES.TRIAGE, label: 'Triage', image: patientIcon, hideFromOptions: true },
+  { value: VISIT_TYPES.TRIAGE, label: 'Triage', image: patientIcon, triageFlowOnly: true },
 ];
 
 export const VISIT_OPTIONS_BY_VALUE = createValueIndex(visitOptions);
