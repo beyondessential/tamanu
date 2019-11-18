@@ -35,7 +35,9 @@ import { DropdownButton } from '../../components/DropdownButton';
 
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
-import { visitOptions, Colors } from '../../constants';
+import { visitOptions, VISIT_OPTIONS_BY_VALUE, Colors } from '../../constants';
+
+const getIsTriage = visit => VISIT_OPTIONS_BY_VALUE[visit.visitType].triageFlowOnly;
 
 const VitalsPane = React.memo(({ visit }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -376,7 +378,10 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
             <VisitInfoPane visit={visit} />
           </ContentPane>
           <ContentPane>
-            <DiagnosisView visitId={visit._id} />
+            <DiagnosisView 
+              visitId={visit._id} 
+              isTriage={getIsTriage(visit)}
+            />
           </ContentPane>
           <TabDisplay
             tabs={TABS}

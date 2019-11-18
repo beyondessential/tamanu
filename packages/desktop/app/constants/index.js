@@ -209,6 +209,7 @@ export const reportOptions = [
 ];
 
 export const diagnosisCertainty = [
+  { value: 'emergency', label: 'ED Diagnosis' },
   { value: 'suspected', label: 'Suspected' },
   { value: 'confirmed', label: 'Confirmed' },
 ];
@@ -237,9 +238,9 @@ export const visitOptions = [
     value: VISIT_TYPES.OBSERVATION,
     label: 'Observation',
     image: patientIcon,
-    hideFromOptions: true,
+    triageFlowOnly: true,
   },
-  { value: VISIT_TYPES.TRIAGE, label: 'Triage', image: patientIcon, hideFromOptions: true },
+  { value: VISIT_TYPES.TRIAGE, label: 'Triage', image: patientIcon, triageFlowOnly: true },
 ];
 
 export const VISIT_OPTIONS_BY_VALUE = createValueIndex(visitOptions);

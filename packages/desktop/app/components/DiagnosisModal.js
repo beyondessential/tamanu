@@ -7,13 +7,12 @@ import { viewVisit } from '../store/visit';
 import { Modal } from './Modal';
 import { DiagnosisForm } from '../forms/DiagnosisForm';
 
-const DumbDiagnosisModal = React.memo(({ diagnosis, onClose, onSaveDiagnosis, icd10Suggester }) => (
+const DumbDiagnosisModal = React.memo(({ diagnosis, onClose, ...rest }) => (
   <Modal title="Diagnosis" open={!!diagnosis} onClose={onClose}>
     <DiagnosisForm
-      onSave={onSaveDiagnosis}
       onCancel={onClose}
       diagnosis={diagnosis}
-      icd10Suggester={icd10Suggester}
+      {...rest}
     />
   </Modal>
 ));

@@ -49,13 +49,14 @@ export const DiagnosisView = connect(state => ({
     .filter(d => d.diagnosis)
     .sort(compareDiagnosis),
 }))(
-  React.memo(({ visitId, diagnoses }) => {
+  React.memo(({ visitId, diagnoses, isTriage }) => {
     const [diagnosis, editDiagnosis] = React.useState(null);
 
     return (
       <React.Fragment>
         <DiagnosisModal
           diagnosis={diagnosis}
+          isTriage={isTriage}
           visitId={visitId}
           onClose={() => editDiagnosis(null)}
         />
