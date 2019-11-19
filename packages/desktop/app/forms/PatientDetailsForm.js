@@ -22,14 +22,7 @@ export const PrimaryDetailsGroup = () => (
     <Field name="lastName" label="Last name" component={TextField} required />
     <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
     <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
-    <Field
-      name="sex"
-      label="Sex"
-      component={RadioField}
-      options={sexOptions}
-      inline
-      required
-    />
+    <Field name="sex" label="Sex" component={RadioField} options={sexOptions} inline required />
   </React.Fragment>
 );
 
