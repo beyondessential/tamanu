@@ -1,6 +1,6 @@
 import React from 'react';
 import { RowView } from '../../styled/common';
-import RadioButton, { RadioOptionProps, RadioOption } from '../RadioButton';
+import RadioButton, { RadioOption } from '../RadioButton';
 
 export interface RadioButtonGroupProps {
   options: RadioOption[];

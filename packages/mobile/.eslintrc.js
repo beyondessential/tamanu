@@ -8,4 +8,7 @@ module.exports = {
     jest: true,
     jasmine: true,
   },
+  rules: {
+    'import/no-unresolved': [2, { caseSensitive: false }],
+  },
 };

@@ -1,6 +1,4 @@
 import React from 'react';
-import { Text, View } from 'react-native';
-
 import { storiesOf } from '@storybook/react-native';
 import { action } from '@storybook/addon-actions';
 
@@ -13,7 +11,6 @@ storiesOf('Button', module)
   .addDecorator((getStory: any) => <CenterView>{getStory()}</CenterView>)
   .add('Outline', () => (
     <Button
-      children
       onPress={action('clicked-text')}
       outline
       width={'250'}
@@ -24,9 +21,8 @@ storiesOf('Button', module)
     <Button
       width={'250'}
       backgroundColor={`${theme.colors.MAIN_SUPER_DARK}E0`}
-      onPress={action('clicked-filled')}>
-      <Text>Click me!</Text>
-    </Button>
+      onPress={action('clicked-filled')}
+      buttonText={'Click me!'}></Button>
   ))
   .add('Rounded', () => (
     <Button

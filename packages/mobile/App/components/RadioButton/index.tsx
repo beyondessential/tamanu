@@ -41,21 +41,21 @@ export default (props: RadioOptionProps) => {
       <RowView
         alignItems="center"
         justifyContent="center"
-        height="55"
+        height={55}
         borderColor={
           props.error
             ? ColorHelper.halfTransparency(theme.colors.ALERT)
             : theme.colors.TEXT_SOFT
         }
-        paddingLeft="15"
-        paddingRight="15"
-        borderWidth="1"
-        borderLeftWidth={props.index === 0 ? '1' : '0'}>
+        paddingLeft={15}
+        paddingRight={15}
+        borderWidth={1}
+        borderLeftWidth={props.index === 0 ? 1 : 0}>
         <StyledView
-          borderRadius="50"
-          height="12"
-          width="12"
-          borderWidth="1"
+          borderRadius={50}
+          height={12}
+          width={12}
+          borderWidth={1}
           borderColor={
             props.error
               ? ColorHelper.halfTransparency(theme.colors.ALERT)
@@ -65,11 +65,11 @@ export default (props: RadioOptionProps) => {
           }
           justifyContent="center"
           alignItems="center"
-          marginRight="10">
+          mr={10}>
           <StyledView
-            height="6"
-            width="6"
-            borderRadius="50"
+            height={6}
+            width={6}
+            borderRadius={50}
             background={
               props.selected ? theme.colors.PRIMARY_MAIN : theme.colors.WHITE
             }

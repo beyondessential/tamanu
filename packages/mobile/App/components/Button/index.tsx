@@ -37,12 +37,9 @@ const StyledButton = styled.TouchableOpacity<StyledButtonProps>`
     }
     return '5px';
   }};
-  background: ${(props: StyledButtonProps) => {
-    if (props.outline) {
-      return 'transparent';
-    } else if (props.backgroundColor) {
-      return props.backgroundColor;
-    }
+  background: ${props => {
+    if (props.outline) return 'white';
+    if (props.backgroundColor) return props.backgroundColor;
     return theme.colors.MAIN_SUPER_DARK;
   }};
 `;
@@ -59,11 +56,8 @@ const StyledButtonText = styled.Text<ButtonTextProps>`
   font-size: ${props => (props.fontSize ? props.fontSize : '16px')};
   font-weight: ${props => (props.fontWeight ? props.fontWeight : 'bold')};
   color: ${props => {
-    if (props.outline) {
-      return props.borderColor || theme.colors.MAIN_SUPER_DARK;
-    } else if (props.textColor) {
-      return props.textColor;
-    }
+    if (props.outline) return props.borderColor || theme.colors.MAIN_SUPER_DARK;
+    if (props.textColor) return props.textColor;
     return theme.colors.WHITE;
   }};
 `;
@@ -80,7 +74,11 @@ export default function Button({
   ...rest
 }: StyledButtonProps): FunctionComponentElement<{}> {
   return (
-    <StyledButton {...rest} onPress={() => onPress()}>
+    <StyledButton
+      borderColor={borderColor}
+      outline={outline}
+      {...rest}
+      onPress={() => onPress()}>
       {children}
       <StyledButtonText
         outline={outline}
