@@ -97,7 +97,7 @@ const renderSearchBar = ({ submitForm }) => (
     <Field component={TextField} placeholder="First name" name="firstName" />
     <Field component={TextField} placeholder="Last name" name="lastName" />
     <Field component={TextField} placeholder="Cultural/Traditional name" name="culturalName" />
-    <Field component={TextField} placeholder="Health ID" name="healthId" />
+    <Field component={TextField} placeholder="Health ID" name="displayId" />
     <Button color="primary" variant="contained" onClick={submitForm}>
       <PaddedSearchIcon />
       Search
