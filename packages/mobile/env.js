@@ -1,6 +1,5 @@
-/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable  import/no-extraneous-dependencies */
 import { STORYBOOK } from 'react-native-dotenv';
-
 export const env = {
   STORYBOOK,
 };

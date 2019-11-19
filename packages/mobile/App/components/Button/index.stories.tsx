@@ -20,17 +20,12 @@ storiesOf('Button', module)
       buttonText={'Button'}
     />
   ))
-  .add('Filled', () => (
-    <Button width={'250'} onPress={action('clicked-filled')}>
-      <Text>😀 😎 👍 💯</Text>
-    </Button>
-  ))
   .add('Filled with transparency', () => (
     <Button
       width={'250'}
       backgroundColor={`${theme.colors.MAIN_SUPER_DARK}E0`}
       onPress={action('clicked-filled')}>
-      <Text>😀 😎 👍 💯</Text>
+      <Text>Click me!</Text>
     </Button>
   ))
   .add('Rounded', () => (

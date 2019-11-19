@@ -2,11 +2,13 @@
 // Do not edit.
 //
 // https://github.com/elderfo/react-native-storybook-loader.git
+
 /* eslint-disable import/no-unresolved */
 function loadStories() {
   require('../App/components/Button/index.stories');
   require('../App/components/Icons/index.stories');
   require('../App/components/RadioButtonGroup/index.stories');
+
 }
 
 const stories = [
