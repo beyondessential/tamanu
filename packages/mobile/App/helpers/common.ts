@@ -1,6 +1,6 @@
 import styled from 'styled-components/native';
 import { ReactNode } from 'react';
-import theme from './theme';
+import theme from '../styled/theme';
 
 interface StyledViewProps {
   children?: ReactNode;
@@ -84,7 +84,6 @@ export const RotateView = styled.View`
   transform: rotate(90deg);
 `;
 
-
 export const HalfSizeView = styled(StyledView)`
   width: 50%;
 `;
@@ -96,4 +95,3 @@ export const RowView = styled(StyledView)`
 export const ColumnView = styled(StyledView)`
   flex-direction: column;
 `;
-
