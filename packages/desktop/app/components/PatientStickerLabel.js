@@ -68,7 +68,7 @@ export const PatientStickerLabelPage = ({ patient }) => (
   <React.Fragment>
     <ContentPane>
       <Button onClick={() => printPage()} variant="contained" color="primary">
-        Print page
+        Print labels
       </Button>
     </ContentPane>
     <PrintPortal>
