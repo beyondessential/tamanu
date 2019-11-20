@@ -67,29 +67,27 @@ export class Sidebar extends Component {
       <SidebarContainer>
         <SidebarMenuContainer>
           <List component="nav">
-            {items.map(item => {
-              return (
-                <PrimarySidebarItem
-                  icon={item.icon}
-                  label={item.label}
-                  key={item.key}
-                  selected={selectedParentItem === item.key}
-                  onClick={() => this.clickedParentItem(item)}
-                >
-                  {item.children.map(child => (
-                    <SecondarySidebarItem
-                      key={child.path}
-                      path={child.path}
-                      isCurrent={currentPath === child.path}
-                      icon={child.icon}
-                      label={child.label}
-                      disabled={!permissionCheck(child, item)}
-                      onClick={() => onPathChanged(child.path)}
-                    />
-                  ))}
-                </PrimarySidebarItem>
-              );
-            })}
+            {items.map(item => (
+              <PrimarySidebarItem
+                icon={item.icon}
+                label={item.label}
+                key={item.key}
+                selected={selectedParentItem === item.key}
+                onClick={() => this.clickedParentItem(item)}
+              >
+                {item.children.map(child => (
+                  <SecondarySidebarItem
+                    key={child.path}
+                    path={child.path}
+                    isCurrent={currentPath === child.path}
+                    icon={child.icon}
+                    label={child.label}
+                    disabled={!permissionCheck(child, item)}
+                    onClick={() => onPathChanged(child.path)}
+                  />
+                ))}
+              </PrimarySidebarItem>
+            ))}
           </List>
           <div>
             <Divider />

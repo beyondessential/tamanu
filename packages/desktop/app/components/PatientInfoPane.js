@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
 import { PatientAlert } from './PatientAlert';
+import { PatientStickerLabelPage } from './PatientStickerLabel';
 
 import { AllergyForm, OngoingConditionForm, FamilyHistoryForm, PatientIssueForm } from '../forms';
 import { Colors } from '../constants';
@@ -91,6 +92,7 @@ const InfoPaneLists = memo(({ patient }) => (
     <AllergyDisplay patient={patient} />
     <FamilyHistoryDisplay patient={patient} />
     <PatientIssuesDisplay patient={patient} />
+    <PatientStickerLabelPage patient={patient} />
   </ListsSection>
 ));
 

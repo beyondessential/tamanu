@@ -13,6 +13,8 @@ import {
   RadioField,
 } from '../components/Field';
 
+import { sexOptions } from '../constants';
+
 export const PrimaryDetailsGroup = () => (
   <React.Fragment>
     <Field name="firstName" label="First name" component={TextField} required />
@@ -20,18 +22,7 @@ export const PrimaryDetailsGroup = () => (
     <Field name="lastName" label="Last name" component={TextField} required />
     <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
     <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
-    <Field
-      name="sex"
-      label="Sex"
-      component={RadioField}
-      options={[
-        { value: 'male', label: 'Male' },
-        { value: 'female', label: 'Female' },
-        { value: 'other', label: 'Other' },
-      ]}
-      inline
-      required
-    />
+    <Field name="sex" label="Sex" component={RadioField} options={sexOptions} inline required />
   </React.Fragment>
 );
 
