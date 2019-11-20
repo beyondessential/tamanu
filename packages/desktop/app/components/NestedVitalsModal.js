@@ -15,7 +15,11 @@ export const NestedVitalsModal = ({ field }) => {
 
   return (
     <React.Fragment>
-      <Button onClick={openModal}>Record vitals</Button>
+      <Button 
+        onClick={openModal}
+        variant="contained"
+        color="primary"
+      >Record vitals</Button>
       <Modal open={isOpen} onClose={closeModal}>
         <VitalsForm 
           editedObject={field.value || {}}
