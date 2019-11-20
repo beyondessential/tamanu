@@ -16,6 +16,7 @@ import {
 import { ImageInfoModal } from '../components/InfoModal';
 import { FormGrid } from '../components/FormGrid';
 import { ModalActionRow } from '../components/ButtonRow';
+import { NestedVitalsModal } from '../components/NestedVitalsModal';
 
 import triageFlowchart from '../assets/images/triage-flowchart.png';
 
@@ -66,6 +67,9 @@ export class TriageForm extends React.PureComponent {
         />
         <FormGrid columns={1} style={{ gridColumn: '1 / -1' }}>
           <Field name="reasonForVisit" label="Chief complaint" component={TextField} required />
+          <div>
+            <Field name="vitals" component={NestedVitalsModal} />
+          </div>
           <Field
             name="checkLostConsciousness"
             label="Did the patient receive a blow to the head or lose consciousness at any time?"
