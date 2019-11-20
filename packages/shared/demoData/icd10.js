@@ -2,7 +2,7 @@ import { splitIds } from './splitIds';
 
 const buildDiagnosis = ({ _id, name: nameAndCode }) => {
   const [name, code] = nameAndCode.split(/\t/);
-  return { _id, name, code, type: "icd10" };
+  return { _id, name, code, type: 'icd10' };
 };
 
 export const ICD10_DIAGNOSES = splitIds(`

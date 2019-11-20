@@ -44,32 +44,27 @@ const Header = styled.div`
   margin-bottom: 20px;
 `;
 
-const DumbTriageModal = React.memo(
-  ({ open, patient, onClose, ...rest }) => {
-    const { displayId, firstName, lastName, sex, dateOfBirth } = patient;
-    return (
-      <Modal title="New Emergency Triage" open={open} width="md" onClose={onClose}>
-        <PatientDetails>
-          <Header>
-            <span>Patient Details</span>
-            <DisplayIdLabel>{displayId}</DisplayIdLabel>
-          </Header>
-          <div>
-            <DetailLabel>First Name:</DetailLabel> <DetailValue>{firstName}</DetailValue>
-            <DetailLabel>Last Name:</DetailLabel> <DetailValue>{lastName}</DetailValue>
-            <DetailLabel>Sex:</DetailLabel> <DetailValue>{sex}</DetailValue>
-            <DetailLabel>Date of Birth:</DetailLabel>
-            <DetailValue>{moment(dateOfBirth).format('MM/DD/YYYY')}</DetailValue>
-          </div>
-        </PatientDetails>
-        <TriageForm
-          onCancel={onClose}
-          {...rest}
-        />
-      </Modal>
-    );
-  },
-);
+const DumbTriageModal = React.memo(({ open, patient, onClose, ...rest }) => {
+  const { displayId, firstName, lastName, sex, dateOfBirth } = patient;
+  return (
+    <Modal title="New Emergency Triage" open={open} width="md" onClose={onClose}>
+      <PatientDetails>
+        <Header>
+          <span>Patient Details</span>
+          <DisplayIdLabel>{displayId}</DisplayIdLabel>
+        </Header>
+        <div>
+          <DetailLabel>First Name:</DetailLabel> <DetailValue>{firstName}</DetailValue>
+          <DetailLabel>Last Name:</DetailLabel> <DetailValue>{lastName}</DetailValue>
+          <DetailLabel>Sex:</DetailLabel> <DetailValue>{sex}</DetailValue>
+          <DetailLabel>Date of Birth:</DetailLabel>
+          <DetailValue>{moment(dateOfBirth).format('MM/DD/YYYY')}</DetailValue>
+        </div>
+      </PatientDetails>
+      <TriageForm onCancel={onClose} {...rest} />
+    </Modal>
+  );
+});
 
 export const TriageModal = connectApi((api, dispatch, { patient }) => ({
   onSubmit: async data => {

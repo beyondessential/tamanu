@@ -59,7 +59,4 @@ const TRIAGE_DIAGNOSES = splitIds(`
  Wheezing
 `).map(data => ({ ...data, code: data._id, type: 'triage' }));
 
-export const DIAGNOSES = [
-  ...TRIAGE_DIAGNOSES,
-  ...ICD10_DIAGNOSES,
-];
+export const DIAGNOSES = [...TRIAGE_DIAGNOSES, ...ICD10_DIAGNOSES];

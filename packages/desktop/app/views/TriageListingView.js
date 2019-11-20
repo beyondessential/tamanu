@@ -112,7 +112,7 @@ const COLUMNS = [
   {
     key: 'reasonForVisit',
     title: 'Chief complaint',
-    accessor: row => row.chiefComplaint ? row.chiefComplaint.name : '',
+    accessor: row => (row.chiefComplaint ? row.chiefComplaint.name : ''),
   },
   { key: '_id', title: 'ID', accessor: row => row.patient[0].displayId },
   {

@@ -34,11 +34,11 @@ export class TriageForm extends React.PureComponent {
   };
 
   renderForm = ({ submitForm }) => {
-    const { 
-      locationSuggester, 
+    const {
+      locationSuggester,
       practitionerSuggester,
       triageComplaintSuggester,
-      onCancel 
+      onCancel,
     } = this.props;
     return (
       <FormGrid>
@@ -70,19 +70,19 @@ export class TriageForm extends React.PureComponent {
           options={triagePriorities}
         />
         <FormGrid columns={1} style={{ gridColumn: '1 / -1' }}>
-          <Field 
-            name="chiefComplaint._id" 
+          <Field
+            name="chiefComplaint._id"
             label="Chief complaint"
-            component={AutocompleteField} 
+            component={AutocompleteField}
             suggester={triageComplaintSuggester}
-            required 
+            required
           />
-          <Field 
-            name="secondaryComplaint._id" 
+          <Field
+            name="secondaryComplaint._id"
             label="Secondary complaint"
-            component={AutocompleteField} 
+            component={AutocompleteField}
             suggester={triageComplaintSuggester}
-            required 
+            required
           />
           <Field
             name="checkLostConsciousness"
