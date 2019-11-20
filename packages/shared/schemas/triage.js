@@ -14,7 +14,9 @@ export const TriageSchema = {
     location: 'location',
     practitioner: 'user?',
 
-    reasonForVisit: 'string',
+    chiefComplaint: 'diagnosis',
+    secondaryComplaint: 'diagnosis?',
+
     score: 'string',
     notes: { type: 'string', default: '' },
 

@@ -35,7 +35,12 @@ export class TriageForm extends React.PureComponent {
   };
 
   renderForm = ({ submitForm }) => {
-    const { locationSuggester, practitionerSuggester, onCancel } = this.props;
+    const {
+      locationSuggester,
+      practitionerSuggester,
+      triageComplaintSuggester,
+      onCancel,
+    } = this.props;
     return (
       <FormGrid>
         <Field
@@ -66,7 +71,20 @@ export class TriageForm extends React.PureComponent {
           options={triagePriorities}
         />
         <FormGrid columns={1} style={{ gridColumn: '1 / -1' }}>
-          <Field name="reasonForVisit" label="Chief complaint" component={TextField} required />
+          <Field
+            name="chiefComplaint._id"
+            label="Chief complaint"
+            component={AutocompleteField}
+            suggester={triageComplaintSuggester}
+            required
+          />
+          <Field
+            name="secondaryComplaint._id"
+            label="Secondary complaint"
+            component={AutocompleteField}
+            suggester={triageComplaintSuggester}
+            required
+          />
           <div>
             <Field name="vitals" component={NestedVitalsModal} />
           </div>
@@ -147,9 +165,9 @@ export class TriageForm extends React.PureComponent {
         }}
         validationSchema={yup.object().shape({
           triageTime: yup.date().required(),
+          chiefComplaint: foreignKey('Chief complaint must be selected'),
           practitioner: foreignKey('Triage clinician must be selected'),
           location: foreignKey('Location must be selected'),
-          reasonForVisit: yup.string().required('Chief complaint is a required field'),
           score: yup
             .string()
             .oneOf(triagePriorities.map(x => x.value))
