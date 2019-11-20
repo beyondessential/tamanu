@@ -299,7 +299,6 @@ export const sexOptions = [
 ];
 
 export const SEX_VALUE_INDEX = createValueIndex(sexOptions);
-console.log(SEX_VALUE_INDEX);
 
 export const lookupOptions = [
   { value: 'billing_categories', label: 'Billing Categories' },
