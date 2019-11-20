@@ -38,7 +38,7 @@ patientRoutes.post('/patient/:id/triages', (req, res) => {
   };
 
   // add vitals reading to visit if present
-  if(body.vitals) {
+  if (body.vitals) {
     const vitals = {
       _id: shortid.generate(),
       ...body.vitals,

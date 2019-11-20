@@ -68,10 +68,7 @@ export class TriageForm extends React.PureComponent {
         <FormGrid columns={1} style={{ gridColumn: '1 / -1' }}>
           <Field name="reasonForVisit" label="Chief complaint" component={TextField} required />
           <div>
-            <Field
-              name="vitals"
-              component={NestedVitalsModal}
-            />
+            <Field name="vitals" component={NestedVitalsModal} />
           </div>
           <Field
             name="checkLostConsciousness"
