@@ -71,6 +71,13 @@ createSuggestionRoute(
 );
 
 createSuggestionRoute(
+  'triageComplaint',
+  'diagnosis',
+  '(name CONTAINS[c] $0 OR code BEGINSWITH[c] $0) AND type = "triage"',
+  ({ name, code, _id }) => ({ name, code, _id }),
+);
+
+createSuggestionRoute(
   'procedure',
   'procedureType',
   '(name BEGINSWITH[c] $0 OR code BEGINSWITH[c] $0)',

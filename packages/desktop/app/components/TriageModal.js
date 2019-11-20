@@ -45,7 +45,7 @@ const Header = styled.div`
 `;
 
 const DumbTriageModal = React.memo(
-  ({ open, visit, practitionerSuggester, locationSuggester, onClose, onSubmit, patient }) => {
+  ({ open, patient, onClose, ...rest }) => {
     const { displayId, firstName, lastName, sex, dateOfBirth } = patient;
     return (
       <Modal title="New Emergency Triage" open={open} width="md" onClose={onClose}>
@@ -63,11 +63,8 @@ const DumbTriageModal = React.memo(
           </div>
         </PatientDetails>
         <TriageForm
-          onSubmit={onSubmit}
           onCancel={onClose}
-          visit={visit}
-          practitionerSuggester={practitionerSuggester}
-          locationSuggester={locationSuggester}
+          {...rest}
         />
       </Modal>
     );
@@ -81,4 +78,5 @@ export const TriageModal = connectApi((api, dispatch, { patient }) => ({
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
   locationSuggester: new Suggester(api, 'location'),
+  triageComplaintSuggester: new Suggester(api, 'triageComplaint'),
 }))(DumbTriageModal);
