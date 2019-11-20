@@ -36,6 +36,7 @@ import { DropdownButton } from '../../components/DropdownButton';
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
 import { visitOptions, VISIT_OPTIONS_BY_VALUE, Colors } from '../../constants';
+import { VISIT_TYPES } from 'Shared/constants';
 
 const getIsTriage = visit => VISIT_OPTIONS_BY_VALUE[visit.visitType].triageFlowOnly;
 
@@ -237,28 +238,28 @@ const VisitActionDropdown = connect(
     }
 
     const progression = {
-      triage: 0,
-      observation: 1,
-      emergency: 2,
-      admission: 3,
+      [VISIT_TYPES.TRIAGE]: 0,
+      [VISIT_TYPES.OBSERVATION]: 1,
+      [VISIT_TYPES.EMERGENCY]: 2,
+      [VISIT_TYPES.ADMISSION]: 3,
     };
     const isProgressionForward = (currentState, nextState) =>
       progression[nextState] > progression[currentState];
     const actions = [
       {
         label: 'Place under observation',
-        onClick: () => onChangeVisitType('observation'),
-        condition: () => isProgressionForward(visit.visitType, 'observation'),
+        onClick: () => onChangeVisitType(VISIT_TYPES.OBSERVATION),
+        condition: () => isProgressionForward(visit.visitType, VISIT_TYPES.OBSERVATION),
       },
       {
         label: 'Admit to emergency',
-        onClick: () => onChangeVisitType('emergency'),
-        condition: () => isProgressionForward(visit.visitType, 'emergency'),
+        onClick: () => onChangeVisitType(VISIT_TYPES.EMERGENCY),
+        condition: () => isProgressionForward(visit.visitType, VISIT_TYPES.EMERGENCY),
       },
       {
         label: 'Admit to hospital',
-        onClick: () => onChangeVisitType('admission'),
-        condition: () => isProgressionForward(visit.visitType, 'admission'),
+        onClick: () => onChangeVisitType(VISIT_TYPES.ADMISSION),
+        condition: () => isProgressionForward(visit.visitType, VISIT_TYPES.ADMISSION),
       },
       {
         label: 'Finalise location change',
@@ -273,12 +274,12 @@ const VisitActionDropdown = connect(
       {
         label: 'Discharge without being seen',
         onClick: onDischargeOpen,
-        condition: () => visit.visitType === 'triage',
+        condition: () => visit.visitType === VISIT_TYPES.TRIAGE,
       },
       {
         label: 'Discharge',
         onClick: onDischargeOpen,
-        condition: () => visit.visitType !== 'triage',
+        condition: () => visit.visitType !== VISIT_TYPES.TRIAGE,
       },
       {
         label: 'Change department',
@@ -335,17 +336,17 @@ const AdmissionInfo = styled.span`
 
 function getHeaderText({ visitType }) {
   switch (visitType) {
-    case 'triage':
+    case VISIT_TYPES.TRIAGE:
       return 'Triaged patient';
-    case 'emergency':
+    case VISIT_TYPES.EMERGENCY:
       return 'Emergency admission';
-    case 'observation':
+    case VISIT_TYPES.OBSERVATION:
       return 'Patient under observation';
-    case 'admission':
+    case VISIT_TYPES.ADMISSION:
       return 'Hospital admission';
-    case 'clinic':
-    case 'lab':
-    case 'imaging':
+    case VISIT_TYPES.CLINIC:
+    case VISIT_TYPES.LAB:
+    case VISIT_TYPES.IMAGING:
     default:
       return 'Patient visit';
   }
