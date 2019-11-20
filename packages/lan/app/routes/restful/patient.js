@@ -31,11 +31,20 @@ patientRoutes.post('/patient/:id/triages', (req, res) => {
   const visit = {
     _id: shortid.generate(),
     visitType: 'triage',
-    startDate: req.body.triageTime,
+    startDate: triage.arrivalTime,
     reasonForVisit: triage.reasonForVisit,
     examiner: triage.practitioner,
     location: triage.location,
   };
+
+  // add vitals reading to visit if present
+  if (body.vitals) {
+    const vitals = {
+      _id: shortid.generate(),
+      ...body.vitals,
+    };
+    visit.vitals = [vitals];
+  }
 
   triage.visit = visit;
 
