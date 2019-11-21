@@ -11,6 +11,7 @@ import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
 import { BeginMoveModal, FinaliseMoveModal, CancelMoveModal } from '../../components/MoveModal';
+import { DeathModal } from '../../components/DeathModal';
 import { ChangeTypeModal } from '../../components/ChangeTypeModal';
 import { ChangeDepartmentModal } from '../../components/ChangeDepartmentModal';
 import { LabRequestModal } from '../../components/LabRequestModal';
@@ -206,6 +207,7 @@ const RoutedCancelMoveModal = connectRoutedModal('/patients/visit', 'cancelMove'
 const RoutedFinaliseMoveModal = connectRoutedModal('/patients/visit', 'finaliseMove')(
   FinaliseMoveModal,
 );
+const RoutedDeathModal = connectRoutedModal('/patients/visit', 'death')(DeathModal);
 
 const VisitActionDropdown = connect(
   null,
@@ -217,6 +219,7 @@ const VisitActionDropdown = connect(
     onCancelLocationChange: () => dispatch(push('/patients/visit/cancelMove')),
     onFinaliseLocationChange: () => dispatch(push('/patients/visit/finaliseMove')),
     onChangeDepartment: () => dispatch(push('/patients/visit/changeDepartment')),
+    onRecordDeath: () => dispatch(push('/patients/visit/death')),
   }),
 )(
   ({
@@ -228,6 +231,7 @@ const VisitActionDropdown = connect(
     onFinaliseLocationChange,
     onChangeDepartment,
     onViewSummary,
+    onRecordDeath,
   }) => {
     if (visit.endDate) {
       return (
@@ -290,6 +294,10 @@ const VisitActionDropdown = connect(
         condition: () => !visit.plannedLocation,
         onClick: onChangeLocation,
       },
+      {
+        label: 'Record patient death',
+        onClick: onRecordDeath,
+      },
     ].filter(action => !action.condition || action.condition());
 
     return <DropdownButton variant="outlined" actions={actions} />;
@@ -305,6 +313,7 @@ const VisitActions = ({ visit }) => (
     <RoutedBeginMoveModal visit={visit} />
     <RoutedCancelMoveModal visit={visit} />
     <RoutedFinaliseMoveModal visit={visit} />
+    <RoutedDeathModal patient={visit.patient[0]} />
   </React.Fragment>
 );
 
