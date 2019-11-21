@@ -63,7 +63,7 @@ class DumbApp extends Component {
   }
 }
 
-const mapStateToProps = state => ({ 
+const mapStateToProps = state => ({
   isUserLoggedIn: checkIsLoggedIn(state),
   currentRoute: getCurrentRoute(state),
 });

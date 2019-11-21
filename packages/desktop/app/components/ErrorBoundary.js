@@ -15,9 +15,13 @@ const DebugInfo = styled.pre`
 `;
 
 const DumbErrorView = React.memo(({ error, state }) => {
-  const showError = React.useCallback(() => { console.log(error) });
-  const showState = React.useCallback(() => { console.log(state) });
-  
+  const showError = React.useCallback(() => {
+    console.log(error);
+  });
+  const showState = React.useCallback(() => {
+    console.log(state);
+  });
+
   return (
     <ContentPane>
       <h2>Oops!</h2>
@@ -30,9 +34,7 @@ const DumbErrorView = React.memo(({ error, state }) => {
   );
 });
 
-const ErrorView = connect(
-  state => ({ state })
-)(DumbErrorView);
+const ErrorView = connect(state => ({ state }))(DumbErrorView);
 
 export class ErrorBoundary extends React.PureComponent {
   state = { error: null };
@@ -42,7 +44,7 @@ export class ErrorBoundary extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    if(prevProps.errorKey !== this.props.errorKey) {
+    if (prevProps.errorKey !== this.props.errorKey) {
       this.setState({ error: null });
     }
   }

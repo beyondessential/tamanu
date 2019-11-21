@@ -31,7 +31,7 @@ const CellError = React.memo(({ error }) => {
   const showMessage = React.useCallback(() => {
     console.log(error);
   });
-  
+
   return <CellErrorMessage onClick={showMessage}>ERROR</CellErrorMessage>;
 });
 
