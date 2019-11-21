@@ -18,6 +18,23 @@ import TablePagination from '@material-ui/core/TablePagination';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Colors } from '../../constants';
 
+const CellErrorMessage = styled.div`
+  display: block;
+  background: red;
+  width: 100%;
+  height: 100%;
+  color: white;
+  cursor: pointer;
+`;
+
+const CellError = React.memo(({ error }) => {
+  const showMessage = React.useCallback(() => {
+    console.log(error);
+  });
+  
+  return <CellErrorMessage onClick={showMessage}>ERROR</CellErrorMessage>;
+});
+
 const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
 const StyledTableRow = styled(TableRow)`
@@ -76,7 +93,7 @@ const Row = React.memo(({ columns, data, onClick }) => {
 
     return (
       <StyledTableCell background={backgroundColor} key={key} align={numeric ? 'right' : 'left'}>
-        <ErrorBoundary>
+        <ErrorBoundary ErrorComponent={CellError}>
           {CellComponent ? <CellComponent value={displayValue} /> : displayValue}
         </ErrorBoundary>
       </StyledTableCell>
