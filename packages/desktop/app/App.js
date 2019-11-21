@@ -7,8 +7,10 @@ import { TamanuLogoWhite } from './components/TamanuLogo';
 import { ConnectedSidebar } from './components/Sidebar';
 import { Appbar } from './components/Appbar';
 import { login, checkIsLoggedIn } from './store/auth';
+import { getCurrentRoute } from './store/router';
 import { ConnectedLoginView } from './views';
 import { Colors } from './constants';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const AppContainer = styled.div`
   height: 100vh;
@@ -37,7 +39,7 @@ const AppBadge = styled.div`
 
 class DumbApp extends Component {
   renderAppContents() {
-    const { isUserLoggedIn } = this.props;
+    const { isUserLoggedIn, currentRoute } = this.props;
     if (!isUserLoggedIn) {
       return <ConnectedLoginView {...this.props} />;
     }
@@ -49,7 +51,9 @@ class DumbApp extends Component {
         </AppBadge>
         <Appbar />
         <ConnectedSidebar />
-        <AppContentsContainer>{this.props.children}</AppContentsContainer>
+        <ErrorBoundary errorKey={currentRoute}>
+          <AppContentsContainer>{this.props.children}</AppContentsContainer>
+        </ErrorBoundary>
       </AppContainer>
     );
   }
@@ -59,7 +63,10 @@ class DumbApp extends Component {
   }
 }
 
-const mapStateToProps = state => ({ isUserLoggedIn: checkIsLoggedIn(state) });
+const mapStateToProps = state => ({
+  isUserLoggedIn: checkIsLoggedIn(state),
+  currentRoute: getCurrentRoute(state),
+});
 
 const mapDispatchToProps = dispatch => ({
   onLogin: ({ email, password }) => dispatch(login(email, password)),
