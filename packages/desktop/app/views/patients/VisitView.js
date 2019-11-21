@@ -247,12 +247,12 @@ const VisitActionDropdown = connect(
       progression[nextState] > progression[currentState];
     const actions = [
       {
-        label: 'Admit to ED care',
+        label: 'Active ED care',
         onClick: () => onChangeVisitType(VISIT_TYPES.OBSERVATION),
         condition: () => isProgressionForward(visit.visitType, VISIT_TYPES.OBSERVATION),
       },
       {
-        label: 'Admit to emergency short stay',
+        label: 'Move to emergency short stay',
         onClick: () => onChangeVisitType(VISIT_TYPES.EMERGENCY),
         condition: () => isProgressionForward(visit.visitType, VISIT_TYPES.EMERGENCY),
       },
@@ -337,11 +337,11 @@ const AdmissionInfo = styled.span`
 function getHeaderText({ visitType }) {
   switch (visitType) {
     case VISIT_TYPES.TRIAGE:
-      return 'Triaged patient';
+      return 'Triage';
     case VISIT_TYPES.OBSERVATION:
       return 'Active ED patient';
     case VISIT_TYPES.EMERGENCY:
-      return 'Emergency short stay patient';
+      return 'Emergency short stay';
     case VISIT_TYPES.ADMISSION:
       return 'Hospital admission';
     case VISIT_TYPES.CLINIC:
