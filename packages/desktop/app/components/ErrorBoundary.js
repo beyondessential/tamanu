@@ -15,10 +15,10 @@ const DebugInfo = styled.pre`
 `;
 
 const DumbErrorView = React.memo(({ error, state }) => {
-  const showError = React.useCallback(() => {
+  const logError = React.useCallback(() => {
     console.log(error);
   });
-  const showState = React.useCallback(() => {
+  const logState = React.useCallback(() => {
     console.log(state);
   });
 
@@ -27,9 +27,9 @@ const DumbErrorView = React.memo(({ error, state }) => {
       <h2>Oops!</h2>
       <p>The application encountered an error when trying to display this information.</p>
       <p>The details of the error are:</p>
-      <DebugInfo onClick={showError}>{error.stack}</DebugInfo>
+      <DebugInfo onClick={logError}>{error.stack}</DebugInfo>
       <p>The contents of the application state are:</p>
-      <DebugInfo onClick={showState}>{JSON.stringify(state, null, 2)}</DebugInfo>
+      <DebugInfo onClick={logState}>{JSON.stringify(state, null, 2)}</DebugInfo>
     </ContentPane>
   );
 });
