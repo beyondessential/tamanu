@@ -6,7 +6,7 @@ interface SpacingProps {
   width?: string | number;
   p?: string;
   paddingTop?: number;
-  paddingbottom?: number;
+  paddingBottom?: number;
   paddingLeft?: number;
   paddingRight?: number;
   m?: number[] | string;
@@ -34,7 +34,7 @@ interface StyledViewProps extends SpacingProps, FlexProps, Borderprops {
   overflow?: string;
 }
 
-export const StyledView = styled.View<StyledViewProps>`    
+export const StyledView = styled.SafeAreaView<StyledViewProps>`    
   ${styledSystem.width}
   ${styledSystem.height}  
   ${styledSystem.margin}
@@ -61,7 +61,7 @@ export const CenterView = styled(StyledView)`
   align-items: center;
 `;
 
-export const RotateView = styled.View`
+export const RotateView = styled(StyledView)`
   transform: rotate(90deg);
 `;
 

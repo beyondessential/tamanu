@@ -1,2 +1,82 @@
-# tamanuApp
+# Tamanu Mobile App
 
+## Install
+
+### Installing dependencies
+
+After downloading or cloning into your local machine, open a console window in the project structure and run yarn to install the dependencies:
+
+```
+yarn
+```
+
+If you are about to use IOS simulators you will also need to go into the <strong>ios</strong> folder and install the dependencies:
+
+```
+cd ios && pod install
+```
+
+### Making Project runnable
+
+#### Xcode
+
+Open the project .workspace file inside the ios folder with your xcode and after it succesfully opens wait to check if there are any errors.
+
+#### Android Studio
+
+Open Android Studio and select to "Open an existing Android Studio project" and then choose the android file inside the tamanu App folder.
+Why for it to link and build.
+
+## Running
+
+Open your console/terminal in the project folder
+
+Be sure to have [Xcode](https://apps.apple.com/br/app/xcode/id497799835?mt=12) and/or [Android Studio](https://www.google.com/search?q=android+studio&oq=android+studio&aqs=chrome..69i57j69i60l2j69i65l2j69i60.1366j0j4&sourceid=chrome&ie=UTF-8) installed in your computer.
+
+### Run metro bundler
+
+The metro-bundler works with watchman to reload stuff into the device or emulator and show up updates during development.
+First start the metro bundler with the command:
+
+```
+yarn start
+```
+
+### Run storybook
+
+Storybook is our default component library which helps us checking the behavior and styles of components in an isolated environment.
+Be sure to have and Emulator/Simulator open and then Run it by using the following commands:
+
+```
+yarn run storybook
+```
+
+Now run the metro-bundler
+
+```
+yarn start
+```
+
+And at last run the app:
+
+```
+react-native run-ios
+```
+
+or for android:
+
+```
+react-native run-android
+```
+
+## Emulator Command Hints
+
+### IOS
+
+- super + R = reloads app
+- super + D = open debugger settings
+
+### Android
+
+- super + M = open debugger settings
+- super + R = reloads app

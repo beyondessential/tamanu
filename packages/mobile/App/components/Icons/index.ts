@@ -46,11 +46,18 @@ const TakenNotOnTime = require('../../../assets/Icons/TakenNotOnTime.svg')
 const TakenOnTime = require('../../../assets/Icons/TakenOnTime.svg').default;
 const User = require('../../../assets/Icons/User.svg').default;
 const Vaccine = require('../../../assets/Icons/Vaccine.svg').default;
+const BarChart = require('../../../assets/Icons/BarChart.svg').default;
+const SyncFiles = require('../../../assets/Icons/SyncFiles.svg').default;
+const BottomNavLogo = require('../../../assets/Icons/BottomNavLogo.svg')
+  .default;
 
 export default {
+  SyncFiles,
+  BarChart,
   ArrowBack,
   ArrowDown,
   ArrowForward,
+  BottomNavLogo,
   ArrowUp,
   Avatar,
   Avatar_10,

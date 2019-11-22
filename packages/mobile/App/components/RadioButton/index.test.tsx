@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from 'react-native-testing-library';
+import { render, fireEvent } from '@testing-library/react-native';
 import RadioButton, { RadioOptionProps } from '.';
 
 describe('<RadioButton />', () => {

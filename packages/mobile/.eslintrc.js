@@ -1,14 +1,21 @@
 module.exports = {
   root: true,
   extends: [
-    '@beyondessential/eslint-config-beyondessential',
     '@react-native-community',
+    '@beyondessential/eslint-config-beyondessential',
   ],
   env: {
     jest: true,
     jasmine: true,
   },
-  rules: {
-    'import/no-unresolved': [2, { caseSensitive: false }],
+  settings: {
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.ts', '.tsx', '.stories'],
+      },
+    },
+    rules: {
+      'import/no-unresolved': [2, { caseSensitive: false }],
+    },
   },
 };
