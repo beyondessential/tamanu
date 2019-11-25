@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 import { viewPatient } from '../../store/patient';
 import { TopBar, PageContainer, Button, DataFetchingTable } from '../../components';
+import { DropdownButton } from '../../components/DropdownButton';
 import { PatientSearchBar, NewPatientModal } from './components';
 import {
   displayId,
@@ -43,31 +44,53 @@ const PatientTable = connect(
   )),
 );
 
+const NewPatientButton = React.memo(() => {
+  const [isCreatingPatient, setCreatingPatient] = useState(false);
+  const [isBirth, setIsBirth] = useState(false);
+  const hideModal = useCallback(() => setCreatingPatient(false), [setCreatingPatient]);
+
+  const showNewPatient = useCallback(() => {
+    setCreatingPatient(true);
+    setIsBirth(false);
+  }, [setCreatingPatient, setIsBirth]);
+
+  const showNewBirth = useCallback(() => {
+    setCreatingPatient(true);
+    setIsBirth(true);
+  }, [setCreatingPatient, setIsBirth]);
+
+  return (
+    <React.Fragment>
+      <DropdownButton
+        color="primary"
+        actions={[
+          { label: 'Create new patient', onClick: showNewPatient },
+          { label: 'Register birth', onClick: showNewBirth },
+        ]}
+      />
+      <NewPatientModal
+        title="New patient"
+        isBirth={isBirth}
+        open={isCreatingPatient}
+        onCancel={hideModal}
+      />
+    </React.Fragment>
+  );
+});
+
 export const PatientListingView = React.memo(() => {
   const [searchParameters, setSearchParameters] = useState({});
-  const [creatingPatient, setCreatingPatient] = useState(false);
-
-  const toggleCreatingPatient = useCallback(() => {
-    setCreatingPatient(!creatingPatient);
-  }, [creatingPatient]);
 
   return (
     <PageContainer>
       <TopBar title="Patient listing">
-        <Button color="primary" variant="outlined" onClick={toggleCreatingPatient}>
-          Create new patient
-        </Button>
+        <NewPatientButton />
       </TopBar>
       <PatientSearchBar onSearch={setSearchParameters} />
       <PatientTable
         endpoint={PATIENT_SEARCH_ENDPOINT}
         fetchOptions={searchParameters}
         columns={LISTING_COLUMNS}
-      />
-      <NewPatientModal
-        title="New patient"
-        open={creatingPatient}
-        onCancel={toggleCreatingPatient}
       />
     </PageContainer>
   );

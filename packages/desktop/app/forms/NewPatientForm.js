@@ -3,15 +3,19 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 
+import { foreignKey, optionalForeignKey } from '../utils/validation';
+
 import { Form, Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
 import { FormGrid } from '../components/FormGrid';
 import { ModalActionRow } from '../components/ButtonRow';
 import { PlusIconButton, MinusIconButton } from '../components';
 import { IdBanner } from '../components/IdBanner';
-import { Colors } from '../constants';
+import { Colors, sexOptions } from '../constants';
 
 import { PrimaryDetailsGroup, SecondaryDetailsGroup } from './PatientDetailsForm';
+
+const sexValues = sexOptions.map(o => o.value);
 
 const IdBannerContainer = styled.div`
   margin: -20px -32px 0 -32px;
@@ -45,7 +49,15 @@ const AdditionalInformationRow = styled.div`
 `;
 
 export const NewPatientForm = memo(
-  ({ editedObject, onSubmit, onCancel, generateId, patientSuggester, facilitySuggester }) => {
+  ({
+    editedObject,
+    onSubmit,
+    onCancel,
+    generateId,
+    patientSuggester,
+    facilitySuggester,
+    isBirth,
+  }) => {
     const [isExpanded, setExpanded] = useState(false);
     const renderForm = ({ submitForm }) => (
       <FormGrid>
@@ -68,6 +80,7 @@ export const NewPatientForm = memo(
         <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
           <FormGrid>
             <SecondaryDetailsGroup
+              isBirth={isBirth}
               patientSuggester={patientSuggester}
               facilitySuggester={facilitySuggester}
             />
@@ -91,11 +104,14 @@ export const NewPatientForm = memo(
           lastName: yup.string().required(),
           culturalName: yup.string(),
           dateOfBirth: yup.date().required(),
-          sex: yup.string().oneOf(['male', 'female', 'other']),
+          sex: yup.string().oneOf(sexValues).required(),
 
+          mother: isBirth ? foreignKey("Mother must be selected") : optionalForeignKey("Mother must be a valid patient"),
+          homeClinic: isBirth && yup.string().required(),
+
+          father: optionalForeignKey("Father must be a valid patient"),
           religion: yup.string(),
           occupation: yup.string(),
-          mother: yup.string(),
           father: yup.string(),
           externalId: yup.string(),
           patientType: yup.string(),
