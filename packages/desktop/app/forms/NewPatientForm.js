@@ -45,7 +45,15 @@ const AdditionalInformationRow = styled.div`
 `;
 
 export const NewPatientForm = memo(
-  ({ editedObject, onSubmit, onCancel, generateId, patientSuggester, facilitySuggester }) => {
+  ({
+    editedObject,
+    onSubmit,
+    onCancel,
+    generateId,
+    patientSuggester,
+    facilitySuggester,
+    isBirth,
+  }) => {
     const [isExpanded, setExpanded] = useState(false);
     const renderForm = ({ submitForm }) => (
       <FormGrid>
@@ -68,6 +76,7 @@ export const NewPatientForm = memo(
         <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
           <FormGrid>
             <SecondaryDetailsGroup
+              isBirth={isBirth}
               patientSuggester={patientSuggester}
               facilitySuggester={facilitySuggester}
             />
@@ -93,9 +102,11 @@ export const NewPatientForm = memo(
           dateOfBirth: yup.date().required(),
           sex: yup.string().oneOf(['male', 'female', 'other']),
 
+          mother: isBirth && yup.string().required(),
+          homeClinic: isBirth && yup.string().required(),
+
           religion: yup.string(),
           occupation: yup.string(),
-          mother: yup.string(),
           father: yup.string(),
           externalId: yup.string(),
           patientType: yup.string(),

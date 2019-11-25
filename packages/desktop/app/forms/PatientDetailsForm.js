@@ -26,7 +26,7 @@ export const PrimaryDetailsGroup = () => (
   </React.Fragment>
 );
 
-export const SecondaryDetailsGroup = ({ patientSuggester, facilitySuggester }) => (
+export const SecondaryDetailsGroup = ({ isBirth, patientSuggester, facilitySuggester }) => (
   <React.Fragment>
     <Field name="religion" label="Religion" component={TextField} />
     <Field name="occupation" label="Occupation" component={TextField} />
@@ -35,6 +35,7 @@ export const SecondaryDetailsGroup = ({ patientSuggester, facilitySuggester }) =
       label="Mother"
       component={AutocompleteField}
       suggester={patientSuggester}
+      required={isBirth}
     />
     <Field
       name="father"
@@ -59,6 +60,7 @@ export const SecondaryDetailsGroup = ({ patientSuggester, facilitySuggester }) =
       label="Home clinic"
       component={AutocompleteField}
       suggester={facilitySuggester}
+      required={isBirth}
     />
   </React.Fragment>
 );
