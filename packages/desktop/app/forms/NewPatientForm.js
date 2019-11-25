@@ -11,9 +11,11 @@ import { FormGrid } from '../components/FormGrid';
 import { ModalActionRow } from '../components/ButtonRow';
 import { PlusIconButton, MinusIconButton } from '../components';
 import { IdBanner } from '../components/IdBanner';
-import { Colors } from '../constants';
+import { Colors, sexOptions } from '../constants';
 
 import { PrimaryDetailsGroup, SecondaryDetailsGroup } from './PatientDetailsForm';
+
+const sexValues = sexOptions.map(o => o.value);
 
 const IdBannerContainer = styled.div`
   margin: -20px -32px 0 -32px;
@@ -102,7 +104,7 @@ export const NewPatientForm = memo(
           lastName: yup.string().required(),
           culturalName: yup.string(),
           dateOfBirth: yup.date().required(),
-          sex: yup.string().oneOf(['male', 'female', 'other']).required(),
+          sex: yup.string().oneOf(sexValues).required(),
 
           mother: isBirth ? foreignKey("Mother must be selected") : optionalForeignKey("Mother must be a valid patient"),
           homeClinic: isBirth && yup.string().required(),
