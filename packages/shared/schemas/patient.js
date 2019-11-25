@@ -20,6 +20,7 @@ export const PatientSchema = {
     religion: { type: 'string', optional: true },
     bloodType: { type: 'string', optional: true },
     occupation: { type: 'string', optional: true },
+    homeClinic: { type: 'string', optional: true },
     mother: 'patient?',
     father: 'patient?',
     externalPatientId: { type: 'string', optional: true },
