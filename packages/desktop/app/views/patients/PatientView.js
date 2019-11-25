@@ -22,6 +22,7 @@ import { connectRoutedModal } from '../../components/Modal';
 import { PatientVisitSummary } from './components/PatientVisitSummary';
 
 import { PatientDetailsForm } from '../../forms/PatientDetailsForm';
+import { Suggester } from '../../utils/suggester';
 
 import { viewVisit } from '../../store/visit';
 import { reloadPatient } from '../../store/patient';
@@ -93,6 +94,11 @@ const ConnectedPatientDetailsForm = connectApi((api, dispatch, { patient }) => (
     await api.put(`patient/${patient._id}`, data);
     dispatch(reloadPatient(patient._id));
   },
+  patientSuggester: new Suggester(api, 'patient', ({ _id, firstName, lastName }) => ({
+    value: _id,
+    label: `${firstName} ${lastName}`,
+  })),
+  facilitySuggester: new Suggester(api, 'facility'),
 }))(
   React.memo(props => (
     <ContentPane>
