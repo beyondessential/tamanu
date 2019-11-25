@@ -31,14 +31,14 @@ export const SecondaryDetailsGroup = ({ isBirth, patientSuggester, facilitySugge
     <Field name="religion" label="Religion" component={TextField} />
     <Field name="occupation" label="Occupation" component={TextField} />
     <Field
-      name="mother"
+      name="mother._id"
       label="Mother"
       component={AutocompleteField}
       suggester={patientSuggester}
       required={isBirth}
     />
     <Field
-      name="father"
+      name="father._id"
       label="Father"
       component={AutocompleteField}
       suggester={patientSuggester}

@@ -12,11 +12,18 @@ patientRoutes.post('/patient', (req, res) => {
     ...body,
   };
 
+  // update parent fields with actual database references
+  // (the usual method of just setting it to any old object with the right pkey 
+  // doesn't work on these fields for some reason)
+  const getPatient = (obj) => obj && db.objectForPrimaryKey('patient', obj._id);
+  patient.mother = getPatient(patient.mother);
+  patient.father = getPatient(patient.father);
+
   db.write(() => {
     db.create('patient', patient);
   });
 
-  res.send(patient);
+  res.send(objectToJSON(patient));
 });
 
 patientRoutes.post('/patient/:id/triages', (req, res) => {

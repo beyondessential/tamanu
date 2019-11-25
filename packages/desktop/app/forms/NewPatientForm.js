@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 
+import { foreignKey, optionalForeignKey } from '../utils/validation';
+
 import { Form, Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
 import { FormGrid } from '../components/FormGrid';
@@ -100,11 +102,12 @@ export const NewPatientForm = memo(
           lastName: yup.string().required(),
           culturalName: yup.string(),
           dateOfBirth: yup.date().required(),
-          sex: yup.string().oneOf(['male', 'female', 'other']),
+          sex: yup.string().oneOf(['male', 'female', 'other']).required(),
 
-          mother: isBirth && yup.string().required(),
+          mother: isBirth ? foreignKey("Mother must be selected") : optionalForeignKey(),
           homeClinic: isBirth && yup.string().required(),
 
+          father: optionalForeignKey(),
           religion: yup.string(),
           occupation: yup.string(),
           father: yup.string(),

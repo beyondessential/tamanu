@@ -4,7 +4,7 @@ export const suggestionRoutes = express.Router();
 
 const defaultTransform = ({ name, _id }) => ({ name, _id });
 
-function createSuggestionRoute(path, table, filter, transform = defaultTransform) {
+function createSuggestionRoute(path, table, filter, transform = defaultTransform, sortKey = 'name') {
   suggestionRoutes.get(`/${path}/:id`, (req, res) => {
     const { db, params } = req;
     const { id } = params;
@@ -22,7 +22,7 @@ function createSuggestionRoute(path, table, filter, transform = defaultTransform
     const candidates = db
       .objects(table)
       .filtered(filter, q)
-      .sorted('name');
+      .sorted(sortKey);
 
     const data = candidates.slice(0, limit).map(transform);
 
@@ -96,6 +96,7 @@ createSuggestionRoute(
   'patient',
   'firstName CONTAINS[c] $0 OR lastName CONTAINS[c] $0',
   ({ _id, firstName, lastName }) => ({ _id, firstName, lastName }),
+  'lastName',
 );
 
 createSuggestionRoute('facility', 'facility', 'name CONTAINS[c] $0');
