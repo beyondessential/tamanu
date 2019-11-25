@@ -104,10 +104,10 @@ export const NewPatientForm = memo(
           dateOfBirth: yup.date().required(),
           sex: yup.string().oneOf(['male', 'female', 'other']).required(),
 
-          mother: isBirth ? foreignKey("Mother must be selected") : optionalForeignKey(),
+          mother: isBirth ? foreignKey("Mother must be selected") : optionalForeignKey("Mother must be a valid patient"),
           homeClinic: isBirth && yup.string().required(),
 
-          father: optionalForeignKey(),
+          father: optionalForeignKey("Father must be a valid patient"),
           religion: yup.string(),
           occupation: yup.string(),
           father: yup.string(),
