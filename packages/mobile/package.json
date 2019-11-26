@@ -19,9 +19,10 @@
     "react-native": "0.61.4",
     "react-native-dotenv": "^0.2.0",
     "react-native-fast-image": "^7.0.2",
-    "react-native-gesture-handler": "^1.5.0",
+    "react-native-gesture-handler": "^1.5.1",
     "react-native-keyboard-aware-scroll-view": "^0.9.1",
     "react-native-masked-text": "^1.13.0",
+    "react-native-pose": "^0.9.1",
     "react-native-reanimated": "^1.4.0",
     "react-native-svg": "^9.13.3",
     "react-navigation": "^4.0.10",
@@ -65,21 +66,14 @@
   },
   "jest": {
     "preset": "@testing-library/react-native",
-    "setupFiles": [
-      "./node_modules/react-native-gesture-handler/jestSetup.js"
-    ],
     "moduleFileExtensions": [
       "ts",
       "tsx",
       "js"
     ],
-    "transformIgnorePatterns": [
-      "node_modules/(?!(jest-)?react-native|@?react-navigation)"
-    ],
     "transform": {
-      "^.+\\.ts?$": "ts-jest",
-      "^.+\\.tsx?$": "ts-jest",
-      "^.+\\.js$": "<rootDir>/node_modules/react-native/jest/preprocessor.js"
+      "^.+\\.(js)$": "<rootDir>/node_modules/babel-jest",
+      "\\.(ts|tsx)$": "ts-jest"
     },
     "testRegex": "(/App/.*\\.test)\\.(ts|tsx|js)$",
     "testPathIgnorePatterns": [

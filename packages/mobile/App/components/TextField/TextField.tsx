@@ -1,112 +1,93 @@
 import React, { useState, useRef } from 'react';
-import Downshift from 'downshift';
-import * as styles from './styles';
-import { Animated, TextInput, KeyboardType } from 'react-native';
+import { InputContainer, StyledTextInput, StyledMaskedInput } from './styles';
+import { TextInput, KeyboardType } from 'react-native';
 import TextFieldLabel from './TextFieldLabel';
 import { StyledView } from '../../styled/common';
+import {
+  TextInputMaskTypeProp,
+  TextInputMaskOptionProp,
+  TextInputMask,
+} from 'react-native-masked-text';
 
 interface RefObject<T> {
   readonly current: T | null;
 }
 
-export interface BaseInputProps {
+export interface TextFieldProps {
   value: string;
-  onChangeText: (e: string) => void;
+  onChangeText: (text: string) => void;
   isOpen?: boolean;
   label?: '' | string;
   keyboardType?: KeyboardType;
   placeholder?: '' | string;
   error?: '' | string;
+  masked?: boolean;
+  maskType?: TextInputMaskTypeProp;
+  options?: TextInputMaskOptionProp;
 }
 
-const TextField = ({
-  value,
-  onChangeText,
-  label,
-  placeholder,
-  error,
-  keyboardType,
-}: BaseInputProps) => {
-  const [focused, setFocus] = useState(false);
-  const [animated] = useState(new Animated.Value(0));
-  const inputRef: RefObject<TextInput> = useRef(null);
+export const TextField = React.memo(
+  ({
+    value,
+    onChangeText,
+    label,
+    error,
+    maskType = 'cnpj',
+    options,
+    masked = false,
+    keyboardType,
+  }: TextFieldProps) => {
+    const [focused, setFocus] = useState(false);
+    const inputRef: RefObject<TextInput> = useRef(null);
+    const maskedInputRef: any = useRef(null);
+    const onFocusInput = React.useCallback(() => {
+      if (!focused) {
+        inputRef.current
+          ? inputRef.current.focus()
+          : maskedInputRef.current._inputElement.focus();
+      } else {
+        inputRef.current
+          ? inputRef.current!.blur()
+          : maskedInputRef.current._inputElement.blur();
+      }
+    }, [focused, maskedInputRef, inputRef]);
+    const onFocus = React.useCallback(() => setFocus(true), [setFocus]);
+    const onBlur = React.useCallback(() => setFocus(false), [setFocus]);
 
-  const onAnimateIn = () => {
-    Animated.timing(animated, {
-      toValue: 1,
-      duration: 200,
-    }).start();
-  };
+    const inputProps = {
+      accessibilityLabel: label,
+      keyboardType,
+      onChangeText,
+      onFocus,
+      onBlur,
+      value,
+    };
 
-  const onAnimateOut = () => {
-    Animated.timing(animated, {
-      toValue: 0,
-      duration: 200,
-    }).start();
-  };
-
-  const scale = animated.interpolate({
-    inputRange: [0, 1],
-    outputRange: [16, 10],
-  });
-  const bottom = animated.interpolate({
-    inputRange: [0, 1],
-    outputRange: [12, 30],
-  });
-
-  const onFocusInput = () => {
-    if (!focused) {
-      inputRef.current!.focus();
-    } else {
-      inputRef.current!.blur();
-    }
-  };
-
-  return (
-    <Downshift
-      inputValue={value}
-      onInputValueChange={(text: string) => onChangeText(text)}>
-      {({ getRootProps, getInputProps, inputValue }) => {
-        return (
-          <StyledView height="55" width="100%" {...getRootProps()}>
-            <styles.InputContainer
-              hasValue={value.length > 0}
+    return (
+      <StyledView height="55" width="100%">
+        <InputContainer hasValue={value.length > 0} error={error}>
+          {label && (
+            <TextFieldLabel
               error={error}
-              focused={focused}>
-              {label ? (
-                <TextFieldLabel
-                  error={error}
-                  focus={focused}
-                  onFocus={onFocusInput}
-                  scale={scale}
-                  inputValue={value}
-                  position={bottom}>
-                  {label}
-                </TextFieldLabel>
-              ) : null}
-              <styles.StyledTextInput
-                ref={inputRef}
-                keyboardType={keyboardType}
-                {...getInputProps()}
-                onFocus={() => {
-                  setFocus(true);
-                  onAnimateIn();
-                }}
-                onBlur={() => {
-                  setFocus(false);
-                  if (value.length === 0) {
-                    onAnimateOut();
-                  }
-                }}
-                placeholder={placeholder}
-                value={inputValue as string}
-              />
-            </styles.InputContainer>
-          </StyledView>
-        );
-      }}
-    </Downshift>
-  );
-};
-
-export default TextField;
+              focus={focused}
+              onFocus={onFocusInput}
+              inputValue={value}>
+              {label}
+            </TextFieldLabel>
+          )}
+          {!masked ? (
+            <StyledTextInput ref={inputRef} {...inputProps} />
+          ) : (
+            <StyledMaskedInput
+              as={TextInputMask}
+              ref={maskedInputRef}
+              options={options}
+              type={maskType}
+              {...inputProps}
+            />
+          )}
+        </InputContainer>
+      </StyledView>
+    );
+  },
+);

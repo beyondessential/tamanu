@@ -3,7 +3,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { action } from '@storybook/addon-actions';
 
-import PatientCard from './index';
+import { PatientCard } from './index';
 import { CenterView } from '../../styled/common';
 import theme from '../../styled/theme';
 

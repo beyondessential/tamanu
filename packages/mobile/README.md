@@ -1,5 +1,20 @@
 # Tamanu Mobile App
 
+This is the Tamanu App Repository.
+
+- [install](#Install)
+  - [Installing dependencies](#Installing-dependencies)
+  -
+  - [Making Project runnable](#making-Project-runnable)
+    - [Xcode](#Xcode)
+    - [Android Studio](#Android-Studio)
+- [Running](#Running)
+  - [Run metro bundler](#Run-metro-bundler)
+  - [Run storybook](#Run-storybook)
+- [Emulator Command Hints](#Emulator-Command-Hints)
+  - [IOS](#IOS)
+  - [Android](#Android)
+
 ## Install
 
 ### Installing dependencies
@@ -10,7 +25,7 @@ After downloading or cloning into your local machine, open a console window in t
 yarn
 ```
 
-If you are about to use IOS simulators you will also need to go into the <strong>ios</strong> folder and install the dependencies:
+If you are about to use IOS simulators you will also need to go into the `ios` folder and install the dependencies:
 
 ```
 cd ios && pod install

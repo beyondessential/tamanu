@@ -1,6 +1,21 @@
 import styled from 'styled-components/native';
 import * as styledSystem from 'styled-system';
 import { ReactNode } from 'react';
+
+interface TextProps {
+  fontSize?: number;
+  fontWeight?: number;
+  color?: string;
+}
+
+interface PositionProps {
+  position?: string;
+  bottom?: number | string;
+  top?: number | string;
+  left?: number | string;
+  right?: number | string;
+  zIndex?: number;
+}
 interface SpacingProps {
   height?: string | number;
   width?: string | number;
@@ -34,7 +49,13 @@ interface StyledViewProps extends SpacingProps, FlexProps, Borderprops {
   overflow?: string;
 }
 
-export const StyledView = styled.SafeAreaView<StyledViewProps>`    
+interface StyledTextProps extends SpacingProps, TextProps, PositionProps {
+  children?: ReactNode | Element[];
+  background?: string;
+  overflow?: string;
+}
+
+export const StyledView = styled.View<StyledViewProps>`    
   ${styledSystem.width}
   ${styledSystem.height}  
   ${styledSystem.margin}
@@ -50,8 +71,25 @@ export const StyledView = styled.SafeAreaView<StyledViewProps>`
   ${styledSystem.justifyContent}   
   ${styledSystem.alignItems}     
   ${styledSystem.background}
-  ${styledSystem.overflow}    
+  ${styledSystem.overflow}      
   ${({ borderLeftWidth }) => `border-left-width: ${borderLeftWidth}` || 0};
+`;
+
+export const StyledText = styled.Text<StyledTextProps>`
+   ${styledSystem.width}
+   ${styledSystem.position}   
+   ${styledSystem.zIndex}   
+  ${styledSystem.height}  
+  ${styledSystem.margin}
+  ${styledSystem.color}
+  ${styledSystem.marginRight}   
+  ${styledSystem.marginBottom}
+  ${styledSystem.marginLeft}
+  ${styledSystem.marginTop}
+  ${styledSystem.paddingBottom}
+  ${styledSystem.paddingRight}
+  ${styledSystem.paddingTop}
+  ${styledSystem.paddingLeft}
 `;
 
 export const CenterView = styled(StyledView)`

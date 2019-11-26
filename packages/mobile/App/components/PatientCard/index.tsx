@@ -16,7 +16,7 @@ export interface PatientCardProps {
   onPress: Function;
 }
 
-const PatientCard = ({
+export const PatientCard = ({
   name,
   image,
   age,
@@ -69,5 +69,3 @@ const PatientCard = ({
     </TouchableWithoutFeedback>
   );
 };
-
-export default PatientCard;

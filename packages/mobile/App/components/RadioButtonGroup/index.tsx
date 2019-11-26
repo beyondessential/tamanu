@@ -1,6 +1,6 @@
 import React from 'react';
 import { RowView } from '../../styled/common';
-import RadioButton, { RadioOption } from '../RadioButton';
+import { RadioOption, RadioButton } from '../RadioButton';
 
 export interface RadioButtonGroupProps {
   options: RadioOption[];
@@ -10,7 +10,7 @@ export interface RadioButtonGroupProps {
   index?: number;
 }
 
-const RadioButtonGroup = ({
+export const RadioButtonGroup = ({
   options,
   onSelectOption,
   selected,
@@ -32,5 +32,3 @@ const RadioButtonGroup = ({
     </RowView>
   );
 };
-
-export default RadioButtonGroup;

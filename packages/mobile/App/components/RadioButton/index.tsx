@@ -35,7 +35,7 @@ const StyledButtonText = styled.Text<RadioButtonText>`
   }};
 `;
 
-export default (props: RadioOptionProps) => {
+export const RadioButton = (props: RadioOptionProps) => {
   return (
     <TouchableWithoutFeedback onPress={() => props.onPress(props.value)}>
       <RowView
