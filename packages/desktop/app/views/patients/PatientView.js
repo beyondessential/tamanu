@@ -152,7 +152,7 @@ const TABS = [
 
 export const DumbPatientView = React.memo(({ patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('history');
-  const readonly = true;
+  const readonly = !!patient.death;
 
   return (
     <React.Fragment>
