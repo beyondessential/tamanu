@@ -354,6 +354,7 @@ function getHeaderText({ visitType }) {
 
 export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
+  const readonly = visit.endDate || patient.death;
 
   return (
     <LoadingIndicator loading={loading}>
@@ -361,7 +362,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
         <PatientInfoPane patient={patient} />
         <div>
           <TopBar title={getHeaderText(visit)}>
-            <VisitActions visit={visit} />
+            {!readonly && <VisitActions visit={visit} />}
             <AdmissionInfoRow>
               <AdmissionInfo>
                 <SubjectIcon />
@@ -379,7 +380,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
             <VisitInfoPane visit={visit} />
           </ContentPane>
           <ContentPane>
-            <DiagnosisView visitId={visit._id} isTriage={getIsTriage(visit)} />
+            <DiagnosisView visitId={visit._id} isTriage={getIsTriage(visit)} readonly={readonly} />
           </ContentPane>
           <TabDisplay
             tabs={TABS}
