@@ -247,7 +247,7 @@ const VisitActionDropdown = connect(
       progression[nextState] > progression[currentState];
     const actions = [
       {
-        label: 'Active ED care',
+        label: 'Move to active ED care',
         onClick: () => onChangeVisitType(VISIT_TYPES.OBSERVATION),
         condition: () => isProgressionForward(visit.visitType, VISIT_TYPES.OBSERVATION),
       },
