@@ -39,7 +39,12 @@ const AppointmentPane = React.memo(({ patient, readonly }) => {
       />
       <AppointmentTable appointments={patient.appointments} />
       <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary" disabled={readonly}>
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
           New appointment
         </Button>
       </ContentPane>
@@ -55,7 +60,12 @@ const ReferralPane = React.memo(({ patient, readonly }) => {
       <ReferralModal open={modalOpen} patientId={patient._id} onClose={() => setModalOpen(false)} />
       <ReferralTable referrals={patient.referrals} />
       <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary" disabled={readonly}>
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
           New referral
         </Button>
       </ContentPane>
@@ -119,19 +129,19 @@ const TABS = [
     label: 'Details',
     key: 'details',
     icon: 'fa fa-info-circle',
-    render: (props) => <ConnectedPatientDetailsForm {...props} />,
+    render: props => <ConnectedPatientDetailsForm {...props} />,
   },
   {
     label: 'Appointments',
     key: 'appointments',
     icon: 'fa fa-user-md',
-    render: (props) => <AppointmentPane {...props} />,
+    render: props => <AppointmentPane {...props} />,
   },
   {
     label: 'Referrals',
     key: 'Referrals',
     icon: 'fa fa-hospital',
-    render: (props) => <ReferralPane {...props} />,
+    render: props => <ReferralPane {...props} />,
   },
   {
     label: 'Documents',

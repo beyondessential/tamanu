@@ -48,7 +48,12 @@ const VitalsPane = React.memo(({ visit, readonly }) => {
       {modalOpen && <VitalsModal visitId={visit._id} onClose={() => setModalOpen(false)} />}
       <VitalsTable />
       <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary" disabled={readonly}>
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
           Record vitals
         </Button>
       </ContentPane>
@@ -64,7 +69,12 @@ const NotesPane = React.memo(({ visit, readonly }) => {
       <NoteModal open={modalOpen} visitId={visit._id} onClose={() => setModalOpen(false)} />
       <NoteTable notes={visit.notes} />
       <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary" disabled={readonly}>
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
           New note
         </Button>
       </ContentPane>
@@ -80,7 +90,12 @@ const LabsPane = React.memo(({ visit, readonly }) => {
       <LabRequestModal open={modalOpen} visit={visit} onClose={() => setModalOpen(false)} />
       <LabRequestsTable labs={visit.labRequests} />
       <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary" disabled={readonly}>
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
           New lab request
         </Button>
       </ContentPane>
@@ -96,7 +111,12 @@ const ImagingPane = React.memo(({ visit, readonly }) => {
       <ImagingRequestModal open={modalOpen} visit={visit} onClose={() => setModalOpen(false)} />
       <ImagingRequestsTable imagingRequests={visit.imagingRequests} />
       <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary" disabled={readonly}>
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
           New imaging request
         </Button>
       </ContentPane>
@@ -112,7 +132,12 @@ const MedicationPane = React.memo(({ visit, readonly }) => {
       <MedicationModal open={modalOpen} visitId={visit.id} onClose={() => setModalOpen(false)} />
       <VisitMedicationTable medications={visit.medications} />
       <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary" disabled={readonly}>
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
           New prescription
         </Button>
       </ContentPane>
@@ -128,7 +153,12 @@ const ProcedurePane = React.memo(({ visit, readonly }) => {
       <ProcedureModal open={modalOpen} visitId={visit.id} onClose={() => setModalOpen(false)} />
       <ProcedureTable procedures={visit.procedures} />
       <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary" disabled={readonly}>
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
           New procedure
         </Button>
       </ContentPane>
@@ -140,32 +170,32 @@ const TABS = [
   {
     label: 'Vitals',
     key: 'vitals',
-    render: (props) => <VitalsPane {...props} />,
+    render: props => <VitalsPane {...props} />,
   },
   {
     label: 'Notes',
     key: 'notes',
-    render: (props) => <NotesPane {...props} />,
+    render: props => <NotesPane {...props} />,
   },
   {
     label: 'Procedures',
     key: 'procedures',
-    render: (props) => <ProcedurePane {...props} />,
+    render: props => <ProcedurePane {...props} />,
   },
   {
     label: 'Labs',
     key: 'labs',
-    render: (props) => <LabsPane {...props} />,
+    render: props => <LabsPane {...props} />,
   },
   {
     label: 'Imaging',
     key: 'imaging',
-    render: (props) => <ImagingPane {...props} />,
+    render: props => <ImagingPane {...props} />,
   },
   {
     label: 'Medication',
     key: 'medication',
-    render: (props) => <MedicationPane {...props} />,
+    render: props => <MedicationPane {...props} />,
   },
   {
     label: 'Documents',

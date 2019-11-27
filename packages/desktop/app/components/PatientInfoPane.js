@@ -90,7 +90,7 @@ const ListsSection = styled.div`
   padding: 20px;
 `;
 
-const InfoPaneLists = memo((props) => (
+const InfoPaneLists = memo(props => (
   <ListsSection>
     <OngoingConditionDisplay {...props} />
     <AllergyDisplay {...props} />

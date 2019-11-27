@@ -87,7 +87,16 @@ const AddEditForm = connectApi(
 );
 
 export const InfoPaneList = memo(
-  ({ patient, readonly, title, Form, items = [], endpoint, suggesterEndpoints, getName = () => '???' }) => {
+  ({
+    patient,
+    readonly,
+    title,
+    Form,
+    items = [],
+    endpoint,
+    suggesterEndpoints,
+    getName = () => '???',
+  }) => {
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
     const { adding, editKey } = addEditState;
 

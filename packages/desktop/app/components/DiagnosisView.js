@@ -54,18 +54,23 @@ export const DiagnosisView = connect(state => ({
 
     return (
       <React.Fragment>
-        {!readonly && <DiagnosisModal
+        <DiagnosisModal
           diagnosis={diagnosis}
           isTriage={isTriage}
           visitId={visitId}
           onClose={() => editDiagnosis(null)}
-        />}
+        />
         <DiagnosisGrid>
           <DiagnosisLabel numberOfDiagnoses={diagnoses.length} />
           <DiagnosisList diagnoses={diagnoses} onEditDiagnosis={!readonly && editDiagnosis} />
-          {!readonly && <AddDiagnosisButton onClick={() => editDiagnosis({})} variant="outlined" color="primary">
-            Add diagnosis
-          </AddDiagnosisButton>}
+            <AddDiagnosisButton
+              onClick={() => editDiagnosis({})}
+              variant="outlined"
+              color="primary"
+              disabled={readonly}
+            >
+              Add diagnosis
+            </AddDiagnosisButton>
         </DiagnosisGrid>
       </React.Fragment>
     );
