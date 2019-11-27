@@ -52,8 +52,8 @@ export class TamanuApi {
       ...otherConfig,
     });
     if (response.ok) {
-      const timeSinceRefresh = (new Date()) - this.lastRefreshed;
-      if(timeSinceRefresh > REFRESH_DURATION) {
+      const timeSinceRefresh = new Date() - this.lastRefreshed;
+      if (timeSinceRefresh > REFRESH_DURATION) {
         this.lastRefreshed = +new Date();
         this.refreshToken();
       }

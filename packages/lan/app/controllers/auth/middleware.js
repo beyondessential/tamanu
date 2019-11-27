@@ -1,8 +1,8 @@
 import { sign, verify } from 'jsonwebtoken';
-import { compare, hash } from 'bcrypt';
+import { compare } from 'bcrypt';
 import { auth } from 'config';
 
-const { tokenDuration, saltRounds, jwtSecretKey } = auth;
+const { tokenDuration, jwtSecretKey } = auth;
 
 // don't even let things start if the key hasn't been configured in prod
 if (!['development', 'test'].includes(process.env.NODE_ENV)) {
@@ -56,7 +56,7 @@ export async function loginHandler(req, res) {
 }
 
 export async function refreshHandler(req, res) {
-  const { body, user } = req;
+  const { user } = req;
 
   const token = getToken(user);
   res.send({ token });
