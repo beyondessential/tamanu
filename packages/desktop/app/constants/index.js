@@ -235,18 +235,18 @@ export const noteTypes = [
 ];
 
 export const visitOptions = [
-  { value: VISIT_TYPES.ADMISSION, label: 'Admission', image: medicationIcon },
+  { value: VISIT_TYPES.ADMISSION, label: 'Hospital admission', image: medicationIcon },
   { value: VISIT_TYPES.CLINIC, label: 'Clinic', image: administrationIcon },
   { value: VISIT_TYPES.IMAGING, label: 'Imaging', image: radiologyIcon },
   { value: VISIT_TYPES.LAB, label: 'Lab', image: labsIcon },
-  { value: VISIT_TYPES.EMERGENCY, label: 'Emergency', image: scheduleIcon },
+  { value: VISIT_TYPES.EMERGENCY, label: 'Emergency short stay', image: scheduleIcon },
   {
     value: VISIT_TYPES.OBSERVATION,
-    label: 'Observation',
+    label: 'Active ED patient',
     image: patientIcon,
     triageFlowOnly: true,
   },
-  { value: VISIT_TYPES.TRIAGE, label: 'Triage', image: patientIcon, triageFlowOnly: true },
+  { value: VISIT_TYPES.TRIAGE, label: 'Triaged patient', image: patientIcon, triageFlowOnly: true },
 ];
 
 export const VISIT_OPTIONS_BY_VALUE = createValueIndex(visitOptions);
