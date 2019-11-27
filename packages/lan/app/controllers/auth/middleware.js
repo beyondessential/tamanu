@@ -55,6 +55,13 @@ export async function loginHandler(req, res) {
   res.send({ token });
 }
 
+export async function refreshHandler(req, res) {
+  const { body, user } = req;
+
+  const token = getToken(user);
+  res.send({ token });
+}
+
 function decodeToken(token) {
   return verify(token, jwtSecretKey);
 }
