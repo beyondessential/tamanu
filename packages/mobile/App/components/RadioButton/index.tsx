@@ -65,7 +65,7 @@ export const RadioButton = (props: RadioOptionProps) => {
           }
           justifyContent="center"
           alignItems="center"
-          mr={10}>
+          marginRight={10}>
           <StyledView
             height={6}
             width={6}

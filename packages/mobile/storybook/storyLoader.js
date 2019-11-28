@@ -4,6 +4,7 @@
 // https://github.com/elderfo/react-native-storybook-loader.git
 
 function loadStories() {
+  require('../App/components/Accordion/index.stories');
   require('../App/components/BottomNavigator/index.stories');
   require('../App/components/Button/index.stories');
   require('../App/components/Icons/index.stories');
@@ -14,6 +15,7 @@ function loadStories() {
 }
 
 const stories = [
+  '../App/components/Accordion/index.stories',
   '../App/components/BottomNavigator/index.stories',
   '../App/components/Button/index.stories',
   '../App/components/Icons/index.stories',

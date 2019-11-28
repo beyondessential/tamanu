@@ -46,7 +46,7 @@ Why for it to link and build.
 
 Open your console/terminal in the project folder
 
-Be sure to have [Xcode](https://apps.apple.com/br/app/xcode/id497799835?mt=12) and/or [Android Studio](https://www.google.com/search?q=android+studio&oq=android+studio&aqs=chrome..69i57j69i60l2j69i65l2j69i60.1366j0j4&sourceid=chrome&ie=UTF-8) installed in your computer.
+Be sure to have [Xcode](https://apps.apple.com/br/app/xcode/id497799835?marginTop=12) and/or [Android Studio](https://www.google.com/search?q=android+studio&oq=android+studio&aqs=chrome..69i57j69i60l2j69i65l2j69i60.1366j0j4&sourceid=chrome&ie=UTF-8) installed in your computer.
 
 ### Run metro bundler
 

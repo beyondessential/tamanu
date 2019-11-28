@@ -56,8 +56,8 @@ export const PatientCard = ({
             {formatDate(lastVisit, DateFormats.short)}
           </styles.StyledDate>
         </RowView>
-        <ColumnView width="100%" mt={15}>
-          <StyledView width="75%" m="0px 0px 10px 0px">
+        <ColumnView width="100%" marginTop={15}>
+          <StyledView width="75%" margin="0px 0px 10px 0px">
             <styles.StyledPatientName>{name}</styles.StyledPatientName>
           </StyledView>
           <StyledView width="80%">

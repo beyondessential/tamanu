@@ -17,7 +17,11 @@ stories.add('Avatar', () => <Icons.Avatar />);
 stories.add('Avatar_10', () => <Icons.Avatar_10 />);
 stories.add('Avatar_11', () => <Icons.Avatar_11 />);
 stories.add('Avatar_12', () => <Icons.Avatar_12 />);
-stories.add('BarChart', () => <Icons.BarChart />);
+stories.add('BarChart', () => (
+  <CenterView width="100%" background={theme.colors.TEXT_DARK}>
+    <Icons.BarChart />
+  </CenterView>
+));
 stories.add('Billing', () => <Icons.Billing />);
 stories.add('Camera1', () => <Icons.Camera1 />);
 stories.add('CheckUp', () => <Icons.CheckUp />);
