@@ -65,7 +65,7 @@ interface BottomNavigatorProps {
   renderIcon: Function;
 }
 
-function BottomNavigator(props: BottomNavigatorProps) {
+export function BottomNavigator(props: BottomNavigatorProps) {
   const { navigation, renderIcon } = props;
   const { routes, index: activeRouteIndex } = navigation.state;
   const { navigate } = navigation;

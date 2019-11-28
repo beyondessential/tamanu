@@ -75,6 +75,26 @@ export const StyledView = styled.View<StyledViewProps>`
   ${({ borderLeftWidth }) => `border-left-width: ${borderLeftWidth}` || 0};
 `;
 
+export const StyledSafeAreaView = styled.SafeAreaView<StyledViewProps>`    
+  ${styledSystem.width}
+  ${styledSystem.height}  
+  ${styledSystem.margin}
+  ${styledSystem.marginRight}   
+  ${styledSystem.marginBottom}
+  ${styledSystem.marginLeft}
+  ${styledSystem.marginTop}
+  ${styledSystem.paddingBottom}
+  ${styledSystem.paddingRight}
+  ${styledSystem.paddingTop}
+  ${styledSystem.paddingLeft}
+  ${styledSystem.flex}   
+  ${styledSystem.justifyContent}   
+  ${styledSystem.alignItems}     
+  ${styledSystem.background}
+  ${styledSystem.overflow}      
+  ${({ borderLeftWidth }) => `border-left-width: ${borderLeftWidth}` || 0};
+`;
+
 export const StyledText = styled.Text<StyledTextProps>`
    ${styledSystem.width}
    ${styledSystem.position}   
