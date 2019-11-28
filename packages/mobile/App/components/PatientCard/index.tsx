@@ -57,7 +57,7 @@ export const PatientCard = ({
           </styles.StyledDate>
         </RowView>
         <ColumnView width="100%" marginTop={15}>
-          <StyledView width="75%" margin="0px 0px 10px 0px">
+          <StyledView width="75%" marginBottom={10}>
             <styles.StyledPatientName>{name}</styles.StyledPatientName>
           </StyledView>
           <StyledView width="80%">

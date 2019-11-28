@@ -5,7 +5,7 @@ import { ReactNode } from 'react';
 interface TextProps {
   textAlign?: string;
   fontSize?: number;
-  fontWeight?: number;
+  fontWeight?: number | string;
   color?: string;
 }
 interface SpacingProps {
