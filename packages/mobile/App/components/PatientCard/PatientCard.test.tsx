@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import PatientCard, { PatientCardProps } from './index';
+import { PatientCard, PatientCardProps } from './index';
 import { DateFormats } from '../../helpers/constants';
 import { formatDate } from '../../helpers/date';
 

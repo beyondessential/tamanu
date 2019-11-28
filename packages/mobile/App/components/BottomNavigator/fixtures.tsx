@@ -1,10 +1,10 @@
 import React from 'react';
 import { Text } from 'react-native';
 import { CenterView } from '../../styled/common';
-import { createBottomTabNavigator } from 'react-navigation-tabs';
-import { createAppContainer } from 'react-navigation';
-import { TabIcon, BottomNavigator } from './index';
 import Icons from '../Icons';
+import { createAppContainer } from 'react-navigation';
+import { createBottomTabNavigator } from 'react-navigation-tabs';
+import BottomNavigator, { TabIcon } from './index';
 
 export const Home = React.memo(() => {
   return (
@@ -38,7 +38,7 @@ export const More = React.memo(() => {
   );
 });
 
-const bottomNavigator = createBottomTabNavigator(
+const navigator = createBottomTabNavigator(
   {
     Home,
     Reports,
@@ -54,7 +54,7 @@ const bottomNavigator = createBottomTabNavigator(
             case 'Home':
               return <TabIcon Icon={Icons.BottomNavLogo} {...props} />;
             case 'Reports':
-              return <TabIcon Icon={Icons.More} {...props} />;
+              return <TabIcon Icon={Icons.BarChart} {...props} />;
             case 'SyncData':
               return <TabIcon Icon={Icons.SyncFiles} {...props} />;
             case 'More':
@@ -68,5 +68,4 @@ const bottomNavigator = createBottomTabNavigator(
     tabBarComponent: BottomNavigator,
   },
 );
-
-export const BottomTabApp = createAppContainer(bottomNavigator);
+export const App = createAppContainer(navigator);

@@ -3,32 +3,24 @@ import * as styledSystem from 'styled-system';
 import { ReactNode } from 'react';
 
 interface TextProps {
+  textAlign?: string;
   fontSize?: number;
   fontWeight?: number;
   color?: string;
 }
-
-interface PositionProps {
-  position?: string;
-  bottom?: number | string;
-  top?: number | string;
-  left?: number | string;
-  right?: number | string;
-  zIndex?: number;
-}
 interface SpacingProps {
   height?: string | number;
   width?: string | number;
-  p?: string;
-  paddingTop?: number;
-  paddingBottom?: number;
-  paddingLeft?: number;
-  paddingRight?: number;
-  m?: number[] | string;
-  mr?: number;
-  ml?: number;
-  mt?: number;
-  mb?: number;
+  padding?: string | number | number[];
+  paddingTop?: number | string;
+  paddingBottom?: number | string;
+  paddingLeft?: number | string;
+  paddingRight?: number | string;
+  margin?: number[] | string;
+  marginRight?: number | string;
+  marginLeft?: number | string;
+  marginTop?: number | string;
+  marginBottom?: number | string;
 }
 
 interface FlexProps {
@@ -43,31 +35,52 @@ interface Borderprops {
   borderLeftWidth?: number;
 }
 
+interface StyledTextProps
+  extends SpacingProps,
+    FlexProps,
+    Borderprops,
+    TextProps {}
 interface StyledViewProps extends SpacingProps, FlexProps, Borderprops {
   children?: ReactNode | Element[];
   background?: string;
   overflow?: string;
 }
-
-interface StyledTextProps extends SpacingProps, TextProps, PositionProps {
-  children?: ReactNode | Element[];
-  background?: string;
-  overflow?: string;
-}
-
-export const StyledView = styled.View<StyledViewProps>`    
+export const StyledView = styled.View<StyledViewProps>`
   ${styledSystem.width}
   ${styledSystem.height}  
   ${styledSystem.margin}
   ${styledSystem.marginRight}   
   ${styledSystem.marginBottom}
   ${styledSystem.marginLeft}
-  ${styledSystem.marginTop}
+  ${styledSystem.marginTop}  
+  ${styledSystem.padding}
   ${styledSystem.paddingBottom}
   ${styledSystem.paddingRight}
   ${styledSystem.paddingTop}
   ${styledSystem.paddingLeft}
   ${styledSystem.flex}   
+  ${styledSystem.flexGrow}
+  ${styledSystem.justifyContent}   
+  ${styledSystem.alignItems}     
+  ${styledSystem.background}
+  ${styledSystem.overflow}    
+`;
+
+export const StyledAreaView = styled.SafeAreaView<StyledViewProps>`    
+  ${styledSystem.width}
+  ${styledSystem.height}  
+  ${styledSystem.margin}
+  ${styledSystem.marginRight}   
+  ${styledSystem.marginBottom}
+  ${styledSystem.marginLeft}
+  ${styledSystem.marginTop}  
+  ${styledSystem.padding}
+  ${styledSystem.paddingBottom}
+  ${styledSystem.paddingRight}
+  ${styledSystem.paddingTop}
+  ${styledSystem.paddingLeft}
+  ${styledSystem.flex}   
+  ${styledSystem.flexGrow}
   ${styledSystem.justifyContent}   
   ${styledSystem.alignItems}     
   ${styledSystem.background}
@@ -96,20 +109,27 @@ export const StyledSafeAreaView = styled.SafeAreaView<StyledViewProps>`
 `;
 
 export const StyledText = styled.Text<StyledTextProps>`
-   ${styledSystem.width}
-   ${styledSystem.position}   
-   ${styledSystem.zIndex}   
+  ${styledSystem.fontSize}
+  ${styledSystem.fontWeight}
+  ${styledSystem.color}
+  ${styledSystem.textAlign}
+  ${styledSystem.width}
   ${styledSystem.height}  
   ${styledSystem.margin}
-  ${styledSystem.color}
   ${styledSystem.marginRight}   
   ${styledSystem.marginBottom}
   ${styledSystem.marginLeft}
-  ${styledSystem.marginTop}
+  ${styledSystem.marginTop}  
+  ${styledSystem.padding}
   ${styledSystem.paddingBottom}
   ${styledSystem.paddingRight}
   ${styledSystem.paddingTop}
   ${styledSystem.paddingLeft}
+  ${styledSystem.flex}   
+  ${styledSystem.flexGrow}
+  ${styledSystem.justifyContent}   
+  ${styledSystem.alignItems}     
+  ${styledSystem.background}
 `;
 
 export const CenterView = styled(StyledView)`

@@ -6,7 +6,7 @@ import {
   NavigationParams,
 } from 'react-navigation';
 import { SvgProps } from 'react-native-svg';
-import { CenterView, RowView, StyledView } from '../../styled/common';
+import { CenterView, RowView, StyledAreaView } from '../../styled/common';
 import styled from 'styled-components/native';
 import theme from '../../styled/theme';
 
@@ -45,7 +45,7 @@ export function TabIcon({ Icon, focused }: TabIconProps) {
 function TabButton({ route, focused, onPress, renderIcon }: TabButtonProps) {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
-      <CenterView paddingBottom={5}>
+      <CenterView>
         {renderIcon({ route, focused })}
 
         <StyledTabLabel focused={focused}>
@@ -70,7 +70,7 @@ export function BottomNavigator(props: BottomNavigatorProps) {
   const { routes, index: activeRouteIndex } = navigation.state;
   const { navigate } = navigation;
   return (
-    <StyledView background={theme.colors.PRIMARY_MAIN}>
+    <StyledAreaView background={theme.colors.PRIMARY_MAIN}>
       <RowView
         background={theme.colors.PRIMARY_MAIN}
         height={70}
@@ -86,7 +86,7 @@ export function BottomNavigator(props: BottomNavigatorProps) {
           />
         ))}
       </RowView>
-    </StyledView>
+    </StyledAreaView>
   );
 }
 
