@@ -24,7 +24,7 @@ export class TamanuApi {
     const response = await this.post('login', { email, password });
     const { token } = response;
     this.setToken(token);
-    this.lastRefreshed = +new Date();
+    this.lastRefreshed = Date.now();
 
     const user = await this.get('me');
     return { user, token };
@@ -52,9 +52,9 @@ export class TamanuApi {
       ...otherConfig,
     });
     if (response.ok) {
-      const timeSinceRefresh = new Date() - this.lastRefreshed;
+      const timeSinceRefresh = Date.now() - this.lastRefreshed;
       if (timeSinceRefresh > REFRESH_DURATION) {
-        this.lastRefreshed = +new Date();
+        this.lastRefreshed = Date.now();
         this.refreshToken();
       }
 
