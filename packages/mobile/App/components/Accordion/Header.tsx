@@ -22,13 +22,13 @@ const StatusIcon = ({ IconComponent, ...rest }: IconProps) => {
   return <IconComponent {...rest} />;
 };
 
-interface HeaderHeaderRightIconContainerProps {
+interface HeaderRightIconContainerProps {
   isActive: boolean;
 }
 
 const HeaderRightIconContainer = ({
   isActive,
-}: HeaderHeaderRightIconContainerProps) => {
+}: HeaderRightIconContainerProps) => {
   return (
     <StyledView>
       <StatusIcon
