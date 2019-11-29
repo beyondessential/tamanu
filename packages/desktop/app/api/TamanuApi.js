@@ -6,6 +6,8 @@ const encodeQueryString = query =>
     .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
     .join('&');
 
+const REFRESH_DURATION = 2.5 * 60 * 1000; // refresh if token is more than 2.5 minutes old
+
 export class TamanuApi {
   constructor(host) {
     this.host = host;
@@ -22,9 +24,16 @@ export class TamanuApi {
     const response = await this.post('login', { email, password });
     const { token } = response;
     this.setToken(token);
+    this.lastRefreshed = Date.now();
 
     const user = await this.get('me');
     return { user, token };
+  }
+
+  async refreshToken() {
+    const response = await this.post('refresh');
+    const { token } = response;
+    this.setToken(token);
   }
 
   setToken(token) {
@@ -43,6 +52,12 @@ export class TamanuApi {
       ...otherConfig,
     });
     if (response.ok) {
+      const timeSinceRefresh = Date.now() - this.lastRefreshed;
+      if (timeSinceRefresh > REFRESH_DURATION) {
+        this.lastRefreshed = Date.now();
+        this.refreshToken();
+      }
+
       return response.json();
     }
     console.error(response);

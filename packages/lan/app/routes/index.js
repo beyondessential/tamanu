@@ -2,7 +2,7 @@ import express from 'express';
 import { restfulRoutes } from './restful';
 import { suggestionRoutes } from './suggestions';
 import { adminRoutes } from './admin';
-import { getAuthMiddleware, loginHandler } from '../controllers/auth/middleware';
+import { getAuthMiddleware, loginHandler, refreshHandler } from '../controllers/auth/middleware';
 import { seed } from './seed';
 import { objectToJSON } from '../utils';
 
@@ -16,6 +16,8 @@ router.use(getAuthMiddleware());
 router.use('/me', (req, res) => {
   res.send(objectToJSON(req.user));
 });
+
+router.use('/refresh', refreshHandler);
 
 router.use('/suggestions', suggestionRoutes);
 router.use('/admin', adminRoutes);
