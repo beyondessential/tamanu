@@ -31,19 +31,9 @@ import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
 import { DeathForm } from '../app/forms/DeathForm';
 import { NoteForm } from '../app/forms/NoteForm';
 
+import { createDummySuggester, mapToSuggestions } from './utils';
 import { TestSelectorInput } from '../app/components/TestSelector';
 
-function createDummySuggester(options) {
-  return {
-    fetchSuggestions: search => {
-      const filter = ({ label }) => label.toLowerCase().includes(search.toLowerCase());
-      return options.filter(filter).slice(0, 20);
-    },
-    fetchCurrentOption: value => options.find(s => s.value === value),
-  };
-}
-
-const mapToSuggestions = objects => objects.map(({ _id, name }) => ({ label: name, value: _id }));
 const practitionerSuggester = createDummySuggester(mapToSuggestions(USERS));
 const locationSuggester = createDummySuggester(mapToSuggestions(LOCATIONS));
 const facilitySuggester = createDummySuggester(mapToSuggestions(FACILITIES));
