@@ -1,12 +1,17 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 
+import { Button } from './Button';
+import { ButtonRow } from './ButtonRow';
+import { ContentPane } from './ContentPane';
+
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
 import { PatientAlert } from './PatientAlert';
 import { PatientStickerLabelPage } from './PatientStickerLabel';
 
 import { AllergyForm, OngoingConditionForm, FamilyHistoryForm, PatientIssueForm } from '../forms';
+import { DeathModal } from './DeathModal';
 import { Colors } from '../constants';
 
 const OngoingConditionDisplay = memo(({ patient }) => (
@@ -86,13 +91,29 @@ const ListsSection = styled.div`
   padding: 20px;
 `;
 
+const RecordDeathSection = memo(({ patient }) => {
+  const [isModalOpen, setModalOpen] = React.useState(false);
+  const openModal = React.useCallback(() => setModalOpen(true), [setModalOpen]);
+  const closeModal = React.useCallback(() => setModalOpen(false), [setModalOpen]);
+
+  return (
+    <React.Fragment>
+      <Button variant="contained" color="primary" disabled={patient.death} onClick={openModal}>Record death</Button>
+      <DeathModal open={isModalOpen} onClose={closeModal} patient={patient} />
+    </React.Fragment>
+  );
+});
+
 const InfoPaneLists = memo(({ patient }) => (
   <ListsSection>
     <OngoingConditionDisplay patient={patient} />
     <AllergyDisplay patient={patient} />
     <FamilyHistoryDisplay patient={patient} />
     <PatientIssuesDisplay patient={patient} />
-    <PatientStickerLabelPage patient={patient} />
+    <ButtonRow>
+      <PatientStickerLabelPage patient={patient} />
+      <RecordDeathSection patient={patient} />
+    </ButtonRow>
   </ListsSection>
 ));
 

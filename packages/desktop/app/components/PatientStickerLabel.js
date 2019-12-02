@@ -66,11 +66,9 @@ const LabelPage = styled.div`
 
 export const PatientStickerLabelPage = ({ patient }) => (
   <React.Fragment>
-    <ContentPane>
-      <Button onClick={() => printPage()} variant="contained" color="primary">
-        Print labels
-      </Button>
-    </ContentPane>
+    <Button onClick={() => printPage()} variant="contained" color="primary">
+      Print labels
+    </Button>
     <PrintPortal>
       <LetterPage>
         <LabelPage>
