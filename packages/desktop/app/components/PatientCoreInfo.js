@@ -89,6 +89,17 @@ const CoreInfoCell = memo(({ label, children }) => (
   </CoreInfoCellContainer>
 ));
 
+const DeceasedText = styled.div`
+  opacity: 0.8;
+`;
+
+const DeceasedIndicator = memo(({ death }) => (
+  <DeceasedText>
+    <span>Deceased, </span>
+    <DateDisplay date={death.date} />
+  </DeceasedText>
+));
+
 const HealthIdDisplay = memo(({ patient }) => (
   <HealthIdContainer>
     <HealthIdLabelText>Health Identification Number</HealthIdLabelText>
@@ -106,6 +117,7 @@ export const CoreInfoDisplay = memo(({ patient }) => (
           <PatientInitialsIcon patient={patient} />
         </FirstNameRow>
         <NameText>{patient.lastName}</NameText>
+        {patient.death && <DeceasedIndicator death={patient.death} />}
       </NameContainer>
     </NameSection>
     <CoreInfoSection>
