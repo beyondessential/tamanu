@@ -6,7 +6,6 @@ import Barcode from 'react-barcode';
 import { SEX_VALUE_INDEX } from '../constants';
 import { DateDisplay } from './DateDisplay';
 import { Button } from './Button';
-import { ContentPane } from './ContentPane';
 
 import { printPage, PrintPortal } from '../print';
 

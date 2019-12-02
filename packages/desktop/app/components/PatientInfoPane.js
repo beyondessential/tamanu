@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import { Button } from './Button';
 import { ButtonRow } from './ButtonRow';
-import { ContentPane } from './ContentPane';
 
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
@@ -98,7 +97,9 @@ const RecordDeathSection = memo(({ patient }) => {
 
   return (
     <React.Fragment>
-      <Button variant="contained" color="primary" disabled={patient.death} onClick={openModal}>Record death</Button>
+      <Button variant="contained" color="primary" disabled={patient.death} onClick={openModal}>
+        Record death
+      </Button>
       <DeathModal open={isModalOpen} onClose={closeModal} patient={patient} />
     </React.Fragment>
   );
