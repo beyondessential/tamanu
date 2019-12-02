@@ -4,7 +4,7 @@ import { CenterView } from '../../styled/common';
 import Icons from '../Icons';
 import { createAppContainer } from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
-import BottomNavigator, { TabIcon } from './index';
+import { BottomNavigator, TabIcon } from './index';
 
 export const Home = React.memo(() => {
   return (

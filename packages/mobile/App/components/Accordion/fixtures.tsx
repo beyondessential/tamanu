@@ -1,6 +1,4 @@
-import React from 'react';
 import Icons from '../Icons';
-import theme from '../../styled/theme';
 
 export const data = [
   {

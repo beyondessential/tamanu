@@ -2,10 +2,9 @@ import React from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
 import * as styles from './styles';
 import { RowView, ColumnView, StyledView } from '../../styled/common';
-import FastImage from 'react-native-fast-image';
-import theme from '../../styled/theme';
 import { DateFormats } from '../../helpers/constants';
 import { formatDate } from '../../helpers/date';
+import UserAvatar from '../UserAvatar';
 export interface PatientCardProps {
   lastVisit: Date;
   name: string;
@@ -29,29 +28,7 @@ export const PatientCard = ({
     <TouchableWithoutFeedback onPress={() => onPress()}>
       <styles.StyledCardContainer>
         <RowView justifyContent="space-between" height={45} width="100%">
-          <StyledView
-            height={45}
-            width={45}
-            borderRadius={50}
-            overflow="hidden"
-            background={!image ? theme.colors.SAFE : 'transparent'}
-            justifyContent="center">
-            {image ? (
-              <FastImage
-                style={{
-                  height: '100%',
-                  width: '100%',
-                }}
-                source={{
-                  uri: image,
-                }}
-              />
-            ) : (
-              <styles.StyledPatientInitials>
-                {`${name.split(' ')[0][0]}${name.split(' ')[1][0]}`}
-              </styles.StyledPatientInitials>
-            )}
-          </StyledView>
+          <UserAvatar name={name} image={image} gender={gender} />
           <styles.StyledDate>
             {formatDate(lastVisit, DateFormats.short)}
           </styles.StyledDate>

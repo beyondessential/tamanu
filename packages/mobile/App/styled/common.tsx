@@ -66,7 +66,7 @@ export const StyledView = styled.View<StyledViewProps>`
   ${styledSystem.overflow}    
 `;
 
-export const StyledAreaView = styled.SafeAreaView<StyledViewProps>`    
+export const StyledSafeAreaView = styled.SafeAreaView<StyledViewProps>`    
   ${styledSystem.width}
   ${styledSystem.height}  
   ${styledSystem.margin}
@@ -81,26 +81,6 @@ export const StyledAreaView = styled.SafeAreaView<StyledViewProps>`
   ${styledSystem.paddingLeft}
   ${styledSystem.flex}   
   ${styledSystem.flexGrow}
-  ${styledSystem.justifyContent}   
-  ${styledSystem.alignItems}     
-  ${styledSystem.background}
-  ${styledSystem.overflow}      
-  ${({ borderLeftWidth }) => `border-left-width: ${borderLeftWidth}` || 0};
-`;
-
-export const StyledSafeAreaView = styled.SafeAreaView<StyledViewProps>`    
-  ${styledSystem.width}
-  ${styledSystem.height}  
-  ${styledSystem.margin}
-  ${styledSystem.marginRight}   
-  ${styledSystem.marginBottom}
-  ${styledSystem.marginLeft}
-  ${styledSystem.marginTop}
-  ${styledSystem.paddingBottom}
-  ${styledSystem.paddingRight}
-  ${styledSystem.paddingTop}
-  ${styledSystem.paddingLeft}
-  ${styledSystem.flex}   
   ${styledSystem.justifyContent}   
   ${styledSystem.alignItems}     
   ${styledSystem.background}
@@ -130,6 +110,16 @@ export const StyledText = styled.Text<StyledTextProps>`
   ${styledSystem.justifyContent}   
   ${styledSystem.alignItems}     
   ${styledSystem.background}
+`;
+
+interface StyledImageProps {
+  height?: string | number;
+  width?: string | number;
+}
+
+export const StyledImage = styled.Image<StyledImageProps>`
+  ${styledSystem.height}
+  ${styledSystem.width}
 `;
 
 export const CenterView = styled(StyledView)`
