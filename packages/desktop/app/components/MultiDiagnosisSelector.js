@@ -8,11 +8,10 @@ const DiagnosisList = ({ diagnoses }) => (
   </ul>
 );
 
-export const MultiDiagnosisSelector = React.memo(({ value, onChange, icd10Suggester }) => {
+export const MultiDiagnosisSelector = React.memo(({ value, limit=5, onChange, icd10Suggester }) => {
   const [selectedDiagnosis, setSelectedDiagnosis] = React.useState(null);
 
   const onDiagnosisChange = React.useCallback(({ target }) => {
-    console.log(target.value);
     setSelectedDiagnosis(target.value);
   }, [setSelectedDiagnosis]);
 
@@ -31,7 +30,11 @@ export const MultiDiagnosisSelector = React.memo(({ value, onChange, icd10Sugges
         value={selectedDiagnosis}
         onChange={onDiagnosisChange} 
       />
-      <Button variant="contained" onClick={onAdd}>Add</Button>
+      <Button 
+        variant="contained"
+        onClick={onAdd}
+        disabled={value.length >= limit}
+      >Add</Button>
     </div>
   );
 });
