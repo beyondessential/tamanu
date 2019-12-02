@@ -40,7 +40,7 @@ import { visitOptions, VISIT_OPTIONS_BY_VALUE, Colors } from '../../constants';
 
 const getIsTriage = visit => VISIT_OPTIONS_BY_VALUE[visit.visitType].triageFlowOnly;
 
-const VitalsPane = React.memo(({ visit }) => {
+const VitalsPane = React.memo(({ visit, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
@@ -48,7 +48,12 @@ const VitalsPane = React.memo(({ visit }) => {
       {modalOpen && <VitalsModal visitId={visit._id} onClose={() => setModalOpen(false)} />}
       <VitalsTable />
       <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
           Record vitals
         </Button>
       </ContentPane>
@@ -56,7 +61,7 @@ const VitalsPane = React.memo(({ visit }) => {
   );
 });
 
-const NotesPane = React.memo(({ visit }) => {
+const NotesPane = React.memo(({ visit, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
@@ -64,7 +69,12 @@ const NotesPane = React.memo(({ visit }) => {
       <NoteModal open={modalOpen} visitId={visit._id} onClose={() => setModalOpen(false)} />
       <NoteTable notes={visit.notes} />
       <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
           New note
         </Button>
       </ContentPane>
@@ -72,7 +82,7 @@ const NotesPane = React.memo(({ visit }) => {
   );
 });
 
-const LabsPane = React.memo(({ visit }) => {
+const LabsPane = React.memo(({ visit, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
@@ -80,7 +90,12 @@ const LabsPane = React.memo(({ visit }) => {
       <LabRequestModal open={modalOpen} visit={visit} onClose={() => setModalOpen(false)} />
       <LabRequestsTable labs={visit.labRequests} />
       <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
           New lab request
         </Button>
       </ContentPane>
@@ -88,7 +103,7 @@ const LabsPane = React.memo(({ visit }) => {
   );
 });
 
-const ImagingPane = React.memo(({ visit }) => {
+const ImagingPane = React.memo(({ visit, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
@@ -96,7 +111,12 @@ const ImagingPane = React.memo(({ visit }) => {
       <ImagingRequestModal open={modalOpen} visit={visit} onClose={() => setModalOpen(false)} />
       <ImagingRequestsTable imagingRequests={visit.imagingRequests} />
       <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
           New imaging request
         </Button>
       </ContentPane>
@@ -104,7 +124,7 @@ const ImagingPane = React.memo(({ visit }) => {
   );
 });
 
-const MedicationPane = React.memo(({ visit }) => {
+const MedicationPane = React.memo(({ visit, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
@@ -112,7 +132,12 @@ const MedicationPane = React.memo(({ visit }) => {
       <MedicationModal open={modalOpen} visitId={visit.id} onClose={() => setModalOpen(false)} />
       <VisitMedicationTable medications={visit.medications} />
       <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
           New prescription
         </Button>
       </ContentPane>
@@ -120,7 +145,7 @@ const MedicationPane = React.memo(({ visit }) => {
   );
 });
 
-const ProcedurePane = React.memo(({ visit }) => {
+const ProcedurePane = React.memo(({ visit, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
@@ -128,7 +153,12 @@ const ProcedurePane = React.memo(({ visit }) => {
       <ProcedureModal open={modalOpen} visitId={visit.id} onClose={() => setModalOpen(false)} />
       <ProcedureTable procedures={visit.procedures} />
       <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
           New procedure
         </Button>
       </ContentPane>
@@ -140,32 +170,32 @@ const TABS = [
   {
     label: 'Vitals',
     key: 'vitals',
-    render: ({ visit }) => <VitalsPane visit={visit} />,
+    render: props => <VitalsPane {...props} />,
   },
   {
     label: 'Notes',
     key: 'notes',
-    render: ({ visit }) => <NotesPane visit={visit} />,
+    render: props => <NotesPane {...props} />,
   },
   {
     label: 'Procedures',
     key: 'procedures',
-    render: ({ visit }) => <ProcedurePane visit={visit} />,
+    render: props => <ProcedurePane {...props} />,
   },
   {
     label: 'Labs',
     key: 'labs',
-    render: ({ visit }) => <LabsPane visit={visit} />,
+    render: props => <LabsPane {...props} />,
   },
   {
     label: 'Imaging',
     key: 'imaging',
-    render: ({ visit }) => <ImagingPane visit={visit} />,
+    render: props => <ImagingPane {...props} />,
   },
   {
     label: 'Medication',
     key: 'medication',
-    render: ({ visit }) => <MedicationPane visit={visit} />,
+    render: props => <MedicationPane {...props} />,
   },
   {
     label: 'Documents',
@@ -354,14 +384,15 @@ function getHeaderText({ visitType }) {
 
 export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
+  const readonly = visit.endDate || patient.death;
 
   return (
     <LoadingIndicator loading={loading}>
       <TwoColumnDisplay>
-        <PatientInfoPane patient={patient} />
+        <PatientInfoPane patient={patient} readonly={readonly} />
         <div>
           <TopBar title={getHeaderText(visit)}>
-            <VisitActions visit={visit} />
+            {!readonly && <VisitActions visit={visit} />}
             <AdmissionInfoRow>
               <AdmissionInfo>
                 <SubjectIcon />
@@ -379,13 +410,14 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
             <VisitInfoPane visit={visit} />
           </ContentPane>
           <ContentPane>
-            <DiagnosisView visitId={visit._id} isTriage={getIsTriage(visit)} />
+            <DiagnosisView visitId={visit._id} isTriage={getIsTriage(visit)} readonly={readonly} />
           </ContentPane>
           <TabDisplay
             tabs={TABS}
             currentTab={currentTab}
             onTabSelect={setCurrentTab}
             visit={visit}
+            readonly={readonly}
           />
         </div>
       </TwoColumnDisplay>

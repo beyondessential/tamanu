@@ -27,7 +27,7 @@ import { Suggester } from '../../utils/suggester';
 import { viewVisit } from '../../store/visit';
 import { reloadPatient } from '../../store/patient';
 
-const AppointmentPane = React.memo(({ patient }) => {
+const AppointmentPane = React.memo(({ patient, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
@@ -39,7 +39,12 @@ const AppointmentPane = React.memo(({ patient }) => {
       />
       <AppointmentTable appointments={patient.appointments} />
       <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
           New appointment
         </Button>
       </ContentPane>
@@ -47,7 +52,7 @@ const AppointmentPane = React.memo(({ patient }) => {
   );
 });
 
-const ReferralPane = React.memo(({ patient }) => {
+const ReferralPane = React.memo(({ patient, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
@@ -55,7 +60,12 @@ const ReferralPane = React.memo(({ patient }) => {
       <ReferralModal open={modalOpen} patientId={patient._id} onClose={() => setModalOpen(false)} />
       <ReferralTable referrals={patient.referrals} />
       <ContentPane>
-        <Button onClick={() => setModalOpen(true)} variant="contained" color="primary">
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
           New referral
         </Button>
       </ContentPane>
@@ -76,13 +86,14 @@ const HistoryPane = connect(
     onOpenTriage: () => dispatch(push('/patients/view/triage')),
   }),
 )(
-  React.memo(({ visits, onViewVisit, onOpenCheckin, onOpenTriage }) => (
+  React.memo(({ visits, onViewVisit, onOpenCheckin, onOpenTriage, readonly }) => (
     <div>
       <PatientVisitSummary
         visits={visits}
         viewVisit={onViewVisit}
         openCheckin={onOpenCheckin}
         openTriage={onOpenTriage}
+        readonly={readonly}
       />
       <PatientHistory items={visits} onItemClick={item => onViewVisit(item._id)} />
     </div>
@@ -118,19 +129,19 @@ const TABS = [
     label: 'Details',
     key: 'details',
     icon: 'fa fa-info-circle',
-    render: ({ patient }) => <ConnectedPatientDetailsForm patient={patient} />,
+    render: props => <ConnectedPatientDetailsForm {...props} />,
   },
   {
     label: 'Appointments',
     key: 'appointments',
     icon: 'fa fa-user-md',
-    render: ({ patient }) => <AppointmentPane patient={patient} />,
+    render: props => <AppointmentPane {...props} />,
   },
   {
     label: 'Referrals',
     key: 'Referrals',
     icon: 'fa fa-hospital',
-    render: ({ patient }) => <ReferralPane patient={patient} />,
+    render: props => <ReferralPane {...props} />,
   },
   {
     label: 'Documents',
@@ -141,18 +152,20 @@ const TABS = [
 
 export const DumbPatientView = React.memo(({ patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('history');
+  const readonly = !!patient.death;
 
   return (
     <React.Fragment>
       <LoadingIndicator loading={loading}>
         <PatientAlert alerts={patient.alerts} />
         <TwoColumnDisplay>
-          <PatientInfoPane patient={patient} />
+          <PatientInfoPane patient={patient} readonly={readonly} />
           <TabDisplay
             tabs={TABS}
             currentTab={currentTab}
             onTabSelect={setCurrentTab}
             patient={patient}
+            readonly={readonly}
           />
         </TwoColumnDisplay>
       </LoadingIndicator>
