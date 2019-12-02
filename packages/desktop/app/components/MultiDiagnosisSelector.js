@@ -4,30 +4,32 @@ import { AutocompleteInput } from './Field/AutocompleteField';
 
 const DiagnosisList = ({ diagnoses }) => (
   <ul>
-    { diagnoses.map(d => (<li key={d._id}>{JSON.stringify(d)}</li>)) }
+    { diagnoses.map(d => (<li key={d._id}>{d.name}</li>)) }
   </ul>
 );
 
 export const MultiDiagnosisSelector = React.memo(({ value, limit=5, onChange, icd10Suggester }) => {
-  const [selectedDiagnosis, setSelectedDiagnosis] = React.useState(null);
+  const [selectedDiagnosisId, setSelectedDiagnosisId] = React.useState(null);
 
   const onDiagnosisChange = React.useCallback(({ target }) => {
-    setSelectedDiagnosis(target.value);
-  }, [setSelectedDiagnosis]);
+    setSelectedDiagnosisId(target.value);
+  }, [setSelectedDiagnosisId]);
 
   const onAdd = React.useCallback(() => {
-    if(selectedDiagnosis) {
-      onChange([...value, selectedDiagnosis]);
-      setSelectedDiagnosis("");
+    if(selectedDiagnosisId) {
+      const diagnosis = { _id: selectedDiagnosisId, name: "DDD:" + selectedDiagnosisId };
+
+      onChange([...value, diagnosis]);
+      setSelectedDiagnosisId("");
     }
-  }, [value, selectedDiagnosis]);
+  }, [value, selectedDiagnosisId, setSelectedDiagnosisId]);
 
   return (
     <div>
       <DiagnosisList diagnoses={value || []} />
       <AutocompleteInput
         suggester={icd10Suggester}
-        value={selectedDiagnosis}
+        value={selectedDiagnosisId}
         onChange={onDiagnosisChange} 
       />
       <Button 
