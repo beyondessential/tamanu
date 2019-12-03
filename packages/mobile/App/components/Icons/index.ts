@@ -48,6 +48,7 @@ import BottomNavLogo from './BottomNavLogo';
 import SyncFiles from './SyncFiles';
 import BarChart from './BarChart';
 import Avatar_7 from './Avatar_7';
+import { Search } from './Search';
 
 export {
   ArrowBack,
@@ -101,6 +102,7 @@ export {
   User,
   Vaccine,
 };
+
 export default {
   ArrowBack,
   ArrowDown,
@@ -144,6 +146,7 @@ export default {
   Recruiter,
   Ring,
   RotatePhone,
+  Search,
   Settings,
   Stethoscope,
   Sync,
@@ -153,4 +156,3 @@ export default {
   User,
   Vaccine,
 };
-

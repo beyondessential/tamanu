@@ -1,12 +1,12 @@
-import theme from "../../../styled/theme";
-import styled from "styled-components/native";
-import { StyledView } from "../../styled/common";
+import theme from '../../styled/theme';
+import styled from 'styled-components/native';
+import { StyledView } from '../../styled/common';
 import {
   TextInputMaskProps,
   TextInputMaskOptionProp,
-  TextInputMaskTypeProp
-} from "react-native-masked-text";
-import { TextFieldProps } from "./TextField";
+  TextInputMaskTypeProp,
+} from 'react-native-masked-text';
+import { TextFieldProps } from './TextField';
 
 export interface InputContainerProps {
   error?: string;
@@ -22,7 +22,7 @@ export const InputContainer = styled(StyledView)`
   border: 1px solid
     ${(props: InputContainerProps) => {
       if (props.error) return theme.colors.LIGHT_RED;
-      return theme.colors.LIGHT_GRAY;
+      return theme.colors.TEXT_SOFT;
     }};
   border-radius: 3px;
   width: 100%;
@@ -35,7 +35,7 @@ export const StyledTextInput = styled.TextInput`
   line-height: 21px;
   font-weight: 400;
   height: 100%;
-  color: ${theme.colors.BLACK};
+  color: ${theme.colors.TEXT_MID};
   padding-left: 10px;
   padding-top: 8px;
 `;

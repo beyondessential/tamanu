@@ -13,5 +13,7 @@ export default {
     BACKGROUND_GREY: '#F3F5F7',
     BOX_OUTLINE: '#DEDEDE',
     WHITE: '#FFFFFF',
+    LIGHT_RED: '#FFEEEC',
+    LIGHT_BLUE: '#67A6E3',
   },
 };

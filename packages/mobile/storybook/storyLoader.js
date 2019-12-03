@@ -10,9 +10,11 @@ function loadStories() {
   require('../App/components/Icons/index.stories');
   require('../App/components/PatientCard/index.stories');
   require('../App/components/RadioButtonGroup/index.stories');
+  require('../App/components/SearchInput/index.stories');
   require('../App/components/TextField/MaskedTextfield.stories');
   require('../App/components/TextField/TextField.stories');
   require('../App/components/TopTabNavigator/index.stories');
+  require('../App/components/UserAvatar/index.stories');
 }
 
 const stories = [
@@ -22,9 +24,11 @@ const stories = [
   '../App/components/Icons/index.stories',
   '../App/components/PatientCard/index.stories',
   '../App/components/RadioButtonGroup/index.stories',
+  '../App/components/SearchInput/index.stories',
   '../App/components/TextField/MaskedTextfield.stories',
   '../App/components/TextField/TextField.stories',
   '../App/components/TopTabNavigator/index.stories',
+  '../App/components/UserAvatar/index.stories',
 ];
 
 module.exports = {

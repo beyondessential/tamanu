@@ -89,5 +89,3 @@ export function BottomNavigator(props: BottomNavigatorProps) {
     </StyledSafeAreaView>
   );
 }
-
-export default BottomNavigator;

@@ -81,6 +81,9 @@
       "\\.(ts|tsx)$": "ts-jest"
     },
     "testRegex": "(/App/.*\\.test)\\.(ts|tsx|js)$",
+    "transformIgnorePatterns": [
+      "node_modules/(?!(jest-)?react-native|@?react-navigation|react-pose-core|animated-pose)"
+    ],
     "testPathIgnorePatterns": [
       "\\.snap$",
       "<rootDir>/node_modules/"
