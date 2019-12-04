@@ -43,15 +43,13 @@ const DiagnosisItem = React.memo(({ diagnosis: { name }, isPrimary, onClick }) =
   </DiagnosisChip>
 ));
 
-export const DiagnosisList = React.memo(({ diagnoses, onEditDiagnosis }) => {
-  return (
-    <DiagnosisListContainer>
-      {diagnoses.map(d => (
-        <DiagnosisItem key={d._id} {...d} onClick={() => onEditDiagnosis(d)} />
-      ))}
-    </DiagnosisListContainer>
-  );
-});
+export const DiagnosisList = React.memo(({ diagnoses, onEditDiagnosis }) => (
+  <DiagnosisListContainer>
+    {diagnoses.map(d => (
+      <DiagnosisItem key={d._id} {...d} onClick={() => onEditDiagnosis(d)} />
+    ))}
+  </DiagnosisListContainer>
+));
 
 DiagnosisList.defaultProps = {
   onEditDiagnosis: () => {},

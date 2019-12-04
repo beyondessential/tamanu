@@ -15,4 +15,3 @@ storiesOf('DateDisplay', module)
   })
   .add('placeholder', () => <DateDisplay date={new Date()} />)
   .add('with duration', () => <DateDisplay date={new Date(2010, 10, 10)} showDuration />);
-

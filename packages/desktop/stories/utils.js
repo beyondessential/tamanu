@@ -1,5 +1,5 @@
-
-export const mapToSuggestions = objects => objects.map(({ _id, name }) => ({ label: name, value: _id }));
+export const mapToSuggestions = objects =>
+  objects.map(({ _id, name }) => ({ label: name, value: _id }));
 
 export function createDummySuggester(options) {
   return {
@@ -10,4 +10,3 @@ export function createDummySuggester(options) {
     fetchCurrentOption: value => options.find(s => s.value === value),
   };
 }
-
