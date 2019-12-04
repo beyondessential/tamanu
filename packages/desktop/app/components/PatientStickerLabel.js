@@ -63,9 +63,9 @@ const LabelPage = styled.div`
   margin-top: 0.5in;
 `;
 
-export const PatientStickerLabelPage = ({ patient }) => (
+export const PatientStickerLabelPage = ({ patient, readonly }) => (
   <React.Fragment>
-    <Button onClick={() => printPage()} variant="contained" color="primary">
+    <Button onClick={() => printPage()} variant="contained" color="primary" disabled={readonly}>
       Print labels
     </Button>
     <PrintPortal>
