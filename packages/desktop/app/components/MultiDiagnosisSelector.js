@@ -17,10 +17,15 @@ export const MultiDiagnosisSelector = React.memo(({ value, limit=5, onChange, ic
 
   const onAdd = React.useCallback(() => {
     if(selectedDiagnosisId) {
-      const diagnosis = { _id: selectedDiagnosisId, name: "DDD:" + selectedDiagnosisId };
-
-      onChange([...value, diagnosis]);
       setSelectedDiagnosisId("");
+
+      (async () => {
+        const diagnosis = { 
+          _id: selectedDiagnosisId, 
+          name: await icd10Suggester.fetchCurrentOption(selectedDiagnosisId).label,
+        };
+        onChange([...value, diagnosis]);
+      })();
     }
   }, [value, selectedDiagnosisId, setSelectedDiagnosisId]);
 
