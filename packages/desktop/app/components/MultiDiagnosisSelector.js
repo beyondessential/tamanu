@@ -2,9 +2,9 @@ import React from 'react';
 import { Button } from './Button';
 import { AutocompleteInput } from './Field/AutocompleteField';
 
-const DiagnosisList = ({ diagnoses }) => (
+const DiagnosisList = ({ diagnoses, onRemove }) => (
   <ul>
-    { diagnoses.map(d => (<li key={d._id}>{d.name}</li>)) }
+    { diagnoses.map(d => (<li key={d._id} onClick={() => onRemove(d._id)}>{d.name}</li>)) }
   </ul>
 );
 
@@ -24,9 +24,17 @@ export const MultiDiagnosisSelector = React.memo(({ value, limit=5, onChange, ic
     }
   }, [value, selectedDiagnosisId, setSelectedDiagnosisId]);
 
+  const onRemove = React.useCallback((id) => {
+    const newValues = value.filter(x => x._id !== id);
+    onChange(newValues);
+  });
+
   return (
     <div>
-      <DiagnosisList diagnoses={value || []} />
+      <DiagnosisList 
+        diagnoses={value || []} 
+        onRemove={onRemove}
+      />
       <AutocompleteInput
         suggester={icd10Suggester}
         value={selectedDiagnosisId}
