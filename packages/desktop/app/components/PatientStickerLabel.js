@@ -6,7 +6,6 @@ import Barcode from 'react-barcode';
 import { SEX_VALUE_INDEX } from '../constants';
 import { DateDisplay } from './DateDisplay';
 import { Button } from './Button';
-import { ContentPane } from './ContentPane';
 
 import { printPage, PrintPortal } from '../print';
 
@@ -64,13 +63,11 @@ const LabelPage = styled.div`
   margin-top: 0.5in;
 `;
 
-export const PatientStickerLabelPage = ({ patient }) => (
+export const PatientStickerLabelPage = ({ patient, readonly }) => (
   <React.Fragment>
-    <ContentPane>
-      <Button onClick={() => printPage()} variant="contained" color="primary">
-        Print labels
-      </Button>
-    </ContentPane>
+    <Button onClick={() => printPage()} variant="contained" color="primary" disabled={readonly}>
+      Print labels
+    </Button>
     <PrintPortal>
       <LetterPage>
         <LabelPage>
