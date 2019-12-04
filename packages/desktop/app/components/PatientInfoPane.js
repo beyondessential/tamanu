@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { Button } from './Button';
@@ -91,9 +91,9 @@ const ListsSection = styled.div`
 `;
 
 const RecordDeathSection = memo(({ patient }) => {
-  const [isModalOpen, setModalOpen] = React.useState(false);
-  const openModal = React.useCallback(() => setModalOpen(true), [setModalOpen]);
-  const closeModal = React.useCallback(() => setModalOpen(false), [setModalOpen]);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
+  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
 
   return (
     <React.Fragment>
