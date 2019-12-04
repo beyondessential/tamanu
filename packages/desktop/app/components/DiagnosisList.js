@@ -15,7 +15,7 @@ const DiagnosisListContainer = styled.div`
 
 const DiagnosisChip = styled.div`
   margin: 0.3rem;
-  cursor: pointer;
+  ${p => (p.onClick ? `cursor: pointer;` : '')}
   display: flex;
 `;
 
@@ -46,7 +46,11 @@ const DiagnosisItem = React.memo(({ diagnosis: { name }, isPrimary, onClick }) =
 export const DiagnosisList = React.memo(({ diagnoses, onEditDiagnosis }) => (
   <DiagnosisListContainer>
     {diagnoses.map(d => (
-      <DiagnosisItem key={d._id} {...d} onClick={() => onEditDiagnosis(d)} />
+      <DiagnosisItem
+        key={d._id}
+        {...d}
+        onClick={onEditDiagnosis ? () => onEditDiagnosis(d) : undefined}
+      />
     ))}
   </DiagnosisListContainer>
 ));

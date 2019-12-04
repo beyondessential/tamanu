@@ -49,7 +49,7 @@ export const DiagnosisView = connect(state => ({
     .filter(d => d.diagnosis)
     .sort(compareDiagnosis),
 }))(
-  React.memo(({ visitId, diagnoses, isTriage }) => {
+  React.memo(({ visitId, diagnoses, isTriage, readonly }) => {
     const [diagnosis, editDiagnosis] = React.useState(null);
 
     return (
@@ -62,10 +62,15 @@ export const DiagnosisView = connect(state => ({
         />
         <DiagnosisGrid>
           <DiagnosisLabel numberOfDiagnoses={diagnoses.length} />
-          <DiagnosisList diagnoses={diagnoses} onEditDiagnosis={editDiagnosis} />
-          <AddDiagnosisButton onClick={() => editDiagnosis({})} variant="outlined" color="primary">
-            Add diagnosis
-          </AddDiagnosisButton>
+          <DiagnosisList diagnoses={diagnoses} onEditDiagnosis={!readonly && editDiagnosis} />
+            <AddDiagnosisButton
+              onClick={() => editDiagnosis({})}
+              variant="outlined"
+              color="primary"
+              disabled={readonly}
+            >
+              Add diagnosis
+            </AddDiagnosisButton>
         </DiagnosisGrid>
       </React.Fragment>
     );
