@@ -29,6 +29,11 @@ export const MultiDiagnosisSelector = React.memo(({ value, limit=5, onChange, ic
     onChange(newValues);
   });
 
+  // This will change when an item is added. Using it as the key for the autocomplete
+  // will create and mount it anew. Otherwise it'll preserve its own state, meaning the user
+  // will have to delete the old value from the field to be able to add another one.
+  const autocompleteForceRerender = (value || []).length;
+
   return (
     <div>
       <DiagnosisList 
@@ -36,6 +41,7 @@ export const MultiDiagnosisSelector = React.memo(({ value, limit=5, onChange, ic
         onRemove={onRemove}
       />
       <AutocompleteInput
+        key={autocompleteForceRerender}
         suggester={icd10Suggester}
         value={selectedDiagnosisId}
         onChange={onDiagnosisChange} 
