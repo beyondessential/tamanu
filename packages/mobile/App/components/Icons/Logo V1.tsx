@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { G, Path, Defs, ClipPath, Rect } from 'react-native-svg';
 
-const LogoV1 = React.memo(() => {
+export const LogoV1 = React.memo(() => {
   return (
     <Svg width="76" height="70" viewBox="0 0 76 70" fill="none">
       <G clip-path="url(#clip0)">
@@ -68,5 +68,3 @@ const LogoV1 = React.memo(() => {
     </Svg>
   );
 });
-
-export default LogoV1;

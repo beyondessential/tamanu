@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { G, Rect, Defs, Use, Image, Pattern } from 'react-native-svg';
 
-const Recruiter = React.memo(() => {
+export const Recruiter = React.memo(() => {
   return (
     <Svg width="32" height="32" viewBox="0 0 32 32" fill="none">
       <Rect width="32" height="32" rx="16" fill="url(#pattern0)" />
@@ -27,5 +27,3 @@ const Recruiter = React.memo(() => {
     </Svg>
   );
 });
-
-export default Recruiter;

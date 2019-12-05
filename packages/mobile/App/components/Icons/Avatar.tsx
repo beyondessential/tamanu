@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Circle, Path } from 'react-native-svg';
 
-const Avatar = React.memo(() => {
+export const Avatar = React.memo(() => {
   return (
     <Svg width="45" height="45" viewBox="0 0 45 45" fill="none">
       <Circle cx="22.5" cy="22.5" r="22.5" fill="#F76853" />
@@ -12,5 +12,3 @@ const Avatar = React.memo(() => {
     </Svg>
   );
 });
-
-export default Avatar;

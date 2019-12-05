@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path, SvgProps } from 'react-native-svg';
 
-const User = React.memo((props: SvgProps) => {
+export const User = React.memo((props: SvgProps) => {
   return (
     <Svg
       width="32"
@@ -14,5 +14,3 @@ const User = React.memo((props: SvgProps) => {
     </Svg>
   );
 });
-
-export default User;

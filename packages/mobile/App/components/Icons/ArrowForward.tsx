@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path, SvgProps } from 'react-native-svg';
 
-const ArrowForward = React.memo((props: SvgProps) => {
+export const ArrowForward = React.memo((props: SvgProps) => {
   return (
     <Svg width="32" height="32" viewBox="0 0 32 32" fill="none" {...props}>
       <Path
@@ -11,5 +11,3 @@ const ArrowForward = React.memo((props: SvgProps) => {
     </Svg>
   );
 });
-
-export default ArrowForward;

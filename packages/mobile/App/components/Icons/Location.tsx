@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
 
-const Location = React.memo(() => {
+export const Location = React.memo(() => {
   return (
     <Svg width="12" height="12" viewBox="0 0 12 12" fill="none">
       <Path
@@ -11,5 +11,3 @@ const Location = React.memo(() => {
     </Svg>
   );
 });
-
-export default Location;

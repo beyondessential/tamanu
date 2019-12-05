@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { G, Defs, Rect, Path, ClipPath, SvgProps } from 'react-native-svg';
 
-const More = React.memo((props: SvgProps) => {
+export const More = React.memo((props: SvgProps) => {
   return (
     <Svg width="32" height="32" viewBox="0 0 32 32" fill="white" {...props}>
       <G clip-path="url(#clip0)">
@@ -22,5 +22,3 @@ const More = React.memo((props: SvgProps) => {
     </Svg>
   );
 });
-
-export default More;

@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
 
-const Group = React.memo(() => {
+export const Group = React.memo(() => {
   return (
     <Svg width="32" height="3" viewBox="0 0 32 3" fill="none">
       <Path
@@ -11,5 +11,3 @@ const Group = React.memo(() => {
     </Svg>
   );
 });
-
-export default Group;

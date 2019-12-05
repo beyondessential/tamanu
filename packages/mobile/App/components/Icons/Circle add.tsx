@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
 
-const CircleAdd = React.memo(() => {
+export const CircleAdd = React.memo(() => {
   return (
     <Svg width="32" height="32" viewBox="0 0 32 32" fill="none">
       <Path
@@ -13,5 +13,3 @@ const CircleAdd = React.memo(() => {
     </Svg>
   );
 });
-
-export default CircleAdd;

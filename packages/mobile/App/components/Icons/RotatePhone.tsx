@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path, Defs, Rect, SvgProps, G, ClipPath } from 'react-native-svg';
 
-const RotatePhone = React.memo((props: SvgProps) => {
+export const RotatePhone = React.memo((props: SvgProps) => {
   return (
     <Svg width="32" height="32" viewBox="0 0 32 32" fill="none">
       <G clip-path="url(#clip0)">
@@ -31,5 +31,3 @@ const RotatePhone = React.memo((props: SvgProps) => {
     </Svg>
   );
 });
-
-export default RotatePhone;

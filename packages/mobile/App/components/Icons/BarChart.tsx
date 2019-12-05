@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path, SvgProps } from 'react-native-svg';
 
-const BarChart = React.memo((props: SvgProps) => {
+export const BarChart = React.memo((props: SvgProps) => {
   return (
     <Svg width="32" height="32" viewBox="0 0 32 32" fill="white" {...props}>
       <Path
@@ -12,5 +12,3 @@ const BarChart = React.memo((props: SvgProps) => {
     </Svg>
   );
 });
-
-export default BarChart;

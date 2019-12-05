@@ -1,4 +1,4 @@
-import Icons from '../components/Icons';
+import * as Icons from '../components/Icons';
 
 export const DateFormats = {
   short: 'EEE, dd MMM',

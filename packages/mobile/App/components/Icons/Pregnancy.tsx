@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { G, Defs, Rect, Path, ClipPath } from 'react-native-svg';
 
-const Pregnancy = React.memo(() => {
+export const Pregnancy = React.memo(() => {
   return (
     <Svg width="177" height="177" viewBox="0 0 177 177" fill="none">
       <G clip-path="url(#clip0)">
@@ -35,5 +35,3 @@ const Pregnancy = React.memo(() => {
     </Svg>
   );
 });
-
-export default Pregnancy;

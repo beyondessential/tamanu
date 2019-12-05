@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
 
-const Sync = React.memo(() => {
+export const Sync = React.memo(() => {
   return (
     <Svg width="32" height="32" viewBox="0 0 32 32" fill="none">
       <Path
@@ -15,5 +15,3 @@ const Sync = React.memo(() => {
     </Svg>
   );
 });
-
-export default Sync;

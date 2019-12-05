@@ -9,7 +9,7 @@ import Svg, {
   SvgProps,
 } from 'react-native-svg';
 
-const Avatar7 = React.memo((props: SvgProps) => {
+export const Avatar7 = React.memo((props: SvgProps) => {
   return (
     <Svg width="30" height="30" viewBox="0 0 30 30" fill="none" {...props}>
       <Rect width="30" height="30" rx="15" fill="url(#pattern0)" />
@@ -35,5 +35,3 @@ const Avatar7 = React.memo((props: SvgProps) => {
     </Svg>
   );
 });
-
-export default Avatar7;

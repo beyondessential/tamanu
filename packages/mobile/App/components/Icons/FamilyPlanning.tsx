@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { G, Path, Rect, Defs, ClipPath } from 'react-native-svg';
 
-const FamilyPlanning = React.memo(() => {
+export const FamilyPlanning = React.memo(() => {
   return (
     <Svg width="177" height="177" viewBox="0 0 177 177" fill="none">
       <G clip-path="url(#clip0)">
@@ -85,5 +85,3 @@ const FamilyPlanning = React.memo(() => {
     </Svg>
   );
 });
-
-export default FamilyPlanning;

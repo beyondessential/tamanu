@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { G, Path, Defs, ClipPath, Rect } from 'react-native-svg';
 
-const Billing = React.memo(() => {
+export const Billing = React.memo(() => {
   return (
     <Svg width="174" height="174" viewBox="0 0 174 174" fill="none">
       <Path
@@ -27,5 +27,3 @@ const Billing = React.memo(() => {
     </Svg>
   );
 });
-
-export default Billing;

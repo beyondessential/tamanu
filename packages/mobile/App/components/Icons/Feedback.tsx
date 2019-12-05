@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { G, Rect, Defs, Path, ClipPath } from 'react-native-svg';
 
-const Feedback = React.memo(() => {
+export const Feedback = React.memo(() => {
   return (
     <Svg width="32" height="32" viewBox="0 0 32 32" fill="none">
       <G clip-path="url(#clip0)">
@@ -38,5 +38,3 @@ const Feedback = React.memo(() => {
     </Svg>
   );
 });
-
-export default Feedback;

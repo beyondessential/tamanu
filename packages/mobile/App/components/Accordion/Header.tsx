@@ -6,7 +6,7 @@ import {
   ColumnView,
 } from '../../styled/common';
 import theme from '../../styled/theme';
-import Icons from '../Icons';
+import * as Icons from '../Icons';
 import { SvgProps } from 'react-native-svg';
 import { formatDate } from '../../helpers/date';
 import { DateFormats, HeaderIcons } from '../../helpers/constants';

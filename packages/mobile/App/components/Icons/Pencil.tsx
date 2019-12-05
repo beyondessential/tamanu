@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path, ClipPath, G, Defs, Rect } from 'react-native-svg';
 
-const Pencil = React.memo(() => {
+export const Pencil = React.memo(() => {
   return (
     <Svg width="32" height="32" viewBox="0 0 32 32" fill="none">
       <G clip-path="url(#clip0)">
@@ -18,5 +18,3 @@ const Pencil = React.memo(() => {
     </Svg>
   );
 });
-
-export default Pencil;

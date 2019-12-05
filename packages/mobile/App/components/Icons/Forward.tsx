@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
 
-const Forward = React.memo(() => {
+export const Forward = React.memo(() => {
   return (
     <Svg width="32" height="32" viewBox="0 0 32 32" fill="none">
       <Path
@@ -11,5 +11,3 @@ const Forward = React.memo(() => {
     </Svg>
   );
 });
-
-export default Forward;

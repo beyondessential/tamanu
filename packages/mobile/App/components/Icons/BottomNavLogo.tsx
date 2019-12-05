@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path, SvgProps } from 'react-native-svg';
 
-const BottomNavLogo = React.memo((props: SvgProps) => {
+export const BottomNavLogo = React.memo((props: SvgProps) => {
   return (
     <Svg width="80" height="80" viewBox="0 0 22 22" fill="white" {...props}>
       <Path
@@ -34,5 +34,3 @@ const BottomNavLogo = React.memo((props: SvgProps) => {
     </Svg>
   );
 });
-
-export default BottomNavLogo;

@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path, G, ClipPath, Defs, Rect } from 'react-native-svg';
 
-const Profile = React.memo(() => {
+export const Profile = React.memo(() => {
   return (
     <Svg width="174" height="174" viewBox="0 0 174 174" fill="none">
       <Path
@@ -27,5 +27,3 @@ const Profile = React.memo(() => {
     </Svg>
   );
 });
-
-export default Profile;

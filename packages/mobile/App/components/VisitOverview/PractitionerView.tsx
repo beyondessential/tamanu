@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyledView, StyledText, RowView } from '../../styled/common';
 import theme from '../../styled/theme';
-import Icons from '../Icons';
+import * as Icons from '../Icons';
 import { PractitionerProps } from '../../interfaces/PractitionerProps';
 
 export const PractitionerView = ({ name }: PractitionerProps) => (
@@ -14,7 +14,7 @@ export const PractitionerView = ({ name }: PractitionerProps) => (
     </StyledText>
     <RowView marginTop={10} alignItems={'center'}>
       <StyledView marginRight={10}>
-        <Icons.Avatar_7 height={30} />
+        <Icons.Avatar7 height={30} />
       </StyledView>
       <StyledText fontSize={16} color={theme.colors.TEXT_MID}>
         {name}

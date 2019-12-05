@@ -4,7 +4,7 @@ import { action } from '@storybook/addon-actions';
 
 import Button from './index';
 import theme from '../../styled/theme';
-import Icons from '../Icons';
+import * as Icons from '../Icons';
 import { RotateView, CenterView } from '../../styled/common';
 
 storiesOf('Button', module)

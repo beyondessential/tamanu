@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text } from 'react-native';
 import { CenterView } from '../../styled/common';
-import Icons from '../Icons';
+import * as Icons from '../Icons';
 import { createAppContainer } from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { BottomNavigator, TabIcon } from './index';

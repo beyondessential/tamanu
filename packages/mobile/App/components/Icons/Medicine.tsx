@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { G, Defs, Rect, Path, ClipPath } from 'react-native-svg';
 
-const Medicine = React.memo(() => {
+export const Medicine = React.memo(() => {
   return (
     <Svg width="175" height="174" viewBox="0 0 175 174" fill="none">
       <Path
@@ -27,5 +27,3 @@ const Medicine = React.memo(() => {
     </Svg>
   );
 });
-
-export default Medicine;

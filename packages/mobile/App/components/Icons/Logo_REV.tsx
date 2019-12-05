@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
 
-const Logo_REV = React.memo(() => {
+export const Logo_REV = React.memo(() => {
   return (
     <Svg width="107" height="26" viewBox="0 0 107 26" fill="none">
       <Path
@@ -61,5 +61,3 @@ const Logo_REV = React.memo(() => {
     </Svg>
   );
 });
-
-export default Logo_REV;

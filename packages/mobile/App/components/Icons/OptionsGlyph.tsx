@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path, SvgProps } from 'react-native-svg';
 
-const OptionsGlyph = React.memo((props: SvgProps) => {
+export const OptionsGlyph = React.memo((props: SvgProps) => {
   return (
     <Svg width="32" height="32" viewBox="0 0 32 32" fill="#444444" {...props}>
       <Path d="M5.00024 1.99999V17H7.00024V1.99999C7.00826 1.86658 6.98789 1.73298 6.94047 1.60802C6.89305 1.48306 6.81966 1.36958 6.72516 1.27508C6.63065 1.18057 6.51717 1.10718 6.39221 1.05976C6.26725 1.01235 6.13365 0.991974 6.00024 0.999994C5.86682 0.991974 5.73323 1.01235 5.60827 1.05976C5.48331 1.10718 5.36983 1.18057 5.27532 1.27508C5.18081 1.36958 5.10743 1.48306 5.06001 1.60802C5.01259 1.73298 4.99222 1.86658 5.00024 1.99999Z" />
@@ -13,5 +13,3 @@ const OptionsGlyph = React.memo((props: SvgProps) => {
     </Svg>
   );
 });
-
-export default OptionsGlyph;

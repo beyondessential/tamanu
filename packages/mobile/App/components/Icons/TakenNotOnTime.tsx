@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path, Circle } from 'react-native-svg';
 
-const TakenNotOnTime = React.memo(() => {
+export const TakenNotOnTime = React.memo(() => {
   return (
     <Svg width="34" height="34" viewBox="0 0 34 34" fill="none">
       <Circle
@@ -20,5 +20,3 @@ const TakenNotOnTime = React.memo(() => {
     </Svg>
   );
 });
-
-export default TakenNotOnTime;

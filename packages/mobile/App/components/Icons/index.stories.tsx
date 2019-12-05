@@ -1,5 +1,5 @@
 import React from 'react';
-import Icons from './index';
+import * as Icons from './index';
 import { CenterView } from '../../styled/common';
 import { storiesOf } from '@storybook/react-native';
 import theme from '../../styled/theme';
@@ -39,7 +39,7 @@ stories.add('HeartOutline', () => <Icons.HeartOutline />);
 stories.add('Location', () => <Icons.Location />);
 stories.add('LogoV1', () => <Icons.LogoV1 />);
 stories.add('BottomNavLogo', () => <Icons.BottomNavLogo />);
-stories.add('LogoV1_CLR', () => <Icons.LogoV1_CLR />);
+stories.add('LogoV1_CLR', () => <Icons.LogoV1CLR />);
 stories.add('LogoV2CLR', () => <Icons.LogoV2CLR />);
 stories.add('Logo_REV', () => <Icons.Logo_REV />);
 stories.add('Medicine', () => <Icons.Medicine />);

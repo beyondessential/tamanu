@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { G, Path, Defs, Rect, ClipPath, SvgProps } from 'react-native-svg';
 
-const SyncFiles = (props: SvgProps) => {
+export const SyncFiles = (props: SvgProps) => {
   return (
     <Svg width="32" height="32" viewBox="0 0 32 32" fill="white" {...props}>
       <G clip-path="url(#clip0)">
@@ -23,5 +23,3 @@ const SyncFiles = (props: SvgProps) => {
     </Svg>
   );
 };
-
-export default SyncFiles;

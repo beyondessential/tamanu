@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { G, Path, Defs, Rect, ClipPath } from 'react-native-svg';
 
-const Stethoscope = React.memo(() => {
+export const Stethoscope = React.memo(() => {
   return (
     <Svg width="32" height="32" viewBox="0 0 32 32" fill="none">
       <G clip-path="url(#clip0)">
@@ -22,5 +22,3 @@ const Stethoscope = React.memo(() => {
     </Svg>
   );
 });
-
-export default Stethoscope;

@@ -1,7 +1,7 @@
 import React from 'react';
-import Svg, { G, Path, Defs, ClipPath } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 
-const CheckUp = React.memo(() => {
+export const CheckUp = React.memo(() => {
   return (
     <Svg width="177" height="177" viewBox="0 0 177 177" fill="none">
       <Path
@@ -31,5 +31,3 @@ const CheckUp = React.memo(() => {
     </Svg>
   );
 });
-
-export default CheckUp;

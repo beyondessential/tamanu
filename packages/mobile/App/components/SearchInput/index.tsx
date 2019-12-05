@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyledView, RowView } from '../../styled/common';
 import styled from 'styled-components/native';
-import Icons from '../Icons';
+import * as Icons from '../Icons';
 import theme from '../../styled/theme';
 
 const StyledTextInput = styled.TextInput`
