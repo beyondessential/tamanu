@@ -11,13 +11,20 @@ const AdderContainer = styled.div`
   align-items: end;
 `;
 
-const DiagnosisItem = React.memo(({ diagnosis, ...props }) => <li {...props}>{diagnosis.name}</li>);
+const DiagnosisItem = React.memo(({ diagnosis, onRemove }) => {
+  return (
+    <li>
+      (<a onClick={() => onRemove(diagnosis._id)}>x</a>)
+      <span> {diagnosis.name}</span>
+    </li>
+  );
+});
 
 const DiagnosisList = ({ diagnoses, onRemove }) => {
   const listContents =
     diagnoses.length > 0 ? (
       diagnoses.map(d => (
-        <DiagnosisItem key={d._id} onClick={() => onRemove(d._id)} diagnosis={d} />
+        <DiagnosisItem key={d._id} onRemove={onRemove} diagnosis={d} />
       ))
     ) : (
       <li>No diagnoses selected</li>
@@ -26,8 +33,12 @@ const DiagnosisList = ({ diagnoses, onRemove }) => {
 };
 
 export const MultiDiagnosisSelector = React.memo(
-  ({ value, limit = 5, onChange, icd10Suggester }) => {
+  ({ value, limit = 5, onChange, icd10Suggester, name }) => {
     const [selectedDiagnosisId, setSelectedDiagnosisId] = React.useState(null);
+
+    const updateValue = (newValue) => {
+      onChange({ target: { value: newValue, name } });
+    };
 
     const onDiagnosisChange = React.useCallback(
       ({ target }) => {
@@ -45,14 +56,14 @@ export const MultiDiagnosisSelector = React.memo(
             _id: selectedDiagnosisId,
             name: await icd10Suggester.fetchCurrentOption(selectedDiagnosisId).label,
           };
-          onChange([...value, diagnosis]);
+          updateValue([...value, diagnosis]);
         })();
       }
     }, [value, selectedDiagnosisId, setSelectedDiagnosisId]);
 
     const onRemove = React.useCallback(id => {
       const newValues = value.filter(x => x._id !== id);
-      onChange(newValues);
+      updateValue(newValues);
     });
 
     // This will change when an item is added. Using it as the key for the autocomplete
@@ -78,4 +89,8 @@ export const MultiDiagnosisSelector = React.memo(
       </div>
     );
   },
+);
+
+export const MultiDiagnosisSelectorField = ({ field, ...props }) => (
+  <MultiDiagnosisSelector name={field.name} value={field.value || []} onChange={field.onChange} {...props} />
 );
