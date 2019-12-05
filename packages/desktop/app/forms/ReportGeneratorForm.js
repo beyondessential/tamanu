@@ -3,18 +3,13 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import {
-  Form,
-  Field,
-  DateField,
-} from '../components/Field';
+import { Form, Field, DateField } from '../components/Field';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
 
 import { MultiDiagnosisSelectorField } from '../components/MultiDiagnosisSelector';
 
 export class ReportGeneratorForm extends React.PureComponent {
-
   renderForm = ({ submitForm }) => {
     const { icd10Suggester, onCancel, visit } = this.props;
     return (
@@ -39,10 +34,6 @@ export class ReportGeneratorForm extends React.PureComponent {
         <Form
           onSubmit={onSubmit}
           render={this.renderForm}
-          initialValues={{
-          }}
-          validationSchema={yup.object().shape({
-          })}
         />
       </div>
     );

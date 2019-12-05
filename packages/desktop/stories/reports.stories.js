@@ -22,7 +22,6 @@ const BoundSelector = () => {
 
 storiesOf('Reports/MultiDiagnosisSelector', module).add('default', () => <BoundSelector />);
 
-
 storiesOf('Reports/MultiDiagnosisSelector', module).add('in form', () => (
-  <ReportGeneratorForm onSubmit={action("submit")} icd10Suggester={icd10Suggester} />
+  <ReportGeneratorForm onSubmit={action('submit')} icd10Suggester={icd10Suggester} />
 ));

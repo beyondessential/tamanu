@@ -11,21 +11,17 @@ const AdderContainer = styled.div`
   align-items: end;
 `;
 
-const DiagnosisItem = React.memo(({ diagnosis, onRemove }) => {
-  return (
-    <li>
-      (<a onClick={() => onRemove(diagnosis._id)}>x</a>)
-      <span> {diagnosis.name}</span>
-    </li>
-  );
-});
+const DiagnosisItem = React.memo(({ diagnosis, onRemove }) => (
+  <li>
+    (<a onClick={() => onRemove(diagnosis._id)}>x</a>)
+    <span> {diagnosis.name}</span>
+  </li>
+));
 
 const DiagnosisList = ({ diagnoses, onRemove }) => {
   const listContents =
     diagnoses.length > 0 ? (
-      diagnoses.map(d => (
-        <DiagnosisItem key={d._id} onRemove={onRemove} diagnosis={d} />
-      ))
+      diagnoses.map(d => <DiagnosisItem key={d._id} onRemove={onRemove} diagnosis={d} />)
     ) : (
       <li>No diagnoses selected</li>
     );
@@ -36,7 +32,7 @@ export const MultiDiagnosisSelector = React.memo(
   ({ value, limit = 5, onChange, icd10Suggester, name }) => {
     const [selectedDiagnosisId, setSelectedDiagnosisId] = React.useState(null);
 
-    const updateValue = (newValue) => {
+    const updateValue = newValue => {
       onChange({ target: { value: newValue, name } });
     };
 
@@ -92,5 +88,10 @@ export const MultiDiagnosisSelector = React.memo(
 );
 
 export const MultiDiagnosisSelectorField = ({ field, ...props }) => (
-  <MultiDiagnosisSelector name={field.name} value={field.value || []} onChange={field.onChange} {...props} />
+  <MultiDiagnosisSelector
+    name={field.name}
+    value={field.value || []}
+    onChange={field.onChange}
+    {...props}
+  />
 );
