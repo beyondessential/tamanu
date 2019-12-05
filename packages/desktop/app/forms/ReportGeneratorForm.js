@@ -9,6 +9,7 @@ import {
   DateField,
 } from '../components/Field';
 import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormGrid } from '../components/FormGrid';
 
 import { MultiDiagnosisSelectorField } from '../components/MultiDiagnosisSelector';
 
@@ -17,7 +18,7 @@ export class ReportGeneratorForm extends React.PureComponent {
   renderForm = ({ submitForm }) => {
     const { icd10Suggester, onCancel, visit } = this.props;
     return (
-      <div>
+      <FormGrid columns={2}>
         <Field name="startDate" label="Start date" component={DateField} />
         <Field name="endDate" label="End date" component={DateField} />
         <Field
@@ -27,7 +28,7 @@ export class ReportGeneratorForm extends React.PureComponent {
           icd10Suggester={icd10Suggester}
         />
         <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText="Finalise" />
-      </div>
+      </FormGrid>
     );
   };
 

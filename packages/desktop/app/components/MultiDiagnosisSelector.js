@@ -72,7 +72,7 @@ export const MultiDiagnosisSelector = React.memo(
     const autocompleteForceRerender = (value || []).length;
 
     return (
-      <div>
+      <React.Fragment>
         <AdderContainer>
           <AutocompleteInput
             key={autocompleteForceRerender}
@@ -86,7 +86,7 @@ export const MultiDiagnosisSelector = React.memo(
           </Button>
         </AdderContainer>
         <DiagnosisList diagnoses={value || []} onRemove={onRemove} />
-      </div>
+      </React.Fragment>
     );
   },
 );
