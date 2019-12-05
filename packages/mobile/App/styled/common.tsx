@@ -33,6 +33,9 @@ interface Borderprops {
   borderWidth?: number | string;
   borderColor?: string;
   borderLeftWidth?: number;
+  borderRightWidth?: number;
+  borderBottomWidth?: number;
+  borderTopWidth?: number;
 }
 
 interface StyledTextProps
@@ -64,6 +67,10 @@ export const StyledView = styled.View<StyledViewProps>`
   ${styledSystem.alignItems}     
   ${styledSystem.background}
   ${styledSystem.overflow}    
+  ${styledSystem.borderWidth}
+  ${styledSystem.borderLeft}
+  ${styledSystem.borderTop}    
+  ${({ borderLeftWidth = 0 }) => `border-left-width: ${borderLeftWidth}`};  
 `;
 
 export const StyledSafeAreaView = styled.SafeAreaView<StyledViewProps>`    
@@ -84,8 +91,11 @@ export const StyledSafeAreaView = styled.SafeAreaView<StyledViewProps>`
   ${styledSystem.justifyContent}   
   ${styledSystem.alignItems}     
   ${styledSystem.background}
-  ${styledSystem.overflow}      
-  ${({ borderLeftWidth }) => `border-left-width: ${borderLeftWidth}` || 0};
+  ${styledSystem.overflow}       
+  ${({ borderLeftWidth = 0 }) => `border-left-width: ${borderLeftWidth}`};
+  ${({ borderRightWidth = 0 }) => `border-right-width: ${borderRightWidth}`};
+  ${({ borderTopWidth = 0 }) => `border-top-width: ${borderTopWidth}`};
+  ${({ borderBottomWidth = 0 }) => `border-bottom-width: ${borderBottomWidth}`};
 `;
 
 export const StyledText = styled.Text<StyledTextProps>`
