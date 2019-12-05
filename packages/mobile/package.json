@@ -26,6 +26,7 @@
     "react-native-pose": "^0.9.1",
     "react-native-reanimated": "^1.4.0",
     "react-native-svg": "^9.13.3",
+    "react-native-tab-view": "^2.11.0",
     "react-navigation": "^4.0.10",
     "react-navigation-stack": "^1.10.3",
     "react-navigation-tabs": "^2.5.6",
@@ -75,16 +76,13 @@
       "js"
     ],
     "transformIgnorePatterns": [
-      "node_modules/(?!(react-native|react-pose-core|react-native-reanimated|react-native-pose|animated-pose|react-native-fast-image|react-native-collapsible|)/)"
+      "node_modules/(?!(jest-)?react-native|@?react-navigation|react-pose-core|animated-pose)"
     ],
     "transform": {
       "^.+\\.(js)$": "<rootDir>/node_modules/babel-jest",
       "\\.(ts|tsx)$": "ts-jest"
     },
     "testRegex": "(/App/.*\\.test)\\.(ts|tsx|js)$",
-    "transformIgnorePatterns": [
-      "node_modules/(?!(jest-)?react-native|@?react-navigation|react-pose-core|animated-pose)"
-    ],
     "testPathIgnorePatterns": [
       "\\.snap$",
       "<rootDir>/node_modules/"

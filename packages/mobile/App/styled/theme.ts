@@ -12,6 +12,7 @@ export default {
     SAFE: '#47CA80',
     BACKGROUND_GREY: '#F3F5F7',
     BOX_OUTLINE: '#DEDEDE',
+    ORANGE: '#FF7A00',
     WHITE: '#FFFFFF',
     LIGHT_RED: '#FFEEEC',
     LIGHT_BLUE: '#67A6E3',

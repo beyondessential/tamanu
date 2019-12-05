@@ -2,7 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { StyledText, StyledView } from '../../styled/common';
 import theme from '../../styled/theme';
-import { App } from './fixtures';
+import { App, VaccineTabBaseStory } from './fixtures';
 
 storiesOf('Top Tab', module)
   .addDecorator((getStory: Function) => (
@@ -26,4 +26,5 @@ storiesOf('Top Tab', module)
       {getStory()}
     </StyledView>
   ))
-  .add('Common', () => <App />);
+  .add('Common', () => <App />)
+  .add('Vaccine Tab', () => <VaccineTabBaseStory />);

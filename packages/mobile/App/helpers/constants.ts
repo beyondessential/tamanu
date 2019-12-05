@@ -9,6 +9,7 @@ export const DateFormats = {
 export const HistoryTypes = {
   HOSPITAL: 'Hospital',
   CLINIC: 'Clinic',
+  VISIT: 'Visit',
 };
 
 export const HeaderIcons = {

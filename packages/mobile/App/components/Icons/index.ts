@@ -49,3 +49,4 @@ export * from './SyncFiles';
 export * from './BarChart';
 export * from './Avatar_7';
 export * from './Search';
+export * from './EmptyCircle';
