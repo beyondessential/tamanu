@@ -5,10 +5,6 @@ import { storiesOf } from '@storybook/react';
 import { PATIENTS } from 'Shared/demoData';
 import { Notification } from '../app/components/Notification';
 import { DateDisplay } from '../app/components/DateDisplay';
-import {
-  PatientStickerLabel,
-  PatientStickerLabelPage,
-} from '../app/components/PatientStickerLabel';
 
 storiesOf('Notification', module).add('placeholder', () => <Notification message="Hello" />);
 
@@ -19,7 +15,3 @@ storiesOf('DateDisplay', module)
   })
   .add('placeholder', () => <DateDisplay date={new Date()} />)
   .add('with duration', () => <DateDisplay date={new Date(2010, 10, 10)} showDuration />);
-
-storiesOf('PatientStickerLabel', module)
-  .add('default', () => <PatientStickerLabel patient={PATIENTS[0]} />)
-  .add('page', () => <PatientStickerLabelPage patient={PATIENTS[0]} />);
