@@ -22,7 +22,7 @@ export class ReportGeneratorForm extends React.PureComponent {
           component={MultiDiagnosisSelectorField}
           icd10Suggester={icd10Suggester}
         />
-        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText="Finalise" />
+        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText="Generate report" />
       </FormGrid>
     );
   };
