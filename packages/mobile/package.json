@@ -9,11 +9,13 @@
     "test": "jest",
     "test:watch": "jest --watchAll",
     "lint": "eslint .",
-    "storybook": "start-storybook -p 7007",
+    "storybook": "(adb reverse tcp:7007 tcp:7007 || true) && start-storybook",
     "prestorybook": "rnstl"
   },
   "dependencies": {
     "@react-native-community/async-storage": "^1.6.3",
+    "@react-native-community/datetimepicker": "^2.1.0",
+    "add": "^2.0.6",
     "date-fns": "^2.7.0",
     "react": "16.9.0",
     "react-native": "0.61.4",
@@ -23,6 +25,7 @@
     "react-native-gesture-handler": "^1.5.1",
     "react-native-keyboard-aware-scroll-view": "^0.9.1",
     "react-native-masked-text": "^1.13.0",
+    "react-native-modal-datetime-picker": "8.x.x",
     "react-native-pose": "^0.9.1",
     "react-native-reanimated": "^1.4.0",
     "react-native-svg": "^9.13.3",
@@ -32,7 +35,8 @@
     "react-navigation-tabs": "^2.5.6",
     "styled-components": "^4.4.1",
     "styled-system": "^5.1.2",
-    "typescript": "^3.7.2"
+    "typescript": "^3.7.2",
+    "yarn": "^1.21.0"
   },
   "devDependencies": {
     "@babel/core": "^7.7.2",
@@ -76,7 +80,7 @@
       "js"
     ],
     "transformIgnorePatterns": [
-      "node_modules/(?!(jest-)?react-native|@?react-navigation|react-pose-core|animated-pose)"
+      "node_modules/(?!(jest-)?react-native|@?react-navigation|react-pose-core|animated-pose|@react-native-community/datetimepicker)"
     ],
     "transform": {
       "^.+\\.(js)$": "<rootDir>/node_modules/babel-jest",

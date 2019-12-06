@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { DateTextField } from './DateTextField';
 import { TextField } from './TextField';
+import { MaskedTextField } from './MaskedTextField';
 import {
   TextInputMaskOptionProp,
   TextInputMaskTypeProp,
@@ -15,10 +17,24 @@ interface BaseStoryProps {
   maskType?: TextInputMaskTypeProp;
 }
 
-export function BaseStory({
+export function BaseTextFieldStory({ label, error }: BaseStoryProps) {
+  const [text, setText] = useState('');
+  const onChangeText = (newText: string) => {
+    setText(newText);
+  };
+  return (
+    <TextField
+      label={label}
+      value={text}
+      error={error}
+      onChangeText={onChangeText}
+    />
+  );
+}
+
+export function BaseMaskedTextFieldStory({
   label,
   error,
-  masked,
   maskType,
   options,
 }: BaseStoryProps) {
@@ -27,14 +43,39 @@ export function BaseStory({
     setText(newText);
   };
   return (
-    <TextField
-      masked={masked}
+    <MaskedTextField
       maskType={maskType}
       options={options}
       label={label}
       value={text}
       error={error}
       onChangeText={onChangeText}
+    />
+  );
+}
+
+interface BaseDateTextFieldStory {
+  label: string;
+  error?: string;
+  dateFormat: string;
+}
+
+export function BaseDateTextFieldStory({
+  label,
+  error,
+  dateFormat,
+}: BaseDateTextFieldStory) {
+  const [date, setDate] = useState<Date | null>(null);
+  const onChangeDate = (newDate: Date) => {
+    setDate(newDate);
+  };
+  return (
+    <DateTextField
+      dateFormat={dateFormat}
+      label={label}
+      value={date}
+      error={error}
+      onChange={onChangeDate}
     />
   );
 }
