@@ -62,9 +62,9 @@ export const MultiDiagnosisSelector = React.memo(
       updateValue(newValues);
     }, [value, updateValue]);
 
-    // This will change when an item is added. Using it as the key for the autocomplete
-    // will create and mount it anew. Otherwise it'll preserve its own state, meaning the user
-    // will have to delete the old value from the field to be able to add another one.
+    // This is forces the autocomplete component to clear when the user hits add.
+    // (when the key changes, React treats it as an instruction to destroy the old 
+    // component, and add a new unrelated component in its place with fresh state)
     const autocompleteForceRerender = (value || []).length;
 
     return (
