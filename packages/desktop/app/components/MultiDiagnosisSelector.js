@@ -32,9 +32,9 @@ export const MultiDiagnosisSelector = React.memo(
   ({ value, limit = 5, onChange, icd10Suggester, name }) => {
     const [selectedDiagnosisId, setSelectedDiagnosisId] = React.useState(null);
 
-    const updateValue = newValue => {
+    const updateValue = React.useCallback(newValue => {
       onChange({ target: { value: newValue, name } });
-    };
+    }, [name]);
 
     const onDiagnosisChange = React.useCallback(
       ({ target }) => {
@@ -55,12 +55,12 @@ export const MultiDiagnosisSelector = React.memo(
           updateValue([...value, diagnosis]);
         })();
       }
-    }, [value, selectedDiagnosisId, setSelectedDiagnosisId]);
+    }, [value, selectedDiagnosisId, setSelectedDiagnosisId, updateValue]);
 
     const onRemove = React.useCallback(id => {
       const newValues = value.filter(x => x._id !== id);
       updateValue(newValues);
-    });
+    }, [value, updateValue]);
 
     // This will change when an item is added. Using it as the key for the autocomplete
     // will create and mount it anew. Otherwise it'll preserve its own state, meaning the user
