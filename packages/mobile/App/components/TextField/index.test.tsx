@@ -2,13 +2,8 @@ import React from 'react';
 import { render, fireEvent, wait } from '@testing-library/react-native';
 import {
   BaseTextFieldStory,
-  BaseMaskedTextFieldStory,
-  BaseDateTextFieldStory,
+  BaseMaskedTextFieldStory,  
 } from './fixtures';
-import { DateFormats } from '../../helpers/constants';
-import { jsxEmptyExpression } from '@babel/types';
-import { formatDate } from '../../helpers/date';
-import { act } from 'react-test-renderer';
 
 describe('<TextField />', () => {
   describe('Non Masked', () => {

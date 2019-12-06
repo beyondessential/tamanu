@@ -47,6 +47,7 @@ const TextFieldLabel = ({
     if (error) return theme.colors.ALERT;
     return theme.colors.TEXT_MID;
   }
+  console.log()
   const isLabelLifted = focus || valueIsEmpty ? 'open' : 'closed';
   return (
     <StyledAnimatedLabel

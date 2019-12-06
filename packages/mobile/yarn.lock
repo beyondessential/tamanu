@@ -9427,7 +9427,7 @@ react-native-masked-text@^1.13.0:
     date-and-time "0.9.0"
     tinymask "1.0.2"
 
-react-native-modal-datetime-picker@8.x.x:
+react-native-modal-datetime-picker@8:
   version "8.0.3"
   resolved "https://registry.yarnpkg.com/react-native-modal-datetime-picker/-/react-native-modal-datetime-picker-8.0.3.tgz#39bfc8c4569d738754a40d1cabe022e61a0d4df5"
   integrity sha512-TzP0fRcu+y1Imac1vfvDXwSG0aIgWrQxIO7dQlDPhF63x7o6R176lCwZW58Ae01H88tB15M/Bj7auu4gktuPdw==

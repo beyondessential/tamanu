@@ -65,7 +65,7 @@ export function BaseDateTextFieldStory({
   error,
   dateFormat,
 }: BaseDateTextFieldStory) {
-  const [date, setDate] = useState<Date | null>(null);
+  const [date, setDate] = useState<Date | null>(null);  
   const onChangeDate = (newDate: Date) => {
     setDate(newDate);
   };
@@ -75,7 +75,7 @@ export function BaseDateTextFieldStory({
       label={label}
       value={date}
       error={error}
-      onChange={onChangeDate}
+      onChange={onChangeDate}      
     />
   );
 }

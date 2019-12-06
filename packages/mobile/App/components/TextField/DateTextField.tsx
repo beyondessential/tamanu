@@ -10,24 +10,23 @@ import * as Icons from '../Icons';
 
 export interface TextFieldProps {
   value: Date | null;
-  onChange: (date: Date) => void;
-  isOpen?: boolean;
+  onChange: (date: Date) => void;  
   label?: '' | string;
   placeholder?: '' | string;
   error?: '' | string;
-  dateFormat: string;
+  dateFormat: string;  
 }
 
 export const DateTextField = React.memo(
-  ({ value, onChange, label, error, dateFormat }: TextFieldProps) => {
-    const [showDatePicker, setShowDatePicker] = useState(false);
+  ({ value, onChange, label, error, dateFormat,  }: TextFieldProps) => {
+    const [showDatePicker, setShowDatePicker] = useState(false);    
     return (
       <StyledView width={'100%'}>
         <StyledView height="55" width="100%">
           <TouchableWithoutFeedback
             onPress={() => {
-              console.log('touchablewithoutfeedback');
-              setShowDatePicker(true);
+              console.log('touchablewithoutfeedback ', showDatePicker);
+              setShowDatePicker(true)
             }}>
             <InputContainer
               justifyContent="flex-end"
@@ -64,14 +63,15 @@ export const DateTextField = React.memo(
           </TouchableWithoutFeedback>
         </StyledView>
         <DateTimePickerModal
+
           isVisible={showDatePicker}
-          mode="date"
-          onConfirm={(date: Date) => {
-            onChange(date);
-            setShowDatePicker(false);
+          mode="date"          
+          onConfirm={(date: Date) => {            
+            setShowDatePicker(false);            
+             onChange(date);
           }}
           onCancel={() => {
-            setShowDatePicker(false);
+            setShowDatePicker(false);            
           }}
         />
       </StyledView>
