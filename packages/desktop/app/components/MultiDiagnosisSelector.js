@@ -62,7 +62,7 @@ export const MultiDiagnosisSelector = React.memo(
       updateValue(newValues);
     }, [value, updateValue]);
 
-    // This is forces the autocomplete component to clear when the user hits add.
+    // This forces the autocomplete component to clear when the user hits add.
     // (when the key changes, React treats it as an instruction to destroy the old 
     // component, and add a new unrelated component in its place with fresh state)
     const autocompleteForceRerender = (value || []).length;
