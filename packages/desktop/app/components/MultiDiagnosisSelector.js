@@ -30,6 +30,7 @@ const DiagnosisList = ({ diagnoses, onRemove }) => {
 
 export const MultiDiagnosisSelector = React.memo(
   ({ value, limit = 5, onChange, icd10Suggester, name }) => {
+    const selectedDiagnoses = value || [];
     const [selectedDiagnosisId, setSelectedDiagnosisId] = React.useState(null);
 
     const updateValue = React.useCallback(newValue => {
@@ -52,20 +53,20 @@ export const MultiDiagnosisSelector = React.memo(
             _id: selectedDiagnosisId,
             name: await icd10Suggester.fetchCurrentOption(selectedDiagnosisId).label,
           };
-          updateValue([...value, diagnosis]);
+          updateValue([...selectedDiagnoses, diagnosis]);
         })();
       }
-    }, [value, selectedDiagnosisId, setSelectedDiagnosisId, updateValue]);
+    }, [selectedDiagnoses, selectedDiagnosisId, setSelectedDiagnosisId, updateValue]);
 
     const onRemove = React.useCallback(id => {
-      const newValues = value.filter(x => x._id !== id);
+      const newValues = selectedDiagnoses.filter(x => x._id !== id);
       updateValue(newValues);
-    }, [value, updateValue]);
+    }, [selectedDiagnoses, updateValue]);
 
     // This forces the autocomplete component to clear when the user hits add.
     // (when the key changes, React treats it as an instruction to destroy the old 
     // component, and add a new unrelated component in its place with fresh state)
-    const autocompleteForceRerender = (value || []).length;
+    const autocompleteForceRerender = selectedDiagnoses.length;
 
     return (
       <React.Fragment>
@@ -77,11 +78,11 @@ export const MultiDiagnosisSelector = React.memo(
             onChange={onDiagnosisChange}
             label="Select diagnosis"
           />
-          <Button variant="contained" onClick={onAdd} disabled={value.length >= limit}>
+          <Button variant="contained" onClick={onAdd} disabled={selectedDiagnoses.length >= limit}>
             Add
           </Button>
         </AdderContainer>
-        <DiagnosisList diagnoses={value || []} onRemove={onRemove} />
+        <DiagnosisList diagnoses={selectedDiagnoses} onRemove={onRemove} />
       </React.Fragment>
     );
   },
