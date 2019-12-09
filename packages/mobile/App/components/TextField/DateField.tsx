@@ -7,26 +7,27 @@ import { StyledView, StyledText, RowView } from '../../styled/common';
 import { formatDate } from '../../helpers/date';
 import theme from '../../styled/theme';
 import * as Icons from '../Icons';
+import { DateFormats } from '../../helpers/constants';
 
 export interface TextFieldProps {
   value: Date | null;
-  onChange: (date: Date) => void;  
+  onChange: (date: Date) => void;
   label?: '' | string;
   placeholder?: '' | string;
   error?: '' | string;
-  dateFormat: string;  
+  dateFormat: string;
 }
 
-export const DateTextField = React.memo(
-  ({ value, onChange, label, error, dateFormat,  }: TextFieldProps) => {
-    const [showDatePicker, setShowDatePicker] = useState(false);    
+export const DateField = React.memo(
+  ({ value, onChange, label, error, dateFormat = DateFormats["DDMMYY"] }: TextFieldProps) => {
+    const [showDatePicker, setShowDatePicker] = useState(false);
     return (
       <StyledView width={'100%'}>
         <StyledView height="55" width="100%">
           <TouchableWithoutFeedback
             onPress={() => {
               console.log('touchablewithoutfeedback ', showDatePicker);
-              setShowDatePicker(true)
+              setShowDatePicker(true);
             }}>
             <InputContainer
               justifyContent="flex-end"
@@ -37,7 +38,7 @@ export const DateTextField = React.memo(
                   error={error}
                   focus={showDatePicker}
                   onFocus={setShowDatePicker}
-                  valueIsEmpty={value !== null}>
+                  isValueEmpty={value !== null}>
                   {label}
                 </TextFieldLabel>
               )}
@@ -63,15 +64,14 @@ export const DateTextField = React.memo(
           </TouchableWithoutFeedback>
         </StyledView>
         <DateTimePickerModal
-
           isVisible={showDatePicker}
-          mode="date"          
-          onConfirm={(date: Date) => {            
-            setShowDatePicker(false);            
-             onChange(date);
+          mode="date"
+          onConfirm={(date: Date) => {
+            setShowDatePicker(false);
+            onChange(date);
           }}
           onCancel={() => {
-            setShowDatePicker(false);            
+            setShowDatePicker(false);
           }}
         />
       </StyledView>

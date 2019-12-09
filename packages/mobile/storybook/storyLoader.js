@@ -12,7 +12,7 @@ function loadStories() {
 	require('../App/components/RadioButtonGroup/index.stories');
 	require('../App/components/SearchInput/index.stories');
 	require('../App/components/Table/index.stories');
-	require('../App/components/TextField/DateTextField.stories');
+	require('../App/components/TextField/DateField.stories');
 	require('../App/components/TextField/MaskedTextfield.stories');
 	require('../App/components/TextField/TextField.stories');
 	require('../App/components/TopTabNavigator/index.stories');
@@ -28,7 +28,7 @@ const stories = [
 	'../App/components/RadioButtonGroup/index.stories',
 	'../App/components/SearchInput/index.stories',
 	'../App/components/Table/index.stories',
-	'../App/components/TextField/DateTextField.stories',
+	'../App/components/TextField/DateField.stories',
 	'../App/components/TextField/MaskedTextfield.stories',
 	'../App/components/TextField/TextField.stories',
 	'../App/components/TopTabNavigator/index.stories',

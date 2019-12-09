@@ -10,7 +10,7 @@ export interface RefObject<T> {
 
 export interface TextFieldProps {
   value: string;
-  onChangeText: (text: string) => void;
+  onChange: (text: string) => void;
   isOpen?: boolean;
   label?: '' | string;
   keyboardType?: KeyboardType;
@@ -19,7 +19,13 @@ export interface TextFieldProps {
 }
 
 export const TextField = React.memo(
-  ({ value, onChangeText, label, error, keyboardType }: TextFieldProps) => {
+  ({
+    value,
+    onChangeText: onChange,
+    label,
+    error,
+    keyboardType,
+  }: TextFieldProps) => {
     const [focused, setFocus] = useState(false);
     const inputRef: Ref<TextInput> = useRef(null);
     const onFocusInput = React.useCallback(() => {
@@ -35,7 +41,7 @@ export const TextField = React.memo(
     const inputProps = {
       accessibilityLabel: label,
       keyboardType,
-      onChangeText,
+      onChange,
       onFocus,
       onBlur,
       value,
@@ -50,7 +56,7 @@ export const TextField = React.memo(
               error={error}
               focus={focused}
               onFocus={onFocusInput}
-              valueIsEmpty={value !== ''}>
+              isValueEmpty={value !== ''}>
               {label}
             </TextFieldLabel>
           )}

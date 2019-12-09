@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DateTextField } from './DateTextField';
+import { DateField } from './DateField';
 import { TextField } from './TextField';
 import { MaskedTextField } from './MaskedTextField';
 import {
@@ -27,7 +27,7 @@ export function BaseTextFieldStory({ label, error }: BaseStoryProps) {
       label={label}
       value={text}
       error={error}
-      onChangeText={onChangeText}
+      onChange={onChangeText}
     />
   );
 }
@@ -39,7 +39,7 @@ export function BaseMaskedTextFieldStory({
   options,
 }: BaseStoryProps) {
   const [text, setText] = useState('');
-  const onChangeText = (newText: string) => {
+  const onChange = (newText: string) => {
     setText(newText);
   };
   return (
@@ -49,7 +49,7 @@ export function BaseMaskedTextFieldStory({
       label={label}
       value={text}
       error={error}
-      onChangeText={onChangeText}
+      onChange={onChange}
     />
   );
 }
@@ -65,17 +65,17 @@ export function BaseDateTextFieldStory({
   error,
   dateFormat,
 }: BaseDateTextFieldStory) {
-  const [date, setDate] = useState<Date | null>(null);  
+  const [date, setDate] = useState<Date | null>(null);
   const onChangeDate = (newDate: Date) => {
     setDate(newDate);
   };
   return (
-    <DateTextField
+    <DateField
       dateFormat={dateFormat}
       label={label}
       value={date}
       error={error}
-      onChange={onChangeDate}      
+      onChange={onChangeDate}
     />
   );
 }

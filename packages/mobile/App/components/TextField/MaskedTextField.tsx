@@ -15,7 +15,7 @@ export interface RefObject<T> {
 
 export interface TextFieldProps {
   value: string;
-  onChangeText: (text: string) => void;
+  onChange: (text: string) => void;
   isOpen?: boolean;
   label?: '' | string;
   keyboardType?: KeyboardType;
@@ -30,7 +30,7 @@ export interface TextFieldProps {
 export const MaskedTextField = React.memo(
   ({
     value,
-    onChangeText,
+    onChange: onChange,
     label,
     error,
     maskType = 'cnpj',
@@ -53,7 +53,7 @@ export const MaskedTextField = React.memo(
     const inputProps = {
       accessibilityLabel: label,
       keyboardType,
-      onChangeText,
+      onChangeText: onChange,
       onFocus,
       onBlur,
       value,
@@ -68,7 +68,7 @@ export const MaskedTextField = React.memo(
               error={error}
               focus={focused}
               onFocus={onFocusInput}
-              valueIsEmpty={value !== ''}>
+              isValueEmpty={value !== ''}>
               {label}
             </TextFieldLabel>
           )}

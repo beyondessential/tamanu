@@ -30,7 +30,7 @@ const StyledAnimatedLabel = styled(StyledText)<AnimatedText>`
 interface LabelProps {
   children: string;
   focus: boolean;
-  valueIsEmpty: boolean;
+  isValueEmpty: boolean;
   error?: string;
   onFocus: Function;
 }
@@ -39,7 +39,7 @@ const TextFieldLabel = ({
   children,
   focus,
   onFocus,
-  valueIsEmpty,
+  isValueEmpty,
   error,
 }: LabelProps) => {
   function getColor(hasValue: boolean, error?: string) {
@@ -47,13 +47,12 @@ const TextFieldLabel = ({
     if (error) return theme.colors.ALERT;
     return theme.colors.TEXT_MID;
   }
-  console.log()
-  const isLabelLifted = focus || valueIsEmpty ? 'open' : 'closed';
+  const isLabelLifted = (focus || isValueEmpty) ? 'open' : 'closed';
   return (
     <StyledAnimatedLabel
       as={AnimatedLabel}
       onPress={() => onFocus(!focus)}
-      color={getColor(valueIsEmpty, error)}
+      color={getColor(isValueEmpty, error)}
       pose={isLabelLifted}>
       {children}
     </StyledAnimatedLabel>
