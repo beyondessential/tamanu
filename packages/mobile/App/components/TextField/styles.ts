@@ -17,11 +17,11 @@ export const InputContainer = styled(StyledView)`
   background-color: ${(props: InputContainerProps) => {
     if (!props.hasValue || (props.hasValue && !props.error))
       return theme.colors.WHITE;
-    if (props.hasValue && props.error) return theme.colors.LIGHT_RED;
+    if (props.hasValue && props.error) return theme.colors.ERROR_LIGHT;
   }};
   border: 1px solid
     ${(props: InputContainerProps) => {
-      if (props.error) return theme.colors.LIGHT_RED;
+      if (props.error) return theme.colors.ERROR;
       return theme.colors.TEXT_SOFT;
     }};
   border-radius: 3px;

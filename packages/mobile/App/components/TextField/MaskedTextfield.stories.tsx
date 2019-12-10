@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react-native';
 
 import { KeyboardAwareView } from '../KeyboardAwareView';
 import { CenterView } from '../../styled/common';
-import { BaseStory } from './fixtures';
+import { BaseMaskedTextFieldStory } from './fixtures';
 
 const stories = storiesOf('MaskedInput', module);
 
@@ -14,7 +14,7 @@ stories.addDecorator((getStory: Function) => (
 ));
 
 stories.add('Phone', () => (
-  <BaseStory
+  <BaseMaskedTextFieldStory
     masked
     options={{
       mask: '9999 9999 999',
@@ -24,7 +24,7 @@ stories.add('Phone', () => (
   />
 ));
 stories.add('With Error', () => (
-  <BaseStory
+  <BaseMaskedTextFieldStory
     masked
     error={'invalid'}
     options={{
@@ -38,7 +38,7 @@ stories.add('With Error', () => (
 ));
 
 stories.add('Currency', () => (
-  <BaseStory
+  <BaseMaskedTextFieldStory
     masked
     options={{
       unit: '$',

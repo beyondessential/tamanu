@@ -1,6 +1,10 @@
 import React from 'react';
 import { render, fireEvent, wait } from '@testing-library/react-native';
-import { BaseStory } from './fixtures';
+import {
+  BaseTextFieldStory,
+  BaseMaskedTextFieldStory,  
+} from './fixtures';
+
 describe('<TextField />', () => {
   describe('Non Masked', () => {
     const nonMaskedProps = {
@@ -8,7 +12,7 @@ describe('<TextField />', () => {
     };
     const newValue = 'test';
     const { getByText, getByLabelText } = render(
-      <BaseStory {...nonMaskedProps} />,
+      <BaseTextFieldStory {...nonMaskedProps} />,
     );
     it('should render label', () => {
       expect(getByText(nonMaskedProps.label)).not.toBe(null);
@@ -31,7 +35,7 @@ describe('<TextField />', () => {
       };
       const newValue = '1234';
       const { getByText, getByLabelText } = render(
-        <BaseStory {...phoneMaskProps} maskType={'custom'} />,
+        <BaseMaskedTextFieldStory {...phoneMaskProps} maskType={'custom'} />,
       );
       it('should render phone Mask', () => {
         expect(getByText(phoneMaskProps.label)).not.toBe(null);

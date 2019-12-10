@@ -3,6 +3,11 @@ import { InputContainer, StyledTextInput, StyledMaskedInput } from './styles';
 import { TextInput, KeyboardType } from 'react-native';
 import TextFieldLabel from './TextFieldLabel';
 import { StyledView } from '../../styled/common';
+import {
+  TextInputMaskTypeProp,
+  TextInputMaskOptionProp,
+  TextInputMask,
+} from 'react-native-masked-text';
 
 export interface RefObject<T> {
   readonly current: T | null;
@@ -16,32 +21,39 @@ export interface TextFieldProps {
   keyboardType?: KeyboardType;
   placeholder?: '' | string;
   error?: '' | string;
+  masked?: boolean;
+  maskType?: TextInputMaskTypeProp;
+  options?: TextInputMaskOptionProp;
+  datePicker?: boolean;
 }
 
-export const TextField = React.memo(
+export const MaskedTextField = React.memo(
   ({
     value,
-    onChangeText: onChange,
+    onChange: onChange,
     label,
     error,
+    maskType = 'cnpj',
+    options,
     keyboardType,
   }: TextFieldProps) => {
     const [focused, setFocus] = useState(false);
     const inputRef: Ref<TextInput> = useRef(null);
+    const maskedInputRef: any = useRef(null);
     const onFocusInput = React.useCallback(() => {
       if (!focused) {
-        inputRef.current!.focus();
+        maskedInputRef.current._inputElement.focus();
       } else {
-        inputRef.current!.blur();
+        maskedInputRef.current._inputElement.blur();
       }
-    }, [focused, inputRef]);
+    }, [focused, maskedInputRef]);
     const onFocus = React.useCallback(() => setFocus(true), [setFocus]);
     const onBlur = React.useCallback(() => setFocus(false), [setFocus]);
 
     const inputProps = {
       accessibilityLabel: label,
       keyboardType,
-      onChange,
+      onChangeText: onChange,
       onFocus,
       onBlur,
       value,
@@ -60,7 +72,13 @@ export const TextField = React.memo(
               {label}
             </TextFieldLabel>
           )}
-          <StyledTextInput ref={inputRef} {...inputProps} />
+          <StyledMaskedInput
+            as={TextInputMask}
+            ref={maskedInputRef}
+            options={options}
+            type={maskType}
+            {...inputProps}
+          />
         </InputContainer>
       </StyledView>
     );

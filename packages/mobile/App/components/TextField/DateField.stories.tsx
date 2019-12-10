@@ -2,22 +2,19 @@ import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { KeyboardAwareView } from '../KeyboardAwareView';
 import { CenterView } from '../../styled/common';
-import { BaseTextFieldStory } from './fixtures';
+import { BaseDateTextFieldStory } from './fixtures';
 
-const stories = storiesOf('TextField', module);
+const stories = storiesOf('DateTextField', module);
 
 stories.addDecorator((getStory: Function) => (
   <KeyboardAwareView>
     <CenterView>{getStory()}</CenterView>
   </KeyboardAwareView>
 ));
-
 stories.add('Active', () => (
-  <BaseTextFieldStory label="First Year of Registration" />
+  <BaseDateTextFieldStory label="First Year of Registration" />
 ));
+
 stories.add('With Error', () => (
-  <BaseTextFieldStory
-    label="First Year of Registration"
-    error={' with error '}
-  />
+  <BaseDateTextFieldStory label="Date" error={' with error '} />
 ));

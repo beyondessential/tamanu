@@ -14,7 +14,8 @@ export default {
     BOX_OUTLINE: '#DEDEDE',
     ORANGE: '#FF7A00',
     WHITE: '#FFFFFF',
-    LIGHT_RED: '#FFEEEC',
+    ERROR_LIGHT: '#FFF4F2',
+    ERROR: '#FFC7BF',
     LIGHT_BLUE: '#67A6E3',
   },
 };

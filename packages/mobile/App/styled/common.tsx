@@ -49,6 +49,7 @@ interface StyledViewProps extends SpacingProps, FlexProps, Borderprops {
   overflow?: string;
 }
 export const StyledView = styled.View<StyledViewProps>`
+  ${styledSystem.position}
   ${styledSystem.width}
   ${styledSystem.height}  
   ${styledSystem.margin}
@@ -71,6 +72,7 @@ export const StyledView = styled.View<StyledViewProps>`
   ${styledSystem.borderLeft}
   ${styledSystem.borderTop}    
   ${({ borderLeftWidth = 0 }) => `border-left-width: ${borderLeftWidth}`};  
+  ${styledSystem.zIndex}
 `;
 
 export const StyledSafeAreaView = styled.SafeAreaView<StyledViewProps>`    
