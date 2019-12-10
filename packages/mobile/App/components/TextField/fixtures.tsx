@@ -57,13 +57,11 @@ export function BaseMaskedTextFieldStory({
 interface BaseDateTextFieldStory {
   label: string;
   error?: string;
-  dateFormat: string;
 }
 
 export function BaseDateTextFieldStory({
   label,
   error,
-  dateFormat,
 }: BaseDateTextFieldStory) {
   const [date, setDate] = useState<Date | null>(null);
   const onChangeDate = (newDate: Date) => {
@@ -71,7 +69,6 @@ export function BaseDateTextFieldStory({
   };
   return (
     <DateField
-      dateFormat={dateFormat}
       label={label}
       value={date}
       error={error}

@@ -15,20 +15,15 @@ export interface TextFieldProps {
   label?: '' | string;
   placeholder?: '' | string;
   error?: '' | string;
-  dateFormat: string;
 }
 
 export const DateField = React.memo(
-  ({ value, onChange, label, error, dateFormat = DateFormats["DDMMYY"] }: TextFieldProps) => {
+  ({ value, onChange, label, error }: TextFieldProps) => {
     const [showDatePicker, setShowDatePicker] = useState(false);
     return (
       <StyledView width={'100%'}>
         <StyledView height="55" width="100%">
-          <TouchableWithoutFeedback
-            onPress={() => {
-              console.log('touchablewithoutfeedback ', showDatePicker);
-              setShowDatePicker(true);
-            }}>
+          <TouchableWithoutFeedback onPress={() => setShowDatePicker(true)}>
             <InputContainer
               justifyContent="flex-end"
               hasValue={value !== null}
@@ -53,7 +48,7 @@ export const DateField = React.memo(
                   justifyContent="flex-end"
                   paddingBottom={10}>
                   <StyledText fontSize={18} color={theme.colors.TEXT_DARK}>
-                    {value && formatDate(value, dateFormat)}
+                    {value && formatDate(value, DateFormats['DDMMYY'])}
                   </StyledText>
                 </StyledView>
                 <Icons.Calendar
@@ -70,9 +65,7 @@ export const DateField = React.memo(
             setShowDatePicker(false);
             onChange(date);
           }}
-          onCancel={() => {
-            setShowDatePicker(false);
-          }}
+          onCancel={() => setShowDatePicker(false)}
         />
       </StyledView>
     );
