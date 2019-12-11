@@ -4,7 +4,8 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 
 import { Form, Field, DateField } from '../components/Field';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { ButtonRow } from '../components/ButtonRow';
+import { Button } from '../components/Button';
 import { FormGrid } from '../components/FormGrid';
 
 import { MultiDiagnosisSelectorField } from '../components/MultiDiagnosisSelector';
@@ -22,7 +23,9 @@ export class ReportGeneratorForm extends React.PureComponent {
           component={MultiDiagnosisSelectorField}
           icd10Suggester={icd10Suggester}
         />
-        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText="Generate report" />
+        <ButtonRow>
+          <Button variant="contained" color="primary" onClick={submitForm}>Generate report</Button>
+        </ButtonRow>
       </FormGrid>
     );
   };

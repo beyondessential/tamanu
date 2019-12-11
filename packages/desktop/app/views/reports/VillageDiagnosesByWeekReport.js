@@ -5,8 +5,6 @@ import { Table } from '../../components/Table';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ReportGraph } from './ReportGraph';
 
-import moment from 'moment';
-
 const Results = React.memo(({ data }) => {
   if(!data) return <LoadingIndicator loading />;
 
@@ -57,38 +55,7 @@ const Report = React.memo(({ onRunQuery, FilterForm  }) => {
   );
 });
 
-async function onRunQuery(filters) {
-  // TODO: api request
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  const { diagnoses, startDate, endDate } = filters;
-  const start = moment(startDate);
-  const end = moment(endDate);
-  const ranges = [ ];
-
-  let date = moment(start);
-  while(date < end) {
-    ranges.push(date);
-    date = moment(date).add(1, 'week');
-  }
-
-  const columns = ranges.map(x => x.format('DD/MM/YYYY'));
-
-  const results = diagnoses.map(({ _id }) => ({
-    key: _id,
-    formatted: "~~!!~~ " + _id,
-    values: columns.map(c => Math.floor(Math.random() * 10)),
-  }));
-
-  const meta = {
-    title: "Diagnosis",
-    columns,
-  };
-
-  return { results, meta };
-}
-
-export const VillageDiagnosesByWeekReport = ({ icd10Suggester }) => (
+export const VillageDiagnosesByWeekReport = ({ icd10Suggester, onRunQuery }) => (
   <Report
     FilterForm={props => <ReportGeneratorForm icd10Suggester={icd10Suggester} {...props} />}
     onRunQuery={onRunQuery}
