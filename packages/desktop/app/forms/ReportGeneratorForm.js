@@ -34,6 +34,10 @@ export class ReportGeneratorForm extends React.PureComponent {
         <Form
           onSubmit={onSubmit}
           render={this.renderForm}
+          initialValues={{
+            diagnoses: [],
+            endDate: new Date(),
+          }}
         />
       </div>
     );

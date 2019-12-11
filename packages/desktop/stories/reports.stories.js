@@ -5,6 +5,7 @@ import { action } from '@storybook/addon-actions';
 import { DIAGNOSES } from 'Shared/demoData';
 import { MultiDiagnosisSelector } from '../app/components/MultiDiagnosisSelector';
 import { ReportGeneratorForm } from '../app/forms/ReportGeneratorForm';
+import { VillageDiagnosesByWeekReport } from '../app/views/reports/VillageDiagnosesByWeekReport';
 
 import { createDummySuggester, mapToSuggestions } from './utils';
 
@@ -25,3 +26,7 @@ storiesOf('Reports/MultiDiagnosisSelector', module).add('default', () => <BoundS
 storiesOf('Reports/MultiDiagnosisSelector', module).add('in form', () => (
   <ReportGeneratorForm onSubmit={action('submit')} icd10Suggester={icd10Suggester} />
 ));
+
+storiesOf('Reports/Village diagnoses by week', module).add('default', () => <VillageDiagnosesByWeekReport 
+  icd10Suggester={icd10Suggester}
+/>);
