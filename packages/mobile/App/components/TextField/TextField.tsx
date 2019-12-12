@@ -19,13 +19,7 @@ export interface TextFieldProps {
 }
 
 export const TextField = React.memo(
-  ({
-    value,
-    onChangeText: onChange,
-    label,
-    error,
-    keyboardType,
-  }: TextFieldProps) => {
+  ({ value, onChange, label, error, keyboardType }: TextFieldProps) => {
     const [focused, setFocus] = useState(false);
     const inputRef: Ref<TextInput> = useRef(null);
     const onFocusInput = React.useCallback(() => {
@@ -41,7 +35,7 @@ export const TextField = React.memo(
     const inputProps = {
       accessibilityLabel: label,
       keyboardType,
-      onChange,
+      onChangeText: onChange,
       onFocus,
       onBlur,
       value,
