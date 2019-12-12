@@ -20,6 +20,7 @@ export const PatientTile = ({
   age,
   gender,
   city,
+  image,
   lastVisit,
 }: PatientTileProps) => {
   return (
@@ -30,7 +31,7 @@ export const PatientTile = ({
       background={theme.colors.BACKGROUND_GREY}
       alignItems="center">
       <StyledView marginLeft={20}>
-        <UserAvatar gender={gender} name={name} />
+        <UserAvatar image={image} gender={gender} name={name} />
       </StyledView>
       <StyledView flex={1} marginLeft={10}>
         <StyledText
