@@ -10,8 +10,8 @@ describe('<PatientCard />', () => {
     city: 'Nguvia',
     name: 'Leinani Tanangada',
     gender: 'Female',
-    age: '12',
-    lastVisit: new Date('2019-13-05'),
+    age: '10',
+    lastVisit: new Date('2019-05-13'),
   };
   type visibleProps = 'city' | 'name' | 'gender' | 'age' | 'lastVisit';
   const visibleProps: visibleProps[] = [
