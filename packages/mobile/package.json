@@ -63,6 +63,7 @@
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
+    "husky": "^3.1.0",
     "jest": "^24.9.0",
     "metro-react-native-babel-preset": "^0.57.0",
     "react-dom": "16.9.0",
@@ -101,6 +102,12 @@
       ],
       "pattern": "**/*.stories.tsx",
       "outputFile": "./storybook/storyLoader.js"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": " yarn lint",
+      "pre-push": "yarn lint && yarn test"
     }
   }
 }
