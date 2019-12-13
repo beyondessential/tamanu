@@ -8,7 +8,7 @@
     "start": "react-native start",
     "test": "jest",
     "test:watch": "jest --watchAll",
-    "lint": "eslint .",
+    "lint": "eslint --fix .",
     "storybook": "(adb reverse tcp:7007 tcp:7007 || true) && start-storybook",
     "prestorybook": "rnstl"
   },
