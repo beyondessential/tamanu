@@ -15,7 +15,7 @@ export const UserAvatar = ({ image, name, gender }: UserAvatarProps) => {
   ]);
   const backgroundColor: string = React.useMemo(() => {
     if (image) return 'transparent';
-    return gender === Genders.FEMALE ? theme.colors.SAFE : theme.colors.ALERT;
+    return gender === Genders.MALE ? theme.colors.SAFE : theme.colors.ALERT;
   }, [gender, image]);
 
   return (

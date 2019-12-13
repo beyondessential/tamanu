@@ -30,7 +30,7 @@ export interface TextFieldProps {
 export const MaskedTextField = React.memo(
   ({
     value,
-    onChange: onChange,
+    onChange,
     label,
     error,
     maskType = 'cnpj',

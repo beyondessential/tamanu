@@ -9,6 +9,7 @@ function loadStories() {
   require('../App/components/Button/index.stories');
   require('../App/components/Icons/index.stories');
   require('../App/components/PatientCard/index.stories');
+  require('../App/components/PatientTile/index.stories');
   require('../App/components/RadioButtonGroup/index.stories');
   require('../App/components/SearchInput/index.stories');
   require('../App/components/Table/index.stories');
@@ -25,6 +26,7 @@ const stories = [
   '../App/components/Button/index.stories',
   '../App/components/Icons/index.stories',
   '../App/components/PatientCard/index.stories',
+  '../App/components/PatientTile/index.stories',
   '../App/components/RadioButtonGroup/index.stories',
   '../App/components/SearchInput/index.stories',
   '../App/components/Table/index.stories',
