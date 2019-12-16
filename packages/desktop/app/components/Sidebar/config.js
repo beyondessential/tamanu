@@ -257,7 +257,7 @@ export const items = [
         label: 'Diagnoses by week',
         path: '/reports/diagnosesByWeek',
         icon: submenuIcons.report,
-      }
+      },
     ],
   },
 ];

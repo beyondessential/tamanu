@@ -33,9 +33,12 @@ export const MultiDiagnosisSelector = React.memo(
     const selectedDiagnoses = value || [];
     const [selectedDiagnosisId, setSelectedDiagnosisId] = React.useState(null);
 
-    const updateValue = React.useCallback(newValue => {
-      onChange({ target: { value: newValue, name } });
-    }, [name]);
+    const updateValue = React.useCallback(
+      newValue => {
+        onChange({ target: { value: newValue, name } });
+      },
+      [name],
+    );
 
     const onDiagnosisChange = React.useCallback(
       ({ target }) => {
@@ -59,13 +62,16 @@ export const MultiDiagnosisSelector = React.memo(
       }
     }, [selectedDiagnoses, selectedDiagnosisId, setSelectedDiagnosisId, updateValue]);
 
-    const onRemove = React.useCallback(id => {
-      const newValues = selectedDiagnoses.filter(x => x._id !== id);
-      updateValue(newValues);
-    }, [selectedDiagnoses, updateValue]);
+    const onRemove = React.useCallback(
+      id => {
+        const newValues = selectedDiagnoses.filter(x => x._id !== id);
+        updateValue(newValues);
+      },
+      [selectedDiagnoses, updateValue],
+    );
 
     // This forces the autocomplete component to clear when the user hits add.
-    // (when the key changes, React treats it as an instruction to destroy the old 
+    // (when the key changes, React treats it as an instruction to destroy the old
     // component, and add a new unrelated component in its place with fresh state)
     const autocompleteForceRerender = selectedDiagnoses.length;
 

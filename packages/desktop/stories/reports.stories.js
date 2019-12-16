@@ -3,13 +3,12 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
 import { DIAGNOSES } from 'Shared/demoData';
+import { fillDateRange } from 'Shared/utils/fillDateRange';
 import { MultiDiagnosisSelector } from '../app/components/MultiDiagnosisSelector';
 import { ReportGeneratorForm } from '../app/forms/ReportGeneratorForm';
 import { VillageDiagnosesByWeekReport } from '../app/views/reports/VillageDiagnosesByWeekReport';
-import { fillDateRange } from 'Shared/utils/fillDateRange';
 
 import { createDummySuggester, mapToSuggestions } from './utils';
-import moment from 'moment';
 
 const icd10Suggester = createDummySuggester(mapToSuggestions(DIAGNOSES));
 
@@ -39,18 +38,17 @@ async function runDummyVillageQuery(filters) {
   const results = diagnoses.map(({ _id }) => ({
     key: _id,
     formatted: icd10Suggester.fetchCurrentOption(_id).label,
-    values: columns.map(c => Math.floor(Math.random() * 10)),
+    values: columns.map(() => Math.floor(Math.random() * 10)),
   }));
 
   const meta = {
-    title: "Diagnosis",
+    title: 'Diagnosis',
     columns,
   };
 
   return { results, meta };
 }
 
-storiesOf('Reports/Village diagnoses by week', module).add('default', () => <VillageDiagnosesByWeekReport 
-  icd10Suggester={icd10Suggester}
-  onRunQuery={runDummyVillageQuery}
-/>);
+storiesOf('Reports/Village diagnoses by week', module).add('default', () => (
+  <VillageDiagnosesByWeekReport icd10Suggester={icd10Suggester} onRunQuery={runDummyVillageQuery} />
+));

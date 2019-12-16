@@ -7,7 +7,7 @@ export function fillDateRange(start, end, interval) {
   const ranges = [];
 
   let date = moment(start);
-  while(date < endDate) {
+  while (date < endDate) {
     ranges.push(date);
     date = moment(date).add(1, interval);
   }

@@ -5,7 +5,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ReportGraph } from './ReportGraph';
 
 const Results = React.memo(({ data }) => {
-  if(!data) return <LoadingIndicator loading />;
+  if (!data) return <LoadingIndicator loading />;
 
   const { results, meta } = data;
   const dataColumns = meta.columns.map((d, i) => ({
@@ -14,7 +14,7 @@ const Results = React.memo(({ data }) => {
     accessor: row => row.values[i] || '',
   }));
 
-  const columns = [ { key: 'formatted', title: meta.title }, ...dataColumns, ];
+  const columns = [{ key: 'formatted', title: meta.title }, ...dataColumns];
 
   return (
     <div>
@@ -23,35 +23,32 @@ const Results = React.memo(({ data }) => {
   );
 });
 
-
-export const BaseReport = React.memo(({ onRunQuery, FilterForm  }) => {
+export const BaseReport = React.memo(({ onRunQuery, FilterForm }) => {
   const [filters, setFilters] = useState(null);
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
 
-  const onFilterSubmit = useCallback(data => setFilters(data));
+  const onFilterSubmit = useCallback(f => setFilters(f));
 
-  const updateData = useEffect(() => {
+  useEffect(() => {
     let canceled = false;
     (async () => {
       setData(null);
-      if(filters) {
-        setLoading(true);
+      if (filters) {
         const result = await onRunQuery(filters);
-        if(canceled) return;
-        setLoading(false);
+        if (canceled) return;
         setData(result);
       }
     })();
 
-    return () => { canceled = true };
+    return () => {
+      canceled = true;
+    };
   }, [filters]);
 
   return (
     <div>
       <FilterForm onSubmit={onFilterSubmit} />
-      { filters && <Results data={data} /> }
+      {filters && <Results data={data} />}
     </div>
   );
 });
-
