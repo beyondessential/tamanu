@@ -49,9 +49,10 @@ export const MultiDiagnosisSelector = React.memo(
         setSelectedDiagnosisId('');
 
         (async () => {
+          const option = await icd10Suggester.fetchCurrentOption(selectedDiagnosisId);
           const diagnosis = {
             _id: selectedDiagnosisId,
-            name: await icd10Suggester.fetchCurrentOption(selectedDiagnosisId).label,
+            name: option.label,
           };
           updateValue([...selectedDiagnoses, diagnosis]);
         })();
