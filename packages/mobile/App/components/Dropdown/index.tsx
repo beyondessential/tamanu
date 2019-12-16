@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
+import { TouchableWithoutFeedback, Platform } from 'react-native';
 import { InputContainer } from '../TextField/styles';
 import { StyledView, StyledText } from '../../styled/common';
-import { TextFieldLabel } from '../TextField/TextFieldLabel';
 import * as Icons from '../Icons';
-import { TouchableWithoutFeedback, Platform } from 'react-native';
+import { TextFieldLabel } from '../TextField/TextFieldLabel';
 import theme from '../../styled/theme';
 import { AndroidPicker } from './Picker.android';
 import { IOSPicker } from './Picker.ios';
@@ -39,7 +39,7 @@ export const Dropdown = React.memo(
         <StyledView height="55" width="100%">
           <TouchableWithoutFeedback onPress={openModal}>
             <InputContainer
-              flexDirection={'row'}
+              flexDirection="row"
               hasValue={value !== null}
               error={error}
               justifyContent="space-between"

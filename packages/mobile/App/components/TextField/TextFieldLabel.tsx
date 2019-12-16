@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components/native';
+import posed from 'react-native-pose';
 import theme from '../../styled/theme';
 import { StyledText } from '../../styled/common';
-import posed from 'react-native-pose';
 
 const AnimatedLabel = posed.Text({
   open: {
@@ -42,9 +42,9 @@ export const TextFieldLabel = ({
   isValueEmpty,
   error,
 }: LabelProps) => {
-  function getColor(hasValue: boolean, error?: string) {
-    if (!error && hasValue) return theme.colors.TEXT_SOFT;
-    if (error) return theme.colors.ALERT;
+  function getColor(hasValue: boolean, errorMessage?: string) {
+    if (!errorMessage && hasValue) return theme.colors.TEXT_SOFT;
+    if (errorMessage) return theme.colors.ALERT;
     return theme.colors.TEXT_MID;
   }
   const isLabelLifted = focus || isValueEmpty ? 'open' : 'closed';

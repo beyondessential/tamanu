@@ -1,11 +1,11 @@
-import theme from '../../styled/theme';
 import styled from 'styled-components/native';
-import { StyledView } from '../../styled/common';
 import {
   TextInputMaskProps,
   TextInputMaskOptionProp,
   TextInputMaskTypeProp,
 } from 'react-native-masked-text';
+import theme from '../../styled/theme';
+import { StyledView } from '../../styled/common';
 import { TextFieldProps } from './TextField';
 
 export interface InputContainerProps {

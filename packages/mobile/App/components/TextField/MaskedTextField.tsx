@@ -1,14 +1,13 @@
 import React, { useState, useRef, Ref } from 'react';
-import { InputContainer, StyledTextInput, StyledMaskedInput } from './styles';
 import { TextInput, KeyboardType } from 'react-native';
-import { TextFieldLabel } from './TextFieldLabel';
-import { StyledView } from '../../styled/common';
 import {
   TextInputMaskTypeProp,
   TextInputMaskOptionProp,
   TextInputMask,
 } from 'react-native-masked-text';
-import Animated from 'react-native-reanimated';
+import { InputContainer, StyledMaskedInput } from './styles';
+import { TextFieldLabel } from './TextFieldLabel';
+import { StyledView } from '../../styled/common';
 
 export interface RefObject<T> {
   readonly current: T | null;
@@ -39,6 +38,7 @@ export const MaskedTextField = React.memo(
     keyboardType,
   }: TextFieldProps) => {
     const [focused, setFocus] = useState(false);
+    const inputRef: Ref<TextInput> = useRef(null);
     const maskedInputRef: any = useRef(null);
     const onFocusInput = React.useCallback(() => {
       if (!focused) {
@@ -49,17 +49,6 @@ export const MaskedTextField = React.memo(
     }, [focused, maskedInputRef]);
     const onFocus = React.useCallback(() => setFocus(true), [setFocus]);
     const onBlur = React.useCallback(() => setFocus(false), [setFocus]);
-
-    function onClose() {
-      Animated.interpolate(fontSize, {
-        inputRange: [],
-        outputRange: [],
-      });
-      Animated.interpolate(labelPosition, {
-        inputRange: [],
-        outputRange: [],
-      });
-    }
 
     const inputProps = {
       accessibilityLabel: label,

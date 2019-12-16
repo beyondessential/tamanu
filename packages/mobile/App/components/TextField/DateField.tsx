@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { InputContainer } from './styles';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { TouchableWithoutFeedback } from 'react-native';
+import { InputContainer } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView, StyledText, RowView } from '../../styled/common';
 import { formatDate } from '../../helpers/date';
@@ -21,7 +21,7 @@ export const DateField = React.memo(
   ({ value, onChange, label, error }: TextFieldProps) => {
     const [showDatePicker, setShowDatePicker] = useState(false);
     return (
-      <StyledView width={'100%'}>
+      <StyledView width="100%">
         <StyledView height="55" width="100%">
           <TouchableWithoutFeedback onPress={() => setShowDatePicker(true)}>
             <InputContainer
@@ -48,7 +48,7 @@ export const DateField = React.memo(
                   justifyContent="flex-end"
                   paddingBottom={10}>
                   <StyledText fontSize={18} color={theme.colors.TEXT_DARK}>
-                    {value && formatDate(value, DateFormats['DDMMYY'])}
+                    {value && formatDate(value, DateFormats.DDMMYY)}
                   </StyledText>
                 </StyledView>
                 <Icons.Calendar
