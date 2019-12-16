@@ -106,7 +106,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": " yarn lint",
+      "pre-commit": "yarn lint",
       "pre-push": "yarn lint && yarn test"
     }
   }
