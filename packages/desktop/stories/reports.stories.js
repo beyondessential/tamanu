@@ -6,6 +6,7 @@ import { DIAGNOSES } from 'Shared/demoData';
 import { MultiDiagnosisSelector } from '../app/components/MultiDiagnosisSelector';
 import { ReportGeneratorForm } from '../app/forms/ReportGeneratorForm';
 import { VillageDiagnosesByWeekReport } from '../app/views/reports/VillageDiagnosesByWeekReport';
+import { fillDateRange } from 'Shared/utils/fillDateRange';
 
 import { createDummySuggester, mapToSuggestions } from './utils';
 import moment from 'moment';
@@ -29,20 +30,10 @@ storiesOf('Reports/MultiDiagnosisSelector', module).add('in form', () => (
 ));
 
 async function runDummyVillageQuery(filters) {
-  // TODO: api request
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   const { diagnoses, startDate, endDate } = filters;
-  const start = moment(startDate);
-  const end = moment(endDate);
-  const ranges = [ ];
-
-  let date = moment(start);
-  while(date < end) {
-    ranges.push(date);
-    date = moment(date).add(1, 'week');
-  }
-
+  const ranges = fillDateRange(startDate, endDate, 'week');
   const columns = ranges.map(x => x.format('DD/MM/YYYY'));
 
   const results = diagnoses.map(({ _id }) => ({

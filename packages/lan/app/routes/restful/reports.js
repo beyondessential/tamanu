@@ -2,6 +2,7 @@ import express from 'express';
 import moment from 'moment';
 
 import { objectToJSON } from '../../utils';
+import { fillDateRange } from 'Shared/utils/fillDateRange';
 
 export const reportsRoutes = express.Router();
 
@@ -13,16 +14,7 @@ reportsRoutes.get('/diagnosesByWeek', (req, res) => {
     diagnoses = '',
   } = query;
 
-  const start = moment(startDate);
-  const end = moment(endDate);
-
-  const ranges = [];
-  let date = moment(start);
-  while(date < end) {
-    ranges.push(date);
-    date = moment(date).add(1, 'week');
-  }
-
+  const ranges = fillDateRange(startDate, endDate, 'week');
   const columns = ranges.map(x => x.format('DD/MM/YYYY'));
 
   const results = diagnoses.split(',').map(_id => {
