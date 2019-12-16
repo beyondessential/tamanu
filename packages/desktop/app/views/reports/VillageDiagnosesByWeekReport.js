@@ -15,6 +15,7 @@ export const VillageDiagnosesByWeekReport = ({ icd10Suggester, onRunQuery }) => 
 export const ConnectedVillageDiagnosesByWeekReport = connectApi((api, dispatch) => ({
   icd10Suggester: new Suggester(api, 'icd10'),
   onRunQuery: async data => {
-    console.log(data);
+    const diagnoses = data.diagnoses.map(x => x._id).join(',');
+    return api.get('reports/diagnosesByWeek', { ...data, diagnoses });
   },
 }))(VillageDiagnosesByWeekReport);
