@@ -3,7 +3,7 @@ import * as Icons from '../components/Icons';
 export const DateFormats = {
   short: 'EEE, dd MMM',
   DAY_MONTH_YEAR_SHORT: 'dd MMM yyyy',
-  'DDMMYY': 'dd/MM/yy',
+  DDMMYY: 'dd/MM/yyyy',
 };
 
 export const HistoryTypes = {
