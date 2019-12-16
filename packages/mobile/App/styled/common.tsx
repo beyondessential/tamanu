@@ -27,6 +27,7 @@ interface FlexProps {
   flex?: number;
   justifyContent?: string;
   alignItems?: string;
+  flexDirection?: string;
 }
 interface Borderprops {
   borderRadius?: number | string;
@@ -38,15 +39,28 @@ interface Borderprops {
   borderTopWidth?: number;
 }
 
+interface PositionProps {
+  position?: 'absolute' | 'relative';
+  bottom?: string | number;
+  left?: string | number;
+  top?: string | number;
+  right?: string | number;
+  zIndex?: string | number;
+}
 interface StyledTextProps
   extends SpacingProps,
     FlexProps,
     Borderprops,
     TextProps {}
-interface StyledViewProps extends SpacingProps, FlexProps, Borderprops {
+interface StyledViewProps
+  extends PositionProps,
+    SpacingProps,
+    FlexProps,
+    Borderprops {
   children?: ReactNode | Element[];
   background?: string;
   overflow?: string;
+  pose?: string;
 }
 export const StyledView = styled.View<StyledViewProps>`
   ${styledSystem.position}
@@ -68,6 +82,13 @@ export const StyledView = styled.View<StyledViewProps>`
   ${styledSystem.alignItems}     
   ${styledSystem.background}
   ${styledSystem.overflow}    
+  ${styledSystem.position}
+  ${styledSystem.zIndex}
+  ${styledSystem.bottom}
+  ${styledSystem.top}
+  ${styledSystem.left}
+  ${styledSystem.right}
+  ${styledSystem.flexDirection}
   ${styledSystem.borderWidth}
   ${styledSystem.borderLeft}
   ${styledSystem.borderTop}    
@@ -94,6 +115,12 @@ export const StyledSafeAreaView = styled.SafeAreaView<StyledViewProps>`
   ${styledSystem.alignItems}     
   ${styledSystem.background}
   ${styledSystem.overflow}       
+  ${styledSystem.position}
+  ${styledSystem.zIndex}
+  ${styledSystem.bottom}
+  ${styledSystem.top}
+  ${styledSystem.left}
+  ${styledSystem.right}
   ${({ borderLeftWidth = 0 }) => `border-left-width: ${borderLeftWidth}`};
   ${({ borderRightWidth = 0 }) => `border-right-width: ${borderRightWidth}`};
   ${({ borderTopWidth = 0 }) => `border-top-width: ${borderTopWidth}`};
@@ -156,3 +183,5 @@ export const RowView = styled(StyledView)`
 export const ColumnView = styled(StyledView)`
   flex-direction: column;
 `;
+
+export const StyledScrollView = styled(StyledView)``;

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { InputContainer } from './styles';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { TouchableWithoutFeedback } from 'react-native';
-import TextFieldLabel from './TextFieldLabel';
+import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView, StyledText, RowView } from '../../styled/common';
 import { formatDate } from '../../helpers/date';
 import theme from '../../styled/theme';

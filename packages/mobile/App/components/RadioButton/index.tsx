@@ -56,6 +56,7 @@ export const RadioButton = (props: RadioOptionProps) => {
           height={12}
           width={12}
           borderWidth={1}
+          borderLeftWidth={1}
           borderColor={
             props.error
               ? ColorHelper.halfTransparency(theme.colors.ALERT)

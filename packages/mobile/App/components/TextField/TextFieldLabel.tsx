@@ -35,7 +35,7 @@ interface LabelProps {
   onFocus: Function;
 }
 
-const TextFieldLabel = ({
+export const TextFieldLabel = ({
   children,
   focus,
   onFocus,
@@ -47,7 +47,7 @@ const TextFieldLabel = ({
     if (error) return theme.colors.ALERT;
     return theme.colors.TEXT_MID;
   }
-  const isLabelLifted = (focus || isValueEmpty) ? 'open' : 'closed';
+  const isLabelLifted = focus || isValueEmpty ? 'open' : 'closed';
   return (
     <StyledAnimatedLabel
       as={AnimatedLabel}
@@ -58,5 +58,3 @@ const TextFieldLabel = ({
     </StyledAnimatedLabel>
   );
 };
-
-export default TextFieldLabel;

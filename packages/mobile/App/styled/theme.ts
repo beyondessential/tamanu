@@ -17,5 +17,6 @@ export default {
     ERROR_LIGHT: '#FFF4F2',
     ERROR: '#FFC7BF',
     LIGHT_BLUE: '#67A6E3',
+    DEFAULT_OFF: '#EBEBEB',
   },
 };
