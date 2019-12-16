@@ -252,10 +252,12 @@ export const items = [
     path: '/reports',
     icon: scheduleIcon,
     ability: { action: 'read', subject: 'report' },
-    children: availableReports.map(report => ({
-      label: report.name,
-      path: `/reports/${report.id}`,
-      icon: submenuIcons.report,
-    })),
+    children: [
+      {
+        label: 'Diagnoses by week',
+        path: '/reports/diagnosesByWeek',
+        icon: submenuIcons.report,
+      }
+    ],
   },
 ];
