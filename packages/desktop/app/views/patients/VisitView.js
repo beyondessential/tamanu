@@ -386,42 +386,44 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
   const readonly = visit.endDate || patient.death;
 
+  if (loading) {
+    return <LoadingIndicator loading />;
+  }
+
   return (
-    <LoadingIndicator loading={loading}>
-      <TwoColumnDisplay>
-        <PatientInfoPane patient={patient} readonly={readonly} />
-        <div>
-          <TopBar title={getHeaderText(visit)}>
-            {!readonly && <VisitActions visit={visit} />}
-            <AdmissionInfoRow>
-              <AdmissionInfo>
-                <SubjectIcon />
-                <AdmissionInfoLabel>Type: </AdmissionInfoLabel> {visit.visitType}
-              </AdmissionInfo>
-              <AdmissionInfo>
-                <CalendarIcon />
-                <AdmissionInfoLabel>Arrival: </AdmissionInfoLabel>
-                <DateDisplay date={visit.startDate} />
-              </AdmissionInfo>
-            </AdmissionInfoRow>
-          </TopBar>
-          <ContentPane>
-            <BackButton to="/patients/view" />
-            <VisitInfoPane visit={visit} />
-          </ContentPane>
-          <ContentPane>
-            <DiagnosisView visitId={visit._id} isTriage={getIsTriage(visit)} readonly={readonly} />
-          </ContentPane>
-          <TabDisplay
-            tabs={TABS}
-            currentTab={currentTab}
-            onTabSelect={setCurrentTab}
-            visit={visit}
-            readonly={readonly}
-          />
-        </div>
-      </TwoColumnDisplay>
-    </LoadingIndicator>
+    <TwoColumnDisplay>
+      <PatientInfoPane patient={patient} readonly={readonly} />
+      <div>
+        <TopBar title={getHeaderText(visit)}>
+          {!readonly && <VisitActions visit={visit} />}
+          <AdmissionInfoRow>
+            <AdmissionInfo>
+              <SubjectIcon />
+              <AdmissionInfoLabel>Type: </AdmissionInfoLabel> {visit.visitType}
+            </AdmissionInfo>
+            <AdmissionInfo>
+              <CalendarIcon />
+              <AdmissionInfoLabel>Arrival: </AdmissionInfoLabel>
+              <DateDisplay date={visit.startDate} />
+            </AdmissionInfo>
+          </AdmissionInfoRow>
+        </TopBar>
+        <ContentPane>
+          <BackButton to="/patients/view" />
+          <VisitInfoPane visit={visit} />
+        </ContentPane>
+        <ContentPane>
+          <DiagnosisView visitId={visit._id} isTriage={getIsTriage(visit)} readonly={readonly} />
+        </ContentPane>
+        <TabDisplay
+          tabs={TABS}
+          currentTab={currentTab}
+          onTabSelect={setCurrentTab}
+          visit={visit}
+          readonly={readonly}
+        />
+      </div>
+    </TwoColumnDisplay>
   );
 });
 
