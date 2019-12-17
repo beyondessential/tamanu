@@ -1,12 +1,12 @@
 import React from 'react';
 import posed from 'react-native-pose';
-import { DropdownItem } from './index';
-import { StyledView, StyledScrollView, StyledText } from '../../styled/common';
 import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { DropdownItem } from './index';
+import { StyledView, StyledScrollView, StyledText } from '../../styled/common';
 import theme from '../../styled/theme';
 
 const AnimatedAndroidBackground = posed.View({
@@ -35,10 +35,13 @@ interface AndroidPickerProps {
 
 export const AndroidPicker = React.memo(
   ({ items, open, onChange, closeModal }: AndroidPickerProps) => {
-    const onChangeItem = React.useCallback(item => {
-      onChange(item);
-      closeModal();
-    }, []);
+    const onChangeItem = React.useCallback(
+      item => {
+        onChange(item);
+        closeModal();
+      },
+      [closeModal, onChange],
+    );
 
     return (
       <StyledView
@@ -48,10 +51,7 @@ export const AndroidPicker = React.memo(
         justifyContent="center"
         alignItems="center">
         <TouchableWithoutFeedback onPress={() => closeModal()}>
-          <StyledView
-            height={'100%'}
-            width={'100%'}
-            position="absolute"></StyledView>
+          <StyledView height="100%" width="100%" position="absolute" />
         </TouchableWithoutFeedback>
         <StyledScrollView
           as={AnimatedAndroidCard}
@@ -59,7 +59,7 @@ export const AndroidPicker = React.memo(
           position="absolute"
           borderRadius={5}
           height={200}
-          width={'50%'}
+          width="50%"
           zIndex={5}
           background={theme.colors.WHITE}>
           <StyledText
@@ -77,7 +77,7 @@ export const AndroidPicker = React.memo(
                   justifyContent="center"
                   paddingLeft={15}
                   height={40}
-                  width={'100%'}>
+                  width="100%">
                   <StyledText>{item.label}</StyledText>
                 </StyledView>
               </TouchableOpacity>

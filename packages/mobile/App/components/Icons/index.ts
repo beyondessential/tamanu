@@ -9,6 +9,7 @@ export * from './Avatar_12';
 export * from './Billing';
 export * from './Camera1';
 export * from './CheckUp';
+export * from './Checked';
 export * from './Circle add';
 export * from './Clipboard';
 export * from './Deceased';

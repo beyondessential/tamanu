@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { PatientCard, PatientCardProps } from './index';
@@ -10,8 +11,8 @@ describe('<PatientCard />', () => {
     city: 'Nguvia',
     name: 'Leinani Tanangada',
     gender: 'Female',
-    age: '10',
-    lastVisit: new Date('2019-05-13'),
+    age: '12',
+    lastVisit: new Date('2019-05-05'),
   };
   type visibleProps = 'city' | 'name' | 'gender' | 'age' | 'lastVisit';
   const visibleProps: visibleProps[] = [

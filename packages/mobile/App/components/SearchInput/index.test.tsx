@@ -1,6 +1,6 @@
 import React from 'react';
-import { BaseStory } from './fixture';
 import { render, fireEvent } from '@testing-library/react-native';
+import { BaseStory } from './fixture';
 
 describe('<SearchInput />', () => {
   const props = {

@@ -3,20 +3,20 @@ import {
   NavigationMaterialTabOptions,
   NavigationTabProp,
 } from 'react-navigation-tabs';
-import theme from '../../styled/theme';
 import {
   NavigationRouteConfigMap,
   NavigationRoute,
   NavigationParams,
 } from 'react-navigation';
+import theme from '../../styled/theme';
 
 type TopTabNavigator = NavigationRouteConfigMap<
   NavigationMaterialTabOptions,
   NavigationTabProp<NavigationRoute<NavigationParams>, any>
 >;
 
-export const TopTabNavigator = (routes: TopTabNavigator) => {
-  return createMaterialTopTabNavigator(routes, {
+export const TopTabNavigator = (routes: TopTabNavigator) =>
+  createMaterialTopTabNavigator(routes, {
     tabBarOptions: {
       activeTintColor: theme.colors.PRIMARY_MAIN,
       inactiveTintColor: theme.colors.TEXT_MID,
@@ -29,6 +29,5 @@ export const TopTabNavigator = (routes: TopTabNavigator) => {
       },
     },
   });
-};
 
 export default TopTabNavigator;

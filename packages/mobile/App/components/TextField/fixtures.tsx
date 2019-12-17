@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { DateField } from './DateField';
-import { TextField } from './TextField';
-import { MaskedTextField } from './MaskedTextField';
 import {
   TextInputMaskOptionProp,
   TextInputMaskTypeProp,
 } from 'react-native-masked-text';
+import { TextField } from './TextField';
+import { MaskedTextField } from './MaskedTextField';
 interface BaseStoryProps {
   label: string;
   placeholder?: string;
@@ -50,29 +49,6 @@ export function BaseMaskedTextFieldStory({
       value={text}
       error={error}
       onChange={onChange}
-    />
-  );
-}
-
-interface BaseDateTextFieldStory {
-  label: string;
-  error?: string;
-}
-
-export function BaseDateTextFieldStory({
-  label,
-  error,
-}: BaseDateTextFieldStory) {
-  const [date, setDate] = useState<Date | null>(null);
-  const onChangeDate = (newDate: Date) => {
-    setDate(newDate);
-  };
-  return (
-    <DateField
-      label={label}
-      value={date}
-      error={error}
-      onChange={onChangeDate}
     />
   );
 }

@@ -24,9 +24,10 @@ stories.add('BarChart', () => (
 ));
 stories.add('Billing', () => <Icons.Billing />);
 stories.add('Camera1', () => <Icons.Camera1 />);
-stories.add('CheckUp', () => <Icons.CheckUp />);
 stories.add('CircleAdd', () => <Icons.CircleAdd />);
 stories.add('Clipboard', () => <Icons.Clipboard />);
+stories.add('Checked', () => <Icons.Checked />);
+stories.add('CheckUp', () => <Icons.CheckUp />);
 stories.add('Deceased', () => <Icons.Deceased />);
 stories.add('FamilyPlanning', () => <Icons.FamilyPlanning />);
 stories.add('Feedback', () => <Icons.Feedback />);

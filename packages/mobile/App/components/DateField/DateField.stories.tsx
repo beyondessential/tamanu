@@ -16,5 +16,5 @@ stories.add('Active', () => (
 ));
 
 stories.add('With Error', () => (
-  <BaseDateTextFieldStory label="Date" error={' with error '} />
+  <BaseDateTextFieldStory label="Date" error=" with error " />
 ));

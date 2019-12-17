@@ -14,7 +14,7 @@ function loadStories() {
   require('../App/components/RadioButtonGroup/index.stories');
   require('../App/components/SearchInput/index.stories');
   require('../App/components/Table/index.stories');
-  require('../App/components/TextField/DateField.stories');
+  require('../App/components/DateField/DateField.stories');
   require('../App/components/TextField/MaskedTextfield.stories');
   require('../App/components/TextField/TextField.stories');
   require('../App/components/TopTabNavigator/index.stories');

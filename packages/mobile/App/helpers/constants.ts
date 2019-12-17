@@ -6,15 +6,18 @@ export const DateFormats = {
   DDMMYY: 'dd/MM/yyyy',
 };
 
-export const HistoryTypes = {
+export const FilterTypeAll = 'All';
+
+export const VisitTypes = {
   HOSPITAL: 'Hospital',
   CLINIC: 'Clinic',
   VISIT: 'Visit',
 };
 
 export const HeaderIcons = {
-  [HistoryTypes.CLINIC]: Icons.FirstAidKit,
-  [HistoryTypes.HOSPITAL]: Icons.Clipboard,
+  [VisitTypes.CLINIC]: Icons.Clipboard,
+  [VisitTypes.HOSPITAL]: Icons.FirstAidKit,
+  [VisitTypes.VISIT]: Icons.Stethoscope,
 };
 
 export const PatientVitalsList = [

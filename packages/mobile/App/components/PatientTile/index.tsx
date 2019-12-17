@@ -22,37 +22,38 @@ export const PatientTile = ({
   city,
   image,
   lastVisit,
-}: PatientTileProps) => {
-  return (
-    <RowView
-      paddingTop={20}
-      paddingBottom={20}
-      width="100%"
-      background={theme.colors.BACKGROUND_GREY}
-      alignItems="center">
-      <StyledView marginLeft={20}>
-        <UserAvatar image={image} gender={gender} name={name} />
-      </StyledView>
-      <StyledView flex={1} marginLeft={10}>
-        <StyledText
-          color={theme.colors.TEXT_SUPER_DARK}
-          fontSize={1}
-          fontWeight={700}>
-          {name}
-        </StyledText>
-        <StyledText
-          marginTop={1}
-          color={theme.colors.TEXT_MID}
-          fontSize={13}
-          fontWeight={500}>
-          {getGender(gender)} {age} yrs, {city}
-        </StyledText>
-      </StyledView>
-      {lastVisit && (
-        <StyledText marginRight={60} color={theme.colors.TEXT_MID}>
-          {formatDate(lastVisit, DateFormats.DAY_MONTH_YEAR_SHORT)}
-        </StyledText>
-      )}
-    </RowView>
-  );
-};
+}: PatientTileProps) => (
+  <RowView
+    paddingTop={20}
+    paddingBottom={20}
+    width="100%"
+    background={theme.colors.BACKGROUND_GREY}
+    alignItems="center"
+  >
+    <StyledView marginLeft={20}>
+      <UserAvatar image={image} gender={gender} name={name} />
+    </StyledView>
+    <StyledView flex={1} marginLeft={10}>
+      <StyledText
+        color={theme.colors.TEXT_SUPER_DARK}
+        fontSize={1}
+        fontWeight={700}
+      >
+        {name}
+      </StyledText>
+      <StyledText
+        marginTop={1}
+        color={theme.colors.TEXT_MID}
+        fontSize={13}
+        fontWeight={500}
+      >
+        {getGender(gender)} {age} yrs, {city}
+      </StyledText>
+    </StyledView>
+    {lastVisit && (
+      <StyledText marginRight={60} color={theme.colors.TEXT_MID}>
+        {formatDate(lastVisit, DateFormats.DAY_MONTH_YEAR_SHORT)}
+      </StyledText>
+    )}
+  </RowView>
+);

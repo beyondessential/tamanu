@@ -23,6 +23,15 @@ interface SpacingProps {
   marginBottom?: number | string;
 }
 
+interface PositionProps {
+  position?: 'absolute' | 'relative';
+  top?: string | number;
+  left?: string | number;
+  right?: string | number;
+  bottom?: string | number;
+  zIndex?: number;
+}
+
 interface FlexProps {
   flex?: number;
   justifyContent?: string;
@@ -39,14 +48,6 @@ interface Borderprops {
   borderTopWidth?: number;
 }
 
-interface PositionProps {
-  position?: 'absolute' | 'relative';
-  bottom?: string | number;
-  left?: string | number;
-  top?: string | number;
-  right?: string | number;
-  zIndex?: string | number;
-}
 interface StyledTextProps
   extends SpacingProps,
     FlexProps,
@@ -92,7 +93,7 @@ export const StyledView = styled.View<StyledViewProps>`
   ${styledSystem.borderWidth}
   ${styledSystem.borderLeft}
   ${styledSystem.borderTop}    
-  ${({ borderLeftWidth = 0 }) => `border-left-width: ${borderLeftWidth}`};  
+  ${({ borderLeftWidth }) => `border-left-width: ${borderLeftWidth}` || 0};  
   ${styledSystem.zIndex}
 `;
 

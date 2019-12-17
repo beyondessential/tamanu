@@ -9,9 +9,10 @@ storiesOf('SearchInput', module)
   .addDecorator((story: Function) => (
     <KeyboardAwareView>
       <CenterView
-        height={'100%'}
-        width={'100%'}
-        background={theme.colors.PRIMARY_MAIN}>
+        height="100%"
+        width="100%"
+        background={theme.colors.PRIMARY_MAIN}
+      >
         {story()}
       </CenterView>
     </KeyboardAwareView>

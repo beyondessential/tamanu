@@ -14,8 +14,6 @@ storiesOf('PatientTile', module)
   .add('With Image', () => (
     <PatientTile
       {...FemaleExampleProps}
-      image={
-        'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png'
-      }
+      image="https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png"
     />
   ));

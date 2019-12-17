@@ -16,10 +16,13 @@ export function BaseStory() {
 
   const showDeboucedMessage = debounce(() => setShowMessage(true), 800);
 
-  const onChangeText = useCallback((text: string) => {
-    setText(text);
-    showDeboucedMessage();
-  }, []);
+  const onChangeText = useCallback(
+    (text: string) => {
+      setText(text);
+      showDeboucedMessage();
+    },
+    [showDeboucedMessage],
+  );
 
   return (
     <React.Fragment>
@@ -29,7 +32,7 @@ export function BaseStory() {
         </StyledText>
       )}
       <SearchInput
-        placeholder={'Search for patients'}
+        placeholder="Search for patients"
         value={text}
         onChangeText={onChangeText}
       />

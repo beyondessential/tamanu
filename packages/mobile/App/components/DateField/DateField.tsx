@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { TouchableWithoutFeedback, Platform, StyleSheet } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import DatePicker from 'react-native-datepicker';
-import { InputContainer } from './styles';
-import { TextFieldLabel } from './TextFieldLabel';
+import DatePicker from '@vinipachecov/react-native-datepicker';
+import { InputContainer } from '../TextField/styles';
+import { TextFieldLabel } from '../TextField/TextFieldLabel';
 import { StyledView, StyledText, RowView } from '../../styled/common';
 import { formatDate } from '../../helpers/date';
 import theme from '../../styled/theme';
@@ -57,13 +57,15 @@ export const DateField = React.memo(
             <InputContainer
               justifyContent="flex-end"
               hasValue={value !== null}
-              error={error}>
+              error={error}
+            >
               {label && (
                 <TextFieldLabel
                   error={error}
                   focus={isDatePickerVisible}
                   onFocus={showDatePicker}
-                  isValueEmpty={value !== null}>
+                  isValueEmpty={value !== null}
+                >
                   {label}
                 </TextFieldLabel>
               )}
@@ -72,11 +74,13 @@ export const DateField = React.memo(
                 paddingRight={10}
                 alignItems="center"
                 justifyContent="space-between"
-                height="100%">
+                height="100%"
+              >
                 <StyledView
                   height="100%"
                   justifyContent="flex-end"
-                  paddingBottom={10}>
+                  paddingBottom={10}
+                >
                   <StyledText fontSize={18} color={theme.colors.TEXT_DARK}>
                     {value && formatDate(value, DateFormats.DDMMYY)}
                   </StyledText>

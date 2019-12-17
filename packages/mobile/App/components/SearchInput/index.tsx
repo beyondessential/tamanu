@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyledView, RowView } from '../../styled/common';
 import styled from 'styled-components/native';
+import { StyledView, RowView } from '../../styled/common';
 import * as Icons from '../Icons';
 import theme from '../../styled/theme';
 
@@ -21,24 +21,23 @@ export const SearchInput = ({
   value,
   onChangeText,
   placeholder,
-}: SearchInputProps) => {
-  return (
-    <RowView
-      background={theme.colors.WHITE}
-      height={50}
-      width="100%"
-      alignItems="center"
-      paddingLeft={15}
-      borderRadius={85}>
-      <StyledView marginRight={10}>
-        <Icons.Search height={20} />
-      </StyledView>
-      <StyledTextInput
-        value={value}
-        placeholder={placeholder}
-        placeholderTextColor={theme.colors.TEXT_MID}
-        onChangeText={onChangeText}
-      />
-    </RowView>
-  );
-};
+}: SearchInputProps) => (
+  <RowView
+    background={theme.colors.WHITE}
+    height={50}
+    width="100%"
+    alignItems="center"
+    paddingLeft={15}
+    borderRadius={85}
+  >
+    <StyledView marginRight={10}>
+      <Icons.Search height={20} />
+    </StyledView>
+    <StyledTextInput
+      value={value}
+      placeholder={placeholder}
+      placeholderTextColor={theme.colors.TEXT_MID}
+      onChangeText={onChangeText}
+    />
+  </RowView>
+);
