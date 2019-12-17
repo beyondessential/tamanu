@@ -204,17 +204,16 @@ const SummaryPage = React.memo(({ patient, visit }) => {
 });
 
 const DumbDischargeSummaryView = React.memo(({ visit, patient, loading }) => {
+  if (loading) return <LoadingIndicator />;
   return (
-    <LoadingIndicator loading={loading}>
-      <TopBar title="Patient Discharge Summary">
-        <TextButton onClick={printPage}>Print Summary</TextButton>
-        <StyledBackButton to="/patients/visit" />
+    <TopBar title="Patient Discharge Summary">
+      <TextButton onClick={printPage}>Print Summary</TextButton>
+      <StyledBackButton to="/patients/visit" />
+      <SummaryPage patient={patient} visit={visit} />
+      <PrintPortal>
         <SummaryPage patient={patient} visit={visit} />
-        <PrintPortal>
-          <SummaryPage patient={patient} visit={visit} />
-        </PrintPortal>
-      </TopBar>
-    </LoadingIndicator>
+      </PrintPortal>
+    </TopBar>
   );
 });
 

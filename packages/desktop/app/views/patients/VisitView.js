@@ -386,9 +386,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
   const readonly = visit.endDate || patient.death;
 
-  if (loading) {
-    return <LoadingIndicator loading />;
-  }
+  if (loading) return <LoadingIndicator />;
 
   return (
     <TwoColumnDisplay>

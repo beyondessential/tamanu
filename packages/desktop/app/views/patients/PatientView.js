@@ -151,24 +151,24 @@ const TABS = [
 ];
 
 export const DumbPatientView = React.memo(({ patient, loading }) => {
+  if (loading) return <LoadingIndicator />;
+
   const [currentTab, setCurrentTab] = React.useState('history');
   const readonly = !!patient.death;
 
   return (
     <React.Fragment>
-      <LoadingIndicator loading={loading}>
-        <PatientAlert alerts={patient.alerts} />
-        <TwoColumnDisplay>
-          <PatientInfoPane patient={patient} readonly={readonly} />
-          <TabDisplay
-            tabs={TABS}
-            currentTab={currentTab}
-            onTabSelect={setCurrentTab}
-            patient={patient}
-            readonly={readonly}
-          />
-        </TwoColumnDisplay>
-      </LoadingIndicator>
+      <PatientAlert alerts={patient.alerts} />
+      <TwoColumnDisplay>
+        <PatientInfoPane patient={patient} readonly={readonly} />
+        <TabDisplay
+          tabs={TABS}
+          currentTab={currentTab}
+          onTabSelect={setCurrentTab}
+          patient={patient}
+          readonly={readonly}
+        />
+      </TwoColumnDisplay>
       <RoutedVisitModal patientId={patient._id} referrals={patient.referrals} />
       <RoutedTriageModal patient={patient} />
     </React.Fragment>

@@ -38,21 +38,20 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest }) => (
   </FormGrid>
 ));
 
-export const DumbImagingRequestView = React.memo(({ imagingRequest, patient, loading }) => (
-  <React.Fragment>
-    <LoadingIndicator loading={loading}>
-      <TwoColumnDisplay>
-        <PatientInfoPane patient={patient} />
-        <div>
-          <BackLink />
-          <ContentPane>
-            <ImagingRequestInfoPane imagingRequest={imagingRequest} />
-          </ContentPane>
-        </div>
-      </TwoColumnDisplay>
-    </LoadingIndicator>
-  </React.Fragment>
-));
+export const DumbImagingRequestView = React.memo(({ imagingRequest, patient, loading }) => {
+  if (loading) return <LoadingIndicator />;
+  return (
+    <TwoColumnDisplay>
+      <PatientInfoPane patient={patient} />
+      <div>
+        <BackLink />
+        <ContentPane>
+          <ImagingRequestInfoPane imagingRequest={imagingRequest} />
+        </ContentPane>
+      </div>
+    </TwoColumnDisplay>
+  );
+});
 
 export const ImagingRequestView = connect(state => ({
   loading: state.visit.loading,

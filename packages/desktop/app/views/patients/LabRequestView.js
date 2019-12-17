@@ -87,25 +87,24 @@ const LabRequestInfoPane = React.memo(({ labRequest }) => (
   </FormGrid>
 ));
 
-export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) => (
-  <React.Fragment>
-    <LoadingIndicator loading={loading}>
-      <TwoColumnDisplay>
-        <PatientInfoPane patient={patient} />
-        <div>
-          <TopBar title="Lab request">
-            <ChangeLabStatusButton labRequest={labRequest} />
-          </TopBar>
-          <BackLink />
-          <ContentPane>
-            <LabRequestInfoPane labRequest={labRequest} />
-          </ContentPane>
-          <ResultsPane labRequest={labRequest} />
-        </div>
-      </TwoColumnDisplay>
-    </LoadingIndicator>
-  </React.Fragment>
-));
+export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) => {
+  if (loading) return <LoadingIndicator />;
+  return (
+    <TwoColumnDisplay>
+      <PatientInfoPane patient={patient} />
+      <div>
+        <TopBar title="Lab request">
+          <ChangeLabStatusButton labRequest={labRequest} />
+        </TopBar>
+        <BackLink />
+        <ContentPane>
+          <LabRequestInfoPane labRequest={labRequest} />
+        </ContentPane>
+        <ResultsPane labRequest={labRequest} />
+      </div>
+    </TwoColumnDisplay>
+  );
+});
 
 export const LabRequestView = connect(state => ({
   loading: state.visit.loading,
