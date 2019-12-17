@@ -1,5 +1,9 @@
 import React from 'react';
 
-export const LoadingIndicator = React.memo(({ loading, children }) =>
-  loading ? <div>Loading...</div> : children,
-);
+import { ContentPane } from './ContentPane';
+
+export const LoadingIndicator = React.memo(() => (
+  <ContentPane>
+    <div>Loading...</div>
+  </ContentPane>
+));
