@@ -1,5 +1,7 @@
 import React from 'react';
+import * as yup from 'yup';
 
+import { foreignKey } from '../utils/validation';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
 import {
@@ -39,6 +41,18 @@ export const MedicationForm = React.memo(
         qtyEvening: 0,
         qtyNight: 0,
       }}
+      validationSchema={yup.object().shape({
+        drug: foreignKey('Medication must be selected'),
+        prescription: yup.string().required(),
+        prescriber: foreignKey('Prescriber must be selected'),
+        route: yup
+          .string()
+          .oneOf(drugRouteOptions.map(x => x.value))
+          .required(),
+        date: yup.date().required(),
+        endDate: yup.date(),
+        notes: yup.string(),
+      })}
       render={({ submitForm }) => (
         <FormGrid>
           <div style={{ gridColumn: '1 / -1' }}>
@@ -59,7 +73,7 @@ export const MedicationForm = React.memo(
             required
           />
           <Field name="date" label="Prescription date" component={DateField} required />
-          <Field name="endDate" label="End date" component={DateField} required />
+          <Field name="endDate" label="End date" component={DateField} />
           <Field
             name="prescriber._id"
             label="Prescriber"
@@ -67,19 +81,13 @@ export const MedicationForm = React.memo(
             suggester={practitionerSuggester}
             required
           />
-          <Field
-            name="notes"
-            label="Notes"
-            component={TextField}
-            required
-            style={{ gridColumn: '1/-1' }}
-          />
+          <Field name="notes" label="Notes" component={TextField} style={{ gridColumn: '1/-1' }} />
           <FormGrid nested>
             <h3 style={{ gridColumn: '1/-1' }}>Quantity</h3>
-            <Field name="qtyMorning" label="Morning" component={NumberField} required />
-            <Field name="qtyLunch" label="Lunch" component={NumberField} required />
-            <Field name="qtyEvening" label="Evening" component={NumberField} required />
-            <Field name="qtyNight" label="Night" component={NumberField} required />
+            <Field name="qtyMorning" label="Morning" component={NumberField} />
+            <Field name="qtyLunch" label="Lunch" component={NumberField} />
+            <Field name="qtyEvening" label="Evening" component={NumberField} />
+            <Field name="qtyNight" label="Night" component={NumberField} />
           </FormGrid>
           <Field name="indication" label="Indication" component={TextField} />
           <ConfirmCancelRow onConfirm={submitForm} onCancel={onCancel} />
