@@ -16,7 +16,7 @@ import {
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
-import { foreignKey } from '../utils/validation';
+import { foreignKey, optionalForeignKey } from '../utils/validation';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
@@ -155,15 +155,15 @@ export class ProcedureForm extends React.PureComponent {
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          type: foreignKey().required(),
-          location: foreignKey().required(),
+          type: foreignKey("Procedure must be selected"),
+          location: foreignKey("Location must be selected"),
           date: yup.date().required(),
           startTime: yup.date(),
           endTime: yup.date(),
-          physician: foreignKey().required(),
-          assistant: foreignKey(),
-          anaesthetist: foreignKey(),
-          anaesthesiaType: foreignKey(),
+          physician: foreignKey("Physician must be selected"),
+          assistant: optionalForeignKey(),
+          anaesthetist: optionalForeignKey(),
+          anaesthesiaType: optionalForeignKey(),
           notes: yup.string(),
           completed: yup.boolean(),
           completedNotes: yup.string(),
