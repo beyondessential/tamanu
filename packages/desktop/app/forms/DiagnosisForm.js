@@ -1,5 +1,7 @@
 import React from 'react';
+import * as yup from 'yup';
 
+import { foreignKey } from '../utils/validation';
 import {
   diagnosisCertaintyOptions,
   nonEmergencyDiagnosisCertaintyOptions,
@@ -39,6 +41,14 @@ export const DiagnosisForm = React.memo(
           certainty: defaultCertainty,
           ...diagnosis,
         }}
+        validationSchema={yup.object().shape({
+          diagnosis: foreignKey('Diagnosis must be selected'),
+          certainty: yup
+            .string()
+            .oneOf(certaintyOptions.map(x => x.value))
+            .required(),
+          date: yup.date().required(),
+        })}
         render={({ submitForm }) => (
           <FormGrid>
             <div style={{ gridColumn: '1 / -1' }}>
