@@ -33,12 +33,6 @@ function toRFC3339(date, format) {
   return moment.utc(date, format).format();
 }
 
-export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
-
-export const DateTimeInput = props => (
-  <DateInput type="datetime-local" format="YYYY-MM-DDTHH:mm" {...props} />
-);
-
 const CalendarIcon = styled(CalendarToday)`
   color: #cccccc;
 `;
@@ -58,7 +52,7 @@ export const DateInput = ({
       const formattedValue = event.target.value;
       const rfcValue = toRFC3339(formattedValue, format);
 
-      setCurrentText(value);
+      setCurrentText(formattedValue);
       if (rfcValue === 'Invalid date') {
         onChange({ target: { value: '', name } });
         return;
@@ -71,7 +65,9 @@ export const DateInput = ({
 
   React.useEffect(() => {
     const formattedValue = fromRFC3339(value, format);
-    setCurrentText(formattedValue);
+    if(value && formattedValue) {
+      setCurrentText(formattedValue);
+    }
   }, [value, format]);
 
   return (
@@ -90,6 +86,12 @@ export const DateInput = ({
     />
   );
 };
+
+export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
+
+export const DateTimeInput = props => (
+  <DateInput type="datetime-local" format="YYYY-MM-DDTHH:mm" {...props} />
+);
 
 export const DateField = ({ field, ...props }) => (
   <DateInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
