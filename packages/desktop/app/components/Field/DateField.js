@@ -52,7 +52,7 @@ export const DateInput = ({
       const formattedValue = event.target.value;
       const rfcValue = toRFC3339(formattedValue, format);
 
-      setCurrentText(value);
+      setCurrentText(formattedValue);
       if (rfcValue === 'Invalid date') {
         onChange({ target: { value: '', name } });
         return;
@@ -65,7 +65,9 @@ export const DateInput = ({
 
   React.useEffect(() => {
     const formattedValue = fromRFC3339(value, format);
-    setCurrentText(formattedValue);
+    if(value && formattedValue) {
+      setCurrentText(formattedValue);
+    }
   }, [value, format]);
 
   return (
