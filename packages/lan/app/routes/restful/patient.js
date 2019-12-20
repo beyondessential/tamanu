@@ -35,11 +35,18 @@ patientRoutes.post('/patient/:id/triages', (req, res) => {
     ...body,
   };
 
+  const complaint = db.objectForPrimaryKey('diagnosis', triage.chiefComplaint._id);
+  let reasonForVisit = complaint.name;
+  if(triage.secondaryComplaint) {
+    const secondaryComplaint = db.objectForPrimaryKey('diagnosis', triage.secondaryComplaint._id);
+    reasonForVisit += ", " + secondaryComplaint.name;
+  }
+  
   const visit = {
     _id: shortid.generate(),
     visitType: 'triage',
     startDate: triage.arrivalTime,
-    reasonForVisit: triage.reasonForVisit,
+    reasonForVisit,
     examiner: triage.practitioner,
     location: triage.location,
   };
