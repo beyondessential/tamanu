@@ -9,10 +9,11 @@ export const PractitionerView = ({ name }: PractitionerProps) => (
     <StyledText
       color={theme.colors.TEXT_SUPER_DARK}
       fontWeight={500}
-      fontSize={14}>
+      fontSize={14}
+    >
       Practitioner
     </StyledText>
-    <RowView marginTop={10} alignItems={'center'}>
+    <RowView marginTop={10} alignItems="center">
       <StyledView marginRight={10}>
         <Icons.Avatar7 height={30} />
       </StyledView>

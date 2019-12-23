@@ -2,6 +2,7 @@ import React from 'react';
 import { StyledView, StyledText, StyledImage } from '../../styled/common';
 import theme from '../../styled/theme';
 import { getUserInitials, Genders } from '../../helpers/user';
+import { screenPercentageToDp, Orientation } from '../../helpers/screen';
 
 interface UserAvatarProps {
   image?: string;
@@ -11,7 +12,7 @@ interface UserAvatarProps {
 
 export const UserAvatar = ({ image, name, gender }: UserAvatarProps) => {
   const userInitials: String = React.useMemo(() => getUserInitials(name), [
-    image,
+    name,
   ]);
   const backgroundColor: string = React.useMemo(() => {
     if (image) return 'transparent';
@@ -20,19 +21,28 @@ export const UserAvatar = ({ image, name, gender }: UserAvatarProps) => {
 
   return (
     <StyledView
-      height={45}
-      width={45}
+      height={screenPercentageToDp('4.86', Orientation.Height)}
+      width={screenPercentageToDp('4.86', Orientation.Height)}
       borderRadius={50}
       overflow="hidden"
       background={backgroundColor}
       justifyContent="center"
-      alignItems="center">
+      alignItems="center"
+    >
       {!image ? (
-        <StyledText fontSize={14} fontWeight={900} color={theme.colors.WHITE}>
+        <StyledText
+          fontSize={screenPercentageToDp('1.7', Orientation.Height)}
+          fontWeight={900}
+          color={theme.colors.WHITE}
+        >
           {userInitials}
         </StyledText>
       ) : (
-        <StyledImage source={{ uri: image }} width={45} height={45} />
+        <StyledImage
+          source={{ uri: image }}
+          width={screenPercentageToDp('4.86', Orientation.Height)}
+          height={screenPercentageToDp('4.86', Orientation.Height)}
+        />
       )}
     </StyledView>
   );

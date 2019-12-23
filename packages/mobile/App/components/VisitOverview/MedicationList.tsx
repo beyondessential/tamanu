@@ -20,7 +20,9 @@ const MedicationListItem = ({ name, index }: MedicationListItemProps) => (
         borderRadius={50}
         background={ColorHelper.halfTransparency(theme.colors.TEXT_MID)}
       />
-      <StyledText color={theme.colors.TEXT_MID}>Medication {index}</StyledText>
+      <StyledText color={theme.colors.TEXT_MID}>
+        {`Medication ${index}`}
+      </StyledText>
     </RowView>
     <StyledView marginLeft={15} marginTop={10}>
       <StyledText color={theme.colors.TEXT_MID}>{name}</StyledText>
@@ -32,21 +34,17 @@ export const MedicationList = ({
   medications,
 }: {
   medications: MedicationProps[];
-}) => {
-  return (
-    <StyledView marginTop={20}>
-      <StyledText fontSize={14} fontWeight={500}>
-        Medication
-      </StyledText>
-      {medications.map((medicationItem, index) => {
-        return (
-          <MedicationListItem
-            key={medicationItem.id}
-            name={medicationItem.name}
-            index={index}
-          />
-        );
-      })}
-    </StyledView>
-  );
-};
+}) => (
+  <StyledView marginTop={20}>
+    <StyledText fontSize={14} fontWeight={500}>
+      Medication
+    </StyledText>
+    {medications.map((medicationItem, index) => (
+      <MedicationListItem
+        key={medicationItem.id}
+        name={medicationItem.name}
+        index={index}
+      />
+    ))}
+  </StyledView>
+);

@@ -2,9 +2,27 @@ import styled from 'styled-components/native';
 import * as styledSystem from 'styled-system';
 import { ReactNode } from 'react';
 
+const sizes = [];
+for (let i = 0; i < 5; i++) {
+  sizes.push(i);
+}
+
+export const themeSystem = {
+  fontSizes: sizes,
+  space: sizes,
+  marginLeft: sizes,
+  marginRight: sizes,
+  marginBottom: sizes,
+  marginTop: sizes,
+  paddingLeft: sizes,
+  paddingRight: sizes,
+  paddingBottom: sizes,
+  paddingTop: sizes,
+};
+
 interface TextProps {
   textAlign?: string;
-  fontSize?: number;
+  fontSize?: number | string;
   fontWeight?: number | string;
   color?: string;
 }

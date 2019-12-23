@@ -6,4 +6,4 @@ import Storybook from './storybook';
 
 // console.disableYellowBox = true;
 
-AppRegistry.registerComponent(appName, () => (env.STORYBOOK ? Storybook : App));
+AppRegistry.registerComponent(appName, () => Storybook);

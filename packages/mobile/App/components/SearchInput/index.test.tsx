@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, act } from '@testing-library/react-native';
 import { BaseStory } from './fixture';
 
 describe('<SearchInput />', () => {
@@ -14,7 +14,9 @@ describe('<SearchInput />', () => {
 
   it('should change value', () => {
     const input = getByPlaceholderText(props.placeholder);
-    fireEvent.changeText(input, searchText);
+    act(() => {
+      fireEvent.changeText(input, searchText);
+    });
     expect(input.getProp('value')).toBe(searchText);
   });
 });

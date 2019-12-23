@@ -9,9 +9,9 @@ describe('<Dropdown />', () => {
     const floatingLabel = getByText('Type');
     fireEvent.press(floatingLabel);
 
-    for (const item of items) {
+    items.forEach(item => {
       expect(getByTestId(item.value)).not.toBeNull();
-    }
+    });
   });
 
   it('should select an item', () => {

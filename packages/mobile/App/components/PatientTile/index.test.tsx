@@ -6,7 +6,7 @@ import { formatDate } from '../../helpers/date';
 import { DateFormats } from '../../helpers/constants';
 
 describe('<PatientTile />', () => {
-  const { debug, getByText } = render(<PatientTile {...MaleExampleProps} />);
+  const { getByText } = render(<PatientTile {...MaleExampleProps} />);
 
   type visibleProps = 'city' | 'name' | 'gender' | 'age' | 'lastVisit';
   const visibleProps: visibleProps[] = [
@@ -18,7 +18,7 @@ describe('<PatientTile />', () => {
   ];
 
   it('should render Patient Tile ', () => {
-    for (const visibleProp of visibleProps) {
+    visibleProps.forEach(visibleProp => {
       switch (visibleProp) {
         case 'lastVisit':
           expect(
@@ -37,6 +37,6 @@ describe('<PatientTile />', () => {
             }),
           ).not.toBe(null);
       }
-    }
+    });
   });
 });

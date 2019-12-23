@@ -25,7 +25,7 @@ describe('<PatientCard />', () => {
 
   const { getByText } = render(<PatientCard {...props} />);
   it('should render <PatientCard/> correctly', () => {
-    for (const visibleProp of visibleProps) {
+    visibleProps.forEach(visibleProp => {
       switch (visibleProp) {
         case 'lastVisit':
           expect(
@@ -39,7 +39,7 @@ describe('<PatientCard />', () => {
             }),
           ).not.toBe(null);
       }
-    }
+    });
   });
 
   it('should handle onPress', () => {

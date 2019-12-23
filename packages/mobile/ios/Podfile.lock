@@ -238,6 +238,8 @@ PODS:
     - React
   - RNReanimated (1.4.0):
     - React
+  - RNSpringScrollView (2.0.23):
+    - React
   - RNSVG (9.13.3):
     - React
   - SDWebImage (5.3.1):
@@ -281,6 +283,7 @@ DEPENDENCIES:
   - RNFastImage (from `../node_modules/react-native-fast-image`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
+  - RNSpringScrollView (from `../node_modules/react-native-spring-scrollview/ios`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -350,6 +353,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
+  RNSpringScrollView:
+    :path: "../node_modules/react-native-spring-scrollview/ios"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   Yoga:
@@ -387,6 +392,7 @@ SPEC CHECKSUMS:
   RNFastImage: 9b0c22643872bb7494c8d87bbbb66cc4c0d9e7a2
   RNGestureHandler: 7add966bb5d90ee8cf38d4341f87814474357972
   RNReanimated: b2ab0b693dddd2339bd2f300e770f6302d2e960c
+  RNSpringScrollView: 8b0af44fda8b131d845b93bf5b1d0710152e4e61
   RNSVG: f6177f8d7c095fada7cfee2e4bb7388ba426064c
   SDWebImage: 7137d57385fb632129838c1e6ab9528a22c666cc
   SDWebImageWebPCoder: 947093edd1349d820c40afbd9f42acb6cdecd987

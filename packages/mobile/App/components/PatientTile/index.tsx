@@ -5,8 +5,9 @@ import { formatDate } from '../../helpers/date';
 import { DateFormats } from '../../helpers/constants';
 import theme from '../../styled/theme';
 import { getGender } from '../../helpers/user';
+import { screenPercentageToDp, Orientation } from '../../helpers/screen';
 
-interface PatientTileProps {
+export interface PatientTileProps {
   name: string;
   age: string;
   gender: string;
@@ -24,8 +25,8 @@ export const PatientTile = ({
   lastVisit,
 }: PatientTileProps) => (
   <RowView
-    paddingTop={20}
-    paddingBottom={20}
+    paddingTop={screenPercentageToDp('3', Orientation.Height)}
+    paddingBottom={screenPercentageToDp('3', Orientation.Height)}
     width="100%"
     background={theme.colors.BACKGROUND_GREY}
     alignItems="center"
@@ -36,7 +37,7 @@ export const PatientTile = ({
     <StyledView flex={1} marginLeft={10}>
       <StyledText
         color={theme.colors.TEXT_SUPER_DARK}
-        fontSize={1}
+        fontSize={screenPercentageToDp('1.822', Orientation.Height)}
         fontWeight={700}
       >
         {name}
@@ -44,14 +45,17 @@ export const PatientTile = ({
       <StyledText
         marginTop={1}
         color={theme.colors.TEXT_MID}
-        fontSize={13}
+        fontSize={screenPercentageToDp('1.57', Orientation.Height)}
         fontWeight={500}
       >
-        {getGender(gender)} {age} yrs, {city}
+        {`${getGender(gender)} ${age}yrs${city}`}
       </StyledText>
     </StyledView>
     {lastVisit && (
-      <StyledText marginRight={60} color={theme.colors.TEXT_MID}>
+      <StyledText
+        marginRight={screenPercentageToDp('14.59', Orientation.Width)}
+        color={theme.colors.TEXT_MID}
+      >
         {formatDate(lastVisit, DateFormats.DAY_MONTH_YEAR_SHORT)}
       </StyledText>
     )}
