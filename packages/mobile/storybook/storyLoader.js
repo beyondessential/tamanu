@@ -7,6 +7,7 @@ function loadStories() {
   require('../App/components/Accordion/index.stories');
   require('../App/components/BottomNavigator/index.stories');
   require('../App/components/Button/index.stories');
+  require('../App/components/CircularProgress/index.stories');
   require('../App/components/DateField/DateField.stories');
   require('../App/components/Dropdown/index.stories');
   require('../App/components/Icons/index.stories');
@@ -27,6 +28,7 @@ const stories = [
   '../App/components/Accordion/index.stories',
   '../App/components/BottomNavigator/index.stories',
   '../App/components/Button/index.stories',
+  '../App/components/CircularProgress/index.stories',
   '../App/components/DateField/DateField.stories',
   '../App/components/Dropdown/index.stories',
   '../App/components/Icons/index.stories',
