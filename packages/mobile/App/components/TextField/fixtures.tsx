@@ -42,7 +42,6 @@ export function BaseMaskedTextFieldStory({
   error,
   maskType,
   options,
-  multiline,
 }: BaseStoryProps) {
   const [text, setText] = useState('');
   const onChange = (newText: string) => {
@@ -56,7 +55,6 @@ export function BaseMaskedTextFieldStory({
       value={text}
       error={error}
       onChange={onChange}
-      multiline={multiline}
     />
   );
 }

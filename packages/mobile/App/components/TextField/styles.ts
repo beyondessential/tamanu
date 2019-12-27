@@ -35,6 +35,7 @@ export const StyledTextInput = styled.TextInput`
   line-height: 21px;
   font-weight: 400;
   height: 100%;
+  justify-content: flex-start;
   color: ${theme.colors.TEXT_MID};
   padding-left: 10px;
   padding-top: 8px;

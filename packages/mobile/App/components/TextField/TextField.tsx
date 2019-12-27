@@ -1,5 +1,5 @@
 import React, { useState, useRef, Ref } from 'react';
-import { TextInput, KeyboardType } from 'react-native';
+import { TextInput, KeyboardType, StyleSheet } from 'react-native';
 import { InputContainer, StyledTextInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '../../styled/common';
@@ -19,6 +19,12 @@ export interface TextFieldProps {
   error?: '' | string;
   multiline?: boolean;
 }
+
+const styles = StyleSheet.create({
+  textinput: {
+    textAlignVertical: 'top',
+  },
+});
 
 export const TextField = React.memo(
   ({
@@ -50,6 +56,7 @@ export const TextField = React.memo(
       value,
       focused,
       multiline,
+      style: styles.textinput,
     };
 
     return (

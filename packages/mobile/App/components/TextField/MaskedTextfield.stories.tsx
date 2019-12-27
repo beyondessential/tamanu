@@ -26,7 +26,7 @@ stories.add('Phone', () => (
 stories.add('With Error', () => (
   <BaseMaskedTextFieldStory
     masked
-    error={'invalid'}
+    error="invalid"
     options={{
       unit: '$',
       delimiter: ',',
