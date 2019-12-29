@@ -13,17 +13,52 @@ const StyledTextField = styled(MuiTextField)`
   }
 `;
 
-export const SelectInput = ({ options, value, label, classes, ...props }) => (
-  <OuterLabelFieldWrapper label={label} {...props}>
-    <StyledTextField select value={value || ''} variant="outlined" classes={classes} {...props}>
-      {options.map(o => (
-        <MuiMenuItem key={o.value} value={o.value}>
-          {o.label}
-        </MuiMenuItem>
-      ))}
-    </StyledTextField>
-  </OuterLabelFieldWrapper>
-);
+export const SelectInput = ({
+  options,
+  value,
+  label,
+  classes,
+  disabled,
+  readonly,
+  onChange,
+  ...props
+}) => {
+  const isReadonly = readonly || (value && !onChange);
+  if (disabled || isReadonly) {
+    const valueText = (options.find(o => o.value === value) || {}).label || '';
+    return (
+      <OuterLabelFieldWrapper label={label} {...props}>
+        <StyledTextField
+          value={valueText}
+          variant="outlined"
+          classes={classes}
+          disabled={disabled}
+          readonly={isReadonly}
+          {...props}
+        />
+      </OuterLabelFieldWrapper>
+    );
+  }
+
+  return (
+    <OuterLabelFieldWrapper label={label} {...props}>
+      <StyledTextField
+        select
+        value={value || ''}
+        onChange={onChange}
+        variant="outlined"
+        classes={classes}
+        {...props}
+      >
+        {options.map(o => (
+          <MuiMenuItem key={o.value} value={o.value}>
+            {o.label}
+          </MuiMenuItem>
+        ))}
+      </StyledTextField>
+    </OuterLabelFieldWrapper>
+  );
+};
 
 export const SelectField = ({ field, ...props }) => (
   <SelectInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
