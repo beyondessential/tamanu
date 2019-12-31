@@ -16,8 +16,6 @@ stories.add('Active', () => (
   <BaseTextFieldStory label="First Year of Registration" />
 ));
 stories.add('With Error', () => (
-  <BaseTextFieldStory
-    label="First Year of Registration"
-    error={' with error '}
-  />
+  <BaseTextFieldStory label="First Year of Registration" error=" with error" />
 ));
+stories.add('Multiline', () => <BaseTextFieldStory multiline />);

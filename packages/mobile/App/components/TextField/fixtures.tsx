@@ -6,7 +6,7 @@ import {
 import { TextField } from './TextField';
 import { MaskedTextField } from './MaskedTextField';
 interface BaseStoryProps {
-  label: string;
+  label?: string;
   placeholder?: string;
   error?: string;
   isOpen?: boolean;
@@ -14,9 +14,14 @@ interface BaseStoryProps {
   masked?: boolean;
   options?: TextInputMaskOptionProp;
   maskType?: TextInputMaskTypeProp;
+  multiline?: boolean;
 }
 
-export function BaseTextFieldStory({ label, error }: BaseStoryProps) {
+export function BaseTextFieldStory({
+  label,
+  error,
+  multiline,
+}: BaseStoryProps) {
   const [text, setText] = useState('');
   const onChangeText = (newText: string) => {
     setText(newText);
@@ -27,6 +32,7 @@ export function BaseTextFieldStory({ label, error }: BaseStoryProps) {
       value={text}
       error={error}
       onChange={onChangeText}
+      multiline={multiline}
     />
   );
 }
