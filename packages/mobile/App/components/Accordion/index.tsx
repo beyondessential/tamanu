@@ -10,17 +10,17 @@ interface AccordionListProps {
 }
 
 const AccordionList = ({ dataArray }: AccordionListProps) => {
-  const [activeSections, setActiveSections] = useState(new Array());
+  const [activeSections, setActiveSections] = useState<number[]>([]);
 
   const updateSections = (newActiveSection: number[]) => {
     setActiveSections(newActiveSection);
   };
 
   return (
-    <StyledView width={'100%'}>
+    <StyledView width="100%">
       <Accordion
         sections={dataArray}
-        underlayColor={'transparent'}
+        underlayColor="transparent"
         activeSections={activeSections}
         renderHeader={Header}
         renderContent={VisitOverview}

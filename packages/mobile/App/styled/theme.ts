@@ -1,4 +1,4 @@
-export default {
+export const theme = {
   colors: {
     MAIN_SUPER_DARK: '#2F4358',
     PRIMARY_MAIN: '#326699',
@@ -21,3 +21,5 @@ export default {
     PROGRESS_BACKGROUND: '#526980',
   },
 };
+
+export default theme;

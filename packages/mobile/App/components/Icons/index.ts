@@ -7,7 +7,7 @@ export * from './Avatar';
 export * from './Avatar_10';
 export * from './Avatar_11';
 export * from './Avatar_12';
-export * from './Billing';
+export * from './SickOrInjured';
 export * from './Camera1';
 export * from './CheckUp';
 export * from './Checked';

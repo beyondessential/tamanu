@@ -23,7 +23,7 @@ stories.add('BarChart', () => (
     <Icons.BarChart />
   </CenterView>
 ));
-stories.add('Billing', () => <Icons.Billing />);
+stories.add('SickOrInjured', () => <Icons.SickOrInjured />);
 stories.add('Camera1', () => <Icons.Camera1 />);
 stories.add('CircleAdd', () => <Icons.CircleAdd />);
 stories.add('Clipboard', () => <Icons.Clipboard />);

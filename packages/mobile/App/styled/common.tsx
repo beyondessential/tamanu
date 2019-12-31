@@ -1,22 +1,23 @@
 import styled from 'styled-components/native';
 import * as styledSystem from 'styled-system';
 import { ReactNode } from 'react';
+
 const sizes = [];
 for (let i = 0; i < 5; i++) {
   sizes.push(i);
 }
 
 export const themeSystem = {
-  fontSizes: sizes,
-  space: sizes,
+  fontSize: sizes,
   marginLeft: sizes,
+  space: sizes,
   marginRight: sizes,
-  marginBottom: sizes,
   marginTop: sizes,
+  marginBottom: sizes,
   paddingLeft: sizes,
   paddingRight: sizes,
-  paddingBottom: sizes,
   paddingTop: sizes,
+  paddingBottom: sizes,
 };
 
 interface TextProps {
@@ -64,6 +65,7 @@ interface Borderprops {
   borderRightWidth?: number;
   borderBottomWidth?: number;
   borderTopWidth?: number;
+  boxShadow?: string;
 }
 
 export interface StyledTextProps
@@ -90,6 +92,7 @@ export const StyledView = styled.View<StyledViewProps>`
   ${styledSystem.flexbox}     
   ${styledSystem.background}    
   ${({ borderLeftWidth }) => `border-left-width: ${borderLeftWidth}` || 0};  
+  ${styledSystem.boxShadow}
   ${styledSystem.zIndex}
 `;
 
