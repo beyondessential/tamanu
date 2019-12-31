@@ -1,7 +1,7 @@
 import React from 'react';
+import { storiesOf } from '@storybook/react-native';
 import * as Icons from './index';
 import { CenterView } from '../../styled/common';
-import { storiesOf } from '@storybook/react-native';
 import theme from '../../styled/theme';
 
 const stories = storiesOf('Icons', module);
