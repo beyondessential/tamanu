@@ -5,11 +5,13 @@ import { getUserInitials } from '../../helpers/user';
 
 describe('<UserAvatar/>', () => {
   const withoutImageProps = {
+    size: 25,
     name: 'Johnatan Orange',
     gender: 'male',
   };
 
   const withImageProps = {
+    size: 25,
     name: 'Johnatan Orange',
     gender: 'male',
     image:

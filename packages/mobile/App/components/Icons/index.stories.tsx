@@ -1,7 +1,7 @@
 import React from 'react';
+import { storiesOf } from '@storybook/react-native';
 import * as Icons from './index';
 import { CenterView } from '../../styled/common';
-import { storiesOf } from '@storybook/react-native';
 import theme from '../../styled/theme';
 
 const stories = storiesOf('Icons', module);
@@ -9,6 +9,7 @@ const stories = storiesOf('Icons', module);
 stories.addDecorator((getStory: Function) => (
   <CenterView>{getStory()}</CenterView>
 ));
+stories.add('Appoitments', () => <Icons.Appointments />);
 stories.add('ArrowBack', () => <Icons.ArrowBack />);
 stories.add('ArrowDown', () => <Icons.ArrowDown />);
 stories.add('ArrowForward', () => <Icons.ArrowForward />);
@@ -37,6 +38,7 @@ stories.add('Forward', () => <Icons.Forward />);
 stories.add('Group', () => <Icons.Group />);
 stories.add('Heart', () => <Icons.Heart />);
 stories.add('HeartOutline', () => <Icons.HeartOutline />);
+stories.add('History', () => <Icons.History />);
 stories.add('Location', () => <Icons.Location />);
 stories.add('LogoV1', () => <Icons.LogoV1 />);
 stories.add('BottomNavLogo', () => <Icons.BottomNavLogo />);

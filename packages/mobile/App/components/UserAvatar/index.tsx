@@ -8,9 +8,17 @@ interface UserAvatarProps {
   image?: string;
   name: string;
   gender: string;
+  size: number;
+  Icon?: JSX.Element;
 }
 
-export const UserAvatar = ({ image, name, gender }: UserAvatarProps) => {
+export const UserAvatar = ({
+  image,
+  name,
+  gender,
+  size,
+  Icon,
+}: UserAvatarProps) => {
   const userInitials: String = React.useMemo(() => getUserInitials(name), [
     name,
   ]);
@@ -21,10 +29,9 @@ export const UserAvatar = ({ image, name, gender }: UserAvatarProps) => {
 
   return (
     <StyledView
-      height={screenPercentageToDp('4.86', Orientation.Height)}
-      width={screenPercentageToDp('4.86', Orientation.Height)}
+      height={size}
+      width={size}
       borderRadius={50}
-      overflow="hidden"
       background={backgroundColor}
       justifyContent="center"
       alignItems="center"
@@ -38,12 +45,9 @@ export const UserAvatar = ({ image, name, gender }: UserAvatarProps) => {
           {userInitials}
         </StyledText>
       ) : (
-        <StyledImage
-          source={{ uri: image }}
-          width={screenPercentageToDp('4.86', Orientation.Height)}
-          height={screenPercentageToDp('4.86', Orientation.Height)}
-        />
+        <StyledImage source={{ uri: image }} width={size} height={size} />
       )}
+      {Icon && Icon}
     </StyledView>
   );
 };

@@ -54,6 +54,7 @@ interface FlexProps {
   justifyContent?: string;
   alignItems?: string;
   flexDirection?: string;
+  alignSelf?: string;
 }
 interface Borderprops {
   borderRadius?: number | string;
@@ -80,7 +81,7 @@ interface StyledViewProps
   overflow?: string;
   pose?: string;
 }
-export const StyledView = styled.View<StyledViewProps>`
+export const StyledView = styled.View<StyledViewProps>`  
   ${styledSystem.size}
   ${styledSystem.position}
   ${styledSystem.overflow}        

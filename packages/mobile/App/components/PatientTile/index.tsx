@@ -32,7 +32,12 @@ export const PatientTile = ({
     alignItems="center"
   >
     <StyledView marginLeft={20}>
-      <UserAvatar image={image} gender={gender} name={name} />
+      <UserAvatar
+        size={screenPercentageToDp('4.86', Orientation.Height)}
+        image={image}
+        gender={gender}
+        name={name}
+      />
     </StyledView>
     <StyledView flex={1} marginLeft={10}>
       <StyledText
