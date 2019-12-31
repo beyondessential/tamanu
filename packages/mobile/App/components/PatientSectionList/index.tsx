@@ -19,7 +19,7 @@ const ListSeparator = () => (
   <StyledView
     height={StyleSheet.hairlineWidth}
     background={theme.colors.DEFAULT_OFF}
-    width="80%"
+    width="90%"
   />
 );
 

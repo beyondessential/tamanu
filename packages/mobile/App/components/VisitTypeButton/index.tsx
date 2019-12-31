@@ -52,7 +52,7 @@ export const VisitTypeButton = ({
             />
           )}
           {selected && (
-            <StyledView position="absolute" left="40" top="2%">
+            <StyledView position="absolute" left={40} top="2%">
               <Checked />
             </StyledView>
           )}
@@ -67,7 +67,7 @@ export const VisitTypeButton = ({
           )}
         </StyledView>
         <StyledText
-          marginTop="10px"
+          marginTop={10}
           color={
             selected ? theme.colors.MAIN_SUPER_DARK : theme.colors.PRIMARY_MAIN
           }

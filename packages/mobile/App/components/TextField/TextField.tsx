@@ -43,14 +43,15 @@ export const TextField = React.memo(
     };
 
     return (
-      <StyledView height="55" width="100%">
+      <StyledView height={55} width="100%">
         <InputContainer hasValue={value.length > 0} error={error}>
           {label && (
             <TextFieldLabel
               error={error}
               focus={focused}
               onFocus={onFocusInput}
-              isValueEmpty={value !== ''}>
+              isValueEmpty={value !== ''}
+            >
               {label}
             </TextFieldLabel>
           )}
