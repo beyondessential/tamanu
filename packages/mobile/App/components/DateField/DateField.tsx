@@ -52,7 +52,7 @@ export const DateField = React.memo(
 
     return (
       <StyledView width="100%">
-        <StyledView height="55" width="100%">
+        <StyledView height={55} width="100%">
           <TouchableWithoutFeedback onPress={showDatePicker}>
             <InputContainer
               justifyContent="flex-end"

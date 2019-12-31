@@ -36,7 +36,7 @@ export const Dropdown = React.memo(
 
     return (
       <React.Fragment>
-        <StyledView height="55" width="100%">
+        <StyledView height={55} width="100%">
           <TouchableWithoutFeedback onPress={openModal}>
             <InputContainer
               flexDirection="row"

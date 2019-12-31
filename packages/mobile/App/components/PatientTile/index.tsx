@@ -25,8 +25,8 @@ export const PatientTile = ({
   lastVisit,
 }: PatientTileProps) => (
   <RowView
-    paddingTop={screenPercentageToDp('3', Orientation.Height)}
-    paddingBottom={screenPercentageToDp('3', Orientation.Height)}
+    paddingTop={screenPercentageToDp('2', Orientation.Height)}
+    paddingBottom={screenPercentageToDp('2', Orientation.Height)}
     width="100%"
     background={theme.colors.BACKGROUND_GREY}
     alignItems="center"

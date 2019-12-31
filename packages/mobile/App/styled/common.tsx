@@ -1,7 +1,6 @@
 import styled from 'styled-components/native';
 import * as styledSystem from 'styled-system';
 import { ReactNode } from 'react';
-
 const sizes = [];
 for (let i = 0; i < 5; i++) {
   sizes.push(i);
@@ -66,7 +65,7 @@ interface Borderprops {
   borderTopWidth?: number;
 }
 
-interface StyledTextProps
+export interface StyledTextProps
   extends SpacingProps,
     FlexProps,
     Borderprops,
@@ -82,64 +81,25 @@ interface StyledViewProps
   pose?: string;
 }
 export const StyledView = styled.View<StyledViewProps>`
+  ${styledSystem.size}
   ${styledSystem.position}
-  ${styledSystem.width}
-  ${styledSystem.height}  
-  ${styledSystem.margin}
-  ${styledSystem.marginRight}   
-  ${styledSystem.marginBottom}
-  ${styledSystem.marginLeft}
-  ${styledSystem.marginTop}  
-  ${styledSystem.padding}
-  ${styledSystem.paddingBottom}
-  ${styledSystem.paddingRight}
-  ${styledSystem.paddingTop}
-  ${styledSystem.paddingLeft}
-  ${styledSystem.flex}   
-  ${styledSystem.flexGrow}
-  ${styledSystem.justifyContent}   
-  ${styledSystem.alignItems}     
-  ${styledSystem.background}
-  ${styledSystem.overflow}    
-  ${styledSystem.position}
-  ${styledSystem.zIndex}
-  ${styledSystem.bottom}
-  ${styledSystem.top}
-  ${styledSystem.left}
-  ${styledSystem.right}
-  ${styledSystem.flexDirection}
-  ${styledSystem.borderWidth}
-  ${styledSystem.borderLeft}
-  ${styledSystem.borderTop}    
+  ${styledSystem.overflow}        
+  ${styledSystem.margin}  
+  ${styledSystem.padding}  
+  ${styledSystem.flexbox}     
+  ${styledSystem.background}    
   ${({ borderLeftWidth }) => `border-left-width: ${borderLeftWidth}` || 0};  
   ${styledSystem.zIndex}
 `;
 
 export const StyledSafeAreaView = styled.SafeAreaView<StyledViewProps>`    
-  ${styledSystem.width}
-  ${styledSystem.height}  
-  ${styledSystem.margin}
-  ${styledSystem.marginRight}   
-  ${styledSystem.marginBottom}
-  ${styledSystem.marginLeft}
-  ${styledSystem.marginTop}  
-  ${styledSystem.padding}
-  ${styledSystem.paddingBottom}
-  ${styledSystem.paddingRight}
-  ${styledSystem.paddingTop}
-  ${styledSystem.paddingLeft}
-  ${styledSystem.flex}   
-  ${styledSystem.flexGrow}
-  ${styledSystem.justifyContent}   
-  ${styledSystem.alignItems}     
+  ${styledSystem.size}  
+  ${styledSystem.margin}  
+  ${styledSystem.padding}  
+  ${styledSystem.flexbox}     
   ${styledSystem.background}
   ${styledSystem.overflow}       
-  ${styledSystem.position}
-  ${styledSystem.zIndex}
-  ${styledSystem.bottom}
-  ${styledSystem.top}
-  ${styledSystem.left}
-  ${styledSystem.right}
+  ${styledSystem.position}  
   ${({ borderLeftWidth = 0 }) => `border-left-width: ${borderLeftWidth}`};
   ${({ borderRightWidth = 0 }) => `border-right-width: ${borderRightWidth}`};
   ${({ borderTopWidth = 0 }) => `border-top-width: ${borderTopWidth}`};
@@ -147,26 +107,13 @@ export const StyledSafeAreaView = styled.SafeAreaView<StyledViewProps>`
 `;
 
 export const StyledText = styled.Text<StyledTextProps>`
-  ${styledSystem.fontSize}
+  ${styledSystem.color}    
   ${styledSystem.fontWeight}
-  ${styledSystem.color}
-  ${styledSystem.textAlign}
-  ${styledSystem.width}
-  ${styledSystem.height}  
-  ${styledSystem.margin}
-  ${styledSystem.marginRight}   
-  ${styledSystem.marginBottom}
-  ${styledSystem.marginLeft}
-  ${styledSystem.marginTop}  
-  ${styledSystem.padding}
-  ${styledSystem.paddingBottom}
-  ${styledSystem.paddingRight}
-  ${styledSystem.paddingTop}
-  ${styledSystem.paddingLeft}
-  ${styledSystem.flex}   
-  ${styledSystem.flexGrow}
-  ${styledSystem.justifyContent}   
-  ${styledSystem.alignItems}     
+  ${styledSystem.fontSize}
+  ${styledSystem.size}  
+  ${styledSystem.margin}  
+  ${styledSystem.padding}  
+  ${styledSystem.flexbox}     
   ${styledSystem.background}
 `;
 

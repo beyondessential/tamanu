@@ -4,6 +4,6 @@ import { name as appName } from './app.json';
 import { env } from './env';
 import Storybook from './storybook';
 
-// console.disableYellowBox = true;
+//console.disableYellowBox = true;
 
 AppRegistry.registerComponent(appName, () => Storybook);
