@@ -11,6 +11,7 @@ function loadStories() {
   require('../App/components/DateField/DateField.stories');
   require('../App/components/Dropdown/index.stories');
   require('../App/components/Icons/index.stories');
+  require('../App/components/MenuOptionButton/index.stories');
   require('../App/components/PatientCard/index.stories');
   require('../App/components/PatientSectionList/index.stories');
   require('../App/components/PatientTile/index.stories');
@@ -33,6 +34,7 @@ const stories = [
   '../App/components/DateField/DateField.stories',
   '../App/components/Dropdown/index.stories',
   '../App/components/Icons/index.stories',
+  '../App/components/MenuOptionButton/index.stories',
   '../App/components/PatientCard/index.stories',
   '../App/components/PatientSectionList/index.stories',
   '../App/components/PatientTile/index.stories',

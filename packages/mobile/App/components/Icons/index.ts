@@ -1,3 +1,4 @@
+export * from './Appointments';
 export * from './ArrowBack';
 export * from './ArrowDown';
 export * from './ArrowForward';
@@ -21,6 +22,7 @@ export * from './Forward';
 export * from './Group';
 export * from './Heart';
 export * from './HeartOutline';
+export * from './History';
 export * from './Location';
 export * from './Logo V1';
 export * from './LogoV1CLR';
