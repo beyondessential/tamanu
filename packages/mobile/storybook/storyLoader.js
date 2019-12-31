@@ -15,6 +15,7 @@ function loadStories() {
   require('../App/components/PatientTile/index.stories');
   require('../App/components/RadioButtonGroup/index.stories');
   require('../App/components/SearchInput/index.stories');
+  require('../App/components/SectionHeader/index.stories');
   require('../App/components/Table/index.stories');
   require('../App/components/TextField/MaskedTextfield.stories');
   require('../App/components/TextField/TextField.stories');
@@ -35,6 +36,7 @@ const stories = [
   '../App/components/PatientTile/index.stories',
   '../App/components/RadioButtonGroup/index.stories',
   '../App/components/SearchInput/index.stories',
+  '../App/components/SectionHeader/index.stories',
   '../App/components/Table/index.stories',
   '../App/components/TextField/MaskedTextfield.stories',
   '../App/components/TextField/TextField.stories',

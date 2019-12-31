@@ -1,7 +1,6 @@
 import styled from 'styled-components/native';
 import * as styledSystem from 'styled-system';
 import { ReactNode } from 'react';
-
 const sizes = [];
 for (let i = 0; i < 5; i++) {
   sizes.push(i);
@@ -66,7 +65,7 @@ interface Borderprops {
   borderTopWidth?: number;
 }
 
-interface StyledTextProps
+export interface StyledTextProps
   extends SpacingProps,
     FlexProps,
     Borderprops,
@@ -81,11 +80,16 @@ interface StyledViewProps
   overflow?: string;
   pose?: string;
 }
-export const StyledView = styled.View<StyledViewProps>`
+
+export const StyledView = styled.View<StyledViewProps>`  
   ${styledSystem.position}
   ${styledSystem.width}
   ${styledSystem.height}  
-  ${styledSystem.margin}
+  ${(styledSystem.margin,
+  styledSystem.marginRight,
+  styledSystem.marginBottom,
+  styledSystem.marginLeft,
+  styledSystem.marginTop)}
   ${styledSystem.marginRight}   
   ${styledSystem.marginBottom}
   ${styledSystem.marginLeft}
@@ -100,7 +104,7 @@ export const StyledView = styled.View<StyledViewProps>`
   ${styledSystem.justifyContent}   
   ${styledSystem.alignItems}     
   ${styledSystem.background}
-  ${styledSystem.overflow}    
+  ${styledSystem.overflow}      
   ${styledSystem.position}
   ${styledSystem.zIndex}
   ${styledSystem.bottom}
@@ -111,8 +115,7 @@ export const StyledView = styled.View<StyledViewProps>`
   ${styledSystem.borderWidth}
   ${styledSystem.borderLeft}
   ${styledSystem.borderTop}    
-  ${({ borderLeftWidth }) => `border-left-width: ${borderLeftWidth}` || 0};  
-  ${styledSystem.zIndex}
+  ${({ borderLeftWidth }) => `border-left-width: ${borderLeftWidth}` || 0};    
 `;
 
 export const StyledSafeAreaView = styled.SafeAreaView<StyledViewProps>`    
