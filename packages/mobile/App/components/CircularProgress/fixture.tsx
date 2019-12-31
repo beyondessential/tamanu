@@ -9,9 +9,10 @@ export const BaseStory = () => {
   }, [progress]);
 
   useEffect(() => {
-    setInterval(() => {
-      setProgress(p => p + 5);
+    const interval = setInterval(() => {
+      setProgress(p => Math.min(p + 5, 100));
     }, 600);
+    return () => clearInterval(interval);
   }, []);
 
   return <CircularProgress progress={progress} />;
