@@ -18,5 +18,6 @@ export default {
     ERROR: '#FFC7BF',
     LIGHT_BLUE: '#67A6E3',
     DEFAULT_OFF: '#EBEBEB',
+    PROGRESS_BACKGROUND: '#526980',
   },
 };
