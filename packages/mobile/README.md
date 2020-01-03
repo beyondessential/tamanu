@@ -4,7 +4,6 @@ This is the Tamanu App Repository.
 
 - [install](#Install)
   - [Installing dependencies](#Installing-dependencies)
-  -
   - [Making Project runnable](#making-Project-runnable)
     - [Xcode](#Xcode)
     - [Android Studio](#Android-Studio)
@@ -14,6 +13,9 @@ This is the Tamanu App Repository.
 - [Emulator Command Hints](#Emulator-Command-Hints)
   - [IOS](#IOS)
   - [Android](#Android)
+- [Generate apk or ipa](#Generate-apk-and-ipa)
+  - [Generate Android build](#Android)
+  - [Generate IOS build](#IOS)
 
 ## Install
 
@@ -95,3 +97,53 @@ react-native run-android
 
 - super + M = open debugger settings
 - super + R = reloads app
+
+## Generate apk or ipa
+
+Generate .apk or .ipa files
+
+### Generate Android build
+
+To generate android apk file run:
+
+```
+yarn build:android
+```
+
+The builded app will be in:
+
+```
+tamanu-mobile/android/app/build/outputs/apk/release/app-release.apk
+```
+
+#### Distribute
+
+1. upload file in diawi.com
+2. share app with the team!
+
+### Generate IOS build
+
+To generate ios .ipa file:
+
+Run react-native to a device:
+
+```
+react-native run-ios --device "Max's iPhone"
+```
+
+This will generate an IOS build in
+
+```
+tamanu-mobile/ios/build/tamanuapp/Build/Products/Release-iphoneos
+```
+
+#### Distribute
+
+In the previous path you will be the "tamanuapp.app" we can:
+
+1. Create a Payload folder
+2. copy tamanuapp.app into Payload folder.
+3. compress the Payload folder
+4. Change the compressed file extension from .zip to .ipa
+5. upload file in diawi.com
+6. share app with the team!
