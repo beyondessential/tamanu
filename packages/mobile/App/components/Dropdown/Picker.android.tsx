@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { DropdownItem } from './index';
 import { StyledView, StyledScrollView, StyledText } from '../../styled/common';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 
 const AnimatedAndroidBackground = posed.View({
   open: {
@@ -49,7 +49,8 @@ export const AndroidPicker = React.memo(
         pose={open ? 'open' : 'closed'}
         height="100%"
         justifyContent="center"
-        alignItems="center">
+        alignItems="center"
+      >
         <TouchableWithoutFeedback onPress={() => closeModal()}>
           <StyledView height="100%" width="100%" position="absolute" />
         </TouchableWithoutFeedback>
@@ -61,12 +62,14 @@ export const AndroidPicker = React.memo(
           height={200}
           width="50%"
           zIndex={5}
-          background={theme.colors.WHITE}>
+          background={theme.colors.WHITE}
+        >
           <StyledText
             marginLeft={10}
             marginTop={10}
             marginBottom={10}
-            color={theme.colors.TEXT_SOFT}>
+            color={theme.colors.TEXT_SOFT}
+          >
             Pick a Value
           </StyledText>
           {items.map(item => (
@@ -77,7 +80,8 @@ export const AndroidPicker = React.memo(
                   justifyContent="center"
                   paddingLeft={15}
                   height={40}
-                  width="100%">
+                  width="100%"
+                >
                   <StyledText>{item.label}</StyledText>
                 </StyledView>
               </TouchableOpacity>

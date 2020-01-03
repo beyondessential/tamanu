@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
 import posed from 'react-native-pose';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 import { StyledText } from '../../styled/common';
 
 const AnimatedLabel = posed.Text({
@@ -53,7 +53,8 @@ export const TextFieldLabel = ({
       as={AnimatedLabel}
       onPress={() => onFocus(!focus)}
       color={getColor(isValueEmpty, error)}
-      pose={isLabelLifted}>
+      pose={isLabelLifted}
+    >
       {children}
     </StyledAnimatedLabel>
   );

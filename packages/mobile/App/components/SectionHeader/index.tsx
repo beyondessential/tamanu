@@ -1,7 +1,7 @@
 import styled from 'styled-components/native';
 import { StyledText, StyledTextProps } from '../../styled/common';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 
 interface SectionHeader extends StyledTextProps {
   h1?: boolean;

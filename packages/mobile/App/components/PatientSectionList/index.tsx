@@ -3,7 +3,7 @@ import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { LargeList } from 'react-native-largelist-v3';
 import { PatientTile, PatientTileProps } from '../PatientTile';
 import { StyledView, StyledText } from '../../styled/common';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 export type PatientSectionListItem = {

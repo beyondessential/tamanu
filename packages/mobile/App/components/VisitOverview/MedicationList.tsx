@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyledView, RowView, StyledText } from '../../styled/common';
 import { ColorHelper } from '../../helpers/colors';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 import { MedicationProps } from '../../interfaces/MedicationProps';
 
 interface MedicationListItemProps {

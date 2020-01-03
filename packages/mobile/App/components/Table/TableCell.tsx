@@ -1,6 +1,6 @@
 import React, { FunctionComponent, ReactNode } from 'react';
 import { StyledView } from '../../styled/common';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 
 interface TableCellProps {
   children: ReactNode;
@@ -14,7 +14,8 @@ export const TableCell = ({ children }: TableCellProps) => (
     justifyContent="center"
     borderBottomWidth={1}
     borderColor={theme.colors.BOX_OUTLINE}
-    borderRightWidth={1}>
+    borderRightWidth={1}
+  >
     {children}
   </StyledView>
 );

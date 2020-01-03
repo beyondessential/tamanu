@@ -3,7 +3,7 @@ import styled from 'styled-components/native';
 import { Picker } from 'react-native';
 import posed from 'react-native-pose';
 import { StyledView } from '../../styled/common';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 import { DropdownItem } from '.';
 
 const StyledPicker = styled.Picker`
@@ -39,7 +39,8 @@ export const IOSPicker = React.memo(
       height="30%"
       borderWidth={1}
       borderColor={theme.colors.BOX_OUTLINE}
-      zIndex={1}>
+      zIndex={1}
+    >
       <StyledPicker
         testID="ios-picker"
         itemStyle={{
@@ -48,7 +49,8 @@ export const IOSPicker = React.memo(
         selectedValue={selectedItem ? selectedItem.value : null}
         onValueChange={value => {
           onChange(items.find(item => item.value === value));
-        }}>
+        }}
+      >
         {items.map((item: DropdownItem) => (
           <Picker.Item
             testID={item.value}

@@ -6,7 +6,7 @@ import {
   StyledText,
   ColumnView,
 } from '../../styled/common';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 import * as Icons from '../Icons';
 import { formatDate } from '../../helpers/date';
 import { DateFormats, HeaderIcons } from '../../helpers/constants';

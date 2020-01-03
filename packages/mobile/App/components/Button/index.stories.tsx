@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react-native';
 import { action } from '@storybook/addon-actions';
 
 import Button from './index';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 import * as Icons from '../Icons';
 import { RotateView, CenterView } from '../../styled/common';
 
@@ -13,37 +13,39 @@ storiesOf('Button', module)
     <Button
       onPress={action('clicked-text')}
       outline
-      width={'250'}
-      buttonText={'Button'}
+      width="250"
+      buttonText="Button"
     />
   ))
   .add('Filled with transparency', () => (
     <Button
-      width={'250'}
+      width="250"
       backgroundColor={`${theme.colors.MAIN_SUPER_DARK}E0`}
       onPress={action('clicked-filled')}
-      buttonText={'Click me!'}></Button>
+      buttonText="Click me!"
+    />
   ))
   .add('Rounded', () => (
     <Button
-      width={'250'}
+      width="250"
       backgroundColor={`${theme.colors.MAIN_SUPER_DARK}E0`}
       bordered
       textColor={theme.colors.WHITE}
       onPress={action('rounded')}
-      buttonText={'Filters'}
+      buttonText="Filters"
     />
   ))
   .add('Rounded with Icon', () => (
     <Button
-      width={'250'}
+      width="250"
       backgroundColor={`${theme.colors.MAIN_SUPER_DARK}`}
       bordered
       textColor={theme.colors.WHITE}
       onPress={action('rounded')}
-      buttonText={'Filters'}>
+      buttonText="Filters"
+    >
       <RotateView>
-        <Icons.OptionsGlyph fill={'white'} height={20} />
+        <Icons.OptionsGlyph fill="white" height={20} />
       </RotateView>
     </Button>
   ));

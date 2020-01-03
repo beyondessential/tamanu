@@ -1,6 +1,6 @@
 import React from 'react';
 import { ColumnView, StyledText } from '../../styled/common';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 
 export const TreatmentPlan = ({ treatment }: { treatment: string }) => (
   <ColumnView marginTop={20}>

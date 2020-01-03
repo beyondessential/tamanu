@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyledView, StyledText, StyledImage } from '../../styled/common';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 import { getUserInitials, Genders } from '../../helpers/user';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 

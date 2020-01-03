@@ -4,7 +4,7 @@ import { InputContainer } from '../TextField/styles';
 import { StyledView, StyledText } from '../../styled/common';
 import * as Icons from '../Icons';
 import { TextFieldLabel } from '../TextField/TextFieldLabel';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 import { AndroidPicker } from './Picker.android';
 import { IOSPicker } from './Picker.ios';
 

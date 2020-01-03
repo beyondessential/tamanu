@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyledView, StyledText, RowView } from '../../styled/common';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 import * as Icons from '../Icons';
 import { PractitionerProps } from '../../interfaces/PractitionerProps';
 

@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { debounce } from '../../helpers/input';
 import { SearchInput } from './index';
 import { StyledText } from '../../styled/common';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 
 export function BaseStory() {
   const [showMessage, setShowMessage] = useState(false);

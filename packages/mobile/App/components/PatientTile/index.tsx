@@ -3,7 +3,7 @@ import { RowView, StyledView, StyledText } from '../../styled/common';
 import UserAvatar from '../UserAvatar';
 import { formatDate } from '../../helpers/date';
 import { DateFormats } from '../../helpers/constants';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 import { getGender } from '../../helpers/user';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 

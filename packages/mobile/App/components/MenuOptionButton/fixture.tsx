@@ -15,7 +15,7 @@ import {
   themeSystem,
   StyledSafeAreaView,
 } from '../../styled/common';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 
 export const MoreMenuOptions = [
   {

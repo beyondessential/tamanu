@@ -3,8 +3,8 @@ import { TouchableHighlight } from 'react-native';
 import { SvgProps } from 'react-native-svg';
 import { StyledText, RowView, StyledView } from '../../styled/common';
 import { ArrowForward } from '../Icons';
+import { theme } from '../../styled/theme';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
-import theme from '../../styled/theme';
 
 export interface MenuOptionButton {
   Icon?: FunctionComponent<SvgProps>;

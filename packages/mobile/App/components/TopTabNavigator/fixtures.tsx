@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { StyledView, StyledText } from '../../styled/common';
-import theme from '../../styled/theme';
 import { createAppContainer } from 'react-navigation';
+import { StyledView, StyledText } from '../../styled/common';
+import { theme } from '../../styled/theme';
 import { TopTabNavigator } from './index';
 import * as Icons from '../Icons';
 import { VaccineTabNavigator } from './VaccineTabNavigator';
@@ -61,7 +61,8 @@ export const Visits = () => (
     flex={1}
     background="#ff4081"
     justifyContent="center"
-    alignItems="center">
+    alignItems="center"
+  >
     <StyledText fontSize={30} color={theme.colors.WHITE}>
       Visits
     </StyledText>
@@ -73,7 +74,8 @@ export const Vitals = () => (
     flex={1}
     background="#673ab7"
     justifyContent="center"
-    alignItems="center">
+    alignItems="center"
+  >
     <StyledText fontSize={30} color={theme.colors.WHITE}>
       Vitals
     </StyledText>
@@ -85,7 +87,8 @@ export const Vaccines = () => (
     flex={1}
     background="red"
     justifyContent="center"
-    alignItems="center">
+    alignItems="center"
+  >
     <StyledText fontSize={30} color={theme.colors.WHITE}>
       Vaccines
     </StyledText>

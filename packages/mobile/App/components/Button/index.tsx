@@ -1,6 +1,6 @@
 import React, { FunctionComponentElement, ReactNode } from 'react';
 import styled from 'styled-components/native';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 
 export interface StyledButtonProps {
   height?: string;
@@ -78,14 +78,16 @@ export default function Button({
       borderColor={borderColor}
       outline={outline}
       {...rest}
-      onPress={() => onPress()}>
+      onPress={() => onPress()}
+    >
       {children}
       <StyledButtonText
         outline={outline}
         borderColor={borderColor}
         textColor={textColor}
         fontSize={fontSize}
-        fontWeight={fontWeight}>
+        fontWeight={fontWeight}
+      >
         {buttonText}
       </StyledButtonText>
     </StyledButton>

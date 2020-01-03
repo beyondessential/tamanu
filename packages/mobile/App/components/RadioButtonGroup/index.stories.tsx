@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { RadioButtonGroup } from './index';
 import { storiesOf } from '@storybook/react-native';
+import { RadioButtonGroup } from './index';
 import { RadioOptionProps } from '../RadioButton';
 import { CenterView } from '../../styled/common';
 
@@ -35,4 +35,4 @@ function RadioButtonGroupStory({ error: defaultError }: { error?: boolean }) {
 storiesOf('Radio Button Group', module)
   .addDecorator((getStory: Function) => <CenterView>{getStory()}</CenterView>)
   .add('Basic', () => <RadioButtonGroupStory />)
-  .add('With error', () => <RadioButtonGroupStory error={true} />);
+  .add('With error', () => <RadioButtonGroupStory error />);

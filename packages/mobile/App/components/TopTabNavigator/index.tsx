@@ -8,7 +8,7 @@ import {
   NavigationRoute,
   NavigationParams,
 } from 'react-navigation';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 
 type TopTabNavigator = NavigationRouteConfigMap<
   NavigationMaterialTabOptions,

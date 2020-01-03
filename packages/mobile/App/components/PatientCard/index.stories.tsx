@@ -3,7 +3,7 @@ import { action } from '@storybook/addon-actions';
 import { storiesOf } from '@storybook/react-native';
 import { PatientCard } from './index';
 import { CenterView } from '../../styled/common';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 
 storiesOf('PatientCard', module)
   .addDecorator((getStory: Function) => (

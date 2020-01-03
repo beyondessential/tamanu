@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components/native';
 import { StyledView, RowView } from '../../styled/common';
 import * as Icons from '../Icons';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 
 const StyledTextInput = styled.TextInput`
   font-size: 16px;

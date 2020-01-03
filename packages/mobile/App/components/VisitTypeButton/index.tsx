@@ -2,7 +2,7 @@ import React, { FunctionComponent, useCallback } from 'react';
 import { SvgProps } from 'react-native-svg';
 import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { StyledView, StyledText } from '../../styled/common';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 import { Checked } from '../Icons';
 
 interface VisitTypeButtonProps {

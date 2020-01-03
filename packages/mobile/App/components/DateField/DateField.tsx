@@ -6,7 +6,7 @@ import { InputContainer } from '../TextField/styles';
 import { TextFieldLabel } from '../TextField/TextFieldLabel';
 import { StyledView, StyledText, RowView } from '../../styled/common';
 import { formatDate } from '../../helpers/date';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 import * as Icons from '../Icons';
 import { DateFormats } from '../../helpers/constants';
 

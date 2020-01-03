@@ -4,7 +4,7 @@ import {
   TextInputMaskOptionProp,
   TextInputMaskTypeProp,
 } from 'react-native-masked-text';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 import { StyledView } from '../../styled/common';
 import { TextFieldProps } from './TextField';
 

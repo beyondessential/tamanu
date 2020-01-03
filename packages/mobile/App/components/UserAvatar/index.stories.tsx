@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react-native';
 import { UserAvatar } from './index';
 import { Camera1, Checked } from '../Icons';
 import { CenterView, StyledView } from '../../styled/common';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 const withoutImageProps = {

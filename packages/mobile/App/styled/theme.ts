@@ -21,5 +21,3 @@ export const theme = {
     PROGRESS_BACKGROUND: '#526980',
   },
 };
-
-export default theme;

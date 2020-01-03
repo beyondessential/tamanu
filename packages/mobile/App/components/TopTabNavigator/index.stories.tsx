@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { StyledText, StyledView } from '../../styled/common';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 import { App, VaccineTabBaseStory } from './fixtures';
 
 storiesOf('Top Tab', module)
@@ -18,7 +18,8 @@ storiesOf('Top Tab', module)
         height={60}
         width="100%"
         background={theme.colors.PRIMARY_MAIN}
-        paddingLeft={15}>
+        paddingLeft={15}
+      >
         <StyledText fontSize={28} fontWeight="bold" color={theme.colors.WHITE}>
           History
         </StyledText>

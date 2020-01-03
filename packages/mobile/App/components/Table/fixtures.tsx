@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
 import { StyledText } from '../../styled/common';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 
 interface CellProps {
   children: ReactNode;
@@ -378,47 +378,47 @@ export const patientHistoryList: PatientVitalsProps[] = [
 export const vitalsTableHeader = {
   key: 'date',
   tableHeader: true,
-  accessor: (row: PatientVitalsProps) => row['date'],
+  accessor: (row: PatientVitalsProps) => row.date,
 };
 export const vitalsTableCols = [
   {
     key: 'blood_pressure',
     title: 'Blood Pressure',
-    accessor: (row: PatientVitalsProps) => <Cell>{row['blood_pressure']}</Cell>,
+    accessor: (row: PatientVitalsProps) => <Cell>{row.blood_pressure}</Cell>,
   },
   {
     key: 'weight',
     title: 'Weight',
-    accessor: (row: PatientVitalsProps) => <Cell>{row['weight']}</Cell>,
+    accessor: (row: PatientVitalsProps) => <Cell>{row.weight}</Cell>,
   },
   {
     key: 'circumference',
     title: 'Circumference',
-    accessor: (row: PatientVitalsProps) => <Cell>{row['circumference']}</Cell>,
+    accessor: (row: PatientVitalsProps) => <Cell>{row.circumference}</Cell>,
   },
   {
     key: 'sp02',
     title: 'Sp02',
-    accessor: (row: PatientVitalsProps) => <Cell>{row['sp02']}</Cell>,
+    accessor: (row: PatientVitalsProps) => <Cell>{row.sp02}</Cell>,
   },
   {
     key: 'heart_rate',
     title: 'Heart Rate',
-    accessor: (row: PatientVitalsProps) => <Cell>{row['heart_rate']}</Cell>,
+    accessor: (row: PatientVitalsProps) => <Cell>{row.heart_rate}</Cell>,
   },
   {
     key: 'fev',
     title: 'F.E.V',
-    accessor: (row: PatientVitalsProps) => <Cell>{row['fev']}</Cell>,
+    accessor: (row: PatientVitalsProps) => <Cell>{row.fev}</Cell>,
   },
   {
     key: 'cholesterol',
     title: 'Cholesterol',
-    accessor: (row: PatientVitalsProps) => <Cell>{row['cholesterol']}</Cell>,
+    accessor: (row: PatientVitalsProps) => <Cell>{row.cholesterol}</Cell>,
   },
   {
     key: 'blood_glucose',
     title: 'Blood Glucose',
-    accessor: (row: PatientVitalsProps) => <Cell>{row['blood_glucose']}</Cell>,
+    accessor: (row: PatientVitalsProps) => <Cell>{row.blood_glucose}</Cell>,
   },
 ];

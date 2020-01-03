@@ -1,6 +1,6 @@
 import React from 'react';
 import Svg, { SvgProps, Path } from 'react-native-svg';
-import theme from '../../styled/theme';
+import { theme } from '../../styled/theme';
 import { StyledView } from '../../styled/common';
 
 export const Checked = React.memo((props: SvgProps) => (
