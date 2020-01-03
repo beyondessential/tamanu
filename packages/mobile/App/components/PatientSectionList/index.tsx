@@ -4,7 +4,7 @@ import { LargeList } from 'react-native-largelist-v3';
 import { PatientTile, PatientTileProps } from '../PatientTile';
 import { StyledView, StyledText } from '../../styled/common';
 import theme from '../../styled/theme';
-import { screenPercentageToDp, Orientation } from '../../helpers/screen';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 export type PatientSectionListItem = {
   items: PatientTileProps[];
@@ -44,12 +44,12 @@ export const PatientSectionList = ({ data }: PatientSectionListProps) => {
   const renderHeader = useCallback(
     (section: number) => (
       <StyledView
-        height={screenPercentageToDp(3, Orientation.Height)}
+        height={screenPercentageToDP(3, Orientation.Height)}
         justifyContent="center"
         background={theme.colors.BOX_OUTLINE}
-        paddingLeft={screenPercentageToDp('4.86', Orientation.Width)}
+        paddingLeft={screenPercentageToDP('4.86', Orientation.Width)}
       >
-        <StyledText fontSize={screenPercentageToDp('1.45', Orientation.Height)}>
+        <StyledText fontSize={screenPercentageToDP('1.45', Orientation.Height)}>
           {data[section].header}
         </StyledText>
       </StyledView>
@@ -73,11 +73,11 @@ export const PatientSectionList = ({ data }: PatientSectionListProps) => {
   );
 
   const heightForSection = React.useCallback(
-    () => screenPercentageToDp(3, Orientation.Height),
+    () => screenPercentageToDP(3, Orientation.Height),
     [],
   );
   const heightForIndexPath = React.useCallback(
-    () => screenPercentageToDp('10.32', Orientation.Height),
+    () => screenPercentageToDP('10.32', Orientation.Height),
     [],
   );
 
@@ -95,12 +95,12 @@ export const PatientSectionList = ({ data }: PatientSectionListProps) => {
         key={section.header}
       >
         <StyledView
-          height={screenPercentageToDp('3.03', Orientation.Height)}
+          height={screenPercentageToDP('3.03', Orientation.Height)}
           justifyContent="center"
           alignItems="center"
         >
           <StyledText
-            fontSize={screenPercentageToDp('1.33', Orientation.Height)}
+            fontSize={screenPercentageToDP('1.33', Orientation.Height)}
           >
             {section.header}
           </StyledText>

@@ -3,7 +3,7 @@ import { TextInput, KeyboardType, StyleSheet } from 'react-native';
 import { InputContainer, StyledTextInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '../../styled/common';
-import { Orientation, screenPercentageToDp } from '../../helpers/screen';
+import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 
 export interface RefObject<T> {
   readonly current: T | null;
@@ -63,8 +63,8 @@ export const TextField = React.memo(
       <StyledView
         height={
           multiline
-            ? screenPercentageToDp('13.36', Orientation.Height)
-            : screenPercentageToDp('6.68', Orientation.Height)
+            ? screenPercentageToDP('13.36', Orientation.Height)
+            : screenPercentageToDP('6.68', Orientation.Height)
         }
         width="100%"
       >

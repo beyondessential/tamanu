@@ -4,7 +4,7 @@ import { UserAvatar } from './index';
 import { Camera1, Checked } from '../Icons';
 import { CenterView, StyledView } from '../../styled/common';
 import theme from '../../styled/theme';
-import { screenPercentageToDp, Orientation } from '../../helpers/screen';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 const withoutImageProps = {
   size: 25,
@@ -24,15 +24,15 @@ const CameraInCircle = (
   <StyledView position="absolute" right="-20%" bottom={0} zIndex={2}>
     <CenterView
       borderRadius={50}
-      paddingTop={screenPercentageToDp('0.97', Orientation.Height)}
-      paddingLeft={screenPercentageToDp('0.97', Orientation.Height)}
-      paddingRight={screenPercentageToDp('0.97', Orientation.Height)}
-      paddingBottom={screenPercentageToDp('0.97', Orientation.Height)}
+      paddingTop={screenPercentageToDP('0.97', Orientation.Height)}
+      paddingLeft={screenPercentageToDP('0.97', Orientation.Height)}
+      paddingRight={screenPercentageToDP('0.97', Orientation.Height)}
+      paddingBottom={screenPercentageToDP('0.97', Orientation.Height)}
       background={theme.colors.TEXT_SOFT}
     >
       <Camera1
-        height={screenPercentageToDp('2.43', Orientation.Height)}
-        width={screenPercentageToDp('2.43', Orientation.Height)}
+        height={screenPercentageToDP('2.43', Orientation.Height)}
+        width={screenPercentageToDP('2.43', Orientation.Height)}
         fill={theme.colors.WHITE}
       />
     </CenterView>
@@ -40,7 +40,7 @@ const CameraInCircle = (
 );
 
 const withImageAndIconProps = {
-  size: screenPercentageToDp('9.72', Orientation.Height),
+  size: screenPercentageToDP('9.72', Orientation.Height),
   name: 'Alice Klein',
   gender: 'female',
   image:
@@ -49,7 +49,7 @@ const withImageAndIconProps = {
 };
 
 const newPatientAddedProps = {
-  size: screenPercentageToDp('16.40', Orientation.Height),
+  size: screenPercentageToDP('16.40', Orientation.Height),
   name: 'Alice Klein',
   gender: 'female',
   image:
@@ -57,8 +57,8 @@ const newPatientAddedProps = {
   Icon: (
     <StyledView position="absolute" right="-20" bottom={30} zIndex={2}>
       <Checked
-        height={screenPercentageToDp('3.88', Orientation.Height)}
-        width={screenPercentageToDp('3.88', Orientation.Height)}
+        height={screenPercentageToDP('3.88', Orientation.Height)}
+        width={screenPercentageToDP('3.88', Orientation.Height)}
         fill={theme.colors.SAFE}
       />
     </StyledView>

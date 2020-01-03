@@ -3,7 +3,7 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { StyledView, CenterView } from '../../styled/common';
 import { Folder } from '../Icons';
 import theme from '../../styled/theme';
-import { Orientation, screenPercentageToDp } from '../../helpers/screen';
+import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 
 interface CircularProgressProps {
   progress: number;
@@ -11,11 +11,11 @@ interface CircularProgressProps {
 
 export const CircularProgress = ({ progress }: CircularProgressProps) => (
   <StyledView
-    height={screenPercentageToDp('13.73', Orientation.Height)}
-    width={screenPercentageToDp('13.73', Orientation.Height)}
+    height={screenPercentageToDP('13.73', Orientation.Height)}
+    width={screenPercentageToDP('13.73', Orientation.Height)}
   >
     <AnimatedCircularProgress
-      size={screenPercentageToDp('13.73', Orientation.Height)}
+      size={screenPercentageToDP('13.73', Orientation.Height)}
       width={3}
       rotation={0}
       fill={progress}
@@ -32,8 +32,8 @@ export const CircularProgress = ({ progress }: CircularProgressProps) => (
       />
       <Folder
         fill={theme.colors.WHITE}
-        height={screenPercentageToDp('5.58', Orientation.Height)}
-        width={screenPercentageToDp('9.45', Orientation.Width)}
+        height={screenPercentageToDP('5.58', Orientation.Height)}
+        width={screenPercentageToDP('9.45', Orientation.Width)}
       />
     </CenterView>
   </StyledView>

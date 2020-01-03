@@ -5,7 +5,7 @@ import { formatDate } from '../../helpers/date';
 import { DateFormats } from '../../helpers/constants';
 import theme from '../../styled/theme';
 import { getGender } from '../../helpers/user';
-import { screenPercentageToDp, Orientation } from '../../helpers/screen';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 export interface PatientTileProps {
   name: string;
@@ -25,15 +25,15 @@ export const PatientTile = ({
   lastVisit,
 }: PatientTileProps) => (
   <RowView
-    paddingTop={screenPercentageToDp('2', Orientation.Height)}
-    paddingBottom={screenPercentageToDp('2', Orientation.Height)}
+    paddingTop={screenPercentageToDP('2', Orientation.Height)}
+    paddingBottom={screenPercentageToDP('2', Orientation.Height)}
     width="100%"
     background={theme.colors.BACKGROUND_GREY}
     alignItems="center"
   >
     <StyledView marginLeft={20}>
       <UserAvatar
-        size={screenPercentageToDp('4.86', Orientation.Height)}
+        size={screenPercentageToDP('4.86', Orientation.Height)}
         image={image}
         gender={gender}
         name={name}
@@ -42,7 +42,7 @@ export const PatientTile = ({
     <StyledView flex={1} marginLeft={10}>
       <StyledText
         color={theme.colors.TEXT_SUPER_DARK}
-        fontSize={screenPercentageToDp('1.822', Orientation.Height)}
+        fontSize={screenPercentageToDP('1.822', Orientation.Height)}
         fontWeight={700}
       >
         {name}
@@ -50,7 +50,7 @@ export const PatientTile = ({
       <StyledText
         marginTop={1}
         color={theme.colors.TEXT_MID}
-        fontSize={screenPercentageToDp('1.57', Orientation.Height)}
+        fontSize={screenPercentageToDP('1.57', Orientation.Height)}
         fontWeight={500}
       >
         {`${getGender(gender)} ${age}yrs${city}`}
@@ -58,7 +58,7 @@ export const PatientTile = ({
     </StyledView>
     {lastVisit && (
       <StyledText
-        marginRight={screenPercentageToDp('14.59', Orientation.Width)}
+        marginRight={screenPercentageToDP('14.59', Orientation.Width)}
         color={theme.colors.TEXT_MID}
       >
         {formatDate(lastVisit, DateFormats.DAY_MONTH_YEAR_SHORT)}

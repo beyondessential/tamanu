@@ -5,7 +5,7 @@ import { RowView, ColumnView, StyledView } from '../../styled/common';
 import { DateFormats } from '../../helpers/constants';
 import { formatDate } from '../../helpers/date';
 import UserAvatar from '../UserAvatar';
-import { screenPercentageToDp, Orientation } from '../../helpers/screen';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 export interface PatientCardProps {
   lastVisit: Date;
   name: string;
@@ -29,7 +29,7 @@ export const PatientCard = ({
     <styles.StyledCardContainer>
       <RowView justifyContent="space-between" height={45} width="100%">
         <UserAvatar
-          size={screenPercentageToDp('4.86', Orientation.Height)}
+          size={screenPercentageToDP('4.86', Orientation.Height)}
           name={name}
           image={image}
           gender={gender}

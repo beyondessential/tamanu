@@ -2,7 +2,7 @@ import React from 'react';
 import { StyledView, StyledText, StyledImage } from '../../styled/common';
 import theme from '../../styled/theme';
 import { getUserInitials, Genders } from '../../helpers/user';
-import { screenPercentageToDp, Orientation } from '../../helpers/screen';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 interface UserAvatarProps {
   image?: string;
@@ -38,7 +38,7 @@ export const UserAvatar = ({
     >
       {!image ? (
         <StyledText
-          fontSize={screenPercentageToDp('1.7', Orientation.Height)}
+          fontSize={screenPercentageToDP('1.7', Orientation.Height)}
           fontWeight={900}
           color={theme.colors.WHITE}
         >

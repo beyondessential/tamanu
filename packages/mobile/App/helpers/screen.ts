@@ -8,7 +8,7 @@ export enum Orientation {
   Height = 'height',
 }
 
-export function screenPercentageToDp(
+export function screenPercentageToDP(
   value: string | number,
   orientation: Orientation,
 ) {
