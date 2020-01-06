@@ -83,7 +83,6 @@ export class TriageForm extends React.PureComponent {
             label="Secondary complaint"
             component={AutocompleteField}
             suggester={triageComplaintSuggester}
-            required
           />
           <div>
             <Field name="vitals" component={NestedVitalsModal} />
