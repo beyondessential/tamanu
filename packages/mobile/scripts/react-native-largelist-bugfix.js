@@ -4,6 +4,8 @@
  *  and this breaks running debug or release.
  */
 
+/* eslint-disable @typescript-eslint/no-var-requires*/
+
 const fs = require('fs');
 
 try {

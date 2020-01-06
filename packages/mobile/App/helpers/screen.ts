@@ -11,7 +11,7 @@ export enum Orientation {
 export function screenPercentageToDP(
   value: string | number,
   orientation: Orientation,
-) {
+): number {
   return orientation === Orientation.Width
     ? widthPercentageToDP(value)
     : heightPercentageToDP(value);

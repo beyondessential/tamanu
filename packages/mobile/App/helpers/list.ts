@@ -1,7 +1,9 @@
 import { PatientTileProps } from '../components/PatientTile';
 import { PatientSectionListItem } from '../interfaces/PatientSectionList';
 
-export function groupEntriesByLetter(data: PatientTileProps[]) {
+export function groupEntriesByLetter(
+  data: PatientTileProps[],
+): PatientSectionListItem[] {
   return data.reduce((acc: PatientSectionListItem[], cur: PatientTileProps) => {
     if (acc.length === 0) {
       acc.push({
