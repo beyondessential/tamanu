@@ -54,3 +54,6 @@ export * from './Avatar_7';
 export * from './Search';
 export * from './EmptyCircle';
 export * from './Calendar';
+export * from './AppIntro1';
+export * from './AppIntro2';
+export * from './AppIntro3';

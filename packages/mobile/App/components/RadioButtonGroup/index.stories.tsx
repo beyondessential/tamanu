@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { RadioButtonGroup } from './index';
-import { RadioOptionProps } from '../RadioButton';
 import { CenterView } from '../../styled/common';
 
 function RadioButtonGroupStory({ error: defaultError }: { error?: boolean }) {

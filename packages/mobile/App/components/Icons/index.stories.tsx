@@ -9,6 +9,9 @@ const stories = storiesOf('Icons', module);
 stories.addDecorator((getStory: Function) => (
   <CenterView>{getStory()}</CenterView>
 ));
+stories.add('AppIntro1', () => <Icons.AppIntro1 />);
+stories.add('AppIntro2', () => <Icons.AppIntro2 />);
+stories.add('AppIntro3', () => <Icons.AppIntro3 />);
 stories.add('Appoitments', () => <Icons.Appointments />);
 stories.add('ArrowBack', () => <Icons.ArrowBack />);
 stories.add('ArrowDown', () => <Icons.ArrowDown />);

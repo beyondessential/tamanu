@@ -5,6 +5,7 @@
 
 function loadStories() {
   require('../App/components/Accordion/index.stories');
+  require('../App/components/AppIntro/index.stories');
   require('../App/components/BottomNavigator/index.stories');
   require('../App/components/Button/index.stories');
   require('../App/components/CircularProgress/index.stories');
@@ -13,10 +14,12 @@ function loadStories() {
   require('../App/components/Icons/index.stories');
   require('../App/components/MenuOptionButton/index.stories');
   require('../App/components/PatientCard/index.stories');
+  require('../App/components/PatientMenuButton/index.stories');
   require('../App/components/PatientSectionList/index.stories');
   require('../App/components/PatientTile/index.stories');
   require('../App/components/RadioButtonGroup/index.stories');
   require('../App/components/SearchInput/index.stories');
+  require('../App/components/SectionHeader/index.stories');
   require('../App/components/Table/index.stories');
   require('../App/components/TextField/MaskedTextfield.stories');
   require('../App/components/TextField/TextField.stories');
@@ -27,6 +30,7 @@ function loadStories() {
 
 const stories = [
   '../App/components/Accordion/index.stories',
+  '../App/components/AppIntro/index.stories',
   '../App/components/BottomNavigator/index.stories',
   '../App/components/Button/index.stories',
   '../App/components/CircularProgress/index.stories',
@@ -35,10 +39,12 @@ const stories = [
   '../App/components/Icons/index.stories',
   '../App/components/MenuOptionButton/index.stories',
   '../App/components/PatientCard/index.stories',
+  '../App/components/PatientMenuButton/index.stories',
   '../App/components/PatientSectionList/index.stories',
   '../App/components/PatientTile/index.stories',
   '../App/components/RadioButtonGroup/index.stories',
   '../App/components/SearchInput/index.stories',
+  '../App/components/SectionHeader/index.stories',
   '../App/components/Table/index.stories',
   '../App/components/TextField/MaskedTextfield.stories',
   '../App/components/TextField/TextField.stories',

@@ -114,6 +114,7 @@ export const StyledText = styled.Text<StyledTextProps>`
   ${styledSystem.color}    
   ${styledSystem.fontWeight}
   ${styledSystem.fontSize}
+  ${styledSystem.textAlign}
   ${styledSystem.size}  
   ${styledSystem.margin}  
   ${styledSystem.padding}  
