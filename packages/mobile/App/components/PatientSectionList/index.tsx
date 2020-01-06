@@ -77,7 +77,7 @@ export const PatientSectionList = ({
   );
 
   const heightForSection = React.useCallback(
-    () => screenPercentageToDP(3, Orientation.Height),
+    () => screenPercentageToDP('3', Orientation.Height),
     [],
   );
   const heightForIndexPath = React.useCallback(

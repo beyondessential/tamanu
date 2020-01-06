@@ -3,9 +3,13 @@ import { storiesOf } from '@storybook/react-native';
 import { RadioButtonGroup } from './index';
 import { CenterView } from '../../styled/common';
 
-function RadioButtonGroupStory({ error: defaultError }: { error?: boolean }) {
+function RadioButtonGroupStory({
+  error: defaultError,
+}: {
+  error?: boolean;
+}): JSX.Element {
   const [error, setError] = useState(defaultError);
-  const [options, setOptions] = useState([
+  const [options] = useState([
     {
       label: 'Female',
       value: 'female',
@@ -17,7 +21,7 @@ function RadioButtonGroupStory({ error: defaultError }: { error?: boolean }) {
   ]);
   const [selectedOption, setSelectedOption] = useState('');
 
-  const onSelectOption = (value: string) => {
+  const onSelectOption = (value: string): void => {
     setSelectedOption(value);
     setError(false);
   };

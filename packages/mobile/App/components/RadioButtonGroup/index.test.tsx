@@ -20,9 +20,9 @@ describe('<RadioButtonGroup />', () => {
   };
   const { getByText } = render(<RadioButtonGroup {...props} />);
   it('should render <RadioButtonGroup/>', () => {
-    for (const option of props.options) {
+    props.options.forEach(option => {
       expect(getByText(option.value)).not.toBe(null);
-    }
+    });
   });
 
   it('should call onSelectOption when pressed a <RadioButton/>', () => {
