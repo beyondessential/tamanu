@@ -17,16 +17,19 @@ interface TableProps {
   tableHeader: Column;
 }
 
-export const Table = ({ title, data, columns, tableHeader }: TableProps) => {
-  return (
-    <RowView>
-      <StyledView>
-        <TableTitle title={title} />
-        {columns.map(c => (
-          <RowHeaderCell key={c.key}>{c.title}</RowHeaderCell>
-        ))}
-      </StyledView>
-      <TableData data={data} columns={columns} tableHeader={tableHeader} />
-    </RowView>
-  );
-};
+export const Table = ({
+  title,
+  data,
+  columns,
+  tableHeader,
+}: TableProps): JSX.Element => (
+  <RowView>
+    <StyledView>
+      <TableTitle title={title} />
+      {columns.map(c => (
+        <RowHeaderCell key={c.key}>{c.title}</RowHeaderCell>
+      ))}
+    </StyledView>
+    <TableData data={data} columns={columns} tableHeader={tableHeader} />
+  </RowView>
+);

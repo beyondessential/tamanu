@@ -6,7 +6,9 @@ interface TableHeaderCellProps {
   children: ReactNode;
 }
 
-export const TableHeaderCell = ({ children }: TableHeaderCellProps) => (
+export const TableHeaderCell = ({
+  children,
+}: TableHeaderCellProps): JSX.Element => (
   <StyledView
     paddingTop={15}
     paddingBottom={15}

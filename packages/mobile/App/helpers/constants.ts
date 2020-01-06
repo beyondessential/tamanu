@@ -21,12 +21,12 @@ export const HeaderIcons = {
 };
 
 export const PatientVitalsList = [
-  'blood_pressure',
+  'bloodPressure',
   'weight',
   'circumference',
   'sp02',
-  'heart_rate',
+  'heartRate',
   'fev',
   'cholesterol',
-  'blood_glucose',
+  'bloodGlucose',
 ];

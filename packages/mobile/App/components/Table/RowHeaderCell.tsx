@@ -6,7 +6,9 @@ interface RowHeaderCellProps {
   children: ReactNode;
 }
 
-export const RowHeaderCell = ({ children }: RowHeaderCellProps) => (
+export const RowHeaderCell = ({
+  children,
+}: RowHeaderCellProps): JSX.Element => (
   <StyledView
     width={130}
     borderRightWidth={1}

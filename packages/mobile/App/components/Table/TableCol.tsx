@@ -10,7 +10,11 @@ interface TableColProps {
   tableHeader: Column;
 }
 
-export const TableCol = ({ columns, row, tableHeader }: TableColProps) => (
+export const TableCol = ({
+  columns,
+  row,
+  tableHeader,
+}: TableColProps): JSX.Element => (
   <StyledView>
     <TableHeaderCell>{tableHeader.accessor(row)}</TableHeaderCell>
     {columns.map(c => (

@@ -14,7 +14,7 @@ describe('<TableData />', () => {
     const { getByText, queryAllByText } = render(
       <Table
         columns={vitalsTableCols}
-        title={'Measures'}
+        title="Measures"
         data={patientHistoryList}
         tableHeader={vitalsTableHeader}
       />,
@@ -25,19 +25,19 @@ describe('<TableData />', () => {
     });
 
     it('should render TableData header informations', () => {
-      for (const col of vitalsTableCols) {
+      vitalsTableCols.forEach(col => {
         expect(getByText(col.title)).not.toBeNull();
-      }
+      });
     });
 
     it('should render TableData props', () => {
-      for (const patientData of patientHistoryList) {
-        for (const vitalProp of PatientVitalsList) {
+      patientHistoryList.forEach(patientData => {
+        PatientVitalsList.forEach(vitalProp => {
           expect(
             queryAllByText(patientData[vitalProp].toString()).length > 0,
           ).not.toBeFalsy();
-        }
-      }
+        });
+      });
     });
   });
 });

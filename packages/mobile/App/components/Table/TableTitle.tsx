@@ -6,7 +6,7 @@ interface TableTitleProps {
   title: string;
 }
 
-export const TableTitle = ({ title }: TableTitleProps) => (
+export const TableTitle = ({ title }: TableTitleProps): JSX.Element => (
   <StyledView
     background={theme.colors.MAIN_SUPER_DARK}
     width={130}

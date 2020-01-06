@@ -1,6 +1,6 @@
 import React from 'react';
-import { RowView } from '../../styled/common';
 import { ScrollView } from 'react-native';
+import { RowView } from '../../styled/common';
 import { Column } from './index';
 import { TableCol } from './TableCol';
 
@@ -10,12 +10,17 @@ interface TableDataProps {
   columns: Column[];
 }
 
-export const TableData = ({ data, tableHeader, columns }: TableDataProps) => (
+export const TableData = ({
+  data,
+  tableHeader,
+  columns,
+}: TableDataProps): JSX.Element => (
   <ScrollView
     bounces={false}
     scrollEnabled
     showsHorizontalScrollIndicator
-    horizontal>
+    horizontal
+  >
     <RowView>
       {data.map((d: any) => (
         <TableCol
