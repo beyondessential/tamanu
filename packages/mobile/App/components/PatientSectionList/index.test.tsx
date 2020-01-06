@@ -3,7 +3,7 @@ import { render } from '@testing-library/react-native';
 import { BaseStory, data } from './fixture';
 import { groupEntriesByLetter } from '../../helpers/list';
 
-jest.mock('react-native-gesture-handler', () => {});
+jest.mock('react-native-gesture-handler', () => null);
 
 describe('<PatientSectionList', () => {
   const { getByText } = render(<BaseStory />);

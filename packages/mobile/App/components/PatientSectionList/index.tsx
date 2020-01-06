@@ -12,10 +12,10 @@ export type PatientSectionListItem = {
 };
 
 interface PatientSectionListProps {
-  data: PatientSectionListItem | any;
+  data: PatientSectionListItem[];
 }
 
-const ListSeparator = () => (
+const ListSeparator = (): JSX.Element => (
   <StyledView
     height={StyleSheet.hairlineWidth}
     background={theme.colors.DEFAULT_OFF}
@@ -23,8 +23,10 @@ const ListSeparator = () => (
   />
 );
 
-export const PatientSectionList = ({ data }: PatientSectionListProps) => {
-  const ref: RefObject<any> = useRef(null);
+export const PatientSectionList = ({
+  data,
+}: PatientSectionListProps): JSX.Element => {
+  const ref: RefObject<LargeList> = useRef(null);
 
   const scrollToSection = useCallback(
     (header: string) => {
@@ -32,10 +34,12 @@ export const PatientSectionList = ({ data }: PatientSectionListProps) => {
         (entry: PatientSectionListItem) => entry.header === header,
       );
       if (headerIndex !== -1) {
-        ref.current!.scrollToIndexPath({
-          section: headerIndex,
-          row: 0,
-        });
+        if (ref.current) {
+          ref.current.scrollToIndexPath({
+            section: headerIndex,
+            row: 0,
+          });
+        }
       }
     },
     [data],
@@ -82,7 +86,7 @@ export const PatientSectionList = ({ data }: PatientSectionListProps) => {
   );
 
   const scrollToLetter = useCallback(
-    header => () => {
+    header => (): void => {
       scrollToSection(header);
     },
     [scrollToSection],

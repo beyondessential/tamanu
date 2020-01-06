@@ -23,7 +23,7 @@ export const PatientTile = ({
   city,
   image,
   lastVisit,
-}: PatientTileProps) => (
+}: PatientTileProps): JSX.Element => (
   <RowView
     paddingTop={screenPercentageToDP('2', Orientation.Height)}
     paddingBottom={screenPercentageToDP('2', Orientation.Height)}
@@ -53,7 +53,7 @@ export const PatientTile = ({
         fontSize={screenPercentageToDP('1.57', Orientation.Height)}
         fontWeight={500}
       >
-        {`${getGender(gender)} ${age}yrs${city}`}
+        {`${getGender(gender)} ${age}yrs, ${city}`}
       </StyledText>
     </StyledView>
     {lastVisit && (
