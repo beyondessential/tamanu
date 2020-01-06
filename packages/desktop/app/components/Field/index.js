@@ -7,7 +7,6 @@ export * from './CheckField';
 export * from './RadioField';
 
 // fancy fields
-export * from './AutoField';
 export * from './RelationField';
 export * from './ArrayField';
 export * from './AutocompleteField';
