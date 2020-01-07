@@ -8,7 +8,7 @@
     "build:android": "cd android && ./gradlew clean && ./gradlew assembleRelease && cd ..",
     "ios": "npx react-native run-ios",
     "start": "react-native start",
-    "test": "jest",
+    "test": "./node_modules/jest/bin/jest.js ",
     "test:watch": "jest --watchAll",
     "lint": "eslint --fix .",
     "storybook": "(adb reverse tcp:7007 tcp:7007 || true) && start-storybook",
@@ -77,6 +77,7 @@
     "eslint-plugin-prettier": "^3.1.2",
     "husky": "^3.1.0",
     "jest": "^24.9.0",
+    "lint-staged": "^9.5.0",
     "metro-react-native-babel-preset": "^0.57.0",
     "prettier": "^1.19.1",
     "react-dom": "16.9.0",
@@ -94,12 +95,6 @@
       ],
       "pattern": "**/*.stories.tsx",
       "outputFile": "./storybook/storyLoader.js"
-    }
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "yarn lint",
-      "pre-push": "yarn lint && yarn test"
     }
   }
 }
