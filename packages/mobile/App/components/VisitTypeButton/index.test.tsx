@@ -10,7 +10,7 @@ describe('<VisitTypeButton />', () => {
       Icon={HeaderIcons[VisitTypes.CLINIC]}
       type={VisitTypes.CLINIC}
       selected
-      onPress={() => onPressMock()}
+      onPress={(): void => onPressMock()}
     />,
   );
   it('should render correctly', () => {

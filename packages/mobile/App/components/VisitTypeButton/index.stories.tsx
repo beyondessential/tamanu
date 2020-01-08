@@ -12,7 +12,7 @@ storiesOf('VisitTypeButton', module)
       Icon={HeaderIcons[VisitTypes.CLINIC]}
       type={VisitTypes.CLINIC}
       selected
-      onPress={() => console.log('with icon')}
+      onPress={(): void => console.log('with icon')}
     />
   ))
   .add('with icon unselected', () => (
@@ -20,7 +20,7 @@ storiesOf('VisitTypeButton', module)
       Icon={HeaderIcons[VisitTypes.CLINIC]}
       type={VisitTypes.CLINIC}
       selected={false}
-      onPress={() => console.log('with icon')}
+      onPress={(): void => console.log('with icon')}
     />
   ))
   .add('without icon unselected', () => (
@@ -28,7 +28,7 @@ storiesOf('VisitTypeButton', module)
       title="ALL"
       subtitle="All types"
       selected={false}
-      onPress={() => console.log('no icon')}
+      onPress={(): void => console.log('no icon')}
     />
   ))
   .add('without icon selected', () => (
@@ -36,7 +36,7 @@ storiesOf('VisitTypeButton', module)
       title="ALL"
       subtitle="All types"
       selected
-      onPress={() => console.log('no icon')}
+      onPress={(): void => console.log('no icon')}
     />
   ))
   .add('Button list', () => <VisitButtonList />);

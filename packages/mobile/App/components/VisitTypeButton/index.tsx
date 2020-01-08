@@ -25,7 +25,7 @@ export const VisitTypeButton = ({
   title,
   subtitle,
   onPress,
-}: VisitTypeButtonProps) => {
+}: VisitTypeButtonProps): JSX.Element => {
   const onButtonPress = useCallback(() => {
     onPress(type);
   }, [onPress, type]);
