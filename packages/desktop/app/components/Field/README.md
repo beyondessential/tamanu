@@ -114,7 +114,7 @@ This is the plain version of the field. It comes with all the appropriate
 formatting, but is not bound to any data source. It can be used unbound or can
 be given `value` and `onChange` props directly.
 
-```
+```javascript
 <TextField 
   value={state.firstName}
   onChange={(e) => this.setState({ firstName: e.target.value }) }
@@ -129,7 +129,7 @@ just because a lot of handlers expect things in that format. For a custom contro
 it's safe to create a dummy event value; the only requred attributes on `e.target`
 for successful Formik interaction are `name` and `value`.
 
-```
+```javascript
 export const MyCustomField = ({ name, value, onChange }) => (
   <div>
     <div>Current value: <span>{value}</span></div>
