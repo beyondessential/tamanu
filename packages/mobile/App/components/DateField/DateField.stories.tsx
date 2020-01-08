@@ -11,10 +11,14 @@ stories.addDecorator((getStory: Function) => (
     <CenterView>{getStory()}</CenterView>
   </KeyboardAwareView>
 ));
-stories.add('Active', () => (
-  <BaseDateTextFieldStory label="First Year of Registration" />
+stories.add('Active DatePicker', () => (
+  <BaseDateTextFieldStory mode="date" label="First Year of Registration" />
+));
+
+stories.add('Active TimePicker', () => (
+  <BaseDateTextFieldStory mode="time" label="Hour of Registration" />
 ));
 
 stories.add('With Error', () => (
-  <BaseDateTextFieldStory label="Date" error=" with error " />
+  <BaseDateTextFieldStory mode="date" label="Date" error=" with error " />
 ));

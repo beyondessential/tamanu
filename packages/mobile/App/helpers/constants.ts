@@ -6,6 +6,10 @@ export const DateFormats = {
   DDMMYY: 'dd/MM/yyyy',
 };
 
+export const TimeFormats = {
+  HHMMSS: 'pp',
+};
+
 export const FilterTypeAll = 'All';
 
 export const VisitTypes = {

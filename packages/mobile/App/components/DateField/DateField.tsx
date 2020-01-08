@@ -8,15 +8,7 @@ import { StyledView, StyledText, RowView } from '../../styled/common';
 import { formatDate } from '../../helpers/date';
 import { theme } from '../../styled/theme';
 import * as Icons from '../Icons';
-import { DateFormats } from '../../helpers/constants';
-
-export interface TextFieldProps {
-  value: Date | null;
-  onChange: (date: Date) => void;
-  label?: '' | string;
-  placeholder?: '' | string;
-  error?: '' | string;
-}
+import { DateFormats, TimeFormats } from '../../helpers/constants';
 
 const styles = StyleSheet.create({
   androidPickerStyles: {
@@ -30,8 +22,17 @@ const styles = StyleSheet.create({
   },
 });
 
+export interface TextFieldProps {
+  value: Date | null;
+  onChange: (date: Date) => void;
+  label?: '' | string;
+  placeholder?: '' | string;
+  error?: '' | string;
+  mode?: 'date' | 'time';
+}
+
 export const DateField = React.memo(
-  ({ value, onChange, label, error }: TextFieldProps) => {
+  ({ value, onChange, label, error, mode = 'date' }: TextFieldProps) => {
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const showDatePicker = useCallback(() => setDatePickerVisible(true), []);
     const hideDatePicker = useCallback(() => setDatePickerVisible(false), []);
@@ -42,6 +43,14 @@ export const DateField = React.memo(
 
     const getDateStr = useCallback((date: Date) => date.toISOString(), []);
 
+    const formatValue = useCallback(() => {
+      if (value) {
+        if (mode === 'date') return formatDate(value, DateFormats.DDMMYY);
+        return formatDate(value, TimeFormats.HHMMSS);
+      }
+      return null;
+    }, [mode, value]);
+
     const onDateConfirm = useCallback(
       (date: Date) => {
         setDatePickerVisible(false);
@@ -49,6 +58,8 @@ export const DateField = React.memo(
       },
       [onChange],
     );
+
+    const IconComponent = mode === 'date' ? Icons.Calendar : Icons.Clock;
 
     return (
       <StyledView width="100%">
@@ -82,10 +93,10 @@ export const DateField = React.memo(
                   paddingBottom={10}
                 >
                   <StyledText fontSize={18} color={theme.colors.TEXT_DARK}>
-                    {value && formatDate(value, DateFormats.DDMMYY)}
+                    {formatValue()}
                   </StyledText>
                 </StyledView>
-                <Icons.Calendar
+                <IconComponent
                   fill={error ? theme.colors.ERROR : theme.colors.BOX_OUTLINE}
                 />
               </RowView>
@@ -95,7 +106,7 @@ export const DateField = React.memo(
         {Platform.OS === 'ios' ? (
           <DateTimePickerModal
             isVisible={isDatePickerVisible}
-            mode="date"
+            mode={mode}
             onConfirm={onDateConfirm}
             onCancel={hideDatePicker}
           />
@@ -103,7 +114,7 @@ export const DateField = React.memo(
           <DatePicker
             date={null}
             androidMode="spinner"
-            mode="date"
+            mode={mode}
             style={styles.androidPickerStyles}
             showIcon={false}
             onOpenModal={showDatePicker}
