@@ -10,7 +10,10 @@ interface MedicationListItemProps {
   index: number;
 }
 
-const MedicationListItem = ({ name, index }: MedicationListItemProps) => (
+const MedicationListItem = ({
+  name,
+  index,
+}: MedicationListItemProps): JSX.Element => (
   <StyledView>
     <RowView alignItems="center" marginTop={10}>
       <StyledView

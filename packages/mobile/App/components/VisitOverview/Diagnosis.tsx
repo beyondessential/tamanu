@@ -2,7 +2,7 @@ import React from 'react';
 import { ColumnView, StyledText } from '../../styled/common';
 import { theme } from '../../styled/theme';
 
-export const Diagnosis = ({ info }: { info: string }) => (
+export const Diagnosis = ({ info }: { info: string }): JSX.Element => (
   <ColumnView>
     <StyledText fontSize={14} fontWeight={500} marginBottom="5px">
       Diagnosis

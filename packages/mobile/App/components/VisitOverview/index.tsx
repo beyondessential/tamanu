@@ -8,7 +8,7 @@ import { Diagnosis } from './Diagnosis';
 import { TreatmentPlan } from './TreatmentPlan';
 import { VisitOverviewProps } from '../../interfaces/VisitOverview';
 
-export const VisitOverview = (section: VisitOverviewProps) => (
+export const VisitOverview = (section: VisitOverviewProps): JSX.Element => (
   <StyledView width="100%" height="100%" padding={20}>
     <Diagnosis info={section.diagnosis} />
     <TreatmentPlan treatment={section.treament} />
