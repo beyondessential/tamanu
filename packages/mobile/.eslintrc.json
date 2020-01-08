@@ -1,17 +1,18 @@
 {
   "parser": "@typescript-eslint/parser",
   "root": true,
-  "plugins": ["@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "prettier"],
   "extends": [
     "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint",
+    "prettier/@typescript-eslint",    
     "@react-native-community",
-    "@beyondessential/eslint-config-beyondessential"
+    "@beyondessential/eslint-config-beyondessential",    
+    "prettier"
   ],
   "env": {
     "jest": true,
     "jasmine": true
-  },
+  },  
   "settings": {
     "import/resolver": {
       "node": {
@@ -20,6 +21,8 @@
     }
   },
   "rules": {
+    "curly": "off",    
+    "react/jsx-one-expression-per-line": "off",
     "implicit-arrow-linebreak": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "object-curly-newline": "off",

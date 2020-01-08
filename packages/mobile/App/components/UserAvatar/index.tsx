@@ -18,7 +18,7 @@ export const UserAvatar = ({
   gender,
   size,
   Icon,
-}: UserAvatarProps) => {
+}: UserAvatarProps): JSX.Element => {
   const userInitials: string = React.useMemo(() => getUserInitials(name), [
     name,
   ]);

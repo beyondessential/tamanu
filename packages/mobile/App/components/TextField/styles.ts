@@ -15,7 +15,8 @@ export interface InputContainerProps {
 
 export const InputContainer = styled(StyledView)`
   background-color: ${(props: InputContainerProps): string => {
-    if (!props.hasValue || (props.hasValue && !props.error)) return theme.colors.WHITE;
+    if (!props.hasValue || (props.hasValue && !props.error))
+      return theme.colors.WHITE;
     if (props.hasValue && props.error) return theme.colors.ERROR_LIGHT;
     return theme.colors.WHITE;
   }};

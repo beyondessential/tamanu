@@ -35,8 +35,7 @@ export const Intro = (props: IntroProps) => {
         fontWeight="bold"
         color={theme.colors.WHITE}
       >
-        Welcome,
-        {user.name}!
+        Welcome,{user.name}!
       </StyledText>
       <StyledView marginTop={screenPercentageToDP('11.17', Orientation.Height)}>
         <Icon />
