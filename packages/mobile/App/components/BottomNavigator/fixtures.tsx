@@ -1,42 +1,34 @@
 import React from 'react';
 import { Text } from 'react-native';
-import { CenterView } from '../../styled/common';
-import * as Icons from '../Icons';
 import { createAppContainer } from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
+import { CenterView } from '../../styled/common';
+import * as Icons from '../Icons';
 import { BottomNavigator, TabIcon } from './index';
 
-export const Home = React.memo(() => {
-  return (
-    <CenterView>
-      <Text>Home</Text>
-    </CenterView>
-  );
-});
+export const Home = React.memo(() => (
+  <CenterView>
+    <Text>Home</Text>
+  </CenterView>
+));
 
-export const Reports = React.memo(() => {
-  return (
-    <CenterView>
-      <Text>Reports</Text>
-    </CenterView>
-  );
-});
+export const Reports = React.memo(() => (
+  <CenterView>
+    <Text>Reports</Text>
+  </CenterView>
+));
 
-export const SyncData = React.memo(() => {
-  return (
-    <CenterView>
-      <Text>Sync Data</Text>
-    </CenterView>
-  );
-});
+export const SyncData = React.memo(() => (
+  <CenterView>
+    <Text>Sync Data</Text>
+  </CenterView>
+));
 
-export const More = React.memo(() => {
-  return (
-    <CenterView>
-      <Text>More</Text>
-    </CenterView>
-  );
-});
+export const More = React.memo(() => (
+  <CenterView>
+    <Text>More</Text>
+  </CenterView>
+));
 
 const navigator = createBottomTabNavigator(
   {
@@ -49,7 +41,7 @@ const navigator = createBottomTabNavigator(
     defaultNavigationOptions: ({ navigation }) => {
       const { routeName } = navigation.state;
       return {
-        tabBarIcon: props => {
+        tabBarIcon: (props): JSX.Element | null => {
           switch (routeName) {
             case 'Home':
               return <TabIcon Icon={Icons.BottomNavLogo} {...props} />;

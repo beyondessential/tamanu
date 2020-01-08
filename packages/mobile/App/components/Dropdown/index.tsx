@@ -22,7 +22,7 @@ export interface DropdownProps {
   error?: '' | string;
 }
 
-function getModalBackground(OS: string, open: boolean) {
+function getModalBackground(OS: string, open: boolean): string {
   if (OS === 'ios') return 'rgba(0,0,0,0)';
   return open ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0)';
 }
@@ -30,7 +30,6 @@ function getModalBackground(OS: string, open: boolean) {
 export const Dropdown = React.memo(
   ({ value, onChange, error, items, label }: DropdownProps) => {
     const [open, setOpen] = useState(false);
-
     const closeModal = React.useCallback(() => setOpen(false), []);
     const openModal = React.useCallback(() => setOpen(true), []);
 
@@ -43,13 +42,15 @@ export const Dropdown = React.memo(
               hasValue={value !== null}
               error={error}
               justifyContent="space-between"
-              alignItems="center">
+              alignItems="center"
+            >
               {label && (
                 <React.Fragment>
                   <TextFieldLabel
                     onFocus={setOpen}
                     focus={open}
-                    isValueEmpty={value !== null}>
+                    isValueEmpty={value !== null}
+                  >
                     {label}
                   </TextFieldLabel>
                 </React.Fragment>
@@ -59,7 +60,8 @@ export const Dropdown = React.memo(
                 fontSize={18}
                 color={theme.colors.TEXT_DARK}
                 marginTop={10}
-                marginLeft={10}>
+                marginLeft={10}
+              >
                 {value && value.label ? value.label : ''}
               </StyledText>
               <StyledView marginRight={10}>
@@ -73,7 +75,8 @@ export const Dropdown = React.memo(
           background={getModalBackground(Platform.OS, open)}
           width="100%"
           zIndex={open ? 3 : -1}
-          position="absolute">
+          position="absolute"
+        >
           <TouchableWithoutFeedback onPress={closeModal}>
             <StyledView flex={1} background="transparent" />
           </TouchableWithoutFeedback>

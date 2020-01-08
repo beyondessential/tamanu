@@ -19,7 +19,7 @@ export const UserAvatar = ({
   size,
   Icon,
 }: UserAvatarProps) => {
-  const userInitials: String = React.useMemo(() => getUserInitials(name), [
+  const userInitials: string = React.useMemo(() => getUserInitials(name), [
     name,
   ]);
   const backgroundColor: string = React.useMemo(() => {

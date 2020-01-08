@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { PatientCard, PatientCardProps } from './index';

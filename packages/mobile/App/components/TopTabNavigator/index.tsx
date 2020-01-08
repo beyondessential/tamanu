@@ -7,6 +7,7 @@ import {
   NavigationRouteConfigMap,
   NavigationRoute,
   NavigationParams,
+  NavigationNavigator,
 } from 'react-navigation';
 import { theme } from '../../styled/theme';
 
@@ -15,7 +16,9 @@ type TopTabNavigator = NavigationRouteConfigMap<
   NavigationTabProp<NavigationRoute<NavigationParams>, any>
 >;
 
-export const TopTabNavigator = (routes: TopTabNavigator) =>
+export const TopTabNavigator = (
+  routes: TopTabNavigator,
+): NavigationNavigator<any, any> =>
   createMaterialTopTabNavigator(routes, {
     tabBarOptions: {
       activeTintColor: theme.colors.PRIMARY_MAIN,

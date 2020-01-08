@@ -20,7 +20,7 @@ const AnimatedView = posed.View({
   },
 });
 
-interface IOSPickerProps {
+interface PickerPropsIOS {
   items: DropdownItem[];
   open: boolean;
   onChange: Function;
@@ -29,7 +29,7 @@ interface IOSPickerProps {
 }
 
 export const IOSPicker = React.memo(
-  ({ items, open, onChange, selectedItem }: IOSPickerProps) => (
+  ({ items, open, onChange, selectedItem }: PickerPropsIOS) => (
     <StyledView
       as={AnimatedView}
       pose={open ? 'open' : 'closed'}

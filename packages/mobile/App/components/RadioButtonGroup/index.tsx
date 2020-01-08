@@ -15,20 +15,18 @@ export const RadioButtonGroup = ({
   onSelectOption,
   selected,
   error,
-}: RadioButtonGroupProps) => {
-  return (
-    <RowView>
-      {options.map((option, index) => (
-        <RadioButton
-          key={index}
-          label={option.label}
-          value={option.value}
-          index={index}
-          selected={option.value === selected}
-          error={error}
-          onPress={onSelectOption}
-        />
-      ))}
-    </RowView>
-  );
-};
+}: RadioButtonGroupProps): JSX.Element => (
+  <RowView>
+    {options.map((option, index) => (
+      <RadioButton
+        key={option.label}
+        label={option.label}
+        value={option.value}
+        index={index}
+        selected={option.value === selected}
+        error={error}
+        onPress={onSelectOption}
+      />
+    ))}
+  </RowView>
+);

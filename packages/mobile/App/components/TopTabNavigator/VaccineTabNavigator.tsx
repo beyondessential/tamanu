@@ -39,7 +39,9 @@ const TabLabel = React.memo(({ route, focused }: LabelProps) => {
   );
 });
 
-const VaccineTabLabel = (props: LabelProps) => <TabLabel {...props} />;
+const VaccineTabLabel = (props: LabelProps): JSX.Element => (
+  <TabLabel {...props} />
+);
 
 interface LabelProps {
   route: CustomRoute;

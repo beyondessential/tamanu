@@ -17,17 +17,36 @@
       "node": {
         "extensions": [".js", ".ts", ".tsx", ".stories"]
       }
-    },
-    "rules": {
-      "import/no-extraneous-dependencies": [
-        "off",
-        {
-          "devDependencies": false,
-          "optionalDependencies": false,
-          "peerDependencies": false
-        }
-      ],
-      "import/no-unresolved": [2, { "caseSensitive": false }]
     }
+  },
+  "rules": {
+    "implicit-arrow-linebreak": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "object-curly-newline": "off",
+    "import/no-extraneous-dependencies": [
+      "off",
+      {
+        "devDependencies": false,
+        "optionalDependencies": false,
+        "peerDependencies": false
+      }
+    ],
+    "import/no-unresolved": [
+      2,
+      {
+        "caseSensitive": false
+      }
+    ],
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "js": "never",
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never",
+        "mjs": "never"
+      }
+    ]
   }
 }

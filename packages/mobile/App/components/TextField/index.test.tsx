@@ -32,7 +32,7 @@ describe('<TextField />', () => {
       };
       const newValue = '1234';
       const { getByText, getByLabelText } = render(
-        <BaseMaskedTextFieldStory {...phoneMaskProps} maskType={'custom'} />,
+        <BaseMaskedTextFieldStory {...phoneMaskProps} maskType="custom" />,
       );
       it('should render phone Mask', () => {
         expect(getByText(phoneMaskProps.label)).not.toBe(null);
