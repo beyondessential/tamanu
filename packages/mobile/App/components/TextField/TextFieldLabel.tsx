@@ -41,8 +41,8 @@ export const TextFieldLabel = ({
   onFocus,
   isValueEmpty,
   error,
-}: LabelProps) => {
-  function getColor(hasValue: boolean, errorMessage?: string) {
+}: LabelProps): JSX.Element => {
+  function getColor(hasValue: boolean, errorMessage?: string): string {
     if (!errorMessage && hasValue) return theme.colors.TEXT_SOFT;
     if (errorMessage) return theme.colors.ALERT;
     return theme.colors.TEXT_MID;
@@ -51,7 +51,7 @@ export const TextFieldLabel = ({
   return (
     <StyledAnimatedLabel
       as={AnimatedLabel}
-      onPress={() => onFocus(!focus)}
+      onPress={(): void => onFocus(!focus)}
       color={getColor(isValueEmpty, error)}
       pose={isLabelLifted}
     >

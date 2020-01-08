@@ -1,5 +1,5 @@
-import React, { useState, useRef, Ref } from 'react';
-import { TextInput, KeyboardType } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { KeyboardType } from 'react-native';
 import {
   TextInputMaskTypeProp,
   TextInputMaskOptionProp,
@@ -8,10 +8,7 @@ import {
 import { InputContainer, StyledMaskedInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '../../styled/common';
-
-export interface RefObject<T> {
-  readonly current: T | null;
-}
+import { RefObject } from './TextField';
 
 export interface TextFieldProps {
   value: string;
@@ -36,19 +33,19 @@ export const MaskedTextField = React.memo(
     maskType = 'cnpj',
     options,
     keyboardType,
-  }: TextFieldProps) => {
+  }: TextFieldProps): JSX.Element => {
     const [focused, setFocus] = useState(false);
-    const inputRef: Ref<TextInput> = useRef(null);
-    const maskedInputRef: any = useRef(null);
-    const onFocusInput = React.useCallback(() => {
-      if (!focused) {
+    const maskedInputRef: RefObject<any> = useRef(null);
+    const onFocusInput = React.useCallback((): void => {
+      /* eslint-disable  no-underscore-dangle */
+      if (!focused && maskedInputRef.current) {
         maskedInputRef.current._inputElement.focus();
       } else {
         maskedInputRef.current._inputElement.blur();
       }
     }, [focused, maskedInputRef]);
-    const onFocus = React.useCallback(() => setFocus(true), [setFocus]);
-    const onBlur = React.useCallback(() => setFocus(false), [setFocus]);
+    const onFocus = React.useCallback((): void => setFocus(true), [setFocus]);
+    const onBlur = React.useCallback((): void => setFocus(false), [setFocus]);
 
     const inputProps = {
       accessibilityLabel: label,

@@ -14,13 +14,13 @@ export interface InputContainerProps {
 }
 
 export const InputContainer = styled(StyledView)`
-  background-color: ${(props: InputContainerProps) => {
-    if (!props.hasValue || (props.hasValue && !props.error))
-      return theme.colors.WHITE;
+  background-color: ${(props: InputContainerProps): string => {
+    if (!props.hasValue || (props.hasValue && !props.error)) return theme.colors.WHITE;
     if (props.hasValue && props.error) return theme.colors.ERROR_LIGHT;
+    return theme.colors.WHITE;
   }};
   border: 1px solid
-    ${(props: InputContainerProps) => {
+    ${(props: InputContainerProps): string => {
       if (props.error) return theme.colors.ERROR;
       return theme.colors.TEXT_SOFT;
     }};

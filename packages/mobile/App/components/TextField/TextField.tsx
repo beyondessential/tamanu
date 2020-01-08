@@ -34,18 +34,18 @@ export const TextField = React.memo(
     error,
     keyboardType,
     multiline,
-  }: TextFieldProps) => {
+  }: TextFieldProps): JSX.Element => {
     const [focused, setFocus] = useState(false);
     const inputRef: Ref<TextInput> = useRef(null);
-    const onFocusInput = React.useCallback(() => {
-      if (!focused) {
-        inputRef.current!.focus();
-      } else {
-        inputRef.current!.blur();
+    const onFocusInput = React.useCallback((): void => {
+      if (!focused && inputRef.current) {
+        inputRef.current.focus();
+      } else if (focused && inputRef.current) {
+        inputRef.current.blur();
       }
     }, [focused, inputRef]);
-    const onFocus = React.useCallback(() => setFocus(true), [setFocus]);
-    const onBlur = React.useCallback(() => setFocus(false), [setFocus]);
+    const onFocus = React.useCallback((): void => setFocus(true), [setFocus]);
+    const onBlur = React.useCallback((): void => setFocus(false), [setFocus]);
 
     const inputProps = {
       accessibilityLabel: label,

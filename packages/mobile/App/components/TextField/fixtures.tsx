@@ -21,9 +21,9 @@ export function BaseTextFieldStory({
   label,
   error,
   multiline,
-}: BaseStoryProps) {
+}: BaseStoryProps): JSX.Element {
   const [text, setText] = useState('');
-  const onChangeText = (newText: string) => {
+  const onChangeText = (newText: string): void => {
     setText(newText);
   };
   return (
@@ -42,9 +42,9 @@ export function BaseMaskedTextFieldStory({
   error,
   maskType,
   options,
-}: BaseStoryProps) {
+}: BaseStoryProps): JSX.Element {
   const [text, setText] = useState('');
-  const onChange = (newText: string) => {
+  const onChange = (newText: string): void => {
     setText(newText);
   };
   return (

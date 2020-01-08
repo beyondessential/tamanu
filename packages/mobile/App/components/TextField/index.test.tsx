@@ -2,8 +2,8 @@ import React from 'react';
 import { render, fireEvent, wait } from '@testing-library/react-native';
 import { BaseTextFieldStory, BaseMaskedTextFieldStory } from './fixtures';
 
-describe('<TextField />', () => {
-  describe('Non Masked', () => {
+describe('<TextField />', (): void => {
+  describe('Non Masked', (): void => {
     const nonMaskedProps = {
       label: 'First Year of Registration',
     };
@@ -11,18 +11,18 @@ describe('<TextField />', () => {
     const { getByText, getByLabelText } = render(
       <BaseTextFieldStory {...nonMaskedProps} />,
     );
-    it('should render label', () => {
+    it('should render label', (): void => {
       expect(getByText(nonMaskedProps.label)).not.toBe(null);
     });
-    it('should change values', async () => {
+    it('should change values', (): void => {
       const input = getByLabelText(nonMaskedProps.label);
       fireEvent.changeText(input, newValue);
       expect(input.getProp('value')).toBe(newValue);
     });
   });
 
-  describe('Masked', () => {
-    describe('Phone Mask', () => {
+  describe('Masked', (): void => {
+    describe('Phone Mask', (): void => {
       const phoneMaskProps = {
         masked: true,
         options: {
@@ -34,13 +34,13 @@ describe('<TextField />', () => {
       const { getByText, getByLabelText } = render(
         <BaseMaskedTextFieldStory {...phoneMaskProps} maskType="custom" />,
       );
-      it('should render phone Mask', () => {
+      it('should render phone Mask', (): void => {
         expect(getByText(phoneMaskProps.label)).not.toBe(null);
       });
 
-      it('should change values', async () => {
+      it('should change values', async (): Promise<void> => {
         const input = getByLabelText(phoneMaskProps.label);
-        await wait(() => fireEvent.changeText(input, newValue));
+        await wait((): boolean => fireEvent.changeText(input, newValue));
         expect(input.getProp('value')).toBe(newValue);
       });
     });
