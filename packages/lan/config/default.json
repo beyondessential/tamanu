@@ -1,7 +1,9 @@
 {
   "port": 4000,
   "db": {
-    "name": "main"
+    "name": "main",
+    "username": "test",
+    "password": "abc123"
   },
   "sync": {
     "path": "realm-sync",

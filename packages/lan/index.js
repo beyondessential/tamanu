@@ -1,3 +1,16 @@
+import { initDatabase } from './app/database';
+
+export async function run() {
+  const { sequelize, models } = await initDatabase();
+
+  // do some testing
+  const allUsers = await models.User.findAll();
+  console.log(allUsers.map(x => x.email));
+}
+
+run();
+
+/*
 import config from 'config';
 import RemoteAuth from './app/services/remote-auth';
 import { startScheduledTasks } from './app/tasks';
@@ -40,3 +53,4 @@ async function start() {
 }
 
 start();
+*/

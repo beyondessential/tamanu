@@ -82,7 +82,9 @@
     "realm": "~2.25.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
+    "sequelize": "^5.21.3",
     "shortid": "^2.2.13",
+    "sqlite3": "^4.1.1",
     "uuid": "^3.3.2"
   }
 }
