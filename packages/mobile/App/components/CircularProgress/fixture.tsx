@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CircularProgress } from './index';
 
-export const BaseStory = () => {
+export const BaseStory = (): JSX.Element => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export const BaseStory = () => {
     const interval = setInterval(() => {
       setProgress(p => Math.min(p + 5, 100));
     }, 600);
-    return () => clearInterval(interval);
+    return (): void => clearInterval(interval);
   }, []);
 
   return <CircularProgress progress={progress} />;
