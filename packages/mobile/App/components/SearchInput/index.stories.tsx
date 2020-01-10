@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { KeyboardAwareView } from '../KeyboardAwareView';
-import { StyledSafeAreaView, CenterView } from '../../styled/common';
+import { CenterView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import { BaseStory } from './fixture';
 

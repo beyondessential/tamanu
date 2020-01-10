@@ -18,6 +18,7 @@ function loadStories() {
   require('../App/components/PatientSectionList/index.stories');
   require('../App/components/PatientTile/index.stories');
   require('../App/components/RadioButtonGroup/index.stories');
+  require('../App/components/RangeSlider/index.stories');
   require('../App/components/SearchInput/index.stories');
   require('../App/components/SectionHeader/index.stories');
   require('../App/components/Table/index.stories');
@@ -43,6 +44,7 @@ const stories = [
   '../App/components/PatientSectionList/index.stories',
   '../App/components/PatientTile/index.stories',
   '../App/components/RadioButtonGroup/index.stories',
+  '../App/components/RangeSlider/index.stories',
   '../App/components/SearchInput/index.stories',
   '../App/components/SectionHeader/index.stories',
   '../App/components/Table/index.stories',

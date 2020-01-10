@@ -11,45 +11,45 @@ import {
 } from '../Icons';
 import { RowView, StyledView, themeSystem } from '../../styled/common';
 
-export const BaseStory = () => (
+export const BaseStory = (): JSX.Element => (
   <ThemeProvider theme={themeSystem}>
     <StyledView width="100%">
       <RowView width="100%" paddingLeft={15} paddingRight={15}>
         <PatientMenuButton
           title={'Sick \n or Injured'}
           Icon={SickOrInjured}
-          onPress={() => console.log('here')}
+          onPress={(): void => console.log('here')}
         />
         <StyledView marginLeft={8} marginRight={8}>
           <PatientMenuButton
             title="Check up"
             Icon={CheckUp}
-            onPress={() => console.log('here')}
+            onPress={(): void => console.log('here')}
           />
         </StyledView>
         <PatientMenuButton
           title="Programs"
           Icon={Pregnancy}
-          onPress={() => console.log('here')}
+          onPress={(): void => console.log('here')}
         />
       </RowView>
       <RowView width="100%" marginTop={8} paddingLeft={15} paddingRight={15}>
         <PatientMenuButton
           title="Referral"
           Icon={FamilyPlanning}
-          onPress={() => console.log('here')}
+          onPress={(): void => console.log('here')}
         />
         <StyledView marginLeft={8} marginRight={8}>
           <PatientMenuButton
             title="Vaccine"
             Icon={Vaccine}
-            onPress={() => console.log('here')}
+            onPress={(): void => console.log('here')}
           />
         </StyledView>
         <PatientMenuButton
           title="Deceased"
           Icon={Deceased}
-          onPress={() => console.log('here')}
+          onPress={(): void => console.log('here')}
         />
       </RowView>
     </StyledView>
