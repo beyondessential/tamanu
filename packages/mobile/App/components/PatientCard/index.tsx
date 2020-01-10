@@ -24,8 +24,8 @@ export const PatientCard = ({
   city,
   lastVisit,
   onPress,
-}: PatientCardProps) => (
-  <TouchableWithoutFeedback onPress={() => onPress()}>
+}: PatientCardProps): JSX.Element => (
+  <TouchableWithoutFeedback onPress={(): void => onPress()}>
     <styles.StyledCardContainer>
       <RowView justifyContent="space-between" height={45} width="100%">
         <UserAvatar
