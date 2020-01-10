@@ -18,8 +18,9 @@ type TopTabNavigator = NavigationRouteConfigMap<
 
 export const TopTabNavigator = (
   routes: TopTabNavigator,
-): NavigationNavigator<any, any> =>
-  createMaterialTopTabNavigator(routes, {
+): NavigationNavigator<any, any> => createMaterialTopTabNavigator(
+  routes,
+  {
     tabBarOptions: {
       activeTintColor: theme.colors.PRIMARY_MAIN,
       inactiveTintColor: theme.colors.TEXT_MID,
@@ -31,6 +32,7 @@ export const TopTabNavigator = (
         height: 3,
       },
     },
-  });
+  },
+);
 
 export default TopTabNavigator;

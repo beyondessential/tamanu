@@ -1,5 +1,5 @@
 import React, { ComponentType, FunctionComponent } from 'react';
-import { Dimensions } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 import {
   TabView,
   SceneMap,
@@ -22,22 +22,24 @@ type State = NavigationState<CustomRoute>;
 
 type TabBarProps = SceneRendererProps & { navigationState: State };
 
-const TabLabel = React.memo(({ route, focused }: LabelProps) => {
-  const Icon: FunctionComponent<SvgProps> = route.icon;
-  return (
-    <StyledView height={110} alignItems="center" paddingTop={25}>
-      <StyledView>{focused ? <Icon /> : <Icons.EmptyCircle />}</StyledView>
-      <StyledText
-        marginTop={10}
-        textAlign="center"
-        fontSize={13}
-        color={focused ? route.color : theme.colors.TEXT_SOFT}
-      >
-        {route.title}
-      </StyledText>
-    </StyledView>
-  );
-});
+const TabLabel = React.memo(
+  ({ route, focused }: LabelProps): JSX.Element => {
+    const Icon: FunctionComponent<SvgProps> = route.icon;
+    return (
+      <StyledView height={110} alignItems="center" paddingTop={25}>
+        <StyledView>{focused ? <Icon /> : <Icons.EmptyCircle />}</StyledView>
+        <StyledText
+          marginTop={10}
+          textAlign="center"
+          fontSize={13}
+          color={focused ? route.color : theme.colors.TEXT_SOFT}
+        >
+          {route.title}
+        </StyledText>
+      </StyledView>
+    );
+  },
+);
 
 const VaccineTabLabel = (props: LabelProps): JSX.Element => (
   <TabLabel {...props} />
@@ -48,26 +50,43 @@ interface LabelProps {
   focused: boolean;
 }
 
-const CustomTabBar = React.memo((props: TabBarProps) => {
-  const {
-    navigationState: { routes, index },
-  } = props;
-  return (
-    <TabBar
-      style={{ backgroundColor: 'white' }}
-      activeColor={routes[index].color}
-      renderLabel={VaccineTabLabel}
-      inactiveColor={theme.colors.TEXT_SOFT}
-      {...props}
-      indicatorStyle={{
-        backgroundColor: routes[index].color,
-        height: 5,
-      }}
-    />
-  );
+/* eslint-disable implicit-arrow-linebreak */
+
+const customIndicatorStyle = (color?: string): { indicator: object } =>
+  StyleSheet.create({
+    indicator: {
+      backgroundColor: color,
+      height: 5,
+    },
+  });
+
+const TabBarStyle = StyleSheet.create({
+  tabBar: {
+    backgroundColor: theme.colors.WHITE,
+  },
 });
 
-const renderTabBar = (props: TabBarProps) => <CustomTabBar {...props} />;
+const CustomTabBar = React.memo(
+  (props: TabBarProps): JSX.Element => {
+    const {
+      navigationState: { routes, index },
+    } = props;
+    return (
+      <TabBar
+        style={TabBarStyle.tabBar}
+        activeColor={routes[index].color}
+        renderLabel={VaccineTabLabel}
+        inactiveColor={theme.colors.TEXT_SOFT}
+        {...props}
+        indicatorStyle={customIndicatorStyle(routes[index].color).indicator}
+      />
+    );
+  },
+);
+
+const renderTabBar = (props: TabBarProps): JSX.Element => (
+  <CustomTabBar {...props} />
+);
 
 interface VaccineTabNavigator {
   state: any;
@@ -77,14 +96,20 @@ interface VaccineTabNavigator {
   onChangeTab: Function;
 }
 
+const TabViewStyle = StyleSheet.create({
+  initialLayout: {
+    width: Dimensions.get('window').width,
+  },
+});
+
 export const VaccineTabNavigator = React.memo(
-  ({ state, scenes, onChangeTab }: VaccineTabNavigator) => (
+  ({ state, scenes, onChangeTab }: VaccineTabNavigator): JSX.Element => (
     <TabView
       navigationState={state}
       renderScene={SceneMap(scenes)}
       renderTabBar={renderTabBar}
-      onIndexChange={index => onChangeTab({ ...state, index })}
-      initialLayout={{ width: Dimensions.get('window').width }}
+      onIndexChange={(index): void => onChangeTab({ ...state, index })}
+      initialLayout={TabViewStyle.initialLayout}
     />
   ),
 );

@@ -4,10 +4,8 @@
   "plugins": ["@typescript-eslint", "prettier"],
   "extends": [
     "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint",    
-    "@react-native-community",
-    "@beyondessential/eslint-config-beyondessential",    
-    "prettier"
+    "prettier/@typescript-eslint",        
+    "@beyondessential/eslint-config-beyondessential"    
   ],
   "env": {
     "jest": true,
@@ -22,8 +20,7 @@
   },
   "rules": {
     "curly": "off",    
-    "react/jsx-one-expression-per-line": "off",
-    "implicit-arrow-linebreak": "off",
+    "react/jsx-one-expression-per-line": "off",    
     "@typescript-eslint/no-explicit-any": "off",
     "object-curly-newline": "off",
     "import/no-extraneous-dependencies": [

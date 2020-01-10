@@ -1,5 +1,5 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "editor.formatOnPaste": true,
   "editor.formatOnSave": false,
   "[typescript]": {
@@ -13,12 +13,10 @@
     "javascript",
     "javascriptreact",
     {
-      "language": "typescript",
-      "autoFix": true
+      "language": "typescript",      
     },
     {
-      "language": "typescriptreact",
-      "autoFix": true
+      "language": "typescriptreact",      
     }
   ]
 }
