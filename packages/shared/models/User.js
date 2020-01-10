@@ -5,15 +5,23 @@ export class User extends Model {
   static init(options) {
     super.init({
       id: {
-        type: Sequelize.UUIDV4,
+        type: Sequelize.UUID,
+        defaultValue: options.createId,
         primaryKey: true,
       },
-      email: Sequelize.STRING,
+      email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+      },
       password: Sequelize.STRING,
       displayName: Sequelize.STRING,
-      name: Sequelize.STRING,
-      anotherField: Sequelize.STRING,
-    }, options); 
+    }, {
+      ...options,
+      indexes: [
+        { fields: ['email'] },
+      ]
+    }); 
   }
 
 }

@@ -5,10 +5,15 @@ export class Patient extends Model {
   static init(options, models) {
     super.init({
       id: {
-        type: Sequelize.UUIDV4,
+        type: Sequelize.UUID,
+        defaultValue: options.createId,
         primaryKey: true,
       },
-      displayId: Sequelize.STRING,
+      displayId: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false,
+      },
 
       firstName: Sequelize.STRING,
       middleName: Sequelize.STRING,
@@ -16,8 +21,17 @@ export class Patient extends Model {
       culturalName: Sequelize.STRING,
 
       dateOfBirth: Sequelize.DATE,
-      sex: Sequelize.ENUM('male', 'female', 'other'),
-    }, options);
+      sex: {
+        type: Sequelize.ENUM('male', 'female', 'other'),
+        allowNull: false,
+      },
+    }, {
+      ...options,
+      indexes: [
+        { fields: ['display_id'] },
+        { fields: ['last_name'] },
+      ]
+    }); 
   }
 
   static initRelations(models) {

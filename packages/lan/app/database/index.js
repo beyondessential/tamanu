@@ -4,6 +4,7 @@ import config from 'config';
 import * as models from 'Shared/models';
 
 import { log } from '../logging';
+import uuid from 'uuid';
 
 export async function initDatabase() {
   // connect to database
@@ -15,16 +16,20 @@ export async function initDatabase() {
     {
       dialect: 'sqlite',
       storage: 'data/test.db',
-      logging: false,
+      logging: (s) => log.debug(s),
     }
   );
 
   // init all models
   const modelClasses = Object.entries(models);
   log.info(`Registering ${modelClasses.length} models...`);
+  const createId = (process.env.NODE_ENV === "test")
+    ? Sequelize.UUIDV4
+    : () => 'test-' + uuid().slice(5);
   await Promise.all(modelClasses.map(([name, cls]) => {
     cls.init({
       underscored: true,
+      createId,
       sequelize
     }, models);
   }));

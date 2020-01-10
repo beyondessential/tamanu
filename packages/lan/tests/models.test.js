@@ -26,6 +26,8 @@ describe('User', () => {
   test.todo('should create a new user');
   test.todo('should change a password');
   test.todo('should change an email');
+
+  test.todo('should fail to create a user with a duplicate email');
 });
 
 describe('Patient', () => {
@@ -56,6 +58,10 @@ describe('Patient', () => {
     test.todo('should edit an existing family history entry');
     test.todo('should add a new issue');
     test.todo('should edit an existing issue');
+  });
+
+  describe('merge', () => {
+    test.todo('should merge two patients into a single record');
   });
 
   describe('search', () => {
