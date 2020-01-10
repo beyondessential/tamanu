@@ -3,7 +3,7 @@ import { AgeRangeSlider } from './index';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 import { StyledView, StyledText, RowView } from '../../styled/common';
 
-export const BaseStory = () => {
+export const BaseStory = (): JSX.Element => {
   const [value, setValue] = useState([32, 46]);
 
   return (

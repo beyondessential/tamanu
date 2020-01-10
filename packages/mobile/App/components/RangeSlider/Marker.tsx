@@ -7,7 +7,7 @@ interface MarkerProps {
   pressed: boolean;
 }
 
-export const Marker = ({ pressed }: MarkerProps) => {
+export const Marker = ({ pressed }: MarkerProps): JSX.Element => {
   const SIZE_LARGE = useMemo(
     () => screenPercentageToDP('3.03', Orientation.Height),
     [],
