@@ -11,6 +11,7 @@ export * from './SickOrInjured';
 export * from './Camera1';
 export * from './CheckUp';
 export * from './Checked';
+export * from './CheckboxMark';
 export * from './Circle add';
 export * from './Clipboard';
 export * from './Deceased';

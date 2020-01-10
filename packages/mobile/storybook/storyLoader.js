@@ -8,6 +8,7 @@ function loadStories() {
   require('../App/components/AppIntro/index.stories');
   require('../App/components/BottomNavigator/index.stories');
   require('../App/components/Button/index.stories');
+  require('../App/components/Checkbox/index.stories');
   require('../App/components/CircularProgress/index.stories');
   require('../App/components/DateField/DateField.stories');
   require('../App/components/Dropdown/index.stories');
