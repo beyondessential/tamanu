@@ -9,10 +9,10 @@ interface AccordionListProps {
   dataArray: VisitOverviewProps[];
 }
 
-const AccordionList = ({ dataArray }: AccordionListProps) => {
+const AccordionList = ({ dataArray }: AccordionListProps): JSX.Element => {
   const [activeSections, setActiveSections] = useState<number[]>([]);
 
-  const updateSections = (newActiveSection: number[]) => {
+  const updateSections = (newActiveSection: number[]): void => {
     setActiveSections(newActiveSection);
   };
 

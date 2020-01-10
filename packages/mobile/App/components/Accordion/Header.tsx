@@ -18,7 +18,7 @@ interface IconProps {
   height?: number;
 }
 
-const StatusIcon = ({ IconComponent, ...rest }: IconProps) => (
+const StatusIcon = ({ IconComponent, ...rest }: IconProps): JSX.Element => (
   <IconComponent {...rest} />
 );
 
@@ -28,7 +28,7 @@ interface HeaderRightIconContainerProps {
 
 const HeaderRightIconContainer = ({
   isActive,
-}: HeaderRightIconContainerProps) => (
+}: HeaderRightIconContainerProps): JSX.Element => (
   <StyledView>
     <StatusIcon
       height={12}
@@ -43,7 +43,7 @@ interface HeaderDateProps {
   isActive: boolean;
 }
 
-const HeaderDate = ({ date, isActive }: HeaderDateProps) => (
+const HeaderDate = ({ date, isActive }: HeaderDateProps): JSX.Element => (
   <StyledText
     fontSize={14}
     color={isActive ? theme.colors.WHITE : theme.colors.TEXT_DARK}
@@ -57,7 +57,7 @@ interface HeaderIconProps {
   type: string;
 }
 
-const HeaderLeftIcon = ({ isActive, type }: HeaderIconProps) => {
+const HeaderLeftIcon = ({ isActive, type }: HeaderIconProps): JSX.Element => {
   const fill = isActive ? theme.colors.WHITE : theme.colors.PRIMARY_MAIN;
   const Icon = HeaderIcons[type];
   return (
@@ -76,7 +76,7 @@ const HeaderDescription = ({
   isActive,
   typeDescription,
   location,
-}: HeaderDescriptionProps) => (
+}: HeaderDescriptionProps): JSX.Element => (
   <ColumnView flex={1}>
     <StyledText
       color={isActive ? theme.colors.WHITE : theme.colors.MAIN_SUPER_DARK}
@@ -108,8 +108,7 @@ const Header = (
   section: VisitOverviewProps,
   index: number,
   isActive: boolean,
-  sections: VisitOverviewProps[],
-) => (
+): JSX.Element => (
   <RowView
     width="100%"
     background={
