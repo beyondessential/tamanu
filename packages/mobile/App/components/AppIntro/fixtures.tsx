@@ -46,7 +46,7 @@ export const WelcomeIntro = AppIntroComponent({
   },
 });
 
-const AfterTabs = () => (
+const AfterTabs = (): JSX.Element => (
   <CenterView>
     <StyledText>After Intro!</StyledText>
   </CenterView>

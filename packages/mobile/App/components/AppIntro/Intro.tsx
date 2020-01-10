@@ -21,7 +21,7 @@ interface IntroProps {
   navigation: NavigationProp<{ params: IntroRouteProps }>;
 }
 
-export const Intro = (props: IntroProps) => {
+export const Intro = (props: IntroProps): JSX.Element => {
   const { user, message, Icon, title } = props.navigation.state.params;
   return (
     <StyledSafeAreaView

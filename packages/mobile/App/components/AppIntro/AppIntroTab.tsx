@@ -33,7 +33,7 @@ interface AppIntroProps extends AppIntroNavigationState {
   getAccessibilityLabel: Function;
 }
 
-export const AppIntroTab = (props: AppIntroProps) => {
+export const AppIntroTab = (props: AppIntroProps): JSX.Element => {
   const {
     activeTintColor,
     inactiveTintColor,
@@ -47,7 +47,7 @@ export const AppIntroTab = (props: AppIntroProps) => {
   const navigateToNextScreen = React.useCallback(() => {
     if (activeRouteIndex < routes.length - 1) {
       onTabPress({ route: routes[activeRouteIndex + 1] });
-    } else {
+    } else if (routes[activeRouteIndex].params) {
       navigation.navigate(routes[activeRouteIndex].params!.routeOutside);
     }
   }, [activeRouteIndex, navigation, onTabPress, routes]);
@@ -64,7 +64,7 @@ export const AppIntroTab = (props: AppIntroProps) => {
             return (
               <TouchableOpacity
                 key={route.routeName}
-                onPress={() => {
+                onPress={(): void => {
                   onTabPress({ route });
                 }}
                 accessibilityLabel={getAccessibilityLabel({ route })}
