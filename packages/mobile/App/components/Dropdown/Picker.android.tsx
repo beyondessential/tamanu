@@ -8,6 +8,7 @@ import {
 import { DropdownItem } from './index';
 import { StyledView, StyledScrollView, StyledText } from '../../styled/common';
 import { theme } from '../../styled/theme';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 const AnimatedAndroidBackground = posed.View({
   open: {
@@ -51,7 +52,7 @@ export const AndroidPicker = React.memo(
         justifyContent="center"
         alignItems="center"
       >
-        <TouchableWithoutFeedback onPress={() => closeModal()}>
+        <TouchableWithoutFeedback onPress={(): void => closeModal()}>
           <StyledView height="100%" width="100%" position="absolute" />
         </TouchableWithoutFeedback>
         <StyledScrollView
@@ -59,27 +60,27 @@ export const AndroidPicker = React.memo(
           pose={open ? 'open' : 'closed'}
           position="absolute"
           borderRadius={5}
-          height={200}
+          height={screenPercentageToDP('24%', Orientation.Height)}
           width="50%"
           zIndex={5}
           background={theme.colors.WHITE}
         >
           <StyledText
-            marginLeft={10}
-            marginTop={10}
-            marginBottom={10}
+            marginLeft={screenPercentageToDP('2.43%', Orientation.Width)}
+            marginTop={screenPercentageToDP('1.21%', Orientation.Height)}
+            marginBottom={screenPercentageToDP('1.21%', Orientation.Height)}
             color={theme.colors.TEXT_SOFT}
           >
             Pick a Value
           </StyledText>
           {items.map(item => (
             <React.Fragment key={item.label}>
-              <TouchableOpacity onPress={() => onChangeItem(item)}>
+              <TouchableOpacity onPress={(): void => onChangeItem(item)}>
                 <StyledView
                   accessibilityLabel={item.label}
                   justifyContent="center"
-                  paddingLeft={15}
-                  height={40}
+                  paddingLeft={screenPercentageToDP('3.64%', Orientation.Width)}
+                  height={screenPercentageToDP('4.86%', Orientation.Height)}
                   width="100%"
                 >
                   <StyledText>{item.label}</StyledText>

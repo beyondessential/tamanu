@@ -9,7 +9,7 @@ export const items = [
 
 export const label = 'Type';
 
-export function BaseStory() {
+export function BaseStory(): JSX.Element {
   const [selectedItem, setSelectedItem] = useState(null);
 
   return (

@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { Picker } from 'react-native';
+import { Picker, StyleSheet } from 'react-native';
 import posed from 'react-native-pose';
 import { StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import { DropdownItem } from '.';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 const StyledPicker = styled.Picker`
   height: 100%;
@@ -28,6 +29,12 @@ interface PickerPropsIOS {
   closeModal: () => void;
 }
 
+const iosPickerStyles = StyleSheet.create({
+  itemPicker: {
+    fontSize: screenPercentageToDP('3.64%', Orientation.Height),
+  },
+});
+
 export const IOSPicker = React.memo(
   ({ items, open, onChange, selectedItem }: PickerPropsIOS) => (
     <StyledView
@@ -43,11 +50,9 @@ export const IOSPicker = React.memo(
     >
       <StyledPicker
         testID="ios-picker"
-        itemStyle={{
-          fontSize: 30,
-        }}
+        itemStyle={iosPickerStyles.itemPicker}
         selectedValue={selectedItem ? selectedItem.value : null}
-        onValueChange={value => {
+        onValueChange={(value): void => {
           onChange(items.find(item => item.value === value));
         }}
       >
