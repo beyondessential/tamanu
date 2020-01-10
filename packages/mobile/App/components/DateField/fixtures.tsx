@@ -11,9 +11,9 @@ export function BaseDateTextFieldStory({
   label,
   error,
   mode,
-}: BaseDateTextFieldStory) {
+}: BaseDateTextFieldStory): JSX.Element {
   const [date, setDate] = useState<Date | null>(null);
-  const onChangeDate = (newDate: Date) => {
+  const onChangeDate = (newDate: Date): void => {
     setDate(newDate);
   };
   return (
