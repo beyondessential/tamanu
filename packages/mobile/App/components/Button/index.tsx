@@ -21,16 +21,20 @@ export interface StyledButtonProps {
   children?: ReactNode;
 }
 
+type StrNumType = number | string | undefined;
+
 const StyledButton = styled.TouchableOpacity<StyledButtonProps>`
   flex-direction: row;
   border-radius: 5px;
   align-items: center;
   justify-content: center;
-  height: ${props => (props.height ? props.height : '50px')};
-  width: ${props => (props.width ? props.width : '100%')};
-  border-width: ${props => (props.outline ? '1px' : props.borderWidth)};
-  border-color: ${props => props.borderColor || theme.colors.MAIN_SUPER_DARK};
-  border-radius: ${props => {
+  height: ${(props): StrNumType => (props.height ? props.height : '50px')};
+  width: ${(props): StrNumType => (props.width ? props.width : '100%')};
+  border-width: ${(props): StrNumType =>
+    props.outline ? '1px' : props.borderWidth};
+  border-color: ${(props): string =>
+    props.borderColor || theme.colors.MAIN_SUPER_DARK};
+  border-radius: ${(props): StrNumType => {
     if (props.borderRadius) {
       return props.borderRadius;
     } else if (props.bordered) {
@@ -38,7 +42,7 @@ const StyledButton = styled.TouchableOpacity<StyledButtonProps>`
     }
     return '5px';
   }};
-  background: ${props => {
+  background: ${(props): string => {
     if (props.outline) return 'transparent';
     if (props.backgroundColor) return props.backgroundColor;
     return theme.colors.MAIN_SUPER_DARK;
@@ -53,10 +57,13 @@ interface ButtonTextProps {
   fontWeight?: string;
   borderColor?: string;
 }
+
 const StyledButtonText = styled.Text<ButtonTextProps>`
-  font-size: ${props => (props.fontSize ? props.fontSize : '16px')};
-  font-weight: ${props => (props.fontWeight ? props.fontWeight : 'bold')};
-  color: ${props => {
+  font-size: ${(props): StrNumType =>
+    props.fontSize ? props.fontSize : '16px'};
+  font-weight: ${(props): StrNumType =>
+    props.fontWeight ? props.fontWeight : 'bold'};
+  color: ${(props): string => {
     if (props.outline) return props.borderColor || theme.colors.MAIN_SUPER_DARK;
     if (props.textColor) return props.textColor;
     return theme.colors.WHITE;
@@ -80,7 +87,7 @@ export const Button = ({
     outline={outline}
     borderWidth={borderWidth}
     {...rest}
-    onPress={() => onPress()}
+    onPress={(): void => onPress()}
   >
     {children}
     <StyledButtonText
