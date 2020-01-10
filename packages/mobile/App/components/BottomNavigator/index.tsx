@@ -18,7 +18,7 @@ const StyledTabLabel = styled.Text<TabLabelProps>`
   font-size: 12px;
   font-weight: 500;
   margin-top: 5px;
-  color: ${({ focused }) => {
+  color: ${({ focused }): string => {
     if (focused) return theme.colors.SECONDARY_MAIN;
     return theme.colors.WHITE;
   }};
@@ -36,7 +36,7 @@ interface TabIconProps {
   focused: boolean;
 }
 
-export function TabIcon({ Icon, focused }: TabIconProps) {
+export function TabIcon({ Icon, focused }: TabIconProps): JSX.Element {
   return (
     <Icon
       fill={focused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE}
@@ -45,7 +45,12 @@ export function TabIcon({ Icon, focused }: TabIconProps) {
   );
 }
 
-function TabButton({ route, focused, onPress, renderIcon }: TabButtonProps) {
+function TabButton({
+  route,
+  focused,
+  onPress,
+  renderIcon,
+}: TabButtonProps): JSX.Element {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <CenterView>
@@ -67,7 +72,7 @@ interface BottomNavigatorProps {
   renderIcon: Function;
 }
 
-export function BottomNavigator(props: BottomNavigatorProps) {
+export function BottomNavigator(props: BottomNavigatorProps): JSX.Element {
   const { navigation, renderIcon } = props;
   const { routes, index: activeRouteIndex } = navigation.state;
   const { navigate } = navigation;
@@ -84,7 +89,7 @@ export function BottomNavigator(props: BottomNavigatorProps) {
             key={route.routeName}
             renderIcon={renderIcon}
             route={route}
-            onPress={() => navigate(route.routeName)}
+            onPress={(): boolean => navigate(route.routeName)}
             focused={index === activeRouteIndex}
           />
         ))}
