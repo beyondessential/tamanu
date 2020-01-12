@@ -6,7 +6,15 @@ import * as models from 'Shared/models';
 import { log } from '../logging';
 import uuid from 'uuid';
 
-export async function initDatabase() {
+
+// make a 'fake' uuid that looks like 'test-766-9794-4491-8612-eb19fd959bf2'
+// this way we can run tests against real data and clear out everything that was
+// created by the tests with just "DELETE FROM table WHERE id LIKE 'test-%'"
+const createTestUUID = () => 'test-' + uuid().slice(5);
+  
+export async function initDatabase({
+  testMode = false
+}) {
   // connect to database
   log.info(`Connecting to database ${config.db.username}@${config.db.name}...`);
   const sequelize = new Sequelize(
@@ -23,9 +31,9 @@ export async function initDatabase() {
   // init all models
   const modelClasses = Object.entries(models);
   log.info(`Registering ${modelClasses.length} models...`);
-  const createId = (process.env.NODE_ENV === "test")
-    ? Sequelize.UUIDV4
-    : () => 'test-' + uuid().slice(5);
+  const createId = testMode
+    ? createTestUUID
+    : Sequelize.UUIDV4;
   await Promise.all(modelClasses.map(([name, cls]) => {
     cls.init({
       underscored: true,

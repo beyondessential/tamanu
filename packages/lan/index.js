@@ -3,10 +3,6 @@ import { log } from './app/logging';
 
 export async function run() {
   const { sequelize, models } = await initDatabase();
-
-  // do some testing
-  const allUsers = await models.User.findAll();
-  log.debug(allUsers.map(x => x.email));
 }
 
 run();

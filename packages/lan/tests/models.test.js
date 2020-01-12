@@ -1,25 +1,44 @@
 import { createApp } from '../createApp';
+import { initDatabase } from '../app/database';
+import supertest from 'supertest';
 
-beforeAll(() => {
-  // initialise app (no http)
-  
-  // begin db transaction (use pg-promise)
+let app;
+
+beforeAll(async () => {
+  const { sequelize, models } = await initDatabase({ 
+    testMode: true 
+  });
+  app = supertest(await createApp({ 
+    sequelize,
+    models,
+  }));
 });
 
 afterAll(() => {
-  // reset transaction
+
 });
 
 describe('fundamentals', () => {
-  test.todo('should initialise the server');
   test.todo('should respond to a GET request');
   test.todo('should respond to a POST request');
+
+  it('should 404 an invalid GET route', async () => {
+    const result = await app.get('/invalid');
+    expect(result.statusCode).toEqual(404);
+  });
+
+  it('should 404 an invalid POST route', async () => {
+    const result = await app.post('/invalid');
+    expect(result.statusCode).toEqual(404);
+  });
 });
 
 describe('User', () => {
   test.todo('should obtain a valid login token');
   test.todo('should refresh a token');
   test.todo('should not refresh an expired token');
+
+  test.todo('should get the user based on the current token');
 
   test.todo('should fail to obtain a token for bad credentials');
 

@@ -7,7 +7,7 @@ import { clearTestData, generateTestId } from '../utilities';
 
 jest.mock('shortid');
 
-describe('restful routes', () => {
+xdescribe('restful routes', () => {
   const db = setupDatabase();
   const app = supertest(createApp(db));
 

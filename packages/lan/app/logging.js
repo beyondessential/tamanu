@@ -9,12 +9,22 @@ export const log = winston.createLogger({
   ],
 });
 
-if(process.env.NODE_ENV !== 'production') {
+if(['debug'].includes(process.env.NODE_ENV)) {
   log.add(new winston.transports.Console({
     format: winston.format.combine(
       winston.format.colorize(),
       winston.format.simple(),
     ),
     level: 'debug',
+  }));
+}
+
+if(['test'].includes(process.env.NODE_ENV)) {
+  log.add(new winston.transports.Console({
+    format: winston.format.combine(
+      winston.format.colorize(),
+      winston.format.simple(),
+    ),
+    level: 'warning',
   }));
 }
