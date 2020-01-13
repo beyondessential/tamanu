@@ -1,14 +1,12 @@
 export default function errorHandler(err, req, res, next) {
-  // eslint-disable-line no-unused-vars
-  const { field, message = 'An error occurred', status = 500 } = err;
-
-  const error = {};
-
-  if (field) {
-    error[field] = { errors: [message] };
-  } else {
-    error.errors = Array.isArray(message) ? message : [message];
+  switch(error.name) {
+    case 'SequelizeUniqueConstraintError':
+    case 'SequelizeValidationError':
+      res.status(400).send({ error });
+      return;
+    default:
+      console.error(error);
+      res.status(500).send({ error });
+      return;
   }
-
-  return res.status(status).json(error);
 }

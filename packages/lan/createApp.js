@@ -26,8 +26,6 @@ export function createApp({
     }
   }));
 
-  app.use(errorHandler);
-
   app.use((req, res, next) => {
     req.models = models;
     req.db = sequelize;
@@ -40,5 +38,8 @@ export function createApp({
   app.get('*', (req, res) => {
     res.status(404).end();
   });
+  
+  app.use(errorHandler);
+
   return app;
 }

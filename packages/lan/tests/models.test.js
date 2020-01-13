@@ -3,19 +3,52 @@ import { initDatabase } from '../app/database';
 import supertest from 'supertest';
 
 let app;
+let sequelize;
+let models;
 
-beforeAll(async () => {
-  const { sequelize, models } = await initDatabase({ 
-    testMode: true 
-  });
-  app = supertest(await createApp({ 
-    sequelize,
-    models,
-  }));
+expect.extend({
+  toHaveRequestError(response) {
+    const { statusCode } = response;
+    const pass = statusCode >= 400 && statusCode < 500;
+    if(pass) {
+      return {
+        message: () => `expected no server error status code, got ${statusCode}`,
+        pass
+      };
+    } else {
+      return {
+        message: () => `expected server error status code, got ${statusCode}`,
+        pass
+      };
+    }
+  },
 });
 
-afterAll(() => {
+function deleteAllTestIds() {
+  const tableNames = Object.values(models).map(m => m.tableName);
+  const deleteTasks = tableNames.map(x => sequelize.query(`
+    DELETE FROM ${x} WHERE id LIKE 'test-%';
+  `));
+  return Promise.all(deleteTasks);
+}
 
+beforeAll(async () => {
+  const dbResult = await initDatabase({ 
+    testMode: true 
+  });
+  sequelize = dbResult.sequelize;
+  models = dbResult.models;
+
+  // delete them here too in case the afterAll didn't
+  // run last time for whatever reason
+  await deleteAllTestIds();
+
+  app = supertest(await createApp(dbResult));
+});
+
+afterAll(async () => {
+  // delete all test records in all tables
+  await deleteAllTestIds();
 });
 
 describe('fundamentals', () => {
@@ -42,11 +75,79 @@ describe('User', () => {
 
   test.todo('should fail to obtain a token for bad credentials');
 
-  test.todo('should create a new user');
-  test.todo('should change a password');
-  test.todo('should change an email');
+  it('should create a new user', async () => {
+    const result = await app.post('/v1/user').send({
+      displayName: 'Test New',
+      email: 'test123@user.com',
+      password: 'abc',
+    });
+    expect(result.body.id).not.toBeNull();
+    expect(result.body.password).toBeUndefined();
+  });
 
-  test.todo('should fail to create a user with a duplicate email');
+  it('should change a name', async () => {
+    const baseResult = await app.post('/v1/user').send({
+      displayName: 'Alan',
+      email: 'email@user.com',
+      password: '123',
+    });
+    expect(baseResult.body).toHaveProperty('id');
+    expect(baseResult.body).toHaveProperty('displayName', 'Alan');
+    const id = baseResult.body.id;
+    
+    const result = await app.put(`/v1/user/${id}`).send({
+      displayName: 'Brian'
+    });
+    expect(result.body).toHaveProperty('displayName', 'Brian');
+    const updatedUser = await models.User.findByPk(id);
+    expect(updatedUser).toHaveProperty('displayName', 'Brian');
+  });
+
+  it('should change a password', async () => {
+    const baseResult = await app.post('/v1/user').send({
+      displayName: 'Alan',
+      email: 'passwordy@user.com',
+      password: '123',
+    });
+    expect(baseResult.body).toHaveProperty('id');
+    const id = baseResult.body.id;
+    const user = await models.User.findByPk(id);
+    const oldpw = user.password;
+    expect(oldpw).toBeTruthy();
+    
+    const result = await app.put(`/v1/user/${id}`).send({
+      password: '999',
+      displayName: 'Heffo',
+    });
+    expect(result.body).not.toHaveProperty('password');
+    const updatedUser = await models.User.findByPk(id);
+    expect(updatedUser).toHaveProperty('displayName', 'Heffo');
+    expect(updatedUser.password).toBeTruthy();
+    expect(updatedUser.password).not.toEqual('999');
+    expect(updatedUser.password).not.toEqual(oldpw);
+  });
+
+  it('should fail to create a user without an email', async () => {
+    const result = await app.post('/v1/user').send({ });
+    expect(result).toHaveRequestError();
+  });
+
+  it('should fail to create a user with a duplicate email', async () => {
+    const baseUserResult = await app.post('/v1/user').send({
+      displayName: 'Test Dupe',
+      email: 'duplicate@user.com',
+      password: 'abc',
+    });
+    expect(baseUserResult.body.id).not.toBeNull();
+
+    const result = await app.post('/v1/user').send({
+      displayName: 'Test Dupe II',
+      email: 'duplicate@user.com',
+      password: 'abc',
+    });
+    expect(result).toHaveRequestError();
+  });
+
 });
 
 describe('Patient', () => {

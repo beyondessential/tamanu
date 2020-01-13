@@ -6,6 +6,8 @@ import { getAuthMiddleware, loginHandler, refreshHandler } from '../controllers/
 import { seed } from './seed';
 import { objectToJSON } from '../utils';
 
+import { apiv1 } from './apiv1';
+
 const router = express.Router();
 
 router.use('/login', loginHandler);
@@ -31,9 +33,6 @@ router.post('/log', (req, res) => {
   res.send({});
 });
 
-// TODO: re-enable
-// this middleware must be added last as it includes a
-// catch-all url that will supersede anything below it
-// router.use('/', restfulRoutes);
+router.use('/v1', apiv1);
 
 export default router;
