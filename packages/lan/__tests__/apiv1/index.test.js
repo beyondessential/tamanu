@@ -1,5 +1,5 @@
-import { createApp } from '../createApp';
-import { initDatabase } from '../app/database';
+import { createApp } from 'Lan/createApp';
+import { initDatabase } from 'Lan/app/database';
 import supertest from 'supertest';
 
 let app;
@@ -67,13 +67,16 @@ describe('fundamentals', () => {
 });
 
 describe('User', () => {
-  test.todo('should obtain a valid login token');
-  test.todo('should refresh a token');
-  test.todo('should not refresh an expired token');
 
-  test.todo('should get the user based on the current token');
+  describe('auth', () => {
+    test.todo('should obtain a valid login token');
+    test.todo('should refresh a token');
+    test.todo('should not refresh an expired token');
 
-  test.todo('should fail to obtain a token for bad credentials');
+    test.todo('should get the user based on the current token');
+
+    test.todo('should fail to obtain a token for bad credentials');
+  });
 
   it('should create a new user', async () => {
     const result = await app.post('/v1/user').send({
