@@ -1,54 +1,25 @@
-import { createApp } from 'Lan/createApp';
-import { initDatabase } from 'Lan/app/database';
-import supertest from 'supertest';
 
-let app;
-let sequelize;
-let models;
+import { 
+  getTestContext,
+  extendExpect,
+  deleteAllTestIds,
+} from '../utilities';
 
-expect.extend({
-  toHaveRequestError(response) {
-    const { statusCode } = response;
-    const pass = statusCode >= 400 && statusCode < 500;
-    if(pass) {
-      return {
-        message: () => `expected no server error status code, got ${statusCode}`,
-        pass
-      };
-    } else {
-      return {
-        message: () => `expected server error status code, got ${statusCode}`,
-        pass
-      };
-    }
-  },
-});
+const app = getTestContext();
 
-function deleteAllTestIds() {
-  const tableNames = Object.values(models).map(m => m.tableName);
-  const deleteTasks = tableNames.map(x => sequelize.query(`
-    DELETE FROM ${x} WHERE id LIKE 'test-%';
-  `));
-  return Promise.all(deleteTasks);
-}
+extendExpect(expect);
 
 beforeAll(async () => {
-  const dbResult = await initDatabase({ 
-    testMode: true 
-  });
-  sequelize = dbResult.sequelize;
-  models = dbResult.models;
+  await app.sequelize.sync();
 
   // delete them here too in case the afterAll didn't
   // run last time for whatever reason
-  await deleteAllTestIds();
-
-  app = supertest(await createApp(dbResult));
+  await deleteAllTestIds(app);
 });
 
 afterAll(async () => {
   // delete all test records in all tables
-  await deleteAllTestIds();
+  await deleteAllTestIds(app);
 });
 
 describe('fundamentals', () => {
@@ -102,7 +73,7 @@ describe('User', () => {
       displayName: 'Brian'
     });
     expect(result.body).toHaveProperty('displayName', 'Brian');
-    const updatedUser = await models.User.findByPk(id);
+    const updatedUser = await app.models.User.findByPk(id);
     expect(updatedUser).toHaveProperty('displayName', 'Brian');
   });
 
@@ -114,7 +85,7 @@ describe('User', () => {
     });
     expect(baseResult.body).toHaveProperty('id');
     const id = baseResult.body.id;
-    const user = await models.User.findByPk(id);
+    const user = await app.models.User.findByPk(id);
     const oldpw = user.password;
     expect(oldpw).toBeTruthy();
     
@@ -123,7 +94,7 @@ describe('User', () => {
       displayName: 'Heffo',
     });
     expect(result.body).not.toHaveProperty('password');
-    const updatedUser = await models.User.findByPk(id);
+    const updatedUser = await app.models.User.findByPk(id);
     expect(updatedUser).toHaveProperty('displayName', 'Heffo');
     expect(updatedUser.password).toBeTruthy();
     expect(updatedUser.password).not.toEqual('999');

@@ -12,7 +12,7 @@ import uuid from 'uuid';
 // created by the tests with just "DELETE FROM table WHERE id LIKE 'test-%'"
 const createTestUUID = () => 'test-' + uuid().slice(5);
   
-export async function initDatabase({
+export function initDatabase({
   testMode = false
 }) {
   // connect to database
@@ -34,22 +34,19 @@ export async function initDatabase({
   const createId = testMode
     ? createTestUUID
     : Sequelize.UUIDV4;
-  await Promise.all(modelClasses.map(([name, cls]) => {
+  modelClasses.map(([name, cls]) => {
     cls.init({
       underscored: true,
       createId,
       sequelize
     }, models);
-  }));
-  await Promise.all(modelClasses.map(([name, cls]) => {
+  });
+
+  modelClasses.map(([name, cls]) => {
     if(cls.initRelations) {
       cls.initRelations(models);
     }
-  }));
-
-  // perform migrations
-  log.info(`Syncing database schema...`);
-  await sequelize.sync();
+  });
 
   return { sequelize, models };
 }

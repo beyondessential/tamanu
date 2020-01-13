@@ -1,22 +1,52 @@
-import { schemas } from 'Shared/schemas';
+import { createApp } from 'Lan/createApp';
+import { initDatabase } from 'Lan/app/database';
+import supertest from 'supertest';
 
-const TEST_ID_PREFIX = 'test_';
-
-function deleteTestObjects(db, objectType, primaryKey) {
-  return db.write(() => {
-    const testObjects = db
-      .objects(objectType)
-      .filtered(`${primaryKey} BEGINSWITH $0`, TEST_ID_PREFIX);
-    db.delete(testObjects);
+export function extendExpect(expect) {
+  expect.extend({
+    toHaveRequestError(response) {
+      const { statusCode } = response;
+      const pass = statusCode >= 400 && statusCode < 500;
+      if(pass) {
+        return {
+          message: () => `expected no server error status code, got ${statusCode}`,
+          pass
+        };
+      } else {
+        return {
+          message: () => `expected server error status code, got ${statusCode}`,
+          pass
+        };
+      }
+    },
   });
 }
 
-export function clearTestData(db) {
-  schemas.forEach(({ name: objectType, primaryKey }) => {
-    deleteTestObjects(db, objectType, primaryKey);
-  });
+export function deleteAllTestIds({ models, sequelize }) {
+  const tableNames = Object.values(models).map(m => m.tableName);
+  const deleteTasks = tableNames.map(x => sequelize.query(`
+    DELETE FROM ${x} WHERE id LIKE 'test-%';
+  `));
+  return Promise.all(deleteTasks);
 }
 
-export function generateTestId() {
-  return `${TEST_ID_PREFIX}${jest.requireActual('shortid').generate()}`; //eslint-disable-line no-undef
+function createContext() {
+  const dbResult = initDatabase({ 
+    testMode: true 
+  });
+
+  const app = supertest(createApp(dbResult));
+  app.sequelize = dbResult.sequelize;
+  app.models = dbResult.models;
+
+  return app;
+}
+
+let context = null;
+
+export function getTestContext() {
+  if(!context) {
+    context = createContext();
+  }
+  return context;
 }
