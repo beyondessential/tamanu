@@ -25,6 +25,6 @@ if(['test'].includes(process.env.NODE_ENV)) {
       winston.format.colorize(),
       winston.format.simple(),
     ),
-    level: 'warning',
+    level: 'warn',
   }));
 }

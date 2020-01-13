@@ -1,12 +1,21 @@
-export default function errorHandler(err, req, res, next) {
-  switch(error.name) {
+import { log } from '../logging';
+
+function getCodeForErrorName(name) {
+  switch(name) {
     case 'SequelizeUniqueConstraintError':
     case 'SequelizeValidationError':
-      res.status(400).send({ error });
-      return;
+      return 400;
     default:
-      console.error(error);
-      res.status(500).send({ error });
-      return;
+      return 500;
   }
+}
+
+export default function errorHandler(error, req, res, next) {
+  const code = getCodeForErrorName(error.name);
+  if(code >= 500) {
+    log.error(`Error ${code}`, error);
+  } else {
+    log.info(`Error ${code}`, error);
+  }
+  res.status(code).send({ error });
 }
