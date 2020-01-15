@@ -3,7 +3,6 @@ import * as sequelize from 'sequelize';
 export const Sequelize = sequelize.Sequelize;
 
 export class Model extends sequelize.Model {
-  
   forResponse() {
     return this.dataValues;
   }
@@ -11,5 +10,4 @@ export class Model extends sequelize.Model {
   toJSON() {
     return this.forResponse();
   }
-
 }

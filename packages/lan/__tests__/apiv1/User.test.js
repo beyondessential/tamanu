@@ -3,7 +3,6 @@ import { getTestContext } from '../utilities';
 const app = getTestContext();
 
 describe('User', () => {
-
   describe('auth', () => {
     test.todo('should obtain a valid login token');
     test.todo('should refresh a token');
@@ -33,9 +32,9 @@ describe('User', () => {
     expect(baseResult.body).toHaveProperty('id');
     expect(baseResult.body).toHaveProperty('displayName', 'Alan');
     const id = baseResult.body.id;
-    
+
     const result = await app.put(`/v1/user/${id}`).send({
-      displayName: 'Brian'
+      displayName: 'Brian',
     });
     expect(result.body).toHaveProperty('displayName', 'Brian');
     const updatedUser = await app.models.User.findByPk(id);
@@ -53,7 +52,7 @@ describe('User', () => {
     const user = await app.models.User.findByPk(id);
     const oldpw = user.password;
     expect(oldpw).toBeTruthy();
-    
+
     const result = await app.put(`/v1/user/${id}`).send({
       password: '999',
       displayName: 'Heffo',
@@ -67,7 +66,7 @@ describe('User', () => {
   });
 
   it('should fail to create a user without an email', async () => {
-    const result = await app.post('/v1/user').send({ });
+    const result = await app.post('/v1/user').send({});
     expect(result).toHaveRequestError();
   });
 
@@ -86,5 +85,4 @@ describe('User', () => {
     });
     expect(result).toHaveRequestError();
   });
-
 });

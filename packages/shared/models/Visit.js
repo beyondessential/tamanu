@@ -2,24 +2,26 @@ import { Sequelize, Model } from 'sequelize';
 import { VISIT_TYPES } from 'Shared/constants';
 
 export class Visit extends Model {
-
   static init(options) {
-    super.init({
-      id: {
-        type: Sequelize.UUID,
-        defaultValue: options.createId,
-        primaryKey: true,
-      },
-      visitType: Sequelize.ENUM(Object.values(VISIT_TYPES)),
+    super.init(
+      {
+        id: {
+          type: Sequelize.UUID,
+          defaultValue: options.createId,
+          primaryKey: true,
+        },
+        visitType: Sequelize.ENUM(Object.values(VISIT_TYPES)),
 
-      startDate: { 
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      endDate: Sequelize.DATE,
+        startDate: {
+          type: Sequelize.DATE,
+          allowNull: false,
+        },
+        endDate: Sequelize.DATE,
 
-      reasonForVisit: Sequelize.TEXT,
-    }, options); 
+        reasonForVisit: Sequelize.TEXT,
+      },
+      options,
+    );
   }
 
   static initRelations(models) {
@@ -41,5 +43,4 @@ export class Visit extends Model {
     // this.hasMany(models.Vital);
     // this.hasMany(models.Report);
   }
-
 }

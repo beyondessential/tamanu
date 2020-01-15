@@ -2,7 +2,7 @@ import { initDatabase } from './app/database';
 import { log } from './app/logging';
 
 export async function run() {
-  const { sequelize, models } = initDatabase();
+  const { sequelize } = initDatabase();
 
   // ensure migration is done
   await sequelize.sync();

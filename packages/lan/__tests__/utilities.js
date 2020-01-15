@@ -7,36 +7,37 @@ export function extendExpect(expect) {
     toHaveRequestError(response) {
       const { statusCode } = response;
       const pass = statusCode >= 400 && statusCode < 500;
-      if(pass) {
+      if (pass) {
         return {
           message: () => `expected no server error status code, got ${statusCode}.
           
 Error details: 
 ${JSON.stringify(response.body.error, null, 2)}`,
-          pass
-        };
-      } else {
-        return {
-          message: () => `expected server error status code, got ${statusCode}`,
-          pass
+          pass,
         };
       }
+      return {
+        message: () => `expected server error status code, got ${statusCode}`,
+        pass,
+      };
     },
   });
 }
 
 export function deleteAllTestIds({ models, sequelize }) {
-  console.log("Deleting all test records from database...");
+  console.log('Deleting all test records from database...');
   const tableNames = Object.values(models).map(m => m.tableName);
-  const deleteTasks = tableNames.map(x => sequelize.query(`
+  const deleteTasks = tableNames.map(x =>
+    sequelize.query(`
     DELETE FROM ${x} WHERE id LIKE 'test-%';
-  `));
+  `),
+  );
   return Promise.all(deleteTasks);
 }
 
 function createContext() {
-  const dbResult = initDatabase({ 
-    testMode: true 
+  const dbResult = initDatabase({
+    testMode: true,
   });
 
   const app = supertest(createApp(dbResult));
@@ -49,7 +50,7 @@ function createContext() {
 let context = null;
 
 export function getTestContext() {
-  if(!context) {
+  if (!context) {
     context = createContext();
   }
   return context;

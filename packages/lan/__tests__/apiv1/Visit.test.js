@@ -36,4 +36,3 @@ describe('Visit', () => {
     test.todo('should update a note');
   });
 });
-

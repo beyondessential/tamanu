@@ -81,5 +81,4 @@ describe('Patient', () => {
     test.todo('should mark a patient as dead');
     test.todo('should not mark a dead patient as dead');
   });
-
 });

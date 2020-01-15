@@ -1,4 +1,3 @@
-
 import { getTestContext } from '../utilities';
 
 const app = getTestContext();

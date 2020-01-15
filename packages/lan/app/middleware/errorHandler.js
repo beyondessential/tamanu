@@ -1,7 +1,7 @@
 import { log } from '../logging';
 
 function getCodeForErrorName(name) {
-  switch(name) {
+  switch (name) {
     case 'SequelizeUniqueConstraintError':
     case 'SequelizeValidationError':
       return 400;
@@ -10,9 +10,9 @@ function getCodeForErrorName(name) {
   }
 }
 
-export default function errorHandler(error, req, res, next) {
+export default function errorHandler(error, req, res, _) {
   const code = getCodeForErrorName(error.name);
-  if(code >= 500) {
+  if (code >= 500) {
     log.error(`Error ${code}`, error);
   } else {
     log.info(`Error ${code}`, error);
