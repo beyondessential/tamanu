@@ -1,4 +1,4 @@
-import { Sequelize, Model } from 'sequelize';
+import { Sequelize, Model } from './Model';
 
 export class Patient extends Model {
 

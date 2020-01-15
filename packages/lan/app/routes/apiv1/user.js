@@ -13,15 +13,17 @@ user.put('/:id', asyncHandler(async (req, res, next) => {
   const { models, params } = req;
   const u = await models.User.findByPk(params.id);
   await u.update(req.body);
-  res.send(u.forResponse());
+  res.send(u);
 }));
 
 user.post('/$', asyncHandler(async (req, res, next) => {
   const { models } = req;
   const { password, ...details } = req.body;
-  const u = await models.User.create(details);
-  await u.setPassword(password);
+  const u = await models.User.build(details);
+  if(password) {
+    await u.setPassword(password);
+  }
   await u.save();
 
-  res.send(u.forResponse());
+  res.send(u);
 }));
