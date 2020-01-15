@@ -32,7 +32,6 @@ export function deleteAllTestIds({ models, sequelize }) {
 }
 
 function createContext() {
-  console.log("Creating test context...");
   const dbResult = initDatabase({ 
     testMode: true 
   });
