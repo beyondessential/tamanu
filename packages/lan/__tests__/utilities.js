@@ -23,6 +23,7 @@ export function extendExpect(expect) {
 }
 
 export function deleteAllTestIds({ models, sequelize }) {
+  console.log("Deleting all test records from database...");
   const tableNames = Object.values(models).map(m => m.tableName);
   const deleteTasks = tableNames.map(x => sequelize.query(`
     DELETE FROM ${x} WHERE id LIKE 'test-%';
@@ -31,6 +32,7 @@ export function deleteAllTestIds({ models, sequelize }) {
 }
 
 function createContext() {
+  console.log("Creating test context...");
   const dbResult = initDatabase({ 
     testMode: true 
   });
