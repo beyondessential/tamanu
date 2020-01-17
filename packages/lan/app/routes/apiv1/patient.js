@@ -10,7 +10,7 @@ patient.get(
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const p = await models.Patient.findByPk(params.id);
-    if(!p) return NotFoundError();
+    if (!p) return NotFoundError();
     res.send(p);
   }),
 );
@@ -36,7 +36,7 @@ patient.put(
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const p = await models.Patient.findByPk(params.id);
-    if(!p) return NotFoundError();
+    if (!p) return NotFoundError();
     await p.update(req.body);
     res.send(p);
   }),

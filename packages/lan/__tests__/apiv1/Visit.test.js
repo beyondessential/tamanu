@@ -3,7 +3,6 @@ import { getTestContext } from '../utilities';
 const app = getTestContext();
 
 describe('Visit', () => {
-
   let patient = null;
   beforeAll(async () => {
     const result = await app.post('/v1/patient').send({
@@ -21,7 +20,7 @@ describe('Visit', () => {
   it('should get a visit', async () => {
     const v = await app.models.Visit.create({
       visitType: 'clinic',
-      patientId: patient.id,   
+      patientId: patient.id,
       startDate: '2020-01-02',
     });
     const result = await app.get(`/v1/visit/${v.id}`);
@@ -33,7 +32,7 @@ describe('Visit', () => {
   it('should get a list of visits for a patient', async () => {
     const v = await app.models.Visit.create({
       visitType: 'clinic',
-      patientId: patient.id,   
+      patientId: patient.id,
       startDate: '2020-01-02',
     });
     const result = await app.get(`/v1/patient/${patient.id}/visits`);
@@ -61,7 +60,7 @@ describe('Visit', () => {
     describe('journey', () => {
       // NB:
       // triage happens in Triage.test.js
-      
+
       it('should create a new visit', async () => {
         const result = await app.post('/v1/visit').send({
           patientId: patient.id,
@@ -78,7 +77,7 @@ describe('Visit', () => {
       it('should update visit details', async () => {
         const v = await app.models.Visit.create({
           visitType: 'clinic',
-          patientId: patient.id,   
+          patientId: patient.id,
           startDate: '2020-01-02',
           reasonForVisit: 'before',
         });

@@ -10,7 +10,7 @@ visit.get(
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const v = await models.Visit.findByPk(params.id);
-    if(!v) throw new NotFoundError();
+    if (!v) throw new NotFoundError();
     res.send(v);
   }),
 );
@@ -20,7 +20,7 @@ visit.put(
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const v = await models.Visit.findByPk(params.id);
-    if(!v) throw new NotFoundError();
+    if (!v) throw new NotFoundError();
     await v.update(req.body);
     res.send(v);
   }),

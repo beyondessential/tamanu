@@ -10,7 +10,7 @@ user.get(
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const u = await models.User.findByPk(params.id);
-    if(!u) return new NotFoundError();
+    if (!u) return new NotFoundError();
     res.send(u);
   }),
 );
@@ -20,7 +20,7 @@ user.put(
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const u = await models.User.findByPk(params.id);
-    if(!u) return new NotFoundError();
+    if (!u) return new NotFoundError();
     await u.update(req.body);
     res.send(u);
   }),

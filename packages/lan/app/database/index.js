@@ -25,7 +25,7 @@ export function initDatabase({ testMode = false }) {
   const primaryKey = {
     type: Sequelize.UUID,
     defaultValue: testMode ? createTestUUID : Sequelize.UUIDV4,
-    primaryKey: true
+    primaryKey: true,
   };
   log.info(`Registering ${modelClasses.length} models...`);
   modelClasses.map(modelClass => {

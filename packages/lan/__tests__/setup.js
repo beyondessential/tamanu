@@ -1,4 +1,3 @@
-import { expect } from 'jest';
 import { getTestContext, deleteAllTestIds } from './utilities';
 
 export default async function() {

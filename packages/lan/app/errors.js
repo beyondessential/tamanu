@@ -1,4 +1,3 @@
-
 class BaseError extends Error {
   constructor(message) {
     super(message);
@@ -6,6 +5,6 @@ class BaseError extends Error {
   }
 }
 
-export class NotFoundError extends BaseError { }
-export class UnauthorizedError extends BaseError { }
-export class ForbiddenError extends BaseError { }
+export class NotFoundError extends BaseError {}
+export class UnauthorizedError extends BaseError {}
+export class ForbiddenError extends BaseError {}
