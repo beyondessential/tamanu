@@ -1,14 +1,10 @@
 import { Sequelize, Model } from './Model';
 
 export class Patient extends Model {
-  static init(options) {
+  static init({ primaryKey, ...options }) {
     super.init(
       {
-        id: {
-          type: Sequelize.UUID,
-          defaultValue: options.createId,
-          primaryKey: true,
-        },
+        id: primaryKey,
         displayId: {
           type: Sequelize.STRING,
           unique: true,

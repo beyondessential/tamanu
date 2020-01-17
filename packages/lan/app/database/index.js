@@ -22,13 +22,17 @@ export function initDatabase({ testMode = false }) {
 
   // init all models
   const modelClasses = Object.values(models);
+  const primaryKey = {
+    type: Sequelize.UUID,
+    defaultValue: testMode ? createTestUUID : Sequelize.UUIDV4,
+    primaryKey: true
+  };
   log.info(`Registering ${modelClasses.length} models...`);
-  const createId = testMode ? createTestUUID : Sequelize.UUIDV4;
   modelClasses.map(modelClass => {
     modelClass.init(
       {
         underscored: true,
-        createId,
+        primaryKey,
         sequelize,
       },
       models,

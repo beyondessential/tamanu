@@ -2,14 +2,10 @@ import { Sequelize, Model } from 'sequelize';
 import { VISIT_TYPES } from 'Shared/constants';
 
 export class Visit extends Model {
-  static init(options) {
+  static init({ primaryKey, ...options }) {
     super.init(
       {
-        id: {
-          type: Sequelize.UUID,
-          defaultValue: options.createId,
-          primaryKey: true,
-        },
+        id: primaryKey,
         visitType: Sequelize.ENUM(Object.values(VISIT_TYPES)),
 
         startDate: {

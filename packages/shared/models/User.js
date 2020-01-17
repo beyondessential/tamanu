@@ -22,14 +22,10 @@ export class User extends Model {
     return super.update(otherValues);
   }
 
-  static init(options) {
+  static init({ primaryKey, ...options }) {
     super.init(
       {
-        id: {
-          type: Sequelize.UUID,
-          defaultValue: options.createId,
-          primaryKey: true,
-        },
+        id: primaryKey,
         email: {
           type: Sequelize.STRING,
           allowNull: false,
