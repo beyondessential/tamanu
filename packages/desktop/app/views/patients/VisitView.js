@@ -393,7 +393,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
       <PatientInfoPane patient={patient} readonly={readonly} />
       <div>
         <TopBar title={getHeaderText(visit)}>
-          {!readonly && <VisitActions visit={visit} />}
+          <VisitActions visit={visit} />
           <AdmissionInfoRow>
             <AdmissionInfo>
               <SubjectIcon />
