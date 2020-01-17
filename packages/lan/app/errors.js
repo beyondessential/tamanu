@@ -1,21 +1,11 @@
 
-export class NotFoundError extends Error {
+class BaseError extends Error {
   constructor(message) {
     super(message);
-    this.name = 'NotFoundError';
+    this.name = this.constructor.name;
   }
 }
 
-export class UnauthorizedError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'UnauthorizedError';
-  }
-}
-
-export class ForbiddenError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'ForbiddenError';
-  }
-}
+export class NotFoundError extends BaseError { }
+export class UnauthorizedError extends BaseError { }
+export class ForbiddenError extends BaseError { }
