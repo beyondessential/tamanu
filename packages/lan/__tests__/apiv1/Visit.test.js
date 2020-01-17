@@ -1,17 +1,12 @@
 import { getTestContext } from '../utilities';
+import { createDummyPatient, createDummyVisit } from 'Shared/demoData/patients';
 
 const app = getTestContext();
 
 describe('Visit', () => {
   let patient = null;
   beforeAll(async () => {
-    const result = await app.post('/v1/patient').send({
-      firstName: 'Test',
-      lastName: 'Patient',
-      displayId: 'XQXQXQ',
-      sex: 'male',
-    });
-    patient = result.body;
+    patient = await app.models.Patient.create(createDummyPatient());
   });
 
   test.todo('should reject a user with insufficient permissions');
@@ -19,9 +14,8 @@ describe('Visit', () => {
 
   it('should get a visit', async () => {
     const v = await app.models.Visit.create({
-      visitType: 'clinic',
+      ...createDummyVisit(false),
       patientId: patient.id,
-      startDate: '2020-01-02',
     });
     const result = await app.get(`/v1/visit/${v.id}`);
     expect(result).not.toHaveRequestError();
@@ -31,9 +25,8 @@ describe('Visit', () => {
 
   it('should get a list of visits for a patient', async () => {
     const v = await app.models.Visit.create({
-      visitType: 'clinic',
+      ...createDummyVisit(false),
       patientId: patient.id,
-      startDate: '2020-01-02',
     });
     const result = await app.get(`/v1/patient/${patient.id}/visits`);
     expect(result).not.toHaveRequestError();
@@ -63,9 +56,8 @@ describe('Visit', () => {
 
       it('should create a new visit', async () => {
         const result = await app.post('/v1/visit').send({
+          ...createDummyVisit(false),
           patientId: patient.id,
-          visitType: 'clinic',
-          startDate: '2020-01-1',
         });
         expect(result).not.toHaveRequestError();
         expect(result.body.id).toBeTruthy();
@@ -76,9 +68,8 @@ describe('Visit', () => {
 
       it('should update visit details', async () => {
         const v = await app.models.Visit.create({
-          visitType: 'clinic',
+          ...createDummyVisit(false),
           patientId: patient.id,
-          startDate: '2020-01-02',
           reasonForVisit: 'before',
         });
 

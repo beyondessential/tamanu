@@ -82,7 +82,7 @@ function randomPatientDiagnosis(db, overrides) {
   };
 }
 
-export function createDummyVisit(db, current = false) {
+export function createDummyVisit(current = false) {
   const endDate = current ? new Date() : randomDate();
 
   const duration = chance.natural({ min: HOUR, max: HOUR * 10 });
@@ -92,14 +92,11 @@ export function createDummyVisit(db, current = false) {
     visitType: chance.pick(Object.values(VISIT_TYPES)),
     startDate: startDate,
     endDate: current ? undefined : endDate,
-    location: randomLocation(db),
-    department: randomDepartment(db),
-    examiner: randomUser(db),
-    reasonForVisit: '',
+    reasonForVisit: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
   };
 }
 
-export function createDummyPatient(db) {
+export function createDummyPatient() {
   const gender = chance.pick(['male', 'female']);
   return {
     displayId: generateId(),
