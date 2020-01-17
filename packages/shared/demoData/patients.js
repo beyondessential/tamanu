@@ -87,17 +87,8 @@ export function createDummyVisit(db, current = false) {
 
   const duration = chance.natural({ min: HOUR, max: HOUR * 10 });
   const startDate = new Date(endDate.getTime() - duration);
-  const primaryDiagnosis = randomPatientDiagnosis(db, {
-    date: randomDateBetween(startDate, endDate),
-    isPrimary: true,
-  });
-  const secondaryDiagnoses = new Array(chance.natural({ max: 3 }))
-    .fill(0)
-    .map(() => randomPatientDiagnosis(db, { date: randomDateBetween(startDate, endDate) }));
 
   return {
-    _id: shortid.generate(),
-
     visitType: chance.pick(Object.values(VISIT_TYPES)),
     startDate: startDate,
     endDate: current ? undefined : endDate,
@@ -105,32 +96,18 @@ export function createDummyVisit(db, current = false) {
     department: randomDepartment(db),
     examiner: randomUser(db),
     reasonForVisit: '',
-
-    vitals: [randomVitals({ dateRecorded: startDate })],
-    notes: [],
-    procedures: [],
-    labs: [],
-    imaging: [],
-    medications: [],
-    documents: [],
-    diagnoses: [primaryDiagnosis, ...secondaryDiagnoses],
   };
 }
 
 export function createDummyPatient(db) {
   const gender = chance.pick(['male', 'female']);
   return {
-    _id: shortid.generate(),
     displayId: generateId(),
     firstName: chance.first({ gender }),
     lastName: chance.last(),
     culturalName: chance.last(),
     sex: gender,
     dateOfBirth: chance.birthday(),
-    visits: new Array(chance.natural({ max: 5 })).fill(0).map(() => createDummyVisit(db)),
-    alerts: [],
-    allergies: randomAllergies(db),
-    conditions: randomConditions(db),
   };
 }
 
