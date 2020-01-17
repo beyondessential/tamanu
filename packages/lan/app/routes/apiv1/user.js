@@ -1,6 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
+import { NotFoundError } from 'Lan/app/errors';
+
 export const user = express.Router();
 
 user.get(
@@ -8,6 +10,7 @@ user.get(
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const u = await models.User.findByPk(params.id);
+    if(!u) return new NotFoundError();
     res.send(u);
   }),
 );
@@ -17,6 +20,7 @@ user.put(
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const u = await models.User.findByPk(params.id);
+    if(!u) return new NotFoundError();
     await u.update(req.body);
     res.send(u);
   }),

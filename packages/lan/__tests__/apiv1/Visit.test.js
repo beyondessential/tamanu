@@ -30,6 +30,11 @@ describe('Visit', () => {
     expect(result.body.patientId).toEqual(patient.id);
   });
 
+  it('should fail to get a visit that does not exist', async () => {
+    const result = await app.get('/v1/visit/nonexistent');
+    expect(result).toHaveRequestError();
+  });
+
   test.todo('should get a list of diagnoses');
   test.todo('should get a list of vitals readings');
   test.todo('should get a list of notes');
