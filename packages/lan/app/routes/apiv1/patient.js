@@ -18,7 +18,7 @@ patient.put(
     const { models, params } = req;
     const u = await models.Patient.findByPk(params.id);
     await u.update(req.body);
-    res.send(u.forResponse());
+    res.send(u);
   }),
 );
 
@@ -28,6 +28,6 @@ patient.post(
     const { models } = req;
     const u = await models.Patient.create(req.body);
 
-    res.send(u.forResponse());
+    res.send(u);
   }),
 );
