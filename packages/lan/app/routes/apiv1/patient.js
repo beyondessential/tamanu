@@ -15,6 +15,22 @@ patient.get(
   }),
 );
 
+patient.get(
+  '/:id/visits',
+  // TODO: wrap in a pagination/filtering/sorting helper?
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const visits = await models.Visit.findAll({
+      where: {
+        patientId: params.id,
+      },
+      limit: 10,
+      order: [['startDate', 'DESC']],
+    });
+    res.send(visits);
+  }),
+);
+
 patient.put(
   '/:id',
   asyncHandler(async (req, res) => {

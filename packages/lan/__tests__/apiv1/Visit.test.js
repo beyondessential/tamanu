@@ -30,6 +30,18 @@ describe('Visit', () => {
     expect(result.body.patientId).toEqual(patient.id);
   });
 
+  it('should get a list of visits for a patient', async () => {
+    const v = await app.models.Visit.create({
+      visitType: 'clinic',
+      patientId: patient.id,   
+      startDate: '2020-01-02',
+    });
+    const result = await app.get(`/v1/patient/${patient.id}/visits`);
+    expect(result).not.toHaveRequestError();
+    expect(result.body).toBeInstanceOf(Array);
+    expect(result.body.some(x => x.id === v.id)).toEqual(true);
+  });
+
   it('should fail to get a visit that does not exist', async () => {
     const result = await app.get('/v1/visit/nonexistent');
     expect(result).toHaveRequestError();
