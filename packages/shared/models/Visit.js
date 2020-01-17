@@ -21,12 +21,15 @@ export class Visit extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.Patient);
+    this.belongsTo(models.Patient, {
+      foreignKey: 'patientId',
+    });
 
     this.belongsTo(models.User, {
       as: 'Examiner',
       foreignKey: 'examinerId',
     });
+
     // this.hasOne(models.Location);
     // this.hasOne(models.Department);
 

@@ -3,8 +3,32 @@ import { getTestContext } from '../utilities';
 const app = getTestContext();
 
 describe('Visit', () => {
+
+  let patient = null;
+  beforeAll(async () => {
+    const result = await app.post('/v1/patient').send({
+      firstName: 'Test',
+      lastName: 'Patient',
+      displayId: 'XQXQXQ',
+      sex: 'male',
+    });
+    patient = result.body;
+  });
+
   test.todo('should reject a user with insufficient permissions');
   test.todo('should create an access record');
+
+  it('should get a visit', async () => {
+    const v = await app.models.Visit.create({
+      visitType: 'clinic',
+      patientId: patient.id,   
+      startDate: '2020-01-02',
+    });
+    const result = await app.get(`/v1/visit/${v.id}`);
+    expect(result).not.toHaveRequestError();
+    expect(result.body.id).toEqual(v.id);
+    expect(result.body.patientId).toEqual(patient.id);
+  });
 
   test.todo('should get a list of diagnoses');
   test.todo('should get a list of vitals readings');
@@ -18,8 +42,39 @@ describe('Visit', () => {
     test.todo('should reject a user with insufficient permissions');
 
     describe('journey', () => {
-      test.todo('should admit a patient');
-      test.todo('should update visit details');
+      // NB:
+      // triage happens in Triage.test.js
+      
+      it('should create a new visit', async () => {
+        const result = await app.post('/v1/visit').send({
+          patientId: patient.id,
+          visitType: 'clinic',
+          startDate: '2020-01-1',
+        });
+        expect(result).not.toHaveRequestError();
+        expect(result.body.id).toBeTruthy();
+        const visit = await app.models.Visit.findByPk(result.body.id);
+        expect(visit).toBeDefined();
+        expect(visit.patientId).toEqual(patient.id);
+      });
+
+      it('should update visit details', async () => {
+        const v = await app.models.Visit.create({
+          visitType: 'clinic',
+          patientId: patient.id,   
+          startDate: '2020-01-02',
+          reasonForVisit: 'before',
+        });
+
+        const result = await app.put(`/v1/visit/${v.id}`).send({
+          reasonForVisit: 'after',
+        });
+        expect(result).not.toHaveRequestError();
+
+        const updated = await app.models.Visit.findByPk(v.id);
+        expect(updated.reasonForVisit).toEqual('after');
+      });
+
       test.todo('should change visit department');
       test.todo('should change visit location');
       test.todo('should discharge a patient');
