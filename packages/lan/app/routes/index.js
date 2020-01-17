@@ -10,8 +10,6 @@ import { apiv1 } from './apiv1';
 
 const router = express.Router();
 
-router.use('/login', loginHandler);
-
 // TODO: re-enable
 // any route added _after_ this one will require a correctly authed user
 // router.use(getAuthMiddleware());
