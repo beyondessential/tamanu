@@ -14,7 +14,7 @@ describe('Visit', () => {
 
   it('should get a visit', async () => {
     const v = await app.models.Visit.create({
-      ...createDummyVisit(false),
+      ...createDummyVisit(),
       patientId: patient.id,
     });
     const result = await app.get(`/v1/visit/${v.id}`);
@@ -25,7 +25,7 @@ describe('Visit', () => {
 
   it('should get a list of visits for a patient', async () => {
     const v = await app.models.Visit.create({
-      ...createDummyVisit(false),
+      ...createDummyVisit(),
       patientId: patient.id,
     });
     const result = await app.get(`/v1/patient/${patient.id}/visits`);
