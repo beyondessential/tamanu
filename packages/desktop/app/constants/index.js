@@ -251,13 +251,6 @@ export const visitOptions = [
 
 export const VISIT_OPTIONS_BY_VALUE = createValueIndex(visitOptions);
 
-export const AVPU_OPTIONS = [
-  { value: 'alert', label: 'Alert' },
-  { value: 'verbal', label: 'Verbal' },
-  { value: 'pain', label: 'Pain' },
-  { value: 'unresponsive', label: 'Unresponsive' },
-];
-
 export const TRIAGE_COLORS_BY_LEVEL = {
   1: Colors.alert,
   2: Colors.secondary,
