@@ -22,6 +22,14 @@ export class User extends Model {
     return super.update(otherValues);
   }
 
+  static async create(values) {
+    const { password, ...otherValues } = values;
+    if (password) {
+      otherValues.password = await hash(password, SALT_ROUNDS);
+    }
+    return super.create(otherValues);
+  }
+
   static init({ primaryKey, ...options }) {
     super.init(
       {

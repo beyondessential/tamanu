@@ -19,8 +19,13 @@ describe('User', () => {
       email: 'test123@user.com',
       password: 'abc',
     });
-    expect(result.body.id).not.toBeNull();
-    expect(result.body.password).toBeUndefined();
+    const { id, password } = result.body;
+    expect(id).not.toBeNull();
+    expect(password).toBeUndefined();
+
+    const createdUser = await app.models.User.findByPk(id);
+    expect(createdUser).toHaveProperty('displayName', 'Test New');
+    expect(createdUser).not.toHaveProperty('password', 'abc');
   });
 
   it('should change a name', async () => {
@@ -52,6 +57,7 @@ describe('User', () => {
     const user = await app.models.User.findByPk(id);
     const oldpw = user.password;
     expect(oldpw).toBeTruthy();
+    expect(oldpw).not.toEqual('123');
 
     const result = await app.put(`/v1/user/${id}`).send({
       password: '999',
