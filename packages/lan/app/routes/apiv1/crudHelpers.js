@@ -30,7 +30,9 @@ export const simplePost = modelName =>
 export const simpleGetList = (modelName, foreignKey = '', additionalFilters = {}) =>
   asyncHandler(async (req, res) => {
     const { models, params } = req;
+    // TODO: limit param
     const limit = 10;
+    // TODO: pagination param
     const offset = 0;
     const objects = await models[modelName].findAll({
       where: {

@@ -75,3 +75,10 @@ export const IMAGING_REQUEST_STATUSES = {
   PENDING: 'pending',
   COMPLETED: 'completed',
 };
+
+export const AVPU_OPTIONS = [
+  { value: 'alert', label: 'Alert' },
+  { value: 'verbal', label: 'Verbal' },
+  { value: 'pain', label: 'Pain' },
+  { value: 'unresponsive', label: 'Unresponsive' },
+];
