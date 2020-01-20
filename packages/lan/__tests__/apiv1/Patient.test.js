@@ -1,5 +1,5 @@
-import { getTestContext } from '../utilities';
 import { createDummyPatient } from 'Shared/demoData/patients';
+import { getTestContext } from '../utilities';
 
 const app = getTestContext();
 

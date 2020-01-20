@@ -26,8 +26,8 @@ export class Vitals extends Model {
         ...options,
         validate: {
           mustHaveVisit() {
-            if(!this.visitId) {
-              throw new Error("A vitals reading must be attached to a visit.");
+            if (!this.visitId) {
+              throw new Error('A vitals reading must be attached to a visit.');
             }
           },
           mustHaveOneReading() {
@@ -42,12 +42,12 @@ export class Vitals extends Model {
               this.svo2,
               this.avpu,
             ];
-            if(!allReadings.some(x => x)) {
-              throw new Error("At least one reading must be defined");
+            if (!allReadings.some(x => x)) {
+              throw new Error('At least one reading must be defined');
             }
-          }
-        }
-      }
+          },
+        },
+      },
     );
   }
 

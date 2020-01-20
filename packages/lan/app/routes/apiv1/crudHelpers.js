@@ -29,7 +29,7 @@ export const simplePost = modelName =>
 
 export const simpleGetList = (
   modelName,
-  foreignKey = '', 
+  foreignKey = '',
   order = undefined,
   additionalFilters = {},
 ) =>

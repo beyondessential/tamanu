@@ -73,4 +73,3 @@ export function createDummyPatient(overrides = {}) {
     ...overrides,
   };
 }
-
