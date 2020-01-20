@@ -56,7 +56,7 @@ describe('Visit', () => {
 
       it('should create a new visit', async () => {
         const result = await app.post('/v1/visit').send({
-          ...createDummyVisit(false),
+          ...createDummyVisit(),
           patientId: patient.id,
         });
         expect(result).not.toHaveRequestError();
@@ -68,7 +68,7 @@ describe('Visit', () => {
 
       it('should update visit details', async () => {
         const v = await app.models.Visit.create({
-          ...createDummyVisit(false),
+          ...createDummyVisit(),
           patientId: patient.id,
           reasonForVisit: 'before',
         });
@@ -98,7 +98,7 @@ describe('Visit', () => {
 
       beforeAll(async () => {
         vitalsVisit = await app.models.Visit.create({
-          ...createDummyVisit(false),
+          ...createDummyVisit(),
           patientId: patient.id,
           reasonForVisit: 'vitals test',
         });
