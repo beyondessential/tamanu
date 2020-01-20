@@ -27,19 +27,25 @@ export const simplePost = modelName =>
     res.send(object);
   });
 
-export const simpleGetList = (modelName, foreignKey = '', additionalFilters = {}) =>
+export const simpleGetList = (
+  modelName,
+  foreignKey = '', 
+  order = undefined,
+  additionalFilters = {},
+) =>
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     // TODO: limit param
     const limit = 10;
     // TODO: pagination param
     const offset = 0;
+    const order = undefined;
     const objects = await models[modelName].findAll({
       where: {
         ...(foreignKey && { [foreignKey]: params.id }),
         ...additionalFilters,
       },
-      order: [['startDate', 'DESC']],
+      order,
       limit,
       offset,
     });

@@ -22,7 +22,32 @@ export class Vitals extends Model {
         svo2: Sequelize.FLOAT,
         avpu: Sequelize.ENUM(AVPU_OPTIONS.map(x => x.value)),
       },
-      options,
+      {
+        ...options,
+        validate: {
+          mustHaveVisit() {
+            if(!this.visitId) {
+              throw new Error("A vitals reading must be attached to a visit.");
+            }
+          },
+          mustHaveOneReading() {
+            const allReadings = [
+              this.temperature,
+              this.height,
+              this.weight,
+              this.sbp,
+              this.dbp,
+              this.heartRate,
+              this.respiratoryRate,
+              this.svo2,
+              this.avpu,
+            ];
+            if(!allReadings.some(x => x)) {
+              throw new Error("At least one reading must be defined");
+            }
+          }
+        }
+      }
     );
   }
 

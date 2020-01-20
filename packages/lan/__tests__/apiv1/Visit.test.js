@@ -92,8 +92,48 @@ describe('Visit', () => {
 
     test.todo('should record a diagnosis');
     test.todo('should update a diagnosis');
-    test.todo('should record a vitals reading');
-    test.todo('should update a vitals reading');
+
+    describe('vitals', () => {
+      let vitalsVisit = null;
+
+      beforeAll(async () => {
+        vitalsVisit = await app.models.Visit.create({
+          ...createDummyVisit(false),
+          patientId: patient.id,
+          reasonForVisit: 'vitals test',
+        });
+      });
+
+      it('should record a new vitals reading', async () => {
+        const result = await app.post('/v1/vitals').send({
+          visitId: vitalsVisit.id,
+          heartRate: 100,
+        });
+        expect(result).not.toHaveRequestError();
+      });
+
+      it('should not record a vitals reading with an invalid visit', async () => {
+        const result = await app.post('/v1/vitals').send({
+          heartRate: 100,
+        });
+        expect(result).toHaveRequestError();
+      });
+
+      it('should not record a vitals reading with no readings', async () => {
+        const result = await app.post('/v1/vitals').send({
+          visitId: vitalsVisit.id,
+        });
+        expect(result).toHaveRequestError();
+      });
+
+      it('should get vitals readings for a visit', async () => {
+        const result = await app.get(`/v1/visit/${vitalsVisit.id}/vitals`);
+        expect(result).not.toHaveRequestError();
+        const { body } = result;
+        expect(body).toBeInstanceOf(Array);
+      });
+    });
+
     test.todo('should record a note');
     test.todo('should update a note');
   });
