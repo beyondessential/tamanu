@@ -4,7 +4,6 @@ const app = getTestContext();
 
 describe('User', () => {
   describe('auth', () => {
-
     let user = null;
     const rawPassword = 'PASSWORD';
 
@@ -43,7 +42,8 @@ describe('User', () => {
     test.todo('should fail to get the user with an expired token');
 
     it('should fail to get the user with an invalid token', async () => {
-      const result = await app.get('/v1/user/me')
+      const result = await app
+        .get('/v1/user/me')
         .set('authorization', 'Bearer ABC_not_a_valid_token');
       expect(result).toHaveRequestError();
     });
@@ -63,7 +63,6 @@ describe('User', () => {
       });
       expect(result).toHaveRequestError();
     });
-
   });
 
   it('should create a new user', async () => {

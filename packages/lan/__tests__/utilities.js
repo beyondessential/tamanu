@@ -48,7 +48,7 @@ function createContext() {
   testApp.sequelize = dbResult.sequelize;
   testApp.models = dbResult.models;
 
-  testApp.asUser = async (user) => {
+  testApp.asUser = async user => {
     const agent = supertest.agent(app);
     const token = await getToken(user, '1d');
     agent.set('authorization', `Bearer ${token}`);
@@ -57,8 +57,6 @@ function createContext() {
 
   return testApp;
 }
-
-let context = null;
 
 export function getTestContext() {
   return createContext();
