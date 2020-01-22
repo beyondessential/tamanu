@@ -2,6 +2,8 @@ import { sign, verify } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import { auth } from 'config';
 
+import { ForbiddenError, BadAuthenticationError } from 'Lan/app/errors';
+
 const { tokenDuration, jwtSecretKey } = auth;
 
 // don't even let things start if the key hasn't been configured in prod
@@ -14,7 +16,7 @@ if (!['development', 'test'].includes(process.env.NODE_ENV)) {
 function getToken(user) {
   return sign(
     {
-      userId: user._id,
+      userId: user.id,
     },
     jwtSecretKey,
     { expiresIn: tokenDuration },
@@ -36,18 +38,15 @@ async function comparePassword(user, password) {
   }
 }
 
-export async function loginHandler(req, res) {
-  const { body, db } = req;
+export async function loginHandler(req, res, next) {
+  const { body, models } = req;
   const { email, password } = body;
 
-  const user = db.objects('user').filtered('email = $0', email)[0];
+  const user = await models.User.findOne({ where: { email } });
   const passwordMatch = await comparePassword(user, password);
 
   if (!passwordMatch) {
-    res.status(401);
-    res.send({
-      error: 'Invalid credentials.',
-    });
+    next(new BadAuthenticationError());
     return;
   }
 
@@ -66,8 +65,8 @@ function decodeToken(token) {
   return verify(token, jwtSecretKey);
 }
 
-function getUserFromToken(request) {
-  const { db, headers } = request;
+async function getUserFromToken(request) {
+  const { models, headers } = request;
   const authHeader = headers.authorization || '';
   const bearer = authHeader.match(/Bearer (\S*)/);
   if (!bearer) return null;
@@ -75,31 +74,31 @@ function getUserFromToken(request) {
   const token = bearer[1];
   try {
     const { userId } = decodeToken(token);
-    return db.objectForPrimaryKey('user', userId);
+    return await models.User.findByPk(userId);
   } catch (e) {
     return null;
   }
 }
 
-const authMiddleware = (req, res, next) => {
-  const user = getUserFromToken(req);
+const authMiddleware = async (req, res, next) => {
+  const user = await getUserFromToken(req);
   if (!user) {
-    res.status(403);
-    throw new Error('This action can only be performed by an authenticated user.');
+    next(new ForbiddenError('This action can only be performed by an authenticated user.'));
+    return;
   }
 
   req.user = user;
   next();
 };
 
-function getDebugUser(req) {
-  const { db } = req;
-  const user = db.objects('user')[0];
+async function getDebugUser(req) {
+  const { models } = req;
+  const user = await models.User.findOne();
   return user;
 }
 
-const debugAuthMiddleware = (req, res, next) => {
-  const user = getUserFromToken(req) || getDebugUser(req);
+const debugAuthMiddleware = async (req, res, next) => {
+  const user = await getUserFromToken(req) || await getDebugUser(req);
   req.user = user;
   next();
 };

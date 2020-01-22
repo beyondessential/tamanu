@@ -4,6 +4,7 @@ import { Sequelize, Model } from './Model';
 const SALT_ROUNDS = 10;
 
 export class User extends Model {
+
   forResponse() {
     const { password, ...otherValues } = this.dataValues;
     return otherValues;

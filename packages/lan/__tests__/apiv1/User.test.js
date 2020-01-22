@@ -4,13 +4,56 @@ const app = getTestContext();
 
 describe('User', () => {
   describe('auth', () => {
-    test.todo('should obtain a valid login token');
+
+    let user = null;
+    const rawPassword = 'PASSWORD';
+
+    beforeAll(async () => {
+      user = await app.models.User.create({
+        email: 'test@test.com',
+        displayName: 'Test',
+        password: rawPassword,
+      });
+    });
+
+    it('should obtain a valid login token', async () => {
+      const result = await app.post('/v1/login').send({
+        email: user.email,
+        password: rawPassword,
+      });
+      expect(result).not.toHaveRequestError();
+      expect(result.body).toHaveProperty('token');
+    });
+
     test.todo('should refresh a token');
     test.todo('should not refresh an expired token');
 
     test.todo('should get the user based on the current token');
 
-    test.todo('should fail to obtain a token for bad credentials');
+    it('should fail to get the user with a null token', async () => {
+      const result = await app.get('/v1/user/me');
+      expect(result).toHaveRequestError();
+    });
+
+    test.todo('should fail to get the user with an expired token');
+    test.todo('should fail to get the user with an invalid token');
+
+    it('should fail to obtain a token for a wrong password', async () => {
+      const result = await app.post('/v1/login').send({
+        email: user.email,
+        password: 'PASSWARD',
+      });
+      expect(result).toHaveRequestError();
+    });
+
+    it('should fail to obtain a token for a wrong email', async () => {
+      const result = await app.post('/v1/login').send({
+        email: 'test@toast.com',
+        password: rawPassword,
+      });
+      expect(result).toHaveRequestError();
+    });
+
   });
 
   it('should create a new user', async () => {
