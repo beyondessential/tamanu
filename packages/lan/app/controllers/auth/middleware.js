@@ -74,7 +74,7 @@ async function getUserFromToken(request) {
   const token = bearer[1];
   try {
     const { userId } = decodeToken(token);
-    return await models.User.findByPk(userId);
+    return models.User.findByPk(userId);
   } catch (e) {
     return null;
   }
