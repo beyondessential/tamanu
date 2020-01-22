@@ -1,4 +1,4 @@
-import { hash, compare } from 'bcrypt';
+import { hash } from 'bcrypt';
 import { Sequelize, Model } from './Model';
 
 const SALT_ROUNDS = 10;

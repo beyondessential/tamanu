@@ -6,5 +6,5 @@ class BaseError extends Error {
 }
 
 export class NotFoundError extends BaseError {}
-export class UnauthorizedError extends BaseError {}
+export class BadAuthenticationError extends BaseError {}
 export class ForbiddenError extends BaseError {}
