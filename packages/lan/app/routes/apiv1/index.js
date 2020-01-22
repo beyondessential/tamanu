@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { loginHandler } from 'Lan/app/controllers/auth/middleware';
+import { loginHandler, authMiddleware } from 'Lan/app/controllers/auth/middleware';
 
 import { user } from './user';
 import { patient } from './patient';
@@ -10,6 +10,8 @@ import { vitals } from './vitals';
 export const apiv1 = express.Router();
 
 apiv1.post('/login', loginHandler);
+
+apiv1.use(authMiddleware);
 
 apiv1.use('/user', user);
 apiv1.use('/patient', patient);

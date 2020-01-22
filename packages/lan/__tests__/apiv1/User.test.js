@@ -6,6 +6,7 @@ describe('User', () => {
   describe('auth', () => {
 
     let user = null;
+    let userAgent = null;
     const rawPassword = 'PASSWORD';
 
     beforeAll(async () => {
@@ -14,6 +15,8 @@ describe('User', () => {
         displayName: 'Test',
         password: rawPassword,
       });
+
+      userAgent = await app.asUser(user);
     });
 
     it('should obtain a valid login token', async () => {
@@ -28,7 +31,11 @@ describe('User', () => {
     test.todo('should refresh a token');
     test.todo('should not refresh an expired token');
 
-    test.todo('should get the user based on the current token');
+    it('should get the user based on the current token', async () => {
+      const result = await userAgent.get('/v1/user/me');
+      expect(result).not.toHaveRequestError();
+      expect(result.body).toHaveProperty('id', user.id);
+    });
 
     it('should fail to get the user with a null token', async () => {
       const result = await app.get('/v1/user/me');
@@ -36,7 +43,12 @@ describe('User', () => {
     });
 
     test.todo('should fail to get the user with an expired token');
-    test.todo('should fail to get the user with an invalid token');
+
+    it('should fail to get the user with an invalid token', async () => {
+      const result = await app.get('/v1/user/me')
+        .set('authorization', 'Bearer ABC_not_a_valid_token');
+      expect(result).toHaveRequestError();
+    });
 
     it('should fail to obtain a token for a wrong password', async () => {
       const result = await app.post('/v1/login').send({

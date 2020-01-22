@@ -13,13 +13,13 @@ if (!['development', 'test'].includes(process.env.NODE_ENV)) {
   }
 }
 
-function getToken(user) {
+export function getToken(user, expiresIn = tokenDuration) {
   return sign(
     {
       userId: user.id,
     },
     jwtSecretKey,
-    { expiresIn: tokenDuration },
+    { expiresIn },
   );
 }
 
@@ -80,35 +80,8 @@ async function getUserFromToken(request) {
   }
 }
 
-const authMiddleware = async (req, res, next) => {
+export const authMiddleware = async (req, res, next) => {
   const user = await getUserFromToken(req);
-  if (!user) {
-    next(new ForbiddenError('This action can only be performed by an authenticated user.'));
-    return;
-  }
-
   req.user = user;
   next();
-};
-
-async function getDebugUser(req) {
-  const { models } = req;
-  const user = await models.User.findOne();
-  return user;
-}
-
-const debugAuthMiddleware = async (req, res, next) => {
-  const user = await getUserFromToken(req) || await getDebugUser(req);
-  req.user = user;
-  next();
-};
-
-export const getAuthMiddleware = () => {
-  switch (process.env.NODE_ENV) {
-    case 'test':
-      return debugAuthMiddleware;
-    case 'development':
-    default:
-      return authMiddleware;
-  }
 };

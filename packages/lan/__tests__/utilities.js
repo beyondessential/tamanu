@@ -2,6 +2,8 @@ import { createApp } from 'Lan/createApp';
 import { initDatabase } from 'Lan/app/database';
 import supertest from 'supertest';
 
+import { getToken } from 'Lan/app/controllers/auth/middleware';
+
 export function extendExpect(expect) {
   expect.extend({
     toHaveRequestError(response) {
@@ -40,18 +42,24 @@ function createContext() {
     testMode: true,
   });
 
-  const app = supertest(createApp(dbResult));
-  app.sequelize = dbResult.sequelize;
-  app.models = dbResult.models;
+  const app = createApp(dbResult);
 
-  return app;
+  const testApp = supertest(app);
+  testApp.sequelize = dbResult.sequelize;
+  testApp.models = dbResult.models;
+
+  testApp.asUser = async (user) => {
+    const agent = supertest.agent(app);
+    const token = await getToken(user, '1d');
+    agent.set('authorization', `Bearer ${token}`);
+    return agent;
+  };
+
+  return testApp;
 }
 
 let context = null;
 
 export function getTestContext() {
-  if (!context) {
-    context = createContext();
-  }
-  return context;
+  return createContext();
 }
