@@ -107,9 +107,11 @@ describe('Visit', () => {
       it('should record a new vitals reading', async () => {
         const result = await app.post('/v1/vitals').send({
           visitId: vitalsVisit.id,
-          heartRate: 100,
+          heartRate: 1234,
         });
         expect(result).not.toHaveRequestError();
+        const saved = await app.models.Vitals.findOne({ where: { heartRate: 1234 } });
+        expect(saved).toHaveProperty('heartRate', 1234);
       });
 
       it('should not record a vitals reading with an invalid visit', async () => {

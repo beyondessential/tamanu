@@ -60,6 +60,7 @@ describe('Patient', () => {
     test.todo('should get a list of patients by village');
     test.todo('should get a list of patients by multiple factors');
 
+    test.todo('should get the correct patient status'); // admitted, outpatient, triage, deceased, ""
     test.todo('should get a list of outpatients');
     test.todo('should get a list of inpatients sorted by department');
   });
