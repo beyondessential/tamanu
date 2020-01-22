@@ -6,7 +6,6 @@ describe('User', () => {
   describe('auth', () => {
 
     let user = null;
-    let userAgent = null;
     const rawPassword = 'PASSWORD';
 
     beforeAll(async () => {
@@ -15,8 +14,6 @@ describe('User', () => {
         displayName: 'Test',
         password: rawPassword,
       });
-
-      userAgent = await app.asUser(user);
     });
 
     it('should obtain a valid login token', async () => {
@@ -32,6 +29,7 @@ describe('User', () => {
     test.todo('should not refresh an expired token');
 
     it('should get the user based on the current token', async () => {
+      const userAgent = await app.asUser(user);
       const result = await userAgent.get('/v1/user/me');
       expect(result).not.toHaveRequestError();
       expect(result.body).toHaveProperty('id', user.id);
