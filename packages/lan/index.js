@@ -1,11 +1,24 @@
 import { initDatabase } from './app/database';
 import { log } from './app/logging';
 
+import { createApp } from './createApp';
+
+import config from 'config';
+
+const port = config.port;
+
 export async function run() {
-  const { sequelize } = initDatabase();
+  const { sequelize, models } = initDatabase({ 
+    testMode: false,
+  });
 
   // ensure migration is done
   await sequelize.sync();
+
+  const app = createApp({ sequelize, models });
+  const server = app.listen(port, () => {
+    console.log(`Server is running on port ${port}!`);
+  });
 }
 
 run();
