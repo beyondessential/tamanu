@@ -71,6 +71,8 @@ describe('User', () => {
       email: 'test123@user.com',
       password: 'abc',
     });
+    expect(result).not.toHaveRequestError();
+
     const { id, password } = result.body;
     expect(id).not.toBeNull();
     expect(password).toBeUndefined();
@@ -86,6 +88,7 @@ describe('User', () => {
       email: 'email@user.com',
       password: '123',
     });
+    expect(baseResult).not.toHaveRequestError();
     expect(baseResult.body).toHaveProperty('id');
     expect(baseResult.body).toHaveProperty('displayName', 'Alan');
     const id = baseResult.body.id;
@@ -93,6 +96,7 @@ describe('User', () => {
     const result = await app.put(`/v1/user/${id}`).send({
       displayName: 'Brian',
     });
+    expect(result).not.toHaveRequestError();
     expect(result.body).toHaveProperty('displayName', 'Brian');
     const updatedUser = await app.models.User.findByPk(id);
     expect(updatedUser).toHaveProperty('displayName', 'Brian');
@@ -104,6 +108,7 @@ describe('User', () => {
       email: 'passwordy@user.com',
       password: '123',
     });
+    expect(baseResult).not.toHaveRequestError();
     expect(baseResult.body).toHaveProperty('id');
     const id = baseResult.body.id;
     const user = await app.models.User.findByPk(id);
@@ -115,6 +120,7 @@ describe('User', () => {
       password: '999',
       displayName: 'Brian',
     });
+    expect(result).not.toHaveRequestError();
     expect(result.body).not.toHaveProperty('password');
     const updatedUser = await app.models.User.findByPk(id);
     expect(updatedUser).toHaveProperty('displayName', 'Brian');

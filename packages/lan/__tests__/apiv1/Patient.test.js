@@ -12,6 +12,7 @@ describe('Patient', () => {
   it('should get the details of a patient', async () => {
     const patient = await app.models.Patient.create(createDummyPatient());
     const result = await app.get(`/v1/patient/${patient.id}`);
+    expect(result).not.toHaveRequestError();
     expect(result.body).toHaveProperty('displayId', patient.displayId);
     expect(result.body).toHaveProperty('firstName', patient.firstName);
     expect(result.body).toHaveProperty('lastName', patient.lastName);

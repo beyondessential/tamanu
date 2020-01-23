@@ -8,10 +8,10 @@ export function extendExpect(expect) {
   expect.extend({
     toHaveRequestError(response) {
       const { statusCode } = response;
-      const pass = statusCode >= 400 && statusCode < 500;
+      const pass = statusCode >= 400;
       if (pass) {
         return {
-          message: () => `expected no server error status code, got ${statusCode}.
+          message: () => `Expected no error status code, got ${statusCode}.
           
 Error details: 
 ${JSON.stringify(response.body.error, null, 2)}`,
@@ -19,7 +19,7 @@ ${JSON.stringify(response.body.error, null, 2)}`,
         };
       }
       return {
-        message: () => `expected server error status code, got ${statusCode}`,
+        message: () => `Expected error status code, got ${statusCode}`,
         pass,
       };
     },
