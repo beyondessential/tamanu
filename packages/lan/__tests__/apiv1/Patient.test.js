@@ -1,11 +1,12 @@
 import { createDummyPatient } from 'Shared/demoData/patients';
 import { getTestContext } from '../utilities';
 
-let app = getTestContext();
+const { baseApp, models } = getTestContext();
 
 describe('Patient', () => {
+  let app = null;
   beforeAll(async () => {
-    app = await app.withPermissions(['readPatient']);
+    app = await baseApp.withPermissions(['readPatient']);
   });
 
   test.todo('should reject users with insufficient permissions');
@@ -14,7 +15,7 @@ describe('Patient', () => {
   test.todo('should get a list of patients matching a filter');
 
   it('should get the details of a patient', async () => {
-    const patient = await app.models.Patient.create(createDummyPatient());
+    const patient = await models.Patient.create(createDummyPatient());
     const result = await app.get(`/v1/patient/${patient.id}`);
     expect(result).not.toHaveRequestError();
     expect(result.body).toHaveProperty('displayId', patient.displayId);

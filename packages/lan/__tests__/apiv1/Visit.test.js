@@ -1,20 +1,21 @@
 import { createDummyPatient, createDummyVisit } from 'Shared/demoData/patients';
 import { getTestContext } from '../utilities';
 
-let app = getTestContext();
+const { baseApp, models } = getTestContext();
 
 describe('Visit', () => {
   let patient = null;
+  let app = null;
   beforeAll(async () => {
-    patient = await app.models.Patient.create(createDummyPatient());
-    app = await app.withPermissions(['readVisit']);
+    patient = await models.Patient.create(createDummyPatient());
+    app = await baseApp.withPermissions(['readVisit']);
   });
 
   test.todo('should reject a user with insufficient permissions');
   test.todo('should create an access record');
 
   it('should get a visit', async () => {
-    const v = await app.models.Visit.create({
+    const v = await models.Visit.create({
       ...createDummyVisit(),
       patientId: patient.id,
     });
@@ -25,7 +26,7 @@ describe('Visit', () => {
   });
 
   it('should get a list of visits for a patient', async () => {
-    const v = await app.models.Visit.create({
+    const v = await models.Visit.create({
       ...createDummyVisit(),
       patientId: patient.id,
     });
@@ -62,13 +63,13 @@ describe('Visit', () => {
         });
         expect(result).not.toHaveRequestError();
         expect(result.body.id).toBeTruthy();
-        const visit = await app.models.Visit.findByPk(result.body.id);
+        const visit = await models.Visit.findByPk(result.body.id);
         expect(visit).toBeDefined();
         expect(visit.patientId).toEqual(patient.id);
       });
 
       it('should update visit details', async () => {
-        const v = await app.models.Visit.create({
+        const v = await models.Visit.create({
           ...createDummyVisit(),
           patientId: patient.id,
           reasonForVisit: 'before',
@@ -79,7 +80,7 @@ describe('Visit', () => {
         });
         expect(result).not.toHaveRequestError();
 
-        const updated = await app.models.Visit.findByPk(v.id);
+        const updated = await models.Visit.findByPk(v.id);
         expect(updated.reasonForVisit).toEqual('after');
       });
 
@@ -98,7 +99,7 @@ describe('Visit', () => {
       let vitalsVisit = null;
 
       beforeAll(async () => {
-        vitalsVisit = await app.models.Visit.create({
+        vitalsVisit = await models.Visit.create({
           ...createDummyVisit(),
           patientId: patient.id,
           reasonForVisit: 'vitals test',
@@ -111,7 +112,7 @@ describe('Visit', () => {
           heartRate: 1234,
         });
         expect(result).not.toHaveRequestError();
-        const saved = await app.models.Vitals.findOne({ where: { heartRate: 1234 } });
+        const saved = await models.Vitals.findOne({ where: { heartRate: 1234 } });
         expect(saved).toHaveProperty('heartRate', 1234);
       });
 

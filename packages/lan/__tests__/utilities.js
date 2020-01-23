@@ -44,34 +44,31 @@ function createContext() {
   const dbResult = initDatabase({
     testMode: true,
   });
+  const { models, sequelize } = dbResult;
 
-  const app = createApp(dbResult);
+  const expressApp = createApp(dbResult);
 
-  const testApp = supertest(app);
-  testApp.sequelize = dbResult.sequelize;
-  testApp.models = dbResult.models;
+  const baseApp = supertest(expressApp);
 
-  testApp.asUser = async user => {
-    const agent = supertest.agent(app);
+  baseApp.asUser = async user => {
+    const agent = supertest.agent(expressApp);
     const token = await getToken(user, '1d');
     agent.set('authorization', `Bearer ${token}`);
     agent.user = user;
-    agent.sequelize = testApp.sequelize;
-    agent.models = testApp.models;
     return agent;
   };
 
-  testApp.withPermissions = async permissions => {
-    const newUser = await testApp.models.User.create({
+  baseApp.withPermissions = async permissions => {
+    const newUser = await models.User.create({
       email: chance.email(),
       displayName: chance.name(),
       password: chance.string(),
     });
 
-    return await testApp.asUser(newUser);
+    return await baseApp.asUser(newUser);
   };
 
-  return testApp;
+  return { baseApp, sequelize, models };
 }
 
 export function getTestContext() {
