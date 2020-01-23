@@ -4,11 +4,10 @@ import { getTestContext } from '../utilities';
 let app = getTestContext();
 
 describe('Visit', () => {
-
   let patient = null;
   beforeAll(async () => {
     patient = await app.models.Patient.create(createDummyPatient());
-    app = await app.withPermissions(["readVisit"]);
+    app = await app.withPermissions(['readVisit']);
   });
 
   test.todo('should reject a user with insufficient permissions');

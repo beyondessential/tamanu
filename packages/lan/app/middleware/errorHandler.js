@@ -25,10 +25,10 @@ export default function errorHandler(error, req, res, _) {
   } else {
     log.info(`Error ${code}`, error);
   }
-  res.status(code).send({ 
+  res.status(code).send({
     error: {
       message: error.message,
-      ...error
-    }
+      ...error,
+    },
   });
 }

@@ -3,7 +3,6 @@ import { getTestContext } from '../utilities';
 const app = getTestContext();
 
 describe('User', () => {
-
   let adminUser = null;
   let adminApp = null;
 

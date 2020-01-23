@@ -4,9 +4,8 @@ import { getTestContext } from '../utilities';
 let app = getTestContext();
 
 describe('Patient', () => {
-
   beforeAll(async () => {
-    app = await app.withPermissions(["readPatient"]);
+    app = await app.withPermissions(['readPatient']);
   });
 
   test.todo('should reject users with insufficient permissions');

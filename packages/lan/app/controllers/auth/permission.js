@@ -7,17 +7,17 @@ export function ensurePermissionCheck(req, res, next) {
   const originalResSend = res.send;
   res.send = (...args) => {
     res.send = originalResSend;
-    if(!res.hasCheckedPermission) {
+    if (!res.hasCheckedPermission) {
       res.status(501).send({
         error: {
-          name: "NoPermissionCheckError",
-          message: "No permission check was implemented for this endpoint.",
-        }
+          name: 'NoPermissionCheckError',
+          message: 'No permission check was implemented for this endpoint.',
+        },
       });
       return;
     }
     res.send(...args);
-  }
+  };
   next();
 }
 
@@ -30,20 +30,20 @@ export const checkPermission = permission => async (req, res, next) => {
 
   // allow a null permission to let things through - this means all endpoints
   // still need an explicit permission check, even if it's a null one!
-  if(!permission) {
+  if (!permission) {
     next();
     return;
   }
 
   const { user } = req;
-  if(!user) {
+  if (!user) {
     // user must log in - 401
     next(new BadAuthenticationError());
     return;
   }
 
   const hasPermission = await user.hasPermission(permission);
-  if(!hasPermission) {
+  if (!hasPermission) {
     // user is logged in fine, they're just not allowed - 403
     next(new ForbiddenError(permission));
     return;

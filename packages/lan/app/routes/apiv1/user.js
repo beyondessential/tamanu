@@ -2,8 +2,8 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { ForbiddenError } from 'Lan/app/errors';
-import { simpleGet, simplePut, simplePost } from './crudHelpers';
 import { checkPermission } from 'Lan/app/controllers/auth/permission';
+import { simpleGet, simplePut, simplePost } from './crudHelpers';
 
 export const user = express.Router();
 
@@ -18,18 +18,8 @@ user.get(
   }),
 );
 
-user.get(
-  '/:id', 
-  checkPermission("getUserDetails"),
-  simpleGet('User')
-);
+user.get('/:id', checkPermission('getUserDetails'), simpleGet('User'));
 
-user.put('/:id', 
-  checkPermission("updateUserDetails"),
-  simplePut('User')
-);
+user.put('/:id', checkPermission('updateUserDetails'), simplePut('User'));
 
-user.post('/$',
-  checkPermission("createUser"),
-  simplePost('User')
-);
+user.post('/$', checkPermission('createUser'), simplePost('User'));
