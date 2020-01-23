@@ -1,6 +1,6 @@
-import { getTestContext } from '../utilities';
+import { createTestContext } from '../utilities';
 
-const { baseApp, models } = getTestContext();
+const { baseApp, models } = createTestContext();
 
 describe('User', () => {
   let adminUser = null;

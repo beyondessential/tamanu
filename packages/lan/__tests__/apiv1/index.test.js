@@ -1,6 +1,6 @@
-import { getTestContext } from '../utilities';
+import { createTestContext } from '../utilities';
 
-const { baseApp } = getTestContext();
+const { baseApp } = createTestContext();
 
 describe('fundamentals', () => {
   test.todo('should respond to a GET request');

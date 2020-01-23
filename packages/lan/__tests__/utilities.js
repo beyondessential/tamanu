@@ -40,7 +40,7 @@ export function deleteAllTestIds({ models, sequelize }) {
   return Promise.all(deleteTasks);
 }
 
-function createContext() {
+export function createTestContext() {
   const dbResult = initDatabase({
     testMode: true,
   });
@@ -69,8 +69,4 @@ function createContext() {
   };
 
   return { baseApp, sequelize, models };
-}
-
-export function getTestContext() {
-  return createContext();
 }

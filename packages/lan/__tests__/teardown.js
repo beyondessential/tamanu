@@ -1,6 +1,6 @@
-import { getTestContext, deleteAllTestIds } from './utilities';
+import { createTestContext, deleteAllTestIds } from './utilities';
 
 export default async function() {
-  const ctx = getTestContext();
+  const ctx = createTestContext();
   await deleteAllTestIds(ctx);
 }

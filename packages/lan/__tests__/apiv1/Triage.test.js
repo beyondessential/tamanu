@@ -1,6 +1,6 @@
-import { getTestContext } from '../utilities';
+import { createTestContext } from '../utilities';
 
-const app = getTestContext();
+const app = createTestContext();
 
 describe('Triage', () => {
   test.todo('should admit a patient to triage');
