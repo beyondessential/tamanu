@@ -9,6 +9,10 @@ export class User extends Model {
     return otherValues;
   }
 
+  async hasPermission(permission) {
+    return true;
+  }
+
   async setPassword(pw) {
     const hashedPassword = await hash(pw, SALT_ROUNDS);
     this.password = hashedPassword;
