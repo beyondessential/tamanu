@@ -1,5 +1,5 @@
 import { Sequelize, Model } from 'sequelize';
-import { AVPU_OPTIONS } from 'Shared/constants';
+import { AVPU_OPTIONS } from 'shared/constants';
 
 export class Vitals extends Model {
   static init({ primaryKey, ...options }) {
