@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import config from 'config';
 
-import * as models from 'Shared/models';
+import * as models from 'shared/models';
 
 import uuid from 'uuid';
 import { log } from '../logging';

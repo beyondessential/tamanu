@@ -1,7 +1,7 @@
 import Faye from 'faye';
 import { find } from 'lodash';
 import config from 'config';
-import { schemas } from 'Shared/schemas';
+import { schemas } from 'shared/schemas';
 import { objectToJSON } from '../utils';
 import { outgoing } from '../utils/faye-extensions';
 import { SYNC_MODES, SYNC_ACTIONS } from '../constants';

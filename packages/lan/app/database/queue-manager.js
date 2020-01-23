@@ -1,4 +1,4 @@
-import BaseQueueManager from 'Shared/services/queue-manager';
+import BaseQueueManager from 'shared/services/queue-manager';
 
 export class QueueManager extends BaseQueueManager {
   constructor(database) {

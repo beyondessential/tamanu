@@ -16,8 +16,6 @@ module.exports = {
   ],
   resolve: {
     alias: {
-      Shared: path.resolve(__dirname, '../shared/'),
-      Lan: path.resolve(__dirname, '.'),
     },
   },
   module: {

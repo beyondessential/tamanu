@@ -1,8 +1,8 @@
 import moment from 'moment';
 import { padStart, capitalize } from 'lodash';
 
-import { createValueIndex } from 'Shared/utils';
-import { VISIT_TYPES } from 'Shared/constants';
+import { createValueIndex } from 'shared/utils';
+import { VISIT_TYPES } from 'shared/constants';
 import {
   medicationIcon,
   administrationIcon,
