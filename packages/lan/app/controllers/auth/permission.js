@@ -26,7 +26,7 @@ export function ensurePermissionCheck(req, res, next) {
 // or
 //  router.get('/public/info', checkPermission(null), (req, res) => { ... });
 export const checkPermission = permission => async (req, res, next) => {
-  req.hasCheckedPermission = true;
+  res.hasCheckedPermission = true;
 
   // allow a null permission to let things through - this means all endpoints
   // still need an explicit permission check, even if it's a null one!

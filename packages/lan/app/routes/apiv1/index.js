@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { loginHandler, authMiddleware } from 'Lan/app/controllers/auth/middleware';
+import { checkPermission } from 'Lan/app/controllers/auth/permission';
 
 import { user } from './user';
 import { patient } from './patient';
@@ -9,7 +10,7 @@ import { vitals } from './vitals';
 
 export const apiv1 = express.Router();
 
-apiv1.post('/login', loginHandler);
+apiv1.post('/login', checkPermission(null), loginHandler);
 
 apiv1.use(authMiddleware);
 

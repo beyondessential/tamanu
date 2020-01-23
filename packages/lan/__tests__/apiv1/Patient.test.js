@@ -1,9 +1,14 @@
 import { createDummyPatient } from 'Shared/demoData/patients';
 import { getTestContext } from '../utilities';
 
-const app = getTestContext();
+let app = getTestContext();
 
 describe('Patient', () => {
+
+  beforeAll(async () => {
+    app = await app.withPermissions(["readPatient"]);
+  });
+
   test.todo('should reject users with insufficient permissions');
   test.todo('should create an access record');
 

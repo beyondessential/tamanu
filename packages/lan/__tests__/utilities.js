@@ -1,8 +1,11 @@
 import { createApp } from 'Lan/createApp';
 import { initDatabase } from 'Lan/app/database';
 import supertest from 'supertest';
+import Chance from 'chance';
 
 import { getToken } from 'Lan/app/controllers/auth/middleware';
+
+const chance = new Chance();
 
 export function extendExpect(expect) {
   expect.extend({
@@ -52,7 +55,20 @@ function createContext() {
     const agent = supertest.agent(app);
     const token = await getToken(user, '1d');
     agent.set('authorization', `Bearer ${token}`);
+    agent.user = user;
+    agent.sequelize = testApp.sequelize;
+    agent.models = testApp.models;
     return agent;
+  };
+
+  testApp.withPermissions = async permissions => {
+    const newUser = await testApp.models.User.create({
+      email: chance.email(),
+      displayName: chance.name(),
+      password: chance.string(),
+    });
+
+    return await testApp.asUser(newUser);
   };
 
   return testApp;
