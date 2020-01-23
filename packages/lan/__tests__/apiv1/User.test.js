@@ -113,11 +113,11 @@ describe('User', () => {
 
     const result = await app.put(`/v1/user/${id}`).send({
       password: '999',
-      displayName: 'Heffo',
+      displayName: 'Brian',
     });
     expect(result.body).not.toHaveProperty('password');
     const updatedUser = await app.models.User.findByPk(id);
-    expect(updatedUser).toHaveProperty('displayName', 'Heffo');
+    expect(updatedUser).toHaveProperty('displayName', 'Brian');
     expect(updatedUser.password).toBeTruthy();
     expect(updatedUser.password).not.toEqual('999');
     expect(updatedUser.password).not.toEqual(oldpw);
