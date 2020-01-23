@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { checkPermission } from 'Lan/app/controllers/auth/permission';
+import { checkPermission } from 'lan/app/controllers/auth/permission';
 import { simpleGet, simplePut, simplePost, simpleGetList } from './crudHelpers';
 
 export const visit = express.Router();
