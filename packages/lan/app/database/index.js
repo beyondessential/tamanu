@@ -16,7 +16,7 @@ export function initDatabase({ testMode = false }) {
   log.info(`Connecting to database ${config.db.username}@${config.db.name}...`);
   const sequelize = new Sequelize(config.db.name, config.db.username, config.db.password, {
     dialect: 'sqlite',
-    storage: 'data/test.db',
+    storage: '/tmp/tamanu-test.db',
     logging: s => log.debug(s),
   });
 
