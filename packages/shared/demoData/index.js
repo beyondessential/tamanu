@@ -1,5 +1,6 @@
 export * from './allergies';
 export * from './departments';
+export * from './icd10';
 export * from './diagnoses';
 export * from './drugs';
 export * from './facilities';
