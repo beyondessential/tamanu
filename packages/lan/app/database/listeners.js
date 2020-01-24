@@ -1,4 +1,4 @@
-import BaseListeners from 'Shared/services/listeners';
+import BaseListeners from 'shared/services/listeners';
 import { QueueManager } from './queue-manager';
 import { Sync } from './sync';
 

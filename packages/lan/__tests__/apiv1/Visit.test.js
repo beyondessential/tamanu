@@ -1,4 +1,4 @@
-import { createDummyPatient, createDummyVisit } from 'Shared/demoData/patients';
+import { createDummyPatient, createDummyVisit } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();

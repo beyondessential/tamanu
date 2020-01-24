@@ -1,4 +1,4 @@
-import { ForbiddenError, BadAuthenticationError } from 'Lan/app/errors';
+import { ForbiddenError, BadAuthenticationError } from 'lan/app/errors';
 
 // this middleware goes at the top of the middleware stack
 export function ensurePermissionCheck(req, res, next) {

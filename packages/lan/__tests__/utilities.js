@@ -1,8 +1,8 @@
-import { createApp } from 'lan/createApp';
-import { initDatabase } from 'lan/app/database';
 import supertest from 'supertest';
 import Chance from 'chance';
 
+import { createApp } from 'lan/createApp';
+import { initDatabase } from 'lan/app/database';
 import { getToken } from 'lan/app/controllers/auth/middleware';
 
 const chance = new Chance();

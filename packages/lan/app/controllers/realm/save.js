@@ -1,6 +1,6 @@
 import { has, set, find, isFunction } from 'lodash';
 import shortId from 'shortid';
-import { schemas } from 'Shared/schemas';
+import { schemas } from 'shared/schemas';
 import { objectToJSON } from '../../utils';
 import { ENVIRONMENT_TYPE } from '../../constants';
 

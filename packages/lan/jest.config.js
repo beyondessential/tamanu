@@ -4,7 +4,6 @@ module.exports = {
   },
   testRegex: '(\\.|/)(test|spec)\\.[jt]sx?$',
   moduleNameMapper: {
-    'Shared(.*)$': '<rootDir>/../shared$1',
   },
   testEnvironment: 'node',
   globalSetup: '<rootDir>/__tests__/setup.js',

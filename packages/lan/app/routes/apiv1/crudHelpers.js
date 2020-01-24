@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { NotFoundError } from 'Lan/app/errors';
+import { NotFoundError } from 'lan/app/errors';
 
 export const simpleGet = modelName =>
   asyncHandler(async (req, res) => {

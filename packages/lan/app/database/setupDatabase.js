@@ -1,5 +1,5 @@
 import config from 'config';
-import { schemas, version as schemaVersion } from 'Shared/schemas';
+import { schemas, version as schemaVersion } from 'shared/schemas';
 import { Database } from './database';
 
 export function setupDatabase() {

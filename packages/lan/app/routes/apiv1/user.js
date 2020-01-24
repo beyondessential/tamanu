@@ -1,8 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { ForbiddenError } from 'Lan/app/errors';
-import { checkPermission } from 'Lan/app/controllers/auth/permission';
+import { ForbiddenError } from 'lan/app/errors';
+import { checkPermission } from 'lan/app/controllers/auth/permission';
 import { simpleGet, simplePut, simplePost } from './crudHelpers';
 
 export const user = express.Router();

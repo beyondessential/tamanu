@@ -1,4 +1,4 @@
-import BaseDatabase from 'Shared/services/database';
+import BaseDatabase from 'shared/services/database';
 import { Settings } from './settings';
 
 export class Database extends BaseDatabase {
