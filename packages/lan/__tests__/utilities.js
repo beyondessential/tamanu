@@ -7,7 +7,7 @@ import { getToken } from 'lan/app/controllers/auth/middleware';
 
 const chance = new Chance();
 
-const formatError = (response) => `
+const formatError = response => `
 
 Error details:
 ${JSON.stringify(response.body.error, null, 2)}
@@ -20,7 +20,8 @@ export function extendExpect(expect) {
       const pass = statusCode >= 400 && statusCode < 500;
       if (pass) {
         return {
-          message: () => `Expected no error status code, got ${statusCode}. ${formatError(response)}`,
+          message: () =>
+            `Expected no error status code, got ${statusCode}. ${formatError(response)}`,
           pass,
         };
       }
