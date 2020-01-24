@@ -19,7 +19,20 @@ export class ReferenceData extends Model {
         type: Sequelize.ENUM(CODE_TYPES),
         name: Sequelize.STRING,
       },
-      options,
+      {
+        ...options,
+        indexes: [
+          {
+            unique: false,
+            fields: ['type'],
+          },
+          {
+            unique: false,
+            name: 'code_by_type',
+            fields: ['code', 'type'],
+          },
+        ]
+      }
     );
   }
 

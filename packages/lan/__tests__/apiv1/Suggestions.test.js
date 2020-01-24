@@ -5,7 +5,7 @@ const { baseApp, models } = createTestContext();
 
 const testDiagnoses = ICD10_DIAGNOSES.slice(0, 50);
 
-describe('', () => {
+describe('Suggestions', () => {
 
   beforeAll(async () => {
     const tasks = testDiagnoses
