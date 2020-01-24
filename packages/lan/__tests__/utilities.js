@@ -7,22 +7,39 @@ import { getToken } from 'lan/app/controllers/auth/middleware';
 
 const chance = new Chance();
 
+const formatError = (response) => `
+
+Error details:
+${JSON.stringify(response.body.error, null, 2)}
+`;
+
 export function extendExpect(expect) {
   expect.extend({
     toHaveRequestError(response) {
       const { statusCode } = response;
-      const pass = statusCode >= 400;
+      const pass = statusCode >= 400 && statusCode < 500;
       if (pass) {
         return {
-          message: () => `Expected no error status code, got ${statusCode}.
-          
-Error details: 
-${JSON.stringify(response.body.error, null, 2)}`,
+          message: () => `Expected no error status code, got ${statusCode}. ${formatError(response)}`,
           pass,
         };
       }
       return {
         message: () => `Expected error status code, got ${statusCode}`,
+        pass,
+      };
+    },
+    toHaveSucceeded(response) {
+      const { statusCode } = response;
+      const pass = statusCode < 400;
+      if (pass) {
+        return {
+          message: () => `Expected failure status code, got ${statusCode}.`,
+          pass,
+        };
+      }
+      return {
+        message: () => `Expected success status code, got ${statusCode}. ${formatError(response)}`,
         pass,
       };
     },

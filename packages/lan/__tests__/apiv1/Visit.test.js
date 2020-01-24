@@ -20,7 +20,7 @@ describe('Visit', () => {
       patientId: patient.id,
     });
     const result = await app.get(`/v1/visit/${v.id}`);
-    expect(result).not.toHaveRequestError();
+    expect(result).toHaveSucceeded();
     expect(result.body.id).toEqual(v.id);
     expect(result.body.patientId).toEqual(patient.id);
   });
@@ -31,7 +31,7 @@ describe('Visit', () => {
       patientId: patient.id,
     });
     const result = await app.get(`/v1/patient/${patient.id}/visits`);
-    expect(result).not.toHaveRequestError();
+    expect(result).toHaveSucceeded();
     expect(result.body).toBeInstanceOf(Array);
     expect(result.body.some(x => x.id === v.id)).toEqual(true);
   });
@@ -61,7 +61,7 @@ describe('Visit', () => {
           ...createDummyVisit(),
           patientId: patient.id,
         });
-        expect(result).not.toHaveRequestError();
+        expect(result).toHaveSucceeded();
         expect(result.body.id).toBeTruthy();
         const visit = await models.Visit.findByPk(result.body.id);
         expect(visit).toBeDefined();
@@ -78,7 +78,7 @@ describe('Visit', () => {
         const result = await app.put(`/v1/visit/${v.id}`).send({
           reasonForVisit: 'after',
         });
-        expect(result).not.toHaveRequestError();
+        expect(result).toHaveSucceeded();
 
         const updated = await models.Visit.findByPk(v.id);
         expect(updated.reasonForVisit).toEqual('after');
@@ -111,7 +111,7 @@ describe('Visit', () => {
           visitId: vitalsVisit.id,
           heartRate: 1234,
         });
-        expect(result).not.toHaveRequestError();
+        expect(result).toHaveSucceeded();
         const saved = await models.Vitals.findOne({ where: { heartRate: 1234 } });
         expect(saved).toHaveProperty('heartRate', 1234);
       });
@@ -132,7 +132,7 @@ describe('Visit', () => {
 
       it('should get vitals readings for a visit', async () => {
         const result = await app.get(`/v1/visit/${vitalsVisit.id}/vitals`);
-        expect(result).not.toHaveRequestError();
+        expect(result).toHaveSucceeded();
         const { body } = result;
         expect(body).toBeInstanceOf(Array);
       });

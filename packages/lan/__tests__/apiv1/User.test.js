@@ -34,7 +34,7 @@ describe('User', () => {
         email: authUser.email,
         password: rawPassword,
       });
-      expect(result).not.toHaveRequestError();
+      expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('token');
     });
 
@@ -44,7 +44,7 @@ describe('User', () => {
     it('should get the user based on the current token', async () => {
       const userAgent = await baseApp.asUser(authUser);
       const result = await userAgent.get('/v1/user/me');
-      expect(result).not.toHaveRequestError();
+      expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('id', authUser.id);
     });
 
@@ -90,7 +90,7 @@ describe('User', () => {
       email: 'test123@user.com',
       password: 'abc',
     });
-    expect(result).not.toHaveRequestError();
+    expect(result).toHaveSucceeded();
 
     const { id, password } = result.body;
     expect(id).not.toBeNull();
@@ -107,7 +107,7 @@ describe('User', () => {
       email: 'email@user.com',
       password: '123',
     });
-    expect(baseResult).not.toHaveRequestError();
+    expect(baseResult).toHaveSucceeded();
     expect(baseResult.body).toHaveProperty('id');
     expect(baseResult.body).toHaveProperty('displayName', 'Alan');
     const id = baseResult.body.id;
@@ -115,7 +115,7 @@ describe('User', () => {
     const result = await adminApp.put(`/v1/user/${id}`).send({
       displayName: 'Brian',
     });
-    expect(result).not.toHaveRequestError();
+    expect(result).toHaveSucceeded();
     expect(result.body).toHaveProperty('displayName', 'Brian');
     const updatedUser = await models.User.findByPk(id);
     expect(updatedUser).toHaveProperty('displayName', 'Brian');
@@ -127,7 +127,7 @@ describe('User', () => {
       email: 'passwordy@user.com',
       password: '123',
     });
-    expect(baseResult).not.toHaveRequestError();
+    expect(baseResult).toHaveSucceeded();
     expect(baseResult.body).toHaveProperty('id');
     const id = baseResult.body.id;
     const user = await models.User.findByPk(id);
@@ -139,7 +139,7 @@ describe('User', () => {
       password: '999',
       displayName: 'Brian',
     });
-    expect(result).not.toHaveRequestError();
+    expect(result).toHaveSucceeded();
     expect(result.body).not.toHaveProperty('password');
     const updatedUser = await models.User.findByPk(id);
     expect(updatedUser).toHaveProperty('displayName', 'Brian');
