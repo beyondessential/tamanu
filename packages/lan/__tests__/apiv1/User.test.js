@@ -1,4 +1,5 @@
 import { createTestContext } from '../utilities';
+import { getToken } from 'lan/app/controllers/auth/middleware';
 
 const { baseApp, models } = createTestContext();
 
@@ -52,7 +53,12 @@ describe('User', () => {
       expect(result).toHaveRequestError();
     });
 
-    test.todo('should fail to get the user with an expired token');
+    it('should fail to get the user with an expired token', async () => {
+      const expiredToken = await getToken(authUser, '-1s');
+      const result = await baseApp.get('/v1/user/me')
+        .set('authorization', `Bearer ${expiredToken}`);
+      expect(result).toHaveRequestError();
+    });
 
     it('should fail to get the user with an invalid token', async () => {
       const result = await baseApp
