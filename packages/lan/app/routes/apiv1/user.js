@@ -2,12 +2,14 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { ForbiddenError } from 'Lan/app/errors';
+import { checkPermission } from 'Lan/app/controllers/auth/permission';
 import { simpleGet, simplePut, simplePost } from './crudHelpers';
 
 export const user = express.Router();
 
 user.get(
   '/me',
+  checkPermission(null), // a user can always access their own data
   asyncHandler(async (req, res) => {
     if (!req.user) {
       throw new ForbiddenError();
@@ -16,6 +18,8 @@ user.get(
   }),
 );
 
-user.get('/:id', simpleGet('User'));
-user.put('/:id', simplePut('User'));
-user.post('/$', simplePost('User'));
+user.get('/:id', checkPermission('getUserDetails'), simpleGet('User'));
+
+user.put('/:id', checkPermission('updateUserDetails'), simplePut('User'));
+
+user.post('/$', checkPermission('createUser'), simplePost('User'));

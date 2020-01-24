@@ -1,14 +1,13 @@
+import config from 'config';
 import { initDatabase } from './app/database';
 import { log } from './app/logging';
 
 import { createApp } from './createApp';
 
-import config from 'config';
-
 const port = config.port;
 
 export async function run() {
-  const { sequelize, models } = initDatabase({ 
+  const { sequelize, models } = initDatabase({
     testMode: false,
   });
 

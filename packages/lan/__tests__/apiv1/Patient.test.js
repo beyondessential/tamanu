@@ -1,17 +1,23 @@
 import { createDummyPatient } from 'Shared/demoData/patients';
-import { getTestContext } from '../utilities';
+import { createTestContext } from '../utilities';
 
-const app = getTestContext();
+const { baseApp, models } = createTestContext();
 
 describe('Patient', () => {
+  let app = null;
+  beforeAll(async () => {
+    app = await baseApp.withPermissions(['readPatient']);
+  });
+
   test.todo('should reject users with insufficient permissions');
   test.todo('should create an access record');
 
   test.todo('should get a list of patients matching a filter');
 
   it('should get the details of a patient', async () => {
-    const patient = await app.models.Patient.create(createDummyPatient());
+    const patient = await models.Patient.create(createDummyPatient());
     const result = await app.get(`/v1/patient/${patient.id}`);
+    expect(result).toHaveSucceeded();
     expect(result.body).toHaveProperty('displayId', patient.displayId);
     expect(result.body).toHaveProperty('firstName', patient.firstName);
     expect(result.body).toHaveProperty('lastName', patient.lastName);
@@ -28,7 +34,7 @@ describe('Patient', () => {
     it('should create a new patient', async () => {
       const patient = createDummyPatient();
       const result = await app.post('/v1/patient').send(patient);
-      expect(result).not.toHaveRequestError();
+      expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('displayId', patient.displayId);
       expect(result.body).toHaveProperty('firstName', patient.firstName);
       expect(result.body).toHaveProperty('lastName', patient.lastName);

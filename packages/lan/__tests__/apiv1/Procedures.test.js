@@ -1,6 +1,6 @@
-import { getTestContext } from '../utilities';
+import { createTestContext } from '../utilities';
 
-const app = getTestContext();
+const app = createTestContext();
 
 describe('Procedures', () => {
   test.todo('should record a procedure');
