@@ -1,5 +1,5 @@
 import { createTestContext } from '../utilities';
-import { ICD10_DIAGNOSES } from 'shared/demoData';
+import { ICD10_DIAGNOSES, TRIAGE_DIAGNOSES } from 'shared/demoData';
 
 const { baseApp, models } = createTestContext();
 
@@ -8,8 +8,10 @@ const testDiagnoses = ICD10_DIAGNOSES.slice(0, 50);
 describe('Suggestions', () => {
 
   beforeAll(async () => {
-    const tasks = testDiagnoses
-      .map(d => models.ReferenceData.create(d));
+    const tasks = [
+      ...testDiagnoses,
+      ...TRIAGE_DIAGNOSES
+    ].map(d => models.ReferenceData.create(d));
     await Promise.all(tasks);
   });
 
