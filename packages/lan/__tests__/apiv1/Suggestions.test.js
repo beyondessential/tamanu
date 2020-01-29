@@ -4,13 +4,14 @@ import { createTestContext } from '../utilities';
 const { baseApp, models } = createTestContext();
 
 const testDiagnoses = ICD10_DIAGNOSES.slice(0, 50);
+const testDrugs = DRUGS.slice(0, 50);
 
 describe('Suggestions', () => {
   beforeAll(async () => {
     const tasks = [
       ...testDiagnoses,
+      ...testDrugs,
       ...TRIAGE_DIAGNOSES,
-      ...DRUGS,
     ].map(d => models.ReferenceData.create(d));
     await Promise.all(tasks);
   });
