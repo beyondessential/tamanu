@@ -1,8 +1,7 @@
 import express from 'express';
-import { Op, QueryTypes } from 'sequelize';
+import { QueryTypes } from 'sequelize';
 
 import { checkPermission } from 'lan/app/controllers/auth/permission';
-import { simpleGet, simplePut, simplePost, simpleGetList } from './crudHelpers';
 
 export const suggestions = express.Router();
 
@@ -15,27 +14,30 @@ function simpleSuggester(modelName, whereSql, mapper) {
   return async (req, res) => {
     const { models, query } = req;
     const search = (query.q || '').trim().toLowerCase();
-    if(!search) {
+    if (!search) {
       res.send([]);
       return;
     }
 
     const model = models[modelName];
     const sequelize = model.sequelize;
-    const results = await sequelize.query(`
+    const results = await sequelize.query(
+      `
       SELECT * 
       FROM :tableName
       WHERE ${whereSql}
       LIMIT :limit
-    `, {
-      replacements: { 
-        tableName: model.tableName,
-        search: `%${search}%`,
-        limit,
+    `,
+      {
+        replacements: {
+          tableName: model.tableName,
+          search: `%${search}%`,
+          limit,
+        },
+        type: QueryTypes.SELECT,
+        model,
       },
-      type: QueryTypes.SELECT,
-      model,
-    });
+    );
 
     const listing = results.map(mapper);
     res.send(listing);

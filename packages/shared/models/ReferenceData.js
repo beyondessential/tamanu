@@ -10,7 +10,6 @@ const CODE_TYPES = [
 ];
 
 export class ReferenceData extends Model {
-
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -31,9 +30,8 @@ export class ReferenceData extends Model {
             name: 'code_by_type',
             fields: ['code', 'type'],
           },
-        ]
-      }
+        ],
+      },
     );
   }
-
 }

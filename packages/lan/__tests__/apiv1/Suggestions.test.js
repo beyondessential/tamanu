@@ -1,12 +1,11 @@
-import { createTestContext } from '../utilities';
 import { ICD10_DIAGNOSES, TRIAGE_DIAGNOSES, DRUGS } from 'shared/demoData';
+import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
 
 const testDiagnoses = ICD10_DIAGNOSES.slice(0, 50);
 
 describe('Suggestions', () => {
-
   beforeAll(async () => {
     const tasks = [
       ...testDiagnoses,
@@ -40,7 +39,7 @@ describe('Suggestions', () => {
     });
 
     it('should get a partial list of diagnoses with a specific query', async () => {
-      const count = testDiagnoses.filter(td => td.name.includes("bacterial")).length;
+      const count = testDiagnoses.filter(td => td.name.includes('bacterial')).length;
       expect(count).toBeLessThan(limit); // ensure we're actually testing filtering!
       const result = await baseApp.get('/v1/suggestions/icd10?q=bacterial');
       expect(result).toHaveSucceeded();
@@ -56,7 +55,6 @@ describe('Suggestions', () => {
       expect(body).toBeInstanceOf(Array);
       expect(body.length).toBeGreaterThan(0);
     });
-
   });
 
   it('should get suggestions for a medication', async () => {
@@ -65,6 +63,5 @@ describe('Suggestions', () => {
     const { body } = result;
     expect(body).toBeInstanceOf(Array);
     expect(body.length).toBeGreaterThan(0);
-  })
-
+  });
 });

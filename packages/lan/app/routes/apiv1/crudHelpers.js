@@ -1,4 +1,3 @@
-import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { NotFoundError } from 'lan/app/errors';
@@ -39,7 +38,6 @@ export const simpleGetList = (
     const limit = 10;
     // TODO: pagination param
     const offset = 0;
-    const order = undefined;
     const objects = await models[modelName].findAll({
       where: {
         ...(foreignKey && { [foreignKey]: params.id }),
