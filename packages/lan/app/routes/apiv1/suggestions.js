@@ -8,7 +8,9 @@ export const suggestions = express.Router();
 // suggestions don't need permissions checking
 suggestions.use(checkPermission(null));
 
-function simpleSuggester(modelName, whereSql, mapper) {
+const defaultMapper = ({ name, code, id }) => ({ name, code, id });
+
+function simpleSuggester(modelName, whereSql, mapper = defaultMapper) {
   const limit = 10;
 
   return async (req, res) => {
@@ -47,13 +49,11 @@ function simpleSuggester(modelName, whereSql, mapper) {
 suggestions.get('/icd10', simpleSuggester(
   'ReferenceData', 
   `name LIKE :search AND type = 'icd10'`,
-  ({ name, code, id }) => ({ name, code, id }),
 ));
 
 suggestions.get('/drug', simpleSuggester(
   'ReferenceData', 
   `name LIKE :search AND type = 'drug'`,
-  ({ name, code, id }) => ({ name, code, id }),
 ));
 
 
