@@ -7,10 +7,12 @@ import { user } from './user';
 import { patient } from './patient';
 import { visit } from './visit';
 import { vitals } from './vitals';
+import { suggestions } from './suggestions';
 
 export const apiv1 = express.Router();
 
 apiv1.post('/login', checkPermission(null), loginHandler);
+apiv1.use('/suggestions', suggestions);
 
 apiv1.use(authMiddleware);
 

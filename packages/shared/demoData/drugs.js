@@ -957,4 +957,4 @@ export const DRUGS = splitIds(`
   Zidovudine (zdv/azt) 250mg capsule
   Zidovudine (zdv/azt) 300mg tablet
   Zinc sulfate 20mg solid oral dosage form
-`);
+`).map(x => ({ ...x, type: 'drug' }));

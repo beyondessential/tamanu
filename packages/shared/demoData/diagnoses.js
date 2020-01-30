@@ -1,7 +1,7 @@
 import { splitIds } from './splitIds';
 import { ICD10_DIAGNOSES } from './icd10';
 
-const TRIAGE_DIAGNOSES = splitIds(`
+export const TRIAGE_DIAGNOSES = splitIds(`
  Cardiorespiratory arrest
  Abdominal pain/distension
  Abnormal behaviour/mental state
