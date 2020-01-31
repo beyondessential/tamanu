@@ -8,7 +8,10 @@ configure(() => {
   loadStories();
 }, module);
 
-const StorybookUIRoot = getStorybookUI({});
+const StorybookUIRoot = getStorybookUI({
+  asyncStorage: require('@react-native-community/async-storage').AsyncStorage,
+  disableWebsockets: true
+});
 
 AppRegistry.registerComponent('%APP_NAME%', () => StorybookUIRoot);
 

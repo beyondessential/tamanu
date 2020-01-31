@@ -1,6 +1,5 @@
 export interface PatientVitalsProps {
-  [key: string]: number | string;
-  id: number;
+  [key: string]: number | Date;
   bloodPressure: number;
   weight: number;
   circumference: number;
@@ -9,5 +8,5 @@ export interface PatientVitalsProps {
   fev: number;
   cholesterol: number;
   bloodGlucose: number;
-  date: string;
+  date: Date ;
 }

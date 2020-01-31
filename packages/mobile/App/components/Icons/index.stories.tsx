@@ -18,9 +18,9 @@ stories.add('ArrowDown', () => <Icons.ArrowDown />);
 stories.add('ArrowForward', () => <Icons.ArrowForward />);
 stories.add('ArrowUp', () => <Icons.ArrowUp />);
 stories.add('Avatar', () => <Icons.Avatar />);
-stories.add('Avatar_10', () => <Icons.Avatar_10 />);
-stories.add('Avatar_11', () => <Icons.Avatar_11 />);
-stories.add('Avatar_12', () => <Icons.Avatar_12 />);
+stories.add('Avatar_10', () => <Icons.Avatar10 />);
+stories.add('Avatar_11', () => <Icons.Avatar11 />);
+stories.add('Avatar_12', () => <Icons.Avatar12 />);
 stories.add('BarChart', () => (
   <CenterView width="100%" background={theme.colors.TEXT_DARK}>
     <Icons.BarChart />
@@ -47,7 +47,7 @@ stories.add('LogoV1', () => <Icons.LogoV1 />);
 stories.add('BottomNavLogo', () => <Icons.BottomNavLogo />);
 stories.add('LogoV1_CLR', () => <Icons.LogoV1CLR />);
 stories.add('LogoV2CLR', () => <Icons.LogoV2CLR />);
-stories.add('Logo_REV', () => <Icons.Logo_REV />);
+stories.add('LogoRev', () => <Icons.LogoRev />);
 stories.add('Medicine', () => <Icons.Medicine />);
 stories.add('More', () => <Icons.More />);
 stories.add('NotTaken', () => <Icons.NotTaken />);
@@ -60,6 +60,7 @@ stories.add('Question', () => <Icons.Question />);
 stories.add('Recruiter', () => <Icons.Recruiter />);
 stories.add('Ring', () => <Icons.Ring />);
 stories.add('RotatePhone', () => <Icons.RotatePhone />);
+stories.add('Scheduled Vaccine', () => <Icons.ScheduledVaccine />);
 stories.add('Settings', () => <Icons.Settings />);
 stories.add('Stethoscope', () => <Icons.Stethoscope />);
 stories.add('Sync', () => <Icons.Sync />);
@@ -79,3 +80,4 @@ stories.add('User with color', () => (
   />
 ));
 stories.add('Vaccine', () => <Icons.Vaccine />);
+stories.add('NullValueCell', () => <Icons.NullValueCell />);

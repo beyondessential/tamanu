@@ -1,35 +1,41 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import { StyledView, RowView } from '../../styled/common';
 import { TableData } from './TableData';
-import { TableTitle } from './TableTitle';
-import { RowHeaderCell } from './RowHeaderCell';
 
 export type Column = {
+  id?: string | number;
   key: string;
   title?: string;
-  accessor: any;
+  subtitle?: string;
+  accessor: (row: any, column?: any) => JSX.Element;
+  rowHeader: (row: any, column?: any) => JSX.Element;
 };
 
 interface TableProps {
-  title: string;
+  Title: FunctionComponent<any>;
   data: any;
   columns: Column[];
-  tableHeader: Column;
+  tableHeader: any;
+  columnKey: string;
 }
 
 export const Table = ({
-  title,
+  Title,
   data,
   columns,
   tableHeader,
+  columnKey,
 }: TableProps): JSX.Element => (
   <RowView>
     <StyledView>
-      <TableTitle title={title} />
-      {columns.map(c => (
-        <RowHeaderCell key={c.key}>{c.title}</RowHeaderCell>
-      ))}
+      <Title />
+      {columns.map(c => c.rowHeader(c))}
     </StyledView>
-    <TableData data={data} columns={columns} tableHeader={tableHeader} />
+    <TableData
+      columnKey={columnKey}
+      data={data}
+      columns={columns}
+      tableHeader={tableHeader}
+    />
   </RowView>
 );

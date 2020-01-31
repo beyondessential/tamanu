@@ -1,7 +1,5 @@
 import React from 'react';
 import { StyledView } from '../../styled/common';
-import { TableHeaderCell } from './TableHeaderCell';
-import { TableCell } from './TableCell';
 import { Column } from '.';
 
 interface TableColProps {
@@ -16,9 +14,7 @@ export const TableCol = ({
   tableHeader,
 }: TableColProps): JSX.Element => (
   <StyledView>
-    <TableHeaderCell>{tableHeader.accessor(row)}</TableHeaderCell>
-    {columns.map(c => (
-      <TableCell key={c.key}>{c.accessor(row)}</TableCell>
-    ))}
+    {tableHeader.accessor(row)}
+    {columns.map(c => c.accessor(row, c))}
   </StyledView>
 );

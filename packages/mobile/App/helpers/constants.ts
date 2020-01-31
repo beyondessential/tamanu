@@ -34,3 +34,17 @@ export const PatientVitalsList = [
   'cholesterol',
   'bloodGlucose',
 ];
+
+export const VaccineStatus = {
+  TAKEN: 'TAKEN',
+  TAKEN_NOT_ON_TIME: 'TAKEN_NOT_ON_TIME',
+  NOT_TAKEN: 'NOT_TAKEN',
+  SCHEDULED: 'SCHEDULED',
+};
+
+export const VaccineIcons = {
+  [VaccineStatus.TAKEN]: Icons.Checked,
+  [VaccineStatus.NOT_TAKEN]: Icons.NotTaken,
+  [VaccineStatus.TAKEN_NOT_ON_TIME]: Icons.TakenNotOnTime,
+  [VaccineStatus.SCHEDULED]: Icons.ScheduledVaccine,
+};

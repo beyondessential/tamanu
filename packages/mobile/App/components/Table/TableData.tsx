@@ -8,12 +8,14 @@ interface TableDataProps {
   data: any[];
   tableHeader: Column;
   columns: Column[];
+  columnKey: string
 }
 
 export const TableData = ({
   data,
   tableHeader,
   columns,
+  columnKey,
 }: TableDataProps): JSX.Element => (
   <ScrollView
     bounces={false}
@@ -22,12 +24,12 @@ export const TableData = ({
     horizontal
   >
     <RowView>
-      {data.map((d: any) => (
+      {data.map((dataEntry: any) => (
         <TableCol
+          key={dataEntry[columnKey]}
           tableHeader={tableHeader}
-          key={d.id}
           columns={columns}
-          row={d}
+          row={dataEntry}
         />
       ))}
     </RowView>

@@ -30,10 +30,8 @@ const StyledButton = styled.TouchableOpacity<StyledButtonProps>`
   justify-content: center;
   height: ${(props): StrNumType => (props.height ? props.height : '50px')};
   width: ${(props): StrNumType => (props.width ? props.width : '100%')};
-  border-width: ${(props): StrNumType =>
-    props.outline ? '1px' : props.borderWidth};
-  border-color: ${(props): string =>
-    props.borderColor || theme.colors.MAIN_SUPER_DARK};
+  border-width: ${(props): StrNumType => (props.outline ? '1px' : props.borderWidth)};
+  border-color: ${(props): string => props.borderColor || theme.colors.MAIN_SUPER_DARK};
   border-radius: ${(props): StrNumType => {
     if (props.borderRadius) {
       return props.borderRadius;
@@ -59,10 +57,8 @@ interface ButtonTextProps {
 }
 
 const StyledButtonText = styled.Text<ButtonTextProps>`
-  font-size: ${(props): StrNumType =>
-    props.fontSize ? props.fontSize : '16px'};
-  font-weight: ${(props): StrNumType =>
-    props.fontWeight ? props.fontWeight : 'bold'};
+  font-size: ${(props): StrNumType => (props.fontSize ? props.fontSize : '16px')};
+  font-weight: ${(props): StrNumType => (props.fontWeight ? props.fontWeight : 'bold')};
   color: ${(props): string => {
     if (props.outline) return props.borderColor || theme.colors.MAIN_SUPER_DARK;
     if (props.textColor) return props.textColor;

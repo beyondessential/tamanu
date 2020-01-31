@@ -83,6 +83,7 @@ interface StyledViewProps
   overflow?: string;
   pose?: string;
 }
+
 export const StyledView = styled.View<StyledViewProps>`  
   ${styledSystem.size}
   ${styledSystem.position}

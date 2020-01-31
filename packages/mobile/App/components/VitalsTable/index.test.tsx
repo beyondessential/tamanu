@@ -1,23 +1,15 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import {
-  patientHistoryList,
-  vitalsTableCols,
-  vitalsTableHeader,
-} from './fixtures';
+import { patientHistoryList } from './fixtures';
 import { PatientVitalsList } from '../../helpers/constants';
-import { Table } from '.';
+import { VitalsTable } from '.';
+import { vitalsTableCols } from './VitalsTableColumns';
 
 describe('<TableData />', () => {
   describe('Vitals Table', () => {
     const titleProp = 'Measures';
     const { getByText, queryAllByText } = render(
-      <Table
-        columns={vitalsTableCols}
-        title="Measures"
-        data={patientHistoryList}
-        tableHeader={vitalsTableHeader}
-      />,
+      <VitalsTable patientData={patientHistoryList} />,
     );
 
     it('should render table title', () => {
