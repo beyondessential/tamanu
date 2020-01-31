@@ -3,12 +3,12 @@ import * as styledSystem from 'styled-system';
 import { ReactNode } from 'react';
 
 const sizes = [];
-for (let i = 0; i < 5; i++) {
+for (let i = 0; i < 10; i++) {
   sizes.push(i);
 }
 
 export const themeSystem = {
-  fontSize: sizes,
+  fontSizes: sizes,
   marginLeft: sizes,
   space: sizes,
   marginRight: sizes,
@@ -59,6 +59,7 @@ interface FlexProps {
 }
 interface Borderprops {
   borderRadius?: number | string;
+  borderStyle?: 'dashed' | 'dotted' | 'solid';
   borderWidth?: number | string;
   borderColor?: string;
   borderLeftWidth?: number;
@@ -73,7 +74,7 @@ export interface StyledTextProps
     FlexProps,
     Borderprops,
     TextProps {}
-interface StyledViewProps
+export interface StyledViewProps
   extends PositionProps,
     SpacingProps,
     FlexProps,
@@ -92,7 +93,7 @@ export const StyledView = styled.View<StyledViewProps>`
   ${styledSystem.padding}  
   ${styledSystem.flexbox}     
   ${styledSystem.background}    
-  ${({ borderLeftWidth }) => `border-left-width: ${borderLeftWidth}` || 0};  
+  ${({ borderLeftWidth }): string | number => `border-left-width: ${borderLeftWidth}` || 0};  
   ${styledSystem.boxShadow}
   ${styledSystem.zIndex}
 `;
@@ -105,10 +106,10 @@ export const StyledSafeAreaView = styled.SafeAreaView<StyledViewProps>`
   ${styledSystem.background}
   ${styledSystem.overflow}       
   ${styledSystem.position}  
-  ${({ borderLeftWidth = 0 }) => `border-left-width: ${borderLeftWidth}`};
-  ${({ borderRightWidth = 0 }) => `border-right-width: ${borderRightWidth}`};
-  ${({ borderTopWidth = 0 }) => `border-top-width: ${borderTopWidth}`};
-  ${({ borderBottomWidth = 0 }) => `border-bottom-width: ${borderBottomWidth}`};
+  ${({ borderLeftWidth = 0 }): string => `border-left-width: ${borderLeftWidth}`};
+  ${({ borderRightWidth = 0 }): string => `border-right-width: ${borderRightWidth}`};
+  ${({ borderTopWidth = 0 }): string => `border-top-width: ${borderTopWidth}`};
+  ${({ borderBottomWidth = 0 }): string => `border-bottom-width: ${borderBottomWidth}`};
 `;
 
 export const StyledText = styled.Text<StyledTextProps>`

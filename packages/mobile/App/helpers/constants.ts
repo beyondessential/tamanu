@@ -3,6 +3,7 @@ import * as Icons from '../components/Icons';
 export const DateFormats = {
   short: 'EEE, dd MMM',
   DAY_MONTH_YEAR_SHORT: 'dd MMM yyyy',
+  DAY_MONTH: 'dd MMM',
   DDMMYY: 'dd/MM/yyyy',
 };
 
