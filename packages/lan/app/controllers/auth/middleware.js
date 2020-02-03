@@ -93,6 +93,7 @@ export const authMiddleware = async (req, res, next) => {
     return;
   }
 
+  // TODO: need to design which permissions go where
   req.ability = AbilityBuilder.define((allow, forbid) => {
     allow('read', 'all');
     allow('list', 'all');
