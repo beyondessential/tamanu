@@ -6,7 +6,10 @@ import { checkPermission } from 'lan/app/controllers/auth/permission';
 export const suggestions = express.Router();
 
 // suggestions don't need permissions checking
-suggestions.use(checkPermission(null));
+suggestions.use((req, res, next) => {
+  req.checkPermission(null);
+  next();
+});
 
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 

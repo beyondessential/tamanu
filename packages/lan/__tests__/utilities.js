@@ -26,7 +26,7 @@ export function extendExpect(expect) {
         };
       }
       return {
-        message: () => `Expected error status code, got ${statusCode}`,
+        message: () => `Expected error status code, got ${statusCode}. ${formatError(response)}`,
         pass,
       };
     },

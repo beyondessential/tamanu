@@ -1,53 +1,54 @@
 import { ForbiddenError, BadAuthenticationError } from 'lan/app/errors';
 
-// this middleware goes at the top of the middleware stack
-export function ensurePermissionCheck(req, res, next) {
-  res.hasCheckedPermission = false;
+const checkPermission = (req, action, subject) => {
+  if(!req.flagPermissionChecked) {
+    return;
+  }
 
-  const originalResSend = res.send;
-  res.send = (...args) => {
-    res.send = originalResSend;
-    if (!res.hasCheckedPermission) {
-      res.status(501).send({
-        error: {
-          name: 'NoPermissionCheckError',
-          message: 'No permission check was implemented for this endpoint.',
-        },
-      });
-      return;
-    }
-    res.send(...args);
-  };
-  next();
-}
-
-// this middleware should be used as part of each endpoint, for eg
-//  router.get('/sensitive/info', checkPermission('accessSensitiveInfo'), (req, res) => { ... });
-// or
-//  router.get('/public/info', checkPermission(null), (req, res) => { ... });
-export const checkPermission = permission => async (req, res, next) => {
-  res.hasCheckedPermission = true;
+  req.flagPermissionChecked();
 
   // allow a null permission to let things through - this means all endpoints
   // still need an explicit permission check, even if it's a null one!
-  if (!permission) {
-    next();
+  if (!action) {
     return;
   }
 
-  const { user } = req;
-  if (!user) {
+  const { ability } = req;
+  if (!ability) {
     // user must log in - 401
-    next(new BadAuthenticationError());
+    throw new BadAuthenticationError();
     return;
   }
 
-  const hasPermission = await user.hasPermission(permission);
+  const hasPermission = ability.can(action, subject);
   if (!hasPermission) {
     // user is logged in fine, they're just not allowed - 403
-    next(new ForbiddenError(permission));
-    return;
+    throw new ForbiddenError(action);
   }
+};
+
+// this middleware goes at the top of the middleware stack
+export function ensurePermissionCheck(req, res, next) {
+  const originalResSend = res.send;
+
+  req.checkPermission = (action, subject) => {
+    checkPermission(req, action, subject);
+  };
+
+  req.flagPermissionChecked = () => {
+    res.send = originalResSend;
+  };
+
+  res.send = (...args) => {
+    res.send = originalResSend;
+    res.status(501).send({
+      error: {
+        name: 'NoPermissionCheckError',
+        message: 'No permission check was implemented for this endpoint.',
+      },
+    });
+  };
 
   next();
-};
+}
+

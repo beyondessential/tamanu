@@ -2,6 +2,7 @@ import { sign, verify } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import { auth } from 'config';
 
+import { AbilityBuilder } from '@casl/ability';
 import { ForbiddenError, BadAuthenticationError } from 'lan/app/errors';
 
 const { tokenDuration, jwtSecretKey } = auth;
@@ -41,6 +42,9 @@ async function comparePassword(user, password) {
 export async function loginHandler(req, res, next) {
   const { body, models } = req;
   const { email, password } = body;
+
+  // no permission needed for login
+  req.flagPermissionChecked();
 
   const user = await models.User.findOne({ where: { email } });
   const passwordMatch = await comparePassword(user, password);
@@ -83,5 +87,27 @@ async function getUserFromToken(request) {
 export const authMiddleware = async (req, res, next) => {
   const user = await getUserFromToken(req);
   req.user = user;
+
+  if(!user) {
+    next();
+    return;
+  }
+
+  req.ability = AbilityBuilder.define((allow, forbid) => {
+    allow('read', 'all');
+
+    if(user.role === 'admin') {
+      allow('write', 'User');
+    } else {
+      allow('write', 'User', { id: user.id });
+    }
+
+    allow('write', 'Patient');
+    allow('write', 'Visit');
+
+    allow('create', 'all');
+    allow('list', 'all');
+  });
+
   next();
 };

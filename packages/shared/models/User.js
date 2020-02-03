@@ -48,6 +48,11 @@ export class User extends Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
+        role: {
+          type: Sequelize.STRING,
+          defaultValue: 'practitioner',
+          allowNull: false,
+        },
       },
       {
         ...options,

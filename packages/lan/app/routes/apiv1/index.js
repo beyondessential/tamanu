@@ -11,7 +11,7 @@ import { suggestions } from './suggestions';
 
 export const apiv1 = express.Router();
 
-apiv1.post('/login', checkPermission(null), loginHandler);
+apiv1.post('/login', loginHandler);
 apiv1.use('/suggestions', suggestions);
 
 apiv1.use(authMiddleware);

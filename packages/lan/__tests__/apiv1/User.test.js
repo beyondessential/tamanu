@@ -18,7 +18,9 @@ describe('User', () => {
   let adminApp = null;
 
   beforeAll(async () => {
-    adminUser = await models.User.create(createUser());
+    adminUser = await models.User.create(createUser({
+      role: 'admin',
+    }));
     adminApp = await baseApp.asUser(adminUser);
   });
 
