@@ -76,11 +76,12 @@ export function createTestContext() {
     return agent;
   };
 
-  baseApp.withPermissions = async permissions => {
+  baseApp.asRole = async role => {
     const newUser = await models.User.create({
       email: chance.email(),
       displayName: chance.name(),
       password: chance.string(),
+      role,
     });
 
     return await baseApp.asUser(newUser);

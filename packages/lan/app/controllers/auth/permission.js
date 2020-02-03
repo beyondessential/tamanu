@@ -1,7 +1,7 @@
 import { ForbiddenError, BadAuthenticationError } from 'lan/app/errors';
 
 const checkPermission = (req, action, subject) => {
-  if(!req.flagPermissionChecked) {
+  if (!req.flagPermissionChecked) {
     return;
   }
 
@@ -17,7 +17,6 @@ const checkPermission = (req, action, subject) => {
   if (!ability) {
     // user must log in - 401
     throw new BadAuthenticationError();
-    return;
   }
 
   const hasPermission = ability.can(action, subject);
@@ -51,4 +50,3 @@ export function ensurePermissionCheck(req, res, next) {
 
   next();
 }
-

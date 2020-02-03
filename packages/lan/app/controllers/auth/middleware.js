@@ -88,7 +88,7 @@ export const authMiddleware = async (req, res, next) => {
   const user = await getUserFromToken(req);
   req.user = user;
 
-  if(!user) {
+  if (!user) {
     next();
     return;
   }
@@ -96,7 +96,7 @@ export const authMiddleware = async (req, res, next) => {
   req.ability = AbilityBuilder.define((allow, forbid) => {
     allow('read', 'all');
 
-    if(user.role === 'admin') {
+    if (user.role === 'admin') {
       allow('write', 'User');
     } else {
       allow('write', 'User', { id: user.id });

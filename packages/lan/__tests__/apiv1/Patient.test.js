@@ -6,7 +6,7 @@ const { baseApp, models } = createTestContext();
 describe('Patient', () => {
   let app = null;
   beforeAll(async () => {
-    app = await baseApp.withPermissions(['readPatient']);
+    app = await baseApp.asRole('practitioner');
   });
 
   test.todo('should reject users with insufficient permissions');

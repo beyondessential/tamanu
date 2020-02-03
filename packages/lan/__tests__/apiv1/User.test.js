@@ -1,10 +1,9 @@
 import { getToken } from 'lan/app/controllers/auth/middleware';
+import Chance from 'chance';
 import { createTestContext } from '../utilities';
 
-import Chance from 'chance';
-
 const chance = new Chance();
-const createUser = (overrides) => ({
+const createUser = overrides => ({
   email: chance.email(),
   displayName: chance.name(),
   password: chance.word(),
@@ -18,10 +17,7 @@ describe('User', () => {
   let adminApp = null;
 
   beforeAll(async () => {
-    adminUser = await models.User.create(createUser({
-      role: 'admin',
-    }));
-    adminApp = await baseApp.asUser(adminUser);
+    adminApp = await baseApp.asRole('admin');
   });
 
   describe('auth', () => {
@@ -29,9 +25,11 @@ describe('User', () => {
     const rawPassword = 'PASSWORD';
 
     beforeAll(async () => {
-      authUser = await models.User.create(createUser({
-        password: rawPassword,
-      }));
+      authUser = await models.User.create(
+        createUser({
+          password: rawPassword,
+        }),
+      );
     });
 
     it('should obtain a valid login token', async () => {
@@ -105,9 +103,11 @@ describe('User', () => {
   });
 
   it('should change a name', async () => {
-    const newUser = await models.User.create(createUser({
-      displayName: 'Alan',
-    }));
+    const newUser = await models.User.create(
+      createUser({
+        displayName: 'Alan',
+      }),
+    );
     const id = newUser.id;
 
     const result = await adminApp.put(`/v1/user/${id}`).send({

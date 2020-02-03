@@ -8,7 +8,7 @@ describe('Visit', () => {
   let app = null;
   beforeAll(async () => {
     patient = await models.Patient.create(createDummyPatient());
-    app = await baseApp.withPermissions(['readVisit']);
+    app = await baseApp.asRole('practitioner');
   });
 
   test.todo('should reject a user with insufficient permissions');
