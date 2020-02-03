@@ -101,6 +101,16 @@ describe('User', () => {
     expect(createdUser).not.toHaveProperty('password', details.password);
   });
 
+  it('should not allow a non-admin to create a new user', async () => {
+    const userApp = await baseApp.asRole('practitioner');
+    const details = createUser();
+    const result = await userApp.post('/v1/user').send(details);
+    expect(result).toHaveRequestError();
+
+    const createdUser = await models.User.findOne({ where: { email: details.email } });
+    expect(createdUser).toBeFalsy();
+  });
+
   it('should change a name', async () => {
     const newUser = await models.User.create(
       createUser({
@@ -162,7 +172,7 @@ describe('User', () => {
     expect(updatedUser.password).not.toEqual(oldHashedPW);
   });
 
-  xit("should not allow a non-admin user to change someone else's password", async () => {
+  it("should not allow a non-admin user to change someone else's password", async () => {
     const details = createUser();
     const newUser = await models.User.create(details);
 

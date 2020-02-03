@@ -93,20 +93,25 @@ export const authMiddleware = async (req, res, next) => {
     return;
   }
 
-  req.ability = AbilityBuilder.define(allow => {
+  req.ability = AbilityBuilder.define((allow, forbid) => {
     allow('read', 'all');
+    allow('list', 'all');
+
+    allow('create', 'Patient');
+    allow('write', 'Patient');
+
+    allow('create', 'Visit');
+    allow('write', 'Visit');
+
+    allow('create', 'Vitals');
 
     if (user.role === 'admin') {
+      allow('create', 'User');
       allow('write', 'User');
     } else {
       allow('write', 'User', { id: user.id });
     }
 
-    allow('write', 'Patient');
-    allow('write', 'Visit');
-
-    allow('create', 'all');
-    allow('list', 'all');
   });
 
   next();
