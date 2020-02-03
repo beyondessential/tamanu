@@ -84,7 +84,7 @@ export function createTestContext() {
       role,
     });
 
-    return await baseApp.asUser(newUser);
+    return baseApp.asUser(newUser);
   };
 
   return { baseApp, sequelize, models };

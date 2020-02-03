@@ -3,7 +3,7 @@ import { compare } from 'bcrypt';
 import { auth } from 'config';
 
 import { AbilityBuilder } from '@casl/ability';
-import { ForbiddenError, BadAuthenticationError } from 'lan/app/errors';
+import { BadAuthenticationError } from 'lan/app/errors';
 
 const { tokenDuration, jwtSecretKey } = auth;
 
@@ -93,7 +93,7 @@ export const authMiddleware = async (req, res, next) => {
     return;
   }
 
-  req.ability = AbilityBuilder.define((allow, forbid) => {
+  req.ability = AbilityBuilder.define(allow => {
     allow('read', 'all');
 
     if (user.role === 'admin') {

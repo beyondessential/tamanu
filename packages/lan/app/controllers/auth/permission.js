@@ -38,7 +38,7 @@ export function ensurePermissionCheck(req, res, next) {
     res.send = originalResSend;
   };
 
-  res.send = (...args) => {
+  res.send = () => {
     res.send = originalResSend;
     res.status(501).send({
       error: {

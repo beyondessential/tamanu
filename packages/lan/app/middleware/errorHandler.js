@@ -18,6 +18,7 @@ function getCodeForErrorName(name) {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 export default function errorHandler(error, req, res, _) {
   const code = getCodeForErrorName(error.name);
   if (code >= 500) {

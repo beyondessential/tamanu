@@ -13,7 +13,6 @@ const createUser = overrides => ({
 const { baseApp, models } = createTestContext();
 
 describe('User', () => {
-  let adminUser = null;
   let adminApp = null;
 
   beforeAll(async () => {

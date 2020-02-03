@@ -1,7 +1,6 @@
 import express from 'express';
 
 import { loginHandler, authMiddleware } from 'lan/app/controllers/auth/middleware';
-import { checkPermission } from 'lan/app/controllers/auth/permission';
 
 import { user } from './user';
 import { patient } from './patient';
