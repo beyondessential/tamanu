@@ -1,4 +1,4 @@
-import { getToken } from 'lan/app/controllers/auth/middleware';
+import { getToken } from 'lan/app/middleware/auth';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
 

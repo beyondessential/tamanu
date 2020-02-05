@@ -3,7 +3,7 @@ import Chance from 'chance';
 
 import { createApp } from 'lan/createApp';
 import { initDatabase } from 'lan/app/database';
-import { getToken } from 'lan/app/controllers/auth/middleware';
+import { getToken } from 'lan/app/middleware/auth';
 
 const chance = new Chance();
 

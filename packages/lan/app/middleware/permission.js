@@ -1,4 +1,41 @@
 import { ForbiddenError, BadAuthenticationError } from 'lan/app/errors';
+import { AbilityBuilder } from '@casl/ability';
+
+export function constructPermission(req, res, next) {
+  const user = req.user;
+
+  if(!user) {
+    req.ability = AbilityBuilder.define((allow, forbid) => {
+      // no permissions
+    });
+    next();
+    return;
+  }
+
+  // TODO: need to design which permissions go where
+  req.ability = AbilityBuilder.define((allow, forbid) => {
+    allow('read', 'all');
+    allow('list', 'all');
+
+    allow('create', 'Patient');
+    allow('write', 'Patient');
+
+    allow('create', 'Visit');
+    allow('write', 'Visit');
+
+    allow('create', 'Vitals');
+
+    if (user.role === 'admin') {
+      allow('create', 'User');
+      allow('write', 'User');
+    } else {
+      allow('write', 'User', { id: user.id });
+    }
+
+  });
+
+  next();
+}
 
 const checkPermission = (req, action, subject) => {
   if (!req.flagPermissionChecked) {

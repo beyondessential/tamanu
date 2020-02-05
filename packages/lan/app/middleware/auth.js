@@ -2,7 +2,6 @@ import { sign, verify } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import { auth } from 'config';
 
-import { AbilityBuilder } from '@casl/ability';
 import { BadAuthenticationError } from 'lan/app/errors';
 
 const { tokenDuration, jwtSecretKey } = auth;
@@ -85,35 +84,5 @@ async function getUserFromToken(request) {
 }
 
 export const authMiddleware = async (req, res, next) => {
-  const user = await getUserFromToken(req);
-  req.user = user;
-
-  if (!user) {
-    next();
-    return;
-  }
-
-  // TODO: need to design which permissions go where
-  req.ability = AbilityBuilder.define((allow, forbid) => {
-    allow('read', 'all');
-    allow('list', 'all');
-
-    allow('create', 'Patient');
-    allow('write', 'Patient');
-
-    allow('create', 'Visit');
-    allow('write', 'Visit');
-
-    allow('create', 'Vitals');
-
-    if (user.role === 'admin') {
-      allow('create', 'User');
-      allow('write', 'User');
-    } else {
-      allow('write', 'User', { id: user.id });
-    }
-
-  });
-
-  next();
+  req.user = await getUserFromToken(req);
 };

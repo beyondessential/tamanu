@@ -1,7 +1,7 @@
 import express from 'express';
 import { apiv1 } from './apiv1';
 
-import { ensurePermissionCheck } from '../controllers/auth/permission';
+import { ensurePermissionCheck } from 'lan/app/middleware/permission';
 
 const router = express.Router();
 
