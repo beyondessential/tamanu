@@ -4,7 +4,7 @@ import { AbilityBuilder } from '@casl/ability';
 export function constructPermission(req, res, next) {
   const user = req.user;
 
-  if(!user) {
+  if (!user) {
     req.ability = AbilityBuilder.define((allow, forbid) => {
       // no permissions
     });
@@ -31,7 +31,6 @@ export function constructPermission(req, res, next) {
     } else {
       allow('write', 'User', { id: user.id });
     }
-
   });
 
   next();
