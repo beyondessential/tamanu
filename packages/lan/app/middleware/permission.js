@@ -40,9 +40,11 @@ export function constructPermission(req, res, next) {
     allow('write', 'Patient');
 
     allow('read', 'Visit');
+    allow('list', 'Visit');
     allow('create', 'Visit');
     allow('write', 'Visit');
 
+    allow('list', 'Vitals');
     allow('read', 'Vitals');
     allow('create', 'Vitals');
 
