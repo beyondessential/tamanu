@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
-import { BarChart } from 'react-native-svg-charts';
+import { BarChart, YAxis } from 'react-native-svg-charts';
 import { G, Line } from 'react-native-svg';
 import { DateFormats } from '../../helpers/constants';
 import { StyledView, StyledText, RowView } from '../../styled/common';
@@ -35,37 +35,6 @@ const CustomGrid = memo(
         )}
     </G>
   ),
-);
-const SideLabelsPercentage = [1, 0.8324, 0.6649, 0.5, 0.3329, 0];
-
-interface SideLabelsProps {
-  data: BarChartData [];
-}
-
-const SideLabels = memo(
-  ({ data }: SideLabelsProps): JSX.Element => {
-    const maxValue = Math.max(...data.map(d => d.value));
-    const markers = SideLabelsPercentage.map(percentValue => Math.round(percentValue * maxValue));
-
-    return (
-      <StyledView
-        paddingTop={screenPercentageToDP('4.03', Orientation.Height)}
-        paddingBottom={screenPercentageToDP('4.03', Orientation.Height)}
-        alignItems="center"
-        justifyContent="space-between"
-        paddingLeft={15}
-        paddingRight={15}
-      >
-        {
-      markers.map(label => (
-        <StyledText key={label} fontSize={screenPercentageToDP('1.6', Orientation.Height)}>
-          {label}
-        </StyledText>
-      ))
-    }
-      </StyledView>
-    );
-  },
 );
 
 const DateRangeIndexes = [
@@ -110,7 +79,7 @@ const DateRangeLabels = memo(({ data }: DateRangeLabelsProps) => {
       background="transparent"
       alignItems="center"
       justifyContent="space-around"
-      bottom="0%"
+      bottom="-15%"
     >
       {dateIntervalArray.map(dateInterval => (
         <StyledText
@@ -140,20 +109,19 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderColor: theme.colors.TEXT_DARK,
   },
+  yAxis: { marginRight: 10, marginLeft: 10, marginBottom: 10 },
 });
 
 const barStyle = {
   fill: theme.colors.BRIGHT_BLUE,
 };
 
-const barChartContentStyle = {
-  top: screenPercentageToDP(5, Orientation.Height),
-  bottom: screenPercentageToDP(5, Orientation.Height),
-};
-
 interface BarChartProps {
   data: BarChartData[];
 }
+
+const verticalContentInset = { top: 10, right: 0, bottom: 0 };
+const axesSvg = { fontSize: 12, fill: theme.colors.TEXT_DARK };
 
 export const VisitChart = memo(
   ({ data }: BarChartProps): JSX.Element => (
@@ -172,14 +140,20 @@ export const VisitChart = memo(
             data={data}
             svg={barStyle}
             spacingInner={0.2}
-            contentInset={barChartContentStyle}
-            gridMin={0}
           >
             <CustomGrid />
           </BarChart>
           <DateRangeLabels data={data} />
         </StyledView>
-        <SideLabels data={data} />
+        <YAxis
+          style={styles.yAxis}
+          yAccessor={(
+            { item }: { item: BarChartData },
+          ): number => item.value}
+          data={data}
+          contentInset={verticalContentInset}
+          svg={axesSvg}
+        />
       </RowView>
     </StyledView>
   ),

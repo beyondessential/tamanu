@@ -1,17 +1,76 @@
-import { normalizeVisitData } from '../../helpers/chart';
 
-const data = [
+
+export const yearlyData = [
+  {
+    date: new Date('01/1/2019'),
+    value: 600,
+  },
+  {
+    date: new Date('2/1/2019'),
+    value: 333,
+  },
+  {
+    date: new Date('3/1/2019'),
+    value: 266,
+  },
+  {
+    date: new Date('4/1/2019'),
+    value: 200,
+  },
+  {
+    date: new Date('5/1/2019'),
+    value: 133,
+  },
+  {
+    date: new Date('6/1/2019'),
+    value: 320,
+  },
+  {
+    date: new Date('7/1/2019'),
+    value: 160,
+  },
+  {
+    date: new Date('8/1/2019'),
+    value: 250,
+  },
+  {
+    date: new Date('9/1/2019'),
+    value: 180,
+  },
+  {
+    date: new Date('10/1/2019'),
+    value: 174,
+  },
+  {
+    date: new Date('11/1/2019'),
+    value: 233,
+  },
+  {
+    date: new Date('12/1/2019'),
+    value: 266,
+  },
+  {
+    date: new Date('1/1/2020'),
+    value: 288,
+  },
+  {
+    date: new Date('2/1/2020'),
+    value: 400,
+  },
+];
+
+export const visitData = [
   {
     date: new Date('8/16/2019'),
-    value: 60,
+    value: 95,
   },
   {
     date: new Date('8/17/2019'),
-    value: 23,
+    value: 60,
   },
   {
     date: new Date('8/18/2019'),
-    value: 27,
+    value: 30,
   },
   {
     date: new Date('8/19/2019'),
@@ -103,7 +162,7 @@ const data = [
   },
   {
     date: new Date('9/10/2019'),
-    value: 190,
+    value: 60,
   },
   {
     date: new Date('9/11/2019'),
@@ -114,5 +173,3 @@ const data = [
     value: 11,
   },
 ];
-
-export const visitData = normalizeVisitData(data);

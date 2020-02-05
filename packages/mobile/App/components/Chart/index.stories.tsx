@@ -3,7 +3,8 @@ import { storiesOf } from '@storybook/react-native';
 import { ThemeProvider } from 'styled-components/native';
 import { themeSystem, CenterView } from '../../styled/common';
 import { VisitChart } from './VisitChart';
-import { visitData } from './fixture';
+import { YearlyChart } from './YearlyChart';
+import { visitData, yearlyData } from './fixture';
 import { theme } from '../../styled/theme';
 
 storiesOf('Chart', module)
@@ -14,4 +15,5 @@ storiesOf('Chart', module)
       </CenterView>
     </ThemeProvider>
   ))
-  .add('BarChart', () => <VisitChart data={visitData} />);
+  .add('Monthly BarChart', () => <VisitChart data={visitData} />)
+  .add('Yearly BarChart', () => <YearlyChart data={yearlyData} />);

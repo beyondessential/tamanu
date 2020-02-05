@@ -5,6 +5,7 @@ export const DateFormats = {
   DAY_MONTH_YEAR_SHORT: 'dd MMM yyyy',
   DAY_MONTH: 'dd MMM',
   DDMMYY: 'dd/MM/yyyy',
+  SHORT_MONTH: 'MMM',
 };
 
 export const TimeFormats = {
