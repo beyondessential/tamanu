@@ -1,11 +1,14 @@
 import winston from 'winston';
+import config from 'config';
+
+const { logPath } = config;
 
 export const log = winston.createLogger({
   level: 'info',
   format: winston.format.json(),
-  transports: [
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' }),
+  transports: logPath && [
+    new winston.transports.File({ filename: `${logPath}/error.log`, level: 'error' }),
+    new winston.transports.File({ filename: `${logPath}/combined.log` }),
   ],
 });
 

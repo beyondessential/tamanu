@@ -2,7 +2,7 @@ import config from 'config';
 import { initDatabase } from './app/database';
 import { log } from './app/logging';
 
-import { createApp } from './createApp';
+import { createApp } from './app/createApp';
 
 const port = config.port;
 
