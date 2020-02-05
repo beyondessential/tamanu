@@ -3,18 +3,13 @@ import { QueryTypes } from 'sequelize';
 
 export const suggestions = express.Router();
 
-// suggestions don't need permissions checking
-suggestions.use((req, res, next) => {
-  req.checkPermission(null);
-  next();
-});
-
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
 function simpleSuggester(modelName, whereSql, mapper = defaultMapper) {
   const limit = 10;
 
   return async (req, res) => {
+    req.checkPermission('list', modelName);
     const { models, query } = req;
     const search = (query.q || '').trim().toLowerCase();
     if (!search) {
