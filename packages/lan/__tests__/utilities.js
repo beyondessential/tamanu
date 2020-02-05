@@ -3,7 +3,7 @@ import Chance from 'chance';
 
 import { createApp } from 'lan/createApp';
 import { initDatabase } from 'lan/app/database';
-import { getToken } from 'lan/app/controllers/auth/middleware';
+import { getToken } from 'lan/app/middleware/auth';
 
 const chance = new Chance();
 
@@ -26,7 +26,7 @@ export function extendExpect(expect) {
         };
       }
       return {
-        message: () => `Expected error status code, got ${statusCode}`,
+        message: () => `Expected error status code, got ${statusCode}. ${formatError(response)}`,
         pass,
       };
     },
@@ -76,14 +76,15 @@ export function createTestContext() {
     return agent;
   };
 
-  baseApp.withPermissions = async permissions => {
+  baseApp.asRole = async role => {
     const newUser = await models.User.create({
       email: chance.email(),
       displayName: chance.name(),
       password: chance.string(),
+      role,
     });
 
-    return await baseApp.asUser(newUser);
+    return baseApp.asUser(newUser);
   };
 
   return { baseApp, sequelize, models };

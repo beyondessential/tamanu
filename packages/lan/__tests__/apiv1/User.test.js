@@ -1,20 +1,22 @@
-import { getToken } from 'lan/app/controllers/auth/middleware';
+import { getToken } from 'lan/app/middleware/auth';
+import Chance from 'chance';
 import { createTestContext } from '../utilities';
+
+const chance = new Chance();
+const createUser = overrides => ({
+  email: chance.email(),
+  displayName: chance.name(),
+  password: chance.word(),
+  ...overrides,
+});
 
 const { baseApp, models } = createTestContext();
 
 describe('User', () => {
-  let adminUser = null;
   let adminApp = null;
 
   beforeAll(async () => {
-    adminUser = await models.User.create({
-      email: 'admin@test.com',
-      displayName: 'Test',
-      password: 'admin',
-    });
-
-    adminApp = await baseApp.asUser(adminUser);
+    adminApp = await baseApp.asRole('admin');
   });
 
   describe('auth', () => {
@@ -22,11 +24,11 @@ describe('User', () => {
     const rawPassword = 'PASSWORD';
 
     beforeAll(async () => {
-      authUser = await models.User.create({
-        email: 'test@test.com',
-        displayName: 'Test',
-        password: rawPassword,
-      });
+      authUser = await models.User.create(
+        createUser({
+          password: rawPassword,
+        }),
+      );
     });
 
     it('should obtain a valid login token', async () => {
@@ -86,11 +88,8 @@ describe('User', () => {
   });
 
   it('should create a new user', async () => {
-    const result = await adminApp.post('/v1/user').send({
-      displayName: 'Test New',
-      email: 'test123@user.com',
-      password: 'abc',
-    });
+    const details = createUser();
+    const result = await adminApp.post('/v1/user').send(details);
     expect(result).toHaveSucceeded();
 
     const { id, password } = result.body;
@@ -98,20 +97,27 @@ describe('User', () => {
     expect(password).toBeUndefined();
 
     const createdUser = await models.User.findByPk(id);
-    expect(createdUser).toHaveProperty('displayName', 'Test New');
-    expect(createdUser).not.toHaveProperty('password', 'abc');
+    expect(createdUser).toHaveProperty('displayName', details.displayName);
+    expect(createdUser).not.toHaveProperty('password', details.password);
+  });
+
+  it('should not allow a non-admin to create a new user', async () => {
+    const userApp = await baseApp.asRole('practitioner');
+    const details = createUser();
+    const result = await userApp.post('/v1/user').send(details);
+    expect(result).toHaveRequestError();
+
+    const createdUser = await models.User.findOne({ where: { email: details.email } });
+    expect(createdUser).toBeFalsy();
   });
 
   it('should change a name', async () => {
-    const baseResult = await adminApp.post('/v1/user').send({
-      displayName: 'Alan',
-      email: 'email@user.com',
-      password: '123',
-    });
-    expect(baseResult).toHaveSucceeded();
-    expect(baseResult.body).toHaveProperty('id');
-    expect(baseResult.body).toHaveProperty('displayName', 'Alan');
-    const id = baseResult.body.id;
+    const newUser = await models.User.create(
+      createUser({
+        displayName: 'Alan',
+      }),
+    );
+    const id = newUser.id;
 
     const result = await adminApp.put(`/v1/user/${id}`).send({
       displayName: 'Brian',
@@ -122,31 +128,60 @@ describe('User', () => {
     expect(updatedUser).toHaveProperty('displayName', 'Brian');
   });
 
-  it('should change a password', async () => {
-    const baseResult = await adminApp.post('/v1/user').send({
-      displayName: 'Alan',
-      email: 'passwordy@user.com',
-      password: '123',
-    });
-    expect(baseResult).toHaveSucceeded();
-    expect(baseResult.body).toHaveProperty('id');
-    const id = baseResult.body.id;
-    const user = await models.User.findByPk(id);
-    const oldpw = user.password;
-    expect(oldpw).toBeTruthy();
-    expect(oldpw).not.toEqual('123');
+  it('should allow an admin to change a password', async () => {
+    const details = createUser();
+    const newUser = await models.User.create(details);
+    const id = newUser.id;
 
-    const result = await adminApp.put(`/v1/user/${id}`).send({
-      password: '999',
-      displayName: 'Brian',
-    });
+    const user = await models.User.findByPk(id);
+    const oldHashedPW = user.password;
+    expect(oldHashedPW).toBeTruthy();
+    expect(oldHashedPW).not.toEqual(details.password);
+
+    const newPassword = '000';
+    const result = await adminApp.put(`/v1/user/${id}`).send({ password: newPassword });
     expect(result).toHaveSucceeded();
     expect(result.body).not.toHaveProperty('password');
     const updatedUser = await models.User.findByPk(id);
-    expect(updatedUser).toHaveProperty('displayName', 'Brian');
+    expect(updatedUser).toHaveProperty('displayName', details.displayName);
     expect(updatedUser.password).toBeTruthy();
-    expect(updatedUser.password).not.toEqual('999');
-    expect(updatedUser.password).not.toEqual(oldpw);
+    expect(updatedUser.password).not.toEqual(details.newPassword);
+    expect(updatedUser.password).not.toEqual(oldHashedPW);
+  });
+
+  it('should allow a non-admin user to change their own password', async () => {
+    const details = createUser();
+    const newUser = await models.User.create(details);
+    const id = newUser.id;
+
+    const user = await models.User.findByPk(id);
+    const oldHashedPW = user.password;
+    expect(oldHashedPW).toBeTruthy();
+    expect(oldHashedPW).not.toEqual(details.password);
+
+    const userAgent = await baseApp.asUser(newUser);
+    const newPassword = '000';
+    const result = await userAgent.put(`/v1/user/${id}`).send({ password: newPassword });
+    expect(result).toHaveSucceeded();
+    expect(result.body).not.toHaveProperty('password');
+
+    const updatedUser = await models.User.findByPk(id);
+    expect(updatedUser).toHaveProperty('displayName', details.displayName);
+    expect(updatedUser.password).toBeTruthy();
+    expect(updatedUser.password).not.toEqual(details.newPassword);
+    expect(updatedUser.password).not.toEqual(oldHashedPW);
+  });
+
+  it("should not allow a non-admin user to change someone else's password", async () => {
+    const details = createUser();
+    const newUser = await models.User.create(details);
+
+    const userAgent = await baseApp.asUser(newUser);
+
+    const otherUser = await models.User.create(createUser());
+
+    const result = await userAgent.put(`/v1/user/${otherUser.id}`).send({ password: '123' });
+    expect(result).toHaveRequestError();
   });
 
   it('should fail to create a user without an email', async () => {

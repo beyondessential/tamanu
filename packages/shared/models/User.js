@@ -9,10 +9,6 @@ export class User extends Model {
     return otherValues;
   }
 
-  async hasPermission(permission) {
-    return true;
-  }
-
   async setPassword(pw) {
     const hashedPassword = await hash(pw, SALT_ROUNDS);
     this.password = hashedPassword;
@@ -46,6 +42,11 @@ export class User extends Model {
         password: Sequelize.STRING,
         displayName: {
           type: Sequelize.STRING,
+          allowNull: false,
+        },
+        role: {
+          type: Sequelize.STRING,
+          defaultValue: 'practitioner',
           allowNull: false,
         },
       },

@@ -2,7 +2,7 @@ import { sign, verify } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import { auth } from 'config';
 
-import { ForbiddenError, BadAuthenticationError } from 'lan/app/errors';
+import { BadAuthenticationError } from 'lan/app/errors';
 
 const { tokenDuration, jwtSecretKey } = auth;
 
@@ -41,6 +41,9 @@ async function comparePassword(user, password) {
 export async function loginHandler(req, res, next) {
   const { body, models } = req;
   const { email, password } = body;
+
+  // no permission needed for login
+  req.flagPermissionChecked();
 
   const user = await models.User.findOne({ where: { email } });
   const passwordMatch = await comparePassword(user, password);
@@ -81,7 +84,6 @@ async function getUserFromToken(request) {
 }
 
 export const authMiddleware = async (req, res, next) => {
-  const user = await getUserFromToken(req);
-  req.user = user;
+  req.user = await getUserFromToken(req);
   next();
 };
