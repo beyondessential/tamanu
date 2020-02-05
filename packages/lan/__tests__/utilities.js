@@ -1,7 +1,7 @@
 import supertest from 'supertest';
 import Chance from 'chance';
 
-import { createApp } from 'lan/createApp';
+import { createApp } from 'lan/app/createApp';
 import { initDatabase } from 'lan/app/database';
 import { getToken } from 'lan/app/middleware/auth';
 

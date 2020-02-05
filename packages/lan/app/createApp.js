@@ -3,10 +3,10 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import compression from 'compression';
 
-import routes from './app/routes';
-import errorHandler from './app/middleware/errorHandler';
+import routes from './routes';
+import errorHandler from './middleware/errorHandler';
 
-import { log } from './app/logging';
+import { log } from './logging';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
