@@ -85,4 +85,5 @@ async function getUserFromToken(request) {
 
 export const authMiddleware = async (req, res, next) => {
   req.user = await getUserFromToken(req);
+  next();
 };
