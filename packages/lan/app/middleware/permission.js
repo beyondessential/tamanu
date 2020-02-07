@@ -48,6 +48,11 @@ export function constructPermission(req, res, next) {
     allow('read', 'Vitals');
     allow('create', 'Vitals');
 
+    allow('read', 'VisitDiagnosis');
+    allow('write', 'VisitDiagnosis');
+    allow('create', 'VisitDiagnosis');
+    allow('list', 'VisitDiagnosis');
+
     if (user.role === 'admin') {
       allow('create', 'User');
       allow('write', 'User');

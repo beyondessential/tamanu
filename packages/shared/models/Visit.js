@@ -34,7 +34,6 @@ export class Visit extends Model {
     // this.hasOne(models.Department);
 
     // this.hasMany(models.Medication);
-    // this.hasMany(models.Diagnosis);
     // this.hasMany(models.LabRequest);
     // this.hasMany(models.ImagingRequest);
     // this.hasMany(models.Note);

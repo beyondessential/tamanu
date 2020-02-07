@@ -5,3 +5,4 @@ export * from './Visit';
 export * from './ReferenceData';
 
 export * from './Vitals';
+export * from './VisitDiagnosis';

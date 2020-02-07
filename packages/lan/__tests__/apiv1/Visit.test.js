@@ -91,8 +91,52 @@ describe('Visit', () => {
       test.todo('should not admit a patient who is dead');
     });
 
-    test.todo('should record a diagnosis');
-    test.todo('should update a diagnosis');
+    describe('diagnoses', () => {
+
+      let diagnosisVisit = null;
+      let testDiagnosis = null;
+
+      beforeAll(async () => {
+        diagnosisVisit = await models.Visit.create({
+          ...createDummyVisit(),
+          patientId: patient.id,
+          reasonForVisit: 'diagnosis test',
+        });
+
+        testDiagnosis = await models.ReferenceData.create({
+          type: 'icd10',
+          name: 'Malady',
+          code: 'malady',
+        });
+      });
+
+      it('should record a diagnosis', async () => {
+        const result = await app.post('/v1/diagnosis').send({
+          visitId: diagnosisVisit.id,
+          diagnosisId: testDiagnosis.id,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.date).toBeTruthy();
+      });
+
+      it('should get diagnoses for a visit', async () => {
+        const result = await app.get(`/v1/visit/${diagnosisVisit.id}/diagnoses`);
+        expect(result).toHaveSucceeded();
+        const { body } = result;
+        expect(body).toBeInstanceOf(Array);
+        expect(body[0].diagnosisId).toEqual(testDiagnosis.id);
+      });
+
+      it('should get diagnosis reference info when listing visits', async () => {
+        const result = await app.get(`/v1/visit/${diagnosisVisit.id}/diagnoses`);
+        expect(result).toHaveSucceeded();
+        const { body } = result;
+        expect(body).toBeInstanceOf(Array);
+        expect(body[0].Diagnosis.name).toEqual('Malady');
+        expect(body[0].Diagnosis.code).toEqual('malady');
+      });
+
+    });
 
     describe('vitals', () => {
       let vitalsVisit = null;
