@@ -42,7 +42,6 @@ describe('Visit', () => {
   });
 
   test.todo('should get a list of diagnoses');
-  test.todo('should get a list of vitals readings');
   test.todo('should get a list of notes');
   test.todo('should get a list of procedures');
   test.todo('should get a list of lab requests');
