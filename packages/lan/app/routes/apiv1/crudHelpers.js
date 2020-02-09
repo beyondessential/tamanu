@@ -5,7 +5,10 @@ import { NotFoundError } from 'lan/app/errors';
 export const simpleGet = modelName =>
   asyncHandler(async (req, res) => {
     const { models, params } = req;
-    const object = await models[modelName].findByPk(params.id);
+    const model = models[modelName];
+    const object = await model.findByPk(params.id, {
+      include: model.getEagerAssociations(),
+    });
     req.checkPermission('read', object);
     if (!object) throw new NotFoundError();
     res.send(object);
@@ -53,8 +56,7 @@ export const simpleGetList = (
       order,
       limit,
       offset,
-      include: model.getEagerAssociations
-       && model.getEagerAssociations(models),
+      include: model.getEagerAssociations(models),
     });
 
     res.send(objects);
