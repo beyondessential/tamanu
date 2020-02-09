@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import { AVPU_OPTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class VisitDiagnosis extends Model {
@@ -53,9 +52,11 @@ export class VisitDiagnosis extends Model {
   }
 
   static getEagerAssociations(models) {
-    return [{
-      model: models.ReferenceData,
-      as: 'Diagnosis',
-    }];
+    return [
+      {
+        model: models.ReferenceData,
+        as: 'Diagnosis',
+      },
+    ];
   }
 }

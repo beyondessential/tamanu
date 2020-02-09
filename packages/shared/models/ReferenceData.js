@@ -1,14 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 
-const CODE_TYPES = [
-  'icd10',
-  'allergy',
-  'condition',
-  'triage',
-  'procedure',
-  'drug',
-];
+const CODE_TYPES = ['icd10', 'allergy', 'condition', 'triage', 'procedure', 'drug'];
 
 export class ReferenceData extends Model {
   static init({ primaryKey, ...options }) {

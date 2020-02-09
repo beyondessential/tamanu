@@ -1,7 +1,5 @@
 import express from 'express';
 
-import { ReferenceData } from 'shared/models';
-
 import { simpleGet, simplePut, simplePost, simpleGetList } from './crudHelpers';
 
 export const visit = express.Router();

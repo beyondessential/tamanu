@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { Model } from './Model';
 import { VISIT_TYPES } from 'shared/constants';
+import { Model } from './Model';
 
 export class Visit extends Model {
   static init({ primaryKey, ...options }) {

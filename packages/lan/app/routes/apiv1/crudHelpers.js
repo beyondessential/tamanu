@@ -32,15 +32,8 @@ export const simplePost = modelName =>
     res.send(object);
   });
 
-export const simpleGetList = (
-  modelName,
-  foreignKey = '',
-  options = {},
-) => {
-  const {
-    order,
-    additionalFilters = {},
-  } = options;
+export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
+  const { order, additionalFilters = {} } = options;
 
   return asyncHandler(async (req, res) => {
     const { models, params, query } = req;

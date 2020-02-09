@@ -20,7 +20,7 @@ export function constructPermission(req, res, next) {
   const user = req.user;
 
   if (!user) {
-    req.ability = AbilityBuilder.define((allow, forbid) => {
+    req.ability = AbilityBuilder.define(() => {
       // no permissions
     });
     next();
@@ -88,7 +88,8 @@ const checkPermission = (req, action, subject, field = '') => {
   if (!hasPermission) {
     // user is logged in fine, they're just not allowed - 403
     const rule = ability.relevantRuleFor(action, subject, field);
-    const reason = (rule && rule.reason) || `Cannot perform action "${action}" on ${getSubjectName(subject)}.`;
+    const reason =
+      (rule && rule.reason) || `Cannot perform action "${action}" on ${getSubjectName(subject)}.`;
     throw new ForbiddenError(reason);
   }
 };

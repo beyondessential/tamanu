@@ -2,7 +2,6 @@ import { hash } from 'bcrypt';
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 
-
 const SALT_ROUNDS = 10;
 
 export class User extends Model {

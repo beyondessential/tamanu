@@ -92,7 +92,6 @@ describe('Visit', () => {
     });
 
     describe('diagnoses', () => {
-
       let diagnosisVisit = null;
       let testDiagnosis = null;
 
@@ -135,7 +134,6 @@ describe('Visit', () => {
         expect(body[0].name).toEqual('Malady');
         expect(body[0].code).toEqual('malady');
       });
-
     });
 
     describe('vitals', () => {
