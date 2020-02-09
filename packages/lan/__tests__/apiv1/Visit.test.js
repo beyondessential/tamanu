@@ -132,8 +132,8 @@ describe('Visit', () => {
         expect(result).toHaveSucceeded();
         const { body } = result;
         expect(body).toBeInstanceOf(Array);
-        expect(body[0].Diagnosis.name).toEqual('Malady');
-        expect(body[0].Diagnosis.code).toEqual('malady');
+        expect(body[0].name).toEqual('Malady');
+        expect(body[0].code).toEqual('malady');
       });
 
     });
