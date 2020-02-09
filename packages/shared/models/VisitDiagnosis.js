@@ -1,5 +1,6 @@
-import { Sequelize, Model } from 'sequelize';
+import { Sequelize } from 'sequelize';
 import { AVPU_OPTIONS } from 'shared/constants';
+import { Model } from './Model';
 
 export class VisitDiagnosis extends Model {
   static init({ primaryKey, ...options }) {

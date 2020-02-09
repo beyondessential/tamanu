@@ -1,4 +1,5 @@
-import { Sequelize, Model } from 'sequelize';
+import { Sequelize } from 'sequelize';
+import { Model } from './Model';
 
 const CODE_TYPES = [
   'icd10',

@@ -1,4 +1,5 @@
-import { Sequelize, Model } from 'sequelize';
+import { Sequelize } from 'sequelize';
+import { Model } from './Model';
 import { VISIT_TYPES } from 'shared/constants';
 
 export class Visit extends Model {
