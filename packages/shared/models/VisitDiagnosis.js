@@ -51,7 +51,7 @@ export class VisitDiagnosis extends Model {
     });
   }
 
-  static getEagerAssociations(models) {
+  static getReferenceAssociations(models) {
     return [
       {
         model: models.ReferenceData,

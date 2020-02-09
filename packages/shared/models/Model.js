@@ -11,7 +11,7 @@ export class Model extends sequelize.Model {
     return this.forResponse();
   }
 
-  static getEagerAssociations() {
+  static getReferenceAssociations() {
     return undefined;
   }
 }

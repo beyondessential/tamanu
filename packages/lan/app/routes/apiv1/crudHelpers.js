@@ -7,7 +7,7 @@ export const simpleGet = modelName =>
     const { models, params } = req;
     const model = models[modelName];
     const object = await model.findByPk(params.id, {
-      include: model.getEagerAssociations(),
+      include: model.getReferenceAssociations(),
     });
     req.checkPermission('read', object);
     if (!object) throw new NotFoundError();
@@ -49,7 +49,7 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
       order,
       limit,
       offset,
-      include: model.getEagerAssociations(models),
+      include: model.getReferenceAssociations(models),
     });
 
     res.send(objects);
