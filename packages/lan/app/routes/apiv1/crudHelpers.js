@@ -5,7 +5,10 @@ import { NotFoundError } from 'lan/app/errors';
 export const simpleGet = modelName =>
   asyncHandler(async (req, res) => {
     const { models, params } = req;
-    const object = await models[modelName].findByPk(params.id);
+    const model = models[modelName];
+    const object = await model.findByPk(params.id, {
+      include: model.getReferenceAssociations(),
+    });
     req.checkPermission('read', object);
     if (!object) throw new NotFoundError();
     res.send(object);
@@ -29,17 +32,15 @@ export const simplePost = modelName =>
     res.send(object);
   });
 
-export const simpleGetList = (
-  modelName,
-  foreignKey = '',
-  order = undefined,
-  additionalFilters = {},
-) =>
-  asyncHandler(async (req, res) => {
+export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
+  const { order, additionalFilters = {} } = options;
+
+  return asyncHandler(async (req, res) => {
     const { models, params, query } = req;
     const { limit = 10, offset = 0 } = query;
     req.checkPermission('list', modelName);
 
+    const model = models[modelName];
     const objects = await models[modelName].findAll({
       where: {
         ...(foreignKey && { [foreignKey]: params.id }),
@@ -48,6 +49,9 @@ export const simpleGetList = (
       order,
       limit,
       offset,
+      include: model.getReferenceAssociations(models),
     });
+
     res.send(objects);
   });
+};

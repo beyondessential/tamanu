@@ -1,5 +1,6 @@
-import { Sequelize, Model } from 'sequelize';
+import { Sequelize } from 'sequelize';
 import { VISIT_TYPES } from 'shared/constants';
+import { Model } from './Model';
 
 export class Visit extends Model {
   static init({ primaryKey, ...options }) {
@@ -34,7 +35,6 @@ export class Visit extends Model {
     // this.hasOne(models.Department);
 
     // this.hasMany(models.Medication);
-    // this.hasMany(models.Diagnosis);
     // this.hasMany(models.LabRequest);
     // this.hasMany(models.ImagingRequest);
     // this.hasMany(models.Note);

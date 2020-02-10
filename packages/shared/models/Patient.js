@@ -1,4 +1,5 @@
-import { Sequelize, Model } from './Model';
+import { Sequelize } from 'sequelize';
+import { Model } from './Model';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
