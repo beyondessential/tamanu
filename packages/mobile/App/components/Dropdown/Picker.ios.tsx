@@ -4,7 +4,7 @@ import { Picker, StyleSheet } from 'react-native';
 import posed from 'react-native-pose';
 import { StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
-import { DropdownItem } from '.';
+import { SelectOption } from '.';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 const StyledPicker = styled.Picker`
@@ -14,19 +14,26 @@ const StyledPicker = styled.Picker`
 
 const AnimatedView = posed.View({
   open: {
-    bottom: 0,
+    opacity: 1,
+    y: screenPercentageToDP(70, Orientation.Height),
+    transition: {
+      opacity: { ease: 'easeOut', duration: 150 },
+      default: { ease: 'linear', duration: 150 },
+    },
   },
   closed: {
-    bottom: '-50%',
+    y: screenPercentageToDP(100, Orientation.Height),
+    opacity: 0,
   },
 });
 
 interface PickerPropsIOS {
-  items: DropdownItem[];
+  items: SelectOption[];
   open: boolean;
   onChange: Function;
-  selectedItem: DropdownItem | null;
+  selectedItem: SelectOption | null;
   closeModal: () => void;
+  disabled?: boolean;
 }
 
 const iosPickerStyles = StyleSheet.create({
@@ -36,7 +43,7 @@ const iosPickerStyles = StyleSheet.create({
 });
 
 export const IOSPicker = React.memo(
-  ({ items, open, onChange, selectedItem }: PickerPropsIOS) => (
+  ({ items, open, onChange, selectedItem, disabled }: PickerPropsIOS) => (
     <StyledView
       as={AnimatedView}
       pose={open ? 'open' : 'closed'}
@@ -50,13 +57,14 @@ export const IOSPicker = React.memo(
     >
       <StyledPicker
         testID="ios-picker"
+        enabled={!disabled}
         itemStyle={iosPickerStyles.itemPicker}
         selectedValue={selectedItem ? selectedItem.value : null}
         onValueChange={(value): void => {
           onChange(items.find(item => item.value === value));
         }}
       >
-        {items.map((item: DropdownItem) => (
+        {items.map((item: SelectOption) => (
           <Picker.Item
             testID={item.value}
             color={theme.colors.TEXT_DARK}

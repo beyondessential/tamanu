@@ -1,5 +1,5 @@
 import React, { useState, useRef, Ref } from 'react';
-import { TextInput, KeyboardType, StyleSheet } from 'react-native';
+import { TextInput, KeyboardType, StyleSheet, Platform } from 'react-native';
 import { InputContainer, StyledTextInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '../../styled/common';
@@ -18,7 +18,9 @@ export interface TextFieldProps {
   placeholder?: '' | string;
   error?: '' | string;
   multiline?: boolean;
+  disabled?: boolean;
 }
+
 
 const styles = StyleSheet.create({
   textinput: {
@@ -34,6 +36,7 @@ export const TextField = React.memo(
     error,
     keyboardType,
     multiline,
+    disabled,
   }: TextFieldProps): JSX.Element => {
     const [focused, setFocus] = useState(false);
     const inputRef: Ref<TextInput> = useRef(null);
@@ -56,7 +59,8 @@ export const TextField = React.memo(
       value,
       focused,
       multiline,
-      style: styles.textinput,
+      editable: !disabled,
+      style: multiline ? styles.textinput : null,
     };
 
     return (
@@ -68,7 +72,16 @@ export const TextField = React.memo(
         }
         width="100%"
       >
-        <InputContainer hasValue={value.length > 0} error={error}>
+        <InputContainer
+          disabled={disabled}
+          hasValue={value.length > 0}
+          error={error}
+          paddingLeft={
+            Platform.OS === 'ios'
+              ? screenPercentageToDP(2.0, Orientation.Width)
+              : screenPercentageToDP(1.5, Orientation.Width)
+          }
+        >
           {label && (
             <TextFieldLabel
               error={error}
@@ -79,7 +92,14 @@ export const TextField = React.memo(
               {label}
             </TextFieldLabel>
           )}
-          <StyledTextInput ref={inputRef} {...inputProps} />
+          <StyledTextInput
+            marginTop={
+              Platform.OS === 'ios'
+                ? screenPercentageToDP(1, Orientation.Height)
+                : screenPercentageToDP(0.5, Orientation.Height)}
+            ref={inputRef}
+            {...inputProps}
+          />
         </InputContainer>
       </StyledView>
     );

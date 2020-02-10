@@ -60,5 +60,6 @@ export * from './Clock';
 export * from './AppIntro1';
 export * from './AppIntro2';
 export * from './AppIntro3';
+export * from './Cross';
 export * from './NullValueCell';
 export * from './ScheduledVaccine';

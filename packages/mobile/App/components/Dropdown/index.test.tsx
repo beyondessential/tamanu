@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import { BaseStory, items } from './fixture';
+import { BaseStory, dropdownItems } from './fixture';
+import { SelectOption } from '.';
 
 describe('<Dropdown />', () => {
   const { getByText, getByTestId } = render(<BaseStory />);
@@ -9,14 +10,14 @@ describe('<Dropdown />', () => {
     const floatingLabel = getByText('Type');
     fireEvent.press(floatingLabel);
 
-    items.forEach(item => {
+    dropdownItems.forEach((item:SelectOption) => {
       expect(getByTestId(item.value)).not.toBeNull();
     });
   });
 
   it('should select an item', () => {
     const Picker = getByTestId('ios-picker');
-    fireEvent.valueChange(Picker, items[0].value);
-    expect(getByText(items[0].label)).not.toBeNull();
+    fireEvent.valueChange(Picker, dropdownItems[0].value);
+    expect(getByText(dropdownItems[0].label)).not.toBeNull();
   });
 });

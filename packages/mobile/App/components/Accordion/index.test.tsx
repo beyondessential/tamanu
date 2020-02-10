@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import AccordionList from './index';
+import { AccordionList } from './index';
 import { data } from './fixtures';
 import { formatDate } from '../../helpers/date';
 import { DateFormats } from '../../helpers/constants';

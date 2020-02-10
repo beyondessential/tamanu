@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Dropdown } from './index';
 
-export const items = [
+export const dropdownItems = [
   { label: 'Clinic', value: 'clinic' },
   { label: 'Visit', value: 'visit' },
   { label: 'Hospital', value: 'hospital' },
@@ -15,7 +15,7 @@ export function BaseStory(): JSX.Element {
   return (
     <Dropdown
       label={label}
-      items={items}
+      options={dropdownItems}
       onChange={setSelectedItem}
       value={selectedItem}
     />

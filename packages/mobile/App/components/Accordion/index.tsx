@@ -9,7 +9,7 @@ interface AccordionListProps {
   dataArray: VisitOverviewProps[];
 }
 
-const AccordionList = ({ dataArray }: AccordionListProps): JSX.Element => {
+export const AccordionList = ({ dataArray }: AccordionListProps): JSX.Element => {
   const [activeSections, setActiveSections] = useState<number[]>([]);
 
   const updateSections = (newActiveSection: number[]): void => {
@@ -29,5 +29,3 @@ const AccordionList = ({ dataArray }: AccordionListProps): JSX.Element => {
     </StyledView>
   );
 };
-
-export default AccordionList;

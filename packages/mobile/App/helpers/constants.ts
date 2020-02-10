@@ -1,4 +1,6 @@
 import * as Icons from '../components/Icons';
+import { theme } from '../styled/theme';
+
 
 export const DateFormats = {
   short: 'EEE, dd MMM',
@@ -41,12 +43,31 @@ export const VaccineStatus = {
   TAKEN: 'TAKEN',
   TAKEN_NOT_ON_TIME: 'TAKEN_NOT_ON_TIME',
   NOT_TAKEN: 'NOT_TAKEN',
+  NO_DATA: 'NO_DATA',
   SCHEDULED: 'SCHEDULED',
 };
 
+
 export const VaccineIcons = {
-  [VaccineStatus.TAKEN]: Icons.Checked,
-  [VaccineStatus.NOT_TAKEN]: Icons.NotTaken,
-  [VaccineStatus.TAKEN_NOT_ON_TIME]: Icons.TakenNotOnTime,
-  [VaccineStatus.SCHEDULED]: Icons.ScheduledVaccine,
+  [VaccineStatus.TAKEN]: {
+    Icon: Icons.Checked,
+    color: theme.colors.SAFE,
+    text: 'TAKEN ON TIME',
+  },
+  [VaccineStatus.NOT_TAKEN]: {
+    Icon: Icons.NotTaken,
+    color: theme.colors.TEXT_SOFT,
+    text: 'NOT TAKEN',
+  },
+  [VaccineStatus.TAKEN_NOT_ON_TIME]: {
+    Icon: Icons.Checked,
+    color: theme.colors.ORANGE,
+    text: 'TAKEN NOT ON TIME',
+  },
+};
+
+export const SCREEN_ORIENTATION = {
+  PORTRAIT: 'portrait',
+  LANDSCAPE: 'landscape',
+  SCHEDULED: 'SCHEDULED',
 };

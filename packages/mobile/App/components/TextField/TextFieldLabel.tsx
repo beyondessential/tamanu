@@ -3,15 +3,16 @@ import styled from 'styled-components/native';
 import posed from 'react-native-pose';
 import { theme } from '../../styled/theme';
 import { StyledText } from '../../styled/common';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 const AnimatedLabel = posed.Text({
   open: {
-    fontSize: 13,
-    bottom: 28,
+    fontSize: screenPercentageToDP(1.74, Orientation.Height),
+    bottom: screenPercentageToDP(3.00, Orientation.Height),
   },
   closed: {
-    fontSize: 16,
-    bottom: 10,
+    fontSize: screenPercentageToDP(1.94, Orientation.Height),
+    bottom: screenPercentageToDP(1.21, Orientation.Height),
   },
 });
 
@@ -20,10 +21,10 @@ interface AnimatedText {
 }
 
 const StyledAnimatedLabel = styled(StyledText)<AnimatedText>`
-  font-size: 16;
+  font-size: ${screenPercentageToDP(1.94, Orientation.Height)};
   font-weight: 400;
   margin-bottom: 5;
-  padding-left: 9;
+  padding-left: ${screenPercentageToDP(2.42, Orientation.Width)};
   position: absolute;
 `;
 

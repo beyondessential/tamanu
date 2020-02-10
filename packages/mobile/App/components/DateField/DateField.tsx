@@ -4,11 +4,12 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import DatePicker from '@vinipachecov/react-native-datepicker';
 import { InputContainer } from '../TextField/styles';
 import { TextFieldLabel } from '../TextField/TextFieldLabel';
-import { StyledView, StyledText, RowView } from '../../styled/common';
+import { StyledView, StyledText } from '../../styled/common';
 import { formatDate } from '../../helpers/date';
 import { theme } from '../../styled/theme';
 import * as Icons from '../Icons';
 import { DateFormats, TimeFormats } from '../../helpers/constants';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 const styles = StyleSheet.create({
   androidPickerStyles: {
@@ -29,10 +30,11 @@ export interface TextFieldProps {
   placeholder?: '' | string;
   error?: '' | string;
   mode?: 'date' | 'time';
+  disabled?: boolean
 }
 
 export const DateField = React.memo(
-  ({ value, onChange, label, error, mode = 'date' }: TextFieldProps) => {
+  ({ value, onChange, label, error, mode = 'date', disabled = false }: TextFieldProps) => {
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const showDatePicker = useCallback(() => setDatePickerVisible(true), []);
     const hideDatePicker = useCallback(() => setDatePickerVisible(false), []);
@@ -63,49 +65,52 @@ export const DateField = React.memo(
 
     return (
       <StyledView width="100%">
-        <StyledView height={55} width="100%">
+        <StyledView height={screenPercentageToDP('6.68', Orientation.Height)} width="100%">
           <TouchableWithoutFeedback onPress={showDatePicker}>
             <InputContainer
-              justifyContent="flex-end"
+              disabled={disabled}
               hasValue={value !== null}
               error={error}
+              flexDirection="row"
+              justifyContent="space-between"
+              alignItems="center"
+              paddingLeft={screenPercentageToDP(2.82, Orientation.Width)}
             >
               {label && (
                 <TextFieldLabel
                   error={error}
-                  focus={isDatePickerVisible}
+                  focus={disabled ? false : isDatePickerVisible}
                   onFocus={showDatePicker}
                   isValueEmpty={value !== null}
                 >
                   {label}
                 </TextFieldLabel>
               )}
-              <RowView
-                paddingLeft={10}
-                paddingRight={10}
-                alignItems="center"
-                justifyContent="space-between"
-                height="100%"
+              <StyledText
+                fontSize={screenPercentageToDP(2.18, Orientation.Height)}
+                color={theme.colors.TEXT_DARK}
+                marginTop={screenPercentageToDP(1.2, Orientation.Height)}
               >
-                <StyledView
-                  height="100%"
-                  justifyContent="flex-end"
-                  paddingBottom={10}
-                >
-                  <StyledText fontSize={18} color={theme.colors.TEXT_DARK}>
-                    {formatValue()}
-                  </StyledText>
-                </StyledView>
+                {formatValue()}
+              </StyledText>
+              <StyledView
+                marginRight={10}
+                height="100%"
+                justifyContent="center"
+              >
                 <IconComponent
+                  height={screenPercentageToDP(3.03, Orientation.Height)}
+                  width={screenPercentageToDP(3.03, Orientation.Height)}
                   fill={error ? theme.colors.ERROR : theme.colors.BOX_OUTLINE}
                 />
-              </RowView>
+              </StyledView>
+
             </InputContainer>
           </TouchableWithoutFeedback>
         </StyledView>
         {Platform.OS === 'ios' ? (
           <DateTimePickerModal
-            isVisible={isDatePickerVisible}
+            isVisible={disabled ? false : isDatePickerVisible}
             mode={mode}
             onConfirm={onDateConfirm}
             onCancel={hideDatePicker}
@@ -115,6 +120,7 @@ export const DateField = React.memo(
             date={null}
             androidMode="spinner"
             mode={mode}
+            disabled={disabled}
             style={styles.androidPickerStyles}
             showIcon={false}
             onOpenModal={showDatePicker}

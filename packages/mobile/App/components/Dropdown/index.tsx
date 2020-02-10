@@ -7,19 +7,21 @@ import { TextFieldLabel } from '../TextField/TextFieldLabel';
 import { theme } from '../../styled/theme';
 import { AndroidPicker } from './Picker.android';
 import { IOSPicker } from './Picker.ios';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
-export interface DropdownItem {
+export interface SelectOption {
   label: string;
   value: string;
 }
 
 export interface DropdownProps {
-  items: DropdownItem[];
+  options: SelectOption[];
   onChange: Function;
-  value: DropdownItem | null;
+  value: SelectOption | null;
   isOpen?: boolean;
   label?: '' | string;
   error?: '' | string;
+  disabled?: boolean;
 }
 
 function getModalBackground(OS: string, open: boolean): string {
@@ -28,26 +30,28 @@ function getModalBackground(OS: string, open: boolean): string {
 }
 
 export const Dropdown = React.memo(
-  ({ value, onChange, error, items, label }: DropdownProps) => {
+  ({ value, onChange, error, options, label, disabled = false }: DropdownProps) => {
     const [open, setOpen] = useState(false);
     const closeModal = React.useCallback(() => setOpen(false), []);
-    const openModal = React.useCallback(() => setOpen(true), []);
+    const openModal = React.useCallback(() => (disabled ? null : setOpen(true)), []);
 
     return (
       <React.Fragment>
-        <StyledView height={55} width="100%">
+        <StyledView height={screenPercentageToDP('6.68', Orientation.Height)} width="100%">
           <TouchableWithoutFeedback onPress={openModal}>
             <InputContainer
+              disabled={disabled}
               flexDirection="row"
               hasValue={value !== null}
               error={error}
               justifyContent="space-between"
+              paddingLeft={screenPercentageToDP(2.82, Orientation.Width)}
               alignItems="center"
             >
               {label && (
                 <React.Fragment>
                   <TextFieldLabel
-                    onFocus={setOpen}
+                    onFocus={disabled ? closeModal : setOpen}
                     focus={open}
                     isValueEmpty={value !== null}
                   >
@@ -56,16 +60,18 @@ export const Dropdown = React.memo(
                 </React.Fragment>
               )}
               <StyledText
+                marginTop={screenPercentageToDP(1.80, Orientation.Height)}
                 accessibilityLabel={value && value.label ? value.label : ''}
-                fontSize={18}
+                fontSize={screenPercentageToDP(2.18, Orientation.Height)}
                 color={theme.colors.TEXT_DARK}
-                marginTop={10}
-                marginLeft={10}
               >
                 {value && value.label ? value.label : ''}
               </StyledText>
-              <StyledView marginRight={10}>
-                <Icons.ArrowDown height={20} />
+              <StyledView marginRight={10} justifyContent="center">
+                <Icons.ArrowDown
+                  fill={theme.colors.TEXT_SOFT}
+                  width={screenPercentageToDP(2.84, Orientation.Width)}
+                />
               </StyledView>
             </InputContainer>
           </TouchableWithoutFeedback>
@@ -82,16 +88,18 @@ export const Dropdown = React.memo(
           </TouchableWithoutFeedback>
           {Platform.OS === 'ios' ? (
             <IOSPicker
+              disabled={disabled}
               onChange={onChange}
               closeModal={closeModal}
-              items={items}
+              items={options}
               open={open}
               selectedItem={value}
             />
           ) : (
             <AndroidPicker
+              disabled={disabled}
               closeModal={closeModal}
-              items={items}
+              items={options}
               onChange={onChange}
               open={open}
             />

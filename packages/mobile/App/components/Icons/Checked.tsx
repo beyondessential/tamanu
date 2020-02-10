@@ -3,9 +3,16 @@ import Svg, { SvgProps, Path } from 'react-native-svg';
 import { theme } from '../../styled/theme';
 import { StyledView } from '../../styled/common';
 
-export const Checked = React.memo((props: SvgProps) => (
+interface WithBackground {
+  background?: string;
+}
+
+type CheckedProps = SvgProps & WithBackground;
+
+
+export const Checked = React.memo((props: CheckedProps) => (
   <StyledView
-    background="transparent"
+    background={props.background || theme.colors.WHITE}
     width={props.width}
     height={props.height}
     borderRadius={50}

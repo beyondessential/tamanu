@@ -2,3 +2,4 @@ storybook/
 android/
 metro.config.js
 *.json
+*.xml

@@ -1,15 +1,18 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react-native';
+import { ThemeProvider } from 'styled-components';
 import { KeyboardAwareView } from '../KeyboardAwareView';
-import { CenterView } from '../../styled/common';
+import { CenterView, themeSystem } from '../../styled/common';
 import { BaseDateTextFieldStory } from './fixtures';
 
 const stories = storiesOf('DateTextField', module);
 
 stories.addDecorator((getStory: Function) => (
-  <KeyboardAwareView>
-    <CenterView>{getStory()}</CenterView>
-  </KeyboardAwareView>
+  <ThemeProvider theme={themeSystem}>
+    <KeyboardAwareView>
+      <CenterView>{getStory()}</CenterView>
+    </KeyboardAwareView>
+  </ThemeProvider>
 ));
 stories.add('Active DatePicker', () => (
   <BaseDateTextFieldStory mode="date" label="First Year of Registration" />

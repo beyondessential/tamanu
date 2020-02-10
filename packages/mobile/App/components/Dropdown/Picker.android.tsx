@@ -5,10 +5,10 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import { DropdownItem } from './index';
 import { StyledView, StyledScrollView, StyledText } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
+import { SelectOption } from '.';
 
 const AnimatedAndroidBackground = posed.View({
   open: {
@@ -28,14 +28,15 @@ const AnimatedAndroidCard = posed.ScrollView({
   },
 });
 interface AndroidPickerProps {
-  items: DropdownItem[];
+  items: SelectOption[];
   open: boolean;
   onChange: Function;
   closeModal: Function;
+  disabled?: boolean;
 }
 
 export const AndroidPicker = React.memo(
-  ({ items, open, onChange, closeModal }: AndroidPickerProps) => {
+  ({ items, open, onChange, closeModal, disabled }: AndroidPickerProps) => {
     const onChangeItem = React.useCallback(
       item => {
         onChange(item);

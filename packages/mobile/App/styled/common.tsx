@@ -24,6 +24,7 @@ interface TextProps {
   textAlign?: string;
   fontSize?: number | string;
   fontWeight?: number | string;
+  textDecorationLine?: 'none' | 'underline' | 'line-through' | 'underline line-through';
   color?: string;
 }
 interface SpacingProps {
@@ -113,7 +114,7 @@ export const StyledSafeAreaView = styled.SafeAreaView<StyledViewProps>`
 `;
 
 export const StyledText = styled.Text<StyledTextProps>`
-  ${styledSystem.color}    
+  ${styledSystem.color}      
   ${styledSystem.fontWeight}
   ${styledSystem.fontSize}
   ${styledSystem.textAlign}
@@ -121,7 +122,8 @@ export const StyledText = styled.Text<StyledTextProps>`
   ${styledSystem.margin}  
   ${styledSystem.padding}  
   ${styledSystem.flexbox}     
-  ${styledSystem.background}
+  ${styledSystem.background}  
+  text-decoration-line: ${({ textDecorationLine }) => textDecorationLine || 'none'};
 `;
 
 interface StyledImageProps {
@@ -132,6 +134,24 @@ interface StyledImageProps {
 export const StyledImage = styled.Image<StyledImageProps>`
   ${styledSystem.height}
   ${styledSystem.width}
+`;
+
+interface StyledTouchableOpacityProps
+  extends StyledViewProps {
+  children?: ReactNode | Element[];
+  onPress: Function;
+}
+
+export const StyledTouchableOpacity = styled.TouchableOpacity<StyledTouchableOpacityProps>`
+  ${styledSystem.color}      
+  ${styledSystem.fontWeight}
+  ${styledSystem.fontSize}
+  ${styledSystem.textAlign}
+  ${styledSystem.size}  
+  ${styledSystem.margin}  
+  ${styledSystem.padding}  
+  ${styledSystem.flexbox}     
+  ${styledSystem.background}  
 `;
 
 export const CenterView = styled(StyledView)`
