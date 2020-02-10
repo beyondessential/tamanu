@@ -82,8 +82,64 @@ describe('Visit', () => {
         expect(updated.reasonForVisit).toEqual('after');
       });
 
-      test.todo('should change visit department');
-      test.todo('should change visit location');
+      it('should change visit type and add a note', async () => {
+        const v = await models.Visit.create({
+          ...await createDummyVisit(models),
+          patientId: patient.id,
+          visitType: 'triage',
+        });
+
+        const result = await app.put(`/v1/visit/${v.id}`).send({
+          visitType: 'admission',
+        });
+        expect(result).toHaveSucceeded();
+
+        const check = x => x.text.includes('triage') && x.text.includes('admission');
+        expect(result.body.notes.some(check)).toEqual(true);
+      });
+
+      it('should change visit department and add a note', async () => {
+        const departments = await models.ReferenceData.findAll({ 
+          where: { type: 'department' },
+          limit: 2,
+        });
+
+        const v = await models.Visit.create({
+          ...await createDummyVisit(models),
+          patientId: patient.id,
+          departmentId: departments[0].id,
+        });
+
+        const result = await app.put(`/v1/visit/${v.id}`).send({
+          departmentId: departments[1].id,
+        });
+        expect(result).toHaveSucceeded();
+
+        const check = x => x.text.includes(departments[0].name) && x.text.includes(departments[1].name);
+        expect(result.body.notes.some(check)).toEqual(true);
+      });
+
+      it('should change visit location and add a note', async () => {
+        const locations = await models.ReferenceData.findAll({ 
+          where: { type: 'location' },
+          limit: 2,
+        });
+
+        const v = await models.Visit.create({
+          ...await createDummyVisit(models),
+          patientId: patient.id,
+          locationId: locations[0].id,
+        });
+
+        const result = await app.put(`/v1/visit/${v.id}`).send({
+          locationId: locations[1].id,
+        });
+        expect(result).toHaveSucceeded();
+
+        const check = x => x.text.includes(locations[0].name) && x.text.includes(locations[1].name);
+        expect(result.body.notes.some(check)).toEqual(true);
+      });
+
       test.todo('should discharge a patient');
 
       test.todo('should not admit a patient who is already in a visit');

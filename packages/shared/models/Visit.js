@@ -68,4 +68,50 @@ export class Visit extends Model {
     // this.hasMany(models.Vital);
     // this.hasMany(models.Report);
   }
+
+  addSystemNote(text) {
+    console.log(text);
+  }
+
+  forResponse() {
+    const data = super.forResponse();
+    return {
+      ...data,
+      notes: [
+        { date: null, text: '', },
+        { date: null, text: '', },
+      ]
+    };
+  }
+
+  async update(data) {
+    const { ReferenceData } = this.sequelize.models;
+
+    if(data.patientId && data.patientId !== this.patientId) {
+      throw new Error("A visit's patient cannot be changed");
+    }
+
+    if(data.visitType && data.visitType !== this.visitType) {
+      this.addSystemNote(`Changed type from ${this.visitType} to ${data.visitType}`);
+    }
+
+    if(data.locationId && data.locationId !== this.locationId) {
+      const oldLocation = await ReferenceData.findByPk(this.locationId);
+      const newLocation = await ReferenceData.findByPk(data.locationId);
+      if(!newLocation) {
+        throw new Error("Invalid location specified");
+      }
+      this.addSystemNote(`Changed location from ${oldLocation.name} to ${newLocation.name}`);
+    }
+    if(data.departmentId && data.departmentId !== this.departmentId) {
+      const oldDepartment = await ReferenceData.findByPk(this.departmentId);
+      const newDepartment = await ReferenceData.findByPk(data.departmentId);
+      if(!newDepartment) {
+        throw new Error("Invalid department specified");
+      }
+      this.addSystemNote(`Changed department from ${oldDepartment.name} to ${newDepartment.name}`);
+    }
+
+    return super.update(data);
+  }
 }
