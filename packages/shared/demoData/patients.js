@@ -46,7 +46,7 @@ function randomVitals() {
   };
 }
 
-export function createDummyVisit({ current, ...overrides } = {}) {
+export async function createDummyVisit(models, { current, ...overrides } = {}) {
   const endDate = current ? new Date() : randomDate();
 
   const duration = chance.natural({ min: HOUR, max: HOUR * 10 });
@@ -61,7 +61,7 @@ export function createDummyVisit({ current, ...overrides } = {}) {
   };
 }
 
-export function createDummyPatient(overrides = {}) {
+export async function createDummyPatient(models, overrides = {}) {
   const gender = overrides.sex || chance.pick(['male', 'female']);
   return {
     displayId: generateId(),

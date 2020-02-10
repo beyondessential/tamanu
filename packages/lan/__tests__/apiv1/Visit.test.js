@@ -7,7 +7,7 @@ describe('Visit', () => {
   let patient = null;
   let app = null;
   beforeAll(async () => {
-    patient = await models.Patient.create(createDummyPatient());
+    patient = await models.Patient.create(await createDummyPatient(models));
     app = await baseApp.asRole('practitioner');
   });
 
@@ -16,7 +16,7 @@ describe('Visit', () => {
 
   it('should get a visit', async () => {
     const v = await models.Visit.create({
-      ...createDummyVisit(),
+      ...await createDummyVisit(models),
       patientId: patient.id,
     });
     const result = await app.get(`/v1/visit/${v.id}`);
@@ -27,7 +27,7 @@ describe('Visit', () => {
 
   it('should get a list of visits for a patient', async () => {
     const v = await models.Visit.create({
-      ...createDummyVisit(),
+      ...await createDummyVisit(models),
       patientId: patient.id,
     });
     const result = await app.get(`/v1/patient/${patient.id}/visits`);
@@ -41,7 +41,6 @@ describe('Visit', () => {
     expect(result).toHaveRequestError();
   });
 
-  test.todo('should get a list of diagnoses');
   test.todo('should get a list of notes');
   test.todo('should get a list of procedures');
   test.todo('should get a list of lab requests');
@@ -57,7 +56,7 @@ describe('Visit', () => {
 
       it('should create a new visit', async () => {
         const result = await app.post('/v1/visit').send({
-          ...createDummyVisit(),
+          ...await createDummyVisit(models),
           patientId: patient.id,
         });
         expect(result).toHaveSucceeded();
@@ -69,7 +68,7 @@ describe('Visit', () => {
 
       it('should update visit details', async () => {
         const v = await models.Visit.create({
-          ...createDummyVisit(),
+          ...await createDummyVisit(models),
           patientId: patient.id,
           reasonForVisit: 'before',
         });
@@ -97,7 +96,7 @@ describe('Visit', () => {
 
       beforeAll(async () => {
         diagnosisVisit = await models.Visit.create({
-          ...createDummyVisit(),
+          ...await createDummyVisit(models),
           patientId: patient.id,
           reasonForVisit: 'diagnosis test',
         });
@@ -141,7 +140,7 @@ describe('Visit', () => {
 
       beforeAll(async () => {
         vitalsVisit = await models.Visit.create({
-          ...createDummyVisit(),
+          ...await createDummyVisit(models),
           patientId: patient.id,
           reasonForVisit: 'vitals test',
         });
