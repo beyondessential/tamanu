@@ -1,4 +1,5 @@
 export * from './Appointments';
+export * from './Alert';
 export * from './ArrowBack';
 export * from './ArrowDown';
 export * from './ArrowForward';

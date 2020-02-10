@@ -4,6 +4,7 @@ export const theme = {
     PRIMARY_MAIN: '#326699',
     BRIGHT_BLUE: '#67A6E3',
     SECONDARY_MAIN: '#FFCC24',
+    LIGHT_SECONDARY: '#FDF9E8',
     TEXT_SOFT: '#B8B8B8',
     TEXT_MID: '#888888',
     TEXT_DARK: '#666666',
