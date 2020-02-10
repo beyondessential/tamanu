@@ -46,6 +46,16 @@ function randomVitals() {
   };
 }
 
+async function randomReferenceId(models, type) {
+  const obj = await models.ReferenceData.findOne({
+    where: {
+      type,
+    },
+    type: 'random()'
+  });
+  return obj.id;
+}
+
 export async function createDummyVisit(models, { current, ...overrides } = {}) {
   const endDate = current ? new Date() : randomDate();
 
@@ -57,6 +67,8 @@ export async function createDummyVisit(models, { current, ...overrides } = {}) {
     startDate: startDate,
     endDate: current ? undefined : endDate,
     reasonForVisit: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
+    locationId: await randomReferenceId(models, 'location'),
+    departmentId: await randomReferenceId(models, 'department'),
     ...overrides,
   };
 }

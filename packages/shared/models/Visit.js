@@ -17,7 +17,26 @@ export class Visit extends Model {
 
         reasonForVisit: Sequelize.TEXT,
       },
-      options,
+      {
+        ...options,
+        validate: {
+          mustHavePatient() {
+            if (!this.patientId) {
+              throw new Error('A visit must have a patient.');
+            }
+          },
+          mustHaveDepartment() {
+            if (!this.departmentId) {
+              throw new Error('A visit must have a department.');
+            }
+          },
+          mustHaveLocation() {
+            if (!this.locationId) {
+              throw new Error('A visit must have a location.');
+            }
+          },
+        },
+      }
     );
   }
 
@@ -27,12 +46,19 @@ export class Visit extends Model {
     });
 
     this.belongsTo(models.User, {
-      as: 'Examiner',
       foreignKey: 'examinerId',
+      as: 'Examiner',
     });
 
-    // this.hasOne(models.Location);
-    // this.hasOne(models.Department);
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'locationId',
+      as: 'Location',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'departmentId',
+      as: 'Department',
+    });
 
     // this.hasMany(models.Medication);
     // this.hasMany(models.LabRequest);
