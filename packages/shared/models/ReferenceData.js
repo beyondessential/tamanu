@@ -1,5 +1,6 @@
-import { Sequelize, Model, ValidationError } from 'sequelize';
+import { Sequelize, ValidationError } from 'sequelize';
 import { InvalidOperationError } from 'lan/app/errors';
+import { Model } from './Model';
 
 const CODE_TYPES = [
   'icd10',

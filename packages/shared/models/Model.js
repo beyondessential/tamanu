@@ -10,4 +10,8 @@ export class Model extends sequelize.Model {
   toJSON() {
     return this.forResponse();
   }
+
+  static getReferenceAssociations() {
+    return undefined;
+  }
 }
