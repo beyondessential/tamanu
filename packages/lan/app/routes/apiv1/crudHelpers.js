@@ -5,18 +5,23 @@ import { NotFoundError } from 'lan/app/errors';
 export const simpleGet = modelName =>
   asyncHandler(async (req, res) => {
     const { models, params } = req;
+    // check the user can read this model type before searching for it
+    // (otherwise, they can see if they get a "not permitted" or a 
+    // "not found" to snoop for objects)
+    req.checkPermission('read', modelName);
     const model = models[modelName];
     const object = await model.findByPk(params.id, {
       include: model.getReferenceAssociations(),
     });
-    req.checkPermission('read', object);
     if (!object) throw new NotFoundError();
+    req.checkPermission('read', object);
     res.send(object);
   });
 
 export const simplePut = modelName =>
   asyncHandler(async (req, res) => {
     const { models, params } = req;
+    req.checkPermission('read', modelName);
     const object = await models[modelName].findByPk(params.id);
     if (!object) throw new NotFoundError();
     req.checkPermission('write', object);

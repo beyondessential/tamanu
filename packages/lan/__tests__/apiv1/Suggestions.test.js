@@ -15,7 +15,9 @@ describe('Suggestions', () => {
       ...testDiagnoses,
       ...testDrugs,
       ...TRIAGE_DIAGNOSES,
-    ].map(d => models.ReferenceData.create(d));
+    ]
+      .map(d => ({ code: d.name, ...d }))
+      .map(d => models.ReferenceData.create(d));
     await Promise.all(tasks);
 
     userApp = await baseApp.asRole('practitioner');
