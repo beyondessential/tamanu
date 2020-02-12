@@ -10,6 +10,7 @@ import { vitals } from './vitals';
 import { suggestions } from './suggestions';
 import { referenceData } from './referenceData';
 import { diagnosis } from './diagnosis';
+import { note } from './note';
 
 export const apiv1 = express.Router();
 
@@ -25,3 +26,4 @@ apiv1.use('/visit', visit);
 apiv1.use('/vitals', vitals);
 apiv1.use('/referenceData', referenceData);
 apiv1.use('/diagnosis', diagnosis);
+apiv1.use('/note', note);
