@@ -19,7 +19,7 @@ describe('Note', () => {
     const content = chance.paragraph();
     const response = await app.post('/v1/note').send({
       objectId: patient.id,
-      objectType: 'patient',
+      objectType: 'Patient',
       content,
     });
 
@@ -27,7 +27,7 @@ describe('Note', () => {
 
     const note = await models.Note.findByPk(response.body.id);
     expect(note.content).toEqual(content);
-    expect(note.objectType).toEqual('patient');
+    expect(note.objectType).toEqual('Patient');
     expect(note.objectId).toEqual(patient.id);
   });
 
@@ -37,7 +37,7 @@ describe('Note', () => {
     const note = await models.Note.create({
       content: chance.paragraph(),
       objectId: patient.id,
-      objectType: 'patient',
+      objectType: 'Patient',
     });
 
     const response = await app.put(`/v1/note/${note.id}`).send({
@@ -65,7 +65,7 @@ describe('Note', () => {
   it('should not write a note on an non-existent object', async () => {
     const response = await app.post('/v1/note').send({
       objectId: 'invalid',
-      objectType: 'patient',
+      objectType: 'Patient',
       content: chance.paragraph(),
     });
 
@@ -73,9 +73,44 @@ describe('Note', () => {
   });
 
   describe('permission failures', () => {
-    test.todo('should forbid reading notes on a forbidden object');
-    test.todo('should forbid writing notes on a forbidden object');
-    test.todo('should forbid editing notes on a forbidden object');
+    let forbiddenObject = null;
+    let noPermsApp = null;
+
+    beforeAll(async () => {
+      forbiddenObject = await models.Patient.create(createDummyPatient());
+
+      // TODO: set up a role that isn't allowed to view patients
+      noPermsApp = await baseApp.asRole('???');
+    });
+
+    it('should forbid reading notes on a forbidden object', async () => {
+      const response = await noPermsApp.get(`/v1/patient/${forbiddenObject.id}/notes`);
+      expect(response).toHaveRequestError();
+    });
+
+    it('should forbid writing notes on a forbidden object', async () => {
+      const response = await noPermsApp.post('/v1/note').send({
+        objectId: forbiddenObject.id,
+        objectType: 'Patient',
+        content: chance.paragraph(),
+      });
+
+      expect(response).toHaveRequestError();
+    });
+
+    it('should forbid editing notes on a forbidden object', async () => {
+      const note = await models.Note.create({
+        objectId: forbiddenObject.id,
+        objectType: 'Patient',
+        content: chance.paragraph(),
+      });
+
+      const response = await noPermsApp.put(`/v1/note/${note.id}`).send({
+        content: 'forbidden',
+      });
+
+      expect(response).toHaveRequestError();
+    });
   });
 
 });

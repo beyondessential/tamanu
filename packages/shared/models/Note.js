@@ -2,8 +2,8 @@ import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 
 const OBJECT_TYPES = [
-  'visit',
-  'patient',
+  'Visit',
+  'Patient',
 ];
 
 export class Note extends Model {
