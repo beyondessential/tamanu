@@ -51,7 +51,7 @@ async function randomReferenceId(models, type) {
     where: {
       type,
     },
-    type: 'random()'
+    order: models.ReferenceData.sequelize.random(),
   });
   return obj.id;
 }
