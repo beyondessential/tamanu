@@ -21,13 +21,13 @@ export const themeSystem = {
 };
 
 interface TextProps {
-  textAlign?: string;
+  textAlign?: 'auto'| 'left'| 'right'| 'center'| 'justify';
   fontSize?: number | string;
   fontWeight?: number | string;
   textDecorationLine?: 'none' | 'underline' | 'line-through' | 'underline line-through';
   color?: string;
 }
-interface SpacingProps {
+export interface SpacingProps {
   height?: string | number;
   width?: string | number;
   padding?: string | number | number[];
@@ -117,7 +117,7 @@ export const StyledText = styled.Text<StyledTextProps>`
   ${styledSystem.color}      
   ${styledSystem.fontWeight}
   ${styledSystem.fontSize}
-  ${styledSystem.textAlign}
+  ${styledSystem.textAlign}  
   ${styledSystem.size}  
   ${styledSystem.margin}  
   ${styledSystem.padding}  
@@ -135,6 +135,7 @@ export const StyledImage = styled.Image<StyledImageProps>`
   ${styledSystem.height}
   ${styledSystem.width}
 `;
+
 
 interface StyledTouchableOpacityProps
   extends StyledViewProps {
@@ -154,9 +155,13 @@ export const StyledTouchableOpacity = styled.TouchableOpacity<StyledTouchableOpa
   ${styledSystem.background}  
 `;
 
-export const CenterView = styled(StyledView)`
+export const FullView = styled(StyledView)`
   display: flex;
   flex: 1;
+`;
+
+export const CenterView = styled(StyledView)`
+  display: flex;  
   justify-content: center;
   align-items: center;
 `;

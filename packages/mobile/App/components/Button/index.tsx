@@ -1,10 +1,10 @@
 import React, { FunctionComponentElement, ReactNode } from 'react';
 import styled from 'styled-components/native';
+import * as StyledSystem from 'styled-system';
 import { theme } from '../../styled/theme';
+import { SpacingProps } from '../../styled/common';
 
-export interface StyledButtonProps {
-  height?: string | number;
-  width?: string | number;
+export interface StyledButtonProps extends SpacingProps {
   color?: string;
   outline?: boolean;
   rounded?: boolean;
@@ -24,8 +24,7 @@ export interface StyledButtonProps {
 type StrNumType = number | string | undefined;
 
 const StyledButton = styled.TouchableOpacity<StyledButtonProps>`
-  flex-direction: row;
-  border-radius: 5px;
+  flex-direction: row;  
   align-items: center;
   justify-content: center;
   height: ${(props): StrNumType => (props.height ? props.height : '50px')};
@@ -45,6 +44,8 @@ const StyledButton = styled.TouchableOpacity<StyledButtonProps>`
     if (props.backgroundColor) return props.backgroundColor;
     return theme.colors.MAIN_SUPER_DARK;
   }};
+  ${StyledSystem.padding}
+  ${StyledSystem.margin}
 `;
 
 interface ButtonTextProps {
