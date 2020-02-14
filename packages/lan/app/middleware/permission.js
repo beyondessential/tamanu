@@ -32,26 +32,28 @@ export function constructPermission(req, res, next) {
     allow('read', 'User');
     allow('write', 'User', { id: user.id });
 
-    allow('list', 'ReferenceData');
-    allow('read', 'ReferenceData');
+    if (['practitioner', 'admin'].includes(user.role)) {
+      allow('list', 'ReferenceData');
+      allow('read', 'ReferenceData');
 
-    allow('read', 'Patient');
-    allow('create', 'Patient');
-    allow('write', 'Patient');
+      allow('read', 'Patient');
+      allow('create', 'Patient');
+      allow('write', 'Patient');
 
-    allow('read', 'Visit');
-    allow('list', 'Visit');
-    allow('create', 'Visit');
-    allow('write', 'Visit');
+      allow('read', 'Visit');
+      allow('list', 'Visit');
+      allow('create', 'Visit');
+      allow('write', 'Visit');
 
-    allow('list', 'Vitals');
-    allow('read', 'Vitals');
-    allow('create', 'Vitals');
+      allow('list', 'Vitals');
+      allow('read', 'Vitals');
+      allow('create', 'Vitals');
 
-    allow('read', 'VisitDiagnosis');
-    allow('write', 'VisitDiagnosis');
-    allow('create', 'VisitDiagnosis');
-    allow('list', 'VisitDiagnosis');
+      allow('read', 'VisitDiagnosis');
+      allow('write', 'VisitDiagnosis');
+      allow('create', 'VisitDiagnosis');
+      allow('list', 'VisitDiagnosis');
+    }
 
     if (user.role === 'admin') {
       allow('create', 'User');
