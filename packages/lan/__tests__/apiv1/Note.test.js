@@ -78,7 +78,6 @@ describe('Note', () => {
     beforeAll(async () => {
       forbiddenObject = await models.Patient.create(createDummyPatient());
 
-      // TODO: set up a role that isn't allowed to view patients
       noPermsApp = await baseApp.asRole('reception');
     });
 
