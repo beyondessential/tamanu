@@ -5,34 +5,40 @@ import { NotFoundError } from 'lan/app/errors';
 
 export const note = express.Router();
 
-note.put('/:id', asyncHandler(async (req, res) => {
-  const { models, body, params } = req;
-  
-  const note = await models.Note.findByPk(params.id);
-  if(!note) {
-    throw new NotFoundError();
-  }
+note.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, body, params } = req;
 
-  req.checkPermission('write', note.objectType);
+    const editedNote = await models.Note.findByPk(params.id);
+    if (!editedNote) {
+      throw new NotFoundError();
+    }
 
-  const owner = await models[note.objectType].findByPk(note.objectId);
-  req.checkPermission('write', owner);
+    req.checkPermission('write', editedNote.objectType);
 
-  await note.update(body);
+    const owner = await models[editedNote.objectType].findByPk(editedNote.objectId);
+    req.checkPermission('write', owner);
 
-  res.send(note);
-}));
+    await editedNote.update(body);
 
-note.post('/$', asyncHandler(async (req, res) => {
-  const { models, body } = req;
-  const { objectType, objectId } = body;
-  req.checkPermission('write', objectType);
-  const owner = await models[objectType].findByPk(objectId);
-  if(!owner) {
-    throw new NotFoundError();
-  }
-  req.checkPermission('write', owner);
-  const note = await models.Note.create(body);
+    res.send(editedNote);
+  }),
+);
 
-  res.send(note);
-}));
+note.post(
+  '/$',
+  asyncHandler(async (req, res) => {
+    const { models, body } = req;
+    const { objectType, objectId } = body;
+    req.checkPermission('write', objectType);
+    const owner = await models[objectType].findByPk(objectId);
+    if (!owner) {
+      throw new NotFoundError();
+    }
+    req.checkPermission('write', owner);
+    const createdNote = await models.Note.create(body);
+
+    res.send(createdNote);
+  }),
+);

@@ -1,7 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 
-import { Visit, Patient } from '.';
+import { Visit } from './Visit';
+import { Patient } from './Patient';
 
 const OBJECT_TYPES = [
   Visit,
@@ -40,13 +41,13 @@ export class Note extends Model {
         ...options,
         validate: {
           mustHaveValidRelationType() {
-            if(!OBJECT_TYPES.includes(this.objectType)) {
+            if (!OBJECT_TYPES.includes(this.objectType)) {
               throw new Error(`Must have a valid type (got ${this.objectType})`);
             }
           },
           mustHaveContent() {
-            if(this.content === '') {
-              throw new Error("Content must not be empty");
+            if (this.content === '') {
+              throw new Error('Content must not be empty');
             }
           },
         },

@@ -1,7 +1,6 @@
 import { createDummyPatient, createDummyVisit } from 'shared/demoData/patients';
-import { createTestContext } from '../utilities';
-
 import Chance from 'chance';
+import { createTestContext } from '../utilities';
 
 const chance = new Chance();
 
@@ -51,7 +50,7 @@ describe('Note', () => {
 
   test.todo('should get all notes on a patient');
   test.todo('should get all notes on a visit');
-  
+
   it('should not write a note on an invalid object type', async () => {
     const response = await app.post('/v1/note').send({
       objectId: patient.id,
@@ -112,5 +111,4 @@ describe('Note', () => {
       expect(response).toHaveRequestError();
     });
   });
-
 });
