@@ -19,6 +19,8 @@ export interface TextFieldProps {
   error?: '' | string;
   multiline?: boolean;
   disabled?: boolean;
+  secure?: boolean;
+  hints?: boolean;
 }
 
 
@@ -37,6 +39,8 @@ export const TextField = React.memo(
     keyboardType,
     multiline,
     disabled,
+    secure = false,
+    hints = false,
   }: TextFieldProps): JSX.Element => {
     const [focused, setFocus] = useState(false);
     const inputRef: Ref<TextInput> = useRef(null);
@@ -51,6 +55,7 @@ export const TextField = React.memo(
     const onBlur = React.useCallback((): void => setFocus(false), [setFocus]);
 
     const inputProps = {
+      autoCorrect: hints,
       accessibilityLabel: label,
       keyboardType,
       onChangeText: onChange,
@@ -61,6 +66,7 @@ export const TextField = React.memo(
       multiline,
       editable: !disabled,
       style: multiline ? styles.textinput : null,
+      secureTextEntry: secure,
     };
 
     return (

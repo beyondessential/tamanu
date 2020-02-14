@@ -8,6 +8,7 @@ export interface FieldProps {
   type?: string;
   disabled?: boolean;
   options?: any[];
+  [key: string] : any;
 }
 
 export const Field = ({
@@ -17,6 +18,7 @@ export const Field = ({
   type,
   disabled = false,
   options,
+  ...rest
 }:FieldProps): JSX.Element => {
   const [field, meta] = useField(name);
   return (
@@ -30,6 +32,7 @@ export const Field = ({
       type={type}
       disabled={disabled}
       options={options}
+      {...rest}
     />
   );
 };
