@@ -4,10 +4,14 @@ import { Model } from './Model';
 import { Visit } from './Visit';
 import { Patient } from './Patient';
 
-const OBJECT_TYPES = [
+export const NOTE_OBJECT_TYPES = [
   Visit,
   Patient,
-].map(modelClass => modelClass.name);
+]
+  .map(modelClass => modelClass.name)
+  .reduce((obj, name) => ({ ...obj, [name.toUpperCase()]: name }));
+
+const NOTE_OBJECT_TYPE_VALUES = Object.values(NOTE_OBJECT_TYPES);
 
 export class Note extends Model {
   static init({ primaryKey, ...options }) {
@@ -22,7 +26,7 @@ export class Note extends Model {
           allowNull: false,
         },
         objectType: {
-          type: Sequelize.ENUM(OBJECT_TYPES),
+          type: Sequelize.ENUM(NOTE_OBJECT_TYPE_VALUES),
           allowNull: false,
         },
 
@@ -41,7 +45,7 @@ export class Note extends Model {
         ...options,
         validate: {
           mustHaveValidRelationType() {
-            if (!OBJECT_TYPES.includes(this.objectType)) {
+            if (!NOTE_OBJECT_TYPE_VALUES.includes(this.objectType)) {
               throw new Error(`Must have a valid type (got ${this.objectType})`);
             }
           },

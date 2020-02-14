@@ -1,4 +1,5 @@
 import { createDummyPatient, createDummyVisit } from 'shared/demoData/patients';
+import { NOTE_OBJECT_TYPES } from 'shared/models/Note';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
 
@@ -18,7 +19,7 @@ describe('Note', () => {
     const content = chance.paragraph();
     const response = await app.post('/v1/note').send({
       objectId: patient.id,
-      objectType: 'Patient',
+      objectType: NOTE_OBJECT_TYPES.PATIENT,
       content,
     });
 
@@ -36,7 +37,7 @@ describe('Note', () => {
     const note = await models.Note.create({
       content: chance.paragraph(),
       objectId: patient.id,
-      objectType: 'Patient',
+      objectType: NOTE_OBJECT_TYPES.PATIENT,
     });
 
     const response = await app.put(`/v1/note/${note.id}`).send({
@@ -64,7 +65,7 @@ describe('Note', () => {
   it('should not write a note on an non-existent object', async () => {
     const response = await app.post('/v1/note').send({
       objectId: 'invalid',
-      objectType: 'Patient',
+      objectType: NOTE_OBJECT_TYPES.PATIENT,
       content: chance.paragraph(),
     });
 
@@ -89,7 +90,7 @@ describe('Note', () => {
     it('should forbid writing notes on a forbidden object', async () => {
       const response = await noPermsApp.post('/v1/note').send({
         objectId: forbiddenObject.id,
-        objectType: 'Patient',
+        objectType: NOTE_OBJECT_TYPES.PATIENT,
         content: chance.paragraph(),
       });
 
@@ -99,7 +100,7 @@ describe('Note', () => {
     it('should forbid editing notes on a forbidden object', async () => {
       const note = await models.Note.create({
         objectId: forbiddenObject.id,
-        objectType: 'Patient',
+        objectType: NOTE_OBJECT_TYPES.PATIENT,
         content: chance.paragraph(),
       });
 
