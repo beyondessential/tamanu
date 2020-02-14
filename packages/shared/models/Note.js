@@ -1,10 +1,12 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 
+import { Visit, Patient } from '.';
+
 const OBJECT_TYPES = [
-  'Visit',
-  'Patient',
-];
+  Visit,
+  Patient,
+].map(modelClass => modelClass.name);
 
 export class Note extends Model {
   static init({ primaryKey, ...options }) {
@@ -39,7 +41,7 @@ export class Note extends Model {
         validate: {
           mustHaveValidRelationType() {
             if(!OBJECT_TYPES.includes(this.objectType)) {
-              throw new Error(`Must have a valid type (got ${this.type})`);
+              throw new Error(`Must have a valid type (got ${this.objectType})`);
             }
           },
           mustHaveContent() {
