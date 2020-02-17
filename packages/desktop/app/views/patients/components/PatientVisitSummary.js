@@ -15,7 +15,6 @@ const VISIT_TYPE_COLORS = {
   [VISIT_TYPES.ADMISSION]: Colors.safe,
   [VISIT_TYPES.CLINIC]: Colors.primary,
   [VISIT_TYPES.IMAGING]: Colors.primary,
-  [VISIT_TYPES.LAB]: Colors.primary,
   [VISIT_TYPES.EMERGENCY]: Colors.alert,
   [VISIT_TYPES.OBSERVATION]: Colors.safe,
   [VISIT_TYPES.TRIAGE]: Colors.alert,
