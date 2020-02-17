@@ -52,6 +52,9 @@ export const DiagnosisView = connect(state => ({
   React.memo(({ visitId, diagnoses, isTriage, readonly }) => {
     const [diagnosis, editDiagnosis] = React.useState(null);
 
+    const displayedDiagnoses = diagnoses
+      .filter(d => !['error', 'disproven'].includes(d.certainty));
+
     return (
       <React.Fragment>
         <DiagnosisModal
@@ -61,8 +64,8 @@ export const DiagnosisView = connect(state => ({
           onClose={() => editDiagnosis(null)}
         />
         <DiagnosisGrid>
-          <DiagnosisLabel numberOfDiagnoses={diagnoses.length} />
-          <DiagnosisList diagnoses={diagnoses} onEditDiagnosis={!readonly && editDiagnosis} />
+          <DiagnosisLabel numberOfDiagnoses={displayedDiagnoses.length} />
+          <DiagnosisList diagnoses={displayedDiagnoses} onEditDiagnosis={!readonly && editDiagnosis} />
             <AddDiagnosisButton
               onClick={() => editDiagnosis({})}
               variant="outlined"
