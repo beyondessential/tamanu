@@ -41,6 +41,8 @@ patientRoutes.post('/patient/:id/triages', (req, res) => {
     const secondaryComplaint = db.objectForPrimaryKey('diagnosis', triage.secondaryComplaint._id);
     reasonForVisit += ", " + secondaryComplaint.name;
   }
+
+  const emergencyDepartment = db.objects('department').filtered('name = $0', 'Emergency')[0];
   
   const visit = {
     _id: shortid.generate(),
@@ -49,6 +51,7 @@ patientRoutes.post('/patient/:id/triages', (req, res) => {
     reasonForVisit,
     examiner: triage.practitioner,
     location: triage.location,
+    department: emergencyDepartment,
   };
 
   // add vitals reading to visit if present
