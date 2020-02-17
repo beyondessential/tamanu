@@ -19,18 +19,16 @@ import {
   DateField,
 } from '../components/Field';
 
-const CERTAINTY_EMERGENCY = CERTAINTY_OPTIONS_BY_VALUE.emergency.value;
-const CERTAINTY_SUSPECTED = CERTAINTY_OPTIONS_BY_VALUE.suspected.value;
-
 export const DiagnosisForm = React.memo(
   ({ isTriage = false, onCancel, onSave, diagnosis, icd10Suggester }) => {
     // don't show the "ED Diagnosis" option if we're just on a regular visit
     // (unless we're editing a diagnosis with ED certainty already set)
-    const certaintyOptions =
-      isTriage || (diagnosis && diagnosis.certainty === CERTAINTY_EMERGENCY)
-        ? diagnosisCertaintyOptions
-        : nonEmergencyDiagnosisCertaintyOptions;
-    const defaultCertainty = isTriage ? CERTAINTY_EMERGENCY : CERTAINTY_SUSPECTED;
+    const certaintyOptions = diagnosisCertaintyOptions.filter(x => {
+      if(x.editOnly && !(diagnosis && diagnosis._id)) return false;
+      if(x.triageOnly && !isTriage) return false;
+      return true;
+    });
+    const defaultCertainty = certaintyOptions[0].value;
 
     return (
       <Form

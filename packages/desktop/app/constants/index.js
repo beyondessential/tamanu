@@ -209,9 +209,11 @@ export const reportOptions = [
 ];
 
 export const diagnosisCertaintyOptions = [
-  { value: 'emergency', label: 'ED Diagnosis' },
+  { value: 'emergency', label: 'ED Diagnosis', triageOnly: true },
   { value: 'suspected', label: 'Suspected' },
   { value: 'confirmed', label: 'Confirmed' },
+  { value: 'disproven', label: 'Disproven', editOnly: true },
+  { value: 'error', label: 'Recorded in error', editOnly: true },
 ];
 
 export const CERTAINTY_OPTIONS_BY_VALUE = createValueIndex(diagnosisCertaintyOptions);
