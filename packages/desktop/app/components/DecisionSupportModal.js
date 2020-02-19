@@ -15,7 +15,7 @@ const RepeatDiagnosisMessage = React.memo(({ diagnosis, previousDiagnoses }) => 
   <React.Fragment>
     <p>{
       `Attention: 
-      This patient has been previously diagnosed with ${diagnosis.diagnosis._id} on:
+      This patient has been previously diagnosed with ${previousDiagnoses[0].diagnosis.name} on:
     `}</p>
     <ul>
       { previousDiagnoses.map(pd => <li><DateDisplay date={pd.date} /></li>) }
