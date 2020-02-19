@@ -163,12 +163,22 @@ visitRoutes.post('/visit/:id/diagnosis', (req, res) => {
   };
 
   // TODO: validate
+  
+  // get previous diagnoses of the same type
+  const previousDiagnoses = db.objects('patientDiagnosis').filtered(
+    'diagnosis._id = $0 AND visit.patient._id = $1',
+    body.diagnosis._id,
+    visit.patient[0]._id,
+  );
 
   db.write(() => {
     visit.diagnoses = [...visit.diagnoses, diagnosis];
   });
 
-  res.send(objectToJSON(diagnosis));
+  res.send(objectToJSON({
+    ...diagnosis,
+    previousDiagnoses,
+  }));
 });
 
 visitRoutes.post('/visit/:id/procedure', (req, res) => {
