@@ -9,6 +9,10 @@ export const PatientDiagnosisSchema = {
     diagnosis: 'diagnosis',
     certainty: 'string', // suspected or confirmed
     isPrimary: 'bool',
+
+    // reverse links
+    visit: { type: 'linkingObjects', objectType: 'visit', property: 'diagnoses' },
+
     ...defaults,
   },
 };

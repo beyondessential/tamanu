@@ -11,6 +11,7 @@ import { getCurrentRoute } from './store/router';
 import { ConnectedLoginView } from './views';
 import { Colors } from './constants';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { DecisionSupportModal } from './components/DecisionSupportModal';
 
 const AppContainer = styled.div`
   height: 100vh;
@@ -52,7 +53,10 @@ class DumbApp extends Component {
         <Appbar />
         <ConnectedSidebar />
         <ErrorBoundary errorKey={currentRoute}>
-          <AppContentsContainer>{this.props.children}</AppContentsContainer>
+          <AppContentsContainer>
+            {this.props.children}
+            <DecisionSupportModal />
+          </AppContentsContainer>
         </ErrorBoundary>
       </AppContainer>
     );

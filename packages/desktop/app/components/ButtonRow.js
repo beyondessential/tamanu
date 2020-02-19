@@ -17,7 +17,7 @@ const Row = styled.div`
 // Also note the 'auto' as the first element of grid-template-columns,
 // which corresponds to this div.
 export const ButtonRow = React.memo(({ children, ...props }) => (
-  <Row items={children.length || 1} {...props}>
+  <Row items={children.filter(x => x).length || 1} {...props}>
     <div />
     {children}
   </Row>
@@ -26,12 +26,16 @@ export const ButtonRow = React.memo(({ children, ...props }) => (
 export const ConfirmCancelRow = React.memo(
   ({ onCancel, onConfirm, confirmText = 'Confirm', cancelText = 'Cancel', ...props }) => (
     <ButtonRow {...props}>
-      <Button variant="contained" onClick={onCancel}>
-        {cancelText}
-      </Button>
-      <Button variant="contained" color="primary" onClick={onConfirm}>
-        {confirmText}
-      </Button>
+      {onCancel && (
+        <Button variant="contained" onClick={onCancel}>
+          {cancelText}
+        </Button>
+      )}
+      {onConfirm && (
+        <Button variant="contained" color="primary" onClick={onConfirm}>
+          {confirmText}
+        </Button>
+      )}
     </ButtonRow>
   ),
 );
