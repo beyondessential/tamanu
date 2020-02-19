@@ -8,11 +8,32 @@ import { Suggester } from '../utils/suggester';
 
 import { ChangeDepartmentForm } from '../forms/ChangeDepartmentForm';
 
-const DumbDecisionSupportModal = React.memo(({ message, onClose }) => (
-  <Modal title="Decision support" open={!!message} onClose={onClose}>
-    {JSON.stringify(message, null, 2)}
-  </Modal>
+import { DateDisplay } from './DateDisplay';
+import { ModalActionRow } from './ButtonRow';
+
+const RepeatDiagnosisMessage = React.memo(({ diagnosis, previousDiagnoses }) => (
+  <React.Fragment>
+    <p>{
+      `Attention: 
+      This patient has been previously diagnosed with ${diagnosis.diagnosis._id} on:
+    `}</p>
+    <ul>
+      { previousDiagnoses.map(pd => <li><DateDisplay date={pd.date} /></li>) }
+    </ul>
+  </React.Fragment>
 ));
+
+const DumbDecisionSupportModal = React.memo(({ message, onClose }) => {
+  if(!message) {
+    return null;
+  }
+  return (
+    <Modal title="Decision support" open onClose={onClose}>
+      <RepeatDiagnosisMessage {...message.extraInfo} />
+      <ModalActionRow onConfirm={onClose} confirmText="OK" />
+    </Modal>
+  );
+});
 
 export const DecisionSupportModal = connect(
   state => ({
