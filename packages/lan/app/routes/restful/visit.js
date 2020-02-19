@@ -176,7 +176,7 @@ visitRoutes.post('/visit/:id/diagnosis', (req, res) => {
   });
 
   res.send(objectToJSON({
-    ...diagnosis,
+    diagnosis,
     previousDiagnoses,
   }));
 });
