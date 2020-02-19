@@ -3,6 +3,7 @@ import React from 'react';
 import { connectApi } from '../api/connectApi';
 import { Suggester } from '../utils/suggester';
 import { viewVisit } from '../store/visit';
+import { showDecisionSupport } from '../store/decisionSupport';
 
 import { Modal } from './Modal';
 import { DiagnosisForm } from '../forms/DiagnosisForm';
@@ -18,7 +19,13 @@ export const DiagnosisModal = connectApi((api, dispatch, { visitId, onClose }) =
     if (data._id) {
       await api.put(`patientDiagnosis/${data._id}`, data);
     } else {
-      await api.post(`visit/${visitId}/diagnosis`, data);
+      const { diagnosis, previousDiagnoses } = await api.post(`visit/${visitId}/diagnosis`, data);
+      if(previousDiagnoses.length > 0) {
+        dispatch(showDecisionSupport('repeatDiagnosis', {
+          diagnosis,
+          previousDiagnoses,
+        }));
+      }
     }
 
     onClose();
