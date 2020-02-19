@@ -20,11 +20,13 @@ export const DiagnosisModal = connectApi((api, dispatch, { visitId, onClose }) =
       await api.put(`patientDiagnosis/${data._id}`, data);
     } else {
       const { diagnosis, previousDiagnoses } = await api.post(`visit/${visitId}/diagnosis`, data);
-      if(previousDiagnoses.length > 0) {
-        dispatch(showDecisionSupport('repeatDiagnosis', {
-          diagnosis,
-          previousDiagnoses,
-        }));
+      if (previousDiagnoses.length > 0) {
+        dispatch(
+          showDecisionSupport('repeatDiagnosis', {
+            diagnosis,
+            previousDiagnoses,
+          }),
+        );
       }
     }
 

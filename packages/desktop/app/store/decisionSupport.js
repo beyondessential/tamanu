@@ -10,7 +10,6 @@ export const showDecisionSupport = (decisionSupportType, extraInfo) => ({
   extraInfo,
 });
 
-
 // selectors
 
 export const getCurrentDecisionSupport = state => state.decisionSupport.messages[0];
@@ -22,13 +21,15 @@ const defaultState = {
 };
 
 const handlers = {
-  [POP_DECISION_SUPPORT]: action => ({
+  [POP_DECISION_SUPPORT]: () => ({
     messages: [],
   }),
   [PUSH_DECISION_SUPPORT]: action => ({
-    messages: [{
-      ...action
-    }]
+    messages: [
+      {
+        ...action,
+      },
+    ],
   }),
 };
 

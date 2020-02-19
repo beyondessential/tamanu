@@ -1,30 +1,31 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { Modal } from './Modal';
-
 import { getCurrentDecisionSupport, POP_DECISION_SUPPORT } from 'desktop/app/store/decisionSupport';
-import { Suggester } from '../utils/suggester';
-
-import { ChangeDepartmentForm } from '../forms/ChangeDepartmentForm';
+import { Modal } from './Modal';
 
 import { DateDisplay } from './DateDisplay';
 import { ModalActionRow } from './ButtonRow';
 
-const RepeatDiagnosisMessage = React.memo(({ diagnosis, previousDiagnoses }) => (
+const RepeatDiagnosisMessage = React.memo(({ previousDiagnoses }) => (
   <React.Fragment>
-    <p>{
-      `Attention: 
+    <p>
+      {`Attention: 
       This patient has been previously diagnosed with ${previousDiagnoses[0].diagnosis.name} on:
-    `}</p>
+    `}
+    </p>
     <ul>
-      { previousDiagnoses.map(pd => <li><DateDisplay date={pd.date} /></li>) }
+      {previousDiagnoses.map(pd => (
+        <li>
+          <DateDisplay date={pd.date} />
+        </li>
+      ))}
     </ul>
   </React.Fragment>
 ));
 
 const DumbDecisionSupportModal = React.memo(({ message, onClose }) => {
-  if(!message) {
+  if (!message) {
     return null;
   }
   return (
@@ -43,4 +44,3 @@ export const DecisionSupportModal = connect(
     onClose: () => dispatch({ type: POP_DECISION_SUPPORT }),
   }),
 )(DumbDecisionSupportModal);
-
