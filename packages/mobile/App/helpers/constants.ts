@@ -71,3 +71,10 @@ export const SCREEN_ORIENTATION = {
   LANDSCAPE: 'landscape',
   SCHEDULED: 'SCHEDULED',
 };
+
+export const Routes = {
+  SignUpStack: {
+    SignIn: 'SignIn',
+    Intro: 'Intro',
+  },
+};

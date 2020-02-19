@@ -4,9 +4,13 @@ import { LogoV1 } from '../../../components/Icons';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { theme } from '../../../styled/theme';
 import { Button } from '../../../components/Button';
+import { IntroScreenProps } from '../../../interfaces/Screens/SignUp/IntroScreenProps';
+import { Routes } from '../../../helpers/constants';
 
-export const IntroScreen: FunctionComponent<any> = () => (
-  <FullView>
+export const IntroScreen: FunctionComponent<any> = ({ navigation }: IntroScreenProps) => (
+  <FullView
+    background={theme.colors.WHITE}
+  >
     <StyledSafeAreaView>
       <CenterView
         marginTop={screenPercentageToDP(13.36, Orientation.Height)}
@@ -40,7 +44,7 @@ export const IntroScreen: FunctionComponent<any> = () => (
         marginTop={screenPercentageToDP('13.00', Orientation.Height)}
       >
         <Button
-          onPress={(): void => console.log('something')}
+          onPress={(): void => navigation.navigate(Routes.SignUpStack.SignIn)}
           width={140}
           outline
           borderColor={theme.colors.PRIMARY_MAIN}
