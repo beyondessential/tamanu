@@ -21,7 +21,12 @@ export const PrimaryDetailsGroup = ({ villageSuggester }) => (
     <Field name="middleName" label="Middle name" component={TextField} />
     <Field name="lastName" label="Last name" component={TextField} required />
     <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
-    <Field name="village._id" label="Village" component={AutocompleteField} suggester={villageSuggester} />
+    <Field
+      name="village._id"
+      label="Village"
+      component={AutocompleteField}
+      suggester={villageSuggester}
+    />
     <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
     <Field name="sex" label="Sex" component={RadioField} options={sexOptions} inline required />
   </React.Fragment>
@@ -66,7 +71,13 @@ export const SecondaryDetailsGroup = ({ isBirth, patientSuggester, facilitySugge
   </React.Fragment>
 );
 
-export const PatientDetailsForm = ({ patientSuggester, facilitySuggester, villageSuggester, patient, onSubmit }) => {
+export const PatientDetailsForm = ({
+  patientSuggester,
+  facilitySuggester,
+  villageSuggester,
+  patient,
+  onSubmit,
+}) => {
   const render = React.useCallback(
     ({ submitForm }) => (
       <FormGrid>

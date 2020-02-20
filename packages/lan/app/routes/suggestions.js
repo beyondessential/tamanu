@@ -4,7 +4,13 @@ export const suggestionRoutes = express.Router();
 
 const defaultTransform = ({ name, _id }) => ({ name, _id });
 
-function createSuggestionRoute(path, table, filter, transform = defaultTransform, sortKey = 'name') {
+function createSuggestionRoute(
+  path,
+  table,
+  filter,
+  transform = defaultTransform,
+  sortKey = 'name',
+) {
   suggestionRoutes.get(`/${path}/:id`, (req, res) => {
     const { db, params } = req;
     const { id } = params;
