@@ -65,15 +65,15 @@ describe('restful routes', () => {
   describe('adding a user', () => {
     const id = generateTestId();
 
-    it('should add a diagnosis', async () => {
+    it('should create a user', async () => {
       const name = 'Test Fred Hollows';
-      await app.post('/user').send({ _id: id, name });
+      await app.post('/user').send({ _id: id, name, password: '123' });
       const results = db.objects('user').filtered('_id = $0', id);
       expect(results.length).toEqual(1);
       expect(results[0].name).toEqual(name);
     });
 
-    it('should update a diagnosis', async () => {
+    it('should update a user', async () => {
       const newName = 'Test Freddie Mercury';
       await app.put(`/user/${id}`).send({ name: newName });
       const results = db.objects('user').filtered('_id = $0', id);
