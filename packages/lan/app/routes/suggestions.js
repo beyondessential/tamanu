@@ -103,3 +103,4 @@ createSuggestionRoute('facility', 'facility', 'name CONTAINS[c] $0');
 createSuggestionRoute('location', 'location', 'name CONTAINS[c] $0');
 createSuggestionRoute('drug', 'drug', 'name BEGINSWITH[c] $0');
 createSuggestionRoute('department', 'department', 'name CONTAINS[c] $0');
+createSuggestionRoute('village', 'village', 'name CONTAINS[c] $0');

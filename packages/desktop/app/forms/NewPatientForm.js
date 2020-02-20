@@ -56,6 +56,7 @@ export const NewPatientForm = memo(
     generateId,
     patientSuggester,
     facilitySuggester,
+    villageSuggester,
     isBirth,
   }) => {
     const [isExpanded, setExpanded] = useState(false);
@@ -66,7 +67,7 @@ export const NewPatientForm = memo(
             <Field name="displayId" component={IdField} regenerateId={generateId} />
           </IdBanner>
         </IdBannerContainer>
-        <PrimaryDetailsGroup />
+        <PrimaryDetailsGroup villageSuggester={villageSuggester} />
         <AdditionalInformationRow>
           <div>
             Add additional information <span>(religion, occupation, blood type...)</span>
