@@ -168,7 +168,7 @@ visitRoutes.post('/visit/:id/diagnosis', (req, res) => {
   const previousDiagnoses = db
     .objects('patientDiagnosis')
     .filtered(
-      'diagnosis._id = $0 AND visit.patient._id = $1',
+      `diagnosis._id = $0 AND visit.patient._id = $1 AND NOT (certainty = "error" OR certainty = "disproven")`,
       body.diagnosis._id,
       visit.patient[0]._id,
     );
