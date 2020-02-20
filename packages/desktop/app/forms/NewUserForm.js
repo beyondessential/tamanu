@@ -11,6 +11,7 @@ export const NewUserForm = memo(({ editedObject, onSubmit, onCancel }) => {
       <FormGrid>
         <Field name="name" label="Name" component={TextField} required />
         <Field name="displayName" label="Display name" component={TextField} required />
+        <Field name="password" label="Password" type="password" component={TextField} required />
         <Field name="email" label="Email address" component={TextField} required />
         <ModalActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
       </FormGrid>
@@ -25,6 +26,7 @@ export const NewUserForm = memo(({ editedObject, onSubmit, onCancel }) => {
       validationSchema={yup.object().shape({
         name: yup.string().required(),
         displayName: yup.string().required(),
+        password: yup.string().required(),
         email: yup
           .string()
           .email()
