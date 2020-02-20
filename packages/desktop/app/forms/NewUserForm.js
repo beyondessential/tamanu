@@ -6,17 +6,15 @@ import { FormGrid } from '../components/FormGrid';
 import { ModalActionRow } from '../components/ButtonRow';
 
 export const NewUserForm = memo(({ editedObject, onSubmit, onCancel }) => {
-  const renderForm = ({ submitForm }) => {
-    return (
-      <FormGrid>
-        <Field name="name" label="Name" component={TextField} required />
-        <Field name="displayName" label="Display name" component={TextField} required />
-        <Field name="password" label="Password" type="password" component={TextField} required />
-        <Field name="email" label="Email address" component={TextField} required />
-        <ModalActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
-      </FormGrid>
-    );
-  };
+  const renderForm = ({ submitForm }) => (
+    <FormGrid>
+      <Field name="name" label="Name" component={TextField} required />
+      <Field name="displayName" label="Display name" component={TextField} required />
+      <Field name="password" label="Password" type="password" component={TextField} required />
+      <Field name="email" label="Email address" component={TextField} required />
+      <ModalActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
+    </FormGrid>
+  );
 
   return (
     <Form
