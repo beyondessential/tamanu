@@ -12,6 +12,7 @@ import {
   LOCATIONS,
   USERS,
   PROCEDURE_TYPES,
+  VILLAGES,
 } from 'Shared/demoData';
 
 const GENERATORS = {
@@ -26,6 +27,7 @@ const GENERATORS = {
   location: () => LOCATIONS,
   patient: (db, count) => new Array(count).fill(0).map(() => createDummyPatient(db)),
   user: () => USERS,
+  village: () => VILLAGES,
 };
 
 const generateAndWrite = (db, resource, count) => {
