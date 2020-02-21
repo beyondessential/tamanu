@@ -74,7 +74,23 @@ export const SCREEN_ORIENTATION = {
 
 export const Routes = {
   SignUpStack: {
-    SignIn: 'SignIn',
     Intro: 'Intro',
+    SignIn: 'SignIn',
+    RegisterAccount: 'RegisterAccount',
   },
 };
+
+export const PhoneMask = { mask: '9999 9999 999' };
+
+export const GenderOptions = [{
+  label: 'Female',
+  value: 'female',
+},
+{
+  label: 'Male',
+  value: 'male',
+},
+{
+  label: 'Other',
+  value: 'other',
+}];

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { KeyboardType } from 'react-native';
+import { KeyboardType, Platform, ReturnKeyTypeOptions } from 'react-native';
 import {
   TextInputMaskTypeProp,
   TextInputMaskOptionProp,
@@ -9,6 +9,7 @@ import { InputContainer, StyledMaskedInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '../../styled/common';
 import { RefObject } from './TextField';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 export interface TextFieldProps {
   value: string;
@@ -22,6 +23,8 @@ export interface TextFieldProps {
   maskType?: TextInputMaskTypeProp;
   options?: TextInputMaskOptionProp;
   datePicker?: boolean;
+  returnKeyType? : ReturnKeyTypeOptions;
+
 }
 
 export const MaskedTextField = React.memo(
@@ -33,6 +36,7 @@ export const MaskedTextField = React.memo(
     maskType = 'cnpj',
     options,
     keyboardType,
+    returnKeyType = 'done',
   }: TextFieldProps): JSX.Element => {
     const [focused, setFocus] = useState(false);
     const maskedInputRef: RefObject<any> = useRef(null);
@@ -48,6 +52,7 @@ export const MaskedTextField = React.memo(
     const onBlur = React.useCallback((): void => setFocus(false), [setFocus]);
 
     const inputProps = {
+      returnKeyType,
       accessibilityLabel: label,
       keyboardType,
       onChangeText: onChange,
@@ -55,11 +60,22 @@ export const MaskedTextField = React.memo(
       onBlur,
       value,
       focused,
+      style: {
+        paddingTop: screenPercentageToDP(1.21, Orientation.Height),
+      },
     };
 
     return (
       <StyledView height={55} width="100%">
-        <InputContainer hasValue={value.length > 0} error={error}>
+        <InputContainer
+          hasValue={value.length > 0}
+          error={error}
+          paddingLeft={
+            Platform.OS === 'ios'
+              ? screenPercentageToDP(2.0, Orientation.Width)
+              : screenPercentageToDP(1.5, Orientation.Width)
+          }
+        >
           {label && (
             <TextFieldLabel
               error={error}
@@ -76,6 +92,8 @@ export const MaskedTextField = React.memo(
             options={options}
             type={maskType}
             {...inputProps}
+            returnKeyType="done"
+
           />
         </InputContainer>
       </StyledView>

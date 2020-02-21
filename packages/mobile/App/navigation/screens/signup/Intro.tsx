@@ -60,7 +60,7 @@ export const IntroScreen: FunctionComponent<any> = ({ navigation }: IntroScreenP
         </Button>
         <Button
           backgroundColor={theme.colors.SECONDARY_MAIN}
-          onPress={(): void => console.log('something')}
+          onPress={(): void => navigation.navigate(Routes.SignUpStack.RegisterAccount)}
           width={140}
         >
           <StyledText
@@ -73,7 +73,7 @@ export const IntroScreen: FunctionComponent<any> = ({ navigation }: IntroScreenP
       <CenterView marginTop={30}>
         <Button
           height={40}
-          onPress={(): void => console.log('something')}
+          onPress={(): void => navigation.navigate(Routes.SignUpStack.RegisterAccount)}
           width={140}
           backgroundColor={theme.colors.WHITE}
         >

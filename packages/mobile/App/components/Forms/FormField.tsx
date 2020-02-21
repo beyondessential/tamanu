@@ -4,11 +4,10 @@ import { Field as FormikField, useField } from 'formik';
 export interface FieldProps {
   component: Component<any> | Function;
   name: string;
-  label: string;
+  label?: string;
   type?: string;
   disabled?: boolean;
-  options?: any[];
-  [key: string] : any;
+  [key: string]: any;
 }
 
 export const Field = ({
@@ -28,7 +27,7 @@ export const Field = ({
       onChange={(newValue: any): any => field.onChange({ target: { name, value: newValue } })}
       value={field.value}
       label={label}
-      error={meta.error}
+      error={meta.touched && meta.error}
       type={type}
       disabled={disabled}
       options={options}

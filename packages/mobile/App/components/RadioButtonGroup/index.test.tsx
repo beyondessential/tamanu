@@ -4,7 +4,7 @@ import { RadioButtonGroupProps, RadioButtonGroup } from './index';
 
 describe('<RadioButtonGroup />', () => {
   const props: RadioButtonGroupProps = {
-    onSelectOption: jest.fn(),
+    onChange: jest.fn(),
     options: [
       {
         label: '1',
@@ -25,8 +25,8 @@ describe('<RadioButtonGroup />', () => {
     });
   });
 
-  it('should call onSelectOption when pressed a <RadioButton/>', () => {
+  it('should call onChange when pressed a <RadioButton/>', () => {
     fireEvent.press(getByText(props.options[0].value));
-    expect(props.onSelectOption).toHaveBeenCalled();
+    expect(props.onChange).toHaveBeenCalled();
   });
 });

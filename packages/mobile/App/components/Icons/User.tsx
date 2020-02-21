@@ -1,10 +1,15 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
-import { StyledView } from '../../styled/common';
+import Animated from 'react-native-reanimated';
 import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
+import { StyledView } from '../../styled/common';
 
 export const User = React.memo(({ size, ...rest }: IconWithSizeProps) => (
-  <StyledView height={size} width={size}>
+  <StyledView
+    as={Animated.View}
+    height={size}
+    width={size}
+  >
     <Svg
       width="100%"
       height="100%"

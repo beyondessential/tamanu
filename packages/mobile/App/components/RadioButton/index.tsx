@@ -4,6 +4,7 @@ import { TouchableWithoutFeedback } from 'react-native';
 import { theme } from '../../styled/theme';
 import { StyledView, RowView } from '../../styled/common';
 import { ColorHelper } from '../../helpers/colors';
+import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 
 export interface FormField {
   value: string;
@@ -38,8 +39,7 @@ const StyledButtonText = styled.Text<RadioButtonText>`
 export const RadioButton = (props: RadioOptionProps): JSX.Element => {
   const getColor = React.useCallback(() => {
     if (props.error) return ColorHelper.halfTransparency(theme.colors.ALERT);
-    if (props.selected) return theme.colors.TEXT_MID;
-    return theme.colors.PRIMARY_MAIN;
+    return theme.colors.TEXT_MID;
   }, [props.error, props.selected]);
 
   const onPressCallback = React.useCallback(() => props.onPress(props.value), [
@@ -49,6 +49,8 @@ export const RadioButton = (props: RadioOptionProps): JSX.Element => {
   return (
     <TouchableWithoutFeedback onPress={onPressCallback}>
       <RowView
+        marginLeft={screenPercentageToDP(1.21, Orientation.Width)}
+        background={theme.colors.WHITE}
         alignItems="center"
         justifyContent="center"
         height={55}

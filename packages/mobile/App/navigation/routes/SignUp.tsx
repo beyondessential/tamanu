@@ -1,8 +1,11 @@
 import React, { FunctionComponent } from 'react';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
-import { IntroScreen } from '../screens/signup/Intro';
-import { SignIn } from '../screens/signup/SignIn';
+// Helpers
 import { Routes } from '../../helpers/constants';
+// Screens
+import { SignIn } from '../screens/signup/SignIn';
+import { IntroScreen } from '../screens/signup/Intro';
+import { RegisterAccount } from '../screens/signup/RegisterAccount';
 
 const Stack = createStackNavigator();
 
@@ -23,5 +26,6 @@ export const SignUpStack: FunctionComponent<any> = () => (
       component={SignIn}
       options={TransitionStyle}
     />
+    <Stack.Screen name={Routes.SignUpStack.RegisterAccount} component={RegisterAccount} />
   </Stack.Navigator>
 );

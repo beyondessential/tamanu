@@ -11,4 +11,5 @@ module.exports = {
   testRegex: '(/App/.*\\.test)\\.(ts|tsx|js)$',
   testPathIgnorePatterns: ['\\.snap$', '<rootDir>/node_modules/'],
   cacheDirectory: '.jest/cache',
+  setupFiles: ['./mocks/IconsMock.tsx'],
 };

@@ -1,6 +1,7 @@
 import styled from 'styled-components/native';
 import * as styledSystem from 'styled-system';
 import { ReactNode } from 'react';
+import { AnimatedValue } from 'react-navigation';
 
 const sizes = [];
 for (let i = 0; i < 10; i++) {
@@ -22,14 +23,14 @@ export const themeSystem = {
 
 interface TextProps {
   textAlign?: 'auto'| 'left'| 'right'| 'center'| 'justify';
-  fontSize?: number | string;
+  fontSize?: number | string | AnimatedValue;
   fontWeight?: number | string;
   textDecorationLine?: 'none' | 'underline' | 'line-through' | 'underline line-through';
   color?: string;
 }
 export interface SpacingProps {
-  height?: string | number;
-  width?: string | number;
+  height?: string | number | AnimatedValue;
+  width?: string | number| AnimatedValue;
   padding?: string | number | number[];
   paddingTop?: number | string;
   paddingBottom?: number | string;
