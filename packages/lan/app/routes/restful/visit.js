@@ -171,7 +171,8 @@ visitRoutes.post('/visit/:id/diagnosis', (req, res) => {
       `diagnosis._id = $0 AND visit.patient._id = $1 AND NOT (certainty = "error" OR certainty = "disproven")`,
       body.diagnosis._id,
       visit.patient[0]._id,
-    );
+    )
+    .map(x => x);  // the query is lazily evaluated but we want to run it now, this forces it
 
   db.write(() => {
     visit.diagnoses = [...visit.diagnoses, diagnosis];
