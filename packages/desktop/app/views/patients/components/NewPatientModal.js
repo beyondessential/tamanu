@@ -20,6 +20,7 @@ export const NewPatientModal = connectApi((api, dispatch, { onCancel }) => ({
     label: `${firstName} ${lastName}`,
   })),
   facilitySuggester: new Suggester(api, 'facility'),
+  villageSuggester: new Suggester(api, 'village'),
   onSubmit: async data => {
     const { _id: patientId } = await api.post('patient', data);
     onCancel();

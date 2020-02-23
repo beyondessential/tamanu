@@ -9,3 +9,4 @@ export * from './locations';
 export * from './patients';
 export * from './procedureTypes';
 export * from './users';
+export * from './villages';

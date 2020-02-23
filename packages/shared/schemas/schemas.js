@@ -48,5 +48,6 @@ export * from './triage';
 export * from './user';
 export * from './user-role';
 export * from './view';
+export * from './village';
 export * from './visit';
 export * from './vital';
