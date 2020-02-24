@@ -1,5 +1,5 @@
 import React, { useState, useRef, Ref } from 'react';
-import { TextInput, KeyboardType, StyleSheet, Platform } from 'react-native';
+import { TextInput, KeyboardType, StyleSheet, Platform, ReturnKeyTypeOptions } from 'react-native';
 import { InputContainer, StyledTextInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '../../styled/common';
@@ -21,6 +21,9 @@ export interface TextFieldProps {
   disabled?: boolean;
   secure?: boolean;
   hints?: boolean;
+  returnKeyType?: ReturnKeyTypeOptions,
+  autoFocus?: boolean;
+  autoCapitalize?: 'none' | 'words' | 'sentences' | 'characters' | undefined;
 }
 
 
@@ -41,6 +44,9 @@ export const TextField = React.memo(
     disabled,
     secure = false,
     hints = false,
+    returnKeyType = 'done',
+    autoFocus = false,
+    autoCapitalize = 'words',
   }: TextFieldProps): JSX.Element => {
     const [focused, setFocus] = useState(false);
     const inputRef: Ref<TextInput> = useRef(null);
@@ -55,6 +61,9 @@ export const TextField = React.memo(
     const onBlur = React.useCallback((): void => setFocus(false), [setFocus]);
 
     const inputProps = {
+      autoCapitalize,
+      autoFocus,
+      returnKeyType,
       autoCorrect: hints,
       accessibilityLabel: label,
       keyboardType,

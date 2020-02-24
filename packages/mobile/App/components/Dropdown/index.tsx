@@ -23,12 +23,6 @@ export interface DropdownProps {
   error?: '' | string;
   disabled?: boolean;
 }
-
-function getModalBackground(OS: string, open: boolean): string {
-  if (OS === 'ios') return 'rgba(0,0,0,0)';
-  return open ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0)';
-}
-
 export const Dropdown = React.memo(
   ({ value, onChange, error, options, label, disabled = false }: DropdownProps) => {
     const [open, setOpen] = useState(false);
@@ -54,6 +48,7 @@ export const Dropdown = React.memo(
                     onFocus={disabled ? closeModal : setOpen}
                     focus={open}
                     isValueEmpty={value !== null}
+                    error={error}
                   >
                     {label}
                   </TextFieldLabel>
@@ -78,14 +73,11 @@ export const Dropdown = React.memo(
         </StyledView>
         <StyledView
           height="100%"
-          background={getModalBackground(Platform.OS, open)}
+          background="transparent"
           width="100%"
           zIndex={open ? 3 : -1}
           position="absolute"
         >
-          <TouchableWithoutFeedback onPress={closeModal}>
-            <StyledView flex={1} background="transparent" />
-          </TouchableWithoutFeedback>
           {Platform.OS === 'ios' ? (
             <IOSPicker
               disabled={disabled}

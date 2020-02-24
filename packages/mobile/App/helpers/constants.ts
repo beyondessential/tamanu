@@ -74,9 +74,17 @@ export const SCREEN_ORIENTATION = {
 
 export const Routes = {
   SignUpStack: {
+    name: 'SignUpStack',
     Intro: 'Intro',
+    RegisterAccountStep1: 'RegisterAccountStep1',
+    RegisterAccountStep2: 'RegisterAccountStep2',
+    RegisterAccountStep3: 'RegisterAccountStep3',
     SignIn: 'SignIn',
-    RegisterAccount: 'RegisterAccount',
+  },
+  HomeStack: {
+    WelcomeIntroStack: 'WelcomeIntroStack',
+    name: 'HomeStack',
+    Home: 'Home',
   },
 };
 

@@ -1,5 +1,6 @@
 import { NavigationProp } from '@react-navigation/native';
+import { RegisterAccountContextProps } from '../../../contexts/RegisterAccountContext';
 
-export interface RegisterAccountStep1Props {
-    navigation: NavigationProp<any>
+export interface RegisterAccountScreenProps extends RegisterAccountContextProps {
+    navigation: NavigationProp<any>,
 }

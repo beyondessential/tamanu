@@ -45,10 +45,10 @@ export interface SpacingProps {
 
 interface PositionProps {
   position?: 'absolute' | 'relative';
-  top?: string | number;
-  left?: string | number;
-  right?: string | number;
-  bottom?: string | number;
+  top?: string | number | AnimatedValue;
+  left?: string | number | AnimatedValue;
+  right?: string | number | AnimatedValue;
+  bottom?: string | number | AnimatedValue;
   zIndex?: number;
 }
 

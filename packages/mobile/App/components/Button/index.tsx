@@ -19,6 +19,7 @@ export interface StyledButtonProps extends SpacingProps {
   borderWidth?: string | number;
   bordered?: boolean;
   children?: ReactNode;
+  flex?: number;
 }
 
 type StrNumType = number | string | undefined;
@@ -46,6 +47,7 @@ const StyledButton = styled.TouchableOpacity<StyledButtonProps>`
   }};
   ${StyledSystem.padding}
   ${StyledSystem.margin}
+  ${StyledSystem.flex}
 `;
 
 interface ButtonTextProps {

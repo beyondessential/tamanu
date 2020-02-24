@@ -6,19 +6,19 @@ import { theme } from '../../styled/theme';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 
 interface CheckboxProps {
-  selected: boolean;
+  value: boolean;
   onChange: Function;
   text: string;
 }
 
 export const Checkbox = ({
-  selected,
+  value,
   onChange,
   text,
 }: CheckboxProps): JSX.Element => {
-  const ChangeCallback = React.useCallback(() => onChange(!selected), [
+  const ChangeCallback = React.useCallback(() => onChange(!value), [
     onChange,
-    selected,
+    value,
   ]);
   return (
     <RowView>
@@ -32,13 +32,13 @@ export const Checkbox = ({
           background={theme.colors.WHITE}
           borderRadius={3}
           borderColor={
-            selected ? theme.colors.PRIMARY_MAIN : theme.colors.BOX_OUTLINE
+            value ? theme.colors.PRIMARY_MAIN : theme.colors.BOX_OUTLINE
           }
           borderWidth={1}
           alignItems="center"
           justifyContent="center"
         >
-          {selected && <CheckboxMark height={10} width={10} />}
+          {value && <CheckboxMark height={10} width={10} />}
         </StyledView>
       </TouchableHighlight>
       {text && (

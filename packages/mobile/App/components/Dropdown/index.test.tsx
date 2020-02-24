@@ -3,6 +3,11 @@ import { render, fireEvent } from '@testing-library/react-native';
 import { BaseStory, dropdownItems } from './fixture';
 import { SelectOption } from '.';
 
+jest.mock('react-native-gesture-handler', () => ({
+  TouchableWithoutFeedback: (): null => null,
+}));
+
+
 describe('<Dropdown />', () => {
   const { getByText, getByTestId } = render(<BaseStory />);
 
