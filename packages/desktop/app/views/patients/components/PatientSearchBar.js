@@ -96,33 +96,48 @@ const RightSection = styled(Section)`
 
 const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
   // We can't use onSearch directly as formik will call it with an unwanted second param
-  const handleSearch = useCallback(({ village = {}, ...other }) => {
-    const params = {
-      ...other,
-      ['village._id']: village._id,
-    };
-    onSearch(params);
-  }, [onSearch]);
+  const handleSearch = useCallback(
+    ({ village = {}, ...other }) => {
+      const params = {
+        ...other,
+        'village._id': village._id,
+      };
+      onSearch(params);
+    },
+    [onSearch],
+  );
 
-  const renderSearchBar = React.useCallback(({ submitForm }) => (
-    <SearchInputContainer>
-      <Field component={TextField} placeholder="First name" name="firstName" />
-      <Field component={TextField} placeholder="Last name" name="lastName" />
-      <Field component={TextField} placeholder="Cultural/Traditional name" name="culturalName" />
-      <Field component={AutocompleteField} suggester={villageSuggester} placeholder="Village" name="village._id" />
-      <Field component={TextField} placeholder="Health ID" name="displayId" />
-      <Button color="primary" variant="contained" onClick={submitForm}>
-        <PaddedSearchIcon />
-        Search
-      </Button>
-    </SearchInputContainer>
-  ), []);
-  
+  const renderSearchBar = React.useCallback(
+    ({ submitForm }) => (
+      <SearchInputContainer>
+        <Field component={TextField} placeholder="First name" name="firstName" />
+        <Field component={TextField} placeholder="Last name" name="lastName" />
+        <Field component={TextField} placeholder="Cultural/Traditional name" name="culturalName" />
+        <Field
+          component={AutocompleteField}
+          suggester={villageSuggester}
+          placeholder="Village"
+          name="village._id"
+        />
+        <Field component={TextField} placeholder="Health ID" name="displayId" />
+        <Button color="primary" variant="contained" onClick={submitForm}>
+          <PaddedSearchIcon />
+          Search
+        </Button>
+      </SearchInputContainer>
+    ),
+    [],
+  );
+
   return (
     <Container>
       <Section>
         <SectionLabel>Search for patients</SectionLabel>
-        <Form onSubmit={handleSearch} render={renderSearchBar} villageSuggester={villageSuggester} />
+        <Form
+          onSubmit={handleSearch}
+          render={renderSearchBar}
+          villageSuggester={villageSuggester}
+        />
       </Section>
       <RightSection>
         <ScanFingerprintButton />

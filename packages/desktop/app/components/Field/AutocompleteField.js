@@ -78,6 +78,7 @@ class BaseAutocomplete extends Component {
   };
 
   static defaultProps = {
+    label: '',
     required: false,
     error: false,
     disabled: false,
@@ -125,7 +126,7 @@ class BaseAutocomplete extends Component {
   };
 
   handleInputChange = (event, { newValue }) => {
-    if(!newValue) {
+    if (!newValue) {
       // when deleting field contents, clear the selection
       this.handleSuggestionChange({ value: '', label: '' });
     }

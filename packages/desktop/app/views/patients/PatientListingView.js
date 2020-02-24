@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 import { viewPatient } from '../../store/patient';
-import { TopBar, PageContainer, Button, DataFetchingTable } from '../../components';
+import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';
 import { PatientSearchBar, NewPatientModal } from './components';
 import {

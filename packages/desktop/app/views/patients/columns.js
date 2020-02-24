@@ -50,7 +50,7 @@ export const village = {
   key: 'village.name',
   title: 'Village',
   minWidth: 100,
-  accessor: ({ village }) => village && village.name,
+  accessor: row => row.village && row.village.name,
 };
 
 export const location = {

@@ -32,14 +32,13 @@ export function handleGenericGetRequest(req, res, prefilters = null) {
     }
     const { properties: fieldSchemata } = schema;
     const activeFilterEntries = Object.entries(restOfQuery).filter(kv => kv[1]);
-    
+
     const filters = activeFilterEntries.map(([field, value], idx) => {
       const fieldSchema = fieldSchemata[field] || {};
       const isString = fieldSchema === 'string' || fieldSchema.type === 'string';
       let operator = '=';
-      let newValue = value;
       if (/([|])/.test(value)) {
-        [operator, newValue] = value.split('|');
+        operator = value.split('|')[0];
       } else if (isString && fuzzy) {
         // one day this could be proper fuzzy matching!
         operator = 'CONTAINS[c]';
