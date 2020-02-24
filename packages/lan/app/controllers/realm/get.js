@@ -31,7 +31,9 @@ export function handleGenericGetRequest(req, res, prefilters = null) {
       throw new Error(`No schema for ${modelName}`);
     }
     const { properties: fieldSchemata } = schema;
-    const filters = Object.entries(restOfQuery).map(([field, value]) => {
+    const activeFilterEntries = Object.entries(restOfQuery).filter(kv => kv[1]);
+    
+    const filters = activeFilterEntries.map(([field, value], idx) => {
       const fieldSchema = fieldSchemata[field] || {};
       const isString = fieldSchema === 'string' || fieldSchema.type === 'string';
       let operator = '=';
@@ -42,9 +44,10 @@ export function handleGenericGetRequest(req, res, prefilters = null) {
         // one day this could be proper fuzzy matching!
         operator = 'CONTAINS[c]';
       }
-      const valueString = isString ? `"${newValue}"` : newValue;
-      return `${field} ${operator} ${valueString}`;
+      return `${field} ${operator} $${idx}`;
     });
+
+    const values = activeFilterEntries.map(kv => kv[1]);
 
     let objects = db.objects(modelName);
 
@@ -53,7 +56,7 @@ export function handleGenericGetRequest(req, res, prefilters = null) {
     }
 
     // Filter collection on all filters
-    if (!isEmpty(filters)) objects = objects.filtered(filters.join(' AND '));
+    if (!isEmpty(filters)) objects = objects.filtered(filters.join(' AND '), ...values);
 
     // Sort results
     if (orderBy) objects = objects.sorted(orderBy, order === 'desc');
