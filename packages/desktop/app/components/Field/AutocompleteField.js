@@ -125,6 +125,10 @@ class BaseAutocomplete extends Component {
   };
 
   handleInputChange = (event, { newValue }) => {
+    if(!newValue) {
+      // when deleting field contents, clear the selection
+      this.handleSuggestionChange({ value: '', label: '' });
+    }
     if (typeof newValue !== 'undefined') {
       this.setState({ displayedValue: newValue });
     }
