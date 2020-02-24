@@ -55,7 +55,7 @@ const renderInputComponent = inputProps => {
 
 class BaseAutocomplete extends Component {
   static propTypes = {
-    label: PropTypes.string.isRequired,
+    label: PropTypes.string,
     required: PropTypes.bool,
     disabled: PropTypes.bool,
     error: PropTypes.bool,
@@ -158,7 +158,7 @@ class BaseAutocomplete extends Component {
 
   render() {
     const { displayedValue, suggestions } = this.state;
-    const { label, required, name, disabled, error, helperText } = this.props;
+    const { label, required, name, disabled, error, helperText, placeholder } = this.props;
 
     return (
       <Autosuggest
@@ -176,6 +176,7 @@ class BaseAutocomplete extends Component {
           error,
           helperText,
           name,
+          placeholder,
           value: displayedValue,
           onChange: this.handleInputChange,
           inputRef: this.onPopperRef,
