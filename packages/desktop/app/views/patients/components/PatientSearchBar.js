@@ -100,6 +100,7 @@ const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
     ({ village = {}, ...other }) => {
       const params = {
         ...other,
+        // enforce dotted text identifier instead of a nested object
         'village._id': village._id,
       };
       onSearch(params);
