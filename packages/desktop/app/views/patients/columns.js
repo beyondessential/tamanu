@@ -46,6 +46,13 @@ export const dateOfBirth = {
   CellComponent: DateOfBirthCell,
 };
 
+export const village = {
+  key: 'village.name',
+  title: 'Village',
+  minWidth: 100,
+  accessor: ({ village }) => village && village.name,
+};
+
 export const location = {
   key: 'location.name',
   title: 'Location',

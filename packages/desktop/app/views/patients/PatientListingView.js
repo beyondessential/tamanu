@@ -9,6 +9,7 @@ import {
   firstName,
   lastName,
   culturalName,
+  village,
   sex,
   dateOfBirth,
   status,
@@ -20,7 +21,7 @@ const PATIENT_SEARCH_ENDPOINT = 'patient/search';
 const INPATIENT_ENDPOINT = 'inpatient';
 const OUTPATIENT_ENDPOINT = 'outpatient';
 
-const BASE_COLUMNS = [displayId, firstName, lastName, culturalName, sex, dateOfBirth];
+const BASE_COLUMNS = [displayId, firstName, lastName, culturalName, village, sex, dateOfBirth];
 
 const BASE_COLUMNS_ON_PATIENT = BASE_COLUMNS.map(column => ({
   ...column,
