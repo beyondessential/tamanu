@@ -5,11 +5,17 @@ import { adminRoutes } from './admin';
 import { getAuthMiddleware, loginHandler, refreshHandler } from '../controllers/auth/middleware';
 import { seed } from './seed';
 import { objectToJSON } from '../utils';
+import { generateReport } from '../reports';
 
 const router = express.Router();
 
 // any route added _after_ this one will require a correctly authed user
 router.use('/login', loginHandler);
+
+router.use('/reports', async (req, res) => {
+  const data = await generateReport(req.db);
+  res.send(data);
+});
 
 router.use(getAuthMiddleware());
 
