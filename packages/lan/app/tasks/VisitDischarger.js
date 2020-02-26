@@ -17,10 +17,15 @@ export class VisitDischarger extends ScheduledTask {
     const oldVisits = this.database
       .objects('visit')
       .filtered('visitType = $0 and endDate = null', 'clinic')
-      .filtered('startDate < $0', moment().startOf('day').toDate())
+      .filtered(
+        'startDate < $0',
+        moment()
+          .startOf('day')
+          .toDate(),
+      )
       .slice();
 
-    if(oldVisits.length === 0) return;
+    if (oldVisits.length === 0) return;
 
     console.log(`Auto-closing ${oldVisits.length} clinic visits`);
     this.database.write(() => {

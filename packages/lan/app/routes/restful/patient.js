@@ -13,9 +13,9 @@ patientRoutes.post('/patient', (req, res) => {
   };
 
   // update parent fields with actual database references
-  // (the usual method of just setting it to any old object with the right pkey 
+  // (the usual method of just setting it to any old object with the right pkey
   // doesn't work on these fields for some reason)
-  const getPatient = (obj) => obj && db.objectForPrimaryKey('patient', obj._id);
+  const getPatient = obj => obj && db.objectForPrimaryKey('patient', obj._id);
   patient.mother = getPatient(patient.mother);
   patient.father = getPatient(patient.father);
 
@@ -39,13 +39,13 @@ patientRoutes.post('/patient/:id/triages', (req, res) => {
 
   const complaint = db.objectForPrimaryKey('diagnosis', triage.chiefComplaint._id);
   let reasonForVisit = complaint.name;
-  if(triage.secondaryComplaint) {
+  if (triage.secondaryComplaint) {
     const secondaryComplaint = db.objectForPrimaryKey('diagnosis', triage.secondaryComplaint._id);
-    reasonForVisit += ", " + secondaryComplaint.name;
+    reasonForVisit += `, ${secondaryComplaint.name}`;
   }
 
   const emergencyDepartment = db.objects('department').filtered('name = $0', 'Emergency')[0];
-  
+
   const visit = {
     _id: shortid.generate(),
     visitType: 'triage',
