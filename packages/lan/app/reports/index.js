@@ -25,19 +25,35 @@ const returnVivaxReport = async (db, params) => {
 };
 
 const diagnosesByVillageReport = async (db, params) => {
-  const { village } = params;
 
 };
 
 const anemiaVivaxCodiagnosesReport = async (db, params) => {
-  const diagnoses = db.objects('patientDiagnosis')
+  const baseDiagnoses = db.objects('patientDiagnosis')
+  // TODO: parameterise reports, filter by date range
+  //.filtered("date > $0", startDate);
+  ;
+
+  const vivaxDiagnoses = baseDiagnoses
     .filtered("diagnosis.name CONTAINS[c] 'vivax'");
 
-  const rowData = diagnoses.map(d => ({
-    ...formatPatientInfo(d.visit[0].patient[0]),
-    diagnosis: d.diagnosis.name,
-    date: d.date,
-  }));
+  const anemiaDiagnoses = baseDiagnoses
+    .filtered("diagnosis.name CONTAINS[c] 'anemia'");
+
+  const vivaxPatientIds = new Set(vivaxDiagnoses.map(d => d.visit[0].patient[0]._id));
+  const anemiaPatientIds = new Set(anemiaDiagnoses.map(d => d.visit[0].patient[0]._id));
+  const bothPatientIds = new Set([...vivaxPatientIds].filter(x => anemiaPatientIds.has(x)));
+
+  const rowData = [
+    ...vivaxDiagnoses,
+    ...anemiaDiagnoses
+  ]
+    .filter(d => bothPatientIds.has(d.visit[0].patient[0]._id))
+    .map(d => ({
+      ...formatPatientInfo(d.visit[0].patient[0]),
+      diagnosis: d.diagnosis.name,
+      date: d.date,
+    }));
 
   return {
     headers: ['id', 'name', 'village', 'diagnosis', 'date'],
