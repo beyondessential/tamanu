@@ -19,6 +19,8 @@ patientRoutes.post('/patient', (req, res) => {
   patient.mother = getPatient(patient.mother);
   patient.father = getPatient(patient.father);
 
+  patient.village = patient.village && db.objectForPrimaryKey('village', patient.village._id);
+
   db.write(() => {
     db.create('patient', patient);
   });
