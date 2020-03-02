@@ -14,7 +14,7 @@ router.use('/login', loginHandler);
 
 router.use('/report/:report', async (req, res) => {
   const reportName = req.params.report;
-  const params = req.query;
+  const params = req.query || {};
   const data = await generateReport(req.db, reportName, params);
   res.send(data);
 });
