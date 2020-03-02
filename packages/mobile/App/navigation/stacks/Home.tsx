@@ -1,13 +1,19 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
+// Navigators
 import { createStackNavigator } from '@react-navigation/stack';
-import HomeScreen from '../screens/home/Home';
-import { Routes } from '../../helpers/constants';
+// Components
 import { WelcomeIntroTabs } from './WelcomeIntro';
+import { HomeTabs } from './HomeTabs';
+// Stacks
+import { SearchPatientStack } from './SearchPatient';
+// Helpers
+import { Routes } from '../../helpers/constants';
 import { noSwipeGestureOnNavigator } from '../../helpers/navigators';
+
 
 const Stack = createStackNavigator();
 
-export const HomeStack = () => (
+export const HomeStack = (): ReactElement => (
   <Stack.Navigator
     headerMode="none"
     screenOptions={noSwipeGestureOnNavigator}
@@ -18,7 +24,11 @@ export const HomeStack = () => (
     />
     <Stack.Screen
       name={Routes.HomeStack.Home}
-      component={HomeScreen}
+      component={HomeTabs}
+    />
+    <Stack.Screen
+      name={Routes.HomeStack.SearchPatientStack.name}
+      component={SearchPatientStack}
     />
   </Stack.Navigator>
 );

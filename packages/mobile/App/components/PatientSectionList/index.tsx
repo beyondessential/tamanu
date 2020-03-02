@@ -1,6 +1,7 @@
 import React, { useRef, RefObject, useCallback } from 'react';
 import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { LargeList } from 'react-native-largelist-v3';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { PatientTile, PatientTileProps } from '../PatientTile';
 import { StyledView, StyledText } from '../../styled/common';
 import { theme } from '../../styled/theme';
@@ -12,6 +13,7 @@ export type PatientSectionListItem = {
 };
 
 interface PatientSectionListProps {
+  onPressItem: (patient: PatientTileProps) => void;
   data: PatientSectionListItem[];
 }
 
@@ -24,7 +26,7 @@ const ListSeparator = (): JSX.Element => (
 );
 
 export const PatientSectionList = ({
-  data,
+  data, onPressItem = (): null => null,
 }: PatientSectionListProps): JSX.Element => {
   const ref: RefObject<LargeList> = useRef(null);
 
@@ -61,18 +63,24 @@ export const PatientSectionList = ({
     [data],
   );
 
+
   const renderItem = React.useCallback(
-    ({ section, row }) => (
-      <StyledView
-        height={85}
-        alignItems="center"
-        justifyContent="center"
-        background={theme.colors.BACKGROUND_GREY}
-      >
-        <PatientTile {...data[section].items[row]} />
-        <ListSeparator />
-      </StyledView>
-    ),
+    ({ section, row }) => {
+      const onPress = (): void => onPressItem(data[section].items[row]);
+      return (
+        <TouchableOpacity onPress={onPress}>
+          <StyledView
+            height={85}
+            alignItems="center"
+            justifyContent="center"
+            background={theme.colors.BACKGROUND_GREY}
+          >
+            <PatientTile {...data[section].items[row]} />
+            <ListSeparator />
+          </StyledView>
+        </TouchableOpacity>
+      );
+    },
     [data],
   );
 

@@ -1,33 +1,20 @@
 import React, { useCallback, useMemo } from 'react';
-import { NavigationProp } from '@react-navigation/native';
+//Components
 import {
   StyledSafeAreaView,
   StyledText,
   StyledView,
   CenterView,
 } from '../../../styled/common';
-import { screenPercentageToDP, Orientation } from '../../../helpers/screen';
-import { theme } from '../../../styled/theme';
 import { StepMarker } from '../../../components/StepMarker';
 import { Button } from '../../../components/Button';
-
 import { AppIntro1, AppIntro2, AppIntro3 } from '../../../components/Icons';
+//helpers
+import { screenPercentageToDP, Orientation } from '../../../helpers/screen';
+import { theme } from '../../../styled/theme';
 import { disableAndroidBackButton } from '../../../helpers/android';
-
-export interface IntroRouteProps {
-  user: { name: string };
-  message: string;
-  title: string;
-  nextRoute: string | '';
-  step: number;
-}
-
-interface IntroProps {
-  navigation: NavigationProp<any>;
-  route: {
-    params: IntroRouteProps;
-  };
-}
+// Props
+import { IntroScreenProps } from '../../../interfaces/screens/HomeStack';
 
 const isFirstStep = (step: number): void => {
   if (step === 1) {
@@ -35,7 +22,7 @@ const isFirstStep = (step: number): void => {
   }
 };
 
-export const Intro = (props: IntroProps): JSX.Element => {
+export const Intro = (props: IntroScreenProps): JSX.Element => {
   const { navigation, route } = props;
   const { user, title, message, step, nextRoute } = route.params;
 

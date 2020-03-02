@@ -12,11 +12,11 @@ export interface StyledButtonProps extends SpacingProps {
   backgroundColor?: string;
   buttonText?: string;
   onPress: Function;
-  fontSize?: string;
+  fontSize?: string | number;
   textColor?: string;
-  fontWeight?: string;
-  borderRadius?: string;
-  borderWidth?: string | number;
+  fontWeight?: StrNumType;
+  borderRadius?: StrNumType;
+  borderWidth?: StrNumType;
   bordered?: boolean;
   children?: ReactNode;
   flex?: number;
@@ -51,11 +51,11 @@ const StyledButton = styled.TouchableOpacity<StyledButtonProps>`
 `;
 
 interface ButtonTextProps {
-  fontSize?: string;
+  fontSize?: StrNumType;
   color?: string;
   outline?: boolean;
   textColor?: string;
-  fontWeight?: string;
+  fontWeight?: StrNumType;
   borderColor?: string;
 }
 

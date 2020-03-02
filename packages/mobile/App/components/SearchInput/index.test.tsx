@@ -13,9 +13,9 @@ describe('<SearchInput />', () => {
     expect(getByPlaceholderText(props.placeholder)).not.toBeNull();
   });
 
-  it('should change value', async () => {
+  it('should change value', () => {
     const input = getByPlaceholderText(props.placeholder);
-    await act(() => {
+    act(() => {
       fireEvent.changeText(input, searchText);
     });
     expect(input.getProp('value')).toBe(searchText);

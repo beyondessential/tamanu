@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import styled from 'styled-components/native';
 import { StyledView, RowView } from '../../styled/common';
 import * as Icons from '../Icons';
@@ -13,13 +13,13 @@ const StyledTextInput = styled.TextInput`
 
 interface SearchInputProps {
   value: string;
-  onChangeText: (text: string) => void;
+  onChange: (text: string) => void;
   placeholder: string;
 }
 
-export const SearchInput = ({
+export const SearchInput: FC<SearchInputProps> = ({
   value,
-  onChangeText,
+  onChange,
   placeholder,
 }: SearchInputProps) => (
   <RowView
@@ -37,7 +37,7 @@ export const SearchInput = ({
       value={value}
       placeholder={placeholder}
       placeholderTextColor={theme.colors.TEXT_MID}
-      onChangeText={onChangeText}
+      onChangeText={onChange}
     />
   </RowView>
 );

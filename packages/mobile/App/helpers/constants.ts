@@ -85,20 +85,36 @@ export const Routes = {
     WelcomeIntroStack: 'WelcomeIntroStack',
     name: 'HomeStack',
     Home: 'Home',
+    SearchPatientStack: {
+      name: 'SearchPatientStack',
+      SearchPatientTabs: {
+        name: 'SearchPatientTabs',
+        RecentViewed: 'RecentViewed',
+        ViewAll: 'ViewAll',
+      },
+    },
   },
 };
 
 export const PhoneMask = { mask: '9999 9999 999' };
 
-export const GenderOptions = [{
-  label: 'Female',
-  value: 'female',
-},
-{
+
+export const MaleGender = {
   label: 'Male',
   value: 'male',
-},
-{
+};
+
+export const OtherGender = {
   label: 'Other',
   value: 'other',
-}];
+};
+
+export const FemaleGender = {
+  label: 'Female',
+  value: 'female',
+};
+
+
+export const GenderOptions = [MaleGender,
+  FemaleGender,
+  OtherGender];

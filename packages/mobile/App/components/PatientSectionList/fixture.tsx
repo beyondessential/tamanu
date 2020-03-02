@@ -812,7 +812,10 @@ export function BaseStory(): JSX.Element {
   return (
     <StyledView flex={1} width="100%">
       <StyledView height="20%" width="100%" />
-      <PatientSectionList data={sortedData} />
+      <PatientSectionList
+        onPressItem={(patient):void => console.log(patient)}
+        data={sortedData}
+      />
     </StyledView>
   );
 }

@@ -1,24 +1,24 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, ReactElement } from 'react';
 import { debounce } from '../../helpers/input';
 import { SearchInput } from './index';
 import { StyledText } from '../../styled/common';
 import { theme } from '../../styled/theme';
 
-export function BaseStory() {
+export function BaseStory(): ReactElement {
   const [showMessage, setShowMessage] = useState(false);
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setShowMessage(false);
     }, 3000);
-    return () => clearTimeout(timeoutId);
+    return (): void => clearTimeout(timeoutId);
   }, [showMessage]);
   const [text, setText] = useState('');
 
   const showDeboucedMessage = debounce(() => setShowMessage(true), 800);
 
   const onChangeText = useCallback(
-    (text: string) => {
-      setText(text);
+    (newText: string) => {
+      setText(newText);
       showDeboucedMessage();
     },
     [showDeboucedMessage],
@@ -34,7 +34,7 @@ export function BaseStory() {
       <SearchInput
         placeholder="Search for patients"
         value={text}
-        onChangeText={onChangeText}
+        onChange={onChangeText}
       />
     </React.Fragment>
   );

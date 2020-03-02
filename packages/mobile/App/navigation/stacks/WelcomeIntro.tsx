@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 // Screens
 import { Intro } from '../screens/home/Intro';
@@ -6,7 +6,7 @@ import { Routes } from '../../helpers/constants';
 
 const Stack = createStackNavigator();
 
-export const WelcomeIntroTabs = () => (
+export const WelcomeIntroTabs = (): ReactElement => (
   <Stack.Navigator headerMode="none">
     <Stack.Screen
       name="step1"

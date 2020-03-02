@@ -29,8 +29,8 @@ export const PatientMenuButton = ({
     <StyledView
       style={styles.buttonContainer}
       paddingTop={screenPercentageToDP('2.77', Orientation.Height)}
-      height={screenPercentageToDP('17.13', Orientation.Height)}
-      width={screenPercentageToDP('29.6', Orientation.Width)}
+      height={screenPercentageToDP(15.5, Orientation.Height)}
+      width={screenPercentageToDP(29.68, Orientation.Width)}
       borderRadius={3}
       background={theme.colors.WHITE}
       alignItems="center"
@@ -40,11 +40,11 @@ export const PatientMenuButton = ({
         height={screenPercentageToDP('5.83', Orientation.Height)}
         width={screenPercentageToDP('5.83', Orientation.Height)}
       />
-      <StyledView marginTop={screenPercentageToDP('1.82', Orientation.Height)}>
+      <StyledView marginTop={screenPercentageToDP('0.82', Orientation.Height)}>
         <StyledText
           textAlign="center"
           color={theme.colors.PRIMARY_MAIN}
-          fontSize={screenPercentageToDP('2.1', Orientation.Height)}
+          fontSize={screenPercentageToDP('1.94', Orientation.Height)}
         >
           {title}
         </StyledText>

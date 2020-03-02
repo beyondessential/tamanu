@@ -2,6 +2,7 @@ import styled from 'styled-components/native';
 import * as styledSystem from 'styled-system';
 import { ReactNode } from 'react';
 import { AnimatedValue } from 'react-navigation';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const sizes = [];
 for (let i = 0; i < 10; i++) {
@@ -183,4 +184,14 @@ export const ColumnView = styled(StyledView)`
   flex-direction: column;
 `;
 
-export const StyledScrollView = styled(StyledView)``;
+export const StyledScrollView = styled.ScrollView<StyledViewProps>`
+${styledSystem.size}
+  ${styledSystem.position}
+  ${styledSystem.overflow}        
+  ${styledSystem.margin}  
+  ${styledSystem.padding}  
+  ${styledSystem.flexbox}     
+  ${styledSystem.background}    
+  ${({ borderLeftWidth }): string | number => `border-left-width: ${borderLeftWidth}` || 0};  
+  ${styledSystem.boxShadow}
+  ${styledSystem.zIndex}`;

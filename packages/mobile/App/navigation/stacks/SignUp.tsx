@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { ReactElement } from 'react';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 // helpers
 import { Routes } from '../../helpers/constants';
@@ -15,7 +15,7 @@ const Stack = createStackNavigator();
 
 const TransitionStyle = TransitionPresets.SlideFromRightIOS;
 
-export const SignUpStack: FunctionComponent<any> = () => (
+export const SignUpStack = (): ReactElement => (
   <RegisterAccountProvider>
     <Stack.Navigator
       headerMode="none"

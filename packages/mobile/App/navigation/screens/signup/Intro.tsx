@@ -13,7 +13,7 @@ import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { Routes } from '../../../helpers/constants';
 import { theme } from '../../../styled/theme';
 // Screen
-import { IntroScreenProps } from '../../../interfaces/screens/SignUpStack/Intro';
+import { IntroScreenProps } from '../../../interfaces/screens/SignUpStack';
 
 export const IntroScreen: FunctionComponent<any> = ({
   navigation,
