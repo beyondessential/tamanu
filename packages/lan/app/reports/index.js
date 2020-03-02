@@ -82,9 +82,13 @@ const reports = {
   visitsReport,
 };
 
-const writeToExcel = async (path, { headers, rowData }) => {
-  const rows = rowData.map(row => headers.map(h => row[h]));
-  const sheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+const tabulate = ({ headers, rowData }) => ([
+  headers,
+  ...rowData.map(row => headers.map(h => row[h]))
+]);
+
+const writeToExcel = async (path, data) => {
+  const sheet = XLSX.utils.aoa_to_sheet(tabulate(data));
 
   const book = new XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(book, sheet, 'values');
@@ -106,7 +110,6 @@ export const generateReport = async (db, reportName, userParams) => {
 
   const data = await report(db, params);
 
-  console.log(data);
   const date = moment().format('YYYY-MM-DD');
   const filename = `${date}_${reportName}.xlsx`;
 
