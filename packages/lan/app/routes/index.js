@@ -12,8 +12,10 @@ const router = express.Router();
 // any route added _after_ this one will require a correctly authed user
 router.use('/login', loginHandler);
 
-router.use('/reports', async (req, res) => {
-  const data = await generateReport(req.db);
+router.use('/report/:report', async (req, res) => {
+  const reportName = req.params.report;
+  const params = req.query;
+  const data = await generateReport(req.db, reportName, params);
   res.send(data);
 });
 

@@ -7,6 +7,21 @@ const formatPatientInfo = p => ({
   id: p.displayId
 });
 
+const visitsReport = async (db, { startDate, endDate }) => {
+  const rowData = db.objects('visit')
+    .filtered("startDate >= $0 AND startDate <= $1", startDate, endDate)
+    .map(visit => ({
+      ...formatPatientInfo(visit.patient[0]),
+      visitType: visit.visitType,
+      startDate: visit.startDate,
+    }));
+
+  return {
+    headers: ['id', 'name', 'village', 'visitType', 'startDate'],
+    rowData,
+  };
+};
+
 const numberOfVisitsReport = async (db) => {
   const rowData = db.objects('patient')
     .map(patient => ({
@@ -28,11 +43,9 @@ const diagnosesByVillageReport = async (db, params) => {
 
 };
 
-const anemiaVivaxCodiagnosesReport = async (db, params) => {
+const anemiaVivaxCodiagnosesReport = async (db, { startDate, endDate }) => {
   const baseDiagnoses = db.objects('patientDiagnosis')
-  // TODO: parameterise reports, filter by date range
-  //.filtered("date > $0", startDate);
-  ;
+    .filtered("date >= $0 AND date <= $1", startDate, endDate);
 
   const vivaxDiagnoses = baseDiagnoses
     .filtered("diagnosis.name CONTAINS[c] 'vivax'");
@@ -66,6 +79,7 @@ const reports = {
   returnVivaxReport,
   diagnosesByVillageReport,
   anemiaVivaxCodiagnosesReport,
+  visitsReport,
 };
 
 const writeToExcel = async (path, { headers, rowData }) => {
@@ -78,12 +92,21 @@ const writeToExcel = async (path, { headers, rowData }) => {
   XLSX.writeFile(book, path);
 };
 
-export const generateReport = async (db, name, params) => {
-  const reportName = 'anemiaVivaxCodiagnosesReport';
-
+export const generateReport = async (db, reportName, userParams) => {
   const report = reports[reportName];
-  const data = await report(db);
+  if(!report) {
+    throw new Error("No such report");
+  }
 
+  const params = { 
+    startDate: moment(userParams.endDate).subtract(1, 'month').toDate(),
+    endDate: moment().toDate(),
+    ...userParams,
+  };
+
+  const data = await report(db, params);
+
+  console.log(data);
   const date = moment().format('YYYY-MM-DD');
   const filename = `${date}_${reportName}.xlsx`;
 
