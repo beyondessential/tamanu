@@ -12,7 +12,7 @@ const router = express.Router();
 // any route added _after_ this one will require a correctly authed user
 router.use('/login', loginHandler);
 
-router.use('/report', async (req, res) => {
+router.use('/report$', async (req, res) => {
   const data = await getAllReports();
   res.send(data);
 });

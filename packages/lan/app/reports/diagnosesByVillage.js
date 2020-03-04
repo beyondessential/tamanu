@@ -18,17 +18,18 @@ export const diagnosesByVillageReport = {
     const counts = {};
 
     baseDiagnoses.forEach(d => {
-      if (!counts[d.diagnosis._id]) {
-        counts[d.diagnosis._id] = {
+      const village = d.visit[0].patient[0].village;
+      if (!counts[village._id]) {
+        counts[village._id] = {
           count: 0,
-          diagnosis: d.diagnosis.name,
+          village: village.name,
         };
       }
-      counts[d.diagnosis._id].count += 1;
+      counts[village._id].count += 1;
     });
 
     return {
-      headers: ['diagnosis', 'count'],
+      headers: ['village', 'count'],
       rowData: Object.values(counts),
     };
   },
