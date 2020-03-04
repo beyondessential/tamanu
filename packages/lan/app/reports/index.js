@@ -25,11 +25,6 @@ export const generateReport = async (db, reportName, userParams) => {
 
   const data = await report.run(db, params);
 
-  // const date = moment().format('YYYY-MM-DD');
-  // const filename = `${date}_${reportName}.xlsx`;
-
-  // await writeToExcel(filename, data);
-
   return {
     metadata: {
       report: report.title,
