@@ -59,7 +59,7 @@ export class SaveFileButton extends Component {
 
   render() {
     return (
-      <Button onClick={this.onClick} disabled={this.state.isWriting}>
+      <Button onClick={this.onClick} disabled={this.state.isWriting || this.props.disabled}>
         {this.props.children || 'Save'}
       </Button>
     );

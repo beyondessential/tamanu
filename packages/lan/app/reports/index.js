@@ -1,21 +1,6 @@
-import XLSX from 'xlsx';
 import moment from 'moment';
 
 import * as allReports from './allReports';
-
-const tabulate = ({ headers, rowData }) => [
-  headers,
-  ...rowData.map(row => headers.map(h => row[h])),
-];
-
-const writeToExcel = async (path, data) => {
-  const sheet = XLSX.utils.aoa_to_sheet(tabulate(data));
-
-  const book = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(book, sheet, 'values');
-
-  XLSX.writeFile(book, path);
-};
 
 export const getAllReports = async () =>
   Object.entries(allReports).map(([id, { title, parameters }]) => ({

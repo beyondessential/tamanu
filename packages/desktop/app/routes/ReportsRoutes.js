@@ -1,13 +1,13 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 
-import { ReportGenerator } from '../views';
+import { ReportScreen } from '../views';
 
 export const ReportsRoutes = React.memo(({ match }) => {
   return (
     <div>
       <Switch>
-        <Route path={`${match.path}/:reportId`} component={ReportGenerator} />
+        <Route path={`${match.path}/:reportId`} component={ReportScreen} />
       </Switch>
     </div>
   );
