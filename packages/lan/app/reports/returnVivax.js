@@ -3,7 +3,8 @@ import { formatPatientInfo } from './utils';
 export const returnVivaxReport = {
   title: "Returning cases of malaira (vivax)",
   parameters: {
-    
+    startDate: 'date',
+    endDate: 'date',
   },
   run: async (db, { startDate, endDate }) => {
     const search = 'vivax';

@@ -3,7 +3,8 @@ import { formatPatientInfo } from './utils';
 export const anemiaVivaxCodiagnosesReport = {
   title: "Codiagnoses of anemia and malaria (vivax)",
   parameters: {
-    
+    startDate: 'date',
+    endDate: 'date',
   },
   run: async (db, { startDate, endDate }) => {
     const baseDiagnoses = db
