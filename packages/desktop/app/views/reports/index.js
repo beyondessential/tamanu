@@ -16,27 +16,27 @@ import {
 
 const DEBUG_REPORTS = [
   {
-    "id": "diagnosesByVillageReport",
-    "title": "Diagnoses by village",
-    "parameters": {
-      "diagnosis": "string",
-      "startDate": "date",
-      "endDate": "date"
-    }
+    id: 'diagnosesByVillageReport',
+    title: 'Diagnoses by village',
+    parameters: {
+      diagnosis: 'string',
+      startDate: 'date',
+      endDate: 'date',
+    },
   },
   {
-    "id": "anemiaVivaxCodiagnosesReport",
-    "title": "Codiagnoses of anemia and malaria (vivax)",
-    "parameters": {
-      "startDate": "date",
-      "endDate": "date"
-    }
+    id: 'anemiaVivaxCodiagnosesReport',
+    title: 'Codiagnoses of anemia and malaria (vivax)',
+    parameters: {
+      startDate: 'date',
+      endDate: 'date',
+    },
   },
   {
-    "id": "visitsReport",
-    "title": "Number of visits (debug)",
-    "parameters": {}
-  }
+    id: 'visitsReport',
+    title: 'Number of visits (debug)',
+    parameters: {},
+  },
 ];
 
 const tabulate = ({ headers, rowData }) => [
@@ -56,33 +56,25 @@ const writeToExcel = async (path, { metadata, data }) => {
   XLSX.writeFile(book, path);
 };
 
-const xlsxFilters = [
-  { name: "Excel spreadsheet (.xlsx)", extensions: ["xlsx"] }
-];
+const xlsxFilters = [{ name: 'Excel spreadsheet (.xlsx)', extensions: ['xlsx'] }];
 
 const DEBUG_REPORT_DATA = {
-  "metadata": {
-    "report": "Returning cases of malaira (vivax)",
-    "generated": "2020-03-04T05:51:42.696Z"
+  metadata: {
+    report: 'Returning cases of malaira (vivax)',
+    generated: '2020-03-04T05:51:42.696Z',
   },
-  "data": {
-    "headers": [
-      "id",
-      "name",
-      "village",
-      "diagnosis",
-      "lastDiagnosed"
-    ],
-    "rowData": [
+  data: {
+    headers: ['id', 'name', 'village', 'diagnosis', 'lastDiagnosed'],
+    rowData: [
       {
-        "name": "Victoria Salerno Pacini",
-        "village": "Auki",
-        "id": "ZFWA900716",
-        "diagnosis": "Malaria, vivax",
-        "date": "2020-03-02T04:54:00.261Z"
-      }
-    ]
-  }
+        name: 'Victoria Salerno Pacini',
+        village: 'Auki',
+        id: 'ZFWA900716',
+        diagnosis: 'Malaria, vivax',
+        date: '2020-03-02T04:54:00.261Z',
+      },
+    ],
+  },
 };
 
 export const ReportScreen = React.memo(() => {
@@ -93,10 +85,13 @@ export const ReportScreen = React.memo(() => {
     setAvailableReports(DEBUG_REPORTS);
   }, []);
 
-  const onReportSelected = React.useCallback(event => {
-    const report = availableReports.find(r => r.id === event.target.value) || null;
-    setCurrentReport(report);
-  }, [availableReports]);
+  const onReportSelected = React.useCallback(
+    event => {
+      const report = availableReports.find(r => r.id === event.target.value) || null;
+      setCurrentReport(report);
+    },
+    [availableReports],
+  );
 
   const write = React.useCallback(async path => {
     const data = await DEBUG_REPORT_DATA;
@@ -116,14 +111,9 @@ export const ReportScreen = React.memo(() => {
           value={currentReport && currentReport.id}
           onChange={onReportSelected}
         />
-        <pre>
-          {JSON.stringify(currentReport, null, 2)}
-        </pre> 
+        <pre>{JSON.stringify(currentReport, null, 2)}</pre>
       </FormGrid>
-      <SaveFileButton
-        filters={xlsxFilters}
-        writeFunction={write}
-      />
+      <SaveFileButton filters={xlsxFilters} writeFunction={write} />
     </ContentPane>
   );
 });
