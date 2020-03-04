@@ -1,7 +1,7 @@
 import { formatPatientInfo } from './utils';
 
 export const returnVivaxReport = {
-  title: "Returning cases of malaira (vivax)",
+  title: 'Returning cases of malaira (vivax)',
   parameters: {
     startDate: 'date',
     endDate: 'date',
@@ -10,7 +10,7 @@ export const returnVivaxReport = {
     const search = 'vivax';
     const baseDiagnoses = db
       .objects('patientDiagnosis')
-      .filtered("diagnosis.name CONTAINS[c] $0", search)
+      .filtered('diagnosis.name CONTAINS[c] $0', search)
       .filtered('date >= $0 AND date <= $1', startDate, endDate)
       .sorted('date');
 

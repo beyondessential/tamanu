@@ -17,10 +17,12 @@ const writeToExcel = async (path, data) => {
   XLSX.writeFile(book, path);
 };
 
-export const getAllReports = async () => {
-  return Object.entries(allReports)
-    .map(([id, { title, parameters }]) => ({ id, title, parameters }));
-};
+export const getAllReports = async () =>
+  Object.entries(allReports).map(([id, { title, parameters }]) => ({
+    id,
+    title,
+    parameters,
+  }));
 
 export const generateReport = async (db, reportName, userParams) => {
   const report = allReports[reportName];

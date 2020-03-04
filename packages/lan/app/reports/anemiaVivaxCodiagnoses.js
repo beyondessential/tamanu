@@ -1,7 +1,7 @@
 import { formatPatientInfo } from './utils';
 
 export const anemiaVivaxCodiagnosesReport = {
-  title: "Codiagnoses of anemia and malaria (vivax)",
+  title: 'Codiagnoses of anemia and malaria (vivax)',
   parameters: {
     startDate: 'date',
     endDate: 'date',

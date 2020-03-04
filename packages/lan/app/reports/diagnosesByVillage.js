@@ -1,5 +1,5 @@
 export const diagnosesByVillageReport = {
-  title: "Diagnoses by village",
+  title: 'Diagnoses by village',
   parameters: {
     diagnosis: 'string',
     startDate: 'date',
