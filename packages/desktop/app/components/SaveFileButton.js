@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { remote } from 'electron';
-import { createWriteStream } from 'fs';
 
 import { Button } from './Button';
 
 export async function showFileDialog(filters, filename) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     remote.dialog.showSaveDialog(
       {
         filters,
@@ -29,8 +28,20 @@ export class SaveFileButton extends Component {
     children: PropTypes.node,
   };
 
+  static defaultProps = {
+    filters: [],
+    children: null,
+  };
+
   state = {
     isWriting: false,
+  };
+
+  onClick = async () => {
+    const filePath = await this.showDialog();
+    if (!filePath) return;
+
+    await this.write(filePath);
   };
 
   showDialog() {
@@ -53,13 +64,6 @@ export class SaveFileButton extends Component {
 
     this.setState({ isWriting: false });
   }
-
-  onClick = async () => {
-    const filePath = await this.showDialog();
-    if (!filePath) return;
-
-    await this.write(filePath);
-  };
 
   render() {
     return (

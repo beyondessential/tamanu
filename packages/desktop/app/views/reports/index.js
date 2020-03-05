@@ -6,44 +6,10 @@ import { ContentPane } from 'desktop/app/components/ContentPane';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { showFileDialog } from 'desktop/app/components/SaveFileButton';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
-import { FormSeparatorLine } from 'desktop/app/components/FormSeparatorLine';
 import { Button } from 'desktop/app/components/Button';
-import {
-  Form,
-  Field,
-  SelectField,
-  CheckField,
-  AutocompleteField,
-  DateField,
-  SelectInput,
-} from 'desktop/app/components/Field';
+import { Form, Field, DateField, SelectInput } from 'desktop/app/components/Field';
 
 import { connectApi } from 'desktop/app/api';
-
-const DEBUG_REPORTS = [
-  {
-    id: 'diagnosesByVillageReport',
-    title: 'Diagnoses by village',
-    parameters: {
-      diagnosis: 'string',
-      startDate: 'date',
-      endDate: 'date',
-    },
-  },
-  {
-    id: 'anemiaVivaxCodiagnosesReport',
-    title: 'Codiagnoses of anemia and malaria (vivax)',
-    parameters: {
-      startDate: 'date',
-      endDate: 'date',
-    },
-  },
-  {
-    id: 'visitsReport',
-    title: 'Number of visits (debug)',
-    parameters: {},
-  },
-];
 
 const tabulate = ({ headers, rowData }) => [
   headers,
@@ -63,25 +29,6 @@ const writeToExcel = async (path, { metadata, data }) => {
 };
 
 const xlsxFilters = [{ name: 'Excel spreadsheet (.xlsx)', extensions: ['xlsx'] }];
-
-const DEBUG_REPORT_DATA = {
-  metadata: {
-    report: 'Returning cases of malaira (vivax)',
-    generated: '2020-03-04T05:51:42.696Z',
-  },
-  data: {
-    headers: ['id', 'name', 'village', 'diagnosis', 'lastDiagnosed'],
-    rowData: [
-      {
-        name: 'Victoria Salerno Pacini',
-        village: 'Auki',
-        id: 'ZFWA900716',
-        diagnosis: 'Malaria, vivax',
-        date: '2020-03-02T04:54:00.261Z',
-      },
-    ],
-  },
-};
 
 const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData }) => {
   const [currentReport, setCurrentReport] = React.useState(null);
@@ -108,7 +55,7 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
       const path = await showFileDialog(xlsxFilters, '');
 
       return writeToExcel(path, data);
-    } catch(e) {
+    } catch (e) {
       console.error(e);
       console.log(currentReport, params);
     }
@@ -116,18 +63,12 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
 
   const renderParamsForm = React.useCallback(({ submitForm }) => (
     <FormGrid>
-      <Field
-        name="startDate"
-        label="Start date"
-        component={DateField}
-      />
-      <Field
-        name="endDate"
-        label="End date"
-        component={DateField}
-      />
+      <Field name="startDate" label="Start date" component={DateField} />
+      <Field name="endDate" label="End date" component={DateField} />
       <ButtonRow>
-        <Button type="submit" variant="contained" color="primary">Download</Button>
+        <Button onClick={submitForm} variant="contained" color="primary">
+          Download
+        </Button>
       </ButtonRow>
     </FormGrid>
   ));
@@ -145,16 +86,18 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
           onChange={onReportSelected}
         />
       </FormGrid>
-      { currentReport 
-        && <Form
+      {currentReport && (
+        <Form
           render={renderParamsForm}
           initialValues={{
             endDate: moment().toDate(),
-            startDate: moment().subtract(1, 'month').toDate(),
+            startDate: moment()
+              .subtract(1, 'month')
+              .toDate(),
           }}
           onSubmit={onWrite}
         />
-      }
+      )}
     </ContentPane>
   );
 });
