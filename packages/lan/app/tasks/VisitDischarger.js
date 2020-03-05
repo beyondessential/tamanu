@@ -28,7 +28,10 @@ export class VisitDischarger extends ScheduledTask {
     if (oldVisits.length === 0) return;
 
     console.log(`Auto-closing ${oldVisits.length} clinic visits`);
-    const closingDate = moment().startOf('day').subtract(1, 'minute').toDate();
+    const closingDate = moment()
+      .startOf('day')
+      .subtract(1, 'minute')
+      .toDate();
     this.database.write(() => {
       oldVisits.map(visit => {
         visit.endDate = closingDate;
