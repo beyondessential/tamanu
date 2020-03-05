@@ -5,6 +5,18 @@ import { createWriteStream } from 'fs';
 
 import { Button } from './Button';
 
+export async function showFileDialog(filters, filename) {
+  return new Promise((resolve, reject) => {
+    remote.dialog.showSaveDialog(
+      {
+        filters,
+        defaultPath: filename,
+      },
+      path => resolve(path),
+    );
+  });
+}
+
 export class SaveFileButton extends Component {
   static propTypes = {
     filters: PropTypes.arrayOf(
@@ -24,15 +36,7 @@ export class SaveFileButton extends Component {
   showDialog() {
     const { filters, filename } = this.props;
 
-    return new Promise((resolve, reject) => {
-      remote.dialog.showSaveDialog(
-        {
-          filters,
-          defaultPath: filename,
-        },
-        path => resolve(path),
-      );
-    });
+    return showFileDialog(filters, filename);
   }
 
   async write(path) {

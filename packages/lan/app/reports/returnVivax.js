@@ -1,7 +1,7 @@
 import { formatPatientInfo } from './utils';
 
 export const returnVivaxReport = {
-  title: 'Returning cases of malaira (vivax)',
+  title: 'Returning cases of malaria (vivax)',
   parameters: {
     startDate: 'date',
     endDate: 'date',

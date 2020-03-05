@@ -1,9 +1,13 @@
 import XLSX from 'xlsx';
 import React from 'react';
+import moment from 'moment';
 
 import { ContentPane } from 'desktop/app/components/ContentPane';
 import { FormGrid } from 'desktop/app/components/FormGrid';
-import { SaveFileButton } from 'desktop/app/components/SaveFileButton';
+import { showFileDialog } from 'desktop/app/components/SaveFileButton';
+import { ButtonRow } from 'desktop/app/components/ButtonRow';
+import { FormSeparatorLine } from 'desktop/app/components/FormSeparatorLine';
+import { Button } from 'desktop/app/components/Button';
 import {
   Form,
   Field,
@@ -13,6 +17,8 @@ import {
   DateField,
   SelectInput,
 } from 'desktop/app/components/Field';
+
+import { connectApi } from 'desktop/app/api';
 
 const DEBUG_REPORTS = [
   {
@@ -77,12 +83,15 @@ const DEBUG_REPORT_DATA = {
   },
 };
 
-export const ReportScreen = React.memo(() => {
+const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData }) => {
   const [currentReport, setCurrentReport] = React.useState(null);
   const [availableReports, setAvailableReports] = React.useState([]);
 
   React.useEffect(() => {
-    setAvailableReports(DEBUG_REPORTS);
+    (async () => {
+      const reports = await fetchAvailableReports();
+      setAvailableReports(reports);
+    })();
   }, []);
 
   const onReportSelected = React.useCallback(
@@ -93,11 +102,35 @@ export const ReportScreen = React.memo(() => {
     [availableReports],
   );
 
-  const write = React.useCallback(async path => {
-    const data = await DEBUG_REPORT_DATA;
+  const onWrite = React.useCallback(async params => {
+    try {
+      const data = await fetchReportData(currentReport.id, params);
+      const path = await showFileDialog(xlsxFilters, '');
 
-    return writeToExcel(path, data);
+      return writeToExcel(path, data);
+    } catch(e) {
+      console.error(e);
+      console.log(currentReport, params);
+    }
   });
+
+  const renderParamsForm = React.useCallback(({ submitForm }) => (
+    <FormGrid>
+      <Field
+        name="startDate"
+        label="Start date"
+        component={DateField}
+      />
+      <Field
+        name="endDate"
+        label="End date"
+        component={DateField}
+      />
+      <ButtonRow>
+        <Button type="submit" variant="contained" color="primary">Download</Button>
+      </ButtonRow>
+    </FormGrid>
+  ));
 
   return (
     <ContentPane>
@@ -111,9 +144,22 @@ export const ReportScreen = React.memo(() => {
           value={currentReport && currentReport.id}
           onChange={onReportSelected}
         />
-        <pre>{JSON.stringify(currentReport, null, 2)}</pre>
       </FormGrid>
-      <SaveFileButton filters={xlsxFilters} writeFunction={write} />
+      { currentReport 
+        && <Form
+          render={renderParamsForm}
+          initialValues={{
+            endDate: moment().toDate(),
+            startDate: moment().subtract(1, 'month').toDate(),
+          }}
+          onSubmit={onWrite}
+        />
+      }
     </ContentPane>
   );
 });
+
+export const ReportScreen = connectApi(api => ({
+  fetchAvailableReports: () => api.get('report'),
+  fetchReportData: (reportId, params) => api.get(`report/${reportId}`, params),
+}))(DumbReportScreen);
