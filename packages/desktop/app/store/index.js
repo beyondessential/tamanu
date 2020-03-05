@@ -4,3 +4,4 @@ export * from './patient';
 export * from './visit';
 export * from './labRequest';
 export * from './imagingRequest';
+export * from './decisionSupport';

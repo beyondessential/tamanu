@@ -56,6 +56,7 @@ export const NewPatientForm = memo(
     generateId,
     patientSuggester,
     facilitySuggester,
+    villageSuggester,
     isBirth,
   }) => {
     const [isExpanded, setExpanded] = useState(false);
@@ -66,7 +67,7 @@ export const NewPatientForm = memo(
             <Field name="displayId" component={IdField} regenerateId={generateId} />
           </IdBanner>
         </IdBannerContainer>
-        <PrimaryDetailsGroup />
+        <PrimaryDetailsGroup villageSuggester={villageSuggester} />
         <AdditionalInformationRow>
           <div>
             Add additional information <span>(religion, occupation, blood type...)</span>
@@ -104,12 +105,17 @@ export const NewPatientForm = memo(
           lastName: yup.string().required(),
           culturalName: yup.string(),
           dateOfBirth: yup.date().required(),
-          sex: yup.string().oneOf(sexValues).required(),
+          sex: yup
+            .string()
+            .oneOf(sexValues)
+            .required(),
 
-          mother: isBirth ? foreignKey("Mother must be selected") : optionalForeignKey("Mother must be a valid patient"),
+          mother: isBirth
+            ? foreignKey('Mother must be selected')
+            : optionalForeignKey('Mother must be a valid patient'),
           homeClinic: isBirth && yup.string().required(),
 
-          father: optionalForeignKey("Father must be a valid patient"),
+          father: optionalForeignKey('Father must be a valid patient'),
           religion: yup.string(),
           occupation: yup.string(),
           father: yup.string(),

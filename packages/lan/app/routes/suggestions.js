@@ -4,7 +4,13 @@ export const suggestionRoutes = express.Router();
 
 const defaultTransform = ({ name, _id }) => ({ name, _id });
 
-function createSuggestionRoute(path, table, filter, transform = defaultTransform, sortKey = 'name') {
+function createSuggestionRoute(
+  path,
+  table,
+  filter,
+  transform = defaultTransform,
+  sortKey = 'name',
+) {
   suggestionRoutes.get(`/${path}/:id`, (req, res) => {
     const { db, params } = req;
     const { id } = params;
@@ -103,3 +109,4 @@ createSuggestionRoute('facility', 'facility', 'name CONTAINS[c] $0');
 createSuggestionRoute('location', 'location', 'name CONTAINS[c] $0');
 createSuggestionRoute('drug', 'drug', 'name BEGINSWITH[c] $0');
 createSuggestionRoute('department', 'department', 'name CONTAINS[c] $0');
+createSuggestionRoute('village', 'village', 'name CONTAINS[c] $0');

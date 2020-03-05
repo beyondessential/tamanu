@@ -39,7 +39,6 @@ export const VISIT_TYPES = {
   ADMISSION: 'admission',
   CLINIC: 'clinic',
   IMAGING: 'imaging',
-  LAB: 'lab',
   EMERGENCY: 'emergency',
   OBSERVATION: 'observation',
   TRIAGE: 'triage',

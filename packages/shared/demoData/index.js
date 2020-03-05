@@ -9,5 +9,6 @@ export * from './labTestTypes';
 export * from './locations';
 export * from './procedureTypes';
 export * from './users';
+export * from './villages';
 
 export * from './patients';

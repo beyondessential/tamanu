@@ -55,7 +55,7 @@ const renderInputComponent = inputProps => {
 
 class BaseAutocomplete extends Component {
   static propTypes = {
-    label: PropTypes.string.isRequired,
+    label: PropTypes.string,
     required: PropTypes.bool,
     disabled: PropTypes.bool,
     error: PropTypes.bool,
@@ -78,6 +78,7 @@ class BaseAutocomplete extends Component {
   };
 
   static defaultProps = {
+    label: '',
     required: false,
     error: false,
     disabled: false,
@@ -125,6 +126,10 @@ class BaseAutocomplete extends Component {
   };
 
   handleInputChange = (event, { newValue }) => {
+    if (!newValue) {
+      // when deleting field contents, clear the selection
+      this.handleSuggestionChange({ value: '', label: '' });
+    }
     if (typeof newValue !== 'undefined') {
       this.setState({ displayedValue: newValue });
     }
@@ -158,7 +163,7 @@ class BaseAutocomplete extends Component {
 
   render() {
     const { displayedValue, suggestions } = this.state;
-    const { label, required, name, disabled, error, helperText } = this.props;
+    const { label, required, name, disabled, error, helperText, placeholder } = this.props;
 
     return (
       <Autosuggest
@@ -176,6 +181,7 @@ class BaseAutocomplete extends Component {
           error,
           helperText,
           name,
+          placeholder,
           value: displayedValue,
           onChange: this.handleInputChange,
           inputRef: this.onPopperRef,

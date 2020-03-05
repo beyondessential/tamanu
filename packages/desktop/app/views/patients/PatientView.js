@@ -110,6 +110,7 @@ const ConnectedPatientDetailsForm = connectApi((api, dispatch, { patient }) => (
     label: `${firstName} ${lastName}`,
   })),
   facilitySuggester: new Suggester(api, 'facility'),
+  villageSuggester: new Suggester(api, 'village'),
 }))(
   React.memo(props => (
     <ContentPane>

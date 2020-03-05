@@ -49,6 +49,7 @@ export * from './procedure-type';
 export * from './facility';
 export * from './location';
 export * from './department';
+export * from './village';
 
 // survey module
 export * from './answer';
@@ -71,4 +72,3 @@ export * from './user-role';
 
 // unknown
 export * from './view';
-

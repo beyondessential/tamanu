@@ -23,6 +23,7 @@ export const SeedRecordsForm = memo(({ onSubmit }) => {
         <Field name="imagingTypes" label="Imaging types" component={CheckField} />
         <Field name="labTestTypes" label="Lab test types" component={CheckField} />
         <Field name="locations" label="Locations" component={CheckField} />
+        <Field name="villages" label="Villages" component={CheckField} />
         <Field name="users" label="Users" component={CheckField} />
         <CheckInput
           label="Patients"
@@ -57,6 +58,7 @@ export const SeedRecordsForm = memo(({ onSubmit }) => {
         labTestTypes: true,
         locations: true,
         users: true,
+        villages: true,
         patientCount: DEFAULT_PATIENT_COUNT,
       }}
     />
