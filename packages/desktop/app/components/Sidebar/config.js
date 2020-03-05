@@ -7,7 +7,6 @@ import {
   radiologyIcon,
   scheduleIcon,
 } from '../../constants/images';
-import { availableReports } from '../../views/reports/dummyReports';
 
 export const submenuIcons = {
   action: 'fa fa-chevron-circle-right',
@@ -252,10 +251,12 @@ export const items = [
     path: '/reports',
     icon: scheduleIcon,
     ability: { action: 'read', subject: 'report' },
-    children: [{
-      label: "Report generator",
-      path: `/reports/`,
-      icon: submenuIcons.report,
-    }],
+    children: [
+      {
+        label: 'Report generator',
+        path: `/reports/`,
+        icon: submenuIcons.report,
+      },
+    ],
   },
 ];

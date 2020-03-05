@@ -64,15 +64,14 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
   });
 
   const renderParamsForm = React.useCallback(({ submitForm }) => {
-    const fields = currentReport.parameters
-      .map(({ name, label, type }) => (
-        <Field
-          key={name}
-          name={name}
-          label={label}
-          component={type === "date" ? DateField : TextField}
-        />
-      ));
+    const fields = currentReport.parameters.map(({ name, label, type }) => (
+      <Field
+        key={name}
+        name={name}
+        label={label}
+        component={type === 'date' ? DateField : TextField}
+      />
+    ));
     return (
       <FormGrid>
         {fields}
@@ -98,7 +97,7 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
           onChange={onReportSelected}
         />
       </FormGrid>
-      {error && (<div>An error was encountered while generating the report.</div>)}
+      {error && <div>An error was encountered while generating the report.</div>}
       {currentReport && (
         <Form
           render={renderParamsForm}
