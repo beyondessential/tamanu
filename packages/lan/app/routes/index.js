@@ -2,6 +2,7 @@ import express from 'express';
 import { restfulRoutes } from './restful';
 import { suggestionRoutes } from './suggestions';
 import { adminRoutes } from './admin';
+import { reportRoutes } from './report';
 import { getAuthMiddleware, loginHandler, refreshHandler } from '../controllers/auth/middleware';
 import { seed } from './seed';
 import { objectToJSON } from '../utils';
@@ -12,6 +13,8 @@ const router = express.Router();
 router.use('/login', loginHandler);
 
 router.use(getAuthMiddleware());
+
+router.use('/report', reportRoutes);
 
 router.use('/me', (req, res) => {
   res.send(objectToJSON(req.user));
