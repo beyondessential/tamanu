@@ -1,10 +1,10 @@
 export const diagnosesByVillageReport = {
   title: 'Diagnoses by village',
-  parameters: {
-    diagnosis: 'string',
-    startDate: 'date',
-    endDate: 'date',
-  },
+  parameters: [
+    { name: 'startDate', type: 'date', label: 'Start date' },
+    { name: 'endDate', type: 'date', label: 'End date' },
+    { name: 'diagnosis', type: 'string', label: 'Diagnosis search' },
+  ],
   run: async (db, { startDate, endDate, diagnosis }) => {
     const baseDiagnoses = db
       .objects('patientDiagnosis')

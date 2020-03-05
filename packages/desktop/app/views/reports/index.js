@@ -7,7 +7,7 @@ import { FormGrid } from 'desktop/app/components/FormGrid';
 import { showFileDialog } from 'desktop/app/utils/dialog';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
 import { Button } from 'desktop/app/components/Button';
-import { Form, Field, DateField, SelectInput } from 'desktop/app/components/Field';
+import { Form, Field, TextField, DateField, SelectInput } from 'desktop/app/components/Field';
 
 import { connectApi } from 'desktop/app/api';
 
@@ -61,17 +61,27 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
     }
   });
 
-  const renderParamsForm = React.useCallback(({ submitForm }) => (
-    <FormGrid>
-      <Field name="startDate" label="Start date" component={DateField} />
-      <Field name="endDate" label="End date" component={DateField} />
-      <ButtonRow>
-        <Button onClick={submitForm} variant="contained" color="primary">
-          Download
-        </Button>
-      </ButtonRow>
-    </FormGrid>
-  ));
+  const renderParamsForm = React.useCallback(({ submitForm }) => {
+    const fields = currentReport.parameters
+      .map(({ name, label, type }) => (
+        <Field
+          key={name}
+          name={name}
+          label={label}
+          component={type === "date" ? DateField : TextField}
+        />
+      ));
+    return (
+      <FormGrid>
+        {fields}
+        <ButtonRow>
+          <Button onClick={submitForm} variant="contained" color="primary">
+            Download
+          </Button>
+        </ButtonRow>
+      </FormGrid>
+    );
+  });
 
   return (
     <ContentPane>

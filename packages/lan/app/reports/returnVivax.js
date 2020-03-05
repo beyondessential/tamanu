@@ -2,10 +2,10 @@ import { formatPatientInfo } from './utils';
 
 export const returnVivaxReport = {
   title: 'Returning cases of malaria (vivax)',
-  parameters: {
-    startDate: 'date',
-    endDate: 'date',
-  },
+  parameters: [
+    { name: 'startDate', type: 'date', label: 'Start date' },
+    { name: 'endDate', type: 'date', label: 'End date' },
+  ],
   run: async (db, { startDate, endDate }) => {
     const search = 'vivax';
     const baseDiagnoses = db
