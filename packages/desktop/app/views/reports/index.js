@@ -4,7 +4,7 @@ import moment from 'moment';
 
 import { ContentPane } from 'desktop/app/components/ContentPane';
 import { FormGrid } from 'desktop/app/components/FormGrid';
-import { showFileDialog } from 'desktop/app/components/SaveFileButton';
+import { showFileDialog } from 'desktop/app/utils/dialog';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
 import { Button } from 'desktop/app/components/Button';
 import { Form, Field, DateField, SelectInput } from 'desktop/app/components/Field';

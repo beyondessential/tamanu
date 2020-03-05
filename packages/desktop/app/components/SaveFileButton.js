@@ -1,20 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { remote } from 'electron';
 
+import { showFileDialog } from 'desktop/app/utils/dialog';
 import { Button } from './Button';
-
-export async function showFileDialog(filters, filename) {
-  return new Promise(resolve => {
-    remote.dialog.showSaveDialog(
-      {
-        filters,
-        defaultPath: filename,
-      },
-      path => resolve(path),
-    );
-  });
-}
 
 export class SaveFileButton extends Component {
   static propTypes = {
