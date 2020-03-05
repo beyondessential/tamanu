@@ -2,29 +2,19 @@ import express from 'express';
 import { restfulRoutes } from './restful';
 import { suggestionRoutes } from './suggestions';
 import { adminRoutes } from './admin';
+import { reportRoutes } from './report';
 import { getAuthMiddleware, loginHandler, refreshHandler } from '../controllers/auth/middleware';
 import { seed } from './seed';
 import { objectToJSON } from '../utils';
-import { generateReport, getAllReports } from '../reports';
 
 const router = express.Router();
 
 // any route added _after_ this one will require a correctly authed user
 router.use('/login', loginHandler);
 
-router.use('/report$', async (req, res) => {
-  const data = await getAllReports();
-  res.send(data);
-});
-
-router.use('/report/:report', async (req, res) => {
-  const reportName = req.params.report;
-  const params = req.query || {};
-  const data = await generateReport(req.db, reportName, params);
-  res.send(data);
-});
-
 router.use(getAuthMiddleware());
+
+router.use('/report', reportRoutes);
 
 router.use('/me', (req, res) => {
   res.send(objectToJSON(req.user));

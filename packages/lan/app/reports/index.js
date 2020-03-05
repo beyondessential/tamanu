@@ -12,7 +12,7 @@ export const getAllReports = async () =>
 export const generateReport = async (db, reportName, userParams) => {
   const report = allReports[reportName];
   if (!report) {
-    throw new Error('No such report');
+    throw new Error(`No such report: ${reportName}`);
   }
 
   const params = {
