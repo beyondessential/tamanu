@@ -33,6 +33,7 @@ const xlsxFilters = [{ name: 'Excel spreadsheet (.xlsx)', extensions: ['xlsx'] }
 const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData }) => {
   const [currentReport, setCurrentReport] = React.useState(null);
   const [availableReports, setAvailableReports] = React.useState([]);
+  const [error, setError] = React.useState(null);
 
   React.useEffect(() => {
     (async () => {
@@ -54,10 +55,11 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
       const data = await fetchReportData(currentReport.id, params);
       const path = await showFileDialog(xlsxFilters, '');
 
+      setError(null);
       return writeToExcel(path, data);
     } catch (e) {
       console.error(e);
-      console.log(currentReport, params);
+      setError(e);
     }
   });
 
@@ -96,6 +98,7 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
           onChange={onReportSelected}
         />
       </FormGrid>
+      {error && (<div>An error was encountered while generating the report.</div>)}
       {currentReport && (
         <Form
           render={renderParamsForm}
