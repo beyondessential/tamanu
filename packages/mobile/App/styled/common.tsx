@@ -184,14 +184,14 @@ export const ColumnView = styled(StyledView)`
   flex-direction: column;
 `;
 
-export const StyledScrollView = styled.ScrollView<StyledViewProps>`
-${styledSystem.size}
+export const StyledScrollView = styled(ScrollView)<StyledViewProps>`
+  ${styledSystem.size}
   ${styledSystem.position}
   ${styledSystem.overflow}        
   ${styledSystem.margin}  
   ${styledSystem.padding}  
   ${styledSystem.flexbox}     
-  ${styledSystem.background}    
-  ${({ borderLeftWidth }): string | number => `border-left-width: ${borderLeftWidth}` || 0};  
+  ${styledSystem.background}      
   ${styledSystem.boxShadow}
-  ${styledSystem.zIndex}`;
+  ${styledSystem.zIndex}
+`;

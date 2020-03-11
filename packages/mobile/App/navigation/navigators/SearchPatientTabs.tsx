@@ -58,7 +58,7 @@ function BottomTabNavigator({
   const onNavigateToHome = useCallback(
     () => {
       setSelectedPatient(null);
-      navigation.navigate(Routes.HomeStack.Home);
+      navigation.navigate(Routes.HomeStack.HomeTabs.Home);
     },
     [],
   );

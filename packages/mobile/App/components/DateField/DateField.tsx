@@ -10,6 +10,7 @@ import { theme } from '../../styled/theme';
 import * as Icons from '../Icons';
 import { DateFormats, TimeFormats } from '../../helpers/constants';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
+import { BaseInputProps } from '../../interfaces/BaseInputProps';
 
 const styles = StyleSheet.create({
   androidPickerStyles: {
@@ -23,18 +24,16 @@ const styles = StyleSheet.create({
   },
 });
 
-export interface TextFieldProps {
+export interface DateFieldProps extends BaseInputProps {
   value: Date | null;
   onChange: (date: Date) => void;
-  label?: '' | string;
   placeholder?: '' | string;
-  error?: '' | string;
   mode?: 'date' | 'time';
   disabled?: boolean
 }
 
 export const DateField = React.memo(
-  ({ value, onChange, label, error, mode = 'date', disabled = false }: TextFieldProps) => {
+  ({ value, onChange, label, error, mode = 'date', disabled = false, required = false }: DateFieldProps) => {
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const showDatePicker = useCallback(() => setDatePickerVisible(true), []);
     const hideDatePicker = useCallback(() => setDatePickerVisible(false), []);
@@ -83,7 +82,7 @@ export const DateField = React.memo(
                   onFocus={showDatePicker}
                   isValueEmpty={value !== null}
                 >
-                  {label}
+                  {`${label}${required ? '*' : ''}`}
                 </TextFieldLabel>
               )}
               <StyledText

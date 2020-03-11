@@ -25,7 +25,7 @@ interface ScreenProps {
     navigateToSearchPatients: () => void;
     visitTypeButtons: any[];
     patientMenuButtons: any[];
-    navigateToPatientActions: () =>void
+    navigateToPatientActions: () => void;
 }
 
 export const Screen = ({

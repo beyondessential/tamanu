@@ -4,19 +4,17 @@ import { InputContainer, StyledTextInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '../../styled/common';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
-
+import { BaseInputProps } from '../../interfaces/BaseInputProps';
 export interface RefObject<T> {
   readonly current: T | null;
 }
 
-export interface TextFieldProps {
+export interface TextFieldProps extends BaseInputProps{
   value: string;
   onChange: (text: string) => void;
   isOpen?: boolean;
-  label?: '' | string;
   keyboardType?: KeyboardType;
   placeholder?: '' | string;
-  error?: '' | string;
   multiline?: boolean;
   disabled?: boolean;
   secure?: boolean;

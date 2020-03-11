@@ -61,23 +61,26 @@ const Form: FC<RegisterAccountFormStep01> = ({
             <Field
               component={TextField}
               name="firstName"
-              label="First Name*"
+              label="First Name"
+              required
             />
           </StyledView>
           <StyledView flex={1}>
             <Field
               component={TextField}
               name="lastName"
-              label="Last Name*"
+              label="Last Name"
+              required
             />
           </StyledView>
         </RowView>
         <Field
           component={TextField}
           name="email"
-          label="Email*"
+          label="Email"
           keyboardType="email-address"
           autoCapitalize="none"
+          required
         />
         <Field
           component={MaskedTextField}

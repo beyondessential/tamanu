@@ -9,6 +9,7 @@ import { SearchPatientStack } from './SearchPatient';
 // Helpers
 import { Routes } from '../../helpers/constants';
 import { noSwipeGestureOnNavigator } from '../../helpers/navigators';
+import { PatientDetailsScreen } from '../screens/home/PatientDetails';
 
 
 const Stack = createStackNavigator();
@@ -19,12 +20,16 @@ export const HomeStack = (): ReactElement => (
     screenOptions={noSwipeGestureOnNavigator}
   >
     <Stack.Screen
-      name="welcome"
+      name={Routes.HomeStack.WelcomeIntroStack}
       component={WelcomeIntroTabs}
     />
     <Stack.Screen
-      name={Routes.HomeStack.Home}
+      name={Routes.HomeStack.HomeTabs.name}
       component={HomeTabs}
+    />
+    <Stack.Screen
+      name={Routes.HomeStack.PatientDetails}
+      component={PatientDetailsScreen}
     />
     <Stack.Screen
       name={Routes.HomeStack.SearchPatientStack.name}

@@ -43,11 +43,18 @@ const PatientHomeContainer = ({ navigation }: PatientHomeScreenProps): ReactElem
     },
   ], []);
 
+  const onNavigateToPatientDetails = useCallback(
+    () => {
+      navigation.navigate(Routes.HomeStack.PatientDetails);
+    },
+    [],
+  );
+
   const patientMenuButtons = useMemo(() => [
     {
       title: 'View patients details',
       Icon: Icons.History,
-      onPress: (): void => console.log('Patient details'),
+      onPress: onNavigateToPatientDetails,
     },
     {
       title: 'View History',

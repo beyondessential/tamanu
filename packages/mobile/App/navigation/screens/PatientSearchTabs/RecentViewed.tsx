@@ -40,7 +40,7 @@ const Screen = ({
       renderItem={({ item }): ReactElement => {
         const onNavigateToPatientHome = (): void => {
           setSelectedPatient(item);
-          navigation.navigate(Routes.HomeStack.Home);
+          navigation.navigate(Routes.HomeStack.HomeTabs.Home);
         };
         return (
           <TouchableOpacity onPress={onNavigateToPatientHome}>

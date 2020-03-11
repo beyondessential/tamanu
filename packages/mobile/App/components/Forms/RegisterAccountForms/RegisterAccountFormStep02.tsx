@@ -68,14 +68,16 @@ const Form: FunctionComponent<RegisterAccountFormStep02> = ({
           component={Dropdown}
           options={dropdownItems}
           name="role"
-          label="Role*"
+          label="Role"
           autoFocus
+          required
         />
         <Field
           component={Dropdown}
           options={dropdownItems}
           name="homeFacility"
-          label="Home Facility*"
+          label="Home Facility"
+          required
         />
         <Field component={TextField} name="profession" label="Profession" />
         <Field

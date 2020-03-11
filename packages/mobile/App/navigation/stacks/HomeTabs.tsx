@@ -11,6 +11,7 @@ import { theme } from '../../styled/theme';
 import { HomeScreen } from '../screens/home/homeTabs/Home';
 import { withPatient } from '../../containers/Patient';
 import { BaseAppProps } from '../../interfaces/BaseAppProps';
+import { Routes } from '../../helpers/constants';
 
 const Tabs = createMaterialTopTabNavigator();
 
@@ -20,22 +21,22 @@ const HomeTabBar = (props: MaterialTopTabBarProps): ReactElement => (
   </StyledSafeAreaView>
 );
 
-const TabNavigator = ({ selectedPatient }:BaseAppProps): ReactElement => {
-  console.log(selectedPatient);
-  return (
-    <Tabs.Navigator
-      tabBarPosition="bottom"
-      tabBar={HomeTabBar}
-      tabBarOptions={{
-        style: {
-          height: 70,
-          backgroundColor: theme.colors.PRIMARY_MAIN,
-        },
-      }}
-    >
-      <Tabs.Screen name="test" component={selectedPatient ? PatientHome : HomeScreen} />
-    </Tabs.Navigator>
-  );
-};
+const TabNavigator = ({ selectedPatient }:BaseAppProps): ReactElement => (
+  <Tabs.Navigator
+    tabBarPosition="bottom"
+    tabBar={HomeTabBar}
+    tabBarOptions={{
+      style: {
+        height: 70,
+        backgroundColor: theme.colors.PRIMARY_MAIN,
+      },
+    }}
+  >
+    <Tabs.Screen
+      name={Routes.HomeStack.HomeTabs.Home}
+      component={selectedPatient ? PatientHome : HomeScreen}
+    />
+  </Tabs.Navigator>
+);
 
 export const HomeTabs = compose(withPatient)(TabNavigator);

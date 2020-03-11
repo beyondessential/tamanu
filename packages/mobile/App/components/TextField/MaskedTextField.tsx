@@ -10,21 +10,19 @@ import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '../../styled/common';
 import { RefObject } from './TextField';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
+import { BaseInputProps } from '../../interfaces/BaseInputProps';
 
-export interface TextFieldProps {
+export interface TextFieldProps extends BaseInputProps {
   value: string;
   onChange: (text: string) => void;
   isOpen?: boolean;
-  label?: '' | string;
   keyboardType?: KeyboardType;
   placeholder?: '' | string;
-  error?: '' | string;
   masked?: boolean;
   maskType?: TextInputMaskTypeProp;
   options?: TextInputMaskOptionProp;
   datePicker?: boolean;
   returnKeyType? : ReturnKeyTypeOptions;
-
 }
 
 export const MaskedTextField = React.memo(

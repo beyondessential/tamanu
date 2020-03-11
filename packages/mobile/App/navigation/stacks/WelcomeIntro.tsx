@@ -35,7 +35,7 @@ export const WelcomeIntroTabs = (): ReactElement => (
       component={Intro}
       initialParams={{
         step: 3,
-        nextRoute: Routes.HomeStack.Home,
+        nextRoute: Routes.HomeStack.HomeTabs.name,
         title: 'Sync data to the central system ',
         message:
           'Entered data will sync to the main system automatically whenever internet is available. You can download existing patient visit data if internet is available.',

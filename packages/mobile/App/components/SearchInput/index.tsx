@@ -1,8 +1,9 @@
-import React, { FC } from 'react';
+import React, { FC, ReactElement } from 'react';
 import styled from 'styled-components/native';
 import { StyledView, RowView } from '../../styled/common';
 import * as Icons from '../Icons';
 import { theme } from '../../styled/theme';
+import { BaseInputProps } from '../../interfaces/BaseInputProps';
 
 const StyledTextInput = styled.TextInput`
   font-size: 16px;
@@ -11,7 +12,7 @@ const StyledTextInput = styled.TextInput`
   height: 100%;
 `;
 
-interface SearchInputProps {
+interface SearchInputProps extends BaseInputProps {
   value: string;
   onChange: (text: string) => void;
   placeholder: string;
@@ -21,7 +22,7 @@ export const SearchInput: FC<SearchInputProps> = ({
   value,
   onChange,
   placeholder,
-}: SearchInputProps) => (
+}: SearchInputProps): ReactElement => (
   <RowView
     background={theme.colors.WHITE}
     height={50}

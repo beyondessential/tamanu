@@ -84,7 +84,10 @@ export const Routes = {
   HomeStack: {
     WelcomeIntroStack: 'WelcomeIntroStack',
     name: 'HomeStack',
-    Home: 'Home',
+    HomeTabs: {
+      name: 'HomeTabs',
+      Home: 'Home',
+    },
     SearchPatientStack: {
       name: 'SearchPatientStack',
       SearchPatientTabs: {
@@ -93,6 +96,7 @@ export const Routes = {
         ViewAll: 'ViewAll',
       },
     },
+    PatientDetails: 'PatientDetails',
   },
 };
 

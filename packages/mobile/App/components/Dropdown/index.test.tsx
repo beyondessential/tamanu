@@ -3,7 +3,6 @@ import { render, fireEvent } from '@testing-library/react-native';
 import { BaseStory, dropdownItems } from './fixture';
 import { SelectOption } from '.';
 
-
 describe('<Dropdown />', () => {
   const { getByText, getByTestId } = render(<BaseStory />);
 

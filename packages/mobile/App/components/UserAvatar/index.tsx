@@ -19,9 +19,7 @@ export const UserAvatar = ({
   size,
   Icon,
 }: UserAvatarProps): JSX.Element => {
-  const userInitials: string = React.useMemo(() => getUserInitials(name), [
-    name,
-  ]);
+  const userInitials: string = React.useMemo(() => getUserInitials(name), [name]);
   const backgroundColor: string = React.useMemo(() => {
     if (image) return 'transparent';
     return gender === Genders.MALE ? theme.colors.SAFE : theme.colors.ALERT;

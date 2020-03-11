@@ -64,12 +64,14 @@ const Form: FunctionComponent<RegisterAccountFormStep03> = ({
           component={TextField}
           name="password"
           label="Password"
+          required
           secure
         />
         <Field
           component={TextField}
           name="confirmPassword"
           label="Confirm Password"
+          required
           secure
           returnKeyType="done"
         />

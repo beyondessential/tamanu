@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { TouchableHighlight } from 'react-native';
 import { StyledView, StyledText, RowView } from '../../styled/common';
 import { CheckboxMark } from '../Icons';
 import { theme } from '../../styled/theme';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
+import { BaseInputProps } from '../../interfaces/BaseInputProps';
 
-interface CheckboxProps {
+interface CheckboxProps extends BaseInputProps {
   value: boolean;
   onChange: Function;
   text: string;
@@ -15,11 +16,22 @@ export const Checkbox = ({
   value,
   onChange,
   text,
+  error,
+  required,
 }: CheckboxProps): JSX.Element => {
-  const ChangeCallback = React.useCallback(() => onChange(!value), [
+  const ChangeCallback = useCallback(() => onChange(!value), [
     onChange,
     value,
   ]);
+
+  const getColor = useCallback(
+    () => {
+      if (error) return theme.colors.ERROR;
+      if (!value) return theme.colors.BOX_OUTLINE;
+      return theme.colors.PRIMARY_MAIN;
+    },
+    [error, value],
+  );
   return (
     <RowView>
       <TouchableHighlight
@@ -31,9 +43,7 @@ export const Checkbox = ({
           width={screenPercentageToDP('1.82', Orientation.Height)}
           background={theme.colors.WHITE}
           borderRadius={3}
-          borderColor={
-            value ? theme.colors.PRIMARY_MAIN : theme.colors.BOX_OUTLINE
-          }
+          borderColor={getColor()}
           borderWidth={1}
           alignItems="center"
           justifyContent="center"
@@ -48,7 +58,7 @@ export const Checkbox = ({
           fontSize={screenPercentageToDP('1.70', Orientation.Height)}
           color={theme.colors.TEXT_MID}
         >
-          {text}
+          {`${text}${required ? '*' : ''}`}
         </StyledText>
       )}
     </RowView>

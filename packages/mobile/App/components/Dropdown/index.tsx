@@ -8,23 +8,30 @@ import { theme } from '../../styled/theme';
 import { AndroidPicker } from './Picker.android';
 import { IOSPicker } from './Picker.ios';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
+import { BaseInputProps } from '../../interfaces/BaseInputProps';
 
 export interface SelectOption {
   label: string;
   value: string;
 }
 
-export interface DropdownProps {
+export interface DropdownProps extends BaseInputProps {
   options: SelectOption[];
   onChange: Function;
   value: SelectOption | null;
   isOpen?: boolean;
-  label?: '' | string;
-  error?: '' | string;
   disabled?: boolean;
 }
 export const Dropdown = React.memo(
-  ({ value, onChange, error, options, label, disabled = false }: DropdownProps) => {
+  ({
+    value,
+    onChange,
+    error,
+    options,
+    label,
+    disabled = false,
+    required = false,
+  }: DropdownProps) => {
     const [open, setOpen] = useState(false);
     const closeModal = React.useCallback(() => setOpen(false), []);
     const openModal = React.useCallback(() => (disabled ? null : setOpen(true)), []);
@@ -50,7 +57,7 @@ export const Dropdown = React.memo(
                     isValueEmpty={value !== null}
                     error={error}
                   >
-                    {label}
+                    {`${label}${required ? '*' : ''}`}
                   </TextFieldLabel>
                 </React.Fragment>
               )}
