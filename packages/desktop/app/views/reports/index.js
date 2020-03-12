@@ -75,7 +75,6 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
       console.log("got path", path || "~~~ NONE ~~~");
       if (!path) return;
       console.log("write start");
-      const minWait = new Promise(resolve => setTimeout(resolve, 1000));
       setIsDownloading(true);
       setError(null);
       console.log("fetch start");
@@ -83,7 +82,6 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
       console.log("fetch ok");
 
       await writeToExcel(path, data);
-      await minWait;
       setIsDownloading(false);
     } catch (e) {
       console.error(e);
