@@ -19,17 +19,23 @@ const tabulate = ({ headers, rowData }) => [
 const writeToExcel = async (path, { metadata, data }) => {
   const book = XLSX.utils.book_new();
 
+  console.log("creating sheet");
   const sheet = XLSX.utils.aoa_to_sheet(tabulate(data));
   XLSX.utils.book_append_sheet(book, sheet, 'values');
 
+  console.log("creating metadata");
   const metasheet = XLSX.utils.aoa_to_sheet(Object.entries(metadata));
   XLSX.utils.book_append_sheet(book, metasheet, 'metadata');
 
   return new Promise((resolve, reject) => {
-    XLSX.writeFileAsync(path, book, null, (err) => {
-      if(err) {
+    console.log("writing to ", path);
+    XLSX.writeFileAsync(path, book, null, err => {
+      console.log("writing to ", path);
+      if (err) {
+        console.log("could not write");
         reject(err);
       } else {
+        console.log("finished writing");
         resolve();
       }
     });
@@ -64,7 +70,7 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
   const onWrite = React.useCallback(async params => {
     try {
       const path = await showFileDialog(xlsxFilters, '');
-      if(!path) return;
+      if (!path) return;
       const minWait = new Promise(resolve => setTimeout(resolve, 1000));
       setIsDownloading(true);
       setError(null);
@@ -94,13 +100,8 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
       <FormGrid>
         {fields}
         <ButtonRow>
-          <Button 
-            onClick={submitForm}
-            variant="contained"
-            color="primary"
-            disabled={isDownloading}
-          >
-            { isDownloading ? 'Downloading...' : 'Download' }
+          <Button onClick={submitForm} variant="contained" color="primary" disabled={isDownloading}>
+            {isDownloading ? 'Downloading...' : 'Download'}
           </Button>
         </ButtonRow>
       </FormGrid>
@@ -136,7 +137,7 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
       {error && (
         <div>
           <div>An error was encountered while generating the report: </div>
-          <div>{error.message === '500' ? "Server error" : error.message}</div>
+          <div>{error.message === '500' ? 'Server error' : error.message}</div>
         </div>
       )}
     </ContentPane>
