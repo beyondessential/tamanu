@@ -17,26 +17,19 @@ const tabulate = ({ headers, rowData }) => [
 ];
 
 const writeToExcel = async (path, { metadata, data }) => {
-  console.log("write start");
   const book = XLSX.utils.book_new();
 
-  console.log("creating sheet");
   const sheet = XLSX.utils.aoa_to_sheet(tabulate(data));
   XLSX.utils.book_append_sheet(book, sheet, 'values');
 
-  console.log("creating metadata");
   const metasheet = XLSX.utils.aoa_to_sheet(Object.entries(metadata));
   XLSX.utils.book_append_sheet(book, metasheet, 'metadata');
 
   return new Promise((resolve, reject) => {
-    console.log("writing to ", path);
     XLSX.writeFileAsync(path, book, null, err => {
-      console.log("writing to ", path);
       if (err) {
-        console.log("could not write");
         reject(err);
       } else {
-        console.log("finished writing");
         resolve();
       }
     });
@@ -70,16 +63,12 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
 
   const onWrite = React.useCallback(async params => {
     try {
-      console.log("write start");
       const path = await showFileDialog(xlsxFilters, '');
-      console.log("got path", path || "~~~ NONE ~~~");
       if (!path) return;
       const minWait = new Promise(resolve => setTimeout(resolve, 1000));
       setIsDownloading(true);
       setError(null);
-      console.log("fetch start");
       const data = await fetchReportData(currentReport.id, params);
-      console.log("fetch ok");
 
       await writeToExcel(path, data);
       await minWait;
