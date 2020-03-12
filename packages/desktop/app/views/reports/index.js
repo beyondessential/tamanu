@@ -17,6 +17,7 @@ const tabulate = ({ headers, rowData }) => [
 ];
 
 const writeToExcel = async (path, { metadata, data }) => {
+  console.log("write start");
   const book = XLSX.utils.book_new();
 
   console.log("creating sheet");
@@ -69,12 +70,17 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
 
   const onWrite = React.useCallback(async params => {
     try {
+      console.log("write start");
       const path = await showFileDialog(xlsxFilters, '');
+      console.log("got path", path || "~~~ NONE ~~~");
       if (!path) return;
+      console.log("write start");
       const minWait = new Promise(resolve => setTimeout(resolve, 1000));
       setIsDownloading(true);
       setError(null);
+      console.log("fetch start");
       const data = await fetchReportData(currentReport.id, params);
+      console.log("fetch ok");
 
       await writeToExcel(path, data);
       await minWait;
