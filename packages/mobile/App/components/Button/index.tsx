@@ -1,9 +1,9 @@
 import React, { FunctionComponentElement, ReactNode } from 'react';
 import styled from 'styled-components/native';
 import * as StyledSystem from 'styled-system';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '../../styled/theme';
 import { SpacingProps } from '../../styled/common';
-
 export interface StyledButtonProps extends SpacingProps {
   color?: string;
   outline?: boolean;
@@ -24,7 +24,7 @@ export interface StyledButtonProps extends SpacingProps {
 
 type StrNumType = number | string | undefined;
 
-const StyledButton = styled.TouchableOpacity<StyledButtonProps>`
+const StyledButton = styled(TouchableOpacity)<StyledButtonProps>`
   flex-direction: row;  
   align-items: center;
   justify-content: center;

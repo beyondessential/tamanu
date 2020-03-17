@@ -8,7 +8,7 @@ import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 interface AgeRangeSliderProps {
   rangeStart: number;
   rangeEnd: number;
-  onChangeValue: (values: number[]) => void;
+  onChange: (values: number[]) => void;
   width: number;
   min: number;
   max: number;
@@ -37,7 +37,7 @@ const touchDimensionsStyles = {
 export const AgeRangeSlider = ({
   rangeStart,
   rangeEnd,
-  onChangeValue,
+  onChange,
   width,
   min,
   max,
@@ -45,7 +45,7 @@ export const AgeRangeSlider = ({
   <MultiSlider
     values={[rangeStart, rangeEnd]}
     sliderLength={width}
-    onValuesChange={onChangeValue}
+    onValuesChange={onChange}
     min={min}
     max={max}
     step={1}

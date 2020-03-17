@@ -26,7 +26,7 @@ export const BaseStory = (): JSX.Element => {
         max={110}
         rangeStart={value[0]}
         rangeEnd={value[1]}
-        onChangeValue={setValue}
+        onChange={setValue}
         width={screenPercentageToDP('90.02', Orientation.Width)}
       />
     </StyledView>

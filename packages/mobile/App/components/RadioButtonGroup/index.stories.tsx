@@ -28,11 +28,11 @@ function RadioButtonGroupStory({
 
   const props = {
     options,
-    onSelectOption,
+    onChange: onSelectOption,
     error,
   };
 
-  return <RadioButtonGroup selected={selectedOption} {...props} />;
+  return <RadioButtonGroup value={selectedOption} {...props} />;
 }
 
 storiesOf('Radio Button Group', module)

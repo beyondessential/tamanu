@@ -4,7 +4,7 @@ import { MaterialTopTabBarOptions } from '@react-navigation/material-top-tabs';
 // Navigator
 import { createSearchPatientNavigator } from '../navigators/SearchPatientTabs';
 // Components
-import { RecentViewedScreen, ViewAllScreen } from '../screens/PatientSearchTabs';
+import { RecentViewedScreen, ViewAllScreen } from '../screens/PatientSearch';
 // Helpers
 import { theme } from '../../styled/theme';
 import { Routes } from '../../helpers/constants';

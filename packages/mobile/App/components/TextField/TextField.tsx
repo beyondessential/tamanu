@@ -1,4 +1,4 @@
-import React, { useState, useRef, Ref } from 'react';
+import React, { useState, useRef, Ref, useMemo } from 'react';
 import { TextInput, KeyboardType, StyleSheet, Platform, ReturnKeyTypeOptions } from 'react-native';
 import { InputContainer, StyledTextInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
@@ -39,6 +39,7 @@ export const TextField = React.memo(
     error,
     keyboardType,
     multiline,
+    placeholder,
     disabled,
     secure = false,
     hints = false,
@@ -74,7 +75,14 @@ export const TextField = React.memo(
       editable: !disabled,
       style: multiline ? styles.textinput : null,
       secureTextEntry: secure,
+      placeholder,
     };
+
+    const inputMarginTop = useMemo(() => {
+      if (placeholder) return 0;
+      if (Platform.OS === 'ios') return screenPercentageToDP(1, Orientation.Height);
+      return screenPercentageToDP(0.5, Orientation.Height);
+    }, []);
 
     return (
       <StyledView
@@ -106,10 +114,7 @@ export const TextField = React.memo(
             </TextFieldLabel>
           )}
           <StyledTextInput
-            marginTop={
-              Platform.OS === 'ios'
-                ? screenPercentageToDP(1, Orientation.Height)
-                : screenPercentageToDP(0.5, Orientation.Height)}
+            marginTop={inputMarginTop}
             ref={inputRef}
             {...inputProps}
           />

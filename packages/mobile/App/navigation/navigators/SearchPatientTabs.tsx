@@ -9,7 +9,6 @@ import {
   DefaultNavigatorOptions,
 } from '@react-navigation/native';
 import { MaterialTopTabView } from '@react-navigation/material-top-tabs';
-import { Formik } from 'formik';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 /*eslint-disable import/no-unresolved */
 import { MaterialTopTabNavigationConfig, MaterialTopTabBarOptions } from '@react-navigation/material-top-tabs/lib/typescript/src/types';
@@ -65,54 +64,47 @@ function BottomTabNavigator({
 
   return (
     <FullView>
-      <Formik
-        initialValues={{
-          search: '',
-        }}
-        onSubmit={(): void => console.log()}
-      >
-        <FullView>
-          <StyledSafeAreaView
-            background={theme.colors.PRIMARY_MAIN}
+      <FullView>
+        <StyledSafeAreaView
+          background={theme.colors.PRIMARY_MAIN}
+        >
+          <RowView
+            height={90}
+            paddingTop={20}
+            alignItems="center"
+            paddingBottom={20}
+            paddingRight={20}
           >
-            <RowView
-              height={90}
-              paddingTop={20}
-              alignItems="center"
-              paddingBottom={20}
-              paddingRight={20}
+            <TouchableOpacity
+              onPress={onNavigateToHome}
             >
-              <TouchableOpacity
-                onPress={onNavigateToHome}
-              >
-                <StyledView
-                  paddingLeft={20}
-                  paddingTop={20}
-                  paddingBottom={20}
-                  paddingRight={20}
-                >
-                  <LeftArrow />
-                </StyledView>
-              </TouchableOpacity>
               <StyledView
-                flex={1}
+                paddingLeft={20}
+                paddingTop={20}
+                paddingBottom={20}
+                paddingRight={20}
               >
-                <Field
-                  component={SearchInput}
-                  name="search"
-                  placeholder="Search for patients"
-                />
+                <LeftArrow />
               </StyledView>
-            </RowView>
-          </StyledSafeAreaView>
-          <MaterialTopTabView
-            {...rest}
-            state={state}
-            navigation={navigation}
-            descriptors={descriptors}
-          />
-        </FullView>
-      </Formik>
+            </TouchableOpacity>
+            <StyledView
+              flex={1}
+            >
+              <Field
+                component={SearchInput}
+                name="search"
+                placeholder="Search for patients"
+              />
+            </StyledView>
+          </RowView>
+        </StyledSafeAreaView>
+        <MaterialTopTabView
+          {...rest}
+          state={state}
+          navigation={navigation}
+          descriptors={descriptors}
+        />
+      </FullView>
     </FullView>
   );
 }

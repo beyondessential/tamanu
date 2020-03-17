@@ -98,6 +98,7 @@ export const Routes = {
         RecentViewed: 'RecentViewed',
         ViewAll: 'ViewAll',
       },
+      FilterSearch: 'FilterSearch',
     },
     PatientDetails: 'PatientDetails',
   },
