@@ -1,15 +1,10 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 
-import { Visit } from './Visit';
-import { Patient } from './Patient';
-
-export const NOTE_OBJECT_TYPES = [
-  Visit,
-  Patient,
-]
-  .map(modelClass => modelClass.name)
-  .reduce((obj, name) => ({ ...obj, [name.toUpperCase()]: name }));
+export const NOTE_OBJECT_TYPES = {
+  VISIT: "Visit",
+  PATIENT: "Patient",
+};
 
 const NOTE_OBJECT_TYPE_VALUES = Object.values(NOTE_OBJECT_TYPES);
 
@@ -57,6 +52,14 @@ export class Note extends Model {
         },
       },
     );
+  }
+
+  static createForObject(object, content) {
+    return Note.create({
+      objectId: object.id,
+      objectType: object.getModelName(), 
+      content,
+    });
   }
 
   static initRelations(models) {

@@ -94,8 +94,9 @@ describe('Visit', () => {
         });
         expect(result).toHaveSucceeded();
 
-        const check = x => x.text.includes('triage') && x.text.includes('admission');
-        expect(result.body.notes.some(check)).toEqual(true);
+        const notes = await v.getNotes();
+        const check = x => x.content.includes('triage') && x.content.includes('admission');
+        expect(notes.some(check)).toEqual(true);
       });
 
       it('should change visit department and add a note', async () => {
@@ -115,8 +116,9 @@ describe('Visit', () => {
         });
         expect(result).toHaveSucceeded();
 
-        const check = x => x.text.includes(departments[0].name) && x.text.includes(departments[1].name);
-        expect(result.body.notes.some(check)).toEqual(true);
+        const notes = await v.getNotes();
+        const check = x => x.content.includes(departments[0].name) && x.content.includes(departments[1].name);
+        expect(notes.some(check)).toEqual(true);
       });
 
       it('should change visit location and add a note', async () => {
@@ -136,8 +138,9 @@ describe('Visit', () => {
         });
         expect(result).toHaveSucceeded();
 
-        const check = x => x.text.includes(locations[0].name) && x.text.includes(locations[1].name);
-        expect(result.body.notes.some(check)).toEqual(true);
+        const notes = await v.getNotes();
+        const check = x => x.content.includes(locations[0].name) && x.content.includes(locations[1].name);
+        expect(notes.some(check)).toEqual(true);
       });
 
       test.todo('should discharge a patient');

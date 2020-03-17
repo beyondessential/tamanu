@@ -69,18 +69,18 @@ export class Visit extends Model {
     // this.hasMany(models.Report);
   }
 
-  addSystemNote(text) {
-    console.log(text);
+  async addSystemNote(content) {
+    const { Note } = this.sequelize.models;
+
+    const note = await Note.createForObject(this, content);
+
+    return note;
   }
 
   forResponse() {
     const data = super.forResponse();
     return {
       ...data,
-      notes: [
-        { date: null, text: '', },
-        { date: null, text: '', },
-      ]
     };
   }
 
@@ -92,7 +92,7 @@ export class Visit extends Model {
     }
 
     if(data.visitType && data.visitType !== this.visitType) {
-      this.addSystemNote(`Changed type from ${this.visitType} to ${data.visitType}`);
+      await this.addSystemNote(`Changed type from ${this.visitType} to ${data.visitType}`);
     }
 
     if(data.locationId && data.locationId !== this.locationId) {
@@ -101,7 +101,7 @@ export class Visit extends Model {
       if(!newLocation) {
         throw new Error("Invalid location specified");
       }
-      this.addSystemNote(`Changed location from ${oldLocation.name} to ${newLocation.name}`);
+      await this.addSystemNote(`Changed location from ${oldLocation.name} to ${newLocation.name}`);
     }
     if(data.departmentId && data.departmentId !== this.departmentId) {
       const oldDepartment = await ReferenceData.findByPk(this.departmentId);
@@ -109,7 +109,7 @@ export class Visit extends Model {
       if(!newDepartment) {
         throw new Error("Invalid department specified");
       }
-      this.addSystemNote(`Changed department from ${oldDepartment.name} to ${newDepartment.name}`);
+      await this.addSystemNote(`Changed department from ${oldDepartment.name} to ${newDepartment.name}`);
     }
 
     return super.update(data);
