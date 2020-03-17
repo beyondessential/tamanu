@@ -10,6 +10,7 @@ import { RegisterAccountStep3Container } from '../screens/signup/RegisterAccount
 import { SignIn } from '../screens/signup/SignIn';
 // Contexts
 import { RegisterAccountProvider } from '../../contexts/RegisterAccountContext';
+import { PatientDetailsScreen } from '../screens/home/PatientDetails';
 
 const Stack = createStackNavigator();
 
@@ -22,7 +23,7 @@ export const SignUpStack = (): ReactElement => (
     >
       <Stack.Screen
         name={Routes.SignUpStack.Intro}
-        component={IntroScreen}
+        component={PatientDetailsScreen}
         options={TransitionStyle}
       />
       <Stack.Screen

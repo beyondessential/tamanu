@@ -5,4 +5,4 @@ import Storybook from './storybook';
 import { App } from './App';
 import 'react-native-gesture-handler';
 
-AppRegistry.registerComponent(appName, () => (App));
+AppRegistry.registerComponent(appName, () => (env.STORYBOOK === 'true' ? Storybook : App));
