@@ -72,7 +72,7 @@ export class Visit extends Model {
   async addSystemNote(content) {
     const { Note } = this.sequelize.models;
 
-    const note = await Note.createForObject(this, content);
+    const note = await Note.createForObject(this, "system", content);
 
     return note;
   }

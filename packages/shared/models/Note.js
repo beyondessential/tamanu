@@ -2,11 +2,18 @@ import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 
 export const NOTE_OBJECT_TYPES = {
-  VISIT: 'Visit',
-  PATIENT: 'Patient',
+  VISIT: "Visit",
+  PATIENT: "Patient",
 };
 
 const NOTE_OBJECT_TYPE_VALUES = Object.values(NOTE_OBJECT_TYPES);
+
+export const NOTE_TYPES = {
+  SYSTEM: "system",
+  OTHER: "other",
+};
+
+const NOTE_TYPE_VALUES = Object.values(NOTE_TYPES);
 
 export class Note extends Model {
   static init({ primaryKey, ...options }) {
@@ -29,6 +36,11 @@ export class Note extends Model {
           type: Sequelize.DATE,
           allowNull: false,
           defaultValue: Sequelize.NOW,
+        },
+        noteType: {
+          type: Sequelize.ENUM(NOTE_TYPE_VALUES),
+          allowNull: false,
+          defaultValue: '',
         },
         content: {
           type: Sequelize.TEXT,
@@ -54,10 +66,11 @@ export class Note extends Model {
     );
   }
 
-  static createForObject(object, content) {
+  static createForObject(object, noteType, content) {
     return Note.create({
       objectId: object.id,
-      objectType: object.getModelName(),
+      objectType: object.getModelName(), 
+      noteType,
       content,
     });
   }
