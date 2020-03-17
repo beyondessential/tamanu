@@ -11,7 +11,7 @@ describe('Note', () => {
   let patient = null;
   let app = null;
   beforeAll(async () => {
-    patient = await models.Patient.create(createDummyPatient());
+    patient = await models.Patient.create(await createDummyPatient(models));
     app = await baseApp.asRole('practitioner');
   });
 
@@ -77,7 +77,7 @@ describe('Note', () => {
     let noPermsApp = null;
 
     beforeAll(async () => {
-      forbiddenObject = await models.Patient.create(createDummyPatient());
+      forbiddenObject = await models.Patient.create(await createDummyPatient(models));
 
       noPermsApp = await baseApp.asRole('reception');
     });
