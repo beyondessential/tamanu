@@ -1,5 +1,4 @@
 import Chance from 'chance';
-import shortid from 'shortid';
 
 import { generateId } from '../utils/generateId';
 import { VISIT_TYPES } from '../constants';

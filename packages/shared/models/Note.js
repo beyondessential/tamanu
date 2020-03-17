@@ -2,8 +2,8 @@ import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 
 export const NOTE_OBJECT_TYPES = {
-  VISIT: "Visit",
-  PATIENT: "Patient",
+  VISIT: 'Visit',
+  PATIENT: 'Patient',
 };
 
 const NOTE_OBJECT_TYPE_VALUES = Object.values(NOTE_OBJECT_TYPES);
@@ -57,7 +57,7 @@ export class Note extends Model {
   static createForObject(object, content) {
     return Note.create({
       objectId: object.id,
-      objectType: object.getModelName(), 
+      objectType: object.getModelName(),
       content,
     });
   }

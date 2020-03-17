@@ -1,10 +1,9 @@
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
 
-const { baseApp, models } = createTestContext();
+const { baseApp } = createTestContext();
 
 describe('Suggestions', () => {
-
   let userApp = null;
 
   beforeAll(async () => {

@@ -16,7 +16,7 @@ describe('Visit', () => {
 
   it('should get a visit', async () => {
     const v = await models.Visit.create({
-      ...await createDummyVisit(models),
+      ...(await createDummyVisit(models)),
       patientId: patient.id,
     });
     const result = await app.get(`/v1/visit/${v.id}`);
@@ -27,7 +27,7 @@ describe('Visit', () => {
 
   it('should get a list of visits for a patient', async () => {
     const v = await models.Visit.create({
-      ...await createDummyVisit(models),
+      ...(await createDummyVisit(models)),
       patientId: patient.id,
     });
     const result = await app.get(`/v1/patient/${patient.id}/visits`);
@@ -56,7 +56,7 @@ describe('Visit', () => {
 
       it('should create a new visit', async () => {
         const result = await app.post('/v1/visit').send({
-          ...await createDummyVisit(models),
+          ...(await createDummyVisit(models)),
           patientId: patient.id,
         });
         expect(result).toHaveSucceeded();
@@ -68,7 +68,7 @@ describe('Visit', () => {
 
       it('should update visit details', async () => {
         const v = await models.Visit.create({
-          ...await createDummyVisit(models),
+          ...(await createDummyVisit(models)),
           patientId: patient.id,
           reasonForVisit: 'before',
         });
@@ -84,7 +84,7 @@ describe('Visit', () => {
 
       it('should change visit type and add a note', async () => {
         const v = await models.Visit.create({
-          ...await createDummyVisit(models),
+          ...(await createDummyVisit(models)),
           patientId: patient.id,
           visitType: 'triage',
         });
@@ -100,13 +100,13 @@ describe('Visit', () => {
       });
 
       it('should change visit department and add a note', async () => {
-        const departments = await models.ReferenceData.findAll({ 
+        const departments = await models.ReferenceData.findAll({
           where: { type: 'department' },
           limit: 2,
         });
 
         const v = await models.Visit.create({
-          ...await createDummyVisit(models),
+          ...(await createDummyVisit(models)),
           patientId: patient.id,
           departmentId: departments[0].id,
         });
@@ -117,18 +117,19 @@ describe('Visit', () => {
         expect(result).toHaveSucceeded();
 
         const notes = await v.getNotes();
-        const check = x => x.content.includes(departments[0].name) && x.content.includes(departments[1].name);
+        const check = x =>
+          x.content.includes(departments[0].name) && x.content.includes(departments[1].name);
         expect(notes.some(check)).toEqual(true);
       });
 
       it('should change visit location and add a note', async () => {
-        const locations = await models.ReferenceData.findAll({ 
+        const locations = await models.ReferenceData.findAll({
           where: { type: 'location' },
           limit: 2,
         });
 
         const v = await models.Visit.create({
-          ...await createDummyVisit(models),
+          ...(await createDummyVisit(models)),
           patientId: patient.id,
           locationId: locations[0].id,
         });
@@ -139,7 +140,8 @@ describe('Visit', () => {
         expect(result).toHaveSucceeded();
 
         const notes = await v.getNotes();
-        const check = x => x.content.includes(locations[0].name) && x.content.includes(locations[1].name);
+        const check = x =>
+          x.content.includes(locations[0].name) && x.content.includes(locations[1].name);
         expect(notes.some(check)).toEqual(true);
       });
 
@@ -155,7 +157,7 @@ describe('Visit', () => {
 
       beforeAll(async () => {
         diagnosisVisit = await models.Visit.create({
-          ...await createDummyVisit(models),
+          ...(await createDummyVisit(models)),
           patientId: patient.id,
           reasonForVisit: 'diagnosis test',
         });
@@ -199,7 +201,7 @@ describe('Visit', () => {
 
       beforeAll(async () => {
         vitalsVisit = await models.Visit.create({
-          ...await createDummyVisit(models),
+          ...(await createDummyVisit(models)),
           patientId: patient.id,
           reasonForVisit: 'vitals test',
         });

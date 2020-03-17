@@ -1,4 +1,4 @@
-import { createDummyPatient, createDummyVisit } from 'shared/demoData/patients';
+import { createDummyPatient } from 'shared/demoData/patients';
 import { NOTE_OBJECT_TYPES } from 'shared/models/Note';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';

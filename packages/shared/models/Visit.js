@@ -36,7 +36,7 @@ export class Visit extends Model {
             }
           },
         },
-      }
+      },
     );
   }
 
@@ -87,29 +87,31 @@ export class Visit extends Model {
   async update(data) {
     const { ReferenceData } = this.sequelize.models;
 
-    if(data.patientId && data.patientId !== this.patientId) {
+    if (data.patientId && data.patientId !== this.patientId) {
       throw new Error("A visit's patient cannot be changed");
     }
 
-    if(data.visitType && data.visitType !== this.visitType) {
+    if (data.visitType && data.visitType !== this.visitType) {
       await this.addSystemNote(`Changed type from ${this.visitType} to ${data.visitType}`);
     }
 
-    if(data.locationId && data.locationId !== this.locationId) {
+    if (data.locationId && data.locationId !== this.locationId) {
       const oldLocation = await ReferenceData.findByPk(this.locationId);
       const newLocation = await ReferenceData.findByPk(data.locationId);
-      if(!newLocation) {
-        throw new Error("Invalid location specified");
+      if (!newLocation) {
+        throw new Error('Invalid location specified');
       }
       await this.addSystemNote(`Changed location from ${oldLocation.name} to ${newLocation.name}`);
     }
-    if(data.departmentId && data.departmentId !== this.departmentId) {
+    if (data.departmentId && data.departmentId !== this.departmentId) {
       const oldDepartment = await ReferenceData.findByPk(this.departmentId);
       const newDepartment = await ReferenceData.findByPk(data.departmentId);
-      if(!newDepartment) {
-        throw new Error("Invalid department specified");
+      if (!newDepartment) {
+        throw new Error('Invalid department specified');
       }
-      await this.addSystemNote(`Changed department from ${oldDepartment.name} to ${newDepartment.name}`);
+      await this.addSystemNote(
+        `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
+      );
     }
 
     return super.update(data);

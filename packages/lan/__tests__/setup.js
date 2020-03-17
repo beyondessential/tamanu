@@ -8,7 +8,7 @@ export default async function() {
 
   // populate with reference data
   const tasks = allSeeds
-    .map(d => ({ code: d.name, ...d, }))
+    .map(d => ({ code: d.name, ...d }))
     .map(d => ctx.models.ReferenceData.create(d));
   await Promise.all(tasks);
 }
