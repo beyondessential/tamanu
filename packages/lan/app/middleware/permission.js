@@ -1,6 +1,8 @@
 import { ForbiddenError, BadAuthenticationError } from 'lan/app/errors';
 import { AbilityBuilder } from '@casl/ability';
 
+import * as roles from 'shared/roles';
+
 // copied from casl source as it's not exported directly
 // (we could use casl's ForbiddenError.throwUnlessCan function except there's some
 // strange error going on where the export appears to strip properties assigned via
@@ -27,40 +29,11 @@ export function constructPermission(req, res, next) {
     return;
   }
 
-  // TODO: need to design which permissions go where
-  req.ability = AbilityBuilder.define((allow, forbid) => {
-    allow('read', 'User');
-    allow('write', 'User', { id: user.id });
-
-    allow('list', 'ReferenceData');
-    allow('read', 'ReferenceData');
-
-    allow('read', 'Patient');
-    allow('create', 'Patient');
-    allow('write', 'Patient');
-
-    allow('read', 'Visit');
-    allow('list', 'Visit');
-    allow('create', 'Visit');
-    allow('write', 'Visit');
-
-    allow('list', 'Vitals');
-    allow('read', 'Vitals');
-    allow('create', 'Vitals');
-
-    allow('read', 'VisitDiagnosis');
-    allow('write', 'VisitDiagnosis');
-    allow('create', 'VisitDiagnosis');
-    allow('list', 'VisitDiagnosis');
-
-    if (user.role === 'admin') {
-      allow('create', 'User');
-      allow('write', 'User');
-
-      allow('write', 'ReferenceData');
-      allow('create', 'ReferenceData');
-    }
-  });
+  const builder = roles[user.role];
+  if (!builder) {
+    next(new Error(`Invalid role: ${user.role}`));
+  }
+  req.ability = AbilityBuilder.define((allow, forbid) => builder(user, allow, forbid));
 
   next();
 }

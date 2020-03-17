@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 import { viewPatient } from '../../store/patient';
-import { TopBar, PageContainer, Button, DataFetchingTable } from '../../components';
+import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';
 import { PatientSearchBar, NewPatientModal } from './components';
 import {
@@ -9,6 +9,7 @@ import {
   firstName,
   lastName,
   culturalName,
+  village,
   sex,
   dateOfBirth,
   status,
@@ -20,7 +21,7 @@ const PATIENT_SEARCH_ENDPOINT = 'patient/search';
 const INPATIENT_ENDPOINT = 'inpatient';
 const OUTPATIENT_ENDPOINT = 'outpatient';
 
-const BASE_COLUMNS = [displayId, firstName, lastName, culturalName, sex, dateOfBirth];
+const BASE_COLUMNS = [displayId, firstName, lastName, culturalName, village, sex, dateOfBirth];
 
 const BASE_COLUMNS_ON_PATIENT = BASE_COLUMNS.map(column => ({
   ...column,

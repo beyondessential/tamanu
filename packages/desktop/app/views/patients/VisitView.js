@@ -375,7 +375,6 @@ function getHeaderText({ visitType }) {
     case VISIT_TYPES.ADMISSION:
       return 'Hospital admission';
     case VISIT_TYPES.CLINIC:
-    case VISIT_TYPES.LAB:
     case VISIT_TYPES.IMAGING:
     default:
       return 'Patient visit';

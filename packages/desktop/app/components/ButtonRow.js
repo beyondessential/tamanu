@@ -26,12 +26,16 @@ export const ButtonRow = React.memo(({ children, ...props }) => (
 export const ConfirmCancelRow = React.memo(
   ({ onCancel, onConfirm, confirmText = 'Confirm', cancelText = 'Cancel', ...props }) => (
     <ButtonRow {...props}>
-      <Button variant="contained" onClick={onCancel}>
-        {cancelText}
-      </Button>
-      <Button variant="contained" color="primary" onClick={onConfirm}>
-        {confirmText}
-      </Button>
+      {onCancel && (
+        <Button variant="contained" onClick={onCancel}>
+          {cancelText}
+        </Button>
+      )}
+      {onConfirm && (
+        <Button variant="contained" color="primary" onClick={onConfirm}>
+          {confirmText}
+        </Button>
+      )}
     </ButtonRow>
   ),
 );

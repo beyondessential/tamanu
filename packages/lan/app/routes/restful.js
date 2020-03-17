@@ -4,6 +4,7 @@ import RealmController from '../controllers/realm';
 import { visitRoutes } from './restful/visit';
 import { patientRoutes } from './restful/patient';
 import { triageRoutes } from './restful/triage';
+import { userRoutes } from './restful/user';
 
 export const restfulRoutes = express.Router();
 restfulRoutes.get(
@@ -22,6 +23,7 @@ restfulRoutes.get(
 restfulRoutes.use(visitRoutes);
 restfulRoutes.use(patientRoutes);
 restfulRoutes.use(triageRoutes);
+restfulRoutes.use(userRoutes);
 
 // generic catch-all routes
 restfulRoutes.get('/:model/:id', RealmController.GET);
