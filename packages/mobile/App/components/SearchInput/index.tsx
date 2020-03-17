@@ -1,4 +1,4 @@
-import React, { FC, ReactElement } from 'react';
+import React, { FC } from 'react';
 import styled from 'styled-components/native';
 import { StyledView, RowView } from '../../styled/common';
 import * as Icons from '../Icons';
@@ -16,13 +16,15 @@ interface SearchInputProps extends BaseInputProps {
   value: string;
   onChange: (text: string) => void;
   placeholder: string;
+  disabled?: boolean
 }
 
 export const SearchInput: FC<SearchInputProps> = ({
   value,
   onChange,
   placeholder,
-}: SearchInputProps): ReactElement => (
+  disabled = false,
+}: SearchInputProps) => (
   <RowView
     background={theme.colors.WHITE}
     height={50}
@@ -35,6 +37,7 @@ export const SearchInput: FC<SearchInputProps> = ({
       <Icons.Search height={20} />
     </StyledView>
     <StyledTextInput
+      editable={!disabled}
       value={value}
       placeholder={placeholder}
       placeholderTextColor={theme.colors.TEXT_MID}

@@ -3,7 +3,7 @@ import React, { ReactElement } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 // Components
 import { WelcomeIntroTabs } from './WelcomeIntro';
-import { HomeTabs } from './HomeTabs';
+import { HomeTabStack } from './HomeTabs';
 // Stacks
 import { SearchPatientStack } from './SearchPatient';
 // Helpers
@@ -25,7 +25,7 @@ export const HomeStack = (): ReactElement => (
     />
     <Stack.Screen
       name={Routes.HomeStack.HomeTabs.name}
-      component={HomeTabs}
+      component={HomeTabStack}
     />
     <Stack.Screen
       name={Routes.HomeStack.PatientDetails}

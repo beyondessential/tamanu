@@ -1,2 +1,2 @@
-export * from './RecentViewed';
-export * from './ViewAll';
+export * from './RecentViewedScreen';
+export * from './ViewAllScreen';

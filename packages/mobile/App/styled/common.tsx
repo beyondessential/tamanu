@@ -24,6 +24,7 @@ export const themeSystem = {
 
 interface TextProps {
   textAlign?: 'auto'| 'left'| 'right'| 'center'| 'justify';
+  lineHeight?: number | string;
   fontSize?: number | string | AnimatedValue;
   fontWeight?: number | string;
   textDecorationLine?: 'none' | 'underline' | 'line-through' | 'underline line-through';
@@ -119,6 +120,7 @@ export const StyledText = styled.Text<StyledTextProps>`
   ${styledSystem.color}      
   ${styledSystem.fontWeight}
   ${styledSystem.fontSize}
+  ${styledSystem.lineHeight}
   ${styledSystem.textAlign}  
   ${styledSystem.size}  
   ${styledSystem.margin}  

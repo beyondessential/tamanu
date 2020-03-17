@@ -87,6 +87,9 @@ export const Routes = {
     HomeTabs: {
       name: 'HomeTabs',
       Home: 'Home',
+      Reports: 'Reports',
+      More: 'More',
+      SyncData: 'SyncData',
     },
     SearchPatientStack: {
       name: 'SearchPatientStack',

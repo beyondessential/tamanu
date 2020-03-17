@@ -48,5 +48,8 @@
         "mjs": "never"
       }
     ]
+  },
+  "globals": {
+    "__DEV__": true
   }
 }

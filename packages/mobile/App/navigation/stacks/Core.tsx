@@ -3,6 +3,7 @@ import React, { FunctionComponent } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { SignUpStack } from './SignUp';
 import { HomeStack } from './Home';
+// Helpers
 import { Routes } from '../../helpers/constants';
 import { noSwipeGestureOnNavigator } from '../../helpers/navigators';
 

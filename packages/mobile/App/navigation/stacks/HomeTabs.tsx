@@ -1,42 +1,108 @@
-
-import React, { ReactElement } from 'react';
+import React, { FC, ReactNode, ReactElement } from 'react';
 import {
-  MaterialTopTabBar,
+  MaterialTopTabBarProps,
   createMaterialTopTabNavigator,
-  MaterialTopTabBarProps } from '@react-navigation/material-top-tabs';
-import { compose } from 'redux';
-import { PatientHome } from '../screens/home/homeTabs/PatientHome';
-import { StyledSafeAreaView } from '../../styled/common';
-import { theme } from '../../styled/theme';
-import { HomeScreen } from '../screens/home/homeTabs/Home';
-import { withPatient } from '../../containers/Patient';
-import { BaseAppProps } from '../../interfaces/BaseAppProps';
+  MaterialTopTabNavigationOptions,
+  MaterialTopTabBar } from '@react-navigation/material-top-tabs';
+import { SvgProps } from 'react-native-svg';
 import { Routes } from '../../helpers/constants';
+import { StyledSafeAreaView, CenterView } from '../../styled/common';
+import { theme } from '../../styled/theme';
+import { BottomNavLogo, BarChart, SyncFiles, More } from '../../components/Icons';
+import {
+  ReportScreen,
+  MoreScreen,
+  HomeScreen,
+  SyncDataScreen,
+} from '../screens/home/Tabs';
+import { SearchPatientStack } from './SearchPatient';
+import { BaseAppProps } from '../../interfaces/BaseAppProps';
+
 
 const Tabs = createMaterialTopTabNavigator();
 
-const HomeTabBar = (props: MaterialTopTabBarProps): ReactElement => (
-  <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
+const HomeTabBar = (props: MaterialTopTabBarProps): ReactNode => (
+  <StyledSafeAreaView
+    background={theme.colors.PRIMARY_MAIN}
+  >
     <MaterialTopTabBar {...props} />
   </StyledSafeAreaView>
 );
 
-const TabNavigator = ({ selectedPatient }:BaseAppProps): ReactElement => (
+interface TabIconProps {
+  Icon: FC<SvgProps>;
+  focused: boolean;
+}
+
+export function TabIcon({ Icon, focused }: TabIconProps): JSX.Element {
+  return (
+    <CenterView flex={1}>
+      <Icon
+        fill={focused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE}
+        height={25}
+      />
+    </CenterView>
+  );
+}
+
+const TabScreenIcon = (Icon: FC<SvgProps>) => (
+  (props: {
+    focused: boolean;
+    color: string;
+}): ReactElement => <TabIcon Icon={Icon} {...props} />
+);
+
+const HomeScreenOptions: MaterialTopTabNavigationOptions = {
+  tabBarIcon: TabScreenIcon(BottomNavLogo),
+};
+const ReportScreenOptions: MaterialTopTabNavigationOptions = {
+  tabBarIcon: TabScreenIcon(BarChart),
+};
+const SyncDataScreenOptions: MaterialTopTabNavigationOptions = {
+  tabBarIcon: TabScreenIcon(SyncFiles),
+  tabBarLabel: 'Sync Data',
+};
+const MoreScreenOptions: MaterialTopTabNavigationOptions = {
+  tabBarIcon: TabScreenIcon(More),
+};
+
+const HomeTabBarOptions = {
+  activeTintColor: theme.colors.SECONDARY_MAIN,
+  inactiveTintColor: theme.colors.WHITE,
+  showIcon: true,
+  style: {
+    backgroundColor: theme.colors.PRIMARY_MAIN,
+  },
+  indicatorStyle: {
+    backgroundColor: theme.colors.PRIMARY_MAIN,
+  },
+};
+
+export const HomeTabStack = ({ selectedPatient }: BaseAppProps): ReactElement => (
   <Tabs.Navigator
     tabBarPosition="bottom"
     tabBar={HomeTabBar}
-    tabBarOptions={{
-      style: {
-        height: 70,
-        backgroundColor: theme.colors.PRIMARY_MAIN,
-      },
-    }}
+    tabBarOptions={HomeTabBarOptions}
   >
     <Tabs.Screen
+      options={HomeScreenOptions}
       name={Routes.HomeStack.HomeTabs.Home}
-      component={selectedPatient ? PatientHome : HomeScreen}
+      component={selectedPatient ? SearchPatientStack : HomeScreen}
+    />
+    <Tabs.Screen
+      options={ReportScreenOptions}
+      name={Routes.HomeStack.HomeTabs.Reports}
+      component={ReportScreen}
+    />
+    <Tabs.Screen
+      options={SyncDataScreenOptions}
+      name={Routes.HomeStack.HomeTabs.SyncData}
+      component={SyncDataScreen}
+    />
+    <Tabs.Screen
+      options={MoreScreenOptions}
+      name={Routes.HomeStack.HomeTabs.More}
+      component={MoreScreen}
     />
   </Tabs.Navigator>
 );
-
-export const HomeTabs = compose(withPatient)(TabNavigator);

@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
+import { RootNavigator } from './navigation/stacks/Root';
 import './reactotron';
-import { RootStack } from './navigation/stacks/Root';
 
-export const App = (): ReactElement => <RootStack />;
+export const App = (): ReactElement => <RootNavigator />;

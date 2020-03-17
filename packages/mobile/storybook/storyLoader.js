@@ -5,7 +5,6 @@
 
 function loadStories() {
 	require('../App/components/Accordion/index.stories');
-	require('../App/components/AppIntro/index.stories');
 	require('../App/components/BottomNavigator/index.stories');
 	require('../App/components/Button/index.stories');
 	require('../App/components/Chart/index.stories');
@@ -14,6 +13,7 @@ function loadStories() {
 	require('../App/components/DateField/DateField.stories');
 	require('../App/components/Dropdown/index.stories');
 	require('../App/components/Icons/index.stories');
+	require('../App/components/Info/index.stories');
 	require('../App/components/MenuOptionButton/index.stories');
 	require('../App/components/PatientCard/index.stories');
 	require('../App/components/PatientMenuButton/index.stories');
@@ -27,6 +27,7 @@ function loadStories() {
 	require('../App/components/TextField/TextField.stories');
 	require('../App/components/TopTabNavigator/index.stories');
 	require('../App/components/UserAvatar/index.stories');
+	require('../App/components/VaccineCard/index.stories');
 	require('../App/components/VaccinesTable/index.stories');
 	require('../App/components/VisitTypeButton/index.stories');
 	require('../App/components/VitalsTable/index.stories');
@@ -34,7 +35,6 @@ function loadStories() {
 
 const stories = [
 	'../App/components/Accordion/index.stories',
-	'../App/components/AppIntro/index.stories',
 	'../App/components/BottomNavigator/index.stories',
 	'../App/components/Button/index.stories',
 	'../App/components/Chart/index.stories',
@@ -43,6 +43,7 @@ const stories = [
 	'../App/components/DateField/DateField.stories',
 	'../App/components/Dropdown/index.stories',
 	'../App/components/Icons/index.stories',
+	'../App/components/Info/index.stories',
 	'../App/components/MenuOptionButton/index.stories',
 	'../App/components/PatientCard/index.stories',
 	'../App/components/PatientMenuButton/index.stories',
@@ -56,6 +57,7 @@ const stories = [
 	'../App/components/TextField/TextField.stories',
 	'../App/components/TopTabNavigator/index.stories',
 	'../App/components/UserAvatar/index.stories',
+	'../App/components/VaccineCard/index.stories',
 	'../App/components/VaccinesTable/index.stories',
 	'../App/components/VisitTypeButton/index.stories',
 	'../App/components/VitalsTable/index.stories'

@@ -6,7 +6,7 @@ import { themeSystem } from '../../styled/common';
 import { Core } from './Core';
 import { store } from '../../redux/store';
 
-export const RootStack = (): ReactElement => (
+export const RootNavigator = (): ReactElement => (
   <Provider store={store}>
     <ThemeProvider theme={themeSystem}>
       <NavigationContainer>
