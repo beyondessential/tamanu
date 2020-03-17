@@ -8,7 +8,8 @@ interface TableDataProps {
   data: any[];
   tableHeader: Column;
   columns: Column[];
-  columnKey: string
+  columnKey: string;
+  onPressItem?: (item: any) => void;
 }
 
 export const TableData = ({
@@ -16,6 +17,7 @@ export const TableData = ({
   tableHeader,
   columns,
   columnKey,
+  onPressItem,
 }: TableDataProps): JSX.Element => (
   <ScrollView
     bounces={false}
@@ -26,6 +28,7 @@ export const TableData = ({
     <RowView>
       {data.map((dataEntry: any) => (
         <TableCol
+          onPressItem={onPressItem}
           key={dataEntry[columnKey]}
           tableHeader={tableHeader}
           columns={columns}

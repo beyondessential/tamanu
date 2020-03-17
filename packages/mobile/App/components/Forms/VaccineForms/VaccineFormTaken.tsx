@@ -3,22 +3,21 @@ import { StyledView, RowView } from '../../../styled/common';
 import { Orientation, screenPercentageToDP, getOrientation } from '../../../helpers/screen';
 import { Field } from '../FormField';
 import { DateField } from '../../DateField/DateField';
+import { TextField } from '../../TextField/TextField';
 import { SCREEN_ORIENTATION } from '../../../helpers/constants';
 import { Dropdown } from '../../Dropdown';
 
-interface VaccineModalFormTakenNotOnTimeProps {
+interface VaccineModalFormTakenProps {
   typeOptions: any[];
-  reasonOptions: any[];
   manufactureOptions: any[];
   administeredOptions: any[];
 }
 
-export const VaccineModalFormTakenNotOnTime = ({
+export const VaccineFormTaken = ({
   typeOptions,
-  reasonOptions,
   manufactureOptions,
   administeredOptions,
-}: VaccineModalFormTakenNotOnTimeProps): JSX.Element => (
+}: VaccineModalFormTakenProps): JSX.Element => (
   getOrientation() === SCREEN_ORIENTATION.PORTRAIT
     ? (
       <StyledView
@@ -29,35 +28,29 @@ export const VaccineModalFormTakenNotOnTime = ({
           component={DateField}
           name="date"
           label="Date"
-          disabled
-        />
-        <Field
-          component={Dropdown}
-          options={reasonOptions}
-          name="reason"
-          label="Reason"
-          disabled
         />
         <Field
           component={Dropdown}
           options={typeOptions}
           name="type"
           label="Type"
-          disabled
+        />
+        <Field
+          component={TextField}
+          name="batch"
+          label="Batch No."
         />
         <Field
           component={Dropdown}
           options={manufactureOptions}
           name="manufacture"
           label="Manufacture"
-          disabled
         />
         <Field
           component={Dropdown}
           options={administeredOptions}
           name="administered"
           label="Administered by"
-          disabled
         />
       </StyledView>
     )
@@ -68,37 +61,32 @@ export const VaccineModalFormTakenNotOnTime = ({
             component={DateField}
             name="date"
             label="Date"
-            disabled
           />
         </RowView>
         <RowView marginTop={10} justifyContent="space-between">
           <StyledView width="49%">
             <Field
               component={Dropdown}
-              options={reasonOptions}
-              name="reason"
-              label="Reason"
-              disabled
+              options={typeOptions}
+              name="type"
+              label="Type"
             />
           </StyledView>
           <StyledView width="49%">
             <Field
               component={Dropdown}
-              options={typeOptions}
-              name="type"
-              label="Type"
-              disabled
+              options={manufactureOptions}
+              name="manufacture"
+              label="Manufacture"
             />
           </StyledView>
         </RowView>
         <RowView marginTop={10} justifyContent="space-between">
           <StyledView width="49%">
             <Field
-              component={Dropdown}
-              options={reasonOptions}
+              component={TextField}
               name="batch"
               label="Batch No."
-              disabled
             />
           </StyledView>
           <StyledView width="49%">
@@ -107,7 +95,6 @@ export const VaccineModalFormTakenNotOnTime = ({
               options={administeredOptions}
               name="administered"
               label="Administered by"
-              disabled
             />
           </StyledView>
         </RowView>

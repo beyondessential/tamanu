@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, ReactElement } from 'react';
 //Stacks
 import { createStackNavigator } from '@react-navigation/stack';
 import { SignUpStack } from './SignUp';

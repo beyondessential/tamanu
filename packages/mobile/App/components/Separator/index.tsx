@@ -1,17 +1,14 @@
-import React, { ReactElement } from 'react';
-
-import { StyledView } from '../../styled/common';
+import React from 'react';
+import { StyledView, StyledViewProps } from '../../styled/common';
 import { theme } from '../../styled/theme';
 
-interface SeparatorProps {
-  width: number | string;
+
+interface SeparatorProps extends StyledViewProps {
+    width? : string| number;
 }
 
-export const Separator = ({ width = '100%' }: SeparatorProps): ReactElement => (
-  <StyledView
-    alignSelf="center"
-    height={1}
-    background={theme.colors.DEFAULT_OFF}
-    width={width}
-  />
+export const Separator = ({ width = '100%', ...props }: SeparatorProps): ReactElement => (
+  <StyledView width="100%" height={1} {...props}>
+    <StyledView width={width} height={1} background={theme.colors.BOX_OUTLINE} />
+  </StyledView>
 );

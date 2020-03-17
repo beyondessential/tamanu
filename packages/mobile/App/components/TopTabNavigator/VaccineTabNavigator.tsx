@@ -12,10 +12,13 @@ import { SvgProps } from 'react-native-svg';
 import { theme } from '../../styled/theme';
 import { StyledView, StyledText } from '../../styled/common';
 import * as Icons from '../Icons';
+import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
+import { VaccineDataProps } from '../VaccineCard';
 
 type CustomRoute = Route & {
   icon: FunctionComponent<SvgProps>;
   color?: string;
+  vaccine: VaccineDataProps
 };
 
 type State = NavigationState<CustomRoute>;
@@ -24,10 +27,10 @@ type TabBarProps = SceneRendererProps & { navigationState: State };
 
 const TabLabel = React.memo(
   ({ route, focused }: LabelProps): JSX.Element => {
-    const Icon: FunctionComponent<SvgProps> = route.icon;
+    const Icon: FunctionComponent<IconWithSizeProps> = route.icon;
     return (
       <StyledView height={110} alignItems="center" paddingTop={25}>
-        <StyledView>{focused ? <Icon /> : <Icons.EmptyCircle />}</StyledView>
+        <StyledView>{focused ? <Icon size={28} /> : <Icons.EmptyCircle size={28} />}</StyledView>
         <StyledText
           marginTop={10}
           textAlign="center"

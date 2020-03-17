@@ -7,7 +7,7 @@ interface VaccineStatusProps {
   status: string;
 }
 
-export const VaccineStatus = ({ status }:VaccineStatusProps): JSX.Element => {
+export const VaccineStatusHeader = ({ status }:VaccineStatusProps): JSX.Element => {
   const Icon = VaccineIcons[status].Icon;
   return (
     <RowView

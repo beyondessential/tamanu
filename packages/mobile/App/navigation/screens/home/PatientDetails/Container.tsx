@@ -1,9 +1,13 @@
 import React, { useCallback, useState, ReactElement } from 'react';
 import { Screen } from './Screen';
 import { PatientDetails } from '../../../../interfaces/PatientDetails';
+import { PatientDetailsScreenProps } from '../../../../interfaces/screens/PatientDetailsScreenProps';
 
-
-export const PatientDetailsScreen = (): ReactElement => {
+export const PatientDetailsScreen = ({ navigation }: PatientDetailsScreenProps): ReactElement => {
+  /**
+   * Implement fetch patientDetails data
+   * from a mock server (or real)
+   */
   const patientData: PatientDetails = {
     id: 'TEMO001',
     generalInfo: {
@@ -49,7 +53,7 @@ export const PatientDetailsScreen = (): ReactElement => {
 
   const onNavigateBack = useCallback(
     () => {
-      console.log('navigate back...');
+      navigation.goBack();
     },
     [],
   );

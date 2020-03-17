@@ -138,7 +138,9 @@ const Screen: FC<ViewAllScreenProps> = (
   const onNavigateToPatientHome = useCallback(
     (patient) => {
       setSelectedPatient(patient);
-      navigation.navigate(Routes.HomeStack.Home);
+      navigation.navigate(Routes.HomeStack.HomeTabs.name, {
+        screen: Routes.HomeStack.HomeTabs.Home,
+      });
     },
     [],
   );

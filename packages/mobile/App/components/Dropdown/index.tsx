@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { TouchableWithoutFeedback, Platform } from 'react-native';
 import { InputContainer } from '../TextField/styles';
 import { StyledView, StyledText } from '../../styled/common';
@@ -18,7 +18,7 @@ export interface SelectOption {
 export interface DropdownProps extends BaseInputProps {
   options: SelectOption[];
   onChange: Function;
-  value: SelectOption | null;
+  value: string | null;
   isOpen?: boolean;
   disabled?: boolean;
 }
@@ -33,9 +33,10 @@ export const Dropdown = React.memo(
     required = false,
   }: DropdownProps) => {
     const [open, setOpen] = useState(false);
-    const closeModal = React.useCallback(() => setOpen(false), []);
-    const openModal = React.useCallback(() => (disabled ? null : setOpen(true)), []);
-
+    const closeModal = useCallback(() => setOpen(false), []);
+    const openModal = useCallback(() => (disabled ? null : setOpen(true)), []);
+    const selectedOption = useMemo(() => options.find(option => option.value === value), [value]);
+    console.log(value);
     return (
       <React.Fragment>
         <StyledView height={screenPercentageToDP('6.68', Orientation.Height)} width="100%">
@@ -63,11 +64,11 @@ export const Dropdown = React.memo(
               )}
               <StyledText
                 marginTop={screenPercentageToDP(1.80, Orientation.Height)}
-                accessibilityLabel={value && value.label ? value.label : ''}
+                accessibilityLabel={value && selectedOption ? selectedOption.label : ''}
                 fontSize={screenPercentageToDP(2.18, Orientation.Height)}
                 color={theme.colors.TEXT_DARK}
               >
-                {value && value.label ? value.label : ''}
+                {selectedOption ? selectedOption.label : ''}
               </StyledText>
               <StyledView marginRight={10} justifyContent="center">
                 <Icons.ArrowDown

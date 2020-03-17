@@ -1,7 +1,6 @@
 import * as Icons from '../components/Icons';
 import { theme } from '../styled/theme';
 
-
 export const DateFormats = {
   short: 'EEE, dd MMM',
   DAY_MONTH_YEAR_SHORT: 'dd MMM yyyy',
@@ -43,10 +42,8 @@ export const VaccineStatus = {
   TAKEN: 'TAKEN',
   TAKEN_NOT_ON_TIME: 'TAKEN_NOT_ON_TIME',
   NOT_TAKEN: 'NOT_TAKEN',
-  NO_DATA: 'NO_DATA',
   SCHEDULED: 'SCHEDULED',
 };
-
 
 export const VaccineIcons = {
   [VaccineStatus.TAKEN]: {
@@ -60,16 +57,20 @@ export const VaccineIcons = {
     text: 'NOT TAKEN',
   },
   [VaccineStatus.TAKEN_NOT_ON_TIME]: {
-    Icon: Icons.Checked,
+    Icon: Icons.TakenNotOnTime,
     color: theme.colors.ORANGE,
     text: 'TAKEN NOT ON TIME',
+  },
+  [VaccineStatus.SCHEDULED]: {
+    Icon: Icons.ScheduledVaccine,
+    color: theme.colors.ORANGE,
+    text: 'SCHEDULED',
   },
 };
 
 export const SCREEN_ORIENTATION = {
   PORTRAIT: 'portrait',
   LANDSCAPE: 'landscape',
-  SCHEDULED: 'SCHEDULED',
 };
 
 export const Routes = {
@@ -83,6 +84,22 @@ export const Routes = {
   },
   HomeStack: {
     WelcomeIntroStack: 'WelcomeIntroStack',
+    VaccineStack: {
+      name: 'VaccineStack',
+      VaccineTabs: {
+        name: 'VaccineTabs',
+        ChildhoodTab: 'ChildhoodTab',
+        AdolescentTab: 'AdolescentTab',
+        AdulTab: 'AdultTab',
+      },
+      NewVaccineTabs: {
+        name: 'NewVaccineTabs',
+        TakenOnTimeTab: 'TakenOnTimeTab',
+        TakenNotOnTimeTab: 'TakenNotOnTimeTab',
+        NotTakeTab: 'NotTakeTab',
+      },
+      VaccineModalScreen: 'VaccineModalScreen',
+    },
     name: 'HomeStack',
     HomeTabs: {
       name: 'HomeTabs',
@@ -106,7 +123,6 @@ export const Routes = {
 
 export const PhoneMask = { mask: '9999 9999 999' };
 
-
 export const MaleGender = {
   label: 'Male',
   value: 'male',
@@ -122,7 +138,4 @@ export const FemaleGender = {
   value: 'female',
 };
 
-
-export const GenderOptions = [MaleGender,
-  FemaleGender,
-  OtherGender];
+export const GenderOptions = [MaleGender, FemaleGender, OtherGender];

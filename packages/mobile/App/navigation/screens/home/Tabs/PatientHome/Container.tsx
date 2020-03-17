@@ -34,7 +34,7 @@ const PatientHomeContainer = ({ navigation }: PatientHomeScreenProps): ReactElem
     {
       title: 'Vaccine',
       Icon: Icons.Vaccine,
-      onPress: (): void => console.log('here'),
+      onPress: (): void => navigation.navigate(Routes.HomeStack.VaccineStack.name),
     },
     {
       title: 'Deceased',

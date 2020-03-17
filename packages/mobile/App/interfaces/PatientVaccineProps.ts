@@ -1,10 +1,12 @@
+import { VaccineModel } from '../models/Vaccine';
+
 export interface PatientVaccineProps {
-  [key: string]: string | null;
-  bcg: string | null;
-  hepb: string | null;
-  dpt: string | null;
-  pcv: string | null;
-  ipv: string | null;
-  mr: string | null;
-  tt: string | null;
+  [key: string]: string| VaccineModel | null;
+  bcg: VaccineModel | null;
+  hepb: VaccineModel | null;
+  dpt: VaccineModel | null;
+  pcv: VaccineModel | null;
+  ipv: VaccineModel | null;
+  mr: VaccineModel | null;
+  tt: VaccineModel | null;
 }

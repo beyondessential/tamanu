@@ -14,7 +14,7 @@ import {
   SearchButton,
   DotsMenuButton,
   mockAvatar,
-  VisitTypeButtons,
+  VisitTypeButtonList,
   PatientMenuButtons,
 } from './CustomComponents';
 // Helpers
@@ -90,7 +90,7 @@ export const Screen = ({
         background={theme.colors.BACKGROUND_GREY}
       >
         <PatientMenuButtons list={patientMenuButtons} />
-        <VisitTypeButtons list={visitTypeButtons} />
+        <VisitTypeButtonList list={visitTypeButtons} />
       </StyledView>
     </StyledSafeAreaView>
   </FullView>

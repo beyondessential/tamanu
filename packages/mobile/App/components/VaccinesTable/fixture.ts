@@ -1,10 +1,35 @@
+import { Chance } from 'chance';
 import { PatientVaccineProps } from '../../interfaces/PatientVaccineProps';
 import { VaccineStatus } from '../../helpers/constants';
+import { VaccineModel } from '../../models/Vaccine';
+
+const vaccineStatusList = Object.keys(VaccineStatus);
+const getRandomVaccineStatus = (): string => (
+  vaccineStatusList[
+    Math.floor(
+      Math.random() * vaccineStatusList.length,
+    )
+  ]
+);
+
+const chance = new Chance();
+
+const vaccineGenerator = (): VaccineModel => ({
+  date: chance.date(),
+  status: getRandomVaccineStatus(),
+  name: chance.string({ length: 10 }),
+  subtitle: chance.string(),
+  type: chance.string(),
+  manufacture: chance.string(),
+  batch: chance.string(),
+  reason: chance.string(),
+  administered: chance.string(),
+});
 
 export const vaccineHistoryList: PatientVaccineProps[] = [
   {
     header: 'Birth',
-    bcg: VaccineStatus.TAKEN,
+    bcg: vaccineGenerator(),
     hepb: null,
     dpt: null,
     pcv: null,
@@ -14,7 +39,7 @@ export const vaccineHistoryList: PatientVaccineProps[] = [
   },
   {
     header: '24hrs from birth',
-    bcg: VaccineStatus.SCHEDULED,
+    bcg: vaccineGenerator(),
     hepb: null,
     dpt: null,
     pcv: null,
@@ -24,21 +49,21 @@ export const vaccineHistoryList: PatientVaccineProps[] = [
   },
   {
     header: '6 weeks',
-    bcg: VaccineStatus.NOT_TAKEN,
+    bcg: vaccineGenerator(),
     hepb: null,
-    dpt: VaccineStatus.SCHEDULED,
-    pcv: VaccineStatus.SCHEDULED,
-    ipv: VaccineStatus.SCHEDULED,
+    dpt: vaccineGenerator(),
+    pcv: vaccineGenerator(),
+    ipv: vaccineGenerator(),
     mr: null,
     tt: null,
   },
   {
     header: '10 weeks',
-    bcg: VaccineStatus.TAKEN_NOT_ON_TIME,
+    bcg: vaccineGenerator(),
     hepb: null,
-    dpt: VaccineStatus.TAKEN_NOT_ON_TIME,
-    pcv: VaccineStatus.NOT_TAKEN,
-    ipv: VaccineStatus.NOT_TAKEN,
+    dpt: vaccineGenerator(),
+    pcv: vaccineGenerator(),
+    ipv: vaccineGenerator(),
     mr: null,
     tt: null,
   },
@@ -64,6 +89,152 @@ export const vaccineHistoryList: PatientVaccineProps[] = [
   },
   {
     header: '6 yrs',
+    bcg: null,
+    hepb: null,
+    dpt: null,
+    pcv: null,
+    ipv: null,
+    mr: null,
+    tt: null,
+  },
+];
+
+export const vaccineHistoryAdolecentList: PatientVaccineProps[] = [
+  {
+    header: '7 yrs',
+    bcg: vaccineGenerator(),
+    hepb: null,
+    dpt: null,
+    pcv: null,
+    ipv: null,
+    mr: null,
+    tt: null,
+  },
+  {
+    header: '8 yrs',
+    bcg: vaccineGenerator(),
+    hepb: null,
+    dpt: null,
+    pcv: null,
+    ipv: null,
+    mr: null,
+    tt: null,
+  },
+  {
+    header: '9 yrs',
+    bcg: vaccineGenerator(),
+    hepb: null,
+    dpt: vaccineGenerator(),
+    pcv: vaccineGenerator(),
+    ipv: vaccineGenerator(),
+    mr: null,
+    tt: null,
+  },
+  {
+    header: '14 yrs',
+    bcg: vaccineGenerator(),
+    hepb: null,
+    dpt: vaccineGenerator(),
+    pcv: vaccineGenerator(),
+    ipv: vaccineGenerator(),
+    mr: null,
+    tt: null,
+  },
+  {
+    header: '18 yrs',
+    bcg: null,
+    hepb: null,
+    dpt: null,
+    pcv: null,
+    ipv: null,
+    mr: null,
+    tt: null,
+  },
+  {
+    header: '1 yrs',
+    bcg: null,
+    hepb: null,
+    dpt: null,
+    pcv: null,
+    ipv: null,
+    mr: null,
+    tt: null,
+  },
+  {
+    header: '6 yrs',
+    bcg: null,
+    hepb: null,
+    dpt: null,
+    pcv: null,
+    ipv: null,
+    mr: null,
+    tt: null,
+  },
+];
+
+export const vaccineHistoryAdultList: PatientVaccineProps[] = [
+  {
+    header: '21 yrs',
+    bcg: vaccineGenerator(),
+    hepb: null,
+    dpt: null,
+    pcv: null,
+    ipv: null,
+    mr: null,
+    tt: null,
+  },
+  {
+    header: '25 yrs',
+    bcg: vaccineGenerator(),
+    hepb: null,
+    dpt: null,
+    pcv: null,
+    ipv: null,
+    mr: null,
+    tt: null,
+  },
+  {
+    header: '30 yrs',
+    bcg: vaccineGenerator(),
+    hepb: null,
+    dpt: vaccineGenerator(),
+    pcv: vaccineGenerator(),
+    ipv: vaccineGenerator(),
+    mr: null,
+    tt: null,
+  },
+  {
+    header: '35 yrs',
+    bcg: vaccineGenerator(),
+    hepb: null,
+    dpt: vaccineGenerator(),
+    pcv: vaccineGenerator(),
+    ipv: vaccineGenerator(),
+    mr: null,
+    tt: null,
+  },
+  {
+    header: '60 yrs',
+    bcg: null,
+    hepb: null,
+    dpt: null,
+    pcv: null,
+    ipv: null,
+    mr: null,
+    tt: null,
+  },
+  {
+    header: '70 yrs',
+    bcg: null,
+    hepb: null,
+    dpt: null,
+    pcv: null,
+    ipv: null,
+    mr: null,
+    tt: null,
+  },
+  {
+    header: '90 yrs',
     bcg: null,
     hepb: null,
     dpt: null,

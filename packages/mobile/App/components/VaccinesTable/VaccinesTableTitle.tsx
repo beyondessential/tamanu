@@ -11,7 +11,7 @@ export const VaccinesTableTitle = memo(() => (
     paddingLeft={15}
   >
     <StyledText fontSize={12} fontWeight={700} color={theme.colors.WHITE}>
-        Vaccine
+      Vaccine
     </StyledText>
   </StyledView>
 ));

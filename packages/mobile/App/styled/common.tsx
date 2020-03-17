@@ -2,6 +2,7 @@ import styled from 'styled-components/native';
 import * as styledSystem from 'styled-system';
 import { ReactNode } from 'react';
 import { AnimatedValue } from 'react-navigation';
+import SafeAreaView from 'react-native-safe-area-view';
 import { ScrollView } from 'react-native-gesture-handler';
 
 const sizes = [];
@@ -102,7 +103,22 @@ export const StyledView = styled.View<StyledViewProps>`
   ${styledSystem.zIndex}
 `;
 
-export const StyledSafeAreaView = styled.SafeAreaView<StyledViewProps>`    
+export const StyledSafeAreaView = styled(SafeAreaView)<StyledViewProps>`    
+  ${styledSystem.size}  
+  ${styledSystem.margin}  
+  ${styledSystem.padding}  
+  ${styledSystem.flexbox}     
+  ${styledSystem.background}
+  ${styledSystem.overflow}       
+  ${styledSystem.position}  
+  ${({ borderLeftWidth = 0 }): string => `border-left-width: ${borderLeftWidth}`};
+  ${({ borderRightWidth = 0 }): string => `border-right-width: ${borderRightWidth}`};
+  ${({ borderTopWidth = 0 }): string => `border-top-width: ${borderTopWidth}`};
+  ${({ borderBottomWidth = 0 }): string => `border-bottom-width: ${borderBottomWidth}`};
+`;
+
+
+export const StyledNavigationView = styled(SafeAreaView)<StyledViewProps>`    
   ${styledSystem.size}  
   ${styledSystem.margin}  
   ${styledSystem.padding}  
@@ -186,7 +202,7 @@ export const ColumnView = styled(StyledView)`
   flex-direction: column;
 `;
 
-export const StyledScrollView = styled(ScrollView)<StyledViewProps>`
+export const StyledScrollView = styled(ScrollView)<StyledViewProps>`  
   ${styledSystem.size}
   ${styledSystem.position}
   ${styledSystem.overflow}        

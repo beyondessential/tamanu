@@ -1,4 +1,6 @@
 import React, { FC, ReactNode, ReactElement } from 'react';
+import { compose } from 'redux';
+
 import {
   MaterialTopTabBarProps,
   createMaterialTopTabNavigator,
@@ -15,9 +17,9 @@ import {
   HomeScreen,
   SyncDataScreen,
 } from '../screens/home/Tabs';
-import { SearchPatientStack } from './SearchPatient';
 import { BaseAppProps } from '../../interfaces/BaseAppProps';
-
+import { withPatient } from '../../containers/Patient';
+import { PatientHome } from '../screens/home/Tabs/PatientHome';
 
 const Tabs = createMaterialTopTabNavigator();
 
@@ -78,31 +80,38 @@ const HomeTabBarOptions = {
   },
 };
 
-export const HomeTabStack = ({ selectedPatient }: BaseAppProps): ReactElement => (
-  <Tabs.Navigator
-    tabBarPosition="bottom"
-    tabBar={HomeTabBar}
-    tabBarOptions={HomeTabBarOptions}
-  >
-    <Tabs.Screen
-      options={HomeScreenOptions}
-      name={Routes.HomeStack.HomeTabs.Home}
-      component={selectedPatient ? SearchPatientStack : HomeScreen}
-    />
-    <Tabs.Screen
-      options={ReportScreenOptions}
-      name={Routes.HomeStack.HomeTabs.Reports}
-      component={ReportScreen}
-    />
-    <Tabs.Screen
-      options={SyncDataScreenOptions}
-      name={Routes.HomeStack.HomeTabs.SyncData}
-      component={SyncDataScreen}
-    />
-    <Tabs.Screen
-      options={MoreScreenOptions}
-      name={Routes.HomeStack.HomeTabs.More}
-      component={MoreScreen}
-    />
-  </Tabs.Navigator>
-);
+const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
+  console.log(selectedPatient);
+  return (
+    <Tabs.Navigator
+      tabBarPosition="bottom"
+      tabBar={HomeTabBar}
+      tabBarOptions={HomeTabBarOptions}
+    >
+      <Tabs.Screen
+        options={HomeScreenOptions}
+        name={Routes.HomeStack.HomeTabs.Home}
+        component={selectedPatient ? PatientHome : HomeScreen}
+      />
+      <Tabs.Screen
+        options={ReportScreenOptions}
+        name={Routes.HomeStack.HomeTabs.Reports}
+        component={ReportScreen}
+      />
+      <Tabs.Screen
+        options={SyncDataScreenOptions}
+        name={Routes.HomeStack.HomeTabs.SyncData}
+        component={SyncDataScreen}
+      />
+      <Tabs.Screen
+        options={MoreScreenOptions}
+        name={Routes.HomeStack.HomeTabs.More}
+        component={MoreScreen}
+      />
+    </Tabs.Navigator>
+  );
+};
+
+export const HomeTabsStack = compose(
+  withPatient,
+)(TabNavigator);

@@ -6,10 +6,12 @@ import { vaccineTableHeader } from './VaccineTableHeader';
 
 interface VaccinesTableProps {
   data: any[];
+  onPressItem: (item: any) => void;
 }
 
-export const VaccinesTable = memo(({ data }: VaccinesTableProps) => (
+export const VaccinesTable = memo(({ data, onPressItem }: VaccinesTableProps) => (
   <Table
+    onPressItem={onPressItem}
     columns={vaccineTableCols}
     Title={VaccinesTableTitle}
     data={data}

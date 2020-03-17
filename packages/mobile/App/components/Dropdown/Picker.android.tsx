@@ -23,7 +23,7 @@ export const AndroidPicker = React.memo(
   ({ items, open, onChange, closeModal }: AndroidPickerProps) => {
     const onChangeItem = React.useCallback(
       item => {
-        onChange(item);
+        onChange(item.value);
         closeModal();
       },
       [closeModal, onChange],

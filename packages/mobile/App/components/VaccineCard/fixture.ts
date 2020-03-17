@@ -1,71 +1,36 @@
 
-import { dropdownItems } from '../Dropdown/fixture';
 import { VaccineStatus } from '../../helpers/constants';
 
 export const takenOnTimeProps = {
-  vaccine: {
-    status: VaccineStatus.TAKEN,
-    title: 'BCG',
-    subtitle: '(Tuberculosis)',
-    dateType: 'Birth',
-  },
-  fieldOptions: {
-    typeOptions: dropdownItems,
-    manufactureOptions: dropdownItems,
-    administeredOptions: dropdownItems,
-  },
-  formProps: {
-    initialValues: {
-      date: null,
-      type: null,
-      batch: '',
-      manufacture: null,
-      administered: null,
-    },
-  },
+  status: VaccineStatus.TAKEN,
+  name: 'BCG',
+  subtitle: '(Tuberculosis)',
+  dateType: 'Birth',
+  date: new Date('04/22/2019'),
+  type: 'Engerix-B®',
+  batch: 'EB155480',
+  manufacture: 'Vaccine AJV',
+  administered: 'Sarah De connick',
 };
 
 export const takenNotOnScheduleProps = {
-  vaccine: {
-    status: VaccineStatus.TAKEN_NOT_ON_TIME,
-    title: 'BCG',
-    subtitle: '(Tuberculosis)',
-    dateType: 'Birth',
-  },
-  fieldOptions: {
-    typeOptions: dropdownItems,
-    reasonOptions: dropdownItems,
-    manufactureOptions: dropdownItems,
-    administeredOptions: dropdownItems,
-  },
-  formProps: {
-    initialValues: {
-      date: null,
-      reason: null,
-      type: null,
-      batch: '',
-      manufacture: null,
-      administered: null,
-    },
-  },
+  status: VaccineStatus.TAKEN_NOT_ON_TIME,
+  name: 'BCG',
+  subtitle: '(Tuberculosis)',
+  dateType: 'Birth',
+  reason: 'Not mandatory',
+  date: new Date('04/22/2019'),
+  type: 'Engerix-B®',
+  batch: 'EB155480',
+  manufacture: 'Vaccine AJV',
+  administered: 'Sarah De connick',
 };
 
 export const notTakenProps = {
-  vaccine: {
-    status: VaccineStatus.NOT_TAKEN,
-    title: 'BCG',
-    subtitle: '(Tuberculosis)',
-    dateType: 'Birth',
-  },
-  fieldOptions: {
-    reasonOptions: dropdownItems,
-    administeredOptions: dropdownItems,
-  },
-  formProps: {
-    initialValues: {
-      date: null,
-      reason: null,
-      administered: null,
-    },
-  },
+  status: VaccineStatus.NOT_TAKEN,
+  name: 'BCG',
+  subtitle: '(Tuberculosis)',
+  dateType: 'Birth',
+  date: new Date('04/22/2019'),
+  administered: 'Sarah De connick',
 };

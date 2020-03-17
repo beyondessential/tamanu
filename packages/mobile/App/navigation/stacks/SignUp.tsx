@@ -20,7 +20,7 @@ export const SignUpStack = (): ReactElement => (
     >
       <Stack.Screen
         name={Routes.SignUpStack.Intro}
-        component={PatientDetailsScreen}
+        component={IntroScreen}
         options={TransitionStyle}
       />
       <Stack.Screen

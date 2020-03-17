@@ -1,37 +1,37 @@
 import React, { FunctionComponentElement, ReactNode } from 'react';
 import styled from 'styled-components/native';
-import * as StyledSystem from 'styled-system';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '../../styled/theme';
-import { SpacingProps } from '../../styled/common';
-export interface StyledButtonProps extends SpacingProps {
-  color?: string;
+import { StyledTouchableOpacity, SpacingProps, RowView } from '../../styled/common';
+
+interface ButtonContainer extends SpacingProps {
   outline?: boolean;
   rounded?: boolean;
   borderColor?: string;
   backgroundColor?: string;
-  buttonText?: string;
-  onPress: Function;
-  fontSize?: string | number;
-  textColor?: string;
-  fontWeight?: StrNumType;
   borderRadius?: StrNumType;
   borderWidth?: StrNumType;
   bordered?: boolean;
-  children?: ReactNode;
   flex?: number;
+}
+export interface StyledButtonProps extends ButtonContainer {
+  color?: string;
+  buttonText?: string;
+  onPress: (value: any) => void | Function;
+  fontSize?: string | number;
+  textColor?: string;
+  fontWeight?: StrNumType;
+  children?: ReactNode;
 }
 
 type StrNumType = number | string | undefined;
 
-const StyledButton = styled(TouchableOpacity)<StyledButtonProps>`
-  flex-direction: row;  
+const ButtonContainer = styled(RowView)<ButtonContainer>`  
   align-items: center;
   justify-content: center;
   height: ${(props): StrNumType => (props.height ? props.height : '50px')};
   width: ${(props): StrNumType => (props.width ? props.width : '100%')};
   border-width: ${(props): StrNumType => (props.outline ? '1px' : props.borderWidth)};
-  border-color: ${(props): string => props.borderColor || theme.colors.MAIN_SUPER_DARK};
+  border-color: ${(props): string => props.borderColor || 'transparent'};
   border-radius: ${(props): StrNumType => {
     if (props.borderRadius) {
       return props.borderRadius;
@@ -44,10 +44,7 @@ const StyledButton = styled(TouchableOpacity)<StyledButtonProps>`
     if (props.outline) return 'transparent';
     if (props.backgroundColor) return props.backgroundColor;
     return theme.colors.MAIN_SUPER_DARK;
-  }};
-  ${StyledSystem.padding}
-  ${StyledSystem.margin}
-  ${StyledSystem.flex}
+  }};  
 `;
 
 interface ButtonTextProps {
@@ -74,29 +71,36 @@ export const Button = ({
   children,
   outline,
   borderColor,
-  borderWidth = 0,
+  borderWidth = '0px',
   fontSize,
   fontWeight,
   textColor,
+  backgroundColor,
   buttonText,
   ...rest
 }: StyledButtonProps): FunctionComponentElement<{}> => (
-  <StyledButton
-    borderColor={borderColor}
-    outline={outline}
-    borderWidth={borderWidth}
+  <StyledTouchableOpacity
+    onPress={onPress}
     {...rest}
-    onPress={(): void => onPress()}
+    background="transparent"
   >
-    {children}
-    <StyledButtonText
+    <ButtonContainer
+      {...rest}
       outline={outline}
+      backgroundColor={backgroundColor}
       borderColor={borderColor}
-      textColor={textColor}
-      fontSize={fontSize}
-      fontWeight={fontWeight}
+      borderWidth={borderWidth}
     >
-      {buttonText}
-    </StyledButtonText>
-  </StyledButton>
+      {children}
+      <StyledButtonText
+        outline={outline}
+        borderColor={borderColor}
+        textColor={textColor}
+        fontSize={fontSize}
+        fontWeight={fontWeight}
+      >
+        {buttonText}
+      </StyledButtonText>
+    </ButtonContainer>
+  </StyledTouchableOpacity>
 );

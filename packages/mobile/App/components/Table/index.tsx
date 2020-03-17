@@ -5,9 +5,9 @@ import { TableData } from './TableData';
 export type Column = {
   id?: string | number;
   key: string;
-  title?: string;
+  title: string;
   subtitle?: string;
-  accessor: (row: any, column?: any) => JSX.Element;
+  accessor: (row: any, onPress?: (item: any) => void, column?: any) => JSX.Element;
   rowHeader: (row: any, column?: any) => JSX.Element;
 };
 
@@ -17,6 +17,7 @@ interface TableProps {
   columns: Column[];
   tableHeader: any;
   columnKey: string;
+  onPressItem?: (item: any) => void;
 }
 
 export const Table = ({
@@ -25,6 +26,7 @@ export const Table = ({
   columns,
   tableHeader,
   columnKey,
+  onPressItem,
 }: TableProps): JSX.Element => (
   <RowView>
     <StyledView>
@@ -36,6 +38,7 @@ export const Table = ({
       data={data}
       columns={columns}
       tableHeader={tableHeader}
+      onPressItem={onPressItem}
     />
   </RowView>
 );

@@ -1,59 +1,51 @@
-import React, { PropsWithChildren, FunctionComponent, ReactElement } from 'react';
-import { Platform, StyleSheet } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import React, { PropsWithChildren, FunctionComponent, useMemo, FC } from 'react';
+import { StyleSheet } from 'react-native';
 import { StyledView } from '../../styled/common';
-import { theme } from '../../styled/theme';
 import { VaccineCardHeader } from './VaccineCardHeader';
-import { VaccineStatus } from './VaccineStatus';
-import { Orientation, screenPercentageToDP } from '../../helpers/screen';
+import { VaccineModel } from '../../models/Vaccine';
+import { VaccineStatus } from '../../helpers/constants';
+import { NotTakenFields } from './NotTakenFields';
+import TakenOnTimeFields from './TakenOnTimeFields';
+import { VaccineStatusHeader } from './VaccineStatusHeader';
+import { TakenNotOnScheduleFields } from './TakenNotOnSchedule';
 
+
+export type VaccineDataProps = VaccineModel & { dateType: string }
 
 interface VaccineCardProps {
-  vaccineData: {
-    status: string,
-    title: string,
-    subtitle?: string,
-    dateType: string,
-  };
+  vaccineData: VaccineDataProps;
   onCloseModal: () => void ;
   onEditDetails: () => void;
-  children: ReactElement;
 }
-
-const VaccineCardStyles = StyleSheet.create({
-  keyboardAware: {
-    flexGrow: 1,
-  },
-});
 
 export const VaccineCard: FunctionComponent<PropsWithChildren<VaccineCardProps>> = ({
   vaccineData,
   onCloseModal,
   onEditDetails,
-  children,
-}:VaccineCardProps) => (
-  <StyledView width="80.29%" borderRadius={5} background={theme.colors.WHITE}>
-    <VaccineCardHeader
-      vaccine={vaccineData}
-      onCloseModal={onCloseModal}
-      onEditDetails={onEditDetails}
-    />
-    <VaccineStatus status={vaccineData.status} />
+}:VaccineCardProps) => {
+  const Fields: FC<VaccineDataProps> = useMemo(() => {
+    switch (vaccineData.status) {
+      case VaccineStatus.NOT_TAKEN:
+        return NotTakenFields;
+      case VaccineStatus.TAKEN:
+        return TakenOnTimeFields;
+      case VaccineStatus.TAKEN_NOT_ON_TIME:
+        return TakenNotOnScheduleFields;
+      default:
+        return TakenOnTimeFields;
+    }
+  }, [vaccineData.status]);
+  return (
     <StyledView
-      paddingTop={screenPercentageToDP('2.43', Orientation.Height)}
-      paddingLeft={screenPercentageToDP('2.43', Orientation.Height)}
-      paddingRight={screenPercentageToDP('2.43', Orientation.Height)}
-      paddingBottom={screenPercentageToDP('2.43', Orientation.Height)}
+      width="80.29%"
     >
-      <KeyboardAwareScrollView
-        enableOnAndroid
-        extraScrollHeight={Platform.OS === 'ios' ? -315 : 0}
-        resetScrollToCoords={{ x: 0, y: 0 }}
-        contentContainerStyle={VaccineCardStyles.keyboardAware}
-        style={VaccineCardStyles.keyboardAware}
-      >
-        {children}
-      </KeyboardAwareScrollView>
+      <VaccineCardHeader
+        vaccine={vaccineData}
+        onCloseModal={onCloseModal}
+        onEditDetails={onEditDetails}
+      />
+      <VaccineStatusHeader status={vaccineData.status} />
+      <Fields {...vaccineData} />
     </StyledView>
-  </StyledView>
-);
+  );
+};

@@ -25,7 +25,7 @@ interface PickerPropsIOS {
   items: SelectOption[];
   open: boolean;
   onChange: Function;
-  selectedItem: SelectOption | null;
+  selectedItem: string | null;
   closeModal: () => void;
   disabled?: boolean;
 }
@@ -57,9 +57,9 @@ export const IOSPicker = React.memo(
             testID="ios-picker"
             enabled={!disabled}
             itemStyle={iosPickerStyles.itemPicker}
-            selectedValue={selectedItem ? selectedItem.value : null}
-            onValueChange={(value): void => {
-              onChange(items.find(item => item.value === value));
+            selectedValue={selectedItem || null}
+            onValueChange={(value: any): void => {
+              onChange(value);
             }}
           >
             {items.map((item: SelectOption) => (
