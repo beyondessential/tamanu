@@ -29,7 +29,7 @@ class DataChangeResponder {
   };
 }
 
-export function startDataChangeResponder(api, database) {
-  const responder = new DataChangeResponder(api, database);
+export function startDataChangeResponder(api, store) {
+  const responder = new DataChangeResponder(api, store);
   return responder;
 }
