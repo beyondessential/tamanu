@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement, useCallback, FC } from 'react';
 import {
   StyledView,
   CenterView,
@@ -15,7 +15,7 @@ const VaccineIcon = ({
 }: {
   vaccineType: string | null;
 }): JSX.Element => {
-  let Icon;
+  let Icon: FC<any>;
   if (vaccineType) {
     Icon = VaccineIcons[vaccineType].Icon;
   } else {

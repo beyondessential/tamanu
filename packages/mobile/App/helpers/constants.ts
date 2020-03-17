@@ -1,4 +1,7 @@
 import * as Icons from '../components/Icons';
+import { NotTaken } from '../components/Icons/NotTaken';
+import { TakenNotOnTime } from '../components/Icons/TakenNotOnTime';
+import { ScheduledVaccine } from '../components/Icons/ScheduledVaccine';
 import { theme } from '../styled/theme';
 
 export const DateFormats = {
@@ -44,7 +47,6 @@ export const VaccineStatus = {
   NOT_TAKEN: 'NOT_TAKEN',
   SCHEDULED: 'SCHEDULED',
 };
-
 export const VaccineIcons = {
   [VaccineStatus.TAKEN]: {
     Icon: Icons.Checked,
@@ -52,17 +54,17 @@ export const VaccineIcons = {
     text: 'TAKEN ON TIME',
   },
   [VaccineStatus.NOT_TAKEN]: {
-    Icon: Icons.NotTaken,
+    Icon: NotTaken,
     color: theme.colors.TEXT_SOFT,
     text: 'NOT TAKEN',
   },
   [VaccineStatus.TAKEN_NOT_ON_TIME]: {
-    Icon: Icons.TakenNotOnTime,
+    Icon: TakenNotOnTime,
     color: theme.colors.ORANGE,
     text: 'TAKEN NOT ON TIME',
   },
   [VaccineStatus.SCHEDULED]: {
-    Icon: Icons.ScheduledVaccine,
+    Icon: ScheduledVaccine,
     color: theme.colors.ORANGE,
     text: 'SCHEDULED',
   },

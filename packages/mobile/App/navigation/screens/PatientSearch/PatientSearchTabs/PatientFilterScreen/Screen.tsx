@@ -35,26 +35,24 @@ export const Screen = ({ onSubmit, onClear, onCancel }: ScreenProps): ReactEleme
       >
         <Button
           flex={1}
+          width={120}
           onPress={onCancel}
           backgroundColor="transparent"
           buttonText="Cancel"
           textColor={theme.colors.BOX_OUTLINE}
           fontSize={12}
-          width={80}
         />
         <StyledView position="absolute" width="100%" alignItems="center" zIndex={-1}>
           <StyledText fontSize={18} color={theme.colors.WHITE}>Filter Search</StyledText>
         </StyledView>
         <Button
           flex={1}
+          width={120}
           onPress={onClear}
           buttonText="Clear Filters"
           textColor={theme.colors.BOX_OUTLINE}
           fontSize={12}
-          width={120}
           backgroundColor="transparent"
-          paddingLeft={20}
-          paddingRight={20}
         />
       </RowView>
     </StyledSafeAreaView>

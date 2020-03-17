@@ -7,7 +7,6 @@ import { RegisterAccountStep1Container } from '../screens/signup/RegisterAccount
 import { RegisterAccountStep2Container } from '../screens/signup/RegisterAccountScreenStep2';
 import { RegisterAccountStep3Container } from '../screens/signup/RegisterAccountScreenStep3';
 import { RegisterAccountProvider } from '../../contexts/RegisterAccountContext';
-import { PatientDetailsScreen } from '../screens/home/PatientDetails';
 
 const Stack = createStackNavigator();
 

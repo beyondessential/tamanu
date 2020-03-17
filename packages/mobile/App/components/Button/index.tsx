@@ -77,6 +77,7 @@ export const Button = ({
   textColor,
   backgroundColor,
   buttonText,
+  flex,
   ...rest
 }: StyledButtonProps): FunctionComponentElement<{}> => (
   <StyledTouchableOpacity
@@ -86,6 +87,7 @@ export const Button = ({
   >
     <ButtonContainer
       {...rest}
+      flex={flex}
       outline={outline}
       backgroundColor={backgroundColor}
       borderColor={borderColor}
