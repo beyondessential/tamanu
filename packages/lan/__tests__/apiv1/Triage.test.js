@@ -1,7 +1,7 @@
 import Chance from 'chance';
 import moment from 'moment';
 
-import { createDummyPatient, randomReferenceId, randomUser } from 'shared/demoData/patients';
+import { createDummyPatient, createDummyVisit, randomReferenceId, randomUser } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
@@ -32,13 +32,9 @@ describe('Triage', () => {
   });
 
   it('should admit a patient to triage', async () => {
-    const response = await app.post('/v1/triage').send({
+    const response = await app.post('/v1/triage').send(await createDummyTriage(models, {
       patientId: patient.id,
-      triageReasonId: '',
-      practitionerId: '',
-      score: 4,
-      notes: '123',
-    });
+    }));
     expect(response).toHaveSucceeded();
 
     const createdTriage = await models.Triage.findByPk(response.body.id);
@@ -47,13 +43,52 @@ describe('Triage', () => {
     expect(createdVisit).toBeTruthy();
   });
 
-  test.todo('should fail to triage if a visit is already open');
+  it('should fail to triage if a visit is already open', async () => {
+    const visitPatient = await models.Patient.create(await createDummyPatient(models));
+    const visit = await models.Visit.create(await createDummyVisit(models, {
+      current: true,
+      patientId: visitPatient.id,
+    }));
+  
+    expect(visit.endDate).toBeFalsy();
 
-  // TODO: waiting on visit progression functionality
-  test.todo('should close a triage by progressing a visit');
+    const response = await app.post('/v1/triage').send(await createDummyTriage(models, {
+      patientId: patient.id,
+    }));
+    expect(response).toHaveRequestError();
+  });
 
-  // TODO: waiting on visit closure
-  test.todo('should close a triage by discharging a visit');
+  it('should close a triage by progressing a visit', async () => {
+    const visitPatient = await models.Patient.create(await createDummyPatient(models));
+    const createdTriage = await models.Triage.create(await createDummyTriage(models, {
+      patientId: visitPatient.id,
+    }));
+    const createdVisit = await models.Visit.findByPk(createdTriage.visitId);
+    expect(createdVisit).toBeTruthy();
+
+    const progressResponse = await app.put(`/v1/visit/${createdVisit.id}`).send({
+      visitType: VISIT_TYPES.EMERGENCY,
+    });
+    expect(progressResponse).toHaveSucceeded();
+    const updatedTriage = await models.Triage.findByPk(createdTriage.id);
+    expect(updatedTriage.closedTime).toBeTruthy();
+  });
+
+  it('should close a triage by discharging a visit', async () => {
+    const visitPatient = await models.Patient.create(await createDummyPatient(models));
+    const createdTriage = await models.Triage.create(await createDummyTriage(models, {
+      patientId: visitPatient.id,
+    }));
+    const createdVisit = await models.Visit.findByPk(createdTriage.visitId);
+    expect(createdVisit).toBeTruthy();
+
+    const progressResponse = await app.put(`/v1/visit/${createdVisit.id}`).send({
+      endDate: Date.now(),
+    });
+    expect(progressResponse).toHaveSucceeded();
+    const updatedTriage = await models.Triage.findByPk(createdTriage.id);
+    expect(updatedTriage.closedTime).toBeTruthy();
+  });
 
   describe('listing & filtering', () => {
     beforeAll(() => {
