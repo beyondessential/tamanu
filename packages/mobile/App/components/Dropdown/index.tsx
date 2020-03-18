@@ -1,14 +1,14 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { TouchableWithoutFeedback, Platform } from 'react-native';
+import { StyledView, StyledText } from '/styled/common';
+import { theme } from '/styled/theme';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { BaseInputProps } from '/interfaces/BaseInputProps';
 import { InputContainer } from '../TextField/styles';
-import { StyledView, StyledText } from '../../styled/common';
 import * as Icons from '../Icons';
 import { TextFieldLabel } from '../TextField/TextFieldLabel';
-import { theme } from '../../styled/theme';
 import { AndroidPicker } from './Picker.android';
 import { IOSPicker } from './Picker.ios';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
-import { BaseInputProps } from '../../interfaces/BaseInputProps';
 
 export interface SelectOption {
   label: string;

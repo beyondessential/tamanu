@@ -1,16 +1,17 @@
 import React, { ReactElement } from 'react';
 // Navigators
 import { createStackNavigator } from '@react-navigation/stack';
-import { VaccineStack } from './VaccineStack';
+// Helpers
+import { Routes } from '/helpers/constants';
 // Components
+import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 import { WelcomeIntroTabs } from './WelcomeIntro';
-import { PatientDetailsScreen } from '../screens/home/PatientDetails';
 import { HomeTabsStack } from './HomeTabs';
+import { PatientDetailsScreen } from '../screens/home/PatientDetails';
 // Stacks
 import { SearchPatientStack } from './SearchPatient';
+import { VaccineStack } from './VaccineStack';
 // Helpers
-import { Routes } from '../../helpers/constants';
-import { noSwipeGestureOnNavigator } from '../../helpers/navigators';
 
 
 const Stack = createStackNavigator();

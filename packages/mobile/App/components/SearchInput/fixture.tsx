@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect, ReactElement } from 'react';
-import { debounce } from '../../helpers/input';
+import { debounce } from '/helpers/input';
+import { StyledText } from '/styled/common';
+import { theme } from '/styled/theme';
 import { SearchInput } from './index';
-import { StyledText } from '../../styled/common';
-import { theme } from '../../styled/theme';
 
 export function BaseStory(): ReactElement {
   const [showMessage, setShowMessage] = useState(false);

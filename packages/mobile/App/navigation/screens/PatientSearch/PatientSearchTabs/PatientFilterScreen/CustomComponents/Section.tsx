@@ -1,8 +1,8 @@
 import React, { ReactElement, PropsWithChildren } from 'react';
-import { StyledView } from '../../../../../../styled/common';
-import { SectionHeader } from '../../../../../../components/SectionHeader';
-import { screenPercentageToDP, Orientation } from '../../../../../../helpers/screen';
-import { Separator } from '../../../../../../components/Separator';
+import { StyledView } from '/styled/common';
+import { SectionHeader } from '/components/SectionHeader';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Separator } from '/components/Separator';
 
 interface Section {
   title: string

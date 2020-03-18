@@ -1,7 +1,7 @@
 import React, { FC, ReactElement } from 'react';
-import { Button } from '../../../../../../components/Button';
+import { Button } from '/components/Button';
 import { ButtonProps } from './fixture';
-import { DotsMenu } from '../../../../../../components/Icons';
+import { DotsMenu } from '/components/Icons';
 
 
 export const DotsMenuButton: FC<ButtonProps> = ({ onPress }: ButtonProps): ReactElement => (

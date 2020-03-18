@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from 'react';
-import { StyledView, StyledText } from '../../styled/common';
-import { theme } from '../../styled/theme';
+import { StyledView, StyledText } from '/styled/common';
+import { theme } from '/styled/theme';
 
 export const VitalsTableCell = ({
   children,

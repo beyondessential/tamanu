@@ -1,11 +1,11 @@
 import React, { ReactElement } from 'react';
-import { FamilyHistoryDataProps } from '../../../../../interfaces/PatientDetails';
-import { Separator } from './Separator';
-import { StyledView, RowView, StyledText } from '../../../../../styled/common';
-import { SectionHeader } from '../../../../../components/SectionHeader';
+import { FamilyHistoryDataProps } from '/interfaces/PatientDetails';
+import { Separator } from '/components/Separator';
+import { StyledView, RowView, StyledText } from '/styled/common';
+import { SectionHeader } from '/components/SectionHeader';
 import { EditButton } from './EditButton';
 import { Dot } from './Dot';
-import { theme } from '../../../../../styled/theme';
+import { theme } from '/styled/theme';
 
 
 interface FamilyHistoryProps extends FamilyHistoryDataProps {

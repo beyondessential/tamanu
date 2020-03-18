@@ -1,9 +1,9 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import { theme } from '/styled/theme';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { Marker } from './Marker';
-import { theme } from '../../styled/theme';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 interface AgeRangeSliderProps {
   rangeStart: number;

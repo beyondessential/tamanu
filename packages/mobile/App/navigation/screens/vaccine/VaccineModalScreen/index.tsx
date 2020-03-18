@@ -1,10 +1,10 @@
 import React, { ReactElement, useCallback } from 'react';
 import { StatusBar } from 'react-native';
 import { RouteProp, NavigationProp } from '@react-navigation/native';
-import { FullView, CenterView } from '../../../../styled/common';
-import { Routes } from '../../../../helpers/constants';
-import { VaccineCard, VaccineDataProps } from '../../../../components/VaccineCard';
-import { theme } from '../../../../styled/theme';
+import { FullView, CenterView } from '/styled/common';
+import { Routes } from '/helpers/constants';
+import { VaccineCard, VaccineDataProps } from '/components/VaccineCard';
+import { theme } from '/styled/theme';
 
 
 type VaccineModalParams = {

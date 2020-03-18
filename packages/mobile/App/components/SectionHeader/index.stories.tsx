@@ -1,8 +1,8 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { ThemeProvider } from 'styled-components';
+import { CenterView, StyledView, themeSystem } from '/styled/common';
 import { SectionHeader } from './index';
-import { CenterView, StyledView, themeSystem } from '../../styled/common';
 import { BaseTextFieldStory } from '../TextField/fixtures';
 
 storiesOf('SectionHeader', module)

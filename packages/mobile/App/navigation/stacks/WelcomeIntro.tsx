@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 // Screens
-import { Intro } from '../screens/home/Intro';
-import { Routes } from '../../helpers/constants';
+import { Intro } from '/navigation/screens/home/Intro';
+import { Routes } from '/helpers/constants';
 
 const Stack = createStackNavigator();
 

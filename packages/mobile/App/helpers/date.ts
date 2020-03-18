@@ -1,10 +1,10 @@
-import { format, differenceInDays } from 'date-fns';
+import { format, differenceInCalendarYears } from 'date-fns';
 
 export function formatDate(date: Date, dateFormat: string): string {
   return format(date, dateFormat);
 }
 
 
-export function compareDate(dateStart: Date, dateEnd: Date): boolean {
-  return differenceInDays(dateStart, dateEnd) === 0;
+export function getAgeFromDate(date: Date): number {
+  return differenceInCalendarYears(date, new Date());
 }

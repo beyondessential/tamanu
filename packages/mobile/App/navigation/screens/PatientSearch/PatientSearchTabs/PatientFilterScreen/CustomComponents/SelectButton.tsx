@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 // Components
-import { RowView, StyledText } from '../../../../../../styled/common';
+import { RowView, StyledText } from '/styled/common';
 // Helpers
-import { theme } from '../../../../../../styled/theme';
-import { screenPercentageToDP, Orientation } from '../../../../../../helpers/screen';
+import { theme } from '/styled/theme';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 
 export const SelectButton = (props: any): JSX.Element => {

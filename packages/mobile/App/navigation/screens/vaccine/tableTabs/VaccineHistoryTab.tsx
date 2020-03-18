@@ -3,14 +3,14 @@ import { StatusBar } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { NavigationProp } from '@react-navigation/native';
 import SafeAreaView from 'react-native-safe-area-view';
-import { FullView } from '../../../../styled/common';
-import { VaccinesTable } from '../../../../components/VaccinesTable';
+import { FullView } from '/styled/common';
+import { VaccinesTable } from '/components/VaccinesTable';
 import {
   vaccineHistoryAdolecentList,
   vaccineHistoryAdultList,
   vaccineHistoryList,
-} from '../../../../components/VaccinesTable/fixture';
-import { Routes, VaccineStatus } from '../../../../helpers/constants';
+} from '/components/VaccinesTable/fixture';
+import { Routes, VaccineStatus } from '/helpers/constants';
 
 interface VaccineHistoryTabProps {
   navigation: NavigationProp<any>;

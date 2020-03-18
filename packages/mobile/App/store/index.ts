@@ -1,6 +1,6 @@
 import { createStore, compose } from 'redux';
-import Reactotron from '../../reactotron';
-import reducer from '../ducks';
+import Reactotron from '../reactotron';
+import reducer from './ducks';
 
 /*eslint-disable @typescript-eslint/no-non-null-assertion*/
 

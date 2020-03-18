@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { VaccineHistoryTab } from '../screens/vaccine/tableTabs';
-import { Routes } from '../../helpers/constants';
+import { Routes } from '/helpers/constants';
 
 const Tab = createMaterialTopTabNavigator();
 

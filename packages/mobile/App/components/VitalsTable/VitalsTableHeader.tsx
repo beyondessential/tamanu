@@ -1,9 +1,9 @@
 import React from 'react';
-import { StyledView, StyledText } from '../../styled/common';
-import { theme } from '../../styled/theme';
-import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
-import { formatDate } from '../../helpers/date';
-import { DateFormats } from '../../helpers/constants';
+import { StyledView, StyledText } from '/styled/common';
+import { theme } from '/styled/theme';
+import { PatientVitalsProps } from '/interfaces/PatientVitalsProps';
+import { formatDate } from '/helpers/date';
+import { DateFormats } from '/helpers/constants';
 
 export const vitalsTableHeader = {
   key: 'date',

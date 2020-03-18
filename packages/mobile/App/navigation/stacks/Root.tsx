@@ -3,9 +3,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { ThemeProvider } from 'styled-components/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
-import { themeSystem } from '../../styled/common';
+import { themeSystem } from '/styled/common';
+import { store } from '/store/index';
 import { Core } from './Core';
-import { store } from '../../redux/store';
+
 
 export const RootStack = (): ReactElement => (
   <SafeAreaProvider>

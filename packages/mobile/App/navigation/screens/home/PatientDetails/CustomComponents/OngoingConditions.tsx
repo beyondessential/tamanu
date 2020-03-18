@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
-import { OnGoingConditionsDataProps } from '../../../../../interfaces/PatientDetails';
-import { RowView, StyledText } from '../../../../../styled/common';
+import { OnGoingConditionsDataProps } from '/interfaces/PatientDetails';
+import { RowView, StyledText } from '/styled/common';
 import { Dot } from './Dot';
-import { theme } from '../../../../../styled/theme';
+import { theme } from '/styled/theme';
 import { PatientSection } from './PatientSection';
 
 interface OnGoingConditionsProps extends OnGoingConditionsDataProps {

@@ -9,13 +9,13 @@ import {
   CenterView,
   StyledText,
   RowView,
-} from '../../../../styled/common';
-import { theme } from '../../../../styled/theme';
-import { Cross, User } from '../../../../components/Icons';
-import { RegisterAccountFormStep01 } from '../../../../components/Forms/RegisterAccountForms/RegisterAccountFormStep01';
-import { Orientation, screenPercentageToDP } from '../../../../helpers/screen';
+} from '/styled/common';
+import { theme } from '/styled/theme';
+import { Cross, User } from '/components/Icons';
+import { RegisterAccountFormStep01 } from '/components/Forms/RegisterAccountForms/RegisterAccountFormStep01';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { RegisterAccountFormStep1Props } from '../../../../contexts/RegisterAccountContext';
-import { StepMarker } from '../../../../components/StepMarker';
+import { StepMarker } from '/components/StepMarker';
 
 interface ScreenProps {
   navigateToIntro: () => void;

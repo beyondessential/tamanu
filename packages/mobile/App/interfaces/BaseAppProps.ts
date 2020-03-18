@@ -1,5 +1,5 @@
 import { NavigationProp } from '@react-navigation/native';
-import { WithPatientStoreProps } from '../redux/ducks/patient';
+import { WithPatientStoreProps } from '/store/ducks/patient';
 
 export interface BaseAppProps extends WithPatientStoreProps {
     navigation: NavigationProp<any>

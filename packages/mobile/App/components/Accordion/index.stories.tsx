@@ -1,6 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react-native';
-import { CenterView } from '../../styled/common';
+import { CenterView } from '/styled/common';
 import { AccordionList } from './index';
 import { data } from './fixtures';
 

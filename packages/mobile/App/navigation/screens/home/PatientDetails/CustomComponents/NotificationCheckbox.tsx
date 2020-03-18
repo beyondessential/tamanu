@@ -1,7 +1,7 @@
 import React from 'react';
-import { Separator } from './Separator';
-import { StyledView } from '../../../../../styled/common';
-import { Checkbox } from '../../../../../components/Checkbox';
+import { Separator } from '/components/Separator';
+import { StyledView } from '/styled/common';
+import { Checkbox } from '/components/Checkbox';
 
 
  interface NotificationCheckboxProps {

@@ -7,8 +7,8 @@ import {
 } from 'react-navigation';
 import { SvgProps } from 'react-native-svg';
 import styled from 'styled-components/native';
-import { CenterView, RowView, StyledSafeAreaView } from '../../styled/common';
-import { theme } from '../../styled/theme';
+import { CenterView, RowView, StyledSafeAreaView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 interface TabLabelProps {
   focused?: boolean;

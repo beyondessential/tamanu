@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyledView, StyledText } from '../../styled/common';
-import { theme } from '../../styled/theme';
+import { StyledView, StyledText } from '/styled/common';
+import { theme } from '/styled/theme';
 import { Column } from '../Table';
 
 export const VitalsTableRowHeader = ({ col }: { col: Column }): JSX.Element => (

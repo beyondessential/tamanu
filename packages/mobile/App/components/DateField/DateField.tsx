@@ -2,15 +2,15 @@ import React, { useState, useCallback } from 'react';
 import { TouchableWithoutFeedback, Platform, StyleSheet } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import DatePicker from '@vinipachecov/react-native-datepicker';
-import { InputContainer } from '../TextField/styles';
-import { TextFieldLabel } from '../TextField/TextFieldLabel';
-import { StyledView, StyledText } from '../../styled/common';
-import { formatDate } from '../../helpers/date';
-import { theme } from '../../styled/theme';
+import { StyledView, StyledText } from '/styled/common';
+import { formatDate } from '/helpers/date';
+import { theme } from '/styled/theme';
+import { DateFormats, TimeFormats } from '/helpers/constants';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import * as Icons from '../Icons';
-import { DateFormats, TimeFormats } from '../../helpers/constants';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
-import { BaseInputProps } from '../../interfaces/BaseInputProps';
+import { TextFieldLabel } from '../TextField/TextFieldLabel';
+import { InputContainer } from '../TextField/styles';
+import { BaseInputProps } from '/interfaces/BaseInputProps';
 
 const styles = StyleSheet.create({
   androidPickerStyles: {

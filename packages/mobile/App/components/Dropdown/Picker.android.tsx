@@ -5,9 +5,9 @@ import {
   StyleSheet,
   Modal,
 } from 'react-native';
-import { FullView, StyledView, StyledScrollView, StyledText } from '../../styled/common';
-import { theme } from '../../styled/theme';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
+import { FullView, StyledView, StyledScrollView, StyledText } from '/styled/common';
+import { theme } from '/styled/theme';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { SelectOption } from '.';
 
 

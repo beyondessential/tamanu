@@ -1,9 +1,9 @@
 import React, { memo } from 'react';
+import { PatientVitalsProps } from '/interfaces/PatientVitalsProps';
 import { Table } from '../Table';
 import { vitalsTableCols } from './VitalsTableColumns';
 import { vitalsTableHeader } from './VitalsTableHeader';
 import { VitalsTableTitle } from './VitalsTableTitle';
-import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
 
 interface VitalsTableProps {
   patientData: PatientVitalsProps[];

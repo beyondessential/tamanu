@@ -1,15 +1,15 @@
 import React from 'react';
-import { RowView, StyledView, StyledText } from '../../styled/common';
-import UserAvatar from '../UserAvatar';
-import { formatDate } from '../../helpers/date';
-import { DateFormats } from '../../helpers/constants';
-import { theme } from '../../styled/theme';
-import { getGender } from '../../helpers/user';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
+import { RowView, StyledView, StyledText } from '/styled/common';
+import { UserAvatar } from '/components/UserAvatar';
+import { formatDate } from '/helpers/date';
+import { DateFormats } from '/helpers/constants';
+import { theme } from '/styled/theme';
+import { getGender } from '/helpers/user';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 export interface PatientTileProps {
   name: string;
-  age: string;
+  age: number;
   gender: string;
   city: string;
   lastVisit?: Date;

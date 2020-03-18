@@ -1,5 +1,5 @@
 import { Chance } from 'chance';
-import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
+import { PatientVitalsProps } from '/interfaces/PatientVitalsProps';
 
 const chance = new Chance();
 

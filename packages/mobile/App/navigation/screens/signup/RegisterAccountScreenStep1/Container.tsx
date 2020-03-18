@@ -2,14 +2,14 @@ import React, { FC, useState, useMemo, useCallback, useContext } from 'react';
 import { Keyboard } from 'react-native';
 import { Value } from 'react-native-reanimated';
 //Protocols
-import { RegisterAccountScreenProps } from '../../../../interfaces/screens/SignUpStack/RegisterAccountStep1Props';
+import { RegisterAccountScreenProps } from '/interfaces/screens/SignUpStack/RegisterAccountStep1Props';
 // contexts
 import { RegisterAccountFormStep1Props, RegisterAccountContext } from '../../../../contexts/RegisterAccountContext';
 //helpers
-import { onKeyboardOpenListener, onKeyboardCloseListener } from '../../../../helpers/keyboard';
-import { animateState } from '../../../../helpers/animation';
-import { screenPercentageToDP, Orientation } from '../../../../helpers/screen';
-import { Routes } from '../../../../helpers/constants';
+import { onKeyboardOpenListener, onKeyboardCloseListener } from '/helpers/keyboard';
+import { animateState } from '/helpers/animation';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Routes } from '/helpers/constants';
 //Screen
 import { Screen } from './Screen';
 

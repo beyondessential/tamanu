@@ -2,12 +2,12 @@
 import React, { memo } from 'react';
 import { StyleSheet } from 'react-native';
 import { BarChart, YAxis, XAxis } from 'react-native-svg-charts';
-import { DateFormats } from '../../helpers/constants';
-import { StyledView, RowView } from '../../styled/common';
-import { formatDate } from '../../helpers/date';
-import { theme } from '../../styled/theme';
-import { BarChartData } from '../../interfaces/BarChartProps';
-import { Orientation, screenPercentageToDP } from '../../helpers/screen';
+import { DateFormats } from '/helpers/constants';
+import { StyledView, RowView } from '/styled/common';
+import { formatDate } from '/helpers/date';
+import { theme } from '/styled/theme';
+import { BarChartData } from '/interfaces/BarChartProps';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 
 const styles = StyleSheet.create({

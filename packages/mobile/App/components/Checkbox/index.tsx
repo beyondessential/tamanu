@@ -1,15 +1,15 @@
 import React, { useCallback } from 'react';
 import { TouchableHighlight } from 'react-native';
-import { StyledView, StyledText, RowView } from '../../styled/common';
+import { StyledView, StyledText, RowView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { BaseInputProps } from '/interfaces/BaseInputProps';
 import { CheckboxMark } from '../Icons';
-import { theme } from '../../styled/theme';
-import { Orientation, screenPercentageToDP } from '../../helpers/screen';
-import { BaseInputProps } from '../../interfaces/BaseInputProps';
 
 interface CheckboxProps extends BaseInputProps {
-  value: boolean;
   onChange: Function;
   text: string;
+  value: boolean;
 }
 
 export const Checkbox = ({

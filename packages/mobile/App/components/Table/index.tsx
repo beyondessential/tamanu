@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { StyledView, RowView } from '../../styled/common';
+import { StyledView, RowView } from '/styled/common';
 import { TableData } from './TableData';
 
 export type Column = {

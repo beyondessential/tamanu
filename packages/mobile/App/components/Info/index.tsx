@@ -1,8 +1,8 @@
 import React, { FunctionComponent } from 'react';
+import { StyledText, RowView, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { Alert } from '../Icons';
-import { StyledText, RowView, StyledView } from '../../styled/common';
-import { theme } from '../../styled/theme';
-import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 
 interface InfoProps {
     text: string;

@@ -6,37 +6,36 @@ import { SvgProps } from 'react-native-svg';
 import { FullView, StyledView, StyledSafeAreaView, RowView } from '../../../../styled/common';
 import {
   VaccineForm, SubmitButtonsProps,
-} from '../../../../components/Forms/VaccineForms';
-import { theme } from '../../../../styled/theme';
-import { SectionHeader } from '../../../../components/SectionHeader';
-import { Button } from '../../../../components/Button';
-import { VaccineDataProps } from '../../../../components/VaccineCard';
+} from '/components/Forms/VaccineForms';
+import { theme } from '/styled/theme';
+import { SectionHeader } from '/components/SectionHeader';
+import { Button } from '/components/Button';
+import { VaccineDataProps } from '/components/VaccineCard';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 
 const SubmitButtons = ({ onSubmit, onCancel }: SubmitButtonsProps): ReactElement => (
   <RowView
-    paddingTop={20}
+    paddingTop={screenPercentageToDP(2.43, Orientation.Height)}
     flex={1}
     alignItems="flex-end"
     justifyContent="center"
-    paddingBottom={20}
+    paddingBottom={screenPercentageToDP(2.43, Orientation.Height)}
   >
-    <RowView flex={1} height={50}>
-      <Button
-        flex={1}
-        marginRight={10}
-        onPress={onCancel}
-        outline
-        borderColor={theme.colors.PRIMARY_MAIN}
-        buttonText="Cancel"
-      />
-      <Button
-        flex={1}
-        onPress={onSubmit}
-        backgroundColor={theme.colors.PRIMARY_MAIN}
-        buttonText="Submit"
-      />
-    </RowView>
+    <Button
+      width={screenPercentageToDP(43.79, Orientation.Width)}
+      marginRight={screenPercentageToDP(1.21, Orientation.Width)}
+      onPress={onCancel}
+      outline
+      borderColor={theme.colors.PRIMARY_MAIN}
+      buttonText="Cancel"
+    />
+    <Button
+      width={screenPercentageToDP(43.79, Orientation.Width)}
+      onPress={onSubmit}
+      backgroundColor={theme.colors.PRIMARY_MAIN}
+      buttonText="Submit"
+    />
   </RowView>
 );
 

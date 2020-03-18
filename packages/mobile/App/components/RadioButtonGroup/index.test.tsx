@@ -14,7 +14,6 @@ describe('<RadioButtonGroup />', () => {
       {
         label: '2',
         value: 'Male',
-        selected: false,
       },
     ],
   };

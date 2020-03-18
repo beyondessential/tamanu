@@ -12,10 +12,10 @@ import {
   StyledTouchableOpacity,
   RowView,
   StyledSafeAreaView,
-} from '../../styled/common';
-import { theme } from '../../styled/theme';
-import { LeftArrow } from '../../components/Icons';
-import { Routes } from '../../helpers/constants';
+} from '/styled/common';
+import { theme } from '/styled/theme';
+import { LeftArrow } from '/components/Icons';
+import { Routes } from '/helpers/constants';
 import { VaccineModalScreen } from '../screens/vaccine/VaccineModalScreen';
 
 const Stack = createStackNavigator();

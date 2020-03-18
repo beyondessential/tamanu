@@ -1,7 +1,7 @@
 import React, { PropsWithChildren, ReactElement } from 'react';
-import { Separator } from './Separator';
-import { StyledView, RowView } from '../../../../../styled/common';
-import { SectionHeader } from '../../../../../components/SectionHeader';
+import { Separator } from '/components/Separator';
+import { StyledView, RowView } from '/styled/common';
+import { SectionHeader } from '/components/SectionHeader';
 import { EditButton } from './EditButton';
 
 interface PatientDetailSectionProps {

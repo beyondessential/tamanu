@@ -1,6 +1,12 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { ThemeProvider } from 'styled-components';
+import {
+  StyledView,
+  themeSystem,
+  StyledSafeAreaView,
+} from '/styled/common';
+import { theme } from '/styled/theme';
 import {
   History,
   Appointments,
@@ -10,60 +16,54 @@ import {
   Ring,
 } from '../Icons';
 import { MenuOptionButton } from './index';
-import {
-  StyledView,
-  themeSystem,
-  StyledSafeAreaView,
-} from '../../styled/common';
-import { theme } from '../../styled/theme';
 
 export const MoreMenuOptions = [
   {
     title: 'Settings',
     Icon: Settings,
-    onPress: () => console.log('Settings'),
+    onPress: (): void => console.log('Settings'),
   },
   {
     title: 'Feedback',
     Icon: Feedback,
-    onPress: () => console.log('Feedback'),
+    onPress: (): void => console.log('Feedback'),
   },
   {
     title: 'FAQs',
     Icon: Question,
-    onPress: () => console.log('Question'),
+    onPress: (): void => console.log('Question'),
   },
   {
     title: 'Notifications',
     Icon: Ring,
-    onPress: () => console.log('Notification'),
+    onPress: (): void => console.log('Notification'),
   },
 ];
 
 export const ProgramOptions = [
   {
     title: 'Family Planning',
-    onPress: () => console.log('Family Planning'),
+    onPress: (): void => console.log('Family Planning'),
   },
   {
     title: 'Pregnant',
-    onPress: () => console.log('Family Planning'),
+    onPress: (): void => console.log('Family Planning'),
   },
   {
     title: 'Program type 3',
-    onPress: () => console.log('Family Planning'),
+    onPress: (): void => console.log('Family Planning'),
   },
   {
     title: 'Program type 4',
-    onPress: () => console.log('Family Planning'),
+    onPress: (): void => console.log('Family Planning'),
   },
   {
     title: 'Program type 5',
-    onPress: () => console.log('Family Planning'),
+    onPress: (): void => console.log('Family Planning'),
   },
   {
     title: 'Program type 6',
-    onPress: () => console.log('Family Planning'),
+    onPress: (): void => console.log('Family Planning'),
   },
 ];
 
@@ -71,16 +71,16 @@ export const PatientDetails = [
   {
     title: 'View patients details',
     Icon: History,
-    onPress: () => console.log('Patient details'),
+    onPress: (): void => console.log('Patient details'),
   },
   {
     title: 'View History',
     Icon: Appointments,
-    onPress: () => console.log('History'),
+    onPress: (): void => console.log('History'),
   },
 ];
 
-const Separator = () => (
+const Separator = (): ReactElement => (
   <StyledView
     alignSelf="center"
     height={1}
@@ -99,15 +99,15 @@ interface BaseStoryProps {
   data: MenuOptionButton[];
 }
 
-export const BaseStory = ({ data }: BaseStoryProps) => (
+export const BaseStory = ({ data }: BaseStoryProps): ReactElement => (
   <ThemeProvider theme={themeSystem}>
     <StyledSafeAreaView />
     <FlatList
       showsVerticalScrollIndicator={false}
       style={styles.flatList}
       data={data}
-      keyExtractor={item => item.title}
-      renderItem={({ item }) => <MenuOptionButton {...item} />}
+      keyExtractor={(item): string => item.title}
+      renderItem={({ item }): any => <MenuOptionButton {...item} />}
       ItemSeparatorComponent={Separator}
     />
   </ThemeProvider>

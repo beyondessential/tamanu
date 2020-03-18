@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Button } from '../../../../../components/Button';
+import { Button } from '/components/Button';
 import {
   StyledText,
   FullView,
@@ -7,8 +7,8 @@ import {
   StyledSafeAreaView,
   StyledView,
   StyledScrollView,
-} from '../../../../../styled/common';
-import { theme } from '../../../../../styled/theme';
+} from '/styled/common';
+import { theme } from '/styled/theme';
 import { SexSection,
   AgeRangeSection,
   DateSection,

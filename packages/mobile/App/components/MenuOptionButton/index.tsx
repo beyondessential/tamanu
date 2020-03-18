@@ -1,10 +1,10 @@
 import React, { FC } from 'react';
 import { TouchableHighlight } from 'react-native';
 import { SvgProps } from 'react-native-svg';
-import { StyledText, RowView, StyledView } from '../../styled/common';
+import { StyledText, RowView, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { ArrowForward } from '../Icons';
-import { theme } from '../../styled/theme';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 export interface MenuOptionButton {
   Icon?: FC<SvgProps>;

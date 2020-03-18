@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react-native';
+import { CenterView } from '/styled/common';
 import { RadioButtonGroup } from './index';
-import { CenterView } from '../../styled/common';
 
 function RadioButtonGroupStory({
   error: defaultError,

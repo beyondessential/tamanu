@@ -1,6 +1,6 @@
-import { PatientTileProps } from '../components/PatientTile';
+import { PatientModel } from '/models/Patient';
 
 export type PatientSectionListItem = {
-  items: PatientTileProps[];
+  items: PatientModel[];
   header: string;
 };

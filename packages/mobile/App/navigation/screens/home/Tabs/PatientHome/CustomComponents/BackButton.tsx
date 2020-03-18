@@ -1,6 +1,6 @@
 import React, { FC, ReactElement } from 'react';
-import { Button } from '../../../../../../components/Button';
-import { LeftArrow } from '../../../../../../components/Icons';
+import { Button } from '/components/Button';
+import { LeftArrow } from '/components/Icons';
 import { ButtonProps } from './fixture';
 
 

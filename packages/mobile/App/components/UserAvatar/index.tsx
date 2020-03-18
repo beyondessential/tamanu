@@ -49,5 +49,3 @@ export const UserAvatar = ({
     </StyledView>
   );
 };
-
-export default UserAvatar;

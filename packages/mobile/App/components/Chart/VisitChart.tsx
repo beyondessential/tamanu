@@ -2,12 +2,12 @@ import React, { memo, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { BarChart, YAxis } from 'react-native-svg-charts';
 import { G, Line } from 'react-native-svg';
-import { DateFormats } from '../../helpers/constants';
-import { StyledView, StyledText, RowView } from '../../styled/common';
-import { formatDate } from '../../helpers/date';
-import { theme } from '../../styled/theme';
-import { BarChartData } from '../../interfaces/BarChartProps';
-import { Orientation, screenPercentageToDP } from '../../helpers/screen';
+import { DateFormats } from '/helpers/constants';
+import { StyledView, StyledText, RowView } from '/styled/common';
+import { formatDate } from '/helpers/date';
+import { theme } from '/styled/theme';
+import { BarChartData } from '/interfaces/BarChartProps';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 interface CustomGridProps {
   x?: (value: number) => number;

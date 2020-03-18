@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyledText, StyledView } from '../../styled/common';
-import { theme } from '../../styled/theme';
+import { StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 export const VitalsTableTitle = (): JSX.Element => (
   <StyledView
@@ -11,7 +11,7 @@ export const VitalsTableTitle = (): JSX.Element => (
     paddingLeft={15}
   >
     <StyledText fontSize={12} fontWeight={700} color={theme.colors.WHITE}>
-        Measures
+      Measures
     </StyledText>
   </StyledView>
 );

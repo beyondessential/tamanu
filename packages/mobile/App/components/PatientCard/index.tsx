@@ -1,11 +1,11 @@
 import React from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
+import { RowView, ColumnView, StyledView } from '/styled/common';
+import { DateFormats } from '/helpers/constants';
+import { formatDate } from '/helpers/date';
+import { UserAvatar } from '/components/UserAvatar';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import * as styles from './styles';
-import { RowView, ColumnView, StyledView } from '../../styled/common';
-import { DateFormats } from '../../helpers/constants';
-import { formatDate } from '../../helpers/date';
-import UserAvatar from '../UserAvatar';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 export interface PatientCardProps {
   lastVisit: Date;
   name: string;

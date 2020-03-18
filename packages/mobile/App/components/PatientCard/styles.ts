@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import { theme } from '../../styled/theme';
+import { theme } from '/styled/theme';
 
 export const StyledCardContainer = styled.View`
   background: ${theme.colors.WHITE};

@@ -7,13 +7,13 @@ import {
   RowView,
   StyledTouchableOpacity,
   StyledText,
-} from '../../../styled/common';
-import { Cross, User } from '../../../components/Icons';
-import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
-import { theme } from '../../../styled/theme';
-import { SignInForm } from '../../../components/Forms/SignInForm';
-import { SignInProps } from '../../../interfaces/Screens/SignUp';
-import { Routes } from '../../../helpers/constants';
+} from '/styled/common';
+import { Cross, User } from '/components/Icons';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { theme } from '/styled/theme';
+import { SignInForm } from '/components/Forms/SignInForm';
+import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
+import { Routes } from '/helpers/constants';
 
 export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const onSubmitForm = useCallback(() => {

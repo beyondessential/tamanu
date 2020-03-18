@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
-import { OperativePlanDataProps } from '../../../../../interfaces/PatientDetails';
-import { RowView, StyledText, StyledView } from '../../../../../styled/common';
+import { OperativePlanDataProps } from '/interfaces/PatientDetails';
+import { RowView, StyledText, StyledView } from '/styled/common';
 import { Dot } from './Dot';
-import { theme } from '../../../../../styled/theme';
+import { theme } from '/styled/theme';
 import { PatientSection } from './PatientSection';
 
 

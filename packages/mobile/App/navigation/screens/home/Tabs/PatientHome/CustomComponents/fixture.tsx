@@ -1,5 +1,5 @@
 // Helpers
-import { MaleGender } from '../../../../../../helpers/constants';
+import { MaleGender } from '/helpers/constants';
 
 export const mockAvatar = {
   size: 60,

@@ -4,10 +4,10 @@ import {
   TextInputMaskOptionProp,
   TextInputMaskTypeProp,
 } from 'react-native-masked-text';
-import { theme } from '../../styled/theme';
-import { StyledView, StyledViewProps } from '../../styled/common';
+import { theme } from '/styled/theme';
+import { StyledView, StyledViewProps } from '/styled/common';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { TextFieldProps } from './TextField';
-import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 
 export interface InputContainerProps {
   error?: string;

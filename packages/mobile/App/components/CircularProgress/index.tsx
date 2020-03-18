@@ -1,9 +1,9 @@
 import React from 'react';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import { StyledView, CenterView } from '../../styled/common';
+import { StyledView, CenterView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { Folder } from '../Icons';
-import { theme } from '../../styled/theme';
-import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 
 interface CircularProgressProps {
   progress: number;

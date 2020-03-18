@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
-import { StyledView } from '../../styled/common';
-import { theme } from '../../styled/theme';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
+import { StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 interface MarkerProps {
   pressed: boolean;

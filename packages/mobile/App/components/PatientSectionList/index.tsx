@@ -2,18 +2,21 @@ import React, { useRef, RefObject, useCallback } from 'react';
 import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { LargeList } from 'react-native-largelist-v3';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { PatientTile, PatientTileProps } from '../PatientTile';
-import { StyledView, StyledText } from '../../styled/common';
-import { theme } from '../../styled/theme';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
+import { PatientTile } from '/components/PatientTile';
+import { StyledView, StyledText } from '/styled/common';
+import { theme } from '/styled/theme';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { PatientModel } from '/models/Patient';
+import { getAgeFromDate } from '/helpers/date';
+import { joinNames } from '/helpers/user';
 
 export type PatientSectionListItem = {
-  items: PatientTileProps[];
+  items: PatientModel[];
   header: string;
 };
 
 interface PatientSectionListProps {
-  onPressItem: (patient: PatientTileProps) => void;
+  onPressItem: (patient: PatientModel) => void;
   data: PatientSectionListItem[];
 }
 
@@ -75,7 +78,13 @@ export const PatientSectionList = ({
             justifyContent="center"
             background={theme.colors.BACKGROUND_GREY}
           >
-            <PatientTile {...data[section].items[row]} />
+            <PatientTile
+              city={data[section].items[row].city}
+              gender={data[section].items[row].gender}
+              lastVisit={data[section].items[row].lastVisit}
+              name={joinNames(data[section].items[row])}
+              age={getAgeFromDate(data[section].items[row].birthDate)}
+            />
             <ListSeparator />
           </StyledView>
         </TouchableOpacity>

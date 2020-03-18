@@ -1,12 +1,20 @@
 import React, { ReactElement } from 'react';
-import { theme } from '../../../../styled/theme';
-import { StyledView, StyledSafeAreaView, FullView, RowView, StyledTouchableOpacity, StyledText, StyledScrollView } from '../../../../styled/common';
-import { LeftArrow } from '../../../../components/Icons/LeftArrow';
-import { DotsMenu } from '../../../../components/Icons/DotsMenu';
-import { screenPercentageToDP, Orientation } from '../../../../helpers/screen';
-import { joinNames } from '../../../../helpers/user';
-import UserAvatar from '../../../../components/UserAvatar';
-import { PatientDetails } from '../../../../interfaces/PatientDetails';
+import { theme } from '/styled/theme';
+import {
+  StyledView,
+  StyledSafeAreaView,
+  FullView,
+  RowView,
+  StyledTouchableOpacity,
+  StyledText,
+  StyledScrollView,
+} from '/styled/common';
+import { LeftArrow } from '/components/Icons/LeftArrow';
+import { DotsMenu } from '/components/Icons/DotsMenu';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { joinNames } from '/helpers/user';
+import UserAvatar from '/components/UserAvatar';
+import { PatientDetails } from '/interfaces/PatientDetails';
 import {
   GeneralInfo,
   NotificationCheckbox,
@@ -78,7 +86,7 @@ export const Screen = ({
         >
           <UserAvatar
             size={screenPercentageToDP(7.29, Orientation.Height)}
-            name={joinNames(patientData.generalInfo.firstName, patientData.generalInfo.lastName)}
+            name={joinNames(patientData.generalInfo)}
             {...avatarMock}
           />
           <StyledView

@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
-import { StyledView } from '../../../../../../styled/common';
-import { theme } from '../../../../../../styled/theme';
-import { Separator } from '../../../../../../components/Separator';
-import { MenuOptionButton } from '../../../../../../components/MenuOptionButton';
+import { StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { Separator } from '/components/Separator';
+import { MenuOptionButton } from '/components/MenuOptionButton';
 
 interface PatientMenuListprops {
     list: any[]

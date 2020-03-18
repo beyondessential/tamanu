@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 // Components
 import { Section } from './Section';
-import { Field } from '../../../../../../components/Forms/FormField';
-import { TextField } from '../../../../../../components/TextField/TextField';
+import { Field } from '/components/Forms/FormField';
+import { TextField } from '/components/TextField/TextField';
 
 
 export const KeywordSection = (): ReactElement => (

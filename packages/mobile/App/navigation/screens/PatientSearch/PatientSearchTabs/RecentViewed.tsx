@@ -5,15 +5,16 @@ import { useField } from 'formik';
 import { NavigationProp } from '@react-navigation/native';
 import { TouchableOpacity, FlatList } from 'react-native-gesture-handler';
 // Containers
-import { withPatient } from '../../../../containers/Patient';
+import { withPatient } from '/containers/Patient';
 // Components
-import { PatientTile } from '../../../../components/PatientTile';
+import { PatientTile } from '/components/PatientTile';
 // props
-import { RecentViewedScreenProps } from '../../../../interfaces/screens/PatientSearchStack';
+import { RecentViewedScreenProps } from '/interfaces/screens/PatientSearchStack';
 // Helpers
-import { data } from '../../../../components/PatientSectionList/fixture';
-import { Routes } from '../../../../helpers/constants';
-import { StyledView, FullView } from '../../../../styled/common';
+import { data } from '/components/PatientSectionList/fixture';
+import { Routes } from '/helpers/constants';
+import { StyledView, FullView } from '/styled/common';
+import { joinNames } from '/helpers/user';
 
 const mockedArray = data.slice(0, 12);
 
@@ -31,7 +32,11 @@ const Screen = ({
   /** Get Search Input */
   const [field] = useField('search');
   const [recentlyViewedArray] = useState(mockedArray);
-  const list = recentlyViewedArray.filter(patientData => patientData.name.startsWith(field.value));
+  const list = recentlyViewedArray
+    .filter(
+      patientData => joinNames(patientData).startsWith(field.value),
+    );
+
 
   return (
     <FullView>
@@ -48,7 +53,10 @@ const Screen = ({
           };
           return (
             <TouchableOpacity onPress={onNavigateToPatientHome}>
-              <PatientTile {...item} />
+              <PatientTile
+                {...item}
+                name={joinNames(item)}
+              />
             </TouchableOpacity>
           );
         }}

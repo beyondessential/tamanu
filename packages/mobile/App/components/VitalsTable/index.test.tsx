@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
+import { PatientVitalsList } from '/helpers/constants';
 import { patientHistoryList } from './fixtures';
-import { PatientVitalsList } from '../../helpers/constants';
 import { VitalsTable } from '.';
 import { vitalsTableCols } from './VitalsTableColumns';
 

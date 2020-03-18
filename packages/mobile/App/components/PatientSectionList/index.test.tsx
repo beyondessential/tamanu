@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
+import { groupEntriesByLetter } from '/helpers/list';
 import { BaseStory, data } from './fixture';
-import { groupEntriesByLetter } from '../../helpers/list';
 
 describe('<PatientSectionList', () => {
   const { getByText } = render(<BaseStory />);

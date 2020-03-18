@@ -1,9 +1,9 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
+import { formatDate } from '/helpers/date';
+import { DateFormats } from '/helpers/constants';
 import { AccordionList } from './index';
 import { data } from './fixtures';
-import { formatDate } from '../../helpers/date';
-import { DateFormats } from '../../helpers/constants';
 
 describe('AccordionList', () => {
   const { getAllByText, getByText, findByText } = render(

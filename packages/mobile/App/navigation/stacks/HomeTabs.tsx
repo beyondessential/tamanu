@@ -2,24 +2,21 @@ import React, { FC, ReactNode, ReactElement } from 'react';
 import { compose } from 'redux';
 
 import {
-  MaterialTopTabBarProps,
+  MaterialTopTabBar,
   createMaterialTopTabNavigator,
-  MaterialTopTabNavigationOptions,
-  MaterialTopTabBar } from '@react-navigation/material-top-tabs';
+  MaterialTopTabBarProps,
+  MaterialTopTabNavigationOptions } from '@react-navigation/material-top-tabs';
+
+import { PatientHome } from '/navigation/screens/home/Tabs/PatientHome';
+import { StyledSafeAreaView, CenterView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { HomeScreen } from '/navigation/screens/home/Tabs/HomeScreen';
+import { withPatient } from '/containers/Patient';
+import { BaseAppProps } from '/interfaces/BaseAppProps';
+import { Routes } from '/helpers/constants';
 import { SvgProps } from 'react-native-svg';
-import { Routes } from '../../helpers/constants';
-import { StyledSafeAreaView, CenterView } from '../../styled/common';
-import { theme } from '../../styled/theme';
-import { BottomNavLogo, BarChart, SyncFiles, More } from '../../components/Icons';
-import {
-  ReportScreen,
-  MoreScreen,
-  HomeScreen,
-  SyncDataScreen,
-} from '../screens/home/Tabs';
-import { BaseAppProps } from '../../interfaces/BaseAppProps';
-import { withPatient } from '../../containers/Patient';
-import { PatientHome } from '../screens/home/Tabs/PatientHome';
+import { BottomNavLogo, BarChart, SyncFiles, More } from '/components/Icons';
+import { ReportScreen, SyncDataScreen, MoreScreen } from '../screens/home/Tabs';
 
 const Tabs = createMaterialTopTabNavigator();
 

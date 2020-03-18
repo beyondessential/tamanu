@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyledView } from '../../styled/common';
+import { StyledView } from '/styled/common';
 import { Column } from '.';
 
 interface TableColProps {

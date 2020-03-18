@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components/native';
 import { TouchableWithoutFeedback } from 'react-native';
-import { theme } from '../../styled/theme';
-import { StyledView, RowView } from '../../styled/common';
-import { ColorHelper } from '../../helpers/colors';
-import { Orientation, screenPercentageToDP } from '../../helpers/screen';
+import { theme } from '/styled/theme';
+import { StyledView, RowView } from '/styled/common';
+import { ColorHelper } from '/helpers/colors';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 export interface FormField {
   value: string;

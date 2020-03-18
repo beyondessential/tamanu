@@ -5,12 +5,12 @@ import {
   TextInputMaskOptionProp,
   TextInputMask,
 } from 'react-native-masked-text';
+import { StyledView } from '/styled/common';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { BaseInputProps } from '/interfaces/BaseInputProps';
 import { InputContainer, StyledMaskedInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
-import { StyledView } from '../../styled/common';
 import { RefObject } from './TextField';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
-import { BaseInputProps } from '../../interfaces/BaseInputProps';
 
 export interface TextFieldProps extends BaseInputProps {
   value: string;

@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
-import { RowView, StyledText, StyledView } from '../../styled/common';
+import { RowView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { RadioOption, RadioButton } from '../RadioButton';
-import { theme } from '../../styled/theme';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 export interface RadioButtonGroupProps {
   options: RadioOption[];

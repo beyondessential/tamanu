@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
-import { PatientGeneralInformationDataProps } from '../../../../../interfaces/PatientDetails';
-import { StyledView, RowView } from '../../../../../styled/common';
-import { SectionHeader } from '../../../../../components/SectionHeader';
+import { PatientGeneralInformationDataProps } from '/interfaces/PatientDetails';
+import { StyledView, RowView } from '/styled/common';
+import { SectionHeader } from '/components/SectionHeader';
 import { InformationBox } from './InformationBox';
-import { formatDate } from '../../../../../helpers/date';
-import { DateFormats } from '../../../../../helpers/constants';
+import { formatDate } from '/helpers/date';
+import { DateFormats } from '/helpers/constants';
 
 
 export const GeneralInfo = (data: PatientGeneralInformationDataProps): ReactElement => (

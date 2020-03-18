@@ -5,16 +5,34 @@ import {
   StyledText,
   StyledView,
   CenterView,
-} from '../../../styled/common';
-import { StepMarker } from '../../../components/StepMarker';
-import { Button } from '../../../components/Button';
-import { AppIntro1, AppIntro2, AppIntro3 } from '../../../components/Icons';
+} from '/styled/common';
+import { AppIntro1, AppIntro2, AppIntro3 } from '/components/Icons';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { theme } from '/styled/theme';
+import { StepMarker } from '/components/StepMarker';
+import { Button } from '/components/Button';
 //helpers
-import { screenPercentageToDP, Orientation } from '../../../helpers/screen';
-import { theme } from '../../../styled/theme';
-import { disableAndroidBackButton } from '../../../helpers/android';
+import { disableAndroidBackButton } from '/helpers/android';
 // Props
-import { IntroScreenProps } from '../../../interfaces/screens/HomeStack';
+import { NavigationProp } from '@react-navigation/native';
+import { IntroScreenProps } from '/interfaces/screens/HomeStack';
+
+
+export interface IntroRouteProps {
+  user: { name: string };
+  message: string;
+  title: string;
+  nextRoute: string | '';
+  step: number;
+}
+
+interface IntroProps {
+  navigation: NavigationProp<any>;
+  route: {
+    params: IntroRouteProps;
+  };
+}
+
 
 const isFirstStep = (step: number): void => {
   if (step === 1) {

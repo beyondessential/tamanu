@@ -1,8 +1,8 @@
 import React, { useCallback, ReactElement } from 'react';
 import { useField } from 'formik';
 import { Screen } from './Screen';
-import { Routes } from '../../../../../helpers/constants';
-import { BaseAppProps } from '../../../../../interfaces/BaseAppProps';
+import { Routes } from '/helpers/constants';
+import { BaseAppProps } from '/interfaces/BaseAppProps';
 
 export const FilterArray = [
   'gender',

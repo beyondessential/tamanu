@@ -1,12 +1,16 @@
 import React, { ReactElement } from 'react';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
-import { IntroScreen } from '../screens/signup/Intro';
-import { SignIn } from '../screens/signup/SignIn';
-import { Routes } from '../../helpers/constants';
-import { RegisterAccountStep1Container } from '../screens/signup/RegisterAccountScreenStep1';
-import { RegisterAccountStep2Container } from '../screens/signup/RegisterAccountScreenStep2';
-import { RegisterAccountStep3Container } from '../screens/signup/RegisterAccountScreenStep3';
+// helpers
+import { Routes } from '/helpers/constants';
+// Screens
+import { IntroScreen } from '/navigation/screens/signup/Intro';
+import { RegisterAccountStep1Container } from '/navigation/screens/signup/RegisterAccountScreenStep1';
+import { RegisterAccountStep2Container } from '/navigation/screens/signup/RegisterAccountScreenStep2';
+import { RegisterAccountStep3Container } from '/navigation/screens/signup/RegisterAccountScreenStep3';
+import { SignIn } from '/navigation/screens/signup/SignIn';
+// Contexts
 import { RegisterAccountProvider } from '../../contexts/RegisterAccountContext';
+
 
 const Stack = createStackNavigator();
 

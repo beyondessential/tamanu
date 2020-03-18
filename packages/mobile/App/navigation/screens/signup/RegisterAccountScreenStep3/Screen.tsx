@@ -10,14 +10,14 @@ import {
   CenterView,
   StyledText,
   RowView,
-} from '../../../../styled/common';
-import { Cross, User } from '../../../../components/Icons';
-import { RegisterAccountFormStep03 } from '../../../../components/Forms/RegisterAccountForms/RegisterAccountFormStep03';
-import { StepMarker } from '../../../../components/StepMarker';
+} from '/styled/common';
+import { Cross, User } from '/components/Icons';
+import { RegisterAccountFormStep03 } from '/components/Forms/RegisterAccountForms/RegisterAccountFormStep03';
+import { StepMarker } from '/components/StepMarker';
 // Theme
-import { theme } from '../../../../styled/theme';
+import { theme } from '/styled/theme';
 //Helpers
-import { Orientation, screenPercentageToDP } from '../../../../helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 // protocols
 import { RegisterAccountFormStep3Props } from '../../../../contexts/RegisterAccountContext';
 

@@ -1,9 +1,10 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
+import { formatDate } from '/helpers/date';
+import { DateFormats } from '/helpers/constants';
 import { PatientTile } from './index';
 import { MaleExampleProps } from './fixtures';
-import { formatDate } from '../../helpers/date';
-import { DateFormats } from '../../helpers/constants';
+
 
 describe('<PatientTile />', () => {
   const { getByText } = render(<PatientTile {...MaleExampleProps} />);
@@ -32,9 +33,14 @@ describe('<PatientTile />', () => {
           break;
         default:
           expect(
-            getByText(MaleExampleProps[visibleProp], {
-              exact: false,
-            }),
+            getByText(
+              visibleProp === 'age'
+                ? MaleExampleProps[visibleProp].toString()
+                : MaleExampleProps[visibleProp],
+              {
+                exact: false,
+              },
+            ),
           ).not.toBe(null);
       }
     });

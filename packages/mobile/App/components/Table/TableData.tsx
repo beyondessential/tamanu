@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
-import { RowView } from '../../styled/common';
+import { RowView } from '/styled/common';
 import { Column } from './index';
 import { TableCol } from './TableCol';
 

@@ -8,17 +8,17 @@ import {
   StyledTouchableOpacity,
   RowView,
   StyledSafeAreaView,
-} from '../../../../styled/common';
-import { Profile, LogoV2CLR } from '../../../../components/Icons';
-import { PatientCard } from '../../../../components/PatientCard';
-import { theme } from '../../../../styled/theme';
-import { disableAndroidBackButton } from '../../../../helpers/android';
-import { Orientation, screenPercentageToDP } from '../../../../helpers/screen';
-import UserAvatar from '../../../../components/UserAvatar';
-import { Genders } from '../../../../helpers/user';
-import { SearchInput } from '../../../../components/SearchInput';
-import { Routes } from '../../../../helpers/constants';
-import { BaseAppProps } from '../../../../interfaces/BaseAppProps';
+} from '/styled/common';
+import { Profile, LogoV2CLR } from '/components/Icons';
+import { PatientCard } from '/components/PatientCard';
+import { theme } from '/styled/theme';
+import { disableAndroidBackButton } from '/helpers/android';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { UserAvatar } from '/components/UserAvatar';
+import { Genders } from '/helpers/user';
+import { SearchInput } from '/components/SearchInput';
+import { Routes } from '/helpers/constants';
+import { BaseAppProps } from '/interfaces/BaseAppProps';
 
 const placeholderPatient = {
   city: 'Mbelagha',

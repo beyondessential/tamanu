@@ -1,10 +1,10 @@
 import React, { FunctionComponent, ReactNode } from 'react';
 import { Formik, FormikHandlers } from 'formik';
-import { StyledView, StyledText } from '../../styled/common';
-import { Orientation, screenPercentageToDP } from '../../helpers/screen';
+import { StyledView, StyledText } from '/styled/common';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { theme } from '/styled/theme';
 import { Field } from './FormField';
 import { TextField } from '../TextField/TextField';
-import { theme } from '../../styled/theme';
 import { Button } from '../Button';
 
 interface SignInProps {

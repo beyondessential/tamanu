@@ -2,21 +2,22 @@ import React, { ReactElement, useCallback, FC, useMemo } from 'react';
 import { useField, FieldInputProps, FieldMetaProps, FieldHelperProps } from 'formik';
 import { compose } from 'redux';
 // Containers
-import { withPatient } from '../../../../containers/Patient';
+import { withPatient } from '/containers/Patient';
 // Components
-import { FullView, StyledView, RotateView } from '../../../../styled/common';
-import { PatientSectionList } from '../../../../components/PatientSectionList';
+import { FullView, StyledView, RotateView } from '/styled/common';
+import { PatientSectionList } from '/components/PatientSectionList';
 // Helpers
-import { searchData, DataProps } from './fixture';
-import { groupEntriesByLetter } from '../../../../helpers/list';
-import { Routes } from '../../../../helpers/constants';
+import { searchData } from './fixture';
+import { groupEntriesByLetter } from '/helpers/list';
+import { Routes } from '/helpers/constants';
 //Props
-import { ViewAllScreenProps } from '../../../../interfaces/screens/PatientSearchStack';
-import { Button } from '../../../../components/Button';
-import { theme } from '../../../../styled/theme';
-import { OptionsGlyph } from '../../../../components/Icons';
+import { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
+import { Button } from '/components/Button';
+import { theme } from '/styled/theme';
+import { OptionsGlyph } from '/components/Icons';
 import { FilterArray } from './PatientFilterScreen';
-import { compareDate } from '../../../../helpers/date';
+import { getAgeFromDate } from '/helpers/date';
+import { PatientModel } from '/models/Patient';
 
 interface ActiveFiltersI {
       count: number;
@@ -75,7 +76,7 @@ const isEqual = (prop1: any, prop2: any, fieldName: string): boolean => {
       if (prop2 === 'all') return true;
       return prop1 === prop2;
     case 'dateOfBirth':
-      return compareDate(prop1, prop2);
+      return getAgeFromDate(prop1) === getAgeFromDate(prop2);
     default:
       if (typeof prop1 === 'string') {
         return prop1.includes(prop2);
@@ -86,9 +87,9 @@ const isEqual = (prop1: any, prop2: any, fieldName: string): boolean => {
 
 const applyActiveFilters = (
   activeFilters:ActiveFiltersI,
-  data: DataProps[],
+  data: PatientModel[],
   searchField: FieldInputProps<any>,
-): DataProps[] => {
+): PatientModel[] => {
   if (activeFilters.count > 0) {
     // apply filters
     return data.filter((patientData) => Object.keys(activeFilters.filters).every(
@@ -122,17 +123,7 @@ const Screen: FC<ViewAllScreenProps> = (
 
   list = applyActiveFilters(activeFilters, searchData, searchField);
 
-  list = groupEntriesByLetter(list.reduce((acc: any, cur: DataProps) => {
-    acc.push({
-      id: cur.id,
-      name: `${cur.firstName} ${cur.lastName}`,
-      city: cur.city,
-      lastVisit: cur.lastVisit,
-      gender: cur.gender,
-      age: cur.age,
-    });
-    return acc;
-  }, []));
+  list = groupEntriesByLetter(list);
 
 
   const onNavigateToPatientHome = useCallback(

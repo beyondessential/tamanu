@@ -2,10 +2,10 @@ import React from 'react';
 import styled from 'styled-components/native';
 import { Picker, Modal, StyleSheet } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import { FullView, StyledView } from '../../styled/common';
-import { theme } from '../../styled/theme';
+import { FullView, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { SelectOption } from '.';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 const StyledPicker = styled.Picker`
   height: 100%;

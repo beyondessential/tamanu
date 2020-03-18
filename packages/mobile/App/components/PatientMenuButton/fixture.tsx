@@ -1,5 +1,6 @@
 import React from 'react';
 import { ThemeProvider } from 'styled-components';
+import { RowView, StyledView, themeSystem } from '/styled/common';
 import { PatientMenuButton } from './index';
 import {
   SickOrInjured,
@@ -9,7 +10,6 @@ import {
   Vaccine,
   Deceased,
 } from '../Icons';
-import { RowView, StyledView, themeSystem } from '../../styled/common';
 
 export const BaseStory = (): JSX.Element => (
   <ThemeProvider theme={themeSystem}>

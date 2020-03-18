@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
 import styled from 'styled-components/native';
-import { StyledView, RowView } from '../../styled/common';
+import { StyledView, RowView } from '/styled/common';
+import { theme } from '/styled/theme';
 import * as Icons from '../Icons';
-import { theme } from '../../styled/theme';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 
 const StyledTextInput = styled.TextInput`

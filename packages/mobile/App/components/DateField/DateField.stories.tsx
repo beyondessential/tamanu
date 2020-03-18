@@ -1,8 +1,8 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { ThemeProvider } from 'styled-components';
+import { CenterView, themeSystem } from '/styled/common';
 import { KeyboardAwareView } from '../KeyboardAwareView';
-import { CenterView, themeSystem } from '../../styled/common';
 import { BaseDateTextFieldStory } from './fixtures';
 
 const stories = storiesOf('DateTextField', module);

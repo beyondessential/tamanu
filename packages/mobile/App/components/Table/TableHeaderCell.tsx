@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
-import { StyledView, StyledText } from '../../styled/common';
-import { theme } from '../../styled/theme';
+import { StyledView, StyledText } from '/styled/common';
+import { theme } from '/styled/theme';
 
 interface TableHeaderCellProps {
   children: ReactNode;

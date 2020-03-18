@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { actions, PatientStateProps } from '../redux/ducks/patient';
-import { ReduxStoreProps } from '../interfaces/ReduxStoreProps';
+import { actions, PatientStateProps } from '/store/ducks/patient';
+import { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
 
 
 export const withPatient = (WrappedComponent: FC<any>):FC<any> => {

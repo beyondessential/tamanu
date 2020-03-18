@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react-native';
+import { CenterView } from '/styled/common';
 import { PatientTile } from './index';
-import { CenterView } from '../../styled/common';
 import { MaleExampleProps, FemaleExampleProps } from './fixtures';
 
 storiesOf('PatientTile', module)

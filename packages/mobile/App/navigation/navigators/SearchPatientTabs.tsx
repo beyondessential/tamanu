@@ -14,15 +14,15 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { MaterialTopTabNavigationConfig, MaterialTopTabBarOptions } from '@react-navigation/material-top-tabs/lib/typescript/src/types';
 /*eslint-enable import/no-unresolved */
 import { compose } from 'redux';
-import { StyledSafeAreaView, RowView, StyledView, FullView } from '../../styled/common';
-import { LeftArrow } from '../../components/Icons';
-import { SearchInput } from '../../components/SearchInput';
-import { Field } from '../../components/Forms/FormField';
+import { StyledSafeAreaView, RowView, StyledView, FullView } from '/styled/common';
+import { LeftArrow } from '/components/Icons';
+import { SearchInput } from '/components/SearchInput';
+import { Field } from '/components/Forms/FormField';
 // Helpers
-import { Routes } from '../../helpers/constants';
-import { theme } from '../../styled/theme';
-import { withPatient } from '../../containers/Patient';
-import { WithPatientStoreProps } from '../../redux/ducks/patient';
+import { Routes } from '/helpers/constants';
+import { theme } from '/styled/theme';
+import { withPatient } from '/containers/Patient';
+import { WithPatientStoreProps } from '/store/ducks/patient';
 
 type TabNavigationConfig = {
   tabBarStyle?: StyleProp<ViewStyle>;

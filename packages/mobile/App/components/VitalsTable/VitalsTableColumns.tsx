@@ -1,7 +1,7 @@
 import React from 'react';
+import { PatientVitalsProps } from '/interfaces/PatientVitalsProps';
 import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';
-import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
 import { Column } from '../Table';
 
 

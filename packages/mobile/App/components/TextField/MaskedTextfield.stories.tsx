@@ -1,8 +1,8 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 
+import { CenterView } from '/styled/common';
 import { KeyboardAwareView } from '../KeyboardAwareView';
-import { CenterView } from '../../styled/common';
 import { BaseMaskedTextFieldStory } from './fixtures';
 
 const stories = storiesOf('MaskedInput', module);

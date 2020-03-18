@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyledViewProps, StyledView, StyledText } from '../../../../../styled/common';
-import { screenPercentageToDP, Orientation } from '../../../../../helpers/screen';
-import { theme } from '../../../../../styled/theme';
+import { StyledViewProps, StyledView, StyledText } from '/styled/common';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { theme } from '/styled/theme';
 
 interface InformationBoxProps extends StyledViewProps {
     title: string;

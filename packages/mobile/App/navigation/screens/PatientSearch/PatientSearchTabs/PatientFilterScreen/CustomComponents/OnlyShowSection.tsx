@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 // Components
 import { Section } from './Section';
-import { Field } from '../../../../../../components/Forms/FormField';
-import { Checkbox } from '../../../../../../components/Checkbox';
+import { Field } from '/components/Forms/FormField';
+import { Checkbox } from '/components/Checkbox';
 
 export const OnlyShowOptions = (): ReactElement => (
   <Section

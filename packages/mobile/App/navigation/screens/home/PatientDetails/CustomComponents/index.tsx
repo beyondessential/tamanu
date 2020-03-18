@@ -8,4 +8,3 @@ export * from './InformationBox';
 export * from './NotificationCheckbox';
 export * from './OngoingConditions';
 export * from './OperativePlan';
-export * from './Separator';

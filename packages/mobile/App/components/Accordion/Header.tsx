@@ -5,12 +5,12 @@ import {
   RowView,
   StyledText,
   ColumnView,
-} from '../../styled/common';
-import { theme } from '../../styled/theme';
+} from '/styled/common';
+import { theme } from '/styled/theme';
+import { formatDate } from '/helpers/date';
+import { DateFormats, HeaderIcons } from '/helpers/constants';
+import { VisitOverviewProps } from '/interfaces/VisitOverview';
 import * as Icons from '../Icons';
-import { formatDate } from '../../helpers/date';
-import { DateFormats, HeaderIcons } from '../../helpers/constants';
-import { VisitOverviewProps } from '../../interfaces/VisitOverview';
 
 interface IconProps {
   IconComponent: FunctionComponent<SvgProps>;

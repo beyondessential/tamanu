@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
-import { StyledView, RowView } from '../../styled/common';
-import { theme } from '../../styled/theme';
+import { StyledView, RowView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 interface Circle {
   currentStep?: boolean;

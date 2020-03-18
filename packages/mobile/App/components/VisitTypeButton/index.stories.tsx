@@ -1,6 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react-native';
-import { CenterView } from '../../styled/common';
+import { CenterView } from '/styled/common';
 import { VisitTypeButton } from './index';
 import { VisitTypes, HeaderIcons } from '../../helpers/constants';
 import { VisitButtonList } from './fixture';

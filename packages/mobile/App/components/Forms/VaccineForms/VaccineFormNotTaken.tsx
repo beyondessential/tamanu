@@ -1,10 +1,10 @@
 import React from 'react';
-import { StyledView, RowView } from '../../../styled/common';
-import { Orientation, screenPercentageToDP, getOrientation } from '../../../helpers/screen';
+import { StyledView, RowView } from '/styled/common';
+import { Orientation, screenPercentageToDP, getOrientation } from '/helpers/screen';
+import { DateField } from '/components/DateField/DateField';
+import { SCREEN_ORIENTATION } from '/helpers/constants';
+import { Dropdown } from '/components/Dropdown';
 import { Field } from '../FormField';
-import { DateField } from '../../DateField/DateField';
-import { SCREEN_ORIENTATION } from '../../../helpers/constants';
-import { Dropdown } from '../../Dropdown';
 
 interface VaccineModalFormNotTakenProps {
   reasonOptions: any[];

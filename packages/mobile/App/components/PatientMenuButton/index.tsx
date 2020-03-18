@@ -1,9 +1,9 @@
 import React, { FunctionComponent } from 'react';
 import { TouchableHighlight, StyleSheet } from 'react-native';
 import { SvgProps } from 'react-native-svg';
-import { theme } from '../../styled/theme';
-import { StyledView, StyledText } from '../../styled/common';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
+import { theme } from '/styled/theme';
+import { StyledView, StyledText } from '/styled/common';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 interface PatientMenuButton {
   title: string;

@@ -1,8 +1,8 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { ScrollView } from 'react-native';
+import { StyledSafeAreaView, CenterView } from '/styled/common';
 import { VitalsTable } from './index';
-import { CenterView, StyledSafeAreaView } from '../../styled/common';
 import { patientHistoryList } from './fixtures';
 
 storiesOf('Vitals Table', module)
