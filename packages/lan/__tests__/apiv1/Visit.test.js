@@ -143,8 +143,7 @@ describe('Visit', () => {
         expect(notes.some(check)).toEqual(true);
       });
 
-      // TODO - waiting on transactions
-      xit('should fail to change visit type to an invalid type', async () => {
+      it('should fail to change visit type to an invalid type', async () => {
         const v = await models.Visit.create({
           ...(await createDummyVisit(models)),
           patientId: patient.id,
@@ -244,8 +243,7 @@ describe('Visit', () => {
         expect(result).toHaveRequestError();
       });
 
-      // TODO - waiting on transactions
-      xit('should roll back a whole modification if part of it is invalid', async () => {
+      it('should roll back a whole modification if part of it is invalid', async () => {
         // to test this, we're going to do a valid location change and an invalid visit type update
 
         const [fromLocation, toLocation] = await models.ReferenceData.findAll({
