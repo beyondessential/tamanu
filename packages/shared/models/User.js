@@ -1,5 +1,6 @@
 import { hash } from 'bcrypt';
-import { Sequelize, Model } from './Model';
+import { Sequelize } from 'sequelize';
+import { Model } from './Model';
 
 const SALT_ROUNDS = 10;
 

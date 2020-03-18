@@ -62,6 +62,7 @@
     "bcrypt": "^3.0.6",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",
+    "cls-hooked": "^4.2.2",
     "compression": "^1.7.2",
     "config": "^3.0.1",
     "connect-flash": "^0.1.1",

@@ -9,3 +9,5 @@ visit.put('/:id', simplePut('Visit'));
 visit.post('/$', simplePost('Visit'));
 
 visit.get('/:id/vitals', simpleGetList('Vitals', 'visitId'));
+
+visit.get('/:id/diagnoses', simpleGetList('VisitDiagnosis', 'visitId'));

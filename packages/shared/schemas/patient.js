@@ -15,6 +15,7 @@ export const PatientSchema = {
     culturalName: { type: 'string', default: '' },
     dateOfBirth: 'date',
     sex: { type: 'string', default: 'other' },
+    village: { type: 'village', optional: true },
 
     // additional info
     religion: { type: 'string', optional: true },

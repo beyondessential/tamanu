@@ -52,7 +52,7 @@ describe('User', () => {
 
     it('should fail to get the user with a null token', async () => {
       const result = await baseApp.get('/v1/user/me');
-      expect(result).toHaveRequestError();
+      expect(result).toBeForbidden();
     });
 
     it('should fail to get the user with an expired token', async () => {
@@ -105,7 +105,7 @@ describe('User', () => {
     const userApp = await baseApp.asRole('practitioner');
     const details = createUser();
     const result = await userApp.post('/v1/user').send(details);
-    expect(result).toHaveRequestError();
+    expect(result).toBeForbidden();
 
     const createdUser = await models.User.findOne({ where: { email: details.email } });
     expect(createdUser).toBeFalsy();
@@ -181,7 +181,7 @@ describe('User', () => {
     const otherUser = await models.User.create(createUser());
 
     const result = await userAgent.put(`/v1/user/${otherUser.id}`).send({ password: '123' });
-    expect(result).toHaveRequestError();
+    expect(result).toBeForbidden();
   });
 
   it('should fail to create a user without an email', async () => {

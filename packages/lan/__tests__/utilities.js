@@ -15,9 +15,24 @@ ${JSON.stringify(response.body.error, null, 2)}
 
 export function extendExpect(expect) {
   expect.extend({
+    toBeForbidden(response) {
+      const { statusCode } = response;
+      const pass = statusCode === 403;
+      if (pass) {
+        return {
+          message: () =>
+            `Expected not forbidden (!== 403), got ${statusCode}. ${formatError(response)}`,
+          pass,
+        };
+      }
+      return {
+        message: () => `Expected forbidden (403), got ${statusCode}. ${formatError(response)}`,
+        pass,
+      };
+    },
     toHaveRequestError(response) {
       const { statusCode } = response;
-      const pass = statusCode >= 400 && statusCode < 500;
+      const pass = statusCode >= 400 && statusCode < 500 && statusCode !== 403;
       if (pass) {
         return {
           message: () =>

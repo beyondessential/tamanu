@@ -1,12 +1,21 @@
-import { Sequelize, Model } from 'sequelize';
+import { Sequelize, ValidationError } from 'sequelize';
+import { InvalidOperationError } from 'lan/app/errors';
+import { Model } from './Model';
 
 const CODE_TYPES = [
   'icd10',
   'allergy',
   'condition',
-  'triage',
-  'procedure',
   'drug',
+  'triageReason',
+  'procedureType',
+  'imagingType',
+  'labTestCategory',
+  'labTestType',
+
+  'facility',
+  'location',
+  'department',
 ];
 
 export class ReferenceData extends Model {
@@ -14,9 +23,18 @@ export class ReferenceData extends Model {
     super.init(
       {
         id: primaryKey,
-        code: Sequelize.STRING,
-        type: Sequelize.ENUM(CODE_TYPES),
-        name: Sequelize.STRING,
+        code: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
+        type: {
+          type: Sequelize.ENUM(CODE_TYPES),
+          allowNull: false,
+        },
+        name: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
       },
       {
         ...options,
@@ -33,5 +51,21 @@ export class ReferenceData extends Model {
         ],
       },
     );
+  }
+
+  static async create(values) {
+    // the type column is just text in sqlite so validate it here
+    const { type } = values;
+    if(type && !CODE_TYPES.includes(type)) {
+      throw new ValidationError("Invalid type: " + type);
+    }
+    return super.create(values);
+  }
+
+  async update(values) {
+    if(values.type) {
+      throw new InvalidOperationError("The type of a reference data item cannot be changed");
+    }
+    return super.update(values);
   }
 }

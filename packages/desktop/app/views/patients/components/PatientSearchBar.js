@@ -2,8 +2,10 @@ import React, { memo, useCallback } from 'react';
 import styled from 'styled-components';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
 import SearchIcon from '@material-ui/icons/Search';
-import { Button, Form, Field, TextField } from '../../../components';
+import { Button, Form, Field, TextField, AutocompleteField } from '../../../components';
 import { Colors } from '../../../constants';
+import { connectApi } from '../../../api';
+import { Suggester } from '../../../utils/suggester';
 
 const Container = styled.div`
   display: grid;
@@ -46,7 +48,7 @@ const SectionLabel = styled.div`
 
 const SearchInputContainer = styled.div`
   display: grid;
-  grid-template-columns: 2fr 2fr 2fr 1fr 1fr;
+  grid-template-columns: 2fr 2fr 2fr 2fr 1fr 1fr;
 
   > div {
     :hover {
@@ -92,28 +94,51 @@ const RightSection = styled(Section)`
   border-left: 1px solid ${Colors.outline};
 `;
 
-const renderSearchBar = ({ submitForm }) => (
-  <SearchInputContainer>
-    <Field component={TextField} placeholder="First name" name="firstName" />
-    <Field component={TextField} placeholder="Last name" name="lastName" />
-    <Field component={TextField} placeholder="Cultural/Traditional name" name="culturalName" />
-    <Field component={TextField} placeholder="Health ID" name="displayId" />
-    <Button color="primary" variant="contained" onClick={submitForm}>
-      <PaddedSearchIcon />
-      Search
-    </Button>
-  </SearchInputContainer>
-);
-
-export const PatientSearchBar = memo(({ onSearch }) => {
+const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
   // We can't use onSearch directly as formik will call it with an unwanted second param
-  const handleSearch = useCallback(newParams => onSearch(newParams), [onSearch]);
+  const handleSearch = useCallback(
+    ({ village = {}, ...other }) => {
+      const params = {
+        ...other,
+        // enforce dotted text identifier instead of a nested object
+        'village._id': village._id,
+      };
+      onSearch(params);
+    },
+    [onSearch],
+  );
+
+  const renderSearchBar = React.useCallback(
+    ({ submitForm }) => (
+      <SearchInputContainer>
+        <Field component={TextField} placeholder="First name" name="firstName" />
+        <Field component={TextField} placeholder="Last name" name="lastName" />
+        <Field component={TextField} placeholder="Cultural/Traditional name" name="culturalName" />
+        <Field
+          component={AutocompleteField}
+          suggester={villageSuggester}
+          placeholder="Village"
+          name="village._id"
+        />
+        <Field component={TextField} placeholder="Health ID" name="displayId" />
+        <Button color="primary" variant="contained" onClick={submitForm}>
+          <PaddedSearchIcon />
+          Search
+        </Button>
+      </SearchInputContainer>
+    ),
+    [],
+  );
 
   return (
     <Container>
       <Section>
         <SectionLabel>Search for patients</SectionLabel>
-        <Form onSubmit={handleSearch} render={renderSearchBar} />
+        <Form
+          onSubmit={handleSearch}
+          render={renderSearchBar}
+          villageSuggester={villageSuggester}
+        />
       </Section>
       <RightSection>
         <ScanFingerprintButton />
@@ -122,3 +147,7 @@ export const PatientSearchBar = memo(({ onSearch }) => {
     </Container>
   );
 });
+
+export const PatientSearchBar = connectApi(api => ({
+  villageSuggester: new Suggester(api, 'village'),
+}))(DumbPatientSearchBar);

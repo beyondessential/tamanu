@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { remote } from 'electron';
-import { createWriteStream } from 'fs';
 
+import { showFileDialog } from 'desktop/app/utils/dialog';
 import { Button } from './Button';
 
 export class SaveFileButton extends Component {
@@ -17,22 +16,26 @@ export class SaveFileButton extends Component {
     children: PropTypes.node,
   };
 
+  static defaultProps = {
+    filters: [],
+    children: null,
+  };
+
   state = {
     isWriting: false,
+  };
+
+  onClick = async () => {
+    const filePath = await this.showDialog();
+    if (!filePath) return;
+
+    await this.write(filePath);
   };
 
   showDialog() {
     const { filters, filename } = this.props;
 
-    return new Promise((resolve, reject) => {
-      remote.dialog.showSaveDialog(
-        {
-          filters,
-          defaultPath: filename,
-        },
-        path => resolve(path),
-      );
-    });
+    return showFileDialog(filters, filename);
   }
 
   async write(path) {
@@ -50,16 +53,9 @@ export class SaveFileButton extends Component {
     this.setState({ isWriting: false });
   }
 
-  onClick = async () => {
-    const filePath = await this.showDialog();
-    if (!filePath) return;
-
-    await this.write(filePath);
-  };
-
   render() {
     return (
-      <Button onClick={this.onClick} disabled={this.state.isWriting}>
+      <Button onClick={this.onClick} disabled={this.state.isWriting || this.props.disabled}>
         {this.props.children || 'Save'}
       </Button>
     );
