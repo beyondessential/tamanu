@@ -39,11 +39,9 @@ export function constructPermission(req, res, next) {
 }
 
 const checkPermission = (req, action, subject, field = '') => {
-  if (!req.flagPermissionChecked) {
-    return;
+  if (req.flagPermissionChecked) {
+    req.flagPermissionChecked();
   }
-
-  req.flagPermissionChecked();
 
   // allow a null permission to let things through - this means all endpoints
   // still need an explicit permission check, even if it's a null one!

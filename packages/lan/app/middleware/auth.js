@@ -71,19 +71,27 @@ function decodeToken(token) {
 async function getUserFromToken(request) {
   const { models, headers } = request;
   const authHeader = headers.authorization || '';
+  if (!authHeader) return null;
+
   const bearer = authHeader.match(/Bearer (\S*)/);
-  if (!bearer) return null;
+  if (!bearer) {
+    throw new BadAuthenticationError();
+  }
 
   const token = bearer[1];
   try {
     const { userId } = decodeToken(token);
     return models.User.findByPk(userId);
   } catch (e) {
-    return null;
+    throw new BadAuthenticationError();
   }
 }
 
 export const authMiddleware = async (req, res, next) => {
-  req.user = await getUserFromToken(req);
-  next();
+  try {
+    req.user = await getUserFromToken(req);
+    next();
+  } catch(e) {
+    next(e);
+  }
 };

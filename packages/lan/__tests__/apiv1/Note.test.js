@@ -55,7 +55,7 @@ describe('Note', () => {
   it('should not write a note on an invalid object type', async () => {
     const response = await app.post('/v1/note').send({
       objectId: patient.id,
-      objectType: 'invalid',
+      objectType: 'VisitDiagnosis',
       content: chance.paragraph(),
     });
 
@@ -79,13 +79,10 @@ describe('Note', () => {
     beforeAll(async () => {
       forbiddenObject = await models.Patient.create(await createDummyPatient(models));
 
-      noPermsApp = await baseApp.asRole('reception');
+      noPermsApp = await baseApp.asRole('base');
     });
 
-    it('should forbid reading notes on a forbidden object', async () => {
-      const response = await noPermsApp.get(`/v1/patient/${forbiddenObject.id}/notes`);
-      expect(response).toHaveRequestError();
-    });
+    test.todo('should forbid reading notes on a forbidden object');
 
     it('should forbid writing notes on a forbidden object', async () => {
       const response = await noPermsApp.post('/v1/note').send({
@@ -94,7 +91,7 @@ describe('Note', () => {
         content: chance.paragraph(),
       });
 
-      expect(response).toHaveRequestError();
+      expect(response).toBeForbidden();
     });
 
     it('should forbid editing notes on a forbidden object', async () => {
@@ -108,7 +105,7 @@ describe('Note', () => {
         content: 'forbidden',
       });
 
-      expect(response).toHaveRequestError();
+      expect(response).toBeForbidden();
     });
   });
 });
