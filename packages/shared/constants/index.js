@@ -35,6 +35,11 @@ export const LAB_REQUEST_STATUSES = {
   PUBLISHED: 'published',
 };
 
+export const NOTE_TYPES = {
+  SYSTEM: 'system',
+  OTHER: 'other',
+};
+
 export const VISIT_TYPES = {
   ADMISSION: 'admission',
   CLINIC: 'clinic',
