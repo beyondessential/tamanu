@@ -1,17 +1,14 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
+import { NOTE_TYPES } from 'shared/constants';
 
-import { Visit } from './Visit';
-import { Patient } from './Patient';
-
-export const NOTE_OBJECT_TYPES = [
-  Visit,
-  Patient,
-]
-  .map(modelClass => modelClass.name)
-  .reduce((obj, name) => ({ ...obj, [name.toUpperCase()]: name }));
+export const NOTE_OBJECT_TYPES = {
+  VISIT: 'Visit',
+  PATIENT: 'Patient',
+};
 
 const NOTE_OBJECT_TYPE_VALUES = Object.values(NOTE_OBJECT_TYPES);
+const NOTE_TYPE_VALUES = Object.values(NOTE_TYPES);
 
 export class Note extends Model {
   static init({ primaryKey, ...options }) {
@@ -35,6 +32,11 @@ export class Note extends Model {
           allowNull: false,
           defaultValue: Sequelize.NOW,
         },
+        noteType: {
+          type: Sequelize.ENUM(NOTE_TYPE_VALUES),
+          allowNull: false,
+          defaultValue: '',
+        },
         content: {
           type: Sequelize.TEXT,
           allowNull: false,
@@ -57,6 +59,15 @@ export class Note extends Model {
         },
       },
     );
+  }
+
+  static createForObject(object, noteType, content) {
+    return Note.create({
+      objectId: object.id,
+      objectType: object.getModelName(),
+      noteType,
+      content,
+    });
   }
 
   static initRelations(models) {

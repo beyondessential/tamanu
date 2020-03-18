@@ -11,6 +11,21 @@ export class Model extends sequelize.Model {
     return this.forResponse();
   }
 
+  getModelName() {
+    return this.constructor.name;
+  }
+
+  getNotes(limit = undefined) {
+    const { Note } = this.sequelize.models;
+    return Note.findAll({
+      where: {
+        objectType: this.getModelName(),
+        objectId: this.id,
+      },
+      limit,
+    });
+  }
+
   static getReferenceAssociations() {
     return undefined;
   }

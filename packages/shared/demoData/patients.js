@@ -1,5 +1,4 @@
 import Chance from 'chance';
-import shortid from 'shortid';
 
 import { generateId } from '../utils/generateId';
 import { VISIT_TYPES } from '../constants';
@@ -46,7 +45,17 @@ function randomVitals() {
   };
 }
 
-export function createDummyVisit({ current, ...overrides } = {}) {
+async function randomReferenceId(models, type) {
+  const obj = await models.ReferenceData.findOne({
+    where: {
+      type,
+    },
+    order: models.ReferenceData.sequelize.random(),
+  });
+  return obj.id;
+}
+
+export async function createDummyVisit(models, { current, ...overrides } = {}) {
   const endDate = current ? new Date() : randomDate();
 
   const duration = chance.natural({ min: HOUR, max: HOUR * 10 });
@@ -57,11 +66,13 @@ export function createDummyVisit({ current, ...overrides } = {}) {
     startDate: startDate,
     endDate: current ? undefined : endDate,
     reasonForVisit: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
+    locationId: await randomReferenceId(models, 'location'),
+    departmentId: await randomReferenceId(models, 'department'),
     ...overrides,
   };
 }
 
-export function createDummyPatient(overrides = {}) {
+export async function createDummyPatient(models, overrides = {}) {
   const gender = overrides.sex || chance.pick(['male', 'female']);
   return {
     displayId: generateId(),

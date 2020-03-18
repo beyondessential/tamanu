@@ -15,7 +15,7 @@ describe('Patient', () => {
   test.todo('should get a list of patients matching a filter');
 
   it('should get the details of a patient', async () => {
-    const patient = await models.Patient.create(createDummyPatient());
+    const patient = await models.Patient.create(await createDummyPatient(models));
     const result = await app.get(`/v1/patient/${patient.id}`);
     expect(result).toHaveSucceeded();
     expect(result.body).toHaveProperty('displayId', patient.displayId);
@@ -32,7 +32,7 @@ describe('Patient', () => {
     test.todo('should reject users with insufficient permissions');
 
     it('should create a new patient', async () => {
-      const patient = createDummyPatient();
+      const patient = await createDummyPatient(models);
       const result = await app.post('/v1/patient').send(patient);
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('displayId', patient.displayId);

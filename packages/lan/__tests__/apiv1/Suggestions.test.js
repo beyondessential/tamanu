@@ -1,25 +1,12 @@
-import { ICD10_DIAGNOSES, TRIAGE_DIAGNOSES, DRUGS } from 'shared/demoData';
 import { createTestContext } from '../utilities';
+import { testDiagnoses } from '../seed';
 
-const { baseApp, models } = createTestContext();
-
-const testDiagnoses = ICD10_DIAGNOSES.slice(0, 50);
-const testDrugs = DRUGS.slice(0, 50);
+const { baseApp } = createTestContext();
 
 describe('Suggestions', () => {
-
   let userApp = null;
 
   beforeAll(async () => {
-    const tasks = [
-      ...testDiagnoses,
-      ...testDrugs,
-      ...TRIAGE_DIAGNOSES,
-    ]
-      .map(d => ({ code: d.name, ...d }))
-      .map(d => models.ReferenceData.create(d));
-    await Promise.all(tasks);
-
     userApp = await baseApp.asRole('practitioner');
   });
 

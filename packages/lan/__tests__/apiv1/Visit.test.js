@@ -7,7 +7,7 @@ describe('Visit', () => {
   let patient = null;
   let app = null;
   beforeAll(async () => {
-    patient = await models.Patient.create(createDummyPatient());
+    patient = await models.Patient.create(await createDummyPatient(models));
     app = await baseApp.asRole('practitioner');
   });
 
@@ -16,7 +16,7 @@ describe('Visit', () => {
 
   it('should get a visit', async () => {
     const v = await models.Visit.create({
-      ...createDummyVisit(),
+      ...(await createDummyVisit(models)),
       patientId: patient.id,
     });
     const result = await app.get(`/v1/visit/${v.id}`);
@@ -27,7 +27,7 @@ describe('Visit', () => {
 
   it('should get a list of visits for a patient', async () => {
     const v = await models.Visit.create({
-      ...createDummyVisit(),
+      ...(await createDummyVisit(models)),
       patientId: patient.id,
     });
     const result = await app.get(`/v1/patient/${patient.id}/visits`);
@@ -41,7 +41,6 @@ describe('Visit', () => {
     expect(result).toHaveRequestError();
   });
 
-  test.todo('should get a list of diagnoses');
   test.todo('should get a list of notes');
   test.todo('should get a list of procedures');
   test.todo('should get a list of lab requests');
@@ -57,7 +56,7 @@ describe('Visit', () => {
 
       it('should create a new visit', async () => {
         const result = await app.post('/v1/visit').send({
-          ...createDummyVisit(),
+          ...(await createDummyVisit(models)),
           patientId: patient.id,
         });
         expect(result).toHaveSucceeded();
@@ -69,7 +68,7 @@ describe('Visit', () => {
 
       it('should update visit details', async () => {
         const v = await models.Visit.create({
-          ...createDummyVisit(),
+          ...(await createDummyVisit(models)),
           patientId: patient.id,
           reasonForVisit: 'before',
         });
@@ -83,8 +82,129 @@ describe('Visit', () => {
         expect(updated.reasonForVisit).toEqual('after');
       });
 
-      test.todo('should change visit department');
-      test.todo('should change visit location');
+      it('should change visit type and add a note', async () => {
+        const v = await models.Visit.create({
+          ...(await createDummyVisit(models)),
+          patientId: patient.id,
+          visitType: 'triage',
+        });
+
+        const result = await app.put(`/v1/visit/${v.id}`).send({
+          visitType: 'admission',
+        });
+        expect(result).toHaveSucceeded();
+
+        const notes = await v.getNotes();
+        const check = x => x.content.includes('triage') && x.content.includes('admission');
+        expect(notes.some(check)).toEqual(true);
+      });
+
+      // TODO - waiting on transactions
+      xit('should fail to change visit type to an invalid type', async () => {
+        const v = await models.Visit.create({
+          ...(await createDummyVisit(models)),
+          patientId: patient.id,
+          visitType: 'triage',
+        });
+
+        const result = await app.put(`/v1/visit/${v.id}`).send({
+          visitType: 'not-a-real-visit-type',
+        });
+        expect(result).toHaveRequestError();
+
+        const notes = await v.getNotes();
+        expect(notes).toHaveLength(0);
+      });
+
+      it('should change visit department and add a note', async () => {
+        const departments = await models.ReferenceData.findAll({
+          where: { type: 'department' },
+          limit: 2,
+        });
+
+        const v = await models.Visit.create({
+          ...(await createDummyVisit(models)),
+          patientId: patient.id,
+          departmentId: departments[0].id,
+        });
+
+        const result = await app.put(`/v1/visit/${v.id}`).send({
+          departmentId: departments[1].id,
+        });
+        expect(result).toHaveSucceeded();
+
+        const notes = await v.getNotes();
+        const check = x =>
+          x.content.includes(departments[0].name) && x.content.includes(departments[1].name);
+        expect(notes.some(check)).toEqual(true);
+      });
+
+      it('should change visit location and add a note', async () => {
+        const [fromLocation, toLocation] = await models.ReferenceData.findAll({
+          where: { type: 'location' },
+          limit: 2,
+        });
+
+        const v = await models.Visit.create({
+          ...(await createDummyVisit(models)),
+          patientId: patient.id,
+          locationId: fromLocation.id,
+        });
+
+        const result = await app.put(`/v1/visit/${v.id}`).send({
+          locationId: toLocation.id,
+        });
+        expect(result).toHaveSucceeded();
+
+        const notes = await v.getNotes();
+        const check = x =>
+          x.content.includes(fromLocation.name) && x.content.includes(toLocation.name);
+        expect(notes.some(check)).toEqual(true);
+      });
+
+      it('should not update visit to an invalid location or add a note', async () => {
+        const v = await models.Visit.create({
+          ...(await createDummyVisit(models)),
+          patientId: patient.id,
+        });
+
+        const result = await app.put(`/v1/visit/${v.id}`).send({
+          locationId: 'invalid-location-id',
+        });
+
+        expect(result).toHaveRequestError();
+      });
+
+      // TODO - waiting on transactions
+      xit('should roll back a whole modification if part of it is invalid', async () => {
+        // to test this, we're going to do a valid location change and an invalid visit type update
+
+        const [fromLocation, toLocation] = await models.ReferenceData.findAll({
+          where: { type: 'location' },
+          limit: 2,
+        });
+
+        const v = await models.Visit.create({
+          ...(await createDummyVisit(models)),
+          visitType: 'clinic',
+          patientId: patient.id,
+          locationId: fromLocation.id,
+        });
+
+        const result = await app.put(`/v1/visit/${v.id}`).send({
+          locationId: toLocation.id,
+          visitType: 'not-a-real-visit-type',
+        });
+        expect(result).toHaveRequestError();
+
+        const updatedVisit = await models.Visit.findByPk(v.id);
+        expect(updatedVisit).toHaveProperty('visitType', 'clinic');
+        expect(updatedVisit).toHaveProperty('locationId', fromLocation.id);
+
+        const notes = await v.getNotes();
+        expect(notes).toHaveLength(0);
+      });
+
       test.todo('should discharge a patient');
 
       test.todo('should not admit a patient who is already in a visit');
@@ -97,7 +217,7 @@ describe('Visit', () => {
 
       beforeAll(async () => {
         diagnosisVisit = await models.Visit.create({
-          ...createDummyVisit(),
+          ...(await createDummyVisit(models)),
           patientId: patient.id,
           reasonForVisit: 'diagnosis test',
         });
@@ -141,7 +261,7 @@ describe('Visit', () => {
 
       beforeAll(async () => {
         vitalsVisit = await models.Visit.create({
-          ...createDummyVisit(),
+          ...(await createDummyVisit(models)),
           patientId: patient.id,
           reasonForVisit: 'vitals test',
         });
