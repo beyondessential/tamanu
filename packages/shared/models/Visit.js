@@ -1,13 +1,16 @@
 import { Sequelize } from 'sequelize';
 import { VISIT_TYPES, NOTE_TYPES } from 'shared/constants';
 import { Model } from './Model';
+import { InvalidOperationError } from 'lan/app/errors';
+
+const VISIT_TYPE_VALUES = Object.values(VISIT_TYPES);
 
 export class Visit extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
-        visitType: Sequelize.ENUM(Object.values(VISIT_TYPES)),
+        visitType: Sequelize.ENUM(VISIT_TYPE_VALUES),
 
         startDate: {
           type: Sequelize.DATE,
@@ -20,19 +23,24 @@ export class Visit extends Model {
       {
         ...options,
         validate: {
+          mustHaveValidVisitType() {
+            if (!VISIT_TYPE_VALUES.includes(this.visitType)) {
+              throw new InvalidOperationError('A visit must have a valid visit type.');
+            }
+          },
           mustHavePatient() {
             if (!this.patientId) {
-              throw new Error('A visit must have a patient.');
+              throw new InvalidOperationError('A visit must have a patient.');
             }
           },
           mustHaveDepartment() {
             if (!this.departmentId) {
-              throw new Error('A visit must have a department.');
+              throw new InvalidOperationError('A visit must have a department.');
             }
           },
           mustHaveLocation() {
             if (!this.locationId) {
-              throw new Error('A visit must have a location.');
+              throw new InvalidOperationError('A visit must have a location.');
             }
           },
         },
@@ -88,7 +96,7 @@ export class Visit extends Model {
     const { ReferenceData } = this.sequelize.models;
 
     if (data.patientId && data.patientId !== this.patientId) {
-      throw new Error("A visit's patient cannot be changed");
+      throw new InvalidOperationError("A visit's patient cannot be changed");
     }
 
     if (data.visitType && data.visitType !== this.visitType) {
@@ -99,7 +107,7 @@ export class Visit extends Model {
       const oldLocation = await ReferenceData.findByPk(this.locationId);
       const newLocation = await ReferenceData.findByPk(data.locationId);
       if (!newLocation) {
-        throw new Error('Invalid location specified');
+        throw new InvalidOperationError('Invalid location specified');
       }
       await this.addSystemNote(`Changed location from ${oldLocation.name} to ${newLocation.name}`);
     }
@@ -107,7 +115,7 @@ export class Visit extends Model {
       const oldDepartment = await ReferenceData.findByPk(this.departmentId);
       const newDepartment = await ReferenceData.findByPk(data.departmentId);
       if (!newDepartment) {
-        throw new Error('Invalid department specified');
+        throw new InvalidOperationError('Invalid department specified');
       }
       await this.addSystemNote(
         `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
