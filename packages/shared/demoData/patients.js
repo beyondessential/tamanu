@@ -31,7 +31,7 @@ function randomPatientDiagnosis() {
   // TODO
 }
 
-function randomVitals() {
+function randomVitals(overrides) {
   return {
     dateRecorded: randomDate(),
     weight: chance.floating({ min: 60, max: 150 }),

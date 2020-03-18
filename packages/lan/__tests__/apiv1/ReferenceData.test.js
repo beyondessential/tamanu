@@ -3,7 +3,6 @@ import { createTestContext } from '../utilities';
 const { baseApp, models } = createTestContext();
 
 describe('Reference data', () => {
-
   let userApp = null;
   let adminApp = null;
 
@@ -18,7 +17,7 @@ describe('Reference data', () => {
       name: 'fail',
       code: 'fail',
     });
-    expect(result).toHaveRequestError();
+    expect(result).toBeForbidden();
   });
 
   it('should not allow a regular user to alter existing reference data', async () => {
@@ -30,7 +29,7 @@ describe('Reference data', () => {
     const result = await userApp.put(`/v1/referenceData/${existing.id}`).send({
       name: 'fail',
     });
-    expect(result).toHaveRequestError();
+    expect(result).toBeForbidden();
   });
 
   it('should allow an admin create a new reference data item', async () => {
@@ -73,5 +72,4 @@ describe('Reference data', () => {
     });
     expect(result).toHaveRequestError();
   });
-
 });

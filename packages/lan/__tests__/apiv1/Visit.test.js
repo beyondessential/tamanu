@@ -11,7 +11,17 @@ describe('Visit', () => {
     app = await baseApp.asRole('practitioner');
   });
 
-  test.todo('should reject a user with insufficient permissions');
+  it('should reject reading a visit with insufficient permissions', async () => {
+    const noPermsApp = await baseApp.asRole('base');
+    const visit = await models.Visit.create({
+      ...(await createDummyVisit(models)),
+      patientId: patient.id,
+    });
+
+    const result = await noPermsApp.get(`/v1/visit/${visit.id}`);
+    expect(result).toBeForbidden();
+  });
+
   test.todo('should create an access record');
 
   it('should get a visit', async () => {
@@ -48,7 +58,40 @@ describe('Visit', () => {
   test.todo('should get a list of prescriptions');
 
   describe('write', () => {
-    test.todo('should reject a user with insufficient permissions');
+    it('should reject updating a visit with insufficient permissions', async () => {
+      const noPermsApp = await baseApp.asRole('base');
+      const visit = await models.Visit.create({
+        ...(await createDummyVisit(models)),
+        patientId: patient.id,
+        reasonForVisit: 'intact',
+      });
+
+      const result = await noPermsApp.put(`/v1/visit/${visit.id}`).send({
+        reasonForVisit: 'forbidden',
+      });
+      expect(result).toBeForbidden();
+
+      const after = await models.Visit.findByPk(visit.id);
+      expect(after.reasonForVisit).toEqual('intact');
+    });
+
+    it('should reject creating a new visit with insufficient permissions', async () => {
+      const noPermsApp = await baseApp.asRole('base');
+      const result = await noPermsApp.post('/v1/visit').send({
+        ...(await createDummyVisit(models)),
+        patientId: patient.id,
+        reasonForVisit: 'should-not-be-created',
+      });
+      expect(result).toBeForbidden();
+
+      const visits = await models.Visit.findAll({
+        where: {
+          patientId: patient.id,
+          reasonForVisit: 'should-not-be-created',
+        },
+      });
+      expect(visits).toHaveLength(0);
+    });
 
     describe('journey', () => {
       // NB:
