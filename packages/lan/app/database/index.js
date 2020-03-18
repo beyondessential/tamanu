@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import config from 'config';
+import { createNamespace } from 'cls-hooked';
 
 import * as models from 'shared/models';
 
@@ -14,6 +15,9 @@ const createTestUUID = () => `test-${uuid().slice(5)}`;
 export function initDatabase({ testMode = false }) {
   // connect to database
   log.info(`Connecting to database ${config.db.username}@${config.db.name}...`);
+
+  const namespace = createNamespace('sequelize-transaction-namespace');
+  Sequelize.useCLS(namespace);
   const sequelize = new Sequelize(config.db.name, config.db.username, config.db.password, {
     dialect: 'sqlite',
     storage: '/tmp/tamanu-test.db',
