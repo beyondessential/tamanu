@@ -17,18 +17,21 @@ function randomDateBetween(start, end) {
   return new Date(chance.natural({ min: start.getTime(), max: end.getTime() }));
 }
 
-// adding many:many random relations
-
-function randomAllergies() {
-  // TODO
+export async function randomUser(models) {
+  const obj = await models.User.findOne({
+    order: models.ReferenceData.sequelize.random(),
+  });
+  return obj.id;
 }
 
-function randomConditions() {
-  // TODO
-}
-
-function randomPatientDiagnosis() {
-  // TODO
+export async function randomReferenceId(models, type) {
+  const obj = await models.ReferenceData.findOne({
+    where: {
+      type,
+    },
+    order: models.ReferenceData.sequelize.random(),
+  });
+  return obj.id;
 }
 
 function randomVitals(overrides) {
@@ -43,16 +46,6 @@ function randomVitals(overrides) {
     respiratoryRate: chance.floating({ min: 10, max: 18 }),
     ...overrides,
   };
-}
-
-async function randomReferenceId(models, type) {
-  const obj = await models.ReferenceData.findOne({
-    where: {
-      type,
-    },
-    order: models.ReferenceData.sequelize.random(),
-  });
-  return obj.id;
 }
 
 export async function createDummyVisit(models, { current, ...overrides } = {}) {

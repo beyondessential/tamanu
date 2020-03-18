@@ -13,20 +13,27 @@ export class Triage extends Model {
         closedTime: Sequelize.DATE,
 
         score: Sequelize.TEXT,
-        notes: Sequelize.TEXT,
       },
       options,
     );
   }
 
   static initRelations(models) {
-    this.belongsTo(models.Patient, {
-      foreignKey: 'patientId',
+    this.belongsTo(models.Visit, {
+      foreignKey: 'visitId',
     });
 
     this.belongsTo(models.User, {
       as: 'Practitioner',
       foreignKey: 'practitionerId',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'chiefComplaintId',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'secondaryComplaintId',
     });
 
     // this.hasOne(models.Location);

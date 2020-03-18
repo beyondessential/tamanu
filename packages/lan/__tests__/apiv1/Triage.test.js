@@ -1,28 +1,33 @@
 import Chance from 'chance';
+import moment from 'moment';
 
-import { createDummyPatient } from 'shared/demoData/patients';
+import { createDummyPatient, randomReferenceId, randomUser } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
 
 const chance = new Chance();
 
-const createDummyTriage = () => ({
-  score: chance.integer({ min: 1, max: 5 }),
-  notes: chance.sentence(),
-  triageReasonId: // get reason from list,
-  practitionerId: // get user from list,
-  arrivalTime: // some random time ago,
-  triageTime: // same as arrival,
-  closedTime: // needs to discern between generating open and closed triages
-});
+const createDummyTriage = async (models, overrides) => {
+  const arrivalTime = moment().subtract(chance.integer({ min: 2, max: 80 }), 'minutes').toDate();
+  return {
+    score: chance.integer({ min: 1, max: 5 }),
+    notes: chance.sentence(),
+    arrivalTime,
+    triageTime: arrivalTime,
+    closedTime: null,
+    triageReasonId: await randomReferenceId(models, 'triageReason'),
+    practitionerId: await randomUser(models),
+    ...overrides,
+  };
+};
 
 describe('Triage', () => {
 
   let patient = null;
   let app = null;
   beforeAll(async () => {
-    patient = await models.Patient.create(createDummyPatient());
+    patient = await models.Patient.create(await createDummyPatient(models));
     app = await baseApp.asRole('practitioner');
   });
 

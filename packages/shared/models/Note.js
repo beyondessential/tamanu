@@ -5,6 +5,7 @@ import { NOTE_TYPES } from 'shared/constants';
 export const NOTE_OBJECT_TYPES = {
   VISIT: 'Visit',
   PATIENT: 'Patient',
+  TRIAGE: 'Triage',
 };
 
 const NOTE_OBJECT_TYPE_VALUES = Object.values(NOTE_OBJECT_TYPES);
