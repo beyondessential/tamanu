@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { VISIT_TYPES } from 'shared/constants';
+import { VISIT_TYPES, NOTE_TYPES } from 'shared/constants';
 import { Model } from './Model';
 
 export class Visit extends Model {
@@ -72,7 +72,7 @@ export class Visit extends Model {
   async addSystemNote(content) {
     const { Note } = this.sequelize.models;
 
-    const note = await Note.createForObject(this, 'system', content);
+    const note = await Note.createForObject(this, NOTE_TYPES.SYSTEM, content);
 
     return note;
   }

@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
+import { NOTE_TYPES } from 'shared/constants';
 
 export const NOTE_OBJECT_TYPES = {
   VISIT: 'Visit',
@@ -7,12 +8,6 @@ export const NOTE_OBJECT_TYPES = {
 };
 
 const NOTE_OBJECT_TYPE_VALUES = Object.values(NOTE_OBJECT_TYPES);
-
-export const NOTE_TYPES = {
-  SYSTEM: 'system',
-  OTHER: 'other',
-};
-
 const NOTE_TYPE_VALUES = Object.values(NOTE_TYPES);
 
 export class Note extends Model {
