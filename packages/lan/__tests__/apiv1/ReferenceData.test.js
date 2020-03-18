@@ -3,7 +3,6 @@ import { createTestContext } from '../utilities';
 const { baseApp, models } = createTestContext();
 
 describe('Reference data', () => {
-
   let userApp = null;
   let adminApp = null;
 
@@ -73,5 +72,4 @@ describe('Reference data', () => {
     });
     expect(result).toHaveRequestError();
   });
-
 });

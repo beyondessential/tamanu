@@ -75,7 +75,7 @@ describe('Visit', () => {
       expect(after.reasonForVisit).toEqual('intact');
     });
 
-    it.only('should reject creating a new visit with insufficient permissions', async () => {
+    it('should reject creating a new visit with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
       const result = await noPermsApp.post('/v1/visit').send({
         ...(await createDummyVisit(models)),
@@ -83,11 +83,13 @@ describe('Visit', () => {
         reasonForVisit: 'should-not-be-created',
       });
       expect(result).toBeForbidden();
-      
-      const visits = await models.Visit.findAll({ where: { 
-        patientId: patient.id,
-        reasonForVisit: 'should-not-be-created',
-      } });
+
+      const visits = await models.Visit.findAll({
+        where: {
+          patientId: patient.id,
+          reasonForVisit: 'should-not-be-created',
+        },
+      });
       expect(visits).toHaveLength(0);
     });
 

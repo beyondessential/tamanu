@@ -17,7 +17,7 @@ export function extendExpect(expect) {
   expect.extend({
     toBeForbidden(response) {
       const { statusCode } = response;
-      const pass = statusCode == 403;
+      const pass = statusCode === 403;
       if (pass) {
         return {
           message: () =>

@@ -91,7 +91,7 @@ export const authMiddleware = async (req, res, next) => {
   try {
     req.user = await getUserFromToken(req);
     next();
-  } catch(e) {
+  } catch (e) {
     next(e);
   }
 };
