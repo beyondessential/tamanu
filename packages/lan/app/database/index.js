@@ -16,8 +16,11 @@ export function initDatabase({ testMode = false }) {
   // connect to database
   log.info(`Connecting to database ${config.db.username}@${config.db.name}...`);
 
+  // this allows us to use transaction callbacks without manually managing a transaction handle
+  // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
   const namespace = createNamespace('sequelize-transaction-namespace');
   Sequelize.useCLS(namespace);
+
   const sequelize = new Sequelize(config.db.name, config.db.username, config.db.password, {
     dialect: 'sqlite',
     storage: '/tmp/tamanu-test.db',
