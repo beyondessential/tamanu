@@ -99,6 +99,23 @@ describe('Visit', () => {
         expect(notes.some(check)).toEqual(true);
       });
 
+      // TODO - waiting on transactions
+      xit('should fail to change visit type to an invalid type', async () => {
+        const v = await models.Visit.create({
+          ...(await createDummyVisit(models)),
+          patientId: patient.id,
+          visitType: 'triage',
+        });
+
+        const result = await app.put(`/v1/visit/${v.id}`).send({
+          visitType: 'not-a-real-visit-type',
+        });
+        expect(result).toHaveRequestError();
+
+        const notes = await v.getNotes();
+        expect(notes).toHaveLength(0);
+      });
+
       it('should change visit department and add a note', async () => {
         const departments = await models.ReferenceData.findAll({
           where: { type: 'department' },
@@ -123,7 +140,7 @@ describe('Visit', () => {
       });
 
       it('should change visit location and add a note', async () => {
-        const locations = await models.ReferenceData.findAll({
+        const [fromLocation, toLocation] = await models.ReferenceData.findAll({
           where: { type: 'location' },
           limit: 2,
         });
@@ -131,18 +148,61 @@ describe('Visit', () => {
         const v = await models.Visit.create({
           ...(await createDummyVisit(models)),
           patientId: patient.id,
-          locationId: locations[0].id,
+          locationId: fromLocation.id,
         });
 
         const result = await app.put(`/v1/visit/${v.id}`).send({
-          locationId: locations[1].id,
+          locationId: toLocation.id,
         });
         expect(result).toHaveSucceeded();
 
         const notes = await v.getNotes();
         const check = x =>
-          x.content.includes(locations[0].name) && x.content.includes(locations[1].name);
+          x.content.includes(fromLocation.name) && x.content.includes(toLocation.name);
         expect(notes.some(check)).toEqual(true);
+      });
+
+      it('should not update visit to an invalid location or add a note', async () => {
+        const v = await models.Visit.create({
+          ...(await createDummyVisit(models)),
+          patientId: patient.id,
+        });
+
+        const result = await app.put(`/v1/visit/${v.id}`).send({
+          locationId: 'invalid-location-id',
+        });
+
+        expect(result).toHaveRequestError();
+      });
+
+      // TODO - waiting on transactions
+      xit('should roll back a whole modification if part of it is invalid', async () => {
+        // to test this, we're going to do a valid location change and an invalid visit type update
+
+        const [fromLocation, toLocation] = await models.ReferenceData.findAll({
+          where: { type: 'location' },
+          limit: 2,
+        });
+
+        const v = await models.Visit.create({
+          ...(await createDummyVisit(models)),
+          visitType: 'clinic',
+          patientId: patient.id,
+          locationId: fromLocation.id,
+        });
+
+        const result = await app.put(`/v1/visit/${v.id}`).send({
+          locationId: toLocation.id,
+          visitType: 'not-a-real-visit-type',
+        });
+        expect(result).toHaveRequestError();
+
+        const updatedVisit = await models.Visit.findByPk(v.id);
+        expect(updatedVisit).toHaveProperty('visitType', 'clinic');
+        expect(updatedVisit).toHaveProperty('locationId', fromLocation.id);
+
+        const notes = await v.getNotes();
+        expect(notes).toHaveLength(0);
       });
 
       test.todo('should discharge a patient');
