@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { VISIT_TYPES, NOTE_TYPES } from 'shared/constants';
-import { Model } from './Model';
 import { InvalidOperationError } from 'lan/app/errors';
+import { Model } from './Model';
 
 const VISIT_TYPE_VALUES = Object.values(VISIT_TYPES);
 
@@ -95,7 +95,7 @@ export class Visit extends Model {
   async update(data) {
     const { ReferenceData } = this.sequelize.models;
 
-    return this.sequelize.transaction(async () => { 
+    return this.sequelize.transaction(async () => {
       if (data.endDate && !this.endDate) {
         await this.addSystemNote(`Discharged patient.`);
       }
@@ -114,7 +114,9 @@ export class Visit extends Model {
         if (!newLocation) {
           throw new InvalidOperationError('Invalid location specified');
         }
-        await this.addSystemNote(`Changed location from ${oldLocation.name} to ${newLocation.name}`);
+        await this.addSystemNote(
+          `Changed location from ${oldLocation.name} to ${newLocation.name}`,
+        );
       }
 
       if (data.departmentId && data.departmentId !== this.departmentId) {
