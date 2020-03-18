@@ -1,4 +1,5 @@
 import { createDummyPatient, createDummyVisit } from 'shared/demoData/patients';
+import moment from 'moment';
 import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
@@ -205,6 +206,31 @@ describe('Visit', () => {
         expect(notes.some(check)).toEqual(true);
       });
 
+      it('should discharge a patient', async () => {
+        const v = await models.Visit.create({
+          ...(await createDummyVisit(models)),
+          patientId: patient.id,
+          startDate: moment()
+            .subtract(4, 'weeks')
+            .toDate(),
+          endDate: null,
+          reasonForVisit: 'before',
+        });
+
+        const endDate = new Date();
+        const result = await app.put(`/v1/visit/${v.id}`).send({
+          endDate,
+        });
+        expect(result).toHaveSucceeded();
+
+        const updated = await models.Visit.findByPk(v.id);
+        expect(updated.endDate).toEqual(endDate);
+
+        const notes = await v.getNotes();
+        const check = x => x.content.includes('Discharged');
+        expect(notes.some(check)).toEqual(true);
+      });
+
       it('should not update visit to an invalid location or add a note', async () => {
         const v = await models.Visit.create({
           ...(await createDummyVisit(models)),
@@ -247,8 +273,6 @@ describe('Visit', () => {
         const notes = await v.getNotes();
         expect(notes).toHaveLength(0);
       });
-
-      test.todo('should discharge a patient');
 
       test.todo('should not admit a patient who is already in a visit');
       test.todo('should not admit a patient who is dead');

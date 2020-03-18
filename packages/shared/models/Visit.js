@@ -95,6 +95,10 @@ export class Visit extends Model {
   async update(data) {
     const { ReferenceData } = this.sequelize.models;
 
+    if (data.endDate && !this.endDate) {
+      await this.addSystemNote(`Discharged patient.`);
+    }
+
     if (data.patientId && data.patientId !== this.patientId) {
       throw new InvalidOperationError("A visit's patient cannot be changed");
     }
@@ -111,6 +115,7 @@ export class Visit extends Model {
       }
       await this.addSystemNote(`Changed location from ${oldLocation.name} to ${newLocation.name}`);
     }
+
     if (data.departmentId && data.departmentId !== this.departmentId) {
       const oldDepartment = await ReferenceData.findByPk(this.departmentId);
       const newDepartment = await ReferenceData.findByPk(data.departmentId);
