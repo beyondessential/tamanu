@@ -4,6 +4,8 @@ import moment from 'moment';
 import { createDummyPatient, createDummyVisit, randomReferenceId, randomUser } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
+import { VISIT_TYPES } from 'shared/constants';
+
 const { baseApp, models } = createTestContext();
 
 const chance = new Chance();
@@ -75,7 +77,7 @@ describe('Triage', () => {
     expect(response).toHaveSucceeded();
   });
 
-  xit('should close a triage by progressing a visit', async () => {
+  it('should close a triage by progressing a visit', async () => {
     const visitPatient = await models.Patient.create(await createDummyPatient(models));
     const createdTriage = await models.Triage.create(await createDummyTriage(models, {
       patientId: visitPatient.id,
@@ -91,7 +93,7 @@ describe('Triage', () => {
     expect(updatedTriage.closedTime).toBeTruthy();
   });
 
-  xit('should close a triage by discharging a visit', async () => {
+  it('should close a triage by discharging a visit', async () => {
     const visitPatient = await models.Patient.create(await createDummyPatient(models));
     const createdTriage = await models.Triage.create(await createDummyTriage(models, {
       patientId: visitPatient.id,

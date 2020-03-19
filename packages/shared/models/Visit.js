@@ -97,12 +97,40 @@ export class Visit extends Model {
     };
   }
 
+  async getLinkedTriage() {
+    const { Triage } = this.sequelize.models;
+    return Triage.findOne({ 
+      where: { 
+        visitId: this.id,
+      }
+    });
+  }
+
+  async onDischarge(endDate) {
+    await this.addSystemNote(`Discharged patient.`);
+    await this.closeTriage(endDate);
+  }
+
+  async onVisitProgression(newVisitType) {
+    await this.addSystemNote(`Changed type from ${this.visitType} to ${newVisitType}`);
+    await this.closeTriage(new Date());
+  }
+
+  async closeTriage(endDate) {
+    const triage = await this.getLinkedTriage();
+    if(triage) {
+      await triage.update({
+        closedTime: endDate,
+      });
+    }
+  }
+
   async update(data) {
     const { ReferenceData } = this.sequelize.models;
 
     return this.sequelize.transaction(async () => {
       if (data.endDate && !this.endDate) {
-        await this.addSystemNote(`Discharged patient.`);
+        await this.onDischarge(data.endDate);
       }
 
       if (data.patientId && data.patientId !== this.patientId) {
@@ -110,7 +138,7 @@ export class Visit extends Model {
       }
 
       if (data.visitType && data.visitType !== this.visitType) {
-        await this.addSystemNote(`Changed type from ${this.visitType} to ${data.visitType}`);
+        await this.onVisitProgression(data.visitType);
       }
 
       if (data.locationId && data.locationId !== this.locationId) {
