@@ -45,21 +45,7 @@ export class LabRequest extends Model {
           allowNull: true,
         },
       },
-      {
-        ...options,
-        validate: {
-          mustHaveValidRelationType() {
-            if (!NOTE_OBJECT_TYPE_VALUES.includes(this.objectType)) {
-              throw new Error(`Must have a valid type (got ${this.objectType})`);
-            }
-          },
-          mustHaveContent() {
-            if (this.content === '') {
-              throw new Error('Content must not be empty');
-            }
-          },
-        },
-      },
+      options
     );
   }
 
