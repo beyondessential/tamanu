@@ -66,11 +66,23 @@ export class Triage extends Model {
       throw new InvalidOperationError("Can't triage a patient that has an existing visit");
     }
 
+    const reasons = await Promise.all(
+      [
+        data.chiefComplaintId,
+        data.secondaryComplaintId,
+      ].map(x => ReferenceData.findByPk(x))
+    );
+
+    const reasonsText = reasons
+      .filter(x => x)
+      .map(x => x.name).join(' and ');
+    const reasonForVisit = `Presented at emergency department with ${reasonsText}`;
+
     return this.sequelize.transaction(async () => {
       const visit = await Visit.create({
         visitType: VISIT_TYPES.TRIAGE,
         startDate: data.triageTime,
-        reasonForVisit: 'Triagio',
+        reasonForVisit,
         patientId: data.patientId,
         departmentId: data.departmentId,
         locationId: data.locationId,

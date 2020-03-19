@@ -110,11 +110,43 @@ describe('Triage', () => {
     expect(updatedTriage.closedTime).toBeTruthy();
   });
 
+  it('should set the visit reason to the text of the chief complaints', async () => {
+    const visitPatient = await models.Patient.create(await createDummyPatient(models));
+    const createdTriage = await models.Triage.create(
+      await createDummyTriage(models, {
+        patientId: visitPatient.id,
+        chiefComplaintId: await randomReferenceId(models, 'triageReason'),
+        secondaryComplaintId: null,
+      }),
+    );
+    const reason = await models.ReferenceData.findByPk(createdTriage.chiefComplaintId);
+    const createdVisit = await models.Visit.findByPk(createdTriage.visitId);
+    expect(createdVisit).toBeTruthy();
+    expect(createdVisit.reasonForVisit).toContain(reason.name);
+  });
+
+  it('should concatenate multiple visit reasons', async () => {
+    const visitPatient = await models.Patient.create(await createDummyPatient(models));
+    const createdTriage = await models.Triage.create(
+      await createDummyTriage(models, {
+        patientId: visitPatient.id,
+        chiefComplaintId: await randomReferenceId(models, 'triageReason'),
+        secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
+      }),
+    );
+    const chiefReason = await models.ReferenceData.findByPk(createdTriage.chiefComplaintId);
+    const secondaryReason = await models.ReferenceData.findByPk(createdTriage.secondaryComplaintId);
+    const createdVisit = await models.Visit.findByPk(createdTriage.visitId);
+    expect(createdVisit).toBeTruthy();
+    expect(createdVisit.reasonForVisit).toContain(chiefReason.name);
+    expect(createdVisit.reasonForVisit).toContain(secondaryReason.name);
+  });
+
   describe('listing & filtering', () => {
     beforeAll(() => {
       // create a few test triages
     });
-    
+
     test.todo('should get a list of all triages with relevant attached data');
     test.todo('should filter triages by location');
     test.todo('should filter triages by age range');
