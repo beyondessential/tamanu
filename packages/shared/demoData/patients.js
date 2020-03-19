@@ -61,6 +61,7 @@ export async function createDummyVisit(models, { current, ...overrides } = {}) {
     reasonForVisit: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
     locationId: await randomReferenceId(models, 'location'),
     departmentId: await randomReferenceId(models, 'department'),
+    examinerId: await randomUser(models),
     ...overrides,
   };
 }

@@ -43,6 +43,11 @@ export class Visit extends Model {
               throw new InvalidOperationError('A visit must have a location.');
             }
           },
+          mustHaveExaminer() {
+            if (!this.examinerId) {
+              throw new InvalidOperationError('A visit must have an examiner.');
+            }
+          },
         },
       },
     );
