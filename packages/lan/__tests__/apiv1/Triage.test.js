@@ -1,19 +1,13 @@
-import Chance from 'chance';
-import moment from 'moment';
-
 import {
   createDummyPatient,
   createDummyVisit,
   createDummyTriage,
   randomReferenceId,
-  randomUser,
 } from 'shared/demoData/patients';
 import { VISIT_TYPES } from 'shared/constants';
 import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
-
-const chance = new Chance();
 
 describe('Triage', () => {
   let app = null;

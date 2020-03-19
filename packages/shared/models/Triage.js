@@ -67,15 +67,13 @@ export class Triage extends Model {
     }
 
     const reasons = await Promise.all(
-      [
-        data.chiefComplaintId,
-        data.secondaryComplaintId,
-      ].map(x => ReferenceData.findByPk(x))
+      [data.chiefComplaintId, data.secondaryComplaintId].map(x => ReferenceData.findByPk(x)),
     );
 
     const reasonsText = reasons
       .filter(x => x)
-      .map(x => x.name).join(' and ');
+      .map(x => x.name)
+      .join(' and ');
     const reasonForVisit = `Presented at emergency department with ${reasonsText}`;
 
     return this.sequelize.transaction(async () => {
@@ -89,7 +87,7 @@ export class Triage extends Model {
         examinerId: data.practitionerId,
       });
 
-      return await super.create({
+      return super.create({
         ...data,
         visitId: visit.id,
       });
