@@ -1,34 +1,21 @@
 import Chance from 'chance';
 import moment from 'moment';
 
-import { createDummyPatient, createDummyVisit, randomReferenceId, randomUser } from 'shared/demoData/patients';
-import { createTestContext } from '../utilities';
-
+import {
+  createDummyPatient,
+  createDummyVisit,
+  createDummyTriage,
+  randomReferenceId,
+  randomUser,
+} from 'shared/demoData/patients';
 import { VISIT_TYPES } from 'shared/constants';
+import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
 
 const chance = new Chance();
 
-const createDummyTriage = async (models, overrides) => {
-  const arrivalTime = moment().subtract(chance.integer({ min: 2, max: 80 }), 'minutes').toDate();
-  return {
-    score: chance.integer({ min: 1, max: 5 }),
-    notes: chance.sentence(),
-    arrivalTime,
-    triageTime: arrivalTime,
-    closedTime: null,
-    triageReasonId: await randomReferenceId(models, 'triageReason'),
-    locationId: await randomReferenceId(models, 'location'),
-    departmentId: await randomReferenceId(models, 'department'),
-    practitionerId: await randomUser(models),
-    ...overrides,
-  };
-};
-
 describe('Triage', () => {
-
-  let patient = null;
   let app = null;
   beforeAll(async () => {
     app = await baseApp.asRole('practitioner');
@@ -36,9 +23,11 @@ describe('Triage', () => {
 
   it('should admit a patient to triage', async () => {
     const visitPatient = await models.Patient.create(await createDummyPatient(models));
-    const response = await app.post('/v1/triage').send(await createDummyTriage(models, {
-      patientId: visitPatient.id,
-    }));
+    const response = await app.post('/v1/triage').send(
+      await createDummyTriage(models, {
+        patientId: visitPatient.id,
+      }),
+    );
     expect(response).toHaveSucceeded();
 
     const createdTriage = await models.Triage.findByPk(response.body.id);
@@ -49,39 +38,49 @@ describe('Triage', () => {
 
   it('should fail to triage if a visit is already open', async () => {
     const visitPatient = await models.Patient.create(await createDummyPatient(models));
-    const visit = await models.Visit.create(await createDummyVisit(models, {
-      current: true,
-      patientId: visitPatient.id,
-    }));
-  
+    const visit = await models.Visit.create(
+      await createDummyVisit(models, {
+        current: true,
+        patientId: visitPatient.id,
+      }),
+    );
+
     expect(visit.endDate).toBeFalsy();
 
-    const response = await app.post('/v1/triage').send(await createDummyTriage(models, {
-      patientId: visitPatient.id,
-    }));
+    const response = await app.post('/v1/triage').send(
+      await createDummyTriage(models, {
+        patientId: visitPatient.id,
+      }),
+    );
     expect(response).toHaveRequestError();
   });
 
   it('should successfully triage if the existing visit is closed', async () => {
     const visitPatient = await models.Patient.create(await createDummyPatient(models));
-    const visit = await models.Visit.create(await createDummyVisit(models, {
-      current: false,
-      patientId: visitPatient.id,
-    }));
-  
+    const visit = await models.Visit.create(
+      await createDummyVisit(models, {
+        current: false,
+        patientId: visitPatient.id,
+      }),
+    );
+
     expect(visit.endDate).toBeTruthy();
 
-    const response = await app.post('/v1/triage').send(await createDummyTriage(models, {
-      patientId: visitPatient.id,
-    }));
+    const response = await app.post('/v1/triage').send(
+      await createDummyTriage(models, {
+        patientId: visitPatient.id,
+      }),
+    );
     expect(response).toHaveSucceeded();
   });
 
   it('should close a triage by progressing a visit', async () => {
     const visitPatient = await models.Patient.create(await createDummyPatient(models));
-    const createdTriage = await models.Triage.create(await createDummyTriage(models, {
-      patientId: visitPatient.id,
-    }));
+    const createdTriage = await models.Triage.create(
+      await createDummyTriage(models, {
+        patientId: visitPatient.id,
+      }),
+    );
     const createdVisit = await models.Visit.findByPk(createdTriage.visitId);
     expect(createdVisit).toBeTruthy();
 
@@ -95,9 +94,11 @@ describe('Triage', () => {
 
   it('should close a triage by discharging a visit', async () => {
     const visitPatient = await models.Patient.create(await createDummyPatient(models));
-    const createdTriage = await models.Triage.create(await createDummyTriage(models, {
-      patientId: visitPatient.id,
-    }));
+    const createdTriage = await models.Triage.create(
+      await createDummyTriage(models, {
+        patientId: visitPatient.id,
+      }),
+    );
     const createdVisit = await models.Visit.findByPk(createdTriage.visitId);
     expect(createdVisit).toBeTruthy();
 

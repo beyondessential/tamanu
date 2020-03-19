@@ -99,10 +99,10 @@ export class Visit extends Model {
 
   async getLinkedTriage() {
     const { Triage } = this.sequelize.models;
-    return Triage.findOne({ 
-      where: { 
+    return Triage.findOne({
+      where: {
         visitId: this.id,
-      }
+      },
     });
   }
 
@@ -118,7 +118,7 @@ export class Visit extends Model {
 
   async closeTriage(endDate) {
     const triage = await this.getLinkedTriage();
-    if(triage) {
+    if (triage) {
       await triage.update({
         closedTime: endDate,
       });

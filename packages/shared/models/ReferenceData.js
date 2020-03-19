@@ -57,15 +57,15 @@ export class ReferenceData extends Model {
   static async create(values) {
     // the type column is just text in sqlite so validate it here
     const { type } = values;
-    if(type && !CODE_TYPE_VALUES.includes(type)) {
-      throw new ValidationError("Invalid type: " + type);
+    if (type && !CODE_TYPE_VALUES.includes(type)) {
+      throw new ValidationError(`Invalid type: ${type}`);
     }
     return super.create(values);
   }
 
   async update(values) {
-    if(values.type) {
-      throw new InvalidOperationError("The type of a reference data item cannot be changed");
+    if (values.type) {
+      throw new InvalidOperationError('The type of a reference data item cannot be changed');
     }
     return super.update(values);
   }

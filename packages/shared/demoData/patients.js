@@ -1,4 +1,5 @@
 import Chance from 'chance';
+import moment from 'moment';
 
 import { generateId } from '../utils/generateId';
 import { VISIT_TYPES } from '../constants';
@@ -34,7 +35,7 @@ export async function randomReferenceId(models, type) {
   return obj.id;
 }
 
-function randomVitals(overrides) {
+export function randomVitals(overrides) {
   return {
     dateRecorded: randomDate(),
     weight: chance.floating({ min: 60, max: 150 }),
@@ -44,6 +45,24 @@ function randomVitals(overrides) {
     temperature: chance.floating({ min: 36, max: 38 }),
     heartRate: chance.floating({ min: 40, max: 140 }),
     respiratoryRate: chance.floating({ min: 10, max: 18 }),
+    ...overrides,
+  };
+}
+
+export async function createDummyTriage(models, overrides) {
+  const arrivalTime = moment()
+    .subtract(chance.integer({ min: 2, max: 80 }), 'minutes')
+    .toDate();
+  return {
+    score: chance.integer({ min: 1, max: 5 }),
+    notes: chance.sentence(),
+    arrivalTime,
+    triageTime: arrivalTime,
+    closedTime: null,
+    triageReasonId: await randomReferenceId(models, 'triageReason'),
+    locationId: await randomReferenceId(models, 'location'),
+    departmentId: await randomReferenceId(models, 'department'),
+    practitionerId: await randomUser(models),
     ...overrides,
   };
 }

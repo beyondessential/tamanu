@@ -1,6 +1,4 @@
-
-export const anonymous = (user, allow, forbid) => {
-};
+export const anonymous = (user, allow, forbid) => {};
 
 export const base = (user, allow, forbid) => {
   anonymous(user, allow, forbid);

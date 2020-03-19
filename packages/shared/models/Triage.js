@@ -1,7 +1,7 @@
 import { VISIT_TYPES } from 'shared/constants';
 import { Sequelize, Op } from 'sequelize';
-import { Model } from './Model';
 import { InvalidOperationError } from 'lan/app/errors';
+import { Model } from './Model';
 
 export class Triage extends Model {
   static init({ primaryKey, ...options }) {
@@ -51,7 +51,7 @@ export class Triage extends Model {
   }
 
   static async create(data) {
-    const { Visit } = this.sequelize.models;
+    const { Visit, ReferenceData } = this.sequelize.models;
 
     const existingVisit = await Visit.findOne({
       where: {
@@ -62,13 +62,13 @@ export class Triage extends Model {
       },
     });
 
-    if(existingVisit) {
+    if (existingVisit) {
       throw new InvalidOperationError("Can't triage a patient that has an existing visit");
     }
 
     return this.sequelize.transaction(async () => {
       const visit = await Visit.create({
-        visitType: 'triage',
+        visitType: VISIT_TYPES.TRIAGE,
         startDate: data.triageTime,
         reasonForVisit: 'Triagio',
         patientId: data.patientId,

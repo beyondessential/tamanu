@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { Model } from './Model';
 import { NOTE_TYPES } from 'shared/constants';
+import { Model } from './Model';
 
 export const NOTE_OBJECT_TYPES = {
   VISIT: 'Visit',
