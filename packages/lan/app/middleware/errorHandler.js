@@ -10,6 +10,7 @@ function getCodeForErrorName(name) {
       return 404;
     case 'SequelizeUniqueConstraintError':
     case 'SequelizeValidationError':
+    case 'SequelizeForeignKeyConstraintError':
     case 'InvalidOperationError':
       // unprocessable entity - syntax is correct but data is bad
       return 422;

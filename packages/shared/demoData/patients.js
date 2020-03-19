@@ -55,6 +55,17 @@ async function randomReferenceId(models, type) {
   return obj.id;
 }
 
+export async function randomReferenceIds(models, type, count) {
+  const items = await models.ReferenceData.findAll({
+    where: {
+      type,
+    },
+    order: models.ReferenceData.sequelize.random(),
+    limit: count,
+  });
+  return items.map(i => i.id);
+}
+
 export async function createDummyVisit(models, { current, ...overrides } = {}) {
   const endDate = current ? new Date() : randomDate();
 

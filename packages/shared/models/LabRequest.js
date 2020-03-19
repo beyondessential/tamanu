@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
+import { InvalidOperationError } from 'lan/app/errors';
 
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
 
@@ -47,6 +48,28 @@ export class LabRequest extends Model {
       },
       options
     );
+  }
+
+  static create(data) {
+    return this.sequelize.transaction(async () => {
+      const base = await super.create(data);
+
+      // then create tests
+      const { LabTest } = this.sequelize.models;
+
+      const { labTestTypeIds = [] } = data;
+      if(!labTestTypeIds.length) {
+        throw new InvalidOperationError("A request must have at least one test");
+      }
+      
+      const newTests = await Promise.all(labTestTypeIds.map(t => LabTest.create({
+        labTestTypeId: t,
+        labRequestId: base.id,
+      })));
+      console.log("test", newTests);
+
+      return base;
+    });
   }
 
   static initRelations(models) {
