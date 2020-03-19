@@ -35,6 +35,8 @@ export const LAB_REQUEST_STATUSES = {
   PUBLISHED: 'published',
 };
 
+export const LAB_TEST_STATUSES = LAB_REQUEST_STATUSES;
+
 export const NOTE_TYPES = {
   SYSTEM: 'system',
   OTHER: 'other',
