@@ -36,18 +36,6 @@ export class Triage extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'secondaryComplaintId',
     });
-
-    // this.hasOne(models.Location);
-    // this.hasOne(models.Department);
-
-    // this.hasMany(models.Medication);
-    // this.hasMany(models.Diagnosis);
-    // this.hasMany(models.LabRequest);
-    // this.hasMany(models.ImagingRequest);
-    // this.hasMany(models.Note);
-    // this.hasMany(models.Procedure);
-    // this.hasMany(models.Vital);
-    // this.hasMany(models.Report);
   }
 
   static async create(data) {
