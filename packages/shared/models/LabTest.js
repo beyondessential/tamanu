@@ -21,7 +21,7 @@ export class LabTest extends Model {
           defaultValue: LAB_TEST_STATUSES.RECEPTION_PENDING,
         },
         result: {
-          type: Sequelize.TEXT,
+          type: Sequelize.STRING,
           allowNull: false,
           defaultValue: '',
         },
@@ -36,6 +36,10 @@ export class LabTest extends Model {
     });
 
     this.belongsTo(models.ReferenceData, {
+      foreignKey: 'categoryId',
+    });
+
+    this.belongsTo(models.LabTestType, {
       foreignKey: 'labTestTypeId',
     });
   }
