@@ -303,7 +303,7 @@ const createCategory = async (models, { tests, name }) => {
 
   return Promise.all(tests.map(t => LabTestType.create({
     ...generateTestObject(t),
-    testCategoryId: id,
+    labTestCategoryId: id,
   })));
 };
 

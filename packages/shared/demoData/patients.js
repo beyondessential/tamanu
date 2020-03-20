@@ -45,7 +45,7 @@ function randomVitals(overrides) {
   };
 }
 
-async function randomReferenceId(models, type) {
+export async function randomReferenceId(models, type) {
   const obj = await models.ReferenceData.findOne({
     where: {
       type,
@@ -53,17 +53,6 @@ async function randomReferenceId(models, type) {
     order: models.ReferenceData.sequelize.random(),
   });
   return obj.id;
-}
-
-export async function randomReferenceIds(models, type, count) {
-  const items = await models.ReferenceData.findAll({
-    where: {
-      type,
-    },
-    order: models.ReferenceData.sequelize.random(),
-    limit: count,
-  });
-  return items.map(i => i.id);
 }
 
 export async function createDummyVisit(models, { current, ...overrides } = {}) {

@@ -49,6 +49,11 @@ export class LabTestType extends Model {
               throw new InvalidOperationError("options must be a valid JSON array");
             }
           },
+          mustHaveCategory() {
+            if(!this.labTestCategoryId) {
+              throw new InvalidOperationError("A lab test must belong to a category");
+            }
+          },
         }
       },
     );
@@ -56,7 +61,7 @@ export class LabTestType extends Model {
 
   static initRelations(models) {
     this.belongsTo(models.ReferenceData, {
-      foreignKey: 'testCategoryId',
+      foreignKey: 'labTestCategoryId',
     });
   }
 }

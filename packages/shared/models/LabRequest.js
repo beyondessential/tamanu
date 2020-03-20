@@ -66,7 +66,6 @@ export class LabRequest extends Model {
         labTestTypeId: t,
         labRequestId: base.id,
       })));
-      console.log("test", newTests);
 
       return base;
     });

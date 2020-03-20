@@ -1,9 +1,18 @@
 import { createTestContext } from '../utilities';
 
 import { LAB_TEST_STATUSES, LAB_REQUEST_STATUSES } from 'shared/constants';
-import { createDummyPatient, createDummyVisit, randomReferenceIds } from 'shared/demoData/patients';
+import { createDummyPatient, createDummyVisit, randomReferenceId } from 'shared/demoData/patients';
 
 const { baseApp, models } = createTestContext();
+
+const randomLabTests = (models, labTestCategoryId, amount) => {
+  return models.LabTestType.findAll({
+    where: {
+      labTestCategoryId,
+    },
+    limit: amount,
+  });
+};
 
 describe('Labs', () => {
   let patient = null;
@@ -13,10 +22,12 @@ describe('Labs', () => {
     app = await baseApp.asRole('practitioner');
   });
 
-  xit('should record a lab request', async () => {
-    const labTestTypeIds = await randomReferenceIds(models, 'labTestType', 3);
+  it('should record a lab request', async () => {
+    const categoryId = await randomReferenceId(models, 'labTestCategory');
+    const labTestTypeIds = await randomLabTests(models, categoryId, 2);
     const response = await app.post('/v1/labRequest').send({
       patientId: patient.id,
+      categoryId,
       labTestTypeIds,
       labTestType: '',
     });
@@ -24,6 +35,7 @@ describe('Labs', () => {
 
     const createdRequest = await models.LabRequest.findByPk(response.body.id);
     expect(createdRequest).toBeTruthy();
+    expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
     
     const createdTests = await models.LabTest.findAll({ where: { labRequestId: createdRequest.id } });
     expect(createdTests).toHaveLength(labTestTypeIds.length);
