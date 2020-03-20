@@ -29,7 +29,11 @@ export class LabTestType extends Model {
         femaleMin: Sequelize.FLOAT,
         femaleMax: Sequelize.FLOAT,
         rangeText: Sequelize.STRING,
-        questionType: Sequelize.ENUM(QUESTION_TYPE_VALUES),
+        questionType: {
+          type: Sequelize.ENUM(QUESTION_TYPE_VALUES),
+          allowNull: false,
+          defaultValue: QUESTION_TYPES.NUMBER,
+        },
         options: {
           type: Sequelize.TEXT,
           allowNull: true,
