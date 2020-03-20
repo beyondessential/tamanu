@@ -1,10 +1,11 @@
 import { Sequelize } from 'sequelize';
-import { Model } from './Model';
 import { NOTE_TYPES } from 'shared/constants';
+import { Model } from './Model';
 
 export const NOTE_OBJECT_TYPES = {
   VISIT: 'Visit',
   PATIENT: 'Patient',
+  TRIAGE: 'Triage',
 };
 
 const NOTE_OBJECT_TYPE_VALUES = Object.values(NOTE_OBJECT_TYPES);
