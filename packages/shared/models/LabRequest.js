@@ -38,11 +38,11 @@ export class LabRequest extends Model {
         },
 
         senaiteId: {
-          type: Sequelize.TEXT,
+          type: Sequelize.STRING,
           allowNull: true,
         },
         sampleId: {
-          type: Sequelize.TEXT,
+          type: Sequelize.STRING,
           allowNull: true,
         },
       },
