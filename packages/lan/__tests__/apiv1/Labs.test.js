@@ -57,6 +57,8 @@ describe('Labs', () => {
     expect(createdRequest).toBeFalsy();
   });
 
+  test.todo("should not record a lab request with a test whose category does not match the request's category");
+
   xit('should record a test result', async () => {
     const result = 100;
     const testId = '123';
@@ -66,6 +68,9 @@ describe('Labs', () => {
     const labTest = await models.LabTest.findByPk(testId);
     expect(labTest).toHaveProperty('result', result);
   });
+
+  test.todo('should fail to record a number test result against a string test');
+  test.todo('should fail to record a string test result against an number test');
 
   test.todo('should record multiple test results');
   
