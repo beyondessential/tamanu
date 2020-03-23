@@ -63,7 +63,7 @@ export class LabRequest extends Model {
         throw new InvalidOperationError('A request must have at least one test');
       }
 
-      const newTests = await Promise.all(
+      await Promise.all(
         labTestTypeIds.map(t =>
           LabTest.create({
             labTestTypeId: t,

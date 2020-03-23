@@ -4,7 +4,7 @@ import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
 
-const randomLabTests = (models, labTestCategoryId, amount) =>
+const randomLabTests = (labTestCategoryId, amount) =>
   models.LabTestType.findAll({
     where: {
       labTestCategoryId,
@@ -14,7 +14,7 @@ const randomLabTests = (models, labTestCategoryId, amount) =>
 
 const randomLabRequest = async (models, overrides) => {
   const categoryId = await randomReferenceId(models, 'labTestCategory');
-  const labTestTypeIds = await randomLabTests(models, categoryId, 2);
+  const labTestTypeIds = await randomLabTests(categoryId, 2);
   return {
     categoryId,
     labTestTypeIds,
@@ -65,8 +65,8 @@ describe('Labs', () => {
       order: models.ReferenceData.sequelize.random(),
       limit: 2,
     });
-    const labTestTypeIdsA = await randomLabTests(models, categoryA.id, 2);
-    const labTestTypeIdsB = await randomLabTests(models, categoryB.id, 2);
+    const labTestTypeIdsA = await randomLabTests(categoryA.id, 2);
+    const labTestTypeIdsB = await randomLabTests(categoryB.id, 2);
 
     const response = await app.post('/v1/labRequest').send({
       patientId,
