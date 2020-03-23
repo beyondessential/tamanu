@@ -1,6 +1,7 @@
 export * from './User';
 export * from './Patient';
 export * from './Visit';
+export * from './Triage';
 
 export * from './ReferenceData';
 

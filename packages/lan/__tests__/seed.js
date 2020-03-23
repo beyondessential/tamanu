@@ -3,7 +3,7 @@ import { splitIds } from 'shared/demoData/splitIds';
 
 export const testDiagnoses = ICD10_DIAGNOSES.slice(0, 50);
 export const testDrugs = DRUGS.slice(0, 50);
-export const testTriageReasons = TRIAGE_DIAGNOSES;
+export const testTriageReasons = TRIAGE_DIAGNOSES.map(x => ({ ...x, type: 'triageReason' }));
 
 export const testLocations = splitIds(`
   Ward 1

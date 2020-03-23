@@ -1,4 +1,5 @@
 import Chance from 'chance';
+import moment from 'moment';
 
 import { generateId } from '../utils/generateId';
 import { VISIT_TYPES } from '../constants';
@@ -17,21 +18,24 @@ function randomDateBetween(start, end) {
   return new Date(chance.natural({ min: start.getTime(), max: end.getTime() }));
 }
 
-// adding many:many random relations
-
-function randomAllergies() {
-  // TODO
+export async function randomUser(models) {
+  const obj = await models.User.findOne({
+    order: models.ReferenceData.sequelize.random(),
+  });
+  return obj.id;
 }
 
-function randomConditions() {
-  // TODO
+export async function randomReferenceId(models, type) {
+  const obj = await models.ReferenceData.findOne({
+    where: {
+      type,
+    },
+    order: models.ReferenceData.sequelize.random(),
+  });
+  return obj.id;
 }
 
-function randomPatientDiagnosis() {
-  // TODO
-}
-
-function randomVitals(overrides) {
+export function randomVitals(overrides) {
   return {
     dateRecorded: randomDate(),
     weight: chance.floating({ min: 60, max: 150 }),
@@ -45,14 +49,23 @@ function randomVitals(overrides) {
   };
 }
 
-export async function randomReferenceId(models, type) {
-  const obj = await models.ReferenceData.findOne({
-    where: {
-      type,
-    },
-    order: models.ReferenceData.sequelize.random(),
-  });
-  return obj.id;
+export async function createDummyTriage(models, overrides) {
+  const arrivalTime = moment()
+    .subtract(chance.integer({ min: 2, max: 80 }), 'minutes')
+    .toDate();
+  return {
+    score: chance.integer({ min: 1, max: 5 }),
+    notes: chance.sentence(),
+    arrivalTime,
+    triageTime: arrivalTime,
+    closedTime: null,
+    chiefComplaintId: await randomReferenceId(models, 'triageReason'),
+    secondaryComplaintId: chance.bool() ? null : await randomReferenceId(models, 'triageReason'),
+    locationId: await randomReferenceId(models, 'location'),
+    departmentId: await randomReferenceId(models, 'department'),
+    practitionerId: await randomUser(models),
+    ...overrides,
+  };
 }
 
 export async function createDummyVisit(models, { current, ...overrides } = {}) {
@@ -68,6 +81,7 @@ export async function createDummyVisit(models, { current, ...overrides } = {}) {
     reasonForVisit: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
     locationId: await randomReferenceId(models, 'location'),
     departmentId: await randomReferenceId(models, 'department'),
+    examinerId: await randomUser(models),
     ...overrides,
   };
 }
