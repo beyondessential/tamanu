@@ -287,7 +287,7 @@ const generateTestObject = t => {
     femaleMin,
     femaleMax,
     options: t.options && JSON.stringify(t.options),
-  }
+  };
 };
 
 const createCategory = async (models, { tests, name }) => {
@@ -301,13 +301,16 @@ const createCategory = async (models, { tests, name }) => {
 
   const { id } = category;
 
-  return Promise.all(tests.map(t => LabTestType.create({
-    ...generateTestObject(t),
-    labTestCategoryId: id,
-  })));
+  return Promise.all(
+    tests.map(t =>
+      LabTestType.create({
+        ...generateTestObject(t),
+        labTestCategoryId: id,
+      }),
+    ),
+  );
 };
 
 export function seedLabTests(models) {
   return Promise.all(ALL_CATEGORIES.map(c => createCategory(models, c)));
 }
-

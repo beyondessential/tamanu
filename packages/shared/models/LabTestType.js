@@ -43,18 +43,18 @@ export class LabTestType extends Model {
         ...options,
         validate: {
           mustHaveValidOptions() {
-            if(!this.options) return;
+            if (!this.options) return;
             const parsed = JSON.parse(this.options);
-            if(!Array.isArray(parsed)) {
-              throw new InvalidOperationError("options must be a valid JSON array");
+            if (!Array.isArray(parsed)) {
+              throw new InvalidOperationError('options must be a valid JSON array');
             }
           },
           mustHaveCategory() {
-            if(!this.labTestCategoryId) {
-              throw new InvalidOperationError("A lab test must belong to a category");
+            if (!this.labTestCategoryId) {
+              throw new InvalidOperationError('A lab test must belong to a category');
             }
           },
-        }
+        },
       },
     );
   }

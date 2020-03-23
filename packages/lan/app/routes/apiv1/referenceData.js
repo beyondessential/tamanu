@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { ForbiddenError } from 'lan/app/errors';
+import { ForbiddenError } from 'shared/errors';
 import { simpleGet, simplePut, simplePost } from './crudHelpers';
 
 export const referenceData = express.Router();

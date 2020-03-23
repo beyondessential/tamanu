@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { VISIT_TYPES, NOTE_TYPES } from 'shared/constants';
-import { InvalidOperationError } from 'lan/app/errors';
+import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
 const VISIT_TYPE_VALUES = Object.values(VISIT_TYPES);

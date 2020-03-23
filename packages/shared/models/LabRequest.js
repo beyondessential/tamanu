@@ -1,8 +1,8 @@
 import { Sequelize } from 'sequelize';
-import { Model } from './Model';
-import { InvalidOperationError } from 'lan/app/errors';
+import { InvalidOperationError } from 'shared/errors';
 
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { Model } from './Model';
 
 const LAB_REQUEST_STATUS_VALUES = Object.values(LAB_REQUEST_STATUSES);
 
@@ -46,7 +46,7 @@ export class LabRequest extends Model {
           allowNull: true,
         },
       },
-      options
+      options,
     );
   }
 
@@ -59,14 +59,18 @@ export class LabRequest extends Model {
       // then create tests
       const { LabTest } = this.sequelize.models;
 
-      if(!labTestTypeIds.length) {
-        throw new InvalidOperationError("A request must have at least one test");
+      if (!labTestTypeIds.length) {
+        throw new InvalidOperationError('A request must have at least one test');
       }
-      
-      const newTests = await Promise.all(labTestTypeIds.map(t => LabTest.create({
-        labTestTypeId: t,
-        labRequestId: base.id,
-      })));
+
+      const newTests = await Promise.all(
+        labTestTypeIds.map(t =>
+          LabTest.create({
+            labTestTypeId: t,
+            labRequestId: base.id,
+          }),
+        ),
+      );
 
       return base;
     });

@@ -1,5 +1,5 @@
-import { createTestContext, deleteAllTestIds } from './utilities';
 import { seedLabTests } from 'shared/demoData/labTestTypes';
+import { createTestContext, deleteAllTestIds } from './utilities';
 
 import { allSeeds } from './seed';
 

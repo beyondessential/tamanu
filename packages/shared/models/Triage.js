@@ -1,6 +1,6 @@
 import { VISIT_TYPES } from 'shared/constants';
 import { Sequelize, Op } from 'sequelize';
-import { InvalidOperationError } from 'lan/app/errors';
+import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
 export class Triage extends Model {

@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
-import { Model } from './Model';
 import { LAB_TEST_STATUSES } from 'shared/constants';
+import { InvalidOperationError } from 'shared/errors';
+import { Model } from './Model';
 
 const LAB_TEST_STATUS_VALUES = Object.values(LAB_TEST_STATUSES);
 
