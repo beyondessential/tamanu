@@ -14,23 +14,28 @@ const randomLabTests = (models, labTestCategoryId, amount) => {
   });
 };
 
+const randomLabRequest = async (models, overrides) => {
+  const categoryId = await randomReferenceId(models, 'labTestCategory');
+  const labTestTypeIds = await randomLabTests(models, categoryId, 2);
+  return {
+    categoryId,
+    labTestTypeIds,
+    ...overrides,
+  };
+};
+
 describe('Labs', () => {
-  let patient = null;
+  let patientId = null;
   let app = null;
   beforeAll(async () => {
-    patient = await models.Patient.create(await createDummyPatient(models));
+    const patient = await models.Patient.create(await createDummyPatient(models));
+    patientId = patient.id;
     app = await baseApp.asRole('practitioner');
   });
 
   it('should record a lab request', async () => {
-    const categoryId = await randomReferenceId(models, 'labTestCategory');
-    const labTestTypeIds = await randomLabTests(models, categoryId, 2);
-    const response = await app.post('/v1/labRequest').send({
-      patientId: patient.id,
-      categoryId,
-      labTestTypeIds,
-      labTestType: '',
-    });
+    const labRequest = await randomLabRequest(models, { patientId });
+    const response = await app.post('/v1/labRequest').send(labRequest);
     expect(response).toHaveSucceeded();
 
     const createdRequest = await models.LabRequest.findByPk(response.body.id);
@@ -38,7 +43,7 @@ describe('Labs', () => {
     expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
     
     const createdTests = await models.LabTest.findAll({ where: { labRequestId: createdRequest.id } });
-    expect(createdTests).toHaveLength(labTestTypeIds.length);
+    expect(createdTests).toHaveLength(labRequest.labTestTypeIds.length);
     expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING));
   });
 
@@ -48,7 +53,7 @@ describe('Labs', () => {
       'another-invalid-test-type-id',
     ];
     const response = await app.post('/v1/labRequest').send({
-      patientId: patient.id,
+      patientId,
       labTestTypeIds,
     });
     expect(response).toHaveRequestError();
@@ -57,16 +62,32 @@ describe('Labs', () => {
     expect(createdRequest).toBeFalsy();
   });
 
-  test.todo("should not record a lab request with a test whose category does not match the request's category");
+  xit("should not record a lab request with a test whose category does not match the request's category", async () => {
+    const [categoryA, categoryB] = await models.ReferenceData.findAll({
+      where: { type: 'labTestCategory' },
+      order: models.ReferenceData.sequelize.random(),
+      limit: 2,
+    });
+    const labTestTypeIdsA = await randomLabTests(models, categoryA.id, 2);
+    const labTestTypeIdsB = await randomLabTests(models, categoryB.id, 2);
 
-  xit('should record a test result', async () => {
-    const result = 100;
-    const testId = '123';
-    const response = await app.put(`/v1/labTest/${testId}`).send({ result });
+    const response = await app.post('/v1/labRequest').send({
+      patientId,
+      labTestTypeIds: [...labTestTypeIdsA, ...labTestTypeIdsB],
+    });
+    expect(response).toHaveRequestError();
+  });
+
+  it('should record a test result', async () => {
+    const labRequest = await models.LabRequest.create(await randomLabRequest(models, { patientId }));
+    const [labTest] = await labRequest.getTests();
+
+    const result = "100";
+    const response = await app.put(`/v1/labTest/${labTest.id}`).send({ result });
     expect(response).toHaveSucceeded();
 
-    const labTest = await models.LabTest.findByPk(testId);
-    expect(labTest).toHaveProperty('result', result);
+    const labTestCheck = await models.LabTest.findByPk(labTest.id);
+    expect(labTestCheck).toHaveProperty('result', result);
   });
 
   test.todo('should fail to record a number test result against a string test');
@@ -74,18 +95,19 @@ describe('Labs', () => {
 
   test.todo('should record multiple test results');
   
-  xit('should update the status of a lab test', async () => {
+  it('should update the status of a lab test', async () => {
+    const labRequest = await models.LabRequest.create(await randomLabRequest(models, { patientId }));
+    const [labTest] = await labRequest.getTests();
     const status = LAB_TEST_STATUSES.PUBLISHED;
-    const testId = '123';
-    const response = await app.put(`/v1/labTest/${testId}`).send({ status });
+    const response = await app.put(`/v1/labTest/${labTest.id}`).send({ status });
     expect(response).toHaveSucceeded();
 
-    const labTest = await models.LabTest.findByPk(testId);
-    expect(labTest).toHaveProperty('result', result);
+    const labTestCheck = await models.LabTest.findByPk(labTest.id);
+    expect(labTestCheck).toHaveProperty('status', status);
   });
 
-  xit('should update the status of a lab request', async () => {
-    const requestId = '123';
+  it('should update the status of a lab request', async () => {
+    const { id: requestId } = await models.LabRequest.create(await randomLabRequest(models, { patientId }));
     const status = LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
     const response = await app.put(`/v1/labRequest/${requestId}`).send({ status });
     expect(response).toHaveSucceeded();
@@ -94,8 +116,8 @@ describe('Labs', () => {
     expect(labRequest).toHaveProperty('status', status);
   });
 
-  xit('should publish a lab request', async () => {
-    const requestId = '123';
+  it('should publish a lab request', async () => {
+    const { id: requestId } = await models.LabRequest.create(await randomLabRequest(models, { patientId }));
     const status = LAB_REQUEST_STATUSES.PUBLISHED;
     const response = await app.put(`/v1/labRequest/${requestId}`).send({ status });
     expect(response).toHaveSucceeded();
