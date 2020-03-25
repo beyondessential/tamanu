@@ -43,7 +43,7 @@ describe('Patient search', () => {
     expect(responsePatient).toHaveProperty('displayId', 'search-by-display-id');
   });
 
-  it('should get a list of patients by name', async () => {
+  it('should get a list of patients by first name', async () => {
     const response = await app.get('/v1/patient').query({
       firstName: 'search-by-name',
     });
@@ -57,12 +57,89 @@ describe('Patient search', () => {
     });
   });
 
-  it('should get a list of patients by age range', async () => {
+  it('should get a list of patients by first name (partial match, case insensitive)', async () => {
+    const response = await app.get('/v1/patient').query({
+      firstName: 'SeArCh-bY-Na',
+    });
+    expect(response).toHaveSucceeded();
 
+    expect(response).toHaveSucceeded();
+    expect(response.body.total).toEqual(3);
+
+    response.body.results.map(responsePatient => {
+      expect(responsePatient).toHaveProperty('firstName', 'search-by-name');
+    });
+  });
+
+  it('should get a list of patients by age range', async () => {
+    const response = await app.get('/v1/patient').query({
+      ageMax: 15,
+      ageMin: 10,
+    });
+    expect(response).toHaveSucceeded();
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.total).toEqual(3);
+
+    response.body.results.map(responsePatient => {
+      expect(responsePatient).toHaveProperty('firstName', 'search-by-name');
+    });
   });
 
   it('should get a list of patients by village', async () => {
+    const response = await app.get('/v1/patient').query({
+      villageName: 'test-village',
+    });
+    expect(response).toHaveSucceeded();
 
+    expect(response).toHaveSucceeded();
+    expect(response.body.total).toEqual(1);
+
+    response.body.results.map(responsePatient => {
+      expect(responsePatient).toHaveProperty('village_name', 'search-by-name');
+    });
+  });
+
+  it('should get a list of patients by visit type', async () => {
+    const response = await app.get('/v1/patient').query({
+      visitType: 'clinic',
+    });
+    expect(response).toHaveSucceeded();
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.total).toEqual(1);
+
+    response.body.results.map(responsePatient => {
+      expect(responsePatient).toHaveProperty('visit_type', 'clinic');
+    });
+  });
+
+  it('should get a list of patients by location', async () => {
+    const response = await app.get('/v1/patient').query({
+      location: '???',
+    });
+    expect(response).toHaveSucceeded();
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.total).toEqual(1);
+
+    response.body.results.map(responsePatient => {
+      expect(responsePatient).toHaveProperty('location_name', '???');
+    });
+  });
+
+  it('should get a list of patients by department', async () => {
+    const response = await app.get('/v1/patient').query({
+      department: '???',
+    });
+    expect(response).toHaveSucceeded();
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.total).toEqual(1);
+
+    response.body.results.map(responsePatient => {
+      expect(responsePatient).toHaveProperty('department_name', '???');
+    });
   });
 
   it('should get a list of patients by multiple factors', async () => {
