@@ -13,7 +13,8 @@
       "/navigation/*": ["navigation/*"],      
       "/containers/*":["containers/*"],
       "/store/*": ["store/*"],
-      "/models/*": ["models/*"]
+      "/models/*": ["models/*"],
+      "/services/*": ["services/*"]
     },
     "resolveJsonModule": true,
     "jsx": "react",

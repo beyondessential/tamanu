@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { createAppContainer } from 'react-navigation';
+import React, { useState, ReactElement } from 'react';
 import { StyledView, StyledText } from '../../styled/common';
 import { theme } from '../../styled/theme';
-import { TopTabNavigator } from './index';
+import { createTopTabNavigator } from './index';
 import * as Icons from '../Icons';
 import { VaccineTabNavigator } from './VaccineTabNavigator';
 
@@ -95,13 +94,24 @@ export const Vaccines = (): JSX.Element => (
   </StyledView>
 );
 
-const withTab = TopTabNavigator({
-  Visits,
-  Vitals,
-  Vaccines,
-});
+const Tabs = createTopTabNavigator();
 
-export const App = createAppContainer(withTab);
+export const App = (): ReactElement => (
+  <Tabs.Navigator>
+    <Tabs.Screen
+      name="1"
+      component={FirstRoute}
+    />
+    <Tabs.Screen
+      name="2"
+      component={SecondRoute}
+    />
+    <Tabs.Screen
+      name="3"
+      component={ThirdRoute}
+    />
+  </Tabs.Navigator>
+);
 
 export function VaccineTabBaseStory(): JSX.Element {
   const [state, setState] = useState({

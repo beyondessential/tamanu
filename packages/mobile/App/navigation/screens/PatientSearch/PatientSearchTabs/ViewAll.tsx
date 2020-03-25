@@ -9,7 +9,7 @@ import { PatientSectionList } from '/components/PatientSectionList';
 // Helpers
 import { searchData } from './fixture';
 import { groupEntriesByLetter } from '/helpers/list';
-import { Routes } from '/helpers/constants';
+import { Routes } from '/helpers/routes';
 //Props
 import { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
 import { Button } from '/components/Button';

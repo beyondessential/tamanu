@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
-import { StyledView, RowView } from '../../../../../../styled/common';
-import { screenPercentageToDP, Orientation } from '../../../../../../helpers/screen';
-import { PatientMenuButton } from '../../../../../../components/PatientMenuButton';
+import { StyledView, RowView } from '/styled/common';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { PatientMenuButton } from '/components/PatientMenuButton';
 
 
 interface VisitTypeButtonsProps {

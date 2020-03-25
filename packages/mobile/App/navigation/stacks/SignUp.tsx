@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 // helpers
-import { Routes } from '/helpers/constants';
+import { Routes } from '/helpers/routes';
 // Screens
 import { IntroScreen } from '/navigation/screens/signup/Intro';
 import { RegisterAccountStep1Container } from '/navigation/screens/signup/RegisterAccountScreenStep1';

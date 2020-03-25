@@ -6,19 +6,19 @@ import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { ArrowForward } from '../Icons';
 
-export interface MenuOptionButton {
+export interface MenuOptionButtonProps {
   Icon?: FC<SvgProps>;
   title: string;
   onPress: () => void;
   fontWeight?: number
 }
 
-export const MenuOptionButton: FC<MenuOptionButton> = ({
+export const MenuOptionButton: FC<MenuOptionButtonProps> = ({
   Icon,
   title,
   onPress,
   fontWeight = 400,
-}: MenuOptionButton): React.ReactElement => (
+}: MenuOptionButtonProps): React.ReactElement => (
   <TouchableHighlight
     underlayColor={theme.colors.DEFAULT_OFF}
     onPress={onPress}

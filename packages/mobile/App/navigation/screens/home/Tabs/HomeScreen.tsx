@@ -1,5 +1,5 @@
 import React, { ReactElement, useCallback } from 'react';
-import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 
 import {
   FullView,
@@ -9,15 +9,14 @@ import {
   RowView,
   StyledSafeAreaView,
 } from '/styled/common';
-import { Profile, LogoV2CLR } from '/components/Icons';
+import { Profile, LogoV2CLR, Search as SearchIcon } from '/components/Icons';
 import { PatientCard } from '/components/PatientCard';
 import { theme } from '/styled/theme';
 import { disableAndroidBackButton } from '/helpers/android';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { UserAvatar } from '/components/UserAvatar';
 import { Genders } from '/helpers/user';
-import { SearchInput } from '/components/SearchInput';
-import { Routes } from '/helpers/constants';
+import { Routes } from '/helpers/routes';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
 
 const placeholderPatient = {
@@ -61,6 +60,29 @@ const PatientCardContainer = (): ReactElement => (
       {...placeholderPatient}
     />
   </StyledView>
+);
+
+const SearchPatientsButton = ({ onPress }: { onPress: () => void}): ReactElement => (
+  <StyledTouchableOpacity
+    onPress={onPress}
+  >
+    <RowView
+      borderRadius={50}
+      paddingLeft={20}
+      background={theme.colors.WHITE}
+      height={50}
+      alignItems="center"
+    >
+      <SearchIcon fill={theme.colors.TEXT_MID} />
+      <StyledText
+        fontSize={16}
+        marginLeft={10}
+        color={theme.colors.TEXT_MID}
+      >
+        Search for patients
+      </StyledText>
+    </RowView>
+  </StyledTouchableOpacity>
 );
 
 
@@ -118,9 +140,7 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
         top="32.5%"
         width="100%"
       >
-        <TouchableWithoutFeedback onPress={onNavigateToSearchPatient}>
-          <SearchInput disabled onChange={(text: string): void => console.log(text)} value="" placeholder="Search for patients" />
-        </TouchableWithoutFeedback>
+        <SearchPatientsButton onPress={onNavigateToSearchPatient} />
       </StyledView>
       <StyledView
         background={theme.colors.BACKGROUND_GREY}

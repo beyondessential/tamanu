@@ -1,7 +1,7 @@
 import React, { useCallback, ReactElement } from 'react';
 import { useField } from 'formik';
 import { Screen } from './Screen';
-import { Routes } from '/helpers/constants';
+import { Routes } from '/helpers/routes';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
 
 export const FilterArray = [

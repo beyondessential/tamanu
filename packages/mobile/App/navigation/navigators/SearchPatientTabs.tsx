@@ -19,7 +19,7 @@ import { LeftArrow } from '/components/Icons';
 import { SearchInput } from '/components/SearchInput';
 import { Field } from '/components/Forms/FormField';
 // Helpers
-import { Routes } from '/helpers/constants';
+import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 import { withPatient } from '/containers/Patient';
 import { WithPatientStoreProps } from '/store/ducks/patient';

@@ -12,7 +12,7 @@ import { PatientTile } from '/components/PatientTile';
 import { RecentViewedScreenProps } from '/interfaces/screens/PatientSearchStack';
 // Helpers
 import { data } from '/components/PatientSectionList/fixture';
-import { Routes } from '/helpers/constants';
+import { Routes } from '/helpers/routes';
 import { StyledView, FullView } from '/styled/common';
 import { joinNames } from '/helpers/user';
 

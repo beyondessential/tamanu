@@ -22,7 +22,8 @@
           ["/navigation", "./App/navigation"],         
           ["/containers", "./App/containers"],
           ["/store", "./App/store"],
-          ["/models", "./App/models"]
+          ["/models", "./App/models"],
+          ["/services", "./App/services"]
         ],
         "extensions": [".ts", ".js", ".jsx", ".tsx", ".json"]
       },

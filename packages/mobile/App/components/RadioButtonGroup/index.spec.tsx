@@ -20,12 +20,12 @@ describe('<RadioButtonGroup />', () => {
   const { getByText } = render(<RadioButtonGroup {...props} />);
   it('should render <RadioButtonGroup/>', () => {
     props.options.forEach(option => {
-      expect(getByText(option.value)).not.toBe(null);
+      expect(getByText(option.label)).not.toBe(null);
     });
   });
 
   it('should call onChange when pressed a <RadioButton/>', () => {
-    fireEvent.press(getByText(props.options[0].value));
+    fireEvent.press(getByText(props.options[0].label));
     expect(props.onChange).toHaveBeenCalled();
   });
 });

@@ -57,12 +57,12 @@ export const RadioButton = (props: RadioOptionProps): JSX.Element => {
         borderColor={
           props.error
             ? ColorHelper.halfTransparency(theme.colors.ALERT)
-            : theme.colors.TEXT_SOFT
+            : theme.colors.DEFAULT_OFF
         }
         paddingLeft={15}
         paddingRight={15}
         borderWidth={1}
-        borderLeftWidth={props.index === 0 ? 1 : 0}
+        borderLeftWidth={1}
       >
         <StyledView
           borderRadius={50}
@@ -85,7 +85,7 @@ export const RadioButton = (props: RadioOptionProps): JSX.Element => {
           />
         </StyledView>
         <StyledButtonText error={props.error} selected={props.selected}>
-          {props.value}
+          {props.label}
         </StyledButtonText>
       </RowView>
     </TouchableWithoutFeedback>

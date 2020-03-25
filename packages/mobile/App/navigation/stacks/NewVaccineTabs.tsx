@@ -1,14 +1,15 @@
 import React, { ReactElement, useState, useCallback, useMemo, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationProp, RouteProp } from '@react-navigation/native';
-import * as Icons from '../../components/Icons';
-import { theme } from '../../styled/theme';
+import * as Icons from '/components/Icons';
+import { theme } from '/styled/theme';
 import { NewVaccineTab } from '../screens/vaccine/newVaccineTabs/NewVaccineTab';
-import { VaccineTabNavigator } from '../../components/TopTabNavigator/VaccineTabNavigator';
-import { FullView, RowView, StyledView, StyledText, StyledTouchableOpacity } from '../../styled/common';
-import { ArrowDown } from '../../components/Icons';
-import { Routes, VaccineStatus } from '../../helpers/constants';
-import { VaccineDataProps } from '../../components/VaccineCard';
+import { VaccineTabNavigator } from '/components/TopTabNavigator/VaccineTabNavigator';
+import { FullView, RowView, StyledView, StyledText, StyledTouchableOpacity } from '/styled/common';
+import { ArrowDown } from '/components/Icons';
+import { VaccineStatus } from '/helpers/constants';
+import { Routes } from '/helpers/routes';
+import { VaccineDataProps } from '/components/VaccineCard';
 
 type NewVaccineHeaderProps = {
   navigation: NavigationProp<any>;

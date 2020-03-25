@@ -1,7 +1,7 @@
 
 
 import React, { ReactElement } from 'react';
-import { StyledText, FullView, CenterView } from '../../../../styled/common';
+import { StyledText, FullView, CenterView } from '/styled/common';
 
 export const MoreScreen = (): ReactElement => (
   <FullView>

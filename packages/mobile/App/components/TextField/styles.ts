@@ -25,7 +25,7 @@ export const InputContainer = styled(StyledView)`
   border: 1px solid
     ${(props: InputContainerProps): string => {
     if (props.error) return theme.colors.ERROR;
-    return theme.colors.TEXT_SOFT;
+    return theme.colors.DEFAULT_OFF;
   }};
   border-radius: 3px;
   width: 100%;

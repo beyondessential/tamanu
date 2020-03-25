@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useState, useCallback } from 'react';
 import styled from 'styled-components/native';
 import { StyledView, RowView } from '/styled/common';
 import { theme } from '/styled/theme';
@@ -24,24 +24,46 @@ export const SearchInput: FC<SearchInputProps> = ({
   onChange,
   placeholder,
   disabled = false,
-}: SearchInputProps) => (
-  <RowView
-    background={theme.colors.WHITE}
-    height={50}
-    width="100%"
-    alignItems="center"
-    paddingLeft={15}
-    borderRadius={85}
-  >
-    <StyledView marginRight={10}>
-      <Icons.Search height={20} />
-    </StyledView>
-    <StyledTextInput
-      editable={!disabled}
-      value={value}
-      placeholder={placeholder}
-      placeholderTextColor={theme.colors.TEXT_MID}
-      onChangeText={onChange}
-    />
-  </RowView>
-);
+}: SearchInputProps) => {
+  const [focus, setFocus] = useState(false);
+
+  const onFocus = useCallback(
+    () => {
+      setFocus(true);
+    },
+    [focus],
+  );
+
+  const onBlur = useCallback(
+    () => {
+      setFocus(false);
+    },
+    [focus],
+  );
+  return (
+    <RowView
+      background={theme.colors.WHITE}
+      height={50}
+      width="100%"
+      alignItems="center"
+      paddingLeft={15}
+      borderRadius={85}
+    >
+      <StyledView marginRight={10}>
+        <Icons.Search
+          fill={focus ? theme.colors.PRIMARY_MAIN : theme.colors.TEXT_SOFT}
+          height={20}
+        />
+      </StyledView>
+      <StyledTextInput
+        onFocus={onFocus}
+        onBlur={onBlur}
+        editable={!disabled}
+        value={value}
+        placeholder={placeholder}
+        placeholderTextColor={theme.colors.TEXT_MID}
+        onChangeText={onChange}
+      />
+    </RowView>
+  );
+};

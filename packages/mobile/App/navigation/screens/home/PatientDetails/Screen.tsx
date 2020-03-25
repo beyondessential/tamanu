@@ -13,7 +13,7 @@ import { LeftArrow } from '/components/Icons/LeftArrow';
 import { DotsMenu } from '/components/Icons/DotsMenu';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { joinNames } from '/helpers/user';
-import UserAvatar from '/components/UserAvatar';
+import { UserAvatar } from '/components/UserAvatar';
 import { PatientDetails } from '/interfaces/PatientDetails';
 import {
   GeneralInfo,

@@ -1,8 +1,8 @@
-import * as Icons from '../components/Icons';
-import { NotTaken } from '../components/Icons/NotTaken';
-import { TakenNotOnTime } from '../components/Icons/TakenNotOnTime';
-import { ScheduledVaccine } from '../components/Icons/ScheduledVaccine';
-import { theme } from '../styled/theme';
+import * as Icons from '/components/Icons';
+import { NotTaken } from '/components/Icons/NotTaken';
+import { TakenNotOnTime } from '/components/Icons/TakenNotOnTime';
+import { ScheduledVaccine } from '/components/Icons/ScheduledVaccine';
+import { theme } from '/styled/theme';
 
 export const DateFormats = {
   short: 'EEE, dd MMM',
@@ -75,53 +75,6 @@ export const SCREEN_ORIENTATION = {
   LANDSCAPE: 'landscape',
 };
 
-export const Routes = {
-  SignUpStack: {
-    name: 'SignUpStack',
-    Intro: 'Intro',
-    RegisterAccountStep1: 'RegisterAccountStep1',
-    RegisterAccountStep2: 'RegisterAccountStep2',
-    RegisterAccountStep3: 'RegisterAccountStep3',
-    SignIn: 'SignIn',
-  },
-  HomeStack: {
-    WelcomeIntroStack: 'WelcomeIntroStack',
-    VaccineStack: {
-      name: 'VaccineStack',
-      VaccineTabs: {
-        name: 'VaccineTabs',
-        ChildhoodTab: 'ChildhoodTab',
-        AdolescentTab: 'AdolescentTab',
-        AdulTab: 'AdultTab',
-      },
-      NewVaccineTabs: {
-        name: 'NewVaccineTabs',
-        TakenOnTimeTab: 'TakenOnTimeTab',
-        TakenNotOnTimeTab: 'TakenNotOnTimeTab',
-        NotTakeTab: 'NotTakeTab',
-      },
-      VaccineModalScreen: 'VaccineModalScreen',
-    },
-    name: 'HomeStack',
-    HomeTabs: {
-      name: 'HomeTabs',
-      Home: 'Home',
-      Reports: 'Reports',
-      More: 'More',
-      SyncData: 'SyncData',
-    },
-    SearchPatientStack: {
-      name: 'SearchPatientStack',
-      SearchPatientTabs: {
-        name: 'SearchPatientTabs',
-        RecentViewed: 'RecentViewed',
-        ViewAll: 'ViewAll',
-      },
-      FilterSearch: 'FilterSearch',
-    },
-    PatientDetails: 'PatientDetails',
-  },
-};
 
 export const PhoneMask = { mask: '9999 9999 999' };
 

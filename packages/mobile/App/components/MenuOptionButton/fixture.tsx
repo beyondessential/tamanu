@@ -15,7 +15,7 @@ import {
   Question,
   Ring,
 } from '../Icons';
-import { MenuOptionButton } from './index';
+import { MenuOptionButton, MenuOptionButtonProps } from './index';
 
 export const MoreMenuOptions = [
   {
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
 });
 
 interface BaseStoryProps {
-  data: MenuOptionButton[];
+  data: MenuOptionButtonProps[];
 }
 
 export const BaseStory = ({ data }: BaseStoryProps): ReactElement => (

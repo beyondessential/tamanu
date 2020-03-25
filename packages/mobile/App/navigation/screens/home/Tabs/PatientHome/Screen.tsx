@@ -6,9 +6,9 @@ import {
   StyledSafeAreaView,
   RowView,
   StyledText,
-} from '../../../../../styled/common';
-import { UserAvatar } from '../../../../../components/UserAvatar';
-import { Button } from '../../../../../components/Button';
+} from '/styled/common';
+import { UserAvatar } from '/components/UserAvatar';
+import { Button } from '/components/Button';
 import {
   BackButton,
   SearchButton,
@@ -18,8 +18,8 @@ import {
   PatientMenuButtons,
 } from './CustomComponents';
 // Helpers
-import { theme } from '../../../../../styled/theme';
-import { screenPercentageToDP, Orientation } from '../../../../../helpers/screen';
+import { theme } from '/styled/theme';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 interface ScreenProps {
     navigateToSearchPatients: () => void;

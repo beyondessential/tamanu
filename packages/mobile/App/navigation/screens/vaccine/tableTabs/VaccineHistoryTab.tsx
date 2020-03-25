@@ -10,7 +10,8 @@ import {
   vaccineHistoryAdultList,
   vaccineHistoryList,
 } from '/components/VaccinesTable/fixture';
-import { Routes, VaccineStatus } from '/helpers/constants';
+import { VaccineStatus } from '/helpers/constants';
+import { Routes } from '/helpers/routes';
 
 interface VaccineHistoryTabProps {
   navigation: NavigationProp<any>;

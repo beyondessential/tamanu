@@ -1,5 +1,5 @@
 import React, { useState, useRef, Ref, useMemo } from 'react';
-import { TextInput, KeyboardType, StyleSheet, Platform, ReturnKeyTypeOptions } from 'react-native';
+import { KeyboardType, StyleSheet, Platform, ReturnKeyTypeOptions } from 'react-native';
 import { InputContainer, StyledTextInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '../../styled/common';
@@ -38,7 +38,7 @@ export const TextField = React.memo(
     label,
     error,
     keyboardType,
-    multiline,
+    multiline = false,
     placeholder,
     disabled,
     secure = false,
@@ -48,7 +48,7 @@ export const TextField = React.memo(
     autoCapitalize = 'words',
   }: TextFieldProps): JSX.Element => {
     const [focused, setFocus] = useState(false);
-    const inputRef: Ref<TextInput> = useRef(null);
+    const inputRef: Ref<any> = useRef(null);
     const onFocusInput = React.useCallback((): void => {
       if (!focused && inputRef.current) {
         inputRef.current.focus();
@@ -103,7 +103,7 @@ export const TextField = React.memo(
               : screenPercentageToDP(1.5, Orientation.Width)
           }
         >
-          {label && (
+          {!multiline && label && (
             <TextFieldLabel
               error={error}
               focus={focused}

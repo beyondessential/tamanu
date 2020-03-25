@@ -1,13 +1,13 @@
 import React, { ReactElement, useMemo, useCallback } from 'react';
 import { compose } from 'redux';
 // Components
-import * as Icons from '../../../../../components/Icons';
-import { PatientHomeScreenProps } from '../../../../../interfaces/screens/HomeStack';
+import * as Icons from '/components/Icons';
+import { PatientHomeScreenProps } from '/interfaces/screens/HomeStack';
 import { Screen } from './Screen';
 // Helpers
-import { Routes } from '../../../../../helpers/constants';
+import { Routes } from '/helpers/routes';
 // Containers
-import { withPatient } from '../../../../../containers/Patient';
+import { withPatient } from '/containers/Patient';
 
 const PatientHomeContainer = ({ navigation }: PatientHomeScreenProps): ReactElement => {
   const visitTypeButtons = useMemo(() => [
@@ -24,7 +24,7 @@ const PatientHomeContainer = ({ navigation }: PatientHomeScreenProps): ReactElem
     {
       title: 'Programs',
       Icon: Icons.Pregnancy,
-      onPress: (): void => console.log('here'),
+      onPress: (): void => navigation.navigate(Routes.HomeStack.ProgramStack.name),
     },
     {
       title: 'Referral',

@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Formik } from 'formik';
 // Helpers
-import { Routes } from '/helpers/constants';
+import { Routes } from '/helpers/routes';
 import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 // Navigator
 import { SearchPatientTabs } from './SearchPatientTabs';

@@ -12,11 +12,11 @@ describe('<RadioButton />', () => {
   };
   const { getByText } = render(<RadioButton {...props} />);
   it('should render correctly <RadioButton />', () => {
-    expect(getByText(props.value)).not.toBe(null);
+    expect(getByText(props.label)).not.toBe(null);
   });
 
   it('should call function onPress <RadioButton />', () => {
-    fireEvent.press(getByText(props.value));
+    fireEvent.press(getByText(props.label));
     expect(props.onPress).toHaveBeenCalled();
   });
 });

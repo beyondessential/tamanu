@@ -10,7 +10,7 @@ import { LogoV1 } from '/components/Icons';
 import { Button } from '/components/Button';
 //helpers
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { Routes } from '/helpers/constants';
+import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 // Screen
 import { IntroScreenProps } from '/interfaces/screens/SignUpStack/Intro';

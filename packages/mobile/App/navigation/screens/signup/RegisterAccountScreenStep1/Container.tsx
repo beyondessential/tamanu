@@ -9,7 +9,7 @@ import { RegisterAccountFormStep1Props, RegisterAccountContext } from '../../../
 import { onKeyboardOpenListener, onKeyboardCloseListener } from '/helpers/keyboard';
 import { animateState } from '/helpers/animation';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { Routes } from '/helpers/constants';
+import { Routes } from '/helpers/routes';
 //Screen
 import { Screen } from './Screen';
 
