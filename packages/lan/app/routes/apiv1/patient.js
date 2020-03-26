@@ -12,10 +12,13 @@ patient.post('/$', simplePost('Patient'));
 
 patient.get('/:id/visits', simpleGetList('Visit', 'patientId'));
 
-const makeFilter = (check, sql) => {
+const makeFilter = (check, sql, transform) => {
   if(!check) return null;
 
-  return sql;
+  return {
+    sql,
+    transform
+  };
 };
 
 patient.get('/', asyncHandler(async (req, res) => {
@@ -25,12 +28,16 @@ patient.get('/', asyncHandler(async (req, res) => {
 
   const filters = [
     makeFilter(query.displayId, `patients.display_id = :displayId`),
-    makeFilter(query.firstName, `patients.first_name = :firstName`),
+    makeFilter(
+      query.firstName, 
+      `UPPER(patients.first_name) LIKE UPPER(:firstName)`, 
+      ({ firstName }) => ({ firstName: firstName + '%' })
+    ),
     makeFilter(query.ageMax, `patients.date_of_birth <= :ageMax`),
     makeFilter(query.ageMin, `patients.date_of_birth >= :ageMin`),
     makeFilter(query.villageName, `village.name = :villageName`),
     makeFilter(query.visitType, `visits.visit_type = :visitType`),
-  ].filter(x => x);
+  ].filter(f => f);
 
   if(filters.length === 0) {
     // no active filters - just return everybody
@@ -46,7 +53,15 @@ patient.get('/', asyncHandler(async (req, res) => {
   }
 
   const whereClauses = filters
+    .map(f => f.sql)
     .join(' AND ');
+
+  const replacements = filters
+    .filter(f => f.transform)
+    .reduce((current, { transform }) => ({
+      ...current,
+      ...transform(current),
+    }), query);
 
   const result = await req.db.query(`
     SELECT 
@@ -65,7 +80,7 @@ patient.get('/', asyncHandler(async (req, res) => {
     WHERE
       ${whereClauses}
   `, {
-    replacements: query,
+    replacements,
     model: Patient,
     type: QueryTypes.SELECT,
     mapToModel: true,
