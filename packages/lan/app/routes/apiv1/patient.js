@@ -44,7 +44,7 @@ patient.get('/', asyncHandler(async (req, res) => {
       `patients.date_of_birth <= :dobMin`,
       ({ ageMin }) => ({ dobMin: moment().subtract(ageMin, 'years').add(1, 'days').toDate() })
     ),
-    makeFilter(query.villageName, `village.name = :villageName`),
+    makeFilter(query.villageId, `patients.village_id = :villageId`),
     makeFilter(query.visitType, `visits.visit_type = :visitType`),
   ].filter(f => f);
 

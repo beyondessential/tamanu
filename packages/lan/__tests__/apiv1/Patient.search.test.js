@@ -1,4 +1,4 @@
-import { createDummyPatient } from 'shared/demoData/patients';
+import { createDummyPatient, createDummyVisit } from 'shared/demoData/patients';
 import moment from 'moment';
 import { createTestContext } from '../utilities';
 
@@ -16,19 +16,40 @@ const searchTestPatients = [
   { firstName: 'search-by-age-IN', dateOfBirth: moment().subtract(20, 'years').toDate() },
   { firstName: 'search-by-age-YOUNG', dateOfBirth: moment().subtract(19, 'years').toDate() },
   { firstName: 'search-by-age-YOUNG', dateOfBirth: moment().subtract(1, 'years').toDate() },
+  { firstName: 'search-by-village', villageIndex: 0 },
 ];
 
 const withFirstName = name => ({ firstName }) => firstName === name;
 
 describe('Patient search', () => {
   let app = null;
+  let villages = null;
   beforeAll(async () => {
     app = await baseApp.asRole('practitioner');
 
-    await Promise.all(searchTestPatients.map(async (data) => {
-      const patient = await createDummyPatient(models, data);
-      return models.Patient.create(patient);
+    villages = await models.ReferenceData.findAll({ where: { type: 'village' } });
+
+    await Promise.all(searchTestPatients.map(async ({ visitData, ...data }, i) => {
+      const patientData = await createDummyPatient(models, {
+        ...data,
+        villageId: villages[data.villageIndex || (i % villages.length)].id, // even distribution of villages
+      });
+      const patient = await models.Patient.create(patientData);
+      if(visitData) {
+        const visit = await models.Visit.create({
+          ...(await createDummyVisit(models)),
+          ...visitData,
+          patientId: patient.id,
+        });
+      }
     }));
+  });
+
+  it('should error if user has insufficient permissions', async () => {
+    const response = await baseApp.get('/v1/patient').query({
+      displayId: 'really-shouldnt-show-up',
+    });
+    expect(response).toBeForbidden();
   });
 
   it('should not error if there are no results', async () => {
@@ -131,69 +152,73 @@ describe('Patient search', () => {
   });
 
   it('should get a list of patients by village', async () => {
+    const { id: villageId, name: villageName } = villages[0];
     const response = await app.get('/v1/patient').query({
-      villageName: 'test-village',
+      villageId,
     });
     expect(response).toHaveSucceeded();
 
-    expect(response).toHaveSucceeded();
-    expect(response.body.total).toEqual(1);
+    const { results } = response.body;
+    expect(results.length).toBeGreaterThan(0);
+    results.map(responsePatient => {
+      expect(responsePatient).toHaveProperty('villageId', villageId);
+      expect(responsePatient).toHaveProperty('village_name', villageName);
+    });
 
-    response.body.results.map(responsePatient => {
-      expect(responsePatient).toHaveProperty('village_name', 'search-by-name');
+    expect(results.some(withFirstName('search-by-village')));
+  });
+
+  describe('Joining visit info', () => {
+    it('should get a list of patients by visit type', async () => {
+      const response = await app.get('/v1/patient').query({
+        visitType: 'clinic',
+      });
+      expect(response).toHaveSucceeded();
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toEqual(1);
+
+      response.body.results.map(responsePatient => {
+        expect(responsePatient).toHaveProperty('visit_type', 'clinic');
+      });
+    });
+
+    it('should get a list of patients by location', async () => {
+      const response = await app.get('/v1/patient').query({
+        locationId: '???',
+      });
+      expect(response).toHaveSucceeded();
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toEqual(1);
+
+      response.body.results.map(responsePatient => {
+        expect(responsePatient).toHaveProperty('location_name', '???');
+      });
+    });
+
+    it('should get a list of patients by department', async () => {
+      const response = await app.get('/v1/patient').query({
+        departmentId: '???',
+      });
+      expect(response).toHaveSucceeded();
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toEqual(1);
+
+      response.body.results.map(responsePatient => {
+        expect(responsePatient).toHaveProperty('department_name', '???');
+      });
     });
   });
 
-  it('should get a list of patients by visit type', async () => {
-    const response = await app.get('/v1/patient').query({
-      visitType: 'clinic',
-    });
-    expect(response).toHaveSucceeded();
+  describe('Sorting', () => {
 
-    expect(response).toHaveSucceeded();
-    expect(response.body.total).toEqual(1);
+    test.todo('should sort by surname');
+    test.todo('should sort by age');
+    test.todo('should sort by visit type');
+    test.todo('should sort by location');
 
-    response.body.results.map(responsePatient => {
-      expect(responsePatient).toHaveProperty('visit_type', 'clinic');
-    });
-  });
-
-  it('should get a list of patients by location', async () => {
-    const response = await app.get('/v1/patient').query({
-      location: '???',
-    });
-    expect(response).toHaveSucceeded();
-
-    expect(response).toHaveSucceeded();
-    expect(response.body.total).toEqual(1);
-
-    response.body.results.map(responsePatient => {
-      expect(responsePatient).toHaveProperty('location_name', '???');
-    });
-  });
-
-  it('should get a list of patients by department', async () => {
-    const response = await app.get('/v1/patient').query({
-      department: '???',
-    });
-    expect(response).toHaveSucceeded();
-
-    expect(response).toHaveSucceeded();
-    expect(response.body.total).toEqual(1);
-
-    response.body.results.map(responsePatient => {
-      expect(responsePatient).toHaveProperty('department_name', '???');
-    });
-  });
-
-  it('should get a list of patients by multiple factors', async () => {
-
-  });
-
-  describe('By visit', () => {
-    test.todo('should get the correct patient status'); // admitted, outpatient, triage, deceased, ""
-    test.todo('should get a list of outpatients');
-    test.todo('should get a list of inpatients sorted by department');
   });
 });
 
