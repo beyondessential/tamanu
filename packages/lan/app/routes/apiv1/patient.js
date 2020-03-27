@@ -22,6 +22,15 @@ const makeFilter = (check, sql, transform) => {
   };
 };
 
+const sortKeys = {
+  lastName: 'patients.last_name', 
+  age: 'patients.date_of_birth', 
+  village: 'village.name', 
+  location: 'location.name', 
+  department: 'department.name', 
+  visitType: 'visits.visit_type', 
+};
+
 patient.get(
   '/',
   asyncHandler(async (req, res) => {
@@ -69,6 +78,8 @@ patient.get(
         query,
       );
 
+    const sortKey = sortKeys[query.sort] || sortKeys.lastName;
+
     const result = await req.db.query(
       `
     SELECT 
@@ -90,6 +101,8 @@ patient.get(
       LEFT JOIN reference_data AS village
         ON (village.type = 'village' AND village.id = patients.village_id)
     ${whereClauses && `WHERE ${whereClauses}`}
+    
+    ORDER BY ${sortKey} ASC NULLS LAST
   `,
       {
         replacements,
