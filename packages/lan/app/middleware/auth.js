@@ -2,7 +2,7 @@ import { sign, verify } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import { auth } from 'config';
 
-import { BadAuthenticationError } from 'lan/app/errors';
+import { BadAuthenticationError } from 'shared/errors';
 
 const { tokenDuration, jwtSecretKey } = auth;
 

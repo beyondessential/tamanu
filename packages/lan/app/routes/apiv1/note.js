@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { NotFoundError } from 'lan/app/errors';
+import { NotFoundError } from 'shared/errors';
 
 export const note = express.Router();
 

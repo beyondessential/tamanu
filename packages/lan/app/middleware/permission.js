@@ -1,4 +1,4 @@
-import { ForbiddenError, BadAuthenticationError } from 'lan/app/errors';
+import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
 import { AbilityBuilder } from '@casl/ability';
 
 import * as roles from 'shared/roles';
