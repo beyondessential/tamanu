@@ -45,21 +45,10 @@ patient.get('/', asyncHandler(async (req, res) => {
       ({ ageMin }) => ({ dobMin: moment().subtract(ageMin, 'years').add(1, 'days').toDate() })
     ),
     makeFilter(query.villageId, `patients.village_id = :villageId`),
+    makeFilter(query.locationId, `location.id = :locationId`),
+    makeFilter(query.departmentId, `department.id = :departmentId`),
     makeFilter(query.visitType, `visits.visit_type = :visitType`),
   ].filter(f => f);
-
-  if(filters.length === 0) {
-    // no active filters - just return everybody
-    
-    const { rows, count } = await Patient.findAndCountAll();
-    
-    res.send({
-      results: rows,
-      total: count,
-    });
-
-    return;
-  }
 
   const whereClauses = filters
     .map(f => f.sql)
@@ -76,18 +65,22 @@ patient.get('/', asyncHandler(async (req, res) => {
     SELECT 
       patients.*, 
       visits.visit_type,
+      department.id AS department_id,
+      department.name AS department_name,
+      location.id AS location_id,
+      location.name AS location_name,
+      village.id AS village_id,
       village.name AS village_name
     FROM patients
       LEFT JOIN visits 
-        ON (visits.patient_id = visits.id AND visits.end_date IS NULL)
+        ON (visits.patient_id = patients.id AND visits.end_date IS NULL)
       LEFT JOIN reference_data AS department
         ON (department.type = 'department' AND department.id = visits.department_id)
       LEFT JOIN reference_data AS location
         ON (location.type = 'location' AND location.id = visits.location_id)
       LEFT JOIN reference_data AS village
         ON (village.type = 'village' AND village.id = patients.village_id)
-    WHERE
-      ${whereClauses}
+    ${whereClauses && 'WHERE ' + whereClauses}
   `, {
     replacements,
     model: Patient,

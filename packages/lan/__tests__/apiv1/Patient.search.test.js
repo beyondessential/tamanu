@@ -17,6 +17,13 @@ const searchTestPatients = [
   { firstName: 'search-by-age-YOUNG', dateOfBirth: moment().subtract(19, 'years').toDate() },
   { firstName: 'search-by-age-YOUNG', dateOfBirth: moment().subtract(1, 'years').toDate() },
   { firstName: 'search-by-village', villageIndex: 0 },
+  { firstName: 'search-by-type', visit: { visitType: 'clinic', current: true } },
+  { firstName: 'search-by-type', visit: { visitType: 'clinic', current: true } },
+  { firstName: 'search-by-type', visit: { visitType: 'clinic', current: true } },
+  { firstName: 'search-by-type-OUT', visit: { visitType: 'clinic' } },
+  { firstName: 'search-by-type-OUT', visit: { visitType: 'emergency' } },
+  { firstName: 'search-by-location', visit: { locationIndex: 0 } },
+  { firstName: 'search-by-department', visit: { departmentIndex: 0 } },
 ];
 
 const withFirstName = name => ({ firstName }) => firstName === name;
@@ -24,23 +31,28 @@ const withFirstName = name => ({ firstName }) => firstName === name;
 describe('Patient search', () => {
   let app = null;
   let villages = null;
+  let locations = null;
+  let departments = null;
   beforeAll(async () => {
     app = await baseApp.asRole('practitioner');
 
     villages = await models.ReferenceData.findAll({ where: { type: 'village' } });
+    locations = await models.ReferenceData.findAll({ where: { type: 'location' } });
+    departments = await models.ReferenceData.findAll({ where: { type: 'department' } });
 
-    await Promise.all(searchTestPatients.map(async ({ visitData, ...data }, i) => {
+    await Promise.all(searchTestPatients.map(async ({ visit: visitData, ...data }, i) => {
       const patientData = await createDummyPatient(models, {
         ...data,
         villageId: villages[data.villageIndex || (i % villages.length)].id, // even distribution of villages
       });
       const patient = await models.Patient.create(patientData);
       if(visitData) {
-        const visit = await models.Visit.create({
-          ...(await createDummyVisit(models)),
+        const visit = await models.Visit.create(await createDummyVisit(models, {
           ...visitData,
           patientId: patient.id,
-        });
+          departmentId: departments[visitData.departmentIndex || (i % departments.length)].id, 
+          locationId: locations[visitData.locationIndex || (i % locations.length)].id,
+        }));
       }
     }));
   });
@@ -176,7 +188,7 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       expect(response).toHaveSucceeded();
-      expect(response.body.total).toEqual(1);
+      expect(response.body.total).toEqual(3);
 
       response.body.results.map(responsePatient => {
         expect(responsePatient).toHaveProperty('visit_type', 'clinic');
@@ -185,29 +197,25 @@ describe('Patient search', () => {
 
     it('should get a list of patients by location', async () => {
       const response = await app.get('/v1/patient').query({
-        locationId: '???',
+        locationId: locations[0].id,
       });
       expect(response).toHaveSucceeded();
 
-      expect(response).toHaveSucceeded();
-      expect(response.body.total).toEqual(1);
-
+      expect(response.body.results.some(withFirstName('search-by-location')));
       response.body.results.map(responsePatient => {
-        expect(responsePatient).toHaveProperty('location_name', '???');
+        expect(responsePatient).toHaveProperty('location_name', locations[0].name);
       });
     });
 
     it('should get a list of patients by department', async () => {
       const response = await app.get('/v1/patient').query({
-        departmentId: '???',
+        departmentId: departments[0].id,
       });
       expect(response).toHaveSucceeded();
 
-      expect(response).toHaveSucceeded();
-      expect(response.body.total).toEqual(1);
-
+      expect(response.body.results.some(withFirstName('search-by-department')));
       response.body.results.map(responsePatient => {
-        expect(responsePatient).toHaveProperty('department_name', '???');
+        expect(responsePatient).toHaveProperty('department_name', departments[0].name);
       });
     });
   });
