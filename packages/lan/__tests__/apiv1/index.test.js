@@ -16,4 +16,3 @@ describe('fundamentals', () => {
     expect(result.statusCode).toEqual(404);
   });
 });
-

@@ -14,54 +14,63 @@ patient.post('/$', simplePost('Patient'));
 patient.get('/:id/visits', simpleGetList('Visit', 'patientId'));
 
 const makeFilter = (check, sql, transform) => {
-  if(!check) return null;
+  if (!check) return null;
 
   return {
     sql,
-    transform
+    transform,
   };
 };
 
-patient.get('/', asyncHandler(async (req, res) => {
-  const { models: { Patient }, query } = req;
+patient.get(
+  '/',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { Patient },
+      query,
+    } = req;
 
-  req.checkPermission('list', 'Patient');
+    req.checkPermission('list', 'Patient');
 
-  const filters = [
-    makeFilter(query.displayId, `patients.display_id = :displayId`),
-    makeFilter(
-      query.firstName, 
-      `UPPER(patients.first_name) LIKE UPPER(:firstName)`, 
-      ({ firstName }) => ({ firstName: firstName + '%' })
-    ),
-    makeFilter(
-      query.ageMax,
-      `patients.date_of_birth >= :dobMax`,
-      ({ ageMax }) => ({ dobMax: moment().subtract(ageMax, 'years').subtract(1, 'days').toDate() })
-    ),
-    makeFilter(
-      query.ageMin,
-      `patients.date_of_birth <= :dobMin`,
-      ({ ageMin }) => ({ dobMin: moment().subtract(ageMin, 'years').add(1, 'days').toDate() })
-    ),
-    makeFilter(query.villageId, `patients.village_id = :villageId`),
-    makeFilter(query.locationId, `location.id = :locationId`),
-    makeFilter(query.departmentId, `department.id = :departmentId`),
-    makeFilter(query.visitType, `visits.visit_type = :visitType`),
-  ].filter(f => f);
+    const filters = [
+      makeFilter(query.displayId, `patients.display_id = :displayId`),
+      makeFilter(
+        query.firstName,
+        `UPPER(patients.first_name) LIKE UPPER(:firstName)`,
+        ({ firstName }) => ({ firstName: `${firstName}%` }),
+      ),
+      makeFilter(query.ageMax, `patients.date_of_birth >= :dobMax`, ({ ageMax }) => ({
+        dobMax: moment()
+          .subtract(ageMax, 'years')
+          .subtract(1, 'days')
+          .toDate(),
+      })),
+      makeFilter(query.ageMin, `patients.date_of_birth <= :dobMin`, ({ ageMin }) => ({
+        dobMin: moment()
+          .subtract(ageMin, 'years')
+          .add(1, 'days')
+          .toDate(),
+      })),
+      makeFilter(query.villageId, `patients.village_id = :villageId`),
+      makeFilter(query.locationId, `location.id = :locationId`),
+      makeFilter(query.departmentId, `department.id = :departmentId`),
+      makeFilter(query.visitType, `visits.visit_type = :visitType`),
+    ].filter(f => f);
 
-  const whereClauses = filters
-    .map(f => f.sql)
-    .join(' AND ');
+    const whereClauses = filters.map(f => f.sql).join(' AND ');
 
-  const replacements = filters
-    .filter(f => f.transform)
-    .reduce((current, { transform }) => ({
-      ...current,
-      ...transform(current),
-    }), query);
+    const replacements = filters
+      .filter(f => f.transform)
+      .reduce(
+        (current, { transform }) => ({
+          ...current,
+          ...transform(current),
+        }),
+        query,
+      );
 
-  const result = await req.db.query(`
+    const result = await req.db.query(
+      `
     SELECT 
       patients.*, 
       visits.visit_type,
@@ -80,17 +89,19 @@ patient.get('/', asyncHandler(async (req, res) => {
         ON (location.type = 'location' AND location.id = visits.location_id)
       LEFT JOIN reference_data AS village
         ON (village.type = 'village' AND village.id = patients.village_id)
-    ${whereClauses && 'WHERE ' + whereClauses}
-  `, {
-    replacements,
-    model: Patient,
-    type: QueryTypes.SELECT,
-    mapToModel: true,
-  });
+    ${whereClauses && `WHERE ${whereClauses}`}
+  `,
+      {
+        replacements,
+        model: Patient,
+        type: QueryTypes.SELECT,
+        mapToModel: true,
+      },
+    );
 
-  res.send({
-    results: result,
-    total: result.length,
-  });
-}));
-
+    res.send({
+      results: result,
+      total: result.length,
+    });
+  }),
+);

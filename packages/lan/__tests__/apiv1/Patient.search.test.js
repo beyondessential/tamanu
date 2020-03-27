@@ -4,18 +4,30 @@ import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
 
+// helper function to check we've found the intended samples
+// (we're using first name as the field that indicates which
+// test it should/shouldn't be found in)
+const withFirstName = name => ({ firstName }) => firstName === name;
+
+const yearsAgo = years =>
+  moment()
+    .subtract(years, 'years')
+    .toDate();
+
+// add a bunch of patients at the top rather than per-search, so that the
+// tests have a healthy population of negative examples as well
 const searchTestPatients = [
   { displayId: 'search-by-display-id' },
   { firstName: 'search-by-name' },
   { firstName: 'search-by-name' },
   { firstName: 'search-by-name' },
-  { firstName: 'search-by-age-OLD', dateOfBirth: moment().subtract(50, 'years').toDate() },
-  { firstName: 'search-by-age-OLD', dateOfBirth: moment().subtract(31, 'years').toDate() },
-  { firstName: 'search-by-age-IN', dateOfBirth: moment().subtract(30, 'years').toDate() },
-  { firstName: 'search-by-age-IN', dateOfBirth: moment().subtract(25, 'years').toDate() },
-  { firstName: 'search-by-age-IN', dateOfBirth: moment().subtract(20, 'years').toDate() },
-  { firstName: 'search-by-age-YOUNG', dateOfBirth: moment().subtract(19, 'years').toDate() },
-  { firstName: 'search-by-age-YOUNG', dateOfBirth: moment().subtract(1, 'years').toDate() },
+  { firstName: 'search-by-age-OLD', dateOfBirth: yearsAgo(50) },
+  { firstName: 'search-by-age-OLD', dateOfBirth: yearsAgo(31) },
+  { firstName: 'search-by-age-IN', dateOfBirth: yearsAgo(30) },
+  { firstName: 'search-by-age-IN', dateOfBirth: yearsAgo(25) },
+  { firstName: 'search-by-age-IN', dateOfBirth: yearsAgo(20) },
+  { firstName: 'search-by-age-YOUNG', dateOfBirth: yearsAgo(19) },
+  { firstName: 'search-by-age-YOUNG', dateOfBirth: yearsAgo(1) },
   { firstName: 'search-by-village', villageIndex: 0 },
   { firstName: 'search-by-type', visit: { visitType: 'clinic', current: true } },
   { firstName: 'search-by-type', visit: { visitType: 'clinic', current: true } },
@@ -25,8 +37,6 @@ const searchTestPatients = [
   { firstName: 'search-by-location', visit: { locationIndex: 0 } },
   { firstName: 'search-by-department', visit: { departmentIndex: 0 } },
 ];
-
-const withFirstName = name => ({ firstName }) => firstName === name;
 
 describe('Patient search', () => {
   let app = null;
@@ -40,21 +50,25 @@ describe('Patient search', () => {
     locations = await models.ReferenceData.findAll({ where: { type: 'location' } });
     departments = await models.ReferenceData.findAll({ where: { type: 'department' } });
 
-    await Promise.all(searchTestPatients.map(async ({ visit: visitData, ...data }, i) => {
-      const patientData = await createDummyPatient(models, {
-        ...data,
-        villageId: villages[data.villageIndex || (i % villages.length)].id, // even distribution of villages
-      });
-      const patient = await models.Patient.create(patientData);
-      if(visitData) {
-        const visit = await models.Visit.create(await createDummyVisit(models, {
-          ...visitData,
-          patientId: patient.id,
-          departmentId: departments[visitData.departmentIndex || (i % departments.length)].id, 
-          locationId: locations[visitData.locationIndex || (i % locations.length)].id,
-        }));
-      }
-    }));
+    await Promise.all(
+      searchTestPatients.map(async ({ visit: visitData, ...data }, i) => {
+        const patientData = await createDummyPatient(models, {
+          ...data,
+          villageId: villages[data.villageIndex || i % villages.length].id, // even distribution of villages
+        });
+        const patient = await models.Patient.create(patientData);
+        if (visitData) {
+          await models.Visit.create(
+            await createDummyVisit(models, {
+              ...visitData,
+              patientId: patient.id,
+              departmentId: departments[visitData.departmentIndex || i % departments.length].id,
+              locationId: locations[visitData.locationIndex || i % locations.length].id,
+            }),
+          );
+        }
+      }),
+    );
   });
 
   it('should error if user has insufficient permissions', async () => {
@@ -188,7 +202,7 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       expect(response).toHaveSucceeded();
-      expect(response.body.total).toEqual(3);
+      expect(response.body.total).toBeGreaterThanOrEqual(3);
 
       response.body.results.map(responsePatient => {
         expect(responsePatient).toHaveProperty('visit_type', 'clinic');
@@ -221,12 +235,9 @@ describe('Patient search', () => {
   });
 
   describe('Sorting', () => {
-
     test.todo('should sort by surname');
     test.todo('should sort by age');
     test.todo('should sort by visit type');
     test.todo('should sort by location');
-
   });
 });
-
