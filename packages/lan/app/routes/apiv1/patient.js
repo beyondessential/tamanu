@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
+import moment from 'moment';
 
 import { simpleGet, simplePut, simplePost, simpleGetList } from './crudHelpers';
 
@@ -33,8 +34,16 @@ patient.get('/', asyncHandler(async (req, res) => {
       `UPPER(patients.first_name) LIKE UPPER(:firstName)`, 
       ({ firstName }) => ({ firstName: firstName + '%' })
     ),
-    makeFilter(query.ageMax, `patients.date_of_birth <= :ageMax`),
-    makeFilter(query.ageMin, `patients.date_of_birth >= :ageMin`),
+    makeFilter(
+      query.ageMax,
+      `patients.date_of_birth >= :dobMax`,
+      ({ ageMax }) => ({ dobMax: moment().subtract(ageMax, 'years').subtract(1, 'days').toDate() })
+    ),
+    makeFilter(
+      query.ageMin,
+      `patients.date_of_birth <= :dobMin`,
+      ({ ageMin }) => ({ dobMin: moment().subtract(ageMin, 'years').add(1, 'days').toDate() })
+    ),
     makeFilter(query.villageName, `village.name = :villageName`),
     makeFilter(query.visitType, `visits.visit_type = :visitType`),
   ].filter(f => f);

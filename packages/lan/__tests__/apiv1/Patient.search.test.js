@@ -1,4 +1,5 @@
 import { createDummyPatient } from 'shared/demoData/patients';
+import moment from 'moment';
 import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
@@ -8,7 +9,16 @@ const searchTestPatients = [
   { firstName: 'search-by-name' },
   { firstName: 'search-by-name' },
   { firstName: 'search-by-name' },
+  { firstName: 'search-by-age-OLD', dateOfBirth: moment().subtract(50, 'years').toDate() },
+  { firstName: 'search-by-age-OLD', dateOfBirth: moment().subtract(31, 'years').toDate() },
+  { firstName: 'search-by-age-IN', dateOfBirth: moment().subtract(30, 'years').toDate() },
+  { firstName: 'search-by-age-IN', dateOfBirth: moment().subtract(25, 'years').toDate() },
+  { firstName: 'search-by-age-IN', dateOfBirth: moment().subtract(20, 'years').toDate() },
+  { firstName: 'search-by-age-YOUNG', dateOfBirth: moment().subtract(19, 'years').toDate() },
+  { firstName: 'search-by-age-YOUNG', dateOfBirth: moment().subtract(1, 'years').toDate() },
 ];
+
+const withFirstName = name => ({ firstName }) => firstName === name;
 
 describe('Patient search', () => {
   let app = null;
@@ -71,19 +81,53 @@ describe('Patient search', () => {
     });
   });
 
+  it('should get a list of patients by maximum age', async () => {
+    const response = await app.get('/v1/patient').query({
+      ageMax: 30,
+    });
+    expect(response).toHaveSucceeded();
+
+    const { results } = response.body;
+    const resultsIn = results.filter(withFirstName('search-by-age-IN'));
+    const resultsOld = results.filter(withFirstName('search-by-age-OLD'));
+    const resultsYoung = results.filter(withFirstName('search-by-age-YOUNG'));
+
+    expect(resultsIn).toHaveLength(3);
+    expect(resultsYoung).toHaveLength(2);
+    expect(resultsOld).toHaveLength(0);
+  });
+
+  it('should get a list of patients by minimum age', async () => {
+    const response = await app.get('/v1/patient').query({
+      ageMin: 20,
+    });
+    expect(response).toHaveSucceeded();
+
+    const { results } = response.body;
+    const resultsIn = results.filter(withFirstName('search-by-age-IN'));
+    const resultsOld = results.filter(withFirstName('search-by-age-OLD'));
+    const resultsYoung = results.filter(withFirstName('search-by-age-YOUNG'));
+
+    expect(resultsIn).toHaveLength(3);
+    expect(resultsOld).toHaveLength(2);
+    expect(resultsYoung).toHaveLength(0);
+  });
+
   it('should get a list of patients by age range', async () => {
     const response = await app.get('/v1/patient').query({
-      ageMax: 15,
-      ageMin: 10,
+      ageMax: 30,
+      ageMin: 20,
     });
     expect(response).toHaveSucceeded();
 
-    expect(response).toHaveSucceeded();
-    expect(response.body.total).toEqual(3);
+    const { results } = response.body;
+    const resultsIn = results.filter(withFirstName('search-by-age-IN'));
+    const resultsOld = results.filter(withFirstName('search-by-age-OLD'));
+    const resultsYoung = results.filter(withFirstName('search-by-age-YOUNG'));
 
-    response.body.results.map(responsePatient => {
-      expect(responsePatient).toHaveProperty('firstName', 'search-by-name');
-    });
+    expect(resultsIn).toHaveLength(3);
+    expect(resultsOld).toHaveLength(0);
+    expect(resultsYoung).toHaveLength(0);
   });
 
   it('should get a list of patients by village', async () => {
