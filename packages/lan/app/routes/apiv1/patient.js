@@ -23,12 +23,12 @@ const makeFilter = (check, sql, transform) => {
 };
 
 const sortKeys = {
-  lastName: 'patients.last_name', 
-  age: 'patients.date_of_birth', 
-  village: 'village.name', 
-  location: 'location.name', 
-  department: 'department.name', 
-  visitType: 'visits.visit_type', 
+  lastName: 'patients.last_name',
+  age: 'patients.date_of_birth',
+  village: 'village.name',
+  location: 'location.name',
+  department: 'department.name',
+  visitType: 'visits.visit_type',
 };
 
 patient.get(

@@ -235,13 +235,12 @@ describe('Patient search', () => {
   });
 
   describe('Sorting', () => {
-
     const expectSorted = (array, mapper) => {
       const base = array.map(mapper);
       const sorted = array.map(mapper).sort();
       expect(base).toEqual(sorted);
-    }
-    
+    };
+
     it('should sort by surname by default', async () => {
       const response = await app.get('/v1/patient');
 
@@ -299,6 +298,5 @@ describe('Patient search', () => {
 
       expectSorted(response.body.results, x => x.village_name);
     });
-
   });
 });
