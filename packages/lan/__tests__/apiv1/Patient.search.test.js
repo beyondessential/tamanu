@@ -299,4 +299,20 @@ describe('Patient search', () => {
       expectSorted(response.body.results, x => x.village_name);
     });
   });
+
+  describe('Pagination', () => {
+    
+    test.todo('should retrieve first page of patients');
+    test.todo('should retrieve second page of patients');
+
+    test.todo('should retrieve first page of filtered patients');
+    test.todo('should retrieve second page of filtered patients');
+
+    test.todo('should retrieve first page of sorted patients');
+    test.todo('should retrieve second page of sorted patients');
+
+    test.todo('should retrieve first page of fitered & sorted patients');
+    test.todo('should retrieve second page of filtered & sorted patients');
+
+  });
 });
