@@ -92,8 +92,6 @@ describe('Patient search', () => {
       displayId: 'search-by-display-id',
     });
     expect(response).toHaveSucceeded();
-
-    expect(response).toHaveSucceeded();
     expect(response.body.total).toEqual(1);
 
     const [responsePatient] = response.body.results;
@@ -104,8 +102,6 @@ describe('Patient search', () => {
     const response = await app.get('/v1/patient').query({
       firstName: 'search-by-name',
     });
-    expect(response).toHaveSucceeded();
-
     expect(response).toHaveSucceeded();
     expect(response.body.total).toEqual(3);
 
@@ -118,8 +114,6 @@ describe('Patient search', () => {
     const response = await app.get('/v1/patient').query({
       firstName: 'SeArCh-bY-Na',
     });
-    expect(response).toHaveSucceeded();
-
     expect(response).toHaveSucceeded();
     expect(response.body.total).toEqual(3);
 
@@ -199,8 +193,6 @@ describe('Patient search', () => {
       const response = await app.get('/v1/patient').query({
         visitType: 'clinic',
       });
-      expect(response).toHaveSucceeded();
-
       expect(response).toHaveSucceeded();
       expect(response.body.total).toBeGreaterThanOrEqual(3);
 
