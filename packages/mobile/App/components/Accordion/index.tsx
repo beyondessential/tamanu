@@ -9,7 +9,9 @@ interface AccordionListProps {
   dataArray: VisitOverviewProps[];
 }
 
-export const AccordionList = ({ dataArray }: AccordionListProps): JSX.Element => {
+export const AccordionList = ({
+  dataArray,
+}: AccordionListProps): JSX.Element => {
   const [activeSections, setActiveSections] = useState<number[]>([]);
 
   const updateSections = (newActiveSection: number[]): void => {

@@ -5,7 +5,8 @@
   "extends": [
     "plugin:@typescript-eslint/recommended",
     "prettier/@typescript-eslint",        
-    "@beyondessential/eslint-config-beyondessential"    
+    "@beyondessential/eslint-config-beyondessential",    
+    "prettier"
   ],
   "env": {
     "jest": true,
@@ -13,8 +14,8 @@
   },  
   "settings": {   
     "import/resolver": { 
-      "alias": {
-        "map": [          
+      "alias": {        
+        "map": [                        
           ["/styled", "./App/styled"],      
           ["/helpers", "./App/helpers"]  ,
           ["/interfaces", "./App/interfaces"],
@@ -23,12 +24,13 @@
           ["/containers", "./App/containers"],
           ["/store", "./App/store"],
           ["/models", "./App/models"],
-          ["/services", "./App/services"]
+          ["/services", "./App/services"],
+          ["/root", "./"]                
         ],
         "extensions": [".ts", ".js", ".jsx", ".tsx", ".json"]
       },
       "node": {
-        "extensions": [".js", ".ts", ".tsx", ".stories"]
+        "extensions": [".js",".json", ".ts", ".tsx", ".stories"]
       }
     }
   },

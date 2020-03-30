@@ -10,7 +10,7 @@ export interface MenuOptionButtonProps {
   Icon?: FC<SvgProps>;
   title: string;
   onPress: () => void;
-  fontWeight?: number
+  fontWeight?: number;
 }
 
 export const MenuOptionButton: FC<MenuOptionButtonProps> = ({

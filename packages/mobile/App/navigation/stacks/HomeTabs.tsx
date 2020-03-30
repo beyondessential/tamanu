@@ -1,10 +1,11 @@
 import React, { FC, ReactNode, ReactElement } from 'react';
 import { compose } from 'redux';
 import {
-  MaterialTopTabBar,
   createMaterialTopTabNavigator,
+  MaterialTopTabBar,
   MaterialTopTabBarProps,
-  MaterialTopTabNavigationOptions } from '@react-navigation/material-top-tabs';
+  MaterialTopTabNavigationOptions,
+} from '@react-navigation/material-top-tabs';
 
 import { PatientHome } from '/navigation/screens/home/Tabs/PatientHome';
 import { StyledSafeAreaView, CenterView } from '/styled/common';
@@ -15,14 +16,16 @@ import { BaseAppProps } from '/interfaces/BaseAppProps';
 import { Routes } from '/helpers/routes';
 import { SvgProps } from 'react-native-svg';
 import { BottomNavLogo, BarChart, SyncFiles, More } from '/components/Icons';
-import { ReportScreen, SyncDataScreen, MoreScreen } from '/navigation/screens/home/Tabs';
+import {
+  ReportScreen,
+  SyncDataScreen,
+  MoreScreen,
+} from '/navigation/screens/home/Tabs';
 
 const Tabs = createMaterialTopTabNavigator();
 
 const HomeTabBar = (props: MaterialTopTabBarProps): ReactNode => (
-  <StyledSafeAreaView
-    background={theme.colors.PRIMARY_MAIN}
-  >
+  <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
     <MaterialTopTabBar {...props} />
   </StyledSafeAreaView>
 );
@@ -43,12 +46,10 @@ export function TabIcon({ Icon, focused }: TabIconProps): JSX.Element {
   );
 }
 
-const TabScreenIcon = (Icon: FC<SvgProps>) => (
-  (props: {
-    focused: boolean;
-    color: string;
-}): ReactElement => <TabIcon Icon={Icon} {...props} />
-);
+const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
+  focused: boolean;
+  color: string;
+}): ReactElement => <TabIcon Icon={Icon} {...props} />;
 
 const HomeScreenOptions: MaterialTopTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(BottomNavLogo),
@@ -77,7 +78,6 @@ const HomeTabBarOptions = {
 };
 
 const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
-  console.log(selectedPatient);
   return (
     <Tabs.Navigator
       tabBarPosition="bottom"
@@ -108,6 +108,4 @@ const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
   );
 };
 
-export const HomeTabsStack = compose(
-  withPatient,
-)(TabNavigator);
+export const HomeTabsStack = compose(withPatient)(TabNavigator);

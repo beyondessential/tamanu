@@ -11,23 +11,20 @@ import {
 import { MaterialTopTabView } from '@react-navigation/material-top-tabs';
 import { theme } from '../../styled/theme';
 
-// Props accepted by the view
 type TabNavigationConfig = {
   tabBarStyle?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
+  swipeEnabled?: boolean;
 };
 
-// Supported screen options
 type TabNavigationOptions = {
   title?: string;
 };
 
-// Map of events and the type of data (in event.data)
 type TabNavigationEventMap = {
   tabPress: { isAlreadyFocused: boolean };
 };
 
-// The props accepted by the component is a combination of 3 things
 type Props = DefaultNavigatorOptions<TabNavigationOptions> &
   TabRouterOptions &
   TabNavigationConfig;
@@ -61,6 +58,9 @@ function TabNavigator({
         indicatorStyle: {
           height: 4,
           backgroundColor: theme.colors.PRIMARY_MAIN,
+        },
+        labelStyle: {
+          fontWeight: '500',
         },
       }}
       state={state}

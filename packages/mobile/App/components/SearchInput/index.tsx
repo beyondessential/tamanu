@@ -16,7 +16,7 @@ interface SearchInputProps extends BaseInputProps {
   value: string;
   onChange: (text: string) => void;
   placeholder: string;
-  disabled?: boolean
+  disabled?: boolean;
 }
 
 export const SearchInput: FC<SearchInputProps> = ({
@@ -27,19 +27,13 @@ export const SearchInput: FC<SearchInputProps> = ({
 }: SearchInputProps) => {
   const [focus, setFocus] = useState(false);
 
-  const onFocus = useCallback(
-    () => {
-      setFocus(true);
-    },
-    [focus],
-  );
+  const onFocus = useCallback(() => {
+    setFocus(true);
+  }, [focus]);
 
-  const onBlur = useCallback(
-    () => {
-      setFocus(false);
-    },
-    [focus],
-  );
+  const onBlur = useCallback(() => {
+    setFocus(false);
+  }, [focus]);
   return (
     <RowView
       background={theme.colors.WHITE}

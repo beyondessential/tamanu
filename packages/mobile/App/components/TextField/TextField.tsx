@@ -1,5 +1,10 @@
-import React, { useState, useRef, Ref, useMemo } from 'react';
-import { KeyboardType, StyleSheet, Platform, ReturnKeyTypeOptions } from 'react-native';
+import React, { useCallback, useState, useRef, Ref, useMemo } from 'react';
+import {
+  KeyboardType,
+  StyleSheet,
+  Platform,
+  ReturnKeyTypeOptions,
+} from 'react-native';
 import { InputContainer, StyledTextInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '../../styled/common';
@@ -9,9 +14,9 @@ export interface RefObject<T> {
   readonly current: T | null;
 }
 
-export interface TextFieldProps extends BaseInputProps{
+export interface TextFieldProps extends BaseInputProps {
   value: string;
-  onChange: (text: string) => void;
+  onChange: (text: any) => void;
   isOpen?: boolean;
   keyboardType?: KeyboardType;
   placeholder?: '' | string;
@@ -19,11 +24,12 @@ export interface TextFieldProps extends BaseInputProps{
   disabled?: boolean;
   secure?: boolean;
   hints?: boolean;
-  returnKeyType?: ReturnKeyTypeOptions,
+  returnKeyType?: ReturnKeyTypeOptions;
   autoFocus?: boolean;
   autoCapitalize?: 'none' | 'words' | 'sentences' | 'characters' | undefined;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
-
 
 const styles = StyleSheet.create({
   textinput: {
@@ -46,18 +52,25 @@ export const TextField = React.memo(
     returnKeyType = 'done',
     autoFocus = false,
     autoCapitalize = 'words',
+    onFocus,
+    onBlur,
   }: TextFieldProps): JSX.Element => {
     const [focused, setFocus] = useState(false);
     const inputRef: Ref<any> = useRef(null);
-    const onFocusInput = React.useCallback((): void => {
+    const onFocusLabel = React.useCallback((): void => {
       if (!focused && inputRef.current) {
         inputRef.current.focus();
       } else if (focused && inputRef.current) {
         inputRef.current.blur();
       }
     }, [focused, inputRef]);
-    const onFocus = React.useCallback((): void => setFocus(true), [setFocus]);
-    const onBlur = React.useCallback((): void => setFocus(false), [setFocus]);
+    const onFocusInput = useCallback((): void => {
+      if (onFocus) onFocus();
+      setFocus(true);
+    }, [setFocus, onFocus]);
+    const onBlurInput = useCallback((): void => {
+      setFocus(false);
+    }, [setFocus, onBlur]);
 
     const inputProps = {
       autoCapitalize,
@@ -67,8 +80,8 @@ export const TextField = React.memo(
       accessibilityLabel: label,
       keyboardType,
       onChangeText: onChange,
-      onFocus,
-      onBlur,
+      onFocus: onFocusInput,
+      onBlur: onBlurInput,
       value,
       focused,
       multiline,
@@ -76,11 +89,14 @@ export const TextField = React.memo(
       style: multiline ? styles.textinput : null,
       secureTextEntry: secure,
       placeholder,
+      blurOnSubmit: true,
     };
 
     const inputMarginTop = useMemo(() => {
+      if (multiline) return 0;
       if (placeholder) return 0;
-      if (Platform.OS === 'ios') return screenPercentageToDP(1, Orientation.Height);
+      if (Platform.OS === 'ios')
+        return screenPercentageToDP(1, Orientation.Height);
       return screenPercentageToDP(0.5, Orientation.Height);
     }, []);
 
@@ -107,7 +123,7 @@ export const TextField = React.memo(
             <TextFieldLabel
               error={error}
               focus={focused}
-              onFocus={onFocusInput}
+              onFocus={onFocusLabel}
               isValueEmpty={value !== ''}
             >
               {label}
@@ -117,6 +133,7 @@ export const TextField = React.memo(
             marginTop={inputMarginTop}
             ref={inputRef}
             {...inputProps}
+            blurOnSubmit={!multiline}
           />
         </InputContainer>
       </StyledView>

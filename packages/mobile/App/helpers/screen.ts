@@ -19,10 +19,18 @@ export function screenPercentageToDP(
     : heightPercentageToDP(value);
 }
 
-
 export const getOrientation = (): string => {
   if (Dimensions.get('window').width < Dimensions.get('window').height) {
     return SCREEN_ORIENTATION.PORTRAIT;
   }
   return SCREEN_ORIENTATION.LANDSCAPE;
+};
+
+export const scrollTo = (
+  scrollViewRef: any,
+  position: { x: number; y: number },
+): void => {
+  if (scrollViewRef) {
+    scrollViewRef.current.scrollTo(position);
+  }
 };

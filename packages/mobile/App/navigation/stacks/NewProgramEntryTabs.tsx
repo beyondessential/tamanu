@@ -1,4 +1,3 @@
-
 import React, { ReactElement, useCallback } from 'react';
 import { RouteProp, NavigationProp } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
@@ -16,17 +15,20 @@ const Tabs = createTopTabNavigator();
 
 type NewProgramEntryTabsParams = {
   NewProgramEntryTabs: {
-    program: ProgramModel
-  }
-}
+    program: ProgramModel;
+  };
+};
 
-type NewProgramEntryTabsRouteProps = RouteProp<NewProgramEntryTabsParams, 'NewProgramEntryTabs'>
+type NewProgramEntryTabsRouteProps = RouteProp<
+  NewProgramEntryTabsParams,
+  'NewProgramEntryTabs'
+>;
 
 type NewProgramEntryTabsProps = {
   navigation: NavigationProp<any>;
   route: NewProgramEntryTabsRouteProps;
-  selectedPatient: PatientModel
-}
+  selectedPatient: PatientModel;
+};
 
 const TabNavigator = ({
   navigation,
@@ -34,12 +36,9 @@ const TabNavigator = ({
   selectedPatient,
 }: NewProgramEntryTabsProps): ReactElement => {
   const { program } = route.params;
-  const goBack = useCallback(
-    () => {
-      navigation.goBack();
-    },
-    [],
-  );
+  const goBack = useCallback(() => {
+    navigation.goBack();
+  }, []);
   return (
     <FullView>
       <StackHeader
@@ -73,6 +72,4 @@ const TabNavigator = ({
   );
 };
 
-export const NewProgramEntryTabs = compose(
-  withPatient,
-)(TabNavigator);
+export const NewProgramEntryTabs = compose(withPatient)(TabNavigator);

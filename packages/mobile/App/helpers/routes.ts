@@ -1,4 +1,3 @@
-
 export const Routes = {
   SignUpStack: {
     name: 'SignUpStack',
@@ -34,6 +33,14 @@ export const Routes = {
       SyncData: 'SyncData',
       More: 'More',
     },
+    CheckUpStack: {
+      name: 'CheckUpStack',
+      CheckUpTabs: {
+        name: 'CheckUpTabs',
+        AddDetails: 'AddDetails',
+        ViewHistory: 'ViewHistory',
+      },
+    },
     ProgramStack: {
       name: 'ProgramStack',
       ProgramListScreen: 'ProgramListScreen',
@@ -42,6 +49,11 @@ export const Routes = {
         AddDetails: 'AddDetails',
         ViewHistory: 'ViewHistory',
       },
+    },
+    ReferralTabs: {
+      name: 'ReferralTabs',
+      AddReferralDetails: 'AddReferralDetails',
+      ViewHistory: 'ViewHistory',
     },
     SearchPatientStack: {
       name: 'SearchPatientStack',
@@ -52,6 +64,25 @@ export const Routes = {
       },
       FilterSearch: 'FilterSearch',
     },
+    SickOrInjuredTabs: {
+      name: 'SickOrInjuredTabs',
+      AddSickDetailScreen: 'AddSickDetailScreen',
+      ViewHistory: 'ViewHistory',
+    },
+    DeceasedStack: {
+      name: 'DeceasedStack',
+      AddDeceasedDetails: 'AddDeceasedDetails',
+    },
+    HistoryVitalsStack: {
+      name: 'HistoryVitalsStack',
+      HistoryVitalsTabs: {
+        name: 'HistoryVitalsTabs',
+        Visits: 'Visits',
+        Vitals: 'Vitals',
+        Vaccines: 'Vaccines',
+      },
+    },
     PatientDetails: 'PatientDetails',
+    PatientActions: 'PatientActions',
   },
 };

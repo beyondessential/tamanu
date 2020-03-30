@@ -1,6 +1,6 @@
 import React, { ReactElement, useCallback } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
-
+import { StatusBar } from 'react-native';
 import {
   FullView,
   StyledText,
@@ -18,21 +18,22 @@ import { UserAvatar } from '/components/UserAvatar';
 import { Genders } from '/helpers/user';
 import { Routes } from '/helpers/routes';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
+import { FemaleGender } from '/root/App/helpers/constants';
 
 const placeholderPatient = {
   city: 'Mbelagha',
   name: 'Ugyen Wangdi',
   // enums like gender should use the value, not the label - PatientCard should
   // be responsible for displaying this correctly
-  gender: 'female',
+  gender: FemaleGender.value,
   age: '34',
-  image: 'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
+  image:
+    'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
   lastVisit: new Date(),
 };
 
-
 const HomeMenuButton = ({ text }: { text: string }): ReactElement => (
-  <StyledTouchableOpacity onPress={():void => console.log('home menu')}>
+  <StyledTouchableOpacity onPress={(): void => console.log('home menu')}>
     <StyledView
       height={screenPercentageToDP(23.08, Orientation.Height)}
       width={screenPercentageToDP(43.79, Orientation.Width)}
@@ -47,7 +48,8 @@ const HomeMenuButton = ({ text }: { text: string }): ReactElement => (
         fontSize={18}
         fontWeight="bold"
         color={theme.colors.TEXT_DARK}
-      >{text}
+      >
+        {text}
       </StyledText>
     </StyledView>
   </StyledTouchableOpacity>
@@ -62,10 +64,12 @@ const PatientCardContainer = (): ReactElement => (
   </StyledView>
 );
 
-const SearchPatientsButton = ({ onPress }: { onPress: () => void}): ReactElement => (
-  <StyledTouchableOpacity
-    onPress={onPress}
-  >
+const SearchPatientsButton = ({
+  onPress,
+}: {
+  onPress: () => void;
+}): ReactElement => (
+  <StyledTouchableOpacity onPress={onPress}>
     <RowView
       borderRadius={50}
       paddingLeft={20}
@@ -74,27 +78,19 @@ const SearchPatientsButton = ({ onPress }: { onPress: () => void}): ReactElement
       alignItems="center"
     >
       <SearchIcon fill={theme.colors.TEXT_MID} />
-      <StyledText
-        fontSize={16}
-        marginLeft={10}
-        color={theme.colors.TEXT_MID}
-      >
+      <StyledText fontSize={16} marginLeft={10} color={theme.colors.TEXT_MID}>
         Search for patients
       </StyledText>
     </RowView>
   </StyledTouchableOpacity>
 );
 
-
 export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
   disableAndroidBackButton();
 
-  const onNavigateToSearchPatient = useCallback(
-    () => {
-      navigation.navigate(Routes.HomeStack.SearchPatientStack.name);
-    },
-    [],
-  );
+  const onNavigateToSearchPatient = useCallback(() => {
+    navigation.navigate(Routes.HomeStack.SearchPatientStack.name);
+  }, []);
 
   const currentUser = {
     firstName: 'Tony',
@@ -103,6 +99,7 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
 
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
+      <StatusBar barStyle="light-content" />
       <StyledView
         height={screenPercentageToDP(31.59, Orientation.Height)}
         width="100%"
@@ -110,7 +107,12 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
         paddingLeft={screenPercentageToDP(6.08, Orientation.Width)}
       >
         <StyledSafeAreaView width="100%">
-          <RowView alignItems="center" marginTop={10} width="100%" justifyContent="space-between">
+          <RowView
+            alignItems="center"
+            marginTop={10}
+            width="100%"
+            justifyContent="space-between"
+          >
             <LogoV2CLR fill={theme.colors.WHITE} />
             <UserAvatar
               size={screenPercentageToDP(5.46, Orientation.Height)}
@@ -123,12 +125,14 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
             fontSize={screenPercentageToDP(4.86, Orientation.Height)}
             fontWeight="bold"
             color={theme.colors.WHITE}
-          >Hi {currentUser.firstName}
+          >
+            Hi {currentUser.firstName}
           </StyledText>
           <StyledText
             fontSize={screenPercentageToDP(2.18, Orientation.Height)}
             color={theme.colors.WHITE}
-          >Hospital name
+          >
+            Hospital name
           </StyledText>
         </StyledSafeAreaView>
       </StyledView>
@@ -149,10 +153,7 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
         paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
         paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
       >
-        <RowView
-          width="100%"
-          justifyContent="space-between"
-        >
+        <RowView width="100%" justifyContent="space-between">
           <HomeMenuButton text="Anonymous Patient" />
           <HomeMenuButton text={'Register\nNew Patient'} />
         </RowView>
@@ -169,12 +170,8 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
         >
           RECENT VIEWED PATIENTS
         </StyledText>
-        <ScrollView
-          horizontal
-        >
-          <RowView
-            flex={1}
-          >
+        <ScrollView horizontal>
+          <RowView flex={1}>
             <PatientCardContainer />
             <PatientCardContainer />
             <PatientCardContainer />

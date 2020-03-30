@@ -1,16 +1,12 @@
 import React, { FunctionComponent } from 'react';
 import { SvgProps } from 'react-native-svg';
-import {
-  StyledView,
-  RowView,
-  StyledText,
-  ColumnView,
-} from '/styled/common';
+import { StyledView, RowView, StyledText, ColumnView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { formatDate } from '/helpers/date';
 import { DateFormats, HeaderIcons } from '/helpers/constants';
 import { VisitOverviewProps } from '/interfaces/VisitOverview';
 import * as Icons from '../Icons';
+import { Separator } from '../Separator';
 
 interface IconProps {
   IconComponent: FunctionComponent<SvgProps>;
@@ -109,21 +105,24 @@ const Header = (
   index: number,
   isActive: boolean,
 ): JSX.Element => (
-  <RowView
-    width="100%"
-    background={
-      isActive ? theme.colors.MAIN_SUPER_DARK : theme.colors.BACKGROUND_GREY
-    }
-    height={60}
-    alignItems="center"
-    paddingLeft={20}
-    paddingRight={20}
-  >
-    <HeaderLeftIcon isActive={isActive} type={section.type} />
-    <HeaderDescription {...section} isActive={isActive} />
-    <HeaderDate {...section} isActive={isActive} />
-    <HeaderRightIconContainer isActive={isActive} />
-  </RowView>
+  <StyledView>
+    <RowView
+      width="100%"
+      background={
+        isActive ? theme.colors.MAIN_SUPER_DARK : theme.colors.BACKGROUND_GREY
+      }
+      height={60}
+      alignItems="center"
+      paddingLeft={20}
+      paddingRight={20}
+    >
+      <HeaderLeftIcon isActive={isActive} type={section.type} />
+      <HeaderDescription {...section} isActive={isActive} />
+      <HeaderDate {...section} isActive={isActive} />
+      <HeaderRightIconContainer isActive={isActive} />
+    </RowView>
+    <Separator />
+  </StyledView>
 );
 
 export default Header;

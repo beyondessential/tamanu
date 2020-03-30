@@ -1,4 +1,5 @@
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import { ColorHelper } from '../../helpers/colors';
@@ -9,7 +10,13 @@ import { TreatmentPlan } from './TreatmentPlan';
 import { VisitOverviewProps } from '../../interfaces/VisitOverview';
 
 export const VisitOverview = (section: VisitOverviewProps): JSX.Element => (
-  <StyledView width="100%" height="100%" padding={20}>
+  <StyledView
+    width="100%"
+    height="100%"
+    padding={20}
+    borderBottomWidth={StyleSheet.hairlineWidth}
+    borderColor={theme.colors.BOX_OUTLINE}
+  >
     <Diagnosis info={section.diagnosis} />
     <TreatmentPlan treatment={section.treament} />
     <MedicationList medications={section.medications} />

@@ -41,8 +41,8 @@ const Header = ({ navigation }: StackHeaderProps): ReactElement => {
     navigation.navigate(Routes.HomeStack.HomeTabs.name);
   }, []);
   return (
-    <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
-      <RowView background={theme.colors.PRIMARY_MAIN} height={70}>
+    <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN} height={120}>
+      <RowView background={theme.colors.PRIMARY_MAIN}>
         <StyledTouchableOpacity
           paddingTop={25}
           paddingLeft={25}
@@ -57,7 +57,6 @@ const Header = ({ navigation }: StackHeaderProps): ReactElement => {
     </StyledSafeAreaView>
   );
 };
-
 
 export const VaccineStack = (): ReactElement => (
   <Stack.Navigator headerMode="screen">

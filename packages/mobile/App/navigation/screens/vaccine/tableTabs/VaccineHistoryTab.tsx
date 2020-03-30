@@ -2,8 +2,7 @@ import React, { ReactElement, useCallback } from 'react';
 import { StatusBar } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { NavigationProp } from '@react-navigation/native';
-import SafeAreaView from 'react-native-safe-area-view';
-import { FullView } from '/styled/common';
+import { FullView, StyledSafeAreaView } from '/styled/common';
 import { VaccinesTable } from '/components/VaccinesTable';
 import {
   vaccineHistoryAdolecentList,
@@ -25,7 +24,7 @@ export const VaccineHistoryTab = ({
   navigation,
 }: VaccineHistoryTabProps): ReactElement => {
   let data;
-  const onNavigateToClickedCell = useCallback((item) => {
+  const onNavigateToClickedCell = useCallback(item => {
     if (item.status === VaccineStatus.SCHEDULED) {
       navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.name, {
         vaccine: item,
@@ -51,13 +50,13 @@ export const VaccineHistoryTab = ({
       break;
   }
   return (
-    <FullView>
-      <SafeAreaView>
-        <StatusBar barStyle="light-content" />
+    <StyledSafeAreaView flex={1}>
+      <StatusBar barStyle="light-content" />
+      <FullView>
         <ScrollView>
           <VaccinesTable data={data} onPressItem={onNavigateToClickedCell} />
         </ScrollView>
-      </SafeAreaView>
-    </FullView>
+      </FullView>
+    </StyledSafeAreaView>
   );
 };

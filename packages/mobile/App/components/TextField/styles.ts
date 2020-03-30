@@ -18,28 +18,29 @@ export interface InputContainerProps {
 export const InputContainer = styled(StyledView)`
   background-color: ${(props: InputContainerProps): string => {
     if (props.disabled) return theme.colors.BACKGROUND_GREY;
-    if (!props.hasValue || (props.hasValue && !props.error)) return theme.colors.WHITE;
+    if (!props.hasValue || (props.hasValue && !props.error))
+      return theme.colors.WHITE;
     if (props.hasValue && props.error) return theme.colors.ERROR_LIGHT;
     return theme.colors.WHITE;
   }};
   border: 1px solid
     ${(props: InputContainerProps): string => {
-    if (props.error) return theme.colors.ERROR;
-    return theme.colors.DEFAULT_OFF;
-  }};
+      if (props.error) return theme.colors.ERROR;
+      return theme.colors.DEFAULT_OFF;
+    }};
   border-radius: 3px;
   width: 100%;
-  height: 100%;  
+  height: 100%;
 `;
 
-export const StyledTextInput = styled.TextInput<StyledViewProps>`      
+export const StyledTextInput = styled.TextInput<StyledViewProps>`
   font-size: ${screenPercentageToDP(2.18, Orientation.Height)};
   line-height: ${screenPercentageToDP(2.58, Orientation.Height)};
   font-weight: 400;
   height: 100%;
   justify-content: flex-start;
   align-items: center;
-  color: ${theme.colors.TEXT_MID};  
+  color: ${theme.colors.TEXT_MID};
 `;
 
 export interface MaskedInputProps extends TextFieldProps {

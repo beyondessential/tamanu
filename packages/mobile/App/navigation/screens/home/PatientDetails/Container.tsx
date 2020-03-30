@@ -2,8 +2,11 @@ import React, { useCallback, useState, ReactElement } from 'react';
 import { Screen } from './Screen';
 import { PatientDetails } from '/interfaces/PatientDetails';
 import { PatientDetailsScreenProps } from '/interfaces/screens/PatientDetailsScreenProps';
+import { Routes } from '/helpers/routes';
 
-export const PatientDetailsScreen = ({ navigation }: PatientDetailsScreenProps): ReactElement => {
+export const PatientDetailsScreen = ({
+  navigation,
+}: PatientDetailsScreenProps): ReactElement => {
   /**
    * Implement fetch patientDetails data
    * from a mock server (or real)
@@ -37,33 +40,21 @@ export const PatientDetailsScreen = ({ navigation }: PatientDetailsScreenProps):
   const [reminders, setReminders] = useState(patientData.reminderWarnings);
   const [editField, setEditField] = useState(false);
 
-  const changeReminder = useCallback(
-    (value: boolean) => {
-      setReminders(value);
-    },
-    [],
-  );
+  const changeReminder = useCallback((value: boolean) => {
+    setReminders(value);
+  }, []);
 
-  const onNavigateToFilters = useCallback(
-    () => {
-      console.log('navigate to filters...');
-    },
-    [],
-  );
+  const onNavigateToFilters = useCallback(() => {
+    navigation.navigate(Routes.HomeStack.PatientActions);
+  }, []);
 
-  const onNavigateBack = useCallback(
-    () => {
-      navigation.goBack();
-    },
-    [],
-  );
+  const onNavigateBack = useCallback(() => {
+    navigation.goBack();
+  }, []);
 
-  const onEditField = useCallback(
-    () => {
-      setEditField(!editField);
-    },
-    [editField],
-  );
+  const onEditField = useCallback(() => {
+    setEditField(!editField);
+  }, [editField]);
 
   return (
     <Screen
