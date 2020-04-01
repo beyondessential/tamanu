@@ -31,9 +31,7 @@ patient.get(
     } = req;
 
     // query is always going to come in as strings, has to be set manually
-    ['ageMax', 'ageMin']
-      .filter(k => query[k])
-      .map(k => query[k] = parseFloat(query[k]));
+    ['ageMax', 'ageMin'].filter(k => query[k]).map(k => (query[k] = parseFloat(query[k])));
 
     req.checkPermission('list', 'Patient');
 
@@ -49,7 +47,7 @@ patient.get(
           .startOf('day')
           .subtract(ageMax + 1, 'years')
           .add(1, 'day')
-          .toDate()
+          .toDate(),
       })),
       makeFilter(query.ageMin, `patients.date_of_birth <= :dobLatest`, ({ ageMin }) => ({
         dobLatest: moment()

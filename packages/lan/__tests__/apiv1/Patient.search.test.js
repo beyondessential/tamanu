@@ -13,8 +13,9 @@ const { baseApp, models } = createTestContext();
 const withFirstName = name => ({ firstName }) => firstName === name;
 
 // function to pick a random time x years ago today
-const yearsAgo = (years, days=0) =>
-  moment.utc()
+const yearsAgo = (years, days = 0) =>
+  moment
+    .utc()
     .startOf('day')
     .add(chance.integer({ min: 1, max: 23.9 * 60 }), 'minutes')
     .subtract(years, 'years')
@@ -30,16 +31,16 @@ const searchTestPatients = [
   { firstName: 'search-by-name' },
   { firstName: 'search-by-age-OLD', dateOfBirth: yearsAgo(50) },
   { firstName: 'search-by-age-OLD', dateOfBirth: yearsAgo(35) },
-  { firstName: 'search-by-age-OLD', lastName: 'turned-31-yesterday', dateOfBirth: yearsAgo(31, 1) }, 
-  { firstName: 'search-by-age-OLD', lastName: 'turned-31-today', dateOfBirth: yearsAgo(31) }, 
-  { firstName: 'search-by-age-IN', lastName: 'turning-31-tomorrow', dateOfBirth: yearsAgo(31, -1) }, 
-  { firstName: 'search-by-age-IN', lastName: 'turned-30-yesterday', dateOfBirth: yearsAgo(30, 1) }, 
-  { firstName: 'search-by-age-IN', lastName: 'turned-30-today', dateOfBirth: yearsAgo(30) }, 
-  { firstName: 'search-by-age-IN', lastName: 'turning-30-tomorrow', dateOfBirth: yearsAgo(30, -1) }, 
+  { firstName: 'search-by-age-OLD', lastName: 'turned-31-yesterday', dateOfBirth: yearsAgo(31, 1) },
+  { firstName: 'search-by-age-OLD', lastName: 'turned-31-today', dateOfBirth: yearsAgo(31) },
+  { firstName: 'search-by-age-IN', lastName: 'turning-31-tomorrow', dateOfBirth: yearsAgo(31, -1) },
+  { firstName: 'search-by-age-IN', lastName: 'turned-30-yesterday', dateOfBirth: yearsAgo(30, 1) },
+  { firstName: 'search-by-age-IN', lastName: 'turned-30-today', dateOfBirth: yearsAgo(30) },
+  { firstName: 'search-by-age-IN', lastName: 'turning-30-tomorrow', dateOfBirth: yearsAgo(30, -1) },
   { firstName: 'search-by-age-IN', lastName: 'comfortably-in-range', dateOfBirth: yearsAgo(25) },
   { firstName: 'search-by-age-IN', lastName: 'turned-20-yesterday', dateOfBirth: yearsAgo(20, 1) },
   { firstName: 'search-by-age-IN', lastName: 'turned-20-today', dateOfBirth: yearsAgo(20) },
-  { firstName: 'search-by-age-YOUNG', lastName: 'turning-20-tomorrow', dateOfBirth: yearsAgo(20, -1) },
+  { firstName: 'search-by-age-YOUNG', lastName: 'turning-20-tmrw', dateOfBirth: yearsAgo(20, -1) },
   { firstName: 'search-by-age-YOUNG', dateOfBirth: yearsAgo(15) },
   { firstName: 'search-by-age-YOUNG', dateOfBirth: yearsAgo(1) },
   { firstName: 'search-by-village', villageIndex: 0 },
@@ -56,6 +57,8 @@ const ageInCount = searchTestPatients.filter(withFirstName('search-by-age-IN')).
 const ageYoungCount = searchTestPatients.filter(withFirstName('search-by-age-YOUNG')).length;
 const ageOldCount = searchTestPatients.filter(withFirstName('search-by-age-OLD')).length;
 
+describe('Patient search', () => {
+  let app = null;
   let villages = null;
   let locations = null;
   let departments = null;
