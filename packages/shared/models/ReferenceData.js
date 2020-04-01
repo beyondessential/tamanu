@@ -15,6 +15,7 @@ const CODE_TYPES = {
   FACILITY: 'facility',
   LOCATION: 'location',
   DEPARTMENT: 'department',
+  VILLAGE: 'village',
 };
 
 const CODE_TYPE_VALUES = Object.values(CODE_TYPES);

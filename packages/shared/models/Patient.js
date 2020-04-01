@@ -32,5 +32,9 @@ export class Patient extends Model {
 
   static initRelations(models) {
     this.hasMany(models.Visit);
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'villageId',
+    });
   }
 }

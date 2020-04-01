@@ -23,10 +23,20 @@ export const testDepartments = splitIds(`
   Radiology
 `).map(x => ({ ...x, type: 'department' }));
 
+export const testVillages = splitIds(`
+  Auki
+  Buala
+  Gizo
+  Honiara
+  Noro
+  Tulagi
+`).map(x => ({ ...x, type: 'village' }));
+
 export const allSeeds = [
   ...testDiagnoses,
   ...testDrugs,
   ...testTriageReasons,
   ...testLocations,
   ...testDepartments,
+  ...testVillages,
 ];

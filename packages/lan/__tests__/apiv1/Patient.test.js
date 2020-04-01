@@ -74,20 +74,6 @@ describe('Patient', () => {
     test.todo('should merge two patients into a single record');
   });
 
-  describe('search', () => {
-    test.todo('should get a patient by id');
-    test.todo('should get a patient by displayId');
-
-    test.todo('should get a list of patients by name');
-    test.todo('should get a list of patients by age range');
-    test.todo('should get a list of patients by village');
-    test.todo('should get a list of patients by multiple factors');
-
-    test.todo('should get the correct patient status'); // admitted, outpatient, triage, deceased, ""
-    test.todo('should get a list of outpatients');
-    test.todo('should get a list of inpatients sorted by department');
-  });
-
   test.todo('should get a list of patient visits');
   test.todo('should get a list of patient appointments');
   test.todo('should get a list of patient referrals');

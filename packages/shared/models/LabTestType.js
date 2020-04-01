@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { Model } from './Model';
 import { InvalidOperationError } from 'shared/errors';
+import { Model } from './Model';
 
 const QUESTION_TYPES = {
   NUMBER: 'number',

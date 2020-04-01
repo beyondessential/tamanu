@@ -16,19 +16,3 @@ describe('fundamentals', () => {
     expect(result.statusCode).toEqual(404);
   });
 });
-
-describe('administration', () => {
-  test.todo('should get a list of possible diagnoses');
-  test.todo('should get a list of locations');
-  test.todo('should get a list of departments');
-
-  describe('write', () => {
-    test.todo('should add a new diagnosis');
-    test.todo('should rename a diagnosis');
-    test.todo('should update a diagnosis code');
-    test.todo('should add a new department');
-    test.todo('should add a new location');
-    test.todo('should rename a department');
-    test.todo('should rename a location');
-  });
-});
