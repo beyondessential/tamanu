@@ -4,6 +4,7 @@ import {
 } from 'react-native-responsive-screen';
 import { Dimensions } from 'react-native';
 import { SCREEN_ORIENTATION } from './constants';
+import { VerticalPosition } from '/interfaces/VerticalPosition';
 
 export enum Orientation {
   Width = 'width',
