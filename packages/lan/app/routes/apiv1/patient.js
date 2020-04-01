@@ -30,6 +30,11 @@ patient.get(
       query,
     } = req;
 
+    // query is always going to come in as strings, has to be set manually
+    ['ageMax', 'ageMin']
+      .filter(k => query[k])
+      .map(k => query[k] = parseFloat(query[k]));
+
     req.checkPermission('list', 'Patient');
 
     const filters = [
@@ -39,16 +44,17 @@ patient.get(
         `UPPER(patients.first_name) LIKE UPPER(:firstName)`,
         ({ firstName }) => ({ firstName: `${firstName}%` }),
       ),
-      makeFilter(query.ageMax, `patients.date_of_birth >= :dobMax`, ({ ageMax }) => ({
-        dobMax: moment()
-          .subtract(ageMax, 'years')
-          .subtract(1, 'days')
-          .toDate(),
+      makeFilter(query.ageMax, `patients.date_of_birth >= :dobEarliest`, ({ ageMax }) => ({
+        dobEarliest: moment()
+          .startOf('day')
+          .subtract(ageMax + 1, 'years')
+          .add(1, 'day')
+          .toDate()
       })),
-      makeFilter(query.ageMin, `patients.date_of_birth <= :dobMin`, ({ ageMin }) => ({
-        dobMin: moment()
+      makeFilter(query.ageMin, `patients.date_of_birth <= :dobLatest`, ({ ageMin }) => ({
+        dobLatest: moment()
           .subtract(ageMin, 'years')
-          .add(1, 'days')
+          .endOf('day')
           .toDate(),
       })),
       makeFilter(query.villageId, `patients.village_id = :villageId`),
