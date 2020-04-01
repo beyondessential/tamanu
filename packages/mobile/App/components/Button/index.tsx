@@ -1,7 +1,11 @@
 import React, { FunctionComponentElement, ReactNode } from 'react';
 import styled from 'styled-components/native';
 import { theme } from '../../styled/theme';
-import { StyledTouchableOpacity, SpacingProps, RowView } from '../../styled/common';
+import {
+  StyledTouchableOpacity,
+  SpacingProps,
+  RowView,
+} from '../../styled/common';
 
 interface ButtonContainer extends SpacingProps {
   outline?: boolean;
@@ -25,12 +29,13 @@ export interface StyledButtonProps extends ButtonContainer {
 
 type StrNumType = number | string | undefined;
 
-const ButtonContainer = styled(RowView)<ButtonContainer>`  
+const ButtonContainer = styled(RowView)<ButtonContainer>`
   align-items: center;
   justify-content: center;
-  height: ${(props): StrNumType => (props.height ? props.height : '50px')};
+  height: ${(props): StrNumType => (props.height ? props.height : 50)};
   width: ${(props): StrNumType => (props.width ? props.width : '100%')};
-  border-width: ${(props): StrNumType => (props.outline ? '1px' : props.borderWidth)};
+  border-width: ${(props): StrNumType =>
+    props.outline ? '1px' : props.borderWidth};
   border-color: ${(props): string => props.borderColor || 'transparent'};
   border-radius: ${(props): StrNumType => {
     if (props.borderRadius) {
@@ -44,7 +49,7 @@ const ButtonContainer = styled(RowView)<ButtonContainer>`
     if (props.outline) return 'transparent';
     if (props.backgroundColor) return props.backgroundColor;
     return theme.colors.MAIN_SUPER_DARK;
-  }};  
+  }};
 `;
 
 interface ButtonTextProps {
@@ -57,8 +62,10 @@ interface ButtonTextProps {
 }
 
 const StyledButtonText = styled.Text<ButtonTextProps>`
-  font-size: ${(props): StrNumType => (props.fontSize ? props.fontSize : '16px')};
-  font-weight: ${(props): StrNumType => (props.fontWeight ? props.fontWeight : 'bold')};
+  font-size: ${(props): StrNumType =>
+    props.fontSize ? props.fontSize : '16px'};
+  font-weight: ${(props): StrNumType =>
+    props.fontWeight ? props.fontWeight : 'bold'};
   color: ${(props): string => {
     if (props.outline) return props.borderColor || theme.colors.MAIN_SUPER_DARK;
     if (props.textColor) return props.textColor;
@@ -80,11 +87,7 @@ export const Button = ({
   flex,
   ...rest
 }: StyledButtonProps): FunctionComponentElement<{}> => (
-  <StyledTouchableOpacity
-    onPress={onPress}
-    {...rest}
-    background="transparent"
-  >
+  <StyledTouchableOpacity onPress={onPress} {...rest} background="transparent">
     <ButtonContainer
       {...rest}
       flex={flex}

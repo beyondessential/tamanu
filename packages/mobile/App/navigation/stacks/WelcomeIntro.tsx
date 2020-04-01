@@ -1,5 +1,8 @@
 import React, { ReactElement } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import {
+  createStackNavigator,
+  TransitionPresets,
+} from '@react-navigation/stack';
 // Screens
 import { Intro } from '/navigation/screens/home/Intro';
 import { Routes } from '/helpers/routes';
@@ -7,7 +10,12 @@ import { Routes } from '/helpers/routes';
 const Stack = createStackNavigator();
 
 export const WelcomeIntroTabs = (): ReactElement => (
-  <Stack.Navigator headerMode="none">
+  <Stack.Navigator
+    headerMode="none"
+    screenOptions={{
+      ...TransitionPresets.SlideFromRightIOS,
+    }}
+  >
     <Stack.Screen
       name="step1"
       component={Intro}

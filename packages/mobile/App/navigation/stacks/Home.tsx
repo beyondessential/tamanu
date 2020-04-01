@@ -1,6 +1,9 @@
 import React, { ReactElement } from 'react';
 // Navigators
-import { createStackNavigator } from '@react-navigation/stack';
+import {
+  createStackNavigator,
+  TransitionPresets,
+} from '@react-navigation/stack';
 // Components
 import { WelcomeIntroTabs } from './WelcomeIntro';
 import { HomeTabsStack } from './HomeTabs';
@@ -26,6 +29,9 @@ export const HomeStack = (): ReactElement => (
     <Stack.Screen
       name={Routes.HomeStack.WelcomeIntroStack}
       component={WelcomeIntroTabs}
+      options={{
+        ...TransitionPresets.SlideFromRightIOS,
+      }}
     />
     <Stack.Screen
       name={Routes.HomeStack.CheckUpStack.name}

@@ -1,14 +1,12 @@
-import React, { FC, ReactNode, ReactElement } from 'react';
+import React, { FC, ReactElement } from 'react';
 import { compose } from 'redux';
 import {
   createMaterialTopTabNavigator,
-  MaterialTopTabBar,
-  MaterialTopTabBarProps,
   MaterialTopTabNavigationOptions,
 } from '@react-navigation/material-top-tabs';
 
 import { PatientHome } from '/navigation/screens/home/Tabs/PatientHome';
-import { StyledSafeAreaView, CenterView } from '/styled/common';
+import { CenterView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { HomeScreen } from '/navigation/screens/home/Tabs/HomeScreen';
 import { withPatient } from '/containers/Patient';
@@ -24,12 +22,6 @@ import {
 
 const Tabs = createMaterialTopTabNavigator();
 
-const HomeTabBar = (props: MaterialTopTabBarProps): ReactNode => (
-  <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
-    <MaterialTopTabBar {...props} />
-  </StyledSafeAreaView>
-);
-
 interface TabIconProps {
   Icon: FC<SvgProps>;
   focused: boolean;
@@ -37,7 +29,7 @@ interface TabIconProps {
 
 export function TabIcon({ Icon, focused }: TabIconProps): JSX.Element {
   return (
-    <CenterView flex={1}>
+    <CenterView>
       <Icon
         fill={focused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE}
         height={25}
@@ -70,6 +62,9 @@ const HomeTabBarOptions = {
   inactiveTintColor: theme.colors.WHITE,
   showIcon: true,
   style: {
+    justifyContent: 'center',
+    height: 80,
+    maxHeight: 80,
     backgroundColor: theme.colors.PRIMARY_MAIN,
   },
   indicatorStyle: {
@@ -79,11 +74,7 @@ const HomeTabBarOptions = {
 
 const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
   return (
-    <Tabs.Navigator
-      tabBarPosition="bottom"
-      tabBar={HomeTabBar}
-      tabBarOptions={HomeTabBarOptions}
-    >
+    <Tabs.Navigator tabBarPosition="bottom" tabBarOptions={HomeTabBarOptions}>
       <Tabs.Screen
         options={HomeScreenOptions}
         name={Routes.HomeStack.HomeTabs.Home}

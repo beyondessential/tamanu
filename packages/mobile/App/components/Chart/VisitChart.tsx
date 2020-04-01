@@ -19,19 +19,20 @@ interface CustomGridProps {
 const CustomGrid = memo(
   ({ x, data }: CustomGridProps): JSX.Element => (
     <G>
-      {data
-        && data.map(
-          (_, index: number) => index % 7 === 0 && (
-          <Line
-            strokeDasharray="4, 4"
-            key={data[index].date.toString()}
-            y1="0%"
-            y2="100%"
-            x1={x && x(index) - 2}
-            x2={x && x(index) - 2}
-            stroke={theme.colors.TEXT_DARK}
-          />
-          ),
+      {data &&
+        data.map(
+          (_, index: number) =>
+            index % 7 === 0 && (
+              <Line
+                strokeDasharray="4, 4"
+                key={data[index].date.toString()}
+                y1="0%"
+                y2="100%"
+                x1={x && x(index) - 2}
+                x2={x && x(index) - 2}
+                stroke={theme.colors.TEXT_DARK}
+              />
+            ),
         )}
     </G>
   ),
@@ -62,14 +63,14 @@ interface DateRangeLabelsProps {
 
 const DateRangeLabels = memo(({ data }: DateRangeLabelsProps) => {
   const dateIntervalArray = useMemo(
-    () => DateRangeIndexes.map((dateRange, index) => ({
-      start: data[dateRange.startDate].date,
-      end: data[dateRange.endDate].date,
-      key: index,
-    })),
+    () =>
+      DateRangeIndexes.map((dateRange, index) => ({
+        start: data[dateRange.startDate].date,
+        end: data[dateRange.endDate].date,
+        key: index,
+      })),
     [data],
   );
-
 
   return (
     <RowView
@@ -125,36 +126,70 @@ const axesSvg = { fontSize: 12, fill: theme.colors.TEXT_DARK };
 
 export const VisitChart = memo(
   ({ data }: BarChartProps): JSX.Element => (
-    <StyledView
-      height={screenPercentageToDP('29.79%', Orientation.Height)}
-      width="100%"
-      overflow="visible"
-    >
-      <RowView flex={1} paddingLeft={20}>
-        <StyledView flex={1}>
-          <BarChart
-            style={styles.barChartStyles}
-            yAccessor={({ item }: { item: BarChartData }): number => item.value
-              }
-            animate
-            data={data}
-            svg={barStyle}
-            spacingInner={0.2}
+    <StyledView>
+      <RowView
+        marginTop={35}
+        paddingLeft={20}
+        paddingRight={20}
+        justifyContent="space-between"
+        alignItems="center"
+        marginBottom={15}
+      >
+        <StyledView>
+          <StyledText color={theme.colors.TEXT_MID} fontSize={12}>
+            TOTAL
+          </StyledText>
+
+          <StyledText
+            fontWeight="bold"
+            color={theme.colors.TEXT_DARK}
+            fontSize={28}
           >
-            <CustomGrid />
-          </BarChart>
-          <DateRangeLabels data={data} />
+            {data.length}
+            <StyledText fontSize={16} color={theme.colors.TEXT_MID}>
+              {' '}
+              Visits
+            </StyledText>
+          </StyledText>
         </StyledView>
-        <YAxis
-          style={styles.yAxis}
-          yAccessor={(
-            { item }: { item: BarChartData },
-          ): number => item.value}
-          data={data}
-          contentInset={verticalContentInset}
-          svg={axesSvg}
-        />
+        <StyledText
+          fontSize={14}
+          color={theme.colors.PRIMARY_MAIN}
+          fontWeight={500}
+        >
+          18 Aug - 16 Sep 2020
+        </StyledText>
       </RowView>
+      <StyledView
+        height={screenPercentageToDP('24.79%', Orientation.Height)}
+        width="100%"
+        overflow="visible"
+      >
+        <RowView flex={1} paddingLeft={20}>
+          <StyledView flex={1}>
+            <BarChart
+              style={styles.barChartStyles}
+              yAccessor={({ item }: { item: BarChartData }): number =>
+                item.value
+              }
+              animate
+              data={data}
+              svg={barStyle}
+              spacingInner={0.2}
+            >
+              <CustomGrid />
+            </BarChart>
+            <DateRangeLabels data={data} />
+          </StyledView>
+          <YAxis
+            style={styles.yAxis}
+            yAccessor={({ item }: { item: BarChartData }): number => item.value}
+            data={data}
+            contentInset={verticalContentInset}
+            svg={axesSvg}
+          />
+        </RowView>
+      </StyledView>
     </StyledView>
   ),
 );

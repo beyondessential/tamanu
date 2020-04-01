@@ -141,7 +141,7 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
         position="absolute"
         paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
         paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
-        top="32.5%"
+        top="31.7%"
         width="100%"
       >
         <SearchPatientsButton onPress={onNavigateToSearchPatient} />
