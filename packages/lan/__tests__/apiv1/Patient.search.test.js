@@ -248,9 +248,84 @@ describe('Patient search', () => {
   });
 
   describe('Sorting', () => {
-    test.todo('should sort by surname');
-    test.todo('should sort by age');
-    test.todo('should sort by visit type');
-    test.todo('should sort by location');
+    const expectSorted = (array, mapper) => {
+      const base = array.map(mapper);
+      const sorted = array.map(mapper).sort();
+      expect(base).toEqual(sorted);
+    };
+
+    it('should sort by surname by default', async () => {
+      const response = await app.get('/v1/patient');
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.results, x => x.lastName);
+    });
+
+    it('should sort by age', async () => {
+      const response = await app.get('/v1/patient').query({
+        sort: 'age',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.results, x => x.dateOfBirth);
+    });
+
+    it('should sort by visit type', async () => {
+      const response = await app.get('/v1/patient').query({
+        sort: 'visitType',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.results, x => x.visit_type);
+    });
+
+    it('should sort by location', async () => {
+      const response = await app.get('/v1/patient').query({
+        sort: 'location',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.results, x => x.location_name);
+    });
+
+    it('should sort by department', async () => {
+      const response = await app.get('/v1/patient').query({
+        sort: 'department',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.results, x => x.department_name);
+    });
+
+    it('should sort by village', async () => {
+      const response = await app.get('/v1/patient').query({
+        sort: 'village',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.results, x => x.village_name);
+    });
+  });
+
+  describe('Pagination', () => {
+    
+    test.todo('should retrieve first page of patients');
+    test.todo('should retrieve second page of patients');
+
+    test.todo('should retrieve first page of filtered patients');
+    test.todo('should retrieve second page of filtered patients');
+
+    test.todo('should retrieve first page of sorted patients');
+    test.todo('should retrieve second page of sorted patients');
+
+    test.todo('should retrieve first page of fitered & sorted patients');
+    test.todo('should retrieve second page of filtered & sorted patients');
+
   });
 });
