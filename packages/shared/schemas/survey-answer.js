@@ -1,7 +1,7 @@
 import defaults from './defaults';
 
 export const AnswerSchema = {
-  name: 'answer',
+  name: 'surveyAnswer',
   primaryKey: '_id',
   properties: {
     _id: 'string',
