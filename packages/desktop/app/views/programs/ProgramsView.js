@@ -4,8 +4,9 @@ import {
   Form,
   Field,
   TextField,
-  NumberField,
   SelectField,
+  DateField,
+  CheckField,
 } from 'desktop/app/components/Field';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { Button } from 'desktop/app/components/Button';
@@ -21,29 +22,36 @@ const QuestionContainer = styled.div`
 `;
 
 const QUESTION_COMPONENTS = {
-  number: NumberField,
-  text: TextField,
-  select: SelectField,
-  default: TextField,
+  Instruction: null,
+  Date: DateField,
+  FreeText: TextField,
+  Radio: SelectField,
+
+  Binary: CheckField,
+  Checkbox: CheckField,
 };
 
 const SurveyQuestion = ({ question }) => {
-  const { text } = question;
-  const FieldComponent = QUESTION_COMPONENTS[question.type] || QUESTION_COMPONENTS.default;
+  const { text, type } = question;
+  if(type === "Instruction") {
+    return <QuestionContainer>{ text }</QuestionContainer>;
+  }
+
+  const FieldComponent = QUESTION_COMPONENTS[type] || QUESTION_COMPONENTS.default;
 
   return (
     <QuestionContainer>
-      <div>{ question.text }</div>
+      <div>{ text }</div>
       <Field
         component={FieldComponent}
-        name={question._id}
+        name={question.code}
       />
     </QuestionContainer>
   );
 };
 
 const SurveyScreen = ({ screen, onStepForward, onStepBack }) => {
-  const { questions } = screen;
+  const questions = screen;
 
   const questionElements = questions.map(q => <SurveyQuestion question={q} key={q._id} />);
 
@@ -102,6 +110,22 @@ const SurveyScreenPaginator = ({ survey, onSurveyComplete }) => {
   );
 };
 
+function getInitialValue(q) {
+  switch(q.type) {
+    case 'FreeText': 
+      return '';
+
+    case 'Binary': 
+    case 'Checkbox':
+      return false;
+    case 'Radio':
+    case 'Instruction':
+    case 'Date':
+    default:
+      return null;
+  }
+}
+
 export const SurveyView = ({ survey }) => {
   const renderSurvey = useCallback(({ submitForm }) => (
     <SurveyScreenPaginator survey={survey} onSurveyComplete={submitForm} />
@@ -111,11 +135,19 @@ export const SurveyView = ({ survey }) => {
     console.log(data);
   });
 
+  const initialValues = {};
+  survey.screens.forEach(s => {
+    s.forEach(q => {
+      initialValues[q.code] = getInitialValue(q);
+    });
+  });
+
   return (
     <ContentPane>
       <Form
         onSubmit={onSubmit}
         render={renderSurvey}
+        initialValues={initialValues}
       />
     </ContentPane>
   );
