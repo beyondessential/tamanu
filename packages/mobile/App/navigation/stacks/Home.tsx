@@ -18,9 +18,11 @@ import { ReferralTabs } from './ReferralTabs';
 import { DeceasedStack } from './DeceasedStack';
 import { PatientActionsScreen } from '../screens/patientActions';
 import { HistoryVitalsStack } from './HistoryVitalsStack';
+import { ExportDataScreen } from '../screens/home/ExportDataScreen';
 // Helpers
 import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 import { Routes } from '/helpers/routes';
+import { RegisterPatientStack } from './RegisterPatientStack';
 
 const Stack = createStackNavigator();
 
@@ -48,6 +50,14 @@ export const HomeStack = (): ReactElement => (
     <Stack.Screen
       name={Routes.HomeStack.HomeTabs.name}
       component={HomeTabsStack}
+    />
+    <Stack.Screen
+      name={Routes.HomeStack.ExportDataScreen}
+      component={ExportDataScreen}
+    />
+    <Stack.Screen
+      name={Routes.HomeStack.RegisterPatientStack.name}
+      component={RegisterPatientStack}
     />
     <Stack.Screen
       name={Routes.HomeStack.PatientDetails}

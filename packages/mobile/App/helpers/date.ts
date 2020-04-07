@@ -5,5 +5,5 @@ export function formatDate(date: Date, dateFormat: string): string {
 }
 
 export function getAgeFromDate(date: Date): number {
-  return Math.abs(differenceInCalendarYears(date, new Date()));
+  return differenceInCalendarYears(new Date(), date);
 }

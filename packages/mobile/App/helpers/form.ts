@@ -1,0 +1,16 @@
+export const newPatientFormValues = {
+  firstName: '',
+  middleName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  province: '',
+  city: '',
+  address: '',
+  bloodType: '',
+  gender: null,
+  maritalStatus: null,
+  licenseNumber: '',
+  profilePhoto: null,
+  fingerPrintData: null,
+};

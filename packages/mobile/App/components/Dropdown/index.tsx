@@ -35,11 +35,16 @@ export const Dropdown = React.memo(
     const [open, setOpen] = useState(false);
     const closeModal = useCallback(() => setOpen(false), []);
     const openModal = useCallback(() => (disabled ? null : setOpen(true)), []);
-    const selectedOption = useMemo(() => options.find(option => option.value === value), [value]);
-    console.log(value);
+    const selectedOption = useMemo(
+      () => options.find(option => option.value === value),
+      [value],
+    );
     return (
       <React.Fragment>
-        <StyledView height={screenPercentageToDP('6.68', Orientation.Height)} width="100%">
+        <StyledView
+          height={screenPercentageToDP('6.68', Orientation.Height)}
+          width="100%"
+        >
           <TouchableWithoutFeedback onPress={openModal}>
             <InputContainer
               disabled={disabled}
@@ -63,8 +68,10 @@ export const Dropdown = React.memo(
                 </React.Fragment>
               )}
               <StyledText
-                marginTop={screenPercentageToDP(1.80, Orientation.Height)}
-                accessibilityLabel={value && selectedOption ? selectedOption.label : ''}
+                marginTop={screenPercentageToDP(1.8, Orientation.Height)}
+                accessibilityLabel={
+                  value && selectedOption ? selectedOption.label : ''
+                }
                 fontSize={screenPercentageToDP(2.18, Orientation.Height)}
                 color={theme.colors.TEXT_DARK}
               >

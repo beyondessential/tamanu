@@ -6,7 +6,7 @@ import {
   FullView,
   CenterView,
 } from '/styled/common';
-import { Camera1 } from '/components/Icons/Camera1';
+import { OutlineCameraIcon } from '/components/Icons/OutlineCameraIcon';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { UserAvatar } from '/components/UserAvatar';
@@ -29,7 +29,7 @@ const CameraInCircle = (
       paddingBottom={screenPercentageToDP('0.97', Orientation.Height)}
       background={theme.colors.TEXT_SOFT}
     >
-      <Camera1
+      <OutlineCameraIcon
         height={screenPercentageToDP('2.43', Orientation.Height)}
         width={screenPercentageToDP('2.43', Orientation.Height)}
         fill={theme.colors.WHITE}

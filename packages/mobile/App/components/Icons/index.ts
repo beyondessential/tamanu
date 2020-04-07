@@ -9,7 +9,7 @@ export * from './Avatar10';
 export * from './Avatar11';
 export * from './Avatar12';
 export * from './SickOrInjured';
-export * from './Camera1';
+export * from './OutlineCameraIcon';
 export * from './CheckUp';
 export * from './Checked';
 export * from './CheckboxMark';

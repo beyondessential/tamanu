@@ -32,8 +32,14 @@ const placeholderPatient = {
   lastVisit: new Date(),
 };
 
-const HomeMenuButton = ({ text }: { text: string }): ReactElement => (
-  <StyledTouchableOpacity onPress={(): void => console.log('home menu')}>
+const HomeMenuButton = ({
+  text,
+  onPress,
+}: {
+  text: string;
+  onPress: () => void;
+}): ReactElement => (
+  <StyledTouchableOpacity onPress={onPress}>
     <StyledView
       height={screenPercentageToDP(23.08, Orientation.Height)}
       width={screenPercentageToDP(43.79, Orientation.Width)}
@@ -97,6 +103,14 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
     lastName: 'Robbins',
   };
 
+  const onNavigateToRegisterPatient = useCallback(() => {
+    navigation.navigate(Routes.HomeStack.RegisterPatientStack.name);
+  }, []);
+
+  const onNavigateToAnonymousPatient = useCallback(() => {
+    console.log('navigate to anonymous patient...');
+  }, []);
+
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
       <StatusBar barStyle="light-content" />
@@ -154,8 +168,14 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
         paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
       >
         <RowView width="100%" justifyContent="space-between">
-          <HomeMenuButton text="Anonymous Patient" />
-          <HomeMenuButton text={'Register\nNew Patient'} />
+          <HomeMenuButton
+            onPress={onNavigateToAnonymousPatient}
+            text="Anonymous Patient"
+          />
+          <HomeMenuButton
+            onPress={onNavigateToRegisterPatient}
+            text={'Register\nNew Patient'}
+          />
         </RowView>
       </StyledView>
       <StyledView

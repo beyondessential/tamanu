@@ -3,8 +3,7 @@ import { NavigationProp } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
-import { AddVitalsScreen } from '../screens/checkup/tabs/CheckAddDetailsScreen';
-import { CheckViewHistoryScreen } from '../screens/checkup/tabs/CheckViewHistoryScreen';
+import { AddVitalsScreen, ViewHistoryScreen } from '../screens/checkup/tabs';
 
 const Tabs = createTopTabNavigator();
 
@@ -34,7 +33,7 @@ export const CheckUpTabs = ({
             title: 'VIEW HISTORY',
           }}
           name={Routes.HomeStack.CheckUpStack.CheckUpTabs.ViewHistory}
-          component={CheckViewHistoryScreen}
+          component={ViewHistoryScreen}
         />
       </Tabs.Navigator>
     </React.Fragment>

@@ -9,14 +9,17 @@ import {
   StyledScrollView,
 } from '/styled/common';
 import { theme } from '/styled/theme';
-import { SexSection,
+import {
+  SexSection,
   AgeRangeSection,
   DateSection,
   NameSection,
   KeywordSection,
   SortBySection,
-  OnlyShowOptions } from './CustomComponents';
+  OnlyShowOptions,
+} from './CustomComponents';
 import SubmitSection from './CustomComponents/SubmitSection';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 interface ScreenProps {
   onCancel: () => void;
@@ -24,7 +27,11 @@ interface ScreenProps {
   onClear: () => void;
 }
 
-export const Screen = ({ onSubmit, onClear, onCancel }: ScreenProps): ReactElement => (
+export const Screen = ({
+  onSubmit,
+  onClear,
+  onCancel,
+}: ScreenProps): ReactElement => (
   <FullView>
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
       <RowView
@@ -35,33 +42,46 @@ export const Screen = ({ onSubmit, onClear, onCancel }: ScreenProps): ReactEleme
       >
         <Button
           flex={1}
-          width={120}
+          justifyContent="flex-start"
           onPress={onCancel}
           backgroundColor="transparent"
-          buttonText="Cancel"
-          textColor={theme.colors.BOX_OUTLINE}
-          fontSize={12}
-        />
-        <StyledView position="absolute" width="100%" alignItems="center" zIndex={-1}>
-          <StyledText fontSize={18} color={theme.colors.WHITE}>Filter Search</StyledText>
+        >
+          <StyledText
+            marginLeft={screenPercentageToDP(4.86, Orientation.Width)}
+            color={theme.colors.BOX_OUTLINE}
+            fontSize={12}
+          >
+            Cancel
+          </StyledText>
+        </Button>
+        <StyledView
+          position="absolute"
+          width="100%"
+          alignItems="center"
+          zIndex={-1}
+        >
+          <StyledText fontSize={18} color={theme.colors.WHITE}>
+            Filter Search
+          </StyledText>
         </StyledView>
         <Button
           flex={1}
-          width={120}
           onPress={onClear}
-          buttonText="Clear Filters"
-          textColor={theme.colors.BOX_OUTLINE}
-          fontSize={12}
+          justifyContent="flex-end"
           backgroundColor="transparent"
-        />
+        >
+          <StyledText
+            marginRight={screenPercentageToDP(4.86, Orientation.Width)}
+            fontSize={12}
+            color={theme.colors.BOX_OUTLINE}
+          >
+            Clear Filters
+          </StyledText>
+        </Button>
       </RowView>
     </StyledSafeAreaView>
-    <StyledScrollView
-      keyboardShouldPersistTaps="never"
-    >
-      <FullView
-        background={theme.colors.BACKGROUND_GREY}
-      >
+    <StyledScrollView keyboardShouldPersistTaps="never">
+      <FullView background={theme.colors.BACKGROUND_GREY}>
         <SexSection />
         <AgeRangeSection />
         <DateSection />

@@ -4,3 +4,4 @@ metro.config.js
 *.json
 *.xml
 .lock
+ios/

@@ -10,13 +10,8 @@ import { HomeStack } from './Home';
 const Stack = createStackNavigator();
 
 export const Core: FunctionComponent<any> = () => (
-  <Stack.Navigator
-    headerMode="none"
-  >
-    <Stack.Screen
-      name={Routes.SignUpStack.name}
-      component={SignUpStack}
-    />
+  <Stack.Navigator headerMode="none">
+    <Stack.Screen name={Routes.SignUpStack.name} component={SignUpStack} />
     <Stack.Screen
       options={noSwipeGestureOnNavigator}
       name={Routes.HomeStack.name}

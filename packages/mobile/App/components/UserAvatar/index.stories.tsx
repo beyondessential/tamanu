@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { UserAvatar } from './index';
-import { Camera1, Checked } from '../Icons';
+import { OutlineCameraIcon, Checked } from '../Icons';
 import { CenterView, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
@@ -30,7 +30,7 @@ const CameraInCircle = (
       paddingBottom={screenPercentageToDP('0.97', Orientation.Height)}
       background={theme.colors.TEXT_SOFT}
     >
-      <Camera1
+      <OutlineCameraIcon
         height={screenPercentageToDP('2.43', Orientation.Height)}
         width={screenPercentageToDP('2.43', Orientation.Height)}
         fill={theme.colors.WHITE}

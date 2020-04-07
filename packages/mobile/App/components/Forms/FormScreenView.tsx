@@ -1,6 +1,6 @@
-import React, { Ref, PropsWithChildren, ReactElement } from 'react'
-import { KeyboardAvoidingView, StyleSheet } from 'react-native'
-import { FullView } from '/styled/common'
+import React, { Ref, PropsWithChildren, ReactElement } from 'react';
+import { KeyboardAvoidingView, StyleSheet } from 'react-native';
+import { FullView } from '/styled/common';
 import { ScrollView } from 'react-native-gesture-handler';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
@@ -14,33 +14,31 @@ const styles = StyleSheet.create({
   ScrollView: { flex: 1 },
 });
 
-type FormScreenViewProps = {        
-    scrollViewRef: Ref<any>;
-}
+type FormScreenViewProps = {
+  scrollViewRef: Ref<any>;
+};
 
-export const FormScreenView = ({ 
-    children,
-    scrollViewRef 
-    }: PropsWithChildren<FormScreenViewProps>): ReactElement => (
-      <FullView
-        background={theme.colors.BACKGROUND_GREY}
-        paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
-        paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
+export const FormScreenView = ({
+  children,
+  scrollViewRef,
+}: PropsWithChildren<FormScreenViewProps>): ReactElement => (
+  <FullView background={theme.colors.BACKGROUND_GREY}>
+    <KeyboardAvoidingView
+      behavior="padding"
+      style={styles.KeyboardAvoidingViewStyle}
+      contentContainerStyle={styles.KeyboardAvoidingViewContainer}
+    >
+      <ScrollView
+        style={styles.ScrollView}
+        ref={scrollViewRef}
+        showsVerticalScrollIndicator={false}
+        scrollToOverflowEnabled
+        overScrollMode="always"
       >
-        <KeyboardAvoidingView
-          behavior="padding"
-          style={styles.KeyboardAvoidingViewStyle}
-          contentContainerStyle={styles.KeyboardAvoidingViewContainer}
-        >
-          <ScrollView
-            style={styles.ScrollView}
-            ref={scrollViewRef}
-            showsVerticalScrollIndicator={false}
-            scrollToOverflowEnabled
-            overScrollMode="always"
-          >
-            {children}
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </FullView>
+        <FullView margin={screenPercentageToDP(4.86, Orientation.Width)}>
+          {children}
+        </FullView>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  </FullView>
 );

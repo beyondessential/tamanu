@@ -1,13 +1,14 @@
 import React, { FunctionComponentElement, ReactNode } from 'react';
 import styled from 'styled-components/native';
-import { theme } from '../../styled/theme';
+import * as styledSystem from 'styled-system';
+import { theme } from '/styled/theme';
 import {
   StyledTouchableOpacity,
-  SpacingProps,
   RowView,
-} from '../../styled/common';
+  StyledViewProps,
+} from '/styled/common';
 
-interface ButtonContainer extends SpacingProps {
+interface ButtonContainer extends StyledViewProps {
   outline?: boolean;
   rounded?: boolean;
   borderColor?: string;
@@ -30,8 +31,7 @@ export interface StyledButtonProps extends ButtonContainer {
 type StrNumType = number | string | undefined;
 
 const ButtonContainer = styled(RowView)<ButtonContainer>`
-  align-items: center;
-  justify-content: center;
+  ${styledSystem.flexbox};
   height: ${(props): StrNumType => (props.height ? props.height : 50)};
   width: ${(props): StrNumType => (props.width ? props.width : '100%')};
   border-width: ${(props): StrNumType =>
@@ -67,8 +67,8 @@ const StyledButtonText = styled.Text<ButtonTextProps>`
   font-weight: ${(props): StrNumType =>
     props.fontWeight ? props.fontWeight : 'bold'};
   color: ${(props): string => {
-    if (props.outline) return props.borderColor || theme.colors.MAIN_SUPER_DARK;
     if (props.textColor) return props.textColor;
+    if (props.outline) return props.borderColor || theme.colors.MAIN_SUPER_DARK;
     return theme.colors.WHITE;
   }};
 `;
@@ -85,12 +85,23 @@ export const Button = ({
   backgroundColor,
   buttonText,
   flex,
+  flexDirection,
+  alignItems = 'center',
+  justifyContent = 'center',
   ...rest
 }: StyledButtonProps): FunctionComponentElement<{}> => (
-  <StyledTouchableOpacity onPress={onPress} {...rest} background="transparent">
+  <StyledTouchableOpacity
+    flex={flex}
+    onPress={onPress}
+    {...rest}
+    background="transparent"
+  >
     <ButtonContainer
       {...rest}
       flex={flex}
+      flexDirection={flexDirection}
+      alignItems={alignItems}
+      justifyContent={justifyContent}
       outline={outline}
       backgroundColor={backgroundColor}
       borderColor={borderColor}

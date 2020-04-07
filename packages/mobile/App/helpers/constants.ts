@@ -75,7 +75,6 @@ export const SCREEN_ORIENTATION = {
   LANDSCAPE: 'landscape',
 };
 
-
 export const PhoneMask = { mask: '9999 9999 999' };
 
 export const MaleGender = {
@@ -94,3 +93,11 @@ export const FemaleGender = {
 };
 
 export const GenderOptions = [MaleGender, FemaleGender, OtherGender];
+
+export const MarriedStatus = {
+  value: 'married',
+  label: 'Married',
+};
+export const SingleStatus = { value: 'single', label: 'Single' };
+export const Other = { value: 'other', label: 'Other' };
+export const MaritalStatusOptions = [SingleStatus, MarriedStatus, Other];

@@ -8,7 +8,12 @@ import { Field } from '/components/Forms/FormField';
 import { Formik } from 'formik';
 import { SectionHeader } from '/components/SectionHeader';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Orientation, screenPercentageToDP, scrollTo } from '/helpers/screen';
+import {
+  Orientation,
+  screenPercentageToDP,
+  scrollTo,
+  calculateVerticalPositions,
+} from '/helpers/screen';
 import { VerticalPosition } from '../../programs/tabs/ProgramAddDetailsScreen/Container';
 
 const initialValues = {
@@ -21,18 +26,6 @@ const initialValues = {
   cholesterol: '',
   bloodGlucose: '',
   comments: '',
-};
-
-const calculateVerticalPositions = (fieldList: string[]): VerticalPosition => {
-  let verticalOffset = 0;
-  return fieldList.reduce<VerticalPosition>((acc, cur, index) => {
-    acc[cur] = {
-      x: 0,
-      y: index === 0 ? 0 : verticalOffset + 30,
-    };
-    verticalOffset += 65;
-    return acc;
-  }, {});
 };
 
 const styles = StyleSheet.create({

@@ -7,27 +7,19 @@ import { TextField } from '/components/TextField/TextField';
 import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
-import { screenPercentageToDP, Orientation, scrollTo } from '/helpers/screen';
+import {
+  screenPercentageToDP,
+  Orientation,
+  scrollTo,
+  calculateVerticalPositions,
+} from '/helpers/screen';
 import { ScrollView } from 'react-native-gesture-handler';
-import { VerticalPosition } from '../programs/tabs/ProgramAddDetailsScreen/Container';
 
 const initialValues = {
   treatmentNotes: '',
   labTestResults: '',
   medications: '',
   comments: '',
-};
-
-const calculateVerticalPositions = (fieldList: string[]): VerticalPosition => {
-  let verticalOffset = 0;
-  return fieldList.reduce<VerticalPosition>((acc, cur, index) => {
-    acc[cur] = {
-      x: 0,
-      y: index === 0 ? 0 : verticalOffset + 30,
-    };
-    verticalOffset += 65;
-    return acc;
-  }, {});
 };
 
 const styles = StyleSheet.create({

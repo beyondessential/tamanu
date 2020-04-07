@@ -3,7 +3,7 @@ import Svg, { G, Path, Defs, Rect, ClipPath, SvgProps } from 'react-native-svg';
 import { StyledView } from '/styled/common';
 import { IconWithSizeProps } from '/interfaces/WithSizeProps';
 
-export const Camera1 = React.memo((props: IconWithSizeProps) => (
+export const OutlineCameraIcon = React.memo((props: IconWithSizeProps) => (
   <StyledView height={props.size} width={props.size}>
     <Svg width="100%" height="100%" viewBox="0 0 32 32" fill="none" {...props}>
       <G clip-path="url(#clip0)">

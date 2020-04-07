@@ -24,22 +24,26 @@ export const themeSystem = {
 };
 
 interface TextProps {
-  textAlign?: 'auto'| 'left'| 'right'| 'center'| 'justify';
+  textAlign?: 'auto' | 'left' | 'right' | 'center' | 'justify';
   lineHeight?: number | string;
   fontSize?: number | string | AnimatedValue;
   fontWeight?: number | string;
-  textDecorationLine?: 'none' | 'underline' | 'line-through' | 'underline line-through';
+  textDecorationLine?:
+    | 'none'
+    | 'underline'
+    | 'line-through'
+    | 'underline line-through';
   color?: string;
 }
 export interface SpacingProps {
   height?: string | number | AnimatedValue;
-  width?: string | number| AnimatedValue;
+  width?: string | number | AnimatedValue;
   padding?: string | number | number[];
   paddingTop?: number | string;
   paddingBottom?: number | string;
   paddingLeft?: number | string;
   paddingRight?: number | string;
-  margin?: number[] | string;
+  margin?: number[] | number | string;
   marginRight?: number | string;
   marginLeft?: number | string;
   marginTop?: number | string;
@@ -98,7 +102,8 @@ export const StyledView = styled.View<StyledViewProps>`
   ${styledSystem.padding}  
   ${styledSystem.flexbox}     
   ${styledSystem.background}    
-  ${({ borderLeftWidth }): string | number => `border-left-width: ${borderLeftWidth}` || 0};  
+  ${({ borderLeftWidth }): string | number =>
+    `border-left-width: ${borderLeftWidth}` || 0};  
   ${styledSystem.boxShadow}
   ${styledSystem.zIndex}
 `;
@@ -111,12 +116,14 @@ export const StyledSafeAreaView = styled(SafeAreaView)<StyledViewProps>`
   ${styledSystem.background}
   ${styledSystem.overflow}       
   ${styledSystem.position}  
-  ${({ borderLeftWidth = 0 }): string => `border-left-width: ${borderLeftWidth}`};
-  ${({ borderRightWidth = 0 }): string => `border-right-width: ${borderRightWidth}`};
+  ${({ borderLeftWidth = 0 }): string =>
+    `border-left-width: ${borderLeftWidth}`};
+  ${({ borderRightWidth = 0 }): string =>
+    `border-right-width: ${borderRightWidth}`};
   ${({ borderTopWidth = 0 }): string => `border-top-width: ${borderTopWidth}`};
-  ${({ borderBottomWidth = 0 }): string => `border-bottom-width: ${borderBottomWidth}`};
+  ${({ borderBottomWidth = 0 }): string =>
+    `border-bottom-width: ${borderBottomWidth}`};
 `;
-
 
 export const StyledNavigationView = styled(SafeAreaView)<StyledViewProps>`    
   ${styledSystem.size}  
@@ -126,10 +133,13 @@ export const StyledNavigationView = styled(SafeAreaView)<StyledViewProps>`
   ${styledSystem.background}
   ${styledSystem.overflow}       
   ${styledSystem.position}  
-  ${({ borderLeftWidth = 0 }): string => `border-left-width: ${borderLeftWidth}`};
-  ${({ borderRightWidth = 0 }): string => `border-right-width: ${borderRightWidth}`};
+  ${({ borderLeftWidth = 0 }): string =>
+    `border-left-width: ${borderLeftWidth}`};
+  ${({ borderRightWidth = 0 }): string =>
+    `border-right-width: ${borderRightWidth}`};
   ${({ borderTopWidth = 0 }): string => `border-top-width: ${borderTopWidth}`};
-  ${({ borderBottomWidth = 0 }): string => `border-bottom-width: ${borderBottomWidth}`};
+  ${({ borderBottomWidth = 0 }): string =>
+    `border-bottom-width: ${borderBottomWidth}`};
 `;
 
 export const StyledText = styled.Text<StyledTextProps>`
@@ -143,7 +153,8 @@ export const StyledText = styled.Text<StyledTextProps>`
   ${styledSystem.padding}  
   ${styledSystem.flexbox}     
   ${styledSystem.background}  
-  text-decoration-line: ${({ textDecorationLine }) => textDecorationLine || 'none'};
+  text-decoration-line: ${({ textDecorationLine }) =>
+    textDecorationLine || 'none'};
 `;
 
 interface StyledImageProps {
@@ -156,14 +167,14 @@ export const StyledImage = styled.Image<StyledImageProps>`
   ${styledSystem.width}
 `;
 
-
-interface StyledTouchableOpacityProps
-  extends StyledViewProps {
+interface StyledTouchableOpacityProps extends StyledViewProps {
   children?: ReactNode | Element[];
   onPress: Function;
 }
 
-export const StyledTouchableOpacity = styled.TouchableOpacity<StyledTouchableOpacityProps>`
+export const StyledTouchableOpacity = styled.TouchableOpacity<
+  StyledTouchableOpacityProps
+>`
   ${styledSystem.color}      
   ${styledSystem.fontWeight}
   ${styledSystem.fontSize}
@@ -181,7 +192,7 @@ export const FullView = styled(StyledView)`
 `;
 
 export const CenterView = styled(StyledView)`
-  display: flex;  
+  display: flex;
   justify-content: center;
   align-items: center;
 `;

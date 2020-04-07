@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useEffect, ReactElement } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { FullView } from '/styled/common';
 import { api } from '/services/API';
+import { FullView, StyledText } from '/styled/common';
+import { compose } from 'redux';
 import { ProgramModel } from '/models/Program';
 import { theme } from '/styled/theme';
 import {
@@ -12,17 +13,25 @@ import {
 import { Separator } from '/components/Separator';
 import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
+import { withPatient } from '/containers/Patient';
+import { PatientModel } from '/models/Patient';
+import { joinNames } from '/helpers/user';
 
-export const ProgramListScreen = (): ReactElement => {
+interface ProgramListScreenProps {
+  selectedPatient: PatientModel;
+}
+
+const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   const navigation = useNavigation();
+  const [error, setError] = useState(null);
   const [data, setdata] = useState<MenuOptionButtonProps[]>([]);
   const [programs, setprograms] = useState<ProgramModel[]>([]);
   const getPrograms = useCallback(async () => {
     try {
       const response = await api.programs.get();
       setprograms(response.data);
-    } catch (error) {
-      console.log(error);
+    } catch (fetchProgramsError) {
+      setError(fetchProgramsError);
     }
   }, []);
 
@@ -55,20 +64,32 @@ export const ProgramListScreen = (): ReactElement => {
 
   return (
     <FullView>
-      <StackHeader title="Programs" subtitle="Ugyen Wangdi" onGoBack={goBack} />
-      <FlatList
-        style={{
-          flex: 1,
-          width: '100%',
-          height: '100%',
-          backgroundColor: theme.colors.BACKGROUND_GREY,
-        }}
-        showsVerticalScrollIndicator={false}
-        data={data}
-        keyExtractor={(item): string => item.title}
-        renderItem={({ item }): ReactElement => <MenuOptionButton {...item} />}
-        ItemSeparatorComponent={Separator}
+      <StackHeader
+        title="Programs"
+        subtitle={joinNames(selectedPatient)}
+        onGoBack={goBack}
       />
+      {error ? (
+        <StyledText>Unable to get programs list...</StyledText>
+      ) : (
+        <FlatList
+          style={{
+            flex: 1,
+            width: '100%',
+            height: '100%',
+            backgroundColor: theme.colors.BACKGROUND_GREY,
+          }}
+          showsVerticalScrollIndicator={false}
+          data={data}
+          keyExtractor={(item): string => item.title}
+          renderItem={({ item }): ReactElement => (
+            <MenuOptionButton {...item} />
+          )}
+          ItemSeparatorComponent={Separator}
+        />
+      )}
     </FullView>
   );
 };
+
+export const ProgramListScreen = compose(withPatient)(Screen);

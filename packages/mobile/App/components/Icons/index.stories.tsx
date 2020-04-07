@@ -28,7 +28,7 @@ stories.add('BarChart', () => (
   </CenterView>
 ));
 stories.add('SickOrInjured', () => <Icons.SickOrInjured />);
-stories.add('Camera1', () => <Icons.Camera1 />);
+stories.add('Camera1', () => <Icons.OutlineCameraIcon />);
 stories.add('CircleAdd', () => <Icons.CircleAdd />);
 stories.add('Clipboard', () => <Icons.Clipboard />);
 stories.add('Checked', () => <Icons.Checked />);

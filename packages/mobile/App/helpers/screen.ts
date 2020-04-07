@@ -35,3 +35,17 @@ export const scrollTo = (
     scrollViewRef.current.scrollTo(position);
   }
 };
+
+export const calculateVerticalPositions = (
+  fieldList: string[],
+): VerticalPosition => {
+  let verticalOffset = 0;
+  return fieldList.reduce<VerticalPosition>((acc, cur, index) => {
+    acc[cur] = {
+      x: 0,
+      y: index === 0 ? 0 : verticalOffset + 40,
+    };
+    verticalOffset += 65;
+    return acc;
+  }, {});
+};

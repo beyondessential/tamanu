@@ -82,7 +82,14 @@ export const Routes = {
         Vaccines: 'Vaccines',
       },
     },
+    RegisterPatientStack: {
+      name: 'RegisterPatientStack',
+      PatientPersonalInfo: 'PatientPersonalInfo',
+      PatientSpecificInfo: 'PatientSpecificInfo',
+      NewPatient: 'NewPatient',
+    },
     PatientDetails: 'PatientDetails',
     PatientActions: 'PatientActions',
+    ExportDataScreen: 'ExportDataScreen',
   },
 };

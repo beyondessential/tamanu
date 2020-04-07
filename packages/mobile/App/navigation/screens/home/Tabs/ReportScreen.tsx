@@ -13,6 +13,8 @@ import { visitData, yearlyData } from '/components/Chart/fixture';
 import { theme } from '/styled/theme';
 import { YearlyChart } from '/components/Chart/YearlyChart';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Routes } from '/helpers/routes';
+import { ReportScreenProps } from '/interfaces/screens/HomeStack/ReportScreenProps';
 
 const BirthDeathBoard = (): ReactElement => (
   <RowView
@@ -131,7 +133,9 @@ const ReportChart = ({ isReportWeekly }: ReportChartProps): ReactElement => {
   );
 };
 
-export const ReportScreen = (): ReactElement => {
+export const ReportScreen = ({
+  navigation,
+}: ReportScreenProps): ReactElement => {
   const [isReportWeekly, setReportType] = useState<boolean>(true);
 
   const onChangeReportType = useCallback(() => {
@@ -143,7 +147,7 @@ export const ReportScreen = (): ReactElement => {
   }, [isReportWeekly]);
 
   const navigateToExportData = useCallback(() => {
-    console.log('navigate to exports');
+    navigation.navigate(Routes.HomeStack.ExportDataScreen);
   }, []);
 
   return (
