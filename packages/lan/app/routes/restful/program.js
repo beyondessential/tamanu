@@ -21,8 +21,6 @@ function parseFileUpload(req) {
 }
 
 function importSurvey(db, path) {
-  const data = readSurveyXSLX(path);
-  const written = writeProgramToDatabase(db, data);
   return written;
 }
 
@@ -32,9 +30,9 @@ programRoutes.post('/program', async (req, res) => {
   // so just get the first one
   const { path } = file[0];
   try {
-    const survey = await importSurvey(req.db, path);
-    console.log(survey);
-    res.send({ ok: true });
+    const data = readSurveyXSLX(path);
+    const program = writeProgramToDatabase(req.db, data);
+    res.send({ programId: program._id });
   } catch (e) {
     console.log(e);
     res.status(400).send(e);
@@ -176,9 +174,30 @@ programRoutes.get('/survey/:surveyId', (req, res) => {
   const { db, params } = req;
   const { surveyId } = params;
 
-  // const survey = db.object('survey');
-  //
-  res.send(DUMMY_SURVEY);
+  const survey = db.objects('survey')[0];
+
+  const serialiseComponent = c => {
+    const question = c.questions[0];
+    return {
+      _id: c._id,
+      qid: question._id,
+      type: question.type,
+      text: question.text,
+      options: question.options && JSON.parse(question.options),
+    };
+  };
+
+  const serialiseScreen = s => ({
+    _id: s._id,
+    questions: s.components.map(serialiseComponent),
+  });
+
+  res.send({ 
+    _id: survey._id,
+    name: survey.name,
+    code: survey.code,
+    screens: survey.screens.map(serialiseScreen),
+  });
 });
 
 programRoutes.post('/surveyResponse', (req, res) => {

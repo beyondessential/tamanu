@@ -18,7 +18,7 @@ export const QuestionSchema = {
       type: 'string',
       optional: true,
     },
-    options: 'string[]',
+    options: 'string',
     code: {
       type: 'string',
       optional: true,

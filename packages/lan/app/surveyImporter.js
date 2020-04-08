@@ -112,7 +112,7 @@ function writeSurvey(db, program, { screens, ...surveyData }) {
 export function writeProgramToDatabase(db, programData) {
   let program;
   db.write(() => {
-    const program = db.create('program', {
+    program = db.create('program', {
       _id: shortid.generate(),
       name: 'Test program',
     });

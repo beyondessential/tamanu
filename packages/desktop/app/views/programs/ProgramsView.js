@@ -44,7 +44,7 @@ const SurveyQuestion = ({ question }) => {
 };
 
 const SurveyScreen = ({ screen, onStepForward, onStepBack }) => {
-  const questions = screen;
+  const { questions } = screen;
 
   const questionElements = questions.map(q => <SurveyQuestion question={q} key={q._id} />);
 
@@ -131,7 +131,7 @@ export const SurveyView = ({ survey }) => {
 
   const initialValues = {};
   survey.screens.forEach(s => {
-    s.forEach(q => {
+    s.questions.forEach(q => {
       initialValues[q.code] = getInitialValue(q);
     });
   });
