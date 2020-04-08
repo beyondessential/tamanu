@@ -1,9 +1,49 @@
 import express from 'express';
+import { Form } from 'multiparty';
+
+import { readSurveyXSLX, writeProgramToDatabase } from '../../surveyImporter';
 
 export const programRoutes = express.Router();
 
-programRoutes.post('/program', (req, res) => {
+function parseFileUpload(req) {
   // import a program
+  const form = new Form();
+  return new Promise((resolve, reject) => {
+    form.parse(req, (err, fields, files) => {
+      if(err) {
+        reject(err);
+        return;
+      }
+
+      resolve({ ...fields, ...files });
+    });
+  });
+}
+
+function importSurvey(db, path) {
+  const data = readSurveyXSLX(path);
+  const written = writeProgramToDatabase(db, data);
+  return written;
+}
+
+programRoutes.post('/program', async (req, res) => {
+  const { file } = await parseFileUpload(req);
+  // file upload fields inherently support multiple files
+  // so just get the first one
+  const { path } = file[0];
+  try {
+    const survey = await importSurvey(req.db, path);
+    console.log(survey);
+    res.send({ ok: true });
+  } catch(e) {
+    console.log(e);
+    res.status(400).send(e);
+  }
+  
+});
+
+programRoutes.get('/program/:programId', (req, res) => {
+  // get program details and list of available surveys
 });
 
 programRoutes.put('/program/:programId', (req, res) => {
@@ -108,11 +148,10 @@ programRoutes.get('/survey/:surveyId', (req, res) => {
   res.send(DUMMY_SURVEY);
 });
 
-programRoutes.post('/survey/:surveyId', (req, res) => {
+programRoutes.post('/surveyResponse', (req, res) => {
   // submit a new survey response
-  const { db, body, params } = req;
-  const { surveyId } = params;
-  const { patientId, date, startTime, endTime, answers } = body;
+  const { db, body } = req;
+  const { patientId, surveyId, date, startTime, endTime, answers } = body;
 
   // answers in the form of { [questionCode]: answer }
   const answerArray = Object.entries(answers).map(([questionCode, answer]) => ({
