@@ -174,7 +174,12 @@ programRoutes.get('/survey/:surveyId', (req, res) => {
   const { db, params } = req;
   const { surveyId } = params;
 
-  const survey = db.objects('survey')[0];
+  const survey = db.objectForPrimaryKey('survey', surveyId);
+
+  if (!survey) {
+    res.status(404).send(null);
+    return;
+  }
 
   const serialiseComponent = c => {
     const question = c.questions[0];
@@ -183,6 +188,7 @@ programRoutes.get('/survey/:surveyId', (req, res) => {
       qid: question._id,
       type: question.type,
       text: question.text,
+      code: question.code,
       options: question.options && JSON.parse(question.options),
     };
   };
@@ -192,7 +198,7 @@ programRoutes.get('/survey/:surveyId', (req, res) => {
     questions: s.components.map(serialiseComponent),
   });
 
-  res.send({ 
+  res.send({
     _id: survey._id,
     name: survey.name,
     code: survey.code,
