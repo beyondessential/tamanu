@@ -5,7 +5,6 @@ import { connectApi } from 'desktop/app/api';
 import { NotActiveView } from '../views';
 import { SurveyView } from '../views/programs/ProgramsView';
 
-
 const DumbSurveyView = React.memo(({ onFetchSurvey }) => {
   const [survey, setSurvey] = React.useState(null);
 
@@ -16,7 +15,7 @@ const DumbSurveyView = React.memo(({ onFetchSurvey }) => {
     })();
   }, []);
 
-  if(!survey) {
+  if (!survey) {
     return <div>Loading...</div>;
   }
 

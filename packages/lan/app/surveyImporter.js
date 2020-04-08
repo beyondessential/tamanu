@@ -36,25 +36,21 @@ function splitIntoScreens(questions) {
     .filter(q => q.i === 0 || q.newScreen)
     .concat([{ i: questions.length }]);
 
-  return screenStarts
-    .slice(0, -1)
-    .map((q, i) => {
-      const start = q.i;
-      const end = screenStarts[i + 1].i;
-      return {
-        questions: questions.slice(start, end),
-      };
-    });
+  return screenStarts.slice(0, -1).map((q, i) => {
+    const start = q.i;
+    const end = screenStarts[i + 1].i;
+    return {
+      questions: questions.slice(start, end),
+    };
+  });
 }
 
 function importSheet(name, sheet) {
   const data = utils.sheet_to_json(sheet);
-  const questions = data
-    .map(importQuestion)
-    .filter(q => q.code);
+  const questions = data.map(importQuestion).filter(q => q.code);
 
   const survey = {
-    name, 
+    name,
     canRedo: true,
     code: generateSurveyCode(name),
     screens: splitIntoScreens(questions),
@@ -67,8 +63,8 @@ export function readSurveyXSLX(path) {
   const workbook = readFile(path);
   const sheets = Object.entries(workbook.Sheets);
   const surveys = sheets.map(([name, data]) => importSheet(name, data));
-  return { 
-    surveys
+  return {
+    surveys,
   };
 }
 
@@ -120,7 +116,7 @@ export function writeProgramToDatabase(db, programData) {
       _id: shortid.generate(),
       name: 'Test program',
     });
-    
+
     const surveys = programData.surveys.map(s => writeSurvey(db, program, s));
 
     program.surveys = surveys;
@@ -128,4 +124,3 @@ export function writeProgramToDatabase(db, programData) {
 
   return program;
 }
-

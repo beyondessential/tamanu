@@ -13,13 +13,9 @@ import { Button } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
 import { ContentPane } from 'desktop/app/components/ContentPane';
 
-const ScreenContainer = styled.div`
-  
-`;
+const ScreenContainer = styled.div``;
 
-const QuestionContainer = styled.div`
-  
-`;
+const QuestionContainer = styled.div``;
 
 const QUESTION_COMPONENTS = {
   Instruction: null,
@@ -33,19 +29,16 @@ const QUESTION_COMPONENTS = {
 
 const SurveyQuestion = ({ question }) => {
   const { text, type } = question;
-  if(type === "Instruction") {
-    return <QuestionContainer>{ text }</QuestionContainer>;
+  if (type === 'Instruction') {
+    return <QuestionContainer>{text}</QuestionContainer>;
   }
 
   const FieldComponent = QUESTION_COMPONENTS[type] || QUESTION_COMPONENTS.default;
 
   return (
     <QuestionContainer>
-      <div>{ text }</div>
-      <Field
-        component={FieldComponent}
-        name={question.code}
-      />
+      <div>{text}</div>
+      <Field component={FieldComponent} name={question.code} />
     </QuestionContainer>
   );
 };
@@ -57,28 +50,34 @@ const SurveyScreen = ({ screen, onStepForward, onStepBack }) => {
 
   return (
     <FormGrid columns={1}>
-      { questionElements }
+      {questionElements}
       <ButtonRow>
-        <Button variant="contained" onClick={onStepBack || undefined} disabled={!onStepBack}>Back</Button>
-        <Button variant="contained" onClick={onStepForward}>Forward</Button>
+        <Button variant="contained" onClick={onStepBack || undefined} disabled={!onStepBack}>
+          Back
+        </Button>
+        <Button variant="contained" onClick={onStepForward}>
+          Forward
+        </Button>
       </ButtonRow>
     </FormGrid>
   );
 };
 
-const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => {
-  return (
+const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
+  <div>
+    <div>Nice one. You did it.</div>
     <div>
-      <div>Nice one. You did it.</div>
-      <div>
-        <ButtonRow>
-          <Button variant="contained" onClick={onStepBack}>Back</Button>
-          <Button color="primary" variant="contained" onClick={onSurveyComplete}>Complete</Button>
-        </ButtonRow>
-      </div>
+      <ButtonRow>
+        <Button variant="contained" onClick={onStepBack}>
+          Back
+        </Button>
+        <Button color="primary" variant="contained" onClick={onSurveyComplete}>
+          Complete
+        </Button>
+      </ButtonRow>
     </div>
-  );
-};
+  </div>
+);
 
 const SurveyScreenPaginator = ({ survey, onSurveyComplete }) => {
   const { screens } = survey;
@@ -92,30 +91,25 @@ const SurveyScreenPaginator = ({ survey, onSurveyComplete }) => {
     setScreenIndex(screenIndex + 1);
   }, [screenIndex]);
 
-  if(screenIndex < screens.length) {
+  if (screenIndex < screens.length) {
     return (
-      <SurveyScreen 
-        screen={screens[screenIndex]} 
-        onStepForward={onStepForward} 
-        onStepBack={screenIndex > 0 && onStepBack} 
+      <SurveyScreen
+        screen={screens[screenIndex]}
+        onStepForward={onStepForward}
+        onStepBack={screenIndex > 0 && onStepBack}
       />
     );
   }
 
-  return (
-    <SurveySummaryScreen 
-      onStepBack={onStepBack}
-      onSurveyComplete={onSurveyComplete}
-    />
-  );
+  return <SurveySummaryScreen onStepBack={onStepBack} onSurveyComplete={onSurveyComplete} />;
 };
 
 function getInitialValue(q) {
-  switch(q.type) {
-    case 'FreeText': 
+  switch (q.type) {
+    case 'FreeText':
       return '';
 
-    case 'Binary': 
+    case 'Binary':
     case 'Checkbox':
       return false;
     case 'Radio':
@@ -144,11 +138,7 @@ export const SurveyView = ({ survey }) => {
 
   return (
     <ContentPane>
-      <Form
-        onSubmit={onSubmit}
-        render={renderSurvey}
-        initialValues={initialValues}
-      />
+      <Form onSubmit={onSubmit} render={renderSurvey} initialValues={initialValues} />
     </ContentPane>
   );
 };
