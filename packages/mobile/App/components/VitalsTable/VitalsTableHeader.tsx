@@ -17,7 +17,11 @@ export const vitalsTableHeader = {
       alignItems="center"
       background={theme.colors.MAIN_SUPER_DARK}
     >
-      <StyledText fontSize={12} fontWeight={700} color={theme.colors.WHITE}>
+      <StyledText
+        fontSize={screenPercentageToDP(1.45, Orientation.Height)}
+        fontWeight={700}
+        color={theme.colors.WHITE}
+      >
         {formatDate(row.date, DateFormats.DDMMYY)}
       </StyledText>
     </StyledView>
