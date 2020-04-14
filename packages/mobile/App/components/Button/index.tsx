@@ -8,6 +8,7 @@ import {
   RowView,
   StyledViewProps,
 } from '/styled/common';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 interface ButtonContainer extends StyledViewProps {
   loadingAction?: boolean;
@@ -23,7 +24,7 @@ interface ButtonContainer extends StyledViewProps {
 export interface StyledButtonProps extends ButtonContainer {
   color?: string;
   buttonText?: string;
-  onPress: (value: any) => void | Function;
+  onPress: (value: any) => void | Promise<any> | Function;
   fontSize?: string | number;
   textColor?: string;
   fontWeight?: StrNumType;
@@ -34,7 +35,10 @@ type StrNumType = number | string | undefined;
 
 const ButtonContainer = styled(RowView)<ButtonContainer>`
   ${styledSystem.flexbox};
-  height: ${(props): StrNumType => (props.height ? props.height : 50)};
+  height: ${(props): StrNumType =>
+    props.height
+      ? props.height
+      : screenPercentageToDP(6.07, Orientation.Height)};
   width: ${(props): StrNumType => (props.width ? props.width : '100%')};
   border-width: ${(props): StrNumType =>
     props.outline ? '1px' : props.borderWidth};
@@ -65,7 +69,9 @@ interface ButtonTextProps {
 
 const StyledButtonText = styled.Text<ButtonTextProps>`
   font-size: ${(props): StrNumType =>
-    props.fontSize ? props.fontSize : '16px'};
+    props.fontSize
+      ? props.fontSize
+      : screenPercentageToDP(1.94, Orientation.Height)};
   font-weight: ${(props): StrNumType =>
     props.fontWeight ? props.fontWeight : 'bold'};
   color: ${(props): string => {

@@ -19,6 +19,7 @@ import {
   SyncDataScreen,
   MoreScreen,
 } from '/navigation/screens/home/Tabs';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 const Tabs = createMaterialTopTabNavigator();
 
@@ -32,7 +33,7 @@ export function TabIcon({ Icon, focused }: TabIconProps): JSX.Element {
     <CenterView>
       <Icon
         fill={focused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE}
-        height={25}
+        height={screenPercentageToDP(3.03, Orientation.Height)}
       />
     </CenterView>
   );
@@ -63,12 +64,15 @@ const HomeTabBarOptions = {
   showIcon: true,
   style: {
     justifyContent: 'center',
-    height: 80,
+    height: screenPercentageToDP(9.72, Orientation.Height),
     maxHeight: 80,
     backgroundColor: theme.colors.PRIMARY_MAIN,
   },
   indicatorStyle: {
     backgroundColor: theme.colors.PRIMARY_MAIN,
+  },
+  labelStyle: {
+    fontSize: screenPercentageToDP(1.45, Orientation.Height),
   },
 };
 

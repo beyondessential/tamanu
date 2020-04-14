@@ -23,6 +23,7 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { PatientModel } from '/models/Patient';
 import { joinNames } from '/helpers/user';
 import { getAgeFromDate } from '/helpers/date';
+import { setDotsOnMaxLength } from '/helpers/text';
 
 interface ScreenProps {
   navigateToSearchPatients: () => void;
@@ -71,7 +72,7 @@ export const Screen = ({
               color={theme.colors.WHITE}
               fontSize={screenPercentageToDP(3.4, Orientation.Height)}
             >
-              {joinNames(selectedPatient)}
+              {setDotsOnMaxLength(joinNames(selectedPatient), 20)}
             </StyledText>
             <StyledText
               color={theme.colors.WHITE}

@@ -17,7 +17,6 @@ import { disableAndroidBackButton } from '/helpers/android';
 import { NavigationProp } from '@react-navigation/native';
 import { IntroScreenProps } from '/interfaces/screens/HomeStack';
 
-
 export interface IntroRouteProps {
   user: { name: string };
   message: string;
@@ -32,7 +31,6 @@ interface IntroProps {
     params: IntroRouteProps;
   };
 }
-
 
 const isFirstStep = (step: number): void => {
   if (step === 1) {
@@ -70,21 +68,21 @@ export const Intro = (props: IntroScreenProps): JSX.Element => {
       alignItems="center"
     >
       <StyledText
-        marginTop={screenPercentageToDP('11.05', Orientation.Height)}
-        fontSize={21}
+        marginTop={screenPercentageToDP('10.9', Orientation.Height)}
+        fontSize={screenPercentageToDP(2.55, Orientation.Height)}
         fontWeight="bold"
         color={theme.colors.WHITE}
       >
         Welcome, John!
       </StyledText>
-      <StyledView marginTop={screenPercentageToDP('11.17', Orientation.Height)}>
+      <StyledView marginTop={screenPercentageToDP('7.17', Orientation.Height)}>
         <Icon />
       </StyledView>
       <StyledText
         marginTop={screenPercentageToDP('7.29', Orientation.Height)}
         color={theme.colors.WHITE}
         fontWeight="bold"
-        fontSize={18}
+        fontSize={screenPercentageToDP('2.18', Orientation.Height)}
       >
         {title}
       </StyledText>
@@ -94,13 +92,15 @@ export const Intro = (props: IntroScreenProps): JSX.Element => {
         textAlign="center"
         marginTop={screenPercentageToDP('1.21', Orientation.Height)}
         color={theme.colors.WHITE}
+        fontSize={screenPercentageToDP(1.94, Orientation.Height)}
       >
         {message}
       </StyledText>
-      <CenterView marginTop={50}>
+      <CenterView marginTop={screenPercentageToDP(3.07, Orientation.Height)}>
         <StepMarker step={step} />
         <Button
-          marginTop={screenPercentageToDP(6.0, Orientation.Height)}
+          fontWeight={500}
+          marginTop={screenPercentageToDP(3, Orientation.Height)}
           width={screenPercentageToDP(43.79, Orientation.Width)}
           outline
           borderColor={theme.colors.WHITE}

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, memo, useState } from 'react';
 import {
   FullView,
   StyledView,
@@ -13,18 +13,46 @@ import { ChatIcon } from '/components/Icons/Chat';
 import { PhoneIcon } from '/components/Icons/Phone';
 import { EmailIcon } from '/components/Icons/Email';
 import { Cross } from '/components/Icons';
-import { NavigationProp } from '@react-navigation/native';
-import { StatusBar } from 'react-native';
+import { StatusBar, Linking } from 'react-native';
+import { PatientActionsScreenProps } from '/interfaces/Screens/HomeStack/PatientActionsScreenProps';
+import { compose } from 'redux';
+import { withPatient } from '/containers/Patient';
+import { sendEmail } from '/root/App/helpers/email';
 
-interface PatientActionsScreenProps {
-  navigation: NavigationProp<any>;
-}
-
-export const PatientActionsScreen = React.memo(
-  ({ navigation }: PatientActionsScreenProps) => {
+const Screen = memo(
+  ({ navigation, selectedPatient }: PatientActionsScreenProps) => {
+    const [error, setError] = useState<string | null>(null);
     const goBack = useCallback(() => {
       navigation.goBack();
     }, []);
+
+    const onCallPatientPhone = useCallback(async () => {
+      try {
+        const url = `tel:${selectedPatient.telephone}`;
+        if (Linking.canOpenURL(url)) {
+          await Linking.openURL(url);
+        }
+      } catch (phoneDialError) {
+        setError('Not able to open Phone Dialer, try again later');
+        setTimeout(() => {
+          setError(null);
+        }, 3000);
+        console.log(phoneDialError);
+      }
+    }, []);
+
+    const onSendEmail = useCallback(async () => {
+      try {
+        sendEmail(selectedPatient.email);
+      } catch (emailError) {
+        setError('Not able to load or send Email, try again later');
+        setTimeout(() => {
+          setError(null);
+        }, 3000);
+        console.log(emailError);
+      }
+    }, []);
+
     return (
       <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN} flex={1}>
         <StatusBar barStyle="light-content" />
@@ -40,7 +68,6 @@ export const PatientActionsScreen = React.memo(
               <Cross size={20} />
             </StyledTouchableOpacity>
           </RowView>
-
           <StyledView
             flex={1}
             justifyContent="flex-end"
@@ -48,10 +75,19 @@ export const PatientActionsScreen = React.memo(
             paddingRight={70}
             paddingBottom={50}
           >
+            {error && (
+              <StyledText
+                marginBottom={10}
+                textAlign="center"
+                color={theme.colors.WHITE}
+              >
+                {error}
+              </StyledText>
+            )}
             <Button
               outline
               borderColor={theme.colors.WHITE}
-              onPress={() => console.log('message')}
+              onPress={(): void => console.log('message')}
               marginBottom={5}
             >
               <ChatIcon />
@@ -66,7 +102,7 @@ export const PatientActionsScreen = React.memo(
             <Button
               outline
               borderColor={theme.colors.WHITE}
-              onPress={() => console.log('call')}
+              onPress={onCallPatientPhone}
               marginBottom={5}
             >
               <PhoneIcon />
@@ -81,7 +117,7 @@ export const PatientActionsScreen = React.memo(
             <Button
               outline
               borderColor={theme.colors.WHITE}
-              onPress={() => console.log('Email')}
+              onPress={onSendEmail}
             >
               <EmailIcon />
               <StyledText
@@ -98,3 +134,4 @@ export const PatientActionsScreen = React.memo(
     );
   },
 );
+export const PatientActionsScreen = compose(withPatient)(Screen);

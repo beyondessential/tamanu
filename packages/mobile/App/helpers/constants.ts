@@ -12,6 +12,33 @@ export const DateFormats = {
   SHORT_MONTH: 'MMM',
 };
 
+export const BloodTypes = [
+  {
+    value: 'A+',
+    label: 'A+',
+  },
+  {
+    value: 'A-',
+    label: 'A-',
+  },
+  {
+    value: 'B+',
+    label: 'B+',
+  },
+  {
+    value: 'O+',
+    label: 'O+',
+  },
+  {
+    value: 'AB+',
+    label: 'AB+',
+  },
+  {
+    value: 'AB-',
+    label: 'AB-',
+  },
+];
+
 export const TimeFormats = {
   HHMMSS: 'pp',
 };

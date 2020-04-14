@@ -44,14 +44,15 @@ const HomeMenuButton = ({
       height={screenPercentageToDP(23.08, Orientation.Height)}
       width={screenPercentageToDP(43.79, Orientation.Width)}
       background={theme.colors.WHITE}
+      borderRadius={5}
       paddingLeft={15}
-      paddingTop={25}
+      paddingTop={screenPercentageToDP(3.03, Orientation.Height)}
     >
       <Profile size={screenPercentageToDP(6.92, Orientation.Height)} />
       <StyledText
         lineHeight={screenPercentageToDP(2.67, Orientation.Height)}
         marginTop={screenPercentageToDP(4.86, Orientation.Width)}
-        fontSize={18}
+        fontSize={screenPercentageToDP(2.18, Orientation.Height)}
         fontWeight="bold"
         color={theme.colors.TEXT_DARK}
       >
@@ -80,11 +81,15 @@ const SearchPatientsButton = ({
       borderRadius={50}
       paddingLeft={20}
       background={theme.colors.WHITE}
-      height={50}
+      height={screenPercentageToDP(6.07, Orientation.Height)}
       alignItems="center"
     >
       <SearchIcon fill={theme.colors.TEXT_MID} />
-      <StyledText fontSize={16} marginLeft={10} color={theme.colors.TEXT_MID}>
+      <StyledText
+        fontSize={screenPercentageToDP(1.94, Orientation.Height)}
+        marginLeft={10}
+        color={theme.colors.TEXT_MID}
+      >
         Search for patients
       </StyledText>
     </RowView>
@@ -123,7 +128,7 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
         <StyledSafeAreaView width="100%">
           <RowView
             alignItems="center"
-            marginTop={10}
+            marginTop={screenPercentageToDP(1.21, Orientation.Height)}
             width="100%"
             justifyContent="space-between"
           >
@@ -185,8 +190,8 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
       >
         <StyledText
           color={theme.colors.TEXT_DARK}
-          fontSize={12}
-          marginBottom={10}
+          fontSize={screenPercentageToDP(1.45, Orientation.Height)}
+          marginBottom={screenPercentageToDP(1.21, Orientation.Height)}
         >
           RECENT VIEWED PATIENTS
         </StyledText>

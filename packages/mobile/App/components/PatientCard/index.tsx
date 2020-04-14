@@ -1,11 +1,12 @@
 import React from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
-import { RowView, ColumnView, StyledView } from '/styled/common';
+import { RowView, ColumnView, StyledView, StyledText } from '/styled/common';
 import { DateFormats } from '/helpers/constants';
 import { formatDate } from '/helpers/date';
 import { UserAvatar } from '/components/UserAvatar';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import * as styles from './styles';
+import { theme } from '../../styled/theme';
 export interface PatientCardProps {
   lastVisit: Date;
   name: string;
@@ -27,24 +28,53 @@ export const PatientCard = ({
 }: PatientCardProps): JSX.Element => (
   <TouchableWithoutFeedback onPress={(): void => onPress()}>
     <styles.StyledCardContainer>
-      <RowView justifyContent="space-between" height={45} width="100%">
+      <RowView
+        justifyContent="space-between"
+        height={screenPercentageToDP(5.46, Orientation.Height)}
+        width="100%"
+      >
         <UserAvatar
-          size={screenPercentageToDP('4.86', Orientation.Height)}
+          size={screenPercentageToDP(4.86, Orientation.Height)}
           name={name}
           image={image}
           gender={gender}
         />
-        <styles.StyledDate>
+        <StyledText
+          color={theme.colors.TEXT_MID}
+          fontSize={screenPercentageToDP(1.09, Orientation.Height)}
+          fontWeight={500}
+        >
           {formatDate(lastVisit, DateFormats.short)}
-        </styles.StyledDate>
+        </StyledText>
       </RowView>
-      <ColumnView width="100%" marginTop={15}>
+      <ColumnView
+        width="100%"
+        marginTop={screenPercentageToDP(1.82, Orientation.Height)}
+      >
         <StyledView width="75%" marginBottom={10}>
-          <styles.StyledPatientName>{name}</styles.StyledPatientName>
+          <StyledText
+            fontSize={screenPercentageToDP(1.82, Orientation.Height)}
+            fontWeight={500}
+            color={theme.colors.TEXT_DARK}
+          >
+            {name}
+          </StyledText>
         </StyledView>
         <StyledView width="80%">
-          <styles.StyledPatientData>{`${gender} ${age}yrs`}</styles.StyledPatientData>
-          <styles.StyledPatientData>{city}</styles.StyledPatientData>
+          <StyledText
+            fontSize={screenPercentageToDP(1.45, Orientation.Height)}
+            fontWeight={500}
+            color={theme.colors.TEXT_MID}
+          >
+            {`${gender} ${age}yrs`}
+          </StyledText>
+          <StyledText
+            fontSize={screenPercentageToDP(1.45, Orientation.Height)}
+            fontWeight={500}
+            color={theme.colors.TEXT_MID}
+          >
+            {city}
+          </StyledText>
         </StyledView>
       </ColumnView>
     </styles.StyledCardContainer>

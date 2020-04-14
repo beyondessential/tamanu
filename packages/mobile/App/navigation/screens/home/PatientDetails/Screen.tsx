@@ -24,7 +24,7 @@ import {
   FamilyHistory,
   OperativePlan,
 } from './CustomComponents';
-
+import { getAgeFromDate } from '/root/App/helpers/date';
 
 const avatarMock = {
   id: 54,
@@ -37,12 +37,12 @@ const avatarMock = {
 };
 
 interface PatientDetailScreenProps {
-    onNavigateBack: () => void;
-    onNavigateToFilters: () => void;
-    patientData: PatientDetails,
-    onEditField: () => void;
-    changeReminder: (value: boolean) => void;
-    reminders: boolean;
+  onNavigateBack: () => void;
+  onNavigateToFilters: () => void;
+  patientData: PatientDetails;
+  onEditField: () => void;
+  changeReminder: (value: boolean) => void;
+  reminders: boolean;
 }
 
 export const Screen = ({
@@ -52,16 +52,11 @@ export const Screen = ({
   onEditField,
   changeReminder,
   reminders,
-}:PatientDetailScreenProps): ReactElement => (
+}: PatientDetailScreenProps): ReactElement => (
   <FullView>
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
-      <StyledView
-        background={theme.colors.PRIMARY_MAIN}
-        height={170}
-      >
-        <RowView
-          justifyContent="space-between"
-        >
+      <StyledView background={theme.colors.PRIMARY_MAIN} height={170}>
+        <RowView justifyContent="space-between">
           <StyledTouchableOpacity
             paddingRight={20}
             paddingLeft={20}
@@ -81,30 +76,27 @@ export const Screen = ({
             <DotsMenu />
           </StyledTouchableOpacity>
         </RowView>
-        <RowView
-          paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
-        >
+        <RowView paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}>
           <UserAvatar
             size={screenPercentageToDP(7.29, Orientation.Height)}
             name={joinNames(patientData.generalInfo)}
             {...avatarMock}
           />
-          <StyledView
-            alignItems="flex-start"
-            marginLeft={10}
-          >
+          <StyledView alignItems="flex-start" marginLeft={10}>
             <StyledText
               color={theme.colors.WHITE}
-              fontSize={screenPercentageToDP(3.40, Orientation.Height)}
+              fontSize={screenPercentageToDP(3.4, Orientation.Height)}
               fontWeight="bold"
             >
-              {avatarMock.firstName} {avatarMock.lastName}
+              {joinNames(patientData.generalInfo)}
             </StyledText>
             <StyledText
               color={theme.colors.WHITE}
               fontSize={screenPercentageToDP(1.94, Orientation.Height)}
             >
-              {avatarMock.gender}, {avatarMock.age} years old, {avatarMock.city}
+              {patientData.generalInfo.gender},{' '}
+              {getAgeFromDate(patientData.generalInfo.birthDate)} years old,{' '}
+              {patientData.generalInfo.city}
             </StyledText>
           </StyledView>
         </RowView>
@@ -122,10 +114,7 @@ export const Screen = ({
           id={patientData.id}
           generalInfo={patientData.generalInfo}
         />
-        <NotificationCheckbox
-          value={reminders}
-          onChange={changeReminder}
-        />
+        <NotificationCheckbox value={reminders} onChange={changeReminder} />
         <FamilyInformation
           onEdit={onEditField}
           parentsInfo={patientData.parentsInfo}
@@ -134,7 +123,10 @@ export const Screen = ({
           onEdit={onEditField}
           ongoingConditions={patientData.ongoingConditions}
         />
-        <FamilyHistory onEdit={onEditField} familyHistory={patientData.familyHistory} />
+        <FamilyHistory
+          onEdit={onEditField}
+          familyHistory={patientData.familyHistory}
+        />
         <OperativePlan
           onEdit={onEditField}
           operativePlan={patientData.operativePlan}

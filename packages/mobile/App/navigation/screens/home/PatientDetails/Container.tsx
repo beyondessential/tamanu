@@ -3,9 +3,12 @@ import { Screen } from './Screen';
 import { PatientDetails } from '/interfaces/PatientDetails';
 import { PatientDetailsScreenProps } from '/interfaces/screens/PatientDetailsScreenProps';
 import { Routes } from '/helpers/routes';
+import { compose } from 'redux';
+import { withPatient } from '/containers/Patient';
 
-export const PatientDetailsScreen = ({
+const Container = ({
   navigation,
+  selectedPatient,
 }: PatientDetailsScreenProps): ReactElement => {
   /**
    * Implement fetch patientDetails data
@@ -14,11 +17,7 @@ export const PatientDetailsScreen = ({
   const patientData: PatientDetails = {
     id: 'TEMO001',
     generalInfo: {
-      firstName: 'Ugyen',
-      lastName: 'Wangdi',
-      middleName: null,
-      birthDate: new Date(),
-      bloodType: 'A+',
+      ...selectedPatient,
       culturalTraditionName: null,
     },
     reminderWarnings: true,
@@ -67,3 +66,5 @@ export const PatientDetailsScreen = ({
     />
   );
 };
+
+export const PatientDetailsScreen = compose(withPatient)(Container);
