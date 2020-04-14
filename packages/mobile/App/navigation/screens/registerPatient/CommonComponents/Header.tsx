@@ -1,26 +1,24 @@
-import React, { useCallback, ReactElement } from 'react';
-import { theme } from '/root/App/styled/theme';
+import React, { ReactElement } from 'react';
+import { theme } from '/styled/theme';
 import {
   StyledTouchableOpacity,
   StyledSafeAreaView,
   RowView,
   StyledText,
-} from '/root/App/styled/common';
-import { LeftArrow } from '/root/App/components/Icons';
-import { Orientation, screenPercentageToDP } from '/root/App/helpers/screen';
-import { useNavigation } from '@react-navigation/native';
+} from '/styled/common';
+import { LeftArrow } from '/components/Icons';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
-export const Header = (): ReactElement => {
-  const navigation = useNavigation();
-  const onPress = useCallback(() => {
-    navigation.goBack();
-  }, []);
+type HeaderProps = {
+  onGoBack: () => void;
+};
 
+export const Header = ({ onGoBack }: HeaderProps): ReactElement => {
   return (
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
       <RowView height={70}>
         <StyledTouchableOpacity
-          onPress={onPress}
+          onPress={onGoBack}
           padding={screenPercentageToDP(2.46, Orientation.Height)}
         >
           <LeftArrow />

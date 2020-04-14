@@ -5,8 +5,15 @@ import { FullView } from '/styled/common';
 import { PatientSpecificInfoForm } from '/components/Forms/NewPatientForm/PatientSpecificInfoForm';
 import { Header } from './CommonComponents/Header';
 import { getImageFromPhotoLibrary } from '/helpers/image';
+import { PatientSpecificInfoScreenProps } from '/interfaces/screens/RegisterPatientStack/PatientSpecificInfoScreenProps';
 
-const PatientSpecificInfoScreen = (): ReactElement => {
+const PatientSpecificInfoScreen = ({
+  navigation,
+}: PatientSpecificInfoScreenProps): ReactElement => {
+  const onGoBack = useCallback(() => {
+    navigation.goBack();
+  }, []);
+
   const form = useFormikContext();
   const [loadingProfileImage, setLoadingProfileImage] = useState(false);
   const onLoadFingerPrint = useCallback(async () => {
@@ -40,15 +47,26 @@ const PatientSpecificInfoScreen = (): ReactElement => {
     }
   }, []);
 
+  const onSubmitForm = useCallback(() => {
+    form.setSubmitting(true);
+    setTimeout(() => {
+      const values = form.values;
+      // send request to create new patient
+      // clear previous form data
+      form.handleSubmit();
+      form.resetForm();
+    }, 2000);
+  }, []);
+
   return (
     <FullView>
       <StatusBar barStyle="light-content" />
-      <Header />
+      <Header onGoBack={onGoBack} />
       <PatientSpecificInfoForm
         loadingProfileImage={loadingProfileImage}
         onLoadFingerPrint={onLoadFingerPrint}
         onLoadProfilePhoto={onLoadProfilePhoto}
-        onSubmit={form.handleSubmit}
+        onSubmit={onSubmitForm}
       />
     </FullView>
   );

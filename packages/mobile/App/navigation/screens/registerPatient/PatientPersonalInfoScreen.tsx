@@ -22,6 +22,9 @@ const currentScreenFields = [
 export const PatientPersonalInfoScreen = ({
   navigation,
 }: PatientPersonalInfoScreenProps): ReactElement => {
+  const onGoBack = useCallback(() => {
+    navigation.navigate(Routes.HomeStack.HomeTabs.name);
+  }, []);
   const screenFields = currentScreenFields.map(fieldName =>
     useField(fieldName),
   );
@@ -67,7 +70,7 @@ export const PatientPersonalInfoScreen = ({
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <StatusBar barStyle="light-content" />
-      <Header />
+      <Header onGoBack={onGoBack} />
       <PatientPersonalInfoForm onPressNext={onPressNext} />
     </FullView>
   );

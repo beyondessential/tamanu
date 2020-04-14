@@ -5,3 +5,4 @@ metro.config.js
 *.xml
 .lock
 ios/
+*.md

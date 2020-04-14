@@ -5,7 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Routes } from '/helpers/routes';
 import { PatientPersonalInfoScreen } from '../screens/registerPatient/PatientPersonalInfoScreen';
 import PatientSpecificInfoScreen from '../screens/registerPatient/PatientSpecificInfoScreen';
-import NewPatientScreen from '../screens/registerPatient/NewPatientScreen';
+import { NewPatientScreen } from '../screens/registerPatient/NewPatientScreen';
 import { newPatientFormValues } from '/helpers/form';
 import { RegisterPatientStackProps } from '../../interfaces/screens/RegisterPatientStack/RegisterPatientStackProps';
 
@@ -14,7 +14,7 @@ const Stack = createStackNavigator();
 export const RegisterPatientStack = ({
   navigation,
 }: RegisterPatientStackProps): ReactElement => {
-  const onSubmitForm = useCallback(values => {
+  const onSubmitForm = useCallback(() => {
     navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
   }, []);
 

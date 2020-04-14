@@ -1,4 +1,5 @@
 import React, { FunctionComponentElement, ReactNode } from 'react';
+import { ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
 import * as styledSystem from 'styled-system';
 import { theme } from '/styled/theme';
@@ -9,6 +10,7 @@ import {
 } from '/styled/common';
 
 interface ButtonContainer extends StyledViewProps {
+  loadingAction?: boolean;
   outline?: boolean;
   rounded?: boolean;
   borderColor?: string;
@@ -74,6 +76,7 @@ const StyledButtonText = styled.Text<ButtonTextProps>`
 `;
 
 export const Button = ({
+  loadingAction = false,
   onPress,
   children,
   outline,
@@ -107,16 +110,21 @@ export const Button = ({
       borderColor={borderColor}
       borderWidth={borderWidth}
     >
-      {children}
-      <StyledButtonText
-        outline={outline}
-        borderColor={borderColor}
-        textColor={textColor}
-        fontSize={fontSize}
-        fontWeight={fontWeight}
-      >
-        {buttonText}
-      </StyledButtonText>
+      {loadingAction && (
+        <ActivityIndicator size="large" color={theme.colors.WHITE} />
+      )}
+      {!loadingAction && children}
+      {!loadingAction && (
+        <StyledButtonText
+          outline={outline}
+          borderColor={borderColor}
+          textColor={textColor}
+          fontSize={fontSize}
+          fontWeight={fontWeight}
+        >
+          {buttonText}
+        </StyledButtonText>
+      )}
     </ButtonContainer>
   </StyledTouchableOpacity>
 );

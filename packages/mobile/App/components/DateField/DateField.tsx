@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, ReactElement } from 'react';
 import { TouchableWithoutFeedback, Platform, StyleSheet } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import DatePicker from '@vinipachecov/react-native-datepicker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { StyledView, StyledText } from '/styled/common';
 import { formatDate } from '/helpers/date';
 import { theme } from '/styled/theme';
@@ -24,25 +24,59 @@ const styles = StyleSheet.create({
   },
 });
 
+type IOSDatePickerProps = {
+  onDateChange: (event: any, selectedDate: any) => void;
+  isVisible: boolean;
+  mode: 'date' | 'time';
+};
+
+const IOSDatePicker = ({
+  onDateChange,
+  isVisible,
+  mode,
+}: IOSDatePickerProps): ReactElement | null => {
+  return isVisible ? (
+    <DateTimePicker
+      value={new Date()}
+      mode={mode}
+      display="spinner"
+      onChange={onDateChange}
+      style={styles.androidPickerStyles}
+    />
+  ) : null;
+};
+
 export interface DateFieldProps extends BaseInputProps {
   value: Date | null;
   onChange: (date: Date) => void;
   placeholder?: '' | string;
   mode?: 'date' | 'time';
-  disabled?: boolean
+  disabled?: boolean;
 }
 
 export const DateField = React.memo(
-  ({ value, onChange, label, error, mode = 'date', disabled = false, required = false }: DateFieldProps) => {
+  ({
+    value,
+    onChange,
+    label,
+    error,
+    mode = 'date',
+    disabled = false,
+    required = false,
+  }: DateFieldProps) => {
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const showDatePicker = useCallback(() => setDatePickerVisible(true), []);
     const hideDatePicker = useCallback(() => setDatePickerVisible(false), []);
-    const onDateChange = useCallback(
-      (date: string) => onChange(new Date(date)),
+    const onAndroidDateChange = useCallback(
+      (event, selectedDate) => {
+        if (selectedDate) {
+          setDatePickerVisible(false);
+          onChange(selectedDate);
+        }
+        setDatePickerVisible(false);
+      },
       [onChange],
     );
-
-    const getDateStr = useCallback((date: Date) => date.toISOString(), []);
 
     const formatValue = useCallback(() => {
       if (value) {
@@ -52,7 +86,7 @@ export const DateField = React.memo(
       return null;
     }, [mode, value]);
 
-    const onDateConfirm = useCallback(
+    const onIOSDateConfirm = useCallback(
       (date: Date) => {
         setDatePickerVisible(false);
         onChange(date);
@@ -64,7 +98,10 @@ export const DateField = React.memo(
 
     return (
       <StyledView width="100%">
-        <StyledView height={screenPercentageToDP('6.68', Orientation.Height)} width="100%">
+        <StyledView
+          height={screenPercentageToDP('6.68', Orientation.Height)}
+          width="100%"
+        >
           <TouchableWithoutFeedback onPress={showDatePicker}>
             <InputContainer
               disabled={disabled}
@@ -103,7 +140,6 @@ export const DateField = React.memo(
                   fill={error ? theme.colors.ERROR : theme.colors.BOX_OUTLINE}
                 />
               </StyledView>
-
             </InputContainer>
           </TouchableWithoutFeedback>
         </StyledView>
@@ -111,24 +147,14 @@ export const DateField = React.memo(
           <DateTimePickerModal
             isVisible={disabled ? false : isDatePickerVisible}
             mode={mode}
-            onConfirm={onDateConfirm}
+            onConfirm={onIOSDateConfirm}
             onCancel={hideDatePicker}
           />
         ) : (
-          <DatePicker
-            date={null}
-            androidMode="spinner"
+          <IOSDatePicker
+            onDateChange={onAndroidDateChange}
             mode={mode}
-            disabled={disabled}
-            style={styles.androidPickerStyles}
-            showIcon={false}
-            onOpenModal={showDatePicker}
-            onCloseModal={hideDatePicker}
-            confirmBtnText="Confirm"
-            cancelBtnText="Cancel"
-            format="YYYY-MM-DD"
-            getDateStr={getDateStr}
-            onDateChange={onDateChange}
+            isVisible={isDatePickerVisible}
           />
         )}
       </StyledView>

@@ -16,6 +16,7 @@ This is the Tamanu App Repository.
 - [Generate apk or ipa](#Generate-apk-and-ipa)
   - [Generate Android build](#Android)
   - [Generate IOS build](#IOS)
+- [Run MockServer](#Run-Mockserver)
 
 ## Install
 
@@ -136,6 +137,10 @@ This will generate an IOS build in
 ```
 tamanu-mobile/ios/build/tamanuapp/Build/Products/Release-iphoneos
 ```
+
+### Run MockServer
+
+To run the mock server correctly check the current local ip you have on your machine and replace it on the mockserver command in package.json
 
 #### Distribute
 
