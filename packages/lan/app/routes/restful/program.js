@@ -20,10 +20,6 @@ function parseFileUpload(req) {
   });
 }
 
-function importSurvey(db, path) {
-  return written;
-}
-
 programRoutes.post('/program', async (req, res) => {
   const { file } = await parseFileUpload(req);
   // file upload fields inherently support multiple files
@@ -63,7 +59,7 @@ programRoutes.get('/program/:programId', (req, res) => {
 });
 
 programRoutes.put('/program/:programId', (req, res) => {
-  // update a program
+  // TODO: update a program
 });
 
 programRoutes.get('/survey/:surveyId', (req, res) => {
@@ -115,7 +111,7 @@ programRoutes.post('/surveyResponse', (req, res) => {
   }));
 
   db.write(() => {
-    // write survey response and all answers
+    // TODO: write survey response and all answers
     // const surveyResponse = db.create('surveyResponse', surveyResponseData);
   });
 });

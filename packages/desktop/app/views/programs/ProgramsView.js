@@ -1,7 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 
 import { connectApi } from 'desktop/app/api';
-import { ContentPane } from 'desktop/app/components/ContentPane';
 
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
@@ -17,7 +16,7 @@ const DumbProgramsView = React.memo(({ onFetchSurvey, onFetchProgramsList }) => 
     })();
   }, []);
 
-  const onSelectSurvey = useCallback((id) => {
+  const onSelectSurvey = useCallback(id => {
     (async () => {
       const response = await onFetchSurvey(id);
       setSurvey(response);
@@ -28,7 +27,7 @@ const DumbProgramsView = React.memo(({ onFetchSurvey, onFetchProgramsList }) => 
     setSurvey(null);
   });
 
-  if(!programsList) {
+  if (!programsList) {
     return <div>Loading survey list...</div>;
   }
 

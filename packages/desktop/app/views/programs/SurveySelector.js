@@ -1,35 +1,27 @@
-import React, { useEffect, useCallback } from 'react';
+import React from 'react';
 
-import { connectApi } from 'desktop/app/api';
+import { Button } from 'desktop/app/components/Button';
 import { ContentPane } from 'desktop/app/components/ContentPane';
-import { SurveyView } from 'desktop/app/views/programs/ProgramsView';
 
 const ProgramsList = ({ onSelectSurvey, program }) => {
   const surveys = program.surveys.map(s => (
     <li key={s._id}>
-      <a onClick={() => onSelectSurvey(s._id)}>{ s.name }</a>
+      <Button onClick={() => onSelectSurvey(s._id)}>{s.name}</Button>
     </li>
   ));
 
   return (
-    <li>
-      <div>{ program.name }</div>
-      <ul>
-        { surveys }
-      </ul>
-    </li>
+    <div>
+      <h2>{program.name}</h2>
+      <ul>{surveys}</ul>
+    </div>
   );
 };
 
 export const SurveySelector = React.memo(({ onSelectSurvey, programs }) => {
-  const programElements = programs.map(p => <ProgramsList onSelectSurvey={onSelectSurvey} program={p} key={p._id} />);
+  const programElements = programs.map(p => (
+    <ProgramsList onSelectSurvey={onSelectSurvey} program={p} key={p._id} />
+  ));
 
-  return (
-    <ContentPane>
-      <ul>
-        { programElements }
-      </ul>
-    </ContentPane>
-  );
+  return <ContentPane>{programElements}</ContentPane>;
 });
-

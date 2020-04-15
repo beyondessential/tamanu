@@ -2,7 +2,7 @@ import { readFile, utils } from 'xlsx';
 import shortid from 'shortid';
 
 function generateSurveyCode(name) {
-  return 'XX';
+  return name.toUpperCase().replace(/\W/g, '');
 }
 
 const yesOrNo = value => !!(value && value.toLowerCase() === 'yes');
@@ -12,14 +12,18 @@ function importQuestion(row) {
   const {
     code,
     type,
+
+    /*
     indicator,
-    text,
     detail,
     options,
     optionLabels,
     optionColors,
-    newScreen,
     followUpAnswers,
+    */
+
+    text,
+    newScreen,
   } = row;
 
   return {
@@ -77,7 +81,7 @@ function writeQuestion(db, survey, questionData) {
   return question;
 }
 
-function writeScreen(db, survey, { questions, ...screenData }) {
+function writeScreen(db, survey, { questions }) {
   const screen = db.create('surveyScreen', {
     _id: shortid.generate(),
     surveyId: survey._id,

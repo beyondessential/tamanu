@@ -13,8 +13,6 @@ import { Button } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
 import { ContentPane } from 'desktop/app/components/ContentPane';
 
-const ScreenContainer = styled.div``;
-
 const QuestionContainer = styled.div``;
 
 const QUESTION_COMPONENTS = {
@@ -83,7 +81,7 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
 
 const SurveyScreenPaginator = ({ survey, onSurveyComplete, onCancel }) => {
   const { screens } = survey;
-  const [screenIndex, setScreenIndex] = React.useState(0);
+  const [screenIndex, setScreenIndex] = useState(0);
 
   const onStepBack = useCallback(() => {
     setScreenIndex(screenIndex - 1);
