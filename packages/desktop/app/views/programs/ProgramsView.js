@@ -79,7 +79,7 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   </div>
 );
 
-const SurveyScreenPaginator = ({ survey, onSurveyComplete }) => {
+const SurveyScreenPaginator = ({ survey, onSurveyComplete, onCancel }) => {
   const { screens } = survey;
   const [screenIndex, setScreenIndex] = React.useState(0);
 
@@ -96,7 +96,7 @@ const SurveyScreenPaginator = ({ survey, onSurveyComplete }) => {
       <SurveyScreen
         screen={screens[screenIndex]}
         onStepForward={onStepForward}
-        onStepBack={screenIndex > 0 && onStepBack}
+        onStepBack={screenIndex > 0 ? onStepBack : onCancel}
       />
     );
   }
@@ -120,9 +120,9 @@ function getInitialValue(q) {
   }
 }
 
-export const SurveyView = ({ survey }) => {
+export const SurveyView = ({ survey, onCancel }) => {
   const renderSurvey = useCallback(({ submitForm }) => (
-    <SurveyScreenPaginator survey={survey} onSurveyComplete={submitForm} />
+    <SurveyScreenPaginator survey={survey} onSurveyComplete={submitForm} onCancel={onCancel} />
   ));
 
   const onSubmit = useCallback(data => {
@@ -138,6 +138,7 @@ export const SurveyView = ({ survey }) => {
 
   return (
     <ContentPane>
+      <h2>{survey.name}</h2>
       <Form onSubmit={onSubmit} render={renderSurvey} initialValues={initialValues} />
     </ContentPane>
   );
