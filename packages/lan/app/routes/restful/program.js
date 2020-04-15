@@ -49,7 +49,7 @@ programRoutes.get('/program/:programId', (req, res) => {
   if (!program) {
     res.status(404).send(null);
     return;
-  } 
+  }
 
   res.send({
     _id: program._id,
@@ -60,7 +60,6 @@ programRoutes.get('/program/:programId', (req, res) => {
       code: s.code,
     })),
   });
-
 });
 
 programRoutes.put('/program/:programId', (req, res) => {
