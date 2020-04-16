@@ -6,7 +6,13 @@ import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 
-const DumbProgramsView = React.memo(({ onFetchSurvey, onSubmitSurvey, onFetchProgramsList }) => {
+const DumbProgramsView = React.memo(({ 
+  onFetchSurvey, 
+  onSubmitSurvey,
+  onFetchProgramsList,
+  patientId,
+  visitId,
+}) => {
   const [survey, setSurvey] = React.useState(null);
   const [programsList, setProgramsList] = React.useState(null);
   const [startTime, setStartTime] = React.useState(null);
@@ -32,6 +38,8 @@ const DumbProgramsView = React.memo(({ onFetchSurvey, onSubmitSurvey, onFetchPro
     onSubmitSurvey({
       surveyId: survey._id,
       startTime: startTime,
+      patientId,
+      visitId,
       endTime: new Date(),
       answers: data,
     });
