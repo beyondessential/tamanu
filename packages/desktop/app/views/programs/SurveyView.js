@@ -65,7 +65,7 @@ const SurveyScreen = ({ screen, onStepForward, onStepBack }) => {
 
 const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   <div>
-    <div>Nice one. You did it.</div>
+    <div>Survey complete. Press "Complete" to submit your response, or use the Back button to review answers.</div>
     <div>
       <ButtonRow>
         <Button variant="contained" onClick={onStepBack}>

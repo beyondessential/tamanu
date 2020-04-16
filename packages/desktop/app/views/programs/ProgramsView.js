@@ -4,6 +4,7 @@ import { connectApi } from 'desktop/app/api';
 
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
+import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 
 const DumbProgramsView = React.memo(({ onFetchSurvey, onFetchProgramsList }) => {
   const [survey, setSurvey] = React.useState(null);
@@ -16,11 +17,9 @@ const DumbProgramsView = React.memo(({ onFetchSurvey, onFetchProgramsList }) => 
     })();
   }, []);
 
-  const onSelectSurvey = useCallback(id => {
-    (async () => {
-      const response = await onFetchSurvey(id);
-      setSurvey(response);
-    })();
+  const onSelectSurvey = useCallback(async id => {
+    const response = await onFetchSurvey(id);
+    setSurvey(response);
   });
 
   const onCancelSurvey = useCallback(() => {
@@ -28,7 +27,7 @@ const DumbProgramsView = React.memo(({ onFetchSurvey, onFetchProgramsList }) => 
   });
 
   if (!programsList) {
-    return <div>Loading survey list...</div>;
+    return <LoadingIndicator loadingText="Loading survey list..." />;
   }
 
   if (!survey) {
