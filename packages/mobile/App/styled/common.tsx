@@ -153,7 +153,7 @@ export const StyledText = styled.Text<StyledTextProps>`
   ${styledSystem.padding}  
   ${styledSystem.flexbox}     
   ${styledSystem.background}  
-  text-decoration-line: ${({ textDecorationLine }) =>
+  text-decoration-line: ${({ textDecorationLine }): string =>
     textDecorationLine || 'none'};
 `;
 
