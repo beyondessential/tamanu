@@ -20,7 +20,7 @@ export const SurveySelector = React.memo(({ onSelectSurvey, programs }) => {
   const onChangeProgram = useCallback(event => {
     const programId = event.target.value;
     const program = programs.find(x => x._id === programId);
-    if(programId === selectedProgramId) {
+    if (programId === selectedProgramId) {
       return;
     }
     setSelectedProgramId(programId);
@@ -60,7 +60,9 @@ export const SurveySelector = React.memo(({ onSelectSurvey, programs }) => {
             disabled={!selectedSurveyId}
             variant="contained"
             color="primary"
-          >Begin survey</Button>
+          >
+            Begin survey
+          </Button>
         </ButtonRow>
       </FormGrid>
     </ContentPane>
