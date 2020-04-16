@@ -42,6 +42,7 @@ export const VISIT_TYPES = {
   EMERGENCY: 'emergency',
   OBSERVATION: 'observation',
   TRIAGE: 'triage',
+  SURVEY_RESPONSE: 'surveyResponse',
 };
 
 export const VISIT_STATUSES = {

@@ -247,7 +247,8 @@ export const visitOptions = [
     image: patientIcon,
     triageFlowOnly: true,
   },
-  { value: VISIT_TYPES.TRIAGE, label: 'Triaged patient', image: patientIcon, triageFlowOnly: true },
+  { value: VISIT_TYPES.TRIAGE, label: 'Triaged patient', image: patientIcon, triageFlowOnly: true, hideFromMenu: true },
+  { value: VISIT_TYPES.SURVEY_RESPONSE, label: 'Survey response', image: patientIcon, hideFromMenu: true },
 ];
 
 export const VISIT_OPTIONS_BY_VALUE = createValueIndex(visitOptions);
