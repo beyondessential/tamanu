@@ -37,8 +37,11 @@ const SurveyQuestion = ({ question }) => {
 
   return (
     <QuestionContainer>
-      <div>{text}</div>
-      <Field component={FieldComponent} name={question.code} />
+      <Field 
+        label={question.text}
+        component={FieldComponent} 
+        name={question.code}
+      />
     </QuestionContainer>
   );
 };
