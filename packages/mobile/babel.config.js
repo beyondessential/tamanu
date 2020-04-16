@@ -13,7 +13,7 @@ module.exports = {
           '/helpers': './App/helpers',
           '/navigation': './App/navigation',
           '/containers': './App/containers',
-          '/store': './App/store',
+          '/store': './App/ui/store',
           '/models': './App/models',
           '/services': './App/services',
           '/root': './',

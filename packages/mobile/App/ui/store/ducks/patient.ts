@@ -1,14 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { PatientModel } from '../../models/Patient';
+import { PatientModel } from '/models/Patient';
 
-export type WithPatientStoreProps = WithPatientActions & PatientStateProps
+export type WithPatientStoreProps = WithPatientActions & PatientStateProps;
 export interface WithPatientActions {
-  setSelectedPatient: (payload: PatientModel|null) => PayloadAction<PatientModel>
+  setSelectedPatient: (
+    payload: PatientModel | null,
+  ) => PayloadAction<PatientModel>;
 }
 
 export interface PatientStateProps {
-  selectedPatient: any,
-  selectedPatientList: PatientModel[]
+  selectedPatient: any;
+  selectedPatientList: PatientModel[];
 }
 
 const initialState: PatientStateProps = {
@@ -21,10 +23,12 @@ export const PatientSlice = createSlice({
   initialState: initialState,
   reducers: {
     setSelectedPatient(
-      state, { payload: patient }: PayloadAction<PatientModel>,
+      state,
+      { payload: patient }: PayloadAction<PatientModel>,
     ): PatientStateProps {
-      const newSelectedPatientList = state.selectedPatientList
-        .filter((patientData) => patient.id === patientData.id);
+      const newSelectedPatientList = state.selectedPatientList.filter(
+        patientData => patient.id === patientData.id,
+      );
       newSelectedPatientList.unshift();
       return {
         selectedPatient: patient,

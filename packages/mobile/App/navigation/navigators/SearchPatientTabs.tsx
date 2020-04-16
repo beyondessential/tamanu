@@ -1,4 +1,3 @@
-
 import React, { useCallback } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
 import {
@@ -11,10 +10,18 @@ import {
 import { MaterialTopTabView } from '@react-navigation/material-top-tabs';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 /*eslint-disable import/no-unresolved */
-import { MaterialTopTabNavigationConfig, MaterialTopTabBarOptions } from '@react-navigation/material-top-tabs/lib/typescript/src/types';
+import {
+  MaterialTopTabNavigationConfig,
+  MaterialTopTabBarOptions,
+} from '@react-navigation/material-top-tabs/lib/typescript/src/types';
 /*eslint-enable import/no-unresolved */
 import { compose } from 'redux';
-import { StyledSafeAreaView, RowView, StyledView, FullView } from '/styled/common';
+import {
+  StyledSafeAreaView,
+  RowView,
+  StyledView,
+  FullView,
+} from '/styled/common';
 import { LeftArrow } from '/components/Icons';
 import { SearchInput } from '/components/SearchInput';
 import { Field } from '/components/Forms/FormField';
@@ -33,13 +40,12 @@ type TabNavigationOptions = {
   title?: string;
 };
 
-type Props =
-    DefaultNavigatorOptions<TabNavigationOptions>
-    & MaterialTopTabBarOptions
-    & MaterialTopTabNavigationConfig
-    & TabNavigationConfig
-    & TabRouterOptions
-    & WithPatientStoreProps
+type Props = DefaultNavigatorOptions<TabNavigationOptions> &
+  MaterialTopTabBarOptions &
+  MaterialTopTabNavigationConfig &
+  TabNavigationConfig &
+  TabRouterOptions &
+  WithPatientStoreProps;
 
 function BottomTabNavigator({
   initialRouteName,
@@ -54,20 +60,15 @@ function BottomTabNavigator({
     children,
   });
 
-  const onNavigateToHome = useCallback(
-    () => {
-      setSelectedPatient(null);
-      navigation.navigate(Routes.HomeStack.HomeTabs.Home);
-    },
-    [],
-  );
+  const onNavigateToHome = useCallback(() => {
+    setSelectedPatient(null);
+    navigation.navigate(Routes.HomeStack.HomeTabs.Home);
+  }, []);
 
   return (
     <FullView>
       <FullView>
-        <StyledSafeAreaView
-          background={theme.colors.PRIMARY_MAIN}
-        >
+        <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
           <RowView
             height={90}
             paddingTop={20}
@@ -75,9 +76,7 @@ function BottomTabNavigator({
             paddingBottom={20}
             paddingRight={20}
           >
-            <TouchableOpacity
-              onPress={onNavigateToHome}
-            >
+            <TouchableOpacity onPress={onNavigateToHome}>
               <StyledView
                 paddingLeft={20}
                 paddingTop={20}
@@ -87,9 +86,7 @@ function BottomTabNavigator({
                 <LeftArrow />
               </StyledView>
             </TouchableOpacity>
-            <StyledView
-              flex={1}
-            >
+            <StyledView flex={1}>
               <Field
                 component={SearchInput}
                 name="search"
@@ -110,6 +107,5 @@ function BottomTabNavigator({
 }
 
 const Navigator = compose(withPatient)(BottomTabNavigator);
-
 
 export const createSearchPatientNavigator = createNavigatorFactory(Navigator);

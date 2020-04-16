@@ -7,7 +7,6 @@ import { themeSystem } from '/styled/common';
 import { store } from '/store/index';
 import { Core } from './Core';
 
-
 export const RootStack = (): ReactElement => (
   <SafeAreaProvider>
     <Provider store={store}>
