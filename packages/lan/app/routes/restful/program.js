@@ -3,6 +3,7 @@ import { Form } from 'multiparty';
 import { generate } from 'shortid';
 
 import { readSurveyXSLX, writeProgramToDatabase } from '../../surveyImporter';
+import { objectToJSON } from '../../utils';
 
 export const programRoutes = express.Router();
 
@@ -100,10 +101,49 @@ programRoutes.get('/survey/:surveyId', (req, res) => {
   });
 });
 
+function getVisitForSurvey(db, patientId, visitId, surveyResponse) {
+  if(visitId) {
+    return db.objectForPrimaryKey('visit', visitId);
+  }
+
+  // no visit specified - see if patient has an open visit we can use
+  const patient = db.objectForPrimaryKey('patient', patientId);
+
+  const existingVisit = patient.visits.find(x => !x.endDate);
+  if(existingVisit) {
+    return existingVisit;
+  }
+
+  // otherwise, create a new visit
+  const newVisit = db.create('visit', {
+    _id: generate(),
+    visitType: 'surveyResponse',
+    startDate: surveyResponse.startTime,
+    endDate: surveyResponse.endTime,
+
+    location: db.objects('location')[0],
+    department: db.objects('department')[0],
+  });
+
+  patient.visits = [...patient.visits, newVisit];
+
+  return newVisit;
+}
+
 programRoutes.post('/surveyResponse', (req, res) => {
   // submit a new survey response
   const { db, body, user } = req;
-  const { patientId, surveyId, date, startTime, endTime, answers } = body;
+  const { 
+    // patientId,
+    visitId,
+    surveyId,
+    date,
+    startTime,
+    endTime,
+    answers 
+  } = body;
+
+  const patientId = db.objects('patient')[0]._id;
 
   // answers arrive in the form of { [questionCode]: answer }
   const answerArray = Object.entries(answers).map(([questionId, answer]) => ({
@@ -123,6 +163,10 @@ programRoutes.post('/surveyResponse', (req, res) => {
       answers: answerArray,
     });
 
-    res.send(surveyResponse);
+    const visit = getVisitForSurvey(db, patientId, visitId, surveyResponse);
+
+    visit.surveyResponses = [...visit.surveyResponses, surveyResponse];
+
+    res.send(objectToJSON(surveyResponse));
   });
 });
