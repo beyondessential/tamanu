@@ -5,28 +5,25 @@ import { NavigationProp } from '@react-navigation/native';
 // Components
 import { TextField } from '../../TextField/TextField';
 import { Field } from '../FormField';
-import { StyledView, StyledText, FullView, RowView } from '../../../styled/common';
+import { StyledView, StyledText, FullView, RowView } from '/styled/common';
 import { MaskedTextField } from '../../TextField/MaskedTextField';
 import { Button } from '../../Button';
 import { RadioButtonGroup } from '../../RadioButtonGroup';
 // Theme
-import { theme } from '../../../styled/theme';
+import { theme } from '/styled/theme';
 // Helpers
 import { GenderOptions, PhoneMask } from '../../../helpers/constants';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 
-
-export const RegisterAccountStep01: FunctionComponent<any> = (
-  props:{ navigation : NavigationProp<any>},
-) => (
-  <FullView
-    justifyContent="center"
-    padding={20}
-  >
+export const RegisterAccountStep01: FunctionComponent<any> = (props: {
+  navigation: NavigationProp<any>;
+}) => (
+  <FullView justifyContent="center" padding={20}>
     <StyledText
       fontSize={screenPercentageToDP(1.57, Orientation.Height)}
       color={theme.colors.SECONDARY_MAIN}
-    >PERSONAL INFORMATION
+    >
+      PERSONAL INFORMATION
     </StyledText>
     <Form {...props} />
   </FullView>
@@ -48,7 +45,9 @@ const Form: FunctionComponent<any> = ({ navigation }: FormProps) => (
     validationSchema={Yup.object().shape({
       firstName: Yup.string().required(),
       lastName: Yup.string().required(),
-      email: Yup.string().email().required(),
+      email: Yup.string()
+        .email()
+        .required(),
       phone: Yup.string()
         .min(PhoneMask.mask.length)
         .max(PhoneMask.mask.length)
@@ -57,7 +56,7 @@ const Form: FunctionComponent<any> = ({ navigation }: FormProps) => (
     })}
     onSubmit={(values): void => console.log(values)}
   >
-    { ({ handleSubmit }: FormikHandlers): ReactNode => (
+    {({ handleSubmit }: FormikHandlers): ReactNode => (
       <StyledView
         height={screenPercentageToDP(7.29 * 5, Orientation.Height)}
         width="100%"
@@ -65,18 +64,10 @@ const Form: FunctionComponent<any> = ({ navigation }: FormProps) => (
       >
         <RowView>
           <StyledView flex={1} marginRight={5}>
-            <Field
-              component={TextField}
-              name="firstName"
-              label="First Name"
-            />
+            <Field component={TextField} name="firstName" label="First Name" />
           </StyledView>
           <StyledView flex={1}>
-            <Field
-              component={TextField}
-              name="lastName"
-              label="Last Name"
-            />
+            <Field component={TextField} name="lastName" label="Last Name" />
           </StyledView>
         </RowView>
         <Field

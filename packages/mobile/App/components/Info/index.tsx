@@ -5,7 +5,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { Alert } from '../Icons';
 
 interface InfoProps {
-    text: string;
+  text: string;
 }
 
 export const Info: FunctionComponent<InfoProps> = ({ text }: InfoProps) => (
@@ -18,15 +18,14 @@ export const Info: FunctionComponent<InfoProps> = ({ text }: InfoProps) => (
     borderWidth={1}
     borderColor={theme.colors.SECONDARY_MAIN}
   >
-    <StyledView
-      marginRight={10}
-    >
+    <StyledView marginRight={10}>
       <Alert />
     </StyledView>
     <StyledText
       fontSize={screenPercentageToDP('1.57', Orientation.Height)}
       color={theme.colors.PRIMARY_MAIN}
-    >{text}
+    >
+      {text}
     </StyledText>
   </RowView>
 );

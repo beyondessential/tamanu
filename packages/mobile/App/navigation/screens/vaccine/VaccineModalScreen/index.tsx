@@ -6,59 +6,46 @@ import { Routes } from '/helpers/routes';
 import { VaccineCard, VaccineDataProps } from '/components/VaccineCard';
 import { theme } from '/styled/theme';
 
-
 type VaccineModalParams = {
   VaccineModal: {
-    vaccine: VaccineDataProps
-  }
-}
+    vaccine: VaccineDataProps;
+  };
+};
 
-type VaccineModalRouteProps = RouteProp<VaccineModalParams, 'VaccineModal'>
-
+type VaccineModalRouteProps = RouteProp<VaccineModalParams, 'VaccineModal'>;
 
 type VaccineModalScreenProps = {
   navigation: NavigationProp<any>;
-  route: VaccineModalRouteProps
-}
+  route: VaccineModalRouteProps;
+};
 
 export const VaccineModalScreen = ({
   route,
   navigation,
-}:VaccineModalScreenProps): ReactElement => {
+}: VaccineModalScreenProps): ReactElement => {
   const { vaccine } = route.params;
 
-  const onNavigateBack = useCallback(
-    () => {
-      navigation.goBack();
-    },
-    [],
-  );
+  const onNavigateBack = useCallback(() => {
+    navigation.goBack();
+  }, []);
 
-  const onNavigateToEditDetails = useCallback(
-    () => {
-      navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.name, {
-        vaccine,
-      });
-    },
-    [vaccine],
-  );
+  const onNavigateToEditDetails = useCallback(() => {
+    navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.name, {
+      vaccine,
+    });
+  }, [vaccine]);
 
   return (
-    <FullView
-      background={theme.colors.MAIN_SUPER_DARK}
-    >
+    <FullView background={theme.colors.MAIN_SUPER_DARK}>
       <StatusBar barStyle="light-content" />
-      <CenterView
-        flex={1}
-      >{
-        vaccine && (
+      <CenterView flex={1}>
+        {vaccine && (
           <VaccineCard
             onCloseModal={onNavigateBack}
             onEditDetails={onNavigateToEditDetails}
             vaccineData={route.params.vaccine}
           />
-        )
-      }
+        )}
       </CenterView>
     </FullView>
   );

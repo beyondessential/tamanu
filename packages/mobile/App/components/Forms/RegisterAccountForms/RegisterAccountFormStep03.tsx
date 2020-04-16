@@ -3,14 +3,9 @@ import { Formik, FormikHandlers } from 'formik';
 import * as Yup from 'yup';
 import { TextField } from '../../TextField/TextField';
 import { Field } from '../FormField';
-import {
-  StyledView,
-  StyledText,
-  FullView,
-  RowView,
-} from '../../../styled/common';
+import { StyledView, StyledText, FullView, RowView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
-import { theme } from '../../../styled/theme';
+import { theme } from '/styled/theme';
 import { Button } from '../../Button';
 import { RegisterAccountFormStep3Props } from '../../../contexts/RegisterAccountContext';
 import { Checkbox } from '../../Checkbox';

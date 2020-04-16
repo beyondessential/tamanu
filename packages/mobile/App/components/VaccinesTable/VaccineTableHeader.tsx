@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyledText, StyledView } from '../../styled/common';
-import { theme } from '../../styled/theme';
+import { StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 import { PatientVaccineProps } from '../../interfaces/PatientVaccineProps';
 
 export const vaccineTableHeader = {

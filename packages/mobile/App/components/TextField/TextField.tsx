@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { InputContainer, StyledTextInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
-import { StyledView } from '../../styled/common';
+import { StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 export interface RefObject<T> {

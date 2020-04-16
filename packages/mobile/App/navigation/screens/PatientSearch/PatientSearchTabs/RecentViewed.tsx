@@ -19,11 +19,10 @@ import { joinNames } from '/helpers/user';
 const mockedArray = data.slice(0, 12);
 
 interface PatientListProps {
-  list: any[],
-  setSelectedPatient: Function
-  navigation: NavigationProp<any>
+  list: any[];
+  setSelectedPatient: Function;
+  navigation: NavigationProp<any>;
 }
-
 
 const Screen = ({
   navigation,
@@ -32,11 +31,9 @@ const Screen = ({
   /** Get Search Input */
   const [field] = useField('search');
   const [recentlyViewedArray] = useState(mockedArray);
-  const list = recentlyViewedArray
-    .filter(
-      patientData => joinNames(patientData).startsWith(field.value),
-    );
-
+  const list = recentlyViewedArray.filter(patientData =>
+    joinNames(patientData).startsWith(field.value),
+  );
 
   return (
     <FullView>
@@ -44,7 +41,7 @@ const Screen = ({
         showsVerticalScrollIndicator={Platform.OS === 'android'}
         data={list}
         keyExtractor={(item): string => item.id.toString()}
-        renderItem={({ item }: { item: any}): ReactElement => {
+        renderItem={({ item }: { item: any }): ReactElement => {
           const onNavigateToPatientHome = (): void => {
             setSelectedPatient(item);
             navigation.navigate(Routes.HomeStack.HomeTabs.name, {
@@ -53,10 +50,7 @@ const Screen = ({
           };
           return (
             <TouchableOpacity onPress={onNavigateToPatientHome}>
-              <PatientTile
-                {...item}
-                name={joinNames(item)}
-              />
+              <PatientTile {...item} name={joinNames(item)} />
             </TouchableOpacity>
           );
         }}
@@ -69,7 +63,6 @@ const Screen = ({
         bottom={30}
       />
     </FullView>
-
   );
 };
 

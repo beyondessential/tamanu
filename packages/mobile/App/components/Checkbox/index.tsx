@@ -19,19 +19,13 @@ export const Checkbox = ({
   error,
   required,
 }: CheckboxProps): JSX.Element => {
-  const ChangeCallback = useCallback(() => onChange(!value), [
-    onChange,
-    value,
-  ]);
+  const ChangeCallback = useCallback(() => onChange(!value), [onChange, value]);
 
-  const getColor = useCallback(
-    () => {
-      if (error) return theme.colors.ERROR;
-      if (!value) return theme.colors.BOX_OUTLINE;
-      return theme.colors.PRIMARY_MAIN;
-    },
-    [error, value],
-  );
+  const getColor = useCallback(() => {
+    if (error) return theme.colors.ERROR;
+    if (!value) return theme.colors.BOX_OUTLINE;
+    return theme.colors.PRIMARY_MAIN;
+  }, [error, value]);
   return (
     <RowView>
       <TouchableHighlight

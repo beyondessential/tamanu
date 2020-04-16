@@ -26,9 +26,9 @@ export const SignInForm: FunctionComponent<SignInFormProps> = ({
     }}
     onSubmit={onSubmitForm}
   >
-    { ({ handleSubmit }) => (
+    {({ handleSubmit }) => (
       <StyledView
-        marginTop={screenPercentageToDP(14.70, Orientation.Height)}
+        marginTop={screenPercentageToDP(14.7, Orientation.Height)}
         marginRight={screenPercentageToDP(2.43, Orientation.Width)}
         marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
       >
@@ -43,11 +43,7 @@ export const SignInForm: FunctionComponent<SignInFormProps> = ({
           height={screenPercentageToDP(7.29 * 2, Orientation.Height)}
           justifyContent="space-around"
         >
-          <Field
-            name="email"
-            component={TextField}
-            label="Email"
-          />
+          <Field name="email" component={TextField} label="Email" />
           <Field
             name="password"
             component={TextField}

@@ -6,10 +6,12 @@ import { Separator } from '/components/Separator';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 
 interface PatientMenuListprops {
-    list: any[]
+  list: any[];
 }
 
-export const PatientMenuButtons = ({ list }:PatientMenuListprops): ReactElement => (
+export const PatientMenuButtons = ({
+  list,
+}: PatientMenuListprops): ReactElement => (
   <StyledView background={theme.colors.WHITE}>
     <FlatList
       scrollEnabled={false}

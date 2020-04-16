@@ -1,8 +1,10 @@
-
 import React, { ReactElement } from 'react';
 import { MaterialTopTabBarOptions } from '@react-navigation/material-top-tabs';
 // Components
-import { RecentViewedScreen, ViewAllScreen } from '/navigation/screens/PatientSearch/PatientSearchTabs';
+import {
+  RecentViewedScreen,
+  ViewAllScreen,
+} from '/navigation/screens/PatientSearch/PatientSearchTabs';
 // Helpers
 import { theme } from '/styled/theme';
 import { Routes } from '/helpers/routes';
@@ -27,9 +29,7 @@ const SearchPatientTabOptions: MaterialTopTabBarOptions = {
 };
 
 export const SearchPatientTabs = (): ReactElement => (
-  <Tabs.Navigator
-    tabBarOptions={SearchPatientTabOptions}
-  >
+  <Tabs.Navigator tabBarOptions={SearchPatientTabOptions}>
     <Tabs.Screen
       options={{
         tabBarLabel: 'RECENT VIEWED PATIENTS',

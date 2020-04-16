@@ -1,5 +1,10 @@
 import React, { ReactElement, useCallback, FC, useMemo } from 'react';
-import { useField, FieldInputProps, FieldMetaProps, FieldHelperProps } from 'formik';
+import {
+  useField,
+  FieldInputProps,
+  FieldMetaProps,
+  FieldHelperProps,
+} from 'formik';
 import { compose } from 'redux';
 // Containers
 import { withPatient } from '/containers/Patient';
@@ -20,18 +25,25 @@ import { getAgeFromDate } from '/helpers/date';
 import { PatientModel } from '/models/Patient';
 
 interface ActiveFiltersI {
-      count: number;
-      filters: {
-        [key: string]: {
-          name: string;
-          value: any;
-        }
-      },
+  count: number;
+  filters: {
+    [key: string]: {
+      name: string;
+      value: any;
+    };
+  };
 }
 
-type FieldProp = [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>]
+type FieldProp = [
+  FieldInputProps<any>,
+  FieldMetaProps<any>,
+  FieldHelperProps<any>,
+];
 
-const getActiveFilters = (acc: ActiveFiltersI, item: FieldProp): ActiveFiltersI => {
+const getActiveFilters = (
+  acc: ActiveFiltersI,
+  item: FieldProp,
+): ActiveFiltersI => {
   const curField = item[0];
   switch (curField.name) {
     case 'age':
@@ -67,7 +79,6 @@ const getActiveFilters = (acc: ActiveFiltersI, item: FieldProp): ActiveFiltersI 
   return acc;
 };
 
-
 const isEqual = (prop1: any, prop2: any, fieldName: string): boolean => {
   switch (fieldName) {
     case 'age':
@@ -86,55 +97,59 @@ const isEqual = (prop1: any, prop2: any, fieldName: string): boolean => {
 };
 
 const applyActiveFilters = (
-  activeFilters:ActiveFiltersI,
+  activeFilters: ActiveFiltersI,
   data: PatientModel[],
   searchField: FieldInputProps<any>,
 ): PatientModel[] => {
   if (activeFilters.count > 0) {
     // apply filters
-    return data.filter((patientData) => Object.keys(activeFilters.filters).every(
-      fieldToFilter => isEqual(
-        patientData[fieldToFilter],
-        activeFilters.filters[fieldToFilter].value, fieldToFilter,
+    return data.filter(patientData =>
+      Object.keys(activeFilters.filters).every(fieldToFilter =>
+        isEqual(
+          patientData[fieldToFilter],
+          activeFilters.filters[fieldToFilter].value,
+          fieldToFilter,
+        ),
       ),
-    ));
+    );
   } else if (searchField.value !== '') {
-    return data.filter(patientData => `${patientData.firstName} ${patientData.lastName}`.includes(searchField.value));
+    return data.filter(patientData =>
+      `${patientData.firstName} ${patientData.lastName}`.includes(
+        searchField.value,
+      ),
+    );
   }
   return data;
 };
 
-const Screen: FC<ViewAllScreenProps> = (
-  {
-    navigation,
-    setSelectedPatient,
-  }: ViewAllScreenProps,
-): ReactElement => {
+const Screen: FC<ViewAllScreenProps> = ({
+  navigation,
+  setSelectedPatient,
+}: ViewAllScreenProps): ReactElement => {
   /** Get Search Input */
   const [searchField] = useField('search');
   let list = [];
   // Get filters
   const filters = FilterArray.map(fieldName => useField(fieldName));
-  const activeFilters = useMemo(() => filters
-    .reduce<ActiveFiltersI>(getActiveFilters, {
-      count: 0,
-      filters: {},
-    }), [filters]);
+  const activeFilters = useMemo(
+    () =>
+      filters.reduce<ActiveFiltersI>(getActiveFilters, {
+        count: 0,
+        filters: {},
+      }),
+    [filters],
+  );
 
   list = applyActiveFilters(activeFilters, searchData, searchField);
 
   list = groupEntriesByLetter(list);
 
-
-  const onNavigateToPatientHome = useCallback(
-    (patient) => {
-      setSelectedPatient(patient);
-      navigation.navigate(Routes.HomeStack.HomeTabs.name, {
-        screen: Routes.HomeStack.HomeTabs.Home,
-      });
-    },
-    [],
-  );
+  const onNavigateToPatientHome = useCallback(patient => {
+    setSelectedPatient(patient);
+    navigation.navigate(Routes.HomeStack.HomeTabs.name, {
+      screen: Routes.HomeStack.HomeTabs.Home,
+    });
+  }, []);
 
   const onNavigateToFilters = useCallback(
     () => navigation.navigate(Routes.HomeStack.SearchPatientStack.FilterSearch),
@@ -143,10 +158,7 @@ const Screen: FC<ViewAllScreenProps> = (
 
   return (
     <FullView>
-      <PatientSectionList
-        data={list}
-        onPressItem={onNavigateToPatientHome}
-      />
+      <PatientSectionList data={list} onPressItem={onNavigateToPatientHome} />
       <StyledView
         position="absolute"
         zIndex={2}
@@ -160,11 +172,17 @@ const Screen: FC<ViewAllScreenProps> = (
           bordered
           textColor={theme.colors.WHITE}
           onPress={onNavigateToFilters}
-          buttonText={`Filters ${activeFilters.count > 0 ? `${activeFilters.count}` : ''}`}
+          buttonText={`Filters ${
+            activeFilters.count > 0 ? `${activeFilters.count}` : ''
+          }`}
         >
           <RotateView>
             <OptionsGlyph
-              fill={activeFilters.count > 0 ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE}
+              fill={
+                activeFilters.count > 0
+                  ? theme.colors.SECONDARY_MAIN
+                  : theme.colors.WHITE
+              }
               height={20}
             />
           </RotateView>

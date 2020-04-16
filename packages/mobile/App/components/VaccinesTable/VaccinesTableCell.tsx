@@ -1,10 +1,6 @@
 import React, { ReactElement, useCallback, FC } from 'react';
-import {
-  StyledView,
-  CenterView,
-  StyledTouchableOpacity,
-} from '../../styled/common';
-import { theme } from '../../styled/theme';
+import { StyledView, CenterView, StyledTouchableOpacity } from '/styled/common';
+import { theme } from '/styled/theme';
 import { VaccineIcons, VaccineStatus } from '../../helpers/constants';
 import { NullValueCell } from '../Icons';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';

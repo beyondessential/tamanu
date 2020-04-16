@@ -1,14 +1,20 @@
 import React, { ReactElement } from 'react';
-import { theme } from '../../styled/theme';
-import { CenterView, StyledText, StyledSafeAreaView, StyledTouchableOpacity, RowView } from '../../styled/common';
+import { theme } from '/styled/theme';
+import {
+  CenterView,
+  StyledText,
+  StyledSafeAreaView,
+  StyledTouchableOpacity,
+  RowView,
+} from '/styled/common';
 import { LeftArrow } from '../Icons';
 
 type HeaderTitleProps = {
-    title: string;
-    subtitle?: string;
-}
+  title: string;
+  subtitle?: string;
+};
 
-const HeaderTitle = ({ subtitle, title }:HeaderTitleProps): ReactElement => (
+const HeaderTitle = ({ subtitle, title }: HeaderTitleProps): ReactElement => (
   <CenterView top="25%" position="absolute" zIndex={-1} width="100%">
     <StyledText fontSize={11} color={theme.colors.WHITE}>
       {subtitle}
@@ -20,10 +26,10 @@ const HeaderTitle = ({ subtitle, title }:HeaderTitleProps): ReactElement => (
 );
 
 type StackHeaderProps = {
-    title: string;
-    subtitle: string;
-    onGoBack: () => void;
-}
+  title: string;
+  subtitle: string;
+  onGoBack: () => void;
+};
 
 export const StackHeader = ({
   title,

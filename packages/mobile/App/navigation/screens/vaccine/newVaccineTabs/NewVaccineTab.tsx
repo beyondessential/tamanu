@@ -3,9 +3,15 @@ import { useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native';
 import { Route } from 'react-native-tab-view';
 import { SvgProps } from 'react-native-svg';
-import { FullView, StyledView, StyledSafeAreaView, RowView } from '../../../../styled/common';
 import {
-  VaccineForm, SubmitButtonsProps,
+  FullView,
+  StyledView,
+  StyledSafeAreaView,
+  RowView,
+} from '/styled/common';
+import {
+  VaccineForm,
+  SubmitButtonsProps,
 } from '/components/Forms/VaccineForms';
 import { theme } from '/styled/theme';
 import { SectionHeader } from '/components/SectionHeader';
@@ -13,8 +19,10 @@ import { Button } from '/components/Button';
 import { VaccineDataProps } from '/components/VaccineCard';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
-
-const SubmitButtons = ({ onSubmit, onCancel }: SubmitButtonsProps): ReactElement => (
+const SubmitButtons = ({
+  onSubmit,
+  onCancel,
+}: SubmitButtonsProps): ReactElement => (
   <RowView
     paddingTop={screenPercentageToDP(2.43, Orientation.Height)}
     flex={1}
@@ -39,31 +47,23 @@ const SubmitButtons = ({ onSubmit, onCancel }: SubmitButtonsProps): ReactElement
   </RowView>
 );
 
-
 type NewVaccineTabProps = {
   route: Route & {
     icon: FC<SvgProps>;
     color?: string;
-    vaccine: VaccineDataProps
-  }
+    vaccine: VaccineDataProps;
+  };
 };
-
 
 export const NewVaccineTab = ({ route }: NewVaccineTabProps): ReactElement => {
   const { vaccine } = route;
   const navigation = useNavigation();
 
-  const onPressCancel = useCallback(
-    () => {
-      navigation.goBack();
-    },
-    [],
-  );
+  const onPressCancel = useCallback(() => {
+    navigation.goBack();
+  }, []);
 
-  const onFormSubmit = useCallback(
-    (values) => console.log(values),
-    [],
-  );
+  const onFormSubmit = useCallback(values => console.log(values), []);
 
   console.log(vaccine);
   return (

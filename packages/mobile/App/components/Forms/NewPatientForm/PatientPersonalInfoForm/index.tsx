@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, ReactElement, useMemo } from 'react';
 import { calculateVerticalPositions, scrollTo } from '/helpers/screen';
-import { FullView } from '/root/App/styled/common';
+import { FullView } from '/styled/common';
 import { NameSection } from './NameSection';
 import { ContactDetailsSection } from './ContactDetailsSection';
 import { LocationDetailsSection } from './LocationDetailsSection';

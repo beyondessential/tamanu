@@ -4,15 +4,20 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { theme } from '/styled/theme';
 
 interface InformationBoxProps extends StyledViewProps {
-    title: string;
-    info?: string | null;
+  title: string;
+  info?: string | null;
 }
-export const InformationBox = ({ title, info, ...props }: InformationBoxProps): ReactElement => (
+export const InformationBox = ({
+  title,
+  info,
+  ...props
+}: InformationBoxProps): ReactElement => (
   <StyledView {...props}>
     <StyledText
-      fontSize={screenPercentageToDP(1.70, Orientation.Height)}
+      fontSize={screenPercentageToDP(1.7, Orientation.Height)}
       fontWeight={500}
-    >{title}
+    >
+      {title}
     </StyledText>
     <StyledText
       marginTop={5}

@@ -5,11 +5,15 @@ import {
   StyleSheet,
   Modal,
 } from 'react-native';
-import { FullView, StyledView, StyledScrollView, StyledText } from '/styled/common';
+import {
+  FullView,
+  StyledView,
+  StyledScrollView,
+  StyledText,
+} from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { SelectOption } from '.';
-
 
 interface AndroidPickerProps {
   items: SelectOption[];
@@ -30,16 +34,12 @@ export const AndroidPicker = React.memo(
     );
 
     return (
-      <Modal
-        transparent
-        visible={open}
-        animationType="fade"
-      >
-        <FullView
-          justifyContent="center"
-          alignItems="center"
-        >
-          <TouchableWithoutFeedback style={{ height: '100%' }} onPress={closeModal}>
+      <Modal transparent visible={open} animationType="fade">
+        <FullView justifyContent="center" alignItems="center">
+          <TouchableWithoutFeedback
+            style={{ height: '100%' }}
+            onPress={closeModal}
+          >
             <StyledView
               height="100%"
               width="100%"
@@ -68,7 +68,10 @@ export const AndroidPicker = React.memo(
                   <StyledView
                     accessibilityLabel={item.label}
                     justifyContent="center"
-                    paddingLeft={screenPercentageToDP('3.64%', Orientation.Width)}
+                    paddingLeft={screenPercentageToDP(
+                      '3.64%',
+                      Orientation.Width,
+                    )}
                     height={screenPercentageToDP('4.86%', Orientation.Height)}
                     width="100%"
                   >

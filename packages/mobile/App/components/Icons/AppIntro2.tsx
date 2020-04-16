@@ -13,7 +13,7 @@ import Svg, {
 } from 'react-native-svg';
 import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
 import { welcomeIntroIconSize } from './AppIntro1';
-import { StyledView } from '../../styled/common';
+import { StyledView } from '/styled/common';
 
 export const AppIntro2 = React.memo(
   ({ size = welcomeIntroIconSize, ...props }: IconWithSizeProps) => (

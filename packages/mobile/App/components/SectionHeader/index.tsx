@@ -8,7 +8,7 @@ interface SectionHeader extends StyledTextProps {
   h2?: boolean;
   h3?: boolean;
 }
-type StrNum = string | number | undefined
+type StrNum = string | number | undefined;
 
 export const SectionHeader = styled(StyledText)<SectionHeader>`
   ${({ color }): StrNum => color || `color: ${theme.colors.PRIMARY_MAIN}`};

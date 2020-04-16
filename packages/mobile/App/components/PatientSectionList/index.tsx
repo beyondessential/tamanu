@@ -29,7 +29,8 @@ const ListSeparator = (): JSX.Element => (
 );
 
 export const PatientSectionList = ({
-  data, onPressItem = (): null => null,
+  data,
+  onPressItem = (): null => null,
 }: PatientSectionListProps): JSX.Element => {
   const ref: RefObject<LargeList> = useRef(null);
 
@@ -65,7 +66,6 @@ export const PatientSectionList = ({
     ),
     [data],
   );
-
 
   const renderItem = React.useCallback(
     ({ section, row }) => {

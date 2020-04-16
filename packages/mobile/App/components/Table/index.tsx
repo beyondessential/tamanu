@@ -7,7 +7,11 @@ export type Column = {
   key: string;
   title: string;
   subtitle?: string;
-  accessor: (row: any, onPress?: (item: any) => void, column?: any) => JSX.Element;
+  accessor: (
+    row: any,
+    onPress?: (item: any) => void,
+    column?: any,
+  ) => JSX.Element;
   rowHeader: (row: any, column?: any) => JSX.Element;
 };
 

@@ -9,13 +9,10 @@ import { AgeRangeSlider } from '/components/RangeSlider';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { theme } from '/styled/theme';
 
-
 export const AgeRangeSection = (): ReactElement => {
   const [field] = useField('age');
   return (
-    <Section
-      title="Age range"
-    >
+    <Section title="Age range">
       <CenterView>
         <StyledText
           fontSize={screenPercentageToDP(1.94, Orientation.Height)}

@@ -5,10 +5,13 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { Separator } from '/components/Separator';
 
 interface Section {
-  title: string
+  title: string;
 }
 
-export const Section = ({ title, children }: PropsWithChildren<Section>): ReactElement => (
+export const Section = ({
+  title,
+  children,
+}: PropsWithChildren<Section>): ReactElement => (
   <React.Fragment>
     <StyledView
       paddingTop={20}

@@ -1,13 +1,15 @@
 import React from 'react';
-import { RowView, StyledText } from '../../styled/common';
+import { RowView, StyledText } from '/styled/common';
 import { VaccineIcons } from '../../helpers/constants';
-import { theme } from '../../styled/theme';
+import { theme } from '/styled/theme';
 
 interface VaccineStatusProps {
   status: string;
 }
 
-export const VaccineStatusHeader = ({ status }:VaccineStatusProps): JSX.Element => {
+export const VaccineStatusHeader = ({
+  status,
+}: VaccineStatusProps): JSX.Element => {
   const Icon = VaccineIcons[status].Icon;
   return (
     <RowView

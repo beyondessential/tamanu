@@ -1,6 +1,6 @@
 import React from 'react';
 import Svg, { Circle, Path, SvgProps } from 'react-native-svg';
-import { StyledView } from '../../styled/common';
+import { StyledView } from '/styled/common';
 import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
 
 interface NotTakenProps extends SvgProps, IconWithSizeProps {
@@ -8,10 +8,7 @@ interface NotTakenProps extends SvgProps, IconWithSizeProps {
 }
 
 export const NotTaken = React.memo((props: NotTakenProps) => (
-  <StyledView
-    height={props.size}
-    width={props.size}
-  >
+  <StyledView height={props.size} width={props.size}>
     <Svg width="100%" height="100%" viewBox="0 0 34 34" fill="none" {...props}>
       <Circle
         cx="17"

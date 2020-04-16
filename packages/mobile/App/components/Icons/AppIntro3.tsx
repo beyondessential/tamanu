@@ -10,7 +10,7 @@ import Svg, {
   Path,
   Defs,
 } from 'react-native-svg';
-import { StyledView } from '../../styled/common';
+import { StyledView } from '/styled/common';
 import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
 import { welcomeIntroIconSize } from './AppIntro1';
 

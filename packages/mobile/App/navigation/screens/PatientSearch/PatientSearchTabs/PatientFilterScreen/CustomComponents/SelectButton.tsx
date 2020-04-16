@@ -6,7 +6,6 @@ import { RowView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
-
 export const SelectButton = (props: any): JSX.Element => {
   const onPressCallback = useCallback(() => props.onPress(props.value), [
     props,
@@ -16,8 +15,8 @@ export const SelectButton = (props: any): JSX.Element => {
     <TouchableWithoutFeedback onPress={onPressCallback}>
       <RowView
         background={
-              props.selected ? theme.colors.PRIMARY_MAIN : theme.colors.WHITE
-            }
+          props.selected ? theme.colors.PRIMARY_MAIN : theme.colors.WHITE
+        }
         alignItems="center"
         justifyContent="center"
         borderColor={theme.colors.PRIMARY_MAIN}
@@ -29,7 +28,9 @@ export const SelectButton = (props: any): JSX.Element => {
         borderLeftWidth={props.index === 0 ? 1 : 0}
       >
         <StyledText
-          color={props.selected ? theme.colors.WHITE : theme.colors.PRIMARY_MAIN}
+          color={
+            props.selected ? theme.colors.WHITE : theme.colors.PRIMARY_MAIN
+          }
         >
           {props.label}
         </StyledText>

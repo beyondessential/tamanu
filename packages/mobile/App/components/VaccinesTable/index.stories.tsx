@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
 import { storiesOf } from '@storybook/react-native';
-import { CenterView, StyledSafeAreaView } from '../../styled/common';
+import { CenterView, StyledSafeAreaView } from '/styled/common';
 import { VaccinesTable } from '.';
 import { vaccineHistoryList } from './fixture';
 import { PatientModel } from '../../models/Patient';

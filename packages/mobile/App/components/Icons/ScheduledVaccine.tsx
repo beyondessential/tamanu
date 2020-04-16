@@ -1,9 +1,9 @@
 import React, { memo } from 'react';
 import { StyleSheet } from 'react-native';
-import { theme } from '../../styled/theme';
-import { CenterView, StyledView } from '../../styled/common';
+import { theme } from '/styled/theme';
+import { CenterView, StyledView } from '/styled/common';
 
-const Circle = ({ size }: { size: number | string}) => (
+const Circle = ({ size }: { size: number | string }) => (
   <StyledView
     background={theme.colors.WHITE}
     height={size}
@@ -14,9 +14,10 @@ const Circle = ({ size }: { size: number | string}) => (
   />
 );
 
-
-export const ScheduledVaccine = memo(({ size = 34 }: { size: number | string}) => (
-  <CenterView flex={1}>
-    <Circle size={size} />
-  </CenterView>
-));
+export const ScheduledVaccine = memo(
+  ({ size = 34 }: { size: number | string }) => (
+    <CenterView flex={1}>
+      <Circle size={size} />
+    </CenterView>
+  ),
+);

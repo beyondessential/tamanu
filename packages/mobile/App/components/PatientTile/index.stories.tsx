@@ -5,7 +5,9 @@ import { PatientTile } from './index';
 import { MaleExampleProps, FemaleExampleProps } from './fixtures';
 
 storiesOf('PatientTile', module)
-  .addDecorator((story: Function) => <CenterView flex={1}>{story()}</CenterView>)
+  .addDecorator((story: Function) => (
+    <CenterView flex={1}>{story()}</CenterView>
+  ))
   .add('Male', () => <PatientTile {...MaleExampleProps} />)
   .add('Female', () => <PatientTile {...FemaleExampleProps} />)
   .add('Without last visit', () => (

@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { StyledView } from '../../styled/common';
-import { theme } from '../../styled/theme';
+import { StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 import { ColorHelper } from '../../helpers/colors';
 import { PractitionerView } from './PractitionerView';
 import { MedicationList } from './MedicationList';

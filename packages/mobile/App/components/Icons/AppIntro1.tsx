@@ -9,7 +9,7 @@ import Svg, {
   Stop,
   Rect,
 } from 'react-native-svg';
-import { StyledView } from '../../styled/common';
+import { StyledView } from '/styled/common';
 import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 

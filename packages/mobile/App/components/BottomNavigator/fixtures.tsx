@@ -2,7 +2,7 @@ import React from 'react';
 import { Text } from 'react-native';
 import { createAppContainer } from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
-import { CenterView } from '../../styled/common';
+import { CenterView } from '/styled/common';
 import * as Icons from '../Icons';
 import { BottomNavigator, TabIcon } from './index';
 

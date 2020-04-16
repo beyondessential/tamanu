@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { RowView } from '../../styled/common';
+import { RowView } from '/styled/common';
 import { VisitTypeButton } from './index';
 import { HeaderIcons, VisitTypes } from '../../helpers/constants';
 

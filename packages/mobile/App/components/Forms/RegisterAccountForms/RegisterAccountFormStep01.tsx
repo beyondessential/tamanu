@@ -3,15 +3,10 @@ import { Formik, FormikHandlers } from 'formik';
 import * as Yup from 'yup';
 import { TextField } from '../../TextField/TextField';
 import { Field } from '../FormField';
-import {
-  StyledView,
-  StyledText,
-  FullView,
-  RowView,
-} from '../../../styled/common';
+import { StyledView, StyledText, FullView, RowView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { MaskedTextField } from '../../TextField/MaskedTextField';
-import { theme } from '../../../styled/theme';
+import { theme } from '/styled/theme';
 import { Button } from '../../Button';
 import { RadioButtonGroup } from '../../RadioButtonGroup';
 import { RegisterAccountFormStep1Props } from '../../../contexts/RegisterAccountContext';

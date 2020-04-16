@@ -7,12 +7,11 @@ import { EditButton } from './EditButton';
 import { Dot } from './Dot';
 import { theme } from '/styled/theme';
 
-
 interface FamilyHistoryProps extends FamilyHistoryDataProps {
   onEdit: () => void;
 }
 
-export const FamilyHistory = (props:FamilyHistoryProps): ReactElement => (
+export const FamilyHistory = (props: FamilyHistoryProps): ReactElement => (
   <React.Fragment>
     <Separator width="100%" marginTop={20} />
     <StyledView marginTop={20}>
@@ -20,11 +19,15 @@ export const FamilyHistory = (props:FamilyHistoryProps): ReactElement => (
         <SectionHeader h1>Family History</SectionHeader>
         <EditButton onPress={props.onEdit} />
       </RowView>
-      {props.familyHistory.data.length > 0 && props.familyHistory.data.map((condition: string) => (
-        <RowView key={condition} alignItems="center" marginTop={10}>
-          <Dot /><StyledText marginLeft={10} color={theme.colors.TEXT_MID}>{condition}</StyledText>
-        </RowView>
-      )) }
+      {props.familyHistory.data.length > 0 &&
+        props.familyHistory.data.map((condition: string) => (
+          <RowView key={condition} alignItems="center" marginTop={10}>
+            <Dot />
+            <StyledText marginLeft={10} color={theme.colors.TEXT_MID}>
+              {condition}
+            </StyledText>
+          </RowView>
+        ))}
     </StyledView>
   </React.Fragment>
 );

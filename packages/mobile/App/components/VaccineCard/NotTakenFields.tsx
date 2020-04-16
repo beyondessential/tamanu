@@ -8,10 +8,12 @@ import { DateFormats } from '../../helpers/constants';
 import { Calendar } from '../Icons';
 import { Separator } from '../../navigation/screens/home/PatientDetails/CustomComponents';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
-import { theme } from '../../styled/theme';
-import { StyledView } from '../../styled/common';
+import { theme } from '/styled/theme';
+import { StyledView } from '/styled/common';
 
-export const NotTakenFields: FC<VaccineDataProps> = (props: VaccineDataProps) => (
+export const NotTakenFields: FC<VaccineDataProps> = (
+  props: VaccineDataProps,
+) => (
   <StyledView
     height={screenPercentageToDP(20.04, Orientation.Height)}
     background={theme.colors.WHITE}
@@ -26,14 +28,8 @@ export const NotTakenFields: FC<VaccineDataProps> = (props: VaccineDataProps) =>
       Icon={Calendar}
     />
     <Separator />
-    <ModalField
-      label="Type"
-      value={props.reason}
-    />
+    <ModalField label="Type" value={props.reason} />
     <Separator />
-    <ModalField
-      label="Practitioner"
-      value={props.administered}
-    />
+    <ModalField label="Practitioner" value={props.administered} />
   </StyledView>
 );

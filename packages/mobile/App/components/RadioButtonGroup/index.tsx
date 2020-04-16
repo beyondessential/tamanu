@@ -15,7 +15,6 @@ export interface RadioButtonGroupProps {
   CustomComponent?: FC<any>;
 }
 
-
 const getTitleColor = (value?: string, error?: boolean): string => {
   if (value) return theme.colors.TEXT_MID;
   if (error) return theme.colors.ALERT;
@@ -35,19 +34,16 @@ export const RadioButtonGroup = ({
   return (
     <RowView>
       {label && (
-      <StyledView
-        background={theme.colors.WHITE}
-        justifyContent="center"
-        paddingLeft={screenPercentageToDP(2.42, Orientation.Width)}
-        borderWidth={1}
-        borderColor={theme.colors.DEFAULT_OFF}
-        flex={1}
-      >
-        <StyledText
-          color={getTitleColor(value, error)}
-        >{label}
-        </StyledText>
-      </StyledView>
+        <StyledView
+          background={theme.colors.WHITE}
+          justifyContent="center"
+          paddingLeft={screenPercentageToDP(2.42, Orientation.Width)}
+          borderWidth={1}
+          borderColor={theme.colors.DEFAULT_OFF}
+          flex={1}
+        >
+          <StyledText color={getTitleColor(value, error)}>{label}</StyledText>
+        </StyledView>
       )}
       {options.map((option, index) => (
         <RadioComponent

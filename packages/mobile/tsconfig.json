@@ -8,7 +8,7 @@
     "paths": {      
       "/root/*": ["./*"],
       "/components/*": ["App/components/*"],
-      "/styled/*": ["App/styled/*"],
+      "/styled/*": ["App/ui/styled/*"],
       "/interfaces/*": ["App/interfaces/*"],
       "/helpers/*": ["App/helpers/*"],
       "/navigation/*": ["App/navigation/*"],      

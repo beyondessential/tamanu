@@ -7,7 +7,7 @@ module.exports = {
         root: ['./'],
         extensions: ['.tsx', '.json'],
         alias: {
-          '/styled': './App/styled',
+          '/styled': './App/ui/styled',
           '/components': './App/components',
           '/interfaces': './App/interfaces',
           '/helpers': './App/helpers',

@@ -1,14 +1,18 @@
 import React from 'react';
-import { theme } from '../../styled/theme';
+import { theme } from '/styled/theme';
 import * as Icons from '../Icons';
-import { StyledView, RowView, StyledTouchableOpacity, StyledText } from '../../styled/common';
+import {
+  StyledView,
+  RowView,
+  StyledTouchableOpacity,
+  StyledText,
+} from '/styled/common';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 import { VaccineModel } from '../../models/Vaccine';
 
-
 export interface CardHeaderProps {
   vaccine: VaccineModel;
-  onCloseModal: () => void ;
+  onCloseModal: () => void;
   onEditDetails: () => void;
 }
 
@@ -16,7 +20,7 @@ export const VaccineCardHeader = ({
   vaccine,
   onCloseModal,
   onEditDetails,
-}:CardHeaderProps): JSX.Element => {
+}: CardHeaderProps): JSX.Element => {
   console.log('vaccine,', vaccine);
   return (
     <StyledView

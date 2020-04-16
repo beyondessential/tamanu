@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyledView, StyledText, StyledImage } from '../../styled/common';
-import { theme } from '../../styled/theme';
+import { StyledView, StyledText, StyledImage } from '/styled/common';
+import { theme } from '/styled/theme';
 import { getUserInitials, Genders } from '../../helpers/user';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
@@ -19,7 +19,9 @@ export const UserAvatar = ({
   size,
   Icon,
 }: UserAvatarProps): JSX.Element => {
-  const userInitials: string = React.useMemo(() => getUserInitials(name), [name]);
+  const userInitials: string = React.useMemo(() => getUserInitials(name), [
+    name,
+  ]);
   const backgroundColor: string = React.useMemo(() => {
     if (image) return 'transparent';
     return gender === Genders.MALE ? theme.colors.SAFE : theme.colors.ALERT;

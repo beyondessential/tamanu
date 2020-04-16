@@ -6,15 +6,11 @@ import { InformationBox } from './InformationBox';
 import { formatDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 
-
-export const GeneralInfo = (data: PatientGeneralInformationDataProps): ReactElement => (
-  <StyledView
-    width="100%"
-  >
-    <SectionHeader
-      h1
-      fontWeight={500}
-    >
+export const GeneralInfo = (
+  data: PatientGeneralInformationDataProps,
+): ReactElement => (
+  <StyledView width="100%">
+    <SectionHeader h1 fontWeight={500}>
       General Information
     </SectionHeader>
     <RowView marginTop={20}>
@@ -35,7 +31,11 @@ export const GeneralInfo = (data: PatientGeneralInformationDataProps): ReactElem
         title="Last name"
         info={data.generalInfo.lastName}
       />
-      <InformationBox flex={1} title="Cultural/tradition name" info={data.generalInfo.culturalTraditionName || 'None'} />
+      <InformationBox
+        flex={1}
+        title="Cultural/tradition name"
+        info={data.generalInfo.culturalTraditionName || 'None'}
+      />
     </RowView>
     <RowView marginTop={20}>
       <InformationBox
@@ -43,7 +43,11 @@ export const GeneralInfo = (data: PatientGeneralInformationDataProps): ReactElem
         title="Date of Birth"
         info={formatDate(data.generalInfo.birthDate, DateFormats.DDMMYY)}
       />
-      <InformationBox flex={1} title="Blood type" info={data.generalInfo.bloodType} />
+      <InformationBox
+        flex={1}
+        title="Blood type"
+        info={data.generalInfo.bloodType}
+      />
     </RowView>
   </StyledView>
 );

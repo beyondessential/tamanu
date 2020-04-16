@@ -16,7 +16,7 @@
     "import/resolver": { 
       "alias": {        
         "map": [                        
-          ["/styled", "./App/styled"],      
+          ["/styled", "./App/ui/styled"],      
           ["/helpers", "./App/helpers"]  ,
           ["/interfaces", "./App/interfaces"],
           ["/components", "./App/components"],   

@@ -8,39 +8,27 @@ import { theme } from '/styled/theme';
 import { PatientSection } from './PatientSection';
 
 interface FamilyInformationProps extends PatientParentsDataProps {
-  onEdit: () => void
+  onEdit: () => void;
 }
 
-export const FamilyInformation = (props: FamilyInformationProps): ReactElement => (
+export const FamilyInformation = (
+  props: FamilyInformationProps,
+): ReactElement => (
   <PatientSection
     hasSeparator={false}
     onEdit={props.onEdit}
     title="Family Information"
   >
-    <StyledView
-      marginTop={20}
-    >
-      <RowView
-        alignItems="center"
-        justifyContent="space-between"
-      >
-        <InformationBox
-          title="Mother"
-          info={props.parentsInfo.motherName}
-        />
+    <StyledView marginTop={20}>
+      <RowView alignItems="center" justifyContent="space-between">
+        <InformationBox title="Mother" info={props.parentsInfo.motherName} />
         <ArrowForward size={15} fill={theme.colors.TEXT_SOFT} />
       </RowView>
     </StyledView>
     <Separator marginTop={10} marginBottom={10} width={370} />
     <StyledView>
-      <RowView
-        alignItems="center"
-        justifyContent="space-between"
-      >
-        <InformationBox
-          title="Father"
-          info={props.parentsInfo.fatherName}
-        />
+      <RowView alignItems="center" justifyContent="space-between">
+        <InformationBox title="Father" info={props.parentsInfo.fatherName} />
         <ArrowForward size={15} fill={theme.colors.TEXT_SOFT} />
       </RowView>
     </StyledView>

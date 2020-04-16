@@ -6,7 +6,9 @@ import { VisitTypes, HeaderIcons } from '/helpers/constants';
 import { VisitButtonList } from './fixture';
 
 storiesOf('VisitTypeButton', module)
-  .addDecorator((story: Function) => <CenterView flex={1}>{story()}</CenterView>)
+  .addDecorator((story: Function) => (
+    <CenterView flex={1}>{story()}</CenterView>
+  ))
   .add('with icon selected', () => (
     <VisitTypeButton
       Icon={HeaderIcons[VisitTypes.CLINIC]}

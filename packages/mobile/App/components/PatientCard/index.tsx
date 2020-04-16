@@ -6,7 +6,7 @@ import { formatDate } from '/helpers/date';
 import { UserAvatar } from '/components/UserAvatar';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import * as styles from './styles';
-import { theme } from '../../styled/theme';
+import { theme } from '/styled/theme';
 export interface PatientCardProps {
   lastVisit: Date;
   name: string;

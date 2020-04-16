@@ -39,7 +39,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
           width="100%"
           alignItems="center"
           marginTop={screenPercentageToDP(7.29, Orientation.Height)}
-          marginBottom={screenPercentageToDP(14.70, Orientation.Height)}
+          marginBottom={screenPercentageToDP(14.7, Orientation.Height)}
         >
           <User
             size={screenPercentageToDP(7.29, Orientation.Height)}

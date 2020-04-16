@@ -5,5 +5,7 @@ import { AccordionList } from './index';
 import { data } from './fixtures';
 
 storiesOf('Accordion', module)
-  .addDecorator((getStory: any) => <CenterView flex={1}>{getStory()}</CenterView>)
+  .addDecorator((getStory: any) => (
+    <CenterView flex={1}>{getStory()}</CenterView>
+  ))
   .add('List', () => <AccordionList dataArray={data} />);

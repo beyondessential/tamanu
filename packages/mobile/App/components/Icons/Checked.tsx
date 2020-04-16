@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
-import { theme } from '../../styled/theme';
-import { StyledView } from '../../styled/common';
+import { theme } from '/styled/theme';
+import { StyledView } from '/styled/common';
 import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
 
 interface WithBackground {
@@ -9,7 +9,6 @@ interface WithBackground {
 }
 
 type CheckedProps = IconWithSizeProps & WithBackground;
-
 
 export const Checked = React.memo((props: CheckedProps) => (
   <StyledView

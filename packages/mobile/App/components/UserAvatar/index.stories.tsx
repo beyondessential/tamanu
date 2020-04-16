@@ -2,8 +2,8 @@ import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { UserAvatar } from './index';
 import { OutlineCameraIcon, Checked } from '../Icons';
-import { CenterView, StyledView } from '../../styled/common';
-import { theme } from '../../styled/theme';
+import { CenterView, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 const withoutImageProps = {
