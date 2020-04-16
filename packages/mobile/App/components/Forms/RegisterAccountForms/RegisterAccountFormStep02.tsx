@@ -16,7 +16,6 @@ import { Dropdown } from '../../Dropdown';
 import { dropdownItems } from '../../Dropdown/fixture';
 import { RegisterAccountFormStep2Props } from '../../../contexts/RegisterAccountContext';
 
-
 interface RegisterAccountFormStep02 {
   onSubmit: (values: RegisterAccountFormStep2Props) => void;
   formState: RegisterAccountFormStep2Props;
@@ -33,12 +32,9 @@ export const RegisterAccountFormStep02: FunctionComponent<RegisterAccountFormSte
     >
       EMPLOYER INFORMATION
     </StyledText>
-    <Form
-      {...props}
-    />
+    <Form {...props} />
   </FullView>
 );
-
 
 const Form: FunctionComponent<RegisterAccountFormStep02> = ({
   formState,
@@ -54,55 +50,62 @@ const Form: FunctionComponent<RegisterAccountFormStep02> = ({
       homeFacility: Yup.string().required(),
       profession: Yup.string(),
       professionalRegistrationNumber: Yup.string(),
-      firstYearOfRegistration: Yup.string().min(4).max(4),
+      firstYearOfRegistration: Yup.string()
+        .min(4)
+        .max(4),
     })}
     onSubmit={onSubmit}
   >
     {({ handleSubmit }: FormikHandlers): ReactNode => (
-      <StyledView
-        height={screenPercentageToDP(7.29 * 6, Orientation.Height)}
-        width="100%"
-        justifyContent="space-around"
-      >
-        <Field
-          component={Dropdown}
-          options={dropdownItems}
-          name="role"
-          label="Role"
-          autoFocus
-          required
-        />
-        <Field
-          component={Dropdown}
-          options={dropdownItems}
-          name="homeFacility"
-          label="Home Facility"
-          required
-        />
-        <Field component={TextField} name="profession" label="Profession" />
-        <Field
-          component={TextField}
-          name="professionalRegistrationNumber"
-          label="Professional Registration Number"
-          keyboardType="number-pad"
-          returnKeyType="done"
-        />
-        <Field
-          component={TextField}
-          name="firstYearOfRegistration"
-          label="First Year of Registration"
-          keyboardType="number-pad"
-          returnKeyType="done"
-        />
-        <RowView marginTop={10}>
+      <React.Fragment>
+        <StyledView
+          height={screenPercentageToDP(37.45, Orientation.Height)}
+          width="100%"
+          justifyContent="space-around"
+        >
+          <Field
+            component={Dropdown}
+            options={dropdownItems}
+            name="role"
+            label="Role"
+            autoFocus
+            required
+          />
+          <Field
+            component={Dropdown}
+            options={dropdownItems}
+            name="homeFacility"
+            label="Home Facility"
+            required
+          />
+          <Field component={TextField} name="profession" label="Profession" />
+          <Field
+            component={TextField}
+            name="professionalRegistrationNumber"
+            label="Professional Registration Number"
+            keyboardType="number-pad"
+            returnKeyType="done"
+          />
+          <Field
+            component={TextField}
+            name="firstYearOfRegistration"
+            label="First Year of Registration"
+            keyboardType="number-pad"
+            returnKeyType="done"
+          />
+        </StyledView>
+        <RowView
+          height={screenPercentageToDP(6.07, Orientation.Height)}
+          marginTop={screenPercentageToDP(1.21, Orientation.Height)}
+        >
           <Button
             flex={1}
-            marginRight={10}
+            marginRight={screenPercentageToDP(2.43, Orientation.Width)}
             onPress={navigateFormStepBack}
             outline
             borderColor={theme.colors.WHITE}
             buttonText="Back"
-            textColor={theme.colors.TEXT_SUPER_DARK}
+            textColor={theme.colors.WHITE}
           />
           <Button
             flex={1}
@@ -112,7 +115,7 @@ const Form: FunctionComponent<RegisterAccountFormStep02> = ({
             textColor={theme.colors.TEXT_SUPER_DARK}
           />
         </RowView>
-      </StyledView>
+      </React.Fragment>
     )}
   </Formik>
 );

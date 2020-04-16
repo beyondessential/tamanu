@@ -1,8 +1,7 @@
-import React from 'react';
-import styled from 'styled-components/native';
+import React, { useCallback } from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
 import { theme } from '/styled/theme';
-import { StyledView, RowView } from '/styled/common';
+import { StyledView, RowView, StyledText } from '/styled/common';
 import { ColorHelper } from '/helpers/colors';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
@@ -26,16 +25,6 @@ interface RadioButtonText {
   error?: boolean;
 }
 
-const StyledButtonText = styled.Text<RadioButtonText>`
-  font-size: 14;
-  line-height: 16;
-  color: ${({ selected, error }): string => {
-    if (error) return theme.colors.ALERT;
-    if (selected) return theme.colors.TEXT_DARK;
-    return theme.colors.TEXT_MID;
-  }};
-`;
-
 export const RadioButton = (props: RadioOptionProps): JSX.Element => {
   const getColor = React.useCallback(() => {
     if (props.error) return ColorHelper.halfTransparency(theme.colors.ALERT);
@@ -46,6 +35,12 @@ export const RadioButton = (props: RadioOptionProps): JSX.Element => {
     props,
   ]);
 
+  const getLabelColor = useCallback(() => {
+    if (props.error) return theme.colors.ALERT;
+    if (props.selected) return theme.colors.TEXT_DARK;
+    return theme.colors.TEXT_MID;
+  }, [props.error, props.selected]);
+
   return (
     <TouchableWithoutFeedback onPress={onPressCallback}>
       <RowView
@@ -53,7 +48,7 @@ export const RadioButton = (props: RadioOptionProps): JSX.Element => {
         background={theme.colors.WHITE}
         alignItems="center"
         justifyContent="center"
-        height={55}
+        height={screenPercentageToDP('6.68', Orientation.Height)}
         borderColor={
           props.error
             ? ColorHelper.halfTransparency(theme.colors.ALERT)
@@ -84,9 +79,12 @@ export const RadioButton = (props: RadioOptionProps): JSX.Element => {
             }
           />
         </StyledView>
-        <StyledButtonText error={props.error} selected={props.selected}>
+        <StyledText
+          fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+          color={getLabelColor()}
+        >
           {props.label}
-        </StyledButtonText>
+        </StyledText>
       </RowView>
     </TouchableWithoutFeedback>
   );

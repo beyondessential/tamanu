@@ -11,6 +11,7 @@ import { BaseInputProps } from '/interfaces/BaseInputProps';
 import { InputContainer, StyledMaskedInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { RefObject } from './TextField';
+import { isIOS, isAndroid } from '../../helpers/platform';
 
 export interface TextFieldProps extends BaseInputProps {
   value: string;
@@ -22,7 +23,7 @@ export interface TextFieldProps extends BaseInputProps {
   maskType?: TextInputMaskTypeProp;
   options?: TextInputMaskOptionProp;
   datePicker?: boolean;
-  returnKeyType? : ReturnKeyTypeOptions;
+  returnKeyType?: ReturnKeyTypeOptions;
 }
 
 export const MaskedTextField = React.memo(
@@ -59,12 +60,20 @@ export const MaskedTextField = React.memo(
       value,
       focused,
       style: {
-        paddingTop: screenPercentageToDP(1.21, Orientation.Height),
+        paddingTop: isIOS()
+          ? screenPercentageToDP(1.21, Orientation.Height)
+          : 0,
+        marginTop: isAndroid()
+          ? screenPercentageToDP(1.71, Orientation.Height)
+          : 0,
       },
     };
 
     return (
-      <StyledView height={55} width="100%">
+      <StyledView
+        height={screenPercentageToDP('6.68', Orientation.Height)}
+        width="100%"
+      >
         <InputContainer
           hasValue={value.length > 0}
           error={error}
@@ -91,7 +100,6 @@ export const MaskedTextField = React.memo(
             type={maskType}
             {...inputProps}
             returnKeyType="done"
-
           />
         </InputContainer>
       </StyledView>

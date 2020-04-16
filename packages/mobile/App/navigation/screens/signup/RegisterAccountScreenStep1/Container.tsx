@@ -4,9 +4,15 @@ import { Value } from 'react-native-reanimated';
 //Protocols
 import { RegisterAccountScreenProps } from '/interfaces/screens/SignUpStack/RegisterAccountStep1Props';
 // contexts
-import { RegisterAccountFormStep1Props, RegisterAccountContext } from '../../../../contexts/RegisterAccountContext';
+import {
+  RegisterAccountFormStep1Props,
+  RegisterAccountContext,
+} from '../../../../contexts/RegisterAccountContext';
 //helpers
-import { onKeyboardOpenListener, onKeyboardCloseListener } from '/helpers/keyboard';
+import {
+  onKeyboardOpenListener,
+  onKeyboardCloseListener,
+} from '/helpers/keyboard';
 import { animateState } from '/helpers/animation';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { Routes } from '/helpers/routes';
@@ -16,53 +22,73 @@ import { Screen } from './Screen';
 export const RegisterAccountStep1Container: FC<any> = ({
   navigation,
 }: RegisterAccountScreenProps) => {
-  const {
-    registerFormState,
-    updateForm } = useContext(RegisterAccountContext);
+  const { registerFormState, updateForm } = useContext(RegisterAccountContext);
 
-  const [iconSize] = useState(new Value(60));
-  const [titleFont] = useState(new Value(screenPercentageToDP('2.55', Orientation.Height)));
+  const [iconSize] = useState(
+    new Value(screenPercentageToDP('7.29', Orientation.Height)),
+  );
+  const [titleFont] = useState(
+    new Value(screenPercentageToDP('2.55', Orientation.Height)),
+  );
+  const [viewTopPosition] = useState(
+    new Value(screenPercentageToDP(4.43, Orientation.Height)),
+  );
 
-  const step1FormProps = useMemo<RegisterAccountFormStep1Props>(() => ({
-    firstName: registerFormState.firstName,
-    lastName: registerFormState.lastName,
-    email: registerFormState.email,
-    phone: registerFormState.phone,
-    gender: registerFormState.gender,
-  }), []);
+  const step1FormProps = useMemo<RegisterAccountFormStep1Props>(
+    () => ({
+      firstName: registerFormState.firstName,
+      lastName: registerFormState.lastName,
+      email: registerFormState.email,
+      phone: registerFormState.phone,
+      gender: registerFormState.gender,
+    }),
+    [],
+  );
 
   onKeyboardOpenListener(() => {
-    animateState(iconSize, 30, 300);
-    animateState(titleFont, screenPercentageToDP('1.55', Orientation.Height), 300);
+    animateState(viewTopPosition, 5, 300);
+    animateState(
+      iconSize,
+      screenPercentageToDP('3.64', Orientation.Height),
+      300,
+    );
+    animateState(
+      titleFont,
+      screenPercentageToDP('1.55', Orientation.Height),
+      300,
+    );
   });
   onKeyboardCloseListener(() => {
-    animateState(iconSize, 60, 300);
-    animateState(titleFont, screenPercentageToDP('2.55', Orientation.Height), 300);
+    animateState(viewTopPosition, 20, 300);
+    animateState(
+      iconSize,
+      screenPercentageToDP('7.29', Orientation.Height),
+      300,
+    );
+    animateState(
+      titleFont,
+      screenPercentageToDP('2.55', Orientation.Height),
+      300,
+    );
   });
 
-  const navigateToIntro = useCallback(
-    () => {
-      navigation.navigate(Routes.SignUpStack.Intro);
-    },
-    [],
-  );
+  const navigateToIntro = useCallback(() => {
+    navigation.navigate(Routes.SignUpStack.Intro);
+  }, []);
 
-  const onSubmitForm = useCallback(
-    (values) => {
-      Keyboard.dismiss();
-      updateForm(values);
-      navigation.navigate(Routes.SignUpStack.RegisterAccountStep2);
-    },
-    [],
-  );
+  const onSubmitForm = useCallback(values => {
+    Keyboard.dismiss();
+    updateForm(values);
+    navigation.navigate(Routes.SignUpStack.RegisterAccountStep2);
+  }, []);
 
   return (
     <Screen
       iconSize={iconSize}
       navigateToIntro={navigateToIntro}
       onSubmitForm={onSubmitForm}
-
       step1FormProps={step1FormProps}
+      iconContainerPosition={viewTopPosition}
       titleFont={titleFont}
     />
   );

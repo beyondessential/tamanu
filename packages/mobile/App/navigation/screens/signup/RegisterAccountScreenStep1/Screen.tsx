@@ -22,50 +22,51 @@ interface ScreenProps {
   step1FormProps: RegisterAccountFormStep1Props;
   iconSize: AnimatedValue;
   titleFont: AnimatedValue;
+  iconContainerPosition: AnimatedValue;
   onSubmitForm: (values: RegisterAccountFormStep1Props) => void;
 }
 
-export const Screen: FC<ScreenProps> = React.memo((
-  {
+export const Screen: FC<ScreenProps> = React.memo(
+  ({
     navigateToIntro,
     step1FormProps,
     iconSize,
     titleFont,
     onSubmitForm,
-  }: ScreenProps,
-) => (
-  <FullView
-    background={theme.colors.PRIMARY_MAIN}
-  >
-    <StyledSafeAreaView flex={1}>
-      <RowView
-        justifyContent="flex-end"
-      >
-        <StyledTouchableOpacity
-          padding={15}
-          onPress={navigateToIntro}
+    iconContainerPosition,
+  }: ScreenProps) => (
+    <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN}>
+      <FullView background={theme.colors.PRIMARY_MAIN}>
+        <RowView justifyContent="flex-end">
+          <StyledTouchableOpacity padding={15} onPress={navigateToIntro}>
+            <Cross size={screenPercentageToDP(2.43, Orientation.Height)} />
+          </StyledTouchableOpacity>
+        </RowView>
+        <CenterView
+          as={Animated.View}
+          position="absolute"
+          width="100%"
+          top={iconContainerPosition}
         >
-          <Cross size={screenPercentageToDP(2.43, Orientation.Height)} />
-        </StyledTouchableOpacity>
-      </RowView>
-      <CenterView>
-        <User size={iconSize} fill={theme.colors.SECONDARY_MAIN} />
-        <StyledText
-          as={Animated.Text}
-          marginTop={10}
-          color={theme.colors.WHITE}
-          fontSize={titleFont}
-          fontWeight="bold"
-        >New Account
-        </StyledText>
-        <StepMarker step={1} />
-      </CenterView>
-      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-        <RegisterAccountFormStep01
-          formState={step1FormProps}
-          onSubmit={onSubmitForm}
-        />
-      </KeyboardAvoidingView>
+          <User size={iconSize} fill={theme.colors.SECONDARY_MAIN} />
+          <StyledText
+            as={Animated.Text}
+            marginTop={10}
+            color={theme.colors.WHITE}
+            fontSize={titleFont}
+            fontWeight="bold"
+          >
+            New Account
+          </StyledText>
+          <StepMarker step={1} />
+        </CenterView>
+        <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+          <RegisterAccountFormStep01
+            formState={step1FormProps}
+            onSubmit={onSubmitForm}
+          />
+        </KeyboardAvoidingView>
+      </FullView>
     </StyledSafeAreaView>
-  </FullView>
-));
+  ),
+);

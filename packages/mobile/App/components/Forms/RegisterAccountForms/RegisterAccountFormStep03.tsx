@@ -15,7 +15,6 @@ import { Button } from '../../Button';
 import { RegisterAccountFormStep3Props } from '../../../contexts/RegisterAccountContext';
 import { Checkbox } from '../../Checkbox';
 
-
 interface RegisterAccountFormStep03 {
   onSubmit: (values: RegisterAccountFormStep3Props) => void;
   formState: RegisterAccountFormStep3Props;
@@ -32,9 +31,7 @@ export const RegisterAccountFormStep03: FunctionComponent<RegisterAccountFormSte
     >
       CREATE PASSWORD
     </StyledText>
-    <Form
-      {...props}
-    />
+    <Form {...props} />
   </FullView>
 );
 
@@ -50,7 +47,9 @@ const Form: FunctionComponent<RegisterAccountFormStep03> = ({
     validationSchema={Yup.object().shape({
       password: Yup.string().required(),
       confirmPassword: Yup.string().required(),
-      readPrivacyPolice: Yup.boolean().required().oneOf([true], 'Field must be checked'),
+      readPrivacyPolice: Yup.boolean()
+        .required()
+        .oneOf([true], 'Field must be checked'),
     })}
     onSubmit={onSubmit}
   >
@@ -75,21 +74,16 @@ const Form: FunctionComponent<RegisterAccountFormStep03> = ({
           secure
           returnKeyType="done"
         />
-        <RowView>
-          <Field
-            component={Checkbox}
-            name="readPrivacyPolice"
-          />
-          <StyledText
-
-            marginLeft={10}
-            fontSize={12}
-            color={theme.colors.WHITE}
-          >
+        <RowView alignItems="center">
+          <Field component={Checkbox} name="readPrivacyPolice" />
+          <StyledText marginLeft={10} fontSize={12} color={theme.colors.WHITE}>
             I have to read a privacy statement and agree to abide by it.
           </StyledText>
         </RowView>
-        <RowView marginTop={10}>
+        <RowView
+          height={screenPercentageToDP(6.07, Orientation.Height)}
+          marginTop={10}
+        >
           <Button
             flex={1}
             marginRight={10}
@@ -97,7 +91,7 @@ const Form: FunctionComponent<RegisterAccountFormStep03> = ({
             outline
             borderColor={theme.colors.WHITE}
             buttonText="Back"
-            textColor={theme.colors.TEXT_SUPER_DARK}
+            textColor={theme.colors.WHITE}
           />
           <Button
             flex={1}
