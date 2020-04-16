@@ -1,5 +1,6 @@
 import express from 'express';
 import { Form } from 'multiparty';
+import { generate } from 'shortid';
 
 import { readSurveyXSLX, writeProgramToDatabase } from '../../surveyImporter';
 
@@ -101,17 +102,27 @@ programRoutes.get('/survey/:surveyId', (req, res) => {
 
 programRoutes.post('/surveyResponse', (req, res) => {
   // submit a new survey response
-  const { db, body } = req;
+  const { db, body, user } = req;
   const { patientId, surveyId, date, startTime, endTime, answers } = body;
 
-  // answers in the form of { [questionCode]: answer }
-  const answerArray = Object.entries(answers).map(([questionCode, answer]) => ({
+  // answers arrive in the form of { [questionCode]: answer }
+  const answerArray = Object.entries(answers).map(([questionId, answer]) => ({
+    _id: generate(),
+    type: 'answer',
     questionId,
-    body: answer,
+    body: `${answer}`,
   }));
 
   db.write(() => {
-    // TODO: write survey response and all answers
-    // const surveyResponse = db.create('surveyResponse', surveyResponseData);
+    const surveyResponse = db.create('surveyResponse', {
+      _id: generate(),
+      surveyId: surveyId,
+      assessorId: '???',
+      startTime,
+      endTime,
+      answers: answerArray,
+    });
+
+    res.send(surveyResponse);
   });
 });

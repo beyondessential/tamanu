@@ -123,14 +123,10 @@ function getInitialValue(q) {
   }
 }
 
-export const SurveyView = ({ survey, onCancel }) => {
+export const SurveyView = ({ survey, onSubmit, onCancel }) => {
   const renderSurvey = useCallback(({ submitForm }) => (
     <SurveyScreenPaginator survey={survey} onSurveyComplete={submitForm} onCancel={onCancel} />
   ));
-
-  const onSubmit = useCallback(data => {
-    console.log(data);
-  });
 
   const initialValues = {};
   survey.screens.forEach(s => {
