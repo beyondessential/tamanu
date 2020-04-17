@@ -75,6 +75,7 @@ export function readSurveyXSLX(path) {
 function writeQuestion(db, survey, questionData) {
   const question = db.create('surveyQuestion', {
     _id: shortid.generate(),
+    options: '',
     ...questionData,
   });
 
