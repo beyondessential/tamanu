@@ -1,7 +1,7 @@
 import defaults from './defaults';
 
 export const QuestionSchema = {
-  name: 'question',
+  name: 'surveyQuestion',
   primaryKey: '_id',
   properties: {
     _id: 'string',
@@ -18,7 +18,7 @@ export const QuestionSchema = {
       type: 'string',
       optional: true,
     },
-    options: 'string[]',
+    options: 'string',
     code: {
       type: 'string',
       optional: true,

@@ -24,8 +24,8 @@ export const SelectInput = ({
   ...props
 }) => {
   const isReadonly = readonly || (value && !onChange);
-  if (disabled || isReadonly) {
-    const valueText = (options.find(o => o.value === value) || {}).label || '';
+  if (disabled || isReadonly || !options || options.length === 0) {
+    const valueText = ((options || []).find(o => o.value === value) || {}).label || '';
     return (
       <OuterLabelFieldWrapper label={label} {...props}>
         <StyledTextField
