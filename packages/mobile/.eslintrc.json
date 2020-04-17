@@ -16,14 +16,14 @@
     "import/resolver": { 
       "alias": {        
         "map": [                        
-          ["/styled", "./App/styled"],      
-          ["/helpers", "./App/helpers"]  ,
-          ["/interfaces", "./App/interfaces"],
-          ["/components", "./App/components"],   
-          ["/navigation", "./App/navigation"],         
-          ["/containers", "./App/containers"],
-          ["/store", "./App/store"],
-          ["/models", "./App/models"],
+          ["/styled", "./App/ui/styled"],      
+          ["/helpers", "./App/ui/helpers"]  ,
+          ["/interfaces", "./App/ui/interfaces"],
+          ["/components", "./App/ui/components"],   
+          ["/navigation", "./App/ui/navigation"],         
+          ["/containers", "./App/ui/containers"],
+          ["/store", "./App/ui/store"],
+          ["/models", "./App/ui/models"],
           ["/services", "./App/services"],
           ["/root", "./"]                
         ],

@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 
-jest.mock('../App/components/Icons', () => ({
+jest.mock('../App/ui/components/Icons', () => ({
   Appointments: View,
   Alert: View,
   ArrowBack: View,

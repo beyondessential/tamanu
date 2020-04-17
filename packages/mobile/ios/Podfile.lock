@@ -28,13 +28,13 @@ PODS:
   - libwebp/mux (1.0.3):
     - libwebp/demux
   - libwebp/webp (1.0.3)
-  - Permission-Camera (2.0.10):
+  - Permission-Camera (2.1.1):
     - RNPermissions
-  - Permission-Contacts (2.0.10):
+  - Permission-Contacts (2.1.1):
     - RNPermissions
-  - Permission-Notifications (2.0.10):
+  - Permission-Notifications (2.1.1):
     - RNPermissions
-  - Permission-PhotoLibrary (2.0.10):
+  - Permission-PhotoLibrary (2.1.1):
     - RNPermissions
   - RCTRequired (0.61.5)
   - RCTTypeSafety (0.61.5):
@@ -242,7 +242,7 @@ PODS:
     - ReactCommon/jscallinvoker (= 0.61.5)
   - RNCAsyncStorage (1.9.0):
     - React
-  - RNCMaskedView (0.1.7):
+  - RNCMaskedView (0.1.9):
     - React
   - RNDateTimePicker (2.3.2):
     - React
@@ -252,7 +252,7 @@ PODS:
     - SDWebImageWebPCoder (~> 0.2.3)
   - RNGestureHandler (1.6.1):
     - React
-  - RNPermissions (2.0.10):
+  - RNPermissions (2.1.1):
     - React
   - RNReanimated (1.8.0):
     - React
@@ -418,10 +418,10 @@ SPEC CHECKSUMS:
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
   libwebp: 057912d6d0abfb6357d8bb05c0ea470301f5d61e
-  Permission-Camera: a8f6007d17b02ed8a2d6bac1c37c2fd5df9b4e8a
-  Permission-Contacts: ac39cd8b11b8931482bf68fc3fa08dbd7ece909d
-  Permission-Notifications: c9eb3a2da68dc0f37a8dc67d37bd28d150c5041d
-  Permission-PhotoLibrary: e59a7a687e002e8c8c46946c26520934ba85a688
+  Permission-Camera: 01583e5864cb99d89cbfb3ec62cb83c78d8d227a
+  Permission-Contacts: ad583342a76f0c77f9060cab1fb64eef05ed310c
+  Permission-Notifications: ce3c8648a2dd45af1d8daca246e37f141436b650
+  Permission-PhotoLibrary: 260f9a0d7c3e8471bf6d56560f3d7c113ad078ff
   RCTRequired: b153add4da6e7dbc44aebf93f3cf4fcae392ddf1
   RCTTypeSafety: 9aa1b91d7f9310fc6eadc3cf95126ffe818af320
   React: b6a59ef847b2b40bb6e0180a97d0ca716969ac78
@@ -445,11 +445,11 @@ SPEC CHECKSUMS:
   React-RCTVibration: a49a1f42bf8f5acf1c3e297097517c6b3af377ad
   ReactCommon: 198c7c8d3591f975e5431bec1b0b3b581aa1c5dd
   RNCAsyncStorage: 453cd7c335ec9ba3b877e27d02238956b76f3268
-  RNCMaskedView: 76c40a1d41c3e2535df09246a2b5487f04de0814
+  RNCMaskedView: 71fc32d971f03b7f03d6ab6b86b730c4ee64f5b6
   RNDateTimePicker: 4bd49e09f91ca73d69119a9e1173b0d43b82f5e5
   RNFastImage: 9b0c22643872bb7494c8d87bbbb66cc4c0d9e7a2
   RNGestureHandler: 8f09cd560f8d533eb36da5a6c5a843af9f056b38
-  RNPermissions: 1008d3511fee0e25739cf81c4af0d1b2248f1053
+  RNPermissions: 18cf517660d0247a4b66d21b6f85272fd1870cd2
   RNReanimated: 955cf4068714003d2f1a6e2bae3fb1118f359aff
   RNScreens: b5c0e1b2b04512919e78bd3898e144a157ce2363
   RNSpringScrollView: 8b0af44fda8b131d845b93bf5b1d0710152e4e61

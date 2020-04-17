@@ -13,11 +13,11 @@ module.exports = {
   setupFiles: ['./jest.setup.ts'],
   moduleDirectories: ['.', 'node_modules'],
   moduleNameMapper: {
-    '^/helpers(.*)$': '<rootDir>/App/helpers$1',
-    '^/styled(.*)$': '<rootDir>/App/styled$1',
-    '^/components(.*)$': '<rootDir>/App/components$1',
-    '^/interfaces(.*)$': '<rootDir>/App/interfaces$1',
-    '^/navigation(.*)$': '<rootDir>/App/navigation$1',
+    '^/helpers(.*)$': '<rootDir>/App/ui/helpers$1',
+    '^/styled(.*)$': '<rootDir>/App/ui/styled$1',
+    '^/components(.*)$': '<rootDir>/App/ui/components$1',
+    '^/interfaces(.*)$': '<rootDir>/App/ui/interfaces$1',
+    '^/navigation(.*)$': '<rootDir>/App/ui/navigation$1',
     '^/services(.*)$': '<rootDir>/App/services$1',
   },
 };

@@ -4,33 +4,33 @@
 // https://github.com/elderfo/react-native-storybook-loader.git
 
 function loadStories() {
-	require('../App/components/Accordion/index.stories');
-	require('../App/components/BottomNavigator/index.stories');
-	require('../App/components/Button/index.stories');
-	require('../App/components/Chart/index.stories');
-	require('../App/components/Checkbox/index.stories');
-	require('../App/components/CircularProgress/index.stories');
-	require('../App/components/DateField/DateField.stories');
-	require('../App/components/Dropdown/index.stories');
-	require('../App/components/Icons/index.stories');
-	require('../App/components/Info/index.stories');
-	require('../App/components/MenuOptionButton/index.stories');
-	require('../App/components/PatientCard/index.stories');
-	require('../App/components/PatientMenuButton/index.stories');
-	require('../App/components/PatientSectionList/index.stories');
-	require('../App/components/PatientTile/index.stories');
-	require('../App/components/RadioButtonGroup/index.stories');
-	require('../App/components/RangeSlider/index.stories');
-	require('../App/components/SearchInput/index.stories');
-	require('../App/components/SectionHeader/index.stories');
-	require('../App/components/TextField/MaskedTextfield.stories');
-	require('../App/components/TextField/TextField.stories');
-	require('../App/components/TopTabNavigator/index.stories');
-	require('../App/components/UserAvatar/index.stories');
-	require('../App/components/VaccineCard/index.stories');
-	require('../App/components/VaccinesTable/index.stories');
-	require('../App/components/VisitTypeButton/index.stories');
-	require('../App/components/VitalsTable/index.stories');
+	require('../App/ui/components/Accordion/index.stories');
+	require('../App/ui/components/BottomNavigator/index.stories');
+	require('../App/ui/components/Button/index.stories');
+	require('../App/ui/components/Chart/index.stories');
+	require('../App/ui/components/Checkbox/index.stories');
+	require('../App/ui/components/CircularProgress/index.stories');
+	require('../App/ui/components/DateField/DateField.stories');
+	require('../App/ui/components/Dropdown/index.stories');
+	require('../App/ui/components/Icons/index.stories');
+	require('../App/ui/components/Info/index.stories');
+	require('../App/ui/components/MenuOptionButton/index.stories');
+	require('../App/ui/components/PatientCard/index.stories');
+	require('../App/ui/components/PatientMenuButton/index.stories');
+	require('../App/ui/components/PatientSectionList/index.stories');
+	require('../App/ui/components/PatientTile/index.stories');
+	require('../App/ui/components/RadioButtonGroup/index.stories');
+	require('../App/ui/components/RangeSlider/index.stories');
+	require('../App/ui/components/SearchInput/index.stories');
+	require('../App/ui/components/SectionHeader/index.stories');
+	require('../App/ui/components/TextField/MaskedTextfield.stories');
+	require('../App/ui/components/TextField/TextField.stories');
+	require('../App/ui/components/TopTabNavigator/index.stories');
+	require('../App/ui/components/UserAvatar/index.stories');
+	require('../App/ui/components/VaccineCard/index.stories');
+	require('../App/ui/components/VaccinesTable/index.stories');
+	require('../App/ui/components/VisitTypeButton/index.stories');
+	require('../App/ui/components/VitalsTable/index.stories');
 }
 
 const stories = [
