@@ -126,7 +126,7 @@ function getInitialValue(q) {
   }
 }
 
-export const SurveyView = ({ survey, onSubmit, onCancel }) => {
+export const SurveyView = ({ survey, onSubmit, onCancel, forInfo }) => {
   const renderSurvey = useCallback(({ submitForm }) => (
     <SurveyScreenPaginator survey={survey} onSurveyComplete={submitForm} onCancel={onCancel} />
   ));
@@ -141,6 +141,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
   return (
     <ContentPane>
       <h2>{survey.name}</h2>
+      <p>{forInfo}</p>
       <Form onSubmit={onSubmit} render={renderSurvey} initialValues={initialValues} />
     </ContentPane>
   );

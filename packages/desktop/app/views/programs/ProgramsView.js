@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 
-import { connectApi } from 'desktop/app/api';
+import { connectApiAndState } from 'desktop/app/api';
 
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
@@ -10,8 +10,8 @@ const DumbProgramsView = React.memo(({
   onFetchSurvey, 
   onSubmitSurvey,
   onFetchProgramsList,
-  patientId,
-  visitId,
+  patient,
+  visit,
 }) => {
   const [survey, setSurvey] = React.useState(null);
   const [programsList, setProgramsList] = React.useState(null);
@@ -38,8 +38,8 @@ const DumbProgramsView = React.memo(({
     onSubmitSurvey({
       surveyId: survey._id,
       startTime: startTime,
-      patientId,
-      visitId,
+      patientId: patient._id,
+      visitId: visit._id,
       endTime: new Date(),
       answers: data,
     });
@@ -53,11 +53,22 @@ const DumbProgramsView = React.memo(({
     return <SurveySelector programs={programsList} onSelectSurvey={onSelectSurvey} />;
   }
 
-  return <SurveyView onSubmit={onSubmit} survey={survey} onCancel={onCancelSurvey} />;
+  const forInfo = `For ${patient.firstName} ${patient.lastName} (${patient.displayId})`;
+
+  return (
+    <SurveyView 
+      forInfo={forInfo}
+      onSubmit={onSubmit} 
+      survey={survey}
+      onCancel={onCancelSurvey} 
+    />
+  );
 });
 
-export const ProgramsView = connectApi(api => ({
+export const ProgramsView = connectApiAndState((api, state, dispatch, props) => ({
   onFetchSurvey: id => api.get(`survey/${id}`),
   onFetchProgramsList: () => api.get('program'),
   onSubmitSurvey: (data) => api.post(`surveyResponse`, data),
+  patient: state.patient,
+  visit: state.visit,
 }))(DumbProgramsView);
