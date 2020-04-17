@@ -4,7 +4,7 @@ import { submenuIcons } from './config';
 import { Sidebar } from './Sidebar';
 
 // TODO fetch programs from api
-const DUMMY_PROGRAM = { name: 'Pregnancy', _id: 'pregnancy' };
+const DUMMY_PROGRAM = { name: 'All programs', _id: 'all-programs' };
 const fetchPrograms = async () => [DUMMY_PROGRAM];
 
 export const SidebarWithPrograms = memo(({ items, ...restOfProps }) => {
