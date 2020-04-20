@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import CalendarIcon from '@material-ui/icons/CalendarToday';
 import SubjectIcon from '@material-ui/icons/Subject';
 
-import { VISIT_TYPES } from 'Shared/constants';
+import { VISIT_TYPES } from 'shared/constants';
 import { Button, BackButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
@@ -166,21 +166,22 @@ const ProcedurePane = React.memo(({ visit, readonly }) => {
   );
 });
 
-const ProgramsPane = connect(null, dispatch => ({
-  onNavigateToPrograms: () => dispatch(push('/programs')),
-}))(React.memo(({ onNavigateToPrograms }) => (
-  <div>
-    <ContentPane>
-      <Button
-        onClick={() => onNavigateToPrograms()}
-        variant="contained"
-        color="primary"
-      >
-        New survey
-      </Button>
-    </ContentPane>
-  </div>
-)));
+const ProgramsPane = connect(
+  null,
+  dispatch => ({
+    onNavigateToPrograms: () => dispatch(push('/programs')),
+  }),
+)(
+  React.memo(({ onNavigateToPrograms }) => (
+    <div>
+      <ContentPane>
+        <Button onClick={() => onNavigateToPrograms()} variant="contained" color="primary">
+          New survey
+        </Button>
+      </ContentPane>
+    </div>
+  )),
+);
 
 const TABS = [
   {
@@ -417,7 +418,8 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
           <AdmissionInfoRow>
             <AdmissionInfo>
               <SubjectIcon />
-              <AdmissionInfoLabel>Type: </AdmissionInfoLabel> {visit.visitType}
+              <AdmissionInfoLabel>Type: </AdmissionInfoLabel>
+              <span>{` ${visit.visitType}`}</span>
             </AdmissionInfo>
             <AdmissionInfo>
               <CalendarIcon />

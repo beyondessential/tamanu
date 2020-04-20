@@ -37,11 +37,7 @@ const SurveyQuestion = ({ question }) => {
 
   return (
     <QuestionContainer>
-      <Field 
-        label={question.text}
-        component={FieldComponent} 
-        name={question.code}
-      />
+      <Field label={question.text} component={FieldComponent} name={question.code} />
     </QuestionContainer>
   );
 };
@@ -66,12 +62,14 @@ const SurveyScreen = ({ screen, onStepForward, onStepBack }) => {
   );
 };
 
+const COMPLETE_MESSAGE = `
+  Survey complete. Press "Complete" to submit your response,
+  or use the Back button to review answers.
+`;
+
 const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   <div>
-    <div>
-      Survey complete. Press "Complete" to submit your response, or 
-      use the Back button to review answers.
-    </div>
+    <div>{COMPLETE_MESSAGE}</div>
     <div>
       <ButtonRow>
         <Button variant="contained" onClick={onStepBack}>

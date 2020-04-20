@@ -114,26 +114,30 @@ function annotateVisitWithPatientData(visit) {
   };
 }
 
-export const AdmittedPatientsView = selectPatientConnector(React.memo(({ onViewPatient }) => (
-  <PageContainer>
-    <TopBar title="Admitted patient listing" />
-    <PatientTable
-      onViewPatient={onViewPatient}
-      endpoint={INPATIENT_ENDPOINT}
-      transformRow={annotateVisitWithPatientData}
-      showInpatientDetails
-    />
-  </PageContainer>
-)));
+export const AdmittedPatientsView = selectPatientConnector(
+  React.memo(({ onViewPatient }) => (
+    <PageContainer>
+      <TopBar title="Admitted patient listing" />
+      <PatientTable
+        onViewPatient={onViewPatient}
+        endpoint={INPATIENT_ENDPOINT}
+        transformRow={annotateVisitWithPatientData}
+        showInpatientDetails
+      />
+    </PageContainer>
+  )),
+);
 
-export const OutpatientsView = selectPatientConnector(React.memo(({ onViewPatient }) => (
-  <PageContainer>
-    <TopBar title="Outpatient listing" />
-    <PatientTable
-      onViewPatient={onViewPatient}
-      endpoint={OUTPATIENT_ENDPOINT}
-      transformRow={annotateVisitWithPatientData}
-      showInpatientDetails
-    />
-  </PageContainer>
-)));
+export const OutpatientsView = selectPatientConnector(
+  React.memo(({ onViewPatient }) => (
+    <PageContainer>
+      <TopBar title="Outpatient listing" />
+      <PatientTable
+        onViewPatient={onViewPatient}
+        endpoint={OUTPATIENT_ENDPOINT}
+        transformRow={annotateVisitWithPatientData}
+        showInpatientDetails
+      />
+    </PageContainer>
+  )),
+);

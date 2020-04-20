@@ -14,4 +14,3 @@ export const connectApi = mapApiToProps => WrappedComponent =>
       }}
     </ApiContext.Consumer>
   ));
-

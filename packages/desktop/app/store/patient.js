@@ -61,7 +61,7 @@ const handlers = {
     loading: false,
     ...action.patient,
   }),
-  [PATIENT_CLEAR]: action => ({
+  [PATIENT_CLEAR]: () => ({
     loading: false,
     id: null,
     error: '',

@@ -102,7 +102,7 @@ programRoutes.get('/survey/:surveyId', (req, res) => {
 });
 
 function getVisitForSurvey(db, patientId, visitId, surveyResponse) {
-  if(visitId) {
+  if (visitId) {
     return db.objectForPrimaryKey('visit', visitId);
   }
 
@@ -110,7 +110,7 @@ function getVisitForSurvey(db, patientId, visitId, surveyResponse) {
   const patient = db.objectForPrimaryKey('patient', patientId);
 
   const existingVisit = patient.visits.find(x => !x.endDate);
-  if(existingVisit) {
+  if (existingVisit) {
     return existingVisit;
   }
 
@@ -133,14 +133,14 @@ function getVisitForSurvey(db, patientId, visitId, surveyResponse) {
 programRoutes.post('/surveyResponse', (req, res) => {
   // submit a new survey response
   const { db, body, user } = req;
-  const { 
+  const {
     // patientId,
     visitId,
     surveyId,
     date,
     startTime,
     endTime,
-    answers 
+    answers,
   } = body;
 
   const patientId = db.objects('patient')[0]._id;

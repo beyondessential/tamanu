@@ -10,68 +10,62 @@ import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { DumbPatientListingView } from 'desktop/app/views/patients/PatientListingView';
 
-const DumbSurveyFlow = React.memo(({ 
-  onFetchSurvey, 
-  onSubmitSurvey,
-  onFetchProgramsList,
-  patient,
-}) => {
-  const [survey, setSurvey] = React.useState(null);
-  const [programsList, setProgramsList] = React.useState(null);
-  const [startTime, setStartTime] = React.useState(null);
+const DumbSurveyFlow = React.memo(
+  ({ onFetchSurvey, onSubmitSurvey, onFetchProgramsList, patient }) => {
+    const [survey, setSurvey] = React.useState(null);
+    const [programsList, setProgramsList] = React.useState(null);
+    const [startTime, setStartTime] = React.useState(null);
 
-  useEffect(() => {
-    (async () => {
-      const { data } = await onFetchProgramsList();
-      setProgramsList(data);
-    })();
-  }, []);
+    useEffect(() => {
+      (async () => {
+        const { data } = await onFetchProgramsList();
+        setProgramsList(data);
+      })();
+    }, []);
 
-  const onSelectSurvey = useCallback(async id => {
-    const response = await onFetchSurvey(id);
-    setSurvey(response);
-    setStartTime(new Date());
-  });
-
-  const onCancelSurvey = useCallback(() => {
-    setSurvey(null);
-  });
-
-  const onSubmit = useCallback(data => {
-    onSubmitSurvey({
-      surveyId: survey._id,
-      startTime: startTime,
-      patientId: patient._id,
-      endTime: new Date(),
-      answers: data,
+    const onSelectSurvey = useCallback(async id => {
+      const response = await onFetchSurvey(id);
+      setSurvey(response);
+      setStartTime(new Date());
     });
-  }, [startTime, survey]);
 
-  if (!programsList) {
-    return <LoadingIndicator loadingText="Loading survey list..." />;
-  }
+    const onCancelSurvey = useCallback(() => {
+      setSurvey(null);
+    });
 
-  if (!survey) {
-    return <SurveySelector programs={programsList} onSelectSurvey={onSelectSurvey} />;
-  }
+    const onSubmit = useCallback(
+      data => {
+        onSubmitSurvey({
+          surveyId: survey._id,
+          startTime: startTime,
+          patientId: patient._id,
+          endTime: new Date(),
+          answers: data,
+        });
+      },
+      [startTime, survey],
+    );
 
-  return (
-    <SurveyView 
-      onSubmit={onSubmit} 
-      survey={survey}
-      onCancel={onCancelSurvey} 
-    />
-  );
-});
+    if (!programsList) {
+      return <LoadingIndicator loadingText="Loading survey list..." />;
+    }
 
-const SurveyFlow = connectApi((api, state, dispatch, props) => ({
+    if (!survey) {
+      return <SurveySelector programs={programsList} onSelectSurvey={onSelectSurvey} />;
+    }
+
+    return <SurveyView onSubmit={onSubmit} survey={survey} onCancel={onCancelSurvey} />;
+  },
+);
+
+const SurveyFlow = connectApi(api => ({
   onFetchSurvey: id => api.get(`survey/${id}`),
   onFetchProgramsList: () => api.get('program'),
-  onSubmitSurvey: (data) => api.post(`surveyResponse`, data),
+  onSubmitSurvey: data => api.post(`surveyResponse`, data),
 }))(DumbSurveyFlow);
 
 const DumbPatientLinker = React.memo(({ patient, patientId, onViewPatient }) => {
-  if(!patientId) {
+  if (!patientId) {
     return <DumbPatientListingView onViewPatient={onViewPatient} />;
   }
 
@@ -87,4 +81,3 @@ export const ProgramsView = connect(
     onViewPatient: id => dispatch(reloadPatient(id)),
   }),
 )(DumbPatientLinker);
-
