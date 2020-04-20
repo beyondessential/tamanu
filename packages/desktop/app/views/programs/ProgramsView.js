@@ -11,7 +11,6 @@ const DumbProgramsView = React.memo(({
   onSubmitSurvey,
   onFetchProgramsList,
   patient,
-  visit,
 }) => {
   const [survey, setSurvey] = React.useState(null);
   const [programsList, setProgramsList] = React.useState(null);
@@ -39,7 +38,6 @@ const DumbProgramsView = React.memo(({
       surveyId: survey._id,
       startTime: startTime,
       patientId: patient._id,
-      visitId: visit._id,
       endTime: new Date(),
       answers: data,
     });
@@ -70,5 +68,4 @@ export const ProgramsView = connectApiAndState((api, state, dispatch, props) => 
   onFetchProgramsList: () => api.get('program'),
   onSubmitSurvey: (data) => api.post(`surveyResponse`, data),
   patient: state.patient,
-  visit: state.visit,
 }))(DumbProgramsView);
