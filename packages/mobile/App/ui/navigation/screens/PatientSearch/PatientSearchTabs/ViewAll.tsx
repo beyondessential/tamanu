@@ -16,13 +16,13 @@ import { searchData } from './fixture';
 import { groupEntriesByLetter } from '/helpers/list';
 import { Routes } from '/helpers/routes';
 //Props
-import { ViewAllScreenProps } from '../../../../interfaces/screens/PatientSearchStack';
+import { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
 import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
 import { OptionsGlyph } from '/components/Icons';
 import { FilterArray } from './PatientFilterScreen';
 import { getAgeFromDate } from '/helpers/date';
-import { PatientModel } from '../../../../models/Patient';
+import { PatientModel } from '/models/Patient';
 
 interface ActiveFiltersI {
   count: number;
