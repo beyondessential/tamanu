@@ -85,8 +85,7 @@ const selectPatientConnector = connect(
   dispatch => ({ onViewPatient: id => dispatch(viewPatient(id)) }),
 );
 
-
-export const PatientListingView = selectPatientConnector(React.memo(({ onViewPatient }) => {
+export const DumbPatientListingView = React.memo(({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
 
   return (
@@ -102,7 +101,9 @@ export const PatientListingView = selectPatientConnector(React.memo(({ onViewPat
       />
     </PageContainer>
   );
-}));
+});
+
+export const PatientListingView = selectPatientConnector(DumbPatientListingView);
 
 // Allow a "patient view" table to receive a list of visits instead
 function annotateVisitWithPatientData(visit) {

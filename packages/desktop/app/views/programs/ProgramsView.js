@@ -3,11 +3,12 @@ import React, { useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 import { connectApi } from 'desktop/app/api';
 
-import { clearPatient } from 'desktop/app/store/patient';
+import { reloadPatient } from 'desktop/app/store/patient';
 
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
+import { DumbPatientListingView } from 'desktop/app/views/patients/PatientListingView';
 
 const DumbSurveyFlow = React.memo(({ 
   onFetchSurvey, 
@@ -69,28 +70,21 @@ const SurveyFlow = connectApi((api, state, dispatch, props) => ({
   onSubmitSurvey: (data) => api.post(`surveyResponse`, data),
 }))(DumbSurveyFlow);
 
-const PatientDisplay = connect(
-  state => ({ patient: state.patient, }),
-  dispatch => ({ onClearPatient: () => dispatch(clearPatient()) }),
-)(React.memo(({ patient, onClearPatient }) => {
-  const forInfo = `For ${patient.firstName} ${patient.lastName} (${patient.displayId})`;
-
-  return (<p>{forInfo}<button onClick={onClearPatient}>change patient</button></p>);
-}));
-
-const DumbPatientLinker = React.memo(({ patient, patientId }) => {
+const DumbPatientLinker = React.memo(({ patient, patientId, onViewPatient }) => {
   if(!patientId) {
-    return "No patient selected.";
+    return <DumbPatientListingView onViewPatient={onViewPatient} />;
   }
 
-  return <div>
-    <PatientDisplay />
-    <SurveyFlow patient={patient} />
-  </div>;
+  return <SurveyFlow patient={patient} />;
 });
 
-export const ProgramsView = connect(state => ({
-  patientId: state.patient.id,
-  patient: state.patient,
-}))(DumbPatientLinker);
+export const ProgramsView = connect(
+  state => ({
+    patientId: state.patient.id,
+    patient: state.patient,
+  }),
+  dispatch => ({
+    onViewPatient: id => dispatch(reloadPatient(id)),
+  }),
+)(DumbPatientLinker);
 
