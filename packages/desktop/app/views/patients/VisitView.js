@@ -166,6 +166,22 @@ const ProcedurePane = React.memo(({ visit, readonly }) => {
   );
 });
 
+const ProgramsPane = connect(null, dispatch => ({
+  onNavigateToPrograms: () => dispatch(push('/programs')),
+}))(React.memo(({ onNavigateToPrograms }) => (
+  <div>
+    <ContentPane>
+      <Button
+        onClick={() => onNavigateToPrograms()}
+        variant="contained"
+        color="primary"
+      >
+        New survey
+      </Button>
+    </ContentPane>
+  </div>
+)));
+
 const TABS = [
   {
     label: 'Vitals',
@@ -196,6 +212,11 @@ const TABS = [
     label: 'Medication',
     key: 'medication',
     render: props => <MedicationPane {...props} />,
+  },
+  {
+    label: 'Programs',
+    key: 'programs',
+    render: props => <ProgramsPane {...props} />,
   },
   {
     label: 'Documents',
