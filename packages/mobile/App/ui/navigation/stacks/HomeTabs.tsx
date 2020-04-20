@@ -65,7 +65,7 @@ const HomeTabBarOptions = {
   style: {
     justifyContent: 'center',
     height: screenPercentageToDP(9.72, Orientation.Height),
-    maxHeight: 80,
+    maxHeight: screenPercentageToDP(9.72, Orientation.Height),
     backgroundColor: theme.colors.PRIMARY_MAIN,
   },
   indicatorStyle: {

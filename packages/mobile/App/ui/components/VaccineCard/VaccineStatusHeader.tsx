@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { RowView, StyledText } from '/styled/common';
-import { VaccineIcons } from '/helpers/constants';
+import { VaccineIcons, VaccineStatus } from '/helpers/constants';
 import { theme } from '/styled/theme';
 
 interface VaccineStatusProps {
@@ -10,7 +10,23 @@ interface VaccineStatusProps {
 export const VaccineStatusHeader = ({
   status,
 }: VaccineStatusProps): JSX.Element => {
-  const Icon = VaccineIcons[status].Icon;
+  const Icon = memo(() => {
+    const VaccineIcon = VaccineIcons[status].Icon;
+    return status === VaccineStatus.TAKEN_NOT_ON_TIME ? (
+      <VaccineIcon
+        size={20}
+        fill={VaccineIcons[status].color}
+        background={theme.colors.WHITE}
+      />
+    ) : (
+      <VaccineIcon
+        size={20}
+        fill={theme.colors.WHITE}
+        background={VaccineIcons[status].color}
+      />
+    );
+  });
+
   return (
     <RowView
       background={VaccineIcons[status].color}
@@ -18,12 +34,7 @@ export const VaccineStatusHeader = ({
       height={45}
       alignItems="center"
     >
-      <Icon
-        height={20}
-        width={20}
-        fill={theme.colors.WHITE}
-        background={VaccineIcons[status].color}
-      />
+      <Icon />
       <StyledText
         fontWeight={500}
         marginLeft={10}

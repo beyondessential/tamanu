@@ -18,6 +18,6 @@ module.exports = {
     '^/components(.*)$': '<rootDir>/App/ui/components$1',
     '^/interfaces(.*)$': '<rootDir>/App/ui/interfaces$1',
     '^/navigation(.*)$': '<rootDir>/App/ui/navigation$1',
-    '^/services(.*)$': '<rootDir>/App/services$1',
+    '^/services(.*)$': '<rootDir>/App/ui/services$1',
   },
 };

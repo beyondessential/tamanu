@@ -1,15 +1,13 @@
 import React, { FC } from 'react';
-import { View, Text } from 'react-native';
 import { ModalField } from './ModalField';
-import { VaccineModel } from '../../models/Vaccine';
 import { VaccineDataProps } from '.';
 import { formatDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { Calendar } from '../Icons';
-import { Separator } from '../../navigation/screens/home/PatientDetails/CustomComponents';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { StyledView } from '/styled/common';
+import { Separator } from '../Separator';
 
 export const NotTakenFields: FC<VaccineDataProps> = (
   props: VaccineDataProps,
@@ -28,7 +26,7 @@ export const NotTakenFields: FC<VaccineDataProps> = (
       Icon={Calendar}
     />
     <Separator />
-    <ModalField label="Type" value={props.reason} />
+    <ModalField label="Type" value={props.type} />
     <Separator />
     <ModalField label="Practitioner" value={props.administered} />
   </StyledView>

@@ -9,13 +9,15 @@ interface VaccinesTableProps {
   onPressItem: (item: any) => void;
 }
 
-export const VaccinesTable = memo(({ data, onPressItem }: VaccinesTableProps) => (
-  <Table
-    onPressItem={onPressItem}
-    columns={vaccineTableCols}
-    Title={VaccinesTableTitle}
-    data={data}
-    tableHeader={vaccineTableHeader}
-    columnKey="header"
-  />
-));
+export const VaccinesTable = memo(
+  ({ data, onPressItem }: VaccinesTableProps) => (
+    <Table
+      onPressItem={onPressItem}
+      columns={vaccineTableCols}
+      Title={VaccinesTableTitle}
+      data={data}
+      tableHeader={vaccineTableHeader}
+      columnKey="header"
+    />
+  ),
+);

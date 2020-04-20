@@ -1,47 +1,63 @@
 import React, { ReactElement, useCallback, FC } from 'react';
-import { StyledView, CenterView, StyledTouchableOpacity } from '/styled/common';
+import {
+  StyledView,
+  CenterView,
+  StyledTouchableOpacity,
+  StyledImage,
+} from '/styled/common';
 import { theme } from '/styled/theme';
 import { VaccineIcons, VaccineStatus } from '/helpers/constants';
-import { NullValueCell } from '../Icons';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { VaccineModel } from '../../models/Vaccine';
+import { VaccineModel } from '/models/Vaccine';
 
 const VaccineIcon = ({
   vaccineType,
 }: {
   vaccineType: string | null;
 }): JSX.Element => {
-  let Icon: FC<any>;
+  let Icon: FC<any> | null = null;
   if (vaccineType) {
     Icon = VaccineIcons[vaccineType].Icon;
-  } else {
-    Icon = NullValueCell;
+    switch (vaccineType) {
+      case VaccineStatus.SCHEDULED:
+        return (
+          <CenterView flex={1}>
+            <Icon
+              size={screenPercentageToDP(4.13, Orientation.Height)}
+              background="transparent"
+            />
+          </CenterView>
+        );
+      case VaccineStatus.TAKEN:
+        return (
+          <CenterView flex={1}>
+            <Icon
+              size={screenPercentageToDP(4.13, Orientation.Height)}
+              background="transparent"
+            />
+          </CenterView>
+        );
+      case VaccineStatus.NOT_TAKEN:
+        return (
+          <CenterView flex={1}>
+            <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />
+          </CenterView>
+        );
+      case VaccineStatus.TAKEN_NOT_ON_TIME:
+        return (
+          <CenterView flex={1}>
+            <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />
+          </CenterView>
+        );
+      default:
+        return (
+          <CenterView flex={1}>
+            <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />
+          </CenterView>
+        );
+    }
   }
-  switch (vaccineType) {
-    case VaccineStatus.TAKEN:
-      return (
-        <CenterView flex={1}>
-          <Icon
-            size={screenPercentageToDP(4.13, Orientation.Height)}
-            background="transparent"
-          />
-        </CenterView>
-      );
-    case VaccineStatus.NOT_TAKEN:
-      return (
-        <CenterView flex={1}>
-          <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />
-        </CenterView>
-      );
-    case VaccineStatus.TAKEN_NOT_ON_TIME:
-      return (
-        <CenterView flex={1}>
-          <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />
-        </CenterView>
-      );
-    default:
-      return <Icon size={35} />;
-  }
+  return <StyledImage source={require('../../assets/NullValueCell.png')} />;
 };
 
 interface VaccineTableCellProps {
@@ -70,9 +86,13 @@ export const VaccineTableCell = ({
   header,
 }: VaccineTableCellProps): JSX.Element => {
   const onPressItem = useCallback(() => {
-    const vaccineData = { ...vaccine, dateType: header };
+    const vaccineData = {
+      ...vaccine,
+      dateType: header,
+    };
     if (onPress) onPress(vaccineData);
   }, []);
+
   return vaccine !== null ? (
     <StyledTouchableOpacity onPress={onPressItem}>
       <CellContent data={vaccine.status} />

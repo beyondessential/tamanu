@@ -18,8 +18,7 @@ export const vaccineTableCols: Column[] = [
         key={column.key}
         vaccine={row[column.key]}
       />
-    )
-    ,
+    ),
   },
   {
     key: 'hepb',

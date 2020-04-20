@@ -4,7 +4,6 @@ import React, {
   useMemo,
   FC,
 } from 'react';
-import { StyleSheet } from 'react-native';
 import { StyledView } from '/styled/common';
 import { VaccineCardHeader } from './VaccineCardHeader';
 import { VaccineModel } from '../../models/Vaccine';
