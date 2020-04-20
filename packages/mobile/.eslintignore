@@ -6,3 +6,4 @@ metro.config.js
 .lock
 ios/
 *.md
+*.png
