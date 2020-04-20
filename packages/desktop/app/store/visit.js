@@ -5,6 +5,7 @@ import { createReducer } from '../utils/createReducer';
 // actions
 const VISIT_LOAD_START = 'VISIT_LOAD_START';
 const VISIT_LOAD_FINISH = 'VISIT_LOAD_FINISH';
+const VISIT_CLEAR = 'VISIT_CLEAR';
 
 export const viewVisit = (id, modal) => async dispatch => {
   dispatch(reloadVisit(id));

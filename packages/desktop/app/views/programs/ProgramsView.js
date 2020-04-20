@@ -1,12 +1,15 @@
 import React, { useEffect, useCallback } from 'react';
 
-import { connectApiAndState } from 'desktop/app/api';
+import { connect } from 'react-redux';
+import { connectApi } from 'desktop/app/api';
+
+import { clearPatient } from 'desktop/app/store/patient';
 
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 
-const DumbProgramsView = React.memo(({ 
+const DumbSurveyFlow = React.memo(({ 
   onFetchSurvey, 
   onSubmitSurvey,
   onFetchProgramsList,
@@ -51,11 +54,8 @@ const DumbProgramsView = React.memo(({
     return <SurveySelector programs={programsList} onSelectSurvey={onSelectSurvey} />;
   }
 
-  const forInfo = `For ${patient.firstName} ${patient.lastName} (${patient.displayId})`;
-
   return (
     <SurveyView 
-      forInfo={forInfo}
       onSubmit={onSubmit} 
       survey={survey}
       onCancel={onCancelSurvey} 
@@ -63,9 +63,34 @@ const DumbProgramsView = React.memo(({
   );
 });
 
-export const ProgramsView = connectApiAndState((api, state, dispatch, props) => ({
+const SurveyFlow = connectApi((api, state, dispatch, props) => ({
   onFetchSurvey: id => api.get(`survey/${id}`),
   onFetchProgramsList: () => api.get('program'),
   onSubmitSurvey: (data) => api.post(`surveyResponse`, data),
+}))(DumbSurveyFlow);
+
+const PatientDisplay = connect(
+  state => ({ patient: state.patient, }),
+  dispatch => ({ onClearPatient: () => dispatch(clearPatient()) }),
+)(React.memo(({ patient, onClearPatient }) => {
+  const forInfo = `For ${patient.firstName} ${patient.lastName} (${patient.displayId})`;
+
+  return (<p>{forInfo}<button onClick={onClearPatient}>change patient</button></p>);
+}));
+
+const DumbPatientLinker = React.memo(({ patient, patientId }) => {
+  if(!patientId) {
+    return "No patient selected.";
+  }
+
+  return <div>
+    <PatientDisplay />
+    <SurveyFlow patient={patient} />
+  </div>;
+});
+
+export const ProgramsView = connect(state => ({
+  patientId: state.patient.id,
   patient: state.patient,
-}))(DumbProgramsView);
+}))(DumbPatientLinker);
+

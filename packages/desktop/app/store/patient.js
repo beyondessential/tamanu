@@ -7,12 +7,17 @@ import { reloadVisit } from './visit';
 const PATIENT_LOAD_START = 'PATIENT_LOAD_START';
 const PATIENT_LOAD_ERROR = 'PATIENT_LOAD_ERROR';
 const PATIENT_LOAD_FINISH = 'PATIENT_LOAD_FINISH';
+const PATIENT_CLEAR = 'PATIENT_CLEAR';
 
 export const viewPatientVisit = (patientId, visitId, modal) => async dispatch => {
   dispatch(reloadPatient(patientId));
   dispatch(reloadVisit(visitId));
   dispatch(push(`/patients/visit/${modal}`));
 };
+
+export const clearPatient = () => ({
+  type: PATIENT_CLEAR,
+});
 
 export const viewPatient = (id, modal) => async dispatch => {
   dispatch(reloadPatient(id));
@@ -55,6 +60,11 @@ const handlers = {
   [PATIENT_LOAD_FINISH]: action => ({
     loading: false,
     ...action.patient,
+  }),
+  [PATIENT_CLEAR]: action => ({
+    loading: false,
+    id: null,
+    error: '',
   }),
 };
 
