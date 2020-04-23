@@ -8,9 +8,9 @@ export const QuestionSchema = {
     text: 'string',
     indicator: 'string?',
     imageData: 'string?',
-    type: 'string?',
-    options: 'string',
-    optionLabels: 'string',
+    type: 'string',
+    options: 'string?',
+    optionLabels: 'string?',
     code: 'string?',
     params: 'string[]',
 
