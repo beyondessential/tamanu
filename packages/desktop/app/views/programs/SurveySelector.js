@@ -7,6 +7,8 @@ import { FormGrid } from 'desktop/app/components/FormGrid';
 
 import { SelectInput } from 'desktop/app/components/Field/SelectField';
 
+import { PatientDisplay } from './PatientDisplay';
+
 export const SurveySelector = React.memo(({ onSelectSurvey, programs }) => {
   const [selectedProgramId, setSelectedProgramId] = useState(null);
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
@@ -39,6 +41,8 @@ export const SurveySelector = React.memo(({ onSelectSurvey, programs }) => {
 
   return (
     <ContentPane>
+      <PatientDisplay />
+      <hr />
       <FormGrid columns={1}>
         <div>Please select a survey.</div>
         <SelectInput

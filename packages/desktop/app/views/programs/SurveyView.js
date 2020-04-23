@@ -13,6 +13,8 @@ import { Button } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
 import { ContentPane } from 'desktop/app/components/ContentPane';
 
+import { PatientDisplay } from './PatientDisplay';
+
 const QuestionContainer = styled.div``;
 
 const QUESTION_COMPONENTS = {
@@ -138,6 +140,8 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
 
   return (
     <ContentPane>
+      <PatientDisplay />
+      <hr />
       <h2>{survey.name}</h2>
       <Form onSubmit={onSubmit} render={renderSurvey} initialValues={initialValues} />
     </ContentPane>
