@@ -17,7 +17,7 @@
     "storybook": "(adb reverse tcp:7007 tcp:7007 || true) && start-storybook",
     "prestorybook": "rnstl",
     "postinstall": "node scripts/react-native-largelist-bugfix",
-    "mockserver": "json-server -H 192.168.0.8 --watch db.json"
+    "mockserver": "json-server -H 192.168.0.4 --watch db.json"
   },
   "dependencies": {
     "@ptomasroos/react-native-multi-slider": "^1.0.0",
@@ -59,7 +59,7 @@
     "react-native-safe-area-view": "^1.0.0",
     "react-native-screens": "^2.4.0",
     "react-native-spring-scrollview": "^2.0.23",
-    "react-native-svg": "^9.13.3",
+    "react-native-svg": "^12.1.0",
     "react-native-svg-charts": "^5.3.0",
     "react-native-tab-view": "^2.13.0",
     "react-navigation": "^4.1.1",

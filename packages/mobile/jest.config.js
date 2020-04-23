@@ -12,7 +12,7 @@ module.exports = {
   cacheDirectory: '.jest/cache',
   setupFiles: ['./jest.setup.ts'],
   moduleDirectories: ['.', 'node_modules'],
-  moduleNameMapper: {
+  moduleNameMapper: {    
     '^/helpers(.*)$': '<rootDir>/App/ui/helpers$1',
     '^/styled(.*)$': '<rootDir>/App/ui/styled$1',
     '^/components(.*)$': '<rootDir>/App/ui/components$1',
