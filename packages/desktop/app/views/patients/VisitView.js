@@ -175,7 +175,7 @@ const ProgramsPane = connect(
   React.memo(({ onNavigateToPrograms }) => (
     <div>
       <ContentPane>
-        <Button onClick={() => onNavigateToPrograms()} variant="contained" color="primary">
+        <Button onClick={onNavigateToPrograms} variant="contained" color="primary">
           New survey
         </Button>
       </ContentPane>
