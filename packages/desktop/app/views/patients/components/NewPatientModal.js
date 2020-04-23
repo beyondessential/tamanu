@@ -4,7 +4,6 @@ import { Modal } from '../../../components';
 import { NewPatientForm } from '../../../forms';
 import { connectApi } from '../../../api';
 import { Suggester } from '../../../utils/suggester';
-import { viewPatient } from '../../../store/patient';
 
 import { generateId } from '../../../../../shared/utils/generateId';
 
@@ -14,7 +13,7 @@ const DumbNewPatientModal = memo(({ open, onCancel, isBirth, ...formProps }) => 
   </Modal>
 ));
 
-export const NewPatientModal = connectApi((api, dispatch, { onCancel }) => ({
+export const NewPatientModal = connectApi((api, dispatch, { onCreateNewPatient }) => ({
   patientSuggester: new Suggester(api, 'patient', ({ _id, firstName, lastName }) => ({
     value: _id,
     label: `${firstName} ${lastName}`,
@@ -22,8 +21,7 @@ export const NewPatientModal = connectApi((api, dispatch, { onCancel }) => ({
   facilitySuggester: new Suggester(api, 'facility'),
   villageSuggester: new Suggester(api, 'village'),
   onSubmit: async data => {
-    const { _id: patientId } = await api.post('patient', data);
-    onCancel();
-    dispatch(viewPatient(patientId));
+    const newPatient = await api.post('patient', data);
+    onCreateNewPatient(newPatient);
   },
 }))(DumbNewPatientModal);

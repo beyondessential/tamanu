@@ -39,8 +39,6 @@ export const PatientSchema = {
     conditions: { type: 'list', objectType: 'condition' },
     issues: { type: 'list', objectType: 'issue' },
 
-    surveyResponses: { type: 'list', objectType: 'surveyResponse' },
-
     additionalContacts: { type: 'list', objectType: 'patientContact' },
     pregnancies: { type: 'list', objectType: 'pregnancy' },
     familyHistory: { type: 'list', objectType: 'familyHistoryItem' },

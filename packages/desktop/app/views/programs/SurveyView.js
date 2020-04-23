@@ -13,6 +13,8 @@ import { Button } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
 import { ContentPane } from 'desktop/app/components/ContentPane';
 
+import { PatientDisplay } from './PatientDisplay';
+
 const QuestionContainer = styled.div``;
 
 const QUESTION_COMPONENTS = {
@@ -28,7 +30,7 @@ const QUESTION_COMPONENTS = {
 };
 
 const SurveyQuestion = ({ question }) => {
-  const { text, type } = question;
+  const { text, type, code } = question;
   if (type === 'Instruction') {
     return <QuestionContainer>{text}</QuestionContainer>;
   }
@@ -37,8 +39,7 @@ const SurveyQuestion = ({ question }) => {
 
   return (
     <QuestionContainer>
-      <div>{text}</div>
-      <Field component={FieldComponent} name={question.code} />
+      <Field label={text} component={FieldComponent} name={code} />
     </QuestionContainer>
   );
 };
@@ -63,12 +64,14 @@ const SurveyScreen = ({ screen, onStepForward, onStepBack }) => {
   );
 };
 
+const COMPLETE_MESSAGE = `
+  Survey complete. Press "Complete" to submit your response,
+  or use the Back button to review answers.
+`;
+
 const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   <div>
-    <div>
-      Survey complete. Press "Complete" to submit your response, or 
-      use the Back button to review answers.
-    </div>
+    <div>{COMPLETE_MESSAGE}</div>
     <div>
       <ButtonRow>
         <Button variant="contained" onClick={onStepBack}>
@@ -123,14 +126,10 @@ function getInitialValue(q) {
   }
 }
 
-export const SurveyView = ({ survey, onCancel }) => {
+export const SurveyView = ({ survey, onSubmit, onCancel }) => {
   const renderSurvey = useCallback(({ submitForm }) => (
     <SurveyScreenPaginator survey={survey} onSurveyComplete={submitForm} onCancel={onCancel} />
   ));
-
-  const onSubmit = useCallback(data => {
-    console.log(data);
-  });
 
   const initialValues = {};
   survey.screens.forEach(s => {
@@ -141,6 +140,8 @@ export const SurveyView = ({ survey, onCancel }) => {
 
   return (
     <ContentPane>
+      <PatientDisplay />
+      <hr />
       <h2>{survey.name}</h2>
       <Form onSubmit={onSubmit} render={renderSurvey} initialValues={initialValues} />
     </ContentPane>

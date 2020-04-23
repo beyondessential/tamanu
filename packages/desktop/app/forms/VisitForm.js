@@ -78,7 +78,7 @@ const ReferralField = ({ referrals = [] }) => {
 
 const StartPage = ({ setValue }) => {
   const items = visitOptions
-    .filter(option => !option.triageFlowOnly)
+    .filter(option => !option.hideFromMenu)
     .map(({ label, value, image }) => (
       <VisitOptionButton
         key={value}

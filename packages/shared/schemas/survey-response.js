@@ -9,7 +9,7 @@ export const SurveyResponseSchema = {
     surveyId: 'string',
     assessorId: 'string',
 
-    patient: { type: 'linkingObjects', objectType: 'patient', property: 'surveyResponses' },
+    visit: { type: 'linkingObjects', objectType: 'visit', property: 'surveyResponses' },
 
     moduleType: 'string?',
     moduleId: 'string?',
