@@ -64,16 +64,17 @@ programRoutes.put('/program/:programId', (req, res) => {
   // TODO: update a program
 });
 
-function parseQuestionOptions({ options }) {
+function parseQuestionOptions({ options, optionLabels }) {
   if(!options) {
     return null;
   }
 
   try {
     const optionValues = JSON.parse(options);
-    return optionValues.map(x => ({
-      value: x,
-      label: x,
+    const optionLabelValues = JSON.parse(optionLabels || '[]');
+    return optionValues.map((option, i) => ({
+      value: option,
+      label: (optionLabelValues[i] || option),
     }));
   } catch(e) {
     return null;
