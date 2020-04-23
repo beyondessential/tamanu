@@ -6,28 +6,24 @@ export const QuestionSchema = {
   properties: {
     _id: 'string',
     text: 'string',
-    indicator: {
-      type: 'string',
-      optional: true,
-    },
-    imageData: {
-      type: 'string',
-      optional: true,
-    },
-    type: {
-      type: 'string',
-      optional: true,
-    },
+    indicator: 'string?',
+    imageData: 'string?',
+    type: 'string?',
     options: 'string',
-    code: {
-      type: 'string',
-      optional: true,
-    },
-    details: {
-      type: 'string',
-      optional: true,
-    },
+    optionLabels: 'string',
+    code: 'string?',
     params: 'string[]',
+
+    // TODO: sort out unknown fields in XSLX
+    detail: 'string?',
+    detailLabel: 'string?',
+    visibilityCriteria: 'string?',
+    validationCriteria: 'string?',
+    config: 'string?',
+    optionColors: 'string?',
+    optionSet: 'string?',
+    questionLabel: 'string?',
+
     ...defaults,
   },
 };
