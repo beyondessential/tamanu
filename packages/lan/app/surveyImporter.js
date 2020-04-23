@@ -8,6 +8,8 @@ function generateSurveyCode(name) {
 const yesOrNo = value => !!(value && value.toLowerCase() === 'yes');
 
 function newlinesToArray(data) {
+  if(!data) return null;
+
   const array = data.split(/[\r\n]+/g);
   return JSON.stringify(array);
 }

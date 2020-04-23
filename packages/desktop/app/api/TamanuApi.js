@@ -75,6 +75,18 @@ export class TamanuApi {
     return this.fetch(endpoint, query, { method: 'GET' });
   }
 
+  async multipart(endpoint, body) {
+    const formData = new FormData();
+    Object.entries(body).map(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    return this.fetch(endpoint, null, {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
   async post(endpoint, body) {
     return this.fetch(endpoint, null, {
       method: 'POST',
