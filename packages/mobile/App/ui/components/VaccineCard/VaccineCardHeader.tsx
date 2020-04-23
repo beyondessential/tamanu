@@ -21,7 +21,6 @@ export const VaccineCardHeader = ({
   onCloseModal,
   onEditDetails,
 }: CardHeaderProps): JSX.Element => {
-  console.log('vaccine,', vaccine);
   return (
     <StyledView
       background={theme.colors.PRIMARY_MAIN}
@@ -35,7 +34,10 @@ export const VaccineCardHeader = ({
           paddingBottom={screenPercentageToDP(2.43, Orientation.Height)}
           onPress={onCloseModal}
         >
-          <Icons.Cross size={screenPercentageToDP(2.18, Orientation.Height)} />
+          <Icons.CrossIcon
+            width={screenPercentageToDP(2.18, Orientation.Height)}
+            height={screenPercentageToDP(2.18, Orientation.Height)}
+          />
         </StyledTouchableOpacity>
         <StyledTouchableOpacity
           onPress={onEditDetails}

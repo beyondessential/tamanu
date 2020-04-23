@@ -70,7 +70,12 @@ const Form: FunctionComponent<RegisterAccountFormStep03> = ({
           returnKeyType="done"
         />
         <RowView alignItems="center">
-          <Field component={Checkbox} name="readPrivacyPolice" />
+          <Field
+            component={Checkbox}
+            name="readPrivacyPolice"
+            background={theme.colors.MAIN_SUPER_DARK}
+            color={theme.colors.SECONDARY_MAIN}
+          />
           <StyledText marginLeft={10} fontSize={12} color={theme.colors.WHITE}>
             I have to read a privacy statement and agree to abide by it.
           </StyledText>

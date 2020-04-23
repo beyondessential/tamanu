@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import { StyledText, RowView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { Alert } from '../Icons';
+import { AlertIcon } from '../Icons';
 
 interface InfoProps {
   text: string;
@@ -19,7 +19,7 @@ export const Info: FunctionComponent<InfoProps> = ({ text }: InfoProps) => (
     borderColor={theme.colors.SECONDARY_MAIN}
   >
     <StyledView marginRight={10}>
-      <Alert />
+      <AlertIcon />
     </StyledView>
     <StyledText
       fontSize={screenPercentageToDP('1.57', Orientation.Height)}

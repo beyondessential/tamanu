@@ -94,7 +94,8 @@ export const DateField = React.memo(
       [onChange],
     );
 
-    const IconComponent = mode === 'date' ? Icons.Calendar : Icons.Clock;
+    const IconComponent =
+      mode === 'date' ? Icons.CalendarIcon : Icons.ClockIcon;
 
     return (
       <StyledView width="100%">

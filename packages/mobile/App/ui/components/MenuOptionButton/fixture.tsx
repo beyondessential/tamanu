@@ -4,11 +4,11 @@ import { ThemeProvider } from 'styled-components';
 import { StyledView, themeSystem, StyledSafeAreaView } from '/styled/common';
 import { theme } from '/styled/theme';
 import {
-  History,
-  Appointments,
-  Settings,
-  Feedback,
-  Question,
+  HistoryIcon,
+  PatientDetailsIcon,
+  SettingsIcon,
+  FeedbackIcon,
+  QuestionIcon,
   Ring,
 } from '../Icons';
 import { MenuOptionButton, MenuOptionButtonProps } from './index';
@@ -16,17 +16,17 @@ import { MenuOptionButton, MenuOptionButtonProps } from './index';
 export const MoreMenuOptions = [
   {
     title: 'Settings',
-    Icon: Settings,
+    Icon: SettingsIcon,
     onPress: (): void => console.log('Settings'),
   },
   {
     title: 'Feedback',
-    Icon: Feedback,
+    Icon: FeedbackIcon,
     onPress: (): void => console.log('Feedback'),
   },
   {
     title: 'FAQs',
-    Icon: Question,
+    Icon: QuestionIcon,
     onPress: (): void => console.log('Question'),
   },
   {
@@ -66,12 +66,12 @@ export const ProgramOptions = [
 export const PatientDetails = [
   {
     title: 'View patients details',
-    Icon: History,
+    Icon: HistoryIcon,
     onPress: (): void => console.log('Patient details'),
   },
   {
     title: 'View History',
-    Icon: Appointments,
+    Icon: PatientDetailsIcon,
     onPress: (): void => console.log('History'),
   },
 ];

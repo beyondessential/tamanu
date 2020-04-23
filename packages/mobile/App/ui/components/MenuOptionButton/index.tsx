@@ -4,10 +4,11 @@ import { SvgProps } from 'react-native-svg';
 import { StyledText, RowView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { ArrowForward } from '../Icons';
+import { ArrowForwardIcon } from '../Icons';
+import { IconWithSizeProps } from '/interfaces/WithSizeProps';
 
 export interface MenuOptionButtonProps {
-  Icon?: FC<SvgProps>;
+  Icon?: FC<IconWithSizeProps>;
   title: string;
   onPress: () => void;
   fontWeight?: number;
@@ -25,8 +26,7 @@ export const MenuOptionButton: FC<MenuOptionButtonProps> = ({
   >
     <RowView
       width="100%"
-      paddingTop={screenPercentageToDP('1.7', Orientation.Height)}
-      paddingBottom={screenPercentageToDP('1.7', Orientation.Height)}
+      height={screenPercentageToDP('6.29', Orientation.Height)}
       paddingLeft={screenPercentageToDP('4.86', Orientation.Width)}
       alignItems="center"
     >
@@ -35,8 +35,7 @@ export const MenuOptionButton: FC<MenuOptionButtonProps> = ({
           paddingRight={screenPercentageToDP('4.86', Orientation.Width)}
         >
           <Icon
-            height={screenPercentageToDP('3.13', Orientation.Height)}
-            width={screenPercentageToDP('3.13', Orientation.Height)}
+            size={screenPercentageToDP(4.86, Orientation.Height)}
             fill={theme.colors.TEXT_SOFT}
           />
         </StyledView>
@@ -51,9 +50,10 @@ export const MenuOptionButton: FC<MenuOptionButtonProps> = ({
         </StyledText>
       </RowView>
       <StyledView marginRight={screenPercentageToDP('4.86', Orientation.Width)}>
-        <ArrowForward
+        <ArrowForwardIcon
           fill={theme.colors.TEXT_SOFT}
-          size={screenPercentageToDP('1.5', Orientation.Height)}
+          height={screenPercentageToDP('1.5', Orientation.Height)}
+          width={screenPercentageToDP('1.5', Orientation.Height)}
         />
       </StyledView>
     </RowView>
