@@ -1,23 +1,23 @@
 import React, { memo } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { CenterView, StyledView } from '/styled/common';
-
-const Circle = ({ size }: { size: number | string }) => (
-  <StyledView
-    background={theme.colors.WHITE}
-    height={size}
-    width={size}
-    borderWidth={StyleSheet.hairlineWidth}
-    borderColor={theme.colors.BOX_OUTLINE}
-    borderRadius={50}
-  />
-);
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 export const ScheduledVaccine = memo(
-  ({ size = 34 }: { size: number | string }) => (
-    <CenterView flex={1}>
-      <Circle size={size} />
-    </CenterView>
-  ),
+  ({
+    size = screenPercentageToDP(3.64, Orientation.Height),
+  }: {
+    size: number;
+  }) => {
+    return (
+      <StyledView
+        borderRadius={50}
+        height={size}
+        width={size}
+        background={theme.colors.WHITE}
+        borderWidth={1}
+        borderColor={theme.colors.BOX_OUTLINE}
+      />
+    );
+  },
 );

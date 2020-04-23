@@ -1,14 +1,12 @@
-import React from 'react';
-import Svg, { Path, SvgProps } from 'react-native-svg';
+import React, { memo } from 'react';
+import { SvgXml, SvgProps } from 'react-native-svg';
 
-export const CheckboxMark = React.memo((props: SvgProps) => (
-  <Svg width="9" height="7" viewBox="0 0 9 7" fill="white" {...props}>
-    <Path
-      d="M0.75 3.5L3.25 6L8.25 1"
-      stroke="#326699"
-      strokeMiterlimit="10"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-));
+export const CheckboxMarkIcon = memo((props: SvgProps) => {
+  const xml = `
+  <svg width="15" height="11" viewBox="0 0 15 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M1.25 5.49992L5.41667 9.66659L13.75 1.33325" strokeWidth="2" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+</svg>
+`;
+
+  return <SvgXml xml={xml} {...props} />;
+});

@@ -1,23 +1,12 @@
-import React, { FC } from 'react';
-import Svg, { Path } from 'react-native-svg';
-import { StyledView } from '/styled/common';
-import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
+import React, { memo } from 'react';
+import { SvgXml } from 'react-native-svg';
 
-export const Cross: FC<IconWithSizeProps> = React.memo(
-  ({ size, ...props }: IconWithSizeProps) => (
-    <StyledView height={size} width={size}>
-      <Svg
-        width="100%"
-        height="100%"
-        viewBox="0 0 16 16"
-        fill="none"
-        {...props}
-      >
-        <Path
-          d="M15.7 0.3C15.3 -0.0999998 14.7 -0.0999998 14.3 0.3L8 6.6L1.7 0.3C1.3 -0.0999998 0.7 -0.0999998 0.3 0.3C-0.0999998 0.7 -0.0999998 1.3 0.3 1.7L6.6 8L0.3 14.3C-0.0999998 14.7 -0.0999998 15.3 0.3 15.7C0.5 15.9 0.7 16 1 16C1.3 16 1.5 15.9 1.7 15.7L8 9.4L14.3 15.7C14.5 15.9 14.8 16 15 16C15.2 16 15.5 15.9 15.7 15.7C16.1 15.3 16.1 14.7 15.7 14.3L9.4 8L15.7 1.7C16.1 1.3 16.1 0.7 15.7 0.3Z"
-          fill="white"
-        />
-      </Svg>
-    </StyledView>
-  ),
-);
+export const CrossIcon = memo(props => {
+  const xml = `
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M31.4 0.6C30.6 -0.2 29.4 -0.2 28.6 0.6L16 13.2L3.4 0.6C2.6 -0.2 1.4 -0.2 0.6 0.6C-0.2 1.4 -0.2 2.6 0.6 3.4L13.2 16L0.6 28.6C-0.2 29.4 -0.2 30.6 0.6 31.4C1 31.8 1.4 32 2 32C2.6 32 3 31.8 3.4 31.4L16 18.8L28.6 31.4C29 31.8 29.6 32 30 32C30.4 32 31 31.8 31.4 31.4C32.2 30.6 32.2 29.4 31.4 28.6L18.8 16L31.4 3.4C32.2 2.6 32.2 1.4 31.4 0.6Z" fill="white" />
+  </svg>
+  `;
+
+  return <SvgXml xml={xml} {...props} />;
+});
