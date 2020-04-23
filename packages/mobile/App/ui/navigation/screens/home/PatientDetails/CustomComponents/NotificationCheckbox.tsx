@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { Separator } from '/components/Separator';
 import { StyledView } from '/styled/common';
 import { Checkbox } from '/components/Checkbox';

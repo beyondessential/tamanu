@@ -11,7 +11,7 @@ import {
   StyledText,
   RowView,
 } from '/styled/common';
-import { Cross, User } from '/components/Icons';
+import { CrossIcon, UserIcon } from '/components/Icons';
 import { RegisterAccountFormStep02 } from '/components/Forms/RegisterAccountForms/RegisterAccountFormStep02';
 import { StepMarker } from '/components/StepMarker';
 // Theme
@@ -20,6 +20,7 @@ import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 // protocols
 import { RegisterAccountFormStep2Props } from '../../../../contexts/RegisterAccountContext';
+import { UserIconContainer } from '../common';
 
 interface ScreenProps {
   navigateToIntro: () => void;
@@ -44,7 +45,10 @@ export const Screen: FunctionComponent<ScreenProps> = ({
     <FullView background={theme.colors.PRIMARY_MAIN}>
       <RowView justifyContent="flex-end">
         <StyledTouchableOpacity padding={15} onPress={navigateToIntro}>
-          <Cross size={screenPercentageToDP(2.43, Orientation.Height)} />
+          <CrossIcon
+            width={screenPercentageToDP(2.43, Orientation.Height)}
+            height={screenPercentageToDP(2.43, Orientation.Height)}
+          />
         </StyledTouchableOpacity>
       </RowView>
       <CenterView
@@ -53,7 +57,7 @@ export const Screen: FunctionComponent<ScreenProps> = ({
         width="100%"
         top={viewTopPosition}
       >
-        <User size={iconSize} fill={theme.colors.SECONDARY_MAIN} />
+        <UserIconContainer size={iconSize} />
         <StyledText
           as={Animated.Text}
           marginTop={10}

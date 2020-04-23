@@ -6,7 +6,7 @@ import {
   StyledView,
   CenterView,
 } from '/styled/common';
-import { AppIntro1, AppIntro2, AppIntro3 } from '/components/Icons';
+import { AppIntro1Icon, AppIntro2Icon, AppIntro3Icon } from '/components/Icons';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { StepMarker } from '/components/StepMarker';
@@ -15,7 +15,7 @@ import { Button } from '/components/Button';
 import { disableAndroidBackButton } from '/helpers/android';
 // Props
 import { NavigationProp } from '@react-navigation/native';
-import { IntroScreenProps } from '../../../interfaces/screens/HomeStack';
+import { IntroScreenProps } from '/interfaces/screens/HomeStack';
 
 export interface IntroRouteProps {
   user: { name: string };
@@ -47,13 +47,13 @@ export const Intro = (props: IntroScreenProps): JSX.Element => {
   const Icon = useMemo(() => {
     switch (step) {
       case 1:
-        return AppIntro1;
+        return AppIntro1Icon;
       case 2:
-        return AppIntro2;
+        return AppIntro2Icon;
       case 3:
-        return AppIntro3;
+        return AppIntro3Icon;
       default:
-        return AppIntro1;
+        return AppIntro1Icon;
     }
   }, []);
 
@@ -76,7 +76,10 @@ export const Intro = (props: IntroScreenProps): JSX.Element => {
         Welcome, John!
       </StyledText>
       <StyledView marginTop={screenPercentageToDP('7.17', Orientation.Height)}>
-        <Icon />
+        <Icon
+          height={screenPercentageToDP(19.68, Orientation.Height)}
+          width={screenPercentageToDP(63.74, Orientation.Width)}
+        />
       </StyledView>
       <StyledText
         marginTop={screenPercentageToDP('7.29', Orientation.Height)}

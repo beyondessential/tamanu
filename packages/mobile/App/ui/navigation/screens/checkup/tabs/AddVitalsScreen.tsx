@@ -119,7 +119,6 @@ export const AddVitalsScreen = (): ReactElement => {
     <StyledSafeAreaView flex={1}>
       <FullView
         background={theme.colors.BACKGROUND_GREY}
-        paddingTop={screenPercentageToDP(2.43, Orientation.Height)}
         paddingBottom={screenPercentageToDP(4.86, Orientation.Height)}
       >
         <Formik

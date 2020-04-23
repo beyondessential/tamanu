@@ -6,7 +6,6 @@ import {
   FullView,
   CenterView,
 } from '/styled/common';
-import { OutlineCameraIcon } from '/components/Icons/OutlineCameraIcon';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { UserAvatar } from '/components/UserAvatar';
@@ -14,7 +13,13 @@ import { Button } from '/components/Button';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { FlatList } from 'react-native-gesture-handler';
-import { Settings, Feedback, Question, Ring } from '/components/Icons';
+import {
+  CameraOutlineIcon,
+  SettingsIcon,
+  FeedbackIcon,
+  QuestionIcon,
+  RingIcon,
+} from '/components/Icons';
 import { version as AppVersion } from '/root/package.json';
 import { StatusBar, StatusBarStyle } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -29,7 +34,7 @@ const CameraInCircle = (
       paddingBottom={screenPercentageToDP('0.97', Orientation.Height)}
       background={theme.colors.TEXT_SOFT}
     >
-      <OutlineCameraIcon
+      <CameraOutlineIcon
         height={screenPercentageToDP('2.43', Orientation.Height)}
         width={screenPercentageToDP('2.43', Orientation.Height)}
         fill={theme.colors.WHITE}
@@ -54,7 +59,7 @@ const TamanuAppVersion = ({ version }: TamanuAppVersionProps): ReactElement => (
 );
 
 const mock = {
-  size: screenPercentageToDP('9.72', Orientation.Height),
+  size: screenPercentageToDP(9.72, Orientation.Height),
   name: 'Alice Klein',
   gender: 'female',
   image:
@@ -67,22 +72,22 @@ export const MoreScreen = (): ReactElement => {
     () => [
       {
         title: 'Settings',
-        Icon: Settings,
+        Icon: SettingsIcon,
         onPress: (): void => console.log('Settings'),
       },
       {
         title: 'Feedback',
-        Icon: Feedback,
+        Icon: FeedbackIcon,
         onPress: (): void => console.log('Feedback'),
       },
       {
         title: 'FAQs',
-        Icon: Question,
+        Icon: QuestionIcon,
         onPress: (): void => console.log('Question'),
       },
       {
         title: 'Notifications',
-        Icon: Ring,
+        Icon: RingIcon,
         onPress: (): void => console.log('Notification'),
       },
     ],
@@ -107,7 +112,7 @@ export const MoreScreen = (): ReactElement => {
       <StatusBar barStyle={barStyle} />
       <CenterView
         height={screenPercentageToDP(31.59, Orientation.Height)}
-        paddingTop={40}
+        paddingTop={screenPercentageToDP(4.86, Orientation.Height)}
         background={theme.colors.BACKGROUND_GREY}
       >
         <UserAvatar {...mock} />

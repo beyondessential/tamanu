@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { FullView } from '/styled/common';
 import { ProgramsForm } from '/components/Forms/ProgramsForm';
-import { ScreenProps } from '../../../../../interfaces/screens/ProgramsStack/ProgramAddDetails/ScreenProps';
+import { ScreenProps } from '/interfaces/screens/ProgramsStack/ProgramAddDetails/ScreenProps';
 
 export const Screen = ({
   onSubmitForm,

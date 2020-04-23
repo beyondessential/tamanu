@@ -1,15 +1,11 @@
 import React, { ReactElement, useCallback } from 'react';
-import {
-  FullView,
-  StyledSafeAreaView,
-  StyledView,
-  RotateView,
-} from '/styled/common';
+import { FullView, StyledSafeAreaView, StyledView } from '/styled/common';
 import { AccordionList } from '/components/Accordion';
 import { data } from '/components/Accordion/fixtures';
 import { theme } from '/styled/theme';
 import { Button } from '/components/Button';
-import { OptionsGlyph } from '/components/Icons';
+import { FilterIcon } from '/components/Icons';
+import { screenPercentageToDP, Orientation } from '/root/App/ui/helpers/screen';
 
 export const VisitsScreen = (): ReactElement => {
   const activeFilters = {
@@ -31,7 +27,7 @@ export const VisitsScreen = (): ReactElement => {
           bottom={30}
         >
           <Button
-            width={250}
+            width={screenPercentageToDP(60.82, Orientation.Width)}
             backgroundColor={`${theme.colors.MAIN_SUPER_DARK}`}
             bordered
             textColor={theme.colors.WHITE}
@@ -40,16 +36,18 @@ export const VisitsScreen = (): ReactElement => {
               activeFilters.count > 0 ? `${activeFilters.count}` : ''
             }`}
           >
-            <RotateView>
-              <OptionsGlyph
+            <StyledView
+              marginRight={screenPercentageToDP(1.21, Orientation.Height)}
+            >
+              <FilterIcon
                 fill={
                   activeFilters.count > 0
                     ? theme.colors.SECONDARY_MAIN
                     : theme.colors.WHITE
                 }
-                height={20}
+                height={screenPercentageToDP(2.43, Orientation.Height)}
               />
-            </RotateView>
+            </StyledView>
           </Button>
         </StyledView>
       </FullView>

@@ -5,7 +5,7 @@ import {
   getFormSchema,
   mapInputVerticalPosition,
 } from './helpers';
-import { ProgramAddDetailsScreenProps } from '../../../../../interfaces/screens/ProgramsStack/ProgramAddDetails/ProgramAddDetailsScreenProps';
+import { ProgramAddDetailsScreenProps } from '/interfaces/screens/ProgramsStack/ProgramAddDetails/ProgramAddDetailsScreenProps';
 
 export const Container = ({
   route,

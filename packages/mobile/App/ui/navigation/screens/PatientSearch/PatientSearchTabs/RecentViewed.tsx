@@ -9,7 +9,7 @@ import { withPatient } from '/containers/Patient';
 // Components
 import { PatientTile } from '/components/PatientTile';
 // props
-import { RecentViewedScreenProps } from '../../../../interfaces/screens/PatientSearchStack';
+import { RecentViewedScreenProps } from '/interfaces/screens/PatientSearchStack';
 // Helpers
 import { data } from '/components/PatientSectionList/fixture';
 import { Routes } from '/helpers/routes';

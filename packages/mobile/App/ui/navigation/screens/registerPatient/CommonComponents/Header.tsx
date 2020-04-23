@@ -6,7 +6,7 @@ import {
   RowView,
   StyledText,
 } from '/styled/common';
-import { LeftArrow } from '/components/Icons';
+import { ArrowLeftIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 type HeaderProps = {
@@ -21,7 +21,11 @@ export const Header = ({ onGoBack }: HeaderProps): ReactElement => {
           onPress={onGoBack}
           padding={screenPercentageToDP(2.46, Orientation.Height)}
         >
-          <LeftArrow />
+          <ArrowLeftIcon
+            height={screenPercentageToDP(2.43, Orientation.Height)}
+            width={screenPercentageToDP(2.43, Orientation.Height)}
+            fill="white"
+          />
         </StyledTouchableOpacity>
         <RowView
           position="absolute"

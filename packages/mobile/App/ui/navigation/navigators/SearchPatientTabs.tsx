@@ -22,7 +22,7 @@ import {
   StyledView,
   FullView,
 } from '/styled/common';
-import { LeftArrow } from '/components/Icons';
+import { ArrowLeftIcon } from '/components/Icons';
 import { SearchInput } from '/components/SearchInput';
 import { Field } from '/components/Forms/FormField';
 // Helpers
@@ -30,6 +30,7 @@ import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 import { withPatient } from '/containers/Patient';
 import { WithPatientStoreProps } from '/store/ducks/patient';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 type TabNavigationConfig = {
   tabBarStyle?: StyleProp<ViewStyle>;
@@ -83,7 +84,10 @@ function BottomTabNavigator({
                 paddingBottom={20}
                 paddingRight={20}
               >
-                <LeftArrow />
+                <ArrowLeftIcon
+                  height={screenPercentageToDP(2.43, Orientation.Height)}
+                  width={screenPercentageToDP(2.43, Orientation.Height)}
+                />
               </StyledView>
             </TouchableOpacity>
             <StyledView flex={1}>

@@ -9,14 +9,14 @@ import {
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { Button } from '/components/Button';
-import { Cross, Checked } from '/components/Icons';
+import { CrossIcon, TakenOnTimeIcon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
 import { UserAvatar } from '/components/UserAvatar';
 import { compose } from 'redux';
 import { withPatient } from '/containers/Patient';
-import { PatientModel } from '../../../models/Patient';
+import { PatientModel } from '/models/Patient';
 import { FemaleGender } from '/helpers/constants';
-import { NewPatientScreenProps } from '../../../interfaces/screens/RegisterPatientStack/NewPatientScreenProps';
+import { NewPatientScreenProps } from '/interfaces/screens/RegisterPatientStack/NewPatientScreenProps';
 
 const mockPatientData = {
   name: 'Alice Klein',
@@ -33,10 +33,8 @@ const newPatientAddedMock = {
     'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
   Icon: (
     <StyledView position="absolute" right="-20" bottom={30} zIndex={2}>
-      <Checked
-        height={screenPercentageToDP('3.88', Orientation.Height)}
-        width={screenPercentageToDP('3.88', Orientation.Height)}
-        fill={theme.colors.SAFE}
+      <TakenOnTimeIcon
+        size={screenPercentageToDP('3.88', Orientation.Height)}
       />
     </StyledView>
   ),
@@ -88,7 +86,10 @@ const Screen = ({
             width={80}
             backgroundColor="transparent"
           >
-            <Cross size={screenPercentageToDP(2.43, Orientation.Height)} />
+            <CrossIcon
+              height={screenPercentageToDP(2.43, Orientation.Height)}
+              width={screenPercentageToDP(2.43, Orientation.Height)}
+            />
           </Button>
         </RowView>
       </StyledSafeAreaView>
@@ -125,7 +126,7 @@ const Screen = ({
         >
           This patient has been{'\n'}added to the database
         </StyledText>
-        <StyledView
+        <StyledSafeAreaView
           flex={1}
           justifyContent="flex-end"
           padding={screenPercentageToDP(2.43, Orientation.Height)}
@@ -149,7 +150,7 @@ const Screen = ({
               backgroundColor={theme.colors.PRIMARY_MAIN}
             />
           </RowView>
-        </StyledView>
+        </StyledSafeAreaView>
       </FullView>
     </FullView>
   );

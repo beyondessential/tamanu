@@ -18,10 +18,11 @@ import {
   StyledText,
   StyledTouchableOpacity,
 } from '/styled/common';
-import { ArrowDown } from '/components/Icons';
+import { ArrowDownIcon } from '/components/Icons';
 import { VaccineStatus } from '/helpers/constants';
 import { Routes } from '/helpers/routes';
 import { VaccineDataProps } from '/components/VaccineCard';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 type NewVaccineHeaderProps = {
   navigation: NavigationProp<any>;
@@ -38,12 +39,12 @@ const Header = ({
   return (
     <SafeAreaView
       style={{
-        height: 140,
+        height: screenPercentageToDP(17.01, Orientation.Height),
         backgroundColor: theme.colors.PRIMARY_MAIN,
       }}
     >
       <RowView
-        height={102}
+        height={screenPercentageToDP(12.15, Orientation.Height)}
         background={theme.colors.PRIMARY_MAIN}
         justifyContent="space-between"
       >
@@ -66,7 +67,7 @@ const Header = ({
           top="10%"
         >
           <StyledTouchableOpacity onPress={onPress}>
-            <ArrowDown size={15} fill={theme.colors.WHITE} stroke={3} />
+            <ArrowDownIcon size={15} fill={theme.colors.WHITE} stroke={3} />
           </StyledTouchableOpacity>
         </StyledView>
         <StyledView height="100%" justifyContent="center" paddingRight={20}>
@@ -102,21 +103,21 @@ export const NewVaccineTabs = ({
         title: 'TAKEN\nON TIME',
         vaccine: route.params.vaccine,
         color: theme.colors.SAFE,
-        icon: Icons.Checked,
+        icon: Icons.TakenOnTimeIcon,
       },
       {
         key: VaccineStatus.TAKEN_NOT_ON_TIME,
         title: 'TAKEN NOT \n ON SCHEDULE',
         vaccine: route.params.vaccine,
         color: theme.colors.ORANGE,
-        icon: Icons.TakenNotOnTime,
+        icon: Icons.TakenNotOnTimeIcon,
       },
       {
         key: VaccineStatus.NOT_TAKEN,
         title: 'NOT\nTAKEN ',
         vaccine: route.params.vaccine,
         color: theme.colors.PRIMARY_MAIN,
-        icon: Icons.NotTaken,
+        icon: Icons.NotTakenIcon,
       },
     ],
     [route],

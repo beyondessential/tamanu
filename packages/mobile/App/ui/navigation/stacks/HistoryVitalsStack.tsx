@@ -9,7 +9,7 @@ import {
   StyledSafeAreaView,
   StyledText,
 } from '/styled/common';
-import { LeftArrow, DotsMenu } from '/components/Icons';
+import { ArrowLeftIcon, KebabIcon } from '/components/Icons';
 import { HistoryVitalsTabs } from './HistoryVitalsTabs';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
@@ -41,13 +41,16 @@ export const HistoryVitalsStack = ({
             padding={screenPercentageToDP(2.43, Orientation.Height)}
             onPress={goBack}
           >
-            <LeftArrow />
+            <ArrowLeftIcon
+              height={screenPercentageToDP(2.43, Orientation.Height)}
+              width={screenPercentageToDP(2.43, Orientation.Height)}
+            />
           </StyledTouchableOpacity>
           <StyledTouchableOpacity
             padding={screenPercentageToDP(2.43, Orientation.Height)}
             onPress={navigateToPatientActions}
           >
-            <DotsMenu />
+            <KebabIcon />
           </StyledTouchableOpacity>
         </RowView>
         <StyledText

@@ -9,10 +9,7 @@ import {
 } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Button } from '/components/Button';
-import { ChatIcon } from '/components/Icons/Chat';
-import { PhoneIcon } from '/components/Icons/Phone';
-import { EmailIcon } from '/components/Icons/Email';
-import { Cross } from '/components/Icons';
+import { ChatIcon, PhoneIcon, EmailIcon, CrossIcon } from '/components/Icons';
 import { StatusBar, Linking } from 'react-native';
 import { PatientActionsScreenProps } from '../../../interfaces/Screens/HomeStack/PatientActionsScreenProps';
 import { compose } from 'redux';
@@ -65,7 +62,7 @@ const Screen = memo(
               paddingBottom={20}
               onPress={goBack}
             >
-              <Cross size={20} />
+              <CrossIcon height={20} width={20} />
             </StyledTouchableOpacity>
           </RowView>
           <StyledView

@@ -9,7 +9,7 @@ import { compose } from 'redux';
 // Containers
 import { withPatient } from '/containers/Patient';
 // Components
-import { FullView, StyledView, RotateView } from '/styled/common';
+import { FullView, StyledView } from '/styled/common';
 import { PatientSectionList } from '/components/PatientSectionList';
 // Helpers
 import { searchData } from './fixture';
@@ -19,10 +19,11 @@ import { Routes } from '/helpers/routes';
 import { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
 import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
-import { OptionsGlyph } from '/components/Icons';
+import { FilterIcon } from '/components/Icons';
 import { FilterArray } from './PatientFilterScreen';
 import { getAgeFromDate } from '/helpers/date';
 import { PatientModel } from '/models/Patient';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 interface ActiveFiltersI {
   count: number;
@@ -167,7 +168,7 @@ const Screen: FC<ViewAllScreenProps> = ({
         bottom={30}
       >
         <Button
-          width={250}
+          width={screenPercentageToDP(60.82, Orientation.Width)}
           backgroundColor={`${theme.colors.MAIN_SUPER_DARK}`}
           bordered
           textColor={theme.colors.WHITE}
@@ -176,8 +177,10 @@ const Screen: FC<ViewAllScreenProps> = ({
             activeFilters.count > 0 ? `${activeFilters.count}` : ''
           }`}
         >
-          <RotateView>
-            <OptionsGlyph
+          <StyledView
+            marginRight={screenPercentageToDP(2.43, Orientation.Width)}
+          >
+            <FilterIcon
               fill={
                 activeFilters.count > 0
                   ? theme.colors.SECONDARY_MAIN
@@ -185,7 +188,7 @@ const Screen: FC<ViewAllScreenProps> = ({
               }
               height={20}
             />
-          </RotateView>
+          </StyledView>
         </Button>
       </StyledView>
     </FullView>

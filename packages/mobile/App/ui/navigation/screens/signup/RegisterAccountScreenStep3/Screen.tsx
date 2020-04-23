@@ -11,7 +11,7 @@ import {
   StyledText,
   RowView,
 } from '/styled/common';
-import { Cross, User } from '/components/Icons';
+import { CrossIcon } from '/components/Icons';
 import { RegisterAccountFormStep03 } from '/components/Forms/RegisterAccountForms/RegisterAccountFormStep03';
 import { StepMarker } from '/components/StepMarker';
 // Theme
@@ -20,6 +20,7 @@ import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 // protocols
 import { RegisterAccountFormStep3Props } from '../../../../contexts/RegisterAccountContext';
+import { UserIconContainer } from '../common';
 
 interface ScreenProps {
   navigateToIntro: () => void;
@@ -32,46 +33,49 @@ interface ScreenProps {
 }
 
 export const Screen: FunctionComponent<ScreenProps> = ({
-  navigateToIntro,
-  step3FormProps,
-  navigateFormStepBack,
-  iconSize,
-  titleFont,
-  onSubmitForm,
-  iconContainerPosition,
-}: ScreenProps) => (
-  <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN}>
-    <FullView background={theme.colors.PRIMARY_MAIN}>
-      <RowView justifyContent="flex-end">
-        <StyledTouchableOpacity padding={15} onPress={navigateToIntro}>
-          <Cross size={screenPercentageToDP(2.43, Orientation.Height)} />
-        </StyledTouchableOpacity>
-      </RowView>
-      <CenterView
-        as={Animated.View}
-        position="absolute"
-        width="100%"
-        top={iconContainerPosition}
-      >
-        <User size={iconSize} fill={theme.colors.SECONDARY_MAIN} />
-        <StyledText
-          as={Animated.Text}
-          marginTop={10}
-          color={theme.colors.WHITE}
-          fontSize={titleFont}
-          fontWeight="bold"
-        >
-          New Account
-        </StyledText>
-        <StepMarker step={3} />
-      </CenterView>
-      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-        <RegisterAccountFormStep03
-          formState={step3FormProps}
-          onSubmit={onSubmitForm}
-          navigateFormStepBack={navigateFormStepBack}
-        />
-      </KeyboardAvoidingView>
-    </FullView>
-  </StyledSafeAreaView>
-);
+         navigateToIntro,
+         step3FormProps,
+         navigateFormStepBack,
+         iconSize,
+         titleFont,
+         onSubmitForm,
+         iconContainerPosition,
+       }: ScreenProps) => (
+         <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN}>
+           <FullView background={theme.colors.PRIMARY_MAIN}>
+             <RowView justifyContent="flex-end">
+               <StyledTouchableOpacity padding={15} onPress={navigateToIntro}>
+                 <CrossIcon
+                   width={screenPercentageToDP(2.43, Orientation.Height)}
+                   height={screenPercentageToDP(2.43, Orientation.Height)}
+                 />
+               </StyledTouchableOpacity>
+             </RowView>
+             <CenterView
+               as={Animated.View}
+               position="absolute"
+               width="100%"
+               top={iconContainerPosition}
+             >
+               <UserIconContainer size={iconSize} />
+               <StyledText
+                 as={Animated.Text}
+                 marginTop={10}
+                 color={theme.colors.WHITE}
+                 fontSize={titleFont}
+                 fontWeight="bold"
+               >
+                 New Account
+               </StyledText>
+               <StepMarker step={3} />
+             </CenterView>
+             <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+               <RegisterAccountFormStep03
+                 formState={step3FormProps}
+                 onSubmit={onSubmitForm}
+                 navigateFormStepBack={navigateFormStepBack}
+               />
+             </KeyboardAvoidingView>
+           </FullView>
+         </StyledSafeAreaView>
+       );
