@@ -2,7 +2,7 @@ import faye from 'faye';
 
 const encodeQueryString = query =>
   Object.entries(query)
-    .filter(([key, value]) => value !== undefined)
+    .filter(([, value]) => value !== undefined)
     .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
     .join('&');
 

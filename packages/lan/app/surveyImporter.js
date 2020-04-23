@@ -8,7 +8,7 @@ function generateSurveyCode(name) {
 const yesOrNo = value => !!(value && value.toLowerCase() === 'yes');
 
 function newlinesToArray(data) {
-  if(!data) return null;
+  if (!data) return null;
 
   const array = data.split(/[\r\n]+/g);
   return JSON.stringify(array);
@@ -26,27 +26,22 @@ function importQuestion(row) {
   // detail
   //
   // ## booleans
-  // newScreen	
+  // newScreen
   //
   // ## arrays
   // options
-  // optionLabels	
+  // optionLabels
   //
   // ## not handled yet
-  // config	
-  // optionColors	
-  // visibilityCriteria	
-  // validationCriteria	
-  // optionSet	
+  // config
+  // optionColors
+  // visibilityCriteria
+  // validationCriteria
+  // optionSet
   // questionLabel
   // detailLabel
 
-  const { 
-    newScreen,
-    options,
-    optionLabels,
-    ...rest 
-  } = row;
+  const { newScreen, options, optionLabels, ...rest } = row;
 
   return {
     newScreen: yesOrNo(newScreen),

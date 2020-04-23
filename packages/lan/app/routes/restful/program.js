@@ -65,7 +65,7 @@ programRoutes.put('/program/:programId', (req, res) => {
 });
 
 function parseQuestionOptions({ options, optionLabels }) {
-  if(!options) {
+  if (!options) {
     return null;
   }
 
@@ -74,9 +74,9 @@ function parseQuestionOptions({ options, optionLabels }) {
     const optionLabelValues = JSON.parse(optionLabels || '[]');
     return optionValues.map((option, i) => ({
       value: option,
-      label: (optionLabelValues[i] || option),
+      label: optionLabelValues[i] || option,
     }));
-  } catch(e) {
+  } catch (e) {
     return null;
   }
 }

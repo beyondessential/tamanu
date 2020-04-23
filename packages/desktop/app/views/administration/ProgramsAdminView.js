@@ -1,7 +1,7 @@
 import React, { memo, useState, useCallback } from 'react';
 import styled from 'styled-components';
 
-import { remote } from 'electron'
+import { remote } from 'electron';
 
 import { readFileSync } from 'fs';
 
@@ -14,15 +14,12 @@ const Container = styled.div`
 `;
 
 const ProgramUploadForm = ({ onSubmit }) => {
-  const [path, setPath] = useState(null);
 
   const submitData = useCallback(async () => {
     const result = await remote.dialog.showOpenDialog(null, {
-      filters: [
-        { name: 'Microsoft Excel files (.xlsx)', extensions: ['xlsx'] },
-      ]
+      filters: [{ name: 'Microsoft Excel files (.xlsx)', extensions: ['xlsx'] }],
     });
-    if(!result) return;
+    if (!result) return;
 
     const [path] = result;
     const fileData = readFileSync(path);
@@ -34,13 +31,11 @@ const ProgramUploadForm = ({ onSubmit }) => {
   }, [path]);
 
   return (
-    <Button
-      onClick={submitData} 
-      variant="contained" 
-      color="primary"
-    >Upload file</Button>
+    <Button onClick={submitData} variant="contained" color="primary">
+      Upload file
+    </Button>
   );
-}
+};
 
 const DumbProgramsAdminView = memo(({ onSubmit, onCancel }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -57,7 +52,11 @@ const DumbProgramsAdminView = memo(({ onSubmit, onCancel }) => {
   return (
     <Container>
       <h1>Programs admin</h1>
-      {isLoading ? 'Loading ... ' : <ProgramUploadForm onSubmit={handleSubmit} onCancel={onCancel} />}
+      {isLoading ? (
+        'Loading ... '
+      ) : (
+        <ProgramUploadForm onSubmit={handleSubmit} onCancel={onCancel} />
+      )}
     </Container>
   );
 });
