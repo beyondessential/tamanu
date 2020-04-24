@@ -11,7 +11,7 @@ const viewSurveyResponse = () => {};
 
 const getDate = ({ endTime }) => <DateDisplay date={endTime} />;
 const getAssessorName = ({ assessor }) => assessor.name;
-const getProgramName = ({ }) => "Program";
+const getProgramName = ({ survey }) => survey.program[0].name;
 const getSurveyName = ({ survey }) => survey.name;
 const getResults = ({ }) => "OK";
 
