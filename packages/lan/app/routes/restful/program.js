@@ -64,6 +64,23 @@ programRoutes.put('/program/:programId', (req, res) => {
   // TODO: update a program
 });
 
+function parseQuestionOptions({ options, optionLabels }) {
+  if (!options) {
+    return null;
+  }
+
+  try {
+    const optionValues = JSON.parse(options);
+    const optionLabelValues = JSON.parse(optionLabels || '[]');
+    return optionValues.map((option, i) => ({
+      value: option,
+      label: optionLabelValues[i] || option,
+    }));
+  } catch (e) {
+    return null;
+  }
+}
+
 programRoutes.get('/survey/:surveyId', (req, res) => {
   // get a survey definition
   const { db, params } = req;
@@ -84,7 +101,7 @@ programRoutes.get('/survey/:surveyId', (req, res) => {
       type: question.type,
       text: question.text,
       code: question.code,
-      options: question.options && JSON.parse(question.options),
+      options: parseQuestionOptions(question),
     };
   };
 

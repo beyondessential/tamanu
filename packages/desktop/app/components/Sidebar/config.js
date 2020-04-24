@@ -231,6 +231,11 @@ export const items = [
         ability: { action: 'read', subject: 'userRole' },
       },
       {
+        label: 'Programs',
+        icon: submenuIcons.table,
+        path: '/admin/programs',
+      },
+      {
         label: 'Seed database',
         path: '/admin/seed',
         icon: submenuIcons.seed,

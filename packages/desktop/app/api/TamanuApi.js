@@ -2,7 +2,7 @@ import faye from 'faye';
 
 const encodeQueryString = query =>
   Object.entries(query)
-    .filter(([key, value]) => value !== undefined)
+    .filter(([, value]) => value !== undefined)
     .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
     .join('&');
 
@@ -73,6 +73,18 @@ export class TamanuApi {
 
   async get(endpoint, query) {
     return this.fetch(endpoint, query, { method: 'GET' });
+  }
+
+  async multipart(endpoint, body) {
+    const formData = new FormData();
+    Object.entries(body).map(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    return this.fetch(endpoint, null, {
+      method: 'POST',
+      body: formData,
+    });
   }
 
   async post(endpoint, body) {

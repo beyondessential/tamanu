@@ -30,7 +30,7 @@ const QUESTION_COMPONENTS = {
 };
 
 const SurveyQuestion = ({ question }) => {
-  const { text, type, code } = question;
+  const { text, type, code, options } = question;
   if (type === 'Instruction') {
     return <QuestionContainer>{text}</QuestionContainer>;
   }
@@ -39,7 +39,7 @@ const SurveyQuestion = ({ question }) => {
 
   return (
     <QuestionContainer>
-      <Field label={text} component={FieldComponent} name={code} />
+      <Field label={text} component={FieldComponent} name={code} options={options} />
     </QuestionContainer>
   );
 };

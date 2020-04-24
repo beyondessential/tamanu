@@ -7,30 +7,47 @@ function generateSurveyCode(name) {
 
 const yesOrNo = value => !!(value && value.toLowerCase() === 'yes');
 
+function newlinesToArray(data) {
+  if (!data) return null;
+
+  const array = data.split(/[\r\n]+/g);
+  return JSON.stringify(array);
+}
+
 function importQuestion(row) {
   // Extract question details from spreadsheet row
-  const {
-    code,
-    type,
+  //
+  // # columns in spreadsheet
+  // ## imported directly
+  // code
+  // type
+  // indicator
+  // text
+  // detail
+  //
+  // ## booleans
+  // newScreen
+  //
+  // ## arrays
+  // options
+  // optionLabels
+  //
+  // ## not handled yet
+  // config
+  // optionColors
+  // visibilityCriteria
+  // validationCriteria
+  // optionSet
+  // questionLabel
+  // detailLabel
 
-    /*
-    indicator,
-    detail,
-    options,
-    optionLabels,
-    optionColors,
-    followUpAnswers,
-    */
-
-    text,
-    newScreen,
-  } = row;
+  const { newScreen, options, optionLabels, ...rest } = row;
 
   return {
-    code,
-    text,
-    type,
     newScreen: yesOrNo(newScreen),
+    options: newlinesToArray(options),
+    optionLabels: newlinesToArray(optionLabels),
+    ...rest,
   };
 }
 
