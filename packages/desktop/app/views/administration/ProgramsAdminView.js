@@ -28,7 +28,7 @@ const ProgramUploadForm = ({ onSubmit }) => {
     };
 
     onSubmit(data);
-  }, [path]);
+  }, [onSubmit]);
 
   return (
     <Button onClick={submitData} variant="contained" color="primary">
@@ -47,7 +47,7 @@ const DumbProgramsAdminView = memo(({ onSubmit, onCancel }) => {
       setIsLoading(false);
     };
     submitData();
-  }, []);
+  }, [onSubmit]);
 
   return (
     <Container>
