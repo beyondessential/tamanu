@@ -10,9 +10,9 @@ import { DateDisplay } from './DateDisplay';
 const viewSurveyResponse = () => {};
 
 const getDate = ({ endTime }) => <DateDisplay date={endTime} />;
-const getAssessorName = ({ assessor }) => "Joe Bloggs";
+const getAssessorName = ({ assessor }) => assessor.name;
 const getProgramName = ({ }) => "Program";
-const getSurveyName = ({ }) => "Survey";
+const getSurveyName = ({ survey }) => survey.name;
 const getResults = ({ }) => "OK";
 
 const columns = [

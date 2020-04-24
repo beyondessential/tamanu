@@ -6,10 +6,8 @@ export const SurveyResponseSchema = {
   properties: {
     _id: 'string',
 
-    surveyId: 'string',
-    assessorId: 'string',
-
-    visit: { type: 'linkingObjects', objectType: 'visit', property: 'surveyResponses' },
+    survey: 'survey',
+    assessor: 'user',
 
     moduleType: 'string?',
     moduleId: 'string?',
@@ -18,6 +16,8 @@ export const SurveyResponseSchema = {
     endTime: { type: 'date', default: new Date() },
 
     answers: { type: 'list', objectType: 'surveyAnswer' },
+
+    visit: { type: 'linkingObjects', objectType: 'visit', property: 'surveyResponses' },
 
     ...defaults,
   },

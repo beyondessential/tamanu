@@ -38,6 +38,7 @@ export const SurveySchema = {
       type: 'int',
       default: 0,
     },
+    program: { type: 'linkingObjects', objectType: 'program', property: 'surveys' },
     ...defaults,
   },
 };

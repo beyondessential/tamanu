@@ -168,11 +168,13 @@ programRoutes.post('/surveyResponse', (req, res) => {
     body: `${answer}`,
   }));
 
+  const survey = db.objectForPrimaryKey('survey', surveyId);
+
   db.write(() => {
     const surveyResponse = db.create('surveyResponse', {
       _id: generate(),
-      surveyId: surveyId,
-      assessorId: '???',
+      survey,
+      assessor: req.user,
       startTime,
       endTime,
       answers: answerArray,
