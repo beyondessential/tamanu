@@ -45,19 +45,19 @@ const SurveyQuestion = ({ question }) => {
 };
 
 function checkVisibility({ visibilityCriteria }, values) {
-  if(!visibilityCriteria) return true;
+  if (!visibilityCriteria) return true;
 
-  let [key, requiredValue] = visibilityCriteria.split(":").map(x => x.trim());
+  const [key, requiredValue] = visibilityCriteria.split(':').map(x => x.trim());
   const formValue = values[key];
 
-  requiredValue = (requiredValue || "").toLowerCase().trim();
-  
-  if(typeof formValue === 'boolean') {
-    if(formValue && requiredValue === 'yes') return true;
-    if(!formValue && requiredValue === 'no') return true;
+  const sanitisedValue = (requiredValue || '').toLowerCase().trim();
+
+  if (typeof formValue === 'boolean') {
+    if (formValue && sanitisedValue === 'yes') return true;
+    if (!formValue && sanitisedValue === 'no') return true;
   }
 
-  if(requiredValue === (formValue || "").toLowerCase().trim()) return true;
+  if (sanitisedValue === (formValue || '').toLowerCase().trim()) return true;
 
   return false;
 }
@@ -149,11 +149,11 @@ function getInitialValue(q) {
 
 export const SurveyView = ({ survey, onSubmit, onCancel }) => {
   const renderSurvey = useCallback(({ submitForm, values }) => (
-    <SurveyScreenPaginator 
-      survey={survey} 
-      values={values} 
+    <SurveyScreenPaginator
+      survey={survey}
+      values={values}
       onSurveyComplete={submitForm}
-      onCancel={onCancel} 
+      onCancel={onCancel}
     />
   ));
 
