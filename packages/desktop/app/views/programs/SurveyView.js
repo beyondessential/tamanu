@@ -44,10 +44,30 @@ const SurveyQuestion = ({ question }) => {
   );
 };
 
-const SurveyScreen = ({ screen, onStepForward, onStepBack }) => {
+function checkVisibility({ visibilityCriteria }, values) {
+  if(!visibilityCriteria) return true;
+
+  let [key, requiredValue] = visibilityCriteria.split(":").map(x => x.trim());
+  const formValue = values[key];
+
+  requiredValue = (requiredValue || "").toLowerCase().trim();
+  
+  if(typeof formValue === 'boolean') {
+    if(formValue && requiredValue === 'yes') return true;
+    if(!formValue && requiredValue === 'no') return true;
+  }
+
+  if(requiredValue === (formValue || "").toLowerCase().trim()) return true;
+
+  return false;
+}
+
+const SurveyScreen = ({ screen, values, onStepForward, onStepBack }) => {
   const { questions } = screen;
 
-  const questionElements = questions.map(q => <SurveyQuestion question={q} key={q._id} />);
+  const questionElements = questions
+    .filter(q => checkVisibility(q, values))
+    .map(q => <SurveyQuestion question={q} key={q._id} />);
 
   return (
     <FormGrid columns={1}>
@@ -85,7 +105,7 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   </div>
 );
 
-const SurveyScreenPaginator = ({ survey, onSurveyComplete, onCancel }) => {
+const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel }) => {
   const { screens } = survey;
   const [screenIndex, setScreenIndex] = useState(0);
 
@@ -100,6 +120,7 @@ const SurveyScreenPaginator = ({ survey, onSurveyComplete, onCancel }) => {
   if (screenIndex < screens.length) {
     return (
       <SurveyScreen
+        values={values}
         screen={screens[screenIndex]}
         onStepForward={onStepForward}
         onStepBack={screenIndex > 0 ? onStepBack : onCancel}
@@ -127,8 +148,13 @@ function getInitialValue(q) {
 }
 
 export const SurveyView = ({ survey, onSubmit, onCancel }) => {
-  const renderSurvey = useCallback(({ submitForm }) => (
-    <SurveyScreenPaginator survey={survey} onSurveyComplete={submitForm} onCancel={onCancel} />
+  const renderSurvey = useCallback(({ submitForm, values }) => (
+    <SurveyScreenPaginator 
+      survey={survey} 
+      values={values} 
+      onSurveyComplete={submitForm}
+      onCancel={onCancel} 
+    />
   ));
 
   const initialValues = {};
