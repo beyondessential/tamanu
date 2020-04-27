@@ -151,7 +151,7 @@ programRoutes.post('/surveyResponse', (req, res) => {
   // submit a new survey response
   const { db, body, user } = req;
   const {
-    // patientId,
+    patientId,
     visitId,
     surveyId,
     date,
@@ -159,8 +159,6 @@ programRoutes.post('/surveyResponse', (req, res) => {
     endTime,
     answers,
   } = body;
-
-  const patientId = db.objects('patient')[0]._id;
 
   // answers arrive in the form of { [questionCode]: answer }
   const answerArray = Object.entries(answers).map(([questionId, answer]) => ({
@@ -170,11 +168,13 @@ programRoutes.post('/surveyResponse', (req, res) => {
     body: `${answer}`,
   }));
 
+  const survey = db.objectForPrimaryKey('survey', surveyId);
+
   db.write(() => {
     const surveyResponse = db.create('surveyResponse', {
       _id: generate(),
-      surveyId: surveyId,
-      assessorId: '???',
+      survey,
+      assessor: req.user,
       startTime,
       endTime,
       answers: answerArray,

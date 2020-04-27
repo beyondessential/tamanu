@@ -24,6 +24,20 @@ visitRoutes.get('/outpatient', (req, res) => {
   );
 });
 
+visitRoutes.get('/visit/:id', (req, res) => {
+  const { db, params } = req;
+  const { id } = params;
+
+  const visit = db.objectForPrimaryKey('visit', id);
+  if(!visit) {
+    res.status(404).end();
+  }
+  
+  // override default behaviour to provide enough depth to catch 
+  // visit.surveyResponses[].survey.program.name
+  res.send(objectToJSON(visit, 6));
+});
+
 function addSystemNote(visit, content) {
   const note = {
     _id: shortid.generate(),

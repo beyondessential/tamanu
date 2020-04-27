@@ -15,6 +15,7 @@ import { ChangeTypeModal } from '../../components/ChangeTypeModal';
 import { ChangeDepartmentModal } from '../../components/ChangeDepartmentModal';
 import { LabRequestModal } from '../../components/LabRequestModal';
 import { LabRequestsTable } from '../../components/LabRequestsTable';
+import { SurveyResponsesTable } from '../../components/SurveyResponsesTable';
 import { ImagingRequestModal } from '../../components/ImagingRequestModal';
 import { ImagingRequestsTable } from '../../components/ImagingRequestsTable';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -172,8 +173,9 @@ const ProgramsPane = connect(
     onNavigateToPrograms: () => dispatch(push('/programs')),
   }),
 )(
-  React.memo(({ onNavigateToPrograms }) => (
+  React.memo(({ onNavigateToPrograms, visit }) => (
     <div>
+      <SurveyResponsesTable surveyResponses={visit.surveyResponses} />
       <ContentPane>
         <Button onClick={onNavigateToPrograms} variant="contained" color="primary">
           New survey
