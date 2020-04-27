@@ -101,6 +101,7 @@ programRoutes.get('/survey/:surveyId', (req, res) => {
       type: question.type,
       text: question.text,
       code: question.code,
+      detail: question.detail,
       visibilityCriteria: question.visibilityCriteria,
       options: parseQuestionOptions(question),
     };

@@ -29,8 +29,13 @@ const QUESTION_COMPONENTS = {
   default: TextField,
 };
 
+const HelpText = styled.div`
+  text-style: italic;
+  padding: 0.2rem;
+`;
+
 const SurveyQuestion = ({ question }) => {
-  const { text, type, code, options } = question;
+  const { text, type, code, options, detail } = question;
   if (type === 'Instruction') {
     return <QuestionContainer>{text}</QuestionContainer>;
   }
@@ -40,6 +45,7 @@ const SurveyQuestion = ({ question }) => {
   return (
     <QuestionContainer>
       <Field label={text} component={FieldComponent} name={code} options={options} />
+      { detail && <HelpText>{ detail }</HelpText> }
     </QuestionContainer>
   );
 };
