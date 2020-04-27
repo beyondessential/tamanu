@@ -10,7 +10,7 @@ export class HttpGetProgramsList implements GetProgramsList {
   }
 
   async get(): Promise<ProgramModel[]> {
-    const programs = await this.getProgramsRepository.get();
-    return new Promise(resolve => resolve(programs));
+    const programs = await this.getProgramsRepository.getAll();
+    return programs;
   }
 }
