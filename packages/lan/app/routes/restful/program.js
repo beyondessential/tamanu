@@ -49,8 +49,14 @@ programRoutes.post('/program', async (req, res) => {
       const survey = writeSurveyToDatabase(req.db, program, surveyData);
 
       res.send({ 
-        programId: program._id,
-        surveyId: survey._id,
+        program: {
+          _id: program._id,
+          name: program.name,
+        },
+        survey: {
+          _id: survey._id,
+          name: survey.name,
+        },
       });
     });
   } catch (e) {

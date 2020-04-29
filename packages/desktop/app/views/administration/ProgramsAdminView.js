@@ -53,19 +53,41 @@ const ProgramUploadForm = ({ handleSubmit }) => (
   </FormGrid>
 );
 
+const SuccessDisplay = ({ successInfo }) => {
+  if(!successInfo) {
+    return null;
+  }
+
+  return (
+    <div>
+      <h3>Import successful!</h3>
+      <p>{`Imported survey ${successInfo.survey.name} for program ${successInfo.program.name}.`}</p>
+      <hr />
+    </div>
+  );
+};
+
 const DumbProgramsAdminView = memo(({ onSubmit, onCancel }) => {
-  const onSubmitUpload = useCallback(({ file, ...data }) => onSubmit({
-    file: readFileAsBlob(file),
-    ...data,
-  }), [onSubmit]);
+  const [resetKey, setResetKey] = React.useState(Math.random());
+  const [successInfo, setSuccessInfo] = React.useState(null);
+
+  const onSubmitUpload = useCallback(async ({ file, ...data }) => {
+    const results = await onSubmit({
+      file: readFileAsBlob(file),
+      ...data,
+    });
+    // reset the form
+    setResetKey(Math.random());
+    setSuccessInfo(results);
+  }, [onSubmit]);
 
   return (
     <Container>
       <h1>Programs admin</h1>
+      <SuccessDisplay successInfo={successInfo} />
       <Form
+        key={resetKey}
         onSubmit={onSubmitUpload}
-        initialValues={{
-        }}
         validationSchema={yup.object().shape({
           programName: yup.string().required(),
           surveyName: yup.string().required(),
