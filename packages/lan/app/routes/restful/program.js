@@ -2,7 +2,7 @@ import express from 'express';
 import { Form } from 'multiparty';
 import { generate } from 'shortid';
 
-import { readSurveyXSLX, writeProgramToDatabase } from '../../surveyImporter';
+import { readSurveyXSLX, writeProgramToDatabase, writeSurveyToDatabase } from '../../surveyImporter';
 import { objectToJSON } from '../../utils';
 
 export const programRoutes = express.Router();
@@ -32,13 +32,27 @@ function parseFormData(req) {
 }
 
 programRoutes.post('/program', async (req, res) => {
-  const { file, programName, surveyName } = await parseFormData(req);
+  const { db } = req;
+  const { 
+    file,
+    programName,
+    surveyName,
+  } = await parseFormData(req);
+
   try {
     const surveyData = readSurveyXSLX(surveyName, file.path);
-    const program = writeProgramToDatabase(req.db, {
-      name: programName
-    }, surveyData);
-    res.send({ programId: program._id });
+    db.write(() => {
+      const program = writeProgramToDatabase(req.db, {
+        name: programName
+      });
+
+      const survey = writeSurveyToDatabase(req.db, program, surveyData);
+
+      res.send({ 
+        programId: program._id,
+        surveyId: survey._id,
+      });
+    });
   } catch (e) {
     console.log(e);
     res.status(400).send(e);

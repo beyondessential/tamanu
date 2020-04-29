@@ -118,7 +118,7 @@ function writeScreen(db, survey, { questions }) {
   return screen;
 }
 
-function writeSurvey(db, program, { screens, ...surveyData }) {
+export function writeSurveyToDatabase(db, program, { screens, ...surveyData }) {
   const survey = db.create('survey', {
     _id: shortid.generate(),
     ...surveyData,
@@ -126,20 +126,15 @@ function writeSurvey(db, program, { screens, ...surveyData }) {
 
   survey.screens = screens.map((s, i) => writeScreen(db, survey, { index: i, ...s }));
 
+  program.surveys = [...program.surveys, survey];
+
   return survey;
 }
 
 export function writeProgramToDatabase(db, programData, surveyData) {
-  let program;
-  db.write(() => {
-    program = db.create('program', {
-      _id: shortid.generate(),
-      ...programData,
-    });
-
-    const survey = writeSurvey(db, program, surveyData);
-
-    program.surveys = [survey];
+  const program = db.create('program', {
+    _id: shortid.generate(),
+    ...programData,
   });
 
   return program;
