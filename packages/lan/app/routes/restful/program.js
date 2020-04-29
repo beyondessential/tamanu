@@ -101,6 +101,7 @@ programRoutes.get('/survey/:surveyId', (req, res) => {
       type: question.type,
       text: question.text,
       code: question.code,
+      visibilityCriteria: question.visibilityCriteria,
       options: parseQuestionOptions(question),
     };
   };
@@ -150,15 +151,7 @@ function getVisitForSurvey(db, patientId, visitId, surveyResponse) {
 programRoutes.post('/surveyResponse', (req, res) => {
   // submit a new survey response
   const { db, body, user } = req;
-  const {
-    patientId,
-    visitId,
-    surveyId,
-    date,
-    startTime,
-    endTime,
-    answers,
-  } = body;
+  const { patientId, visitId, surveyId, date, startTime, endTime, answers } = body;
 
   // answers arrive in the form of { [questionCode]: answer }
   const answerArray = Object.entries(answers).map(([questionId, answer]) => ({
