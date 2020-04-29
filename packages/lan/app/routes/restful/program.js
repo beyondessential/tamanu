@@ -7,7 +7,7 @@ import { objectToJSON } from '../../utils';
 
 export const programRoutes = express.Router();
 
-function parseFileUpload(req) {
+function parseFormData(req) {
   // import a program
   const form = new Form();
   return new Promise((resolve, reject) => {
@@ -17,19 +17,27 @@ function parseFileUpload(req) {
         return;
       }
 
-      resolve({ ...fields, ...files });
+      // a formdata submission allows for multiple values for the
+      // same key, so everything will be an array - this doesn't match
+      // with the json-oriented way of doing things so just take the 
+      // first element of everything
+      const allFields = { ...fields, ...files };
+      const prunedFields = {};
+      Object.entries(allFields).map(([key, value]) => {
+        prunedFields[key] = value && value[0];
+      });
+      resolve(prunedFields);
     });
   });
 }
 
 programRoutes.post('/program', async (req, res) => {
-  const { file } = await parseFileUpload(req);
-  // file upload fields inherently support multiple files
-  // so just get the first one
-  const { path } = file[0];
+  const { file, programName, surveyName } = await parseFormData(req);
   try {
-    const data = readSurveyXSLX(path);
-    const program = writeProgramToDatabase(req.db, data);
+    const surveyData = readSurveyXSLX(surveyName, file.path);
+    const program = writeProgramToDatabase(req.db, {
+      name: programName
+    }, surveyData);
     res.send({ programId: program._id });
   } catch (e) {
     console.log(e);

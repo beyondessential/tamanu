@@ -1,10 +1,6 @@
 import { readFile, utils } from 'xlsx';
 import shortid from 'shortid';
 
-function generateSurveyCode(name) {
-  return name.toUpperCase().replace(/\W/g, '');
-}
-
 const yesOrNo = value => !!(value && value.toLowerCase() === 'yes');
 
 function newlinesToArray(data) {
@@ -66,26 +62,28 @@ function splitIntoScreens(questions) {
   });
 }
 
-function importSheet(name, sheet) {
+function importSheet(sheet) {
   const data = utils.sheet_to_json(sheet);
   const questions = data.map(importQuestion).filter(q => q.code);
 
   const survey = {
-    name,
-    canRedo: true,
-    code: generateSurveyCode(name),
     screens: splitIntoScreens(questions),
   };
 
   return survey;
 }
 
-export function readSurveyXSLX(path) {
+export function readSurveyXSLX(surveyName, path) {
   const workbook = readFile(path);
-  const sheets = Object.entries(workbook.Sheets);
-  const surveys = sheets.map(([name, data]) => importSheet(name, data));
+  const sheets = Object.values(workbook.Sheets);
+
+  if(sheets.length > 1) {
+    throw new Error("A survey workbook may only contain one sheet");
+  }
+
   return {
-    surveys,
+    name: surveyName,
+    ...importSheet(sheets[0]),
   };
 }
 
@@ -131,17 +129,17 @@ function writeSurvey(db, program, { screens, ...surveyData }) {
   return survey;
 }
 
-export function writeProgramToDatabase(db, programData) {
+export function writeProgramToDatabase(db, programData, surveyData) {
   let program;
   db.write(() => {
     program = db.create('program', {
       _id: shortid.generate(),
-      name: 'Test program',
+      ...programData,
     });
 
-    const surveys = programData.surveys.map(s => writeSurvey(db, program, s));
+    const survey = writeSurvey(db, program, surveyData);
 
-    program.surveys = surveys;
+    program.surveys = [survey];
   });
 
   return program;
