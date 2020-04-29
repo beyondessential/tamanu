@@ -2,7 +2,11 @@ import express from 'express';
 import { Form } from 'multiparty';
 import { generate } from 'shortid';
 
-import { readSurveyXSLX, writeProgramToDatabase, writeSurveyToDatabase } from '../../surveyImporter';
+import {
+  readSurveyXSLX,
+  writeProgramToDatabase,
+  writeSurveyToDatabase,
+} from '../../surveyImporter';
 import { objectToJSON } from '../../utils';
 
 export const programRoutes = express.Router();
@@ -19,7 +23,7 @@ function parseFormData(req) {
 
       // a formdata submission allows for multiple values for the
       // same key, so everything will be an array - this doesn't match
-      // with the json-oriented way of doing things so just take the 
+      // with the json-oriented way of doing things so just take the
       // first element of everything
       const allFields = { ...fields, ...files };
       const prunedFields = {};
@@ -33,22 +37,18 @@ function parseFormData(req) {
 
 programRoutes.post('/program', async (req, res) => {
   const { db } = req;
-  const { 
-    file,
-    programName,
-    surveyName,
-  } = await parseFormData(req);
+  const { file, programName, surveyName } = await parseFormData(req);
 
   try {
     const surveyData = readSurveyXSLX(surveyName, file.path);
     db.write(() => {
       const program = writeProgramToDatabase(req.db, {
-        name: programName
+        name: programName,
       });
 
       const survey = writeSurveyToDatabase(req.db, program, surveyData);
 
-      res.send({ 
+      res.send({
         program: {
           _id: program._id,
           name: program.name,
@@ -179,7 +179,7 @@ function getVisitForSurvey(db, patientId, visitId, surveyResponse) {
 programRoutes.post('/surveyResponse', (req, res) => {
   // submit a new survey response
   const { db, body, user } = req;
-  const { patientId, visitId, surveyId, date, startTime, endTime, answers } = body;
+  const { patientId, visitId, surveyId, startTime, endTime, answers } = body;
 
   // answers arrive in the form of { [questionCode]: answer }
   const answerArray = Object.entries(answers).map(([questionId, answer]) => ({
@@ -195,7 +195,7 @@ programRoutes.post('/surveyResponse', (req, res) => {
     const surveyResponse = db.create('surveyResponse', {
       _id: generate(),
       survey,
-      assessor: req.user,
+      assessor: user,
       startTime,
       endTime,
       answers: answerArray,

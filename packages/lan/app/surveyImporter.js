@@ -77,8 +77,8 @@ export function readSurveyXSLX(surveyName, path) {
   const workbook = readFile(path);
   const sheets = Object.values(workbook.Sheets);
 
-  if(sheets.length > 1) {
-    throw new Error("A survey workbook may only contain one sheet");
+  if (sheets.length > 1) {
+    throw new Error('A survey workbook may only contain one sheet');
   }
 
   return {
@@ -131,7 +131,7 @@ export function writeSurveyToDatabase(db, program, { screens, ...surveyData }) {
   return survey;
 }
 
-export function writeProgramToDatabase(db, programData, surveyData) {
+export function writeProgramToDatabase(db, programData) {
   const program = db.create('program', {
     _id: shortid.generate(),
     ...programData,

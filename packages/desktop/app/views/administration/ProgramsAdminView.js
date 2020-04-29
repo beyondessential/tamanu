@@ -7,9 +7,7 @@ import { FileChooserField, FILTER_EXCEL } from 'desktop/app/components/Field/Fil
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
 
-import { remote } from 'electron';
-
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync } from 'fs';
 
 import { Button } from 'desktop/app/components/Button';
 
@@ -26,18 +24,8 @@ function readFileAsBlob(path) {
 
 const ProgramUploadForm = ({ handleSubmit }) => (
   <FormGrid columns={1}>
-    <Field
-      component={TextField}
-      label="Program name"
-      name="programName"
-      required
-    />
-    <Field
-      component={TextField}
-      label="Survey name"
-      name="surveyName"
-      required
-    />
+    <Field component={TextField} label="Program name" name="programName" required />
+    <Field component={TextField} label="Survey name" name="surveyName" required />
     <Field
       component={FileChooserField}
       filters={[FILTER_EXCEL]}
@@ -54,7 +42,7 @@ const ProgramUploadForm = ({ handleSubmit }) => (
 );
 
 const SuccessDisplay = ({ successInfo }) => {
-  if(!successInfo) {
+  if (!successInfo) {
     return null;
   }
 
@@ -67,19 +55,22 @@ const SuccessDisplay = ({ successInfo }) => {
   );
 };
 
-const DumbProgramsAdminView = memo(({ onSubmit, onCancel }) => {
-  const [resetKey, setResetKey] = React.useState(Math.random());
-  const [successInfo, setSuccessInfo] = React.useState(null);
+const DumbProgramsAdminView = memo(({ onSubmit }) => {
+  const [resetKey, setResetKey] = useState(Math.random());
+  const [successInfo, setSuccessInfo] = useState(null);
 
-  const onSubmitUpload = useCallback(async ({ file, ...data }) => {
-    const results = await onSubmit({
-      file: readFileAsBlob(file),
-      ...data,
-    });
-    // reset the form
-    setResetKey(Math.random());
-    setSuccessInfo(results);
-  }, [onSubmit]);
+  const onSubmitUpload = useCallback(
+    async ({ file, ...data }) => {
+      const results = await onSubmit({
+        file: readFileAsBlob(file),
+        ...data,
+      });
+      // reset the form
+      setResetKey(Math.random());
+      setSuccessInfo(results);
+    },
+    [onSubmit],
+  );
 
   return (
     <Container>
