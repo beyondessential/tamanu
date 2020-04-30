@@ -15,8 +15,6 @@ import { ContentPane } from 'desktop/app/components/ContentPane';
 
 import { PatientDisplay } from './PatientDisplay';
 
-const QuestionContainer = styled.div``;
-
 const QUESTION_COMPONENTS = {
   Instruction: null,
   Date: DateField,
@@ -29,24 +27,16 @@ const QUESTION_COMPONENTS = {
   default: TextField,
 };
 
-const HelpText = styled.div`
-  text-style: italic;
-  padding: 0.2rem;
-`;
-
 const SurveyQuestion = ({ question }) => {
   const { text, type, code, options, detail } = question;
   if (type === 'Instruction') {
-    return <QuestionContainer>{text}</QuestionContainer>;
+    return <div>{text}</div>;
   }
 
   const FieldComponent = QUESTION_COMPONENTS[type] || QUESTION_COMPONENTS.default;
 
   return (
-    <QuestionContainer>
-      <Field label={text} component={FieldComponent} name={code} options={options} />
-      { detail && <HelpText>{ detail }</HelpText> }
-    </QuestionContainer>
+      <Field label={text} component={FieldComponent} name={code} options={options} helpText={detail} />
   );
 };
 
