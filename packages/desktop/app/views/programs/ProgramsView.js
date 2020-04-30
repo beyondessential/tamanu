@@ -33,15 +33,18 @@ const DumbSurveyFlow = React.memo(
       setSurvey(null);
     });
 
-    const onSubmit = useCallback(data => {
-      onSubmitSurvey({
-        surveyId: survey._id,
-        startTime: startTime,
-        patientId: patient._id,
-        endTime: new Date(),
-        answers: data,
-      });
-    }, [startTime, survey]);
+    const onSubmit = useCallback(
+      data => {
+        onSubmitSurvey({
+          surveyId: survey._id,
+          startTime: startTime,
+          patientId: patient._id,
+          endTime: new Date(),
+          answers: data,
+        });
+      },
+      [startTime, survey],
+    );
 
     if (!programsList) {
       return <LoadingIndicator loadingText="Loading survey list..." />;

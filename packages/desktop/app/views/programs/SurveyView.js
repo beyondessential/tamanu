@@ -149,9 +149,11 @@ function getInitialValue(q) {
 
 const SurveyCompletedMessage = React.memo(({ onResetClicked }) => (
   <div>
-    <p>Your response has been successfully submitted.</p> 
+    <p>Your response has been successfully submitted.</p>
     <ButtonRow>
-      <Button variant="contained" color="primary" onClick={onResetClicked}>New survey</Button>
+      <Button variant="contained" color="primary" onClick={onResetClicked}>
+        New survey
+      </Button>
     </ButtonRow>
   </div>
 ));
@@ -180,16 +182,18 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
     });
   });
 
-  const surveyContents = surveyCompleted
-    ? <SurveyCompletedMessage onResetClicked={onCancel} />
-    : <Form onSubmit={onSubmitSurvey} render={renderSurvey} initialValues={initialValues} />;
+  const surveyContents = surveyCompleted ? (
+    <SurveyCompletedMessage onResetClicked={onCancel} />
+  ) : (
+    <Form onSubmit={onSubmitSurvey} render={renderSurvey} initialValues={initialValues} />
+  );
 
   return (
     <ContentPane>
       <PatientDisplay />
       <hr />
       <h2>{survey.name}</h2>
-      { surveyContents }
+      {surveyContents}
     </ContentPane>
   );
 };
