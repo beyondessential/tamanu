@@ -14,7 +14,7 @@ const OuterLabelRequired = styled.span`
 `;
 
 const HelpText = styled.div`
-  text-style: italic;
+  font-style: italic;
   padding: 0.2rem;
 `;
 

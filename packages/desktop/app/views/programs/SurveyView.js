@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import styled from 'styled-components';
 import {
   Form,
   Field,
@@ -36,7 +35,13 @@ const SurveyQuestion = ({ question }) => {
   const FieldComponent = QUESTION_COMPONENTS[type] || QUESTION_COMPONENTS.default;
 
   return (
-      <Field label={text} component={FieldComponent} name={code} options={options} helpText={detail} />
+    <Field
+      label={text}
+      component={FieldComponent}
+      name={code}
+      options={options}
+      helpText={detail}
+    />
   );
 };
 
