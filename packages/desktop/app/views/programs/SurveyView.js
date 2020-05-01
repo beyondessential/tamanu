@@ -6,7 +6,6 @@ import {
   TextField,
   SelectField,
   DateField,
-  CheckField,
   NullableBooleanField,
 } from 'desktop/app/components/Field';
 import { FormGrid } from 'desktop/app/components/FormGrid';
@@ -40,12 +39,7 @@ const SurveyQuestion = ({ question }) => {
 
   return (
     <QuestionContainer>
-      <Field 
-        label={text}
-        component={FieldComponent} 
-        name={code}
-        options={options} 
-      />
+      <Field label={text} component={FieldComponent} name={code} options={options} />
     </QuestionContainer>
   );
 };

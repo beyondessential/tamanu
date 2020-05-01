@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
 import FormLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
@@ -23,35 +22,39 @@ const ControlLabel = styled(FormLabel)`
 `;
 
 const NullableBooleanControl = React.memo(({ value, onChange, disabled, name }) => {
-  const onClickTrue = () => { 
-    const newValue = (value === true) ? undefined : true;
+  const onClickTrue = useCallback(() => {
+    const newValue = value === true ? undefined : true;
     onChange({ target: { name, value: newValue } });
-  };
+  });
 
-  const onClickFalse = () => { 
-    const newValue = (value === false) ? undefined : false;
+  const onClickFalse = useCallback(() => {
+    const newValue = value === false ? undefined : false;
     onChange({ target: { name, value: newValue } });
-  };
+  });
+
+  const yesColor = value === true ? 'primary' : '';
+  const noColor = value === false ? 'primary' : '';
 
   return (
     <StyledButtonGroup size="small" variant="contained">
-      <MuiButton disabled={disabled} onClick={onClickTrue} color={ value === true && "primary" }>Yes</MuiButton>
-      <MuiButton disabled={disabled} onClick={onClickFalse} color={ value === false && "primary" }>No</MuiButton>
+      <MuiButton disabled={disabled} onClick={onClickTrue} color={yesColor}>
+        Yes
+      </MuiButton>
+      <MuiButton disabled={disabled} onClick={onClickFalse} color={noColor}>
+        No
+      </MuiButton>
     </StyledButtonGroup>
   );
 });
 
-export const NullableBooleanInput = React.memo(({ label, helperText, className, style, error, ...props }) => {
-  return (
+export const NullableBooleanInput = React.memo(
+  ({ label, helperText, className, style, error, ...props }) => (
     <FormControl style={style} error={error} className={className}>
-      <ControlLabel
-        control={<NullableBooleanControl {...props} />} 
-        label={label} 
-      />
+      <ControlLabel control={<NullableBooleanControl {...props} />} label={label} />
       {helperText && <FormHelperText>{helperText}</FormHelperText>}
     </FormControl>
-  );
-});
+  ),
+);
 
 export const NullableBooleanField = React.memo(({ field, error, ...props }) => (
   <NullableBooleanInput
