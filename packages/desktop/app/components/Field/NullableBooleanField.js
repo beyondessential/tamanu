@@ -22,7 +22,7 @@ const ControlLabel = styled(FormLabel)`
   }
 `;
 
-const NullableBooleanControl = React.memo(({ value, onChange, disabled }) => {
+const NullableBooleanControl = React.memo(({ value, onChange, disabled, name }) => {
   const onClickTrue = () => { 
     const newValue = (value === true) ? undefined : true;
     onChange({ target: { name, value: newValue } });
@@ -56,7 +56,7 @@ export const NullableBooleanInput = React.memo(({ label, helperText, className, 
 export const NullableBooleanField = React.memo(({ field, error, ...props }) => (
   <NullableBooleanInput
     name={field.name}
-    value={field.value || false}
+    value={field.value}
     onChange={field.onChange}
     {...props}
   />
@@ -64,7 +64,7 @@ export const NullableBooleanField = React.memo(({ field, error, ...props }) => (
 
 NullableBooleanInput.propTypes = {
   name: PropTypes.string,
-  value: PropTypes.bool,
+  value: PropTypes.oneOf(true, false, null),
   label: PropTypes.string,
   onChange: PropTypes.func,
 };

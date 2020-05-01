@@ -7,6 +7,7 @@ import {
   SelectField,
   DateField,
   CheckField,
+  NullableBooleanField,
 } from 'desktop/app/components/Field';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { Button } from 'desktop/app/components/Button';
@@ -23,8 +24,8 @@ const QUESTION_COMPONENTS = {
   FreeText: TextField,
   Radio: SelectField,
 
-  Binary: CheckField,
-  Checkbox: CheckField,
+  Binary: NullableBooleanField,
+  Checkbox: NullableBooleanField,
 
   default: TextField,
 };
@@ -39,7 +40,12 @@ const SurveyQuestion = ({ question }) => {
 
   return (
     <QuestionContainer>
-      <Field label={text} component={FieldComponent} name={code} options={options} />
+      <Field 
+        label={text}
+        component={FieldComponent} 
+        name={code}
+        options={options} 
+      />
     </QuestionContainer>
   );
 };
@@ -131,22 +137,6 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel }) =
   return <SurveySummaryScreen onStepBack={onStepBack} onSurveyComplete={onSurveyComplete} />;
 };
 
-function getInitialValue(q) {
-  switch (q.type) {
-    case 'FreeText':
-      return '';
-
-    case 'Binary':
-    case 'Checkbox':
-      return false;
-    case 'Radio':
-    case 'Instruction':
-    case 'Date':
-    default:
-      return null;
-  }
-}
-
 const SurveyCompletedMessage = React.memo(({ onResetClicked }) => (
   <div>
     <p>Your response has been successfully submitted.</p>
@@ -175,17 +165,10 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
     />
   ));
 
-  const initialValues = {};
-  survey.screens.forEach(s => {
-    s.questions.forEach(q => {
-      initialValues[q.code] = getInitialValue(q);
-    });
-  });
-
   const surveyContents = surveyCompleted ? (
     <SurveyCompletedMessage onResetClicked={onCancel} />
   ) : (
-    <Form onSubmit={onSubmitSurvey} render={renderSurvey} initialValues={initialValues} />
+    <Form onSubmit={onSubmitSurvey} render={renderSurvey} />
   );
 
   return (
