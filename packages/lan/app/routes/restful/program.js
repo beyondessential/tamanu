@@ -2,12 +2,16 @@ import express from 'express';
 import { Form } from 'multiparty';
 import { generate } from 'shortid';
 
-import { readSurveyXSLX, writeProgramToDatabase } from '../../surveyImporter';
+import {
+  readSurveyXSLX,
+  writeProgramToDatabase,
+  writeSurveyToDatabase,
+} from '../../surveyImporter';
 import { objectToJSON } from '../../utils';
 
 export const programRoutes = express.Router();
 
-function parseFileUpload(req) {
+function parseFormData(req) {
   // import a program
   const form = new Form();
   return new Promise((resolve, reject) => {
@@ -17,20 +21,44 @@ function parseFileUpload(req) {
         return;
       }
 
-      resolve({ ...fields, ...files });
+      // a formdata submission allows for multiple values for the
+      // same key, so everything will be an array - this doesn't match
+      // with the json-oriented way of doing things so just take the
+      // first element of everything
+      const allFields = { ...fields, ...files };
+      const prunedFields = {};
+      Object.entries(allFields).map(([key, value]) => {
+        prunedFields[key] = value && value[0];
+      });
+      resolve(prunedFields);
     });
   });
 }
 
 programRoutes.post('/program', async (req, res) => {
-  const { file } = await parseFileUpload(req);
-  // file upload fields inherently support multiple files
-  // so just get the first one
-  const { path } = file[0];
+  const { db } = req;
+  const { file, programName, surveyName } = await parseFormData(req);
+
   try {
-    const data = readSurveyXSLX(path);
-    const program = writeProgramToDatabase(req.db, data);
-    res.send({ programId: program._id });
+    const surveyData = readSurveyXSLX(surveyName, file.path);
+    db.write(() => {
+      const program = writeProgramToDatabase(req.db, {
+        name: programName,
+      });
+
+      const survey = writeSurveyToDatabase(req.db, program, surveyData);
+
+      res.send({
+        program: {
+          _id: program._id,
+          name: program.name,
+        },
+        survey: {
+          _id: survey._id,
+          name: survey.name,
+        },
+      });
+    });
   } catch (e) {
     console.log(e);
     res.status(400).send(e);
@@ -151,7 +179,7 @@ function getVisitForSurvey(db, patientId, visitId, surveyResponse) {
 programRoutes.post('/surveyResponse', (req, res) => {
   // submit a new survey response
   const { db, body, user } = req;
-  const { patientId, visitId, surveyId, date, startTime, endTime, answers } = body;
+  const { patientId, visitId, surveyId, startTime, endTime, answers } = body;
 
   // answers arrive in the form of { [questionCode]: answer }
   const answerArray = Object.entries(answers).map(([questionId, answer]) => ({
@@ -167,7 +195,7 @@ programRoutes.post('/surveyResponse', (req, res) => {
     const surveyResponse = db.create('surveyResponse', {
       _id: generate(),
       survey,
-      assessor: req.user,
+      assessor: user,
       startTime,
       endTime,
       answers: answerArray,

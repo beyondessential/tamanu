@@ -1,7 +1,11 @@
 import React, { memo, useState, useCallback } from 'react';
 import styled from 'styled-components';
+import * as yup from 'yup';
 
-import { remote } from 'electron';
+import { Form, Field, TextField } from 'desktop/app/components/Field';
+import { FileChooserField, FILTER_EXCEL } from 'desktop/app/components/Field/FileChooserField';
+import { FormGrid } from 'desktop/app/components/FormGrid';
+import { ButtonRow } from 'desktop/app/components/ButtonRow';
 
 import { readFileSync } from 'fs';
 
@@ -13,50 +17,75 @@ const Container = styled.div`
   padding: 32px;
 `;
 
-const ProgramUploadForm = ({ onSubmit }) => {
+function readFileAsBlob(path) {
+  const fileData = readFileSync(path);
+  return new Blob([fileData]);
+}
 
-  const submitData = useCallback(async () => {
-    const result = await remote.dialog.showOpenDialog(null, {
-      filters: [{ name: 'Microsoft Excel files (.xlsx)', extensions: ['xlsx'] }],
-    });
-    if (!result) return;
+const ProgramUploadForm = ({ handleSubmit }) => (
+  <FormGrid columns={1}>
+    <Field component={TextField} label="Program name" name="programName" required />
+    <Field component={TextField} label="Survey name" name="surveyName" required />
+    <Field
+      component={FileChooserField}
+      filters={[FILTER_EXCEL]}
+      label="Select file"
+      name="file"
+      required
+    />
+    <ButtonRow>
+      <Button onClick={handleSubmit} variant="contained" color="primary">
+        Upload
+      </Button>
+    </ButtonRow>
+  </FormGrid>
+);
 
-    const [path] = result;
-    const fileData = readFileSync(path);
-    const data = {
-      file: new Blob([fileData]),
-    };
-
-    onSubmit(data);
-  }, [onSubmit]);
+const SuccessDisplay = ({ successInfo }) => {
+  if (!successInfo) {
+    return null;
+  }
 
   return (
-    <Button onClick={submitData} variant="contained" color="primary">
-      Upload file
-    </Button>
+    <div>
+      <h3>Import successful!</h3>
+      <p>{`Imported survey ${successInfo.survey.name} for program ${successInfo.program.name}.`}</p>
+      <hr />
+    </div>
   );
 };
 
-const DumbProgramsAdminView = memo(({ onSubmit, onCancel }) => {
-  const [isLoading, setIsLoading] = useState(false);
+const DumbProgramsAdminView = memo(({ onSubmit }) => {
+  const [resetKey, setResetKey] = useState(Math.random());
+  const [successInfo, setSuccessInfo] = useState(null);
 
-  const handleSubmit = useCallback(data => {
-    const submitData = async () => {
-      setIsLoading(true);
-      await onSubmit(data);
-      setIsLoading(false);
-    };
-    submitData();
-  }, [onSubmit]);
+  const onSubmitUpload = useCallback(
+    async ({ file, ...data }) => {
+      const results = await onSubmit({
+        file: readFileAsBlob(file),
+        ...data,
+      });
+      // reset the form
+      setResetKey(Math.random());
+      setSuccessInfo(results);
+    },
+    [onSubmit],
+  );
 
   return (
     <Container>
       <h1>Programs admin</h1>
-      {isLoading ? (
-        'Loading ... '
-      ) : (
-        <ProgramUploadForm onSubmit={handleSubmit} onCancel={onCancel} />
-      )}
+      <SuccessDisplay successInfo={successInfo} />
+      <Form
+        key={resetKey}
+        onSubmit={onSubmitUpload}
+        validationSchema={yup.object().shape({
+          programName: yup.string().required(),
+          surveyName: yup.string().required(),
+          file: yup.string().required(),
+        })}
+        render={ProgramUploadForm}
+      />
     </Container>
   );
 });
