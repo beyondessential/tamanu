@@ -1,7 +1,7 @@
 import { Client } from '/infra/httpClient/http-client';
 import { AxiosAdapter } from '/infra/httpClient/axios/adapter/axios-adapter';
 import { API } from '/infra/httpClient/axios/helper/BaseAPI';
-import { UserAxiosRepository } from '/infra/httpClient/axios/user-respoitory/user';
+import { UserAxiosRepository } from '../../infra/httpClient/axios/user-repository/user';
 import { HttpSignInUser } from '/data/usecases/signin/http-sign-in-user';
 import { SignInController } from '/presentation/controllers/signin/signin';
 
