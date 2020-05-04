@@ -44,7 +44,7 @@ export const SearchInput: FC<SearchInputProps> = ({
       borderRadius={85}
     >
       <StyledView marginRight={10}>
-        <Icons.Search
+        <Icons.SearchIcon
           fill={focus ? theme.colors.PRIMARY_MAIN : theme.colors.TEXT_SOFT}
           height={20}
         />

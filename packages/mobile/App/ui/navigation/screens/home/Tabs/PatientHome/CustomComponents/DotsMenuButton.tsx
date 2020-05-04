@@ -1,6 +1,6 @@
 import React, { FC, ReactElement } from 'react';
 import { ButtonProps } from './fixture';
-import { DotsMenu } from '/components/Icons';
+import { KebabIcon } from '/components/Icons';
 import { StyledTouchableOpacity, StyledView } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
@@ -14,7 +14,7 @@ export const DotsMenuButton: FC<ButtonProps> = ({
       paddingBottom={screenPercentageToDP(2.43, Orientation.Height)}
       width={screenPercentageToDP(19.46, Orientation.Width)}
     >
-      <DotsMenu />
+      <KebabIcon />
     </StyledView>
   </StyledTouchableOpacity>
 );

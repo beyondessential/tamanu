@@ -9,7 +9,7 @@ import {
   RowView,
   StyledSafeAreaView,
 } from '/styled/common';
-import { Profile, LogoV2CLR, Search as SearchIcon } from '/components/Icons';
+import { ProfileIcon, LogoV2Icon, SearchIcon } from '/components/Icons';
 import { PatientCard } from '/components/PatientCard';
 import { theme } from '/styled/theme';
 import { disableAndroidBackButton } from '/helpers/android';
@@ -17,7 +17,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { UserAvatar } from '/components/UserAvatar';
 import { Genders } from '/helpers/user';
 import { Routes } from '/helpers/routes';
-import { BaseAppProps } from '../../../../interfaces/BaseAppProps';
+import { BaseAppProps } from '/interfaces/BaseAppProps';
 import { FemaleGender } from '/helpers/constants';
 
 const placeholderPatient = {
@@ -48,7 +48,10 @@ const HomeMenuButton = ({
       paddingLeft={15}
       paddingTop={screenPercentageToDP(3.03, Orientation.Height)}
     >
-      <Profile size={screenPercentageToDP(6.92, Orientation.Height)} />
+      <ProfileIcon
+        height={screenPercentageToDP(6.92, Orientation.Height)}
+        width={screenPercentageToDP(6.92, Orientation.Height)}
+      />
       <StyledText
         lineHeight={screenPercentageToDP(2.67, Orientation.Height)}
         marginTop={screenPercentageToDP(4.86, Orientation.Width)}
@@ -132,7 +135,7 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
             width="100%"
             justifyContent="space-between"
           >
-            <LogoV2CLR fill={theme.colors.WHITE} />
+            <LogoV2Icon fill={theme.colors.WHITE} />
             <UserAvatar
               size={screenPercentageToDP(5.46, Orientation.Height)}
               name="Tony Robbins"

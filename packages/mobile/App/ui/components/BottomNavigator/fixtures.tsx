@@ -44,13 +44,13 @@ const navigator = createBottomTabNavigator(
         tabBarIcon: (props): JSX.Element | null => {
           switch (routeName) {
             case 'Home':
-              return <TabIcon Icon={Icons.BottomNavLogo} {...props} />;
+              return <TabIcon Icon={Icons.HomeBottomLogoIcon} {...props} />;
             case 'Reports':
-              return <TabIcon Icon={Icons.BarChart} {...props} />;
+              return <TabIcon Icon={Icons.BarChartIcon} {...props} />;
             case 'SyncData':
-              return <TabIcon Icon={Icons.SyncFiles} {...props} />;
+              return <TabIcon Icon={Icons.SyncDataIcon} {...props} />;
             case 'More':
-              return <TabIcon Icon={Icons.More} {...props} />;
+              return <TabIcon Icon={Icons.MoreMenuIcon} {...props} />;
             default:
               return null;
           }

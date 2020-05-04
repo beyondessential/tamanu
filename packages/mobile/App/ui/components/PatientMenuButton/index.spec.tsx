@@ -1,13 +1,13 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { PatientMenuButton } from './index';
-import { Deceased } from '../Icons';
+import { DeceasedIcon } from '../Icons';
 
 describe('<PatientMenuButton />', () => {
   const props = {
     title: 'test',
     onPress: jest.fn(),
-    Icon: Deceased,
+    Icon: DeceasedIcon,
   };
 
   const { getByText } = render(<PatientMenuButton {...props} />);

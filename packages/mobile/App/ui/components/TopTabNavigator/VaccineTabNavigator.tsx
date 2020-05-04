@@ -12,8 +12,9 @@ import { SvgProps } from 'react-native-svg';
 import { theme } from '/styled/theme';
 import { StyledView, StyledText } from '/styled/common';
 import * as Icons from '../Icons';
-import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
+import { IconWithSizeProps } from '/interfaces/WithSizeProps';
 import { VaccineDataProps } from '../VaccineCard';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 type CustomRoute = Route & {
   icon: FunctionComponent<SvgProps>;
@@ -29,14 +30,24 @@ const TabLabel = React.memo(
   ({ route, focused }: LabelProps): JSX.Element => {
     const Icon: FunctionComponent<IconWithSizeProps> = route.icon;
     return (
-      <StyledView height={110} alignItems="center" paddingTop={25}>
+      <StyledView
+        height={screenPercentageToDP(13.36, Orientation.Height)}
+        alignItems="center"
+        paddingTop={screenPercentageToDP(3.03, Orientation.Height)}
+      >
         <StyledView>
-          {focused ? <Icon size={28} /> : <Icons.EmptyCircle size={28} />}
+          {focused ? (
+            <Icon size={screenPercentageToDP(4.25, Orientation.Height)} />
+          ) : (
+            <Icons.ScheduledVaccine
+              size={screenPercentageToDP(4.25, Orientation.Height)}
+            />
+          )}
         </StyledView>
         <StyledText
-          marginTop={10}
+          marginTop={screenPercentageToDP(1.21, Orientation.Height)}
           textAlign="center"
-          fontSize={13}
+          fontSize={screenPercentageToDP(1.57, Orientation.Height)}
           color={focused ? route.color : theme.colors.TEXT_SOFT}
         >
           {route.title}

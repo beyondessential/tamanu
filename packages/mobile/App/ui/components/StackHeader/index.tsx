@@ -7,7 +7,8 @@ import {
   StyledTouchableOpacity,
   RowView,
 } from '/styled/common';
-import { LeftArrow } from '../Icons';
+import { ArrowLeftIcon } from '../Icons';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 type HeaderTitleProps = {
   title: string;
@@ -46,7 +47,10 @@ export const StackHeader = ({
         paddingBottom={25}
         onPress={onGoBack}
       >
-        <LeftArrow size={25} />
+        <ArrowLeftIcon
+          height={screenPercentageToDP(2.43, Orientation.Height)}
+          width={screenPercentageToDP(2.43, Orientation.Height)}
+        />
       </StyledTouchableOpacity>
       <HeaderTitle title={title} subtitle={subtitle} />
     </RowView>

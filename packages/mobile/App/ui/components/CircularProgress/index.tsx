@@ -3,7 +3,7 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { StyledView, CenterView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { Folder } from '../Icons';
+import { SyncDataIcon } from '../Icons';
 
 interface CircularProgressProps {
   progress: number;
@@ -32,7 +32,7 @@ export const CircularProgress = ({
         height="95%"
         width="95%"
       />
-      <Folder
+      <SyncDataIcon
         fill={theme.colors.WHITE}
         height={screenPercentageToDP('5.58', Orientation.Height)}
         width={screenPercentageToDP('9.45', Orientation.Width)}

@@ -2,13 +2,12 @@ import React, { ReactElement } from 'react';
 import { useField } from 'formik';
 import { FormGroup } from '../FormGroup';
 import { Field } from '../../FormField';
-import { TextField } from '../../../TextField/TextField';
+import { TextField } from '/components/TextField/TextField';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { Button } from '../../../Button';
+import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
 import { StyledView, RowView, StyledText } from '/styled/common';
-import { OutlineCameraIcon } from '../../../Icons';
-import { FingerPrintIcon } from '../../../Icons/FingerPrintIcon';
+import { CameraOutlineIcon, FingerprintIcon } from '/components/Icons';
 import { imageToBase64URI } from '/helpers/image';
 import { ProfileImage } from './ProfileImage';
 
@@ -59,8 +58,9 @@ export const IdentificationSection = ({
                   uri={imageToBase64URI(profilePhoto.value)}
                 />
               ) : (
-                <OutlineCameraIcon
-                  size={screenPercentageToDP(7.29, Orientation.Height)}
+                <CameraOutlineIcon
+                  width={screenPercentageToDP(7.29, Orientation.Height)}
+                  height={screenPercentageToDP(7.29, Orientation.Height)}
                   fill={theme.colors.PRIMARY_MAIN}
                 />
               )}
@@ -81,7 +81,11 @@ export const IdentificationSection = ({
           <StyledView
             marginBottom={screenPercentageToDP(1.21, Orientation.Height)}
           >
-            <FingerPrintIcon size={60} fill={theme.colors.PRIMARY_MAIN} />
+            <FingerprintIcon
+              width={screenPercentageToDP(7.29, Orientation.Height)}
+              height={screenPercentageToDP(7.29, Orientation.Height)}
+              fill={theme.colors.PRIMARY_MAIN}
+            />
           </StyledView>
         </Button>
       </RowView>

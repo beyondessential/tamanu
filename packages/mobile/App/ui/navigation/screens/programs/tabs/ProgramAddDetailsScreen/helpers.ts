@@ -1,9 +1,9 @@
 import { FieldTypes } from '/helpers/fields';
-import { ProgramModel } from '../../../../../models/Program';
+import { ProgramModel } from '/models/Program';
 import * as Yup from 'yup';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { VerticalPosition } from '../../../../../interfaces/VerticalPosition';
-import { QuestionModel } from '../../../../../models/Question';
+import { VerticalPosition } from '/interfaces/VerticalPosition';
+import { QuestionModel } from '/models/Question';
 
 export function makeStringCamelCase(string: string): string {
   return string

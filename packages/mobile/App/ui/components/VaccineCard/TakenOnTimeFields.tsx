@@ -7,7 +7,7 @@ import { formatDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { Separator } from '../Separator';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { Calendar } from '../Icons';
+import { CalendarIcon } from '../Icons';
 
 const TakenOnTimeFields: FC<VaccineDataProps> = (props: VaccineDataProps) => (
   <StyledView
@@ -21,7 +21,7 @@ const TakenOnTimeFields: FC<VaccineDataProps> = (props: VaccineDataProps) => (
     <ModalField
       label="Date"
       value={formatDate(props.date, DateFormats.DAY_MONTH_YEAR_SHORT)}
-      Icon={Calendar}
+      Icon={CalendarIcon}
     />
     <Separator />
     <ModalField label="Type" value={props.type} />

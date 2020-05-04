@@ -1,5 +1,5 @@
 import React, { FC, ReactElement } from 'react';
-import { LeftArrow } from '/components/Icons';
+import { ArrowLeftIcon } from '/components/Icons';
 import { StyledTouchableOpacity, StyledView } from '/styled/common';
 import { ButtonProps } from './fixture';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
@@ -15,7 +15,7 @@ export const BackButton: FC<ButtonProps> = ({
       width={screenPercentageToDP(19.46, Orientation.Width)}
       paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
     >
-      <LeftArrow />
+      <ArrowLeftIcon size={screenPercentageToDP(2.43, Orientation.Height)} />
     </StyledView>
   </StyledTouchableOpacity>
 );

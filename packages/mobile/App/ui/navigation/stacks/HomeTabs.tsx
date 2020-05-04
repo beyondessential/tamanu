@@ -11,15 +11,21 @@ import { theme } from '/styled/theme';
 import { HomeScreen } from '/navigation/screens/home/Tabs/HomeScreen';
 import { withPatient } from '/containers/Patient';
 import { SvgProps } from 'react-native-svg';
-import { BaseAppProps } from '../../interfaces/BaseAppProps';
+import { BaseAppProps } from '/interfaces/BaseAppProps';
 import { Routes } from '/helpers/routes';
-import { BottomNavLogo, BarChart, SyncFiles, More } from '/components/Icons';
+import {
+  HomeBottomLogoIcon,
+  BarChartIcon,
+  SyncDataIcon,
+  MoreMenuIcon,
+} from '/components/Icons';
 import {
   ReportScreen,
   SyncDataScreen,
   MoreScreen,
 } from '/navigation/screens/home/Tabs';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { isIOS } from '/helpers/platform';
 
 const Tabs = createMaterialTopTabNavigator();
 
@@ -30,7 +36,7 @@ interface TabIconProps {
 
 export function TabIcon({ Icon, focused }: TabIconProps): JSX.Element {
   return (
-    <CenterView>
+    <CenterView flex={1}>
       <Icon
         fill={focused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE}
         height={screenPercentageToDP(3.03, Orientation.Height)}
@@ -45,17 +51,17 @@ const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
 }): ReactElement => <TabIcon Icon={Icon} {...props} />;
 
 const HomeScreenOptions: MaterialTopTabNavigationOptions = {
-  tabBarIcon: TabScreenIcon(BottomNavLogo),
+  tabBarIcon: TabScreenIcon(HomeBottomLogoIcon),
 };
 const ReportScreenOptions: MaterialTopTabNavigationOptions = {
-  tabBarIcon: TabScreenIcon(BarChart),
+  tabBarIcon: TabScreenIcon(BarChartIcon),
 };
 const SyncDataScreenOptions: MaterialTopTabNavigationOptions = {
-  tabBarIcon: TabScreenIcon(SyncFiles),
+  tabBarIcon: TabScreenIcon(SyncDataIcon),
   tabBarLabel: 'Sync Data',
 };
 const MoreScreenOptions: MaterialTopTabNavigationOptions = {
-  tabBarIcon: TabScreenIcon(More),
+  tabBarIcon: TabScreenIcon(MoreMenuIcon),
 };
 
 const HomeTabBarOptions = {
@@ -64,14 +70,16 @@ const HomeTabBarOptions = {
   showIcon: true,
   style: {
     justifyContent: 'center',
-    height: screenPercentageToDP(9.72, Orientation.Height),
-    maxHeight: screenPercentageToDP(9.72, Orientation.Height),
+    height: screenPercentageToDP(8.5, Orientation.Height),
     backgroundColor: theme.colors.PRIMARY_MAIN,
   },
   indicatorStyle: {
     backgroundColor: theme.colors.PRIMARY_MAIN,
   },
   labelStyle: {
+    margin: 0,
+    padding: 0,
+    marginTop: isIOS() ? screenPercentageToDP(0.6, Orientation.Height) : 0,
     fontSize: screenPercentageToDP(1.45, Orientation.Height),
   },
 };

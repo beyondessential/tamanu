@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { UserAvatar } from './index';
-import { OutlineCameraIcon, Checked } from '../Icons';
+import { OutlineCameraIcon, TakenOnTimeIcon } from '../Icons';
 import { CenterView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
@@ -56,7 +56,7 @@ const newPatientAddedProps = {
     'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
   Icon: (
     <StyledView position="absolute" right="-20" bottom={30} zIndex={2}>
-      <Checked
+      <TakenOnTimeIcon
         height={screenPercentageToDP('3.88', Orientation.Height)}
         width={screenPercentageToDP('3.88', Orientation.Height)}
         fill={theme.colors.SAFE}

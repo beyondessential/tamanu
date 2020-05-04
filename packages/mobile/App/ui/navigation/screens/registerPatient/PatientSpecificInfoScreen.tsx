@@ -5,7 +5,7 @@ import { FullView } from '/styled/common';
 import { PatientSpecificInfoForm } from '/components/Forms/NewPatientForm/PatientSpecificInfoForm';
 import { Header } from './CommonComponents/Header';
 import { getImageFromPhotoLibrary } from '/helpers/image';
-import { PatientSpecificInfoScreenProps } from '../../../interfaces/screens/RegisterPatientStack/PatientSpecificInfoScreenProps';
+import { PatientSpecificInfoScreenProps } from '/interfaces/screens/RegisterPatientStack/PatientSpecificInfoScreenProps';
 
 const PatientSpecificInfoScreen = ({
   navigation,

@@ -14,9 +14,10 @@ import {
   StyledSafeAreaView,
 } from '/styled/common';
 import { theme } from '/styled/theme';
-import { LeftArrow } from '/components/Icons';
+import { ArrowLeftIcon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
 import { VaccineModalScreen } from '../screens/vaccine/VaccineModalScreen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 const Stack = createStackNavigator();
 
@@ -26,11 +27,17 @@ const selectedPatient = {
 };
 
 const HeaderTitle = (): ReactElement => (
-  <CenterView top="25%" position="absolute" zIndex={-1} width="100%">
-    <StyledText fontSize={11} color={theme.colors.WHITE}>
+  <CenterView height="100%" position="absolute" zIndex={-1} width="100%">
+    <StyledText
+      fontSize={screenPercentageToDP(1.33, Orientation.Height)}
+      color={theme.colors.WHITE}
+    >
       {selectedPatient.firstName} {selectedPatient.lastName}
     </StyledText>
-    <StyledText color={theme.colors.WHITE} fontSize={16}>
+    <StyledText
+      color={theme.colors.WHITE}
+      fontSize={screenPercentageToDP(1.94, Orientation.Height)}
+    >
       Vaccine
     </StyledText>
   </CenterView>
@@ -41,16 +48,19 @@ const Header = ({ navigation }: StackHeaderProps): ReactElement => {
     navigation.navigate(Routes.HomeStack.HomeTabs.name);
   }, []);
   return (
-    <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN} height={120}>
-      <RowView background={theme.colors.PRIMARY_MAIN}>
+    <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
+      <RowView
+        background={theme.colors.PRIMARY_MAIN}
+        height={screenPercentageToDP(8.5, Orientation.Height)}
+        alignItems="center"
+      >
         <StyledTouchableOpacity
-          paddingTop={25}
-          paddingLeft={25}
-          paddingRight={25}
-          paddingBottom={25}
+          padding={screenPercentageToDP(2.43, Orientation.Height)}
           onPress={goBack}
         >
-          <LeftArrow />
+          <ArrowLeftIcon
+            size={screenPercentageToDP(2.43, Orientation.Height)}
+          />
         </StyledTouchableOpacity>
         <HeaderTitle />
       </RowView>
@@ -69,7 +79,6 @@ export const VaccineStack = (): ReactElement => (
     />
     <Stack.Screen
       options={{
-        header: () => null,
         ...TransitionPresets.ModalSlideFromBottomIOS,
       }}
       name={Routes.HomeStack.VaccineStack.NewVaccineTabs.name}
@@ -77,7 +86,6 @@ export const VaccineStack = (): ReactElement => (
     />
     <Stack.Screen
       options={{
-        header: () => null,
         ...TransitionPresets.ModalSlideFromBottomIOS,
       }}
       name={Routes.HomeStack.VaccineStack.VaccineModalScreen}

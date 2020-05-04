@@ -8,11 +8,11 @@ import {
   StyledTouchableOpacity,
   StyledText,
 } from '/styled/common';
-import { Cross, User } from '/components/Icons';
+import { CrossIcon, UserIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { SignInForm } from '/components/Forms/SignInForm';
-import { SignInProps } from '../../../interfaces/Screens/SignUp/SignInProps';
+import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import { Routes } from '/helpers/routes';
 
 export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
@@ -32,7 +32,10 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             onPress={(): void => navigation.navigate(Routes.SignUpStack.Intro)}
             padding={screenPercentageToDP(2.43, Orientation.Height)}
           >
-            <Cross size={screenPercentageToDP(2.43, Orientation.Height)} />
+            <CrossIcon
+              height={screenPercentageToDP(2.43, Orientation.Height)}
+              width={screenPercentageToDP(2.43, Orientation.Height)}
+            />
           </StyledTouchableOpacity>
         </RowView>
         <StyledView
@@ -41,8 +44,9 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
           marginTop={screenPercentageToDP(7.29, Orientation.Height)}
           marginBottom={screenPercentageToDP(14.7, Orientation.Height)}
         >
-          <User
-            size={screenPercentageToDP(7.29, Orientation.Height)}
+          <UserIcon
+            height={screenPercentageToDP(7.29, Orientation.Height)}
+            width={screenPercentageToDP(7.29, Orientation.Height)}
             fill={theme.colors.SECONDARY_MAIN}
           />
           <StyledText

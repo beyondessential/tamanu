@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
-import { TouchableProps } from '../../../../../interfaces/TouchableProps';
+import { TouchableProps } from '/interfaces/TouchableProps';
 
 export const EditButton = ({ onPress }: TouchableProps): ReactElement => (
   <Button

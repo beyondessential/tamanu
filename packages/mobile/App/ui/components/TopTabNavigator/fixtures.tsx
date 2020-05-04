@@ -10,19 +10,19 @@ export const routes = [
     key: 'first',
     title: 'TAKEN ON TIME',
     color: theme.colors.SAFE,
-    icon: Icons.TakenOnTime,
+    icon: Icons.TakenOnTimeIcon,
   },
   {
     key: 'second',
     title: 'TAKEN NOT ON SCHEDULE',
     color: theme.colors.ORANGE,
-    icon: Icons.TakenNotOnTime,
+    icon: Icons.TakenNotOnTimeIcon,
   },
   {
     key: 'third',
     title: 'NOT TAKEN',
     color: theme.colors.PRIMARY_MAIN,
-    icon: Icons.NotTaken,
+    icon: Icons.NotTakenIcon,
   },
 ];
 

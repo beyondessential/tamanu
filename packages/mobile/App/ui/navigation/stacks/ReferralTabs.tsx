@@ -5,7 +5,7 @@ import { StackHeader } from '/components/StackHeader';
 import { compose } from 'redux';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
 import { withPatient } from '/containers/Patient';
-import { BaseAppProps } from '../../interfaces/BaseAppProps';
+import { BaseAppProps } from '/interfaces/BaseAppProps';
 import { joinNames } from '/helpers/user';
 import { AddRefferalDetailScreen } from '../screens/referrals/AddReferralDetailScreen';
 

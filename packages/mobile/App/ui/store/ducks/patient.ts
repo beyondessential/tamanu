@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { PatientModel } from '../../models/Patient';
+import { PatientModel } from '/models/Patient';
 
 export type WithPatientStoreProps = WithPatientActions & PatientStateProps;
 export interface WithPatientActions {

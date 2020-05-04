@@ -5,9 +5,9 @@ import { compose } from 'redux';
 import { ProgramAddDetailsScreen } from '../screens/programs/tabs/ProgramAddDetailsScreen';
 import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
-import { ProgramModel } from '../../models/Program';
+import { ProgramModel } from '/models/Program';
 import { withPatient } from '/containers/Patient';
-import { PatientModel } from '../../models/Patient';
+import { PatientModel } from '/models/Patient';
 import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
 

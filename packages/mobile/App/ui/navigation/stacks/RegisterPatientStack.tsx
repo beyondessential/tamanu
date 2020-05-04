@@ -7,7 +7,7 @@ import { PatientPersonalInfoScreen } from '../screens/registerPatient/PatientPer
 import PatientSpecificInfoScreen from '../screens/registerPatient/PatientSpecificInfoScreen';
 import { NewPatientScreen } from '../screens/registerPatient/NewPatientScreen';
 import { newPatientFormValues } from '/helpers/form';
-import { RegisterPatientStackProps } from '../../interfaces/screens/RegisterPatientStack/RegisterPatientStackProps';
+import { RegisterPatientStackProps } from '/interfaces/screens/RegisterPatientStack/RegisterPatientStackProps';
 
 const Stack = createStackNavigator();
 

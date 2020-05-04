@@ -11,11 +11,12 @@ import {
   RowView,
 } from '/styled/common';
 import { theme } from '/styled/theme';
-import { Cross, User } from '/components/Icons';
+import { CrossIcon } from '/components/Icons';
 import { RegisterAccountFormStep01 } from '/components/Forms/RegisterAccountForms/RegisterAccountFormStep01';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { RegisterAccountFormStep1Props } from '../../../../contexts/RegisterAccountContext';
 import { StepMarker } from '/components/StepMarker';
+import { UserIconContainer } from '../common';
 
 interface ScreenProps {
   navigateToIntro: () => void;
@@ -39,7 +40,7 @@ export const Screen: FC<ScreenProps> = React.memo(
       <FullView background={theme.colors.PRIMARY_MAIN}>
         <RowView justifyContent="flex-end">
           <StyledTouchableOpacity padding={15} onPress={navigateToIntro}>
-            <Cross size={screenPercentageToDP(2.43, Orientation.Height)} />
+            <CrossIcon size={screenPercentageToDP(2.43, Orientation.Height)} />
           </StyledTouchableOpacity>
         </RowView>
         <CenterView
@@ -48,7 +49,7 @@ export const Screen: FC<ScreenProps> = React.memo(
           width="100%"
           top={iconContainerPosition}
         >
-          <User size={iconSize} fill={theme.colors.SECONDARY_MAIN} />
+          <UserIconContainer size={iconSize} />
           <StyledText
             as={Animated.Text}
             marginTop={10}

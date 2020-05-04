@@ -9,12 +9,11 @@ import {
   StyledText,
   StyledScrollView,
 } from '/styled/common';
-import { LeftArrow } from '/components/Icons/LeftArrow';
-import { DotsMenu } from '/components/Icons/DotsMenu';
+import { ArrowLeftIcon, KebabIcon } from '/components/Icons';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { joinNames } from '/helpers/user';
 import { UserAvatar } from '/components/UserAvatar';
-import { PatientDetails } from '../../../../interfaces/PatientDetails';
+import { PatientDetails } from '/interfaces/PatientDetails';
 import {
   GeneralInfo,
   NotificationCheckbox,
@@ -57,23 +56,14 @@ export const Screen = ({
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
       <StyledView background={theme.colors.PRIMARY_MAIN} height={170}>
         <RowView justifyContent="space-between">
-          <StyledTouchableOpacity
-            paddingRight={20}
-            paddingLeft={20}
-            paddingTop={20}
-            paddingBottom={20}
-            onPress={onNavigateBack}
-          >
-            <LeftArrow />
+          <StyledTouchableOpacity padding={20} onPress={onNavigateBack}>
+            <ArrowLeftIcon
+              height={screenPercentageToDP(2.43, Orientation.Height)}
+              width={screenPercentageToDP(2.43, Orientation.Height)}
+            />
           </StyledTouchableOpacity>
-          <StyledTouchableOpacity
-            paddingLeft={20}
-            paddingRight={20}
-            paddingTop={20}
-            paddingBottom={20}
-            onPress={onNavigateToFilters}
-          >
-            <DotsMenu />
+          <StyledTouchableOpacity padding={20} onPress={onNavigateToFilters}>
+            <KebabIcon />
           </StyledTouchableOpacity>
         </RowView>
         <RowView paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}>

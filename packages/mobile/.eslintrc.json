@@ -24,7 +24,7 @@
           ["/containers", "./App/ui/containers"],
           ["/store", "./App/ui/store"],
           ["/models", "./App/ui/models"],
-          ["/services", "./App/services"],
+          ["/services", "./App/ui/services"],
           ["/root", "./"]                
         ],
         "extensions": [".ts", ".js", ".jsx", ".tsx", ".json"]

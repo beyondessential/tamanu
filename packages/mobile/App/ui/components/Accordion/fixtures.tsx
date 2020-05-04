@@ -7,7 +7,7 @@ export const data = [
     typeDescription: 'Inpatient',
     content: 'Lorem ipsum...',
     location: 'Location 1',
-    leftIcon: Icons.Clipboard,
+    leftIcon: Icons.ClipboardIcon,
     date: new Date(),
     diagnosis: 'Broken left leg',
     treament:

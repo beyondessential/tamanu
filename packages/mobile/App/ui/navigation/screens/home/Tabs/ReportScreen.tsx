@@ -7,14 +7,14 @@ import {
   StyledView,
 } from '/styled/common';
 import { Button } from '/components/Button';
-import { LogoV2CLR } from '/components/Icons';
+import { LogoV2Icon } from '/components/Icons';
 import { VisitChart } from '/components/Chart/VisitChart';
 import { visitData, yearlyData } from '/components/Chart/fixture';
 import { theme } from '/styled/theme';
 import { YearlyChart } from '/components/Chart/YearlyChart';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { Routes } from '/helpers/routes';
-import { ReportScreenProps } from '../../../../interfaces/screens/HomeStack/ReportScreenProps';
+import { ReportScreenProps } from '/interfaces/screens/HomeStack/ReportScreenProps';
 
 const BirthDeathBoard = (): ReactElement => (
   <RowView
@@ -164,7 +164,7 @@ export const ReportScreen = ({
           alignItems="center"
           justifyContent="space-between"
         >
-          <LogoV2CLR fill={theme.colors.WHITE} />
+          <LogoV2Icon fill={theme.colors.WHITE} />
           <Button
             height={screenPercentageToDP(4.25, Orientation.Height)}
             width={screenPercentageToDP(25.54, Orientation.Width)}

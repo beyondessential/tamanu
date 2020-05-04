@@ -3,7 +3,7 @@ import { SvgProps } from 'react-native-svg';
 import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
-import { Checked } from '../Icons';
+import { TakenOnTimeIcon } from '../Icons';
 
 interface VisitTypeButtonProps {
   type?: string;
@@ -53,7 +53,7 @@ export const VisitTypeButton = ({
           )}
           {selected && (
             <StyledView position="absolute" left={40} top="2%">
-              <Checked />
+              <TakenOnTimeIcon />
             </StyledView>
           )}
           {title && (

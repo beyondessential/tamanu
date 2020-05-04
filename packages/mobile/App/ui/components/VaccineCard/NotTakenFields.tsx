@@ -3,7 +3,7 @@ import { ModalField } from './ModalField';
 import { VaccineDataProps } from '.';
 import { formatDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
-import { Calendar } from '../Icons';
+import { CalendarIcon } from '../Icons';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { StyledView } from '/styled/common';
@@ -23,7 +23,7 @@ export const NotTakenFields: FC<VaccineDataProps> = (
     <ModalField
       label="Date"
       value={formatDate(props.date, DateFormats.DAY_MONTH_YEAR_SHORT)}
-      Icon={Calendar}
+      Icon={CalendarIcon}
     />
     <Separator />
     <ModalField label="Type" value={props.type} />

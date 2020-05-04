@@ -78,7 +78,7 @@ export const Dropdown = React.memo(
                 {selectedOption ? selectedOption.label : ''}
               </StyledText>
               <StyledView marginRight={10} justifyContent="center">
-                <Icons.ArrowDown
+                <Icons.ArrowDownIcon
                   fill={theme.colors.TEXT_SOFT}
                   width={screenPercentageToDP(2.84, Orientation.Width)}
                 />

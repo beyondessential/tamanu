@@ -6,14 +6,14 @@ import {
   StyledText,
   StyledSafeAreaView,
 } from '/styled/common';
-import { LogoV1 } from '/components/Icons';
+import { LogoV1Icon } from '/components/Icons';
 import { Button } from '/components/Button';
 //helpers
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 // Screen
-import { IntroScreenProps } from '../../../interfaces/screens/SignUpStack/Intro';
+import { IntroScreenProps } from '/interfaces/screens/SignUpStack/Intro';
 
 export const IntroScreen: FunctionComponent<any> = ({
   navigation,
@@ -30,10 +30,7 @@ export const IntroScreen: FunctionComponent<any> = ({
     <FullView background={theme.colors.WHITE}>
       <StyledSafeAreaView>
         <CenterView marginTop={screenPercentageToDP(13.36, Orientation.Height)}>
-          <LogoV1
-            size={screenPercentageToDP(13.36, Orientation.Height)}
-            fill={theme.colors.PRIMARY_MAIN}
-          />
+          <LogoV1Icon />
         </CenterView>
         <CenterView marginTop={screenPercentageToDP(26.36, Orientation.Height)}>
           <StyledText

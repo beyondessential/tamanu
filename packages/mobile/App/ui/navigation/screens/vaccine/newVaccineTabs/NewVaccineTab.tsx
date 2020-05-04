@@ -65,7 +65,6 @@ export const NewVaccineTab = ({ route }: NewVaccineTabProps): ReactElement => {
 
   const onFormSubmit = useCallback(values => console.log(values), []);
 
-  console.log(vaccine);
   return (
     <FullView>
       <StyledSafeAreaView

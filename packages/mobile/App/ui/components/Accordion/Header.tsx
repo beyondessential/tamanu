@@ -28,7 +28,7 @@ const HeaderRightIconContainer = ({
   <StyledView>
     <StatusIcon
       height={12}
-      IconComponent={isActive ? Icons.ArrowUp : Icons.ArrowDown}
+      IconComponent={isActive ? Icons.ArrowUpIcon : Icons.ArrowDownIcon}
       fill={isActive ? theme.colors.WHITE : theme.colors.TEXT_SOFT}
     />
   </StyledView>

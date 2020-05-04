@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Accordion from 'react-native-collapsible/Accordion';
 import { StyledView } from '/styled/common';
-import { VisitOverviewProps } from '../../interfaces/VisitOverview';
+import { VisitOverviewProps } from '/interfaces/VisitOverview';
 import Header from './Header';
 import { VisitOverview } from '../VisitOverview';
 

@@ -5,7 +5,7 @@ import { compose } from 'redux';
 import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
 import { withPatient } from '/containers/Patient';
-import { PatientModel } from '../../models/Patient';
+import { PatientModel } from '/models/Patient';
 import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
 import { AddSickDetailScreen } from '../screens/sickOrInjured/AddSickDetails';

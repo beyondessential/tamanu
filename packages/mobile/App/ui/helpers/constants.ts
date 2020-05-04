@@ -1,7 +1,4 @@
 import * as Icons from '/components/Icons';
-import { NotTaken } from '/components/Icons/NotTaken';
-import { TakenNotOnTime } from '/components/Icons/TakenNotOnTime';
-import { ScheduledVaccine } from '/components/Icons/ScheduledVaccine';
 import { theme } from '/styled/theme';
 
 export const DateFormats = {
@@ -52,9 +49,9 @@ export const VisitTypes = {
 };
 
 export const HeaderIcons = {
-  [VisitTypes.CLINIC]: Icons.Clipboard,
-  [VisitTypes.HOSPITAL]: Icons.FirstAidKit,
-  [VisitTypes.VISIT]: Icons.Stethoscope,
+  [VisitTypes.CLINIC]: Icons.ClipboardIcon,
+  [VisitTypes.HOSPITAL]: Icons.FirstAidKitIcon,
+  [VisitTypes.VISIT]: Icons.StethoscopeIcon,
 };
 
 export const PatientVitalsList = [
@@ -76,22 +73,22 @@ export const VaccineStatus = {
 };
 export const VaccineIcons = {
   [VaccineStatus.TAKEN]: {
-    Icon: Icons.Checked,
+    Icon: Icons.TakenOnTimeIcon,
     color: theme.colors.SAFE,
     text: 'TAKEN ON TIME',
   },
   [VaccineStatus.NOT_TAKEN]: {
-    Icon: NotTaken,
+    Icon: Icons.NotTakenIcon,
     color: theme.colors.TEXT_SOFT,
     text: 'NOT TAKEN',
   },
   [VaccineStatus.TAKEN_NOT_ON_TIME]: {
-    Icon: TakenNotOnTime,
+    Icon: Icons.TakenNotOnTimeIcon,
     color: theme.colors.ORANGE,
     text: 'TAKEN NOT ON TIME',
   },
   [VaccineStatus.SCHEDULED]: {
-    Icon: ScheduledVaccine,
+    Icon: Icons.EmptyCircleIcon,
     color: theme.colors.ORANGE,
     text: 'SCHEDULED',
   },

@@ -2,7 +2,7 @@ import React, { ReactElement, useMemo, useCallback } from 'react';
 import { compose } from 'redux';
 // Components
 import * as Icons from '/components/Icons';
-import { PatientHomeScreenProps } from '../../../../../interfaces/screens/HomeStack';
+import { PatientHomeScreenProps } from '/interfaces/screens/HomeStack';
 import { Screen } from './Screen';
 // Helpers
 import { Routes } from '/helpers/routes';
@@ -17,37 +17,37 @@ const PatientHomeContainer = ({
     () => [
       {
         title: 'Sick \n or Injured',
-        Icon: Icons.SickOrInjured,
+        Icon: Icons.SickOrInjuredIcon,
         onPress: (): void =>
           navigation.navigate(Routes.HomeStack.SickOrInjuredTabs.name),
       },
       {
         title: 'Check up',
-        Icon: Icons.CheckUp,
+        Icon: Icons.CheckUpIcon,
         onPress: (): void =>
           navigation.navigate(Routes.HomeStack.CheckUpStack.name),
       },
       {
         title: 'Programs',
-        Icon: Icons.Pregnancy,
+        Icon: Icons.PregnancyIcon,
         onPress: (): void =>
           navigation.navigate(Routes.HomeStack.ProgramStack.name),
       },
       {
         title: 'Referral',
-        Icon: Icons.FamilyPlanning,
+        Icon: Icons.FamilyPlanningIcon,
         onPress: (): void =>
           navigation.navigate(Routes.HomeStack.ReferralTabs.name),
       },
       {
         title: 'Vaccine',
-        Icon: Icons.Vaccine,
+        Icon: Icons.VaccineIcon,
         onPress: (): void =>
           navigation.navigate(Routes.HomeStack.VaccineStack.name),
       },
       {
         title: 'Deceased',
-        Icon: Icons.Deceased,
+        Icon: Icons.DeceasedIcon,
         onPress: (): void =>
           navigation.navigate(Routes.HomeStack.DeceasedStack.name),
       },
@@ -59,13 +59,13 @@ const PatientHomeContainer = ({
     () => [
       {
         title: 'View patients details',
-        Icon: Icons.History,
+        Icon: Icons.PatientDetailsIcon,
         onPress: (): void =>
           navigation.navigate(Routes.HomeStack.PatientDetails),
       },
       {
         title: 'View History',
-        Icon: Icons.Appointments,
+        Icon: Icons.HistoryIcon,
         onPress: (): void =>
           navigation.navigate(Routes.HomeStack.HistoryVitalsStack.name),
       },
