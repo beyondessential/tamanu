@@ -5,15 +5,13 @@ import { MissingParamError } from './errors/missing-param-error';
 import { BadRequestError } from '/infra/httpClient/errors/bad-request-error';
 import { InvalidCredentialsError } from './errors/invalid-credentials-error';
 import { NotFoundError } from '/infra/httpClient/errors/not-found-error';
-import { UserNotFoundError } from './errors/user-not-found';
 import { ServerRequestError } from '/infra/httpClient/errors/server-request-error';
 import { GeneralServerError } from './errors/general-error';
 
 const makeSignInUser = (): SignInUser => {
   class SignInUserStub implements SignInUser {
     async signin(signInData: SignInUserModel): Promise<AuthToken> {
-      const fakeAuthToken = 'valid_token';
-      return new Promise(resolve => resolve(fakeAuthToken));
+      return Promise.resolve('valid_token')      
     }
   }
   return new SignInUserStub();
@@ -81,7 +79,7 @@ describe('Name of the group', () => {
     expect(result.error).toBeInstanceOf(InvalidCredentialsError);
   });
 
-  it('Should return UserNotFoundError if http-client throws BadRequest', async () => {
+  it('Should return InvalidCredentialsError if http-client throws NotFoundError', async () => {
     const { sut, signInUserStub } = makeSut();
     jest.spyOn(signInUserStub, 'signin').mockImplementationOnce(() => {
       return new Promise((resolve, reject) =>
@@ -94,14 +92,14 @@ describe('Name of the group', () => {
     };
     const result = await sut.handle(signInData);
     expect(result.error).toBeTruthy();
-    expect(result.error).toBeInstanceOf(UserNotFoundError);
+    expect(result.error).toBeInstanceOf(InvalidCredentialsError);
   });
 
-  it('Should return UserNotFoundError if http-client throws BadRequest', async () => {
+  it('Should return GeneralServerError if http-client throws 500(ServerRequestError)', async () => {
     const { sut, signInUserStub } = makeSut();
     jest.spyOn(signInUserStub, 'signin').mockImplementationOnce(() => {
       return new Promise((resolve, reject) =>
-        reject(new ServerRequestError('user_not_found')),
+        reject(new ServerRequestError('error_stack')),
       );
     });
     const signInData = {
