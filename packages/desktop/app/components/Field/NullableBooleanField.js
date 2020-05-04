@@ -25,12 +25,12 @@ const NullableBooleanControl = React.memo(({ value, onChange, disabled, name }) 
   const onClickTrue = useCallback(() => {
     const newValue = value === true ? undefined : true;
     onChange({ target: { name, value: newValue } });
-  });
+  }, [value, onChange, name]);
 
   const onClickFalse = useCallback(() => {
     const newValue = value === false ? undefined : false;
     onChange({ target: { name, value: newValue } });
-  });
+  }, [value, onChange, name]);
 
   const yesColor = value === true ? 'primary' : '';
   const noColor = value === false ? 'primary' : '';
