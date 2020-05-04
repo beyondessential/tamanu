@@ -16,7 +16,7 @@
 // work over there.
 
 function isOperator(token) {
-  switch(token) {
+  switch (token) {
     case '+':
     case '-':
     case '/':
@@ -30,7 +30,7 @@ function isOperator(token) {
 }
 
 function getPrecedence(operator) {
-  switch(operator) {
+  switch (operator) {
     case 'u':
       return 4;
     case '*':
@@ -40,24 +40,26 @@ function getPrecedence(operator) {
     case '+':
     case '-':
       return 2;
+    default:
+      throw new Error('Invalid operator');
   }
 }
 
 const unaryRegex = /(^|[*x/+i])-/g;
 function replaceUnaryMinus(text) {
-  return text.replace(unaryRegex, (match, p1) => p1 + 'u');
+  return text.replace(unaryRegex, (match, p1) => `${p1}u`);
 }
 
 function shouldPopOperator(token, topOfStack) {
-  if(!topOfStack) return false;
-  if(topOfStack === '(') return false;
+  if (!topOfStack) return false;
+  if (topOfStack === '(') return false;
   const topPrecedence = getPrecedence(topOfStack);
   const tokenPrecedence = getPrecedence(token);
-  if(topPrecedence < tokenPrecedence) return false;
+  if (topPrecedence < tokenPrecedence) return false;
   return true;
 }
 
-const tokenizer = /([\+\-\*\/\(\)ux])/g;
+const tokenizer = /([+\-*/()ux])/g;
 
 function shuntingYard(text) {
   const stack = [];
@@ -65,43 +67,43 @@ function shuntingYard(text) {
 
   const tokens = text.split(tokenizer);
 
-  while(tokens.length > 0) {
+  while (tokens.length > 0) {
     const token = tokens.shift().trim();
-    if(!token) continue;
+    if (!token) continue;
 
-    if(isOperator(token)) {
-      while(shouldPopOperator(token, stack[0])) {
+    if (isOperator(token)) {
+      while (shouldPopOperator(token, stack[0])) {
         queue.push(stack.shift());
       }
       stack.unshift(token);
       continue;
     }
-    if(token === '(') {
+    if (token === '(') {
       stack.unshift(token);
       continue;
     }
-    if(token === ')') {
-      while(stack.length > 0 && stack[0] !== '(') {
+    if (token === ')') {
+      while (stack.length > 0 && stack[0] !== '(') {
         queue.push(stack.shift());
       }
-      if(stack[0] === '(') {
+      if (stack[0] === '(') {
         stack.shift();
       } else {
-        throw new Error("Unmatched parenthesis");
+        throw new Error('Unmatched parenthesis');
       }
       continue;
     }
 
     const float = parseFloat(token);
-    if(!isNaN(float)) {
+    if (!Number.isNaN(float)) {
       queue.push(float);
       continue;
     }
-    
-    throw new Error("Unrecognised token");
+
+    throw new Error('Unrecognised token');
   }
 
-  while(stack.length > 0) {
+  while (stack.length > 0) {
     queue.push(stack.shift());
   }
 
@@ -109,29 +111,29 @@ function shuntingYard(text) {
 }
 
 function processQueue(queue) {
-  let stack = [];
+  const stack = [];
   const operations = {
     '+': () => stack.pop() + stack.pop(),
     '-': () => -stack.pop() + stack.pop(),
     '*': () => stack.pop() * stack.pop(),
     '/': () => (1 / stack.pop()) * stack.pop(),
-    'u': () => -stack.pop(),
+    u: () => -stack.pop(),
 
     // alias just in case
-    'x': () => operations['*'](),
+    x: () => operations['*'](),
   };
 
-  while(queue.length > 0) {
+  while (queue.length > 0) {
     const item = queue.shift();
-    if(typeof item === 'number') {
+    if (typeof item === 'number') {
       stack.push(item);
       continue;
     }
-    if(operations[item]) {
+    if (operations[item]) {
       stack.push(operations[item]());
       continue;
     }
-    throw new Error("Unexpected token", item);
+    throw new Error('Unexpected token', item);
   }
 
   return stack[0];
@@ -162,4 +164,3 @@ export function runArithmetic(formulaText, values = {}) {
   // then process the queue
   return processQueue(queue);
 }
-
