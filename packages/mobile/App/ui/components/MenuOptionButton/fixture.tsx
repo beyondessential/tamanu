@@ -9,32 +9,32 @@ import {
   SettingsIcon,
   FeedbackIcon,
   QuestionIcon,
-  Ring,
+  RingIcon,
 } from '../Icons';
 import { MenuOptionButton, MenuOptionButtonProps } from './index';
 
 export const MoreMenuOptions = [
-  {
-    title: 'Settings',
-    Icon: SettingsIcon,
-    onPress: (): void => console.log('Settings'),
-  },
-  {
-    title: 'Feedback',
-    Icon: FeedbackIcon,
-    onPress: (): void => console.log('Feedback'),
-  },
-  {
-    title: 'FAQs',
-    Icon: QuestionIcon,
-    onPress: (): void => console.log('Question'),
-  },
-  {
-    title: 'Notifications',
-    Icon: Ring,
-    onPress: (): void => console.log('Notification'),
-  },
-];
+         {
+           title: 'Settings',
+           Icon: SettingsIcon,
+           onPress: (): void => console.log('Settings'),
+         },
+         {
+           title: 'Feedback',
+           Icon: FeedbackIcon,
+           onPress: (): void => console.log('Feedback'),
+         },
+         {
+           title: 'FAQs',
+           Icon: QuestionIcon,
+           onPress: (): void => console.log('Question'),
+         },
+         {
+           title: 'Notifications',
+           Icon: RingIcon,
+           onPress: (): void => console.log('Notification'),
+         },
+       ];
 
 export const ProgramOptions = [
   {
