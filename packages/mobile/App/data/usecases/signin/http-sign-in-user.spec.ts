@@ -3,10 +3,10 @@ import { AuthUserRepository } from '../../protocols/auth-user-repository';
 import { AuthToken } from '/root/App/domain/models/AuthToken';
 import { SignInUserModel } from '/root/App/domain/usecases/signin/signin';
 
-const makeAddaccountRepository = (): AuthUserRepository => {
+const makeAddAccountRepository = (): AuthUserRepository => {
   class SignInUserRepositoryStub implements AuthUserRepository {
     async auth(signInUser: SignInUserModel): Promise<AuthToken> {
-      return new Promise(resolve => resolve('valid_token'));
+      return Promise.resolve('valid_token');
     }
   }
   return new SignInUserRepositoryStub();
@@ -17,7 +17,7 @@ interface SutTypes {
   signInUserRepository: AuthUserRepository;
 }
 const makeSut = (): SutTypes => {
-  const signInUserRepository = makeAddaccountRepository();
+  const signInUserRepository = makeAddAccountRepository();
   const sut = new HttpSignInUser(signInUserRepository);
   return {
     sut,
