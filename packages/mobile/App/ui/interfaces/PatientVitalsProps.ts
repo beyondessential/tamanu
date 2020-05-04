@@ -1,12 +1,13 @@
 export interface PatientVitalsProps {
   [key: string]: number | Date;
-  bloodPressure: number;
+  height: number;
   weight: number;
-  circumference: number;
-  sp02: number;
+  temperature: number;
+  sbp: number;
+  dbp: number;
   heartRate: number;
-  fev: number;
-  cholesterol: number;
-  bloodGlucose: number;
-  date: Date ;
+  respiratoryRate: number;
+  sv02: number;
+  avpu: number;
+  date: Date;
 }
