@@ -13,7 +13,7 @@ const getDate = ({ endTime }) => <DateDisplay date={endTime} />;
 const getAssessorName = ({ assessor }) => assessor.name;
 const getProgramName = ({ survey }) => survey.program[0].name;
 const getSurveyName = ({ survey }) => survey.name;
-const getResults = ({ }) => "OK";
+const getResults = ({ }) => survey.outcome;
 
 const columns = [
   { key: 'endTime', title: 'Date submitted', accessor: getDate },
