@@ -45,9 +45,18 @@ function getPrecedence(operator) {
   }
 }
 
-const unaryRegex = /(^|[*x/+i])-/g;
+const unaryRegex = /(^|[*x/+\-u])-/g;
 function replaceUnaryMinus(text) {
-  return text.replace(unaryRegex, (match, p1) => `${p1}u`);
+  const replaced = text.replace(unaryRegex, (match, p1) => `${p1}u`);
+  if(replaced !== text) {
+    // if we made a changed, do another pass - this is because the regex
+    // won't catch consecutive unaries (it detects them correctly but the 
+    // restrictions on replacing partial matches means it's difficult to
+    // actually sub them all out in one pass - this is the least complicated
+    // way to achieve it)
+    return replaceUnaryMinus(replaced);
+  }
+  return replaced;
 }
 
 function shouldPopOperator(token, topOfStack) {
@@ -68,7 +77,7 @@ function shuntingYard(text) {
   const tokens = text.split(tokenizer);
 
   while (tokens.length > 0) {
-    const token = tokens.shift().trim();
+    const token = tokens.shift();
     if (!token) continue;
 
     if (isOperator(token)) {
@@ -148,6 +157,10 @@ export function runArithmetic(formulaText, values = {}) {
   // u and x in them)
   let valuedText = formulaText;
   Object.entries(values).map(([key, value]) => {
+    if(Number.isNaN(parseFloat(value))) {
+      throw new Error("Invalid value substitution");
+    }
+
     valuedText = valuedText.replace(new RegExp(key, 'g'), value);
   });
 
