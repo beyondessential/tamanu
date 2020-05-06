@@ -55,14 +55,15 @@ export const HeaderIcons = {
 };
 
 export const PatientVitalsList = [
-  'bloodPressure',
+  'height',
   'weight',
-  'circumference',
-  'sp02',
+  'temperature',
+  'sbp',
+  'dbp',
   'heartRate',
-  'fev',
-  'cholesterol',
-  'bloodGlucose',
+  'respiratoryRate',
+  'sv02',
+  'avpu',
 ];
 
 export const VaccineStatus = {

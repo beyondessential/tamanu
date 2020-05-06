@@ -25,6 +25,10 @@
           ["/store", "./App/ui/store"],
           ["/models", "./App/ui/models"],
           ["/services", "./App/ui/services"],
+          ["/domain", "./App/domain"],
+          ["/data", "./App/data"],
+          ["/infra", "./App/infra"],
+          ["/presentation", "./App/presentation"],
           ["/root", "./"]                
         ],
         "extensions": [".ts", ".js", ".jsx", ".tsx", ".json"]

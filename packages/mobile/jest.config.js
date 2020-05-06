@@ -12,12 +12,17 @@ module.exports = {
   cacheDirectory: '.jest/cache',
   setupFiles: ['./jest.setup.ts'],
   moduleDirectories: ['.', 'node_modules'],
-  moduleNameMapper: {    
+  moduleNameMapper: {
+    '^/root(.*)$': '<rootDir>$1',
     '^/helpers(.*)$': '<rootDir>/App/ui/helpers$1',
     '^/styled(.*)$': '<rootDir>/App/ui/styled$1',
     '^/components(.*)$': '<rootDir>/App/ui/components$1',
     '^/interfaces(.*)$': '<rootDir>/App/ui/interfaces$1',
     '^/navigation(.*)$': '<rootDir>/App/ui/navigation$1',
     '^/services(.*)$': '<rootDir>/App/ui/services$1',
+    '^/domain(.*)$': '<rootDir>/App/domain$1',
+    '^/data(.*)$': '<rootDir>/App/data$1',
+    '/infra(.*)$': '<rootDir>/App/infra$1',
+    '/presentation(.*)$': '<rootDir>/App/presentation$1',
   },
 };

@@ -7,3 +7,4 @@ metro.config.js
 ios/
 *.md
 *.png
+mockserver/functions/node_modules

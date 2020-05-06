@@ -1,10 +1,21 @@
 import { GetProgramsRepository } from '/root/App/data/protocols/get-programs-repository';
 import { ProgramModel } from '/root/App/domain/models/Program';
-import { API } from '../helper/axios-helper';
+import { HttpClient } from '../../protocols/client';
+import { RequestModel } from '../../protocols/request';
 
 export class ProgramAxiosRepository implements GetProgramsRepository {
-  async get(): Promise<ProgramModel[]> {
-    const response = await API.get('programs');
-    return response.data;
+  httpClient: HttpClient;
+
+  constructor(httpClient: HttpClient) {
+    this.httpClient = httpClient;
+  }
+
+  async getAll(): Promise<ProgramModel[]> {
+    const request: RequestModel = {
+      method: `GET`,
+      url: 'programs',
+    };
+    const response = await this.httpClient.makeRequest(request);
+    return response.body;
   }
 }

@@ -15,7 +15,11 @@
       "/containers/*":["App/ui/containers/*"],
       "/store/*": ["App/ui/store/*"],
       "/models/*": ["App/ui/models/*"],
-      "/services/*": ["App/ui/services/*"]
+      "/services/*": ["App/ui/services/*"],
+      "/domain/*": ["App/domain/*"],
+      "/data/*": ["App/data/*"],
+      "/infra/*": ["App/infra/*"],
+      "/presentation/*": ["App/presentation/*"],
     },    
     "resolveJsonModule": true,
     "jsx": "react",
