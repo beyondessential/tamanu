@@ -19,7 +19,7 @@
     "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.js",
     "test": "NODE_ENV=test jest --maxWorkers=10 && rm -rf ./data/test*",
     "test:coverage": "NODE_ENV=test jest --coverage && rm -rf ./data/test*",
-    "test:watch": "npm test -- --watch",
+    "test:watch": "NODE_ENV=test jest --watch && rm -rf ./data/test*",
     "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js && pkg . --targets node10-win-x64 --output ./release/server.exe",
     "package": "./scripts/package.sh",
     "lint": "eslint app",

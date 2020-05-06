@@ -19,6 +19,8 @@ export const SurveyResponseSchema = {
 
     visit: { type: 'linkingObjects', objectType: 'visit', property: 'surveyResponses' },
 
+    outcome: { type: 'string', default: '' },
+
     ...defaults,
   },
 };
