@@ -31,21 +31,16 @@ const BASE_COLUMNS_ON_PATIENT = BASE_COLUMNS.map(column => ({
 const LISTING_COLUMNS = [...BASE_COLUMNS, status];
 const INPATIENT_COLUMNS = [...BASE_COLUMNS_ON_PATIENT, location, department];
 
-const PatientTable = connect(
-  null,
-  dispatch => ({ onViewPatient: id => dispatch(viewPatient(id)) }),
-)(
-  React.memo(({ onViewPatient, columns, ...props }) => (
-    <DataFetchingTable
-      columns={columns}
-      noDataMessage="No patients found"
-      onRowClick={row => onViewPatient(row._id)}
-      {...props}
-    />
-  )),
-);
+const PatientTable = React.memo(({ onViewPatient, showInpatientDetails, ...props }) => (
+  <DataFetchingTable
+    columns={showInpatientDetails ? INPATIENT_COLUMNS : LISTING_COLUMNS}
+    noDataMessage="No patients found"
+    onRowClick={row => onViewPatient(row._id)}
+    {...props}
+  />
+));
 
-const NewPatientButton = React.memo(() => {
+const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
   const [isCreatingPatient, setCreatingPatient] = useState(false);
   const [isBirth, setIsBirth] = useState(false);
   const hideModal = useCallback(() => setCreatingPatient(false), [setCreatingPatient]);
@@ -59,6 +54,11 @@ const NewPatientButton = React.memo(() => {
     setCreatingPatient(true);
     setIsBirth(true);
   }, [setCreatingPatient, setIsBirth]);
+
+  const onCreate = useCallback(newPatient => {
+    setCreatingPatient(false);
+    onCreateNewPatient(newPatient._id);
+  });
 
   return (
     <React.Fragment>
@@ -74,28 +74,36 @@ const NewPatientButton = React.memo(() => {
         isBirth={isBirth}
         open={isCreatingPatient}
         onCancel={hideModal}
+        onCreateNewPatient={onCreate}
       />
     </React.Fragment>
   );
 });
 
-export const PatientListingView = React.memo(() => {
+const selectPatientConnector = connect(
+  null,
+  dispatch => ({ onViewPatient: id => dispatch(viewPatient(id)) }),
+);
+
+export const DumbPatientListingView = React.memo(({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
 
   return (
     <PageContainer>
       <TopBar title="Patient listing">
-        <NewPatientButton />
+        <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
       <PatientSearchBar onSearch={setSearchParameters} />
       <PatientTable
         endpoint={PATIENT_SEARCH_ENDPOINT}
         fetchOptions={searchParameters}
-        columns={LISTING_COLUMNS}
+        onViewPatient={onViewPatient}
       />
     </PageContainer>
   );
 });
+
+export const PatientListingView = selectPatientConnector(DumbPatientListingView);
 
 // Allow a "patient view" table to receive a list of visits instead
 function annotateVisitWithPatientData(visit) {
@@ -106,24 +114,30 @@ function annotateVisitWithPatientData(visit) {
   };
 }
 
-export const AdmittedPatientsView = React.memo(() => (
-  <PageContainer>
-    <TopBar title="Admitted patient listing" />
-    <PatientTable
-      endpoint={INPATIENT_ENDPOINT}
-      transformRow={annotateVisitWithPatientData}
-      columns={INPATIENT_COLUMNS}
-    />
-  </PageContainer>
-));
+export const AdmittedPatientsView = selectPatientConnector(
+  React.memo(({ onViewPatient }) => (
+    <PageContainer>
+      <TopBar title="Admitted patient listing" />
+      <PatientTable
+        onViewPatient={onViewPatient}
+        endpoint={INPATIENT_ENDPOINT}
+        transformRow={annotateVisitWithPatientData}
+        showInpatientDetails
+      />
+    </PageContainer>
+  )),
+);
 
-export const OutpatientsView = React.memo(() => (
-  <PageContainer>
-    <TopBar title="Outpatient listing" />
-    <PatientTable
-      endpoint={OUTPATIENT_ENDPOINT}
-      transformRow={annotateVisitWithPatientData}
-      columns={INPATIENT_COLUMNS}
-    />
-  </PageContainer>
-));
+export const OutpatientsView = selectPatientConnector(
+  React.memo(({ onViewPatient }) => (
+    <PageContainer>
+      <TopBar title="Outpatient listing" />
+      <PatientTable
+        onViewPatient={onViewPatient}
+        endpoint={OUTPATIENT_ENDPOINT}
+        transformRow={annotateVisitWithPatientData}
+        showInpatientDetails
+      />
+    </PageContainer>
+  )),
+);

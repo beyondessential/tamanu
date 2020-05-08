@@ -58,6 +58,8 @@ export * from './question';
 export * from './survey';
 export * from './survey-group';
 export * from './survey-response';
+export * from './survey-answer';
+export * from './survey-question';
 export * from './survey-screen';
 export * from './survey-screen-component';
 

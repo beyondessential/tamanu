@@ -5,9 +5,9 @@ export const SurveyScreenComponentSchema = {
   primaryKey: '_id',
   properties: {
     _id: 'string',
-    question: {
+    questions: {
       type: 'list',
-      objectType: 'question',
+      objectType: 'surveyQuestion',
     },
     componentNumber: {
       type: 'int',

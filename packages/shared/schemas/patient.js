@@ -41,7 +41,6 @@ export const PatientSchema = {
 
     additionalContacts: { type: 'list', objectType: 'patientContact' },
     pregnancies: { type: 'list', objectType: 'pregnancy' },
-    surveyResponses: { type: 'list', objectType: 'surveyResponse' },
     familyHistory: { type: 'list', objectType: 'familyHistoryItem' },
 
     death: 'death?',

@@ -1,13 +1,12 @@
 import moment from 'moment';
 import { padStart, capitalize } from 'lodash';
 
-import { createValueIndex } from 'shared/utils';
+import { createValueIndex } from 'shared/utils/valueIndex';
 import { VISIT_TYPES } from 'shared/constants';
 import {
   medicationIcon,
   administrationIcon,
   radiologyIcon,
-  labsIcon,
   scheduleIcon,
   patientIcon,
 } from './images';
@@ -247,7 +246,19 @@ export const visitOptions = [
     image: patientIcon,
     triageFlowOnly: true,
   },
-  { value: VISIT_TYPES.TRIAGE, label: 'Triaged patient', image: patientIcon, triageFlowOnly: true },
+  {
+    value: VISIT_TYPES.TRIAGE,
+    label: 'Triaged patient',
+    image: patientIcon,
+    triageFlowOnly: true,
+    hideFromMenu: true,
+  },
+  {
+    value: VISIT_TYPES.SURVEY_RESPONSE,
+    label: 'Survey response',
+    image: patientIcon,
+    hideFromMenu: true,
+  },
 ];
 
 export const VISIT_OPTIONS_BY_VALUE = createValueIndex(visitOptions);

@@ -4,7 +4,7 @@ import { submenuIcons } from './config';
 import { Sidebar } from './Sidebar';
 
 // TODO fetch programs from api
-const DUMMY_PROGRAM = { name: 'Pregnancy', _id: 'pregnancy' };
+const DUMMY_PROGRAM = { name: 'All programs', _id: 'all-programs' };
 const fetchPrograms = async () => [DUMMY_PROGRAM];
 
 export const SidebarWithPrograms = memo(({ items, ...restOfProps }) => {
@@ -12,8 +12,8 @@ export const SidebarWithPrograms = memo(({ items, ...restOfProps }) => {
 
   useEffect(() => {
     (async () => {
-      const programs = await fetchPrograms();
-      setPrograms(programs);
+      const programList = await fetchPrograms();
+      setPrograms(programList);
     })();
   }, []); // [] means it will run only once, on first mount
 
@@ -21,13 +21,11 @@ export const SidebarWithPrograms = memo(({ items, ...restOfProps }) => {
   const programsNav = find(itemsWithPrograms, { key: 'programs' });
   if (programs.length > 0) {
     programsNav.hidden = false;
-    programsNav.children = programs.map(({ name, _id: id }) => {
-      return {
-        label: name,
-        path: `/programs/${id}/patients`,
-        icon: submenuIcons.action,
-      };
-    });
+    programsNav.children = programs.map(({ name, _id: id }) => ({
+      label: name,
+      path: `/programs/${id}/patients`,
+      icon: submenuIcons.action,
+    }));
   }
 
   return <Sidebar items={itemsWithPrograms} {...restOfProps} />;

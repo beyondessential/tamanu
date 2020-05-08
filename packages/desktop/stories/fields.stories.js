@@ -14,6 +14,7 @@ import {
   NumberInput,
   SelectInput,
   AutocompleteInput,
+  NullableBooleanInput,
 } from '../app/components';
 import { IdInput } from '../app/components/Field/IdField';
 
@@ -77,6 +78,10 @@ addStories(
 
 addStories('CheckInput', props => (
   <StoryControlWrapper Component={CheckInput} label="Enable" {...props} />
+));
+
+addStories('NullableBooleanInput', props => (
+  <StoryControlWrapper Component={NullableBooleanInput} label="Enable" {...props} />
 ));
 
 addStories('DateInput', props => (

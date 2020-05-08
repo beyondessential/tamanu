@@ -5,6 +5,7 @@ export * from './DateField';
 export * from './SelectField';
 export * from './CheckField';
 export * from './RadioField';
+export * from './NullableBooleanField';
 
 // fancy fields
 export * from './RelationField';
