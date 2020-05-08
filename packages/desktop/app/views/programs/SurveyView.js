@@ -40,7 +40,7 @@ const SurveyQuestion = ({ question }) => {
       component={FieldComponent}
       name={code}
       options={options}
-      helpText={detail}
+      helperText={detail}
     />
   );
 };
