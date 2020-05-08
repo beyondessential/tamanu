@@ -21,7 +21,7 @@ import {
   FamilyInformation,
   OnGoingConditions,
   FamilyHistory,
-  OperativePlan,
+  ProcedurePlan,
 } from './CustomComponents';
 import { getAgeFromDate } from '/helpers/date';
 
@@ -117,9 +117,9 @@ export const Screen = ({
           onEdit={onEditField}
           familyHistory={patientData.familyHistory}
         />
-        <OperativePlan
+        <ProcedurePlan
           onEdit={onEditField}
-          operativePlan={patientData.operativePlan}
+          procedurePlan={patientData.procedurePlan}
         />
       </StyledScrollView>
     </FullView>

@@ -79,6 +79,7 @@ export const PatientSectionList = ({
             background={theme.colors.BACKGROUND_GREY}
           >
             <PatientTile
+              displayId={data[section].items[row].displayId}
               city={data[section].items[row].city}
               gender={data[section].items[row].gender}
               lastVisit={data[section].items[row].lastVisit}

@@ -37,15 +37,15 @@ export const scrollTo = (
 };
 
 export const calculateVerticalPositions = (
-  fieldList: string[],
+  fieldList: string[], inputOffset = 65
 ): VerticalPosition => {
   let verticalOffset = 0;
   return fieldList.reduce<VerticalPosition>((acc, cur, index) => {
     acc[cur] = {
       x: 0,
-      y: index === 0 ? 0 : verticalOffset + 40,
+      y: index === 0 ? 0 : verticalOffset + 35,
     };
-    verticalOffset += 65;
+    verticalOffset += inputOffset;
     return acc;
   }, {});
 };

@@ -15,6 +15,7 @@ import { data } from '/components/PatientSectionList/fixture';
 import { Routes } from '/helpers/routes';
 import { StyledView, FullView } from '/styled/common';
 import { joinNames } from '/helpers/user';
+import { getAgeFromDate } from '/root/App/ui/helpers/date';
 
 const mockedArray = data.slice(0, 12);
 
@@ -50,7 +51,11 @@ const Screen = ({
           };
           return (
             <TouchableOpacity onPress={onNavigateToPatientHome}>
-              <PatientTile {...item} name={joinNames(item)} />
+              <PatientTile
+                {...item}
+                name={joinNames(item)}
+                age={getAgeFromDate(item.birthDate)}
+              />
             </TouchableOpacity>
           );
         }}

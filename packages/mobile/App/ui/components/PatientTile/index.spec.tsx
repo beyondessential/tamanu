@@ -18,30 +18,32 @@ describe('<PatientTile />', () => {
   ];
 
   it('should render Patient Tile ', () => {
-    visibleProps.forEach(visibleProp => {
-      switch (visibleProp) {
-        case 'lastVisit':
-          expect(
-            getByText(
-              formatDate(
-                MaleExampleProps[visibleProp],
-                DateFormats.DAY_MONTH_YEAR_SHORT,
+    visibleProps
+      .filter(prop => prop !== 'gender')
+      .forEach(visibleProp => {
+        switch (visibleProp) {
+          case 'lastVisit':
+            expect(
+              getByText(
+                formatDate(
+                  MaleExampleProps[visibleProp],
+                  DateFormats.DAY_MONTH_YEAR_SHORT,
+                ),
               ),
-            ),
-          ).not.toBe(null);
-          break;
-        default:
-          expect(
-            getByText(
-              visibleProp === 'age'
-                ? MaleExampleProps[visibleProp].toString()
-                : MaleExampleProps[visibleProp],
-              {
-                exact: false,
-              },
-            ),
-          ).not.toBe(null);
-      }
-    });
+            ).not.toBe(null);
+            break;
+          default:
+            expect(
+              getByText(
+                visibleProp === 'age'
+                  ? MaleExampleProps[visibleProp].toString()
+                  : MaleExampleProps[visibleProp],
+                {
+                  exact: false,
+                },
+              ),
+            ).not.toBe(null);
+        }
+      });
   });
 });

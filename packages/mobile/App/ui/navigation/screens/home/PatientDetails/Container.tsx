@@ -15,7 +15,7 @@ const Container = ({
    * from a mock server (or real)
    */
   const patientData: PatientDetails = {
-    id: 'TEMO001',
+    id: selectedPatient.displayId,
     generalInfo: {
       ...selectedPatient,
       culturalTraditionName: null,
@@ -31,7 +31,7 @@ const Container = ({
     familyHistory: {
       data: ['Haemochromatosis'],
     },
-    operativePlan: {
+    procedurePlan: {
       data: [],
     },
   };

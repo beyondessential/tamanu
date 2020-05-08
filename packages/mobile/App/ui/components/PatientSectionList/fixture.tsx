@@ -9,12 +9,19 @@ import { GenderOptions, BloodTypes } from '/helpers/constants';
 const chance = new Chance();
 
 export const genPatientSectionList = (): PatientModel[] =>
-  new Array(80).fill(1).map((data, index) => {
+  new Array(80).fill(1).map(data => {
     const [firstName, middleName, lastName] = chance
       .name({ middle: true })
       .split(' ');
     return {
-      id: index,
+      id: chance.guid({ version: 4 }),
+      displayId: chance.string({
+        symbols: false,
+        length: 6,
+        casing: 'upper',
+        numeric: true,
+        alpha: true,
+      }),
       city: chance.city(),
       firstName,
       middleName,

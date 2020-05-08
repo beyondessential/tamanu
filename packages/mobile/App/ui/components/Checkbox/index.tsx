@@ -31,7 +31,7 @@ export const Checkbox = ({
     return theme.colors.PRIMARY_MAIN;
   }, [error, value]);
   return (
-    <RowView>
+    <RowView alignItems="center">
       <TouchableHighlight
         onPress={ChangeCallback}
         underlayColor="rgba(0,0,0,0.1)"

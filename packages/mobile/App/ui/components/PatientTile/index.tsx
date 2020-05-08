@@ -8,6 +8,7 @@ import { getGender } from '/helpers/user';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 export interface PatientTileProps {
+  displayId?: string;
   name: string;
   age: number;
   gender: string;
@@ -17,6 +18,7 @@ export interface PatientTileProps {
 }
 
 export const PatientTile = ({
+  displayId,
   name,
   age,
   gender,
@@ -52,8 +54,10 @@ export const PatientTile = ({
         color={theme.colors.TEXT_MID}
         fontSize={screenPercentageToDP('1.57', Orientation.Height)}
         fontWeight={500}
+        textAlign="left"
       >
-        {`${getGender(gender)} ${age}yrs, ${city}`}
+        {displayId && displayId} •{' '}
+        {`${getGender(gender)[0]} ${age}yrs • ${city}`}
       </StyledText>
     </StyledView>
     {lastVisit && (

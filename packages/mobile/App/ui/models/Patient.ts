@@ -1,6 +1,7 @@
 export interface PatientModel {
   [key: string]: any;
-  id: string | number;
+  id: string;
+  displayId: string;
   city: string;
   firstName: string;
   lastName: string;

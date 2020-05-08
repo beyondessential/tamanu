@@ -1,20 +1,20 @@
 import React, { ReactElement } from 'react';
-import { OperativePlanDataProps } from '/interfaces/PatientDetails';
+import { ProcedurePlanDataProps } from '/interfaces/PatientDetails';
 import { RowView, StyledText, StyledView } from '/styled/common';
 import { Dot } from './Dot';
 import { theme } from '/styled/theme';
 import { PatientSection } from './PatientSection';
 
-interface OperativePlanProps extends OperativePlanDataProps {
+interface ProcedurePlanProps extends ProcedurePlanDataProps {
   onEdit: () => void;
 }
 
-export const OperativePlan = ({
+export const ProcedurePlan = ({
   onEdit,
-  operativePlan: { data },
-}: OperativePlanProps): ReactElement => (
+  procedurePlan: { data },
+}: ProcedurePlanProps): ReactElement => (
   <StyledView marginBottom={40 + data.length * 40}>
-    <PatientSection hasSeparator title="Operative Plan" onEdit={onEdit}>
+    <PatientSection hasSeparator title="Procedure Plan" onEdit={onEdit}>
       {data.length > 0 &&
         data.map((condition: string) => (
           <RowView key={condition} alignItems="center" marginTop={10}>

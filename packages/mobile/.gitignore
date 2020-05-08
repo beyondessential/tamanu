@@ -69,3 +69,6 @@ storybook/storyLoader.js
 
 # Environment
 .env
+
+# mockserver
+mockserver/functions/node_modules

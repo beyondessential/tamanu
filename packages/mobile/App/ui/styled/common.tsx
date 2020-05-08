@@ -66,7 +66,7 @@ interface FlexProps {
   flexDirection?: string;
   alignSelf?: string;
 }
-interface Borderprops {
+interface BorderProps {
   borderRadius?: number | string;
   borderStyle?: 'dashed' | 'dotted' | 'solid';
   borderWidth?: number | string;
@@ -78,16 +78,21 @@ interface Borderprops {
   boxShadow?: string;
 }
 
+interface VisibilityProps {
+  opacity?: string | number | AnimatedValue;
+}
+
 export interface StyledTextProps
   extends SpacingProps,
     FlexProps,
-    Borderprops,
+    BorderProps,
     TextProps {}
 export interface StyledViewProps
   extends PositionProps,
     SpacingProps,
+    VisibilityProps,
     FlexProps,
-    Borderprops {
+    BorderProps {
   children?: ReactNode | Element[];
   background?: string;
   overflow?: string;
