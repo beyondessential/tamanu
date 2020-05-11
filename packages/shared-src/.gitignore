@@ -33,3 +33,5 @@ config
 config\.js
 config\.demo\.js
 config/development\.js
+
+dist

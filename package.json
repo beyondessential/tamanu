@@ -23,7 +23,8 @@
       "packages/desktop",
       "packages/lan",
       "packages/server",
-      "packages/shared"
+      "packages/shared",
+      "packages/shared-src"
     ],
     "nohoist": [
       "**/webpack",

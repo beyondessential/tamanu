@@ -12,7 +12,8 @@
     "test:coverage": "jest --coverage",
     "test:watch": "npm test -- --watch",
     "lint": "eslint schemas utils constants services",
-    "lint-stats": "eslint schemas utils constants services --format ../scripts/eslint-stats.js"
+    "lint-stats": "eslint schemas utils constants services --format ../scripts/eslint-stats.js",
+    "build": "babel --root-mode upward --out-dir ../shared src"
   },
   "private": true,
   "devDependencies": {
