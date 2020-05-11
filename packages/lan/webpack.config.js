@@ -14,9 +14,10 @@ module.exports = {
     new CleanWebpackPlugin(),
     new webpack.optimize.OccurrenceOrderPlugin(),
   ],
-  resolve: {
+  resolve: { 
     alias: {
-    },
+      '~': path.resolve(__dirname, 'app'),
+    }
   },
   module: {
     rules: [

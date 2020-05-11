@@ -1,11 +1,15 @@
 import { seedLabTests } from 'shared/demoData/labTestTypes';
-import { createTestContext, deleteAllTestIds } from './utilities';
+import { initDatabase } from 'lan/app/database';
+import { deleteAllTestIds } from './setupUtilities';
 
 import { allSeeds } from './seed';
 
 export default async function() {
-  const ctx = createTestContext();
+  const ctx = initDatabase({
+    testMode: true,
+  });
   await ctx.sequelize.sync();
+
   await deleteAllTestIds(ctx);
 
   // populate with reference data
