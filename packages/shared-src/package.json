@@ -1,5 +1,5 @@
 {
-  "name": "shared",
+  "name": "shared-src",
   "version": "0.0.1",
   "description": "Common code across Tamanu packages",
   "main": "index.js",
@@ -8,11 +8,6 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "AGPL-3.0-only",
   "scripts": {
-    "test": "jest --maxWorkers=10",
-    "test:coverage": "jest --coverage",
-    "test:watch": "npm test -- --watch",
-    "lint": "eslint schemas utils constants services",
-    "lint-stats": "eslint schemas utils constants services --format ../scripts/eslint-stats.js",
     "build": "babel --root-mode upward --out-dir ../shared src"
   },
   "private": true,
