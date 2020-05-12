@@ -11,7 +11,8 @@
     "build-shared": "yarn workspace shared-src run build",
     "test": "yarn run build-shared && yarn workspace lan run test",
     "lint-all": "eslint packages/desktop/app packages/server/app packages/lan/app packages/shared/schemas packages/shared/services packages/shared/constants packages/shared/utils",
-    "upgrade-lint-rules": "yarn workspaces run upgrade @beyondessential/eslint-config-beyondessential --latest"
+    "upgrade-lint-rules": "yarn workspaces run upgrade @beyondessential/eslint-config-beyondessential --latest",
+    "dev-lan": "yarn run concurrently \"yarn workspace shared-src run build-watch\" \"yarn workspace lan run start-dev\""
   },
   "engines": {
     "node": ">=8.3 <11.0",
@@ -42,6 +43,7 @@
     "prettier": "^1.17.1"
   },
   "dependencies": {
-    "babel-eslint": "^10.0.1"
+    "babel-eslint": "^10.0.1",
+    "concurrently": "^5.2.0"
   }
 }
