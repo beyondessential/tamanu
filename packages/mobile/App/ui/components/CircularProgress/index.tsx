@@ -34,8 +34,7 @@ export const CircularProgress = ({
       />
       <SyncDataIcon
         fill={theme.colors.WHITE}
-        height={screenPercentageToDP('5.58', Orientation.Height)}
-        width={screenPercentageToDP('9.45', Orientation.Width)}
+        size={screenPercentageToDP('5.58', Orientation.Height)}
       />
     </CenterView>
   </StyledView>

@@ -1,10 +1,12 @@
 import {
   heightPercentageToDP,
-  widthPercentageToDP,
+  widthPercentageToDP,  
 } from 'react-native-responsive-screen';
-import { Dimensions } from 'react-native';
-import { SCREEN_ORIENTATION } from './constants';
+import { Dimensions,  StatusBar } from 'react-native';
 import { VerticalPosition } from '/interfaces/VerticalPosition';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+import { SCREEN_ORIENTATION } from './constants';
 
 export enum Orientation {
   Width = 'width',
@@ -14,7 +16,7 @@ export enum Orientation {
 export function screenPercentageToDP(
   value: string | number,
   orientation: Orientation,
-): number {
+): number {    
   return orientation === Orientation.Width
     ? widthPercentageToDP(value)
     : heightPercentageToDP(value);
@@ -49,3 +51,11 @@ export const calculateVerticalPositions = (
     return acc;
   }, {});
 };
+
+export const setStatusBar = (barStyle: 'light-content' | 'dark-content', backgroundColor: string): void => 
+ useFocusEffect(
+    useCallback(() => {
+      StatusBar.setBackgroundColor(backgroundColor)
+      StatusBar.setBarStyle(barStyle);
+    }, []),
+  );

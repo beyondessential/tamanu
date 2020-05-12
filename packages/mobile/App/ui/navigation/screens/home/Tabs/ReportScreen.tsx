@@ -12,7 +12,11 @@ import { VisitChart } from '/components/Chart/VisitChart';
 import { visitData, yearlyData } from '/components/Chart/fixture';
 import { theme } from '/styled/theme';
 import { YearlyChart } from '/components/Chart/YearlyChart';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import {
+  screenPercentageToDP,
+  Orientation,
+  setStatusBar,
+} from '/helpers/screen';
 import { Routes } from '/helpers/routes';
 import { ReportScreenProps } from '/interfaces/screens/HomeStack/ReportScreenProps';
 
@@ -30,11 +34,15 @@ const BirthDeathBoard = (): ReactElement => (
       >
         15
       </StyledText>
-      <StyledText color={theme.colors.TEXT_MID} fontSize={14}>
+      <StyledText
+        color={theme.colors.TEXT_MID}
+        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+      >
         Total Births
       </StyledText>
       <StyledText
         marginTop={screenPercentageToDP(0.6, Orientation.Height)}
+        fontSize={screenPercentageToDP(1.33, Orientation.Height)}
         color={theme.colors.SAFE}
       >
         +10% on last 4 weeks
@@ -52,6 +60,7 @@ const BirthDeathBoard = (): ReactElement => (
       </StyledText>
       <StyledText
         marginTop={screenPercentageToDP(0.6, Orientation.Height)}
+        fontSize={screenPercentageToDP(1.33, Orientation.Height)}
         color={theme.colors.ALERT}
       >
         +5% on last 4 weeks
@@ -150,6 +159,8 @@ export const ReportScreen = ({
     navigation.navigate(Routes.HomeStack.ExportDataScreen);
   }, []);
 
+  setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
+
   return (
     <FullView>
       <StyledSafeAreaView
@@ -164,7 +175,7 @@ export const ReportScreen = ({
           alignItems="center"
           justifyContent="space-between"
         >
-          <LogoV2Icon fill={theme.colors.WHITE} />
+          <LogoV2Icon height={23} width={95} fill={theme.colors.WHITE} />
           <Button
             height={screenPercentageToDP(4.25, Orientation.Height)}
             width={screenPercentageToDP(25.54, Orientation.Width)}

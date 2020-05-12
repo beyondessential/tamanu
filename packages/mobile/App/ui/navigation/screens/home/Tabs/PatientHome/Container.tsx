@@ -1,11 +1,13 @@
 import React, { ReactElement, useMemo, useCallback } from 'react';
 import { compose } from 'redux';
+import { setStatusBar } from '/helpers/screen';
 // Components
 import * as Icons from '/components/Icons';
 import { PatientHomeScreenProps } from '/interfaces/screens/HomeStack';
 import { Screen } from './Screen';
 // Helpers
 import { Routes } from '/helpers/routes';
+import { theme } from '/styled/theme';
 // Containers
 import { withPatient } from '/containers/Patient';
 
@@ -80,6 +82,8 @@ const PatientHomeContainer = ({
   const onNavigateToPatientActions = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientActions);
   }, []);
+
+  setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 
   return (
     <Screen

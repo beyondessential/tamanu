@@ -1,12 +1,18 @@
 import React, { FC, ReactElement } from 'react';
 import { compose } from 'redux';
 import {
-  createMaterialTopTabNavigator,
-  MaterialTopTabNavigationOptions,
-} from '@react-navigation/material-top-tabs';
-
+  createBottomTabNavigator,
+  BottomTabNavigationOptions,
+  BottomTabBarProps,
+} from '@react-navigation/bottom-tabs';
 import { PatientHome } from '/navigation/screens/home/Tabs/PatientHome';
-import { CenterView } from '/styled/common';
+import {
+  RowView,
+  StyledView,
+  StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
+} from '/styled/common';
 import { theme } from '/styled/theme';
 import { HomeScreen } from '/navigation/screens/home/Tabs/HomeScreen';
 import { withPatient } from '/containers/Patient';
@@ -25,23 +31,23 @@ import {
   MoreScreen,
 } from '/navigation/screens/home/Tabs';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { isIOS } from '/helpers/platform';
+import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
 
-const Tabs = createMaterialTopTabNavigator();
+const Tabs = createBottomTabNavigator();
 
 interface TabIconProps {
-  Icon: FC<SvgProps>;
+  Icon: FC<IconWithSizeProps>;
   focused: boolean;
 }
 
-export function TabIcon({ Icon, focused }: TabIconProps): JSX.Element {
+export function TabIcon({ Icon, color }: TabIconProps): JSX.Element {
   return (
-    <CenterView flex={1}>
+    <StyledView>
       <Icon
-        fill={focused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE}
-        height={screenPercentageToDP(3.03, Orientation.Height)}
+        fill={color}
+        size={screenPercentageToDP(3.03, Orientation.Height)}
       />
-    </CenterView>
+    </StyledView>
   );
 }
 
@@ -50,43 +56,107 @@ const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
   color: string;
 }): ReactElement => <TabIcon Icon={Icon} {...props} />;
 
-const HomeScreenOptions: MaterialTopTabNavigationOptions = {
+const HomeScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(HomeBottomLogoIcon),
 };
-const ReportScreenOptions: MaterialTopTabNavigationOptions = {
+const ReportScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(BarChartIcon),
 };
-const SyncDataScreenOptions: MaterialTopTabNavigationOptions = {
+const SyncDataScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(SyncDataIcon),
   tabBarLabel: 'Sync Data',
 };
-const MoreScreenOptions: MaterialTopTabNavigationOptions = {
+const MoreScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(MoreMenuIcon),
 };
 
-const HomeTabBarOptions = {
-  activeTintColor: theme.colors.SECONDARY_MAIN,
-  inactiveTintColor: theme.colors.WHITE,
-  showIcon: true,
-  style: {
-    justifyContent: 'center',
-    height: screenPercentageToDP(8.5, Orientation.Height),
-    backgroundColor: theme.colors.PRIMARY_MAIN,
-  },
-  indicatorStyle: {
-    backgroundColor: theme.colors.PRIMARY_MAIN,
-  },
-  labelStyle: {
-    margin: 0,
-    padding: 0,
-    marginTop: isIOS() ? screenPercentageToDP(0.6, Orientation.Height) : 0,
-    fontSize: screenPercentageToDP(1.45, Orientation.Height),
-  },
-};
+const tabLabelFontSize = screenPercentageToDP(1.21, Orientation.Height);
+
+function MyTabBar({
+  state,
+  descriptors,
+  navigation,
+}: BottomTabBarProps): ReactElement {
+  return (
+    <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
+      <RowView
+        height={screenPercentageToDP(6.5, Orientation.Height)}
+        background={theme.colors.PRIMARY_MAIN}
+        justifyContent="center"
+        alignItems="center"
+      >
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key];
+          let label = '';
+          const { tabBarIcon: Icon } = options;
+
+          if (options.title) label = options.title;
+          if (route.name) label = route.name;
+          if (options.tabBarLabel) label = options.tabBarLabel.toString();
+
+          const isFocused = state.index === index;
+
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
+
+          const onLongPress = () => {
+            navigation.emit({
+              type: 'tabLongPress',
+              target: route.key,
+            });
+          };
+
+          return (
+            <StyledView flex={1}>
+              <StyledTouchableOpacity
+                onPress={onPress}
+                onLongPress={onLongPress}
+                accessibilityRole="button"
+                accessibilityStates={isFocused ? ['selected'] : []}
+                accessibilityLabel={options.tabBarAccessibilityLabel}
+                testID={options.tabBarTestID}
+                alignItems="center"
+                justifyContent="center"
+                flex={1}
+              >
+                {Icon &&
+                  Icon({
+                    focused: isFocused,
+                    color: isFocused
+                      ? theme.colors.SECONDARY_MAIN
+                      : theme.colors.WHITE,
+                    size: screenPercentageToDP(3.03, Orientation.Height),
+                  })}
+                <StyledText
+                  color={
+                    isFocused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE
+                  }
+                  marginTop={3}
+                  fontSize={tabLabelFontSize}
+                >
+                  {label}
+                </StyledText>
+              </StyledTouchableOpacity>
+            </StyledView>
+          );
+        })}
+      </RowView>
+    </StyledSafeAreaView>
+  );
+}
 
 const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
   return (
-    <Tabs.Navigator tabBarPosition="bottom" tabBarOptions={HomeTabBarOptions}>
+    <Tabs.Navigator tabBar={MyTabBar}>
       <Tabs.Screen
         options={HomeScreenOptions}
         name={Routes.HomeStack.HomeTabs.Home}

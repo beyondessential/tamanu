@@ -4,8 +4,8 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 export const StyledCardContainer = styled.View`
   background: ${theme.colors.WHITE};
-  height: ${screenPercentageToDP(20.26, Orientation.Height)};
-  width: 130px;
+  height: ${screenPercentageToDP(21.26, Orientation.Height)};
+  width: ${screenPercentageToDP(31.63, Orientation.Width)};
   border-radius: 3px;
-  padding: 20px 10px 10px 15px;
+  padding: ${screenPercentageToDP(2.43, Orientation.Height)}px ${screenPercentageToDP(2.43, Orientation.Width)}px;
 `;

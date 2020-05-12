@@ -128,7 +128,7 @@ export const VisitChart = memo(
   ({ data }: BarChartProps): JSX.Element => (
     <StyledView>
       <RowView
-        marginTop={35}
+        marginTop={screenPercentageToDP(4.25, Orientation.Height)}
         paddingLeft={20}
         paddingRight={20}
         justifyContent="space-between"
@@ -136,24 +136,30 @@ export const VisitChart = memo(
         marginBottom={15}
       >
         <StyledView>
-          <StyledText color={theme.colors.TEXT_MID} fontSize={12}>
+          <StyledText
+            color={theme.colors.TEXT_MID}
+            fontSize={screenPercentageToDP(1.45, Orientation.Height)}
+          >
             TOTAL
           </StyledText>
 
           <StyledText
             fontWeight="bold"
             color={theme.colors.TEXT_DARK}
-            fontSize={28}
+            fontSize={screenPercentageToDP(3.4, Orientation.Height)}
           >
             {data.length}
-            <StyledText fontSize={16} color={theme.colors.TEXT_MID}>
+            <StyledText
+              fontSize={screenPercentageToDP(1.94, Orientation.Height)}
+              color={theme.colors.TEXT_MID}
+            >
               {' '}
               Visits
             </StyledText>
           </StyledText>
         </StyledView>
         <StyledText
-          fontSize={14}
+          fontSize={screenPercentageToDP(1.7, Orientation.Height)}
           color={theme.colors.PRIMARY_MAIN}
           fontWeight={500}
         >

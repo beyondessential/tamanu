@@ -1,6 +1,6 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement, useCallback, useRef, useEffect } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
-import { StatusBar } from 'react-native';
+import { StatusBar, Platform, Dimensions } from 'react-native';
 import {
   FullView,
   StyledText,
@@ -13,7 +13,11 @@ import { ProfileIcon, LogoV2Icon, SearchIcon } from '/components/Icons';
 import { PatientCard } from '/components/PatientCard';
 import { theme } from '/styled/theme';
 import { disableAndroidBackButton } from '/helpers/android';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import {
+  Orientation,
+  screenPercentageToDP,
+  setStatusBar,
+} from '/helpers/screen';
 import { UserAvatar } from '/components/UserAvatar';
 import { Genders } from '/helpers/user';
 import { Routes } from '/helpers/routes';
@@ -118,94 +122,97 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
   const onNavigateToAnonymousPatient = useCallback(() => {
     console.log('navigate to anonymous patient...');
   }, []);
+  setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 
   return (
-    <FullView background={theme.colors.PRIMARY_MAIN}>
-      <StatusBar barStyle="light-content" />
-      <StyledView
-        height={screenPercentageToDP(31.59, Orientation.Height)}
-        width="100%"
-        paddingRight={screenPercentageToDP(6.08, Orientation.Width)}
-        paddingLeft={screenPercentageToDP(6.08, Orientation.Width)}
-      >
-        <StyledSafeAreaView width="100%">
-          <RowView
-            alignItems="center"
-            marginTop={screenPercentageToDP(1.21, Orientation.Height)}
-            width="100%"
-            justifyContent="space-between"
-          >
-            <LogoV2Icon fill={theme.colors.WHITE} />
-            <UserAvatar
-              size={screenPercentageToDP(5.46, Orientation.Height)}
-              name="Tony Robbins"
-              gender={Genders.MALE}
+    <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN}>
+      <FullView>
+        <StatusBar barStyle="light-content" />
+        <StyledView
+          height="31.59%"
+          width="100%"
+          paddingRight={screenPercentageToDP(6.08, Orientation.Width)}
+          paddingLeft={screenPercentageToDP(6.08, Orientation.Width)}
+        >
+          <StyledView width="100%">
+            <RowView
+              alignItems="center"
+              marginTop={screenPercentageToDP(1.21, Orientation.Height)}
+              width="100%"
+              justifyContent="space-between"
+            >
+              <LogoV2Icon height={23} width={95} fill={theme.colors.WHITE} />
+              <UserAvatar
+                size={screenPercentageToDP(5.46, Orientation.Height)}
+                name="Tony Robbins"
+                gender={Genders.MALE}
+              />
+            </RowView>
+            <StyledText
+              marginTop={screenPercentageToDP(3.07, Orientation.Height)}
+              fontSize={screenPercentageToDP(4.86, Orientation.Height)}
+              fontWeight="bold"
+              color={theme.colors.WHITE}
+            >
+              Hi {currentUser.firstName}
+            </StyledText>
+            <StyledText
+              fontSize={screenPercentageToDP(2.18, Orientation.Height)}
+              color={theme.colors.WHITE}
+            >
+              Hospital name
+            </StyledText>
+          </StyledView>
+        </StyledView>
+        <StyledView
+          zIndex={2}
+          position="absolute"
+          paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
+          paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
+          top="28%"
+          width="100%"
+        >
+          <SearchPatientsButton onPress={onNavigateToSearchPatient} />
+        </StyledView>
+        <StyledView
+          background={theme.colors.BACKGROUND_GREY}
+          paddingTop={screenPercentageToDP(4.86, Orientation.Height)}
+          paddingBottom={screenPercentageToDP(3.03, Orientation.Height)}
+          paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
+          paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
+        >
+          <RowView width="100%" justifyContent="space-between">
+            <HomeMenuButton
+              onPress={onNavigateToAnonymousPatient}
+              text="Anonymous Patient"
+            />
+            <HomeMenuButton
+              onPress={onNavigateToRegisterPatient}
+              text={'Register\nNew Patient'}
             />
           </RowView>
-          <StyledText
-            marginTop={screenPercentageToDP(3.07, Orientation.Height)}
-            fontSize={screenPercentageToDP(4.86, Orientation.Height)}
-            fontWeight="bold"
-            color={theme.colors.WHITE}
-          >
-            Hi {currentUser.firstName}
-          </StyledText>
-          <StyledText
-            fontSize={screenPercentageToDP(2.18, Orientation.Height)}
-            color={theme.colors.WHITE}
-          >
-            Hospital name
-          </StyledText>
-        </StyledSafeAreaView>
-      </StyledView>
-      <StyledView
-        zIndex={2}
-        position="absolute"
-        paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
-        paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
-        top="31.7%"
-        width="100%"
-      >
-        <SearchPatientsButton onPress={onNavigateToSearchPatient} />
-      </StyledView>
-      <StyledView
-        background={theme.colors.BACKGROUND_GREY}
-        paddingTop={screenPercentageToDP(4.86, Orientation.Height)}
-        paddingBottom={screenPercentageToDP(3.03, Orientation.Height)}
-        paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
-        paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
-      >
-        <RowView width="100%" justifyContent="space-between">
-          <HomeMenuButton
-            onPress={onNavigateToAnonymousPatient}
-            text="Anonymous Patient"
-          />
-          <HomeMenuButton
-            onPress={onNavigateToRegisterPatient}
-            text={'Register\nNew Patient'}
-          />
-        </RowView>
-      </StyledView>
-      <StyledView
-        flex={1}
-        background={theme.colors.BACKGROUND_GREY}
-        paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
-      >
-        <StyledText
-          color={theme.colors.TEXT_DARK}
-          fontSize={screenPercentageToDP(1.45, Orientation.Height)}
-          marginBottom={screenPercentageToDP(1.21, Orientation.Height)}
+        </StyledView>
+        <StyledView
+          flex={1}
+          background={theme.colors.BACKGROUND_GREY}
+          paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
         >
-          RECENT VIEWED PATIENTS
-        </StyledText>
-        <ScrollView horizontal>
-          <RowView flex={1}>
-            <PatientCardContainer />
-            <PatientCardContainer />
-            <PatientCardContainer />
-          </RowView>
-        </ScrollView>
-      </StyledView>
-    </FullView>
+          <StyledText
+            color={theme.colors.TEXT_DARK}
+            fontSize={screenPercentageToDP(1.45, Orientation.Height)}
+            marginBottom={screenPercentageToDP(1.21, Orientation.Height)}
+          >
+            RECENT VIEWED PATIENTS
+          </StyledText>
+          <ScrollView horizontal>
+            <RowView flex={1}>
+              <PatientCardContainer />
+              <PatientCardContainer />
+              <PatientCardContainer />
+            </RowView>
+          </ScrollView>
+        </StyledView>
+      </FullView>
+    </StyledSafeAreaView>
   );
 };

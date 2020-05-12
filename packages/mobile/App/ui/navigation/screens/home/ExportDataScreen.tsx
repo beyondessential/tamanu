@@ -8,7 +8,7 @@ import {
   StyledSafeAreaView,
   CenterView,
 } from '/styled/common';
-import { LeftArrow } from '/components/Icons';
+import { ArrowLeftIcon } from '/components/Icons';
 import { theme } from '/styled/theme';
 import { SectionHeader } from '/components/SectionHeader';
 import { Formik } from 'formik';
@@ -17,7 +17,7 @@ import { Checkbox } from '/components/Checkbox';
 import { Field } from '/components/Forms/FormField';
 import { Button } from '/components/Button';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { StatusBar } from 'react-native';
+import { ExportDataScreenProps } from '/interfaces/Screens/HomeStack/ExportDataScreenProps';
 
 const formInitialValues = {
   email: '',
@@ -98,14 +98,10 @@ export const ExportDataScreen = ({
 
   return (
     <FullView>
-      <StatusBar
-        backgroundColor={theme.colors.PRIMARY_MAIN}
-        barStyle="light-content"
-      />
       <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
         <RowView>
           <StyledTouchableOpacity onPress={navigationBack} padding={20}>
-            <LeftArrow />
+            <ArrowLeftIcon />
           </StyledTouchableOpacity>
           <StyledView
             position="absolute"

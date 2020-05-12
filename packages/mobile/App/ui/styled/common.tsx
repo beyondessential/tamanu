@@ -1,9 +1,26 @@
-import styled from 'styled-components/native';
-import * as styledSystem from 'styled-system';
 import { ReactNode } from 'react';
-import { AnimatedValue } from 'react-navigation';
+import styled from 'styled-components/native';
+import {
+  size,
+  position,
+  overflow,
+  margin,
+  padding,
+  flexbox,
+  background,
+  color,
+  fontWeight,
+  fontSize,
+  lineHeight,
+  textAlign,
+  boxShadow,
+  zIndex,
+  height,
+  width,
+} from 'styled-system';
 import SafeAreaView from 'react-native-safe-area-view';
 import { ScrollView } from 'react-native-gesture-handler';
+import { Value } from 'react-native-reanimated';
 
 const sizes = [];
 for (let i = 0; i < 10; i++) {
@@ -26,7 +43,7 @@ export const themeSystem = {
 interface TextProps {
   textAlign?: 'auto' | 'left' | 'right' | 'center' | 'justify';
   lineHeight?: number | string;
-  fontSize?: number | string | AnimatedValue;
+  fontSize?: number | string | Value<number>;
   fontWeight?: number | string;
   textDecorationLine?:
     | 'none'
@@ -36,8 +53,8 @@ interface TextProps {
   color?: string;
 }
 export interface SpacingProps {
-  height?: string | number | AnimatedValue;
-  width?: string | number | AnimatedValue;
+  height?: string | number | Value<number>;
+  width?: string | number | Value<number>;
   padding?: string | number | number[];
   paddingTop?: number | string;
   paddingBottom?: number | string;
@@ -52,10 +69,10 @@ export interface SpacingProps {
 
 interface PositionProps {
   position?: 'absolute' | 'relative';
-  top?: string | number | AnimatedValue;
-  left?: string | number | AnimatedValue;
-  right?: string | number | AnimatedValue;
-  bottom?: string | number | AnimatedValue;
+  top?: string | number | Value<number>;
+  left?: string | number | Value<number>;
+  right?: string | number | Value<number>;
+  bottom?: string | number | Value<number>;
   zIndex?: number;
 }
 
@@ -79,7 +96,7 @@ interface BorderProps {
 }
 
 interface VisibilityProps {
-  opacity?: string | number | AnimatedValue;
+  opacity?: string | number | Value<number>;
 }
 
 export interface StyledTextProps
@@ -100,27 +117,27 @@ export interface StyledViewProps
 }
 
 export const StyledView = styled.View<StyledViewProps>`  
-  ${styledSystem.size}
-  ${styledSystem.position}
-  ${styledSystem.overflow}        
-  ${styledSystem.margin}  
-  ${styledSystem.padding}  
-  ${styledSystem.flexbox}     
-  ${styledSystem.background}    
+  ${size}
+  ${position}
+  ${overflow}        
+  ${margin}  
+  ${padding}  
+  ${flexbox}     
+  ${background}    
   ${({ borderLeftWidth }): string | number =>
     `border-left-width: ${borderLeftWidth}` || 0};  
-  ${styledSystem.boxShadow}
-  ${styledSystem.zIndex}
+  ${boxShadow}
+  ${zIndex}
 `;
 
 export const StyledSafeAreaView = styled(SafeAreaView)<StyledViewProps>`    
-  ${styledSystem.size}  
-  ${styledSystem.margin}  
-  ${styledSystem.padding}  
-  ${styledSystem.flexbox}     
-  ${styledSystem.background}
-  ${styledSystem.overflow}       
-  ${styledSystem.position}  
+  ${size}  
+  ${margin}  
+  ${padding}  
+  ${flexbox}     
+  ${background}
+  ${overflow}       
+  ${position}  
   ${({ borderLeftWidth = 0 }): string =>
     `border-left-width: ${borderLeftWidth}`};
   ${({ borderRightWidth = 0 }): string =>
@@ -131,13 +148,13 @@ export const StyledSafeAreaView = styled(SafeAreaView)<StyledViewProps>`
 `;
 
 export const StyledNavigationView = styled(SafeAreaView)<StyledViewProps>`    
-  ${styledSystem.size}  
-  ${styledSystem.margin}  
-  ${styledSystem.padding}  
-  ${styledSystem.flexbox}     
-  ${styledSystem.background}
-  ${styledSystem.overflow}       
-  ${styledSystem.position}  
+  ${size}  
+  ${margin}  
+  ${padding}  
+  ${flexbox}     
+  ${background}
+  ${overflow}       
+  ${position}  
   ${({ borderLeftWidth = 0 }): string =>
     `border-left-width: ${borderLeftWidth}`};
   ${({ borderRightWidth = 0 }): string =>
@@ -148,16 +165,16 @@ export const StyledNavigationView = styled(SafeAreaView)<StyledViewProps>`
 `;
 
 export const StyledText = styled.Text<StyledTextProps>`
-  ${styledSystem.color}      
-  ${styledSystem.fontWeight}
-  ${styledSystem.fontSize}
-  ${styledSystem.lineHeight}
-  ${styledSystem.textAlign}  
-  ${styledSystem.size}  
-  ${styledSystem.margin}  
-  ${styledSystem.padding}  
-  ${styledSystem.flexbox}     
-  ${styledSystem.background}  
+  ${color}      
+  ${fontWeight}
+  ${fontSize}
+  ${lineHeight}
+  ${textAlign}  
+  ${size}  
+  ${margin}  
+  ${padding}  
+  ${flexbox}     
+  ${background}  
   text-decoration-line: ${({ textDecorationLine }): string =>
     textDecorationLine || 'none'};
 `;
@@ -168,8 +185,8 @@ interface StyledImageProps {
 }
 
 export const StyledImage = styled.Image<StyledImageProps>`
-  ${styledSystem.height}
-  ${styledSystem.width}
+  ${height}
+  ${width}
 `;
 
 interface StyledTouchableOpacityProps extends StyledViewProps {
@@ -180,15 +197,15 @@ interface StyledTouchableOpacityProps extends StyledViewProps {
 export const StyledTouchableOpacity = styled.TouchableOpacity<
   StyledTouchableOpacityProps
 >`
-  ${styledSystem.color}      
-  ${styledSystem.fontWeight}
-  ${styledSystem.fontSize}
-  ${styledSystem.textAlign}
-  ${styledSystem.size}  
-  ${styledSystem.margin}  
-  ${styledSystem.padding}  
-  ${styledSystem.flexbox}     
-  ${styledSystem.background}  
+  ${color}      
+  ${fontWeight}
+  ${fontSize}
+  ${textAlign}
+  ${size}  
+  ${margin}  
+  ${padding}  
+  ${flexbox}     
+  ${background}  
 `;
 
 export const FullView = styled(StyledView)`
@@ -219,13 +236,13 @@ export const ColumnView = styled(StyledView)`
 `;
 
 export const StyledScrollView = styled(ScrollView)<StyledViewProps>`  
-  ${styledSystem.size}
-  ${styledSystem.position}
-  ${styledSystem.overflow}        
-  ${styledSystem.margin}  
-  ${styledSystem.padding}  
-  ${styledSystem.flexbox}     
-  ${styledSystem.background}      
-  ${styledSystem.boxShadow}
-  ${styledSystem.zIndex}
+  ${size}
+  ${position}
+  ${overflow}        
+  ${margin}  
+  ${padding}  
+  ${flexbox}     
+  ${background}      
+  ${boxShadow}
+  ${zIndex}
 `;

@@ -1,6 +1,5 @@
 import React, { FC } from 'react';
 import { TouchableHighlight } from 'react-native';
-import { SvgProps } from 'react-native-svg';
 import { StyledText, RowView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
@@ -32,10 +31,10 @@ export const MenuOptionButton: FC<MenuOptionButtonProps> = ({
     >
       {Icon && (
         <StyledView
-          paddingRight={screenPercentageToDP('4.86', Orientation.Width)}
+          paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
         >
           <Icon
-            size={screenPercentageToDP(4.86, Orientation.Height)}
+            size={screenPercentageToDP(2.43, Orientation.Height)}
             fill={theme.colors.TEXT_SOFT}
           />
         </StyledView>

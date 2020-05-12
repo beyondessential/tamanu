@@ -10,6 +10,8 @@ import {
 } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
+type StrNumType = number | string;
+
 interface ButtonContainer extends StyledViewProps {
   loadingAction?: boolean;
   outline?: boolean;
@@ -31,19 +33,16 @@ export interface StyledButtonProps extends ButtonContainer {
   children?: ReactNode;
 }
 
-type StrNumType = number | string | undefined;
-
 const ButtonContainer = styled(RowView)<ButtonContainer>`
   ${styledSystem.flexbox};
-  height: ${(props): StrNumType =>
+  height: ${(props): any =>
     props.height
       ? props.height
       : screenPercentageToDP(6.07, Orientation.Height)};
-  width: ${(props): StrNumType => (props.width ? props.width : '100%')};
-  border-width: ${(props): StrNumType =>
-    props.outline ? '1px' : props.borderWidth};
+  width: ${(props): any => (props.width ? props.width : '100%')};
+  border-width: ${(props): any => (props.outline ? '1px' : props.borderWidth)};
   border-color: ${(props): string => props.borderColor || 'transparent'};
-  border-radius: ${(props): StrNumType => {
+  border-radius: ${(props): any => {
     if (props.borderRadius) {
       return props.borderRadius;
     } else if (props.bordered) {

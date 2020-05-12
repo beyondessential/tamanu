@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
 import { SvgXml } from 'react-native-svg';
+import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
 
-export const FeedbackIcon = memo(props => {
+export const FeedbackIcon = memo((props: IconWithSizeProps) => {
   const xml = `
   <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
   <g clipPath="url(#clip0)">
@@ -19,5 +20,5 @@ export const FeedbackIcon = memo(props => {
   </defs>
 </svg>
 `;
-  return <SvgXml xml={xml} {...props} />;
+  return <SvgXml xml={xml} {...props} height={props.size} width={props.size} />;
 });

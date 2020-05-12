@@ -6,7 +6,11 @@ import {
   FullView,
   CenterView,
 } from '/styled/common';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import {
+  screenPercentageToDP,
+  Orientation,
+  setStatusBar,
+} from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { UserAvatar } from '/components/UserAvatar';
 import { Button } from '/components/Button';
@@ -98,18 +102,10 @@ export const MoreScreen = (): ReactElement => {
     console.log('signing out....');
   }, []);
 
-  const [barStyle, setbarStyle] = useState<StatusBarStyle>('dark-content');
-
-  useFocusEffect(
-    useCallback(() => {
-      setbarStyle('dark-content');
-      return (): void => setbarStyle('light-content');
-    }, []),
-  );
+  setStatusBar('dark-content', theme.colors.BACKGROUND_GREY);
 
   return (
     <FullView>
-      <StatusBar barStyle={barStyle} />
       <CenterView
         height={screenPercentageToDP(31.59, Orientation.Height)}
         paddingTop={screenPercentageToDP(4.86, Orientation.Height)}

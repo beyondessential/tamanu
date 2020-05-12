@@ -3,6 +3,11 @@ import { StyledText, FullView, CenterView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { CircularProgress } from '/components/CircularProgress';
 import { Button } from '/components/Button';
+import {
+  setStatusBar,
+  screenPercentageToDP,
+  Orientation,
+} from '/root/App/ui/helpers/screen';
 
 export const SyncDataScreen = (): ReactElement => {
   const [progress, setProgress] = useState(0);
@@ -20,6 +25,8 @@ export const SyncDataScreen = (): ReactElement => {
     }, 600);
     return (): void => clearInterval(interval);
   }, []);
+  setStatusBar('light-content', theme.colors.MAIN_SUPER_DARK);
+
   return (
     <FullView background={theme.colors.MAIN_SUPER_DARK}>
       <CenterView flex={1}>
@@ -28,15 +35,26 @@ export const SyncDataScreen = (): ReactElement => {
           marginTop={25}
           fontWeight={500}
           color={theme.colors.SECONDARY_MAIN}
-          fontSize={21}
+          fontSize={screenPercentageToDP(2.55, Orientation.Height)}
         >
           Data Syncing Now
         </StyledText>
-        <StyledView marginTop={80} alignItems="center">
-          <StyledText fontWeight={500} color={theme.colors.WHITE}>
+        <StyledView
+          marginTop={screenPercentageToDP(9.72, Orientation.Height)}
+          alignItems="center"
+        >
+          <StyledText
+            fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+            fontWeight={500}
+            color={theme.colors.WHITE}
+          >
             Last successful Sync
           </StyledText>
-          <StyledText fontWeight={500} color={theme.colors.WHITE}>
+          <StyledText
+            fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+            fontWeight={500}
+            color={theme.colors.WHITE}
+          >
             monday 10 august, 7:35pm
           </StyledText>
         </StyledView>
