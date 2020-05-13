@@ -31,18 +31,17 @@ export async function run() {
 
   const app = createApp(database);
   const server = app.listen(port, () => {
-    console.log(`Server is running on port ${port}!`);
+    log.info(`Server is running on port ${port}!`);
   });
 
   // TODO: port scheduled tasks
   // startScheduledTasks(database);
-  
+
   // TODO: change publishing
   // startDataChangePublisher(server, database);
-  
+
   // TODO: sync with remote server
   //
 }
 
 run();
-

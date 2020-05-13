@@ -11,7 +11,7 @@ const REFRESH_DURATION = 2.5 * 60 * 1000; // refresh if token is more than 2.5 m
 export class TamanuApi {
   constructor(host) {
     this.host = host;
-    this.prefix = host + '/v1';
+    this.prefix = `${host}/v1`;
     this.onAuthFailure = null;
     this.authHeader = null;
     this.fayeClient = new faye.Client(`${host}/faye`);

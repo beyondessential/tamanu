@@ -1,4 +1,5 @@
 import prompts from 'prompts';
+import { log } from '~/logging';
 
 function getDetailsInteractive() {
   return prompts([
@@ -30,7 +31,7 @@ function getDetailsAutomatic() {
 }
 
 export async function createInitialAdmin(userModel) {
-  console.log('No users found in database. Creating admin user...');
+  log.info('No users found in database. Creating admin user...');
 
   const response = ['development', 'test'].includes(process.env.NODE_ENV)
     ? await getDetailsAutomatic()
@@ -49,5 +50,5 @@ export async function createInitialAdmin(userModel) {
     role: 'admin',
   });
 
-  console.log(`Successfully created user ${displayName} (${email}).`);
+  log.info(`Successfully created user ${user.displayName} (${user.email}).`);
 }
