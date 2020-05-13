@@ -1,9 +1,4 @@
 import prompts from 'prompts';
-import shortid from 'shortid';
-import { hash } from 'bcrypt';
-import { auth } from 'config';
-
-const { saltRounds } = auth;
 
 function getDetailsInteractive() {
   return prompts([
@@ -34,7 +29,7 @@ function getDetailsAutomatic() {
   };
 }
 
-export async function createInitialAdmin(db) {
+export async function createInitialAdmin(userModel) {
   console.log('No users found in database. Creating admin user...');
 
   const response = ['development', 'test'].includes(process.env.NODE_ENV)
@@ -46,16 +41,12 @@ export async function createInitialAdmin(db) {
     throw new Error('Could not create admin user - invalid details provided.');
   }
 
-  const hashedPassword = await hash(password, saltRounds);
-
-  db.write(() => {
-    db.create('user', {
-      _id: shortid.generate(),
-      displayName,
-      name: displayName,
-      email,
-      password: hashedPassword,
-    });
+  const user = await userModel.create({
+    displayName,
+    name: displayName,
+    email,
+    password,
+    role: 'admin',
   });
 
   console.log(`Successfully created user ${displayName} (${email}).`);

@@ -11,6 +11,7 @@ const REFRESH_DURATION = 2.5 * 60 * 1000; // refresh if token is more than 2.5 m
 export class TamanuApi {
   constructor(host) {
     this.host = host;
+    this.prefix = host + '/v1';
     this.onAuthFailure = null;
     this.authHeader = null;
     this.fayeClient = new faye.Client(`${host}/faye`);
@@ -26,7 +27,7 @@ export class TamanuApi {
     this.setToken(token);
     this.lastRefreshed = Date.now();
 
-    const user = await this.get('me');
+    const user = await this.get('user/me');
     return { user, token };
   }
 
@@ -43,7 +44,7 @@ export class TamanuApi {
   async fetch(endpoint, query, config) {
     const { headers, ...otherConfig } = config;
     const queryString = encodeQueryString(query || {});
-    const url = `${this.host}/${endpoint}${query ? `?${queryString}` : ''}`;
+    const url = `${this.prefix}/${endpoint}${query ? `?${queryString}` : ''}`;
     const response = await fetch(url, {
       headers: {
         ...this.authHeader,
