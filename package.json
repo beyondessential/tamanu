@@ -12,7 +12,7 @@
     "test": "yarn run build-shared && yarn workspace lan run test",
     "lint-all": "eslint packages/desktop/app packages/server/app packages/lan/app packages/shared/schemas packages/shared/services packages/shared/constants packages/shared/utils",
     "upgrade-lint-rules": "yarn workspaces run upgrade @beyondessential/eslint-config-beyondessential --latest",
-    "dev-lan": "yarn run concurrently \"yarn workspace shared-src run build-watch\" \"yarn workspace lan run start-dev\""
+    "dev-lan": "node scripts/dev-lan.js"
   },
   "engines": {
     "node": ">=8.3 <11.0",
