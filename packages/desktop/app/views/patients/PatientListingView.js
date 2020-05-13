@@ -17,7 +17,7 @@ import {
   department,
 } from './columns';
 
-const PATIENT_SEARCH_ENDPOINT = 'patient/search';
+const PATIENT_SEARCH_ENDPOINT = 'patient';
 const INPATIENT_ENDPOINT = 'inpatient';
 const OUTPATIENT_ENDPOINT = 'outpatient';
 
