@@ -4,6 +4,7 @@ module.exports = {
   },
   testRegex: '(\\.|/)(test|spec)\\.[jt]sx?$',
   moduleNameMapper: {
+    '^~/(.*)$': '<rootDir>/app/$1',
   },
   testEnvironment: 'node',
   globalSetup: '<rootDir>/__tests__/setup.js',

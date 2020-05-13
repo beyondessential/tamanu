@@ -12,7 +12,7 @@ export const log = winston.createLogger({
   ],
 });
 
-if (['debug'].includes(process.env.NODE_ENV)) {
+if (['development'].includes(process.env.NODE_ENV)) {
   log.add(
     new winston.transports.Console({
       format: winston.format.combine(winston.format.colorize(), winston.format.simple()),

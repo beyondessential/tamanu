@@ -1,5 +1,6 @@
 # OS X
 .DS_Store*
+Icon?
 ._*
 
 # Windows
@@ -11,11 +12,13 @@ Desktop.ini
 .directory
 *~
 
+
 # npm
 node_modules
 package-lock.json
 *.log
 *.gz
+
 
 # Coveralls
 coverage
@@ -23,21 +26,12 @@ coverage
 # Benchmarking
 benchmarks/graphs
 
-# Build targets
 release
-dev
-deploy
-build
+data
+config
 
-# Local config files
-**/config/local.*
+config\.js
+config\.demo\.js
+config/development\.js
 
-# Hidden files
-*.aes
-.env
-/*.env
-.ssh
-.tmp
-.keys
-.tmp
-
+dist

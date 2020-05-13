@@ -8,9 +8,11 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "AGPL-3.0-only",
   "scripts": {
-    "test": "yarn workspaces run test",
+    "build-shared": "yarn workspace shared-src run build",
+    "test": "yarn run build-shared && yarn workspace lan run test",
     "lint-all": "eslint packages/desktop/app packages/server/app packages/lan/app packages/shared/schemas packages/shared/services packages/shared/constants packages/shared/utils",
-    "upgrade-lint-rules": "yarn workspaces run upgrade @beyondessential/eslint-config-beyondessential --latest"
+    "upgrade-lint-rules": "yarn workspaces run upgrade @beyondessential/eslint-config-beyondessential --latest",
+    "dev-lan": "node scripts/dev-lan.js"
   },
   "engines": {
     "node": ">=8.3 <11.0",
@@ -23,7 +25,8 @@
       "packages/desktop",
       "packages/lan",
       "packages/server",
-      "packages/shared"
+      "packages/shared",
+      "packages/shared-src"
     ],
     "nohoist": [
       "**/webpack",
@@ -40,6 +43,7 @@
     "prettier": "^1.17.1"
   },
   "dependencies": {
-    "babel-eslint": "^10.0.1"
+    "babel-eslint": "^10.0.1",
+    "concurrently": "^5.2.0"
   }
 }
