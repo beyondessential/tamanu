@@ -2,7 +2,7 @@ import { readFile, utils } from 'xlsx';
 
 const sanitise = string => string.trim().replace(/[^A-Za-z]+/g, '');
 
-const convertSheetNameToImporterId= sheetName => sanitise(sheetName).toLowerCase();
+const convertSheetNameToImporterId = sheetName => sanitise(sheetName).toLowerCase();
 const convertNameToCode = name => sanitise(name).toUpperCase();
 
 const referenceDataImporter = type => async ({ ReferenceData }, item) => {
@@ -11,13 +11,13 @@ const referenceDataImporter = type => async ({ ReferenceData }, item) => {
 
   // update item with same code if it already exists
   const existing = await ReferenceData.findOne({ where: { code, type } });
-  if(existing) {
+  if (existing) {
     await existing.update({ name });
     return {
       success: true,
       created: false,
       object: existing,
-    }
+    };
   }
 
   // otherwise import it anew
@@ -32,9 +32,9 @@ const referenceDataImporter = type => async ({ ReferenceData }, item) => {
 const userImporter = async ({ User }, item) => {
   const { email } = item;
   const existing = await User.findOne({ where: { email } });
-  if(existing) {
-    return { 
-      email, 
+  if (existing) {
+    return {
+      email,
       success: false,
       error: `User (${email}) cannot be updated via bulk import`,
     };
@@ -71,7 +71,7 @@ const importers = {
 export async function importJson(models, sheetName, data) {
   const importerId = convertSheetNameToImporterId(sheetName);
   const importer = importers[importerId];
-  if(!importer) {
+  if (!importer) {
     return {
       type: importerId,
       errors: [`No such importer: ${importerId}`],
@@ -85,9 +85,9 @@ export async function importJson(models, sheetName, data) {
     try {
       results.push({
         index,
-        ...await importer(models, item),
+        ...(await importer(models, item)),
       });
-    } catch(e) {
+    } catch (e) {
       results.push({
         error: e.message,
         success: false,
