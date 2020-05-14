@@ -3,66 +3,45 @@ import { initDatabase } from './app/database';
 import { log } from './app/logging';
 
 import { createApp } from './app/createApp';
+import { createInitialAdmin } from './app/createInitialAdmin';
+
+import { startScheduledTasks } from './app/tasks';
+import { startDataChangePublisher } from './app/DataChangePublisher';
 
 const port = config.port;
 
+async function performInitialSetup({ sequelize, models }) {
+  // sync models with database
+  // (TODO: proper migrations)
+  await sequelize.sync();
+
+  // create an initial admin user if no admin users exist
+  const admin = await models.User.findOne({ where: { role: 'admin' } });
+  if (!admin) {
+    await createInitialAdmin(models.User);
+  }
+}
+
 export async function run() {
-  const { sequelize, models } = initDatabase({
+  const database = initDatabase({
     testMode: false,
   });
 
-  // ensure migration is done
-  await sequelize.sync();
+  await performInitialSetup(database);
 
-  const app = createApp({ sequelize, models });
+  const app = createApp(database);
   const server = app.listen(port, () => {
-    console.log(`Server is running on port ${port}!`);
+    log.info(`Server is running on port ${port}!`);
   });
+
+  // TODO: port scheduled tasks
+  // startScheduledTasks(database);
+
+  // TODO: change publishing
+  // startDataChangePublisher(server, database);
+
+  // TODO: sync with remote server
+  //
 }
 
 run();
-
-/*
-import config from 'config';
-import RemoteAuth from './app/services/remote-auth';
-import { startScheduledTasks } from './app/tasks';
-import { startDataChangePublisher } from './DataChangePublisher';
-import { setupDatabase, setupListeners } from './app/database';
-import { createApp } from './createApp';
-
-import { createInitialAdmin } from './createInitialAdmin';
-
-const port = config.port;
-const database = setupDatabase();
-const listeners = setupListeners(database);
-const app = createApp(database);
-
-const startServer = () => {
-  const server = app.listen(port, () => {
-    console.log(`Server is running on port ${port}!`);
-  });
-  // Set up change publishing
-  startDataChangePublisher(server, database);
-
-  startScheduledTasks(database);
-};
-
-async function start() {
-  if (database.objects('user').length === 0) {
-    await createInitialAdmin(database);
-  }
-
-  if (config.offlineMode) {
-    startServer(database);
-  } else {
-    // Prompt user to login before activating sync
-    const authService = new RemoteAuth(database);
-    authService.promptLogin(() => {
-      startServer(database);
-      listeners.setupSync();
-    });
-  }
-}
-
-start();
-*/

@@ -12,7 +12,7 @@ module.exports = {
     new NodemonPlugin({
       delay: 500,
       watch: [
-        './app',
+        './dist',
         '../shared',
       ],
     }),
