@@ -3,7 +3,8 @@
   "db": {
     "name": "main",
     "username": "test",
-    "password": "abc123"
+    "password": "abc123",
+    "verbose": false
   },
   "sync": {
     "path": "realm-sync",

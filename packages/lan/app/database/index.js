@@ -14,17 +14,32 @@ const createTestUUID = () => `test-${uuid().slice(5)}`;
 
 export function initDatabase({ testMode = false }) {
   // connect to database
-  log.info(`Connecting to database ${config.db.username}@${config.db.name}...`);
+  const { 
+    username, 
+    password,
+    name,
+    verbose,
+    sqlitePath,
+  } = config.db;
+
+  if(sqlitePath) {
+    log.info(`Connecting to sqlite database at ${sqlitePath}...`);
+  } else {
+    log.info(`Connecting to database ${username}@${name}...`);
+  }
 
   // this allows us to use transaction callbacks without manually managing a transaction handle
   // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
   const namespace = createNamespace('sequelize-transaction-namespace');
   Sequelize.useCLS(namespace);
 
-  const sequelize = new Sequelize(config.db.name, config.db.username, config.db.password, {
-    dialect: 'sqlite',
-    storage: '/tmp/tamanu-test.db',
-    logging: s => log.debug(s),
+  const logging = verbose ? s => log.debug(s) : null;
+  const options = sqlitePath 
+    ? { dialect: 'sqlite', storage: sqlitePath }
+    : { dialect: 'postgres' };
+  const sequelize = new Sequelize(name, username, password, {
+    ...options,
+    logging,
   });
 
   // init all models
