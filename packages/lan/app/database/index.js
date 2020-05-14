@@ -14,15 +14,9 @@ const createTestUUID = () => `test-${uuid().slice(5)}`;
 
 export function initDatabase({ testMode = false }) {
   // connect to database
-  const { 
-    username, 
-    password,
-    name,
-    verbose,
-    sqlitePath,
-  } = config.db;
+  const { username, password, name, verbose, sqlitePath } = config.db;
 
-  if(sqlitePath) {
+  if (sqlitePath) {
     log.info(`Connecting to sqlite database at ${sqlitePath}...`);
   } else {
     log.info(`Connecting to database ${username}@${name}...`);
@@ -34,9 +28,7 @@ export function initDatabase({ testMode = false }) {
   Sequelize.useCLS(namespace);
 
   const logging = verbose ? s => log.debug(s) : null;
-  const options = sqlitePath 
-    ? { dialect: 'sqlite', storage: sqlitePath }
-    : { dialect: 'postgres' };
+  const options = sqlitePath ? { dialect: 'sqlite', storage: sqlitePath } : { dialect: 'postgres' };
   const sequelize = new Sequelize(name, username, password, {
     ...options,
     logging,
