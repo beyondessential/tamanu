@@ -17,7 +17,7 @@ async function performInitialSetup({ sequelize, models }) {
   await sequelize.sync();
 
   const existingUser = await models.User.findOne();
-  if(existingUser) {
+  if (existingUser) {
     // database has been populated
     return;
   }

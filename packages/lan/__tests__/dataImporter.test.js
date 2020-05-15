@@ -2,7 +2,7 @@ import { importDataDefinition } from '~/dataDefinitionImporter';
 import { createTestContext } from './utilities';
 
 const TEST_DATA_PATH = './data/test_definitions.xlsx';
-const { baseApp, models } = createTestContext();
+const { models } = createTestContext();
 
 describe('Data definition import', () => {
   it('should read a file successfully', async () => {
@@ -22,8 +22,9 @@ describe('Data definition import', () => {
     });
 
     expect(updateResults.users.errors.length).toEqual(5);
-    expect(updateResults.users.errors.every(x => x.includes('cannot be updated via bulk import'))).toEqual(true);
+    expect(
+      updateResults.users.errors.every(x => x.includes('cannot be updated via bulk import')),
+    ).toEqual(true);
     expect(updateResults.villages.updated).toEqual(34);
-
   });
 });
