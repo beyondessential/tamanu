@@ -74,6 +74,9 @@ export async function importJson(models, sheetName, data) {
   if (!importer) {
     return {
       type: importerId,
+      sheetName,
+      created: 0,
+      updated: 0,
       errors: [`No such importer: ${importerId}`],
     };
   }
@@ -98,6 +101,7 @@ export async function importJson(models, sheetName, data) {
 
   return {
     type: importerId,
+    sheetName,
     total: results.length,
     updated: results.filter(x => x.success && !x.created).length,
     created: results.filter(x => x.success && x.created).length,
@@ -105,21 +109,19 @@ export async function importJson(models, sheetName, data) {
   };
 }
 
-export async function importDataDefinition(models, path) {
+export async function importDataDefinition(models, path, onSheetImported) {
   const workbook = readFile(path);
   const sheets = Object.entries(workbook.Sheets);
-
-  const importResults = {};
 
   // import things serially just so we're not spamming the same
   // table of the database with a bunch of parallel imports
   for (const i in sheets) {
     const [sheetName, sheet] = sheets[i];
     const data = utils.sheet_to_json(sheet);
-    const results = await importJson(models, sheetName, data);
+    const sheetResult = await importJson(models, sheetName, data);
 
-    importResults[results.type] = results;
+    if(onSheetImported) {
+      onSheetImported(sheetResult);
+    }
   }
-
-  return importResults;
 }
