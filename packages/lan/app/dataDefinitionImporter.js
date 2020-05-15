@@ -1,4 +1,6 @@
 import { readFile, utils } from 'xlsx';
+import moment from 'moment';
+
 import { log } from '~/logging';
 
 const sanitise = string => string.trim().replace(/[^A-Za-z]+/g, '');
@@ -56,10 +58,29 @@ const userImporter = async ({ User }, item) => {
   };
 };
 
+function getDateFromAgeOrDob(age, rawDateOfBirth) {
+  if(rawDateOfBirth && typeof rawDateOfBirth === "number") {
+    // json parser has converted a date to a timestamp for us
+    // excel date serial numbers are their own thing - conver to JS date
+    // https://stackoverflow.com/questions/16229494/converting-excel-date-serial-number-to-date-using-javascript
+    const date = new Date(Math.round((rawDateOfBirth - 25569)*86400*1000));
+    return date;
+  }
+
+  if(rawDateOfBirth) {
+    return moment(rawDateOfBirth, [
+      "DD/MM/YYYY",
+      "YYYY/MM/DD",
+    ], true).toDate();
+  }
+
+  return moment().subtract(age, 'years').startOf('year').toDate();
+}
+
 const patientImporter = async ({ Patient, ReferenceData }, item) => {
   const { 
     displayId,
-    dateOfBirth: dateOfBirthString,
+    dateOfBirth: rawDateOfBirth,
     age,
     village,
     ...rest
@@ -67,16 +88,17 @@ const patientImporter = async ({ Patient, ReferenceData }, item) => {
 
   // parse date of birth to actual date
   // or allow age column instead?
-  // TODO
-  const dateOfBirth = new Date(dateOfBirthString);
-  
-  // get village FK
-  // TODO
-  const villageId = 0;
+  const dateOfBirth = getDateFromAgeOrDob(age, rawDateOfBirth);
+
+  const villageRef = await ReferenceData.findOne({ where: {
+    type: 'village',
+    name: village,
+  }});
 
   const data = {
+    ...rest,
     displayId,
-    villageId,
+    villageId: villageRef && villageRef.id,
     dateOfBirth,
   };
 
@@ -110,7 +132,7 @@ const importers = {
   imagingtypes: referenceDataImporter('imagingType'),
   procedures: referenceDataImporter('procedureType'),
   users: userImporter,
-  paitents: patientImporter,
+  patients: patientImporter,
   // TODO
   // labtesttypes: labTestTypesImporter,
 };
