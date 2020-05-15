@@ -109,7 +109,7 @@ export async function importDataDefinition(models, path) {
   const workbook = readFile(path);
   const sheets = Object.entries(workbook.Sheets);
 
-  const importResults = [];
+  const importResults = {};
 
   // import things serially just so we're not spamming the same
   // table of the database with a bunch of parallel imports
@@ -118,7 +118,7 @@ export async function importDataDefinition(models, path) {
     const data = utils.sheet_to_json(sheet);
     const results = await importJson(models, sheetName, data);
 
-    importResults.push(results);
+    importResults[results.type] = results;
   }
 
   return importResults;
