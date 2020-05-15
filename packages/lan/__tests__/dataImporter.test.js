@@ -6,12 +6,18 @@ const { baseApp, models } = createTestContext();
 
 describe.only('Data definition import', () => {
   it('should read a file successfully', async () => {
-    const result = await importDataDefinition(models, TEST_DATA_PATH);
+    const results = await importDataDefinition(models, TEST_DATA_PATH);
 
-    console.log(result);
+    expect(results.users.created).toEqual(5);
+    expect(results.villages.created).toEqual(34);
+    expect(results.labtesttypes.errors[0]).toEqual('No such importer: labtesttypes');
 
     // import it again and make sure it's all idempotent
-    const second_result = await importDataDefinition(models, TEST_DATA_PATH);
-    console.log(second_result);
+    const updateResults = await importDataDefinition(models, TEST_DATA_PATH);
+
+    expect(updateResults.users.errors.length).toEqual(5);
+    expect(updateResults.users.errors.every(x => x.includes('cannot be updated via bulk import'))).toEqual(true);
+    expect(updateResults.villages.updated).toEqual(34);
+
   });
 });
