@@ -1,4 +1,5 @@
 import { readFile, utils } from 'xlsx';
+import { log } from '~/logging';
 
 const sanitise = string => string.trim().replace(/[^A-Za-z]+/g, '');
 
@@ -41,8 +42,10 @@ const userImporter = async ({ User }, item) => {
   }
 
   const { name: displayName, ...details } = item;
+  log.warn('Creating user with temporary hardcoded password!');
   const obj = await User.create({
     displayName,
+    password: '123455',
     ...details,
   });
 
