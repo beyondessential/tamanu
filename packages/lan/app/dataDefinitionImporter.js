@@ -85,9 +85,9 @@ export async function importJson(models, sheetName, data) {
   }
 
   const results = [];
-  for (const j in data) {
-    const item = data[j];
-    const index = parseInt(j, 10) + 1;
+  for (let i = 0; i < data.length; ++i) {
+    const item = data[i];
+    const index = parseInt(i, 10) + 1;
     try {
       results.push({
         index,
@@ -118,12 +118,12 @@ export async function importDataDefinition(models, path, onSheetImported) {
 
   // import things serially just so we're not spamming the same
   // table of the database with a bunch of parallel imports
-  for (const i in sheets) {
+  for (let i = 0; i < sheets.length; ++i) {
     const [sheetName, sheet] = sheets[i];
     const data = utils.sheet_to_json(sheet);
     const sheetResult = await importJson(models, sheetName, data);
 
-    if(onSheetImported) {
+    if (onSheetImported) {
       onSheetImported(sheetResult);
     }
   }
