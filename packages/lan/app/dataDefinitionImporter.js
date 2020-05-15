@@ -59,41 +59,37 @@ const userImporter = async ({ User }, item) => {
 };
 
 function getDateFromAgeOrDob(age, rawDateOfBirth) {
-  if(rawDateOfBirth && typeof rawDateOfBirth === "number") {
+  if (rawDateOfBirth && typeof rawDateOfBirth === 'number') {
     // json parser has converted a date to a timestamp for us
     // excel date serial numbers are their own thing - conver to JS date
     // https://stackoverflow.com/questions/16229494/converting-excel-date-serial-number-to-date-using-javascript
-    const date = new Date(Math.round((rawDateOfBirth - 25569)*86400*1000));
+    const date = new Date(Math.round((rawDateOfBirth - 25569) * 86400 * 1000));
     return date;
   }
 
-  if(rawDateOfBirth) {
-    return moment(rawDateOfBirth, [
-      "DD/MM/YYYY",
-      "YYYY/MM/DD",
-    ], true).toDate();
+  if (rawDateOfBirth) {
+    return moment(rawDateOfBirth, ['DD/MM/YYYY', 'YYYY/MM/DD'], true).toDate();
   }
 
-  return moment().subtract(age, 'years').startOf('year').toDate();
+  return moment()
+    .subtract(age, 'years')
+    .startOf('year')
+    .toDate();
 }
 
 const patientImporter = async ({ Patient, ReferenceData }, item) => {
-  const { 
-    displayId,
-    dateOfBirth: rawDateOfBirth,
-    age,
-    village,
-    ...rest
-  } = item;
+  const { displayId, dateOfBirth: rawDateOfBirth, age, village, ...rest } = item;
 
   // parse date of birth to actual date
   // or allow age column instead?
   const dateOfBirth = getDateFromAgeOrDob(age, rawDateOfBirth);
 
-  const villageRef = await ReferenceData.findOne({ where: {
-    type: 'village',
-    name: village,
-  }});
+  const villageRef = await ReferenceData.findOne({
+    where: {
+      type: 'village',
+      name: village,
+    },
+  });
 
   const data = {
     ...rest,
@@ -103,7 +99,7 @@ const patientImporter = async ({ Patient, ReferenceData }, item) => {
   };
 
   const existing = await Patient.findOne({ where: { displayId } });
-  if(existing) {
+  if (existing) {
     // update & return
     await existing.update(data);
     return {
@@ -114,10 +110,10 @@ const patientImporter = async ({ Patient, ReferenceData }, item) => {
   }
 
   const object = await Patient.create(data);
-  return { 
+  return {
     success: true,
     created: true,
-    object 
+    object,
   };
 };
 
@@ -188,7 +184,7 @@ const compareImporterPriority = ({ importerId: idA }, { importerId: idB }) => {
   const priorityA = importerPriorities.indexOf(idA);
   const priorityB = importerPriorities.indexOf(idB);
   const delta = priorityA - priorityB;
-  if(delta) return delta;
+  if (delta) return delta;
 
   return idA.localeCompare(idB);
 };
