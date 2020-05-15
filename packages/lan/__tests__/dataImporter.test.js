@@ -4,7 +4,7 @@ import { createTestContext } from './utilities';
 const TEST_DATA_PATH = './data/test_definitions.xlsx';
 const { baseApp, models } = createTestContext();
 
-describe.only('Data definition import', () => {
+describe('Data definition import', () => {
   it('should read a file successfully', async () => {
     const results = await importDataDefinition(models, TEST_DATA_PATH);
 
