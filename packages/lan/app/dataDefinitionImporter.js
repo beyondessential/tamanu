@@ -56,6 +56,49 @@ const userImporter = async ({ User }, item) => {
   };
 };
 
+const patientImporter = async ({ Patient, ReferenceData }, item) => {
+  const { 
+    displayId,
+    dateOfBirth: dateOfBirthString,
+    age,
+    village,
+    ...rest
+  } = item;
+
+  // parse date of birth to actual date
+  // or allow age column instead?
+  // TODO
+  const dateOfBirth = new Date(dateOfBirthString);
+  
+  // get village FK
+  // TODO
+  const villageId = 0;
+
+  const data = {
+    displayId,
+    villageId,
+    dateOfBirth,
+  };
+
+  const existing = await Patient.findOne({ where: { displayId } });
+  if(existing) {
+    // update & return
+    await existing.update(data);
+    return {
+      success: true,
+      created: false,
+      object: existing,
+    };
+  }
+
+  const object = await Patient.create(data);
+  return { 
+    success: true,
+    created: true,
+    object 
+  };
+};
+
 const importers = {
   villages: referenceDataImporter('village'),
   drugs: referenceDataImporter('drug'),
@@ -67,6 +110,7 @@ const importers = {
   imagingtypes: referenceDataImporter('imagingType'),
   procedures: referenceDataImporter('procedureType'),
   users: userImporter,
+  paitents: patientImporter,
   // TODO
   // labtesttypes: labTestTypesImporter,
 };
@@ -112,14 +156,35 @@ export async function importJson(models, sheetName, data) {
   };
 }
 
+const importerPriorities = ['patients'];
+
+// Run all non-prioritised importers FIRST, and then the prioritised importers
+// in order. (the reason we care about running order is to ensure foreign keys
+// work - eg a patient's village must exist before we can import the patient!
+// so "non-prioritised" basically means "no FK dependencies")
+const compareImporterPriority = ({ importerId: idA }, { importerId: idB }) => {
+  const priorityA = importerPriorities.indexOf(idA);
+  const priorityB = importerPriorities.indexOf(idB);
+  const delta = priorityA - priorityB;
+  if(delta) return delta;
+
+  return idA.localeCompare(idB);
+};
+
 export async function importDataDefinition(models, path, onSheetImported) {
   const workbook = readFile(path);
-  const sheets = Object.entries(workbook.Sheets);
+  const sheets = Object.entries(workbook.Sheets).map(([sheetName, sheet]) => ({
+    sheetName,
+    sheet,
+    importerId: convertSheetNameToImporterId(sheetName),
+  }));
+
+  sheets.sort(compareImporterPriority);
 
   // import things serially just so we're not spamming the same
   // table of the database with a bunch of parallel imports
   for (const i in sheets) {
-    const [sheetName, sheet] = sheets[i];
+    const { sheetName, sheet } = sheets[i];
     const data = utils.sheet_to_json(sheet);
     const sheetResult = await importJson(models, sheetName, data);
 
