@@ -1,0 +1,6 @@
+{
+  "db": {
+    "name": "develop",
+    "sqlitePath": "data/tamanu-dev.db"
+  }
+}

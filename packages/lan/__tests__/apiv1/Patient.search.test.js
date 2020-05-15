@@ -141,7 +141,7 @@ describe('Patient search', () => {
     });
   });
 
-  describe.only('Age filtering', () => {
+  describe('Age filtering', () => {
     it('should get a list of patients by maximum age', async () => {
       const response = await app.get('/v1/patient').query({
         ageMax: 30,
@@ -174,7 +174,7 @@ describe('Patient search', () => {
       expect(resultsYoung).toHaveLength(0);
     });
 
-    it.only('should get a list of patients by age range', async () => {
+    it('should get a list of patients by age range', async () => {
       const response = await app.get('/v1/patient').query({
         ageMax: 30,
         ageMin: 20,

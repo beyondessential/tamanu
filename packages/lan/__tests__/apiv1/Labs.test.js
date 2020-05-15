@@ -59,7 +59,9 @@ describe('Labs', () => {
     expect(createdRequest).toBeFalsy();
   });
 
-  xit("should not record a lab request with a test whose category does not match the request's category", async () => {
+  test.todo("should not record a lab request with a test whose category does not match the request's category");
+  /*
+  it("should not record a lab request with a test whose category does not match the request's category", async () => {
     const [categoryA, categoryB] = await models.ReferenceData.findAll({
       where: { type: 'labTestCategory' },
       order: models.ReferenceData.sequelize.random(),
@@ -74,6 +76,7 @@ describe('Labs', () => {
     });
     expect(response).toHaveRequestError();
   });
+  */
 
   it('should record a test result', async () => {
     const labRequest = await models.LabRequest.create(
