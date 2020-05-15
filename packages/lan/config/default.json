@@ -1,4 +1,5 @@
 {
+  "initialDataPath": "data/demo_definitions.xlsx",
   "port": 4000,
   "db": {
     "name": "main",
