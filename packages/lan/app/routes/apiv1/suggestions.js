@@ -33,7 +33,6 @@ function simpleSuggester(modelName, whereSql, mapper = defaultMapper) {
           limit,
         },
         type: QueryTypes.SELECT,
-        model,
       },
     );
 
@@ -42,6 +41,15 @@ function simpleSuggester(modelName, whereSql, mapper = defaultMapper) {
   };
 }
 
-suggestions.get('/icd10', simpleSuggester('ReferenceData', `name LIKE :search AND type = 'icd10'`));
+const referenceDataSuggester = (type) => simpleSuggester('ReferenceData', `name LIKE :search AND type = '${type}'`);
 
-suggestions.get('/drug', simpleSuggester('ReferenceData', `name LIKE :search AND type = 'drug'`));
+suggestions.get('/icd10', referenceDataSuggester('icd10'));
+suggestions.get('/drug', referenceDataSuggester('drug'));
+suggestions.get('/department', referenceDataSuggester('department'));
+suggestions.get('/location', referenceDataSuggester('location'));
+
+suggestions.get('/practitioner', simpleSuggester('User', 
+`display_name LIKE :search`, 
+  ({ id, display_name }) => ({ id, name: display_name })
+));
+
