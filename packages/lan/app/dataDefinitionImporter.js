@@ -61,7 +61,7 @@ const userImporter = async ({ User }, item) => {
 function getDateFromAgeOrDob(age, rawDateOfBirth) {
   if (rawDateOfBirth && typeof rawDateOfBirth === 'number') {
     // json parser has converted a date to a timestamp for us
-    // excel date serial numbers are their own thing - conver to JS date
+    // excel date serial numbers are their own thing - convert to JS date
     // https://stackoverflow.com/questions/16229494/converting-excel-date-serial-number-to-date-using-javascript
     const date = new Date(Math.round((rawDateOfBirth - 25569) * 86400 * 1000));
     return date;
@@ -80,8 +80,6 @@ function getDateFromAgeOrDob(age, rawDateOfBirth) {
 const patientImporter = async ({ Patient, ReferenceData }, item) => {
   const { displayId, dateOfBirth: rawDateOfBirth, age, village, ...rest } = item;
 
-  // parse date of birth to actual date
-  // or allow age column instead?
   const dateOfBirth = getDateFromAgeOrDob(age, rawDateOfBirth);
 
   const villageRef = await ReferenceData.findOne({
