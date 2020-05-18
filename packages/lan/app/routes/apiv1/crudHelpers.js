@@ -59,7 +59,7 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
 
     res.send({
       count: objects.length,
-      data: objects
+      data: objects,
     });
   });
 };

@@ -16,13 +16,11 @@ const columns = [
   { key: 'description', title: 'Description', accessor: getDescription },
 ];
 
-export const PatientHistory = ({ patientId, onItemClick }) => {
-  return (
-    <DataFetchingTable 
-      columns={columns} 
-      onRowClick={row => onItemClick(row)} 
-      noDataMessage="No historical records for this patient."
-      endpoint={`patient/${patientId}/visits`}
-    />
-  );
-};
+export const PatientHistory = ({ patientId, onItemClick }) => (
+  <DataFetchingTable
+    columns={columns}
+    onRowClick={row => onItemClick(row)}
+    noDataMessage="No historical records for this patient."
+    endpoint={`patient/${patientId}/visits`}
+  />
+);

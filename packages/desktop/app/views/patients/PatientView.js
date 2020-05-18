@@ -96,10 +96,7 @@ const HistoryPane = connect(
         openTriage={onOpenTriage}
         readonly={readonly}
       />
-      <PatientHistory 
-        patientId={patientId}
-        onItemClick={item => onViewVisit(item.id)} 
-      />
+      <PatientHistory patientId={patientId} onItemClick={item => onViewVisit(item.id)} />
     </div>
   )),
 );

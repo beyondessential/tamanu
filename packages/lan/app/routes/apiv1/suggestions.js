@@ -41,15 +41,18 @@ function simpleSuggester(modelName, whereSql, mapper = defaultMapper) {
   };
 }
 
-const referenceDataSuggester = (type) => simpleSuggester('ReferenceData', `name LIKE :search AND type = '${type}'`);
+const referenceDataSuggester = type =>
+  simpleSuggester('ReferenceData', `name LIKE :search AND type = '${type}'`);
 
 suggestions.get('/icd10', referenceDataSuggester('icd10'));
 suggestions.get('/drug', referenceDataSuggester('drug'));
 suggestions.get('/department', referenceDataSuggester('department'));
 suggestions.get('/location', referenceDataSuggester('location'));
 
-suggestions.get('/practitioner', simpleSuggester('User', 
-`display_name LIKE :search`, 
-  ({ id, display_name }) => ({ id, name: display_name })
-));
-
+suggestions.get(
+  '/practitioner',
+  simpleSuggester('User', `display_name LIKE :search`, ({ id, display_name }) => ({
+    id,
+    name: display_name,
+  })),
+);

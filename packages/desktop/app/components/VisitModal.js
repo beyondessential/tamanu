@@ -8,17 +8,11 @@ import { viewVisit } from '../store/visit';
 
 import { VisitForm } from '../forms/VisitForm';
 
-const DumbVisitModal = React.memo(
-  ({ open, onClose, onCreateVisit, ...rest }) => (
-    <Modal title="Check in" open={open} onClose={onClose}>
-      <VisitForm
-        onSubmit={onCreateVisit}
-        onCancel={onClose}
-        {...rest}
-      />
-    </Modal>
-  ),
-);
+const DumbVisitModal = React.memo(({ open, onClose, onCreateVisit, ...rest }) => (
+  <Modal title="Check in" open={open} onClose={onClose}>
+    <VisitForm onSubmit={onCreateVisit} onCancel={onClose} {...rest} />
+  </Modal>
+));
 
 export const VisitModal = connectApi((api, dispatch, { patientId }) => ({
   onCreateVisit: async data => {
