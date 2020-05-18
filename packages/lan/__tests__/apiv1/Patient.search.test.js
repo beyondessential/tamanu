@@ -102,8 +102,8 @@ describe('Patient search', () => {
       displayId: 'really-shouldnt-show-up',
     });
     expect(response).toHaveSucceeded();
-    expect(response.body.results).toHaveLength(0);
-    expect(response.body.total).toEqual(0);
+    expect(response.body.data).toHaveLength(0);
+    expect(response.body.count).toEqual(0);
   });
 
   it('should get a patient by displayId', async () => {
@@ -111,9 +111,9 @@ describe('Patient search', () => {
       displayId: 'search-by-display-id',
     });
     expect(response).toHaveSucceeded();
-    expect(response.body.total).toEqual(1);
+    expect(response.body.count).toEqual(1);
 
-    const [responsePatient] = response.body.results;
+    const [responsePatient] = response.body.data;
     expect(responsePatient).toHaveProperty('displayId', 'search-by-display-id');
   });
 
@@ -122,9 +122,9 @@ describe('Patient search', () => {
       firstName: 'search-by-name',
     });
     expect(response).toHaveSucceeded();
-    expect(response.body.total).toEqual(3);
+    expect(response.body.count).toEqual(3);
 
-    response.body.results.map(responsePatient => {
+    response.body.data.map(responsePatient => {
       expect(responsePatient).toHaveProperty('firstName', 'search-by-name');
     });
   });
@@ -134,9 +134,9 @@ describe('Patient search', () => {
       firstName: 'SeArCh-bY-Na',
     });
     expect(response).toHaveSucceeded();
-    expect(response.body.total).toEqual(3);
+    expect(response.body.count).toEqual(3);
 
-    response.body.results.map(responsePatient => {
+    response.body.data.map(responsePatient => {
       expect(responsePatient).toHaveProperty('firstName', 'search-by-name');
     });
   });
@@ -148,10 +148,10 @@ describe('Patient search', () => {
       });
       expect(response).toHaveSucceeded();
 
-      const { results } = response.body;
-      const resultsIn = results.filter(withFirstName('search-by-age-IN'));
-      const resultsOld = results.filter(withFirstName('search-by-age-OLD'));
-      const resultsYoung = results.filter(withFirstName('search-by-age-YOUNG'));
+      const { data } = response.body;
+      const resultsIn = data.filter(withFirstName('search-by-age-IN'));
+      const resultsOld = data.filter(withFirstName('search-by-age-OLD'));
+      const resultsYoung = data.filter(withFirstName('search-by-age-YOUNG'));
 
       expect(resultsIn).toHaveLength(ageInCount);
       expect(resultsYoung).toHaveLength(ageYoungCount);
@@ -164,10 +164,10 @@ describe('Patient search', () => {
       });
       expect(response).toHaveSucceeded();
 
-      const { results } = response.body;
-      const resultsIn = results.filter(withFirstName('search-by-age-IN'));
-      const resultsOld = results.filter(withFirstName('search-by-age-OLD'));
-      const resultsYoung = results.filter(withFirstName('search-by-age-YOUNG'));
+      const { data } = response.body;
+      const resultsIn = data.filter(withFirstName('search-by-age-IN'));
+      const resultsOld = data.filter(withFirstName('search-by-age-OLD'));
+      const resultsYoung = data.filter(withFirstName('search-by-age-YOUNG'));
 
       expect(resultsIn).toHaveLength(ageInCount);
       expect(resultsOld).toHaveLength(ageOldCount);
@@ -181,10 +181,10 @@ describe('Patient search', () => {
       });
       expect(response).toHaveSucceeded();
 
-      const { results } = response.body;
-      const resultsIn = results.filter(withFirstName('search-by-age-IN'));
-      const resultsOld = results.filter(withFirstName('search-by-age-OLD'));
-      const resultsYoung = results.filter(withFirstName('search-by-age-YOUNG'));
+      const { data } = response.body;
+      const resultsIn = data.filter(withFirstName('search-by-age-IN'));
+      const resultsOld = data.filter(withFirstName('search-by-age-OLD'));
+      const resultsYoung = data.filter(withFirstName('search-by-age-YOUNG'));
 
       expect(resultsIn).toHaveLength(ageInCount);
       expect(resultsOld).toHaveLength(0);
@@ -199,14 +199,14 @@ describe('Patient search', () => {
     });
     expect(response).toHaveSucceeded();
 
-    const { results } = response.body;
-    expect(results.length).toBeGreaterThan(0);
-    results.map(responsePatient => {
+    const { data } = response.body;
+    expect(data.length).toBeGreaterThan(0);
+    data.map(responsePatient => {
       expect(responsePatient).toHaveProperty('villageId', villageId);
       expect(responsePatient).toHaveProperty('village_name', villageName);
     });
 
-    expect(results.some(withFirstName('search-by-village')));
+    expect(data.some(withFirstName('search-by-village')));
   });
 
   describe('Joining visit info', () => {
@@ -215,9 +215,9 @@ describe('Patient search', () => {
         visitType: 'clinic',
       });
       expect(response).toHaveSucceeded();
-      expect(response.body.total).toBeGreaterThanOrEqual(3);
+      expect(response.body.count).toBeGreaterThanOrEqual(3);
 
-      response.body.results.map(responsePatient => {
+      response.body.data.map(responsePatient => {
         expect(responsePatient).toHaveProperty('visit_type', 'clinic');
       });
     });
@@ -228,8 +228,8 @@ describe('Patient search', () => {
       });
       expect(response).toHaveSucceeded();
 
-      expect(response.body.results.some(withFirstName('search-by-location')));
-      response.body.results.map(responsePatient => {
+      expect(response.body.data.some(withFirstName('search-by-location')));
+      response.body.data.map(responsePatient => {
         expect(responsePatient).toHaveProperty('location_name', locations[0].name);
       });
     });
@@ -240,8 +240,8 @@ describe('Patient search', () => {
       });
       expect(response).toHaveSucceeded();
 
-      expect(response.body.results.some(withFirstName('search-by-department')));
-      response.body.results.map(responsePatient => {
+      expect(response.body.data.some(withFirstName('search-by-department')));
+      response.body.data.map(responsePatient => {
         expect(responsePatient).toHaveProperty('department_name', departments[0].name);
       });
     });
@@ -259,7 +259,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.results, x => x.lastName);
+      expectSorted(response.body.data, x => x.lastName);
     });
 
     it('should sort by age', async () => {
@@ -269,7 +269,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.results, x => x.dateOfBirth);
+      expectSorted(response.body.data, x => x.dateOfBirth);
     });
 
     it('should sort by visit type', async () => {
@@ -279,7 +279,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.results, x => x.visit_type);
+      expectSorted(response.body.data, x => x.visit_type);
     });
 
     it('should sort by location', async () => {
@@ -289,7 +289,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.results, x => x.location_name);
+      expectSorted(response.body.data, x => x.location_name);
     });
 
     it('should sort by department', async () => {
@@ -299,7 +299,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.results, x => x.department_name);
+      expectSorted(response.body.data, x => x.department_name);
     });
 
     it('should sort by village', async () => {
@@ -309,7 +309,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.results, x => x.village_name);
+      expectSorted(response.body.data, x => x.village_name);
     });
   });
 
