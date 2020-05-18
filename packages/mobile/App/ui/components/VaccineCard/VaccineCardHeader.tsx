@@ -1,5 +1,5 @@
 import React from 'react';
-import { theme } from '/styled/theme';
+import {theme} from '/styled/theme';
 import * as Icons from '../Icons';
 import {
   StyledView,
@@ -7,8 +7,8 @@ import {
   StyledTouchableOpacity,
   StyledText,
 } from '/styled/common';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { VaccineModel } from '../../models/Vaccine';
+import {Orientation, screenPercentageToDP} from '/helpers/screen';
+import {VaccineModel} from '../../models/Vaccine';
 
 export interface CardHeaderProps {
   vaccine: VaccineModel;
@@ -35,8 +35,7 @@ export const VaccineCardHeader = ({
           onPress={onCloseModal}
         >
           <Icons.CrossIcon
-            width={screenPercentageToDP(2.18, Orientation.Height)}
-            height={screenPercentageToDP(2.18, Orientation.Height)}
+            size={screenPercentageToDP(2.18, Orientation.Height)}
           />
         </StyledTouchableOpacity>
         <StyledTouchableOpacity

@@ -16,10 +16,10 @@
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2DCD954D1E0B4F2C00145EB5 /* tamanuappTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* tamanuappTests.m */; };
-		54E0F9AE3E812BC8E09CE8A9 /* libPods-tamanuapp-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8E8FB9884F32A2499C7BDEE /* libPods-tamanuapp-tvOS.a */; };
-		9C84F48172F820B83F02A41C /* libPods-tamanuapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BCBECC4BD11892698FBEEF9F /* libPods-tamanuapp.a */; };
-		AB7F7E5EA03EF8599DAAE288 /* libPods-tamanuapp-tamanuappTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9264D9883CAC5006F26AEB45 /* libPods-tamanuapp-tamanuappTests.a */; };
-		D51B5870541C6D14087A8611 /* libPods-tamanuapp-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C109A4679A9E4941CDDD06B4 /* libPods-tamanuapp-tvOSTests.a */; };
+		33F09A5CE3DC390395276FFC /* libPods-tamanuapp-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A9C832AE3091D6440B09340 /* libPods-tamanuapp-tvOS.a */; };
+		9C4F23EEA0571E84748CD093 /* libPods-tamanuapp-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 640906EF8AC4323487671E09 /* libPods-tamanuapp-tvOSTests.a */; };
+		E8AA24FC8A0547F45741EF71 /* libPods-tamanuapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C3FCA9ADDF2E3CA2CB163CAA /* libPods-tamanuapp.a */; };
+		F2E4DCC7F6420043B55DC725 /* libPods-tamanuapp-tamanuappTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3DAA30888898160FD6C2DAB1 /* libPods-tamanuapp-tamanuappTests.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,7 +44,6 @@
 		00E356EE1AD99517003FC87E /* tamanuappTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = tamanuappTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* tamanuappTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = tamanuappTests.m; sourceTree = "<group>"; };
-		06AB33654C4B5D971EF491C5 /* Pods-tamanuapp-tamanuappTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp-tamanuappTests.release.xcconfig"; path = "Target Support Files/Pods-tamanuapp-tamanuappTests/Pods-tamanuapp-tamanuappTests.release.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* tamanuapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tamanuapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = tamanuapp/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = tamanuapp/AppDelegate.m; sourceTree = "<group>"; };
@@ -52,21 +51,22 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = tamanuapp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = tamanuapp/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = tamanuapp/main.m; sourceTree = "<group>"; };
+		13D159125FA67E06A88B0FDD /* Pods-tamanuapp-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-tamanuapp-tvOS/Pods-tamanuapp-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
+		181A6D700D914766D656152D /* Pods-tamanuapp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp.debug.xcconfig"; path = "Target Support Files/Pods-tamanuapp/Pods-tamanuapp.debug.xcconfig"; sourceTree = "<group>"; };
+		22C12CA25C823DA5A7FA5507 /* Pods-tamanuapp-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-tamanuapp-tvOSTests/Pods-tamanuapp-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
 		2D02E47B1E0B4A5D006451C7 /* tamanuapp-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "tamanuapp-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* tamanuapp-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "tamanuapp-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		59A2CC046BD0EAC33EE5AA67 /* Pods-tamanuapp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp.release.xcconfig"; path = "Target Support Files/Pods-tamanuapp/Pods-tamanuapp.release.xcconfig"; sourceTree = "<group>"; };
-		638257C2AD0B6E310968D1B2 /* Pods-tamanuapp-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-tamanuapp-tvOS/Pods-tamanuapp-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
-		8354EE8A7594FCD25B7D13F3 /* Pods-tamanuapp-tamanuappTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp-tamanuappTests.debug.xcconfig"; path = "Target Support Files/Pods-tamanuapp-tamanuappTests/Pods-tamanuapp-tamanuappTests.debug.xcconfig"; sourceTree = "<group>"; };
-		9264D9883CAC5006F26AEB45 /* libPods-tamanuapp-tamanuappTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tamanuapp-tamanuappTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		AD0F44D333763EF2B064AE52 /* Pods-tamanuapp-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-tamanuapp-tvOSTests/Pods-tamanuapp-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
-		BCBECC4BD11892698FBEEF9F /* libPods-tamanuapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tamanuapp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C109A4679A9E4941CDDD06B4 /* libPods-tamanuapp-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tamanuapp-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D8E8FB9884F32A2499C7BDEE /* libPods-tamanuapp-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tamanuapp-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		E86B3A1FF89D32596B42B386 /* Pods-tamanuapp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp.debug.xcconfig"; path = "Target Support Files/Pods-tamanuapp/Pods-tamanuapp.debug.xcconfig"; sourceTree = "<group>"; };
+		3DAA30888898160FD6C2DAB1 /* libPods-tamanuapp-tamanuappTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tamanuapp-tamanuappTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		41080835AED0824EAE5CED9D /* Pods-tamanuapp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp.release.xcconfig"; path = "Target Support Files/Pods-tamanuapp/Pods-tamanuapp.release.xcconfig"; sourceTree = "<group>"; };
+		49DF5C6A2E61521DF967AD55 /* Pods-tamanuapp-tamanuappTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp-tamanuappTests.release.xcconfig"; path = "Target Support Files/Pods-tamanuapp-tamanuappTests/Pods-tamanuapp-tamanuappTests.release.xcconfig"; sourceTree = "<group>"; };
+		4A9C832AE3091D6440B09340 /* libPods-tamanuapp-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tamanuapp-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FAB2CFB1049987CC536D231 /* Pods-tamanuapp-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp-tvOS.release.xcconfig"; path = "Target Support Files/Pods-tamanuapp-tvOS/Pods-tamanuapp-tvOS.release.xcconfig"; sourceTree = "<group>"; };
+		640906EF8AC4323487671E09 /* libPods-tamanuapp-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tamanuapp-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B62FF097615FA30E2D042C43 /* Pods-tamanuapp-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-tamanuapp-tvOSTests/Pods-tamanuapp-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
+		C3FCA9ADDF2E3CA2CB163CAA /* libPods-tamanuapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tamanuapp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E17AF98575B71EA14A390B58 /* Pods-tamanuapp-tamanuappTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp-tamanuappTests.debug.xcconfig"; path = "Target Support Files/Pods-tamanuapp-tamanuappTests/Pods-tamanuapp-tamanuappTests.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
-		F1262B24D2A0D76DCDA5BF3D /* Pods-tamanuapp-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-tamanuapp-tvOSTests/Pods-tamanuapp-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
-		F1C5A229576816D0AC3FD9A0 /* Pods-tamanuapp-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp-tvOS.release.xcconfig"; path = "Target Support Files/Pods-tamanuapp-tvOS/Pods-tamanuapp-tvOS.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,7 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB7F7E5EA03EF8599DAAE288 /* libPods-tamanuapp-tamanuappTests.a in Frameworks */,
+				F2E4DCC7F6420043B55DC725 /* libPods-tamanuapp-tamanuappTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,7 +82,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9C84F48172F820B83F02A41C /* libPods-tamanuapp.a in Frameworks */,
+				E8AA24FC8A0547F45741EF71 /* libPods-tamanuapp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,7 +90,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				54E0F9AE3E812BC8E09CE8A9 /* libPods-tamanuapp-tvOS.a in Frameworks */,
+				33F09A5CE3DC390395276FFC /* libPods-tamanuapp-tvOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -98,7 +98,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D51B5870541C6D14087A8611 /* libPods-tamanuapp-tvOSTests.a in Frameworks */,
+				9C4F23EEA0571E84748CD093 /* libPods-tamanuapp-tvOSTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -141,10 +141,10 @@
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				ED2971642150620600B7C4FE /* JavaScriptCore.framework */,
-				BCBECC4BD11892698FBEEF9F /* libPods-tamanuapp.a */,
-				9264D9883CAC5006F26AEB45 /* libPods-tamanuapp-tamanuappTests.a */,
-				D8E8FB9884F32A2499C7BDEE /* libPods-tamanuapp-tvOS.a */,
-				C109A4679A9E4941CDDD06B4 /* libPods-tamanuapp-tvOSTests.a */,
+				C3FCA9ADDF2E3CA2CB163CAA /* libPods-tamanuapp.a */,
+				3DAA30888898160FD6C2DAB1 /* libPods-tamanuapp-tamanuappTests.a */,
+				4A9C832AE3091D6440B09340 /* libPods-tamanuapp-tvOS.a */,
+				640906EF8AC4323487671E09 /* libPods-tamanuapp-tvOSTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -164,7 +164,7 @@
 				00E356EF1AD99517003FC87E /* tamanuappTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				E6DA3AC6F715D9420E7AAF84 /* Pods */,
+				89B23C8A495918828C4D4C4C /* Pods */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -182,17 +182,17 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		E6DA3AC6F715D9420E7AAF84 /* Pods */ = {
+		89B23C8A495918828C4D4C4C /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				E86B3A1FF89D32596B42B386 /* Pods-tamanuapp.debug.xcconfig */,
-				59A2CC046BD0EAC33EE5AA67 /* Pods-tamanuapp.release.xcconfig */,
-				8354EE8A7594FCD25B7D13F3 /* Pods-tamanuapp-tamanuappTests.debug.xcconfig */,
-				06AB33654C4B5D971EF491C5 /* Pods-tamanuapp-tamanuappTests.release.xcconfig */,
-				638257C2AD0B6E310968D1B2 /* Pods-tamanuapp-tvOS.debug.xcconfig */,
-				F1C5A229576816D0AC3FD9A0 /* Pods-tamanuapp-tvOS.release.xcconfig */,
-				AD0F44D333763EF2B064AE52 /* Pods-tamanuapp-tvOSTests.debug.xcconfig */,
-				F1262B24D2A0D76DCDA5BF3D /* Pods-tamanuapp-tvOSTests.release.xcconfig */,
+				181A6D700D914766D656152D /* Pods-tamanuapp.debug.xcconfig */,
+				41080835AED0824EAE5CED9D /* Pods-tamanuapp.release.xcconfig */,
+				E17AF98575B71EA14A390B58 /* Pods-tamanuapp-tamanuappTests.debug.xcconfig */,
+				49DF5C6A2E61521DF967AD55 /* Pods-tamanuapp-tamanuappTests.release.xcconfig */,
+				13D159125FA67E06A88B0FDD /* Pods-tamanuapp-tvOS.debug.xcconfig */,
+				4FAB2CFB1049987CC536D231 /* Pods-tamanuapp-tvOS.release.xcconfig */,
+				B62FF097615FA30E2D042C43 /* Pods-tamanuapp-tvOSTests.debug.xcconfig */,
+				22C12CA25C823DA5A7FA5507 /* Pods-tamanuapp-tvOSTests.release.xcconfig */,
 			);
 			name = Pods;
 			path = Pods;
@@ -205,7 +205,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "tamanuappTests" */;
 			buildPhases = (
-				A7D1B64FAD6F99AE8465526C /* [CP] Check Pods Manifest.lock */,
+				9A3F9263A0A71BBCE4723DB9 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
@@ -224,7 +224,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "tamanuapp" */;
 			buildPhases = (
-				AE07A74E2A0FC43237A60E7A /* [CP] Check Pods Manifest.lock */,
+				657D25D9C7B0FF8DBEF644DE /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
@@ -244,7 +244,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2D02E4BA1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "tamanuapp-tvOS" */;
 			buildPhases = (
-				DA5A949F21CBEDABBC4DD004 /* [CP] Check Pods Manifest.lock */,
+				41D3F05256016E60E83DD581 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F122414F3F0027D42C /* Start Packager */,
 				2D02E4771E0B4A5D006451C7 /* Sources */,
 				2D02E4781E0B4A5D006451C7 /* Frameworks */,
@@ -264,7 +264,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2D02E4BB1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "tamanuapp-tvOSTests" */;
 			buildPhases = (
-				438D9CC9FBA0A21A9E95C555 /* [CP] Check Pods Manifest.lock */,
+				52FFC3C456B1115D718A3957 /* [CP] Check Pods Manifest.lock */,
 				2D02E48C1E0B4A5D006451C7 /* Sources */,
 				2D02E48D1E0B4A5D006451C7 /* Frameworks */,
 				2D02E48E1E0B4A5D006451C7 /* Resources */,
@@ -389,7 +389,29 @@
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
 		};
-		438D9CC9FBA0A21A9E95C555 /* [CP] Check Pods Manifest.lock */ = {
+		41D3F05256016E60E83DD581 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-tamanuapp-tvOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		52FFC3C456B1115D718A3957 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -411,29 +433,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		A7D1B64FAD6F99AE8465526C /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-tamanuapp-tamanuappTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		AE07A74E2A0FC43237A60E7A /* [CP] Check Pods Manifest.lock */ = {
+		657D25D9C7B0FF8DBEF644DE /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -455,7 +455,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		DA5A949F21CBEDABBC4DD004 /* [CP] Check Pods Manifest.lock */ = {
+		9A3F9263A0A71BBCE4723DB9 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -470,7 +470,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-tamanuapp-tvOS-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-tamanuapp-tamanuappTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -582,7 +582,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8354EE8A7594FCD25B7D13F3 /* Pods-tamanuapp-tamanuappTests.debug.xcconfig */;
+			baseConfigurationReference = E17AF98575B71EA14A390B58 /* Pods-tamanuapp-tamanuappTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -605,7 +605,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 06AB33654C4B5D971EF491C5 /* Pods-tamanuapp-tamanuappTests.release.xcconfig */;
+			baseConfigurationReference = 49DF5C6A2E61521DF967AD55 /* Pods-tamanuapp-tamanuappTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -625,7 +625,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E86B3A1FF89D32596B42B386 /* Pods-tamanuapp.debug.xcconfig */;
+			baseConfigurationReference = 181A6D700D914766D656152D /* Pods-tamanuapp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -652,7 +652,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 59A2CC046BD0EAC33EE5AA67 /* Pods-tamanuapp.release.xcconfig */;
+			baseConfigurationReference = 41080835AED0824EAE5CED9D /* Pods-tamanuapp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -673,7 +673,7 @@
 		};
 		2D02E4971E0B4A5E006451C7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 638257C2AD0B6E310968D1B2 /* Pods-tamanuapp-tvOS.debug.xcconfig */;
+			baseConfigurationReference = 13D159125FA67E06A88B0FDD /* Pods-tamanuapp-tvOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -701,7 +701,7 @@
 		};
 		2D02E4981E0B4A5E006451C7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F1C5A229576816D0AC3FD9A0 /* Pods-tamanuapp-tvOS.release.xcconfig */;
+			baseConfigurationReference = 4FAB2CFB1049987CC536D231 /* Pods-tamanuapp-tvOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -729,7 +729,7 @@
 		};
 		2D02E4991E0B4A5E006451C7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = AD0F44D333763EF2B064AE52 /* Pods-tamanuapp-tvOSTests.debug.xcconfig */;
+			baseConfigurationReference = B62FF097615FA30E2D042C43 /* Pods-tamanuapp-tvOSTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -756,7 +756,7 @@
 		};
 		2D02E49A1E0B4A5E006451C7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F1262B24D2A0D76DCDA5BF3D /* Pods-tamanuapp-tvOSTests.release.xcconfig */;
+			baseConfigurationReference = 22C12CA25C823DA5A7FA5507 /* Pods-tamanuapp-tvOSTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;

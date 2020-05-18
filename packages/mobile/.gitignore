@@ -62,13 +62,11 @@ buck-out/
 # jest
 .jest
 
-# Storyloader
-storybook/storyLoader.js
 
 .vscode
 
 # Environment
-.env
+
 
 # mockserver
 mockserver/functions/node_modules
