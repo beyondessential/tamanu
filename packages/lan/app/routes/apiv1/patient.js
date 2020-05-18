@@ -117,8 +117,8 @@ patient.get(
     );
 
     res.send({
-      results: result,
-      total: result.length,
+      data: result,
+      count: result.length,
     });
   }),
 );

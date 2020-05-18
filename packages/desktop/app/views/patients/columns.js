@@ -47,10 +47,10 @@ export const dateOfBirth = {
 };
 
 export const village = {
-  key: 'village.name',
+  key: 'village_name',
   title: 'Village',
   minWidth: 100,
-  accessor: row => row.village && row.village.name,
+  accessor: row => row.village_name,
 };
 
 export const location = {
@@ -77,10 +77,9 @@ export const status = {
   key: 'status',
   title: 'Status',
   minWidth: 100,
-  accessor: row => {
-    const visit = getCurrentVisit(row);
-    if (!visit) return '';
-    else if (visit.visitType === 'emergency') return 'Emergency';
+  accessor: ({ visit_type }) => {
+    if (!visit_type) return '';
+    else if (visit_type === 'emergency') return 'Emergency';
     // TODO: include "Outpatient" status
     return 'Inpatient';
   },
