@@ -22,7 +22,10 @@ const DumbVisitModal = React.memo(
 
 export const VisitModal = connectApi((api, dispatch, { patientId }) => ({
   onCreateVisit: async data => {
-    const createdVisit = await api.post(`patient/${patientId}/visits`, data);
+    const createdVisit = await api.post(`visit`, {
+      patientId,
+      ...data,
+    });
     dispatch(viewVisit(createdVisit.id));
   },
   locationSuggester: new Suggester(api, 'location'),

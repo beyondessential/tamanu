@@ -67,7 +67,7 @@ const ReferralField = ({ referrals = [] }) => {
 
   return (
     <Field
-      name="referral.id"
+      name="referralId"
       label="Referral"
       disabled={referrals.length === 0}
       component={SelectField}
@@ -128,21 +128,21 @@ export class VisitForm extends React.PureComponent {
           options={visitOptions}
         />
         <Field
-          name="department.id"
+          name="departmentId"
           label="Department"
           required
           component={AutocompleteField}
           suggester={departmentSuggester}
         />
         <Field
-          name="location.id"
+          name="locationId"
           label="Location"
           required
           component={AutocompleteField}
           suggester={locationSuggester}
         />
         <Field
-          name="examiner.id"
+          name="examinerId"
           label="Practitioner"
           required
           component={AutocompleteField}
@@ -177,9 +177,9 @@ export class VisitForm extends React.PureComponent {
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          examiner: foreignKey('Examiner is required'),
-          location: foreignKey('Location is required'),
-          department: foreignKey('Department is required'),
+          examinerId: foreignKey('Examiner is required'),
+          locationId: foreignKey('Location is required'),
+          departmentId: foreignKey('Department is required'),
           startDate: yup.date().required(),
           visitType: yup
             .mixed()
