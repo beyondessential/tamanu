@@ -16,7 +16,7 @@
     "lint": "eslint --fix .",    
     "storybook": "(adb reverse tcp:7007 tcp:7007 || true) && start-storybook",
     "prestorybook": "rnstl",
-    "postinstall": "node scripts/react-native-largelist-bugfix",
+    "postinstall": "node scripts/react-native-largelist-bugfix && npx jetify",
     "mockserver": "json-server -H 192.168.0.4 --watch db.json"
   },
   "dependencies": {
