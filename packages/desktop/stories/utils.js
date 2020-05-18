@@ -1,5 +1,5 @@
 export const mapToSuggestions = objects =>
-  objects.map(({ _id, name }) => ({ label: name, value: _id }));
+  objects.map(({ id, name }) => ({ label: name, value: id }));
 
 export function createDummySuggester(options) {
   return {

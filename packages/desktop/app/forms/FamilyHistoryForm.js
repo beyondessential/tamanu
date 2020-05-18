@@ -18,7 +18,7 @@ export class FamilyHistoryForm extends React.PureComponent {
     return (
       <FormGrid columns={1}>
         <Field
-          name="diagnosis._id"
+          name="diagnosis.id"
           label="Diagnosis"
           required
           component={AutocompleteField}
@@ -27,7 +27,7 @@ export class FamilyHistoryForm extends React.PureComponent {
         <Field name="date" label="Date recorded" required component={DateField} />
         <Field name="relationship" label="Relation to patient" component={TextField} />
         <Field
-          name="practitioner._id"
+          name="practitioner.id"
           label="Doctor/nurse"
           required
           component={AutocompleteField}

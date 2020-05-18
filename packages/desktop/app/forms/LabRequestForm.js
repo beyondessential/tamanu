@@ -56,15 +56,15 @@ export class LabRequestForm extends React.PureComponent {
     const { examiner = {} } = visit;
     const examinerLabel = examiner.displayName;
     const visitLabel = getVisitLabel(visit);
-    const filteredTestTypes = testTypes.filter(x => x.category._id === values.category._id);
+    const filteredTestTypes = testTypes.filter(x => x.category.id === values.category.id);
 
     return (
       <FormGrid>
-        <Field name="_id" label="Lab request number" disabled component={TextField} />
+        <Field name="id" label="Lab request number" disabled component={TextField} />
         <Field name="requestedDate" label="Order date" required component={DateField} />
         <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
-          name="requestedBy._id"
+          name="requestedBy.id"
           label="Requesting doctor"
           required
           component={AutocompleteField}
@@ -78,7 +78,7 @@ export class LabRequestForm extends React.PureComponent {
         <FormSeparatorLine />
         <TextInput label="Visit" disabled value={visitLabel} />
         <Field
-          name="category._id"
+          name="category.id"
           label="Lab request type"
           required
           component={SelectField}
@@ -123,7 +123,7 @@ export class LabRequestForm extends React.PureComponent {
         onSubmit={onSubmit}
         render={this.renderForm}
         initialValues={{
-          _id: generateId(),
+          id: generateId(),
           requestedDate: new Date(),
           category: {},
           sampleTime: new Date(),
@@ -153,8 +153,8 @@ export class LabRequestForm extends React.PureComponent {
 export const ConnectedLabRequestForm = connect(
   state => ({
     testTypes: getLabTestTypes(state),
-    testCategories: getLabTestCategories(state).map(({ _id, name }) => ({
-      value: _id,
+    testCategories: getLabTestCategories(state).map(({ id, name }) => ({
+      value: id,
       label: name,
     })),
   }),

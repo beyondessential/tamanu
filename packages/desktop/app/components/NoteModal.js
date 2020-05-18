@@ -19,8 +19,8 @@ const DumbNoteModal = React.memo(({ open, onClose, onSaveNote, practitionerSugge
 
 export const NoteModal = connectApi((api, dispatch, { visitId, onClose }) => ({
   onSaveNote: async data => {
-    if (data._id) {
-      await api.put(`note/${data._id}`, data);
+    if (data.id) {
+      await api.put(`note/${data.id}`, data);
     } else {
       await api.post(`visit/${visitId}/note`, data);
     }

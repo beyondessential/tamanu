@@ -14,14 +14,14 @@ export const DeathForm = React.memo(
       render={({ submitForm }) => (
         <FormGrid columns={1}>
           <Field
-            name="primaryCause._id"
+            name="primaryCause.id"
             label="Primary cause"
             component={AutocompleteField}
             suggester={icd10Suggester}
             required
           />
           <Field
-            name="physician._id"
+            name="physician.id"
             label="Attending physician"
             component={AutocompleteField}
             suggester={practitionerSuggester}

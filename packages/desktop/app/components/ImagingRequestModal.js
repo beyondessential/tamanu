@@ -25,7 +25,7 @@ const DumbImagingRequestModal = React.memo(
 
 export const ImagingRequestModal = connectApi((api, dispatch, { visit }) => ({
   onSubmit: async data => {
-    const visitId = visit._id;
+    const visitId = visit.id;
     await api.post(`visit/${visitId}/imagingRequest`, data);
     dispatch(viewVisit(visitId));
   },

@@ -60,14 +60,14 @@ const ReferralField = ({ referrals = [] }) => {
     referrals
       .filter(r => !r.closedDate)
       .map(r => ({
-        value: r._id,
+        value: r.id,
         label: getReferralLabel(r),
       })),
   );
 
   return (
     <Field
-      name="referral._id"
+      name="referral.id"
       label="Referral"
       disabled={referrals.length === 0}
       component={SelectField}
@@ -128,21 +128,21 @@ export class VisitForm extends React.PureComponent {
           options={visitOptions}
         />
         <Field
-          name="department._id"
+          name="department.id"
           label="Department"
           required
           component={AutocompleteField}
           suggester={departmentSuggester}
         />
         <Field
-          name="location._id"
+          name="location.id"
           label="Location"
           required
           component={AutocompleteField}
           suggester={locationSuggester}
         />
         <Field
-          name="examiner._id"
+          name="examiner.id"
           label="Practitioner"
           required
           component={AutocompleteField}

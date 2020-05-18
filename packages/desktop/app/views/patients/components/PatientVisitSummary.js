@@ -124,9 +124,9 @@ export const PatientVisitSummary = ({ viewVisit, openCheckin, openTriage, ...pat
     );
   }
 
-  const { startDate, location, visitType, reasonForVisit, _id, examiner } = visit;
+  const { startDate, location, visitType, reasonForVisit, id, examiner } = visit;
   return (
-    <Grid visitType={visitType} onClick={() => viewVisit(_id)}>
+    <Grid visitType={visitType} onClick={() => viewVisit(id)}>
       <Header>
         <HeaderInfo>
           <SubTitle>Current Admission</SubTitle>

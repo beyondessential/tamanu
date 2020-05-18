@@ -22,7 +22,7 @@ export const PrimaryDetailsGroup = ({ villageSuggester }) => (
     <Field name="lastName" label="Last name" component={TextField} required />
     <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
     <Field
-      name="village._id"
+      name="village.id"
       label="Village"
       component={AutocompleteField}
       suggester={villageSuggester}
@@ -37,14 +37,14 @@ export const SecondaryDetailsGroup = ({ isBirth, patientSuggester, facilitySugge
     <Field name="religion" label="Religion" component={TextField} />
     <Field name="occupation" label="Occupation" component={TextField} />
     <Field
-      name="mother._id"
+      name="mother.id"
       label="Mother"
       component={AutocompleteField}
       suggester={patientSuggester}
       required={isBirth}
     />
     <Field
-      name="father._id"
+      name="father.id"
       label="Father"
       component={AutocompleteField}
       suggester={patientSuggester}

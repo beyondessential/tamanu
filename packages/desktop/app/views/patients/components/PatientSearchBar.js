@@ -101,7 +101,7 @@ const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
       const params = {
         ...other,
         // enforce dotted text identifier instead of a nested object
-        'village._id': village._id,
+        'village.id': village.id,
       };
       onSearch(params);
     },
@@ -118,7 +118,7 @@ const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
           component={AutocompleteField}
           suggester={villageSuggester}
           placeholder="Village"
-          name="village._id"
+          name="village.id"
         />
         <Field component={TextField} placeholder="Health ID" name="displayId" />
         <Button color="primary" variant="contained" onClick={submitForm}>

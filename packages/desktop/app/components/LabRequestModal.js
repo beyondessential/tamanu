@@ -25,7 +25,7 @@ const DumbLabRequestModal = React.memo(
 
 export const LabRequestModal = connectApi((api, dispatch, { visit }) => ({
   onSubmit: async data => {
-    const visitId = visit._id;
+    const visitId = visit.id;
     await api.post(`visit/${visitId}/labRequest`, data);
     dispatch(viewVisit(visitId));
   },

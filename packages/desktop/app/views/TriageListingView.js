@@ -114,7 +114,7 @@ const COLUMNS = [
     title: 'Chief complaint',
     accessor: row => (row.chiefComplaint ? row.chiefComplaint.name : ''),
   },
-  { key: '_id', title: 'ID', accessor: row => row.patient[0].displayId },
+  { key: 'id', title: 'ID', accessor: row => row.patient[0].displayId },
   {
     key: 'patientName',
     title: 'Patient',
@@ -139,7 +139,7 @@ const COLUMNS = [
 const TriageTable = connect(
   null,
   dispatch => ({
-    onViewVisit: triage => dispatch(viewPatientVisit(triage.patient[0]._id, triage.visit._id)),
+    onViewVisit: triage => dispatch(viewPatientVisit(triage.patient[0].id, triage.visit.id)),
   }),
 )(
   React.memo(({ onViewVisit, ...props }) => (

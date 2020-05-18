@@ -23,8 +23,8 @@ const DumbDischargeModal = React.memo(
 
 export const DischargeModal = connectApi((api, dispatch, { visit }) => ({
   onSubmit: async data => {
-    await api.put(`visit/${visit._id}`, data);
-    dispatch(viewVisit(visit._id));
+    await api.put(`visit/${visit.id}`, data);
+    dispatch(viewVisit(visit.id));
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
 }))(DumbDischargeModal);

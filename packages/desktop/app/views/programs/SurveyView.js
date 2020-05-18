@@ -68,7 +68,7 @@ const SurveyScreen = ({ screen, values, onStepForward, onStepBack }) => {
 
   const questionElements = questions
     .filter(q => checkVisibility(q, values))
-    .map(q => <SurveyQuestion question={q} key={q._id} />);
+    .map(q => <SurveyQuestion question={q} key={q.id} />);
 
   return (
     <FormGrid columns={1}>

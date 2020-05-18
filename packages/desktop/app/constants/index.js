@@ -502,7 +502,7 @@ export const pregnancyColumns = [
     minWidth: 100,
   },
   {
-    accessor: row => ({ _id: row._id, admitted: row.admitted }),
+    accessor: row => ({ id: row.id, admitted: row.admitted }),
     key: 'actions',
     title: 'Actions',
     headerStyle: {
@@ -557,7 +557,7 @@ export const visitsColumns = [
     minWidth: 100,
   },
   {
-    accessor: row => ({ _id: row._id, admitted: row.admitted }),
+    accessor: row => ({ id: row.id, admitted: row.admitted }),
     key: 'actions',
     title: 'Actions',
     headerStyle: {

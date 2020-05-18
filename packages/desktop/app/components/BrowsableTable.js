@@ -84,7 +84,7 @@ export class BrowsableTable extends Component {
       <ReactTable
         style={{ flexGrow: 1 }}
         manual
-        keyField="_id"
+        keyField="id"
         data={items}
         pages={collection.state.totalPages}
         defaultPageSize={10}

@@ -47,7 +47,7 @@ export const DiagnosisList = React.memo(({ diagnoses, onEditDiagnosis }) => (
   <DiagnosisListContainer>
     {diagnoses.map(d => (
       <DiagnosisItem
-        key={d._id}
+        key={d.id}
         {...d}
         onClick={onEditDiagnosis ? () => onEditDiagnosis(d) : undefined}
       />

@@ -11,7 +11,7 @@ export const displayId = {
   key: 'displayId',
   title: 'ID',
   minWidth: 80,
-  accessor: row => row.displayId || `(${row._id})`,
+  accessor: row => row.displayId || `(${row.id})`,
 };
 
 export const firstName = {

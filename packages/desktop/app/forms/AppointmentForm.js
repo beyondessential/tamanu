@@ -22,20 +22,20 @@ export const AppointmentForm = React.memo(
         <FormGrid columns={1}>
           <Field name="date" label="Date" component={DateTimeField} required />
           <Field
-            name="facility._id"
+            name="facility.id"
             label="Facility"
             component={AutocompleteField}
             required
             suggester={facilitySuggester}
           />
           <Field
-            name="practitioner._id"
+            name="practitioner.id"
             label="Practitioner"
             component={AutocompleteField}
             suggester={practitionerSuggester}
           />
           <Field
-            name="location._id"
+            name="location.id"
             label="Location"
             component={AutocompleteField}
             suggester={locationSuggester}

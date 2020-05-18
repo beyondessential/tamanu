@@ -13,7 +13,7 @@ const AdderContainer = styled.div`
 
 const DiagnosisItem = React.memo(({ diagnosis, onRemove }) => (
   <li>
-    (<a onClick={() => onRemove(diagnosis._id)}>x</a>)
+    (<a onClick={() => onRemove(diagnosis.id)}>x</a>)
     <span> {diagnosis.name}</span>
   </li>
 ));
@@ -21,7 +21,7 @@ const DiagnosisItem = React.memo(({ diagnosis, onRemove }) => (
 const DiagnosisList = ({ diagnoses, onRemove }) => {
   const listContents =
     diagnoses.length > 0 ? (
-      diagnoses.map(d => <DiagnosisItem key={d._id} onRemove={onRemove} diagnosis={d} />)
+      diagnoses.map(d => <DiagnosisItem key={d.id} onRemove={onRemove} diagnosis={d} />)
     ) : (
       <li>No diagnoses selected</li>
     );
@@ -50,7 +50,7 @@ export const MultiDiagnosisSelector = React.memo(
 
         (async () => {
           const diagnosis = {
-            _id: selectedDiagnosisId,
+            id: selectedDiagnosisId,
             name: await icd10Suggester.fetchCurrentOption(selectedDiagnosisId).label,
           };
           updateValue([...selectedDiagnoses, diagnosis]);
@@ -59,7 +59,7 @@ export const MultiDiagnosisSelector = React.memo(
     }, [selectedDiagnoses, selectedDiagnosisId, setSelectedDiagnosisId, updateValue]);
 
     const onRemove = React.useCallback(id => {
-      const newValues = selectedDiagnoses.filter(x => x._id !== id);
+      const newValues = selectedDiagnoses.filter(x => x.id !== id);
       updateValue(newValues);
     }, [selectedDiagnoses, updateValue]);
 

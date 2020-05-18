@@ -10,7 +10,7 @@ export class ChangeDepartmentForm extends React.PureComponent {
     return (
       <FormGrid columns={1}>
         <Field
-          name="department._id"
+          name="department.id"
           component={AutocompleteField}
           suggester={departmentSuggester}
         />

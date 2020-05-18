@@ -29,12 +29,12 @@ const DumbSurveyResponsesTable = React.memo(({ surveyResponses, onSurveyResponse
 
 export const SurveyResponsesTable = connect(
   null,
-  dispatch => ({ onSurveyResponseSelect: surveyResponse => dispatch(viewSurveyResponse(surveyResponse._id)) }),
+  dispatch => ({ onSurveyResponseSelect: surveyResponse => dispatch(viewSurveyResponse(surveyResponse.id)) }),
 )(DumbSurveyResponsesTable);
 
 export const DataFetchingSurveyResponsesTable = connect(
   null,
-  dispatch => ({ onSurveyResponseSelect: surveyResponse => dispatch(viewSurveyResponse(surveyResponse._id)) }),
+  dispatch => ({ onSurveyResponseSelect: surveyResponse => dispatch(viewSurveyResponse(surveyResponse.id)) }),
 )(({ onLabSelect }) => (
   <DataFetchingTable
     endpoint="surveyResponse"

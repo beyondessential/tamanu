@@ -37,7 +37,7 @@ export class NoteForm extends React.PureComponent {
           options={selectableNoteTypes}
         />
         <Field
-          name="author._id"
+          name="author.id"
           label="Written by (or on behalf of)"
           required
           component={AutocompleteField}

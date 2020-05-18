@@ -46,7 +46,7 @@ const VitalsPane = React.memo(({ visit, readonly }) => {
 
   return (
     <div>
-      {modalOpen && <VitalsModal visitId={visit._id} onClose={() => setModalOpen(false)} />}
+      {modalOpen && <VitalsModal visitId={visit.id} onClose={() => setModalOpen(false)} />}
       <VitalsTable />
       <ContentPane>
         <Button
@@ -67,7 +67,7 @@ const NotesPane = React.memo(({ visit, readonly }) => {
 
   return (
     <div>
-      <NoteModal open={modalOpen} visitId={visit._id} onClose={() => setModalOpen(false)} />
+      <NoteModal open={modalOpen} visitId={visit.id} onClose={() => setModalOpen(false)} />
       <NoteTable notes={visit.notes} />
       <ContentPane>
         <Button
@@ -435,7 +435,7 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
           <VisitInfoPane visit={visit} />
         </ContentPane>
         <ContentPane>
-          <DiagnosisView visitId={visit._id} isTriage={getIsTriage(visit)} readonly={readonly} />
+          <DiagnosisView visitId={visit.id} isTriage={getIsTriage(visit)} readonly={readonly} />
         </ContentPane>
         <TabDisplay
           tabs={TABS}

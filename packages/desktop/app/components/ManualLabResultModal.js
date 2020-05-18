@@ -8,8 +8,8 @@ import { ManualLabResultForm } from '../forms/ManualLabResultForm';
 
 export const ManualLabResultModal = connectApi((api, dispatch, { labTest, labRequest }) => ({
   onSubmit: async data => {
-    await api.put(`labTest/${labTest._id}`, { result: `${data.result}` });
-    dispatch(reloadLab(labRequest._id));
+    await api.put(`labTest/${labTest.id}`, { result: `${data.result}` });
+    dispatch(reloadLab(labRequest.id));
   },
 }))(({ labTest, onClose, open, onSubmit }) => (
   <Modal open={open} onClose={onClose} title={`Enter result – ${labTest && labTest.type.name}`}>

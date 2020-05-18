@@ -35,7 +35,7 @@ const PatientTable = React.memo(({ onViewPatient, showInpatientDetails, ...props
   <DataFetchingTable
     columns={showInpatientDetails ? INPATIENT_COLUMNS : LISTING_COLUMNS}
     noDataMessage="No patients found"
-    onRowClick={row => onViewPatient(row._id)}
+    onRowClick={row => onViewPatient(row.id)}
     {...props}
   />
 ));
@@ -57,7 +57,7 @@ const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
 
   const onCreate = useCallback(newPatient => {
     setCreatingPatient(false);
-    onCreateNewPatient(newPatient._id);
+    onCreateNewPatient(newPatient.id);
   });
 
   return (
