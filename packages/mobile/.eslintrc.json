@@ -25,6 +25,7 @@
           ["/store", "./App/ui/store"],
           ["/models", "./App/ui/models"],
           ["/services", "./App/ui/services"],
+          ["/contexts", "./App/ui/contexts"],
           ["/domain", "./App/domain"],
           ["/data", "./App/data"],
           ["/infra", "./App/infra"],
@@ -39,6 +40,7 @@
     }
   },
   "rules": {
+    "@typescript-eslint/no-non-null-assertion": "warn",
     "class-methods-use-this": "off",
     "curly": "off",         
     "react/jsx-one-expression-per-line": "off",    

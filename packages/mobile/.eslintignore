@@ -5,7 +5,7 @@ metro.config.js
 *.json
 *.xml
 .lock
-ios/
 *.md
 *.png
-mockserver/functions/node_modules
+*.bat
+mockserver/

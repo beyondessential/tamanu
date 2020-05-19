@@ -5,7 +5,7 @@ module.exports = {
       'module-resolver',
       {
         root: ['./'],
-        extensions: ['ts','.tsx', '.json'],
+        extensions: ['ts', '.tsx', '.json'],
         alias: {
           '/styled': './App/ui/styled',
           '/components': './App/ui/components',
@@ -13,6 +13,7 @@ module.exports = {
           '/helpers': './App/ui/helpers',
           '/navigation': './App/ui/navigation',
           '/containers': './App/ui/containers',
+          '/contexts': './App/ui/contexts',
           '/store': './App/ui/store',
           '/models': './App/ui/models',
           '/services': './App/ui/services',

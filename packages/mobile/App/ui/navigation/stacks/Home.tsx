@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 // Navigators
 import {
   createStackNavigator,
@@ -23,69 +23,82 @@ import { ExportDataScreen } from '../screens/home/ExportDataScreen';
 import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 import { Routes } from '/helpers/routes';
 import { RegisterPatientStack } from './RegisterPatientStack';
+import AuthContext from '../../contexts/authContext/AuthContext';
 
 const Stack = createStackNavigator();
 
-export const HomeStack = (): ReactElement => (
-  <Stack.Navigator headerMode="none" screenOptions={noSwipeGestureOnNavigator}>
-    <Stack.Screen
-      name={Routes.HomeStack.WelcomeIntroStack}
-      component={WelcomeIntroTabs}
-      options={{
-        ...TransitionPresets.SlideFromRightIOS,
-      }}
-    />
-    <Stack.Screen
-      name={Routes.HomeStack.CheckUpStack.name}
-      component={CheckUpStack}
-    />
-    <Stack.Screen
-      name={Routes.HomeStack.ProgramStack.name}
-      component={ProgramStack}
-    />
-    <Stack.Screen
-      name={Routes.HomeStack.VaccineStack.name}
-      component={VaccineStack}
-    />
-    <Stack.Screen
-      name={Routes.HomeStack.HomeTabs.name}
-      component={HomeTabsStack}
-    />
-    <Stack.Screen
-      name={Routes.HomeStack.ExportDataScreen}
-      component={ExportDataScreen}
-    />
-    <Stack.Screen
-      name={Routes.HomeStack.RegisterPatientStack.name}
-      component={RegisterPatientStack}
-    />
-    <Stack.Screen
-      name={Routes.HomeStack.PatientDetails}
-      component={PatientDetailsScreen}
-    />
-    <Stack.Screen
-      name={Routes.HomeStack.HistoryVitalsStack.name}
-      component={HistoryVitalsStack}
-    />
-    <Stack.Screen
-      name={Routes.HomeStack.PatientActions}
-      component={PatientActionsScreen}
-    />
-    <Stack.Screen
-      name={Routes.HomeStack.SearchPatientStack.name}
-      component={SearchPatientStack}
-    />
-    <Stack.Screen
-      name={Routes.HomeStack.SickOrInjuredTabs.name}
-      component={SickOrInjuredTabs}
-    />
-    <Stack.Screen
-      name={Routes.HomeStack.ReferralTabs.name}
-      component={ReferralTabs}
-    />
-    <Stack.Screen
-      name={Routes.HomeStack.DeceasedStack.name}
-      component={DeceasedStack}
-    />
-  </Stack.Navigator>
-);
+export const HomeStack = (): ReactElement => {
+  const authCtx = useContext(AuthContext);
+
+  return (
+    <Stack.Navigator
+      headerMode="none"
+      screenOptions={noSwipeGestureOnNavigator}
+      initialRouteName={
+        authCtx.checkFirstSession()
+          ? Routes.HomeStack.WelcomeIntroStack
+          : Routes.HomeStack.HomeTabs.name
+      }
+    >
+      <Stack.Screen
+        name={Routes.HomeStack.WelcomeIntroStack}
+        component={WelcomeIntroTabs}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.CheckUpStack.name}
+        component={CheckUpStack}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.ProgramStack.name}
+        component={ProgramStack}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.VaccineStack.name}
+        component={VaccineStack}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.HomeTabs.name}
+        component={HomeTabsStack}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.ExportDataScreen}
+        component={ExportDataScreen}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.RegisterPatientStack.name}
+        component={RegisterPatientStack}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.PatientDetails}
+        component={PatientDetailsScreen}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.HistoryVitalsStack.name}
+        component={HistoryVitalsStack}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.PatientActions}
+        component={PatientActionsScreen}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.SearchPatientStack.name}
+        component={SearchPatientStack}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.SickOrInjuredTabs.name}
+        component={SickOrInjuredTabs}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.ReferralTabs.name}
+        component={ReferralTabs}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.DeceasedStack.name}
+        component={DeceasedStack}
+      />
+    </Stack.Navigator>
+  );
+};

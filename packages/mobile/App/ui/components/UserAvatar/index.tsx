@@ -4,24 +4,25 @@ import { theme } from '/styled/theme';
 import { getUserInitials, Genders } from '/helpers/user';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
-interface UserAvatarProps {
+export interface UserAvatarProps {
   image?: string;
-  name: string;
-  gender: string;
+  displayName: string | null;
+  gender: string | null;
   size: number;
   Icon?: JSX.Element;
 }
 
 export const UserAvatar = ({
   image,
-  name,
+  displayName,
   gender,
   size,
   Icon,
 }: UserAvatarProps): JSX.Element => {
-  const userInitials: string = React.useMemo(() => getUserInitials(name), [
-    name,
-  ]);
+  const userInitials: string = React.useMemo(
+    () => (displayName ? getUserInitials(displayName) : 'user'),
+    [displayName],
+  );
   const backgroundColor: string = React.useMemo(() => {
     if (image) return 'transparent';
     return gender === Genders.MALE ? theme.colors.SAFE : theme.colors.ALERT;

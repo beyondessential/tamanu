@@ -72,26 +72,6 @@ export const TextField = React.memo(
       setFocus(false);
     }, [setFocus, onBlur]);
 
-    const inputProps = {
-      autoCapitalize,
-      autoFocus,
-      returnKeyType,
-      autoCorrect: hints,
-      accessibilityLabel: label,
-      keyboardType,
-      onChangeText: onChange,
-      onFocus: onFocusInput,
-      onBlur: onBlurInput,
-      value,
-      focused,
-      multiline,
-      editable: !disabled,
-      style: multiline ? styles.textinput : null,
-      secureTextEntry: secure,
-      placeholder,
-      blurOnSubmit: true,
-    };
-
     const inputMarginTop = useMemo(() => {
       if (multiline) return 0;
       if (placeholder) return 0;
@@ -130,9 +110,26 @@ export const TextField = React.memo(
             </TextFieldLabel>
           )}
           <StyledTextInput
+            testID={label}
+            value={value}
             marginTop={inputMarginTop}
             ref={inputRef}
-            {...inputProps}
+            autoCapitalize={
+              keyboardType === 'email-address' ? 'none' : autoCapitalize
+            }
+            autoFocus={autoFocus}
+            returnKeyType={returnKeyType}
+            autoCorrect={hints}
+            accessibilityLabel={label}
+            keyboardType={keyboardType}
+            onChangeText={onChange}
+            onFocus={onFocusInput}
+            onBlur={onBlurInput}
+            multiline={multiline}
+            editable={!disabled}
+            style={multiline ? styles.textinput : null}
+            secureTextEntry={secure}
+            placeholder={placeholder}
             blurOnSubmit={!multiline}
           />
         </InputContainer>

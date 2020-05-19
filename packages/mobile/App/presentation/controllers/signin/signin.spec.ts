@@ -95,7 +95,7 @@ describe('Name of the group', () => {
     expect(result.error).toBeInstanceOf(InvalidCredentialsError);
   });
 
-  it('Should return GeneralServerError if http-client throws 500(ServerRequestError)', async () => {
+  it('Should return GeneralServerError if http-client throws ServerError', async () => {
     const { sut, signInUserStub } = makeSut();
     jest.spyOn(signInUserStub, 'signin').mockImplementationOnce(() => {
       return new Promise((resolve, reject) =>

@@ -10,6 +10,7 @@ import { Button } from '../../Button';
 import { Dropdown } from '../../Dropdown';
 import { dropdownItems } from '../../Dropdown/fixture';
 import { RegisterAccountFormStep2Props } from '../../../contexts/RegisterAccountContext';
+import { userRolesOptions } from '/helpers/constants';
 
 interface RegisterAccountFormStep02 {
   onSubmit: (values: RegisterAccountFormStep2Props) => void;
@@ -60,7 +61,7 @@ const Form: FunctionComponent<RegisterAccountFormStep02> = ({
         >
           <Field
             component={Dropdown}
-            options={dropdownItems}
+            options={userRolesOptions}
             name="role"
             label="Role"
             autoFocus

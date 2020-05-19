@@ -24,6 +24,7 @@ interface ButtonContainer extends StyledViewProps {
   flex?: number;
 }
 export interface StyledButtonProps extends ButtonContainer {
+  id?: string;
   color?: string;
   buttonText?: string;
   onPress: (value: any) => void | Promise<any> | Function;
@@ -81,6 +82,7 @@ const StyledButtonText = styled.Text<ButtonTextProps>`
 `;
 
 export const Button = ({
+  id,
   loadingAction = false,
   onPress,
   children,
@@ -99,10 +101,13 @@ export const Button = ({
   ...rest
 }: StyledButtonProps): FunctionComponentElement<{}> => (
   <StyledTouchableOpacity
+    testID={id || buttonText}
+    accessibilityLabel={buttonText}
     flex={flex}
     onPress={onPress}
     {...rest}
     background="transparent"
+    disabled={loadingAction}
   >
     <ButtonContainer
       {...rest}

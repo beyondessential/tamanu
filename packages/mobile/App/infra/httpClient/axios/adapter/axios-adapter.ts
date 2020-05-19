@@ -2,7 +2,7 @@ import { AxiosInstance } from 'axios';
 import { AxiosHandleError } from '../helper/axios-helper';
 import { HttpAdapter } from '../../protocols/http-client-adapter';
 import { RequestModel } from '../../protocols/request';
-import { HttpResponse } from '../../protocols/htto';
+import { HttpResponse } from '../../protocols/http';
 import { ok } from '../../helpers/http-helpers';
 
 export class AxiosAdapter implements HttpAdapter {

@@ -1,24 +1,24 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react-native';
-import { UserAvatar } from './index';
-import { CameraOutlineIcon, TakenOnTimeIcon } from '../Icons';
-import { CenterView, StyledView } from '/styled/common';
-import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import {storiesOf} from '@storybook/react-native';
+import {UserAvatar, UserAvatarProps} from './index';
+import {CameraOutlineIcon, TakenOnTimeIcon} from '../Icons';
+import {CenterView, StyledView} from '/styled/common';
+import {theme} from '/styled/theme';
+import {screenPercentageToDP, Orientation} from '/helpers/screen';
 
-const withoutImageProps = {
+const makeUser = (image?: string, Icon?: any): UserAvatarProps => ({
   size: 25,
-  name: 'Johnatan Orange',
+  displayName: 'Johnatan Orange',
   gender: 'male',
-};
+  image,
+  Icon,
+});
 
-const withImageProps = {
-  size: 25,
-  name: 'Johnatan Orange',
-  gender: 'male',
-  image:
-    'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
-};
+const withoutImageProps = makeUser();
+
+const withImageProps = makeUser(
+  'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
+);
 
 const CameraInCircle = (
   <StyledView position="absolute" right="-20%" bottom={0} zIndex={2}>
@@ -39,31 +39,21 @@ const CameraInCircle = (
   </StyledView>
 );
 
-const withImageAndIconProps = {
-  size: screenPercentageToDP('9.72', Orientation.Height),
-  name: 'Alice Klein',
-  gender: 'female',
-  image:
-    'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
-  Icon: CameraInCircle,
-};
+const withImageAndIconProps = makeUser(
+  'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
+  CameraInCircle,
+);
 
-const newPatientAddedProps = {
-  size: screenPercentageToDP('16.40', Orientation.Height),
-  name: 'Alice Klein',
-  gender: 'female',
-  image:
-    'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
-  Icon: (
-    <StyledView position="absolute" right="-20" bottom={30} zIndex={2}>
-      <TakenOnTimeIcon
-        height={screenPercentageToDP('3.88', Orientation.Height)}
-        width={screenPercentageToDP('3.88', Orientation.Height)}
-        fill={theme.colors.SAFE}
-      />
-    </StyledView>
-  ),
-};
+const newPatientAddedProps = makeUser(
+  'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
+  <StyledView position="absolute" right="-20" bottom={30} zIndex={2}>
+    <TakenOnTimeIcon
+      height={screenPercentageToDP('3.88', Orientation.Height)}
+      width={screenPercentageToDP('3.88', Orientation.Height)}
+      fill={theme.colors.SAFE}
+    />
+  </StyledView>,
+);
 
 storiesOf('UserAvatar', module)
   .addDecorator((getStory: Function) => <CenterView>{getStory()}</CenterView>)

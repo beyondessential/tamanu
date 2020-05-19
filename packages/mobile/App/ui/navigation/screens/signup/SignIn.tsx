@@ -1,5 +1,11 @@
-import React, { FunctionComponent, useCallback } from 'react';
-import { Platform, KeyboardAvoidingView } from 'react-native';
+import React, {
+  FunctionComponent,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
+import { useSelector } from 'react-redux';
+import { Platform, KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   StyledView,
   StyledSafeAreaView,
@@ -11,16 +17,59 @@ import {
 import { CrossIcon, UserIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
-import { SignInForm } from '/components/Forms/SignInForm';
+import { SignInForm } from '/components/Forms/SignInForm/SignInForm';
 import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import { Routes } from '/helpers/routes';
+import AuthContext from '/contexts/authContext/AuthContext';
+import { ModalInfo } from '/components/ModalInfo';
+import UserContext from '/contexts/UserContext';
+import { authSelector } from '/helpers/selectors';
+import { SignInFormModel } from '/interfaces/forms/SignInFormProps';
 
 export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
-  const onSubmitForm = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.name);
+  const authCtx = useContext(AuthContext);
+  const userCtx = useContext(UserContext);
+  const authState = useSelector(authSelector);
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const onNavigateToForgotPassword = useCallback(() => {
+    console.log('onNavigateToForgotPassword...');
+  }, []);
+
+  const onChangeModalVisibility = useCallback((isVisible: boolean) => {
+    setModalVisible(isVisible);
+  }, []);
+
+  const setModalError = useCallback((message: string) => {
+    setErrorMessage(message);
+    onChangeModalVisibility(true);
+  }, []);
+
+  const onSubmitForm = useCallback(async (form: SignInFormModel) => {
+    try {
+      await authCtx.signIn(form.email, form.password);
+      await userCtx.getUserData();
+      if (authState.isFirstTime) {
+        navigation.navigate(Routes.HomeStack.name);
+      } else {
+        navigation.navigate(Routes.HomeStack.name, {
+          screen: Routes.HomeStack.HomeTabs.name,
+        });
+      }
+    } catch (error) {
+      setModalError(error.message);
+    }
   }, []);
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
+      <StatusBar barStyle="light-content" />
+      <ModalInfo
+        onVisibilityChange={onChangeModalVisibility}
+        isVisible={modalVisible}
+        message={errorMessage}
+      />
       <StyledSafeAreaView>
         <RowView
           width="100%"
@@ -60,9 +109,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
         </StyledView>
         <KeyboardAvoidingView behavior="position">
           <SignInForm onSubmitForm={onSubmitForm} />
-          <StyledTouchableOpacity
-            onPress={(): void => navigation.navigate(Routes.HomeStack.Home)}
-          >
+          <StyledTouchableOpacity onPress={onNavigateToForgotPassword}>
             <StyledText
               width="100%"
               textAlign="center"

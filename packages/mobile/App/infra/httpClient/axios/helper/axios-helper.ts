@@ -3,7 +3,7 @@ import { env } from '../../../../../env';
 import { BadRequestError } from '../../errors/bad-request-error';
 import { UnauthorizedRequestError } from '../../errors/unauthorized-request-error';
 import { ServerRequestError } from '../../errors/server-request-error';
-import { AxiosRequestFailedError } from '../errors/request-failed-error';
+import { RequestFailedError } from '../errors/request-failed-error';
 import { AxiosInternalError } from '../errors/internatl-error';
 import {
   badRequest,
@@ -11,7 +11,7 @@ import {
   serverError,
   notFoundError,
 } from '../../helpers/http-helpers';
-import { HttpResponse } from '../../protocols/htto';
+import { HttpResponse } from '../../protocols/http';
 import { NotFoundError } from '../../errors/not-found-error';
 
 export const API = axios.create({
@@ -29,7 +29,7 @@ export const AxiosHandleError = (axioRquestError: any): HttpResponse => {
     if (response.status === 404)
       return notFoundError(new NotFoundError(response.body));
   } else if (axioRquestError.request) {
-    throw new AxiosRequestFailedError();
+    throw new RequestFailedError();
   } else {
     throw new AxiosInternalError(axioRquestError.message);
   }

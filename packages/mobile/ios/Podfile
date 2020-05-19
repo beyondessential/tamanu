@@ -85,6 +85,7 @@ target 'tamanuapp' do
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
+  pod 'react-native-sensitive-info', :path => '../node_modules/react-native-sensitive-info'
   pod 'RNSpringScrollView', :path => '../node_modules/react-native-spring-scrollview/ios'
 
   target 'tamanuappTests' do
