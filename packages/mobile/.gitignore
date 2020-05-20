@@ -72,3 +72,5 @@ storybook/storyLoader.js
 
 # mockserver
 mockserver/functions/node_modules
+
+.bat
