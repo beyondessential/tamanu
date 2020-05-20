@@ -7,6 +7,7 @@ import { UserAvatar } from '../UserAvatar';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import * as styles from './styles';
 import { theme } from '/styled/theme';
+
 export interface PatientCardProps {
   lastVisit: Date;
   name: string;
@@ -35,7 +36,7 @@ export const PatientCard = ({
       >
         <UserAvatar
           size={screenPercentageToDP(4.86, Orientation.Height)}
-          name={name}
+          displayName={name}
           image={image}
           gender={gender}
         />

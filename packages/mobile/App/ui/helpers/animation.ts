@@ -1,12 +1,12 @@
-import { timing, Easing, Clock, Value, set, cond, and, eq, block,clockRunning, startClock, Node } from 'react-native-reanimated';
-import { AnimatedValue } from 'react-navigation';
+import { timing, Easing, Clock,  set, cond, and, eq, block,clockRunning, startClock, Node , Value  } from 'react-native-reanimated';
+
 
 
 /**
  * Uses an Animated State to change during the specified period of time.
  */
 export const animateState = (
-  animatedValue: AnimatedValue,
+  animatedValue: Value<number>,
   toValue: number,
   duration: number,
 ): void => {

@@ -1,4 +1,11 @@
-import React, { ReactElement, useMemo, useCallback, useState } from 'react';
+import React, {
+  ReactElement,
+  useMemo,
+  useCallback,
+  useState,
+  useContext,
+} from 'react';
+import { useSelector } from 'react-redux';
 import {
   RowView,
   StyledView,
@@ -27,6 +34,9 @@ import {
 import { version as AppVersion } from '/root/package.json';
 import { StatusBar, StatusBarStyle } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import AuthContext from '../../../../contexts/authContext/AuthContext';
+import { BaseAppProps } from '/root/App/ui/interfaces/BaseAppProps';
+import { authUserSelector } from '/helpers/selectors';
 
 const CameraInCircle = (
   <StyledView position="absolute" right="-20%" bottom={0} zIndex={2}>
@@ -62,16 +72,9 @@ const TamanuAppVersion = ({ version }: TamanuAppVersionProps): ReactElement => (
   </StyledText>
 );
 
-const mock = {
-  size: screenPercentageToDP(9.72, Orientation.Height),
-  name: 'Alice Klein',
-  gender: 'female',
-  image:
-    'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
-  Icon: CameraInCircle,
-};
-
-export const MoreScreen = (): ReactElement => {
+export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
+  const authCtx = useContext(AuthContext);
+  const user = useSelector(authUserSelector);
   const settings = useMemo(
     () => [
       {
@@ -99,7 +102,7 @@ export const MoreScreen = (): ReactElement => {
   );
 
   const signOut = useCallback(() => {
-    console.log('signing out....');
+    authCtx.signOut(navigation);
   }, []);
 
   setStatusBar('dark-content', theme.colors.BACKGROUND_GREY);
@@ -111,20 +114,25 @@ export const MoreScreen = (): ReactElement => {
         paddingTop={screenPercentageToDP(4.86, Orientation.Height)}
         background={theme.colors.BACKGROUND_GREY}
       >
-        <UserAvatar {...mock} />
+        <UserAvatar
+          size={screenPercentageToDP(9.72, Orientation.Height)}
+          displayName={user && user.displayName}
+          Icon={CameraInCircle}
+          gender={user && user.gender}
+        />
         <StyledText
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}
           color={theme.colors.TEXT_SUPER_DARK}
           fontWeight="bold"
         >
-          {mock.name}
+          {user && user.displayName}
         </StyledText>
         <RowView alignItems="center">
           <StyledText
             fontSize={screenPercentageToDP(1.7, Orientation.Height)}
             color={theme.colors.TEXT_SUPER_DARK}
           >
-            Nurse
+            {user && user.role}
           </StyledText>
           <StyledView
             height={screenPercentageToDP(0.486, Orientation.Height)}
@@ -145,7 +153,7 @@ export const MoreScreen = (): ReactElement => {
           marginTop={screenPercentageToDP(1.21, Orientation.Height)}
           width={screenPercentageToDP(29.19, Orientation.Width)}
           height={screenPercentageToDP(6.07, Orientation.Height)}
-          buttonText="Sign Out"
+          buttonText="Sign out"
           onPress={signOut}
           outline
           borderColor={theme.colors.PRIMARY_MAIN}

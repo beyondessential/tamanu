@@ -1,5 +1,5 @@
 import { ServerRequestError } from '../errors/server-request-error';
-import { HttpResponse } from '../protocols/htto';
+import { HttpResponse } from '../protocols/http';
 
 export const unauthorizedRequest = (error: Error): HttpResponse => ({
   statusCode: 401,
@@ -18,6 +18,11 @@ export const serverError = (error: Error): HttpResponse => ({
 
 export const notFoundError = (error: Error): HttpResponse => ({
   statusCode: 404,
+  body: error,
+});
+
+export const requestFailedError = (error: Error): HttpResponse => ({
+  statusCode: 500,
   body: error,
 });
 

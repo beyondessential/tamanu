@@ -4,8 +4,7 @@
 // https://github.com/elderfo/react-native-storybook-loader.git
 
 function loadStories() {
-	require('../App/ui/components/Accordion/index.stories');
-	require('../App/ui/components/BottomNavigator/index.stories');
+	require('../App/ui/components/Accordion/index.stories');	
 	require('../App/ui/components/Button/index.stories');
 	require('../App/ui/components/Chart/index.stories');
 	require('../App/ui/components/Checkbox/index.stories');
@@ -34,33 +33,32 @@ function loadStories() {
 }
 
 const stories = [
-	'../App/components/Accordion/index.stories',
-	'../App/components/BottomNavigator/index.stories',
-	'../App/components/Button/index.stories',
-	'../App/components/Chart/index.stories',
-	'../App/components/Checkbox/index.stories',
-	'../App/components/CircularProgress/index.stories',
-	'../App/components/DateField/DateField.stories',
-	'../App/components/Dropdown/index.stories',
-	'../App/components/Icons/index.stories',
-	'../App/components/Info/index.stories',
-	'../App/components/MenuOptionButton/index.stories',
-	'../App/components/PatientCard/index.stories',
-	'../App/components/PatientMenuButton/index.stories',
-	'../App/components/PatientSectionList/index.stories',
-	'../App/components/PatientTile/index.stories',
-	'../App/components/RadioButtonGroup/index.stories',
-	'../App/components/RangeSlider/index.stories',
-	'../App/components/SearchInput/index.stories',
-	'../App/components/SectionHeader/index.stories',
-	'../App/components/TextField/MaskedTextfield.stories',
-	'../App/components/TextField/TextField.stories',
-	'../App/components/TopTabNavigator/index.stories',
-	'../App/components/UserAvatar/index.stories',
-	'../App/components/VaccineCard/index.stories',
-	'../App/components/VaccinesTable/index.stories',
-	'../App/components/VisitTypeButton/index.stories',
-	'../App/components/VitalsTable/index.stories'
+	'../App/ui/components/Accordion/index.stories',
+	'../App/ui/components/Button/index.stories',
+	'../App/ui/components/Chart/index.stories',
+	'../App/ui/components/Checkbox/index.stories',
+	'../App/ui/components/CircularProgress/index.stories',
+	'../App/ui/components/DateField/DateField.stories',
+	'../App/ui/components/Dropdown/index.stories',
+	'../App/ui/components/Icons/index.stories',
+	'../App/ui/components/Info/index.stories',
+	'../App/ui/components/MenuOptionButton/index.stories',
+	'../App/ui/components/PatientCard/index.stories',
+	'../App/ui/components/PatientMenuButton/index.stories',
+	'../App/ui/components/PatientSectionList/index.stories',
+	'../App/ui/components/PatientTile/index.stories',
+	'../App/ui/components/RadioButtonGroup/index.stories',
+	'../App/ui/components/RangeSlider/index.stories',
+	'../App/ui/components/SearchInput/index.stories',
+	'../App/ui/components/SectionHeader/index.stories',
+	'../App/ui/components/TextField/MaskedTextfield.stories',
+	'../App/ui/components/TextField/TextField.stories',
+	'../App/ui/components/TopTabNavigator/index.stories',
+	'../App/ui/components/UserAvatar/index.stories',
+	'../App/ui/components/VaccineCard/index.stories',
+	'../App/ui/components/VaccinesTable/index.stories',
+	'../App/ui/components/VisitTypeButton/index.stories',
+	'../App/ui/components/VitalsTable/index.stories'
 ];
 
 module.exports = {

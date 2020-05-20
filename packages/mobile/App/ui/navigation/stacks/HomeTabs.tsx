@@ -58,16 +58,20 @@ const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
 
 const HomeScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(HomeBottomLogoIcon),
+  tabBarTestID: 'HOME',
 };
 const ReportScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(BarChartIcon),
+  tabBarTestID: 'REPORTS',
 };
 const SyncDataScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(SyncDataIcon),
   tabBarLabel: 'Sync Data',
+  tabBarTestID: 'Sync Data',
 };
 const MoreScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(MoreMenuIcon),
+  tabBarTestID: 'MORE',
 };
 
 const tabLabelFontSize = screenPercentageToDP(1.21, Orientation.Height);

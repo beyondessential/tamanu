@@ -45,12 +45,11 @@ def flipper_post_install(installer)
 end
 
 target 'tamanuapp' do
-
   # Pods for tamanuapp
+
 
   permissions_path = '../node_modules/react-native-permissions/ios'
 
-  
 
   pod 'FBLazyVector', :path => "../node_modules/react-native/Libraries/FBLazyVector"
   pod 'FBReactNativeSpec', :path => "../node_modules/react-native/Libraries/FBReactNativeSpec"
@@ -86,6 +85,9 @@ target 'tamanuapp' do
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
+  pod 'react-native-sensitive-info', :path => '../node_modules/react-native-sensitive-info'
+  pod 'RNSpringScrollView', :path => '../node_modules/react-native-spring-scrollview/ios'
+
   target 'tamanuappTests' do
     inherit! :complete
     # Pods for testing
@@ -96,7 +98,7 @@ target 'tamanuapp' do
   # Enables Flipper.
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
-  # you should disable these next few lines.  
+  # you should disable these next few lines.
   add_flipper_pods!
   post_install do |installer|
     flipper_post_install(installer)

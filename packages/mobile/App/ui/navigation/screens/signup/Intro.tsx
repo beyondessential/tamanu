@@ -56,21 +56,19 @@ export const IntroScreen: FunctionComponent<any> = ({
           marginTop={screenPercentageToDP('13.00', Orientation.Height)}
         >
           <Button
+            id="intro-sign-in-button"
             onPress={onNavigateToSignIn}
             width={140}
             outline
             borderColor={theme.colors.PRIMARY_MAIN}
             marginRight={screenPercentageToDP('2.43', Orientation.Width)}
-          >
-            <StyledText
-              color={theme.colors.PRIMARY_MAIN}
-              fontWeight={500}
-              fontSize={screenPercentageToDP(1.94, Orientation.Height)}
-            >
-              Sign in
-            </StyledText>
-          </Button>
+            buttonText="Sign in"
+            textColor={theme.colors.PRIMARY_MAIN}
+            fontWeight={500}
+            fontSize={screenPercentageToDP(1.94, Orientation.Height)}
+          />
           <Button
+            id="intro-new-account-button"
             backgroundColor={theme.colors.SECONDARY_MAIN}
             onPress={onNavigateToNewAccount}
             width={140}

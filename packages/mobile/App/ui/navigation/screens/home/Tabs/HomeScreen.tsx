@@ -1,6 +1,6 @@
-import React, { ReactElement, useCallback, useRef, useEffect } from 'react';
+import React, { ReactElement, useCallback, useEffect, useContext } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
-import { StatusBar, Platform, Dimensions } from 'react-native';
+import { StatusBar } from 'react-native';
 import {
   FullView,
   StyledText,
@@ -19,10 +19,12 @@ import {
   setStatusBar,
 } from '/helpers/screen';
 import { UserAvatar } from '/components/UserAvatar';
-import { Genders } from '/helpers/user';
 import { Routes } from '/helpers/routes';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
 import { FemaleGender } from '/helpers/constants';
+import { compose } from 'redux';
+import { withAuth } from '/containers/Auth';
+import AuthContext from '../../../../contexts/authContext/AuthContext';
 
 const placeholderPatient = {
   city: 'Mbelagha',
@@ -83,7 +85,7 @@ const SearchPatientsButton = ({
 }: {
   onPress: () => void;
 }): ReactElement => (
-  <StyledTouchableOpacity onPress={onPress}>
+  <StyledTouchableOpacity testID="search-patients-button" onPress={onPress}>
     <RowView
       borderRadius={50}
       paddingLeft={20}
@@ -103,17 +105,18 @@ const SearchPatientsButton = ({
   </StyledTouchableOpacity>
 );
 
-export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
+const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
   disableAndroidBackButton();
+  const authCtx = useContext(AuthContext);
+  useEffect(() => {
+    if (authCtx.checkFirstSession()) {
+      authCtx.setUserFirstSignIn();
+    }
+  }, []);
 
   const onNavigateToSearchPatient = useCallback(() => {
     navigation.navigate(Routes.HomeStack.SearchPatientStack.name);
   }, []);
-
-  const currentUser = {
-    firstName: 'Tony',
-    lastName: 'Robbins',
-  };
 
   const onNavigateToRegisterPatient = useCallback(() => {
     navigation.navigate(Routes.HomeStack.RegisterPatientStack.name);
@@ -144,8 +147,8 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
               <LogoV2Icon height={23} width={95} fill={theme.colors.WHITE} />
               <UserAvatar
                 size={screenPercentageToDP(5.46, Orientation.Height)}
-                name="Tony Robbins"
-                gender={Genders.MALE}
+                displayName={user && user.displayName}
+                gender={user && user.gender}
               />
             </RowView>
             <StyledText
@@ -154,7 +157,7 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
               fontWeight="bold"
               color={theme.colors.WHITE}
             >
-              Hi {currentUser.firstName}
+              Hi {user && user.displayName}
             </StyledText>
             <StyledText
               fontSize={screenPercentageToDP(2.18, Orientation.Height)}
@@ -198,9 +201,16 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
           paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
         >
           <StyledText
-            color={theme.colors.TEXT_DARK}
-            fontSize={screenPercentageToDP(1.45, Orientation.Height)}
-            marginBottom={screenPercentageToDP(1.21, Orientation.Height)}
+            marginTop={screenPercentageToDP(3.07, Orientation.Height)}
+            fontSize={screenPercentageToDP(4.86, Orientation.Height)}
+            fontWeight="bold"
+            color={theme.colors.WHITE}
+          >
+            Hi {user && user.displayName}
+          </StyledText>
+          <StyledText
+            fontSize={screenPercentageToDP(2.18, Orientation.Height)}
+            color={theme.colors.WHITE}
           >
             RECENT VIEWED PATIENTS
           </StyledText>
@@ -216,3 +226,5 @@ export const HomeScreen = ({ navigation }: BaseAppProps): ReactElement => {
     </StyledSafeAreaView>
   );
 };
+
+export const HomeScreen = compose(withAuth)(BaseHomeScreen);

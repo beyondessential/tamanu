@@ -1,7 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { KeyboardAvoidingView } from 'react-native';
-import Animated from 'react-native-reanimated';
-import { AnimatedValue } from 'react-navigation';
+import Animated, { Value } from 'react-native-reanimated';
 //Components
 import {
   FullView,
@@ -25,10 +24,10 @@ import { UserIconContainer } from '../common';
 interface ScreenProps {
   navigateToIntro: () => void;
   step2FormProps: RegisterAccountFormStep2Props;
-  iconSize: AnimatedValue;
-  titleFont: AnimatedValue;
+  iconSize: Value<number>;
+  titleFont: Value<number>;
   navigateFormStepBack: () => void;
-  viewTopPosition: AnimatedValue;
+  viewTopPosition: Value<number>;
   onSubmitForm: (values: RegisterAccountFormStep2Props) => void;
 }
 

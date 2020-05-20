@@ -39,4 +39,4 @@ export const PatientSlice = createSlice({
 });
 
 export const actions = PatientSlice.actions;
-export const reducer = PatientSlice.reducer;
+export const patientReducer = PatientSlice.reducer;

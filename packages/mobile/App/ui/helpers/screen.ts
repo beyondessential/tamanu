@@ -2,7 +2,7 @@ import {
   heightPercentageToDP,
   widthPercentageToDP,  
 } from 'react-native-responsive-screen';
-import { Dimensions,  StatusBar } from 'react-native';
+import { Dimensions,  StatusBar, Platform } from 'react-native';
 import { VerticalPosition } from '/interfaces/VerticalPosition';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
@@ -55,7 +55,7 @@ export const calculateVerticalPositions = (
 export const setStatusBar = (barStyle: 'light-content' | 'dark-content', backgroundColor: string): void => 
  useFocusEffect(
     useCallback(() => {
-      StatusBar.setBackgroundColor(backgroundColor)
+      if (Platform.OS === "android") StatusBar.setBackgroundColor(backgroundColor)
       StatusBar.setBarStyle(barStyle);
     }, []),
   );

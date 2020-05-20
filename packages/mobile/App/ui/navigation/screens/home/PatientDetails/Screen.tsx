@@ -69,7 +69,7 @@ export const Screen = ({
         <RowView paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}>
           <UserAvatar
             size={screenPercentageToDP(7.29, Orientation.Height)}
-            name={joinNames(patientData.generalInfo)}
+            displayName={joinNames(patientData.generalInfo)}
             {...avatarMock}
           />
           <StyledView alignItems="flex-start" marginLeft={10}>

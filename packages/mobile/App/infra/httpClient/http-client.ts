@@ -1,4 +1,4 @@
-import { HttpResponse } from './protocols/htto';
+import { HttpResponse } from './protocols/http';
 import { HttpClient } from './protocols/client';
 import { RequestModel } from './protocols/request';
 import { HttpAdapter } from './protocols/http-client-adapter';

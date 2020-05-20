@@ -16,6 +16,7 @@ import { StackHeader } from '/components/StackHeader';
 import { withPatient } from '/containers/Patient';
 import { PatientModel } from '../../../models/Patient';
 import { joinNames } from '/helpers/user';
+import { makeGetProgramsController } from '/root/App/factories/programs/getPrograms';
 
 interface ProgramListScreenProps {
   selectedPatient: PatientModel;
@@ -25,11 +26,12 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   const navigation = useNavigation();
   const [error, setError] = useState(null);
   const [data, setdata] = useState<MenuOptionButtonProps[]>([]);
-  const [programs, setprograms] = useState<ProgramModel[]>([]);
+  const [programs, setPrograms] = useState<ProgramModel[]>([]);
   const getPrograms = useCallback(async () => {
     try {
-      const response = await api.programs.get();
-      setprograms(response.data);
+      const programController = makeGetProgramsController();
+      const fetchedPrograms = await programController.handle();
+      setPrograms(fetchedPrograms);
     } catch (fetchProgramsError) {
       setError(fetchProgramsError);
     }

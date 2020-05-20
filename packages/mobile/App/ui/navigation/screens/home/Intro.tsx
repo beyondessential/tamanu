@@ -102,12 +102,13 @@ export const Intro = (props: IntroScreenProps): JSX.Element => {
       <CenterView marginTop={screenPercentageToDP(3.07, Orientation.Height)}>
         <StepMarker step={step} />
         <Button
+          id={`signin-skip-button-${step}`}
           fontWeight={500}
           marginTop={screenPercentageToDP(3, Orientation.Height)}
           width={screenPercentageToDP(43.79, Orientation.Width)}
           outline
           borderColor={theme.colors.WHITE}
-          buttonText="skip"
+          buttonText="Skip"
           onPress={onPressButton}
         />
       </CenterView>

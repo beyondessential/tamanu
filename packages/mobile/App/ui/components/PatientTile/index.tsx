@@ -38,7 +38,7 @@ export const PatientTile = ({
         size={screenPercentageToDP('4.86', Orientation.Height)}
         image={image}
         gender={gender}
-        name={name}
+        displayName={name}
       />
     </StyledView>
     <StyledView flex={1} marginLeft={10}>

@@ -1,6 +1,8 @@
 import { combineReducers } from 'redux';
-import { reducer } from './patient';
+import { patientReducer } from './patient';
+import { authReducer } from './auth';
 
 export default combineReducers({
-  patient: reducer,
+  patient: patientReducer,
+  auth: authReducer,
 });

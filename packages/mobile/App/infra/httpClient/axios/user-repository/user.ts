@@ -21,6 +21,9 @@ export class UserAxiosRepository implements AuthUserRepository {
       },
     };
     const response = await this.httpClient.makeRequest(request);
+    if (response.body instanceof Error) {
+      throw response.body;
+    }
     return response.body;
   }
 }

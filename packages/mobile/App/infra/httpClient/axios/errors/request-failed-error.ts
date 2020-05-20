@@ -1,6 +1,6 @@
-export class AxiosRequestFailedError extends Error {
+export class RequestFailedError extends Error {
   constructor() {
     super('Request failed');
-    this.name = 'AxiosRequestFailedError';
+    this.name = 'RequestFailedError';
   }
 }

@@ -9,6 +9,7 @@ import { InvalidCredentialsError } from './errors/invalid-credentials-error';
 import { NotFoundError } from '/infra/httpClient/errors/not-found-error';
 import { ServerRequestError } from '/infra/httpClient/errors/server-request-error';
 import { GeneralServerError } from './errors/general-error';
+import { RequestFailedError } from '/infra/httpClient/axios/errors/request-failed-error';
 
 export class SignInController implements Controller {
   private readonly signInUser: SignInUser;
@@ -29,13 +30,18 @@ export class SignInController implements Controller {
       const token = await this.signInUser.signin(signInData);
       return resultSucess(token);
     } catch (error) {
-      if (error instanceof BadRequestError)
-        return resultWithError(new InvalidCredentialsError());
-      if (error instanceof NotFoundError)
-        return resultWithError(new InvalidCredentialsError());
-      if (error instanceof ServerRequestError)
-        return resultWithError(new GeneralServerError());
-      return resultWithError(error);
+      switch (error.constructor) {
+        case BadRequestError:
+          return resultWithError(new InvalidCredentialsError());
+        case NotFoundError:
+          return resultWithError(new InvalidCredentialsError());
+        case RequestFailedError:
+          return resultWithError(error);
+        case ServerRequestError:
+          return resultWithError(new GeneralServerError());
+        default:
+          return resultWithError(error);
+      }
     }
   }
 }

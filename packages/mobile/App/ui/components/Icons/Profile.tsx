@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
-import { SvgXml } from 'react-native-svg';
+import { SvgXml, SvgProps } from 'react-native-svg';
 
-export const ProfileIcon = memo(props => {
+export const ProfileIcon = memo((props: SvgProps) => {
   const xml = `
   <svg width="100%" height="100%" viewBox="0 0 174 174" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M169 86.5002C169 132.624 131.624 170 85.5 170C39.3762 170 2 132.624 2 86.5002C2 40.3764 39.3762 3.00019 85.5 3.00019C131.723 3.00019 169 40.3764 169 86.5002Z" fill="#FFD943" />
