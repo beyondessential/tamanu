@@ -53,6 +53,10 @@ export class Visit extends Model {
     );
   }
 
+  static getReferenceAssociations() {
+    return ['vitals']; 
+  }
+
   static initRelations(models) {
     this.belongsTo(models.Patient, {
       foreignKey: 'patientId',
@@ -73,12 +77,13 @@ export class Visit extends Model {
       as: 'Department',
     });
 
+    this.hasMany(models.Vitals, { as: 'vitals' });
+
     // this.hasMany(models.Medication);
     // this.hasMany(models.LabRequest);
     // this.hasMany(models.ImagingRequest);
     // this.hasMany(models.Note);
     // this.hasMany(models.Procedure);
-    // this.hasMany(models.Vital);
     // this.hasMany(models.Report);
   }
 
