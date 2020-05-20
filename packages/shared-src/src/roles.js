@@ -4,6 +4,7 @@ export const base = (user, allow, forbid) => {
   anonymous(user, allow, forbid);
 
   allow('read', 'User');
+  allow('list', 'User');
   allow('write', 'User', { id: user.id });
 };
 

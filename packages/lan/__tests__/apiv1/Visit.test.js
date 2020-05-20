@@ -43,8 +43,8 @@ describe('Visit', () => {
     });
     const result = await app.get(`/v1/patient/${patient.id}/visits`);
     expect(result).toHaveSucceeded();
-    expect(result.body).toBeInstanceOf(Array);
-    expect(result.body.some(x => x.id === v.id)).toEqual(true);
+    expect(result.body.count).toBeGreaterThan(0);
+    expect(result.body.data.some(x => x.id === v.id)).toEqual(true);
   });
 
   it('should fail to get a visit that does not exist', async () => {
@@ -307,17 +307,17 @@ describe('Visit', () => {
         const result = await app.get(`/v1/visit/${diagnosisVisit.id}/diagnoses`);
         expect(result).toHaveSucceeded();
         const { body } = result;
-        expect(body).toBeInstanceOf(Array);
-        expect(body[0].diagnosisId).toEqual(testDiagnosis.id);
+        expect(body.count).toBeGreaterThan(0);
+        expect(body.data[0].diagnosisId).toEqual(testDiagnosis.id);
       });
 
       it('should get diagnosis reference info when listing visits', async () => {
         const result = await app.get(`/v1/visit/${diagnosisVisit.id}/diagnoses`);
         expect(result).toHaveSucceeded();
         const { body } = result;
-        expect(body).toBeInstanceOf(Array);
-        expect(body[0].name).toEqual('Malady');
-        expect(body[0].code).toEqual('malady');
+        expect(body.count).toBeGreaterThan(0);
+        expect(body.data[0].name).toEqual('Malady');
+        expect(body.data[0].code).toEqual('malady');
       });
     });
 
@@ -360,7 +360,7 @@ describe('Visit', () => {
         const result = await app.get(`/v1/visit/${vitalsVisit.id}/vitals`);
         expect(result).toHaveSucceeded();
         const { body } = result;
-        expect(body).toBeInstanceOf(Array);
+        expect(body.count).toBeGreaterThan(0);
       });
     });
 

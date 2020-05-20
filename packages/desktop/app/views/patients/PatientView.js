@@ -79,6 +79,7 @@ const RoutedTriageModal = connectRoutedModal('/patients/view', 'triage')(TriageM
 const HistoryPane = connect(
   state => ({
     visits: state.patient.visits,
+    patientId: state.patient.id,
   }),
   dispatch => ({
     onViewVisit: id => dispatch(viewVisit(id)),
@@ -86,7 +87,7 @@ const HistoryPane = connect(
     onOpenTriage: () => dispatch(push('/patients/view/triage')),
   }),
 )(
-  React.memo(({ visits, onViewVisit, onOpenCheckin, onOpenTriage, readonly }) => (
+  React.memo(({ visits, patientId, onViewVisit, onOpenCheckin, onOpenTriage, readonly }) => (
     <div>
       <PatientVisitSummary
         visits={visits}
@@ -95,7 +96,7 @@ const HistoryPane = connect(
         openTriage={onOpenTriage}
         readonly={readonly}
       />
-      <PatientHistory items={visits} onItemClick={item => onViewVisit(item.id)} />
+      <PatientHistory patientId={patientId} onItemClick={item => onViewVisit(item.id)} />
     </div>
   )),
 );

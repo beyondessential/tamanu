@@ -57,6 +57,9 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
       include: model.getReferenceAssociations(models),
     });
 
-    res.send(objects);
+    res.send({
+      count: objects.length,
+      data: objects,
+    });
   });
 };
