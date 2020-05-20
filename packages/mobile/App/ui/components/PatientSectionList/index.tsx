@@ -80,9 +80,9 @@ export const PatientSectionList = ({
           >
             <PatientTile
               displayId={data[section].items[row].displayId}
-              city={data[section].items[row].city}
+              city={data[section].items[row].city || 'city'}
               gender={data[section].items[row].gender}
-              lastVisit={data[section].items[row].lastVisit}
+              lastVisit={data[section].items[row].lastVisit || new Date()}
               name={joinNames(data[section].items[row])}
               age={getAgeFromDate(data[section].items[row].birthDate)}
             />
