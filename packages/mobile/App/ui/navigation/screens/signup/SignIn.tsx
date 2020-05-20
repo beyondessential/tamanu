@@ -4,8 +4,8 @@ import React, {
   useContext,
   useState,
 } from 'react';
-import { useSelector } from 'react-redux';
-import { Platform, KeyboardAvoidingView, StatusBar } from 'react-native';
+import {useSelector} from 'react-redux';
+import {Platform, KeyboardAvoidingView, StatusBar} from 'react-native';
 import {
   StyledView,
   StyledSafeAreaView,
@@ -14,19 +14,19 @@ import {
   StyledTouchableOpacity,
   StyledText,
 } from '/styled/common';
-import { CrossIcon, UserIcon } from '/components/Icons';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { theme } from '/styled/theme';
-import { SignInForm } from '/components/Forms/SignInForm/SignInForm';
-import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
-import { Routes } from '/helpers/routes';
-import AuthContext from '/contexts/authContext/AuthContext';
-import { ModalInfo } from '/components/ModalInfo';
+import {CrossIcon, UserIcon} from '/components/Icons';
+import {Orientation, screenPercentageToDP} from '/helpers/screen';
+import {theme} from '/styled/theme';
+import {SignInForm} from '/components/Forms/SignInForm/SignInForm';
+import {SignInProps} from '/interfaces/Screens/SignUp/SignInProps';
+import {Routes} from '/helpers/routes';
+import AuthContext from '../../../contexts/authContext/AuthContext';
+import {ModalInfo} from '/components/ModalInfo';
 import UserContext from '/contexts/UserContext';
-import { authSelector } from '/helpers/selectors';
-import { SignInFormModel } from '/interfaces/forms/SignInFormProps';
+import {authSelector} from '/helpers/selectors';
+import {SignInFormModel} from '/interfaces/forms/SignInFormProps';
 
-export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
+export const SignIn: FunctionComponent<any> = ({navigation}: SignInProps) => {
   const authCtx = useContext(AuthContext);
   const userCtx = useContext(UserContext);
   const authState = useSelector(authSelector);
