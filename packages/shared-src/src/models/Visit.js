@@ -54,7 +54,7 @@ export class Visit extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['vitals', 'notes']; 
+    return ['vitals', 'notes'];
   }
 
   static initRelations(models) {

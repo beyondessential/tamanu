@@ -14,20 +14,23 @@ visit.get('/:id/vitals', simpleGetList('Vitals', 'visitId'));
 
 visit.get('/:id/diagnoses', simpleGetList('VisitDiagnosis', 'visitId'));
 
-visit.post('/:id/notes', asyncHandler(async (req, res) => {
-  const { models, body, params } = req;
-  const { id } = params;
-  req.checkPermission('write', 'Visit');
-  const owner = await models.Visit.findByPk(id);
-  if (!owner) {
-    throw new NotFoundError();
-  }
-  req.checkPermission('write', owner);
-  const createdNote = await models.Note.create({
-    objectId: id,
-    objectType: 'Visit',
-    ...body
-  });
+visit.post(
+  '/:id/notes',
+  asyncHandler(async (req, res) => {
+    const { models, body, params } = req;
+    const { id } = params;
+    req.checkPermission('write', 'Visit');
+    const owner = await models.Visit.findByPk(id);
+    if (!owner) {
+      throw new NotFoundError();
+    }
+    req.checkPermission('write', owner);
+    const createdNote = await models.Note.create({
+      objectId: id,
+      objectType: 'Visit',
+      ...body,
+    });
 
-  res.send(createdNote);
-}));
+    res.send(createdNote);
+  }),
+);

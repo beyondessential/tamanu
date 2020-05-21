@@ -27,13 +27,13 @@ export class Model extends sequelize.Model {
   }
 
   static getListReferenceAssociations() {
-    // List of relations to include when fetching this model 
+    // List of relations to include when fetching this model
     // as part of a list (eg to display in a table)
     return undefined;
   }
 
   static getFullReferenceAssociations() {
-    // List of relations when fetching just this model 
+    // List of relations when fetching just this model
     // (eg to display in a detailed view)
     return this.getListReferenceAssociations();
   }
