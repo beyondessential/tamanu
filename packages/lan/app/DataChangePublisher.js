@@ -20,8 +20,8 @@ class DataChangePublisher {
     this.database.sequelize.addHook('afterSave', this.onRecordUpdate);
   }
 
-  onRecordUpdate = (instance, options) => {
-    this.publishChangeToClients('update', instance); 
+  onRecordUpdate = instance => {
+    this.publishChangeToClients('update', instance);
   };
 
   handleClientConnection = (message, callback) => {
@@ -58,7 +58,7 @@ class DataChangePublisher {
   };
 
   handleDisconnect = clientId => {
-    Object.entries(this.subscriptions).forEach(([recordType, { subscribers }]) => {
+    Object.entries(this.subscriptions).forEach(([, { subscribers }]) => {
       if (subscribers.has(clientId)) {
         subscribers.delete(clientId);
       }
