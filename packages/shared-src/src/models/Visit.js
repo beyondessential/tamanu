@@ -53,7 +53,7 @@ export class Visit extends Model {
     );
   }
 
-  static getReferenceAssociations() {
+  static getFullReferenceAssociations() {
     return ['vitals', 'notes']; 
   }
 
