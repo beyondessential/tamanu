@@ -54,7 +54,7 @@ export class Visit extends Model {
   }
 
   static getReferenceAssociations() {
-    return ['vitals']; 
+    return ['vitals', 'notes']; 
   }
 
   static initRelations(models) {
@@ -78,11 +78,11 @@ export class Visit extends Model {
     });
 
     this.hasMany(models.Vitals, { as: 'vitals' });
+    this.hasMany(models.Note, { as: 'notes', foreignKey: 'objectId' });
 
     // this.hasMany(models.Medication);
     // this.hasMany(models.LabRequest);
     // this.hasMany(models.ImagingRequest);
-    // this.hasMany(models.Note);
     // this.hasMany(models.Procedure);
     // this.hasMany(models.Report);
   }
