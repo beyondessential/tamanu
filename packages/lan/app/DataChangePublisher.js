@@ -16,7 +16,13 @@ class DataChangePublisher {
     fayeInstance.addExtension({ incoming: this.handleClientConnection });
     this.fayeClient = fayeInstance.getClient();
     this.subscriptions = {};
+
+    this.database.sequelize.addHook('afterSave', this.onRecordUpdate);
   }
+
+  onRecordUpdate = (instance, options) => {
+    this.publishChangeToClients('update', instance); 
+  };
 
   handleClientConnection = (message, callback) => {
     const { channel, subscription, clientId } = message;
@@ -42,61 +48,33 @@ class DataChangePublisher {
       this.subscriptions[recordType].subscribers.add(clientId);
     } else {
       // subscribe to changes
-      const collection = this.database.objects(recordType);
-      collection.addListener(this.publishChangesToClients);
-      this.subscriptions[recordType] = { collection, subscribers: new Set() };
+      this.subscriptions[recordType] = { subscribers: new Set() };
     }
   };
 
   handleUnsubscribe = (clientId, channel) => {
     const recordType = channelToRecordType(channel);
     this.subscriptions[recordType].subscribers.delete(clientId);
-    this.removeListenerIfOrphaned(recordType);
   };
 
   handleDisconnect = clientId => {
     Object.entries(this.subscriptions).forEach(([recordType, { subscribers }]) => {
       if (subscribers.has(clientId)) {
         subscribers.delete(clientId);
-        this.removeListenerIfOrphaned(recordType);
       }
     });
   };
 
-  removeListenerIfOrphaned = recordType => {
-    const { collection, subscribers } = this.subscriptions[recordType];
-    if (subscribers.length === 0) {
-      collection.removeListener(this.publishChangesToClients);
-      delete this.subscriptions[recordType];
-    }
-  };
-
-  publishChangesToClients = (
-    collection,
-    { insertions, newModifications: modifications, deletions },
-  ) => {
-    insertions.forEach(index => {
-      this.publishChangeToClients('create', collection[index]);
-    });
-    modifications.forEach(index => {
-      this.publishChangeToClients('update', collection[index]);
-    });
-    deletions.forEach(index => {
-      this.publishChangeToClients('delete', collection[index]);
-    });
-  };
-
   publishChangeToClients(changeType, record) {
-    const recordType = record.objectSchema().name;
+    const recordType = record.constructor.name.toLowerCase();
     const payload = {};
     switch (recordType) {
       case 'visit': {
         // TODO may want to also publish _what_ fields in the record have changed, so that the
         // client can be optimised to take specific actions depending on if the field is relevant
         // (e.g. discharge status)
-        const patient = record.patient[0];
-        payload.patientId = patient._id;
-        payload.visitId = record._id;
+        payload.patientId = record.patientId;
+        payload.visitId = record.id;
         break;
       }
       default:
