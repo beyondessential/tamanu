@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { NotFoundError } from 'shared/errors';
+import { NotFoundError, InappropriateEndpointError } from 'shared/errors';
 
 export const note = express.Router();
 
@@ -26,19 +26,6 @@ note.put(
   }),
 );
 
-note.post(
-  '/$',
-  asyncHandler(async (req, res) => {
-    const { models, body } = req;
-    const { objectType, objectId } = body;
-    req.checkPermission('write', objectType);
-    const owner = await models[objectType].findByPk(objectId);
-    if (!owner) {
-      throw new NotFoundError();
-    }
-    req.checkPermission('write', owner);
-    const createdNote = await models.Note.create(body);
-
-    res.send(createdNote);
-  }),
-);
+note.post('/$', asyncHandler(async (req, res) => {
+  throw new InappropriateEndpointError("Note should be created using a nested endpoint (eg visit/12345/notes)");
+}));
