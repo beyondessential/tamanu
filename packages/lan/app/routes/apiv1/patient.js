@@ -23,12 +23,16 @@ const makeFilter = (check, sql, transform) => {
 };
 
 const sortKeys = {
-  lastName: 'patients.last_name',
+  displayId: 'patients.display_id',
+  lastName: 'UPPER(patients.last_name)',
+  culturalName: 'UPPER(patients.cultural_name)',
+  firstName: 'UPPER(patients.first_name)',
   age: 'patients.date_of_birth',
-  village: 'village.name',
+  dateOfBirth: 'patients.date_of_birth',
+  village_name: 'village_name',
   location: 'location.name',
   department: 'department.name',
-  visitType: 'visits.visit_type',
+  status: 'visits.visit_type',
 };
 
 patient.get(
@@ -55,6 +59,16 @@ patient.get(
         query.firstName,
         `UPPER(patients.first_name) LIKE UPPER(:firstName)`,
         ({ firstName }) => ({ firstName: `${firstName}%` }),
+      ),
+      makeFilter(
+        query.lastName,
+        `UPPER(patients.last_name) LIKE UPPER(:lastName)`,
+        ({ lastName }) => ({ lastName: `${lastName}%` }),
+      ),
+      makeFilter(
+        query.culturalName,
+        `UPPER(patients.cultural_name) LIKE UPPER(:culturalName)`,
+        ({ culturalName }) => ({ culturalName: `${culturalName}%` }),
       ),
       makeFilter(query.ageMax, `patients.date_of_birth >= :dobEarliest`, ({ ageMax }) => ({
         dobEarliest: moment()
