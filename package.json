@@ -16,10 +16,7 @@
     "desktop-start-dev": "yarn workspace desktop run start-dev",
     "test-watch": "yarn workspace lan run test:watch"
   },
-  "engines": {
-    "node": ">=8.3 <11.0",
-    "yarn": ">=1.2"
-  },
+  "engines": {},
   "private": true,
   "workspaces": {
     "packages": [

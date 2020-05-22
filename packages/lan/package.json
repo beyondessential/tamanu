@@ -82,7 +82,6 @@
     "multiparty": "^4.2.1",
     "node-schedule": "^1.3.2",
     "prompts": "^2.0.0",
-    "realm": "~2.25.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "sequelize": "^5.21.3",
