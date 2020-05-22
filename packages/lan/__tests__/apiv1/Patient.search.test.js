@@ -254,10 +254,10 @@ describe('Patient search', () => {
     const expectSorted = (array, mapper) => {
       const base = array.map(mapper);
       const sorted = array.map(mapper).sort((a, b) => {
-        if(!a && b) return 1;
-        if(a && !b) return -1;
-        if(!a && !b) return 0;
-        return a.toUpperCase().localeCompare(b.toUpperCase())
+        if (!a && b) return 1;
+        if (a && !b) return -1;
+        if (!a && !b) return 0;
+        return a.toUpperCase().localeCompare(b.toUpperCase());
       });
       expect(base).toEqual(sorted);
     };
@@ -322,7 +322,6 @@ describe('Patient search', () => {
   });
 
   describe('Pagination', () => {
-    
     test.todo('should retrieve first page of patients');
     test.todo('should retrieve second page of patients');
 
@@ -334,6 +333,5 @@ describe('Patient search', () => {
 
     test.todo('should retrieve first page of fitered & sorted patients');
     test.todo('should retrieve second page of filtered & sorted patients');
-
   });
 });

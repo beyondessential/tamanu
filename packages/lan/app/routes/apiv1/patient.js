@@ -43,10 +43,7 @@ patient.get(
       query,
     } = req;
 
-    const {
-      rowsPerPage = 10,
-      page = 0,
-    } = query;
+    const { rowsPerPage = 10, page = 0 } = query;
 
     // query is always going to come in as strings, has to be set manually
     ['ageMax', 'ageMin'].filter(k => query[k]).map(k => (query[k] = parseFloat(query[k])));
@@ -101,10 +98,7 @@ patient.get(
         query,
       );
 
-    const { 
-      orderBy = 'lastName',
-      order = 'asc'
-    } = query;
+    const { orderBy = 'lastName', order = 'asc' } = query;
 
     const sortKey = sortKeys[orderBy] || sortKeys.displayId;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
@@ -129,7 +123,7 @@ patient.get(
 
     const { count } = countResult[0];
 
-    if(count === 0) {
+    if (count === 0) {
       // save ourselves a query
       res.send({ data: [], count });
       return;
