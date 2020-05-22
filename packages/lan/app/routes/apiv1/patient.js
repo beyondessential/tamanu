@@ -102,7 +102,7 @@ patient.get(
       );
 
     const { 
-      orderBy,
+      orderBy = 'lastName',
       order = 'asc'
     } = query;
 

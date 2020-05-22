@@ -250,7 +250,12 @@ describe('Patient search', () => {
   describe('Sorting', () => {
     const expectSorted = (array, mapper) => {
       const base = array.map(mapper);
-      const sorted = array.map(mapper).sort();
+      const sorted = array.map(mapper).sort((a, b) => {
+        if(!a && b) return 1;
+        if(a && !b) return -1;
+        if(!a && !b) return 0;
+        return a.toUpperCase().localeCompare(b.toUpperCase())
+      });
       expect(base).toEqual(sorted);
     };
 
@@ -264,7 +269,7 @@ describe('Patient search', () => {
 
     it('should sort by age', async () => {
       const response = await app.get('/v1/patient').query({
-        sort: 'age',
+        orderBy: 'age',
       });
 
       expect(response).toHaveSucceeded();
@@ -274,7 +279,7 @@ describe('Patient search', () => {
 
     it('should sort by visit type', async () => {
       const response = await app.get('/v1/patient').query({
-        sort: 'visitType',
+        orderBy: 'status',
       });
 
       expect(response).toHaveSucceeded();
@@ -284,7 +289,7 @@ describe('Patient search', () => {
 
     it('should sort by location', async () => {
       const response = await app.get('/v1/patient').query({
-        sort: 'location',
+        orderBy: 'location',
       });
 
       expect(response).toHaveSucceeded();
@@ -294,7 +299,7 @@ describe('Patient search', () => {
 
     it('should sort by department', async () => {
       const response = await app.get('/v1/patient').query({
-        sort: 'department',
+        orderBy: 'department',
       });
 
       expect(response).toHaveSucceeded();
@@ -304,7 +309,7 @@ describe('Patient search', () => {
 
     it('should sort by village', async () => {
       const response = await app.get('/v1/patient').query({
-        sort: 'village',
+        orderBy: 'village_name',
       });
 
       expect(response).toHaveSucceeded();
