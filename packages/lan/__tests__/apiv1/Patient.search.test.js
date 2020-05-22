@@ -51,6 +51,15 @@ const searchTestPatients = [
   { firstName: 'search-by-type-OUT', visit: { visitType: 'emergency' } },
   { firstName: 'search-by-location', visit: { locationIndex: 0 } },
   { firstName: 'search-by-department', visit: { departmentIndex: 0 } },
+  { firstName: 'pagination', lastName: 'A' },
+  { firstName: 'pagination', lastName: 'B' },
+  { firstName: 'pagination', lastName: 'C' },
+  { firstName: 'pagination', lastName: 'D' },
+  { firstName: 'pagination', lastName: 'E' },
+  { firstName: 'pagination', lastName: 'F' },
+  { firstName: 'pagination', lastName: 'G' },
+  { firstName: 'pagination', lastName: 'H' },
+  { firstName: 'pagination', lastName: 'I' },
 ];
 
 const ageInCount = searchTestPatients.filter(withFirstName('search-by-age-IN')).length;
@@ -322,16 +331,37 @@ describe('Patient search', () => {
   });
 
   describe('Pagination', () => {
-    test.todo('should retrieve first page of patients');
-    test.todo('should retrieve second page of patients');
+    it('should retrieve first page of patients', async () => {
+      const response = await app.get('/v1/patient').query({
+        firstName: 'pagination',
+        orderBy: 'lastName',
+        rowsPerPage: 3,
+      });
+      
+      expect(response).toHaveSucceeded();
 
-    test.todo('should retrieve first page of filtered patients');
-    test.todo('should retrieve second page of filtered patients');
+      const { data, count } = response.body;
+      expect(data.length).toEqual(3);
+      expect(count).toEqual(9);
 
-    test.todo('should retrieve first page of sorted patients');
-    test.todo('should retrieve second page of sorted patients');
+      expect(data[0].lastName).toEqual('A');
+    });
 
-    test.todo('should retrieve first page of fitered & sorted patients');
-    test.todo('should retrieve second page of filtered & sorted patients');
+    it('should retrieve second page of patients', async () => {
+      const response = await app.get('/v1/patient').query({
+        firstName: 'pagination',
+        orderBy: 'lastName',
+        rowsPerPage: 3,
+        page: 1,
+      });
+      
+      expect(response).toHaveSucceeded();
+
+      const { data, count } = response.body;
+      expect(data.length).toEqual(3);
+      expect(count).toEqual(9);
+
+      expect(data[0].lastName).toEqual('D');
+    });
   });
 });
