@@ -39,6 +39,11 @@ patient.get(
       query,
     } = req;
 
+    const {
+      rowsPerPage = 10,
+      page = 0,
+    } = query;
+
     // query is always going to come in as strings, has to be set manually
     ['ageMax', 'ageMin'].filter(k => query[k]).map(k => (query[k] = parseFloat(query[k])));
 
@@ -72,7 +77,7 @@ patient.get(
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
 
-    const replacements = filters
+    const filterReplacements = filters
       .filter(f => f.transform)
       .reduce(
         (current, { transform }) => ({
@@ -82,34 +87,63 @@ patient.get(
         query,
       );
 
-    const sortKey = sortKeys[query.sort] || sortKeys.lastName;
+    const { 
+      orderBy,
+      order = 'asc'
+    } = query;
+
+    const sortKey = sortKeys[orderBy] || sortKeys.displayId;
+    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+    const from = `
+      FROM patients
+        LEFT JOIN visits 
+          ON (visits.patient_id = patients.id AND visits.end_date IS NULL)
+        LEFT JOIN reference_data AS department
+          ON (department.type = 'department' AND department.id = visits.department_id)
+        LEFT JOIN reference_data AS location
+          ON (location.type = 'location' AND location.id = visits.location_id)
+        LEFT JOIN reference_data AS village
+          ON (village.type = 'village' AND village.id = patients.village_id)
+      ${whereClauses && `WHERE ${whereClauses}`}
+    `;
+
+    const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
+      replacements: filterReplacements,
+      type: QueryTypes.SELECT,
+    });
+
+    const { count } = countResult[0];
+
+    if(count === 0) {
+      // save ourselves a query
+      res.send({ data: [], count });
+      return;
+    }
 
     const result = await req.db.query(
       `
-    SELECT 
-      patients.*, 
-      visits.visit_type,
-      department.id AS department_id,
-      department.name AS department_name,
-      location.id AS location_id,
-      location.name AS location_name,
-      village.id AS village_id,
-      village.name AS village_name
-    FROM patients
-      LEFT JOIN visits 
-        ON (visits.patient_id = patients.id AND visits.end_date IS NULL)
-      LEFT JOIN reference_data AS department
-        ON (department.type = 'department' AND department.id = visits.department_id)
-      LEFT JOIN reference_data AS location
-        ON (location.type = 'location' AND location.id = visits.location_id)
-      LEFT JOIN reference_data AS village
-        ON (village.type = 'village' AND village.id = patients.village_id)
-    ${whereClauses && `WHERE ${whereClauses}`}
-    
-    ORDER BY ${sortKey} ASC NULLS LAST
-  `,
+        SELECT 
+          patients.*, 
+          visits.visit_type,
+          department.id AS department_id,
+          department.name AS department_name,
+          location.id AS location_id,
+          location.name AS location_name,
+          village.id AS village_id,
+          village.name AS village_name
+        ${from}
+        
+        ORDER BY ${sortKey} ${sortDirection} NULLS LAST
+        LIMIT :limit
+        OFFSET :offset
+      `,
       {
-        replacements,
+        replacements: {
+          ...filterReplacements,
+          limit: rowsPerPage,
+          offset: page * rowsPerPage,
+        },
         model: Patient,
         type: QueryTypes.SELECT,
         mapToModel: true,
@@ -118,7 +152,7 @@ patient.get(
 
     res.send({
       data: result,
-      count: result.length,
+      count,
     });
   }),
 );
