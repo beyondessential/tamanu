@@ -145,6 +145,7 @@ describe('Patient search', () => {
     it('should get a list of patients by maximum age', async () => {
       const response = await app.get('/v1/patient').query({
         ageMax: 30,
+        rowsPerPage: 100,
       });
       expect(response).toHaveSucceeded();
 
@@ -161,6 +162,7 @@ describe('Patient search', () => {
     it('should get a list of patients by minimum age', async () => {
       const response = await app.get('/v1/patient').query({
         ageMin: 20,
+        rowsPerPage: 100,
       });
       expect(response).toHaveSucceeded();
 
@@ -178,6 +180,7 @@ describe('Patient search', () => {
       const response = await app.get('/v1/patient').query({
         ageMax: 30,
         ageMin: 20,
+        rowsPerPage: 100,
       });
       expect(response).toHaveSucceeded();
 
