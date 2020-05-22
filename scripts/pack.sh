@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euxo pipefail
 type=$1
 echo "Zipping packages for ${type}"
 rm -rf deploy

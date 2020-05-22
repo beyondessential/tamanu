@@ -1,7 +1,7 @@
-FROM node:10.14.0 as base_image
+FROM node:12.16.3 as base_image
 RUN dpkg --add-architecture i386
-RUN apt-get update && \
-      apt-get install -y -q --no-install-recommends \
+RUN apt-get update
+RUN apt-get install -y -q --no-install-recommends \
         apt-transport-https \
         build-essential \
         msitools \
@@ -9,8 +9,7 @@ RUN apt-get update && \
         wine \
         wixl \
         zip \
-        unzip \
-      && npm install -g yarn
+        unzip
 
 FROM base_image
 ENV PACKAGES_DIR=/tamanu/packages \

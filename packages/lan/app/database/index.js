@@ -4,7 +4,7 @@ import { createNamespace } from 'cls-hooked';
 
 import * as models from 'shared/models';
 
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 import { log } from '../logging';
 
 // an issue in how webpack's require handling interacts with sequelize means we need
