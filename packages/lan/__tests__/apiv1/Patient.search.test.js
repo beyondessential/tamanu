@@ -154,7 +154,7 @@ describe('Patient search', () => {
     it('should get a list of patients by maximum age', async () => {
       const response = await app.get('/v1/patient').query({
         ageMax: 30,
-        rowsPerPage: 100,
+        rowsPerPage: searchTestPatients.length,
       });
       expect(response).toHaveSucceeded();
 
@@ -171,7 +171,7 @@ describe('Patient search', () => {
     it('should get a list of patients by minimum age', async () => {
       const response = await app.get('/v1/patient').query({
         ageMin: 20,
-        rowsPerPage: 100,
+        rowsPerPage: searchTestPatients.length,
       });
       expect(response).toHaveSucceeded();
 
@@ -189,7 +189,7 @@ describe('Patient search', () => {
       const response = await app.get('/v1/patient').query({
         ageMax: 30,
         ageMin: 20,
-        rowsPerPage: 100,
+        rowsPerPage: searchTestPatients.length,
       });
       expect(response).toHaveSucceeded();
 
@@ -263,6 +263,7 @@ describe('Patient search', () => {
     const expectSorted = (array, mapper) => {
       const base = array.map(mapper);
       const sorted = array.map(mapper).sort((a, b) => {
+        // nulls last, case-insensitive
         if (!a && b) return 1;
         if (a && !b) return -1;
         if (!a && !b) return 0;
@@ -337,7 +338,7 @@ describe('Patient search', () => {
         orderBy: 'lastName',
         rowsPerPage: 3,
       });
-      
+
       expect(response).toHaveSucceeded();
 
       const { data, count } = response.body;
@@ -354,7 +355,7 @@ describe('Patient search', () => {
         rowsPerPage: 3,
         page: 1,
       });
-      
+
       expect(response).toHaveSucceeded();
 
       const { data, count } = response.body;
