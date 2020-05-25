@@ -260,16 +260,16 @@ describe('Patient search', () => {
   });
 
   describe('Sorting', () => {
-    const expectSorted = (array, mapper) => {
+    const expectSorted = (array, mapper, reverse = false) => {
       const base = array.map(mapper);
       const sorted = array.map(mapper).sort((a, b) => {
         // nulls last, case-insensitive
         if (!a && b) return 1;
         if (a && !b) return -1;
         if (!a && !b) return 0;
-        return a.toUpperCase().localeCompare(b.toUpperCase());
+        return (reverse ? -1 : 1) * a.toUpperCase().localeCompare(b.toUpperCase());
       });
-      expect(base).toEqual(sorted);
+      expect(sorted).toEqual(base);
     };
 
     it('should sort by surname by default', async () => {
@@ -278,6 +278,37 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       expectSorted(response.body.data, x => x.lastName);
+    });
+
+    it('should sort in descending order', async () => {
+      const response = await app.get('/v1/patient', {
+        order: 'desc',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data.reverse(), x => x.lastName, true);
+    });
+
+    it('should sort by date of birth', async () => {
+      const response = await app.get('/v1/patient').query({
+        orderBy: 'dateOfBirth',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, x => x.dateOfBirth);
+    });
+
+    it('should sort by date of birth in descending order', async () => {
+      const response = await app.get('/v1/patient').query({
+        orderBy: 'dateOfBirth',
+        order: 'desc',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, x => x.dateOfBirth, true);
     });
 
     it('should sort by age', async () => {
@@ -290,6 +321,17 @@ describe('Patient search', () => {
       expectSorted(response.body.data, x => x.dateOfBirth);
     });
 
+    it('should sort by age in descending order', async () => {
+      const response = await app.get('/v1/patient').query({
+        orderBy: 'age',
+        order: 'desc',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, x => x.dateOfBirth, true);
+    });
+
     it('should sort by visit type', async () => {
       const response = await app.get('/v1/patient').query({
         orderBy: 'status',
@@ -298,6 +340,17 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       expectSorted(response.body.data, x => x.visit_type);
+    });
+
+    it('should sort by visit type in descending order', async () => {
+      const response = await app.get('/v1/patient').query({
+        orderBy: 'status',
+        order: 'desc',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, x => x.visit_type, true);
     });
 
     it('should sort by location', async () => {
@@ -318,6 +371,16 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       expectSorted(response.body.data, x => x.department_name);
+    });
+
+    it('should sort by village', async () => {
+      const response = await app.get('/v1/patient').query({
+        orderBy: 'village_name',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, x => x.village_name);
     });
 
     it('should sort by village', async () => {
