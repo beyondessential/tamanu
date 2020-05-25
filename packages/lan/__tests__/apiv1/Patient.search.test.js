@@ -51,6 +51,15 @@ const searchTestPatients = [
   { firstName: 'search-by-type-OUT', visit: { visitType: 'emergency' } },
   { firstName: 'search-by-location', visit: { locationIndex: 0 } },
   { firstName: 'search-by-department', visit: { departmentIndex: 0 } },
+  { firstName: 'pagination', lastName: 'A' },
+  { firstName: 'pagination', lastName: 'B' },
+  { firstName: 'pagination', lastName: 'C' },
+  { firstName: 'pagination', lastName: 'D' },
+  { firstName: 'pagination', lastName: 'E' },
+  { firstName: 'pagination', lastName: 'F' },
+  { firstName: 'pagination', lastName: 'G' },
+  { firstName: 'pagination', lastName: 'H' },
+  { firstName: 'pagination', lastName: 'I' },
 ];
 
 const ageInCount = searchTestPatients.filter(withFirstName('search-by-age-IN')).length;
@@ -145,6 +154,7 @@ describe('Patient search', () => {
     it('should get a list of patients by maximum age', async () => {
       const response = await app.get('/v1/patient').query({
         ageMax: 30,
+        rowsPerPage: searchTestPatients.length,
       });
       expect(response).toHaveSucceeded();
 
@@ -161,6 +171,7 @@ describe('Patient search', () => {
     it('should get a list of patients by minimum age', async () => {
       const response = await app.get('/v1/patient').query({
         ageMin: 20,
+        rowsPerPage: searchTestPatients.length,
       });
       expect(response).toHaveSucceeded();
 
@@ -178,6 +189,7 @@ describe('Patient search', () => {
       const response = await app.get('/v1/patient').query({
         ageMax: 30,
         ageMin: 20,
+        rowsPerPage: searchTestPatients.length,
       });
       expect(response).toHaveSucceeded();
 
@@ -248,10 +260,16 @@ describe('Patient search', () => {
   });
 
   describe('Sorting', () => {
-    const expectSorted = (array, mapper) => {
+    const expectSorted = (array, mapper, reverse = false) => {
       const base = array.map(mapper);
-      const sorted = array.map(mapper).sort();
-      expect(base).toEqual(sorted);
+      const sorted = array.map(mapper).sort((a, b) => {
+        // nulls last, case-insensitive
+        if (!a && b) return 1;
+        if (a && !b) return -1;
+        if (!a && !b) return 0;
+        return (reverse ? -1 : 1) * a.toUpperCase().localeCompare(b.toUpperCase());
+      });
+      expect(sorted).toEqual(base);
     };
 
     it('should sort by surname by default', async () => {
@@ -262,9 +280,19 @@ describe('Patient search', () => {
       expectSorted(response.body.data, x => x.lastName);
     });
 
-    it('should sort by age', async () => {
+    it('should sort in descending order', async () => {
+      const response = await app.get('/v1/patient', {
+        order: 'desc',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data.reverse(), x => x.lastName, true);
+    });
+
+    it('should sort by date of birth', async () => {
       const response = await app.get('/v1/patient').query({
-        sort: 'age',
+        orderBy: 'dateOfBirth',
       });
 
       expect(response).toHaveSucceeded();
@@ -272,9 +300,41 @@ describe('Patient search', () => {
       expectSorted(response.body.data, x => x.dateOfBirth);
     });
 
+    it('should sort by date of birth in descending order', async () => {
+      const response = await app.get('/v1/patient').query({
+        orderBy: 'dateOfBirth',
+        order: 'desc',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, x => x.dateOfBirth, true);
+    });
+
+    it('should sort by age', async () => {
+      const response = await app.get('/v1/patient').query({
+        orderBy: 'age',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, x => x.dateOfBirth);
+    });
+
+    it('should sort by age in descending order', async () => {
+      const response = await app.get('/v1/patient').query({
+        orderBy: 'age',
+        order: 'desc',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, x => x.dateOfBirth, true);
+    });
+
     it('should sort by visit type', async () => {
       const response = await app.get('/v1/patient').query({
-        sort: 'visitType',
+        orderBy: 'status',
       });
 
       expect(response).toHaveSucceeded();
@@ -282,9 +342,20 @@ describe('Patient search', () => {
       expectSorted(response.body.data, x => x.visit_type);
     });
 
+    it('should sort by visit type in descending order', async () => {
+      const response = await app.get('/v1/patient').query({
+        orderBy: 'status',
+        order: 'desc',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, x => x.visit_type, true);
+    });
+
     it('should sort by location', async () => {
       const response = await app.get('/v1/patient').query({
-        sort: 'location',
+        orderBy: 'location',
       });
 
       expect(response).toHaveSucceeded();
@@ -294,7 +365,7 @@ describe('Patient search', () => {
 
     it('should sort by department', async () => {
       const response = await app.get('/v1/patient').query({
-        sort: 'department',
+        orderBy: 'department',
       });
 
       expect(response).toHaveSucceeded();
@@ -304,7 +375,17 @@ describe('Patient search', () => {
 
     it('should sort by village', async () => {
       const response = await app.get('/v1/patient').query({
-        sort: 'village',
+        orderBy: 'village_name',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, x => x.village_name);
+    });
+
+    it('should sort by village', async () => {
+      const response = await app.get('/v1/patient').query({
+        orderBy: 'village_name',
       });
 
       expect(response).toHaveSucceeded();
@@ -314,18 +395,37 @@ describe('Patient search', () => {
   });
 
   describe('Pagination', () => {
-    
-    test.todo('should retrieve first page of patients');
-    test.todo('should retrieve second page of patients');
+    it('should retrieve first page of patients', async () => {
+      const response = await app.get('/v1/patient').query({
+        firstName: 'pagination',
+        orderBy: 'lastName',
+        rowsPerPage: 3,
+      });
 
-    test.todo('should retrieve first page of filtered patients');
-    test.todo('should retrieve second page of filtered patients');
+      expect(response).toHaveSucceeded();
 
-    test.todo('should retrieve first page of sorted patients');
-    test.todo('should retrieve second page of sorted patients');
+      const { data, count } = response.body;
+      expect(data.length).toEqual(3);
+      expect(count).toEqual(9);
 
-    test.todo('should retrieve first page of fitered & sorted patients');
-    test.todo('should retrieve second page of filtered & sorted patients');
+      expect(data[0].lastName).toEqual('A');
+    });
 
+    it('should retrieve second page of patients', async () => {
+      const response = await app.get('/v1/patient').query({
+        firstName: 'pagination',
+        orderBy: 'lastName',
+        rowsPerPage: 3,
+        page: 1,
+      });
+
+      expect(response).toHaveSucceeded();
+
+      const { data, count } = response.body;
+      expect(data.length).toEqual(3);
+      expect(count).toEqual(9);
+
+      expect(data[0].lastName).toEqual('D');
+    });
   });
 });

@@ -118,7 +118,7 @@ const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
           component={AutocompleteField}
           suggester={villageSuggester}
           placeholder="Village"
-          name="village.id"
+          name="villageId"
         />
         <Field component={TextField} placeholder="Health ID" name="displayId" />
         <Button color="primary" variant="contained" onClick={submitForm}>

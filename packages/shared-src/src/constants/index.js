@@ -89,3 +89,21 @@ export const AVPU_OPTIONS = [
   { value: 'pain', label: 'Pain' },
   { value: 'unresponsive', label: 'Unresponsive' },
 ];
+
+export const REFERENCE_TYPES = {
+  ICD10: 'icd10',
+  ALLERGY: 'allergy',
+  CONDITION: 'condition',
+  DRUG: 'drug',
+  TRIAGE_REASON: 'triageReason',
+  PROCEDURE_TYPE: 'procedureType',
+  IMAGING_TYPE: 'imagingType',
+  LAB_TEST_CATEGORY: 'labTestCategory',
+  LAB_TEST_TYPE: 'labTestType',
+  FACILITY: 'facility',
+  LOCATION: 'location',
+  DEPARTMENT: 'department',
+  VILLAGE: 'village',
+};
+
+export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
