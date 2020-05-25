@@ -20,7 +20,7 @@ const BackLink = connect(
 
 const ImagingRequestInfoPane = React.memo(({ imagingRequest }) => (
   <FormGrid columns={3}>
-    <TextInput value={imagingRequest._id} label="Request ID" />
+    <TextInput value={imagingRequest.id} label="Request ID" />
     <TextInput value={(imagingRequest.type || {}).name} label="Request type" />
     <TextInput value={imagingRequest.urgent ? 'Urgent' : 'Standard'} label="Urgency" />
     <TextInput

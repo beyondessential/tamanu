@@ -30,7 +30,7 @@ export const VisitMedicationTable = React.memo(({ medications }) => (
 
 export const DataFetchingMedicationTable = connect(
   null,
-  dispatch => ({ onMedicationSelect: medication => dispatch(viewVisit(medication.visits[0]._id)) }),
+  dispatch => ({ onMedicationSelect: medication => dispatch(viewVisit(medication.visits[0].id)) }),
 )(({ onMedicationSelect }) => (
   <DataFetchingTable
     endpoint="medication"

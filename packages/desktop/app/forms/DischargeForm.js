@@ -116,7 +116,7 @@ export class DischargeForm extends React.PureComponent {
             helperText="Requires mSupply"
           />
           <Field
-            name="dischargePhysician._id"
+            name="dischargePhysician.id"
             label="Discharging physician"
             component={AutocompleteField}
             suggester={practitionerSuggester}

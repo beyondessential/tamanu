@@ -13,7 +13,7 @@ const BeginMoveForm = ({ onSubmit, onClose, visit, locationSuggester }) => {
   const renderForm = React.useCallback(({ submitForm }) => (
     <FormGrid columns={1}>
       <Field
-        name="plannedLocation._id"
+        name="plannedLocation.id"
         component={AutocompleteField}
         suggester={locationSuggester}
         label="New location"
@@ -57,8 +57,8 @@ const CancelMoveForm = ({ onSubmit, visit, onClose }) => (
 const BaseMoveModal = connectApi((api, dispatch, { visit, endpoint }) => ({
   locationSuggester: new Suggester(api, 'location'),
   onSubmit: async data => {
-    await api.put(`visit/${visit._id}/${endpoint}`, data);
-    dispatch(viewVisit(visit._id));
+    await api.put(`visit/${visit.id}/${endpoint}`, data);
+    dispatch(viewVisit(visit.id));
   },
 }))(({ title, open, onClose, Component, ...rest }) => (
   <Modal title={title} open={open} onClose={onClose}>

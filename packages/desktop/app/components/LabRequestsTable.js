@@ -26,7 +26,7 @@ const getRequestType = ({ category }) => (category || {}).name || 'Unknown';
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
 
 const columns = [
-  { key: '_id', title: 'Request ID' },
+  { key: 'id', title: 'Request ID' },
   { key: 'labRequestType', title: 'Type', accessor: getRequestType },
   { key: 'status', title: 'Status', accessor: getStatus },
   { key: 'displayName', title: 'Requested by', accessor: getDisplayName },
@@ -39,12 +39,12 @@ const DumbLabRequestsTable = React.memo(({ labs, onLabSelect }) => (
 
 export const LabRequestsTable = connect(
   null,
-  dispatch => ({ onLabSelect: lab => dispatch(viewLab(lab._id)) }),
+  dispatch => ({ onLabSelect: lab => dispatch(viewLab(lab.id)) }),
 )(DumbLabRequestsTable);
 
 export const DataFetchingLabRequestsTable = connect(
   null,
-  dispatch => ({ onLabSelect: lab => dispatch(viewLab(lab._id)) }),
+  dispatch => ({ onLabSelect: lab => dispatch(viewLab(lab.id)) }),
 )(({ onLabSelect }) => (
   <DataFetchingTable
     endpoint="labRequest"

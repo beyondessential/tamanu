@@ -25,7 +25,7 @@ export class AllergyForm extends React.PureComponent {
     return (
       <FormGrid columns={1}>
         <Field
-          name="allergy._id"
+          name="allergy.id"
           label="Allergy name"
           component={AutocompleteField}
           suggester={allergySuggester}
@@ -33,7 +33,7 @@ export class AllergyForm extends React.PureComponent {
         />
         <Field name="date" label="Date recorded" component={DateField} required />
         <Field
-          name="practitioner._id"
+          name="practitioner.id"
           label="Doctor/Nurse"
           component={AutocompleteField}
           suggester={practitionerSuggester}

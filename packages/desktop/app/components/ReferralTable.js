@@ -33,10 +33,10 @@ const DumbActionDropdown = React.memo(({ onCheckin, onCancel, onView, visit, clo
 
 const ActionDropdown = connect(
   null,
-  (dispatch, { visit, _id }) => ({
+  (dispatch, { visit, id }) => ({
     onCheckin: () => dispatch(push('/patients/view/checkin')),
     onCancel: () => console.log('TODO'),
-    onView: () => dispatch(viewVisit(visit._id)),
+    onView: () => dispatch(viewVisit(visit.id)),
   }),
 )(DumbActionDropdown);
 
@@ -88,5 +88,5 @@ const DumbReferralTable = React.memo(({ referrals, onReferralSelect }) => (
 
 export const ReferralTable = connect(
   null,
-  dispatch => ({ onReferralSelect: referral => dispatch(viewReferral(referral._id)) }),
+  dispatch => ({ onReferralSelect: referral => dispatch(viewReferral(referral.id)) }),
 )(DumbReferralTable);

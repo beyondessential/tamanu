@@ -1,4 +1,4 @@
-const defaultFormatter = ({ name, _id }) => ({ label: name, value: _id });
+const defaultFormatter = ({ name, id }) => ({ label: name, value: id });
 
 export class Suggester {
   constructor(api, endpoint, formatter = defaultFormatter) {

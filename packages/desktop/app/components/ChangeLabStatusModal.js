@@ -8,8 +8,8 @@ import { ChangeLabStatusForm } from '../forms/ChangeLabStatusForm';
 
 export const ChangeLabStatusModal = connectApi((api, dispatch, { labRequest }) => ({
   onSubmit: async data => {
-    await api.put(`labRequest/${labRequest._id}`, { status: data.status });
-    dispatch(reloadLab(labRequest._id));
+    await api.put(`labRequest/${labRequest.id}`, { status: data.status });
+    dispatch(reloadLab(labRequest.id));
   },
 }))(({ labRequest, onClose, open, onSubmit }) => (
   <Modal open={open} onClose={onClose} title="Change lab request status">

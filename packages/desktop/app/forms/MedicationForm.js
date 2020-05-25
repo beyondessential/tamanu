@@ -57,7 +57,7 @@ export const MedicationForm = React.memo(
         <FormGrid>
           <div style={{ gridColumn: '1 / -1' }}>
             <Field
-              name="drug._id"
+              name="drug.id"
               label="Medication"
               component={AutocompleteField}
               suggester={drugSuggester}
@@ -75,7 +75,7 @@ export const MedicationForm = React.memo(
           <Field name="date" label="Prescription date" component={DateField} required />
           <Field name="endDate" label="End date" component={DateField} />
           <Field
-            name="prescriber._id"
+            name="prescriber.id"
             label="Prescriber"
             component={AutocompleteField}
             suggester={practitionerSuggester}

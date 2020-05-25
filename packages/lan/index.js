@@ -1,42 +1,59 @@
 import config from 'config';
-import RemoteAuth from './app/services/remote-auth';
-import { startScheduledTasks } from './app/tasks';
-import { startDataChangePublisher } from './DataChangePublisher';
-import { setupDatabase, setupListeners } from './app/database';
-import { createApp } from './createApp';
+import { initDatabase } from './app/database';
+import { log } from './app/logging';
 
-import { createInitialAdmin } from './createInitialAdmin';
+import { createApp } from './app/createApp';
+
+import { startScheduledTasks } from './app/tasks';
+import { startDataChangePublisher } from './app/DataChangePublisher';
+
+import { importDataDefinition } from './app/dataDefinitionImporter';
 
 const port = config.port;
-const database = setupDatabase();
-const listeners = setupListeners(database);
-const app = createApp(database);
 
-const startServer = () => {
-  const server = app.listen(port, () => {
-    console.log(`Server is running on port ${port}!`);
-  });
-  // Set up change publishing
-  startDataChangePublisher(server, database);
+async function performInitialSetup({ sequelize, models }) {
+  // sync models with database
+  // (TODO: proper migrations)
+  await sequelize.sync();
 
-  startScheduledTasks(database);
-};
-
-async function start() {
-  if (database.objects('user').length === 0) {
-    await createInitialAdmin(database);
+  const existingUser = await models.User.findOne();
+  if (existingUser) {
+    // database has been populated
+    return;
   }
 
-  if (config.offlineMode) {
-    startServer(database);
-  } else {
-    // Prompt user to login before activating sync
-    const authService = new RemoteAuth(database);
-    authService.promptLogin(() => {
-      startServer(database);
-      listeners.setupSync();
+  // run initial import
+  const path = config.initialDataPath;
+  log.info(`Importing initial data from ${path}...`);
+  await importDataDefinition(models, path, sheetResult => {
+    const { sheetName, created, updated, errors } = sheetResult;
+    log.info(`Importing ${sheetName}: ${created} created, ${updated} updated.`);
+    errors.map(message => {
+      log.warn(`- ${message}`);
     });
-  }
+  });
+  log.info(`Data import completed.`);
 }
 
-start();
+export async function run() {
+  const database = initDatabase({
+    testMode: false,
+  });
+
+  await performInitialSetup(database);
+
+  const app = createApp(database);
+  const server = app.listen(port, () => {
+    log.info(`Server is running on port ${port}!`);
+  });
+
+  // TODO: port scheduled tasks
+  // startScheduledTasks(database);
+
+  startDataChangePublisher(server, database);
+
+  // TODO: sync with remote server
+  //
+}
+
+run();

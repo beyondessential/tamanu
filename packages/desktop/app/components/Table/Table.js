@@ -155,7 +155,7 @@ class TableComponent extends React.Component {
     onRowClick: null,
     rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
     rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,
-    rowIdKey: '_id', // specific to data expected for tamanu REST api fetches
+    rowIdKey: 'id', // specific to data expected for tamanu REST api fetches
   };
 
   getErrorMessage() {

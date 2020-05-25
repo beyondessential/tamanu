@@ -1,13 +1,13 @@
-const path = require('path');
-
-// transform expects a path, not an object, so we have to define
-// our babel config in a separate file rather than inline
 module.exports = {
   transform: {
-    '^.+\\.js$': path.resolve(__dirname, './jest.babel.js'),
+    '^.+\\.js$': '<rootDir>/jest.babel.js',
   },
   testRegex: '(\\.|/)(test|spec)\\.[jt]sx?$',
   moduleNameMapper: {
-    'Shared(.*)$': '<rootDir>/../shared$1',
+    '^~/(.*)$': '<rootDir>/app/$1',
   },
+  testEnvironment: 'node',
+  globalSetup: '<rootDir>/__tests__/setup.js',
+  globalTeardown: '<rootDir>/__tests__/teardown.js',
+  setupFilesAfterEnv: ['<rootDir>/__tests__/configureEnvironment.js'],
 };

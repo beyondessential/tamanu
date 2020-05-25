@@ -1,7 +1,11 @@
 {
+  "initialDataPath": "data/demo_definitions.xlsx",
   "port": 4000,
   "db": {
-    "name": "main"
+    "name": "main",
+    "username": "test",
+    "password": "abc123",
+    "verbose": false
   },
   "sync": {
     "path": "realm-sync",

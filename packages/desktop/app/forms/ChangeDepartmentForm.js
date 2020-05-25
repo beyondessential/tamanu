@@ -6,14 +6,10 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 
 export class ChangeDepartmentForm extends React.PureComponent {
   renderForm = ({ submitForm }) => {
-    const { onCancel, visit, departmentSuggester } = this.props;
+    const { onCancel, departmentSuggester } = this.props;
     return (
       <FormGrid columns={1}>
-        <Field
-          name="department._id"
-          component={AutocompleteField}
-          suggester={departmentSuggester}
-        />
+        <Field name="departmentId" component={AutocompleteField} suggester={departmentSuggester} />
         <ConfirmCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
       </FormGrid>
     );
@@ -24,7 +20,7 @@ export class ChangeDepartmentForm extends React.PureComponent {
     return (
       <Form
         initialValues={{
-          department: visit.department,
+          departmentId: visit.departmentId,
         }}
         render={this.renderForm}
         onSubmit={onSubmit}

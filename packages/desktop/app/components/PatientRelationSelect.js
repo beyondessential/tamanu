@@ -7,7 +7,7 @@ const getOptions = ({ patientModel, relation, template }) => {
   const collection = patientModel.get(relation);
   if (!collection.length) return [];
   return collection.map(model => ({
-    value: model.get('_id'),
+    value: model.get('id'),
     label: template(model.toJSON()),
   }));
 };

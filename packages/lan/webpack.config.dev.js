@@ -9,6 +9,12 @@ module.exports = {
   watch: true,
   plugins: [
     ...baseConfig.plugins,
-    new NodemonPlugin(),
+    new NodemonPlugin({
+      delay: 500,
+      watch: [
+        './dist',
+        '../shared',
+      ],
+    }),
   ],
 };

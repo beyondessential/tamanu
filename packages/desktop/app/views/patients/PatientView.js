@@ -34,7 +34,7 @@ const AppointmentPane = React.memo(({ patient, readonly }) => {
     <div>
       <AppointmentModal
         open={modalOpen}
-        patientId={patient._id}
+        patientId={patient.id}
         onClose={() => setModalOpen(false)}
       />
       <AppointmentTable appointments={patient.appointments} />
@@ -57,7 +57,7 @@ const ReferralPane = React.memo(({ patient, readonly }) => {
 
   return (
     <div>
-      <ReferralModal open={modalOpen} patientId={patient._id} onClose={() => setModalOpen(false)} />
+      <ReferralModal open={modalOpen} patientId={patient.id} onClose={() => setModalOpen(false)} />
       <ReferralTable referrals={patient.referrals} />
       <ContentPane>
         <Button
@@ -79,6 +79,7 @@ const RoutedTriageModal = connectRoutedModal('/patients/view', 'triage')(TriageM
 const HistoryPane = connect(
   state => ({
     visits: state.patient.visits,
+    patientId: state.patient.id,
   }),
   dispatch => ({
     onViewVisit: id => dispatch(viewVisit(id)),
@@ -86,7 +87,7 @@ const HistoryPane = connect(
     onOpenTriage: () => dispatch(push('/patients/view/triage')),
   }),
 )(
-  React.memo(({ visits, onViewVisit, onOpenCheckin, onOpenTriage, readonly }) => (
+  React.memo(({ visits, patientId, onViewVisit, onOpenCheckin, onOpenTriage, readonly }) => (
     <div>
       <PatientVisitSummary
         visits={visits}
@@ -95,18 +96,18 @@ const HistoryPane = connect(
         openTriage={onOpenTriage}
         readonly={readonly}
       />
-      <PatientHistory items={visits} onItemClick={item => onViewVisit(item._id)} />
+      <PatientHistory patientId={patientId} onItemClick={item => onViewVisit(item.id)} />
     </div>
   )),
 );
 
 const ConnectedPatientDetailsForm = connectApi((api, dispatch, { patient }) => ({
   onSubmit: async data => {
-    await api.put(`patient/${patient._id}`, data);
-    dispatch(reloadPatient(patient._id));
+    await api.put(`patient/${patient.id}`, data);
+    dispatch(reloadPatient(patient.id));
   },
-  patientSuggester: new Suggester(api, 'patient', ({ _id, firstName, lastName }) => ({
-    value: _id,
+  patientSuggester: new Suggester(api, 'patient', ({ id, firstName, lastName }) => ({
+    value: id,
     label: `${firstName} ${lastName}`,
   })),
   facilitySuggester: new Suggester(api, 'facility'),
@@ -170,7 +171,7 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
           readonly={readonly}
         />
       </TwoColumnDisplay>
-      <RoutedVisitModal patientId={patient._id} referrals={patient.referrals} />
+      <RoutedVisitModal patientId={patient.id} referrals={patient.referrals} />
       <RoutedTriageModal patient={patient} />
     </React.Fragment>
   );

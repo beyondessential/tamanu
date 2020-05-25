@@ -4,40 +4,6 @@ import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import { Dialog } from '../Dialog';
 
-function stripNestedRealmObjects(data) {
-  // Realm allows deep-editing of objects, but the way we send data to the server
-  // opens up some undesirable side-effects.
-  // If we've got a patientDiagnosis object that looks like this:
-  // { _id: "base-object-123", diagnosis: { _id: "sick-123", name: "Sick" } }
-  // and the user edits it, selecting a different malady, the autocomplete will
-  // write to diagnosis._id:
-  // { _id: "base-object-123", diagnosis: { _id: "injured-123", name: "Sick" } }
-  // When this arrives at the server, realm will update the patientDiagnosis to
-  // reference the "injured-123" diagnosis, but will _also_ rewrite that diagnosis'
-  // name to be "Sick" instead of what it previously was - presumably "Injured".
-  //
-  // So, this function iterates over the keys of an object and updates any nested
-  // objects to only have the _id key:
-  // { _id: "base-object-123", diagnosis: { _id: "sick-123" } }
-
-  // first create a shallow copy of the object
-  const strippedValues = { ...data };
-
-  const strip = value => {
-    if (value && value._id) return { _id: value._id };
-    if (Array.isArray(value)) return value.map(strip);
-    return value;
-  };
-
-  // then replace deep FK references with shallow ones
-  // eslint-disable-next-line array-callback-return
-  Object.entries(strippedValues).map(([key, value]) => {
-    strippedValues[key] = strip(value);
-  });
-
-  return strippedValues;
-}
-
 const ErrorMessage = ({ errors, name }) => `${errors[name]}`;
 
 const FormErrors = ({ errors }) =>
@@ -107,10 +73,9 @@ export class Form extends React.PureComponent {
     }
 
     // submission phase
-    const strippedValues = stripNestedRealmObjects(values);
     const { onSubmit } = this.props;
     try {
-      await onSubmit(strippedValues, {
+      await onSubmit(values, {
         ...rest,
         setErrors: this.setErrors,
       });

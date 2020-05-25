@@ -39,9 +39,9 @@ const locationSuggester = createDummySuggester(mapToSuggestions(LOCATIONS));
 const facilitySuggester = createDummySuggester(mapToSuggestions(FACILITIES));
 const icd10Suggester = createDummySuggester(mapToSuggestions(DIAGNOSES));
 const patientSuggester = createDummySuggester(
-  PATIENTS.map(({ firstName, lastName, _id }) => ({
+  PATIENTS.map(({ firstName, lastName, id }) => ({
     label: `${firstName} ${lastName}`,
-    value: _id,
+    value: id,
   })),
 );
 const drugSuggester = createDummySuggester(mapToSuggestions(DRUGS));
@@ -157,20 +157,20 @@ storiesOf('Forms', module).add('PatientDetailsForm', () => (
 const testCategories = [{ label: 'Sweet', value: 'sweet' }, { label: 'Savoury', value: 'savoury' }];
 
 const testTypes = [
-  { name: 'Grape', _id: 'grape', category: { _id: 'sweet' } },
-  { name: 'Vanilla', _id: 'vanilla', category: { _id: 'sweet' } },
-  { name: 'Chocolate', _id: 'chocolate', category: { _id: 'sweet' } },
-  { name: 'Boysenberry', _id: 'boysenberry', category: { _id: 'sweet' } },
-  { name: 'Strawberry', _id: 'strawb', category: { _id: 'sweet' } },
-  { name: 'Lemon', _id: 'lemon', category: { _id: 'sweet' } },
-  { name: 'Pepper', _id: 'pepper', category: { _id: 'savoury' } },
-  { name: 'Cabbage', _id: 'cabbage', category: { _id: 'savoury' } },
-  { name: 'Sprout', _id: 'sprout', category: { _id: 'savoury' } },
-  { name: 'Yeast', _id: 'yeast', category: { _id: 'savoury' } },
-  { name: 'Zucchini', _id: 'zuc', category: { _id: 'savoury' } },
-  { name: 'Egg', _id: 'egg', category: { _id: 'savoury' } },
-  { name: 'Chicken', _id: 'chicken', category: { _id: 'savoury' } },
-  { name: 'Leek', _id: 'leek', category: { _id: 'savoury' } },
+  { name: 'Grape', id: 'grape', category: { id: 'sweet' } },
+  { name: 'Vanilla', id: 'vanilla', category: { id: 'sweet' } },
+  { name: 'Chocolate', id: 'chocolate', category: { id: 'sweet' } },
+  { name: 'Boysenberry', id: 'boysenberry', category: { id: 'sweet' } },
+  { name: 'Strawberry', id: 'strawb', category: { id: 'sweet' } },
+  { name: 'Lemon', id: 'lemon', category: { id: 'sweet' } },
+  { name: 'Pepper', id: 'pepper', category: { id: 'savoury' } },
+  { name: 'Cabbage', id: 'cabbage', category: { id: 'savoury' } },
+  { name: 'Sprout', id: 'sprout', category: { id: 'savoury' } },
+  { name: 'Yeast', id: 'yeast', category: { id: 'savoury' } },
+  { name: 'Zucchini', id: 'zuc', category: { id: 'savoury' } },
+  { name: 'Egg', id: 'egg', category: { id: 'savoury' } },
+  { name: 'Chicken', id: 'chicken', category: { id: 'savoury' } },
+  { name: 'Leek', id: 'leek', category: { id: 'savoury' } },
 ];
 
 const StorybookableTestSelector = () => {

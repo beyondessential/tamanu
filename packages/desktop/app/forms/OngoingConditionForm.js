@@ -34,7 +34,7 @@ export class OngoingConditionForm extends React.PureComponent {
     return (
       <FormGrid columns={1}>
         <Field
-          name="condition._id"
+          name="condition.id"
           label="Condition name"
           component={AutocompleteField}
           suggester={icd10Suggester}

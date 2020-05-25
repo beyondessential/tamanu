@@ -24,7 +24,7 @@ export const DiagnosisForm = React.memo(
     // don't show the "ED Diagnosis" option if we're just on a regular visit
     // (unless we're editing a diagnosis with ED certainty already set)
     const certaintyOptions = diagnosisCertaintyOptions.filter(x => {
-      if(x.editOnly && !(diagnosis && diagnosis._id)) return false;
+      if(x.editOnly && !(diagnosis && diagnosis.id)) return false;
       if(x.triageOnly && !isTriage) return false;
       return true;
     });
@@ -51,7 +51,7 @@ export const DiagnosisForm = React.memo(
           <FormGrid>
             <div style={{ gridColumn: '1 / -1' }}>
               <Field
-                name="diagnosis._id"
+                name="diagnosis.id"
                 label="ICD10 Code"
                 component={AutocompleteField}
                 suggester={icd10Suggester}

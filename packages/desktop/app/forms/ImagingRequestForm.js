@@ -58,11 +58,11 @@ class DumbImagingRequestForm extends React.PureComponent {
 
     return (
       <FormGrid>
-        <Field name="_id" label="Imaging request code" disabled component={TextField} />
+        <Field name="id" label="Imaging request code" disabled component={TextField} />
         <Field name="requestedDate" label="Order date" required component={DateField} />
         <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
-          name="requestedBy._id"
+          name="requestedBy.id"
           label="Requesting doctor"
           required
           component={AutocompleteField}
@@ -80,7 +80,7 @@ class DumbImagingRequestForm extends React.PureComponent {
         <FormSeparatorLine />
         <TextInput label="Visit" disabled value={visitLabel} />
         <Field
-          name="type._id"
+          name="type.id"
           label="Imaging request type"
           required
           component={SelectField}
@@ -116,7 +116,7 @@ class DumbImagingRequestForm extends React.PureComponent {
         onSubmit={onSubmit}
         render={this.renderForm}
         initialValues={{
-          _id: generateId(),
+          id: generateId(),
           requestedDate: new Date(),
           ...editedObject,
         }}
@@ -133,8 +133,8 @@ class DumbImagingRequestForm extends React.PureComponent {
 
 export const ImagingRequestForm = connect(
   state => ({
-    imagingTypes: getImagingTypes(state).map(({ _id, name }) => ({
-      value: _id,
+    imagingTypes: getImagingTypes(state).map(({ id, name }) => ({
+      value: id,
       label: name,
     })),
   }),

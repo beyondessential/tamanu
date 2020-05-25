@@ -13,7 +13,7 @@ import {
   USERS,
   PROCEDURE_TYPES,
   VILLAGES,
-} from 'Shared/demoData';
+} from 'shared/demoData';
 
 const GENERATORS = {
   allergy: () => ALLERGIES,

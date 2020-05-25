@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { padStart, capitalize } from 'lodash';
 
-import { createValueIndex } from 'shared/utils';
+import { createValueIndex } from 'shared/utils/valueIndex';
 import { VISIT_TYPES } from 'shared/constants';
 import {
   medicationIcon,
@@ -263,13 +263,6 @@ export const visitOptions = [
 
 export const VISIT_OPTIONS_BY_VALUE = createValueIndex(visitOptions);
 
-export const AVPU_OPTIONS = [
-  { value: 'alert', label: 'Alert' },
-  { value: 'verbal', label: 'Verbal' },
-  { value: 'pain', label: 'Pain' },
-  { value: 'unresponsive', label: 'Unresponsive' },
-];
-
 export const TRIAGE_COLORS_BY_LEVEL = {
   1: Colors.alert,
   2: Colors.secondary,
@@ -509,7 +502,7 @@ export const pregnancyColumns = [
     minWidth: 100,
   },
   {
-    accessor: row => ({ _id: row._id, admitted: row.admitted }),
+    accessor: row => ({ id: row.id, admitted: row.admitted }),
     key: 'actions',
     title: 'Actions',
     headerStyle: {
@@ -564,7 +557,7 @@ export const visitsColumns = [
     minWidth: 100,
   },
   {
-    accessor: row => ({ _id: row._id, admitted: row.admitted }),
+    accessor: row => ({ id: row.id, admitted: row.admitted }),
     key: 'actions',
     title: 'Actions',
     headerStyle: {

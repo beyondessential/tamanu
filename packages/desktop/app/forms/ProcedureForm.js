@@ -66,7 +66,7 @@ export class ProcedureForm extends React.PureComponent {
           <FormGrid>
             <div style={{ gridColumn: 'span 2' }}>
               <Field
-                name="type._id"
+                name="type.id"
                 label="Procedure"
                 required
                 component={AutocompleteField}
@@ -74,7 +74,7 @@ export class ProcedureForm extends React.PureComponent {
               />
             </div>
             <Field
-              name="location._id"
+              name="location.id"
               label="Procedure location"
               required
               component={AutocompleteField}
@@ -86,26 +86,26 @@ export class ProcedureForm extends React.PureComponent {
               <Field name="endTime" label="Time ended" component={TimeField} />
             </FormGrid>
             <Field
-              name="physician._id"
+              name="physician.id"
               label="Physician"
               required
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
             <Field
-              name="assistant._id"
+              name="assistant.id"
               label="Assistant"
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
             <Field
-              name="anaesthetist._id"
+              name="anaesthetist.id"
               label="Anaesthetist"
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
             <Field
-              name="anaesthesiaType._id"
+              name="anaesthesiaType.id"
               label="Anaesthesia Type"
               component={AutocompleteField}
               suggester={anaesthesiaSuggester}

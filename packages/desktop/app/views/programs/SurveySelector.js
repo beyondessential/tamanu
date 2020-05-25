@@ -16,18 +16,18 @@ export const SurveySelector = React.memo(({ onSelectSurvey, programs }) => {
   const [programOptions, setProgramOptions] = useState(null);
 
   useEffect(() => {
-    setProgramOptions(programs.map(x => ({ value: x._id, label: x.name })));
+    setProgramOptions(programs.map(x => ({ value: x.id, label: x.name })));
   }, [programs]);
 
   const onChangeProgram = useCallback(event => {
     const programId = event.target.value;
-    const program = programs.find(x => x._id === programId);
+    const program = programs.find(x => x.id === programId);
     if (programId === selectedProgramId) {
       return;
     }
     setSelectedProgramId(programId);
     setSelectedSurveyId(null);
-    setSurveyOptions(program.surveys.map(x => ({ value: x._id, label: x.name })));
+    setSurveyOptions(program.surveys.map(x => ({ value: x.id, label: x.name })));
   });
 
   const onChangeSurvey = useCallback(event => {

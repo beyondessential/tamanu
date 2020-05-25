@@ -14,8 +14,8 @@ const DumbNewPatientModal = memo(({ open, onCancel, isBirth, ...formProps }) => 
 ));
 
 export const NewPatientModal = connectApi((api, dispatch, { onCreateNewPatient }) => ({
-  patientSuggester: new Suggester(api, 'patient', ({ _id, firstName, lastName }) => ({
-    value: _id,
+  patientSuggester: new Suggester(api, 'patient', ({ id, firstName, lastName }) => ({
+    value: id,
     label: `${firstName} ${lastName}`,
   })),
   facilitySuggester: new Suggester(api, 'facility'),

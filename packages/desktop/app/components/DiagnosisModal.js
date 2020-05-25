@@ -16,8 +16,8 @@ const DumbDiagnosisModal = React.memo(({ diagnosis, onClose, onSaveDiagnosis, ..
 
 export const DiagnosisModal = connectApi((api, dispatch, { visitId, onClose }) => ({
   onSaveDiagnosis: async data => {
-    if (data._id) {
-      await api.put(`patientDiagnosis/${data._id}`, data);
+    if (data.id) {
+      await api.put(`patientDiagnosis/${data.id}`, data);
     } else {
       const { diagnosis, previousDiagnoses } = await api.post(`visit/${visitId}/diagnosis`, data);
       if (previousDiagnoses.length > 0) {

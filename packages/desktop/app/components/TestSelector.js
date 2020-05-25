@@ -34,14 +34,14 @@ const SelectorContainer = styled.div`
 export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...props }) => {
   const [filter, setFilter] = React.useState('');
 
-  const isTestSelected = React.useCallback(testId => value.some(x => x._id === testId), [value]);
+  const isTestSelected = React.useCallback(testId => value.some(x => x.id === testId), [value]);
 
   const updateValue = React.useCallback(
     (testId, isSelected) => {
-      const filteredValue = value.filter(v => testTypes.some(x => v._id === x._id));
+      const filteredValue = value.filter(v => testTypes.some(x => v.id === x.id));
       let selectedTests = [...filteredValue];
-      if (isSelected) selectedTests.push({ _id: testId });
-      else selectedTests = selectedTests.filter(x => x._id !== testId);
+      if (isSelected) selectedTests.push({ id: testId });
+      else selectedTests = selectedTests.filter(x => x.id !== testId);
       onChange({ target: { name, value: selectedTests } });
     },
     [onChange, name, value, testTypes],
@@ -59,10 +59,10 @@ export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...pr
       displayedTests.map(t => (
         <TestItem
           label={t.name}
-          value={t._id}
-          key={t._id}
-          checked={isTestSelected(t._id)}
-          onCheck={v => updateValue(t._id, v)}
+          value={t.id}
+          key={t.id}
+          checked={isTestSelected(t.id)}
+          onCheck={v => updateValue(t.id, v)}
         />
       ))
     ) : (

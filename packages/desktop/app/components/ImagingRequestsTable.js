@@ -26,7 +26,7 @@ const getRequestType = ({ type }) => (type || {}).name || 'Unknown';
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
 
 const columns = [
-  { key: '_id', title: 'Request ID' },
+  { key: 'id', title: 'Request ID' },
   { key: 'type', title: 'Type', accessor: getRequestType },
   { key: 'status', title: 'Status', accessor: getStatus },
   { key: 'displayName', title: 'Requested by', accessor: getDisplayName },
@@ -40,14 +40,14 @@ const DumbImagingRequestsTable = React.memo(({ imagingRequests, onImagingRequest
 export const ImagingRequestsTable = connect(
   null,
   dispatch => ({
-    onImagingRequestSelect: imagingRequest => dispatch(viewImagingRequest(imagingRequest._id)),
+    onImagingRequestSelect: imagingRequest => dispatch(viewImagingRequest(imagingRequest.id)),
   }),
 )(DumbImagingRequestsTable);
 
 export const DataFetchingImagingRequestsTable = connect(
   null,
   dispatch => ({
-    onImagingRequestSelect: imagingRequest => dispatch(viewImagingRequest(imagingRequest._id)),
+    onImagingRequestSelect: imagingRequest => dispatch(viewImagingRequest(imagingRequest.id)),
   }),
 )(({ onImagingRequestSelect }) => (
   <DataFetchingTable

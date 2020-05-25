@@ -68,8 +68,8 @@ const AddEditForm = connectApi(
   (api, dispatch, { patient, endpoint, onClose, suggesterEndpoints = [] }) => {
     const apiProps = {
       onSubmit: async data => {
-        await api.post(`patient/${patient._id}/${endpoint}`, data);
-        dispatch(reloadPatient(patient._id));
+        await api.post(`patient/${patient.id}/${endpoint}`, data);
+        dispatch(reloadPatient(patient.id));
         onClose();
       },
     };
@@ -130,7 +130,7 @@ export const InfoPaneList = memo(
             />
           </Collapse>
           {items.map(item => {
-            const id = item._id;
+            const id = item.id;
             const name = getName(item);
             return (
               <React.Fragment key={id}>

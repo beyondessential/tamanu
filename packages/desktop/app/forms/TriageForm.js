@@ -50,7 +50,7 @@ export class TriageForm extends React.PureComponent {
           helperText="If different from triage time"
         />
         <Field
-          name="location._id"
+          name="location.id"
           label="Location"
           required
           component={AutocompleteField}
@@ -72,14 +72,14 @@ export class TriageForm extends React.PureComponent {
         />
         <FormGrid columns={1} style={{ gridColumn: '1 / -1' }}>
           <Field
-            name="chiefComplaint._id"
+            name="chiefComplaint.id"
             label="Chief complaint"
             component={AutocompleteField}
             suggester={triageComplaintSuggester}
             required
           />
           <Field
-            name="secondaryComplaint._id"
+            name="secondaryComplaint.id"
             label="Secondary complaint"
             component={AutocompleteField}
             suggester={triageComplaintSuggester}
@@ -117,7 +117,7 @@ export class TriageForm extends React.PureComponent {
           />
         </FormGrid>
         <Field
-          name="practitioner._id"
+          name="practitioner.id"
           label="Triage clinician"
           required
           component={AutocompleteField}

@@ -15,7 +15,7 @@ const DumbChangeTypeModal = React.memo(({ open, visit, onClose, onSubmit, ...res
 
 export const ChangeTypeModal = connectApi((api, dispatch, { visit }) => ({
   onSubmit: async data => {
-    await api.put(`visit/${visit._id}/visitType`, data);
-    dispatch(viewVisit(visit._id));
+    await api.put(`visit/${visit.id}/visitType`, data);
+    dispatch(viewVisit(visit.id));
   },
 }))(DumbChangeTypeModal);

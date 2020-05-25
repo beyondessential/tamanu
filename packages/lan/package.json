@@ -17,9 +17,9 @@
   },
   "scripts": {
     "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.js",
-    "test": "NODE_ENV=test jest --maxWorkers=10 && rm -rf ./data/test*",
-    "test:coverage": "NODE_ENV=test jest --coverage && rm -rf ./data/test*",
-    "test:watch": "NODE_ENV=test jest --watch && rm -rf ./data/test*",
+    "test": "NODE_ENV=test jest",
+    "test:coverage": "npm test -- --coverage",
+    "test:watch": "npm test -- --watch",
     "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js && pkg . --targets node10-win-x64 --output ./release/server.exe",
     "package": "./scripts/package.sh",
     "lint": "eslint app",
@@ -62,11 +62,13 @@
     "bcrypt": "^3.0.6",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",
+    "cls-hooked": "^4.2.2",
     "compression": "^1.7.2",
     "config": "^3.0.1",
     "connect-flash": "^0.1.1",
     "cross-var": "^1.1.0",
     "express": "^4.16.2",
+    "express-async-handler": "^1.1.4",
     "express-session": "^1.15.6",
     "express-validator": "^5.1.0",
     "faye": "^1.2.4",
@@ -83,7 +85,10 @@
     "realm": "~2.25.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
+    "sequelize": "^5.21.3",
     "shortid": "^2.2.13",
-    "uuid": "^3.3.2"
+    "sqlite3": "^4.1.1",
+    "uuid": "^3.3.2",
+    "winston": "^3.2.1"
   }
 }

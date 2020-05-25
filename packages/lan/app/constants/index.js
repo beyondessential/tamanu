@@ -1,2 +1,2 @@
-export * from 'Shared/constants';
+export * from 'shared/constants';
 // Local constants
