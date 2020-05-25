@@ -50,8 +50,7 @@ export async function run() {
   // TODO: port scheduled tasks
   // startScheduledTasks(database);
 
-  // TODO: change publishing
-  // startDataChangePublisher(server, database);
+  startDataChangePublisher(server, database);
 
   // TODO: sync with remote server
   //

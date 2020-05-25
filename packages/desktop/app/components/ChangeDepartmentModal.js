@@ -16,8 +16,8 @@ const DumbChangeDepartmentModal = React.memo(({ open, visit, onClose, onSubmit, 
 
 export const ChangeDepartmentModal = connectApi((api, dispatch, { visit }) => ({
   departmentSuggester: new Suggester(api, 'department'),
-  onSubmit: async data => {
-    await api.put(`visit/${visit.id}/department`, data);
+  onSubmit: async ({ departmentId }) => {
+    await api.put(`visit/${visit.id}`, { departmentId });
     dispatch(viewVisit(visit.id));
   },
 }))(DumbChangeDepartmentModal);
