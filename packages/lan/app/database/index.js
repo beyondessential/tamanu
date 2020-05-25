@@ -7,6 +7,11 @@ import * as models from 'shared/models';
 import uuid from 'uuid';
 import { log } from '../logging';
 
+// an issue in how webpack's require handling interacts with sequelize means we need
+// to provide the module to sequelize manually
+// issue & resolution here: https://github.com/sequelize/sequelize/issues/9489#issuecomment-486047783
+import sqlite3 from 'sqlite3';
+
 // make a 'fake' uuid that looks like 'test-766-9794-4491-8612-eb19fd959bf2'
 // this way we can run tests against real data and clear out everything that was
 // created by the tests with just "DELETE FROM table WHERE id LIKE 'test-%'"
@@ -28,7 +33,9 @@ export function initDatabase({ testMode = false }) {
   Sequelize.useCLS(namespace);
 
   const logging = verbose ? s => log.debug(s) : null;
-  const options = sqlitePath ? { dialect: 'sqlite', storage: sqlitePath } : { dialect: 'postgres' };
+  const options = sqlitePath 
+    ? { dialect: 'sqlite', dialectModule: sqlite3, storage: sqlitePath } 
+    : { dialect: 'postgres' };
   const sequelize = new Sequelize(name, username, password, {
     ...options,
     logging,
