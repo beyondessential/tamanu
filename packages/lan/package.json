@@ -55,9 +55,9 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
-    "@casl/ability": "^2.5.1",
+    "@casl/ability": "^4.1.0",
     "await-to-js": "^2.0.1",
-    "babel-jest": "^24.5.0",
+    "babel-jest": "^26.0.1",
     "basic-auth": "^2.0.1",
     "bcrypt": "^4.0.1",
     "bluebird": "^3.5.1",
@@ -70,7 +70,7 @@
     "express": "^4.16.2",
     "express-async-handler": "^1.1.4",
     "express-session": "^1.15.6",
-    "express-validator": "^5.1.0",
+    "express-validator": "^6.5.0",
     "faye": "^1.2.4",
     "follow": "^1.1.0",
     "jest": "^24.5.0",
