@@ -30,14 +30,14 @@ export class NoteForm extends React.PureComponent {
     return (
       <FormGrid columns={1}>
         <Field
-          name="type"
+          name="noteType"
           label="Type"
           required
           component={SelectField}
           options={selectableNoteTypes}
         />
         <Field
-          name="author.id"
+          name="authorId"
           label="Written by (or on behalf of)"
           required
           component={AutocompleteField}
@@ -62,7 +62,7 @@ export class NoteForm extends React.PureComponent {
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          author: foreignKey('Author is required'),
+          authorId: foreignKey('Author is required'),
         })}
       />
     );

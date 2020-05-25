@@ -8,6 +8,10 @@ function getCodeForErrorName(name) {
       return 403;
     case 'NotFoundError':
       return 404;
+    case 'InappropriateEndpointError':
+      // method not allowed - usually for PUTting an endpoint that expects POST
+      // but it's the closest status code we have without getting in to redirects
+      return 405;
     case 'SequelizeUniqueConstraintError':
     case 'SequelizeValidationError':
     case 'SequelizeForeignKeyConstraintError':

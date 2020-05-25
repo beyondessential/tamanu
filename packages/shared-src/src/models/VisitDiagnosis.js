@@ -51,12 +51,7 @@ export class VisitDiagnosis extends Model {
     });
   }
 
-  static getReferenceAssociations(models) {
-    return [
-      {
-        model: models.ReferenceData,
-        as: 'Diagnosis',
-      },
-    ];
+  static getListReferenceAssociations() {
+    return ['Diagnosis'];
   }
 }
