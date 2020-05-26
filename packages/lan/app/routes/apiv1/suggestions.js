@@ -1,6 +1,8 @@
 import express from 'express';
 import { QueryTypes } from 'sequelize';
 
+import { REFERENCE_TYPE_VALUES } from 'shared/constants';
+
 export const suggestions = express.Router();
 
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
@@ -44,10 +46,9 @@ function simpleSuggester(modelName, whereSql, mapper = defaultMapper) {
 const referenceDataSuggester = type =>
   simpleSuggester('ReferenceData', `name LIKE :search AND type = '${type}'`);
 
-suggestions.get('/icd10', referenceDataSuggester('icd10'));
-suggestions.get('/drug', referenceDataSuggester('drug'));
-suggestions.get('/department', referenceDataSuggester('department'));
-suggestions.get('/location', referenceDataSuggester('location'));
+REFERENCE_TYPE_VALUES.map(typeName => {
+  suggestions.get(`/${typeName}`, referenceDataSuggester(typeName));
+});
 
 suggestions.get(
   '/practitioner',

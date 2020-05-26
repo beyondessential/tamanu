@@ -26,7 +26,19 @@ export class Model extends sequelize.Model {
     });
   }
 
-  static getReferenceAssociations() {
+  static getListReferenceAssociations() {
+    // List of relations to include when fetching this model
+    // as part of a list (eg to display in a table)
+    //
+    // This will get used in an options object passed to a sequelize
+    // query, so returning 'undefined' by default here just leaves that key
+    // empty (which is the desired behaviour).
     return undefined;
+  }
+
+  static getFullReferenceAssociations() {
+    // List of relations when fetching just this model
+    // (eg to display in a detailed view)
+    return this.getListReferenceAssociations();
   }
 }

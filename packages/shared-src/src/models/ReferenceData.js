@@ -1,24 +1,7 @@
 import { Sequelize, ValidationError } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
-
-const CODE_TYPES = {
-  ICD10: 'icd10',
-  ALLERGY: 'allergy',
-  CONDITION: 'condition',
-  DRUG: 'drug',
-  TRIAGE_REASON: 'triageReason',
-  PROCEDURE_TYPE: 'procedureType',
-  IMAGING_TYPE: 'imagingType',
-  LAB_TEST_CATEGORY: 'labTestCategory',
-  LAB_TEST_TYPE: 'labTestType',
-  FACILITY: 'facility',
-  LOCATION: 'location',
-  DEPARTMENT: 'department',
-  VILLAGE: 'village',
-};
-
-const CODE_TYPE_VALUES = Object.values(CODE_TYPES);
+import { REFERENCE_TYPE_VALUES } from '../constants';
 
 export class ReferenceData extends Model {
   static init({ primaryKey, ...options }) {
@@ -30,7 +13,7 @@ export class ReferenceData extends Model {
           allowNull: false,
         },
         type: {
-          type: Sequelize.ENUM(CODE_TYPE_VALUES),
+          type: Sequelize.ENUM(REFERENCE_TYPE_VALUES),
           allowNull: false,
         },
         name: {
@@ -58,7 +41,7 @@ export class ReferenceData extends Model {
   static async create(values) {
     // the type column is just text in sqlite so validate it here
     const { type } = values;
-    if (type && !CODE_TYPE_VALUES.includes(type)) {
+    if (type && !REFERENCE_TYPE_VALUES.includes(type)) {
       throw new ValidationError(`Invalid type: ${type}`);
     }
     return super.create(values);

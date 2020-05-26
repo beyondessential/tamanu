@@ -22,7 +22,7 @@ export const NoteModal = connectApi((api, dispatch, { visitId, onClose }) => ({
     if (data.id) {
       await api.put(`note/${data.id}`, data);
     } else {
-      await api.post(`visit/${visitId}/note`, data);
+      await api.post(`visit/${visitId}/notes`, data);
     }
 
     onClose();
