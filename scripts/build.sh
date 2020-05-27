@@ -1,4 +1,5 @@
 #!/bin/bash
+node --version
 type=$1
 type_upper=${type^^}
 branch=${CI_BRANCH}
