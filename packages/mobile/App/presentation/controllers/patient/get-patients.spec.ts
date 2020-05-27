@@ -16,7 +16,7 @@ const successValue = [
         },
       ]
 
-const makeGetPatients = () => {
+const makeGetPatients = (): GetPatients => {
   class GetPatientsStub implements GetPatients {
     async get(): Promise<PatientModel[]> {
       return Promise.resolve(successValue);
@@ -26,11 +26,11 @@ const makeGetPatients = () => {
 };
 
 type makeSutProps = {
-    getPatien
+    getPatientsStub: GetPatients
     sut: GetPatientsController
 }
 
-const makeSut = () => {
+const makeSut = (): makeSutProps => {
     const getPatientsStub =  makeGetPatients()
     const sut = new GetPatientsController(getPatientsStub)
     return {
@@ -51,7 +51,7 @@ describe('GetPatient Controller', () => {
     expect(result.error).toBeTruthy()
   });
   it('should return patients', async () => {
-    const {sut, getPatientsStub} = makeSut();    
+    const {sut } = makeSut();    
     const result = await sut.handle()    
     expect(result.data).toBeTruthy()
     expect(result.data).toEqual(successValue)
