@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euxo pipefail
 echo "Installing now"
 
 # load nvm
