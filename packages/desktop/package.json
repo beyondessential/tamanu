@@ -9,7 +9,7 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "AGPL-3.0-only",
   "scripts": {
-    "build": "echo skipped desktop build",
+    "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
     "build-main": "cross-env NODE_ENV=production CONFIG=webpack.config.main.prod node babel-register-pack",
     "build-renderer": "cross-env NODE_ENV=production CONFIG=webpack.config.renderer.prod node babel-register-pack",
     "dev": "cross-env START_HOT=1 node -r ./babel-register ./internals/scripts/CheckPortInUse.js && cross-env START_HOT=1 npm run start-renderer-dev",
