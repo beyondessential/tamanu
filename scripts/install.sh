@@ -4,6 +4,7 @@ echo "Installing now"
 # load nvm
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" 
+which node
 nvm use 12.16.3
 node -v
 
