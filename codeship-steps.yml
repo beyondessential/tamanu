@@ -12,11 +12,11 @@
   command: ./scripts/test.sh
 - name: build_lan_and_desktop_installers
   service: app
-  tag: ^(master|dev)
+  tag: ^(master|dev|version-upgrade)
   command: ./scripts/build.sh demo
 - name: push_artefacts_to_s3
   service: awsdeployment
-  tag: dev
+  tag: ^(dev|version-upgrade)
   command: ./scripts/push.sh
 - name: deploy_demo_server
   service: app
