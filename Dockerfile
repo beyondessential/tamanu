@@ -10,7 +10,6 @@ RUN apt-get install -y -q --no-install-recommends \
         wixl \
         zip \
         unzip
-RUN npm install -g yarn
 
 FROM base_image
 ENV PACKAGES_DIR=/tamanu/packages \
