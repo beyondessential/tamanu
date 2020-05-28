@@ -4,7 +4,7 @@ type=$1
 echo "Zipping packages for ${type}"
 rm -rf deploy
 mkdir -p deploy
-PREFIX=$(date '+%Y-%m-%d')-$(git log --pretty=format:'%h' -n 1)
+PREFIX=$(date '+%Y-%m-%d')-${CI_COMMIT_ID: -8}-
 SUFFIX=-$type
 
 (cd ${DESKTOP_RELEASE_DIR} \
