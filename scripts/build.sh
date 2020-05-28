@@ -14,16 +14,6 @@ touch ${DESKTOP_ROOT}/.env &&
   printf '%s\n' "${desktop_config[@]}" > ${DESKTOP_ROOT}/.env &&
   echo ${DESKTOP_ROOT}/.env
 
-# mkdir -p ${LAN_ROOT}/config/ &&
-  # touch ${LAN_ROOT}/config/local.json &&
-  # printf '%s\n' "${!lan_config}" > ${LAN_ROOT}/config/local.json &&
-  # echo ${LAN_ROOT}/config/local.json
-
-# mkdir -p ${SERVER_ROOT}/config/ &&
-  # touch ${SERVER_ROOT}/config/production.json &&
-  # printf '%s\n' "${!server_config}" > ${SERVER_ROOT}/config/production.json &&
-  # echo ${SERVER_ROOT}/config/production.json
-
 yarn --cwd ${DESKTOP_ROOT} run package-win
 yarn --cwd ${LAN_ROOT} run package
 
