@@ -1,5 +1,5 @@
 import config from 'config';
-import { initDatabase } from './app/database';
+// import { initDatabase } from './app/database';
 import { log } from './app/logging';
 
 import { createApp } from './app/createApp';
@@ -36,6 +36,10 @@ async function performInitialSetup({ sequelize, models }) {
 }
 
 export async function run() {
+  console.log("NMV: ", process.config.variables.node_module_version);
+  console.log("Targets: ", process.config.target_defaults);
+  return;
+
   const database = initDatabase({
     testMode: false,
   });
