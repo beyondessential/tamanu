@@ -1,4 +1,3 @@
-/*
 import config from 'config';
 import { initDatabase } from './app/database';
 import { log } from './app/logging';
@@ -55,12 +54,6 @@ export async function run() {
 
   // TODO: sync with remote server
   //
-}
-*/
-
-export async function run() {
-  console.log("NMV: ", process.config.variables.node_module_version);
-  console.log("Targets: ", process.config.target_defaults);
 }
 
 run();
