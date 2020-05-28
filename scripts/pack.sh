@@ -8,7 +8,7 @@ PREFIX=$(date '+%Y-%m-%d')-${CI_COMMIT_ID: -8}-
 SUFFIX=-$type
 
 (cd ${DESKTOP_RELEASE_DIR} \
-  && zip -q -r ${DEPLOY_DIR}/${PREFIX}desktop${SUFFIX}
+  && zip -q -r ${DEPLOY_DIR}/${PREFIX}desktop${SUFFIX}.zip . ../config \
   && echo "${DEPLOY_DIR}/${PREFIX}desktop${SUFFIX}.zip generated")
 (cd ${LAN_RELEASE_DIR} \
   && cp -r ../config . \
