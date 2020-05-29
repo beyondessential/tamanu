@@ -22,12 +22,11 @@ export const genPatientSectionList = (): PatientModel[] =>
         numeric: true,
         alpha: true,
       }),
-      city: chance.city(),
       firstName,
       middleName,
       lastName,
-      gender: GenderOptions[0].value,
-      birthDate: chance.birthday(),
+      sex: GenderOptions[0].value,
+      dateOfBirth: chance.birthday(),
     };
   });
 
