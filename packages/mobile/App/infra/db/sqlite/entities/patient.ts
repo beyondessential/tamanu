@@ -6,6 +6,9 @@ export class Patient {
   id: string;
 
   @Column()
+  displayId: string;
+
+  @Column()
   firstName: string;
 
   @Column()
@@ -21,7 +24,7 @@ export class Patient {
   lastDate: Date;  
 
   @Column()
-  dateOfBirth: string;
+  dateOfBirth: Date;
 
   @Column()
   sex: string; 
