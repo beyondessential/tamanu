@@ -4,15 +4,15 @@ import { PatientModel } from "/root/App/ui/models/Patient";
 import { Gender } from "/root/App/ui/helpers/constants";
 
 const fakedate = new Date()
-const makeFakePatientList = () => ([
+const makeFakePatientList = (): PatientModel[] => ([
         {
           id: 'valid-id',
           displayId: 'dis',
           firstName: 'first-name',
           lastName: 'last-name',
           middleName: 'middle-name',
-          gender: Gender.Male,
-          birthDate: fakedate,
+          sex: Gender.Male,
+          dateOfBirth: fakedate,
           culturalTraditionName: 'cultural-name',
         },
       ])
