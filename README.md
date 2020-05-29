@@ -19,7 +19,7 @@ Additionally:
 First, clone the repo via git:
 
 ```bash
-$ git clone https://github.com/beyondessential/tamanu.git
+$ git clone git@github.com:beyondessential/tamanu.git
 ```
 
 And then install dependencies with yarn.
