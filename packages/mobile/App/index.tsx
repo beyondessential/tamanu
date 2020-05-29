@@ -5,7 +5,9 @@ import { SqliteHelper } from './infra/db/sqlite/helpers/sqlite-helper';
 
 export const App = (): ReactElement => {
   useEffect(() => {
-    SqliteHelper.connect();
+    if (!SqliteHelper.client) {
+      SqliteHelper.connect();
+    }
   });
   return <RootStack />;
 };
