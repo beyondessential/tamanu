@@ -9,3 +9,4 @@ metro.config.js
 *.png
 *.bat
 mockserver/
+*.db
