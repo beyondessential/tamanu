@@ -165,6 +165,11 @@ App configuration files
 | .metro.config.js | RN file bundler |
 | app.json | App name and display name |
 
+| Jest  |   |
+|---|---|
+| jest-unit-config.js | Configuration for unit tests. Unit tests has a .spec extension |
+| jest-integration-config.js | Configuration for integration tests. Integration tests has a .test extension |
+
 
 Environment:
 
