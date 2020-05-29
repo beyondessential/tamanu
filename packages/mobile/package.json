@@ -8,7 +8,7 @@
     "build:android": "cd android && ./gradlew clean && ./gradlew assembleRelease && cd ..",
     "ios": "npx react-native run-ios",
     "start": "react-native start",
-    "test": "jest --passWithNoTests --silent",
+    "test": "jest --passWithNoTests --silent --runInBand",
     "test:unit": "yarn test -- --watch -c jest-unit-config.js",
     "test:integration": "yarn test -- --watch -c jest-integration-config.js",
     "test:commit": "yarn test -- --findRelatedTests",
@@ -74,10 +74,10 @@
     "redux": "^4.0.5",
     "redux-persist": "^6.0.0",
     "redux-persist-sensitive-storage": "^1.0.0",
-    "reselect": "^4.0.0",    
+    "reselect": "^4.0.0",
     "styled-components": "^5.1.0",
     "styled-system": "^5.1.2",
-    "typeorm": "^0.2.25",    
+    "typeorm": "^0.2.25",
     "yup": "^0.28.0"
   },
   "devDependencies": {
@@ -107,8 +107,8 @@
     "babel-jest": "^26.0.1",
     "babel-loader": "^8.0.6",
     "babel-plugin-module-resolver": "^4.0.0",
-    "babel-plugin-transform-typescript-metadata": "^0.3.0",    
-    "detox": "^16.4.0",    
+    "babel-plugin-transform-typescript-metadata": "^0.3.0",
+    "detox": "^16.4.0",
     "eslint": "^7.0.0",
     "eslint-config-prettier": "^6.7.0",
     "eslint-import-resolver-alias": "^1.1.2",
@@ -125,7 +125,8 @@
     "react-native-svg-mock": "^2.0.0",
     "react-native-svg-transformer": "^0.13.0",
     "react-test-renderer": "16.11.0",
-    "ts-jest": "^24.1.0",
+    "sqlite3": "^4.2.0",
+    "ts-jest": "^26.0.0",
     "typescript": "^3.9.2"
   },
   "detox": {
