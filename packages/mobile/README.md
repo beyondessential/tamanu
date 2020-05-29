@@ -119,6 +119,17 @@ The builded app will be in:
 tamanu-mobile/android/app/build/outputs/apk/release/app-release.apk
 ```
 
+## Debugging 
+
+The tamanu app has 2 integrations for debugging: 
+
+- [Flipper](https://fbflipper.com/)
+- [Reactotron](https://infinite.red/reactotron)
+
+Flipper allow us to track database changes in sqlite files, and Reactotron has a better UI for checking state changes and internet api calls.
+
+All you have to do is download the tools and open them while running while development and it will automatically syncs to the program and show you the updates.
+
 #### Distribute
 
 1. upload file in diawi.com
