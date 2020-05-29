@@ -72,7 +72,6 @@
     "moment": "^2.21.0",
     "morgan": "^1.9.0",
     "prompt": "^1.0.0",
-    "realm": "^2.18.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "serve-index": "^1.9.1",

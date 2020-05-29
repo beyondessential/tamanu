@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euxo pipefail
 echo ${LAN_ROOT}
 
 if [ -z "$LAN_ROOT" ]; then

@@ -17,8 +17,7 @@
     "test-watch": "yarn workspace lan run test:watch"
   },
   "engines": {
-    "node": ">=8.3 <11.0",
-    "yarn": ">=1.2"
+    "node": "^12"
   },
   "private": true,
   "workspaces": {

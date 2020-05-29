@@ -1,5 +1,5 @@
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
-import { AbilityBuilder } from '@casl/ability';
+import { AbilityBuilder, Ability } from '@casl/ability';
 
 import * as roles from 'shared/roles';
 
@@ -21,10 +21,10 @@ function getSubjectName(subject) {
 export function constructPermission(req, res, next) {
   const user = req.user;
 
+  const { can, cannot, build } = new AbilityBuilder(Ability);
+
   if (!user) {
-    req.ability = AbilityBuilder.define(() => {
-      // no permissions
-    });
+    req.ability = build(); // no permissions
     next();
     return;
   }
@@ -32,8 +32,10 @@ export function constructPermission(req, res, next) {
   const builder = roles[user.role];
   if (!builder) {
     next(new Error(`Invalid role: ${user.role}`));
+    return;
   }
-  req.ability = AbilityBuilder.define((allow, forbid) => builder(user, allow, forbid));
+  builder(user, can, cannot);
+  req.ability = build();
 
   next();
 }
