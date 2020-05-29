@@ -24,7 +24,7 @@ export function constructPermission(req, res, next) {
   const { can, cannot, build } = new AbilityBuilder(Ability);
 
   if (!user) {
-    req.ability = build();
+    req.ability = build(); // no permissions
     next();
     return;
   }
