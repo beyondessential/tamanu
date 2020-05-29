@@ -11,7 +11,7 @@ import {
 } from '/styled/common';
 import { ArrowLeftIcon, KebabIcon } from '/components/Icons';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { joinNames } from '/helpers/user';
+import { joinNames, getGender } from '/helpers/user';
 import { UserAvatar } from '/components/UserAvatar';
 import { PatientDetails } from '/interfaces/PatientDetails';
 import {
@@ -84,7 +84,7 @@ export const Screen = ({
               color={theme.colors.WHITE}
               fontSize={screenPercentageToDP(1.94, Orientation.Height)}
             >
-              {patientData.generalInfo.gender},{' '}
+              {getGender(patientData.generalInfo.gender)},{' '}
               {getAgeFromDate(patientData.generalInfo.birthDate)} years old,{' '}
               {patientData.generalInfo.city}
             </StyledText>
