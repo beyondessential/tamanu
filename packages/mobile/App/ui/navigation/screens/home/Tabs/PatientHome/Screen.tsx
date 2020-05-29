@@ -21,7 +21,7 @@ import {
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { PatientModel } from '../../../../../models/Patient';
-import { joinNames } from '/helpers/user';
+import { joinNames, getGender } from '/helpers/user';
 import { getAgeFromDate } from '/helpers/date';
 import { setDotsOnMaxLength } from '/helpers/text';
 
@@ -78,7 +78,7 @@ export const Screen = ({
               color={theme.colors.WHITE}
               fontSize={screenPercentageToDP(1.94, Orientation.Height)}
             >
-              {selectedPatient.gender},{' '}
+              {getGender(selectedPatient.gender)},{' '}
               {getAgeFromDate(selectedPatient.birthDate)} years old,{' '}
               {selectedPatient.city}
             </StyledText>
