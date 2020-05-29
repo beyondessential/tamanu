@@ -28,7 +28,9 @@ describe('<PatientCard />', () => {
       switch (visibleProp) {
         case 'lastVisit':
           expect(
-            getByText(formatDate(props[visibleProp], DateFormats.short)),
+            getByText(formatDate(props[visibleProp], DateFormats.short), {
+              exact: false
+            }),
           ).not.toBe(null);
           break;
         default:
