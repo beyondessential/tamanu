@@ -2,11 +2,6 @@
 set -euxo pipefail
 node --version
 type=$1
-type_upper=${type^^}
-branch=${CI_BRANCH}
-branch_upper=${branch^^}
-lan_config="CONFIG_LAN_${type_upper}_${branch_upper}"
-server_config="CONFIG_SERVER_${type_upper}_${branch_upper}"
 echo "Building - ${type}"
 
 IFS='|' read -a desktop_config <<< "${CONFIG_DESKTOP}"
