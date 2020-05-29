@@ -1,18 +1,18 @@
-import React, { createContext, PropsWithChildren, ReactElement } from 'react';
-import { NavigationProp } from '@react-navigation/native';
-import { compose } from 'redux';
-import { makeUserSignInController } from '../../../factories/user/signIn';
-import { withAuth } from '../../containers/Auth';
-import { WithAuthStoreProps } from '/store/ducks/auth';
-import { RequestFailedError } from '/infra/httpClient/axios/errors/request-failed-error';
-import { InvalidCredentialsError } from '/presentation/controllers/signin/errors/invalid-credentials-error';
+import React, {createContext, PropsWithChildren, ReactElement} from 'react';
+import {NavigationProp} from '@react-navigation/native';
+import {compose} from 'redux';
+import {makeUserSignInController} from '../../../factories/user/signIn';
+import {withAuth} from '../../containers/Auth';
+import {WithAuthStoreProps} from '/store/ducks/auth';
+import {RequestFailedError} from '/infra/httpClient/axios/errors/request-failed-error';
+import {InvalidCredentialsError} from '/presentation/controllers/signin/errors/invalid-credentials-error';
 import {
   AuthenticationError,
   noServerAccessMessage,
   invalidUserCredentialsMessage,
   generalErrorMessage,
 } from './auth-error';
-import { Routes } from '/helpers/routes';
+import {Routes} from '/helpers/routes';
 
 interface AuthContextData {
   signIn: (email: string, password: string) => Promise<void>;
@@ -58,7 +58,7 @@ const Provider = ({
   };
   const signIn = async (email: string, password: string): Promise<void> => {
     const signInController = makeUserSignInController();
-    const result = await signInController.handle({ email, password });
+    const result = await signInController.handle({email, password});
     if (result.data) {
       setToken(result.data);
     } else if (result.error) {
@@ -77,7 +77,7 @@ const Provider = ({
     signOutUser();
     navigation.reset({
       index: 0,
-      routes: [{ name: Routes.SignUpStack.name }],
+      routes: [{name: Routes.SignUpStack.name}],
     });
   };
   return (
