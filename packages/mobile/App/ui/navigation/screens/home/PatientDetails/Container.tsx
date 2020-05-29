@@ -1,10 +1,10 @@
-import React, { useCallback, useState, ReactElement } from 'react';
-import { Screen } from './Screen';
-import { PatientDetails } from '/interfaces/PatientDetails';
-import { PatientDetailsScreenProps } from '/interfaces/screens/PatientDetailsScreenProps';
-import { Routes } from '/helpers/routes';
-import { compose } from 'redux';
-import { withPatient } from '/containers/Patient';
+import React, {useCallback, useState, ReactElement} from 'react';
+import {Screen} from './Screen';
+import {PatientDetails} from '/interfaces/PatientDetails';
+import {PatientDetailsScreenProps} from '/interfaces/screens/PatientDetailsScreenProps';
+import {Routes} from '/helpers/routes';
+import {compose} from 'redux';
+import {withPatient} from '/containers/Patient';
 
 const Container = ({
   navigation,
@@ -33,6 +33,9 @@ const Container = ({
     },
     procedurePlan: {
       data: [],
+    },
+    allergies: {
+      data: ['rhinitis'],
     },
   };
 
