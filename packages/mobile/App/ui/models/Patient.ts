@@ -1,4 +1,3 @@
-import { Gender } from "../helpers/constants";
 
 export interface PatientModel {
   [key: string]: any;
@@ -7,7 +6,7 @@ export interface PatientModel {
   firstName: string;
   lastName: string;
   middleName?: string;  
-  gender: Gender;
-  birthDate: Date;      
-  culturalTraditionName?: string;
+  sex: string;
+  dateOfBirth: Date;      
+  culturalName?: string;
 }
