@@ -2,16 +2,15 @@ import { sign, verify } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import { auth } from 'config';
 
+import { v4 as uuid } from 'uuid';
+
 import { BadAuthenticationError } from 'shared/errors';
 
-const { tokenDuration, jwtSecretKey } = auth;
+const { tokenDuration } = auth;
 
-// don't even let things start if the key hasn't been configured in prod
-if (!['development', 'test'].includes(process.env.NODE_ENV)) {
-  if (!jwtSecretKey || jwtSecretKey === 'DEFAULT_SECRET_KEY') {
-    throw new Error('Please configure the JWT secret key for running in production.');
-  }
-}
+// regenerate the secret key whenever the server restarts.
+// this will invalidate all current tokens, but they're meant to expire fairly quickly anyway.
+const jwtSecretKey = uuid();
 
 export function getToken(user, expiresIn = tokenDuration) {
   return sign(
