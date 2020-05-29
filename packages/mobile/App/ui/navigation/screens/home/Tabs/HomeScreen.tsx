@@ -1,6 +1,6 @@
-import React, { ReactElement, useCallback, useEffect, useContext } from 'react';
-import { ScrollView } from 'react-native-gesture-handler';
-import { StatusBar } from 'react-native';
+import React, {ReactElement, useCallback, useEffect, useContext} from 'react';
+import {ScrollView} from 'react-native-gesture-handler';
+import {StatusBar} from 'react-native';
 import {
   FullView,
   StyledText,
@@ -9,22 +9,18 @@ import {
   RowView,
   StyledSafeAreaView,
 } from '/styled/common';
-import { ProfileIcon, LogoV2Icon, SearchIcon } from '/components/Icons';
-import { PatientCard } from '/components/PatientCard';
-import { theme } from '/styled/theme';
-import { disableAndroidBackButton } from '/helpers/android';
-import {
-  Orientation,
-  screenPercentageToDP,
-  setStatusBar,
-} from '/helpers/screen';
-import { UserAvatar } from '/components/UserAvatar';
-import { Routes } from '/helpers/routes';
-import { BaseAppProps } from '/interfaces/BaseAppProps';
-import { FemaleGender } from '/helpers/constants';
-import { compose } from 'redux';
-import { withAuth } from '/containers/Auth';
-import AuthContext from '../../../../contexts/authContext/AuthContext';
+import {ProfileIcon, LogoV2Icon, SearchIcon} from '/components/Icons';
+import {PatientCard} from '/components/PatientCard';
+import {theme} from '/styled/theme';
+import {disableAndroidBackButton} from '/helpers/android';
+import {Orientation, screenPercentageToDP, setStatusBar} from '/helpers/screen';
+import {UserAvatar} from '/components/UserAvatar';
+import {Routes} from '/helpers/routes';
+import {BaseAppProps} from '/interfaces/BaseAppProps';
+import {FemaleGender} from '/helpers/constants';
+import {compose} from 'redux';
+import {withAuth} from '/containers/Auth';
+import AuthContext from '/contexts/authContext/AuthContext';
 
 const placeholderPatient = {
   city: 'Mbelagha',
@@ -105,7 +101,7 @@ const SearchPatientsButton = ({
   </StyledTouchableOpacity>
 );
 
-const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
+const BaseHomeScreen = ({navigation, user}: BaseAppProps): ReactElement => {
   disableAndroidBackButton();
   const authCtx = useContext(AuthContext);
   useEffect(() => {
@@ -201,16 +197,9 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
           paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
         >
           <StyledText
-            marginTop={screenPercentageToDP(3.07, Orientation.Height)}
-            fontSize={screenPercentageToDP(4.86, Orientation.Height)}
-            fontWeight="bold"
-            color={theme.colors.WHITE}
-          >
-            Hi {user && user.displayName}
-          </StyledText>
-          <StyledText
-            fontSize={screenPercentageToDP(2.18, Orientation.Height)}
-            color={theme.colors.WHITE}
+            fontSize={screenPercentageToDP(1.45, Orientation.Height)}
+            color={theme.colors.TEXT_DARK}
+            marginBottom={screenPercentageToDP(1.21, Orientation.Height)}
           >
             RECENT VIEWED PATIENTS
           </StyledText>
