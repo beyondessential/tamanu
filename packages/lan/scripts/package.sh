@@ -12,6 +12,9 @@ yarn workspace lan run build
 cp ${LAN_ROOT}/.bin/*.node ${LAN_ROOT}/release/
 mkdir ${LAN_ROOT}/release/config && cp ${LAN_ROOT}/config/*.json ${LAN_ROOT}/release/config/
 mkdir ${LAN_ROOT}/release/data && touch ${LAN_ROOT}/release/data/.keep
+
+cp ${LAN_ROOT}/data/demo_definitions.xlsx ${LAN_ROOT}/release/data/.
+
 ${LAN_ROOT}/.bin/msi-packager \
   ${LAN_ROOT}/release \
   ${LAN_ROOT}/release/setup.msi \
