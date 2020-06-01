@@ -63,7 +63,7 @@ export class TamanuApi {
     }
     console.error(response);
 
-    if (response.status === 403) {
+    if (response.status === 403 || response.status === 401) {
       if (this.onAuthFailure) {
         this.onAuthFailure(response);
       }

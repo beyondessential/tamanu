@@ -24,8 +24,7 @@
   "sessionTimeout": 300000,
   "auth": {
     "saltRounds": 10,
-    "tokenDuration": "1h",
-    "jwtSecretKey": "DEFAULT_SECRET_KEY"
+    "tokenDuration": "1h"
   },
   "schedules": {
     "visitDischarger": "0 0 2 ? * * *"
