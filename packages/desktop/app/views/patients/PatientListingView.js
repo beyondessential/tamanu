@@ -18,8 +18,6 @@ import {
 } from './columns';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
-const INPATIENT_ENDPOINT = 'inpatient';
-const OUTPATIENT_ENDPOINT = 'outpatient';
 
 const BASE_COLUMNS = [displayId, firstName, lastName, culturalName, village, sex, dateOfBirth];
 
@@ -80,10 +78,9 @@ const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
   );
 });
 
-const selectPatientConnector = connect(
-  null,
-  dispatch => ({ onViewPatient: id => dispatch(viewPatient(id)) }),
-);
+const selectPatientConnector = connect(null, dispatch => ({
+  onViewPatient: id => dispatch(viewPatient(id)),
+}));
 
 export const DumbPatientListingView = React.memo(({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});

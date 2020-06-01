@@ -72,7 +72,7 @@ export const status = {
   accessor: ({ visit_type }) => {
     if (!visit_type) return '';
     else if (visit_type === 'emergency') return 'Emergency';
-    // TODO: include "Outpatient" status
+    else if (visit_type === 'clinic') return 'Outpatient';
     return 'Inpatient';
   },
 };

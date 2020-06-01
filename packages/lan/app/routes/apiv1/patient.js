@@ -45,7 +45,7 @@ patient.get(
 
     req.checkPermission('list', 'Patient');
 
-    const { 
+    const {
       orderBy = 'lastName',
       order = 'asc',
       rowsPerPage = 10,
@@ -57,7 +57,9 @@ patient.get(
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
     // query is always going to come in as strings, has to be set manually
-    ['ageMax', 'ageMin'].filter(k => filterParams[k]).map(k => (filterParams[k] = parseFloat(filterParams[k])));
+    ['ageMax', 'ageMin']
+      .filter(k => filterParams[k])
+      .map(k => (filterParams[k] = parseFloat(filterParams[k])));
 
     const filters = [
       makeFilter(filterParams.displayId, `patients.display_id = :displayId`),
