@@ -12,11 +12,12 @@ export const log = winston.createLogger({
   ],
 });
 
-if (['development'].includes(process.env.NODE_ENV)) {
+if (['development', 'production'].includes(process.env.NODE_ENV)) {
+  const level = process.env.NODE_ENV === 'development' ? 'debug' : 'info';
   log.add(
     new winston.transports.Console({
       format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
-      level: 'debug',
+      level,
     }),
   );
 }
