@@ -105,23 +105,14 @@ export const DumbPatientListingView = React.memo(({ onViewPatient }) => {
 
 export const PatientListingView = selectPatientConnector(DumbPatientListingView);
 
-// Allow a "patient view" table to receive a list of visits instead
-function annotateVisitWithPatientData(visit) {
-  return {
-    ...visit,
-    ...visit.patient[0],
-    visits: [visit],
-  };
-}
-
 export const AdmittedPatientsView = selectPatientConnector(
   React.memo(({ onViewPatient }) => (
     <PageContainer>
       <TopBar title="Admitted patient listing" />
       <PatientTable
+        fetchOptions={{ inpatient: 1 }}
         onViewPatient={onViewPatient}
-        endpoint={INPATIENT_ENDPOINT}
-        transformRow={annotateVisitWithPatientData}
+        endpoint={PATIENT_SEARCH_ENDPOINT}
         showInpatientDetails
       />
     </PageContainer>
@@ -133,9 +124,9 @@ export const OutpatientsView = selectPatientConnector(
     <PageContainer>
       <TopBar title="Outpatient listing" />
       <PatientTable
+        fetchOptions={{ outpatient: 1 }}
         onViewPatient={onViewPatient}
-        endpoint={OUTPATIENT_ENDPOINT}
-        transformRow={annotateVisitWithPatientData}
+        endpoint={PATIENT_SEARCH_ENDPOINT}
         showInpatientDetails
       />
     </PageContainer>
