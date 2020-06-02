@@ -2,8 +2,6 @@ import React from 'react';
 import { DateDisplay } from '../../components';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 
-import { getCurrentVisit } from '../../store/patient';
-
 const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} />);
 const SexCell = React.memo(({ value = '' }) => <span>{capitaliseFirstLetter(value)}</span>);
 
@@ -54,23 +52,17 @@ export const village = {
 };
 
 export const location = {
-  key: 'location.name',
+  key: 'location_name',
   title: 'Location',
   minWidth: 100,
-  accessor: row => {
-    const visit = getCurrentVisit(row);
-    return visit && visit.location && visit.location.name;
-  },
+  accessor: row => row.location_name,
 };
 
 export const department = {
-  key: 'department.name',
+  key: 'department_name',
   title: 'Department',
   minWidth: 100,
-  accessor: row => {
-    const visit = getCurrentVisit(row);
-    return visit && visit.department && visit.department.name;
-  },
+  accessor: row => row.department_name,
 };
 
 export const status = {
@@ -80,7 +72,7 @@ export const status = {
   accessor: ({ visit_type }) => {
     if (!visit_type) return '';
     else if (visit_type === 'emergency') return 'Emergency';
-    // TODO: include "Outpatient" status
+    else if (visit_type === 'clinic') return 'Outpatient';
     return 'Inpatient';
   },
 };

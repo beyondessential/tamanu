@@ -43,65 +43,62 @@ patient.get(
       query,
     } = req;
 
-    const { rowsPerPage = 10, page = 0 } = query;
-
-    // query is always going to come in as strings, has to be set manually
-    ['ageMax', 'ageMin'].filter(k => query[k]).map(k => (query[k] = parseFloat(query[k])));
-
     req.checkPermission('list', 'Patient');
 
+    const {
+      orderBy = 'lastName',
+      order = 'asc',
+      rowsPerPage = 10,
+      page = 0,
+      ...filterParams
+    } = query;
+
+    const sortKey = sortKeys[orderBy] || sortKeys.displayId;
+    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+    // query is always going to come in as strings, has to be set manually
+    ['ageMax', 'ageMin']
+      .filter(k => filterParams[k])
+      .map(k => (filterParams[k] = parseFloat(filterParams[k])));
+
     const filters = [
-      makeFilter(query.displayId, `patients.display_id = :displayId`),
+      makeFilter(filterParams.displayId, `patients.display_id = :displayId`),
       makeFilter(
-        query.firstName,
+        filterParams.firstName,
         `UPPER(patients.first_name) LIKE UPPER(:firstName)`,
         ({ firstName }) => ({ firstName: `${firstName}%` }),
       ),
       makeFilter(
-        query.lastName,
+        filterParams.lastName,
         `UPPER(patients.last_name) LIKE UPPER(:lastName)`,
         ({ lastName }) => ({ lastName: `${lastName}%` }),
       ),
       makeFilter(
-        query.culturalName,
+        filterParams.culturalName,
         `UPPER(patients.cultural_name) LIKE UPPER(:culturalName)`,
         ({ culturalName }) => ({ culturalName: `${culturalName}%` }),
       ),
-      makeFilter(query.ageMax, `patients.date_of_birth >= :dobEarliest`, ({ ageMax }) => ({
+      makeFilter(filterParams.ageMax, `patients.date_of_birth >= :dobEarliest`, ({ ageMax }) => ({
         dobEarliest: moment()
           .startOf('day')
           .subtract(ageMax + 1, 'years')
           .add(1, 'day')
           .toDate(),
       })),
-      makeFilter(query.ageMin, `patients.date_of_birth <= :dobLatest`, ({ ageMin }) => ({
+      makeFilter(filterParams.ageMin, `patients.date_of_birth <= :dobLatest`, ({ ageMin }) => ({
         dobLatest: moment()
           .subtract(ageMin, 'years')
           .endOf('day')
           .toDate(),
       })),
-      makeFilter(query.villageId, `patients.village_id = :villageId`),
-      makeFilter(query.locationId, `location.id = :locationId`),
-      makeFilter(query.departmentId, `department.id = :departmentId`),
-      makeFilter(query.visitType, `visits.visit_type = :visitType`),
+      makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
+      makeFilter(filterParams.locationId, `location.id = :locationId`),
+      makeFilter(filterParams.departmentId, `department.id = :departmentId`),
+      makeFilter(filterParams.inpatient, `visits.visit_type = 'admission'`),
+      makeFilter(filterParams.outpatient, `visits.visit_type = 'clinic'`),
     ].filter(f => f);
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
-
-    const filterReplacements = filters
-      .filter(f => f.transform)
-      .reduce(
-        (current, { transform }) => ({
-          ...current,
-          ...transform(current),
-        }),
-        query,
-      );
-
-    const { orderBy = 'lastName', order = 'asc' } = query;
-
-    const sortKey = sortKeys[orderBy] || sortKeys.displayId;
-    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
     const from = `
       FROM patients
@@ -115,6 +112,16 @@ patient.get(
           ON (village.type = 'village' AND village.id = patients.village_id)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
+
+    const filterReplacements = filters
+      .filter(f => f.transform)
+      .reduce(
+        (current, { transform }) => ({
+          ...current,
+          ...transform(current),
+        }),
+        filterParams,
+      );
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,

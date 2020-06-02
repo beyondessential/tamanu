@@ -46,6 +46,7 @@ const DumbDataFetchingTable = memo(
             isLoading: false,
           });
         } catch (error) {
+          console.error(error);
           updateFetchState({ errorMessage: error.message, isLoading: false });
         }
       })();

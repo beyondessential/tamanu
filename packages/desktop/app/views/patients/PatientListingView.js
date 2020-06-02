@@ -18,8 +18,6 @@ import {
 } from './columns';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
-const INPATIENT_ENDPOINT = 'inpatient';
-const OUTPATIENT_ENDPOINT = 'outpatient';
 
 const BASE_COLUMNS = [displayId, firstName, lastName, culturalName, village, sex, dateOfBirth];
 
@@ -80,10 +78,9 @@ const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
   );
 });
 
-const selectPatientConnector = connect(
-  null,
-  dispatch => ({ onViewPatient: id => dispatch(viewPatient(id)) }),
-);
+const selectPatientConnector = connect(null, dispatch => ({
+  onViewPatient: id => dispatch(viewPatient(id)),
+}));
 
 export const DumbPatientListingView = React.memo(({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
@@ -105,23 +102,14 @@ export const DumbPatientListingView = React.memo(({ onViewPatient }) => {
 
 export const PatientListingView = selectPatientConnector(DumbPatientListingView);
 
-// Allow a "patient view" table to receive a list of visits instead
-function annotateVisitWithPatientData(visit) {
-  return {
-    ...visit,
-    ...visit.patient[0],
-    visits: [visit],
-  };
-}
-
 export const AdmittedPatientsView = selectPatientConnector(
   React.memo(({ onViewPatient }) => (
     <PageContainer>
       <TopBar title="Admitted patient listing" />
       <PatientTable
+        fetchOptions={{ inpatient: 1 }}
         onViewPatient={onViewPatient}
-        endpoint={INPATIENT_ENDPOINT}
-        transformRow={annotateVisitWithPatientData}
+        endpoint={PATIENT_SEARCH_ENDPOINT}
         showInpatientDetails
       />
     </PageContainer>
@@ -133,9 +121,9 @@ export const OutpatientsView = selectPatientConnector(
     <PageContainer>
       <TopBar title="Outpatient listing" />
       <PatientTable
+        fetchOptions={{ outpatient: 1 }}
         onViewPatient={onViewPatient}
-        endpoint={OUTPATIENT_ENDPOINT}
-        transformRow={annotateVisitWithPatientData}
+        endpoint={PATIENT_SEARCH_ENDPOINT}
         showInpatientDetails
       />
     </PageContainer>

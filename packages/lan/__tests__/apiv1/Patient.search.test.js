@@ -44,11 +44,14 @@ const searchTestPatients = [
   { firstName: 'search-by-age-YOUNG', dateOfBirth: yearsAgo(15) },
   { firstName: 'search-by-age-YOUNG', dateOfBirth: yearsAgo(1) },
   { firstName: 'search-by-village', villageIndex: 0 },
-  { firstName: 'search-by-type', visit: { visitType: 'clinic', current: true } },
-  { firstName: 'search-by-type', visit: { visitType: 'clinic', current: true } },
-  { firstName: 'search-by-type', visit: { visitType: 'clinic', current: true } },
-  { firstName: 'search-by-type-OUT', visit: { visitType: 'clinic' } },
-  { firstName: 'search-by-type-OUT', visit: { visitType: 'emergency' } },
+  { firstName: 'search-outpatient', visit: { visitType: 'clinic', current: true } },
+  { firstName: 'search-outpatient', visit: { visitType: 'clinic', current: true } },
+  { firstName: 'search-outpatient', visit: { visitType: 'clinic', current: true } },
+  { firstName: 'search-inpatient', visit: { visitType: 'admission', current: true } },
+  { firstName: 'search-inpatient', visit: { visitType: 'admission', current: true } },
+  { firstName: 'search-visit-OUT', visit: { visitType: 'clinic' } },
+  { firstName: 'search-visit-OUT', visit: { visitType: 'emergency' } },
+  { firstName: 'search-visit-OUT', visit: { visitType: 'admission' } },
   { firstName: 'search-by-location', visit: { locationIndex: 0 } },
   { firstName: 'search-by-department', visit: { departmentIndex: 0 } },
   { firstName: 'pagination', lastName: 'A' },
@@ -222,15 +225,27 @@ describe('Patient search', () => {
   });
 
   describe('Joining visit info', () => {
-    it('should get a list of patients by visit type', async () => {
+    it('should get a list of outpatients', async () => {
       const response = await app.get('/v1/patient').query({
-        visitType: 'clinic',
+        outpatient: true,
       });
       expect(response).toHaveSucceeded();
-      expect(response.body.count).toBeGreaterThanOrEqual(3);
+      expect(response.body.count).toEqual(3);
 
       response.body.data.map(responsePatient => {
         expect(responsePatient).toHaveProperty('visit_type', 'clinic');
+      });
+    });
+
+    it('should get a list of inpatients', async () => {
+      const response = await app.get('/v1/patient').query({
+        inpatient: true,
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(2);
+
+      response.body.data.map(responsePatient => {
+        expect(responsePatient).toHaveProperty('visit_type', 'admission');
       });
     });
 
