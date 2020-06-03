@@ -30,8 +30,6 @@ import { reloadPatient } from '../../store/patient';
 const AppointmentPane = React.memo(({ patient, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
-  // TODO: fetch appointments from endpoint
-
   return (
     <div>
       <AppointmentModal
@@ -39,7 +37,7 @@ const AppointmentPane = React.memo(({ patient, readonly }) => {
         patientId={patient.id}
         onClose={() => setModalOpen(false)}
       />
-      <AppointmentTable appointments={[]} />
+      <AppointmentTable appointments={patient.appointments} />
       <ContentPane>
         <Button
           onClick={() => setModalOpen(true)}
@@ -57,12 +55,10 @@ const AppointmentPane = React.memo(({ patient, readonly }) => {
 const ReferralPane = React.memo(({ patient, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
-  // TODO: fetch referrals from endpoint
-
   return (
     <div>
       <ReferralModal open={modalOpen} patientId={patient.id} onClose={() => setModalOpen(false)} />
-      <ReferralTable referrals={[]} />
+      <ReferralTable referrals={patient.referrals} />
       <ContentPane>
         <Button
           onClick={() => setModalOpen(true)}

@@ -33,8 +33,13 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
     dispatch({ 
       type: PATIENT_LOAD_FINISH, 
       patient: {
-        ...patient,
+        // TODO: these should be fetched from their tables
+        appointments: [],
+        referrals: [],
+        issues: [],
+
         currentVisit,
+        ...patient,
       },
     });
   } catch (e) {
