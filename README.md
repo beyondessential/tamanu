@@ -1,17 +1,25 @@
 # Tamanu
-> This is a [mono-repo](https://github.com/babel/babel/blob/master/doc/design/monorepo.md)
+> This is a [monorepo](https://github.com/babel/babel/blob/master/doc/design/monorepo.md)
 
 [ ![Codeship Status for beyondessential/tamanu](https://app.codeship.com/projects/9355b080-d34d-0136-45ef-2e8db6e7ba42/status?branch=codeship)](https://app.codeship.com/projects/316346)
 
-## Install
+The monorepo has three main components:
 
-> **Note: requires a node version >= 10.14.0 and < 11 (the upper bound restriction is Realm, which supports Node 8 and 10 only at time of writing)**
-> **Note: requires a yarn version > 1.2.0**
+* [desktop](packages/desktop): the main Electron app
+* [lan](packages/lan): the local server, which the app communicates with
+* [shared-src](packages/shared-src): shared code among Tamanu components
+
+Additionally:
+
+* [server](packages/server): the remote server, currently an early prototype and not operational
+* [shared](packages/shared): the build output of the `shared-src` module (ignored by version control)
+
+## Install
 
 First, clone the repo via git:
 
 ```bash
-$ git clone https://github.com/beyondessential/tamanu.git
+$ git clone git@github.com:beyondessential/tamanu.git
 ```
 
 And then install dependencies with yarn.
@@ -26,39 +34,16 @@ $ yarn
 
 ## Configure
 
-Before development can begin, you'll need to configure the LAN server, and sync
-data from the main server.
+The modules use `config`, which helps manage different configurations easily. Each module has a
+`config/` directory, with several files in it. The base configuration is in `config/default.json`,
+and the values there will be used unless overridden by a more specific configuration (for eg
+`config/development.json`). 
 
-The example config is set up to just talk to a local realm server. To get
-some real data, you should point the lan client to a remote server.
+The local configuration (`config/local.json`) will always take highest precedence and should not 
+be checked into version control. This file should contain the information for database configuration,
+local credentials, etc.
 
-Create a file `/packages/lan/config/local.json` (will not be tracked by git)
-and paste this data into it:
-
-```json
-{
-  "mainServer": "http://13.210.104.94:3000",
-  "offlineMode": false,
-  "sessionTimeout": 36000000
-}
-```
-
-(note that the `sessionTimeout` config isn't necessary for development, it's just that
-it's only 5 minutes in production and having to re-log-in that often while developing
-is maddening)
-
-Any settings in `config/local.json` will take priority over those in `config/default.json`.
 The [`config` docs](https://github.com/lorenwest/node-config/wiki/Configuration-Files) have more info on how that works.
-
-Now run `cd /packages/lan && yarn start-dev` to start the LAN server.
-When you run the lan-server with these settings, you'll be prompted for login
-credentials. These are in LastPass under "Tamanu main sync server".
-
-Once the sync has completed, change the config to run in offline mode
-- change `offlineMode` to `true`
-
-You can now follow the instructions below to run the LAN server, and shouldn't
-need to sync with the main server while developing.
 
 ## Run
 
@@ -68,26 +53,38 @@ The Tamanu desktop app needs a lan server running to operate correctly. For
 local development, this can just be another process on the same host.
 
 ```bash
-$ cd packages/lan
-$ yarn start-dev
+$ yarn lan-start-dev
 ```
+
+This will start a build & watch process on the lan server and the shared directory.
+
+If you're working on backend functionality, it's much, *much* quicker easier to drive development 
+with testing. You can set up predictable test data rather than having to click through a bunch of 
+UI screens every time, and the live-reload turnaround is way faster than the desktop version. (this
+is in addition to the fact that any backend functionality should have tests against it anyway)
+
+The lan server uses sequelize to manage database connections, and can switch between sqlite and postgres.
+The development config (`packages/lan/config/development.json`) sets the `db.sqlitePath` config variable,
+which causes the app to use sqlite as a database - this is to make initial setup easier. If you have 
+postgres available, set the appropriate connection variables in your `local.json`, making sure to
+set `sqlitePath` to `""` so the postgres connection is respected.
 
 ### Desktop app
 
 Once there is a LAN server up and running, run this to start the Electron app for development.
 
 ```bash
-$ cd packages/desktop
-$ mv example.env .env
-$ yarn start-dev # To run in production, use yarn start
+$ yarn desktop-start-dev
 ```
 
 Note that we also use storybook to develop components in isolation, which you can run from within
-the desktop directory using `yarn storybook`
+the desktop directory using `yarn storybook`.
 
 ## Integrations
 
 ### Senaite
+
+*NB: The Senaite integration is currently non-functional*
 
 Senaite is disabled by default. To enable it, update your config/local.json to include the Senaite
 information. The most relevant key is `enabled: true` but you'll almost certainly have to update
@@ -126,9 +123,3 @@ the API url and login credentials as well (see config/default.json for how this 
 - `Dockerfile` and `Dockerfile.deploy` describe build environments
 - `codeship.env.encrypted` encrypted ENV variables passed to docker during build process
 
-## Components
-
-* [tamanu-desktop](packages/desktop): the main Electron app
-* [tamanu-lan](packages/lan): the local server
-* [tamanu-server](packages/server): the remote server
-* [shared-components](packages/shared): shared code among Tamanu components
