@@ -33,8 +33,8 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
       api.get(`patient/${id}/currentVisit`),
     ]);
 
-    dispatch({ 
-      type: PATIENT_LOAD_FINISH, 
+    dispatch({
+      type: PATIENT_LOAD_FINISH,
       patient: {
         currentVisit,
         ...patient,
