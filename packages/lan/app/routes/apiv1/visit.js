@@ -2,17 +2,20 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { NotFoundError } from 'shared/errors';
 
-import { simpleGet, simplePut, simplePost, simpleGetList } from './crudHelpers';
+
+import { 
+  simpleGet, 
+  simplePut,
+  simplePost,
+  simpleGetList,
+  permissionCheckingRouter,
+} from './crudHelpers';
 
 export const visit = express.Router();
 
 visit.get('/:id', simpleGet('Visit'));
 visit.put('/:id', simplePut('Visit'));
 visit.post('/$', simplePost('Visit'));
-
-visit.get('/:id/vitals', simpleGetList('Vitals', 'visitId'));
-
-visit.get('/:id/diagnoses', simpleGetList('VisitDiagnosis', 'visitId'));
 
 visit.post(
   '/:id/notes',
@@ -34,3 +37,9 @@ visit.post(
     res.send(createdNote);
   }),
 );
+
+const visitRelations = permissionCheckingRouter('read', 'Visit');
+visitRelations.get('/:id/vitals', simpleGetList('Vitals', 'visitId'));
+visitRelations.get('/:id/diagnoses', simpleGetList('VisitDiagnosis', 'visitId'));
+visit.use(visitRelations);
+
