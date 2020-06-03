@@ -14,6 +14,8 @@ export const viewVisit = (id, modal) => async dispatch => {
 export const reloadVisit = id => async (dispatch, getState, { api }) => {
   dispatch({ type: VISIT_LOAD_START, id });
 
+  // TODO: these arrays should be fetched by their tables
+  // or included in the initial response
   const visit = {
     diagnoses: [],
     notes: [],
@@ -24,6 +26,7 @@ export const reloadVisit = id => async (dispatch, getState, { api }) => {
     surveyResponses: [],
     ...await api.get(`visit/${id}`)
   };
+
   // TODO handle error state
 
   dispatch({ type: VISIT_LOAD_FINISH, visit });
