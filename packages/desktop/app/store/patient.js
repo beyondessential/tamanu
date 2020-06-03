@@ -29,7 +29,14 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
 
   try {
     const patient = await api.get(`patient/${id}`);
-    dispatch({ type: PATIENT_LOAD_FINISH, patient });
+    const currentVisit = await api.get(`patient/${id}/currentVisit`);
+    dispatch({ 
+      type: PATIENT_LOAD_FINISH, 
+      patient: {
+        ...patient,
+        currentVisit,
+      },
+    });
   } catch (e) {
     dispatch({ type: PATIENT_LOAD_ERROR, error: e.message });
   }

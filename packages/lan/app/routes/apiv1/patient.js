@@ -13,6 +13,26 @@ patient.post('/$', simplePost('Patient'));
 
 patient.get('/:id/visits', simpleGetList('Visit', 'patientId'));
 
+patient.get('/:id/currentVisit', asyncHandler(async (req, res) => {
+  const {
+    models: { Visit },
+    params,
+  } = req;
+
+  req.checkPermission('read', 'Patient');
+  req.checkPermission('read', 'Visit');
+  
+  const currentVisit = await Visit.findOne({
+    where: {
+      patientId: params.id,
+      endDate: null,
+    },
+  });
+
+  // explicitly send as json (as it might be null)
+  res.json(currentVisit);
+}));
+
 const makeFilter = (check, sql, transform) => {
   if (!check) return null;
 
