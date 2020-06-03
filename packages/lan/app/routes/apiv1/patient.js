@@ -36,7 +36,7 @@ const sortKeys = {
 };
 
 patient.get(
-  '/',
+  '/$',
   asyncHandler(async (req, res) => {
     const {
       models: { Patient },
