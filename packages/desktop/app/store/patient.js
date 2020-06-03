@@ -35,11 +35,6 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
   }
 };
 
-// selectors
-export const getCurrentVisit = patient => patient.visits.find(x => !x.endDate);
-export const hasActiveTriage = patient =>
-  patient.triages.find(x => !x.closedTime && !(x.visit && x.visit.endDate));
-
 // reducers
 
 const defaultState = {
