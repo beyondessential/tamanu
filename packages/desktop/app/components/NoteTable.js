@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Table } from './Table';
+import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { noteTypes } from '../constants';
 
@@ -12,4 +12,4 @@ const COLUMNS = [
   { key: 'content', title: 'Content' },
 ];
 
-export const NoteTable = React.memo(({ notes }) => <Table columns={COLUMNS} data={notes} />);
+export const NoteTable = React.memo(({ visitId }) => <DataFetchingTable columns={COLUMNS} endpoint={`visit/${visitId}/notes`} />);
