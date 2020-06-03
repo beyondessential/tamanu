@@ -28,16 +28,14 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
   dispatch({ type: PATIENT_LOAD_START, id });
 
   try {
-    const patient = await api.get(`patient/${id}`);
-    const currentVisit = await api.get(`patient/${id}/currentVisit`);
+    const [patient, currentVisit] = await Promise.all([
+      api.get(`patient/${id}`),
+      api.get(`patient/${id}/currentVisit`),
+    ]);
+
     dispatch({ 
       type: PATIENT_LOAD_FINISH, 
       patient: {
-        // TODO: these should be fetched from their tables
-        appointments: [],
-        referrals: [],
-        issues: [],
-
         currentVisit,
         ...patient,
       },
