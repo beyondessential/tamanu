@@ -14,7 +14,16 @@ export const viewVisit = (id, modal) => async dispatch => {
 export const reloadVisit = id => async (dispatch, getState, { api }) => {
   dispatch({ type: VISIT_LOAD_START, id });
 
-  const visit = await api.get(`visit/${id}`);
+  const visit = {
+    diagnoses: [],
+    notes: [],
+    medications: [],
+    labRequests: [],
+    imagingRequests: [],
+    procedures: [],
+    surveyResponses: [],
+    ...await api.get(`visit/${id}`)
+  };
   // TODO handle error state
 
   dispatch({ type: VISIT_LOAD_FINISH, visit });
