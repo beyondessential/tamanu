@@ -111,8 +111,8 @@ export class Visit extends Model {
     });
   }
 
-  async onDischarge(endDate) {
-    await this.addSystemNote(`Discharged patient.`);
+  async onDischarge(endDate, note) {
+    await this.addSystemNote(note || `Discharged patient.`);
     await this.closeTriage(endDate);
   }
 
@@ -135,7 +135,7 @@ export class Visit extends Model {
 
     return this.sequelize.transaction(async () => {
       if (data.endDate && !this.endDate) {
-        await this.onDischarge(data.endDate);
+        await this.onDischarge(data.endDate, data.dischargeNote);
       }
 
       if (data.patientId && data.patientId !== this.patientId) {

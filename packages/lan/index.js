@@ -36,24 +36,22 @@ async function performInitialSetup({ sequelize, models }) {
 }
 
 export async function run() {
-  const database = initDatabase({
+  const context = initDatabase({
     testMode: false,
   });
 
-  await performInitialSetup(database);
+  await performInitialSetup(context);
 
-  const app = createApp(database);
+  const app = createApp(context);
   const server = app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
 
-  // TODO: port scheduled tasks
-  // startScheduledTasks(database);
+  startScheduledTasks(context);
 
-  startDataChangePublisher(server, database);
+  startDataChangePublisher(server, context);
 
   // TODO: sync with remote server
-  //
 }
 
 run();

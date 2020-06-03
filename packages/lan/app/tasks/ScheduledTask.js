@@ -1,4 +1,5 @@
 import { scheduleJob } from 'node-schedule';
+import { log } from '~/logging';
 
 export class ScheduledTask {
   getName() {
@@ -19,9 +20,9 @@ export class ScheduledTask {
   beginPolling() {
     if (!this.job) {
       const name = this.getName();
-      console.log('Scheduled', name);
+      log.info(`Scheduled ${name}`);
       this.job = scheduleJob(this.schedule, () => {
-        console.log('Running', name);
+        log.info(`Running ${name}`);
         this.run();
       });
     }
@@ -31,7 +32,7 @@ export class ScheduledTask {
     if (this.job) {
       this.job.cancel();
       this.job = null;
-      console.log('Cancelled', this.getName());
+      log.info(`Cancelled ${this.getName}`);
     }
   }
 }
