@@ -64,13 +64,16 @@ export class Triage extends Model {
       .join(' and ');
     const reasonForVisit = `Presented at emergency department with ${reasonsText}`;
 
+    // TODO: use emergency department by default
+    const department = await ReferenceData.findOne({ type: 'department' });
+
     return this.sequelize.transaction(async () => {
       const visit = await Visit.create({
         visitType: VISIT_TYPES.TRIAGE,
-        startDate: data.triageTime,
+        startDate: data.triageTime || new Date(),
         reasonForVisit,
         patientId: data.patientId,
-        departmentId: data.departmentId,
+        departmentId: department.id,
         locationId: data.locationId,
         examinerId: data.practitionerId,
       });
