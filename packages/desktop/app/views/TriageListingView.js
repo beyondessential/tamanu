@@ -64,8 +64,8 @@ const ADMITTED_PRIORITY = {
   color: '#bdbdbd',
 };
 
-const StatusDisplay = React.memo(({ visit, startTime }) => {
-  switch (visit.visitType) {
+const StatusDisplay = React.memo(({ visitType, startTime }) => {
+  switch (visitType) {
     case 'triage':
       return (
         <React.Fragment>
@@ -80,14 +80,14 @@ const StatusDisplay = React.memo(({ visit, startTime }) => {
   }
 });
 
-const PriorityDisplay = React.memo(({ startTime, visit, closedTime }) => (
+const PriorityDisplay = React.memo(({ startTime, visitType, closedTime }) => (
   <PriorityText>
-    <StatusDisplay visit={visit} startTime={startTime} closedTime={closedTime} />
+    <StatusDisplay visitType={visitType} startTime={startTime} closedTime={closedTime} />
   </PriorityText>
 ));
 
-function getRowColor({ visit, score }) {
-  switch (visit.visitType) {
+function getRowColor({ visitType, score }) {
+  switch (visitType) {
     case 'triage':
       return TRIAGE_COLORS_BY_LEVEL[score];
     default:
@@ -105,7 +105,7 @@ const COLUMNS = [
         score={row.score}
         startTime={row.triageTime}
         closedTime={row.closedTime}
-        visit={row.visit}
+        visitType={row.visit_type}
       />
     ),
   },
@@ -114,32 +114,32 @@ const COLUMNS = [
     title: 'Chief complaint',
     accessor: row => (row.chiefComplaint ? row.chiefComplaint.name : ''),
   },
-  { key: 'id', title: 'ID', accessor: row => row.patient[0].displayId },
+  { key: 'id', title: 'ID', accessor: row => row.displayId },
   {
     key: 'patientName',
     title: 'Patient',
-    accessor: row => `${row.patient[0].firstName} ${row.patient[0].lastName}`,
+    accessor: row => `${row.firstName} ${row.lastName}`,
   },
   {
     key: 'patientDoB',
     title: 'Date of birth',
-    accessor: row => <DateDisplay date={row.patient[0].dateOfBirth} />,
+    accessor: row => <DateDisplay date={row.dateOfBirth} />,
   },
   {
     key: 'patientSex',
     title: 'Sex',
     accessor: row => {
-      const sex = row.patient[0].sex || '';
+      const sex = row.sex || '';
       return capitaliseFirstLetter(sex);
     },
   },
-  { key: 'location', title: 'Location', accessor: row => row.location.name },
+  { key: 'location', title: 'Location', accessor: row => row.location_name },
 ];
 
 const TriageTable = connect(
   null,
   dispatch => ({
-    onViewVisit: triage => dispatch(viewPatientVisit(triage.patient[0].id, triage.visit.id)),
+    onViewVisit: triage => dispatch(viewPatientVisit(triage.patient_id, triage.visit_id)),
   }),
 )(
   React.memo(({ onViewVisit, ...props }) => (
