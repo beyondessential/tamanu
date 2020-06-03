@@ -39,13 +39,14 @@ export class VisitDischarger extends ScheduledTask {
       .toDate();
 
 
-    for(let i = 0; i < oldVisits.length; ++i) {
-      const visit = oldVisits[i];
+    const tasks = oldVisits.map(async visit => {
       await visit.update({ 
         endDate: closingDate,
         dischargeNote: 'Automatically discharged',
       });
       log.info(`Auto-closed visit with id ${visit.id}`);
-    }
+    });
+
+    return Promise.all(tasks);
   }
 }
