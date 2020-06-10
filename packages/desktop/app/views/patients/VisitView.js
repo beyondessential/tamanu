@@ -68,7 +68,7 @@ const NotesPane = React.memo(({ visit, readonly }) => {
   return (
     <div>
       <NoteModal open={modalOpen} visitId={visit.id} onClose={() => setModalOpen(false)} />
-      <NoteTable notes={visit.notes} />
+      <NoteTable visitId={visit.id} />
       <ContentPane>
         <Button
           onClick={() => setModalOpen(true)}

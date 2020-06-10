@@ -6,8 +6,6 @@ import { Colors } from '../../../constants';
 import { ImageButton, Button } from '../../../components/Button';
 import { DateDisplay } from '../../../components/DateDisplay';
 
-import { getCurrentVisit } from '../../../store/patient';
-
 import { medicationIcon, profileIcon } from '../../../constants/images';
 
 /** TODO: Properly define colors for each type (primary is placeholder/default) */
@@ -103,9 +101,7 @@ const ViewButton = styled(Button)`
   min-width: 80px;
 `;
 
-export const PatientVisitSummary = ({ viewVisit, openCheckin, openTriage, ...patient }) => {
-  const visit = getCurrentVisit(patient);
-
+export const PatientVisitSummary = ({ viewVisit, openCheckin, openTriage, visit }) => {
   if (!visit) {
     return (
       <Grid notAdmitted>
