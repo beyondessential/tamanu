@@ -85,4 +85,76 @@ describe('Patient', () => {
     });
   });
 
+  describe('family history', () => {
+    it('should get an empty list of history items', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+
+      const result = await app.get(`/v1/patient/${patient.id}/familyHistory`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toEqual(0);
+    });
+
+    it('should get a list of patient history items', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const otherPatient = await models.Patient.create(await createDummyPatient(models));
+
+      await models.PatientFamilyHistory.create({
+        conditionId: await randomReferenceId(models, 'icd10'),
+        patientId: patient.id,
+        note: 'include',
+      });
+      await models.PatientFamilyHistory.create({
+        conditionId: await randomReferenceId(models, 'icd10'),
+        patientId: patient.id,
+        note: 'include 2',
+      });
+      await models.PatientFamilyHistory.create({
+        conditionId: await randomReferenceId(models, 'icd10'),
+        patientId: otherPatient.id,
+        note: 'fail',
+      });
+
+      const result = await app.get(`/v1/patient/${patient.id}/familyHistory`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toEqual(2);
+      expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
+    });
+  });
+
+  describe('conditions', () => {
+    it('should get an empty list of conditions', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+
+      const result = await app.get(`/v1/patient/${patient.id}/conditions`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toEqual(0);
+    });
+
+    it('should get a list of patient conditions', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const otherPatient = await models.Patient.create(await createDummyPatient(models));
+
+      await models.PatientCondition.create({
+        conditionId: await randomReferenceId(models, 'icd10'),
+        patientId: patient.id,
+        note: 'include',
+      });
+      await models.PatientCondition.create({
+        conditionId: await randomReferenceId(models, 'icd10'),
+        patientId: patient.id,
+        note: 'include 2',
+      });
+      await models.PatientCondition.create({
+        conditionId: await randomReferenceId(models, 'icd10'),
+        patientId: otherPatient.id,
+        note: 'fail',
+      });
+
+      const result = await app.get(`/v1/patient/${patient.id}/conditions`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toEqual(2);
+      expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
+    });
+  });
+
 });

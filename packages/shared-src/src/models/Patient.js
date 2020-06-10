@@ -66,7 +66,7 @@ export class PatientCondition extends Model {
       id: primaryKey,
       note: Sequelize.STRING,
       recordedDate: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
-      resolved: Sequelize.BOOLEAN,
+      resolved: { type: Sequelize.BOOLEAN, defaultValue: false },
     }, options);
   }
 
