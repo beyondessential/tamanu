@@ -72,8 +72,12 @@ export class PatientCondition extends Model {
 
   static initRelations(models) {
     this.belongsTo(models.Patient, { foreignKey: 'patientId', });
-    this.belongsTo(models.ReferenceData, { foreignKey: 'conditionId', });
+    this.belongsTo(models.ReferenceData, { foreignKey: 'conditionId', as: 'Condition' });
     this.belongsTo(models.User, { foreignKey: 'examinerId', });
+  }
+
+  static getListReferenceAssociations() {
+    return ['Condition'];
   }
 }
 
@@ -90,7 +94,11 @@ export class PatientAllergy extends Model {
   static initRelations(models) {
     this.belongsTo(models.Patient, { foreignKey: 'patientId', });
     this.belongsTo(models.User, { foreignKey: 'examinerId', });
-    this.belongsTo(models.ReferenceData, { foreignKey: 'allergyId', });
+    this.belongsTo(models.ReferenceData, { foreignKey: 'allergyId', as: 'Allergy' });
+  }
+
+  static getListReferenceAssociations() {
+    return ['Allergy'];
   }
 }
 
@@ -107,6 +115,10 @@ export class PatientFamilyHistory extends Model {
   static initRelations(models) {
     this.belongsTo(models.Patient, { foreignKey: 'patientId', });
     this.belongsTo(models.User, { foreignKey: 'examinerId', });
-    this.belongsTo(models.ReferenceData, { foreignKey: 'conditionId', });
+    this.belongsTo(models.ReferenceData, { foreignKey: 'conditionId', as: 'Condition' });
+  }
+
+  static getListReferenceAssociations() {
+    return ['Condition'];
   }
 }
