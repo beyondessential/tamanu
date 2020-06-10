@@ -52,7 +52,28 @@ describe('Visit', () => {
     expect(result).toHaveRequestError();
   });
 
-  test.todo('should get a list of notes');
+  it('should get a list of notes', async () => {
+    const visit = await models.Visit.create({
+      ...(await createDummyVisit(models)),
+      patientId: patient.id,
+    });
+    const otherVisit = await models.Visit.create({
+      ...(await createDummyVisit(models)),
+      patientId: patient.id,
+    });
+    const n = await Promise.all([
+      models.Note.createForObject(visit, 'Visit', "Test 1"),
+      models.Note.createForObject(visit, 'Visit', "Test 2"),
+      models.Note.createForObject(visit, 'Visit', "Test 3"),
+      models.Note.createForObject(otherVisit, 'Visit', "Fail"),
+    ]);
+
+    const result = await app.get(`/v1/visit/${visit.id}/notes`);
+    expect(result).toHaveSucceeded();
+    expect(result.body.count).toEqual(3);
+    expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
+  });
+
   test.todo('should get a list of procedures');
   test.todo('should get a list of lab requests');
   test.todo('should get a list of imaging requests');

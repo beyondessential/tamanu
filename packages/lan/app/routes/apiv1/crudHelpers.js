@@ -1,6 +1,21 @@
+import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { NotFoundError } from 'shared/errors';
+
+
+// utility function for creating a subroute that all checks the same
+// action (for eg different relation reads on a visit all check visit.read)
+export const permissionCheckingRouter = (action, subject) => {
+  const router = express.Router();
+
+  router.use((req, res, next) => {
+    req.checkPermission(action, subject);
+    next();
+  });
+
+  return router;
+};
 
 export const simpleGet = modelName =>
   asyncHandler(async (req, res) => {
@@ -43,7 +58,6 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
   return asyncHandler(async (req, res) => {
     const { models, params, query } = req;
     const { limit = 10, offset = 0 } = query;
-    req.checkPermission('list', modelName);
 
     const model = models[modelName];
     const objects = await models[modelName].findAll({

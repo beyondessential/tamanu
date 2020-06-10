@@ -3,7 +3,13 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import moment from 'moment';
 
-import { simpleGet, simplePut, simplePost, simpleGetList } from './crudHelpers';
+import { 
+  simpleGet, 
+  simplePut, 
+  simplePost, 
+  simpleGetList,
+  permissionCheckingRouter,
+} from './crudHelpers';
 
 export const patient = express.Router();
 
@@ -11,7 +17,9 @@ patient.get('/:id', simpleGet('Patient'));
 patient.put('/:id', simplePut('Patient'));
 patient.post('/$', simplePost('Patient'));
 
-patient.get('/:id/visits', simpleGetList('Visit', 'patientId'));
+const patientRelations = permissionCheckingRouter('read', 'Patient');
+patientRelations.get('/:id/visits', simpleGetList('Visit', 'patientId'));
+patient.use(patientRelations);
 
 patient.get(
   '/:id/currentVisit',
