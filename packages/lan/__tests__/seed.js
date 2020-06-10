@@ -5,6 +5,15 @@ export const testDiagnoses = ICD10_DIAGNOSES.slice(0, 50);
 export const testDrugs = DRUGS.slice(0, 50);
 export const testTriageReasons = TRIAGE_DIAGNOSES.map(x => ({ ...x, type: 'triageReason' }));
 
+export const testAllergies = splitIds(`
+  Peanuts
+  Penicillin
+  Cats
+  Pollen
+  Anaesthetics
+  Dye
+`).map(x => ({ ...x, type: 'allergy' }));
+
 export const testLocations = splitIds(`
   Ward 1
   Ward 2
@@ -39,4 +48,5 @@ export const allSeeds = [
   ...testLocations,
   ...testDepartments,
   ...testVillages,
+  ...testAllergies,
 ];
