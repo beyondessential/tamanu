@@ -15,6 +15,7 @@ export const reloadVisit = id => async (dispatch, getState, { api }) => {
   dispatch({ type: VISIT_LOAD_START, id });
 
   const visit = await api.get(`visit/${id}`);
+
   // TODO handle error state
 
   dispatch({ type: VISIT_LOAD_FINISH, visit });
@@ -22,7 +23,7 @@ export const reloadVisit = id => async (dispatch, getState, { api }) => {
 
 // selectors
 
-export const getDiagnoses = state => state.visit.diagnoses;
+export const getDiagnoses = state => state.visit.diagnoses || [];
 
 // reducers
 

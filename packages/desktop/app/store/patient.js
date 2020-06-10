@@ -28,17 +28,22 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
   dispatch({ type: PATIENT_LOAD_START, id });
 
   try {
-    const patient = await api.get(`patient/${id}`);
-    dispatch({ type: PATIENT_LOAD_FINISH, patient });
+    const [patient, currentVisit] = await Promise.all([
+      api.get(`patient/${id}`),
+      api.get(`patient/${id}/currentVisit`),
+    ]);
+
+    dispatch({
+      type: PATIENT_LOAD_FINISH,
+      patient: {
+        currentVisit,
+        ...patient,
+      },
+    });
   } catch (e) {
     dispatch({ type: PATIENT_LOAD_ERROR, error: e.message });
   }
 };
-
-// selectors
-export const getCurrentVisit = patient => patient.visits.find(x => !x.endDate);
-export const hasActiveTriage = patient =>
-  patient.triages.find(x => !x.closedTime && !(x.visit && x.visit.endDate));
 
 // reducers
 
