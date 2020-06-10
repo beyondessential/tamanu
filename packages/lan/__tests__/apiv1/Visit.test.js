@@ -68,7 +68,7 @@ describe('Visit', () => {
       models.Note.createForObject(otherVisit, 'Visit', "Fail"),
     ]);
 
-    const result = await app.get(`/v1/visit/${v.id}/notes`);
+    const result = await app.get(`/v1/visit/${visit.id}/notes`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(3);
     expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
