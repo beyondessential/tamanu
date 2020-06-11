@@ -62,10 +62,10 @@ export const PatientTile = ({
     </StyledView>
     {lastVisit && (
       <StyledText
-        marginRight={screenPercentageToDP('14.59', Orientation.Width)}
+        marginRight={screenPercentageToDP('7.59', Orientation.Width)}
         color={theme.colors.TEXT_MID}
       >
-        {formatDate(lastVisit, DateFormats.DAY_MONTH_YEAR_SHORT)}
+        Last viewed {formatDate(lastVisit, DateFormats.DAY_MONTH_YEAR_SHORT)}
       </StyledText>
     )}
   </RowView>

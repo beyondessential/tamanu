@@ -29,7 +29,10 @@ describe('<PatientTile />', () => {
                   MaleExampleProps[visibleProp],
                   DateFormats.DAY_MONTH_YEAR_SHORT,
                 ),
-              ),
+                 {
+                exact: false
+              }
+              )             
             ).not.toBe(null);
             break;
           default:
