@@ -18,7 +18,7 @@ const DiagnosisHeading = styled.div`
 
 function compareDiagnosis(a, b) {
   if (a.isPrimary === b.isPrimary) {
-    return a.diagnosis.name.localeCompare(b.diagnosis.name);
+    return a.name.localeCompare(b.name);
   }
 
   if (a.isPrimary) return -1;
@@ -46,7 +46,6 @@ const AddDiagnosisButton = styled(Button)`
 
 export const DiagnosisView = connect(state => ({
   diagnoses: getDiagnoses(state)
-    .filter(d => d.diagnosis)
     .sort(compareDiagnosis),
 }))(
   React.memo(({ visitId, diagnoses, isTriage, readonly }) => {

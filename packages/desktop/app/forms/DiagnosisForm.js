@@ -40,7 +40,7 @@ export const DiagnosisForm = React.memo(
           ...diagnosis,
         }}
         validationSchema={yup.object().shape({
-          diagnosis: foreignKey('Diagnosis must be selected'),
+          diagnosisId: foreignKey('Diagnosis must be selected'),
           certainty: yup
             .string()
             .oneOf(certaintyOptions.map(x => x.value))
@@ -51,7 +51,7 @@ export const DiagnosisForm = React.memo(
           <FormGrid>
             <div style={{ gridColumn: '1 / -1' }}>
               <Field
-                name="diagnosis.id"
+                name="diagnosisId"
                 label="ICD10 Code"
                 component={AutocompleteField}
                 suggester={icd10Suggester}
