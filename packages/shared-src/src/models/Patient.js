@@ -38,4 +38,3 @@ export class Patient extends Model {
     });
   }
 }
-

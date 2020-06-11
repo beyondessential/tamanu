@@ -3,10 +3,10 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import moment from 'moment';
 
-import { 
-  simpleGet, 
-  simplePut, 
-  simplePost, 
+import {
+  simpleGet,
+  simplePut,
+  simplePost,
   simpleGetList,
   permissionCheckingRouter,
 } from './crudHelpers';

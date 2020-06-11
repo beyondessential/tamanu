@@ -1,10 +1,6 @@
 import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
-import Chance from 'chance';
-
-const chance = new Chance();
-
 const { baseApp, models } = createTestContext();
 
 describe('Patient', () => {
@@ -195,5 +191,4 @@ describe('Patient', () => {
       expect(result.body.data[0].condition).toHaveProperty('name');
     });
   });
-
 });
