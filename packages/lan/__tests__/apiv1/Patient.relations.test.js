@@ -83,6 +83,19 @@ describe('Patient', () => {
       expect(result.body.count).toEqual(2);
       expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
     });
+
+    it('should include reference data', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+
+      await models.PatientAllergy.create({
+        allergyId: await randomReferenceId(models, 'allergy'),
+        patientId: patient.id,
+      });
+
+      const result = await app.get(`/v1/patient/${patient.id}/allergies`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.data[0].allergy).toHaveProperty('name');
+    });
   });
 
   describe('family history', () => {
@@ -119,6 +132,19 @@ describe('Patient', () => {
       expect(result.body.count).toEqual(2);
       expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
     });
+
+    it('should include reference data', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+
+      await models.PatientFamilyHistory.create({
+        conditionId: await randomReferenceId(models, 'icd10'),
+        patientId: patient.id,
+      });
+
+      const result = await app.get(`/v1/patient/${patient.id}/familyHistory`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.data[0].condition).toHaveProperty('name');
+    });
   });
 
   describe('conditions', () => {
@@ -154,6 +180,19 @@ describe('Patient', () => {
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
       expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
+    });
+
+    it('should include reference data', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+
+      await models.PatientCondition.create({
+        conditionId: await randomReferenceId(models, 'icd10'),
+        patientId: patient.id,
+      });
+
+      const result = await app.get(`/v1/patient/${patient.id}/conditions`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.data[0].condition).toHaveProperty('name');
     });
   });
 
