@@ -4,7 +4,7 @@ import { StyledView } from '/styled/common';
 import { PatientSectionList } from './index';
 import { PatientModel } from '../../models/Patient';
 import { Chance } from 'chance';
-import { GenderOptions, BloodTypes } from '/helpers/constants';
+import { GenderOptions } from '/helpers/constants';
 
 const chance = new Chance();
 
@@ -22,17 +22,11 @@ export const genPatientSectionList = (): PatientModel[] =>
         numeric: true,
         alpha: true,
       }),
-      city: chance.city(),
       firstName,
       middleName,
-      email: chance.email(),
       lastName,
-      gender: GenderOptions[0].label,
-      birthDate: chance.birthday(),
-      bloodType:
-        BloodTypes[Math.floor(Math.random() * BloodTypes.length)].value,
-      lastVisit: chance.date(),
-      telephone: chance.phone(),
+      sex: GenderOptions[0].value,
+      dateOfBirth: chance.birthday(),
     };
   });
 

@@ -69,7 +69,4 @@ mockserver/functions/node_modules
 .vscode
 
 # Environment
-
-
-# mockserver
-mockserver/functions/node_modules
+*.bat

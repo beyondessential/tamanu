@@ -2,6 +2,8 @@
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "esModuleInterop": true,
     "isolatedModules": false,
     "baseUrl": ".",
@@ -27,7 +29,8 @@
     "lib": ["es6"],
     "moduleResolution": "node",    
     "noEmit": true,
-    "strict": true,
+    "skipLibCheck": true,
+    "strict": false,
     "noImplicitThis": false,
     "target": "esnext"
   },
