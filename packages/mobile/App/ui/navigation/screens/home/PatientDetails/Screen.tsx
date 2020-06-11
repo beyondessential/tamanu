@@ -1,5 +1,5 @@
-import React, { ReactElement } from 'react';
-import { theme } from '/styled/theme';
+import React, {ReactElement} from 'react';
+import {theme} from '/styled/theme';
 import {
   StyledView,
   StyledSafeAreaView,
@@ -9,11 +9,11 @@ import {
   StyledText,
   StyledScrollView,
 } from '/styled/common';
-import { ArrowLeftIcon, KebabIcon } from '/components/Icons';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { joinNames } from '/helpers/user';
-import { UserAvatar } from '/components/UserAvatar';
-import { PatientDetails } from '/interfaces/PatientDetails';
+import {ArrowLeftIcon, KebabIcon} from '/components/Icons';
+import {screenPercentageToDP, Orientation} from '/helpers/screen';
+import {joinNames} from '/helpers/user';
+import {UserAvatar} from '/components/UserAvatar';
+import {PatientDetails} from '/interfaces/PatientDetails';
 import {
   GeneralInfo,
   NotificationCheckbox,
@@ -23,7 +23,8 @@ import {
   FamilyHistory,
   ProcedurePlan,
 } from './CustomComponents';
-import { getAgeFromDate } from '/helpers/date';
+import {getAgeFromDate} from '/helpers/date';
+import {AllergiesList} from './CustomComponents/AllergiesList';
 
 const avatarMock = {
   id: 54,
@@ -43,7 +44,6 @@ interface PatientDetailScreenProps {
   changeReminder: (value: boolean) => void;
   reminders: boolean;
 }
-
 export const Screen = ({
   onNavigateBack,
   onNavigateToFilters,
@@ -117,6 +117,7 @@ export const Screen = ({
           onEdit={onEditField}
           familyHistory={patientData.familyHistory}
         />
+        <AllergiesList onEdit={onEditField} allergies={patientData.allergies} />
         <ProcedurePlan
           onEdit={onEditField}
           procedurePlan={patientData.procedurePlan}
