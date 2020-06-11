@@ -1,10 +1,11 @@
 import React from 'react';
-import {groupEntriesByLetter} from '/helpers/list';
-import {StyledView} from '/styled/common';
-import {PatientSectionList} from './index';
-import {PatientModel} from '../../models/Patient';
-import {Chance} from 'chance';
-import {BloodTypes} from '/helpers/constants';
+import { groupEntriesByLetter } from '/helpers/list';
+import { StyledView } from '/styled/common';
+import { PatientSectionList } from './index';
+import { PatientModel } from '../../models/Patient';
+import { Chance } from 'chance';
+import { GenderOptions } from '/helpers/constants';
+import { BloodTypes } from '/helpers/constants';
 
 const chance = new Chance();
 
@@ -22,17 +23,15 @@ export const genPatientSectionList = (): PatientModel[] =>
         numeric: true,
         alpha: true,
       }),
-      city: chance.city(),
       firstName,
       middleName,
-      email: chance.email(),
       lastName,
-      gender: chance.gender().toLowerCase(),
-      birthDate: chance.birthday(),
       bloodType:
         BloodTypes[Math.floor(Math.random() * BloodTypes.length)].value,
       lastVisit: chance.date(),
       telephone: chance.phone(),
+      sex: GenderOptions[0].value,
+      dateOfBirth: chance.birthday(),
     };
   });
 

@@ -1,5 +1,11 @@
 import { PatientModel } from '../models/Patient';
 
+export interface AllergiesProps {
+  allergies: {
+    data: string[]
+  }
+}
+
 export interface ProcedurePlanDataProps {
   procedurePlan: {
     data: string[];
@@ -39,4 +45,5 @@ export type PatientDetails = PatientGeneralInformationDataProps &
   PatientParentsDataProps &
   OnGoingConditionsDataProps &
   FamilyHistoryDataProps &
+  AllergiesProps &
   ProcedurePlanDataProps;

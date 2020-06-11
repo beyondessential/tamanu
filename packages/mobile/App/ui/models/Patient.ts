@@ -1,16 +1,12 @@
+
 export interface PatientModel {
   [key: string]: any;
   id: string;
-  displayId: string;
-  city: string;
+  displayId: string;  
   firstName: string;
   lastName: string;
-  middleName?: string;
-  email?: string;
-  gender: string;
-  birthDate: Date;
-  bloodType: string;
-  lastVisit: Date;
-  telephone?: string;
-  culturalTraditionName?: string;
+  middleName?: string;  
+  sex: string;
+  dateOfBirth: Date;      
+  culturalName?: string;
 }

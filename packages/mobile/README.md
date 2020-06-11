@@ -17,6 +17,8 @@ This is the Tamanu App Repository.
   - [Generate Android build](#Android)
   - [Generate IOS build](#IOS)
 - [Run MockServer](#Run-Mockserver)
+- [Base App Structure](#Base-app-structure)
+  - [Configuration files](#File-configurations)
 
 ## Install
 
@@ -117,6 +119,17 @@ The builded app will be in:
 tamanu-mobile/android/app/build/outputs/apk/release/app-release.apk
 ```
 
+## Debugging 
+
+The tamanu app has 2 integrations for debugging: 
+
+- [Flipper](https://fbflipper.com/)
+- [Reactotron](https://infinite.red/reactotron)
+
+Flipper allow us to track database changes in sqlite files, and Reactotron has a better UI for checking state changes and internet api calls.
+
+All you have to do is download the tools and open them while running while development and it will automatically syncs to the program and show you the updates.
+
 #### Distribute
 
 1. upload file in diawi.com
@@ -152,3 +165,70 @@ In the previous path you will be the "tamanuapp.app" we can:
 4. Change the compressed file extension from .zip to .ipa
 5. upload file in diawi.com
 6. share app with the team!
+
+### Base-app-structure
+
+#### File configurations
+App configuration files
+
+| React Native  |   |
+|---|---|
+| .metro.config.js | RN file bundler |
+| app.json | App name and display name |
+
+| Jest  |   |
+|---|---|
+| jest-unit-config.js | Configuration for unit tests. Unit tests has a .spec extension |
+| jest-integration-config.js | Configuration for integration tests. Integration tests has a .test extension |
+
+
+Environment:
+
+This project uses [react-native-config](https://github.com/luggit/react-native-config) for embedding env variables to android and ios. 
+Whenever we change the value of a env file variable we have to run the build process again so changes can take effect.
+
+To change which env file bundled into release make changes into:
+```
+android/app/build.gradle
+```
+
+```
+project.ext.envConfigFiles = [
+    debug: ".env",
+    release: ".env.production",
+]
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
+```
+
+|   |   |
+|---|---|
+| .env | environment variables that will be inserted into the app. If any change required build the app again. |
+| .sampleenv | environment variables example file |
+
+Typescript:
+
+|   |   |
+|---|---|
+| tsconfig.json | typescript configuration and path aliases for smaller module imports. |
+
+Git related configurations:
+
+|   |   |
+|---|---|
+| .huskyrc | pre commit and push configuration scripts |
+| .lintstagedrc |  scripts to run in stagged files when commit |
+
+#### Folders
+App folder structure:
+
+|   |   |
+|---|---|
+| App  | user interface components, navigation and ddd folders |
+| storybook  | Storybook folder with configuration files. |
+| e2e  |  End to end testing with detox  |
+| mockserver | firebase functions to mock remote server   |
+| android | Gradle configuration, debug signing key  |
+| ios | Pods (cocoa-pods) installed. Some RN libraries require a native syncing that is done by running "pod install" in this folder. |
+| scripts | scripts for workarounds and  |
+| _mocks_ | fixed mocks for jest test runner  |
+
