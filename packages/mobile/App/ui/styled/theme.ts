@@ -1,3 +1,7 @@
+/**
+ * All colors used through the app UI
+ */
+
 export const theme = {
   colors: {
     MAIN_SUPER_DARK: '#2F4358',
