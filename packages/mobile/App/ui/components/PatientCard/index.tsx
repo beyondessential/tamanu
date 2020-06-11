@@ -1,12 +1,13 @@
 import React from 'react';
-import { TouchableWithoutFeedback } from 'react-native';
-import { RowView, ColumnView, StyledView, StyledText } from '/styled/common';
-import { DateFormats } from '/helpers/constants';
-import { formatDate } from '/helpers/date';
-import { UserAvatar } from '../UserAvatar';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import {TouchableWithoutFeedback} from 'react-native';
+import {RowView, ColumnView, StyledView, StyledText} from '/styled/common';
+import {DateFormats} from '/helpers/constants';
+import {formatDate} from '/helpers/date';
+import {UserAvatar} from '../UserAvatar';
+import {screenPercentageToDP, Orientation} from '/helpers/screen';
 import * as styles from './styles';
-import { theme } from '/styled/theme';
+import {theme} from '/styled/theme';
+import {getGender} from '../../helpers/user';
 
 export interface PatientCardProps {
   lastVisit: Date;
@@ -41,11 +42,11 @@ export const PatientCard = ({
           gender={gender}
         />
         <StyledText
-          color={theme.colors.TEXT_MID}
+          color={theme.colors.TEXT_DARK}
           fontSize={screenPercentageToDP(1.09, Orientation.Height)}
           fontWeight={500}
         >
-          {formatDate(lastVisit, DateFormats.short)}
+          {`Last viewed \n${formatDate(lastVisit, DateFormats.short)}`}
         </StyledText>
       </RowView>
       <ColumnView
@@ -67,7 +68,7 @@ export const PatientCard = ({
             fontWeight={500}
             color={theme.colors.TEXT_MID}
           >
-            {`${gender} ${age}yrs`}
+            {`${getGender(gender)}, ${age}yrs`}
           </StyledText>
           <StyledText
             fontSize={screenPercentageToDP(1.45, Orientation.Height)}
