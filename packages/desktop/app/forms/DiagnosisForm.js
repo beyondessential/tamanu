@@ -24,8 +24,8 @@ export const DiagnosisForm = React.memo(
     // don't show the "ED Diagnosis" option if we're just on a regular visit
     // (unless we're editing a diagnosis with ED certainty already set)
     const certaintyOptions = diagnosisCertaintyOptions.filter(x => {
-      if(x.editOnly && !(diagnosis && diagnosis.id)) return false;
-      if(x.triageOnly && !isTriage) return false;
+      if (x.editOnly && !(diagnosis && diagnosis.id)) return false;
+      if (x.triageOnly && !isTriage) return false;
       return true;
     });
     const defaultCertainty = certaintyOptions[0].value;

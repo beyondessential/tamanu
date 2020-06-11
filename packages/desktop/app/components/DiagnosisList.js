@@ -61,5 +61,5 @@ DiagnosisList.defaultProps = {
 
 DiagnosisList.propTypes = {
   onEditDiagnosis: PropTypes.func,
-  diagnoses: PropTypes.arrayOf(PropTypes.shape()),
+  diagnoses: PropTypes.arrayOf(PropTypes.shape()).isRequired,
 };
