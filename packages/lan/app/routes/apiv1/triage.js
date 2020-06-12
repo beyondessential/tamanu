@@ -24,7 +24,6 @@ triage.get(
         visits.*,
         visits.id as visit_id,
         patients.*,
-        patients.id AS patient_id,
         location.name AS location_name,
         complaint.name AS chief_complaint
       FROM triages
