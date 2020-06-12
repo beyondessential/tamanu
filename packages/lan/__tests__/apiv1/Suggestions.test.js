@@ -1,7 +1,7 @@
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
 
-const { baseApp } = createTestContext();
+const { baseApp, models } = createTestContext();
 
 describe('Suggestions', () => {
   let userApp = null;
@@ -49,6 +49,15 @@ describe('Suggestions', () => {
       const { body } = result;
       expect(body).toBeInstanceOf(Array);
       expect(body.length).toBeGreaterThan(0);
+    });
+
+    it('should look up a specific suggestion', async () => {
+      const record = await models.ReferenceData.findOne();
+      const result = await userApp.get(`/v1/suggestions/icd10/${record.id}`);
+      expect(result).toHaveSucceeded();
+      const { body } = result;
+      expect(body).toHaveProperty('name', record.name);
+      expect(body).toHaveProperty('id', record.id);
     });
   });
 
