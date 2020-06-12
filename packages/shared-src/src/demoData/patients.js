@@ -62,7 +62,6 @@ export async function createDummyTriage(models, overrides) {
     chiefComplaintId: await randomReferenceId(models, 'triageReason'),
     secondaryComplaintId: chance.bool() ? null : await randomReferenceId(models, 'triageReason'),
     locationId: await randomReferenceId(models, 'location'),
-    departmentId: await randomReferenceId(models, 'department'),
     practitionerId: await randomUser(models),
     ...overrides,
   };

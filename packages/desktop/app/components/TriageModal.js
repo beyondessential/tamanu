@@ -68,10 +68,13 @@ const DumbTriageModal = React.memo(({ open, patient, onClose, ...rest }) => {
 
 export const TriageModal = connectApi((api, dispatch, { patient }) => ({
   onSubmit: async data => {
-    await api.post(`patient/${patient.id}/triages`, data);
+    await api.post('triage', {
+      ...data,
+      patientId: patient.id,
+    });
     dispatch(push('/patients/triage'));
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
   locationSuggester: new Suggester(api, 'location'),
-  triageComplaintSuggester: new Suggester(api, 'triageComplaint'),
+  triageComplaintSuggester: new Suggester(api, 'triageReason'),
 }))(DumbTriageModal);

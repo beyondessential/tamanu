@@ -77,3 +77,4 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
     });
   });
 };
+

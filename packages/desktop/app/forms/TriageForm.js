@@ -50,7 +50,7 @@ export class TriageForm extends React.PureComponent {
           helperText="If different from triage time"
         />
         <Field
-          name="location.id"
+          name="locationId"
           label="Location"
           required
           component={AutocompleteField}
@@ -72,14 +72,14 @@ export class TriageForm extends React.PureComponent {
         />
         <FormGrid columns={1} style={{ gridColumn: '1 / -1' }}>
           <Field
-            name="chiefComplaint.id"
+            name="chiefComplaintId"
             label="Chief complaint"
             component={AutocompleteField}
             suggester={triageComplaintSuggester}
             required
           />
           <Field
-            name="secondaryComplaint.id"
+            name="secondaryComplaintId"
             label="Secondary complaint"
             component={AutocompleteField}
             suggester={triageComplaintSuggester}
@@ -117,7 +117,7 @@ export class TriageForm extends React.PureComponent {
           />
         </FormGrid>
         <Field
-          name="practitioner.id"
+          name="practitionerId"
           label="Triage clinician"
           required
           component={AutocompleteField}
@@ -164,9 +164,9 @@ export class TriageForm extends React.PureComponent {
         }}
         validationSchema={yup.object().shape({
           triageTime: yup.date().required(),
-          chiefComplaint: foreignKey('Chief complaint must be selected'),
-          practitioner: foreignKey('Triage clinician must be selected'),
-          location: foreignKey('Location must be selected'),
+          chiefComplaintId: foreignKey('Chief complaint must be selected'),
+          practitionerId: foreignKey('Triage clinician must be selected'),
+          locationId: foreignKey('Location must be selected'),
           score: yup
             .string()
             .oneOf(triagePriorities.map(x => x.value))
