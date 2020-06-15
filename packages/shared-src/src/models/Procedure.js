@@ -27,7 +27,6 @@ export class Procedure extends Model {
     this.belongsTo(models.Visit, {
       foreignKey: 'visitId',
     });
-    /*
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'locationId',
       as: 'Location',
@@ -53,7 +52,6 @@ export class Procedure extends Model {
       foreignKey: 'anaestheticId',
       as: 'Anaesthetic',
     });
-    */
   }
 
 }
