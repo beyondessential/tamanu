@@ -230,9 +230,11 @@ describe('Patient search', () => {
         outpatient: true,
       });
       expect(response).toHaveSucceeded();
-      expect(response.body.count).toEqual(3);
 
-      response.body.data.map(responsePatient => {
+      const testOutpatients = response.body.data.filter(x => x.firstName = 'search-outpatient');
+      expect(testOutpatients.length).toEqual(3);
+
+      testOutpatients.map(responsePatient => {
         expect(responsePatient).toHaveProperty('visit_type', 'clinic');
       });
     });
@@ -242,9 +244,11 @@ describe('Patient search', () => {
         inpatient: true,
       });
       expect(response).toHaveSucceeded();
-      expect(response.body.count).toEqual(2);
 
-      response.body.data.map(responsePatient => {
+      const testInpatients = response.body.data.filter(x => x.firstName = 'search-inpatient');
+      expect(testInpatients.length).toEqual(2);
+
+      testInpatients.map(responsePatient => {
         expect(responsePatient).toHaveProperty('visit_type', 'admission');
       });
     });
