@@ -43,6 +43,7 @@ const visitRelations = permissionCheckingRouter('read', 'Visit');
 visitRelations.get('/:id/vitals', simpleGetList('Vitals', 'visitId'));
 visitRelations.get('/:id/diagnoses', simpleGetList('VisitDiagnosis', 'visitId'));
 visitRelations.get('/:id/notes', simpleGetList('Note', 'objectId', { additionalFilters: { objectType: NOTE_OBJECT_TYPES.VISIT } }));
+visitRelations.get('/:id/procedures', simpleGetList('Procedure', 'visitId'));
 
 visit.use(visitRelations);
 
