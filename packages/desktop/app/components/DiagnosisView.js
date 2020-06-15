@@ -18,7 +18,7 @@ const DiagnosisHeading = styled.div`
 
 function compareDiagnosis(a, b) {
   if (a.isPrimary === b.isPrimary) {
-    return a.diagnosis.name.localeCompare(b.diagnosis.name);
+    return a.name.localeCompare(b.name);
   }
 
   if (a.isPrimary) return -1;
@@ -45,15 +45,12 @@ const AddDiagnosisButton = styled(Button)`
 `;
 
 export const DiagnosisView = connect(state => ({
-  diagnoses: getDiagnoses(state)
-    .filter(d => d.diagnosis)
-    .sort(compareDiagnosis),
+  diagnoses: getDiagnoses(state).sort(compareDiagnosis),
 }))(
   React.memo(({ visitId, diagnoses, isTriage, readonly }) => {
     const [diagnosis, editDiagnosis] = React.useState(null);
 
-    const displayedDiagnoses = diagnoses
-      .filter(d => !['error', 'disproven'].includes(d.certainty));
+    const displayedDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
 
     return (
       <React.Fragment>
@@ -65,15 +62,18 @@ export const DiagnosisView = connect(state => ({
         />
         <DiagnosisGrid>
           <DiagnosisLabel numberOfDiagnoses={displayedDiagnoses.length} />
-          <DiagnosisList diagnoses={displayedDiagnoses} onEditDiagnosis={!readonly && editDiagnosis} />
-            <AddDiagnosisButton
-              onClick={() => editDiagnosis({})}
-              variant="outlined"
-              color="primary"
-              disabled={readonly}
-            >
-              Add diagnosis
-            </AddDiagnosisButton>
+          <DiagnosisList
+            diagnoses={displayedDiagnoses}
+            onEditDiagnosis={!readonly && editDiagnosis}
+          />
+          <AddDiagnosisButton
+            onClick={() => editDiagnosis({})}
+            variant="outlined"
+            color="primary"
+            disabled={readonly}
+          >
+            Add diagnosis
+          </AddDiagnosisButton>
         </DiagnosisGrid>
       </React.Fragment>
     );

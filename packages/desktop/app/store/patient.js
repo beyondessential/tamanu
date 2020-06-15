@@ -29,7 +29,7 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
 
   try {
     const [
-      patient, 
+      patient,
       currentVisit,
       familyHistory,
       allergies,

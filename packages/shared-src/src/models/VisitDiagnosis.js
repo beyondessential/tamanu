@@ -7,6 +7,11 @@ export class VisitDiagnosis extends Model {
       {
         id: primaryKey,
 
+        certainty: {
+          type: Sequelize.ENUM('suspected', 'confirmed'),
+          defaultValue: 'suspected',
+        },
+        isPrimary: Sequelize.BOOLEAN,
         date: {
           type: Sequelize.DATE,
           allowNull: false,
