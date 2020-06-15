@@ -12,6 +12,10 @@ const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
 const defaultLimit = 10;
 
+// Add a new suggester for a particular model at the given endpoint.
+// Records will be filtered based on the whereSql parameter. The user's search term
+// will be passed to the sql query as ":search" - see the existing suggestion
+// endpoints for usage examples.
 function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) {
   suggestions.get(
     `/${endpoint}/:id`,
