@@ -28,15 +28,30 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
   dispatch({ type: PATIENT_LOAD_START, id });
 
   try {
-    const [patient, currentVisit] = await Promise.all([
+    const [
+      patient,
+      currentVisit,
+      familyHistory,
+      allergies,
+      issues,
+      conditions,
+    ] = await Promise.all([
       api.get(`patient/${id}`),
       api.get(`patient/${id}/currentVisit`),
+      api.get(`patient/${id}/familyHistory`),
+      api.get(`patient/${id}/allergies`),
+      api.get(`patient/${id}/issues`),
+      api.get(`patient/${id}/conditions`),
     ]);
 
     dispatch({
       type: PATIENT_LOAD_FINISH,
       patient: {
         currentVisit,
+        issues: issues.data,
+        conditions: conditions.data,
+        allergies: allergies.data,
+        familyHistory: familyHistory.data,
         ...patient,
       },
     });
