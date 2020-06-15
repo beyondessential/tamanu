@@ -1,5 +1,5 @@
-import { createTestContext } from '../utilities';
 import { createDummyPatient, createDummyVisit } from 'shared/demoData/patients';
+import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
 
@@ -11,7 +11,6 @@ function createDummyProcedure(models) {
 }
 
 describe.only('Procedures', () => {
-
   let patient = null;
   let app = null;
   let visit = null;
@@ -68,5 +67,4 @@ describe.only('Procedures', () => {
     const updated = await models.Procedure.findByPk(record.id);
     expect(updated.endTime).toBeTruthy();
   });
-
 });

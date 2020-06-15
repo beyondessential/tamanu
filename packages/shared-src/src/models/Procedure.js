@@ -15,7 +15,7 @@ export class Procedure extends Model {
         note: Sequelize.STRING,
         completedNote: Sequelize.STRING,
       },
-      options
+      options,
     );
   }
 
@@ -53,5 +53,4 @@ export class Procedure extends Model {
       as: 'Anaesthetic',
     });
   }
-
 }

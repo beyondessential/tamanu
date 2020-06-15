@@ -231,7 +231,7 @@ describe('Patient search', () => {
       });
       expect(response).toHaveSucceeded();
 
-      const testOutpatients = response.body.data.filter(x => x.firstName = 'search-outpatient');
+      const testOutpatients = response.body.data.filter(x => x.firstName == 'search-outpatient');
       expect(testOutpatients.length).toEqual(3);
 
       testOutpatients.map(responsePatient => {
@@ -245,7 +245,7 @@ describe('Patient search', () => {
       });
       expect(response).toHaveSucceeded();
 
-      const testInpatients = response.body.data.filter(x => x.firstName = 'search-inpatient');
+      const testInpatients = response.body.data.filter(x => x.firstName == 'search-inpatient');
       expect(testInpatients.length).toEqual(2);
 
       testInpatients.map(responsePatient => {
