@@ -1,16 +1,18 @@
-import { createDummyPatient, createDummyVisit } from 'shared/demoData/patients';
+import { createDummyPatient, createDummyVisit, randomReferenceId } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
-const { baseApp, models } = createTestContext();
-
 function createDummyProcedure(models) {
+  const locationId = await randomReferenceId(models, 'location');
   return {
     node: '',
     date: new Date(),
+    locationId,
   };
 }
 
-describe.only('Procedures', () => {
+describe('Procedures', () => {
+  const { baseApp, models } = createTestContext();
+  
   let patient = null;
   let app = null;
   let visit = null;
