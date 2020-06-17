@@ -231,10 +231,12 @@ describe('Patient search', () => {
       });
       expect(response).toHaveSucceeded();
 
+      // ensure all of the test entries are present
       const testOutpatients = response.body.data.filter(x => x.firstName === 'search-outpatient');
       expect(testOutpatients.length).toEqual(3);
 
-      testOutpatients.map(responsePatient => {
+      // ensure all of the response objects match the filter
+      response.body.data.map(responsePatient => {
         expect(responsePatient).toHaveProperty('visit_type', 'clinic');
       });
     });
@@ -245,10 +247,12 @@ describe('Patient search', () => {
       });
       expect(response).toHaveSucceeded();
 
+      // ensure all of the test entries are present
       const testInpatients = response.body.data.filter(x => x.firstName === 'search-inpatient');
       expect(testInpatients.length).toEqual(2);
 
-      testInpatients.map(responsePatient => {
+      // ensure all of the response objects match the filter
+      response.body.data.map(responsePatient => {
         expect(responsePatient).toHaveProperty('visit_type', 'admission');
       });
     });
