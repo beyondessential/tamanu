@@ -1,10 +1,10 @@
 import { createDummyPatient, createDummyVisit, randomReferenceId } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
-function createDummyProcedure(models) {
+async function createDummyProcedure(models) {
   const locationId = await randomReferenceId(models, 'location');
   return {
-    node: '',
+    note: '',
     date: new Date(),
     locationId,
   };
@@ -12,7 +12,7 @@ function createDummyProcedure(models) {
 
 describe('Procedures', () => {
   const { baseApp, models } = createTestContext();
-  
+
   let patient = null;
   let app = null;
   let visit = null;
@@ -40,8 +40,8 @@ describe('Procedures', () => {
 
   it('should update a procedure', async () => {
     const record = await models.Procedure.create({
-      ...createDummyProcedure(models),
-      node: 'before',
+      ...(await createDummyProcedure(models)),
+      note: 'before',
       visitId: visit.id,
     });
 
@@ -56,7 +56,7 @@ describe('Procedures', () => {
 
   it('should close a procedure', async () => {
     const record = await models.Procedure.create({
-      ...createDummyProcedure(models),
+      ...(await createDummyProcedure(models)),
       visitId: visit.id,
     });
     expect(record.endTime).toBeFalsy();
