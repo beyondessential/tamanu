@@ -4,7 +4,7 @@ import { createTestContext } from '../utilities';
 function createDummyProcedure(models) {
   const locationId = await randomReferenceId(models, 'location');
   return {
-    node: '',
+    note: '',
     date: new Date(),
     locationId,
   };
@@ -41,7 +41,7 @@ describe('Procedures', () => {
   it('should update a procedure', async () => {
     const record = await models.Procedure.create({
       ...createDummyProcedure(models),
-      node: 'before',
+      note: 'before',
       visitId: visit.id,
     });
 
