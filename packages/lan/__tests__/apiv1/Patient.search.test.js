@@ -38,7 +38,7 @@ const searchTestPatients = [
   { firstName: 'search-by-age-IN', lastName: 'turned-30-today', dateOfBirth: yearsAgo(30) },
   { firstName: 'search-by-age-IN', lastName: 'turning-30-tomorrow', dateOfBirth: yearsAgo(30, -1) },
   { firstName: 'search-by-age-IN', lastName: 'comfortably-in-range', dateOfBirth: yearsAgo(25) },
-  { firstName: 'search-by-age-IN', lastName: 'turned-20-yesterday', dateOfBirth: yearsAgo(20, 1) },
+  
   { firstName: 'search-by-age-IN', lastName: 'turned-20-today', dateOfBirth: yearsAgo(20) },
   { firstName: 'search-by-age-YOUNG', lastName: 'turning-20-tmrw', dateOfBirth: yearsAgo(20, -1) },
   { firstName: 'search-by-age-YOUNG', dateOfBirth: yearsAgo(15) },
@@ -218,7 +218,7 @@ describe('Patient search', () => {
     expect(data.length).toBeGreaterThan(0);
     data.map(responsePatient => {
       expect(responsePatient).toHaveProperty('villageId', villageId);
-      expect(responsePatient).toHaveProperty('village_name', villageName);
+      expect(responsePatient).toHaveProperty('villageName', villageName);
     });
 
     expect(data.some(withFirstName('search-by-village')));
@@ -237,7 +237,7 @@ describe('Patient search', () => {
 
       // ensure all of the response objects match the filter
       response.body.data.map(responsePatient => {
-        expect(responsePatient).toHaveProperty('visit_type', 'clinic');
+        expect(responsePatient).toHaveProperty('visitType', 'clinic');
       });
     });
 
@@ -253,7 +253,7 @@ describe('Patient search', () => {
 
       // ensure all of the response objects match the filter
       response.body.data.map(responsePatient => {
-        expect(responsePatient).toHaveProperty('visit_type', 'admission');
+        expect(responsePatient).toHaveProperty('visitType', 'admission');
       });
     });
 
@@ -265,7 +265,7 @@ describe('Patient search', () => {
 
       expect(response.body.data.some(withFirstName('search-by-location')));
       response.body.data.map(responsePatient => {
-        expect(responsePatient).toHaveProperty('location_name', locations[0].name);
+        expect(responsePatient).toHaveProperty('locationName', locations[0].name);
       });
     });
 
@@ -277,7 +277,7 @@ describe('Patient search', () => {
 
       expect(response.body.data.some(withFirstName('search-by-department')));
       response.body.data.map(responsePatient => {
-        expect(responsePatient).toHaveProperty('department_name', departments[0].name);
+        expect(responsePatient).toHaveProperty('departmentName', departments[0].name);
       });
     });
   });
@@ -362,7 +362,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, x => x.visit_type);
+      expectSorted(response.body.data, x => x.visitType);
     });
 
     it('should sort by visit type in descending order', async () => {
@@ -373,7 +373,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, x => x.visit_type, true);
+      expectSorted(response.body.data, x => x.visitType, true);
     });
 
     it('should sort by location', async () => {
@@ -383,7 +383,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, x => x.location_name);
+      expectSorted(response.body.data, x => x.locationName);
     });
 
     it('should sort by department', async () => {
@@ -393,7 +393,18 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, x => x.department_name);
+      expectSorted(response.body.data, x => x.departmentName);
+    });
+
+    it('should sort by village', async () => {
+      const response = await app.get('/v1/patient').query({
+        // TODO: fix sort keys
+        orderBy: 'village_name',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, x => x.villageName);
     });
 
     it('should sort by village', async () => {
@@ -403,17 +414,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, x => x.village_name);
-    });
-
-    it('should sort by village', async () => {
-      const response = await app.get('/v1/patient').query({
-        orderBy: 'village_name',
-      });
-
-      expect(response).toHaveSucceeded();
-
-      expectSorted(response.body.data, x => x.village_name);
+      expectSorted(response.body.data, x => x.villageName);
     });
   });
 

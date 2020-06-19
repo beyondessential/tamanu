@@ -11,6 +11,8 @@ import {
   permissionCheckingRouter,
 } from './crudHelpers';
 
+import { renameObjectKeys } from '~/utils/renameObjectKeys';
+
 export const patient = express.Router();
 
 patient.get('/:id', simpleGet('Patient'));
@@ -183,6 +185,7 @@ patient.get(
       `
         SELECT 
           patients.*, 
+          visits.id AS visit_id,
           visits.visit_type,
           department.id AS department_id,
           department.name AS department_name,
@@ -208,8 +211,10 @@ patient.get(
       },
     );
 
+    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
+
     res.send({
-      data: result,
+      data: forResponse,
       count,
     });
   }),

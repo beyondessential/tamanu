@@ -95,13 +95,6 @@ export class Visit extends Model {
     return note;
   }
 
-  forResponse() {
-    const data = super.forResponse();
-    return {
-      ...data,
-    };
-  }
-
   async getLinkedTriage() {
     const { Triage } = this.sequelize.models;
     return Triage.findOne({
