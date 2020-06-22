@@ -105,41 +105,43 @@ const COLUMNS = [
         score={row.score}
         startTime={row.triageTime}
         closedTime={row.closedTime}
-        visitType={row.visit_type}
+        visitType={row.visitType}
       />
     ),
   },
   {
-    key: 'reasonForVisit',
+    key: 'chiefComplaint',
     title: 'Chief complaint',
-    accessor: row => row.chief_complaint,
+    accessor: row => row.chiefComplaint,
   },
-  { key: 'id', title: 'ID', accessor: row => row.display_id },
+  { key: 'id', title: 'ID', accessor: row => row.displayId },
   {
     key: 'patientName',
     title: 'Patient',
-    accessor: row => `${row.first_name} ${row.last_name}`,
+    accessor: row => `${row.firstName} ${row.lastName}`,
   },
   {
-    key: 'patientDoB',
+    key: 'dateOfBirth',
     title: 'Date of birth',
-    accessor: row => <DateDisplay date={row.date_of_birth} />,
+    accessor: row => <DateDisplay date={row.dateOfBirth} />,
   },
   {
-    key: 'patientSex',
+    key: 'sex',
     title: 'Sex',
     accessor: row => {
       const sex = row.sex || '';
       return capitaliseFirstLetter(sex);
     },
   },
-  { key: 'location', title: 'Location', accessor: row => row.location_name },
+  { key: 'locationName',
+	title: 'Location', 
+	accessor: row => row.locationName },
 ];
 
 const TriageTable = connect(
   null,
   dispatch => ({
-    onViewVisit: triage => dispatch(viewPatientVisit(triage.patient_id, triage.visitId))
+    onViewVisit: triage => dispatch(viewPatientVisit(triage.patientId, triage.visitId))
   }),
 )(
   React.memo(({ onViewVisit, ...props }) => (
