@@ -133,17 +133,12 @@ const COLUMNS = [
       return capitaliseFirstLetter(sex);
     },
   },
-  { key: 'locationName',
-	title: 'Location', 
-	accessor: row => row.locationName },
+  { key: 'locationName', title: 'Location', accessor: row => row.locationName },
 ];
 
-const TriageTable = connect(
-  null,
-  dispatch => ({
-    onViewVisit: triage => dispatch(viewPatientVisit(triage.patientId, triage.visitId))
-  }),
-)(
+const TriageTable = connect(null, dispatch => ({
+  onViewVisit: triage => dispatch(viewPatientVisit(triage.patientId, triage.visitId)),
+}))(
   React.memo(({ onViewVisit, ...props }) => (
     <DataFetchingTable
       endpoint="triage"

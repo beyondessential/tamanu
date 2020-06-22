@@ -1,7 +1,6 @@
 import { camelify, renameObjectKeys } from '~/utils/renameObjectKeys';
 
 describe('renameObjectKeys', () => {
-  
   it('should change snake to camel case', () => {
     expect(camelify('one_underscore')).toEqual('oneUnderscore');
     expect(camelify('two_underscores_string')).toEqual('twoUnderscoresString');
@@ -38,5 +37,4 @@ describe('renameObjectKeys', () => {
 
     expect(result).toHaveProperty('notModified.not_modified', base.notModified.not_modified);
   });
-  
 });
