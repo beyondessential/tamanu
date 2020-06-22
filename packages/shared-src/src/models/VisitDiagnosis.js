@@ -36,16 +36,6 @@ export class VisitDiagnosis extends Model {
     );
   }
 
-  forResponse() {
-    const { Diagnosis = {}, ...data } = super.forResponse();
-    const { name, code } = Diagnosis;
-    return {
-      ...data,
-      name,
-      code,
-    };
-  }
-
   static initRelations(models) {
     this.belongsTo(models.Visit, {
       foreignKey: 'visitId',

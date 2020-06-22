@@ -18,7 +18,7 @@ const DiagnosisHeading = styled.div`
 
 function compareDiagnosis(a, b) {
   if (a.isPrimary === b.isPrimary) {
-    return a.name.localeCompare(b.name);
+    return a.diagnosis.name.localeCompare(b.diagnosis.name);
   }
 
   if (a.isPrimary) return -1;

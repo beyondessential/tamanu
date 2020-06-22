@@ -23,8 +23,4 @@ export class PatientFamilyHistory extends Model {
     return ['Condition'];
   }
 
-  forResponse() {
-    const { Condition, ...data } = super.forResponse();
-    return { ...data, condition: Condition.forResponse() };
-  }
 }

@@ -23,8 +23,4 @@ export class PatientAllergy extends Model {
     return ['Allergy'];
   }
 
-  forResponse() {
-    const { Allergy, ...data } = super.forResponse();
-    return { ...data, allergy: Allergy.forResponse() };
-  }
 }
