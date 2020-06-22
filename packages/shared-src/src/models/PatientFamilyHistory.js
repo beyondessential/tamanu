@@ -22,5 +22,4 @@ export class PatientFamilyHistory extends Model {
   static getListReferenceAssociations() {
     return ['Condition'];
   }
-
 }

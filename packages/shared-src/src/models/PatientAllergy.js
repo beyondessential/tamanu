@@ -22,5 +22,4 @@ export class PatientAllergy extends Model {
   static getListReferenceAssociations() {
     return ['Allergy'];
   }
-
 }

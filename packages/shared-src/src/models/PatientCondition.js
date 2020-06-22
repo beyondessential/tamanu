@@ -23,5 +23,4 @@ export class PatientCondition extends Model {
   static getListReferenceAssociations() {
     return ['Condition'];
   }
-
 }
