@@ -74,10 +74,11 @@ const sortKeys = {
   firstName: 'UPPER(patients.first_name)',
   age: 'patients.date_of_birth',
   dateOfBirth: 'patients.date_of_birth',
-  village_name: 'village_name',
-  location: 'location.name',
-  department: 'department.name',
-  status: 'visits.visit_type',
+  villageName: 'village_name',
+  locationName: 'location.name',
+  departmentName: 'department.name',
+  visitType: 'visits.visit_type',
+  sex: 'patients.sex',
 };
 
 patient.get(

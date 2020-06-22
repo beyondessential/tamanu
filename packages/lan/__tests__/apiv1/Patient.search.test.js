@@ -357,7 +357,7 @@ describe('Patient search', () => {
 
     it('should sort by visit type', async () => {
       const response = await app.get('/v1/patient').query({
-        orderBy: 'status',
+        orderBy: 'visitType',
       });
 
       expect(response).toHaveSucceeded();
@@ -367,7 +367,7 @@ describe('Patient search', () => {
 
     it('should sort by visit type in descending order', async () => {
       const response = await app.get('/v1/patient').query({
-        orderBy: 'status',
+        orderBy: 'visitType',
         order: 'desc',
       });
 
@@ -378,7 +378,7 @@ describe('Patient search', () => {
 
     it('should sort by location', async () => {
       const response = await app.get('/v1/patient').query({
-        orderBy: 'location',
+        orderBy: 'locationName',
       });
 
       expect(response).toHaveSucceeded();
@@ -388,7 +388,7 @@ describe('Patient search', () => {
 
     it('should sort by department', async () => {
       const response = await app.get('/v1/patient').query({
-        orderBy: 'department',
+        orderBy: 'departmentName',
       });
 
       expect(response).toHaveSucceeded();
@@ -398,8 +398,7 @@ describe('Patient search', () => {
 
     it('should sort by village', async () => {
       const response = await app.get('/v1/patient').query({
-        // TODO: fix sort keys
-        orderBy: 'village_name',
+        orderBy: 'villageName',
       });
 
       expect(response).toHaveSucceeded();
@@ -409,7 +408,7 @@ describe('Patient search', () => {
 
     it('should sort by village', async () => {
       const response = await app.get('/v1/patient').query({
-        orderBy: 'village_name',
+        orderBy: 'villageName',
       });
 
       expect(response).toHaveSucceeded();
