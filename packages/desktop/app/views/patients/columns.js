@@ -45,34 +45,34 @@ export const dateOfBirth = {
 };
 
 export const village = {
-  key: 'village_name',
+  key: 'villageName',
   title: 'Village',
   minWidth: 100,
-  accessor: row => row.village_name,
+  accessor: row => row.villageName,
 };
 
 export const location = {
-  key: 'location_name',
+  key: 'locationName',
   title: 'Location',
   minWidth: 100,
-  accessor: row => row.location_name,
+  accessor: row => row.locationName,
 };
 
 export const department = {
-  key: 'department_name',
+  key: 'departmentName',
   title: 'Department',
   minWidth: 100,
-  accessor: row => row.department_name,
+  accessor: row => row.departmentName,
 };
 
 export const status = {
-  key: 'status',
+  key: 'visitType',
   title: 'Status',
   minWidth: 100,
-  accessor: ({ visit_type }) => {
-    if (!visit_type) return '';
-    else if (visit_type === 'emergency') return 'Emergency';
-    else if (visit_type === 'clinic') return 'Outpatient';
+  accessor: ({ visitType }) => {
+    if (!visitType) return '';
+    else if (visitType === 'emergency') return 'Emergency';
+    else if (visitType === 'clinic') return 'Outpatient';
     return 'Inpatient';
   },
 };
