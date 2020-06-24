@@ -36,10 +36,10 @@ const DiagnosisName = styled.span`
   border-radius: 0 3px 3px 0;
 `;
 
-const DiagnosisItem = React.memo(({ name, isPrimary, onClick }) => (
+const DiagnosisItem = React.memo(({ diagnosis, isPrimary, onClick }) => (
   <DiagnosisChip onClick={onClick}>
     <Category isPrimary={isPrimary}>{isPrimary ? 'P' : 'S'}</Category>
-    <DiagnosisName isPrimary={isPrimary}>{name}</DiagnosisName>
+    <DiagnosisName isPrimary={isPrimary}>{diagnosis.name}</DiagnosisName>
   </DiagnosisChip>
 ));
 

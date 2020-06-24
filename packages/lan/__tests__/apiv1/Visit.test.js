@@ -337,8 +337,8 @@ describe('Visit', () => {
         expect(result).toHaveSucceeded();
         const { body } = result;
         expect(body.count).toBeGreaterThan(0);
-        expect(body.data[0].name).toEqual('Malady');
-        expect(body.data[0].code).toEqual('malady');
+        expect(body.data[0].diagnosis.name).toEqual('Malady');
+        expect(body.data[0].diagnosis.code).toEqual('malady');
       });
     });
 

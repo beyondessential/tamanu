@@ -29,7 +29,7 @@ export class ProcedureForm extends React.PureComponent {
     onCancel: PropTypes.func.isRequired,
     editedObject: PropTypes.shape({}),
 
-    anaesthesiaSuggester: suggesterType.isRequired,
+    anaestheticSuggester: suggesterType.isRequired,
     procedureSuggester: suggesterType.isRequired,
     locationSuggester: suggesterType.isRequired,
     practitionerSuggester: suggesterType.isRequired,
@@ -53,7 +53,7 @@ export class ProcedureForm extends React.PureComponent {
 
   renderForm = ({ submitForm, values }) => {
     const {
-      anaesthesiaSuggester,
+      anaestheticSuggester,
       procedureSuggester,
       locationSuggester,
       practitionerSuggester,
@@ -66,7 +66,7 @@ export class ProcedureForm extends React.PureComponent {
           <FormGrid>
             <div style={{ gridColumn: 'span 2' }}>
               <Field
-                name="type.id"
+                name="procedureTypeId"
                 label="Procedure"
                 required
                 component={AutocompleteField}
@@ -74,7 +74,7 @@ export class ProcedureForm extends React.PureComponent {
               />
             </div>
             <Field
-              name="location.id"
+              name="locationId"
               label="Procedure location"
               required
               component={AutocompleteField}
@@ -86,29 +86,29 @@ export class ProcedureForm extends React.PureComponent {
               <Field name="endTime" label="Time ended" component={TimeField} />
             </FormGrid>
             <Field
-              name="physician.id"
+              name="physicianId"
               label="Physician"
               required
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
             <Field
-              name="assistant.id"
+              name="assistantId"
               label="Assistant"
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
             <Field
-              name="anaesthetist.id"
+              name="anaesthetistId"
               label="Anaesthetist"
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
             <Field
-              name="anaesthesiaType.id"
-              label="Anaesthesia Type"
+              name="anaestheticTypeId"
+              label="Anaesthetic Type"
               component={AutocompleteField}
-              suggester={anaesthesiaSuggester}
+              suggester={anaestheticSuggester}
               rows={4}
               style={{ gridColumn: 'span 2' }}
             />
@@ -155,18 +155,18 @@ export class ProcedureForm extends React.PureComponent {
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          type: foreignKey("Procedure must be selected"),
-          location: foreignKey("Location must be selected"),
+          procedureTypeId: foreignKey("Procedure must be selected"),
+          locationId: foreignKey("Location must be selected"),
           date: yup.date().required(),
           startTime: yup.date(),
           endTime: yup.date(),
-          physician: foreignKey("Physician must be selected"),
-          assistant: optionalForeignKey(),
-          anaesthetist: optionalForeignKey(),
-          anaesthesiaType: optionalForeignKey(),
-          notes: yup.string(),
+          physicianId: foreignKey("Physician must be selected"),
+          assistantId: optionalForeignKey(),
+          anaesthetistId: optionalForeignKey(),
+          anaestheticTypeId: optionalForeignKey(),
+          note: yup.string(),
           completed: yup.boolean(),
-          completedNotes: yup.string(),
+          completedNote: yup.string(),
         })}
       />
     );

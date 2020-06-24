@@ -16,11 +16,14 @@ const DumbProcedureModal = React.memo(({ open, onClose, onCreateProcedure, ...re
 
 export const ProcedureModal = connectApi((api, dispatch, { visitId }) => ({
   onCreateProcedure: async data => {
-    await api.post(`visit/${visitId}/procedure`, data);
+    await api.post('procedure', {
+      ...data,
+      visitId,
+    });
     dispatch(viewVisit(visitId));
   },
   locationSuggester: new Suggester(api, 'location'),
   practitionerSuggester: new Suggester(api, 'practitioner'),
-  procedureSuggester: new Suggester(api, 'procedure'),
-  anaesthesiaSuggester: new Suggester(api, 'drug'),
+  procedureSuggester: new Suggester(api, 'procedureType'),
+  anaestheticSuggester: new Suggester(api, 'drug'),
 }))(DumbProcedureModal);

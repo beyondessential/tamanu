@@ -23,9 +23,4 @@ export class PatientCondition extends Model {
   static getListReferenceAssociations() {
     return ['Condition'];
   }
-
-  forResponse() {
-    const { Condition, ...data } = super.forResponse();
-    return { ...data, condition: Condition.forResponse() };
-  }
 }

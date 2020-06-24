@@ -2,9 +2,30 @@ import * as sequelize from 'sequelize';
 
 export const Sequelize = sequelize.Sequelize;
 
+const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
+
 export class Model extends sequelize.Model {
   forResponse() {
-    return this.dataValues;
+    // Reassign reference associations to use camelCase & dataValues.
+    // That is, it turns
+    // { id: 12345, field: 'value', ReferenceObject: [model instance] }
+    // into
+    // { id: 12345, field: 'value', referenceObject: { id: 23456, name: 'object' } }
+
+    const values = this.dataValues;
+    const references = this.constructor.getListReferenceAssociations();
+
+    if (!references) return values;
+
+    // Note that we don't call forResponse on the nested object, this is under the assumption that
+    // if the structure of a nested object differs significantly from its database representation,
+    // it's probably more correct to implement that as a separate endpoint rather than putting the
+    // logic here.
+    return references.reduce((allValues, referenceName) => {
+      const { [referenceName]: referenceVal, ...otherValues } = allValues;
+      if (!referenceVal) return allValues;
+      return { ...otherValues, [firstLetterLowercase(referenceName)]: referenceVal.dataValues };
+    }, values);
   }
 
   toJSON() {

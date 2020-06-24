@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { Table } from './Table';
+import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
-const getProcedureLabel = ({ type }) => type.name;
-const getCodeLabel = ({ type }) => type.code;
+const getProcedureLabel = ({ procedureType }) => procedureType.name;
+const getCodeLabel = ({ procedureType }) => procedureType.code;
 
 const COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
@@ -12,6 +12,6 @@ const COLUMNS = [
   { key: 'type', title: 'Procedure', accessor: getProcedureLabel },
 ];
 
-export const ProcedureTable = React.memo(({ procedures }) => (
-  <Table columns={COLUMNS} data={procedures} />
+export const ProcedureTable = React.memo(({ visitId }) => (
+  <DataFetchingTable columns={COLUMNS} endpoint={`visit/${visitId}/procedures`} />
 ));

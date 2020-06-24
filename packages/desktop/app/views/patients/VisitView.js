@@ -152,7 +152,7 @@ const ProcedurePane = React.memo(({ visit, readonly }) => {
   return (
     <div>
       <ProcedureModal open={modalOpen} visitId={visit.id} onClose={() => setModalOpen(false)} />
-      <ProcedureTable procedures={visit.procedures} />
+      <ProcedureTable visitId={visit.id} />
       <ContentPane>
         <Button
           onClick={() => setModalOpen(true)}

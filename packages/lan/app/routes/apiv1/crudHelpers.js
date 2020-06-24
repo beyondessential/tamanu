@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { NotFoundError } from 'shared/errors';
+import { renameObjectKeys } from '~/utils/renameObjectKeys';
 
 
 // utility function for creating a subroute that all checks the same
@@ -71,9 +72,11 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
       include: model.getListReferenceAssociations(models),
     });
 
+    const data = objects.map(x => x.forResponse());
+
     res.send({
-      count: objects.length,
-      data: objects,
+      count: data.length,
+      data: data,
     });
   });
 };
