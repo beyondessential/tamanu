@@ -8,20 +8,22 @@ import { viewVisit } from '../store/visit';
 
 import { ProcedureForm } from '../forms/ProcedureForm';
 
-const DumbProcedureModal = React.memo(({ open, onClose, editedProcedure, onSaveProcedure, ...rest }) => (
-  <Modal width="md" title="New procedure" open={!!editedProcedure} onClose={onClose}>
-    <ProcedureForm 
-      onSubmit={onSaveProcedure} 
-      onCancel={onClose}
-      editedObject={editedProcedure}
-      {...rest}
-    />
-  </Modal>
-));
+const DumbProcedureModal = React.memo(
+  ({ open, onClose, editedProcedure, onSaveProcedure, ...rest }) => (
+    <Modal width="md" title="New procedure" open={!!editedProcedure} onClose={onClose}>
+      <ProcedureForm
+        onSubmit={onSaveProcedure}
+        onCancel={onClose}
+        editedObject={editedProcedure}
+        {...rest}
+      />
+    </Modal>
+  ),
+);
 
 export const ProcedureModal = connectApi((api, dispatch, { visitId }) => ({
   onSaveProcedure: async data => {
-    if(data.id) {
+    if (data.id) {
       await api.put(`procedure/${data.id}`, data);
     } else {
       await api.post('procedure', {

@@ -14,10 +14,13 @@ export class Model extends sequelize.Model {
 
     const values = Object.entries(this.dataValues)
       .filter(([key, val]) => val !== null)
-      .reduce((obj, [key, val]) => ({
-        ...obj,
-        [key]: val,
-      }), {}); 
+      .reduce(
+        (obj, [key, val]) => ({
+          ...obj,
+          [key]: val,
+        }),
+        {},
+      );
 
     const references = this.constructor.getListReferenceAssociations();
 

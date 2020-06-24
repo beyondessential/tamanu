@@ -151,15 +151,12 @@ const ProcedurePane = React.memo(({ visit, readonly }) => {
 
   return (
     <div>
-      <ProcedureModal 
-        editedProcedure={editedProcedure} 
-        visitId={visit.id} 
-        onClose={() => setEditedProcedure(null)} 
+      <ProcedureModal
+        editedProcedure={editedProcedure}
+        visitId={visit.id}
+        onClose={() => setEditedProcedure(null)}
       />
-      <ProcedureTable 
-        visitId={visit.id} 
-        onItemClick={item => setEditedProcedure(item)}
-      />
+      <ProcedureTable visitId={visit.id} onItemClick={item => setEditedProcedure(item)} />
       <ContentPane>
         <Button
           onClick={() => setEditedProcedure({})}
