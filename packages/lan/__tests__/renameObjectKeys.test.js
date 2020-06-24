@@ -37,4 +37,23 @@ describe('renameObjectKeys', () => {
 
     expect(result).toHaveProperty('notModified.not_modified', base.notModified.not_modified);
   });
+
+  it('should not modify the input object', () => {
+    const base = {
+      original_key: 'original_value',
+    };
+
+    const result = renameObjectKeys(base);
+    expect(result).toHaveProperty('originalKey', 'original_value');
+    expect(base).toHaveProperty('original_key', 'original_value');
+  });
+
+  it('should not preserve original keys', () => {
+    const base = {
+      original_key: 'original_value',
+    };
+
+    const result = renameObjectKeys(base);
+    expect(result).not.toHaveProperty('original_key');
+  });
 });

@@ -16,6 +16,7 @@ function getCodeForErrorName(name) {
     case 'SequelizeValidationError':
     case 'SequelizeForeignKeyConstraintError':
     case 'InvalidOperationError':
+    case 'InvalidParameterError':
       // unprocessable entity - syntax is correct but data is bad
       return 422;
     default:
