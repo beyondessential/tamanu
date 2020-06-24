@@ -29,8 +29,16 @@ triage.get(
 
     req.checkPermission('list', 'Triage');
 
-    const { orderBy = 'score', order = 'asc' } = query;
-    const sortKey = sortKeys[orderBy] || '1';
+    const {
+      orderBy = 'score',
+      order = 'asc',
+    } = query;
+    const sortKey = sortKeys[orderBy];
+
+    if(!sortKey) {
+      throw new InvalidParameterError(`Cannot order by ${orderBy}.`);
+    }
+
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
     const result = await db.query(
