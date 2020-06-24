@@ -3,8 +3,8 @@ import React from 'react';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
-const getProcedureLabel = ({ type }) => type.name;
-const getCodeLabel = ({ type }) => type.code;
+const getProcedureLabel = ({ procedureType }) => procedureType.name;
+const getCodeLabel = ({ procedureType }) => procedureType.code;
 
 const COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
