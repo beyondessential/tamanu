@@ -12,6 +12,10 @@ const COLUMNS = [
   { key: 'type', title: 'Procedure', accessor: getProcedureLabel },
 ];
 
-export const ProcedureTable = React.memo(({ visitId }) => (
-  <DataFetchingTable columns={COLUMNS} endpoint={`visit/${visitId}/procedures`} />
+export const ProcedureTable = React.memo(({ visitId, onItemClick }) => (
+  <DataFetchingTable 
+    columns={COLUMNS}
+    endpoint={`visit/${visitId}/procedures`} 
+    onRowClick={row => onItemClick(row)}
+  />
 ));

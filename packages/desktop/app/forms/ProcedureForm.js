@@ -113,7 +113,7 @@ export class ProcedureForm extends React.PureComponent {
               style={{ gridColumn: 'span 2' }}
             />
             <Field
-              name="notes"
+              name="note"
               label="Notes or additional instructions"
               component={TextField}
               multiline
@@ -126,7 +126,7 @@ export class ProcedureForm extends React.PureComponent {
           <Field name="completed" label="Completed" component={CheckField} />
           <Collapse in={isCompleted} style={{ gridColumn: 'span 2' }}>
             <Field
-              name="completedNotes"
+              name="completedNote"
               label="Notes on completed procedure"
               component={TextField}
               multiline
@@ -155,12 +155,12 @@ export class ProcedureForm extends React.PureComponent {
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          procedureTypeId: foreignKey("Procedure must be selected"),
-          locationId: foreignKey("Location must be selected"),
+          procedureTypeId: foreignKey('Procedure must be selected'),
+          locationId: foreignKey('Location must be selected'),
           date: yup.date().required(),
           startTime: yup.date(),
           endTime: yup.date(),
-          physicianId: foreignKey("Physician must be selected"),
+          physicianId: foreignKey('Physician must be selected'),
           assistantId: optionalForeignKey(),
           anaesthetistId: optionalForeignKey(),
           anaestheticTypeId: optionalForeignKey(),

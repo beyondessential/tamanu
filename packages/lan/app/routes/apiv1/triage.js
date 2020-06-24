@@ -29,10 +29,7 @@ triage.get(
 
     req.checkPermission('list', 'Triage');
 
-    const {
-      orderBy = 'score',
-      order = 'asc',
-    } = query;
+    const { orderBy = 'score', order = 'asc' } = query;
     const sortKey = sortKeys[orderBy] || '1';
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
@@ -55,19 +52,19 @@ triage.get(
           LEFT JOIN reference_data AS complaint
            ON (triages.chief_complaint_id = complaint.id)
         ORDER BY ${sortKey} ${sortDirection} NULLS LAST
-      `, 
+      `,
       {
         model: Triage,
         type: QueryTypes.SELECT,
         mapToModel: true,
-      }
+      },
     );
 
     const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
 
-    res.send({ 
+    res.send({
       data: forResponse,
       count: result.length,
     });
-  })
+  }),
 );
