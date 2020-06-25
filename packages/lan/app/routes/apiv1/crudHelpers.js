@@ -2,8 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { NotFoundError } from 'shared/errors';
-import { renameObjectKeys } from '~/utils/renameObjectKeys';
-
 
 // utility function for creating a subroute that all checks the same
 // action (for eg different relation reads on a visit all check visit.read)
@@ -80,4 +78,3 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
     });
   });
 };
-

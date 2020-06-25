@@ -147,15 +147,19 @@ const MedicationPane = React.memo(({ visit, readonly }) => {
 });
 
 const ProcedurePane = React.memo(({ visit, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [editedProcedure, setEditedProcedure] = React.useState(null);
 
   return (
     <div>
-      <ProcedureModal open={modalOpen} visitId={visit.id} onClose={() => setModalOpen(false)} />
-      <ProcedureTable visitId={visit.id} />
+      <ProcedureModal
+        editedProcedure={editedProcedure}
+        visitId={visit.id}
+        onClose={() => setEditedProcedure(null)}
+      />
+      <ProcedureTable visitId={visit.id} onItemClick={item => setEditedProcedure(item)} />
       <ContentPane>
         <Button
-          onClick={() => setModalOpen(true)}
+          onClick={() => setEditedProcedure({})}
           variant="contained"
           color="primary"
           disabled={readonly}
@@ -167,12 +171,9 @@ const ProcedurePane = React.memo(({ visit, readonly }) => {
   );
 });
 
-const ProgramsPane = connect(
-  null,
-  dispatch => ({
-    onNavigateToPrograms: () => dispatch(push('/programs')),
-  }),
-)(
+const ProgramsPane = connect(null, dispatch => ({
+  onNavigateToPrograms: () => dispatch(push('/programs')),
+}))(
   React.memo(({ onNavigateToPrograms, visit }) => (
     <div>
       <SurveyResponsesTable surveyResponses={visit.surveyResponses} />
@@ -252,27 +253,26 @@ const VisitInfoPane = React.memo(({ visit }) => (
 
 const RoutedDischargeModal = connectRoutedModal('/patients/visit', 'discharge')(DischargeModal);
 const RoutedChangeTypeModal = connectRoutedModal('/patients/visit', 'changeType')(ChangeTypeModal);
-const RoutedChangeDepartmentModal = connectRoutedModal('/patients/visit', 'changeDepartment')(
-  ChangeDepartmentModal,
-);
+const RoutedChangeDepartmentModal = connectRoutedModal(
+  '/patients/visit',
+  'changeDepartment',
+)(ChangeDepartmentModal);
 const RoutedBeginMoveModal = connectRoutedModal('/patients/visit', 'beginMove')(BeginMoveModal);
 const RoutedCancelMoveModal = connectRoutedModal('/patients/visit', 'cancelMove')(CancelMoveModal);
-const RoutedFinaliseMoveModal = connectRoutedModal('/patients/visit', 'finaliseMove')(
-  FinaliseMoveModal,
-);
+const RoutedFinaliseMoveModal = connectRoutedModal(
+  '/patients/visit',
+  'finaliseMove',
+)(FinaliseMoveModal);
 
-const VisitActionDropdown = connect(
-  null,
-  dispatch => ({
-    onDischargeOpen: () => dispatch(push('/patients/visit/discharge')),
-    onChangeVisitType: newType => dispatch(push(`/patients/visit/changeType/${newType}`)),
-    onViewSummary: () => dispatch(push('/patients/visit/summary')),
-    onChangeLocation: () => dispatch(push('/patients/visit/beginMove')),
-    onCancelLocationChange: () => dispatch(push('/patients/visit/cancelMove')),
-    onFinaliseLocationChange: () => dispatch(push('/patients/visit/finaliseMove')),
-    onChangeDepartment: () => dispatch(push('/patients/visit/changeDepartment')),
-  }),
-)(
+const VisitActionDropdown = connect(null, dispatch => ({
+  onDischargeOpen: () => dispatch(push('/patients/visit/discharge')),
+  onChangeVisitType: newType => dispatch(push(`/patients/visit/changeType/${newType}`)),
+  onViewSummary: () => dispatch(push('/patients/visit/summary')),
+  onChangeLocation: () => dispatch(push('/patients/visit/beginMove')),
+  onCancelLocationChange: () => dispatch(push('/patients/visit/cancelMove')),
+  onFinaliseLocationChange: () => dispatch(push('/patients/visit/finaliseMove')),
+  onChangeDepartment: () => dispatch(push('/patients/visit/changeDepartment')),
+}))(
   ({
     visit,
     onDischargeOpen,

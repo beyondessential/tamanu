@@ -56,6 +56,8 @@ function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) 
             limit: defaultLimit,
           },
           type: QueryTypes.SELECT,
+          model,
+          mapToModel: true,
         },
       );
 
@@ -69,7 +71,7 @@ REFERENCE_TYPE_VALUES.map(typeName =>
   createSuggester(typeName, 'ReferenceData', `name LIKE :search AND type = '${typeName}'`),
 );
 
-createSuggester('practitioner', 'User', 'display_name LIKE :search', ({ id, display_name }) => ({
+createSuggester('practitioner', 'User', 'display_name LIKE :search', ({ id, displayName }) => ({
   id,
-  name: display_name,
+  name: displayName,
 }));

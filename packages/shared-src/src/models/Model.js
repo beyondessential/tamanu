@@ -12,7 +12,16 @@ export class Model extends sequelize.Model {
     // into
     // { id: 12345, field: 'value', referenceObject: { id: 23456, name: 'object' } }
 
-    const values = this.dataValues;
+    const values = Object.entries(this.dataValues)
+      .filter(([key, val]) => val !== null)
+      .reduce(
+        (obj, [key, val]) => ({
+          ...obj,
+          [key]: val,
+        }),
+        {},
+      );
+
     const references = this.constructor.getListReferenceAssociations();
 
     if (!references) return values;

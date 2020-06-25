@@ -61,11 +61,11 @@ describe('Visit', () => {
       ...(await createDummyVisit(models)),
       patientId: patient.id,
     });
-    const n = await Promise.all([
-      models.Note.createForObject(visit, 'Visit', "Test 1"),
-      models.Note.createForObject(visit, 'Visit', "Test 2"),
-      models.Note.createForObject(visit, 'Visit', "Test 3"),
-      models.Note.createForObject(otherVisit, 'Visit', "Fail"),
+    await Promise.all([
+      models.Note.createForObject(visit, 'Visit', 'Test 1'),
+      models.Note.createForObject(visit, 'Visit', 'Test 2'),
+      models.Note.createForObject(visit, 'Visit', 'Test 3'),
+      models.Note.createForObject(otherVisit, 'Visit', 'Fail'),
     ]);
 
     const result = await app.get(`/v1/visit/${visit.id}/notes`);
