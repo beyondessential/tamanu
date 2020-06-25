@@ -49,7 +49,7 @@ export const SignIn: FunctionComponent<any> = ({navigation}: SignInProps) => {
 
   const onSubmitForm = useCallback(async (form: SignInFormModel) => {
     try {
-      await authCtx.signIn(form.email, form.password);
+      // await authCtx.signIn(form.email, form.password);
       await userCtx.getUserData();
       if (authState.isFirstTime) {
         navigation.navigate(Routes.HomeStack.name);
