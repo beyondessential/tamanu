@@ -1,5 +1,5 @@
 import { createDummyPatient, createDummyVisit } from 'shared/demoData/patients';
-import { NOTE_OBJECT_TYPES } from 'shared/models/Note';
+import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
 
@@ -37,15 +37,15 @@ describe('Note', () => {
 
       const note = await models.Note.findByPk(response.body.id);
       expect(note.content).toEqual(content);
-      expect(note.objectType).toEqual('Visit');
-      expect(note.objectId).toEqual(visit.id);
+      expect(note.recordType).toEqual('Visit');
+      expect(note.recordId).toEqual(visit.id);
     });
 
     it('should edit a note', async () => {
       const note = await models.Note.create({
         content: chance.paragraph(),
-        objectId: visit.id,
-        objectType: NOTE_OBJECT_TYPES.VISIT,
+        recordId: visit.id,
+        recordType: NOTE_RECORD_TYPES.VISIT,
       });
 
       const response = await app.put(`/v1/note/${note.id}`).send({
@@ -57,7 +57,7 @@ describe('Note', () => {
       expect(response.body.content).toEqual('updated');
     });
 
-    it('should not write a note on an non-existent object', async () => {
+    it('should not write a note on an non-existent record', async () => {
       const response = await app.post('/v1/visit/fakeVisitId/notes').send({
         content: chance.paragraph(),
       });
@@ -72,9 +72,9 @@ describe('Note', () => {
         noPermsApp = await baseApp.asRole('base');
       });
 
-      test.todo('should forbid reading notes on a forbidden object');
+      test.todo('should forbid reading notes on a forbidden record');
 
-      it('should forbid writing notes on a forbidden object', async () => {
+      it('should forbid writing notes on a forbidden record', async () => {
         const response = await noPermsApp.post(`/v1/visit/${visit.id}/notes`).send({
           content: chance.paragraph(),
         });
@@ -82,10 +82,10 @@ describe('Note', () => {
         expect(response).toBeForbidden();
       });
 
-      it('should forbid editing notes on a forbidden object', async () => {
+      it('should forbid editing notes on a forbidden record', async () => {
         const note = await models.Note.create({
-          objectId: visit.id,
-          objectType: NOTE_OBJECT_TYPES.VISIT,
+          recordId: visit.id,
+          recordType: NOTE_RECORD_TYPES.VISIT,
           content: chance.paragraph(),
         });
 

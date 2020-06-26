@@ -15,9 +15,9 @@ note.put(
       throw new NotFoundError();
     }
 
-    req.checkPermission('write', editedNote.objectType);
+    req.checkPermission('write', editedNote.recordType);
 
-    const owner = await models[editedNote.objectType].findByPk(editedNote.objectId);
+    const owner = await models[editedNote.recordType].findByPk(editedNote.recordId);
     req.checkPermission('write', owner);
 
     await editedNote.update(body);

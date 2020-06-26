@@ -2,13 +2,13 @@ import { Sequelize } from 'sequelize';
 import { NOTE_TYPES } from 'shared/constants';
 import { Model } from './Model';
 
-export const NOTE_OBJECT_TYPES = {
+export const NOTE_RECORD_TYPES = {
   VISIT: 'Visit',
   PATIENT: 'Patient',
   TRIAGE: 'Triage',
 };
 
-const NOTE_OBJECT_TYPE_VALUES = Object.values(NOTE_OBJECT_TYPES);
+const NOTE_RECORD_TYPE_VALUES = Object.values(NOTE_RECORD_TYPES);
 const NOTE_TYPE_VALUES = Object.values(NOTE_TYPES);
 
 export class Note extends Model {
@@ -19,12 +19,12 @@ export class Note extends Model {
 
         // we can't use a sequelize-generated relation here
         // as the FK can link to one of many different tables
-        objectId: {
+        recordType: {
           type: primaryKey.type,
           allowNull: false,
         },
-        objectType: {
-          type: Sequelize.ENUM(NOTE_OBJECT_TYPE_VALUES),
+        recordType: {
+          type: Sequelize.ENUM(NOTE_RECORD_TYPE_VALUES),
           allowNull: false,
         },
 
@@ -48,8 +48,8 @@ export class Note extends Model {
         ...options,
         validate: {
           mustHaveValidRelationType() {
-            if (!NOTE_OBJECT_TYPE_VALUES.includes(this.objectType)) {
-              throw new Error(`Must have a valid type (got ${this.objectType})`);
+            if (!NOTE_RECORD_TYPE_VALUES.includes(this.recordType)) {
+              throw new Error(`Must have a valid type (got ${this.recordType})`);
             }
           },
           mustHaveContent() {
@@ -62,10 +62,10 @@ export class Note extends Model {
     );
   }
 
-  static createForObject(object, noteType, content) {
+  static createForRecord(record, noteType, content) {
     return Note.create({
-      objectId: object.id,
-      objectType: object.getModelName(),
+      recordType: record.id,
+      recordType: record.getModelName(),
       noteType,
       content,
     });

@@ -78,7 +78,7 @@ export class Visit extends Model {
     });
 
     this.hasMany(models.Vitals, { as: 'vitals' });
-    this.hasMany(models.Note, { as: 'notes', foreignKey: 'objectId' });
+    this.hasMany(models.Note, { as: 'notes', foreignKey: 'recordId' });
 
     // this.hasMany(models.Medication);
     // this.hasMany(models.LabRequest);
@@ -90,7 +90,7 @@ export class Visit extends Model {
   async addSystemNote(content) {
     const { Note } = this.sequelize.models;
 
-    const note = await Note.createForObject(this, NOTE_TYPES.SYSTEM, content);
+    const note = await Note.createForRecord(this, NOTE_TYPES.SYSTEM, content);
 
     return note;
   }

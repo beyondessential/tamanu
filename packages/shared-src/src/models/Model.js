@@ -49,8 +49,8 @@ export class Model extends sequelize.Model {
     const { Note } = this.sequelize.models;
     return Note.findAll({
       where: {
-        objectType: this.getModelName(),
-        objectId: this.id,
+        recordType: this.getModelName(),
+        recordId: this.id,
       },
       limit,
     });
