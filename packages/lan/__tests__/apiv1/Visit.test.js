@@ -342,6 +342,52 @@ describe('Visit', () => {
       });
     });
 
+    describe('medication', () => {
+      let medicationVisit = null;
+      let testMedication = null;
+
+      beforeAll(async () => {
+        medicationVisit = await models.Visit.create({
+          ...(await createDummyVisit(models)),
+          patientId: patient.id,
+          reasonForVisit: 'medication test',
+        });
+
+        testMedication = await models.ReferenceData.create({
+          type: 'drug',
+          name: 'Checkizol',
+          code: 'check',
+        });
+      });
+
+      it('should record a medication', async () => {
+        const result = await app.post('/v1/medication').send({
+          visitId: medicationVisit.id,
+          medicationId: testMedication.id,
+          prescriberId: app.user.id,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.date).toBeTruthy();
+      });
+
+      it('should get medications for a visit', async () => {
+        const result = await app.get(`/v1/visit/${medicationVisit.id}/medications`);
+        expect(result).toHaveSucceeded();
+        const { body } = result;
+        expect(body.count).toBeGreaterThan(0);
+        expect(body.data[0].medicationId).toEqual(testMedication.id);
+      });
+
+      it('should get medication reference info when listing visits', async () => {
+        const result = await app.get(`/v1/visit/${medicationVisit.id}/medications`);
+        expect(result).toHaveSucceeded();
+        const { body } = result;
+        expect(body.count).toBeGreaterThan(0);
+        expect(body.data[0].medication.name).toEqual('Checkizol');
+        expect(body.data[0].medication.code).toEqual('check');
+      });
+    });
+
     describe('vitals', () => {
       let vitalsVisit = null;
 
