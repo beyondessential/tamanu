@@ -42,22 +42,22 @@ export const MedicationForm = React.memo(
         qtyNight: 0,
       }}
       validationSchema={yup.object().shape({
-        drug: foreignKey('Medication must be selected'),
+        medicationId: foreignKey('Medication must be selected'),
+        prescriberId: foreignKey('Prescriber must be selected'),
         prescription: yup.string().required(),
-        prescriber: foreignKey('Prescriber must be selected'),
         route: yup
           .string()
           .oneOf(drugRouteOptions.map(x => x.value))
           .required(),
         date: yup.date().required(),
         endDate: yup.date(),
-        notes: yup.string(),
+        note: yup.string(),
       })}
       render={({ submitForm }) => (
         <FormGrid>
           <div style={{ gridColumn: '1 / -1' }}>
             <Field
-              name="drug.id"
+              name="medicationId"
               label="Medication"
               component={AutocompleteField}
               suggester={drugSuggester}
@@ -75,13 +75,13 @@ export const MedicationForm = React.memo(
           <Field name="date" label="Prescription date" component={DateField} required />
           <Field name="endDate" label="End date" component={DateField} />
           <Field
-            name="prescriber.id"
+            name="prescriberId"
             label="Prescriber"
             component={AutocompleteField}
             suggester={practitionerSuggester}
             required
           />
-          <Field name="notes" label="Notes" component={TextField} style={{ gridColumn: '1/-1' }} />
+          <Field name="note" label="Notes" component={TextField} style={{ gridColumn: '1/-1' }} />
           <FormGrid nested>
             <h3 style={{ gridColumn: '1/-1' }}>Quantity</h3>
             <Field name="qtyMorning" label="Morning" component={NumberField} />
