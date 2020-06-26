@@ -12,6 +12,7 @@ import { suggestions } from './suggestions';
 import { triage } from './triage';
 import { referenceData } from './referenceData';
 import { diagnosis } from './diagnosis';
+import { medication } from './medication';
 import { note } from './note';
 import { labRequest, labTest } from './labs';
 
@@ -31,6 +32,7 @@ apiv1.use('/procedure', procedure);
 apiv1.use('/triage', triage);
 apiv1.use('/referenceData', referenceData);
 apiv1.use('/diagnosis', diagnosis);
+apiv1.use('/medication', medication);
 apiv1.use('/note', note);
 apiv1.use('/labRequest', labRequest);
 apiv1.use('/labTest', labTest);
