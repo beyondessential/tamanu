@@ -62,10 +62,10 @@ describe('Visit', () => {
       patientId: patient.id,
     });
     await Promise.all([
-      models.Note.createForObject(visit, 'Visit', 'Test 1'),
-      models.Note.createForObject(visit, 'Visit', 'Test 2'),
-      models.Note.createForObject(visit, 'Visit', 'Test 3'),
-      models.Note.createForObject(otherVisit, 'Visit', 'Fail'),
+      models.Note.createForRecord(visit, 'Visit', 'Test 1'),
+      models.Note.createForRecord(visit, 'Visit', 'Test 2'),
+      models.Note.createForRecord(visit, 'Visit', 'Test 3'),
+      models.Note.createForRecord(otherVisit, 'Visit', 'Fail'),
     ]);
 
     const result = await app.get(`/v1/visit/${visit.id}/notes`);

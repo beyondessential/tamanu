@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { NotFoundError } from 'shared/errors';
 
-import { NOTE_OBJECT_TYPES } from 'shared/models/Note';
+import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 
 import {
   simpleGet,
@@ -30,8 +30,8 @@ visit.post(
     }
     req.checkPermission('write', owner);
     const createdNote = await models.Note.create({
-      objectId: id,
-      objectType: 'Visit',
+      recordId: id,
+      recordType: 'Visit',
       ...body,
     });
 
@@ -44,7 +44,7 @@ visitRelations.get('/:id/vitals', simpleGetList('Vitals', 'visitId'));
 visitRelations.get('/:id/diagnoses', simpleGetList('VisitDiagnosis', 'visitId'));
 visitRelations.get(
   '/:id/notes',
-  simpleGetList('Note', 'objectId', { additionalFilters: { objectType: NOTE_OBJECT_TYPES.VISIT } }),
+  simpleGetList('Note', 'recordId', { additionalFilters: { recordType: NOTE_RECORD_TYPES.VISIT } }),
 );
 visitRelations.get('/:id/procedures', simpleGetList('Procedure', 'visitId'));
 
