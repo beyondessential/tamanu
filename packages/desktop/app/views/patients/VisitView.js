@@ -89,7 +89,7 @@ const LabsPane = React.memo(({ visit, readonly }) => {
   return (
     <div>
       <LabRequestModal open={modalOpen} visit={visit} onClose={() => setModalOpen(false)} />
-      <LabRequestsTable labs={visit.labRequests} />
+      <LabRequestsTable visitId={visit.id} />
       <ContentPane>
         <Button
           onClick={() => setModalOpen(true)}

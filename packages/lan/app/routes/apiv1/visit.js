@@ -44,6 +44,7 @@ visitRelations.get('/:id/vitals', simpleGetList('Vitals', 'visitId'));
 visitRelations.get('/:id/diagnoses', simpleGetList('VisitDiagnosis', 'visitId'));
 visitRelations.get('/:id/medications', simpleGetList('VisitMedication', 'visitId'));
 visitRelations.get('/:id/procedures', simpleGetList('Procedure', 'visitId'));
+visitRelations.get('/:id/labRequests', simpleGetList('LabRequest', 'visitId'));
 visitRelations.get(
   '/:id/notes',
   simpleGetList('Note', 'recordId', { additionalFilters: { recordType: NOTE_RECORD_TYPES.VISIT } }),

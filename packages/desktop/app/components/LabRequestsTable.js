@@ -33,23 +33,16 @@ const columns = [
   { key: 'requestedDate', title: 'Date', accessor: getDate },
 ];
 
-const DumbLabRequestsTable = React.memo(({ labs, onLabSelect }) => (
-  <Table columns={columns} data={labs} onRowClick={row => onLabSelect(row)} />
+const DumbLabRequestsTable = React.memo(({ visitId, onLabSelect }) => (
+  <DataFetchingTable
+    endpoint={visitId ? `visit/${visitId}/labRequests` : "labRequest"}
+    columns={columns} 
+    noDataMessage="No lab requests found"
+    onRowClick={row => onLabSelect(row)}
+  />
 ));
 
 export const LabRequestsTable = connect(
   null,
   dispatch => ({ onLabSelect: lab => dispatch(viewLab(lab.id)) }),
 )(DumbLabRequestsTable);
-
-export const DataFetchingLabRequestsTable = connect(
-  null,
-  dispatch => ({ onLabSelect: lab => dispatch(viewLab(lab.id)) }),
-)(({ onLabSelect }) => (
-  <DataFetchingTable
-    endpoint="labRequest"
-    columns={columns}
-    noDataMessage="No lab requests found"
-    onRowClick={onLabSelect}
-  />
-));
