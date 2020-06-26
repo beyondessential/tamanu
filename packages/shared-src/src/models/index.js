@@ -15,6 +15,7 @@ export { Note } from './Note';
 export * from './Vitals';
 export * from './Procedure';
 export * from './VisitDiagnosis';
+export * from './VisitMedication';
 export * from './LabRequest';
 export * from './LabTest';
 export * from './LabTestType';
