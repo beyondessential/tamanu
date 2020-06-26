@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { Table, DataFetchingTable } from './Table';
+import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
 import { viewVisit } from '../store/visit';
@@ -25,16 +25,12 @@ const PATIENT_COLUMNS = [
 ];
 
 export const VisitMedicationTable = React.memo(({ visitId }) => (
-  <DataFetchingTable
-    columns={COLUMNS} 
-    endpoint={`visit/${visitId}/medications`}
-  />
+  <DataFetchingTable columns={COLUMNS} endpoint={`visit/${visitId}/medications`} />
 ));
 
-export const DataFetchingMedicationTable = connect(
-  null,
-  dispatch => ({ onMedicationSelect: medication => dispatch(viewVisit(medication.visits[0].id)) }),
-)(({ onMedicationSelect }) => (
+export const DataFetchingMedicationTable = connect(null, dispatch => ({
+  onMedicationSelect: medication => dispatch(viewVisit(medication.visits[0].id)),
+}))(({ onMedicationSelect }) => (
   <DataFetchingTable
     endpoint="medication"
     columns={PATIENT_COLUMNS}
