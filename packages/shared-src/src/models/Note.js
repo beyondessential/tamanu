@@ -19,7 +19,7 @@ export class Note extends Model {
 
         // we can't use a sequelize-generated relation here
         // as the FK can link to one of many different tables
-        recordType: {
+        recordId: {
           type: primaryKey.type,
           allowNull: false,
         },
@@ -64,7 +64,7 @@ export class Note extends Model {
 
   static createForRecord(record, noteType, content) {
     return Note.create({
-      recordType: record.id,
+      recordId: record.id,
       recordType: record.getModelName(),
       noteType,
       content,
