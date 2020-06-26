@@ -13,7 +13,7 @@ export class VisitMedication extends Model {
           defaultValue: Sequelize.NOW,
         },
         endDate: Sequelize.DATE,
-        
+
         prescription: Sequelize.STRING,
         note: Sequelize.STRING,
         indication: Sequelize.STRING,
@@ -23,7 +23,6 @@ export class VisitMedication extends Model {
         qtyLunch: Sequelize.INTEGER,
         qtyEvening: Sequelize.INTEGER,
         qtyNight: Sequelize.INTEGER,
-
       },
       {
         ...options,
