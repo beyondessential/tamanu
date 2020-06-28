@@ -24,7 +24,10 @@ const DumbMedicationModal = React.memo(
 
 export const MedicationModal = connectApi((api, dispatch, { visitId, onClose }) => ({
   onSubmit: async data => {
-    await api.post(`visit/${visitId}/medications`, data);
+    await api.post('medication', {
+      visitId,
+      ...data,
+    });
     dispatch(viewVisit(visitId));
     onClose();
   },
