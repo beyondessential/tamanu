@@ -49,7 +49,7 @@ export class LabTestType extends Model {
         validate: {
           mustHaveValidOptions() {
             if (!this.options) return;
-            const parsed = JSON.parse(this.options);
+            const parsed = this.options.split(", ").map(x => x.trim()).filter(x => x);
             if (!Array.isArray(parsed)) {
               throw new InvalidOperationError('options must be a valid JSON array');
             }

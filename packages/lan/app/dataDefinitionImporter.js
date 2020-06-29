@@ -58,6 +58,25 @@ const userImporter = async ({ User }, item) => {
   };
 };
 
+const getOrCreateTestCategory = async (ReferenceData, categoryName) => {
+  const existing = await ReferenceData.findOne({
+    type: 'labTestCategory', 
+    name: categoryName,
+  }); 
+
+  if(existing) {
+    return existing;
+  }
+
+  const created = await ReferenceData.create({
+    type: 'labTestCategory',
+    name: categoryName,
+    code: convertNameToCode(name),
+  });
+
+  return created;
+}
+
 let lastLabCategoryName = '';
 const labTestTypesImporter = async ({ LabTestType, ReferenceData }, item) => {
   const { 
@@ -70,14 +89,14 @@ const labTestTypesImporter = async ({ LabTestType, ReferenceData }, item) => {
   
   const categoryName = lastLabCategoryName || category;
   lastLabCategoryName = categoryName;
-  const categoryRecord = await ReferenceData.findOne({ type: 'labTestCategory', name: categoryName }); 
+  const categoryRecord = await getOrCreateTestCategory(ReferenceData, categoryName);
 
-  const [maleMin, maleMax] = maleRange.split('-').map(x => parseFloat(x));
-  const [femaleMin, femaleMax] = femaleRange.split('-').map(x => parseFloat(x));
+  const [maleMin, maleMax] = maleRange.trim().split('-').map(x => parseFloat(x));
+  const [femaleMin, femaleMax] = femaleRange.trim().split('-').map(x => parseFloat(x));
 
   const code = item.code || convertNameToCode(name);
   const values = {
-    categoryId: categoryRecord.id,
+    labTestCategoryId: categoryRecord.id,
     code,
     name,
     maleMax, 
