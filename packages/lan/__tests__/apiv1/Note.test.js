@@ -1,4 +1,4 @@
-import { createDummyPatient, createDummyVisit } from 'shared/demoData/patients';
+import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
@@ -17,19 +17,19 @@ describe('Note', () => {
 
   test.todo('should attach a note to a patient');
 
-  describe('Visit notes', () => {
-    let visit = null;
+  describe('Encounter notes', () => {
+    let encounter = null;
 
     beforeAll(async () => {
-      visit = await models.Visit.create({
-        ...(await createDummyVisit(models)),
+      encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
         patientId: patient.id,
       });
     });
 
-    it('should attach a note to a visit', async () => {
+    it('should attach a note to an encounter', async () => {
       const content = chance.paragraph();
-      const response = await app.post(`/v1/visit/${visit.id}/notes`).send({
+      const response = await app.post(`/v1/encounter/${encounter.id}/notes`).send({
         content,
       });
 
@@ -37,15 +37,15 @@ describe('Note', () => {
 
       const note = await models.Note.findByPk(response.body.id);
       expect(note.content).toEqual(content);
-      expect(note.recordType).toEqual('Visit');
-      expect(note.recordId).toEqual(visit.id);
+      expect(note.recordType).toEqual('Encounter');
+      expect(note.recordId).toEqual(encounter.id);
     });
 
     it('should edit a note', async () => {
       const note = await models.Note.create({
         content: chance.paragraph(),
-        recordId: visit.id,
-        recordType: NOTE_RECORD_TYPES.VISIT,
+        recordId: encounter.id,
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
       });
 
       const response = await app.put(`/v1/note/${note.id}`).send({
@@ -58,7 +58,7 @@ describe('Note', () => {
     });
 
     it('should not write a note on an non-existent record', async () => {
-      const response = await app.post('/v1/visit/fakeVisitId/notes').send({
+      const response = await app.post('/v1/encounter/fakeEncounterId/notes').send({
         content: chance.paragraph(),
       });
 
@@ -75,7 +75,7 @@ describe('Note', () => {
       test.todo('should forbid reading notes on a forbidden record');
 
       it('should forbid writing notes on a forbidden record', async () => {
-        const response = await noPermsApp.post(`/v1/visit/${visit.id}/notes`).send({
+        const response = await noPermsApp.post(`/v1/encounter/${encounter.id}/notes`).send({
           content: chance.paragraph(),
         });
 
@@ -84,8 +84,8 @@ describe('Note', () => {
 
       it('should forbid editing notes on a forbidden record', async () => {
         const note = await models.Note.create({
-          recordId: visit.id,
-          recordType: NOTE_RECORD_TYPES.VISIT,
+          recordId: encounter.id,
+          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
           content: chance.paragraph(),
         });
 

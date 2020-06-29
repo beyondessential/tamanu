@@ -17,7 +17,7 @@ export const returnVivaxReport = {
     const counts = {};
     const repeats = {};
     baseDiagnoses.forEach(x => {
-      const patientId = x.visit[0].patient[0]._id;
+      const patientId = x.encounter[0].patient[0]._id;
       counts[patientId] = (counts[patientId] || 0) + 1;
       if (counts[patientId] > 1) {
         repeats[patientId] = x;
@@ -25,7 +25,7 @@ export const returnVivaxReport = {
     });
 
     const rowData = Object.values(repeats).map(diagnosis => ({
-      ...formatPatientInfo(diagnosis.visit[0].patient[0]),
+      ...formatPatientInfo(diagnosis.encounter[0].patient[0]),
       diagnosis: diagnosis.diagnosis.name,
       date: diagnosis.date,
     }));

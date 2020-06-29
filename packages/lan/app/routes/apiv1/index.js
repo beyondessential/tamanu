@@ -5,7 +5,7 @@ import { constructPermission } from '~/middleware/permission';
 
 import { user } from './user';
 import { patient } from './patient';
-import { visit } from './visit';
+import { encounter } from './encounter';
 import { vitals } from './vitals';
 import { procedure } from './procedure';
 import { suggestions } from './suggestions';
@@ -26,7 +26,7 @@ apiv1.use(constructPermission);
 apiv1.use('/suggestions', suggestions);
 apiv1.use('/user', user);
 apiv1.use('/patient', patient);
-apiv1.use('/visit', visit);
+apiv1.use('/encounter', encounter);
 apiv1.use('/vitals', vitals);
 apiv1.use('/procedure', procedure);
 apiv1.use('/triage', triage);

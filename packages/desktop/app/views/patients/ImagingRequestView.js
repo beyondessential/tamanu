@@ -15,8 +15,8 @@ import { IMAGING_REQUEST_STATUS_LABELS } from '../../constants';
 
 const BackLink = connect(
   null,
-  dispatch => ({ onClick: () => dispatch(push('/patients/visit')) }),
-)(({ onClick }) => <Button onClick={onClick}>&lt; Back to visit information</Button>);
+  dispatch => ({ onClick: () => dispatch(push('/patients/encounter')) }),
+)(({ onClick }) => <Button onClick={onClick}>&lt; Back to encounter information</Button>);
 
 const ImagingRequestInfoPane = React.memo(({ imagingRequest }) => (
   <FormGrid columns={3}>
@@ -54,7 +54,7 @@ export const DumbImagingRequestView = React.memo(({ imagingRequest, patient, loa
 });
 
 export const ImagingRequestView = connect(state => ({
-  loading: state.visit.loading,
+  loading: state.encounter.loading,
   imagingRequest: state.imagingRequest,
   patient: state.patient,
 }))(DumbImagingRequestView);

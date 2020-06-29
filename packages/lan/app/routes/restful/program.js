@@ -148,23 +148,23 @@ programRoutes.get('/survey/:surveyId', (req, res) => {
   });
 });
 
-function getVisitForSurvey(db, patientId, visitId, surveyResponse) {
-  if (visitId) {
-    return db.objectForPrimaryKey('visit', visitId);
+function getEncounterForSurvey(db, patientId, encounterId, surveyResponse) {
+  if (encounterId) {
+    return db.objectForPrimaryKey('encounter', encounterId);
   }
 
-  // no visit specified - see if patient has an open visit we can use
+  // no encounter specified - see if patient has an open encounter we can use
   const patient = db.objectForPrimaryKey('patient', patientId);
 
-  const existingVisit = patient.visits.find(x => !x.endDate);
-  if (existingVisit) {
-    return existingVisit;
+  const existingEncounter = patient.encounters.find(x => !x.endDate);
+  if (existingEncounter) {
+    return existingEncounter;
   }
 
-  // otherwise, create a new visit
-  const newVisit = db.create('visit', {
+  // otherwise, create a new encounter
+  const newEncounter = db.create('encounter', {
     _id: generate(),
-    visitType: 'surveyResponse',
+    encounterType: 'surveyResponse',
     startDate: surveyResponse.startTime,
     endDate: surveyResponse.endTime,
 
@@ -172,15 +172,15 @@ function getVisitForSurvey(db, patientId, visitId, surveyResponse) {
     department: db.objects('department')[0],
   });
 
-  patient.visits = [...patient.visits, newVisit];
+  patient.encounters = [...patient.encounters, newEncounter];
 
-  return newVisit;
+  return newEncounter;
 }
 
 programRoutes.post('/surveyResponse', (req, res) => {
   // submit a new survey response
   const { db, body, user } = req;
-  const { patientId, visitId, surveyId, startTime, endTime, answers } = body;
+  const { patientId, encounterId, surveyId, startTime, endTime, answers } = body;
 
   // answers arrive in the form of { [questionCode]: answer }
   const answerArray = Object.entries(answers).map(([questionId, answer]) => ({
@@ -202,9 +202,9 @@ programRoutes.post('/surveyResponse', (req, res) => {
       answers: answerArray,
     });
 
-    const visit = getVisitForSurvey(db, patientId, visitId, surveyResponse);
+    const encounter = getEncounterForSurvey(db, patientId, encounterId, surveyResponse);
 
-    visit.surveyResponses = [...visit.surveyResponses, surveyResponse];
+    encounter.surveyResponses = [...encounter.surveyResponses, surveyResponse];
 
     res.send(objectToJSON(surveyResponse));
   });

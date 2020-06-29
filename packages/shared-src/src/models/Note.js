@@ -3,7 +3,7 @@ import { NOTE_TYPES } from 'shared/constants';
 import { Model } from './Model';
 
 export const NOTE_RECORD_TYPES = {
-  VISIT: 'Visit',
+  ENCOUNTER: 'Encounter',
   PATIENT: 'Patient',
   TRIAGE: 'Triage',
 };

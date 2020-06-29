@@ -1,6 +1,6 @@
 import { push } from 'connected-react-router';
 
-import { reloadVisit } from './visit';
+import { reloadEncounter } from './encounter';
 import { reloadPatient } from './patient';
 
 import { createReducer } from '../utils/createReducer';
@@ -11,7 +11,7 @@ const IMAGING_LOAD_FINISH = 'IMAGING_LOAD_FINISH';
 
 export const viewImagingRequest = id => async dispatch => {
   dispatch(reloadImagingRequest(id));
-  dispatch(push('/patients/visit/imagingRequest'));
+  dispatch(push('/patients/encounter/imagingRequest'));
 };
 
 export const reloadImagingRequest = id => async (dispatch, getState, { api }) => {
@@ -20,11 +20,11 @@ export const reloadImagingRequest = id => async (dispatch, getState, { api }) =>
   const imagingRequest = await api.get(`imagingRequest/${id}`);
   // TODO handle error state
 
-  const visit = imagingRequest.visits[0];
-  if (visit) {
-    dispatch(reloadVisit(visit.id));
+  const encounter = imagingRequest.encounters[0];
+  if (encounter) {
+    dispatch(reloadEncounter(encounter.id));
 
-    const patient = visit.patient[0];
+    const patient = encounter.patient[0];
     if (patient) {
       dispatch(reloadPatient(patient.id));
     }

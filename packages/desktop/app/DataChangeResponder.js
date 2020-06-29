@@ -1,5 +1,5 @@
 import { reloadPatient } from './store/patient';
-import { reloadVisit } from './store/visit';
+import { reloadEncounter } from './store/encounter';
 
 const ALL_CHANGES = '*';
 
@@ -9,22 +9,22 @@ class DataChangeResponder {
     this.store = store;
 
     const listeners = {
-      visit: this.handleVisitChange,
+      encounter: this.handleEncounterChange,
     };
     Object.entries(listeners).forEach(([recordType, callback]) =>
       api.subscribeToChanges(recordType, ALL_CHANGES, callback),
     );
   }
 
-  handleVisitChange = ({ patientId, visitId }) => {
-    // TODO should only reload patient/visit if relevant changes have been made, e.g. fully new
+  handleEncounterChange = ({ patientId, encounterId }) => {
+    // TODO should only reload patient/encounter if relevant changes have been made, e.g. fully new
     // or discharge status has changed, otherwise we'll be reloading things too often!
     const state = this.store.getState();
     if (state.patient.id === patientId) {
       this.store.dispatch(reloadPatient(patientId));
     }
-    if (state.visit.id === visitId) {
-      this.store.dispatch(reloadVisit(visitId));
+    if (state.encounter.id === encounterId) {
+      this.store.dispatch(reloadEncounter(encounterId));
     }
   };
 }

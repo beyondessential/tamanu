@@ -5,7 +5,7 @@ import shortid from 'shortid';
 import { connect } from 'react-redux';
 
 import { foreignKey } from '../utils/validation';
-import { visitOptions } from '../constants';
+import { encounterOptions } from '../constants';
 import { getLabTestTypes, getLabTestCategories, loadOptions } from '../store/options';
 
 import {
@@ -26,14 +26,14 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 
-function getVisitTypeLabel(type) {
-  return visitOptions.find(x => x.value === type).label;
+function getEncounterTypeLabel(type) {
+  return encounterOptions.find(x => x.value === type).label;
 }
 
-function getVisitLabel(visit) {
-  const visitDate = DateDisplay.rawFormat(visit.startDate);
-  const visitTypeLabel = getVisitTypeLabel(visit.visitType);
-  return `${visitDate} (${visitTypeLabel})`;
+function getEncounterLabel(encounter) {
+  const encounterDate = DateDisplay.rawFormat(encounter.startDate);
+  const encounterTypeLabel = getEncounterTypeLabel(encounter.encounterType);
+  return `${encounterDate} (${encounterTypeLabel})`;
 }
 
 export class LabRequestForm extends React.PureComponent {
@@ -52,10 +52,10 @@ export class LabRequestForm extends React.PureComponent {
   }
 
   renderForm = ({ values, submitForm }) => {
-    const { practitionerSuggester, onCancel, testTypes, visit = {}, testCategories } = this.props;
-    const { examiner = {} } = visit;
+    const { practitionerSuggester, onCancel, testTypes, encounter = {}, testCategories } = this.props;
+    const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
-    const visitLabel = getVisitLabel(visit);
+    const encounterLabel = getEncounterLabel(encounter);
     const filteredTestTypes = testTypes.filter(x => x.category.id === values.category.id);
 
     return (
@@ -76,7 +76,7 @@ export class LabRequestForm extends React.PureComponent {
           <Field name="urgent" label="Urgent?" component={CheckField} />
         </div>
         <FormSeparatorLine />
-        <TextInput label="Visit" disabled value={visitLabel} />
+        <TextInput label="Encounter" disabled value={encounterLabel} />
         <Field
           name="category.id"
           label="Lab request type"

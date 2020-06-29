@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { VISIT_TYPES } from 'Shared/constants';
+import { ENCOUNTER_TYPES } from 'Shared/constants';
 import { Colors } from '../../../constants';
 import { ImageButton, Button } from '../../../components/Button';
 import { DateDisplay } from '../../../components/DateDisplay';
@@ -9,13 +9,13 @@ import { DateDisplay } from '../../../components/DateDisplay';
 import { medicationIcon, profileIcon } from '../../../constants/images';
 
 /** TODO: Properly define colors for each type (primary is placeholder/default) */
-const VISIT_TYPE_COLORS = {
-  [VISIT_TYPES.ADMISSION]: Colors.safe,
-  [VISIT_TYPES.CLINIC]: Colors.primary,
-  [VISIT_TYPES.IMAGING]: Colors.primary,
-  [VISIT_TYPES.EMERGENCY]: Colors.alert,
-  [VISIT_TYPES.OBSERVATION]: Colors.safe,
-  [VISIT_TYPES.TRIAGE]: Colors.alert,
+const ENCOUNTER_TYPE_COLORS = {
+  [ENCOUNTER_TYPES.ADMISSION]: Colors.safe,
+  [ENCOUNTER_TYPES.CLINIC]: Colors.primary,
+  [ENCOUNTER_TYPES.IMAGING]: Colors.primary,
+  [ENCOUNTER_TYPES.EMERGENCY]: Colors.alert,
+  [ENCOUNTER_TYPES.OBSERVATION]: Colors.safe,
+  [ENCOUNTER_TYPES.TRIAGE]: Colors.alert,
   [undefined]: Colors.primary,
 };
 
@@ -24,7 +24,7 @@ const Grid = styled.div`
   grid-template-rows: 1fr auto;
   margin: 1rem;
   border: 1px solid ${Colors.outline};
-  border-left-color: ${props => VISIT_TYPE_COLORS[props.visitType]};
+  border-left-color: ${props => ENCOUNTER_TYPE_COLORS[props.encounterType]};
   border-left-width: 5px;
   border-radius: 5px;
   background: ${Colors.white};
@@ -67,7 +67,7 @@ const SubTitle = styled.p`
 const Title = styled.p`
   margin: ${props => (props.notAdmitted ? 'auto 20px' : '0 0 10px 0')};
   font-weight: 600;
-  color: ${props => VISIT_TYPE_COLORS[props.visitType]};
+  color: ${props => ENCOUNTER_TYPE_COLORS[props.encounterType]};
   text-transform: capitalize;
   font-size: 1.2rem;
 `;
@@ -101,8 +101,8 @@ const ViewButton = styled(Button)`
   min-width: 80px;
 `;
 
-export const PatientVisitSummary = ({ viewVisit, openCheckin, openTriage, visit }) => {
-  if (!visit) {
+export const PatientEncounterSummary = ({ viewEncounter, openCheckin, openTriage, encounter }) => {
+  if (!encounter) {
     return (
       <Grid notAdmitted>
         <Content notAdmitted>
@@ -120,9 +120,9 @@ export const PatientVisitSummary = ({ viewVisit, openCheckin, openTriage, visit 
     );
   }
 
-  const { startDate, location, visitType, reasonForVisit, id, examiner } = visit;
+  const { startDate, location, encounterType, reasonForEncounter, id, examiner } = encounter;
   return (
-    <Grid visitType={visitType} onClick={() => viewVisit(id)}>
+    <Grid encounterType={encounterType} onClick={() => viewEncounter(id)}>
       <Header>
         <HeaderInfo>
           <SubTitle>Current Admission</SubTitle>
@@ -139,8 +139,8 @@ export const PatientVisitSummary = ({ viewVisit, openCheckin, openTriage, visit 
       </Header>
       <Content>
         <div>
-          <Title visitType={visitType}>{visitType}</Title>
-          <Label>Reason for visit: </Label> <Text>{reasonForVisit}</Text>
+          <Title encounterType={encounterType}>{encounterType}</Title>
+          <Label>Reason for encounter: </Label> <Text>{reasonForEncounter}</Text>
         </div>
         <ContentColumn>
           <Label>Arrival Date</Label>

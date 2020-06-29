@@ -33,10 +33,10 @@ export const practitioner = (user, allow, forbid) => {
   allow('write', 'LabTest');
   allow('create', 'LabTest');
 
-  allow('read', 'Visit');
-  allow('list', 'Visit');
-  allow('create', 'Visit');
-  allow('write', 'Visit');
+  allow('read', 'Encounter');
+  allow('list', 'Encounter');
+  allow('create', 'Encounter');
+  allow('write', 'Encounter');
 
   allow('read', 'Procedure');
   allow('list', 'Procedure');
@@ -52,15 +52,15 @@ export const practitioner = (user, allow, forbid) => {
   allow('read', 'Vitals');
   allow('create', 'Vitals');
 
-  allow('read', 'VisitDiagnosis');
-  allow('write', 'VisitDiagnosis');
-  allow('create', 'VisitDiagnosis');
-  allow('list', 'VisitDiagnosis');
+  allow('read', 'EncounterDiagnosis');
+  allow('write', 'EncounterDiagnosis');
+  allow('create', 'EncounterDiagnosis');
+  allow('list', 'EncounterDiagnosis');
 
-  allow('read', 'VisitMedication');
-  allow('write', 'VisitMedication');
-  allow('create', 'VisitMedication');
-  allow('list', 'VisitMedication');
+  allow('read', 'EncounterMedication');
+  allow('write', 'EncounterMedication');
+  allow('create', 'EncounterMedication');
+  allow('list', 'EncounterMedication');
 };
 
 export const admin = (user, allow, forbid) => {

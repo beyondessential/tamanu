@@ -66,13 +66,13 @@ export const department = {
 };
 
 export const status = {
-  key: 'visitType',
+  key: 'encounterType',
   title: 'Status',
   minWidth: 100,
-  accessor: ({ visitType }) => {
-    if (!visitType) return '';
-    else if (visitType === 'emergency') return 'Emergency';
-    else if (visitType === 'clinic') return 'Outpatient';
+  accessor: ({ encounterType }) => {
+    if (!encounterType) return '';
+    else if (encounterType === 'emergency') return 'Emergency';
+    else if (encounterType === 'clinic') return 'Outpatient';
     return 'Inpatient';
   },
 };

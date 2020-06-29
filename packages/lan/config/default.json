@@ -19,6 +19,6 @@
     "tokenDuration": "1h"
   },
   "schedules": {
-    "visitDischarger": "0 0 2 ? * * *"
+    "encounterDischarger": "0 0 2 ? * * *"
   }
 }

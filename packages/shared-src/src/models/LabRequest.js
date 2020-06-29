@@ -80,8 +80,8 @@ export class LabRequest extends Model {
       foreignKey: 'requestedById',
     });
 
-    this.belongsTo(models.Visit, {
-      foreignKey: 'visitId',
+    this.belongsTo(models.Encounter, {
+      foreignKey: 'encounterId',
     });
   }
 

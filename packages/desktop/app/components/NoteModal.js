@@ -2,7 +2,7 @@ import React from 'react';
 
 import { connectApi } from '../api/connectApi';
 import { Suggester } from '../utils/suggester';
-import { viewVisit } from '../store/visit';
+import { viewEncounter } from '../store/encounter';
 
 import { Modal } from './Modal';
 import { NoteForm } from '../forms/NoteForm';
@@ -17,16 +17,16 @@ const DumbNoteModal = React.memo(({ open, onClose, onSaveNote, practitionerSugge
   </Modal>
 ));
 
-export const NoteModal = connectApi((api, dispatch, { visitId, onClose }) => ({
+export const NoteModal = connectApi((api, dispatch, { encounterId, onClose }) => ({
   onSaveNote: async data => {
     if (data.id) {
       await api.put(`note/${data.id}`, data);
     } else {
-      await api.post(`visit/${visitId}/notes`, data);
+      await api.post(`encounter/${encounterId}/notes`, data);
     }
 
     onClose();
-    dispatch(viewVisit(visitId));
+    dispatch(viewEncounter(encounterId));
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
 }))(DumbNoteModal);

@@ -3,7 +3,7 @@ import React from 'react';
 import { Modal } from './Modal';
 
 import { connectApi } from '../api/connectApi';
-import { viewVisit } from '../store/visit';
+import { viewEncounter } from '../store/encounter';
 import { Suggester } from '../utils/suggester';
 
 import { MedicationForm } from '../forms/MedicationForm';
@@ -22,13 +22,13 @@ const DumbMedicationModal = React.memo(
   ),
 );
 
-export const MedicationModal = connectApi((api, dispatch, { visitId, onClose }) => ({
+export const MedicationModal = connectApi((api, dispatch, { encounterId, onClose }) => ({
   onSubmit: async data => {
     await api.post('medication', {
-      visitId,
+      encounterId,
       ...data,
     });
-    dispatch(viewVisit(visitId));
+    dispatch(viewEncounter(encounterId));
     onClose();
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
