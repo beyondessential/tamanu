@@ -64,7 +64,7 @@ export class LabRequestForm extends React.PureComponent {
         <Field name="requestedDate" label="Order date" required component={DateField} />
         <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
-          name="requestedBy.id"
+          name="requestedById"
           label="Requesting doctor"
           required
           component={AutocompleteField}
@@ -78,7 +78,7 @@ export class LabRequestForm extends React.PureComponent {
         <FormSeparatorLine />
         <TextInput label="Visit" disabled value={visitLabel} />
         <Field
-          name="category.id"
+          name="categoryId"
           label="Lab request type"
           required
           component={SelectField}
@@ -130,8 +130,8 @@ export class LabRequestForm extends React.PureComponent {
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          requestedBy: foreignKey('Requesting doctor is required'),
-          category: foreignKey('Lab request type must be selected'),
+          requestedById: foreignKey('Requesting doctor is required'),
+          categoryId: foreignKey('Lab request type must be selected'),
           sampleTime: yup.date().required(),
           requestedDate: yup.date().required(),
         })}
