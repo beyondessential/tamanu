@@ -21,7 +21,7 @@ patient.post('/$', simplePost('Patient'));
 
 const patientRelations = permissionCheckingRouter('read', 'Patient');
 
-patientRelations.get('/:id/visits', simpleGetList('Visit', 'patientId'));
+patientRelations.get('/:id/encounters', simpleGetList('Encounter', 'patientId'));
 
 // TODO
 // patientRelations.get('/:id/referrals', simpleGetList('Referral', 'patientId'));
@@ -35,26 +35,26 @@ patientRelations.get('/:id/familyHistory', simpleGetList('PatientFamilyHistory',
 patient.use(patientRelations);
 
 patient.get(
-  '/:id/currentVisit',
+  '/:id/currentEncounter',
   asyncHandler(async (req, res) => {
     const {
-      models: { Visit },
+      models: { Encounter },
       params,
     } = req;
 
     req.checkPermission('read', 'Patient');
-    req.checkPermission('read', 'Visit');
+    req.checkPermission('read', 'Encounter');
 
-    const currentVisit = await Visit.findOne({
+    const currentEncounter = await Encounter.findOne({
       where: {
         patientId: params.id,
         endDate: null,
       },
-      include: Visit.getFullReferenceAssociations(),
+      include: Encounter.getFullReferenceAssociations(),
     });
 
     // explicitly send as json (as it might be null)
-    res.json(currentVisit);
+    res.json(currentEncounter);
   }),
 );
 
@@ -77,7 +77,7 @@ const sortKeys = {
   villageName: 'village_name',
   locationName: 'location.name',
   departmentName: 'department.name',
-  visitType: 'visits.visit_type',
+  encounterType: 'encounters.encounter_type',
   sex: 'patients.sex',
 };
 
@@ -140,20 +140,20 @@ patient.get(
       makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
       makeFilter(filterParams.locationId, `location.id = :locationId`),
       makeFilter(filterParams.departmentId, `department.id = :departmentId`),
-      makeFilter(filterParams.inpatient, `visits.visit_type = 'admission'`),
-      makeFilter(filterParams.outpatient, `visits.visit_type = 'clinic'`),
+      makeFilter(filterParams.inpatient, `encounters.encounter_type = 'admission'`),
+      makeFilter(filterParams.outpatient, `encounters.encounter_type = 'clinic'`),
     ].filter(f => f);
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
 
     const from = `
       FROM patients
-        LEFT JOIN visits 
-          ON (visits.patient_id = patients.id AND visits.end_date IS NULL)
+        LEFT JOIN encounters 
+          ON (encounters.patient_id = patients.id AND encounters.end_date IS NULL)
         LEFT JOIN reference_data AS department
-          ON (department.type = 'department' AND department.id = visits.department_id)
+          ON (department.type = 'department' AND department.id = encounters.department_id)
         LEFT JOIN reference_data AS location
-          ON (location.type = 'location' AND location.id = visits.location_id)
+          ON (location.type = 'location' AND location.id = encounters.location_id)
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
       ${whereClauses && `WHERE ${whereClauses}`}
@@ -186,8 +186,8 @@ patient.get(
       `
         SELECT 
           patients.*, 
-          visits.id AS visit_id,
-          visits.visit_type,
+          encounters.id AS encounter_id,
+          encounters.encounter_type,
           department.id AS department_id,
           department.name AS department_name,
           location.id AS location_id,

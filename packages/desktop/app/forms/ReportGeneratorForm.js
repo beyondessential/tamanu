@@ -11,7 +11,7 @@ import { MultiDiagnosisSelectorField } from '../components/MultiDiagnosisSelecto
 
 export class ReportGeneratorForm extends React.PureComponent {
   renderForm = ({ submitForm }) => {
-    const { icd10Suggester, onCancel, visit } = this.props;
+    const { icd10Suggester, onCancel, encounter } = this.props;
     return (
       <FormGrid columns={2}>
         <Field name="startDate" label="Start date" component={DateField} />

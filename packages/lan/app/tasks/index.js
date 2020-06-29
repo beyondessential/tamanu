@@ -1,6 +1,6 @@
 import config from 'config';
 import { SenaitePoller } from './SenaitePoller';
-import { VisitDischarger } from './VisitDischarger';
+import { EncounterDischarger } from './EncounterDischarger';
 
 export function startScheduledTasks(context) {
   if (config.senaite.enabled) {
@@ -9,6 +9,6 @@ export function startScheduledTasks(context) {
     // senaite.beginPolling();
   }
 
-  const discharger = new VisitDischarger(context);
+  const discharger = new EncounterDischarger(context);
   discharger.beginPolling();
 }

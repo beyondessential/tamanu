@@ -5,17 +5,17 @@ import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
 import { connectApi } from '../api/connectApi';
-import { viewVisit } from '../store/visit';
+import { viewEncounter } from '../store/encounter';
 
 import { ImagingRequestForm } from '../forms/ImagingRequestForm';
 
 const DumbImagingRequestModal = React.memo(
-  ({ open, visit, practitionerSuggester, onClose, onSubmit }) => (
+  ({ open, encounter, practitionerSuggester, onClose, onSubmit }) => (
     <Modal width="md" title="New imaging request" open={open} onClose={onClose}>
       <ImagingRequestForm
         onSubmit={onSubmit}
         onCancel={onClose}
-        visit={visit}
+        encounter={encounter}
         practitionerSuggester={practitionerSuggester}
         generateId={shortid.generate}
       />
@@ -23,11 +23,11 @@ const DumbImagingRequestModal = React.memo(
   ),
 );
 
-export const ImagingRequestModal = connectApi((api, dispatch, { visit }) => ({
+export const ImagingRequestModal = connectApi((api, dispatch, { encounter }) => ({
   onSubmit: async data => {
-    const visitId = visit.id;
-    await api.post(`visit/${visitId}/imagingRequest`, data);
-    dispatch(viewVisit(visitId));
+    const encounterId = encounter.id;
+    await api.post(`encounter/${encounterId}/imagingRequest`, data);
+    dispatch(viewEncounter(encounterId));
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
 }))(DumbImagingRequestModal);

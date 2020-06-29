@@ -1,6 +1,6 @@
 export { PatientListingView, AdmittedPatientsView, OutpatientsView } from './PatientListingView';
 export { PatientView } from './PatientView';
-export { VisitView } from './VisitView';
+export { EncounterView } from './EncounterView';
 export { LabRequestView } from './LabRequestView';
 export { ImagingRequestView } from './ImagingRequestView';
 export { DischargeSummaryView } from './DischargeSummaryView';

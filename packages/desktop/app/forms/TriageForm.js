@@ -20,7 +20,7 @@ import { NestedVitalsModal } from '../components/NestedVitalsModal';
 
 import triageFlowchart from '../assets/images/triage-flowchart.png';
 
-import { visitOptions, triagePriorities } from '../constants';
+import { encounterOptions, triagePriorities } from '../constants';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
@@ -61,7 +61,7 @@ export class TriageForm extends React.PureComponent {
           label="Triage time"
           required
           component={DateTimeField}
-          options={visitOptions}
+          options={encounterOptions}
         />
         <Field
           name="score"

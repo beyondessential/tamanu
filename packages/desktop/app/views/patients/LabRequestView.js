@@ -58,8 +58,8 @@ const ResultsPane = React.memo(({ labRequest }) => {
 
 const BackLink = connect(
   null,
-  dispatch => ({ onClick: () => dispatch(push('/patients/visit')) }),
-)(({ onClick }) => <Button onClick={onClick}>&lt; Back to visit information</Button>);
+  dispatch => ({ onClick: () => dispatch(push('/patients/encounter')) }),
+)(({ onClick }) => <Button onClick={onClick}>&lt; Back to encounter information</Button>);
 
 const ChangeLabStatusButton = React.memo(({ labRequest }) => {
   const [isModalOpen, setModalOpen] = React.useState(false);

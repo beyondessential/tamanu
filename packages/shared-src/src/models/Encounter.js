@@ -1,16 +1,16 @@
 import { Sequelize } from 'sequelize';
-import { VISIT_TYPES, NOTE_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES, NOTE_TYPES } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
-const VISIT_TYPE_VALUES = Object.values(VISIT_TYPES);
+const ENCOUNTER_TYPE_VALUES = Object.values(ENCOUNTER_TYPES);
 
-export class Visit extends Model {
+export class Encounter extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
-        visitType: Sequelize.ENUM(VISIT_TYPE_VALUES),
+        encounterType: Sequelize.ENUM(ENCOUNTER_TYPE_VALUES),
 
         startDate: {
           type: Sequelize.DATE,
@@ -18,34 +18,34 @@ export class Visit extends Model {
         },
         endDate: Sequelize.DATE,
 
-        reasonForVisit: Sequelize.TEXT,
+        reasonForEncounter: Sequelize.TEXT,
       },
       {
         ...options,
         validate: {
-          mustHaveValidVisitType() {
-            if (!VISIT_TYPE_VALUES.includes(this.visitType)) {
-              throw new InvalidOperationError('A visit must have a valid visit type.');
+          mustHaveValidEncounterType() {
+            if (!ENCOUNTER_TYPE_VALUES.includes(this.encounterType)) {
+              throw new InvalidOperationError('A encounter must have a valid encounter type.');
             }
           },
           mustHavePatient() {
             if (!this.patientId) {
-              throw new InvalidOperationError('A visit must have a patient.');
+              throw new InvalidOperationError('A encounter must have a patient.');
             }
           },
           mustHaveDepartment() {
             if (!this.departmentId) {
-              throw new InvalidOperationError('A visit must have a department.');
+              throw new InvalidOperationError('A encounter must have a department.');
             }
           },
           mustHaveLocation() {
             if (!this.locationId) {
-              throw new InvalidOperationError('A visit must have a location.');
+              throw new InvalidOperationError('A encounter must have a location.');
             }
           },
           mustHaveExaminer() {
             if (!this.examinerId) {
-              throw new InvalidOperationError('A visit must have an examiner.');
+              throw new InvalidOperationError('A encounter must have an examiner.');
             }
           },
         },
@@ -99,7 +99,7 @@ export class Visit extends Model {
     const { Triage } = this.sequelize.models;
     return Triage.findOne({
       where: {
-        visitId: this.id,
+        encounterId: this.id,
       },
     });
   }
@@ -109,8 +109,8 @@ export class Visit extends Model {
     await this.closeTriage(endDate);
   }
 
-  async onVisitProgression(newVisitType) {
-    await this.addSystemNote(`Changed type from ${this.visitType} to ${newVisitType}`);
+  async onEncounterProgression(newEncounterType) {
+    await this.addSystemNote(`Changed type from ${this.encounterType} to ${newEncounterType}`);
     await this.closeTriage(new Date());
   }
 
@@ -132,11 +132,11 @@ export class Visit extends Model {
       }
 
       if (data.patientId && data.patientId !== this.patientId) {
-        throw new InvalidOperationError("A visit's patient cannot be changed");
+        throw new InvalidOperationError("A encounter's patient cannot be changed");
       }
 
-      if (data.visitType && data.visitType !== this.visitType) {
-        await this.onVisitProgression(data.visitType);
+      if (data.encounterType && data.encounterType !== this.encounterType) {
+        await this.onEncounterProgression(data.encounterType);
       }
 
       if (data.locationId && data.locationId !== this.locationId) {

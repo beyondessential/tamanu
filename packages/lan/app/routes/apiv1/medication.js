@@ -4,6 +4,6 @@ import { simpleGet, simplePut, simplePost } from './crudHelpers';
 
 export const medication = express.Router();
 
-medication.get('/:id', simpleGet('VisitMedication'));
-medication.put('/:id', simplePut('VisitMedication'));
-medication.post('/$', simplePost('VisitMedication'));
+medication.get('/:id', simpleGet('EncounterMedication'));
+medication.put('/:id', simplePut('EncounterMedication'));
+medication.post('/$', simplePost('EncounterMedication'));

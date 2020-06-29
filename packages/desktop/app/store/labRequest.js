@@ -1,6 +1,6 @@
 import { push } from 'connected-react-router';
 
-import { reloadVisit } from './visit';
+import { reloadEncounter } from './encounter';
 import { reloadPatient } from './patient';
 
 import { createReducer } from '../utils/createReducer';
@@ -11,7 +11,7 @@ const LAB_LOAD_FINISH = 'LAB_LOAD_FINISH';
 
 export const viewLab = id => async dispatch => {
   dispatch(reloadLab(id));
-  dispatch(push('/patients/visit/labRequest'));
+  dispatch(push('/patients/encounter/labRequest'));
 };
 
 export const reloadLab = id => async (dispatch, getState, { api }) => {
@@ -20,11 +20,11 @@ export const reloadLab = id => async (dispatch, getState, { api }) => {
   const labRequest = await api.get(`labRequest/${id}`);
   // TODO handle error state
 
-  const visit = labRequest.visits[0];
-  if (visit) {
-    dispatch(reloadVisit(visit.id));
+  const encounter = labRequest.encounters[0];
+  if (encounter) {
+    dispatch(reloadEncounter(encounter.id));
 
-    const patient = visit.patient[0];
+    const patient = encounter.patient[0];
     if (patient) {
       dispatch(reloadPatient(patient.id));
     }

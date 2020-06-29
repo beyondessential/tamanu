@@ -3,7 +3,7 @@ import { connectRouter } from 'connected-react-router';
 import {
   authReducer,
   patientReducer,
-  visitReducer,
+  encounterReducer,
   optionsReducer,
   labRequestReducer,
   imagingRequestReducer,
@@ -14,7 +14,7 @@ export const createReducers = history => ({
   router: connectRouter(history),
   auth: authReducer,
   patient: patientReducer,
-  visit: visitReducer,
+  encounter: encounterReducer,
   options: optionsReducer,
   labRequest: labRequestReducer,
   imagingRequest: imagingRequestReducer,

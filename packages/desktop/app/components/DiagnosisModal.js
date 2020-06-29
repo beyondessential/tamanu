@@ -2,7 +2,7 @@ import React from 'react';
 
 import { connectApi } from '../api/connectApi';
 import { Suggester } from '../utils/suggester';
-import { viewVisit } from '../store/visit';
+import { viewEncounter } from '../store/encounter';
 import { showDecisionSupport } from '../store/decisionSupport';
 
 import { Modal } from './Modal';
@@ -14,14 +14,14 @@ const DumbDiagnosisModal = React.memo(({ diagnosis, onClose, onSaveDiagnosis, ..
   </Modal>
 ));
 
-export const DiagnosisModal = connectApi((api, dispatch, { visitId, onClose }) => ({
+export const DiagnosisModal = connectApi((api, dispatch, { encounterId, onClose }) => ({
   onSaveDiagnosis: async data => {
     if (data.id) {
       await api.put(`diagnosis/${data.id}`, data);
     } else {
       const { diagnosis, previousDiagnoses = [] } = await api.post(`diagnosis`, {
         ...data,
-        visitId,
+        encounterId,
       });
       if (previousDiagnoses.length > 0) {
         dispatch(
@@ -34,7 +34,7 @@ export const DiagnosisModal = connectApi((api, dispatch, { visitId, onClose }) =
     }
 
     onClose();
-    dispatch(viewVisit(visitId));
+    dispatch(viewEncounter(encounterId));
   },
   icd10Suggester: new Suggester(api, 'icd10'),
 }))(DumbDiagnosisModal);

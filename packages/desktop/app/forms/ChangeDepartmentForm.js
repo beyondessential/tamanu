@@ -16,11 +16,11 @@ export class ChangeDepartmentForm extends React.PureComponent {
   };
 
   render() {
-    const { onSubmit, visit } = this.props;
+    const { onSubmit, encounter } = this.props;
     return (
       <Form
         initialValues={{
-          departmentId: visit.departmentId,
+          departmentId: encounter.departmentId,
         }}
         render={this.renderForm}
         onSubmit={onSubmit}

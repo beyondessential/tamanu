@@ -7,9 +7,9 @@ import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
 import { connectApi } from '../api/connectApi';
-import { viewVisit } from '../store/visit';
+import { viewEncounter } from '../store/encounter';
 
-const BeginMoveForm = ({ onSubmit, onClose, visit, locationSuggester }) => {
+const BeginMoveForm = ({ onSubmit, onClose, encounter, locationSuggester }) => {
   const renderForm = React.useCallback(({ submitForm }) => (
     <FormGrid columns={1}>
       <Field
@@ -27,24 +27,24 @@ const BeginMoveForm = ({ onSubmit, onClose, visit, locationSuggester }) => {
     <Form
       onSubmit={onSubmit}
       render={renderForm}
-      initialValues={{ plannedLocation: visit.plannedLocation }}
+      initialValues={{ plannedLocation: encounter.plannedLocation }}
     />
   );
 };
 
-const FinaliseMoveForm = ({ onSubmit, visit, onClose }) => (
+const FinaliseMoveForm = ({ onSubmit, encounter, onClose }) => (
   <FormGrid columns={1}>
-    <div>{`Are you sure you want to move ${visit.patient[0].firstName} to ${visit.plannedLocation.name}?`}</div>
+    <div>{`Are you sure you want to move ${encounter.patient[0].firstName} to ${encounter.plannedLocation.name}?`}</div>
     <ConfirmCancelRow
-      onConfirm={() => onSubmit({ location: visit.plannedLocation })}
+      onConfirm={() => onSubmit({ location: encounter.plannedLocation })}
       onCancel={onClose}
     />
   </FormGrid>
 );
 
-const CancelMoveForm = ({ onSubmit, visit, onClose }) => (
+const CancelMoveForm = ({ onSubmit, encounter, onClose }) => (
   <FormGrid columns={1}>
-    <div>{`Are you sure you want to cancel ${visit.patient[0].firstName}'s scheduled move to ${visit.plannedLocation.name}?`}</div>
+    <div>{`Are you sure you want to cancel ${encounter.patient[0].firstName}'s scheduled move to ${encounter.plannedLocation.name}?`}</div>
     <ConfirmCancelRow
       onConfirm={() => onSubmit({ plannedLocation: null })}
       confirmText="Yes, cancel"
@@ -54,11 +54,11 @@ const CancelMoveForm = ({ onSubmit, visit, onClose }) => (
   </FormGrid>
 );
 
-const BaseMoveModal = connectApi((api, dispatch, { visit, endpoint }) => ({
+const BaseMoveModal = connectApi((api, dispatch, { encounter, endpoint }) => ({
   locationSuggester: new Suggester(api, 'location'),
   onSubmit: async data => {
-    await api.put(`visit/${visit.id}/${endpoint}`, data);
-    dispatch(viewVisit(visit.id));
+    await api.put(`encounter/${encounter.id}/${endpoint}`, data);
+    dispatch(viewEncounter(encounter.id));
   },
 }))(({ title, open, onClose, Component, ...rest }) => (
   <Modal title={title} open={open} onClose={onClose}>

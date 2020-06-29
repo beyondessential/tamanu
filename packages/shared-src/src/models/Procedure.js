@@ -24,8 +24,8 @@ export class Procedure extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.Visit, {
-      foreignKey: 'visitId',
+    this.belongsTo(models.Encounter, {
+      foreignKey: 'encounterId',
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'locationId',

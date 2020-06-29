@@ -4,7 +4,7 @@ import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
 import { connectApi } from '../api/connectApi';
-import { viewVisit } from '../store/visit';
+import { viewEncounter } from '../store/encounter';
 
 import { ProcedureForm } from '../forms/ProcedureForm';
 
@@ -20,17 +20,17 @@ const DumbProcedureModal = React.memo(
   ),
 );
 
-export const ProcedureModal = connectApi((api, dispatch, { visitId }) => ({
+export const ProcedureModal = connectApi((api, dispatch, { encounterId }) => ({
   onSaveProcedure: async data => {
     if (data.id) {
       await api.put(`procedure/${data.id}`, data);
     } else {
       await api.post('procedure', {
         ...data,
-        visitId,
+        encounterId,
       });
     }
-    dispatch(viewVisit(visitId));
+    dispatch(viewEncounter(encounterId));
   },
   locationSuggester: new Suggester(api, 'location'),
   practitionerSuggester: new Suggester(api, 'practitioner'),

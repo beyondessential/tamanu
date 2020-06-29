@@ -1,7 +1,7 @@
 import faye from 'faye';
 
 function channelToRecordType(channel) {
-  return channel.split('/')[1]; // because '/visit/*' becomes ['', 'visit', '*']
+  return channel.split('/')[1]; // because '/encounter/*' becomes ['', 'encounter', '*']
 }
 
 const SUBSCRIBE_CHANNEL = '/meta/subscribe';
@@ -69,12 +69,12 @@ class DataChangePublisher {
     const recordType = record.constructor.name.toLowerCase();
     const payload = {};
     switch (recordType) {
-      case 'visit': {
+      case 'encounter': {
         // TODO may want to also publish _what_ fields in the record have changed, so that the
         // client can be optimised to take specific actions depending on if the field is relevant
         // (e.g. discharge status)
         payload.patientId = record.patientId;
-        payload.visitId = record.id;
+        payload.encounterId = record.id;
         break;
       }
       default:

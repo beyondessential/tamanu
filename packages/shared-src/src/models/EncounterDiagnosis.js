@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 
-export class VisitDiagnosis extends Model {
+export class EncounterDiagnosis extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -23,12 +23,12 @@ export class VisitDiagnosis extends Model {
         validate: {
           mustHaveDiagnosis() {
             if (!this.diagnosisId) {
-              throw new Error('A visit diagnosis must be attached to a diagnosis.');
+              throw new Error('An encounter diagnosis must be attached to a diagnosis.');
             }
           },
-          mustHaveVisit() {
-            if (!this.visitId) {
-              throw new Error('A visit diagnosis must be attached to a visit.');
+          mustHaveEncounter() {
+            if (!this.encounterId) {
+              throw new Error('An encounter diagnosis must be attached to an encounter.');
             }
           },
         },
@@ -37,8 +37,8 @@ export class VisitDiagnosis extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.Visit, {
-      foreignKey: 'visitId',
+    this.belongsTo(models.Encounter, {
+      foreignKey: 'encounterId',
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'diagnosisId',

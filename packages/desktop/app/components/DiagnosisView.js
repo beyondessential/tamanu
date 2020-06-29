@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { getDiagnoses } from '../store/visit';
+import { getDiagnoses } from '../store/encounter';
 
 import { Button } from './Button';
 import { DiagnosisModal } from './DiagnosisModal';
@@ -47,7 +47,7 @@ const AddDiagnosisButton = styled(Button)`
 export const DiagnosisView = connect(state => ({
   diagnoses: getDiagnoses(state).sort(compareDiagnosis),
 }))(
-  React.memo(({ visitId, diagnoses, isTriage, readonly }) => {
+  React.memo(({ encounterId, diagnoses, isTriage, readonly }) => {
     const [diagnosis, editDiagnosis] = React.useState(null);
 
     const displayedDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
@@ -57,7 +57,7 @@ export const DiagnosisView = connect(state => ({
         <DiagnosisModal
           diagnosis={diagnosis}
           isTriage={isTriage}
-          visitId={visitId}
+          encounterId={encounterId}
           onClose={() => editDiagnosis(null)}
         />
         <DiagnosisGrid>

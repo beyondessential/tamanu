@@ -5,7 +5,7 @@ import Paper from '@material-ui/core/Paper';
 
 import { connect } from 'react-redux';
 
-import { viewPatientVisit } from '../store/patient';
+import { viewPatientEncounter } from '../store/patient';
 
 import { TopBar, PageContainer, DataFetchingTable } from '../components';
 import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
@@ -64,8 +64,8 @@ const ADMITTED_PRIORITY = {
   color: '#bdbdbd',
 };
 
-const StatusDisplay = React.memo(({ visitType, startTime }) => {
-  switch (visitType) {
+const StatusDisplay = React.memo(({ encounterType, startTime }) => {
+  switch (encounterType) {
     case 'triage':
       return (
         <React.Fragment>
@@ -80,14 +80,14 @@ const StatusDisplay = React.memo(({ visitType, startTime }) => {
   }
 });
 
-const PriorityDisplay = React.memo(({ startTime, visitType, closedTime }) => (
+const PriorityDisplay = React.memo(({ startTime, encounterType, closedTime }) => (
   <PriorityText>
-    <StatusDisplay visitType={visitType} startTime={startTime} closedTime={closedTime} />
+    <StatusDisplay encounterType={encounterType} startTime={startTime} closedTime={closedTime} />
   </PriorityText>
 ));
 
-function getRowColor({ visitType, score }) {
-  switch (visitType) {
+function getRowColor({ encounterType, score }) {
+  switch (encounterType) {
     case 'triage':
       return TRIAGE_COLORS_BY_LEVEL[score];
     default:
@@ -105,7 +105,7 @@ const COLUMNS = [
         score={row.score}
         startTime={row.triageTime}
         closedTime={row.closedTime}
-        visitType={row.visitType}
+        encounterType={row.encounterType}
       />
     ),
   },
@@ -137,14 +137,14 @@ const COLUMNS = [
 ];
 
 const TriageTable = connect(null, dispatch => ({
-  onViewVisit: triage => dispatch(viewPatientVisit(triage.patientId, triage.visitId)),
+  onViewEncounter: triage => dispatch(viewPatientEncounter(triage.patientId, triage.encounterId)),
 }))(
-  React.memo(({ onViewVisit, ...props }) => (
+  React.memo(({ onViewEncounter, ...props }) => (
     <DataFetchingTable
       endpoint="triage"
       columns={COLUMNS}
       noDataMessage="No patients found"
-      onRowClick={onViewVisit}
+      onRowClick={onViewEncounter}
       {...props}
     />
   )),
