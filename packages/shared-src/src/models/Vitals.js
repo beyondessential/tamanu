@@ -26,9 +26,9 @@ export class Vitals extends Model {
       {
         ...options,
         validate: {
-          mustHaveVisit() {
-            if (!this.visitId) {
-              throw new Error('A vitals reading must be attached to a visit.');
+          mustHaveEncounter() {
+            if (!this.encounterId) {
+              throw new Error('A vitals reading must be attached to an encounter.');
             }
           },
           mustHaveOneReading() {
@@ -53,8 +53,8 @@ export class Vitals extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.Visit, {
-      foreignKey: 'visitId',
+    this.belongsTo(models.Encounter, {
+      foreignKey: 'encounterId',
     });
   }
 }

@@ -104,9 +104,9 @@ const MedicationsList = ({ medications }) => {
   ));
 };
 
-const SummaryPage = React.memo(({ patient, visit }) => {
-  const primaryDiagnoses = visit.diagnoses.filter(d => d.isPrimary);
-  const secondaryDiagnoses = visit.diagnoses.filter(d => !d.isPrimary);
+const SummaryPage = React.memo(({ patient, encounter }) => {
+  const primaryDiagnoses = encounter.diagnoses.filter(d => d.isPrimary);
+  const secondaryDiagnoses = encounter.diagnoses.filter(d => !d.isPrimary);
 
   return (
     <SummaryPageContainer>
@@ -126,35 +126,35 @@ const SummaryPage = React.memo(({ patient, visit }) => {
           <Row>
             <div>
               <Label>Admission date: </Label>
-              <DateDisplay date={visit.startDate} />
+              <DateDisplay date={encounter.startDate} />
             </div>
             <div>
               <Label>Discharge date: </Label>
-              <DateDisplay date={visit.endDate} />
+              <DateDisplay date={encounter.endDate} />
             </div>
           </Row>
 
           <div>
             <Label>Department: </Label>
-            {visit.location && visit.location.name}
+            {encounter.location && encounter.location.name}
           </div>
 
           <hr />
 
           <TwoColumnSection>
             <Label>Supervising physician: </Label>
-            <div>{visit.examiner && visit.examiner.displayName}</div>
+            <div>{encounter.examiner && encounter.examiner.displayName}</div>
           </TwoColumnSection>
           <TwoColumnSection>
             <Label>Discharge physician: </Label>
-            <div>{visit.dischargePhysician && visit.dischargePhysician.displayName}</div>
+            <div>{encounter.dischargePhysician && encounter.dischargePhysician.displayName}</div>
           </TwoColumnSection>
 
           <hr />
 
           <TwoColumnSection>
-            <Label>Reason for visit: </Label>
-            <div>{visit.reasonForVisit}</div>
+            <Label>Reason for encounter: </Label>
+            <div>{encounter.reasonForEncounter}</div>
           </TwoColumnSection>
 
           <TwoColumnSection>
@@ -179,7 +179,7 @@ const SummaryPage = React.memo(({ patient, visit }) => {
             <Label>Procedures: </Label>
             <ListColumn>
               <ul>
-                <ProceduresList procedures={visit.procedures} />
+                <ProceduresList procedures={encounter.procedures} />
               </ul>
             </ListColumn>
           </TwoColumnSection>
@@ -188,14 +188,14 @@ const SummaryPage = React.memo(({ patient, visit }) => {
             <Label>Medications: </Label>
             <ListColumn>
               <ul>
-                <MedicationsList medications={visit.medications} />
+                <MedicationsList medications={encounter.medications} />
               </ul>
             </ListColumn>
           </TwoColumnSection>
 
           <div>
             <Label>Discharge planning notes:</Label>
-            <div>{visit.dischargeNotes}</div>
+            <div>{encounter.dischargeNotes}</div>
           </div>
         </Content>
       </Centered>
@@ -203,22 +203,22 @@ const SummaryPage = React.memo(({ patient, visit }) => {
   );
 });
 
-const DumbDischargeSummaryView = React.memo(({ visit, patient, loading }) => {
+const DumbDischargeSummaryView = React.memo(({ encounter, patient, loading }) => {
   if (loading) return <LoadingIndicator />;
   return (
     <TopBar title="Patient Discharge Summary">
       <TextButton onClick={printPage}>Print Summary</TextButton>
-      <StyledBackButton to="/patients/visit" />
-      <SummaryPage patient={patient} visit={visit} />
+      <StyledBackButton to="/patients/encounter" />
+      <SummaryPage patient={patient} encounter={encounter} />
       <PrintPortal>
-        <SummaryPage patient={patient} visit={visit} />
+        <SummaryPage patient={patient} encounter={encounter} />
       </PrintPortal>
     </TopBar>
   );
 });
 
 export const DischargeSummaryView = connect(state => ({
-  loading: state.visit.loading,
-  visit: state.visit,
+  loading: state.encounter.loading,
+  encounter: state.encounter,
   patient: state.patient,
 }))(DumbDischargeSummaryView);

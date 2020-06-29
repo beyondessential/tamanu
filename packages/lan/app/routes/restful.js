@@ -1,7 +1,7 @@
 import express from 'express';
 import RealmController from '../controllers/realm';
 
-import { visitRoutes } from './restful/visit';
+import { encounterRoutes } from './restful/encounter';
 import { patientRoutes } from './restful/patient';
 import { triageRoutes } from './restful/triage';
 import { userRoutes } from './restful/user';
@@ -18,10 +18,10 @@ restfulRoutes.get(
 );
 
 // specific handlers for different models
-// NB we don't mount as `restfulRoutes.use('/visit', visitRoutes);`
+// NB we don't mount as `restfulRoutes.use('/encounter', encounterRoutes);`
 // as this would stop that path from being picked up by the generic realm
 // controllers below.
-restfulRoutes.use(visitRoutes);
+restfulRoutes.use(encounterRoutes);
 restfulRoutes.use(patientRoutes);
 restfulRoutes.use(triageRoutes);
 restfulRoutes.use(userRoutes);

@@ -2,7 +2,7 @@ import moment from 'moment';
 import { padStart, capitalize } from 'lodash';
 
 import { createValueIndex } from 'shared/utils/valueIndex';
-import { VISIT_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from 'shared/constants';
 import {
   medicationIcon,
   administrationIcon,
@@ -23,7 +23,7 @@ export const REALM_DATE_FORMAT = 'YYYY-MM-DD@HH:MM:SS';
 
 export const DB_OBJECTS_MAX_DEPTH = {
   PATIENT_MAIN: 10,
-  VISIT_MAIN: 7,
+  ENCOUNTER_MAIN: 7,
 };
 
 // Should only be colours that are defined as constants in Figma
@@ -165,7 +165,7 @@ export const getDifferenceDate = (today, target) => {
   return difference.humanize();
 };
 
-export const visitStatuses = {
+export const encounterStatuses = {
   ADMITTED: 'Admitted',
   DISCHARGED: 'Discharged',
   CHECKED_IN: 'CheckedIn',
@@ -204,7 +204,7 @@ export const reportOptions = [
   { value: 'status', label: 'Patient Status', className: 'State-NT' },
   { value: 'patientDays', label: 'Total Patient Days', className: 'State-NT' },
   { value: 'detailedPatientDays', label: 'Total Patient Days (Detailed)', className: 'State-NT' },
-  { value: 'visit', label: 'Visit', className: 'State-NT' },
+  { value: 'encounter', label: 'Encounter', className: 'State-NT' },
 ];
 
 export const diagnosisCertaintyOptions = [
@@ -235,33 +235,33 @@ export const noteTypes = [
   { value: 'system', label: 'System', hideFromDropdown: true },
 ];
 
-export const visitOptions = [
-  { value: VISIT_TYPES.ADMISSION, label: 'Hospital admission', image: medicationIcon },
-  { value: VISIT_TYPES.CLINIC, label: 'Clinic', image: administrationIcon },
-  { value: VISIT_TYPES.IMAGING, label: 'Imaging', image: radiologyIcon },
-  { value: VISIT_TYPES.EMERGENCY, label: 'Emergency short stay', image: scheduleIcon },
+export const encounterOptions = [
+  { value: ENCOUNTER_TYPES.ADMISSION, label: 'Hospital admission', image: medicationIcon },
+  { value: ENCOUNTER_TYPES.CLINIC, label: 'Clinic', image: administrationIcon },
+  { value: ENCOUNTER_TYPES.IMAGING, label: 'Imaging', image: radiologyIcon },
+  { value: ENCOUNTER_TYPES.EMERGENCY, label: 'Emergency short stay', image: scheduleIcon },
   {
-    value: VISIT_TYPES.OBSERVATION,
+    value: ENCOUNTER_TYPES.OBSERVATION,
     label: 'Active ED patient',
     image: patientIcon,
     triageFlowOnly: true,
   },
   {
-    value: VISIT_TYPES.TRIAGE,
+    value: ENCOUNTER_TYPES.TRIAGE,
     label: 'Triaged patient',
     image: patientIcon,
     triageFlowOnly: true,
     hideFromMenu: true,
   },
   {
-    value: VISIT_TYPES.SURVEY_RESPONSE,
+    value: ENCOUNTER_TYPES.SURVEY_RESPONSE,
     label: 'Survey response',
     image: patientIcon,
     hideFromMenu: true,
   },
 ];
 
-export const VISIT_OPTIONS_BY_VALUE = createValueIndex(visitOptions);
+export const ENCOUNTER_OPTIONS_BY_VALUE = createValueIndex(encounterOptions);
 
 export const TRIAGE_COLORS_BY_LEVEL = {
   1: Colors.alert,
@@ -323,8 +323,8 @@ export const lookupOptions = [
   { value: 'radiologists', label: 'Radiologists' },
   { value: 'sex', label: 'Sex' },
   { value: 'unit_types', label: 'Unit Types' },
-  { value: 'visit_location_list', label: 'Visit Locations' },
-  { value: 'visit_types', label: 'Visit Types' },
+  { value: 'encounter_location_list', label: 'Encounter Locations' },
+  { value: 'encounter_types', label: 'Encounter Types' },
   { value: 'female', label: 'Female' },
 ];
 
@@ -514,7 +514,7 @@ export const pregnancyColumns = [
   },
 ];
 
-export const visitsColumns = [
+export const encountersColumns = [
   {
     key: 'startDate',
     title: 'Start Date',
@@ -550,7 +550,7 @@ export const visitsColumns = [
     minWidth: 100,
   },
   {
-    key: 'visitType',
+    key: 'encounterType',
     title: 'Type',
     headerStyle,
     style: columnStyle,

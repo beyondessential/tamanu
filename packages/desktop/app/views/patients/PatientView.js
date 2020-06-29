@@ -11,7 +11,7 @@ import { PatientAlert } from '../../components/PatientAlert';
 import { PatientHistory } from '../../components/PatientHistory';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { ContentPane } from '../../components/ContentPane';
-import { VisitModal } from '../../components/VisitModal';
+import { EncounterModal } from '../../components/EncounterModal';
 import { TriageModal } from '../../components/TriageModal';
 import { ReferralModal } from '../../components/ReferralModal';
 import { ReferralTable } from '../../components/ReferralTable';
@@ -19,12 +19,12 @@ import { AppointmentModal } from '../../components/AppointmentModal';
 import { AppointmentTable } from '../../components/AppointmentTable';
 import { Button } from '../../components/Button';
 import { connectRoutedModal } from '../../components/Modal';
-import { PatientVisitSummary } from './components/PatientVisitSummary';
+import { PatientEncounterSummary } from './components/PatientEncounterSummary';
 
 import { PatientDetailsForm } from '../../forms/PatientDetailsForm';
 import { Suggester } from '../../utils/suggester';
 
-import { viewVisit } from '../../store/visit';
+import { viewEncounter } from '../../store/encounter';
 import { reloadPatient } from '../../store/patient';
 
 const AppointmentPane = React.memo(({ patient, readonly }) => {
@@ -73,30 +73,30 @@ const ReferralPane = React.memo(({ patient, readonly }) => {
   );
 });
 
-const RoutedVisitModal = connectRoutedModal('/patients/view', 'checkin')(VisitModal);
+const RoutedEncounterModal = connectRoutedModal('/patients/view', 'checkin')(EncounterModal);
 const RoutedTriageModal = connectRoutedModal('/patients/view', 'triage')(TriageModal);
 
 const HistoryPane = connect(
   state => ({
-    visit: state.patient.currentVisit,
+    encounter: state.patient.currentEncounter,
     patientId: state.patient.id,
   }),
   dispatch => ({
-    onViewVisit: id => dispatch(viewVisit(id)),
+    onViewEncounter: id => dispatch(viewEncounter(id)),
     onOpenCheckin: () => dispatch(push('/patients/view/checkin')),
     onOpenTriage: () => dispatch(push('/patients/view/triage')),
   }),
 )(
-  React.memo(({ visit, patientId, onViewVisit, onOpenCheckin, onOpenTriage, readonly }) => (
+  React.memo(({ encounter, patientId, onViewEncounter, onOpenCheckin, onOpenTriage, readonly }) => (
     <div>
-      <PatientVisitSummary
-        visit={visit}
-        viewVisit={onViewVisit}
+      <PatientEncounterSummary
+        encounter={encounter}
+        viewEncounter={onViewEncounter}
         openCheckin={onOpenCheckin}
         openTriage={onOpenTriage}
         readonly={readonly}
       />
-      <PatientHistory patientId={patientId} onItemClick={item => onViewVisit(item.id)} />
+      <PatientHistory patientId={patientId} onItemClick={item => onViewEncounter(item.id)} />
     </div>
   )),
 );
@@ -171,7 +171,7 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
           readonly={readonly}
         />
       </TwoColumnDisplay>
-      <RoutedVisitModal patientId={patient.id} referrals={patient.referrals} />
+      <RoutedEncounterModal patientId={patient.id} referrals={patient.referrals} />
       <RoutedTriageModal patient={patient} />
     </React.Fragment>
   );

@@ -2,7 +2,7 @@ import Chance from 'chance';
 import moment from 'moment';
 
 import { generateId } from '../utils/generateId';
-import { VISIT_TYPES } from '../constants';
+import { ENCOUNTER_TYPES } from '../constants';
 
 const HOUR = 1000 * 60 * 60;
 const DAY = HOUR * 24;
@@ -67,17 +67,17 @@ export async function createDummyTriage(models, overrides) {
   };
 }
 
-export async function createDummyVisit(models, { current, ...overrides } = {}) {
+export async function createDummyEncounter(models, { current, ...overrides } = {}) {
   const endDate = current ? new Date() : randomDate();
 
   const duration = chance.natural({ min: HOUR, max: HOUR * 10 });
   const startDate = new Date(endDate.getTime() - duration);
 
   return {
-    visitType: chance.pick(Object.values(VISIT_TYPES)),
+    encounterType: chance.pick(Object.values(ENCOUNTER_TYPES)),
     startDate: startDate,
     endDate: current ? undefined : endDate,
-    reasonForVisit: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
+    reasonForEncounter: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
     locationId: await randomReferenceId(models, 'location'),
     departmentId: await randomReferenceId(models, 'department'),
     examinerId: await randomUser(models),

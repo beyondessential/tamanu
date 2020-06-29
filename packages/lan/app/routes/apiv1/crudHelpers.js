@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { NotFoundError } from 'shared/errors';
 
 // utility function for creating a subroute that all checks the same
-// action (for eg different relation reads on a visit all check visit.read)
+// action (for eg different relation reads on an encounter all check encounter.read)
 export const permissionCheckingRouter = (action, subject) => {
   const router = express.Router();
 

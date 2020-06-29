@@ -18,7 +18,7 @@ import { FormGrid } from '../components/FormGrid';
 import { DateDisplay } from '../components/DateDisplay';
 import { Button } from '../components/Button';
 
-import { visitOptions, Colors } from '../constants';
+import { encounterOptions, Colors } from '../constants';
 
 const SelectorGrid = styled.div`
   display: grid;
@@ -30,7 +30,7 @@ const TypeImage = styled(Avatar)`
   margin-bottom: 10px;
 `;
 
-const VisitOptionTypeButton = styled(Button)`
+const EncounterOptionTypeButton = styled(Button)`
   background: ${Colors.white};
   display: grid;
   justify-content: center;
@@ -38,11 +38,11 @@ const VisitOptionTypeButton = styled(Button)`
   height: 9rem;
 `;
 
-const VisitOptionButton = ({ label, image, onClick }) => (
-  <VisitOptionTypeButton variant="contained" onClick={onClick}>
+const EncounterOptionButton = ({ label, image, onClick }) => (
+  <EncounterOptionTypeButton variant="contained" onClick={onClick}>
     <TypeImage alt={label} src={image} />
     {label}
-  </VisitOptionTypeButton>
+  </EncounterOptionTypeButton>
 );
 
 const getReferralLabel = referral => {
@@ -77,28 +77,28 @@ const ReferralField = ({ referrals = [] }) => {
 };
 
 const StartPage = ({ setValue }) => {
-  const items = visitOptions
+  const items = encounterOptions
     .filter(option => !option.hideFromMenu)
     .map(({ label, value, image }) => (
-      <VisitOptionButton
+      <EncounterOptionButton
         key={value}
         label={label}
         value={value}
         image={image}
-        onClick={() => setValue('visitType', value)}
+        onClick={() => setValue('encounterType', value)}
       />
     ));
 
   return <SelectorGrid>{items}</SelectorGrid>;
 };
 
-export class VisitForm extends React.PureComponent {
+export class EncounterForm extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
   };
 
   renderForm = ({ values, setFieldValue, submitForm }) => {
-    if (!values.visitType) {
+    if (!values.encounterType) {
       return <StartPage setValue={setFieldValue} />;
     }
 
@@ -109,23 +109,23 @@ export class VisitForm extends React.PureComponent {
       editedObject,
       referrals,
     } = this.props;
-    const buttonText = editedObject ? 'Update visit' : 'Start visit';
+    const buttonText = editedObject ? 'Update encounter' : 'Start encounter';
 
     return (
       <FormGrid>
         <Field
-          name="visitType"
-          label="Visit type"
+          name="encounterType"
+          label="Encounter type"
           disabled
           component={SelectField}
-          options={visitOptions}
+          options={encounterOptions}
         />
         <Field
           name="startDate"
           label="Check-in"
           required
           component={DateField}
-          options={visitOptions}
+          options={encounterOptions}
         />
         <Field
           name="departmentId"
@@ -150,8 +150,8 @@ export class VisitForm extends React.PureComponent {
         />
         <ReferralField referrals={referrals} />
         <Field
-          name="reasonForVisit"
-          label="Reason for visit"
+          name="reasonForEncounter"
+          label="Reason for encounter"
           component={TextField}
           multiline
           rows={2}
@@ -181,9 +181,9 @@ export class VisitForm extends React.PureComponent {
           locationId: foreignKey('Location is required'),
           departmentId: foreignKey('Department is required'),
           startDate: yup.date().required(),
-          visitType: yup
+          encounterType: yup
             .mixed()
-            .oneOf(visitOptions.map(x => x.value))
+            .oneOf(encounterOptions.map(x => x.value))
             .required(),
         })}
       />

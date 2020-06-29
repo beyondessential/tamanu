@@ -4,16 +4,16 @@ import { Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
-import { VISIT_OPTIONS_BY_VALUE } from '../constants';
+import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 
-export class ChangeVisitTypeForm extends React.PureComponent {
+export class ChangeEncounterTypeForm extends React.PureComponent {
   renderForm = ({ submitForm, values }) => {
-    const { onCancel, visit } = this.props;
-    const currentType = VISIT_OPTIONS_BY_VALUE[visit.visitType].label;
-    const newType = VISIT_OPTIONS_BY_VALUE[values.visitType].label;
+    const { onCancel, encounter } = this.props;
+    const currentType = ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].label;
+    const newType = ENCOUNTER_OPTIONS_BY_VALUE[values.encounterType].label;
     return (
       <FormGrid columns={1}>
-        <div><span>Changing visit from </span><b>{currentType}</b><span> to </span><b>{newType}</b></div>
+        <div><span>Changing encounter from </span><b>{currentType}</b><span> to </span><b>{newType}</b></div>
         <ConfirmCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
       </FormGrid>
     );
@@ -24,7 +24,7 @@ export class ChangeVisitTypeForm extends React.PureComponent {
     return (
       <Form
         initialValues={{
-          visitType: extraRoute,
+          encounterType: extraRoute,
         }}
         render={this.renderForm}
         onSubmit={onSubmit}

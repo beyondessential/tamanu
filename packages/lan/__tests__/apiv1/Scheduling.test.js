@@ -5,7 +5,7 @@ const app = createTestContext();
 describe('Scheduling', () => {
   test.todo('should schedule a new appointment');
   test.todo('should cancel an appointment');
-  test.todo('should resolve an appointment by opening a visit');
+  test.todo('should resolve an appointment by opening an encounter');
   test.todo('should reschedule an appointment');
 
   test.todo('should fail to reschedule a closed appointment');

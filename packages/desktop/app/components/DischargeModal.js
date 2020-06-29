@@ -4,27 +4,27 @@ import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
 import { connectApi } from '../api/connectApi';
-import { viewVisit } from '../store/visit';
+import { viewEncounter } from '../store/encounter';
 
 import { DischargeForm } from '../forms/DischargeForm';
 
 const DumbDischargeModal = React.memo(
-  ({ open, visit, practitionerSuggester, onClose, onSubmit }) => (
+  ({ open, encounter, practitionerSuggester, onClose, onSubmit }) => (
     <Modal title="Discharge" open={open} onClose={onClose}>
       <DischargeForm
         onSubmit={onSubmit}
         onCancel={onClose}
-        visit={visit}
+        encounter={encounter}
         practitionerSuggester={practitionerSuggester}
       />
     </Modal>
   ),
 );
 
-export const DischargeModal = connectApi((api, dispatch, { visit }) => ({
+export const DischargeModal = connectApi((api, dispatch, { encounter }) => ({
   onSubmit: async data => {
-    await api.put(`visit/${visit.id}`, data);
-    dispatch(viewVisit(visit.id));
+    await api.put(`encounter/${encounter.id}`, data);
+    dispatch(viewEncounter(encounter.id));
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
 }))(DumbDischargeModal);

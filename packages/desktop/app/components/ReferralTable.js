@@ -7,9 +7,9 @@ import { DateDisplay } from './DateDisplay';
 import { DropdownButton } from './DropdownButton';
 
 import { viewReferral } from '../store/referral';
-import { viewVisit } from '../store/visit';
+import { viewEncounter } from '../store/encounter';
 
-const DumbActionDropdown = React.memo(({ onCheckin, onCancel, onView, visit, closedDate }) => {
+const DumbActionDropdown = React.memo(({ onCheckin, onCancel, onView, encounter, closedDate }) => {
   const actions = [
     {
       label: 'Admit',
@@ -22,8 +22,8 @@ const DumbActionDropdown = React.memo(({ onCheckin, onCancel, onView, visit, clo
       onClick: onCancel,
     },
     {
-      label: 'View visit',
-      condition: () => !!visit,
+      label: 'View encounter',
+      condition: () => !!encounter,
       onClick: onView,
     },
   ].filter(action => !action.condition || action.condition());
@@ -33,15 +33,15 @@ const DumbActionDropdown = React.memo(({ onCheckin, onCancel, onView, visit, clo
 
 const ActionDropdown = connect(
   null,
-  (dispatch, { visit, id }) => ({
+  (dispatch, { encounter, id }) => ({
     onCheckin: () => dispatch(push('/patients/view/checkin')),
     onCancel: () => console.log('TODO'),
-    onView: () => dispatch(viewVisit(visit.id)),
+    onView: () => dispatch(viewEncounter(encounter.id)),
   }),
 )(DumbActionDropdown);
 
-const StatusDisplay = React.memo(({ visit, closedDate }) => {
-  if (visit) {
+const StatusDisplay = React.memo(({ encounter, closedDate }) => {
+  if (encounter) {
     return (
       <span>
         <span>Completed (</span>
@@ -65,12 +65,12 @@ const getDate = ({ date }) => <DateDisplay date={date} />;
 const getDepartment = ({ department }) => (department ? department.name : 'Unknown');
 const getFacility = ({ facility }) => (facility ? facility.name : 'Unknown');
 const getDisplayName = ({ referringDoctor }) => (referringDoctor || {}).displayName || 'Unknown';
-const getStatus = ({ visit, closedDate }) => (
-  <StatusDisplay visit={visit} closedDate={closedDate} />
+const getStatus = ({ encounter, closedDate }) => (
+  <StatusDisplay encounter={encounter} closedDate={closedDate} />
 );
 
-const getActions = ({ visit, closedDate }) => (
-  <ActionDropdown visit={visit} closedDate={closedDate} />
+const getActions = ({ encounter, closedDate }) => (
+  <ActionDropdown encounter={encounter} closedDate={closedDate} />
 );
 
 const columns = [

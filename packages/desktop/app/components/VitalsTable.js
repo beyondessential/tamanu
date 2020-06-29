@@ -61,4 +61,4 @@ const DumbVitalsTable = React.memo(({ readings }) => {
   return <Table columns={dataColumns} data={rows} />;
 });
 
-export const VitalsTable = connect(state => ({ readings: state.visit.vitals }))(DumbVitalsTable);
+export const VitalsTable = connect(state => ({ readings: state.encounter.vitals }))(DumbVitalsTable);

@@ -11,9 +11,9 @@ triageRoutes.get('/triage', (req, res) => {
 
   const triages = db
     .objects('triage')
-    .filtered('visit.visitType == "triage" or visit.visitType == "observation"')
-    .filtered('visit.endDate == null')
-    .sorted([['visit.visitType', true], 'score', 'triageTime']);
+    .filtered('encounter.encounterType == "triage" or encounter.encounterType == "observation"')
+    .filtered('encounter.endDate == null')
+    .sorted([['encounter.encounterType', true], 'score', 'triageTime']);
 
   const data = triages.map(item => objectToJSON(item, TRIAGE_OBJECT_DEPTH));
 
