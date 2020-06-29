@@ -6,7 +6,7 @@ import {
   TriageListingView,
   AdmittedPatientsView,
   PatientView,
-  VisitView,
+  EncounterView,
   NotActiveView,
   LabRequestView,
   ImagingRequestView,
@@ -27,10 +27,10 @@ export const PatientsRoutes = React.memo(({ match }) => (
       <Route path={`${match.path}/new`} component={NotActiveView} />
 
       <Route path={`${match.path}/view`} component={PatientView} />
-      <Route path={`${match.path}/visit/labRequest`} component={LabRequestView} />
-      <Route path={`${match.path}/visit/imagingRequest`} component={ImagingRequestView} />
-      <Route path={`${match.path}/visit/summary`} component={DischargeSummaryView} />
-      <Route path={`${match.path}/visit`} component={VisitView} />
+      <Route path={`${match.path}/encounter/labRequest`} component={LabRequestView} />
+      <Route path={`${match.path}/encounter/imagingRequest`} component={ImagingRequestView} />
+      <Route path={`${match.path}/encounter/summary`} component={DischargeSummaryView} />
+      <Route path={`${match.path}/encounter`} component={EncounterView} />
       <NotActiveView />
     </Switch>
   </div>

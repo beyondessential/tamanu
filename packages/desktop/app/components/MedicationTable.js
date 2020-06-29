@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
-import { viewVisit } from '../store/visit';
+import { viewEncounter } from '../store/encounter';
 
 const getMedicationName = ({ medication }) => medication.name;
 
@@ -18,18 +18,18 @@ const PATIENT_COLUMNS = [
   {
     key: 'name',
     title: 'Patient',
-    accessor: ({ visits }) => `${visits[0].patient[0].firstName} ${visits[0].patient[0].lastName}`,
+    accessor: ({ encounters }) => `${encounters[0].patient[0].firstName} ${encounters[0].patient[0].lastName}`,
     sortable: false,
   },
   ...COLUMNS,
 ];
 
-export const VisitMedicationTable = React.memo(({ visitId }) => (
-  <DataFetchingTable columns={COLUMNS} endpoint={`visit/${visitId}/medications`} />
+export const EncounterMedicationTable = React.memo(({ encounterId }) => (
+  <DataFetchingTable columns={COLUMNS} endpoint={`encounter/${encounterId}/medications`} />
 ));
 
 export const DataFetchingMedicationTable = connect(null, dispatch => ({
-  onMedicationSelect: medication => dispatch(viewVisit(medication.visits[0].id)),
+  onMedicationSelect: medication => dispatch(viewEncounter(medication.encounters[0].id)),
 }))(({ onMedicationSelect }) => (
   <DataFetchingTable
     endpoint="medication"

@@ -42,7 +42,7 @@ export const NOTE_TYPES = {
   OTHER: 'other',
 };
 
-export const VISIT_TYPES = {
+export const ENCOUNTER_TYPES = {
   ADMISSION: 'admission',
   CLINIC: 'clinic',
   IMAGING: 'imaging',
@@ -52,7 +52,7 @@ export const VISIT_TYPES = {
   SURVEY_RESPONSE: 'surveyResponse',
 };
 
-export const VISIT_STATUSES = {
+export const ENCOUNTER_STATUSES = {
   ADMITTED: 'Admitted',
   DISCHARGED: 'Discharged',
   CHECKED_IN: 'CheckedIn',

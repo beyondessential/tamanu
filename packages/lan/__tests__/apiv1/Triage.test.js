@@ -1,10 +1,10 @@
 import {
   createDummyPatient,
-  createDummyVisit,
+  createDummyEncounter,
   createDummyTriage,
   randomReferenceId,
 } from 'shared/demoData/patients';
-import { VISIT_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from 'shared/constants';
 import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
@@ -16,87 +16,87 @@ describe('Triage', () => {
   });
 
   it('should admit a patient to triage', async () => {
-    const visitPatient = await models.Patient.create(await createDummyPatient(models));
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
     const response = await app.post('/v1/triage').send(
       await createDummyTriage(models, {
-        patientId: visitPatient.id,
+        patientId: encounterPatient.id,
       }),
     );
     expect(response).toHaveSucceeded();
 
     const createdTriage = await models.Triage.findByPk(response.body.id);
     expect(createdTriage).toBeTruthy();
-    const createdVisit = await models.Visit.findByPk(createdTriage.visitId);
-    expect(createdVisit).toBeTruthy();
+    const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
+    expect(createdEncounter).toBeTruthy();
   });
 
-  it('should fail to triage if a visit is already open', async () => {
-    const visitPatient = await models.Patient.create(await createDummyPatient(models));
-    const visit = await models.Visit.create(
-      await createDummyVisit(models, {
+  it('should fail to triage if an encounter is already open', async () => {
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const encounter = await models.Encounter.create(
+      await createDummyEncounter(models, {
         current: true,
-        patientId: visitPatient.id,
+        patientId: encounterPatient.id,
       }),
     );
 
-    expect(visit.endDate).toBeFalsy();
+    expect(encounter.endDate).toBeFalsy();
 
     const response = await app.post('/v1/triage').send(
       await createDummyTriage(models, {
-        patientId: visitPatient.id,
+        patientId: encounterPatient.id,
       }),
     );
     expect(response).toHaveRequestError();
   });
 
-  it('should successfully triage if the existing visit is closed', async () => {
-    const visitPatient = await models.Patient.create(await createDummyPatient(models));
-    const visit = await models.Visit.create(
-      await createDummyVisit(models, {
+  it('should successfully triage if the existing encounter is closed', async () => {
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const encounter = await models.Encounter.create(
+      await createDummyEncounter(models, {
         current: false,
-        patientId: visitPatient.id,
+        patientId: encounterPatient.id,
       }),
     );
 
-    expect(visit.endDate).toBeTruthy();
+    expect(encounter.endDate).toBeTruthy();
 
     const response = await app.post('/v1/triage').send(
       await createDummyTriage(models, {
-        patientId: visitPatient.id,
+        patientId: encounterPatient.id,
       }),
     );
     expect(response).toHaveSucceeded();
   });
 
-  it('should close a triage by progressing a visit', async () => {
-    const visitPatient = await models.Patient.create(await createDummyPatient(models));
+  it('should close a triage by progressing an encounter', async () => {
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
     const createdTriage = await models.Triage.create(
       await createDummyTriage(models, {
-        patientId: visitPatient.id,
+        patientId: encounterPatient.id,
       }),
     );
-    const createdVisit = await models.Visit.findByPk(createdTriage.visitId);
-    expect(createdVisit).toBeTruthy();
+    const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
+    expect(createdEncounter).toBeTruthy();
 
-    const progressResponse = await app.put(`/v1/visit/${createdVisit.id}`).send({
-      visitType: VISIT_TYPES.EMERGENCY,
+    const progressResponse = await app.put(`/v1/encounter/${createdEncounter.id}`).send({
+      encounterType: ENCOUNTER_TYPES.EMERGENCY,
     });
     expect(progressResponse).toHaveSucceeded();
     const updatedTriage = await models.Triage.findByPk(createdTriage.id);
     expect(updatedTriage.closedTime).toBeTruthy();
   });
 
-  it('should close a triage by discharging a visit', async () => {
-    const visitPatient = await models.Patient.create(await createDummyPatient(models));
+  it('should close a triage by discharging an encounter', async () => {
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
     const createdTriage = await models.Triage.create(
       await createDummyTriage(models, {
-        patientId: visitPatient.id,
+        patientId: encounterPatient.id,
       }),
     );
-    const createdVisit = await models.Visit.findByPk(createdTriage.visitId);
-    expect(createdVisit).toBeTruthy();
+    const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
+    expect(createdEncounter).toBeTruthy();
 
-    const progressResponse = await app.put(`/v1/visit/${createdVisit.id}`).send({
+    const progressResponse = await app.put(`/v1/encounter/${createdEncounter.id}`).send({
       endDate: Date.now(),
     });
     expect(progressResponse).toHaveSucceeded();
@@ -104,36 +104,36 @@ describe('Triage', () => {
     expect(updatedTriage.closedTime).toBeTruthy();
   });
 
-  it('should set the visit reason to the text of the chief complaints', async () => {
-    const visitPatient = await models.Patient.create(await createDummyPatient(models));
+  it('should set the encounter reason to the text of the chief complaints', async () => {
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
     const createdTriage = await models.Triage.create(
       await createDummyTriage(models, {
-        patientId: visitPatient.id,
+        patientId: encounterPatient.id,
         chiefComplaintId: await randomReferenceId(models, 'triageReason'),
         secondaryComplaintId: null,
       }),
     );
     const reason = await models.ReferenceData.findByPk(createdTriage.chiefComplaintId);
-    const createdVisit = await models.Visit.findByPk(createdTriage.visitId);
-    expect(createdVisit).toBeTruthy();
-    expect(createdVisit.reasonForVisit).toContain(reason.name);
+    const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
+    expect(createdEncounter).toBeTruthy();
+    expect(createdEncounter.reasonForEncounter).toContain(reason.name);
   });
 
-  it('should concatenate multiple visit reasons', async () => {
-    const visitPatient = await models.Patient.create(await createDummyPatient(models));
+  it('should concatenate multiple encounter reasons', async () => {
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
     const createdTriage = await models.Triage.create(
       await createDummyTriage(models, {
-        patientId: visitPatient.id,
+        patientId: encounterPatient.id,
         chiefComplaintId: await randomReferenceId(models, 'triageReason'),
         secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
       }),
     );
     const chiefReason = await models.ReferenceData.findByPk(createdTriage.chiefComplaintId);
     const secondaryReason = await models.ReferenceData.findByPk(createdTriage.secondaryComplaintId);
-    const createdVisit = await models.Visit.findByPk(createdTriage.visitId);
-    expect(createdVisit).toBeTruthy();
-    expect(createdVisit.reasonForVisit).toContain(chiefReason.name);
-    expect(createdVisit.reasonForVisit).toContain(secondaryReason.name);
+    const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
+    expect(createdEncounter).toBeTruthy();
+    expect(createdEncounter.reasonForEncounter).toContain(chiefReason.name);
+    expect(createdEncounter.reasonForEncounter).toContain(secondaryReason.name);
   });
 
   describe('listing & filtering', () => {

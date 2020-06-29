@@ -21,7 +21,7 @@ import {
 
 export const DiagnosisForm = React.memo(
   ({ isTriage = false, onCancel, onSave, diagnosis, icd10Suggester }) => {
-    // don't show the "ED Diagnosis" option if we're just on a regular visit
+    // don't show the "ED Diagnosis" option if we're just on a regular encounter
     // (unless we're editing a diagnosis with ED certainty already set)
     const certaintyOptions = diagnosisCertaintyOptions.filter(x => {
       if (x.editOnly && !(diagnosis && diagnosis.id)) return false;

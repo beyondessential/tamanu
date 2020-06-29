@@ -38,74 +38,74 @@ patientRoutes.post('/patient/:id/triages', (req, res) => {
   };
 
   const complaint = db.objectForPrimaryKey('diagnosis', triage.chiefComplaint._id);
-  let reasonForVisit = complaint.name;
+  let reasonForEncounter = complaint.name;
   if (triage.secondaryComplaint) {
     const secondaryComplaint = db.objectForPrimaryKey('diagnosis', triage.secondaryComplaint._id);
-    reasonForVisit += `, ${secondaryComplaint.name}`;
+    reasonForEncounter += `, ${secondaryComplaint.name}`;
   }
 
   const emergencyDepartment = db.objects('department').filtered('name = $0', 'Emergency')[0];
 
-  const visit = {
+  const encounter = {
     _id: shortid.generate(),
-    visitType: 'triage',
+    encounterType: 'triage',
     startDate: triage.arrivalTime,
-    reasonForVisit,
+    reasonForEncounter,
     examiner: triage.practitioner,
     location: triage.location,
     department: emergencyDepartment,
   };
 
-  // add vitals reading to visit if present
+  // add vitals reading to encounter if present
   if (body.vitals) {
     const vitals = {
       _id: shortid.generate(),
       ...body.vitals,
     };
-    visit.vitals = [vitals];
+    encounter.vitals = [vitals];
   }
 
-  triage.visit = visit;
+  triage.encounter = encounter;
 
   db.write(() => {
     patient.triages = [...patient.triages, triage];
-    patient.visits = [...patient.visits, visit];
+    patient.encounters = [...patient.encounters, encounter];
   });
 
   res.send(triage);
 });
 
-patientRoutes.post('/patient/:id/visits', (req, res) => {
+patientRoutes.post('/patient/:id/encounters', (req, res) => {
   const { db, params, body } = req;
   const patient = db.objectForPrimaryKey('patient', params.id);
-  const visit = {
+  const encounter = {
     _id: shortid.generate(),
     ...body,
   };
 
   // check if there's an open triage - if there is, close it with
-  // this visit.
+  // this encounter.
   const triage = patient.triages.filtered('closedTime == null')[0];
 
-  // check if there was a referral selected, and close it with this visit
-  const referralId = visit.referral && visit.referral._id;
+  // check if there was a referral selected, and close it with this encounter
+  const referralId = encounter.referral && encounter.referral._id;
   const referral = patient.referrals.filtered('_id == $0', referralId)[0];
 
   db.write(() => {
-    patient.visits = [...patient.visits, visit];
+    patient.encounters = [...patient.encounters, encounter];
 
     if (triage) {
-      triage.visit = visit;
-      triage.closedTime = visit.startDate;
+      triage.encounter = encounter;
+      triage.closedTime = encounter.startDate;
     }
 
     if (referral) {
-      referral.visit = visit;
-      referral.closedDate = visit.startDate;
+      referral.encounter = encounter;
+      referral.closedDate = encounter.startDate;
     }
   });
 
-  res.send(visit);
+  res.send(encounter);
 });
 
 patientRoutes.post('/patient/:id/conditions', (req, res) => {

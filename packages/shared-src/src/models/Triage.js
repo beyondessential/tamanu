@@ -1,4 +1,4 @@
-import { VISIT_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Sequelize, Op } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
@@ -20,8 +20,8 @@ export class Triage extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.Visit, {
-      foreignKey: 'visitId',
+    this.belongsTo(models.Encounter, {
+      foreignKey: 'encounterId',
     });
 
     this.belongsTo(models.User, {
@@ -39,9 +39,9 @@ export class Triage extends Model {
   }
 
   static async create(data) {
-    const { Visit, ReferenceData } = this.sequelize.models;
+    const { Encounter, ReferenceData } = this.sequelize.models;
 
-    const existingVisit = await Visit.findOne({
+    const existingEncounter = await Encounter.findOne({
       where: {
         endDate: {
           [Op.is]: null,
@@ -50,8 +50,8 @@ export class Triage extends Model {
       },
     });
 
-    if (existingVisit) {
-      throw new InvalidOperationError("Can't triage a patient that has an existing visit");
+    if (existingEncounter) {
+      throw new InvalidOperationError("Can't triage a patient that has an existing encounter");
     }
 
     const reasons = await Promise.all(
@@ -62,16 +62,16 @@ export class Triage extends Model {
       .filter(x => x)
       .map(x => x.name)
       .join(' and ');
-    const reasonForVisit = `Presented at emergency department with ${reasonsText}`;
+    const reasonForEncounter = `Presented at emergency department with ${reasonsText}`;
 
     // TODO: use emergency department by default
     const department = await ReferenceData.findOne({ type: 'department' });
 
     return this.sequelize.transaction(async () => {
-      const visit = await Visit.create({
-        visitType: VISIT_TYPES.TRIAGE,
+      const encounter = await Encounter.create({
+        encounterType: ENCOUNTER_TYPES.TRIAGE,
         startDate: data.triageTime || new Date(),
-        reasonForVisit,
+        reasonForEncounter,
         patientId: data.patientId,
         departmentId: department.id,
         locationId: data.locationId,
@@ -80,7 +80,7 @@ export class Triage extends Model {
 
       return super.create({
         ...data,
-        visitId: visit.id,
+        encounterId: encounter.id,
       });
     });
   }

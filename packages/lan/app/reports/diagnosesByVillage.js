@@ -18,7 +18,7 @@ export const diagnosesByVillageReport = {
     const counts = {};
 
     baseDiagnoses.forEach(d => {
-      const village = d.visit[0].patient[0].village;
+      const village = d.encounter[0].patient[0].village;
       if (!counts[village._id]) {
         counts[village._id] = {
           count: 0,

@@ -1,4 +1,4 @@
-import { createDummyPatient, createDummyVisit } from 'shared/demoData/patients';
+import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import moment from 'moment';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
@@ -44,16 +44,16 @@ const searchTestPatients = [
   { firstName: 'search-by-age-YOUNG', dateOfBirth: yearsAgo(15) },
   { firstName: 'search-by-age-YOUNG', dateOfBirth: yearsAgo(1) },
   { firstName: 'search-by-village', villageIndex: 0 },
-  { firstName: 'search-outpatient', visit: { visitType: 'clinic', current: true } },
-  { firstName: 'search-outpatient', visit: { visitType: 'clinic', current: true } },
-  { firstName: 'search-outpatient', visit: { visitType: 'clinic', current: true } },
-  { firstName: 'search-inpatient', visit: { visitType: 'admission', current: true } },
-  { firstName: 'search-inpatient', visit: { visitType: 'admission', current: true } },
-  { firstName: 'search-visit-OUT', visit: { visitType: 'clinic' } },
-  { firstName: 'search-visit-OUT', visit: { visitType: 'emergency' } },
-  { firstName: 'search-visit-OUT', visit: { visitType: 'admission' } },
-  { firstName: 'search-by-location', visit: { locationIndex: 0 } },
-  { firstName: 'search-by-department', visit: { departmentIndex: 0 } },
+  { firstName: 'search-outpatient', encounter: { encounterType: 'clinic', current: true } },
+  { firstName: 'search-outpatient', encounter: { encounterType: 'clinic', current: true } },
+  { firstName: 'search-outpatient', encounter: { encounterType: 'clinic', current: true } },
+  { firstName: 'search-inpatient', encounter: { encounterType: 'admission', current: true } },
+  { firstName: 'search-inpatient', encounter: { encounterType: 'admission', current: true } },
+  { firstName: 'search-encounter-OUT', encounter: { encounterType: 'clinic' } },
+  { firstName: 'search-encounter-OUT', encounter: { encounterType: 'emergency' } },
+  { firstName: 'search-encounter-OUT', encounter: { encounterType: 'admission' } },
+  { firstName: 'search-by-location', encounter: { locationIndex: 0 } },
+  { firstName: 'search-by-department', encounter: { departmentIndex: 0 } },
   { firstName: 'pagination', lastName: 'A' },
   { firstName: 'pagination', lastName: 'B' },
   { firstName: 'pagination', lastName: 'C' },
@@ -82,19 +82,19 @@ describe('Patient search', () => {
     departments = await models.ReferenceData.findAll({ where: { type: 'department' } });
 
     await Promise.all(
-      searchTestPatients.map(async ({ visit: visitData, ...data }, i) => {
+      searchTestPatients.map(async ({ encounter: encounterData, ...data }, i) => {
         const patientData = await createDummyPatient(models, {
           ...data,
           villageId: villages[data.villageIndex || i % villages.length].id, // even distribution of villages
         });
         const patient = await models.Patient.create(patientData);
-        if (visitData) {
-          await models.Visit.create(
-            await createDummyVisit(models, {
-              ...visitData,
+        if (encounterData) {
+          await models.Encounter.create(
+            await createDummyEncounter(models, {
+              ...encounterData,
               patientId: patient.id,
-              departmentId: departments[visitData.departmentIndex || i % departments.length].id,
-              locationId: locations[visitData.locationIndex || i % locations.length].id,
+              departmentId: departments[encounterData.departmentIndex || i % departments.length].id,
+              locationId: locations[encounterData.locationIndex || i % locations.length].id,
             }),
           );
         }
@@ -224,7 +224,7 @@ describe('Patient search', () => {
     expect(data.some(withFirstName('search-by-village')));
   });
 
-  describe('Joining visit info', () => {
+  describe('Joining encounter info', () => {
     it('should get a list of outpatients', async () => {
       const response = await app.get('/v1/patient').query({
         outpatient: true,
@@ -237,7 +237,7 @@ describe('Patient search', () => {
 
       // ensure all of the response objects match the filter
       response.body.data.map(responsePatient => {
-        expect(responsePatient).toHaveProperty('visitType', 'clinic');
+        expect(responsePatient).toHaveProperty('encounterType', 'clinic');
       });
     });
 
@@ -253,7 +253,7 @@ describe('Patient search', () => {
 
       // ensure all of the response objects match the filter
       response.body.data.map(responsePatient => {
-        expect(responsePatient).toHaveProperty('visitType', 'admission');
+        expect(responsePatient).toHaveProperty('encounterType', 'admission');
       });
     });
 
@@ -355,25 +355,25 @@ describe('Patient search', () => {
       expectSorted(response.body.data, x => x.dateOfBirth, true);
     });
 
-    it('should sort by visit type', async () => {
+    it('should sort by encounter type', async () => {
       const response = await app.get('/v1/patient').query({
-        orderBy: 'visitType',
+        orderBy: 'encounterType',
       });
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, x => x.visitType);
+      expectSorted(response.body.data, x => x.encounterType);
     });
 
-    it('should sort by visit type in descending order', async () => {
+    it('should sort by encounter type in descending order', async () => {
       const response = await app.get('/v1/patient').query({
-        orderBy: 'visitType',
+        orderBy: 'encounterType',
         order: 'desc',
       });
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, x => x.visitType, true);
+      expectSorted(response.body.data, x => x.encounterType, true);
     });
 
     it('should sort by location', async () => {

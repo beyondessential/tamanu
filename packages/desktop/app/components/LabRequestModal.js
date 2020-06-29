@@ -5,17 +5,17 @@ import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
 import { connectApi } from '../api/connectApi';
-import { viewVisit } from '../store/visit';
+import { viewEncounter } from '../store/encounter';
 
 import { ConnectedLabRequestForm } from '../forms/LabRequestForm';
 
 const DumbLabRequestModal = React.memo(
-  ({ open, visit, practitionerSuggester, onClose, onSubmit }) => (
+  ({ open, encounter, practitionerSuggester, onClose, onSubmit }) => (
     <Modal width="md" title="New lab request" open={open} onClose={onClose}>
       <ConnectedLabRequestForm
         onSubmit={onSubmit}
         onCancel={onClose}
-        visit={visit}
+        encounter={encounter}
         practitionerSuggester={practitionerSuggester}
         generateId={shortid.generate}
       />
@@ -23,11 +23,11 @@ const DumbLabRequestModal = React.memo(
   ),
 );
 
-export const LabRequestModal = connectApi((api, dispatch, { visit }) => ({
+export const LabRequestModal = connectApi((api, dispatch, { encounter }) => ({
   onSubmit: async data => {
-    const visitId = visit.id;
-    await api.post(`visit/${visitId}/labRequest`, data);
-    dispatch(viewVisit(visitId));
+    const encounterId = encounter.id;
+    await api.post(`encounter/${encounterId}/labRequest`, data);
+    dispatch(viewEncounter(encounterId));
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
 }))(DumbLabRequestModal);

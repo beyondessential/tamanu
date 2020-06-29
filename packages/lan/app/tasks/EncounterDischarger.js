@@ -7,9 +7,9 @@ import { Op } from 'sequelize';
 import { log } from '~/logging';
 import { ScheduledTask } from './ScheduledTask';
 
-export class VisitDischarger extends ScheduledTask {
+export class EncounterDischarger extends ScheduledTask {
   constructor(context) {
-    super(config.schedules.visitDischarger);
+    super(config.schedules.encounterDischarger);
     this.context = context;
 
     // run once on startup (in case the server was down when it was scheduled)
@@ -19,9 +19,9 @@ export class VisitDischarger extends ScheduledTask {
   async run() {
     const { models } = this.context;
 
-    const oldVisits = await models.Visit.findAll({
+    const oldEncounters = await models.Encounter.findAll({
       where: {
-        visitType: 'clinic',
+        encounterType: 'clinic',
         endDate: null,
         startDate: {
           [Op.lt]: moment().startOf('day').toDate(),
@@ -29,9 +29,9 @@ export class VisitDischarger extends ScheduledTask {
       }
     });
 
-    if (oldVisits.length === 0) return;
+    if (oldEncounters.length === 0) return;
 
-    log.info(`Auto-closing ${oldVisits.length} clinic visits`);
+    log.info(`Auto-closing ${oldEncounters.length} clinic encounters`);
 
     const closingDate = moment()
       .startOf('day')
@@ -39,12 +39,12 @@ export class VisitDischarger extends ScheduledTask {
       .toDate();
 
 
-    const tasks = oldVisits.map(async visit => {
-      await visit.update({ 
+    const tasks = oldEncounters.map(async encounter => {
+      await encounter.update({ 
         endDate: closingDate,
         dischargeNote: 'Automatically discharged',
       });
-      log.info(`Auto-closed visit with id ${visit.id}`);
+      log.info(`Auto-closed encounter with id ${encounter.id}`);
     });
 
     return Promise.all(tasks);

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import CalendarIcon from '@material-ui/icons/CalendarToday';
 import SubjectIcon from '@material-ui/icons/Subject';
 
-import { VISIT_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Button, BackButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
@@ -24,7 +24,7 @@ import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { VitalsModal } from '../../components/VitalsModal';
 import { MedicationModal } from '../../components/MedicationModal';
-import { VisitMedicationTable } from '../../components/MedicationTable';
+import { EncounterMedicationTable } from '../../components/MedicationTable';
 import { ProcedureModal } from '../../components/ProcedureModal';
 import { ProcedureTable } from '../../components/ProcedureTable';
 import { VitalsTable } from '../../components/VitalsTable';
@@ -37,16 +37,16 @@ import { DropdownButton } from '../../components/DropdownButton';
 
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
-import { visitOptions, VISIT_OPTIONS_BY_VALUE, Colors } from '../../constants';
+import { encounterOptions, ENCOUNTER_OPTIONS_BY_VALUE, Colors } from '../../constants';
 
-const getIsTriage = visit => VISIT_OPTIONS_BY_VALUE[visit.visitType].triageFlowOnly;
+const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
-const VitalsPane = React.memo(({ visit, readonly }) => {
+const VitalsPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
     <div>
-      {modalOpen && <VitalsModal visitId={visit.id} onClose={() => setModalOpen(false)} />}
+      {modalOpen && <VitalsModal encounterId={encounter.id} onClose={() => setModalOpen(false)} />}
       <VitalsTable />
       <ContentPane>
         <Button
@@ -62,13 +62,13 @@ const VitalsPane = React.memo(({ visit, readonly }) => {
   );
 });
 
-const NotesPane = React.memo(({ visit, readonly }) => {
+const NotesPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
     <div>
-      <NoteModal open={modalOpen} visitId={visit.id} onClose={() => setModalOpen(false)} />
-      <NoteTable visitId={visit.id} />
+      <NoteModal open={modalOpen} encounterId={encounter.id} onClose={() => setModalOpen(false)} />
+      <NoteTable encounterId={encounter.id} />
       <ContentPane>
         <Button
           onClick={() => setModalOpen(true)}
@@ -83,12 +83,12 @@ const NotesPane = React.memo(({ visit, readonly }) => {
   );
 });
 
-const LabsPane = React.memo(({ visit, readonly }) => {
+const LabsPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
     <div>
-      <LabRequestModal open={modalOpen} visit={visit} onClose={() => setModalOpen(false)} />
+      <LabRequestModal open={modalOpen} encounter={encounter} onClose={() => setModalOpen(false)} />
       <LabRequestsTable visitId={visit.id} />
       <ContentPane>
         <Button
@@ -104,13 +104,13 @@ const LabsPane = React.memo(({ visit, readonly }) => {
   );
 });
 
-const ImagingPane = React.memo(({ visit, readonly }) => {
+const ImagingPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
     <div>
-      <ImagingRequestModal open={modalOpen} visit={visit} onClose={() => setModalOpen(false)} />
-      <ImagingRequestsTable imagingRequests={visit.imagingRequests} />
+      <ImagingRequestModal open={modalOpen} encounter={encounter} onClose={() => setModalOpen(false)} />
+      <ImagingRequestsTable imagingRequests={encounter.imagingRequests} />
       <ContentPane>
         <Button
           onClick={() => setModalOpen(true)}
@@ -125,13 +125,13 @@ const ImagingPane = React.memo(({ visit, readonly }) => {
   );
 });
 
-const MedicationPane = React.memo(({ visit, readonly }) => {
+const MedicationPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
     <div>
-      <MedicationModal open={modalOpen} visitId={visit.id} onClose={() => setModalOpen(false)} />
-      <VisitMedicationTable visitId={visit.id} />
+      <MedicationModal open={modalOpen} encounterId={encounter.id} onClose={() => setModalOpen(false)} />
+      <EncounterMedicationTable encounterId={encounter.id} />
       <ContentPane>
         <Button
           onClick={() => setModalOpen(true)}
@@ -146,17 +146,17 @@ const MedicationPane = React.memo(({ visit, readonly }) => {
   );
 });
 
-const ProcedurePane = React.memo(({ visit, readonly }) => {
+const ProcedurePane = React.memo(({ encounter, readonly }) => {
   const [editedProcedure, setEditedProcedure] = React.useState(null);
 
   return (
     <div>
       <ProcedureModal
         editedProcedure={editedProcedure}
-        visitId={visit.id}
+        encounterId={encounter.id}
         onClose={() => setEditedProcedure(null)}
       />
-      <ProcedureTable visitId={visit.id} onItemClick={item => setEditedProcedure(item)} />
+      <ProcedureTable encounterId={encounter.id} onItemClick={item => setEditedProcedure(item)} />
       <ContentPane>
         <Button
           onClick={() => setEditedProcedure({})}
@@ -174,9 +174,9 @@ const ProcedurePane = React.memo(({ visit, readonly }) => {
 const ProgramsPane = connect(null, dispatch => ({
   onNavigateToPrograms: () => dispatch(push('/programs')),
 }))(
-  React.memo(({ onNavigateToPrograms, visit }) => (
+  React.memo(({ onNavigateToPrograms, encounter }) => (
     <div>
-      <SurveyResponsesTable surveyResponses={visit.surveyResponses} />
+      <SurveyResponsesTable surveyResponses={encounter.surveyResponses} />
       <ContentPane>
         <Button onClick={onNavigateToPrograms} variant="contained" color="primary">
           New survey
@@ -232,58 +232,58 @@ const getDepartmentName = ({ department }) => (department ? department.name : 'U
 const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
 const getExaminerName = ({ examiner }) => (examiner ? examiner.displayName : 'Unknown');
 
-const VisitInfoPane = React.memo(({ visit }) => (
+const EncounterInfoPane = React.memo(({ encounter }) => (
   <FormGrid columns={3}>
-    <DateInput value={visit.startDate} label="Arrival date" />
-    <DateInput value={visit.endDate} label="Discharge date" />
-    <TextInput value={getDepartmentName(visit)} label="Department" />
-    <TextInput value={getLocationName(visit)} label="Location" />
-    <SelectInput value={visit.visitType} label="Visit type" options={visitOptions} />
-    <TextInput value={getExaminerName(visit)} label="Doctor/nurse" />
-    {visit.plannedLocation && (
-      <TextInput value={visit.plannedLocation.name} label="Planned location" />
+    <DateInput value={encounter.startDate} label="Arrival date" />
+    <DateInput value={encounter.endDate} label="Discharge date" />
+    <TextInput value={getDepartmentName(encounter)} label="Department" />
+    <TextInput value={getLocationName(encounter)} label="Location" />
+    <SelectInput value={encounter.encounterType} label="Encounter type" options={encounterOptions} />
+    <TextInput value={getExaminerName(encounter)} label="Doctor/nurse" />
+    {encounter.plannedLocation && (
+      <TextInput value={encounter.plannedLocation.name} label="Planned location" />
     )}
     <TextInput
-      value={visit.reasonForVisit}
-      label="Reason for visit"
+      value={encounter.reasonForEncounter}
+      label="Reason for encounter"
       style={{ gridColumn: 'span 3' }}
     />
   </FormGrid>
 ));
 
-const RoutedDischargeModal = connectRoutedModal('/patients/visit', 'discharge')(DischargeModal);
-const RoutedChangeTypeModal = connectRoutedModal('/patients/visit', 'changeType')(ChangeTypeModal);
+const RoutedDischargeModal = connectRoutedModal('/patients/encounter', 'discharge')(DischargeModal);
+const RoutedChangeTypeModal = connectRoutedModal('/patients/encounter', 'changeType')(ChangeTypeModal);
 const RoutedChangeDepartmentModal = connectRoutedModal(
-  '/patients/visit',
+  '/patients/encounter',
   'changeDepartment',
 )(ChangeDepartmentModal);
-const RoutedBeginMoveModal = connectRoutedModal('/patients/visit', 'beginMove')(BeginMoveModal);
-const RoutedCancelMoveModal = connectRoutedModal('/patients/visit', 'cancelMove')(CancelMoveModal);
+const RoutedBeginMoveModal = connectRoutedModal('/patients/encounter', 'beginMove')(BeginMoveModal);
+const RoutedCancelMoveModal = connectRoutedModal('/patients/encounter', 'cancelMove')(CancelMoveModal);
 const RoutedFinaliseMoveModal = connectRoutedModal(
-  '/patients/visit',
+  '/patients/encounter',
   'finaliseMove',
 )(FinaliseMoveModal);
 
-const VisitActionDropdown = connect(null, dispatch => ({
-  onDischargeOpen: () => dispatch(push('/patients/visit/discharge')),
-  onChangeVisitType: newType => dispatch(push(`/patients/visit/changeType/${newType}`)),
-  onViewSummary: () => dispatch(push('/patients/visit/summary')),
-  onChangeLocation: () => dispatch(push('/patients/visit/beginMove')),
-  onCancelLocationChange: () => dispatch(push('/patients/visit/cancelMove')),
-  onFinaliseLocationChange: () => dispatch(push('/patients/visit/finaliseMove')),
-  onChangeDepartment: () => dispatch(push('/patients/visit/changeDepartment')),
+const EncounterActionDropdown = connect(null, dispatch => ({
+  onDischargeOpen: () => dispatch(push('/patients/encounter/discharge')),
+  onChangeEncounterType: newType => dispatch(push(`/patients/encounter/changeType/${newType}`)),
+  onViewSummary: () => dispatch(push('/patients/encounter/summary')),
+  onChangeLocation: () => dispatch(push('/patients/encounter/beginMove')),
+  onCancelLocationChange: () => dispatch(push('/patients/encounter/cancelMove')),
+  onFinaliseLocationChange: () => dispatch(push('/patients/encounter/finaliseMove')),
+  onChangeDepartment: () => dispatch(push('/patients/encounter/changeDepartment')),
 }))(
   ({
-    visit,
+    encounter,
     onDischargeOpen,
-    onChangeVisitType,
+    onChangeEncounterType,
     onChangeLocation,
     onCancelLocationChange,
     onFinaliseLocationChange,
     onChangeDepartment,
     onViewSummary,
   }) => {
-    if (visit.endDate) {
+    if (encounter.endDate) {
       return (
         <Button variant="outlined" color="primary" onClick={onViewSummary}>
           View discharge summary
@@ -292,48 +292,48 @@ const VisitActionDropdown = connect(null, dispatch => ({
     }
 
     const progression = {
-      [VISIT_TYPES.TRIAGE]: 0,
-      [VISIT_TYPES.OBSERVATION]: 1,
-      [VISIT_TYPES.EMERGENCY]: 2,
-      [VISIT_TYPES.ADMISSION]: 3,
+      [ENCOUNTER_TYPES.TRIAGE]: 0,
+      [ENCOUNTER_TYPES.OBSERVATION]: 1,
+      [ENCOUNTER_TYPES.EMERGENCY]: 2,
+      [ENCOUNTER_TYPES.ADMISSION]: 3,
     };
     const isProgressionForward = (currentState, nextState) =>
       progression[nextState] > progression[currentState];
     const actions = [
       {
         label: 'Move to active ED care',
-        onClick: () => onChangeVisitType(VISIT_TYPES.OBSERVATION),
-        condition: () => isProgressionForward(visit.visitType, VISIT_TYPES.OBSERVATION),
+        onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.OBSERVATION),
+        condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.OBSERVATION),
       },
       {
         label: 'Move to emergency short stay',
-        onClick: () => onChangeVisitType(VISIT_TYPES.EMERGENCY),
-        condition: () => isProgressionForward(visit.visitType, VISIT_TYPES.EMERGENCY),
+        onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.EMERGENCY),
+        condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.EMERGENCY),
       },
       {
         label: 'Admit to hospital',
-        onClick: () => onChangeVisitType(VISIT_TYPES.ADMISSION),
-        condition: () => isProgressionForward(visit.visitType, VISIT_TYPES.ADMISSION),
+        onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
+        condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
       },
       {
         label: 'Finalise location change',
-        condition: () => visit.plannedLocation,
+        condition: () => encounter.plannedLocation,
         onClick: onFinaliseLocationChange,
       },
       {
         label: 'Cancel location change',
-        condition: () => visit.plannedLocation,
+        condition: () => encounter.plannedLocation,
         onClick: onCancelLocationChange,
       },
       {
         label: 'Discharge without being seen',
         onClick: onDischargeOpen,
-        condition: () => visit.visitType === VISIT_TYPES.TRIAGE,
+        condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
       },
       {
         label: 'Discharge',
         onClick: onDischargeOpen,
-        condition: () => visit.visitType !== VISIT_TYPES.TRIAGE,
+        condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
       },
       {
         label: 'Change department',
@@ -341,7 +341,7 @@ const VisitActionDropdown = connect(null, dispatch => ({
       },
       {
         label: 'Change location',
-        condition: () => !visit.plannedLocation,
+        condition: () => !encounter.plannedLocation,
         onClick: onChangeLocation,
       },
     ].filter(action => !action.condition || action.condition());
@@ -350,15 +350,15 @@ const VisitActionDropdown = connect(null, dispatch => ({
   },
 );
 
-const VisitActions = ({ visit }) => (
+const EncounterActions = ({ encounter }) => (
   <React.Fragment>
-    <VisitActionDropdown visit={visit} />
-    <RoutedDischargeModal visit={visit} />
-    <RoutedChangeTypeModal visit={visit} />
-    <RoutedChangeDepartmentModal visit={visit} />
-    <RoutedBeginMoveModal visit={visit} />
-    <RoutedCancelMoveModal visit={visit} />
-    <RoutedFinaliseMoveModal visit={visit} />
+    <EncounterActionDropdown encounter={encounter} />
+    <RoutedDischargeModal encounter={encounter} />
+    <RoutedChangeTypeModal encounter={encounter} />
+    <RoutedChangeDepartmentModal encounter={encounter} />
+    <RoutedBeginMoveModal encounter={encounter} />
+    <RoutedCancelMoveModal encounter={encounter} />
+    <RoutedFinaliseMoveModal encounter={encounter} />
   </React.Fragment>
 );
 
@@ -388,26 +388,26 @@ const AdmissionInfo = styled.span`
   }
 `;
 
-function getHeaderText({ visitType }) {
-  switch (visitType) {
-    case VISIT_TYPES.TRIAGE:
+function getHeaderText({ encounterType }) {
+  switch (encounterType) {
+    case ENCOUNTER_TYPES.TRIAGE:
       return 'Triage';
-    case VISIT_TYPES.OBSERVATION:
+    case ENCOUNTER_TYPES.OBSERVATION:
       return 'Active ED patient';
-    case VISIT_TYPES.EMERGENCY:
+    case ENCOUNTER_TYPES.EMERGENCY:
       return 'Emergency short stay';
-    case VISIT_TYPES.ADMISSION:
+    case ENCOUNTER_TYPES.ADMISSION:
       return 'Hospital admission';
-    case VISIT_TYPES.CLINIC:
-    case VISIT_TYPES.IMAGING:
+    case ENCOUNTER_TYPES.CLINIC:
+    case ENCOUNTER_TYPES.IMAGING:
     default:
-      return 'Patient visit';
+      return 'Patient encounter';
   }
 }
 
-export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
+export const DumbEncounterView = React.memo(({ encounter, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
-  const readonly = visit.endDate || patient.death;
+  const readonly = encounter.endDate || patient.death;
 
   if (loading) return <LoadingIndicator />;
 
@@ -415,33 +415,33 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} readonly={readonly} />
       <div>
-        <TopBar title={getHeaderText(visit)}>
-          <VisitActions visit={visit} />
+        <TopBar title={getHeaderText(encounter)}>
+          <EncounterActions encounter={encounter} />
           <AdmissionInfoRow>
             <AdmissionInfo>
               <SubjectIcon />
               <AdmissionInfoLabel>Type: </AdmissionInfoLabel>
-              <span>{` ${visit.visitType}`}</span>
+              <span>{` ${encounter.encounterType}`}</span>
             </AdmissionInfo>
             <AdmissionInfo>
               <CalendarIcon />
               <AdmissionInfoLabel>Arrival: </AdmissionInfoLabel>
-              <DateDisplay date={visit.startDate} />
+              <DateDisplay date={encounter.startDate} />
             </AdmissionInfo>
           </AdmissionInfoRow>
         </TopBar>
         <ContentPane>
           <BackButton to="/patients/view" />
-          <VisitInfoPane visit={visit} />
+          <EncounterInfoPane encounter={encounter} />
         </ContentPane>
         <ContentPane>
-          <DiagnosisView visitId={visit.id} isTriage={getIsTriage(visit)} readonly={readonly} />
+          <DiagnosisView encounterId={encounter.id} isTriage={getIsTriage(encounter)} readonly={readonly} />
         </ContentPane>
         <TabDisplay
           tabs={TABS}
           currentTab={currentTab}
           onTabSelect={setCurrentTab}
-          visit={visit}
+          encounter={encounter}
           readonly={readonly}
         />
       </div>
@@ -449,8 +449,8 @@ export const DumbVisitView = React.memo(({ visit, patient, loading }) => {
   );
 });
 
-export const VisitView = connect(state => ({
-  loading: state.visit.loading,
-  visit: state.visit,
+export const EncounterView = connect(state => ({
+  loading: state.encounter.loading,
+  encounter: state.encounter,
   patient: state.patient,
-}))(DumbVisitView);
+}))(DumbEncounterView);

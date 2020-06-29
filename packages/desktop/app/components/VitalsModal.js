@@ -3,7 +3,7 @@ import React from 'react';
 import { Modal } from './Modal';
 
 import { connectApi } from '../api/connectApi';
-import { viewVisit } from '../store/visit';
+import { viewEncounter } from '../store/encounter';
 
 import { VitalsForm } from '../forms/VitalsForm';
 
@@ -13,13 +13,13 @@ const DumbVitalsModal = React.memo(({ onClose, onSubmit }) => (
   </Modal>
 ));
 
-export const VitalsModal = connectApi((api, dispatch, { visitId, onClose }) => ({
+export const VitalsModal = connectApi((api, dispatch, { encounterId, onClose }) => ({
   onSubmit: async data => {
     await api.post(`vitals`, {
       ...data,
-      visitId,
+      encounterId,
     });
-    dispatch(viewVisit(visitId));
+    dispatch(viewEncounter(encounterId));
     onClose();
   },
 }))(DumbVitalsModal);

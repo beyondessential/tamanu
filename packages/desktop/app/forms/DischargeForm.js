@@ -60,35 +60,35 @@ const MedicineRow = ({ medication }) => (
   </React.Fragment>
 );
 
-const VisitOverview = ({ visit }) => (
+const EncounterOverview = ({ encounter }) => (
   <ReadonlyFields>
-    <DateInput label="Admission date" value={visit.startDate} disabled />
+    <DateInput label="Admission date" value={encounter.startDate} disabled />
     <TextInput
       label="Supervising Physician"
-      value={visit.examiner ? visit.examiner.displayName : '-'}
+      value={encounter.examiner ? encounter.examiner.displayName : '-'}
       disabled
     />
     <div>
       <Label>Discharge medicines</Label>
       <ul>
-        {visit.medications.length > 0
-          ? visit.medications.map(m => <MedicineRow key={m} medication={m} />)
+        {encounter.medications.length > 0
+          ? encounter.medications.map(m => <MedicineRow key={m} medication={m} />)
           : 'N/a'}
       </ul>
     </div>
     <div>
       <Label>Procedures</Label>
       <ul>
-        {visit.procedures.length > 0
-          ? visit.procedures.map(({ cptCode }) => <ProcedureRow key={cptCode} cpt={cptCode} />)
+        {encounter.procedures.length > 0
+          ? encounter.procedures.map(({ cptCode }) => <ProcedureRow key={cptCode} cpt={cptCode} />)
           : 'N/a'}
       </ul>
     </div>
     <FullWidthFields>
-      <TextInput label="Reason for visit" value={visit.reasonForVisit} disabled />
+      <TextInput label="Reason for encounter" value={encounter.reasonForEncounter} disabled />
       <div>
         <Label>Diagnoses</Label>
-        <DiagnosisList diagnoses={visit.diagnoses} />
+        <DiagnosisList diagnoses={encounter.diagnoses} />
       </div>
     </FullWidthFields>
   </ReadonlyFields>
@@ -99,14 +99,14 @@ export class DischargeForm extends React.PureComponent {
     onSubmit: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
     practitionerSuggester: PropTypes.shape({}).isRequired,
-    visit: PropTypes.shape({}).isRequired,
+    encounter: PropTypes.shape({}).isRequired,
   };
 
   renderForm = ({ submitForm }) => {
-    const { practitionerSuggester, onCancel, visit } = this.props;
+    const { practitionerSuggester, onCancel, encounter } = this.props;
     return (
       <div>
-        <VisitOverview visit={visit} />
+        <EncounterOverview encounter={encounter} />
         <EditFields>
           <Field name="endDate" label="Discharge date" component={DateField} required />
           <Field

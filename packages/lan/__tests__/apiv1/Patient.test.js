@@ -74,7 +74,7 @@ describe('Patient', () => {
     test.todo('should merge two patients into a single record');
   });
 
-  test.todo('should get a list of patient visits');
+  test.todo('should get a list of patient encounters');
   test.todo('should get a list of patient appointments');
   test.todo('should get a list of patient referrals');
 
