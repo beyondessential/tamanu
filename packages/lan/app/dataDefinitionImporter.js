@@ -58,6 +58,54 @@ const userImporter = async ({ User }, item) => {
   };
 };
 
+let lastLabCategoryName = '';
+const labTestTypesImporter = async ({ LabTestType, ReferenceData }, item) => {
+  const { 
+    name,
+    category,
+    maleRange = '',
+    femaleRange = '',
+    ...fields
+  } = item;
+  
+  const categoryName = lastLabCategoryName || category;
+  lastLabCategoryName = categoryName;
+  const categoryRecord = await ReferenceData.findOne({ type: 'labTestCategory', name: categoryName }); 
+
+  const [maleMin, maleMax] = maleRange.split('-').map(x => parseFloat(x));
+  const [femaleMin, femaleMax] = femaleRange.split('-').map(x => parseFloat(x));
+
+  const code = item.code || convertNameToCode(name);
+  const values = {
+    categoryId: categoryRecord.id,
+    code,
+    name,
+    maleMax, 
+    maleMin,
+    femaleMax,
+    femaleMin,
+    ...fields,
+  };
+
+  const existing = await LabTestType.findOne({ where: { code } });
+  if(existing) {
+    await existing.update({ values });
+    return {
+      success: true,
+      created: false,
+      object: existing,
+    }
+  }
+  
+  const obj = await LabTestType.create(values);
+
+  return {
+    success: true,
+    created: true,
+    object: obj,
+  };
+};
+
 function getDateFromAgeOrDob(age, rawDateOfBirth) {
   if (rawDateOfBirth && typeof rawDateOfBirth === 'number') {
     // json parser has converted a date to a timestamp for us
@@ -127,8 +175,7 @@ const importers = {
   procedures: referenceDataImporter('procedureType'),
   users: userImporter,
   patients: patientImporter,
-  // TODO
-  // labtesttypes: labTestTypesImporter,
+  labtesttypes: labTestTypesImporter,
 };
 
 export async function importJson(models, sheetName, data) {

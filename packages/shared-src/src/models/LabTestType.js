@@ -15,6 +15,10 @@ export class LabTestType extends Model {
       {
         id: primaryKey,
 
+        code: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
         name: {
           type: Sequelize.STRING,
           allowNull: false,
