@@ -1,4 +1,5 @@
 import express from 'express';
+import asyncHandler from 'express-async-handler';
 
 import { 
   simpleGet,
@@ -20,4 +21,17 @@ labRequest.use(labRelations);
 
 export const labTest = express.Router();
 
+labTest.get('/options$', asyncHandler(async (req, res) => {
+  // always allow reading lab test options
+  req.flagPermissionChecked();
+
+  const records = await req.models.LabTestType.findAll();
+  res.send({
+    data: records,
+    count: records.length,
+  });
+}));
+
 labTest.put('/:id', simplePut('LabTest'));
+
+

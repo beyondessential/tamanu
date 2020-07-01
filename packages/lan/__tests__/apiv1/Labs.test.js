@@ -59,6 +59,7 @@ describe('Labs', () => {
     expect(createdRequest).toBeFalsy();
   });
 
+  test.todo("should not record a lab request with zero tests");
   test.todo("should not record a lab request with a test whose category does not match the request's category");
   /*
   it("should not record a lab request with a test whose category does not match the request's category", async () => {
@@ -132,5 +133,38 @@ describe('Labs', () => {
 
     const labRequest = await models.LabRequest.findByPk(requestId);
     expect(labRequest).toHaveProperty('status', status);
+  });
+
+  describe("Options", () => {
+    
+    it("should fetch lab test category options", async () => {
+      const response = await app.get(`/v1/labTest/options`);
+      expect(response).toHaveSucceeded();
+
+      expect(response.body.count).toBeGreaterThan(0);
+      const { data } = response.body;
+
+      // ensure it's an array
+      expect(Array.isArray(data)).toBeTruthy();
+
+      // check some fields exist on at least some objects
+      expect(data.find(x => x.maleMin)).toBeDefined();
+      expect(data.find(x => x.maleMax)).toBeDefined();
+      expect(data.find(x => x.femaleMin)).toBeDefined();
+      expect(data.find(x => x.femaleMax)).toBeDefined();
+      expect(data.find(x => x.unit)).toBeDefined();
+
+      // ensure 
+      const optionsTest = data.find(x => x.options);
+      expect(Array.isArray(optionsTest.options)).toBeTruthy();
+    });
+    
+    it("should fetch lab test type options", async () => {
+      const response = await app.get(`/v1/labTestCategory/options`);
+      expect(response).toHaveSucceeded();
+
+      console.log(response);
+    });
+
   });
 });

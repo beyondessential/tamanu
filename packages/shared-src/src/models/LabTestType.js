@@ -69,4 +69,12 @@ export class LabTestType extends Model {
       foreignKey: 'labTestCategoryId',
     });
   }
+
+  forResponse() {
+    const { options, ...rest } = super.forResponse();
+    return {
+      ...rest,
+      options: options && JSON.parse(options),
+    };
+  }
 }
