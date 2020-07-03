@@ -9,12 +9,23 @@ const QUESTION_TYPES = {
 
 const QUESTION_TYPE_VALUES = Object.values(QUESTION_TYPES);
 
+function optionStringToArray(s) {
+  if(!s) return undefined;
+  const trimmed = s.trim();
+  if(!trimmed) return undefined;
+  return trimmed.split(", ").map(x => x.trim()).filter(x => x);
+}
+
 export class LabTestType extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
 
+        code: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
         name: {
           type: Sequelize.STRING,
           allowNull: false,
@@ -44,10 +55,10 @@ export class LabTestType extends Model {
         ...options,
         validate: {
           mustHaveValidOptions() {
-            if (!this.options) return;
-            const parsed = JSON.parse(this.options);
+            const parsed = optionStringToArray(this.options);
+            if (!parsed) return;
             if (!Array.isArray(parsed)) {
-              throw new InvalidOperationError('options must be a valid JSON array');
+              throw new InvalidOperationError('Options must be a comma-separated array');
             }
           },
           mustHaveCategory() {
@@ -64,5 +75,13 @@ export class LabTestType extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'labTestCategoryId',
     });
+  }
+
+  forResponse() {
+    const { options, ...rest } = super.forResponse();
+    return {
+      ...rest,
+      options: optionStringToArray(options),
+    };
   }
 }

@@ -58,6 +58,73 @@ const userImporter = async ({ User }, item) => {
   };
 };
 
+const getOrCreateTestCategory = async (ReferenceData, categoryName) => {
+  const existing = await ReferenceData.findOne({
+    type: 'labTestCategory', 
+    name: categoryName,
+  }); 
+
+  if(existing) {
+    return existing;
+  }
+
+  const created = await ReferenceData.create({
+    type: 'labTestCategory',
+    name: categoryName,
+    code: convertNameToCode(name),
+  });
+
+  return created;
+}
+
+let lastLabCategoryName = '';
+const labTestTypesImporter = async ({ LabTestType, ReferenceData }, item) => {
+  const { 
+    name,
+    category,
+    maleRange = '',
+    femaleRange = '',
+    ...fields
+  } = item;
+  
+  const categoryName = lastLabCategoryName || category;
+  lastLabCategoryName = categoryName;
+  const categoryRecord = await getOrCreateTestCategory(ReferenceData, categoryName);
+
+  const [maleMin, maleMax] = maleRange.trim().split('-').map(x => parseFloat(x));
+  const [femaleMin, femaleMax] = femaleRange.trim().split('-').map(x => parseFloat(x));
+
+  const code = item.code || convertNameToCode(name);
+  const values = {
+    labTestCategoryId: categoryRecord.id,
+    code,
+    name,
+    maleMax, 
+    maleMin,
+    femaleMax,
+    femaleMin,
+    ...fields,
+  };
+
+  const existing = await LabTestType.findOne({ where: { code } });
+  if(existing) {
+    await existing.update({ values });
+    return {
+      success: true,
+      created: false,
+      object: existing,
+    }
+  }
+  
+  const obj = await LabTestType.create(values);
+
+  return {
+    success: true,
+    created: true,
+    object: obj,
+  };
+};
+
 function getDateFromAgeOrDob(age, rawDateOfBirth) {
   if (rawDateOfBirth && typeof rawDateOfBirth === 'number') {
     // json parser has converted a date to a timestamp for us
@@ -127,8 +194,7 @@ const importers = {
   procedures: referenceDataImporter('procedureType'),
   users: userImporter,
   patients: patientImporter,
-  // TODO
-  // labtesttypes: labTestTypesImporter,
+  labtesttypes: labTestTypesImporter,
 };
 
 export async function importJson(models, sheetName, data) {

@@ -13,7 +13,8 @@ describe('Data definition import', () => {
 
     expect(results.users.created).toEqual(5);
     expect(results.villages.created).toEqual(34);
-    expect(results.labtesttypes.errors[0]).toEqual('No such importer: labtesttypes');
+    expect(results.labtesttypes.created).toEqual(18);
+    expect(results.labtesttypes.errors).toHaveLength(0);
 
     // import it again and make sure it's all idempotent
     const updateResults = {};
