@@ -9,6 +9,13 @@ const QUESTION_TYPES = {
 
 const QUESTION_TYPE_VALUES = Object.values(QUESTION_TYPES);
 
+function optionStringToArray(s) {
+  if(!s) return undefined;
+  const trimmed = s.trim();
+  if(!trimmed) return undefined;
+  return trimmed.split(", ").map(x => x.trim()).filter(x => x);
+}
+
 export class LabTestType extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -48,10 +55,10 @@ export class LabTestType extends Model {
         ...options,
         validate: {
           mustHaveValidOptions() {
-            if (!this.options) return;
-            const parsed = this.options.split(", ").map(x => x.trim()).filter(x => x);
+            const parsed = optionStringToArray(this.options);
+            if (!parsed) return;
             if (!Array.isArray(parsed)) {
-              throw new InvalidOperationError('options must be a valid JSON array');
+              throw new InvalidOperationError('Options must be a comma-separated array');
             }
           },
           mustHaveCategory() {
@@ -74,7 +81,7 @@ export class LabTestType extends Model {
     const { options, ...rest } = super.forResponse();
     return {
       ...rest,
-      options: options && JSON.parse(options),
+      options: optionStringToArray(options),
     };
   }
 }
