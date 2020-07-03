@@ -137,7 +137,7 @@ describe('Labs', () => {
 
   describe("Options", () => {
     
-    it("should fetch lab test category options", async () => {
+    it("should fetch lab test type options", async () => {
       const response = await app.get(`/v1/labTest/options`);
       expect(response).toHaveSucceeded();
 
@@ -161,11 +161,14 @@ describe('Labs', () => {
       expect(withOptions.every(x => Array.isArray(x.options))).toEqual(true);
     });
     
-    it("should fetch lab test type options", async () => {
-      const response = await app.get(`/v1/labTestCategory/options`);
+    it("should fetch lab test categories", async () => {
+      const response = await app.get(`/v1/labTest/categories`);
       expect(response).toHaveSucceeded();
 
-      console.log(response);
+      const { data } = response.body;
+      expect(Array.isArray(data)).toBeTruthy();
+      expect(data[0]).toHaveProperty('name');
+      expect(data[0]).toHaveProperty('code');
     });
 
   });

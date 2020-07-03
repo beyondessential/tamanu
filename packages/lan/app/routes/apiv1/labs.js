@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
+import { REFERENCE_TYPES } from 'shared/constants';
 import { 
   simpleGet,
   simplePut,
@@ -26,6 +27,20 @@ labTest.get('/options$', asyncHandler(async (req, res) => {
   req.flagPermissionChecked();
 
   const records = await req.models.LabTestType.findAll();
+  res.send({
+    data: records,
+    count: records.length,
+  });
+}));
+
+labTest.get('/categories$', asyncHandler(async (req, res) => {
+  // always allow reading lab test options
+  req.flagPermissionChecked();
+
+  const records = await req.models.ReferenceData.findAll({
+    where: { type: REFERENCE_TYPES.LAB_TEST_CATEGORY },
+  });
+
   res.send({
     data: records,
     count: records.length,
