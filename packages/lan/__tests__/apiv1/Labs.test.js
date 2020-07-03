@@ -154,9 +154,11 @@ describe('Labs', () => {
       expect(data.find(x => x.femaleMax)).toBeDefined();
       expect(data.find(x => x.unit)).toBeDefined();
 
-      // ensure 
-      const optionsTest = data.find(x => x.options);
-      expect(Array.isArray(optionsTest.options)).toBeTruthy();
+      // ensure there's at least one response with options
+      // and that options is returned as an array, not a string
+      const withOptions = data.filter(x => x.options);
+      expect(withOptions.length).toBeGreaterThan(0);
+      expect(withOptions.every(x => Array.isArray(x.options))).toEqual(true);
     });
     
     it("should fetch lab test type options", async () => {
