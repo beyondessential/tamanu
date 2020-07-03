@@ -60,8 +60,10 @@ const userImporter = async ({ User }, item) => {
 
 const getOrCreateTestCategory = async (ReferenceData, categoryName) => {
   const existing = await ReferenceData.findOne({
-    type: 'labTestCategory', 
-    name: categoryName,
+    where: {
+      type: 'labTestCategory', 
+      name: categoryName,
+    },
   }); 
 
   if(existing) {
@@ -71,7 +73,7 @@ const getOrCreateTestCategory = async (ReferenceData, categoryName) => {
   const created = await ReferenceData.create({
     type: 'labTestCategory',
     name: categoryName,
-    code: convertNameToCode(name),
+    code: convertNameToCode(categoryName),
   });
 
   return created;
@@ -87,7 +89,7 @@ const labTestTypesImporter = async ({ LabTestType, ReferenceData }, item) => {
     ...fields
   } = item;
   
-  const categoryName = lastLabCategoryName || category;
+  const categoryName = category || lastLabCategoryName;
   lastLabCategoryName = categoryName;
   const categoryRecord = await getOrCreateTestCategory(ReferenceData, categoryName);
 
