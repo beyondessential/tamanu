@@ -56,7 +56,7 @@ export class LabRequestForm extends React.PureComponent {
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
-    const filteredTestTypes = testTypes.filter(x => x.category.id === values.category.id);
+    const filteredTestTypes = testTypes.filter(x => x.labTestCategoryId === values.categoryId);
 
     return (
       <FormGrid>
@@ -125,7 +125,6 @@ export class LabRequestForm extends React.PureComponent {
         initialValues={{
           id: generateId(),
           requestedDate: new Date(),
-          category: {},
           sampleTime: new Date(),
           ...editedObject,
         }}
