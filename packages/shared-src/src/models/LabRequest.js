@@ -78,11 +78,27 @@ export class LabRequest extends Model {
   static initRelations(models) {
     this.belongsTo(models.User, {
       foreignKey: 'requestedById',
+      as: 'requestedBy',
     });
 
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
     });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'labTestCategoryId',
+      as: 'category',
+    });
+
+    this.hasMany(models.LabTest, { as: 'tests' });
+  }
+
+  static getListReferenceAssociations() {
+    return ['requestedBy', 'category'];
+  }
+
+  static getFullReferenceAssociations() {
+    return ['requestedBy', 'category', 'tests'];
   }
 
   getTests() {
