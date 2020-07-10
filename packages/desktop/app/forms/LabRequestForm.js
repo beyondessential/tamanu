@@ -94,7 +94,7 @@ export class LabRequestForm extends React.PureComponent {
         />
         <FormSeparatorLine />
         <Field
-          name="notes"
+          name="note"
           label="Notes"
           component={TextField}
           multiline

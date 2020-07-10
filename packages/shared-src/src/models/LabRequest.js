@@ -45,6 +45,11 @@ export class LabRequest extends Model {
           type: Sequelize.STRING,
           allowNull: true,
         },
+
+        note: {
+          type: Sequelize.STRING,
+          allowNull: true,
+        },
       },
       options,
     );
@@ -95,10 +100,6 @@ export class LabRequest extends Model {
 
   static getListReferenceAssociations() {
     return ['requestedBy', 'category'];
-  }
-
-  static getFullReferenceAssociations() {
-    return ['requestedBy', 'category', 'tests'];
   }
 
   getTests() {

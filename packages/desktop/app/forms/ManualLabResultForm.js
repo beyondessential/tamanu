@@ -22,7 +22,7 @@ function renderOptions(options) {
 }
 
 export const ManualLabResultForm = ({ onSubmit, onClose, labTest }) => {
-  const { questionType, options } = labTest.type;
+  const { questionType, options } = labTest.labTestType;
   const component = getComponentForTest(questionType, options);
 
   const renderForm = React.useCallback(
