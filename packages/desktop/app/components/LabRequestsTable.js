@@ -33,9 +33,9 @@ const columns = [
   { key: 'requestedDate', title: 'Date', accessor: getDate },
 ];
 
-const DumbLabRequestsTable = React.memo(({ visitId, onLabSelect }) => (
+const DumbLabRequestsTable = React.memo(({ encounterId, onLabSelect }) => (
   <DataFetchingTable
-    endpoint={visitId ? `visit/${visitId}/labRequests` : "labRequest"}
+    endpoint={encounterId ? `encounter/${encounterId}/labRequests` : "labRequest"}
     columns={columns} 
     noDataMessage="No lab requests found"
     onRowClick={row => onLabSelect(row)}
