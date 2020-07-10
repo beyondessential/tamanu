@@ -12,7 +12,11 @@ export const ManualLabResultModal = connectApi((api, dispatch, { labTest, labReq
     dispatch(reloadLab(labRequest.id));
   },
 }))(({ labTest, onClose, open, onSubmit }) => (
-  <Modal open={open} onClose={onClose} title={`Enter result – ${labTest && labTest.labTestType.name}`}>
+  <Modal
+    open={open}
+    onClose={onClose}
+    title={`Enter result – ${labTest && labTest.labTestType.name}`}
+  >
     <ManualLabResultForm labTest={labTest} onSubmit={onSubmit} onClose={onClose} />
   </Modal>
 ));

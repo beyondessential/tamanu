@@ -47,7 +47,9 @@ encounterRelations.get('/:id/procedures', simpleGetList('Procedure', 'encounterI
 encounterRelations.get('/:id/labRequests', simpleGetList('LabRequest', 'encounterId'));
 encounterRelations.get(
   '/:id/notes',
-  simpleGetList('Note', 'recordId', { additionalFilters: { recordType: NOTE_RECORD_TYPES.ENCOUNTER } }),
+  simpleGetList('Note', 'recordId', {
+    additionalFilters: { recordType: NOTE_RECORD_TYPES.ENCOUNTER },
+  }),
 );
 
 encounter.use(encounterRelations);

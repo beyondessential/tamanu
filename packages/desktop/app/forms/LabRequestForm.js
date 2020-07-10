@@ -52,11 +52,19 @@ export class LabRequestForm extends React.PureComponent {
   }
 
   renderForm = ({ values, submitForm }) => {
-    const { practitionerSuggester, onCancel, testTypes, encounter = {}, testCategories } = this.props;
+    const {
+      practitionerSuggester,
+      onCancel,
+      testTypes,
+      encounter = {},
+      testCategories,
+    } = this.props;
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
-    const filteredTestTypes = testTypes.filter(x => x.labTestCategoryId === values.labTestCategoryId);
+    const filteredTestTypes = testTypes.filter(
+      x => x.labTestCategoryId === values.labTestCategoryId,
+    );
 
     return (
       <FormGrid>

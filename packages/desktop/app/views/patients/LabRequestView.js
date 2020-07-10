@@ -22,12 +22,12 @@ import { capitaliseFirstLetter } from '../../utils/capitalise';
 const makeRangeStringAccessor = sex => row => {
   const type = row.labTestType;
 
-  if(sex === 'male') {
-    return `(M) ${type.maleMin} – ${type.maleMax}`;
-  } else {
-    return `(F) ${type.femaleMin} – ${type.femaleMax}`;
+  if (sex === 'male') {
+    return `${type.maleMin} – ${type.maleMax}`;
   }
-}
+
+  return `${type.femaleMin} – ${type.femaleMax}`;
+};
 
 const columns = sex => [
   { title: 'Test', key: 'type', accessor: row => row.labTestType.name },
@@ -36,7 +36,7 @@ const columns = sex => [
     key: 'result',
     accessor: ({ result }) => (result ? capitaliseFirstLetter(result) : ''),
   },
-  { title: 'Reference', key: 'reference', accessor: makeRangeStringAccessor(sex) }
+  { title: 'Reference', key: 'reference', accessor: makeRangeStringAccessor(sex) },
 ];
 
 const ResultsPane = React.memo(({ labRequest, patient }) => {
@@ -63,8 +63,8 @@ const ResultsPane = React.memo(({ labRequest, patient }) => {
         labTest={activeTest}
         onClose={closeModal}
       />
-      <DataFetchingTable 
-        columns={sexAppropriateColumns} 
+      <DataFetchingTable
+        columns={sexAppropriateColumns}
         endpoint={`labRequest/${labRequest.id}/tests`}
         onRowClick={openModal}
       />
@@ -72,10 +72,9 @@ const ResultsPane = React.memo(({ labRequest, patient }) => {
   );
 });
 
-const BackLink = connect(
-  null,
-  dispatch => ({ onClick: () => dispatch(push('/patients/encounter')) }),
-)(({ onClick }) => <Button onClick={onClick}>&lt; Back to encounter information</Button>);
+const BackLink = connect(null, dispatch => ({
+  onClick: () => dispatch(push('/patients/encounter')),
+}))(({ onClick }) => <Button onClick={onClick}>&lt; Back to encounter information</Button>);
 
 const ChangeLabStatusButton = React.memo(({ labRequest }) => {
   const [isModalOpen, setModalOpen] = React.useState(false);

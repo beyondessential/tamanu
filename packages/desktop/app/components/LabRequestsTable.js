@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 
-import { Table, DataFetchingTable } from './Table';
+import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
 import { LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_COLORS } from '../constants';
@@ -35,14 +35,13 @@ const columns = [
 
 const DumbLabRequestsTable = React.memo(({ encounterId, onLabSelect }) => (
   <DataFetchingTable
-    endpoint={encounterId ? `encounter/${encounterId}/labRequests` : "labRequest"}
-    columns={columns} 
+    endpoint={encounterId ? `encounter/${encounterId}/labRequests` : 'labRequest'}
+    columns={columns}
     noDataMessage="No lab requests found"
     onRowClick={row => onLabSelect(row)}
   />
 ));
 
-export const LabRequestsTable = connect(
-  null,
-  dispatch => ({ onLabSelect: lab => dispatch(viewLab(lab.id)) }),
-)(DumbLabRequestsTable);
+export const LabRequestsTable = connect(null, dispatch => ({
+  onLabSelect: lab => dispatch(viewLab(lab.id)),
+}))(DumbLabRequestsTable);
