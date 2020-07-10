@@ -85,7 +85,7 @@ export class LabRequestForm extends React.PureComponent {
           options={testCategories}
         />
         <Field
-          name="testTypes"
+          name="labTestTypeIds"
           label="Tests"
           required
           testTypes={filteredTestTypes}
@@ -136,10 +136,10 @@ export class LabRequestForm extends React.PureComponent {
         })}
         validate={values => {
           // there's a bug in formik for handling `yup.mixed.test` so just do it manually here
-          const { testTypes = {} } = values;
-          if (Object.keys(testTypes).length === 0) {
+          const { labTestTypeIds = [] } = values;
+          if (labTestTypeIds.length === 0) {
             return {
-              testTypes: 'At least one test must be selected',
+              labTestTypeIds: 'At least one test must be selected',
             };
           }
           return {};
