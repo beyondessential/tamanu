@@ -89,11 +89,11 @@ const labTestTypesImporter = async ({ LabTestType, ReferenceData }, item) => {
 
   const [maleMin, maleMax] = maleRange
     .trim()
-    .split('-')
+    .split(',')
     .map(x => parseFloat(x));
   const [femaleMin, femaleMax] = femaleRange
     .trim()
-    .split('-')
+    .split(',')
     .map(x => parseFloat(x));
 
   const code = item.code || convertNameToCode(name);
