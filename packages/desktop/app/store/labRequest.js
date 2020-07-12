@@ -20,16 +20,6 @@ export const reloadLab = id => async (dispatch, getState, { api }) => {
   const labRequest = await api.get(`labRequest/${id}`);
   // TODO handle error state
 
-  const encounter = labRequest.encounters[0];
-  if (encounter) {
-    dispatch(reloadEncounter(encounter.id));
-
-    const patient = encounter.patient[0];
-    if (patient) {
-      dispatch(reloadPatient(patient.id));
-    }
-  }
-
   dispatch({ type: LAB_LOAD_FINISH, labRequest });
 };
 

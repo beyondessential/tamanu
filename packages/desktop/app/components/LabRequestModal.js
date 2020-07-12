@@ -26,7 +26,10 @@ const DumbLabRequestModal = React.memo(
 export const LabRequestModal = connectApi((api, dispatch, { encounter }) => ({
   onSubmit: async data => {
     const encounterId = encounter.id;
-    await api.post(`encounter/${encounterId}/labRequest`, data);
+    await api.post(`labRequest`, {
+      ...data,
+      encounterId,
+    });
     dispatch(viewEncounter(encounterId));
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),

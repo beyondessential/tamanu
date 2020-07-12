@@ -37,10 +37,16 @@ export class LabTest extends Model {
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'categoryId',
+      as: 'category',
     });
 
     this.belongsTo(models.LabTestType, {
       foreignKey: 'labTestTypeId',
+      as: 'labTestType',
     });
+  }
+
+  static getListReferenceAssociations() {
+    return ['category', 'labTestType'];
   }
 }

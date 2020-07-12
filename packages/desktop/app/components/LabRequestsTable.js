@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 
-import { Table, DataFetchingTable } from './Table';
+import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
 import { LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_COLORS } from '../constants';
@@ -33,23 +33,15 @@ const columns = [
   { key: 'requestedDate', title: 'Date', accessor: getDate },
 ];
 
-const DumbLabRequestsTable = React.memo(({ labs, onLabSelect }) => (
-  <Table columns={columns} data={labs} onRowClick={row => onLabSelect(row)} />
-));
-
-export const LabRequestsTable = connect(
-  null,
-  dispatch => ({ onLabSelect: lab => dispatch(viewLab(lab.id)) }),
-)(DumbLabRequestsTable);
-
-export const DataFetchingLabRequestsTable = connect(
-  null,
-  dispatch => ({ onLabSelect: lab => dispatch(viewLab(lab.id)) }),
-)(({ onLabSelect }) => (
+const DumbLabRequestsTable = React.memo(({ encounterId, onLabSelect }) => (
   <DataFetchingTable
-    endpoint="labRequest"
+    endpoint={encounterId ? `encounter/${encounterId}/labRequests` : 'labRequest'}
     columns={columns}
     noDataMessage="No lab requests found"
-    onRowClick={onLabSelect}
+    onRowClick={row => onLabSelect(row)}
   />
 ));
+
+export const LabRequestsTable = connect(null, dispatch => ({
+  onLabSelect: lab => dispatch(viewLab(lab.id)),
+}))(DumbLabRequestsTable);

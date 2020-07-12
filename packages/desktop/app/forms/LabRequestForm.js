@@ -52,11 +52,19 @@ export class LabRequestForm extends React.PureComponent {
   }
 
   renderForm = ({ values, submitForm }) => {
-    const { practitionerSuggester, onCancel, testTypes, encounter = {}, testCategories } = this.props;
+    const {
+      practitionerSuggester,
+      onCancel,
+      testTypes,
+      encounter = {},
+      testCategories,
+    } = this.props;
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
-    const filteredTestTypes = testTypes.filter(x => x.category.id === values.category.id);
+    const filteredTestTypes = testTypes.filter(
+      x => x.labTestCategoryId === values.labTestCategoryId,
+    );
 
     return (
       <FormGrid>
@@ -64,7 +72,7 @@ export class LabRequestForm extends React.PureComponent {
         <Field name="requestedDate" label="Order date" required component={DateField} />
         <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
-          name="requestedBy.id"
+          name="requestedById"
           label="Requesting doctor"
           required
           component={AutocompleteField}
@@ -78,14 +86,14 @@ export class LabRequestForm extends React.PureComponent {
         <FormSeparatorLine />
         <TextInput label="Encounter" disabled value={encounterLabel} />
         <Field
-          name="category.id"
+          name="labTestCategoryId"
           label="Lab request type"
           required
           component={SelectField}
           options={testCategories}
         />
         <Field
-          name="testTypes"
+          name="labTestTypeIds"
           label="Tests"
           required
           testTypes={filteredTestTypes}
@@ -94,7 +102,7 @@ export class LabRequestForm extends React.PureComponent {
         />
         <FormSeparatorLine />
         <Field
-          name="notes"
+          name="note"
           label="Notes"
           component={TextField}
           multiline
@@ -125,22 +133,21 @@ export class LabRequestForm extends React.PureComponent {
         initialValues={{
           id: generateId(),
           requestedDate: new Date(),
-          category: {},
           sampleTime: new Date(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          requestedBy: foreignKey('Requesting doctor is required'),
-          category: foreignKey('Lab request type must be selected'),
+          requestedById: foreignKey('Requesting doctor is required'),
+          labTestCategoryId: foreignKey('Lab request type must be selected'),
           sampleTime: yup.date().required(),
           requestedDate: yup.date().required(),
         })}
         validate={values => {
           // there's a bug in formik for handling `yup.mixed.test` so just do it manually here
-          const { testTypes = {} } = values;
-          if (Object.keys(testTypes).length === 0) {
+          const { labTestTypeIds = [] } = values;
+          if (labTestTypeIds.length === 0) {
             return {
-              testTypes: 'At least one test must be selected',
+              labTestTypeIds: 'At least one test must be selected',
             };
           }
           return {};

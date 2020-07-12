@@ -8,16 +8,16 @@ const OPTIONS_LOAD_FINISH = 'OPTIONS_LOAD_FINISH';
 export const loadOptions = () => async (dispatch, getState, { api }) => {
   dispatch({ type: OPTIONS_LOAD_START });
 
-  const labTestTypes = (await api.get(`labTestType`)).data;
-  const labTestCategories = (await api.get(`labTestCategory`)).data;
-  const imagingTypes = (await api.get(`imagingType`)).data;
+  const labTestTypes = (await api.get(`labTest/options`)).data;
+  const labTestCategories = (await api.get(`labTest/categories`)).data;
+  // const imagingTypes = (await api.get(`imagingType`)).data;
 
   dispatch({
     type: OPTIONS_LOAD_FINISH,
     options: {
       labTestTypes,
       labTestCategories,
-      imagingTypes,
+      // imagingTypes,
     },
   });
 };

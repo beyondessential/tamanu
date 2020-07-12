@@ -7,7 +7,7 @@ import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
-import { Table } from '../../components/Table';
+import { DataFetchingTable } from '../../components/Table';
 import { ManualLabResultModal } from '../../components/ManualLabResultModal';
 
 import { TopBar } from '../../components/TopBar';
@@ -19,17 +19,27 @@ import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 
-const columns = [
-  { title: 'Test', key: 'type', accessor: row => row.type.name },
+const makeRangeStringAccessor = sex => row => {
+  const type = row.labTestType;
+
+  if (sex === 'male') {
+    return `${type.maleMin} – ${type.maleMax}`;
+  }
+
+  return `${type.femaleMin} – ${type.femaleMax}`;
+};
+
+const columns = sex => [
+  { title: 'Test', key: 'type', accessor: row => row.labTestType.name },
   {
     title: 'Result',
     key: 'result',
     accessor: ({ result }) => (result ? capitaliseFirstLetter(result) : ''),
   },
-  { title: 'Reference', key: 'reference', accessor: row => row.type.maleRange.join('-') },
+  { title: 'Reference', key: 'reference', accessor: makeRangeStringAccessor(sex) },
 ];
 
-const ResultsPane = React.memo(({ labRequest }) => {
+const ResultsPane = React.memo(({ labRequest, patient }) => {
   const [activeTest, setActiveTest] = React.useState(null);
   const [isModalOpen, setModalOpen] = React.useState(false);
 
@@ -43,6 +53,8 @@ const ResultsPane = React.memo(({ labRequest }) => {
     [setActiveTest],
   );
 
+  const sexAppropriateColumns = columns(patient.sex);
+
   return (
     <div>
       <ManualLabResultModal
@@ -51,15 +63,18 @@ const ResultsPane = React.memo(({ labRequest }) => {
         labTest={activeTest}
         onClose={closeModal}
       />
-      <Table columns={columns} data={labRequest.tests} onRowClick={openModal} />
+      <DataFetchingTable
+        columns={sexAppropriateColumns}
+        endpoint={`labRequest/${labRequest.id}/tests`}
+        onRowClick={openModal}
+      />
     </div>
   );
 });
 
-const BackLink = connect(
-  null,
-  dispatch => ({ onClick: () => dispatch(push('/patients/encounter')) }),
-)(({ onClick }) => <Button onClick={onClick}>&lt; Back to encounter information</Button>);
+const BackLink = connect(null, dispatch => ({
+  onClick: () => dispatch(push('/patients/encounter')),
+}))(({ onClick }) => <Button onClick={onClick}>&lt; Back to encounter information</Button>);
 
 const ChangeLabStatusButton = React.memo(({ labRequest }) => {
   const [isModalOpen, setModalOpen] = React.useState(false);
@@ -83,7 +98,7 @@ const LabRequestInfoPane = React.memo(({ labRequest }) => (
     <TextInput value={LAB_REQUEST_STATUS_LABELS[labRequest.status] || 'Unknown'} label="Status" />
     <DateInput value={labRequest.requestedDate} label="Requested date" />
     <DateTimeInput value={labRequest.sampleTime} label="Sample date" />
-    <TextInput multiline value={labRequest.notes} label="Notes" style={{ gridColumn: '1 / -1' }} />
+    <TextInput multiline value={labRequest.note} label="Notes" style={{ gridColumn: '1 / -1' }} />
   </FormGrid>
 ));
 
@@ -100,7 +115,7 @@ export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) 
         <ContentPane>
           <LabRequestInfoPane labRequest={labRequest} />
         </ContentPane>
-        <ResultsPane labRequest={labRequest} />
+        <ResultsPane labRequest={labRequest} patient={patient} />
       </div>
     </TwoColumnDisplay>
   );

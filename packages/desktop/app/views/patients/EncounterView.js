@@ -89,7 +89,7 @@ const LabsPane = React.memo(({ encounter, readonly }) => {
   return (
     <div>
       <LabRequestModal open={modalOpen} encounter={encounter} onClose={() => setModalOpen(false)} />
-      <LabRequestsTable labs={encounter.labRequests} />
+      <LabRequestsTable encounterId={encounter.id} />
       <ContentPane>
         <Button
           onClick={() => setModalOpen(true)}
@@ -109,7 +109,11 @@ const ImagingPane = React.memo(({ encounter, readonly }) => {
 
   return (
     <div>
-      <ImagingRequestModal open={modalOpen} encounter={encounter} onClose={() => setModalOpen(false)} />
+      <ImagingRequestModal
+        open={modalOpen}
+        encounter={encounter}
+        onClose={() => setModalOpen(false)}
+      />
       <ImagingRequestsTable imagingRequests={encounter.imagingRequests} />
       <ContentPane>
         <Button
@@ -130,7 +134,11 @@ const MedicationPane = React.memo(({ encounter, readonly }) => {
 
   return (
     <div>
-      <MedicationModal open={modalOpen} encounterId={encounter.id} onClose={() => setModalOpen(false)} />
+      <MedicationModal
+        open={modalOpen}
+        encounterId={encounter.id}
+        onClose={() => setModalOpen(false)}
+      />
       <EncounterMedicationTable encounterId={encounter.id} />
       <ContentPane>
         <Button
@@ -238,7 +246,11 @@ const EncounterInfoPane = React.memo(({ encounter }) => (
     <DateInput value={encounter.endDate} label="Discharge date" />
     <TextInput value={getDepartmentName(encounter)} label="Department" />
     <TextInput value={getLocationName(encounter)} label="Location" />
-    <SelectInput value={encounter.encounterType} label="Encounter type" options={encounterOptions} />
+    <SelectInput
+      value={encounter.encounterType}
+      label="Encounter type"
+      options={encounterOptions}
+    />
     <TextInput value={getExaminerName(encounter)} label="Doctor/nurse" />
     {encounter.plannedLocation && (
       <TextInput value={encounter.plannedLocation.name} label="Planned location" />
@@ -252,13 +264,19 @@ const EncounterInfoPane = React.memo(({ encounter }) => (
 ));
 
 const RoutedDischargeModal = connectRoutedModal('/patients/encounter', 'discharge')(DischargeModal);
-const RoutedChangeTypeModal = connectRoutedModal('/patients/encounter', 'changeType')(ChangeTypeModal);
+const RoutedChangeTypeModal = connectRoutedModal(
+  '/patients/encounter',
+  'changeType',
+)(ChangeTypeModal);
 const RoutedChangeDepartmentModal = connectRoutedModal(
   '/patients/encounter',
   'changeDepartment',
 )(ChangeDepartmentModal);
 const RoutedBeginMoveModal = connectRoutedModal('/patients/encounter', 'beginMove')(BeginMoveModal);
-const RoutedCancelMoveModal = connectRoutedModal('/patients/encounter', 'cancelMove')(CancelMoveModal);
+const RoutedCancelMoveModal = connectRoutedModal(
+  '/patients/encounter',
+  'cancelMove',
+)(CancelMoveModal);
 const RoutedFinaliseMoveModal = connectRoutedModal(
   '/patients/encounter',
   'finaliseMove',
@@ -435,7 +453,11 @@ export const DumbEncounterView = React.memo(({ encounter, patient, loading }) =>
           <EncounterInfoPane encounter={encounter} />
         </ContentPane>
         <ContentPane>
-          <DiagnosisView encounterId={encounter.id} isTriage={getIsTriage(encounter)} readonly={readonly} />
+          <DiagnosisView
+            encounterId={encounter.id}
+            isTriage={getIsTriage(encounter)}
+            readonly={readonly}
+          />
         </ContentPane>
         <TabDisplay
           tabs={TABS}
