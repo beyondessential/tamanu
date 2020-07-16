@@ -6,7 +6,7 @@ export interface PatientModel {
   lastName: string;
   middleName?: string;
   email?: string;
-  gender: string;
+  sex: string;
   dateOfBirth: Date;
   bloodType: string;
   lastVisit: Date;

@@ -38,7 +38,7 @@ export const SqliteHelper = {
 export const createFakeConnection = () => {
     return createConnection({
       type: 'sqlite',
-      database: '/Users/viniciuspvieira/programming/tamanuapp/App/infra/db/sqlite/helpers/test.db',
+      database: './App/infra/db/sqlite/helpers/test.db',
       logging: __DEV__ ? ['error', 'query', 'schema'] : [],
       synchronize: true,
       entities: [Patient],
