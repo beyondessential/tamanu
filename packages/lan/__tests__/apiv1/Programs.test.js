@@ -12,8 +12,27 @@ async function createDummySurvey(program) {
   return {};
 }
 
+function getRandomAnswer(question) {
+  switch(question.type) {
+    case 'text':
+      return rng.string();
+    case 'options':
+      return rng.choose(question.options);
+    case 'number':
+    default:
+      return rng.number();
+  }
+}
+
 async function createDummySurveyResponse(survey) {
-  return {};
+  const answers = {};
+  survey.questions.forEach(q => {
+    answers[q.id] = getRandomAnswer(q);
+  });
+  return {
+    surveyId: survey.id,
+    answers,
+  };
 }
 
 describe('Programs', () => { 
