@@ -79,7 +79,7 @@ export const Screen = ({
               fontSize={screenPercentageToDP(1.94, Orientation.Height)}
             >
               {getGender(selectedPatient.gender)},{' '}
-              {getAgeFromDate(selectedPatient.birthDate)} years old,{' '}
+              {getAgeFromDate(selectedPatient.dateOfBirth)} years old,{' '}
               {selectedPatient.city}
             </StyledText>
             <Button

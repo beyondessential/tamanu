@@ -13,6 +13,7 @@ export interface PatientTileProps {
   age: number;
   gender: string;
   city: string;
+  dateOfBirth: Date;
   lastVisit?: Date;
   image?: string;
 }

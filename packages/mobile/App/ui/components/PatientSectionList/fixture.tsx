@@ -9,10 +9,21 @@ import { BloodTypes } from '/helpers/constants';
 
 const chance = new Chance();
 
-export const genPatientSectionList = (): PatientModel[] =>
-  new Array(80).fill(1).map(data => {
+const CITIES = [
+  'Melbourne',
+  'Adelaide',
+  'Hobart',
+  'Sydney',
+  'Brisbane',
+  'Darwin',
+  'Perth',
+  'Canberra',
+];
+
+function generatePatient(): PatientModel {
+    const gender = (chance.bool() ? GenderOptions[0] : GenderOptions[1]).value;
     const [firstName, middleName, lastName] = chance
-      .name({middle: true})
+      .name({middle: true, gender })
       .split(' ');
     return {
       id: chance.guid({version: 4}),
@@ -26,14 +37,16 @@ export const genPatientSectionList = (): PatientModel[] =>
       firstName,
       middleName,
       lastName,
-      bloodType:
-        BloodTypes[Math.floor(Math.random() * BloodTypes.length)].value,
+      bloodType: chance.pickone(BloodTypes).value,
       lastVisit: chance.date(),
       telephone: chance.phone(),
-      sex: GenderOptions[0].value,
+      gender,
       dateOfBirth: chance.birthday(),
+      city: chance.pickone(CITIES),
     };
-  });
+}
+
+export const genPatientSectionList = (): PatientModel[] => new Array(80).fill(1).map(generatePatient);
 
 export const data: PatientModel[] = genPatientSectionList();
 

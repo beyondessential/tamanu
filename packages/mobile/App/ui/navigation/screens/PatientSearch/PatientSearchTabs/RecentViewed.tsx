@@ -54,7 +54,7 @@ const Screen = ({
               <PatientTile
                 {...item}
                 name={joinNames(item)}
-                age={getAgeFromDate(item.birthDate)}
+                age={getAgeFromDate(item.dateOfBirth)}
               />
             </TouchableOpacity>
           );

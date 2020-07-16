@@ -59,7 +59,7 @@ const Screen = ({
 
   const onStartVisit = useCallback(() => {
     const newPatient: PatientModel = {
-      birthDate: new Date(),
+      dateOfBirth: new Date(),
       bloodType: 'A+',
       city: 'Flemington',
       firstName: 'Alice',

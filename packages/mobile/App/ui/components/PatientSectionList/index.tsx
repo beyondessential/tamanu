@@ -84,7 +84,7 @@ export const PatientSectionList = ({
               gender={data[section].items[row].gender}
               lastVisit={data[section].items[row].lastVisit || new Date()}
               name={joinNames(data[section].items[row])}
-              age={getAgeFromDate(data[section].items[row].birthDate)}
+              age={getAgeFromDate(data[section].items[row].dateOfBirth)}
             />
             <ListSeparator />
           </StyledView>
