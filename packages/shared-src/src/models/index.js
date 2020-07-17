@@ -21,3 +21,5 @@ export * from './LabTest';
 export * from './LabTestType';
 
 export * from './Program';
+export * from './Survey';
+export * from './SurveyResponse';
