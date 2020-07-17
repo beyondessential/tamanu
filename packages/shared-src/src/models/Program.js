@@ -36,14 +36,6 @@ export class Survey extends Model {
       foreignKey: 'programId',
     });
   }
-
-  async getComponents() {
-    const { SurveyScreenComponent } = this.sequelize.models;
-    return SurveyScreenComponent.findAll({
-      where: { surveyId: this.id },
-      include: SurveyScreenComponent.getListReferenceAssociations(),
-    }).map(c => c.forResponse());
-  }
 }
 
 export class SurveyScreenComponent extends Model {
@@ -71,6 +63,13 @@ export class SurveyScreenComponent extends Model {
       foreignKey: 'questionId',
       as: 'question',
     });
+  }
+
+  static getComponentsForSurvey(surveyId) {
+    return this.findAll({
+      where: { surveyId },
+      include: this.getListReferenceAssociations(),
+    }).map(c => c.forResponse());
   }
 }
 

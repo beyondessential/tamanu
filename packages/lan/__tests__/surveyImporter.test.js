@@ -37,7 +37,7 @@ describe.only("Importing surveys", () => {
 
     const { id } = survey.dataValues;
 
-    const components = await survey.getComponents();
+    const components = await models.SurveyScreenComponent.getComponentsForSurvey(survey.id);
 
     expect(components).toHaveLength(19);
 
