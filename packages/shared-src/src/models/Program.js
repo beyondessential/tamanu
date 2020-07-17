@@ -93,10 +93,6 @@ export class SurveyQuestion extends Model {
       options,
     );
   }
-
-  forResponse() {
-    return { b: 'qq' };
-  }
 }
 
 export class SurveyResponse extends Model {
