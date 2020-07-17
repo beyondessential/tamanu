@@ -6,6 +6,8 @@ import compression from 'compression';
 import routes from './routes';
 import errorHandler from './middleware/errorHandler';
 
+import { NotFoundError } from 'shared/errors';
+
 import { log } from './logging';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
