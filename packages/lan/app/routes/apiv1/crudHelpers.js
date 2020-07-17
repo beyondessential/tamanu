@@ -16,9 +16,24 @@ export const permissionCheckingRouter = (action, subject) => {
   return router;
 };
 
+export const findRouteObject = async (req, modelName) => {
+  const { models, params } = req;
+  const model = models[modelName];
+  // check the user can read this model type before searching for it
+  // (otherwise, they can see if they get a "not permitted" or a
+  // "not found" to snoop for objects)
+  req.checkPermission('read', modelName);
+  const object = await model.findByPk(params.id, {
+    include: model.getFullReferenceAssociations(),
+  });
+  if (!object) throw new NotFoundError();
+  req.checkPermission('read', object);
+  return object;
+};
+
 export const simpleGet = modelName =>
   asyncHandler(async (req, res) => {
-    const object = await req.findRouteObject(modelName);
+    const object = await findRouteObject(req, modelName);
     res.send(object);
   });
 

@@ -1,5 +1,4 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
-import moment from 'moment';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
 
@@ -18,12 +17,15 @@ async function createDummyQuestion(survey, index) {
     text: chance.string(),
     code: chance.string(),
   });
-  const component = await models.SurveyScreenComponent.create({
+
+  await models.SurveyScreenComponent.create({
     questionId: question.id,
     surveyId: survey.id,
     componentIndex: index,
     screenIndex: 0,
   });
+
+  return question;
 }
 
 async function createDummySurvey(program, questionCount = -1) {
@@ -32,7 +34,7 @@ async function createDummySurvey(program, questionCount = -1) {
     name: chance.string(),
   });
 
-  const amount = (questionCount >= 0) ? questionCount : chance.integer({ min: 5, max: 10 });
+  const amount = questionCount >= 0 ? questionCount : chance.integer({ min: 5, max: 10 });
 
   await Promise.all(new Array(amount).fill(1).map((x, i) => createDummyQuestion(survey, i)));
 
@@ -40,7 +42,7 @@ async function createDummySurvey(program, questionCount = -1) {
 }
 
 function getRandomAnswer(question) {
-  switch(question.type) {
+  switch (question.type) {
     case 'text':
       return chance.string();
     case 'options':
@@ -62,8 +64,7 @@ async function createDummySurveyResponse(survey) {
   };
 }
 
-describe('Programs', () => { 
-
+describe('Programs', () => {
   let app;
 
   let testPatient;
@@ -91,7 +92,7 @@ describe('Programs', () => {
     const { body } = result;
     expect(body.count).toEqual(body.data.length);
 
-    expect(body.data.every((p => p.name)));
+    expect(body.data.every(p => p.name));
   });
 
   it('should list surveys within a program', async () => {
@@ -115,7 +116,7 @@ describe('Programs', () => {
     expect(components.every(q => q.question)).toEqual(true);
     expect(components.every(q => q.question.text)).toEqual(true);
   });
-  
+
   xdescribe('Survey responses', () => {
     it('should submit a survey response against an encounter', async () => {
       const result = await app.post(`/v1/surveyResponse`).send({
@@ -152,5 +153,4 @@ describe('Programs', () => {
       expect(result).toHaveSucceeded();
     });
   });
-
 });

@@ -1,5 +1,4 @@
 import { readFile, utils } from 'xlsx';
-import shortid from 'shortid';
 
 const yesOrNo = value => !!(value && value.toLowerCase() === 'yes');
 
@@ -115,10 +114,12 @@ export async function writeSurveyToDatabase(models, program, { screens, ...surve
     programId: program.id,
   });
 
-  const screenTasks = screens.map((s, i) => writeScreen(models, survey, {
-    screenIndex: i,
-    ...s 
-  }));
+  const screenTasks = screens.map((s, i) =>
+    writeScreen(models, survey, {
+      screenIndex: i,
+      ...s,
+    }),
+  );
 
   await Promise.all(screenTasks);
 

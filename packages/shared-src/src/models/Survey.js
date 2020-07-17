@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
 export class Survey extends Model {
@@ -21,7 +20,6 @@ export class Survey extends Model {
 }
 
 export class SurveyScreenComponent extends Model {
-  
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -55,13 +53,9 @@ export class SurveyScreenComponent extends Model {
   }
 }
 
-const QUESTION_TYPE_VALUES = [
-  'number',
-  'string',
-];
+const QUESTION_TYPE_VALUES = ['number', 'string'];
 
 export class SurveyQuestion extends Model {
-
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -70,10 +64,8 @@ export class SurveyQuestion extends Model {
         text: Sequelize.STRING,
         type: Sequelize.ENUM(QUESTION_TYPE_VALUES),
         options: Sequelize.STRING,
-        
       },
       options,
     );
   }
 }
-

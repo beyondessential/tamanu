@@ -6,8 +6,6 @@ import compression from 'compression';
 import routes from './routes';
 import errorHandler from './middleware/errorHandler';
 
-import { NotFoundError } from 'shared/errors';
-
 import { log } from './logging';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
@@ -30,21 +28,6 @@ export function createApp({ sequelize, models }) {
   app.use((req, res, next) => {
     req.models = models;
     req.db = sequelize;
-
-    req.findRouteObject = async modelName => {
-      const { models, params } = req;
-      const model = models[modelName];
-      // check the user can read this model type before searching for it
-      // (otherwise, they can see if they get a "not permitted" or a
-      // "not found" to snoop for objects)
-      req.checkPermission('read', modelName);
-      const object = await model.findByPk(params.id, {
-        include: model.getFullReferenceAssociations(),
-      });
-      if(!object) throw new NotFoundError();
-      req.checkPermission('read', object);
-      return object;
-    };
 
     next();
   });

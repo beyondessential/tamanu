@@ -1,15 +1,16 @@
-import moment from 'moment';
+import {
+  readSurveyXSLX,
+  writeProgramToDatabase,
+  writeSurveyToDatabase,
+} from 'lan/app/surveyImporter';
 import { createTestContext } from './utilities';
 
-import { readSurveyXSLX, writeProgramToDatabase, writeSurveyToDatabase } from 'lan/app/surveyImporter';
-
-const { baseApp, models } = createTestContext();
+const { models } = createTestContext();
 
 const TEST_SURVEY_PATH = './data/test_programs.xlsx';
 
-describe("Importing surveys", () => {
-
-  it("Should import a survey", () => {
+describe('Importing surveys', () => {
+  it('Should import a survey', () => {
     const surveyData = readSurveyXSLX('Test Survey', TEST_SURVEY_PATH);
 
     expect(surveyData).toHaveProperty('name', 'Test Survey');
@@ -21,7 +22,7 @@ describe("Importing surveys", () => {
     expect(questions).toHaveLength(10);
   });
 
-  it("Should write a survey to the database", async () => {
+  it('Should write a survey to the database', async () => {
     const surveyData = readSurveyXSLX('Test Survey', TEST_SURVEY_PATH);
 
     const program = await writeProgramToDatabase(models, {
@@ -48,5 +49,4 @@ describe("Importing surveys", () => {
     expect(questions.every(q => q)).toEqual(true);
     expect(questions.every(q => q.text)).toEqual(true);
   });
-
 });

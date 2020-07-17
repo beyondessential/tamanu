@@ -1,9 +1,7 @@
 import { Sequelize } from 'sequelize';
-import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
 export class SurveyResponse extends Model {
-
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -27,7 +25,6 @@ export class SurveyResponseAnswer extends Model {
         id: primaryKey,
         name: Sequelize.STRING,
         body: Sequelize.STRING,
-        
       },
       options,
     );
@@ -42,7 +39,4 @@ export class SurveyResponseAnswer extends Model {
       foreignKey: 'responseId',
     });
   }
-  
 }
-
-

@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
 export class Program extends Model {
@@ -14,9 +13,8 @@ export class Program extends Model {
   }
 
   static initRelations(models) {
-    this.hasMany(models.Survey, { 
-      as: 'surveys' 
+    this.hasMany(models.Survey, {
+      as: 'surveys',
     });
   }
 }
-
