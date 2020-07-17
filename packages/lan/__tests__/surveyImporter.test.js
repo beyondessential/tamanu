@@ -7,7 +7,7 @@ const { baseApp, models } = createTestContext();
 
 const TEST_SURVEY_PATH = './data/test_programs.xlsx';
 
-describe.only("Importing surveys", () => {
+describe("Importing surveys", () => {
 
   it("Should import a survey", () => {
     const surveyData = readSurveyXSLX('Test Survey', TEST_SURVEY_PATH);
