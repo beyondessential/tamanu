@@ -115,40 +115,42 @@ describe('Programs', () => {
     expect(components.every(q => q.question)).toEqual(true);
     expect(components.every(q => q.question.text)).toEqual(true);
   });
-
-/*
-  it('should submit a survey response against an encounter', async () => {
-    const result = await app.post(`/v1/surveyResponse`).send({
-      ...createDummySurveyResponse(testSurvey),
-      encounterId: encounter.id,
-    });
-  });
-
-  it('should automatically create an encounter if none exists', async () => {
-    const result = await app.post(`/v1/surveyResponse`).send({
-      ...createDummySurveyResponse(testSurvey),
+  
+  xdescribe('Survey responses', () => {
+    it('should submit a survey response against an encounter', async () => {
+      const result = await app.post(`/v1/surveyResponse`).send({
+        ...createDummySurveyResponse(testSurvey),
+        encounterId: encounter.id,
+      });
     });
 
-    expect(result).toHaveSucceeded();
+    it('should automatically create an encounter if none exists', async () => {
+      const result = await app.post(`/v1/surveyResponse`).send({
+        ...createDummySurveyResponse(testSurvey),
+      });
 
-    const { encounterId } = result.body;
-    expect(encounterId).toBeTruthy();
-    const encounter = await app.get(`/v1/encounter/${encounterId}`);
-    expect(encounter.type).toEqual('surveyResponse');
-  });
+      expect(result).toHaveSucceeded();
 
-  it('should list all responses to a survey', async () => {
-    const result = await app.post(`/v1/survey/${survey.id}/responses`);
-    expect(result).toHaveSucceeded();
-  });
+      const { encounterId } = result.body;
+      expect(encounterId).toBeTruthy();
+      const encounter = await app.get(`/v1/encounter/${encounterId}`);
+      expect(encounter.type).toEqual('surveyResponse');
+    });
 
-  it('should list responses to all surveys from a patient', async () => {
-    const result = await app.get(`/v1/patient/${patient.id}/surveyResponses`);
-  });
+    it('should list all responses to a survey', async () => {
+      const result = await app.post(`/v1/survey/${survey.id}/responses`);
+      expect(result).toHaveSucceeded();
+    });
 
-  it('should list survey responses from one encounter', async () => {
-    const result = await app.get(`/v1/encounter/${encounter.id}/surveyResponses`);
+    it('should list responses to all surveys from a patient', async () => {
+      const result = await app.get(`/v1/patient/${patient.id}/surveyResponses`);
+      expect(result).toHaveSucceeded();
+    });
+
+    it('should list survey responses from one encounter', async () => {
+      const result = await app.get(`/v1/encounter/${encounter.id}/surveyResponses`);
+      expect(result).toHaveSucceeded();
+    });
   });
-*/
 
 });
