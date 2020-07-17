@@ -15,7 +15,8 @@ import { diagnosis } from './diagnosis';
 import { medication } from './medication';
 import { note } from './note';
 import { labRequest, labTest } from './labs';
-import { program, survey } from './program';
+import { program } from './program';
+import { survey } from './survey';
 
 export const apiv1 = express.Router();
 
