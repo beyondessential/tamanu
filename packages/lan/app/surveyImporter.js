@@ -87,55 +87,46 @@ export function readSurveyXSLX(surveyName, path) {
   };
 }
 
-function writeQuestion(db, survey, questionData) {
-  const question = db.create('surveyQuestion', {
-    _id: shortid.generate(),
+async function writeQuestion({ SurveyQuestion }, survey, questionData) {
+  return SurveyQuestion.create({
     options: '',
     ...questionData,
   });
-
-  return question;
 }
 
-function writeScreen(db, survey, { questions }) {
-  const screen = db.create('surveyScreen', {
-    _id: shortid.generate(),
-    surveyId: survey._id,
-  });
-
-  const components = questions.map((q, i) => {
-    const question = writeQuestion(db, survey, q);
-    const component = db.create('surveyScreenComponent', {
-      _id: shortid.generate(),
-      questions: [question],
-      componentNumber: i,
+async function writeScreen(models, survey, { screenIndex, questions }) {
+  const componentTasks = questions.map(async (q, i) => {
+    const question = await writeQuestion(models, survey, q);
+    const component = await models.SurveyScreenComponent.create({
+      surveyId: survey.id,
+      questionId: question.id,
+      screenIndex,
+      componentIndex: i,
     });
     return component;
   });
 
-  screen.components = components;
-
-  return screen;
+  return Promise.all(componentTasks);
 }
 
-export function writeSurveyToDatabase(db, program, { screens, ...surveyData }) {
-  const survey = db.create('survey', {
-    _id: shortid.generate(),
+export async function writeSurveyToDatabase(models, program, { screens, ...surveyData }) {
+  const survey = await models.Survey.create({
     ...surveyData,
+    programId: program.id,
   });
 
-  survey.screens = screens.map((s, i) => writeScreen(db, survey, { index: i, ...s }));
+  const screenTasks = screens.map((s, i) => writeScreen(models, survey, {
+    screenIndex: i,
+    ...s 
+  }));
 
-  program.surveys = [...program.surveys, survey];
+  await Promise.all(screenTasks);
 
   return survey;
 }
 
-export function writeProgramToDatabase(db, programData) {
-  const program = db.create('program', {
-    _id: shortid.generate(),
-    ...programData,
-  });
+export async function writeProgramToDatabase(models, programData) {
+  const program = await models.Program.create(programData);
 
   return program;
 }

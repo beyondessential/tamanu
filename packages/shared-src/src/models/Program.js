@@ -14,7 +14,7 @@ export class Program extends Model {
   }
 
   static initRelations(models) {
-    this.hasMany(models.ProgramSurvey, { 
+    this.hasMany(models.Survey, { 
       as: 'surveys' 
     });
   }
@@ -36,18 +36,31 @@ export class Survey extends Model {
       foreignKey: 'programId',
     });
   }
+
+  async getComponents() {
+    const { SurveyScreenComponent } = this.sequelize.models;
+    return SurveyScreenComponent.findAll({
+      where: { surveyId: this.id },
+      include: SurveyScreenComponent.getListReferenceAssociations(),
+    }).map(c => c.forResponse());
+  }
 }
 
-export class SurveyQuestionComponent extends Model {
+export class SurveyScreenComponent extends Model {
   
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
-        name: Sequelize.STRING,
+        screenIndex: Sequelize.INTEGER,
+        componentIndex: Sequelize.INTEGER,
       },
       options,
     );
+  }
+
+  static getListReferenceAssociations() {
+    return ['question'];
   }
 
   static initRelations(models) {
@@ -56,6 +69,7 @@ export class SurveyQuestionComponent extends Model {
     });
     this.belongsTo(models.SurveyQuestion, {
       foreignKey: 'questionId',
+      as: 'question',
     });
   }
 }
@@ -81,10 +95,8 @@ export class SurveyQuestion extends Model {
     );
   }
 
-  static initRelations(models) {
-    this.belongsTo(models.SurveyQuestionComponent, {
-      foreignKey: 'componentId',
-    });
+  forResponse() {
+    return { b: 'qq' };
   }
 }
 
