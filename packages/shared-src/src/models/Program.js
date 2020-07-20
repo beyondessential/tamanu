@@ -11,10 +11,8 @@ export class Program extends Model {
       },
       {
         ...options,
-        indexes: [
-          { unique: true, fields: ['code'] }
-        ],
-      }
+        indexes: [{ unique: true, fields: ['code'] }],
+      },
     );
   }
 

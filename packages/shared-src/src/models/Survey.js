@@ -11,10 +11,8 @@ export class Survey extends Model {
       },
       {
         ...options,
-        indexes: [
-          { unique: true, fields: ['code'] }
-        ],
-      }
+        indexes: [{ unique: true, fields: ['code'] }],
+      },
     );
   }
 
@@ -76,10 +74,8 @@ export class ProgramDataElement extends Model {
       },
       {
         ...options,
-        indexes: [
-          { unique: true, fields: ['code'] }
-        ],
-      }
+        indexes: [{ unique: true, fields: ['code'] }],
+      },
     );
   }
 }
