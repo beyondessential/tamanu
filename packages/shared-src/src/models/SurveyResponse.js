@@ -15,6 +15,9 @@ export class SurveyResponse extends Model {
     this.belongsTo(models.Survey, {
       foreignKey: 'surveyId',
     });
+    this.belongsTo(models.Encounter, {
+      foreignKey: 'encounterId',
+    });
   }
 }
 

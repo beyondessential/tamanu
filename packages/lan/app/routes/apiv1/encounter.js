@@ -45,6 +45,7 @@ encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'en
 encounterRelations.get('/:id/medications', simpleGetList('EncounterMedication', 'encounterId'));
 encounterRelations.get('/:id/procedures', simpleGetList('Procedure', 'encounterId'));
 encounterRelations.get('/:id/labRequests', simpleGetList('LabRequest', 'encounterId'));
+encounterRelations.get('/:id/surveyResponses', simpleGetList('SurveyResponse', 'encounterId'));
 encounterRelations.get(
   '/:id/notes',
   simpleGetList('Note', 'recordId', {

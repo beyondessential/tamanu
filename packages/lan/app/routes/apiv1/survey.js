@@ -1,7 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { findRouteObject } from './crudHelpers';
+import {
+  findRouteObject,
+  permissionCheckingRouter,
+  simpleGetList,
+} from './crudHelpers';
 
 export const survey = express.Router();
 
@@ -18,3 +22,7 @@ survey.get(
     });
   }),
 );
+
+const surveyRelations = permissionCheckingRouter('list', 'SurveyResponse');
+surveyRelations.get('/:id/surveyResponses', simpleGetList('SurveyResponse', 'surveyId'));
+survey.use(surveyRelations);

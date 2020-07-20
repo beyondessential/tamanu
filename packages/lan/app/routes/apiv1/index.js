@@ -17,6 +17,7 @@ import { note } from './note';
 import { labRequest, labTest } from './labs';
 import { program } from './program';
 import { survey } from './survey';
+import { surveyResponse } from './surveyResponse';
 
 export const apiv1 = express.Router();
 
@@ -41,3 +42,4 @@ apiv1.use('/labTest', labTest);
 
 apiv1.use('/program', program);
 apiv1.use('/survey', survey);
+apiv1.use('/surveyResponse', surveyResponse);
