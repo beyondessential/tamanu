@@ -1,11 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import {
-  findRouteObject,
-  permissionCheckingRouter,
-  simpleGetList,
-} from './crudHelpers';
+import { findRouteObject, permissionCheckingRouter, simpleGetList } from './crudHelpers';
 
 export const survey = express.Router();
 

@@ -39,7 +39,9 @@ async function createDummySurvey(program, dataElementCount = -1) {
 
   const amount = dataElementCount >= 0 ? dataElementCount : chance.integer({ min: 5, max: 10 });
 
-  const dataElements = await Promise.all(new Array(amount).fill(1).map((x, i) => createDummyDataElement(survey, i)));
+  const dataElements = await Promise.all(
+    new Array(amount).fill(1).map((x, i) => createDummyDataElement(survey, i)),
+  );
 
   survey.dataElements = dataElements;
 
@@ -70,10 +72,14 @@ function createDummySurveyResponse(survey) {
 }
 
 async function submitMultipleSurveyResponses(survey, overrides, amount = 10) {
-  return Promise.all(new Array(amount).fill(0).map(x => models.SurveyResponse.create({
-    ...createDummySurveyResponse(survey),
-    ...overrides,
-  })));
+  return Promise.all(
+    new Array(amount).fill(0).map(() =>
+      models.SurveyResponse.create({
+        ...createDummySurveyResponse(survey),
+        ...overrides,
+      }),
+    ),
+  );
 }
 
 describe('Programs', () => {
@@ -92,7 +98,7 @@ describe('Programs', () => {
     testPatient = await models.Patient.create(await createDummyPatient(models));
     testEncounter = await models.Encounter.create({
       patientId: testPatient.id,
-      ...await createDummyEncounter(models)
+      ...(await createDummyEncounter(models)),
     });
 
     testProgram = await createDummyProgram();
@@ -158,7 +164,9 @@ describe('Programs', () => {
     });
 
     it('should list all responses to a survey', async () => {
-      const responses = await submitMultipleSurveyResponses(testSurvey, { encounterId: testEncounter.id });
+      const responses = await submitMultipleSurveyResponses(testSurvey, {
+        encounterId: testEncounter.id,
+      });
       const result = await app.get(`/v1/survey/${testSurvey.id}/surveyResponses`);
       expect(result).toHaveSucceeded();
 
@@ -170,7 +178,9 @@ describe('Programs', () => {
     });
 
     it('should list survey responses from one encounter', async () => {
-      const responses = await submitMultipleSurveyResponses(testSurvey, { encounterId: testEncounter.id });
+      const responses = await submitMultipleSurveyResponses(testSurvey, {
+        encounterId: testEncounter.id,
+      });
       const result = await app.get(`/v1/encounter/${testEncounter.id}/surveyResponses`);
       expect(result).toHaveSucceeded();
 
@@ -182,9 +192,11 @@ describe('Programs', () => {
     });
   });
 
-  xdescribe("Submitting surveys directly against a patient", () => {
+  xdescribe('Submitting surveys directly against a patient', () => {
     it('should list responses to all surveys from a patient', async () => {
-      const responses = await submitMultipleSurveyResponses(testSurvey, { patientId: testEncounter.id });
+      const responses = await submitMultipleSurveyResponses(testSurvey, {
+        patientId: testEncounter.id,
+      });
       const result = await app.get(`/v1/patient/${testPatient.id}/surveyResponses`);
       expect(result).toHaveSucceeded();
 
