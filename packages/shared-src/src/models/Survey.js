@@ -53,7 +53,7 @@ export class SurveyScreenComponent extends Model {
   }
 }
 
-const QUESTION_TYPE_VALUES = ['number', 'string'];
+const QUESTION_TYPE_VALUES = ['number', 'text'];
 
 export class SurveyQuestion extends Model {
   static init({ primaryKey, ...options }) {

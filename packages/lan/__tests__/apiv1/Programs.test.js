@@ -139,7 +139,7 @@ describe('Programs', () => {
     });
 
     it('should list all responses to a survey', async () => {
-      const result = await app.post(`/v1/survey/${survey.id}/responses`);
+      const result = await app.post(`/v1/survey/${survey.id}/surveyResponses`);
       expect(result).toHaveSucceeded();
     });
 
