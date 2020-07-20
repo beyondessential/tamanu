@@ -117,7 +117,6 @@ describe('Programs', () => {
     expect(components.length).toEqual(6);
     // look for every component to have a defined dataElement with text
     expect(components.every(q => q.dataElement)).toEqual(true);
-    console.log(components[0]);
     expect(components.every(q => q.dataElement.defaultText)).toEqual(true);
   });
 
