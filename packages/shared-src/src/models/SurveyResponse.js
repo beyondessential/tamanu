@@ -31,8 +31,8 @@ export class SurveyResponseAnswer extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.SurveyQuestion, {
-      foreignKey: 'questionId',
+    this.belongsTo(models.ProgramDataElement, {
+      foreignKey: 'dataElementId',
     });
 
     this.belongsTo(models.SurveyResponse, {

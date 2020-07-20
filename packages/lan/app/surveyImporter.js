@@ -9,8 +9,8 @@ function newlinesToArray(data) {
   return JSON.stringify(array);
 }
 
-function importQuestion(row) {
-  // Extract question details from spreadsheet row
+function importDataElement(row) {
+  // Extract dataElement details from spreadsheet row
   //
   // # columns in spreadsheet
   // ## imported directly
@@ -36,37 +36,44 @@ function importQuestion(row) {
   // questionLabel
   // detailLabel
 
-  const { newScreen, options, optionLabels, ...rest } = row;
+  const { 
+    newScreen,
+    options,
+    optionLabels,
+    text,
+    ...rest 
+  } = row;
 
   return {
     newScreen: yesOrNo(newScreen),
-    options: newlinesToArray(options),
+    defaultOptions: newlinesToArray(options),
     optionLabels: newlinesToArray(optionLabels),
+    defaultText: text,
     ...rest,
   };
 }
 
-function splitIntoScreens(questions) {
-  const screenStarts = questions
+function splitIntoScreens(dataElements) {
+  const screenStarts = dataElements
     .map((q, i) => ({ newScreen: q.newScreen, i }))
     .filter(q => q.i === 0 || q.newScreen)
-    .concat([{ i: questions.length }]);
+    .concat([{ i: dataElements.length }]);
 
   return screenStarts.slice(0, -1).map((q, i) => {
     const start = q.i;
     const end = screenStarts[i + 1].i;
     return {
-      questions: questions.slice(start, end),
+      dataElements: dataElements.slice(start, end),
     };
   });
 }
 
 function importSheet(sheet) {
   const data = utils.sheet_to_json(sheet);
-  const questions = data.map(importQuestion).filter(q => q.code);
+  const dataElements = data.map(importDataElement).filter(q => q.code);
 
   const survey = {
-    screens: splitIntoScreens(questions),
+    screens: splitIntoScreens(dataElements),
   };
 
   return survey;
@@ -86,19 +93,19 @@ export function readSurveyXSLX(surveyName, path) {
   };
 }
 
-async function writeQuestion({ SurveyQuestion }, survey, questionData) {
-  return SurveyQuestion.create({
-    options: '',
-    ...questionData,
+async function writeDataElement({ ProgramDataElement }, survey, dataElementData) {
+  return ProgramDataElement.create({
+    defaultOptions: '',
+    ...dataElementData,
   });
 }
 
-async function writeScreen(models, survey, { screenIndex, questions }) {
-  const componentTasks = questions.map(async (q, i) => {
-    const question = await writeQuestion(models, survey, q);
+async function writeScreen(models, survey, { screenIndex, dataElements }) {
+  const componentTasks = dataElements.map(async (q, i) => {
+    const dataElement = await writeDataElement(models, survey, q);
     const component = await models.SurveyScreenComponent.create({
       surveyId: survey.id,
-      questionId: question.id,
+      dataElementId: dataElement.id,
       screenIndex,
       componentIndex: i,
     });

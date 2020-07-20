@@ -18,8 +18,8 @@ describe('Importing surveys', () => {
     const { screens } = surveyData;
     expect(screens).toHaveLength(3);
 
-    const { questions } = screens[1];
-    expect(questions).toHaveLength(10);
+    const { dataElements } = screens[1];
+    expect(dataElements).toHaveLength(10);
   });
 
   it('Should write a survey to the database', async () => {
@@ -44,9 +44,9 @@ describe('Importing surveys', () => {
 
     expect(components.every(c => c.surveyId === id)).toEqual(true);
 
-    const questions = components.map(c => c.question);
-    // ensure every question is defined and has text
-    expect(questions.every(q => q)).toEqual(true);
-    expect(questions.every(q => q.text)).toEqual(true);
+    const dataElements = components.map(c => c.dataElement);
+    // ensure every dataElement is defined and has text
+    expect(dataElements.every(q => q)).toEqual(true);
+    expect(dataElements.every(q => q.defaultText)).toEqual(true);
   });
 });

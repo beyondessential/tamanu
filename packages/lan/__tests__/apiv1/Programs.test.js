@@ -12,41 +12,44 @@ async function createDummyProgram() {
   });
 }
 
-async function createDummyQuestion(survey, index) {
-  const question = await models.SurveyQuestion.create({
-    text: chance.string(),
+async function createDummyDataElement(survey, index) {
+  const dataElement = await models.ProgramDataElement.create({
+    name: chance.string(),
+    defaultText: chance.string(),
     code: chance.string(),
+    type: chance.pickone(['number', 'text']),
   });
 
   await models.SurveyScreenComponent.create({
-    questionId: question.id,
+    dataElementId: dataElement.id,
     surveyId: survey.id,
     componentIndex: index,
+    text: chance.string(),
     screenIndex: 0,
   });
 
-  return question;
+  return dataElement;
 }
 
-async function createDummySurvey(program, questionCount = -1) {
+async function createDummySurvey(program, dataElementCount = -1) {
   const survey = await models.Survey.create({
     programId: program.id,
     name: chance.string(),
   });
 
-  const amount = questionCount >= 0 ? questionCount : chance.integer({ min: 5, max: 10 });
+  const amount = dataElementCount >= 0 ? dataElementCount : chance.integer({ min: 5, max: 10 });
 
-  await Promise.all(new Array(amount).fill(1).map((x, i) => createDummyQuestion(survey, i)));
+  await Promise.all(new Array(amount).fill(1).map((x, i) => createDummyDataElement(survey, i)));
 
   return survey;
 }
 
-function getRandomAnswer(question) {
-  switch (question.type) {
+function getRandomAnswer(dataElement) {
+  switch (dataElement.type) {
     case 'text':
       return chance.string();
     case 'options':
-      return chance.choose(question.options);
+      return chance.choose(dataElement.options);
     case 'number':
     default:
       return chance.number();
@@ -55,7 +58,7 @@ function getRandomAnswer(question) {
 
 async function createDummySurveyResponse(survey) {
   const answers = {};
-  survey.questions.forEach(q => {
+  survey.dataElements.forEach(q => {
     answers[q.id] = getRandomAnswer(q);
   });
   return {
@@ -112,9 +115,10 @@ describe('Programs', () => {
     expect(body).toHaveProperty('name', testSurvey.name);
     const { components } = body;
     expect(components.length).toEqual(6);
-    // look for every component to have a defined question with text
-    expect(components.every(q => q.question)).toEqual(true);
-    expect(components.every(q => q.question.text)).toEqual(true);
+    // look for every component to have a defined dataElement with text
+    expect(components.every(q => q.dataElement)).toEqual(true);
+    console.log(components[0]);
+    expect(components.every(q => q.dataElement.defaultText)).toEqual(true);
   });
 
   xdescribe('Survey responses', () => {
