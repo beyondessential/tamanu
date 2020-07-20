@@ -39,7 +39,9 @@ async function createDummySurvey(program, dataElementCount = -1) {
 
   const amount = dataElementCount >= 0 ? dataElementCount : chance.integer({ min: 5, max: 10 });
 
-  await Promise.all(new Array(amount).fill(1).map((x, i) => createDummyDataElement(survey, i)));
+  const dataElements = await Promise.all(new Array(amount).fill(1).map((x, i) => createDummyDataElement(survey, i)));
+
+  survey.dataElements = dataElements;
 
   return survey;
 }
@@ -52,7 +54,7 @@ function getRandomAnswer(dataElement) {
       return chance.choose(dataElement.options);
     case 'number':
     default:
-      return chance.number();
+      return chance.integer();
   }
 }
 
@@ -120,17 +122,28 @@ describe('Programs', () => {
     expect(components.every(q => q.dataElement.defaultText)).toEqual(true);
   });
 
-  xdescribe('Survey responses', () => {
+  describe('Survey responses', () => {
     it('should submit a survey response against an encounter', async () => {
+      const responseData = createDummySurveyResponse(testSurvey);
       const result = await app.post(`/v1/surveyResponse`).send({
-        ...createDummySurveyResponse(testSurvey),
-        encounterId: encounter.id,
+        ...responseData,
+        encounterId: testEncounter.id,
       });
+
+      expect(result).toHaveSucceeded();
+
+      const { id } = result.body;
+      const record = await models.SurveyResponse.findByPk(id);
+      expect(record.encounterId).toEqual(testEncounter.id);
+
+      const answers = await models.SurveyResponseAnswer.findAll({ where: { responseId: id } });
+      expect(answers).toHaveLength(Object.keys(responseData.answers).length);
     });
 
     it('should automatically create an encounter if none exists', async () => {
       const result = await app.post(`/v1/surveyResponse`).send({
         ...createDummySurveyResponse(testSurvey),
+        patientId: testPatient.id,
       });
 
       expect(result).toHaveSucceeded();
@@ -139,20 +152,24 @@ describe('Programs', () => {
       expect(encounterId).toBeTruthy();
       const encounter = await app.get(`/v1/encounter/${encounterId}`);
       expect(encounter.type).toEqual('surveyResponse');
+      expect(encounter.patientId).toEqual(testPatient.id);
+      // TODO
+      expect(encounter.startDate).toEqual("very recent");
+      expect(encounter.endDate).toEqual("very recent");
     });
 
     it('should list all responses to a survey', async () => {
-      const result = await app.post(`/v1/survey/${survey.id}/surveyResponses`);
+      const result = await app.post(`/v1/survey/${testSurvey.id}/surveyResponses`);
       expect(result).toHaveSucceeded();
     });
 
     it('should list responses to all surveys from a patient', async () => {
-      const result = await app.get(`/v1/patient/${patient.id}/surveyResponses`);
+      const result = await app.get(`/v1/patient/${testPatient.id}/surveyResponses`);
       expect(result).toHaveSucceeded();
     });
 
     it('should list survey responses from one encounter', async () => {
-      const result = await app.get(`/v1/encounter/${encounter.id}/surveyResponses`);
+      const result = await app.get(`/v1/encounter/${testEncounter.id}/surveyResponses`);
       expect(result).toHaveSucceeded();
     });
   });
