@@ -1,5 +1,4 @@
 import { readFile, utils } from 'xlsx';
-import shortid from 'shortid';
 
 const yesOrNo = value => !!(value && value.toLowerCase() === 'yes');
 
@@ -10,8 +9,8 @@ function newlinesToArray(data) {
   return JSON.stringify(array);
 }
 
-function importQuestion(row) {
-  // Extract question details from spreadsheet row
+function importDataElement(row) {
+  // Extract dataElement details from spreadsheet row
   //
   // # columns in spreadsheet
   // ## imported directly
@@ -37,37 +36,44 @@ function importQuestion(row) {
   // questionLabel
   // detailLabel
 
-  const { newScreen, options, optionLabels, ...rest } = row;
+  const { 
+    newScreen,
+    options,
+    optionLabels,
+    text,
+    ...rest 
+  } = row;
 
   return {
     newScreen: yesOrNo(newScreen),
-    options: newlinesToArray(options),
+    defaultOptions: newlinesToArray(options),
     optionLabels: newlinesToArray(optionLabels),
+    defaultText: text,
     ...rest,
   };
 }
 
-function splitIntoScreens(questions) {
-  const screenStarts = questions
+function splitIntoScreens(dataElements) {
+  const screenStarts = dataElements
     .map((q, i) => ({ newScreen: q.newScreen, i }))
     .filter(q => q.i === 0 || q.newScreen)
-    .concat([{ i: questions.length }]);
+    .concat([{ i: dataElements.length }]);
 
   return screenStarts.slice(0, -1).map((q, i) => {
     const start = q.i;
     const end = screenStarts[i + 1].i;
     return {
-      questions: questions.slice(start, end),
+      dataElements: dataElements.slice(start, end),
     };
   });
 }
 
 function importSheet(sheet) {
   const data = utils.sheet_to_json(sheet);
-  const questions = data.map(importQuestion).filter(q => q.code);
+  const dataElements = data.map(importDataElement).filter(q => q.code);
 
   const survey = {
-    screens: splitIntoScreens(questions),
+    screens: splitIntoScreens(dataElements),
   };
 
   return survey;
@@ -87,55 +93,48 @@ export function readSurveyXSLX(surveyName, path) {
   };
 }
 
-function writeQuestion(db, survey, questionData) {
-  const question = db.create('surveyQuestion', {
-    _id: shortid.generate(),
-    options: '',
-    ...questionData,
+async function writeDataElement({ ProgramDataElement }, survey, dataElementData) {
+  return ProgramDataElement.create({
+    defaultOptions: '',
+    ...dataElementData,
   });
-
-  return question;
 }
 
-function writeScreen(db, survey, { questions }) {
-  const screen = db.create('surveyScreen', {
-    _id: shortid.generate(),
-    surveyId: survey._id,
-  });
-
-  const components = questions.map((q, i) => {
-    const question = writeQuestion(db, survey, q);
-    const component = db.create('surveyScreenComponent', {
-      _id: shortid.generate(),
-      questions: [question],
-      componentNumber: i,
+async function writeScreen(models, survey, { screenIndex, dataElements }) {
+  const componentTasks = dataElements.map(async (q, i) => {
+    const dataElement = await writeDataElement(models, survey, q);
+    const component = await models.SurveyScreenComponent.create({
+      surveyId: survey.id,
+      dataElementId: dataElement.id,
+      screenIndex,
+      componentIndex: i,
     });
     return component;
   });
 
-  screen.components = components;
-
-  return screen;
+  return Promise.all(componentTasks);
 }
 
-export function writeSurveyToDatabase(db, program, { screens, ...surveyData }) {
-  const survey = db.create('survey', {
-    _id: shortid.generate(),
+export async function writeSurveyToDatabase(models, program, { screens, ...surveyData }) {
+  const survey = await models.Survey.create({
     ...surveyData,
+    programId: program.id,
   });
 
-  survey.screens = screens.map((s, i) => writeScreen(db, survey, { index: i, ...s }));
+  const screenTasks = screens.map((s, i) =>
+    writeScreen(models, survey, {
+      screenIndex: i,
+      ...s,
+    }),
+  );
 
-  program.surveys = [...program.surveys, survey];
+  await Promise.all(screenTasks);
 
   return survey;
 }
 
-export function writeProgramToDatabase(db, programData) {
-  const program = db.create('program', {
-    _id: shortid.generate(),
-    ...programData,
-  });
+export async function writeProgramToDatabase(models, programData) {
+  const program = await models.Program.create(programData);
 
   return program;
 }

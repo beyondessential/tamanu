@@ -28,6 +28,7 @@ export function createApp({ sequelize, models }) {
   app.use((req, res, next) => {
     req.models = models;
     req.db = sequelize;
+
     next();
   });
 
