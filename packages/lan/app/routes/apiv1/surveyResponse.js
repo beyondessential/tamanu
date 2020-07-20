@@ -10,12 +10,15 @@ async function getSurveyEncounter(models, body) {
     return models.Encounter.findByPk(body.encounterId);
   }
   if(body.patientId) {
+    throw new InvalidOperationError("A survey cannot be submitted directly against a patient yet");
+    /*
     return models.Encounter.create({
       patientId,
       encounterType: 'surveyResponse',
       startDate: Date.now(),
       endDate: Date.now(),
     });
+    */
   }
 
   throw new InvalidOperationError("A survey response must have an encounter or patient ID attached");
