@@ -6,9 +6,15 @@ export class Survey extends Model {
     super.init(
       {
         id: primaryKey,
+        code: Sequelize.STRING,
         name: Sequelize.STRING,
       },
-      options,
+      {
+        ...options,
+        indexes: [
+          { unique: true, fields: ['code'] }
+        ],
+      }
     );
   }
 
@@ -65,7 +71,12 @@ export class SurveyQuestion extends Model {
         type: Sequelize.ENUM(QUESTION_TYPE_VALUES),
         options: Sequelize.STRING,
       },
-      options,
+      {
+        ...options,
+        indexes: [
+          { unique: true, fields: ['code'] }
+        ],
+      }
     );
   }
 }

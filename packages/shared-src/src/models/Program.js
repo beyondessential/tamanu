@@ -6,9 +6,15 @@ export class Program extends Model {
     super.init(
       {
         id: primaryKey,
+        code: Sequelize.STRING,
         name: Sequelize.STRING,
       },
-      options,
+      {
+        ...options,
+        indexes: [
+          { unique: true, fields: ['code'] }
+        ],
+      }
     );
   }
 
