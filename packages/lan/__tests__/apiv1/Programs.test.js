@@ -143,7 +143,6 @@ describe('Programs', () => {
       const responseData = createDummySurveyResponse(testSurvey);
       const result = await app.post(`/v1/surveyResponse`).send({
         ...responseData,
-        abc: 'def',
         encounterId: testEncounter.id,
         surveyId: testSurvey.id,
       });
