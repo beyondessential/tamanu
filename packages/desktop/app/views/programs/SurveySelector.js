@@ -21,7 +21,6 @@ export const SurveySelector = React.memo(({ onSelectSurvey, programs, onFetchSur
 
   const onChangeProgram = useCallback(async event => {
     const programId = event.target.value;
-    const program = programs.find(x => x.id === programId);
     if (programId === selectedProgramId) {
       return;
     }
