@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 
-import { Table, DataFetchingTable } from './Table';
+import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
 // import { viewSurveyResponse } from '../store/labRequest';
@@ -27,17 +27,12 @@ const DumbSurveyResponsesTable = React.memo(({ surveyResponses, onSurveyResponse
   <Table columns={columns} data={surveyResponses} onRowClick={row => onSurveyResponseSelect(row)} />
 ));
 
-export const SurveyResponsesTable = connect(
-  null,
-  dispatch => ({ onSurveyResponseSelect: surveyResponse => dispatch(viewSurveyResponse(surveyResponse.id)) }),
-)(DumbSurveyResponsesTable);
-
 export const DataFetchingSurveyResponsesTable = connect(
   null,
   dispatch => ({ onSurveyResponseSelect: surveyResponse => dispatch(viewSurveyResponse(surveyResponse.id)) }),
-)(({ onLabSelect }) => (
+)(({ encounterId, onSurveyResponseSelect }) => (
   <DataFetchingTable
-    endpoint="surveyResponse"
+    endpoint={encounterId ? `encounter/${encounterId}/surveyResponses` : "surveyResponse"}
     columns={columns}
     noDataMessage="No survey responses found"
     onRowClick={onSurveyResponseSelect}
