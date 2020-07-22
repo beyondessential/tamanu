@@ -26,16 +26,15 @@ const QUESTION_COMPONENTS = {
   default: TextField,
 };
 
-function parseOptionString(s) {
-  if (!s) return null;
-  const data = JSON.parse(s);
-  return data.map(x => ({ label: x, value: x }));
+function mapOptionsToValues(options) {
+  if (!options) return null;
+  return options.map(x => ({ label: x, value: x }));
 }
 
 const SurveyQuestion = ({ component }) => {
   const { defaultText, type, code, defaultOptions, detail } = component.dataElement;
   const text = component.text || defaultText;
-  const options = parseOptionString(component.options || defaultOptions);
+  const options = mapOptionsToValues(component.options || defaultOptions);
 
   if (type === 'Instruction') {
     return <div>{text}</div>;
