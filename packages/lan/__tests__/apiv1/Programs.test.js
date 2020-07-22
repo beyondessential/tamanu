@@ -191,8 +191,8 @@ describe('Programs', () => {
     });
   });
 
-  xdescribe('Submitting surveys directly against a patient', () => {
-    it('should list responses to all surveys from a patient', async () => {
+  describe('Submitting surveys directly against a patient', () => {
+    xit('should list responses to all surveys from a patient', async () => {
       const responses = await submitMultipleSurveyResponses(testSurvey, {
         patientId: testEncounter.id,
       });
@@ -207,21 +207,67 @@ describe('Programs', () => {
     });
 
     it('should automatically create an encounter if none exists', async () => {
+      const { examinerId, departmentId, locationId } = await createDummyEncounter(models);
+
       const result = await app.post(`/v1/surveyResponse`).send({
         ...createDummySurveyResponse(testSurvey),
         patientId: testPatient.id,
+
+        examinerId,
+        departmentId,
+        locationId,
       });
 
       expect(result).toHaveSucceeded();
 
       const { encounterId } = result.body;
       expect(encounterId).toBeTruthy();
-      const encounter = await app.get(`/v1/encounter/${encounterId}`);
-      expect(encounter.type).toEqual('surveyResponse');
+
+      const encounter = await models.Encounter.findByPk(encounterId);
+      expect(encounter.encounterType).toEqual('surveyResponse');
       expect(encounter.patientId).toEqual(testPatient.id);
-      // TODO
-      expect(encounter.startDate).toEqual(/*very recent*/);
-      expect(encounter.endDate).toEqual(/*very recent*/);
+
+      expect(encounter.startDate).toBeDefined();
+      expect(encounter.endDate).toBeDefined();
+    });
+
+    it('should require a department', async () => {
+      // get some valid ids
+      const { examinerId, locationId } = await createDummyEncounter(models);
+
+      const result = await app.post(`/v1/surveyResponse`).send({
+        ...createDummySurveyResponse(testSurvey),
+        patientId: testPatient.id,
+        examinerId,
+        locationId,
+      });
+      expect(result).toHaveRequestError();
+    });
+
+    it('should require a location', async () => {
+      // get some valid ids
+      const { examinerId, locationId } = await createDummyEncounter(models);
+
+      const result = await app.post(`/v1/surveyResponse`).send({
+        ...createDummySurveyResponse(testSurvey),
+        patientId: testPatient.id,
+        examinerId,
+        locationId,
+      });
+      expect(result).toHaveRequestError();
+    });
+
+    it('should require an examiner', async () => {
+      // get some valid ids
+      const { departmentId, locationId } = await createDummyEncounter(models);
+
+      const result = await app.post(`/v1/surveyResponse`).send({
+        ...createDummySurveyResponse(testSurvey),
+        patientId: testPatient.id,
+        departmentId,
+        locationId,
+      });
+      expect(result).toHaveRequestError();
     });
   });
 });

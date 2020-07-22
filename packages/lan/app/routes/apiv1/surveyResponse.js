@@ -5,25 +5,50 @@ import { InvalidOperationError } from 'shared/errors';
 
 export const surveyResponse = express.Router();
 
-async function getSurveyEncounter(models, body) {
-  if (body.encounterId) {
+async function getSurveyEncounter(models, survey, body) {
+  const { encounterId, patientId } = body;
+
+  if (encounterId) {
     return models.Encounter.findByPk(body.encounterId);
   }
-  if (body.patientId) {
-    throw new InvalidOperationError('A survey cannot be submitted directly against a patient yet');
-    /*
-    return models.Encounter.create({
-      patientId,
-      encounterType: 'surveyResponse',
-      startDate: Date.now(),
-      endDate: Date.now(),
-    });
-    */
+
+  if (!patientId) {
+    throw new InvalidOperationError(
+      'A survey response must have an encounter or patient ID attached',
+    );
   }
 
-  throw new InvalidOperationError(
-    'A survey response must have an encounter or patient ID attached',
-  );
+  const { Encounter } = models;
+
+  // find open encounter
+  const openEncounter = await Encounter.findOne({
+    where: {
+      patientId,
+      endDate: null,
+    },
+  });
+
+  if(openEncounter) {
+    return openEncounter;
+  }
+
+  const { 
+    departmentId,
+    examinerId,
+    locationId,
+  } = body;
+
+  // need to create a new encounter
+  return Encounter.create({
+    patientId,
+    encounterType: 'surveyResponse',
+    reasonForEncounter: `Survey response: ${survey.name}`,
+    departmentId,
+    examinerId,
+    locationId,
+    startDate: Date.now(),
+    endDate: Date.now(),
+  });
 }
 
 surveyResponse.post(
@@ -40,8 +65,8 @@ surveyResponse.post(
       throw new InvalidOperationError('At least one answer must be provided');
     }
 
-    const encounter = await getSurveyEncounter(models, body);
     const survey = await models.Survey.findByPk(body.surveyId);
+    const encounter = await getSurveyEncounter(models, survey, body);
     const responseRecord = await models.SurveyResponse.create({
       ...responseData,
       encounterId: encounter.id,
