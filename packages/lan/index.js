@@ -8,7 +8,7 @@ import { startScheduledTasks } from './app/tasks';
 import { startDataChangePublisher } from './app/DataChangePublisher';
 
 import { importDataDefinition } from './app/dataDefinitionImporter';
-import { 
+import {
   readSurveyXSLX,
   writeProgramToDatabase,
   writeSurveyToDatabase,
@@ -17,7 +17,7 @@ import {
 const port = config.port;
 
 async function importDemoPrograms(models) {
-  const path =  './data/demo_survey.xlsx';
+  const path = './data/demo_survey.xlsx';
 
   log.info(`Importing test surveys from ${path}...`);
   const program = await writeProgramToDatabase(models, {

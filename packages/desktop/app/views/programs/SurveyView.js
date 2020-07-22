@@ -27,7 +27,7 @@ const QUESTION_COMPONENTS = {
 };
 
 function parseOptionString(s) {
-  if(!s) return null;
+  if (!s) return null;
   const data = JSON.parse(s);
   return data.map(x => ({ label: x, value: x }));
 }
@@ -125,7 +125,9 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel }) =
     setScreenIndex(screenIndex + 1);
   }, [screenIndex]);
 
-  const maxIndex = components.map(x => x.screenIndex).reduce((max, current) => Math.max(max, current), 0);
+  const maxIndex = components
+    .map(x => x.screenIndex)
+    .reduce((max, current) => Math.max(max, current), 0);
   if (screenIndex <= maxIndex) {
     const screenComponents = components
       .filter(x => x.screenIndex === screenIndex)

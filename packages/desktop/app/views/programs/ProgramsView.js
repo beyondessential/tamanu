@@ -52,10 +52,10 @@ const DumbSurveyFlow = React.memo(
 
     if (!survey) {
       return (
-        <SurveySelector 
+        <SurveySelector
           programs={programsList}
-          onSelectSurvey={onSelectSurvey} 
-          onFetchSurveysList={onFetchSurveysList} 
+          onSelectSurvey={onSelectSurvey}
+          onFetchSurveysList={onFetchSurveysList}
         />
       );
     }
@@ -67,7 +67,7 @@ const DumbSurveyFlow = React.memo(
 const SurveyFlow = connectApi(api => ({
   onFetchSurvey: id => api.get(`survey/${id}`),
   onFetchProgramsList: () => api.get('program'),
-  onFetchSurveysList: (programId) => api.get(`program/${programId}/surveys`),
+  onFetchSurveysList: programId => api.get(`program/${programId}/surveys`),
   onSubmitSurvey: data => api.post(`surveyResponse`, data),
 }))(DumbSurveyFlow);
 
