@@ -9,7 +9,7 @@ import { SelectInput } from 'desktop/app/components/Field/SelectField';
 
 import { PatientDisplay } from './PatientDisplay';
 
-export const SurveySelector = React.memo(({ onSelectSurvey, programs }) => {
+export const SurveySelector = React.memo(({ onSelectSurvey, programs, onFetchSurveysList }) => {
   const [selectedProgramId, setSelectedProgramId] = useState(null);
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [surveyOptions, setSurveyOptions] = useState(null);
@@ -19,15 +19,18 @@ export const SurveySelector = React.memo(({ onSelectSurvey, programs }) => {
     setProgramOptions(programs.map(x => ({ value: x.id, label: x.name })));
   }, [programs]);
 
-  const onChangeProgram = useCallback(event => {
+  const onChangeProgram = useCallback(async event => {
     const programId = event.target.value;
     const program = programs.find(x => x.id === programId);
     if (programId === selectedProgramId) {
       return;
     }
+
     setSelectedProgramId(programId);
     setSelectedSurveyId(null);
-    setSurveyOptions(program.surveys.map(x => ({ value: x.id, label: x.name })));
+
+    const { data: surveys } = await onFetchSurveysList(programId);
+    setSurveyOptions(surveys.map(x => ({ value: x.id, label: x.name })));
   });
 
   const onChangeSurvey = useCallback(event => {
