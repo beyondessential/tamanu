@@ -19,6 +19,86 @@ export class SurveyResponse extends Model {
       foreignKey: 'encounterId',
     });
   }
+
+  static async create(data) {
+    const models = this.sequelize.models;
+    const { answers, ...responseData } = data;
+
+    const survey = await models.Survey.findByPk(data.surveyId);
+    const encounter = await this.getSurveyEncounter(models, survey, data);
+    const record = await super.create({
+      ...responseData,
+      encounterId: encounter.id,
+      surveyId: survey.id,
+    });
+
+    await record.createAnswers(answers);
+
+    return record;
+  }
+
+  static async getSurveyEncounter(models, survey, data) {
+    const { encounterId, patientId } = data;
+
+    if (encounterId) {
+      return models.Encounter.findByPk(encounterId);
+    }
+
+    if (!patientId) {
+      throw new InvalidOperationError(
+        'A survey response must have an encounter or patient ID attached',
+      );
+    }
+
+    const { Encounter } = models;
+
+    // find open encounter
+    const openEncounter = await Encounter.findOne({
+      where: {
+        patientId,
+        endDate: null,
+      },
+    });
+
+    if(openEncounter) {
+      return openEncounter;
+    }
+
+    const { 
+      departmentId,
+      examinerId,
+      locationId,
+    } = data;
+
+    // need to create a new encounter
+    return Encounter.create({
+      patientId,
+      encounterType: 'surveyResponse',
+      reasonForEncounter: `Survey response: ${survey.name}`,
+      departmentId,
+      examinerId,
+      locationId,
+      startDate: Date.now(),
+      endDate: Date.now(),
+    });
+  }
+
+  async createAnswers(answersObject) {
+    const answerKeys = Object.keys(answersObject);
+    if (answerKeys.length === 0) {
+      throw new InvalidOperationError('At least one answer must be provided');
+    }
+
+    await Promise.all(
+      answerKeys.map(ak =>
+        this.sequelize.models.SurveyResponseAnswer.create({
+          dataElementId: ak,
+          responseId: this.id,
+          body: answersObject[ak],
+        }),
+      ),
+    );
+  }
 }
 
 export class SurveyResponseAnswer extends Model {

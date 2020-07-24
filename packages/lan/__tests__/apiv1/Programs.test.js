@@ -8,7 +8,7 @@ const { baseApp, models } = createTestContext();
 
 async function createDummyProgram() {
   return models.Program.create({
-    name: chance.string(),
+    name: 'PROGRAM-' + chance.string(),
   });
 }
 
@@ -34,7 +34,7 @@ async function createDummyDataElement(survey, index) {
 async function createDummySurvey(program, dataElementCount = -1) {
   const survey = await models.Survey.create({
     programId: program.id,
-    name: chance.string(),
+    name: 'SURVEY-' + chance.string(),
   });
 
   const amount = dataElementCount >= 0 ? dataElementCount : chance.integer({ min: 5, max: 10 });
@@ -73,12 +73,12 @@ function createDummySurveyResponse(survey) {
 
 async function submitMultipleSurveyResponses(survey, overrides, amount = 10) {
   return Promise.all(
-    new Array(amount).fill(0).map(() =>
-      models.SurveyResponse.create({
+    new Array(amount).fill(0).map(async () => {
+      return models.SurveyResponse.create({
         ...createDummySurveyResponse(survey),
         ...overrides,
-      }),
-    ),
+      });
+    }),
   );
 }
 
@@ -192,17 +192,36 @@ describe('Programs', () => {
   });
 
   describe('Submitting surveys directly against a patient', () => {
-    xit('should list responses to all surveys from a patient', async () => {
+    it('should list responses to all surveys from a patient', async () => {
+      const { examinerId, departmentId, locationId } = await createDummyEncounter(models);
+      const patient = await models.Patient.create(await createDummyPatient(models));
       const responses = await submitMultipleSurveyResponses(testSurvey, {
-        patientId: testEncounter.id,
+        patientId: patient.id,
+        examinerId,
+        departmentId,
+        locationId,
       });
-      const result = await app.get(`/v1/patient/${testPatient.id}/surveyResponses`);
+
+      // negative responses
+      const otherTestPatient = await models.Patient.create(await createDummyPatient(models));
+      await submitMultipleSurveyResponses(testSurvey, {
+        patientId: otherTestPatient.id,
+        examinerId,
+        departmentId,
+        locationId,
+      }, 5);
+
+      const result = await app.get(`/v1/patient/${patient.id}/surveyResponses`);
       expect(result).toHaveSucceeded();
 
       expect(result.body.count).toEqual(responses.length);
       result.body.data.map(response => {
         expect(response.surveyId).toEqual(testSurvey.id);
-        // check all response.encounterIds link to an encounter with patientId == testPatient.id
+
+        // expect encounter to be populated object
+        expect(response).toHaveProperty('patientId', patient.id);
+        expect(response).toHaveProperty('encounterType');
+        expect(response).toHaveProperty('startDate');
       });
     });
 
