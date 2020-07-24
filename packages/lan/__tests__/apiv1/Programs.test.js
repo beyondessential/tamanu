@@ -200,7 +200,7 @@ describe('Programs', () => {
         examinerId,
         departmentId,
         locationId,
-      });
+      }, 15);
 
       // negative responses
       const otherTestPatient = await models.Patient.create(await createDummyPatient(models));
@@ -215,10 +215,11 @@ describe('Programs', () => {
         5,
       );
 
-      const result = await app.get(`/v1/patient/${patient.id}/surveyResponses`);
+      const result = await app.get(`/v1/patient/${patient.id}/surveyResponses?rowsPerPage=10`);
       expect(result).toHaveSucceeded();
 
-      expect(result.body.count).toEqual(responses.length);
+      expect(result.body.count).toEqual(15);
+      expect(result.body.data.length).toEqual(10);
       result.body.data.map(response => {
         expect(response.surveyId).toEqual(testSurvey.id);
 
@@ -227,6 +228,11 @@ describe('Programs', () => {
         expect(response).toHaveProperty('encounterType');
         expect(response).toHaveProperty('startDate');
       });
+
+      // check page 2
+      const result2 = await app.get(`/v1/patient/${patient.id}/surveyResponses?rowsPerPage=10&page=1`);
+      expect(result2).toHaveSucceeded();
+      expect(result2.body.data.length).toEqual(5);
     });
 
     it('should automatically create an encounter if none exists', async () => {
@@ -235,7 +241,6 @@ describe('Programs', () => {
       const result = await app.post(`/v1/surveyResponse`).send({
         ...createDummySurveyResponse(testSurvey),
         patientId: testPatient.id,
-
         examinerId,
         departmentId,
         locationId,
