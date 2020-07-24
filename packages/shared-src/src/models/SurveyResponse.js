@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
 export class SurveyResponse extends Model {
@@ -43,15 +44,11 @@ export class SurveyResponse extends Model {
       },
     });
 
-    if(openEncounter) {
+    if (openEncounter) {
       return openEncounter;
     }
 
-    const { 
-      departmentId,
-      examinerId,
-      locationId,
-    } = data;
+    const { departmentId, examinerId, locationId } = data;
 
     // need to create a new encounter
     return Encounter.create({

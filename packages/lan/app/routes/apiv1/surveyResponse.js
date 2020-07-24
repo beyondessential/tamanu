@@ -1,8 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { InvalidOperationError } from 'shared/errors';
-
 export const surveyResponse = express.Router();
 
 surveyResponse.post(

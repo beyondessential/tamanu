@@ -32,9 +32,11 @@ patientRelations.get('/:id/conditions', simpleGetList('PatientCondition', 'patie
 patientRelations.get('/:id/allergies', simpleGetList('PatientAllergy', 'patientId'));
 patientRelations.get('/:id/familyHistory', simpleGetList('PatientFamilyHistory', 'patientId'));
 
-patientRelations.get('/:id/surveyResponses', asyncHandler(async (req, res) => {
-
-  const result = await req.db.query(`
+patientRelations.get(
+  '/:id/surveyResponses',
+  asyncHandler(async (req, res) => {
+    const result = await req.db.query(
+      `
     SELECT
       survey_responses.*,
       surveys.*,
@@ -53,24 +55,24 @@ patientRelations.get('/:id/surveyResponses', asyncHandler(async (req, res) => {
         ON (users.id = encounters.examiner_id)
     WHERE
       encounters.patient_id = :patientId
-  `, {
-      replacements: {
-        patientId: req.params.id,
-        // limit: rowsPerPage,
-        // offset: page * rowsPerPage,
+  `,
+      {
+        replacements: {
+          patientId: req.params.id,
+        },
+        model: req.models.SurveyResponse,
+        type: QueryTypes.SELECT,
+        mapToModel: true,
       },
-      model: req.models.SurveyResponse,
-      type: QueryTypes.SELECT,
-      mapToModel: true,
-    },
-  );
+    );
 
-  const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
-  res.send({
-    count: result.length,
-    data: forResponse,
-  });
-}));
+    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
+    res.send({
+      count: result.length,
+      data: forResponse,
+    });
+  }),
+);
 
 patient.use(patientRelations);
 

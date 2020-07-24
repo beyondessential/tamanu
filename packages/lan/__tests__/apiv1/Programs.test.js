@@ -8,7 +8,7 @@ const { baseApp, models } = createTestContext();
 
 async function createDummyProgram() {
   return models.Program.create({
-    name: 'PROGRAM-' + chance.string(),
+    name: `PROGRAM-${chance.string()}`,
   });
 }
 
@@ -34,7 +34,7 @@ async function createDummyDataElement(survey, index) {
 async function createDummySurvey(program, dataElementCount = -1) {
   const survey = await models.Survey.create({
     programId: program.id,
-    name: 'SURVEY-' + chance.string(),
+    name: `SURVEY-${chance.string()}`,
   });
 
   const amount = dataElementCount >= 0 ? dataElementCount : chance.integer({ min: 5, max: 10 });
@@ -73,11 +73,11 @@ function createDummySurveyResponse(survey) {
 
 async function submitMultipleSurveyResponses(survey, overrides, amount = 10) {
   return Promise.all(
-    new Array(amount).fill(0).map(() => 
+    new Array(amount).fill(0).map(() =>
       models.SurveyResponse.create({
         ...createDummySurveyResponse(survey),
         ...overrides,
-      })
+      }),
     ),
   );
 }
@@ -204,12 +204,16 @@ describe('Programs', () => {
 
       // negative responses
       const otherTestPatient = await models.Patient.create(await createDummyPatient(models));
-      await submitMultipleSurveyResponses(testSurvey, {
-        patientId: otherTestPatient.id,
-        examinerId,
-        departmentId,
-        locationId,
-      }, 5);
+      await submitMultipleSurveyResponses(
+        testSurvey,
+        {
+          patientId: otherTestPatient.id,
+          examinerId,
+          departmentId,
+          locationId,
+        },
+        5,
+      );
 
       const result = await app.get(`/v1/patient/${patient.id}/surveyResponses`);
       expect(result).toHaveSucceeded();
