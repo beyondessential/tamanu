@@ -42,6 +42,10 @@ surveyResponse.post(
 
     const encounter = await getSurveyEncounter(models, body);
     const survey = await models.Survey.findByPk(body.surveyId);
+    if (!survey) {
+      throw new InvalidOperationError(`Invalid survey ID: ${body.surveyId}`);
+    }
+
     const responseRecord = await models.SurveyResponse.create({
       ...responseData,
       encounterId: encounter.id,
