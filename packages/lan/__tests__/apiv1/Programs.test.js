@@ -73,12 +73,12 @@ function createDummySurveyResponse(survey) {
 
 async function submitMultipleSurveyResponses(survey, overrides, amount = 10) {
   return Promise.all(
-    new Array(amount).fill(0).map(async () => {
-      return models.SurveyResponse.create({
+    new Array(amount).fill(0).map(() => 
+      models.SurveyResponse.create({
         ...createDummySurveyResponse(survey),
         ...overrides,
-      });
-    }),
+      })
+    ),
   );
 }
 
@@ -218,7 +218,7 @@ describe('Programs', () => {
       result.body.data.map(response => {
         expect(response.surveyId).toEqual(testSurvey.id);
 
-        // expect encounter to be populated object
+        // expect encounter details to be included
         expect(response).toHaveProperty('patientId', patient.id);
         expect(response).toHaveProperty('encounterType');
         expect(response).toHaveProperty('startDate');
