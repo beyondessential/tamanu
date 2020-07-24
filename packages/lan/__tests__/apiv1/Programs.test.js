@@ -224,8 +224,11 @@ describe('Programs', () => {
       const result = await app.get(`/v1/patient/${patient.id}/surveyResponses?rowsPerPage=10`);
       expect(result).toHaveSucceeded();
 
+      // check pagination is coming through ok
       expect(result.body.count).toEqual(15);
       expect(result.body.data.length).toEqual(10);
+
+      // ensure data is correct
       result.body.data.map(response => {
         expect(response.surveyId).toEqual(testSurvey.id);
 
