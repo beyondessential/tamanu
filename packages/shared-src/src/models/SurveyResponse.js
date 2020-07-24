@@ -84,7 +84,12 @@ export class SurveyResponse extends Model {
     const models = this.sequelize.models;
     const { answers, ...responseData } = data;
 
-    const survey = await models.Survey.findByPk(data.surveyId);
+    const { surveyId } = data;
+    const survey = await models.Survey.findByPk(surveyId);
+    if (!survey) {
+      throw new InvalidOperationError(`Invalid survey ID: ${surveyId}`);
+    }
+
     const encounter = await this.getSurveyEncounter(models, survey, data);
     const record = await super.create({
       ...responseData,
