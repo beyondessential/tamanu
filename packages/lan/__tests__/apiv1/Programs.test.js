@@ -195,12 +195,18 @@ describe('Programs', () => {
     it('should list responses to all surveys from a patient', async () => {
       const { examinerId, departmentId, locationId } = await createDummyEncounter(models);
       const patient = await models.Patient.create(await createDummyPatient(models));
-      const responses = await submitMultipleSurveyResponses(testSurvey, {
-        patientId: patient.id,
-        examinerId,
-        departmentId,
-        locationId,
-      }, 15);
+
+      // populate responses
+      await submitMultipleSurveyResponses(
+        testSurvey,
+        {
+          patientId: patient.id,
+          examinerId,
+          departmentId,
+          locationId,
+        },
+        15,
+      );
 
       // negative responses
       const otherTestPatient = await models.Patient.create(await createDummyPatient(models));
@@ -230,7 +236,9 @@ describe('Programs', () => {
       });
 
       // check page 2
-      const result2 = await app.get(`/v1/patient/${patient.id}/surveyResponses?rowsPerPage=10&page=1`);
+      const result2 = await app.get(
+        `/v1/patient/${patient.id}/surveyResponses?rowsPerPage=10&page=1`,
+      );
       expect(result2).toHaveSucceeded();
       expect(result2.body.data.length).toEqual(5);
     });

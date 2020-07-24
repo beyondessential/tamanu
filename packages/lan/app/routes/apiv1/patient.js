@@ -37,10 +37,7 @@ patientRelations.get(
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     const patientId = params.id;
-    const {
-      rowsPerPage = 10,
-      page = 0,
-    } = query;
+    const { rowsPerPage = 10, page = 0 } = query;
 
     const countResult = await db.query(
       `
@@ -52,10 +49,10 @@ patientRelations.get(
         WHERE
           encounters.patient_id = :patientId
       `,
-      { 
+      {
         replacements: { patientId },
         type: QueryTypes.SELECT,
-      }
+      },
     );
 
     const count = countResult[0].count;
