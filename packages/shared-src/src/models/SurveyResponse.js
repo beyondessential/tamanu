@@ -20,23 +20,6 @@ export class SurveyResponse extends Model {
     });
   }
 
-  static async create(data) {
-    const models = this.sequelize.models;
-    const { answers, ...responseData } = data;
-
-    const survey = await models.Survey.findByPk(data.surveyId);
-    const encounter = await this.getSurveyEncounter(models, survey, data);
-    const record = await super.create({
-      ...responseData,
-      encounterId: encounter.id,
-      surveyId: survey.id,
-    });
-
-    await record.createAnswers(answers);
-
-    return record;
-  }
-
   static async getSurveyEncounter(models, survey, data) {
     const { encounterId, patientId } = data;
 
@@ -98,6 +81,23 @@ export class SurveyResponse extends Model {
         }),
       ),
     );
+  }
+
+  static async create(data) {
+    const models = this.sequelize.models;
+    const { answers, ...responseData } = data;
+
+    const survey = await models.Survey.findByPk(data.surveyId);
+    const encounter = await this.getSurveyEncounter(models, survey, data);
+    const record = await super.create({
+      ...responseData,
+      encounterId: encounter.id,
+      surveyId: survey.id,
+    });
+
+    await record.createAnswers(answers);
+
+    return record;
   }
 }
 

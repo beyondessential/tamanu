@@ -8,12 +8,14 @@ export const surveyResponse = express.Router();
 surveyResponse.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, body } = req;
+    const { models, body, db } = req;
 
     req.checkPermission('create', 'SurveyResponse');
 
-    const responseRecord = await models.SurveyResponse.create(body);
+    await db.transaction(async () => {
+      const responseRecord = await models.SurveyResponse.create(body);
 
-    res.send(responseRecord);
+      res.send(responseRecord);
+    });
   }),
 );
