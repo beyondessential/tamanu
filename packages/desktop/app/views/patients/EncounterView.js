@@ -15,7 +15,7 @@ import { ChangeTypeModal } from '../../components/ChangeTypeModal';
 import { ChangeDepartmentModal } from '../../components/ChangeDepartmentModal';
 import { LabRequestModal } from '../../components/LabRequestModal';
 import { LabRequestsTable } from '../../components/LabRequestsTable';
-import { SurveyResponsesTable } from '../../components/SurveyResponsesTable';
+import { DataFetchingSurveyResponsesTable } from '../../components/SurveyResponsesTable';
 import { ImagingRequestModal } from '../../components/ImagingRequestModal';
 import { ImagingRequestsTable } from '../../components/ImagingRequestsTable';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -184,7 +184,7 @@ const ProgramsPane = connect(null, dispatch => ({
 }))(
   React.memo(({ onNavigateToPrograms, encounter }) => (
     <div>
-      <SurveyResponsesTable surveyResponses={encounter.surveyResponses} />
+      <DataFetchingSurveyResponsesTable encounterId={encounter.id} />
       <ContentPane>
         <Button onClick={onNavigateToPrograms} variant="contained" color="primary">
           New survey

@@ -11,7 +11,7 @@ import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { DumbPatientListingView } from 'desktop/app/views/patients/PatientListingView';
 
 const DumbSurveyFlow = React.memo(
-  ({ onFetchSurvey, onSubmitSurvey, onFetchProgramsList, patient }) => {
+  ({ onFetchSurvey, onSubmitSurvey, onFetchProgramsList, onFetchSurveysList, patient }) => {
     const [survey, setSurvey] = React.useState(null);
     const [programsList, setProgramsList] = React.useState(null);
     const [startTime, setStartTime] = React.useState(null);
@@ -51,7 +51,13 @@ const DumbSurveyFlow = React.memo(
     }
 
     if (!survey) {
-      return <SurveySelector programs={programsList} onSelectSurvey={onSelectSurvey} />;
+      return (
+        <SurveySelector
+          programs={programsList}
+          onSelectSurvey={onSelectSurvey}
+          onFetchSurveysList={onFetchSurveysList}
+        />
+      );
     }
 
     return <SurveyView onSubmit={onSubmit} survey={survey} onCancel={onCancelSurvey} />;
@@ -61,6 +67,7 @@ const DumbSurveyFlow = React.memo(
 const SurveyFlow = connectApi(api => ({
   onFetchSurvey: id => api.get(`survey/${id}`),
   onFetchProgramsList: () => api.get('program'),
+  onFetchSurveysList: programId => api.get(`program/${programId}/surveys`),
   onSubmitSurvey: data => api.post(`surveyResponse`, data),
 }))(DumbSurveyFlow);
 

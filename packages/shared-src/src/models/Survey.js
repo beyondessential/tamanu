@@ -1,6 +1,15 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 
+function parseOrNull(s) {
+  if (!s) return null;
+  try {
+    return JSON.parse(s);
+  } catch (e) {
+    return null;
+  }
+}
+
 export class Survey extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -57,6 +66,14 @@ export class SurveyScreenComponent extends Model {
       include: this.getListReferenceAssociations(),
     }).map(c => c.forResponse());
   }
+
+  forResponse() {
+    const { options, ...values } = this.dataValues;
+    return {
+      ...values,
+      options: parseOrNull(options),
+    };
+  }
 }
 
 const DATA_ELEMENT_TYPE_VALUES = ['number', 'text'];
@@ -77,5 +94,13 @@ export class ProgramDataElement extends Model {
         indexes: [{ unique: true, fields: ['code'] }],
       },
     );
+  }
+
+  forResponse() {
+    const { defaultOptions, ...values } = this.dataValues;
+    return {
+      ...values,
+      defaultOptions: parseOrNull(defaultOptions),
+    };
   }
 }

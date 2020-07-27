@@ -26,8 +26,16 @@ const QUESTION_COMPONENTS = {
   default: TextField,
 };
 
-const SurveyQuestion = ({ question }) => {
-  const { text, type, code, options, detail } = question;
+function mapOptionsToValues(options) {
+  if (!options) return null;
+  return options.map(x => ({ label: x, value: x }));
+}
+
+const SurveyQuestion = ({ component }) => {
+  const { defaultText, type, code, defaultOptions, detail } = component.dataElement;
+  const text = component.text || defaultText;
+  const options = mapOptionsToValues(component.options || defaultOptions);
+
   if (type === 'Instruction') {
     return <div>{text}</div>;
   }
@@ -63,12 +71,10 @@ function checkVisibility({ visibilityCriteria }, values) {
   return false;
 }
 
-const SurveyScreen = ({ screen, values, onStepForward, onStepBack }) => {
-  const { questions } = screen;
-
-  const questionElements = questions
-    .filter(q => checkVisibility(q, values))
-    .map(q => <SurveyQuestion question={q} key={q.id} />);
+const SurveyScreen = ({ components, values, onStepForward, onStepBack }) => {
+  const questionElements = components
+    .filter(c => checkVisibility(c, values))
+    .map(c => <SurveyQuestion component={c} key={c.id} />);
 
   return (
     <FormGrid columns={1}>
@@ -107,7 +113,7 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
 );
 
 const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel }) => {
-  const { screens } = survey;
+  const { components } = survey;
   const [screenIndex, setScreenIndex] = useState(0);
 
   const onStepBack = useCallback(() => {
@@ -118,11 +124,17 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel }) =
     setScreenIndex(screenIndex + 1);
   }, [screenIndex]);
 
-  if (screenIndex < screens.length) {
+  const maxIndex = components
+    .map(x => x.screenIndex)
+    .reduce((max, current) => Math.max(max, current), 0);
+  if (screenIndex <= maxIndex) {
+    const screenComponents = components
+      .filter(x => x.screenIndex === screenIndex)
+      .sort((a, b) => a.componentIndex - b.componentIndex);
     return (
       <SurveyScreen
         values={values}
-        screen={screens[screenIndex]}
+        components={screenComponents}
         onStepForward={onStepForward}
         onStepBack={screenIndex > 0 ? onStepBack : onCancel}
       />
