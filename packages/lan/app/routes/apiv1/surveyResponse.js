@@ -21,8 +21,8 @@ surveyResponse.post(
     };
 
     const updatedBody = {
-      locationId: body.locationId || await getRefId(REFERENCE_TYPES.LOCATION),
-      departmentId: body.departmentId || await getRefId(REFERENCE_TYPES.DEPARTMENT),
+      locationId: body.locationId || (await getRefId(REFERENCE_TYPES.LOCATION)),
+      departmentId: body.departmentId || (await getRefId(REFERENCE_TYPES.DEPARTMENT)),
       examinerId: req.user.id,
       ...body,
     };
