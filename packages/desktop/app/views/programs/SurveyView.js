@@ -32,7 +32,7 @@ function mapOptionsToValues(options) {
 }
 
 const SurveyQuestion = ({ component }) => {
-  const { defaultText, type, code, defaultOptions, detail } = component.dataElement;
+  const { defaultText, type, id, defaultOptions, detail } = component.dataElement;
   const text = component.text || defaultText;
   const options = mapOptionsToValues(component.options || defaultOptions);
 
@@ -46,7 +46,7 @@ const SurveyQuestion = ({ component }) => {
     <Field
       label={text}
       component={FieldComponent}
-      name={code}
+      name={id}
       options={options}
       helperText={detail}
     />
