@@ -8,7 +8,7 @@ const { baseApp, models } = createTestContext();
 
 async function createDummyProgram() {
   return models.Program.create({
-    name: chance.string(),
+    name: `PROGRAM-${chance.string()}`,
   });
 }
 
@@ -34,7 +34,7 @@ async function createDummyDataElement(survey, index) {
 async function createDummySurvey(program, dataElementCount = -1) {
   const survey = await models.Survey.create({
     programId: program.id,
-    name: chance.string(),
+    name: `SURVEY-${chance.string()}`,
   });
 
   const amount = dataElementCount >= 0 ? dataElementCount : chance.integer({ min: 5, max: 10 });
@@ -191,37 +191,149 @@ describe('Programs', () => {
     });
   });
 
-  xdescribe('Submitting surveys directly against a patient', () => {
+  describe('Submitting surveys directly against a patient', () => {
     it('should list responses to all surveys from a patient', async () => {
-      const responses = await submitMultipleSurveyResponses(testSurvey, {
-        patientId: testEncounter.id,
-      });
-      const result = await app.get(`/v1/patient/${testPatient.id}/surveyResponses`);
+      const { examinerId, departmentId, locationId } = await createDummyEncounter(models);
+      const patient = await models.Patient.create(await createDummyPatient(models));
+
+      // populate responses
+      await submitMultipleSurveyResponses(
+        testSurvey,
+        {
+          patientId: patient.id,
+          examinerId,
+          departmentId,
+          locationId,
+        },
+        15,
+      );
+
+      // negative responses
+      const otherTestPatient = await models.Patient.create(await createDummyPatient(models));
+      await submitMultipleSurveyResponses(
+        testSurvey,
+        {
+          patientId: otherTestPatient.id,
+          examinerId,
+          departmentId,
+          locationId,
+        },
+        5,
+      );
+
+      const result = await app.get(`/v1/patient/${patient.id}/surveyResponses?rowsPerPage=10`);
       expect(result).toHaveSucceeded();
 
-      expect(result.body.count).toEqual(responses.length);
-      result.body.data.map(response => {
+      // check pagination is coming through ok
+      expect(result.body.count).toEqual(15);
+      expect(result.body.data.length).toEqual(10);
+
+      const checkResult = response => {
         expect(response.surveyId).toEqual(testSurvey.id);
-        // check all response.encounterIds link to an encounter with patientId == testPatient.id
-      });
+
+        // expect encounter details to be included
+        expect(response).toHaveProperty('patientId', patient.id);
+        expect(response).toHaveProperty('encounterType');
+        expect(response).toHaveProperty('startDate');
+      };
+
+      // ensure data is correct
+      result.body.data.map(checkResult);
+
+      // check page 2
+      const result2 = await app.get(
+        `/v1/patient/${patient.id}/surveyResponses?rowsPerPage=10&page=1`,
+      );
+      expect(result2).toHaveSucceeded();
+      expect(result2.body.data.length).toEqual(5);
+      result2.body.data.map(checkResult);
     });
 
-    it('should automatically create an encounter if none exists', async () => {
+    it('should use an already-open encounter if one exists', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const existingEncounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+        endDate: null,
+      });
+      expect(patient).toBeTruthy();
+      expect(existingEncounter).toHaveProperty('patientId', patient.id);
+
       const result = await app.post(`/v1/surveyResponse`).send({
         ...createDummySurveyResponse(testSurvey),
-        patientId: testPatient.id,
+        patientId: patient.id,
       });
 
       expect(result).toHaveSucceeded();
 
       const { encounterId } = result.body;
       expect(encounterId).toBeTruthy();
-      const encounter = await app.get(`/v1/encounter/${encounterId}`);
-      expect(encounter.type).toEqual('surveyResponse');
+
+      const encounter = await models.Encounter.findByPk(encounterId);
+      expect(encounter).toHaveProperty('id', existingEncounter.id);
+    });
+
+    it('should automatically create an encounter if none exists', async () => {
+      const { examinerId, departmentId, locationId } = await createDummyEncounter(models);
+
+      const result = await app.post(`/v1/surveyResponse`).send({
+        ...createDummySurveyResponse(testSurvey),
+        patientId: testPatient.id,
+        examinerId,
+        departmentId,
+        locationId,
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const { encounterId } = result.body;
+      expect(encounterId).toBeTruthy();
+
+      const encounter = await models.Encounter.findByPk(encounterId);
+      expect(encounter.encounterType).toEqual('surveyResponse');
       expect(encounter.patientId).toEqual(testPatient.id);
-      // TODO
-      expect(encounter.startDate).toEqual(/*very recent*/);
-      expect(encounter.endDate).toEqual(/*very recent*/);
+
+      expect(encounter.startDate).toBeDefined();
+      expect(encounter.endDate).toBeDefined();
+    });
+
+    it('should require a department', async () => {
+      // get some valid ids
+      const { examinerId, locationId } = await createDummyEncounter(models);
+
+      const result = await app.post(`/v1/surveyResponse`).send({
+        ...createDummySurveyResponse(testSurvey),
+        patientId: testPatient.id,
+        examinerId,
+        locationId,
+      });
+      expect(result).toHaveRequestError();
+    });
+
+    it('should require a location', async () => {
+      // get some valid ids
+      const { examinerId, locationId } = await createDummyEncounter(models);
+
+      const result = await app.post(`/v1/surveyResponse`).send({
+        ...createDummySurveyResponse(testSurvey),
+        patientId: testPatient.id,
+        examinerId,
+        locationId,
+      });
+      expect(result).toHaveRequestError();
+    });
+
+    it('should require an examiner', async () => {
+      // get some valid ids
+      const { departmentId, locationId } = await createDummyEncounter(models);
+
+      const result = await app.post(`/v1/surveyResponse`).send({
+        ...createDummySurveyResponse(testSurvey),
+        patientId: testPatient.id,
+        departmentId,
+        locationId,
+      });
+      expect(result).toHaveRequestError();
     });
   });
 });

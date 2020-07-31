@@ -32,6 +32,74 @@ patientRelations.get('/:id/conditions', simpleGetList('PatientCondition', 'patie
 patientRelations.get('/:id/allergies', simpleGetList('PatientAllergy', 'patientId'));
 patientRelations.get('/:id/familyHistory', simpleGetList('PatientFamilyHistory', 'patientId'));
 
+patientRelations.get(
+  '/:id/surveyResponses',
+  asyncHandler(async (req, res) => {
+    const { db, models, params, query } = req;
+    const patientId = params.id;
+    const { rowsPerPage = 10, page = 0 } = query;
+
+    const countResult = await db.query(
+      `
+        SELECT COUNT(1) as count
+        FROM
+          survey_responses
+          LEFT JOIN encounters
+            ON (survey_responses.encounter_id = encounters.id)
+        WHERE
+          encounters.patient_id = :patientId
+      `,
+      {
+        replacements: { patientId },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    const count = countResult[0].count;
+
+    const result = await db.query(
+      `
+    SELECT
+      survey_responses.*,
+      surveys.*,
+      encounters.patient_id,
+      encounters.encounter_type,
+      encounters.start_date,
+      encounters.examiner_id,
+      users.display_name
+    FROM
+      survey_responses
+      LEFT JOIN encounters
+        ON (survey_responses.encounter_id = encounters.id)
+      LEFT JOIN surveys
+        ON (survey_responses.survey_id = surveys.id)
+      LEFT JOIN users
+        ON (users.id = encounters.examiner_id)
+    WHERE
+      encounters.patient_id = :patientId
+    LIMIT :limit
+    OFFSET :offset
+  `,
+      {
+        replacements: {
+          patientId: patientId,
+          limit: rowsPerPage,
+          offset: page * rowsPerPage,
+        },
+        model: models.SurveyResponse,
+        type: QueryTypes.SELECT,
+        mapToModel: true,
+      },
+    );
+
+    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
+    res.send({
+      count,
+      data: forResponse,
+    });
+  }),
+);
+
 patient.use(patientRelations);
 
 patient.get(
