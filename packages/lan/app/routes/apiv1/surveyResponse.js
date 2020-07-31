@@ -17,6 +17,9 @@ surveyResponse.post(
     const getRefId = async type => {
       const code = config.survey.defaultCodes[type];
       const record = await models.ReferenceData.findOne({ where: { type, code } });
+      if (!record) {
+        return null;
+      }
       return record.id;
     };
 
