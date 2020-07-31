@@ -82,9 +82,9 @@ export class SurveyResponse extends Model {
 
   static async create(data) {
     const models = this.sequelize.models;
-    const { answers, ...responseData } = data;
+    const { answers, surveyId, ...responseData } = data;
 
-    const { surveyId } = data;
+    // ensure survey exists
     const survey = await models.Survey.findByPk(surveyId);
     if (!survey) {
       throw new InvalidOperationError(`Invalid survey ID: ${surveyId}`);
@@ -93,8 +93,8 @@ export class SurveyResponse extends Model {
     const encounter = await this.getSurveyEncounter(models, survey, data);
     const record = await super.create({
       ...responseData,
+      surveyId,
       encounterId: encounter.id,
-      surveyId: survey.id,
     });
 
     await record.createAnswers(answers);

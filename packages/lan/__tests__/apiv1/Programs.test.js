@@ -228,15 +228,17 @@ describe('Programs', () => {
       expect(result.body.count).toEqual(15);
       expect(result.body.data.length).toEqual(10);
 
-      // ensure data is correct
-      result.body.data.map(response => {
+      const checkResult = response => {
         expect(response.surveyId).toEqual(testSurvey.id);
 
         // expect encounter details to be included
         expect(response).toHaveProperty('patientId', patient.id);
         expect(response).toHaveProperty('encounterType');
         expect(response).toHaveProperty('startDate');
-      });
+      };
+
+      // ensure data is correct
+      result.body.data.map(checkResult);
 
       // check page 2
       const result2 = await app.get(
@@ -244,6 +246,31 @@ describe('Programs', () => {
       );
       expect(result2).toHaveSucceeded();
       expect(result2.body.data.length).toEqual(5);
+      result2.body.data.map(checkResult);
+    });
+
+    it('should use an already-open encounter if one exists', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const existingEncounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+        endDate: null,
+      });
+      expect(patient).toBeTruthy();
+      expect(existingEncounter).toHaveProperty('patientId', patient.id);
+
+      const result = await app.post(`/v1/surveyResponse`).send({
+        ...createDummySurveyResponse(testSurvey),
+        patientId: patient.id,
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const { encounterId } = result.body;
+      expect(encounterId).toBeTruthy();
+
+      const encounter = await models.Encounter.findByPk(encounterId);
+      expect(encounter).toHaveProperty('id', existingEncounter.id);
     });
 
     it('should automatically create an encounter if none exists', async () => {
