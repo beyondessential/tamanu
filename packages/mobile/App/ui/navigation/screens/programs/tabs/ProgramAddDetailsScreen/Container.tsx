@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useCallback, ReactElement } from 'react';
+import React, { useMemo, useRef, useCallback, ReactElement, useState } from 'react';
 import { Screen } from './Screen';
 import {
   getFormInitialValues,
@@ -6,11 +6,14 @@ import {
   mapInputVerticalPosition,
 } from './helpers';
 import { ProgramAddDetailsScreenProps } from '/interfaces/screens/ProgramsStack/ProgramAddDetails/ProgramAddDetailsScreenProps';
+import { useNavigation } from '@react-navigation/native';
+import { Routes } from '/helpers/routes';
 
 export const Container = ({
   route,
 }: ProgramAddDetailsScreenProps): ReactElement => {
   const { program } = route.params;
+  const navigation = useNavigation();
   const initialValues = useMemo(() => getFormInitialValues(program), [program]);
   const formValidationSchema = useMemo(() => getFormSchema(program), [program]);
   const containerScrollView = useRef<any>(null);
@@ -27,7 +30,14 @@ export const Container = ({
   );
 
   const onSubmitForm = useCallback((values: any) => {
-    console.log(values);
+    // TODO: submit values to DDD repo
+    // setSubmittedValues(values);
+    navigation.navigate(
+      Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory,
+      {
+        program,
+      },
+    );
   }, []);
 
   return (
