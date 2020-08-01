@@ -17,6 +17,7 @@ export const ProgramQuestion = ({
   verticalPositions,
 }: ProgramQuestion): ReactElement => {
   const fieldInput: FC<any> = FieldByType[question.type];
+  if(!fieldInput) return null;
   const isMultiline = question.type === FieldTypes.MULTILINE;
   return (
     <StyledView marginTop={10}>

@@ -7,6 +7,17 @@ export const dummyPrograms = [
     name: 'PEN NCD Assessment',
     questions: [
       {
+        title: 'Instruction test',
+        list: [
+          {
+            id: 'NCDScreen3',
+            type: 'instruction',
+            label: 'Yam yam yam',
+            required: true,
+          },
+        ]
+      },
+      {
         title: 'Please enter the date the patient attended for screening', 
         list: [
           {
