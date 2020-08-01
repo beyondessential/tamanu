@@ -1,7 +1,7 @@
 export interface QuestionModel {
     id: number
-    type: string
-    label: string
+    text: string;
+    type: string;
     options?: {
         label: string;
         value: string;

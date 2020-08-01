@@ -4,16 +4,16 @@ import { DateField } from '/components/DateField/DateField';
 import { Dropdown } from '/components/Dropdown';
 
 export const FieldTypes = {
-  TEXT: 'text',
-  MULTILINE: 'multiline-text',
-  RADIO: 'radio',
-  SELECT: 'select',
-  DATE: 'date',
-  INSTRUCTION: 'instruction',
-  NUMBER: 'number',
-  BINARY: 'binary',
-  CALCULATED: 'calculated',
-  RESULT: 'result',
+  TEXT: 'FreeText',
+  MULTILINE: 'Multiline',
+  RADIO: 'Radio',
+  SELECT: 'Select',
+  DATE: 'Date',
+  INSTRUCTION: 'Instruction',
+  NUMBER: 'Number',
+  BINARY: 'Binary',
+  CALCULATED: 'Calculated',
+  RESULT: 'Result',
 };
 
 export const FieldByType = {
@@ -24,7 +24,7 @@ export const FieldByType = {
   [FieldTypes.DATE]: DateField,
   [FieldTypes.INSTRUCTION]: null,
   [FieldTypes.NUMBER]: TextField,
-  [FieldTypes.BINARY]: TextField,
-  [FieldTypes.CALCULATED]: TextField,
-  [FieldTypes.RESULT]: TextField,
+  [FieldTypes.BINARY]: RadioButtonGroup,
+  [FieldTypes.CALCULATED]: null,
+  [FieldTypes.RESULT]: null,
 };

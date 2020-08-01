@@ -27,7 +27,6 @@ export const ProgramQuestion = ({
         name={question.id}
         options={question.options}
         multiline={isMultiline}
-        label={question.label}
       />
     </StyledView>
   );

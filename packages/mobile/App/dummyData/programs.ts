@@ -1,3 +1,6 @@
+const makeOptions = options => options.map(x => ({ label: x, value: x }));
+const binaryOptions = makeOptions(['Yes', 'No']);
+
 export const dummyPrograms = [
   {
     name: 'Covid-19',
@@ -7,46 +10,107 @@ export const dummyPrograms = [
     name: 'PEN NCD Assessment',
     questions: [
       {
-        title: 'Instruction test',
-        list: [
-          {
-            id: 'NCDScreen3',
-            type: 'instruction',
-            label: 'Yam yam yam',
-            required: true,
-          },
-        ]
+        id: "NCDScreen1",
+        type: "Instruction",
+        indicator: "",
+        text: "Please enter all data accurately to determine if this patient has risk factors for cardiovascular disease",
       },
       {
-        title: 'Please enter the date the patient attended for screening', 
-        list: [
-          {
-            id: 'NCDScreen3',
-            type: 'date',
-            required: true,
-          },
-        ]
+        id: "NCDScreen2",
+        type: "Instruction",
+        indicator: "",
+        text: "Please ensure all known basic patient demographics including Sex and Date of Birth have been updated in the Patient Details section. These do not need to be entered here.",
       },
       {
-        title: 'What is the name of the staff member undertaking this assessment?', 
-        list: [
-          {
-            id: 'NCDScreen4',
-            type: 'text',
-            required: true,
-          },
-        ],
+        id: "NCDScreen3",
+        type: "Date",
+        indicator: "Date attended",
+        text: "Please enter the date the patient attended for screening",
       },
       {
-        title: 'What is the estimated (or known) age of the patient in years?', 
-        list: [
-          {
-            id: 'NCDScreen5',
-            type: 'text',
-            required: true,
-          },
-        ],
+        id: "NCDScreen4",
+        type: "FreeText",
+        indicator: "Name of staff",
+        text: "What is the name of the staff member undertaking this assessment?",
       },
-    ],
+      {
+        id: "NCDScreen5",
+        type: "Number",
+        indicator: "Estimated age",
+        text: "What is the estimated (or known) age of the patient in years?",
+      },
+      {
+        id: "NCDScreen6",
+        type: "Number",
+        indicator: "Systolic Blood Pressure",
+        text: "Systolic Blood Pressure",
+      },
+      {
+        id: "NCDScreen7",
+        type: "Number",
+        indicator: "Diastolic Blood Pressure",
+        text: "Diastolic Blood Pressure",
+      },
+      {
+        id: "NCDScreen8",
+        type: "Number",
+        indicator: "Fasting blood sugar",
+        text: "What is the patient's fasting blood sugar level?",
+      },
+      {
+        id: "NCDScreen9",
+        type: "Binary",
+        options: binaryOptions,
+        indicator: "Smoker",
+        text: "Is the patient an active smoker",
+      },
+      {
+        id: "NCDScreen10",
+        type: "Binary",
+        options: binaryOptions,
+        indicator: "Diabetes Mellitus",
+        text: "Does the patient have a diagnosis of Diabetes?",
+      },
+      {
+        id: "NCDScreen11",
+        type: "Radio",
+        indicator: "Diabetes Type",
+        text: "If known, what type of diabetes has the patient been diagnosed with?", 
+        options: makeOptions(["Type 1", "Type 2"]),
+        visibilityCriteria: "NCDScreen10: Yes",
+      },
+      {
+        id: "NCDScreen12",
+        type: "Number",
+        indicator: "Cholesterol",
+        text: "What is the patient's total cholesterol (mmol/l)", 
+      },
+      {
+        id: "NCDScreen13",
+        type: "Number",
+        indicator: "Weight",
+        text: "What is the patient's weight in kg?", 
+      },
+      {
+        id: "NCDScreen14",
+        type: "Number",
+        indicator: "Height",
+        text: "What is the patient's height in metres (160cm = 1.6m)", 
+      },
+      {
+        id: "NCDScreen15",
+        type: "Calculated",
+        indicator: "",
+        text: "What is the patient's calculated Body Mass Index (BMI)?", 
+      },
+      {
+        id: "NCDScreen16",
+        type: "Result",
+        indicator: "",
+        text: "", 
+      },
+    ]
+
   },
 ];
+
