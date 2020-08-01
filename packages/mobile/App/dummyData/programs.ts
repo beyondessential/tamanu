@@ -1,5 +1,4 @@
 const makeOptions = options => options.map(x => ({ label: x, value: x }));
-const binaryOptions = makeOptions(['Yes', 'No']);
 
 export const dummyPrograms = [
   {
@@ -60,14 +59,12 @@ export const dummyPrograms = [
       {
         id: "NCDScreen9",
         type: "Binary",
-        options: binaryOptions,
         indicator: "Smoker",
         text: "Is the patient an active smoker",
       },
       {
         id: "NCDScreen10",
         type: "Binary",
-        options: binaryOptions,
         indicator: "Diabetes Mellitus",
         text: "Does the patient have a diagnosis of Diabetes?",
       },
