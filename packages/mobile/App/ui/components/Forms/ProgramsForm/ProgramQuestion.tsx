@@ -2,7 +2,6 @@ import React, { ReactElement, FC } from 'react';
 import { StyledView } from '/styled/common';
 import { QuestionModel } from '../../../models/Question';
 import { VerticalPosition } from '../../../interfaces/VerticalPosition';
-import { makeStringCamelCase } from '../../../navigation/screens/programs/tabs/ProgramAddDetailsScreen/helpers';
 import { Field } from '../FormField';
 import { FieldTypes, FieldByType } from '/helpers/fields';
 
@@ -24,7 +23,7 @@ export const ProgramQuestion = ({
       <Field
         onFocus={(): void => scrollTo(verticalPositions[question.id])}
         component={fieldInput}
-        name={makeStringCamelCase(question.label)}
+        name={question.id}
         options={question.options}
         multiline={isMultiline}
         label={question.label}

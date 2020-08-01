@@ -5,15 +5,6 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { VerticalPosition } from '/interfaces/VerticalPosition';
 import { QuestionModel } from '/models/Question';
 
-export function makeStringCamelCase(string: string): string {
-  return string
-    .toLocaleLowerCase()
-    .replace(/(?:^\w|[A-Z]|\b\w)/g, (word: string, index: number) =>
-      index === 0 ? word.toLowerCase() : word.toUpperCase(),
-    )
-    .replace(/\s+/g, '');
-}
-
 export function getFormInitialValues(
   program: ProgramModel,
 ): { [key: string]: any } {
@@ -26,7 +17,7 @@ export function getFormInitialValues(
         question.type === FieldTypes.MULTILINE
           ? ''
           : null;
-      const propName = makeStringCamelCase(question.label);
+      const propName = question.id;
       acc[propName] = initialValue;
     });
     return acc;
@@ -39,7 +30,7 @@ export function getFormSchema(program: ProgramModel): Yup.ObjectSchema {
   const objectShapeSchema = questions.reduce<{ [key: string]: any }>(
     (acc, cur) => {
       cur.list.forEach((question: QuestionModel) => {
-        const propName = makeStringCamelCase(question.label);
+        const propName = question.id;
         const isDateType = question.type === FieldTypes.DATE;
         const yupDateSchema = Yup.date();
         const yupStringSchema = Yup.string();
