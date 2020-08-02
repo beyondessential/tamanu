@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export const useCancelableEffect = (initialState, fetcher) => {
   const [data, setData] = useState(initialState);

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect, useCallback, ReactElement, useState } from 'react';
+import React, { useMemo, useRef, useCallback, ReactElement, useState } from 'react';
 import { Screen } from './Screen';
 import {
   getFormInitialValues,
