@@ -5,14 +5,38 @@ import {
   getFormSchema,
   mapInputVerticalPosition,
 } from './helpers';
+import { theme } from '/styled/theme';
 import { ProgramAddDetailsScreenProps } from '/interfaces/screens/ProgramsStack/ProgramAddDetails/ProgramAddDetailsScreenProps';
 import { useNavigation } from '@react-navigation/native';
+import { FlatList } from 'react-native';
 import { Routes } from '/helpers/routes';
 
+import { MenuOptionButton } from '/components/MenuOptionButton';
 import { StyledView, StyledText } from '/styled/common';
+import { Separator } from '/components/Separator';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import { surveyStore } from '../../surveyStore';
 import { useCancelableEffect } from '/helpers/hooks';
+
+const SurveyResponseItem = ({ surveyResponse }) => {
+  const navigation = useNavigation();
+  const onPress = () => navigation.navigate(
+    Routes.HomeStack.ProgramStack.SurveyResponseDetailsScreen,
+    {
+      surveyResponse
+    }
+  );
+
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <StyledView height={55} justifyContent="center">
+        <StyledText>{ surveyResponse.program.name }</StyledText>
+        <StyledText>{ surveyResponse.name }</StyledText>
+      </StyledView>
+    </TouchableOpacity>
+  );
+};
 
 export const ProgramViewHistoryScreen = ({
   route,
@@ -22,9 +46,19 @@ export const ProgramViewHistoryScreen = ({
 
   const [responses] = useCancelableEffect([], () => surveyStore.getResponses());
 
-  const responseItems = responses.map((r, i) => (
-    <StyledText>{`${r.program.name} - ${r.name}`}</StyledText>
-  ));
-
-  return <StyledView>{responseItems}</StyledView>
+  return (
+    <FlatList
+      style={{
+        flex: 1,
+        width: '100%',
+        height: '100%',
+        backgroundColor: theme.colors.BACKGROUND_GREY,
+      }}
+      showsVerticalScrollIndicator={false}
+      data={responses}
+      keyExtractor={(item): string => item.name}
+      renderItem={({ item }) => <SurveyResponseItem surveyResponse={item} />}
+      ItemSeparatorComponent={Separator}
+    />
+  );
 };

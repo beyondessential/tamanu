@@ -97,13 +97,13 @@ export const dummyPrograms = [
       {
         id: "NCDScreen15",
         type: "Calculated",
-        indicator: "",
+        indicator: "BMI (calculated)",
         text: "What is the patient's calculated Body Mass Index (BMI)?", 
       },
       {
         id: "NCDScreen16",
         type: "Result",
-        indicator: "",
+        indicator: "Risk factor (calculated)",
         text: "", 
       },
     ]
