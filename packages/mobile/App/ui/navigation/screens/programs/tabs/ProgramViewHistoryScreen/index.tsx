@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useCallback, ReactElement, useState } from 'react';
+import React, { useMemo, useRef, useEffect, useCallback, ReactElement, useState } from 'react';
 import { Screen } from './Screen';
 import {
   getFormInitialValues,
@@ -11,13 +11,20 @@ import { Routes } from '/helpers/routes';
 
 import { StyledView, StyledText } from '/styled/common';
 
+import { surveyStore } from '../../surveyStore';
+import { useCancelableEffect } from '/helpers/hooks';
+
 export const ProgramViewHistoryScreen = ({
   route,
 }: ProgramAddDetailsScreenProps): ReactElement => {
   const { program } = route.params;
   const navigation = useNavigation();
 
-  // TODO: read values from DDD repo
+  const [responses] = useCancelableEffect([], () => surveyStore.getResponses());
 
-  return <StyledText>This is where a list of submitted surveys goes.</StyledText>
+  const responseItems = responses.map((r, i) => (
+    <StyledText>{`${r.program.name} - ${r.name}`}</StyledText>
+  ));
+
+  return <StyledView>{responseItems}</StyledView>
 };

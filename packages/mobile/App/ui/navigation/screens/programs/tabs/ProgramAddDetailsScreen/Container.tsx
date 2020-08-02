@@ -9,6 +9,8 @@ import { ProgramAddDetailsScreenProps } from '/interfaces/screens/ProgramsStack/
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 
+import { surveyStore } from '../../surveyStore';
+
 export const Container = ({
   route,
 }: ProgramAddDetailsScreenProps): ReactElement => {
@@ -29,9 +31,9 @@ export const Container = ({
     [containerScrollView],
   );
 
-  const onSubmitForm = useCallback((values: any) => {
-    // TODO: submit values to DDD repo
-    // setSubmittedValues(values);
+  const onSubmitForm = useCallback(async (values: any) => {
+    await surveyStore.submitSurvey(program, values);
+
     navigation.navigate(
       Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory,
       {
