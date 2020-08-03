@@ -21,7 +21,11 @@ class SurveyStore {
       .filter(q => isCalculated(q.type))
       .filter(q => q.calculation)
       .forEach(q => {
-        updatedAnswers[q.id] = q.calculation(updatedAnswers);
+        try {
+          updatedAnswers[q.id] = q.calculation(updatedAnswers);
+        } catch(e) {
+          // TODO: handle bad calculation
+        }
       });
 
     this.responses.push({
