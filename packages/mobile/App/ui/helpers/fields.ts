@@ -3,6 +3,7 @@ import { RadioButtonGroup } from '/components/RadioButtonGroup';
 import { DateField } from '/components/DateField/DateField';
 import { Dropdown } from '/components/Dropdown';
 import { Checkbox } from '/components/Checkbox';
+import { NumberField } from '/components/NumberField';
 
 export const FieldTypes = {
   TEXT: 'FreeText',
@@ -24,7 +25,7 @@ export const FieldByType = {
   [FieldTypes.SELECT]: Dropdown,
   [FieldTypes.DATE]: DateField,
   [FieldTypes.INSTRUCTION]: null,
-  [FieldTypes.NUMBER]: TextField,
+  [FieldTypes.NUMBER]: NumberField,
   [FieldTypes.BINARY]: Checkbox,
   [FieldTypes.CALCULATED]: null,
   [FieldTypes.RESULT]: null,
