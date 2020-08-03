@@ -29,3 +29,13 @@ export const FieldByType = {
   [FieldTypes.CALCULATED]: null,
   [FieldTypes.RESULT]: null,
 };
+
+export function isCalculated(fieldType: string): boolean {
+  switch(fieldType) {
+    case FieldTypes.CALCULATED:
+    case FieldTypes.RESULT:
+      return true;
+    default:
+      return false;
+  }
+}
