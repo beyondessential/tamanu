@@ -14,7 +14,7 @@ import { surveyStore } from '../../surveyStore';
 export const Container = ({
   route,
 }: ProgramAddDetailsScreenProps): ReactElement => {
-  const { program } = route.params;
+  const { program, selectedPatient } = route.params;
   const navigation = useNavigation();
   const initialValues = useMemo(() => getFormInitialValues(program), [program]);
   const formValidationSchema = useMemo(() => getFormSchema(program), [program]);
@@ -32,7 +32,7 @@ export const Container = ({
   );
 
   const onSubmitForm = useCallback(async (values: any) => {
-    await surveyStore.submitSurvey(program, values);
+    await surveyStore.submitSurvey(selectedPatient, program, values);
 
     navigation.navigate(
       Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory,
@@ -41,11 +41,12 @@ export const Container = ({
       },
     );
   }, []);
-
+  
   return (
     <Screen
       onSubmitForm={onSubmitForm}
       program={program}
+      patient={selectedPatient}
       verticalPositions={verticalPositions}
       containerScrollView={containerScrollView}
       formValidationSchema={formValidationSchema}

@@ -44,10 +44,11 @@ export const Routes = {
     ProgramStack: {
       name: 'ProgramStack',
       ProgramListScreen: 'ProgramListScreen',
+      SurveyResponseDetailsScreen: 'SurveyResponseDetailsScreen',
       ProgramTabs: {
         name: 'ProgramTabs',
-        AddDetails: 'AddDetails',
-        ViewHistory: 'ViewHistory',
+        AddDetails: 'AddProgramDetails',
+        ViewHistory: 'ViewProgramHistory',
       },
     },
     ReferralTabs: {

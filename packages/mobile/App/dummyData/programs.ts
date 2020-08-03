@@ -3,10 +3,12 @@ const makeOptions = options => options.map(x => ({ label: x, value: x }));
 export const dummyPrograms = [
   {
     name: 'Covid-19',
+    id: '123-456-789',
     questions: [],
   },
   {
     name: 'PEN NCD Assessment',
+    id: '987-654-321',
     questions: [
       {
         id: "NCDScreen1",
@@ -97,13 +99,13 @@ export const dummyPrograms = [
       {
         id: "NCDScreen15",
         type: "Calculated",
-        indicator: "",
+        indicator: "BMI (calculated)",
         text: "What is the patient's calculated Body Mass Index (BMI)?", 
       },
       {
         id: "NCDScreen16",
         type: "Result",
-        indicator: "",
+        indicator: "Risk factor (calculated)",
         text: "", 
       },
     ]
