@@ -11,8 +11,9 @@ function getInitialValue(question) {
     case FieldTypes.MULTILINE:
     case FieldTypes.NUMBER:
       return '';
+    case FieldTypes.DATE:
     default: 
-      return null;
+      return undefined;
   }
 }
 
@@ -24,10 +25,31 @@ export function getFormInitialValues(
   const initialValues = questions.reduce<{ [key: string]: any }>((acc, question) => {
     const initialValue = getInitialValue(question);
     const propName = question.id;
+    if(initialValue === undefined) {
+      return acc;
+    }
     acc[propName] = initialValue;
     return acc;
   }, {});
   return initialValues;
+}
+
+function getFieldValidator(question) {
+  switch(question.type) {
+    case FieldTypes.INSTRUCTION:
+    case FieldTypes.CALCULATED:
+    case FieldTypes.RESULT:
+      return null;
+    case FieldTypes.DATE:
+      return Yup.date();
+    case FieldTypes.BINARY:
+      return Yup.bool();
+    case FieldTypes.NUMBER:
+    case FieldTypes.TEXT:
+    case FieldTypes.MULTILINE:
+    default:
+      return Yup.string();  
+  }
 }
 
 export function getFormSchema(program: ProgramModel): Yup.ObjectSchema {
@@ -35,15 +57,12 @@ export function getFormSchema(program: ProgramModel): Yup.ObjectSchema {
   const objectShapeSchema = questions.reduce<{ [key: string]: any }>(
     (acc, question) => {
       const propName = question.id;
-      const isDateType = question.type === FieldTypes.DATE;
-      const yupDateSchema = Yup.date();
-      const yupStringSchema = Yup.string();
-      if (question.required) {
-        acc[propName] = isDateType
-          ? yupDateSchema.required()
-          : yupStringSchema.required();
+      const validator = getFieldValidator(question);
+      if(!validator) return acc;
+      if(question.required) {
+        acc[propName] = validator.isRequired();
       } else {
-        acc[propName] = isDateType ? yupDateSchema : yupStringSchema;
+        acc[propName] = validator;
       }
       return acc;
     },

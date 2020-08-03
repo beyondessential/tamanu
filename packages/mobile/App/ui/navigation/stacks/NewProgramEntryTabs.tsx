@@ -3,6 +3,7 @@ import { RouteProp, NavigationProp } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 import { compose } from 'redux';
 import { ProgramAddDetailsScreen } from '../screens/programs/tabs/ProgramAddDetailsScreen';
+import { ProgramViewHistoryScreen } from '../screens/programs/tabs/ProgramViewHistoryScreen';
 import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
 import { ProgramModel } from '/models/Program';
@@ -65,7 +66,7 @@ const TabNavigator = ({
             title: 'VIEW HISTORY',
           }}
           name={Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory}
-          component={ProgramAddDetailsScreen}
+          component={ProgramViewHistoryScreen}
         />
       </Tabs.Navigator>
     </FullView>
