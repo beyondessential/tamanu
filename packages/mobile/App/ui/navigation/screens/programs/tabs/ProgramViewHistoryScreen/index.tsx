@@ -21,12 +21,12 @@ import { useCancelableEffect } from '/helpers/hooks';
 
 const SurveyResponseItem = ({ surveyResponse }) => {
   const navigation = useNavigation();
-  const onPress = () => navigation.navigate(
+  const onPress = useCallback(() => navigation.navigate(
     Routes.HomeStack.ProgramStack.SurveyResponseDetailsScreen,
     {
       surveyResponse
     }
-  );
+  ));
 
   const { patient, program } = surveyResponse;
 
