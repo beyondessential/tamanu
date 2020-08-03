@@ -23,7 +23,7 @@ export const FormFields = ({
       .map((question, index) => (
         <React.Fragment key={question.id}>
           <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
-            {question.text}{`${shouldShow(question)}`}
+            {question.text}
           </SectionHeader>
           <ProgramQuestion
             key={question.id}
