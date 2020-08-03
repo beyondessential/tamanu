@@ -28,11 +28,13 @@ const SurveyResponseItem = ({ surveyResponse }) => {
     }
   );
 
+  const { patient, program } = surveyResponse;
+
   return (
     <TouchableOpacity onPress={onPress}>
       <StyledView height={55} justifyContent="center">
-        <StyledText>{ surveyResponse.program.name }</StyledText>
-        <StyledText>{ surveyResponse.name }</StyledText>
+        <StyledText>{ program.name }</StyledText>
+        <StyledText>{`${patient.firstName} ${patient.lastName}`}</StyledText>
       </StyledView>
     </TouchableOpacity>
   );

@@ -9,11 +9,11 @@ class SurveyStore {
     return this.responses;
   }
 
-  async submitSurvey(program, answers) {
+  async submitSurvey(patient, program, answers) {
     this.responses.push({
       date: new Date(),
-      name: `Resp ${Math.random().toFixed(3)}`, 
       program,
+      patient,
       answers,
     });
   }

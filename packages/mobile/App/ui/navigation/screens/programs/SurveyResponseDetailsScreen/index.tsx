@@ -41,7 +41,7 @@ export const SurveyResponseDetailsScreen = ({
 
   const navigation = useNavigation();
   const { surveyResponse } = route.params;
-  const { program, answers, ...rest } = surveyResponse;
+  const { patient, program, answers, ...rest } = surveyResponse;
   const goBack = useCallback(() => {
     navigation.goBack();
   }, []);
@@ -60,7 +60,7 @@ export const SurveyResponseDetailsScreen = ({
     <FullView>
       <StackHeader
         subtitle={program.name}
-        title={surveyResponse.name}
+        title={`${patient.firstName} ${patient.lastName}`}
         onGoBack={goBack}
       />
       {questionItems}

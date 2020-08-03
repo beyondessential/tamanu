@@ -51,6 +51,7 @@ const TabNavigator = ({
         <Tabs.Screen
           initialParams={{
             program,
+            selectedPatient,
           }}
           options={{
             title: 'Add Details',
