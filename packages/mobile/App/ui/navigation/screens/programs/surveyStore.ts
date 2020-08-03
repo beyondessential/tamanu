@@ -22,7 +22,10 @@ class SurveyStore {
       .filter(q => q.calculation)
       .forEach(q => {
         try {
-          updatedAnswers[q.id] = q.calculation(updatedAnswers);
+          const answer = q.calculation(updatedAnswers);
+          if(answer !== undefined && !Number.isNaN(answer)) {
+            updatedAnswers[q.id] = answer;
+          }
         } catch(e) {
           // TODO: handle bad calculation
         }

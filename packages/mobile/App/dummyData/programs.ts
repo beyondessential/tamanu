@@ -102,7 +102,7 @@ export const dummyPrograms = [
         indicator: "BMI (calculated)",
         calculation: (answers) => {
           const { NCDScreen13, NCDScreen14 } = answers;
-          return parseFloat(NCDScreen13)/(parseFloat(NCDScreen14)*parseFloat(NCDScreen14)) || undefined;
+          return parseFloat(NCDScreen13)/(parseFloat(NCDScreen14)*parseFloat(NCDScreen14));
         },
         text: "What is the patient's calculated Body Mass Index (BMI)?", 
       },
@@ -111,7 +111,7 @@ export const dummyPrograms = [
         type: "Result",
         calculation: (answers) => {
           const { NCDScreen13, NCDScreen14, NCDScreen12 } = answers;
-          return parseFloat(NCDScreen12) + parseFloat(NCDScreen13)/(parseFloat(NCDScreen14)*parseFloat(NCDScreen14)) || undefined;
+          return parseFloat(NCDScreen12) + parseFloat(NCDScreen13)/(parseFloat(NCDScreen14)*parseFloat(NCDScreen14));
         },
         indicator: "Risk factor (calculated)",
         text: "", 
