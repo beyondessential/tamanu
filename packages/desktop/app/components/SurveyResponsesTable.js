@@ -4,14 +4,12 @@ import { connect } from 'react-redux';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
-// import { viewSurveyResponse } from '../store/labRequest';
-//
 const viewSurveyResponse = () => {};
 
-const getDate = ({ endTime }) => <DateDisplay date={endTime} />;
-const getAssessorName = ({ assessor }) => assessor.name;
-const getProgramName = ({ survey }) => survey.program[0].name;
-const getSurveyName = ({ survey }) => survey.name;
+const getDate = ({ startDate }) => <DateDisplay date={startDate} />;
+const getAssessorName = ({ assessorName }) => assessorName;
+const getProgramName = ({ programName }) => programName;
+const getSurveyName = ({ name }) => name;
 const getResults = ({ survey }) => survey.outcome;
 
 const columns = [

@@ -70,13 +70,19 @@ encounterRelations.get('/:id/surveyResponses', asyncHandler(async (req, res) => 
         SELECT
           survey_responses.*,
           surveys.*,
-          programs.name as program_name
+          programs.name as program_name,
+          encounters.start_date,
+          users.display_name as assessor_name
         FROM
           survey_responses
           LEFT JOIN surveys
             ON (survey_responses.survey_id = surveys.id)
           LEFT JOIN programs
             ON (programs.id = surveys.program_id)
+          LEFT JOIN encounters
+            ON (encounters.id = survey_responses.encounter_id)
+          LEFT JOIN users
+            ON (users.id = encounters.examiner_id)
         WHERE
           survey_responses.encounter_id = :encounterId
       `,
