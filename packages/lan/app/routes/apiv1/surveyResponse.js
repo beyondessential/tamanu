@@ -29,7 +29,6 @@ surveyResponse.post(
       examinerId: req.user.id,
       startTime: new Date(),
       endTime: new Date(),
-      result: Math.floor(Math.random() * 100),
       ...body,
     };
 
