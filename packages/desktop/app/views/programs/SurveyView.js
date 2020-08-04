@@ -6,6 +6,7 @@ import {
   SelectField,
   DateField,
   NullableBooleanField,
+  AutocompleteField,
 } from 'desktop/app/components/Field';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { Button } from 'desktop/app/components/Button';
@@ -16,13 +17,12 @@ import { PatientDisplay } from './PatientDisplay';
 
 const QUESTION_COMPONENTS = {
   Instruction: null,
+  Autocomplete: AutocompleteField,
   Date: DateField,
   FreeText: TextField,
   Radio: SelectField,
-
   Binary: NullableBooleanField,
   Checkbox: NullableBooleanField,
-
   default: TextField,
 };
 
@@ -53,10 +53,14 @@ const SurveyQuestion = ({ component }) => {
   );
 };
 
-function checkVisibility({ visibilityCriteria }, values) {
+function checkVisibility({ visibilityCriteria }, values, components) {
   if (!visibilityCriteria) return true;
 
-  const [key, requiredValue] = visibilityCriteria.split(':').map(x => x.trim());
+  const [code, requiredValue] = visibilityCriteria.split(':').map(x => x.trim());
+  const referencedComponent = components.find(c => c.dataElement.code === code);
+  if(!referencedComponent) return true;
+
+  const key = referencedComponent.dataElement.id;
   const formValue = values[key];
 
   const sanitisedValue = (requiredValue || '').toLowerCase().trim();
@@ -73,7 +77,7 @@ function checkVisibility({ visibilityCriteria }, values) {
 
 const SurveyScreen = ({ components, values, onStepForward, onStepBack }) => {
   const questionElements = components
-    .filter(c => checkVisibility(c, values))
+    .filter(c => checkVisibility(c, values, components))
     .map(c => <SurveyQuestion component={c} key={c.id} />);
 
   return (

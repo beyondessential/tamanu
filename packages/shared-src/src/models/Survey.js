@@ -40,6 +40,7 @@ export class SurveyScreenComponent extends Model {
         screenIndex: Sequelize.INTEGER,
         componentIndex: Sequelize.INTEGER,
         text: Sequelize.STRING,
+        visibilityCriteria: Sequelize.STRING,
         options: Sequelize.STRING,
       },
       options,
