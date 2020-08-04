@@ -47,7 +47,8 @@ const SurveyResponseItem = ({ surveyResponse, responseIndex }) => {
         padding={8}
         background={
           responseIndex % 2 ? theme.colors.BACKGROUND_GREY : theme.colors.WHITE
-        }>
+        }
+      >
         <StyledText fontWeight="bold">{`${patient.firstName} ${patient.lastName}`}</StyledText>
         <StyledView justifyContent="space-between" flexDirection="row">
           <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>

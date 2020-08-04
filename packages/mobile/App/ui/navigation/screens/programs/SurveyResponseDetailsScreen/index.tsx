@@ -59,13 +59,3 @@ export const SurveyResponseDetailsScreen = ({ route }) => {
     </FullView>
   );
 };
-    <FullView>
-      <StackHeader
-        subtitle={program.name}
-        title={`${patient.firstName} ${patient.lastName}`}
-        onGoBack={goBack}
-      />
-      {questionItems}
-    </FullView>
-  );
-};
