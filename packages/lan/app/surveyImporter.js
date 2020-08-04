@@ -108,6 +108,7 @@ async function writeScreen(models, survey, { screenIndex, dataElements }) {
       dataElementId: dataElement.id,
       screenIndex,
       componentIndex: i,
+      visibilityCriteria: q.visibilityCriteria,
     });
     return component;
   });
