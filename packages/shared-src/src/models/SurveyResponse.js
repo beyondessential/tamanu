@@ -7,6 +7,10 @@ export class SurveyResponse extends Model {
     super.init(
       {
         id: primaryKey,
+
+        startTime: { type: Sequelize.DATE, allowNull: false, },
+        endTime: { type: Sequelize.DATE, allowNull: false, },
+        result: Sequelize.FLOAT,
       },
       options,
     );

@@ -6,11 +6,11 @@ import { DateDisplay } from './DateDisplay';
 
 const viewSurveyResponse = () => {};
 
-const getDate = ({ startDate }) => <DateDisplay date={startDate} />;
+const getDate = ({ endTime }) => <DateDisplay date={endTime} />;
 const getAssessorName = ({ assessorName }) => assessorName;
 const getProgramName = ({ programName }) => programName;
 const getSurveyName = ({ name }) => name;
-const getResults = ({ survey }) => survey.outcome;
+const getResults = ({ result }) => result;
 
 const columns = [
   { key: 'endTime', title: 'Date submitted', accessor: getDate },
