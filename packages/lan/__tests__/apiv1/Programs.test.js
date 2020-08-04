@@ -322,18 +322,5 @@ describe('Programs', () => {
       });
       expect(result).toHaveRequestError();
     });
-
-    it('should require an examiner', async () => {
-      // get some valid ids
-      const { departmentId, locationId } = await createDummyEncounter(models);
-
-      const result = await app.post(`/v1/surveyResponse`).send({
-        ...createDummySurveyResponse(testSurvey),
-        patientId: testPatient.id,
-        departmentId,
-        locationId,
-      });
-      expect(result).toHaveRequestError();
-    });
   });
 });

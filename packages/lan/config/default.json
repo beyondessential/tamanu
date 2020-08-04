@@ -18,6 +18,12 @@
     "saltRounds": 10,
     "tokenDuration": "1h"
   },
+  "survey": {
+    "defaultCodes": {
+      "department": "MEDICAL",
+      "location": "SHORTSTAY"
+    }
+  },
   "schedules": {
     "encounterDischarger": "0 0 2 ? * * *"
   }
