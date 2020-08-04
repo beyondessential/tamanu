@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { StyledView, StyledText , FullView } from '/styled/common';
+import { StyledView, StyledText, FullView } from '/styled/common';
 import { theme } from '/styled/theme';
 
 import { StackHeader } from '/components/StackHeader';
@@ -38,8 +38,7 @@ const AnswerItem = ({ question, answer, index, answersLength }) => (
     paddingLeft={16}
     paddingRight={16}
     background={index % 2 ? theme.colors.WHITE : theme.colors.BACKGROUND_GREY}
-    borderTopWidth={index === answersLength - 2 ? 1 : 0}
-  >
+    borderTopWidth={index === answersLength - 2 ? 1 : 0}>
     <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
       {question.indicator}
     </StyledText>
