@@ -10,9 +10,7 @@ import { Colors } from '../../constants';
 
 const SuggestionsContainer = styled(Popper)`
   z-index: 999;
-  top: initial;
-  left: initial;
-  transform: none;
+  width: 100%;
 `;
 
 const SuggestionsList = styled(Paper)`
@@ -20,6 +18,13 @@ const SuggestionsList = styled(Paper)`
     margin: 0;
     padding: 0;
     list-style-type: none;
+  }
+`;
+
+const AutocompleteContainer = styled.div`
+  // react auto suggest does not take a style or class prop so the only way to style it is to wrap it
+  .react-autosuggest__container {
+    position: relative;
   }
 `;
 
@@ -150,11 +155,9 @@ class BaseAutocomplete extends Component {
   };
 
   renderContainer = option => (
-    <SuggestionsContainer anchorEl={this.popperNode} open={!!option.children} disablePortal>
+    <SuggestionsContainer anchorEl={this.popperNode} open={!!option.children} placement="bottom-start" disablePortal>
       <SuggestionsList
-        square
         {...option.containerProps}
-        style={{ width: this.popperNode ? this.popperNode.clientWidth : null }}
       >
         {option.children}
       </SuggestionsList>
@@ -166,27 +169,29 @@ class BaseAutocomplete extends Component {
     const { label, required, name, disabled, error, helperText, placeholder } = this.props;
 
     return (
-      <Autosuggest
-        suggestions={suggestions}
-        onSuggestionsFetchRequested={this.fetchOptions}
-        onSuggestionsClearRequested={this.clearOptions}
-        renderSuggestionsContainer={this.renderContainer}
-        getSuggestionValue={this.handleSuggestionChange}
-        renderSuggestion={this.renderSuggestion}
-        renderInputComponent={renderInputComponent}
-        inputProps={{
-          label,
-          required,
-          disabled,
-          error,
-          helperText,
-          name,
-          placeholder,
-          value: displayedValue,
-          onChange: this.handleInputChange,
-          inputRef: this.onPopperRef,
-        }}
-      />
+      <AutocompleteContainer>
+        <Autosuggest
+          suggestions={suggestions}
+          onSuggestionsFetchRequested={this.fetchOptions}
+          onSuggestionsClearRequested={this.clearOptions}
+          renderSuggestionsContainer={this.renderContainer}
+          getSuggestionValue={this.handleSuggestionChange}
+          renderSuggestion={this.renderSuggestion}
+          renderInputComponent={renderInputComponent}
+          inputProps={{
+            label,
+            required,
+            disabled,
+            error,
+            helperText,
+            name,
+            placeholder,
+            value: displayedValue,
+            onChange: this.handleInputChange,
+            inputRef: this.onPopperRef,
+          }}
+        />
+      </AutocompleteContainer>
     );
   }
 }
@@ -195,6 +200,7 @@ export const AutocompleteInput = styled(BaseAutocomplete)`
   height: 250px;
   flex-grow: 1;
 `;
+
 export const AutocompleteField = ({ field, ...props }) => (
   <AutocompleteInput
     name={field.name}

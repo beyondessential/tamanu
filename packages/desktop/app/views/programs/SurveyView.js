@@ -6,6 +6,7 @@ import {
   SelectField,
   DateField,
   NullableBooleanField,
+  AutocompleteField,
 } from 'desktop/app/components/Field';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { Button } from 'desktop/app/components/Button';
@@ -16,13 +17,12 @@ import { PatientDisplay } from './PatientDisplay';
 
 const QUESTION_COMPONENTS = {
   Instruction: null,
+  Autocomplete: AutocompleteField,
   Date: DateField,
   FreeText: TextField,
   Radio: SelectField,
-
   Binary: NullableBooleanField,
   Checkbox: NullableBooleanField,
-
   default: TextField,
 };
 

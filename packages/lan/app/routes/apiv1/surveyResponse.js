@@ -14,7 +14,7 @@ surveyResponse.post(
 
     req.checkPermission('create', 'SurveyResponse');
 
-    const getRefId = async type => {
+    const getRefDataId = async type => {
       const code = config.survey.defaultCodes[type];
       const record = await models.ReferenceData.findOne({ where: { type, code } });
       if (!record) {
@@ -24,8 +24,8 @@ surveyResponse.post(
     };
 
     const updatedBody = {
-      locationId: body.locationId || (await getRefId(REFERENCE_TYPES.LOCATION)),
-      departmentId: body.departmentId || (await getRefId(REFERENCE_TYPES.DEPARTMENT)),
+      locationId: body.locationId || (await getRefDataId(REFERENCE_TYPES.LOCATION)),
+      departmentId: body.departmentId || (await getRefDataId(REFERENCE_TYPES.DEPARTMENT)),
       examinerId: req.user.id,
       ...body,
     };
