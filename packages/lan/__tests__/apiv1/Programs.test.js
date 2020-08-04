@@ -180,7 +180,7 @@ describe('Programs', () => {
       const responses = await submitMultipleSurveyResponses(testSurvey, {
         encounterId: testEncounter.id,
       });
-      const result = await app.get(`/v1/encounter/${testEncounter.id}/surveyResponses`);
+      const result = await app.get(`/v1/encounter/${testEncounter.id}/surveyResponses?rowsPerPage=100`);
       expect(result).toHaveSucceeded();
 
       expect(result.body.count).toEqual(responses.length);
