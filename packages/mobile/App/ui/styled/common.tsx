@@ -9,7 +9,6 @@ import {
   flexbox,
   background,
   color,
-  border,
   fontWeight,
   fontSize,
   lineHeight,
@@ -124,8 +123,7 @@ export const StyledView = styled.View<StyledViewProps>`
   ${margin}  
   ${padding}  
   ${flexbox}     
-  ${background}
-  ${border}
+  ${background}    
   ${({ borderLeftWidth }): string | number =>
     `border-left-width: ${borderLeftWidth}` || 0};  
   ${boxShadow}

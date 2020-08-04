@@ -67,7 +67,7 @@ export const ProgramViewHistoryScreen = ({
   const navigation = useNavigation();
 
   const [responses] = useCancelableEffect([], () => surveyStore.getResponses());
-  console.log(responses);
+
   return (
     <FlatList
       style={{
