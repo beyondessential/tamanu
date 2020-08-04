@@ -13,9 +13,10 @@ function getAnswerText(question, answer) {
 
   switch (question.type) {
     case FieldTypes.NUMBER:
-    case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:
     case FieldTypes.CALCULATED:
+      return answer;
+    case FieldTypes.TEXT:
     case FieldTypes.SELECT:
     case FieldTypes.RESULT:
     case FieldTypes.RADIO:

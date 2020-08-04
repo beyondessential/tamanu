@@ -76,7 +76,9 @@ export const dummyPrograms = [
         indicator: "Diabetes Type",
         text: "If known, what type of diabetes has the patient been diagnosed with?", 
         options: makeOptions(["Type 1", "Type 2"]),
-        visibilityCriteria: "NCDScreen10: Yes",
+        visibilityCriteria: (answers) => {
+          return answers.NCDScreen10;
+        },  
       },
       {
         id: "NCDScreen12",
@@ -100,11 +102,19 @@ export const dummyPrograms = [
         id: "NCDScreen15",
         type: "Calculated",
         indicator: "BMI (calculated)",
+        calculation: (answers) => {
+          const { NCDScreen13, NCDScreen14 } = answers;
+          return parseFloat(NCDScreen13)/(parseFloat(NCDScreen14)*parseFloat(NCDScreen14));
+        },
         text: "What is the patient's calculated Body Mass Index (BMI)?", 
       },
       {
         id: "NCDScreen16",
         type: "Result",
+        calculation: (answers) => {
+          const { NCDScreen13, NCDScreen14, NCDScreen12 } = answers;
+          return parseFloat(NCDScreen12) + parseFloat(NCDScreen13)/(parseFloat(NCDScreen14)*parseFloat(NCDScreen14));
+        },
         indicator: "Risk factor (calculated)",
         text: "", 
       },
