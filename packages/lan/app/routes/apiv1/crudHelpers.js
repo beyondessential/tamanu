@@ -94,7 +94,7 @@ export async function runPaginatedQuery(db, model, countQuery, selectQuery, para
   });
 
   const count = countResult[0].count;
-  if(count === 0) {
+  if (count === 0) {
     return {
       data: [],
       count: 0,
@@ -120,5 +120,3 @@ export async function runPaginatedQuery(db, model, countQuery, selectQuery, para
     data: forResponse,
   };
 }
-
-

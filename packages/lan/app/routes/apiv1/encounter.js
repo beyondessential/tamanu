@@ -53,10 +53,14 @@ encounterRelations.get(
   }),
 );
 
-encounterRelations.get('/:id/surveyResponses', asyncHandler(async (req, res) => {
+encounterRelations.get(
+  '/:id/surveyResponses',
+  asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     const encounterId = params.id;
-    const result = await runPaginatedQuery(db, models.SurveyResponse,
+    const result = await runPaginatedQuery(
+      db,
+      models.SurveyResponse,
       `
         SELECT COUNT(1) as count
         FROM
@@ -87,11 +91,11 @@ encounterRelations.get('/:id/surveyResponses', asyncHandler(async (req, res) => 
           survey_responses.encounter_id = :encounterId
       `,
       { encounterId },
-      query
+      query,
     );
 
     res.send(result);
-  })
+  }),
 );
 
 encounter.use(encounterRelations);

@@ -69,12 +69,13 @@ const SurveyQuestion = ({ component }) => {
 };
 
 function checkVisibility({ visibilityCriteria, dataElement }, values, components) {
-  if ([SURVEY_FIELD_TYPES.RESULT, SURVEY_FIELD_TYPES.CALCULATED].includes(dataElement.type)) return false;
+  if ([SURVEY_FIELD_TYPES.RESULT, SURVEY_FIELD_TYPES.CALCULATED].includes(dataElement.type))
+    return false;
   if (!visibilityCriteria) return true;
 
   const [code, requiredValue] = visibilityCriteria.split(':').map(x => x.trim());
   const referencedComponent = components.find(c => c.dataElement.code === code);
-  if(!referencedComponent) return true;
+  if (!referencedComponent) return true;
 
   const key = referencedComponent.dataElement.id;
   const formValue = values[key];

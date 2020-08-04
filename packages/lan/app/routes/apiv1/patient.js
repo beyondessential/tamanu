@@ -38,7 +38,9 @@ patientRelations.get(
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     const patientId = params.id;
-    const result = await runPaginatedQuery(db, model.SurveyResponse,
+    const result = await runPaginatedQuery(
+      db,
+      models.SurveyResponse,
       `
         SELECT COUNT(1) as count
         FROM
@@ -69,11 +71,11 @@ patientRelations.get(
           encounters.patient_id = :patientId
       `,
       { patientId },
-      query
+      query,
     );
 
     res.send(result);
-  })
+  }),
 );
 
 patient.use(patientRelations);

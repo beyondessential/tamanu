@@ -19,18 +19,18 @@ const port = config.port;
 async function importDemoPrograms(models) {
   const definitions = [
     {
-      programName: 'Covid-19', 
+      programName: 'Covid-19',
       surveyName: 'Covid-19 risk assessment',
       path: './data/demo_survey.xlsx',
     },
-    { 
-      programName: 'NCE PEN Assessment', 
+    {
+      programName: 'NCE PEN Assessment',
       surveyName: 'NCE Risk assessment survey',
       path: './data/demo_survey_pen_assessment.xlsx',
     },
-  ]
+  ];
 
-  for(let definition of definitions) {
+  for (const definition of definitions) {
     const { programName, surveyName, path } = definition;
 
     log.info(`Importing test survey ${programName}/${surveyName} from ${path}...`);

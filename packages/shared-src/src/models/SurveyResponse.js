@@ -8,8 +8,8 @@ export class SurveyResponse extends Model {
       {
         id: primaryKey,
 
-        startTime: { type: Sequelize.DATE, allowNull: false, },
-        endTime: { type: Sequelize.DATE, allowNull: false, },
+        startTime: { type: Sequelize.DATE, allowNull: false },
+        endTime: { type: Sequelize.DATE, allowNull: false },
         result: Sequelize.FLOAT,
       },
       options,
@@ -74,21 +74,20 @@ export class SurveyResponse extends Model {
     let result = null;
 
     const calculatedFieldTypes = ['Calculated', 'Result'];
-    const runCalculation = (dataElement, answersObject) => {
+    const runCalculation = (dataElement, answers) => {
       // TODO: parse calculation arithmetic from fields & use arithmetic module
       const getf = key => {
         const component = questions.find(x => x.dataElement.code === key);
-        if(!component) return NaN;
-        return parseFloat(answersObject[component.dataElement.id])
+        if (!component) return NaN;
+        return parseFloat(answers[component.dataElement.id]);
       };
 
-      if(dataElement.type === 'Calculated') {
+      if (dataElement.type === 'Calculated') {
         // hardcoded BMI calculation
-        return (getf('NCDScreen13'))/(getf('NCDScreen14')*getf('NCDScreen14'));
-      } else {
-        // hardcoded risk factor calculation
-        return 1000 + (getf('NCDScreen13'))/(getf('NCDScreen14')*getf('NCDScreen14'));
+        return getf('NCDScreen13') / (getf('NCDScreen14') * getf('NCDScreen14'));
       }
+      // hardcoded risk factor calculation
+      return 1000 + getf('NCDScreen13') / (getf('NCDScreen14') * getf('NCDScreen14'));
     };
 
     questions
@@ -96,7 +95,7 @@ export class SurveyResponse extends Model {
       .map(({ dataElement }) => {
         const answer = runCalculation(dataElement, answersObject);
         calculatedAnswers[dataElement.id] = answer;
-        if(dataElement.type === 'Result') {
+        if (dataElement.type === 'Result') {
           result = answer;
         }
       });
@@ -104,7 +103,7 @@ export class SurveyResponse extends Model {
     return {
       result,
       answers: calculatedAnswers,
-    }
+    };
   }
 
   async createAnswers(answersObject) {
@@ -134,10 +133,11 @@ export class SurveyResponse extends Model {
       throw new InvalidOperationError(`Invalid survey ID: ${surveyId}`);
     }
 
-    const {
-      answers: calculatedAnswers,
-      result
-    } = await this.runCalculations(surveyId, models, answers);
+    const { answers: calculatedAnswers, result } = await this.runCalculations(
+      surveyId,
+      models,
+      answers,
+    );
 
     const encounter = await this.getSurveyEncounter(models, survey, data);
     const record = await super.create({
@@ -149,7 +149,7 @@ export class SurveyResponse extends Model {
 
     await record.createAnswers({
       ...answers,
-      ...calculatedAnswers
+      ...calculatedAnswers,
     });
 
     return record;
