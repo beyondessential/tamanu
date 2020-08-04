@@ -10,6 +10,7 @@ import {
   simplePost,
   simpleGetList,
   permissionCheckingRouter,
+  runPaginatedQuery,
 } from './crudHelpers';
 
 export const encounter = express.Router();
@@ -45,12 +46,46 @@ encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'en
 encounterRelations.get('/:id/medications', simpleGetList('EncounterMedication', 'encounterId'));
 encounterRelations.get('/:id/procedures', simpleGetList('Procedure', 'encounterId'));
 encounterRelations.get('/:id/labRequests', simpleGetList('LabRequest', 'encounterId'));
-encounterRelations.get('/:id/surveyResponses', simpleGetList('SurveyResponse', 'encounterId'));
 encounterRelations.get(
   '/:id/notes',
   simpleGetList('Note', 'recordId', {
     additionalFilters: { recordType: NOTE_RECORD_TYPES.ENCOUNTER },
   }),
+);
+
+encounterRelations.get('/:id/surveyResponses', asyncHandler(async (req, res) => {
+    const { db, models, params, query } = req;
+    const encounterId = params.id;
+    const result = await runPaginatedQuery(db, models.SurveyResponse,
+      `
+        SELECT COUNT(1) as count
+        FROM
+          survey_responses
+          LEFT JOIN encounters
+            ON (survey_responses.encounter_id = encounters.id)
+        WHERE
+          survey_responses.encounter_id = :encounterId
+      `,
+      `
+        SELECT
+          survey_responses.*,
+          surveys.*,
+          programs.name as program_name
+        FROM
+          survey_responses
+          LEFT JOIN surveys
+            ON (survey_responses.survey_id = surveys.id)
+          LEFT JOIN programs
+            ON (programs.id = surveys.program_id)
+        WHERE
+          survey_responses.encounter_id = :encounterId
+      `,
+      { encounterId },
+      query
+    );
+
+    res.send(result);
+  })
 );
 
 encounter.use(encounterRelations);
