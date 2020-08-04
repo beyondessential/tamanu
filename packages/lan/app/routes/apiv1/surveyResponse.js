@@ -27,8 +27,6 @@ surveyResponse.post(
       locationId: body.locationId || (await getRefDataId(REFERENCE_TYPES.LOCATION)),
       departmentId: body.departmentId || (await getRefDataId(REFERENCE_TYPES.DEPARTMENT)),
       examinerId: req.user.id,
-      startTime: new Date(),
-      endTime: new Date(),
       ...body,
     };
 

@@ -141,6 +141,8 @@ export class SurveyResponse extends Model {
 
     const encounter = await this.getSurveyEncounter(models, survey, data);
     const record = await super.create({
+      startTime: new Date(),
+      endDate: new Date(),
       ...responseData,
       surveyId,
       encounterId: encounter.id,
