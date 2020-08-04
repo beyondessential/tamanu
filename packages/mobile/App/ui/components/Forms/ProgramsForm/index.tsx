@@ -22,13 +22,14 @@ export const ProgramsForm = ({
       initialValues={initialValues}
       onSubmit={onSubmit}
     >
-      {({ handleSubmit }): ReactElement => (
+      {({ handleSubmit, values }): ReactElement => (
         <FullView>
           <FormScreenView scrollViewRef={containerScrollView}>
             <FormFields
               program={program}
               verticalPositions={verticalPositions}
               scrollTo={scrollToField}
+              values={values}
             />
             <Button
               marginTop={10}
