@@ -3,8 +3,10 @@ import styled from 'styled-components';
 
 const COLORS = {
   green: '#83d452',
-  yellow: '#ffda5a',
+  yellow: '#ffea5a',
+  orange: '#fe8c00',
   red: '#ff2222',
+  deepred: '#971a1a',
 };
 
 const ColoredBadge = styled.div`
@@ -14,7 +16,7 @@ const ColoredBadge = styled.div`
 `;
 
 // TODO: read color coding string from survey instead of hardcoded
-const CODING_STRING = 'green 25 yellow 50 red';
+const CODING_STRING = 'green 10 yellow 20 orange 30 red 40 deepred';
 
 function parseThresholdString(s) {
   const colors = [];
@@ -46,6 +48,9 @@ function getColorForValue(result, thresholdString) {
 }
 
 export const SurveyResultBadge = ({ result }) => {
+  if (!result && result !== 0) {
+    return null;
+  }
   const colorName = getColorForValue(result, CODING_STRING);
-  return <ColoredBadge color={COLORS[colorName]}>{result}</ColoredBadge>;
+  return <ColoredBadge color={COLORS[colorName]}>{`${result.toFixed(2)}%`}</ColoredBadge>;
 };
