@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react';
-import { StyledView, StyledText , FullView } from '/styled/common';
+import { StyledView, StyledText, FullView } from '/styled/common';
 import { theme } from '/styled/theme';
 
 import { StackHeader } from '/components/StackHeader';
 import { useNavigation } from '@react-navigation/native';
 import { formatDate } from '/helpers/date';
-import { DateFormats, TimeFormats } from '/helpers/constants';
+import { DateFormats } from '/helpers/constants';
 import { FieldTypes } from '/helpers/fields';
 
 function getAnswerText(question, answer) {
@@ -29,7 +29,11 @@ function getAnswerText(question, answer) {
   }
 }
 
-const AnswerItem = ({ question, answer, index, answersLength }) => (
+const isCalculated = question =>
+  question.type === FieldTypes.CALCULATED ||
+  question.type === FieldTypes.RESULT;
+
+const AnswerItem = ({ question, answer, index }) => (
   <StyledView
     height={40}
     justifyContent="space-between"
@@ -37,9 +41,7 @@ const AnswerItem = ({ question, answer, index, answersLength }) => (
     alignItems="center"
     paddingLeft={16}
     paddingRight={16}
-    background={index % 2 ? theme.colors.WHITE : theme.colors.BACKGROUND_GREY}
-    borderTopWidth={index === answersLength - 2 ? 1 : 0}
-  >
+    background={index % 2 ? theme.colors.WHITE : theme.colors.BACKGROUND_GREY}>
     <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
       {question.indicator}
     </StyledText>
@@ -55,17 +57,19 @@ export const SurveyResponseDetailsScreen = ({ route }) => {
     navigation.goBack();
   }, []);
 
-  const questionItems = program.questions
+  const questionToAnswerItem = (q, i) => (
+    <AnswerItem index={i} key={q.id} question={q} answer={answers[q.id]} />
+  );
+
+  const basicAnswerItems = program.questions
     .filter(q => q.indicator)
-    .map((q, i, array) => (
-      <AnswerItem
-        index={i}
-        answersLength={array.length}
-        key={q.id}
-        question={q}
-        answer={answers[q.id]}
-      />
-    ));
+    .filter(q => !isCalculated(q))
+    .map(questionToAnswerItem);
+
+  const calculatedAnswerItems = program.questions
+    .filter(q => q.indicator)
+    .filter(q => isCalculated(q))
+    .map(questionToAnswerItem);
 
   return (
     <FullView>
@@ -74,7 +78,9 @@ export const SurveyResponseDetailsScreen = ({ route }) => {
         title={`${patient.firstName} ${patient.lastName}`}
         onGoBack={goBack}
       />
-      {questionItems}
+      {basicAnswerItems}
+      <StyledView borderTopWidth={1} height={1} />
+      {calculatedAnswerItems}
     </FullView>
   );
 };
