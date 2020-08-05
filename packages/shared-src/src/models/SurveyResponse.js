@@ -10,7 +10,7 @@ export class SurveyResponse extends Model {
 
         startTime: { type: Sequelize.DATE, allowNull: true },
         endTime: { type: Sequelize.DATE, allowNull: true },
-        result: Sequelize.FLOAT,
+        result: { type: Sequelize.FLOAT, allowNull: true },
       },
       options,
     );
