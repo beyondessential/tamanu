@@ -75,7 +75,6 @@ encounterRelations.get(
           survey_responses.*,
           surveys.*,
           programs.name as program_name,
-          encounters.start_date,
           users.display_name as assessor_name
         FROM
           survey_responses

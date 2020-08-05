@@ -18,14 +18,24 @@ const columns = [
   { key: 'assessorId', title: 'Submitted by', accessor: getAssessorName },
   { key: 'program', title: 'Program', accessor: getProgramName },
   { key: 'survey', title: 'Survey', accessor: getSurveyName },
-  { key: 'startTime', title: 'Results', accessor: getResults },
+  { key: 'results', title: 'Results', accessor: getResults },
 ];
+
+function getEndpoint({ encounterId, patientId }) {
+  if (encounterId) {
+    return `encounter/${encounterId}/surveyResponses`;
+  }
+  if (patientId) {
+    return `patient/${patientId}/surveyResponses`;
+  }
+  return 'surveyResponse';
+}
 
 export const DataFetchingSurveyResponsesTable = connect(null, dispatch => ({
   onSurveyResponseSelect: surveyResponse => dispatch(viewSurveyResponse(surveyResponse.id)),
-}))(({ encounterId, onSurveyResponseSelect }) => (
+}))(({ onSurveyResponseSelect, ...rest }) => (
   <DataFetchingTable
-    endpoint={encounterId ? `encounter/${encounterId}/surveyResponses` : 'surveyResponse'}
+    endpoint={getEndpoint(rest)}
     columns={columns}
     noDataMessage="No survey responses found"
     onRowClick={onSurveyResponseSelect}

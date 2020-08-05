@@ -54,11 +54,9 @@ patientRelations.get(
         SELECT
           survey_responses.*,
           surveys.*,
-          encounters.patient_id,
-          encounters.encounter_type,
-          encounters.start_date,
           encounters.examiner_id,
-          users.display_name
+          users.display_name as assessor_name,
+          programs.name as program_name
         FROM
           survey_responses
           LEFT JOIN encounters
@@ -67,6 +65,8 @@ patientRelations.get(
             ON (survey_responses.survey_id = surveys.id)
           LEFT JOIN users
             ON (users.id = encounters.examiner_id)
+          LEFT JOIN programs
+            ON (programs.id = surveys.program_id)
         WHERE
           encounters.patient_id = :patientId
       `,

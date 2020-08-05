@@ -236,9 +236,9 @@ describe('Programs', () => {
         expect(response.surveyId).toEqual(testSurvey.id);
 
         // expect encounter details to be included
-        expect(response).toHaveProperty('patientId', patient.id);
-        expect(response).toHaveProperty('encounterType');
-        expect(response).toHaveProperty('startDate');
+        expect(response).toHaveProperty('programName');
+        expect(response).toHaveProperty('assessorName');
+        expect(response).toHaveProperty('encounterId');
       };
 
       // ensure data is correct
