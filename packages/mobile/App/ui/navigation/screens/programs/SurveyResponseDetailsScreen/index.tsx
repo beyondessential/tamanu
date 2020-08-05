@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { formatDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { FieldTypes } from '/helpers/fields';
+import { SurveyResultBadge } from '/components/SurveyResultBadge';
 
 function getAnswerText(question, answer) {
   if (answer === null || answer === undefined) return 'N/A';
@@ -47,7 +48,10 @@ const AnswerItem = ({ question, answer, index }) => (
     <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
       {question.indicator}
     </StyledText>
-    <StyledText>{getAnswerText(question, answer)}</StyledText>
+    {question.type === FieldTypes.RESULT 
+      ? <SurveyResultBadge result={answer} />
+      : <StyledText>{getAnswerText(question, answer)}</StyledText>
+    }
   </StyledView>
 );
 
