@@ -19,7 +19,12 @@ export const ButtonBase = props => {
 };
 
 const StyledButton = styled(MuiButton)`
-  text-transform: capitalize;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+  text-transform: none;
+  padding: 11px 20px 12px;
+  box-shadow: none;
 `;
 
 export const Button = ({ children, isSubmitting, disabled, ...props }) => {
@@ -34,6 +39,14 @@ export const Button = ({ children, isSubmitting, disabled, ...props }) => {
     </StyledButton>
   );
 };
+
+const StyledOutlinedButton = styled(StyledButton)`
+  border-color: ${props => props.theme.palette.primary.main};;
+`;
+
+export const OutlinedButton = props => (
+  <StyledOutlinedButton variant="outlined" color="primary" {...props} />
+);
 
 export const ClearButton = props => (
   <Button variant="outlined" {...props}>
