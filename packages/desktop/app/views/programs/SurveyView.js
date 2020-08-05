@@ -200,11 +200,12 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
   );
 
   return (
-    <ContentPane>
+    <>
       <PatientDisplay />
-      <hr />
-      <h2>{survey.name}</h2>
-      {surveyContents}
-    </ContentPane>
+      <ContentPane>
+        <h2>{survey.name}</h2>
+        {surveyContents}
+      </ContentPane>
+    </>
   );
 };

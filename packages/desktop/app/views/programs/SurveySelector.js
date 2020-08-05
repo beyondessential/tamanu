@@ -42,35 +42,36 @@ export const SurveySelector = React.memo(({ onSelectSurvey, programs, onFetchSur
   }, [selectedSurveyId]);
 
   return (
-    <ContentPane>
+    <>
       <PatientDisplay />
-      <hr />
-      <FormGrid columns={1}>
-        <div>Please select a survey.</div>
-        <SelectInput
-          options={programOptions}
-          value={selectedProgramId}
-          onChange={onChangeProgram}
-          label="Select program"
-        />
-        <SelectInput
-          options={surveyOptions}
-          value={selectedSurveyId}
-          onChange={onChangeSurvey}
-          disabled={!selectedProgramId}
-          label="Select survey"
-        />
-        <ButtonRow>
-          <Button
-            onClick={onSubmit}
-            disabled={!selectedSurveyId}
-            variant="contained"
-            color="primary"
-          >
-            Begin survey
-          </Button>
-        </ButtonRow>
-      </FormGrid>
-    </ContentPane>
+      <ContentPane>
+        <FormGrid columns={1}>
+          <div>Please select a survey.</div>
+          <SelectInput
+            options={programOptions}
+            value={selectedProgramId}
+            onChange={onChangeProgram}
+            label="Select program"
+          />
+          <SelectInput
+            options={surveyOptions}
+            value={selectedSurveyId}
+            onChange={onChangeSurvey}
+            disabled={!selectedProgramId}
+            label="Select survey"
+          />
+          <ButtonRow>
+            <Button
+              onClick={onSubmit}
+              disabled={!selectedSurveyId}
+              variant="contained"
+              color="primary"
+            >
+              Begin survey
+            </Button>
+          </ButtonRow>
+        </FormGrid>
+      </ContentPane>
+    </>
   );
 });
