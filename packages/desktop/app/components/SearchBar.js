@@ -13,7 +13,7 @@ const Container = styled.div`
 const SearchInputContainer = styled.div`
   display: grid;
   grid-template-columns: auto 150px;
-  padding: 30px;
+  padding: 24px;
 
   .MuiInputBase-input {
     padding-top: 16px;

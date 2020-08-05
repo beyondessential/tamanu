@@ -23,9 +23,9 @@ const palette = {
     main: Colors.safe,
   },
   text: {
-    primary: Colors.darkText,
-    secondary: Colors.midText,
-    tertiary: Colors.softText,
+    primary: Colors.darkestText,
+    secondary: Colors.darkText,
+    tertiary: Colors.midText,
   },
   background: {
     default: Colors.background,

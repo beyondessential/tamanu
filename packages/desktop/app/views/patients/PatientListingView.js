@@ -16,6 +16,7 @@ import {
   location,
   department,
 } from './columns';
+import styled from 'styled-components';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -29,8 +30,12 @@ const BASE_COLUMNS_ON_PATIENT = BASE_COLUMNS.map(column => ({
 const LISTING_COLUMNS = [...BASE_COLUMNS, status];
 const INPATIENT_COLUMNS = [...BASE_COLUMNS_ON_PATIENT, location, department];
 
+const StyledDataTable = styled(DataFetchingTable)`
+  margin: 24px;
+`;
+
 const PatientTable = React.memo(({ onViewPatient, showInpatientDetails, ...props }) => (
-  <DataFetchingTable
+  <StyledDataTable
     columns={showInpatientDetails ? INPATIENT_COLUMNS : LISTING_COLUMNS}
     noDataMessage="No patients found"
     onRowClick={row => onViewPatient(row.id)}

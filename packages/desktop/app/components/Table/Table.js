@@ -139,6 +139,7 @@ class TableComponent extends React.Component {
     onRowClick: PropTypes.func,
     rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
     rowIdKey: PropTypes.string,
+    className: PropTypes.string,
   };
 
   static defaultProps = {
@@ -156,6 +157,7 @@ class TableComponent extends React.Component {
     rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
     rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,
     rowIdKey: 'id', // specific to data expected for tamanu REST api fetches
+    className: null,
   };
 
   getErrorMessage() {
@@ -233,9 +235,10 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { page } = this.props;
+    const { page, className } = this.props;
+    console.log('className', className);
     return (
-      <StyledTableContainer>
+      <StyledTableContainer className={className}>
         <StyledTable>
           <StyledTableHead>
             <TableRow>{this.renderHeaders()}</TableRow>

@@ -13,7 +13,7 @@ const Header = styled.div`
   align-items: center;
   justify-content: space-between;
   background: white;
-  padding: 1.8rem 1rem 1.5rem;
+  padding: 24px;
   box-shadow: 0 1px 0 ${Colors.outline};
 `;
 
@@ -33,7 +33,7 @@ const LightText = styled(Typography)`
   position: relative;
   font-size: 13px;
   line-height: 15px;
-  color: ${props => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.tertiary};
   margin-left: 8px;
   top: -2px;
 `;

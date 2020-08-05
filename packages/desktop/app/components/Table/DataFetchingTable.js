@@ -14,6 +14,7 @@ const DumbDataFetchingTable = memo(
     onRowClick,
     transformRow,
     initialSort = DEFAULT_SORT,
+    className,
   }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
@@ -75,6 +76,7 @@ const DumbDataFetchingTable = memo(
         rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
         noDataMessage={noDataMessage}
         onRowClick={onRowClick}
+        className={className}
       />
     );
   },
