@@ -22,5 +22,4 @@ export * from './Preloader';
 export * from './SearchBar';
 export * from './SimpleTable';
 export * from './Table';
-export * from './ThemeProvider';
 export * from './TamanuLogo';
