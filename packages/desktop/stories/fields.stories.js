@@ -17,6 +17,8 @@ import {
   NullableBooleanInput,
 } from '../app/components';
 import { IdInput } from '../app/components/Field/IdField';
+import styled from 'styled-components';
+import { Colors } from '../app/constants';
 
 const FRUITS = [
   { value: 'apples', label: 'Apples' },
@@ -28,6 +30,11 @@ const FRUITS = [
   { value: 'tomatoes', label: 'Tomatoes' },
   { value: 'cherries', label: 'Cherries' },
 ];
+
+const Container = styled.div`
+  padding: 1rem;
+  max-width: 500px;
+`;
 
 // All Input components are hardcoded to be bound to a containing state
 // (ie, if they're just used without value/onChange parameters they will
@@ -52,7 +59,11 @@ class StoryControlWrapper extends React.PureComponent {
   render() {
     const { Component, ...props } = this.props;
     const { value } = this.state;
-    return <Component {...props} value={value} onChange={this.onChange} />;
+    return (
+      <Container>
+        <Component {...props} value={value} onChange={this.onChange} />
+      </Container>
+    );
   }
 }
 
@@ -70,7 +81,7 @@ function addStories(name, Component, note) {
 
 addStories(
   'TextInput',
-  props => <StoryControlWrapper Component={TextInput} label="Display name" {...props} />,
+  props => <StoryControlWrapper Component={TextInput} label="Label Name" {...props} />,
   'Free text input.',
 ).add('Multiline', () => (
   <StoryControlWrapper Component={TextInput} label="Life story" multiline rows={4} />

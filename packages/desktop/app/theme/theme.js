@@ -46,6 +46,11 @@ const overrides = {
       borderColor: Colors.outline,
     },
   },
+  MuiOutlinedInput: {
+    notchedOutline: {
+      borderColor: Colors.outline,
+    }
+  }
 };
 
 export const theme = createMuiTheme({ palette, themeName, typography, shape, overrides });
