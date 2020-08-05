@@ -177,15 +177,19 @@ describe('Programs', () => {
     });
 
     it('should list survey responses from one encounter', async () => {
-      const responses = await submitMultipleSurveyResponses(testSurvey, {
-        encounterId: testEncounter.id,
+      const encounter = await models.Encounter.create({
+        patientId: testPatient.id,
+        ...(await createDummyEncounter(models)),
       });
-      const result = await app.get(`/v1/encounter/${testEncounter.id}/surveyResponses`);
+      const responses = await submitMultipleSurveyResponses(testSurvey, {
+        encounterId: encounter.id,
+      });
+      const result = await app.get(`/v1/encounter/${encounter.id}/surveyResponses?rowsPerPage=100`);
       expect(result).toHaveSucceeded();
 
       expect(result.body.count).toEqual(responses.length);
       result.body.data.map(response => {
-        expect(response.encounterId).toEqual(testEncounter.id);
+        expect(response.encounterId).toEqual(encounter.id);
         expect(response.surveyId).toEqual(testSurvey.id);
       });
     });
@@ -232,9 +236,9 @@ describe('Programs', () => {
         expect(response.surveyId).toEqual(testSurvey.id);
 
         // expect encounter details to be included
-        expect(response).toHaveProperty('patientId', patient.id);
-        expect(response).toHaveProperty('encounterType');
-        expect(response).toHaveProperty('startDate');
+        expect(response).toHaveProperty('programName');
+        expect(response).toHaveProperty('assessorName');
+        expect(response).toHaveProperty('encounterId');
       };
 
       // ensure data is correct

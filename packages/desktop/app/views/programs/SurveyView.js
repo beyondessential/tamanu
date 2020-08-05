@@ -7,6 +7,7 @@ import {
   DateField,
   NullableBooleanField,
   AutocompleteField,
+  NumberField,
 } from 'desktop/app/components/Field';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { Button } from 'desktop/app/components/Button';
@@ -14,6 +15,19 @@ import { ButtonRow } from 'desktop/app/components/ButtonRow';
 import { ContentPane } from 'desktop/app/components/ContentPane';
 
 import { PatientDisplay } from './PatientDisplay';
+
+const SURVEY_FIELD_TYPES = {
+  INSTRUCTION: 'Instruction',
+  AUTOCOMPLETE: 'Autocomplete',
+  DATE: 'Date',
+  FREETEXT: 'FreeText',
+  RADIO: 'Radio',
+  BINARY: 'Binary',
+  CHECKBOX: 'Checkbox',
+  NUMBER: 'Number',
+  RESULT: 'Result',
+  CALCULATED: 'Calculated',
+};
 
 const QUESTION_COMPONENTS = {
   Instruction: null,
@@ -23,6 +37,7 @@ const QUESTION_COMPONENTS = {
   Radio: SelectField,
   Binary: NullableBooleanField,
   Checkbox: NullableBooleanField,
+  Number: NumberField,
   default: TextField,
 };
 
@@ -53,7 +68,9 @@ const SurveyQuestion = ({ component }) => {
   );
 };
 
-function checkVisibility({ visibilityCriteria }, values, components) {
+function checkVisibility({ visibilityCriteria, dataElement }, values, components) {
+  if ([SURVEY_FIELD_TYPES.RESULT, SURVEY_FIELD_TYPES.CALCULATED].includes(dataElement.type))
+    return false;
   if (!visibilityCriteria) return true;
 
   const [code, requiredValue] = visibilityCriteria.split(':').map(x => x.trim());
