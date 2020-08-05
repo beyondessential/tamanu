@@ -17,7 +17,7 @@ const columns = [
   { key: 'assessorId', title: 'Submitted by', accessor: getAssessorName },
   { key: 'program', title: 'Program', accessor: getProgramName },
   { key: 'survey', title: 'Survey', accessor: getSurveyName },
-  { key: 'startTime', title: 'Results', accessor: getResults },
+  { key: 'results', title: 'Results', accessor: getResults },
 ];
 
 function getEndpoint({ encounterId, patientId }) {

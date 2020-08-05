@@ -238,7 +238,6 @@ describe('Programs', () => {
         // expect encounter details to be included
         expect(response).toHaveProperty('programName');
         expect(response).toHaveProperty('assessorName');
-        expect(response).toHaveProperty('startTime');
         expect(response).toHaveProperty('encounterId');
       };
 
