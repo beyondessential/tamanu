@@ -48,7 +48,12 @@ const SectionLabel = styled.div`
 
 const SearchInputContainer = styled.div`
   display: grid;
-  grid-template-columns: 2fr 2fr 2fr 2fr 1fr 1fr;
+  grid-template-columns: 2fr 2fr 2.5fr 2fr 2fr 1.5fr;
+
+  .MuiInputBase-input {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
 
   > div {
     :hover {

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 
-const StyledTextField = styled(MuiTextField)`
+export const StyledTextField = styled(MuiTextField)`
   .MuiInputBase-root {
     background: ${props => (props.disabled ? 'none' : Colors.white)};
   }
@@ -40,8 +40,9 @@ const StyledTextField = styled(MuiTextField)`
     color: ${props => props.theme.palette.text.primary};
   }
 
+  // text area fields
   .MuiOutlinedInput-multiline {
-    padding: 0;
+    padding: 0 0 5px 0;
   }
 
   .MuiInputAdornment-positionStart {

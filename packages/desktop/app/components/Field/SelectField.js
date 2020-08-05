@@ -1,17 +1,8 @@
 import React from 'react';
-import styled from 'styled-components';
-import MuiTextField from '@material-ui/core/TextField';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 import PropTypes from 'prop-types';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { Colors } from '../../constants';
-
-const StyledTextField = styled(MuiTextField)`
-  div:first-child {
-    background: ${props => (props.disabled ? 'none' : Colors.white)};
-    color: ${Colors.darkText};
-  }
-`;
+import { StyledTextField } from './TextField';
 
 export const SelectInput = ({
   options,
