@@ -32,7 +32,7 @@ export const SearchPatientTabs = (): ReactElement => (
   <Tabs.Navigator tabBarOptions={SearchPatientTabOptions}>
     <Tabs.Screen
       options={{
-        tabBarLabel: 'RECENT VIEWED PATIENTS',
+        tabBarLabel: 'RECENTLY VIEWED PATIENTS',
       }}
       name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.RecentViewed}
       component={RecentViewedScreen}
