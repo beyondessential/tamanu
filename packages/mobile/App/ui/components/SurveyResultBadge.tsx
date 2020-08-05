@@ -47,7 +47,12 @@ export const SurveyResultBadge = ({ result }) => {
   }
   const colorName = getColorForValue(result, CODING_STRING);
   return (
-    <StyledView paddingLeft="3" paddingRight="3" background={COLORS[colorName]}>
+    <StyledView 
+      paddingLeft="6"
+      paddingRight="6"
+      borderRadius={5}
+      background={COLORS[colorName]}
+    >
       <StyledText>
         {`${result.toFixed(2)}%`}
       </StyledText>
