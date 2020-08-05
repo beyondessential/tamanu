@@ -29,6 +29,8 @@ export const InputContainer = styled(StyledView)`
       return theme.colors.DEFAULT_OFF;
     }};
   border-radius: 3px;
+  padding-top: 3px;
+  text-align: center;
   width: 100%;
   height: 100%;
 `;
@@ -39,7 +41,7 @@ export const StyledTextInput = styled.TextInput<StyledViewProps>`
   font-weight: 400;
   height: 100%;
   justify-content: flex-start;
-  align-items: center;
+  top: -5px;
   color: ${theme.colors.TEXT_MID};
 `;
 
