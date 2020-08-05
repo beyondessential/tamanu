@@ -47,5 +47,5 @@ function getColorForValue(result, thresholdString) {
 
 export const SurveyResultBadge = ({ result }) => {
   const colorName = getColorForValue(result, CODING_STRING);
-  return <ColoredBadge color={COLORS[colorName]}>{result}</ColoredBadge>;
+  return <ColoredBadge color={COLORS[colorName]}>{`${result.toFixed(2)}%`}</ColoredBadge>;
 };
