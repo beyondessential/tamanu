@@ -53,7 +53,7 @@ patientRelations.get(
       `
         SELECT
           survey_responses.*,
-          surveys.*,
+          surveys.name as survey_name,
           encounters.examiner_id,
           users.display_name as assessor_name,
           programs.name as program_name

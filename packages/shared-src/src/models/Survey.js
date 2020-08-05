@@ -86,6 +86,7 @@ export class ProgramDataElement extends Model {
         id: primaryKey,
         code: Sequelize.STRING,
         name: Sequelize.STRING,
+        indicator: Sequelize.STRING,
         defaultText: Sequelize.STRING,
         defaultOptions: Sequelize.STRING,
         type: Sequelize.ENUM(DATA_ELEMENT_TYPE_VALUES),
