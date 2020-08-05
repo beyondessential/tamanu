@@ -20,6 +20,7 @@ import { Routes } from '/helpers/routes';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 import { StyledView, StyledText } from '/styled/common';
 import { Separator } from '/components/Separator';
+import { SurveyResultBadge } from '/components/SurveyResultBadge';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import { surveyStore } from '../../surveyStore';
@@ -49,12 +50,15 @@ const SurveyResponseItem = ({ surveyResponse, responseIndex }) => {
           responseIndex % 2 ? theme.colors.BACKGROUND_GREY : theme.colors.WHITE
         }
       >
-        <StyledText fontWeight="bold">{`${patient.firstName} ${patient.lastName}`}</StyledText>
+        <StyledView justifyContent="space-between" flexDirection="row">
+          <StyledText fontWeight="bold">{`${patient.firstName} ${patient.lastName}`}</StyledText>
+          <StyledText fontSize={10}>{`${date.toString().slice(0, 24)}`}</StyledText>
+        </StyledView>
         <StyledView justifyContent="space-between" flexDirection="row">
           <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
             {program.name}
           </StyledText>
-          <StyledText>{`${date.toString().slice(0, 24)}`}</StyledText>
+          <SurveyResultBadge result={20.3} />
         </StyledView>
       </StyledView>
     </TouchableOpacity>
