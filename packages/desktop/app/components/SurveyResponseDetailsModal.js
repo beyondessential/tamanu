@@ -60,9 +60,8 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
   const answerRows = components
     .filter(shouldShow)
     .map(component => {
-      const { dataElement, text, id } = component;
-      const { defaultText, type } = dataElement;
-      const indicator = text || defaultText;
+      const { dataElement, id } = component;
+      const { defaultText, type, indicator } = dataElement;
       const answerObject = answers.find(a => a.dataElementId === dataElement.id);
       const answer = answerObject ? answerObject.body : 'N/A';
       return { 
