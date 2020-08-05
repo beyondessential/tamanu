@@ -48,16 +48,11 @@ const SectionLabel = styled.div`
 
 const SearchInputContainer = styled.div`
   display: grid;
-  grid-template-columns: 2fr 2fr 2fr 2fr 1fr 1fr;
+  grid-template-columns: 2fr 2fr 2.5fr 2fr 2fr 1.5fr;
 
-  > div {
-    :hover {
-      border-right: 1px solid ${Colors.primary};
-    }
-
-    :focus-within {
-      border-right: 2px solid ${Colors.primary};
-    }
+  .MuiInputBase-input {
+    padding-top: 16px;
+    padding-bottom: 16px;
   }
 
   fieldset {

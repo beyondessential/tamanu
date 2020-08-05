@@ -3,14 +3,19 @@ import styled from 'styled-components';
 
 import { Colors } from '../../constants';
 
-const OuterLabel = styled.span`
+const OuterLabel = styled.div`
+  display: inline-block;
+  margin-bottom: 4px;
   color: ${Colors.darkText};
   font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+  letter-spacing: 0;
 `;
 
 const OuterLabelRequired = styled.span`
   color: ${Colors.alert};
-  padding-left: 2px;
+  padding-left: 3px;
 `;
 
 export const OuterLabelFieldWrapper = React.memo(
@@ -19,7 +24,7 @@ export const OuterLabelFieldWrapper = React.memo(
       {label && (
         <OuterLabel>
           {label}
-          <OuterLabelRequired>{required && '*'}</OuterLabelRequired>
+          {required && <OuterLabelRequired>*</OuterLabelRequired>}
         </OuterLabel>
       )}
       {children}

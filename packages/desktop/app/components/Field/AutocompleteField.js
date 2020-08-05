@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
-import { TextField, MenuItem, Popper, Paper, Typography } from '@material-ui/core';
+import { MenuItem, Popper, Paper, Typography } from '@material-ui/core';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Search from '@material-ui/icons/Search';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
+import { StyledTextField } from './TextField';
 
 const SuggestionsContainer = styled(Popper)`
   z-index: 999;
@@ -32,7 +33,7 @@ const renderInputComponent = inputProps => {
   const { inputRef = () => {}, ref, label, required, className, ...other } = inputProps;
   return (
     <OuterLabelFieldWrapper label={label} required={required} className={className} ref={ref}>
-      <TextField
+      <StyledTextField
         variant="outlined"
         InputProps={{
           endAdornment: (

@@ -16,15 +16,24 @@ const Grid = styled.div`
   justify-content: center;
   align-items: center;
   background-image: url(${splashImages[1]});
+  background-repeat: no-repeat;
+  background-size: cover;
 `;
 
 const LoginContainer = styled(Paper)`
-  padding: 30px;
-  min-width: 400px;
+  padding: 30px 60px 70px 60px;
+      width: 480px;
 `;
 
 const LogoContainer = styled.div`
   text-align: center;
+`;
+
+const LoginButton = styled(Button)`
+  font-size: 16px;
+  line-height: 18px;
+  padding-top: 16px;
+  padding-bottom: 16px;
 `;
 
 export class LoginView extends Component {
@@ -50,11 +59,9 @@ export class LoginView extends Component {
         <Field name="email" type="email" label="Email" required component={TextField} />
         <Field name="password" label="Password" type="password" required component={TextField} />
         <Field name="rememberMe" label="Remember me" component={CheckField} />
-        <div>
-          <Button fullWidth variant="contained" color="primary" onClick={submitForm}>
-            Login
-          </Button>
-        </div>
+        <LoginButton fullWidth variant="contained" color="primary" onClick={submitForm}>
+          Login to your account
+        </LoginButton>
       </FormGrid>
     );
   };
