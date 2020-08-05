@@ -4,10 +4,12 @@ import { ConnectedRouter } from 'connected-react-router';
 import { PersistGate } from 'redux-persist/integration/react';
 import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
-import { StylesProvider } from '@material-ui/styles';
+import { ThemeProvider } from 'styled-components';
+import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import { RoutingApp } from './RoutingApp';
 import { initClient } from './utils';
-import { Preloader, ThemeProvider } from './components';
+import { Preloader } from './components';
+import { theme } from './theme';
 
 export default function Root({ store, history, persistor }) {
   return (
@@ -15,10 +17,12 @@ export default function Root({ store, history, persistor }) {
       <PersistGate loading={<Preloader />} persistor={persistor} onBeforeLift={initClient()}>
         <ConnectedRouter history={history}>
           <StylesProvider injectFirst>
-            <ThemeProvider>
-              <CssBaseline />
-              <RoutingApp />
-            </ThemeProvider>
+            <MuiThemeProvider theme={theme}>
+              <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <RoutingApp />
+              </ThemeProvider>
+            </MuiThemeProvider>
           </StylesProvider>
         </ConnectedRouter>
       </PersistGate>

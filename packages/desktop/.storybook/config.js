@@ -1,13 +1,16 @@
 import React from 'react';
 import { configure, addDecorator } from '@storybook/react';
 
-import { ThemeProvider } from '../app/components/ThemeProvider';
+import { ThemeProvider } from 'styled-components';
 import { Colors } from '../app/constants';
 
 import styled from 'styled-components';
+import { CssBaseline } from '@material-ui/core';
+import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
+import { theme } from '../app/theme';
 
 // automatically import all files ending in *.stories.js
-const req = require.context('../stories', true, /.stories.js$/);
+const req = require.context('../stories', true, /stories.js$/);
 function loadStories() {
   const keys = req
     .keys()
@@ -28,10 +31,6 @@ const NoteHeader = styled.div`
   font-size: 10pt;
 `;
 
-const ColouredBackground = styled.div`
-  background: ${Colors.background};
-`;
-
 configure(loadStories, module);
 addDecorator((story, context, info) => {
   const note = context.parameters.note;
@@ -47,8 +46,14 @@ addDecorator((story, context, info) => {
     </div>
   );
 });
-addDecorator((story, context, info) => (
-  <ThemeProvider>
-    <ColouredBackground>{story()}</ColouredBackground>
-  </ThemeProvider>
+
+addDecorator(story => (
+  <StylesProvider injectFirst>
+    <MuiThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {story()}
+      </ThemeProvider>
+    </MuiThemeProvider>
+  </StylesProvider>
 ));

@@ -3,11 +3,14 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
-import { Button } from '../app/components/Button';
+import { Button, OutlinedButton } from '../app/components/Button';
 import { ButtonRow, ConfirmCancelRow } from '../app/components/ButtonRow';
 import { DropdownButton } from '../app/components/DropdownButton';
 
 storiesOf('Buttons/ButtonRow', module)
+  .add('Default', () => <Button variant="contained">Button</Button>)
+  .add('Primary', () => <Button variant="contained" color="primary">Button</Button>)
+  .add('Outlined', () => <OutlinedButton>Button</OutlinedButton>)
   .add('ConfirmCancel', () => (
     <ConfirmCancelRow onConfirm={action('confirm')} onCancel={action('confirm')} />
   ))

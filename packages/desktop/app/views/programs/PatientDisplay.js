@@ -3,7 +3,7 @@ import React, { memo } from 'react';
 import { connect } from 'react-redux';
 
 import { clearPatient } from 'desktop/app/store/patient';
-import { Button } from 'desktop/app/components/Button';
+import { OutlinedButton } from 'desktop/app/components/Button';
 
 export const PatientDisplay = connect(
   state => ({ patient: state.patient }),
@@ -15,7 +15,7 @@ export const PatientDisplay = connect(
     return (
       <p>
         {forInfo}
-        <Button onClick={onClearPatient} variant="contained">Change patient</Button>
+        <OutlinedButton onClick={onClearPatient}>Change patient</OutlinedButton>
       </p>
     );
   }),
