@@ -1,7 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
+import { QueryTypes } from 'sequelize';
+
 import { NotFoundError } from 'shared/errors';
+import { renameObjectKeys } from '~/utils/renameObjectKeys';
 
 // utility function for creating a subroute that all checks the same
 // action (for eg different relation reads on an encounter all check encounter.read)
@@ -83,3 +86,37 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
     });
   });
 };
+
+export async function runPaginatedQuery(db, model, countQuery, selectQuery, params, pagination) {
+  const countResult = await db.query(countQuery, {
+    replacements: params,
+    type: QueryTypes.SELECT,
+  });
+
+  const count = countResult[0].count;
+  if (count === 0) {
+    return {
+      data: [],
+      count: 0,
+    };
+  }
+
+  const { page = 0, rowsPerPage = 10 } = pagination;
+
+  const result = await db.query(`${selectQuery} LIMIT :limit OFFSET :offset`, {
+    replacements: {
+      ...params,
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
+    },
+    model: model,
+    type: QueryTypes.SELECT,
+    mapToModel: true,
+  });
+
+  const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
+  return {
+    count,
+    data: forResponse,
+  };
+}
