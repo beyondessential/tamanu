@@ -15,8 +15,9 @@ function getAnswerText(question, answer) {
   switch (question.type) {
     case FieldTypes.NUMBER:
     case FieldTypes.MULTILINE:
-    case FieldTypes.CALCULATED:
       return answer;
+    case FieldTypes.CALCULATED:
+      return (typeof answer === "number") ? answer.toFixed(1) : answer;
     case FieldTypes.TEXT:
     case FieldTypes.SELECT:
     case FieldTypes.RESULT:
