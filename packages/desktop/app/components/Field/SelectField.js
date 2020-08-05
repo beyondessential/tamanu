@@ -33,7 +33,7 @@ export const SelectInput = ({
           variant="outlined"
           classes={classes}
           disabled={disabled}
-          readonly={isReadonly}
+          readOnly={isReadonly}
           {...props}
         />
       </OuterLabelFieldWrapper>

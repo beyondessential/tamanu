@@ -58,7 +58,7 @@ function checkVisibility({ visibilityCriteria }, values, components) {
 
   const [code, requiredValue] = visibilityCriteria.split(':').map(x => x.trim());
   const referencedComponent = components.find(c => c.dataElement.code === code);
-  if(!referencedComponent) return true;
+  if (!referencedComponent) return true;
 
   const key = referencedComponent.dataElement.id;
   const formValue = values[key];
@@ -183,11 +183,12 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
   );
 
   return (
-    <ContentPane>
+    <>
       <PatientDisplay />
-      <hr />
-      <h2>{survey.name}</h2>
-      {surveyContents}
-    </ContentPane>
+      <ContentPane>
+        <h2>{survey.name}</h2>
+        {surveyContents}
+      </ContentPane>
+    </>
   );
 };
