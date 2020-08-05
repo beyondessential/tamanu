@@ -82,7 +82,7 @@ const PaddedSearchIcon = styled(SearchIcon)`
 `;
 
 const Section = styled.div`
-  padding: 30px;
+  padding: 24px;
 `;
 
 const RightSection = styled(Section)`

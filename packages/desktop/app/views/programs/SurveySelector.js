@@ -46,7 +46,7 @@ export const SurveySelector = React.memo(({ onSelectSurvey, programs, onFetchSur
       <PatientDisplay />
       <ContentPane>
         <FormGrid columns={1}>
-          <div>Please select a survey.</div>
+          <div>Please select a survey</div>
           <SelectInput
             options={programOptions}
             value={selectedProgramId}

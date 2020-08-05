@@ -1,4 +1,7 @@
 import React, { useCallback, useState } from 'react';
+import styled from 'styled-components';
+import Alert from '@material-ui/lab/Alert';
+
 import {
   Form,
   Field,
@@ -9,8 +12,9 @@ import {
   AutocompleteField,
   NumberField,
 } from 'desktop/app/components/Field';
+import { Typography } from '@material-ui/core';
 import { FormGrid } from 'desktop/app/components/FormGrid';
-import { Button } from 'desktop/app/components/Button';
+import { Button, OutlinedButton } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
 import { ContentPane } from 'desktop/app/components/ContentPane';
 
@@ -46,13 +50,17 @@ function mapOptionsToValues(options) {
   return options.map(x => ({ label: x, value: x }));
 }
 
+const Text = styled.div`
+  margin-bottom: 10px;
+`;
+
 const SurveyQuestion = ({ component }) => {
   const { defaultText, type, id, defaultOptions, detail } = component.dataElement;
   const text = component.text || defaultText;
   const options = mapOptionsToValues(component.options || defaultOptions);
 
   if (type === 'Instruction') {
-    return <div>{text}</div>;
+    return <Text>{text}</Text>;
   }
 
   const FieldComponent = QUESTION_COMPONENTS[type] || QUESTION_COMPONENTS.default;
@@ -67,6 +75,10 @@ const SurveyQuestion = ({ component }) => {
     />
   );
 };
+
+const StyledButtonRow = styled(ButtonRow)`
+  margin-top: 30px;
+`;
 
 function checkVisibility({ visibilityCriteria, dataElement }, values, components) {
   if ([SURVEY_FIELD_TYPES.RESULT, SURVEY_FIELD_TYPES.CALCULATED].includes(dataElement.type))
@@ -100,14 +112,14 @@ const SurveyScreen = ({ components, values, onStepForward, onStepBack }) => {
   return (
     <FormGrid columns={1}>
       {questionElements}
-      <ButtonRow>
-        <Button variant="contained" onClick={onStepBack || undefined} disabled={!onStepBack}>
-          Back
+      <StyledButtonRow>
+        <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
+          Prev
+        </OutlinedButton>
+        <Button color="primary" variant="contained" onClick={onStepForward}>
+          Next
         </Button>
-        <Button variant="contained" onClick={onStepForward}>
-          Forward
-        </Button>
-      </ButtonRow>
+      </StyledButtonRow>
     </FormGrid>
   );
 };
@@ -117,18 +129,22 @@ const COMPLETE_MESSAGE = `
   or use the Back button to review answers.
 `;
 
+const StyledAlert = styled(Alert)`
+  margin: 15px 0;
+`;
+
 const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   <div>
-    <div>{COMPLETE_MESSAGE}</div>
+    <StyledAlert severity="success">{COMPLETE_MESSAGE}</StyledAlert>
     <div>
-      <ButtonRow>
+      <StyledButtonRow>
         <Button variant="contained" onClick={onStepBack}>
           Back
         </Button>
         <Button color="primary" variant="contained" onClick={onSurveyComplete}>
           Complete
         </Button>
-      </ButtonRow>
+      </StyledButtonRow>
     </div>
   </div>
 );
@@ -168,13 +184,19 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel }) =
 const SurveyCompletedMessage = React.memo(({ onResetClicked }) => (
   <div>
     <p>Your response has been successfully submitted.</p>
-    <ButtonRow>
+    <StyledButtonRow>
       <Button variant="contained" color="primary" onClick={onResetClicked}>
         New survey
       </Button>
-    </ButtonRow>
+    </StyledButtonRow>
   </div>
 ));
+
+const SurveyHeading = styled(Typography)`
+  font-weight: 500;
+  font-size: 18px;
+  text-transform: capitalize;
+`;
 
 export const SurveyView = ({ survey, onSubmit, onCancel }) => {
   const [surveyCompleted, setSurveyCompleted] = useState(false);
@@ -203,7 +225,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
     <>
       <PatientDisplay />
       <ContentPane>
-        <h2>{survey.name}</h2>
+        <SurveyHeading variant="h6">{survey.name}</SurveyHeading>
         {surveyContents}
       </ContentPane>
     </>
