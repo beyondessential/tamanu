@@ -1,16 +1,15 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { SurveyResultBadge } from './SurveyResultBadge';
-
-const viewSurveyResponse = () => {};
+import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 
 const getDate = ({ endTime }) => <DateDisplay date={endTime} />;
 const getAssessorName = ({ assessorName }) => assessorName;
 const getProgramName = ({ programName }) => programName;
-const getSurveyName = ({ name }) => name;
+const getSurveyName = ({ surveyName }) => surveyName;
 const getResults = ({ result }) => <SurveyResultBadge result={result} />;
 
 const columns = [
@@ -31,13 +30,22 @@ function getEndpoint({ encounterId, patientId }) {
   return 'surveyResponse';
 }
 
-export const DataFetchingSurveyResponsesTable = connect(null, dispatch => ({
-  onSurveyResponseSelect: surveyResponse => dispatch(viewSurveyResponse(surveyResponse.id)),
-}))(({ onSurveyResponseSelect, ...rest }) => (
-  <DataFetchingTable
-    endpoint={getEndpoint(rest)}
-    columns={columns}
-    noDataMessage="No survey responses found"
-    onRowClick={onSurveyResponseSelect}
-  />
-));
+export const DataFetchingSurveyResponsesTable = ({ encounterId, patientId }) => {
+  const [selectedResponseId, setSelectedResponseId] = useState(null);
+  const onSelectResponse = useCallback(surveyResponse => {
+    setSelectedResponseId(surveyResponse.id);
+  }, []);
+  const cancelResponse = useCallback(() => setSelectedResponseId(null), []);
+
+  return (
+    <>
+      <SurveyResponseDetailsModal surveyResponseId={selectedResponseId} onClose={cancelResponse} />
+      <DataFetchingTable
+        endpoint={getEndpoint({ encounterId, patientId })}
+        columns={columns}
+        noDataMessage="No survey responses found"
+        onRowClick={onSelectResponse}
+      />
+    </>
+  );
+};

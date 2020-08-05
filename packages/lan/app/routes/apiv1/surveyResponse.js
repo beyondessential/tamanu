@@ -7,6 +7,26 @@ import { REFERENCE_TYPES } from 'shared/constants';
 
 export const surveyResponse = express.Router();
 
+surveyResponse.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    req.checkPermission('read', 'SurveyResponse');
+
+    const surveyResponse = await models.SurveyResponse.findByPk(params.id);
+    const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyResponse.surveyId);
+    const answers = await models.SurveyResponseAnswer.findAll({
+      where: { responseId: params.id },
+    });
+
+    res.send({
+      ...surveyResponse.forResponse(),
+      components,
+      answers,
+    });
+  }),
+);
+
 surveyResponse.post(
   '/$',
   asyncHandler(async (req, res) => {
