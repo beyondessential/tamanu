@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
+import { Typography } from '@material-ui/core';
 
 import {
   Form,
@@ -76,7 +77,7 @@ const SurveyQuestion = ({ component }) => {
 };
 
 const StyledButtonRow = styled(ButtonRow)`
-  margin-top: 30px;
+  margin-top: 24px;
 `;
 
 function checkVisibility({ visibilityCriteria, dataElement }, values, components) {
@@ -124,22 +125,19 @@ const SurveyScreen = ({ components, values, onStepForward, onStepBack }) => {
 };
 
 const COMPLETE_MESSAGE = `
-  Survey complete. Press "Complete" to submit your response,
+  Press "Complete" to submit your response,
   or use the Back button to review answers.
-`;
-
-const StyledAlert = styled(Alert)`
-  margin: 15px 0;
 `;
 
 const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   <div>
-    <div>{COMPLETE_MESSAGE}</div>
+    <Typography variant="h6" gutterBottom>Survey Complete</Typography>
+    <Text>{COMPLETE_MESSAGE}</Text>
     <div>
       <StyledButtonRow>
-        <Button variant="contained" onClick={onStepBack}>
-          Back
-        </Button>
+        <OutlinedButton onClick={onStepBack}>
+          Prev
+        </OutlinedButton>
         <Button color="primary" variant="contained" onClick={onSurveyComplete}>
           Complete
         </Button>
@@ -179,6 +177,10 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel }) =
 
   return <SurveySummaryScreen onStepBack={onStepBack} onSurveyComplete={onSurveyComplete} />;
 };
+
+const StyledAlert = styled(Alert)`
+  margin: 15px 0;
+`;
 
 const SurveyCompletedMessage = React.memo(({ onResetClicked }) => (
   <div>

@@ -8,6 +8,11 @@ import { SelectInput } from 'desktop/app/components/Field/SelectField';
 
 import { PatientDisplay } from './PatientDisplay';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
+import styled from 'styled-components';
+
+const StyledButtonRow = styled(ButtonRow)`
+  margin-top: 24px;
+`;
 
 export const SurveySelector = React.memo(({ onSelectSurvey, programs, onFetchSurveysList }) => {
   const [selectedProgramId, setSelectedProgramId] = useState(null);
@@ -46,7 +51,7 @@ export const SurveySelector = React.memo(({ onSelectSurvey, programs, onFetchSur
       <PatientDisplay />
       <ProgramsPane>
         <ProgramsPaneHeader>
-          <ProgramsPaneHeading variant="h6">Programs</ProgramsPaneHeading>
+          <ProgramsPaneHeading variant="h6">All Programs</ProgramsPaneHeading>
         </ProgramsPaneHeader>
         <FormGrid columns={1}>
           <div>Please select a survey</div>
@@ -63,16 +68,16 @@ export const SurveySelector = React.memo(({ onSelectSurvey, programs, onFetchSur
             disabled={!selectedProgramId}
             label="Select survey"
           />
-          <ButtonRow>
+          <StyledButtonRow>
             <Button
               onClick={onSubmit}
               disabled={!selectedSurveyId}
               variant="contained"
               color="primary"
             >
-              Begin survey
+              Begin Survey
             </Button>
-          </ButtonRow>
+          </StyledButtonRow>
         </FormGrid>
       </ProgramsPane>
     </>
