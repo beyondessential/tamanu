@@ -20,6 +20,7 @@ import { AppointmentTable } from '../../components/AppointmentTable';
 import { Button } from '../../components/Button';
 import { connectRoutedModal } from '../../components/Modal';
 import { PatientEncounterSummary } from './components/PatientEncounterSummary';
+import { DataFetchingSurveyResponsesTable } from '../../components/SurveyResponsesTable';
 
 import { PatientDetailsForm } from '../../forms/PatientDetailsForm';
 import { Suggester } from '../../utils/suggester';
@@ -120,6 +121,21 @@ const ConnectedPatientDetailsForm = connectApi((api, dispatch, { patient }) => (
   )),
 );
 
+const ProgramsPane = connect(null, dispatch => ({
+  onNavigateToPrograms: () => dispatch(push('/programs')),
+}))(
+  React.memo(({ onNavigateToPrograms, patient }) => (
+    <div>
+      <DataFetchingSurveyResponsesTable patientId={patient.id} />
+      <ContentPane>
+        <Button onClick={onNavigateToPrograms} variant="contained" color="primary">
+          New survey
+        </Button>
+      </ContentPane>
+    </div>
+  )),
+);
+
 const TABS = [
   {
     label: 'History',
@@ -137,13 +153,19 @@ const TABS = [
     label: 'Appointments',
     key: 'appointments',
     icon: 'fa fa-user-md',
-    render: props => <AppointmentPane {...props} />,
+    // render: props => <AppointmentPane {...props} />,
   },
   {
     label: 'Referrals',
     key: 'Referrals',
     icon: 'fa fa-hospital',
-    render: props => <ReferralPane {...props} />,
+    // render: props => <ReferralPane {...props} />,
+  },
+  {
+    label: 'Programs',
+    key: 'Programs',
+    icon: 'fa fa-hospital',
+    render: props => <ProgramsPane {...props} />,
   },
   {
     label: 'Documents',
