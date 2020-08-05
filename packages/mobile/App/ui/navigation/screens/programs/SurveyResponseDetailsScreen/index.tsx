@@ -42,7 +42,8 @@ const AnswerItem = ({ question, answer, index }) => (
     alignItems="center"
     paddingLeft={16}
     paddingRight={16}
-    background={index % 2 ? theme.colors.WHITE : theme.colors.BACKGROUND_GREY}>
+    background={index % 2 ? theme.colors.WHITE : theme.colors.BACKGROUND_GREY}
+  >
     <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
       {question.indicator}
     </StyledText>
