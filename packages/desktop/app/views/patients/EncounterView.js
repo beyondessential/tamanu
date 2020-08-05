@@ -218,7 +218,7 @@ const TABS = [
   {
     label: 'Imaging',
     key: 'imaging',
-    render: props => <ImagingPane {...props} />,
+    // render: props => <ImagingPane {...props} />,
   },
   {
     label: 'Medication',
