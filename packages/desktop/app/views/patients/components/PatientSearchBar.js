@@ -55,16 +55,6 @@ const SearchInputContainer = styled.div`
     padding-bottom: 16px;
   }
 
-  > div {
-    :hover {
-      border-right: 1px solid ${Colors.primary};
-    }
-
-    :focus-within {
-      border-right: 2px solid ${Colors.primary};
-    }
-  }
-
   fieldset {
     border-radius: 0;
     border-right: none;

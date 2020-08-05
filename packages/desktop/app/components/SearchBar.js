@@ -15,14 +15,9 @@ const SearchInputContainer = styled.div`
   grid-template-columns: auto 150px;
   padding: 30px;
 
-  > div {
-    :hover {
-      border-right: 1px solid ${Colors.primary};
-    }
-
-    :focus-within {
-      border-right: 2px solid ${Colors.primary};
-    }
+  .MuiInputBase-input {
+    padding-top: 16px;
+    padding-bottom: 16px;
   }
 
   fieldset {

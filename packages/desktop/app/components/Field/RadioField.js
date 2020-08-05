@@ -12,7 +12,7 @@ import { Colors } from '../../constants';
 const DEFAULT_RADIO_THEME = { default: Colors.outline, selected: Colors.primary };
 const DEFAULT_LABEL_THEME = {
   background: { default: Colors.white, selected: Colors.offWhite },
-  text: { default: Colors.midText, selected: Colors.primary },
+  text: { default: Colors.darkText, selected: Colors.primary },
 };
 
 const StyledFormControl = styled(FormControl)`
@@ -37,15 +37,20 @@ const StyledRadio = styled(Radio)`
 
 const ControlLabel = styled(FormControlLabel)`
   margin: 0;
-  padding: 15px 4px;
-  border: 1px solid rgba(0, 0, 0, 0.23);
+  padding: 10px 12px 10px 10px;
+  border: 1px solid ${Colors.outline};
   justify-content: center;
   background: ${props =>
     props.selected ? props.theme.background.selected : props.theme.background.default};
 
   span {
-    font-size: 1rem;
+    font-size: 14px;
+    line-height: 16px;
     padding: 0;
+  }
+
+  .MuiFormControlLabel-label {
+    padding: 0 0 0 3px;
   }
 
   span:last-of-type {
