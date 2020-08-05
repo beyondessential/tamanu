@@ -23,6 +23,7 @@ import { Separator } from '/components/Separator';
 import { SurveyResultBadge } from '/components/SurveyResultBadge';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
+import { FieldTypes } from '/helpers/fields';
 import { surveyStore } from '../../surveyStore';
 import { useCancelableEffect } from '/helpers/hooks';
 
@@ -38,6 +39,8 @@ const SurveyResponseItem = ({ surveyResponse, responseIndex }) => {
   );
 
   const { patient, program, date } = surveyResponse;
+  const resultQuestion = surveyResponse.program.questions.find(x => x.type === FieldTypes.RESULT);
+  const resultValue = resultQuestion ? surveyResponse.answers[resultQuestion.id] : undefined;
 
   return (
     <TouchableOpacity onPress={onPress}>
@@ -58,7 +61,10 @@ const SurveyResponseItem = ({ surveyResponse, responseIndex }) => {
           <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
             {program.name}
           </StyledText>
-          <SurveyResultBadge result={20.3} />
+          { resultValue 
+            ? <SurveyResultBadge result={resultValue} />
+            : <StyledText color="#ccc">N/A</StyledText>
+            }
         </StyledView>
       </StyledView>
     </TouchableOpacity>
