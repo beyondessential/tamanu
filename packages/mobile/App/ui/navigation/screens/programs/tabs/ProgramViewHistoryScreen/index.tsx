@@ -61,7 +61,7 @@ const SurveyResponseItem = ({ surveyResponse, responseIndex }) => {
           <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
             {program.name}
           </StyledText>
-          { resultValue 
+          { resultValue !== undefined
             ? <SurveyResultBadge result={resultValue} />
             : <StyledText color="#ccc">N/A</StyledText>
             }
