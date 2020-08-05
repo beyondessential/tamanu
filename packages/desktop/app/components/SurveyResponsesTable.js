@@ -21,10 +21,10 @@ const columns = [
 ];
 
 function getEndpoint({ encounterId, patientId }) {
-  if(encounterId) {
+  if (encounterId) {
     return `encounter/${encounterId}/surveyResponses`;
   }
-  if(patientId) {
+  if (patientId) {
     return `patient/${patientId}/surveyResponses`;
   }
   return 'surveyResponse';
