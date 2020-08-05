@@ -2,12 +2,12 @@ import React, { useState, useCallback, useEffect } from 'react';
 
 import { Button } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
-import { ContentPane } from 'desktop/app/components/ContentPane';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 
 import { SelectInput } from 'desktop/app/components/Field/SelectField';
 
 import { PatientDisplay } from './PatientDisplay';
+import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 
 export const SurveySelector = React.memo(({ onSelectSurvey, programs, onFetchSurveysList }) => {
   const [selectedProgramId, setSelectedProgramId] = useState(null);
@@ -44,7 +44,10 @@ export const SurveySelector = React.memo(({ onSelectSurvey, programs, onFetchSur
   return (
     <>
       <PatientDisplay />
-      <ContentPane>
+      <ProgramsPane>
+        <ProgramsPaneHeader>
+          <ProgramsPaneHeading variant="h6">Programs</ProgramsPaneHeading>
+        </ProgramsPaneHeader>
         <FormGrid columns={1}>
           <div>Please select a survey</div>
           <SelectInput
@@ -71,7 +74,7 @@ export const SurveySelector = React.memo(({ onSelectSurvey, programs, onFetchSur
             </Button>
           </ButtonRow>
         </FormGrid>
-      </ContentPane>
+      </ProgramsPane>
     </>
   );
 });

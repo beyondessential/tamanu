@@ -12,12 +12,11 @@ import {
   AutocompleteField,
   NumberField,
 } from 'desktop/app/components/Field';
-import { Typography } from '@material-ui/core';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { Button, OutlinedButton } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
-import { ContentPane } from 'desktop/app/components/ContentPane';
 
+import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { PatientDisplay } from './PatientDisplay';
 
 const SURVEY_FIELD_TYPES = {
@@ -135,7 +134,7 @@ const StyledAlert = styled(Alert)`
 
 const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   <div>
-    <StyledAlert severity="success">{COMPLETE_MESSAGE}</StyledAlert>
+    <div>{COMPLETE_MESSAGE}</div>
     <div>
       <StyledButtonRow>
         <Button variant="contained" onClick={onStepBack}>
@@ -183,7 +182,7 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel }) =
 
 const SurveyCompletedMessage = React.memo(({ onResetClicked }) => (
   <div>
-    <p>Your response has been successfully submitted.</p>
+    <StyledAlert severity="success">Your response has been successfully submitted.</StyledAlert>
     <StyledButtonRow>
       <Button variant="contained" color="primary" onClick={onResetClicked}>
         New survey
@@ -192,11 +191,6 @@ const SurveyCompletedMessage = React.memo(({ onResetClicked }) => (
   </div>
 ));
 
-const SurveyHeading = styled(Typography)`
-  font-weight: 500;
-  font-size: 18px;
-  text-transform: capitalize;
-`;
 
 export const SurveyView = ({ survey, onSubmit, onCancel }) => {
   const [surveyCompleted, setSurveyCompleted] = useState(false);
@@ -224,10 +218,12 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
   return (
     <>
       <PatientDisplay />
-      <ContentPane>
-        <SurveyHeading variant="h6">{survey.name}</SurveyHeading>
+      <ProgramsPane>
+        <ProgramsPaneHeader>
+          <ProgramsPaneHeading variant="h6">{survey.name}</ProgramsPaneHeading>
+        </ProgramsPaneHeader>
         {surveyContents}
-      </ContentPane>
+      </ProgramsPane>
     </>
   );
 };
