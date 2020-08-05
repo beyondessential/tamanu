@@ -48,7 +48,7 @@ function getColorForValue(result, thresholdString) {
 }
 
 export const SurveyResultBadge = ({ result }) => {
-  if(!result && result !== 0) {
+  if (!result && result !== 0) {
     return null;
   }
   const colorName = getColorForValue(result, CODING_STRING);

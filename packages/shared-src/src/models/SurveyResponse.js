@@ -2,9 +2,8 @@ import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
-
 function riskCalculation(patient, getf, getb) {
-  const male = (patient.sex === 'male');
+  const male = patient.sex === 'male';
   const age = getf('NCDScreen5');
 
   const hdl = 1.55;
@@ -15,15 +14,15 @@ function riskCalculation(patient, getf, getb) {
   const diabetes = getb('NCDScreen10');
 
   // from excel doc
-  const M = male 
-    ? [44.88, 203.72, 44.75, 136.76, 0.1176, 0.63, 0.19, 0.916] 
+  const M = male
+    ? [44.88, 203.72, 44.75, 136.76, 0.1176, 0.63, 0.19, 0.916]
     : [45.16, 193.97, 43.99, 132.98, 0.1013, 0.47, 0.25, 0.931];
-  const getM = (idx) => M[idx-8];
+  const getM = idx => M[idx - 8];
 
   const COEFFS = male
-    ? [3.06117, 1.12370, 0.93263, 1.93303, 1.99881, 0.65451, 0.57367] 
+    ? [3.06117, 1.1237, 0.93263, 1.93303, 1.99881, 0.65451, 0.57367]
     : [2.32888, 1.20904, 0.70833, 2.76157, 2.82263, 0.52873, 0.69154];
-  const getCoeff = (idx) => COEFFS[idx-8];
+  const getCoeff = idx => COEFFS[idx - 8];
 
   /*
   =1-IF(C7=1,G15,H15)^EXP(
@@ -38,19 +37,18 @@ function riskCalculation(patient, getf, getb) {
   )
   */
 
-  const exp = (
-    getCoeff(8) * (Math.log(age) - Math.log(getM(8)))
-    + getCoeff(9) * (Math.log(cholesterol * 38.67) - Math.log(getM(9)))
-    - getCoeff(10) * (Math.log(hdl * 38.67) - Math.log(getM(10)))
-    + (treatedHbp ? getCoeff(12) : getCoeff(11)) * Math.log(sbp)
-    - getCoeff(11) * Math.log(getM(11)) * (1 - getM(12))
-    - getCoeff(12) * Math.log(getM(11)) * getM(12)
-    + getCoeff(13) * ((smoker ? 1 : 0) - getM(13))
-    + getCoeff(14) * ((diabetes ? 1 : 0) - getM(14))
-  );
+  const exp =
+    getCoeff(8) * (Math.log(age) - Math.log(getM(8))) +
+    getCoeff(9) * (Math.log(cholesterol * 38.67) - Math.log(getM(9))) -
+    getCoeff(10) * (Math.log(hdl * 38.67) - Math.log(getM(10))) +
+    (treatedHbp ? getCoeff(12) : getCoeff(11)) * Math.log(sbp) -
+    getCoeff(11) * Math.log(getM(11)) * (1 - getM(12)) -
+    getCoeff(12) * Math.log(getM(11)) * getM(12) +
+    getCoeff(13) * ((smoker ? 1 : 0) - getM(13)) +
+    getCoeff(14) * ((diabetes ? 1 : 0) - getM(14));
 
-  const base = getM(15)
-  const risk = 1 - Math.pow(base, Math.exp(exp));
+  const base = getM(15);
+  const risk = 1 - (base ** Math.exp(exp));
 
   return risk;
 }
