@@ -9,15 +9,20 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import MuiButton from '@material-ui/core/Button';
 import MuiButtonGroup from '@material-ui/core/ButtonGroup';
 
-const StyledButtonGroup = styled(MuiButtonGroup)`
-  margin: 0 1rem;
-`;
+import { Colors } from '../../constants';
 
 const ControlLabel = styled(FormLabel)`
   width: max-content;
+  align-items: flex-start;
+  margin-left: 0;
 
-  > span {
-    font-size: 16px;
+  .MuiTypography-root {
+    color: ${Colors.darkText};
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+    letter-spacing: 0;
+    margin-bottom: 5px;
   }
 `;
 
@@ -36,21 +41,25 @@ const NullableBooleanControl = React.memo(({ value, onChange, disabled, name }) 
   const noColor = value === false ? 'primary' : '';
 
   return (
-    <StyledButtonGroup size="small" variant="contained">
+    <MuiButtonGroup size="small" variant="contained" disableElevation>
       <MuiButton disabled={disabled} onClick={onClickTrue} color={yesColor}>
         Yes
       </MuiButton>
       <MuiButton disabled={disabled} onClick={onClickFalse} color={noColor}>
         No
       </MuiButton>
-    </StyledButtonGroup>
+    </MuiButtonGroup>
   );
 });
 
 export const NullableBooleanInput = React.memo(
   ({ label, helperText, className, style, error, ...props }) => (
     <FormControl style={style} error={error} className={className}>
-      <ControlLabel control={<NullableBooleanControl {...props} />} label={label} />
+      <ControlLabel
+        labelPlacement="top"
+        control={<NullableBooleanControl {...props} />}
+        label={label}
+      />
       {helperText && <FormHelperText>{helperText}</FormHelperText>}
     </FormControl>
   ),

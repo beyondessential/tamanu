@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
+import { Typography } from '@material-ui/core';
 
 import {
   Form,
@@ -12,12 +13,11 @@ import {
   AutocompleteField,
   NumberField,
 } from 'desktop/app/components/Field';
-import { Typography } from '@material-ui/core';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { Button, OutlinedButton } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
-import { ContentPane } from 'desktop/app/components/ContentPane';
 
+import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { PatientDisplay } from './PatientDisplay';
 
 const SURVEY_FIELD_TYPES = {
@@ -77,7 +77,7 @@ const SurveyQuestion = ({ component }) => {
 };
 
 const StyledButtonRow = styled(ButtonRow)`
-  margin-top: 30px;
+  margin-top: 24px;
 `;
 
 function checkVisibility({ visibilityCriteria, dataElement }, values, components) {
@@ -125,22 +125,19 @@ const SurveyScreen = ({ components, values, onStepForward, onStepBack }) => {
 };
 
 const COMPLETE_MESSAGE = `
-  Survey complete. Press "Complete" to submit your response,
+  Press "Complete" to submit your response,
   or use the Back button to review answers.
-`;
-
-const StyledAlert = styled(Alert)`
-  margin: 15px 0;
 `;
 
 const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   <div>
-    <StyledAlert severity="success">{COMPLETE_MESSAGE}</StyledAlert>
+    <Typography variant="h6" gutterBottom>Survey Complete</Typography>
+    <Text>{COMPLETE_MESSAGE}</Text>
     <div>
       <StyledButtonRow>
-        <Button variant="contained" onClick={onStepBack}>
-          Back
-        </Button>
+        <OutlinedButton onClick={onStepBack}>
+          Prev
+        </OutlinedButton>
         <Button color="primary" variant="contained" onClick={onSurveyComplete}>
           Complete
         </Button>
@@ -181,9 +178,13 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel }) =
   return <SurveySummaryScreen onStepBack={onStepBack} onSurveyComplete={onSurveyComplete} />;
 };
 
+const StyledAlert = styled(Alert)`
+  margin: 15px 0;
+`;
+
 const SurveyCompletedMessage = React.memo(({ onResetClicked }) => (
   <div>
-    <p>Your response has been successfully submitted.</p>
+    <StyledAlert severity="success">Your response has been successfully submitted.</StyledAlert>
     <StyledButtonRow>
       <Button variant="contained" color="primary" onClick={onResetClicked}>
         New survey
@@ -192,11 +193,6 @@ const SurveyCompletedMessage = React.memo(({ onResetClicked }) => (
   </div>
 ));
 
-const SurveyHeading = styled(Typography)`
-  font-weight: 500;
-  font-size: 18px;
-  text-transform: capitalize;
-`;
 
 export const SurveyView = ({ survey, onSubmit, onCancel }) => {
   const [surveyCompleted, setSurveyCompleted] = useState(false);
@@ -224,10 +220,12 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
   return (
     <>
       <PatientDisplay />
-      <ContentPane>
-        <SurveyHeading variant="h6">{survey.name}</SurveyHeading>
+      <ProgramsPane>
+        <ProgramsPaneHeader>
+          <ProgramsPaneHeading variant="h6">{survey.name}</ProgramsPaneHeading>
+        </ProgramsPaneHeader>
         {surveyContents}
-      </ContentPane>
+      </ProgramsPane>
     </>
   );
 };

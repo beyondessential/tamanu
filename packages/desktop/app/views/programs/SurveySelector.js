@@ -2,12 +2,17 @@ import React, { useState, useCallback, useEffect } from 'react';
 
 import { Button } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
-import { ContentPane } from 'desktop/app/components/ContentPane';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 
 import { SelectInput } from 'desktop/app/components/Field/SelectField';
 
 import { PatientDisplay } from './PatientDisplay';
+import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
+import styled from 'styled-components';
+
+const StyledButtonRow = styled(ButtonRow)`
+  margin-top: 24px;
+`;
 
 export const SurveySelector = React.memo(({ onSelectSurvey, programs, onFetchSurveysList }) => {
   const [selectedProgramId, setSelectedProgramId] = useState(null);
@@ -44,9 +49,11 @@ export const SurveySelector = React.memo(({ onSelectSurvey, programs, onFetchSur
   return (
     <>
       <PatientDisplay />
-      <ContentPane>
+      <ProgramsPane>
+        <ProgramsPaneHeader>
+          <ProgramsPaneHeading variant="h6">Select a survey</ProgramsPaneHeading>
+        </ProgramsPaneHeader>
         <FormGrid columns={1}>
-          <div>Please select a survey</div>
           <SelectInput
             options={programOptions}
             value={selectedProgramId}
@@ -60,18 +67,18 @@ export const SurveySelector = React.memo(({ onSelectSurvey, programs, onFetchSur
             disabled={!selectedProgramId}
             label="Select survey"
           />
-          <ButtonRow>
+          <StyledButtonRow>
             <Button
               onClick={onSubmit}
               disabled={!selectedSurveyId}
               variant="contained"
               color="primary"
             >
-              Begin survey
+              Begin Survey
             </Button>
-          </ButtonRow>
+          </StyledButtonRow>
         </FormGrid>
-      </ContentPane>
+      </ProgramsPane>
     </>
   );
 });
