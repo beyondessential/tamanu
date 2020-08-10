@@ -76,7 +76,7 @@ export const ProgramViewHistoryScreen = ({
   const { program } = route.params;
   const navigation = useNavigation();
 
-  const responses = useAPIEffect(api => api.getResponses());
+  const [responses, error] = useAPIEffect(api => api.getResponses());
 
   return (
     <FlatList

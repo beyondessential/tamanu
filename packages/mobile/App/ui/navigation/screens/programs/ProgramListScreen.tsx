@@ -16,6 +16,7 @@ import { StackHeader } from '/components/StackHeader';
 import { withPatient } from '/containers/Patient';
 import { PatientModel } from '../../../models/Patient';
 import { joinNames } from '/helpers/user';
+import { useAPIEffect } from '/helpers/hooks';
 import { makeGetProgramsController } from '/root/App/factories/programs/getPrograms';
 
 interface ProgramListScreenProps {
@@ -24,45 +25,19 @@ interface ProgramListScreenProps {
 
 const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   const navigation = useNavigation();
-  const [error, setError] = useState(null);
-  const [data, setdata] = useState<MenuOptionButtonProps[]>([]);
-  const [programs, setPrograms] = useState<ProgramModel[]>([]);
-  const getPrograms = useCallback(async () => {
-    try {
-      const programController = makeGetProgramsController();
-      const fetchedPrograms = await programController.handle();
-      setPrograms(fetchedPrograms);
-    } catch (fetchProgramsError) {
-      setError(fetchProgramsError);
-    }
-  }, []);
 
-  useEffect(() => {
-    getPrograms();
-  }, []);
+  const [programs, error] = useAPIEffect(api => api.getPrograms());
 
   const goBack = useCallback(() => {
     navigation.goBack();
   }, []);
 
-  useEffect(() => {
-    if (programs.length > 0) {
-      setdata(
-        programs.map(program => ({
-          title: program.name,
-          onPress: (): void =>
-            navigation.navigate(
-              Routes.HomeStack.ProgramStack.ProgramTabs.name,
-              {
-                program,
-              },
-            ),
-          fontWeight: 500,
-          textColor: theme.colors.TEXT_SUPER_DARK,
-        })),
-      );
-    }
-  }, [programs]);
+  const onNavigateToProgram = program => {
+    navigation.navigate(
+      Routes.HomeStack.ProgramStack.ProgramTabs.name,
+      { program }
+    );
+  };
 
   return (
     <FullView>
@@ -82,10 +57,15 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
             backgroundColor: theme.colors.BACKGROUND_GREY,
           }}
           showsVerticalScrollIndicator={false}
-          data={data}
+          data={programs}
           keyExtractor={(item): string => item.title}
           renderItem={({ item }): ReactElement => (
-            <MenuOptionButton {...item} />
+            <MenuOptionButton 
+              title={item.name}
+              onPress={() => onNavigateToProgram(item)}
+              fontWeight={500}
+              textColor={theme.colors.TEXT_SUPER_DARK}
+            />
           )}
           ItemSeparatorComponent={Separator}
         />
