@@ -9,7 +9,7 @@ import { ProgramAddDetailsScreenProps } from '/interfaces/screens/ProgramsStack/
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 
-import { surveyStore } from '../../surveyStore';
+import { useAPI } from '/helpers/hooks';
 
 export const Container = ({
   route,
@@ -31,8 +31,9 @@ export const Container = ({
     [containerScrollView],
   );
 
+  const api = useAPI();
   const onSubmitForm = useCallback(async (values: any) => {
-    await surveyStore.submitSurvey(selectedPatient, program, values);
+    await api.submitSurvey(selectedPatient, program, values);
 
     navigation.navigate(
       Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory,

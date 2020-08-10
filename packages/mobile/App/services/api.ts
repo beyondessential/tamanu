@@ -1,12 +1,18 @@
 import { isCalculated } from '/helpers/fields';
 
-class SurveyStore {
+import { dummyPrograms } from '/root/App/dummyData/programs';
+
+export class API {
 
   constructor() {
     this.responses = [];
   }
 
-  async getResponses(programId) {
+  async getPrograms() {
+    return dummyPrograms;
+  }
+
+  async getResponses(surveyId): Promise {
     return this.responses;
   }
 
@@ -41,5 +47,3 @@ class SurveyStore {
   }
 
 }
-
-export const surveyStore = new SurveyStore();

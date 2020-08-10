@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { APIContext } from '../../services/apiContext';
 
-export const useCancelableEffect = (initialState, fetcher) => {
-  const [data, setData] = useState(initialState);
+export const useCancelableEffect = (fetcher, dependencies=[]) => {
+  const [data, setData] = useState(null);
 
   useEffect(() => {
     let canceled = false;
@@ -12,7 +13,15 @@ export const useCancelableEffect = (initialState, fetcher) => {
       }
     })();
     return () => { canceled = true };
-  }, []);
+  }, dependencies);
 
-  return [data];
+  return data;
 };
+
+export const useAPIEffect = (call, dependencies = []) => {
+  const context = useContext(APIContext);
+
+  return useCancelableEffect(() => call(context), dependencies);
+};
+
+export const useAPI = () => useContext(APIContext);

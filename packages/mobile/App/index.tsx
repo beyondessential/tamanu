@@ -2,6 +2,8 @@ import React, { ReactElement, useEffect } from 'react';
 import { RootStack } from '/navigation/stacks/Root';
 import './ui/reactotron';
 import { SqliteHelper } from './infra/db/sqlite/helpers/sqlite-helper';
+import { APIContext } from './services/apiContext';
+import { API } from './services/api';
 
 export const App = (): ReactElement => {
   useEffect(() => {
@@ -9,5 +11,9 @@ export const App = (): ReactElement => {
       SqliteHelper.connect();
     }
   });
-  return <RootStack />;
+  return (
+    <APIContext.Provider value={new API()}>
+      <RootStack />
+    </APIContext.Provider>
+  );
 };

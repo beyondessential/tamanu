@@ -24,8 +24,7 @@ import { SurveyResultBadge } from '/components/SurveyResultBadge';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import { FieldTypes } from '/helpers/fields';
-import { surveyStore } from '../../surveyStore';
-import { useCancelableEffect } from '/helpers/hooks';
+import { useAPIEffect } from '/helpers/hooks';
 
 const SurveyResponseItem = ({ surveyResponse, responseIndex }) => {
   const navigation = useNavigation();
@@ -77,7 +76,7 @@ export const ProgramViewHistoryScreen = ({
   const { program } = route.params;
   const navigation = useNavigation();
 
-  const [responses] = useCancelableEffect([], () => surveyStore.getResponses());
+  const responses = useAPIEffect(api => api.getResponses());
 
   return (
     <FlatList
