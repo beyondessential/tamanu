@@ -88,14 +88,14 @@ const HistoryPane = connect(
     onOpenTriage: () => dispatch(push('/patients/view/triage')),
   }),
 )(
-  React.memo(({ encounter, patientId, onViewEncounter, onOpenCheckin, onOpenTriage, readonly }) => (
+  React.memo(({ encounter, patientId, onViewEncounter, onOpenCheckin, onOpenTriage, disabled }) => (
     <div>
       <PatientEncounterSummary
         encounter={encounter}
         viewEncounter={onViewEncounter}
         openCheckin={onOpenCheckin}
         openTriage={onOpenTriage}
-        readonly={readonly}
+        disabled={disabled}
       />
       <PatientHistory patientId={patientId} onItemClick={item => onViewEncounter(item.id)} />
     </div>
@@ -178,19 +178,19 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
   if (loading) return <LoadingIndicator />;
 
   const [currentTab, setCurrentTab] = React.useState('history');
-  const readonly = !!patient.death;
+  const disabled = !!patient.death;
 
   return (
     <React.Fragment>
       <PatientAlert alerts={patient.alerts} />
       <TwoColumnDisplay>
-        <PatientInfoPane patient={patient} readonly={readonly} />
+        <PatientInfoPane patient={patient} disabled={disabled} />
         <TabDisplay
           tabs={TABS}
           currentTab={currentTab}
           onTabSelect={setCurrentTab}
           patient={patient}
-          readonly={readonly}
+          disabled={disabled}
         />
       </TwoColumnDisplay>
       <RoutedEncounterModal patientId={patient.id} referrals={patient.referrals} />

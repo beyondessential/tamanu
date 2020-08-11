@@ -14,7 +14,7 @@ export const SelectInput = ({
   onChange,
   ...props
 }) => {
-  const isReadonly = readonly || (value && !onChange);
+  const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
     const valueText = ((options || []).find(o => o.value === value) || {}).label || '';
     return (

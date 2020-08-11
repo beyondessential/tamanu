@@ -59,7 +59,7 @@ class InputGroupNew extends Component {
       overwriteClass,
       inputClass,
       labelClass,
-      readOnly,
+      disabled,
       autoFocus,
       note,
       placeholder,
@@ -84,7 +84,7 @@ class InputGroupNew extends Component {
             value={this.state.value}
             onChange={this.handleChange.bind(this)}
             required={required}
-            readOnly={readOnly}
+            disabled={disabled}
             autoFocus={autoFocus}
             placeholder={placeholder}
           />
