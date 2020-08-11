@@ -69,6 +69,8 @@ which causes the app to use sqlite as a database - this is to make initial setup
 postgres available, set the appropriate connection variables in your `local.json`, making sure to
 set `sqlitePath` to `""` so the postgres connection is respected.
 
+Note that for development the db is populated from: (`packages/lan/data/tamanu-dev.db`), this can be refreshed by simply deleting the file and restarting the lan server with `yarn lan-start-dev`.
+
 ### Desktop app
 
 Once there is a LAN server up and running, run this to start the Electron app for development.
