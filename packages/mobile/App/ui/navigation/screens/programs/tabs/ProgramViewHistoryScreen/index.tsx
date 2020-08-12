@@ -24,7 +24,7 @@ import { SurveyResultBadge } from '/components/SurveyResultBadge';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import { FieldTypes } from '/helpers/fields';
-import { useAPIEffect } from '/helpers/hooks';
+import { useBackendEffect } from '/helpers/hooks';
 
 const SurveyResponseItem = ({ surveyResponse, responseIndex }) => {
   const navigation = useNavigation();
@@ -76,7 +76,7 @@ export const ProgramViewHistoryScreen = ({
   const { program } = route.params;
   const navigation = useNavigation();
 
-  const [responses, error] = useAPIEffect(api => api.getResponses());
+  const [responses, error] = useBackendEffect(backend => backend.getResponses());
 
   return (
     <FlatList

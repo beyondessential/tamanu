@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect, ReactElement } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { api } from '../../../services/API';
 import { FullView, StyledText } from '/styled/common';
 import { compose } from 'redux';
 import { ProgramModel } from '../../../models/Program';
@@ -16,7 +15,7 @@ import { StackHeader } from '/components/StackHeader';
 import { withPatient } from '/containers/Patient';
 import { PatientModel } from '../../../models/Patient';
 import { joinNames } from '/helpers/user';
-import { useAPIEffect } from '/helpers/hooks';
+import { useBackendEffect } from '/helpers/hooks';
 import { makeGetProgramsController } from '/root/App/factories/programs/getPrograms';
 
 interface ProgramListScreenProps {
@@ -26,7 +25,7 @@ interface ProgramListScreenProps {
 const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   const navigation = useNavigation();
 
-  const [programs, error] = useAPIEffect(api => api.getPrograms());
+  const [programs, error] = useBackendEffect(backend => backend.getPrograms());
 
   const goBack = useCallback(() => {
     navigation.goBack();
