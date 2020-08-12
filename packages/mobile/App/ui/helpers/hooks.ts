@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { APIContext } from '../../services/apiContext';
+import { BackendContext } from '../../services/backendContext';
 
 export const useCancelableEffect = (fetcher, dependencies=[]) => {
   const [data, setData] = useState(null);
@@ -23,10 +23,10 @@ export const useCancelableEffect = (fetcher, dependencies=[]) => {
   return [data, error];
 };
 
-export const useAPIEffect = (call, dependencies = []) => {
-  const context = useContext(APIContext);
+export const useBackendEffect = (call, dependencies = []) => {
+  const backend = useContext(BackendContext);
 
-  return useCancelableEffect(() => call(context), dependencies);
+  return useCancelableEffect(() => call(backend), dependencies);
 };
 
-export const useAPI = () => useContext(APIContext);
+export const useBackend = () => useContext(BackendContext);

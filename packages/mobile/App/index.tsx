@@ -2,8 +2,8 @@ import React, { ReactElement, useEffect } from 'react';
 import { RootStack } from '/navigation/stacks/Root';
 import './ui/reactotron';
 import { SqliteHelper } from './infra/db/sqlite/helpers/sqlite-helper';
-import { APIContext } from './services/apiContext';
-import { API } from './services/api';
+import { BackendContext } from './services/backendContext';
+import { Backend } from './services/backend';
 
 export const App = (): ReactElement => {
   useEffect(() => {
@@ -12,8 +12,8 @@ export const App = (): ReactElement => {
     }
   });
   return (
-    <APIContext.Provider value={new API()}>
+    <BackendContext.Provider value={new Backend()}>
       <RootStack />
-    </APIContext.Provider>
+    </BackendContext.Provider>
   );
 };

@@ -2,7 +2,7 @@ import { isCalculated } from '/helpers/fields';
 
 import { dummyPrograms } from '/root/App/dummyData/programs';
 
-export class API {
+export class Backend {
 
   constructor() {
     this.responses = [];
