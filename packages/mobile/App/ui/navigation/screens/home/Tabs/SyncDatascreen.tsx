@@ -7,7 +7,7 @@ import {
   setStatusBar,
   screenPercentageToDP,
   Orientation,
-} from '/root/App/ui/helpers/screen';
+} from '~/ui/helpers/screen';
 
 export const SyncDataScreen = (): ReactElement => {
   const [progress, setProgress] = useState(0);

@@ -16,7 +16,7 @@ import { withPatient } from '/containers/Patient';
 import { PatientModel } from '../../../models/Patient';
 import { joinNames } from '/helpers/user';
 import { useBackendEffect } from '/helpers/hooks';
-import { makeGetProgramsController } from '/root/App/factories/programs/getPrograms';
+import { makeGetProgramsController } from '~/factories/programs/getPrograms';
 
 interface ProgramListScreenProps {
   selectedPatient: PatientModel;

@@ -34,8 +34,8 @@ import {
 import { version as AppVersion } from '/root/package.json';
 import { StatusBar, StatusBarStyle } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import AuthContext from '../../../../contexts/authContext/AuthContext';
-import { BaseAppProps } from '/root/App/ui/interfaces/BaseAppProps';
+import AuthContext from '~/ui/contexts/authContext/AuthContext';
+import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { authUserSelector } from '/helpers/selectors';
 
 const CameraInCircle = (

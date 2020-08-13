@@ -1,7 +1,6 @@
 import { createFakeConnection, SqliteHelper } from './sqlite-helper';
-import { PatientEntity } from '/root/App/entities';
+import { PatientEntity } from '~/entities';
 import { generatePatient } from './seed-methods';
-
 
 describe('SqliteHelper Test', () => {
 
@@ -16,10 +15,12 @@ describe('SqliteHelper Test', () => {
       console.log(error);
     }
   });
+
   afterAll(async () => {
      const patientRepo = SqliteHelper.client.getRepository(PatientEntity);
      await patientRepo.delete({})     
   })
+
   test('should return patients if there are patient data', async () => {
       // add Patients
     expect(SqliteHelper.client).toBeTruthy();

@@ -1,6 +1,6 @@
 import { isCalculated } from '/helpers/fields';
 
-import { dummyPrograms } from '/root/App/dummyData/programs';
+import { dummyPrograms } from '~/dummyData/programs';
 
 export class Backend {
 
