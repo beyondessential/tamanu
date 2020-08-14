@@ -7,7 +7,7 @@ import { Colors } from '../../constants';
 
 export const StyledTextField = styled(MuiTextField)`
   .MuiInputBase-root {
-    background: ${props => (props.disabled ? 'none' : Colors.white)};
+    background: ${props => (props.disabled ? 'inherit' : Colors.white)};
   }
 
   // The actual input field

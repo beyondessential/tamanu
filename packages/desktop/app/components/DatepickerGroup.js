@@ -28,7 +28,7 @@ class DatepickerGroup extends Component {
     overwriteClass: PropTypes.bool,
     showTimeSelect: PropTypes.bool,
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.shape({})]),
-    readOnly: PropTypes.bool,
+    disabled: PropTypes.bool,
     todayAsDefault: PropTypes.bool,
     timeFormat: PropTypes.string,
     timeIntervals: PropTypes.number,
@@ -39,7 +39,7 @@ class DatepickerGroup extends Component {
     className: '',
     inputClass: '',
     overwriteClass: false,
-    readOnly: false,
+    disabled: false,
     required: false,
     showTimeSelect: false,
     timeCaption: 'Time',
@@ -82,7 +82,7 @@ class DatepickerGroup extends Component {
       overwriteClass,
       inputClass,
       labelClass,
-      readOnly,
+      disabled,
       showTimeSelect,
       todayAsDefault,
       onChange,
@@ -100,12 +100,11 @@ class DatepickerGroup extends Component {
         {label !== false && (
           <GroupTitle theme={theme}>
             {label}
-            {' '}
             {required && <span className="isRequired">*</span>}
           </GroupTitle>
         )}
-        {readOnly && <CustomDateInput value={value} />}
-        {!readOnly && (
+        {disabled && <CustomDateInput disabled value={value} />}
+        {!disabled && (
           <DatePicker
             name={name}
             tabIndex={tabIndex}

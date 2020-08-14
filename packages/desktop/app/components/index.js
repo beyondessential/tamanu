@@ -3,7 +3,6 @@ export CustomDateInput from './CustomDateInput';
 export DatepickerGroup from './DatepickerGroup';
 export InputGroup from './InputGroup';
 export QuickLinks from './QuickLinks';
-export RadioGroup from './RadioGroup';
 export SelectGroup from './SelectGroup';
 export TextareaGroup from './TextareaGroup';
 export * from './TopBar';

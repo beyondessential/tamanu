@@ -13,7 +13,6 @@ export default class SelectGroup extends Component {
     className: PropTypes.string,
     labelClass: PropTypes.string,
     value: PropTypes.any,
-    readOnly: PropTypes.bool,
     onBlurResetsInput: PropTypes.bool,
     onSelectResetsInput: PropTypes.bool,
     clearable: PropTypes.bool,
@@ -27,7 +26,6 @@ export default class SelectGroup extends Component {
     className: '',
     labelClass: 'label',
     value: '',
-    readOnly: false,
     onBlurResetsInput: false,
     onSelectResetsInput: false,
     clearable: false,
@@ -72,7 +70,6 @@ export default class SelectGroup extends Component {
       disabled,
       className,
       labelClass,
-      readOnly,
       onChange,
       defaultValue,
       ...others

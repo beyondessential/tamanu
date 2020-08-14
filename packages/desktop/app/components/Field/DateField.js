@@ -65,7 +65,7 @@ export const DateInput = ({
 
   React.useEffect(() => {
     const formattedValue = fromRFC3339(value, format);
-    if(value && formattedValue) {
+    if (value && formattedValue) {
       setCurrentText(formattedValue);
     }
   }, [value, format]);

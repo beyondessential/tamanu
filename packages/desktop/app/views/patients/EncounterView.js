@@ -240,22 +240,28 @@ const getDepartmentName = ({ department }) => (department ? department.name : 'U
 const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
 const getExaminerName = ({ examiner }) => (examiner ? examiner.displayName : 'Unknown');
 
-const EncounterInfoPane = React.memo(({ encounter }) => (
+const EncounterInfoPane = React.memo(({ disabled, encounter }) => (
   <FormGrid columns={3}>
-    <DateInput value={encounter.startDate} label="Arrival date" />
-    <DateInput value={encounter.endDate} label="Discharge date" />
-    <TextInput value={getDepartmentName(encounter)} label="Department" />
-    <TextInput value={getLocationName(encounter)} label="Location" />
+    <DateInput disabled={disabled} value={encounter.startDate} label="Arrival date" />
+    <DateInput disabled={disabled} value={encounter.endDate} label="Discharge date" />
+    <TextInput disabled={disabled} value={getDepartmentName(encounter)} label="Department" />
+    <TextInput disabled={disabled} value={getLocationName(encounter)} label="Location" />
     <SelectInput
+      disabled={disabled}
       value={encounter.encounterType}
       label="Encounter type"
       options={encounterOptions}
     />
-    <TextInput value={getExaminerName(encounter)} label="Doctor/nurse" />
+    <TextInput disabled={disabled} value={getExaminerName(encounter)} label="Doctor/nurse" />
     {encounter.plannedLocation && (
-      <TextInput value={encounter.plannedLocation.name} label="Planned location" />
+      <TextInput
+        disabled={disabled}
+        value={encounter.plannedLocation.name}
+        label="Planned location"
+      />
     )}
     <TextInput
+      disabled={disabled}
       value={encounter.reasonForEncounter}
       label="Reason for encounter"
       style={{ gridColumn: 'span 3' }}
@@ -425,13 +431,13 @@ function getHeaderText({ encounterType }) {
 
 export const DumbEncounterView = React.memo(({ encounter, patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
-  const readonly = encounter.endDate || patient.death;
+  const disabled = encounter.endDate || patient.death;
 
   if (loading) return <LoadingIndicator />;
 
   return (
     <TwoColumnDisplay>
-      <PatientInfoPane patient={patient} readonly={readonly} />
+      <PatientInfoPane patient={patient} disabled={disabled} />
       <div>
         <TopBar title={getHeaderText(encounter)}>
           <EncounterActions encounter={encounter} />
@@ -450,13 +456,13 @@ export const DumbEncounterView = React.memo(({ encounter, patient, loading }) =>
         </TopBar>
         <ContentPane>
           <BackButton to="/patients/view" />
-          <EncounterInfoPane encounter={encounter} />
+          <EncounterInfoPane disabled encounter={encounter} />
         </ContentPane>
         <ContentPane>
           <DiagnosisView
             encounterId={encounter.id}
             isTriage={getIsTriage(encounter)}
-            readonly={readonly}
+            disabled={disabled}
           />
         </ContentPane>
         <TabDisplay
@@ -464,7 +470,7 @@ export const DumbEncounterView = React.memo(({ encounter, patient, loading }) =>
           currentTab={currentTab}
           onTabSelect={setCurrentTab}
           encounter={encounter}
-          readonly={readonly}
+          disabled={disabled}
         />
       </div>
     </TwoColumnDisplay>

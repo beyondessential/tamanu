@@ -6,7 +6,7 @@ import { kebabCase } from 'lodash';
 class CheckboxGroup extends Component {
   static propTypes = {
     type: PropTypes.string,
-    label: PropTypes.any.isRequired,
+    label: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     className: PropTypes.string,
     labelClass: PropTypes.string,
@@ -44,7 +44,7 @@ class CheckboxGroup extends Component {
       tabIndex,
       overwriteClass,
       labelClass,
-      readOnly,
+      disabled,
       note,
       ...others
     } = this.props;
@@ -64,7 +64,7 @@ class CheckboxGroup extends Component {
             tabIndex={tabIndex}
             value={this.state.value}
             onChange={this.handleChange.bind(this)}
-            readOnly={readOnly}
+            disabled={disabled}
             {...others}
           />
           {label}
