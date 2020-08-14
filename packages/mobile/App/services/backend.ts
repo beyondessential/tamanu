@@ -1,6 +1,7 @@
 import { isCalculated } from '/helpers/fields';
 
 import { dummyPrograms } from '~/dummyData/programs';
+import { SqliteHelper } from '~/infra/db/sqlite/helpers/sqlite-helper';
 
 export class Backend {
 
@@ -9,7 +10,12 @@ export class Backend {
   }
 
   async getPrograms() {
-    return dummyPrograms;
+    const connection = await SqliteHelper.connect();
+    const { Program } = connection.models;
+
+    const ps = await Program.find({});
+    
+    return ps.map(x => ({ ...x, questions: [] }));
   }
 
   async getResponses(surveyId): Promise {
