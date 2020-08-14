@@ -69,6 +69,12 @@ which causes the app to use sqlite as a database - this is to make initial setup
 postgres available, set the appropriate connection variables in your `local.json`, making sure to
 set `sqlitePath` to `""` so the postgres connection is respected.
 
+When the app detects an empty or missing db on startup, it'll run an importer on an excel file to populate all the initial patients, users and reference data.
+- the app will classify the db as empty if it has no users in it
+- the initial definitions file to import is defined in `config.initialDataPath` (`packages/lan/data/demo_definitions.xlsx` by default)
+- by default, the database is an sqlite db at `packages/lan/data/tamanu-dev.db`; deleting that file and restarting the lan process to trigger the import is the quickest way to get a fresh database
+- this is also true for production! initial production deployment expects a data definition document to be provided
+
 ### Desktop app
 
 Once there is a LAN server up and running, run this to start the Electron app for development.
@@ -122,4 +128,3 @@ the API url and login credentials as well (see config/default.json for how this 
 - `codeship-steps.yml` CI / CD steps are defined here
 - `Dockerfile` and `Dockerfile.deploy` describe build environments
 - `codeship.env.encrypted` encrypted ENV variables passed to docker during build process
-
