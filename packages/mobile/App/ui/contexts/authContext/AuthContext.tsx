@@ -4,8 +4,8 @@ import {compose} from 'redux';
 import {withAuth} from '../../containers/Auth';
 import {WithAuthStoreProps} from '/store/ducks/auth';
 import {RequestFailedError} from '/infra/httpClient/axios/errors/request-failed-error';
-import {InvalidCredentialsError} from '/presentation/controllers/signin/errors/invalid-credentials-error';
 import {
+  InvalidCredentialsError,
   AuthenticationError,
   noServerAccessMessage,
   invalidUserCredentialsMessage,
