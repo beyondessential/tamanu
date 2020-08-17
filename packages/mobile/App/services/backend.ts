@@ -1,7 +1,7 @@
 import { isCalculated } from '/helpers/fields';
 
 import { dummyPrograms } from '~/dummyData/programs';
-import { SqliteHelper } from '~/infra/db/sqlite/helpers/sqlite-helper';
+import { Database } from '~/infra/db';
 
 export class Backend {
 
@@ -10,8 +10,8 @@ export class Backend {
   }
 
   async getPrograms() {
-    const connection = await SqliteHelper.connect();
-    const { Program } = connection.models;
+    await Database.connect();
+    const { Program } = Database.entities;
 
     const ps = await Program.find({});
     
