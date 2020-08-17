@@ -6,14 +6,14 @@ import React, {
 } from 'react';
 import { StyledView } from '/styled/common';
 import { VaccineCardHeader } from './VaccineCardHeader';
-import { VaccineModel } from '../../models/Vaccine';
+import { IVaccine } from '~/types';
 import { VaccineStatus } from '/helpers/constants';
 import { NotTakenFields } from './NotTakenFields';
 import TakenOnTimeFields from './TakenOnTimeFields';
 import { VaccineStatusHeader } from './VaccineStatusHeader';
 import { TakenNotOnScheduleFields } from './TakenNotOnSchedule';
 
-export type VaccineDataProps = VaccineModel & { dateType: string };
+export type VaccineDataProps = IVaccine & { dateType: string };
 
 interface VaccineCardProps {
   vaccineData: VaccineDataProps;

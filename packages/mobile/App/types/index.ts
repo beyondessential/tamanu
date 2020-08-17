@@ -1,4 +1,6 @@
 
+export * from './AuthToken';
+
 export * from './IPatient';
 export * from './IUser';
 export * from './IQuestion';

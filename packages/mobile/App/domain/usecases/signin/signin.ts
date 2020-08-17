@@ -1,4 +1,4 @@
-import { AuthToken } from '../../models/AuthToken';
+import { AuthToken } from '~/types';
 
 export interface SignInUserModel {
   [key: string]: string;

@@ -6,17 +6,17 @@ import { PatientTile } from '../PatientTile';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { PatientModel } from '/models/Patient';
+import { IPatient } from '~/types';
 import { getAgeFromDate } from '/helpers/date';
 import { joinNames } from '/helpers/user';
 
 export type PatientSectionListItem = {
-  items: PatientModel[];
+  items: IPatient[];
   header: string;
 };
 
 interface PatientSectionListProps {
-  onPressItem: (patient: PatientModel) => void;
+  onPressItem: (patient: IPatient) => void;
   data: PatientSectionListItem[];
 }
 

@@ -14,7 +14,7 @@ import { Routes } from '/helpers/routes';
 import { UserAvatar } from '/components/UserAvatar';
 import { compose } from 'redux';
 import { withPatient } from '/containers/Patient';
-import { PatientModel } from '/models/Patient';
+import { IPatient } from '~/types';
 import { FemaleGender } from '/helpers/constants';
 import { NewPatientScreenProps } from '/interfaces/screens/RegisterPatientStack/NewPatientScreenProps';
 
@@ -58,7 +58,7 @@ const Screen = ({
   }, []);
 
   const onStartVisit = useCallback(() => {
-    const newPatient: PatientModel = {
+    const newPatient: IPatient = {
       dateOfBirth: new Date(),
       bloodType: 'A+',
       city: 'Flemington',

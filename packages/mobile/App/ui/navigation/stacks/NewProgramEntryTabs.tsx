@@ -6,9 +6,8 @@ import { ProgramAddDetailsScreen } from '../screens/programs/tabs/ProgramAddDeta
 import { ProgramViewHistoryScreen } from '../screens/programs/tabs/ProgramViewHistoryScreen';
 import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
-import { ProgramModel } from '/models/Program';
 import { withPatient } from '/containers/Patient';
-import { PatientModel } from '/models/Patient';
+import { IPatient, IProgram } from '~/types';
 import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
 
@@ -16,7 +15,7 @@ const Tabs = createTopTabNavigator();
 
 type NewProgramEntryTabsParams = {
   NewProgramEntryTabs: {
-    program: ProgramModel;
+    program: IProgram;
   };
 };
 
@@ -28,7 +27,7 @@ type NewProgramEntryTabsRouteProps = RouteProp<
 type NewProgramEntryTabsProps = {
   navigation: NavigationProp<any>;
   route: NewProgramEntryTabsRouteProps;
-  selectedPatient: PatientModel;
+  selectedPatient: IPatient;
 };
 
 const TabNavigator = ({
