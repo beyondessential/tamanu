@@ -15,7 +15,7 @@ import { data } from '/components/PatientSectionList/fixture';
 import { Routes } from '/helpers/routes';
 import { StyledView, FullView } from '/styled/common';
 import { joinNames } from '/helpers/user';
-import { getAgeFromDate } from '/root/App/ui/helpers/date';
+import { getAgeFromDate } from '~/ui/helpers/date';
 
 const mockedArray = data.slice(0, 12);
 

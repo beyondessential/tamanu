@@ -1,7 +1,7 @@
 
 import {Connection, createConnection, getConnectionManager } from 'typeorm';
 
-import * as entityMap from '/root/App/entities';
+import * as entityMap from '~/entities';
 
 
 const allEntities = Object.values(entityMap);

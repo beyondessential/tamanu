@@ -5,7 +5,7 @@ import { data } from '/components/Accordion/fixtures';
 import { theme } from '/styled/theme';
 import { Button } from '/components/Button';
 import { FilterIcon } from '/components/Icons';
-import { screenPercentageToDP, Orientation } from '/root/App/ui/helpers/screen';
+import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 
 export const VisitsScreen = (): ReactElement => {
   const activeFilters = {
