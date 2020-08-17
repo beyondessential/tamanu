@@ -1,7 +1,6 @@
 import React, {createContext, PropsWithChildren, ReactElement} from 'react';
 import {NavigationProp} from '@react-navigation/native';
 import {compose} from 'redux';
-import {makeUserSignInController} from '../../../factories/user/signIn';
 import {withAuth} from '../../containers/Auth';
 import {WithAuthStoreProps} from '/store/ducks/auth';
 import {RequestFailedError} from '/infra/httpClient/axios/errors/request-failed-error';
@@ -23,6 +22,12 @@ interface AuthContextData {
   checkFirstSession: () => boolean;
 }
 
+const makeUserSignInController = () => ({
+  handle: async ({ email, password }) => ({
+    token: `token-${Math.random()}`
+  }),
+});
+
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 const Provider = ({
@@ -42,6 +47,7 @@ const Provider = ({
   const isUserAuthenticated = (): boolean => {
     return props.token !== null && props.user !== null;
   };
+
   const checkPreviousUserAuthentication = (
     navigation: NavigationProp<any>,
   ): void => {
@@ -56,6 +62,7 @@ const Provider = ({
       navigation.navigate(Routes.SignUpStack.name);
     }
   };
+
   const signIn = async (email: string, password: string): Promise<void> => {
     const signInController = makeUserSignInController();
     const result = await signInController.handle({email, password});
@@ -80,6 +87,7 @@ const Provider = ({
       routes: [{name: Routes.SignUpStack.name}],
     });
   };
+
   return (
     <AuthContext.Provider
       value={{

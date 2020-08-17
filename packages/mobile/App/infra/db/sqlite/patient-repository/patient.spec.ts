@@ -1,5 +1,5 @@
 import { createFakeConnection, SqliteHelper } from '../helpers/sqlite-helper';
-import { Patient } from '../entities/patient';
+import { PatientEntity } from '/root/App/entities/PatientEntity';
 import { PatientSqliteRepository } from './patient';
 import { generatePatient } from '../helpers/seed-methods';
 
@@ -8,7 +8,7 @@ describe('PatientSqliteRepository', () => {
   beforeAll(async () => {
     try {      
       SqliteHelper.client = await createFakeConnection();
-      const patientRepo = SqliteHelper.client.getRepository(Patient);      
+      const patientRepo = SqliteHelper.client.getRepository(PatientEntity);      
       const patient = generatePatient()        
       await  patientRepo.save(patient)
     } catch (error) {
@@ -17,7 +17,7 @@ describe('PatientSqliteRepository', () => {
     }
   });
   afterAll(async () => {
-     const patientRepo = SqliteHelper.client.getRepository(Patient);
+     const patientRepo = SqliteHelper.client.getRepository(PatientEntity);
      await patientRepo.delete({ })   
      SqliteHelper.client.close()  
   })

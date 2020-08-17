@@ -1,18 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { BackendContext } from '../../services/backendContext';
 
-export const useCancelableEffect = (initialState, fetcher) => {
-  const [data, setData] = useState(initialState);
+export const useCancelableEffect = (fetcher, dependencies=[]) => {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     let canceled = false;
     (async () => {
-      const result = await fetcher();
-      if(!canceled) {
-        setData(result);
+      try {
+        const result = await fetcher();
+        if(!canceled) {
+          setData(result);
+        }
+      } catch(e) {
+        setError(e);
       }
     })();
     return () => { canceled = true };
-  }, []);
+  }, dependencies);
 
-  return [data];
+  return [data, error];
 };
+
+export const useBackendEffect = (call, dependencies = []) => {
+  const backend = useContext(BackendContext);
+
+  return useCancelableEffect(() => call(backend), dependencies);
+};
+
+export const useBackend = () => useContext(BackendContext);

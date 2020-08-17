@@ -1,6 +1,5 @@
 
 export interface PatientModel {
-  [key: string]: any;
   id: string;
   displayId: string;  
   firstName: string;
@@ -10,3 +9,4 @@ export interface PatientModel {
   dateOfBirth: Date;      
   culturalName?: string;
 }
+
