@@ -1,6 +1,6 @@
-import { QuestionModel } from './Question';
+import { IQuestion } from './IQuestion';
 
-export interface ProgramModel { id: number;
+export interface IProgram { id: number;
   name: string;
-  questions: QuestionModel[];
+  questions: IQuestion[];
 }

@@ -1,4 +1,4 @@
-export interface VaccineModel {
+export interface IVaccine {
     name: string;
     subtitle: string;
     date: Date;

@@ -1,6 +1,6 @@
 
-export * from './PatientModel';
-export * from './UserModel';
-export * from './QuestionModel';
-export * from './ProgramModel';
-export * from './VaccineModel';
+export * from './IPatient';
+export * from './IUser';
+export * from './IQuestion';
+export * from './IProgram';
+export * from './IVaccine';
