@@ -3,38 +3,11 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
-import { TextField, SelectField } from '../app/components';
+import { TextField } from '../app/components';
 
 import { Button } from '../app/components/Button';
 import { FormGrid } from '../app/components/FormGrid';
 import { Field, Form } from '../app/components/Field/Form';
-import { PaginatedForm } from '../app/components/Field/PaginatedForm';
-
-storiesOf('FormBehaviour', module).add('PaginatedForm', () => (
-  <PaginatedForm
-    onSubmit={action('submit')}
-    initialValues={{
-      city: '',
-      country: 'VU',
-    }}
-    pages={[
-      () => <Field name="city" label="City" component={TextField} />,
-      () => (
-        <Field
-          name="country"
-          label="Country"
-          component={SelectField}
-          options={[
-            { value: 'TO', label: 'Tonga' },
-            { value: 'VU', label: 'Vanuatu' },
-            { value: 'CK', label: 'Cook Islands' },
-          ]}
-        />
-      ),
-      () => <Field name="comment" label="Comment" component={TextField} />,
-    ]}
-  />
-));
 
 async function asyncSubmit(data) {
   action('submitStart')(data);
