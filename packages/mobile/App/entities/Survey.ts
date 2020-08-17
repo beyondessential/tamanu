@@ -1,9 +1,9 @@
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
-import { BaseEntity } from './BaseEntity';
+import { BaseModel } from './BaseModel';
 import { Program } from './Program';
 
 @Entity('survey')
-export class Survey extends BaseEntity {
+export class Survey extends BaseModel {
 
   @Column()
   name: string;
@@ -13,7 +13,7 @@ export class Survey extends BaseEntity {
 }
 
 @Entity('program_data_element')
-export class ProgramDataElement extends BaseEntity {
+export class ProgramDataElement extends BaseModel {
 
   @Column()
   code: string;
@@ -35,7 +35,7 @@ export class ProgramDataElement extends BaseEntity {
 }
 
 @Entity('survey_screen_component')
-export class SurveyScreenComponent extends BaseEntity {
+export class SurveyScreenComponent extends BaseModel {
 
   @Column("int")
   screenIndex: number;

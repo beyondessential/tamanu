@@ -1,18 +1,18 @@
 import { Connection, createConnection, getConnectionManager } from 'typeorm';
-import * as entityMap from '~/entities';
-import { BaseEntity } from '~/entities/BaseEntity';
+import * as modelsMap from '~/entities';
+import { BaseModel } from '~/entities/BaseModel';
 
-interface EntityMap {
-  [key: string]: BaseEntity,
+interface ModelMap {
+  [key: string]: BaseModel,
 }
 
-const ENTITIES : EntityMap = Object.entries(entityMap)
-  .reduce((allEntitiesObject, [entityName, entity]) => ({
-    [entityName]: entity,
-    ...allEntitiesObject,
+const MODELS : ModelMap = Object.entries(modelsMap)
+  .reduce((allModelsObject, [modelName, model]) => ({
+    [modelName]: model,
+    ...allModelsObject,
   }), {});
 
-const ENTITY_LIST : BaseEntity[] = Object.values(ENTITIES);
+const MODEL_LIST : BaseModel[] = Object.values(MODELS);
 
 const CONNECTION_CONFIG = {
   type: 'react-native',
@@ -20,7 +20,7 @@ const CONNECTION_CONFIG = {
   location: 'default',
   logging: __DEV__ ? ['error', 'query', 'schema']: [],
   synchronize: false,
-  entities: ENTITY_LIST,
+  entities: MODEL_LIST,
 };
 
 const TEST_CONNECTION_CONFIG = {
@@ -28,13 +28,13 @@ const TEST_CONNECTION_CONFIG = {
   database: `/tmp/tamanu-mobile-test-${Math.random()}.db`,
   logging: __DEV__ ? ['error', 'query', 'schema'] : [],
   synchronize: true,
-  entities: ENTITY_LIST,
+  entities: MODEL_LIST,
 };
 
 class DatabaseHelper {
 
   client: Connection = null;
-  entities: EntityMap = ENTITIES;
+  models: ModelMap = MODELS;
 
   async forceSync(): Promise<any> {
     if (true || __DEV__) {
@@ -71,7 +71,7 @@ class DatabaseHelper {
 
   async needsInitialDataPopulation() {
     // TODO: this should check against something more reasonable
-    const allPrograms = await this.entities.Program.find({});
+    const allPrograms = await this.models.Program.find({});
     if(allPrograms.length === 0) {
       return true;
     }
@@ -80,7 +80,7 @@ class DatabaseHelper {
   }
 
   async populateInitialData() {
-    const { Program } = this.entities;
+    const { Program } = this.models;
 
     console.log("Populating initial database");
 

@@ -11,7 +11,7 @@ export class Backend {
 
   async getPrograms() {
     await Database.connect();
-    const { Program } = Database.entities;
+    const { Program } = Database.models;
 
     const ps = await Program.find({});
     
