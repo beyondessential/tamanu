@@ -25,7 +25,7 @@ const BarcodeFrame = styled.div`
 
 const PatientBarcode = ({ patient }) => (
   <BarcodeFrame>
-    <Barcode value={patient.displayId} width="1" height="35" margin="0" />
+    <Barcode value={patient.displayId} width={1} height={35} margin={0} />
   </BarcodeFrame>
 );
 

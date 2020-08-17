@@ -3,12 +3,20 @@ import { isEmpty } from 'lodash';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
-import MuiButtonBase from '@material-ui/core/ButtonBase';
-import MuiButton from '@material-ui/core/Button';
-import Icon from '@material-ui/core/Icon';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import { red } from '@material-ui/core/colors';
+import {
+  Icon,
+  IconButton,
+  Button as MuiButton,
+  ButtonBase as MuiButtonBase,
+} from '@material-ui/core';
+import {
+  AddBoxOutlined,
+  IndeterminateCheckBox,
+  ChevronLeft,
+  ChevronRight,
+} from '@material-ui/icons';
+
 import { checkAbility } from '../utils/ability';
 import { Colors } from '../constants';
 
@@ -41,7 +49,7 @@ export const Button = ({ children, isSubmitting, disabled, ...props }) => {
 };
 
 const StyledOutlinedButton = styled(StyledButton)`
-  border-color: ${props => props.theme.palette.primary.main};;
+  border-color: ${props => props.theme.palette.primary.main};
 `;
 
 export const OutlinedButton = props => (
@@ -150,14 +158,14 @@ const StyledNavButton = styled(TextButton)`
 
 export const ForwardButton = ({ children, ...props }) => (
   <StyledNavButton {...props}>
-    {children} <ChevronRightIcon />
+    {children} <ChevronRight />
   </StyledNavButton>
 );
 
 export const BackButton = ({ to, onClick, ...props }) => {
   return (
     <StyledNavButton to={to} onClick={onClick} {...props}>
-      <ChevronLeftIcon /> Back
+      <ChevronLeft /> Back
     </StyledNavButton>
   );
 };
@@ -177,6 +185,18 @@ export const ImageButton = ({ children, ...props }) => (
     <img src={props.src} />
     {children}
   </StyledImageButton>
+);
+
+export const PlusIconButton = ({ ...props }) => (
+  <IconButton color="primary" {...props}>
+    <AddBoxOutlined fontSize="inherit" />
+  </IconButton>
+);
+
+export const MinusIconButton = ({ ...props }) => (
+  <IconButton color="primary" {...props}>
+    <IndeterminateCheckBox fontSize="inherit" />
+  </IconButton>
 );
 
 const isAllowed = ({ can = {} }) => {

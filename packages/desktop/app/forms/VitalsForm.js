@@ -4,11 +4,11 @@ import * as yup from 'yup';
 
 import styled from 'styled-components';
 
+import { AVPU_OPTIONS } from 'shared/constants';
 import { Form, Field, DateField, NumberField, SelectField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
-import { AVPU_OPTIONS } from '../constants';
 
 const BloodPressureFieldsContainer = styled.div`
   display: grid;
