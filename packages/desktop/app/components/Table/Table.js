@@ -236,7 +236,7 @@ class TableComponent extends React.Component {
 
   render() {
     const { page, className } = this.props;
-    console.log('className', className);
+
     return (
       <StyledTableContainer className={className}>
         <StyledTable>
