@@ -24,7 +24,7 @@ export default class TextareaGroup extends Component {
     this.state = { value: props.value ? props.value : '' };
   }
 
-  componentWillReceiveProps(newProps) {
+  UNSAFE_componentWillReceiveProps(newProps) {
     this.setState({ value: newProps.value ? newProps.value : '' });
   }
 

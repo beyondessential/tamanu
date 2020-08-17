@@ -34,11 +34,11 @@ export default class SelectGroup extends Component {
     showDefault: true,
   };
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.parseValue(this.props, true);
   }
 
-  componentWillReceiveProps(newProps) {
+  UNSAFE_componentWillReceiveProps(newProps) {
     this.parseValue(newProps);
   }
 

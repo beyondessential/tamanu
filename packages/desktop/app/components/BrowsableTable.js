@@ -27,11 +27,11 @@ export class BrowsableTable extends Component {
     loading: true,
   };
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.props.collection.on('pageable:state:change', this.handleChange);
   }
 
-  componentWillReceiveProps(newProps) {
+  UNSAFE_componentWillReceiveProps(newProps) {
     this.onFetchData(newProps)();
   }
 

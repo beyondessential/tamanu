@@ -54,11 +54,11 @@ class DatepickerGroup extends Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.parseValue(this.props, true);
   }
 
-  componentWillReceiveProps(newProps) {
+  UNSAFE_componentWillReceiveProps(newProps) {
     this.parseValue(newProps);
   }
 
