@@ -3,7 +3,7 @@ import { BaseEntity } from './BaseEntity';
 import { PatientModel } from '/root/models';
 
 @Entity('patient')
-export class PatientEntity extends BaseEntity implements PatientModel {
+export class Patient extends BaseEntity implements PatientModel {
 
   @Column()
   displayId: string;

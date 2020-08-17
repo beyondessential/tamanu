@@ -8,7 +8,7 @@ interface EntityMap {
 
 const ENTITIES : EntityMap = Object.entries(entityMap)
   .reduce((allEntitiesObject, [entityName, entity]) => ({
-    [entityName.replace('Entity', '')]: entity,
+    [entityName]: entity,
     ...allEntitiesObject,
   }), {});
 
@@ -80,7 +80,7 @@ class DatabaseHelper {
   }
 
   async populateInitialData() {
-    const { ProgramEntity } = entityMap;
+    const { Program } = this.entities;
 
     console.log("Populating initial database");
 
@@ -92,7 +92,7 @@ class DatabaseHelper {
     ];
 
     await Promise.all(programs.map(data => {
-      const p = new ProgramEntity();
+      const p = new Program();
       p.name = data.name;
       return p.save();
     }));
