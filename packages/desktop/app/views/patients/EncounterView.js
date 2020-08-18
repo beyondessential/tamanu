@@ -114,7 +114,7 @@ const ImagingPane = React.memo(({ encounter, readonly }) => {
         encounter={encounter}
         onClose={() => setModalOpen(false)}
       />
-      <ImagingRequestsTable imagingRequests={encounter.imagingRequests} />
+      <ImagingRequestsTable imagingRequests={encounter.imagingRequests || []} />
       <ContentPane>
         <Button
           onClick={() => setModalOpen(true)}
@@ -218,7 +218,7 @@ const TABS = [
   {
     label: 'Imaging',
     key: 'imaging',
-    // render: props => <ImagingPane {...props} />,
+    render: props => <ImagingPane {...props} />,
   },
   {
     label: 'Medication',

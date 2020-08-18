@@ -159,7 +159,7 @@ const TABS = [
     label: 'Referrals',
     key: 'Referrals',
     icon: 'fa fa-hospital',
-    // render: props => <ReferralPane {...props} />,
+    render: props => <ReferralPane {...props} />,
   },
   {
     label: 'Programs',

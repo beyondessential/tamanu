@@ -37,19 +37,13 @@ const DumbImagingRequestsTable = React.memo(({ imagingRequests, onImagingRequest
   <Table columns={columns} data={imagingRequests} onRowClick={row => onImagingRequestSelect(row)} />
 ));
 
-export const ImagingRequestsTable = connect(
-  null,
-  dispatch => ({
-    onImagingRequestSelect: imagingRequest => dispatch(viewImagingRequest(imagingRequest.id)),
-  }),
-)(DumbImagingRequestsTable);
+export const ImagingRequestsTable = connect(null, dispatch => ({
+  onImagingRequestSelect: imagingRequest => dispatch(viewImagingRequest(imagingRequest.id)),
+}))(DumbImagingRequestsTable);
 
-export const DataFetchingImagingRequestsTable = connect(
-  null,
-  dispatch => ({
-    onImagingRequestSelect: imagingRequest => dispatch(viewImagingRequest(imagingRequest.id)),
-  }),
-)(({ onImagingRequestSelect }) => (
+export const DataFetchingImagingRequestsTable = connect(null, dispatch => ({
+  onImagingRequestSelect: imagingRequest => dispatch(viewImagingRequest(imagingRequest.id)),
+}))(({ onImagingRequestSelect }) => (
   <DataFetchingTable
     endpoint="imagingRequest"
     columns={columns}
