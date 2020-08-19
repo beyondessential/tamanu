@@ -4,6 +4,12 @@ import styled from 'styled-components';
 import { Tabs, Tab } from '@material-ui/core';
 import { Colors } from '../constants';
 
+const TabBar = styled.div`
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+`;
+
 const TabContainer = styled(Tabs)`
   background: ${Colors.white};
 
@@ -48,9 +54,11 @@ export const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect, ...tabPro
     />
   ));
   return (
-    <div>
-      <TabContainer value={currentTab}>{buttons}</TabContainer>
+    <TabBar>
+      <TabContainer variant="scrollable" scrollButtons="on" value={currentTab}>
+        {buttons}
+      </TabContainer>
       <div>{currentTabData.render({ ...tabProps })}</div>
-    </div>
+    </TabBar>
   );
 });

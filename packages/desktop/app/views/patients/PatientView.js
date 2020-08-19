@@ -17,6 +17,7 @@ import { ReferralModal } from '../../components/ReferralModal';
 import { ReferralTable } from '../../components/ReferralTable';
 import { AppointmentModal } from '../../components/AppointmentModal';
 import { AppointmentTable } from '../../components/AppointmentTable';
+import { ImmunisationsTable } from '../../components/ImmunisationsTable';
 import { Button } from '../../components/Button';
 import { connectRoutedModal } from '../../components/Modal';
 import { PatientEncounterSummary } from './components/PatientEncounterSummary';
@@ -70,6 +71,14 @@ const ReferralPane = React.memo(({ patient, readonly }) => {
           New referral
         </Button>
       </ContentPane>
+    </div>
+  );
+});
+
+const ImmunisationsPane = React.memo(({ patient }) => {
+  return (
+    <div>
+      <ImmunisationsTable patient={patient} />
     </div>
   );
 });
@@ -171,6 +180,12 @@ const TABS = [
     label: 'Documents',
     key: 'documents',
     icon: 'fa fa-file-medical-alt',
+  },
+  {
+    label: 'Immunisations',
+    key: 'a',
+    icon: 'fa fa-syringe',
+    render: props => <ImmunisationsPane {...props} />,
   },
 ];
 
