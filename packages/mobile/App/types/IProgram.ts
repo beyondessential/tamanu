@@ -1,6 +1,6 @@
-import { IQuestion } from './IQuestion';
+import { ID } from './ID';
 
-export interface IProgram { id: number;
+export interface IProgram { 
+  id: ID;
   name: string;
-  questions: IQuestion[];
 }
