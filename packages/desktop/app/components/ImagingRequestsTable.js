@@ -33,27 +33,15 @@ const columns = [
   { key: 'requestedDate', title: 'Date', accessor: getDate },
 ];
 
-const DumbImagingRequestsTable = React.memo(({ imagingRequests, onImagingRequestSelect }) => (
-  <Table columns={columns} data={imagingRequests} onRowClick={row => onImagingRequestSelect(row)} />
-));
-
-export const ImagingRequestsTable = connect(
-  null,
-  dispatch => ({
-    onImagingRequestSelect: imagingRequest => dispatch(viewImagingRequest(imagingRequest.id)),
-  }),
-)(DumbImagingRequestsTable);
-
-export const DataFetchingImagingRequestsTable = connect(
-  null,
-  dispatch => ({
-    onImagingRequestSelect: imagingRequest => dispatch(viewImagingRequest(imagingRequest.id)),
-  }),
-)(({ onImagingRequestSelect }) => (
+const DumbImagingRequestsTable = React.memo(({ encounterId, onImagingRequestSelect }) => (
   <DataFetchingTable
-    endpoint="imagingRequest"
+    endpoint={`encounter/${encounterId}/imagingRequest`}
     columns={columns}
     noDataMessage="No imaging requests found"
     onRowClick={onImagingRequestSelect}
   />
 ));
+
+export const ImagingRequestsTable = connect(null, dispatch => ({
+  onImagingRequestSelect: imagingRequest => dispatch(viewImagingRequest(imagingRequest.id)),
+}))(DumbImagingRequestsTable);
