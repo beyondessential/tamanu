@@ -2,8 +2,10 @@ import { Entity, Column, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Program } from './Program';
 
+import { ISurveyScreenComponent, ISurvey, IProgramDataElement } from '~/types';
+
 @Entity('survey')
-export class Survey extends BaseModel {
+export class Survey extends BaseModel implements ISurvey {
 
   @Column()
   name: string;
@@ -13,7 +15,7 @@ export class Survey extends BaseModel {
 }
 
 @Entity('program_data_element')
-export class ProgramDataElement extends BaseModel {
+export class ProgramDataElement extends BaseModel implements IProgramDataElement {
 
   @Column()
   code: string;
@@ -35,7 +37,7 @@ export class ProgramDataElement extends BaseModel {
 }
 
 @Entity('survey_screen_component')
-export class SurveyScreenComponent extends BaseModel {
+export class SurveyScreenComponent extends BaseModel implements ISurveyScreenComponent {
 
   @Column("int")
   screenIndex: number;
