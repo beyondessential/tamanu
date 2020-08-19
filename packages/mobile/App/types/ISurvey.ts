@@ -21,6 +21,11 @@ export interface ISurveyScreenComponent {
   options: string;
 }
 
+export enum DataElementType {
+  Number = "number",
+  Text = "text",
+}
+
 export interface IProgramDataElement {
   id: ID;
   code: string;
@@ -28,5 +33,5 @@ export interface IProgramDataElement {
   indicator: string;
   defaultText: string;
   defaultOptions: string;
-  type: enum;
+  type: DataElementType;
 }
