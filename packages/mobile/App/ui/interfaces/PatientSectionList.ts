@@ -1,6 +1,6 @@
-import { PatientModel } from '../models/Patient';
+import { IPatient } from '~/types';
 
 export type PatientSectionListItem = {
-  items: PatientModel[];
+  items: IPatient[];
   header: string;
 };

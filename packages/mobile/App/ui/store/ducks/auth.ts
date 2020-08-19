@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { UserModel } from '../../models/User';
+import { IUser } from '~/types';
 
 export type WithAuthStoreProps = WithAuthActions & AuthStateProps;
 export interface WithAuthActions {
-  setUser: (payload: UserModel) => PayloadAction<UserModel>;
-  setToken: (payload: string) => PayloadAction<UserModel>;
+  setUser: (payload: IUser) => PayloadAction<IUser>;
+  setToken: (payload: string) => PayloadAction<IUser>;
   setFirstSignIn: (value: boolean) => PayloadAction<boolean>;
   setSignedInStatus: (payload: boolean) => PayloadAction<boolean>;
   signOutUser(): () => PayloadAction<void>;
@@ -12,7 +12,7 @@ export interface WithAuthActions {
 
 export interface AuthStateProps {
   token: string | null;
-  user: UserModel | null;
+  user: IUser | null;
   signedIn: boolean;
   isFirstTime: boolean;
 }
@@ -54,7 +54,7 @@ export const PatientSlice = createSlice({
     },
     setUser(
       state,
-      { payload: user }: PayloadAction<UserModel>,
+      { payload: user }: PayloadAction<IUser>,
     ): AuthStateProps {
       return {
         ...state,

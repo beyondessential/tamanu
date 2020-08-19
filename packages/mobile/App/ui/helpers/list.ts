@@ -1,10 +1,10 @@
-import { PatientModel } from '/models/Patient';
+import { IPatient } from '~/types';
 import { PatientSectionListItem } from '/interfaces/PatientSectionList';
 
 export function groupEntriesByLetter(
-  data: PatientModel[],
+  data: IPatient[],
 ): PatientSectionListItem[] {
-  return data.reduce((acc: PatientSectionListItem[], cur: PatientModel) => {
+  return data.reduce((acc: PatientSectionListItem[], cur: IPatient) => {
     if (acc.length === 0) {
       acc.push({
         header: cur.firstName[0].toUpperCase(),

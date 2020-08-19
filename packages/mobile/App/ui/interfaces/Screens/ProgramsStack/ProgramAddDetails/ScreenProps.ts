@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { VerticalPosition } from '../../../VerticalPosition';
-import { ProgramModel } from '../../../../models/Program';
+import { IProgram } from '~/types';
 
 export interface ScreenProps {
   onSubmitForm: (values: any) => void;
@@ -8,6 +8,6 @@ export interface ScreenProps {
   initialValues: { [key: string]: any };
   containerScrollView: any;
   verticalPositions: VerticalPosition;
-  program: ProgramModel;
+  program: IProgram;
   scrollTo: (position: { x: number; y: number }) => void;
 }

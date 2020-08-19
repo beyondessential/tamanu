@@ -1,5 +1,5 @@
 
-export interface PatientModel {
+export interface IPatient {
   id: string;
   displayId: string;  
   firstName: string;

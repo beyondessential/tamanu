@@ -2,7 +2,7 @@ import React from 'react';
 import { groupEntriesByLetter } from '/helpers/list';
 import { StyledView } from '/styled/common';
 import { PatientSectionList } from './index';
-import { PatientModel } from '../../models/Patient';
+import { IPatient } from '~/types';
 import { Chance } from 'chance';
 import { GenderOptions } from '/helpers/constants';
 import { BloodTypes } from '/helpers/constants';
@@ -20,7 +20,7 @@ const CITIES = [
   'Canberra',
 ];
 
-function generatePatient(): PatientModel {
+function generatePatient(): IPatient {
     const gender = (chance.bool() ? GenderOptions[0] : GenderOptions[1]).value;
     const [firstName, middleName, lastName] = chance
       .name({middle: true, gender })
@@ -46,9 +46,9 @@ function generatePatient(): PatientModel {
     };
 }
 
-export const genPatientSectionList = (): PatientModel[] => new Array(80).fill(1).map(generatePatient);
+export const genPatientSectionList = (): IPatient[] => new Array(80).fill(1).map(generatePatient);
 
-export const data: PatientModel[] = genPatientSectionList();
+export const data: IPatient[] = genPatientSectionList();
 
 const sortedData = groupEntriesByLetter(data);
 

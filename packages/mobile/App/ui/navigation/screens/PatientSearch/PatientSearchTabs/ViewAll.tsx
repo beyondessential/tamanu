@@ -22,7 +22,7 @@ import { theme } from '/styled/theme';
 import { FilterIcon } from '/components/Icons';
 import { FilterArray } from './PatientFilterScreen';
 import { getAgeFromDate } from '/helpers/date';
-import { PatientModel } from '/models/Patient';
+import { IPatient } from '~/types';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 interface ActiveFiltersI {
@@ -99,9 +99,9 @@ const isEqual = (prop1: any, prop2: any, fieldName: string): boolean => {
 
 const applyActiveFilters = (
   activeFilters: ActiveFiltersI,
-  data: PatientModel[],
+  data: IPatient[],
   searchField: FieldInputProps<any>,
-): PatientModel[] => {
+): IPatient[] => {
   if (activeFilters.count > 0) {
     // apply filters
     return data.filter(patientData =>

@@ -1,12 +1,12 @@
 import React, { ReactElement, FC } from 'react';
 import { StyledView } from '/styled/common';
-import { QuestionModel } from '../../../models/Question';
+import { IQuestion } from '~/types';
 import { VerticalPosition } from '../../../interfaces/VerticalPosition';
 import { Field } from '../FormField';
 import { FieldTypes, FieldByType } from '/helpers/fields';
 
 interface ProgramQuestion {
-  question: QuestionModel;
+  question: IQuestion;
   scrollTo: (item: { x: number; y: number }) => void;
   verticalPositions: VerticalPosition;
 }

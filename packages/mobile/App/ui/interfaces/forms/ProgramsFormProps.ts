@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { VerticalPosition } from '../VerticalPosition';
-import { ProgramModel } from '../../models/Program';
+import { IProgram } from '~/types';
 
 export type ProgramsFormProps = {
   scrollToField: (position: { x: number; y: number }) => void;
@@ -9,5 +9,5 @@ export type ProgramsFormProps = {
   initialValues: { [key: string]: any };
   containerScrollView: any;
   verticalPositions: VerticalPosition;
-  program: ProgramModel;
+  program: IProgram;
 };

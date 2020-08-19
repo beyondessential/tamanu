@@ -3,7 +3,6 @@ import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FullView, StyledText } from '/styled/common';
 import { compose } from 'redux';
-import { ProgramModel } from '../../../models/Program';
 import { theme } from '/styled/theme';
 import {
   MenuOptionButton,
@@ -13,13 +12,13 @@ import { Separator } from '/components/Separator';
 import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
 import { withPatient } from '/containers/Patient';
-import { PatientModel } from '../../../models/Patient';
+import { IPatient } from '~/types';
 import { joinNames } from '/helpers/user';
 import { useBackendEffect } from '/helpers/hooks';
 import { makeGetProgramsController } from '~/factories/programs/getPrograms';
 
 interface ProgramListScreenProps {
-  selectedPatient: PatientModel;
+  selectedPatient: IPatient;
 }
 
 const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {

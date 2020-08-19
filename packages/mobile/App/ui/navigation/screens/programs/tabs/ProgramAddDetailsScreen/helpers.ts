@@ -1,9 +1,8 @@
 import { FieldTypes } from '/helpers/fields';
-import { ProgramModel } from '/models/Program';
+import { IProgram } from '~/types';
 import * as Yup from 'yup';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { VerticalPosition } from '/interfaces/VerticalPosition';
-import { QuestionModel } from '/models/Question';
 
 function getInitialValue(question) {
   switch(question.type) {
@@ -18,7 +17,7 @@ function getInitialValue(question) {
 }
 
 export function getFormInitialValues(
-  program: ProgramModel,
+  program: IProgram,
 ): { [key: string]: any } {
   const questions = program.questions;
 
@@ -52,7 +51,7 @@ function getFieldValidator(question) {
   }
 }
 
-export function getFormSchema(program: ProgramModel): Yup.ObjectSchema {
+export function getFormSchema(program: IProgram): Yup.ObjectSchema {
   const questions = program.questions;
   const objectShapeSchema = questions.reduce<{ [key: string]: any }>(
     (acc, question) => {
@@ -73,7 +72,7 @@ export function getFormSchema(program: ProgramModel): Yup.ObjectSchema {
 }
 
 export function mapInputVerticalPosition(
-  program: ProgramModel,
+  program: IProgram,
 ): VerticalPosition {
   let verticalOffset = 0;
   const verticalPositions = program.questions.reduce<VerticalPosition>(

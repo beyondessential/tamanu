@@ -8,7 +8,7 @@ import {
 import { theme } from '/styled/theme';
 import { VaccineIcons, VaccineStatus } from '/helpers/constants';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { VaccineModel } from '/models/Vaccine';
+import { IVaccine } from '~/types';
 
 const VaccineIcon = ({
   vaccineType,
@@ -56,7 +56,7 @@ const VaccineIcon = ({
 
 interface VaccineTableCellProps {
   header: any;
-  vaccine: VaccineModel;
+  vaccine: IVaccine;
   onPress?: (item: any) => void;
 }
 

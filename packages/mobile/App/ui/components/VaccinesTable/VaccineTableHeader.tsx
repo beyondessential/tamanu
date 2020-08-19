@@ -1,12 +1,12 @@
 import React from 'react';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { PatientVaccineProps } from '../../interfaces/PatientVaccineProps';
+import { IVaccine } from '~/types';
 
 export const vaccineTableHeader = {
   key: 'date',
   tableHeader: true,
-  accessor: (row: PatientVaccineProps): JSX.Element => (
+  accessor: (row: IVaccine): JSX.Element => (
     <StyledView
       paddingTop={15}
       paddingBottom={15}
