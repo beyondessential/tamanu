@@ -1,6 +1,7 @@
 import { isCalculated } from '/helpers/fields';
 
 import { dummyPrograms } from '~/dummyData/programs';
+import { Database } from '~/infra/db';
 
 export class Backend {
 
@@ -9,7 +10,12 @@ export class Backend {
   }
 
   async getPrograms() {
-    return dummyPrograms;
+    await Database.connect();
+    const { Program } = Database.models;
+
+    const ps = await Program.find({});
+    
+    return ps.map(x => ({ ...x, questions: [] }));
   }
 
   async getResponses(surveyId): Promise {

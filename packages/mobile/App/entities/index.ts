@@ -1,2 +1,4 @@
 
-export * from './PatientEntity';
+export * from './Patient';
+export * from './Program';
+export * from './Survey';

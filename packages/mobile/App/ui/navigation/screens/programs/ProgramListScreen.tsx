@@ -46,7 +46,7 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
         onGoBack={goBack}
       />
       {error ? (
-        <StyledText>Unable to get programs list...</StyledText>
+        <StyledText>Unable to get programs list: { error.message }</StyledText>
       ) : (
         <FlatList
           style={{

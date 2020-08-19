@@ -1,10 +1,9 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm/browser';
+import { BaseModel } from './BaseModel';
 import { PatientModel } from '/root/models';
 
 @Entity('patient')
-export class PatientEntity implements PatientModel {
-  @PrimaryGeneratedColumn()
-  id: string;
+export class Patient extends BaseModel implements PatientModel {
 
   @Column()
   displayId: string;
