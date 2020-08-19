@@ -22,8 +22,16 @@ export interface ISurveyScreenComponent {
 }
 
 export enum DataElementType {
-  Number = "number",
-  Text = "text",
+  Autocomplete: 'Autocomplete',
+  Binary: 'Binary',
+  Calculated: 'Calculated',
+  Checkbox: 'Checkbox',
+  Date: 'Date',
+  FreeText: 'FreeText',
+  Instruction: 'Instruction',
+  Number: 'Number',
+  Radio: 'Radio',
+  Result: 'Result',
 }
 
 export interface IProgramDataElement {
