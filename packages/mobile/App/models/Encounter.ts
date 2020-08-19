@@ -1,8 +1,9 @@
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
+import { IEncounter } from '~/types';
 
 @Entity('encounter')
-export class Encounter extends BaseModel {
+export class Encounter extends BaseModel implements IEncounter {
   
   @Column()
   encounterType: string;

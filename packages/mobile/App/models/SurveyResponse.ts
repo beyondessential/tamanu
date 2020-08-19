@@ -3,8 +3,10 @@ import { BaseModel } from './BaseModel';
 import { Survey, ProgramDataElement } from './Survey';
 import { Encounter } from './Encounter';
 
+import { ISurveyResponse, ISurveyResponseAnswer } from '~/types';
+
 @Entity('survey_response')
-export class SurveyResponse extends BaseModel {
+export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
   @Column()
   startTime: Date;
@@ -24,7 +26,7 @@ export class SurveyResponse extends BaseModel {
 }
 
 @Entity('survey_response_answer')
-export class SurveyResponseAnswer extends BaseModel {
+export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAnswer {
   
   @Column()
   name: string;
