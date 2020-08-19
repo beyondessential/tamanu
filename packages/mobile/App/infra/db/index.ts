@@ -1,6 +1,6 @@
 import { Connection, createConnection, getConnectionManager } from 'typeorm';
-import * as modelsMap from '~/entities';
-import { BaseModel } from '~/entities/BaseModel';
+import * as modelsMap from '~/models';
+import { BaseModel } from '~/models/BaseModel';
 
 interface ModelMap {
   [key: string]: BaseModel,

@@ -1,8 +1,7 @@
 import { Chance } from 'chance'
-import { PatientEntity } from "/root/App/entities/PatientEntity";
+import { PatientEntity } from "~/models/PatientEntity";
 
 const chance = new Chance()
-
 
 export const generatePatient = (): PatientEntity => {      
   const patient = new PatientEntity();
