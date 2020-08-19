@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { push } from 'connected-react-router';
-import { Table } from './Table';
+import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { DropdownButton } from './DropdownButton';
 
@@ -31,14 +31,11 @@ const DumbActionDropdown = React.memo(({ onCheckin, onCancel, onView, encounter,
   return <DropdownButton color="primary" actions={actions} />;
 });
 
-const ActionDropdown = connect(
-  null,
-  (dispatch, { encounter, id }) => ({
-    onCheckin: () => dispatch(push('/patients/view/checkin')),
-    onCancel: () => console.log('TODO'),
-    onView: () => dispatch(viewEncounter(encounter.id)),
-  }),
-)(DumbActionDropdown);
+const ActionDropdown = connect(null, (dispatch, { encounter, id }) => ({
+  onCheckin: () => dispatch(push('/patients/view/checkin')),
+  onCancel: () => console.log('TODO'),
+  onView: () => dispatch(viewEncounter(encounter.id)),
+}))(DumbActionDropdown);
 
 const StatusDisplay = React.memo(({ encounter, closedDate }) => {
   if (encounter) {
@@ -82,11 +79,15 @@ const columns = [
   { key: 'actions', title: 'Actions', accessor: getActions },
 ];
 
-const DumbReferralTable = React.memo(({ referrals, onReferralSelect }) => (
-  <Table columns={columns} data={referrals} onRowClick={row => onReferralSelect(row)} />
+const DumbReferralTable = React.memo(({ patientId, onReferralSelect }) => (
+  <DataFetchingTable
+    columns={columns}
+    endpoint={`patient/${patientId}/referrals`}
+    noDataMessage="No referrals found"
+    onRowClick={row => onReferralSelect(row)}
+  />
 ));
 
-export const ReferralTable = connect(
-  null,
-  dispatch => ({ onReferralSelect: referral => dispatch(viewReferral(referral.id)) }),
-)(DumbReferralTable);
+export const ReferralTable = connect(null, dispatch => ({
+  onReferralSelect: referral => dispatch(viewReferral(referral.id)),
+}))(DumbReferralTable);

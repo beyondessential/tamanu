@@ -59,7 +59,7 @@ const ReferralPane = React.memo(({ patient, readonly }) => {
   return (
     <div>
       <ReferralModal open={modalOpen} patientId={patient.id} onClose={() => setModalOpen(false)} />
-      <ReferralTable referrals={patient.referrals} />
+      <ReferralTable patientId={patient.id} />
       <ContentPane>
         <Button
           onClick={() => setModalOpen(true)}
@@ -159,7 +159,7 @@ const TABS = [
     label: 'Referrals',
     key: 'Referrals',
     icon: 'fa fa-hospital',
-    // render: props => <ReferralPane {...props} />,
+    render: props => <ReferralPane {...props} />,
   },
   {
     label: 'Programs',
