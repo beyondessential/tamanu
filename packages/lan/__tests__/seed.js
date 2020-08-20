@@ -41,10 +41,17 @@ export const testVillages = splitIds(`
   Tulagi
 `).map(x => ({ ...x, type: 'village' }));
 
+export const testImagingTypes = splitIds(`
+  X-Ray
+  CT Scan
+  Ultrasound
+`).map(x => ({ ...x, type: 'imagingType' }));
+
 export const allSeeds = [
   ...testDiagnoses,
   ...testDrugs,
   ...testTriageReasons,
+  ...testImagingTypes,
   ...testLocations,
   ...testDepartments,
   ...testVillages,

@@ -23,6 +23,11 @@ export const practitioner = (user, allow, forbid) => {
   allow('write', 'Patient');
   allow('list', 'Patient');
 
+  allow('list', 'ImagingRequest');
+  allow('read', 'ImagingRequest');
+  allow('write', 'ImagingRequest');
+  allow('create', 'ImagingRequest');
+
   allow('list', 'LabRequest');
   allow('read', 'LabRequest');
   allow('write', 'LabRequest');
