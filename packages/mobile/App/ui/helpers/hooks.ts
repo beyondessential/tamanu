@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { BackendContext } from '../../services/backendContext';
+import { BackendContext } from '~/services/backendProvider';
 
 export const useCancelableEffect = (fetcher, dependencies=[]) => {
   const [data, setData] = useState(null);

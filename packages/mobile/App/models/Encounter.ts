@@ -1,6 +1,7 @@
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IEncounter } from '~/types';
+import { Patient } from './Patient';
 
 @Entity('encounter')
 export class Encounter extends BaseModel implements IEncounter {
