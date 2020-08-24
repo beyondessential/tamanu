@@ -15,7 +15,6 @@ import { withPatient } from '/containers/Patient';
 import { IPatient } from '~/types';
 import { joinNames } from '/helpers/user';
 import { useBackendEffect } from '/helpers/hooks';
-import { makeGetProgramsController } from '~/factories/programs/getPrograms';
 
 interface ProgramListScreenProps {
   selectedPatient: IPatient;
@@ -24,7 +23,10 @@ interface ProgramListScreenProps {
 const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   const navigation = useNavigation();
 
-  const [programs, error] = useBackendEffect(backend => backend.getPrograms());
+  const [programs, error] = useBackendEffect(async ({ models }) => {
+    const { Program } = models;
+    return Program.find({});
+  });
 
   const goBack = useCallback(() => {
     navigation.goBack();
