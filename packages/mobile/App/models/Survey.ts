@@ -21,16 +21,13 @@ export class ProgramDataElement extends BaseModel implements IProgramDataElement
   code: string;
 
   @Column()
-  name: string;
-
-  @Column()
   indicator: string;
 
   @Column()
   defaultText: string;
 
-  @Column()
-  defaultOptions: string;
+  @Column({ nullable: true })
+  defaultOptions?: string;
 
   @Column()
   type: string;
@@ -45,14 +42,14 @@ export class SurveyScreenComponent extends BaseModel implements ISurveyScreenCom
   @Column("int")
   componentIndex: number;
 
-  @Column()
-  text: string;
+  @Column({ nullable: true })
+  text?: string;
 
-  @Column()
-  visibilityCriteria: string;
+  @Column({ nullable: true })
+  visibilityCriteria?: string;
 
-  @Column()
-  options: string;
+  @Column({ nullable: true })
+  options?: string;
 
   @ManyToOne(type => Survey, survey => survey.components)
   survey: Survey;
