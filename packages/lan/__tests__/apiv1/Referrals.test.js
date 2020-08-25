@@ -11,7 +11,7 @@ const createUser = overrides => ({
   ...overrides,
 });
 
-describe.only('Referrals', () => {
+describe('Referrals', () => {
   let patient = null;
   let encounter = null;
   let app = null;
