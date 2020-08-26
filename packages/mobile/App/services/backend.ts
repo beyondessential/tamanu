@@ -2,15 +2,24 @@ import { isCalculated } from '/helpers/fields';
 
 import { dummyPrograms } from '~/dummyData/programs';
 import { Database } from '~/infra/db';
+import { needsInitialPopulation, populateInitialData } from '~/infra/db/populate';
 
 export class Backend {
 
   constructor() {
     this.responses = [];
+    this.initialised = false;
+  }
+
+  async initialise() {
+    await Database.connect();
+    const { models } = Database;
+    if(await needsInitialPopulation(models)) {
+      await populateInitialData(models);
+    }
   }
 
   async getPrograms() {
-    await Database.connect();
     const { Program } = Database.models;
 
     const ps = await Program.find({});
