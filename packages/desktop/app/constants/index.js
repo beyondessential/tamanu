@@ -2,7 +2,7 @@ import moment from 'moment';
 import { padStart, capitalize } from 'lodash';
 
 import { createValueIndex } from 'shared/utils/valueIndex';
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import {
   medicationIcon,
   administrationIcon,
@@ -75,19 +75,14 @@ export const LAB_REQUEST_COLORS = {
   unknown: '#333',
 };
 
-export const IMAGING_REQUEST_STATUSES = {
-  PENDING: 'pending',
-  COMPLETED: 'completed',
-};
-
 export const IMAGING_REQUEST_STATUS_LABELS = {
-  [IMAGING_REQUEST_STATUSES.PENDING]: 'Pending',
-  [IMAGING_REQUEST_STATUSES.COMPLETED]: 'Completed',
+  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: 'Pending',
+  [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: 'Completed',
 };
 
 export const IMAGING_REQUEST_COLORS = {
-  [IMAGING_REQUEST_STATUSES.PENDING]: '#aaf',
-  [IMAGING_REQUEST_STATUSES.COMPLETED]: '#afa',
+  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: '#aaf',
+  [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: '#afa',
   unknown: '#333',
 };
 

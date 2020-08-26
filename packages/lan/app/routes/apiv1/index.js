@@ -15,6 +15,7 @@ import { diagnosis } from './diagnosis';
 import { medication } from './medication';
 import { note } from './note';
 import { labRequest, labTest } from './labs';
+import { imagingRequest } from './imaging';
 import { program } from './program';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
@@ -39,6 +40,7 @@ apiv1.use('/medication', medication);
 apiv1.use('/note', note);
 apiv1.use('/labRequest', labRequest);
 apiv1.use('/labTest', labTest);
+apiv1.use('/imagingRequest', imagingRequest);
 
 apiv1.use('/program', program);
 apiv1.use('/survey', survey);
