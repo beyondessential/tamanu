@@ -78,7 +78,7 @@ export const OPERATION_PLAN_STATUSES = {
   COMPLETED: 'Completed',
 };
 
-export const IMAGING_REQUEST_STATUSES = {
+export const IMAGING_REQUEST_STATUS_TYPES = {
   PENDING: 'pending',
   COMPLETED: 'completed',
 };
