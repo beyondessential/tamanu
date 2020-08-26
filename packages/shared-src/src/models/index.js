@@ -24,3 +24,5 @@ export * from './ImagingRequest';
 export * from './Program';
 export * from './Survey';
 export * from './SurveyResponse';
+
+export * from './Referral';

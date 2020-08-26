@@ -69,7 +69,7 @@ const getStatus = ({ encounter, closedDate }) => (
 const getActions = ({ encounter, closedDate }) => (
   <ActionDropdown encounter={encounter} closedDate={closedDate} />
 );
-
+// id, date, urgent, referredBy, referredTo, diagnosis, facility, deparment, notes
 const columns = [
   { key: 'date', title: 'Referral date', accessor: getDate },
   { key: 'department', title: 'Department', accessor: getDepartment },
