@@ -5,30 +5,30 @@ import { SectionHeader } from '../../SectionHeader';
 import { isCalculated } from '/helpers/fields';
 
 export const FormFields = ({
-  program,
+  components,
   scrollTo,
   verticalPositions,
   values,
 }: AddDetailsFormFieldsProps): ReactElement => {
-  const shouldShow = useCallback((question) => {
-    if(isCalculated(question.type)) return false;
-    if(!question.visibilityCriteria) return true;
+  const shouldShow = useCallback((component) => {
+    if(isCalculated(component.dataElement.type)) return false;
+    if(!component.visibilityCriteria) return true;
 
-    return question.visibilityCriteria(values);
+    return component.visibilityCriteria(values);
   }, [values]);
   return (
     <React.Fragment>
-      {program.questions
+      {components
       .filter(shouldShow)
-      .map((question, index) => (
-        <React.Fragment key={question.id}>
+      .map((component, index) => (
+        <React.Fragment key={component.id}>
           <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
-            {question.text}
+            {component.text || component.dataElement.defaultText}
           </SectionHeader>
           <ProgramQuestion
-            key={question.id}
+            key={component.id}
             verticalPositions={verticalPositions}
-            question={question}
+            component={component}
             scrollTo={scrollTo}
           />
         </React.Fragment>

@@ -9,6 +9,7 @@ export class Backend {
   constructor() {
     this.responses = [];
     this.initialised = false;
+    this.models = Database.models;
   }
 
   async initialise() {

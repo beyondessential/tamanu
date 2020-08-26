@@ -12,6 +12,14 @@ export class Survey extends BaseModel implements ISurvey {
 
   @ManyToOne(type => Program, program => program.surveys)
   program: Program;
+
+  getComponents() {
+    const repo = SurveyScreenComponent.getRepository();
+    return repo.find({
+      where: { survey: { id: this.id } },
+      relations: ['dataElement'],
+    });
+  }
 }
 
 @Entity('program_data_element')
@@ -56,4 +64,12 @@ export class SurveyScreenComponent extends BaseModel implements ISurveyScreenCom
 
   @ManyToOne(type => ProgramDataElement)
   dataElement: ProgramDataElement;
+
+  getOptions() {
+    return (this.options || this.dataElement.defaultOptions || "")
+      .split(",")
+      .map(x => x.trim())
+      .filter(x => x)
+      .map(x => ({ label: x, value: x }));
+  }
 }

@@ -11,8 +11,8 @@ export interface ISurvey {
 export interface ISurveyScreenComponent {
   id: ID;
 
-  surveyId: ID;
-  dataElementId: ID;
+  survey?: ISurvey;
+  dataElement?: IProgramDataElement;
 
   screenIndex: number;
   componentIndex: number;

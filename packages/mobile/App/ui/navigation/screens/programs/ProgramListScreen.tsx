@@ -23,19 +23,19 @@ interface ProgramListScreenProps {
 const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   const navigation = useNavigation();
 
-  const [programs, error] = useBackendEffect(async ({ models }) => {
-    const { Program } = models;
-    return Program.find({});
+  const [surveys, error] = useBackendEffect(async ({ models }) => {
+    const { Survey } = models;
+    return Survey.find({});
   });
 
   const goBack = useCallback(() => {
     navigation.goBack();
   }, []);
 
-  const onNavigateToProgram = program => {
+  const onNavigateToSurvey = survey => {
     navigation.navigate(
       Routes.HomeStack.ProgramStack.ProgramTabs.name,
-      { program }
+      { survey }
     );
   };
 
@@ -57,12 +57,12 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
             backgroundColor: theme.colors.BACKGROUND_GREY,
           }}
           showsVerticalScrollIndicator={false}
-          data={programs}
+          data={surveys}
           keyExtractor={(item): string => item.title}
           renderItem={({ item }): ReactElement => (
             <MenuOptionButton 
               title={item.name}
-              onPress={() => onNavigateToProgram(item)}
+              onPress={() => onNavigateToSurvey(item)}
               fontWeight={500}
               textColor={theme.colors.TEXT_SUPER_DARK}
             />
