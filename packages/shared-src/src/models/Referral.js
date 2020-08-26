@@ -19,16 +19,16 @@ export class Referral extends Model {
       {
         ...options,
         validate: {
-          mustHaveValidReferredById() {
-            if (!this.referredById) {
-              throw new InvalidOperationError('A referral must have a valid referrer');
-            }
-          },
-          mustHaveValidReferredToId() {
-            if (!this.referredToId) {
-              throw new InvalidOperationError('A referral must have a valid referree');
-            }
-          },
+          // mustHaveValidReferredById() {
+          //   if (!this.referredBy) {
+          //     throw new InvalidOperationError('A referral must have a valid referrer');
+          //   }
+          // },
+          // mustHaveValidReferredToId() {
+          //   if (!this.referredTo) {
+          //     throw new InvalidOperationError('A referral must have a valid referree');
+          //   }
+          // },
         },
       },
     );
@@ -41,6 +41,9 @@ export class Referral extends Model {
   static initRelations(models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
+    });
+    this.belongsTo(models.Patient, {
+      foreignKey: 'patientId',
     });
     this.belongsTo(models.User, {
       foreignKey: 'referredById',

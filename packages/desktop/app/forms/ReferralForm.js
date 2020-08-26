@@ -42,7 +42,7 @@ export const ReferralForm = React.memo(
             required
           />
           <Field
-            name="referringDoctor.id"
+            name="referredBy.id"
             label="Referring doctor"
             component={AutocompleteField}
             suggester={practitionerSuggester}
