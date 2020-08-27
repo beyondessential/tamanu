@@ -35,7 +35,7 @@ const columns = [
 
 const DumbImagingRequestsTable = React.memo(({ encounterId, onImagingRequestSelect }) => (
   <DataFetchingTable
-    endpoint={`encounter/${encounterId}/imagingRequest`}
+    endpoint={`encounter/${encounterId}/imagingRequests`}
     columns={columns}
     noDataMessage="No imaging requests found"
     onRowClick={onImagingRequestSelect}

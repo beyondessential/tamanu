@@ -1,8 +1,9 @@
 import { Sequelize } from 'sequelize';
-import { Model } from './Model';
 
 import { InvalidOperationError } from 'shared/errors';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+
+import { Model } from './Model';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
 
@@ -24,7 +25,7 @@ export class ImagingRequest extends Model {
           defaultValue: Sequelize.NOW,
         },
       },
-      { 
+      {
         ...options,
         validate: {
           mustHaveValidRequestStatusType() {
@@ -42,7 +43,7 @@ export class ImagingRequest extends Model {
               throw new InvalidOperationError('An imaging request must have a valid requester.');
             }
           },
-        }
+        },
       },
     );
   }

@@ -51,7 +51,13 @@ class DumbImagingRequestForm extends React.PureComponent {
   }
 
   renderForm = ({ submitForm }) => {
-    const { practitionerSuggester, onCancel, imagingTypes, encounter = {} } = this.props;
+    const {
+      practitionerSuggester,
+      imagingTypeSuggester,
+      onCancel,
+      imagingTypes,
+      encounter = {},
+    } = this.props;
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
@@ -62,29 +68,24 @@ class DumbImagingRequestForm extends React.PureComponent {
         <Field name="requestedDate" label="Order date" required component={DateField} />
         <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
-          name="requestedBy.id"
+          name="requestedById"
           label="Requesting doctor"
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field
-          name="sampleTime"
-          label="Sample time"
-          required
-          component={DateTimeField}
-        />
+        <Field name="sampleTime" label="Sample time" required component={DateTimeField} />
         <div>
           <Field name="urgent" label="Urgent?" component={CheckField} />
         </div>
         <FormSeparatorLine />
         <TextInput label="Encounter" disabled value={encounterLabel} />
         <Field
-          name="type.id"
+          name="imagingTypeId"
           label="Imaging request type"
           required
-          component={SelectField}
-          options={imagingTypes}
+          component={AutocompleteField}
+          suggester={imagingTypeSuggester}
         />
         <Field
           name="notes"
@@ -121,8 +122,8 @@ class DumbImagingRequestForm extends React.PureComponent {
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          requestedBy: foreignKey('Requesting doctor is required'),
-          type: foreignKey('Imaging request type must be selected'),
+          requestedById: foreignKey('Requesting doctor is required'),
+          imagingTypeId: foreignKey('Imaging request type must be selected'),
           sampleTime: yup.date().required(),
           requestedDate: yup.date().required(),
         })}
