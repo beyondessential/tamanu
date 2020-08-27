@@ -1,8 +1,9 @@
 import React, { ReactElement } from 'react';
-import { FullView, StyledText } from '/styled/common';
-import { ProgramsForm } from '/components/Forms/ProgramsForm';
-import { ScreenProps } from '/interfaces/screens/ProgramsStack/ProgramAddDetails/ScreenProps';
-
+import { FullView, StyledText } from '~/ui/styled/common';
+import { ProgramsForm } from '~/ui/components/Forms/ProgramsForm';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { ScreenProps } from '~/ui/interfaces/screens/ProgramsStack/ProgramAddDetails/ScreenProps';
 import { useCancelableEffect } from '~/ui/helpers/hooks';
 
 export const Screen = ({
@@ -15,15 +16,11 @@ export const Screen = ({
   const [components, error] = useCancelableEffect(() => survey.getComponents());
 
   if(error) {
-    return <FullView>
-      <StyledText>Error</StyledText>
-      <StyledText>{ error.message }</StyledText>
-      <StyledText>{ JSON.stringify(error, null, 2) }</StyledText>
-    </FullView>
+    return <ErrorScreen error={error} />;
   }
 
   if(!components) {
-    return <StyledText>loading components</StyledText>;
+    return <LoadingScreen text="Loading survey..." />;
   }
 
   return (
