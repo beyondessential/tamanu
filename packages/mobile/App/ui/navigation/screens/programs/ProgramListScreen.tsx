@@ -15,6 +15,7 @@ import { withPatient } from '/containers/Patient';
 import { IPatient } from '~/types';
 import { joinNames } from '/helpers/user';
 import { useBackendEffect } from '/helpers/hooks';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 interface ProgramListScreenProps {
   selectedPatient: IPatient;
@@ -44,7 +45,7 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
         onGoBack={goBack}
       />
       {error ? (
-        <StyledText>Unable to get programs list: { error.message }</StyledText>
+        <ErrorScreen error={error} />
       ) : (
         <FlatList
           style={{
