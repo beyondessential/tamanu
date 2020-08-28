@@ -1,15 +1,17 @@
 import React, { useMemo, useRef, useCallback, ReactElement, useState } from 'react';
 import { Screen } from './Screen';
+import { StyledText } from '~/ui/styled/common';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ProgramAddDetailsScreenProps } from '/interfaces/screens/ProgramsStack/ProgramAddDetails/ProgramAddDetailsScreenProps';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 
-import { useBackend } from '~/ui/helpers/hooks';
+import { useBackend, useBackendEffect } from '~/ui/helpers/hooks';
 
 export const ProgramAddDetailsScreen = ({
   route,
 }: ProgramAddDetailsScreenProps): ReactElement => {
-  const { survey, selectedPatient } = route.params;
+  const { surveyId, selectedPatient } = route.params;
   const navigation = useNavigation();
   const containerScrollView = useRef<any>(null);
 
@@ -29,10 +31,16 @@ export const ProgramAddDetailsScreen = ({
     navigation.navigate(
       Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory,
       {
-        survey,
+        surveyId: survey.id,
       },
     );
   }, []);
+
+  const [survey, error] = useBackendEffect(({ models }) => models.Survey.getRepository().findOne(surveyId));
+
+  if(!survey) {
+    return <LoadingScreen text="Getting survey details..." />;
+  }
   
   return (
     <Screen
