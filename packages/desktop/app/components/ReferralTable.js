@@ -60,8 +60,7 @@ const StatusDisplay = React.memo(({ encounter, closedDate }) => {
 
 const getDate = ({ date }) => <DateDisplay date={date} />;
 const getDepartment = ({ department }) => (department ? department.name : 'Unknown');
-const getFacility = ({ facility }) => (facility ? facility.name : 'Unknown');
-const getDisplayName = ({ referringDoctor }) => (referringDoctor || {}).displayName || 'Unknown';
+const getDisplayName = ({ referredBy }) => (referredBy || {}).displayName || 'Unknown';
 const getStatus = ({ encounter, closedDate }) => (
   <StatusDisplay encounter={encounter} closedDate={closedDate} />
 );
@@ -69,12 +68,11 @@ const getStatus = ({ encounter, closedDate }) => (
 const getActions = ({ encounter, closedDate }) => (
   <ActionDropdown encounter={encounter} closedDate={closedDate} />
 );
-// id, date, urgent, referredBy, referredTo, diagnosis, facility, deparment, notes
+
 const columns = [
   { key: 'date', title: 'Referral date', accessor: getDate },
   { key: 'department', title: 'Department', accessor: getDepartment },
-  { key: 'facility', title: 'Facility', accessor: getFacility },
-  { key: 'referringDoctor', title: 'Referring doctor', accessor: getDisplayName },
+  { key: 'referredBy', title: 'Referring doctor', accessor: getDisplayName },
   { key: 'status', title: 'Status', accessor: getStatus },
   { key: 'actions', title: 'Actions', accessor: getActions },
 ];

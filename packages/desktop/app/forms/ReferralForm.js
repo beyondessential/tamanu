@@ -35,28 +35,22 @@ export const ReferralForm = React.memo(
       render={({ submitForm }) => (
         <FormGrid>
           <Field
-            name="id"
+            name="referralNumber"
             label="Referral number"
             component={TextField}
             style={{ gridColumn: '1/-1' }}
             required
           />
           <Field
-            name="referringDoctor.id"
+            name="referredById"
             label="Referring doctor"
             component={AutocompleteField}
             suggester={practitionerSuggester}
             required
           />
-          <Field
-            name="facility.id"
-            label="Referred facility"
-            component={AutocompleteField}
-            suggester={facilitySuggester}
-          />
           <Field name="date" label="Date" component={DateField} required />
           <Field
-            name="department.id"
+            name="departmentId"
             label="Department"
             component={AutocompleteField}
             suggester={departmentSuggester}
@@ -64,7 +58,7 @@ export const ReferralForm = React.memo(
           <Field name="urgent" label="Urgent priority" component={CheckField} required />
           <FormSeparatorLine />
           <Field
-            name="diagnosis.id"
+            name="diagnosisId"
             label="Diagnosis"
             component={AutocompleteField}
             suggester={icd10Suggester}

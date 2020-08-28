@@ -13,17 +13,12 @@ const createUser = overrides => ({
 
 describe('Referrals', () => {
   let patient = null;
-  let encounter = null;
   let app = null;
   let specialist = null;
 
   beforeAll(async () => {
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
-    encounter = await models.Encounter.create({
-      ...(await createDummyEncounter(models)),
-      patientId: patient.id,
-    });
     specialist = await models.User.create(
       createUser({
         role: 'practitioner',
@@ -33,7 +28,7 @@ describe('Referrals', () => {
 
   it('should record a referral request', async () => {
     const result = await app.post('/v1/referral').send({
-      encounterId: encounter.id,
+      patientId: patient.id,
       referredById: app.user.id,
       referredToId: specialist.id,
     });
@@ -43,19 +38,35 @@ describe('Referrals', () => {
 
   it('should require a valid referred practitioner', async () => {
     const result = await app.post('/v1/referral').send({
-      encounterId: encounter.id,
+      patientId: patient.id,
       referredById: app.user.id,
     });
     expect(result).toHaveRequestError();
   });
 
-  it('should get referral requests for an encounter', async () => {
+  it('should have a valid patient', async () => {
     const createdReferral = await models.Referral.create({
-      encounterId: encounter.id,
+      patientId: patient.id,
       referredById: app.user.id,
       referredToId: specialist.id,
     });
-    const result = await app.get(`/v1/encounter/${encounter.id}/referral`);
+
+    const result = await app.get(`/v1/patient/${patient.id}/referrals`);
+    expect(result).toHaveSucceeded();
+
+    const { body } = result;
+
+    expect(body.count).toBeGreaterThan(0);
+    expect(body.data[0]).toHaveProperty('patientId', createdReferral.patientId);
+  });
+
+  it('should get referral requests for a patient', async () => {
+    const createdReferral = await models.Referral.create({
+      patientId: patient.id,
+      referredById: app.user.id,
+      referredToId: specialist.id,
+    });
+    const result = await app.get(`/v1/patient/${patient.id}/referrals`);
     expect(result).toHaveSucceeded();
 
     const { body } = result;
@@ -66,11 +77,11 @@ describe('Referrals', () => {
 
   it('should get referral reference info when listing referrals', async () => {
     const createdReferral = await models.Referral.create({
-      encounterId: encounter.id,
+      patientId: patient.id,
       referredById: app.user.id,
       referredToId: specialist.id,
     });
-    const result = await app.get(`/v1/encounter/${encounter.id}/referral`);
+    const result = await app.get(`/v1/patient/${patient.id}/referrals`);
     expect(result).toHaveSucceeded();
     const { body } = result;
     expect(body.count).toBeGreaterThan(0);
