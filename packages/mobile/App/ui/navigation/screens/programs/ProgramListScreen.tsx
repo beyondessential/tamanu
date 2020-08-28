@@ -15,7 +15,7 @@ import { withPatient } from '/containers/Patient';
 import { IPatient } from '~/types';
 import { joinNames } from '/helpers/user';
 import { useBackendEffect } from '/helpers/hooks';
-import { makeGetProgramsController } from '~/factories/programs/getPrograms';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 interface ProgramListScreenProps {
   selectedPatient: IPatient;
@@ -24,16 +24,16 @@ interface ProgramListScreenProps {
 const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   const navigation = useNavigation();
 
-  const [programs, error] = useBackendEffect(backend => backend.getPrograms());
+  const [surveys, error] = useBackendEffect(({ models }) => models.Survey.find({}));
 
   const goBack = useCallback(() => {
     navigation.goBack();
   }, []);
 
-  const onNavigateToProgram = program => {
+  const onNavigateToSurvey = survey => {
     navigation.navigate(
       Routes.HomeStack.ProgramStack.ProgramTabs.name,
-      { program }
+      { survey }
     );
   };
 
@@ -45,7 +45,7 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
         onGoBack={goBack}
       />
       {error ? (
-        <StyledText>Unable to get programs list: { error.message }</StyledText>
+        <ErrorScreen error={error} />
       ) : (
         <FlatList
           style={{
@@ -55,12 +55,12 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
             backgroundColor: theme.colors.BACKGROUND_GREY,
           }}
           showsVerticalScrollIndicator={false}
-          data={programs}
+          data={surveys}
           keyExtractor={(item): string => item.title}
           renderItem={({ item }): ReactElement => (
             <MenuOptionButton 
               title={item.name}
-              onPress={() => onNavigateToProgram(item)}
+              onPress={() => onNavigateToSurvey(item)}
               fontWeight={500}
               textColor={theme.colors.TEXT_SUPER_DARK}
             />

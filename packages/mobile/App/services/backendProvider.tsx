@@ -7,6 +7,7 @@ import {
   StyledView,
   CenterView,
 } from '~/ui/styled/common';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
 
 export const BackendContext = React.createContext();
 
@@ -25,9 +26,7 @@ export const BackendProvider = ({ Component }) => {
 
   if(!initialised) {
     return (
-      <CenterView>
-        <StyledText>Initialising backend...</StyledText>
-      </CenterView>
+      <LoadingScreen text="Connecting to database..." />
     );
   }
 

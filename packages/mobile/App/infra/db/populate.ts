@@ -18,6 +18,7 @@ async function importComponent(models, data) {
     type: data.type,
     indicator: data.indicator,
     defaultText: data.text,
+    defaultOptions: data.options,
   });
 
   const component = await SurveyScreenComponent.create({

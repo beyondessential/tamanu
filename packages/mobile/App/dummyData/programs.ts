@@ -119,7 +119,7 @@ const ncdSurvey = {
       type: "Radio",
       indicator: "Diabetes Type",
       text: "If known, what type of diabetes has the patient been diagnosed with?", 
-      options: makeOptions(["Type 1", "Type 2"]),
+      options: "Type 1,Type 2",
       visibilityCriteria: (answers) => {
         return answers.NCDScreen10;
       },  

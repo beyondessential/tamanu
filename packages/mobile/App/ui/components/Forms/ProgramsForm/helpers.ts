@@ -1,11 +1,11 @@
 import { FieldTypes } from '/helpers/fields';
-import { IProgram } from '~/types';
+import { ISurvey } from '~/types';
 import * as Yup from 'yup';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { VerticalPosition } from '/interfaces/VerticalPosition';
 
-function getInitialValue(question) {
-  switch(question.type) {
+function getInitialValue(dataElement) {
+  switch(dataElement.type) {
     case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:
     case FieldTypes.NUMBER:
@@ -17,13 +17,11 @@ function getInitialValue(question) {
 }
 
 export function getFormInitialValues(
-  program: IProgram,
+  components: ISurveyScreenComponent[],
 ): { [key: string]: any } {
-  const questions = program.questions;
-
-  const initialValues = questions.reduce<{ [key: string]: any }>((acc, question) => {
-    const initialValue = getInitialValue(question);
-    const propName = question.id;
+  const initialValues = components.reduce<{ [key: string]: any }>((acc, { dataElement }) => {
+    const initialValue = getInitialValue(dataElement);
+    const propName = dataElement.id;
     if(initialValue === undefined) {
       return acc;
     }
@@ -33,8 +31,8 @@ export function getFormInitialValues(
   return initialValues;
 }
 
-function getFieldValidator(question) {
-  switch(question.type) {
+function getFieldValidator(dataElement) {
+  switch(dataElement.type) {
     case FieldTypes.INSTRUCTION:
     case FieldTypes.CALCULATED:
     case FieldTypes.RESULT:
@@ -51,14 +49,14 @@ function getFieldValidator(question) {
   }
 }
 
-export function getFormSchema(program: IProgram): Yup.ObjectSchema {
-  const questions = program.questions;
-  const objectShapeSchema = questions.reduce<{ [key: string]: any }>(
-    (acc, question) => {
-      const propName = question.id;
-      const validator = getFieldValidator(question);
+export function getFormSchema(components: ISurveyScreenComponent[]): Yup.ObjectSchema {
+  const objectShapeSchema = components.reduce<{ [key: string]: any }>(
+    (acc, component) => {
+      const { dataElement, required } = component;
+      const propName = dataElement.id;
+      const validator = getFieldValidator(dataElement);
       if(!validator) return acc;
-      if(question.required) {
+      if(required) {
         acc[propName] = validator.isRequired();
       } else {
         acc[propName] = validator;
@@ -67,24 +65,23 @@ export function getFormSchema(program: IProgram): Yup.ObjectSchema {
     },
     {},
   );
-  const schema = Yup.object().shape(objectShapeSchema);
-  return schema;
+  return Yup.object().shape(objectShapeSchema);
 }
 
 export function mapInputVerticalPosition(
-  program: IProgram,
+  components: ISurveyScreenComponent[],
 ): VerticalPosition {
   let verticalOffset = 0;
-  const verticalPositions = program.questions.reduce<VerticalPosition>(
-    (acc, question, questionListIndex) => {
+  const verticalPositions = components.reduce<VerticalPosition>(
+    (acc, component, componentIndex) => {
       const normalOffset = screenPercentageToDP(7.04, Orientation.Height);
       const titleOffset = screenPercentageToDP(4.25, Orientation.Height);
-      acc[question.id] = {
+      acc[component.id] = {
         x: 0,
         y: verticalOffset + normalOffset,
       };
       verticalOffset += normalOffset;
-      if (questionListIndex > 0) {
+      if (componentIndex > 0) {
         verticalOffset += titleOffset;
       }
       return acc;
