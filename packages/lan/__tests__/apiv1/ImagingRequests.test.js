@@ -1,4 +1,8 @@
-import { createDummyPatient, createDummyEncounter, randomReferenceId } from 'shared/demoData/patients';
+import {
+  createDummyPatient,
+  createDummyEncounter,
+  randomReferenceId,
+} from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
@@ -77,5 +81,4 @@ describe('Imaging requests', () => {
     expect(record).toHaveProperty('requestedBy.displayName');
     expect(record).toHaveProperty('imagingType.name');
   });
-
 });
