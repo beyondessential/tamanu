@@ -11,18 +11,18 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 
 export const BackendContext = React.createContext();
 
+const backend = new Backend();
+
 export const BackendProvider = ({ Component }) => {
-  const backend = new Backend();
 
   const [initialised, setInitialised] = useState(false);
 
   useEffect(() => {
     (async () => {
       await backend.initialise();
-      await new Promise(resolve => setTimeout(resolve, 1000));
       setInitialised(true);
     })();
-  }, []);
+  }, [backend.randomId]);
 
   if(!initialised) {
     return (

@@ -1,4 +1,5 @@
 import { Connection, createConnection, getConnectionManager } from 'typeorm';
+import { DevSettings } from 'react-native';
 import * as modelsMap from '~/models';
 import { BaseModel } from '~/models/BaseModel';
 
@@ -18,7 +19,7 @@ const CONNECTION_CONFIG = {
   type: 'react-native',
   database: 'tamanu',
   location: 'default',
-  logging: __DEV__ ? ['error', 'query', 'schema']: [],
+  logging: __DEV__ ? ['error', /*'query',*/ 'schema']: [],
   synchronize: false,
   entities: MODEL_LIST,
 };
@@ -37,10 +38,6 @@ class DatabaseHelper {
   models: ModelMap = MODELS;
 
   async forceSync(): Promise<any> {
-    if (true || __DEV__) {
-      console.log("drop DB");
-      await this.client.dropDatabase();
-    }
     await this.client.synchronize();
   }
 
@@ -64,8 +61,13 @@ class DatabaseHelper {
       }
     }
   }
-
 }
 
-
 export const Database = new DatabaseHelper();
+
+if (__DEV__) {
+  DevSettings.addMenuItem("Clear database", async () => {
+    Database.client.dropDatabase();
+    DevSettings.reload();
+  });
+}
