@@ -430,7 +430,6 @@ function getHeaderText({ encounterType }) {
 }
 
 export const DumbEncounterView = React.memo(({ encounter, patient, loading }) => {
-  console.log('encounter', encounter);
   const [currentTab, setCurrentTab] = React.useState('vitals');
   const disabled = encounter.endDate || patient.death;
 
