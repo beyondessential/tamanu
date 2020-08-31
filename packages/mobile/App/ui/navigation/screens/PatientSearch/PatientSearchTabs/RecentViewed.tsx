@@ -51,7 +51,7 @@ const Screen = ({
     <FullView>
       <FlatList
         showsVerticalScrollIndicator={Platform.OS === 'android'}
-        data={list || []}
+        data={list}
         keyExtractor={(item): string => item.id.toString()}
         renderItem={({ item }: { item: any }): ReactElement => {
           const onNavigateToPatientHome = (): void => {
