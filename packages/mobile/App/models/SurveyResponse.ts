@@ -23,6 +23,40 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @ManyToOne(type => Encounter, encounter => encounter.surveyResponses)
   encounter: Encounter;
 
+  static async submit(surveyId, selectedPatientId, values) {
+    const encounter = await Encounter.create({
+      patient: selectedPatientId,
+      startDate: new Date(),
+      endDate: new Date(),
+      encounterType: 'surveyResponse',
+      reasonForEncounter: 'Survey response',
+    });
+
+    console.log(`ENC ${encounter.id}`);
+
+    const responseRecord = await SurveyResponse.create({
+      survey: surveyId,
+      encounter: encounter.id,
+      result: Math.random() * 100.0,
+      startTime: Date.now(),
+      endTime: Date.now(),
+    });
+
+    console.log(`RESP ${responseRecord.id}`);
+
+    const answers = await Promise.all(
+      Object.entries(values).map(([dataElementId, value]) => {
+        return SurveyResponseAnswer.create({
+          dataElementId,
+          name: "",
+          body: `${value}`,
+          response: responseRecord.id,
+        });
+      })
+    );
+
+    console.log(`ANS ${answers.map(x => x.id).join("\n")}`);
+  }
 }
 
 @Entity('survey_response_answer')

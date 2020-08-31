@@ -12,6 +12,7 @@ export const ProgramAddDetailsScreen = ({
   route,
 }: ProgramAddDetailsScreenProps): ReactElement => {
   const { surveyId, selectedPatient } = route.params;
+  const selectedPatientId = selectedPatient.id;
   const navigation = useNavigation();
   const containerScrollView = useRef<any>(null);
 
@@ -24,16 +25,18 @@ export const ProgramAddDetailsScreen = ({
     [containerScrollView],
   );
 
-  const backend = useBackend();
+  const { models } = useBackend();
   const onSubmitForm = useCallback(async (values: any) => {
-    await backend.submitSurvey(selectedPatient, survey, values);
+    await models.SurveyResponse.submit(surveyId, selectedPatientId, values);
 
+    /*
     navigation.navigate(
       Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory,
       {
         surveyId: survey.id,
       },
     );
+     */
   }, []);
 
   const [survey, error] = useBackendEffect(({ models }) => models.Survey.getRepository().findOne(surveyId));
