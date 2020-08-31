@@ -14,7 +14,7 @@ import { StackHeader } from '/components/StackHeader';
 import { withPatient } from '/containers/Patient';
 import { IPatient } from '~/types';
 import { joinNames } from '/helpers/user';
-import { useBackendEffect } from '/helpers/hooks';
+import { useBackendEffect } from '~/ui/helpers/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 interface ProgramListScreenProps {
@@ -33,7 +33,10 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   const onNavigateToSurvey = survey => {
     navigation.navigate(
       Routes.HomeStack.ProgramStack.ProgramTabs.name,
-      { survey }
+      { 
+        surveyId: survey.id,
+        surveyName: survey.name,
+      }
     );
   };
 

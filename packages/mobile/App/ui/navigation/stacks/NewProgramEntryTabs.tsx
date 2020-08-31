@@ -35,21 +35,21 @@ const TabNavigator = ({
   route,
   selectedPatient,
 }: NewProgramEntryTabsProps): ReactElement => {
-  const { survey } = route.params;
+  const { surveyId, surveyName } = route.params;
   const goBack = useCallback(() => {
     navigation.goBack();
   }, []);
   return (
     <FullView>
       <StackHeader
-        title={survey.name}
+        title={surveyName}
         subtitle={joinNames(selectedPatient)}
         onGoBack={goBack}
       />
       <Tabs.Navigator>
         <Tabs.Screen
           initialParams={{
-            survey,
+            surveyId,
             selectedPatient,
           }}
           options={{
@@ -60,7 +60,7 @@ const TabNavigator = ({
         />
         <Tabs.Screen
           initialParams={{
-            survey,
+            surveyId,
           }}
           options={{
             title: 'VIEW HISTORY',
