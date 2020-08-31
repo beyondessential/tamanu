@@ -35,63 +35,59 @@ export const IntroScreen: FunctionComponent<any> = ({
         <CenterView marginTop={screenPercentageToDP(26.36, Orientation.Height)}>
           <StyledText
             color={theme.colors.PRIMARY_MAIN}
-            fontSize={screenPercentageToDP(3.4, Orientation.Height)}
-            fontWeight="bold"
-          >
+            fontSize={`${screenPercentageToDP('3.4', Orientation.Height)}px`}
+            fontWeight="bold">
             eHealth patient record
           </StyledText>
         </CenterView>
         <StyledText
           marginTop={10}
           color={theme.colors.PRIMARY_MAIN}
-          fontSize={screenPercentageToDP('1.94', Orientation.Height)}
+          fontSize={`${screenPercentageToDP('1.94', Orientation.Height)}px`}
           textAlign="center"
           marginLeft={screenPercentageToDP('14', Orientation.Width)}
-          marginRight={screenPercentageToDP('14', Orientation.Width)}
-        >
+          marginRight={screenPercentageToDP('14', Orientation.Width)}>
           For Hosiptals, Health Centres and clinics around the world
         </StyledText>
         <RowView
           justifyContent="center"
-          marginTop={screenPercentageToDP('13.00', Orientation.Height)}
-        >
+          marginTop={screenPercentageToDP('13.00', Orientation.Height)}>
           <Button
             id="intro-sign-in-button"
             onPress={onNavigateToSignIn}
-            width={140}
+            width={`${140}px`}
             outline
             borderColor={theme.colors.PRIMARY_MAIN}
             marginRight={screenPercentageToDP('2.43', Orientation.Width)}
             buttonText="Sign in"
             textColor={theme.colors.PRIMARY_MAIN}
             fontWeight={500}
-            fontSize={screenPercentageToDP(1.94, Orientation.Height)}
+            fontSize={`${screenPercentageToDP(1.94, Orientation.Height)}px`}
           />
           <Button
             id="intro-new-account-button"
             backgroundColor={theme.colors.SECONDARY_MAIN}
             onPress={onNavigateToNewAccount}
-            width={140}
-          >
+            width={`${140}px`}>
             <StyledText
               fontWeight={500}
-              fontSize={screenPercentageToDP('1.94', Orientation.Height)}
-            >
+              fontSize={`${screenPercentageToDP(
+                '1.94',
+                Orientation.Height,
+              )}px`}>
               New Account
             </StyledText>
           </Button>
         </RowView>
         <CenterView marginTop={30}>
           <Button
-            height={40}
+            height={`${40}px`}
             onPress={(): void => console.log('request access..')}
-            width={140}
-            backgroundColor={theme.colors.WHITE}
-          >
+            width={`${140}px`}
+            backgroundColor={theme.colors.WHITE}>
             <StyledText
-              fontSize={screenPercentageToDP('1.94', Orientation.Height)}
-              color={theme.colors.PRIMARY_MAIN}
-            >
+              fontSize={`${screenPercentageToDP('1.94', Orientation.Height)}px`}
+              color={theme.colors.PRIMARY_MAIN}>
               Request Access
             </StyledText>
           </Button>
