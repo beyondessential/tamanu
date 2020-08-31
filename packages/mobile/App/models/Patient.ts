@@ -12,16 +12,13 @@ export class Patient extends BaseModel implements IPatient {
   firstName: string;
 
   @Column()
-  middlename: string;
+  middleName: string;
 
   @Column()
   lastName: string;
 
   @Column()
   culturalName: string;
-
-  @Column()
-  lastDate: Date;  
 
   @Column()
   dateOfBirth: Date;
