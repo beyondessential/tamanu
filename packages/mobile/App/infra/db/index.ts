@@ -19,7 +19,7 @@ const CONNECTION_CONFIG = {
   type: 'react-native',
   database: 'tamanu',
   location: 'default',
-  logging: __DEV__ ? ['error', /*'query',*/ 'schema']: [],
+  logging: __DEV__ ? ['error', 'query', 'schema']: [],
   synchronize: false,
   entities: MODEL_LIST,
 };

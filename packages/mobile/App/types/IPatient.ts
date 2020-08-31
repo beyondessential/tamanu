@@ -4,9 +4,9 @@ export interface IPatient {
   displayId: string;  
   firstName: string;
   lastName: string;
-  middleName?: string;  
+  middleName: string;  
   sex: string;
   dateOfBirth: Date;      
-  culturalName?: string;
+  culturalName: string;
 }
 
