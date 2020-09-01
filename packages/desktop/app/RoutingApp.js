@@ -11,6 +11,7 @@ import {
   AdministrationRoutes,
   ProgramsRoutes,
   ReportsRoutes,
+  ImmunisationRoutes,
 } from './routes';
 
 export const RoutingApp = React.memo(() => (
@@ -26,6 +27,7 @@ export const RoutingApp = React.memo(() => (
       <Route path="/admin" component={AdministrationRoutes} />
       <Route path="/programs" component={ProgramsRoutes} />
       <Route path="/reports" component={ReportsRoutes} />
+      <Route path="/immunisations" component={ImmunisationRoutes} />
       {/*
        * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
        * where none of the app contents would render in a production build.

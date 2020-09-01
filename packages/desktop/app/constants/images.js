@@ -13,6 +13,7 @@ export profileIcon from '../assets/images/profile.svg';
 export programsIcon from '../assets/images/programs.svg';
 export radiologyIcon from '../assets/images/radiology.png';
 export scheduleIcon from '../assets/images/schedule.svg';
+export vaccineIcon from '../assets/images/vaccine.svg';
 
 export reportLine from '../assets/images/report_line.png';
 export reportBar from '../assets/images/report_bar.png';

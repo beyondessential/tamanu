@@ -7,3 +7,4 @@ export { BillingRoutes } from './BillingRoutes';
 export { AdministrationRoutes } from './AdministrationRoutes';
 export { ProgramsRoutes } from './ProgramsRoutes';
 export { ReportsRoutes } from './ReportsRoutes';
+export { ImmunisationRoutes } from './ImmunisationRoutes';
