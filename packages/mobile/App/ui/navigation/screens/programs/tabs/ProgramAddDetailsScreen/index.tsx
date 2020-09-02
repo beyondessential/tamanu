@@ -29,14 +29,12 @@ export const ProgramAddDetailsScreen = ({
   const onSubmitForm = useCallback(async (values: any) => {
     await models.SurveyResponse.submit(surveyId, selectedPatientId, values);
 
-    /*
     navigation.navigate(
       Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory,
       {
-        surveyId: survey.id,
+        surveyId: surveyId,
       },
     );
-     */
   }, []);
 
   const [survey, error] = useBackendEffect(({ models }) => models.Survey.getRepository().findOne(surveyId));

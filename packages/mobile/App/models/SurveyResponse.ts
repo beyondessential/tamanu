@@ -32,8 +32,6 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       reasonForEncounter: 'Survey response',
     });
 
-    console.log(`ENC ${encounter.id}`);
-
     const responseRecord = await SurveyResponse.create({
       survey: surveyId,
       encounter: encounter.id,
@@ -42,26 +40,22 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       endTime: Date.now(),
     });
 
-    console.log(`RESP ${responseRecord.id}`);
-
     const answers = await Promise.all(
-      Object.entries(values).map(([dataElementId, value]) => {
-        return SurveyResponseAnswer.create({
+      Object.entries(values).map(([dataElementId, value]) => (
+        SurveyResponseAnswer.create({
           dataElementId,
           name: "",
           body: `${value}`,
           response: responseRecord.id,
-        });
-      })
+        })
+      ))
     );
-
-    console.log(`ANS ${answers.map(x => x.id).join("\n")}`);
   }
 }
 
 @Entity('survey_response_answer')
 export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAnswer {
-  
+ 
   @Column()
   name: string;
 

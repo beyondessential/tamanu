@@ -33,7 +33,13 @@ export class Backend {
   }
 
   async getResponses(surveyId): Promise {
-    return this.responses;
+    const responses = await Database.models.SurveyResponse.find({
+      where: {
+        survey: surveyId,
+      },
+      relations: ['encounter', 'survey', 'encounter.patient'],
+    });
+    return responses;
   }
 
   async submitSurvey(patient, program, answers) {
