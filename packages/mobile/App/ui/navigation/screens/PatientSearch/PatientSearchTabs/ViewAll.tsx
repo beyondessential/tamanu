@@ -11,10 +11,10 @@ import { withPatient } from '/containers/Patient';
 // Components
 import { FullView, StyledView } from '/styled/common';
 import { PatientSectionList } from '/components/PatientSectionList';
+import { LoadingScreen } from '/components/LoadingScreen';
 // Helpers
-import { searchData } from './fixture';
-import { groupEntriesByLetter } from '/helpers/list';
 import { Routes } from '/helpers/routes';
+import { useBackendEffect } from '~/ui/helpers/hooks';
 //Props
 import { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
 import { Button } from '/components/Button';
@@ -98,10 +98,16 @@ const isEqual = (prop1: any, prop2: any, fieldName: string): boolean => {
 };
 
 const applyActiveFilters = (
+  models,
   activeFilters: ActiveFiltersI,
-  data: IPatient[],
   searchField: FieldInputProps<any>,
 ): IPatient[] => {
+  return models.Patient.find({
+    order: {
+      lastName: 'ASC',
+      firstName: 'ASC',
+    }
+  });
   if (activeFilters.count > 0) {
     // apply filters
     return data.filter(patientData =>
@@ -129,7 +135,6 @@ const Screen: FC<ViewAllScreenProps> = ({
 }: ViewAllScreenProps): ReactElement => {
   /** Get Search Input */
   const [searchField] = useField('search');
-  let list = [];
   // Get filters
   const filters = FilterArray.map(fieldName => useField(fieldName));
   const activeFilters = useMemo(
@@ -141,9 +146,9 @@ const Screen: FC<ViewAllScreenProps> = ({
     [filters],
   );
 
-  list = applyActiveFilters(activeFilters, searchData, searchField);
-
-  list = groupEntriesByLetter(list);
+  const [list, error] = useBackendEffect(({ models }) => {
+    return applyActiveFilters(models, activeFilters, searchField);
+  }, [searchField.value]);
 
   const onNavigateToPatientHome = useCallback(patient => {
     setSelectedPatient(patient);
@@ -157,9 +162,13 @@ const Screen: FC<ViewAllScreenProps> = ({
     [],
   );
 
+  if(!list) {
+    return <LoadingScreen text="Loading patients..." />;
+  }
+
   return (
     <FullView>
-      <PatientSectionList data={list} onPressItem={onNavigateToPatientHome} />
+      <PatientSectionList patients={list} onPressItem={onNavigateToPatientHome} />
       <StyledView
         position="absolute"
         zIndex={2}

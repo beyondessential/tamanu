@@ -8,6 +8,8 @@ import { TouchableOpacity, FlatList } from 'react-native-gesture-handler';
 import { withPatient } from '/containers/Patient';
 // Components
 import { PatientTile } from '/components/PatientTile';
+import { LoadingScreen } from '/components/LoadingScreen';
+import { ErrorScreen } from '/components/ErrorScreen';
 // props
 import { RecentViewedScreenProps } from '/interfaces/screens/PatientSearchStack';
 // Helpers
@@ -16,8 +18,7 @@ import { Routes } from '/helpers/routes';
 import { StyledView, FullView } from '/styled/common';
 import { joinNames } from '/helpers/user';
 import { getAgeFromDate } from '~/ui/helpers/date';
-
-const mockedArray = data.slice(0, 12);
+import { useBackendEffect } from '~/ui/helpers/hooks';
 
 interface PatientListProps {
   list: any[];
@@ -31,10 +32,20 @@ const Screen = ({
 }: RecentViewedScreenProps): ReactElement => {
   /** Get Search Input */
   const [field] = useField('search');
-  const [recentlyViewedArray] = useState(mockedArray);
-  const list = recentlyViewedArray.filter(patientData =>
-    joinNames(patientData).startsWith(field.value),
-  );
+
+  const [list, error] = useBackendEffect(({ models }) => {
+    return models.Patient.getRepository().find({
+      take: 10
+    });
+  });
+
+  if(error) {
+    return <ErrorScreen error={error} />;
+  }
+
+  if(!list) {
+    return <LoadingScreen text="Loading patients..." />;
+  }
 
   return (
     <FullView>

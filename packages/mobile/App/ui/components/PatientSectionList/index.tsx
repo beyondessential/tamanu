@@ -1,4 +1,4 @@
-import React, { useRef, RefObject, useCallback } from 'react';
+import React, { useRef, useMemo, RefObject, useCallback } from 'react';
 import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { LargeList } from 'react-native-largelist-v3';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -9,6 +9,7 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { IPatient } from '~/types';
 import { getAgeFromDate } from '/helpers/date';
 import { joinNames } from '/helpers/user';
+import { groupEntriesByLetter } from '/helpers/list';
 
 export type PatientSectionListItem = {
   items: IPatient[];
@@ -17,7 +18,7 @@ export type PatientSectionListItem = {
 
 interface PatientSectionListProps {
   onPressItem: (patient: IPatient) => void;
-  data: PatientSectionListItem[];
+  patients: PatientSectionListItem[];
 }
 
 const ListSeparator = (): JSX.Element => (
@@ -29,14 +30,19 @@ const ListSeparator = (): JSX.Element => (
 );
 
 export const PatientSectionList = ({
-  data,
+  patients,
   onPressItem = (): null => null,
 }: PatientSectionListProps): JSX.Element => {
   const ref: RefObject<LargeList> = useRef(null);
 
+  const groupedPatients = useMemo(
+    () => groupEntriesByLetter(patients),
+    [patients]
+  );
+
   const scrollToSection = useCallback(
     (header: string) => {
-      const headerIndex = data.findIndex(
+      const headerIndex = groupedPatients.findIndex(
         (entry: PatientSectionListItem) => entry.header === header,
       );
       if (headerIndex !== -1) {
@@ -48,7 +54,7 @@ export const PatientSectionList = ({
         }
       }
     },
-    [data],
+    [groupedPatients],
   );
 
   const renderHeader = useCallback(
@@ -60,16 +66,17 @@ export const PatientSectionList = ({
         paddingLeft={screenPercentageToDP('4.86', Orientation.Width)}
       >
         <StyledText fontSize={screenPercentageToDP('1.45', Orientation.Height)}>
-          {data[section].header}
+          {groupedPatients[section].header}
         </StyledText>
       </StyledView>
     ),
-    [data],
+    [groupedPatients],
   );
 
   const renderItem = React.useCallback(
     ({ section, row }) => {
-      const onPress = (): void => onPressItem(data[section].items[row]);
+      const patient = groupedPatients[section].items[row];
+      const onPress = (): void => onPressItem(patient)
       return (
         <TouchableOpacity onPress={onPress}>
           <StyledView
@@ -79,19 +86,19 @@ export const PatientSectionList = ({
             background={theme.colors.BACKGROUND_GREY}
           >
             <PatientTile
-              displayId={data[section].items[row].displayId}
-              city={data[section].items[row].city || 'city'}
-              gender={data[section].items[row].gender}
-              lastVisit={data[section].items[row].lastVisit || new Date()}
-              name={joinNames(data[section].items[row])}
-              age={getAgeFromDate(data[section].items[row].dateOfBirth)}
+              displayId={patient.displayId}
+              city={patient.city || 'city'}
+              gender={patient.gender}
+              lastVisit={patient.lastVisit || new Date()}
+              name={joinNames(patient)}
+              age={getAgeFromDate(patient.dateOfBirth)}
             />
             <ListSeparator />
           </StyledView>
         </TouchableOpacity>
       );
     },
-    [data],
+    [groupedPatients],
   );
 
   const heightForSection = React.useCallback(
@@ -137,7 +144,7 @@ export const PatientSectionList = ({
       <LargeList
         bounces
         ref={ref}
-        data={data}
+        data={groupedPatients}
         heightForSection={heightForSection}
         renderSection={renderHeader}
         heightForIndexPath={heightForIndexPath}
@@ -151,7 +158,7 @@ export const PatientSectionList = ({
         top="5%"
         background={theme.colors.WHITE}
       >
-        {data.map(renderAlphabetLetter)}
+        {groupedPatients.map(renderAlphabetLetter)}
       </StyledView>
     </StyledView>
   );

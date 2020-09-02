@@ -1,4 +1,5 @@
 import { dummyPrograms } from '~/dummyData/programs';
+import { generatePatient } from '~/dummyData/patients';
 
 export async function needsInitialPopulation(models): boolean {
   // TODO: this should check against something more reasonable
@@ -71,13 +72,20 @@ async function importProgram(models, data) {
   return p;
 }
 
+async function importPatient(models, data) {
+  return models.Patient.create(data);
+}
+
 export async function populateInitialData(models) {
   console.log("Populating initial database");
 
   // TODO: should load from a fixture or trigger an initial sync
   const programs = await Promise.all(
-    dummyPrograms.map(data => {
-      return importProgram(models, data);
-    })
+    dummyPrograms.map(data => importProgram(models, data))
+  );
+
+  const dummyPatients = new Array(15).fill(0).map(x => generatePatient());
+  const patients = await Promise.all(
+    dummyPatients.map(data => importPatient(models, data))
   );
 }
