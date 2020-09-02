@@ -81,7 +81,7 @@ export const ProgramViewHistoryScreen = ({
   // a new survey is submitted (as this tab can be mounted while
   // it isn't active)
   const [responses, error] = useBackendEffect(
-    backend => backend.getResponses(surveyId),
+    ({ models }) => models.Survey.getResponses(surveyId),
     [latestResponseId]
   );
 

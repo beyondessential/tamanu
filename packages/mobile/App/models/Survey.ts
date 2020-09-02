@@ -73,4 +73,15 @@ export class SurveyScreenComponent extends BaseModel implements ISurveyScreenCom
       .filter(x => x)
       .map(x => ({ label: x, value: x }));
   }
+
+  static async getResponses(surveyId): Promise {
+    const responses = await Database.models.SurveyResponse.find({
+      where: {
+        survey: surveyId,
+      },
+      relations: ['encounter', 'survey', 'encounter.patient'],
+    });
+    return responses;
+  }
+
 }
