@@ -9,7 +9,7 @@ immunisation.get(
   '/$',
   asyncHandler(async (req, res) => {
     const { models } = req;
-    req.checkPermission('read', 'Immunisation');
+    req.checkPermission('list', 'Immunisation');
 
     const model = models.Immunisation;
     const immunisations = await models.Immunisation.findAll({

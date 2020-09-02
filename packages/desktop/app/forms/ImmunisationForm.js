@@ -38,7 +38,7 @@ export const ImmunisationForm = React.memo(
           <Field name="date" label="Date" component={DateField} required />
           <Field
             name="givenById"
-            label="Giveny by"
+            label="Given by"
             component={AutocompleteField}
             suggester={practitionerSuggester}
             required

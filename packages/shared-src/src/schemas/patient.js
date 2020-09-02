@@ -35,7 +35,6 @@ export const PatientSchema = {
     triages: { type: 'list', objectType: 'triage' },
     visits: { type: 'list', objectType: 'visit' },
     referrals: { type: 'list', objectType: 'referral' },
-    immunisations: { type: 'list', objectType: 'immunisation' },
     allergies: { type: 'list', objectType: 'patientAllergy' },
     conditions: { type: 'list', objectType: 'condition' },
     issues: { type: 'list', objectType: 'issue' },

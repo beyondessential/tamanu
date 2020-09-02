@@ -76,7 +76,7 @@ const ReferralPane = React.memo(({ patient, readonly }) => {
   );
 });
 
-const ImmunisationsPane = React.memo(({ patient }) => {
+const ImmunisationsPane = React.memo(({ patient, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
@@ -92,7 +92,7 @@ const ImmunisationsPane = React.memo(({ patient }) => {
           onClick={() => setModalOpen(true)}
           variant="contained"
           color="primary"
-          // disabled={readonly}
+          disabled={readonly}
         >
           New immunisation
         </Button>
