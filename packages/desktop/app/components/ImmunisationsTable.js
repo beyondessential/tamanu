@@ -3,26 +3,32 @@ import React from 'react';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
-const getVaccineName = ({ vaccine }) => (vaccine ? vaccine.name : 'Unknown');
+const getSchedule = ({ schedule }) => schedule || 'Unknown';
+const getVaccineName = ({ vaccine }) => vaccine || 'Unknown';
 const getDate = ({ date }) => <DateDisplay date={date} />;
-const getAdministerer = ({ administerer }) => (administerer ? administerer.name : 'Unknown');
-const getFacility = ({ facility }) => (facility ? facility.name : 'Unknown');
-const getBatch = ({ batch }) => (batch ? batch.name : 'Unknown');
-const getManufacturer = ({ manufacturer }) => (manufacturer ? manufacturer.name : 'Unknown');
+const getAdministerer = ({ givenBy }) => (givenBy || {}).displayName || 'Unknown';
+const getFacility = ({ facility }) => facility || 'Unknown';
+const getBatch = ({ batch }) => batch || 'Unknown';
+const getTimeliness = ({ timeliness }) => timeliness || 'Unknown';
 
 const columns = [
+  { key: 'schedule', title: 'Schedule', accessor: getSchedule },
   { key: 'vaccine', title: 'Vaccine', accessor: getVaccineName },
   { key: 'date', title: 'Date', accessor: getDate },
-  { key: 'administered', title: 'Given by', accessor: getAdministerer },
+  { key: 'givenBy', title: 'Given by', accessor: getAdministerer },
   { key: 'facility', title: 'Facility', accessor: getFacility },
   { key: 'batch', title: 'Batch', accessor: getBatch },
-  { key: 'manafacturer', title: 'Manufacturer', accessor: getManufacturer },
+  { key: 'timeliness', title: 'Timeliness', accessor: getTimeliness },
 ];
 
-export const ImmunisationsTable = React.memo(({ patient }) => (
-  <DataFetchingTable
-    endpoint={`patient/${patient.id}/immunisations`}
-    columns={columns}
-    noDataMessage="No vaccines registered"
-  />
-));
+export const ImmunisationsTable = React.memo(({ patient }) => {
+  const endpoint = patient ? `patient/${patient.id}/immunisations` : 'immunisation';
+
+  return (
+    <DataFetchingTable
+      endpoint={endpoint}
+      columns={columns}
+      noDataMessage="No vaccines registered"
+    />
+  );
+});

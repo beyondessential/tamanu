@@ -18,6 +18,7 @@ import { ReferralTable } from '../../components/ReferralTable';
 import { AppointmentModal } from '../../components/AppointmentModal';
 import { AppointmentTable } from '../../components/AppointmentTable';
 import { ImmunisationsTable } from '../../components/ImmunisationsTable';
+import { ImmunisationModal } from '../../components/ImmunisationModal';
 import { Button } from '../../components/Button';
 import { connectRoutedModal } from '../../components/Modal';
 import { PatientEncounterSummary } from './components/PatientEncounterSummary';
@@ -76,9 +77,26 @@ const ReferralPane = React.memo(({ patient, readonly }) => {
 });
 
 const ImmunisationsPane = React.memo(({ patient }) => {
+  const [modalOpen, setModalOpen] = React.useState(false);
+
   return (
     <div>
+      <ImmunisationModal
+        open={modalOpen}
+        patientId={patient.id}
+        onClose={() => setModalOpen(false)}
+      />
       <ImmunisationsTable patient={patient} />
+      <ContentPane>
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          // disabled={readonly}
+        >
+          New immunisation
+        </Button>
+      </ContentPane>
     </div>
   );
 });

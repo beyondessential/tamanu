@@ -270,6 +270,12 @@ export const triagePriorities = [
   { value: '3', label: 'Non-urgent', color: TRIAGE_COLORS_BY_LEVEL[3] },
 ];
 
+export const immunisationStatusList = [
+  { value: 'On time', label: 'On time', color: TRIAGE_COLORS_BY_LEVEL[3] },
+  { value: 'Late', label: 'Late', color: TRIAGE_COLORS_BY_LEVEL[2] },
+  { value: 'Missing', label: 'Missing', color: TRIAGE_COLORS_BY_LEVEL[1] },
+];
+
 export const operativePlanStatuses = {
   PLANNED: 'planned',
   DROPPED: 'dropped',

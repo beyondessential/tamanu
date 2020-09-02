@@ -20,6 +20,7 @@ import { program } from './program';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
 import { referral } from './referral';
+import { immunisation } from './immunisation';
 
 export const apiv1 = express.Router();
 
@@ -43,6 +44,7 @@ apiv1.use('/labRequest', labRequest);
 apiv1.use('/labTest', labTest);
 apiv1.use('/referral', referral);
 apiv1.use('/imagingRequest', imagingRequest);
+apiv1.use('/immunisation', immunisation);
 
 apiv1.use('/program', program);
 apiv1.use('/survey', survey);
