@@ -6,6 +6,7 @@ import {
   programsIcon,
   radiologyIcon,
   scheduleIcon,
+  vaccineIcon,
 } from '../../constants/images';
 
 export const submenuIcons = {
@@ -20,6 +21,7 @@ export const submenuIcons = {
   seed: 'fa fa-seedling',
   table: 'fa fa-th-list',
   users: 'fa fa-users',
+  immunisations: 'fa fa-syringe',
 };
 
 export const items = [
@@ -261,6 +263,20 @@ export const items = [
         label: 'Report generator',
         path: `/reports/`,
         icon: submenuIcons.report,
+      },
+    ],
+  },
+  {
+    key: 'immunisations',
+    label: 'Immunisations',
+    path: '/immunisations',
+    icon: vaccineIcon,
+    ability: { action: 'read' },
+    children: [
+      {
+        label: 'Immunisation Register',
+        path: `/immunisations/`,
+        icon: submenuIcons.immunisations,
       },
     ],
   },

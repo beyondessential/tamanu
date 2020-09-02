@@ -26,3 +26,4 @@ export * from './Survey';
 export * from './SurveyResponse';
 
 export * from './Referral';
+export * from './Immunisation';

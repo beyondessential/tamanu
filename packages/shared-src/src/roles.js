@@ -86,6 +86,11 @@ export const practitioner = (user, allow, forbid) => {
   allow('read', 'Referral');
   allow('write', 'Referral');
   allow('create', 'Referral');
+
+  allow('list', 'Immunisation');
+  allow('read', 'Immunisation');
+  allow('write', 'Immunisation');
+  allow('create', 'Immunisation');
 };
 
 export const admin = (user, allow, forbid) => {
