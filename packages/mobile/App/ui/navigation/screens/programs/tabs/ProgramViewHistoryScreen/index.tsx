@@ -74,10 +74,16 @@ const SurveyResponseItem = ({ surveyResponse, responseIndex }) => {
 export const ProgramViewHistoryScreen = ({
   route,
 }: ProgramAddDetailsScreenProps): ReactElement => {
-  const { surveyId } = route.params;
+  const { surveyId, latestResponseId } = route.params;
   const navigation = useNavigation();
 
-  const [responses, error] = useBackendEffect(backend => backend.getResponses(surveyId));
+  // use latestResponseId to ensure that we refresh when
+  // a new survey is submitted (as this tab can be mounted while
+  // it isn't active)
+  const [responses, error] = useBackendEffect(
+    backend => backend.getResponses(surveyId),
+    [latestResponseId]
+  );
 
   if(error) {
     return <ErrorScreen error={error} />
