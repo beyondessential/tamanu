@@ -30,19 +30,19 @@ const ListSeparator = (): JSX.Element => (
 );
 
 export const PatientSectionList = ({
-  data,
+  patients,
   onPressItem = (): null => null,
 }: PatientSectionListProps): JSX.Element => {
   const ref: RefObject<LargeList> = useRef(null);
 
-  const groupedData = useMemo(
-    () => groupEntriesByLetter(data),
-    [data]
+  const groupedPatients = useMemo(
+    () => groupEntriesByLetter(patients),
+    [patients]
   );
 
   const scrollToSection = useCallback(
     (header: string) => {
-      const headerIndex = groupedData.findIndex(
+      const headerIndex = groupedPatients.findIndex(
         (entry: PatientSectionListItem) => entry.header === header,
       );
       if (headerIndex !== -1) {
@@ -54,7 +54,7 @@ export const PatientSectionList = ({
         }
       }
     },
-    [groupedData],
+    [groupedPatients],
   );
 
   const renderHeader = useCallback(
@@ -66,16 +66,16 @@ export const PatientSectionList = ({
         paddingLeft={screenPercentageToDP('4.86', Orientation.Width)}
       >
         <StyledText fontSize={screenPercentageToDP('1.45', Orientation.Height)}>
-          {groupedData[section].header}
+          {groupedPatients[section].header}
         </StyledText>
       </StyledView>
     ),
-    [groupedData],
+    [groupedPatients],
   );
 
   const renderItem = React.useCallback(
     ({ section, row }) => {
-      const patient = groupedData[section].items[row];
+      const patient = groupedPatients[section].items[row];
       const onPress = (): void => onPressItem(patient)
       return (
         <TouchableOpacity onPress={onPress}>
@@ -98,7 +98,7 @@ export const PatientSectionList = ({
         </TouchableOpacity>
       );
     },
-    [groupedData],
+    [groupedPatients],
   );
 
   const heightForSection = React.useCallback(
@@ -144,7 +144,7 @@ export const PatientSectionList = ({
       <LargeList
         bounces
         ref={ref}
-        data={groupedData}
+        data={groupedPatients}
         heightForSection={heightForSection}
         renderSection={renderHeader}
         heightForIndexPath={heightForIndexPath}
@@ -158,7 +158,7 @@ export const PatientSectionList = ({
         top="5%"
         background={theme.colors.WHITE}
       >
-        {groupedData.map(renderAlphabetLetter)}
+        {groupedPatients.map(renderAlphabetLetter)}
       </StyledView>
     </StyledView>
   );
