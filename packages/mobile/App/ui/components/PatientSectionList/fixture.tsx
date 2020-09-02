@@ -10,15 +10,13 @@ export const genPatientSectionList = (): IPatient[] => new Array(80).fill(1).map
 
 export const data: IPatient[] = genPatientSectionList();
 
-const sortedData = groupEntriesByLetter(data);
-
 export function BaseStory(): JSX.Element {
   return (
     <StyledView flex={1} width="100%">
       <StyledView height="20%" width="100%" />
       <PatientSectionList
         onPressItem={(patient): void => console.log(patient)}
-        data={sortedData}
+        patients={data}
       />
     </StyledView>
   );

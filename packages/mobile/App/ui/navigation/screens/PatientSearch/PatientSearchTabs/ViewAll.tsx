@@ -168,7 +168,7 @@ const Screen: FC<ViewAllScreenProps> = ({
 
   return (
     <FullView>
-      <PatientSectionList data={list} onPressItem={onNavigateToPatientHome} />
+      <PatientSectionList patients={list} onPressItem={onNavigateToPatientHome} />
       <StyledView
         position="absolute"
         zIndex={2}
