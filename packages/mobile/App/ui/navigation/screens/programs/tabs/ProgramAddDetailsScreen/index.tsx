@@ -12,6 +12,7 @@ export const ProgramAddDetailsScreen = ({
   route,
 }: ProgramAddDetailsScreenProps): ReactElement => {
   const { surveyId, selectedPatient } = route.params;
+  const selectedPatientId = selectedPatient.id;
   const navigation = useNavigation();
   const containerScrollView = useRef<any>(null);
 
@@ -24,19 +25,28 @@ export const ProgramAddDetailsScreen = ({
     [containerScrollView],
   );
 
-  const backend = useBackend();
+  const [survey, error] = useBackendEffect(({ models }) => models.Survey.getRepository().findOne(surveyId));
+
+  const { models } = useBackend();
   const onSubmitForm = useCallback(async (values: any) => {
-    await backend.submitSurvey(selectedPatient, survey, values);
+    // TODO: determine results for all calculated answer types
+    // (here? or possibly dynamically inside form)
+    const result = Math.random() * 100.0;
+
+    const response = await models.SurveyResponse.submit(selectedPatientId, {
+      surveyId,
+      encounterReason: `Survey response for ${survey.name}`,
+      result,
+    }, values);
 
     navigation.navigate(
       Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory,
       {
-        surveyId: survey.id,
+        surveyId: surveyId,
+        latestResponseId: response.id,
       },
     );
-  }, []);
-
-  const [survey, error] = useBackendEffect(({ models }) => models.Survey.getRepository().findOne(surveyId));
+  }, [survey]);
 
   if(!survey) {
     return <LoadingScreen text="Getting survey details..." />;

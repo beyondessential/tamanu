@@ -17,6 +17,8 @@ import { useNavigation } from '@react-navigation/native';
 import { FlatList, ListItem } from 'react-native';
 import { Routes } from '/helpers/routes';
 
+import { ErrorScreen } from '/components/ErrorScreen';
+import { LoadingScreen } from '/components/LoadingScreen';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 import { StyledView, StyledText } from '/styled/common';
 import { Separator } from '/components/Separator';
@@ -32,15 +34,14 @@ const SurveyResponseItem = ({ surveyResponse, responseIndex }) => {
     navigation.navigate(
       Routes.HomeStack.ProgramStack.SurveyResponseDetailsScreen,
       {
-        surveyResponse,
+        surveyResponseId: surveyResponse.id,
       },
     ),
   );
 
-  const { patient, program, date } = surveyResponse;
-  const resultQuestion = surveyResponse.program.questions.find(x => x.type === FieldTypes.RESULT);
-  const resultValue = resultQuestion ? surveyResponse.answers[resultQuestion.id] : undefined;
-
+  const { encounter, survey, date = '', result } = surveyResponse;
+  const { patient } = encounter;
+  
   return (
     <TouchableOpacity onPress={onPress}>
       <StyledView
@@ -58,10 +59,10 @@ const SurveyResponseItem = ({ surveyResponse, responseIndex }) => {
         </StyledView>
         <StyledView justifyContent="space-between" flexDirection="row">
           <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
-            {program.name}
+            {survey.name}
           </StyledText>
-          { resultValue !== undefined
-            ? <SurveyResultBadge result={resultValue} />
+          { result !== undefined
+            ? <SurveyResultBadge result={result} />
             : <StyledText color="#ccc">N/A</StyledText>
             }
         </StyledView>
@@ -73,10 +74,24 @@ const SurveyResponseItem = ({ surveyResponse, responseIndex }) => {
 export const ProgramViewHistoryScreen = ({
   route,
 }: ProgramAddDetailsScreenProps): ReactElement => {
-  const { program } = route.params;
+  const { surveyId, latestResponseId } = route.params;
   const navigation = useNavigation();
 
-  const [responses, error] = useBackendEffect(backend => backend.getResponses());
+  // use latestResponseId to ensure that we refresh when
+  // a new survey is submitted (as this tab can be mounted while
+  // it isn't active)
+  const [responses, error] = useBackendEffect(
+    ({ models }) => models.Survey.getResponses(surveyId),
+    [latestResponseId]
+  );
+
+  if(error) {
+    return <ErrorScreen error={error} />
+  }
+
+  if(!responses) {
+    return <LoadingScreen text={`Loading responses for ${surveyId}`} />;
+  }
 
   return (
     <FlatList
