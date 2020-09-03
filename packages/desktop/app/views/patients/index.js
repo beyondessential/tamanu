@@ -4,3 +4,4 @@ export { EncounterView } from './EncounterView';
 export { LabRequestView } from './LabRequestView';
 export { ImagingRequestView } from './ImagingRequestView';
 export { DischargeSummaryView } from './DischargeSummaryView';
+export { ImmunisationsView } from './ImmunisationsView';

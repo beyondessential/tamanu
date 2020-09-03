@@ -76,3 +76,10 @@ export const status = {
     return 'Inpatient';
   },
 };
+
+export const vaccinationStatus = {
+  key: 'vaccinationStatus',
+  title: 'Vaccine Status',
+  minWidth: 100,
+  accessor: row => row.vaccinationStatus || 'Unknown',
+};

@@ -21,14 +21,10 @@ const columns = [
   { key: 'timeliness', title: 'Timeliness', accessor: getTimeliness },
 ];
 
-export const ImmunisationsTable = React.memo(({ patient }) => {
-  const endpoint = patient ? `patient/${patient.id}/immunisations` : 'immunisation';
-
-  return (
-    <DataFetchingTable
-      endpoint={endpoint}
-      columns={columns}
-      noDataMessage="No vaccines registered"
-    />
-  );
-});
+export const ImmunisationsTable = React.memo(({ patient }) => (
+  <DataFetchingTable
+    endpoint={`patient/${patient.id}/immunisations`}
+    columns={columns}
+    noDataMessage="No vaccinations found"
+  />
+));
