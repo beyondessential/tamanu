@@ -1,6 +1,7 @@
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Program } from './Program';
+import { Database } from '~/infra/db';
 
 import { ISurveyScreenComponent, ISurvey, IProgramDataElement } from '~/types';
 
@@ -20,6 +21,16 @@ export class Survey extends BaseModel implements ISurvey {
       relations: ['dataElement'],
       order: { componentIndex: 'ASC' },
     });
+  }
+
+  static async getResponses(surveyId): Promise {
+    const responses = await Database.models.SurveyResponse.find({
+      where: {
+        survey: surveyId,
+      },
+      relations: ['encounter', 'survey', 'encounter.patient'],
+    });
+    return responses;
   }
 }
 
@@ -72,16 +83,6 @@ export class SurveyScreenComponent extends BaseModel implements ISurveyScreenCom
       .map(x => x.trim())
       .filter(x => x)
       .map(x => ({ label: x, value: x }));
-  }
-
-  static async getResponses(surveyId): Promise {
-    const responses = await Database.models.SurveyResponse.find({
-      where: {
-        survey: surveyId,
-      },
-      relations: ['encounter', 'survey', 'encounter.patient'],
-    });
-    return responses;
   }
 
 }
