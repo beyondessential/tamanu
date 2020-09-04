@@ -1,0 +1,79 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "root": true,
+  "plugins": ["@typescript-eslint", "prettier"],
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "prettier/@typescript-eslint",        
+    "@beyondessential/eslint-config-beyondessential",    
+    "prettier"
+  ],
+  "env": {
+    "jest": true,
+    "jasmine": true
+  },  
+  "settings": {   
+    "import/resolver": { 
+      "alias": {        
+        "map": [                        
+          ["/styled", "./App/ui/styled"],      
+          ["/helpers", "./App/ui/helpers"]  ,
+          ["/interfaces", "./App/ui/interfaces"],
+          ["/components", "./App/ui/components"],   
+          ["/navigation", "./App/ui/navigation"],         
+          ["/containers", "./App/ui/containers"],
+          ["/store", "./App/ui/store"],
+          ["/models", "./App/ui/models"],
+          ["/services", "./App/ui/services"],
+          ["/contexts", "./App/ui/contexts"],
+          ["/domain", "./App/domain"],
+          ["/data", "./App/data"],
+          ["/infra", "./App/infra"],
+          ["/presentation", "./App/presentation"],
+          ["/root", "./"]                
+        ],
+        "extensions": [".ts", ".js", ".jsx", ".tsx", ".json"]
+      },
+      "node": {
+        "extensions": [".js",".json", ".ts", ".tsx", ".stories"]
+      }
+    }
+  },
+  "rules": {
+    "@typescript-eslint/no-non-null-assertion": "warn",
+    "class-methods-use-this": "off",
+    "curly": "off",         
+    "react/jsx-one-expression-per-line": "off",    
+    "@typescript-eslint/no-explicit-any": "off",
+    "object-curly-newline": "off",    
+    "import/no-extraneous-dependencies": [
+      "off",
+      {
+        "devDependencies": false,
+        "optionalDependencies": false,
+        "peerDependencies": false
+      }
+    ],
+    "import/no-unresolved": [
+      2,
+      {
+        "caseSensitive": false
+      }
+    ],
+    "import/no-absolute-path": "off",
+    "import/extensions": [
+      "off",
+      "ignorePackages",
+      {
+        "js": "never",
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never",
+        "mjs": "never"
+      }
+    ]
+  },
+  "globals": {
+    "__DEV__": true
+  }
+}

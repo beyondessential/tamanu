@@ -20,6 +20,7 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+yarn.lock
 
 # Android/IntelliJ
 #
@@ -41,6 +42,9 @@ buck-out/
 *.keystore
 !debug.keystore
 
+# mockserver
+mockserver/functions/node_modules
+
 # fastlane
 #
 # It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
@@ -58,5 +62,11 @@ buck-out/
 # CocoaPods
 /ios/Pods/
 
-# Jest
+# jest
 .jest
+
+
+.vscode
+
+# Environment
+*.bat
