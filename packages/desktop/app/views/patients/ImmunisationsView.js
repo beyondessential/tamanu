@@ -24,12 +24,12 @@ const COLUMNS = [
   vaccinationStatus,
 ];
 
-const PatientImmunisationsTable = React.memo(({ displayImmunisationHistory, ...props }) => (
+const PatientImmunisationsTable = React.memo(({ onPatientSelect, ...props }) => (
   <DataFetchingTable
     endpoint="patient"
     columns={COLUMNS}
     noDataMessage="No patients found"
-    onRowClick={row => displayImmunisationHistory(row)}
+    onRowClick={onPatientSelect}
     {...props}
   />
 ));
@@ -54,10 +54,7 @@ export const ImmunisationsView = React.memo(() => {
       />
       <TopBar title="Immunisation Register" />
       <PatientSearchBar onSearch={setSearchParameters} />
-      <PatientImmunisationsTable
-        displayImmunisationHistory={onRowClick}
-        fetchOptions={searchParameters}
-      />
+      <PatientImmunisationsTable onPatientSelect={onRowClick} fetchOptions={searchParameters} />
     </PageContainer>
   );
 });
