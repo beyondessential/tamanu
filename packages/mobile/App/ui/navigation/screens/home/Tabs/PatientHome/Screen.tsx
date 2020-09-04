@@ -20,7 +20,7 @@ import {
 // Helpers
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { PatientModel } from '../../../../../models/Patient';
+import { IPatient } from '~/types';
 import { joinNames, getGender } from '/helpers/user';
 import { getAgeFromDate } from '/helpers/date';
 import { setDotsOnMaxLength } from '/helpers/text';
@@ -30,7 +30,7 @@ interface ScreenProps {
   visitTypeButtons: any[];
   patientMenuButtons: any[];
   navigateToPatientActions: () => void;
-  selectedPatient: PatientModel;
+  selectedPatient: IPatient;
 }
 
 export const Screen = ({

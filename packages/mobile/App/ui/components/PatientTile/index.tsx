@@ -1,7 +1,7 @@
 import React from 'react';
 import { RowView, StyledView, StyledText } from '/styled/common';
 import { UserAvatar } from '../UserAvatar';
-import { formatDate, getAgeFromDate } from '/helpers/date';
+import { formatDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { theme } from '/styled/theme';
 import { getGender } from '/helpers/user';
@@ -31,8 +31,7 @@ export const PatientTile = ({
     paddingBottom={screenPercentageToDP('2', Orientation.Height)}
     width="100%"
     background={theme.colors.BACKGROUND_GREY}
-    alignItems="center"
-  >
+    alignItems="center">
     <StyledView marginLeft={20}>
       <UserAvatar
         size={screenPercentageToDP('4.86', Orientation.Height)}
@@ -45,8 +44,7 @@ export const PatientTile = ({
       <StyledText
         color={theme.colors.TEXT_SUPER_DARK}
         fontSize={screenPercentageToDP('1.822', Orientation.Height)}
-        fontWeight={700}
-      >
+        fontWeight={700}>
         {name}
       </StyledText>
       <StyledText
@@ -54,17 +52,15 @@ export const PatientTile = ({
         color={theme.colors.TEXT_MID}
         fontSize={screenPercentageToDP('1.57', Orientation.Height)}
         fontWeight={500}
-        textAlign="left"
-      >
+        textAlign="left">
         {displayId && displayId} •{' '}
-        {`${getGender(gender)[0]} ${getAgeFromDate(dateOfBirth)}yrs • ${city}`}
+        {`${getGender(gender)[0]} ${dateOfBirth}yrs • ${city}`}
       </StyledText>
     </StyledView>
     {lastVisit && (
       <StyledText
         marginRight={screenPercentageToDP('7.59', Orientation.Width)}
-        color={theme.colors.TEXT_MID}
-      >
+        color={theme.colors.TEXT_MID}>
         Last viewed {formatDate(lastVisit, DateFormats.DAY_MONTH_YEAR_SHORT)}
       </StyledText>
     )}

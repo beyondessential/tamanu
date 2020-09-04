@@ -1,9 +1,9 @@
 import { RouteProp, NavigationProp } from '@react-navigation/native';
-import { ProgramModel } from '../../../../models/Program';
+import { IProgram } from '~/types';
 
 type ProgramAddDetailsScreenParams = {
   ProgramAddDetailsScreen: {
-    program: ProgramModel;
+    program: IProgram;
   };
 };
 

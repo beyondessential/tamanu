@@ -8,10 +8,10 @@ import {
   StyledText,
 } from '/styled/common';
 import {Orientation, screenPercentageToDP} from '/helpers/screen';
-import {VaccineModel} from '../../models/Vaccine';
+import { IVaccine } from '~/types';
 
 export interface CardHeaderProps {
-  vaccine: VaccineModel;
+  vaccine: IVaccine;
   onCloseModal: () => void;
   onEditDetails: () => void;
 }

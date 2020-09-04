@@ -9,6 +9,7 @@ module.exports = {
         root: ['./'],
         extensions: ['ts', '.tsx', '.json'],
         alias: {
+          '~': './App',
           '/styled': './App/ui/styled',
           '/components': './App/ui/components',
           '/interfaces': './App/ui/interfaces',

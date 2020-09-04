@@ -5,7 +5,7 @@ import { compose } from 'redux';
 import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
 import { withPatient } from '/containers/Patient';
-import { PatientModel } from '/models/Patient';
+import { IPatient } from '~/types';
 import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
 import { AddSickDetailScreen } from '../screens/sickOrInjured/AddSickDetails';
@@ -14,7 +14,7 @@ const Tabs = createTopTabNavigator();
 
 type SickOrInjuredTabsProps = {
   navigation: NavigationProp<any>;
-  selectedPatient: PatientModel;
+  selectedPatient: IPatient;
 };
 
 const TabNavigator = ({

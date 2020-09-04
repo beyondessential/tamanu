@@ -3,11 +3,11 @@ import { RouteProp, NavigationProp } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 import { compose } from 'redux';
 import { ProgramAddDetailsScreen } from '../screens/programs/tabs/ProgramAddDetailsScreen';
+import { ProgramViewHistoryScreen } from '../screens/programs/tabs/ProgramViewHistoryScreen';
 import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
-import { ProgramModel } from '/models/Program';
 import { withPatient } from '/containers/Patient';
-import { PatientModel } from '/models/Patient';
+import { IPatient, IProgram } from '~/types';
 import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
 
@@ -15,7 +15,7 @@ const Tabs = createTopTabNavigator();
 
 type NewProgramEntryTabsParams = {
   NewProgramEntryTabs: {
-    program: ProgramModel;
+    program: IProgram;
   };
 };
 
@@ -27,7 +27,7 @@ type NewProgramEntryTabsRouteProps = RouteProp<
 type NewProgramEntryTabsProps = {
   navigation: NavigationProp<any>;
   route: NewProgramEntryTabsRouteProps;
-  selectedPatient: PatientModel;
+  selectedPatient: IPatient;
 };
 
 const TabNavigator = ({
@@ -35,21 +35,22 @@ const TabNavigator = ({
   route,
   selectedPatient,
 }: NewProgramEntryTabsProps): ReactElement => {
-  const { program } = route.params;
+  const { surveyId, surveyName } = route.params;
   const goBack = useCallback(() => {
     navigation.goBack();
   }, []);
   return (
     <FullView>
       <StackHeader
-        title={program.name}
+        title={surveyName}
         subtitle={joinNames(selectedPatient)}
         onGoBack={goBack}
       />
       <Tabs.Navigator>
         <Tabs.Screen
           initialParams={{
-            program,
+            surveyId,
+            selectedPatient,
           }}
           options={{
             title: 'Add Details',
@@ -59,13 +60,13 @@ const TabNavigator = ({
         />
         <Tabs.Screen
           initialParams={{
-            program,
+            surveyId,
           }}
           options={{
             title: 'VIEW HISTORY',
           }}
           name={Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory}
-          component={ProgramAddDetailsScreen}
+          component={ProgramViewHistoryScreen}
         />
       </Tabs.Navigator>
     </FullView>

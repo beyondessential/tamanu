@@ -1,4 +1,4 @@
-import { PatientModel } from '../models/Patient';
+import { IPatient } from '~/types';
 
 export interface AllergiesProps {
   allergies: {
@@ -37,7 +37,7 @@ export interface ReminderWarnings {
 
 export interface PatientGeneralInformationDataProps {
   id: string;
-  generalInfo: PatientModel;
+  generalInfo: IPatient;
 }
 
 export type PatientDetails = PatientGeneralInformationDataProps &

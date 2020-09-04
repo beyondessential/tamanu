@@ -1,7 +1,6 @@
 import { Chance } from 'chance';
-import { PatientVaccineProps } from '../../interfaces/PatientVaccineProps';
 import { VaccineStatus } from '/helpers/constants';
-import { VaccineModel } from '../../models/Vaccine';
+import { IVaccine } from '~/types';
 
 const vaccineStatusList = Object.keys(VaccineStatus);
 const getRandomVaccineStatus = (): string =>
@@ -9,7 +8,7 @@ const getRandomVaccineStatus = (): string =>
 
 const chance = new Chance();
 
-const vaccineGenerator = (): VaccineModel => ({
+const vaccineGenerator = (): IVaccine => ({
   date: chance.date(),
   status: getRandomVaccineStatus(),
   name: chance.string({ length: 10 }),
@@ -21,7 +20,7 @@ const vaccineGenerator = (): VaccineModel => ({
   administered: chance.string(),
 });
 
-export const vaccineHistoryList: PatientVaccineProps[] = [
+export const vaccineHistoryList: IVaccine[] = [
   {
     header: 'Birth',
     bcg: vaccineGenerator(),
@@ -94,7 +93,7 @@ export const vaccineHistoryList: PatientVaccineProps[] = [
   },
 ];
 
-export const vaccineHistoryAdolecentList: PatientVaccineProps[] = [
+export const vaccineHistoryAdolecentList: IVaccine[] = [
   {
     header: '7 yrs',
     bcg: vaccineGenerator(),
@@ -167,7 +166,7 @@ export const vaccineHistoryAdolecentList: PatientVaccineProps[] = [
   },
 ];
 
-export const vaccineHistoryAdultList: PatientVaccineProps[] = [
+export const vaccineHistoryAdultList: IVaccine[] = [
   {
     header: '21 yrs',
     bcg: vaccineGenerator(),

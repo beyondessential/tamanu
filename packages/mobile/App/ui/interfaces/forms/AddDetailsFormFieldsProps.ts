@@ -1,8 +1,8 @@
-import { ProgramModel } from '../../models/Program';
+import { ISurveyScreenComponent } from '~/types';
 import { VerticalPosition } from '../VerticalPosition';
 
 export interface AddDetailsFormFieldsProps {
-  program: ProgramModel;
+  components: ISurveyScreenComponent;
   scrollTo: (item: { x: number; y: number }) => void;
   verticalPositions: VerticalPosition;
 }
