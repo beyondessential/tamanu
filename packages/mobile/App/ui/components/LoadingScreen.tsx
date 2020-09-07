@@ -1,17 +1,11 @@
 import React, { useState, memo } from 'react';
-import { 
-  FullView, 
-  CenterView, 
-  StyledText,
-  StyledView,
-} from '~/ui/styled/common';
+import { FullView, CenterView, StyledText } from '~/ui/styled/common';
 import { CircularProgress } from '~/ui/components/CircularProgress';
 
-export const LoadingScreen = memo(({ text }) => (
+export const LoadingScreen = memo(({ progress = 100 }) => (
   <FullView>
     <CenterView>
-      <CircularProgress progress={100} />
-      <StyledText>{ text }</StyledText>
+      <CircularProgress progress={progress} />
     </CenterView>
   </FullView>
 ));

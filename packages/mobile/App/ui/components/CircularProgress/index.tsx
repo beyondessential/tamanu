@@ -14,8 +14,7 @@ export const CircularProgress = ({
 }: CircularProgressProps): JSX.Element => (
   <StyledView
     height={screenPercentageToDP('13.73', Orientation.Height)}
-    width={screenPercentageToDP('13.73', Orientation.Height)}
-  >
+    width={screenPercentageToDP('13.73', Orientation.Height)}>
     <AnimatedCircularProgress
       size={screenPercentageToDP('13.73', Orientation.Height)}
       width={3}
@@ -33,7 +32,7 @@ export const CircularProgress = ({
         width="95%"
       />
       <SyncDataIcon
-        fill={theme.colors.WHITE}
+        fill={theme.colors.MAIN_SUPER_DARK}
         size={screenPercentageToDP('5.58', Orientation.Height)}
       />
     </CenterView>
