@@ -4,7 +4,7 @@
   "plugins": ["@typescript-eslint", "prettier"],
   "extends": [
     "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint",        
+    "prettier/@typescript-eslint",      
     "@beyondessential/eslint-config-beyondessential",    
     "prettier"
   ],
@@ -17,7 +17,8 @@
       "alias": {        
         "map": [                        
           ["/styled", "./App/ui/styled"],      
-          ["/helpers", "./App/ui/helpers"]  ,
+          ["/helpers", "./App/ui/helpers"],
+          ["/types", "./App/types/"],
           ["/interfaces", "./App/ui/interfaces"],
           ["/components", "./App/ui/components"],   
           ["/navigation", "./App/ui/navigation"],         
@@ -30,7 +31,8 @@
           ["/data", "./App/data"],
           ["/infra", "./App/infra"],
           ["/presentation", "./App/presentation"],
-          ["/root", "./"]                
+          ["/root", "./"],
+          ["~", "./App"]    
         ],
         "extensions": [".ts", ".js", ".jsx", ".tsx", ".json"]
       },
@@ -43,7 +45,10 @@
     "@typescript-eslint/no-non-null-assertion": "warn",
     "class-methods-use-this": "off",
     "curly": "off",         
-    "react/jsx-one-expression-per-line": "off",    
+    "@typescript-eslint/interface-name-prefix": "off",         
+    "react/jsx-props-no-spreading": "off",         
+    "react/jsx-one-expression-per-line": "off",
+    "react/prop-types": ["off"],
     "@typescript-eslint/no-explicit-any": "off",
     "object-curly-newline": "off",    
     "import/no-extraneous-dependencies": [
