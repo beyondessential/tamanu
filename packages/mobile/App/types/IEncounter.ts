@@ -13,11 +13,6 @@ export enum EncounterType {
 export interface IEncounter {
   id: ID;
 
-  patientId: ID;
-  departmentId: ID;
-  locationId: ID;
-  examinerId: ID;
-
   encounterType: EncounterType;
 
   startDate: Date;

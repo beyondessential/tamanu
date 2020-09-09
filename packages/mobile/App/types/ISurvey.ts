@@ -39,7 +39,6 @@ export enum DataElementType {
 export interface IProgramDataElement {
   id: ID;
   code: string;
-  name: string;
   indicator: string;
   defaultText: string;
   defaultOptions?: string;

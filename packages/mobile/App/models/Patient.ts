@@ -4,14 +4,6 @@ import { IPatient } from '~/types';
 
 @Entity('patient')
 export class Patient extends BaseModel implements IPatient {
-  bloodType: string;
-
-  telephone: string;
-
-  city: string;
-
-  encounters: any[];
-
   @Column()
   displayId: string;
 

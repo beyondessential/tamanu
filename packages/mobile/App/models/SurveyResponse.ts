@@ -8,10 +8,6 @@ import { ISurveyResponse, ISurveyResponseAnswer } from '~/types';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
-  surveyId: string;
-
-  encounterId: string;
-
   @Column()
   startTime: Date;
 

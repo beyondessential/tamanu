@@ -5,17 +5,7 @@ import { Patient } from './Patient';
 
 @Entity('encounter')
 export class Encounter extends BaseModel implements IEncounter {
-  patientId: string;
-
-  departmentId: string;
-
-  locationId: string;
-
-  examinerId: string;
-
-  surveyResponses: any[];
-
-  @Column()
+  @Column({ type: 'varchar' })
   encounterType: EncounterType;
 
   @Column()

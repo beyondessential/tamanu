@@ -86,8 +86,6 @@ export class Survey extends BaseModel implements ISurvey {
 @Entity('program_data_element')
 export class ProgramDataElement extends BaseModel
   implements IProgramDataElement {
-  name: string;
-
   @Column()
   code: string;
 
