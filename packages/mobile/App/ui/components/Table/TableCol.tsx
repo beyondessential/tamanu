@@ -6,7 +6,7 @@ interface TableColProps {
   columns: Column[];
   row: any;
   tableHeader: Column;
-  onPressItem?: (item: any) => void;
+  onPressItem: (item: any) => void;
 }
 
 export const TableCol = ({

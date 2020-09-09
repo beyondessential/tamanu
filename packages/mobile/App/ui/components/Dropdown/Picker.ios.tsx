@@ -28,7 +28,7 @@ interface PickerPropsIOS {
   onChange: Function;
   selectedItem: string | null;
   closeModal: () => void;
-  disabled?: boolean;
+  disabled: boolean;
 }
 
 export const IOSPicker = React.memo(
@@ -37,7 +37,7 @@ export const IOSPicker = React.memo(
     open,
     onChange,
     selectedItem,
-    disabled,
+    disabled = false,
     closeModal,
   }: PickerPropsIOS) => (
     <Modal animated animationType="slide" visible={open} transparent>

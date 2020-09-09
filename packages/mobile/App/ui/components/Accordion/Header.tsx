@@ -11,7 +11,7 @@ import { Separator } from '../Separator';
 interface IconProps {
   IconComponent: FunctionComponent<SvgProps>;
   fill: string;
-  height?: number;
+  height: number;
 }
 
 const StatusIcon = ({ IconComponent, ...rest }: IconProps): JSX.Element => (

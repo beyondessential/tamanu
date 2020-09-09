@@ -32,7 +32,7 @@ interface LabelProps {
   children: string;
   focus: boolean;
   isValueEmpty: boolean;
-  error?: string;
+  error: string;
   onFocus: Function;
 }
 

@@ -5,8 +5,8 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 type ModalFieldProps = {
   label: string;
-  value?: string;
-  Icon?: FC<any>;
+  value: string;
+  Icon: FC<any>;
 };
 
 export const ModalField: FC<ModalFieldProps> = ({

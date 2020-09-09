@@ -17,7 +17,7 @@ export const FormFields = ({
     return component.visibilityCriteria(values);
   }, [values]);
   return (
-    <React.Fragment>
+    <>
       {components
       .filter(shouldShow)
       .map((component, index) => (
@@ -33,6 +33,6 @@ export const FormFields = ({
           />
         </React.Fragment>
       ))}
-    </React.Fragment>
+    </>
   );
 }

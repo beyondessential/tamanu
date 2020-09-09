@@ -1,8 +1,12 @@
-import React, { useState, memo } from 'react';
-import { FullView, CenterView, StyledText } from '~/ui/styled/common';
+import React, { memo } from 'react';
+import { FullView, CenterView } from '~/ui/styled/common';
 import { CircularProgress } from '~/ui/components/CircularProgress';
 
-export const LoadingScreen = memo(({ progress = 100 }) => (
+interface Props {
+  progress?: number;
+}
+
+export const LoadingScreen: React.FC<Props> = memo(({ progress = 100 }) => (
   <FullView>
     <CenterView>
       <CircularProgress progress={progress} />

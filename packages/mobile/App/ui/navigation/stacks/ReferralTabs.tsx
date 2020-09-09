@@ -23,7 +23,7 @@ const TabNavigator = ({
     navigation.goBack();
   }, []);
   return (
-    <React.Fragment>
+    <>
       <StackHeader
         title="Referrals"
         subtitle={joinNames(selectedPatient)}
@@ -45,7 +45,7 @@ const TabNavigator = ({
           component={AddRefferalDetailScreen}
         />
       </Tabs.Navigator>
-    </React.Fragment>
+    </>
   );
 };
 

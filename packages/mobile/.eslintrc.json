@@ -21,7 +21,7 @@
           ["/types", "./App/types/"],
           ["/interfaces", "./App/ui/interfaces"],
           ["/components", "./App/ui/components"],   
-          ["/navigation", "./App/ui/navigation"],         
+          ["/navigation", "./App/ui/navigation"],
           ["/containers", "./App/ui/containers"],
           ["/store", "./App/ui/store"],
           ["/models", "./App/ui/models"],
@@ -42,14 +42,17 @@
     }
   },
   "rules": {
+    "max-classes-per-file": "off",
     "@typescript-eslint/no-non-null-assertion": "warn",
     "class-methods-use-this": "off",
-    "curly": "off",         
-    "@typescript-eslint/interface-name-prefix": "off",         
-    "react/jsx-props-no-spreading": "off",         
+    "curly": "off",
+    "react/jsx-props-no-spreading": "off",
     "react/jsx-one-expression-per-line": "off",
+    "react/jsx-curly-newline": "off",
     "react/prop-types": ["off"],
     "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/interface-name-prefix": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
     "object-curly-newline": "off",    
     "import/no-extraneous-dependencies": [
       "off",
@@ -78,6 +81,14 @@
       }
     ]
   },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": ["error"]
+      }
+    }
+  ],
   "globals": {
     "__DEV__": true
   }

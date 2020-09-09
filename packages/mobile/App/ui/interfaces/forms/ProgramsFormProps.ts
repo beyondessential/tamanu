@@ -10,4 +10,5 @@ export type ProgramsFormProps = {
   containerScrollView: any;
   verticalPositions: VerticalPosition;
   program: IProgram;
+  components: any;
 };

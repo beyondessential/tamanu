@@ -9,7 +9,7 @@ import { DateFormats } from '/helpers/constants';
 import { FieldTypes } from '/helpers/fields';
 import { SurveyResultBadge } from '/components/SurveyResultBadge';
 
-function getAnswerText(question, answer) {
+function getAnswerText(question, answer): string | number {
   if (answer === null || answer === undefined) return 'N/A';
 
   switch (question.type) {
@@ -17,7 +17,7 @@ function getAnswerText(question, answer) {
     case FieldTypes.MULTILINE:
       return answer;
     case FieldTypes.CALCULATED:
-      return (typeof answer === "number") ? answer.toFixed(1) : answer;
+      return typeof answer === 'number' ? answer.toFixed(1) : answer;
     case FieldTypes.TEXT:
     case FieldTypes.SELECT:
     case FieldTypes.RESULT:
@@ -32,11 +32,11 @@ function getAnswerText(question, answer) {
   }
 }
 
-const isCalculated = question =>
+const isCalculated = (question): Element =>
   question.type === FieldTypes.CALCULATED ||
   question.type === FieldTypes.RESULT;
 
-const AnswerItem = ({ question, answer, index }) => (
+const AnswerItem = ({ question, answer, index }): Element => (
   <StyledView
     height={40}
     justifyContent="space-between"
@@ -49,14 +49,15 @@ const AnswerItem = ({ question, answer, index }) => (
     <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
       {question.indicator}
     </StyledText>
-    {question.type === FieldTypes.RESULT 
-      ? <SurveyResultBadge result={answer} />
-      : <StyledText>{getAnswerText(question, answer)}</StyledText>
-    }
+    {question.type === FieldTypes.RESULT ? (
+      <SurveyResultBadge result={answer} />
+    ) : (
+      <StyledText>{getAnswerText(question, answer)}</StyledText>
+    )}
   </StyledView>
 );
 
-export const SurveyResponseDetailsScreen = ({ route }) => {
+export const SurveyResponseDetailsScreen = ({ route }): Element => {
   const navigation = useNavigation();
   const { surveyResponse } = route.params;
   const { patient, program, answers, ...rest } = surveyResponse;
@@ -64,7 +65,7 @@ export const SurveyResponseDetailsScreen = ({ route }) => {
     navigation.goBack();
   }, []);
 
-  const questionToAnswerItem = (q, i) => (
+  const questionToAnswerItem = (q, i): Element => (
     <AnswerItem index={i} key={q.id} question={q} answer={answers[q.id]} />
   );
 

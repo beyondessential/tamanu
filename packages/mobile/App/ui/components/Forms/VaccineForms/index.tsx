@@ -57,7 +57,7 @@ interface VaccineForm {
   initialValues: VaccineFormInitialValues;
   type: string;
   onSubmit: (values: any) => void;
-  SubmitButtons?: FC<SubmitButtonsProps>;
+  SubmitButtons?: FC<SubmitButtonsProps> | null;
   onCancel: () => void;
 }
 
@@ -99,4 +99,8 @@ export const VaccineForm = ({
       </Formik>
     </FullView>
   );
+};
+
+VaccineForm.defaultProps = {
+  SubmitButtons: null,
 };

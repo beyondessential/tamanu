@@ -108,7 +108,8 @@ export const Button = ({
     onPress={onPress}
     {...rest}
     background="transparent"
-    disabled={loadingAction}>
+    disabled={loadingAction}
+  >
     <ButtonContainer
       {...rest}
       flex={flex}
@@ -119,7 +120,8 @@ export const Button = ({
       backgroundColor={backgroundColor}
       borderColor={borderColor}
       height={height}
-      borderWidth={borderWidth}>
+      borderWidth={borderWidth}
+    >
       {loadingAction && (
         <ActivityIndicator size="large" color={theme.colors.WHITE} />
       )}
@@ -130,7 +132,8 @@ export const Button = ({
           borderColor={borderColor}
           textColor={textColor}
           fontSize={fontSize}
-          fontWeight={fontWeight}>
+          fontWeight={fontWeight}
+        >
           {buttonText}
         </StyledButtonText>
       )}

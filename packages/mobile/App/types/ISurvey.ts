@@ -1,6 +1,6 @@
 import { ID } from './ID';
 
-export interface ISurvey { 
+export interface ISurvey {
   id: ID;
 
   programId: ID;
@@ -11,27 +11,29 @@ export interface ISurvey {
 export interface ISurveyScreenComponent {
   id: ID;
 
+  required: boolean;
+
   survey?: ISurvey;
   dataElement?: IProgramDataElement;
 
   screenIndex: number;
   componentIndex: number;
-  text: string;
-  visibilityCriteria: string;
-  options: string;
+  text?: string;
+  visibilityCriteria?: string;
+  options?: string;
 }
 
 export enum DataElementType {
-  Autocomplete: 'Autocomplete',
-  Binary: 'Binary',
-  Calculated: 'Calculated',
-  Checkbox: 'Checkbox',
-  Date: 'Date',
-  FreeText: 'FreeText',
-  Instruction: 'Instruction',
-  Number: 'Number',
-  Radio: 'Radio',
-  Result: 'Result',
+  Autocomplete = 'Autocomplete',
+  Binary = 'Binary',
+  Calculated = 'Calculated',
+  Checkbox = 'Checkbox',
+  Date = 'Date',
+  FreeText = 'FreeText',
+  Instruction = 'Instruction',
+  Number = 'Number',
+  Radio = 'Radio',
+  Result = 'Result',
 }
 
 export interface IProgramDataElement {
@@ -40,6 +42,6 @@ export interface IProgramDataElement {
   name: string;
   indicator: string;
   defaultText: string;
-  defaultOptions: string;
-  type: DataElementType;
+  defaultOptions?: string;
+  type: string;
 }

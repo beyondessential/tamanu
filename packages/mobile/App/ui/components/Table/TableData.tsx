@@ -9,7 +9,7 @@ interface TableDataProps {
   tableHeader: Column;
   columns: Column[];
   columnKey: string;
-  onPressItem?: (item: any) => void;
+  onPressItem: (item: any) => void;
 }
 
 export const TableData = ({

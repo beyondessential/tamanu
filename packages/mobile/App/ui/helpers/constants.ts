@@ -153,7 +153,7 @@ export const PhoneMask = { mask: '9999 9999 999' };
 export enum Gender {
   Male = 'male',
   Female = 'female',
-  Other = 'other'
+  Other = 'other',
 }
 
 export const MaleGender = {

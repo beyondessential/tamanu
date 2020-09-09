@@ -106,27 +106,27 @@ const applyActiveFilters = (
     order: {
       lastName: 'ASC',
       firstName: 'ASC',
-    }
+    },
   });
-  if (activeFilters.count > 0) {
-    // apply filters
-    return data.filter(patientData =>
-      Object.keys(activeFilters.filters).every(fieldToFilter =>
-        isEqual(
-          patientData[fieldToFilter],
-          activeFilters.filters[fieldToFilter].value,
-          fieldToFilter,
-        ),
-      ),
-    );
-  } else if (searchField.value !== '') {
-    return data.filter(patientData =>
-      `${patientData.firstName} ${patientData.lastName}`.includes(
-        searchField.value,
-      ),
-    );
-  }
-  return data;
+  // if (activeFilters.count > 0) {
+  //   // apply filters
+  //   return data.filter(patientData =>
+  //     Object.keys(activeFilters.filters).every(fieldToFilter =>
+  //       isEqual(
+  //         patientData[fieldToFilter],
+  //         activeFilters.filters[fieldToFilter].value,
+  //         fieldToFilter,
+  //       ),
+  //     ),
+  //   );
+  // } else if (searchField.value !== '') {
+  //   return data.filter(patientData =>
+  //     `${patientData.firstName} ${patientData.lastName}`.includes(
+  //       searchField.value,
+  //     ),
+  //   );
+  // }
+  // return data;
 };
 
 const Screen: FC<ViewAllScreenProps> = ({
@@ -146,9 +146,12 @@ const Screen: FC<ViewAllScreenProps> = ({
     [filters],
   );
 
-  const [list, error] = useBackendEffect(({ models }) => {
-    return applyActiveFilters(models, activeFilters, searchField);
-  }, [searchField.value]);
+  const [list, error] = useBackendEffect(
+    ({ models }) => {
+      return applyActiveFilters(models, activeFilters, searchField);
+    },
+    [searchField.value],
+  );
 
   const onNavigateToPatientHome = useCallback(patient => {
     setSelectedPatient(patient);
@@ -162,13 +165,16 @@ const Screen: FC<ViewAllScreenProps> = ({
     [],
   );
 
-  if(!list) {
-    return <LoadingScreen text="Loading patients..." />;
+  if (!list) {
+    return <LoadingScreen />;
   }
 
   return (
     <FullView>
-      <PatientSectionList patients={list} onPressItem={onNavigateToPatientHome} />
+      <PatientSectionList
+        patients={list}
+        onPressItem={onNavigateToPatientHome}
+      />
       <StyledView
         position="absolute"
         zIndex={2}

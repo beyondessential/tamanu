@@ -33,7 +33,8 @@ export const PatientCard = ({
       <RowView
         justifyContent="space-between"
         height={screenPercentageToDP(5.46, Orientation.Height)}
-        width="100%">
+        width="100%"
+      >
         <UserAvatar
           size={screenPercentageToDP(4.86, Orientation.Height)}
           displayName={name}
@@ -43,18 +44,21 @@ export const PatientCard = ({
         <StyledText
           color={theme.colors.TEXT_DARK}
           fontSize={screenPercentageToDP(1.09, Orientation.Height)}
-          fontWeight={500}>
+          fontWeight={500}
+        >
           {`Last viewed \n${formatDate(lastVisit, DateFormats.short)}`}
         </StyledText>
       </RowView>
       <ColumnView
         width="100%"
-        marginTop={screenPercentageToDP(1.82, Orientation.Height)}>
+        marginTop={screenPercentageToDP(1.82, Orientation.Height)}
+      >
         <StyledView width="75%" marginBottom={10}>
           <StyledText
             fontSize={screenPercentageToDP(1.82, Orientation.Height)}
             fontWeight={500}
-            color={theme.colors.TEXT_DARK}>
+            color={theme.colors.TEXT_DARK}
+          >
             {name}
           </StyledText>
         </StyledView>
@@ -62,13 +66,15 @@ export const PatientCard = ({
           <StyledText
             fontSize={screenPercentageToDP(1.45, Orientation.Height)}
             fontWeight={500}
-            color={theme.colors.TEXT_MID}>
+            color={theme.colors.TEXT_MID}
+          >
             {`${getGender(gender)}, ${age}yrs`}
           </StyledText>
           <StyledText
             fontSize={screenPercentageToDP(1.45, Orientation.Height)}
             fontWeight={500}
-            color={theme.colors.TEXT_MID}>
+            color={theme.colors.TEXT_MID}
+          >
             {city}
           </StyledText>
         </StyledView>

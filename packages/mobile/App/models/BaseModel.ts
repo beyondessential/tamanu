@@ -1,4 +1,4 @@
-import { 
+import {
   BaseEntity,
   PrimaryColumn,
   Generated,
@@ -6,22 +6,20 @@ import {
 } from 'typeorm/browser';
 
 export abstract class BaseModel extends BaseEntity {
-
   @PrimaryColumn()
-  @Generated("uuid")
+  @Generated('uuid')
   id: string;
 
-  static getRepository() {
+  static getRepository(): any {
     return getRepository(this);
   }
 
-  static async create(data) {
+  static async create(data): Promise<BaseEntity> {
     const repo = this.getRepository();
     const record = repo.create({
-      ...data
+      ...data,
     });
     await record.save();
     return record;
   }
-
 }

@@ -1,20 +1,69 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
+/* eslint-disable max-classes-per-file */
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Program } from './Program';
 import { Database } from '~/infra/db';
 
 import { ISurveyScreenComponent, ISurvey, IProgramDataElement } from '~/types';
+import { SurveyResponse } from './SurveyResponse';
+
+@Entity('survey_screen_component')
+export class SurveyScreenComponent extends BaseModel
+  implements ISurveyScreenComponent {
+  required: boolean;
+
+  @Column('int')
+  screenIndex: number;
+
+  @Column('int')
+  componentIndex: number;
+
+  @Column({ nullable: true })
+  text?: string;
+
+  @Column({ nullable: true })
+  visibilityCriteria?: string;
+
+  @Column({ nullable: true })
+  options?: string;
+
+  @ManyToOne(
+    type => Survey,
+    survey => survey.components,
+  )
+  survey: Survey;
+
+  @ManyToOne(type => ProgramDataElement)
+  dataElement: ProgramDataElement;
+
+  getOptions(): any {
+    return (this.options || this.dataElement.defaultOptions || '')
+      .split(',')
+      .map(x => x.trim())
+      .filter(x => x)
+      .map(x => ({ label: x, value: x }));
+  }
+}
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {
+  programId: string;
+
+  responses: any[];
 
   @Column()
   name: string;
 
-  @ManyToOne(type => Program, program => program.surveys)
+  @ManyToOne(
+    type => Program,
+    program => program.surveys,
+  )
   program: Program;
 
-  getComponents() {
+  components: any;
+
+  getComponents(): Promise<BaseModel[]> {
     const repo = SurveyScreenComponent.getRepository();
     return repo.find({
       where: { survey: { id: this.id } },
@@ -23,7 +72,7 @@ export class Survey extends BaseModel implements ISurvey {
     });
   }
 
-  static async getResponses(surveyId): Promise {
+  static async getResponses(surveyId): Promise<SurveyResponse[]> {
     const responses = await Database.models.SurveyResponse.find({
       where: {
         survey: surveyId,
@@ -35,7 +84,9 @@ export class Survey extends BaseModel implements ISurvey {
 }
 
 @Entity('program_data_element')
-export class ProgramDataElement extends BaseModel implements IProgramDataElement {
+export class ProgramDataElement extends BaseModel
+  implements IProgramDataElement {
+  name: string;
 
   @Column()
   code: string;
@@ -51,38 +102,4 @@ export class ProgramDataElement extends BaseModel implements IProgramDataElement
 
   @Column()
   type: string;
-}
-
-@Entity('survey_screen_component')
-export class SurveyScreenComponent extends BaseModel implements ISurveyScreenComponent {
-
-  @Column("int")
-  screenIndex: number;
-
-  @Column("int")
-  componentIndex: number;
-
-  @Column({ nullable: true })
-  text?: string;
-
-  @Column({ nullable: true })
-  visibilityCriteria?: string;
-
-  @Column({ nullable: true })
-  options?: string;
-
-  @ManyToOne(type => Survey, survey => survey.components)
-  survey: Survey;
-
-  @ManyToOne(type => ProgramDataElement)
-  dataElement: ProgramDataElement;
-
-  getOptions() {
-    return (this.options || this.dataElement.defaultOptions || "")
-      .split(",")
-      .map(x => x.trim())
-      .filter(x => x)
-      .map(x => ({ label: x, value: x }));
-  }
-
 }

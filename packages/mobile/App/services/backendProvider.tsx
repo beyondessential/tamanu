@@ -1,33 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Backend } from './backend';
 
-import {
-  StyledSafeAreaView,
-  StyledText,
-  StyledView,
-  CenterView,
-} from '~/ui/styled/common';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 
-export const BackendContext = React.createContext();
+export const BackendContext = React.createContext({ models: [] });
 
 const backend = new Backend();
 
-export const BackendProvider = ({ Component }) => {
-
+export const BackendProvider = ({ Component }): Element => {
   const [initialised, setInitialised] = useState(false);
 
   useEffect(() => {
-    (async () => {
+    (async (): Promise<void> => {
       await backend.initialise();
       setInitialised(true);
     })();
   }, [backend.randomId]);
 
-  if(!initialised) {
-    return (
-      <LoadingScreen text="Connecting to database..." />
-    );
+  if (!initialised) {
+    return <LoadingScreen />;
   }
 
   return (

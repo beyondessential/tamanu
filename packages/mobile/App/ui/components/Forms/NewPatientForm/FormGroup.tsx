@@ -6,7 +6,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 type FormGroupProps = {
   sectionName: string;
   children: ReactNode;
-  marginTop?: boolean;
+  marginTop?: boolean | null;
 };
 
 export const FormGroup = ({
@@ -32,4 +32,8 @@ export const FormGroup = ({
       </StyledView>
     </StyledView>
   );
+};
+
+FormGroup.defaultProps = {
+  marginTop: null,
 };

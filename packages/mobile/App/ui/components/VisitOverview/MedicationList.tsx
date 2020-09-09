@@ -5,7 +5,6 @@ import { theme } from '/styled/theme';
 import { MedicationProps } from '../../interfaces/MedicationProps';
 
 interface MedicationListItemProps {
-  id?: number;
   name: string;
   index: number;
 }
@@ -37,7 +36,7 @@ export const MedicationList = ({
   medications,
 }: {
   medications: MedicationProps[];
-}) => (
+}): JSX.Element => (
   <StyledView marginTop={20}>
     <StyledText fontSize={14} fontWeight={500}>
       Medication

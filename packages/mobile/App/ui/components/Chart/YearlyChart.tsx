@@ -97,8 +97,7 @@ export const YearlyChart = memo(
             >
               <BarChart
                 yAccessor={({ item }: { item: BarChartData }): number =>
-                  item.value
-                }
+                  item.value}
                 style={styles.barChartStyles}
                 data={data}
                 contentInset={verticalContentInset}
@@ -108,8 +107,7 @@ export const YearlyChart = memo(
             <XAxis
               style={styles.xAxis}
               formatLabel={(_, index: number): string =>
-                formatDate(data[index].date, DateFormats.SHORT_MONTH)
-              }
+                formatDate(data[index].date, DateFormats.SHORT_MONTH)}
               data={data}
               contentInset={styles.xAxisContent}
               svg={axesSvg}

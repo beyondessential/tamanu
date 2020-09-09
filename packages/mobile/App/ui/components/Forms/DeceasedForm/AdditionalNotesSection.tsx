@@ -10,7 +10,7 @@ export const AdditionalNotesSection = ({
   scrollToField,
 }: FormSectionProps): ReactElement => {
   return (
-    <React.Fragment>
+    <>
       <StyledView
         marginTop={screenPercentageToDP(2.42, Orientation.Height)}
         marginBottom={screenPercentageToDP(0.605, Orientation.Height)}
@@ -24,6 +24,6 @@ export const AdditionalNotesSection = ({
         returnKeyType="default"
         onFocus={scrollToField('additionalNotes')}
       />
-    </React.Fragment>
+    </>
   );
 };

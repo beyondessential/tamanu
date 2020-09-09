@@ -12,7 +12,7 @@ interface FamilyHistoryProps extends FamilyHistoryDataProps {
 }
 
 export const FamilyHistory = (props: FamilyHistoryProps): ReactElement => (
-  <React.Fragment>
+  <>
     <Separator width="100%" marginTop={20} />
     <StyledView marginTop={20}>
       <RowView alignItems="center" justifyContent="space-between">
@@ -29,5 +29,5 @@ export const FamilyHistory = (props: FamilyHistoryProps): ReactElement => (
           </RowView>
         ))}
     </StyledView>
-  </React.Fragment>
+  </>
 );

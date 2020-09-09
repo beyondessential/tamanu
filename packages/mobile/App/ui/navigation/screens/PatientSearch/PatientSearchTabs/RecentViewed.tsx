@@ -35,16 +35,16 @@ const Screen = ({
 
   const [list, error] = useBackendEffect(({ models }) => {
     return models.Patient.getRepository().find({
-      take: 10
+      take: 10,
     });
   });
 
-  if(error) {
+  if (error) {
     return <ErrorScreen error={error} />;
   }
 
-  if(!list) {
-    return <LoadingScreen text="Loading patients..." />;
+  if (!list) {
+    return <LoadingScreen />;
   }
 
   return (

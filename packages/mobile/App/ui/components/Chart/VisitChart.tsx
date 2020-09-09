@@ -10,10 +10,8 @@ import { BarChartData } from '../../interfaces/BarChartProps';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 interface CustomGridProps {
-  x?: (value: number) => number;
-  y?: (value: number) => number;
-  data?: any[];
-  ticks?: any[];
+  x: (value: number) => number;
+  data: any[];
 }
 
 const CustomGrid = memo(
@@ -183,7 +181,7 @@ export const VisitChart = memo(
               svg={barStyle}
               spacingInner={0.2}
             >
-              <CustomGrid />
+              <CustomGrid x={(): number => 0} data={[]} />
             </BarChart>
             <DateRangeLabels data={data} />
           </StyledView>

@@ -1,8 +1,14 @@
-import React, { useState, memo } from 'react';
-import { FullView, StyledText, StyledView } from '~/ui/styled/common';
+import React, { memo } from 'react';
+import { FullView, StyledText } from '~/ui/styled/common';
 import { theme } from '/styled/theme';
 
-export const ErrorScreen = memo(({ error }) => (
+interface Props {
+  error: {
+    message: string;
+  };
+}
+
+export const ErrorScreen: React.FC<Props> = memo(({ error }) => (
   <FullView>
     <StyledText fontWeight="bold">Error:</StyledText>
     <StyledText paddingLeft="12px" color={theme.colors.ALERT}>

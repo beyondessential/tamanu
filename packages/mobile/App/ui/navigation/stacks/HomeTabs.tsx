@@ -37,7 +37,7 @@ const Tabs = createBottomTabNavigator();
 
 interface TabIconProps {
   Icon: FC<IconWithSizeProps>;
-  focused: boolean;
+  color: string;
 }
 
 export function TabIcon({ Icon, color }: TabIconProps): JSX.Element {
@@ -100,7 +100,7 @@ function MyTabBar({
 
           const isFocused = state.index === index;
 
-          const onPress = () => {
+          const onPress = (): void => {
             const event = navigation.emit({
               type: 'tabPress',
               target: route.key,
@@ -112,7 +112,7 @@ function MyTabBar({
             }
           };
 
-          const onLongPress = () => {
+          const onLongPress = (): void => {
             navigation.emit({
               type: 'tabLongPress',
               target: route.key,
