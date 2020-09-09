@@ -1,26 +1,54 @@
+import mitt from 'mitt';
 import { Database } from '~/infra/db';
 
+import { generatePatient } from '~/dummyData/patients';
+
 const TARGET_DUMMY_PATIENT_COUNT = 50;
+const DUMMY_PATIENTS_PER_CHUNK = 5;
 
 interface SyncRecord {
-  type: string;
+  recordType: string;
+  data: any;
 }
 
 export class DummySyncSource {
 
   isSyncing = false; 
+  emitter = mitt();
 
   async isSyncAvailable(): Promise<bool> {
     // dummy logic, only importing patients at the moment
-    const repo = models.Patient.getRepository();
+    const repo = Database.models.Patient.getRepository();
     const count = await repo.count();
     return count < TARGET_DUMMY_PATIENT_COUNT;
   }
 
-  async syncRecord(record: SyncRecord) {
+  getModelForRecordType(recordType: string) {
+    const { models } = Database;
+
+    switch(recordType) {
+      case "patient":
+        return models.Patient;
+      case "program":
+        return models.Program;
+      default:
+        return null;
+    }
+  }
+
+  async syncRecord(syncRecord: SyncRecord) {
     // write one single downloaded record to the database
     // - dispatch to different record type importer functions somehow
     // - must allow for partial sync (create vs update/patch)
+
+    const { recordType, data } = syncRecord;
+    const model = this.getModelForRecordType(recordType);
+    if(!model) {
+      return;
+    }
+
+    const newRecord = await model.create(data);
+    this.emitter.emit("recordSynced", syncRecord);
   }
 
   async runScheduledSync() {
@@ -39,6 +67,15 @@ export class DummySyncSource {
     // - does initial sync work differently?
     //   - sync reference data
     //   - get all provisional patients
+    
+    const syncAvailable = await this.isSyncAvailable();
+    if(!syncAvailable) {
+      return;
+    }
+
+    this.emitter.emit("syncStarted");
+    await this.importDummyPatients(DUMMY_PATIENTS_PER_CHUNK);
+    this.emitter.emit("syncEnded");
   }
 
   // this is for when the user hits "sync this patient"
@@ -55,7 +92,10 @@ export class DummySyncSource {
     const dummyPatients = new Array(amount)
       .fill(0).map(x => generatePatient());
     const patients = await Promise.all(
-      dummyPatients.map(data => importPatient(models, data))
+      dummyPatients.map(data => this.syncRecord({
+        recordType: 'patient',
+        data,
+      })),
     );
   }
 
