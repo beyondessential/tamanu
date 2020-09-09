@@ -19,10 +19,13 @@ export const BackendProvider = ({ Component }) => {
 
   useEffect(() => {
     (async () => {
-      await backend.initialise();
+      backend.stopSyncService();
+      setInitialised(false);
+      await backend.initialise(Date.now());
       setInitialised(true);
     })();
-  }, [backend.randomId]);
+    return () => backend.stopSyncService();
+  }, [backend]);
 
   if(!initialised) {
     return (

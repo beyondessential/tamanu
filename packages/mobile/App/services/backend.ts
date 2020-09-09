@@ -1,27 +1,32 @@
 import { isCalculated } from '/helpers/fields';
-
 import { dummyPrograms } from '~/dummyData/programs';
 import { Database } from '~/infra/db';
 import { needsInitialPopulation, populateInitialData } from '~/infra/db/populate';
 
+import { DummySyncSource } from '~/services/sync';
+
 export class Backend {
-
-  constructor() {
-    this.responses = [];
-    this.initialised = false;
-    this.models = Database.models;
-
-    // keep a random id around so the provider can check if the backend object
-    // was regenerated - this should only happens via live reload (ie in development mode)
-    this.randomId = Math.random();
-  }
 
   async initialise() {
     await Database.connect();
     const { models } = Database;
-    if(await needsInitialPopulation(models)) {
-      await populateInitialData(models);
-    }
+    this.models = models;
+    this.syncSource = new DummySyncSource();
+
+    this.pollInterval = 0.1 * 60 * 1000;
+    this.startSyncService();
   }
 
+  startSyncService() {
+    this.interval = setInterval(() => {
+      this.syncSource.runScheduledSync();
+    }, this.pollInterval);
+  }
+
+  stopSyncService() {
+    if(!this.interval) {
+      return;
+    }
+    clearInterval(this.interval);
+  }
 }
