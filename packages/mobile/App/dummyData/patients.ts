@@ -1,5 +1,5 @@
 import { Chance } from 'chance';
-import { Gender, BloodTypes } from '/helpers/constants';
+import { BloodTypes } from '/helpers/constants';
 import { IPatient } from '~/types';
 
 const chance = new Chance();
@@ -16,7 +16,7 @@ const CITIES = [
 ];
 
 export const generatePatient = (): IPatient => {
-  const sex = (chance.bool() ? Gender[0] : Gender[1]).value;
+  const sex = chance.bool() ? 'male' : 'female';
   const [firstName, middleName, lastName] = chance
     .name({ middle: true, gender: sex })
     .split(' ');
