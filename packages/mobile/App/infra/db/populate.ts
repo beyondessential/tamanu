@@ -41,13 +41,11 @@ async function importSurvey(models, data): Promise<ISurvey> {
   const s = await Survey.create(surveyData);
 
   await Promise.all(
-    components.map((componentData, index) => {
-      return importComponent(models, {
-        ...componentData,
-        survey: s,
-        componentIndex: index,
-      });
-    }),
+    components.map((componentData, index) => importComponent(models, {
+      ...componentData,
+      survey: s,
+      componentIndex: index,
+    })),
   );
 
   return s;

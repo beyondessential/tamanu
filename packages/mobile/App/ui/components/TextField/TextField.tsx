@@ -54,7 +54,7 @@ export const TextField = React.memo(
     autoCapitalize = 'words',
     onFocus,
     onBlur,
-  }: TextFieldProps): JSX.Element => {
+  }: TextFieldProps): Element => {
     const [focused, setFocus] = useState(false);
     const inputRef: Ref<any> = useRef(null);
     const onFocusLabel = React.useCallback((): void => {
@@ -75,8 +75,7 @@ export const TextField = React.memo(
     const inputMarginTop = useMemo(() => {
       if (multiline) return 0;
       if (placeholder) return 0;
-      if (Platform.OS === 'ios')
-        return screenPercentageToDP(1, Orientation.Height);
+      if (Platform.OS === 'ios') return screenPercentageToDP(1, Orientation.Height);
       return screenPercentageToDP(0.5, Orientation.Height);
     }, []);
 

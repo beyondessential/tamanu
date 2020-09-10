@@ -5,7 +5,7 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 export const VitalsTableCell = ({
   children,
-}: PropsWithChildren<any>): JSX.Element => (
+}: PropsWithChildren<any>): Element => (
   <StyledView
     paddingLeft={screenPercentageToDP(3.64, Orientation.Height)}
     width="100%"

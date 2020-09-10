@@ -57,7 +57,7 @@ const VaccineIcon = ({
 interface VaccineTableCellProps {
   header: any;
   vaccine: IVaccine;
-  onPress: (item: any) => void;
+  onPress?: (item: any) => void;
 }
 
 const CellContent = ({ data }: { data: string | null }): ReactElement => (
@@ -76,9 +76,9 @@ const CellContent = ({ data }: { data: string | null }): ReactElement => (
 
 export const VaccineTableCell = ({
   vaccine,
-  onPress = (): null => null,
+  onPress,
   header,
-}: VaccineTableCellProps): JSX.Element => {
+}: VaccineTableCellProps): Element => {
   const onPressItem = useCallback(() => {
     const vaccineData = {
       ...vaccine,
@@ -94,4 +94,8 @@ export const VaccineTableCell = ({
   ) : (
     <CellContent data={null} />
   );
+};
+
+VaccineTableCell.defaultProps = {
+  onPress: (): null => null,
 };

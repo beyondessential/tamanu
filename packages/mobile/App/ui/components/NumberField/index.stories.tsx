@@ -7,15 +7,15 @@ import { NumberField } from './index';
 const stories = storiesOf('NumberField', module);
 
 stories.addDecorator(
-  (getStory: Function): JSX.Element => (
+  (getStory: Function): Element => (
     <KeyboardAwareView>
       <CenterView>{getStory()}</CenterView>
     </KeyboardAwareView>
   ),
 );
 
-stories.add('Active', (): JSX.Element => <NumberField label="Weight in kg" />);
+stories.add('Active', (): Element => <NumberField label="Weight in kg" />);
 stories.add(
   'With Error',
-  (): JSX.Element => <NumberField label="Weight in kg" error=" with error" />,
+  (): Element => <NumberField label="Weight in kg" error=" with error" />,
 );

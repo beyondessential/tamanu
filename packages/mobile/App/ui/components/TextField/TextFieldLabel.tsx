@@ -20,7 +20,7 @@ interface AnimatedText {
   pose: string;
 }
 
-const StyledAnimatedLabel = styled(StyledText)<AnimatedText>`
+const StyledAnimatedLabel = styled(StyledText) <AnimatedText>`
   font-size: ${screenPercentageToDP(1.94, Orientation.Height)};
   font-weight: 400;
   margin-bottom: 5;
@@ -42,7 +42,7 @@ export const TextFieldLabel = ({
   onFocus,
   isValueEmpty,
   error,
-}: LabelProps): JSX.Element => {
+}: LabelProps): Element => {
   function getColor(hasValue: boolean, errorMessage?: string): string {
     if (!errorMessage && hasValue) return theme.colors.TEXT_SOFT;
     if (errorMessage) return theme.colors.ALERT;

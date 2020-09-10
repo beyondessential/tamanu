@@ -36,7 +36,7 @@ export const MaskedTextField = React.memo(
     options,
     keyboardType,
     returnKeyType = 'done',
-  }: TextFieldProps): JSX.Element => {
+  }: TextFieldProps): Element => {
     const [focused, setFocus] = useState(false);
     const maskedInputRef: RefObject<any> = useRef(null);
     const onFocusInput = React.useCallback((): void => {

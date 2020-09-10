@@ -9,7 +9,7 @@ export const dropdownItems = [
 
 export const label = 'Type';
 
-export function BaseStory(): JSX.Element {
+export function BaseStory(): Element {
   const [selectedItem, setSelectedItem] = useState(null);
 
   return (

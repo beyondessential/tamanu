@@ -10,7 +10,7 @@ interface VitalsTableProps {
 }
 
 export const VitalsTable = memo(
-  ({ patientData }: VitalsTableProps): JSX.Element => (
+  ({ patientData }: VitalsTableProps): Element => (
     <Table
       columns={vitalsTableCols}
       Title={VitalsTableTitle}

@@ -101,14 +101,12 @@ const applyActiveFilters = (
   models,
   activeFilters: ActiveFiltersI,
   searchField: FieldInputProps<any>,
-): IPatient[] => {
-  return models.Patient.find({
-    order: {
-      lastName: 'ASC',
-      firstName: 'ASC',
-    },
-  });
-};
+): IPatient[] => models.Patient.find({
+  order: {
+    lastName: 'ASC',
+    firstName: 'ASC',
+  },
+});
 
 const Screen: FC<ViewAllScreenProps> = ({
   navigation,
@@ -119,18 +117,15 @@ const Screen: FC<ViewAllScreenProps> = ({
   // Get filters
   const filters = FilterArray.map(fieldName => useField(fieldName));
   const activeFilters = useMemo(
-    () =>
-      filters.reduce<ActiveFiltersI>(getActiveFilters, {
-        count: 0,
-        filters: {},
-      }),
+    () => filters.reduce<ActiveFiltersI>(getActiveFilters, {
+      count: 0,
+      filters: {},
+    }),
     [filters],
   );
 
   const [list, error] = useBackendEffect(
-    ({ models }) => {
-      return applyActiveFilters(models, activeFilters, searchField);
-    },
+    ({ models }) => applyActiveFilters(models, activeFilters, searchField),
     [searchField.value],
   );
 

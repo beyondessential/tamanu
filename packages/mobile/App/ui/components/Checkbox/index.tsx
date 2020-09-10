@@ -22,7 +22,7 @@ export const Checkbox = ({
   required,
   background,
   color,
-}: CheckboxProps): JSX.Element => {
+}: CheckboxProps): Element => {
   const ChangeCallback = useCallback(() => onChange(!value), [onChange, value]);
 
   const getColor = useCallback(() => {

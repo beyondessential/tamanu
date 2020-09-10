@@ -1,10 +1,10 @@
 import React from 'react';
-import {storiesOf} from '@storybook/react-native';
-import {UserAvatar, UserAvatarProps} from './index';
-import {CameraOutlineIcon, TakenOnTimeIcon} from '../Icons';
-import {CenterView, StyledView} from '/styled/common';
-import {theme} from '/styled/theme';
-import {screenPercentageToDP, Orientation} from '/helpers/screen';
+import { storiesOf } from '@storybook/react-native';
+import { UserAvatar, UserAvatarProps } from './index';
+import { CameraOutlineIcon, TakenOnTimeIcon } from '../Icons';
+import { CenterView, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 const makeUser = (image?: string, Icon?: any): UserAvatarProps => ({
   size: 25,

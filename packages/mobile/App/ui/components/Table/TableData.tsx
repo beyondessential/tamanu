@@ -18,7 +18,7 @@ export const TableData = ({
   columns,
   columnKey,
   onPressItem,
-}: TableDataProps): JSX.Element => (
+}: TableDataProps): Element => (
   <ScrollView
     bounces={false}
     scrollEnabled

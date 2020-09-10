@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
 
 export function KeyboardAwareView({
   children,
-}: PropsWithChildren<{}>): JSX.Element {
+}: PropsWithChildren<{}>): Element {
   return (
     <KeyboardAwareScrollView
       scrollEnabled={false}

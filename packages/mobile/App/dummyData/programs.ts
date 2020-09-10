@@ -33,15 +33,14 @@ function riskCalculation(patient, getf, getb): number {
   )
   */
 
-  const exp =
-    getCoeff(8) * (Math.log(age) - Math.log(getM(8))) +
-    getCoeff(9) * (Math.log(cholesterol * 38.67) - Math.log(getM(9))) -
-    getCoeff(10) * (Math.log(hdl * 38.67) - Math.log(getM(10))) +
-    (treatedHbp ? getCoeff(12) : getCoeff(11)) * Math.log(sbp) -
-    getCoeff(11) * Math.log(getM(11)) * (1 - getM(12)) -
-    getCoeff(12) * Math.log(getM(11)) * getM(12) +
-    getCoeff(13) * ((smoker ? 1 : 0) - getM(13)) +
-    getCoeff(14) * ((diabetes ? 1 : 0) - getM(14));
+  const exp = getCoeff(8) * (Math.log(age) - Math.log(getM(8)))
+    + getCoeff(9) * (Math.log(cholesterol * 38.67) - Math.log(getM(9)))
+    - getCoeff(10) * (Math.log(hdl * 38.67) - Math.log(getM(10)))
+    + (treatedHbp ? getCoeff(12) : getCoeff(11)) * Math.log(sbp)
+    - getCoeff(11) * Math.log(getM(11)) * (1 - getM(12))
+    - getCoeff(12) * Math.log(getM(11)) * getM(12)
+    + getCoeff(13) * ((smoker ? 1 : 0) - getM(13))
+    + getCoeff(14) * ((diabetes ? 1 : 0) - getM(14));
 
   const base = getM(15);
   const risk = 1 - base ** Math.exp(exp);
@@ -121,9 +120,7 @@ const ncdSurvey = {
       text:
         'If known, what type of diabetes has the patient been diagnosed with?',
       options: 'Type 1,Type 2',
-      visibilityCriteria: (answers): boolean => {
-        return answers.NCDScreen10;
-      },
+      visibilityCriteria: (answers): boolean => answers.NCDScreen10,
     },
     {
       id: 'NCDScreen12',
@@ -150,8 +147,8 @@ const ncdSurvey = {
       calculation: (patient, answers): number => {
         const { NCDScreen13, NCDScreen14 } = answers;
         return (
-          parseFloat(NCDScreen13) /
-          (parseFloat(NCDScreen14) * parseFloat(NCDScreen14))
+          parseFloat(NCDScreen13)
+          / (parseFloat(NCDScreen14) * parseFloat(NCDScreen14))
         );
       },
       text: "What is the patient's calculated Body Mass Index (BMI)?",

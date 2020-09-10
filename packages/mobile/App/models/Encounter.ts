@@ -17,10 +17,7 @@ export class Encounter extends BaseModel implements IEncounter {
   @Column()
   reasonForEncounter: string;
 
-  @ManyToOne(
-    type => Patient,
-    patient => patient.encounters,
-  )
+  @ManyToOne(type => Patient, patient => patient.encounters)
   patient: Patient;
 
   // other FKs TODO: examiner, department, location

@@ -11,7 +11,7 @@ interface AccordionListProps {
 
 export const AccordionList = ({
   dataArray,
-}: AccordionListProps): JSX.Element => {
+}: AccordionListProps): Element => {
   const [activeSections, setActiveSections] = useState<number[]>([]);
 
   const updateSections = (newActiveSection: number[]): void => {

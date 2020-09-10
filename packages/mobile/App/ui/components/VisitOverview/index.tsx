@@ -9,7 +9,7 @@ import { Diagnosis } from './Diagnosis';
 import { TreatmentPlan } from './TreatmentPlan';
 import { VisitOverviewProps } from '../../interfaces/VisitOverview';
 
-export const VisitOverview = (section: VisitOverviewProps): JSX.Element => (
+export const VisitOverview = (section: VisitOverviewProps): Element => (
   <StyledView
     width="100%"
     height="100%"

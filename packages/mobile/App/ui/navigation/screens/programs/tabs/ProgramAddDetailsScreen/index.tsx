@@ -31,8 +31,8 @@ export const ProgramAddDetailsScreen = ({
     [containerScrollView],
   );
 
-  const [survey, error] = useBackendEffect(({ models }) =>
-    models.Survey.getRepository().findOne(surveyId),
+  const [survey, error] = useBackendEffect(
+    ({ models }) => models.Survey.getRepository().findOne(surveyId),
   );
 
   const { models } = useBackend();

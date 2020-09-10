@@ -11,7 +11,7 @@ interface CircularProgressProps {
 
 export const CircularProgress = ({
   progress,
-}: CircularProgressProps): JSX.Element => (
+}: CircularProgressProps): Element => (
   <StyledView
     height={screenPercentageToDP('13.73', Orientation.Height)}
     width={screenPercentageToDP('13.73', Orientation.Height)}

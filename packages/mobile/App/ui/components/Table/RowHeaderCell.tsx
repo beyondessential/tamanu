@@ -8,7 +8,7 @@ interface RowHeaderCellProps {
 
 export const RowHeaderCell = ({
   children,
-}: RowHeaderCellProps): JSX.Element => (
+}: RowHeaderCellProps): Element => (
   <StyledView
     width={130}
     borderRightWidth={1}

@@ -32,7 +32,7 @@ export const ViewRouteTexts = {
   third: 'Third Route',
 };
 
-export const FirstRoute = (): JSX.Element => (
+export const FirstRoute = (): Element => (
   <StyledView flex={1} background="#ff4081" justifyContent="center">
     <StyledText textAlign="center" fontSize={25} color={theme.colors.WHITE}>
       {ViewRouteTexts.first}
@@ -40,14 +40,14 @@ export const FirstRoute = (): JSX.Element => (
   </StyledView>
 );
 
-export const SecondRoute = (): JSX.Element => (
+export const SecondRoute = (): Element => (
   <StyledView flex={1} background="#673ab7" justifyContent="center">
     <StyledText textAlign="center" fontSize={25} color={theme.colors.WHITE}>
       {ViewRouteTexts.second}
     </StyledText>
   </StyledView>
 );
-export const ThirdRoute = (): JSX.Element => (
+export const ThirdRoute = (): Element => (
   <StyledView flex={1} background="purple" justifyContent="center">
     <StyledText textAlign="center" fontSize={25} color={theme.colors.WHITE}>
       {ViewRouteTexts.third}
@@ -55,7 +55,7 @@ export const ThirdRoute = (): JSX.Element => (
   </StyledView>
 );
 
-export const Visits = (): JSX.Element => (
+export const Visits = (): Element => (
   <StyledView
     flex={1}
     background="#ff4081"
@@ -68,7 +68,7 @@ export const Visits = (): JSX.Element => (
   </StyledView>
 );
 
-export const Vitals = (): JSX.Element => (
+export const Vitals = (): Element => (
   <StyledView
     flex={1}
     background="#673ab7"
@@ -81,7 +81,7 @@ export const Vitals = (): JSX.Element => (
   </StyledView>
 );
 
-export const Vaccines = (): JSX.Element => (
+export const Vaccines = (): Element => (
   <StyledView
     flex={1}
     background="red"
@@ -104,7 +104,7 @@ export const App = (): ReactElement => (
   </Tabs.Navigator>
 );
 
-export function VaccineTabBaseStory(): JSX.Element {
+export function VaccineTabBaseStory(): Element {
   const [state, setState] = useState({
     index: 0,
     routes,

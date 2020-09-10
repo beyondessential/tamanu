@@ -28,7 +28,7 @@ export const RadioButtonGroup = ({
   error,
   label,
   CustomComponent,
-}: RadioButtonGroupProps): JSX.Element => {
+}: RadioButtonGroupProps): Element => {
   const RadioComponent = CustomComponent || RadioButton;
 
   return (

@@ -6,7 +6,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 type FormGroupProps = {
   sectionName: string;
   children: ReactNode;
-  marginTop?: boolean | null;
+  marginTop?: boolean;
 };
 
 export const FormGroup = ({

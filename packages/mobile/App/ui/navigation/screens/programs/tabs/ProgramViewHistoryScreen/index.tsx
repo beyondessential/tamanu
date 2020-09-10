@@ -20,13 +20,12 @@ const SurveyResponseItem = ({
 }): ReactElement => {
   const navigation = useNavigation();
   const onPress = useCallback(
-    () =>
-      navigation.navigate(
-        Routes.HomeStack.ProgramStack.SurveyResponseDetailsScreen,
-        {
-          surveyResponseId: surveyResponse.id,
-        },
-      ),
+    () => navigation.navigate(
+      Routes.HomeStack.ProgramStack.SurveyResponseDetailsScreen,
+      {
+        surveyResponseId: surveyResponse.id,
+      },
+    ),
     [],
   );
 

@@ -11,8 +11,8 @@ export type Column = {
     row: any,
     onPress?: (item: any) => void,
     column?: any,
-  ) => JSX.Element;
-  rowHeader: (row: any, column?: any) => JSX.Element;
+  ) => Element;
+  rowHeader: (row: any, column?: any) => Element;
 };
 
 interface TableProps {
@@ -31,7 +31,7 @@ export const Table = ({
   tableHeader,
   columnKey,
   onPressItem,
-}: TableProps): JSX.Element => (
+}: TableProps): Element => (
   <RowView>
     <StyledView>
       <Title />

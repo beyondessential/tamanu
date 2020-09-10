@@ -26,7 +26,7 @@ interface PickerPropsIOS {
   items: SelectOption[];
   open: boolean;
   onChange: Function;
-  selectedItem: string | null;
+  selectedItem: string;
   closeModal: () => void;
   disabled: boolean;
 }

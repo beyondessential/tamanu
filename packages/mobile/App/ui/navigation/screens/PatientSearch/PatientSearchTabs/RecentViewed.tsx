@@ -33,11 +33,9 @@ const Screen = ({
   /** Get Search Input */
   const [field] = useField('search');
 
-  const [list, error] = useBackendEffect(({ models }) => {
-    return models.Patient.getRepository().find({
-      take: 10,
-    });
-  });
+  const [list, error] = useBackendEffect(({ models }) => models.Patient.getRepository().find({
+    take: 10,
+  }));
 
   if (error) {
     return <ErrorScreen error={error} />;

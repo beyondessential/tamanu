@@ -34,20 +34,18 @@ const IOSDatePicker = ({
   onDateChange,
   isVisible,
   mode,
-}: IOSDatePickerProps): ReactElement | null => {
-  return isVisible ? (
-    <DateTimePicker
-      value={new Date()}
-      mode={mode}
-      display="spinner"
-      onChange={onDateChange}
-      style={styles.androidPickerStyles}
-    />
-  ) : null;
-};
+}: IOSDatePickerProps): ReactElement => (isVisible ? (
+  <DateTimePicker
+    value={new Date()}
+    mode={mode}
+    display="spinner"
+    onChange={onDateChange}
+    style={styles.androidPickerStyles}
+  />
+) : null);
 
 export interface DateFieldProps extends BaseInputProps {
-  value: Date | null;
+  value: Date;
   onChange: (date: Date) => void;
   placeholder?: '' | string;
   mode?: 'date' | 'time';
@@ -94,8 +92,7 @@ export const DateField = React.memo(
       [onChange],
     );
 
-    const IconComponent =
-      mode === 'date' ? Icons.CalendarIcon : Icons.ClockIcon;
+    const IconComponent = mode === 'date' ? Icons.CalendarIcon : Icons.ClockIcon;
 
     return (
       <StyledView width="100%">

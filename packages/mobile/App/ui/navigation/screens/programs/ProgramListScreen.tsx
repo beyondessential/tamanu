@@ -21,9 +21,7 @@ interface ProgramListScreenProps {
 const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   const navigation = useNavigation();
 
-  const [surveys, error] = useBackendEffect(({ models }) =>
-    models.Survey.find({}),
-  );
+  const [surveys, error] = useBackendEffect(({ models }) => models.Survey.find({}));
 
   const goBack = useCallback(() => {
     navigation.goBack();

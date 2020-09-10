@@ -18,14 +18,13 @@ export const Field = ({
   disabled = false,
   options,
   ...rest
-}: FieldProps): JSX.Element => {
+}: FieldProps): Element => {
   const [field, meta] = useField(name);
   return (
     <FormikField
       as={component}
       name={name}
-      onChange={(newValue: any): any =>
-        field.onChange({ target: { name, value: newValue } })}
+      onChange={(newValue: any): any => field.onChange({ target: { name, value: newValue } })}
       value={field.value}
       label={label}
       error={meta.touched && meta.error}

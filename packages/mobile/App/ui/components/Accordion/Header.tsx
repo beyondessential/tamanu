@@ -14,7 +14,7 @@ interface IconProps {
   height: number;
 }
 
-const StatusIcon = ({ IconComponent, ...rest }: IconProps): JSX.Element => (
+const StatusIcon = ({ IconComponent, ...rest }: IconProps): Element => (
   <IconComponent {...rest} />
 );
 
@@ -24,7 +24,7 @@ interface HeaderRightIconContainerProps {
 
 const HeaderRightIconContainer = ({
   isActive,
-}: HeaderRightIconContainerProps): JSX.Element => (
+}: HeaderRightIconContainerProps): Element => (
   <StyledView>
     <StatusIcon
       height={12}
@@ -39,7 +39,7 @@ interface HeaderDateProps {
   isActive: boolean;
 }
 
-const HeaderDate = ({ date, isActive }: HeaderDateProps): JSX.Element => (
+const HeaderDate = ({ date, isActive }: HeaderDateProps): Element => (
   <StyledText
     fontSize={14}
     color={isActive ? theme.colors.WHITE : theme.colors.TEXT_DARK}
@@ -53,7 +53,7 @@ interface HeaderIconProps {
   type: string;
 }
 
-const HeaderLeftIcon = ({ isActive, type }: HeaderIconProps): JSX.Element => {
+const HeaderLeftIcon = ({ isActive, type }: HeaderIconProps): Element => {
   const fill = isActive ? theme.colors.WHITE : theme.colors.PRIMARY_MAIN;
   const Icon = HeaderIcons[type];
   return (
@@ -72,7 +72,7 @@ const HeaderDescription = ({
   isActive,
   typeDescription,
   location,
-}: HeaderDescriptionProps): JSX.Element => (
+}: HeaderDescriptionProps): Element => (
   <ColumnView flex={1}>
     <StyledText
       color={isActive ? theme.colors.WHITE : theme.colors.MAIN_SUPER_DARK}
@@ -81,13 +81,13 @@ const HeaderDescription = ({
     >
       {type}
       {typeDescription && (
-        <StyledText
-          color={isActive ? theme.colors.WHITE : theme.colors.TEXT_MID}
-          fontWeight={400}
-        >
-          {' '}
-          {typeDescription}
-        </StyledText>
+      <StyledText
+        color={isActive ? theme.colors.WHITE : theme.colors.TEXT_MID}
+        fontWeight={400}
+      >
+        {' '}
+        {typeDescription}
+      </StyledText>
       )}
     </StyledText>
     <StyledView marginTop={1}>
@@ -104,13 +104,13 @@ const Header = (
   section: VisitOverviewProps,
   index: number,
   isActive: boolean,
-): JSX.Element => (
+): Element => (
   <StyledView>
     <RowView
       width="100%"
       background={
-        isActive ? theme.colors.MAIN_SUPER_DARK : theme.colors.BACKGROUND_GREY
-      }
+          isActive ? theme.colors.MAIN_SUPER_DARK : theme.colors.BACKGROUND_GREY
+        }
       height={60}
       alignItems="center"
       paddingLeft={20}

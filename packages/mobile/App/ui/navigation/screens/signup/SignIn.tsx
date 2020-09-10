@@ -23,6 +23,7 @@ import { Routes } from '/helpers/routes';
 import { ModalInfo } from '/components/ModalInfo';
 import UserContext from '/contexts/UserContext';
 import { authSelector } from '/helpers/selectors';
+import { SignInFormModel } from '~/ui/interfaces/forms/SignInFormProps';
 
 export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const userCtx = useContext(UserContext);
@@ -44,7 +45,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
     onChangeModalVisibility(true);
   }, []);
 
-  const onSubmitForm = useCallback(async () => {
+  const onSubmitForm = useCallback(async (form: SignInFormModel) => {
     try {
       // await authCtx.signIn(form.email, form.password);
       await userCtx.getUserData();

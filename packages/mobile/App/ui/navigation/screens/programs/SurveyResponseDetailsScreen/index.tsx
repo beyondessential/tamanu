@@ -32,9 +32,8 @@ function getAnswerText(question, answer): string | number {
   }
 }
 
-const isCalculated = (question): Element =>
-  question.type === FieldTypes.CALCULATED ||
-  question.type === FieldTypes.RESULT;
+const isCalculated = (question): Element => question.type === FieldTypes.CALCULATED
+  || question.type === FieldTypes.RESULT;
 
 const AnswerItem = ({ question, answer, index }): Element => (
   <StyledView

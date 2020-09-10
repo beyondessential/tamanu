@@ -9,7 +9,7 @@ interface VaccineRowHeaderProps {
 
 export const VaccineRowHeader = ({
   row,
-}: VaccineRowHeaderProps): JSX.Element => (
+}: VaccineRowHeaderProps): Element => (
   <StyledView
     key={row.key}
     width={130}
@@ -25,9 +25,9 @@ export const VaccineRowHeader = ({
       {row.title}
     </StyledText>
     {row.subtitle && (
-      <StyledText fontSize={13} color={theme.colors.TEXT_MID}>
-        {row.subtitle}
-      </StyledText>
+    <StyledText fontSize={13} color={theme.colors.TEXT_MID}>
+      {row.subtitle}
+    </StyledText>
     )}
   </StyledView>
 );

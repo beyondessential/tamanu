@@ -38,7 +38,7 @@ const isFirstStep = (step: number): void => {
   }
 };
 
-export const Intro = (props: IntroScreenProps): JSX.Element => {
+export const Intro = (props: IntroScreenProps): Element => {
   const { navigation, route } = props;
   const { user, title, message, step, nextRoute } = route.params;
 

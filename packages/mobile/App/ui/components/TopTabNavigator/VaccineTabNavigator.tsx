@@ -27,7 +27,7 @@ type State = NavigationState<CustomRoute>;
 type TabBarProps = SceneRendererProps & { navigationState: State };
 
 const TabLabel = React.memo(
-  ({ route, focused }: LabelProps): JSX.Element => {
+  ({ route, focused }: LabelProps): Element => {
     const Icon: FunctionComponent<IconWithSizeProps> = route.icon;
     return (
       <StyledView
@@ -57,7 +57,7 @@ const TabLabel = React.memo(
   },
 );
 
-const VaccineTabLabel = (props: LabelProps): JSX.Element => (
+const VaccineTabLabel = (props: LabelProps): Element => (
   <TabLabel {...props} />
 );
 
@@ -83,7 +83,7 @@ const TabBarStyle = StyleSheet.create({
 });
 
 const CustomTabBar = React.memo(
-  (props: TabBarProps): JSX.Element => {
+  (props: TabBarProps): Element => {
     const {
       navigationState: { routes, index },
     } = props;
@@ -100,7 +100,7 @@ const CustomTabBar = React.memo(
   },
 );
 
-const renderTabBar = (props: TabBarProps): JSX.Element => (
+const renderTabBar = (props: TabBarProps): Element => (
   <CustomTabBar {...props} />
 );
 
@@ -119,7 +119,7 @@ const TabViewStyle = StyleSheet.create({
 });
 
 export const VaccineTabNavigator = React.memo(
-  ({ state, scenes, onChangeTab }: VaccineTabNavigator): JSX.Element => (
+  ({ state, scenes, onChangeTab }: VaccineTabNavigator): Element => (
     <TabView
       navigationState={state}
       renderScene={SceneMap(scenes)}

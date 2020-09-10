@@ -28,10 +28,7 @@ export class SurveyScreenComponent extends BaseModel
   @Column({ nullable: true })
   options?: string;
 
-  @ManyToOne(
-    type => Survey,
-    survey => survey.components,
-  )
+  @ManyToOne(type => Survey, survey => survey.components)
   survey: Survey;
 
   @ManyToOne(type => ProgramDataElement)
@@ -55,10 +52,7 @@ export class Survey extends BaseModel implements ISurvey {
   @Column()
   name: string;
 
-  @ManyToOne(
-    type => Program,
-    program => program.surveys,
-  )
+  @ManyToOne(type => Program, program => program.surveys)
   program: Program;
 
   components: any;

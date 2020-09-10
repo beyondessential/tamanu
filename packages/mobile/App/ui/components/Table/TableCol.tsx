@@ -14,7 +14,7 @@ export const TableCol = ({
   row,
   tableHeader,
   onPressItem,
-}: TableColProps): JSX.Element => (
+}: TableColProps): Element => (
   <StyledView>
     {tableHeader.accessor(row, onPressItem)}
     {columns.map(c => c.accessor(row, onPressItem, c))}

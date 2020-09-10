@@ -25,7 +25,7 @@ export const PatientTile = ({
   image,
   lastVisit,
   dateOfBirth,
-}: PatientTileProps): JSX.Element => (
+}: PatientTileProps): Element => (
   <RowView
     paddingTop={screenPercentageToDP('2', Orientation.Height)}
     paddingBottom={screenPercentageToDP('2', Orientation.Height)}
@@ -61,12 +61,12 @@ export const PatientTile = ({
       </StyledText>
     </StyledView>
     {lastVisit && (
-      <StyledText
-        marginRight={screenPercentageToDP('7.59', Orientation.Width)}
-        color={theme.colors.TEXT_MID}
-      >
-        Last viewed {formatDate(lastVisit, DateFormats.DAY_MONTH_YEAR_SHORT)}
-      </StyledText>
+    <StyledText
+      marginRight={screenPercentageToDP('7.59', Orientation.Width)}
+      color={theme.colors.TEXT_MID}
+    >
+      Last viewed {formatDate(lastVisit, DateFormats.DAY_MONTH_YEAR_SHORT)}
+    </StyledText>
     )}
   </RowView>
 );

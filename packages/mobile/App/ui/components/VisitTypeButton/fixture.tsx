@@ -3,7 +3,7 @@ import { RowView } from '/styled/common';
 import { VisitTypeButton } from './index';
 import { HeaderIcons, VisitTypes } from '/helpers/constants';
 
-export function VisitButtonList(): JSX.Element {
+export function VisitButtonList(): Element {
   const [selectedType, selectType] = useState<string>('');
   const setType = useCallback(type => {
     selectType(type);

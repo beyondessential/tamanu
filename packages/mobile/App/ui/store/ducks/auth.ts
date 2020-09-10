@@ -11,8 +11,8 @@ export interface WithAuthActions {
 }
 
 export interface AuthStateProps {
-  token: string | null;
-  user: IUser | null;
+  token: string;
+  user: IUser;
   signedIn: boolean;
   isFirstTime: boolean;
 }

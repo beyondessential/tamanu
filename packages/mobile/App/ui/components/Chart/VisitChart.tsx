@@ -15,22 +15,21 @@ interface CustomGridProps {
 }
 
 const CustomGrid = memo(
-  ({ x, data }: CustomGridProps): JSX.Element => (
+  ({ x, data }: CustomGridProps): Element => (
     <G>
-      {data &&
-        data.map(
-          (_, index: number) =>
-            index % 7 === 0 && (
-              <Line
-                strokeDasharray="4, 4"
-                key={data[index].date.toString()}
-                y1="0%"
-                y2="100%"
-                x1={x && x(index) - 2}
-                x2={x && x(index) - 2}
-                stroke={theme.colors.TEXT_DARK}
-              />
-            ),
+      {data
+        && data.map(
+          (_, index: number) => index % 7 === 0 && (
+          <Line
+            strokeDasharray="4, 4"
+            key={data[index].date.toString()}
+            y1="0%"
+            y2="100%"
+            x1={x && x(index) - 2}
+            x2={x && x(index) - 2}
+            stroke={theme.colors.TEXT_DARK}
+          />
+          ),
         )}
     </G>
   ),
@@ -61,12 +60,11 @@ interface DateRangeLabelsProps {
 
 const DateRangeLabels = memo(({ data }: DateRangeLabelsProps) => {
   const dateIntervalArray = useMemo(
-    () =>
-      DateRangeIndexes.map((dateRange, index) => ({
-        start: data[dateRange.startDate].date,
-        end: data[dateRange.endDate].date,
-        key: index,
-      })),
+    () => DateRangeIndexes.map((dateRange, index) => ({
+      start: data[dateRange.startDate].date,
+      end: data[dateRange.endDate].date,
+      key: index,
+    })),
     [data],
   );
 
@@ -123,7 +121,7 @@ const verticalContentInset = { top: 10, right: 0, bottom: 0 };
 const axesSvg = { fontSize: 12, fill: theme.colors.TEXT_DARK };
 
 export const VisitChart = memo(
-  ({ data }: BarChartProps): JSX.Element => (
+  ({ data }: BarChartProps): Element => (
     <StyledView>
       <RowView
         marginTop={screenPercentageToDP(4.25, Orientation.Height)}
@@ -173,8 +171,7 @@ export const VisitChart = memo(
           <StyledView flex={1}>
             <BarChart
               style={styles.barChartStyles}
-              yAccessor={({ item }: { item: BarChartData }): number =>
-                item.value
+              yAccessor={({ item }: { item: BarChartData }): number => item.value
               }
               animate
               data={data}

@@ -21,7 +21,7 @@ export const PatientMenuButton = ({
   title,
   Icon,
   onPress,
-}: PatientMenuButton): JSX.Element => (
+}: PatientMenuButton): Element => (
   <TouchableHighlight
     underlayColor={theme.colors.BOX_OUTLINE}
     onPress={onPress}

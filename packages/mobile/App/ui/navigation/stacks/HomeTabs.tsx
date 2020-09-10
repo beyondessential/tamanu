@@ -40,7 +40,7 @@ interface TabIconProps {
   color: string;
 }
 
-export function TabIcon({ Icon, color }: TabIconProps): JSX.Element {
+export function TabIcon({ Icon, color }: TabIconProps): Element {
   return (
     <StyledView>
       <Icon
@@ -132,8 +132,8 @@ function MyTabBar({
                 justifyContent="center"
                 flex={1}
               >
-                {Icon &&
-                  Icon({
+                {Icon
+                  && Icon({
                     focused: isFocused,
                     color: isFocused
                       ? theme.colors.SECONDARY_MAIN
@@ -158,31 +158,29 @@ function MyTabBar({
   );
 }
 
-const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
-  return (
-    <Tabs.Navigator tabBar={MyTabBar}>
-      <Tabs.Screen
-        options={HomeScreenOptions}
-        name={Routes.HomeStack.HomeTabs.Home}
-        component={selectedPatient ? PatientHome : HomeScreen}
-      />
-      <Tabs.Screen
-        options={ReportScreenOptions}
-        name={Routes.HomeStack.HomeTabs.Reports}
-        component={ReportScreen}
-      />
-      <Tabs.Screen
-        options={SyncDataScreenOptions}
-        name={Routes.HomeStack.HomeTabs.SyncData}
-        component={SyncDataScreen}
-      />
-      <Tabs.Screen
-        options={MoreScreenOptions}
-        name={Routes.HomeStack.HomeTabs.More}
-        component={MoreScreen}
-      />
-    </Tabs.Navigator>
-  );
-};
+const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => (
+  <Tabs.Navigator tabBar={MyTabBar}>
+    <Tabs.Screen
+      options={HomeScreenOptions}
+      name={Routes.HomeStack.HomeTabs.Home}
+      component={selectedPatient ? PatientHome : HomeScreen}
+    />
+    <Tabs.Screen
+      options={ReportScreenOptions}
+      name={Routes.HomeStack.HomeTabs.Reports}
+      component={ReportScreen}
+    />
+    <Tabs.Screen
+      options={SyncDataScreenOptions}
+      name={Routes.HomeStack.HomeTabs.SyncData}
+      component={SyncDataScreen}
+    />
+    <Tabs.Screen
+      options={MoreScreenOptions}
+      name={Routes.HomeStack.HomeTabs.More}
+      component={MoreScreen}
+    />
+  </Tabs.Navigator>
+);
 
 export const HomeTabsStack = compose(withPatient)(TabNavigator);

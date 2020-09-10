@@ -21,7 +21,7 @@ interface PatientSectionListProps {
   patients: PatientSectionListItem[];
 }
 
-const ListSeparator = (): JSX.Element => (
+const ListSeparator = (): Element => (
   <StyledView
     height={StyleSheet.hairlineWidth}
     background={theme.colors.DEFAULT_OFF}
@@ -32,12 +32,12 @@ const ListSeparator = (): JSX.Element => (
 export const PatientSectionList = ({
   patients,
   onPressItem = (): null => null,
-}: PatientSectionListProps): JSX.Element => {
+}: PatientSectionListProps): Element => {
   const ref: RefObject<LargeList> = useRef(null);
 
   const groupedPatients = useMemo(
     () => groupEntriesByLetter(patients),
-    [patients]
+    [patients],
   );
 
   const scrollToSection = useCallback(
@@ -76,7 +76,7 @@ export const PatientSectionList = ({
   const renderItem = React.useCallback(
     ({ section, row }) => {
       const patient = groupedPatients[section].items[row];
-      const onPress = (): void => onPressItem(patient)
+      const onPress = (): void => onPressItem(patient);
       return (
         <TouchableOpacity onPress={onPress}>
           <StyledView

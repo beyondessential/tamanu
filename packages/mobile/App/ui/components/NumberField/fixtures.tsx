@@ -1,7 +1,7 @@
 import React from 'react';
 import { NumberField, NumberFieldProps } from './index';
 
-export function BaseNumberFieldStory(props: NumberFieldProps): JSX.Element {
+export function BaseNumberFieldStory(props: NumberFieldProps): Element {
   return (
     <NumberField
       label={props.label}

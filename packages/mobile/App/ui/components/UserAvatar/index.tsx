@@ -6,10 +6,10 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 export interface UserAvatarProps {
   image?: string;
-  displayName: string | null;
-  gender: string | null;
+  displayName: string;
+  gender: string;
   size: number;
-  Icon?: JSX.Element;
+  Icon?: Element;
 }
 
 export const UserAvatar = ({
@@ -18,7 +18,7 @@ export const UserAvatar = ({
   gender,
   size,
   Icon,
-}: UserAvatarProps): JSX.Element => {
+}: UserAvatarProps): Element => {
   const userInitials: string = React.useMemo(
     () => (displayName ? getUserInitials(displayName) : 'user'),
     [displayName],

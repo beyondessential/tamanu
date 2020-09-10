@@ -17,16 +17,10 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @Column()
   result: number;
 
-  @ManyToOne(
-    type => Survey,
-    survey => survey.responses,
-  )
+  @ManyToOne(type => Survey, survey => survey.responses)
   survey: Survey;
 
-  @ManyToOne(
-    type => Encounter,
-    encounter => encounter.surveyResponses,
-  )
+  @ManyToOne(type => Encounter, encounter => encounter.surveyResponses)
   encounter: Encounter;
 
   static async submit(patientId, surveyData, values): Promise<SurveyResponse> {
@@ -49,13 +43,11 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     });
 
     const answers = await Promise.all(
-      Object.entries(values).map(([dataElementId, value]) =>
-        SurveyResponseAnswer.create({
-          dataElementId,
-          body: `${value}`,
-          response: responseRecord.id,
-        }),
-      ),
+      Object.entries(values).map(([dataElementId, value]) => SurveyResponseAnswer.create({
+        dataElementId,
+        body: `${value}`,
+        response: responseRecord.id,
+      })),
     );
 
     return responseRecord;
@@ -68,15 +60,9 @@ export class SurveyResponseAnswer extends BaseModel
   @Column()
   body: string;
 
-  @ManyToOne(
-    type => SurveyResponse,
-    surveyResponse => surveyResponse.answers,
-  )
+  @ManyToOne(type => SurveyResponse, surveyResponse => surveyResponse.answers)
   response: SurveyResponse;
 
-  @ManyToOne(
-    type => ProgramDataElement,
-    dataElement => dataElement.answers,
-  )
+  @ManyToOne(type => ProgramDataElement, dataElement => dataElement.answers)
   dataElement: ProgramDataElement;
 }

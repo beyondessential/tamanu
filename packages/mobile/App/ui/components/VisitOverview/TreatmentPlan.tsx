@@ -6,7 +6,7 @@ export const TreatmentPlan = ({
   treatment,
 }: {
   treatment: string;
-}): JSX.Element => (
+}): Element => (
   <ColumnView marginTop={20}>
     <StyledText fontSize={14} fontWeight={500} marginBottom="5px">
       Treatment plan

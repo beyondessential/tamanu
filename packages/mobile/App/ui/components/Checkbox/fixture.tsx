@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Checkbox } from './index';
 
-export function BaseStory(): JSX.Element {
+export function BaseStory(): Element {
   const [state, setState] = useState(false);
   return (
     <Checkbox

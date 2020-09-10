@@ -9,8 +9,8 @@ import { MaskedTextField } from './MaskedTextField';
 interface BaseStoryProps {
   label?: string;
   error?: string;
-  options?: TextInputMaskOptionProp | null;
-  maskType?: TextInputMaskTypeProp | null;
+  options?: TextInputMaskOptionProp;
+  maskType?: TextInputMaskTypeProp;
   multiline?: boolean;
 }
 
@@ -26,7 +26,7 @@ export function BaseTextFieldStory({
   label,
   error,
   multiline,
-}: BaseStoryProps): JSX.Element {
+}: BaseStoryProps): Element {
   const [text, setText] = useState('');
   const onChangeText = (newText: string): void => {
     setText(newText);
@@ -49,7 +49,7 @@ export function BaseMaskedTextFieldStory({
   error,
   maskType,
   options,
-}: BaseStoryProps): JSX.Element {
+}: BaseStoryProps): Element {
   const [text, setText] = useState('');
   const onChange = (newText: string): void => {
     setText(newText);

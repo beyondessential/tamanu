@@ -46,18 +46,18 @@ export type SubmitButtonsProps = {
   onCancel: () => void;
 };
 type VaccineFormInitialValues = {
-  date?: Date | null;
-  reason?: string | null;
-  type?: string | null;
+  date?: Date;
+  reason?: string;
+  type?: string;
   batch?: string;
-  manufacture?: string | null;
-  administered?: string | null;
+  manufacture?: string;
+  administered?: string;
 };
 interface VaccineForm {
   initialValues: VaccineFormInitialValues;
   type: string;
   onSubmit: (values: any) => void;
-  SubmitButtons?: FC<SubmitButtonsProps> | null;
+  SubmitButtons?: FC<SubmitButtonsProps>;
   onCancel: () => void;
 }
 
@@ -80,7 +80,7 @@ export const VaccineForm = ({
   onSubmit,
   onCancel,
   SubmitButtons,
-}: VaccineForm): JSX.Element => {
+}: VaccineForm): Element => {
   const { Form, fieldOptions } = useMemo(() => getFormType(type), [type]);
   return (
     <FullView>
@@ -88,7 +88,7 @@ export const VaccineForm = ({
         onSubmit={onSubmit}
         initialValues={createInitialValues(initialValues)}
       >
-        {({ handleSubmit }): JSX.Element => (
+        {({ handleSubmit }): Element => (
           <FullView>
             <Form {...fieldOptions} />
             {SubmitButtons && (
@@ -102,5 +102,5 @@ export const VaccineForm = ({
 };
 
 VaccineForm.defaultProps = {
-  SubmitButtons: null,
+  SubmitButtons: undefined,
 };

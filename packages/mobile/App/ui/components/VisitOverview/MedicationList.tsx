@@ -12,7 +12,7 @@ interface MedicationListItemProps {
 const MedicationListItem = ({
   name,
   index,
-}: MedicationListItemProps): JSX.Element => (
+}: MedicationListItemProps): Element => (
   <StyledView>
     <RowView alignItems="center" marginTop={10}>
       <StyledView
@@ -36,7 +36,7 @@ export const MedicationList = ({
   medications,
 }: {
   medications: MedicationProps[];
-}): JSX.Element => (
+}): Element => (
   <StyledView marginTop={20}>
     <StyledText fontSize={14} fontWeight={500}>
       Medication

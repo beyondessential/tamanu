@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { VerticalPosition } from '/interfaces/VerticalPosition';
 
-function getInitialValue(dataElement): JSX.Element | undefined | string {
+function getInitialValue(dataElement): Element {
   switch (dataElement.type) {
     case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:
@@ -36,12 +36,12 @@ export function getFormInitialValues(
 
 function getFieldValidator(
   dataElement,
-): null | Yup.DateSchema | Yup.BooleanSchema | Yup.StringSchema {
+): null | Yup.BooleanSchema | Yup.DateSchema | Yup.StringSchema {
   switch (dataElement.type) {
     case FieldTypes.INSTRUCTION:
     case FieldTypes.CALCULATED:
     case FieldTypes.RESULT:
-      return null;
+      return undefined;
     case FieldTypes.DATE:
       return Yup.date();
     case FieldTypes.BINARY:

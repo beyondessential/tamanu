@@ -36,17 +36,13 @@ const Provider = ({
   signOutUser,
   ...props
 }: PropsWithChildren<WithAuthStoreProps>): ReactElement => {
-  const checkFirstSession = (): boolean => {
-    return props.isFirstTime;
-  };
+  const checkFirstSession = (): boolean => props.isFirstTime;
 
   const setUserFirstSignIn = (): void => {
     props.setFirstSignIn(false);
   };
 
-  const isUserAuthenticated = (): boolean => {
-    return props.token !== null && props.user !== null;
-  };
+  const isUserAuthenticated = (): boolean => props.token !== null && props.user !== null;
 
   const checkPreviousUserAuthentication = (
     navigation: NavigationProp<any>,

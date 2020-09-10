@@ -10,7 +10,7 @@ export const genPatientSectionList = (): IPatient[] => new Array(80).fill(1).map
 
 export const data: IPatient[] = genPatientSectionList();
 
-export function BaseStory(): JSX.Element {
+export function BaseStory(): Element {
   return (
     <StyledView flex={1} width="100%">
       <StyledView height="20%" width="100%" />

@@ -41,7 +41,7 @@ export const AgeRangeSlider = ({
   width,
   min,
   max,
-}: AgeRangeSliderProps): JSX.Element => (
+}: AgeRangeSliderProps): Element => (
   <MultiSlider
     values={[rangeStart, rangeEnd]}
     sliderLength={width}
