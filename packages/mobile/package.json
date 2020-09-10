@@ -15,7 +15,7 @@
     "test:watch": "yarn test -- --watchAll",
     "e2e:build": "detox build --configuration ios.sim.debug",
     "test:e2e": "detox test --configuration ios.sim.debug",
-    "lint": "eslint .",
+    "lint": "eslint --fix --fix-type problem,suggestion .",
     "storybook": "(adb reverse tcp:7007 tcp:7007 || true) && start-storybook",
     "prestorybook": "rnstl",
     "postinstall": "node scripts/react-native-largelist-bugfix && npx jetify",
