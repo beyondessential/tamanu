@@ -1,19 +1,8 @@
 import { Chance } from 'chance';
-import { BloodTypes, GenderOptions } from '/helpers/constants';
+import { GenderOptions } from '/helpers/constants';
 import { IPatient } from '~/types';
 
 const chance = new Chance();
-
-const CITIES = [
-  'Melbourne',
-  'Adelaide',
-  'Hobart',
-  'Sydney',
-  'Brisbane',
-  'Darwin',
-  'Perth',
-  'Canberra',
-];
 
 export const generatePatient = (): IPatient => {
   const sex: any = (chance.bool() ? GenderOptions[0] : GenderOptions[1]).value;

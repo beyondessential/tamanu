@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { dummyPrograms } from '~/dummyData/programs';
 import { generatePatient } from '~/dummyData/patients';
 import { ISurveyScreenComponent, ISurvey, IProgram, IPatient } from '~/types';
