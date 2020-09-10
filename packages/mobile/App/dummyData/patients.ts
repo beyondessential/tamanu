@@ -1,5 +1,5 @@
 import { Chance } from 'chance';
-import { BloodTypes } from '/helpers/constants';
+import { BloodTypes, GenderOptions } from '/helpers/constants';
 import { IPatient } from '~/types';
 
 const chance = new Chance();
@@ -16,7 +16,7 @@ const CITIES = [
 ];
 
 export const generatePatient = (): IPatient => {
-  const sex = chance.bool() ? 'male' : 'female';
+  const sex: any = (chance.bool() ? GenderOptions[0] : GenderOptions[1]).value;
   const [firstName, middleName, lastName] = chance
     .name({ middle: true, gender: sex })
     .split(' ');
@@ -33,10 +33,7 @@ export const generatePatient = (): IPatient => {
     middleName,
     lastName,
     culturalName: chance.bool() ? '' : chance.name(),
-    bloodType: chance.pickone(BloodTypes).value,
-    telephone: chance.phone(),
     sex,
     dateOfBirth: chance.birthday(),
-    city: chance.pickone(CITIES),
   };
 };

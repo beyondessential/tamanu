@@ -41,6 +41,6 @@ export interface IProgramDataElement {
   code: string;
   indicator: string;
   defaultText: string;
-  defaultOptions?: string;
-  type: string;
+  defaultOptions: string;
+  type: DataElementType;
 }

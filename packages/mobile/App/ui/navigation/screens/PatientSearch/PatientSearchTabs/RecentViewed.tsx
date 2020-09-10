@@ -44,7 +44,7 @@ const Screen = ({
   }
 
   if (!list) {
-    return <LoadingScreen />;
+    return <LoadingScreen text="Loading patients..." />;
   }
 
   return (

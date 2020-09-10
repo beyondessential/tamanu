@@ -3,7 +3,7 @@ import { Backend } from './backend';
 
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 
-export const BackendContext = React.createContext({ models: [] });
+export const BackendContext = React.createContext(undefined);
 
 const backend = new Backend();
 
@@ -18,7 +18,7 @@ export const BackendProvider = ({ Component }): Element => {
   }, [backend.randomId]);
 
   if (!initialised) {
-    return <LoadingScreen />;
+    return <LoadingScreen text="Connecting to database..." />;
   }
 
   return (

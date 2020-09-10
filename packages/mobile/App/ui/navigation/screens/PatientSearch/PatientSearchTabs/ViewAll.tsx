@@ -19,7 +19,7 @@ import { useBackendEffect } from '~/ui/helpers/hooks';
 import { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
 import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
-import { FilterIcon } from '/components/Icons';
+import FilterIcon from '/components/Icons/FilterIcon';
 import { FilterArray } from './PatientFilterScreen';
 import { getAgeFromDate } from '/helpers/date';
 import { IPatient } from '~/types';
@@ -108,25 +108,6 @@ const applyActiveFilters = (
       firstName: 'ASC',
     },
   });
-  // if (activeFilters.count > 0) {
-  //   // apply filters
-  //   return data.filter(patientData =>
-  //     Object.keys(activeFilters.filters).every(fieldToFilter =>
-  //       isEqual(
-  //         patientData[fieldToFilter],
-  //         activeFilters.filters[fieldToFilter].value,
-  //         fieldToFilter,
-  //       ),
-  //     ),
-  //   );
-  // } else if (searchField.value !== '') {
-  //   return data.filter(patientData =>
-  //     `${patientData.firstName} ${patientData.lastName}`.includes(
-  //       searchField.value,
-  //     ),
-  //   );
-  // }
-  // return data;
 };
 
 const Screen: FC<ViewAllScreenProps> = ({
@@ -166,7 +147,7 @@ const Screen: FC<ViewAllScreenProps> = ({
   );
 
   if (!list) {
-    return <LoadingScreen />;
+    return <LoadingScreen text="Loading patients..." />;
   }
 
   return (

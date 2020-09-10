@@ -4,6 +4,7 @@ import { CircularProgress } from '~/ui/components/CircularProgress';
 
 interface Props {
   progress?: number;
+  text?: string;
 }
 
 export const LoadingScreen: React.FC<Props> = memo(({ progress = 100 }) => (
