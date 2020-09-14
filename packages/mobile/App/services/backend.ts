@@ -3,7 +3,7 @@ import { dummyPrograms } from '~/dummyData/programs';
 import { Database } from '~/infra/db';
 import { needsInitialPopulation, populateInitialData } from '~/infra/db/populate';
 
-import { DummySyncSource } from '~/services/sync';
+import { SyncManager, DummySyncSource } from '~/services/sync';
 
 export class Backend {
 
@@ -11,7 +11,7 @@ export class Backend {
     await Database.connect();
     const { models } = Database;
     this.models = models;
-    this.syncSource = new DummySyncSource();
+    this.syncSource = new SyncManager(new DummySyncSource());
 
     this.pollInterval = 0.1 * 60 * 1000;
     this.startSyncService();
