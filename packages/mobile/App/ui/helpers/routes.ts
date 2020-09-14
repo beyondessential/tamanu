@@ -39,6 +39,7 @@ export const Routes = {
         name: 'CheckUpTabs',
         AddDetails: 'AddDetails',
         ViewHistory: 'ViewHistory',
+        CreateEncounter: 'CreateEncounter',
       },
     },
     ProgramStack: {

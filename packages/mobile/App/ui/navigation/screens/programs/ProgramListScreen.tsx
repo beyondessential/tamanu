@@ -44,27 +44,27 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
       {error ? (
         <ErrorScreen error={error} />
       ) : (
-        <FlatList
-          style={{
-            flex: 1,
-            width: '100%',
-            height: '100%',
-            backgroundColor: theme.colors.BACKGROUND_GREY,
-          }}
-          showsVerticalScrollIndicator={false}
-          data={surveys}
-          keyExtractor={(item): string => item.title}
-          renderItem={({ item }): ReactElement => (
-            <MenuOptionButton
-              title={item.name}
-              onPress={(): void => onNavigateToSurvey(item)}
-              fontWeight={500}
-              textColor={theme.colors.TEXT_SUPER_DARK}
-            />
-          )}
-          ItemSeparatorComponent={Separator}
-        />
-      )}
+          <FlatList
+            style={{
+              flex: 1,
+              width: '100%',
+              height: '100%',
+              backgroundColor: theme.colors.BACKGROUND_GREY,
+            }}
+            showsVerticalScrollIndicator={false}
+            data={surveys}
+            keyExtractor={(item): string => item.title}
+            renderItem={({ item }): ReactElement => (
+              <MenuOptionButton
+                title={item.name}
+                onPress={(): void => onNavigateToSurvey(item)}
+                fontWeight={500}
+                textColor={theme.colors.TEXT_SUPER_DARK}
+              />
+            )}
+            ItemSeparatorComponent={Separator}
+          />
+        )}
     </FullView>
   );
 };
