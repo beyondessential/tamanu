@@ -11,7 +11,7 @@ import { Separator } from '../Separator';
 interface IconProps {
   IconComponent: FunctionComponent<SvgProps>;
   fill: string;
-  height?: number;
+  height: number;
 }
 
 const StatusIcon = ({ IconComponent, ...rest }: IconProps): JSX.Element => (
@@ -25,14 +25,14 @@ interface HeaderRightIconContainerProps {
 const HeaderRightIconContainer = ({
   isActive,
 }: HeaderRightIconContainerProps): JSX.Element => (
-  <StyledView>
-    <StatusIcon
-      height={12}
-      IconComponent={isActive ? Icons.ArrowUpIcon : Icons.ArrowDownIcon}
-      fill={isActive ? theme.colors.WHITE : theme.colors.TEXT_SOFT}
-    />
-  </StyledView>
-);
+    <StyledView>
+      <StatusIcon
+        height={12}
+        IconComponent={isActive ? Icons.ArrowUpIcon : Icons.ArrowDownIcon}
+        fill={isActive ? theme.colors.WHITE : theme.colors.TEXT_SOFT}
+      />
+    </StyledView>
+  );
 
 interface HeaderDateProps {
   date: Date;
@@ -73,56 +73,56 @@ const HeaderDescription = ({
   typeDescription,
   location,
 }: HeaderDescriptionProps): JSX.Element => (
-  <ColumnView flex={1}>
-    <StyledText
-      color={isActive ? theme.colors.WHITE : theme.colors.MAIN_SUPER_DARK}
-      fontWeight={700}
-      fontSize={16}
-    >
-      {type}
-      {typeDescription && (
-        <StyledText
-          color={isActive ? theme.colors.WHITE : theme.colors.TEXT_MID}
-          fontWeight={400}
-        >
-          {' '}
-          {typeDescription}
-        </StyledText>
-      )}
-    </StyledText>
-    <StyledView marginTop={1}>
+    <ColumnView flex={1}>
       <StyledText
-        color={isActive ? theme.colors.SECONDARY_MAIN : theme.colors.TEXT_MID}
+        color={isActive ? theme.colors.WHITE : theme.colors.MAIN_SUPER_DARK}
+        fontWeight={700}
+        fontSize={16}
       >
-        {location}
+        {type}
+        {typeDescription && (
+          <StyledText
+            color={isActive ? theme.colors.WHITE : theme.colors.TEXT_MID}
+            fontWeight={400}
+          >
+            {' '}
+            {typeDescription}
+          </StyledText>
+        )}
       </StyledText>
-    </StyledView>
-  </ColumnView>
-);
+      <StyledView marginTop={1}>
+        <StyledText
+          color={isActive ? theme.colors.SECONDARY_MAIN : theme.colors.TEXT_MID}
+        >
+          {location}
+        </StyledText>
+      </StyledView>
+    </ColumnView>
+  );
 
 const Header = (
   section: VisitOverviewProps,
   index: number,
   isActive: boolean,
 ): JSX.Element => (
-  <StyledView>
-    <RowView
-      width="100%"
-      background={
-        isActive ? theme.colors.MAIN_SUPER_DARK : theme.colors.BACKGROUND_GREY
-      }
-      height={60}
-      alignItems="center"
-      paddingLeft={20}
-      paddingRight={20}
-    >
-      <HeaderLeftIcon isActive={isActive} type={section.type} />
-      <HeaderDescription {...section} isActive={isActive} />
-      <HeaderDate {...section} isActive={isActive} />
-      <HeaderRightIconContainer isActive={isActive} />
-    </RowView>
-    <Separator />
-  </StyledView>
-);
+    <StyledView>
+      <RowView
+        width="100%"
+        background={
+          isActive ? theme.colors.MAIN_SUPER_DARK : theme.colors.BACKGROUND_GREY
+        }
+        height={60}
+        alignItems="center"
+        paddingLeft={20}
+        paddingRight={20}
+      >
+        <HeaderLeftIcon isActive={isActive} type={section.type} />
+        <HeaderDescription {...section} isActive={isActive} />
+        <HeaderDate {...section} isActive={isActive} />
+        <HeaderRightIconContainer isActive={isActive} />
+      </RowView>
+      <Separator />
+    </StyledView>
+  );
 
 export default Header;

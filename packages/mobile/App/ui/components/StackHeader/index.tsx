@@ -12,7 +12,7 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 type HeaderTitleProps = {
   title: string;
-  subtitle?: string;
+  subtitle: string;
 };
 
 const HeaderTitle = ({ subtitle, title }: HeaderTitleProps): ReactElement => (

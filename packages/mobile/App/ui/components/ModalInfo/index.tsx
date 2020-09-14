@@ -16,7 +16,7 @@ export const ModalInfo = ({
   isVisible,
   message,
   onVisibilityChange,
-  screenPosition = '50%',
+  screenPosition,
 }: ModalInfoProps): ReactElement | null => {
   const dismissModal = useCallback(() => {
     onVisibilityChange(false);
@@ -55,4 +55,8 @@ export const ModalInfo = ({
       </StyledView>
     </StyledSafeAreaView>
   ) : null;
+};
+
+ModalInfo.defaultProps = {
+  screenPosition: '50%',
 };

@@ -1,10 +1,17 @@
-import { isCalculated } from '/helpers/fields';
-
-import { dummyPrograms } from '~/dummyData/programs';
-import { Database } from '~/infra/db';
-import { needsInitialPopulation, populateInitialData } from '~/infra/db/populate';
+import { Database, ModelMap } from '~/infra/db';
+import {
+  needsInitialPopulation,
+  populateInitialData,
+} from '~/infra/db/populate';
 
 export class Backend {
+  randomId: any;
+
+  responses: any[];
+
+  initialised: boolean;
+
+  models: ModelMap;
 
   constructor() {
     this.responses = [];
@@ -16,12 +23,11 @@ export class Backend {
     this.randomId = Math.random();
   }
 
-  async initialise() {
+  async initialise(): Promise<void> {
     await Database.connect();
     const { models } = Database;
-    if(await needsInitialPopulation(models)) {
+    if (await needsInitialPopulation(models)) {
       await populateInitialData(models);
     }
   }
-
 }

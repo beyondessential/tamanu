@@ -32,7 +32,7 @@ export const FieldByType = {
 };
 
 export function isCalculated(fieldType: string): boolean {
-  switch(fieldType) {
+  switch (fieldType) {
     case FieldTypes.CALCULATED:
     case FieldTypes.RESULT:
       return true;

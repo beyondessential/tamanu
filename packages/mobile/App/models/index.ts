@@ -1,4 +1,3 @@
-
 export * from './Patient';
 export * from './Encounter';
 export * from './Program';

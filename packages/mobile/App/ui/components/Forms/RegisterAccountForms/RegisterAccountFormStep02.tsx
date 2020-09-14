@@ -53,7 +53,7 @@ const Form: FunctionComponent<RegisterAccountFormStep02> = ({
     onSubmit={onSubmit}
   >
     {({ handleSubmit }: FormikHandlers): ReactNode => (
-      <React.Fragment>
+      <>
         <StyledView
           height={screenPercentageToDP(37.45, Orientation.Height)}
           width="100%"
@@ -111,7 +111,7 @@ const Form: FunctionComponent<RegisterAccountFormStep02> = ({
             textColor={theme.colors.TEXT_SUPER_DARK}
           />
         </RowView>
-      </React.Fragment>
+      </>
     )}
   </Formik>
 );

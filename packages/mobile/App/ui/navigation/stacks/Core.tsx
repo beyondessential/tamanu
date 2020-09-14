@@ -1,11 +1,11 @@
-import React, {FunctionComponent, useContext} from 'react';
+import React, { FunctionComponent, useContext } from 'react';
 // Helpers
-import {Routes} from '/helpers/routes';
-import {noSwipeGestureOnNavigator} from '/helpers/navigators';
+import { Routes } from '/helpers/routes';
+import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 //Stacks
-import {createStackNavigator} from '@react-navigation/stack';
-import {SignUpStack} from './SignUp';
-import {HomeStack} from './Home';
+import { createStackNavigator } from '@react-navigation/stack';
+import { SignUpStack } from './SignUp';
+import { HomeStack } from './Home';
 import AuthContext from '../../contexts/authContext/AuthContext';
 
 const Stack = createStackNavigator();

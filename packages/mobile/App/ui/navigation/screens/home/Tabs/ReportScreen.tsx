@@ -77,70 +77,66 @@ interface ReportTypeButtons {
 const ReportTypeButtons = ({
   isReportWeekly,
   onPress,
-}: ReportTypeButtons): ReactElement => {
-  return (
+}: ReportTypeButtons): ReactElement => (
+  <RowView
+    position="absolute"
+    justifyContent="center"
+    top="20.5%"
+    width="100%"
+    zIndex={2}
+  >
     <RowView
-      position="absolute"
+      height={screenPercentageToDP(4.25, Orientation.Height)}
+      borderRadius={5}
+      width={screenPercentageToDP(90.02, Orientation.Width)}
+      background={theme.colors.BOX_OUTLINE}
       justifyContent="center"
-      top="20.5%"
-      width="100%"
-      zIndex={2}
+      alignItems="center"
     >
-      <RowView
-        height={screenPercentageToDP(4.25, Orientation.Height)}
-        borderRadius={5}
-        width={screenPercentageToDP(90.02, Orientation.Width)}
-        background={theme.colors.BOX_OUTLINE}
-        justifyContent="center"
-        alignItems="center"
-      >
-        <Button
-          fontSize={screenPercentageToDP(1.57, Orientation.Height)}
-          height={screenPercentageToDP(3.76, Orientation.Height)}
-          width={screenPercentageToDP(44.52, Orientation.Width)}
-          backgroundColor={
+      <Button
+        fontSize={screenPercentageToDP(1.57, Orientation.Height)}
+        height={screenPercentageToDP(3.76, Orientation.Height)}
+        width={screenPercentageToDP(44.52, Orientation.Width)}
+        backgroundColor={
             isReportWeekly ? theme.colors.WHITE : theme.colors.BOX_OUTLINE
           }
-          textColor={
+        textColor={
             isReportWeekly ? theme.colors.PRIMARY_MAIN : theme.colors.TEXT_MID
           }
-          buttonText="LAST 4 WEEKS"
-          bordered={false}
-          onPress={onPress}
-        />
-        <Button
-          fontSize={screenPercentageToDP(1.57, Orientation.Height)}
-          height={screenPercentageToDP(3.76, Orientation.Height)}
-          width={screenPercentageToDP(44.52, Orientation.Width)}
-          buttonText="LAST 12 MONTHS"
-          backgroundColor={
+        buttonText="LAST 4 WEEKS"
+        bordered={false}
+        onPress={onPress}
+      />
+      <Button
+        fontSize={screenPercentageToDP(1.57, Orientation.Height)}
+        height={screenPercentageToDP(3.76, Orientation.Height)}
+        width={screenPercentageToDP(44.52, Orientation.Width)}
+        buttonText="LAST 12 MONTHS"
+        backgroundColor={
             !isReportWeekly ? theme.colors.WHITE : theme.colors.BOX_OUTLINE
           }
-          textColor={
+        textColor={
             !isReportWeekly ? theme.colors.PRIMARY_MAIN : theme.colors.TEXT_MID
           }
-          onPress={onPress}
-        />
-      </RowView>
+        onPress={onPress}
+      />
     </RowView>
-  );
-};
+  </RowView>
+);
 
 interface ReportChartProps {
   isReportWeekly: boolean;
 }
 
-const ReportChart = ({ isReportWeekly }: ReportChartProps): ReactElement => {
-  return isReportWeekly ? (
-    <StyledView marginBottom={screenPercentageToDP(7.53, Orientation.Height)}>
-      <VisitChart data={visitData} />
-    </StyledView>
-  ) : (
-    <StyledView marginBottom={screenPercentageToDP(2.43, Orientation.Height)}>
-      <YearlyChart data={yearlyData} />
-    </StyledView>
-  );
-};
+const ReportChart = ({ isReportWeekly }: ReportChartProps): ReactElement => (isReportWeekly ? (
+  <StyledView marginBottom={screenPercentageToDP(7.53, Orientation.Height)}>
+    <VisitChart data={visitData} />
+  </StyledView>
+) : (
+  <StyledView marginBottom={screenPercentageToDP(2.43, Orientation.Height)}>
+    <YearlyChart data={yearlyData} />
+  </StyledView>
+));
 
 export const ReportScreen = ({
   navigation,

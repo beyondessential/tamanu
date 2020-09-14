@@ -1,5 +1,5 @@
-import React, {ReactElement} from 'react';
-import {theme} from '/styled/theme';
+import React, { ReactElement } from 'react';
+import { theme } from '/styled/theme';
 import {
   StyledView,
   StyledSafeAreaView,
@@ -23,8 +23,8 @@ import {
   FamilyHistory,
   ProcedurePlan,
 } from './CustomComponents';
-import {getAgeFromDate} from '/helpers/date';
-import {AllergiesList} from './CustomComponents/AllergiesList';
+import { getAgeFromDate } from '/helpers/date';
+import { AllergiesList } from './CustomComponents/AllergiesList';
 
 const avatarMock = {
   id: 54,

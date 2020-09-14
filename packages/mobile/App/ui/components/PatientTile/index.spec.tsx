@@ -29,10 +29,10 @@ describe('<PatientTile />', () => {
                   MaleExampleProps[visibleProp],
                   DateFormats.DAY_MONTH_YEAR_SHORT,
                 ),
-                 {
-                exact: false
-              }
-              )             
+                {
+                  exact: false,
+                },
+              ),
             ).not.toBe(null);
             break;
           case 'dateOfBirth':
@@ -42,8 +42,7 @@ describe('<PatientTile />', () => {
               getByText(MaleExampleProps[visibleProp],
                 {
                   exact: false,
-                },
-              ),
+                }),
             ).not.toBe(null);
         }
       });

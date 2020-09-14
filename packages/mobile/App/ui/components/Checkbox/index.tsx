@@ -20,8 +20,8 @@ export const Checkbox = ({
   text,
   error,
   required,
-  background = theme.colors.WHITE,
-  color = theme.colors.PRIMARY_MAIN,
+  background,
+  color,
 }: CheckboxProps): JSX.Element => {
   const ChangeCallback = useCallback(() => onChange(!value), [onChange, value]);
 
@@ -67,4 +67,9 @@ export const Checkbox = ({
       )}
     </RowView>
   );
+};
+
+Checkbox.defaultProps = {
+  background: theme.colors.WHITE,
+  color: theme.colors.PRIMARY_MAIN,
 };

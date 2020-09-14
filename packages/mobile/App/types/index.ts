@@ -1,4 +1,3 @@
-
 export * from './AuthToken';
 
 export * from './IPatient';
@@ -8,4 +7,3 @@ export * from './IProgram';
 export * from './ISurvey';
 export * from './ISurveyResponse';
 export * from './IVaccine';
-

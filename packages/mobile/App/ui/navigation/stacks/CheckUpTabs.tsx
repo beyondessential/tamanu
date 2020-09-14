@@ -18,7 +18,7 @@ export const CheckUpTabs = ({
     navigation.goBack();
   }, []);
   return (
-    <React.Fragment>
+    <>
       <StackHeader title="Check up" subtitle="Ugyen Wangdi" onGoBack={goBack} />
       <Tabs.Navigator swipeEnabled={false}>
         <Tabs.Screen
@@ -36,6 +36,6 @@ export const CheckUpTabs = ({
           component={ViewHistoryScreen}
         />
       </Tabs.Navigator>
-    </React.Fragment>
+    </>
   );
 };

@@ -1,13 +1,12 @@
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
-import { IEncounter } from '~/types';
+import { IEncounter, EncounterType } from '~/types';
 import { Patient } from './Patient';
 
 @Entity('encounter')
 export class Encounter extends BaseModel implements IEncounter {
-  
-  @Column()
-  encounterType: string;
+  @Column({ type: 'varchar' })
+  encounterType: EncounterType;
 
   @Column()
   startDate: Date;
@@ -17,9 +16,9 @@ export class Encounter extends BaseModel implements IEncounter {
 
   @Column()
   reasonForEncounter: string;
-  
+
   @ManyToOne(type => Patient, patient => patient.encounters)
   patient: Patient;
-  
+
   // other FKs TODO: examiner, department, location
 }

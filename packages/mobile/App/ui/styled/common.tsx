@@ -124,8 +124,7 @@ export const StyledView = styled.View<StyledViewProps>`
   ${padding}  
   ${flexbox}     
   ${background}    
-  ${({ borderLeftWidth }): string | number =>
-    `border-left-width: ${borderLeftWidth}` || 0};  
+  ${({ borderLeftWidth }): string | number => `border-left-width: ${borderLeftWidth}` || 0};  
   ${boxShadow}
   ${zIndex}
 `;
@@ -138,13 +137,10 @@ export const StyledSafeAreaView = styled(SafeAreaView)<StyledViewProps>`
   ${background}
   ${overflow}       
   ${position}  
-  ${({ borderLeftWidth = 0 }): string =>
-    `border-left-width: ${borderLeftWidth}`};
-  ${({ borderRightWidth = 0 }): string =>
-    `border-right-width: ${borderRightWidth}`};
+  ${({ borderLeftWidth = 0 }): string => `border-left-width: ${borderLeftWidth}`};
+  ${({ borderRightWidth = 0 }): string => `border-right-width: ${borderRightWidth}`};
   ${({ borderTopWidth = 0 }): string => `border-top-width: ${borderTopWidth}`};
-  ${({ borderBottomWidth = 0 }): string =>
-    `border-bottom-width: ${borderBottomWidth}`};
+  ${({ borderBottomWidth = 0 }): string => `border-bottom-width: ${borderBottomWidth}`};
 `;
 
 export const StyledNavigationView = styled(SafeAreaView)<StyledViewProps>`    
@@ -155,13 +151,10 @@ export const StyledNavigationView = styled(SafeAreaView)<StyledViewProps>`
   ${background}
   ${overflow}       
   ${position}  
-  ${({ borderLeftWidth = 0 }): string =>
-    `border-left-width: ${borderLeftWidth}`};
-  ${({ borderRightWidth = 0 }): string =>
-    `border-right-width: ${borderRightWidth}`};
+  ${({ borderLeftWidth = 0 }): string => `border-left-width: ${borderLeftWidth}`};
+  ${({ borderRightWidth = 0 }): string => `border-right-width: ${borderRightWidth}`};
   ${({ borderTopWidth = 0 }): string => `border-top-width: ${borderTopWidth}`};
-  ${({ borderBottomWidth = 0 }): string =>
-    `border-bottom-width: ${borderBottomWidth}`};
+  ${({ borderBottomWidth = 0 }): string => `border-bottom-width: ${borderBottomWidth}`};
 `;
 
 export const StyledText = styled.Text<StyledTextProps>`
@@ -175,8 +168,7 @@ export const StyledText = styled.Text<StyledTextProps>`
   ${padding}  
   ${flexbox}     
   ${background}  
-  text-decoration-line: ${({ textDecorationLine }): string =>
-    textDecorationLine || 'none'};
+  text-decoration-line: ${({ textDecorationLine }): string => textDecorationLine || 'none'};
 `;
 
 interface StyledImageProps {

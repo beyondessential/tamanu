@@ -46,12 +46,12 @@ export type SubmitButtonsProps = {
   onCancel: () => void;
 };
 type VaccineFormInitialValues = {
-  date?: Date | null;
-  reason?: string | null;
-  type?: string | null;
+  date?: Date;
+  reason?: string;
+  type?: string;
   batch?: string;
-  manufacture?: string | null;
-  administered?: string | null;
+  manufacture?: string;
+  administered?: string;
 };
 interface VaccineForm {
   initialValues: VaccineFormInitialValues;
@@ -99,4 +99,8 @@ export const VaccineForm = ({
       </Formik>
     </FullView>
   );
+};
+
+VaccineForm.defaultProps = {
+  SubmitButtons: undefined,
 };

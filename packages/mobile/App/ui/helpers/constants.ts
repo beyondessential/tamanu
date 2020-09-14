@@ -150,11 +150,11 @@ export const SCREEN_ORIENTATION = {
 
 export const PhoneMask = { mask: '9999 9999 999' };
 
-export enum Gender {
-  Male = 'male',
-  Female = 'female',
-  Other = 'other'
-}
+export const Gender = {
+  Male: 'male',
+  Female: 'female',
+  Other: 'other',
+};
 
 export const MaleGender = {
   label: 'Male',

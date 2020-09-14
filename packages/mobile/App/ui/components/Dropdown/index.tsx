@@ -18,7 +18,7 @@ export interface SelectOption {
 export interface DropdownProps extends BaseInputProps {
   options: SelectOption[];
   onChange: Function;
-  value: string | null;
+  value?: string;
   isOpen?: boolean;
   disabled?: boolean;
 }
@@ -40,7 +40,7 @@ export const Dropdown = React.memo(
       [value],
     );
     return (
-      <React.Fragment>
+      <>
         <StyledView
           height={screenPercentageToDP('6.68', Orientation.Height)}
           width="100%"
@@ -56,7 +56,7 @@ export const Dropdown = React.memo(
               alignItems="center"
             >
               {label && (
-                <React.Fragment>
+                <>
                   <TextFieldLabel
                     onFocus={disabled ? closeModal : setOpen}
                     focus={open}
@@ -65,7 +65,7 @@ export const Dropdown = React.memo(
                   >
                     {`${label}${required ? '*' : ''}`}
                   </TextFieldLabel>
-                </React.Fragment>
+                </>
               )}
               <StyledText
                 marginTop={screenPercentageToDP(1.8, Orientation.Height)}
@@ -104,7 +104,6 @@ export const Dropdown = React.memo(
             />
           ) : (
             <AndroidPicker
-              disabled={disabled}
               closeModal={closeModal}
               items={options}
               onChange={onChange}
@@ -112,7 +111,7 @@ export const Dropdown = React.memo(
             />
           )}
         </StyledView>
-      </React.Fragment>
+      </>
     );
   },
 );

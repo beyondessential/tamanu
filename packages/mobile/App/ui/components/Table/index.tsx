@@ -11,8 +11,8 @@ export type Column = {
     row: any,
     onPress?: (item: any) => void,
     column?: any,
-  ) => JSX.Element;
-  rowHeader: (row: any, column?: any) => JSX.Element;
+  ) => Element;
+  rowHeader: (row: any, column?: any) => Element;
 };
 
 interface TableProps {
@@ -21,7 +21,7 @@ interface TableProps {
   columns: Column[];
   tableHeader: any;
   columnKey: string;
-  onPressItem?: (item: any) => void;
+  onPressItem: (item: any) => void;
 }
 
 export const Table = ({
@@ -32,17 +32,17 @@ export const Table = ({
   columnKey,
   onPressItem,
 }: TableProps): JSX.Element => (
-  <RowView>
-    <StyledView>
-      <Title />
-      {columns.map(c => c.rowHeader(c))}
-    </StyledView>
-    <TableData
-      columnKey={columnKey}
-      data={data}
-      columns={columns}
-      tableHeader={tableHeader}
-      onPressItem={onPressItem}
-    />
-  </RowView>
-);
+    <RowView>
+      <StyledView>
+        <Title />
+        {columns.map(c => c.rowHeader(c))}
+      </StyledView>
+      <TableData
+        columnKey={columnKey}
+        data={data}
+        columns={columns}
+        tableHeader={tableHeader}
+        onPressItem={onPressItem}
+      />
+    </RowView>
+  );

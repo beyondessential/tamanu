@@ -1,5 +1,5 @@
 import React from 'react';
-import {theme} from '/styled/theme';
+import { theme } from '/styled/theme';
 import * as Icons from '../Icons';
 import {
   StyledView,
@@ -7,7 +7,7 @@ import {
   StyledTouchableOpacity,
   StyledText,
 } from '/styled/common';
-import {Orientation, screenPercentageToDP} from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { IVaccine } from '~/types';
 
 export interface CardHeaderProps {
@@ -20,8 +20,7 @@ export const VaccineCardHeader = ({
   vaccine,
   onCloseModal,
   onEditDetails,
-}: CardHeaderProps): JSX.Element => {
-  return (
+}: CardHeaderProps): JSX.Element => (
     <StyledView
       background={theme.colors.PRIMARY_MAIN}
       height={screenPercentageToDP('15.79', Orientation.Height)}
@@ -51,7 +50,7 @@ export const VaccineCardHeader = ({
             fontSize={screenPercentageToDP('1.59', Orientation.Height)}
           >
             Edit Details
-          </StyledText>
+        </StyledText>
         </StyledTouchableOpacity>
       </RowView>
       <RowView
@@ -85,4 +84,3 @@ export const VaccineCardHeader = ({
       </RowView>
     </StyledView>
   );
-};

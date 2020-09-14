@@ -2,8 +2,8 @@ import { IPatient } from '~/types';
 
 export interface AllergiesProps {
   allergies: {
-    data: string[]
-  }
+    data: string[];
+  };
 }
 
 export interface ProcedurePlanDataProps {

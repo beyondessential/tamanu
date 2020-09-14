@@ -18,27 +18,26 @@ interface VaccineModalFormNotTakenProps {
 export const VaccineFormNotTaken = ({
   reasonOptions,
   administeredOptions,
-}: VaccineModalFormNotTakenProps): JSX.Element =>
-  getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
-    <StyledView
-      justifyContent="space-between"
-      height={screenPercentageToDP(21.87, Orientation.Height)}
-    >
-      <Field component={DateField} name="date" label="Date" />
-      <Field
-        component={Dropdown}
-        options={reasonOptions}
-        name="reason"
-        label="Reason"
-      />
-      <Field
-        component={Dropdown}
-        options={administeredOptions}
-        name="administered"
-        label="Administered by"
-      />
-    </StyledView>
-  ) : (
+}: VaccineModalFormNotTakenProps): JSX.Element => (getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
+  <StyledView
+    justifyContent="space-between"
+    height={screenPercentageToDP(21.87, Orientation.Height)}
+  >
+    <Field component={DateField} name="date" label="Date" />
+    <Field
+      component={Dropdown}
+      options={reasonOptions}
+      name="reason"
+      label="Reason"
+    />
+    <Field
+      component={Dropdown}
+      options={administeredOptions}
+      name="administered"
+      label="Administered by"
+    />
+  </StyledView>
+) : (
     <StyledView>
       <RowView marginTop={10}>
         <Field component={DateField} name="date" label="Date" />
@@ -62,4 +61,4 @@ export const VaccineFormNotTaken = ({
         </StyledView>
       </RowView>
     </StyledView>
-  );
+  ));

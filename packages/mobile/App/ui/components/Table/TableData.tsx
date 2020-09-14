@@ -9,7 +9,7 @@ interface TableDataProps {
   tableHeader: Column;
   columns: Column[];
   columnKey: string;
-  onPressItem?: (item: any) => void;
+  onPressItem: (item: any) => void;
 }
 
 export const TableData = ({
@@ -19,22 +19,22 @@ export const TableData = ({
   columnKey,
   onPressItem,
 }: TableDataProps): JSX.Element => (
-  <ScrollView
-    bounces={false}
-    scrollEnabled
-    showsHorizontalScrollIndicator
-    horizontal
-  >
-    <RowView>
-      {data.map((dataEntry: any) => (
-        <TableCol
-          onPressItem={onPressItem}
-          key={dataEntry[columnKey]}
-          tableHeader={tableHeader}
-          columns={columns}
-          row={dataEntry}
-        />
-      ))}
-    </RowView>
-  </ScrollView>
-);
+    <ScrollView
+      bounces={false}
+      scrollEnabled
+      showsHorizontalScrollIndicator
+      horizontal
+    >
+      <RowView>
+        {data.map((dataEntry: any) => (
+          <TableCol
+            onPressItem={onPressItem}
+            key={dataEntry[columnKey]}
+            tableHeader={tableHeader}
+            columns={columns}
+            row={dataEntry}
+          />
+        ))}
+      </RowView>
+    </ScrollView>
+  );

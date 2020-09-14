@@ -17,6 +17,7 @@ export const VitalsTable = memo(
       data={patientData}
       tableHeader={vitalsTableHeader}
       columnKey="date"
+      onPressItem={(): null => null}
     />
   ),
 );
