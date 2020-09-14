@@ -2,6 +2,7 @@ import {
   BaseEntity,
   PrimaryColumn,
   Generated,
+  UpdateDateColumn,
   getRepository,
 } from 'typeorm/browser';
 
@@ -10,6 +11,9 @@ export abstract class BaseModel extends BaseEntity {
   @PrimaryColumn()
   @Generated("uuid")
   id: string;
+
+  @UpdateDateColumn()
+  lastModified: string;
 
   static getRepository() {
     return getRepository(this);

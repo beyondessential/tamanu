@@ -25,4 +25,13 @@ export class Patient extends BaseModel implements IPatient {
 
   @Column()
   sex: string; 
+
+  //----------------------------------------------------------
+  // sync info
+
+  @Column()
+  lastSynced: Date;
+
+  @Column()
+  markedForSync: boolean;
 }
