@@ -12,41 +12,41 @@ interface MedicationListItemProps {
 const MedicationListItem = ({
   name,
   index,
-}: MedicationListItemProps): Element => (
-  <StyledView>
-    <RowView alignItems="center" marginTop={10}>
-      <StyledView
-        height={5}
-        width={5}
-        marginRight={10}
-        borderRadius={50}
-        background={ColorHelper.halfTransparency(theme.colors.TEXT_MID)}
-      />
-      <StyledText color={theme.colors.TEXT_MID}>
-        {`Medication ${index}`}
-      </StyledText>
-    </RowView>
-    <StyledView marginLeft={15} marginTop={10}>
-      <StyledText color={theme.colors.TEXT_MID}>{name}</StyledText>
+}: MedicationListItemProps): JSX.Element => (
+    <StyledView>
+      <RowView alignItems="center" marginTop={10}>
+        <StyledView
+          height={5}
+          width={5}
+          marginRight={10}
+          borderRadius={50}
+          background={ColorHelper.halfTransparency(theme.colors.TEXT_MID)}
+        />
+        <StyledText color={theme.colors.TEXT_MID}>
+          {`Medication ${index}`}
+        </StyledText>
+      </RowView>
+      <StyledView marginLeft={15} marginTop={10}>
+        <StyledText color={theme.colors.TEXT_MID}>{name}</StyledText>
+      </StyledView>
     </StyledView>
-  </StyledView>
-);
+  );
 
 export const MedicationList = ({
   medications,
 }: {
   medications: MedicationProps[];
-}): Element => (
-  <StyledView marginTop={20}>
-    <StyledText fontSize={14} fontWeight={500}>
-      Medication
+}): JSX.Element => (
+    <StyledView marginTop={20}>
+      <StyledText fontSize={14} fontWeight={500}>
+        Medication
     </StyledText>
-    {medications.map((medicationItem, index) => (
-      <MedicationListItem
-        key={medicationItem.id}
-        name={medicationItem.name}
-        index={index}
-      />
-    ))}
-  </StyledView>
-);
+      {medications.map((medicationItem, index) => (
+        <MedicationListItem
+          key={medicationItem.id}
+          name={medicationItem.name}
+          index={index}
+        />
+      ))}
+    </StyledView>
+  );

@@ -6,13 +6,13 @@ export const TreatmentPlan = ({
   treatment,
 }: {
   treatment: string;
-}): Element => (
-  <ColumnView marginTop={20}>
-    <StyledText fontSize={14} fontWeight={500} marginBottom="5px">
-      Treatment plan
+}): JSX.Element => (
+    <ColumnView marginTop={20}>
+      <StyledText fontSize={14} fontWeight={500} marginBottom="5px">
+        Treatment plan
     </StyledText>
-    <StyledText fontSize={16} color={theme.colors.TEXT_MID}>
-      {treatment}
-    </StyledText>
-  </ColumnView>
-);
+      <StyledText fontSize={16} color={theme.colors.TEXT_MID}>
+        {treatment}
+      </StyledText>
+    </ColumnView>
+  );

@@ -7,7 +7,7 @@ function RadioButtonGroupStory({
   error: defaultError,
 }: {
   error: boolean;
-}): Element {
+}): JSX.Element {
   const [error, setError] = useState(defaultError);
   const [options] = useState([
     {

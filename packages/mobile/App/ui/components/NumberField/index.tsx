@@ -18,7 +18,7 @@ export interface NumberFieldProps extends BaseInputProps {
   onBlur?: () => void;
 }
 
-export const NumberField = (props: NumberFieldProps): Element => {
+export const NumberField = (props: NumberFieldProps): JSX.Element => {
   const {
     isOpen,
     placeholder,

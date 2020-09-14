@@ -6,7 +6,7 @@ import { RowView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
-export const SelectButton = (props: any): Element => {
+export const SelectButton = (props: any): JSX.Element => {
   const onPressCallback = useCallback(() => props.onPress(props.value), [
     props,
   ]);

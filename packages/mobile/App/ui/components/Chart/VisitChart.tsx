@@ -15,20 +15,20 @@ interface CustomGridProps {
 }
 
 const CustomGrid = memo(
-  ({ x, data }: CustomGridProps): Element => (
+  ({ x, data }: CustomGridProps): JSX.Element => (
     <G>
       {data
         && data.map(
           (_, index: number) => index % 7 === 0 && (
-          <Line
-            strokeDasharray="4, 4"
-            key={data[index].date.toString()}
-            y1="0%"
-            y2="100%"
-            x1={x && x(index) - 2}
-            x2={x && x(index) - 2}
-            stroke={theme.colors.TEXT_DARK}
-          />
+            <Line
+              strokeDasharray="4, 4"
+              key={data[index].date.toString()}
+              y1="0%"
+              y2="100%"
+              x1={x && x(index) - 2}
+              x2={x && x(index) - 2}
+              stroke={theme.colors.TEXT_DARK}
+            />
           ),
         )}
     </G>
@@ -121,7 +121,7 @@ const verticalContentInset = { top: 10, right: 0, bottom: 0 };
 const axesSvg = { fontSize: 12, fill: theme.colors.TEXT_DARK };
 
 export const VisitChart = memo(
-  ({ data }: BarChartProps): Element => (
+  ({ data }: BarChartProps): JSX.Element => (
     <StyledView>
       <RowView
         marginTop={screenPercentageToDP(4.25, Orientation.Height)}

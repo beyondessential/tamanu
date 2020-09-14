@@ -11,7 +11,7 @@ import {
   DeceasedIcon,
 } from '../Icons';
 
-export const BaseStory = (): Element => (
+export const BaseStory = (): JSX.Element => (
   <ThemeProvider theme={themeSystem}>
     <StyledView width="100%">
       <RowView width="100%" paddingLeft={15} paddingRight={15}>

@@ -25,7 +25,7 @@ interface RadioButtonText {
   error?: boolean;
 }
 
-export const RadioButton = (props: RadioOptionProps): Element => {
+export const RadioButton = (props: RadioOptionProps): JSX.Element => {
   const getColor = React.useCallback(() => {
     if (props.error) return ColorHelper.halfTransparency(theme.colors.ALERT);
     return theme.colors.TEXT_MID;

@@ -7,7 +7,7 @@ export const BackendContext = React.createContext(undefined);
 
 const backend = new Backend();
 
-export const BackendProvider = ({ Component }): Element => {
+export const BackendProvider = ({ Component }): JSX.Element => {
   const [initialised, setInitialised] = useState(false);
 
   useEffect(() => {

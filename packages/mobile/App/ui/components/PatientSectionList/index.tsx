@@ -21,7 +21,7 @@ interface PatientSectionListProps {
   patients: PatientSectionListItem[];
 }
 
-const ListSeparator = (): Element => (
+const ListSeparator = (): JSX.Element => (
   <StyledView
     height={StyleSheet.hairlineWidth}
     background={theme.colors.DEFAULT_OFF}
@@ -32,7 +32,7 @@ const ListSeparator = (): Element => (
 export const PatientSectionList = ({
   patients,
   onPressItem = (): null => null,
-}: PatientSectionListProps): Element => {
+}: PatientSectionListProps): JSX.Element => {
   const ref: RefObject<LargeList> = useRef(null);
 
   const groupedPatients = useMemo(

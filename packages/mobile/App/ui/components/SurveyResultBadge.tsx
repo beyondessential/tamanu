@@ -41,7 +41,7 @@ function getColorForValue(result, thresholdString): string {
   return colors[colors.length - 1];
 }
 
-export const SurveyResultBadge = ({ result }): Element => {
+export const SurveyResultBadge = ({ result }): JSX.Element => {
   if (!result && result !== 0) {
     return null;
   }

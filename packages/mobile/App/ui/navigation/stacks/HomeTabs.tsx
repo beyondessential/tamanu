@@ -40,7 +40,7 @@ interface TabIconProps {
   color: string;
 }
 
-export function TabIcon({ Icon, color }: TabIconProps): Element {
+export function TabIcon({ Icon, color }: TabIconProps): JSX.Element {
   return (
     <StyledView>
       <Icon

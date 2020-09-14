@@ -18,7 +18,7 @@ export const Field = ({
   disabled = false,
   options,
   ...rest
-}: FieldProps): Element => {
+}: FieldProps): JSX.Element => {
   const [field, meta] = useField(name);
   return (
     <FormikField

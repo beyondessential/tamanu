@@ -19,7 +19,7 @@ import { useBackendEffect } from '~/ui/helpers/hooks';
 import { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
 import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
-import FilterIcon from '/components/Icons/FilterIcon';
+import { FilterIcon } from '/components/Icons/FilterIcon';
 import { FilterArray } from './PatientFilterScreen';
 import { getAgeFromDate } from '/helpers/date';
 import { IPatient } from '~/types';
@@ -164,9 +164,8 @@ const Screen: FC<ViewAllScreenProps> = ({
           bordered
           textColor={theme.colors.WHITE}
           onPress={onNavigateToFilters}
-          buttonText={`Filters ${
-            activeFilters.count > 0 ? `${activeFilters.count}` : ''
-          }`}
+          buttonText={`Filters ${activeFilters.count > 0 ? `${activeFilters.count}` : ''
+            }`}
         >
           <StyledView
             marginRight={screenPercentageToDP(2.43, Orientation.Width)}

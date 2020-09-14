@@ -9,7 +9,7 @@ export interface UserAvatarProps {
   displayName: string;
   gender: string;
   size: number;
-  Icon?: Element;
+  Icon?: JSX.Element;
 }
 
 export const UserAvatar = ({
@@ -18,7 +18,7 @@ export const UserAvatar = ({
   gender,
   size,
   Icon,
-}: UserAvatarProps): Element => {
+}: UserAvatarProps): JSX.Element => {
   const userInitials: string = React.useMemo(
     () => (displayName ? getUserInitials(displayName) : 'user'),
     [displayName],
@@ -46,8 +46,8 @@ export const UserAvatar = ({
           {userInitials}
         </StyledText>
       ) : (
-        <StyledImage source={{ uri: image }} width={size} height={size} />
-      )}
+          <StyledImage source={{ uri: image }} width={size} height={size} />
+        )}
       {Icon && Icon}
     </StyledView>
   );

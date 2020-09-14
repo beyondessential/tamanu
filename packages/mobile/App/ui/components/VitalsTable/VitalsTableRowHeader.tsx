@@ -4,7 +4,7 @@ import { theme } from '/styled/theme';
 import { Column } from '../Table';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
-export const VitalsTableRowHeader = ({ col }: { col: Column }): Element => (
+export const VitalsTableRowHeader = ({ col }: { col: Column }): JSX.Element => (
   <StyledView
     width="100%"
     borderRightWidth={1}

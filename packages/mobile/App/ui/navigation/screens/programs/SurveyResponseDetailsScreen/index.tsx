@@ -32,10 +32,10 @@ function getAnswerText(question, answer): string | number {
   }
 }
 
-const isCalculated = (question): Element => question.type === FieldTypes.CALCULATED
+const isCalculated = (question): JSX.Element => question.type === FieldTypes.CALCULATED
   || question.type === FieldTypes.RESULT;
 
-const AnswerItem = ({ question, answer, index }): Element => (
+const AnswerItem = ({ question, answer, index }): JSX.Element => (
   <StyledView
     height={40}
     justifyContent="space-between"
@@ -51,12 +51,12 @@ const AnswerItem = ({ question, answer, index }): Element => (
     {question.type === FieldTypes.RESULT ? (
       <SurveyResultBadge result={answer} />
     ) : (
-      <StyledText>{getAnswerText(question, answer)}</StyledText>
-    )}
+        <StyledText>{getAnswerText(question, answer)}</StyledText>
+      )}
   </StyledView>
 );
 
-export const SurveyResponseDetailsScreen = ({ route }): Element => {
+export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
   const navigation = useNavigation();
   const { surveyResponse } = route.params;
   const { patient, program, answers, ...rest } = surveyResponse;
@@ -64,7 +64,7 @@ export const SurveyResponseDetailsScreen = ({ route }): Element => {
     navigation.goBack();
   }, []);
 
-  const questionToAnswerItem = (q, i): Element => (
+  const questionToAnswerItem = (q, i): JSX.Element => (
     <AnswerItem index={i} key={q.id} question={q} answer={answers[q.id]} />
   );
 

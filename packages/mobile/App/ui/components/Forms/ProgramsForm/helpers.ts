@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { VerticalPosition } from '/interfaces/VerticalPosition';
 
-function getInitialValue(dataElement): Element {
+function getInitialValue(dataElement): JSX.Element {
   switch (dataElement.type) {
     case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:

@@ -8,7 +8,7 @@ import { BaseMaskedTextFieldStory } from './fixtures';
 const stories = storiesOf('MaskedInput', module);
 
 stories.addDecorator(
-  (getStory: Function): Element => (
+  (getStory: Function): JSX.Element => (
     <KeyboardAwareView>
       <CenterView>{getStory()}</CenterView>
     </KeyboardAwareView>
@@ -17,7 +17,7 @@ stories.addDecorator(
 
 stories.add(
   'Phone',
-  (): Element => (
+  (): JSX.Element => (
     <BaseMaskedTextFieldStory
       masked
       options={{
@@ -30,7 +30,7 @@ stories.add(
 );
 stories.add(
   'With Error',
-  (): Element => (
+  (): JSX.Element => (
     <BaseMaskedTextFieldStory
       masked
       error="invalid"
@@ -47,7 +47,7 @@ stories.add(
 
 stories.add(
   'Currency',
-  (): Element => (
+  (): JSX.Element => (
     <BaseMaskedTextFieldStory
       masked
       options={{

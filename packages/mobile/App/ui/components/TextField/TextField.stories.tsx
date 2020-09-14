@@ -7,7 +7,7 @@ import { BaseTextFieldStory } from './fixtures';
 const stories = storiesOf('TextField', module);
 
 stories.addDecorator(
-  (getStory: Function): Element => (
+  (getStory: Function): JSX.Element => (
     <KeyboardAwareView>
       <CenterView>{getStory()}</CenterView>
     </KeyboardAwareView>
@@ -16,15 +16,15 @@ stories.addDecorator(
 
 stories.add(
   'Active',
-  (): Element => <BaseTextFieldStory label="First Year of Registration" />,
+  (): JSX.Element => <BaseTextFieldStory label="First Year of Registration" />,
 );
 stories.add(
   'With Error',
-  (): Element => (
+  (): JSX.Element => (
     <BaseTextFieldStory
       label="First Year of Registration"
       error=" with error"
     />
   ),
 );
-stories.add('Multiline', (): Element => <BaseTextFieldStory multiline />);
+stories.add('Multiline', (): JSX.Element => <BaseTextFieldStory multiline />);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CircularProgress } from './index';
 
-export const BaseStory = (): Element => {
+export const BaseStory = (): JSX.Element => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {

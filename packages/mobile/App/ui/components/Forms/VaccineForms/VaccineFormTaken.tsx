@@ -21,7 +21,7 @@ export const VaccineFormTaken = ({
   typeOptions,
   manufactureOptions,
   administeredOptions,
-}: VaccineModalFormTakenProps): Element => (getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
+}: VaccineModalFormTakenProps): JSX.Element => (getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
   <StyledView
     justifyContent="space-between"
     height={screenPercentageToDP(36.45, Orientation.Height)}
@@ -48,40 +48,40 @@ export const VaccineFormTaken = ({
     />
   </StyledView>
 ) : (
-  <StyledView>
-    <RowView marginTop={10}>
-      <Field component={DateField} name="date" label="Date" />
-    </RowView>
-    <RowView marginTop={10} justifyContent="space-between">
-      <StyledView width="49%">
-        <Field
-          component={Dropdown}
-          options={typeOptions}
-          name="type"
-          label="Type"
-        />
-      </StyledView>
-      <StyledView width="49%">
-        <Field
-          component={Dropdown}
-          options={manufactureOptions}
-          name="manufacture"
-          label="Manufacture"
-        />
-      </StyledView>
-    </RowView>
-    <RowView marginTop={10} justifyContent="space-between">
-      <StyledView width="49%">
-        <Field component={TextField} name="batch" label="Batch No." />
-      </StyledView>
-      <StyledView width="49%">
-        <Field
-          component={Dropdown}
-          options={administeredOptions}
-          name="administered"
-          label="Administered by"
-        />
-      </StyledView>
-    </RowView>
-  </StyledView>
-));
+    <StyledView>
+      <RowView marginTop={10}>
+        <Field component={DateField} name="date" label="Date" />
+      </RowView>
+      <RowView marginTop={10} justifyContent="space-between">
+        <StyledView width="49%">
+          <Field
+            component={Dropdown}
+            options={typeOptions}
+            name="type"
+            label="Type"
+          />
+        </StyledView>
+        <StyledView width="49%">
+          <Field
+            component={Dropdown}
+            options={manufactureOptions}
+            name="manufacture"
+            label="Manufacture"
+          />
+        </StyledView>
+      </RowView>
+      <RowView marginTop={10} justifyContent="space-between">
+        <StyledView width="49%">
+          <Field component={TextField} name="batch" label="Batch No." />
+        </StyledView>
+        <StyledView width="49%">
+          <Field
+            component={Dropdown}
+            options={administeredOptions}
+            name="administered"
+            label="Administered by"
+          />
+        </StyledView>
+      </RowView>
+    </StyledView>
+  ));

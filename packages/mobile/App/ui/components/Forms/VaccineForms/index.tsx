@@ -80,7 +80,7 @@ export const VaccineForm = ({
   onSubmit,
   onCancel,
   SubmitButtons,
-}: VaccineForm): Element => {
+}: VaccineForm): JSX.Element => {
   const { Form, fieldOptions } = useMemo(() => getFormType(type), [type]);
   return (
     <FullView>
@@ -88,7 +88,7 @@ export const VaccineForm = ({
         onSubmit={onSubmit}
         initialValues={createInitialValues(initialValues)}
       >
-        {({ handleSubmit }): Element => (
+        {({ handleSubmit }): JSX.Element => (
           <FullView>
             <Form {...fieldOptions} />
             {SubmitButtons && (

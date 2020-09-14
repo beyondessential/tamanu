@@ -54,7 +54,7 @@ export const TextField = React.memo(
     autoCapitalize = 'words',
     onFocus,
     onBlur,
-  }: TextFieldProps): Element => {
+  }: TextFieldProps): JSX.Element => {
     const [focused, setFocus] = useState(false);
     const inputRef: Ref<any> = useRef(null);
     const onFocusLabel = React.useCallback((): void => {

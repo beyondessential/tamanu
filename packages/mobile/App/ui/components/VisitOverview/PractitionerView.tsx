@@ -4,7 +4,7 @@ import { theme } from '/styled/theme';
 import * as Icons from '../Icons';
 import { PractitionerProps } from '../../interfaces/PractitionerProps';
 
-export const PractitionerView = ({ name }: PractitionerProps): Element => (
+export const PractitionerView = ({ name }: PractitionerProps): JSX.Element => (
   <StyledView>
     <StyledText
       color={theme.colors.TEXT_SUPER_DARK}

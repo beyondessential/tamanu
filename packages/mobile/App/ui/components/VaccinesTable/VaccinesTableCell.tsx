@@ -78,7 +78,7 @@ export const VaccineTableCell = ({
   vaccine,
   onPress,
   header,
-}: VaccineTableCellProps): Element => {
+}: VaccineTableCellProps): JSX.Element => {
   const onPressItem = useCallback(() => {
     const vaccineData = {
       ...vaccine,
@@ -92,8 +92,8 @@ export const VaccineTableCell = ({
       <CellContent data={vaccine.status} />
     </StyledTouchableOpacity>
   ) : (
-    <CellContent data={null} />
-  );
+      <CellContent data={null} />
+    );
 };
 
 VaccineTableCell.defaultProps = {

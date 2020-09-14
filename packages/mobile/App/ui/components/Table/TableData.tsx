@@ -18,23 +18,23 @@ export const TableData = ({
   columns,
   columnKey,
   onPressItem,
-}: TableDataProps): Element => (
-  <ScrollView
-    bounces={false}
-    scrollEnabled
-    showsHorizontalScrollIndicator
-    horizontal
-  >
-    <RowView>
-      {data.map((dataEntry: any) => (
-        <TableCol
-          onPressItem={onPressItem}
-          key={dataEntry[columnKey]}
-          tableHeader={tableHeader}
-          columns={columns}
-          row={dataEntry}
-        />
-      ))}
-    </RowView>
-  </ScrollView>
-);
+}: TableDataProps): JSX.Element => (
+    <ScrollView
+      bounces={false}
+      scrollEnabled
+      showsHorizontalScrollIndicator
+      horizontal
+    >
+      <RowView>
+        {data.map((dataEntry: any) => (
+          <TableCol
+            onPressItem={onPressItem}
+            key={dataEntry[columnKey]}
+            tableHeader={tableHeader}
+            columns={columns}
+            row={dataEntry}
+          />
+        ))}
+      </RowView>
+    </ScrollView>
+  );

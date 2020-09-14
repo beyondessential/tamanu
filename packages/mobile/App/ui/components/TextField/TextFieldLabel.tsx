@@ -42,7 +42,7 @@ export const TextFieldLabel = ({
   onFocus,
   isValueEmpty,
   error,
-}: LabelProps): Element => {
+}: LabelProps): JSX.Element => {
   function getColor(hasValue: boolean, errorMessage?: string): string {
     if (!errorMessage && hasValue) return theme.colors.TEXT_SOFT;
     if (errorMessage) return theme.colors.ALERT;

@@ -27,58 +27,58 @@ export const PatientCard = ({
   city,
   lastVisit,
   onPress,
-}: PatientCardProps): Element => (
-  <TouchableWithoutFeedback onPress={(): void => onPress()}>
-    <styles.StyledCardContainer>
-      <RowView
-        justifyContent="space-between"
-        height={screenPercentageToDP(5.46, Orientation.Height)}
-        width="100%"
-      >
-        <UserAvatar
-          size={screenPercentageToDP(4.86, Orientation.Height)}
-          displayName={name}
-          image={image}
-          gender={gender}
-        />
-        <StyledText
-          color={theme.colors.TEXT_DARK}
-          fontSize={screenPercentageToDP(1.09, Orientation.Height)}
-          fontWeight={500}
+}: PatientCardProps): JSX.Element => (
+    <TouchableWithoutFeedback onPress={(): void => onPress()}>
+      <styles.StyledCardContainer>
+        <RowView
+          justifyContent="space-between"
+          height={screenPercentageToDP(5.46, Orientation.Height)}
+          width="100%"
         >
-          {`Last viewed \n${formatDate(lastVisit, DateFormats.short)}`}
-        </StyledText>
-      </RowView>
-      <ColumnView
-        width="100%"
-        marginTop={screenPercentageToDP(1.82, Orientation.Height)}
-      >
-        <StyledView width="75%" marginBottom={10}>
+          <UserAvatar
+            size={screenPercentageToDP(4.86, Orientation.Height)}
+            displayName={name}
+            image={image}
+            gender={gender}
+          />
           <StyledText
-            fontSize={screenPercentageToDP(1.82, Orientation.Height)}
-            fontWeight={500}
             color={theme.colors.TEXT_DARK}
-          >
-            {name}
-          </StyledText>
-        </StyledView>
-        <StyledView width="80%">
-          <StyledText
-            fontSize={screenPercentageToDP(1.45, Orientation.Height)}
+            fontSize={screenPercentageToDP(1.09, Orientation.Height)}
             fontWeight={500}
-            color={theme.colors.TEXT_MID}
           >
-            {`${getGender(gender)}, ${age}yrs`}
+            {`Last viewed \n${formatDate(lastVisit, DateFormats.short)}`}
           </StyledText>
-          <StyledText
-            fontSize={screenPercentageToDP(1.45, Orientation.Height)}
-            fontWeight={500}
-            color={theme.colors.TEXT_MID}
-          >
-            {city}
-          </StyledText>
-        </StyledView>
-      </ColumnView>
-    </styles.StyledCardContainer>
-  </TouchableWithoutFeedback>
-);
+        </RowView>
+        <ColumnView
+          width="100%"
+          marginTop={screenPercentageToDP(1.82, Orientation.Height)}
+        >
+          <StyledView width="75%" marginBottom={10}>
+            <StyledText
+              fontSize={screenPercentageToDP(1.82, Orientation.Height)}
+              fontWeight={500}
+              color={theme.colors.TEXT_DARK}
+            >
+              {name}
+            </StyledText>
+          </StyledView>
+          <StyledView width="80%">
+            <StyledText
+              fontSize={screenPercentageToDP(1.45, Orientation.Height)}
+              fontWeight={500}
+              color={theme.colors.TEXT_MID}
+            >
+              {`${getGender(gender)}, ${age}yrs`}
+            </StyledText>
+            <StyledText
+              fontSize={screenPercentageToDP(1.45, Orientation.Height)}
+              fontWeight={500}
+              color={theme.colors.TEXT_MID}
+            >
+              {city}
+            </StyledText>
+          </StyledView>
+        </ColumnView>
+      </styles.StyledCardContainer>
+    </TouchableWithoutFeedback>
+  );

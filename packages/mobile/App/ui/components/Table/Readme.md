@@ -52,10 +52,10 @@ export const vitalsTableCols: Column[] = [
     id: 1,
     key: 'bloodPressure',
     title: 'Blood Pressure',
-    rowHeader: (column: any): Element => (
+    rowHeader: (column: any): JSX.Element => (
       <VitalsTableRowHeader key={column.title} col={column} />
     ),
-    accessor: (row: PatientVitalsProps, _, column): Element => (
+    accessor: (row: PatientVitalsProps, _, column): JSX.Element => (
       <VitalsTableCell key={`${row.id}${column.id}`}>
         {row.bloodPressure}
       </VitalsTableCell>

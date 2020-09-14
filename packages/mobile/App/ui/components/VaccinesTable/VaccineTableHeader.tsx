@@ -6,7 +6,7 @@ import { IVaccine } from '~/types';
 export const vaccineTableHeader = {
   key: 'date',
   tableHeader: true,
-  accessor: (row: IVaccine): Element => (
+  accessor: (row: IVaccine): JSX.Element => (
     <StyledView
       paddingTop={15}
       paddingBottom={15}
