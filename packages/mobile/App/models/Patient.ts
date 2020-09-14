@@ -29,9 +29,9 @@ export class Patient extends BaseModel implements IPatient {
   //----------------------------------------------------------
   // sync info
 
-  @Column()
+  @Column({ default: 0 })
   lastSynced: Date;
 
-  @Column()
+  @Column({ default: false })
   markedForSync: boolean;
 }

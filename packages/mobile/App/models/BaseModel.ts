@@ -35,8 +35,8 @@ export abstract class BaseModel extends BaseEntity {
 
   static async createOrUpdate(data) {
     const repo = this.getRepository();
-    const existing = await repo.findOne(data.id);
-    if(existing) {
+    const existing = await repo.count({ id: data.id });
+    if(existing > 0) {
       return this.update(data);
     }
     return this.create(data);
