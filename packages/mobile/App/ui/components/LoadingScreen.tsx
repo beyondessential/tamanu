@@ -8,7 +8,7 @@ interface Props {
 }
 
 export const LoadingScreen: React.FC<Props> = memo(({ progress = 100 }) => (
-  <FullView>
+  <FullView padding={12}>
     <CenterView>
       <CircularProgress progress={progress} />
     </CenterView>

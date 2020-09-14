@@ -18,9 +18,9 @@ export const Screen = ({
     return <ErrorScreen error={error} />;
   }
 
-  // if (!components) {
-  //   return <LoadingScreen />;
-  // }
+  if (!components) {
+    return <LoadingScreen />;
+  }
 
   return (
     <FullView>
