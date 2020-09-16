@@ -1,33 +1,43 @@
 import mitt from 'mitt';
 import { Database } from '~/infra/db';
 
+import { readConfig, writeConfig } from '~/services/config';
+
+// for dummy data generation
 import { Chance } from 'chance';
 import { generatePatient } from '~/dummyData/patients';
 
+interface SyncRecordData {
+  lastModified: Date;
+  [key: string]: any;
+}
 
 interface SyncRecord {
   recordType: string;
-  data: any;
+  data: SyncRecordData;
 }
-
-const generator = new Chance('patients');
-const DUMMY_PATIENT_COUNT = 10;
-const dummyPatients = (new Array(DUMMY_PATIENT_COUNT))
-  .fill(0)
-  .map(() => generatePatient(generator))
-  .map(p => ({ 
-    ...p, 
-    lastModified: new Date(new Date() - 100000000)
-  }));
-const dummyPatientRecords : SyncRecord[] = dummyPatients.map(p => ({
-  data: p,
-  recordType: 'patient',
-}));
 
 interface SyncSource {
   getReferenceData(since: Date): Promise<SyncRecord[]>;
   getPatientData(patientId: string, since: Date): Promise<SyncRecord[]>;
 }
+
+//----------------------------------------------------------
+// dummy data generation & retrieval
+// TODO: remove & replace with real functionality
+const generator = new Chance('patients');
+const DUMMY_PATIENT_COUNT = 44;
+const dummyPatients = (new Array(DUMMY_PATIENT_COUNT))
+  .fill(0)
+  .map(() => generatePatient(generator))
+  .map((p, i) => ({ 
+    ...p, 
+    lastModified: generator.date({ year: 1971, day: i % 27, month: Math.floor(i / 27) })
+  }));
+const dummyPatientRecords : SyncRecord[] = dummyPatients.map(p => ({
+  data: p,
+  recordType: 'patient',
+}));
 
 export class DummySyncSource implements SyncSource {
   async getReferenceData(since: Date): Promise<SyncRecord[]> {
@@ -43,6 +53,7 @@ export class DummySyncSource implements SyncSource {
     return [];
   }
 }
+//----------------------------------------------------------
 
 export class SyncManager {
 
@@ -54,7 +65,9 @@ export class SyncManager {
   constructor(syncSource: SyncSource) {
     this.syncSource = syncSource;
 
-    this.emitter.on("*", (...args) => console.log(JSON.stringify(args)));
+    this.emitter.on("*", (action, ...args) => {
+      console.log(`[sync] ${action}`);
+    });
   }
 
   getModelForRecordType(recordType: string) {
@@ -97,7 +110,7 @@ export class SyncManager {
     // - does initial sync work differently?
     //   - sync reference data
     //   - get all provisional patients
-
+    
     if(this.isSyncing) {
       console.warn("Tried to start syncing while sync in progress");
       return;
@@ -106,41 +119,49 @@ export class SyncManager {
 
     this.emitter.emit("syncStarted");
 
-    try { 
-      const since = this.getReferenceSyncDate();
-      this.emitter.emit("referenceDownloadStarted");
-      const referenceRecords = await this.syncSource.getReferenceData(since);
-      this.emitter.emit("referenceDownloadEnded");
-      this.emitter.emit("referenceSyncStarted", referenceRecords.length);
-      await Promise.all(referenceRecords.map(r => this.syncRecord(r)));
-      this.emitter.emit("referenceSyncEnded");
+    const since = await this.getReferenceSyncDate();
 
-      this.updateReferenceSyncDate();
-    } catch(e) {
-      console.error(e);
-    }
+    this.emitter.emit("referenceDownloadStarted");
+    const referenceRecords = await this.syncSource.getReferenceData(since);
+    this.emitter.emit("referenceDownloadEnded");
 
-    try { 
-      const patientsToSync = await this.getPatientsToSync();
-      this.emitter.emit("patientSyncStarted", patientsToSync.length);
-      for(patient of patientsToSync) {
-        await this.runPatientSync(patient);
+    // sync all reference data including shallow patient list
+    let maxDate = since;
+    this.emitter.emit("referenceSyncStarted", referenceRecords.length);
+    await Promise.all(referenceRecords.map(async (r, i) => {
+      await this.syncRecord(r);
+      this.emitter.emit("referenceRecordSynced", r, i, referenceRecords.length);
+      if(r.data.lastModified > maxDate) {
+        maxDate = r.data.lastModified;
       }
-      this.emitter.emit("patientSyncEnded");
-    } catch(e) {
-      console.warn("!!!", e);
+    }));
+    this.emitter.emit("referenceSyncEnded");
+
+    await this.updateReferenceSyncDate(maxDate);
+
+    // full sync of patients that've been flagged (encounters, etc)
+    const patientsToSync = await this.getPatientsToSync();
+    this.emitter.emit("patientSyncStarted", patientsToSync.length);
+    for(let i = 0; i < patientsToSync.length; i++) {
+      const patient = patientsToSync[i];
+      await this.runPatientSync(patient);
+      this.emitter("patientRecordSynced", patient, i, patientsToSync.length);
     }
+    this.emitter.emit("patientSyncEnded");
 
     this.emitter.emit("syncEnded");
     this.isSyncing = false;
   }
 
-  getReferenceSyncDate(): Date {
-    return this.referenceSyncDate;
+  async getReferenceSyncDate(): Date {
+    const timestampString = await readConfig('referenceSyncDate', '0');
+    const timestamp = parseInt(timestampString, 10);
+    return new Date(timestamp);
   }
 
-  updateReferenceSyncDate() {
-    this.referenceSyncDate = new Date();
+  async updateReferenceSyncDate(date: Date): void {
+    const timestampString = `${date.valueOf()}`;
+    await writeConfig('referenceSyncDate', timestampString);
   }
 
   getPatientsToSync() {
@@ -161,7 +182,9 @@ export class SyncManager {
   async runPatientSync(patient: Patient) {
     const patientRecords = await this.syncSource.getPatientData(patient.id, patient.lastSynced);
     await Promise.all(patientRecords.map(r => this.syncRecord(r)));
-    this.emitter.emit("syncedPatient", patient.id);
+
+    patient.lastSynced = new Date();
+    await patient.save();
   }
 
 }
