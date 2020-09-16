@@ -1,5 +1,5 @@
 import { Chance } from 'chance';
-import { GenderOptions } from '/helpers/constants';
+import { GenderOptions, BloodTypes } from '/helpers/constants';
 import { IPatient } from '~/types';
 
 const defaultGenerator = new Chance();

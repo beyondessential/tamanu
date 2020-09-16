@@ -1,15 +1,8 @@
-<<<<<<< HEAD
-import { isCalculated } from '/helpers/fields';
-import { dummyPrograms } from '~/dummyData/programs';
-import { Database } from '~/infra/db';
-import { needsInitialPopulation, populateInitialData } from '~/infra/db/populate';
-=======
 import { Database, ModelMap } from '~/infra/db';
 import {
   needsInitialPopulation,
   populateInitialData,
 } from '~/infra/db/populate';
->>>>>>> dev
 
 import { SyncManager, DummySyncSource } from '~/services/sync';
 
@@ -32,7 +25,6 @@ export class Backend {
 
   async initialise(): Promise<void> {
     await Database.connect();
-<<<<<<< HEAD
     this.startSyncService();
   }
 
@@ -48,11 +40,4 @@ export class Backend {
     }
     clearInterval(this.interval);
   }
-=======
-    const { models } = Database;
-    if (await needsInitialPopulation(models)) {
-      await populateInitialData(models);
-    }
-  }
->>>>>>> dev
 }
