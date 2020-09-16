@@ -10,8 +10,11 @@ import {AuthProvider} from '/contexts/authContext/AuthContext';
 import {Core} from './Core';
 import {UserProvider} from '/contexts/UserContext';
 
+import { SyncStatusDisplay } from '~/ui/components/SyncStatusDisplay';
+
 export const RootStack = (): ReactElement => (
   <SafeAreaProvider>
+    <SyncStatusDisplay />
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <ThemeProvider theme={themeSystem}>

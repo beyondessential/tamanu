@@ -24,6 +24,9 @@ export class Patient extends BaseModel implements IPatient {
   dateOfBirth: Date;
 
   @Column()
+  bloodType: string;
+
+  @Column()
   sex: string; 
 
   //----------------------------------------------------------

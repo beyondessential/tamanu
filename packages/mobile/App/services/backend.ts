@@ -7,19 +7,22 @@ import { SyncManager, DummySyncSource } from '~/services/sync';
 
 export class Backend {
 
-  async initialise() {
-    await Database.connect();
+  constructor() {
     const { models } = Database;
     this.models = models;
-    this.syncSource = new SyncManager(new DummySyncSource());
+    this.syncManager = new SyncManager(new DummySyncSource());
 
     this.pollInterval = 0.1 * 60 * 1000;
+  }
+
+  async initialise() {
+    await Database.connect();
     this.startSyncService();
   }
 
   startSyncService() {
     this.interval = setInterval(() => {
-      this.syncSource.runScheduledSync();
+      this.syncManager.runScheduledSync();
     }, this.pollInterval);
   }
 

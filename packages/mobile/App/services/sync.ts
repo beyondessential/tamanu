@@ -1,15 +1,28 @@
 import mitt from 'mitt';
 import { Database } from '~/infra/db';
 
+import { Chance } from 'chance';
 import { generatePatient } from '~/dummyData/patients';
 
-const TARGET_DUMMY_PATIENT_COUNT = 50;
-const DUMMY_PATIENTS_PER_CHUNK = 5;
 
 interface SyncRecord {
   recordType: string;
   data: any;
 }
+
+const generator = new Chance('patients');
+const DUMMY_PATIENT_COUNT = 10;
+const dummyPatients = (new Array(DUMMY_PATIENT_COUNT))
+  .fill(0)
+  .map(() => generatePatient(generator))
+  .map(p => ({ 
+    ...p, 
+    lastModified: new Date(new Date() - 100000000)
+  }));
+const dummyPatientRecords : SyncRecord[] = dummyPatients.map(p => ({
+  data: p,
+  recordType: 'patient',
+}));
 
 interface SyncSource {
   getReferenceData(since: Date): Promise<SyncRecord[]>;
@@ -18,12 +31,12 @@ interface SyncSource {
 
 export class DummySyncSource implements SyncSource {
   async getReferenceData(since: Date): Promise<SyncRecord[]> {
-    return [
-      { recordType: 'fail-1', data: {} },
-      { recordType: 'fail-2', data: {} },
-      { recordType: 'fail-3', data: {} },
-      { recordType: 'fail-4', data: {} },
-    ];
+    const records = [
+      ...dummyPatientRecords,
+    ].filter(x => x.data.lastModified > since);
+    // simulate a download delay
+    await new Promise((resolve) => setTimeout(resolve, 100 * records.length));
+    return records;
   }
 
   async getPatientData(patientId: string, since: Date): Promise<SyncRecord[]> {
@@ -36,19 +49,12 @@ export class SyncManager {
   isSyncing = false; 
   emitter = mitt();
 
+  referenceSyncDate = new Date(new Date() - 1000000000)
+
   constructor(syncSource: SyncSource) {
     this.syncSource = syncSource;
 
-    this.emitter.on("recordSynced", (record) => console.log("synced record"));
-    this.emitter.on("syncStarted", (record) => console.log("started sync"));
-    this.emitter.on("referenceDownloadStarted", () => console.log('started ref download'));
-    this.emitter.on("referenceDownloadEnded", () => console.log('finished ref download'));
-    this.emitter.on("referenceSyncStarted", (count) => console.log(`syncing ${count} ref records`));
-    this.emitter.on("referenceSyncEnded", () => console.log("finished ref sync"));
-    this.emitter.on("patientSyncStarted", (count) => console.log(`syncing ${count} patient records`));
-    this.emitter.on("patientSyncEnded", () => console.log('finished patient sync'));
-    this.emitter.on("syncEnded", () => console.log('finished all sync'));
-    this.emitter.on("syncedPatient", (id) => console.log(`synced patient ${id}`));
+    this.emitter.on("*", (...args) => console.log(JSON.stringify(args)));
   }
 
   getModelForRecordType(recordType: string) {
@@ -75,7 +81,7 @@ export class SyncManager {
 
     await model.createOrUpdate(data);
       
-    this.emitter.emit("recordSynced", syncRecord);
+    this.emitter.emit("syncedRecord", syncRecord);
   }
 
   async runScheduledSync() {
@@ -108,6 +114,8 @@ export class SyncManager {
       this.emitter.emit("referenceSyncStarted", referenceRecords.length);
       await Promise.all(referenceRecords.map(r => this.syncRecord(r)));
       this.emitter.emit("referenceSyncEnded");
+
+      this.updateReferenceSyncDate();
     } catch(e) {
       console.error(e);
     }
@@ -128,7 +136,11 @@ export class SyncManager {
   }
 
   getReferenceSyncDate(): Date {
-    return new Date();
+    return this.referenceSyncDate;
+  }
+
+  updateReferenceSyncDate() {
+    this.referenceSyncDate = new Date();
   }
 
   getPatientsToSync() {
@@ -138,12 +150,15 @@ export class SyncManager {
     });
   }
 
-  // this is for when the user hits "sync this patient"
+  async markPatientForSync(patient: Patient) {
+    patient.markedForSync = true;
+    await patient.save();
+
+    // TODO: this has room to be a bit more intelligent
+    this.runScheduledSync();
+  }
+
   async runPatientSync(patient: Patient) {
-    // this will need to sync data that is older than whatever the "most recent
-    // sync" would indicate
-    // - just get all historical records for this patient?
-    // - some kind of "lastFullSync" field on Patient? 
     const patientRecords = await this.syncSource.getPatientData(patient.id, patient.lastSynced);
     await Promise.all(patientRecords.map(r => this.syncRecord(r)));
     this.emitter.emit("syncedPatient", patient.id);

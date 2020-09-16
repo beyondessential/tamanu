@@ -34,10 +34,10 @@ export const generatePatient = (generator = defaultGenerator) => {
     lastName,
     culturalName: generator.bool() ? "" : generator.name(),
     bloodType: generator.pickone(BloodTypes).value,
-    telephone: generator.phone(),
     sex,
     dateOfBirth: generator.birthday(),
-    city: generator.pickone(CITIES),
+    // city: generator.pickone(CITIES),
+    // telephone: generator.phone(),
   };
 };
 
