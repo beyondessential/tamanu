@@ -79,7 +79,7 @@ export const VaccineStack = (): ReactElement => (
     />
     <Stack.Screen
       options={{
-        header: () => null,
+        header: (): null => null,
         ...TransitionPresets.ModalSlideFromBottomIOS,
       }}
       name={Routes.HomeStack.VaccineStack.NewVaccineTabs.name}
@@ -87,7 +87,7 @@ export const VaccineStack = (): ReactElement => (
     />
     <Stack.Screen
       options={{
-        header: () => null,
+        header: (): null => null,
         ...TransitionPresets.ModalSlideFromBottomIOS,
       }}
       name={Routes.HomeStack.VaccineStack.VaccineModalScreen}

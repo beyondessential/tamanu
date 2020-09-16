@@ -92,6 +92,10 @@ export const VaccineTableCell = ({
       <CellContent data={vaccine.status} />
     </StyledTouchableOpacity>
   ) : (
-    <CellContent data={null} />
-  );
+      <CellContent data={null} />
+    );
+};
+
+VaccineTableCell.defaultProps = {
+  onPress: (): null => null,
 };

@@ -16,18 +16,16 @@ export const PatientSpecificInfoForm = ({
   onSubmit,
   onLoadProfilePhoto,
   onLoadFingerPrint,
-}: PatientSpecificInfoFormProps): ReactElement => {
-  return (
-    <FullView>
-      <FullView padding={20}>
-        <KeyInformationSection />
-        <IdentificationSection
-          loadingProfileImage={loadingProfileImage}
-          loadFingerPrint={onLoadFingerPrint}
-          loadPhoto={onLoadProfilePhoto}
-        />
-      </FullView>
-      <SubmitSection onPress={onSubmit} />
+}: PatientSpecificInfoFormProps): ReactElement => (
+  <FullView>
+    <FullView padding={20}>
+      <KeyInformationSection />
+      <IdentificationSection
+        loadingProfileImage={loadingProfileImage}
+        loadFingerPrint={onLoadFingerPrint}
+        loadPhoto={onLoadProfilePhoto}
+      />
     </FullView>
-  );
-};
+    <SubmitSection onPress={onSubmit} />
+  </FullView>
+);

@@ -2,21 +2,21 @@
 const { device, expect, element, by, waitFor } = require('detox');
 const { signIn, signOut } = require('./helpers/auth');
 const {
-  invalidUserCredentialsMessage,  
+  invalidUserCredentialsMessage,
 } = require('../App/ui/contexts/authContext/auth-error');
 
 const validCredentials = {
   email: 'a@a.com',
-  password: '123456'
+  password: '123456',
 };
 
 describe('Sign in cases', () => {
-  beforeEach(async () => {    
+  beforeEach(async () => {
     await device.reloadReactNative();
-  });  
-  afterAll(async() =>{
-    await device.clearKeychain()
-  })
+  });
+  afterAll(async () => {
+    await device.clearKeychain();
+  });
 
   it('Should not sign in with wrong password ', async () => {
     await signIn(validCredentials.email, '12345');
@@ -32,12 +32,12 @@ describe('Sign in cases', () => {
 
   it('Should sign for first time in with valid credentials', async () => {
     await signIn(validCredentials.email, validCredentials.password);
-    await waitFor(element(by.id(`signin-skip-button-1`)));
-    const skipButton = await element(by.id(`signin-skip-button-1`));
+    await waitFor(element(by.id('signin-skip-button-1')));
+    const skipButton = await element(by.id('signin-skip-button-1'));
     await expect(skipButton).toBeVisible();
     await skipButton.tap();
-    await element(by.id(`signin-skip-button-2`)).tap();
-    await element(by.id(`signin-skip-button-3`)).tap();
+    await element(by.id('signin-skip-button-2')).tap();
+    await element(by.id('signin-skip-button-3')).tap();
     await waitFor(element(by.id('search-patients-button')));
     await expect(element(by.id('search-patients-button'))).toBeVisible();
   });

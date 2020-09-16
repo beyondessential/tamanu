@@ -12,6 +12,6 @@ export class InvalidCredentialsError extends Error {
   }
 }
 
-export const noServerAccessMessage = `Unable to access Server.\n Please check internet connection.`;
-export const invalidUserCredentialsMessage = `Invalid user credentials.\nPlease check email and password and try again.`;
-export const generalErrorMessage = `Oops, something went wrong.\n Please try again later!`;
+export const noServerAccessMessage = 'Unable to access Server.\n Please check internet connection.';
+export const invalidUserCredentialsMessage = 'Invalid user credentials.\nPlease check email and password and try again.';
+export const generalErrorMessage = 'Oops, something went wrong.\n Please try again later!';

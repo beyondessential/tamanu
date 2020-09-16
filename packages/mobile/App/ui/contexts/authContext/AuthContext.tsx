@@ -1,9 +1,9 @@
-import React, {createContext, PropsWithChildren, ReactElement} from 'react';
-import {NavigationProp} from '@react-navigation/native';
-import {compose} from 'redux';
-import {withAuth} from '../../containers/Auth';
-import {WithAuthStoreProps} from '/store/ducks/auth';
-import {RequestFailedError} from '/infra/httpClient/axios/errors/request-failed-error';
+import React, { createContext, PropsWithChildren, ReactElement } from 'react';
+import { NavigationProp } from '@react-navigation/native';
+import { compose } from 'redux';
+import { withAuth } from '../../containers/Auth';
+import { WithAuthStoreProps } from '/store/ducks/auth';
+import { RequestFailedError } from '/infra/httpClient/axios/errors/request-failed-error';
 import {
   InvalidCredentialsError,
   AuthenticationError,
@@ -11,7 +11,7 @@ import {
   invalidUserCredentialsMessage,
   generalErrorMessage,
 } from './auth-error';
-import {Routes} from '/helpers/routes';
+import { Routes } from '/helpers/routes';
 
 interface AuthContextData {
   signIn: (email: string, password: string) => Promise<void>;
@@ -22,9 +22,9 @@ interface AuthContextData {
   checkFirstSession: () => boolean;
 }
 
-const makeUserSignInController = () => ({
-  handle: async ({ email, password }) => ({
-    token: `token-${Math.random()}`
+const makeUserSignInController = (): { handle: Function } => ({
+  handle: async ({ email, password }): Promise<{ token: string }> => ({
+    token: `token-${Math.random()}`,
   }),
 });
 
@@ -36,17 +36,13 @@ const Provider = ({
   signOutUser,
   ...props
 }: PropsWithChildren<WithAuthStoreProps>): ReactElement => {
-  const checkFirstSession = () => {
-    return props.isFirstTime;
-  };
+  const checkFirstSession = (): boolean => props.isFirstTime;
 
   const setUserFirstSignIn = (): void => {
     props.setFirstSignIn(false);
   };
 
-  const isUserAuthenticated = (): boolean => {
-    return props.token !== null && props.user !== null;
-  };
+  const isUserAuthenticated = (): boolean => props.token !== null && props.user !== null;
 
   const checkPreviousUserAuthentication = (
     navigation: NavigationProp<any>,
@@ -65,7 +61,7 @@ const Provider = ({
 
   const signIn = async (email: string, password: string): Promise<void> => {
     const signInController = makeUserSignInController();
-    const result = await signInController.handle({email, password});
+    const result = await signInController.handle({ email, password });
     if (result.data) {
       setToken(result.data);
     } else if (result.error) {
@@ -84,7 +80,7 @@ const Provider = ({
     signOutUser();
     navigation.reset({
       index: 0,
-      routes: [{name: Routes.SignUpStack.name}],
+      routes: [{ name: Routes.SignUpStack.name }],
     });
   };
 

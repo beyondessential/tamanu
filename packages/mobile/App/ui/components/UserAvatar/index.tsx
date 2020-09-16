@@ -6,8 +6,8 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 export interface UserAvatarProps {
   image?: string;
-  displayName: string | null;
-  gender: string | null;
+  displayName: string;
+  gender: string;
   size: number;
   Icon?: JSX.Element;
 }
@@ -46,8 +46,8 @@ export const UserAvatar = ({
           {userInitials}
         </StyledText>
       ) : (
-        <StyledImage source={{ uri: image }} width={size} height={size} />
-      )}
+          <StyledImage source={{ uri: image }} width={size} height={size} />
+        )}
       {Icon && Icon}
     </StyledView>
   );

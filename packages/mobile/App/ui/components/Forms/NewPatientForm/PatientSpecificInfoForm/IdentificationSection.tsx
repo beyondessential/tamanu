@@ -24,7 +24,7 @@ export const IdentificationSection = ({
 }: IdentificationSectionProps): ReactElement => {
   const [profilePhoto, meta] = useField('profilePhoto');
   return (
-    <React.Fragment>
+    <>
       <FormGroup sectionName="IDENTIFICATION" marginTop>
         <Field
           label="License Number"
@@ -99,6 +99,6 @@ export const IdentificationSection = ({
         </StyledView>
         <StyledView flex={1} />
       </RowView>
-    </React.Fragment>
+    </>
   );
 };

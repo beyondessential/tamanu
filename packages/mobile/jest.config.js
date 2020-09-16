@@ -16,6 +16,7 @@ module.exports = {
     '^~(.*)$': '<rootDir>/App$1',
     '^/root(.*)$': '<rootDir>$1',
     '^/helpers(.*)$': '<rootDir>/App/ui/helpers$1',
+    '^/types(.*)$': '<rootDir>/App/types/$1',
     '^/styled(.*)$': '<rootDir>/App/ui/styled$1',
     '^/components(.*)$': '<rootDir>/App/ui/components$1',
     '^/interfaces(.*)$': '<rootDir>/App/ui/interfaces$1',

@@ -25,9 +25,7 @@ export const PatientPersonalInfoScreen = ({
   const onGoBack = useCallback(() => {
     navigation.navigate(Routes.HomeStack.HomeTabs.name);
   }, []);
-  const screenFields = currentScreenFields.map(fieldName =>
-    useField(fieldName),
-  );
+  const screenFields = currentScreenFields.map(fieldName => useField(fieldName));
   const form = useFormikContext();
 
   const validateForm = useCallback((): boolean => {

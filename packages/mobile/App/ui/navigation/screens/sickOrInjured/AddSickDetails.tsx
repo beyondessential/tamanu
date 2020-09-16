@@ -49,83 +49,81 @@ export const AddSickDetailScreen = (): ReactElement => {
         initialValues={initialValues}
         onSubmit={(values): void => console.log(values)}
       >
-        {({ handleSubmit }): ReactElement => {
-          return (
-            <FullView
-              background={theme.colors.BACKGROUND_GREY}
-              paddingRight={20}
-              paddingLeft={20}
-              paddingTop={20}
+        {({ handleSubmit }): ReactElement => (
+          <FullView
+            background={theme.colors.BACKGROUND_GREY}
+            paddingRight={20}
+            paddingLeft={20}
+            paddingTop={20}
+          >
+            <KeyboardAvoidingView
+              behavior="padding"
+              style={styles.KeyboardAvoidingViewStyles}
+              contentContainerStyle={styles.KeyboardAvoidingViewContainer}
             >
-              <KeyboardAvoidingView
-                behavior="padding"
-                style={styles.KeyboardAvoidingViewStyles}
-                contentContainerStyle={styles.KeyboardAvoidingViewContainer}
+              <ScrollView
+                style={styles.ScrollView}
+                ref={scrollViewRef}
+                showsVerticalScrollIndicator={false}
+                scrollToOverflowEnabled
+                overScrollMode="always"
               >
-                <ScrollView
-                  style={styles.ScrollView}
-                  ref={scrollViewRef}
-                  showsVerticalScrollIndicator={false}
-                  scrollToOverflowEnabled
-                  overScrollMode="always"
+                <StyledView
+                  marginBottom={screenPercentageToDP(
+                    0.605,
+                    Orientation.Height,
+                  )}
                 >
-                  <StyledView
-                    marginBottom={screenPercentageToDP(
-                      0.605,
-                      Orientation.Height,
-                    )}
-                  >
-                    <SectionHeader h3>INFORMATION</SectionHeader>
-                  </StyledView>
-                  <StyledView
-                    height={screenPercentageToDP(21.87, Orientation.Height)}
-                    justifyContent="space-between"
-                  >
-                    <Field
-                      component={TextField}
-                      name="treatmentNotes"
-                      label="Treatment notes"
-                      onFocus={scrollToComponent('treatmentNotes')}
-                    />
-                    <Field
-                      component={TextField}
-                      name="labTestResults"
-                      label="Lab/Test Results"
-                      onFocus={scrollToComponent('labTestResults')}
-                    />
-                    <Field
-                      component={TextField}
-                      name="medications"
-                      label="Medications"
-                      onFocus={scrollToComponent('medications')}
-                    />
-                  </StyledView>
-                  <StyledView
-                    marginTop={screenPercentageToDP(2.42, Orientation.Height)}
-                    marginBottom={screenPercentageToDP(
-                      0.605,
-                      Orientation.Height,
-                    )}
-                  >
-                    <SectionHeader h3>COMMENTS</SectionHeader>
-                  </StyledView>
+                  <SectionHeader h3>INFORMATION</SectionHeader>
+                </StyledView>
+                <StyledView
+                  height={screenPercentageToDP(21.87, Orientation.Height)}
+                  justifyContent="space-between"
+                >
                   <Field
                     component={TextField}
-                    name="comments"
-                    multiline
-                    onFocus={scrollToComponent('comments')}
+                    name="treatmentNotes"
+                    label="Treatment notes"
+                    onFocus={scrollToComponent('treatmentNotes')}
                   />
-                  <Button
-                    marginTop={screenPercentageToDP(1.22, Orientation.Height)}
-                    backgroundColor={theme.colors.PRIMARY_MAIN}
-                    onPress={handleSubmit}
-                    buttonText="Submit"
+                  <Field
+                    component={TextField}
+                    name="labTestResults"
+                    label="Lab/Test Results"
+                    onFocus={scrollToComponent('labTestResults')}
                   />
-                </ScrollView>
-              </KeyboardAvoidingView>
-            </FullView>
-          );
-        }}
+                  <Field
+                    component={TextField}
+                    name="medications"
+                    label="Medications"
+                    onFocus={scrollToComponent('medications')}
+                  />
+                </StyledView>
+                <StyledView
+                  marginTop={screenPercentageToDP(2.42, Orientation.Height)}
+                  marginBottom={screenPercentageToDP(
+                    0.605,
+                    Orientation.Height,
+                  )}
+                >
+                  <SectionHeader h3>COMMENTS</SectionHeader>
+                </StyledView>
+                <Field
+                  component={TextField}
+                  name="comments"
+                  multiline
+                  onFocus={scrollToComponent('comments')}
+                />
+                <Button
+                  marginTop={screenPercentageToDP(1.22, Orientation.Height)}
+                  backgroundColor={theme.colors.PRIMARY_MAIN}
+                  onPress={handleSubmit}
+                  buttonText="Submit"
+                />
+              </ScrollView>
+            </KeyboardAvoidingView>
+          </FullView>
+        )}
       </Formik>
     </FullView>
   );

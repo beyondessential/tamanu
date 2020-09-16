@@ -19,7 +19,7 @@ import { useBackendEffect } from '~/ui/helpers/hooks';
 import { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
 import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
-import { FilterIcon } from '/components/Icons';
+import { FilterIcon } from '/components/Icons/FilterIcon';
 import { FilterArray } from './PatientFilterScreen';
 import { getAgeFromDate } from '/helpers/date';
 import { IPatient } from '~/types';
@@ -101,33 +101,12 @@ const applyActiveFilters = (
   models,
   activeFilters: ActiveFiltersI,
   searchField: FieldInputProps<any>,
-): IPatient[] => {
-  return models.Patient.find({
-    order: {
-      lastName: 'ASC',
-      firstName: 'ASC',
-    }
-  });
-  if (activeFilters.count > 0) {
-    // apply filters
-    return data.filter(patientData =>
-      Object.keys(activeFilters.filters).every(fieldToFilter =>
-        isEqual(
-          patientData[fieldToFilter],
-          activeFilters.filters[fieldToFilter].value,
-          fieldToFilter,
-        ),
-      ),
-    );
-  } else if (searchField.value !== '') {
-    return data.filter(patientData =>
-      `${patientData.firstName} ${patientData.lastName}`.includes(
-        searchField.value,
-      ),
-    );
-  }
-  return data;
-};
+): IPatient[] => models.Patient.find({
+  order: {
+    lastName: 'ASC',
+    firstName: 'ASC',
+  },
+});
 
 const Screen: FC<ViewAllScreenProps> = ({
   navigation,
@@ -138,17 +117,17 @@ const Screen: FC<ViewAllScreenProps> = ({
   // Get filters
   const filters = FilterArray.map(fieldName => useField(fieldName));
   const activeFilters = useMemo(
-    () =>
-      filters.reduce<ActiveFiltersI>(getActiveFilters, {
-        count: 0,
-        filters: {},
-      }),
+    () => filters.reduce<ActiveFiltersI>(getActiveFilters, {
+      count: 0,
+      filters: {},
+    }),
     [filters],
   );
 
-  const [list, error] = useBackendEffect(({ models }) => {
-    return applyActiveFilters(models, activeFilters, searchField);
-  }, [searchField.value]);
+  const [list, error] = useBackendEffect(
+    ({ models }) => applyActiveFilters(models, activeFilters, searchField),
+    [searchField.value],
+  );
 
   const onNavigateToPatientHome = useCallback(patient => {
     setSelectedPatient(patient);
@@ -162,13 +141,16 @@ const Screen: FC<ViewAllScreenProps> = ({
     [],
   );
 
-  if(!list) {
+  if (!list) {
     return <LoadingScreen text="Loading patients..." />;
   }
 
   return (
     <FullView>
-      <PatientSectionList patients={list} onPressItem={onNavigateToPatientHome} />
+      <PatientSectionList
+        patients={list}
+        onPressItem={onNavigateToPatientHome}
+      />
       <StyledView
         position="absolute"
         zIndex={2}
@@ -182,9 +164,8 @@ const Screen: FC<ViewAllScreenProps> = ({
           bordered
           textColor={theme.colors.WHITE}
           onPress={onNavigateToFilters}
-          buttonText={`Filters ${
-            activeFilters.count > 0 ? `${activeFilters.count}` : ''
-          }`}
+          buttonText={`Filters ${activeFilters.count > 0 ? `${activeFilters.count}` : ''
+            }`}
         >
           <StyledView
             marginRight={screenPercentageToDP(2.43, Orientation.Width)}

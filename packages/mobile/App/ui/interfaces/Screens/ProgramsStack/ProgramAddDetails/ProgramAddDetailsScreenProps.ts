@@ -4,6 +4,9 @@ import { IProgram } from '~/types';
 type ProgramAddDetailsScreenParams = {
   ProgramAddDetailsScreen: {
     program: IProgram;
+    surveyId: string;
+    latestResponseId: string;
+    selectedPatient: { id: string };
   };
 };
 

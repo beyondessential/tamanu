@@ -4,7 +4,6 @@ import { IPatient } from '~/types';
 
 @Entity('patient')
 export class Patient extends BaseModel implements IPatient {
-
   @Column()
   displayId: string;
 

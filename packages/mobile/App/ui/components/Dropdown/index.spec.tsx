@@ -10,7 +10,7 @@ describe('<Dropdown />', () => {
     const floatingLabel = getByText('Type');
     fireEvent.press(floatingLabel);
 
-    dropdownItems.forEach((item:SelectOption) => {
+    dropdownItems.forEach((item: SelectOption) => {
       expect(getByTestId(item.value)).not.toBeNull();
     });
   });

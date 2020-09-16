@@ -1,47 +1,37 @@
-import React, {
-  useMemo,
-  useRef,
-  useCallback,
-  ReactElement,
-  useState,
-} from 'react';
-import { Screen } from './Screen';
-import {
-  getFormInitialValues,
-  getFormSchema,
-  mapInputVerticalPosition,
-} from './helpers';
+import React, { useCallback, ReactElement } from 'react';
 import { theme } from '/styled/theme';
 import { ProgramAddDetailsScreenProps } from '/interfaces/screens/ProgramsStack/ProgramAddDetails/ProgramAddDetailsScreenProps';
 import { useNavigation } from '@react-navigation/native';
-import { FlatList, ListItem } from 'react-native';
+import { FlatList } from 'react-native';
 import { Routes } from '/helpers/routes';
 
 import { ErrorScreen } from '/components/ErrorScreen';
 import { LoadingScreen } from '/components/LoadingScreen';
-import { MenuOptionButton } from '/components/MenuOptionButton';
 import { StyledView, StyledText } from '/styled/common';
 import { Separator } from '/components/Separator';
 import { SurveyResultBadge } from '/components/SurveyResultBadge';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-import { FieldTypes } from '/helpers/fields';
 import { useBackendEffect } from '/helpers/hooks';
 
-const SurveyResponseItem = ({ surveyResponse, responseIndex }) => {
+const SurveyResponseItem = ({
+  surveyResponse,
+  responseIndex,
+}): ReactElement => {
   const navigation = useNavigation();
-  const onPress = useCallback(() =>
-    navigation.navigate(
+  const onPress = useCallback(
+    () => navigation.navigate(
       Routes.HomeStack.ProgramStack.SurveyResponseDetailsScreen,
       {
         surveyResponseId: surveyResponse.id,
       },
     ),
+    [],
   );
 
   const { encounter, survey, date = '', result } = surveyResponse;
   const { patient } = encounter;
-  
+
   return (
     <TouchableOpacity onPress={onPress}>
       <StyledView
@@ -55,16 +45,19 @@ const SurveyResponseItem = ({ surveyResponse, responseIndex }) => {
       >
         <StyledView justifyContent="space-between" flexDirection="row">
           <StyledText fontWeight="bold">{`${patient.firstName} ${patient.lastName}`}</StyledText>
-          <StyledText fontSize={10}>{`${date.toString().slice(0, 24)}`}</StyledText>
+          <StyledText fontSize={10}>
+            {`${date.toString().slice(0, 24)}`}
+          </StyledText>
         </StyledView>
         <StyledView justifyContent="space-between" flexDirection="row">
           <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
             {survey.name}
           </StyledText>
-          { result !== undefined
-            ? <SurveyResultBadge result={result} />
-            : <StyledText color="#ccc">N/A</StyledText>
-            }
+          {result !== undefined ? (
+            <SurveyResultBadge result={result} />
+          ) : (
+            <StyledText color="#ccc">N/A</StyledText>
+          )}
         </StyledView>
       </StyledView>
     </TouchableOpacity>
@@ -82,15 +75,15 @@ export const ProgramViewHistoryScreen = ({
   // it isn't active)
   const [responses, error] = useBackendEffect(
     ({ models }) => models.Survey.getResponses(surveyId),
-    [latestResponseId]
+    [latestResponseId],
   );
 
-  if(error) {
-    return <ErrorScreen error={error} />
+  if (error) {
+    return <ErrorScreen error={error} />;
   }
 
-  if(!responses) {
-    return <LoadingScreen text={`Loading responses for ${surveyId}`} />;
+  if (!responses) {
+    return <LoadingScreen />;
   }
 
   return (
@@ -104,7 +97,7 @@ export const ProgramViewHistoryScreen = ({
       showsVerticalScrollIndicator={false}
       data={responses}
       keyExtractor={(item): string => item.name}
-      renderItem={({ item, index }) => (
+      renderItem={({ item, index }): ReactElement => (
         <SurveyResponseItem responseIndex={index} surveyResponse={item} />
       )}
       ItemSeparatorComponent={Separator}

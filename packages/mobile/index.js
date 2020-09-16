@@ -7,6 +7,4 @@ import 'react-native-gesture-handler';
 
 YellowBox.ignoreWarnings(['to contain units']);
 
-AppRegistry.registerComponent(appName, () =>
-  env.STORYBOOK === 'true' ? Storybook : App,
-);
+AppRegistry.registerComponent(appName, () => (env.STORYBOOK === 'true' ? Storybook : App));

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Survey, ProgramDataElement } from './Survey';
@@ -7,7 +8,6 @@ import { ISurveyResponse, ISurveyResponseAnswer } from '~/types';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
-
   @Column()
   startTime: Date;
 
@@ -16,19 +16,15 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
   @Column()
   result: number;
-  
+
   @ManyToOne(type => Survey, survey => survey.responses)
   survey: Survey;
-  
+
   @ManyToOne(type => Encounter, encounter => encounter.surveyResponses)
   encounter: Encounter;
 
-  static async submit(patientId, surveyData, values) {
-    const { 
-      surveyId, 
-      encounterReason,
-      ...otherData
-    } = surveyData;
+  static async submit(patientId, surveyData, values): Promise<SurveyResponse> {
+    const { surveyId, encounterReason, ...otherData } = surveyData;
 
     const encounter = await Encounter.create({
       patient: patientId,
@@ -47,13 +43,11 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     });
 
     const answers = await Promise.all(
-      Object.entries(values).map(([dataElementId, value]) => (
-        SurveyResponseAnswer.create({
-          dataElementId,
-          body: `${value}`,
-          response: responseRecord.id,
-        })
-      ))
+      Object.entries(values).map(([dataElementId, value]) => SurveyResponseAnswer.create({
+        dataElementId,
+        body: `${value}`,
+        response: responseRecord.id,
+      })),
     );
 
     return responseRecord;
@@ -61,15 +55,14 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 }
 
 @Entity('survey_response_answer')
-export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAnswer {
- 
+export class SurveyResponseAnswer extends BaseModel
+  implements ISurveyResponseAnswer {
   @Column()
   body: string;
-  
+
   @ManyToOne(type => SurveyResponse, surveyResponse => surveyResponse.answers)
   response: SurveyResponse;
-  
+
   @ManyToOne(type => ProgramDataElement, dataElement => dataElement.answers)
   dataElement: ProgramDataElement;
-
 }

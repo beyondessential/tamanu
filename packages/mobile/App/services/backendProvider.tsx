@@ -1,24 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Backend } from './backend';
 
-import {
-  StyledSafeAreaView,
-  StyledText,
-  StyledView,
-  CenterView,
-} from '~/ui/styled/common';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 
-export const BackendContext = React.createContext();
+export const BackendContext = React.createContext(undefined);
 
 const backend = new Backend();
 
-export const BackendProvider = ({ Component }) => {
-
+export const BackendProvider = ({ Component }): JSX.Element => {
   const [initialised, setInitialised] = useState(false);
 
   useEffect(() => {
-    (async () => {
+    (async (): Promise<void> => {
       backend.stopSyncService();
       setInitialised(false);
       await backend.initialise(Date.now());
@@ -27,10 +20,8 @@ export const BackendProvider = ({ Component }) => {
     return () => backend.stopSyncService();
   }, [backend]);
 
-  if(!initialised) {
-    return (
-      <LoadingScreen text="Connecting to database..." />
-    );
+  if (!initialised) {
+    return <LoadingScreen text="Connecting to database..." />;
   }
 
   return (

@@ -6,7 +6,7 @@ interface TableColProps {
   columns: Column[];
   row: any;
   tableHeader: Column;
-  onPressItem?: (item: any) => void;
+  onPressItem: (item: any) => void;
 }
 
 export const TableCol = ({
@@ -15,8 +15,8 @@ export const TableCol = ({
   tableHeader,
   onPressItem,
 }: TableColProps): JSX.Element => (
-  <StyledView>
-    {tableHeader.accessor(row, onPressItem)}
-    {columns.map(c => c.accessor(row, onPressItem, c))}
-  </StyledView>
-);
+    <StyledView>
+      {tableHeader.accessor(row, onPressItem)}
+      {columns.map(c => c.accessor(row, onPressItem, c))}
+    </StyledView>
+  );

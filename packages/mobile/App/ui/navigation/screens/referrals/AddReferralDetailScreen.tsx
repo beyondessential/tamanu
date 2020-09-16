@@ -30,15 +30,13 @@ export const AddRefferalDetailScreen = (): ReactElement => {
     [scrollViewRef],
   );
 
-  const renderForm = useCallback(({ handleSubmit }) => {
-    return (
-      <ReferralForm
-        scrollToComponent={scrollToComponent}
-        handleSubmit={handleSubmit}
-        scrollViewRef={scrollViewRef}
-      />
-    );
-  }, []);
+  const renderForm = useCallback(({ handleSubmit }) => (
+    <ReferralForm
+      scrollToComponent={scrollToComponent}
+      handleSubmit={handleSubmit}
+      scrollViewRef={scrollViewRef}
+    />
+  ), []);
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <Formik

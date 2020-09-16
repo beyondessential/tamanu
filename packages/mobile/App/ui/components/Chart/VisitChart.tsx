@@ -10,29 +10,26 @@ import { BarChartData } from '../../interfaces/BarChartProps';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 interface CustomGridProps {
-  x?: (value: number) => number;
-  y?: (value: number) => number;
-  data?: any[];
-  ticks?: any[];
+  x: (value: number) => number;
+  data: any[];
 }
 
 const CustomGrid = memo(
   ({ x, data }: CustomGridProps): JSX.Element => (
     <G>
-      {data &&
-        data.map(
-          (_, index: number) =>
-            index % 7 === 0 && (
-              <Line
-                strokeDasharray="4, 4"
-                key={data[index].date.toString()}
-                y1="0%"
-                y2="100%"
-                x1={x && x(index) - 2}
-                x2={x && x(index) - 2}
-                stroke={theme.colors.TEXT_DARK}
-              />
-            ),
+      {data
+        && data.map(
+          (_, index: number) => index % 7 === 0 && (
+            <Line
+              strokeDasharray="4, 4"
+              key={data[index].date.toString()}
+              y1="0%"
+              y2="100%"
+              x1={x && x(index) - 2}
+              x2={x && x(index) - 2}
+              stroke={theme.colors.TEXT_DARK}
+            />
+          ),
         )}
     </G>
   ),
@@ -63,12 +60,11 @@ interface DateRangeLabelsProps {
 
 const DateRangeLabels = memo(({ data }: DateRangeLabelsProps) => {
   const dateIntervalArray = useMemo(
-    () =>
-      DateRangeIndexes.map((dateRange, index) => ({
-        start: data[dateRange.startDate].date,
-        end: data[dateRange.endDate].date,
-        key: index,
-      })),
+    () => DateRangeIndexes.map((dateRange, index) => ({
+      start: data[dateRange.startDate].date,
+      end: data[dateRange.endDate].date,
+      key: index,
+    })),
     [data],
   );
 
@@ -175,15 +171,14 @@ export const VisitChart = memo(
           <StyledView flex={1}>
             <BarChart
               style={styles.barChartStyles}
-              yAccessor={({ item }: { item: BarChartData }): number =>
-                item.value
+              yAccessor={({ item }: { item: BarChartData }): number => item.value
               }
               animate
               data={data}
               svg={barStyle}
               spacingInner={0.2}
             >
-              <CustomGrid />
+              <CustomGrid x={(): number => 0} data={[]} />
             </BarChart>
             <DateRangeLabels data={data} />
           </StyledView>

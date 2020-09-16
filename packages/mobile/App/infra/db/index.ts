@@ -1,20 +1,27 @@
-import { Connection, createConnection, getConnectionManager } from 'typeorm';
+import {
+  Connection,
+  createConnection,
+  getConnectionManager,
+  ConnectionOptions,
+} from 'typeorm';
 import { DevSettings } from 'react-native';
 import * as modelsMap from '~/models';
 import { BaseModel } from '~/models/BaseModel';
 import { clear } from '~/services/config';
 
-interface ModelMap {
-  [key: string]: BaseModel,
+export interface ModelMap {
+  [key: string]: BaseModel;
 }
 
-const MODELS : ModelMap = Object.entries(modelsMap)
-  .reduce((allModelsObject, [modelName, model]) => ({
+const MODELS: ModelMap = Object.entries(modelsMap).reduce(
+  (allModelsObject, [modelName, model]) => ({
     [modelName]: model,
     ...allModelsObject,
-  }), {});
+  }),
+  {},
+);
 
-const MODEL_LIST : BaseModel[] = Object.values(MODELS);
+const MODEL_LIST: BaseModel[] = Object.values(MODELS);
 
 const LOG_LEVELS = __DEV__ ? ['error', /*'query',*/ 'schema'] : [];
 
@@ -36,8 +43,8 @@ const TEST_CONNECTION_CONFIG = {
 };
 
 class DatabaseHelper {
-
   client: Connection = null;
+
   models: ModelMap = MODELS;
 
   async forceSync(): Promise<any> {
@@ -45,19 +52,19 @@ class DatabaseHelper {
   }
 
   async connect(): Promise<Connection> {
-    if(!this.client) {
+    if (!this.client) {
       await this.createClient();
     }
     return this.client;
   }
 
-  async createClient() {
+  async createClient(): Promise<ConnectionOptions | void> {
     try {
       this.client = await createConnection(CONNECTION_CONFIG);
       await this.forceSync();
     } catch (error) {
-      if (error.name === "AlreadyHasActiveConnectionError") {
-        const existentConn = getConnectionManager().get("default");
+      if (error.name === 'AlreadyHasActiveConnectionError') {
+        const existentConn = getConnectionManager().get('default');
         this.client = existentConn;
       } else {
         console.error(error);

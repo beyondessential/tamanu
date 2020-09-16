@@ -5,13 +5,11 @@ import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 const size = screenPercentageToDP(3.03, Orientation.Height);
 
-export const EmptyCircleIcon = memo(() => {
-  return (
-    <StyledView
-      height={size}
-      width={size}
-      borderRadius={50}
-      background={theme.colors.WHITE}
-    />
-  );
-});
+export const EmptyCircleIcon = memo(() => (
+  <StyledView
+    height={size}
+    width={size}
+    borderRadius={50}
+    background={theme.colors.WHITE}
+  />
+));

@@ -21,7 +21,8 @@ import {
 import { UserAvatar } from '/components/UserAvatar';
 import { Routes } from '/helpers/routes';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
-import { FemaleGender, MaleGender } from '/helpers/constants';
+import { IPatient } from '/types';
+import { FemaleGender } from '/helpers/constants';
 import { compose } from 'redux';
 import { withAuth } from '/containers/Auth';
 import AuthContext from '/contexts/authContext/AuthContext';
@@ -52,7 +53,8 @@ const HomeMenuButton = ({
       background={theme.colors.WHITE}
       borderRadius={5}
       paddingLeft={15}
-      paddingTop={screenPercentageToDP(3.03, Orientation.Height)}>
+      paddingTop={screenPercentageToDP(3.03, Orientation.Height)}
+    >
       <ProfileIcon
         height={screenPercentageToDP(6.92, Orientation.Height)}
         width={screenPercentageToDP(6.92, Orientation.Height)}
@@ -62,14 +64,15 @@ const HomeMenuButton = ({
         marginTop={screenPercentageToDP(4.86, Orientation.Width)}
         fontSize={screenPercentageToDP(2.18, Orientation.Height)}
         fontWeight="bold"
-        color={theme.colors.TEXT_DARK}>
+        color={theme.colors.TEXT_DARK}
+      >
         {text}
       </StyledText>
     </StyledView>
   </StyledTouchableOpacity>
 );
 
-const PatientCardContainer = ({ patient }): ReactElement => (
+const PatientCardContainer = ({ patient }: IPatient): ReactElement => (
   <StyledView marginRight={10}>
     <PatientCard
       onPress={(): void => console.log('patient card.')}
@@ -89,12 +92,14 @@ const SearchPatientsButton = ({
       paddingLeft={20}
       background={theme.colors.WHITE}
       height={screenPercentageToDP(6.07, Orientation.Height)}
-      alignItems="center">
+      alignItems="center"
+    >
       <SearchIcon fill={theme.colors.TEXT_MID} />
       <StyledText
         fontSize={screenPercentageToDP(1.94, Orientation.Height)}
         marginLeft={10}
-        color={theme.colors.TEXT_MID}>
+        color={theme.colors.TEXT_MID}
+      >
         Search for patients
       </StyledText>
     </RowView>
@@ -131,13 +136,15 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
           height="31.59%"
           width="100%"
           paddingRight={screenPercentageToDP(6.08, Orientation.Width)}
-          paddingLeft={screenPercentageToDP(6.08, Orientation.Width)}>
+          paddingLeft={screenPercentageToDP(6.08, Orientation.Width)}
+        >
           <StyledView width="100%">
             <RowView
               alignItems="center"
               marginTop={screenPercentageToDP(1.21, Orientation.Height)}
               width="100%"
-              justifyContent="space-between">
+              justifyContent="space-between"
+            >
               <LogoV2Icon height={23} width={95} fill={theme.colors.WHITE} />
               <UserAvatar
                 size={screenPercentageToDP(5.46, Orientation.Height)}
@@ -149,12 +156,14 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
               marginTop={screenPercentageToDP(3.07, Orientation.Height)}
               fontSize={screenPercentageToDP(4.86, Orientation.Height)}
               fontWeight="bold"
-              color={theme.colors.WHITE}>
+              color={theme.colors.WHITE}
+            >
               Hi {user && user.displayName}
             </StyledText>
             <StyledText
               fontSize={screenPercentageToDP(2.18, Orientation.Height)}
-              color={theme.colors.WHITE}>
+              color={theme.colors.WHITE}
+            >
               Hospital name
             </StyledText>
           </StyledView>
@@ -165,7 +174,8 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
           paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
           paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
           top="28%"
-          width="100%">
+          width="100%"
+        >
           <SearchPatientsButton onPress={onNavigateToSearchPatient} />
         </StyledView>
         <StyledView
@@ -173,7 +183,8 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
           paddingTop={screenPercentageToDP(4.86, Orientation.Height)}
           paddingBottom={screenPercentageToDP(3.03, Orientation.Height)}
           paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
-          paddingRight={screenPercentageToDP(4.86, Orientation.Width)}>
+          paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
+        >
           <RowView width="100%" justifyContent="space-between">
             <HomeMenuButton
               onPress={onNavigateToAnonymousPatient}
@@ -188,11 +199,13 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
         <StyledView
           flex={1}
           background={theme.colors.BACKGROUND_GREY}
-          paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}>
+          paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
+        >
           <StyledText
             fontSize={screenPercentageToDP(1.45, Orientation.Height)}
             color={theme.colors.TEXT_DARK}
-            marginBottom={screenPercentageToDP(1.21, Orientation.Height)}>
+            marginBottom={screenPercentageToDP(1.21, Orientation.Height)}
+          >
             RECENTLY VIEWED PATIENTS
           </StyledText>
           <ScrollView horizontal>

@@ -20,7 +20,7 @@ interface AnimatedText {
   pose: string;
 }
 
-const StyledAnimatedLabel = styled(StyledText)<AnimatedText>`
+const StyledAnimatedLabel = styled(StyledText) <AnimatedText>`
   font-size: ${screenPercentageToDP(1.94, Orientation.Height)};
   font-weight: 400;
   margin-bottom: 5;
@@ -32,7 +32,7 @@ interface LabelProps {
   children: string;
   focus: boolean;
   isValueEmpty: boolean;
-  error?: string;
+  error: string;
   onFocus: Function;
 }
 

@@ -1,6 +1,6 @@
 import { ID } from './ID';
 
-export enum EncounterType = {
+export enum EncounterType {
   Admission = 'admission',
   Clinic = 'clinic',
   Imaging = 'imaging',
@@ -8,15 +8,10 @@ export enum EncounterType = {
   Observation = 'observation',
   Triage = 'triage',
   SurveyResponse = 'surveyResponse',
-};
+}
 
 export interface IEncounter {
   id: ID;
-
-  patientId: ID;
-  departmentId: ID;
-  locationId: ID;
-  examinerId: ID;
 
   encounterType: EncounterType;
 

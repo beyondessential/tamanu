@@ -11,6 +11,8 @@ describe('<VisitTypeButton />', () => {
       type={VisitTypes.CLINIC}
       selected
       onPress={(): void => onPressMock()}
+      title=""
+      subtitle=""
     />,
   );
   it('should render correctly', () => {

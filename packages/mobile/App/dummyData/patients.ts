@@ -1,6 +1,6 @@
 import { Chance } from 'chance';
 import { GenderOptions } from '/helpers/constants';
-import { BloodTypes } from '/helpers/constants';
+import { IPatient } from '~/types';
 
 const defaultGenerator = new Chance();
 
@@ -15,7 +15,7 @@ const CITIES = [
   'Canberra',
 ];
 
-export const generatePatient = (generator = defaultGenerator) => {
+export const generatePatient = (generator = defaultGenerator): IPatient => {
   const sex = (generator.bool() ? GenderOptions[0] : GenderOptions[1]).value;
   const [firstName, middleName, lastName] = generator
     .name({middle: true, gender: sex })
@@ -36,8 +36,5 @@ export const generatePatient = (generator = defaultGenerator) => {
     bloodType: generator.pickone(BloodTypes).value,
     sex,
     dateOfBirth: generator.birthday(),
-    // city: generator.pickone(CITIES),
-    // telephone: generator.phone(),
   };
 };
-

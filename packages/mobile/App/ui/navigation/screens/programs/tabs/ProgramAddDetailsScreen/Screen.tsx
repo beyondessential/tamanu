@@ -12,15 +12,14 @@ export const Screen = ({
   scrollTo,
   ...props
 }: ScreenProps): ReactElement => {
-
   const [components, error] = useCancelableEffect(() => survey.getComponents());
 
-  if(error) {
+  if (error) {
     return <ErrorScreen error={error} />;
   }
 
-  if(!components) {
-    return <LoadingScreen text="Loading survey..." />;
+  if (!components) {
+    return <LoadingScreen />;
   }
 
   return (
