@@ -6,6 +6,8 @@ import {
 
 import { SyncManager, DummySyncSource } from '~/services/sync';
 
+const SYNC_PERIOD_MINUTES = 5;
+
 export class Backend {
   randomId: any;
 
@@ -19,8 +21,6 @@ export class Backend {
     const { models } = Database;
     this.models = models;
     this.syncManager = new SyncManager(new DummySyncSource());
-
-    this.pollInterval = 0.1 * 60 * 1000;
   }
 
   async initialise(): Promise<void> {
@@ -29,9 +29,12 @@ export class Backend {
   }
 
   startSyncService() {
+    // run once now, and then schedule for later
+    this.syncManager.runScheduledSync();
+
     this.interval = setInterval(() => {
       this.syncManager.runScheduledSync();
-    }, this.pollInterval);
+    }, SYNC_PERIOD_MINUTES * 60 * 1000);
   }
 
   stopSyncService() {

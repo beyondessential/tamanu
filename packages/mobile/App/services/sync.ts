@@ -60,8 +60,6 @@ export class SyncManager {
   isSyncing = false; 
   emitter = mitt();
 
-  referenceSyncDate = new Date(new Date() - 1000000000)
-
   constructor(syncSource: SyncSource) {
     this.syncSource = syncSource;
 
