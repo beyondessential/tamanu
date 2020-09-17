@@ -2,6 +2,7 @@ import {
   BaseEntity,
   PrimaryColumn,
   Generated,
+  UpdateDateColumn,
   getRepository,
 } from 'typeorm/browser';
 
@@ -10,11 +11,14 @@ export abstract class BaseModel extends BaseEntity {
   @Generated('uuid')
   id: string;
 
+  @UpdateDateColumn()
+  lastModified: string;
+
   static getRepository(): any {
     return getRepository(this);
   }
 
-  static async create(data): Promise<BaseEntity> {
+  static async create(data: any): Promise<BaseEntity> {
     const repo = this.getRepository();
     const record = repo.create({
       ...data,
@@ -22,4 +26,19 @@ export abstract class BaseModel extends BaseEntity {
     await record.save();
     return record;
   }
+
+  static async update(data: any): Promise<void> {
+    const repo = this.getRepository();
+    return repo.update(data.id, data);
+  }
+
+  static async createOrUpdate(data: any): Promise<void> {
+    const repo = this.getRepository();
+    const existing = await repo.count({ id: data.id });
+    if(existing > 0) {
+      return this.update(data);
+    }
+    return this.create(data);
+  }
+
 }
