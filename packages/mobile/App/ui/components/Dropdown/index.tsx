@@ -103,13 +103,13 @@ export const Dropdown = React.memo(
               selectedItem={value}
             />
           ) : (
-            <AndroidPicker
-              closeModal={closeModal}
-              items={options}
-              onChange={onChange}
-              open={open}
-            />
-          )}
+              <AndroidPicker
+                closeModal={closeModal}
+                items={options}
+                onChange={onChange}
+                open={open}
+              />
+            )}
         </StyledView>
       </>
     );

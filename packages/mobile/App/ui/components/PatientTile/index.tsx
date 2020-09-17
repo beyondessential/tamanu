@@ -1,7 +1,7 @@
 import React from 'react';
 import { RowView, StyledView, StyledText } from '/styled/common';
 import { UserAvatar } from '../UserAvatar';
-import { formatDate } from '/helpers/date';
+import { formatDate, getAgeFromDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { theme } from '/styled/theme';
 import { getGender } from '/helpers/user';
@@ -10,8 +10,7 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 export interface PatientTileProps {
   displayId?: string;
   name: string;
-  gender: string;
-  city: string;
+  sex: string;
   dateOfBirth: Date;
   lastVisit?: Date;
   image?: string;
@@ -20,8 +19,7 @@ export interface PatientTileProps {
 export const PatientTile = ({
   displayId,
   name,
-  gender,
-  city,
+  sex,
   image,
   lastVisit,
   dateOfBirth,
@@ -37,7 +35,7 @@ export const PatientTile = ({
         <UserAvatar
           size={screenPercentageToDP('4.86', Orientation.Height)}
           image={image}
-          gender={gender}
+          gender={sex}
           displayName={name}
         />
       </StyledView>
@@ -57,7 +55,7 @@ export const PatientTile = ({
           textAlign="left"
         >
           {displayId && displayId} •{' '}
-          {`${getGender(gender)[0]} ${dateOfBirth}yrs • ${city}`}
+          {`${getGender(sex)[0]} • ${getAgeFromDate(dateOfBirth)}yrs`}
         </StyledText>
       </StyledView>
       {lastVisit && (

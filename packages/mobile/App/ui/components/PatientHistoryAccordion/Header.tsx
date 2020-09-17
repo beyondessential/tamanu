@@ -1,4 +1,5 @@
 import React, { FunctionComponent } from 'react';
+import { format } from 'date-fns';
 import { SvgProps } from 'react-native-svg';
 import { StyledView, RowView, StyledText, ColumnView } from '/styled/common';
 import { theme } from '/styled/theme';
@@ -7,6 +8,7 @@ import { DateFormats, HeaderIcons } from '/helpers/constants';
 import { VisitOverviewProps } from '../../interfaces/VisitOverview';
 import * as Icons from '../Icons';
 import { Separator } from '../Separator';
+import { IEncounter } from '~/types';
 
 interface IconProps {
   IconComponent: FunctionComponent<SvgProps>;
@@ -35,16 +37,16 @@ const HeaderRightIconContainer = ({
   );
 
 interface HeaderDateProps {
-  date: Date;
+  startDate: Date;
   isActive: boolean;
 }
 
-const HeaderDate = ({ date, isActive }: HeaderDateProps): JSX.Element => (
+const HeaderDate = ({ startDate, isActive }: HeaderDateProps): JSX.Element => (
   <StyledText
     fontSize={14}
     color={isActive ? theme.colors.WHITE : theme.colors.TEXT_DARK}
   >
-    {formatDate(date, DateFormats.DAY_MONTH_YEAR_SHORT)}
+    {formatDate(startDate, DateFormats.DAY_MONTH_YEAR_SHORT)}
   </StyledText>
 );
 
@@ -56,6 +58,7 @@ interface HeaderIconProps {
 const HeaderLeftIcon = ({ isActive, type }: HeaderIconProps): JSX.Element => {
   const fill = isActive ? theme.colors.WHITE : theme.colors.PRIMARY_MAIN;
   const Icon = HeaderIcons[type];
+
   return (
     <StyledView marginRight={30}>
       <Icon fill={fill} />
@@ -63,15 +66,15 @@ const HeaderLeftIcon = ({ isActive, type }: HeaderIconProps): JSX.Element => {
   );
 };
 
-interface HeaderDescriptionProps extends VisitOverviewProps {
+interface HeaderDescriptionProps extends IEncounter {
+  practitioner?: { name: string };
   isActive: boolean;
 }
 
 const HeaderDescription = ({
-  type,
+  encounterType,
   isActive,
-  typeDescription,
-  location,
+  practitioner = { name: 'Unknown Practitioner' },
 }: HeaderDescriptionProps): JSX.Element => (
     <ColumnView flex={1}>
       <StyledText
@@ -79,29 +82,20 @@ const HeaderDescription = ({
         fontWeight={700}
         fontSize={16}
       >
-        {type}
-        {typeDescription && (
-          <StyledText
-            color={isActive ? theme.colors.WHITE : theme.colors.TEXT_MID}
-            fontWeight={400}
-          >
-            {' '}
-            {typeDescription}
-          </StyledText>
-        )}
+        {encounterType}
       </StyledText>
       <StyledView marginTop={1}>
         <StyledText
           color={isActive ? theme.colors.SECONDARY_MAIN : theme.colors.TEXT_MID}
         >
-          {location}
+          {practitioner.name}
         </StyledText>
       </StyledView>
     </ColumnView>
   );
 
 const Header = (
-  section: VisitOverviewProps,
+  section: IEncounter,
   index: number,
   isActive: boolean,
 ): JSX.Element => (
@@ -116,7 +110,7 @@ const Header = (
         paddingLeft={20}
         paddingRight={20}
       >
-        <HeaderLeftIcon isActive={isActive} type={section.type} />
+        <HeaderLeftIcon isActive={isActive} type={section.encounterType} />
         <HeaderDescription {...section} isActive={isActive} />
         <HeaderDate {...section} isActive={isActive} />
         <HeaderRightIconContainer isActive={isActive} />

@@ -17,6 +17,8 @@ import {
 import { FormScreenView } from '/components/Forms/FormScreenView';
 import { useBackend } from '~/ui/helpers/hooks';
 import { withPatient } from '~/ui/containers/Patient';
+import { Dropdown } from '~/ui/components/Dropdown';
+import { EncounterType } from '~/types';
 
 const initialValues = {
   encounterType: '',
@@ -47,7 +49,8 @@ const DumbCreateEncounterForm = ({ selectedPatient }): ReactElement => {
         >
           <SectionHeader h3>CREATE ENCOUNTER</SectionHeader>
           <Field
-            component={TextField}
+            component={Dropdown}
+            options={Object.values(EncounterType).map((t) => ({ value: t, label: t }))}
             onFocus={scrollToComponent('encounterType')}
             label="Encounter Type"
             name="encounterType"

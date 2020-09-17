@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { StyledView } from '/styled/common';
+import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { ColorHelper } from '/helpers/colors';
 import { PractitionerView } from './PractitionerView';
@@ -17,7 +17,8 @@ export const VisitOverview = (section: VisitOverviewProps): JSX.Element => (
     borderBottomWidth={StyleSheet.hairlineWidth}
     borderColor={theme.colors.BOX_OUTLINE}
   >
-    <Diagnosis info={section.diagnosis} />
+    {/** TODO: Move to encounter screen */}
+    {/* <Diagnosis info={section.diagnosis} />
     <TreatmentPlan treatment={section.treament} />
     <MedicationList medications={section.medications} />
     <StyledView
@@ -26,6 +27,7 @@ export const VisitOverview = (section: VisitOverviewProps): JSX.Element => (
       marginTop={20}
       marginBottom={20}
     />
-    <PractitionerView name={section.practitioner.name} />
+    <PractitionerView name={section.practitioner.name} /> */}
+    <StyledText>{JSON.stringify(section, null, 2)}</StyledText>
   </StyledView>
 );

@@ -39,66 +39,68 @@ export const Screen = ({
   navigateToSearchPatients,
   navigateToPatientActions,
   selectedPatient,
-}: ScreenProps): ReactElement => (
-  <FullView background={theme.colors.PRIMARY_MAIN}>
-    <StatusBar barStyle="light-content" />
-    <StyledSafeAreaView flex={1}>
-      <StyledView
-        height={screenPercentageToDP(27.37, Orientation.Height)}
-        background={theme.colors.PRIMARY_MAIN}
-        width="100%"
-      >
-        <RowView alignItems="center">
-          <BackButton onPress={navigateToSearchPatients} />
-          <SearchButton onPress={navigateToSearchPatients} />
-          <DotsMenuButton onPress={navigateToPatientActions} />
-        </RowView>
-        <RowView
-          marginTop={screenPercentageToDP(1.5, Orientation.Height)}
-          paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
+}: ScreenProps): ReactElement => {
+  console.log("selectedPatient", selectedPatient)
+  return (
+    <FullView background={theme.colors.PRIMARY_MAIN}>
+      <StatusBar barStyle="light-content" />
+      <StyledSafeAreaView flex={1}>
+        <StyledView
+          height={screenPercentageToDP(27.37, Orientation.Height)}
+          background={theme.colors.PRIMARY_MAIN}
+          width="100%"
         >
-          <StyledView
-            marginRight={screenPercentageToDP(3.64, Orientation.Width)}
+          <RowView alignItems="center">
+            <BackButton onPress={navigateToSearchPatients} />
+            <SearchButton onPress={navigateToSearchPatients} />
+            <DotsMenuButton onPress={navigateToPatientActions} />
+          </RowView>
+          <RowView
+            marginTop={screenPercentageToDP(1.5, Orientation.Height)}
+            paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
           >
-            <UserAvatar
-              size={screenPercentageToDP(7.29, Orientation.Height)}
-              gender={selectedPatient.gender}
-              displayName={joinNames(selectedPatient)}
-            />
-          </StyledView>
-          <StyledView>
-            <StyledText
-              fontWeight="bold"
-              color={theme.colors.WHITE}
-              fontSize={screenPercentageToDP(3.4, Orientation.Height)}
+            <StyledView
+              marginRight={screenPercentageToDP(3.64, Orientation.Width)}
             >
-              {setDotsOnMaxLength(joinNames(selectedPatient), 20)}
-            </StyledText>
-            <StyledText
-              color={theme.colors.WHITE}
-              fontSize={screenPercentageToDP(1.94, Orientation.Height)}
-            >
-              {getGender(selectedPatient.gender)},{' '}
-              {getAgeFromDate(selectedPatient.dateOfBirth)} years old,{' '}
-              {selectedPatient.city}
-            </StyledText>
-            <Button
-              marginTop={screenPercentageToDP(1.21, Orientation.Height)}
-              width={screenPercentageToDP(23.11, Orientation.Width)}
-              height={screenPercentageToDP(4.86, Orientation.Height)}
-              buttonText="Sync Data"
-              fontSize={screenPercentageToDP(1.57, Orientation.Height)}
-              onPress={(): null => null}
-              outline
-              borderColor={theme.colors.WHITE}
-            />
-          </StyledView>
-        </RowView>
-      </StyledView>
-      <StyledView flex={1} background={theme.colors.BACKGROUND_GREY}>
-        <PatientMenuButtons list={patientMenuButtons} />
-        <VisitTypeButtonList list={visitTypeButtons} />
-      </StyledView>
-    </StyledSafeAreaView>
-  </FullView>
-);
+              <UserAvatar
+                size={screenPercentageToDP(7.29, Orientation.Height)}
+                gender={selectedPatient.gender}
+                displayName={joinNames(selectedPatient)}
+              />
+            </StyledView>
+            <StyledView>
+              <StyledText
+                fontWeight="bold"
+                color={theme.colors.WHITE}
+                fontSize={screenPercentageToDP(3.4, Orientation.Height)}
+              >
+                {setDotsOnMaxLength(joinNames(selectedPatient), 20)}
+              </StyledText>
+              <StyledText
+                color={theme.colors.WHITE}
+                fontSize={screenPercentageToDP(1.94, Orientation.Height)}
+              >
+                {getGender(selectedPatient.sex)},{' '}
+                {getAgeFromDate(selectedPatient.dateOfBirth)} years old{' '}
+              </StyledText>
+              <Button
+                marginTop={screenPercentageToDP(1.21, Orientation.Height)}
+                width={screenPercentageToDP(23.11, Orientation.Width)}
+                height={screenPercentageToDP(4.86, Orientation.Height)}
+                buttonText="Sync Data"
+                fontSize={screenPercentageToDP(1.57, Orientation.Height)}
+                onPress={(): null => null}
+                outline
+                borderColor={theme.colors.WHITE}
+              />
+            </StyledView>
+          </RowView>
+        </StyledView>
+        <StyledView flex={1} background={theme.colors.BACKGROUND_GREY}>
+          <PatientMenuButtons list={patientMenuButtons} />
+          <VisitTypeButtonList list={visitTypeButtons} />
+        </StyledView>
+      </StyledSafeAreaView>
+    </FullView>
+  )
+};

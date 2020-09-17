@@ -17,6 +17,8 @@ import {
   zIndex,
   height,
   width,
+  justifyContent,
+  alignItems
 } from 'styled-system';
 import SafeAreaView from 'react-native-safe-area-view';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -46,10 +48,10 @@ interface TextProps {
   fontSize?: number | string | Value<number>;
   fontWeight?: number | string;
   textDecorationLine?:
-    | 'none'
-    | 'underline'
-    | 'line-through'
-    | 'underline line-through';
+  | 'none'
+  | 'underline'
+  | 'line-through'
+  | 'underline line-through';
   color?: string;
 }
 export interface SpacingProps {
@@ -101,15 +103,15 @@ interface VisibilityProps {
 
 export interface StyledTextProps
   extends SpacingProps,
-    FlexProps,
-    BorderProps,
-    TextProps {}
+  FlexProps,
+  BorderProps,
+  TextProps { }
 export interface StyledViewProps
   extends PositionProps,
-    SpacingProps,
-    VisibilityProps,
-    FlexProps,
-    BorderProps {
+  SpacingProps,
+  VisibilityProps,
+  FlexProps,
+  BorderProps {
   children?: ReactNode | Element[];
   background?: string;
   overflow?: string;
@@ -127,9 +129,11 @@ export const StyledView = styled.View<StyledViewProps>`
   ${({ borderLeftWidth }): string | number => `border-left-width: ${borderLeftWidth}` || 0};  
   ${boxShadow}
   ${zIndex}
+  ${justifyContent}
+  ${alignItems}
 `;
 
-export const StyledSafeAreaView = styled(SafeAreaView)<StyledViewProps>`    
+export const StyledSafeAreaView = styled(SafeAreaView) <StyledViewProps>`    
   ${size}  
   ${margin}  
   ${padding}  
@@ -143,14 +147,14 @@ export const StyledSafeAreaView = styled(SafeAreaView)<StyledViewProps>`
   ${({ borderBottomWidth = 0 }): string => `border-bottom-width: ${borderBottomWidth}`};
 `;
 
-export const StyledNavigationView = styled(SafeAreaView)<StyledViewProps>`    
-  ${size}  
-  ${margin}  
-  ${padding}  
-  ${flexbox}     
+export const StyledNavigationView = styled(SafeAreaView) <StyledViewProps>`    
+  ${size}
+  ${margin}
+  ${padding}
+  ${flexbox}
   ${background}
-  ${overflow}       
-  ${position}  
+  ${overflow}
+  ${position}
   ${({ borderLeftWidth = 0 }): string => `border-left-width: ${borderLeftWidth}`};
   ${({ borderRightWidth = 0 }): string => `border-right-width: ${borderRightWidth}`};
   ${({ borderTopWidth = 0 }): string => `border-top-width: ${borderTopWidth}`};
@@ -188,7 +192,7 @@ interface StyledTouchableOpacityProps extends StyledViewProps {
 
 export const StyledTouchableOpacity = styled.TouchableOpacity<
   StyledTouchableOpacityProps
->`
+  >`
   ${color}      
   ${fontWeight}
   ${fontSize}
@@ -197,7 +201,7 @@ export const StyledTouchableOpacity = styled.TouchableOpacity<
   ${margin}  
   ${padding}  
   ${flexbox}     
-  ${background}  
+  ${background}
 `;
 
 export const FullView = styled(StyledView)`
@@ -227,7 +231,7 @@ export const ColumnView = styled(StyledView)`
   flex-direction: column;
 `;
 
-export const StyledScrollView = styled(ScrollView)<StyledViewProps>`  
+export const StyledScrollView = styled(ScrollView) <StyledViewProps>`  
   ${size}
   ${position}
   ${overflow}        
