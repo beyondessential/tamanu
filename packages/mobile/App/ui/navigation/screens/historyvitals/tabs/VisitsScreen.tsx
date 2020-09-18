@@ -2,7 +2,6 @@ import React, { ReactElement, useCallback } from 'react';
 import { compose } from 'redux';
 import { FullView, StyledSafeAreaView, StyledView } from '/styled/common';
 import { PatientHistoryAccordion } from '~/ui/components/PatientHistoryAccordion';
-// import { data } from '../../../../components/PatientHistoryAccordion/fixtures';
 import { theme } from '/styled/theme';
 import { Button } from '/components/Button';
 import { FilterIcon } from '/components/Icons';
@@ -33,7 +32,7 @@ export const DumbVisistsScreen = ({ selectedPatient }): ReactElement => {
   return (
     <StyledSafeAreaView flex={1}>
       <FullView background={theme.colors.BACKGROUND_GREY}>
-        {data ? <PatientHistoryAccordion dataArray={data} /> : <LoadingScreen progress={50} />}
+        {data ? <PatientHistoryAccordion dataArray={data} /> : <LoadingScreen />}
         <StyledView
           position="absolute"
           zIndex={2}
@@ -47,8 +46,7 @@ export const DumbVisistsScreen = ({ selectedPatient }): ReactElement => {
             bordered
             textColor={theme.colors.WHITE}
             onPress={navigateToHistoryFilters}
-            buttonText={`Filters ${activeFilters.count > 0 ? `${activeFilters.count}` : ''
-              }`}
+            buttonText={activeFilters.count ? `Filters: ${activeFilters.count}` : 'Filters'}
           >
             <StyledView
               marginRight={screenPercentageToDP(1.21, Orientation.Height)}

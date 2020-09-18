@@ -9,41 +9,41 @@ import { DateFormats } from '/helpers/constants';
 export const GeneralInfo = (
   data: PatientGeneralInformationDataProps,
 ): ReactElement => (
-    <StyledView width="100%">
-      <SectionHeader h1 fontWeight={500}>
-        General Information
+  <StyledView width="100%">
+    <SectionHeader h1 fontWeight={500}>
+      General Information
     </SectionHeader>
-      <RowView marginTop={20}>
-        <InformationBox
-          flex={1}
-          title="First name"
-          info={data.generalInfo.firstName}
-        />
-        <InformationBox
-          flex={1}
-          title="Middle name"
-          info={data.generalInfo.middleName || 'None'}
-        />
-      </RowView>
-      <RowView marginTop={20}>
-        <InformationBox
-          flex={1}
-          title="Last name"
-          info={data.generalInfo.lastName}
-        />
-        <InformationBox
-          flex={1}
-          title="Cultural/tradition name"
-          info={data.generalInfo.culturalTraditionName || 'None'}
-        />
-      </RowView>
-      <RowView marginTop={20}>
-        <InformationBox
-          flex={1}
-          title="Date of Birth"
-          info={formatDate(data.generalInfo.dateOfBirth, DateFormats.DDMMYY)}
-        />
-        <InformationBox flex={1} title="Blood type" info="B+" />
-      </RowView>
-    </StyledView>
-  );
+    <RowView marginTop={20}>
+      <InformationBox
+        flex={1}
+        title="First name"
+        info={data.generalInfo.firstName}
+      />
+      <InformationBox
+        flex={1}
+        title="Middle name"
+        info={data.generalInfo.middleName || 'None'}
+      />
+    </RowView>
+    <RowView marginTop={20}>
+      <InformationBox
+        flex={1}
+        title="Last name"
+        info={data.generalInfo.lastName}
+      />
+      <InformationBox
+        flex={1}
+        title="Cultural/tradition name"
+        info={data.generalInfo.culturalTraditionName || 'None'}
+      />
+    </RowView>
+    <RowView marginTop={20}>
+      <InformationBox
+        flex={1}
+        title="Date of Birth"
+        info={formatDate(data.generalInfo.dateOfBirth, DateFormats.DDMMYY)}
+      />
+      <InformationBox flex={1} title="Blood type" info="B+" />
+    </RowView>
+  </StyledView>
+);
