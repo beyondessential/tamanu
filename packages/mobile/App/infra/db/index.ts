@@ -76,9 +76,8 @@ class DatabaseHelper {
 export const Database = new DatabaseHelper();
 
 if (__DEV__) {
-  DevSettings.addMenuItem("Clear database", async () => {
+  DevSettings.addMenuItem('Clear database', async () => {
     await clear();
-    await Database.client.dropDatabase();
     DevSettings.reload();
   });
 }

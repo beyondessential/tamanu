@@ -1,3 +1,4 @@
+import { EncounterType } from '~/types';
 import * as Icons from '/components/Icons';
 import { theme } from '/styled/theme';
 
@@ -49,9 +50,14 @@ export const VisitTypes = {
 };
 
 export const HeaderIcons = {
-  [VisitTypes.CLINIC]: Icons.ClipboardIcon,
-  [VisitTypes.HOSPITAL]: Icons.FirstAidKitIcon,
-  [VisitTypes.VISIT]: Icons.StethoscopeIcon,
+  //TODO: find correct icons for each EncounterType
+  [EncounterType.Clinic]: Icons.ClipboardIcon,
+  [EncounterType.Emergency]: Icons.FirstAidKitIcon,
+  [EncounterType.Admission]: Icons.StethoscopeIcon,
+  [EncounterType.Imaging]: Icons.FirstAidKitIcon,
+  [EncounterType.Observation]: Icons.FirstAidKitIcon,
+  [EncounterType.Triage]: Icons.FirstAidKitIcon,
+  [EncounterType.SurveyResponse]: Icons.FirstAidKitIcon,
 };
 
 export const PatientVitalsList = [
