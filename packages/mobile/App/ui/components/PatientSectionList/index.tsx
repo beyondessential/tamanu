@@ -7,8 +7,6 @@ import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { IPatient } from '~/types';
-import { getAgeFromDate } from '/helpers/date';
-import { joinNames } from '/helpers/user';
 import { groupEntriesByLetter } from '/helpers/list';
 
 export type PatientSectionListItem = {
@@ -86,12 +84,7 @@ export const PatientSectionList = ({
             background={theme.colors.BACKGROUND_GREY}
           >
             <PatientTile
-              displayId={patient.displayId}
-              city={patient.city || 'city'}
-              gender={patient.gender}
-              lastVisit={patient.lastVisit || new Date()}
-              name={joinNames(patient)}
-              age={getAgeFromDate(patient.dateOfBirth)}
+              {...patient}
             />
             <ListSeparator />
           </StyledView>

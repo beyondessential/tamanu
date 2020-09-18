@@ -1,22 +1,23 @@
-// {
-//   "editor.defaultFormatter": "esbenp.prettier-vscode",
-//   "editor.formatOnPaste": true,
-//   "editor.formatOnSave": false,
-//   "[typescript]": {
-//     "editor.formatOnSave": true
-//   },
-//   "[typescriptreact]": {
-//     "editor.formatOnSave": true
-//   },
-//   "eslint.alwaysShowStatus": true,
-//   "eslint.validate": [
-//     "javascript",
-//     "javascriptreact",
-//     {
-//       "language": "typescript",      
-//     },
-//     {
-//       "language": "typescriptreact",      
-//     }
-//   ]
-// }
+{
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": false,
+  "[typescript]": {
+    "editor.formatOnSave": true
+  },
+  "[typescriptreact]": {
+    "editor.formatOnSave": true
+  },
+  "eslint.alwaysShowStatus": true,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    {
+      "language": "typescript",      
+    },
+    {
+      "language": "typescriptreact",      
+    }
+],
+"editor.tabSize": 2,
+"editor.detectIndentation": false
+}
