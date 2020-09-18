@@ -1,11 +1,8 @@
 import mitt from 'mitt';
 import { Database } from '~/infra/db';
 
+import { dummyReferenceRecords } from '~/dummyData/referenceData';
 import { readConfig, writeConfig } from '~/services/config';
-
-// for dummy data generation
-import { Chance } from 'chance';
-import { generatePatient } from '~/dummyData/patients';
 
 interface SyncRecordData {
   lastModified: Date;
@@ -23,27 +20,14 @@ interface SyncSource {
 }
 
 //----------------------------------------------------------
-// dummy data generation & retrieval
 // TODO: remove & replace with real functionality
-const generator = new Chance('patients');
-const DUMMY_PATIENT_COUNT = 44;
-const dummyPatients = (new Array(DUMMY_PATIENT_COUNT))
-  .fill(0)
-  .map(() => generatePatient(generator))
-  .map((p, i) => ({ 
-    ...p, 
-    lastModified: generator.date({ year: 1971, day: i % 27, month: Math.floor(i / 27) })
-  }));
-const dummyPatientRecords : SyncRecord[] = dummyPatients.map(p => ({
-  data: p,
-  recordType: 'patient',
-}));
 
 export class DummySyncSource implements SyncSource {
+
   async getReferenceData(since: Date): Promise<SyncRecord[]> {
-    const records = [
-      ...dummyPatientRecords,
-    ].filter(x => x.data.lastModified > since);
+    const records = dummyReferenceRecords
+      .filter(x => x.data.lastModified > since)
+      // .slice(0, 4);
     // simulate a download delay
     await new Promise((resolve) => setTimeout(resolve, 100 * records.length));
     return records;
@@ -52,8 +36,15 @@ export class DummySyncSource implements SyncSource {
   async getPatientData(patientId: string, since: Date): Promise<SyncRecord[]> {
     return [];
   }
+
 }
 //----------------------------------------------------------
+
+class NoSyncImporterError extends Error {
+  constructor(recordType) {
+    super(`No sync importer for record type ${recordType}`);
+  }
+}
 
 export class SyncManager {
 
@@ -76,6 +67,8 @@ export class SyncManager {
         return models.Patient;
       case "program":
         return models.Program;
+      case "referenceData":
+        return models.ReferenceData;
       default:
         return null;
     }
@@ -86,8 +79,7 @@ export class SyncManager {
     const { recordType, data } = syncRecord;
     const model = this.getModelForRecordType(recordType);
     if(!model) {
-      console.warn(`No sync importer for record type ${recordType}`);
-      return;
+      throw new NoSyncImporterError(recordType);
     }
 
     await model.createOrUpdate(data);
@@ -127,10 +119,14 @@ export class SyncManager {
     let maxDate = since;
     this.emitter.emit("referenceSyncStarted", referenceRecords.length);
     await Promise.all(referenceRecords.map(async (r, i) => {
-      await this.syncRecord(r);
-      this.emitter.emit("referenceRecordSynced", r, i, referenceRecords.length);
-      if(r.data.lastModified > maxDate) {
-        maxDate = r.data.lastModified;
+      try {
+        await this.syncRecord(r);
+        this.emitter.emit("referenceRecordSynced", r, i, referenceRecords.length);
+        if(r.data.lastModified > maxDate) {
+          maxDate = r.data.lastModified;
+        }
+      } catch(e) {
+        console.warn(e.message);
       }
     }));
     this.emitter.emit("referenceSyncEnded");
@@ -141,9 +137,13 @@ export class SyncManager {
     const patientsToSync = await this.getPatientsToSync();
     this.emitter.emit("patientSyncStarted", patientsToSync.length);
     for(let i = 0; i < patientsToSync.length; i++) {
-      const patient = patientsToSync[i];
-      await this.runPatientSync(patient);
-      this.emitter("patientRecordSynced", patient, i, patientsToSync.length);
+      try {
+        const patient = patientsToSync[i];
+        await this.runPatientSync(patient);
+        this.emitter("patientRecordSynced", patient, i, patientsToSync.length);
+      } catch(e) {
+        console.warn(e.message);
+      }
     }
     this.emitter.emit("patientSyncEnded");
 
