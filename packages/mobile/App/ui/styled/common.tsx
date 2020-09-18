@@ -48,10 +48,10 @@ interface TextProps {
   fontSize?: number | string | Value<number>;
   fontWeight?: number | string;
   textDecorationLine?:
-  | 'none'
-  | 'underline'
-  | 'line-through'
-  | 'underline line-through';
+    | 'none'
+    | 'underline'
+    | 'line-through'
+    | 'underline line-through';
   color?: string;
 }
 export interface SpacingProps {
@@ -103,11 +103,11 @@ interface VisibilityProps {
 
 export interface StyledTextProps
   extends SpacingProps,
-  FlexProps,
-  BorderProps,
-  TextProps { }
-export interface StyledViewProps
-  extends PositionProps,
+    FlexProps,
+    BorderProps,
+    TextProps {}
+export interface StyledViewProps extends
+  PositionProps,
   SpacingProps,
   VisibilityProps,
   FlexProps,

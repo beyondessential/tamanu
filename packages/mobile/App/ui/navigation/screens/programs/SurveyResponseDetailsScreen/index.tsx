@@ -13,22 +13,22 @@ function getAnswerText(question, answer): string | number {
   if (answer === null || answer === undefined) return 'N/A';
 
   switch (question.type) {
-  case FieldTypes.NUMBER:
-  case FieldTypes.MULTILINE:
-    return answer;
-  case FieldTypes.CALCULATED:
-    return typeof answer === 'number' ? answer.toFixed(1) : answer;
-  case FieldTypes.TEXT:
-  case FieldTypes.SELECT:
-  case FieldTypes.RESULT:
-  case FieldTypes.RADIO:
-    return answer || 'N/A';
-  case FieldTypes.BINARY:
-    return answer ? 'Yes' : 'No';
-  case FieldTypes.DATE:
-    return formatDate(answer, DateFormats.DDMMYY);
-  default:
-    return '';
+    case FieldTypes.NUMBER:
+    case FieldTypes.MULTILINE:
+      return answer;
+    case FieldTypes.CALCULATED:
+      return typeof answer === 'number' ? answer.toFixed(1) : answer;
+    case FieldTypes.TEXT:
+    case FieldTypes.SELECT:
+    case FieldTypes.RESULT:
+    case FieldTypes.RADIO:
+      return answer || 'N/A';
+    case FieldTypes.BINARY:
+      return answer ? 'Yes' : 'No';
+    case FieldTypes.DATE:
+      return formatDate(answer, DateFormats.DDMMYY);
+    default:
+      return '';
   }
 }
 
