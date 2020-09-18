@@ -4,6 +4,10 @@ import {
   populateInitialData,
 } from '~/infra/db/populate';
 
+import { SyncManager, DummySyncSource } from '~/services/sync';
+
+const SYNC_PERIOD_MINUTES = 5;
+
 export class Backend {
   randomId: any;
 
@@ -14,20 +18,29 @@ export class Backend {
   models: ModelMap;
 
   constructor() {
-    this.responses = [];
-    this.initialised = false;
-    this.models = Database.models;
-
-    // keep a random id around so the provider can check if the backend object
-    // was regenerated - this should only happens via live reload (ie in development mode)
-    this.randomId = Math.random();
+    const { models } = Database;
+    this.models = models;
+    this.syncManager = new SyncManager(new DummySyncSource());
   }
 
   async initialise(): Promise<void> {
     await Database.connect();
-    const { models } = Database;
-    if (await needsInitialPopulation(models)) {
-      await populateInitialData(models);
+    this.startSyncService();
+  }
+
+  startSyncService() {
+    // run once now, and then schedule for later
+    this.syncManager.runScheduledSync();
+
+    this.interval = setInterval(() => {
+      this.syncManager.runScheduledSync();
+    }, SYNC_PERIOD_MINUTES * 60 * 1000);
+  }
+
+  stopSyncService() {
+    if(!this.interval) {
+      return;
     }
+    clearInterval(this.interval);
   }
 }

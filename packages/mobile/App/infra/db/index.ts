@@ -7,6 +7,7 @@ import {
 import { DevSettings } from 'react-native';
 import * as modelsMap from '~/models';
 import { BaseModel } from '~/models/BaseModel';
+import { clear } from '~/services/config';
 
 export interface ModelMap {
   [key: string]: BaseModel;
@@ -22,22 +23,24 @@ const MODELS: ModelMap = Object.entries(modelsMap).reduce(
 
 const MODEL_LIST: BaseModel[] = Object.values(MODELS);
 
+const LOG_LEVELS = __DEV__ ? ['error', /*'query',*/ 'schema'] : [];
+
 const CONNECTION_CONFIG = {
   type: 'react-native',
   database: 'tamanu',
   location: 'default',
-  logging: __DEV__ ? ['error', 'query', 'schema'] : [],
+  logging: LOG_LEVELS,
   synchronize: false,
   entities: MODEL_LIST,
 };
 
-// const TEST_CONNECTION_CONFIG = {
-//   type: 'sqlite',
-//   database: `/tmp/tamanu-mobile-test-${Math.random()}.db`,
-//   logging: __DEV__ ? ['error', 'query', 'schema'] : [],
-//   synchronize: true,
-//   entities: MODEL_LIST,
-// };
+const TEST_CONNECTION_CONFIG = {
+  type: 'sqlite',
+  database: `/tmp/tamanu-mobile-test-${Math.random()}.db`,
+  logging: LOG_LEVELS,
+  synchronize: true,
+  entities: MODEL_LIST,
+};
 
 class DatabaseHelper {
   client: Connection = null;
@@ -74,7 +77,7 @@ export const Database = new DatabaseHelper();
 
 if (__DEV__) {
   DevSettings.addMenuItem('Clear database', async () => {
-    await Database.client.dropDatabase();
+    await clear();
     DevSettings.reload();
   });
 }

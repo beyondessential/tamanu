@@ -12,10 +12,13 @@ export const BackendProvider = ({ Component }): JSX.Element => {
 
   useEffect(() => {
     (async (): Promise<void> => {
-      await backend.initialise();
+      backend.stopSyncService();
+      setInitialised(false);
+      await backend.initialise(Date.now());
       setInitialised(true);
     })();
-  }, [backend.randomId]);
+    return () => backend.stopSyncService();
+  }, [backend]);
 
   if (!initialised) {
     return <LoadingScreen text="Connecting to database..." />;
