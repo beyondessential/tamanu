@@ -18,7 +18,8 @@ import { FormScreenView } from '/components/Forms/FormScreenView';
 import { useBackend } from '~/ui/helpers/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { Dropdown } from '~/ui/components/Dropdown';
-import { EncounterType } from '~/types';
+import { ReferenceDataField } from '~/ui/components/ReferenceDataField';
+import { EncounterType, ReferenceDataType } from '~/types';
 
 const initialValues = {
   encounterType: '',
@@ -68,6 +69,20 @@ const DumbCreateEncounterForm = ({ selectedPatient }): ReactElement => {
             name="endDate"
           />
           <Field
+            component={ReferenceDataField}
+            label="Department"
+            onFocus={scrollToComponent('department')}
+            name="department"
+            referenceDataType={ReferenceDataType.Department}
+          />
+          <Field
+            component={ReferenceDataField}
+            label="Location"
+            onFocus={scrollToComponent('location')}
+            name="location"
+            referenceDataType={ReferenceDataType.Location}
+          />
+          <Field
             component={TextField}
             onFocus={scrollToComponent('reasonForEncounter')}
             label="Reason for Encounter"
@@ -86,7 +101,9 @@ const DumbCreateEncounterForm = ({ selectedPatient }): ReactElement => {
   );
 
   const { models } = useBackend();
-  const createEncounter = useCallback((values: any): void => models.Encounter.create({ ...values, patient: selectedPatient.id }), []);
+  const createEncounter = useCallback(
+    (values: any): void => models.Encounter.create({ ...values, patient: selectedPatient.id }), []
+  );
 
   return (
     <StyledSafeAreaView flex={1}>

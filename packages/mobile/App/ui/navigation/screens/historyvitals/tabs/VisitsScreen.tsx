@@ -20,12 +20,10 @@ export const DumbVisistsScreen = ({ selectedPatient }): ReactElement => {
     console.log('going to filters..');
   }, []);
 
-  const [data, error] = useBackendEffect(({ models }) => {
-    const repo = models.Encounter.getRepository();
-    return repo.find({
-      patient: selectedPatient.id,
-    });
-  }, []);
+  const [data, error] = useBackendEffect(
+    ({ models }) => models.Encounter.getForPatient(selectedPatient.id),
+    [],
+  );
 
   if (error) return <ErrorScreen error={error} />;
 
