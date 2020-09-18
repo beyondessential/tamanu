@@ -7,6 +7,7 @@ import { createTopTabNavigator } from '/components/TopTabNavigator';
 import { AddVitalsScreen, ViewHistoryScreen, CreateEncounterForm } from '../screens/checkup/tabs';
 import { withPatient } from '~/ui/containers/Patient';
 import { IPatient } from '~/types';
+import { joinNames } from '~/ui/helpers/user';
 
 const Tabs = createTopTabNavigator();
 
@@ -15,8 +16,8 @@ type NewProgramEntryTabsProps = {
 };
 
 const getPatientName = (
-  patient: IPatient
-): string => `${patient.culturalName || patient.firstName} ${patient.lastName}`;
+  patient: IPatient,
+): string => joinNames(patient);
 
 const DumbCheckUpTabs = ({
   navigation,

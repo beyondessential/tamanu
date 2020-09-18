@@ -18,7 +18,7 @@ import {
   height,
   width,
   justifyContent,
-  alignItems
+  alignItems,
 } from 'styled-system';
 import SafeAreaView from 'react-native-safe-area-view';
 import { ScrollView } from 'react-native-gesture-handler';

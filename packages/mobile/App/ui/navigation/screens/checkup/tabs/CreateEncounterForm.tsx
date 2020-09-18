@@ -86,9 +86,7 @@ const DumbCreateEncounterForm = ({ selectedPatient }): ReactElement => {
   );
 
   const { models } = useBackend();
-  const createEncounter = useCallback((values: any): void => {
-    return models.Encounter.create({ ...values, patient: selectedPatient.id });
-  }, []);
+  const createEncounter = useCallback((values: any): void => models.Encounter.create({ ...values, patient: selectedPatient.id }), []);
 
   return (
     <StyledSafeAreaView flex={1}>
@@ -104,7 +102,7 @@ const DumbCreateEncounterForm = ({ selectedPatient }): ReactElement => {
         </Formik>
       </FullView>
     </StyledSafeAreaView>
-  )
+  );
 };
 
 export const CreateEncounterForm = compose(withPatient)(DumbCreateEncounterForm);
