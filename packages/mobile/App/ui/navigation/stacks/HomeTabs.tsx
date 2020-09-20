@@ -120,7 +120,7 @@ function MyTabBar({
           };
 
           return (
-            <StyledView flex={1}>
+            <StyledView key={route.key} flex={1}>
               <StyledTouchableOpacity
                 onPress={onPress}
                 onLongPress={onLongPress}

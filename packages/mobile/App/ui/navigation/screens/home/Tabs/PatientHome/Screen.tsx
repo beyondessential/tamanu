@@ -78,9 +78,8 @@ export const Screen = ({
               color={theme.colors.WHITE}
               fontSize={screenPercentageToDP(1.94, Orientation.Height)}
             >
-              {getGender(selectedPatient.gender)},{' '}
-              {getAgeFromDate(selectedPatient.dateOfBirth)} years old,{' '}
-              {selectedPatient.city}
+              {getGender(selectedPatient.sex)},{' '}
+              {getAgeFromDate(selectedPatient.dateOfBirth)} years old{' '}
             </StyledText>
             <Button
               marginTop={screenPercentageToDP(1.21, Orientation.Height)}

@@ -9,7 +9,7 @@ interface AccordionListProps {
   dataArray: VisitOverviewProps[];
 }
 
-export const AccordionList = ({
+export const PatientHistoryAccordion = ({
   dataArray,
 }: AccordionListProps): JSX.Element => {
   const [activeSections, setActiveSections] = useState<number[]>([]);

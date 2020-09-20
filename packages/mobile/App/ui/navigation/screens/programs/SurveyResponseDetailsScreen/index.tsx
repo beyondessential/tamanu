@@ -51,8 +51,8 @@ const AnswerItem = ({ question, answer, index }): JSX.Element => (
     {question.type === FieldTypes.RESULT ? (
       <SurveyResultBadge result={answer} />
     ) : (
-        <StyledText>{getAnswerText(question, answer)}</StyledText>
-      )}
+      <StyledText>{getAnswerText(question, answer)}</StyledText>
+    )}
   </StyledView>
 );
 
