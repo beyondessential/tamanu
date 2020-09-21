@@ -34,7 +34,7 @@ export const GeneralInfo = (
       <InformationBox
         flex={1}
         title="Cultural/tradition name"
-        info={data.generalInfo.culturalTraditionName || 'None'}
+        info={data.generalInfo.culturalName || 'None'}
       />
     </RowView>
     <RowView marginTop={20}>

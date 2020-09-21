@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm/browser';
+import { ManyToOne } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { IReferenceData, ReferenceDataType } from '~/types';
 
@@ -15,3 +16,9 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   type: ReferenceDataType;
 
 }
+
+export const ReferenceDataRelation = (): any => ManyToOne(
+  type => ReferenceData,
+  undefined,
+  { eager: true },
+);

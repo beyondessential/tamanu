@@ -2,6 +2,7 @@ import { Entity, Column, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IEncounter, EncounterType } from '~/types';
 import { Patient } from './Patient';
+import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 
 @Entity('encounter')
 export class Encounter extends BaseModel implements IEncounter {
@@ -20,5 +21,19 @@ export class Encounter extends BaseModel implements IEncounter {
   @ManyToOne(type => Patient, patient => patient.encounters)
   patient: Patient;
 
-  // other FKs TODO: examiner, department, location
+  @ReferenceDataRelation()
+  department: ReferenceData;
+
+  @ReferenceDataRelation()
+  location: ReferenceData;
+
+  static async getForPatient(patientId: string): Promise<Encounter[]> {
+    const repo = this.getRepository();
+
+    return repo.find({
+      patient: patientId,
+    });
+  }
+
+  // TODO: add examiner
 }
