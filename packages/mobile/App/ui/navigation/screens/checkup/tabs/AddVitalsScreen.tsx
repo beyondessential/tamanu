@@ -134,7 +134,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient }): ReactElement => {
     (values: any): void => models.Vitals.create({
       ...values,
       patient: selectedPatient.id,
-      date: Date.now(),
+      date: new Date(),
     }), [],
   );
 
