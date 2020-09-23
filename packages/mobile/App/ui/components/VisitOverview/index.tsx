@@ -15,7 +15,7 @@ export const VisitOverview = (section: VisitOverviewProps): JSX.Element => (
     height="100%"
     padding={20}
     borderBottomWidth={StyleSheet.hairlineWidth}
-    borderColor={theme.colors.BOX_OUTLINE}
+    borderColor={theme.colors.PRIMARY_MAIN}
   >
     {/** TODO: Move to encounter screen */}
     {/* <Diagnosis info={section.diagnosis} />

@@ -1,10 +1,13 @@
 import React, { useMemo, useCallback, useRef, ReactElement } from 'react';
+import { compose } from 'redux';
 import { FullView, StyledView, StyledSafeAreaView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { TextField } from '/components/TextField/TextField';
 import { Button } from '/components/Button';
 import { Field } from '/components/Forms/FormField';
 import { Formik } from 'formik';
+import { useBackend } from '~/ui/helpers/hooks';
+import { withPatient } from '~/ui/containers/Patient';
 import { SectionHeader } from '/components/SectionHeader';
 import {
   Orientation,
@@ -26,7 +29,7 @@ const initialValues = {
   comments: '',
 };
 
-export const AddVitalsScreen = (): ReactElement => {
+export const DumbAddVitalsScreen = ({ selectedPatient }): ReactElement => {
   const scrollViewRef = useRef<any>(null);
   const verticalPositions = useMemo(
     () => calculateVerticalPositions(Object.keys(initialValues)),
@@ -47,7 +50,7 @@ export const AddVitalsScreen = (): ReactElement => {
           height={screenPercentageToDP(89.64, Orientation.Height)}
           justifyContent="space-between"
         >
-          <SectionHeader h3>VITAL HISTORY</SectionHeader>
+          <SectionHeader h3>VITAL READINGS</SectionHeader>
           <Field
             component={TextField}
             onFocus={scrollToComponent('bloodPressure')}
@@ -115,6 +118,15 @@ export const AddVitalsScreen = (): ReactElement => {
     [],
   );
 
+  const { models } = useBackend();
+  const recordVitals = useCallback(
+    (values: any): void => models.Vitals.create({
+      ...values,
+      patient: selectedPatient.id,
+      date: Date.now(),
+    }), [],
+  );
+
   return (
     <StyledSafeAreaView flex={1}>
       <FullView
@@ -123,7 +135,7 @@ export const AddVitalsScreen = (): ReactElement => {
       >
         <Formik
           initialValues={initialValues}
-          onSubmit={(values): void => console.log(values)}
+          onSubmit={recordVitals}
         >
           {renderFormFields}
         </Formik>
@@ -131,3 +143,5 @@ export const AddVitalsScreen = (): ReactElement => {
     </StyledSafeAreaView>
   );
 };
+
+export const AddVitalsScreen = compose(withPatient)(DumbAddVitalsScreen);
