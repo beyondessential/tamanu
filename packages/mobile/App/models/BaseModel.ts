@@ -18,7 +18,7 @@ export abstract class BaseModel extends BaseEntity {
     return getRepository(this);
   }
 
-  static async create(data: any): Promise<BaseEntity> {
+  static async create<T extends BaseModel>(data: any): Promise<T> {
     const repo = this.getRepository();
     const record = repo.create({
       ...data,

@@ -1,6 +1,7 @@
-import { Entity, Column, ManyToOne } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, MoreThanOrEqual } from 'typeorm/browser';
+import { startOfDay, addHours } from 'date-fns';
 import { BaseModel } from './BaseModel';
-import { IEncounter, EncounterType } from '~/types';
+import { IEncounter, EncounterType, ReferenceDataType } from '~/types';
 import { Patient } from './Patient';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 
@@ -26,6 +27,32 @@ export class Encounter extends BaseModel implements IEncounter {
 
   @ReferenceDataRelation()
   location: ReferenceData;
+
+  static async getOrCreateCurrentEncounter(
+    patientId: string, createdEncounterOptions: any,
+  ): Promise<Encounter> {
+    const repo = this.getRepository();
+    const timeOffset = 3;
+    const date = addHours(startOfDay(new Date()), timeOffset);
+
+    const found = await repo.findOne({
+      patient: patientId,
+      startDate: MoreThanOrEqual(date),
+    });
+
+    if (found) return found;
+
+    return Encounter.create({
+      patient: patientId,
+      startDate: new Date(),
+      endDate: null,
+      encounterType: EncounterType.Clinic,
+      reasonForEncounter: '',
+      department: await ReferenceData.getAnyOfType(ReferenceDataType.Department),
+      location: await ReferenceData.getAnyOfType(ReferenceDataType.Location),
+      ...createdEncounterOptions,
+    });
+  }
 
   static async getForPatient(patientId: string): Promise<Encounter[]> {
     const repo = this.getRepository();
