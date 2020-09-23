@@ -31,7 +31,8 @@ const initialValues = {
 const DumbCreateEncounterForm = ({ selectedPatient }): ReactElement => {
   const scrollViewRef = useRef<any>(null);
   const verticalPositions = useMemo(
-    () => calculateVerticalPositions(Object.keys(initialValues)), [],
+    () => calculateVerticalPositions(Object.keys(initialValues)),
+    [],
   );
 
   const scrollToComponent = useCallback(
