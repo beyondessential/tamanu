@@ -1,6 +1,6 @@
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
-import { IVitals } from '~/types';
+import { AVPUType, IVitals } from '~/types';
 import { Patient } from './Patient';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 
@@ -9,29 +9,32 @@ export class Vitals extends BaseModel implements IVitals {
   @Column()
   date: Date;
 
-  @Column()
-  weight: string;
+  @Column('int')
+  weight: number;
 
-  @Column()
-  circumference: string;
+  @Column('int')
+  height: number;
 
-  @Column()
-  sp02: string;
+  @Column('int')
+  sbp: number;
 
-  @Column()
-  heartRate: string;
+  @Column('int')
+  dbp: number;
 
-  @Column()
-  fev: string;
+  @Column('int')
+  heartRate: number;
 
-  @Column()
-  cholesterol: string;
+  @Column('int')
+  respiratoryRate: number;
 
-  @Column()
-  bloodGlucose: string;
+  @Column('int')
+  temperature: number;
 
-  @Column()
-  bloodPressure: string;
+  @Column('int')
+  svO2: number;
+
+  @Column({ type: 'varchar' })
+  avpu: AVPUType;
 
   @Column()
   comments: string;

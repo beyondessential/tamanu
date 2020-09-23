@@ -1,20 +1,30 @@
 import { ID } from './ID';
 import { IReferenceData } from './IReferenceData';
 
+export enum AVPUType {
+  Alert = 'alert',
+  Verbal = 'verbal',
+  Pain = 'pain',
+  Unresponsive = 'unresponsive',
+}
+
 export interface IVitals {
   id: ID;
 
   date: Date;
 
-  weight: string;
-  circumference: string;
-  sp02: string;
-  heartRate: string;
-  fev: string;
-  cholesterol: string;
-  bloodGlucose: string;
-  bloodPressure: string;
-  comments: string;
+  weight: number;
+  height: number;
+  sbp: number;
+  dbp: number;
+  heartRate: number;
+  respiratoryRate: number;
+  temperature: number;
+  svO2: number;
 
-  location: IReferenceData;
+  avpu: AVPUType;
+
+  comments?: string;
+
+  location?: IReferenceData;
 }
