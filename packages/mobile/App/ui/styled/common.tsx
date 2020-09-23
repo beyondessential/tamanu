@@ -118,7 +118,7 @@ export interface StyledViewProps extends
   pose?: string;
 }
 
-export const StyledView = styled.View<StyledViewProps>`  
+export const StyledView = styled.View<StyledViewProps>`
   ${size}
   ${position}
   ${overflow}        
@@ -127,6 +127,7 @@ export const StyledView = styled.View<StyledViewProps>`
   ${flexbox}     
   ${background}    
   ${({ borderLeftWidth }): string | number => `border-left-width: ${borderLeftWidth}` || 0};  
+  ${({ borderBottomWidth }): string | number => `border-left-width: ${borderBottomWidth}` || 0};  
   ${boxShadow}
   ${zIndex}
   ${justifyContent}
@@ -171,7 +172,8 @@ export const StyledText = styled.Text<StyledTextProps>`
   ${margin}  
   ${padding}  
   ${flexbox}     
-  ${background}  
+  ${background}
+  ${({ borderBottomWidth }): string | number => `border-left-width: ${borderBottomWidth}` || 0};
   text-decoration-line: ${({ textDecorationLine }): string => textDecorationLine || 'none'};
 `;
 

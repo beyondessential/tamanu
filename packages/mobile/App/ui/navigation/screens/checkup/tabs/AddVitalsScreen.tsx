@@ -1,10 +1,13 @@
 import React, { useMemo, useCallback, useRef, ReactElement } from 'react';
+import { compose } from 'redux';
 import { FullView, StyledView, StyledSafeAreaView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { TextField } from '/components/TextField/TextField';
 import { Button } from '/components/Button';
 import { Field } from '/components/Forms/FormField';
 import { Formik } from 'formik';
+import { useBackend } from '~/ui/helpers/hooks';
+import { withPatient } from '~/ui/containers/Patient';
 import { SectionHeader } from '/components/SectionHeader';
 import {
   Orientation,
@@ -13,20 +16,24 @@ import {
   calculateVerticalPositions,
 } from '/helpers/screen';
 import { FormScreenView } from '/components/Forms/FormScreenView';
+import { NumberField } from '~/ui/components/NumberField';
+import { Dropdown } from '~/ui/components/Dropdown';
+import { AVPUType } from '~/types';
 
 const initialValues = {
-  bloodPressure: '',
-  weight: '',
-  circumference: '',
-  sp02: '',
-  heartRate: '',
-  fev: '',
-  cholesterol: '',
-  bloodGlucose: '',
+  weight: 0,
+  height: 0,
+  sbp: 0,
+  dbp: 0,
+  heartRate: 0,
+  respiratoryRate: 0,
+  temperature: 0,
+  svO2: 0,
+  avpu: 0,
   comments: '',
 };
 
-export const AddVitalsScreen = (): ReactElement => {
+export const DumbAddVitalsScreen = ({ selectedPatient }): ReactElement => {
   const scrollViewRef = useRef<any>(null);
   const verticalPositions = useMemo(
     () => calculateVerticalPositions(Object.keys(initialValues)),
@@ -47,54 +54,61 @@ export const AddVitalsScreen = (): ReactElement => {
           height={screenPercentageToDP(89.64, Orientation.Height)}
           justifyContent="space-between"
         >
-          <SectionHeader h3>VITAL HISTORY</SectionHeader>
+          <SectionHeader h3>VITALS READINGS</SectionHeader>
           <Field
-            component={TextField}
-            onFocus={scrollToComponent('bloodPressure')}
-            label="Blood Pressure"
-            name="bloodPressure"
-          />
-          <Field
-            component={TextField}
-            label="Weight"
+            component={NumberField}
+            label="Weight (kg)"
             onFocus={scrollToComponent('weight')}
             name="weight"
           />
           <Field
-            component={TextField}
-            onFocus={scrollToComponent('circumference')}
-            label="Circumference"
-            name="circumference"
+            component={NumberField}
+            label="Height (cm)"
+            onFocus={scrollToComponent('height')}
+            name="height"
           />
           <Field
-            component={TextField}
-            label="Sp02"
-            onFocus={scrollToComponent('sp02')}
-            name="sp02"
+            component={NumberField}
+            onFocus={scrollToComponent('sbp')}
+            label="sbp"
+            name="sbp"
           />
           <Field
-            component={TextField}
+            component={NumberField}
+            label="dbp"
+            onFocus={scrollToComponent('dbp')}
+            name="dbp"
+          />
+          <Field
+            component={NumberField}
             onFocus={scrollToComponent('heartRate')}
             label="Heart Rate"
             name="heartRate"
           />
           <Field
-            component={TextField}
-            label="F.E.V"
-            onFocus={scrollToComponent('fev')}
-            name="fev"
+            component={NumberField}
+            label="Respiratory Rate"
+            onFocus={scrollToComponent('respiratoryRate')}
+            name="respiratoryRate"
           />
           <Field
-            component={TextField}
-            label="Cholesterol"
-            onFocus={scrollToComponent('cholesterol')}
-            name="cholesterol"
+            component={NumberField}
+            label="Temperature (ºC)"
+            onFocus={scrollToComponent('temperature')}
+            name="temperature"
           />
           <Field
-            component={TextField}
-            label="Blood Glucose"
-            onFocus={scrollToComponent('bloodGlucose')}
-            name="bloodGlucose"
+            component={NumberField}
+            label="SvO2 (%)"
+            onFocus={scrollToComponent('svO2')}
+            name="svO2"
+          />
+          <Field
+            component={Dropdown}
+            options={Object.values(AVPUType).map((t) => ({ value: t, label: t }))}
+            label="AVPU"
+            onFocus={scrollToComponent('avpu')}
+            name="avpu"
           />
           <SectionHeader h3>COMMENTS</SectionHeader>
           <Field
@@ -115,6 +129,15 @@ export const AddVitalsScreen = (): ReactElement => {
     [],
   );
 
+  const { models } = useBackend();
+  const recordVitals = useCallback(
+    (values: any): void => models.Vitals.create({
+      ...values,
+      patient: selectedPatient.id,
+      date: new Date(),
+    }), [],
+  );
+
   return (
     <StyledSafeAreaView flex={1}>
       <FullView
@@ -123,7 +146,7 @@ export const AddVitalsScreen = (): ReactElement => {
       >
         <Formik
           initialValues={initialValues}
-          onSubmit={(values): void => console.log(values)}
+          onSubmit={recordVitals}
         >
           {renderFormFields}
         </Formik>
@@ -131,3 +154,5 @@ export const AddVitalsScreen = (): ReactElement => {
     </StyledSafeAreaView>
   );
 };
+
+export const AddVitalsScreen = compose(withPatient)(DumbAddVitalsScreen);

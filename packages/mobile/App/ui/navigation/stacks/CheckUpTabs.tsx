@@ -30,24 +30,19 @@ const DumbCheckUpTabs = ({
   return (
     <>
       <StackHeader title="Check up" subtitle={getPatientName(selectedPatient)} onGoBack={goBack} />
-      <Tabs.Navigator swipeEnabled={false}>
+      <Tabs.Navigator
+        swipeEnabled={false}
+      >
         <Tabs.Screen
           options={{
-            title: 'CREATE ENCOUNTER',
-          }}
-          name={Routes.HomeStack.CheckUpStack.CheckUpTabs.CreateEncounter}
-          component={CreateEncounterForm}
-        />
-        <Tabs.Screen
-          options={{
-            title: 'Add Details',
+            title: 'Add Vitals',
           }}
           name={Routes.HomeStack.CheckUpStack.CheckUpTabs.AddDetails}
           component={AddVitalsScreen}
         />
         <Tabs.Screen
           options={{
-            title: 'VIEW HISTORY',
+            title: 'Vitals History',
           }}
           name={Routes.HomeStack.CheckUpStack.CheckUpTabs.ViewHistory}
           component={ViewHistoryScreen}
