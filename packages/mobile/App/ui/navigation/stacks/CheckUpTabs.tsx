@@ -32,6 +32,7 @@ const DumbCheckUpTabs = ({
       <StackHeader title="Check up" subtitle={getPatientName(selectedPatient)} onGoBack={goBack} />
       <Tabs.Navigator
         swipeEnabled={false}
+        lazy
       >
         <Tabs.Screen
           options={{
