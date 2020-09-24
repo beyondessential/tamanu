@@ -41,10 +41,10 @@ export class Vitals extends BaseModel implements IVitals {
   encounter: Encounter;
 
   static async getForPatient(patientId: string): Promise<Vitals[]> {
-    const repo = this.getRepository();
-
-    return repo.find({
-      patient: patientId,
-    });
+    return this.getRepository()
+      .createQueryBuilder('vitals')
+      .leftJoin('vitals.encounter', 'encounter')
+      .where('encounter.patient = :patient', { patient: patientId })
+      .getMany();
   }
 }
