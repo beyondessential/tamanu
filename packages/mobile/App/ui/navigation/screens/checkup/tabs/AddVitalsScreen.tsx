@@ -131,11 +131,18 @@ export const DumbAddVitalsScreen = ({ selectedPatient }): ReactElement => {
 
   const { models } = useBackend();
   const recordVitals = useCallback(
-    (values: any): void => models.Vitals.create({
-      ...values,
-      patient: selectedPatient.id,
-      date: new Date(),
-    }), [],
+    async (values: any): Promise<any> => {
+      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+        selectedPatient.id,
+        { reasonForEncounter: values.comments },
+      );
+
+      return models.Vitals.create({
+        ...values,
+        encounter: encounter.id,
+        date: new Date(),
+      });
+    }, [],
   );
 
   return (

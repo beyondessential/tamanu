@@ -5,7 +5,6 @@ import { IReferenceData, ReferenceDataType } from '~/types';
 
 @Entity('reference_data')
 export class ReferenceData extends BaseModel implements IReferenceData {
-
   @Column()
   name: string;
 
@@ -15,6 +14,13 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   @Column({ type: 'varchar' })
   type: ReferenceDataType;
 
+  static async getAnyOfType(referenceDataType: ReferenceDataType): Promise<ReferenceData | null> {
+    const repo = this.getRepository();
+
+    return repo.findOne({
+      type: referenceDataType,
+    });
+  }
 }
 
 export const ReferenceDataRelation = (): any => ManyToOne(

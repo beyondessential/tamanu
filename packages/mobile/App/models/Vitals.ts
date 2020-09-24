@@ -3,6 +3,7 @@ import { BaseModel } from './BaseModel';
 import { AVPUType, IVitals } from '~/types';
 import { Patient } from './Patient';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { Encounter } from './Encounter';
 
 @Entity('vitals')
 export class Vitals extends BaseModel implements IVitals {
@@ -36,20 +37,14 @@ export class Vitals extends BaseModel implements IVitals {
   @Column({ type: 'varchar' })
   avpu: AVPUType;
 
-  @Column()
-  comments: string;
-
-  @ManyToOne(type => Patient, patient => patient.vitals)
-  patient: Patient;
-
-  @ReferenceDataRelation()
-  location: ReferenceData;
+  @ManyToOne(type => Encounter, encounter => encounter.vitals)
+  encounter: Encounter;
 
   static async getForPatient(patientId: string): Promise<Vitals[]> {
-    const repo = this.getRepository();
-
-    return repo.find({
-      patient: patientId,
-    });
+    return this.getRepository()
+      .createQueryBuilder('vitals')
+      .leftJoin('vitals.encounter', 'encounter')
+      .where('encounter.patient = :patient', { patient: patientId })
+      .getMany();
   }
 }
