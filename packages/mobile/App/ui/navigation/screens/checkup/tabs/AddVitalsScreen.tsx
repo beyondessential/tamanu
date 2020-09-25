@@ -1,6 +1,7 @@
-import React, { useMemo, useCallback, useRef, ReactElement } from 'react';
+import React, { useMemo, useCallback, useRef, ReactElement, useEffect } from 'react';
 import { compose } from 'redux';
 import { FullView, StyledView, StyledSafeAreaView } from '/styled/common';
+import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 import { TextField } from '/components/TextField/TextField';
 import { Button } from '/components/Button';
@@ -33,7 +34,7 @@ const initialValues = {
   comments: '',
 };
 
-export const DumbAddVitalsScreen = ({ selectedPatient }): ReactElement => {
+export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactElement => {
   const scrollViewRef = useRef<any>(null);
   const verticalPositions = useMemo(
     () => calculateVerticalPositions(Object.keys(initialValues)),
@@ -129,6 +130,10 @@ export const DumbAddVitalsScreen = ({ selectedPatient }): ReactElement => {
     [],
   );
 
+  const navigateToHistory = useCallback(() => {
+    navigation.navigate(Routes.HomeStack.CheckUpStack.CheckUpTabs.ViewHistory);
+  }, []);
+
   const { models } = useBackend();
   const recordVitals = useCallback(
     async (values: any): Promise<any> => {
@@ -137,11 +142,13 @@ export const DumbAddVitalsScreen = ({ selectedPatient }): ReactElement => {
         { reasonForEncounter: values.comments },
       );
 
-      return models.Vitals.create({
+      await models.Vitals.create({
         ...values,
         encounter: encounter.id,
         date: new Date(),
       });
+
+      navigateToHistory();
     }, [],
   );
 

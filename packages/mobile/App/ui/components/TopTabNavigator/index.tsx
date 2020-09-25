@@ -15,6 +15,7 @@ type TabNavigationConfig = {
   tabBarStyle: StyleProp<ViewStyle>;
   contentStyle: StyleProp<ViewStyle>;
   swipeEnabled: boolean;
+  lazy: boolean;
 };
 
 type TabNavigationOptions = {
