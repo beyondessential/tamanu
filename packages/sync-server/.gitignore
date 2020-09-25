@@ -1,0 +1,6 @@
+/data/*.realm*
+/data/*.db
+/data/.*
+!/data/.keep
+/realm-object-server
+dist
