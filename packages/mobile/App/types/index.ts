@@ -10,3 +10,4 @@ export * from './IVaccine';
 export * from './IReferenceData';
 export * from './IPractitioner';
 export * from './IVitals';
+export * from './IDiagnosis';
