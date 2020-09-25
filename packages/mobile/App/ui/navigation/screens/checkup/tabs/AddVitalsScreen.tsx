@@ -142,11 +142,13 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
         { reasonForEncounter: values.comments },
       );
 
-      models.Vitals.create({
+      await models.Vitals.create({
         ...values,
         encounter: encounter.id,
         date: new Date(),
-      }).then(() => navigateToHistory());
+      });
+
+      navigateToHistory();
     }, [],
   );
 
