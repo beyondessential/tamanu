@@ -72,6 +72,7 @@ export function createTestContext() {
 
   const baseApp = supertest(expressApp);
 
+  /*
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
     const token = await getToken(user, '1d');
@@ -79,8 +80,15 @@ export function createTestContext() {
     agent.user = user;
     return agent;
   };
+  */
 
   baseApp.asRole = async role => {
+    const agent = supertest.agent(expressApp);
+    const token = 'fake-token';
+    agent.set('authorization', `Bearer ${token}`);
+    return agent;
+
+    /*
     const newUser = await models.User.create({
       email: chance.email(),
       displayName: chance.name(),
@@ -89,6 +97,7 @@ export function createTestContext() {
     });
 
     return baseApp.asUser(newUser);
+    */
   };
 
   return { baseApp, sequelize, models };
