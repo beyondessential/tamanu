@@ -3,12 +3,6 @@ import asyncHandler from 'express-async-handler';
 
 export const routes = express.Router();
 
-routes.get('/$', (req, res) => {
-  res.send({
-    ok: true
-  });
-});
-
 routes.get('/patient/:id', asyncHandler(async (req, res) => {
   const { models, db, query } = req;
   const { since } = query;

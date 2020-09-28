@@ -33,6 +33,13 @@ export function createApp({ sequelize, models }) {
     next();
   });
 
+  // TODO: serve index page
+  app.get('/$', (req, res) => {
+    res.send({
+      index: true,
+    });
+  });
+
   app.use(authMiddleware);
 
   app.use('/', routes);
