@@ -23,7 +23,7 @@ const MODELS: ModelMap = Object.entries(modelsMap).reduce(
 
 const MODEL_LIST: BaseModel[] = Object.values(MODELS);
 
-const LOG_LEVELS = __DEV__ ? ['error', 'query' , 'schema'] : [];
+const LOG_LEVELS = __DEV__ ? ['error', /*'query' ,*/ 'schema'] : [];
 
 const CONNECTION_CONFIG = {
   type: 'react-native',
