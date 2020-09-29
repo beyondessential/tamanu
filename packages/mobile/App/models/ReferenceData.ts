@@ -23,7 +23,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   }
 
   static async searchDataByType(
-    referenceDataType: ReferenceDataType, searchTerm: string
+    referenceDataType: ReferenceDataType, searchTerm: string,
   ): Promise<ReferenceData> {
     const repo = this.getRepository();
 
