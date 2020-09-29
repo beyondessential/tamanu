@@ -41,7 +41,7 @@ export const GeneralInfo = (
       <InformationBox
         flex={1}
         title="Date of Birth"
-        info={formatDate(data.generalInfo.dateOfBirth, DateFormats.DDMMYY)}
+        info={formatDate(new Date(data.generalInfo.dateOfBirth), DateFormats.DDMMYY)}
       />
       <InformationBox flex={1} title="Blood type" info="B+" />
     </RowView>
