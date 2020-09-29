@@ -7,25 +7,25 @@ import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 @Entity('diagnosis')
 export class Diagnosis extends BaseModel implements IDiagnosis {
   @Column()
-  certainty: Certainty;
-
-  @Column()
   isPrimary: boolean;
 
   @Column()
   date: Date;
 
-  @ManyToOne(type => Encounter, encounter => encounter.diagnosis)
-  encounter: Encounter;
+  @Column({ type: 'varchar' })
+  certainty: Certainty;
 
   @ReferenceDataRelation()
   diagnosis: ReferenceData;
 
-  static async getForPatient(patientId: string): Promise<Diagnosis[]> {
-    const repo = this.getRepository();
+  @ManyToOne(type => Encounter, encounter => encounter.diagnosis)
+  encounter: Encounter;
 
-    return repo.find({
-      patient: patientId,
-    });
+  static async getForPatient(patientId: string): Promise<Diagnosis[]> {
+    return this.getRepository()
+      .createQueryBuilder('diagnosis')
+      .leftJoin('diagnosis.encounter', 'encounter')
+      .where('encounter.patient = :patient', { patient: patientId })
+      .getMany();
   }
 }

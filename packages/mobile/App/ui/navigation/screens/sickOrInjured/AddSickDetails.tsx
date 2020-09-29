@@ -1,5 +1,6 @@
-import React, { ReactElement, useMemo, useRef, useCallback } from 'react';
+import React, { ReactElement, useMemo, useRef, useCallback, useEffect, useState } from 'react';
 import { Formik } from 'formik';
+import { ScrollView } from 'react-native-gesture-handler';
 import { Field } from '/components/Forms/FormField';
 import { SectionHeader } from '/components/SectionHeader';
 import { FullView, StyledView } from '/styled/common';
@@ -13,12 +14,13 @@ import {
   scrollTo,
   calculateVerticalPositions,
 } from '/helpers/screen';
-import { ScrollView } from 'react-native-gesture-handler';
+import { DiagnosesAutocompleteField } from '~/ui/components/DiagnosesAutocompleteField';
 
 const initialValues = {
   treatmentNotes: '',
   labTestResults: '',
   medications: '',
+  diagnosis: '',
   comments: '',
 };
 
@@ -43,6 +45,7 @@ export const AddSickDetailScreen = (): ReactElement => {
     },
     [scrollViewRef],
   );
+
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <Formik
@@ -98,9 +101,15 @@ export const AddSickDetailScreen = (): ReactElement => {
                     label="Medications"
                     onFocus={scrollToComponent('medications')}
                   />
+                  <Field
+                    component={DiagnosesAutocompleteField}
+                    name="diagnosis"
+                    label="Diagnosis"
+                    onFocus={scrollToComponent('diagnosis')}
+                  />
                 </StyledView>
                 <StyledView
-                  marginTop={screenPercentageToDP(2.42, Orientation.Height)}
+                  marginTop={screenPercentageToDP(7.42, Orientation.Height)}
                   marginBottom={screenPercentageToDP(
                     0.605,
                     Orientation.Height,
