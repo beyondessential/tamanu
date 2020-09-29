@@ -50,7 +50,6 @@ export const DiagnosesAutocompleteField = ({
     // as we don't want user to be able to submit their
     // search string as the actual value..
     onChange(item);
-    // setSearchTerm(item);
     setHideResults(true);
   }, []);
 
