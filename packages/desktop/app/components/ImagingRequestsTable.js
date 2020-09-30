@@ -27,15 +27,15 @@ const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
 
 const columns = [
   { key: 'id', title: 'Request ID' },
-  { key: 'imagingType', title: 'Type', accessor: getRequestType },
+  { key: 'imagingType', title: 'Type', accessor: getRequestType, sortable: false },
   { key: 'status', title: 'Status', accessor: getStatus },
-  { key: 'displayName', title: 'Requested by', accessor: getDisplayName },
+  { key: 'displayName', title: 'Requested by', accessor: getDisplayName, sortable: false },
   { key: 'requestedDate', title: 'Date', accessor: getDate },
 ];
 
 const DumbImagingRequestsTable = React.memo(({ encounterId, onImagingRequestSelect }) => (
   <DataFetchingTable
-    endpoint={`encounter/${encounterId}/imagingRequests`}
+    endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
     columns={columns}
     noDataMessage="No imaging requests found"
     onRowClick={onImagingRequestSelect}
