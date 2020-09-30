@@ -25,7 +25,7 @@ export class Diagnosis extends BaseModel implements IDiagnosis {
     return this.getRepository()
       .createQueryBuilder('diagnosis')
       .leftJoin('diagnosis.encounter', 'encounter')
-      .where('encounter.patient = :patient', { patient: patientId })
+      .where('encounter.patient = :patientId', { patientId })
       .getMany();
   }
 }
