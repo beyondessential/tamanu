@@ -55,11 +55,14 @@ export class ImagingRequest extends Model {
   static initRelations(models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
+      as: 'encounter',
     });
+
     this.belongsTo(models.User, {
       foreignKey: 'requestedById',
       as: 'requestedBy',
     });
+
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'imagingTypeId',
       as: 'imagingType',

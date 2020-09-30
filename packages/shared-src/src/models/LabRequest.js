@@ -88,6 +88,7 @@ export class LabRequest extends Model {
 
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
+      as: 'encounter',
     });
 
     this.belongsTo(models.ReferenceData, {

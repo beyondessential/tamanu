@@ -60,6 +60,7 @@ export class Encounter extends Model {
   static initRelations(models) {
     this.belongsTo(models.Patient, {
       foreignKey: 'patientId',
+      as: 'patient',
     });
 
     this.belongsTo(models.User, {
