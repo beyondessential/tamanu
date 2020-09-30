@@ -1,8 +1,6 @@
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { AVPUType, IVitals } from '~/types';
-import { Patient } from './Patient';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { Encounter } from './Encounter';
 
 @Entity('vitals')

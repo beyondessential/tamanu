@@ -1,4 +1,5 @@
-import React, { useMemo, useCallback, useRef, ReactElement, useEffect } from 'react';
+import React, { useMemo, useCallback, useRef, ReactElement } from 'react';
+import { Formik } from 'formik';
 import { compose } from 'redux';
 import { FullView, StyledView, StyledSafeAreaView } from '/styled/common';
 import { Routes } from '/helpers/routes';
@@ -6,7 +7,6 @@ import { theme } from '/styled/theme';
 import { TextField } from '/components/TextField/TextField';
 import { Button } from '/components/Button';
 import { Field } from '/components/Forms/FormField';
-import { Formik } from 'formik';
 import { useBackend } from '~/ui/helpers/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { SectionHeader } from '/components/SectionHeader';

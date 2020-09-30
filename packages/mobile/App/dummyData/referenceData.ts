@@ -1,9 +1,9 @@
-
 import { ReferenceDataType } from '~/types';
 
 // for dummy data generation
 import { Chance } from 'chance';
 import { generatePatient } from '~/dummyData/patients';
+import { ICD10_DIAGNOSES } from './diagnoses';
 
 const generator = new Chance('patients');
 const DUMMY_PATIENT_COUNT = 44;
@@ -87,11 +87,14 @@ const VILLAGES = makeRefRecords(ReferenceDataType.Village, `
   Nasinu
 `);
 
+const DIAGNOSES = makeRefRecords(ReferenceDataType.ICD10, ICD10_DIAGNOSES);
+
 const dummyReferenceData : SyncRecord[] = [
   ...FACILITIES,
   ...VILLAGES,
   ...DEPARTMENTS,
   ...LOCATIONS,
+  ...DIAGNOSES,
 ]
   .map(data => ({
     data,
