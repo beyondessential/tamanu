@@ -1,9 +1,10 @@
 import { initDatabase } from 'sync-server/app/database';
-import { deleteAllTestIds } from './setupUtilities';
+import { deleteTestData } from './setupUtilities';
 
 export default async function() {
   const ctx = initDatabase({
     testMode: true,
   });
-  await deleteAllTestIds(ctx);
+
+  await deleteTestData(ctx);
 }

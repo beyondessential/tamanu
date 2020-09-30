@@ -14,7 +14,8 @@
     "upgrade-lint-rules": "yarn workspaces run upgrade @beyondessential/eslint-config-beyondessential --latest",
     "lan-start-dev": "node scripts/lan-start-dev.js",
     "desktop-start-dev": "yarn workspace desktop run start-dev",
-    "test-watch": "node scripts/lan-test-watch.js"
+    "test-watch": "node scripts/lan-test-watch.js",
+    "sync-test-watch": "node scripts/sync-test-watch.js"
   },
   "engines": {
     "node": "^12"

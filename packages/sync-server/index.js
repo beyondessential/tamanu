@@ -5,17 +5,8 @@ import { initDatabase } from './app/database';
 
 const port = config.port;
 
-async function performInitialSetup({ sequelize, models }) {
-  // sync models with database
-  await sequelize.sync();
-
-  /*
-  const existingUser = await models.User.findOne();
-  if (existingUser) {
-    // database has been populated
-    return;
-  }
-  */
+async function performInitialSetup({ db }) {
+  // TODO: initial population
 }
 
 export async function run() {

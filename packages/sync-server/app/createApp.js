@@ -11,7 +11,7 @@ import { log } from './logging';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
-export function createApp({ sequelize, models }) {
+export function createApp({ store }) {
   // Init our app
   const app = express();
   app.use(compression());
@@ -27,8 +27,7 @@ export function createApp({ sequelize, models }) {
   );
 
   app.use((req, res, next) => {
-    req.models = models;
-    req.db = sequelize;
+    req.store = store;
 
     next();
   });

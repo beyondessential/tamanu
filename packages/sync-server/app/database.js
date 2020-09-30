@@ -1,70 +1,71 @@
-import { Sequelize } from 'sequelize';
 import config from 'config';
-import { createNamespace } from 'cls-hooked';
-
-import * as models from 'shared/models';
 
 import { v4 as uuid } from 'uuid';
-import { log } from './logging';
 
-// an issue in how webpack's require handling interacts with sequelize means we need
-// to provide the module to sequelize manually
-// issue & resolution here: https://github.com/sequelize/sequelize/issues/9489#issuecomment-486047783
-import sqlite3 from 'sqlite3';
+import Datastore from 'nedb';
+
+import { log } from './logging';
 
 // make a 'fake' uuid that looks like 'test-766-9794-4491-8612-eb19fd959bf2'
 // this way we can run tests against real data and clear out everything that was
 // created by the tests with just "DELETE FROM table WHERE id LIKE 'test-%'"
 const createTestUUID = () => `test-${uuid().slice(5)}`;
 
-export function initDatabase({ testMode = false }) {
-  // connect to database
-  const { username, password, name, verbose, sqlitePath } = config.db;
+const removeIdUnderscore = ({ _id, ...rest }) => ({ id: _id, ...rest });
 
-  if (sqlitePath) {
-    log.info(`Connecting to sqlite database at ${sqlitePath}...`);
-  } else {
-    log.info(`Connecting to database ${username}@${name}...`);
+class NedbWrapper {
+
+  constructor(path) {
+    this.idGenerator = () => uuid();
+    this.store = new Datastore({ filename: path, autoload: true });
+  }
+  
+  async insert(channel, data) {
+    // rename id to _id
+    const { 
+      id = this.idGenerator(),
+      ...rest
+    } = data;
+    const doc = {
+      _id: id,
+      rest,
+    };
+
+    return new Promise((resolve, reject) => {
+      this.store.insert(doc, (err, newDoc) => {
+        if(err) {
+          reject(err);
+        } else {
+          resolve(newDoc);
+        }
+      });
+    });
   }
 
-  // this allows us to use transaction callbacks without manually managing a transaction handle
-  // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
-  const namespace = createNamespace('sequelize-transaction-namespace');
-  Sequelize.useCLS(namespace);
+  async find(channel, params) {
+    return new Promise((resolve, reject) => {
+      this.store.find(params, (err, docs) => {
+        if(err) {
+          reject(err);
+        } else {
+          resolve(docs.map(removeIdUnderscore));
+        }
+      });
+    });
+  }
 
-  const logging = verbose ? s => log.debug(s) : null;
-  const options = sqlitePath 
-    ? { dialect: 'sqlite', dialectModule: sqlite3, storage: sqlitePath } 
-    : { dialect: 'postgres' };
-  const sequelize = new Sequelize(name, username, password, {
-    ...options,
-    logging,
-  });
+}
 
-  // init all models
-  const modelClasses = Object.values(models);
-  const primaryKey = {
-    type: Sequelize.UUID,
-    defaultValue: testMode ? createTestUUID : Sequelize.UUIDV4,
-    primaryKey: true,
-  };
-  log.info(`Registering ${modelClasses.length} models...`);
-  modelClasses.map(modelClass => {
-    modelClass.init(
-      {
-        underscored: true,
-        primaryKey,
-        sequelize,
-      },
-      models,
-    );
-  });
+export function initDatabase({ testMode = false }) {
+  // connect to database
+  const { username, password, name, nedbPath } = config.db;
 
-  modelClasses.map(modelClass => {
-    if (modelClass.initRelations) {
-      modelClass.initRelations(models);
-    }
-  });
-
-  return { sequelize, models };
+  if (testMode || nedbPath) {
+    const path = testMode ? 'data/test.db' : nedbPath;
+    log.info(`Connecting to nedb database at ${path}...`);
+    return new NedbWrapper(path);
+  } else {
+    log.info(`Connecting to mongo database ${username}@${name}...`);
+    throw new Error("Mongo DB support is not yet implemented");
+  }
 }

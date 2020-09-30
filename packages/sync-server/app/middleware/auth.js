@@ -5,7 +5,7 @@ import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
 export const authMiddleware = express.Router();
 
 authMiddleware.get('/login', asyncHandler(async (req, res) => {
-  const { db, query } = req;
+  const { store, query } = req;
   const { username, password } = query;
 
   if(!username || !password) {
@@ -18,7 +18,7 @@ authMiddleware.get('/login', asyncHandler(async (req, res) => {
 }));
 
 authMiddleware.use(asyncHandler((req, res, next) => {
-  const { db, headers } = req;
+  const { store, headers } = req;
   const { authorization } = headers;
   
   if(!authorization) {
