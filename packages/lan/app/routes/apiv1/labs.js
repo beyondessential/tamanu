@@ -2,7 +2,8 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { REFERENCE_TYPES } from 'shared/constants';
-import { 
+import { ENCOUNTER_PATIENT } from '../../database/includes';
+import {
   simpleGet,
   simplePut,
   simplePost,
@@ -17,7 +18,7 @@ labRequest.put('/:id', simplePut('LabRequest'));
 labRequest.post('/$', simplePost('LabRequest'));
 
 const globalLabRequests = permissionCheckingRouter('list', 'LabRequest');
-globalLabRequests.get('/$', simpleGetList('LabRequest'));
+globalLabRequests.get('/$', simpleGetList('LabRequest', '', { include: [ENCOUNTER_PATIENT] }));
 labRequest.use(globalLabRequests);
 
 const labRelations = permissionCheckingRouter('read', 'LabRequest');
@@ -26,31 +27,35 @@ labRequest.use(labRelations);
 
 export const labTest = express.Router();
 
-labTest.get('/options$', asyncHandler(async (req, res) => {
-  // always allow reading lab test options
-  req.flagPermissionChecked();
+labTest.get(
+  '/options$',
+  asyncHandler(async (req, res) => {
+    // always allow reading lab test options
+    req.flagPermissionChecked();
 
-  const records = await req.models.LabTestType.findAll();
-  res.send({
-    data: records,
-    count: records.length,
-  });
-}));
+    const records = await req.models.LabTestType.findAll();
+    res.send({
+      data: records,
+      count: records.length,
+    });
+  }),
+);
 
-labTest.get('/categories$', asyncHandler(async (req, res) => {
-  // always allow reading lab test options
-  req.flagPermissionChecked();
+labTest.get(
+  '/categories$',
+  asyncHandler(async (req, res) => {
+    // always allow reading lab test options
+    req.flagPermissionChecked();
 
-  const records = await req.models.ReferenceData.findAll({
-    where: { type: REFERENCE_TYPES.LAB_TEST_CATEGORY },
-  });
+    const records = await req.models.ReferenceData.findAll({
+      where: { type: REFERENCE_TYPES.LAB_TEST_CATEGORY },
+    });
 
-  res.send({
-    data: records,
-    count: records.length,
-  });
-}));
+    res.send({
+      data: records,
+      count: records.length,
+    });
+  }),
+);
 
 labTest.put('/:id', simplePut('LabTest'));
-
-

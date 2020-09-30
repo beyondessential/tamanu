@@ -1,4 +1,5 @@
 import express from 'express';
+import { ENCOUNTER_PATIENT } from '../../database/includes';
 
 import {
   simpleGet,
@@ -15,5 +16,8 @@ imagingRequest.put('/:id', simplePut('ImagingRequest'));
 imagingRequest.post('/$', simplePost('ImagingRequest'));
 
 const globalImagingRequests = permissionCheckingRouter('list', 'ImagingRequest');
-globalImagingRequests.get('/$', simpleGetList('ImagingRequest'));
+globalImagingRequests.get(
+  '/$',
+  simpleGetList('ImagingRequest', '', { include: [ENCOUNTER_PATIENT] }),
+);
 imagingRequest.use(globalImagingRequests);

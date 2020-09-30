@@ -60,7 +60,7 @@ export const simplePost = modelName =>
   });
 
 export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
-  const { additionalFilters = {} } = options;
+  const { additionalFilters = {}, include = [] } = options;
 
   return asyncHandler(async (req, res) => {
     const { models, params, query } = req;
@@ -75,7 +75,7 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
       limit: rowsPerPage,
       offset,
-      include: model.getListReferenceAssociations(models),
+      include: [...model.getListReferenceAssociations(models), ...include],
     });
 
     const data = objects.map(x => x.forResponse());
