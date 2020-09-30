@@ -60,11 +60,11 @@ export const simplePost = modelName =>
   });
 
 export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
-  const { order, additionalFilters = {} } = options;
+  const { additionalFilters = {} } = options;
 
   return asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    const { limit = 10, offset = 0 } = query;
+    const { offset = 0, order = 'ASC', orderBy, rowsPerPage = 10 } = query;
 
     const model = models[modelName];
     const objects = await models[modelName].findAll({
@@ -72,8 +72,8 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
         ...(foreignKey && { [foreignKey]: params.id }),
         ...additionalFilters,
       },
-      order,
-      limit,
+      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+      limit: rowsPerPage,
       offset,
       include: model.getListReferenceAssociations(models),
     });

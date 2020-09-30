@@ -27,9 +27,9 @@ const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
 
 const columns = [
   { key: 'id', title: 'Request ID' },
-  { key: 'labRequestType', title: 'Type', accessor: getRequestType },
+  { key: 'labRequestType', title: 'Type', accessor: getRequestType, sortable: false },
   { key: 'status', title: 'Status', accessor: getStatus },
-  { key: 'displayName', title: 'Requested by', accessor: getDisplayName },
+  { key: 'displayName', title: 'Requested by', accessor: getDisplayName, sortable: false },
   { key: 'requestedDate', title: 'Date', accessor: getDate },
 ];
 

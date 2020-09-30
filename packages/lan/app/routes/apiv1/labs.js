@@ -16,6 +16,10 @@ labRequest.get('/:id', simpleGet('LabRequest'));
 labRequest.put('/:id', simplePut('LabRequest'));
 labRequest.post('/$', simplePost('LabRequest'));
 
+const globalLabRequests = permissionCheckingRouter('list', 'LabRequest');
+globalLabRequests.get('/$', simpleGetList('LabRequest'));
+labRequest.use(globalLabRequests);
+
 const labRelations = permissionCheckingRouter('read', 'LabRequest');
 labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));
 labRequest.use(labRelations);
