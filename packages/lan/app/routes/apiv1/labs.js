@@ -16,6 +16,8 @@ labRequest.get('/:id', simpleGet('LabRequest'));
 labRequest.put('/:id', simplePut('LabRequest'));
 labRequest.post('/$', simplePost('LabRequest'));
 
+labRequest.get('/$', simpleGetList('LabRequest'));
+
 const labRelations = permissionCheckingRouter('read', 'LabRequest');
 labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));
 labRequest.use(labRelations);
