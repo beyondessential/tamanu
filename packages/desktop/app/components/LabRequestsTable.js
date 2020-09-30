@@ -8,6 +8,7 @@ import { DateDisplay } from './DateDisplay';
 import { LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_COLORS } from '../constants';
 import { viewLab } from '../store/labRequest';
 import { PatientNameDisplay } from './PatientNameDisplay';
+import { viewPatient, viewPatientEncounter } from '../store/patient';
 
 const StatusLabel = styled.div`
   background: ${p => p.color};
@@ -50,5 +51,10 @@ const DumbLabRequestsTable = React.memo(({ encounterId, onLabSelect }) => (
 ));
 
 export const LabRequestsTable = connect(null, dispatch => ({
-  onLabSelect: lab => dispatch(viewLab(lab.id)),
+  onLabSelect: lab => {
+    const { encounter, id } = lab;
+    if (encounter) dispatch(viewPatientEncounter(encounter.patient.id, encounter.id));
+
+    dispatch(viewLab(id));
+  },
 }))(DumbLabRequestsTable);
