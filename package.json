@@ -26,6 +26,7 @@
       "packages/desktop",
       "packages/lan",
       "packages/server",
+      "packages/sync-server",
       "packages/shared",
       "packages/shared-src"
     ],
