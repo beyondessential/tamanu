@@ -1,3 +1,3 @@
-import { ImmunisationListingView } from '../views';
+import { ImmunisationsView } from '../views/patients';
 
-export const ImmunisationRoutes = ImmunisationListingView;
+export const ImmunisationRoutes = ImmunisationsView;

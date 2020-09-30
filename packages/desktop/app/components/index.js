@@ -12,3 +12,4 @@ export * from './Preloader';
 export * from './SearchBar';
 export * from './Table';
 export * from './TamanuLogo';
+export * from './ImmunisationsTable';
