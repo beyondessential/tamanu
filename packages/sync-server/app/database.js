@@ -15,8 +15,8 @@ const removeIdUnderscore = ({ _id, ...rest }) => ({ id: _id, ...rest });
 
 class NedbWrapper {
 
-  constructor(path) {
-    this.idGenerator = () => uuid();
+  constructor(path, testMode) {
+    this.idGenerator = testMode ? createTestUUID : () => uuid();
     this.store = new Datastore({ filename: path, autoload: true });
   }
   
@@ -28,7 +28,7 @@ class NedbWrapper {
     } = data;
     const doc = {
       _id: id,
-      rest,
+      ...rest,
     };
 
     return new Promise((resolve, reject) => {
@@ -36,7 +36,7 @@ class NedbWrapper {
         if(err) {
           reject(err);
         } else {
-          resolve(newDoc);
+          resolve(removeIdUnderscore(newDoc));
         }
       });
     });
@@ -63,7 +63,8 @@ export function initDatabase({ testMode = false }) {
   if (testMode || nedbPath) {
     const path = testMode ? 'data/test.db' : nedbPath;
     log.info(`Connecting to nedb database at ${path}...`);
-    return new NedbWrapper(path);
+    const store = new NedbWrapper(path, testMode);
+    return { store };
   } else {
     log.info(`Connecting to mongo database ${username}@${name}...`);
     throw new Error("Mongo DB support is not yet implemented");

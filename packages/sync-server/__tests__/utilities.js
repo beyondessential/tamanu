@@ -63,12 +63,11 @@ export function extendExpect(expect) {
 }
 
 export function createTestContext() {
-  const dbResult = initDatabase({
+  const { store } = initDatabase({
     testMode: true,
   });
-  const { models, sequelize } = dbResult;
 
-  const expressApp = createApp(dbResult);
+  const expressApp = createApp(store);
 
   const baseApp = supertest(expressApp);
 
@@ -100,5 +99,5 @@ export function createTestContext() {
     */
   };
 
-  return { baseApp, sequelize, models };
+  return { baseApp, store };
 }
