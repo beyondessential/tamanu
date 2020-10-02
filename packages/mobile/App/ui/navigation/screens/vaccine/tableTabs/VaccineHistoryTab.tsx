@@ -36,8 +36,17 @@ export const VaccineHistoryTab = ({
     }
   }, []);
   switch (route.name) {
-    case Routes.HomeStack.VaccineStack.VaccineTabs.AdulTab:
-      data = vaccineHistoryAdultList;
+    case Routes.HomeStack.VaccineStack.VaccineTabs.AdultTab:
+      data = [{
+        header: 'Birth',
+        bcg: null,
+        hepb: null,
+        dpt: null,
+        pcv: null,
+        ipv: null,
+        mr: null,
+        tt: null,
+      }];
       break;
     case Routes.HomeStack.VaccineStack.VaccineTabs.AdolescentTab:
       data = vaccineHistoryAdolecentList;

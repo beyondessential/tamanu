@@ -4,6 +4,7 @@ import { ReferenceDataType } from '~/types';
 import { Chance } from 'chance';
 import { generatePatient } from '~/dummyData/patients';
 import { ICD10_DIAGNOSES } from './diagnoses';
+import { VACCINES } from './vaccines';
 
 const generator = new Chance('patients');
 const DUMMY_PATIENT_COUNT = 44;
@@ -21,6 +22,12 @@ const dummyPatientRecords : SyncRecord[] = dummyPatients.map(p => ({
   data: p,
   recordType: 'patient',
 }));
+
+const dummyVaccineRecords : SyncRecord[] = VACCINES.map((v, i) => ({
+  data: { ...v, lastModified: generator.date({ year: 1971, month: 0, day: 0, second: i }) },
+  recordType: 'vaccine',
+}));
+
 
 const makeCode = x => x.replace(/\W/g, '').toUpperCase();
 
@@ -103,6 +110,7 @@ const dummyReferenceData : SyncRecord[] = [
 
 export const dummyReferenceRecords = [
   ...dummyPatientRecords,
+  ...dummyVaccineRecords,
   ...dummyReferenceData,
 ].sort(sortByModified)
 

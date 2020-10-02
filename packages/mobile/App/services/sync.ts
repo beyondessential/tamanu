@@ -16,6 +16,7 @@ interface SyncRecord {
 
 interface SyncSource {
   getReferenceData(since: Date): Promise<SyncRecord[]>;
+  getVaccineData(since: Date): Promise<SyncRecord[]>;
   getPatientData(patientId: string, since: Date): Promise<SyncRecord[]>;
 }
 
@@ -34,6 +35,10 @@ export class DummySyncSource implements SyncSource {
   }
 
   async getPatientData(patientId: string, since: Date): Promise<SyncRecord[]> {
+    return [];
+  }
+
+  async getVaccineData(since: Date): Promise<SyncRecord[]> {
     return [];
   }
 
@@ -65,6 +70,8 @@ export class SyncManager {
     switch(recordType) {
       case "patient":
         return models.Patient;
+      case "vaccine":
+        return models.Vaccine;
       case "program":
         return models.Program;
       case "referenceData":
