@@ -67,7 +67,7 @@ export function createTestContext() {
     testMode: true,
   });
 
-  const expressApp = createApp(store);
+  const expressApp = createApp({ store });
 
   const baseApp = supertest(expressApp);
 
