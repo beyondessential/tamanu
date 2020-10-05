@@ -35,6 +35,7 @@ const convertToSyncRecordFormatFromNedb = (nedbRecord) => {
     lastModified,
     data,
     recordType,
+    channel,
   } = nedbRecord;
 
   return {
@@ -78,18 +79,21 @@ class NedbWrapper {
   }
   
   async insert(channel, syncRecord) {
-    const recordToStore = convertToNedbFromSyncRecordFormat(syncRecord);
+    const recordToStore = {
+      channel,
+      ...convertToNedbFromSyncRecordFormat(syncRecord)
+    };
 
     return new Promise((resolve, reject) => {
       this.nedbStore.update(
-        { _id: recordToStore._id, }, 
+        { _id: recordToStore._id, channel }, 
         recordToStore, 
         { upsert: true }, 
         (err, count, newDoc) => {
           if(err) {
             reject(err);
           } else {
-            resolve();
+            resolve(count);
           }
         });
     });
@@ -100,6 +104,7 @@ class NedbWrapper {
 
     return new Promise((resolve, reject) => {
       this.nedbStore.find({
+        channel,
         lastModified: {
           $gt: stamp,
         }
