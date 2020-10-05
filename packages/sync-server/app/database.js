@@ -120,7 +120,7 @@ export function initDatabase({ testMode = false }) {
   const { username, password, name, nedbPath } = config.db;
 
   if (testMode || nedbPath) {
-    const path = testMode ? 'data/test.db' : nedbPath;
+    const path = nedbPath || 'data/test.db';
     log.info(`Connecting to nedb database at ${path}...`);
     const store = new NedbWrapper(path, testMode);
     return { 
