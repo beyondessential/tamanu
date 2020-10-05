@@ -64,6 +64,18 @@ class NedbWrapper {
 
     return parseInt(s, 10);
   }
+
+  remove(filter) {
+    return new Promise((resolve, reject) => {
+      this.nedbStore.remove(filter, { multi: true }, (err, numRemoved) => {
+        if(err) {
+          reject(err)
+        } else {
+          resolve(numRemoved);
+        }
+      });
+    });
+  }
   
   async insert(channel, syncRecord) {
     const recordToStore = convertToNedbFromSyncRecordFormat(syncRecord);
@@ -91,7 +103,7 @@ class NedbWrapper {
         lastModified: {
           $gt: stamp,
         }
-      }, (err, docs) => {
+      }).sort({ lastModified: 1 }).exec((err, docs) => {
         if(err) {
           reject(err);
         } else {
