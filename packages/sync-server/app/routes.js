@@ -34,13 +34,20 @@ routes.post('/:channel', asyncHandler(async (req, res) => {
 
   if(Array.isArray(body)) {
     const inserts = await Promise.all(
-      body.map(record => store.insert(channel, record))
+      body.map(record => store.insert(channel, {
+        lastSynced: (new Date()).valueOf(),
+        ...record
+      }))
     );
     res.send({
       count: inserts.filter(x => x).length
     });
   } else {
-    const count = await store.insert(channel, body);
+    const count = await store.insert(channel, {
+      lastSynced: (new Date()).valueOf(),
+      ...body
+    });
+
     res.send({
       count 
     });
