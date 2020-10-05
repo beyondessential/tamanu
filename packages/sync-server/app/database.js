@@ -115,17 +115,22 @@ class NedbWrapper {
 
 }
 
+let nedbConnection = null; 
+
 export function initDatabase({ testMode = false }) {
   // connect to database
   const { username, password, name, nedbPath } = config.db;
 
   if (testMode || nedbPath) {
+    if(nedbConnection) {
+      return nedbConnection;
+    }
     const path = nedbPath || 'data/test.db';
     log.info(`Connecting to nedb database at ${path}...`);
-    const store = new NedbWrapper(path, testMode);
-    return { 
-      store
+    nedbConnection = {
+      store: new NedbWrapper(path, testMode),
     };
+    return nedbConnection;
   } else {
     log.info(`Connecting to mongo database ${username}@${name}...`);
     throw new Error("Mongo DB support is not yet implemented");
