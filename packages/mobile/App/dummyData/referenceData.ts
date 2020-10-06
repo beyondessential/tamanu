@@ -1,35 +1,55 @@
+import { Chance } from 'chance';
 import { ReferenceDataType } from '~/types';
 
 // for dummy data generation
-import { Chance } from 'chance';
 import { generatePatient } from '~/dummyData/patients';
 import { ICD10_DIAGNOSES } from './diagnoses';
-import { VACCINES } from './vaccines';
+
+const VACCINE_TYPES = [
+  { id: 'v_1', code: 'BCG', name: 'Tuberculosis' },
+  { id: 'v_2', code: 'HepB', name: 'Hepatitis B' },
+  { id: 'v_3', code: 'DPT-HepB-Hib', name: 'Pentavalent' },
+  { id: 'v_4', code: 'PCV', name: 'Pneumococcal' },
+  { id: 'v_5', code: 'IPV', name: 'Inactivated poliovirus' },
+  { id: 'v_6', code: 'MR', name: 'Measles-rubella' },
+  { id: 'v_7', code: 'TT', name: 'Tetanus' },
+];
+
+const CHILDHOOD = ['birth', '24hrs from birth', '6 weeks', '10 weeks', '14 weeks', '1 year', '6 years'];
 
 const generator = new Chance('patients');
 const DUMMY_PATIENT_COUNT = 44;
 const dummyPatients = (new Array(DUMMY_PATIENT_COUNT))
   .fill(0)
   .map(() => generatePatient(generator))
-  .map((p, i) => ({ 
-    ...p, 
-    lastModified: generator.date({ year: 1971, month: 0, day: 0, second: i })
+  .map((p, i) => ({
+    ...p,
+    lastModified: generator.date({ year: 1971, month: 0, day: 0, second: i }),
   }));
 
-const sortByModified = (a, b) => a.data.lastModified - b.data.lastModified;
+const sortByModified = (a: { data: { lastModified: number; }; }, b: { data: { lastModified: number; }; }) => a.data.lastModified - b.data.lastModified;
 
-const dummyPatientRecords : SyncRecord[] = dummyPatients.map(p => ({
+const dummyPatientRecords: SyncRecord[] = dummyPatients.map(p => ({
   data: p,
   recordType: 'patient',
 }));
 
-const dummyVaccineRecords : SyncRecord[] = VACCINES.map((v, i) => ({
-  data: { ...v, lastModified: generator.date({ year: 1971, month: 0, day: 0, second: i }) },
-  recordType: 'vaccine',
-}));
+const makeDummyVaccineSchedule = (vaccine: { id: any; code?: string; name?: string; }, scheduleArray: any[]) => scheduleArray.map((schedule: any, index: any) => ({ schedule, vaccine: vaccine.id, index }));
+
+const dummyScheduledVaccineRecords: SyncRecord[] = VACCINE_TYPES
+  .map(v => makeDummyVaccineSchedule(v, CHILDHOOD))
+  .flat()
+  .map((v: any, i: any) => ({
+    recordType: 'scheduledVaccine',
+    data: {
+      ...v,
+      lastModified: generator.date({ year: 1971, month: 3, day: 0, second: i }),
+    },
+  }));
 
 
-const makeCode = x => x.replace(/\W/g, '').toUpperCase();
+  console.log(dummyScheduledVaccineRecords);
+const makeCode = (x: string) => x.replace(/\W/g, '').toUpperCase();
 
 const makeRefRecords = (referenceDataType: ReferenceDataType, values: string) => {
   const lines = values
@@ -43,7 +63,7 @@ const makeRefRecords = (referenceDataType: ReferenceDataType, values: string) =>
       type: referenceDataType,
       lastModified: generator.date({ year: 1971, month: 1, day: 0, second: i }),
     }));
-  console.log(lines);
+  // console.log(lines);
   return lines;
 };
 
@@ -96,12 +116,21 @@ const VILLAGES = makeRefRecords(ReferenceDataType.Village, `
 
 const DIAGNOSES = makeRefRecords(ReferenceDataType.ICD10, ICD10_DIAGNOSES);
 
-const dummyReferenceData : SyncRecord[] = [
+const VACCINES = VACCINE_TYPES.map((v, i) => ({
+  name: v.name,
+  code: v.code,
+  id: makeCode(v.name),
+  type: ReferenceDataType.Vaccine,
+  lastModified: generator.date({ year: 1971, month: 2, day: 0, second: i }),
+}));
+
+const dummyReferenceData: SyncRecord[] = [
   ...FACILITIES,
   ...VILLAGES,
   ...DEPARTMENTS,
   ...LOCATIONS,
   ...DIAGNOSES,
+  ...VACCINES,
 ]
   .map(data => ({
     data,
@@ -110,7 +139,6 @@ const dummyReferenceData : SyncRecord[] = [
 
 export const dummyReferenceRecords = [
   ...dummyPatientRecords,
-  ...dummyVaccineRecords,
   ...dummyReferenceData,
-].sort(sortByModified)
-
+  ...dummyScheduledVaccineRecords,
+].sort(sortByModified);

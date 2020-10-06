@@ -2,15 +2,10 @@ import { Entity, Column, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IImmunisation } from '~/types';
 import { Encounter } from './Encounter';
+import { ScheduledVaccine } from './ScheduledVaccine';
 
 @Entity('immunisation')
 export class Immunisation extends BaseModel implements IImmunisation {
-  @Column()
-  schedule: string;
-
-  @Column()
-  vaccine: string;
-
   @Column()
   batch: string;
 
@@ -22,6 +17,9 @@ export class Immunisation extends BaseModel implements IImmunisation {
 
   @ManyToOne(type => Encounter, encounter => encounter.vaccine)
   encounter: Encounter;
+
+  @ManyToOne(type => ScheduledVaccine)
+  scheduledVaccine: ScheduledVaccine;
 
   static async getForPatient(patientId: string): Promise<Immunisation[]> {
     return this.getRepository()
