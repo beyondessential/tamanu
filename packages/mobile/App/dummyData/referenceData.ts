@@ -5,8 +5,6 @@ import { ReferenceDataType } from '~/types';
 import { generatePatient } from '~/dummyData/patients';
 import { ICD10_DIAGNOSES } from './diagnoses';
 
-const CHILDHOOD = ['birth', '24hrs from birth', '6 weeks', '10 weeks', '14 weeks', '1 year', '6 years'];
-
 const generator = new Chance('patients');
 const DUMMY_PATIENT_COUNT = 44;
 const dummyPatients = (new Array(DUMMY_PATIENT_COUNT))
@@ -38,7 +36,7 @@ const makeRefRecords = (referenceDataType: ReferenceDataType, values: string) =>
       type: referenceDataType,
       lastModified: generator.date({ year: 1971, month: 1, day: 0, second: i }),
     }));
-  // console.log(lines);
+
   return lines;
 };
 

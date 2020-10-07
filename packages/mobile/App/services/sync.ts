@@ -29,7 +29,7 @@ export class DummySyncSource implements SyncSource {
       .filter(x => x.data.lastModified > since)
       // .slice(0, 4);
     // simulate a download delay
-    await new Promise((resolve) => setTimeout(resolve, 1 * records.length));
+    await new Promise((resolve) => setTimeout(resolve, 100 * records.length));
     return records;
   }
 
@@ -64,8 +64,6 @@ export class SyncManager {
     switch(recordType) {
       case "patient":
         return models.Patient;
-      case "scheduledVaccine":
-        return models.ScheduledVaccine;
       case "program":
         return models.Program;
       case "referenceData":
@@ -84,7 +82,6 @@ export class SyncManager {
     }
 
     const createdRecord = await model.createOrUpdate(data);
-    console.log(syncRecord.recordType, createdRecord);
     this.emitter.emit("syncedRecord", syncRecord);
   }
 
