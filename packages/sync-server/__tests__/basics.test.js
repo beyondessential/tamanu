@@ -1,6 +1,6 @@
 import { createTestContext } from './utilities';
 
-const { baseApp, models } = createTestContext();
+const { baseApp, store } = createTestContext();
 
 describe("Basics", () => {
   it('should respond with an index page', async () => {

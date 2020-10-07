@@ -1,70 +1,138 @@
-import { Sequelize } from 'sequelize';
 import config from 'config';
-import { createNamespace } from 'cls-hooked';
-
-import * as models from 'shared/models';
 
 import { v4 as uuid } from 'uuid';
-import { log } from './logging';
 
-// an issue in how webpack's require handling interacts with sequelize means we need
-// to provide the module to sequelize manually
-// issue & resolution here: https://github.com/sequelize/sequelize/issues/9489#issuecomment-486047783
-import sqlite3 from 'sqlite3';
+import Datastore from 'nedb';
+
+import { log } from './logging';
 
 // make a 'fake' uuid that looks like 'test-766-9794-4491-8612-eb19fd959bf2'
 // this way we can run tests against real data and clear out everything that was
 // created by the tests with just "DELETE FROM table WHERE id LIKE 'test-%'"
 const createTestUUID = () => `test-${uuid().slice(5)}`;
 
-export function initDatabase({ testMode = false }) {
-  // connect to database
-  const { username, password, name, verbose, sqlitePath } = config.db;
+//----------------------------------------------------------
+// The NEDB data store expects things in a slightly different format for ease
+// of querying and record duplication - handle that at the point of read/write
+const convertToNedbFromSyncRecordFormat = (syncRecord) => {
+  const {
+    id,
+    lastModified,
+    ...additionalData
+  } = syncRecord.data;
 
-  if (sqlitePath) {
-    log.info(`Connecting to sqlite database at ${sqlitePath}...`);
-  } else {
-    log.info(`Connecting to database ${username}@${name}...`);
+  return {
+    _id: id,
+    lastModified: lastModified.valueOf(),
+    data: additionalData,
+    recordType: syncRecord.recordType,
+  };
+};
+
+const convertToSyncRecordFormatFromNedb = (nedbRecord) => {
+  const {
+    _id,
+    lastModified,
+    data,
+    recordType,
+  } = nedbRecord;
+
+  return {
+    recordType,
+    data: {
+      id: _id,
+      lastModified,
+      ...data,
+    }
+  };
+};
+
+//----------------------------------------------------------
+
+class NedbWrapper {
+
+  constructor(path, testMode) {
+    this.idGenerator = testMode ? createTestUUID : () => uuid();
+    this.nedbStore = new Datastore({ filename: path, autoload: true });
   }
 
-  // this allows us to use transaction callbacks without manually managing a transaction handle
-  // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
-  const namespace = createNamespace('sequelize-transaction-namespace');
-  Sequelize.useCLS(namespace);
-
-  const logging = verbose ? s => log.debug(s) : null;
-  const options = sqlitePath 
-    ? { dialect: 'sqlite', dialectModule: sqlite3, storage: sqlitePath } 
-    : { dialect: 'postgres' };
-  const sequelize = new Sequelize(name, username, password, {
-    ...options,
-    logging,
-  });
-
-  // init all models
-  const modelClasses = Object.values(models);
-  const primaryKey = {
-    type: Sequelize.UUID,
-    defaultValue: testMode ? createTestUUID : Sequelize.UUIDV4,
-    primaryKey: true,
-  };
-  log.info(`Registering ${modelClasses.length} models...`);
-  modelClasses.map(modelClass => {
-    modelClass.init(
-      {
-        underscored: true,
-        primaryKey,
-        sequelize,
-      },
-      models,
-    );
-  });
-
-  modelClasses.map(modelClass => {
-    if (modelClass.initRelations) {
-      modelClass.initRelations(models);
+  convertStringToTimestamp(s) {
+    if(isNaN(s)) {
+      // TODO: try parsing it as a date
+      return 0;
     }
-  });
 
-  return { sequelize, models };
+    return parseInt(s, 10);
+  }
+
+  remove(filter) {
+    return new Promise((resolve, reject) => {
+      this.nedbStore.remove(filter, { multi: true }, (err, numRemoved) => {
+        if(err) {
+          reject(err)
+        } else {
+          resolve(numRemoved);
+        }
+      });
+    });
+  }
+  
+  async insert(channel, syncRecord) {
+    const recordToStore = convertToNedbFromSyncRecordFormat(syncRecord);
+
+    return new Promise((resolve, reject) => {
+      this.nedbStore.update(
+        { _id: recordToStore._id, }, 
+        recordToStore, 
+        { upsert: true }, 
+        (err, count, newDoc) => {
+          if(err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+    });
+  }
+
+  async findSince(channel, since) {
+    const stamp = this.convertStringToTimestamp(since);
+
+    return new Promise((resolve, reject) => {
+      this.nedbStore.find({
+        lastModified: {
+          $gt: stamp,
+        }
+      }).sort({ lastModified: 1 }).exec((err, docs) => {
+        if(err) {
+          reject(err);
+        } else {
+          resolve(docs.map(convertToSyncRecordFormatFromNedb));
+        }
+      });
+    });
+  }
+
+}
+
+let nedbConnection = null; 
+
+export function initDatabase({ testMode = false }) {
+  // connect to database
+  const { username, password, name, nedbPath } = config.db;
+
+  if (testMode || nedbPath) {
+    if(nedbConnection) {
+      return nedbConnection;
+    }
+    const path = nedbPath || 'data/test.db';
+    log.info(`Connecting to nedb database at ${path}...`);
+    nedbConnection = {
+      store: new NedbWrapper(path, testMode),
+    };
+    return nedbConnection;
+  } else {
+    log.info(`Connecting to mongo database ${username}@${name}...`);
+    throw new Error("Mongo DB support is not yet implemented");
+  }
 }
