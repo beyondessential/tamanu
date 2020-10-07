@@ -25,7 +25,7 @@ const dummyPatientRecords : SyncRecord[] = dummyPatients.map(p => ({
 const makeCode = x => x.replace(/\W/g, '').toUpperCase();
 
 const makeRefRecords = (referenceDataType: ReferenceDataType, values: string) => {
-  const lines = values
+  return values
     .split(/\n/)
     .map(x => x.trim())
     .filter(x => x)
@@ -36,8 +36,6 @@ const makeRefRecords = (referenceDataType: ReferenceDataType, values: string) =>
       type: referenceDataType,
       lastModified: generator.date({ year: 1971, month: 1, day: 0, second: i }),
     }));
-  console.log(lines);
-  return lines;
 };
 
 const FACILITIES = makeRefRecords(ReferenceDataType.Facility, `

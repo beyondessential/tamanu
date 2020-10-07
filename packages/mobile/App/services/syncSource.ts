@@ -50,7 +50,7 @@ export class WebSyncSource implements SyncSource {
     });
     const data = await response.json();
 
-    return [];
+    return data.records;
   }
 
   async getReferenceData(since: Date): Promise<SyncRecord[]> {
