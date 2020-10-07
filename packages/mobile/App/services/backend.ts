@@ -6,6 +6,7 @@ import {
 
 import { SyncManager } from '~/services/sync';
 import { WebSyncSource } from '~/services/syncSource';
+import { readConfig } from '~/services/config';
 
 const SYNC_PERIOD_MINUTES = 5;
 
@@ -21,11 +22,13 @@ export class Backend {
   constructor() {
     const { models } = Database;
     this.models = models;
-    const syncSource = new WebSyncSource('http://192.168.1.101:3000');
-    this.syncManager = new SyncManager(syncSource);
   }
 
   async initialise(): Promise<void> {
+    const DEFAULT_SYNC_LOCATION = 'http://192.168.1.101:3000';
+    const syncServerLocation = await readConfig('syncServerLocation', DEFAULT_SYNC_LOCATION);
+    const syncSource = new WebSyncSource(syncServerLocation);
+    this.syncManager = new SyncManager(syncSource);
     await Database.connect();
     this.startSyncService();
   }

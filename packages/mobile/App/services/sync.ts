@@ -19,7 +19,7 @@ export class SyncManager {
     this.syncSource = syncSource;
 
     this.emitter.on("*", (action, ...args) => {
-      console.log(`[sync] ${action}`);
+      console.log(`[sync] ${action} ${args[0] || ''}`);
     });
   }
 
@@ -75,7 +75,7 @@ export class SyncManager {
 
     const since = await this.getReferenceSyncDate();
 
-    this.emitter.emit("referenceDownloadStarted");
+    this.emitter.emit("referenceDownloadStarted", since);
     const referenceRecords = await this.syncSource.getReferenceData(since);
     this.emitter.emit("referenceDownloadEnded");
 
@@ -86,11 +86,11 @@ export class SyncManager {
       try {
         await this.syncRecord(r);
         this.emitter.emit("referenceRecordSynced", r, i, referenceRecords.length);
-        if(r.data.lastModified > maxDate) {
-          maxDate = r.data.lastModified;
+        if(r.lastSynced > maxDate) {
+          maxDate = r.lastSynced;
         }
       } catch(e) {
-        console.warn(e.message);
+        console.warn("Sync error: ", e.message);
       }
     }));
     this.emitter.emit("referenceSyncEnded");
