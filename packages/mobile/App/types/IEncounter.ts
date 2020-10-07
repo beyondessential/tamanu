@@ -1,4 +1,5 @@
 import { ID } from './ID';
+import { IReferenceData } from './IReferenceData';
 
 export enum EncounterType {
   Admission = 'admission',
@@ -19,4 +20,7 @@ export interface IEncounter {
   endDate?: Date;
 
   reasonForEncounter: string;
+
+  location: IReferenceData;
+  department: IReferenceData;
 }

@@ -1,7 +1,10 @@
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
+import { startOfDay, addHours } from 'date-fns';
 import { BaseModel } from './BaseModel';
-import { IEncounter, EncounterType } from '~/types';
+import { IEncounter, EncounterType, ReferenceDataType } from '~/types';
 import { Patient } from './Patient';
+import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { formatDateForQuery } from '~/infra/db/helpers';
 
 @Entity('encounter')
 export class Encounter extends BaseModel implements IEncounter {
@@ -11,7 +14,7 @@ export class Encounter extends BaseModel implements IEncounter {
   @Column()
   startDate: Date;
 
-  @Column()
+  @Column({ nullable: true })
   endDate?: Date;
 
   @Column()
@@ -20,5 +23,45 @@ export class Encounter extends BaseModel implements IEncounter {
   @ManyToOne(type => Patient, patient => patient.encounters)
   patient: Patient;
 
-  // other FKs TODO: examiner, department, location
+  @ReferenceDataRelation()
+  department: ReferenceData;
+
+  @ReferenceDataRelation()
+  location: ReferenceData;
+
+  static async getOrCreateCurrentEncounter(
+    patientId: string, createdEncounterOptions: any,
+  ): Promise<Encounter> {
+    const repo = this.getRepository();
+    const timeOffset = 3;
+    const date = addHours(startOfDay(new Date()), timeOffset);
+
+    const found = await repo.createQueryBuilder('encounter')
+      .where('patientId = :patientId', { patientId })
+      .andWhere('startDate >= :date', { date: formatDateForQuery(date) })
+      .getOne();
+
+    if (found) return found;
+
+    return Encounter.create({
+      patient: patientId,
+      startDate: new Date(),
+      endDate: null,
+      encounterType: EncounterType.Clinic,
+      reasonForEncounter: '',
+      department: (await ReferenceData.getAnyOfType(ReferenceDataType.Department)).id,
+      location: (await ReferenceData.getAnyOfType(ReferenceDataType.Location)).id,
+      ...createdEncounterOptions,
+    });
+  }
+
+  static async getForPatient(patientId: string): Promise<Encounter[]> {
+    const repo = this.getRepository();
+
+    return repo.find({
+      patient: patientId,
+    });
+  }
+
+  // TODO: add examiner
 }

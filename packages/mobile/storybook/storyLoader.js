@@ -4,7 +4,7 @@
 // https://github.com/elderfo/react-native-storybook-loader.git
 
 function loadStories() {
-	require('../App/ui/components/Accordion/index.stories');	
+	require('../App/ui/components/PatientHistoryAccordion/index.stories');	
 	require('../App/ui/components/Button/index.stories');
 	require('../App/ui/components/Chart/index.stories');
 	require('../App/ui/components/Checkbox/index.stories');

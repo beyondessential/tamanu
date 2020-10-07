@@ -23,7 +23,7 @@ const MODELS: ModelMap = Object.entries(modelsMap).reduce(
 
 const MODEL_LIST: BaseModel[] = Object.values(MODELS);
 
-const LOG_LEVELS = __DEV__ ? ['error', /*'query',*/ 'schema'] : [];
+const LOG_LEVELS = __DEV__ ? ['error', /*'query' ,*/ 'schema'] : [];
 
 const CONNECTION_CONFIG = {
   type: 'react-native',
@@ -76,9 +76,8 @@ class DatabaseHelper {
 export const Database = new DatabaseHelper();
 
 if (__DEV__) {
-  DevSettings.addMenuItem("Clear database", async () => {
+  DevSettings.addMenuItem('Clear database', async () => {
     await clear();
-    await Database.client.dropDatabase();
     DevSettings.reload();
   });
 }

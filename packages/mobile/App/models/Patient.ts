@@ -26,7 +26,7 @@ export class Patient extends BaseModel implements IPatient {
   bloodType: string;
 
   @Column()
-  sex: string; 
+  sex: string;
 
   //----------------------------------------------------------
   // sync info

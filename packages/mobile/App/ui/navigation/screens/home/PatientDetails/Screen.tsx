@@ -84,9 +84,8 @@ export const Screen = ({
               color={theme.colors.WHITE}
               fontSize={screenPercentageToDP(1.94, Orientation.Height)}
             >
-              {getGender(patientData.generalInfo.gender)},{' '}
-              {getAgeFromDate(patientData.generalInfo.dateOfBirth)} years old,{' '}
-              {patientData.generalInfo.city}
+              {getGender(patientData.generalInfo.sex)},{' '}
+              {getAgeFromDate(new Date(patientData.generalInfo.dateOfBirth))} years old,{' '}
             </StyledText>
           </StyledView>
         </RowView>
