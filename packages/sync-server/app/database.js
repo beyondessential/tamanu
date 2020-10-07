@@ -15,33 +15,34 @@ const createTestUUID = () => `test-${uuid().slice(5)}`;
 // The NEDB data store expects things in a slightly different format for ease
 // of querying and record duplication - handle that at the point of read/write
 const convertToNedbFromSyncRecordFormat = (syncRecord) => {
+  const { 
+    data,
+    ...metadata
+  } = syncRecord;
   const {
     id,
-    lastModified,
     ...additionalData
   } = syncRecord.data;
 
   return {
+    ...metadata,
     _id: id,
-    lastModified: lastModified.valueOf(),
     data: additionalData,
-    recordType: syncRecord.recordType,
   };
 };
 
 const convertToSyncRecordFormatFromNedb = (nedbRecord) => {
   const {
     _id,
-    lastModified,
     data,
-    recordType,
+    channel,
+    ...metadata
   } = nedbRecord;
 
   return {
-    recordType,
+    ...metadata,
     data: {
       id: _id,
-      lastModified,
       ...data,
     }
   };
@@ -78,18 +79,22 @@ class NedbWrapper {
   }
   
   async insert(channel, syncRecord) {
-    const recordToStore = convertToNedbFromSyncRecordFormat(syncRecord);
+    const recordToStore = {
+      channel,
+      lastSynced: (new Date()).valueOf(),
+      ...convertToNedbFromSyncRecordFormat(syncRecord)
+    };
 
     return new Promise((resolve, reject) => {
       this.nedbStore.update(
-        { _id: recordToStore._id, }, 
+        { _id: recordToStore._id, channel }, 
         recordToStore, 
         { upsert: true }, 
         (err, count, newDoc) => {
           if(err) {
             reject(err);
           } else {
-            resolve();
+            resolve(count);
           }
         });
     });
@@ -100,10 +105,11 @@ class NedbWrapper {
 
     return new Promise((resolve, reject) => {
       this.nedbStore.find({
-        lastModified: {
+        channel,
+        lastSynced: {
           $gt: stamp,
         }
-      }).sort({ lastModified: 1 }).exec((err, docs) => {
+      }).sort({ lastSynced: 1 }).exec((err, docs) => {
         if(err) {
           reject(err);
         } else {
