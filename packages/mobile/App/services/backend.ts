@@ -4,7 +4,8 @@ import {
   populateInitialData,
 } from '~/infra/db/populate';
 
-import { SyncManager, DummySyncSource } from '~/services/sync';
+import { SyncManager } from '~/services/sync';
+import { WebSyncSource } from '~/services/syncSource';
 
 const SYNC_PERIOD_MINUTES = 5;
 
@@ -20,7 +21,8 @@ export class Backend {
   constructor() {
     const { models } = Database;
     this.models = models;
-    this.syncManager = new SyncManager(new DummySyncSource());
+    const syncSource = new WebSyncSource('http://192.168.1.101:3000');
+    this.syncManager = new SyncManager(syncSource);
   }
 
   async initialise(): Promise<void> {

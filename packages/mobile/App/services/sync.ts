@@ -1,44 +1,8 @@
 import mitt from 'mitt';
 import { Database } from '~/infra/db';
 
-import { dummyReferenceRecords } from '~/dummyData/referenceData';
 import { readConfig, writeConfig } from '~/services/config';
-
-interface SyncRecordData {
-  lastModified: Date;
-  [key: string]: any;
-}
-
-interface SyncRecord {
-  recordType: string;
-  data: SyncRecordData;
-}
-
-interface SyncSource {
-  getReferenceData(since: Date): Promise<SyncRecord[]>;
-  getPatientData(patientId: string, since: Date): Promise<SyncRecord[]>;
-}
-
-//----------------------------------------------------------
-// TODO: remove & replace with real functionality
-
-export class DummySyncSource implements SyncSource {
-
-  async getReferenceData(since: Date): Promise<SyncRecord[]> {
-    const records = dummyReferenceRecords
-      .filter(x => x.data.lastModified > since)
-      // .slice(0, 4);
-    // simulate a download delay
-    await new Promise((resolve) => setTimeout(resolve, 100 * records.length));
-    return records;
-  }
-
-  async getPatientData(patientId: string, since: Date): Promise<SyncRecord[]> {
-    return [];
-  }
-
-}
-//----------------------------------------------------------
+import { SyncRecord, SyncSource } from './syncSource';
 
 class NoSyncImporterError extends Error {
   constructor(recordType) {
