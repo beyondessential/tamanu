@@ -23,6 +23,9 @@ export class Encounter extends BaseModel implements IEncounter {
   @ManyToOne(type => Patient, patient => patient.encounters)
   patient: Patient;
 
+  // @ManyToOne: LabRequest (for result)?
+  // @ManyToOne: Medication
+
   @ReferenceDataRelation()
   department: ReferenceData;
 

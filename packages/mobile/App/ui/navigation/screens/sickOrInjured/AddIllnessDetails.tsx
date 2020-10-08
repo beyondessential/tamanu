@@ -1,4 +1,5 @@
 import React, { ReactElement, useMemo, useRef, useCallback, useEffect, useState } from 'react';
+import { compose } from 'redux';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Field } from '/components/Forms/FormField';
@@ -11,18 +12,11 @@ import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import {
   screenPercentageToDP,
   Orientation,
-  scrollTo,
-  calculateVerticalPositions,
 } from '/helpers/screen';
 import { DiagnosesAutocompleteField } from '~/ui/components/DiagnosesAutocompleteField';
-
-const initialValues = {
-  treatmentNotes: '',
-  labTestResults: '',
-  medications: '',
-  diagnosis: '',
-  comments: '',
-};
+import { useBackend } from '~/ui/helpers/hooks';
+import { withPatient } from '~/ui/containers/Patient';
+import { Routes } from '/helpers/routes';
 
 const styles = StyleSheet.create({
   KeyboardAvoidingViewStyles: { flex: 1 },
@@ -33,24 +27,34 @@ const styles = StyleSheet.create({
   ScrollView: { flex: 1 },
 });
 
-export const AddSickDetailScreen = (): ReactElement => {
-  const scrollViewRef = useRef<any>(null);
-  const verticalPositions = useMemo(
-    () => calculateVerticalPositions(Object.keys(initialValues)),
-    [],
-  );
-  const scrollToComponent = useCallback(
-    (fieldName: string) => (): void => {
-      scrollTo(scrollViewRef, verticalPositions[fieldName]);
-    },
-    [scrollViewRef],
+export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElement => {
+  const { models } = useBackend();
+
+  const navigateToHistory = useCallback(() => {
+    navigation.navigate(Routes.HomeStack.CheckUpStack.CheckUpTabs.ViewHistory);
+  }, []);
+
+  const recordIllness = useCallback(
+    async (values: any): Promise<any> => {
+      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+        selectedPatient.id,
+        { reasonForEncounter: values.comments },
+      );
+
+      await models.Vitals.create({
+        ...values,
+        encounter: encounter.id,
+        date: new Date(),
+      });
+
+      navigateToHistory();
+    }, [],
   );
 
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <Formik
-        initialValues={initialValues}
-        onSubmit={(values): void => console.log(values)}
+        onSubmit={recordIllness}
       >
         {({ handleSubmit }): ReactElement => (
           <FullView
@@ -66,7 +70,6 @@ export const AddSickDetailScreen = (): ReactElement => {
             >
               <ScrollView
                 style={styles.ScrollView}
-                ref={scrollViewRef}
                 showsVerticalScrollIndicator={false}
                 scrollToOverflowEnabled
                 overScrollMode="always"
@@ -87,25 +90,21 @@ export const AddSickDetailScreen = (): ReactElement => {
                     component={TextField}
                     name="treatmentNotes"
                     label="Treatment notes"
-                    onFocus={scrollToComponent('treatmentNotes')}
                   />
                   <Field
                     component={TextField}
                     name="labTestResults"
                     label="Lab/Test Results"
-                    onFocus={scrollToComponent('labTestResults')}
                   />
                   <Field
                     component={TextField}
                     name="medications"
                     label="Medications"
-                    onFocus={scrollToComponent('medications')}
                   />
                   <Field
                     component={DiagnosesAutocompleteField}
                     name="diagnosis"
                     label="Diagnosis"
-                    onFocus={scrollToComponent('diagnosis')}
                   />
                 </StyledView>
                 <StyledView
@@ -121,7 +120,6 @@ export const AddSickDetailScreen = (): ReactElement => {
                   component={TextField}
                   name="comments"
                   multiline
-                  onFocus={scrollToComponent('comments')}
                 />
                 <Button
                   marginTop={screenPercentageToDP(1.22, Orientation.Height)}
@@ -137,3 +135,5 @@ export const AddSickDetailScreen = (): ReactElement => {
     </FullView>
   );
 };
+
+export const AddIllnessScreen = compose(withPatient)(DumbAddIllnessScreen);
