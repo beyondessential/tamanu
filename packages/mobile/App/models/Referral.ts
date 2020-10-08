@@ -1,7 +1,8 @@
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IReferral } from '~/types';
-import { Encounter } from './Encounter';
+import { Diagnosis } from './Diagnosis';
+import { Patient } from './Patient';
 
 @Entity('referral')
 export class Referral extends BaseModel implements IReferral {
@@ -14,6 +15,9 @@ export class Referral extends BaseModel implements IReferral {
   @Column()
   referredTo: string;
 
-  @ManyToOne(type => Encounter, encounter => encounter.referral)
-  encounter: Encounter;
+  @ManyToOne(type => Patient, patient => patient.referral)
+  patient: Patient;
+
+  @ManyToOne(type => Diagnosis, diagnosis => diagnosis.referral)
+  diagnosis: Diagnosis;
 }

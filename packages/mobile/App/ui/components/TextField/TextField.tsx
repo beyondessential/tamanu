@@ -90,7 +90,7 @@ export const TextField = React.memo(
       >
         <InputContainer
           disabled={disabled}
-          hasValue={value.length > 0}
+          hasValue={value && value.length > 0}
           error={error}
           paddingLeft={
             Platform.OS === 'ios'
