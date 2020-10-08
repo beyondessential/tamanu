@@ -1,6 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
+import { log } from './logging';
+
 import { InvalidParameterError } from 'shared/errors';
 
 export const routes = express.Router();
@@ -8,7 +10,7 @@ export const routes = express.Router();
 routes.get('/:channel', asyncHandler(async (req, res) => {
   const { store, query, params } = req;
   const { channel } = params;
-  const { since, limit } = query;
+  const { since, limit = "100", page = "0" } = query;
 
   if(!since) {
     throw new InvalidParameterError('Sync GET request must include a "since" parameter');
@@ -17,12 +19,18 @@ routes.get('/:channel', asyncHandler(async (req, res) => {
   // grab the requested time before running any queries
   const requestedAt = new Date();
 
-  // TODO: pagination
-  const records = await store.findSince(channel, since);
-  const total = records.length;
+  const count = await store.countSince(channel, since);
 
+  const limitNum = parseInt(limit, 10) || undefined;
+  const offsetNum = limitNum ? parseInt(page, 10) * limit : undefined;
+  const records = await store.findSince(channel, since, {
+    limit: limitNum,
+    offset: offsetNum,
+  });
+  
+  log.info(`GET from ${channel} : ${count} records`);
   res.send({
-    count: total,
+    count,
     requestedAt,
     records,
   });
@@ -32,6 +40,7 @@ routes.post('/:channel', asyncHandler(async (req, res) => {
   const { store, params, body } = req;
   const { channel } = params;
 
+
   if(Array.isArray(body)) {
     const inserts = await Promise.all(
       body.map(record => store.insert(channel, {
@@ -39,10 +48,13 @@ routes.post('/:channel', asyncHandler(async (req, res) => {
         ...record
       }))
     );
+    const count = inserts.filter(x => x).length;
+    log.info(`POST to ${channel} : ${count} records`);
     res.send({
-      count: inserts.filter(x => x).length
+      count,
     });
   } else {
+    log.info(`POST to ${channel} : 1 record`);
     const count = await store.insert(channel, {
       lastSynced: (new Date()).valueOf(),
       ...body
