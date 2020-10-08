@@ -1,53 +1,125 @@
-import request from 'request';
+import Faye from 'faye';
+import { find } from 'lodash';
+import config from 'config';
+import { schemas } from 'shared/schemas';
+import { objectToJSON } from '../utils';
+import { outgoing } from '../utils/faye-extensions';
+import { SYNC_MODES, SYNC_ACTIONS } from '../constants';
 
-function sendSyncRequest(channel, body) {
-  const token = '123';
-
-  return new Promise((resolve, reject) => {
-    request({
-      method: 'POST',
-      url: `http://localhost:3000/${channel}`,
-      headers: {
-        'authorization': token,
-      },
-      json: true,
-      body,
-    }, (err, response, body) => {
-      if(err) reject(err);
-      else resolve(body);
+export class Sync {
+  constructor(database, listeners) {
+    this.database = database;
+    this.listeners = listeners;
+    this.client = new Faye.Client(`${config.mainServer}/${config.sync.path}`);
+    this.client.addExtension({
+      outgoing: (message, callback) => outgoing({ database, message, callback }),
     });
-  });
-}
-
-async function uploadSyncRecords(records) {
-  const REQUEST_RECORD_LIMIT = 100;
-  const numRequests = records.length / REQUEST_RECORD_LIMIT;
-
-  for(var i = 0; i * REQUEST_RECORD_LIMIT < records.length; ++i) {
-    const offset = i * REQUEST_RECORD_LIMIT;
-    const items = records
-      .slice(offset, offset + REQUEST_RECORD_LIMIT)
-      .map(item => ({ 
-        recordType: 'referenceData',
-        data: item.dataValues
-      }));
-    const response = await sendSyncRequest('reference', items);
   }
-  /*
-  const response = await sendSyncRequest('testSync', [
-    {
-      recordType: 'other', 
-      data
+
+  setup() {
+    const clientId = this.database.getSetting('CLIENT_ID');
+    const subscription = this.client
+      .subscribe(`/${config.sync.channelIn}/${clientId}`)
+      .withChannel((channel, message) => {
+        const { action, recordType: type, recordId: id } = message;
+        const schema = find(schemas, ({ name }) => name === type);
+        if (!schema) {
+          throw new Error(`Invalid recordType [${type}]`);
+        }
+        if (schema.sync !== SYNC_MODES.ON && schema.sync !== SYNC_MODES.REMOTE_TO_LOCAL) {
+          throw new Error(`Schema sync not allowed [${schema.sync}]`);
+        }
+        console.log(`[MessageIn - ${config.sync.channelIn}/${clientId}] - [${channel}]`, {
+          action,
+          type,
+          id,
+        });
+        switch (message.action) {
+          case SYNC_ACTIONS.SAVE:
+            this.saveRecord(message);
+            break;
+          case SYNC_ACTIONS.REMOVE:
+            this.removeRecord(message);
+            break;
+          default:
+            throw new Error('No action specified');
+        }
+      });
+
+    subscription.callback(() => {
+      this.synchronize();
+      console.log('[SUBSCRIBE SUCCEEDED]');
+    });
+
+    subscription.errback(error => {
+      console.log('[SUBSCRIBE FAILED]', error);
+    });
+
+    this.client.bind('transport:down', () => {
+      console.log('[CONNECTION DOWN]');
+    });
+
+    this.client.bind('transport:up', () => {
+      console.log('[CONNECTION UP]');
+    });
+  }
+
+  synchronize() {
+    try {
+      const lastSyncTime = this.database.getSetting('LAST_SYNC_OUT');
+      console.log('lastSyncTime', lastSyncTime);
+      const changes = this.database
+        .find('change', `timestamp >= "${lastSyncTime}"`)
+        .sorted('timestamp', false);
+      const tasks = [];
+      changes.forEach(change => tasks.push(this.publishMessage(objectToJSON(change))));
+      Promise.all(tasks);
+    } catch (err) {
+      throw new Error(err);
     }
-  ]);
-  console.log(response);
-  */
-}
+  }
 
-export async function startSync({ models }) {
-  const records = await models.ReferenceData.findAll({
-    order: ["name"],
-  });
+  async publishMessage(change) {
+    try {
+      const clientId = this.database.getSetting('CLIENT_ID');
+      let record = this.database.findOne(change.recordType, change.recordId);
+      if (record) record = objectToJSON(record);
+      await this.client.publish(`/${config.sync.channelOut}`, {
+        from: clientId,
+        record,
+        ...change,
+      });
 
-  await uploadSyncRecords(records);
+      // // Update last sync out date
+      this.database.setSetting('LAST_SYNC_OUT', new Date().getTime());
+      console.log('[MessageOut]', `/${config.sync.channelOut}`, {
+        action: change.action,
+        type: change.recordType,
+        id: change.recordId,
+      });
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  saveRecord({ record, recordType }) {
+    try {
+      this.database.write(() => {
+        this.database.create(recordType, record, true, true);
+      });
+    } catch (err) {
+      console.error(err.toString(), record);
+      throw err;
+    }
+  }
+
+  removeRecord(props) {
+    try {
+      this.database.write(() => {
+        this.database.deleteByPrimaryKey(props.recordType, props.recordId, '_id', true);
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
 }

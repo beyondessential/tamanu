@@ -6,7 +6,6 @@ import { createApp } from './app/createApp';
 
 import { startScheduledTasks } from './app/tasks';
 import { startDataChangePublisher } from './app/DataChangePublisher';
-import { startSync } from './app/database/sync';
 
 import { importDataDefinition } from './app/dataDefinitionImporter';
 import {
@@ -87,7 +86,7 @@ export async function run() {
 
   startDataChangePublisher(server, context);
 
-  startSync(context);
+  // TODO: sync with remote server
 }
 
 run();
