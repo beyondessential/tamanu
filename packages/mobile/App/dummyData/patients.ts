@@ -32,7 +32,7 @@ export const generatePatient = (generator = defaultGenerator): IPatient => {
     firstName,
     middleName,
     lastName,
-    culturalName: generator.bool() ? "" : generator.name(),
+    culturalName: generator.bool() ? '' : generator.name(),
     bloodType: generator.pickone(BloodTypes).value,
     sex,
     dateOfBirth: generator.birthday(),

@@ -36,7 +36,6 @@ export class DummySyncSource implements SyncSource {
   async getPatientData(patientId: string, since: Date): Promise<SyncRecord[]> {
     return [];
   }
-
 }
 //----------------------------------------------------------
 
@@ -82,8 +81,7 @@ export class SyncManager {
       throw new NoSyncImporterError(recordType);
     }
 
-    await model.createOrUpdate(data);
-      
+    const createdRecord = await model.createOrUpdate(data);
     this.emitter.emit("syncedRecord", syncRecord);
   }
 

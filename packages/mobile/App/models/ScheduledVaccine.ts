@@ -1,0 +1,16 @@
+import { Entity, Column } from 'typeorm/browser';
+import { BaseModel } from './BaseModel';
+import { IScheduledVaccine } from '~/types';
+import { ReferenceDataRelation, ReferenceData } from './ReferenceData';
+
+@Entity('vaccine')
+export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
+  @Column()
+  index: number;
+
+  @Column()
+  schedule: string;
+
+  @ReferenceDataRelation()
+  vaccine: ReferenceData;
+}
