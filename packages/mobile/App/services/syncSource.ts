@@ -1,7 +1,7 @@
 
 export interface SyncRecordData {
   id: string;
-  lastModified: Date;
+  updatedAt: Date;
   [key: string]: any;
 }
 
@@ -10,9 +10,13 @@ export interface SyncRecord {
   data: SyncRecordData;
 }
 
+export interface SyncPage {
+  records: SyncRecord[];
+  nextPage?: number;
+}
+
 export interface SyncSource {
-  getReferenceData(since: Date): Promise<SyncRecord[]>;
-  getPatientData(patientId: string, since: Date): Promise<SyncRecord[]>;
+  getSyncData(channel: string, since: Date, page: number): Promise<SyncPage>;
 }
 
 export class WebSyncSource implements SyncSource {
@@ -21,9 +25,12 @@ export class WebSyncSource implements SyncSource {
     this.host = host;
   }
 
-  async request(channel: string, since: Date) {
+  async getSyncData(channel: string, since: Date, page: number): Promise<SyncPage> {
+    // TODO: error handling (incl timeout)
+    const PAGE_LIMIT = 100;
     const sinceStamp = since.valueOf();
-    const url = `${this.host}/${channel}?since=${sinceStamp}`;
+    const url = `${this.host}/${channel}?since=${sinceStamp}&page=${page}&limit=${PAGE_LIMIT}`;
+    console.log(url);
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -31,15 +38,12 @@ export class WebSyncSource implements SyncSource {
       }
     });
     const data = await response.json();
+    const expectedCount = PAGE_LIMIT * (page + 1);
+    const nextPage = (data.count > expectedCount) ? (page + 1) : 0;
 
-    return data.records;
-  }
-
-  async getReferenceData(since: Date): Promise<SyncRecord[]> {
-    return await this.request('reference', since);
-  }
-
-  async getPatientData(patientId: string, since: Date): Promise<SyncRecord[]> {
-    return [];
+    return {
+      records: data.records,
+      nextPage,
+    }
   }
 }

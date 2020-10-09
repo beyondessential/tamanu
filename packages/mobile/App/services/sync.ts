@@ -2,7 +2,7 @@ import mitt from 'mitt';
 import { Database } from '~/infra/db';
 
 import { readConfig, writeConfig } from '~/services/config';
-import { SyncRecord, SyncSource } from './syncSource';
+import { SyncRecord, SyncPage, SyncSource } from './syncSource';
 
 class NoSyncImporterError extends Error {
   constructor(recordType) {
@@ -48,7 +48,7 @@ export class SyncManager {
 
     await model.createOrUpdate(data);
       
-    this.emitter.emit("syncedRecord", syncRecord);
+    this.emitter.emit("syncedRecord", syncRecord.recordType, syncRecord);
   }
 
   async runScheduledSync() {
@@ -73,31 +73,11 @@ export class SyncManager {
 
     this.emitter.emit("syncStarted");
 
-    const since = await this.getReferenceSyncDate();
-
-    this.emitter.emit("referenceDownloadStarted", since);
-    const referenceRecords = await this.syncSource.getReferenceData(since);
-    this.emitter.emit("referenceDownloadEnded");
+    await this.runReferenceSync();
 
     // sync all reference data including shallow patient list
-    let maxDate = since;
-    this.emitter.emit("referenceSyncStarted", referenceRecords.length);
-    await Promise.all(referenceRecords.map(async (r, i) => {
-      try {
-        await this.syncRecord(r);
-        this.emitter.emit("referenceRecordSynced", r, i, referenceRecords.length);
-        if(r.lastSynced > maxDate) {
-          maxDate = r.lastSynced;
-        }
-      } catch(e) {
-        console.warn("Sync error: ", e.message);
-      }
-    }));
-    this.emitter.emit("referenceSyncEnded");
-
-    await this.updateReferenceSyncDate(maxDate);
-
     // full sync of patients that've been flagged (encounters, etc)
+    /*
     const patientsToSync = await this.getPatientsToSync();
     this.emitter.emit("patientSyncStarted", patientsToSync.length);
     for(let i = 0; i < patientsToSync.length; i++) {
@@ -110,20 +90,10 @@ export class SyncManager {
       }
     }
     this.emitter.emit("patientSyncEnded");
+    */
 
     this.emitter.emit("syncEnded");
     this.isSyncing = false;
-  }
-
-  async getReferenceSyncDate(): Date {
-    const timestampString = await readConfig('referenceSyncDate', '0');
-    const timestamp = parseInt(timestampString, 10);
-    return new Date(timestamp);
-  }
-
-  async updateReferenceSyncDate(date: Date): void {
-    const timestampString = `${date.valueOf()}`;
-    await writeConfig('referenceSyncDate', timestampString);
   }
 
   getPatientsToSync() {
@@ -141,12 +111,60 @@ export class SyncManager {
     this.runScheduledSync();
   }
 
+  async syncAllPages(channel: string, since: Date, syncCallback: SyncCallback) {
+    let page = 0;
+
+    let maxDate = since;
+    try {
+      do {
+        this.emitter.emit("syncingPage", `${channel}-${page}`);
+        const {
+          records,
+          nextPage 
+        } = await this.syncSource.getSyncData(channel, since, page);
+
+        await Promise.all(records.map(async r => {
+          if(r.lastSynced > maxDate) {
+            maxDate = r.lastSynced;
+          }
+          await this.syncRecord(r)
+        }));
+
+        page = nextPage;
+      } while(page > 0);
+    } catch(e) {
+      console.warn(e);
+    }
+
+    return maxDate;
+  }
+
   async runPatientSync(patient: Patient) {
-    const patientRecords = await this.syncSource.getPatientData(patient.id, patient.lastSynced);
-    await Promise.all(patientRecords.map(r => this.syncRecord(r)));
+    await this.syncAllPages(`patient/${patient.id}`, patient.lastSynced);
 
     patient.lastSynced = new Date();
     await patient.save();
+  }
+
+  async getReferenceSyncDate(): Promise<Date> {
+    const timestampString = await readConfig('referenceSyncDate', '0');
+    const timestamp = parseInt(timestampString, 10);
+    return new Date(timestamp);
+  }
+
+  async updateReferenceSyncDate(date: Date): Promise<void> {
+    const timestampString = `${date.valueOf()}`;
+    await writeConfig('referenceSyncDate', timestampString);
+  }
+
+  async runReferenceSync() {
+    const lastSynced = await this.getReferenceSyncDate();
+
+    this.emitter.emit("referenceSyncStarted");
+    const maxDate = await this.syncAllPages(`reference`, lastSynced);
+    this.emitter.emit("referenceSyncEnded");
+
+    await this.updateReferenceSyncDate(maxDate);
   }
 
 }
