@@ -24,14 +24,12 @@ import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 import { Routes } from '/helpers/routes';
 import { RegisterPatientStack } from './RegisterPatientStack';
 import AuthContext from '../../contexts/authContext/AuthContext';
-import { useBackendEffect } from '~/ui/helpers/hooks';
 
 const Stack = createStackNavigator();
 
 export const HomeStack = (): ReactElement => {
   const authCtx = useContext(AuthContext);
-  const [vaccines, error] = useBackendEffect(({ models }) => models.Vaccine.find({}));
-  console.log(vaccines);
+
   return (
     <Stack.Navigator
       headerMode="none"
