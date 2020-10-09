@@ -2,7 +2,7 @@ import mitt from 'mitt';
 import { Database } from '~/infra/db';
 
 import { readConfig, writeConfig } from '~/services/config';
-import { SyncRecord, SyncPage, SyncSource } from './syncSource';
+import { SyncRecord, SyncSource } from './syncSource';
 
 class NoSyncImporterError extends Error {
   constructor(recordType) {
@@ -19,6 +19,8 @@ export class SyncManager {
     this.syncSource = syncSource;
 
     this.emitter.on("*", (action, ...args) => {
+      if(action === 'syncedRecord') return;
+
       console.log(`[sync] ${action} ${args[0] || ''}`);
     });
   }
@@ -114,24 +116,51 @@ export class SyncManager {
   async syncAllPages(channel: string, since: Date, syncCallback: SyncCallback) {
     let page = 0;
 
-    let maxDate = since;
-    try {
-      do {
-        this.emitter.emit("syncingPage", `${channel}-${page}`);
-        const {
-          records,
-          nextPage 
-        } = await this.syncSource.getSyncData(channel, since, page);
+    const downloadPage = (pageNumber) => {
+      this.emitter.emit("downloadingPage", `${channel}-${pageNumber}`);
+      return this.syncSource.getSyncData(
+        channel,
+        since,
+        pageNumber,
+      );
+    }
 
-        await Promise.all(records.map(async r => {
+    // we want to download each page of records while the current page
+    // of records is being imported - this means that the database IO
+    // and network IO are running in parallel rather than running in
+    // alternating sequence.
+    let downloadTask : Promise<SyncRecord[]> = downloadPage(0);
+
+    let maxDate = since;
+
+    try {
+      while(true) {
+        // wait for the current page download to complete
+        const records = await downloadTask;
+
+        // keep importing until we hit a page with 0 records
+        // (this does mean we're always making 1 more web request than
+        // is necessary, probably room for optimisation here)
+        if(records.length === 0) {
+          break;
+        }
+
+        // we have records to import - import them
+        this.emitter.emit("importingPage", `${channel}-${page}`);
+        const importTask = Promise.all(records.map(r => {
           if(r.lastSynced > maxDate) {
             maxDate = r.lastSynced;
           }
-          await this.syncRecord(r)
+          return this.syncRecord(r);
         }));
 
-        page = nextPage;
-      } while(page > 0);
+        // start downloading the next page now
+        page += 1;
+        downloadTask = downloadPage(page);
+
+        // wait for import task to complete before progressing in loop
+        await importTask;
+      };
     } catch(e) {
       console.warn(e);
     }

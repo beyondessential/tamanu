@@ -10,13 +10,8 @@ export interface SyncRecord {
   data: SyncRecordData;
 }
 
-export interface SyncPage {
-  records: SyncRecord[];
-  nextPage?: number;
-}
-
 export interface SyncSource {
-  getSyncData(channel: string, since: Date, page: number): Promise<SyncPage>;
+  getSyncData(channel: string, since: Date, page: number): Promise<SyncRecord[]>;
 }
 
 export class WebSyncSource implements SyncSource {
@@ -25,12 +20,11 @@ export class WebSyncSource implements SyncSource {
     this.host = host;
   }
 
-  async getSyncData(channel: string, since: Date, page: number): Promise<SyncPage> {
+  async getSyncData(channel: string, since: Date, page: number): Promise<SyncRecord[]> {
     // TODO: error handling (incl timeout)
     const PAGE_LIMIT = 100;
     const sinceStamp = since.valueOf();
     const url = `${this.host}/${channel}?since=${sinceStamp}&page=${page}&limit=${PAGE_LIMIT}`;
-    console.log(url);
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -38,12 +32,7 @@ export class WebSyncSource implements SyncSource {
       }
     });
     const data = await response.json();
-    const expectedCount = PAGE_LIMIT * (page + 1);
-    const nextPage = (data.count > expectedCount) ? (page + 1) : 0;
 
-    return {
-      records: data.records,
-      nextPage,
-    }
+    return data.records;
   }
 }
