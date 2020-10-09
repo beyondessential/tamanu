@@ -2,7 +2,6 @@ import {
   BaseEntity,
   PrimaryColumn,
   Generated,
-  Column,
   UpdateDateColumn,
   CreateDateColumn,
   getRepository,
