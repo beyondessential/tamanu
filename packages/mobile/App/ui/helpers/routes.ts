@@ -20,7 +20,7 @@ export const Routes = {
         name: 'VaccineTabs',
         ChildhoodTab: 'ChildhoodTab',
         AdolescentTab: 'AdolescentTab',
-        AdulTab: 'AdultTab',
+        AdultTab: 'AdultTab',
       },
       NewVaccineTabs: {
         name: 'NewVaccineTabs',
