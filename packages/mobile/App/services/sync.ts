@@ -46,8 +46,7 @@ export class SyncManager {
       throw new NoSyncImporterError(recordType);
     }
 
-    await model.createOrUpdate(data);
-      
+    const createdRecord = await model.createOrUpdate(data);
     this.emitter.emit("syncedRecord", syncRecord);
   }
 
