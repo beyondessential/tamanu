@@ -1,16 +1,17 @@
 import React, { ReactElement, useCallback, useState, useEffect } from 'react';
-import { StatusBar, StyleSheet } from 'react-native';
+import { StatusBar, StyleSheet, View, Text } from 'react-native';
 import { RouteProp, NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { FullView, CenterView, StyledText, StyledView } from '/styled/common';
-import { Routes } from '/helpers/routes';
-import { VaccineCard, VaccineDataProps } from '/components/VaccineCard';
+import { FullView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
-import { Button } from '../Button';
-import { useBackend } from '~/ui/helpers/hooks';
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#F5FCFF',
+    flex: 1,
+    paddingTop: 25,
+  },
   autocompleteContainer: {
     flex: 1,
     left: 0,
@@ -19,11 +20,13 @@ const styles = StyleSheet.create({
     top: 0,
     zIndex: 1,
   },
-  item: {
+  lightItemText: {
+    backgroundColor: '#ffffff',
     padding: 12,
   },
-  itemContainer: {
-    borderBottomWidth: 1,
+  darkItemText: {
+    backgroundColor: '#f6f8fa',
+    padding: 12,
   },
 });
 
@@ -56,7 +59,7 @@ export const AutocompleteModalScreen = ({
   useEffect(() => {
     (async (): Promise<void> => {
       const data = await suggester.fetchSuggestions(searchTerm);
-      console.log("data", data)
+      console.log('data', data);
       filterOptions(data);
     })();
   }, [searchTerm]);
@@ -69,27 +72,28 @@ export const AutocompleteModalScreen = ({
     callback(item);
   }, []);
 
+  let useDarkBackground = true;
   return (
-    <FullView background={theme.colors.MAIN_SUPER_DARK}>
-      <StatusBar barStyle="light-content" />
-      <CenterView flex={1}>
-        <Autocomplete
-          placeholder="Search..."
-          data={filteredOptions}
-          onChangeText={setSearchTerm}
-          renderItem={({ item }): JSX.Element => (
+    <View style={styles.container}>
+      <Autocomplete
+        containerStyle={styles.autocompleteContainer}
+        placeholder="Search..."
+        data={filteredOptions}
+        onChangeText={setSearchTerm}
+        renderItem={({ item }): JSX.Element => {
+          useDarkBackground = !useDarkBackground;
+
+          return (
             <TouchableOpacity
-              style={styles.itemContainer}
               onPress={(): void => onSelectItem(item)}
             >
-              <StyledText style={styles.item}>
+              <Text style={useDarkBackground ? styles.darkItemText : styles.lightItemText}>
                 {item.label}
-              </StyledText>
+              </Text>
             </TouchableOpacity>
-          )}
-        />
-        {/* <Button onPress={onNavigateBack} buttonText="go back" /> */}
-      </CenterView>
-    </FullView>
+          );
+        }}
+      />
+    </View>
   );
 };

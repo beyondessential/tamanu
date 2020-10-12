@@ -36,9 +36,18 @@ export const ModalField = ({
   return (
     <Button
       marginTop={screenPercentageToDP(1.22, Orientation.Height)}
-      backgroundColor={theme.colors.PRIMARY_MAIN}
+      backgroundColor={theme.colors.WHITE}
+      textColor="#888888"
       buttonText={label}
-      onPress={openModal} // bring up modal
+      justifyContent="flex-start"
+      borderRadius={1}
+      borderStyle="solid"
+      borderColor="#EBEBEB"
+      borderWidth={1}
+      fontWeight={400}
+      fontSize={15}
+      padding={10}
+      onPress={openModal}
     />
   );
 };

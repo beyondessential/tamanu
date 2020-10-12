@@ -117,9 +117,8 @@ export const AddSickDetailScreen = ({ navigation }): ReactElement => {
                   />
                   <Field
                     component={ModalField}
-                    placeholder="drug"
+                    placeholder="Search diagnoses"
                     navigation={navigation}
-                    value="ALOPECIAAREATAL639"
                     suggester={icd10Suggester}
                     modalRoute={Routes.Autocomplete.Modal}
                     name="icd10"
