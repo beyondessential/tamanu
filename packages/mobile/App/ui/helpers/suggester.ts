@@ -24,7 +24,6 @@ export class Suggester {
     const data = await this.model
       .getRepository()
       .find(options);
-    console.log("Suggester -> data", data)
 
     return data;
   }

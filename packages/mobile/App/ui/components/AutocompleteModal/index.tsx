@@ -1,10 +1,8 @@
 import React, { ReactElement, useCallback, useState, useEffect } from 'react';
-import { StatusBar, StyleSheet, View, Text } from 'react-native';
-import { RouteProp, NavigationProp } from '@react-navigation/native';
+import { StyleSheet, View, Text } from 'react-native';
+import { NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { FullView, StyledText } from '/styled/common';
-import { theme } from '/styled/theme';
 
 const styles = StyleSheet.create({
   container: {
@@ -30,17 +28,9 @@ const styles = StyleSheet.create({
   },
 });
 
-type AutocompleteModalParams = {
-  AutocompleteModal: {
-    // Autocomplete: AutocompleteDataProps;
-  };
-};
-
-type AutocompleteModalRouteProps = RouteProp<AutocompleteModalParams, 'AutocompleteModal'>;
-
 type AutocompleteModalScreenProps = {
   navigation: NavigationProp<any>;
-  route: AutocompleteModalRouteProps;
+  route: any;
 };
 
 export const AutocompleteModalScreen = ({
@@ -51,11 +41,6 @@ export const AutocompleteModalScreen = ({
   const [searchTerm, setSearchTerm] = useState(null);
   const [filteredOptions, filterOptions] = useState([]);
 
-  // const onNavigateBack = useCallback(() => {
-  //   callback('data');
-  //   navigation.goBack();
-  // }, []);
-
   useEffect(() => {
     (async (): Promise<void> => {
       const data = await suggester.fetchSuggestions(searchTerm);
@@ -65,9 +50,6 @@ export const AutocompleteModalScreen = ({
   }, [searchTerm]);
 
   const onSelectItem = useCallback((item) => {
-    // want to keep value and search term separate
-    // as we don't want user to be able to submit their
-    // search string as the actual value..
     navigation.goBack();
     callback(item);
   }, []);
