@@ -4,6 +4,7 @@ export * from './Vitals';
 export * from './Diagnosis';
 export * from './Program';
 export * from './Survey';
+export * from './ScheduledVaccine';
 export * from './SurveyResponse';
 export * from './Referral';
 export * from './ReferenceData';
