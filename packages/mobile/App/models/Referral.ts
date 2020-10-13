@@ -21,6 +21,9 @@ export class Referral extends BaseModel implements IReferral {
   @Column()
   date: Date;
 
+  @Column()
+  notes: string;
+
   @ManyToOne(type => Patient, patient => patient.referral)
   patient: Patient;
 

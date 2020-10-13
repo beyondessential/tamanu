@@ -10,4 +10,5 @@ export interface IReferral {
   date: Date; // default to today
   patient: Patient;
   diagnosis: Diagnosis;
+  notes: string;
 }
