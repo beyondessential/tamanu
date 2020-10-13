@@ -1,7 +1,7 @@
+import { Chance } from 'chance';
 import { ReferenceDataType } from '~/types';
 
 // for dummy data generation
-import { Chance } from 'chance';
 import { generatePatient } from '~/dummyData/patients';
 import { ICD10_DIAGNOSES } from './diagnoses';
 
@@ -10,19 +10,22 @@ const DUMMY_PATIENT_COUNT = 44;
 const dummyPatients = (new Array(DUMMY_PATIENT_COUNT))
   .fill(0)
   .map(() => generatePatient(generator))
-  .map((p, i) => ({ 
-    ...p, 
-    lastModified: generator.date({ year: 1971, month: 0, day: 0, second: i })
+  .map((p, i) => ({
+    ...p,
+    lastModified: generator.date({ year: 1971, month: 0, day: 0, second: i }),
   }));
 
-const sortByModified = (a, b) => a.data.lastModified - b.data.lastModified;
+const sortByModified = (
+  a: SyncRecord,
+  b: SyncRecord,
+): any => a.data.lastModified - b.data.lastModified;
 
-const dummyPatientRecords : SyncRecord[] = dummyPatients.map(p => ({
+const dummyPatientRecords: SyncRecord[] = dummyPatients.map(p => ({
   data: p,
   recordType: 'patient',
 }));
 
-const makeCode = x => x.replace(/\W/g, '').toUpperCase();
+const makeCode = (x: string) => x.replace(/\W/g, '').toUpperCase();
 
 const makeRefRecords = (referenceDataType: ReferenceDataType, values: string) => {
   const lines = values
@@ -36,7 +39,7 @@ const makeRefRecords = (referenceDataType: ReferenceDataType, values: string) =>
       type: referenceDataType,
       lastModified: generator.date({ year: 1971, month: 1, day: 0, second: i }),
     }));
-  console.log(lines);
+
   return lines;
 };
 
@@ -89,7 +92,7 @@ const VILLAGES = makeRefRecords(ReferenceDataType.Village, `
 
 const DIAGNOSES = makeRefRecords(ReferenceDataType.ICD10, ICD10_DIAGNOSES);
 
-const dummyReferenceData : SyncRecord[] = [
+const dummyReferenceData: SyncRecord[] = [
   ...FACILITIES,
   ...VILLAGES,
   ...DEPARTMENTS,
@@ -104,5 +107,4 @@ const dummyReferenceData : SyncRecord[] = [
 export const dummyReferenceRecords = [
   ...dummyPatientRecords,
   ...dummyReferenceData,
-].sort(sortByModified)
-
+].sort(sortByModified);
