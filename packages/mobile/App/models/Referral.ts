@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IReferral } from '~/types';
 import { Diagnosis } from './Diagnosis';
@@ -6,14 +6,20 @@ import { Patient } from './Patient';
 
 @Entity('referral')
 export class Referral extends BaseModel implements IReferral {
-  @Column()
+  @PrimaryGeneratedColumn('uuid')
   referralNumber: string;
 
   @Column()
-  date: Date;
+  practitioner: string;
 
   @Column()
-  referredTo: string;
+  referredFacility: string;
+
+  @Column()
+  referredDepartment: string;
+
+  @Column()
+  date: Date;
 
   @ManyToOne(type => Patient, patient => patient.referral)
   patient: Patient;
