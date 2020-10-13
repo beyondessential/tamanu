@@ -14,7 +14,6 @@ import {
   scrollTo,
   calculateVerticalPositions,
 } from '/helpers/screen';
-import { DiagnosesAutocompleteField } from '~/ui/components/DiagnosesAutocompleteField';
 import { Routes } from '~/ui/helpers/routes';
 import { ModalField } from '~/ui/components/AutocompleteModal/ModalField';
 import { ReferenceDataType } from '~/types';
