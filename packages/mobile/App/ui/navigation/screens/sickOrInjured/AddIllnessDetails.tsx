@@ -101,11 +101,6 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     name="medications"
                     label="Medications"
                   />
-                  <Field
-                    component={DiagnosesAutocompleteField}
-                    name="diagnosis"
-                    label="Diagnosis"
-                  />
                 </StyledView>
                 <StyledView
                   marginTop={screenPercentageToDP(7.42, Orientation.Height)}
