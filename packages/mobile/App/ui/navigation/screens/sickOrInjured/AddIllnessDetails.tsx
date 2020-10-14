@@ -13,7 +13,6 @@ import {
   screenPercentageToDP,
   Orientation,
 } from '/helpers/screen';
-import { DiagnosesAutocompleteField } from '~/ui/components/DiagnosesAutocompleteField';
 import { useBackend } from '~/ui/helpers/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '/helpers/routes';
@@ -31,21 +30,18 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
   const { models } = useBackend();
 
   const navigateToHistory = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.CheckUpStack.CheckUpTabs.ViewHistory);
+    navigation.navigate(Routes.HomeStack.HistoryVitalsStack.name);
   }, []);
 
   const recordIllness = useCallback(
     async (values: any): Promise<any> => {
-      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+      await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
-        { reasonForEncounter: values.comments },
+        {
+          startDate: new Date(),
+          ...values,
+        },
       );
-
-      await models.Vitals.create({
-        ...values,
-        encounter: encounter.id,
-        date: new Date(),
-      });
 
       navigateToHistory();
     }, [],
@@ -55,6 +51,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <Formik
         onSubmit={recordIllness}
+        initialValues={{}}
       >
         {({ handleSubmit }): ReactElement => (
           <FullView
@@ -88,17 +85,17 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                 >
                   <Field
                     component={TextField}
-                    name="treatmentNotes"
-                    label="Treatment notes"
+                    name="examiner"
+                    label="Examiner"
                   />
                   <Field
                     component={TextField}
-                    name="labTestResults"
+                    name="labRequest"
                     label="Lab/Test Results"
                   />
                   <Field
                     component={TextField}
-                    name="medications"
+                    name="medication"
                     label="Medications"
                   />
                 </StyledView>
@@ -109,11 +106,11 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     Orientation.Height,
                   )}
                 >
-                  <SectionHeader h3>COMMENTS</SectionHeader>
+                  <SectionHeader h3>Treatment notes</SectionHeader>
                 </StyledView>
                 <Field
                   component={TextField}
-                  name="comments"
+                  name="resonForEncounter"
                   multiline
                 />
                 <Button

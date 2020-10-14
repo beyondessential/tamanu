@@ -23,8 +23,17 @@ export class Encounter extends BaseModel implements IEncounter {
   @ManyToOne(type => Patient, patient => patient.encounters)
   patient: Patient;
 
-  // @ManyToOne: LabRequest (for result)?
-  // @ManyToOne: Medication
+  // TODO: Add model and add examiner dropdown for this field
+  @Column({ nullable: true })
+  examiner?: string;
+
+  // TODO: Add model, automatically attach all lab requests to the encounter
+  @Column({ nullable: true })
+  labRequest?: string;
+
+  // TODO: Is this a model, referenceData or just string?
+  @Column({ nullable: true })
+  medication?: string;
 
   @ReferenceDataRelation()
   department: ReferenceData;

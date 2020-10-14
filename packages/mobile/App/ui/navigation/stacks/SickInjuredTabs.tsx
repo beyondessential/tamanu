@@ -39,13 +39,6 @@ const TabNavigator = ({
           name={Routes.HomeStack.SickOrInjuredTabs.AddIllnessScreen}
           component={AddIllnessScreen}
         />
-        <Tabs.Screen
-          options={{
-            title: 'VIEW HISTORY',
-          }}
-          name={Routes.HomeStack.SickOrInjuredTabs.ViewHistory}
-          component={AddIllnessScreen}
-        />
       </Tabs.Navigator>
     </FullView>
   );
