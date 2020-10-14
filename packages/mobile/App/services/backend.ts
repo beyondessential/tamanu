@@ -4,9 +4,12 @@ import {
   populateInitialData,
 } from '~/infra/db/populate';
 
-import { SyncManager, DummySyncSource } from '~/services/sync';
+import { SyncManager } from '~/services/sync';
+import { WebSyncSource } from '~/services/syncSource';
+import { readConfig } from '~/services/config';
 
 const SYNC_PERIOD_MINUTES = 5;
+const DEFAULT_SYNC_LOCATION = 'http://192.168.1.101:3000';
 
 export class Backend {
   randomId: any;
@@ -20,10 +23,12 @@ export class Backend {
   constructor() {
     const { models } = Database;
     this.models = models;
-    this.syncManager = new SyncManager(new DummySyncSource());
   }
 
   async initialise(): Promise<void> {
+    const syncServerLocation = await readConfig('syncServerLocation', DEFAULT_SYNC_LOCATION);
+    const syncSource = new WebSyncSource(syncServerLocation);
+    this.syncManager = new SyncManager(syncSource);
     await Database.connect();
     this.startSyncService();
   }
