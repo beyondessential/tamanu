@@ -13,6 +13,7 @@ export enum ReferenceDataType {
   Location = 'location',
   Department = 'department',
   Village = 'village',
+  Vaccine = 'vaccine',
 }
 
 export interface IReferenceData {
