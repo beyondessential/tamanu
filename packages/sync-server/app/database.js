@@ -168,7 +168,7 @@ export function initDatabase({ testMode = false }) {
     if(nedbConnection) {
       return nedbConnection;
     }
-    const path = nedbPath || 'data/test.db';
+    const path = nedbPath;
     log.info(`Connecting to nedb database at ${path}...`);
     nedbConnection = {
       store: new NedbWrapper(path, testMode),
