@@ -51,6 +51,10 @@ describe("Sync API", () => {
       expect(firstRecord).not.toHaveProperty('channel');
       expect(firstRecord.data).not.toHaveProperty('channel');
       expect(firstRecord.data).toHaveProperty('id');
+
+      // this database implementation detail should be hidden 
+      // from the api consumer
+      expect(firstRecord).not.toHaveProperty('index'); 
     });
 
     it('should filter out older records', async () => {
@@ -62,8 +66,63 @@ describe("Sync API", () => {
       expect(firstRecord).toHaveProperty('lastSynced', SECOND_OLDEST);
     });
 
-    test.todo('should only return $limit records');
-    test.todo('should return a second page of records');
+    describe('Pagination', () => {
+
+      const TOTAL_RECORDS = 20;
+      let records = null;
+        
+      beforeAll(async () => {
+        // insert 20 records
+        records = (new Array(TOTAL_RECORDS)).fill(0).map((zero, i) => ({
+          recordType: 'pageTest',
+          data: {
+            id: i,
+            value: Math.random(),
+          },
+        }));
+
+        await Promise.all(records.map(r => store.insert('pagination', r)));
+      });
+
+      it('should only return $limit records', async () => {
+        const result = await app.get(`/pagination?since=0&limit=5`);
+        expect(result).toHaveSucceeded();
+
+        // should be the full amount regardless of pagination
+        expect(result.body).toHaveProperty('count', TOTAL_RECORDS);
+        expect(result.body.records.length).toEqual(5);
+
+        const secondResult = await app.get(`/pagination?since=0&limit=3`);
+        expect(secondResult).toHaveSucceeded();
+        expect(secondResult.body).toHaveProperty('count', TOTAL_RECORDS);
+        expect(secondResult.body.records.length).toEqual(3);
+
+        // arrays should be the same
+        for(var i = 0; i < secondResult.body.records.length; ++i) {
+          expect(result.body.records[i].id).toEqual(secondResult.body.records[i].id);
+        }
+      });
+
+      it('should return a second page of records', async () => {
+        const PAGE_SIZE = 5;
+        const PAGE_COUNT = Math.ceil(TOTAL_RECORDS / PAGE_SIZE);
+        const results = [];
+        for(let i = 0; i < PAGE_COUNT; ++i) {
+          const url = `/pagination?since=0&limit=5&page=${i}`;
+          const result = await app.get(url);
+          expect(result).toHaveSucceeded();
+          expect(result.body).toHaveProperty('count', TOTAL_RECORDS);
+          expect(result.body.records.length).toEqual(5);
+          results.push(result);
+        }
+
+        const all_results = results.map(r => r.body.records).flat();
+        for(let i = 0; i < TOTAL_RECORDS; ++i) {
+          expect(all_results[i].data.id).toEqual(records[i].data.id);
+        }
+      });
+
+    });
   });
 
   describe("Writes", () => {

@@ -2,7 +2,7 @@
   "port": 3000,
   "db": {
     "name": "main",
-    "sqlitePath": "data/tamanu.db",
+    "nedbPath": "data/sync.db",
     "username": "test",
     "password": "abc123",
     "verbose": false

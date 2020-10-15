@@ -36,6 +36,7 @@ const convertToSyncRecordFormatFromNedb = (nedbRecord) => {
     _id,
     data,
     channel,
+    index,
     ...metadata
   } = nedbRecord;
 
@@ -79,8 +80,19 @@ class NedbWrapper {
   }
   
   async insert(channel, syncRecord) {
+    const index = await new Promise((resolve, reject) => {
+      this.nedbStore.count({ channel }, (err, count) => {
+        if(err) {
+          reject(err);
+        } else {
+          resolve(count);
+        }
+      });
+    });
+
     const recordToStore = {
       channel,
+      index,
       lastSynced: (new Date()).valueOf(),
       ...convertToNedbFromSyncRecordFormat(syncRecord)
     };
@@ -100,22 +112,47 @@ class NedbWrapper {
     });
   }
 
-  async findSince(channel, since) {
+  async countSince(channel, since) {
+    const stamp = this.convertStringToTimestamp(since);
+
+    return new Promise((resolve, reject) => {
+      this.nedbStore.count({
+          channel,
+          lastSynced: {
+            $gt: stamp,
+          }
+        },
+        (err, count) => {
+          if(err) {
+            reject(err);
+          } else {
+            resolve(count);
+          }
+        }
+      );
+    });
+  }
+  
+  async findSince(channel, since, { limit, offset }= {}) {
     const stamp = this.convertStringToTimestamp(since);
 
     return new Promise((resolve, reject) => {
       this.nedbStore.find({
-        channel,
-        lastSynced: {
-          $gt: stamp,
-        }
-      }).sort({ lastSynced: 1 }).exec((err, docs) => {
-        if(err) {
-          reject(err);
-        } else {
-          resolve(docs.map(convertToSyncRecordFormatFromNedb));
-        }
-      });
+          channel,
+          lastSynced: {
+            $gt: stamp,
+          }
+        })
+        .sort({ lastSynced: 1, index: 1 })
+        .skip(offset)
+        .limit(limit)
+        .exec((err, docs) => {
+          if(err) {
+            reject(err);
+          } else {
+            resolve(docs.map(convertToSyncRecordFormatFromNedb));
+          }
+        });
     });
   }
 
@@ -131,7 +168,7 @@ export function initDatabase({ testMode = false }) {
     if(nedbConnection) {
       return nedbConnection;
     }
-    const path = nedbPath || 'data/test.db';
+    const path = nedbPath;
     log.info(`Connecting to nedb database at ${path}...`);
     nedbConnection = {
       store: new NedbWrapper(path, testMode),

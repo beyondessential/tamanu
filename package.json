@@ -17,6 +17,7 @@
     "desktop-start-dev": "yarn workspace desktop run start-dev",
     "test-watch": "node scripts/lan-test-watch.js",
     "sync-test": "yarn run build-shared && yarn workspace sync-server run test",
+    "sync-start-dev": "node scripts/sync-start-dev.js",
     "sync-test-watch": "node scripts/sync-test-watch.js"
   },
   "engines": {
