@@ -33,7 +33,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
     navigation.navigate(Routes.HomeStack.HistoryVitalsStack.name);
   }, []);
 
-  const recordIllness = useCallback(
+  const onRecordIllness = useCallback(
     async (values: any): Promise<any> => {
       await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
@@ -50,7 +50,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <Formik
-        onSubmit={recordIllness}
+        onSubmit={onRecordIllness}
         initialValues={{}}
       >
         {({ handleSubmit }): ReactElement => (
