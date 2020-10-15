@@ -18,6 +18,7 @@ export interface SelectOption {
 export interface DropdownProps extends BaseInputProps {
   options: SelectOption[];
   onChange: Function;
+  onPress: Function;
   value?: string;
   isOpen?: boolean;
   disabled?: boolean;
@@ -31,10 +32,14 @@ export const Dropdown = React.memo(
     label,
     disabled = false,
     required = false,
+    onPress,
   }: DropdownProps) => {
     const [open, setOpen] = useState(false);
     const closeModal = useCallback(() => setOpen(false), []);
-    const openModal = useCallback(() => (disabled ? null : setOpen(true)), []);
+    const openModal = useCallback(() => {
+      onPress();
+      return (disabled ? null : setOpen(true));
+    }, []);
     const selectedOption = useMemo(
       () => options.find(option => option.value === value),
       [value],

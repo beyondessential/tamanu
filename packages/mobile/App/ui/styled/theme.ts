@@ -24,5 +24,6 @@ export const theme = {
     LIGHT_BLUE: '#67A6E3',
     DEFAULT_OFF: '#EBEBEB',
     PROGRESS_BACKGROUND: '#526980',
+    LIGHT_GREY: '#F6F8FA',
   },
 };

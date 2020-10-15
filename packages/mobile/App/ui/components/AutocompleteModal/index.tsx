@@ -3,10 +3,11 @@ import { StyleSheet, View, Text } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { theme } from '~/ui/styled/theme';
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F5FCFF',
+    backgroundColor: theme.colors.BACKGROUND_GREY,
     flex: 1,
     paddingTop: 25,
   },
@@ -19,11 +20,11 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   lightItemText: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.WHITE,
     padding: 12,
   },
   darkItemText: {
-    backgroundColor: '#f6f8fa',
+    backgroundColor: theme.colors.LIGHT_GREY,
     padding: 12,
   },
 });
@@ -44,7 +45,6 @@ export const AutocompleteModalScreen = ({
   useEffect(() => {
     (async (): Promise<void> => {
       const data = await suggester.fetchSuggestions(searchTerm);
-      console.log('data', data);
       filterOptions(data);
     })();
   }, [searchTerm]);

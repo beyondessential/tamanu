@@ -1,4 +1,5 @@
 import { Like } from 'typeorm/browser';
+import { BaseModel } from '~/models/BaseModel';
 
 interface OptionType {
   label: string;
@@ -14,7 +15,7 @@ export class Suggester {
 
   formatter: ({ name, id }) => OptionType;
 
-  constructor(model, options, formatter = defaultFormatter) {
+  constructor(model: BaseModel, options, formatter = defaultFormatter) {
     this.model = model;
     this.options = options;
     this.formatter = formatter;
@@ -28,7 +29,7 @@ export class Suggester {
     return data;
   }
 
-  fetchCurrentOption = async (value): Promise<any> => {
+  fetchCurrentOption = async (value: string): Promise<any> => {
     try {
       const data = await this.model
         .getRepository()
@@ -40,7 +41,7 @@ export class Suggester {
     }
   };
 
-  fetchSuggestions = async (search): Promise<any> => {
+  fetchSuggestions = async (search: string): Promise<any> => {
     const whereOptions = this.options.where || {};
 
     const nonWhereOptions = { ...this.options };
