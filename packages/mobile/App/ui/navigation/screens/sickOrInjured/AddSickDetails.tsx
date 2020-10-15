@@ -14,7 +14,11 @@ import {
   scrollTo,
   calculateVerticalPositions,
 } from '/helpers/screen';
-import { DiagnosesAutocompleteField } from '~/ui/components/DiagnosesAutocompleteField';
+import { Routes } from '~/ui/helpers/routes';
+import { ModalField } from '~/ui/components/AutocompleteModal/ModalField';
+import { ReferenceDataType } from '~/types';
+import { Suggester } from '~/ui/helpers/suggester';
+import { ReferenceData } from '~/models';
 
 const initialValues = {
   treatmentNotes: '',
@@ -33,7 +37,7 @@ const styles = StyleSheet.create({
   ScrollView: { flex: 1 },
 });
 
-export const AddSickDetailScreen = (): ReactElement => {
+export const AddSickDetailScreen = ({ navigation }): ReactElement => {
   const scrollViewRef = useRef<any>(null);
   const verticalPositions = useMemo(
     () => calculateVerticalPositions(Object.keys(initialValues)),
@@ -44,6 +48,15 @@ export const AddSickDetailScreen = (): ReactElement => {
       scrollTo(scrollViewRef, verticalPositions[fieldName]);
     },
     [scrollViewRef],
+  );
+
+  const icd10Suggester = new Suggester(
+    ReferenceData,
+    {
+      where: {
+        type: ReferenceDataType.ICD10,
+      },
+    },
   );
 
   return (
@@ -102,10 +115,12 @@ export const AddSickDetailScreen = (): ReactElement => {
                     onFocus={scrollToComponent('medications')}
                   />
                   <Field
-                    component={DiagnosesAutocompleteField}
-                    name="diagnosis"
-                    label="Diagnosis"
-                    onFocus={scrollToComponent('diagnosis')}
+                    component={ModalField}
+                    placeholder="Search diagnoses"
+                    navigation={navigation}
+                    suggester={icd10Suggester}
+                    modalRoute={Routes.Autocomplete.Modal}
+                    name="icd10"
                   />
                 </StyledView>
                 <StyledView

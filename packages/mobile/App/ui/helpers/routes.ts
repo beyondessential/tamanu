@@ -1,4 +1,8 @@
 export const Routes = {
+  Autocomplete: {
+    name: 'Autocomplete',
+    Modal: 'Modal',
+  },
   SignUpStack: {
     name: 'SignUpStack',
     Intro: 'Intro',
