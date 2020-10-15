@@ -11,8 +11,7 @@ class NoSyncImporterError extends Error {
 }
 
 export class SyncManager {
-
-  isSyncing = false; 
+  isSyncing = false;
   emitter = mitt();
 
   constructor(syncSource: SyncSource) {

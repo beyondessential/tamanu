@@ -1,4 +1,3 @@
-
 export interface SyncRecordData {
   id: string;
   updatedAt: Date;
@@ -15,8 +14,9 @@ export interface SyncSource {
 }
 
 export class WebSyncSource implements SyncSource {
+  host: string;
 
-  constructor(host: String) {
+  constructor(host: string) {
     this.host = host;
   }
 
@@ -25,14 +25,20 @@ export class WebSyncSource implements SyncSource {
     const PAGE_LIMIT = 100;
     const sinceStamp = since.valueOf();
     const url = `${this.host}/${channel}?since=${sinceStamp}&page=${page}&limit=${PAGE_LIMIT}`;
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        authorization: '123',
-      }
-    });
-    const data = await response.json();
 
-    return data.records;
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          authorization: '123',
+        },
+      });
+      const data = await response.json();
+
+      return data.records;
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
   }
 }
