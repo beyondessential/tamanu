@@ -9,9 +9,10 @@ import { Button } from '../Button';
 import { DateField } from '/components/DateField/DateField';
 import { Checkbox } from '../Checkbox';
 import { Dropdown } from '../Dropdown';
-import { dropdownItems } from '../Dropdown/fixture';
 import { SectionHeader } from '../SectionHeader';
 import { ReferralFormProps } from '../../interfaces/forms/ReferralFormProps';
+import { Certainty } from '~/types';
+import { arrayToDropdownOptions } from '~/ui/helpers/form';
 
 const ReferralForm = ({
   scrollViewRef,
@@ -66,7 +67,7 @@ const ReferralForm = ({
       />
       <Field
         component={Dropdown}
-        options={dropdownItems}
+        options={arrayToDropdownOptions(Object.keys(Certainty))}
         name="certainty"
         label="Certainty"
       />
