@@ -42,19 +42,19 @@ export const AgeRangeSlider = ({
   min,
   max,
 }: AgeRangeSliderProps): JSX.Element => (
-    <MultiSlider
-      values={[rangeStart, rangeEnd]}
-      sliderLength={width}
-      onValuesChange={onChange}
-      min={min}
-      max={max}
-      step={1}
-      trackStyle={styles.trackStyle}
-      selectedStyle={styles.selectedTrackStyle}
-      unselectedStyle={styles.unselectedTrackStyle}
-      touchDimensions={touchDimensionsStyles}
-      customMarker={Marker}
-      allowOverlap
-      snapped
-    />
-  );
+  <MultiSlider
+    values={[rangeStart, rangeEnd]}
+    sliderLength={width}
+    onValuesChange={onChange}
+    min={min}
+    max={max}
+    step={1}
+    trackStyle={styles.trackStyle}
+    selectedStyle={styles.selectedTrackStyle}
+    unselectedStyle={styles.unselectedTrackStyle}
+    touchDimensions={touchDimensionsStyles}
+    customMarker={Marker}
+    allowOverlap
+    snapped
+  />
+);
