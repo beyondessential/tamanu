@@ -171,7 +171,7 @@ export const StyledText = styled.Text<StyledTextProps>`
   ${size}  
   ${margin}  
   ${padding}  
-  ${flexbox}     
+  ${flexbox}
   ${background}
   ${({ borderBottomWidth }): string | number => `border-left-width: ${borderBottomWidth}` || 0};
   text-decoration-line: ${({ textDecorationLine }): string => textDecorationLine || 'none'};
