@@ -15,7 +15,12 @@ import {
 } from '/helpers/screen';
 import { useBackend } from '~/ui/helpers/hooks';
 import { withPatient } from '~/ui/containers/Patient';
-import { Routes } from '/helpers/routes';
+import { Routes } from '~/ui/helpers/routes';
+import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
+import { CERTAINTY_OPTIONS, ReferenceDataType } from '~/types';
+import { Suggester } from '~/ui/helpers/suggester';
+import { ReferenceData } from '~/models';
+import { Dropdown } from '~/ui/components/Dropdown';
 
 const styles = StyleSheet.create({
   KeyboardAvoidingViewStyles: { flex: 1 },
@@ -34,17 +39,31 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
   }, []);
 
   const onRecordIllness = useCallback(
-    async (values: any): Promise<any> => {
-      await models.Encounter.getOrCreateCurrentEncounter(
+    async ({ diagnosis, certainty }: any): Promise<any> => {
+      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
-        {
-          startDate: new Date(),
-          ...values,
-        },
       );
+
+      await models.Diagnosis.create({
+        // TODO: support selecting multiple diagnoses and flagging as primary/non primary
+        isPrimary: true,
+        encounter: encounter.id,
+        date: new Date(),
+        diagnosis,
+        certainty,
+      });
 
       navigateToHistory();
     }, [],
+  );
+
+  const icd10Suggester = new Suggester(
+    ReferenceData,
+    {
+      where: {
+        type: ReferenceDataType.ICD10,
+      },
+    },
   );
 
   return (
@@ -98,9 +117,23 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     name="medication"
                     label="Medications"
                   />
+                  <Field
+                    component={AutocompleteModalField}
+                    placeholder="Search diagnoses"
+                    navigation={navigation}
+                    suggester={icd10Suggester}
+                    modalRoute={Routes.Autocomplete.Modal}
+                    name="diagnosis"
+                  />
+                  <Field
+                    component={Dropdown}
+                    options={CERTAINTY_OPTIONS}
+                    name="certainty"
+                    label="Certainty"
+                  />
                 </StyledView>
                 <StyledView
-                  marginTop={screenPercentageToDP(7.42, Orientation.Height)}
+                  marginTop={screenPercentageToDP(16.42, Orientation.Height)}
                   marginBottom={screenPercentageToDP(
                     0.605,
                     Orientation.Height,
