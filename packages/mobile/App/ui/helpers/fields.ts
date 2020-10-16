@@ -40,3 +40,13 @@ export function isCalculated(fieldType: string): boolean {
       return false;
   }
 }
+
+interface DropdownOption {
+  label: string;
+  value: any;
+}
+
+// Takes an object and returns the key:value pairs as options for dropdown fields.
+export function createDropdownOptionsFromObject(o): DropdownOption[] {
+  return Object.entries(o).map(([key, value]) => ({ label: key, value }));
+}

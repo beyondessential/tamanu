@@ -18,6 +18,7 @@ export interface SelectOption {
 export interface DropdownProps extends BaseInputProps {
   options: SelectOption[];
   onChange: Function;
+  onPress: Function;
   value?: string;
   isOpen?: boolean;
   disabled?: boolean;

@@ -96,6 +96,7 @@ export const Button = ({
   flexDirection,
   alignItems = 'center',
   justifyContent = 'center',
+  padding,
   ...rest
 }: StyledButtonProps): FunctionComponentElement<{}> => (
   <StyledTouchableOpacity
@@ -118,6 +119,7 @@ export const Button = ({
       borderColor={borderColor}
       height={height}
       borderWidth={borderWidth}
+      padding={padding}
     >
       {loadingAction && (
         <ActivityIndicator size="large" color={theme.colors.WHITE} />

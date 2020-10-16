@@ -1,5 +1,7 @@
-import React, { ReactElement, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useCallback, ReactElement, useMemo, useEffect, useRef } from 'react';
 import { Formik } from 'formik';
+import { Certainty, ReferenceDataType } from '~/types';
+import { useBackend } from '~/ui/helpers/hooks';
 import { FullView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { scrollTo, calculateVerticalPositions } from '/helpers/screen';

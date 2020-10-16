@@ -1,15 +1,10 @@
 import { Database, ModelMap } from '~/infra/db';
-import {
-  needsInitialPopulation,
-  populateInitialData,
-} from '~/infra/db/populate';
 
 import { SyncManager } from '~/services/sync';
 import { WebSyncSource } from '~/services/syncSource';
 import { readConfig, writeConfig } from '~/services/config';
 
 const SYNC_PERIOD_MINUTES = 5;
-
 const DEFAULT_SYNC_LOCATION = 'https://sync-dev.tamanu.io';
 
 export class Backend {
@@ -20,6 +15,10 @@ export class Backend {
   initialised: boolean;
 
   models: ModelMap;
+
+  syncManager: SyncManager;
+
+  interval: number;
 
   constructor() {
     const { models } = Database;
@@ -51,8 +50,8 @@ export class Backend {
     }, SYNC_PERIOD_MINUTES * 60 * 1000);
   }
 
-  stopSyncService() {
-    if(!this.interval) {
+  stopSyncService(): void {
+    if (!this.interval) {
       return;
     }
     clearInterval(this.interval);

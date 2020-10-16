@@ -1,4 +1,8 @@
 export const Routes = {
+  Autocomplete: {
+    name: 'Autocomplete',
+    Modal: 'Modal',
+  },
   SignUpStack: {
     name: 'SignUpStack',
     Intro: 'Intro',
@@ -16,7 +20,7 @@ export const Routes = {
         name: 'VaccineTabs',
         ChildhoodTab: 'ChildhoodTab',
         AdolescentTab: 'AdolescentTab',
-        AdulTab: 'AdultTab',
+        AdultTab: 'AdultTab',
       },
       NewVaccineTabs: {
         name: 'NewVaccineTabs',
@@ -68,7 +72,7 @@ export const Routes = {
     },
     SickOrInjuredTabs: {
       name: 'SickOrInjuredTabs',
-      AddSickDetailScreen: 'AddSickDetailScreen',
+      AddIllnessScreen: 'AddIllnessScreen',
       ViewHistory: 'ViewHistory',
     },
     DeceasedStack: {

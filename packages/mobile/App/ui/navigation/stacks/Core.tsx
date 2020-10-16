@@ -7,6 +7,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { SignUpStack } from './SignUp';
 import { HomeStack } from './Home';
 import AuthContext from '../../contexts/authContext/AuthContext';
+import { AutocompleteModalScreen } from '~/ui/components/AutocompleteModal';
 
 const Stack = createStackNavigator();
 
@@ -21,6 +22,7 @@ export const Core: FunctionComponent<any> = () => {
           : Routes.SignUpStack.name
       }
     >
+      <Stack.Screen name={Routes.Autocomplete.Modal} component={AutocompleteModalScreen} />
       <Stack.Screen name={Routes.SignUpStack.name} component={SignUpStack} />
       <Stack.Screen
         options={noSwipeGestureOnNavigator}

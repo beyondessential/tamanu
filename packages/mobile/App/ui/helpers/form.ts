@@ -22,3 +22,10 @@ export function formikSubmitFormAdapter<T>(callback: (data: T) => Promise<void>)
     actions.setSubmitting(false);
   };
 }
+
+export function arrayToDropdownOptions(array): Array<string> {
+  return array.map(option => ({
+    label: option,
+    value: option,
+  }));
+}
