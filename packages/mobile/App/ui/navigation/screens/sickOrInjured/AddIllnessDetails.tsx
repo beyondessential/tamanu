@@ -1,4 +1,5 @@
 import React, { ReactElement, useMemo, useRef, useCallback, useEffect, useState } from 'react';
+import { compose } from 'redux';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Field } from '/components/Forms/FormField';
@@ -11,22 +12,10 @@ import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import {
   screenPercentageToDP,
   Orientation,
-  scrollTo,
-  calculateVerticalPositions,
 } from '/helpers/screen';
-import { Routes } from '~/ui/helpers/routes';
-import { ModalField } from '~/ui/components/AutocompleteModal/ModalField';
-import { ReferenceDataType } from '~/types';
-import { Suggester } from '~/ui/helpers/suggester';
-import { ReferenceData } from '~/models';
-
-const initialValues = {
-  treatmentNotes: '',
-  labTestResults: '',
-  medications: '',
-  diagnosis: '',
-  comments: '',
-};
+import { useBackend } from '~/ui/helpers/hooks';
+import { withPatient } from '~/ui/containers/Patient';
+import { Routes } from '/helpers/routes';
 
 const styles = StyleSheet.create({
   KeyboardAvoidingViewStyles: { flex: 1 },
@@ -37,33 +26,32 @@ const styles = StyleSheet.create({
   ScrollView: { flex: 1 },
 });
 
-export const AddSickDetailScreen = ({ navigation }): ReactElement => {
-  const scrollViewRef = useRef<any>(null);
-  const verticalPositions = useMemo(
-    () => calculateVerticalPositions(Object.keys(initialValues)),
-    [],
-  );
-  const scrollToComponent = useCallback(
-    (fieldName: string) => (): void => {
-      scrollTo(scrollViewRef, verticalPositions[fieldName]);
-    },
-    [scrollViewRef],
-  );
+export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElement => {
+  const { models } = useBackend();
 
-  const icd10Suggester = new Suggester(
-    ReferenceData,
-    {
-      where: {
-        type: ReferenceDataType.ICD10,
-      },
-    },
+  const navigateToHistory = useCallback(() => {
+    navigation.navigate(Routes.HomeStack.HistoryVitalsStack.name);
+  }, []);
+
+  const onRecordIllness = useCallback(
+    async (values: any): Promise<any> => {
+      await models.Encounter.getOrCreateCurrentEncounter(
+        selectedPatient.id,
+        {
+          startDate: new Date(),
+          ...values,
+        },
+      );
+
+      navigateToHistory();
+    }, [],
   );
 
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <Formik
-        initialValues={initialValues}
-        onSubmit={(values): void => console.log(values)}
+        onSubmit={onRecordIllness}
+        initialValues={{}}
       >
         {({ handleSubmit }): ReactElement => (
           <FullView
@@ -79,7 +67,6 @@ export const AddSickDetailScreen = ({ navigation }): ReactElement => {
             >
               <ScrollView
                 style={styles.ScrollView}
-                ref={scrollViewRef}
                 showsVerticalScrollIndicator={false}
                 scrollToOverflowEnabled
                 overScrollMode="always"
@@ -98,29 +85,18 @@ export const AddSickDetailScreen = ({ navigation }): ReactElement => {
                 >
                   <Field
                     component={TextField}
-                    name="treatmentNotes"
-                    label="Treatment notes"
-                    onFocus={scrollToComponent('treatmentNotes')}
+                    name="examiner"
+                    label="Examiner"
                   />
                   <Field
                     component={TextField}
-                    name="labTestResults"
+                    name="labRequest"
                     label="Lab/Test Results"
-                    onFocus={scrollToComponent('labTestResults')}
                   />
                   <Field
                     component={TextField}
-                    name="medications"
+                    name="medication"
                     label="Medications"
-                    onFocus={scrollToComponent('medications')}
-                  />
-                  <Field
-                    component={ModalField}
-                    placeholder="Search diagnoses"
-                    navigation={navigation}
-                    suggester={icd10Suggester}
-                    modalRoute={Routes.Autocomplete.Modal}
-                    name="icd10"
                   />
                 </StyledView>
                 <StyledView
@@ -130,13 +106,12 @@ export const AddSickDetailScreen = ({ navigation }): ReactElement => {
                     Orientation.Height,
                   )}
                 >
-                  <SectionHeader h3>COMMENTS</SectionHeader>
+                  <SectionHeader h3>Treatment notes</SectionHeader>
                 </StyledView>
                 <Field
                   component={TextField}
-                  name="comments"
+                  name="resonForEncounter"
                   multiline
-                  onFocus={scrollToComponent('comments')}
                 />
                 <Button
                   marginTop={screenPercentageToDP(1.22, Orientation.Height)}
@@ -152,3 +127,5 @@ export const AddSickDetailScreen = ({ navigation }): ReactElement => {
     </FullView>
   );
 };
+
+export const AddIllnessScreen = compose(withPatient)(DumbAddIllnessScreen);
