@@ -1,12 +1,11 @@
 import { Database, ModelMap } from '~/infra/db';
-import {
-  needsInitialPopulation,
-  populateInitialData,
-} from '~/infra/db/populate';
 
-import { SyncManager, DummySyncSource } from '~/services/sync';
+import { SyncManager } from '~/services/sync';
+import { WebSyncSource } from '~/services/syncSource';
+import { readConfig } from '~/services/config';
 
 const SYNC_PERIOD_MINUTES = 5;
+const DEFAULT_SYNC_LOCATION = 'https://sync-dev.tamanu.io';
 
 export class Backend {
   randomId: any;
@@ -17,18 +16,24 @@ export class Backend {
 
   models: ModelMap;
 
+  syncManager: SyncManager;
+
+  interval: number;
+
   constructor() {
     const { models } = Database;
     this.models = models;
-    this.syncManager = new SyncManager(new DummySyncSource());
   }
 
   async initialise(): Promise<void> {
+    const syncServerLocation = await readConfig('syncServerLocation', DEFAULT_SYNC_LOCATION);
+    const syncSource = new WebSyncSource(syncServerLocation);
+    this.syncManager = new SyncManager(syncSource);
     await Database.connect();
     this.startSyncService();
   }
 
-  startSyncService() {
+  startSyncService(): void {
     // run once now, and then schedule for later
     this.syncManager.runScheduledSync();
 
@@ -37,8 +42,8 @@ export class Backend {
     }, SYNC_PERIOD_MINUTES * 60 * 1000);
   }
 
-  stopSyncService() {
-    if(!this.interval) {
+  stopSyncService(): void {
+    if (!this.interval) {
       return;
     }
     clearInterval(this.interval);

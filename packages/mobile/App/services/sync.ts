@@ -1,43 +1,8 @@
 import mitt from 'mitt';
 import { Database } from '~/infra/db';
 
-import { dummyReferenceRecords } from '~/dummyData/referenceData';
 import { readConfig, writeConfig } from '~/services/config';
-
-interface SyncRecordData {
-  lastModified: Date;
-  [key: string]: any;
-}
-
-interface SyncRecord {
-  recordType: string;
-  data: SyncRecordData;
-}
-
-interface SyncSource {
-  getReferenceData(since: Date): Promise<SyncRecord[]>;
-  getPatientData(patientId: string, since: Date): Promise<SyncRecord[]>;
-}
-
-//----------------------------------------------------------
-// TODO: remove & replace with real functionality
-
-export class DummySyncSource implements SyncSource {
-
-  async getReferenceData(since: Date): Promise<SyncRecord[]> {
-    const records = dummyReferenceRecords
-      .filter(x => x.data.lastModified > since)
-      // .slice(0, 4);
-    // simulate a download delay
-    await new Promise((resolve) => setTimeout(resolve, 100 * records.length));
-    return records;
-  }
-
-  async getPatientData(patientId: string, since: Date): Promise<SyncRecord[]> {
-    return [];
-  }
-}
-//----------------------------------------------------------
+import { SyncRecord, SyncSource } from './syncSource';
 
 class NoSyncImporterError extends Error {
   constructor(recordType) {
@@ -46,15 +11,16 @@ class NoSyncImporterError extends Error {
 }
 
 export class SyncManager {
-
-  isSyncing = false; 
+  isSyncing = false;
   emitter = mitt();
 
   constructor(syncSource: SyncSource) {
     this.syncSource = syncSource;
 
     this.emitter.on("*", (action, ...args) => {
-      console.log(`[sync] ${action}`);
+      if(action === 'syncedRecord') return;
+
+      console.log(`[sync] ${action} ${args[0] || ''}`);
     });
   }
 
@@ -81,8 +47,9 @@ export class SyncManager {
       throw new NoSyncImporterError(recordType);
     }
 
-    const createdRecord = await model.createOrUpdate(data);
-    this.emitter.emit("syncedRecord", syncRecord);
+    await model.createOrUpdate(data);
+      
+    this.emitter.emit("syncedRecord", syncRecord.recordType, syncRecord);
   }
 
   async runScheduledSync() {
@@ -107,31 +74,11 @@ export class SyncManager {
 
     this.emitter.emit("syncStarted");
 
-    const since = await this.getReferenceSyncDate();
-
-    this.emitter.emit("referenceDownloadStarted");
-    const referenceRecords = await this.syncSource.getReferenceData(since);
-    this.emitter.emit("referenceDownloadEnded");
+    await this.runReferenceSync();
 
     // sync all reference data including shallow patient list
-    let maxDate = since;
-    this.emitter.emit("referenceSyncStarted", referenceRecords.length);
-    await Promise.all(referenceRecords.map(async (r, i) => {
-      try {
-        await this.syncRecord(r);
-        this.emitter.emit("referenceRecordSynced", r, i, referenceRecords.length);
-        if(r.data.lastModified > maxDate) {
-          maxDate = r.data.lastModified;
-        }
-      } catch(e) {
-        console.warn(e.message);
-      }
-    }));
-    this.emitter.emit("referenceSyncEnded");
-
-    await this.updateReferenceSyncDate(maxDate);
-
     // full sync of patients that've been flagged (encounters, etc)
+    /*
     const patientsToSync = await this.getPatientsToSync();
     this.emitter.emit("patientSyncStarted", patientsToSync.length);
     for(let i = 0; i < patientsToSync.length; i++) {
@@ -144,20 +91,10 @@ export class SyncManager {
       }
     }
     this.emitter.emit("patientSyncEnded");
+    */
 
     this.emitter.emit("syncEnded");
     this.isSyncing = false;
-  }
-
-  async getReferenceSyncDate(): Date {
-    const timestampString = await readConfig('referenceSyncDate', '0');
-    const timestamp = parseInt(timestampString, 10);
-    return new Date(timestamp);
-  }
-
-  async updateReferenceSyncDate(date: Date): void {
-    const timestampString = `${date.valueOf()}`;
-    await writeConfig('referenceSyncDate', timestampString);
   }
 
   getPatientsToSync() {
@@ -175,12 +112,87 @@ export class SyncManager {
     this.runScheduledSync();
   }
 
+  async syncAllPages(channel: string, since: Date, syncCallback: SyncCallback) {
+    let page = 0;
+
+    const downloadPage = (pageNumber) => {
+      this.emitter.emit("downloadingPage", `${channel}-${pageNumber}`);
+      return this.syncSource.getSyncData(
+        channel,
+        since,
+        pageNumber,
+      );
+    }
+
+    // we want to download each page of records while the current page
+    // of records is being imported - this means that the database IO
+    // and network IO are running in parallel rather than running in
+    // alternating sequence.
+    let downloadTask : Promise<SyncRecord[]> = downloadPage(0);
+
+    let maxDate = since;
+
+    try {
+      while(true) {
+        // wait for the current page download to complete
+        const records = await downloadTask;
+
+        // keep importing until we hit a page with 0 records
+        // (this does mean we're always making 1 more web request than
+        // is necessary, probably room for optimisation here)
+        if(records.length === 0) {
+          break;
+        }
+
+        // we have records to import - import them
+        this.emitter.emit("importingPage", `${channel}-${page}`);
+        const importTask = Promise.all(records.map(r => {
+          if(r.lastSynced > maxDate) {
+            maxDate = r.lastSynced;
+          }
+          return this.syncRecord(r);
+        }));
+
+        // start downloading the next page now
+        page += 1;
+        downloadTask = downloadPage(page);
+
+        // wait for import task to complete before progressing in loop
+        await importTask;
+      };
+    } catch(e) {
+      console.warn(e);
+    }
+
+    return maxDate;
+  }
+
   async runPatientSync(patient: Patient) {
-    const patientRecords = await this.syncSource.getPatientData(patient.id, patient.lastSynced);
-    await Promise.all(patientRecords.map(r => this.syncRecord(r)));
+    await this.syncAllPages(`patient/${patient.id}`, patient.lastSynced);
 
     patient.lastSynced = new Date();
     await patient.save();
+  }
+
+  async getReferenceSyncDate(): Promise<Date> {
+    const timestampString = await readConfig('referenceSyncDate', '0');
+    const timestamp = parseInt(timestampString, 10);
+    return new Date(timestamp);
+  }
+
+  async updateReferenceSyncDate(date: Date): Promise<void> {
+    const timestampString = `${date.valueOf()}`;
+    await writeConfig('referenceSyncDate', timestampString);
+  }
+
+  async runReferenceSync() {
+    const lastSynced = await this.getReferenceSyncDate();
+
+    this.emitter.emit("referenceSyncStarted");
+    const maxDate = await this.syncAllPages(`reference`, lastSynced);
+    this.emitter.emit("referenceSyncEnded");
+
+    await this.updateReferenceSyncDate(maxDate);
   }
 
 }
