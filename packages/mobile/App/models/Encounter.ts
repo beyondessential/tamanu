@@ -20,7 +20,7 @@ export class Encounter extends BaseModel implements IEncounter {
   @Column()
   reasonForEncounter: string;
 
-  @ManyToOne(type => Patient, patient => patient.encounter)
+  @ManyToOne(type => Patient, patient => patient.encounters)
   patient: Patient;
 
   // TODO: Add model and add examiner dropdown for this field

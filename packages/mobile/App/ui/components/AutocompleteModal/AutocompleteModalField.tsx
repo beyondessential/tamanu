@@ -6,7 +6,7 @@ import {
 import { theme } from '/styled/theme';
 import { Button } from '../Button';
 
-export const ModalField = ({
+export const AutocompleteModalField = ({
   value,
   placeholder,
   onChange,

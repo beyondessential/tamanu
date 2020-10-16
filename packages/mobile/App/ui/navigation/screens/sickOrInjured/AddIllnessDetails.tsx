@@ -16,8 +16,8 @@ import {
 import { useBackend } from '~/ui/helpers/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
-import { ModalField } from '~/ui/components/AutocompleteModal/ModalField';
-import { Certainty, ReferenceDataType } from '~/types';
+import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
+import { CERTAINTY_OPTIONS, ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
 import { ReferenceData } from '~/models';
 import { Dropdown } from '~/ui/components/Dropdown';
@@ -118,7 +118,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     label="Medications"
                   />
                   <Field
-                    component={ModalField}
+                    component={AutocompleteModalField}
                     placeholder="Search diagnoses"
                     navigation={navigation}
                     suggester={icd10Suggester}
@@ -127,9 +127,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                   />
                   <Field
                     component={Dropdown}
-                    options={
-                      Object.entries(Certainty).map(([key, value]) => ({ label: key, value }))
-                    }
+                    options={CERTAINTY_OPTIONS}
                     name="certainty"
                     label="Certainty"
                   />
