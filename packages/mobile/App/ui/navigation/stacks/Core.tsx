@@ -18,15 +18,15 @@ export const Core: FunctionComponent<any> = () => {
       headerMode="none"
       initialRouteName={
         authCtx.isUserAuthenticated()
-          ? Routes.HomeStack.name
-          : Routes.SignUpStack.name
+          ? Routes.HomeStack.Index
+          : Routes.SignUpStack.Index
       }
     >
       <Stack.Screen name={Routes.Autocomplete.Modal} component={AutocompleteModalScreen} />
-      <Stack.Screen name={Routes.SignUpStack.name} component={SignUpStack} />
+      <Stack.Screen name={Routes.SignUpStack.Index} component={SignUpStack} />
       <Stack.Screen
         options={noSwipeGestureOnNavigator}
-        name={Routes.HomeStack.name}
+        name={Routes.HomeStack.Index}
         component={HomeStack}
       />
     </Stack.Navigator>

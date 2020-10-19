@@ -65,7 +65,7 @@ export const HistoryVitalsStack = ({
       </StyledSafeAreaView>
       <Stack.Navigator headerMode="none">
         <Stack.Screen
-          name={Routes.HomeStack.HistoryVitalsStack.name}
+          name={Routes.HomeStack.HistoryVitalsStack.Index}
           component={HistoryVitalsTabs}
         />
       </Stack.Navigator>

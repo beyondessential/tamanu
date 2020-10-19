@@ -8,7 +8,7 @@ const Stack = createStackNavigator();
 export const CheckUpStack = (): ReactElement => (
   <Stack.Navigator headerMode="none">
     <Stack.Screen
-      name={Routes.HomeStack.CheckUpStack.name}
+      name={Routes.HomeStack.CheckUpStack.Index}
       component={CheckUpTabs}
     />
   </Stack.Navigator>

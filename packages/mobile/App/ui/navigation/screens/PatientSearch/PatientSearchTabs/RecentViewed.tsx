@@ -54,7 +54,7 @@ const Screen = ({
         renderItem={({ item }: { item: any }): ReactElement => {
           const onNavigateToPatientHome = (): void => {
             setSelectedPatient(item);
-            navigation.navigate(Routes.HomeStack.HomeTabs.name, {
+            navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
               screen: Routes.HomeStack.HomeTabs.Home,
             });
           };

@@ -45,12 +45,12 @@ const Screen = ({
   setSelectedPatient,
 }: NewPatientScreenProps): ReactElement => {
   const onNavigateToHome = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.HomeTabs.name);
+    navigation.navigate(Routes.HomeStack.HomeTabs.Index);
   }, []);
 
   const onAddAnotherPatient = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.name, {
-      screen: Routes.HomeStack.RegisterPatientStack.name,
+    navigation.navigate(Routes.HomeStack.Index, {
+      screen: Routes.HomeStack.RegisterPatientStack.Index,
       params: {
         screen: Routes.HomeStack.RegisterPatientStack.PatientPersonalInfo,
       },
@@ -69,7 +69,7 @@ const Screen = ({
       lastVisit: new Date(),
     };
     setSelectedPatient(newPatient);
-    navigation.navigate(Routes.HomeStack.HomeTabs.name, {
+    navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
       screen: Routes.HomeStack.PatientDetails,
     });
   }, []);

@@ -23,7 +23,7 @@ export const PatientPersonalInfoScreen = ({
   navigation,
 }: PatientPersonalInfoScreenProps): ReactElement => {
   const onGoBack = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.HomeTabs.name);
+    navigation.navigate(Routes.HomeStack.HomeTabs.Index);
   }, []);
   const screenFields = currentScreenFields.map(fieldName => useField(fieldName));
   const form = useFormikContext();

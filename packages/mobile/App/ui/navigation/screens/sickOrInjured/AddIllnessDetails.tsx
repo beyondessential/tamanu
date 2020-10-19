@@ -35,7 +35,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
   const { models } = useBackend();
 
   const navigateToHistory = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.HistoryVitalsStack.name);
+    navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index);
   }, []);
 
   const onRecordIllness = useCallback(
