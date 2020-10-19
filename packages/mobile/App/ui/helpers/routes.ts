@@ -9,11 +9,11 @@
 
 export const Routes = {
   Autocomplete: {
-    name: '',
+    Index: '',
     Modal: '',
   },
   SignUpStack: {
-    name: '',
+    Index: '',
     Intro: '',
     RegisterAccountStep1: '',
     RegisterAccountStep2: '',
@@ -21,18 +21,18 @@ export const Routes = {
     SignIn: '',
   },
   HomeStack: {
-    name: '',
+    Index: '',
     WelcomeIntroStack: '',
     VaccineStack: {
-      name: '',
+      Index: '',
       VaccineTabs: {
-        name: '',
+        Index: '',
         ChildhoodTab: '',
         AdolescentTab: '',
         AdultTab: '',
       },
       NewVaccineTabs: {
-        name: '',
+        Index: '',
         TakenOnTimeTab: '',
         TakenNotOnTimeTab: '',
         NotTakeTab: '',
@@ -40,65 +40,65 @@ export const Routes = {
       VaccineModalScreen: '',
     },
     HomeTabs: {
-      name: '',
+      Index: '',
       Home: '',
       Reports: '',
       SyncData: '',
       More: '',
     },
     CheckUpStack: {
-      name: '',
+      Index: '',
       CheckUpTabs: {
-        name: '',
+        Index: '',
         AddDetails: '',
         ViewHistory: '',
         CreateEncounter: '',
       },
     },
     ProgramStack: {
-      name: '',
+      Index: '',
       ProgramListScreen: '',
       SurveyResponseDetailsScreen: '',
       ProgramTabs: {
-        name: '',
+        Index: '',
         AddDetails: '',
         ViewHistory: '',
       },
     },
     ReferralTabs: {
-      name: '',
+      Index: '',
       AddReferralDetails: '',
       ViewHistory: '',
     },
     SearchPatientStack: {
-      name: '',
+      Index: '',
       SearchPatientTabs: {
-        name: '',
+        Index: '',
         RecentViewed: '',
         ViewAll: '',
       },
       FilterSearch: '',
     },
     SickOrInjuredTabs: {
-      name: '',
+      Index: '',
       AddIllnessScreen: '',
       ViewHistory: '',
     },
     DeceasedStack: {
-      name: '',
+      Index: '',
       AddDeceasedDetails: '',
     },
     HistoryVitalsStack: {
-      name: '',
+      Index: '',
       HistoryVitalsTabs: {
-        name: '',
+        Index: '',
         Visits: '',
         Vitals: '',
         Vaccines: '',
       },
     },
     RegisterPatientStack: {
-      name: '',
+      Index: '',
       PatientPersonalInfo: '',
       PatientSpecificInfo: '',
       NewPatient: '',

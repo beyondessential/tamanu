@@ -37,7 +37,7 @@ export const HomeStack = (): ReactElement => {
       initialRouteName={
         authCtx.checkFirstSession()
           ? Routes.HomeStack.WelcomeIntroStack
-          : Routes.HomeStack.HomeTabs.name
+          : Routes.HomeStack.HomeTabs.Index
       }
     >
       <Stack.Screen
@@ -48,19 +48,19 @@ export const HomeStack = (): ReactElement => {
         }}
       />
       <Stack.Screen
-        name={Routes.HomeStack.CheckUpStack.name}
+        name={Routes.HomeStack.CheckUpStack.Index}
         component={CheckUpStack}
       />
       <Stack.Screen
-        name={Routes.HomeStack.ProgramStack.name}
+        name={Routes.HomeStack.ProgramStack.Index}
         component={ProgramStack}
       />
       <Stack.Screen
-        name={Routes.HomeStack.VaccineStack.name}
+        name={Routes.HomeStack.VaccineStack.Index}
         component={VaccineStack}
       />
       <Stack.Screen
-        name={Routes.HomeStack.HomeTabs.name}
+        name={Routes.HomeStack.HomeTabs.Index}
         component={HomeTabsStack}
       />
       <Stack.Screen
@@ -68,7 +68,7 @@ export const HomeStack = (): ReactElement => {
         component={ExportDataScreen}
       />
       <Stack.Screen
-        name={Routes.HomeStack.RegisterPatientStack.name}
+        name={Routes.HomeStack.RegisterPatientStack.Index}
         component={RegisterPatientStack}
       />
       <Stack.Screen
@@ -76,7 +76,7 @@ export const HomeStack = (): ReactElement => {
         component={PatientDetailsScreen}
       />
       <Stack.Screen
-        name={Routes.HomeStack.HistoryVitalsStack.name}
+        name={Routes.HomeStack.HistoryVitalsStack.Index}
         component={HistoryVitalsStack}
       />
       <Stack.Screen
@@ -84,19 +84,19 @@ export const HomeStack = (): ReactElement => {
         component={PatientActionsScreen}
       />
       <Stack.Screen
-        name={Routes.HomeStack.SearchPatientStack.name}
+        name={Routes.HomeStack.SearchPatientStack.Index}
         component={SearchPatientStack}
       />
       <Stack.Screen
-        name={Routes.HomeStack.SickOrInjuredTabs.name}
+        name={Routes.HomeStack.SickOrInjuredTabs.Index}
         component={SickOrInjuredTabs}
       />
       <Stack.Screen
-        name={Routes.HomeStack.ReferralTabs.name}
+        name={Routes.HomeStack.ReferralTabs.Index}
         component={ReferralTabs}
       />
       <Stack.Screen
-        name={Routes.HomeStack.DeceasedStack.name}
+        name={Routes.HomeStack.DeceasedStack.Index}
         component={DeceasedStack}
       />
     </Stack.Navigator>

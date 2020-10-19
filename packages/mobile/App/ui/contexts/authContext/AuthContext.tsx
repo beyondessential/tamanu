@@ -48,14 +48,14 @@ const Provider = ({
     navigation: NavigationProp<any>,
   ): void => {
     if (isUserAuthenticated()) {
-      navigation.navigate(Routes.HomeStack.name, {
-        screen: Routes.HomeStack.HomeTabs.name,
+      navigation.navigate(Routes.HomeStack.Index, {
+        screen: Routes.HomeStack.HomeTabs.Index,
         params: {
           screen: Routes.HomeStack.HomeTabs.Home,
         },
       });
     } else {
-      navigation.navigate(Routes.SignUpStack.name);
+      navigation.navigate(Routes.SignUpStack.Index);
     }
   };
 
@@ -80,7 +80,7 @@ const Provider = ({
     signOutUser();
     navigation.reset({
       index: 0,
-      routes: [{ name: Routes.SignUpStack.name }],
+      routes: [{ name: Routes.SignUpStack.Index }],
     });
   };
 

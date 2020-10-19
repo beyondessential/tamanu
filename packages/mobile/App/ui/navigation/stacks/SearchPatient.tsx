@@ -31,7 +31,7 @@ export const SearchPatientStack = (): ReactElement => (
       screenOptions={noSwipeGestureOnNavigator}
     >
       <Stack.Screen
-        name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.name}
+        name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index}
         component={SearchPatientTabs}
       />
       <Stack.Screen
