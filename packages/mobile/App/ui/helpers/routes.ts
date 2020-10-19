@@ -1,101 +1,132 @@
+// NOTE
+// All of the values on this object will be automatically assigned by a
+// function at the end of this file. 
+// For eg: HomeStack.VaccineStack.VaccineModalScreen will be set to
+// /HomeStack/VaccineStack/VaccineModalScreen
+//
+// So - don't worry about the actual value of any of the routes (empty
+// string is fine).
+
 export const Routes = {
   Autocomplete: {
-    name: 'Autocomplete',
-    Modal: 'Modal',
+    name: '',
+    Modal: '',
   },
   SignUpStack: {
-    name: 'SignUpStack',
-    Intro: 'Intro',
-    RegisterAccountStep1: 'RegisterAccountStep1',
-    RegisterAccountStep2: 'RegisterAccountStep2',
-    RegisterAccountStep3: 'RegisterAccountStep3',
-    SignIn: 'SignIn',
+    name: '',
+    Intro: '',
+    RegisterAccountStep1: '',
+    RegisterAccountStep2: '',
+    RegisterAccountStep3: '',
+    SignIn: '',
   },
   HomeStack: {
-    name: 'HomeStack',
-    WelcomeIntroStack: 'WelcomeIntroStack',
+    name: '',
+    WelcomeIntroStack: '',
     VaccineStack: {
-      name: 'VaccineStack',
+      name: '',
       VaccineTabs: {
-        name: 'VaccineTabs',
-        ChildhoodTab: 'ChildhoodTab',
-        AdolescentTab: 'AdolescentTab',
-        AdultTab: 'AdultTab',
+        name: '',
+        ChildhoodTab: '',
+        AdolescentTab: '',
+        AdultTab: '',
       },
       NewVaccineTabs: {
-        name: 'NewVaccineTabs',
-        TakenOnTimeTab: 'TakenOnTimeTab',
-        TakenNotOnTimeTab: 'TakenNotOnTimeTab',
-        NotTakeTab: 'NotTakeTab',
+        name: '',
+        TakenOnTimeTab: '',
+        TakenNotOnTimeTab: '',
+        NotTakeTab: '',
       },
-      VaccineModalScreen: 'VaccineModalScreen',
+      VaccineModalScreen: '',
     },
     HomeTabs: {
-      name: 'HomeTabs',
-      Home: 'Home',
-      Reports: 'Reports',
-      SyncData: 'SyncData',
-      More: 'More',
+      name: '',
+      Home: '',
+      Reports: '',
+      SyncData: '',
+      More: '',
     },
     CheckUpStack: {
-      name: 'CheckUpStack',
+      name: '',
       CheckUpTabs: {
-        name: 'CheckUpTabs',
-        AddDetails: 'AddDetails',
-        ViewHistory: 'ViewHistory',
-        CreateEncounter: 'CreateEncounter',
+        name: '',
+        AddDetails: '',
+        ViewHistory: '',
+        CreateEncounter: '',
       },
     },
     ProgramStack: {
-      name: 'ProgramStack',
-      ProgramListScreen: 'ProgramListScreen',
-      SurveyResponseDetailsScreen: 'SurveyResponseDetailsScreen',
+      name: '',
+      ProgramListScreen: '',
+      SurveyResponseDetailsScreen: '',
       ProgramTabs: {
-        name: 'ProgramTabs',
-        AddDetails: 'AddProgramDetails',
-        ViewHistory: 'ViewProgramHistory',
+        name: '',
+        AddDetails: '',
+        ViewHistory: '',
       },
     },
     ReferralTabs: {
-      name: 'ReferralTabs',
-      AddReferralDetails: 'AddReferralDetails',
-      ViewHistory: 'ViewHistory',
+      name: '',
+      AddReferralDetails: '',
+      ViewHistory: '',
     },
     SearchPatientStack: {
-      name: 'SearchPatientStack',
+      name: '',
       SearchPatientTabs: {
-        name: 'SearchPatientTabs',
-        RecentViewed: 'RecentViewed',
-        ViewAll: 'ViewAll',
+        name: '',
+        RecentViewed: '',
+        ViewAll: '',
       },
-      FilterSearch: 'FilterSearch',
+      FilterSearch: '',
     },
     SickOrInjuredTabs: {
-      name: 'SickOrInjuredTabs',
-      AddIllnessScreen: 'AddIllnessScreen',
-      ViewHistory: 'ViewHistory',
+      name: '',
+      AddIllnessScreen: '',
+      ViewHistory: '',
     },
     DeceasedStack: {
-      name: 'DeceasedStack',
-      AddDeceasedDetails: 'AddDeceasedDetails',
+      name: '',
+      AddDeceasedDetails: '',
     },
     HistoryVitalsStack: {
-      name: 'HistoryVitalsStack',
+      name: '',
       HistoryVitalsTabs: {
-        name: 'HistoryVitalsTabs',
-        Visits: 'Visits',
-        Vitals: 'Vitals',
-        Vaccines: 'Vaccines',
+        name: '',
+        Visits: '',
+        Vitals: '',
+        Vaccines: '',
       },
     },
     RegisterPatientStack: {
-      name: 'RegisterPatientStack',
-      PatientPersonalInfo: 'PatientPersonalInfo',
-      PatientSpecificInfo: 'PatientSpecificInfo',
-      NewPatient: 'NewPatient',
+      name: '',
+      PatientPersonalInfo: '',
+      PatientSpecificInfo: '',
+      NewPatient: '',
     },
-    PatientDetails: 'PatientDetails',
-    PatientActions: 'PatientActions',
-    ExportDataScreen: 'ExportDataScreen',
+    PatientDetails: '',
+    PatientActions: '',
+    ExportDataScreen: '',
   },
 };
+
+
+// this function is set up to reassign the values on Routes in-place
+// rather than recreate the object (like how [].reduce would) so that
+// we can still benefit from VS Code knowing the structure at build time,
+// and providing autocompletes etc.
+//
+function transformRoutes(baseKey, routes) {
+  Object.keys(routes).map(k => {
+    const val = routes[k];
+    const routeString = [baseKey, k].join('/');
+    if(typeof val === "object") {
+      transformRoutes(routeString, val);
+      return;
+    }
+
+    routes[k] = routeString;
+  });
+}
+
+transformRoutes('', Routes);
+
