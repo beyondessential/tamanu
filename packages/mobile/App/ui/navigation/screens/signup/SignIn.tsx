@@ -50,10 +50,10 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
       // await authCtx.signIn(form.email, form.password);
       await userCtx.getUserData();
       if (authState.isFirstTime) {
-        navigation.navigate(Routes.HomeStack.name);
+        navigation.navigate(Routes.HomeStack.Index);
       } else {
-        navigation.navigate(Routes.HomeStack.name, {
-          screen: Routes.HomeStack.HomeTabs.name,
+        navigation.navigate(Routes.HomeStack.Index, {
+          screen: Routes.HomeStack.HomeTabs.Index,
         });
       }
     } catch (error) {

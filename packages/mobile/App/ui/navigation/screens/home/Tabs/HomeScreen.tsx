@@ -116,11 +116,11 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
   }, []);
 
   const onNavigateToSearchPatient = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.SearchPatientStack.name);
+    navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
   }, []);
 
   const onNavigateToRegisterPatient = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.RegisterPatientStack.name);
+    navigation.navigate(Routes.HomeStack.RegisterPatientStack.Index);
   }, []);
 
   const onNavigateToAnonymousPatient = useCallback(() => {

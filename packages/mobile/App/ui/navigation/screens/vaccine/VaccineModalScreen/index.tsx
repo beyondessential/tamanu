@@ -30,7 +30,7 @@ export const VaccineModalScreen = ({
   }, []);
 
   const onNavigateToEditDetails = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.name, {
+    navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.Index, {
       vaccine,
     });
   }, [vaccine]);

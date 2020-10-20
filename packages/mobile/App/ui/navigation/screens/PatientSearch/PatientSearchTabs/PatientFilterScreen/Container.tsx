@@ -19,13 +19,13 @@ const Container = ({ navigation }: BaseAppProps): ReactElement => {
   const fields = FilterArray.map(filterName => useField(filterName));
   const onNavigateBack = useCallback(() => {
     navigation.navigate(
-      Routes.HomeStack.SearchPatientStack.SearchPatientTabs.name,
+      Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index,
     );
   }, []);
 
   const onSubmitFilters = useCallback(() => {
     navigation.navigate(
-      Routes.HomeStack.SearchPatientStack.SearchPatientTabs.name,
+      Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index,
     );
   }, []);
 

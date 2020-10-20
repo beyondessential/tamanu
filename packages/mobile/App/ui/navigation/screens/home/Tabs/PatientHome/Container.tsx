@@ -20,32 +20,32 @@ const PatientHomeContainer = ({
       {
         title: 'Sick \n or Injured',
         Icon: Icons.SickOrInjuredIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.SickOrInjuredTabs.name),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.SickOrInjuredTabs.Index),
       },
       {
         title: 'Check up',
         Icon: Icons.CheckUpIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.CheckUpStack.name),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.CheckUpStack.Index),
       },
       {
         title: 'Programs',
         Icon: Icons.PregnancyIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.ProgramStack.name),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.ProgramStack.Index),
       },
       {
         title: 'Referral',
         Icon: Icons.FamilyPlanningIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.ReferralTabs.name),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.ReferralTabs.Index),
       },
       {
         title: 'Vaccine',
         Icon: Icons.VaccineIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.VaccineStack.name),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.VaccineStack.Index),
       },
       {
         title: 'Deceased',
         Icon: Icons.DeceasedIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.DeceasedStack.name),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.DeceasedStack.Index),
       },
     ],
     [],
@@ -61,14 +61,14 @@ const PatientHomeContainer = ({
       {
         title: 'View History',
         Icon: Icons.HistoryIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.HistoryVitalsStack.name),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index),
       },
     ],
     [],
   );
 
   const onNavigateToSearchPatients = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.SearchPatientStack.name);
+    navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
   }, []);
 
   const onNavigateToPatientActions = useCallback(() => {

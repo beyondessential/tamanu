@@ -35,7 +35,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
   const { models } = useBackend();
 
   const navigateToHistory = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.HistoryVitalsStack.name);
+    navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index);
   }, []);
 
   const onPrescribeMedication = useCallback(

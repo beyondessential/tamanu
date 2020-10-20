@@ -28,7 +28,7 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   }, []);
 
   const onNavigateToSurvey = (survey): any => {
-    navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.name, {
+    navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.Index, {
       surveyId: survey.id,
       surveyName: survey.name,
     });
