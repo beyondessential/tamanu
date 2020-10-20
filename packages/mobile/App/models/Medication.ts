@@ -12,21 +12,24 @@ export class Medication extends BaseModel implements IMedication {
   @Column({ nullable: true })
   endDate?: Date;
 
-  @Column()
-  prescription: string;
+  @Column({ nullable: true })
+  prescription?: string;
 
-  @Column()
-  note: string;
+  @Column({ nullable: true })
+  note?: string;
 
-  @Column()
-  indication: string;
+  @Column({ nullable: true })
+  indication?: string;
 
-  @Column()
-  route: string;
+  @Column({ nullable: true })
+  route?: string;
 
+  // This quantity column is required on mobile but doesn't exist on desktop.
   @Column()
   quantity: number;
 
+  // These qty fields are not required on desktop but not on mobile,
+  // leaving them in for parity with desktop for now.
   @Column({ nullable: true })
   qtyMorning?: number;
 
