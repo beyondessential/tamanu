@@ -113,11 +113,6 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     label="Lab/Test Results"
                   />
                   <Field
-                    component={TextField}
-                    name="medication"
-                    label="Medications"
-                  />
-                  <Field
                     component={AutocompleteModalField}
                     placeholder="Search diagnoses"
                     navigation={navigation}
