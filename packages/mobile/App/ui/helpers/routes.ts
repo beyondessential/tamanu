@@ -73,6 +73,7 @@ export const Routes = {
     SickOrInjuredTabs: {
       name: 'SickOrInjuredTabs',
       AddIllnessScreen: 'AddIllnessScreen',
+      PrescribeMedication: 'PrescribeMedication',
       ViewHistory: 'ViewHistory',
     },
     DeceasedStack: {
