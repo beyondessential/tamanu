@@ -1,6 +1,9 @@
 {
   "db": {
     "name": "test",
-    "nedbPath": "/tmp/tamanu-sync-test.db"
+    "type": "mongo",
+    "username": "",
+    "password": "",
+    "path": "mongodb://localhost:27017"
   }
 }
