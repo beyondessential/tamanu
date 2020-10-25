@@ -9,9 +9,6 @@ export interface IMedication {
   note: string;
   indication: string;
   route: string;
-  qtyMorning: number;
-  qtyLunch: number;
-  qtyEvening: number;
-  qtyNight: number;
+  quantity: number;
   medication: ReferenceData;
 }

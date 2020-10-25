@@ -45,7 +45,6 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
       );
 
       await models.Medication.create({
-        isPrimary: true,
         encounter: encounter.id,
         date: new Date(),
         ...values,

@@ -24,9 +24,14 @@ export class Medication extends BaseModel implements IMedication {
   @Column({ nullable: true })
   route?: string;
 
-  // This quantity column is required on mobile but doesn't exist on desktop.
   @Column()
   quantity: number;
+
+  @ReferenceDataRelation()
+  medication: ReferenceData;
+
+  @ManyToOne(type => Encounter, encounter => encounter.medication)
+  encounter: Encounter;
 
   // These qty fields are not required on desktop but not on mobile,
   // leaving them in for parity with desktop for now.
@@ -41,10 +46,4 @@ export class Medication extends BaseModel implements IMedication {
 
   @Column({ nullable: true })
   qtyNight?: number;
-
-  @ReferenceDataRelation()
-  medication: ReferenceData;
-
-  @ManyToOne(type => Encounter, encounter => encounter.medication)
-  encounter: Encounter;
 }
