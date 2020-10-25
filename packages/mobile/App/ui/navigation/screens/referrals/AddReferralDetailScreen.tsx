@@ -8,15 +8,15 @@ import { scrollTo, calculateVerticalPositions } from '/helpers/screen';
 import ReferralForm from '../../../components/Forms/ReferralForm';
 
 const initialValues = {
-  referralNumber: '',
-  referringDoctor: '',
-  referredFacility: '',
+  referralNumber: null,
+  referringDoctor: null,
+  referredFacility: null,
   date: null,
-  department: '',
+  department: null,
   urgentPriority: false,
-  diagnosis: '',
+  diagnosis: null,
   certainty: null,
-  notes: '',
+  notes: null,
 };
 
 export const AddRefferalDetailScreen = (): ReactElement => {
@@ -32,6 +32,12 @@ export const AddRefferalDetailScreen = (): ReactElement => {
     [scrollViewRef],
   );
 
+  const onCreateReferral = useCallback(
+    async (values): Promise<any> => {
+      console.log(values);
+    }, [],
+  );
+
   const renderForm = useCallback(({ handleSubmit }) => (
     <ReferralForm
       scrollToComponent={scrollToComponent}
@@ -43,7 +49,7 @@ export const AddRefferalDetailScreen = (): ReactElement => {
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <Formik
         initialValues={initialValues}
-        onSubmit={(values): void => console.log(values)}
+        onSubmit={onCreateReferral}
       >
         {renderForm}
       </Formik>
