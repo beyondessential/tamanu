@@ -28,7 +28,7 @@ export function initDatabase({ testMode = false }) {
     };
     return existingConnection;
   } else {
-    log.info(`Connecting to mongo database ${username}@${name}...`);
+    log.info(`Connecting to mongo database at ${path}...`);
     const store = new MongoWrapper(path, testMode);
     existingConnection = {
       store,
