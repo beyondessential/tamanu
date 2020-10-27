@@ -59,13 +59,13 @@ export const AutocompleteModalScreen = ({
     navigation.goBack();
   }, []);
 
-  const bacKButtonText = 'Back';
+  const backButtonText = 'Back';
 
   let useDarkBackground = true;
   return (
     <View style={styles.container}>
       <Button 
-        buttonText={bacKButtonText} 
+        buttonText={backButtonText} 
         onPress={navigateBack}
         />
       <Autocomplete
