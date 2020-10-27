@@ -83,7 +83,10 @@ describe("Sync API", () => {
           },
         }));
 
-        await Promise.all(records.map(r => store.insert('pagination', r)));
+        // import in series so there's a predictable order to test against
+        for(let r of records) {
+          await store.insert('pagination', r);
+        }
       });
 
       it('should only return $limit records', async () => {
@@ -105,6 +108,7 @@ describe("Sync API", () => {
         const PAGE_SIZE = 5;
         const PAGE_COUNT = Math.ceil(TOTAL_RECORDS / PAGE_SIZE);
         const results = [];
+
         for(let i = 0; i < PAGE_COUNT; ++i) {
           const url = `/pagination?since=0&limit=5&page=${i}`;
           const result = await app.get(url);
@@ -113,10 +117,15 @@ describe("Sync API", () => {
           results.push(result);
         }
 
-        const all_results = results.map(r => r.body.records).flat();
-        for(let i = 0; i < TOTAL_RECORDS; ++i) {
-          expect(all_results[i].data.id).toEqual(records[i].data.id);
-        }
+        const response_record_ids = results
+          .map(r => r.body.records)
+          .flat()
+          .map(r => r.data.id);
+        const expected_record_ids = (new Array(TOTAL_RECORDS))
+          .fill(0)
+          .map((_, i) => `test-pagination-${i}`);
+
+        expect(response_record_ids).toEqual(expected_record_ids);
       });
 
       it('should include the count of the entire query', async () => {

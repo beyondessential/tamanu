@@ -164,7 +164,7 @@ export class MongoWrapper {
             $gt: stamp,
           }
         })
-        .sort({ lastSynced: 1, index: 1 });
+        .sort({ lastSynced: 1, index: 1, "data.id": 1 });
       if (offset) {
         cursor = cursor.skip(offset);
       }
