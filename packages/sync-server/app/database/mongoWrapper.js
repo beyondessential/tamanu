@@ -56,11 +56,10 @@ function connect(url, dbName) {
 
 export class MongoWrapper {
 
-  constructor(path, testMode) {
+  constructor(path, dbName, testMode) {
     this.idGenerator = getUUIDGenerator(testMode);
 
-    const dbName = "tamanu-sync";
-    this.connectionTask = connect(path, testMode ? dbName : `${dbName}-test`);
+    this.connectionTask = connect(path, dbName);
   }
 
   async close() {

@@ -4,8 +4,6 @@
     "name": "tamanu-sync",
     "type": "nedb",
     "path": "data/sync.db",
-    "username": "test",
-    "password": "abc123",
     "verbose": false
   },
   "auth": {
