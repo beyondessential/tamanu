@@ -45,7 +45,10 @@ function connect(url, dbName) {
         reject(err);
       } else {
         const db = client.db(dbName);
-        resolve(db);
+        resolve({
+          client,
+          db,
+        });
       }
     });
   });
@@ -60,8 +63,13 @@ export class MongoWrapper {
     this.connectionTask = connect(path, testMode ? dbName : `${dbName}-test`);
   }
 
+  async close() {
+    const { client } = await this.connectionTask;
+    return client.close();
+  }
+
   async getCollection(name) {
-    const db = await this.connectionTask;
+    const { db } = await this.connectionTask;
     return db.collection(name);
   }
 
