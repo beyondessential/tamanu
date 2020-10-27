@@ -13,16 +13,16 @@ export interface IVitals {
 
   date: Date;
 
-  weight: number;
-  height: number;
-  sbp: number;
-  dbp: number;
-  heartRate: number;
-  respiratoryRate: number;
-  temperature: number;
-  svO2: number;
+  weight?: number;
+  height?: number;
+  sbp?: number;
+  dbp?: number;
+  heartRate?: number;
+  respiratoryRate?: number;
+  temperature?: number;
+  svO2?: number;
 
-  avpu: AVPUType;
+  avpu?: AVPUType;
 
   comments?: string;
 
