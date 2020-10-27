@@ -17,7 +17,7 @@ export class Encounter extends BaseModel implements IEncounter {
   @Column({ nullable: true })
   endDate?: Date;
 
-  @Column()
+  @Column({ default: '' })
   reasonForEncounter: string;
 
   @ManyToOne(type => Patient, patient => patient.encounters)
