@@ -4,6 +4,7 @@ import { NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '~/ui/styled/theme';
+import { Button } from '../Button';
 
 const styles = StyleSheet.create({
   container: {
@@ -54,9 +55,19 @@ export const AutocompleteModalScreen = ({
     callback(item);
   }, []);
 
+  const navigateBack = useCallback(() => {
+    navigation.goBack();
+  }, []);
+
+  const bacKButtonText = 'Back';
+
   let useDarkBackground = true;
   return (
     <View style={styles.container}>
+      <Button 
+        buttonText={bacKButtonText} 
+        onPress={navigateBack}
+        />
       <Autocomplete
         containerStyle={styles.autocompleteContainer}
         placeholder="Search..."
