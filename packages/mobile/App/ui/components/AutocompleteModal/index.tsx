@@ -55,7 +55,7 @@ export const AutocompleteModalScreen = ({
     callback(item);
   }, []);
 
-  const navigateBack = useCallback(() => {
+  const onNavigateBack = useCallback(() => {
     navigation.goBack();
   }, []);
 
@@ -66,7 +66,7 @@ export const AutocompleteModalScreen = ({
     <View style={styles.container}>
       <Button 
         buttonText={backButtonText} 
-        onPress={navigateBack}
+        onPress={onNavigateBack}
         backgroundColor={theme.colors.PRIMARY_MAIN}
         />
       <Autocomplete
