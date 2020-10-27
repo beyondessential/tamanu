@@ -94,7 +94,10 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
   );
 
   const navigateToHistory = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.CheckUpStack.CheckUpTabs.ViewHistory);
+    navigation.reset({
+      index: 0,
+      routes: [{ name: Routes.HomeStack.CheckUpStack.CheckUpTabs.ViewHistory }],
+    })
   }, []);
 
   const { models } = useBackend();
