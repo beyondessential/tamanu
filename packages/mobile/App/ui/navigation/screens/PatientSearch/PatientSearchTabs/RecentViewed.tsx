@@ -32,11 +32,26 @@ const Screen = ({
 }: RecentViewedScreenProps): ReactElement => {
   const [recentlyViewedPatients, error] = useBackendEffect(
     async ({ models }): Promise<string[]> => {
-      const listString: string[] = JSON.parse(await readConfig('recentlyViewedPatients', JSON.stringify([])));
-      const list = await models.Patient.getRepository().findByIds(listString || []);
-      return listString.map(id2 => list.find(({ id }) => id === id2));
+      const patientIds: string[] = JSON.parse(await readConfig('recentlyViewedPatients', '[]'));
+      if (patientIds.length === 0) return [];
+
+      const list = await models.Patient.getRepository().findByIds(patientIds);
+
+      // Map is needed to make sure that patients are in the same order as in recentlyViewedPatients
+      // (typeorm findByIds doesn't guarantee return order)
+      return patientIds.map(storedId => list.find(({ id }) => id === storedId));
     },
   );
+
+  useEffect(() => {
+    if (recentlyViewedPatients?.length === 0) {
+      // Navigate on a delay in order to wait for navigation to this screen to complete
+      setTimeout(
+        () => navigation.navigate(Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll),
+        30,
+      );
+    }
+  }, [recentlyViewedPatients]);
 
   if (error) {
     return <ErrorScreen error={error} />;
