@@ -21,7 +21,6 @@ export function initDatabase({ testMode = false }) {
   }
 
   if (type === "nedb") {
-    const path = nedbPath;
     log.info(`Connecting to nedb database at ${path}...`);
     existingConnection = {
       store: new NedbWrapper(path, testMode),
