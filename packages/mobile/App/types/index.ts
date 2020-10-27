@@ -12,4 +12,5 @@ export * from './IVitals';
 export * from './IImmunisation';
 export * from './IDiagnosis';
 export * from './IScheduledVaccine';
+export * from './IMedication';
 export * from './IReferral';

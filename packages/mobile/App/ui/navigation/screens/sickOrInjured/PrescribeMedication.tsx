@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo, useRef, useCallback, useEffect, useState } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { compose } from 'redux';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -17,10 +17,10 @@ import { useBackend } from '~/ui/helpers/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
-import { CERTAINTY_OPTIONS, ReferenceDataType } from '~/types';
+import { ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
 import { ReferenceData } from '~/models';
-import { Dropdown } from '~/ui/components/Dropdown';
+import { NumberField } from '~/ui/components/NumberField';
 
 const styles = StyleSheet.create({
   KeyboardAvoidingViewStyles: { flex: 1 },
@@ -31,37 +31,34 @@ const styles = StyleSheet.create({
   ScrollView: { flex: 1 },
 });
 
-export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElement => {
+export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): ReactElement => {
   const { models } = useBackend();
 
   const navigateToHistory = useCallback(() => {
     navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index);
   }, []);
 
-  const onRecordIllness = useCallback(
-    async ({ diagnosis, certainty }: any): Promise<any> => {
+  const onPrescribeMedication = useCallback(
+    async (values): Promise<any> => {
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
       );
 
-      await models.Diagnosis.create({
-        // TODO: support selecting multiple diagnoses and flagging as primary/non primary
-        isPrimary: true,
+      await models.Medication.create({
         encounter: encounter.id,
         date: new Date(),
-        diagnosis,
-        certainty,
+        ...values,
       });
 
       navigateToHistory();
     }, [],
   );
 
-  const icd10Suggester = new Suggester(
+  const medicationSuggester = new Suggester(
     ReferenceData,
     {
       where: {
-        type: ReferenceDataType.ICD10,
+        type: ReferenceDataType.Drug,
       },
     },
   );
@@ -69,7 +66,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <Formik
-        onSubmit={onRecordIllness}
+        onSubmit={onPrescribeMedication}
         initialValues={{}}
       >
         {({ handleSubmit }): ReactElement => (
@@ -90,41 +87,49 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                 scrollToOverflowEnabled
                 overScrollMode="always"
               >
+                <SectionHeader h3>ITEM</SectionHeader>
+                <Field
+                  component={AutocompleteModalField}
+                  placeholder="Search drug"
+                  navigation={navigation}
+                  suggester={medicationSuggester}
+                  modalRoute={Routes.Autocomplete.Modal}
+                  name="medication"
+                />
                 <StyledView
-                  marginBottom={screenPercentageToDP(
-                    0.605,
+                  marginTop={screenPercentageToDP(
+                    2.105,
                     Orientation.Height,
                   )}
-                >
-                  <SectionHeader h3>INFORMATION</SectionHeader>
-                </StyledView>
-                <StyledView
                   height={screenPercentageToDP(21.87, Orientation.Height)}
                   justifyContent="space-between"
                 >
+                  <SectionHeader
+                    h3
+                    marginBottom={screenPercentageToDP(
+                      2.105,
+                      Orientation.Height,
+                    )}>INFO
+                  </SectionHeader>
                   <Field
                     component={TextField}
-                    name="examiner"
-                    label="Examiner"
+                    name="prescription"
+                    label="Prescription"
                   />
                   <Field
                     component={TextField}
-                    name="labRequest"
-                    label="Lab/Test Results"
+                    name="indication"
+                    label="Indication"
                   />
                   <Field
-                    component={AutocompleteModalField}
-                    placeholder="Search diagnoses"
-                    navigation={navigation}
-                    suggester={icd10Suggester}
-                    modalRoute={Routes.Autocomplete.Modal}
-                    name="diagnosis"
+                    component={TextField}
+                    name="route"
+                    label="Route"
                   />
                   <Field
-                    component={Dropdown}
-                    options={CERTAINTY_OPTIONS}
-                    name="certainty"
-                    label="Certainty"
+                    component={NumberField}
+                    name="quantity"
+                    label="Quantity (in single units)"
                   />
                 </StyledView>
                 <StyledView
@@ -134,11 +139,11 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     Orientation.Height,
                   )}
                 >
-                  <SectionHeader h3>Treatment notes</SectionHeader>
+                  <SectionHeader h3>Prescription notes</SectionHeader>
                 </StyledView>
                 <Field
                   component={TextField}
-                  name="resonForEncounter"
+                  name="note"
                   multiline
                 />
                 <Button
@@ -156,4 +161,4 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
   );
 };
 
-export const AddIllnessScreen = compose(withPatient)(DumbAddIllnessScreen);
+export const PrescribeMedicationScreen = compose(withPatient)(DumbPrescribeMedicationScreen);
