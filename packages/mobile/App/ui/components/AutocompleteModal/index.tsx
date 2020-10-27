@@ -67,6 +67,7 @@ export const AutocompleteModalScreen = ({
       <Button 
         buttonText={backButtonText} 
         onPress={navigateBack}
+        backgroundColor={theme.colors.PRIMARY_MAIN}
         />
       <Autocomplete
         containerStyle={styles.autocompleteContainer}
