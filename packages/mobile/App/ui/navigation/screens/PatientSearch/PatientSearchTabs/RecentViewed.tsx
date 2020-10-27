@@ -1,7 +1,6 @@
-import React, { useState, ReactElement } from 'react';
+import React, { useState, ReactElement, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { compose } from 'redux';
-import { useField } from 'formik';
 import { NavigationProp } from '@react-navigation/native';
 import { TouchableOpacity, FlatList } from 'react-native-gesture-handler';
 // Containers
@@ -18,7 +17,8 @@ import { Routes } from '/helpers/routes';
 import { StyledView, FullView } from '/styled/common';
 import { joinNames } from '/helpers/user';
 import { getAgeFromDate } from '~/ui/helpers/date';
-import { useBackendEffect } from '~/ui/helpers/hooks';
+import { useBackend, useBackendEffect } from '~/ui/helpers/hooks';
+import { readConfig } from '~/services/config';
 
 interface PatientListProps {
   list: any[];
@@ -30,18 +30,19 @@ const Screen = ({
   navigation,
   setSelectedPatient,
 }: RecentViewedScreenProps): ReactElement => {
-  /** Get Search Input */
-  const [field] = useField('search');
-
-  const [list, error] = useBackendEffect(({ models }) => models.Patient.getRepository().find({
-    take: 10,
-  }));
+  const [recentlyViewedPatients, error] = useBackendEffect(
+    async ({ models }): Promise<string[]> => {
+      const listString: string[] = JSON.parse(await readConfig('recentlyViewedPatients', JSON.stringify([])));
+      const list = await models.Patient.getRepository().findByIds(listString || []);
+      return listString.map(id2 => list.find(({ id }) => id === id2));
+    },
+  );
 
   if (error) {
     return <ErrorScreen error={error} />;
   }
 
-  if (!list) {
+  if (!recentlyViewedPatients || !recentlyViewedPatients.length) {
     return <LoadingScreen text="Loading patients..." />;
   }
 
@@ -49,7 +50,7 @@ const Screen = ({
     <FullView>
       <FlatList
         showsVerticalScrollIndicator={Platform.OS === 'android'}
-        data={list}
+        data={recentlyViewedPatients}
         keyExtractor={(item): string => item.id.toString()}
         renderItem={({ item }: { item: any }): ReactElement => {
           const onNavigateToPatientHome = (): void => {
