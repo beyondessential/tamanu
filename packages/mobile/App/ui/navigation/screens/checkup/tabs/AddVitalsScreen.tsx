@@ -1,5 +1,6 @@
 import React, { useMemo, useCallback, useRef, ReactElement } from 'react';
 import { Formik } from 'formik';
+import * as Yup from 'yup';
 import { compose } from 'redux';
 import { FullView, StyledView, StyledSafeAreaView } from '/styled/common';
 import { Routes } from '/helpers/routes';
@@ -33,7 +34,6 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
             component={NumberField}
             label="Weight (kg)"
             name="weight"
-            // atLeastOneRequired
           />
           <Field
             component={NumberField}
@@ -96,6 +96,20 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
     [],
   );
 
+  const validationSchema 
+    = Yup.object().shape({
+      weight: Yup.number(),
+      height: Yup.number(),
+      sbp: Yup.number(),
+      dbp: Yup.number(),
+      heartRate: Yup.number(),
+      respiratoryRate: Yup.number(),
+      temperature: Yup.number(),
+      svO2: Yup.number(),
+      avpu: Yup.string(), // AVPUType
+      comment: Yup.string(),
+    });
+
   const requiresOneOfFields = [
     'weight',
     'height',
@@ -111,9 +125,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
    const validate = (values :object):object => {
     const errors = {};
     
-    const isValidValue = val => val && val !== 'NaN'; //TODO: add yup field validation
-    const requiredFieldFilter = val => requiresOneOfFields.includes(val) && isValidValue(val);
-    
+    const requiredFieldFilter = (val :string) => requiresOneOfFields.includes(val);
     const valueFields = Object.keys(values).filter(requiredFieldFilter);
 
     if(valueFields.length === 0 ){ 
@@ -157,6 +169,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
         <Formik
           initialValues={{}}
           validate={validate}
+          validationSchema={validationSchema}
           onSubmit={recordVitals}
         >
           {renderFormFields}
