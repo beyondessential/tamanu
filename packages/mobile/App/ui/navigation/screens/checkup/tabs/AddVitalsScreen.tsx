@@ -7,6 +7,7 @@ import { theme } from '/styled/theme';
 import { TextField } from '/components/TextField/TextField';
 import { Button } from '/components/Button';
 import { Field } from '/components/Forms/FormField';
+import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
 import { useBackend } from '~/ui/helpers/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { SectionHeader } from '/components/SectionHeader';
@@ -21,7 +22,7 @@ import { AVPUType } from '~/types';
 
 export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactElement => {
   const renderFormFields = useCallback(
-    ({ handleSubmit }): ReactElement => (
+    ({ handleSubmit, errors }): ReactElement => (
       <FormScreenView>
         <StyledView
           height={screenPercentageToDP(89.64, Orientation.Height)}
@@ -81,6 +82,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
             label="comments"
             multiline
           />
+          <FormValidationMessage message={errors.form}></FormValidationMessage>
           <Button
             marginTop={20}
             backgroundColor={theme.colors.PRIMARY_MAIN}
@@ -92,6 +94,16 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
     ),
     [],
   );
+
+   const validate = (values :object):object => {
+    const errors = {};
+
+    if(Object.keys(values).length === 0 ){ 
+      errors['form'] = 'Please enter at least one vital field.';
+    }
+    
+    return errors;
+  };
 
   const navigateToHistory = useCallback(() => {
     navigation.reset({
@@ -126,6 +138,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
       >
         <Formik
           initialValues={{}}
+          validate={validate}
           onSubmit={recordVitals}
         >
           {renderFormFields}
