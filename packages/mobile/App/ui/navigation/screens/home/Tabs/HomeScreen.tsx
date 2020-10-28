@@ -21,24 +21,12 @@ import {
 import { UserAvatar } from '/components/UserAvatar';
 import { Routes } from '/helpers/routes';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
-import { IPatient } from '/types';
-import { FemaleGender } from '/helpers/constants';
 import { compose } from 'redux';
 import { withAuth } from '/containers/Auth';
 import AuthContext from '/contexts/authContext/AuthContext';
-
-const placeholderPatient = {
-  city: 'Mbelagha',
-  name: 'Ugyen Wangdi',
-  // enums like gender should use the value, not the label - PatientCard should
-  // be responsible for displaying this correctly
-  gender: FemaleGender.value,
-  age: '34',
-  image:
-    'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
-  lastVisit: new Date(),
-};
-
+import { readConfig } from '~/services/config';
+import { useBackendEffect } from '~/ui/helpers/hooks';
+import { withPatient } from '~/ui/containers/Patient';
 const HomeMenuButton = ({
   text,
   onPress,
@@ -72,13 +60,26 @@ const HomeMenuButton = ({
   </StyledTouchableOpacity>
 );
 
-const PatientCardContainer = ({ patient }: IPatient): ReactElement => (
+// TODO: this should be in a different file right? Whereabouts would it go?
+const PatientCardContainer = compose(
+  withPatient,
+)(({ navigation, patient, setSelectedPatient }: any): ReactElement => (
   <StyledView marginRight={10}>
     <PatientCard
-      onPress={(): void => console.log('patient card.')}
-      {...patient}
+      onPress={(): void => {
+        setSelectedPatient(patient);
+        navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
+          screen: Routes.HomeStack.HomeTabs.Home,
+        });
+      }}
+      patient={patient}
     />
   </StyledView>
+));
+
+// TODO: what's wrong with this?
+const NoPatientsCard = (): ReactElement => (
+  <StyledText>Hie</StyledText>
 );
 
 const SearchPatientsButton = ({
@@ -114,6 +115,20 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
       authCtx.setUserFirstSignIn();
     }
   }, []);
+
+  // TODO: Is this a situation where we could define a 'useRecentlyViewedPatients'?
+  const [recentlyViewedPatients, error] = useBackendEffect(
+    async ({ models }): Promise<string[]> => {
+      const patientIds: string[] = JSON.parse(await readConfig('recentlyViewedPatients', '[]'));
+      if (patientIds.length === 0) return [];
+
+      const list = await models.Patient.getRepository().findByIds(patientIds);
+
+      // Map is needed to make sure that patients are in the same order as in recentlyViewedPatients
+      // (typeorm findByIds doesn't guarantee return order)
+      return patientIds.map(storedId => list.find(({ id }) => id === storedId));
+    },
+  );
 
   const onNavigateToSearchPatient = useCallback(() => {
     navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
@@ -210,7 +225,13 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
           </StyledText>
           <ScrollView horizontal>
             <RowView flex={1}>
-              <PatientCardContainer patient={placeholderPatient} />
+              {
+                recentlyViewedPatients
+                  ? recentlyViewedPatients.map(
+                    patient => <PatientCardContainer patient={patient} navigation={navigation} />,
+                  )
+                  : null
+              }
             </RowView>
           </ScrollView>
         </StyledView>
