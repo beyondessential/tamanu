@@ -82,6 +82,7 @@ export const Routes = {
     SickOrInjuredTabs: {
       Index: '',
       AddIllnessScreen: '',
+      PrescribeMedication: '',
       ViewHistory: '',
     },
     DeceasedStack: {

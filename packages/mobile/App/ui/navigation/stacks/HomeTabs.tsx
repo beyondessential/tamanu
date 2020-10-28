@@ -58,10 +58,12 @@ const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
 
 const HomeScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(HomeBottomLogoIcon),
+  tabBarLabel: 'Home',
   tabBarTestID: 'HOME',
 };
 const ReportScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(BarChartIcon),
+  tabBarLabel: 'Reports',
   tabBarTestID: 'REPORTS',
 };
 const SyncDataScreenOptions: BottomTabNavigationOptions = {
@@ -71,6 +73,7 @@ const SyncDataScreenOptions: BottomTabNavigationOptions = {
 };
 const MoreScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(MoreMenuIcon),
+  tabBarLabel: 'More',
   tabBarTestID: 'MORE',
 };
 

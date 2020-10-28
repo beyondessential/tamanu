@@ -1,7 +1,6 @@
-import React, { useState, ReactElement } from 'react';
+import React, { useState, ReactElement, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { compose } from 'redux';
-import { useField } from 'formik';
 import { NavigationProp } from '@react-navigation/native';
 import { TouchableOpacity, FlatList } from 'react-native-gesture-handler';
 // Containers
@@ -18,7 +17,8 @@ import { Routes } from '/helpers/routes';
 import { StyledView, FullView } from '/styled/common';
 import { joinNames } from '/helpers/user';
 import { getAgeFromDate } from '~/ui/helpers/date';
-import { useBackendEffect } from '~/ui/helpers/hooks';
+import { useBackend, useBackendEffect } from '~/ui/helpers/hooks';
+import { readConfig } from '~/services/config';
 
 interface PatientListProps {
   list: any[];
@@ -30,18 +30,34 @@ const Screen = ({
   navigation,
   setSelectedPatient,
 }: RecentViewedScreenProps): ReactElement => {
-  /** Get Search Input */
-  const [field] = useField('search');
+  const [recentlyViewedPatients, error] = useBackendEffect(
+    async ({ models }): Promise<string[]> => {
+      const patientIds: string[] = JSON.parse(await readConfig('recentlyViewedPatients', '[]'));
+      if (patientIds.length === 0) return [];
 
-  const [list, error] = useBackendEffect(({ models }) => models.Patient.getRepository().find({
-    take: 10,
-  }));
+      const list = await models.Patient.getRepository().findByIds(patientIds);
+
+      // Map is needed to make sure that patients are in the same order as in recentlyViewedPatients
+      // (typeorm findByIds doesn't guarantee return order)
+      return patientIds.map(storedId => list.find(({ id }) => id === storedId));
+    },
+  );
+
+  useEffect(() => {
+    if (recentlyViewedPatients?.length === 0) {
+      // Navigate on a delay in order to wait for navigation to this screen to complete
+      setTimeout(
+        () => navigation.navigate(Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll),
+        30,
+      );
+    }
+  }, [recentlyViewedPatients]);
 
   if (error) {
     return <ErrorScreen error={error} />;
   }
 
-  if (!list) {
+  if (!recentlyViewedPatients || !recentlyViewedPatients.length) {
     return <LoadingScreen text="Loading patients..." />;
   }
 
@@ -49,7 +65,7 @@ const Screen = ({
     <FullView>
       <FlatList
         showsVerticalScrollIndicator={Platform.OS === 'android'}
-        data={list}
+        data={recentlyViewedPatients}
         keyExtractor={(item): string => item.id.toString()}
         renderItem={({ item }: { item: any }): ReactElement => {
           const onNavigateToPatientHome = (): void => {

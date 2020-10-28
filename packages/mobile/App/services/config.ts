@@ -5,11 +5,11 @@ export function clear() {
   return AsyncStorage.clear();
 }
 
-export async function readConfig(key: string, defaultValue: string): string {
+export async function readConfig(key: string, defaultValue: string): Promise<string> {
   try {
-    const value = await AsyncStorage.getItem(key)
+    const value = await AsyncStorage.getItem(key);
     return (value !== null) ? value : defaultValue;
-  } catch(e) {
+  } catch (e) {
     console.warn(e);
     return defaultValue;
   }

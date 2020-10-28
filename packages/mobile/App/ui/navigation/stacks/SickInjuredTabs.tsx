@@ -9,6 +9,7 @@ import { IPatient } from '~/types';
 import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
 import { AddIllnessScreen } from '../screens/sickOrInjured/AddIllnessDetails';
+import { PrescribeMedicationScreen } from '../screens/sickOrInjured/PrescribeMedication';
 
 const Tabs = createTopTabNavigator();
 
@@ -38,6 +39,13 @@ const TabNavigator = ({
           }}
           name={Routes.HomeStack.SickOrInjuredTabs.AddIllnessScreen}
           component={AddIllnessScreen}
+        />
+        <Tabs.Screen
+          options={{
+            title: 'PRESCRIBE MEDICATION',
+          }}
+          name={Routes.HomeStack.SickOrInjuredTabs.PrescribeMedication}
+          component={PrescribeMedicationScreen}
         />
       </Tabs.Navigator>
     </FullView>
