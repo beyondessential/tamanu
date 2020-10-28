@@ -96,11 +96,28 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
     [],
   );
 
+  const requiresOneOfFields = [
+    'weight',
+    'height',
+    'sbp',
+    'dbp',
+    'heartRate',
+    'respiratoryRate',
+    'temperature',
+    'svO2',
+    'avpu',
+  ];
+
    const validate = (values :object):object => {
     const errors = {};
+    
+    const isValidValue = val => val && val !== 'NaN'; //TODO: add yup field validation
+    const requiredFieldFilter = val => requiresOneOfFields.includes(val) && isValidValue(val);
+    
+    const valueFields = Object.keys(values).filter(requiredFieldFilter);
 
-    if(Object.keys(values).length === 0 ){ 
-      errors['form'] = 'Please enter at least one vital field.';
+    if(valueFields.length === 0 ){ 
+      errors['form'] = 'At least one vital must be recorded.';
     }
     
     return errors;
