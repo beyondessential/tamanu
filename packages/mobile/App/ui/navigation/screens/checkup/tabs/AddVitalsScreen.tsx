@@ -33,6 +33,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
             component={NumberField}
             label="Weight (kg)"
             name="weight"
+            // atLeastOneRequired
           />
           <Field
             component={NumberField}
