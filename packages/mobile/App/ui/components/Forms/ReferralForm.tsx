@@ -1,23 +1,18 @@
 import React, { ReactElement } from 'react';
 import { StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
-import { FormScreenView } from './FormScreenView';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 import { Field } from './FormField';
 import { TextField } from '../TextField/TextField';
 import { Button } from '../Button';
-import { DateField } from '/components/DateField/DateField';
-import { Checkbox } from '../Checkbox';
 import { Dropdown } from '../Dropdown';
 import { SectionHeader } from '../SectionHeader';
 import { ReferralFormProps } from '../../interfaces/forms/ReferralFormProps';
-import { Certainty, CERTAINTY_OPTIONS } from '~/types';
-import { arrayToDropdownOptions } from '~/ui/helpers/form';
+import { CERTAINTY_OPTIONS } from '~/types';
 import { AutocompleteModalField } from '../AutocompleteModal/AutocompleteModalField';
 import { Routes } from '~/ui/helpers/routes';
 
 const ReferralForm = ({
-  // scrollViewRef,
   handleSubmit,
   icd10Suggester,
   navigation,
