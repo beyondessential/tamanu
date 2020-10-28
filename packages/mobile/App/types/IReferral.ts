@@ -1,5 +1,6 @@
-import { Diagnosis, Patient } from '~/models';
+import { Diagnosis, Patient, ReferenceData } from '~/models';
 import { ID } from './ID';
+import { Certainty } from './IDiagnosis';
 
 export interface IReferral {
   id: ID;
@@ -9,6 +10,7 @@ export interface IReferral {
   referredDepartment: string;
   date: Date;
   patient: Patient;
-  diagnosis: Diagnosis;
   notes: string;
+  certainty: Certainty;
+  diagnosis: ReferenceData;
 }
