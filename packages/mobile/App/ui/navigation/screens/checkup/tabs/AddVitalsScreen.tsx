@@ -83,7 +83,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
             label="comments"
             multiline
           />
-          <FormValidationMessage message={errors.form}></FormValidationMessage>
+          <FormValidationMessage message={errors.form} />
           <Button
             marginTop={20}
             backgroundColor={theme.colors.PRIMARY_MAIN}
