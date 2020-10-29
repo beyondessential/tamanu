@@ -1,11 +1,12 @@
-import { Entity, Column } from 'typeorm/browser';
+import { Entity, Column, Index } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IUser } from '~/types';
 
 @Entity('user')
 export class User extends BaseModel implements IUser {
-  @Column()
-  email: string; // non nullable; unique; index?
+  @Index()
+  @Column({ unique: true })
+  email: string;
 
   @Column()
   localPassword: string;
@@ -13,8 +14,8 @@ export class User extends BaseModel implements IUser {
   // eslint-react gets confused by displayName.
   // eslint-disable-next-line react/static-property-placement
   @Column()
-  displayName: string; // non nullable
+  displayName: string;
 
   @Column()
-  role: string; // non nullable; default practitioner
+  role: string;
 }
