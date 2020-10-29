@@ -8,12 +8,31 @@ import { withPatient } from '/containers/Patient';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
 import { joinNames } from '/helpers/user';
 import { AddRefferalDetailScreen } from '../screens/referrals/AddReferralDetailScreen';
+import { PatientHistoryAccordion } from '~/ui/components/PatientHistoryAccordion';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { useBackendEffect } from '~/ui/helpers/hooks';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 const Tabs = createTopTabNavigator();
 
 type ReferralTabsProps = {
   navigation: NavigationProp<any>;
 } & BaseAppProps;
+
+const DumbReferralHistoryScreen = ({ selectedPatient }): JSX.Element => {
+  const [data, error] = useBackendEffect(
+    ({ models }) => models.Referral.getForPatient(selectedPatient.id),
+    [],
+  );
+
+  if (error) return <ErrorScreen error={error} />;
+
+  return (data
+    ? <PatientHistoryAccordion dataArray={data} />
+    : <LoadingScreen />);
+};
+
+const ReferralHistoryScreen = compose(withPatient)(DumbReferralHistoryScreen);
 
 const TabNavigator = ({
   navigation,
@@ -22,6 +41,7 @@ const TabNavigator = ({
   const goBack = useCallback(() => {
     navigation.goBack();
   }, []);
+
   return (
     <>
       <StackHeader
@@ -32,17 +52,17 @@ const TabNavigator = ({
       <Tabs.Navigator swipeEnabled={false}>
         <Tabs.Screen
           options={{
-            title: 'Add Details',
+            title: 'REFER PATIENT',
           }}
-          name={Routes.HomeStack.CheckUpStack.CheckUpTabs.AddDetails}
+          name={Routes.HomeStack.ReferralTabs.AddReferralDetails}
           component={AddRefferalDetailScreen}
         />
         <Tabs.Screen
           options={{
-            title: 'VIEW HISTORY',
+            title: 'VIEW REFERRALS',
           }}
-          name={Routes.HomeStack.CheckUpStack.CheckUpTabs.ViewHistory}
-          component={AddRefferalDetailScreen}
+          name={Routes.HomeStack.ReferralTabs.ViewHistory}
+          component={ReferralHistoryScreen}
         />
       </Tabs.Navigator>
     </>
