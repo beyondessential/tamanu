@@ -30,6 +30,8 @@ export class SyncManager {
     switch(recordType) {
       case "patient":
         return models.Patient;
+      case "user":
+        return models.User;
       case "program":
         return models.Program;
       case "referenceData":
