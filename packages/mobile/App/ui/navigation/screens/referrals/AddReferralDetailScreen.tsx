@@ -15,7 +15,6 @@ const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElem
   const { models } = useBackend();
   const onCreateReferral = useCallback(
     async (values): Promise<any> => {
-      console.log(values);
       await models.Referral.create({
         patient: selectedPatient.id,
         date: new Date(),
@@ -45,7 +44,6 @@ const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElem
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <Formik
-      // TODO: Figure out why these forms are breaking with no initial values object and fix it.
         initialValues={{}}
         onSubmit={onCreateReferral}
       >
