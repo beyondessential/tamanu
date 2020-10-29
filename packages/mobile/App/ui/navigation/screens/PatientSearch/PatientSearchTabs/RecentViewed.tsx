@@ -1,4 +1,4 @@
-import React, { useState, ReactElement, useEffect } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { compose } from 'redux';
 import { NavigationProp } from '@react-navigation/native';
@@ -12,13 +12,11 @@ import { ErrorScreen } from '/components/ErrorScreen';
 // props
 import { RecentViewedScreenProps } from '/interfaces/screens/PatientSearchStack';
 // Helpers
-import { data } from '/components/PatientSectionList/fixture';
 import { Routes } from '/helpers/routes';
 import { StyledView, FullView } from '/styled/common';
 import { joinNames } from '/helpers/user';
 import { getAgeFromDate } from '~/ui/helpers/date';
-import { useBackend, useBackendEffect } from '~/ui/helpers/hooks';
-import { readConfig } from '~/services/config';
+import { useRecentlyViewedPatients } from '~/ui/helpers/hooks';
 
 interface PatientListProps {
   list: any[];
@@ -30,18 +28,7 @@ const Screen = ({
   navigation,
   setSelectedPatient,
 }: RecentViewedScreenProps): ReactElement => {
-  const [recentlyViewedPatients, error] = useBackendEffect(
-    async ({ models }): Promise<string[]> => {
-      const patientIds: string[] = JSON.parse(await readConfig('recentlyViewedPatients', '[]'));
-      if (patientIds.length === 0) return [];
-
-      const list = await models.Patient.getRepository().findByIds(patientIds);
-
-      // Map is needed to make sure that patients are in the same order as in recentlyViewedPatients
-      // (typeorm findByIds doesn't guarantee return order)
-      return patientIds.map(storedId => list.find(({ id }) => id === storedId));
-    },
-  );
+  const [recentlyViewedPatients, error] = useRecentlyViewedPatients();
 
   useEffect(() => {
     if (recentlyViewedPatients?.length === 0) {

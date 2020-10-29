@@ -1,32 +1,29 @@
-import React, { ReactElement, useCallback, useEffect, useContext } from 'react';
-import { ScrollView } from 'react-native-gesture-handler';
+import React, { ReactElement, useCallback, useContext, useEffect } from 'react';
 import { StatusBar } from 'react-native';
-import {
-  FullView,
-  StyledText,
-  StyledView,
-  StyledTouchableOpacity,
-  RowView,
-  StyledSafeAreaView,
-} from '/styled/common';
-import { ProfileIcon, LogoV2Icon, SearchIcon } from '/components/Icons';
-import { PatientCard } from '/components/PatientCard';
-import { theme } from '/styled/theme';
+import { compose } from 'redux';
+import { RecentlyViewedPatientTiles } from './RecentlyViewedPatientTiles';
+import { LogoV2Icon, ProfileIcon, SearchIcon } from '/components/Icons';
+import { UserAvatar } from '/components/UserAvatar';
+import { withAuth } from '/containers/Auth';
+import AuthContext from '/contexts/authContext/AuthContext';
 import { disableAndroidBackButton } from '/helpers/android';
+import { Routes } from '/helpers/routes';
 import {
   Orientation,
   screenPercentageToDP,
   setStatusBar,
 } from '/helpers/screen';
-import { UserAvatar } from '/components/UserAvatar';
-import { Routes } from '/helpers/routes';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
-import { compose } from 'redux';
-import { withAuth } from '/containers/Auth';
-import AuthContext from '/contexts/authContext/AuthContext';
-import { readConfig } from '~/services/config';
-import { useBackendEffect } from '~/ui/helpers/hooks';
-import { withPatient } from '~/ui/containers/Patient';
+import {
+  FullView,
+  RowView,
+  StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
+  StyledView,
+} from '/styled/common';
+import { theme } from '/styled/theme';
+
 const HomeMenuButton = ({
   text,
   onPress,
@@ -58,28 +55,6 @@ const HomeMenuButton = ({
       </StyledText>
     </StyledView>
   </StyledTouchableOpacity>
-);
-
-// TODO: this should be in a different file right? Whereabouts would it go?
-const PatientCardContainer = compose(
-  withPatient,
-)(({ navigation, patient, setSelectedPatient }: any): ReactElement => (
-  <StyledView marginRight={10}>
-    <PatientCard
-      onPress={(): void => {
-        setSelectedPatient(patient);
-        navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
-          screen: Routes.HomeStack.HomeTabs.Home,
-        });
-      }}
-      patient={patient}
-    />
-  </StyledView>
-));
-
-// TODO: what's wrong with this?
-const NoPatientsCard = (): ReactElement => (
-  <StyledText>Hie</StyledText>
 );
 
 const SearchPatientsButton = ({
@@ -115,20 +90,6 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
       authCtx.setUserFirstSignIn();
     }
   }, []);
-
-  // TODO: Is this a situation where we could define a 'useRecentlyViewedPatients'?
-  const [recentlyViewedPatients, error] = useBackendEffect(
-    async ({ models }): Promise<string[]> => {
-      const patientIds: string[] = JSON.parse(await readConfig('recentlyViewedPatients', '[]'));
-      if (patientIds.length === 0) return [];
-
-      const list = await models.Patient.getRepository().findByIds(patientIds);
-
-      // Map is needed to make sure that patients are in the same order as in recentlyViewedPatients
-      // (typeorm findByIds doesn't guarantee return order)
-      return patientIds.map(storedId => list.find(({ id }) => id === storedId));
-    },
-  );
 
   const onNavigateToSearchPatient = useCallback(() => {
     navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
@@ -211,30 +172,7 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
             />
           </RowView>
         </StyledView>
-        <StyledView
-          flex={1}
-          background={theme.colors.BACKGROUND_GREY}
-          paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
-        >
-          <StyledText
-            fontSize={screenPercentageToDP(1.45, Orientation.Height)}
-            color={theme.colors.TEXT_DARK}
-            marginBottom={screenPercentageToDP(1.21, Orientation.Height)}
-          >
-            RECENTLY VIEWED PATIENTS
-          </StyledText>
-          <ScrollView horizontal>
-            <RowView flex={1}>
-              {
-                recentlyViewedPatients
-                  ? recentlyViewedPatients.map(
-                    patient => <PatientCardContainer patient={patient} navigation={navigation} />,
-                  )
-                  : null
-              }
-            </RowView>
-          </ScrollView>
-        </StyledView>
+        <RecentlyViewedPatientTiles />
       </FullView>
     </StyledSafeAreaView>
   );

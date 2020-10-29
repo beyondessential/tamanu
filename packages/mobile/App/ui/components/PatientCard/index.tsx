@@ -26,10 +26,10 @@ export const PatientCard = ({
     sex,
   } = patient;
 
-  // TODO: where do I get the below info?
   const image = null;
-  const city = 'City goes here';
+  const village = 'Village goes here';
   const lastViewed = new Date();
+
   const name = joinNames({ firstName, lastName });
   const age = getAgeFromDate(dateOfBirth);
 
@@ -81,7 +81,7 @@ export const PatientCard = ({
               fontWeight={500}
               color={theme.colors.TEXT_MID}
             >
-              {city}
+              {village}
             </StyledText>
           </StyledView>
         </ColumnView>
