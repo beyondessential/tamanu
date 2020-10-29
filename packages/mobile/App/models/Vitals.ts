@@ -36,7 +36,7 @@ export class Vitals extends BaseModel implements IVitals {
   avpu?: AVPUType;
 
   @ManyToOne(type => Encounter, encounter => encounter.vitals)
-  encounter?: Encounter;
+  encounter: Encounter;
 
   static async getForPatient(patientId: string): Promise<Vitals[]> {
     return this.getRepository()
