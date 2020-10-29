@@ -1,8 +1,8 @@
 import { Entity, Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
-import { IReferral } from '~/types';
-import { Diagnosis } from './Diagnosis';
+import { Certainty, IReferral } from '~/types';
 import { Patient } from './Patient';
+import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 
 @Entity('referral')
 export class Referral extends BaseModel implements IReferral {
@@ -24,9 +24,20 @@ export class Referral extends BaseModel implements IReferral {
   @Column()
   notes: string;
 
+  @Column({ type: 'varchar' })
+  certainty: Certainty;
+
+  @ReferenceDataRelation()
+  diagnosis: ReferenceData;
+
   @ManyToOne(type => Patient, patient => patient.referral)
   patient: Patient;
 
-  @ManyToOne(type => Diagnosis, diagnosis => diagnosis.referral)
-  diagnosis: Diagnosis;
+  static async getForPatient(patientId: string): Promise<Referral[]> {
+    const repo = this.getRepository();
+
+    return repo.find({
+      patient: patientId,
+    });
+  }
 }

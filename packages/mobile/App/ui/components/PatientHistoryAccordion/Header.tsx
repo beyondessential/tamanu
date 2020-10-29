@@ -6,7 +6,7 @@ import { formatDate } from '/helpers/date';
 import { DateFormats, HeaderIcons } from '/helpers/constants';
 import * as Icons from '../Icons';
 import { Separator } from '../Separator';
-import { IEncounter, IPractitioner } from '~/types';
+import { EncounterType, IEncounter, IPractitioner } from '~/types';
 
 interface IconProps {
   IconComponent: FunctionComponent<SvgProps>;
@@ -39,12 +39,12 @@ interface HeaderDateProps {
   isActive: boolean;
 }
 
-const HeaderDate = ({ startDate, isActive }: HeaderDateProps): JSX.Element => (
+const HeaderDate = ({ startDate, date, isActive }: HeaderDateProps): JSX.Element => (
   <StyledText
     fontSize={14}
     color={isActive ? theme.colors.WHITE : theme.colors.TEXT_DARK}
   >
-    {formatDate(startDate, DateFormats.DAY_MONTH_YEAR_SHORT)}
+    {formatDate((startDate || date), DateFormats.DAY_MONTH_YEAR_SHORT)}
   </StyledText>
 );
 
@@ -55,7 +55,7 @@ interface HeaderIconProps {
 
 const HeaderLeftIcon = ({ isActive, type }: HeaderIconProps): JSX.Element => {
   const fill = isActive ? theme.colors.WHITE : theme.colors.PRIMARY_MAIN;
-  const Icon = HeaderIcons[type];
+  const Icon = HeaderIcons[type] || HeaderIcons[EncounterType.Clinic];
 
   return (
     <StyledView marginRight={30}>
@@ -66,11 +66,13 @@ const HeaderLeftIcon = ({ isActive, type }: HeaderIconProps): JSX.Element => {
 
 interface HeaderDescriptionProps extends IPractitioner {
   encounterType: string;
+  referredDepartment: string;
   isActive: boolean;
 }
 
 const HeaderDescription = ({
   encounterType,
+  referredDepartment,
   isActive,
   name = 'Unknown Practitioner',
 }: HeaderDescriptionProps): JSX.Element => (
@@ -80,7 +82,7 @@ const HeaderDescription = ({
       fontWeight={700}
       fontSize={16}
     >
-      {encounterType}
+      {encounterType || referredDepartment}
     </StyledText>
     <StyledView marginTop={1}>
       <StyledText

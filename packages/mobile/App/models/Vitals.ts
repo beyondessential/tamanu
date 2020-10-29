@@ -8,31 +8,31 @@ export class Vitals extends BaseModel implements IVitals {
   @Column()
   date: Date;
 
-  @Column('int')
-  weight: number;
+  @Column({ type: 'int', nullable: true })
+  weight?: number;
 
-  @Column('int')
+  @Column({ type: 'int', nullable: true })
   height: number;
 
-  @Column('int')
+  @Column({ type: 'int', nullable: true })
   sbp: number;
 
-  @Column('int')
+  @Column({ type: 'int', nullable: true })
   dbp: number;
 
-  @Column('int')
+  @Column({ type: 'int', nullable: true })
   heartRate: number;
 
-  @Column('int')
+  @Column({ type: 'int', nullable: true })
   respiratoryRate: number;
 
-  @Column('int')
+  @Column({ type: 'int', nullable: true })
   temperature: number;
 
-  @Column('int')
+  @Column({ type: 'int', nullable: true })
   svO2: number;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   avpu: AVPUType;
 
   @ManyToOne(type => Encounter, encounter => encounter.vitals)

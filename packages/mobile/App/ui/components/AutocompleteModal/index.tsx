@@ -74,6 +74,7 @@ export const AutocompleteModalScreen = ({
         placeholder="Search..."
         data={filteredOptions}
         onChangeText={setSearchTerm}
+        autoFocus={true}
         renderItem={({ item }): JSX.Element => {
           useDarkBackground = !useDarkBackground;
 
