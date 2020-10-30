@@ -1,6 +1,6 @@
 {
   "db": {
-    "name": "test",
-    "nedbPath": "/tmp/tamanu-sync-test.db"
+    "name": "tamanu-sync-test",
+    "path": "data/test.db"
   }
 }
