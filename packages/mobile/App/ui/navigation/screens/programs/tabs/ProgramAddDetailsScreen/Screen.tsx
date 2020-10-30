@@ -4,7 +4,7 @@ import { ProgramsForm } from '~/ui/components/Forms/ProgramsForm';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { ScreenProps } from '~/ui/interfaces/screens/ProgramsStack/ProgramAddDetails/ScreenProps';
-import { useCancelableEffect } from '~/ui/helpers/hooks';
+import { useCancelableEffect } from '~/ui/hooks';
 
 export const Screen = ({
   survey,

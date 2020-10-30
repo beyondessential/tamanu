@@ -1,7 +1,7 @@
 import React, { useState, useCallback, ReactElement, useMemo, useEffect } from 'react';
 import { TouchableWithoutFeedback, Platform, StyleSheet } from 'react-native';
 import { ReferenceDataType } from '~/types';
-import { useBackend } from '~/ui/helpers/hooks';
+import { useBackend } from '~/ui/hooks';
 import { BaseInputProps } from '~/ui/interfaces/BaseInputProps';
 import { StyledView, StyledText } from '~/ui/styled/common';
 import { Button } from '../Button';

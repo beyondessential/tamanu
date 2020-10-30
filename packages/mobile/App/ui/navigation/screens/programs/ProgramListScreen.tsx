@@ -11,7 +11,7 @@ import { StackHeader } from '/components/StackHeader';
 import { withPatient } from '/containers/Patient';
 import { IPatient } from '~/types';
 import { joinNames } from '/helpers/user';
-import { useBackendEffect } from '~/ui/helpers/hooks';
+import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 interface ProgramListScreenProps {

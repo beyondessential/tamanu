@@ -12,7 +12,7 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ProgramAddDetailsScreenProps } from '/interfaces/screens/ProgramsStack/ProgramAddDetails/ProgramAddDetailsScreenProps';
 import { Routes } from '/helpers/routes';
 
-import { useBackend, useBackendEffect } from '~/ui/helpers/hooks';
+import { useBackend, useBackendEffect } from '~/ui/hooks';
 
 export const ProgramAddDetailsScreen = ({
   route,

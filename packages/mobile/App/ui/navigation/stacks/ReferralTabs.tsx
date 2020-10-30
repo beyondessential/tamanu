@@ -10,7 +10,7 @@ import { joinNames } from '/helpers/user';
 import { AddRefferalDetailScreen } from '../screens/referrals/AddReferralDetailScreen';
 import { PatientHistoryAccordion } from '~/ui/components/PatientHistoryAccordion';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
-import { useBackendEffect } from '~/ui/helpers/hooks';
+import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 const Tabs = createTopTabNavigator();

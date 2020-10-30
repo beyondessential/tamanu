@@ -26,6 +26,7 @@ export const PatientCard = ({
     sex,
   } = patient;
 
+  // TODO: These fields aren't on the patient model yet.
   const image = null;
   const village = 'Village goes here';
   const lastViewed = new Date();
