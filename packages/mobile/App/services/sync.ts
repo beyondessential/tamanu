@@ -134,12 +134,15 @@ export class SyncManager {
     }
 
     let numDownloaded = 0;
+    const setProgress = (progress): void => {
+      this.progress = progress;
+      this.emitter.emit('progress', this.progress);
+    };
     const updateProgress = (stepSize, total): void => {
       numDownloaded += stepSize;
-      console.log('updateProgress', numDownloaded, total);
-      this.progress = Math.ceil((numDownloaded / total) * 100);
-      this.emitter.emit("progress", this.progress);
+      setProgress(Math.ceil((numDownloaded / total) * 100));
     };
+    setProgress(0);
 
     // we want to download each page of records while the current page
     // of records is being imported - this means that the database IO
@@ -159,14 +162,14 @@ export class SyncManager {
           break;
         }
 
-        updateProgress(response.records.length, response.count);
-
         // keep importing until we hit a page with 0 records
         // (this does mean we're always making 1 more web request than
         // is necessary, probably room for optimisation here)
         if(response.records.length === 0) {
           break;
         }
+
+        updateProgress(response.records.length, response.count);
 
         // we have records to import - import them
         this.emitter.emit("importingPage", `${channel}-${page}`);
