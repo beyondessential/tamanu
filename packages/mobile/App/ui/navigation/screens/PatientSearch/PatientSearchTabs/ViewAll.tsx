@@ -14,7 +14,7 @@ import { PatientSectionList } from '/components/PatientSectionList';
 import { LoadingScreen } from '/components/LoadingScreen';
 // Helpers
 import { Routes } from '/helpers/routes';
-import { useBackendEffect } from '~/ui/helpers/hooks';
+import { useBackendEffect } from '~/ui/hooks';
 //Props
 import { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
 import { Button } from '/components/Button';
@@ -165,7 +165,7 @@ const Screen: FC<ViewAllScreenProps> = ({
           textColor={theme.colors.WHITE}
           onPress={onNavigateToFilters}
           buttonText={`Filters ${activeFilters.count > 0 ? `${activeFilters.count}` : ''
-            }`}
+          }`}
         >
           <StyledView
             marginRight={screenPercentageToDP(2.43, Orientation.Width)}

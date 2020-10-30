@@ -1,7 +1,9 @@
-import { useState, useEffect, useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { BackendContext } from '~/services/backendProvider';
 
-export const useCancelableEffect = (fetcher, dependencies = []): any[] => {
+export type ResultArray<T> = [T | null, Error | null];
+
+export const useCancelableEffect = (fetcher, dependencies = []): ResultArray<any> => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
@@ -25,7 +27,7 @@ export const useCancelableEffect = (fetcher, dependencies = []): any[] => {
   return [data, error];
 };
 
-export const useBackendEffect = (call, dependencies = []): any[] => {
+export const useBackendEffect = (call, dependencies = []): ResultArray<any> => {
   const backend = useContext(BackendContext);
 
   return useCancelableEffect(() => call(backend), dependencies);

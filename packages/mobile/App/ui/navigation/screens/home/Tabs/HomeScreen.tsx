@@ -1,43 +1,28 @@
-import React, { ReactElement, useCallback, useEffect, useContext } from 'react';
-import { ScrollView } from 'react-native-gesture-handler';
+import React, { ReactElement, useCallback, useContext, useEffect } from 'react';
 import { StatusBar } from 'react-native';
-import {
-  FullView,
-  StyledText,
-  StyledView,
-  StyledTouchableOpacity,
-  RowView,
-  StyledSafeAreaView,
-} from '/styled/common';
-import { ProfileIcon, LogoV2Icon, SearchIcon } from '/components/Icons';
-import { PatientCard } from '/components/PatientCard';
-import { theme } from '/styled/theme';
+import { compose } from 'redux';
+import { RecentlyViewedPatientTiles } from './RecentlyViewedPatientTiles';
+import { LogoV2Icon, ProfileIcon, SearchIcon } from '/components/Icons';
+import { UserAvatar } from '/components/UserAvatar';
+import { withAuth } from '/containers/Auth';
+import AuthContext from '/contexts/authContext/AuthContext';
 import { disableAndroidBackButton } from '/helpers/android';
+import { Routes } from '/helpers/routes';
 import {
   Orientation,
   screenPercentageToDP,
   setStatusBar,
 } from '/helpers/screen';
-import { UserAvatar } from '/components/UserAvatar';
-import { Routes } from '/helpers/routes';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
-import { IPatient } from '/types';
-import { FemaleGender } from '/helpers/constants';
-import { compose } from 'redux';
-import { withAuth } from '/containers/Auth';
-import AuthContext from '/contexts/authContext/AuthContext';
-
-const placeholderPatient = {
-  city: 'Mbelagha',
-  name: 'Ugyen Wangdi',
-  // enums like gender should use the value, not the label - PatientCard should
-  // be responsible for displaying this correctly
-  gender: FemaleGender.value,
-  age: '34',
-  image:
-    'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
-  lastVisit: new Date(),
-};
+import {
+  FullView,
+  RowView,
+  StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
+  StyledView,
+} from '/styled/common';
+import { theme } from '/styled/theme';
 
 const HomeMenuButton = ({
   text,
@@ -70,15 +55,6 @@ const HomeMenuButton = ({
       </StyledText>
     </StyledView>
   </StyledTouchableOpacity>
-);
-
-const PatientCardContainer = ({ patient }: IPatient): ReactElement => (
-  <StyledView marginRight={10}>
-    <PatientCard
-      onPress={(): void => console.log('patient card.')}
-      {...patient}
-    />
-  </StyledView>
 );
 
 const SearchPatientsButton = ({
@@ -196,24 +172,7 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
             />
           </RowView>
         </StyledView>
-        <StyledView
-          flex={1}
-          background={theme.colors.BACKGROUND_GREY}
-          paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
-        >
-          <StyledText
-            fontSize={screenPercentageToDP(1.45, Orientation.Height)}
-            color={theme.colors.TEXT_DARK}
-            marginBottom={screenPercentageToDP(1.21, Orientation.Height)}
-          >
-            RECENTLY VIEWED PATIENTS
-          </StyledText>
-          <ScrollView horizontal>
-            <RowView flex={1}>
-              <PatientCardContainer patient={placeholderPatient} />
-            </RowView>
-          </ScrollView>
-        </StyledView>
+        <RecentlyViewedPatientTiles />
       </FullView>
     </StyledSafeAreaView>
   );
