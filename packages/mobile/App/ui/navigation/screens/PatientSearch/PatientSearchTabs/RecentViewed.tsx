@@ -16,7 +16,7 @@ import { Routes } from '/helpers/routes';
 import { StyledView, FullView } from '/styled/common';
 import { joinNames } from '/helpers/user';
 import { getAgeFromDate } from '~/ui/helpers/date';
-import { useRecentlyViewedPatients } from '~/ui/helpers/hooks';
+import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
 
 interface PatientListProps {
   list: any[];

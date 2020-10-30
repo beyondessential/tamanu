@@ -1,18 +1,18 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { StyledView, StyledText } from '~/ui/styled/common';
-import { useBackend } from '~/ui/helpers/hooks';
+import { useBackend } from '~/ui/hooks';
 
 function getMessageForEvent(event, params) {
-  switch(event) {
-    case "syncStarted":
+  switch (event) {
+    case 'syncStarted':
       return 'Syncing...';
-    case "syncEnded":
+    case 'syncEnded':
       return ''; // clear message
-    case "referenceDownloadStarted":
+    case 'referenceDownloadStarted':
       return 'Downloading new reference data...';
-    case "syncedRecord":
+    case 'syncedRecord':
       return `Synced ${params[0].recordType}...`;
-    case "syncedPatient":
+    case 'syncedPatient':
       return 'Synced patient...';
     default:
       return null;
@@ -22,19 +22,19 @@ function getMessageForEvent(event, params) {
 export const SyncStatusDisplay = ({}) => {
   const { syncManager } = useBackend();
 
-  const [stateMessage, setStateMessage] = useState("");
+  const [stateMessage, setStateMessage] = useState('');
   const handler = useCallback((event, ...params) => {
     const message = getMessageForEvent(event, params);
-    if(message === null) return;
+    if (message === null) return;
     setStateMessage(message);
   });
 
   useEffect(() => {
-    syncManager.emitter.on("*", handler);
-    return () => syncManager.emitter.off("*", handler);
+    syncManager.emitter.on('*', handler);
+    return () => syncManager.emitter.off('*', handler);
   });
 
-  if(!stateMessage) return null;
+  if (!stateMessage) return null;
 
   return (
     <StyledView background="#ccc">
@@ -43,4 +43,4 @@ export const SyncStatusDisplay = ({}) => {
       </StyledText>
     </StyledView>
   );
-}
+};

@@ -2,7 +2,7 @@ import React, { useCallback, ReactElement } from 'react';
 import { compose } from 'redux';
 import { Formik } from 'formik';
 import { ReferenceDataType } from '~/types';
-import { useBackend } from '~/ui/helpers/hooks';
+import { useBackend } from '~/ui/hooks';
 import { FullView } from '/styled/common';
 import { theme } from '/styled/theme';
 import ReferralForm from '../../../components/Forms/ReferralForm';

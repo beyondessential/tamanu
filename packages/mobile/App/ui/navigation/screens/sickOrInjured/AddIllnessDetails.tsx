@@ -13,7 +13,7 @@ import {
   screenPercentageToDP,
   Orientation,
 } from '/helpers/screen';
-import { useBackend } from '~/ui/helpers/hooks';
+import { useBackend } from '~/ui/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
