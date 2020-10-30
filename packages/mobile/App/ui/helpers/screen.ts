@@ -6,7 +6,11 @@ import { Dimensions, StatusBar, Platform } from 'react-native';
 import { VerticalPosition } from '/interfaces/VerticalPosition';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
-import { SCREEN_ORIENTATION } from './constants';
+
+export const SCREEN_ORIENTATION = {
+  PORTRAIT: 'portrait',
+  LANDSCAPE: 'landscape',
+};
 
 export enum Orientation {
   Width = 'width',

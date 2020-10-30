@@ -149,11 +149,6 @@ export const VaccineIcons = {
   },
 };
 
-export const SCREEN_ORIENTATION = {
-  PORTRAIT: 'portrait',
-  LANDSCAPE: 'landscape',
-};
-
 export const PhoneMask = { mask: '9999 9999 999' };
 
 export const Gender = {
