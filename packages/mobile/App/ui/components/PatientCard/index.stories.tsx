@@ -10,25 +10,19 @@ storiesOf('PatientCard', module)
     <CenterView background={theme.colors.MAIN_SUPER_DARK}>
       {getStory()}
     </CenterView>
+  ))
+  .add('Patient card', () => (
+    <PatientCard
+      onPress={action('pressed in patient-card')}
+      patient={{
+        id: '',
+        displayId: '',
+        culturalName: 'cba',
+        firstName: 'firstName',
+        middleName: 'middleName',
+        lastName: 'lastName',
+        sex: 'Female',
+        dateOfBirth: new Date(2000, 1, 1),
+      }}
+    />
   ));
-// .add('With Image', () => (
-//   <PatientCard
-//     onPress={action('pressed in patient-card')}
-//     city="Mbelagha"
-//     name="Ugyen Wangdi"
-//     gender="Female"
-//     age="34"
-//     image="https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png"
-//     lastVisit={new Date()}
-//   />
-// ))
-// .add('Without Image', () => (
-//   <PatientCard
-//     onPress={action('pressed in patient-card wihout image')}
-//     city="Nguvia"
-//     name="Leinani Tanangada"
-//     gender="Female"
-//     age="12"
-//     lastVisit={new Date()}
-//   />
-// ));
