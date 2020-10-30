@@ -12,7 +12,7 @@ import { Separator } from '/components/Separator';
 import { SurveyResultBadge } from '/components/SurveyResultBadge';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-import { useBackendEffect } from '../../../../../hooks';
+import { useBackendEffect } from '~/ui/hooks';
 
 const SurveyResponseItem = ({
   surveyResponse,
