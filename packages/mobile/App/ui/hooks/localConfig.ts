@@ -1,8 +1,8 @@
 import { readConfig } from '~/services/config';
 import { IPatient } from '~/types';
-import { useBackendEffect } from '.';
+import { useBackendEffect, ResultArray } from '.';
 
-export const useRecentlyViewedPatients = (): [IPatient[] | null, Error | null] => useBackendEffect(
+export const useRecentlyViewedPatients = (): ResultArray<IPatient[]> => useBackendEffect(
   async ({ models }): Promise<string[]> => {
     const patientIds: string[] = JSON.parse(await readConfig('recentlyViewedPatients', '[]'));
     if (patientIds.length === 0) return [];
