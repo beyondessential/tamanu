@@ -2,7 +2,8 @@ import mitt from 'mitt';
 import { Database } from '~/infra/db';
 
 import { readConfig, writeConfig } from '~/services/config';
-import { SyncRecord, SyncSource } from './syncSource';
+import {GetSyncDataResponse, SyncRecord, SyncSource} from './syncSource';
+import {Patient} from "~/models";
 
 class NoSyncImporterError extends Error {
   constructor(recordType) {
@@ -12,6 +13,11 @@ class NoSyncImporterError extends Error {
 
 export class SyncManager {
   isSyncing = false;
+
+  progress = 0;
+
+  lastSyncTime: Date | null = null;
+
   emitter = mitt();
 
   constructor(syncSource: SyncSource) {
@@ -97,6 +103,7 @@ export class SyncManager {
 
     this.emitter.emit("syncEnded");
     this.isSyncing = false;
+    this.lastSyncTime = new Date();
   }
 
   getPatientsToSync() {
@@ -126,29 +133,44 @@ export class SyncManager {
       );
     }
 
+    let numDownloaded = 0;
+    const updateProgress = (stepSize, total): void => {
+      numDownloaded += stepSize;
+      console.log('updateProgress', numDownloaded, total);
+      this.progress = Math.ceil((numDownloaded / total) * 100);
+      this.emitter.emit("progress", this.progress);
+    };
+
     // we want to download each page of records while the current page
     // of records is being imported - this means that the database IO
     // and network IO are running in parallel rather than running in
     // alternating sequence.
-    let downloadTask : Promise<SyncRecord[]> = downloadPage(0);
+    let downloadTask : Promise<GetSyncDataResponse> = downloadPage(0);
 
     let maxDate = since;
 
     try {
       while(true) {
         // wait for the current page download to complete
-        const records = await downloadTask;
+        const response = await downloadTask;
+
+        if (response === null) {
+          // ran into an error
+          break;
+        }
+
+        updateProgress(response.records.length, response.count);
 
         // keep importing until we hit a page with 0 records
         // (this does mean we're always making 1 more web request than
         // is necessary, probably room for optimisation here)
-        if(records.length === 0) {
+        if(response.records.length === 0) {
           break;
         }
 
         // we have records to import - import them
         this.emitter.emit("importingPage", `${channel}-${page}`);
-        const importTask = Promise.all(records.map(r => {
+        const importTask = Promise.all(response.records.map(r => {
           if(r.lastSynced > maxDate) {
             maxDate = r.lastSynced;
           }
