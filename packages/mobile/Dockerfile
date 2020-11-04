@@ -8,4 +8,5 @@ COPY yarn.lock .
 
 RUN yarn install --ignore-scripts
 
-# Add the rest of it will be mounted as a volume to keep this image size down
+# Add the rest of the app
+COPY . .
