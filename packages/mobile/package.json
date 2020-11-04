@@ -8,7 +8,7 @@
     "build:android": "cd android && ./gradlew clean && ./gradlew assembleRelease && cd ..",
     "ios": "npx react-native run-ios",
     "start": "rnstl --silent && react-native start",
-    "test": "jest --passWithNoTests --silent --runInBand",
+    "test": "jest --runInBand",
     "test:unit": "yarn test -- --watch -c jest-unit-config.js",
     "test:integration": "yarn test -- --watch -c jest-integration-config.js",
     "test:commit": "yarn test -- --findRelatedTests",
