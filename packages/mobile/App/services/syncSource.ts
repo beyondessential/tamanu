@@ -4,13 +4,19 @@ export interface SyncRecordData {
   [key: string]: any;
 }
 
+export type GetSyncDataResponse = null | {
+  count: number;
+  requestedAt: string;
+  records: SyncRecord[];
+}
+
 export interface SyncRecord {
   recordType: string;
   data: SyncRecordData;
 }
 
 export interface SyncSource {
-  getSyncData(channel: string, since: Date, page: number): Promise<SyncRecord[]>;
+  getSyncData(channel: string, since: Date, page: number): Promise<GetSyncDataResponse>;
 }
 
 export class WebSyncSource implements SyncSource {
@@ -20,7 +26,7 @@ export class WebSyncSource implements SyncSource {
     this.host = host;
   }
 
-  async getSyncData(channel: string, since: Date, page: number): Promise<SyncRecord[]> {
+  async getSyncData(channel: string, since: Date, page: number): Promise<GetSyncDataResponse> {
     // TODO: error handling (incl timeout)
     const PAGE_LIMIT = 100;
     const sinceStamp = since.valueOf();
@@ -33,12 +39,10 @@ export class WebSyncSource implements SyncSource {
           authorization: '123',
         },
       });
-      const data = await response.json();
-
-      return data.records;
+      return await response.json();
     } catch (error) {
       console.error(error);
-      return [];
+      return null;
     }
   }
 }
