@@ -36,6 +36,12 @@ If you are about to use IOS simulators you will also need to go into the `ios` f
 cd ios && pod install
 ```
 
+### Configure environment
+
+```
+cp .sampleenv .env
+```
+
 ### Making Project runnable
 
 #### Xcode
