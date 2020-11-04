@@ -69,3 +69,7 @@ mockserver/functions/node_modules
 
 # Environment
 *.bat
+*.env
+
+# storybook
+storybook/storyLoader.js
