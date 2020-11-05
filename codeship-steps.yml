@@ -18,10 +18,10 @@
   service: awsdeployment
   tag: ^(dev|ci-)
   command: ./scripts/push.sh
-- name: deploy_demo_server
+- name: deploy_sync_server
   service: app
-  tag: dev
-  command: ./scripts/deploy.sh demo
+  tag: dev sync-ci
+  command: ./scripts/deploy.sh dev
 
 - type: manual
   tag: master
