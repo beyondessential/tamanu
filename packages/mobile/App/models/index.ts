@@ -9,3 +9,4 @@ export * from './SurveyResponse';
 export * from './Referral';
 export * from './Medication';
 export * from './ReferenceData';
+export * from './User';

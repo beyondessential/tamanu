@@ -6,8 +6,8 @@ import { useBackend } from '~/ui/hooks';
 import { FullView } from '/styled/common';
 import { theme } from '/styled/theme';
 import ReferralForm from '../../../components/Forms/ReferralForm';
-import { ReferenceData } from '~/models';
-import { Suggester } from '~/ui/helpers/suggester';
+import { ReferenceData, User } from '~/models';
+import { OptionType, Suggester } from '~/ui/helpers/suggester';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
 
@@ -34,10 +34,17 @@ const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElem
     },
   );
 
+  const practitionerSuggester = new Suggester(
+    User,
+    { column: 'displayName' },
+    ({ displayName, id }): OptionType => ({ label: displayName, value: id }),
+  );
+
   const renderForm = useCallback(({ handleSubmit }) => (
     <ReferralForm
       handleSubmit={handleSubmit}
       icd10Suggester={icd10Suggester}
+      practitionerSuggester={practitionerSuggester}
       navigation={navigation}
     />
   ), []);

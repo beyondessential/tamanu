@@ -1,0 +1,30 @@
+# create a user
+POST https://sync-dev.tamanu.io/reference HTTP/1.1
+Authorization: 123
+Content-Type: application/json
+
+[
+  { "recordType": "user", "data": {
+    "id": "jLlakDStecKGUZEy",
+    "email": "bastien@beyondessential.com.au",
+    "localPassword": "123",
+    "displayName": "bas go",
+    "role": "practitioner"
+    } }
+]
+
+###
+
+# get some sync records
+https://sync-dev.tamanu.io/reference?since=1604451264306 HTTP/1.1
+Authorization: 123
+Content-Type: application/json
+
+[
+  { "recordType": "user", "data": {
+    "email": "bastien@beyondessential.com.au",
+    "localPassword": "123",
+    "displayName": "bas go",
+    "role": "practitioner"
+    } }
+]
