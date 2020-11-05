@@ -7,7 +7,7 @@
     "build:ios": "react-native bundle --entry-file='index.js' --bundle-output='./ios/main.jsbundle' --dev=false --platform='ios'",
     "build:android": "cd android && ./gradlew clean && ./gradlew assembleRelease && cd ..",
     "ios": "npx react-native run-ios",
-    "start": "rnstl && react-native start",
+    "start": "rnstl --silent && react-native start",
     "test": "jest --passWithNoTests --silent --runInBand",
     "test:unit": "yarn test -- --watch -c jest-unit-config.js",
     "test:integration": "yarn test -- --watch -c jest-integration-config.js",
