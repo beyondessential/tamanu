@@ -97,7 +97,6 @@ interface BaseStoryProps {
 
 export const BaseStory = ({ data }: BaseStoryProps): ReactElement => (
   <ThemeProvider theme={themeSystem}>
-    <StyledSafeAreaView />
     <FlatList
       showsVerticalScrollIndicator={false}
       style={styles.flatList}
