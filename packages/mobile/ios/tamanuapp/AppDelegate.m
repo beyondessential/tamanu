@@ -1,4 +1,5 @@
 #import "AppDelegate.h"
+#import "Orientation.h" 
 
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
@@ -45,6 +46,9 @@ static void InitializeFlipper(UIApplication *application) {
   [self.window makeKeyAndVisible];
   return YES;
 }
+
+- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window {
+  return [Orientation getOrientation];
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
 {

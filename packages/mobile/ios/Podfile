@@ -88,6 +88,8 @@ target 'tamanuapp' do
   pod 'react-native-sensitive-info', :path => '../node_modules/react-native-sensitive-info'
   pod 'RNSpringScrollView', :path => '../node_modules/react-native-spring-scrollview/ios'
 
+  pod 'react-native-orientation', :path => '../node_modules/react-native-orientation'
+
   target 'tamanuappTests' do
     inherit! :complete
     # Pods for testing
