@@ -4,6 +4,7 @@ import { theme } from '/styled/theme';
 import { createTopTabNavigator } from './index';
 import * as Icons from '../Icons';
 import { VaccineTabNavigator } from './VaccineTabNavigator';
+import {NavigationContainer} from "@react-navigation/native";
 
 export const routes = [
   {
@@ -97,11 +98,13 @@ export const Vaccines = (): JSX.Element => (
 const Tabs = createTopTabNavigator();
 
 export const App = (): ReactElement => (
-  <Tabs.Navigator>
+  <NavigationContainer>
+    <Tabs.Navigator>
     <Tabs.Screen name="1" component={FirstRoute} />
     <Tabs.Screen name="2" component={SecondRoute} />
     <Tabs.Screen name="3" component={ThirdRoute} />
   </Tabs.Navigator>
+  </NavigationContainer>
 );
 
 export function VaccineTabBaseStory(): JSX.Element {
