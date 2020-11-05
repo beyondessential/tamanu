@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm/browser';
+import { Entity, Column } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IPatient } from '~/types';
 
