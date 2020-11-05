@@ -20,7 +20,7 @@
   command: ./scripts/push.sh
 - name: deploy_sync_server
   service: app
-  tag: dev sync-ci
+  tag: ^(dev|sync-ci)
   command: ./scripts/deploy.sh dev
 
 - type: manual

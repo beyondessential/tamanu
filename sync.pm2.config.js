@@ -10,7 +10,7 @@ module.exports = {
       ref: 'origin/dev',
       repo: 'git@github.com:beyondessential/tamanu',
       path: '/home/ubuntu/tamanu',
-      'post-deploy' : 'yarn && pm2 reload sync.pm2.config.js',
+      'post-deploy' : 'yarn',
     }
   }
 };
