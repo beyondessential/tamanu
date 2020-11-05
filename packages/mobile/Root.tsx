@@ -5,13 +5,11 @@ import Storybook from './storybook';
 import { App } from './App';
 
 const setPersistedStorybookActive = async (storybookActive): Promise<void> => {
-  console.log('setPersistedStorybookActive', storybookActive);
   AsyncStorage.setItem('storybookActive', storybookActive ? 'true' : 'false');
 };
 
 export const Root = (): any => {
   const [storybookActive, setStorybookActive] = useState(false);
-  console.log('render', storybookActive);
 
   const toggleStorybook = useCallback(
     () => {
@@ -25,7 +23,6 @@ export const Root = (): any => {
   useEffect(() => {
     const getPersistedStorybookActive = async (): Promise<void> => {
       const value = await AsyncStorage.getItem('storybookActive');
-      console.log('getPersistedStorybookActive', value);
       setStorybookActive(value === 'true');
     };
     getPersistedStorybookActive();
