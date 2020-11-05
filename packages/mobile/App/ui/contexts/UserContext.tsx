@@ -4,6 +4,7 @@ import { withAuth } from '../containers/Auth';
 import { WithAuthStoreProps } from '/store/ducks/auth';
 import { userRolesOptions } from '../helpers/constants';
 import { Genders } from '../helpers/user';
+import { useBackendEffect } from '../hooks';
 
 interface UserContextData {
   getUserData: () => Promise<void>;
@@ -16,16 +17,15 @@ const Provider = ({
   children,
   ...props
 }: PropsWithChildren<WithAuthStoreProps>): ReactElement => {
+  const [data, error] = useBackendEffect(
+    ({ models }) => models.User.getRepository().findOne(),
+    [],
+  );
+
   const getUserData = async (): Promise<void> => {
     // makeUserController
     // setUser action
-    props.setUser({
-      id: 0,
-      displayName: 'Tony Smith',
-      email: 'tony@email.com',
-      role: userRolesOptions[0].value,
-      gender: Genders.MALE,
-    });
+    props.setUser(data);
   };
   return (
     <UserContext.Provider value={{ getUserData }}>
