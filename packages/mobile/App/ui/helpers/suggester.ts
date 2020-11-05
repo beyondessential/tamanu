@@ -42,20 +42,19 @@ export class Suggester {
   };
 
   fetchSuggestions = async (search: string): Promise<any> => {
-    const whereOptions = this.options.where || {};
-    const searchColumn = this.options.column || 'name';
-
-    const nonWhereOptions = { ...this.options };
-    delete nonWhereOptions.where;
-    delete nonWhereOptions.column;
+    const {
+      where = {},
+      column = 'name',
+      ...otherOptions
+    } = this.options;
 
     try {
       const data = await this.fetch({
         where: {
-          [searchColumn]: Like(`%${search}%`),
-          ...whereOptions,
+          [column]: Like(`%${search}%`),
+          ...where,
         },
-        ...nonWhereOptions,
+        ...otherOptions,
       });
 
       return data.map(this.formatter);
