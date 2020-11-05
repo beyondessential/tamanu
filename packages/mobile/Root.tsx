@@ -4,27 +4,32 @@ import AsyncStorage from '@react-native-community/async-storage';
 import Storybook from './storybook';
 import { App } from './App';
 
-const storeValue = async (value: boolean): Promise<void> => AsyncStorage.setItem('storybookActive', value ? 'true' : 'false');
+const setPersistedStorybookActive = async (storybookActive): Promise<void> => {
+  console.log('setPersistedStorybookActive', storybookActive);
+  AsyncStorage.setItem('storybookActive', storybookActive ? 'true' : 'false');
+};
 
 export const Root = (): any => {
   const [storybookActive, setStorybookActive] = useState(false);
+  console.log('render', storybookActive);
+
   const toggleStorybook = useCallback(
     () => {
-      const newValue = !storybookActive;
-      storeValue(newValue);
-      setStorybookActive(newValue);
+      setPersistedStorybookActive(!storybookActive);
+      setStorybookActive(!storybookActive);
     },
-    [],
+    [storybookActive],
   );
 
+  // read value from local storage so that storybook toggle persists through reloads
   useEffect(() => {
-    // read value from local storage so that storybook toggle persists through reloads
-    const setInitialStorybookActive = async (): Promise<void> => {
+    const getPersistedStorybookActive = async (): Promise<void> => {
       const value = await AsyncStorage.getItem('storybookActive');
+      console.log('getPersistedStorybookActive', value);
       setStorybookActive(value === 'true');
     };
-    setInitialStorybookActive();
-  });
+    getPersistedStorybookActive();
+  }, [storybookActive]);
 
   useEffect(() => {
     if (__DEV__) {
