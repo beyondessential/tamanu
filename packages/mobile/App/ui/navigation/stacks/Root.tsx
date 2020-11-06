@@ -9,13 +9,39 @@ import { store, persistor } from '/store/index';
 import { AuthProvider } from '/contexts/authContext/AuthContext';
 import { Core } from './Core';
 import { UserProvider } from '/contexts/UserContext';
+import { updateScreenOrientation } from '~/ui/helpers/orientation';
+
+type MinimalState = {
+  routes: {
+    state?: MinimalState;
+    name?: string;
+  }[];
+  index: number;
+}
+
+const getRouteFromNavigationState = (state: MinimalState): string => {
+  const newState = state.routes[state.index];
+  if (newState.state?.routes) {
+    return getRouteFromNavigationState(newState.state);
+  }
+  return newState.name || '?';
+};
+
+const onNavigationStateChange = (newState: MinimalState): void => {
+  updateScreenOrientation(getRouteFromNavigationState(newState));
+};
+
+const initialState: MinimalState = { routes: [{ name: '/' }], index: 0 };
 
 export const RootStack = (): ReactElement => (
   <SafeAreaProvider>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <ThemeProvider theme={themeSystem}>
-          <NavigationContainer>
+          <NavigationContainer
+            onReady={(): void => onNavigationStateChange(initialState)}
+            onStateChange={onNavigationStateChange}
+          >
             <UserProvider>
               <AuthProvider>
                 <Core />
