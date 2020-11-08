@@ -1,6 +1,8 @@
-import React, { useCallback, ReactElement } from 'react';
+import React, { useCallback, ReactElement, useContext, useEffect, useState } from 'react';
 import { compose } from 'redux';
+import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
+import { authUserSelector } from '/helpers/selectors';
 import { ReferenceDataType } from '~/types';
 import { useBackend } from '~/ui/hooks';
 import { FullView } from '/styled/common';
@@ -13,6 +15,8 @@ import { Routes } from '~/ui/helpers/routes';
 
 const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElement => {
   const { models } = useBackend();
+  const user = useSelector(authUserSelector);
+
   const onCreateReferral = useCallback(
     async (values): Promise<any> => {
       await models.Referral.create({
@@ -46,12 +50,15 @@ const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElem
       icd10Suggester={icd10Suggester}
       practitionerSuggester={practitionerSuggester}
       navigation={navigation}
+      loggedInUser={user}
     />
   ), []);
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <Formik
-        initialValues={{}}
+        initialValues={{
+          practitioner: user.id,
+        }}
         onSubmit={onCreateReferral}
       >
         {renderForm}

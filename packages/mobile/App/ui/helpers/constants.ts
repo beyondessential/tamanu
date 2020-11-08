@@ -108,6 +108,10 @@ const labRole = {
   value: 'lab',
   label: 'Lab',
 };
+const practitionerRole = {
+  value: 'practitioner',
+  label: 'Practitioner',
+};
 export const userRolesOptions = [
   seniorDoctorRole,
   juniorDoctorRole,
@@ -118,6 +122,7 @@ export const userRolesOptions = [
   finnanceRole,
   radiologyRole,
   labRole,
+  practitionerRole,
 ];
 
 export const VaccineStatus = {

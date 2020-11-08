@@ -16,6 +16,7 @@ const ReferralForm = ({
   handleSubmit,
   icd10Suggester,
   practitionerSuggester,
+  loggedInUser,
   navigation,
 }: ReferralFormProps): ReactElement => (
   <StyledView
@@ -25,7 +26,7 @@ const ReferralForm = ({
   >
     <Field
       component={AutocompleteModalField}
-      placeholder="Referring practitioner"
+      placeholder={loggedInUser.displayName || 'Referring practitioner'}
       navigation={navigation}
       suggester={practitionerSuggester}
       modalRoute={Routes.Autocomplete.Modal}
