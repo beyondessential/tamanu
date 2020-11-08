@@ -9,6 +9,5 @@ mv .git /tamanu/.
 mv package.json /tamanu/.
 mv yarn.lock /tamanu/.
 mv babel.config.js /tamanu/.
-mv babel.config.js /tamanu/.
 mv *.pm2.config.js /tamanu/.
 rm -rf /.tmp

@@ -6,6 +6,7 @@ module.exports = {
   deploy: {
     dev: {
       user: 'ubuntu',
+      key: '~/.ssh/tamanu.pem',
       host: 'sync-dev.tamanu.io',
       ref: 'origin/dev',
       repo: 'git@github.com:beyondessential/tamanu',
