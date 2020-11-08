@@ -1,1 +1,3 @@
-echo pm2 at: `which pm2`
+#!/usr/bin/env bash
+
+yarn run pm2 list
