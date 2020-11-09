@@ -14,4 +14,3 @@ else
   echo "Wrong branch for this deploy - expected $CURRENT_BRANCH, got $BRANCH."
 fi
 
-
