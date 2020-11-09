@@ -2,7 +2,4 @@
 
 BRANCH=$1
 
-echo `pwd`
-ls
-echo $BRANCH
-yarn run pm2 --no-daemon deploy sync.pm2.config.js $BRANCH
+ssh ${url} ${dir}/deploy_remote.sh ${type} ${CI_BRANCH} ${filename}
