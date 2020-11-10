@@ -1,5 +1,6 @@
 import React, { createContext, PropsWithChildren, ReactElement, useContext, useState } from 'react';
 import { NavigationProp } from '@react-navigation/native';
+import bcrypt from 'react-native-bcrypt';
 import NetInfo from '@react-native-community/netinfo';
 import { compose } from 'redux';
 import { withAuth } from '../../containers/Auth';
@@ -62,6 +63,8 @@ const Provider = ({
     const result = await backend.models.User.getRepository().findOne({
       email,
     });
+
+    // const encrypted = bcrypt.hashSync(password, 10);  TODO: local encryption
 
     if (!result || password !== result.localPassword) {
       throw new AuthenticationError(invalidUserCredentialsMessage);
