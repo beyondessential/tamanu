@@ -23,10 +23,13 @@ const DEFAULT_FILTERS = {
   onlyShowText: false,
 };
 
-export const SearchPatientStack = (): ReactElement => {
+export const SearchPatientStack = ({ navigation }): ReactElement => {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
   const submitPatientFilters = (values): void => {
+    navigation.navigate(
+      Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index,
+    );
     setFilters(values);
   };
 
@@ -43,6 +46,7 @@ export const SearchPatientStack = (): ReactElement => {
           <Stack.Screen
             name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index}
             component={SearchPatientTabs}
+            initialParams={filters}
           />
           <Stack.Screen
             name={Routes.HomeStack.SearchPatientStack.FilterSearch}

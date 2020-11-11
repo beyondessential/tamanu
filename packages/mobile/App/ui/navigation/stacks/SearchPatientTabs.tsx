@@ -28,21 +28,25 @@ const SearchPatientTabOptions: MaterialTopTabBarOptions = {
   },
 };
 
-export const SearchPatientTabs = (): ReactElement => (
-  <Tabs.Navigator tabBarOptions={SearchPatientTabOptions}>
-    <Tabs.Screen
-      options={{
-        tabBarLabel: 'RECENTLY VIEWED PATIENTS',
-      }}
-      name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.RecentViewed}
-      component={RecentViewedScreen}
-    />
-    <Tabs.Screen
-      options={{
-        tabBarLabel: 'VIEW ALL PATIENTS',
-      }}
-      name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll}
-      component={ViewAllScreen}
-    />
-  </Tabs.Navigator>
-);
+export const SearchPatientTabs = ({ route }): ReactElement => {
+  console.log('search patient tabas', route.params);
+
+  return (
+    <Tabs.Navigator tabBarOptions={SearchPatientTabOptions}>
+      <Tabs.Screen
+        options={{
+          tabBarLabel: 'RECENTLY VIEWED PATIENTS',
+        }}
+        name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.RecentViewed}
+        component={RecentViewedScreen}
+      />
+      <Tabs.Screen
+        options={{
+          tabBarLabel: 'VIEW ALL PATIENTS',
+        }}
+        name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll}
+        component={ViewAllScreen}
+      />
+    </Tabs.Navigator>
+  );
+};

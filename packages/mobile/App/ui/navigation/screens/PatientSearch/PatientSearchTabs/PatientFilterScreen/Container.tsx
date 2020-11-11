@@ -24,13 +24,6 @@ const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
     );
   }, []);
 
-  const onSubmitFilters = useCallback(() => {
-    submitPatientFilters();
-    navigation.navigate(
-      Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index,
-    );
-  }, []);
-
   const onClearFilters = useCallback(() => {
     fields.forEach(fieldData => {
       const field = fieldData[0];

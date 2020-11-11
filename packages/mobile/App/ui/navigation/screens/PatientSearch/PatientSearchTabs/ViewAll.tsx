@@ -114,6 +114,7 @@ const Screen: FC<ViewAllScreenProps> = ({
 }: ViewAllScreenProps): ReactElement => {
   /** Get Search Input */
   const [searchField] = useField('search');
+  console.log("searchField", searchField)
   // Get filters
   const filters = FilterArray.map(fieldName => useField(fieldName));
   const activeFilters = useMemo(
@@ -123,6 +124,7 @@ const Screen: FC<ViewAllScreenProps> = ({
     }),
     [filters],
   );
+  console.log("activeFilters", activeFilters)
 
   const [list, error] = useBackendEffect(
     ({ models }) => applyActiveFilters(models, activeFilters, searchField),
