@@ -99,5 +99,5 @@ export function createTestContext() {
     */
   };
 
-  return { baseApp, store };
+  return { baseApp, store, expressApp };
 }

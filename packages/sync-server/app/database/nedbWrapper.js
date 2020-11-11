@@ -69,7 +69,7 @@ export class NedbWrapper {
       });
     });
   }
-  
+
   async insert(channel, syncRecord) {
     const index = await new Promise((resolve, reject) => {
       this.nedbStore.count({ channel }, (err, count) => {
@@ -147,4 +147,13 @@ export class NedbWrapper {
     });
   }
 
+  async findUser(email) {
+    return new Promise((resolve, reject) => {
+      this.nedbStore.findOne(
+        { channel: 'user', 'data.email': email },
+        (err, doc) => err ? reject(err) : resolve(doc)
+      );
+    });
+  }
+  
 }

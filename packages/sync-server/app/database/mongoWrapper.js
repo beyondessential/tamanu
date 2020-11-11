@@ -57,6 +57,7 @@ function connect(url, dbName) {
 export class MongoWrapper {
 
   constructor(path, dbName, testMode) {
+    this.collectionName = 'test';
     this.idGenerator = getUUIDGenerator(testMode);
 
     this.connectionTask = connect(path, dbName);
@@ -82,7 +83,7 @@ export class MongoWrapper {
   }
 
   async remove(filter) {
-    const collection = await this.getCollection('test');
+    const collection = await this.getCollection(this.collectionName);
     return new Promise((resolve, reject) => {
       collection.deleteMany(filter, (err, result) => {
         if(err) {
@@ -95,7 +96,7 @@ export class MongoWrapper {
   }
   
   async insert(channel, syncRecord) {
-    const collection = await this.getCollection('test');
+    const collection = await this.getCollection(this.collectionName);
     const index = await new Promise((resolve, reject) => {
       collection.countDocuments({ channel }, (err, count) => {
         if(err) {
@@ -179,6 +180,18 @@ export class MongoWrapper {
             resolve(docs.map(convertToSyncRecordFormatFromMongo));
           }
         });
+    });
+  }
+
+  async findUser(email) {
+    const collection = await this.getCollection(this.collectionName);
+
+    return new Promise((resolve, reject) => {
+      const item = collection.findOne(
+        { 'data.email': email },
+        {}, 
+        (error, item) => error ? reject(error) : resolve(item)
+      );
     });
   }
 
