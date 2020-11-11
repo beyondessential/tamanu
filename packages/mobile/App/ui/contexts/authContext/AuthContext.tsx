@@ -64,9 +64,7 @@ const Provider = ({
       email,
     });
 
-    // const encrypted = bcrypt.hashSync(password, 10);  TODO: local encryption
-
-    if (!result || password !== result.localPassword) {
+    if (!result || !bcrypt.compare(password, result.password)) {
       throw new AuthenticationError(invalidUserCredentialsMessage);
     }
 
