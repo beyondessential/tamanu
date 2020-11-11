@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "babel-eslint": "^10.0.1",
-    "concurrently": "^5.2.0"
+    "concurrently": "^5.2.0",
+    "pm2": "^4.5.0"
   }
 }

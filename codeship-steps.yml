@@ -18,10 +18,6 @@
   service: awsdeployment
   tag: ^(dev|ci-)
   command: ./scripts/push.sh
-- name: deploy_demo_server
-  service: app
-  tag: dev
-  command: ./scripts/deploy.sh demo
 
 - type: manual
   tag: master
