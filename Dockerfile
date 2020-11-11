@@ -11,7 +11,7 @@ RUN apt-get install -y -q --no-install-recommends \
         zip \
         unzip
 
-FROM mongo:4.0
+FROM mongo:3.6.3
 
 FROM base_image
 ENV PACKAGES_DIR=/tamanu/packages \
