@@ -2,12 +2,14 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
 import bcrypt from 'bcrypt';
+import config from 'config';
+import { v4 as uuid } from 'uuid';
 
 import jwt from 'jsonwebtoken';
 
 export const authMiddleware = express.Router();
 
-const JWT_SECRET = '123';
+const JWT_SECRET = config.auth.secret || uuid();
 
 authMiddleware.post('/login', asyncHandler(async (req, res) => {
   const { store, body } = req;
