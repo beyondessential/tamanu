@@ -5,7 +5,8 @@ import { WebSyncSource } from '~/services/syncSource';
 import { readConfig, writeConfig } from '~/services/config';
 
 const SYNC_PERIOD_MINUTES = 5;
-const DEFAULT_SYNC_LOCATION = 'https://sync-dev.tamanu.io';
+const API_VERSION = 1;
+const DEFAULT_SYNC_LOCATION = `https://sync-dev.tamanu.io/${API_VERSION}`;
 
 export class Backend {
   randomId: any;
