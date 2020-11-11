@@ -15,7 +15,8 @@ export const FilterArray = [
   'onlyShowText',
 ];
 
-const Container = ({ navigation }: BaseAppProps): ReactElement => {
+const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
+  const { handleSubmit } = route.params;
   const fields = FilterArray.map(filterName => useField(filterName));
   const onNavigateBack = useCallback(() => {
     navigation.navigate(
@@ -24,6 +25,7 @@ const Container = ({ navigation }: BaseAppProps): ReactElement => {
   }, []);
 
   const onSubmitFilters = useCallback(() => {
+    submitPatientFilters();
     navigation.navigate(
       Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index,
     );
@@ -51,7 +53,7 @@ const Container = ({ navigation }: BaseAppProps): ReactElement => {
   return (
     <Screen
       onCancel={onNavigateBack}
-      onSubmit={onSubmitFilters}
+      onSubmit={handleSubmit}
       onClear={onClearFilters}
     />
   );

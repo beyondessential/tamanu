@@ -6,4 +6,5 @@ export interface BaseAppProps
   extends WithPatientStoreProps,
     WithAuthStoreProps {
   navigation: NavigationProp<any>;
+  route: any;
 }
