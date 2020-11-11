@@ -11,6 +11,8 @@ RUN apt-get install -y -q --no-install-recommends \
         zip \
         unzip
 
+FROM mongo:4.0
+
 FROM base_image
 ENV PACKAGES_DIR=/tamanu/packages \
     DEPLOY_DIR=/tamanu/deploy \
