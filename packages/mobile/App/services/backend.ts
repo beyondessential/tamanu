@@ -18,6 +18,8 @@ export class Backend {
 
   syncManager: SyncManager;
 
+  syncSource: WebSyncSource;
+
   interval: number;
 
   constructor() {
@@ -37,8 +39,8 @@ export class Backend {
   startSyncService(syncServerLocation: string) {
     writeConfig('syncServerLocation', syncServerLocation);
 
-    const syncSource = new WebSyncSource(syncServerLocation);
-    this.syncManager = new SyncManager(syncSource);
+    this.syncSource = new WebSyncSource(syncServerLocation);
+    this.syncManager = new SyncManager(this.syncSource);
 
     this.stopSyncService();
 
