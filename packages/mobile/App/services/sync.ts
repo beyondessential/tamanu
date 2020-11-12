@@ -198,22 +198,22 @@ export class SyncManager {
   }
 
   async getChannelSyncDate(channel): Promise<Date> {
-    const timestampString = await readConfig(`${channel}SyncDate`, '0');
+    const timestampString = await readConfig(`syncDate.${channel}`, '0');
     const timestamp = parseInt(timestampString, 10);
     return new Date(timestamp);
   }
 
   async updateChannelSyncDate(channel, date: Date): Promise<void> {
     const timestampString = `${date.valueOf()}`;
-    await writeConfig(`${channel}SyncDate`, timestampString);
+    await writeConfig(`syncDate.${channel}`, timestampString);
   }
 
   async runChannelSync(channel: string): Promise<void> {
     const lastSynced = await this.getChannelSyncDate(channel);
 
-    this.emitter.emit(`${channel}SyncStarted`);
+    this.emitter.emit('channelSyncStarted', channel);
     const maxDate = await this.syncAllPages(channel, lastSynced, () => undefined);
-    this.emitter.emit(`${channel}SyncEnded`);
+    this.emitter.emit('channelSyncEnded', channel);
 
     await this.updateChannelSyncDate(channel, maxDate);
   }
