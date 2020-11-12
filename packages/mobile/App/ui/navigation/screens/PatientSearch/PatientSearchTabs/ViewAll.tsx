@@ -26,7 +26,7 @@ import { FilterArray } from './PatientFilterScreen';
 import { IPatient } from '~/types';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
-interface ActiveFiltersI {
+interface ActiveFilters {
   count: number;
   filters: {
     [key: string]: {
@@ -43,9 +43,9 @@ type FieldProp = [
 ];
 
 const getActiveFilters = (
-  filters: ActiveFiltersI,
+  filters: ActiveFilters,
   filter: FieldProp,
-): ActiveFiltersI => {
+): ActiveFilters => {
   const field = filter[0];
   const activeFilters = { ...filters };
 
@@ -73,7 +73,7 @@ const getActiveFilters = (
 
 const applyActiveFilters = (
   models,
-  { filters }: ActiveFiltersI,
+  { filters }: ActiveFilters,
   { value }: FieldInputProps<any>,
 ): IPatient[] => models.Patient.find({
   order: { markedForSync: 'DESC' },
@@ -96,7 +96,7 @@ const Screen: FC<ViewAllScreenProps> = ({
   // Get filters
   const filters = FilterArray.map(fieldName => useField(fieldName));
   const activeFilters = useMemo(
-    () => filters.reduce<ActiveFiltersI>(getActiveFilters, {
+    () => filters.reduce<ActiveFilters>(getActiveFilters, {
       count: 0,
       filters: {},
     }),

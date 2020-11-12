@@ -12,7 +12,7 @@ export const FilterArray = [
 ];
 
 const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
-  const { handleSubmit } = route.params;
+  const { onChangeFilters } = route.params;
   const fields = FilterArray.map(filterName => useField(filterName));
   const onNavigateBack = useCallback(() => {
     navigation.navigate(
@@ -42,7 +42,7 @@ const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
   return (
     <Screen
       onCancel={onNavigateBack}
-      onSubmit={handleSubmit}
+      onSubmit={onChangeFilters}
       onClear={onClearFilters}
     />
   );

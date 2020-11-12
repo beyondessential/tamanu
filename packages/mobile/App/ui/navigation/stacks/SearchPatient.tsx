@@ -52,7 +52,7 @@ export const SearchPatientStack = ({ navigation }): ReactElement => {
             name={Routes.HomeStack.SearchPatientStack.FilterSearch}
             component={PatientFilterScreen}
             initialParams={{
-              handleSubmit,
+              onChangeFilters: handleSubmit,
             }}
           />
         </Stack.Navigator>
