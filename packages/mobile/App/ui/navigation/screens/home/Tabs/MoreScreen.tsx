@@ -118,7 +118,6 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
           size={screenPercentageToDP(9.72, Orientation.Height)}
           displayName={user && user.displayName}
           Icon={CameraInCircle}
-          gender={user && user.gender}
         />
         <StyledText
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}
@@ -146,7 +145,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
             fontSize={screenPercentageToDP(1.7, Orientation.Height)}
             color={theme.colors.TEXT_SUPER_DARK}
           >
-            Victoria Hospital
+            {user.facility.name}
           </StyledText>
         </RowView>
         <Button

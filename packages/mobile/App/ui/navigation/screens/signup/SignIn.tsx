@@ -21,12 +21,12 @@ import { SignInForm } from '/components/Forms/SignInForm/SignInForm';
 import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import { Routes } from '/helpers/routes';
 import { ModalInfo } from '/components/ModalInfo';
-import UserContext from '/contexts/UserContext';
 import { authSelector } from '/helpers/selectors';
 import { SignInFormModel } from '~/ui/interfaces/forms/SignInFormProps';
+import AuthContext from '~/ui/contexts/authContext/AuthContext';
 
 export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
-  const userCtx = useContext(UserContext);
+  const authCtx = useContext(AuthContext);
   const authState = useSelector(authSelector);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -47,8 +47,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
 
   const onSubmitForm = useCallback(async (form: SignInFormModel) => {
     try {
-      // await authCtx.signIn(form.email, form.password);
-      await userCtx.getUserData();
+      await authCtx.signIn(form.email, form.password);
       if (authState.isFirstTime) {
         navigation.navigate(Routes.HomeStack.Index);
       } else {
