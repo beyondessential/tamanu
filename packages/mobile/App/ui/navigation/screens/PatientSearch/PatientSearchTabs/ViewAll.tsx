@@ -9,7 +9,7 @@ import { compose } from 'redux';
 // Containers
 import { withPatient } from '/containers/Patient';
 // Components
-import { FullView, StyledView } from '/styled/common';
+import { FullView, StyledText, StyledView } from '/styled/common';
 import { PatientSectionList } from '/components/PatientSectionList';
 import { LoadingScreen } from '/components/LoadingScreen';
 // Helpers
@@ -24,6 +24,7 @@ import { FilterArray } from './PatientFilterScreen';
 import { getAgeFromDate } from '/helpers/date';
 import { IPatient } from '~/types';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Like } from 'typeorm';
 
 interface ActiveFiltersI {
   count: number;
@@ -99,12 +100,13 @@ const isEqual = (prop1: any, prop2: any, fieldName: string): boolean => {
 
 const applyActiveFilters = (
   models,
-  activeFilters: ActiveFiltersI,
-  searchField: FieldInputProps<any>,
+  { count, filters }: ActiveFiltersI,
+  { value }: FieldInputProps<any>,
 ): IPatient[] => models.Patient.find({
-  order: {
-    lastName: 'ASC',
-    firstName: 'ASC',
+  // where: { survey: { id: this.id } },
+  // order: { componentIndex: 'ASC' },
+  where: {
+    firstName: Like(`${value}%`),
   },
 });
 
@@ -114,7 +116,7 @@ const Screen: FC<ViewAllScreenProps> = ({
 }: ViewAllScreenProps): ReactElement => {
   /** Get Search Input */
   const [searchField] = useField('search');
-  console.log("searchField", searchField)
+  console.log("searchField", searchField);
   // Get filters
   const filters = FilterArray.map(fieldName => useField(fieldName));
   const activeFilters = useMemo(
@@ -124,12 +126,12 @@ const Screen: FC<ViewAllScreenProps> = ({
     }),
     [filters],
   );
-  console.log("activeFilters", activeFilters)
 
   const [list, error] = useBackendEffect(
     ({ models }) => applyActiveFilters(models, activeFilters, searchField),
     [searchField.value],
   );
+  console.log("list", list, searchField)
 
   const onNavigateToPatientHome = useCallback(patient => {
     setSelectedPatient(patient);
@@ -149,10 +151,11 @@ const Screen: FC<ViewAllScreenProps> = ({
 
   return (
     <FullView>
-      <PatientSectionList
+      {/* <PatientSectionList
         patients={list}
         onPressItem={onNavigateToPatientHome}
-      />
+      /> */}
+      <StyledText>{list.length}</StyledText>
       <StyledView
         position="absolute"
         zIndex={2}
