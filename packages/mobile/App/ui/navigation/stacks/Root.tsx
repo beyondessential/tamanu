@@ -8,7 +8,6 @@ import { themeSystem } from '/styled/common';
 import { store, persistor } from '/store/index';
 import { AuthProvider } from '/contexts/authContext/AuthContext';
 import { Core } from './Core';
-import { UserProvider } from '/contexts/UserContext';
 
 export const RootStack = (): ReactElement => (
   <SafeAreaProvider>
@@ -16,11 +15,9 @@ export const RootStack = (): ReactElement => (
       <PersistGate loading={null} persistor={persistor}>
         <ThemeProvider theme={themeSystem}>
           <NavigationContainer>
-            <UserProvider>
               <AuthProvider>
                 <Core />
               </AuthProvider>
-            </UserProvider>
           </NavigationContainer>
         </ThemeProvider>
       </PersistGate>

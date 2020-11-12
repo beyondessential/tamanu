@@ -27,6 +27,7 @@ export abstract class BaseModel extends BaseEntity {
     const record = repo.create({
       ...data,
     });
+
     await record.save();
     return record;
   }
@@ -39,7 +40,7 @@ export abstract class BaseModel extends BaseEntity {
   static async createOrUpdate(data: any): Promise<void> {
     const repo = this.getRepository();
     const existing = await repo.count({ id: data.id });
-    if(existing > 0) {
+    if (existing > 0) {
       return this.update(data);
     }
     return this.create(data);
