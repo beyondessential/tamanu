@@ -5,14 +5,10 @@ import { Routes } from '/helpers/routes';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
 
 export const FilterArray = [
-  'gender',
-  'age',
+  'sex',
   'dateOfBirth',
   'firstName',
   'lastName',
-  'keywords',
-  'sortBy',
-  'onlyShowText',
 ];
 
 const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
