@@ -11417,6 +11417,11 @@ react-native-autocomplete-input@^4.2.0:
   resolved "https://registry.yarnpkg.com/react-native-autocomplete-input/-/react-native-autocomplete-input-4.2.0.tgz#fcfc3d2f19134d4c3394a4e6a5aae13d8c4c9129"
   integrity sha512-bLZ9FO3NwcqYY3r6hefEEC4VW45L97kXuCyAqKXW1SJkkG/pGcen6zLq3SMFgoQuG3ryrO/ohz7gme7hFwzjoQ==
 
+react-native-bg-thread@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-bg-thread/-/react-native-bg-thread-1.2.0.tgz#371ce0824202c85ce9b549d00bae0ec2e00a825c"
+  integrity sha512-gKRDs8VmJsMjbTdwY25UFJrOflOjmNIXhkZSgx6+BMVGSuquNQ4DmkrkaX/oi1914Crp04jpo0cbG6YI2t5HZg==
+
 react-native-bcrypt@^2.4.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/react-native-bcrypt/-/react-native-bcrypt-2.4.0.tgz#95dff2dbc849c22b25f0b9379ab7bfebd2140bfd"
