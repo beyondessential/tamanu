@@ -44,7 +44,7 @@ export class WebSyncSource implements SyncSource {
     // TODO: error handling (incl timeout)
     const PAGE_LIMIT = 100;
     const sinceStamp = since.valueOf();
-    const url = `${this.host}/${channel}?since=${sinceStamp}&page=${page}&limit=${PAGE_LIMIT}`;
+    const url = `${this.host}/sync/${channel}?since=${sinceStamp}&page=${page}&limit=${PAGE_LIMIT}`;
 
     try {
       const response = await fetch(url, {
