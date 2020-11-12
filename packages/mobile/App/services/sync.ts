@@ -82,7 +82,10 @@ export class SyncManager {
 
     this.emitter.emit("syncStarted");
 
-    await this.runReferenceSync();
+    await this.runChannelSync('reference');
+    await this.runChannelSync('user');
+    await this.runChannelSync('survey');
+    await this.runChannelSync('patient');
 
     // sync all reference data including shallow patient list
     // full sync of patients that've been flagged (encounters, etc)
@@ -194,33 +197,32 @@ export class SyncManager {
     return maxDate;
   }
 
-  async runPatientSync(patient: Patient) {
-    await this.syncAllPages(`patient/${patient.id}`, patient.lastSynced);
-
-    patient.lastSynced = new Date();
-    await patient.save();
-  }
-
-  async getReferenceSyncDate(): Promise<Date> {
-    const timestampString = await readConfig('referenceSyncDate', '0');
+  async getChannelSyncDate(channel): Promise<Date> {
+    const timestampString = await readConfig(`syncDate.${channel}`, '0');
     const timestamp = parseInt(timestampString, 10);
     return new Date(timestamp);
   }
 
-  async updateReferenceSyncDate(date: Date): Promise<void> {
+  async updateChannelSyncDate(channel, date: Date): Promise<void> {
     const timestampString = `${date.valueOf()}`;
-    await writeConfig('referenceSyncDate', timestampString);
+    await writeConfig(`syncDate.${channel}`, timestampString);
   }
 
-  async runReferenceSync() {
-    const lastSynced = await this.getReferenceSyncDate();
+  async runChannelSync(channel: string): Promise<void> {
+    const lastSynced = await this.getChannelSyncDate(channel);
 
-    this.emitter.emit("referenceSyncStarted");
-    const maxDate = await this.syncAllPages(`reference`, lastSynced);
-    this.emitter.emit("referenceSyncEnded");
+    this.emitter.emit('channelSyncStarted', channel);
+    const maxDate = await this.syncAllPages(channel, lastSynced, () => undefined);
+    this.emitter.emit('channelSyncEnded', channel);
 
-    await this.updateReferenceSyncDate(maxDate);
+    await this.updateChannelSyncDate(channel, maxDate);
   }
 
+  async runPatientSync(patient: Patient): Promise<void> {
+    await this.syncAllPages(`patient/${patient.id}`, patient.lastSynced, () => undefined);
+
+    // eslint-disable-next-line no-param-reassign
+    patient.lastSynced = new Date();
+    await patient.save();
+  }
 }
-

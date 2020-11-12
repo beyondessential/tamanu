@@ -5,6 +5,7 @@ import { WebSyncSource } from '~/services/syncSource';
 import { readConfig, writeConfig } from '~/services/config';
 
 const SYNC_PERIOD_MINUTES = 5;
+const API_VERSION = 1;
 const DEFAULT_SYNC_LOCATION = 'https://sync-dev.tamanu.io';
 
 export class Backend {
@@ -17,6 +18,8 @@ export class Backend {
   models: ModelMap;
 
   syncManager: SyncManager;
+
+  syncSource: WebSyncSource;
 
   interval: number;
 
@@ -37,8 +40,8 @@ export class Backend {
   startSyncService(syncServerLocation: string) {
     writeConfig('syncServerLocation', syncServerLocation);
 
-    const syncSource = new WebSyncSource(syncServerLocation);
-    this.syncManager = new SyncManager(syncSource);
+    this.syncSource = new WebSyncSource(`${syncServerLocation}/v${API_VERSION}`);
+    this.syncManager = new SyncManager(this.syncSource);
 
     this.stopSyncService();
 

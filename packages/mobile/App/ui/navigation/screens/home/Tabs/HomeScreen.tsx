@@ -140,7 +140,7 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
               fontSize={screenPercentageToDP(2.18, Orientation.Height)}
               color={theme.colors.WHITE}
             >
-              Hospital name
+              {user.facility.name}
             </StyledText>
           </StyledView>
         </StyledView>
