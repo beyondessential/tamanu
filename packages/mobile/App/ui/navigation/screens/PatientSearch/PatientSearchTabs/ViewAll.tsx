@@ -11,7 +11,7 @@ import { compose } from 'redux';
 // Containers
 import { withPatient } from '/containers/Patient';
 // Components
-import { FullView, StyledText, StyledView } from '/styled/common';
+import { FullView, StyledView } from '/styled/common';
 import { PatientSectionList } from '/components/PatientSectionList';
 import { LoadingScreen } from '/components/LoadingScreen';
 // Helpers
@@ -23,7 +23,6 @@ import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
 import { FilterIcon } from '/components/Icons/FilterIcon';
 import { FilterArray } from './PatientFilterScreen';
-import { getAgeFromDate } from '/helpers/date';
 import { IPatient } from '~/types';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
