@@ -28,7 +28,7 @@ const SearchPatientTabOptions: MaterialTopTabBarOptions = {
   },
 };
 
-export const SearchPatientTabs = (): ReactElement => (
+export const SearchPatientTabs = ({ route }): ReactElement => (
   <Tabs.Navigator tabBarOptions={SearchPatientTabOptions}>
     <Tabs.Screen
       options={{
