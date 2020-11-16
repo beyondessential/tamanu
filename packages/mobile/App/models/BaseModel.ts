@@ -20,6 +20,15 @@ function stripIdSuffixes(data) {
 }
 
 function sanitiseForImport(repo, data) {
+  // TypeORM will complain when importing an object that has fields that don't
+  // exist on the table in the database. We need to accommodate receiving records
+  // from the sync server that don't match up 100% (to allow for changes over time)
+  // so we just strip those extraneous fields out here.
+  // 
+  // Note that fields that are necessary-but-not-in-the-sync-record need to be
+  // accommodated too, but that's done by making those fields nullable or 
+  // giving them sane defaults)
+  
   const strippedIdsData = stripIdSuffixes(data);
   const columns = repo.metadata.columns.map(x => x.propertyName);
   return Object.entries(strippedIdsData)
