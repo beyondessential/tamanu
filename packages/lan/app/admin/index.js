@@ -1,8 +1,9 @@
-import { log } from '../logging';
 
+import fetch from 'node-fetch';
 import config from 'config';
 import shortid from 'shortid';
 
+import { log } from '../logging';
 import { readSurveyXSLX } from '../surveyImporter';
 
 /***********
@@ -32,11 +33,13 @@ function makeScreen(screen, componentData) {
     } = component;
 
     const dataElement = makeRecord('programDataElement', {
+      id: `dataElement/${elementData.code}`,
       defaultOptions: '',
       ...elementData,
     });
 
     const surveyScreenComponent = makeRecord('surveyScreenComponent', {
+      id: `${componentData.surveyId}/component-${elementData.code}`,
       dataElementId: dataElement.data.id, 
       componentIndex: i,
       ...componentData,
@@ -46,13 +49,24 @@ function makeScreen(screen, componentData) {
   })).flat();
 }
 
+const idify = name => name.toLowerCase().replace(/\W/g, '-');
+
 async function importSurvey({ file }) {
   log.info(`Importing surveys from ${file}...`);
 
-  const data = readSurveyXSLX("Test", file);
+  const programName = "Test Program";
+  const data = readSurveyXSLX(programName, file);
 
-  const programElement = makeRecord('program', { name: data.name });
-  const surveyElement = makeRecord('survey', { programId: programElement.data.id });
+  const programElement = makeRecord('program', { 
+    id: `program-${idify(data.name)}`,
+    name: data.name,
+  });
+
+  const surveyName = "Test Survey";
+  const surveyElement = makeRecord('survey', { 
+    id: `${programElement.data.id}/survey-${idify(surveyName)}`,
+    programId: programElement.data.id,
+  });
 
   // component elements
   const screenElements = data.screens.map((x, i) => makeScreen(x, {
@@ -68,7 +82,20 @@ async function importSurvey({ file }) {
     ...screenElements,
   ];
 
-  console.log(records);
+  const body = records;
+
+  const HOST = "https://sync-dev.tamanu.io/v1/sync";
+  const url = `${HOST}/program-import-test`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': '1243',
+    },
+    body: JSON.stringify(body),
+  });
+
+  console.log(await response.json());
 }
 
 async function importData({ file }) {
