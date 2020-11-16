@@ -38,10 +38,16 @@ export class SyncManager {
         return models.Patient;
       case "user":
         return models.User;
-      case "program":
-        return models.Program;
       case "referenceData":
         return models.ReferenceData;
+      case "program":
+        return models.Program;
+      case "survey":
+        return models.Survey;
+      case "surveyScreenComponent":
+        return models.SurveyScreenComponent;
+      case "programDataElement":
+        return models.ProgramDataElement;
       default:
         return null;
     }

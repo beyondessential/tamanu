@@ -83,10 +83,10 @@ export class ProgramDataElement extends BaseModel
   @Column()
   code: string;
 
-  @Column()
+  @Column({ default: '' })
   indicator: string;
 
-  @Column()
+  @Column({ default: '' })
   defaultText: string;
 
   @Column({ nullable: true })
@@ -95,3 +95,4 @@ export class ProgramDataElement extends BaseModel
   @Column()
   type: string;
 }
+
