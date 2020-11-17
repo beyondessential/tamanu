@@ -5,6 +5,8 @@ import shortid from 'shortid';
 import { log } from '../logging';
 import { readSurveyXSLX } from '../surveyImporter';
 
+const idify = name => name.toLowerCase().replace(/\W/g, '-');
+
 const makeRecord = (recordType, data) => ({
   recordType,
   data: {
@@ -39,8 +41,6 @@ function makeScreen(screen, componentData) {
   })).flat();
 }
 
-const idify = name => name.toLowerCase().replace(/\W/g, '-');
-
 export async function importSurvey(taskDefinition) {
   const {
     file,
@@ -53,6 +53,7 @@ export async function importSurvey(taskDefinition) {
 
   const data = readSurveyXSLX(programName, file);
 
+  // main container elements
   const programElement = makeRecord('program', { 
     id: `program-${idify(programCode)}`,
     name: programName,
@@ -64,32 +65,29 @@ export async function importSurvey(taskDefinition) {
     programId: programElement.data.id,
   });
 
-  // component elements
+  // data and component elements
   const screenElements = data.screens.map((x, i) => makeScreen(x, {
     surveyId: surveyElement.data.id,
     screenIndex: i,
   })).flat();
 
-  // data elements
-  
   const records = [
     programElement,
     surveyElement,
     ...screenElements,
   ];
 
-  const body = records;
-
   log.info(`Syncing ${records.length} records to ${config.syncHost}...`);
 
-  const url = `${config.syncHost}/v1/sync/program-import-test`;
+  const channel = "program-import-test";
+  const url = `${config.syncHost}/v1/sync/${channel}`;
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': '1243',
+      'Authorization': '1213',
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(records),
   });
 
   log.info("Program records uploaded. Response:", await response.json());

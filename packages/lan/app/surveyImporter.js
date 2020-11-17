@@ -5,7 +5,13 @@ const yesOrNo = value => !!(value && value.toLowerCase() === 'yes');
 function newlinesToArray(data) {
   if (!data) return null;
 
-  const array = data.split(/[\r\n]+/g);
+  let split = ',';
+  if(data.trim().match(/[\r\n]/)) {
+    // multiline record - split on newlines instead
+    split = /[\r\n]+/g;
+  }
+
+  const array = data.split(split).map(x => x.trim()).filter(x => x);
   return JSON.stringify(array);
 }
 
