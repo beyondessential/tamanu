@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { StyledView, StyledText, FullView } from '/styled/common';
 import { theme } from '/styled/theme';
 
+import { ScrollView } from 'react-native-gesture-handler';
 import { StackHeader } from '/components/StackHeader';
 import { useNavigation } from '@react-navigation/native';
 import { formatDate } from '/helpers/date';
@@ -9,10 +10,12 @@ import { DateFormats } from '/helpers/constants';
 import { FieldTypes } from '/helpers/fields';
 import { SurveyResultBadge } from '/components/SurveyResultBadge';
 
+import { useBackendEffect } from '~/ui/hooks';
+
 function getAnswerText(question, answer): string | number {
   if (answer === null || answer === undefined) return 'N/A';
 
-  switch (question.type) {
+  switch (question.dataElement.type) {
     case FieldTypes.NUMBER:
     case FieldTypes.MULTILINE:
       return answer;
@@ -26,14 +29,22 @@ function getAnswerText(question, answer): string | number {
     case FieldTypes.BINARY:
       return answer ? 'Yes' : 'No';
     case FieldTypes.DATE:
-      return formatDate(answer, DateFormats.DDMMYY);
+      return `date: ${answer}`; //formatDate(answer, DateFormats.DDMMYY);
     default:
       return '';
   }
 }
 
-const isCalculated = (question): JSX.Element => question.type === FieldTypes.CALCULATED
-  || question.type === FieldTypes.RESULT;
+const isCalculated = (question): JSX.Element => {
+  const questionType = question.dataElement.type;
+  switch(question.dataElement.type) {
+    case FieldTypes.CALCULATED:
+    case FieldTypes.RESULT:
+      return true;
+    default:
+      return false;
+  }
+};
 
 const AnswerItem = ({ question, answer, index }): JSX.Element => (
   <StyledView
@@ -46,9 +57,9 @@ const AnswerItem = ({ question, answer, index }): JSX.Element => (
     background={index % 2 ? theme.colors.WHITE : theme.colors.BACKGROUND_GREY}
   >
     <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
-      {question.indicator}
+      {question.dataElement.indicator}
     </StyledText>
-    {question.type === FieldTypes.RESULT ? (
+    {question.dataElement.type === FieldTypes.RESULT ? (
       <SurveyResultBadge result={answer} />
     ) : (
       <StyledText>{getAnswerText(question, answer)}</StyledText>
@@ -58,36 +69,73 @@ const AnswerItem = ({ question, answer, index }): JSX.Element => (
 
 export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
   const navigation = useNavigation();
-  const { surveyResponse } = route.params;
-  const { patient, program, answers, ...rest } = surveyResponse;
+  const { surveyResponseId } = route.params;
+
   const goBack = useCallback(() => {
     navigation.goBack();
   }, []);
 
-  const questionToAnswerItem = (q, i): JSX.Element => (
-    <AnswerItem index={i} key={q.id} question={q} answer={answers[q.id]} />
+  const [surveyResponse, error] = useBackendEffect(
+    ({ models }) => models.SurveyResponse.getFullResponse(surveyResponseId),
+    [surveyResponseId]
   );
 
-  const basicAnswerItems = program.questions
-    .filter(q => q.indicator)
+  if(error) {
+    console.error(error);
+    return <StyledText>{error}</StyledText>;
+  }
+
+  if(!surveyResponse) {
+    return <StyledText>Loading</StyledText>;
+  }
+
+  const { encounter, survey, questions, answers, ...rest } = surveyResponse;
+  const { patient } = encounter;
+
+  const getAnswerForQuestion = (q) => {
+    const answerObject = answers.find(a => a.dataElement.id === q.dataElement.id);
+    if(!answerObject) return '';
+    return answerObject.body;
+  }
+    
+  const questionToAnswerItem = (q, i): JSX.Element => (
+    <AnswerItem index={i} key={q.id} question={q} answer={getAnswerForQuestion(q)} />
+  );
+
+  /*
+  return (
+    <FullView>
+      <ScrollView>
+        <StyledText>
+        { JSON.stringify(surveyResponse, null, 2) }
+        </StyledText>
+      </ScrollView>
+    </FullView>
+  );
+  */
+
+  const basicAnswerItems = questions
+    .filter(q => q.dataElement.indicator)
     .filter(q => !isCalculated(q))
     .map(questionToAnswerItem);
 
-  const calculatedAnswerItems = program.questions
-    .filter(q => q.indicator)
+  const calculatedAnswerItems = questions
+    .filter(q => q.dataElement.indicator)
     .filter(q => isCalculated(q))
     .map(questionToAnswerItem);
 
   return (
     <FullView>
       <StackHeader
-        subtitle={program.name}
+        subtitle={survey.name}
         title={`${patient.firstName} ${patient.lastName}`}
         onGoBack={goBack}
       />
-      {basicAnswerItems}
-      <StyledView borderTopWidth={1} height={1} />
-      {calculatedAnswerItems}
+      <ScrollView>
+        {calculatedAnswerItems}
+        <StyledView borderTopWidth={1} height={1} />
+        {basicAnswerItems}
+      </ScrollView>
     </FullView>
   );
 };
