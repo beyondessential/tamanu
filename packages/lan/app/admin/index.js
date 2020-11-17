@@ -34,10 +34,12 @@ function makeScreen(screen, componentData) {
 
     const dataElement = makeRecord('programDataElement', {
       id: `dataElement/${elementData.code}`,
+      code: elementData.code,
+      name: elementData.name,
       defaultOptions: '',
       ...elementData,
     });
-
+    
     const surveyScreenComponent = makeRecord('surveyScreenComponent', {
       id: `${componentData.surveyId}/component-${elementData.code}`,
       dataElementId: dataElement.data.id, 
@@ -51,20 +53,26 @@ function makeScreen(screen, componentData) {
 
 const idify = name => name.toLowerCase().replace(/\W/g, '-');
 
-async function importSurvey({ file }) {
+async function importSurvey(taskDefinition) {
+  const {
+    file,
+    programCode,
+    programName,
+    surveyCode,
+    surveyName,
+  } = taskDefinition;
   log.info(`Importing surveys from ${file}...`);
 
-  const programName = "Test Program";
   const data = readSurveyXSLX(programName, file);
 
   const programElement = makeRecord('program', { 
-    id: `program-${idify(data.name)}`,
-    name: data.name,
+    id: `program-${idify(programCode)}`,
+    name: programName,
   });
 
-  const surveyName = "Test Survey";
   const surveyElement = makeRecord('survey', { 
-    id: `${programElement.data.id}/survey-${idify(surveyName)}`,
+    id: `${programElement.data.id}/survey-${idify(surveyCode)}`,
+    name: surveyName,
     programId: programElement.data.id,
   });
 
@@ -84,8 +92,7 @@ async function importSurvey({ file }) {
 
   const body = records;
 
-  const HOST = "https://sync-dev.tamanu.io/v1/sync";
-  const url = `${HOST}/program-import-test`;
+  const url = `${config.syncHost}/v1/sync/program-import-test`;
   const response = await fetch(url, {
     method: 'POST',
     headers: {
