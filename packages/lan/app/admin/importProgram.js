@@ -79,7 +79,7 @@ export async function importSurvey(taskDefinition) {
 
   log.info(`Syncing ${records.length} records to ${config.syncHost}...`);
 
-  const channel = "program-import-test";
+  const channel = "survey";
   const url = `${config.syncHost}/v1/sync/${channel}`;
   const response = await fetch(url, {
     method: 'POST',
