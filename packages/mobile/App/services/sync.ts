@@ -38,10 +38,16 @@ export class SyncManager {
         return models.Patient;
       case "user":
         return models.User;
-      case "program":
-        return models.Program;
       case "referenceData":
         return models.ReferenceData;
+      case "program":
+        return models.Program;
+      case "survey":
+        return models.Survey;
+      case "surveyScreenComponent":
+        return models.SurveyScreenComponent;
+      case "programDataElement":
+        return models.ProgramDataElement;
       default:
         return null;
     }
@@ -208,8 +214,10 @@ export class SyncManager {
     await writeConfig(`syncDate.${channel}`, timestampString);
   }
 
-  async runChannelSync(channel: string): Promise<void> {
-    const lastSynced = await this.getChannelSyncDate(channel);
+  async runChannelSync(channel: string, overrideLastSynced = null): Promise<void> {
+    const lastSynced = (overrideLastSynced === null)
+      ? await this.getChannelSyncDate(channel)
+      : overrideLastSynced;
 
     this.emitter.emit('channelSyncStarted', channel);
     const maxDate = await this.syncAllPages(channel, lastSynced, () => undefined);
