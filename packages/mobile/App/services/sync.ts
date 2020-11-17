@@ -214,8 +214,10 @@ export class SyncManager {
     await writeConfig(`syncDate.${channel}`, timestampString);
   }
 
-  async runChannelSync(channel: string): Promise<void> {
-    const lastSynced = await this.getChannelSyncDate(channel);
+  async runChannelSync(channel: string, overrideLastSynced = null): Promise<void> {
+    const lastSynced = (overrideLastSynced === null)
+      ? await this.getChannelSyncDate(channel)
+      : overrideLastSynced;
 
     this.emitter.emit('channelSyncStarted', channel);
     const maxDate = await this.syncAllPages(channel, lastSynced, () => undefined);

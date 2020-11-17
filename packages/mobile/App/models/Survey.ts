@@ -35,11 +35,20 @@ export class SurveyScreenComponent extends BaseModel
   dataElement: ProgramDataElement;
 
   getOptions(): any {
-    return (this.options || this.dataElement.defaultOptions || '')
-      .split(',')
-      .map(x => x.trim())
-      .filter(x => x)
-      .map(x => ({ label: x, value: x }));
+    try {
+      const optionString = (this.options || this.dataElement.defaultOptions || '');
+      if(!optionString) {
+        return [];
+      }
+      const optionArray = JSON.parse(optionString);
+      return optionArray
+        .map(x => x.trim())
+        .filter(x => x)
+        .map(x => ({ label: x, value: x }));
+    } catch(e) {
+      console.error(e);
+      return [];
+    }
   }
 }
 
