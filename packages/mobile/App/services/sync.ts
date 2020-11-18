@@ -56,6 +56,7 @@ export class SyncManager {
   async syncRecord(syncRecord: SyncRecord) {
     // write one single downloaded record to the database
     const { recordType, data } = syncRecord;
+
     const model = this.getModelForRecordType(recordType);
     if(!model) {
       throw new NoSyncImporterError(recordType);
@@ -153,13 +154,39 @@ export class SyncManager {
     };
     setProgress(0);
 
-    // we want to download each page of records while the current page
+    // We want to download each page of records while the current page
     // of records is being imported - this means that the database IO
     // and network IO are running in parallel rather than running in
     // alternating sequence.
     let downloadTask : Promise<GetSyncDataResponse> = downloadPage(0);
 
     let maxDate = since;
+
+    // Some records will fail on the first attempt due to foreign key constraints
+    // (most commonly, when a dependency record has been updated so it appears 
+    // after its dependent in the sync queue)
+    // So we keep these records in a queue and retry them at the end of the download.
+    let pendingRecords = [];
+
+    const syncRecords = (records) => {
+      return Promise.all(records.map(async r => {
+        try {
+          await this.syncRecord(r);
+
+          if(r.lastSynced > maxDate) {
+            maxDate = r.lastSynced;
+          }
+        } catch(e) {
+          if(e.message.match(/FOREIGN KEY constraint failed/)) {
+            // this error is to be expected! just push it
+            pendingRecords.push(r);
+          } else {
+            console.warn("Error while importing:", e, r);
+          }
+        }
+      }));
+    };
+
 
     try {
       while(true) {
@@ -182,12 +209,7 @@ export class SyncManager {
 
         // we have records to import - import them
         this.emitter.emit("importingPage", `${channel}-${page}`);
-        const importTask = Promise.all(response.records.map(r => {
-          if(r.lastSynced > maxDate) {
-            maxDate = r.lastSynced;
-          }
-          return this.syncRecord(r);
-        }));
+        const importTask = await syncRecords(response.records);
 
         // start downloading the next page now
         page += 1;
@@ -198,6 +220,22 @@ export class SyncManager {
       };
     } catch(e) {
       console.warn(e);
+    }
+
+    // Now try re-importing all of the pending records.
+    // As there might be multiple levels of dependency, we might need a few 
+    // passes over the queue! But if we get a pass where the queue doesn't 
+    // decrease in size at all, we know there's a for-real error and we should
+    // terminate the process.
+    while(pendingRecords.length > 0) {
+      console.log(`Reattempting ${pendingRecords.length} failed records...`);
+      const thisPass = pendingRecords;
+      pendingRecords = [];
+      await syncRecords(thisPass);
+      // syncRecords will re populate pendingRecords
+      if(pendingRecords.length === thisPass.length) {
+        throw new Error(`Could not import any remaining queue members: ${JSON.stringify(pendingRecords)}`);
+      }
     }
 
     return maxDate;
@@ -220,10 +258,13 @@ export class SyncManager {
       : overrideLastSynced;
 
     this.emitter.emit('channelSyncStarted', channel);
-    const maxDate = await this.syncAllPages(channel, lastSynced, () => undefined);
+    try {
+      const maxDate = await this.syncAllPages(channel, lastSynced, () => undefined);
+      await this.updateChannelSyncDate(channel, maxDate);
+    } catch(e) {
+      console.error(e);
+    }
     this.emitter.emit('channelSyncEnded', channel);
-
-    await this.updateChannelSyncDate(channel, maxDate);
   }
 
   async runPatientSync(patient: Patient): Promise<void> {

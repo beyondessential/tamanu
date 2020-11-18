@@ -23,6 +23,26 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @ManyToOne(type => Encounter, encounter => encounter.surveyResponses)
   encounter: Encounter;
 
+  static async getFullResponse(surveyId: string) {
+    const repo = this.getRepository();
+    const response = await repo.findOne(surveyId, {
+      relations: ['survey', 'encounter', 'encounter.patient'],
+    });
+    const questions = await response.survey.getComponents();
+    const answers = await SurveyResponseAnswer.getRepository().find({
+      where: {
+        response: response.id,
+      },
+      relations: ['dataElement'],
+    });
+
+    return {
+      ...response,
+      questions: [...questions],
+      answers: [...answers],
+    };
+  }
+
   static async submit(patientId, surveyData, values): Promise<SurveyResponse> {
     const { surveyId, encounterReason, ...otherData } = surveyData;
 
