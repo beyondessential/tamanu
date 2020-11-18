@@ -102,18 +102,6 @@ export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
     <AnswerItem index={i} key={q.id} question={q} answer={getAnswerForQuestion(q)} />
   );
 
-  /*
-  return (
-    <FullView>
-      <ScrollView>
-        <StyledText>
-        { JSON.stringify(surveyResponse, null, 2) }
-        </StyledText>
-      </ScrollView>
-    </FullView>
-  );
-  */
-
   const basicAnswerItems = questions
     .filter(q => q.dataElement.indicator)
     .filter(q => !isCalculated(q))
