@@ -9,7 +9,6 @@ import { useCancelableEffect } from '~/ui/hooks';
 export const Screen = ({
   survey,
   onSubmitForm,
-  scrollTo,
   ...props
 }: ScreenProps): ReactElement => {
   const [components, error] = useCancelableEffect(() => survey.getComponents());
@@ -27,7 +26,6 @@ export const Screen = ({
       <ProgramsForm
         {...props}
         components={components}
-        scrollToField={scrollTo}
         onSubmit={onSubmitForm}
       />
     </FullView>
