@@ -13,10 +13,8 @@ import {
 } from './helpers';
 
 export const ProgramsForm = ({
-  scrollToField,
   onSubmit,
   components,
-  containerScrollView,
 }: ProgramsFormProps): ReactElement => {
   const initialValues = useMemo(() => getFormInitialValues(components), [components]);
   const formValidationSchema = useMemo(() => getFormSchema(components), [components]);
@@ -30,11 +28,10 @@ export const ProgramsForm = ({
     >
       {({ handleSubmit, values }): ReactElement => (
         <FullView>
-          <FormScreenView scrollViewRef={containerScrollView}>
+          <FormScreenView>
             <FormFields
               components={components}
               verticalPositions={verticalPositions}
-              scrollTo={scrollToField}
               values={values}
             />
             <Button

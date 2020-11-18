@@ -7,7 +7,6 @@ import { FieldTypes, FieldByType } from '/helpers/fields';
 
 interface ProgramQuestion {
   component: ISurveyScreenComponent;
-  scrollTo: (item: { x: number; y: number }) => void;
   verticalPositions: VerticalPosition;
 }
 
@@ -20,7 +19,6 @@ function getField(type: string): FC<any> {
 
 export const ProgramQuestion = ({
   component,
-  scrollTo,
   verticalPositions,
 }: ProgramQuestion): ReactElement => {
   const { dataElement } = component;
@@ -30,7 +28,6 @@ export const ProgramQuestion = ({
   return (
     <StyledView marginTop={10}>
       <Field
-        onFocus={(): void => scrollTo(verticalPositions[component.id])}
         component={fieldInput}
         name={dataElement.id}
         options={component.getOptions()}
