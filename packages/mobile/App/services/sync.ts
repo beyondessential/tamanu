@@ -91,7 +91,7 @@ export class SyncManager {
 
     await this.runChannelSync('reference');
     await this.runChannelSync('user');
-    await this.runChannelSync('survey');
+    await this.runChannelSync('survey', null, true);
     await this.runChannelSync('patient');
 
     // sync all reference data including shallow patient list
@@ -131,7 +131,7 @@ export class SyncManager {
     this.runScheduledSync();
   }
 
-  async syncAllPages(channel: string, since: Date, syncCallback: SyncCallback) {
+  async syncAllPages(channel: string, since: Date, singlePageMode = false) {
     let page = 0;
 
     const downloadPage = (pageNumber) => {
@@ -140,6 +140,7 @@ export class SyncManager {
         channel,
         since,
         pageNumber,
+        singlePageMode,
       );
     }
 
@@ -179,6 +180,7 @@ export class SyncManager {
         } catch(e) {
           if(e.message.match(/FOREIGN KEY constraint failed/)) {
             // this error is to be expected! just push it
+            r.ERROR_MESSAGE = e.message;
             pendingRecords.push(r);
           } else {
             console.warn("Error while importing:", e, r);
@@ -201,7 +203,7 @@ export class SyncManager {
         // keep importing until we hit a page with 0 records
         // (this does mean we're always making 1 more web request than
         // is necessary, probably room for optimisation here)
-        if(response.records.length === 0) {
+        if(response.records.length === 0 || singlePageMode) {
           break;
         }
 
@@ -234,7 +236,9 @@ export class SyncManager {
       await syncRecords(thisPass);
       // syncRecords will re populate pendingRecords
       if(pendingRecords.length === thisPass.length) {
-        throw new Error(`Could not import any remaining queue members: ${JSON.stringify(pendingRecords)}`);
+        console.warn("Could not import remaining queue members:");
+        console.warn(JSON.stringify(pendingRecords, null, 2));
+        throw new Error(`Could not import any ${pendingRecords.length} remaining queue members`);
       }
     }
 
@@ -252,14 +256,14 @@ export class SyncManager {
     await writeConfig(`syncDate.${channel}`, timestampString);
   }
 
-  async runChannelSync(channel: string, overrideLastSynced = null): Promise<void> {
+  async runChannelSync(channel: string, overrideLastSynced = null, singlePageMode = false): Promise<void> {
     const lastSynced = (overrideLastSynced === null)
       ? await this.getChannelSyncDate(channel)
       : overrideLastSynced;
 
     this.emitter.emit('channelSyncStarted', channel);
     try {
-      const maxDate = await this.syncAllPages(channel, lastSynced, () => undefined);
+      const maxDate = await this.syncAllPages(channel, lastSynced, singlePageMode);
       await this.updateChannelSyncDate(channel, maxDate);
     } catch(e) {
       console.error(e);
@@ -268,7 +272,7 @@ export class SyncManager {
   }
 
   async runPatientSync(patient: Patient): Promise<void> {
-    await this.syncAllPages(`patient/${patient.id}`, patient.lastSynced, () => undefined);
+    await this.syncAllPages(`patient/${patient.id}`, patient.lastSynced);
 
     // eslint-disable-next-line no-param-reassign
     patient.lastSynced = new Date();
