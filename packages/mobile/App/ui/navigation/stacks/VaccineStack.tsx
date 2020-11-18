@@ -1,4 +1,5 @@
 import React, { ReactElement, useCallback } from 'react';
+import { compose } from 'redux';
 import {
   TransitionPresets,
   createStackNavigator,
@@ -18,15 +19,11 @@ import { ArrowLeftIcon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
 import { VaccineModalScreen } from '../screens/vaccine/VaccineModalScreen';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { withPatient } from '~/ui/containers/Patient';
 
 const Stack = createStackNavigator();
 
-const selectedPatient = {
-  firstName: 'Ugyen',
-  lastName: 'Wangdi',
-};
-
-const HeaderTitle = (): ReactElement => (
+const HeaderTitleComponent = ({ selectedPatient }): ReactElement => (
   <CenterView height="100%" position="absolute" zIndex={-1} width="100%">
     <StyledText
       fontSize={screenPercentageToDP(1.33, Orientation.Height)}
@@ -42,6 +39,8 @@ const HeaderTitle = (): ReactElement => (
     </StyledText>
   </CenterView>
 );
+
+const HeaderTitle = compose(withPatient)(HeaderTitleComponent)
 
 const Header = ({ navigation }: StackHeaderProps): ReactElement => {
   const goBack = useCallback(() => {

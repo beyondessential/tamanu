@@ -5,6 +5,7 @@ export * from './Diagnosis';
 export * from './Program';
 export * from './Survey';
 export * from './ScheduledVaccine';
+export * from './AdministeredVaccine';
 export * from './SurveyResponse';
 export * from './Referral';
 export * from './Medication';

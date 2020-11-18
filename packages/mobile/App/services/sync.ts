@@ -2,8 +2,8 @@ import mitt from 'mitt';
 import { Database } from '~/infra/db';
 
 import { readConfig, writeConfig } from '~/services/config';
-import {GetSyncDataResponse, SyncRecord, SyncSource} from './syncSource';
-import {Patient} from "~/models";
+import { GetSyncDataResponse, SyncRecord, SyncSource } from './syncSource';
+import { Patient } from '~/models';
 
 class NoSyncImporterError extends Error {
   constructor(recordType) {
@@ -23,8 +23,8 @@ export class SyncManager {
   constructor(syncSource: SyncSource) {
     this.syncSource = syncSource;
 
-    this.emitter.on("*", (action, ...args) => {
-      if(action === 'syncedRecord') return;
+    this.emitter.on('*', (action, ...args) => {
+      if (action === 'syncedRecord') return;
 
       console.log(`[sync] ${action} ${args[0] || ''}`);
     });
@@ -33,14 +33,16 @@ export class SyncManager {
   getModelForRecordType(recordType: string) {
     const { models } = Database;
 
-    switch(recordType) {
-      case "patient":
+    switch (recordType) {
+      case 'patient':
         return models.Patient;
-      case "user":
+      case 'user':
         return models.User;
-      case "program":
+      case 'program':
         return models.Program;
-      case "referenceData":
+      case 'scheduledVaccine':
+        return models.ScheduledVaccine;
+      case 'referenceData':
         return models.ReferenceData;
       default:
         return null;
@@ -51,13 +53,13 @@ export class SyncManager {
     // write one single downloaded record to the database
     const { recordType, data } = syncRecord;
     const model = this.getModelForRecordType(recordType);
-    if(!model) {
+    if (!model) {
       throw new NoSyncImporterError(recordType);
     }
 
     await model.createOrUpdate(data);
-      
-    this.emitter.emit("syncedRecord", syncRecord.recordType, syncRecord);
+
+    this.emitter.emit('syncedRecord', syncRecord.recordType, syncRecord);
   }
 
   async runScheduledSync() {
@@ -73,19 +75,20 @@ export class SyncManager {
     // - does initial sync work differently?
     //   - sync reference data
     //   - get all provisional patients
-    
-    if(this.isSyncing) {
-      console.warn("Tried to start syncing while sync in progress");
+
+    if (this.isSyncing) {
+      console.warn('Tried to start syncing while sync in progress');
       return;
     }
     this.isSyncing = true;
 
-    this.emitter.emit("syncStarted");
+    this.emitter.emit('syncStarted');
 
     await this.runChannelSync('reference');
     await this.runChannelSync('user');
-    await this.runChannelSync('survey');
+    await this.runChannelSync('survey', 0);
     await this.runChannelSync('patient');
+    await this.runChannelSync('vaccination');
 
     // sync all reference data including shallow patient list
     // full sync of patients that've been flagged (encounters, etc)
@@ -104,7 +107,7 @@ export class SyncManager {
     this.emitter.emit("patientSyncEnded");
     */
 
-    this.emitter.emit("syncEnded");
+    this.emitter.emit('syncEnded');
     this.isSyncing = false;
     this.lastSyncTime = new Date();
   }
@@ -112,7 +115,7 @@ export class SyncManager {
   getPatientsToSync() {
     const { models } = Database;
     return models.Patient.find({
-      markedForSync: true, 
+      markedForSync: true,
     });
   }
 
@@ -128,13 +131,13 @@ export class SyncManager {
     let page = 0;
 
     const downloadPage = (pageNumber) => {
-      this.emitter.emit("downloadingPage", `${channel}-${pageNumber}`);
+      this.emitter.emit('downloadingPage', `${channel}-${pageNumber}`);
       return this.syncSource.getSyncData(
         channel,
         since,
         pageNumber,
       );
-    }
+    };
 
     let numDownloaded = 0;
     const setProgress = (progress): void => {
@@ -151,12 +154,12 @@ export class SyncManager {
     // of records is being imported - this means that the database IO
     // and network IO are running in parallel rather than running in
     // alternating sequence.
-    let downloadTask : Promise<GetSyncDataResponse> = downloadPage(0);
+    let downloadTask: Promise<GetSyncDataResponse> = downloadPage(0);
 
     let maxDate = since;
 
     try {
-      while(true) {
+      while (true) {
         // wait for the current page download to complete
         const response = await downloadTask;
 
@@ -168,16 +171,16 @@ export class SyncManager {
         // keep importing until we hit a page with 0 records
         // (this does mean we're always making 1 more web request than
         // is necessary, probably room for optimisation here)
-        if(response.records.length === 0) {
+        if (response.records.length === 0) {
           break;
         }
 
         updateProgress(response.records.length, response.count);
 
         // we have records to import - import them
-        this.emitter.emit("importingPage", `${channel}-${page}`);
+        this.emitter.emit('importingPage', `${channel}-${page}`);
         const importTask = Promise.all(response.records.map(r => {
-          if(r.lastSynced > maxDate) {
+          if (r.lastSynced > maxDate) {
             maxDate = r.lastSynced;
           }
           return this.syncRecord(r);
@@ -189,8 +192,8 @@ export class SyncManager {
 
         // wait for import task to complete before progressing in loop
         await importTask;
-      };
-    } catch(e) {
+      }
+    } catch (e) {
       console.warn(e);
     }
 
@@ -208,8 +211,10 @@ export class SyncManager {
     await writeConfig(`syncDate.${channel}`, timestampString);
   }
 
-  async runChannelSync(channel: string): Promise<void> {
-    const lastSynced = await this.getChannelSyncDate(channel);
+  async runChannelSync(channel: string, overrideLastSynced = null): Promise<void> {
+    const lastSynced = (overrideLastSynced === null)
+      ? await this.getChannelSyncDate(channel)
+      : overrideLastSynced;
 
     this.emitter.emit('channelSyncStarted', channel);
     const maxDate = await this.syncAllPages(channel, lastSynced, () => undefined);

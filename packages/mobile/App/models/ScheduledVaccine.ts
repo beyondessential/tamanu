@@ -3,13 +3,16 @@ import { BaseModel } from './BaseModel';
 import { IScheduledVaccine } from '~/types';
 import { ReferenceDataRelation, ReferenceData } from './ReferenceData';
 
-@Entity('vaccine')
+@Entity('scheduled_vaccine')
 export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
   @Column()
   index: number;
 
   @Column()
   schedule: string;
+
+  @Column()
+  category: string;
 
   @ReferenceDataRelation()
   vaccine: ReferenceData;

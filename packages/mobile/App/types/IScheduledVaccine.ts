@@ -5,5 +5,6 @@ export interface IScheduledVaccine {
   id: ID;
   index: number;
   schedule: string;
+  category: string;
   vaccine: ReferenceData;
 }
