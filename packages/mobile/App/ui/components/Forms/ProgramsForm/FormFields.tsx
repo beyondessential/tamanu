@@ -6,7 +6,6 @@ import { isCalculated } from '/helpers/fields';
 
 export const FormFields = ({
   components,
-  scrollTo,
   verticalPositions,
   values,
 }: AddDetailsFormFieldsProps): ReactElement => {
@@ -29,7 +28,6 @@ export const FormFields = ({
               key={component.id}
               verticalPositions={verticalPositions}
               component={component}
-              scrollTo={scrollTo}
             />
           </React.Fragment>
         ))}

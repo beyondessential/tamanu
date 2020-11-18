@@ -20,16 +20,6 @@ export const ProgramAddDetailsScreen = ({
   const { surveyId, selectedPatient } = route.params;
   const selectedPatientId = selectedPatient.id;
   const navigation = useNavigation();
-  const containerScrollView = useRef<any>(null);
-
-  const scrollTo = useCallback(
-    (verticalPosition: { x: number; y: number }) => {
-      if (containerScrollView) {
-        containerScrollView.current.scrollTo(verticalPosition);
-      }
-    },
-    [containerScrollView],
-  );
 
   const [survey, error] = useBackendEffect(
     ({ models }) => models.Survey.getRepository().findOne(surveyId),
@@ -72,8 +62,6 @@ export const ProgramAddDetailsScreen = ({
       onSubmitForm={onSubmitForm}
       survey={survey}
       patient={selectedPatient}
-      containerScrollView={containerScrollView}
-      scrollTo={scrollTo}
     />
   );
 };
