@@ -3,8 +3,9 @@ import { VaccineStatus } from '/helpers/constants';
 import { IVaccine } from '~/types';
 
 const vaccineStatusList = Object.keys(VaccineStatus);
-const getRandomVaccineStatus = (): string =>
-  vaccineStatusList[Math.floor(Math.random() * vaccineStatusList.length)];
+const getRandomVaccineStatus = (): string => vaccineStatusList[
+  Math.floor(Math.random() * vaccineStatusList.length)
+];
 
 const chance = new Chance();
 

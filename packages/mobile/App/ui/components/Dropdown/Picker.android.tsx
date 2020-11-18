@@ -20,7 +20,6 @@ interface AndroidPickerProps {
   open: boolean;
   onChange: Function;
   closeModal: () => void;
-  disabled?: boolean;
 }
 
 export const AndroidPicker = React.memo(

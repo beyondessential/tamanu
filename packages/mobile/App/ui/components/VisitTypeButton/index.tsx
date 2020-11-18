@@ -8,9 +8,9 @@ import { TakenOnTimeIcon } from '../Icons';
 interface VisitTypeButtonProps {
   type?: string;
   selected: boolean;
-  title?: string;
-  subtitle?: string;
-  Icon?: FunctionComponent<SvgProps>;
+  title: string;
+  subtitle: string;
+  Icon: FunctionComponent<SvgProps>;
   onPress: (type: string) => void;
 }
 
@@ -77,4 +77,8 @@ export const VisitTypeButton = ({
       </StyledView>
     </TouchableWithoutFeedback>
   );
+};
+
+VisitTypeButton.defaultProps = {
+  type: '',
 };

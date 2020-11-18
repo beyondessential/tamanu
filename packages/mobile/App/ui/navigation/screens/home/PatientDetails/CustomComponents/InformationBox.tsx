@@ -5,7 +5,7 @@ import { theme } from '/styled/theme';
 
 interface InformationBoxProps extends StyledViewProps {
   title: string;
-  info?: string | null;
+  info: string;
 }
 export const InformationBox = ({
   title,

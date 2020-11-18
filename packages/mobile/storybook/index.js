@@ -10,7 +10,7 @@ configure(() => {
 
 const StorybookUIRoot = getStorybookUI({
   asyncStorage: require('@react-native-community/async-storage').AsyncStorage,
-  disableWebsockets: true
+  disableWebsockets: false
 });
 
 AppRegistry.registerComponent('%APP_NAME%', () => StorybookUIRoot);

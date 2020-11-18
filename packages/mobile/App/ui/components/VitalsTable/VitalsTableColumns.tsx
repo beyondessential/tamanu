@@ -4,119 +4,76 @@ import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';
 import { Column } from '../Table';
 
+const rowHeader = (column: any): JSX.Element => (
+  <VitalsTableRowHeader key={column.key} col={column} />
+);
+
+const accessor = (row: PatientVitalsProps, _, column): JSX.Element => (
+  <VitalsTableCell key={column.key}>{row[column.key]}</VitalsTableCell>
+);
+
 export const vitalsTableCols: Column[] = [
-  {
-    id: 1,
-    key: 'height',
-    title: 'Height',
-    rowHeader: (column: any): JSX.Element => (
-      <VitalsTableRowHeader key={column.title} col={column} />
-    ),
-    accessor: (row: PatientVitalsProps, _, column): JSX.Element => (
-      <VitalsTableCell key={`${row.id}${column.id}`}>
-        {row.height}
-      </VitalsTableCell>
-    ),
-  },
   {
     id: 2,
     key: 'weight',
-    title: 'Weight',
-    rowHeader: (column: any): JSX.Element => (
-      <VitalsTableRowHeader key={column.title} col={column} />
-    ),
-    accessor: (row: PatientVitalsProps, _, column): JSX.Element => (
-      <VitalsTableCell key={`${row.id}${column.id}`}>
-        {row.weight}
-      </VitalsTableCell>
-    ),
+    title: 'Weight (kg)',
+    rowHeader,
+    accessor,
   },
   {
     id: 3,
-    key: 'temperature',
-    title: 'Temperature',
-    rowHeader: (column: any): JSX.Element => (
-      <VitalsTableRowHeader key={column.title} col={column} />
-    ),
-    accessor: (row: PatientVitalsProps, _, column): JSX.Element => (
-      <VitalsTableCell key={`${row.id}${column.id}`}>
-        {row.temperature}
-      </VitalsTableCell>
-    ),
+    key: 'height',
+    title: 'Height (cm)',
+    rowHeader,
+    accessor,
   },
   {
     id: 4,
     key: 'sbp',
-    title: 'SBP',
-    rowHeader: (column: any): JSX.Element => (
-      <VitalsTableRowHeader key={column.title} col={column} />
-    ),
-    accessor: (row: PatientVitalsProps, _, column): JSX.Element => (
-      <VitalsTableCell key={`${row.id}${column.id}`}>{row.sbp}</VitalsTableCell>
-    ),
+    title: 'sbp',
+    rowHeader,
+    accessor,
   },
   {
     id: 5,
     key: 'dbp',
-    title: 'DBP',
-    rowHeader: (column: any): JSX.Element => (
-      <VitalsTableRowHeader key={column.title} col={column} />
-    ),
-    accessor: (row: PatientVitalsProps, _, column): JSX.Element => (
-      <VitalsTableCell key={`${row.id}${column.id}`}>{row.dbp}</VitalsTableCell>
-    ),
+    title: 'dbp',
+    rowHeader,
+    accessor,
   },
   {
     id: 6,
     key: 'heartRate',
     title: 'Heart Rate',
-    rowHeader: (column: any): JSX.Element => (
-      <VitalsTableRowHeader key={column.title} col={column} />
-    ),
-    accessor: (row: PatientVitalsProps, _, column): JSX.Element => (
-      <VitalsTableCell key={`${row.id}${column.id}`}>
-        {row.heartRate}
-      </VitalsTableCell>
-    ),
+    rowHeader,
+    accessor,
   },
   {
     id: 7,
     key: 'respiratoryRate',
-    title: 'Respiratory rate',
-    rowHeader: (column: any): JSX.Element => (
-      <VitalsTableRowHeader key={column.title} col={column} />
-    ),
-    accessor: (row: PatientVitalsProps, _, column): JSX.Element => (
-      <VitalsTableCell key={`${row.id}${column.id}`}>
-        {row.respiratoryRate}
-      </VitalsTableCell>
-    ),
+    title: 'Respiratory Rate',
+    rowHeader,
+    accessor,
   },
   {
     id: 8,
-    key: 'sv02',
-    title: 'Sv02',
-    rowHeader: (column: any): JSX.Element => (
-      <VitalsTableRowHeader key={column.title} col={column} />
-    ),
-    accessor: (row: PatientVitalsProps, _, column): JSX.Element => (
-      <VitalsTableCell key={`${row.id}${column.id}`}>
-        {row.sv02}
-      </VitalsTableCell>
-    ),
+    key: 'temperature',
+    title: 'Temperature (ºC)',
+    rowHeader,
+    accessor,
   },
-
   {
     id: 9,
+    key: 'svO2',
+    title: 'SvO2 (%)',
+    rowHeader,
+    accessor,
+  },
+  {
+    id: 10,
     key: 'avpu',
     title: 'AVPU',
-    rowHeader: (column: any): JSX.Element => (
-      <VitalsTableRowHeader key={column.title} col={column} />
-    ),
-    accessor: (row: PatientVitalsProps, _, column): JSX.Element => (
-      <VitalsTableCell key={`${row.id}${column.id}`}>
-        {row.avpu}
-      </VitalsTableCell>
-    ),
+    rowHeader,
+    accessor,
   },
 ];

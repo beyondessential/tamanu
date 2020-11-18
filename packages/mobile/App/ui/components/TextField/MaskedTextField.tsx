@@ -75,7 +75,7 @@ export const MaskedTextField = React.memo(
         width="100%"
       >
         <InputContainer
-          hasValue={value.length > 0}
+          hasValue={value && value.length > 0}
           error={error}
           paddingLeft={
             Platform.OS === 'ios'

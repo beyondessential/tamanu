@@ -3,8 +3,8 @@ import { DateField } from './DateField';
 
 interface BaseDateTextFieldStory {
   label: string;
-  error?: string;
-  mode?: 'date' | 'time';
+  error: string;
+  mode: 'date' | 'time';
 }
 
 export function BaseDateTextFieldStory({

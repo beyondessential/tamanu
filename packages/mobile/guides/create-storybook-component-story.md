@@ -2,12 +2,6 @@
 
 I've been able to configure Storybook only using it's storiesOf APi.
 
-The steps are:
-- make sure .env file has the STORYBOOK variable as true
- - Create story file
- - start react-native bundler (react-native start)
- - run yarn storybook 
-
 Basically what you will need is to create a .stories.tsx file for your component story:
 
 ```tsx
@@ -28,27 +22,3 @@ storiesOf('Place here the name of the component - Name of the component must be 
 - The storiesOf first argument should be unique considering all other stories to avoid errors. 
 - addDecorator is beign used here to centralize all stories of this file
 -  add should render the component to be tested in the story. There can be as many "add"  
-
-
-
-After that:
-
-Run the metro bundler
-```
-yarn start
-```
-
-Storybook to start the react-native-storybook-server and map new stories
-```
-yarn run storybook
-```
-
-Run the app in the desired OS:
-
-```
-yarn ios
-```
-
-```
-yarn android
-```

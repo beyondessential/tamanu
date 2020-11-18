@@ -1,5 +1,4 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnPaste": true,
   "editor.formatOnSave": false,
   "[typescript]": {
@@ -18,5 +17,8 @@
     {
       "language": "typescriptreact",      
     }
-  ]
+],
+"editor.tabSize": 2,
+"editor.detectIndentation": false,
+"python.pythonPath": "/usr/local/bin/python3"
 }

@@ -37,7 +37,7 @@ const Tabs = createBottomTabNavigator();
 
 interface TabIconProps {
   Icon: FC<IconWithSizeProps>;
-  focused: boolean;
+  color: string;
 }
 
 export function TabIcon({ Icon, color }: TabIconProps): JSX.Element {
@@ -58,10 +58,12 @@ const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
 
 const HomeScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(HomeBottomLogoIcon),
+  tabBarLabel: 'Home',
   tabBarTestID: 'HOME',
 };
 const ReportScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(BarChartIcon),
+  tabBarLabel: 'Reports',
   tabBarTestID: 'REPORTS',
 };
 const SyncDataScreenOptions: BottomTabNavigationOptions = {
@@ -71,6 +73,7 @@ const SyncDataScreenOptions: BottomTabNavigationOptions = {
 };
 const MoreScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(MoreMenuIcon),
+  tabBarLabel: 'More',
   tabBarTestID: 'MORE',
 };
 
@@ -100,7 +103,7 @@ function MyTabBar({
 
           const isFocused = state.index === index;
 
-          const onPress = () => {
+          const onPress = (): void => {
             const event = navigation.emit({
               type: 'tabPress',
               target: route.key,
@@ -112,7 +115,7 @@ function MyTabBar({
             }
           };
 
-          const onLongPress = () => {
+          const onLongPress = (): void => {
             navigation.emit({
               type: 'tabLongPress',
               target: route.key,
@@ -120,7 +123,7 @@ function MyTabBar({
           };
 
           return (
-            <StyledView flex={1}>
+            <StyledView key={route.key} flex={1}>
               <StyledTouchableOpacity
                 onPress={onPress}
                 onLongPress={onLongPress}
@@ -132,8 +135,8 @@ function MyTabBar({
                 justifyContent="center"
                 flex={1}
               >
-                {Icon &&
-                  Icon({
+                {Icon
+                  && Icon({
                     focused: isFocused,
                     color: isFocused
                       ? theme.colors.SECONDARY_MAIN
@@ -158,31 +161,29 @@ function MyTabBar({
   );
 }
 
-const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
-  return (
-    <Tabs.Navigator tabBar={MyTabBar}>
-      <Tabs.Screen
-        options={HomeScreenOptions}
-        name={Routes.HomeStack.HomeTabs.Home}
-        component={selectedPatient ? PatientHome : HomeScreen}
-      />
-      <Tabs.Screen
-        options={ReportScreenOptions}
-        name={Routes.HomeStack.HomeTabs.Reports}
-        component={ReportScreen}
-      />
-      <Tabs.Screen
-        options={SyncDataScreenOptions}
-        name={Routes.HomeStack.HomeTabs.SyncData}
-        component={SyncDataScreen}
-      />
-      <Tabs.Screen
-        options={MoreScreenOptions}
-        name={Routes.HomeStack.HomeTabs.More}
-        component={MoreScreen}
-      />
-    </Tabs.Navigator>
-  );
-};
+const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => (
+  <Tabs.Navigator tabBar={MyTabBar}>
+    <Tabs.Screen
+      options={HomeScreenOptions}
+      name={Routes.HomeStack.HomeTabs.Home}
+      component={selectedPatient ? PatientHome : HomeScreen}
+    />
+    <Tabs.Screen
+      options={ReportScreenOptions}
+      name={Routes.HomeStack.HomeTabs.Reports}
+      component={ReportScreen}
+    />
+    <Tabs.Screen
+      options={SyncDataScreenOptions}
+      name={Routes.HomeStack.HomeTabs.SyncData}
+      component={SyncDataScreen}
+    />
+    <Tabs.Screen
+      options={MoreScreenOptions}
+      name={Routes.HomeStack.HomeTabs.More}
+      component={MoreScreen}
+    />
+  </Tabs.Navigator>
+);
 
 export const HomeTabsStack = compose(withPatient)(TabNavigator);

@@ -2,25 +2,25 @@ import { Platform } from 'react-native';
 import ImagePicker, { ImagePickerResponse } from 'react-native-image-picker';
 import { check, PERMISSIONS, request } from 'react-native-permissions';
 
-export const launchImagePicker = (): Promise<ImagePickerResponse> => {
-  return new Promise((resolve, reject) => {
-    ImagePicker.showImagePicker(
-      {
-        title: 'Select Profile Photo',
-      },
-      imagePickerResponse => {
-        if (imagePickerResponse.error) {
-          // Add log later
-          reject(new Error(imagePickerResponse.error));
-        } else if (imagePickerResponse.didCancel) {
-          resolve();
-        } else {
-          resolve(imagePickerResponse);
-        }
-      },
-    );
-  });
-};
+export const launchImagePicker = (): Promise<ImagePickerResponse> => new Promise((
+  resolve, reject,
+) => {
+  ImagePicker.showImagePicker(
+    {
+      title: 'Select Profile Photo',
+    },
+    imagePickerResponse => {
+      if (imagePickerResponse.error) {
+        // Add log later
+        reject(new Error(imagePickerResponse.error));
+      } else if (imagePickerResponse.didCancel) {
+        resolve();
+      } else {
+        resolve(imagePickerResponse);
+      }
+    },
+  );
+});
 
 export const getImageFromPhotoLibrary = async (): Promise<Nullable<
   ImagePickerResponse
@@ -72,6 +72,4 @@ export const getImageFromPhotoLibrary = async (): Promise<Nullable<
   return image;
 };
 
-export const imageToBase64URI = (image: string): string => {
-  return `data:image/jpeg;base64, ${image}`;
-};
+export const imageToBase64URI = (image: string): string => `data:image/jpeg;base64, ${image}`;

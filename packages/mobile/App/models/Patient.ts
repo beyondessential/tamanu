@@ -1,10 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm/browser';
+import { Entity, Column } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IPatient } from '~/types';
 
 @Entity('patient')
 export class Patient extends BaseModel implements IPatient {
-
   @Column()
   displayId: string;
 
@@ -24,5 +23,17 @@ export class Patient extends BaseModel implements IPatient {
   dateOfBirth: Date;
 
   @Column()
-  sex: string; 
+  bloodType: string;
+
+  @Column()
+  sex: string;
+
+  //----------------------------------------------------------
+  // sync info
+
+  @Column({ default: 0 })
+  lastSynced: Date;
+
+  @Column({ default: false })
+  markedForSync: boolean;
 }

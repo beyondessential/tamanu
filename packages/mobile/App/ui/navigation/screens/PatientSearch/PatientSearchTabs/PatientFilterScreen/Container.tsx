@@ -5,27 +5,18 @@ import { Routes } from '/helpers/routes';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
 
 export const FilterArray = [
-  'gender',
-  'age',
+  'sex',
   'dateOfBirth',
   'firstName',
   'lastName',
-  'keywords',
-  'sortBy',
-  'onlyShowText',
 ];
 
-const Container = ({ navigation }: BaseAppProps): ReactElement => {
+const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
+  const { onChangeFilters } = route.params;
   const fields = FilterArray.map(filterName => useField(filterName));
   const onNavigateBack = useCallback(() => {
     navigation.navigate(
-      Routes.HomeStack.SearchPatientStack.SearchPatientTabs.name,
-    );
-  }, []);
-
-  const onSubmitFilters = useCallback(() => {
-    navigation.navigate(
-      Routes.HomeStack.SearchPatientStack.SearchPatientTabs.name,
+      Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index,
     );
   }, []);
 
@@ -51,7 +42,7 @@ const Container = ({ navigation }: BaseAppProps): ReactElement => {
   return (
     <Screen
       onCancel={onNavigateBack}
-      onSubmit={onSubmitFilters}
+      onSubmit={onChangeFilters}
       onClear={onClearFilters}
     />
   );

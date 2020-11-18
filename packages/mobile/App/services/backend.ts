@@ -1,27 +1,63 @@
-import { isCalculated } from '/helpers/fields';
+import { Database, ModelMap } from '~/infra/db';
 
-import { dummyPrograms } from '~/dummyData/programs';
-import { Database } from '~/infra/db';
-import { needsInitialPopulation, populateInitialData } from '~/infra/db/populate';
+import { SyncManager } from '~/services/sync';
+import { WebSyncSource } from '~/services/syncSource';
+import { readConfig, writeConfig } from '~/services/config';
+
+const SYNC_PERIOD_MINUTES = 5;
+const API_VERSION = 1;
+const DEFAULT_SYNC_LOCATION = 'https://sync-dev.tamanu.io';
 
 export class Backend {
+  randomId: any;
+
+  responses: any[];
+
+  initialised: boolean;
+
+  models: ModelMap;
+
+  syncManager: SyncManager;
+
+  syncSource: WebSyncSource;
+
+  interval: number;
 
   constructor() {
-    this.responses = [];
-    this.initialised = false;
-    this.models = Database.models;
-
-    // keep a random id around so the provider can check if the backend object
-    // was regenerated - this should only happens via live reload (ie in development mode)
-    this.randomId = Math.random();
+    const { models } = Database;
+    this.models = models;
   }
 
-  async initialise() {
+  async initialise(): Promise<void> {
     await Database.connect();
-    const { models } = Database;
-    if(await needsInitialPopulation(models)) {
-      await populateInitialData(models);
+
+    const syncServerLocation = await readConfig('syncServerLocation', DEFAULT_SYNC_LOCATION);
+    if(syncServerLocation) {
+      this.startSyncService(syncServerLocation);
     }
   }
 
+  startSyncService(syncServerLocation: string) {
+    writeConfig('syncServerLocation', syncServerLocation);
+
+    this.syncSource = new WebSyncSource(`${syncServerLocation}/v${API_VERSION}`);
+    this.syncManager = new SyncManager(this.syncSource);
+
+    this.stopSyncService();
+
+    // run once now, and then schedule for later
+    this.syncManager.runScheduledSync();
+
+    this.interval = setInterval(() => {
+      this.syncManager.runScheduledSync();
+    }, SYNC_PERIOD_MINUTES * 60 * 1000);
+  }
+
+  stopSyncService(): void {
+    if (!this.interval) {
+      return;
+    }
+    clearInterval(this.interval);
+    this.interval = null;
+  }
 }

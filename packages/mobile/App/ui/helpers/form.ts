@@ -1,4 +1,4 @@
-import { FormikHelpers } from 'formik'
+import { FormikHelpers } from 'formik';
 export const newPatientFormValues = {
   firstName: '',
   middleName: '',
@@ -16,11 +16,16 @@ export const newPatientFormValues = {
   fingerPrintData: null,
 };
 
-
-
-export  function formikSubmitFormAdapter<T> (callback: (data: T) => Promise<void>) {
+export function formikSubmitFormAdapter<T>(callback: (data: T) => Promise<void>) {
   return async (data: T, actions: FormikHelpers<T>): Promise<void> => {
-    await callback(data)    
-    actions.setSubmitting(false)
-  }
-}    
+    await callback(data);
+    actions.setSubmitting(false);
+  };
+}
+
+export function arrayToDropdownOptions(array): Array<string> {
+  return array.map(option => ({
+    label: option,
+    value: option,
+  }));
+}

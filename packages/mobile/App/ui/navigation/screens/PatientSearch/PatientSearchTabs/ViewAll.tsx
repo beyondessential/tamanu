@@ -1,4 +1,6 @@
 import React, { ReactElement, useCallback, FC, useMemo } from 'react';
+import { format } from 'date-fns'
+import { Like } from 'typeorm';
 import {
   useField,
   FieldInputProps,
@@ -14,18 +16,17 @@ import { PatientSectionList } from '/components/PatientSectionList';
 import { LoadingScreen } from '/components/LoadingScreen';
 // Helpers
 import { Routes } from '/helpers/routes';
-import { useBackendEffect } from '~/ui/helpers/hooks';
+import { useBackendEffect } from '~/ui/hooks';
 //Props
 import { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
 import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
-import { FilterIcon } from '/components/Icons';
+import { FilterIcon } from '/components/Icons/FilterIcon';
 import { FilterArray } from './PatientFilterScreen';
-import { getAgeFromDate } from '/helpers/date';
 import { IPatient } from '~/types';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
-interface ActiveFiltersI {
+interface ActiveFilters {
   count: number;
   filters: {
     [key: string]: {
@@ -42,92 +43,49 @@ type FieldProp = [
 ];
 
 const getActiveFilters = (
-  acc: ActiveFiltersI,
-  item: FieldProp,
-): ActiveFiltersI => {
-  const curField = item[0];
-  switch (curField.name) {
-    case 'age':
-      if (curField.value[0] !== 0 || curField.value[1] !== 99) {
-        acc.count += 1;
-        acc.filters[curField.name] = {
-          name: curField.name,
-          value: curField.value,
-        };
-        return acc;
-      }
-      break;
-    default:
-      if (typeof curField.value === 'string') {
-        if (curField.value !== '') {
-          acc.count += 1;
-          acc.filters[curField.name] = {
-            name: curField.name,
-            value: curField.value,
-          };
-          return acc;
-        }
-      } else if (curField.value !== null && curField.value !== false) {
-        acc.count += 1;
-        acc.filters[curField.name] = {
-          name: curField.name,
-          value: curField.value,
-        };
-        return acc;
-      }
-      return acc;
-  }
-  return acc;
-};
+  filters: ActiveFilters,
+  filter: FieldProp,
+): ActiveFilters => {
+  const field = filter[0];
+  const activeFilters = { ...filters };
 
-const isEqual = (prop1: any, prop2: any, fieldName: string): boolean => {
-  switch (fieldName) {
-    case 'age':
-      return prop1 >= prop2[0] && prop1 <= prop2[1];
-    case 'gender':
-      if (prop2 === 'all') return true;
-      return prop1 === prop2;
-    case 'dateOfBirth':
-      return getAgeFromDate(prop1) === getAgeFromDate(prop2);
-    default:
-      if (typeof prop1 === 'string') {
-        return prop1.includes(prop2);
-      }
+  if (field.name === 'gender' && field.value === 'all') {
+    activeFilters.count += 1;
+    return activeFilters;
   }
-  return false;
+
+  if (field.value) {
+    activeFilters.count += 1;
+
+    if (field.name === 'dateOfBirth') {
+      const date = format(field.value, 'yyyy-MM-dd');
+      activeFilters.filters[field.name] = Like(`%${date}%`);
+    } else {
+      activeFilters.filters[field.name] = field.value;
+    }
+
+
+    return activeFilters;
+  }
+
+  return activeFilters;
 };
 
 const applyActiveFilters = (
   models,
-  activeFilters: ActiveFiltersI,
-  searchField: FieldInputProps<any>,
-): IPatient[] => {
-  return models.Patient.find({
-    order: {
-      lastName: 'ASC',
-      firstName: 'ASC',
-    }
-  });
-  if (activeFilters.count > 0) {
-    // apply filters
-    return data.filter(patientData =>
-      Object.keys(activeFilters.filters).every(fieldToFilter =>
-        isEqual(
-          patientData[fieldToFilter],
-          activeFilters.filters[fieldToFilter].value,
-          fieldToFilter,
-        ),
-      ),
-    );
-  } else if (searchField.value !== '') {
-    return data.filter(patientData =>
-      `${patientData.firstName} ${patientData.lastName}`.includes(
-        searchField.value,
-      ),
-    );
-  }
-  return data;
-};
+  { filters }: ActiveFilters,
+  { value }: FieldInputProps<any>,
+): IPatient[] => models.Patient.find({
+  order: { markedForSync: 'DESC' },
+  where: [
+    { firstName: Like(`%${value}%`), ...filters },
+    { middleName: Like(`%${value}%`), ...filters },
+    { lastName: Like(`%${value}%`), ...filters },
+    { culturalName: Like(`%${value}%`), ...filters },
+  ],
+  take: 100,
+  cache: true,
+});
 
 const Screen: FC<ViewAllScreenProps> = ({
   navigation,
@@ -138,21 +96,21 @@ const Screen: FC<ViewAllScreenProps> = ({
   // Get filters
   const filters = FilterArray.map(fieldName => useField(fieldName));
   const activeFilters = useMemo(
-    () =>
-      filters.reduce<ActiveFiltersI>(getActiveFilters, {
-        count: 0,
-        filters: {},
-      }),
+    () => filters.reduce<ActiveFilters>(getActiveFilters, {
+      count: 0,
+      filters: {},
+    }),
     [filters],
   );
 
-  const [list, error] = useBackendEffect(({ models }) => {
-    return applyActiveFilters(models, activeFilters, searchField);
-  }, [searchField.value]);
+  const [list, error] = useBackendEffect(
+    ({ models }) => applyActiveFilters(models, activeFilters, searchField),
+    [searchField.value],
+  );
 
   const onNavigateToPatientHome = useCallback(patient => {
     setSelectedPatient(patient);
-    navigation.navigate(Routes.HomeStack.HomeTabs.name, {
+    navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
       screen: Routes.HomeStack.HomeTabs.Home,
     });
   }, []);
@@ -162,13 +120,16 @@ const Screen: FC<ViewAllScreenProps> = ({
     [],
   );
 
-  if(!list) {
+  if (!list) {
     return <LoadingScreen text="Loading patients..." />;
   }
 
   return (
     <FullView>
-      <PatientSectionList patients={list} onPressItem={onNavigateToPatientHome} />
+      <PatientSectionList
+        patients={list}
+        onPressItem={onNavigateToPatientHome}
+      />
       <StyledView
         position="absolute"
         zIndex={2}
@@ -182,8 +143,7 @@ const Screen: FC<ViewAllScreenProps> = ({
           bordered
           textColor={theme.colors.WHITE}
           onPress={onNavigateToFilters}
-          buttonText={`Filters ${
-            activeFilters.count > 0 ? `${activeFilters.count}` : ''
+          buttonText={`Filters ${activeFilters.count > 0 ? `${activeFilters.count}` : ''
           }`}
         >
           <StyledView

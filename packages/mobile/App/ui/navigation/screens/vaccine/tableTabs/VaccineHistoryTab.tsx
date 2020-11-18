@@ -26,7 +26,7 @@ export const VaccineHistoryTab = ({
   let data;
   const onNavigateToClickedCell = useCallback(item => {
     if (item.status === VaccineStatus.SCHEDULED) {
-      navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.name, {
+      navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.Index, {
         vaccine: item,
       });
     } else {
@@ -36,7 +36,7 @@ export const VaccineHistoryTab = ({
     }
   }, []);
   switch (route.name) {
-    case Routes.HomeStack.VaccineStack.VaccineTabs.AdulTab:
+    case Routes.HomeStack.VaccineStack.VaccineTabs.AdultTab:
       data = vaccineHistoryAdultList;
       break;
     case Routes.HomeStack.VaccineStack.VaccineTabs.AdolescentTab:

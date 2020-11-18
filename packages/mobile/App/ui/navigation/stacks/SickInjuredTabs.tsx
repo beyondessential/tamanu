@@ -8,7 +8,8 @@ import { withPatient } from '/containers/Patient';
 import { IPatient } from '~/types';
 import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
-import { AddSickDetailScreen } from '../screens/sickOrInjured/AddSickDetails';
+import { AddIllnessScreen } from '../screens/sickOrInjured/AddIllnessDetails';
+import { PrescribeMedicationScreen } from '../screens/sickOrInjured/PrescribeMedication';
 
 const Tabs = createTopTabNavigator();
 
@@ -36,15 +37,15 @@ const TabNavigator = ({
           options={{
             title: 'ADD DETAILS',
           }}
-          name={Routes.HomeStack.SickOrInjuredTabs.AddSickDetailScreen}
-          component={AddSickDetailScreen}
+          name={Routes.HomeStack.SickOrInjuredTabs.AddIllnessScreen}
+          component={AddIllnessScreen}
         />
         <Tabs.Screen
           options={{
-            title: 'VIEW HISTORY',
+            title: 'PRESCRIBE MEDICATION',
           }}
-          name={Routes.HomeStack.SickOrInjuredTabs.ViewHistory}
-          component={AddSickDetailScreen}
+          name={Routes.HomeStack.SickOrInjuredTabs.PrescribeMedication}
+          component={PrescribeMedicationScreen}
         />
       </Tabs.Navigator>
     </FullView>

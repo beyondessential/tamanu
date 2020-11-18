@@ -1,3 +1,4 @@
+import { EncounterType } from '~/types';
 import * as Icons from '/components/Icons';
 import { theme } from '/styled/theme';
 
@@ -49,9 +50,14 @@ export const VisitTypes = {
 };
 
 export const HeaderIcons = {
-  [VisitTypes.CLINIC]: Icons.ClipboardIcon,
-  [VisitTypes.HOSPITAL]: Icons.FirstAidKitIcon,
-  [VisitTypes.VISIT]: Icons.StethoscopeIcon,
+  //TODO: find correct icons for each EncounterType
+  [EncounterType.Clinic]: Icons.ClipboardIcon,
+  [EncounterType.Emergency]: Icons.FirstAidKitIcon,
+  [EncounterType.Admission]: Icons.StethoscopeIcon,
+  [EncounterType.Imaging]: Icons.FirstAidKitIcon,
+  [EncounterType.Observation]: Icons.FirstAidKitIcon,
+  [EncounterType.Triage]: Icons.FirstAidKitIcon,
+  [EncounterType.SurveyResponse]: Icons.FirstAidKitIcon,
 };
 
 export const PatientVitalsList = [
@@ -102,6 +108,10 @@ const labRole = {
   value: 'lab',
   label: 'Lab',
 };
+const practitionerRole = {
+  value: 'practitioner',
+  label: 'Practitioner',
+};
 export const userRolesOptions = [
   seniorDoctorRole,
   juniorDoctorRole,
@@ -112,6 +122,7 @@ export const userRolesOptions = [
   finnanceRole,
   radiologyRole,
   labRole,
+  practitionerRole,
 ];
 
 export const VaccineStatus = {
@@ -143,18 +154,13 @@ export const VaccineIcons = {
   },
 };
 
-export const SCREEN_ORIENTATION = {
-  PORTRAIT: 'portrait',
-  LANDSCAPE: 'landscape',
-};
-
 export const PhoneMask = { mask: '9999 9999 999' };
 
-export enum Gender {
-  Male = 'male',
-  Female = 'female',
-  Other = 'other'
-}
+export const Gender = {
+  Male: 'male',
+  Female: 'female',
+  Other: 'other',
+};
 
 export const MaleGender = {
   label: 'Male',

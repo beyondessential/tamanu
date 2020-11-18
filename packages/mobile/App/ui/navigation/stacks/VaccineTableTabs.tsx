@@ -25,7 +25,7 @@ export const VaccineTableTabs = (): ReactElement => (
       options={{
         title: 'Adult',
       }}
-      name={Routes.HomeStack.VaccineStack.VaccineTabs.AdulTab}
+      name={Routes.HomeStack.VaccineStack.VaccineTabs.AdultTab}
       component={VaccineHistoryTab}
     />
   </Tab.Navigator>

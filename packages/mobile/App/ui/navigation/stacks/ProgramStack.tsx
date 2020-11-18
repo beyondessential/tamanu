@@ -14,7 +14,7 @@ export const ProgramStack = (): ReactElement => (
       component={ProgramListScreen}
     />
     <Stack.Screen
-      name={Routes.HomeStack.ProgramStack.ProgramTabs.name}
+      name={Routes.HomeStack.ProgramStack.ProgramTabs.Index}
       component={NewProgramEntryTabs}
     />
     <Stack.Screen

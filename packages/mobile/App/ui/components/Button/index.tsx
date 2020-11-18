@@ -36,10 +36,9 @@ export interface StyledButtonProps extends ButtonContainer {
 
 const ButtonContainer = styled(RowView)<ButtonContainer>`
   ${styledSystem.flexbox};
-  height: ${(props): any =>
-    props.height
-      ? props.height
-      : screenPercentageToDP(6.07, Orientation.Height)};
+  height: ${(props): any => (props.height
+    ? props.height
+    : screenPercentageToDP(6.07, Orientation.Height))};
   width: ${(props): any => (props.width ? props.width : '100%')};
   border-width: ${(props): any => (props.outline ? '1px' : props.borderWidth)};
   border-color: ${(props): string => props.borderColor || 'transparent'};
@@ -68,12 +67,10 @@ interface ButtonTextProps {
 }
 
 const StyledButtonText = styled.Text<ButtonTextProps>`
-  font-size: ${(props): StrNumType =>
-    props.fontSize
-      ? props.fontSize
-      : screenPercentageToDP(1.94, Orientation.Height)};
-  font-weight: ${(props): StrNumType =>
-    props.fontWeight ? props.fontWeight : 'bold'};
+  font-size: ${(props): StrNumType => (props.fontSize
+    ? props.fontSize
+    : screenPercentageToDP(1.94, Orientation.Height))};
+  font-weight: ${(props): StrNumType => (props.fontWeight ? props.fontWeight : 'bold')};
   color: ${(props): string => {
     if (props.textColor) return props.textColor;
     if (props.outline) return props.borderColor || theme.colors.MAIN_SUPER_DARK;
@@ -99,6 +96,7 @@ export const Button = ({
   flexDirection,
   alignItems = 'center',
   justifyContent = 'center',
+  padding,
   ...rest
 }: StyledButtonProps): FunctionComponentElement<{}> => (
   <StyledTouchableOpacity
@@ -108,7 +106,8 @@ export const Button = ({
     onPress={onPress}
     {...rest}
     background="transparent"
-    disabled={loadingAction}>
+    disabled={loadingAction}
+  >
     <ButtonContainer
       {...rest}
       flex={flex}
@@ -119,7 +118,9 @@ export const Button = ({
       backgroundColor={backgroundColor}
       borderColor={borderColor}
       height={height}
-      borderWidth={borderWidth}>
+      borderWidth={borderWidth}
+      padding={padding}
+    >
       {loadingAction && (
         <ActivityIndicator size="large" color={theme.colors.WHITE} />
       )}
@@ -130,7 +131,8 @@ export const Button = ({
           borderColor={borderColor}
           textColor={textColor}
           fontSize={fontSize}
-          fontWeight={fontWeight}>
+          fontWeight={fontWeight}
+        >
           {buttonText}
         </StyledButtonText>
       )}

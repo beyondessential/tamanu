@@ -34,20 +34,18 @@ const IOSDatePicker = ({
   onDateChange,
   isVisible,
   mode,
-}: IOSDatePickerProps): ReactElement | null => {
-  return isVisible ? (
-    <DateTimePicker
-      value={new Date()}
-      mode={mode}
-      display="spinner"
-      onChange={onDateChange}
-      style={styles.androidPickerStyles}
-    />
-  ) : null;
-};
+}: IOSDatePickerProps): ReactElement => (isVisible ? (
+  <DateTimePicker
+    value={new Date()}
+    mode={mode}
+    display="spinner"
+    onChange={onDateChange}
+    style={styles.androidPickerStyles}
+  />
+) : null);
 
 export interface DateFieldProps extends BaseInputProps {
-  value: Date | null;
+  value: Date;
   onChange: (date: Date) => void;
   placeholder?: '' | string;
   mode?: 'date' | 'time';
@@ -94,14 +92,14 @@ export const DateField = React.memo(
       [onChange],
     );
 
-    const IconComponent =
-      mode === 'date' ? Icons.CalendarIcon : Icons.ClockIcon;
+    const IconComponent = mode === 'date' ? Icons.CalendarIcon : Icons.ClockIcon;
 
     return (
       <StyledView width="100%">
         <StyledView
           height={screenPercentageToDP('6.68', Orientation.Height)}
-          width="100%">
+          width="100%"
+        >
           <TouchableWithoutFeedback onPress={showDatePicker}>
             <InputContainer
               disabled={disabled}
@@ -109,26 +107,30 @@ export const DateField = React.memo(
               error={error}
               flexDirection="row"
               justifyContent="space-between"
-              paddingLeft={screenPercentageToDP(2.82, Orientation.Width)}>
+              paddingLeft={screenPercentageToDP(2.82, Orientation.Width)}
+            >
               {label && (
                 <TextFieldLabel
                   error={error}
                   focus={disabled ? false : isDatePickerVisible}
                   onFocus={showDatePicker}
-                  isValueEmpty={value !== null}>
+                  isValueEmpty={value !== null}
+                >
                   {`${label}${required ? '*' : ''}`}
                 </TextFieldLabel>
               )}
               <StyledText
                 fontSize={screenPercentageToDP(2.18, Orientation.Height)}
                 color={theme.colors.TEXT_DARK}
-                marginTop={screenPercentageToDP(1.2, Orientation.Height)}>
+                marginTop={screenPercentageToDP(1.2, Orientation.Height)}
+              >
                 {formatValue()}
               </StyledText>
               <StyledView
                 marginRight={10}
                 height="100%"
-                justifyContent="center">
+                justifyContent="center"
+              >
                 <IconComponent
                   height={screenPercentageToDP(3.03, Orientation.Height)}
                   width={screenPercentageToDP(3.03, Orientation.Height)}

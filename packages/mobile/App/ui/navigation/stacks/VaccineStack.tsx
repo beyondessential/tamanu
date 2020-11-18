@@ -45,7 +45,7 @@ const HeaderTitle = (): ReactElement => (
 
 const Header = ({ navigation }: StackHeaderProps): ReactElement => {
   const goBack = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.HomeTabs.name);
+    navigation.navigate(Routes.HomeStack.HomeTabs.Index);
   }, []);
   return (
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
@@ -74,20 +74,20 @@ export const VaccineStack = (): ReactElement => (
       options={{
         header: Header,
       }}
-      name={Routes.HomeStack.VaccineStack.VaccineTabs.name}
+      name={Routes.HomeStack.VaccineStack.VaccineTabs.Index}
       component={VaccineTableTabs}
     />
     <Stack.Screen
       options={{
-        header: () => null,
+        header: (): null => null,
         ...TransitionPresets.ModalSlideFromBottomIOS,
       }}
-      name={Routes.HomeStack.VaccineStack.NewVaccineTabs.name}
+      name={Routes.HomeStack.VaccineStack.NewVaccineTabs.Index}
       component={NewVaccineTabs}
     />
     <Stack.Screen
       options={{
-        header: () => null,
+        header: (): null => null,
         ...TransitionPresets.ModalSlideFromBottomIOS,
       }}
       name={Routes.HomeStack.VaccineStack.VaccineModalScreen}

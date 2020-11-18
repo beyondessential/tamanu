@@ -12,9 +12,10 @@ import { MaterialTopTabView } from '@react-navigation/material-top-tabs';
 import { theme } from '/styled/theme';
 
 type TabNavigationConfig = {
-  tabBarStyle?: StyleProp<ViewStyle>;
-  contentStyle?: StyleProp<ViewStyle>;
-  swipeEnabled?: boolean;
+  tabBarStyle: StyleProp<ViewStyle>;
+  contentStyle: StyleProp<ViewStyle>;
+  swipeEnabled: boolean;
+  lazy: boolean;
 };
 
 type TabNavigationOptions = {

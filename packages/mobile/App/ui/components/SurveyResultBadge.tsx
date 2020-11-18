@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyledView, StyledText, FullView } from '/styled/common';
+import { StyledView, StyledText } from '/styled/common';
 
 const COLORS = {
   green: '#83d452',
@@ -12,7 +12,7 @@ const COLORS = {
 // TODO: read color coding string from survey instead of hardcoded
 const CODING_STRING = 'green 10 yellow 20 orange 30 red 40 deepred';
 
-function parseThresholdString(s) {
+function parseThresholdString(s): { colors: string[]; thresholds: any[] } {
   const colors = [];
   const thresholds = [];
 
@@ -31,7 +31,7 @@ function parseThresholdString(s) {
   return { colors, thresholds };
 }
 
-function getColorForValue(result, thresholdString) {
+function getColorForValue(result, thresholdString): string {
   const { colors, thresholds } = parseThresholdString(thresholdString);
   for (let i = 0; i < thresholds.length; ++i) {
     if (result < thresholds[i]) {
@@ -41,22 +41,19 @@ function getColorForValue(result, thresholdString) {
   return colors[colors.length - 1];
 }
 
-export const SurveyResultBadge = ({ result }) => {
+export const SurveyResultBadge = ({ result }): JSX.Element => {
   if (!result && result !== 0) {
     return null;
   }
   const colorName = getColorForValue(result, CODING_STRING);
   return (
-    <StyledView 
+    <StyledView
       paddingLeft="6"
       paddingRight="6"
       borderRadius={5}
       background={COLORS[colorName]}
     >
-      <StyledText>
-        {`${result.toFixed(2)}%`}
-      </StyledText>
+      <StyledText>{`${result.toFixed(2)}%`}</StyledText>
     </StyledView>
   );
 };
-

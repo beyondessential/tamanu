@@ -1,7 +1,6 @@
-import React, { useState, ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { compose } from 'redux';
-import { useField } from 'formik';
 import { NavigationProp } from '@react-navigation/native';
 import { TouchableOpacity, FlatList } from 'react-native-gesture-handler';
 // Containers
@@ -13,12 +12,11 @@ import { ErrorScreen } from '/components/ErrorScreen';
 // props
 import { RecentViewedScreenProps } from '/interfaces/screens/PatientSearchStack';
 // Helpers
-import { data } from '/components/PatientSectionList/fixture';
 import { Routes } from '/helpers/routes';
 import { StyledView, FullView } from '/styled/common';
 import { joinNames } from '/helpers/user';
 import { getAgeFromDate } from '~/ui/helpers/date';
-import { useBackendEffect } from '~/ui/helpers/hooks';
+import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
 
 interface PatientListProps {
   list: any[];
@@ -30,20 +28,23 @@ const Screen = ({
   navigation,
   setSelectedPatient,
 }: RecentViewedScreenProps): ReactElement => {
-  /** Get Search Input */
-  const [field] = useField('search');
+  const [recentlyViewedPatients, error] = useRecentlyViewedPatients();
 
-  const [list, error] = useBackendEffect(({ models }) => {
-    return models.Patient.getRepository().find({
-      take: 10
-    });
-  });
+  useEffect(() => {
+    if (recentlyViewedPatients?.length === 0) {
+      // Navigate on a delay in order to wait for navigation to this screen to complete
+      setTimeout(
+        () => navigation.navigate(Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll),
+        30,
+      );
+    }
+  }, [recentlyViewedPatients]);
 
-  if(error) {
+  if (error) {
     return <ErrorScreen error={error} />;
   }
 
-  if(!list) {
+  if (!recentlyViewedPatients || !recentlyViewedPatients.length) {
     return <LoadingScreen text="Loading patients..." />;
   }
 
@@ -51,12 +52,12 @@ const Screen = ({
     <FullView>
       <FlatList
         showsVerticalScrollIndicator={Platform.OS === 'android'}
-        data={list}
+        data={recentlyViewedPatients}
         keyExtractor={(item): string => item.id.toString()}
         renderItem={({ item }: { item: any }): ReactElement => {
           const onNavigateToPatientHome = (): void => {
             setSelectedPatient(item);
-            navigation.navigate(Routes.HomeStack.HomeTabs.name, {
+            navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
               screen: Routes.HomeStack.HomeTabs.Home,
             });
           };

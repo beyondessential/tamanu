@@ -1,20 +1,17 @@
-import React, { useState, useCallback, useEffect, ReactElement } from 'react';
+import React, { useCallback, ReactElement } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { FullView, StyledText } from '/styled/common';
+import { FullView } from '/styled/common';
 import { compose } from 'redux';
 import { theme } from '/styled/theme';
-import {
-  MenuOptionButton,
-  MenuOptionButtonProps,
-} from '/components/MenuOptionButton';
+import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
 import { withPatient } from '/containers/Patient';
 import { IPatient } from '~/types';
 import { joinNames } from '/helpers/user';
-import { useBackendEffect } from '~/ui/helpers/hooks';
+import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 interface ProgramListScreenProps {
@@ -30,14 +27,11 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
     navigation.goBack();
   }, []);
 
-  const onNavigateToSurvey = survey => {
-    navigation.navigate(
-      Routes.HomeStack.ProgramStack.ProgramTabs.name,
-      { 
-        surveyId: survey.id,
-        surveyName: survey.name,
-      }
-    );
+  const onNavigateToSurvey = (survey): any => {
+    navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.Index, {
+      surveyId: survey.id,
+      surveyName: survey.name,
+    });
   };
 
   return (
@@ -61,9 +55,9 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
           data={surveys}
           keyExtractor={(item): string => item.title}
           renderItem={({ item }): ReactElement => (
-            <MenuOptionButton 
+            <MenuOptionButton
               title={item.name}
-              onPress={() => onNavigateToSurvey(item)}
+              onPress={(): void => onNavigateToSurvey(item)}
               fontWeight={500}
               textColor={theme.colors.TEXT_SUPER_DARK}
             />

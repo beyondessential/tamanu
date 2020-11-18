@@ -4,14 +4,12 @@ import { UserAvatar, UserAvatarProps } from './index';
 import { getUserInitials } from '/helpers/user';
 
 describe('<UserAvatar/>', () => {
-  const makeUserAvatar = (image?: string): UserAvatarProps => {
-    return {
-      size: 25,
-      displayName: 'Name LastName',
-      gender: 'male',
-      image,
-    };
-  };
+  const makeUserAvatar = (image?: string): UserAvatarProps => ({
+    size: 25,
+    displayName: 'Name LastName',
+    gender: 'male',
+    image,
+  });
 
   const withImageProps = makeUserAvatar(
     'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',

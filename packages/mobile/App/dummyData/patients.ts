@@ -1,8 +1,8 @@
 import { Chance } from 'chance';
-import { GenderOptions } from '/helpers/constants';
-import { BloodTypes } from '/helpers/constants';
+import { GenderOptions, BloodTypes } from '/helpers/constants';
+import { IPatient } from '~/types';
 
-const chance = new Chance();
+const defaultGenerator = new Chance();
 
 const CITIES = [
   'Melbourne',
@@ -15,14 +15,14 @@ const CITIES = [
   'Canberra',
 ];
 
-export const generatePatient = () => {
-  const sex = (chance.bool() ? GenderOptions[0] : GenderOptions[1]).value;
-  const [firstName, middleName, lastName] = chance
+export const generatePatient = (generator = defaultGenerator): IPatient => {
+  const sex = (generator.bool() ? GenderOptions[0] : GenderOptions[1]).value;
+  const [firstName, middleName, lastName] = generator
     .name({middle: true, gender: sex })
     .split(' ');
   return {
-    id: chance.guid({version: 4}),
-    displayId: chance.string({
+    id: generator.guid({version: 4}),
+    displayId: generator.string({
       symbols: false,
       length: 6,
       casing: 'upper',
@@ -32,12 +32,9 @@ export const generatePatient = () => {
     firstName,
     middleName,
     lastName,
-    culturalName: chance.bool() ? "" : chance.name(),
-    bloodType: chance.pickone(BloodTypes).value,
-    telephone: chance.phone(),
+    culturalName: generator.bool() ? '' : generator.name(),
+    bloodType: generator.pickone(BloodTypes).value,
     sex,
-    dateOfBirth: chance.birthday(),
-    city: chance.pickone(CITIES),
+    dateOfBirth: generator.birthday(),
   };
 };
-

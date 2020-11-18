@@ -34,14 +34,14 @@ export const GeneralInfo = (
       <InformationBox
         flex={1}
         title="Cultural/tradition name"
-        info={data.generalInfo.culturalTraditionName || 'None'}
+        info={data.generalInfo.culturalName || 'None'}
       />
     </RowView>
     <RowView marginTop={20}>
       <InformationBox
         flex={1}
         title="Date of Birth"
-        info={formatDate(data.generalInfo.dateOfBirth, DateFormats.DDMMYY)}
+        info={formatDate(new Date(data.generalInfo.dateOfBirth), DateFormats.DDMMYY)}
       />
       <InformationBox flex={1} title="Blood type" info="B+" />
     </RowView>

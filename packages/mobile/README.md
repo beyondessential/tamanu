@@ -36,6 +36,12 @@ If you are about to use IOS simulators you will also need to go into the `ios` f
 cd ios && pod install
 ```
 
+### Configure environment
+
+```
+cp .sampleenv .env
+```
+
 ### Making Project runnable
 
 #### Xcode
@@ -53,6 +59,12 @@ Open your console/terminal in the project folder
 
 Be sure to have [Xcode](https://apps.apple.com/br/app/xcode/id497799835?marginTop=12) and/or [Android Studio](https://www.google.com/search?q=android+studio&oq=android+studio&aqs=chrome..69i57j69i60l2j69i65l2j69i60.1366j0j4&sourceid=chrome&ie=UTF-8) installed in your computer.
 
+### Run emulator
+
+```
+yarn android
+```
+
 ### Run metro bundler
 
 The metro-bundler works with watchman to reload stuff into the device or emulator and show up updates during development.
@@ -65,29 +77,13 @@ yarn start
 ### Run storybook
 
 Storybook is our default component library which helps us checking the behavior and styles of components in an isolated environment.
-Be sure to have and Emulator/Simulator open and then Run it by using the following commands:
 
-```
-yarn run storybook
-```
+To run storybook:
+1. Have your emulator running
+1. Have your app running (metro bundler)
+1. Open the dev menu and press `Toggle Storybook`
 
-Now run the metro-bundler
-
-```
-yarn start
-```
-
-And at last run the app:
-
-```
-react-native run-ios
-```
-
-or for android:
-
-```
-react-native run-android
-```
+You can also run `yarn storybook-web-ui` for a little nicer experience.
 
 ## Emulator Command Hints
 
