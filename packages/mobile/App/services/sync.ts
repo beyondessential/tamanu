@@ -56,6 +56,7 @@ export class SyncManager {
   async syncRecord(syncRecord: SyncRecord) {
     // write one single downloaded record to the database
     const { recordType, data } = syncRecord;
+
     const model = this.getModelForRecordType(recordType);
     if(!model) {
       throw new NoSyncImporterError(recordType);
@@ -177,9 +178,10 @@ export class SyncManager {
           }
         } catch(e) {
           if(e.message.match(/FOREIGN KEY constraint failed/)) {
+            // this error is to be expected! just push it
             pendingRecords.push(r);
           } else {
-            throw e;
+            console.warn("Error while importing:", e, r);
           }
         }
       }));
@@ -256,10 +258,13 @@ export class SyncManager {
       : overrideLastSynced;
 
     this.emitter.emit('channelSyncStarted', channel);
-    const maxDate = await this.syncAllPages(channel, lastSynced, () => undefined);
+    try {
+      const maxDate = await this.syncAllPages(channel, lastSynced, () => undefined);
+      await this.updateChannelSyncDate(channel, maxDate);
+    } catch(e) {
+      console.error(e);
+    }
     this.emitter.emit('channelSyncEnded', channel);
-
-    await this.updateChannelSyncDate(channel, maxDate);
   }
 
   async runPatientSync(patient: Patient): Promise<void> {
