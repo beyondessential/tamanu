@@ -86,9 +86,9 @@ export class SyncManager {
 
     await this.runChannelSync('reference');
     await this.runChannelSync('user');
-    await this.runChannelSync('survey', 0);
+    await this.runChannelSync('survey');
     await this.runChannelSync('patient');
-    await this.runChannelSync('vaccination');
+    await this.runChannelSync('vaccine');
 
     // sync all reference data including shallow patient list
     // full sync of patients that've been flagged (encounters, etc)
@@ -211,10 +211,8 @@ export class SyncManager {
     await writeConfig(`syncDate.${channel}`, timestampString);
   }
 
-  async runChannelSync(channel: string, overrideLastSynced = null): Promise<void> {
-    const lastSynced = (overrideLastSynced === null)
-      ? await this.getChannelSyncDate(channel)
-      : overrideLastSynced;
+  async runChannelSync(channel: string): Promise<void> {
+    const lastSynced = await this.getChannelSyncDate(channel);
 
     this.emitter.emit('channelSyncStarted', channel);
     const maxDate = await this.syncAllPages(channel, lastSynced, () => undefined);
