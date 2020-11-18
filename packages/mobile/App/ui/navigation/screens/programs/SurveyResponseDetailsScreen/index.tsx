@@ -10,6 +10,7 @@ import { DateFormats } from '/helpers/constants';
 import { FieldTypes } from '/helpers/fields';
 import { SurveyResultBadge } from '/components/SurveyResultBadge';
 
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { useBackendEffect } from '~/ui/hooks';
 
 function getAnswerText(question, answer): string | number {
@@ -25,6 +26,7 @@ function getAnswerText(question, answer): string | number {
     case FieldTypes.SELECT:
     case FieldTypes.RESULT:
     case FieldTypes.RADIO:
+    case FieldTypes.CONDITION:
       return answer || 'N/A';
     case FieldTypes.BINARY:
       return answer ? 'Yes' : 'No';
@@ -86,7 +88,7 @@ export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
   }
 
   if(!surveyResponse) {
-    return <StyledText>Loading</StyledText>;
+    return <LoadingScreen />;
   }
 
   const { encounter, survey, questions, answers, ...rest } = surveyResponse;
