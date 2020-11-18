@@ -71,7 +71,7 @@ export class Survey extends BaseModel implements ISurvey {
     return repo.find({
       where: { survey: { id: this.id } },
       relations: ['dataElement'],
-      order: { componentIndex: 'ASC' },
+      order: { screenIndex: 'ASC', componentIndex: 'ASC' },
     });
   }
 
