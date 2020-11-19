@@ -16,15 +16,20 @@ export class SyncManager {
 
   progress = 0;
 
-  lastSyncTime: Date | null = null;
-
   emitter = mitt();
+
+  errors = [];
 
   constructor(syncSource: SyncSource) {
     this.syncSource = syncSource;
 
-    this.emitter.on('*', (action, ...args) => {
-      if (action === 'syncedRecord') return;
+    this.emitter.on("*", (action, ...args) => {
+      if(action === 'syncedRecord') return;
+      if(action === 'syncRecordError') {
+        this.errors.push(args[0]);
+        console.warn('error', args[0]);
+        return;
+      }
 
       console.log(`[sync] ${action} ${args[0] || ''}`);
     });
@@ -118,7 +123,6 @@ export class SyncManager {
 
     this.emitter.emit('syncEnded');
     this.isSyncing = false;
-    this.lastSyncTime = new Date();
   }
 
   getPatientsToSync() {
@@ -188,7 +192,11 @@ export class SyncManager {
             r.ERROR_MESSAGE = e.message;
             pendingRecords.push(r);
           } else {
-            console.warn("Error while importing:", e, r);
+            console.warn("syncRecordError", e, r);
+            this.emitter.emit("syncRecordError", {
+              record: r,
+              error: e,
+            });
           }
         }
       }));
@@ -243,6 +251,7 @@ export class SyncManager {
       if(pendingRecords.length === thisPass.length) {
         console.warn("Could not import remaining queue members:");
         console.warn(JSON.stringify(pendingRecords, null, 2));
+        pendingRecords.map(r => this.errors.push(r));
         throw new Error(`Could not import any ${pendingRecords.length} remaining queue members`);
       }
     }
