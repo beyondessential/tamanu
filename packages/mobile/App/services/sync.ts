@@ -239,6 +239,11 @@ export class SyncManager {
         this.emitter.emit('importingPage', `${channel}-${page}`);
         const importTask = await syncRecords(response.records);
 
+        if(singlePageMode) {
+          await importTask;
+          break;
+        }
+
         // start downloading the next page now
         page += 1;
         downloadTask = downloadPage(page);
@@ -287,6 +292,7 @@ export class SyncManager {
     const lastSynced = (overrideLastSynced === null)
       ? await this.getChannelSyncDate(channel)
       : overrideLastSynced;
+
 
     this.emitter.emit('channelSyncStarted', channel);
     try {

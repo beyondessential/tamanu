@@ -1,56 +1,9 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
-/* eslint-disable max-classes-per-file */
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Program } from './Program';
 import { Database } from '~/infra/db';
 
-import { ISurveyScreenComponent, ISurvey, IProgramDataElement } from '~/types';
-import { SurveyResponse } from './SurveyResponse';
-
-@Entity('survey_screen_component')
-export class SurveyScreenComponent extends BaseModel
-  implements ISurveyScreenComponent {
-  required: boolean;
-
-  @Column('int')
-  screenIndex: number;
-
-  @Column('int')
-  componentIndex: number;
-
-  @Column({ nullable: true })
-  text?: string;
-
-  @Column({ nullable: true })
-  visibilityCriteria?: string;
-
-  @Column({ nullable: true })
-  options?: string;
-
-  @ManyToOne(type => Survey, survey => survey.components)
-  survey: Survey;
-
-  @ManyToOne(type => ProgramDataElement)
-  dataElement: ProgramDataElement;
-
-  getOptions(): any {
-    try {
-      const optionString = (this.options || this.dataElement.defaultOptions || '');
-      if(!optionString) {
-        return [];
-      }
-      const optionArray = JSON.parse(optionString);
-      return optionArray
-        .map(x => x.trim())
-        .filter(x => x)
-        .map(x => ({ label: x, value: x }));
-    } catch(e) {
-      console.error(e);
-      return [];
-    }
-  }
-}
+import { ISurveyScreenComponent, ISurveyResponse } from '~/types';
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {
@@ -67,7 +20,7 @@ export class Survey extends BaseModel implements ISurvey {
   components: any;
 
   getComponents(): Promise<BaseModel[]> {
-    const repo = SurveyScreenComponent.getRepository();
+    const repo = Database.models.SurveyScreenComponent.getRepository();
     return repo.find({
       where: { survey: { id: this.id } },
       relations: ['dataElement'],
@@ -75,7 +28,7 @@ export class Survey extends BaseModel implements ISurvey {
     });
   }
 
-  static async getResponses(surveyId): Promise<SurveyResponse[]> {
+  static async getResponses(surveyId): Promise<ISurveyResponse[]> {
     const responses = await Database.models.SurveyResponse.find({
       where: {
         survey: surveyId,
@@ -84,24 +37,5 @@ export class Survey extends BaseModel implements ISurvey {
     });
     return responses;
   }
-}
-
-@Entity('program_data_element')
-export class ProgramDataElement extends BaseModel
-  implements IProgramDataElement {
-  @Column()
-  code: string;
-
-  @Column({ default: '' })
-  indicator: string;
-
-  @Column({ default: '' })
-  defaultText: string;
-
-  @Column({ nullable: true })
-  defaultOptions?: string;
-
-  @Column()
-  type: string;
 }
 
