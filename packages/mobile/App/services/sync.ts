@@ -211,7 +211,7 @@ export class SyncManager {
         // keep importing until we hit a page with 0 records
         // (this does mean we're always making 1 more web request than
         // is necessary, probably room for optimisation here)
-        if(response.records.length === 0 || singlePageMode) {
+        if(response.records.length === 0) {
           break;
         }
 
@@ -220,6 +220,11 @@ export class SyncManager {
         // we have records to import - import them
         this.emitter.emit("importingPage", `${channel}-${page}`);
         const importTask = await syncRecords(response.records);
+
+        if(singlePageMode) {
+          await importTask;
+          break;
+        }
 
         // start downloading the next page now
         page += 1;
@@ -269,6 +274,7 @@ export class SyncManager {
     const lastSynced = (overrideLastSynced === null)
       ? await this.getChannelSyncDate(channel)
       : overrideLastSynced;
+
 
     this.emitter.emit('channelSyncStarted', channel);
     try {
