@@ -8,6 +8,8 @@ import { BackendContext } from '~/services/backendProvider';
 import { SyncManager } from '~/services/sync';
 import { CircularProgress } from '/components/CircularProgress';
 
+import { SyncErrorDisplay } from '~/ui/components/SyncErrorDisplay';
+
 export const SyncDataScreen = (props): ReactElement => {
   const backend = useContext(BackendContext);
   const syncManager: SyncManager = backend.syncManager;
@@ -23,6 +25,8 @@ export const SyncDataScreen = (props): ReactElement => {
   const manualSync = useCallback(() => {
     syncManager.runScheduledSync();
   }, []);
+
+  const errorDisplayAvailable = true;
 
   useEffect(() => {
     const handler = (action, ...args) => {
@@ -110,6 +114,7 @@ export const SyncDataScreen = (props): ReactElement => {
             />
           )
         }
+        <SyncErrorDisplay />
       </StyledView>
     </CenterView>
   );

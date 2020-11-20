@@ -7,6 +7,8 @@ import {
   getRepository,
 } from 'typeorm/browser';
 
+const stripId = (key) => (key === 'displayId') ? key : key.replace(/Id$/, '');
+
 function stripIdSuffixes(data) {
   // TypeORM expects foreign key writes to be done against just the bare name
   // of the relation, rather than "relationId", but the data is all serialised
@@ -15,7 +17,7 @@ function stripIdSuffixes(data) {
   return Object.entries(data)
     .reduce((state, [key, value]) => ({
       ...state,
-      [key.replace(/Id$/, '')]: value,
+      [stripId(key)]: value,
     }), {});
 }
 

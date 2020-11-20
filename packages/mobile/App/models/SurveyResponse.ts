@@ -1,10 +1,12 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
-import { BaseModel } from './BaseModel';
-import { Survey, ProgramDataElement } from './Survey';
-import { Encounter } from './Encounter';
 
-import { ISurveyResponse, ISurveyResponseAnswer } from '~/types';
+import { BaseModel } from './BaseModel';
+import { Survey } from './Survey';
+import { ProgramDataElement } from './ProgramDataElement';
+import { Encounter } from './Encounter';
+import { SurveyResponseAnswer } from './SurveyResponseAnswer';
+
+import { ISurveyResponse } from '~/types';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
@@ -74,15 +76,3 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   }
 }
 
-@Entity('survey_response_answer')
-export class SurveyResponseAnswer extends BaseModel
-  implements ISurveyResponseAnswer {
-  @Column()
-  body: string;
-
-  @ManyToOne(type => SurveyResponse, surveyResponse => surveyResponse.answers)
-  response: SurveyResponse;
-
-  @ManyToOne(type => ProgramDataElement, dataElement => dataElement.answers)
-  dataElement: ProgramDataElement;
-}

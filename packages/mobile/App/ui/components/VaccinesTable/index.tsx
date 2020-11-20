@@ -7,6 +7,8 @@ import { VaccineTableCell } from './VaccinesTableCell';
 import { VaccinesTableTitle } from './VaccinesTableTitle';
 import { vaccineTableHeader } from './VaccineTableHeader';
 import { VaccineStatus } from '~/ui/helpers/constants';
+import { ErrorScreen } from '../ErrorScreen';
+import { LoadingScreen } from '../LoadingScreen';
 
 interface VaccinesTableProps {
   selectedPatient: any;
@@ -28,7 +30,8 @@ export const VaccinesTable = memo(
       [],
     );
 
-    if (!data || error || administeredError) return null;
+    if (error || administeredError) return <ErrorScreen error={error || administeredError} />;
+    if (!data) return <LoadingScreen />;
 
     const schedules = uniqBy(data, 'schedule').map(d => d.schedule);
 
