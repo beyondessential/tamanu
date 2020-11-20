@@ -58,15 +58,15 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
     const responseRecord = await SurveyResponse.create({
       encounter: encounter.id,
+      survey: surveyId,
       startTime: Date.now(),
       endTime: Date.now(),
-      survey: surveyId,
       ...otherData,
     });
 
     const answers = await Promise.all(
       Object.entries(values).map(([dataElementId, value]) => SurveyResponseAnswer.create({
-        dataElementId,
+        dataElement: dataElementId,
         body: `${value}`,
         response: responseRecord.id,
       })),
