@@ -1,4 +1,3 @@
-
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
 
 import { BaseModel } from './BaseModel';

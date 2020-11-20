@@ -4,6 +4,7 @@ import { BaseModel } from './BaseModel';
 import { Survey } from './Survey';
 import { ProgramDataElement } from './ProgramDataElement';
 import { Encounter } from './Encounter';
+import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 
 import { ISurveyResponse } from '~/types';
 
