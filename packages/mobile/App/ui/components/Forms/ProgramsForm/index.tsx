@@ -5,6 +5,7 @@ import { Button } from '../../Button';
 import { theme } from '/styled/theme';
 import { FormScreenView } from '../FormScreenView';
 import { ProgramsFormProps } from '../../../interfaces/forms/ProgramsFormProps';
+import { StyledText, StyledView } from '~/ui/styled/common';
 import { FormFields } from './FormFields';
 import {
   getFormInitialValues,
@@ -15,6 +16,7 @@ import {
 export const ProgramsForm = ({
   onSubmit,
   components,
+  note,
 }: ProgramsFormProps): ReactElement => {
   const initialValues = useMemo(() => getFormInitialValues(components), [components]);
   const formValidationSchema = useMemo(() => getFormSchema(components), [components]);
@@ -40,6 +42,9 @@ export const ProgramsForm = ({
               buttonText="Submit"
               onPress={handleSubmit}
             />
+            <StyledView margin={10}>
+              <StyledText>{note}</StyledText>
+            </StyledView> 
           </FormScreenView>
         </FullView>
       )}

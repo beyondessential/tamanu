@@ -45,32 +45,42 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     };
   }
 
-  static async submit(patientId, surveyData, values): Promise<SurveyResponse> {
+  static async submit(patientId, surveyData, values, setNote = () => null): Promise<SurveyResponse> {
     const { surveyId, encounterReason, ...otherData } = surveyData;
 
-    const encounter = await Encounter.create({
-      patient: patientId,
-      startDate: new Date(),
-      endDate: new Date(),
-      encounterType: 'surveyResponse',
-      reasonForEncounter: encounterReason,
-    });
+    try {
+      setNote("Creating encounter...");
+      const encounter = await Encounter.create({
+        patient: patientId,
+        startDate: new Date(),
+        endDate: new Date(),
+        encounterType: 'surveyResponse',
+        reasonForEncounter: encounterReason,
+      });
 
-    const responseRecord = await SurveyResponse.create({
-      encounter: encounter.id,
-      survey: surveyId,
-      startTime: Date.now(),
-      endTime: Date.now(),
-      ...otherData,
-    });
+      setNote("Creating response object...");
+      const responseRecord = await SurveyResponse.create({
+        encounter: encounter.id,
+        survey: surveyId,
+        startTime: Date.now(),
+        endTime: Date.now(),
+        ...otherData,
+      });
 
-    const answers = await Promise.all(
-      Object.entries(values).map(([dataElementId, value]) => SurveyResponseAnswer.create({
-        dataElement: dataElementId,
-        body: `${value}`,
-        response: responseRecord.id,
-      })),
-    );
+      setNote("Attaching answers...");
+      for(let a of Object.entries(values)) { 
+        const [dataElementId, value] = a;
+        setNote(`Attaching answer for ${dataElementId}...`);
+        await SurveyResponseAnswer.create({
+          dataElement: dataElementId,
+          body: `${value}`,
+          response: responseRecord.id,
+        });
+      }
+      setNote(`Done`);
+    } catch(e) {
+      setNote(`Error: ${e.message} (${JSON.stringify(e)})`);     
+    }
 
     return responseRecord;
   }

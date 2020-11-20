@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Screen } from './Screen';
-import { StyledText } from '~/ui/styled/common';
+import { StyledText, StyledView } from '~/ui/styled/common';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ProgramAddDetailsScreenProps } from '/interfaces/screens/ProgramsStack/ProgramAddDetails/ProgramAddDetailsScreenProps';
 import { Routes } from '/helpers/routes';
@@ -21,6 +21,7 @@ export const ProgramAddDetailsScreen = ({
   const selectedPatientId = selectedPatient.id;
   const navigation = useNavigation();
 
+  const [note, setNote] = useState("Waiting for submission attempt.");
   const [survey, error] = useBackendEffect(
     ({ models }) => models.Survey.getRepository().findOne(surveyId),
   );
@@ -40,6 +41,7 @@ export const ProgramAddDetailsScreen = ({
           result,
         },
         values,
+        setNote,
       );
 
       navigation.navigate(
@@ -62,6 +64,7 @@ export const ProgramAddDetailsScreen = ({
       onSubmitForm={onSubmitForm}
       survey={survey}
       patient={selectedPatient}
+      note={note}
     />
   );
 };
