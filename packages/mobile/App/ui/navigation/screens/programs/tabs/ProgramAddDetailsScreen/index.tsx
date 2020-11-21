@@ -28,7 +28,7 @@ export const ProgramAddDetailsScreen = ({
 
   const { models } = useBackend();
   const onSubmitForm = useCallback(
-    async (values: any) => {
+    async (values: any, components: any) => {
       // TODO: determine results for all calculated answer types
       // (here? or possibly dynamically inside form)
       const result = Math.random() * 100.0;
@@ -37,6 +37,7 @@ export const ProgramAddDetailsScreen = ({
         selectedPatientId,
         {
           surveyId,
+          components,
           encounterReason: `Survey response for ${survey.name}`,
           result,
         },

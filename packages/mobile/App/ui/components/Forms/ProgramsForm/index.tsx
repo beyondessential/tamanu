@@ -10,7 +10,6 @@ import { FormFields } from './FormFields';
 import {
   getFormInitialValues,
   getFormSchema,
-  mapInputVerticalPosition,
 } from './helpers';
 
 export const ProgramsForm = ({
@@ -20,12 +19,11 @@ export const ProgramsForm = ({
 }: ProgramsFormProps): ReactElement => {
   const initialValues = useMemo(() => getFormInitialValues(components), [components]);
   const formValidationSchema = useMemo(() => getFormSchema(components), [components]);
-  const verticalPositions = useMemo(() => mapInputVerticalPosition(components), [components]);
 
   return (
     <Formik
       validationSchema={formValidationSchema}
-      initialValues={initialValues}
+      initialValues={{}}
       onSubmit={onSubmit}
     >
       {({ handleSubmit, values }): ReactElement => (
@@ -33,7 +31,6 @@ export const ProgramsForm = ({
           <FormScreenView>
             <FormFields
               components={components}
-              verticalPositions={verticalPositions}
               values={values}
             />
             <Button
