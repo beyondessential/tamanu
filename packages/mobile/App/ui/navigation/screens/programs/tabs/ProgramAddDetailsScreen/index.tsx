@@ -44,6 +44,8 @@ export const ProgramAddDetailsScreen = ({
         setNote,
       );
 
+      if(!response) return;
+
       navigation.navigate(
         Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory,
         {

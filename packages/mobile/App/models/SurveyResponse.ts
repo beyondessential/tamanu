@@ -78,11 +78,13 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         });
       }
       setNote(`Done`);
+
+      return responseRecord;
     } catch(e) {
       setNote(`Error: ${e.message} (${JSON.stringify(e)})`);     
-    }
 
-    return responseRecord;
+      return null;
+    }
   }
 }
 
