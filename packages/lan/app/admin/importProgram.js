@@ -18,14 +18,12 @@ const makeRecord = (recordType, data) => ({
 function makeScreen(screen, componentData) {
   return screen.dataElements.map(((component, i) => {
     const {
-      visibilityCriteria,
+      visibilityCriteria = '',
       ...elementData
     } = component;
 
     const dataElement = makeRecord('programDataElement', {
       id: `dataElement/${elementData.code}`,
-      code: elementData.code,
-      name: elementData.name,
       defaultOptions: '',
       ...elementData,
     });
@@ -33,7 +31,10 @@ function makeScreen(screen, componentData) {
     const surveyScreenComponent = makeRecord('surveyScreenComponent', {
       id: `${componentData.surveyId}/component-${elementData.code}`,
       dataElementId: dataElement.data.id, 
+      text: '',
+      options: '',
       componentIndex: i,
+      visibilityCriteria,
       ...componentData,
     });
 
@@ -76,7 +77,7 @@ export async function importSurvey(taskDefinition) {
     surveyElement,
     ...screenElements,
   ];
-
+  
   log.info(`Syncing ${records.length} records to ${config.syncHost}...`);
 
   const channel = "survey";
