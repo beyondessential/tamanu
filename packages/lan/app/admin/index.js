@@ -5,6 +5,8 @@ import { log } from '../logging';
 
 import { importSurvey } from './importProgram';
 
+import { readDataDefinition } from '~/dataDefinitionImporter';
+
 /***********
  * Update your local.json to something like this to import data files
  
@@ -29,7 +31,9 @@ import { importSurvey } from './importProgram';
 async function importData({ file }) {
   log.info(`Importing data definitions from ${file}...`);
 
-  // parse file to xlsx using the usual method
+  const data = await readDataDefinition(file);
+
+  console.log(data);
   
   // then restructure the parsed data to sync record format 
   

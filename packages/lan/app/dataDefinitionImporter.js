@@ -255,7 +255,7 @@ const compareImporterPriority = ({ importerId: idA }, { importerId: idB }) => {
   return idA.localeCompare(idB);
 };
 
-export async function importDataDefinition(models, path, onSheetImported) {
+export async function readDataDefinition(path) {
   const workbook = readFile(path);
   const sheets = Object.entries(workbook.Sheets).map(([sheetName, sheet]) => ({
     sheetName,
@@ -263,13 +263,21 @@ export async function importDataDefinition(models, path, onSheetImported) {
     importerId: convertSheetNameToImporterId(sheetName),
   }));
 
-  sheets.sort(compareImporterPriority);
+  return sheets
+    .sort(compareImporterPriority)
+    .map(({ sheetName, sheet }) => ({
+      sheetName,
+      data: utils.sheet_to_json(sheet),
+    }));
+}
+
+export async function importDataDefinition(models, path, onSheetImported) {
+  const sheetData = readDataDefinition(path);
 
   // import things serially just so we're not spamming the same
   // table of the database with a bunch of parallel imports
-  for (let i = 0; i < sheets.length; ++i) {
-    const { sheetName, sheet } = sheets[i];
-    const data = utils.sheet_to_json(sheet);
+  for (let i = 0; i < sheetData.length; ++i) {
+    const { sheetName, data } = sheetData[i];
     const sheetResult = await importJson(models, sheetName, data);
 
     if (onSheetImported) {
