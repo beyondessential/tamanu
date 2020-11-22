@@ -5,25 +5,25 @@ import { Button } from '../../Button';
 import { theme } from '/styled/theme';
 import { FormScreenView } from '../FormScreenView';
 import { ProgramsFormProps } from '../../../interfaces/forms/ProgramsFormProps';
+import { StyledText, StyledView } from '~/ui/styled/common';
 import { FormFields } from './FormFields';
 import {
   getFormInitialValues,
   getFormSchema,
-  mapInputVerticalPosition,
 } from './helpers';
 
 export const ProgramsForm = ({
   onSubmit,
   components,
+  note,
 }: ProgramsFormProps): ReactElement => {
   const initialValues = useMemo(() => getFormInitialValues(components), [components]);
   const formValidationSchema = useMemo(() => getFormSchema(components), [components]);
-  const verticalPositions = useMemo(() => mapInputVerticalPosition(components), [components]);
 
   return (
     <Formik
       validationSchema={formValidationSchema}
-      initialValues={initialValues}
+      initialValues={{}}
       onSubmit={onSubmit}
     >
       {({ handleSubmit, values }): ReactElement => (
@@ -31,7 +31,6 @@ export const ProgramsForm = ({
           <FormScreenView>
             <FormFields
               components={components}
-              verticalPositions={verticalPositions}
               values={values}
             />
             <Button
@@ -40,6 +39,9 @@ export const ProgramsForm = ({
               buttonText="Submit"
               onPress={handleSubmit}
             />
+            <StyledView margin={10}>
+              <StyledText>{note}</StyledText>
+            </StyledView> 
           </FormScreenView>
         </FullView>
       )}

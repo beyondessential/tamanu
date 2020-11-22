@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Screen } from './Screen';
-import { StyledText } from '~/ui/styled/common';
+import { StyledText, StyledView } from '~/ui/styled/common';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ProgramAddDetailsScreenProps } from '/interfaces/screens/ProgramsStack/ProgramAddDetails/ProgramAddDetailsScreenProps';
 import { Routes } from '/helpers/routes';
@@ -21,13 +21,14 @@ export const ProgramAddDetailsScreen = ({
   const selectedPatientId = selectedPatient.id;
   const navigation = useNavigation();
 
+  const [note, setNote] = useState("Waiting for submission attempt.");
   const [survey, error] = useBackendEffect(
     ({ models }) => models.Survey.getRepository().findOne(surveyId),
   );
 
   const { models } = useBackend();
   const onSubmitForm = useCallback(
-    async (values: any) => {
+    async (values: any, components: any) => {
       // TODO: determine results for all calculated answer types
       // (here? or possibly dynamically inside form)
       const result = Math.random() * 100.0;
@@ -36,11 +37,15 @@ export const ProgramAddDetailsScreen = ({
         selectedPatientId,
         {
           surveyId,
+          components,
           encounterReason: `Survey response for ${survey.name}`,
           result,
         },
         values,
+        setNote,
       );
+
+      if(!response) return;
 
       navigation.navigate(
         Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory,
@@ -62,6 +67,7 @@ export const ProgramAddDetailsScreen = ({
       onSubmitForm={onSubmitForm}
       survey={survey}
       patient={selectedPatient}
+      note={note}
     />
   );
 };
