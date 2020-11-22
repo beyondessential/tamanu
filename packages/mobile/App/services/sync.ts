@@ -2,8 +2,8 @@ import mitt from 'mitt';
 import { Database } from '~/infra/db';
 
 import { readConfig, writeConfig } from '~/services/config';
-import { GetSyncDataResponse, SyncRecord, SyncSource } from './syncSource';
-import { Patient } from '~/models';
+import {GetSyncDataResponse, SyncRecord, SyncSource} from './syncSource';
+import {Patient} from "~/models";
 
 class NoSyncImporterError extends Error {
   constructor(recordType) {
@@ -38,24 +38,20 @@ export class SyncManager {
   getModelForRecordType(recordType: string) {
     const { models } = Database;
 
-    switch (recordType) {
-      case 'patient':
+    switch(recordType) {
+      case "patient":
         return models.Patient;
-      case 'user':
+      case "user":
         return models.User;
-      case 'program':
-        return models.Program;
-      case 'scheduledVaccine':
-        return models.ScheduledVaccine;
-      case 'referenceData':
+      case "referenceData":
         return models.ReferenceData;
-      case 'program':
+      case "program":
         return models.Program;
-      case 'survey':
+      case "survey":
         return models.Survey;
-      case 'surveyScreenComponent':
+      case "surveyScreenComponent":
         return models.SurveyScreenComponent;
-      case 'programDataElement':
+      case "programDataElement":
         return models.ProgramDataElement;
       default:
         return null;
@@ -67,13 +63,13 @@ export class SyncManager {
     const { recordType, data } = syncRecord;
 
     const model = this.getModelForRecordType(recordType);
-    if (!model) {
+    if(!model) {
       throw new NoSyncImporterError(recordType);
     }
 
     await model.createOrUpdate(data);
-
-    this.emitter.emit('syncedRecord', syncRecord.recordType, syncRecord);
+      
+    this.emitter.emit("syncedRecord", syncRecord.recordType, syncRecord);
   }
 
   async runScheduledSync() {
@@ -89,19 +85,19 @@ export class SyncManager {
     // - does initial sync work differently?
     //   - sync reference data
     //   - get all provisional patients
-
-    if (this.isSyncing) {
-      console.warn('Tried to start syncing while sync in progress');
+    
+    if(this.isSyncing) {
+      console.warn("Tried to start syncing while sync in progress");
       return;
     }
     this.isSyncing = true;
 
-    this.emitter.emit('syncStarted');
+    this.emitter.emit("syncStarted");
 
     await this.runChannelSync('reference');
     await this.runChannelSync('user');
     await this.runChannelSync('survey', null, true);
-    await this.runChannelSync('vaccine');
+    await this.runChannelSync('patient');
 
     // sync all reference data including shallow patient list
     // full sync of patients that've been flagged (encounters, etc)
@@ -120,15 +116,14 @@ export class SyncManager {
     this.emitter.emit("patientSyncEnded");
     */
 
-    await this.runChannelSync('patient');
-    this.emitter.emit('syncEnded');
+    this.emitter.emit("syncEnded");
     this.isSyncing = false;
   }
 
   getPatientsToSync() {
     const { models } = Database;
     return models.Patient.find({
-      markedForSync: true,
+      markedForSync: true, 
     });
   }
 
@@ -144,14 +139,14 @@ export class SyncManager {
     let page = 0;
 
     const downloadPage = (pageNumber) => {
-      this.emitter.emit('downloadingPage', `${channel}-${pageNumber}`);
+      this.emitter.emit("downloadingPage", `${channel}-${pageNumber}`);
       return this.syncSource.getSyncData(
         channel,
         since,
         pageNumber,
         singlePageMode,
       );
-    };
+    }
 
     let numDownloaded = 0;
     const setProgress = (progress): void => {
@@ -168,12 +163,12 @@ export class SyncManager {
     // of records is being imported - this means that the database IO
     // and network IO are running in parallel rather than running in
     // alternating sequence.
-    let downloadTask: Promise<GetSyncDataResponse> = downloadPage(0);
+    let downloadTask : Promise<GetSyncDataResponse> = downloadPage(0);
 
     let maxDate = since;
 
     // Some records will fail on the first attempt due to foreign key constraints
-    // (most commonly, when a dependency record has been updated so it appears
+    // (most commonly, when a dependency record has been updated so it appears 
     // after its dependent in the sync queue)
     // So we keep these records in a queue and retry them at the end of the download.
     let pendingRecords = [];
@@ -202,22 +197,9 @@ export class SyncManager {
       }));
     };
 
-        if (r.lastSynced > maxDate) {
-          maxDate = r.lastSynced;
-        }
-      } catch (e) {
-        if (e.message.match(/FOREIGN KEY constraint failed/)) {
-          // this error is to be expected! just push it
-          r.ERROR_MESSAGE = e.message;
-          pendingRecords.push(r);
-        } else {
-          console.warn('Error while importing:', e, r);
-        }
-      }
-    }));
 
     try {
-      while (true) {
+      while(true) {
         // wait for the current page download to complete
         const response = await downloadTask;
 
@@ -229,14 +211,14 @@ export class SyncManager {
         // keep importing until we hit a page with 0 records
         // (this does mean we're always making 1 more web request than
         // is necessary, probably room for optimisation here)
-        if (response.records.length === 0 || singlePageMode) {
+        if(response.records.length === 0) {
           break;
         }
 
         updateProgress(response.records.length, response.count);
 
         // we have records to import - import them
-        this.emitter.emit('importingPage', `${channel}-${page}`);
+        this.emitter.emit("importingPage", `${channel}-${page}`);
         const importTask = await syncRecords(response.records);
 
         if(singlePageMode) {
@@ -250,24 +232,24 @@ export class SyncManager {
 
         // wait for import task to complete before progressing in loop
         await importTask;
-      }
-    } catch (e) {
+      };
+    } catch(e) {
       console.warn(e);
     }
 
     // Now try re-importing all of the pending records.
-    // As there might be multiple levels of dependency, we might need a few
-    // passes over the queue! But if we get a pass where the queue doesn't
+    // As there might be multiple levels of dependency, we might need a few 
+    // passes over the queue! But if we get a pass where the queue doesn't 
     // decrease in size at all, we know there's a for-real error and we should
     // terminate the process.
-    while (pendingRecords.length > 0) {
+    while(pendingRecords.length > 0) {
       console.log(`Reattempting ${pendingRecords.length} failed records...`);
       const thisPass = pendingRecords;
       pendingRecords = [];
       await syncRecords(thisPass);
       // syncRecords will re populate pendingRecords
-      if (pendingRecords.length === thisPass.length) {
-        console.warn('Could not import remaining queue members:');
+      if(pendingRecords.length === thisPass.length) {
+        console.warn("Could not import remaining queue members:");
         console.warn(JSON.stringify(pendingRecords, null, 2));
         pendingRecords.map(r => this.errors.push(r));
         throw new Error(`Could not import any ${pendingRecords.length} remaining queue members`);
@@ -298,7 +280,7 @@ export class SyncManager {
     try {
       const maxDate = await this.syncAllPages(channel, lastSynced, singlePageMode);
       await this.updateChannelSyncDate(channel, maxDate);
-    } catch (e) {
+    } catch(e) {
       console.error(e);
     }
     this.emitter.emit('channelSyncEnded', channel);
