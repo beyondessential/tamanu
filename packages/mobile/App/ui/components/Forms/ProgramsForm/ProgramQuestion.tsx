@@ -7,7 +7,6 @@ import { FieldTypes, FieldByType } from '/helpers/fields';
 
 interface ProgramQuestion {
   component: ISurveyScreenComponent;
-  verticalPositions: VerticalPosition;
 }
 
 function getField(type: string): FC<any> {
@@ -19,7 +18,6 @@ function getField(type: string): FC<any> {
 
 export const ProgramQuestion = ({
   component,
-  verticalPositions,
 }: ProgramQuestion): ReactElement => {
   const { dataElement } = component;
   const fieldInput: FC<any> = getField(dataElement.type);
@@ -29,7 +27,7 @@ export const ProgramQuestion = ({
     <StyledView marginTop={10}>
       <Field
         component={fieldInput}
-        name={dataElement.id}
+        name={dataElement.code}
         options={component.getOptions()}
         multiline={isMultiline}
       />

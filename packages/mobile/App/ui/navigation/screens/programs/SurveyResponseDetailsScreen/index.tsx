@@ -50,7 +50,7 @@ const isCalculated = (question): JSX.Element => {
 
 const AnswerItem = ({ question, answer, index }): JSX.Element => (
   <StyledView
-    height={40}
+    minHeight={40}
     justifyContent="space-between"
     flexDirection="row"
     alignItems="center"
@@ -58,9 +58,11 @@ const AnswerItem = ({ question, answer, index }): JSX.Element => (
     paddingRight={16}
     background={index % 2 ? theme.colors.WHITE : theme.colors.BACKGROUND_GREY}
   >
-    <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
-      {question.dataElement.indicator}
-    </StyledText>
+    <StyledView maxWidth={'80%'}>
+      <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
+        {question.dataElement.indicator}
+      </StyledText>
+    </StyledView>
     {question.dataElement.type === FieldTypes.RESULT ? (
       <SurveyResultBadge result={answer} />
     ) : (
@@ -94,24 +96,35 @@ export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
   const { encounter, survey, questions, answers, ...rest } = surveyResponse;
   const { patient } = encounter;
 
-  const getAnswerForQuestion = (q) => {
+  const attachAnswer = (q): string | null => {
     const answerObject = answers.find(a => a.dataElement.id === q.dataElement.id);
-    if(!answerObject) return '';
-    return answerObject.body;
+    return {
+      question: q,
+      answer: (answerObject || null) && answerObject.body,
+    }
   }
-    
-  const questionToAnswerItem = (q, i): JSX.Element => (
-    <AnswerItem index={i} key={q.id} question={q} answer={getAnswerForQuestion(q)} />
+
+  const questionToAnswerItem = ({ question, answer }, i): JSX.Element => (
+    <AnswerItem 
+      key={question.id} 
+      index={i}
+      question={question}
+      answer={answer}
+    />
   );
 
   const basicAnswerItems = questions
     .filter(q => q.dataElement.indicator)
     .filter(q => !isCalculated(q))
+    .map(attachAnswer)
+    .filter(q => q.answer !== null && q.answer !== '')
     .map(questionToAnswerItem);
 
   const calculatedAnswerItems = questions
     .filter(q => q.dataElement.indicator)
     .filter(q => isCalculated(q))
+    .map(attachAnswer)
+    .filter(q => q.answer !== null && q.answer !== '')
     .map(questionToAnswerItem);
 
   return (

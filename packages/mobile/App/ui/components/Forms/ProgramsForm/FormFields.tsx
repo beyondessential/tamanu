@@ -4,16 +4,30 @@ import { ProgramQuestion } from './ProgramQuestion';
 import { SectionHeader } from '../../SectionHeader';
 import { isCalculated } from '/helpers/fields';
 
+function checkVisibilityCriteria(criteria: string, values: any): boolean {
+  const [
+    elementCode = '', 
+    expectedAnswer = ''
+  ] = criteria.split(/\s*:\s*/);
+  const givenAnswer = (values[elementCode] || '').toLowerCase().trim();
+  const expectedTrimmed = expectedAnswer.toLowerCase().trim();
+
+  if(expectedTrimmed === givenAnswer) return true;
+  if(expectedTrimmed === 'yes' && givenAnswer === true) return true;
+  if(expectedTrimmed === 'no' && givenAnswer === false) return true;
+
+  return false;
+}
+
 export const FormFields = ({
   components,
-  verticalPositions,
   values,
 }: AddDetailsFormFieldsProps): ReactElement => {
   const shouldShow = useCallback((component) => {
     if (isCalculated(component.dataElement.type)) return false;
     if (!component.visibilityCriteria) return true;
 
-    return component.visibilityCriteria(values);
+    return checkVisibilityCriteria(component.visibilityCriteria, values);
   }, [values]);
   return (
     <>
@@ -26,7 +40,6 @@ export const FormFields = ({
             </SectionHeader>
             <ProgramQuestion
               key={component.id}
-              verticalPositions={verticalPositions}
               component={component}
             />
           </React.Fragment>

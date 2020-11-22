@@ -45,34 +45,54 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     };
   }
 
-  static async submit(patientId, surveyData, values): Promise<SurveyResponse> {
-    const { surveyId, encounterReason, ...otherData } = surveyData;
+  static async submit(patientId, surveyData, values, setNote = () => null): Promise<SurveyResponse> {
+    const { surveyId, encounterReason, components, ...otherData } = surveyData;
 
-    const encounter = await Encounter.create({
-      patient: patientId,
-      startDate: new Date(),
-      endDate: new Date(),
-      encounterType: 'surveyResponse',
-      reasonForEncounter: encounterReason,
-    });
+    try {
+      setNote("Creating encounter...");
+      const encounter = await Encounter.create({
+        patient: patientId,
+        startDate: new Date(),
+        endDate: new Date(),
+        encounterType: 'surveyResponse',
+        reasonForEncounter: encounterReason,
+      });
 
-    const responseRecord = await SurveyResponse.create({
-      encounter: encounter.id,
-      startTime: Date.now(),
-      endTime: Date.now(),
-      survey: surveyId,
-      ...otherData,
-    });
+      setNote("Creating response object...");
+      const responseRecord = await SurveyResponse.create({
+        encounter: encounter.id,
+        survey: surveyId,
+        startTime: Date.now(),
+        endTime: Date.now(),
+        ...otherData,
+      });
 
-    const answers = await Promise.all(
-      Object.entries(values).map(([dataElementId, value]) => SurveyResponseAnswer.create({
-        dataElementId,
-        body: `${value}`,
-        response: responseRecord.id,
-      })),
-    );
+      setNote("Attaching answers...");
+      const findDataElementId = (code: string): string => {
+        const component = components.find(c => c.dataElement.code === code);
+        if(!component) return '';
+        return component.dataElement.id;
+      };
 
-    return responseRecord;
+      for(let a of Object.entries(values)) { 
+        const [dataElementCode, value] = a;
+        const dataElementId = findDataElementId(dataElementCode);
+
+        setNote(`Attaching answer for ${dataElementId}...`);
+        await SurveyResponseAnswer.create({
+          dataElement: dataElementId,
+          body: `${value}`,
+          response: responseRecord.id,
+        });
+      }
+      setNote(`Done`);
+
+      return responseRecord;
+    } catch(e) {
+      setNote(`Error: ${e.message} (${JSON.stringify(e)})`);     
+
+      return null;
+    }
   }
 }
 
