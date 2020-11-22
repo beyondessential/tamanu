@@ -46,7 +46,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   }
 
   static async submit(patientId, surveyData, values, setNote = () => null): Promise<SurveyResponse> {
-    const { surveyId, encounterReason, ...otherData } = surveyData;
+    const { surveyId, encounterReason, components, ...otherData } = surveyData;
 
     try {
       setNote("Creating encounter...");
@@ -68,8 +68,16 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       });
 
       setNote("Attaching answers...");
+      const findDataElementId = (code: string): string => {
+        const component = components.find(c => c.dataElement.code === code);
+        if(!component) return '';
+        return component.dataElement.id;
+      };
+
       for(let a of Object.entries(values)) { 
-        const [dataElementId, value] = a;
+        const [dataElementCode, value] = a;
+        const dataElementId = findDataElementId(dataElementCode);
+
         setNote(`Attaching answer for ${dataElementId}...`);
         await SurveyResponseAnswer.create({
           dataElement: dataElementId,
