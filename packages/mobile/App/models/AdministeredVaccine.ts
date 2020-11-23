@@ -29,7 +29,8 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
       .createQueryBuilder('administered_vaccine')
       .leftJoinAndSelect('administered_vaccine.encounter', 'encounter')
       .leftJoinAndSelect('administered_vaccine.scheduledVaccine', 'scheduledVaccine')
-      .where('encounter.patient = :patient', { patient: patientId })
+      .leftJoinAndSelect('scheduledVaccine.vaccine', 'vaccine')
+      .where('encounter.patient.id = :patient', { patient: patientId })
       .getMany();
   }
 }
