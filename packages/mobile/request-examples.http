@@ -1,5 +1,5 @@
 # create a user
-POST https://sync-dev.tamanu.io/reference HTTP/1.1
+POST https://sync-dev.tamanu.io/v1/sync/reference HTTP/1.1
 Authorization: 123
 Content-Type: application/json
 
@@ -15,8 +15,54 @@ Content-Type: application/json
 
 ###
 
+# create referenceData
+POST https://sync-dev.tamanu.io/v1/sync/reference HTTP/1.1
+Authorization: 123
+Content-Type: application/json
+
+[
+  { "recordType": "referenceData", "data": {
+    "id": "jLlakDStecKGaDFa",
+    "name": "OPV",
+    "code": "Polio",
+    "type": "vaccine"
+    } }
+]
+
+###
+
+# send ScheduledVaccine and AdministeredVaccine data
+POST https://sync-dev.tamanu.io/v1/sync/vaccination HTTP/1.1
+Authorization: 123
+Content-Type: application/json
+
+# [
+#   { "recordType": "administeredVaccine", "data": {
+#     "id": "jLlakDStecKGaDFc",
+#     "batch": "COVID-19",
+#     "schedule": "CVD19",
+#     "category": "vaccine",
+#     "date": "vaccine",
+#     "encounterId": "vaccine",
+#     "scheduledVaccineId": "vaccine",
+#     "timeliness": "jLlakDStecKGaDFa"
+#     } }
+# ]
+
+[
+  { "recordType": "scheduledVaccine", "data": {
+    "id": "jLlakDStecKGaDFl",
+    "index": 1,
+    "schedule": "Birth",
+    "category": "Routine",
+    "vaccine": "jLlakDStecKGaDFa"
+    } }
+]
+
+###
+
 # get some sync records
-https://sync-dev.tamanu.io/reference?since=1604451264306 HTTP/1.1
+https://sync-dev.tamanu.io/v1/sync/reference?since=0 HTTP/1.1
 Authorization: 123
 Content-Type: application/json
 

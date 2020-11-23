@@ -7,6 +7,7 @@ export * from './ProgramDataElement';
 export * from './Survey';
 export * from './SurveyScreenComponent';
 export * from './ScheduledVaccine';
+export * from './AdministeredVaccine';
 export * from './SurveyResponse';
 export * from './SurveyResponseAnswer';
 export * from './Referral';

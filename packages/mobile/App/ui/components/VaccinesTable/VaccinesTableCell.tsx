@@ -8,17 +8,17 @@ import {
 import { theme } from '/styled/theme';
 import { VaccineIcons, VaccineStatus } from '/helpers/constants';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { IVaccine } from '~/types';
+import { IScheduledVaccine } from '~/types';
 
 const VaccineIcon = ({
-  vaccineType,
+  status = null,
 }: {
-  vaccineType: string | null;
+  status: string | null;
 }): JSX.Element => {
   let Icon: FC<any> | null = null;
-  if (vaccineType) {
-    Icon = VaccineIcons[vaccineType].Icon;
-    switch (vaccineType) {
+  if (status) {
+    Icon = VaccineIcons[status].Icon;
+    switch (status) {
       case VaccineStatus.SCHEDULED:
         return (
           <CenterView flex={1}>
@@ -55,12 +55,12 @@ const VaccineIcon = ({
 };
 
 interface VaccineTableCellProps {
-  header: any;
-  vaccine: IVaccine;
+  vaccine: IScheduledVaccine;
+  status: any;
   onPress?: (item: any) => void;
 }
 
-const CellContent = ({ data }: { data: string | null }): ReactElement => (
+const CellContent = ({ status }: { status: string | null }): ReactElement => (
   <StyledView
     width={85}
     borderRightWidth={1}
@@ -70,30 +70,25 @@ const CellContent = ({ data }: { data: string | null }): ReactElement => (
     height={80}
     alignItems="center"
   >
-    <VaccineIcon vaccineType={data} />
+    <VaccineIcon status={status} />
   </StyledView>
 );
 
 export const VaccineTableCell = ({
   vaccine,
   onPress,
-  header,
 }: VaccineTableCellProps): JSX.Element => {
   const onPressItem = useCallback(() => {
-    const vaccineData = {
-      ...vaccine,
-      dateType: header,
-    };
-    if (onPress) onPress(vaccineData);
+    if (onPress) onPress(vaccine);
   }, []);
 
-  return vaccine !== null ? (
+  return vaccine ? (
     <StyledTouchableOpacity onPress={onPressItem}>
-      <CellContent data={vaccine.status} />
+      <CellContent status={vaccine.status} />
     </StyledTouchableOpacity>
   ) : (
-      <CellContent data={null} />
-    );
+    <CellContent status={null} />
+  );
 };
 
 VaccineTableCell.defaultProps = {

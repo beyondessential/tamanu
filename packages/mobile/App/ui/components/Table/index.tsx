@@ -32,17 +32,17 @@ export const Table = ({
   columnKey,
   onPressItem,
 }: TableProps): JSX.Element => (
-    <RowView>
-      <StyledView>
-        <Title />
-        {columns.map(c => c.rowHeader(c))}
-      </StyledView>
-      <TableData
-        columnKey={columnKey}
-        data={data}
-        columns={columns}
-        tableHeader={tableHeader}
-        onPressItem={onPressItem}
-      />
-    </RowView>
-  );
+  <RowView>
+    <StyledView>
+      <Title />
+      {columns.map(c => c.rowHeader(c))}
+    </StyledView>
+    <TableData
+      columnKey={columnKey}
+      data={data}
+      columns={columns}
+      tableHeader={tableHeader}
+      onPressItem={onPressItem}
+    />
+  </RowView>
+);

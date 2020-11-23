@@ -5,39 +5,19 @@ import { VaccineFormTaken } from './VaccineFormTaken';
 import { VaccineFormTakenNotOnTime } from './VaccineFormTakenNotOnTime';
 import { VaccineStatus } from '/helpers/constants';
 import { FullView } from '/styled/common';
-import { dropdownItems } from '../../Dropdown/fixture';
 
-const notTakenProps = {
-  reasonOptions: dropdownItems,
-  administeredOptions: dropdownItems,
-};
-
-const takenNotOnScheduleProps = {
-  typeOptions: dropdownItems,
-  reasonOptions: dropdownItems,
-  manufactureOptions: dropdownItems,
-  administeredOptions: dropdownItems,
-};
-
-const takenOnTimeOptions = {
-  typeOptions: dropdownItems,
-  manufactureOptions: dropdownItems,
-  administeredOptions: dropdownItems,
-};
-
-const getFormType = (type: string): { Form: FC<any>; fieldOptions: any } => {
-  switch (type) {
+const getFormType = (status: string): { Form: FC<any> } => {
+  switch (status) {
     case VaccineStatus.TAKEN:
-      return { Form: VaccineFormTaken, fieldOptions: takenOnTimeOptions };
+      return { Form: VaccineFormTaken };
     case VaccineStatus.TAKEN_NOT_ON_TIME:
       return {
         Form: VaccineFormTakenNotOnTime,
-        fieldOptions: takenNotOnScheduleProps,
       };
     case VaccineStatus.NOT_TAKEN:
-      return { Form: VaccineFormNotTaken, fieldOptions: notTakenProps };
+      return { Form: VaccineFormNotTaken };
     default:
-      return { Form: VaccineFormTaken, fieldOptions: takenOnTimeOptions };
+      return { Form: VaccineFormTaken };
   }
 };
 
@@ -46,16 +26,15 @@ export type SubmitButtonsProps = {
   onCancel: () => void;
 };
 type VaccineFormInitialValues = {
-  date?: Date;
+  date: Date;
+  administered: string;
   reason?: string;
-  type?: string;
   batch?: string;
-  manufacture?: string;
-  administered?: string;
+  status: string;
 };
 interface VaccineForm {
+  status: any;
   initialValues: VaccineFormInitialValues;
-  type: string;
   onSubmit: (values: any) => void;
   SubmitButtons?: FC<SubmitButtonsProps>;
   onCancel: () => void;
@@ -66,9 +45,7 @@ const createInitialValues = (
 ): VaccineFormInitialValues => ({
   date: null,
   reason: null,
-  type: null,
   batch: '',
-  manufacture: null,
   administered: null,
   ...initialValues,
 });
@@ -76,21 +53,21 @@ const createInitialValues = (
 /* eslint-disable @typescript-eslint/no-empty-function */
 export const VaccineForm = ({
   initialValues,
-  type,
+  status,
   onSubmit,
   onCancel,
   SubmitButtons,
 }: VaccineForm): JSX.Element => {
-  const { Form, fieldOptions } = useMemo(() => getFormType(type), [type]);
+  const { Form } = useMemo(() => getFormType(status), [status]);
   return (
     <FullView>
       <Formik
         onSubmit={onSubmit}
-        initialValues={createInitialValues(initialValues)}
+        initialValues={createInitialValues({ ...initialValues, status })}
       >
         {({ handleSubmit }): JSX.Element => (
           <FullView>
-            <Form {...fieldOptions} />
+            <Form />
             {SubmitButtons && (
               <SubmitButtons onCancel={onCancel} onSubmit={handleSubmit} />
             )}

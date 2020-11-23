@@ -1,6 +1,6 @@
 // NOTE
 // All of the values on this object will be automatically assigned by a
-// function at the end of this file. 
+// function at the end of this file.
 // For eg: HomeStack.VaccineStack.VaccineModalScreen will be set to
 // /HomeStack/VaccineStack/VaccineModalScreen
 //
@@ -110,17 +110,16 @@ export const Routes = {
   },
 };
 
-
 // this function is set up to reassign the values on Routes in-place
 // rather than recreate the object (like how [].reduce would) so that
 // we can still benefit from VS Code knowing the structure at build time,
 // and providing autocompletes etc.
 //
-function transformRoutes(baseKey, routes) {
+export function transformRoutes(baseKey, routes): void {
   Object.keys(routes).map(k => {
     const val = routes[k];
     const routeString = [baseKey, k].join('/');
-    if(typeof val === "object") {
+    if (typeof val === 'object') {
       transformRoutes(routeString, val);
       return;
     }
@@ -130,4 +129,3 @@ function transformRoutes(baseKey, routes) {
 }
 
 transformRoutes('', Routes);
-

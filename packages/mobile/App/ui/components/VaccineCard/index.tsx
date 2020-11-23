@@ -6,14 +6,14 @@ import React, {
 } from 'react';
 import { StyledView } from '/styled/common';
 import { VaccineCardHeader } from './VaccineCardHeader';
-import { IVaccine } from '~/types';
+import { IAdministeredVaccine } from '~/types';
 import { VaccineStatus } from '/helpers/constants';
 import { NotTakenFields } from './NotTakenFields';
 import TakenOnTimeFields from './TakenOnTimeFields';
 import { VaccineStatusHeader } from './VaccineStatusHeader';
 import { TakenNotOnScheduleFields } from './TakenNotOnSchedule';
 
-export type VaccineDataProps = IVaccine & { dateType: string };
+export type VaccineDataProps = IAdministeredVaccine;
 
 interface VaccineCardProps {
   vaccineData: VaccineDataProps;
@@ -43,7 +43,7 @@ export const VaccineCard: FunctionComponent<PropsWithChildren<
         onCloseModal={onCloseModal}
         onEditDetails={onEditDetails}
       />
-      <VaccineStatusHeader status={vaccineData.status} />
+      <VaccineStatusHeader status={vaccineData} />
       <Fields {...vaccineData} />
     </StyledView>
   );

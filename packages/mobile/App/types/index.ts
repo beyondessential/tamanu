@@ -9,7 +9,7 @@ export * from './ISurveyResponse';
 export * from './IReferenceData';
 export * from './IPractitioner';
 export * from './IVitals';
-export * from './IImmunisation';
+export * from './IAdministeredVaccine';
 export * from './IDiagnosis';
 export * from './IScheduledVaccine';
 export * from './IMedication';

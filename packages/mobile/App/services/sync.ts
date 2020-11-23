@@ -45,6 +45,8 @@ export class SyncManager {
         return models.User;
       case "referenceData":
         return models.ReferenceData;
+      case 'scheduledVaccine':
+        return models.ScheduledVaccine;
       case "program":
         return models.Program;
       case "survey":
