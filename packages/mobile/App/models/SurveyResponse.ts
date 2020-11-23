@@ -6,6 +6,7 @@ import { ProgramDataElement } from './ProgramDataElement';
 import { Encounter } from './Encounter';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 
+import { FieldTypes } from '~/ui/helpers/fields';
 import { ISurveyResponse } from '~/types';
 
 @Entity('survey_response')
@@ -68,22 +69,47 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       });
 
       setNote("Attaching answers...");
-      const findDataElementId = (code: string): string => {
+      const findDataElement = (code: string): string => {
         const component = components.find(c => c.dataElement.code === code);
         if(!component) return '';
-        return component.dataElement.id;
+        return component.dataElement;
       };
+
+      const getStringValue = (type: string, value: any): string  => {
+        switch(type) {
+          case FieldTypes.TEXT:
+          case FieldTypes.MULTILINE:
+            return value;
+          case FieldTypes.DATE:
+          case FieldTypes.SUBMISSION_DATE:
+            return value && value.toISOString();
+          case FieldTypes.BINARY:
+          case FieldTypes.CHECKBOX:
+            if(typeof value === 'string') return value;
+            // booleans should all be stored as Yes/No to match meditrak
+            return value ? "Yes" : "No";
+          default:
+            return `${value}`;
+        }
+      }
 
       for(let a of Object.entries(values)) { 
         const [dataElementCode, value] = a;
-        const dataElementId = findDataElementId(dataElementCode);
+        const dataElement = findDataElement(dataElementCode);
+        const body = getStringValue(dataElement.type, value);
 
-        setNote(`Attaching answer for ${dataElementId}...`);
-        await SurveyResponseAnswer.create({
-          dataElement: dataElementId,
-          body: `${value}`,
-          response: responseRecord.id,
-        });
+        console.log(`${dataElement.code} (${dataElement.type}): ${body}`);
+
+        setNote(`Attaching answer for ${dataElement.id}...`);
+        try {
+          await SurveyResponseAnswer.create({
+            dataElement: dataElement.id,
+            body,
+            response: responseRecord.id,
+          });
+        } catch(e) {
+          console.warn(e);
+        }
       }
       setNote(`Done`);
 
