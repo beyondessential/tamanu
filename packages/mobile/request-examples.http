@@ -19,10 +19,24 @@ Content-Type: application/json
 POST https://sync-dev.tamanu.io/v1/sync/reference HTTP/1.1
 Authorization: 123
 Content-Type: application/json
-
+# update an existing row
 [
   { "recordType": "referenceData", "data": {
     "id": "724f38f3-8257-4003-958f-baa82eeb09f4",
+    "name": "BCG",
+    "code": "BCG",
+    "type": "vaccine"
+    } }
+]
+
+###
+
+POST https://sync-dev.tamanu.io/v1/sync/reference HTTP/1.1
+Authorization: 123
+Content-Type: application/json
+# create a new row (no id field included)
+[
+  { "recordType": "referenceData", "data": {
     "name": "BCG",
     "code": "BCG",
     "type": "vaccine"
