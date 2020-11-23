@@ -21,6 +21,7 @@ export const VaccinesTable = memo(
     const [data, error] = useBackendEffect(
       ({ models }) => models.ScheduledVaccine.find({
         order: { index: 'ASC' },
+        where: { category: categoryName },
       }),
       [],
     );

@@ -8,12 +8,14 @@ import { VaccineStatus } from '/helpers/constants';
 import { Routes } from '/helpers/routes';
 import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
+import { IPatient } from '~/types';
 
 interface VaccineHistoryTabProps {
   navigation: NavigationProp<any>;
   route: {
     name: string;
   };
+  selectedPatient: IPatient;
 }
 
 export const VaccineHistoryTabComponent = ({
@@ -21,6 +23,7 @@ export const VaccineHistoryTabComponent = ({
   navigation,
   selectedPatient,
 }: VaccineHistoryTabProps): ReactElement => {
+  const category = route.name.split('/')[route.name.split('/').length - 1];
   const onNavigateToClickedCell = useCallback(item => {
     if (item.status === VaccineStatus.SCHEDULED) {
       navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.Index, {
@@ -33,7 +36,6 @@ export const VaccineHistoryTabComponent = ({
     }
   }, []);
 
-  const categoryName = route.name; // todo: figure out real category name later
   return (
     <StyledSafeAreaView flex={1}>
       <StatusBar barStyle="light-content" />
@@ -41,7 +43,7 @@ export const VaccineHistoryTabComponent = ({
         <ScrollView>
           <VaccinesTable
             selectedPatient={selectedPatient}
-            categoryName={categoryName}
+            categoryName={category}
             onPressItem={onNavigateToClickedCell}
           />
         </ScrollView>
