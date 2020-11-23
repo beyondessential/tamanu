@@ -9,6 +9,9 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
   index: number;
 
   @Column()
+  label: string;
+
+  @Column()
   schedule: string;
 
   @Column()
