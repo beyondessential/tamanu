@@ -22,6 +22,7 @@ Content-Type: application/json
 
 [
   { "recordType": "referenceData", "data": {
+    "id": "724f38f3-8257-4003-958f-baa82eeb09f4",
     "name": "BCG",
     "code": "BCG",
     "type": "vaccine"
@@ -37,13 +38,19 @@ Content-Type: application/json
 
 [
   { "recordType": "scheduledVaccine", "data": {
-    "id": "jLlakDStecKGaDFl",
     "index": 1,
-    "label": "bOPV 1",
+    "label": "BCG",
     "schedule": "Birth",
     "category": "Routine",
-    "vaccine": "jLlakDStecKGaDFa"
-    } }
+    "vaccine": "724f38f3-8257-4003-958f-baa82eeb09f4"
+    } },
+    { "recordType": "scheduledVaccine", "data": {
+    "index": 2,
+    "label": "DTP-HepB+Hib 1",
+    "schedule": "6 Weeks",
+    "category": "Routine",
+    "vaccine": "724f38f3-8257-4003-958f-baa82eeb09f4"
+    } },
 ]
 
 ###
