@@ -15,6 +15,9 @@ export const VaccineScreenComponent = ({ selectedPatient }): ReactElement => {
     [],
   );
 
+  if (error) return <ErrorScreen error={error} />;
+  if (!administeredVaccines) return <LoadingScreen />;
+
   const dataGroupedByVaccine = Object.entries(
     groupBy(administeredVaccines, value => value.scheduledVaccine.vaccine.name),
   ).map(([title, data]) => ({ title, data }));
@@ -22,10 +25,7 @@ export const VaccineScreenComponent = ({ selectedPatient }): ReactElement => {
   return (
     <StyledSafeAreaView flex={1}>
       <FullView background={theme.colors.BACKGROUND_GREY}>
-        {administeredVaccines
-          ? <PatientVaccineHistoryAccordion dataArray={dataGroupedByVaccine} />
-          : <LoadingScreen />
-        }
+        <PatientVaccineHistoryAccordion dataArray={dataGroupedByVaccine} />
       </FullView>
     </StyledSafeAreaView>
   );

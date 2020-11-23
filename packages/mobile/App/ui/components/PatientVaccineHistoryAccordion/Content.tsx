@@ -25,16 +25,16 @@ const VaccinationDetailsList = ({ status, date, reason, scheduledVaccine }): JSX
   <RowView>
     <View style={styles.section}>
       <Text style={styles.item}>
-        status: {status.toLowerCase()}
+        {`Schedule: ${scheduledVaccine.schedule}`}
       </Text>
       <Text style={styles.item}>
-        schedule: {scheduledVaccine.schedule}
+        {`Status: ${status.toLowerCase()}`}
       </Text>
       <Text style={styles.item}>
-        date: {format(date, 'dd-MM-yyyy hh:mm')}
+        {`Date: ${format(date, 'dd-MM-yyyy hh:mm')}`}
       </Text>
       <Text style={styles.item}>
-        reason: {reason || 'n/A'}
+        {`Reason: ${reason || 'n/A'}`}
       </Text>
     </View>
     <Separator />
