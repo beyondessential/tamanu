@@ -18,12 +18,6 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
   @Column()
   category: string;
 
-  @OneToMany(
-    type => AdministeredVaccine,
-    administeredVaccine => administeredVaccine.scheduledVaccine,
-  )
-  administeredVaccine: AdministeredVaccine;
-
   @ReferenceDataRelation()
   vaccine: ReferenceData;
 }
