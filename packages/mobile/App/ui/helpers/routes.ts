@@ -27,9 +27,9 @@ export const Routes = {
       Index: '',
       VaccineTabs: {
         Index: '',
-        ChildhoodTab: '',
-        AdolescentTab: '',
-        AdultTab: '',
+        Routine: '',
+        Catchup: '',
+        Campaign: '',
       },
       NewVaccineTabs: {
         Index: '',

@@ -11,21 +11,21 @@ export const VaccineTableTabs = (): ReactElement => (
       options={{
         title: 'Routine',
       }}
-      name={Routes.HomeStack.VaccineStack.VaccineTabs.ChildhoodTab}
+      name={Routes.HomeStack.VaccineStack.VaccineTabs.Routine}
       component={VaccineHistoryTab}
     />
     <Tab.Screen
       options={{
         title: 'Catchup',
       }}
-      name={Routes.HomeStack.VaccineStack.VaccineTabs.AdolescentTab}
+      name={Routes.HomeStack.VaccineStack.VaccineTabs.Catchup}
       component={VaccineHistoryTab}
     />
     <Tab.Screen
       options={{
         title: 'Campaign',
       }}
-      name={Routes.HomeStack.VaccineStack.VaccineTabs.AdultTab}
+      name={Routes.HomeStack.VaccineStack.VaccineTabs.Campaign}
       component={VaccineHistoryTab}
     />
   </Tab.Navigator>
