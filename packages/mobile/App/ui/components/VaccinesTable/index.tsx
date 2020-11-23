@@ -35,10 +35,10 @@ export const VaccinesTable = memo(
 
     const schedules = uniqBy(data, 'schedule').map(d => d.schedule);
 
-    const columnData = data.map(({ id, vaccine }) => ({
+    const columnData = data.map(({ id, label, vaccine }) => ({
       key: vaccine.id,
-      title: vaccine.code,
-      subtitle: vaccine.name,
+      title: label,
+      subtitle: vaccine.code,
       rowHeader: (column: any): ReactElement => (
         <VaccineRowHeader key={column.key} row={column} />
       ),
