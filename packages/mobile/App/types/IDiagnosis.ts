@@ -1,6 +1,6 @@
-import { ReferenceData } from '~/models';
 import { createDropdownOptionsFromObject } from '~/ui/helpers/fields';
 import { ID } from './ID';
+import { IReferenceData } from './IReferenceData';
 
 export enum Certainty {
   Suspected = 'suspected',
@@ -14,5 +14,5 @@ export interface IDiagnosis {
   date: Date;
   certainty: Certainty;
   isPrimary: boolean;
-  diagnosis: ReferenceData;
+  diagnosis: IReferenceData;
 }
