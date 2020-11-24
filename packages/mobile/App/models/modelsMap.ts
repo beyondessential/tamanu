@@ -1,16 +1,58 @@
-export * from './ReferenceData';
-export * from './Patient';
-export * from './User';
-export * from './Encounter';
-export * from './Program';
-export * from './ProgramDataElement';
-export * from './Survey';
-export * from './SurveyScreenComponent';
-export * from './SurveyResponse';
-export * from './SurveyResponseAnswer';
-export * from './Vitals';
-export * from './Diagnosis';
-export * from './ScheduledVaccine';
-export * from './AdministeredVaccine';
-export * from './Referral';
-export * from './Medication';
+import { ReferenceData } from './ReferenceData';
+import { Patient } from './Patient';
+import { User } from './User';
+import { Encounter } from './Encounter';
+import { Program } from './Program';
+import { ProgramDataElement } from './ProgramDataElement';
+import { Survey }from './Survey';
+import { SurveyScreenComponent } from './SurveyScreenComponent';
+import { SurveyResponse } from './SurveyResponse';
+import { SurveyResponseAnswer } from './SurveyResponseAnswer';
+import { Vitals } from './Vitals';
+import { Diagnosis } from './Diagnosis';
+import { ScheduledVaccine } from './ScheduledVaccine';
+import { AdministeredVaccine }  from './AdministeredVaccine';
+import { Referral } from './Referral';
+import { Medication } from './Medication';
+
+export interface ModelMap {
+  [key: string]: BaseModel;
+}
+
+export const MODELS_ARRAY : BaseModel[] = [
+  ReferenceData,
+  Patient,
+  User,
+  Encounter,
+  Program,
+  ProgramDataElement,
+  Survey,
+  SurveyScreenComponent,
+  SurveyResponse,
+  SurveyResponseAnswer,
+  Vitals,
+  Diagnosis,
+  ScheduledVaccine,
+  AdministeredVaccine,
+  Referral,
+  Medication,
+];
+
+export const MODELS_MAP : ModelMap = {
+  ReferenceData,
+  Patient,
+  User,
+  Encounter,
+  Program,
+  ProgramDataElement,
+  Survey,
+  SurveyScreenComponent,
+  SurveyResponse,
+  SurveyResponseAnswer,
+  Vitals,
+  Diagnosis,
+  ScheduledVaccine,
+  AdministeredVaccine,
+  Referral,
+  Medication,
+};

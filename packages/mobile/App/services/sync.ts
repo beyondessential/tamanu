@@ -3,7 +3,7 @@ import { Database } from '~/infra/db';
 
 import { readConfig, writeConfig } from '~/services/config';
 import { IPatient } from '~/types';
-import {GetSyncDataResponse, SyncRecord, SyncSource} from './syncSource';
+import { GetSyncDataResponse, SyncRecord, SyncSource } from './syncSource';
 
 class NoSyncImporterError extends Error {
   constructor(recordType) {

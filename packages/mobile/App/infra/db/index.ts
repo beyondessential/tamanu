@@ -5,24 +5,9 @@ import {
   ConnectionOptions,
 } from 'typeorm';
 import { DevSettings } from 'react-native';
-import * as modelsMap from '~/models/modelsMap';
+import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { BaseModel } from '~/models/BaseModel';
 import { clear } from '~/services/config';
-
-export interface ModelMap {
-  [key: string]: BaseModel;
-}
-
-const MODELS: ModelMap = Object.entries(modelsMap).reduce(
-  (allModelsObject, [modelName, model]) => ({
-    [modelName]: model,
-    ...allModelsObject,
-  }),
-  {},
-);
-
-const MODEL_LIST: BaseModel[] = Object.values(MODELS);
-
 const LOG_LEVELS = __DEV__ ? [
   // 'error',
   // 'query', 
@@ -35,7 +20,7 @@ const CONNECTION_CONFIG = {
   location: 'default',
   logging: LOG_LEVELS,
   synchronize: false,
-  entities: MODEL_LIST,
+  entities: MODELS_ARRAY,
 };
 
 const TEST_CONNECTION_CONFIG = {
@@ -43,13 +28,13 @@ const TEST_CONNECTION_CONFIG = {
   database: `/tmp/tamanu-mobile-test-${Math.random()}.db`,
   logging: LOG_LEVELS,
   synchronize: true,
-  entities: MODEL_LIST,
+  entities: MODELS_ARRAY,
 };
 
 class DatabaseHelper {
   client: Connection = null;
 
-  models: ModelMap = MODELS;
+  models = MODELS_MAP;
 
   async forceSync(): Promise<any> {
     await this.client.synchronize();
