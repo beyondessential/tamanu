@@ -19,7 +19,7 @@ import { Routes } from '~/ui/helpers/routes';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { CERTAINTY_OPTIONS, ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
-import { ReferenceData } from '~/models';
+import { ReferenceData } from '~/models/ReferenceData';
 import { Dropdown } from '~/ui/components/Dropdown';
 
 const styles = StyleSheet.create({

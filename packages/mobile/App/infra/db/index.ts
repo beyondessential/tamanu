@@ -5,7 +5,7 @@ import {
   ConnectionOptions,
 } from 'typeorm';
 import { DevSettings } from 'react-native';
-import * as modelsMap from '~/models';
+import * as modelsMap from '~/models/modelsMap';
 import { BaseModel } from '~/models/BaseModel';
 import { clear } from '~/services/config';
 
