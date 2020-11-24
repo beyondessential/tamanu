@@ -1,11 +1,11 @@
-import { ReferenceData } from '~/models';
 import { ID } from './ID';
+import { IReferenceData } from './IReferenceData';
 
 export interface IMedication {
   id: ID;
   date: Date;
   quantity: number;
-  medication: ReferenceData;
+  medication: IReferenceData;
   endDate?: Date;
   note?: string;
   prescription?: string;
