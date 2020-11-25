@@ -4,8 +4,7 @@ import config from 'config';
 import { log } from '../logging';
 
 import { importSurvey } from './importProgram';
-
-import { readDataDefinition } from '~/dataDefinitionImporter';
+import { importData } from './importDataDefinition';
 
 /***********
  * Update your local.json to something like this to import data files
@@ -27,19 +26,6 @@ import { readDataDefinition } from '~/dataDefinitionImporter';
   ]
 }
  **********/
-
-async function importData({ file }) {
-  log.info(`Importing data definitions from ${file}...`);
-
-  const data = await readDataDefinition(file);
-
-  console.log(data);
-  
-  // then restructure the parsed data to sync record format 
-  
-  // then send the records to sync server
-  // - idempotent?
-}
 
 const tasks = {
   importData,

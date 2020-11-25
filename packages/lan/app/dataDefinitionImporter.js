@@ -5,8 +5,8 @@ import { log } from '~/logging';
 
 const sanitise = string => string.trim().replace(/[^A-Za-z]+/g, '');
 
-const convertSheetNameToImporterId = sheetName => sanitise(sheetName).toLowerCase();
-const convertNameToCode = name => sanitise(name).toUpperCase();
+export const convertSheetNameToImporterId = sheetName => sanitise(sheetName).toLowerCase();
+export const convertNameToCode = name => sanitise(name).toUpperCase();
 
 const referenceDataImporter = type => async ({ ReferenceData }, item) => {
   const { name } = item;
@@ -265,9 +265,10 @@ export async function readDataDefinition(path) {
 
   return sheets
     .sort(compareImporterPriority)
-    .map(({ sheetName, sheet }) => ({
+    .map(({ sheetName, sheet, ...rest }) => ({
       sheetName,
       data: utils.sheet_to_json(sheet),
+      ...rest,
     }));
 }
 
