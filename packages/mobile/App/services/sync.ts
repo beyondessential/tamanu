@@ -2,8 +2,8 @@ import mitt from 'mitt';
 import { Database } from '~/infra/db';
 
 import { readConfig, writeConfig } from '~/services/config';
-import {GetSyncDataResponse, SyncRecord, SyncSource} from './syncSource';
-import {Patient} from "~/models";
+import { IPatient } from '~/types';
+import { GetSyncDataResponse, SyncRecord, SyncSource } from './syncSource';
 
 class NoSyncImporterError extends Error {
   constructor(recordType) {
@@ -98,7 +98,7 @@ export class SyncManager {
 
     await this.runChannelSync('reference');
     await this.runChannelSync('user');
-    await this.runChannelSync('vaccination');
+    // await this.runChannelSync('vaccination');
     await this.runChannelSync('survey', null, true);
     await this.runChannelSync('patient');
 
@@ -130,7 +130,7 @@ export class SyncManager {
     });
   }
 
-  async markPatientForSync(patient: Patient) {
+  async markPatientForSync(patient: IPatient) {
     patient.markedForSync = true;
     await patient.save();
 
