@@ -6,6 +6,7 @@ import { ProgramQuestion } from './ProgramQuestion';
 import { SectionHeader } from '../../SectionHeader';
 import { Button } from '../../Button';
 import { FullView, RowView, StyledText, StyledView } from '~/ui/styled/common';
+import { FormScreenView } from '../FormScreenView';
 
 function checkVisibilityCriteria(criteria: string, values: any): boolean {
   const [
@@ -22,7 +23,7 @@ function checkVisibilityCriteria(criteria: string, values: any): boolean {
   return false;
 }
 
-export interface AddDetailsFormFieldsProps {
+interface AddDetailsFormFieldsProps {
   components: ISurveyScreenComponent[];
   values: any;
   onSubmit: any;
@@ -35,7 +36,20 @@ export const FormFields = ({
   onSubmit,
   note,
 }: AddDetailsFormFieldsProps): ReactElement => {
-  const [page, setPage] = useState(0);
+  const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
+
+  const maxIndex = components
+    .map(x => x.screenIndex)
+    .reduce((max, current) => Math.max(max, current), 0);
+
+  const onNavigateNext = useCallback(() => {
+    setCurrentScreenIndex(Math.min(currentScreenIndex + 1, maxIndex));
+  }, [currentScreenIndex]);
+
+  const onNavigatePrevious = useCallback(() => {
+    setCurrentScreenIndex(Math.max(currentScreenIndex - 1, 0));
+  }, [currentScreenIndex]);
+
   const shouldShow = useCallback((component) => {
     if (isCalculated(component.dataElement.type)) return false;
     if (!component.visibilityCriteria) return true;
@@ -43,55 +57,56 @@ export const FormFields = ({
     return checkVisibilityCriteria(component.visibilityCriteria, values);
   }, [values]);
 
-  const maxIndex = components
-    .map(x => x.screenIndex)
-    .reduce((max, current) => Math.max(max, current), 0);
-
   const screenComponents = components
-    .filter(x => x.screenIndex === page)
-    .sort((a, b) => a.componentIndex - b.componentIndex);
-
-  const onNavigateNext = useCallback(() => {
-    setPage(Math.min(page + 1, maxIndex));
-  }, [page]);
-  const onNavigatePrevious = useCallback(() => {
-    setPage(Math.max(page - 1, 0));
-  }, [page]);
+    .filter(x => x.screenIndex === currentScreenIndex)
+    .sort((a, b) => a.componentIndex - b.componentIndex)
+    .filter(shouldShow)
+    .map((component, index) => (
+      <React.Fragment key={component.id}>
+        <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
+          {component.text || component.dataElement.defaultText}
+        </SectionHeader>
+        <ProgramQuestion
+          key={component.id}
+          component={component}
+        />
+      </React.Fragment>
+    ));
+  
+  // Note: we set the key on FullView so that React registers it as a whole
+  // new component, rather than a component whose contents happen to have 
+  // changed. This means that each new page will start at the top, rather than
+  // the scroll position continuing across pages.
 
   return (
-    <>
-      {screenComponents
-        .filter(shouldShow)
-        .map((component, index) => (
-          <React.Fragment key={component.id}>
-            <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
-              {component.text || component.dataElement.defaultText}
-            </SectionHeader>
-            <ProgramQuestion
-              key={component.id}
-              component={component}
-            />
-          </React.Fragment>
-        ))}
-      <RowView width="68%"> {/** TODO: correct parent width */}
-        <Button margin={5} disabled={page === 0} buttonText="Previous Page" onPress={onNavigatePrevious} />
-        {page !== maxIndex ? <Button margin={5} buttonText="Next Page" onPress={onNavigateNext} />
-          : (
-            <Button
-              margin={5}
-              backgroundColor={theme.colors.PRIMARY_MAIN}
-              buttonText="Submit"
-              onPress={onSubmit}
-            />
-          )
-
-        }
-        {page === maxIndex && (
+    <FullView key={currentScreenIndex}>
+      <FormScreenView>
+        {screenComponents}
+        <RowView width="68%" marginTop={25}>
+          <Button 
+            margin={5}
+            disabled={currentScreenIndex === 0}
+            buttonText="Previous Page"
+            onPress={onNavigatePrevious} 
+          />
+          {(currentScreenIndex !== maxIndex) 
+            ? <Button margin={5} buttonText="Next Page" onPress={onNavigateNext} />
+            : (
+              <Button
+                margin={5}
+                backgroundColor={theme.colors.PRIMARY_MAIN}
+                buttonText="Submit"
+                onPress={onSubmit}
+              />
+            )
+          }
+        </RowView>
+        {currentScreenIndex === maxIndex && (
           <StyledView margin={10}>
             <StyledText>{note}</StyledText>
           </StyledView>
-        ) }
-      </RowView>
-    </>
+        )}
+      </FormScreenView>
+    </FullView>
   );
 };
