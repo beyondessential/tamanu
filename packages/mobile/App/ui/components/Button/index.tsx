@@ -51,7 +51,7 @@ const ButtonContainer = styled(RowView)<ButtonContainer>`
     return '5px';
   }};
   background: ${(props): string => {
-    if (props.disabled) return '#d3d3d3';
+    if (props.disabled) return theme.colors.DISABLED_GREY;
     if (props.outline) return 'transparent';
     if (props.backgroundColor) return props.backgroundColor;
     return theme.colors.MAIN_SUPER_DARK;
