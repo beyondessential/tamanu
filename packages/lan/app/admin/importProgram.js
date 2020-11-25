@@ -70,7 +70,7 @@ export async function importSurvey(taskDefinition) {
     screenIndex: i,
   })).flat();
 
-  await sendSyncRequest('survey', [
+  const response = await sendSyncRequest('survey', [
     programElement,
     surveyElement,
     ...screenElements,
