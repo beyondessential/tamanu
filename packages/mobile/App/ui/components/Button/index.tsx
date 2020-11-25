@@ -51,6 +51,7 @@ const ButtonContainer = styled(RowView)<ButtonContainer>`
     return '5px';
   }};
   background: ${(props): string => {
+    if (props.disabled) return theme.colors.DISABLED_GREY;
     if (props.outline) return 'transparent';
     if (props.backgroundColor) return props.backgroundColor;
     return theme.colors.MAIN_SUPER_DARK;
@@ -97,6 +98,7 @@ export const Button = ({
   alignItems = 'center',
   justifyContent = 'center',
   padding,
+  disabled,
   ...rest
 }: StyledButtonProps): FunctionComponentElement<{}> => (
   <StyledTouchableOpacity
@@ -106,7 +108,7 @@ export const Button = ({
     onPress={onPress}
     {...rest}
     background="transparent"
-    disabled={loadingAction}
+    disabled={disabled || loadingAction}
   >
     <ButtonContainer
       {...rest}
@@ -120,6 +122,7 @@ export const Button = ({
       height={height}
       borderWidth={borderWidth}
       padding={padding}
+      disabled={disabled}
     >
       {loadingAction && (
         <ActivityIndicator size="large" color={theme.colors.WHITE} />
