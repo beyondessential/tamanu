@@ -6,6 +6,7 @@ import { ProgramDataElement } from './ProgramDataElement';
 import { Encounter } from './Encounter';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 
+import { FieldTypes, getStringValue } from '~/ui/helpers/fields';
 import { ISurveyResponse } from '~/types';
 
 @Entity('survey_response')
@@ -68,20 +69,21 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       });
 
       setNote("Attaching answers...");
-      const findDataElementId = (code: string): string => {
+      const findDataElement = (code: string): string => {
         const component = components.find(c => c.dataElement.code === code);
         if(!component) return '';
-        return component.dataElement.id;
+        return component.dataElement;
       };
 
       for(let a of Object.entries(values)) { 
         const [dataElementCode, value] = a;
-        const dataElementId = findDataElementId(dataElementCode);
+        const dataElement = findDataElement(dataElementCode);
+        const body = getStringValue(dataElement.type, value);
 
-        setNote(`Attaching answer for ${dataElementId}...`);
+        setNote(`Attaching answer for ${dataElement.id}...`);
         await SurveyResponseAnswer.create({
-          dataElement: dataElementId,
-          body: `${value}`,
+          dataElement: dataElement.id,
+          body,
           response: responseRecord.id,
         });
       }

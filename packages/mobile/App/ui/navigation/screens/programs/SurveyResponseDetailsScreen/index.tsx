@@ -5,7 +5,7 @@ import { theme } from '/styled/theme';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StackHeader } from '/components/StackHeader';
 import { useNavigation } from '@react-navigation/native';
-import { formatDate } from '/helpers/date';
+import { formatStringDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { FieldTypes } from '/helpers/fields';
 import { SurveyResultBadge } from '/components/SurveyResultBadge';
@@ -29,11 +29,14 @@ function getAnswerText(question, answer): string | number {
     case FieldTypes.CONDITION:
       return answer || 'N/A';
     case FieldTypes.BINARY:
-      return answer ? 'Yes' : 'No';
+    case FieldTypes.CHECKBOX:
+      return (answer.toLowerCase() === 'yes') ? 'Yes' : 'No';
     case FieldTypes.DATE:
-      return `date: ${answer}`; //formatDate(answer, DateFormats.DDMMYY);
+    case FieldTypes.SUBMISSION_DATE:
+      return formatStringDate(answer, DateFormats.DDMMYY);
     default:
-      return '';
+      console.warn(`Unknown field type: ${question.dataElement.type}`);
+      return `?? ${question.dataElement.type}`;
   }
 }
 

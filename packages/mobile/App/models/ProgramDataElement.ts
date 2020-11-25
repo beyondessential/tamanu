@@ -1,7 +1,6 @@
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Database } from '~/infra/db';
-
 import { IProgramDataElement } from '~/types';
 
 @Entity('program_data_element')
