@@ -1,10 +1,3 @@
-import { TextField } from '/components/TextField/TextField';
-import { RadioButtonGroup } from '/components/RadioButtonGroup';
-import { DateField } from '/components/DateField/DateField';
-import { Dropdown } from '/components/Dropdown';
-import { Checkbox } from '/components/Checkbox';
-import { NumberField } from '/components/NumberField';
-
 export const FieldTypes = {
   TEXT: 'FreeText',
   MULTILINE: 'Multiline',
@@ -21,20 +14,23 @@ export const FieldTypes = {
   RESULT: 'Result',
 };
 
-export const FieldByType = {
-  [FieldTypes.TEXT]: TextField,
-  [FieldTypes.MULTILINE]: TextField,
-  [FieldTypes.RADIO]: RadioButtonGroup,
-  [FieldTypes.SELECT]: Dropdown,
-  [FieldTypes.DATE]: DateField,
-  [FieldTypes.SUBMISSION_DATE]: DateField,
-  [FieldTypes.INSTRUCTION]: null,
-  [FieldTypes.NUMBER]: NumberField,
-  [FieldTypes.BINARY]: Checkbox,
-  [FieldTypes.CHECKBOX]: Checkbox,
-  [FieldTypes.CALCULATED]: null,
-  [FieldTypes.RESULT]: null,
-};
+export const getStringValue = (type: string, value: any): string  => {
+  switch(type) {
+    case FieldTypes.TEXT:
+    case FieldTypes.MULTILINE:
+      return value;
+    case FieldTypes.DATE:
+    case FieldTypes.SUBMISSION_DATE:
+      return value && value.toISOString();
+    case FieldTypes.BINARY:
+    case FieldTypes.CHECKBOX:
+      if(typeof value === 'string') return value;
+      // booleans should all be stored as Yes/No to match meditrak
+      return value ? "Yes" : "No";
+    default:
+      return `${value}`;
+  }
+}
 
 export function isCalculated(fieldType: string): boolean {
   switch (fieldType) {

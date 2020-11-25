@@ -1,9 +1,10 @@
 import React, { ReactElement, FC } from 'react';
 import { StyledView, StyledText } from '/styled/common';
 import { ISurveyScreenComponent } from '~/types';
-import { VerticalPosition } from '../../../interfaces/VerticalPosition';
+import { VerticalPosition } from '~/ui/interfaces/VerticalPosition';
 import { Field } from '../FormField';
-import { FieldTypes, FieldByType } from '/helpers/fields';
+import { FieldTypes } from '~/ui/helpers/fields';
+import { FieldByType } from '~/ui/helpers/fieldComponents';
 
 interface ProgramQuestion {
   component: ISurveyScreenComponent;
