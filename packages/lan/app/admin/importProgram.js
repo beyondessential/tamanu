@@ -1,9 +1,8 @@
-import fetch from 'node-fetch';
-import config from 'config';
 import shortid from 'shortid';
 
 import { log } from '../logging';
 import { readSurveyXSLX } from '../surveyImporter';
+import { sendSyncRequest } from './sendSyncRequest';
 
 const idify = name => name.toLowerCase().replace(/\W/g, '-');
 
@@ -71,24 +70,11 @@ export async function importSurvey(taskDefinition) {
     screenIndex: i,
   })).flat();
 
-  const records = [
+  await sendSyncRequest('survey', [
     programElement,
     surveyElement,
     ...screenElements,
-  ];
-
-  log.info(`Syncing ${records.length} records to ${config.syncHost}...`);
-
-  const channel = "survey";
-  const url = `${config.syncHost}/v1/sync/${channel}`;
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': '1213',
-    },
-    body: JSON.stringify(records),
-  });
+  ]);
 
   log.info("Program records uploaded. Response:", await response.json());
 }

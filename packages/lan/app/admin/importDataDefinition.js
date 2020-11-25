@@ -1,14 +1,16 @@
 import { log } from '../logging';
 import { readDataDefinition, convertNameToCode } from '~/dataDefinitionImporter';
 
+import { sendSyncRequest } from './sendSyncRequest';
+
 const referenceDataTransformer = type => (item) => {
   const { name } = item;
   const code = (item.code && `${item.code}`) || convertNameToCode(name);
 
   return {
-    id: `ref/${type}/${code}`,
     recordType: 'referenceData',
     data: {
+      id: `ref/${type}/${code}`,
       ...item,
       code,
       type,
@@ -44,8 +46,7 @@ export async function importData({ file }) {
     return sheet.data.map(transformer);
   }).filter(x => x).flat();
   
-  console.log(records);
+  const response = await sendSyncRequest('reference', records.slice(0, 5));
   
-  // then send the records to sync server
-  // - idempotent?
+  log.info("Reference records uploaded. Response:", await response.json());
 }
