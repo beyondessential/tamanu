@@ -32,16 +32,9 @@ export const ProgramsForm = ({
             <FormFields
               components={components}
               values={values}
+              note={note}
+              onSubmit={handleSubmit}
             />
-            <Button
-              marginTop={10}
-              backgroundColor={theme.colors.PRIMARY_MAIN}
-              buttonText="Submit"
-              onPress={handleSubmit}
-            />
-            <StyledView margin={10}>
-              <StyledText>{note}</StyledText>
-            </StyledView> 
           </FormScreenView>
         </FullView>
       )}
