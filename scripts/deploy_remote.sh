@@ -2,11 +2,12 @@
 
 set -euxo pipefail
 
+cd ~/tamanu
+
 BRANCH=$1
 CURRENT_BRANCH=`git branch --show-current`
 
 if [ $BRANCH == $CURRENT_BRANCH ]; then
-  cd ~/tamanu
   git pull
   yarn
   pm2 reload sync.pm2.config.js

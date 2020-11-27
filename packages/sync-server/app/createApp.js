@@ -39,9 +39,9 @@ export function createApp({ store }) {
     });
   });
 
-  app.use(authMiddleware);
-
-  app.use('/', routes);
+  // API v1
+  app.use('/v1', authMiddleware);
+  app.use('/v1', routes);
 
   // Dis-allow all other routes
   app.get('*', (req, res) => {

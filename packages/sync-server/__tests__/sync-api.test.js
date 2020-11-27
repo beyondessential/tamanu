@@ -30,12 +30,12 @@ describe("Sync API", () => {
   describe("Reads", () => {
     
     it('should error if no since parameter is provided', async () => {
-      const result = await app.get('/testChannel');
+      const result = await app.get('/v1/sync/testChannel');
       expect(result).toHaveRequestError();
     });
 
     it('should get some records', async () => {
-      const result = await app.get(`/testChannel?since=${OLDEST-1}`);
+      const result = await app.get(`/v1/sync/testChannel?since=${OLDEST-1}`);
       expect(result).toHaveSucceeded();
       
       const { body } = result;
@@ -58,7 +58,7 @@ describe("Sync API", () => {
     });
 
     it('should filter out older records', async () => {
-      const result = await app.get(`/testChannel?since=${SECOND_OLDEST-1}`);
+      const result = await app.get(`/v1/sync/testChannel?since=${SECOND_OLDEST-1}`);
       expect(result).toHaveSucceeded();
 
       const { body } = result;
@@ -90,11 +90,11 @@ describe("Sync API", () => {
       });
 
       it('should only return $limit records', async () => {
-        const result = await app.get(`/pagination?since=0&limit=5`);
+        const result = await app.get(`/v1/sync/pagination?since=0&limit=5`);
         expect(result).toHaveSucceeded();
         expect(result.body.records.length).toEqual(5);
 
-        const secondResult = await app.get(`/pagination?since=0&limit=3`);
+        const secondResult = await app.get(`/v1/sync/pagination?since=0&limit=3`);
         expect(secondResult).toHaveSucceeded();
         expect(secondResult.body.records.length).toEqual(3);
 
@@ -110,7 +110,7 @@ describe("Sync API", () => {
         const results = [];
 
         for(let i = 0; i < PAGE_COUNT; ++i) {
-          const url = `/pagination?since=0&limit=5&page=${i}`;
+          const url = `/v1/sync/pagination?since=0&limit=5&page=${i}`;
           const result = await app.get(url);
           expect(result).toHaveSucceeded();
           expect(result.body.records.length).toEqual(5);
@@ -129,15 +129,15 @@ describe("Sync API", () => {
       });
 
       it('should include the count of the entire query', async () => {
-        const result = await app.get(`/pagination?since=0&limit=5`);
+        const result = await app.get(`/v1/sync/pagination?since=0&limit=5`);
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('count', TOTAL_RECORDS);
         
-        const secondResult = await app.get(`/pagination?since=0&limit=3`);
+        const secondResult = await app.get(`/v1/sync/pagination?since=0&limit=3`);
         expect(secondResult).toHaveSucceeded();
         expect(secondResult.body).toHaveProperty('count', TOTAL_RECORDS);
         
-        const thirdResult = await app.get(`/pagination?since=0&limit=5&page=2`);
+        const thirdResult = await app.get(`/v1/sync/pagination?since=0&limit=5&page=2`);
         expect(thirdResult).toHaveSucceeded();
         expect(thirdResult.body).toHaveProperty('count', TOTAL_RECORDS);
       });
@@ -155,7 +155,7 @@ describe("Sync API", () => {
       const precheck = await store.findSince('adder', 0);
       expect(precheck).toHaveProperty('length', 0);
 
-      const result = await app.post('/adder').send({
+      const result = await app.post('/v1/sync/adder').send({
         recordType: 'test-write',
         data: {
           id: 'adder0',
@@ -172,7 +172,7 @@ describe("Sync API", () => {
       const precheck = await store.findSince('adder', 0);
       expect(precheck.length).toEqual(1);
 
-      const result = await app.post('/adder').send([
+      const result = await app.post('/v1/sync/adder').send([
         {
           recordType: 'test-write',
           data: { id: 'adder1', dataValue: 'add1' }
@@ -189,7 +189,7 @@ describe("Sync API", () => {
     });
 
     it('should update an existing record in reference data', async () => {
-      const result = await app.post('/adder').send({
+      const result = await app.post('/v1/sync/adder').send({
         recordType: 'test-write',
         data: { id: 'adder1', dataValue: 'add1-updated' }
       });
