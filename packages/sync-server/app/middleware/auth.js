@@ -16,10 +16,14 @@ authMiddleware.post('/login', asyncHandler(async (req, res) => {
   const { email, password } = body;
 
   if(!email || !password) {
-    throw new BadAuthenticationError('Invalid credentials');
+    throw new BadAuthenticationError('Missing credentials');
   }
 
   const user = await store.findUser(email);
+  if(!user) {
+    throw new BadAuthenticationError('No user');
+  }
+
   const hashedPassword = user?.data?.hashedPassword || '';
 
   if(!await bcrypt.compare(password, hashedPassword)) {
@@ -56,18 +60,22 @@ authMiddleware.use(asyncHandler(async (req, res, next) => {
     return;
   }
 
-  const contents = jwt.verify(token, JWT_SECRET);
-  const { userId } = contents;
+  try {
+    const contents = jwt.verify(token, JWT_SECRET);
+    const { userId } = contents;
 
-  const user = await store.findById(userId);
+    const user = await store.findById(userId);
 
-  if(!user) {
-    throw new BadAuthenticationError('User specified in token does not exist');
+    if(!user) {
+      throw new BadAuthenticationError('User specified in token does not exist');
+    }
+
+    req.user = user;
+
+    next();
+  } catch(e) {
+    throw new BadAuthenticationError('Invalid token');
   }
-
-  req.user = user;
-
-  next();
 }));
 
 authMiddleware.get('/whoami', asyncHandler((req, res) => {

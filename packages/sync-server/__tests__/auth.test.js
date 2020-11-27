@@ -1,5 +1,6 @@
 import supertest from 'supertest';
 import { subDays, subHours } from 'date-fns';
+import bcrypt from 'bcrypt';
 
 import { createTestContext } from './utilities';
 
@@ -29,14 +30,18 @@ describe.only("Auth", () => {
   beforeAll(async () => {
     app = await baseApp.asRole('practitioner');
 
-    await Promise.all(RECORDS.map(r => store.insert('user', {
-      recordType: 'user',
-      ...r,
-    })));
+    await Promise.all(RECORDS.map(async r => {
+      // TODO: should happen through a store.updateUser function
+      r.data.hashedPassword = await bcrypt.hash(r.data.password, 10);
+      return store.insert('user', {
+        recordType: 'user',
+        ...r,
+      });
+    }));
   });
 
   it('Should get a token for correct credentials', async () => {
-    const response = await baseApp.post('/login').send({
+    const response = await baseApp.post('/v1/login').send({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
     });
@@ -46,7 +51,7 @@ describe.only("Auth", () => {
   });
 
   it('Should respond with user details with correct credentials', async () => {
-    const response = await baseApp.post('/login').send({
+    const response = await baseApp.post('/v1/login').send({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
     });
@@ -61,7 +66,7 @@ describe.only("Auth", () => {
   });
 
   it('Should reject an empty credential', async () => {
-    const response = await baseApp.post('/login').send({
+    const response = await baseApp.post('/v1/login').send({
       email: TEST_EMAIL,
       password: '',
     });
@@ -69,7 +74,7 @@ describe.only("Auth", () => {
   });
 
   it('Should reject an incorrect password', async () => {
-    const response = await baseApp.post('/login').send({
+    const response = await baseApp.post('/v1/login').send({
       email: TEST_EMAIL,
       password: 'not the password',
     });
@@ -78,7 +83,7 @@ describe.only("Auth", () => {
 
   it('Should answer a whoami request correctly', async () => {
     // first, log in and get token
-    const response = await baseApp.post('/login').send({
+    const response = await baseApp.post('/v1/login').send({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
     });
@@ -90,7 +95,7 @@ describe.only("Auth", () => {
     const agent = supertest.agent(expressApp);
     agent.set('authorization', `Bearer ${token}`);
 
-    const whoamiResponse = await agent.get('/whoami');
+    const whoamiResponse = await agent.get('/v1/whoami');
     expect(whoamiResponse).toHaveSucceeded();
 
     const { body } = whoamiResponse;
