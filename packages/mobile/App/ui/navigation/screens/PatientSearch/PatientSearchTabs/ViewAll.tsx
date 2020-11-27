@@ -76,7 +76,11 @@ const applyActiveFilters = (
   { filters }: ActiveFilters,
   { value }: FieldInputProps<any>,
 ): IPatient[] => models.Patient.find({
-  order: { markedForSync: 'DESC' },
+  order: { 
+    lastName: 'ASC',
+    firstName: 'ASC',
+    markedForSync: 'DESC',
+  },
   where: [
     { firstName: Like(`%${value}%`), ...filters },
     { middleName: Like(`%${value}%`), ...filters },
