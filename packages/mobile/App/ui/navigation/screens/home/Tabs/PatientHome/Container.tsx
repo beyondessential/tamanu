@@ -10,6 +10,7 @@ import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 // Containers
 import { withPatient } from '/containers/Patient';
+import { useBackend } from '~/ui/hooks';
 
 const PatientHomeContainer = ({
   navigation,
@@ -75,6 +76,14 @@ const PatientHomeContainer = ({
     navigation.navigate(Routes.HomeStack.PatientActions);
   }, []);
 
+  const { models } = useBackend();
+  const onSyncPatient = useCallback(
+    (): void => {
+      models.Patient.markForSync({ id: selectedPatient.id });
+      navigation.navigate(Routes.HomeStack.HomeTabs.SyncData, { selectedPatient });
+    }, [selectedPatient],
+  );
+
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 
   return (
@@ -84,6 +93,7 @@ const PatientHomeContainer = ({
       visitTypeButtons={visitTypeButtons}
       patientMenuButtons={patientMenuButtons}
       navigateToPatientActions={onNavigateToPatientActions}
+      markPatientForSync={onSyncPatient}
     />
   );
 };

@@ -11,6 +11,7 @@ import { CircularProgress } from '/components/CircularProgress';
 import { SyncErrorDisplay } from '~/ui/components/SyncErrorDisplay';
 
 export const SyncDataScreen = (props): ReactElement => {
+  const { selectedPatient } = props.route.params;
   const backend = useContext(BackendContext);
   const syncManager: SyncManager = backend.syncManager;
 
@@ -59,6 +60,10 @@ export const SyncDataScreen = (props): ReactElement => {
       clearInterval(interval);
     };
   }, []);
+
+  useEffect(() => {
+    if (selectedPatient) return manualSync();
+  }, [selectedPatient]);
 
   return (
     <CenterView background={theme.colors.MAIN_SUPER_DARK} flex={1}>
@@ -119,3 +124,4 @@ export const SyncDataScreen = (props): ReactElement => {
     </CenterView>
   );
 };
+
