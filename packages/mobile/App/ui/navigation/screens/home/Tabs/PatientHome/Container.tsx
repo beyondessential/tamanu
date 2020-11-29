@@ -79,7 +79,7 @@ const PatientHomeContainer = ({
   const { models } = useBackend();
   const onSyncPatient = useCallback(
     (): void => {
-      models.Patient.markForSync({ id: selectedPatient.id });
+      models.Patient.markForSync(selectedPatient.id);
       navigation.navigate(Routes.HomeStack.HomeTabs.SyncData, { selectedPatient });
     }, [selectedPatient],
   );
