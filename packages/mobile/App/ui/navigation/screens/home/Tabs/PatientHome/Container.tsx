@@ -76,11 +76,12 @@ const PatientHomeContainer = ({
     navigation.navigate(Routes.HomeStack.PatientActions);
   }, []);
 
-  const { models } = useBackend();
+  const { models, syncManager } = useBackend();
   const onSyncPatient = useCallback(
     (): void => {
       models.Patient.markForSync(selectedPatient.id);
-      navigation.navigate(Routes.HomeStack.HomeTabs.SyncData, { selectedPatient });
+      syncManager.runScheduledSync();
+      navigation.navigate(Routes.HomeStack.HomeTabs.SyncData);
     }, [selectedPatient],
   );
 
