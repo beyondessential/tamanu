@@ -15,9 +15,9 @@ export const RootStack = (): ReactElement => (
       <PersistGate loading={null} persistor={persistor}>
         <ThemeProvider theme={themeSystem}>
           <NavigationContainer>
-              <AuthProvider>
-                <Core />
-              </AuthProvider>
+            <AuthProvider>
+              <Core />
+            </AuthProvider>
           </NavigationContainer>
         </ThemeProvider>
       </PersistGate>
