@@ -26,7 +26,7 @@ const getRouteFromNavigationState = (state: MinimalState): string => {
   return newState.name || '?';
 };
 
-const onNavigationStateChange = (newState: MinimalState): void => {
+const onNavigationStateChange = (newState): void => {
   updateScreenOrientation(getRouteFromNavigationState(newState));
 };
 
