@@ -1,18 +1,17 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
+import Orientation from 'react-native-orientation';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { Routes } from '/helpers/routes';
-import { OrientationContext } from '/contexts/OrientationContext';
 import { VaccineHistoryTab } from '../screens/vaccine/tableTabs';
 
 const Tab = createMaterialTopTabNavigator();
 
 export const VaccineTableTabs = (): ReactElement => {
-  const orientationCtx = useContext(OrientationContext);
   useEffect(() => {
-    orientationCtx.orientation.unlockAllOrientations();
+    Orientation.unlockAllOrientations();
 
     return (): void => {
-      orientationCtx.orientation.lockToPortrait();
+      Orientation.lockToPortrait();
     };
   }, []);
 

@@ -7,7 +7,6 @@ import { Provider } from 'react-redux';
 import { themeSystem } from '/styled/common';
 import { store, persistor } from '/store/index';
 import { AuthProvider } from '/contexts/authContext/AuthContext';
-import { OrientationProvider } from '/contexts/OrientationContext';
 import { Core } from './Core';
 
 export const RootStack = (): ReactElement => (
@@ -17,9 +16,7 @@ export const RootStack = (): ReactElement => (
         <ThemeProvider theme={themeSystem}>
           <NavigationContainer>
             <AuthProvider>
-              <OrientationProvider>
-                <Core />
-              </OrientationProvider>
+              <Core />
             </AuthProvider>
           </NavigationContainer>
         </ThemeProvider>
