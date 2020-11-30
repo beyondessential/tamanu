@@ -15,6 +15,8 @@ import { Routes } from '~/ui/helpers/routes';
 const ReferralForm = ({
   handleSubmit,
   icd10Suggester,
+  practitionerSuggester,
+  loggedInUser,
   navigation,
 }: ReferralFormProps): ReactElement => (
   <StyledView
@@ -23,10 +25,12 @@ const ReferralForm = ({
     height={screenPercentageToDP(80.9, Orientation.Height)}
   >
     <Field
-      component={TextField}
+      component={AutocompleteModalField}
+      placeholder={loggedInUser.displayName || 'Referring practitioner'}
+      navigation={navigation}
+      suggester={practitionerSuggester}
+      modalRoute={Routes.Autocomplete.Modal}
       name="practitioner"
-      label="Referring doctor"
-      hints={false}
     />
     <Field
       component={TextField}

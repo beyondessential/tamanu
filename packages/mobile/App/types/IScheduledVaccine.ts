@@ -1,9 +1,11 @@
-import { ReferenceData } from '~/models';
 import { ID } from './ID';
+import { IReferenceData } from './IReferenceData';
 
 export interface IScheduledVaccine {
   id: ID;
   index: number;
+  label: string;
   schedule: string;
-  vaccine: ReferenceData;
+  category: string;
+  vaccine: IReferenceData;
 }

@@ -1,10 +1,13 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
-import { BaseModel } from './BaseModel';
-import { Survey, ProgramDataElement } from './Survey';
-import { Encounter } from './Encounter';
 
-import { ISurveyResponse, ISurveyResponseAnswer } from '~/types';
+import { BaseModel } from './BaseModel';
+import { Survey } from './Survey';
+import { ProgramDataElement } from './ProgramDataElement';
+import { Encounter } from './Encounter';
+import { SurveyResponseAnswer } from './SurveyResponseAnswer';
+
+import { FieldTypes, getStringValue } from '~/ui/helpers/fields';
+import { ISurveyResponse } from '~/types';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
@@ -23,46 +26,75 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @ManyToOne(type => Encounter, encounter => encounter.surveyResponses)
   encounter: Encounter;
 
-  static async submit(patientId, surveyData, values): Promise<SurveyResponse> {
-    const { surveyId, encounterReason, ...otherData } = surveyData;
-
-    const encounter = await Encounter.create({
-      patient: patientId,
-      startDate: new Date(),
-      endDate: new Date(),
-      encounterType: 'surveyResponse',
-      reasonForEncounter: encounterReason,
+  static async getFullResponse(surveyId: string) {
+    const repo = this.getRepository();
+    const response = await repo.findOne(surveyId, {
+      relations: ['survey', 'encounter', 'encounter.patient'],
+    });
+    const questions = await response.survey.getComponents();
+    const answers = await SurveyResponseAnswer.getRepository().find({
+      where: {
+        response: response.id,
+      },
+      relations: ['dataElement'],
     });
 
-    const responseRecord = await SurveyResponse.create({
-      encounter: encounter.id,
-      startTime: Date.now(),
-      endTime: Date.now(),
-      survey: surveyId,
-      ...otherData,
-    });
+    return {
+      ...response,
+      questions: [...questions],
+      answers: [...answers],
+    };
+  }
 
-    const answers = await Promise.all(
-      Object.entries(values).map(([dataElementId, value]) => SurveyResponseAnswer.create({
-        dataElementId,
-        body: `${value}`,
-        response: responseRecord.id,
-      })),
-    );
+  static async submit(patientId, surveyData, values, setNote = () => null): Promise<SurveyResponse> {
+    const { surveyId, encounterReason, components, ...otherData } = surveyData;
 
-    return responseRecord;
+    try {
+      setNote("Creating encounter...");
+      const encounter = await Encounter.create({
+        patient: patientId,
+        startDate: new Date(),
+        endDate: new Date(),
+        encounterType: 'surveyResponse',
+        reasonForEncounter: encounterReason,
+      });
+
+      setNote("Creating response object...");
+      const responseRecord = await SurveyResponse.create({
+        encounter: encounter.id,
+        survey: surveyId,
+        startTime: Date.now(),
+        endTime: Date.now(),
+        ...otherData,
+      });
+
+      setNote("Attaching answers...");
+      const findDataElement = (code: string): string => {
+        const component = components.find(c => c.dataElement.code === code);
+        if(!component) return '';
+        return component.dataElement;
+      };
+
+      for(let a of Object.entries(values)) { 
+        const [dataElementCode, value] = a;
+        const dataElement = findDataElement(dataElementCode);
+        const body = getStringValue(dataElement.type, value);
+
+        setNote(`Attaching answer for ${dataElement.id}...`);
+        await SurveyResponseAnswer.create({
+          dataElement: dataElement.id,
+          body,
+          response: responseRecord.id,
+        });
+      }
+      setNote(`Done`);
+
+      return responseRecord;
+    } catch(e) {
+      setNote(`Error: ${e.message} (${JSON.stringify(e)})`);     
+
+      return null;
+    }
   }
 }
 
-@Entity('survey_response_answer')
-export class SurveyResponseAnswer extends BaseModel
-  implements ISurveyResponseAnswer {
-  @Column()
-  body: string;
-
-  @ManyToOne(type => SurveyResponse, surveyResponse => surveyResponse.answers)
-  response: SurveyResponse;
-
-  @ManyToOne(type => ProgramDataElement, dataElement => dataElement.answers)
-  dataElement: ProgramDataElement;
-}

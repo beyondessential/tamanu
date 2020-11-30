@@ -1,31 +1,34 @@
 import React, { ReactElement, FC } from 'react';
-import { StyledView } from '/styled/common';
+import { StyledView, StyledText } from '/styled/common';
 import { ISurveyScreenComponent } from '~/types';
-import { VerticalPosition } from '../../../interfaces/VerticalPosition';
+import { VerticalPosition } from '~/ui/interfaces/VerticalPosition';
 import { Field } from '../FormField';
-import { FieldTypes, FieldByType } from '/helpers/fields';
+import { FieldTypes } from '~/ui/helpers/fields';
+import { FieldByType } from '~/ui/helpers/fieldComponents';
 
 interface ProgramQuestion {
   component: ISurveyScreenComponent;
-  scrollTo: (item: { x: number; y: number }) => void;
-  verticalPositions: VerticalPosition;
+}
+
+function getField(type: string): FC<any> {
+  const field = FieldByType[type];
+  if(field || field === null) return field;
+
+  return () => <StyledText>{`No field type ${type}`}</StyledText>;
 }
 
 export const ProgramQuestion = ({
   component,
-  scrollTo,
-  verticalPositions,
 }: ProgramQuestion): ReactElement => {
   const { dataElement } = component;
-  const fieldInput: FC<any> = FieldByType[dataElement.type];
-  if (!fieldInput) return null;
+  const fieldInput: FC<any> = getField(dataElement.type);
+  if(!fieldInput) return null;
   const isMultiline = dataElement.type === FieldTypes.MULTILINE;
   return (
     <StyledView marginTop={10}>
       <Field
-        onFocus={(): void => scrollTo(verticalPositions[component.id])}
         component={fieldInput}
-        name={dataElement.id}
+        name={dataElement.code}
         options={component.getOptions()}
         multiline={isMultiline}
       />

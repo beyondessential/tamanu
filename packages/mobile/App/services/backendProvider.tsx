@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import RnBgTask from 'react-native-bg-thread';
 import { Backend } from './backend';
 
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
@@ -14,8 +15,11 @@ export const BackendProvider = ({ Component }): JSX.Element => {
     (async (): Promise<void> => {
       backend.stopSyncService();
       setInitialised(false);
-      await backend.initialise(Date.now());
-      setInitialised(true);
+
+      RnBgTask.runInBackground(async () => {
+        await backend.initialise(Date.now());
+        setInitialised(true);
+      });
     })();
     return () => backend.stopSyncService();
   }, [backend]);

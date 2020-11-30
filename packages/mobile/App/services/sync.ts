@@ -2,8 +2,8 @@ import mitt from 'mitt';
 import { Database } from '~/infra/db';
 
 import { readConfig, writeConfig } from '~/services/config';
-import {GetSyncDataResponse, SyncRecord, SyncSource} from './syncSource';
-import {Patient} from "~/models";
+import { IPatient } from '~/types';
+import { GetSyncDataResponse, SyncRecord, SyncSource } from './syncSource';
 
 class NoSyncImporterError extends Error {
   constructor(recordType) {
@@ -16,15 +16,20 @@ export class SyncManager {
 
   progress = 0;
 
-  lastSyncTime: Date | null = null;
-
   emitter = mitt();
+
+  errors = [];
 
   constructor(syncSource: SyncSource) {
     this.syncSource = syncSource;
 
     this.emitter.on("*", (action, ...args) => {
       if(action === 'syncedRecord') return;
+      if(action === 'syncRecordError') {
+        this.errors.push(args[0]);
+        console.warn('error', args[0]);
+        return;
+      }
 
       console.log(`[sync] ${action} ${args[0] || ''}`);
     });
@@ -38,10 +43,18 @@ export class SyncManager {
         return models.Patient;
       case "user":
         return models.User;
-      case "program":
-        return models.Program;
       case "referenceData":
         return models.ReferenceData;
+      case 'scheduledVaccine':
+        return models.ScheduledVaccine;
+      case "program":
+        return models.Program;
+      case "survey":
+        return models.Survey;
+      case "surveyScreenComponent":
+        return models.SurveyScreenComponent;
+      case "programDataElement":
+        return models.ProgramDataElement;
       default:
         return null;
     }
@@ -50,6 +63,7 @@ export class SyncManager {
   async syncRecord(syncRecord: SyncRecord) {
     // write one single downloaded record to the database
     const { recordType, data } = syncRecord;
+
     const model = this.getModelForRecordType(recordType);
     if(!model) {
       throw new NoSyncImporterError(recordType);
@@ -82,7 +96,11 @@ export class SyncManager {
 
     this.emitter.emit("syncStarted");
 
-    await this.runReferenceSync();
+    await this.runChannelSync('reference');
+    await this.runChannelSync('user');
+    // await this.runChannelSync('vaccination');
+    await this.runChannelSync('survey', null, true);
+    await this.runChannelSync('patient');
 
     // sync all reference data including shallow patient list
     // full sync of patients that've been flagged (encounters, etc)
@@ -103,7 +121,6 @@ export class SyncManager {
 
     this.emitter.emit("syncEnded");
     this.isSyncing = false;
-    this.lastSyncTime = new Date();
   }
 
   getPatientsToSync() {
@@ -113,7 +130,7 @@ export class SyncManager {
     });
   }
 
-  async markPatientForSync(patient: Patient) {
+  async markPatientForSync(patient: IPatient) {
     patient.markedForSync = true;
     await patient.save();
 
@@ -121,7 +138,7 @@ export class SyncManager {
     this.runScheduledSync();
   }
 
-  async syncAllPages(channel: string, since: Date, syncCallback: SyncCallback) {
+  async syncAllPages(channel: string, since: Date, singlePageMode = false) {
     let page = 0;
 
     const downloadPage = (pageNumber) => {
@@ -130,6 +147,7 @@ export class SyncManager {
         channel,
         since,
         pageNumber,
+        singlePageMode,
       );
     }
 
@@ -144,13 +162,44 @@ export class SyncManager {
     };
     setProgress(0);
 
-    // we want to download each page of records while the current page
+    // We want to download each page of records while the current page
     // of records is being imported - this means that the database IO
     // and network IO are running in parallel rather than running in
     // alternating sequence.
     let downloadTask : Promise<GetSyncDataResponse> = downloadPage(0);
 
     let maxDate = since;
+
+    // Some records will fail on the first attempt due to foreign key constraints
+    // (most commonly, when a dependency record has been updated so it appears 
+    // after its dependent in the sync queue)
+    // So we keep these records in a queue and retry them at the end of the download.
+    let pendingRecords = [];
+
+    const syncRecords = (records) => {
+      return Promise.all(records.map(async r => {
+        try {
+          await this.syncRecord(r);
+
+          if(r.lastSynced > maxDate) {
+            maxDate = r.lastSynced;
+          }
+        } catch(e) {
+          if(e.message.match(/FOREIGN KEY constraint failed/)) {
+            // this error is to be expected! just push it
+            r.ERROR_MESSAGE = e.message;
+            pendingRecords.push(r);
+          } else {
+            console.warn("syncRecordError", e, r);
+            this.emitter.emit("syncRecordError", {
+              record: r,
+              error: e,
+            });
+          }
+        }
+      }));
+    };
+
 
     try {
       while(true) {
@@ -173,12 +222,12 @@ export class SyncManager {
 
         // we have records to import - import them
         this.emitter.emit("importingPage", `${channel}-${page}`);
-        const importTask = Promise.all(response.records.map(r => {
-          if(r.lastSynced > maxDate) {
-            maxDate = r.lastSynced;
-          }
-          return this.syncRecord(r);
-        }));
+        const importTask = await syncRecords(response.records);
+
+        if(singlePageMode) {
+          await importTask;
+          break;
+        }
 
         // start downloading the next page now
         page += 1;
@@ -191,36 +240,60 @@ export class SyncManager {
       console.warn(e);
     }
 
+    // Now try re-importing all of the pending records.
+    // As there might be multiple levels of dependency, we might need a few 
+    // passes over the queue! But if we get a pass where the queue doesn't 
+    // decrease in size at all, we know there's a for-real error and we should
+    // terminate the process.
+    while(pendingRecords.length > 0) {
+      console.log(`Reattempting ${pendingRecords.length} failed records...`);
+      const thisPass = pendingRecords;
+      pendingRecords = [];
+      await syncRecords(thisPass);
+      // syncRecords will re populate pendingRecords
+      if(pendingRecords.length === thisPass.length) {
+        console.warn("Could not import remaining queue members:");
+        console.warn(JSON.stringify(pendingRecords, null, 2));
+        pendingRecords.map(r => this.errors.push(r));
+        throw new Error(`Could not import any ${pendingRecords.length} remaining queue members`);
+      }
+    }
+
     return maxDate;
   }
 
-  async runPatientSync(patient: Patient) {
-    await this.syncAllPages(`patient/${patient.id}`, patient.lastSynced);
-
-    patient.lastSynced = new Date();
-    await patient.save();
-  }
-
-  async getReferenceSyncDate(): Promise<Date> {
-    const timestampString = await readConfig('referenceSyncDate', '0');
+  async getChannelSyncDate(channel): Promise<Date> {
+    const timestampString = await readConfig(`syncDate.${channel}`, '0');
     const timestamp = parseInt(timestampString, 10);
     return new Date(timestamp);
   }
 
-  async updateReferenceSyncDate(date: Date): Promise<void> {
+  async updateChannelSyncDate(channel, date: Date): Promise<void> {
     const timestampString = `${date.valueOf()}`;
-    await writeConfig('referenceSyncDate', timestampString);
+    await writeConfig(`syncDate.${channel}`, timestampString);
   }
 
-  async runReferenceSync() {
-    const lastSynced = await this.getReferenceSyncDate();
+  async runChannelSync(channel: string, overrideLastSynced = null, singlePageMode = false): Promise<void> {
+    const lastSynced = (overrideLastSynced === null)
+      ? await this.getChannelSyncDate(channel)
+      : overrideLastSynced;
 
-    this.emitter.emit("referenceSyncStarted");
-    const maxDate = await this.syncAllPages(`reference`, lastSynced);
-    this.emitter.emit("referenceSyncEnded");
 
-    await this.updateReferenceSyncDate(maxDate);
+    this.emitter.emit('channelSyncStarted', channel);
+    try {
+      const maxDate = await this.syncAllPages(channel, lastSynced, singlePageMode);
+      await this.updateChannelSyncDate(channel, maxDate);
+    } catch(e) {
+      console.error(e);
+    }
+    this.emitter.emit('channelSyncEnded', channel);
   }
 
+  async runPatientSync(patient: Patient): Promise<void> {
+    await this.syncAllPages(`patient/${patient.id}`, patient.lastSynced);
+
+    // eslint-disable-next-line no-param-reassign
+    patient.lastSynced = new Date();
+    await patient.save();
+  }
 }
-

@@ -57,8 +57,9 @@ const Header = ({
             {vaccine.name}
           </StyledText>
           <StyledText color={theme.colors.SECONDARY_MAIN} fontSize={21}>
-            {vaccine.subtitle}
+            {vaccine.code}
           </StyledText>
+          <StyledText color={theme.colors.WHITE}>{vaccine.schedule}</StyledText>
         </StyledView>
         <StyledView
           position="absolute"
@@ -69,9 +70,6 @@ const Header = ({
           <StyledTouchableOpacity onPress={onPress}>
             <ArrowDownIcon size={15} fill={theme.colors.WHITE} stroke={3} />
           </StyledTouchableOpacity>
-        </StyledView>
-        <StyledView height="100%" justifyContent="center" paddingRight={20}>
-          <StyledText color={theme.colors.WHITE}>{vaccine.dateType}</StyledText>
         </StyledView>
       </RowView>
     </SafeAreaView>

@@ -20,7 +20,7 @@ export const SexSection = (): ReactElement => (
   <Section title="Sex">
     <Field
       component={RadioButtonGroup}
-      name="gender"
+      name="sex"
       options={options}
       CustomComponent={SelectButton}
     />

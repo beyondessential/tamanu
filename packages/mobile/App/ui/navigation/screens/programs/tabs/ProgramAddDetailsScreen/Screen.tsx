@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { FullView, StyledText } from '~/ui/styled/common';
 import { ProgramsForm } from '~/ui/components/Forms/ProgramsForm';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
@@ -9,10 +9,14 @@ import { useCancelableEffect } from '~/ui/hooks';
 export const Screen = ({
   survey,
   onSubmitForm,
-  scrollTo,
   ...props
 }: ScreenProps): ReactElement => {
   const [components, error] = useCancelableEffect(() => survey.getComponents());
+
+  const onSubmit = useCallback(
+    (values) => onSubmitForm(values, components), 
+    [onSubmitForm, components]
+  );
 
   if (error) {
     return <ErrorScreen error={error} />;
@@ -27,8 +31,7 @@ export const Screen = ({
       <ProgramsForm
         {...props}
         components={components}
-        scrollToField={scrollTo}
-        onSubmit={onSubmitForm}
+        onSubmit={onSubmit}
       />
     </FullView>
   );

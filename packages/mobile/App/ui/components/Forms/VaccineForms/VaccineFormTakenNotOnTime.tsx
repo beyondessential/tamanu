@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-indent */
 import React from 'react';
 import { StyledView, RowView } from '/styled/common';
 import {
@@ -7,55 +8,24 @@ import {
   SCREEN_ORIENTATION,
 } from '/helpers/screen';
 import { DateField } from '/components/DateField/DateField';
-import { Dropdown } from '/components/Dropdown';
 import { TextField } from '/components/TextField/TextField';
 import { Field } from '../FormField';
 
-interface VaccineModalFormTakenNotOnTimeProps {
-  typeOptions: any[];
-  reasonOptions: any[];
-  manufactureOptions: any[];
-  administeredOptions: any[];
-}
-
-export const VaccineFormTakenNotOnTime = ({
-  typeOptions,
-  reasonOptions,
-  manufactureOptions,
-  administeredOptions,
-}: VaccineModalFormTakenNotOnTimeProps):
+export const VaccineFormTakenNotOnTime = ():
   Element => (getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
-    <StyledView
-      justifyContent="space-between"
-      height={screenPercentageToDP(43.74, Orientation.Height)}
-    >
-      <Field component={DateField} name="date" label="Date" />
-      <Field
-        component={Dropdown}
-        options={reasonOptions}
-        name="reason"
-        label="Reason"
-      />
-      <Field
-        component={Dropdown}
-        options={typeOptions}
-        name="type"
-        label="Type"
-      />
-      <Field component={TextField} name="batch" label="Batch No." />
-      <Field
-        component={Dropdown}
-        options={manufactureOptions}
-        name="manufacture"
-        label="Manufacture"
-      />
-      <Field
-        component={Dropdown}
-        options={administeredOptions}
-        name="administered"
-        label="Administered by"
-      />
-    </StyledView>
+  <StyledView
+    justifyContent="space-between"
+    height={screenPercentageToDP(43.74, Orientation.Height)}
+  >
+    <Field component={DateField} name="date" label="Date" />
+    <Field component={TextField} name="reason" label="Reason" />
+    <Field component={TextField} name="batch" label="Batch No." />
+    <Field
+      component={TextField}
+      name="administered"
+      label="Administered by"
+    />
+  </StyledView>
 ) : (
   <StyledView>
     <RowView marginTop={10}>
@@ -63,35 +33,14 @@ export const VaccineFormTakenNotOnTime = ({
     </RowView>
     <RowView marginTop={10} justifyContent="space-between">
       <StyledView width="49%">
-        <Field
-          component={Dropdown}
-          options={reasonOptions}
-          name="reason"
-          label="Reason"
-        />
-      </StyledView>
-      <StyledView width="49%">
-        <Field
-          component={Dropdown}
-          options={typeOptions}
-          name="type"
-          label="Type"
-        />
+        <Field component={TextField} name="reason" label="Reason" />
+        <Field component={TextField} name="batch" label="Batch No." />
       </StyledView>
     </RowView>
     <RowView marginTop={10} justifyContent="space-between">
       <StyledView width="49%">
         <Field
-          component={Dropdown}
-          options={reasonOptions}
-          name="batch"
-          label="Batch No."
-        />
-      </StyledView>
-      <StyledView width="49%">
-        <Field
-          component={Dropdown}
-          options={administeredOptions}
+          component={TextField}
           name="administered"
           label="Administered by"
         />

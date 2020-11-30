@@ -22,7 +22,7 @@ export function getFormInitialValues(
   const initialValues = components.reduce<{ [key: string]: any }>(
     (acc, { dataElement }) => {
       const initialValue = getInitialValue(dataElement);
-      const propName = dataElement.id;
+      const propName = dataElement.code;
       if (initialValue === undefined) {
         return acc;
       }
@@ -60,7 +60,7 @@ export function getFormSchema(
   const objectShapeSchema = components.reduce<{ [key: string]: any }>(
     (acc, component) => {
       const { dataElement, required } = component;
-      const propName = dataElement.id;
+      const propName = dataElement.code;
       const validator = getFieldValidator(dataElement);
       if (!validator) return acc;
       if (required) {
@@ -75,25 +75,3 @@ export function getFormSchema(
   return Yup.object().shape(objectShapeSchema);
 }
 
-export function mapInputVerticalPosition(
-  components: ISurveyScreenComponent[],
-): VerticalPosition {
-  let verticalOffset = 0;
-  const verticalPositions = components.reduce<VerticalPosition>(
-    (acc, component, componentIndex) => {
-      const normalOffset = screenPercentageToDP(7.04, Orientation.Height);
-      const titleOffset = screenPercentageToDP(4.25, Orientation.Height);
-      acc[component.id] = {
-        x: 0,
-        y: verticalOffset + normalOffset,
-      };
-      verticalOffset += normalOffset;
-      if (componentIndex > 0) {
-        verticalOffset += titleOffset;
-      }
-      return acc;
-    },
-    {},
-  );
-  return verticalPositions;
-}

@@ -78,17 +78,12 @@ yarn start
 
 Storybook is our default component library which helps us checking the behavior and styles of components in an isolated environment.
 
-Before running storybook:
+To run storybook:
 1. Have your emulator running
 1. Have your app running (metro bundler)
-1. Edit .env, adding `STORYBOOK=true`
+1. Open the dev menu and press `Toggle Storybook`
 
-Then run:
-- `yarn storybook` // this starts the storybook "web ui" which lets you navigate the stories. It's not actually necessary 
-  as you can do everything in-app, but it's a bit quicker to navigate around with.  
-- Reload your app (metro-bundler terminal, hit r). 
-
-You should see a browser tab for the storybook web ui, with the sidebar showing each story.
+You can also run `yarn storybook-web-ui` for a little nicer experience.
 
 ## Emulator Command Hints
 

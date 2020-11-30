@@ -1,4 +1,6 @@
 import React, { ReactElement, useCallback, FC, useMemo } from 'react';
+import { format } from 'date-fns'
+import { Like } from 'typeorm';
 import {
   useField,
   FieldInputProps,
@@ -21,11 +23,10 @@ import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
 import { FilterIcon } from '/components/Icons/FilterIcon';
 import { FilterArray } from './PatientFilterScreen';
-import { getAgeFromDate } from '/helpers/date';
 import { IPatient } from '~/types';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
-interface ActiveFiltersI {
+interface ActiveFilters {
   count: number;
   filters: {
     [key: string]: {
@@ -42,70 +43,52 @@ type FieldProp = [
 ];
 
 const getActiveFilters = (
-  acc: ActiveFiltersI,
-  item: FieldProp,
-): ActiveFiltersI => {
-  const curField = item[0];
-  switch (curField.name) {
-    case 'age':
-      if (curField.value[0] !== 0 || curField.value[1] !== 99) {
-        acc.count += 1;
-        acc.filters[curField.name] = {
-          name: curField.name,
-          value: curField.value,
-        };
-        return acc;
-      }
-      break;
-    default:
-      if (typeof curField.value === 'string') {
-        if (curField.value !== '') {
-          acc.count += 1;
-          acc.filters[curField.name] = {
-            name: curField.name,
-            value: curField.value,
-          };
-          return acc;
-        }
-      } else if (curField.value !== null && curField.value !== false) {
-        acc.count += 1;
-        acc.filters[curField.name] = {
-          name: curField.name,
-          value: curField.value,
-        };
-        return acc;
-      }
-      return acc;
-  }
-  return acc;
-};
+  filters: ActiveFilters,
+  filter: FieldProp,
+): ActiveFilters => {
+  const field = filter[0];
+  const activeFilters = { ...filters };
 
-const isEqual = (prop1: any, prop2: any, fieldName: string): boolean => {
-  switch (fieldName) {
-    case 'age':
-      return prop1 >= prop2[0] && prop1 <= prop2[1];
-    case 'gender':
-      if (prop2 === 'all') return true;
-      return prop1 === prop2;
-    case 'dateOfBirth':
-      return getAgeFromDate(prop1) === getAgeFromDate(prop2);
-    default:
-      if (typeof prop1 === 'string') {
-        return prop1.includes(prop2);
-      }
+  if (field.name === 'gender' && field.value === 'all') {
+    activeFilters.count += 1;
+    return activeFilters;
   }
-  return false;
+
+  if (field.value) {
+    activeFilters.count += 1;
+
+    if (field.name === 'dateOfBirth') {
+      const date = format(field.value, 'yyyy-MM-dd');
+      activeFilters.filters[field.name] = Like(`%${date}%`);
+    } else {
+      activeFilters.filters[field.name] = field.value;
+    }
+
+
+    return activeFilters;
+  }
+
+  return activeFilters;
 };
 
 const applyActiveFilters = (
   models,
-  activeFilters: ActiveFiltersI,
-  searchField: FieldInputProps<any>,
+  { filters }: ActiveFilters,
+  { value }: FieldInputProps<any>,
 ): IPatient[] => models.Patient.find({
-  order: {
+  order: { 
     lastName: 'ASC',
     firstName: 'ASC',
+    markedForSync: 'DESC',
   },
+  where: [
+    { firstName: Like(`%${value}%`), ...filters },
+    { middleName: Like(`%${value}%`), ...filters },
+    { lastName: Like(`%${value}%`), ...filters },
+    { culturalName: Like(`%${value}%`), ...filters },
+  ],
+  take: 100,
+  cache: true,
 });
 
 const Screen: FC<ViewAllScreenProps> = ({
@@ -117,7 +100,7 @@ const Screen: FC<ViewAllScreenProps> = ({
   // Get filters
   const filters = FilterArray.map(fieldName => useField(fieldName));
   const activeFilters = useMemo(
-    () => filters.reduce<ActiveFiltersI>(getActiveFilters, {
+    () => filters.reduce<ActiveFilters>(getActiveFilters, {
       count: 0,
       filters: {},
     }),

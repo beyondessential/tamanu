@@ -1,0 +1,4 @@
+tamanu-mobile:
+  build:
+    image: tamanu-mobile
+    dockerfile: Dockerfile
