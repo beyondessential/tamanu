@@ -9,7 +9,11 @@ const { models } = createTestContext();
 
 const TEST_SURVEY_PATH = './data/test_programs.xlsx';
 
-describe('Importing surveys', () => {
+// Disabled these tests as functionality has moved to the admin importer tool,
+// sending records to sync server instead of importing directly to DB.
+// This test should be updated to reflect that.
+//
+xdescribe('Importing surveys', () => {
   it('Should import a survey', () => {
     const surveyData = readSurveyXSLX('Test Survey', TEST_SURVEY_PATH);
 
