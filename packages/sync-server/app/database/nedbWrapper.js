@@ -6,6 +6,8 @@ import { getUUIDGenerator } from './uuid';
 // The NEDB data store expects things in a slightly different format for ease
 // of querying and record duplication - handle that at the point of read/write
 const convertToNedbFromSyncRecordFormat = (syncRecord) => {
+  if(!syncRecord) return null;
+
   const { 
     data,
     ...metadata
@@ -23,6 +25,8 @@ const convertToNedbFromSyncRecordFormat = (syncRecord) => {
 };
 
 const convertToSyncRecordFormatFromNedb = (nedbRecord) => {
+  if(!nedbRecord) return null;
+
   const {
     _id,
     data,
@@ -151,7 +155,20 @@ export class NedbWrapper {
     return new Promise((resolve, reject) => {
       this.nedbStore.findOne(
         { channel: 'user', 'data.email': email },
-        (err, doc) => err ? reject(err) : resolve(doc)
+        (err, doc) => err 
+          ? reject(err)
+          : resolve(convertToSyncRecordFormatFromNedb(doc))
+      );
+    });
+  }
+  
+  async findById(id) {
+    return new Promise((resolve, reject) => {
+      this.nedbStore.findOne(
+        { channel: 'user', '_id': id },
+        (err, doc) => err 
+          ? reject(err) 
+          : resolve(convertToSyncRecordFormatFromNedb(doc))
       );
     });
   }

@@ -188,9 +188,25 @@ export class MongoWrapper {
 
     return new Promise((resolve, reject) => {
       const item = collection.findOne(
-        { 'data.email': email },
+        { channel: 'user', 'data.email': email },
         {}, 
-        (error, item) => error ? reject(error) : resolve(item)
+        (error, item) => error 
+          ? reject(error) 
+          : resolve(convertToSyncRecordFormatFromMongo(item))
+      );
+    });
+  }
+
+  async findById(id) {
+    const collection = await this.getCollection(this.collectionName);
+
+    return new Promise((resolve, reject) => {
+      const item = collection.findOne(
+        { '_id': id },
+        {}, 
+        (error, item) => error 
+          ? reject(error) 
+          : resolve(convertToSyncRecordFormatFromMongo(item))
       );
     });
   }

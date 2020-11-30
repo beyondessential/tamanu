@@ -11,6 +11,14 @@ export const authMiddleware = express.Router();
 
 const JWT_SECRET = config.auth.secret || uuid();
 
+const stripUser = user => {
+  const {
+    hashedPassword,
+    ...userData
+  } = user.data;
+  return userData;
+};
+
 authMiddleware.post('/login', asyncHandler(async (req, res) => {
   const { store, body } = req;
   const { email, password } = body;
@@ -31,12 +39,12 @@ authMiddleware.post('/login', asyncHandler(async (req, res) => {
   }
 
   const token = jwt.sign({
-    userId: user.id,
+    userId: user.data.id,
   }, JWT_SECRET);
 
   res.send({ 
     token,
-    user,
+    user: stripUser(user),
   });
 }));
 
@@ -67,10 +75,10 @@ authMiddleware.use(asyncHandler(async (req, res, next) => {
     const user = await store.findById(userId);
 
     if(!user) {
-      throw new BadAuthenticationError('User specified in token does not exist');
+      throw new BadAuthenticationError(`User specified in token (${userId}) does not exist`);
     }
 
-    req.user = user;
+    req.user = stripUser(user);
 
     next();
   } catch(e) {

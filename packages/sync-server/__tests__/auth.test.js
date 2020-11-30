@@ -14,13 +14,17 @@ const OLDEST = makeDate(20);
 const SECOND_OLDEST = makeDate(10);
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
-const TEST_PASSWORD = '123123123';
+const TEST_PASSWORD = '1Q2Q3Q4Q';
 
 const RECORDS = [
   { 
     lastSynced: OLDEST, 
     recordType: 'user',
-    data: { email: TEST_EMAIL, password: TEST_PASSWORD } 
+    data: { 
+      email: TEST_EMAIL, 
+      password: TEST_PASSWORD, 
+      displayName: 'Test Beyond' 
+    } 
   },
 ];
 
@@ -32,7 +36,9 @@ describe.only("Auth", () => {
 
     await Promise.all(RECORDS.map(async r => {
       // TODO: should happen through a store.updateUser function
-      r.data.hashedPassword = await bcrypt.hash(r.data.password, 10);
+      const password = r.data.password;
+      delete r.data.password;
+      r.data.hashedPassword = await bcrypt.hash(password, 10);
       return store.insert('user', {
         recordType: 'user',
         ...r,
