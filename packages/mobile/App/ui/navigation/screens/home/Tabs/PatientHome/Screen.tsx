@@ -30,6 +30,7 @@ interface ScreenProps {
   visitTypeButtons: any[];
   patientMenuButtons: any[];
   navigateToPatientActions: () => void;
+  markPatientForSync: () => void;
   selectedPatient: IPatient;
 }
 
@@ -39,6 +40,7 @@ export const Screen = ({
   navigateToSearchPatients,
   navigateToPatientActions,
   selectedPatient,
+  markPatientForSync,
 }: ScreenProps): ReactElement => (
   <FullView background={theme.colors.PRIMARY_MAIN}>
     <StatusBar barStyle="light-content" />
@@ -87,7 +89,7 @@ export const Screen = ({
               height={screenPercentageToDP(4.86, Orientation.Height)}
               buttonText="Sync Data"
               fontSize={screenPercentageToDP(1.57, Orientation.Height)}
-              onPress={(): null => null}
+              onPress={markPatientForSync}
               outline
               borderColor={theme.colors.WHITE}
             />

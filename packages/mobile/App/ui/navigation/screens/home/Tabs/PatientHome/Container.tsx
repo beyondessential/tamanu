@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo, useCallback } from 'react';
+import React, { ReactElement, useMemo, useCallback, useState } from 'react';
 import { compose } from 'redux';
 import { setStatusBar } from '/helpers/screen';
 // Components
@@ -10,11 +10,14 @@ import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 // Containers
 import { withPatient } from '/containers/Patient';
+import { useBackend } from '~/ui/hooks';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 const PatientHomeContainer = ({
   navigation,
   selectedPatient,
 }: PatientHomeScreenProps): ReactElement => {
+  const [errorMessage, setErrorMessage] = useState();
   const visitTypeButtons = useMemo(
     () => [
       {
@@ -75,7 +78,22 @@ const PatientHomeContainer = ({
     navigation.navigate(Routes.HomeStack.PatientActions);
   }, []);
 
+  const { models, syncManager } = useBackend();
+  const onSyncPatient = useCallback(
+    async (): Promise<void> => {
+      try {
+        await models.Patient.markForSync(selectedPatient.id);
+        syncManager.runScheduledSync();
+        navigation.navigate(Routes.HomeStack.HomeTabs.SyncData);
+      } catch (error) {
+        setErrorMessage(error.message);
+      }
+    }, [selectedPatient],
+  );
+
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
+
+  if (errorMessage) return <ErrorScreen error={errorMessage} />;
 
   return (
     <Screen
@@ -84,6 +102,7 @@ const PatientHomeContainer = ({
       visitTypeButtons={visitTypeButtons}
       patientMenuButtons={patientMenuButtons}
       navigateToPatientActions={onNavigateToPatientActions}
+      markPatientForSync={onSyncPatient}
     />
   );
 };
