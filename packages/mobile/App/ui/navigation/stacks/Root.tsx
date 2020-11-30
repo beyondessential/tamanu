@@ -8,7 +8,6 @@ import { themeSystem } from '/styled/common';
 import { store, persistor } from '/store/index';
 import { AuthProvider } from '/contexts/authContext/AuthContext';
 import { Core } from './Core';
-import { UserProvider } from '/contexts/UserContext';
 import { updateScreenOrientation } from '~/ui/helpers/orientation';
 
 type MinimalState = {
@@ -42,11 +41,9 @@ export const RootStack = (): ReactElement => (
             onReady={(): void => onNavigationStateChange(initialState)}
             onStateChange={onNavigationStateChange}
           >
-            <UserProvider>
-              <AuthProvider>
-                <Core />
-              </AuthProvider>
-            </UserProvider>
+            <AuthProvider>
+              <Core />
+            </AuthProvider>
           </NavigationContainer>
         </ThemeProvider>
       </PersistGate>
