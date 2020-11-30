@@ -119,3 +119,4 @@ export const SyncDataScreen = (props): ReactElement => {
     </CenterView>
   );
 };
+

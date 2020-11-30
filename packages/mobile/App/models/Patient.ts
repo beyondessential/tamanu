@@ -36,4 +36,10 @@ export class Patient extends BaseModel implements IPatient {
 
   @Column({ default: false })
   markedForSync: boolean;
+
+  static async markForSync(patientId: string): Promise<Patient> {
+    const repo = this.getRepository();
+
+    return repo.update(patientId, { markedForSync: true });
+  }
 }

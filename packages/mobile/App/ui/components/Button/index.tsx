@@ -22,6 +22,7 @@ interface ButtonContainer extends StyledViewProps {
   borderWidth?: StrNumType;
   bordered?: boolean;
   flex?: number;
+  disabled?: boolean;
 }
 export interface StyledButtonProps extends ButtonContainer {
   id?: string;
