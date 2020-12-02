@@ -63,7 +63,7 @@ authMiddleware.use(asyncHandler(async (req, res, next) => {
     throw new BadAuthenticationError('Only Bearer token is supported');
   }
 
-  if(token === 'fake-token') {
+  if(config.auth.allowFakeToken && token === 'fake-token') {
     next();
     return;
   }
