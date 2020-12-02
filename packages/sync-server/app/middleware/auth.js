@@ -72,7 +72,7 @@ authMiddleware.use(asyncHandler(async (req, res, next) => {
     const contents = jwt.verify(token, JWT_SECRET);
     const { userId } = contents;
 
-    const user = await store.findById(userId);
+    const user = await store.findUserById(userId);
 
     if(!user) {
       throw new BadAuthenticationError(`User specified in token (${userId}) does not exist`);

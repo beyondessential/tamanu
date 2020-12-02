@@ -62,7 +62,7 @@ export class NedbWrapper {
     return parseInt(s, 10);
   }
 
-  remove(filter) {
+  remove(channel, filter) {
     return new Promise((resolve, reject) => {
       this.nedbStore.remove(filter, { multi: true }, (err, numRemoved) => {
         if(err) {
@@ -162,7 +162,7 @@ export class NedbWrapper {
     });
   }
   
-  async findById(id) {
+  async findUserById(id) {
     return new Promise((resolve, reject) => {
       this.nedbStore.findOne(
         { channel: 'user', '_id': id },
