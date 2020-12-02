@@ -27,7 +27,7 @@ syncRoutes.get('/:channel', asyncHandler(async (req, res) => {
     limit: limitNum,
     offset: offsetNum,
   });
-  
+
   log.info(`GET from ${channel} : ${count} records`);
   res.send({
     count,
@@ -61,7 +61,7 @@ syncRoutes.post('/:channel', asyncHandler(async (req, res) => {
     });
 
     res.send({
-      count 
+      count
     });
   }
 }));
