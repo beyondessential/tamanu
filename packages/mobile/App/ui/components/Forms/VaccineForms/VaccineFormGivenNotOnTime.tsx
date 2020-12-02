@@ -11,7 +11,7 @@ import { DateField } from '/components/DateField/DateField';
 import { TextField } from '/components/TextField/TextField';
 import { Field } from '../FormField';
 
-export const VaccineFormTakenNotOnTime = ():
+export const VaccineFormGivenNotOnTime = ():
   Element => (getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
   <StyledView
     justifyContent="space-between"

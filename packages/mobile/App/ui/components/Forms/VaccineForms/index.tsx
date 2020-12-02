@@ -1,23 +1,23 @@
 import React, { FC, useMemo } from 'react';
 import { Formik } from 'formik';
-import { VaccineFormNotTaken } from './VaccineFormNotTaken';
-import { VaccineFormTaken } from './VaccineFormTaken';
-import { VaccineFormTakenNotOnTime } from './VaccineFormTakenNotOnTime';
+import { VaccineFormNotGiven } from './VaccineFormNotGiven';
+import { VaccineFormGiven } from './VaccineFormGiven';
+import { VaccineFormGivenNotOnTime } from './VaccineFormGivenNotOnTime';
 import { VaccineStatus } from '/helpers/constants';
 import { FullView } from '/styled/common';
 
 const getFormType = (status: string): { Form: FC<any> } => {
   switch (status) {
-    case VaccineStatus.TAKEN:
-      return { Form: VaccineFormTaken };
-    case VaccineStatus.TAKEN_NOT_ON_TIME:
+    case VaccineStatus.GIVEN:
+      return { Form: VaccineFormGiven };
+    case VaccineStatus.GIVEN_NOT_ON_TIME:
       return {
-        Form: VaccineFormTakenNotOnTime,
+        Form: VaccineFormGivenNotOnTime,
       };
-    case VaccineStatus.NOT_TAKEN:
-      return { Form: VaccineFormNotTaken };
+    case VaccineStatus.NOT_GIVEN:
+      return { Form: VaccineFormNotGiven };
     default:
-      return { Form: VaccineFormTaken };
+      return { Form: VaccineFormGiven };
   }
 };
 

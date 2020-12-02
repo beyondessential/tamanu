@@ -43,9 +43,9 @@ export * from './Stethoscope';
 export * from './Clipboard';
 
 // Vaccine Status Icons
-export * from './TakenOnTime';
-export * from './TakenNotOnTime';
-export * from './NotTaken';
+export * from './GivenOnTime';
+export * from './GivenNotOnTime';
+export * from './NotGiven';
 export * from './EmptyCircle';
 
 //Datepicker
