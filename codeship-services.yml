@@ -7,7 +7,7 @@ app: &app
   environment: &app_environment
     ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
 
-app_with_mongo:
+app-with-mongo:
   <<: *app
   depends_on:
     - mongodb
