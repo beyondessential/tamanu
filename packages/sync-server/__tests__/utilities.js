@@ -38,18 +38,22 @@ export function extendExpect(expect) {
         pass,
       };
     },
-    toHaveRequestError(response) {
+    toHaveRequestError(response, expected) {
       const { statusCode } = response;
-      const pass = statusCode >= 400 && statusCode < 500 && statusCode !== 403;
+      const match = !expected || expected === statusCode;
+      const pass = statusCode >= 400 && statusCode < 500 && statusCode !== 403 && match;
+      let expectedText = 'Expected error status code';
+      if (expected) {
+        expectedText += ` ${expected}`;
+      }
       if (pass) {
         return {
-          message: () =>
-            `Expected no error status code, got ${statusCode}. ${formatError(response)}`,
+          message: () => `${expectedText}, got ${statusCode}.`,
           pass,
         };
       }
       return {
-        message: () => `Expected error status code, got ${statusCode}. ${formatError(response)}`,
+        message: () => `${expectedText}, got ${statusCode}. ${formatError(response)}`,
         pass,
       };
     },
