@@ -182,4 +182,8 @@ export class MongoWrapper {
     });
   }
 
+  async markRecordDeleted(channel, id) {
+    // TODO
+    throw new Error('not implemented yet');
+  }
 }

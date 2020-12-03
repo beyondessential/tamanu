@@ -204,11 +204,58 @@ describe("Sync API", () => {
   });
 
   describe('Deletes', () => {
-    it('should add a flag to deleted records');
-    it('should remove data for a deleted record');
-    it('should return tombstones for deleted records');
-    it('should update the lastSynced timestamp');
-    it('returns a 404 if the record was missing');
-    it("returns a 403 if the user isn't authenticated");
+    beforeEach(async () => {
+      await store.remove({ recordType: 'test-delete' });
+    });
+
+    describe('on success', () => {
+      let record;
+
+      beforeEach(async () => {
+        await store.insert('deleter', {
+          lastSynced: new Date(1971, 0, 1), // 1st Jan 1971, or epoch + 1yr
+          recordType: 'test-delete',
+          data: { id: 'test-id', foo: 'bar' },
+        });
+
+        // find record
+        const result = await app.delete('/v1/sync/deleter/test-id');
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveProperty('count', 1);
+        const records = await store.findSince('deleter', 0);
+        expect(records).toHaveProperty('length', 1);
+        record = records[0];
+      });
+
+      it('should add a flag to deleted records', async () => {
+        expect(record).toHaveProperty('isDeleted', true);
+      });
+
+      it('should remove data for a deleted record', async () => {
+        expect(record).toHaveProperty('data');
+        expect(record.data).toStrictEqual({ id: 'test-id' });
+        expect(record.data).not.toHaveProperty('foo');
+      });
+
+      it('should return tombstones for deleted records', async () => {
+        const result = await app.get('/v1/sync/deleter?since=0');
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveProperty('count', 1);
+        expect(result.body.records[0]).toHaveProperty('data.id', 'test-id');
+      });
+
+      it('should update the lastSynced timestamp', async () => {
+        expect(record.lastSynced.valueOf()).toBeGreaterThan(new Date(1971, 0, 1).valueOf());
+      });
+    });
+    describe('on failure', () => {
+      it('returns a 404 if the record was missing', async () => {
+        const result = await app.delete('/v1/sync/deleter/not-here');
+        expect(result).toHaveRequestError(404);
+      });
+
+      // TODO: add this once auth is implemented
+      it.todo("returns a 403 if the user isn't authenticated");
+    });
   });
 });

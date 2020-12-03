@@ -147,4 +147,26 @@ export class NedbWrapper {
     });
   }
 
+  async markRecordDeleted(channel, id) {
+    return new Promise((resolve, reject) => {
+      this.nedbStore.update(
+        { channel, _id: id },
+        {
+          $unset: { data: true },
+          $set: {
+            lastSynced: new Date().valueOf(),
+            isDeleted: true,
+          },
+        },
+        {},
+        (err, count) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(count);
+          }
+        },
+      );
+    });
+  }
 }
