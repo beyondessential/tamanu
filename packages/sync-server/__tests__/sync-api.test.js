@@ -203,4 +203,11 @@ describe("Sync API", () => {
     });
   });
 
+  describe('Deletes', () => {
+    it('should add a flag to deleted records');
+    it('should remove data for a deleted record');
+    it('should return tombstones for deleted records');
+    it('returns a 404 if the record was missing');
+    it("returns a 403 if the user isn't authenticated");
+  });
 });

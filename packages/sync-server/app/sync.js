@@ -65,3 +65,10 @@ syncRoutes.post('/:channel', asyncHandler(async (req, res) => {
     });
   }
 }));
+
+syncRoutes.delete(
+  '/:channel/:id',
+  asyncHandler(async (req, res) => {
+
+  }),
+);
