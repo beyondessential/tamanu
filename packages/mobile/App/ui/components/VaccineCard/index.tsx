@@ -11,7 +11,6 @@ import { VaccineStatus } from '/helpers/constants';
 import { NotGivenFields } from './NotGivenFields';
 import GivenOnTimeFields from './GivenOnTimeFields';
 import { VaccineStatusHeader } from './VaccineStatusHeader';
-import { GivenNotOnScheduleFields } from './GivenNotOnSchedule';
 
 export type VaccineDataProps = IAdministeredVaccine;
 

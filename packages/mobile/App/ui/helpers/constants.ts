@@ -127,7 +127,6 @@ export const userRolesOptions = [
 
 export const VaccineStatus = {
   GIVEN: 'GIVEN',
-  GIVEN_NOT_ON_TIME: 'GIVEN_NOT_ON_TIME',
   NOT_GIVEN: 'NOT_GIVEN',
   SCHEDULED: 'SCHEDULED',
 };
@@ -141,11 +140,6 @@ export const VaccineIcons = {
     Icon: Icons.NotGivenIcon,
     color: theme.colors.TEXT_SOFT,
     text: 'NOT GIVEN',
-  },
-  [VaccineStatus.GIVEN_NOT_ON_TIME]: {
-    Icon: Icons.GivenNotOnTimeIcon,
-    color: theme.colors.ORANGE,
-    text: 'GIVEN NOT ON TIME',
   },
   [VaccineStatus.SCHEDULED]: {
     Icon: Icons.EmptyCircleIcon,
