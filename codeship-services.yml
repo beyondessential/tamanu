@@ -18,6 +18,6 @@ awsdeployment:
     - ./.ssh:/root/.ssh
 
 mongodb:
-  image: mongo:4.4
+  image: healthcheck/mongo
   ports:
       - 27017:27017
