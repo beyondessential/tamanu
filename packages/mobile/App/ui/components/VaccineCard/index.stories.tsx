@@ -10,9 +10,9 @@ import {
 import { theme } from '/styled/theme';
 import { VaccineCard } from '.';
 import {
-  takenOnTimeProps,
-  takenNotOnScheduleProps,
-  notTakenProps,
+  givenOnTimeProps,
+  givenNotOnScheduleProps,
+  notGivenProps,
 } from './fixture';
 
 const mockEditDetails = (): void => console.log('Navigate to edit details...');
@@ -28,24 +28,24 @@ storiesOf('VaccineCard', module)
       </FullView>
     </ThemeProvider>
   ))
-  .add('Taken', () => (
+  .add('Given', () => (
     <VaccineCard
       onEditDetails={mockEditDetails}
       onCloseModal={mockOnCloseModal}
-      vaccineData={takenOnTimeProps}
+      vaccineData={givenOnTimeProps}
     />
   ))
-  .add('Taken not on Time', () => (
+  .add('Given not on Time', () => (
     <VaccineCard
       onEditDetails={mockEditDetails}
       onCloseModal={mockOnCloseModal}
-      vaccineData={takenNotOnScheduleProps}
+      vaccineData={givenNotOnScheduleProps}
     />
   ))
-  .add('Not Taken', () => (
+  .add('Not Given', () => (
     <VaccineCard
       onEditDetails={mockEditDetails}
       onCloseModal={mockOnCloseModal}
-      vaccineData={notTakenProps}
+      vaccineData={notGivenProps}
     />
   ));

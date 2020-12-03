@@ -97,25 +97,18 @@ export const NewVaccineTabs = ({
   const routes = useMemo(
     () => [
       {
-        key: VaccineStatus.TAKEN,
-        title: 'TAKEN\nON TIME',
+        key: VaccineStatus.GIVEN,
+        title: 'GIVEN\nON TIME',
         vaccine: route.params.vaccine,
         color: theme.colors.SAFE,
-        icon: Icons.TakenOnTimeIcon,
+        icon: Icons.GivenOnTimeIcon,
       },
       {
-        key: VaccineStatus.TAKEN_NOT_ON_TIME,
-        title: 'TAKEN NOT \n ON SCHEDULE',
-        vaccine: route.params.vaccine,
-        color: theme.colors.ORANGE,
-        icon: Icons.TakenNotOnTimeIcon,
-      },
-      {
-        key: VaccineStatus.NOT_TAKEN,
-        title: 'NOT\nTAKEN ',
+        key: VaccineStatus.NOT_GIVEN,
+        title: 'NOT\nGIVEN ',
         vaccine: route.params.vaccine,
         color: theme.colors.PRIMARY_MAIN,
-        icon: Icons.NotTakenIcon,
+        icon: Icons.NotGivenIcon,
       },
     ],
     [route],
@@ -127,13 +120,7 @@ export const NewVaccineTabs = ({
 
   useEffect(() => {
     switch (route.params.vaccine.status) {
-      case VaccineStatus.TAKEN_NOT_ON_TIME:
-        setState({
-          index: 1,
-          routes,
-        });
-        break;
-      case VaccineStatus.NOT_TAKEN:
+      case VaccineStatus.NOT_GIVEN:
         setState({
           index: 2,
           routes,
@@ -149,9 +136,8 @@ export const NewVaccineTabs = ({
       <VaccineTabNavigator
         state={state}
         scenes={{
-          [VaccineStatus.TAKEN]: NewVaccineTab,
-          [VaccineStatus.TAKEN_NOT_ON_TIME]: NewVaccineTab,
-          [VaccineStatus.NOT_TAKEN]: NewVaccineTab,
+          [VaccineStatus.GIVEN]: NewVaccineTab,
+          [VaccineStatus.NOT_GIVEN]: NewVaccineTab,
         }}
         onChangeTab={setState}
       />

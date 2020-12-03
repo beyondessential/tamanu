@@ -9,21 +9,21 @@ import {NavigationContainer} from "@react-navigation/native";
 export const routes = [
   {
     key: 'first',
-    title: 'TAKEN ON TIME',
+    title: 'GIVEN ON TIME',
     color: theme.colors.SAFE,
-    icon: Icons.TakenOnTimeIcon,
+    icon: Icons.GivenOnTimeIcon,
   },
   {
     key: 'second',
-    title: 'TAKEN NOT ON SCHEDULE',
+    title: 'GIVEN NOT ON SCHEDULE',
     color: theme.colors.ORANGE,
-    icon: Icons.TakenNotOnTimeIcon,
+    icon: Icons.GivenNotOnTimeIcon,
   },
   {
     key: 'third',
-    title: 'NOT TAKEN',
+    title: 'NOT GIVEN',
     color: theme.colors.PRIMARY_MAIN,
-    icon: Icons.NotTakenIcon,
+    icon: Icons.NotGivenIcon,
   },
 ];
 

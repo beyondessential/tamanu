@@ -1,7 +1,7 @@
 import { VaccineStatus } from '/helpers/constants';
 
-export const takenOnTimeProps = {
-  status: VaccineStatus.TAKEN,
+export const givenOnTimeProps = {
+  status: VaccineStatus.GIVEN,
   name: 'BCG',
   subtitle: '(Tuberculosis)',
   dateType: 'Birth',
@@ -12,8 +12,8 @@ export const takenOnTimeProps = {
   administered: 'Sarah De connick',
 };
 
-export const takenNotOnScheduleProps = {
-  status: VaccineStatus.TAKEN_NOT_ON_TIME,
+export const givenNotOnScheduleProps = {
+  status: VaccineStatus.GIVEN_NOT_ON_TIME,
   name: 'BCG',
   subtitle: '(Tuberculosis)',
   dateType: 'Birth',
@@ -25,8 +25,8 @@ export const takenNotOnScheduleProps = {
   administered: 'Sarah De connick',
 };
 
-export const notTakenProps = {
-  status: VaccineStatus.NOT_TAKEN,
+export const notGivenProps = {
+  status: VaccineStatus.NOT_GIVEN,
   name: 'BCG',
   subtitle: '(Tuberculosis)',
   dateType: 'Birth',

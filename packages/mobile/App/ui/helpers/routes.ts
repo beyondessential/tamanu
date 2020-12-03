@@ -33,8 +33,8 @@ export const Routes = {
       },
       NewVaccineTabs: {
         Index: '',
-        TakenOnTimeTab: '',
-        TakenNotOnTimeTab: '',
+        GivenOnTimeTab: '',
+        GivenNotOnTimeTab: '',
         NotTakeTab: '',
       },
       VaccineModalScreen: '',

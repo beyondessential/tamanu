@@ -9,7 +9,7 @@ import { theme } from '/styled/theme';
 import { StyledView } from '/styled/common';
 import { Separator } from '../Separator';
 
-export const NotTakenFields: FC<VaccineDataProps> = (
+export const NotGivenFields: FC<VaccineDataProps> = (
   props: VaccineDataProps,
 ) => (
   <StyledView
