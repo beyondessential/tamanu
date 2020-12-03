@@ -7,11 +7,19 @@ import { getToken } from 'sync-server/app/middleware/auth';
 
 const chance = new Chance();
 
-const formatError = response => `
+const formatError = response => {
+  if (!response.body) {
+    return `
+
+Error has no body! (Did you forget to await?)
+`;
+  }
+  return `
 
 Error details:
 ${JSON.stringify(response.body.error, null, 2)}
 `;
+};
 
 export function extendExpect(expect) {
   expect.extend({
