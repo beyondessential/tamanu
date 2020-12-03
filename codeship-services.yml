@@ -6,6 +6,7 @@ app:
     - ./.ssh:/root/.ssh
   environment:
     ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
+  depends_on: mongodb
 
 awsdeployment:
   build:
@@ -14,3 +15,6 @@ awsdeployment:
   volumes:
     - ./.tmp:/tamanu
     - ./.ssh:/root/.ssh
+
+mongodb:
+  image: mongo:4.4

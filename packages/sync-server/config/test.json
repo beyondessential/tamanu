@@ -1,6 +1,7 @@
 {
   "db": {
     "name": "tamanu-sync-test",
-    "path": "data/test.db"
+    "path": "mongodb://127.0.0.1",
+    "type": "mongodb"
   }
 }
