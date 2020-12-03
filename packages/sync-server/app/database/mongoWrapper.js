@@ -183,7 +183,17 @@ export class MongoWrapper {
   }
 
   async markRecordDeleted(channel, id) {
-    // TODO
-    throw new Error('not implemented yet');
+    const collection = await this.getCollection('test');
+    const { result } = await collection.update(
+      { channel, _id: id },
+      {
+        $unset: { data: true },
+        $set: {
+          lastSynced: new Date().valueOf(),
+          isDeleted: true,
+        },
+      },
+    );
+    return result.nModified;
   }
 }
