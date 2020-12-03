@@ -2,7 +2,7 @@ import { MongoClient } from 'mongodb';
 import { getUUIDGenerator } from './uuid';
 
 const convertToMongoFromSyncRecordFormat = (syncRecord) => {
-  const { 
+  const {
     data,
     ...metadata
   } = syncRecord;
@@ -93,7 +93,7 @@ export class MongoWrapper {
       });
     });
   }
-  
+
   async insert(channel, syncRecord) {
     const collection = await this.getCollection('test');
     const index = await new Promise((resolve, reject) => {
@@ -117,9 +117,9 @@ export class MongoWrapper {
 
     return new Promise((resolve, reject) => {
       collection.updateOne(
-        { _id: recordToStore._id, channel }, 
-        { $set: recordToStore },  
-        { upsert: true }, 
+        { _id: recordToStore._id, channel },
+        { $set: recordToStore },
+        { upsert: true },
         (err, count, newDoc) => {
           if(err) {
             reject(err);
@@ -151,7 +151,7 @@ export class MongoWrapper {
       );
     });
   }
-  
+
   async findSince(channel, since, { limit, offset }= {}) {
     const stamp = this.convertStringToTimestamp(since);
     const collection = await this.getCollection('test');
@@ -182,4 +182,18 @@ export class MongoWrapper {
     });
   }
 
+  async markRecordDeleted(channel, id) {
+    const collection = await this.getCollection('test');
+    const { result } = await collection.update(
+      { channel, _id: id },
+      {
+        $unset: { data: true },
+        $set: {
+          lastSynced: new Date().valueOf(),
+          isDeleted: true,
+        },
+      },
+    );
+    return result.nModified;
+  }
 }

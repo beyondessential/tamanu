@@ -6,7 +6,7 @@ import { getUUIDGenerator } from './uuid';
 // The NEDB data store expects things in a slightly different format for ease
 // of querying and record duplication - handle that at the point of read/write
 const convertToNedbFromSyncRecordFormat = (syncRecord) => {
-  const { 
+  const {
     data,
     ...metadata
   } = syncRecord;
@@ -69,7 +69,7 @@ export class NedbWrapper {
       });
     });
   }
-  
+
   async insert(channel, syncRecord) {
     const index = await new Promise((resolve, reject) => {
       this.nedbStore.count({ channel }, (err, count) => {
@@ -90,9 +90,9 @@ export class NedbWrapper {
 
     return new Promise((resolve, reject) => {
       this.nedbStore.update(
-        { _id: recordToStore._id, channel }, 
-        recordToStore, 
-        { upsert: true }, 
+        { _id: recordToStore._id, channel },
+        recordToStore,
+        { upsert: true },
         (err, count, newDoc) => {
           if(err) {
             reject(err);
@@ -123,7 +123,7 @@ export class NedbWrapper {
       );
     });
   }
-  
+
   async findSince(channel, since, { limit, offset }= {}) {
     const stamp = this.convertStringToTimestamp(since);
 
@@ -147,4 +147,26 @@ export class NedbWrapper {
     });
   }
 
+  async markRecordDeleted(channel, id) {
+    return new Promise((resolve, reject) => {
+      this.nedbStore.update(
+        { channel, _id: id },
+        {
+          $unset: { data: true },
+          $set: {
+            lastSynced: new Date().valueOf(),
+            isDeleted: true,
+          },
+        },
+        {},
+        (err, count) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(count);
+          }
+        },
+      );
+    });
+  }
 }

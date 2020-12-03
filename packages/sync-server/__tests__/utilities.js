@@ -7,11 +7,19 @@ import { getToken } from 'sync-server/app/middleware/auth';
 
 const chance = new Chance();
 
-const formatError = response => `
+const formatError = response => {
+  if (!response.body) {
+    return `
+
+Error has no body! (Did you forget to await?)
+`;
+  }
+  return `
 
 Error details:
 ${JSON.stringify(response.body.error, null, 2)}
 `;
+};
 
 export function extendExpect(expect) {
   expect.extend({
@@ -30,18 +38,22 @@ export function extendExpect(expect) {
         pass,
       };
     },
-    toHaveRequestError(response) {
+    toHaveRequestError(response, expected) {
       const { statusCode } = response;
-      const pass = statusCode >= 400 && statusCode < 500 && statusCode !== 403;
+      const match = !expected || expected === statusCode;
+      const pass = statusCode >= 400 && statusCode < 500 && statusCode !== 403 && match;
+      let expectedText = 'Expected error status code';
+      if (expected) {
+        expectedText += ` ${expected}`;
+      }
       if (pass) {
         return {
-          message: () =>
-            `Expected no error status code, got ${statusCode}. ${formatError(response)}`,
+          message: () => `${expectedText}, got ${statusCode}.`,
           pass,
         };
       }
       return {
-        message: () => `Expected error status code, got ${statusCode}. ${formatError(response)}`,
+        message: () => `${expectedText}, got ${statusCode}. ${formatError(response)}`,
         pass,
       };
     },
