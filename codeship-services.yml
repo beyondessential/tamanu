@@ -1,16 +1,20 @@
-app:
+app: &app
   build: .
   encrypted_env_file: codeship.env.encrypted
   volumes:
     - ./.tmp:/tamanu
     - ./.ssh:/root/.ssh
-  environment:
+  environment: &app_environment
     ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
 
 app_with_mongo:
   <<: *app
   depends_on:
     - mongodb
+  environment:
+    <<: *app_environment
+    DB_PATH: "mongodb://mongodb:27017"
+    DB_TYPE: "mongodb"
 
 awsdeployment:
   build:
