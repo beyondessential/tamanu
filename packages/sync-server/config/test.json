@@ -1,6 +1,5 @@
 {
   "db": {
-    "name": "tamanu-sync-test",
-    "path": "data/test.db"
+    "name": "tamanu-sync-test"
   }
 }
