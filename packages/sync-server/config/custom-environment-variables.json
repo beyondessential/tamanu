@@ -1,0 +1,7 @@
+{
+  "db": {
+    "name": "CONFIG_SYNC_DB_NAME",
+    "path": "CONFIG_SYNC_DB_PATH",
+    "type": "CONFIG_SYNC_DB_TYPE"
+  }
+}

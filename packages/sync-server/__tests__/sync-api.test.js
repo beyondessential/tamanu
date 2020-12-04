@@ -1,7 +1,8 @@
-import { createTestContext } from './utilities';
 import { subDays, subHours } from 'date-fns';
+import { createTestContext } from './utilities';
 
-const { baseApp, store } = createTestContext();
+const { baseApp, close, store } = createTestContext();
+afterAll(close);
 
 const makeDate = (daysAgo, hoursAgo=0) => {
   return subHours(subDays(new Date(), daysAgo), hoursAgo).valueOf();
