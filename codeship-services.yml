@@ -6,15 +6,10 @@ app: &app
     - ./.ssh:/root/.ssh
   environment: &app_environment
     ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
-
-app-with-mongo:
-  <<: *app
-  depends_on:
-    - mongodb
-  environment:
-    <<: *app_environment
     DB_PATH: "mongodb://mongodb:27017"
     DB_TYPE: "mongodb"
+  depends_on:
+    - mongodb
 
 awsdeployment:
   build:
