@@ -12,8 +12,7 @@ app-with-mongo:
   depends_on:
     - mongodb
   volumes: []
-  volumes_from:
-    - app
+  volumes_from: app
   environment:
     <<: *app_environment
     DB_PATH: "mongodb://mongodb:27017"
