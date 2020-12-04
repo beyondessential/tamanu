@@ -39,7 +39,7 @@ export const VaccinesTable = memo(
     const columnData = data.map(({ id, label, vaccine }) => ({
       key: vaccine.id,
       title: label,
-      subtitle: vaccine.code,
+      subtitle: vaccine.name,
       rowHeader: (column: any): ReactElement => (
         <VaccineRowHeader key={column.key} row={column} />
       ),

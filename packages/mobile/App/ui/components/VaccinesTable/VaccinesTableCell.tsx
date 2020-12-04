@@ -79,10 +79,11 @@ export const VaccineTableCell = ({
   onPress,
 }: VaccineTableCellProps): JSX.Element => {
   const onPressItem = useCallback(() => {
+    console.log(vaccine);
     if (onPress) onPress(vaccine);
   }, []);
 
-  return vaccine ? (
+  return vaccine.status ? (
     <StyledTouchableOpacity onPress={onPressItem}>
       <CellContent status={vaccine.status} />
     </StyledTouchableOpacity>

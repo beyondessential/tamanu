@@ -49,7 +49,7 @@ export const IntroScreen: FunctionComponent<any> = ({
           marginLeft={screenPercentageToDP('14', Orientation.Width)}
           marginRight={screenPercentageToDP('14', Orientation.Width)}
         >
-          For Hosiptals, Health Centres and clinics around the world
+          For Hospitals, Health Centres and clinics around the world
         </StyledText>
         <RowView
           justifyContent="center"
