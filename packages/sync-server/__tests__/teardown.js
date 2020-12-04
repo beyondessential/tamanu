@@ -9,7 +9,7 @@ export default async function() {
   await deleteTestData(ctx);
 
   // mongo connection needs to be closed for test suite to terminate correctly
-  if(ctx.store.close) {
-    ctx.store.close();
+  if (ctx.store.close) {
+    await ctx.store.close();
   }
 }

@@ -1,5 +1,6 @@
 import supertest from 'supertest';
 import Chance from 'chance';
+import http from 'http';
 
 import { createApp } from 'sync-server/app/createApp';
 import { initDatabase } from 'sync-server/app/database';
@@ -80,8 +81,8 @@ export function createTestContext() {
   });
 
   const expressApp = createApp({ store });
-
-  const baseApp = supertest(expressApp);
+  const appServer = http.createServer(expressApp);
+  const baseApp = supertest(appServer);
 
   /*
   baseApp.asUser = async user => {
@@ -111,5 +112,12 @@ export function createTestContext() {
     */
   };
 
-  return { baseApp, store };
+  const close = async () => {
+    await new Promise(resolve => appServer.close(resolve));
+    if (store.close) {
+      await store.close();
+    }
+  };
+
+  return { baseApp, store, close };
 }
