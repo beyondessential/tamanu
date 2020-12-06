@@ -1,4 +1,4 @@
-import { Entity, Column } from 'typeorm/browser';
+import { Entity, Column, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IScheduledVaccine } from '~/types';
 import { ReferenceDataRelation, ReferenceData } from './ReferenceData';
@@ -16,4 +16,10 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
 
   @Column()
   category: string;
+
+  @ManyToOne(
+    type => ReferenceData,
+    { eager: true },
+  )
+  vaccine: ReferenceData;
 }
