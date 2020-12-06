@@ -16,7 +16,4 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
 
   @Column()
   category: string;
-
-  @ReferenceDataRelation()
-  vaccine: ReferenceData;
 }

@@ -98,7 +98,7 @@ export class SyncManager {
 
     await this.runChannelSync('reference');
     await this.runChannelSync('user');
-    // await this.runChannelSync('vaccination');
+    await this.runChannelSync('vaccination');
     await this.runChannelSync('survey', null, true);
     await this.runChannelSync('patient');
 
