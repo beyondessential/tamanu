@@ -79,7 +79,6 @@ export const VaccineTableCell = ({
   onPress,
 }: VaccineTableCellProps): JSX.Element => {
   const onPressItem = useCallback(() => {
-    console.log(vaccine);
     if (onPress) onPress(vaccine);
   }, []);
 
