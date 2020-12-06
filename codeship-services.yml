@@ -7,7 +7,6 @@ app:
   environment:
     ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
     CONFIG_SYNC_DB_PATH: "mongodb://mongodb:27017"
-    CONFIG_SYNC_DB_TYPE: "mongodb"
   depends_on:
     - mongodb
 
