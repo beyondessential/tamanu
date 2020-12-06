@@ -1,7 +1,6 @@
 import { Entity, Column } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IScheduledVaccine } from '~/types';
-import { ReferenceDataRelation, ReferenceData } from './ReferenceData';
 
 @Entity('scheduled_vaccine')
 export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
@@ -16,7 +15,4 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
 
   @Column()
   category: string;
-
-  @ReferenceDataRelation()
-  vaccine: ReferenceData;
 }
