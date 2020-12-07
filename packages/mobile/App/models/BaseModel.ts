@@ -30,7 +30,7 @@ function sanitiseForImport(repo, data) {
   // Note that fields that are necessary-but-not-in-the-sync-record need to be
   // accommodated too, but that's done by making those fields nullable or 
   // giving them sane defaults)
-  
+
   const strippedIdsData = stripIdSuffixes(data);
   const columns = repo.metadata.columns.map(x => x.propertyName);
   return Object.entries(strippedIdsData)
@@ -58,7 +58,7 @@ export abstract class BaseModel extends BaseEntity {
 
   static async create<T extends BaseModel>(data: any): Promise<T> {
     const repo = this.getRepository();
-  
+
     const record = repo.create({
       ...sanitiseForImport(repo, data),
     });

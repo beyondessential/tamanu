@@ -6,7 +6,7 @@ import { IPatient } from '~/types';
 import { GetSyncDataResponse, SyncRecord, SyncSource } from './syncSource';
 
 class NoSyncImporterError extends Error {
-  constructor(recordType) {
+  constructor(recordType: string) {
     super(`No sync importer for record type ${recordType}`);
   }
 }
@@ -20,25 +20,27 @@ export class SyncManager {
 
   errors = [];
 
+  syncSource: SyncSource = null;
+
   constructor(syncSource: SyncSource) {
     this.syncSource = syncSource;
 
     this.emitter.on("*", (action, ...args) => {
-      if(action === 'syncedRecord') return;
-      if(action === 'syncRecordError') {
+      if (action === 'syncedRecord') return;
+      if (action === 'syncRecordError') {
         this.errors.push(args[0]);
         console.warn('error', args[0]);
         return;
       }
 
-      console.log(`[sync] ${action} ${args[0] || ''}`);
+      console.log(`[sync] ${String(action)} ${args[0] || ''}`);
     });
   }
 
   getModelForRecordType(recordType: string) {
     const { models } = Database;
 
-    switch(recordType) {
+    switch (recordType) {
       case "patient":
         return models.Patient;
       case "user":
@@ -65,13 +67,13 @@ export class SyncManager {
     const { recordType, data } = syncRecord;
 
     const model = this.getModelForRecordType(recordType);
-    if(!model) {
+    if (!model) {
       throw new NoSyncImporterError(recordType);
     }
 
     await model.createOrUpdate(data);
-      
-    this.emitter.emit("syncedRecord", syncRecord.recordType, syncRecord);
+
+    this.emitter.emit("syncedRecord", syncRecord.recordType);
   }
 
   async runScheduledSync() {
@@ -87,8 +89,8 @@ export class SyncManager {
     // - does initial sync work differently?
     //   - sync reference data
     //   - get all provisional patients
-    
-    if(this.isSyncing) {
+
+    if (this.isSyncing) {
       console.warn("Tried to start syncing while sync in progress");
       return;
     }
@@ -126,7 +128,7 @@ export class SyncManager {
   getPatientsToSync() {
     const { models } = Database;
     return models.Patient.find({
-      markedForSync: true, 
+      markedForSync: true,
     });
   }
 
@@ -166,7 +168,7 @@ export class SyncManager {
     // of records is being imported - this means that the database IO
     // and network IO are running in parallel rather than running in
     // alternating sequence.
-    let downloadTask : Promise<GetSyncDataResponse> = downloadPage(0);
+    let downloadTask: Promise<GetSyncDataResponse> = downloadPage(0);
 
     let maxDate = since;
 
@@ -181,11 +183,11 @@ export class SyncManager {
         try {
           await this.syncRecord(r);
 
-          if(r.lastSynced > maxDate) {
+          if (r.lastSynced > maxDate) {
             maxDate = r.lastSynced;
           }
-        } catch(e) {
-          if(e.message.match(/FOREIGN KEY constraint failed/)) {
+        } catch (e) {
+          if (e.message.match(/FOREIGN KEY constraint failed/)) {
             // this error is to be expected! just push it
             r.ERROR_MESSAGE = e.message;
             pendingRecords.push(r);
@@ -202,7 +204,7 @@ export class SyncManager {
 
 
     try {
-      while(true) {
+      while (true) {
         // wait for the current page download to complete
         const response = await downloadTask;
 
@@ -214,7 +216,7 @@ export class SyncManager {
         // keep importing until we hit a page with 0 records
         // (this does mean we're always making 1 more web request than
         // is necessary, probably room for optimisation here)
-        if(response.records.length === 0) {
+        if (response.records.length === 0) {
           break;
         }
 
@@ -224,7 +226,7 @@ export class SyncManager {
         this.emitter.emit("importingPage", `${channel}-${page}`);
         const importTask = await syncRecords(response.records);
 
-        if(singlePageMode) {
+        if (singlePageMode) {
           await importTask;
           break;
         }
@@ -236,7 +238,7 @@ export class SyncManager {
         // wait for import task to complete before progressing in loop
         await importTask;
       };
-    } catch(e) {
+    } catch (e) {
       console.warn(e);
     }
 
@@ -245,13 +247,13 @@ export class SyncManager {
     // passes over the queue! But if we get a pass where the queue doesn't 
     // decrease in size at all, we know there's a for-real error and we should
     // terminate the process.
-    while(pendingRecords.length > 0) {
+    while (pendingRecords.length > 0) {
       console.log(`Reattempting ${pendingRecords.length} failed records...`);
       const thisPass = pendingRecords;
       pendingRecords = [];
       await syncRecords(thisPass);
       // syncRecords will re populate pendingRecords
-      if(pendingRecords.length === thisPass.length) {
+      if (pendingRecords.length === thisPass.length) {
         console.warn("Could not import remaining queue members:");
         console.warn(JSON.stringify(pendingRecords, null, 2));
         pendingRecords.map(r => this.errors.push(r));
@@ -283,7 +285,7 @@ export class SyncManager {
     try {
       const maxDate = await this.syncAllPages(channel, lastSynced, singlePageMode);
       await this.updateChannelSyncDate(channel, maxDate);
-    } catch(e) {
+    } catch (e) {
       console.error(e);
     }
     this.emitter.emit('channelSyncEnded', channel);
