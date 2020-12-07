@@ -228,3 +228,8 @@ App folder structure:
 | scripts | scripts for workarounds and  |
 | _mocks_ | fixed mocks for jest test runner  |
 
+### App center builds
+To make a release build of a branch (useful for debugging issues or demoing a feature), go to the 
+[branches page in App Center](https://appcenter.ms/orgs/Beyond-Essential/apps/Tamanu-Mobile/build/branches), navigate to your branch, 
+hit the arrow beside configure then "clone from existing configuration", choose dev, and hit build. Make sure you remove the config when 
+you're done, or your branch will be built on every push.
