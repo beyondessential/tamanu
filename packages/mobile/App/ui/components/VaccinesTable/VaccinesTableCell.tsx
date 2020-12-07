@@ -25,19 +25,13 @@ const VaccineIcon = ({
             <Icon background="transparent" />
           </CenterView>
         );
-      case VaccineStatus.TAKEN:
+      case VaccineStatus.GIVEN:
         return (
           <CenterView flex={1}>
             <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />
           </CenterView>
         );
-      case VaccineStatus.NOT_TAKEN:
-        return (
-          <CenterView flex={1}>
-            <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />
-          </CenterView>
-        );
-      case VaccineStatus.TAKEN_NOT_ON_TIME:
+      case VaccineStatus.NOT_GIVEN:
         return (
           <CenterView flex={1}>
             <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />

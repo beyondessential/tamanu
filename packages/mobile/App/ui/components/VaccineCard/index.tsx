@@ -8,10 +8,9 @@ import { StyledView } from '/styled/common';
 import { VaccineCardHeader } from './VaccineCardHeader';
 import { IAdministeredVaccine } from '~/types';
 import { VaccineStatus } from '/helpers/constants';
-import { NotTakenFields } from './NotTakenFields';
-import TakenOnTimeFields from './TakenOnTimeFields';
+import { NotGivenFields } from './NotGivenFields';
+import GivenOnTimeFields from './GivenOnTimeFields';
 import { VaccineStatusHeader } from './VaccineStatusHeader';
-import { TakenNotOnScheduleFields } from './TakenNotOnSchedule';
 
 export type VaccineDataProps = IAdministeredVaccine;
 
@@ -26,14 +25,12 @@ export const VaccineCard: FunctionComponent<PropsWithChildren<
 >> = ({ vaccineData, onCloseModal, onEditDetails }: VaccineCardProps) => {
   const Fields: FC<VaccineDataProps> = useMemo(() => {
     switch (vaccineData.status) {
-      case VaccineStatus.NOT_TAKEN:
-        return NotTakenFields;
-      case VaccineStatus.TAKEN:
-        return TakenOnTimeFields;
-      case VaccineStatus.TAKEN_NOT_ON_TIME:
-        return TakenNotOnScheduleFields;
+      case VaccineStatus.NOT_GIVEN:
+        return NotGivenFields;
+      case VaccineStatus.GIVEN:
+        return GivenOnTimeFields;
       default:
-        return TakenOnTimeFields;
+        return GivenOnTimeFields;
     }
   }, [vaccineData.status]);
   return (

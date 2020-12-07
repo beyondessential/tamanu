@@ -9,7 +9,7 @@ import {
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { Button } from '/components/Button';
-import { CrossIcon, TakenOnTimeIcon } from '/components/Icons';
+import { CrossIcon, GivenOnTimeIcon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
 import { UserAvatar } from '/components/UserAvatar';
 import { compose } from 'redux';
@@ -33,7 +33,7 @@ const newPatientAddedMock = {
     'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
   Icon: (
     <StyledView position="absolute" right="-20" bottom={30} zIndex={2}>
-      <TakenOnTimeIcon
+      <GivenOnTimeIcon
         size={screenPercentageToDP('3.88', Orientation.Height)}
       />
     </StyledView>

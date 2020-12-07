@@ -1,18 +1,17 @@
 import React, { FC } from 'react';
 import { ModalField } from './ModalField';
+import { StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 import { VaccineDataProps } from '.';
 import { formatDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
-import { CalendarIcon } from '../Icons';
-import { StyledView } from '/styled/common';
+import { Separator } from '../Separator';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { theme } from '/styled/theme';
+import { CalendarIcon } from '../Icons';
 
-export const TakenNotOnScheduleFields: FC<VaccineDataProps> = (
-  props: VaccineDataProps,
-) => (
+const GivenOnTimeFields: FC<VaccineDataProps> = (props: VaccineDataProps) => (
   <StyledView
-    height={screenPercentageToDP(41.09, Orientation.Height)}
+    height={screenPercentageToDP(34.41, Orientation.Height)}
     background={theme.colors.WHITE}
     style={{
       borderBottomLeftRadius: 5,
@@ -24,10 +23,15 @@ export const TakenNotOnScheduleFields: FC<VaccineDataProps> = (
       value={formatDate(props.date, DateFormats.DAY_MONTH_YEAR_SHORT)}
       Icon={CalendarIcon}
     />
-    <ModalField label="Reason" value={props.reason} />
+    <Separator />
     <ModalField label="Type" value={props.type} />
+    <Separator />
     <ModalField label="Batch No." value={props.type} />
+    <Separator />
     <ModalField label="Manufacture" value={props.manufacture} />
+    <Separator />
     <ModalField label="Administered By" value={props.administered} />
   </StyledView>
 );
+
+export default GivenOnTimeFields;

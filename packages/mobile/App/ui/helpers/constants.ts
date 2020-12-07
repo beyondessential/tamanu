@@ -126,26 +126,20 @@ export const userRolesOptions = [
 ];
 
 export const VaccineStatus = {
-  TAKEN: 'TAKEN',
-  TAKEN_NOT_ON_TIME: 'TAKEN_NOT_ON_TIME',
-  NOT_TAKEN: 'NOT_TAKEN',
+  GIVEN: 'GIVEN',
+  NOT_GIVEN: 'NOT_GIVEN',
   SCHEDULED: 'SCHEDULED',
 };
 export const VaccineIcons = {
-  [VaccineStatus.TAKEN]: {
-    Icon: Icons.TakenOnTimeIcon,
+  [VaccineStatus.GIVEN]: {
+    Icon: Icons.GivenOnTimeIcon,
     color: theme.colors.SAFE,
-    text: 'TAKEN ON TIME',
+    text: 'GIVEN ON TIME',
   },
-  [VaccineStatus.NOT_TAKEN]: {
-    Icon: Icons.NotTakenIcon,
+  [VaccineStatus.NOT_GIVEN]: {
+    Icon: Icons.NotGivenIcon,
     color: theme.colors.TEXT_SOFT,
-    text: 'NOT TAKEN',
-  },
-  [VaccineStatus.TAKEN_NOT_ON_TIME]: {
-    Icon: Icons.TakenNotOnTimeIcon,
-    color: theme.colors.ORANGE,
-    text: 'TAKEN NOT ON TIME',
+    text: 'NOT GIVEN',
   },
   [VaccineStatus.SCHEDULED]: {
     Icon: Icons.EmptyCircleIcon,
