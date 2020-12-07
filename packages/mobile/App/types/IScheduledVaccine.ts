@@ -7,5 +7,5 @@ export interface IScheduledVaccine {
   label: string;
   schedule: string;
   category: string;
-  vaccine: string;
+  vaccine: IReferenceData;
 }
