@@ -44,7 +44,6 @@ export * from './Clipboard';
 
 // Vaccine Status Icons
 export * from './GivenOnTime';
-export * from './GivenNotOnTime';
 export * from './NotGiven';
 export * from './EmptyCircle';
 
