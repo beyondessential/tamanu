@@ -3,15 +3,15 @@
 
 [ ![Codeship Status for beyondessential/tamanu](https://app.codeship.com/projects/9355b080-d34d-0136-45ef-2e8db6e7ba42/status?branch=codeship)](https://app.codeship.com/projects/316346)
 
-The monorepo has three main components:
+The monorepo has four main components:
 
 * [desktop](packages/desktop): the main Electron app
 * [lan](packages/lan): the local server, which the app communicates with
+* [sync-server](packages/sync-server): the synchronisation server, which lan server and mobile client instances communicate with to synchronise data
 * [shared-src](packages/shared-src): shared code among Tamanu components
 
 Additionally:
 
-* [server](packages/server): the remote server, currently an early prototype and not operational
 * [shared](packages/shared): the build output of the `shared-src` module (ignored by version control)
 
 ## Install
@@ -85,6 +85,14 @@ $ yarn desktop-start-dev
 
 Note that we also use storybook to develop components in isolation, which you can run from within
 the desktop directory using `yarn storybook`.
+
+### Sync server
+
+Start a mongod instance on your local machine. Once mongodb has started, run
+
+```bash
+$ yarn sync-start-dev
+```
 
 ## Integrations
 
