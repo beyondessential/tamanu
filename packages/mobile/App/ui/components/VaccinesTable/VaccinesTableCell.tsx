@@ -82,7 +82,7 @@ export const VaccineTableCell = ({
     if (onPress) onPress(vaccine);
   }, []);
 
-  return vaccine ? (
+  return vaccine.status ? (
     <StyledTouchableOpacity onPress={onPressItem}>
       <CellContent status={vaccine.status} />
     </StyledTouchableOpacity>

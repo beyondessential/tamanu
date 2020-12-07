@@ -20,6 +20,7 @@ POST https://sync-dev.tamanu.io/v1/sync/reference HTTP/1.1
 Authorization: 123
 Content-Type: application/json
 # update an existing row
+
 [
   { "recordType": "referenceData", "data": {
     "id": "724f38f3-8257-4003-958f-baa82eeb09f4",
@@ -31,14 +32,15 @@ Content-Type: application/json
 
 ###
 
+# create a new row (no id field included)
 POST https://sync-dev.tamanu.io/v1/sync/reference HTTP/1.1
 Authorization: 123
 Content-Type: application/json
-# create a new row (no id field included)
+
 [
   { "recordType": "referenceData", "data": {
-    "name": "BCG",
-    "code": "BCG",
+    "name": "COVID-19 Vaccine",
+    "code": "COVAX",
     "type": "vaccine"
     } }
 ]
@@ -53,18 +55,11 @@ Content-Type: application/json
 [
   { "recordType": "scheduledVaccine", "data": {
     "index": 1,
-    "label": "BCG",
-    "schedule": "Birth",
-    "category": "Routine",
-    "vaccine": "724f38f3-8257-4003-958f-baa82eeb09f4"
-    } },
-    { "recordType": "scheduledVaccine", "data": {
-    "index": 2,
-    "label": "DTP-HepB+Hib 1",
-    "schedule": "6 Weeks",
-    "category": "Routine",
-    "vaccine": "724f38f3-8257-4003-958f-baa82eeb09f4"
-    } },
+    "label": "COVAX",
+    "schedule": "Dose 1",
+    "category": "Campaign",
+    "vaccine": "b33bb83a-f580-4833-ad18-551349c1c051"
+  } }
 ]
 
 ###

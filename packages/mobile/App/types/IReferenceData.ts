@@ -1,4 +1,3 @@
-
 export enum ReferenceDataType {
   ICD10 = 'icd10',
   Allergy = 'allergy',
