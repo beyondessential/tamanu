@@ -42,6 +42,7 @@
     "date-fns": "^2.7.0",
     "formik": "^2.1.2",
     "lodash": "^4.17.20",
+    "metro-minify-terser": "^0.64.0",
     "mitt": "^2.1.0",
     "moment": "^2.29.1",
     "react": "16.11.0",
