@@ -224,7 +224,7 @@ export class SyncManager {
 
         // we have records to import - import them
         this.emitter.emit("importingPage", `${channel}-${page}`);
-        const importTask = await syncRecords(response.records);
+        const importTask = syncRecords(response.records);
 
         if (singlePageMode) {
           await importTask;
