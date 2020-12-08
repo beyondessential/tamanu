@@ -2,7 +2,7 @@ import mitt from 'mitt';
 import { Database } from '~/infra/db';
 
 import { readConfig, writeConfig } from '~/services/config';
-import { IPatient } from '~/types';
+import { Patient } from '~/models/Patient';
 import { GetSyncDataResponse, SyncRecord, SyncSource } from './syncSource';
 
 class NoSyncImporterError extends Error {
@@ -132,7 +132,7 @@ export class SyncManager {
     });
   }
 
-  async markPatientForSync(patient: IPatient) {
+  async markPatientForSync(patient: Patient) {
     patient.markedForSync = true;
     await patient.save();
 
