@@ -19,7 +19,7 @@ export type GetSyncDataResponse = null | {
 export interface SyncRecord {
   recordType: string;
   lastSynced: Date;
-  ERROR_MESSAGE: string;
+  ERROR_MESSAGE?: string;
   data: SyncRecordData;
 }
 
