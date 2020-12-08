@@ -37,7 +37,7 @@ export class SyncManager {
     });
   }
 
-  getModelForRecordType(recordType: string) {
+  getModelForRecordType(recordType: string): any {
     const { models } = Database;
 
     switch (recordType) {
@@ -62,7 +62,7 @@ export class SyncManager {
     }
   }
 
-  async syncRecord(syncRecord: SyncRecord) {
+  async syncRecord(syncRecord: SyncRecord): Promise<void> {
     // write one single downloaded record to the database
     const { recordType, data } = syncRecord;
 
@@ -76,7 +76,7 @@ export class SyncManager {
     this.emitter.emit('syncedRecord', syncRecord.recordType);
   }
 
-  async runScheduledSync() {
+  async runScheduledSync(): Promise<void> {
     // query the server for any new data
     // - how do we know whether data is new?
     //   - send most recent sync date
@@ -125,25 +125,25 @@ export class SyncManager {
     this.isSyncing = false;
   }
 
-  getPatientsToSync() {
+  getPatientsToSync(): Promise<Patient[]> {
     const { models } = Database;
     return models.Patient.find({
       markedForSync: true,
     });
   }
 
-  async markPatientForSync(patient: Patient) {
+  async markPatientForSync(patient: Patient): Promise<void> {
     patient.markedForSync = true;
     await patient.save();
 
     // TODO: this has room to be a bit more intelligent
-    this.runScheduledSync();
+    await this.runScheduledSync();
   }
 
-  async syncAllPages(channel: string, since: Date, singlePageMode = false) {
+  async syncAllPages(channel: string, since: Date, singlePageMode = false): Promise<Date> {
     let page = 0;
 
-    const downloadPage = (pageNumber: number) => {
+    const downloadPage = (pageNumber: number): Promise<GetSyncDataResponse> => {
       this.emitter.emit('downloadingPage', `${channel}-${pageNumber}`);
       return this.syncSource.getSyncData(
         channel,
@@ -178,27 +178,29 @@ export class SyncManager {
     // So we keep these records in a queue and retry them at the end of the download.
     let pendingRecords = [];
 
-    const syncRecords = (records: SyncRecord[]) => Promise.all(records.map(async r => {
-      try {
-        await this.syncRecord(r);
+    const syncRecords = async (records: SyncRecord[]): Promise<void> => {
+      await Promise.all(records.map(async r => {
+        try {
+          await this.syncRecord(r);
 
-        if (r.lastSynced > maxDate) {
-          maxDate = r.lastSynced;
+          if (r.lastSynced > maxDate) {
+            maxDate = r.lastSynced;
+          }
+        } catch (e) {
+          if (e.message.match(/FOREIGN KEY constraint failed/)) {
+            // this error is to be expected! just push it
+            r.ERROR_MESSAGE = e.message;
+            pendingRecords.push(r);
+          } else {
+            console.warn('syncRecordError', e, r);
+            this.emitter.emit('syncRecordError', {
+              record: r,
+              error: e,
+            });
+          }
         }
-      } catch (e) {
-        if (e.message.match(/FOREIGN KEY constraint failed/)) {
-          // this error is to be expected! just push it
-          r.ERROR_MESSAGE = e.message;
-          pendingRecords.push(r);
-        } else {
-          console.warn('syncRecordError', e, r);
-          this.emitter.emit('syncRecordError', {
-            record: r,
-            error: e,
-          });
-        }
-      }
-    }));
+      }));
+    };
 
     try {
       while (true) {
@@ -272,7 +274,11 @@ export class SyncManager {
     await writeConfig(`syncDate.${channel}`, timestampString);
   }
 
-  async runChannelSync(channel: string, overrideLastSynced = null, singlePageMode = false): Promise<void> {
+  async runChannelSync(
+    channel: string,
+    overrideLastSynced = null,
+    singlePageMode = false,
+  ): Promise<void> {
     const lastSynced = (overrideLastSynced === null)
       ? await this.getChannelSyncDate(channel)
       : overrideLastSynced;
