@@ -6,12 +6,11 @@ import {
 } from 'typeorm';
 import { DevSettings } from 'react-native';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
-import { BaseModel } from '~/models/BaseModel';
 import { clear } from '~/services/config';
 const LOG_LEVELS = __DEV__ ? [
   // 'error',
   // 'query', 
-  'schema',
+  'schema' as const,
 ] : [];
 
 const CONNECTION_CONFIG = {
@@ -21,7 +20,7 @@ const CONNECTION_CONFIG = {
   logging: LOG_LEVELS,
   synchronize: false,
   entities: MODELS_ARRAY,
-};
+} as const;
 
 const TEST_CONNECTION_CONFIG = {
   type: 'sqlite',
@@ -29,7 +28,15 @@ const TEST_CONNECTION_CONFIG = {
   logging: LOG_LEVELS,
   synchronize: true,
   entities: MODELS_ARRAY,
-};
+} as const;
+
+const getConnectionConfig = (): ConnectionOptions => {
+  const isJest = process.env.JEST_WORKER_ID !== undefined;
+  if (isJest) {
+    return TEST_CONNECTION_CONFIG;
+  }
+  return CONNECTION_CONFIG;
+}
 
 class DatabaseHelper {
   client: Connection = null;
@@ -49,7 +56,7 @@ class DatabaseHelper {
 
   async createClient(): Promise<ConnectionOptions | void> {
     try {
-      this.client = await createConnection(CONNECTION_CONFIG);
+      this.client = await createConnection(getConnectionConfig());
       await this.forceSync();
     } catch (error) {
       if (error.name === 'AlreadyHasActiveConnectionError') {
