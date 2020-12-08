@@ -1,10 +1,7 @@
 import { IUser } from '~/types';
 import {
-  InvalidCredentialsError,
   AuthenticationError,
-  noServerAccessMessage,
   invalidUserCredentialsMessage,
-  generalErrorMessage,
 } from '../ui/contexts/authContext/auth-error';
 
 export interface SyncRecordData {
@@ -62,7 +59,7 @@ export class WebSyncSource implements SyncSource {
     }
   }
 
-  async login(email, password): Promise<LoginResponse> {
+  async login(email: string, password: string): Promise<LoginResponse> {
     const url = `${this.host}/login`;
 
     try {
