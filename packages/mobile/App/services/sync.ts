@@ -25,7 +25,7 @@ export class SyncManager {
   constructor(syncSource: SyncSource) {
     this.syncSource = syncSource;
 
-    this.emitter.on("*", (action, ...args) => {
+    this.emitter.on('*', (action, ...args) => {
       if (action === 'syncedRecord') return;
       if (action === 'syncRecordError') {
         this.errors.push(args[0]);
@@ -41,21 +41,21 @@ export class SyncManager {
     const { models } = Database;
 
     switch (recordType) {
-      case "patient":
+      case 'patient':
         return models.Patient;
-      case "user":
+      case 'user':
         return models.User;
-      case "referenceData":
+      case 'referenceData':
         return models.ReferenceData;
       case 'scheduledVaccine':
         return models.ScheduledVaccine;
-      case "program":
+      case 'program':
         return models.Program;
-      case "survey":
+      case 'survey':
         return models.Survey;
-      case "surveyScreenComponent":
+      case 'surveyScreenComponent':
         return models.SurveyScreenComponent;
-      case "programDataElement":
+      case 'programDataElement':
         return models.ProgramDataElement;
       default:
         return null;
@@ -73,7 +73,7 @@ export class SyncManager {
 
     await model.createOrUpdate(data);
 
-    this.emitter.emit("syncedRecord", syncRecord.recordType);
+    this.emitter.emit('syncedRecord', syncRecord.recordType);
   }
 
   async runScheduledSync() {
@@ -91,12 +91,12 @@ export class SyncManager {
     //   - get all provisional patients
 
     if (this.isSyncing) {
-      console.warn("Tried to start syncing while sync in progress");
+      console.warn('Tried to start syncing while sync in progress');
       return;
     }
     this.isSyncing = true;
 
-    this.emitter.emit("syncStarted");
+    this.emitter.emit('syncStarted');
 
     await this.runChannelSync('reference');
     await this.runChannelSync('user');
@@ -121,7 +121,7 @@ export class SyncManager {
     this.emitter.emit("patientSyncEnded");
     */
 
-    this.emitter.emit("syncEnded");
+    this.emitter.emit('syncEnded');
     this.isSyncing = false;
   }
 
@@ -144,14 +144,14 @@ export class SyncManager {
     let page = 0;
 
     const downloadPage = (pageNumber: number) => {
-      this.emitter.emit("downloadingPage", `${channel}-${pageNumber}`);
+      this.emitter.emit('downloadingPage', `${channel}-${pageNumber}`);
       return this.syncSource.getSyncData(
         channel,
         since,
         pageNumber,
         singlePageMode,
       );
-    }
+    };
 
     let numDownloaded = 0;
     const setProgress = (progress: number): void => {
@@ -173,35 +173,32 @@ export class SyncManager {
     let maxDate = since;
 
     // Some records will fail on the first attempt due to foreign key constraints
-    // (most commonly, when a dependency record has been updated so it appears 
+    // (most commonly, when a dependency record has been updated so it appears
     // after its dependent in the sync queue)
     // So we keep these records in a queue and retry them at the end of the download.
     let pendingRecords = [];
 
-    const syncRecords = (records: SyncRecord[]) => {
-      return Promise.all(records.map(async r => {
-        try {
-          await this.syncRecord(r);
+    const syncRecords = (records: SyncRecord[]) => Promise.all(records.map(async r => {
+      try {
+        await this.syncRecord(r);
 
-          if (r.lastSynced > maxDate) {
-            maxDate = r.lastSynced;
-          }
-        } catch (e) {
-          if (e.message.match(/FOREIGN KEY constraint failed/)) {
-            // this error is to be expected! just push it
-            r.ERROR_MESSAGE = e.message;
-            pendingRecords.push(r);
-          } else {
-            console.warn("syncRecordError", e, r);
-            this.emitter.emit("syncRecordError", {
-              record: r,
-              error: e,
-            });
-          }
+        if (r.lastSynced > maxDate) {
+          maxDate = r.lastSynced;
         }
-      }));
-    };
-
+      } catch (e) {
+        if (e.message.match(/FOREIGN KEY constraint failed/)) {
+          // this error is to be expected! just push it
+          r.ERROR_MESSAGE = e.message;
+          pendingRecords.push(r);
+        } else {
+          console.warn('syncRecordError', e, r);
+          this.emitter.emit('syncRecordError', {
+            record: r,
+            error: e,
+          });
+        }
+      }
+    }));
 
     try {
       while (true) {
@@ -223,7 +220,7 @@ export class SyncManager {
         updateProgress(response.records.length, response.count);
 
         // we have records to import - import them
-        this.emitter.emit("importingPage", `${channel}-${page}`);
+        this.emitter.emit('importingPage', `${channel}-${page}`);
         const importTask = syncRecords(response.records);
 
         if (singlePageMode) {
@@ -237,14 +234,14 @@ export class SyncManager {
 
         // wait for import task to complete before progressing in loop
         await importTask;
-      };
+      }
     } catch (e) {
       console.warn(e);
     }
 
     // Now try re-importing all of the pending records.
-    // As there might be multiple levels of dependency, we might need a few 
-    // passes over the queue! But if we get a pass where the queue doesn't 
+    // As there might be multiple levels of dependency, we might need a few
+    // passes over the queue! But if we get a pass where the queue doesn't
     // decrease in size at all, we know there's a for-real error and we should
     // terminate the process.
     while (pendingRecords.length > 0) {
@@ -254,7 +251,7 @@ export class SyncManager {
       await syncRecords(thisPass);
       // syncRecords will re populate pendingRecords
       if (pendingRecords.length === thisPass.length) {
-        console.warn("Could not import remaining queue members:");
+        console.warn('Could not import remaining queue members:');
         console.warn(JSON.stringify(pendingRecords, null, 2));
         pendingRecords.map(r => this.errors.push(r));
         throw new Error(`Could not import any ${pendingRecords.length} remaining queue members`);
@@ -279,7 +276,6 @@ export class SyncManager {
     const lastSynced = (overrideLastSynced === null)
       ? await this.getChannelSyncDate(channel)
       : overrideLastSynced;
-
 
     this.emitter.emit('channelSyncStarted', channel);
     try {

@@ -39,7 +39,7 @@ export class WebSyncSource implements SyncSource {
     this.host = host;
   }
 
-  async getSyncData(channel: string, since: Date, page: number, singlePageMode: boolean = false): Promise<GetSyncDataResponse> {
+  async getSyncData(channel: string, since: Date, page: number, singlePageMode = false): Promise<GetSyncDataResponse> {
     // TODO: error handling (incl timeout)
     const pageLimit = singlePageMode ? 0 : 100;
     const sinceStamp = since.valueOf();
