@@ -143,7 +143,7 @@ export class SyncManager {
   async syncAllPages(channel: string, since: Date, singlePageMode = false) {
     let page = 0;
 
-    const downloadPage = (pageNumber) => {
+    const downloadPage = (pageNumber: number) => {
       this.emitter.emit("downloadingPage", `${channel}-${pageNumber}`);
       return this.syncSource.getSyncData(
         channel,
@@ -154,11 +154,11 @@ export class SyncManager {
     }
 
     let numDownloaded = 0;
-    const setProgress = (progress): void => {
+    const setProgress = (progress: number): void => {
       this.progress = progress;
       this.emitter.emit('progress', this.progress);
     };
-    const updateProgress = (stepSize, total): void => {
+    const updateProgress = (stepSize: number, total: number): void => {
       numDownloaded += stepSize;
       setProgress(Math.ceil((numDownloaded / total) * 100));
     };
@@ -178,7 +178,7 @@ export class SyncManager {
     // So we keep these records in a queue and retry them at the end of the download.
     let pendingRecords = [];
 
-    const syncRecords = (records) => {
+    const syncRecords = (records: SyncRecord[]) => {
       return Promise.all(records.map(async r => {
         try {
           await this.syncRecord(r);
@@ -264,13 +264,13 @@ export class SyncManager {
     return maxDate;
   }
 
-  async getChannelSyncDate(channel): Promise<Date> {
+  async getChannelSyncDate(channel: string): Promise<Date> {
     const timestampString = await readConfig(`syncDate.${channel}`, '0');
     const timestamp = parseInt(timestampString, 10);
     return new Date(timestamp);
   }
 
-  async updateChannelSyncDate(channel, date: Date): Promise<void> {
+  async updateChannelSyncDate(channel: string, date: Date): Promise<void> {
     const timestampString = `${date.valueOf()}`;
     await writeConfig(`syncDate.${channel}`, timestampString);
   }

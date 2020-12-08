@@ -15,7 +15,7 @@ export async function readConfig(key: string, defaultValue: string): Promise<str
   }
 }
 
-export async function writeConfig(key: string, value: string): void {
+export async function writeConfig(key: string, value: string): Promise<void> {
   try {
     await AsyncStorage.setItem(key, value);
   } catch (e) {
