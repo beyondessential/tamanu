@@ -2,9 +2,10 @@ FROM node:10-alpine
 
 WORKDIR /app
 
-# Install dependancies first as they dont change much
+# Install dependencies first as they dont change much
 COPY package.json .
 COPY yarn.lock .
+COPY scripts/ .
 
 RUN yarn install
 
