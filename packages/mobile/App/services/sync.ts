@@ -3,6 +3,7 @@ import { Database } from '~/infra/db';
 
 import { readConfig, writeConfig } from '~/services/config';
 import { Patient } from '~/models/Patient';
+import { BaseModel } from '~/models/BaseModel';
 import { GetSyncDataResponse, SyncRecord, SyncSource } from './syncSource';
 
 class NoSyncImporterError extends Error {
@@ -37,7 +38,7 @@ export class SyncManager {
     });
   }
 
-  getModelForRecordType(recordType: string): any {
+  getModelForRecordType(recordType: string): typeof BaseModel {
     const { models } = Database;
 
     switch (recordType) {
