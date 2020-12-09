@@ -25,7 +25,8 @@ const CONNECTION_CONFIG = {
 const TEST_CONNECTION_CONFIG = {
   type: 'sqlite',
   database: `/tmp/tamanu-mobile-test-${Math.random()}.db`,
-  logging: LOG_LEVELS,
+  logging: false,
+  // logging: LOG_LEVELS,
   synchronize: true,
   entities: MODELS_ARRAY,
 } as const;
@@ -58,6 +59,9 @@ class DatabaseHelper {
     try {
       this.client = await createConnection(getConnectionConfig());
       await this.forceSync();
+      // TODO: this is a hack to fix an issue where models can't retrieve the correct connection in
+      // our tests
+      MODELS_ARRAY.forEach(m => m.useConnection(this.client));
     } catch (error) {
       if (error.name === 'AlreadyHasActiveConnectionError') {
         const existentConn = getConnectionManager().get('default');
