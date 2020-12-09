@@ -35,7 +35,6 @@ describe('SyncManager', () => {
   describe('syncRecord', () => {
     it('creates a model with a new id', async () => {
       // arrange
-      await Database.connect();
       const record = {
         recordType: 'referenceData',
         lastSynced: new Date(1972, 5, 1),
@@ -65,6 +64,50 @@ describe('SyncManager', () => {
       ]);
     });
 
-    it.todo('updates a model with an existing id');
+    it('updates a model with an existing id', async () => {
+      // arrange
+      const record = {
+        recordType: 'referenceData',
+        lastSynced: new Date(1972, 5, 1),
+        data: {
+          id: uuidv4(),
+          updatedAt: new Date(1971, 5, 1),
+          name: 'Old name',
+          code: 'old-code',
+          type: 'ICD10',
+        },
+      };
+      await Database.models.ReferenceData.create(record.data);
+      const { emittedEvents, syncManager } = createManager();
+      const oldRows = await Database.models.ReferenceData.find({ id: record.data.id });
+      expect(oldRows).toEqual([
+        {
+          ...record.data,
+          createdAt: expect.anything(),
+        },
+      ]);
+
+      // act
+      await syncManager.syncRecord({
+        ...record,
+        data: {
+          ...record.data,
+          name: 'New name',
+          code: 'new-code',
+        },
+      });
+
+      // assert
+      expect(emittedEvents.map(({ action }) => action)).toContain('syncedRecord');
+      const rows = await Database.models.ReferenceData.find({ id: record.data.id });
+      expect(rows).toEqual([
+        {
+          ...record.data,
+          createdAt: expect.anything(),
+          name: 'New name',
+          code: 'new-code',
+        }
+      ]);
+    });
   });
 });
