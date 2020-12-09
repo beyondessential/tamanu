@@ -77,8 +77,4 @@ export abstract class BaseModel extends BaseEntity {
     return this.create(data);
   }
 
-  static async remove(data: any): Promise<void> {
-    const repo = this.getRepository();
-    return repo.remove(data);
-  }
 }
