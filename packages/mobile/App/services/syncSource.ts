@@ -20,6 +20,7 @@ export interface SyncRecord {
   recordType: string;
   lastSynced: Date;
   ERROR_MESSAGE?: string;
+  isDeleted?: boolean;
   data: SyncRecordData;
 }
 

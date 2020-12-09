@@ -109,5 +109,38 @@ describe('SyncManager', () => {
         }
       ]);
     });
+
+    it('deletes a model when it receives a tombstone', async () => {
+      // arrange
+      const record = {
+        recordType: 'referenceData',
+        lastSynced: new Date(1972, 5, 1),
+        isDeleted: true,
+        data: {
+          id: uuidv4(),
+          updatedAt: new Date(1971, 5, 1),
+          name: 'Old name',
+          code: 'old-code',
+          type: 'ICD10',
+        },
+      };
+      await Database.models.ReferenceData.create(record.data);
+      const oldRows = await Database.models.ReferenceData.find({ id: record.data.id });
+      expect(oldRows).toEqual([
+        {
+          ...record.data,
+          createdAt: expect.anything(),
+        },
+      ]);
+
+      // act
+      const { emittedEvents, syncManager } = createManager();
+      await syncManager.syncRecord(record);
+
+      // assert
+      expect(emittedEvents.map(({ action }) => action)).toContain('syncedRecord');
+      const rows = await Database.models.ReferenceData.find({ id: record.data.id });
+      expect(rows).toEqual([]);
+    });
   });
 });
