@@ -52,10 +52,6 @@ export abstract class BaseModel extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  static getRepository(): any {
-    return getRepository(this);
-  }
-
   static async create<T extends BaseModel>(data: any): Promise<T> {
     const repo = this.getRepository();
 

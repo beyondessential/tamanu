@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { DevSettings } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Storybook from './storybook';
 import { App } from './App';
 

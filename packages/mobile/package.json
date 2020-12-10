@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@ptomasroos/react-native-multi-slider": "^1.0.0",
-    "@react-native-community/async-storage": "^1.9.0",
+    "@react-native-async-storage/async-storage": "^1.13.2",
     "@react-native-community/datetimepicker": "^2.3.1",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-native-community/netinfo": "^5.9.7",
@@ -132,7 +132,8 @@
     "react-test-renderer": "16.11.0",
     "sqlite3": "^4.2.0",
     "ts-jest": "^26.0.0",
-    "typescript": "^3.9.2"
+    "typescript": "^3.9.2",
+    "uuid": "^8.3.2"
   },
   "detox": {
     "configurations": {
