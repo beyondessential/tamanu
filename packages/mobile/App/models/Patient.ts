@@ -1,3 +1,4 @@
+import { readConfig } from '~/services/config';
 import { Entity, Column } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IPatient } from '~/types';
@@ -41,5 +42,19 @@ export class Patient extends BaseModel implements IPatient {
     const repo = this.getRepository();
 
     return repo.update(patientId, { markedForSync: true });
+  }
+
+  static async findRecentlyViewed(): Promise<Patient[]> {
+    const patientIds: string[] = JSON.parse(await readConfig('recentlyViewedPatients', '[]'));
+    if (patientIds.length === 0) return [];
+
+    const list = await this.getRepository().findByIds(patientIds);
+
+    return patientIds
+      // map is needed to make sure that patients are in the same order as in recentlyViewedPatients
+      // (typeorm findByIds doesn't guarantee return order)
+      .map(storedId => list.find(({ id }) => id === storedId))
+      // filter removes patients who couldn't be found (which occurs when a patient was deleted)
+      .filter(patient => !!patient);
   }
 }
