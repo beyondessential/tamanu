@@ -202,6 +202,27 @@ describe("Sync API", () => {
       expect(adder1Record).toBeDefined();
       expect(adder1Record).toHaveProperty('data.dataValue', 'add1-updated');
     });
+
+    it('should mark deleted records as not deleted after updating', async () => {
+      const record = {
+        lastSynced: new Date(1971, 0, 1),
+        recordType: 'test-write',
+        data: { id: 'test-deleted-record', foo: 'bar' },
+      };
+      await store.insert('adder-deletions', record);
+      await store.markRecordDeleted('adder-deletions', record.data.id);
+
+      await app.post('/v1/sync/adder-deletions').send([
+        {
+          recordType: record.recordType,
+          data: record.data,
+        },
+      ]);
+
+      const results = await store.findSince('adder-deletions', 0);
+      expect(results).toHaveLength(1);
+      expect(results[0]).not.toHaveProperty('isDeleted');
+    });
   });
 
   describe('Deletes', () => {

@@ -118,7 +118,10 @@ export class MongoWrapper {
     return new Promise((resolve, reject) => {
       collection.updateOne(
         { _id: recordToStore._id, channel },
-        { $set: recordToStore },
+        {
+          $set: recordToStore,
+          $unset: { isDeleted: true },
+        },
         { upsert: true },
         (err, count, newDoc) => {
           if(err) {
