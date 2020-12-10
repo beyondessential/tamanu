@@ -9,8 +9,11 @@ export const useRecentlyViewedPatients = (): ResultArray<IPatient[]> => useBacke
 
     const list = await models.Patient.getRepository().findByIds(patientIds);
 
-    // Map is needed to make sure that patients are in the same order as in recentlyViewedPatients
-    // (typeorm findByIds doesn't guarantee return order)
-    return patientIds.map(storedId => list.find(({ id }) => id === storedId));
+    return patientIds
+      // map is needed to make sure that patients are in the same order as in recentlyViewedPatients
+      // (typeorm findByIds doesn't guarantee return order)
+      .map(storedId => list.find(({ id }) => id === storedId))
+      // filter removes patients who couldn't be found (which occurs when a patient was deleted)
+      .filter(patient => !!patient);
   },
 );
