@@ -65,14 +65,17 @@ export class SyncManager {
 
   async syncRecord(syncRecord: SyncRecord): Promise<void> {
     // write one single downloaded record to the database
-    const { recordType, data } = syncRecord;
+    const { recordType, isDeleted, data } = syncRecord;
 
     const model = this.getModelForRecordType(recordType);
     if (!model) {
       throw new NoSyncImporterError(recordType);
     }
-
-    await model.createOrUpdate(data);
+    if (isDeleted) {
+      await model.remove(data);
+    } else {
+      await model.createOrUpdate(data);
+    }
 
     this.emitter.emit('syncedRecord', syncRecord.recordType);
   }

@@ -7,4 +7,5 @@ export interface IPatient {
   sex: string;
   dateOfBirth: Date;
   culturalName: string;
+  bloodType: string;
 }
