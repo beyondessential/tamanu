@@ -1,10 +1,7 @@
 import { IUser } from '~/types';
 import {
-  InvalidCredentialsError,
   AuthenticationError,
-  noServerAccessMessage,
   invalidUserCredentialsMessage,
-  generalErrorMessage,
 } from '../ui/contexts/authContext/auth-error';
 
 export interface SyncRecordData {
@@ -21,6 +18,8 @@ export type GetSyncDataResponse = null | {
 
 export interface SyncRecord {
   recordType: string;
+  lastSynced: Date;
+  ERROR_MESSAGE?: string;
   data: SyncRecordData;
 }
 
@@ -30,7 +29,12 @@ export interface LoginResponse {
 }
 
 export interface SyncSource {
-  getSyncData(channel: string, since: Date, page: number, singlePageMode: boolean): Promise<GetSyncDataResponse>;
+  getSyncData(
+    channel: string,
+    since: Date,
+    page: number,
+    singlePageMode: boolean,
+  ): Promise<GetSyncDataResponse>;
 }
 
 export class WebSyncSource implements SyncSource {
@@ -40,7 +44,12 @@ export class WebSyncSource implements SyncSource {
     this.host = host;
   }
 
-  async getSyncData(channel: string, since: Date, page: number, singlePageMode: boolean = false): Promise<GetSyncDataResponse> {
+  async getSyncData(
+    channel: string,
+    since: Date,
+    page: number,
+    singlePageMode = false,
+  ): Promise<GetSyncDataResponse> {
     // TODO: error handling (incl timeout)
     const pageLimit = singlePageMode ? 0 : 100;
     const sinceStamp = since.valueOf();
@@ -60,7 +69,7 @@ export class WebSyncSource implements SyncSource {
     }
   }
 
-  async login(email, password): Promise<LoginResponse> {
+  async login(email: string, password: string): Promise<LoginResponse> {
     const url = `${this.host}/login`;
 
     try {
