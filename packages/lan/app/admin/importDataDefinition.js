@@ -25,13 +25,19 @@ const transformers = {
   departments: referenceDataTransformer('department'),
   locations: referenceDataTransformer('location'),
   diagnoses: referenceDataTransformer('icd10'),
-  triagereasons: referenceDataTransformer('triageReason'),
-  imagingtypes: referenceDataTransformer('imagingType'),
-  procedures: referenceDataTransformer('procedureType'),
+  // Disabled as they are not supported in mobile yet
+  triagereasons: null, // referenceDataTransformer('triageReason'),
+  imagingtypes: null, // referenceDataTransformer('imagingType'),
+  procedures: null, // referenceDataTransformer('procedureType'),
+  // TODO
   users: null,
   patients: null,
   labtesttypes: null,
 };
+  
+const splitIntoChunks = (arr, chunkSize) => (new Array(Math.ceil(arr.length / chunkSize)))
+  .fill(0)
+  .map((v, i) => arr.slice(i * chunkSize, (i + 1) * chunkSize));
 
 export async function importData({ file }) {
   log.info(`Importing data definitions from ${file}...`);
@@ -45,8 +51,11 @@ export async function importData({ file }) {
     if (!transformer) return null;
     return sheet.data.map(transformer);
   }).filter(x => x).flat();
-  
-  const response = await sendSyncRequest('reference', records.slice(0, 5));
-  
-  log.info("Reference records uploaded. Response:", await response.json());
+
+  const parts = splitIntoChunks(records, 500);
+  log.info(`Uploading ${records.length} records across ${parts.length} chunks...`);
+  for(const part of parts) {
+    const response = await sendSyncRequest('reference', part);
+    log.info(`Uploaded ${part.length} reference records. Response:`, await response.json());
+  }
 }

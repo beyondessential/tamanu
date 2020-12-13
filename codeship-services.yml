@@ -6,6 +6,9 @@ app:
     - ./.ssh:/root/.ssh
   environment:
     ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
+    CONFIG_SYNC_DB_PATH: "mongodb://mongodb:27017"
+  depends_on:
+    - mongodb
 
 awsdeployment:
   build:
@@ -14,3 +17,8 @@ awsdeployment:
   volumes:
     - ./.tmp:/tamanu
     - ./.ssh:/root/.ssh
+
+mongodb:
+  image: healthcheck/mongo
+  ports:
+      - 27017:27017

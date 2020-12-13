@@ -2,8 +2,7 @@
   "port": 3000,
   "db": {
     "name": "tamanu-sync",
-    "type": "nedb",
-    "path": "data/sync.db",
+    "path": "mongodb://localhost",
     "verbose": false
   },
   "auth": {

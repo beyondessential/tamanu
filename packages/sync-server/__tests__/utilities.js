@@ -1,5 +1,6 @@
 import supertest from 'supertest';
 import Chance from 'chance';
+import http from 'http';
 
 import { createApp } from 'sync-server/app/createApp';
 import { initDatabase } from 'sync-server/app/database';
@@ -7,11 +8,19 @@ import { getToken } from 'sync-server/app/middleware/auth';
 
 const chance = new Chance();
 
-const formatError = response => `
+const formatError = response => {
+  if (!response.body) {
+    return `
+
+Error has no body! (Did you forget to await?)
+`;
+  }
+  return `
 
 Error details:
 ${JSON.stringify(response.body.error, null, 2)}
 `;
+};
 
 export function extendExpect(expect) {
   expect.extend({
@@ -30,18 +39,22 @@ export function extendExpect(expect) {
         pass,
       };
     },
-    toHaveRequestError(response) {
+    toHaveRequestError(response, expected) {
       const { statusCode } = response;
-      const pass = statusCode >= 400 && statusCode < 500 && statusCode !== 403;
+      const match = !expected || expected === statusCode;
+      const pass = statusCode >= 400 && statusCode < 500 && statusCode !== 403 && match;
+      let expectedText = 'Expected error status code';
+      if (expected) {
+        expectedText += ` ${expected}`;
+      }
       if (pass) {
         return {
-          message: () =>
-            `Expected no error status code, got ${statusCode}. ${formatError(response)}`,
+          message: () => `${expectedText}, got ${statusCode}.`,
           pass,
         };
       }
       return {
-        message: () => `Expected error status code, got ${statusCode}. ${formatError(response)}`,
+        message: () => `${expectedText}, got ${statusCode}. ${formatError(response)}`,
         pass,
       };
     },
@@ -68,8 +81,8 @@ export function createTestContext() {
   });
 
   const expressApp = createApp({ store });
-
-  const baseApp = supertest(expressApp);
+  const appServer = http.createServer(expressApp);
+  const baseApp = supertest(appServer);
 
   /*
   baseApp.asUser = async user => {
@@ -99,5 +112,12 @@ export function createTestContext() {
     */
   };
 
-  return { baseApp, store, expressApp };
+  const close = async () => {
+    await new Promise(resolve => appServer.close(resolve));
+    if (store.close) {
+      await store.close();
+    }
+  };
+
+  return { baseApp, store, close };
 }

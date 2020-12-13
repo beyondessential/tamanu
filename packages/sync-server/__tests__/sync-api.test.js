@@ -1,7 +1,8 @@
-import { createTestContext } from './utilities';
 import { subDays, subHours } from 'date-fns';
+import { createTestContext } from './utilities';
 
-const { baseApp, store } = createTestContext();
+const { baseApp, close, store } = createTestContext();
+afterAll(close);
 
 const makeDate = (daysAgo, hoursAgo=0) => {
   return subHours(subDays(new Date(), daysAgo), hoursAgo).valueOf();
@@ -28,7 +29,7 @@ describe("Sync API", () => {
   });
 
   describe("Reads", () => {
-    
+
     it('should error if no since parameter is provided', async () => {
       const result = await app.get('/v1/sync/testChannel');
       expect(result).toHaveRequestError();
@@ -37,7 +38,7 @@ describe("Sync API", () => {
     it('should get some records', async () => {
       const result = await app.get(`/v1/sync/testChannel?since=${OLDEST-1}`);
       expect(result).toHaveSucceeded();
-      
+
       const { body } = result;
       expect(body.count).toBeGreaterThan(0);
       expect(body).toHaveProperty('records');
@@ -52,9 +53,9 @@ describe("Sync API", () => {
       expect(firstRecord.data).not.toHaveProperty('channel');
       expect(firstRecord.data).toHaveProperty('id');
 
-      // this database implementation detail should be hidden 
+      // this database implementation detail should be hidden
       // from the api consumer
-      expect(firstRecord).not.toHaveProperty('index'); 
+      expect(firstRecord).not.toHaveProperty('index');
     });
 
     it('should filter out older records', async () => {
@@ -70,7 +71,7 @@ describe("Sync API", () => {
 
       const TOTAL_RECORDS = 20;
       let records = null;
-        
+
       beforeAll(async () => {
         await store.remove('pagination', { recordType: 'pageTest' });
 
@@ -132,11 +133,11 @@ describe("Sync API", () => {
         const result = await app.get(`/v1/sync/pagination?since=0&limit=5`);
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('count', TOTAL_RECORDS);
-        
+
         const secondResult = await app.get(`/v1/sync/pagination?since=0&limit=3`);
         expect(secondResult).toHaveSucceeded();
         expect(secondResult.body).toHaveProperty('count', TOTAL_RECORDS);
-        
+
         const thirdResult = await app.get(`/v1/sync/pagination?since=0&limit=5&page=2`);
         expect(thirdResult).toHaveSucceeded();
         expect(thirdResult.body).toHaveProperty('count', TOTAL_RECORDS);
@@ -203,5 +204,59 @@ describe("Sync API", () => {
     });
   });
 
-});
+  describe('Deletes', () => {
+    beforeEach(async () => {
+      await store.remove({ recordType: 'test-delete' });
+    });
 
+    describe('on success', () => {
+      let record;
+
+      beforeEach(async () => {
+        await store.insert('deleter', {
+          lastSynced: new Date(1971, 0, 1), // 1st Jan 1971, or epoch + 1yr
+          recordType: 'test-delete',
+          data: { id: 'test-id', foo: 'bar' },
+        });
+
+        // find record
+        const result = await app.delete('/v1/sync/deleter/test-id');
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveProperty('count', 1);
+        const records = await store.findSince('deleter', 0);
+        expect(records).toHaveProperty('length', 1);
+        record = records[0];
+      });
+
+      it('should add a flag to deleted records', async () => {
+        expect(record).toHaveProperty('isDeleted', true);
+      });
+
+      it('should remove data for a deleted record', async () => {
+        expect(record).toHaveProperty('data');
+        expect(record.data).toStrictEqual({ id: 'test-id' });
+        expect(record.data).not.toHaveProperty('foo');
+      });
+
+      it('should return tombstones for deleted records', async () => {
+        const result = await app.get('/v1/sync/deleter?since=0');
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveProperty('count', 1);
+        expect(result.body.records[0]).toHaveProperty('data.id', 'test-id');
+      });
+
+      it('should update the lastSynced timestamp', async () => {
+        expect(record.lastSynced.valueOf()).toBeGreaterThan(new Date(1971, 0, 1).valueOf());
+      });
+    });
+    describe('on failure', () => {
+      it('returns a 404 if the record was missing', async () => {
+        const result = await app.delete('/v1/sync/deleter/not-here');
+        expect(result).toHaveRequestError(404);
+      });
+
+      // TODO: add this once auth is implemented
+      it.todo("returns a 403 if the user isn't authenticated");
+    });
+  });
+});

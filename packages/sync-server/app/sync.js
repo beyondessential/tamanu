@@ -1,9 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { InvalidParameterError, NotFoundError } from 'shared/errors';
 
 import { log } from './logging';
-
-import { InvalidParameterError } from 'shared/errors';
 
 export const syncRoutes = express.Router();
 
@@ -27,7 +26,7 @@ syncRoutes.get('/:channel', asyncHandler(async (req, res) => {
     limit: limitNum,
     offset: offsetNum,
   });
-  
+
   log.info(`GET from ${channel} : ${count} records`);
   res.send({
     count,
@@ -61,7 +60,27 @@ syncRoutes.post('/:channel', asyncHandler(async (req, res) => {
     });
 
     res.send({
-      count 
+      count
     });
   }
 }));
+
+syncRoutes.delete(
+  '/:channel/:recordId',
+  asyncHandler(async (req, res) => {
+    const { store, params } = req;
+    const { channel, recordId } = params;
+
+    const count = await store.markRecordDeleted(channel, recordId);
+
+    if (count === 0) {
+      throw new NotFoundError();
+    } else if (count !== 1) {
+      // if we hit this, something is very wrong
+      throw new Error(`Expected deleted record count to be 0 or 1, was actually: ${count}`);
+    }
+
+    log.info(`DELETE from channel ${channel} record ${recordId}`);
+    res.send({ count });
+  }),
+);
