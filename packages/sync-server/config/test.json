@@ -3,6 +3,7 @@
     "name": "tamanu-sync-test"
   },
   "auth": {
-    "allowFakeToken": true
+    "allowFakeToken": true,
+    "reportNoUserError": true
   }
 }

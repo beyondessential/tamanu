@@ -8,6 +8,7 @@
   "auth": {
     "saltRounds": 10,
     "tokenDuration": "1h",
-    "allowFakeToken": false
+    "allowFakeToken": false,
+    "reportNoUserError": false
   }
 }

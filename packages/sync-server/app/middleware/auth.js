@@ -29,8 +29,12 @@ authMiddleware.post('/login', asyncHandler(async (req, res) => {
   }
 
   const user = await store.findUser(email);
-  if(!user) {
-    throw new BadAuthenticationError('No user');
+
+  if(!user && config.auth.reportNoUserError) {
+    // an attacker can use this to get a list of user accounts
+    // but hiding this error entirely can make debugging a hassle
+    // so we just put it behind a config flag
+    throw new BadAuthenticationError('No such user');
   }
 
   const hashedPassword = user?.hashedPassword || '';

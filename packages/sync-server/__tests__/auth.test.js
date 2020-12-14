@@ -1,16 +1,6 @@
-import supertest from 'supertest';
-import { subDays, subHours } from 'date-fns';
-
 import { createTestContext } from './utilities';
 
 const { baseApp, expressApp, store } = createTestContext();
-
-const makeDate = (daysAgo, hoursAgo=0) => {
-  return subHours(subDays(new Date(), daysAgo), hoursAgo).valueOf();
-};
-
-const OLDEST = makeDate(20);
-const SECOND_OLDEST = makeDate(10);
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_PASSWORD = '1Q2Q3Q4Q';
@@ -23,7 +13,7 @@ const USERS = [
   }
 ];
 
-describe.only("Auth", () => {
+describe("Auth", () => {
 
   let app = null;
   beforeAll(async () => {
