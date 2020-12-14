@@ -5,7 +5,7 @@ export interface IAdministeredVaccine {
   id: ID;
   location: string;
   scheduledVaccine: IScheduledVaccine;
-  batch: string;
+  batch?: string;
   status: string;
   date: Date;
 }

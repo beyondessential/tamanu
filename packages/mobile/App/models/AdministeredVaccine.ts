@@ -7,7 +7,7 @@ import { ScheduledVaccine } from './ScheduledVaccine';
 @Entity('administered_vaccine')
 export class AdministeredVaccine extends BaseModel implements IAdministeredVaccine {
   @Column({ nullable: true })
-  batch: string;
+  batch?: string;
 
   @Column()
   status: string;

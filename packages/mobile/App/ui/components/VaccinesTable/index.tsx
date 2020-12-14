@@ -56,8 +56,9 @@ export const VaccinesTable = ({
         key={column.key}
         vaccine={{
           ...vaccine,
-          weeksUntilDue:
-              weeksFromBirthDue - getWeeksFromBirth(selectedPatient.dateOfBirth),
+          weeksUntilDue: weeksFromBirthDue
+            ? weeksFromBirthDue - getWeeksFromBirth(selectedPatient.dateOfBirth)
+            : null,
           scheduledVaccineId: id,
           status: row[column.key],
           schedule: row.header,

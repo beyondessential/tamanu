@@ -10,6 +10,7 @@ import { theme } from '/styled/theme';
 import { VaccineIcons, VaccineStatus } from '/helpers/constants';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { IAdministeredVaccine } from '~/types';
+import { ColorHelper } from '~/ui/helpers/colors';
 
 const VaccineIcon = ({
   status = null,
@@ -72,6 +73,12 @@ const CellContent = ({
     </StyledView>
   );
 
+  if (status === VaccineStatus.GIVEN) {
+    return <Cell background={theme.colors.SAFE} />;
+  }
+  if (weeksUntilDue === null) {
+    return <Cell background={theme.colors.BACKGROUND_GREY} />;
+  }
   if (weeksUntilDue < -4) { // missed, move to catchup
     return <Cell background={theme.colors.DISABLED_GREY} />;
   }
@@ -79,18 +86,14 @@ const CellContent = ({
     return <Cell background={theme.colors.ALERT} />;
   }
   if (weeksUntilDue <= 1) { // due
-    return <Cell background={theme.colors.BRIGHT_BLUE} />;
+    return <Cell background={theme.colors.PRIMARY_MAIN} />;
+  }
+  if (weeksUntilDue > 12) { // scheduled
+    return <Cell background={ColorHelper.halfTransparency(theme.colors.LIGHT_BLUE)} />;
   }
   if (weeksUntilDue > 2) { // upcoming
     return <Cell background={theme.colors.LIGHT_BLUE} />;
   }
-  if (weeksUntilDue > 12) { // scheduled
-    return <Cell background={theme.colors.PRIMARY_MAIN} />;
-  }
-
-  return (
-    <Cell background={theme.colors.BACKGROUND_GREY} />
-  );
 };
 
 export const VaccineTableCell = ({
@@ -102,6 +105,7 @@ export const VaccineTableCell = ({
   const isVaccineEditable = status !== VaccineStatus.SCHEDULED;
 
   const onPressItem = useCallback(() => {
+    console.log({weeksUntilDue});
     if (weeksUntilDue > 4 && status === VaccineStatus.SCHEDULED) {
       Popup.show({
         type: 'Warning',
