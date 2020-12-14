@@ -2,9 +2,7 @@ import { MongoWrapper } from 'sync-server/app/database/mongoWrapper';
 import { PostgresWrapper } from 'sync-server/app/database/postgresWrapper';
 import { getUUIDGenerator } from 'sync-server/app/database/uuid';
 
-// TODO: debug
-import { Logger } from 'mongodb';
-Logger.setLevel('debug');
+const uuidv4 = getUUIDGenerator(true);
 
 const withDate = async (fakeDate, fn) => {
   const OldDate = global.Date;
@@ -48,8 +46,11 @@ describe('wrappers', () => {
       let channel;
       beforeAll(async () => {
         wrapper = await build();
-        channel = getUUIDGenerator(true)(); // TODO: might have to use a real channel for postgres
         return wrapper;
+      });
+
+      beforeEach(() => {
+        channel = uuidv4(); // TODO: might have to use a real channel for postgres
       });
 
       afterAll(async () => {
@@ -91,7 +92,25 @@ describe('wrappers', () => {
         expect(await wrapper.countSince(channel, since)).toEqual(1);
       });
 
-      it.todo('marks records as deleted');
+      it('marks records as deleted', async () => {
+        const record = {
+          data: {
+            id: uuidv4(),
+            firstName: 'fred',
+          },
+        };
+        await wrapper.insert(channel, record);
+
+        await wrapper.markRecordDeleted(channel, record.data.id);
+
+        expect(await wrapper.findSince(channel, 0)).toEqual([
+          {
+            data: { id: record.data.id },
+            lastSynced: expect.anything(),
+            isDeleted: true,
+          },
+        ]);
+      });
 
       it.todo('removes records');
     });
