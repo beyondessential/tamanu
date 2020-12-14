@@ -9,7 +9,15 @@ import sqlite3 from 'sqlite3';
 
 export function initDatabase(dbOptions) {
   // connect to database
-  const { username, password, name, verbose, sqlitePath, log, uuidGenerator } = dbOptions;
+  const {
+    username,
+    password,
+    name,
+    verbose=false,
+    sqlitePath=null,
+    log=null,
+    uuidGenerator=Sequelize.UUIDV4,
+  } = dbOptions;
 
   if (sqlitePath) {
     log.info(`Connecting to sqlite database at ${sqlitePath}...`);

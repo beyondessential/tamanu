@@ -13,7 +13,10 @@ const createTestUUID = () => `test-${uuid().slice(5)}`;
 export function initDatabase({ testMode = false }) {
   // connect to database
   const { username, password, name, verbose, sqlitePath } = config.db;
-  const uuidGenerator = testMode ? createTestUUID : Sequelize.UUIDV4;
 
-  return sharedInitDatabase({ username, password, name, sqlitePath, verbose, log, uuidGenerator });
+  const options = { username, password, name, sqlitePath, verbose, log };
+  if (testMode) {
+    options.uuidGenerator = createTestUUID;
+  }
+  return sharedInitDatabase(options);
 }
