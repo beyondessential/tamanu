@@ -1,4 +1,3 @@
-import { Sequelize } from 'sequelize';
 import config from 'config';
 import { initDatabase as sharedInitDatabase } from 'shared/services/database';
 
@@ -12,11 +11,9 @@ const createTestUUID = () => `test-${uuid().slice(5)}`;
 
 export function initDatabase({ testMode = false }) {
   // connect to database
-  const { username, password, name, verbose, sqlitePath } = config.db;
-
-  const options = { username, password, name, sqlitePath, verbose, log };
-  if (testMode) {
-    options.uuidGenerator = createTestUUID;
-  }
-  return sharedInitDatabase(options);
+  return sharedInitDatabase({
+    ...config.db,
+    log,
+    uuidGenerator: testMode ? createTestUUID : null,
+  });
 }
