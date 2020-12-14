@@ -16,6 +16,7 @@ const stripUser = user => {
     hashedPassword,
     ...userData
   } = user.data;
+  userData.id = user._id;
   return userData;
 };
 
@@ -32,15 +33,14 @@ authMiddleware.post('/login', asyncHandler(async (req, res) => {
     throw new BadAuthenticationError('No user');
   }
 
-  const hashedPassword = user?.data?.hashedPassword || '';
+  const hashedPassword = user?.hashedPassword || '';
 
   if(!await bcrypt.compare(password, hashedPassword)) {
-    console.log("bad pw comparison:", user, password, hashedPassword);
     throw new BadAuthenticationError('Invalid credentials');
   }
 
   const token = jwt.sign({
-    userId: user.data.id,
+    userId: user._id,
   }, JWT_SECRET);
 
   res.send({ 
@@ -83,6 +83,7 @@ authMiddleware.use(asyncHandler(async (req, res, next) => {
 
     next();
   } catch(e) {
+    console.log(e);
     throw new BadAuthenticationError('Invalid token');
   }
 }));

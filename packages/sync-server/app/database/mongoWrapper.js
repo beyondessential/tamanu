@@ -229,7 +229,7 @@ export class MongoWrapper {
         reject(error);
       } else {
         resolve(docs.length > 0 
-          ? convertToSyncRecordFormatFromMongo(docs[0])
+          ? docs[0]
           : null);
       }
     }));
