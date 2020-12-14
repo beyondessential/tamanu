@@ -1,6 +1,5 @@
 import supertest from 'supertest';
 import { subDays, subHours } from 'date-fns';
-import bcrypt from 'bcrypt';
 
 import { createTestContext } from './utilities';
 
@@ -16,16 +15,12 @@ const SECOND_OLDEST = makeDate(10);
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_PASSWORD = '1Q2Q3Q4Q';
 
-const RECORDS = [
-  { 
-    lastSynced: OLDEST, 
-    recordType: 'user',
-    data: { 
-      email: TEST_EMAIL, 
-      password: TEST_PASSWORD, 
-      displayName: 'Test Beyond' 
-    } 
-  },
+const USERS = [
+  {
+    email: TEST_EMAIL, 
+    password: TEST_PASSWORD, 
+    displayName: 'Test Beyond' 
+  }
 ];
 
 describe.only("Auth", () => {
@@ -34,16 +29,7 @@ describe.only("Auth", () => {
   beforeAll(async () => {
     app = await baseApp.asRole('practitioner');
 
-    await Promise.all(RECORDS.map(async r => {
-      // TODO: should happen through a store.updateUser function
-      const password = r.data.password;
-      delete r.data.password;
-      r.data.hashedPassword = await bcrypt.hash(password, 10);
-      return store.insert('user', {
-        recordType: 'user',
-        ...r,
-      });
-    }));
+    await Promise.all(USERS.map(r => store.addUser(r)));
   });
 
   it('Should get a token for correct credentials', async () => {
@@ -98,10 +84,9 @@ describe.only("Auth", () => {
     const { token } = response.body;
 
     // then run the whoami request
-    const agent = supertest.agent(expressApp);
-    agent.set('authorization', `Bearer ${token}`);
-
-    const whoamiResponse = await agent.get('/v1/whoami');
+    const whoamiResponse = await baseApp
+      .get('/v1/whoami')
+      .set('Authorization', `Bearer ${token}`);
     expect(whoamiResponse).toHaveSucceeded();
 
     const { body } = whoamiResponse;

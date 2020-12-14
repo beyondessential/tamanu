@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb';
 import { getUUIDGenerator } from './uuid';
+import bcrypt from 'bcrypt';
 
 const convertToMongoFromSyncRecordFormat = (syncRecord) => {
   const {
@@ -24,6 +25,7 @@ const convertToSyncRecordFormatFromMongo = (mongoRecord) => {
     data,
     channel,
     index,
+    hashedPassword, // don't list hashed password on user
     ...metadata
   } = mongoRecord;
 
@@ -196,4 +198,59 @@ export class MongoWrapper {
     );
     return result.nModified;
   }
+
+  //------------------------------------
+  // required for auth middleware
+
+  async addUser(data) {
+    const {
+      password,
+      ...otherData
+    } = data;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    return this.insert('user', {
+      recordType: 'user',
+      hashedPassword,
+      data: {
+        ...otherData,
+      }
+    });
+  }
+
+  async findUser(email) {
+    const collection = await this.getCollection('test');
+    const cursor = collection.find({
+      recordType: 'user',
+      'data.email': email
+    }).limit(1);
+
+    return new Promise((resolve, reject) => cursor.toArray((err, docs) => {
+      if(err) {
+        reject(error);
+      } else {
+        resolve(docs.length > 0 
+          ? convertToSyncRecordFormatFromMongo(docs[0])
+          : null);
+      }
+    }));
+  }
+
+  async findUserById(id) {
+    const collection = await this.getCollection('test');
+    const cursor = collection.find({
+      recordType: 'user',
+      _id: id,
+    }).limit(1);
+
+    return new Promise((resolve, reject) => cursor.toArray((err, docs) => {
+      if(err) {
+        reject(error);
+      } else {
+        resolve(docs.length > 0 
+          ? convertToSyncRecordFormatFromMongo(docs[0])
+          : null);
+      }
+    }));
+  }
+
 }
