@@ -40,7 +40,7 @@ export const VaccineCard: FunctionComponent<PropsWithChildren<
         onCloseModal={onCloseModal}
         onEditDetails={onEditDetails}
       />
-      <VaccineStatusHeader status={vaccineData} />
+      <VaccineStatusHeader status={vaccineData.status} />
       <Fields {...vaccineData} />
     </StyledView>
   );

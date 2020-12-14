@@ -130,6 +130,7 @@ export const VaccineStatus = {
   NOT_GIVEN: 'NOT_GIVEN',
   SCHEDULED: 'SCHEDULED',
 };
+
 export const VaccineIcons = {
   [VaccineStatus.GIVEN]: {
     Icon: Icons.GivenOnTimeIcon,

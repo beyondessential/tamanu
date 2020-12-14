@@ -87,7 +87,7 @@ export const NewVaccineTabComponent = ({
         scheduledVaccine: scheduledVaccineId,
         encounter: encounter.id,
       });
-
+      navigation.setParams({ updateTable: true });
       navigation.goBack();
     }, [],
   );

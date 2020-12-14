@@ -1,3 +1,5 @@
+import { differenceInWeeks } from 'date-fns';
+
 export function getUserInitials(username: string): string {
   return `${username.split(' ')[0][0]}${username.split(' ')[1][0]}`;
 }
@@ -21,4 +23,8 @@ export function getGender(gender: string): string {
   if (lowerCaseGender === Genders.FEMALE) return 'Female';
   if (lowerCaseGender === Genders.MALE) return 'Male';
   return 'Other';
+}
+
+export function getWeeksFromBirth(dateOfBirth: string): number {
+  return differenceInWeeks(new Date(), new Date(dateOfBirth));
 }

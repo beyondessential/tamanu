@@ -44,6 +44,7 @@ export const VaccineHistoryTabComponent = ({
           <VaccinesTable
             selectedPatient={selectedPatient}
             categoryName={category}
+            route={route}
             onPressItem={onNavigateToClickedCell}
           />
         </ScrollView>

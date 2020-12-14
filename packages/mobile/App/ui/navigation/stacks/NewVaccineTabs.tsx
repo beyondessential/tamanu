@@ -113,6 +113,7 @@ export const NewVaccineTabs = ({
     ],
     [route],
   );
+
   const [state, setState] = useState({
     index: 0,
     routes,

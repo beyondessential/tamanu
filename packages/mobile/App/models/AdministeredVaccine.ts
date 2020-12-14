@@ -15,6 +15,9 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column({ nullable: true })
   reason: string;
 
+  @Column({ nullable: true })
+  location: string;
+
   @Column()
   date: Date;
 

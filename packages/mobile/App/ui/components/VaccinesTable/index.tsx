@@ -1,4 +1,4 @@
-import React, { memo, ReactElement } from 'react';
+import React, { memo, ReactElement, useEffect, useState } from 'react';
 import { uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
 import { Table } from '../Table';
@@ -9,6 +9,8 @@ import { vaccineTableHeader } from './VaccineTableHeader';
 import { VaccineStatus } from '~/ui/helpers/constants';
 import { ErrorScreen } from '../ErrorScreen';
 import { LoadingScreen } from '../LoadingScreen';
+import { getWeeksFromBirth } from '~/ui/helpers/user';
+import { useIsFocused } from '@react-navigation/native';
 
 interface VaccinesTableProps {
   selectedPatient: any;
@@ -16,75 +18,81 @@ interface VaccinesTableProps {
   onPressItem: (item: any) => void;
 }
 
-export const VaccinesTable = memo(
-  ({ onPressItem, categoryName, selectedPatient }: VaccinesTableProps) => {
-    const [data, error] = useBackendEffect(
-      ({ models }) => models.ScheduledVaccine.find({
-        order: { index: 'ASC' },
-        where: { category: categoryName },
-      }),
-      [],
-    );
+export const VaccinesTable = ({
+  onPressItem,
+  categoryName,
+  selectedPatient,
+}: VaccinesTableProps): ReactElement => {
+  const isFocused = useIsFocused();
 
-    const [administeredData, administeredError] = useBackendEffect(
-      ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
-      [],
-    );
+  const [data, error] = useBackendEffect(
+    ({ models }) => models.ScheduledVaccine.find({
+      order: { index: 'ASC' },
+      where: { category: categoryName },
+    }),
+    [],
+  );
 
-    if (error || administeredError) return <ErrorScreen error={error || administeredError} />;
-    if (!data) return <LoadingScreen />;
+  const [administeredData, administeredError] = useBackendEffect(
+    ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
+    [isFocused],
+  );
 
-    const schedules = uniqBy(data, 'schedule').map(d => d.schedule);
+  if (error || administeredError) return <ErrorScreen error={error || administeredError} />;
+  if (!data) return <LoadingScreen />;
 
-    const columnData = data.map(({ id, label, vaccine }) => ({
-      key: vaccine.id,
-      title: label,
-      subtitle: vaccine.name,
-      rowHeader: (column: any): ReactElement => (
-        <VaccineRowHeader key={column.key} row={column} />
-      ),
-      accessor: (row: any, onPress, column): ReactElement => (
-        <VaccineTableCell
-          onPress={onPress}
-          key={column.key}
-          vaccine={{
-            ...vaccine,
-            scheduledVaccineId: id,
-            status: row[column.key],
-            schedule: row.header,
-          }}
-        />
-      ),
-    }));
+  const schedules = uniqBy(data, 'schedule').map(d => d.schedule);
 
-    const rowData = schedules.map(schedule => {
-      const dataForSchedule = data.filter(d => d.schedule === schedule);
-
-      return dataForSchedule.reduce((state, current) => {
-        const administeredVaccine = administeredData && administeredData.find(
-          v => v.scheduledVaccine.id === current.id,
-        );
-
-        const vaccineStatus = administeredVaccine
-          ? administeredVaccine.status
-          : VaccineStatus.SCHEDULED;
-
-        return {
-          ...state,
-          [current.vaccine.id]: vaccineStatus,
-        };
-      }, { header: schedule });
-    });
-
-    return (
-      <Table
-        onPressItem={onPressItem}
-        columns={uniqBy(columnData, 'key')}
-        Title={VaccinesTableTitle}
-        data={rowData}
-        tableHeader={vaccineTableHeader}
-        columnKey="header"
+  const columnData = data.map(({ id, weeksFromBirthDue, label, vaccine }) => ({
+    key: vaccine.id,
+    title: label,
+    subtitle: vaccine.name,
+    rowHeader: (column: any): ReactElement => (
+      <VaccineRowHeader key={column.key} row={column} />
+    ),
+    accessor: (row: any, onPress, column): ReactElement => (
+      <VaccineTableCell
+        onPress={onPress}
+        key={column.key}
+        vaccine={{
+          ...vaccine,
+          weeksUntilDue:
+              weeksFromBirthDue - getWeeksFromBirth(selectedPatient.dateOfBirth),
+          scheduledVaccineId: id,
+          status: row[column.key],
+          schedule: row.header,
+        }}
       />
-    );
-  },
-);
+    ),
+  }));
+
+  const rowData = schedules.map(schedule => {
+    const dataForSchedule = data.filter(d => d.schedule === schedule);
+
+    return dataForSchedule.reduce((state, current) => {
+      const administeredVaccine = administeredData && administeredData.find(
+        v => v.scheduledVaccine.id === current.id,
+      );
+
+      const vaccineStatus = administeredVaccine
+        ? administeredVaccine.status
+        : VaccineStatus.SCHEDULED;
+
+      return {
+        ...state,
+        [current.vaccine.id]: vaccineStatus,
+      };
+    }, { header: schedule });
+  });
+
+  return (
+    <Table
+      onPressItem={onPressItem}
+      columns={uniqBy(columnData, 'key')}
+      Title={VaccinesTableTitle}
+      data={rowData}
+      tableHeader={vaccineTableHeader}
+      columnKey="header"
+    />
+  );
+};
