@@ -13,9 +13,9 @@ export function initDatabase(dbOptions) {
     username,
     password,
     name,
+    log,
     verbose=false,
     sqlitePath=null,
-    log=null,
     uuidGenerator=Sequelize.UUIDV4,
   } = dbOptions;
 
