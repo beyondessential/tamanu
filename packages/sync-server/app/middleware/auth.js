@@ -35,6 +35,7 @@ authMiddleware.post('/login', asyncHandler(async (req, res) => {
   const hashedPassword = user?.data?.hashedPassword || '';
 
   if(!await bcrypt.compare(password, hashedPassword)) {
+    console.log("bad pw comparison:", user, password, hashedPassword);
     throw new BadAuthenticationError('Invalid credentials');
   }
 
