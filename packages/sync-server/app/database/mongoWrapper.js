@@ -57,7 +57,6 @@ function connect(url, dbName) {
 export class MongoWrapper {
 
   constructor(path, dbName, testMode) {
-    this.collectionName = 'test';
     this.idGenerator = getUUIDGenerator(testMode);
 
     this.connectionTask = connect(path, dbName);
@@ -82,8 +81,8 @@ export class MongoWrapper {
     return parseInt(s, 10);
   }
 
-  async remove(channel, filter) {
-    const collection = await this.getCollection(channel);
+  async remove(filter) {
+    const collection = await this.getCollection('test');
     return new Promise((resolve, reject) => {
       collection.deleteMany(filter, (err, result) => {
         if(err) {
@@ -96,7 +95,7 @@ export class MongoWrapper {
   }
 
   async insert(channel, syncRecord) {
-    const collection = await this.getCollection(channel);
+    const collection = await this.getCollection('test');
     const index = await new Promise((resolve, reject) => {
       collection.countDocuments({ channel }, (err, count) => {
         if(err) {
@@ -133,7 +132,7 @@ export class MongoWrapper {
 
   async countSince(channel, since) {
     const stamp = this.convertStringToTimestamp(since);
-    const collection = await this.getCollection(channel);
+    const collection = await this.getCollection('test');
 
     return new Promise((resolve, reject) => {
       collection.countDocuments({
@@ -155,7 +154,7 @@ export class MongoWrapper {
 
   async findSince(channel, since, { limit, offset }= {}) {
     const stamp = this.convertStringToTimestamp(since);
-    const collection = await this.getCollection(channel);
+    const collection = await this.getCollection('test');
 
     return new Promise((resolve, reject) => {
       let cursor = collection.find({
@@ -180,34 +179,6 @@ export class MongoWrapper {
             resolve(docs.map(convertToSyncRecordFormatFromMongo));
           }
         });
-    });
-  }
-
-  async findUser(email) {
-    const collection = await this.getCollection('user');
-
-    return new Promise((resolve, reject) => {
-      const item = collection.findOne(
-        { channel: 'user', 'data.email': email },
-        {}, 
-        (error, item) => error 
-          ? reject(error) 
-          : resolve(convertToSyncRecordFormatFromMongo(item))
-      );
-    });
-  }
-
-  async findUserById(id) {
-    const collection = await this.getCollection('user');
-
-    return new Promise((resolve, reject) => {
-      const item = collection.findOne(
-        { '_id': id },
-        {}, 
-        (error, item) => error 
-          ? reject(error) 
-          : resolve(convertToSyncRecordFormatFromMongo(item))
-      );
     });
   }
 
