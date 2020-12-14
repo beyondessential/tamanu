@@ -73,7 +73,7 @@ describe("Sync API", () => {
       let records = null;
 
       beforeAll(async () => {
-        await store.remove({ recordType: 'pageTest' });
+        await store.removeAllOfType('pageTest');
 
         // insert 20 records
         records = (new Array(TOTAL_RECORDS)).fill(0).map((zero, i) => ({
@@ -149,7 +149,7 @@ describe("Sync API", () => {
   describe("Writes", () => {
 
     beforeAll(async () => {
-      await store.remove({ recordType: 'test-write' });
+      await store.removeAllOfType('test-write');
     });
 
     it('should add a record to a channel', async () => {
@@ -206,7 +206,7 @@ describe("Sync API", () => {
 
   describe('Deletes', () => {
     beforeEach(async () => {
-      await store.remove({ recordType: 'test-delete' });
+      await store.removeAllOfType('test-delete');
     });
 
     describe('on success', () => {

@@ -65,6 +65,7 @@ describe('wrappers', () => {
       it('finds and counts records after an insertion', async () => {
         await withDate(new Date(1980, 5, 1), async () => {
           await wrapper.insert(channel, {
+            recordType: 'test',
             data: {
               firstName: 'alice',
             },
@@ -73,6 +74,7 @@ describe('wrappers', () => {
 
         await withDate(new Date(1990, 5, 1), async () => {
           await wrapper.insert(channel, {
+            recordType: 'test',
             data: {
               firstName: 'bob',
             },
@@ -83,6 +85,7 @@ describe('wrappers', () => {
         expect(await wrapper.findSince(channel, since)).toEqual([
           {
             lastSynced: new Date(1990, 5, 1).valueOf(),
+            recordType: 'test',
             data: {
               id: expect.anything(),
               firstName: 'bob',
@@ -94,6 +97,7 @@ describe('wrappers', () => {
 
       it('marks records as deleted', async () => {
         const record = {
+          recordType: 'test',
           data: {
             id: uuidv4(),
             firstName: 'fred',
@@ -106,13 +110,26 @@ describe('wrappers', () => {
         expect(await wrapper.findSince(channel, 0)).toEqual([
           {
             data: { id: record.data.id },
+            recordType: 'test',
             lastSynced: expect.anything(),
             isDeleted: true,
           },
         ]);
       });
 
-      it.todo('removes records');
+      it('removes all records of a type', async () => {
+        const record = {
+          recordType: 'test',
+          data: {
+            firstName: 'mary',
+          },
+        };
+        await wrapper.insert(channel, record);
+
+        await wrapper.removeAllOfType('test');
+
+        expect(await wrapper.findSince(channel, 0)).toEqual([]);
+      });
     });
   });
 });

@@ -85,12 +85,17 @@ export class MongoWrapper {
     return parseInt(s, 10);
   }
 
-  async remove(filter) {
+  async removeAllOfType(type) {
+    if (typeof type !== 'string') {
+      throw new Error(
+        `MongoWrapper.removeAllOfType: expected type to be string, got ${typeof type}`,
+      );
+    }
     const collection = await this.getCollection('test');
     return new Promise((resolve, reject) => {
-      collection.deleteMany(filter, (err, result) => {
-        if(err) {
-          reject(err)
+      collection.deleteMany({ recordType: type }, (err, result) => {
+        if (err) {
+          reject(err);
         } else {
           resolve(result.result.n);
         }
