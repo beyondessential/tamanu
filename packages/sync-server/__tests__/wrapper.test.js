@@ -32,15 +32,12 @@ describe('wrappers', () => {
     ['postgresWrapper', async () => initDatabase({ testMode: true }).store],
   ].forEach(([name, build]) => {
     describe(name, () => {
+      const channel = 'patient';
+
       let wrapper;
-      let channel;
       beforeAll(async () => {
         wrapper = await build();
         return wrapper;
-      });
-
-      beforeEach(() => {
-        channel = uuidv4(); // TODO: might have to use a real channel for postgres
       });
 
       afterAll(async () => {
@@ -55,7 +52,7 @@ describe('wrappers', () => {
       it('finds and counts records after an insertion', async () => {
         await withDate(new Date(1980, 5, 1), async () => {
           await wrapper.insert(channel, {
-            recordType: 'test',
+            recordType: 'patient',
             data: {
               firstName: 'alice',
             },
@@ -64,7 +61,7 @@ describe('wrappers', () => {
 
         await withDate(new Date(1990, 5, 1), async () => {
           await wrapper.insert(channel, {
-            recordType: 'test',
+            recordType: 'patient',
             data: {
               firstName: 'bob',
             },
@@ -75,7 +72,7 @@ describe('wrappers', () => {
         expect(await wrapper.findSince(channel, since)).toEqual([
           {
             lastSynced: new Date(1990, 5, 1).valueOf(),
-            recordType: 'test',
+            recordType: 'patient',
             data: {
               id: expect.anything(),
               firstName: 'bob',
@@ -87,7 +84,7 @@ describe('wrappers', () => {
 
       it('marks records as deleted', async () => {
         const record = {
-          recordType: 'test',
+          recordType: 'patient',
           data: {
             id: uuidv4(),
             firstName: 'fred',
@@ -97,26 +94,25 @@ describe('wrappers', () => {
 
         await wrapper.markRecordDeleted(channel, record.data.id);
 
-        expect(await wrapper.findSince(channel, 0)).toEqual([
-          {
-            data: { id: record.data.id },
-            recordType: 'test',
-            lastSynced: expect.anything(),
-            isDeleted: true,
-          },
-        ]);
+        const records = await wrapper.findSince(channel, 0);
+        expect(records.find(r => r.data.id === record.data.id)).toEqual({
+          data: { id: record.data.id },
+          recordType: 'patient',
+          lastSynced: expect.anything(),
+          isDeleted: true,
+        });
       });
 
       it('removes all records of a type', async () => {
         const record = {
-          recordType: 'test',
+          recordType: 'patient',
           data: {
             firstName: 'mary',
           },
         };
         await wrapper.insert(channel, record);
 
-        await wrapper.removeAllOfType('test');
+        await wrapper.removeAllOfType('patient');
 
         expect(await wrapper.findSince(channel, 0)).toEqual([]);
       });
