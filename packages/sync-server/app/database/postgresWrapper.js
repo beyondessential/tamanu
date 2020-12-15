@@ -3,12 +3,13 @@ import { initDatabase } from 'shared/services/database';
 
 const buildChannelRouter = () => {
   const channelRouter = wayfarer();
-  ['patient', 'patient/:id', 'reference', 'survey', 'user', 'vaccination'].forEach(
-    route => (urlParams, argParams) => {
-      const params = { ...urlParams, ...argParams };
-      console.log(`${route} -> ${JSON.stringify(params)}`);
-    },
-  );
+  ['patient', 'patient/:id', 'reference', 'survey', 'user', 'vaccination'].forEach(route => {
+    channelRouter.on(route, (urlParams, argParams, f) => {
+      const params = { ...argParams, ...urlParams, route };
+      console.log(JSON.stringify(params));
+      f(null, params); // TODO: determine model and pass in
+    });
+  });
   return channelRouter;
 };
 
@@ -29,27 +30,23 @@ export class PostgresWrapper {
     await this.sequelize.close();
   }
 
-  match(channel, args) {
-    this.channelRouter(channel, args);
-  }
-
   removeAllOfType(type) {
     console.log(`removeAllOfType ${type}`);
   }
 
   insert(channel, syncRecord) {
-    this.channelRouter(channel, { syncRecord });
+    this.channelRouter(channel, { syncRecord }, () => {});
   }
 
   countSince(channel, since) {
-    this.channelRouter(channel, { since });
+    this.channelRouter(channel, { since }, () => {});
   }
 
   findSince(channel, since, { limit, offset } = {}) {
-    this.channelRouter(channel, { since, limit, offset });
+    this.channelRouter(channel, { since, limit, offset }, () => {});
   }
 
   markRecordDeleted(channel, id) {
-    this.channelRouter(channel, id);
+    this.channelRouter(channel, { id }, () => {});
   }
 }
