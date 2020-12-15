@@ -1,4 +1,16 @@
+import wayfarer from 'wayfarer';
 import { initDatabase } from 'shared/services/database';
+
+const buildChannelRouter = () => {
+  const channelRouter = wayfarer();
+  ['patient', 'patient/:id', 'reference', 'survey', 'user', 'vaccination'].forEach(
+    route => (urlParams, argParams) => {
+      const params = { ...urlParams, ...argParams };
+      console.log(`${route} -> ${JSON.stringify(params)}`);
+    },
+  );
+  return channelRouter;
+};
 
 export class PostgresWrapper {
   models = null;
@@ -10,15 +22,34 @@ export class PostgresWrapper {
     const { sequelize, models } = initDatabase(dbOptions);
     this.sequelize = sequelize;
     this.models = models;
+    this.channelRouter = buildChannelRouter();
   }
 
   async close() {
     await this.sequelize.close();
   }
 
-  removeAllOfType(type) {}
-  insert(channel, syncRecord) {}
-  countSince(channel, since) {}
-  findSince(channel, since, { limit, offset } = {}) {}
-  markRecordDeleted(channel, id) {}
+  match(channel, args) {
+    this.channelRouter(channel, args);
+  }
+
+  removeAllOfType(type) {
+    console.log(`removeAllOfType ${type}`);
+  }
+
+  insert(channel, syncRecord) {
+    this.channelRouter(channel, { syncRecord });
+  }
+
+  countSince(channel, since) {
+    this.channelRouter(channel, { since });
+  }
+
+  findSince(channel, since, { limit, offset } = {}) {
+    this.channelRouter(channel, { since, limit, offset });
+  }
+
+  markRecordDeleted(channel, id) {
+    this.channelRouter(channel, id);
+  }
 }
