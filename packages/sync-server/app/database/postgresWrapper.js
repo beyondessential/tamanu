@@ -1,5 +1,5 @@
 export class PostgresWrapper {
-  remove(filter) {} // uses a filter, will need to be updated
+  removeAllOfType(type) {}
   insert(channel, syncRecord) {}
   countSince(channel, since) {}
   findSince(channel, since, { limit, offset }) {}
