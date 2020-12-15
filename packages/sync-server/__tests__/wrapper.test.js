@@ -1,5 +1,5 @@
 import { MongoWrapper } from 'sync-server/app/database/mongoWrapper';
-import { PostgresWrapper } from 'sync-server/app/database/postgresWrapper';
+import { initDatabase } from 'sync-server/app/database';
 import { getUUIDGenerator } from 'sync-server/app/database/uuid';
 
 const uuidv4 = getUUIDGenerator(true);
@@ -27,19 +27,9 @@ const withDate = async (fakeDate, fn) => {
 
 describe('wrappers', () => {
   [
-    [
-      'mongoWrapper',
-      async () => {
-        // TODO: temporarily hardcode until this gets removed
-        return new MongoWrapper('mongodb://localhost', 'tamanu-sync-test', true);
-      },
-    ],
-    [
-      'postgresWrapper',
-      async () => {
-        return new PostgresWrapper();
-      },
-    ],
+    // TODO: temporarily hardcode config until this gets removed
+    ['mongoWrapper', async () => new MongoWrapper('mongodb://localhost', 'tamanu-sync-test', true)],
+    ['postgresWrapper', async () => initDatabase({ testMode: true }).store],
   ].forEach(([name, build]) => {
     describe(name, () => {
       let wrapper;

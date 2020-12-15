@@ -1,22 +1,32 @@
 import config from 'config';
 
-import { MongoWrapper } from './mongoWrapper';
+// import { MongoWrapper } from './mongoWrapper';
+import { PostgresWrapper } from './postgresWrapper';
 import { log } from '../logging';
+import { getUUIDGenerator } from './uuid';
 
 let existingConnection = null;
 
 export function initDatabase({ testMode = false }) {
   // connect to database
-  const { name, path } = config.db;
-
   if (existingConnection) {
     return existingConnection;
   }
 
-  log.info(`Connecting to mongo database ${name} at ${path}...`);
-  const store = new MongoWrapper(path, name, testMode);
-  existingConnection = {
-    store,
-  };
+  const { username, name } = config.db;
+  log.info(`Connecting to postgres database ${username}@${name}`);
+  const store = new PostgresWrapper({
+    ...config.db,
+    log,
+    uuidGenerator: testMode ? getUUIDGenerator(testMode) : null,
+  });
+  existingConnection = { store };
   return existingConnection;
+}
+
+export async function closeDatabase() {
+  if (existingConnection) {
+    await existingConnection.close();
+    existingConnection = null;
+  }
 }
