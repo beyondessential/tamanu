@@ -1,8 +1,8 @@
+import { random, sample } from 'lodash';
+
 import { MongoWrapper } from 'sync-server/app/database/mongoWrapper';
 import { initDatabase } from 'sync-server/app/database';
-import { getUUIDGenerator } from 'sync-server/app/database/uuid';
-
-const uuidv4 = getUUIDGenerator(true);
+import { v4 as uuidv4 } from 'uuid';
 
 const withDate = async (fakeDate, fn) => {
   const OldDate = global.Date;
@@ -25,15 +25,41 @@ const withDate = async (fakeDate, fn) => {
   }
 };
 
+const fakeStringFields = (prefix, fields) => {
+  return fields.reduce(
+    (obj, field) => ({
+      ...obj,
+      [field]: prefix + field,
+    }),
+    {},
+  );
+};
+
+const fakePatient = () => {
+  const id = uuidv4();
+  return {
+    data: {
+      ...fakeStringFields(`patient_${id}_`, [
+        'firstName',
+        'middleName',
+        'lastName',
+        'culturalName',
+        'displayId',
+      ]),
+      sex: sample(['male', 'female', 'other']),
+      dateOfBirth: new Date(random(0, Date.now())),
+      villageId: null,
+    },
+  };
+};
+
 describe('wrappers', () => {
   [
     // TODO: temporarily hardcode config until this gets removed
     ['mongoWrapper', async () => new MongoWrapper('mongodb://localhost', 'tamanu-sync-test', true)],
-    ['postgresWrapper', async () => initDatabase({ testMode: true }).store],
+    ['postgresWrapper', async () => initDatabase().store],
   ].forEach(([name, build]) => {
     describe(name, () => {
-      const channel = 'patient';
-
       let wrapper;
       beforeAll(async () => {
         wrapper = await build();
@@ -45,59 +71,45 @@ describe('wrappers', () => {
       });
 
       it('finds no records when empty', async () => {
-        const records = await wrapper.findSince(channel, 0, { limit: 10, offset: 0 });
+        const records = await wrapper.findSince('patient', 0, { limit: 10, offset: 0 });
         expect(records).toHaveLength(0);
       });
 
       it('finds and counts records after an insertion', async () => {
+        const patient1 = fakePatient();
         await withDate(new Date(1980, 5, 1), async () => {
-          await wrapper.insert(channel, {
-            recordType: 'patient',
-            data: {
-              firstName: 'alice',
-            },
-          });
+          await wrapper.insert('patient', patient1);
         });
 
+        const patient2 = fakePatient();
         await withDate(new Date(1990, 5, 1), async () => {
-          await wrapper.insert(channel, {
-            recordType: 'patient',
-            data: {
-              firstName: 'bob',
-            },
-          });
+          await wrapper.insert('patient', patient2);
         });
 
         const since = new Date(1985, 5, 1).valueOf();
-        expect(await wrapper.findSince(channel, since)).toEqual([
+        expect(await wrapper.findSince('patient', since)).toEqual([
           {
             lastSynced: new Date(1990, 5, 1).valueOf(),
-            recordType: 'patient',
+            ...patient2,
             data: {
               id: expect.anything(),
-              firstName: 'bob',
+              ...patient2.data,
             },
           },
         ]);
-        expect(await wrapper.countSince(channel, since)).toEqual(1);
+        expect(await wrapper.countSince('patient', since)).toEqual(1);
       });
 
       it('marks records as deleted', async () => {
-        const record = {
-          recordType: 'patient',
-          data: {
-            id: uuidv4(),
-            firstName: 'fred',
-          },
-        };
-        await wrapper.insert(channel, record);
+        const patient = fakePatient();
+        patient.data.id = uuidv4();
+        await wrapper.insert('patient', patient);
 
-        await wrapper.markRecordDeleted(channel, record.data.id);
+        await wrapper.markRecordDeleted('patient', patient.data.id);
 
-        const records = await wrapper.findSince(channel, 0);
-        expect(records.find(r => r.data.id === record.data.id)).toEqual({
-          data: { id: record.data.id },
-          recordType: 'patient',
+        const patients = await wrapper.findSince('patient', 0);
+        expect(patients.find(r => r.data.id === patient.data.id)).toEqual({
+          data: { id: patient.data.id },
           lastSynced: expect.anything(),
           isDeleted: true,
         });
@@ -110,11 +122,11 @@ describe('wrappers', () => {
             firstName: 'mary',
           },
         };
-        await wrapper.insert(channel, record);
+        await wrapper.insert('patient', record);
 
         await wrapper.removeAllOfType('patient');
 
-        expect(await wrapper.findSince(channel, 0)).toEqual([]);
+        expect(await wrapper.findSince('patient', 0)).toEqual([]);
       });
     });
   });

@@ -17,6 +17,7 @@ const convertToMongoFromSyncRecordFormat = (syncRecord) => {
   return {
     ...metadata,
     _id: id,
+    recordType: 'patient', // TODO: hack, since we're removing this file entirely
     data: additionalData,
   };
 };
@@ -26,6 +27,7 @@ const convertToSyncRecordFormatFromMongo = (mongoRecord) => {
     _id,
     data,
     channel,
+    recordType, // TODO: hack, since we're removing this file entirely
     index,
     hashedPassword, // don't list hashed password on user
     ...metadata

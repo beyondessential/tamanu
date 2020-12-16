@@ -2,6 +2,24 @@ import wayfarer from 'wayfarer';
 import { Op } from 'sequelize';
 import { initDatabase } from 'shared/services/database';
 
+const convertToPgFromSyncRecord = syncRecord => {
+  const { data, ...metadata } = syncRecord;
+
+  return {
+    ...metadata,
+    ...data,
+  };
+};
+
+const convertToSyncRecordFromPg = pgRecord => {
+  const { updatedAt, createdAt, isDeleted, ...data } = pgRecord;
+
+  return {
+    lastSynced: updatedAt?.valueOf(),
+    data,
+  };
+};
+
 export class PostgresWrapper {
   models = null;
 
@@ -28,23 +46,24 @@ export class PostgresWrapper {
       ['survey', this.models.Survey],
       ['user', this.models.User],
       ['vaccination', this.models.Vaccination],
-    ].forEach(([route, model]) => {
+    ].forEach(([route, Model]) => {
       channelRouter.on(route, async (urlParams, f) => {
         const params = { ...urlParams, route };
-        console.log(JSON.stringify(params));
-        return f(model, params);
+        return f(Model, params);
       });
     });
     return channelRouter;
   }
 
   // TODO: this will need to be adapted to channels instead of types
-  removeAllOfType(type) {
-    console.log(`removeAllOfType ${type}`);
-  }
+  removeAllOfType(type) {}
 
-  insert(channel, syncRecord) {
-    this.channelRouter(channel, () => {});
+  async insert(channel, syncRecord) {
+    const record = convertToPgFromSyncRecord(syncRecord);
+    return this.channelRouter(channel, async Model => {
+      // TODO: add an autoincrementing index field
+      return Model.upsert(record);
+    });
   }
 
   countSince(channel, since) {
@@ -53,12 +72,16 @@ export class PostgresWrapper {
 
   async findSince(channel, since, { limit, offset } = {}) {
     return this.channelRouter(channel, async model => {
-      return model.findAll({
+      const records = await model.findAll({
         limit,
         offset,
         where: {
           updatedAt: { [Op.gte]: since },
         },
+      });
+      return records.map(result => {
+        const plainRecord = result.get({ plain: true });
+        return convertToSyncRecordFromPg(plainRecord);
       });
     });
   }
