@@ -9,8 +9,8 @@ import {
 import { theme } from '/styled/theme';
 import { VaccineStatusCells } from '/helpers/constants';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { IAdministeredVaccine, IScheduledVaccine } from '~/types';
-import { getScheduledVaccineStatus, VaccineStatus, ScheduledVaccineStatus } from '~/ui/helpers/patient';
+import { IAdministeredVaccine } from '~/types';
+import { getVaccineStatus, VaccineStatus, ScheduledVaccineStatus } from '~/ui/helpers/patient';
 
 interface VaccineCellMetadata {
    weeksUntilDue?: number;
@@ -26,9 +26,9 @@ interface VaccineTableCellProps {
 }
 
 const CellContent = ({
-  weeksUntilDue, status, vaccine
+  weeksUntilDue, status,
 }: { weeksUntilDue: number | null; status: string | null }): ReactElement => {
-  const dueStatus = getScheduledVaccineStatus(weeksUntilDue);
+  const dueStatus = getVaccineStatus(weeksUntilDue);
   let cellStatus = status || dueStatus;
   if (dueStatus === VaccineStatus.MISSED) cellStatus = dueStatus;
   const Icon = VaccineStatusCells[cellStatus].Icon;
@@ -60,7 +60,7 @@ export const VaccineTableCell = ({
   onPress,
 }: VaccineTableCellProps): JSX.Element => {
   const { weeksUntilDue, status } = vaccine;
-  const vaccineStatus = getScheduledVaccineStatus(weeksUntilDue);
+  const vaccineStatus = getVaccineStatus(weeksUntilDue);
   const isVaccineEditable = status === ScheduledVaccineStatus.SCHEDULED;
 
   const onPressItem = useCallback(() => {

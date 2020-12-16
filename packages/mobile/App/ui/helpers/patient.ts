@@ -20,7 +20,7 @@ export function getWeeksFromBirth(dateOfBirth: string): number {
   return differenceInWeeks(new Date(), new Date(dateOfBirth));
 }
 
-export function getScheduledVaccineStatus(weeksUntilDue): VaccineStatus {
+export function getVaccineStatus(weeksUntilDue): VaccineStatus {
   if (weeksUntilDue === null) {
     return VaccineStatus.NO_DUE_DATE;
   }
