@@ -82,7 +82,7 @@ export class PostgresWrapper {
         limit,
         offset,
         where: {
-          updatedAt: { [Op.gte]: since },
+          updatedAt: { [Op.gte]: since }, // TODO: gte or gt?
         },
       });
       return records.map(result => {
