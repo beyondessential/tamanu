@@ -38,6 +38,7 @@ export class PostgresWrapper {
     return channelRouter;
   }
 
+  // TODO: this will need to be adapted to channels instead of types
   removeAllOfType(type) {
     console.log(`removeAllOfType ${type}`);
   }
