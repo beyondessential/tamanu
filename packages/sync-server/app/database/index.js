@@ -7,7 +7,7 @@ import { getUUIDGenerator } from './uuid';
 
 let existingConnection = null;
 
-export function initDatabase({ testMode = false }) {
+export function initDatabase() {
   // connect to database
   if (existingConnection) {
     return existingConnection;
@@ -18,7 +18,6 @@ export function initDatabase({ testMode = false }) {
   const store = new PostgresWrapper({
     ...config.db,
     log,
-    uuidGenerator: testMode ? getUUIDGenerator(testMode) : null,
   });
   existingConnection = { store };
   return existingConnection;
