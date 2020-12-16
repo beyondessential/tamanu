@@ -35,10 +35,6 @@ const transformers = {
   labtesttypes: null,
 };
   
-const splitIntoChunks = (arr, chunkSize) => (new Array(Math.ceil(arr.length / chunkSize)))
-  .fill(0)
-  .map((v, i) => arr.slice(i * chunkSize, (i + 1) * chunkSize));
-
 export async function importData({ file }) {
   log.info(`Importing data definitions from ${file}...`);
 
@@ -52,10 +48,5 @@ export async function importData({ file }) {
     return sheet.data.map(transformer);
   }).filter(x => x).flat();
 
-  const parts = splitIntoChunks(records, 500);
-  log.info(`Uploading ${records.length} records across ${parts.length} chunks...`);
-  for(const part of parts) {
-    const response = await sendSyncRequest('reference', part);
-    log.info(`Uploaded ${part.length} reference records. Response:`, await response.json());
-  }
+  await sendSyncRequest('reference', records);
 }
