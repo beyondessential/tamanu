@@ -30,16 +30,15 @@ const CellContent = ({
 }: { weeksUntilDue: number | null; status: string | null }): ReactElement => {
   const dueStatus = getVaccineStatus(weeksUntilDue);
   let cellStatus = status || dueStatus;
-  if (dueStatus === VaccineStatus.MISSED) cellStatus = dueStatus;
+  if (status === ScheduledVaccineStatus.SCHEDULED) cellStatus = dueStatus;
   const Icon = VaccineStatusCells[cellStatus].Icon;
-  const background = VaccineStatusCells[cellStatus].background;
 
   return (
     <StyledView
       width={85}
       borderRightWidth={1}
       borderColor={theme.colors.BOX_OUTLINE}
-      background={background}
+      background={cellStatus ? VaccineStatusCells[cellStatus].background : 'transparent'}
       borderBottomWidth={1}
       height={80}
       alignItems="center"
@@ -60,11 +59,9 @@ export const VaccineTableCell = ({
   onPress,
 }: VaccineTableCellProps): JSX.Element => {
   const { weeksUntilDue, status } = vaccine;
-  const vaccineStatus = getVaccineStatus(weeksUntilDue);
-  const isVaccineEditable = status === ScheduledVaccineStatus.SCHEDULED;
 
   const onPressItem = useCallback(() => {
-    if (vaccineStatus === VaccineStatus.NOT_DUE && status === ScheduledVaccineStatus.SCHEDULED) {
+    if (weeksUntilDue > 4 && status === ScheduledVaccineStatus.SCHEDULED) {
       Popup.show({
         type: 'Warning',
         title: 'Vaccine not due',
@@ -73,8 +70,9 @@ export const VaccineTableCell = ({
         buttonText: 'Ok',
         callback: () => Popup.hide(),
       });
+      return;
     }
-    if (vaccineStatus === VaccineStatus.MISSED && status === ScheduledVaccineStatus.SCHEDULED) {
+    if (weeksUntilDue < -4 && status === ScheduledVaccineStatus.SCHEDULED) {
       Popup.show({
         type: 'Warning',
         title: 'Vaccine missed',
@@ -84,9 +82,10 @@ export const VaccineTableCell = ({
         buttonText: 'Ok',
         callback: () => Popup.hide(),
       });
+      return;
     }
 
-    if (vaccineStatus === VaccineStatus.DUE && isVaccineEditable) {
+    if (status) {
       onPress(vaccine);
     }
   }, [vaccine]);
