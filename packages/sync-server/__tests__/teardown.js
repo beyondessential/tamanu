@@ -1,4 +1,4 @@
-import { initDatabase } from 'sync-server/app/database';
+import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { deleteTestData } from './setupUtilities';
 
 export default async function() {
@@ -7,9 +7,5 @@ export default async function() {
   });
 
   await deleteTestData(ctx);
-
-  // mongo connection needs to be closed for test suite to terminate correctly
-  if (ctx.store.close) {
-    await ctx.store.close();
-  }
+  await closeDatabase();
 }

@@ -26,7 +26,7 @@ export function initDatabase({ testMode = false }) {
 
 export async function closeDatabase() {
   if (existingConnection) {
-    await existingConnection.close();
+    await existingConnection.store.close();
     existingConnection = null;
   }
 }
