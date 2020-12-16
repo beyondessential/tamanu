@@ -8,7 +8,7 @@ import { Button } from '../../Button';
 import { FullView, RowView, StyledText, StyledView } from '~/ui/styled/common';
 import { FormScreenView } from '../FormScreenView';
 
-function compareData(dataType: string, expected: string, given: any) {
+function compareData(dataType: string, expected: string, given: any): boolean {
   switch(dataType) {
     case DataElementType.Binary:
       if (expected === 'yes' && given === true) return true;
