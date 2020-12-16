@@ -67,8 +67,8 @@ export class PostgresWrapper {
   }
 
   async countSince(channel, since) {
-    return this.channelRouter(channel, async model => {
-      return model.count({
+    return this.channelRouter(channel, async Model => {
+      return Model.count({
         where: {
           updatedAt: { [Op.gte]: since }, // TODO: gte or gt?
         },
@@ -77,8 +77,8 @@ export class PostgresWrapper {
   }
 
   async findSince(channel, since, { limit, offset } = {}) {
-    return this.channelRouter(channel, async model => {
-      const records = await model.findAll({
+    return this.channelRouter(channel, async Model => {
+      const records = await Model.findAll({
         limit,
         offset,
         where: {
