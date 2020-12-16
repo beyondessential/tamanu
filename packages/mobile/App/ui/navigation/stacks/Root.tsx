@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { Root } from 'popup-ui';
 import { NavigationContainer } from '@react-navigation/native';
 import { ThemeProvider } from 'styled-components/native';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -11,16 +12,18 @@ import { Core } from './Core';
 
 export const RootStack = (): ReactElement => (
   <SafeAreaProvider>
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <ThemeProvider theme={themeSystem}>
-          <NavigationContainer>
-            <AuthProvider>
-              <Core />
-            </AuthProvider>
-          </NavigationContainer>
-        </ThemeProvider>
-      </PersistGate>
-    </Provider>
+    <Root>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <ThemeProvider theme={themeSystem}>
+            <NavigationContainer>
+              <AuthProvider>
+                <Core />
+              </AuthProvider>
+            </NavigationContainer>
+          </ThemeProvider>
+        </PersistGate>
+      </Provider>
+    </Root>
   </SafeAreaProvider>
 );

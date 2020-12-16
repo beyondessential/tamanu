@@ -19,10 +19,10 @@ import {
   StyledTouchableOpacity,
 } from '/styled/common';
 import { ArrowDownIcon } from '/components/Icons';
-import { VaccineStatus } from '/helpers/constants';
 import { Routes } from '/helpers/routes';
 import { VaccineDataProps } from '/components/VaccineCard';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { ScheduledVaccineStatus } from '~/ui/helpers/patient';
 
 type NewVaccineHeaderProps = {
   navigation: NavigationProp<any>;
@@ -97,14 +97,14 @@ export const NewVaccineTabs = ({
   const routes = useMemo(
     () => [
       {
-        key: VaccineStatus.GIVEN,
+        key: ScheduledVaccineStatus.GIVEN,
         title: 'GIVEN\nON TIME',
         vaccine: route.params.vaccine,
         color: theme.colors.SAFE,
         icon: Icons.GivenOnTimeIcon,
       },
       {
-        key: VaccineStatus.NOT_GIVEN,
+        key: ScheduledVaccineStatus.NOT_GIVEN,
         title: 'NOT\nGIVEN ',
         vaccine: route.params.vaccine,
         color: theme.colors.PRIMARY_MAIN,
@@ -113,6 +113,7 @@ export const NewVaccineTabs = ({
     ],
     [route],
   );
+
   const [state, setState] = useState({
     index: 0,
     routes,
@@ -120,7 +121,7 @@ export const NewVaccineTabs = ({
 
   useEffect(() => {
     switch (route.params.vaccine.status) {
-      case VaccineStatus.NOT_GIVEN:
+      case ScheduledVaccineStatus.NOT_GIVEN:
         setState({
           index: 2,
           routes,
@@ -136,8 +137,8 @@ export const NewVaccineTabs = ({
       <VaccineTabNavigator
         state={state}
         scenes={{
-          [VaccineStatus.GIVEN]: NewVaccineTab,
-          [VaccineStatus.NOT_GIVEN]: NewVaccineTab,
+          [ScheduledVaccineStatus.GIVEN]: NewVaccineTab,
+          [ScheduledVaccineStatus.NOT_GIVEN]: NewVaccineTab,
         }}
         onChangeTab={setState}
       />

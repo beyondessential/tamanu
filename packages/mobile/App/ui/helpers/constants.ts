@@ -1,6 +1,8 @@
 import { EncounterType } from '~/types';
 import * as Icons from '/components/Icons';
 import { theme } from '/styled/theme';
+import { ScheduledVaccineStatus, VaccineStatus } from '/helpers/patient';
+import { ColorHelper } from './colors';
 
 export const DateFormats = {
   short: 'EEE, dd MMM',
@@ -125,26 +127,54 @@ export const userRolesOptions = [
   practitionerRole,
 ];
 
-export const VaccineStatus = {
-  GIVEN: 'GIVEN',
-  NOT_GIVEN: 'NOT_GIVEN',
-  SCHEDULED: 'SCHEDULED',
-};
-export const VaccineIcons = {
-  [VaccineStatus.GIVEN]: {
+export const VaccineStatusCells = {
+  [ScheduledVaccineStatus.GIVEN]: {
     Icon: Icons.GivenOnTimeIcon,
+    background: theme.colors.SAFE,
     color: theme.colors.SAFE,
     text: 'GIVEN ON TIME',
   },
-  [VaccineStatus.NOT_GIVEN]: {
+  [ScheduledVaccineStatus.NOT_GIVEN]: {
     Icon: Icons.NotGivenIcon,
+    background: theme.colors.DISABLED_GREY,
     color: theme.colors.TEXT_SOFT,
     text: 'NOT GIVEN',
   },
-  [VaccineStatus.SCHEDULED]: {
+  [ScheduledVaccineStatus.SCHEDULED]: {
     Icon: Icons.EmptyCircleIcon,
+    background: ColorHelper.halfTransparency(theme.colors.LIGHT_BLUE),
     color: theme.colors.ORANGE,
     text: 'SCHEDULED',
+  },
+  [VaccineStatus.MISSED]: {
+    Icon: Icons.NotGivenIcon,
+    background: theme.colors.DISABLED_GREY,
+    color: theme.colors.TEXT_SOFT,
+    text: 'MISSED',
+  },
+  [VaccineStatus.NO_DUE_DATE]: {
+    Icon: Icons.EmptyCircleIcon,
+    background: theme.colors.BACKGROUND_GREY,
+    color: theme.colors.ORANGE,
+    text: 'SCHEDULED',
+  },
+  [VaccineStatus.OVERDUE]: {
+    Icon: Icons.AlertIcon,
+    background: theme.colors.ALERT,
+    color: theme.colors.ORANGE,
+    text: 'OVERDUE',
+  },
+  [VaccineStatus.NOT_DUE]: {
+    Icon: Icons.EmptyCircleIcon,
+    background: theme.colors.BACKGROUND_GREY,
+    color: theme.colors.ORANGE,
+    text: 'SCHEDULED',
+  },
+  [VaccineStatus.DUE]: {
+    Icon: Icons.AlertIcon,
+    background: theme.colors.PRIMARY_MAIN,
+    color: theme.colors.ORANGE,
+    text: 'DUE NOW',
   },
 };
 

@@ -18,10 +18,11 @@ export const VaccineFormGiven = (): JSX.Element => (
     >
       <Field component={DateField} name="date" label="Date" />
       <Field component={TextField} name="batch" label="Batch No." />
+      <Field component={TextField} name="location" label="Given at" />
       <Field
         component={TextField}
         name="administered"
-        label="Administered by"
+        label="Given by"
       />
     </StyledView>
   ) : (

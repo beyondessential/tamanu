@@ -3,10 +3,9 @@ import { IScheduledVaccine } from './IScheduledVaccine';
 
 export interface IAdministeredVaccine {
   id: ID;
-  schedule: string;
-  category: string;
+  location: string;
   scheduledVaccine: IScheduledVaccine;
-  batch: string;
+  batch?: string;
   status: string;
   date: Date;
 }

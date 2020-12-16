@@ -108,7 +108,7 @@ export const Intro = (props: IntroScreenProps): JSX.Element => {
           width={screenPercentageToDP(43.79, Orientation.Width)}
           outline
           borderColor={theme.colors.WHITE}
-          buttonText="Skip"
+          buttonText="Next"
           onPress={onPressButton}
         />
       </CenterView>

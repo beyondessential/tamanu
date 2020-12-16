@@ -4,11 +4,11 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { NavigationProp } from '@react-navigation/native';
 import { FullView, StyledSafeAreaView } from '/styled/common';
 import { VaccinesTable } from '/components/VaccinesTable';
-import { VaccineStatus } from '/helpers/constants';
 import { Routes } from '/helpers/routes';
 import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
 import { IPatient } from '~/types';
+import { ScheduledVaccineStatus } from '~/ui/helpers/patient';
 
 interface VaccineHistoryTabProps {
   navigation: NavigationProp<any>;
@@ -25,7 +25,7 @@ export const VaccineHistoryTabComponent = ({
 }: VaccineHistoryTabProps): ReactElement => {
   const category = route.name.split('/')[route.name.split('/').length - 1];
   const onNavigateToClickedCell = useCallback(item => {
-    if (item.status === VaccineStatus.SCHEDULED) {
+    if (item.status === ScheduledVaccineStatus.SCHEDULED) {
       navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.Index, {
         vaccine: item,
       });
@@ -44,6 +44,7 @@ export const VaccineHistoryTabComponent = ({
           <VaccinesTable
             selectedPatient={selectedPatient}
             categoryName={category}
+            route={route}
             onPressItem={onNavigateToClickedCell}
           />
         </ScrollView>

@@ -22,7 +22,7 @@ export const NotGivenFields: FC<VaccineDataProps> = (
   >
     <ModalField
       label="Date"
-      value={formatDate(props.date, DateFormats.DAY_MONTH_YEAR_SHORT)}
+      value={props.date}
       Icon={CalendarIcon}
     />
     <Separator />

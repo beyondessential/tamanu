@@ -45,6 +45,7 @@
     "metro-minify-terser": "^0.64.0",
     "mitt": "^2.1.0",
     "moment": "^2.29.1",
+    "popup-ui": "^1.2.2",
     "react": "16.11.0",
     "react-native": "0.62.2",
     "react-native-autocomplete-input": "^4.2.0",
