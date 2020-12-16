@@ -73,23 +73,24 @@ authMiddleware.use(asyncHandler(async (req, res, next) => {
     return;
   }
 
+  let contents = null;
   try {
-    const contents = jwt.verify(token, JWT_SECRET);
-    const { userId } = contents;
-
-    const user = await store.findUserById(userId);
-
-    if(!user) {
-      throw new BadAuthenticationError(`User specified in token (${userId}) does not exist`);
-    }
-
-    req.user = stripUser(user);
-
-    next();
+    contents = jwt.verify(token, JWT_SECRET);
   } catch(e) {
-    console.log(e);
     throw new BadAuthenticationError('Invalid token');
   }
+
+  const { userId } = contents;
+
+  const user = await store.findUserById(userId);
+
+  if(!user) {
+    throw new BadAuthenticationError(`User specified in token (${userId}) does not exist`);
+  }
+
+  req.user = stripUser(user);
+
+  next();
 }));
 
 authMiddleware.get('/whoami', asyncHandler((req, res) => {

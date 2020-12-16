@@ -6,7 +6,7 @@
     "verbose": false
   },
   "auth": {
-    "saltRounds": 10,
+    "saltRounds": 12,
     "tokenDuration": "1h",
     "allowFakeToken": false,
     "reportNoUserError": false

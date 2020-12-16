@@ -2,6 +2,8 @@ import { MongoClient } from 'mongodb';
 import { getUUIDGenerator } from './uuid';
 import bcrypt from 'bcrypt';
 
+import config from 'config';
+
 const convertToMongoFromSyncRecordFormat = (syncRecord) => {
   const {
     data,
@@ -207,7 +209,7 @@ export class MongoWrapper {
       password,
       ...otherData
     } = data;
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, config.auth.saltRounds);
     return this.insert('user', {
       recordType: 'user',
       hashedPassword,
@@ -219,20 +221,20 @@ export class MongoWrapper {
 
   async findUser(email) {
     const collection = await this.getCollection('test');
-    const cursor = collection.find({
-      recordType: 'user',
-      'data.email': email
-    }).limit(1);
 
-    return new Promise((resolve, reject) => cursor.toArray((err, docs) => {
-      if(err) {
-        reject(error);
-      } else {
-        resolve(docs.length > 0 
-          ? docs[0]
-          : null);
-      }
-    }));
+    return new Promise((resolve, reject) => collection.findOne(
+      {
+        recordType: 'user',
+        'data.email': email
+      },
+      (err, doc) => {
+        if(err) {
+          reject(error);
+        } else {
+          resolve(doc);
+        }
+      })
+    );
   }
 
   async findUserById(id) {
