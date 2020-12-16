@@ -71,12 +71,12 @@ export async function importSurvey(taskDefinition) {
     screenIndex: i,
   })).flat();
 
-  const response = await sendSyncRequest('survey', [
+  await sendSyncRequest('survey', [
     programElement,
     surveyElement,
     ...screenElements,
   ]);
 
-  log.info("Program records uploaded. Response:", await response.json());
+  log.info("Program records uploaded.");
 }
 
