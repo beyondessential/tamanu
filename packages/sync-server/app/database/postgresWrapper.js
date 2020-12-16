@@ -66,8 +66,14 @@ export class PostgresWrapper {
     });
   }
 
-  countSince(channel, since) {
-    this.channelRouter(channel, () => {});
+  async countSince(channel, since) {
+    return this.channelRouter(channel, async model => {
+      return model.count({
+        where: {
+          updatedAt: { [Op.gte]: since }, // TODO: gte or gt?
+        },
+      });
+    });
   }
 
   async findSince(channel, since, { limit, offset } = {}) {
