@@ -1,17 +1,6 @@
 import wayfarer from 'wayfarer';
+import { Op } from 'sequelize';
 import { initDatabase } from 'shared/services/database';
-
-const buildChannelRouter = () => {
-  const channelRouter = wayfarer();
-  ['patient', 'patient/:id', 'reference', 'survey', 'user', 'vaccination'].forEach(route => {
-    channelRouter.on(route, (urlParams, argParams, f) => {
-      const params = { ...argParams, ...urlParams, route };
-      console.log(JSON.stringify(params));
-      f(null, params); // TODO: determine model and pass in
-    });
-  });
-  return channelRouter;
-};
 
 export class PostgresWrapper {
   models = null;
@@ -23,11 +12,30 @@ export class PostgresWrapper {
     const { sequelize, models } = initDatabase(dbOptions);
     this.sequelize = sequelize;
     this.models = models;
-    this.channelRouter = buildChannelRouter();
+    this.channelRouter = this.buildChannelRouter();
   }
 
   async close() {
     await this.sequelize.close();
+  }
+
+  buildChannelRouter() {
+    const channelRouter = wayfarer();
+    [
+      ['patient', this.models.Patient],
+      ['patient/:id/todo', this.models.Todo],
+      ['reference', this.models.ReferenceData],
+      ['survey', this.models.Survey],
+      ['user', this.models.User],
+      ['vaccination', this.models.Vaccination],
+    ].forEach(([route, model]) => {
+      channelRouter.on(route, async (urlParams, f) => {
+        const params = { ...urlParams, route };
+        console.log(JSON.stringify(params));
+        return f(model, params);
+      });
+    });
+    return channelRouter;
   }
 
   removeAllOfType(type) {
@@ -35,18 +43,26 @@ export class PostgresWrapper {
   }
 
   insert(channel, syncRecord) {
-    this.channelRouter(channel, { syncRecord }, () => {});
+    this.channelRouter(channel, () => {});
   }
 
   countSince(channel, since) {
-    this.channelRouter(channel, { since }, () => {});
+    this.channelRouter(channel, () => {});
   }
 
-  findSince(channel, since, { limit, offset } = {}) {
-    this.channelRouter(channel, { since, limit, offset }, () => {});
+  async findSince(channel, since, { limit, offset } = {}) {
+    return this.channelRouter(channel, async model => {
+      return model.findAll({
+        limit,
+        offset,
+        where: {
+          updatedAt: { [Op.gte]: since },
+        },
+      });
+    });
   }
 
   markRecordDeleted(channel, id) {
-    this.channelRouter(channel, { id }, () => {});
+    this.channelRouter(channel, () => {});
   }
 }
