@@ -1,4 +1,5 @@
-import React, { memo, ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement } from 'react';
+import { useIsFocused } from '@react-navigation/native';
 import { uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
 import { Table } from '../Table';
@@ -6,11 +7,9 @@ import { VaccineRowHeader } from './VaccineRowHeader';
 import { VaccineTableCell } from './VaccinesTableCell';
 import { VaccinesTableTitle } from './VaccinesTableTitle';
 import { vaccineTableHeader } from './VaccineTableHeader';
-import { VaccineStatus } from '~/ui/helpers/constants';
 import { ErrorScreen } from '../ErrorScreen';
 import { LoadingScreen } from '../LoadingScreen';
-import { getWeeksFromBirth } from '~/ui/helpers/user';
-import { useIsFocused } from '@react-navigation/native';
+import { getWeeksFromBirth, ScheduledVaccineStatus } from '~/ui/helpers/patient';
 
 interface VaccinesTableProps {
   selectedPatient: any;
@@ -77,7 +76,7 @@ export const VaccinesTable = ({
 
       const vaccineStatus = administeredVaccine
         ? administeredVaccine.status
-        : VaccineStatus.SCHEDULED;
+        : ScheduledVaccineStatus.SCHEDULED;
 
       return {
         ...state,

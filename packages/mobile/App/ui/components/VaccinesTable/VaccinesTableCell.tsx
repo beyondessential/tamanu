@@ -1,65 +1,40 @@
-import React, { ReactElement, useCallback, FC } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { Popup } from 'popup-ui';
 import {
   StyledView,
-  CenterView,
   StyledTouchableOpacity,
   StyledImage,
+  CenterView,
 } from '/styled/common';
 import { theme } from '/styled/theme';
-import { VaccineIcons, VaccineStatus } from '/helpers/constants';
+import { VaccineStatusCells } from '/helpers/constants';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { IAdministeredVaccine } from '~/types';
-import { ColorHelper } from '~/ui/helpers/colors';
+import { IAdministeredVaccine, IScheduledVaccine } from '~/types';
+import { getScheduledVaccineStatus, VaccineStatus, ScheduledVaccineStatus } from '~/ui/helpers/patient';
 
-const VaccineIcon = ({
-  status = null,
-}: {
-  status: string | null;
-}): JSX.Element => {
-  let Icon: FC<any> | null = null;
-  if (status) {
-    Icon = VaccineIcons[status].Icon;
-    switch (status) {
-      case VaccineStatus.SCHEDULED:
-        return (
-          <CenterView flex={1}>
-            <Icon background="transparent" />
-          </CenterView>
-        );
-      case VaccineStatus.GIVEN:
-        return (
-          <CenterView flex={1}>
-            <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />
-          </CenterView>
-        );
-      case VaccineStatus.NOT_GIVEN:
-        return (
-          <CenterView flex={1}>
-            <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />
-          </CenterView>
-        );
-      default:
-        return (
-          <CenterView flex={1}>
-            <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />
-          </CenterView>
-        );
-    }
-  }
-  return <StyledImage source={require('../../assets/NullValueCell.png')} />;
-};
+interface VaccineCellMetadata {
+   weeksUntilDue?: number;
+   scheduledVaccineId?: string;
+   status: VaccineStatus;
+   schedule: ReactElement;
+}
 
 interface VaccineTableCellProps {
-  vaccine: IAdministeredVaccine;
+  vaccine: IAdministeredVaccine & VaccineCellMetadata;
   status: any;
   onPress?: (item: any) => void;
 }
 
 const CellContent = ({
-  weeksUntilDue, status,
+  weeksUntilDue, status, vaccine
 }: { weeksUntilDue: number | null; status: string | null }): ReactElement => {
-  const Cell = ({ background }): ReactElement => (
+  const dueStatus = getScheduledVaccineStatus(weeksUntilDue);
+  let cellStatus = status || dueStatus;
+  if (dueStatus === VaccineStatus.MISSED) cellStatus = dueStatus;
+  const Icon = VaccineStatusCells[cellStatus].Icon;
+  const background = VaccineStatusCells[cellStatus].background;
+
+  return (
     <StyledView
       width={85}
       borderRightWidth={1}
@@ -69,31 +44,15 @@ const CellContent = ({
       height={80}
       alignItems="center"
     >
-      <VaccineIcon status={status} />
+      {status
+        ? (
+          <CenterView flex={1}>
+            <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />
+          </CenterView>
+        ) : <StyledImage source={require('../../assets/NullValueCell.png')} />
+      }
     </StyledView>
   );
-
-  if (status === VaccineStatus.GIVEN) {
-    return <Cell background={theme.colors.SAFE} />;
-  }
-  if (weeksUntilDue === null) {
-    return <Cell background={theme.colors.BACKGROUND_GREY} />;
-  }
-  if (weeksUntilDue < -4) { // missed, move to catchup
-    return <Cell background={theme.colors.DISABLED_GREY} />;
-  }
-  if (weeksUntilDue < 0) { // overdue
-    return <Cell background={theme.colors.ALERT} />;
-  }
-  if (weeksUntilDue <= 1) { // due
-    return <Cell background={theme.colors.PRIMARY_MAIN} />;
-  }
-  if (weeksUntilDue > 12) { // scheduled
-    return <Cell background={ColorHelper.halfTransparency(theme.colors.LIGHT_BLUE)} />;
-  }
-  if (weeksUntilDue > 2) { // upcoming
-    return <Cell background={theme.colors.LIGHT_BLUE} />;
-  }
 };
 
 export const VaccineTableCell = ({
@@ -101,12 +60,11 @@ export const VaccineTableCell = ({
   onPress,
 }: VaccineTableCellProps): JSX.Element => {
   const { weeksUntilDue, status } = vaccine;
-  const shouldAdministerVaccine = weeksUntilDue <= 1 && weeksUntilDue > -4;
-  const isVaccineEditable = status !== VaccineStatus.SCHEDULED;
+  const vaccineStatus = getScheduledVaccineStatus(weeksUntilDue);
+  const isVaccineEditable = status === ScheduledVaccineStatus.SCHEDULED;
 
   const onPressItem = useCallback(() => {
-    console.log({weeksUntilDue});
-    if (weeksUntilDue > 4 && status === VaccineStatus.SCHEDULED) {
+    if (vaccineStatus === VaccineStatus.NOT_DUE && status === ScheduledVaccineStatus.SCHEDULED) {
       Popup.show({
         type: 'Warning',
         title: 'Vaccine not due',
@@ -116,10 +74,10 @@ export const VaccineTableCell = ({
         callback: () => Popup.hide(),
       });
     }
-    if (weeksUntilDue < -4 && status === VaccineStatus.SCHEDULED) {
+    if (vaccineStatus === VaccineStatus.MISSED && status === ScheduledVaccineStatus.SCHEDULED) {
       Popup.show({
         type: 'Warning',
-        title: 'Vaccine overdue',
+        title: 'Vaccine missed',
         button: true,
         textBody:
           `Patient has missed this vaccine by ${Math.abs(weeksUntilDue)} weeks, please refer to the catchup schedule.`,
@@ -128,12 +86,14 @@ export const VaccineTableCell = ({
       });
     }
 
-    if (shouldAdministerVaccine || isVaccineEditable) onPress(vaccine);
+    if (vaccineStatus === VaccineStatus.DUE && isVaccineEditable) {
+      onPress(vaccine);
+    }
   }, [vaccine]);
 
   return (vaccine.status) ? (
     <StyledTouchableOpacity onPress={onPressItem}>
-      <CellContent status={status} weeksUntilDue={weeksUntilDue} />
+      <CellContent status={status} vaccine={vaccine} weeksUntilDue={weeksUntilDue} />
     </StyledTouchableOpacity>
   ) : (
     <CellContent status={null} weeksUntilDue={weeksUntilDue} />

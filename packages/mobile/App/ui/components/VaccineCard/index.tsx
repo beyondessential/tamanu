@@ -7,10 +7,10 @@ import React, {
 import { StyledView } from '/styled/common';
 import { VaccineCardHeader } from './VaccineCardHeader';
 import { IAdministeredVaccine } from '~/types';
-import { VaccineStatus } from '/helpers/constants';
 import { NotGivenFields } from './NotGivenFields';
 import GivenOnTimeFields from './GivenOnTimeFields';
 import { VaccineStatusHeader } from './VaccineStatusHeader';
+import { ScheduledVaccineStatus } from '~/ui/helpers/patient';
 
 export type VaccineDataProps = IAdministeredVaccine;
 
@@ -25,9 +25,9 @@ export const VaccineCard: FunctionComponent<PropsWithChildren<
 >> = ({ vaccineData, onCloseModal, onEditDetails }: VaccineCardProps) => {
   const Fields: FC<VaccineDataProps> = useMemo(() => {
     switch (vaccineData.status) {
-      case VaccineStatus.NOT_GIVEN:
+      case ScheduledVaccineStatus.NOT_GIVEN:
         return NotGivenFields;
-      case VaccineStatus.GIVEN:
+      case ScheduledVaccineStatus.GIVEN:
         return GivenOnTimeFields;
       default:
         return GivenOnTimeFields;

@@ -1,7 +1,7 @@
-import { VaccineStatus } from '/helpers/constants';
+import { ScheduledVaccineStatus } from "~/ui/helpers/patient";
 
 export const givenOnTimeProps = {
-  status: VaccineStatus.GIVEN,
+  status: ScheduledVaccineStatus.GIVEN,
   name: 'BCG',
   subtitle: '(Tuberculosis)',
   dateType: 'Birth',
@@ -13,7 +13,7 @@ export const givenOnTimeProps = {
 };
 
 export const notGivenProps = {
-  status: VaccineStatus.NOT_GIVEN,
+  status: ScheduledVaccineStatus.NOT_GIVEN,
   name: 'BCG',
   subtitle: '(Tuberculosis)',
   dateType: 'Birth',
