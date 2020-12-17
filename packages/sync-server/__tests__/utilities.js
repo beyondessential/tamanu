@@ -114,9 +114,6 @@ export function createTestContext() {
 
   const close = async () => {
     await new Promise(resolve => appServer.close(resolve));
-    if (store.close) {
-      await store.close();
-    }
   };
 
   return { baseApp, store, close };

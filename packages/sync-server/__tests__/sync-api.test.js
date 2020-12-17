@@ -4,7 +4,7 @@ import { createTestContext } from './utilities';
 const { baseApp, close, store } = createTestContext();
 afterAll(close);
 
-const makeDate = (daysAgo, hoursAgo=0) => {
+const makeDate = (daysAgo, hoursAgo = 0) => {
   return subHours(subDays(new Date(), daysAgo), hoursAgo).valueOf();
 };
 
@@ -16,27 +16,29 @@ const RECORDS = [
   { lastSynced: SECOND_OLDEST, data: { dataKey: 'second' } },
 ];
 
-describe("Sync API", () => {
-
+describe('Sync API', () => {
   let app = null;
   beforeAll(async () => {
     app = await baseApp.asRole('practitioner');
 
-    await Promise.all(RECORDS.map(r => store.insert('testChannel', {
-      recordType: 'test',
-      ...r,
-    })));
+    await Promise.all(
+      RECORDS.map(r =>
+        store.insert('testChannel', {
+          recordType: 'test',
+          ...r,
+        }),
+      ),
+    );
   });
 
-  describe("Reads", () => {
-
+  describe('Reads', () => {
     it('should error if no since parameter is provided', async () => {
       const result = await app.get('/v1/sync/testChannel');
       expect(result).toHaveRequestError();
     });
 
     it('should get some records', async () => {
-      const result = await app.get(`/v1/sync/testChannel?since=${OLDEST-1}`);
+      const result = await app.get(`/v1/sync/testChannel?since=${OLDEST - 1}`);
       expect(result).toHaveSucceeded();
 
       const { body } = result;
@@ -59,7 +61,7 @@ describe("Sync API", () => {
     });
 
     it('should filter out older records', async () => {
-      const result = await app.get(`/v1/sync/testChannel?since=${SECOND_OLDEST-1}`);
+      const result = await app.get(`/v1/sync/testChannel?since=${SECOND_OLDEST - 1}`);
       expect(result).toHaveSucceeded();
 
       const { body } = result;
@@ -68,7 +70,6 @@ describe("Sync API", () => {
     });
 
     describe('Pagination', () => {
-
       const TOTAL_RECORDS = 20;
       let records = null;
 
@@ -76,7 +77,7 @@ describe("Sync API", () => {
         await store.removeAllOfType('pageTest');
 
         // insert 20 records
-        records = (new Array(TOTAL_RECORDS)).fill(0).map((zero, i) => ({
+        records = new Array(TOTAL_RECORDS).fill(0).map((zero, i) => ({
           recordType: 'pageTest',
           data: {
             id: `test-pagination-${i}`,
@@ -85,9 +86,7 @@ describe("Sync API", () => {
         }));
 
         // import in series so there's a predictable order to test against
-        for(let r of records) {
-          await store.insert('pagination', r);
-        }
+        await Promise.all(records.map(r => store.insert('pagination', r)));
       });
 
       it('should only return $limit records', async () => {
@@ -100,7 +99,7 @@ describe("Sync API", () => {
         expect(secondResult.body.records.length).toEqual(3);
 
         // arrays should be the same
-        for(var i = 0; i < secondResult.body.records.length; ++i) {
+        for (let i = 0; i < secondResult.body.records.length; ++i) {
           expect(result.body.records[i].id).toEqual(secondResult.body.records[i].id);
         }
       });
@@ -110,7 +109,7 @@ describe("Sync API", () => {
         const PAGE_COUNT = Math.ceil(TOTAL_RECORDS / PAGE_SIZE);
         const results = [];
 
-        for(let i = 0; i < PAGE_COUNT; ++i) {
+        for (let i = 0; i < PAGE_COUNT; ++i) {
           const url = `/v1/sync/pagination?since=0&limit=5&page=${i}`;
           const result = await app.get(url);
           expect(result).toHaveSucceeded();
@@ -118,15 +117,15 @@ describe("Sync API", () => {
           results.push(result);
         }
 
-        const response_record_ids = results
+        const responseRecordIds = results
           .map(r => r.body.records)
           .flat()
           .map(r => r.data.id);
-        const expected_record_ids = (new Array(TOTAL_RECORDS))
+        const expectedRecordIds = new Array(TOTAL_RECORDS)
           .fill(0)
           .map((_, i) => `test-pagination-${i}`);
 
-        expect(response_record_ids).toEqual(expected_record_ids);
+        expect(responseRecordIds).toEqual(expectedRecordIds);
       });
 
       it('should include the count of the entire query', async () => {
@@ -142,12 +141,10 @@ describe("Sync API", () => {
         expect(thirdResult).toHaveSucceeded();
         expect(thirdResult.body).toHaveProperty('count', TOTAL_RECORDS);
       });
-
     });
   });
 
-  describe("Writes", () => {
-
+  describe('Writes', () => {
     beforeAll(async () => {
       await store.removeAllOfType('test-write');
     });
@@ -161,7 +158,7 @@ describe("Sync API", () => {
         data: {
           id: 'adder0',
           dataValue: 'add',
-        }
+        },
       });
       expect(result).toHaveSucceeded();
 
@@ -176,11 +173,11 @@ describe("Sync API", () => {
       const result = await app.post('/v1/sync/adder').send([
         {
           recordType: 'test-write',
-          data: { id: 'adder1', dataValue: 'add1' }
+          data: { id: 'adder1', dataValue: 'add1' },
         },
         {
           recordType: 'test-write',
-          data: { id: 'adder2', dataValue: 'add2' }
+          data: { id: 'adder2', dataValue: 'add2' },
         },
       ]);
       expect(result).toHaveSucceeded();
@@ -192,7 +189,7 @@ describe("Sync API", () => {
     it('should update an existing record in reference data', async () => {
       const result = await app.post('/v1/sync/adder').send({
         recordType: 'test-write',
-        data: { id: 'adder1', dataValue: 'add1-updated' }
+        data: { id: 'adder1', dataValue: 'add1-updated' },
       });
 
       expect(result).toHaveSucceeded();

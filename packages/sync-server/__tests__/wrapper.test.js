@@ -1,8 +1,7 @@
-import { random, sample } from 'lodash';
-
 import { MongoWrapper } from 'sync-server/app/database/mongoWrapper';
 import { initDatabase } from 'sync-server/app/database';
 import { v4 as uuidv4 } from 'uuid';
+import { fakePatient } from './fake';
 
 const withDate = async (fakeDate, fn) => {
   const OldDate = global.Date;
@@ -23,34 +22,6 @@ const withDate = async (fakeDate, fn) => {
   } finally {
     global.Date = OldDate;
   }
-};
-
-const fakeStringFields = (prefix, fields) => {
-  return fields.reduce(
-    (obj, field) => ({
-      ...obj,
-      [field]: prefix + field,
-    }),
-    {},
-  );
-};
-
-const fakePatient = () => {
-  const id = uuidv4();
-  return {
-    data: {
-      ...fakeStringFields(`patient_${id}_`, [
-        'firstName',
-        'middleName',
-        'lastName',
-        'culturalName',
-        'displayId',
-      ]),
-      sex: sample(['male', 'female', 'other']),
-      dateOfBirth: new Date(random(0, Date.now())),
-      villageId: null,
-    },
-  };
 };
 
 describe('wrappers', () => {
