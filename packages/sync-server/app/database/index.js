@@ -18,6 +18,7 @@ export function initDatabase() {
   const store = new PostgresWrapper({
     ...config.db,
     log,
+    makeEveryModelParanoid: true,
   });
   existingConnection = { store };
   return existingConnection;

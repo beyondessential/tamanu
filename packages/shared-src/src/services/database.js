@@ -17,6 +17,7 @@ export function initDatabase(dbOptions) {
     verbose=false,
     sqlitePath=null,
     uuidGenerator=Sequelize.UUIDV4,
+    makeEveryModelParanoid=false,
   } = dbOptions;
 
   if (sqlitePath) {
@@ -53,6 +54,7 @@ export function initDatabase(dbOptions) {
         underscored: true,
         primaryKey,
         sequelize,
+        paranoid: makeEveryModelParanoid,
       },
       models,
     );

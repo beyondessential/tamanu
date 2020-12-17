@@ -12,11 +12,15 @@ const convertToPgFromSyncRecord = syncRecord => {
 };
 
 const convertToSyncRecordFromPg = pgRecord => {
-  const { updatedAt, createdAt, isDeleted, ...data } = pgRecord;
+  const { id, updatedAt, createdAt, deletedAt, ...data } = pgRecord;
 
   return {
     lastSynced: updatedAt?.valueOf(),
-    data,
+    ...(deletedAt ? { isDeleted: true } : {}),
+    data: {
+      id,
+      ...(deletedAt ? {} : data),
+    },
   };
 };
 
@@ -72,6 +76,7 @@ export class PostgresWrapper {
         where: {
           updatedAt: { [Op.gte]: since }, // TODO: gte or gt?
         },
+        paranoid: false,
       });
     });
   }
@@ -84,6 +89,7 @@ export class PostgresWrapper {
         where: {
           updatedAt: { [Op.gte]: since }, // TODO: gte or gt?
         },
+        paranoid: false,
       });
       return records.map(result => {
         const plainRecord = result.get({ plain: true });
@@ -93,6 +99,10 @@ export class PostgresWrapper {
   }
 
   markRecordDeleted(channel, id) {
-    this.channelRouter(channel, () => {});
+    return this.channelRouter(channel, async Model => {
+      return Model.destroy({
+        where: { id },
+      });
+    });
   }
 }
