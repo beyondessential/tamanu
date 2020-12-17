@@ -6,10 +6,9 @@
 // this setup step.
 
 import { initDatabase } from 'sync-server/app/database';
-import { deleteTestData } from './setupUtilities';
 
 export default async function() {
   const ctx = initDatabase();
+  await ctx.store.sequelize.drop();
   await ctx.store.sequelize.sync({ force: true });
-  await deleteTestData(ctx);
 }

@@ -115,16 +115,13 @@ describe('wrappers', () => {
         });
       });
 
-      it('removes all records of a type', async () => {
-        const record = {
-          recordType: 'patient',
-          data: {
-            firstName: 'mary',
-          },
-        };
+      it('removes all records of a channel', async () => {
+        const functionName =
+          name === 'mongoWrapper' ? 'removeAllOfType' : 'unsafeRemoveAllOfChannel';
+        const record = fakePatient();
         await wrapper.insert('patient', record);
 
-        await wrapper.removeAllOfType('patient');
+        await wrapper[functionName]('patient');
 
         expect(await wrapper.findSince('patient', 0)).toEqual([]);
       });

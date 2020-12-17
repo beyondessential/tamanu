@@ -59,8 +59,16 @@ export class PostgresWrapper {
     return channelRouter;
   }
 
-  // TODO: this will need to be adapted to channels instead of types
-  removeAllOfType(type) {}
+  // TODO: do we actually need this?
+  // ONLY FOR TESTS, ignores "paranoid"'s soft deletion
+  unsafeRemoveAllOfChannel(channel) {
+    if (process.env.NODE_ENV !== 'test') {
+      throw new Error('DO NOT use unsafeRemoveAllOfChannel outside tests!');
+    }
+    return this.channelRouter(channel, async Model => {
+      return Model.destroy({ truncate: true, cascade: true, force: true });
+    });
+  }
 
   async insert(channel, syncRecord) {
     const record = convertToPgFromSyncRecord(syncRecord);
