@@ -39,29 +39,24 @@ syncRoutes.post('/:channel', asyncHandler(async (req, res) => {
   const { store, params, body } = req;
   const { channel } = params;
 
+  const insert = record => {
+    const lastSynced = (new Date()).valueOf();
+    if(record.recordType === 'user') {
+      return store.insertUser(record.data);
+    } else {
+      return store.insert(channel, { lastSynced, ...record });
+    }
+  };
 
   if(Array.isArray(body)) {
-    const inserts = await Promise.all(
-      body.map(record => store.insert(channel, {
-        lastSynced: (new Date()).valueOf(),
-        ...record
-      }))
-    );
+    const inserts = await Promise.all(body.map(insert));
     const count = inserts.filter(x => x).length;
     log.info(`POST to ${channel} : ${count} records`);
-    res.send({
-      count,
-    });
+    res.send({ count });
   } else {
     log.info(`POST to ${channel} : 1 record`);
-    const count = await store.insert(channel, {
-      lastSynced: (new Date()).valueOf(),
-      ...body
-    });
-
-    res.send({
-      count
-    });
+    const count = await insert(body);
+    res.send({ count });
   }
 }));
 

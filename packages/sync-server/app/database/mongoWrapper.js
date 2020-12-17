@@ -204,12 +204,21 @@ export class MongoWrapper {
   //------------------------------------
   // required for auth middleware
 
-  async addUser(data) {
-    const {
+  async insertUser(data) {
+    let {
       password,
       ...otherData
     } = data;
     const hashedPassword = await bcrypt.hash(password, config.auth.saltRounds);
+    
+    const existing = await this.findUser(data.email);
+    if(existing && !data.id) {
+      otherData.id = existing._id;
+
+      // really bad hack, $set will erase missing fields in nested data!
+      otherData = { ...existing.data, ...otherData };
+    }
+
     return this.insert('user', {
       recordType: 'user',
       hashedPassword,

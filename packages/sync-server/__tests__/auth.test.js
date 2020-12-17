@@ -19,48 +19,121 @@ describe("Auth", () => {
   beforeAll(async () => {
     app = await baseApp.asRole('practitioner');
 
-    await Promise.all(USERS.map(r => store.addUser(r)));
+    await Promise.all(USERS.map(r => store.insertUser(r)));
   });
 
-  it('Should get a token for correct credentials', async () => {
-    const response = await baseApp.post('/v1/login').send({
-      email: TEST_EMAIL,
-      password: TEST_PASSWORD,
+  describe('Logging in', () => {
+
+    it('Should get a token for correct credentials', async () => {
+      const response = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body).toHaveProperty('token');
     });
 
-    expect(response).toHaveSucceeded();
-    expect(response.body).toHaveProperty('token');
+    it('Should respond with user details with correct credentials', async () => {
+      const response = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body).toHaveProperty('user.id');
+      expect(response.body).toHaveProperty('user.email', TEST_EMAIL);
+      expect(response.body).toHaveProperty('user.displayName');
+
+      expect(response.body).not.toHaveProperty('user.password');
+      expect(response.body).not.toHaveProperty('user.hashedPassword');
+    });
+
+    it('Should reject an empty credential', async () => {
+      const response = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: '',
+      });
+      expect(response).toHaveRequestError();
+    });
+
+    it('Should reject an incorrect password', async () => {
+      const response = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: 'not the password',
+      });
+      expect(response).toHaveRequestError();
+    });
+
   });
 
-  it('Should respond with user details with correct credentials', async () => {
-    const response = await baseApp.post('/v1/login').send({
-      email: TEST_EMAIL,
-      password: TEST_PASSWORD,
+  describe('User management', () => {
+
+    const USER_EMAIL = 'user.management@tamanu.test.io';
+    const DISPLAY_NAME = 'John Jones';
+    const USER_PASSWORD = 'abc_123';
+    const USER_PASSWORD_2 = 'abc_1234';
+
+    it('Should hash a password for a user synced through the api', async () => {
+      const response = await app.post('/v1/sync/users').send({
+        recordType: 'user',
+        data: {
+          email: USER_EMAIL,
+          displayName: DISPLAY_NAME,
+          password: USER_PASSWORD,
+        }
+      });
+      expect(response).toHaveSucceeded();
+
+      const savedUser = await store.findUser(USER_EMAIL);
+      expect(savedUser).not.toHaveProperty('password');
+      expect(savedUser).not.toHaveProperty('data.password');
+      expect(savedUser).toHaveProperty('hashedPassword');
+
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: USER_EMAIL,
+        password: USER_PASSWORD,
+      });
+      expect(loginResponse).toHaveSucceeded();
+      expect(loginResponse.body).toHaveProperty('user.email', USER_EMAIL);
     });
 
-    expect(response).toHaveSucceeded();
-    expect(response.body).toHaveProperty('user.id');
-    expect(response.body).toHaveProperty('user.email', TEST_EMAIL);
-    expect(response.body).toHaveProperty('user.displayName');
+    it('Should hash an updated password for an existing user', async () => {
+      const response = await app.post('/v1/sync/users').send({
+        recordType: 'user',
+        data: {
+          email: USER_EMAIL,
+          password: USER_PASSWORD_2,
+        }
+      });
+      expect(response).toHaveSucceeded();
 
-    expect(response.body).not.toHaveProperty('user.password');
-    expect(response.body).not.toHaveProperty('user.hashedPassword');
-  });
+      const savedUser = await store.findUser(USER_EMAIL);
+      expect(savedUser).not.toHaveProperty('password');
+      expect(savedUser).not.toHaveProperty('data.password');
+      expect(savedUser).toHaveProperty('hashedPassword');
+      expect(savedUser).toHaveProperty('data.displayName', DISPLAY_NAME);
 
-  it('Should reject an empty credential', async () => {
-    const response = await baseApp.post('/v1/login').send({
-      email: TEST_EMAIL,
-      password: '',
+      // fail login with old password
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: USER_EMAIL,
+        password: USER_PASSWORD,
+      });
+      expect(loginResponse).toHaveRequestError();
+
+      // succeed login with new password
+      const loginResponse2 = await baseApp.post('/v1/login').send({
+        email: USER_EMAIL,
+        password: USER_PASSWORD_2,
+      });
+      expect(loginResponse2).toHaveSucceeded();
     });
-    expect(response).toHaveRequestError();
-  });
 
-  it('Should reject an incorrect password', async () => {
-    const response = await baseApp.post('/v1/login').send({
-      email: TEST_EMAIL,
-      password: 'not the password',
-    });
-    expect(response).toHaveRequestError();
+    test.todo('Should include a new user in the GET /sync/user channel');
+    test.todo('Should include an updated user in the GET /sync/user channel');
+
+    test.todo('Should prevent user creation without appropriate permission');
+    test.todo('Should prevent password change without appropriate permission');
   });
 
   it('Should answer a whoami request correctly', async () => {
