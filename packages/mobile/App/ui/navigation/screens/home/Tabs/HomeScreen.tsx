@@ -166,10 +166,10 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
               onPress={onNavigateToAnonymousPatient}
               text="Anonymous Patient"
             />
-            <HomeMenuButton
+            {/* UNIMPLEMENTED <HomeMenuButton
               onPress={onNavigateToRegisterPatient}
               text={'Register\nNew Patient'}
-            />
+            /> */}
           </RowView>
         </StyledView>
         <RecentlyViewedPatientTiles />
