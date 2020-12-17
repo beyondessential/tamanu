@@ -1,5 +1,5 @@
 import wayfarer from 'wayfarer';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import { initDatabase } from 'shared/services/database';
 
 const ensureNumber = input => {
@@ -104,7 +104,7 @@ export class PostgresWrapper {
         where: {
           updatedAt: { [Op.gte]: ensureNumber(since) },
         },
-        order: ['updatedAt', 'id'],
+        order: ['updatedAt', 'id'], // TODO: all objects need an autoincrementing index
         paranoid: false,
       });
       return records.map(result => {
@@ -116,9 +116,16 @@ export class PostgresWrapper {
 
   markRecordDeleted(channel, id) {
     return this.channelRouter(channel, async Model => {
-      return Model.destroy({
-        where: { id },
-      });
+      // use update instead of destroy so we can change both fields
+      return Model.update(
+        {
+          deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+          updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+        },
+        {
+          where: { id },
+        },
+      ).then(([num]) => num);
     });
   }
 }

@@ -1,4 +1,5 @@
 import { subDays, subHours } from 'date-fns';
+import { v4 as uuidv4 } from 'uuid';
 import { createTestContext, unsafeSetUpdatedAt } from './utilities';
 import { fakePatient } from './fake';
 
@@ -69,27 +70,23 @@ describe('Sync API', () => {
       let records = null;
 
       beforeAll(async () => {
-        await store.removeAllOfType('pageTest');
+        await store.unsafeRemoveAllOfChannel('patient');
 
-        // insert 20 records
-        records = new Array(TOTAL_RECORDS).fill(0).map((zero, i) => ({
-          recordType: 'pageTest',
-          data: {
-            id: `test-pagination-${i}`,
-            value: Math.random(),
-          },
-        }));
+        // instantiate 20 records
+        records = new Array(TOTAL_RECORDS)
+          .fill(0)
+          .map((zero, i) => fakePatient(`test-pagination-${i}_`));
 
         // import in series so there's a predictable order to test against
-        await Promise.all(records.map(r => store.insert('pagination', r)));
+        await Promise.all(records.map(r => store.insert('patient', r)));
       });
 
       it('should only return $limit records', async () => {
-        const result = await app.get(`/v1/sync/pagination?since=0&limit=5`);
+        const result = await app.get(`/v1/sync/patient?since=0&limit=5`);
         expect(result).toHaveSucceeded();
         expect(result.body.records.length).toEqual(5);
 
-        const secondResult = await app.get(`/v1/sync/pagination?since=0&limit=3`);
+        const secondResult = await app.get(`/v1/sync/patient?since=0&limit=3`);
         expect(secondResult).toHaveSucceeded();
         expect(secondResult.body.records.length).toEqual(3);
 
@@ -105,7 +102,7 @@ describe('Sync API', () => {
         const results = [];
 
         for (let i = 0; i < PAGE_COUNT; ++i) {
-          const url = `/v1/sync/pagination?since=0&limit=5&page=${i}`;
+          const url = `/v1/sync/patient?since=0&limit=5&page=${i}`;
           const result = await app.get(url);
           expect(result).toHaveSucceeded();
           expect(result.body.records.length).toEqual(5);
@@ -115,7 +112,7 @@ describe('Sync API', () => {
         const responseRecordIds = results
           .map(r => r.body.records)
           .flat()
-          .map(r => r.data.id);
+          .map(r => r.data.firstName.split('_')[0]);
         const expectedRecordIds = new Array(TOTAL_RECORDS)
           .fill(0)
           .map((_, i) => `test-pagination-${i}`);
@@ -124,15 +121,15 @@ describe('Sync API', () => {
       });
 
       it('should include the count of the entire query', async () => {
-        const result = await app.get(`/v1/sync/pagination?since=0&limit=5`);
+        const result = await app.get(`/v1/sync/patient?since=0&limit=5`);
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('count', TOTAL_RECORDS);
 
-        const secondResult = await app.get(`/v1/sync/pagination?since=0&limit=3`);
+        const secondResult = await app.get(`/v1/sync/patient?since=0&limit=3`);
         expect(secondResult).toHaveSucceeded();
         expect(secondResult.body).toHaveProperty('count', TOTAL_RECORDS);
 
-        const thirdResult = await app.get(`/v1/sync/pagination?since=0&limit=5&page=2`);
+        const thirdResult = await app.get(`/v1/sync/patient?since=0&limit=5&page=2`);
         expect(thirdResult).toHaveSucceeded();
         expect(thirdResult.body).toHaveProperty('count', TOTAL_RECORDS);
       });
@@ -141,81 +138,72 @@ describe('Sync API', () => {
 
   describe('Writes', () => {
     beforeAll(async () => {
-      await store.removeAllOfType('test-write');
+      await store.unsafeRemoveAllOfChannel('patient');
     });
 
     it('should add a record to a channel', async () => {
-      const precheck = await store.findSince('adder', 0);
+      const precheck = await store.findSince('patient', 0);
       expect(precheck).toHaveProperty('length', 0);
 
-      const result = await app.post('/v1/sync/adder').send({
-        recordType: 'test-write',
-        data: {
-          id: 'adder0',
-          dataValue: 'add',
-        },
-      });
+      const result = await app.post('/v1/sync/patient').send(fakePatient());
       expect(result).toHaveSucceeded();
 
-      const postcheck = await store.findSince('adder', 0);
+      const postcheck = await store.findSince('patient', 0);
       expect(postcheck.length).toEqual(1);
     });
 
     it('should add multiple records to reference data', async () => {
-      const precheck = await store.findSince('adder', 0);
+      const precheck = await store.findSince('patient', 0);
       expect(precheck.length).toEqual(1);
 
-      const result = await app.post('/v1/sync/adder').send([
-        {
-          recordType: 'test-write',
-          data: { id: 'adder1', dataValue: 'add1' },
-        },
-        {
-          recordType: 'test-write',
-          data: { id: 'adder2', dataValue: 'add2' },
-        },
-      ]);
+      const record1 = fakePatient();
+      const record2 = fakePatient();
+      const result = await app.post('/v1/sync/patient').send([record1, record2]);
       expect(result).toHaveSucceeded();
 
-      const postcheck = await store.findSince('adder', 0);
+      const postcheck = await store.findSince('patient', 0);
       expect(postcheck.length).toEqual(3);
+      expect(postcheck.slice(1)).toEqual([
+        { ...record1, lastSynced: expect.anything() },
+        { ...record2, lastSynced: expect.anything() },
+      ]);
     });
 
     it('should update an existing record in reference data', async () => {
-      const result = await app.post('/v1/sync/adder').send({
-        recordType: 'test-write',
-        data: { id: 'adder1', dataValue: 'add1-updated' },
-      });
+      const record = fakePatient();
+      const result = await app.post('/v1/sync/patient').send(record);
 
       expect(result).toHaveSucceeded();
 
-      const records = await store.findSince('adder', 0);
-      const adder1Record = records.find(x => x.data.id === 'adder1');
-      expect(adder1Record).toBeDefined();
-      expect(adder1Record).toHaveProperty('data.dataValue', 'add1-updated');
+      const foundRecords = await store.findSince('patient', 0);
+      const foundRecord = foundRecords.find(r => r.data.id === record.data.id);
+      expect(foundRecord).toEqual({ ...record, lastSynced: expect.anything() });
     });
   });
 
   describe('Deletes', () => {
     beforeEach(async () => {
-      await store.removeAllOfType('test-delete');
+      await store.unsafeRemoveAllOfChannel('patient');
     });
 
     describe('on success', () => {
+      let patient;
       let record;
 
       beforeEach(async () => {
-        await store.insert('deleter', {
-          lastSynced: new Date(1971, 0, 1), // 1st Jan 1971, or epoch + 1yr
-          recordType: 'test-delete',
-          data: { id: 'test-id', foo: 'bar' },
+        patient = fakePatient();
+        await store.insert('patient', patient);
+        await unsafeSetUpdatedAt(store, {
+          table: 'patients',
+          id: patient.data.id,
+          updated_at: new Date(1971, 0, 1), // 1st Jan 1971, or epoch + 1yr
         });
 
         // find record
-        const result = await app.delete('/v1/sync/deleter/test-id');
+        const result = await app.delete(`/v1/sync/patient/${patient.data.id}`);
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('count', 1);
-        const records = await store.findSince('deleter', 0);
+        const records = await store.findSince('patient', 0);
         expect(records).toHaveProperty('length', 1);
         record = records[0];
       });
@@ -226,24 +214,25 @@ describe('Sync API', () => {
 
       it('should remove data for a deleted record', async () => {
         expect(record).toHaveProperty('data');
-        expect(record.data).toStrictEqual({ id: 'test-id' });
-        expect(record.data).not.toHaveProperty('foo');
+        expect(record.data).toStrictEqual({ id: patient.data.id });
+        expect(record.data).not.toHaveProperty('firstName');
       });
 
       it('should return tombstones for deleted records', async () => {
-        const result = await app.get('/v1/sync/deleter?since=0');
+        const result = await app.get('/v1/sync/patient?since=0');
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('count', 1);
-        expect(result.body.records[0]).toHaveProperty('data.id', 'test-id');
+        expect(result.body.records[0]).toHaveProperty('data.id', patient.data.id);
       });
 
       it('should update the lastSynced timestamp', async () => {
         expect(record.lastSynced.valueOf()).toBeGreaterThan(new Date(1971, 0, 1).valueOf());
       });
     });
+
     describe('on failure', () => {
       it('returns a 404 if the record was missing', async () => {
-        const result = await app.delete('/v1/sync/deleter/not-here');
+        const result = await app.delete(`/v1/sync/patient/${uuidv4()}`);
         expect(result).toHaveRequestError(404);
       });
 
