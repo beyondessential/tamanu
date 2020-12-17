@@ -1,5 +1,6 @@
 import { subDays, subHours } from 'date-fns';
-import { createTestContext } from './utilities';
+import { createTestContext, unsafeSetUpdatedAt } from './utilities';
+import { fakePatient } from './fake';
 
 const { baseApp, close, store } = createTestContext();
 afterAll(close);
@@ -8,13 +9,8 @@ const makeDate = (daysAgo, hoursAgo = 0) => {
   return subHours(subDays(new Date(), daysAgo), hoursAgo).valueOf();
 };
 
-const OLDEST = makeDate(20);
-const SECOND_OLDEST = makeDate(10);
-
-const RECORDS = [
-  { lastSynced: OLDEST, data: { dataKey: 'first' } },
-  { lastSynced: SECOND_OLDEST, data: { dataKey: 'second' } },
-];
+const OLDEST = { lastSynced: makeDate(20), ...fakePatient('oldest_') };
+const SECOND_OLDEST = { lastSynced: makeDate(10), ...fakePatient('second-oldest_') };
 
 describe('Sync API', () => {
   let app = null;
@@ -22,23 +18,25 @@ describe('Sync API', () => {
     app = await baseApp.asRole('practitioner');
 
     await Promise.all(
-      RECORDS.map(r =>
-        store.insert('testChannel', {
-          recordType: 'test',
-          ...r,
-        }),
-      ),
+      [OLDEST, SECOND_OLDEST].map(async r => {
+        await store.insert('patient', r);
+        await unsafeSetUpdatedAt(store, {
+          table: 'patients',
+          id: r.data.id,
+          updated_at: new Date(r.lastSynced),
+        });
+      }),
     );
   });
 
   describe('Reads', () => {
     it('should error if no since parameter is provided', async () => {
-      const result = await app.get('/v1/sync/testChannel');
+      const result = await app.get('/v1/sync/patient');
       expect(result).toHaveRequestError();
     });
 
     it('should get some records', async () => {
-      const result = await app.get(`/v1/sync/testChannel?since=${OLDEST - 1}`);
+      const result = await app.get(`/v1/sync/patient?since=${OLDEST.lastSynced - 1}`);
       expect(result).toHaveSucceeded();
 
       const { body } = result;
@@ -48,12 +46,9 @@ describe('Sync API', () => {
       expect(body.records.length).toBeGreaterThan(0);
 
       const firstRecord = body.records[0];
-      expect(firstRecord).toHaveProperty('recordType');
-      expect(firstRecord).toHaveProperty('lastSynced', OLDEST);
-      expect(firstRecord).toHaveProperty('data');
+      expect(firstRecord).toEqual(JSON.parse(JSON.stringify(OLDEST)));
       expect(firstRecord).not.toHaveProperty('channel');
       expect(firstRecord.data).not.toHaveProperty('channel');
-      expect(firstRecord.data).toHaveProperty('id');
 
       // this database implementation detail should be hidden
       // from the api consumer
@@ -61,12 +56,12 @@ describe('Sync API', () => {
     });
 
     it('should filter out older records', async () => {
-      const result = await app.get(`/v1/sync/testChannel?since=${SECOND_OLDEST - 1}`);
+      const result = await app.get(`/v1/sync/patient?since=${SECOND_OLDEST.lastSynced - 1}`);
       expect(result).toHaveSucceeded();
 
       const { body } = result;
       const firstRecord = body.records[0];
-      expect(firstRecord).toHaveProperty('lastSynced', SECOND_OLDEST);
+      expect(firstRecord).toHaveProperty('lastSynced', SECOND_OLDEST.lastSynced);
     });
 
     describe('Pagination', () => {

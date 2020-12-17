@@ -11,11 +11,12 @@ export function fakeStringFields(prefix, fields) {
   );
 }
 
-export function fakePatient() {
+export function fakePatient(prefix = '') {
   const id = uuidv4();
   return {
     data: {
-      ...fakeStringFields(`patient_${id}_`, [
+      id,
+      ...fakeStringFields(`${prefix}patient_${id}_`, [
         'firstName',
         'middleName',
         'lastName',

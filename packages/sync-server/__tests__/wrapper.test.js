@@ -2,27 +2,7 @@ import { MongoWrapper } from 'sync-server/app/database/mongoWrapper';
 import { initDatabase } from 'sync-server/app/database';
 import { v4 as uuidv4 } from 'uuid';
 import { fakePatient } from './fake';
-
-const withDate = async (fakeDate, fn) => {
-  const OldDate = global.Date;
-  try {
-    global.Date = class extends OldDate {
-      constructor(...args) {
-        if (args.length > 0) {
-          return new OldDate(...args);
-        }
-        return fakeDate;
-      }
-
-      static now() {
-        return fakeDate.valueOf();
-      }
-    };
-    await fn();
-  } finally {
-    global.Date = OldDate;
-  }
-};
+import { withDate } from './utilities';
 
 describe('wrappers', () => {
   [
@@ -30,10 +10,14 @@ describe('wrappers', () => {
     ['mongoWrapper', async () => new MongoWrapper('mongodb://localhost', 'tamanu-sync-test', true)],
     ['postgresWrapper', async () => initDatabase().store],
   ].forEach(([name, build]) => {
+    const removeFunctionName =
+      name === 'mongoWrapper' ? 'removeAllOfType' : 'unsafeRemoveAllOfChannel';
+
     describe(name, () => {
       let wrapper;
       beforeAll(async () => {
         wrapper = await build();
+        await wrapper[removeFunctionName]('patient');
         return wrapper;
       });
 
@@ -87,12 +71,10 @@ describe('wrappers', () => {
       });
 
       it('removes all records of a channel', async () => {
-        const functionName =
-          name === 'mongoWrapper' ? 'removeAllOfType' : 'unsafeRemoveAllOfChannel';
         const record = fakePatient();
         await wrapper.insert('patient', record);
 
-        await wrapper[functionName]('patient');
+        await wrapper[removeFunctionName]('patient');
 
         expect(await wrapper.findSince('patient', 0)).toEqual([]);
       });

@@ -2,8 +2,16 @@ import wayfarer from 'wayfarer';
 import { Op } from 'sequelize';
 import { initDatabase } from 'shared/services/database';
 
+const ensureNumber = input => {
+  if (typeof input === 'string') {
+    const parsed = parseInt(input, 10);
+    return parsed; // might be NaN
+  }
+  return input;
+};
+
 const convertToPgFromSyncRecord = syncRecord => {
-  const { data, ...metadata } = syncRecord;
+  const { data, lastSynced, ...metadata } = syncRecord;
 
   return {
     ...metadata,
@@ -73,7 +81,6 @@ export class PostgresWrapper {
   async insert(channel, syncRecord) {
     const record = convertToPgFromSyncRecord(syncRecord);
     return this.channelRouter(channel, async Model => {
-      // TODO: add an autoincrementing index field
       return Model.upsert(record);
     });
   }
@@ -82,7 +89,7 @@ export class PostgresWrapper {
     return this.channelRouter(channel, async Model => {
       return Model.count({
         where: {
-          updatedAt: { [Op.gte]: since }, // TODO: gte or gt?
+          updatedAt: { [Op.gte]: ensureNumber(since) },
         },
         paranoid: false,
       });
@@ -95,8 +102,9 @@ export class PostgresWrapper {
         limit,
         offset,
         where: {
-          updatedAt: { [Op.gte]: since }, // TODO: gte or gt?
+          updatedAt: { [Op.gte]: ensureNumber(since) },
         },
+        order: ['updatedAt', 'id'],
         paranoid: false,
       });
       return records.map(result => {
