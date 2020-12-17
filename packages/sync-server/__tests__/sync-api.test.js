@@ -10,6 +10,9 @@ const makeDate = (daysAgo, hoursAgo = 0) => {
   return subHours(subDays(new Date(), daysAgo), hoursAgo).valueOf();
 };
 
+const compareRecordsById = (a, b) => a.data.id.localeCompare(b.data.id);
+const compareRecordsByLastSynced = (a, b) => a.lastSynced - b.lastSynced;
+
 const OLDEST = { lastSynced: makeDate(20), ...fakePatient('oldest_') };
 const SECOND_OLDEST = { lastSynced: makeDate(10), ...fakePatient('second-oldest_') };
 
@@ -117,7 +120,7 @@ describe('Sync API', () => {
           .fill(0)
           .map((_, i) => `test-pagination-${i}`);
 
-        expect(responseRecordIds).toEqual(expectedRecordIds);
+        expect(responseRecordIds.sort()).toEqual(expectedRecordIds.sort());
       });
 
       it('should include the count of the entire query', async () => {
@@ -163,10 +166,14 @@ describe('Sync API', () => {
 
       const postcheck = await store.findSince('patient', 0);
       expect(postcheck.length).toEqual(3);
-      expect(postcheck.slice(1)).toEqual([
-        { ...record1, lastSynced: expect.anything() },
-        { ...record2, lastSynced: expect.anything() },
-      ]);
+      expect(postcheck.slice(1)).toEqual(
+        [
+          { ...record1, lastSynced: expect.anything() },
+          { ...record2, lastSynced: expect.anything() },
+        ]
+          .sort(compareRecordsById)
+          .sort(compareRecordsByLastSynced),
+      );
     });
 
     it('should update an existing record in reference data', async () => {
