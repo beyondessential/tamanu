@@ -67,7 +67,7 @@ export const IntroScreen: FunctionComponent<any> = ({
             fontWeight={500}
             fontSize={`${screenPercentageToDP(1.94, Orientation.Height)}px`}
           />
-          <Button
+          {/* UNIMPLEMENTED <Button
             id="intro-new-account-button"
             backgroundColor={theme.colors.SECONDARY_MAIN}
             onPress={onNavigateToNewAccount}
@@ -82,7 +82,7 @@ export const IntroScreen: FunctionComponent<any> = ({
             >
               New Account
             </StyledText>
-          </Button>
+          </Button> */}
         </RowView>
         <CenterView marginTop={30}>
           <Button
