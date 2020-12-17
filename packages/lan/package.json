@@ -17,7 +17,7 @@
   },
   "scripts": {
     "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.js",
-    "test": "NODE_ENV=test jest",
+    "test": "NODE_ENV=test jest --runInBand",
     "test-coverage": "npm test -- --coverage",
     "test-watch": "npm test -- --watch",
     "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js && yarn run run-pkg",
