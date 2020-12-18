@@ -1,29 +1,32 @@
 import { createTestContext } from './utilities';
 
-const { baseApp, expressApp, store } = createTestContext();
-
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_PASSWORD = '1Q2Q3Q4Q';
 
 const USERS = [
   {
-    email: TEST_EMAIL, 
-    password: TEST_PASSWORD, 
-    displayName: 'Test Beyond' 
-  }
+    email: TEST_EMAIL,
+    password: TEST_PASSWORD,
+    displayName: 'Test Beyond',
+  },
 ];
 
-describe("Auth", () => {
-
-  let app = null;
+describe('Auth', () => {
+  let baseApp;
+  let app;
+  let close;
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
     app = await baseApp.asRole('practitioner');
+    close = ctx.close;
 
-    await Promise.all(USERS.map(r => store.insertUser(r)));
+    await Promise.all(USERS.map(r => ctx.store.insertUser(r)));
   });
 
-  describe('Logging in', () => {
+  afterAll(() => close());
 
+  describe('Logging in', () => {
     it('Should get a token for correct credentials', async () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
@@ -64,11 +67,9 @@ describe("Auth", () => {
       });
       expect(response).toHaveRequestError();
     });
-
   });
 
   describe('User management', () => {
-
     const USER_EMAIL = 'user.management@tamanu.test.io';
     const DISPLAY_NAME = 'John Jones';
     const USER_PASSWORD = 'abc_123';
@@ -186,9 +187,7 @@ describe("Auth", () => {
     const { token } = response.body;
 
     // then run the whoami request
-    const whoamiResponse = await baseApp
-      .get('/v1/whoami')
-      .set('Authorization', `Bearer ${token}`);
+    const whoamiResponse = await baseApp.get('/v1/whoami').set('Authorization', `Bearer ${token}`);
     expect(whoamiResponse).toHaveSucceeded();
 
     const { body } = whoamiResponse;
@@ -196,6 +195,4 @@ describe("Auth", () => {
     expect(body).not.toHaveProperty('password');
     expect(body).not.toHaveProperty('hashedPassword');
   });
-
 });
-
