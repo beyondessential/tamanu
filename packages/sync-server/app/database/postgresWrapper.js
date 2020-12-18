@@ -11,16 +11,17 @@ const ensureNumber = input => {
 };
 
 const convertToPgFromSyncRecord = syncRecord => {
-  const { data, lastSynced, ...metadata } = syncRecord;
+  const { data, hashedPassword, lastSynced, ...metadata } = syncRecord;
 
   return {
+    password: hashedPassword,
     ...metadata,
     ...data,
   };
 };
 
 const convertToSyncRecordFromPg = pgRecord => {
-  const { id, updatedAt, createdAt, deletedAt, ...data } = pgRecord;
+  const { id, updatedAt, createdAt, deletedAt, password, ...data } = pgRecord;
 
   return {
     lastSynced: updatedAt?.valueOf(),
@@ -132,5 +133,37 @@ export class PostgresWrapper {
         },
       ).then(([num]) => num);
     });
+  }
+
+  //------------------------------------
+  // required for auth middleware
+
+  async addUser(data) {
+    const user = await this.models.User.create(data); // password is hashed in model
+    return user ? 1 : 0;
+  }
+
+  async findUser(email) {
+    const user = await this.models.User.findOne({
+      where: { email },
+    });
+    if (!user) {
+      return null;
+    }
+    return {
+      ...convertToSyncRecordFromPg(user.get({ plain: true })),
+      hashedPassword: user.password,
+    };
+  }
+
+  async findUserById(id) {
+    const user = await this.models.User.findByPk(id);
+    if (!user) {
+      return null;
+    }
+    return {
+      ...convertToSyncRecordFromPg(user?.get({ plain: true })),
+      hashedPassword: user.password,
+    };
   }
 }
