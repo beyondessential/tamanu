@@ -81,8 +81,8 @@ describe('Auth', () => {
       const response = await app.post('/v1/sync/user').send({
         data: {
           email: USER_EMAIL,
-          displayName: DISPLAY_NAME,
           password: USER_PASSWORD,
+          displayName: DISPLAY_NAME,
         },
       });
       expect(response).toHaveSucceeded();
@@ -105,6 +105,7 @@ describe('Auth', () => {
         data: {
           email: USER_EMAIL,
           password: USER_PASSWORD_2,
+          displayName: DISPLAY_NAME,
         },
       });
       expect(response).toHaveSucceeded();
@@ -131,17 +132,16 @@ describe('Auth', () => {
     });
 
     it('Should include a new user in the GET /sync/user channel', async () => {
-      const now = (new Date()).valueOf();
+      const now = new Date().valueOf();
       const newEmail = 'new-user-get@test.tamanu.io';
       const displayName = 'test-new';
 
       const response = await app.post('/v1/sync/user').send({
-        recordType: 'user',
         data: {
           email: newEmail,
           displayName,
           password: USER_PASSWORD,
-        }
+        },
       });
       expect(response).toHaveSucceeded();
 
@@ -153,7 +153,7 @@ describe('Auth', () => {
     });
 
     it('Should include an updated user in the GET /sync/user channel', async () => {
-      const now = (new Date()).valueOf();
+      const now = new Date().valueOf();
       const displayNameUpdated = 'updated display name';
 
       const response = await app.post('/v1/sync/user').send({
@@ -161,7 +161,7 @@ describe('Auth', () => {
         data: {
           email: USER_EMAIL,
           displayName: displayNameUpdated,
-        }
+        },
       });
       expect(response).toHaveSucceeded();
 

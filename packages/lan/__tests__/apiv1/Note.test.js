@@ -60,6 +60,8 @@ describe('Note', () => {
     it('should not write a note on an non-existent record', async () => {
       const response = await app.post('/v1/encounter/fakeEncounterId/notes').send({
         content: chance.paragraph(),
+        recordId: encounter.id,
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
       });
 
       expect(response).toHaveRequestError();
@@ -77,6 +79,8 @@ describe('Note', () => {
       it('should forbid writing notes on a forbidden record', async () => {
         const response = await noPermsApp.post(`/v1/encounter/${encounter.id}/notes`).send({
           content: chance.paragraph(),
+          recordId: encounter.id,
+          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
         });
 
         expect(response).toBeForbidden();

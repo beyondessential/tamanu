@@ -109,7 +109,7 @@ export class SqlWrapper {
         where: {
           updatedAt: { [Op.gte]: ensureNumber(since) },
         },
-        order: ['updatedAt', 'id'],
+        order: ['updated_at', 'id'],
         paranoid: false,
       });
       return records.map(result => {

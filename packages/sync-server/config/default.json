@@ -3,8 +3,8 @@
   "db": {
     "name": "tamanu-sync",
     "verbose": false,
-    "username": "TODO",
-    "password": "TODO"
+    "username": "",
+    "password": ""
   },
   "auth": {
     "saltRounds": 12,
