@@ -1,13 +1,16 @@
 import { createTestContext } from './utilities';
 
-const { baseApp, close } = createTestContext();
-afterAll(close);
+describe('Basics', () => {
+  let ctx;
+  beforeAll(async () => {
+    ctx = await createTestContext();
+  });
 
-describe("Basics", () => {
+  afterAll(() => ctx.close());
+
   it('should respond with an index page', async () => {
-    const result = await baseApp.get('/');
+    const result = await ctx.baseApp.get('/');
     expect(result).toHaveSucceeded();
     expect(result.body).toHaveProperty('index', true);
   });
 });
-
