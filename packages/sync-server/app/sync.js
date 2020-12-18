@@ -41,11 +41,7 @@ syncRoutes.post('/:channel', asyncHandler(async (req, res) => {
 
   const insert = record => {
     const lastSynced = (new Date()).valueOf();
-    if(record.recordType === 'user') {
-      return store.insertUser(record.data);
-    } else {
-      return store.insert(channel, { lastSynced, ...record });
-    }
+    return store.insert(channel, { lastSynced, ...record });
   };
 
   if(Array.isArray(body)) {

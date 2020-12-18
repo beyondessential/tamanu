@@ -14,12 +14,14 @@ const USERS = [
 describe('Auth', () => {
   let baseApp;
   let app;
+  let store;
   let close;
   beforeAll(async () => {
     const ctx = await createTestContext();
     baseApp = ctx.baseApp;
-    app = await baseApp.asRole('practitioner');
     close = ctx.close;
+    store = ctx.store;
+    app = await baseApp.asRole('practitioner');
 
     await Promise.all(USERS.map(r => ctx.store.insertUser(r)));
   });
@@ -77,12 +79,11 @@ describe('Auth', () => {
 
     it('Should hash a password for a user synced through the api', async () => {
       const response = await app.post('/v1/sync/user').send({
-        recordType: 'user',
         data: {
           email: USER_EMAIL,
           displayName: DISPLAY_NAME,
           password: USER_PASSWORD,
-        }
+        },
       });
       expect(response).toHaveSucceeded();
 
@@ -101,11 +102,10 @@ describe('Auth', () => {
 
     it('Should hash an updated password for an existing user', async () => {
       const response = await app.post('/v1/sync/user').send({
-        recordType: 'user',
         data: {
           email: USER_EMAIL,
           password: USER_PASSWORD_2,
-        }
+        },
       });
       expect(response).toHaveSucceeded();
 
