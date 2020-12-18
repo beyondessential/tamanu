@@ -73,7 +73,6 @@ export class PostgresWrapper {
     return channelRouter;
   }
 
-  // TODO: do we actually need this?
   // ONLY FOR TESTS, ignores "paranoid"'s soft deletion
   unsafeRemoveAllOfChannel(channel) {
     if (process.env.NODE_ENV !== 'test') {
@@ -110,7 +109,7 @@ export class PostgresWrapper {
         where: {
           updatedAt: { [Op.gte]: ensureNumber(since) },
         },
-        order: ['updatedAt', 'id'], // TODO: all objects need an autoincrementing index
+        order: ['updatedAt', 'id'],
         paranoid: false,
       });
       return records.map(result => {
