@@ -204,19 +204,36 @@ export class MongoWrapper {
   //------------------------------------
   // required for auth middleware
 
-  async addUser(data) {
-    const {
+  async insertUser(data) {
+    let {
       password,
       ...otherData
     } = data;
-    const hashedPassword = await bcrypt.hash(password, config.auth.saltRounds);
-    return this.insert('user', {
+
+    const existing = await this.findUser(data.email);
+    if(existing && !data.id) {
+      otherData.id = existing._id;
+
+      // really bad hack, $set will erase missing fields in nested data!
+      otherData = { ...existing.data, ...otherData };
+    }
+
+    const record = {
       recordType: 'user',
-      hashedPassword,
-      data: {
-        ...otherData,
-      }
-    });
+      data: otherData,
+    }
+
+    // Note that if no password was given, it won't be hashed or set.
+    // For existing users, this just represents a details update without
+    // changing a password, but for a new user it represents a user with no
+    // password - this is actually fine! They won't be able to log in, but can 
+    // still be assigned by other users to things like referrals / lab requests 
+    // (so, ideal for external healthcare practitioners)
+    if(password) {
+      record.hashedPassword = await bcrypt.hash(password, config.auth.saltRounds);
+    }
+
+    return this.insert('user', record);
   }
 
   async findUser(email) {
