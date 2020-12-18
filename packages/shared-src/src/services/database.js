@@ -18,6 +18,7 @@ export function initDatabase(dbOptions) {
     sqlitePath=null,
     uuidGenerator=Sequelize.UUIDV4,
     makeEveryModelParanoid=false,
+    saltRounds=null,
   } = dbOptions;
 
   if (sqlitePath) {
@@ -39,6 +40,9 @@ export function initDatabase(dbOptions) {
     ...options,
     logging,
   });
+
+  // set configuration variables for individual models
+  models.User.SALT_ROUNDS = 12;
 
   // init all models
   const modelClasses = Object.values(models);

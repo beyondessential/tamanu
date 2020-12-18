@@ -2,7 +2,7 @@ import { hash } from 'bcrypt';
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 
-const SALT_ROUNDS = 10;
+const DEFAULT_SALT_ROUNDS = 10;
 
 export class User extends Model {
   forResponse() {
@@ -11,14 +11,14 @@ export class User extends Model {
   }
 
   async setPassword(pw) {
-    const hashedPassword = await hash(pw, SALT_ROUNDS);
+    const hashedPassword = await hash(pw, this.SALT_ROUNDS || DEFAULT_SALT_ROUNDS);
     this.password = hashedPassword;
   }
 
   static async update(values) {
     const { password, ...otherValues } = values;
     if (password) {
-      otherValues.password = await hash(password, SALT_ROUNDS);
+      otherValues.password = await hash(password, this.SALT_ROUNDS || DEFAULT_SALT_ROUNDS);
     }
     return super.update(otherValues);
   }
@@ -26,7 +26,7 @@ export class User extends Model {
   static async create(values) {
     const { password, ...otherValues } = values;
     if (password) {
-      otherValues.password = await hash(password, SALT_ROUNDS);
+      otherValues.password = await hash(password, this.SALT_ROUNDS || DEFAULT_SALT_ROUNDS);
     }
     return super.create(otherValues);
   }
@@ -34,7 +34,7 @@ export class User extends Model {
   static async upsert(values) {
     const { password, ...otherValues } = values;
     if (password) {
-      otherValues.password = await hash(password, SALT_ROUNDS);
+      otherValues.password = await hash(password, this.SALT_ROUNDS || DEFAULT_SALT_ROUNDS);
     }
     return super.upsert(otherValues);
   }

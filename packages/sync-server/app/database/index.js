@@ -19,6 +19,7 @@ export async function initDatabase({ testMode = false }) {
     ...config.db,
     log,
     makeEveryModelParanoid: true,
+    saltRounds: config.auth.saltRounds,
   }).init();
 
   if (testMode) {
