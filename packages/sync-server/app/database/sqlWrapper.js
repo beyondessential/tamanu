@@ -58,6 +58,7 @@ export class SqlWrapper {
   buildChannelRouter() {
     const channelRouter = wayfarer();
     [
+      // TODO: missing models
       ['patient', this.models.Patient],
       ['patient/:id/todo', this.models.Todo],
       ['reference', this.models.ReferenceData],

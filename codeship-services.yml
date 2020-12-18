@@ -18,6 +18,7 @@ awsdeployment:
     - ./.tmp:/tamanu
     - ./.ssh:/root/.ssh
 
+# TODO: postgres
 mongodb:
   image: healthcheck/mongo
   ports:
