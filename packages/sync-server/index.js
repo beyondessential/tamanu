@@ -10,9 +10,7 @@ async function performInitialSetup({ db }) {
 }
 
 export async function run() {
-  const context = await initDatabase({
-    testMode: false,
-  });
+  const context = await initDatabase({ testMode: false });
 
   await performInitialSetup(context);
 

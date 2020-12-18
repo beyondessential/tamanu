@@ -39,10 +39,15 @@ export class PostgresWrapper {
 
   constructor(dbOptions) {
     // init database
-    const { sequelize, models } = initDatabase(dbOptions);
+    this._dbPromise = initDatabase(dbOptions);
+  }
+
+  async init() {
+    const { sequelize, models } = await this._dbPromise;
     this.sequelize = sequelize;
     this.models = models;
     this.channelRouter = this.buildChannelRouter();
+    return this;
   }
 
   async close() {

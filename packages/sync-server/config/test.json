@@ -1,6 +1,7 @@
 {
   "db": {
-    "name": "tamanu-sync-test"
+    "name": "tamanu-sync-test",
+    "sqlitePath": ":memory:"
   },
   "auth": {
     "allowFakeToken": true,

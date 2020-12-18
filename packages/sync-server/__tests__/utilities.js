@@ -76,10 +76,8 @@ export function extendExpect(expect) {
   });
 }
 
-export function createTestContext() {
-  const { store } = initDatabase({
-    testMode: true,
-  });
+export async function createTestContext() {
+  const { store } = await initDatabase({ testMode: true });
 
   const expressApp = createApp({ store });
   const appServer = http.createServer(expressApp);

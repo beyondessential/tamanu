@@ -3,9 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { createTestContext, unsafeSetUpdatedAt } from './utilities';
 import { fakePatient } from './fake';
 
-const { baseApp, close, store } = createTestContext();
-afterAll(close);
-
 const makeDate = (daysAgo, hoursAgo = 0) => {
   return subHours(subDays(new Date(), daysAgo), hoursAgo).valueOf();
 };
@@ -18,13 +15,15 @@ const SECOND_OLDEST = { lastSynced: makeDate(10), ...fakePatient('second-oldest_
 
 describe('Sync API', () => {
   let app = null;
+  let ctx = null;
   beforeAll(async () => {
-    app = await baseApp.asRole('practitioner');
+    ctx = await createTestContext();
+    app = await ctx.baseApp.asRole('practitioner');
 
     await Promise.all(
       [OLDEST, SECOND_OLDEST].map(async r => {
-        await store.insert('patient', r);
-        await unsafeSetUpdatedAt(store, {
+        await ctx.store.insert('patient', r);
+        await unsafeSetUpdatedAt(ctx.store, {
           table: 'patients',
           id: r.data.id,
           updated_at: new Date(r.lastSynced),
@@ -32,6 +31,8 @@ describe('Sync API', () => {
       }),
     );
   });
+
+  afterAll(() => ctx.close());
 
   describe('Reads', () => {
     it('should error if no since parameter is provided', async () => {
@@ -73,7 +74,7 @@ describe('Sync API', () => {
       let records = null;
 
       beforeAll(async () => {
-        await store.unsafeRemoveAllOfChannel('patient');
+        await ctx.store.unsafeRemoveAllOfChannel('patient');
 
         // instantiate 20 records
         records = new Array(TOTAL_RECORDS)
@@ -81,7 +82,7 @@ describe('Sync API', () => {
           .map((zero, i) => fakePatient(`test-pagination-${i}_`));
 
         // import in series so there's a predictable order to test against
-        await Promise.all(records.map(r => store.insert('patient', r)));
+        await Promise.all(records.map(r => ctx.store.insert('patient', r)));
       });
 
       it('should only return $limit records', async () => {
@@ -141,22 +142,22 @@ describe('Sync API', () => {
 
   describe('Writes', () => {
     beforeAll(async () => {
-      await store.unsafeRemoveAllOfChannel('patient');
+      await ctx.store.unsafeRemoveAllOfChannel('patient');
     });
 
     it('should add a record to a channel', async () => {
-      const precheck = await store.findSince('patient', 0);
+      const precheck = await ctx.store.findSince('patient', 0);
       expect(precheck).toHaveProperty('length', 0);
 
       const result = await app.post('/v1/sync/patient').send(fakePatient());
       expect(result).toHaveSucceeded();
 
-      const postcheck = await store.findSince('patient', 0);
+      const postcheck = await ctx.store.findSince('patient', 0);
       expect(postcheck.length).toEqual(1);
     });
 
     it('should add multiple records to reference data', async () => {
-      const precheck = await store.findSince('patient', 0);
+      const precheck = await ctx.store.findSince('patient', 0);
       expect(precheck.length).toEqual(1);
 
       const record1 = fakePatient();
@@ -164,7 +165,7 @@ describe('Sync API', () => {
       const result = await app.post('/v1/sync/patient').send([record1, record2]);
       expect(result).toHaveSucceeded();
 
-      const postcheck = await store.findSince('patient', 0);
+      const postcheck = await ctx.store.findSince('patient', 0);
       expect(postcheck.length).toEqual(3);
       expect(postcheck.slice(1)).toEqual(
         [
@@ -182,7 +183,7 @@ describe('Sync API', () => {
 
       expect(result).toHaveSucceeded();
 
-      const foundRecords = await store.findSince('patient', 0);
+      const foundRecords = await ctx.store.findSince('patient', 0);
       const foundRecord = foundRecords.find(r => r.data.id === record.data.id);
       expect(foundRecord).toEqual({ ...record, lastSynced: expect.anything() });
     });
@@ -190,7 +191,7 @@ describe('Sync API', () => {
 
   describe('Deletes', () => {
     beforeEach(async () => {
-      await store.unsafeRemoveAllOfChannel('patient');
+      await ctx.store.unsafeRemoveAllOfChannel('patient');
     });
 
     describe('on success', () => {
@@ -199,8 +200,8 @@ describe('Sync API', () => {
 
       beforeEach(async () => {
         patient = fakePatient();
-        await store.insert('patient', patient);
-        await unsafeSetUpdatedAt(store, {
+        await ctx.store.insert('patient', patient);
+        await unsafeSetUpdatedAt(ctx.store, {
           table: 'patients',
           id: patient.data.id,
           updated_at: new Date(1971, 0, 1), // 1st Jan 1971, or epoch + 1yr
@@ -210,7 +211,7 @@ describe('Sync API', () => {
         const result = await app.delete(`/v1/sync/patient/${patient.data.id}`);
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('count', 1);
-        const records = await store.findSince('patient', 0);
+        const records = await ctx.store.findSince('patient', 0);
         expect(records).toHaveProperty('length', 1);
         record = records[0];
       });

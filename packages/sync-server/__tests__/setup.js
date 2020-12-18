@@ -8,7 +8,5 @@
 import { initDatabase } from 'sync-server/app/database';
 
 export default async function() {
-  const ctx = initDatabase();
-  await ctx.store.sequelize.drop();
-  await ctx.store.sequelize.sync({ force: true });
+  await initDatabase({ testMode: true });
 }

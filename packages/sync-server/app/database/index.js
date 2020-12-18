@@ -7,7 +7,7 @@ import { getUUIDGenerator } from './uuid';
 
 let existingConnection = null;
 
-export function initDatabase() {
+export async function initDatabase({ testMode = false }) {
   // connect to database
   if (existingConnection) {
     return existingConnection;
@@ -15,11 +15,17 @@ export function initDatabase() {
 
   const { username, name } = config.db;
   log.info(`Connecting to postgres database ${username}@${name}`);
-  const store = new PostgresWrapper({
+  const store = await new PostgresWrapper({
     ...config.db,
     log,
     makeEveryModelParanoid: true,
-  });
+  }).init();
+
+  if (testMode) {
+    await store.sequelize.drop();
+    await store.sequelize.sync({ force: true });
+  }
+
   existingConnection = { store };
   return existingConnection;
 }
