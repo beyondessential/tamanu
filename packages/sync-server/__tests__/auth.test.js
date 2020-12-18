@@ -23,7 +23,7 @@ describe('Auth', () => {
     store = ctx.store;
     app = await baseApp.asRole('practitioner');
 
-    await Promise.all(USERS.map(r => ctx.store.insertUser(r)));
+    await Promise.all(USERS.map(r => ctx.store.models.User.create(r)));
   });
 
   afterAll(() => close());

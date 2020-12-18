@@ -137,11 +137,6 @@ export class PostgresWrapper {
   //------------------------------------
   // required for auth middleware
 
-  async insertUser(data) {
-    const user = await this.models.User.create(data); // password is hashed in model
-    return user ? 1 : 0;
-  }
-
   async findUser(email) {
     const user = await this.models.User.findOne({
       where: { email },
