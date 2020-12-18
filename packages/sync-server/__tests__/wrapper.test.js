@@ -8,7 +8,7 @@ describe('wrappers', () => {
   [
     // TODO: temporarily hardcode config until this gets removed
     ['mongoWrapper', async () => new MongoWrapper('mongodb://localhost', 'tamanu-sync-test', true)],
-    ['postgresWrapper', async () => (await initDatabase({ testMode: true })).store],
+    ['sqlWrapper', async () => (await initDatabase({ testMode: true })).store],
   ].forEach(([name, build]) => {
     const removeFunctionName =
       name === 'mongoWrapper' ? 'removeAllOfType' : 'unsafeRemoveAllOfChannel';

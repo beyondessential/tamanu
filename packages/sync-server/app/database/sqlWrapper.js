@@ -10,7 +10,7 @@ const ensureNumber = input => {
   return input;
 };
 
-const convertToPgFromSyncRecord = syncRecord => {
+const convertToDbFromSyncRecord = syncRecord => {
   const { data, hashedPassword, lastSynced, ...metadata } = syncRecord;
 
   return {
@@ -20,8 +20,8 @@ const convertToPgFromSyncRecord = syncRecord => {
   };
 };
 
-const convertToSyncRecordFromPg = pgRecord => {
-  const { id, updatedAt, createdAt, deletedAt, password, ...data } = pgRecord;
+const convertToSyncRecordFromDb = dbRecord => {
+  const { id, updatedAt, createdAt, deletedAt, password, ...data } = dbRecord;
 
   return {
     lastSynced: updatedAt?.valueOf(),
@@ -33,7 +33,7 @@ const convertToSyncRecordFromPg = pgRecord => {
   };
 };
 
-export class PostgresWrapper {
+export class SqlWrapper {
   models = null;
 
   sequelize = null;
@@ -84,7 +84,7 @@ export class PostgresWrapper {
   }
 
   async insert(channel, syncRecord) {
-    const record = convertToPgFromSyncRecord(syncRecord);
+    const record = convertToDbFromSyncRecord(syncRecord);
     return this.channelRouter(channel, async Model => {
       return Model.upsert(record);
     });
@@ -114,7 +114,7 @@ export class PostgresWrapper {
       });
       return records.map(result => {
         const plainRecord = result.get({ plain: true });
-        return convertToSyncRecordFromPg(plainRecord);
+        return convertToSyncRecordFromDb(plainRecord);
       });
     });
   }
@@ -145,7 +145,7 @@ export class PostgresWrapper {
       return null;
     }
     return {
-      ...convertToSyncRecordFromPg(user.get({ plain: true })),
+      ...convertToSyncRecordFromDb(user.get({ plain: true })),
       hashedPassword: user.password,
     };
   }
@@ -156,7 +156,8 @@ export class PostgresWrapper {
       return null;
     }
     return {
-      ...convertToSyncRecordFromPg(user?.get({ plain: true })),
+
+      ...convertToSyncRecordFromDb(user?.get({ plain: true })),
       hashedPassword: user.password,
     };
   }

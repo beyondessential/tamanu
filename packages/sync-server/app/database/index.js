@@ -1,9 +1,7 @@
 import config from 'config';
 
-// import { MongoWrapper } from './mongoWrapper';
-import { PostgresWrapper } from './postgresWrapper';
+import { SqlWrapper } from './sqlWrapper';
 import { log } from '../logging';
-import { getUUIDGenerator } from './uuid';
 
 let existingConnection = null;
 
@@ -13,9 +11,7 @@ export async function initDatabase({ testMode = false }) {
     return existingConnection;
   }
 
-  const { username, name } = config.db;
-  log.info(`Connecting to postgres database ${username}@${name}`);
-  const store = await new PostgresWrapper({
+  const store = await new SqlWrapper({
     ...config.db,
     log,
     makeEveryModelParanoid: true,
