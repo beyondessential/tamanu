@@ -8,7 +8,7 @@ const makeDate = (daysAgo, hoursAgo = 0) => {
 };
 
 const compareRecordsById = (a, b) => a.data.id.localeCompare(b.data.id);
-const compareRecordsByLastSynced = (a, b) => a.lastSynced - b.lastSynced;
+const compareRecordsByLastSynced = (a, b) => b.lastSynced - a.lastSynced;
 
 const OLDEST = { lastSynced: makeDate(20), ...fakePatient('oldest_') };
 const SECOND_OLDEST = { lastSynced: makeDate(10), ...fakePatient('second-oldest_') };
