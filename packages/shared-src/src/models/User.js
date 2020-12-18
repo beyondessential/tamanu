@@ -1,10 +1,8 @@
 import { hash } from 'bcrypt';
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
-import config from 'config';
 
-const DEFAULT_SALT_ROUNDS = 12;
-const SALT_ROUNDS = config.db.saltRounds || DEFAULT_SALT_ROUNDS;
+const SALT_ROUNDS = 10;
 
 export class User extends Model {
   forResponse() {
