@@ -209,8 +209,7 @@ export class MongoWrapper {
       password,
       ...otherData
     } = data;
-    const hashedPassword = await bcrypt.hash(password, config.auth.saltRounds);
-    
+
     const existing = await this.findUser(data.email);
     if(existing && !data.id) {
       otherData.id = existing._id;
@@ -219,13 +218,24 @@ export class MongoWrapper {
       otherData = { ...existing.data, ...otherData };
     }
 
-    return this.insert('user', {
+    const record = {
       recordType: 'user',
-      hashedPassword,
-      data: {
-        ...otherData,
-      }
-    });
+      data: otherData,
+    }
+
+    if(password) {
+      const hashedPassword = password 
+        ? await bcrypt.hash(password, config.auth.saltRounds)
+        : undefined;
+      record.hashedPassword = hashedPassword;
+    } else if(!existing) {
+      // this represents a new user with no password - this is actually fine!
+      // this user will not be able to log in, but can still be assigned by
+      // other users to things like referrals / lab requests (so, ideal for
+      // external healthcare practitioners)
+    }
+
+    return this.insert('user', record);
   }
 
   async findUser(email) {

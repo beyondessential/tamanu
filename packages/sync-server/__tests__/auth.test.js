@@ -75,7 +75,7 @@ describe("Auth", () => {
     const USER_PASSWORD_2 = 'abc_1234';
 
     it('Should hash a password for a user synced through the api', async () => {
-      const response = await app.post('/v1/sync/users').send({
+      const response = await app.post('/v1/sync/user').send({
         recordType: 'user',
         data: {
           email: USER_EMAIL,
@@ -99,7 +99,7 @@ describe("Auth", () => {
     });
 
     it('Should hash an updated password for an existing user', async () => {
-      const response = await app.post('/v1/sync/users').send({
+      const response = await app.post('/v1/sync/user').send({
         recordType: 'user',
         data: {
           email: USER_EMAIL,
@@ -129,8 +129,47 @@ describe("Auth", () => {
       expect(loginResponse2).toHaveSucceeded();
     });
 
-    test.todo('Should include a new user in the GET /sync/user channel');
-    test.todo('Should include an updated user in the GET /sync/user channel');
+    it('Should include a new user in the GET /sync/user channel', async () => {
+      const now = (new Date()).valueOf();
+      const newEmail = 'new-user-get@test.tamanu.io';
+      const displayName = 'test-new';
+
+      const response = await app.post('/v1/sync/user').send({
+        recordType: 'user',
+        data: {
+          email: newEmail,
+          displayName,
+          password: USER_PASSWORD,
+        }
+      });
+      expect(response).toHaveSucceeded();
+
+      const syncResponse = await app.get(`/v1/sync/user?since=${now}`);
+      expect(syncResponse).toHaveSucceeded();
+      const found = syncResponse.body.records.find(x => x.data.email === newEmail);
+      expect(found).toBeDefined();
+      expect(found).toHaveProperty('data.displayName', displayName);
+    });
+
+    it('Should include an updated user in the GET /sync/user channel', async () => {
+      const now = (new Date()).valueOf();
+      const displayNameUpdated = 'updated display name';
+
+      const response = await app.post('/v1/sync/user').send({
+        recordType: 'user',
+        data: {
+          email: USER_EMAIL,
+          displayName: displayNameUpdated,
+        }
+      });
+      expect(response).toHaveSucceeded();
+
+      const syncResponse = await app.get(`/v1/sync/user?since=${now}`);
+      expect(syncResponse).toHaveSucceeded();
+      const found = syncResponse.body.records.find(x => x.data.email === USER_EMAIL);
+      expect(found).toBeDefined();
+      expect(found).toHaveProperty('data.displayName', displayNameUpdated);
+    });
 
     test.todo('Should prevent user creation without appropriate permission');
     test.todo('Should prevent password change without appropriate permission');
