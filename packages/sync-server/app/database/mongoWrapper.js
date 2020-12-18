@@ -223,16 +223,14 @@ export class MongoWrapper {
       data: otherData,
     }
 
+    // Note that if no password was given, it won't be hashed or set.
+    // For existing users, this just represents a details update without
+    // changing a password, but for a new user it represents a user with no
+    // password - this is actually fine! They won't be able to log in, but can 
+    // still be assigned by other users to things like referrals / lab requests 
+    // (so, ideal for external healthcare practitioners)
     if(password) {
-      const hashedPassword = password 
-        ? await bcrypt.hash(password, config.auth.saltRounds)
-        : undefined;
-      record.hashedPassword = hashedPassword;
-    } else if(!existing) {
-      // this represents a new user with no password - this is actually fine!
-      // this user will not be able to log in, but can still be assigned by
-      // other users to things like referrals / lab requests (so, ideal for
-      // external healthcare practitioners)
+      record.hashedPassword = await bcrypt.hash(password, config.auth.saltRounds);
     }
 
     return this.insert('user', record);
