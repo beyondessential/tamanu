@@ -15,7 +15,7 @@ export class User extends Model {
     this.password = hashedPassword;
   }
 
-  async update(values) {
+  static async update(values) {
     const { password, ...otherValues } = values;
     if (password) {
       otherValues.password = await hash(password, SALT_ROUNDS);
@@ -29,6 +29,14 @@ export class User extends Model {
       otherValues.password = await hash(password, SALT_ROUNDS);
     }
     return super.create(otherValues);
+  }
+
+  static async upsert(values) {
+    const { password, ...otherValues } = values;
+    if (password) {
+      otherValues.password = await hash(password, SALT_ROUNDS);
+    }
+    return super.upsert(otherValues);
   }
 
   static init({ primaryKey, ...options }) {
