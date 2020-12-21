@@ -32,7 +32,7 @@ describe('Sync API', () => {
     );
   });
 
-  afterAll(() => ctx.close());
+  afterAll(async () => ctx.close());
 
   describe('Reads', () => {
     it('should error if no since parameter is provided', async () => {

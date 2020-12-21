@@ -20,7 +20,8 @@ const recreateDb = async name => {
     await client.query(`DROP DATABASE IF EXISTS "${name}"`);
     await client.query(`CREATE DATABASE "${name}"`);
   } catch (e) {
-    log.error(e.message);
+    log.error(`recreateDb: ${e.stack}`);
+    throw e;
   } finally {
     await client.end();
   }
@@ -58,7 +59,8 @@ export async function initDatabase({ testMode = false }) {
 
 export async function closeDatabase() {
   if (existingConnection) {
-    await existingConnection.store.close();
+    const { store } = existingConnection;
     existingConnection = null;
+    await store.close();
   }
 }

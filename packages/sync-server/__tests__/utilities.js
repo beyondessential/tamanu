@@ -3,7 +3,7 @@ import Chance from 'chance';
 import http from 'http';
 
 import { createApp } from 'sync-server/app/createApp';
-import { initDatabase } from 'sync-server/app/database';
+import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { QueryTypes } from 'sequelize';
 import { getToken } from 'sync-server/app/middleware/auth';
 
@@ -113,6 +113,7 @@ export async function createTestContext() {
 
   const close = async () => {
     await new Promise(resolve => appServer.close(resolve));
+    await closeDatabase();
   };
 
   return { baseApp, store, close };

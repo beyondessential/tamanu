@@ -1,4 +1,4 @@
-import { initDatabase } from 'sync-server/app/database';
+import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { v4 as uuidv4 } from 'uuid';
 import { fakePatient } from './fake';
 import { withDate } from './utilities';
@@ -12,9 +12,7 @@ describe('wrappers', () => {
       return wrapper;
     });
 
-    afterAll(async () => {
-      wrapper.close();
-    });
+    afterAll(closeDatabase);
 
     it('finds no records when empty', async () => {
       const records = await wrapper.findSince('patient', 0, { limit: 10, offset: 0 });

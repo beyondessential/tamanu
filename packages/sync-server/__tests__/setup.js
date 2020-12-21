@@ -5,8 +5,4 @@
 // uses such an alias (or any file that imports such a file, etc) will break
 // this setup step.
 
-import { initDatabase } from 'sync-server/app/database';
-
-export default async function() {
-  await initDatabase({ testMode: true });
-}
+export default function() {}

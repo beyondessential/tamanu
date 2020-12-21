@@ -26,7 +26,7 @@ describe('Auth', () => {
     await Promise.all(USERS.map(r => ctx.store.models.User.create(r)));
   });
 
-  afterAll(() => close());
+  afterAll(async () => close());
 
   describe('Logging in', () => {
     it('Should get a token for correct credentials', async () => {
