@@ -46,7 +46,7 @@ export function initDatabase(dbOptions) {
   });
 
   // set configuration variables for individual models
-  models.User.SALT_ROUNDS = 12;
+  models.User.SALT_ROUNDS = saltRounds;
 
   // init all models
   const modelClasses = Object.values(models);
