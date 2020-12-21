@@ -6,9 +6,13 @@ app:
     - ./.ssh:/root/.ssh
   environment:
     ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
-    CONFIG_SYNC_DB_PATH: "mongodb://mongodb:27017"
+    CONFIG_SYNC_DB_NAME: postgres
+    CONFIG_SYNC_DB_HOST: postgres
+    CONFIG_SYNC_DB_USERNAME: postgres
+    CONFIG_SYNC_DB_PASSWORD: postgres
+
   depends_on:
-    - mongodb
+    - postgres
 
 awsdeployment:
   build:
@@ -18,8 +22,9 @@ awsdeployment:
     - ./.tmp:/tamanu
     - ./.ssh:/root/.ssh
 
-# TODO: postgres
-mongodb:
-  image: healthcheck/mongo
-  ports:
-      - 27017:27017
+postgres:
+  image: healthcheck/postgres
+  environment:
+    - POSTGRES_DB=postgres
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=postgres

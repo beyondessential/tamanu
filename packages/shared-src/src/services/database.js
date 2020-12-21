@@ -14,6 +14,8 @@ export function initDatabase(dbOptions) {
     password,
     name,
     log,
+    host=null,
+    port=null,
     verbose=false,
     sqlitePath=null,
     uuidGenerator=Sequelize.UUIDV4,
@@ -38,6 +40,8 @@ export function initDatabase(dbOptions) {
     : { dialect: 'postgres' };
   const sequelize = new Sequelize(name, username, password, {
     ...options,
+    host,
+    port,
     logging,
   });
 
