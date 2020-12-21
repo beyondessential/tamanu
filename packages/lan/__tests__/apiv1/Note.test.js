@@ -1,5 +1,6 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
+import { NOTE_TYPES } from 'shared/constants';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
 
@@ -31,6 +32,9 @@ describe('Note', () => {
       const content = chance.paragraph();
       const response = await app.post(`/v1/encounter/${encounter.id}/notes`).send({
         content,
+        recordId: encounter.id,
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        noteType: NOTE_TYPES.SYSTEM,
       });
 
       expect(response).toHaveSucceeded();
@@ -46,6 +50,7 @@ describe('Note', () => {
         content: chance.paragraph(),
         recordId: encounter.id,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        noteType: NOTE_TYPES.SYSTEM,
       });
 
       const response = await app.put(`/v1/note/${note.id}`).send({
@@ -81,6 +86,7 @@ describe('Note', () => {
           content: chance.paragraph(),
           recordId: encounter.id,
           recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+          noteType: NOTE_TYPES.SYSTEM,
         });
 
         expect(response).toBeForbidden();
@@ -88,9 +94,10 @@ describe('Note', () => {
 
       it('should forbid editing notes on a forbidden record', async () => {
         const note = await models.Note.create({
+          content: chance.paragraph(),
           recordId: encounter.id,
           recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-          content: chance.paragraph(),
+          noteType: NOTE_TYPES.SYSTEM,
         });
 
         const response = await noPermsApp.put(`/v1/note/${note.id}`).send({
