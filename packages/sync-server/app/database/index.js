@@ -8,10 +8,12 @@ let existingConnection = null;
 
 // this is dangerous and should only be used in test mode
 const recreateDb = async name => {
-  const { username, password } = config.db;
+  const { username, password, host, port } = config.db;
   const client = new pg.Client({
     user: username,
     password,
+    host,
+    port,
   });
   try {
     await client.connect();
