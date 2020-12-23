@@ -1,5 +1,6 @@
 import { random, sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
+import { REFERENCE_TYPES } from 'shared/constants';
 
 export function fakeStringFields(prefix, fields) {
   return fields.reduce(
@@ -29,3 +30,29 @@ export function fakePatient(prefix = '') {
     },
   };
 }
+
+export async function fakeScheduledVaccine(wrapper) {
+  const vaccineId = uuidv4();
+  const vaccine = {
+    data: {
+      id: vaccineId,
+      type: REFERENCE_TYPES.DRUG,
+      ...fakeStringFields(`vaccine_${vaccineId}_`, ['code', 'name']),
+    },
+  };
+  await wrapper.insert('reference', vaccine);
+  return prefix => {
+    const scheduledVaccineId = uuidv4();
+    return {
+      data: {
+        id: scheduledVaccineId,
+        vaccineId,
+        ...fakeStringFields(`${prefix}scheduledVaccine_${scheduledVaccineId}_`, [
+          'category',
+          'label',
+          'schedule',
+        ]),
+      },
+    };
+  };
+};

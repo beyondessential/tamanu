@@ -4,6 +4,7 @@ import { InvalidOperationError } from 'shared/errors';
 
 import { Model } from './Model';
 
+// TODO: investigate how this model has diverged from sync-server and mobile
 export class Immunisation extends Model {
   static init({ primaryKey, ...options }) {
     super.init(

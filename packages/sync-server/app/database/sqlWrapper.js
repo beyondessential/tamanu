@@ -64,7 +64,7 @@ export class SqlWrapper {
       // ['survey/survey', this.models.Survey], // TODO
       // ['survey/surveyScreenComponent', this.models.SurveyScreenComponent], // TODO
       ['user', this.models.User],
-      // ['vaccination/scheduledVaccine', this.models.ScheduledVaccine], TODO
+      ['vaccination/scheduledVaccine', this.models.ScheduledVaccine],
     ].forEach(([route, Model]) => {
       if (!Model) {
         throw new Error(`sqlWrapper: model for channel route "${route}" does not exist`);
