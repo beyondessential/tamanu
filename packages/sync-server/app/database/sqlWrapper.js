@@ -60,11 +60,11 @@ export class SqlWrapper {
     [
       ['patient', this.models.Patient],
       ['reference', this.models.ReferenceData],
-      ['survey/programDataElement', this.models.ProgramDataElement],
-      ['survey/survey', this.models.Survey],
-      ['survey/surveyScreenComponent', this.models.SurveyScreenComponent],
+      // ['survey/programDataElement', this.models.ProgramDataElement], // TODO
+      // ['survey/survey', this.models.Survey], // TODO
+      // ['survey/surveyScreenComponent', this.models.SurveyScreenComponent], // TODO
       ['user', this.models.User],
-      ['vaccination/scheduledVaccine', this.models.ScheduledVaccine],
+      // ['vaccination/scheduledVaccine', this.models.ScheduledVaccine], TODO
     ].forEach(([route, Model]) => {
       if (!Model) {
         throw new Error(`sqlWrapper: model for channel route "${route}" does not exist`);
