@@ -1,6 +1,10 @@
 import { random, sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { REFERENCE_TYPES, PROGRAM_DATA_ELEMENT_TYPE_VALUES } from 'shared/constants';
+import {
+  PROGRAM_DATA_ELEMENT_TYPE_VALUES,
+  REFERENCE_TYPES,
+  REFERENCE_TYPE_VALUES,
+} from 'shared/constants';
 
 export function fakeStringFields(prefix, fields) {
   return fields.reduce(
@@ -96,6 +100,17 @@ export function fakeProgramDataElement(prefix = '') {
         'defaultText',
         'defaultOptions',
       ]),
+    },
+  };
+}
+
+export function fakeReferenceData(prefix = '') {
+  const id = uuidv4();
+  return {
+    data: {
+      id,
+      type: sample(REFERENCE_TYPE_VALUES),
+      ...fakeStringFields(`${prefix}referenceData_${id}_`, ['name', 'code']),
     },
   };
 }

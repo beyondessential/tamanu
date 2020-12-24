@@ -2,10 +2,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import {
   fakePatient,
-  fakeSurvey,
-  fakeScheduledVaccine,
-  fakeSurveyScreenComponent,
   fakeProgramDataElement,
+  fakeReferenceData,
+  fakeScheduledVaccine,
+  fakeSurvey,
+  fakeSurveyScreenComponent,
 } from './fake';
 import { withDate } from './utilities';
 
@@ -20,7 +21,7 @@ describe('wrappers', () => {
 
     [
       ['patient', () => fakePatient],
-      // reference
+      ['reference', () => fakeReferenceData],
       ['survey/programDataElement', () => fakeProgramDataElement],
       ['survey/survey', () => fakeSurvey],
       ['survey/surveyScreenComponent', () => fakeSurveyScreenComponent],
