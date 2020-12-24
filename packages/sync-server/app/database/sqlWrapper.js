@@ -38,6 +38,8 @@ export class SqlWrapper {
 
   sequelize = null;
 
+  builtRoutes = [];
+
   constructor(dbOptions) {
     // init database
     this._dbPromise = initDatabase(dbOptions);
@@ -69,6 +71,7 @@ export class SqlWrapper {
       if (!Model) {
         throw new Error(`sqlWrapper: model for channel route "${route}" does not exist`);
       }
+      this.builtRoutes.push(route);
       channelRouter.on(route, async (urlParams, f) => {
         const params = { ...urlParams, route };
         return f(Model, params);

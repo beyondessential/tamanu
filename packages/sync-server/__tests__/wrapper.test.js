@@ -20,7 +20,7 @@ describe('wrappers', () => {
 
     afterAll(closeDatabase);
 
-    [
+    const modelTests = [
       ['patient', () => fakePatient],
       ['reference', () => fakeReferenceData],
       ['survey/programDataElement', () => fakeProgramDataElement],
@@ -28,7 +28,16 @@ describe('wrappers', () => {
       ['survey/surveyScreenComponent', () => fakeSurveyScreenComponent],
       ['user', () => fakeUser],
       ['vaccination/scheduledVaccine', () => fakeScheduledVaccine(wrapper)],
-    ].forEach(([channel, buildFakeInstance]) => {
+    ];
+
+    it('contains a test case for each model', () => {
+      // This is intended as a reminder for anyone adding a new model.
+      // It might need to be refactored/removed if more complicated routes
+      // like 'patient/:id/thing' are added.
+      expect(wrapper.builtRoutes.length).toEqual(modelTests.length);
+    });
+
+    modelTests.forEach(([channel, buildFakeInstance]) => {
       describe(channel, () => {
         let fakeInstance;
 
