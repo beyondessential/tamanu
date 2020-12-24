@@ -19,6 +19,7 @@ export class Program extends Model {
   static initRelations(models) {
     this.hasMany(models.Survey, {
       as: 'surveys',
+      foreignKey: 'programId',
     });
   }
 }

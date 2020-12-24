@@ -41,7 +41,7 @@ export async function fakeScheduledVaccine(wrapper) {
     },
   };
   await wrapper.insert('reference', vaccine);
-  return prefix => {
+  return (prefix = '') => {
     const scheduledVaccineId = uuidv4();
     return {
       data: {
@@ -55,4 +55,15 @@ export async function fakeScheduledVaccine(wrapper) {
       },
     };
   };
-};
+}
+
+export function fakeSurvey(prefix = '') {
+  const id = uuidv4();
+  return {
+    data: {
+      id,
+      programId: null,
+      ...fakeStringFields(`${prefix}survey_${id}_`, ['code', 'name']),
+    },
+  };
+}

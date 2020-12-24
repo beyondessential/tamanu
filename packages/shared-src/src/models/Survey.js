@@ -29,6 +29,9 @@ export class Survey extends Model {
     this.belongsTo(models.Program, {
       foreignKey: 'programId',
     });
+    this.hasMany(models.SurveyScreenComponent, {
+      as: 'components',
+    });
   }
 }
 

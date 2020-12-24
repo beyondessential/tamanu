@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
-import { fakePatient, fakeScheduledVaccine } from './fake';
+import { fakePatient, fakeSurvey, fakeScheduledVaccine } from './fake';
 import { withDate } from './utilities';
 
 describe('wrappers', () => {
@@ -14,6 +14,7 @@ describe('wrappers', () => {
 
     [
       ['patient', () => fakePatient],
+      ['survey/survey', () => fakeSurvey],
       ['vaccination/scheduledVaccine', () => fakeScheduledVaccine(wrapper)],
     ].forEach(([channel, buildFakeInstance]) => {
       describe(channel, () => {
@@ -45,10 +46,6 @@ describe('wrappers', () => {
             {
               lastSynced: new Date(1990, 5, 1).valueOf(),
               ...instance2,
-              data: {
-                id: expect.anything(),
-                ...instance2.data,
-              },
             },
           ]);
           expect(await wrapper.countSince(channel, since)).toEqual(1);
