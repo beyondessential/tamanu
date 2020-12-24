@@ -60,7 +60,7 @@ export class SqlWrapper {
     [
       ['patient', this.models.Patient],
       ['reference', this.models.ReferenceData],
-      // ['survey/programDataElement', this.models.ProgramDataElement], // TODO
+      ['survey/programDataElement', this.models.ProgramDataElement],
       ['survey/survey', this.models.Survey],
       ['survey/surveyScreenComponent', this.models.SurveyScreenComponent],
       ['user', this.models.User],

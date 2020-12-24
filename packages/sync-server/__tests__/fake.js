@@ -1,6 +1,6 @@
 import { random, sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { REFERENCE_TYPES } from 'shared/constants';
+import { REFERENCE_TYPES, PROGRAM_DATA_ELEMENT_TYPE_VALUES } from 'shared/constants';
 
 export function fakeStringFields(prefix, fields) {
   return fields.reduce(
@@ -78,7 +78,24 @@ export function fakeSurveyScreenComponent(prefix = '') {
       screenIndex: random(0, 100),
       componentIndex: random(0, 100),
       options: '{"foo":"bar"}',
-      ...fakeStringFields(`${prefix}survey_${id}_`, ['text', 'visibilityCriteria']),
+      ...fakeStringFields(`${prefix}surveyScreenComponent_${id}_`, ['text', 'visibilityCriteria']),
+    },
+  };
+}
+
+export function fakeProgramDataElement(prefix = '') {
+  const id = uuidv4();
+  return {
+    data: {
+      id,
+      type: sample(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
+      ...fakeStringFields(`${prefix}programDataElement_${id}_`, [
+        'code',
+        'name',
+        'indicator',
+        'defaultText',
+        'defaultOptions',
+      ]),
     },
   };
 }
