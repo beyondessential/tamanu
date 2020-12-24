@@ -114,3 +114,14 @@ export function fakeReferenceData(prefix = '') {
     },
   };
 }
+
+export function fakeUser(prefix = '') {
+  const id = uuidv4();
+  return {
+    data: {
+      id,
+      // don't set a password for these fake users - it's easier to test, and is still a valid state
+      ...fakeStringFields(`${prefix}user_${id}_`, ['email', 'displayName', 'role']),
+    },
+  };
+}

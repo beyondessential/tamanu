@@ -15,28 +15,28 @@ export class User extends Model {
     this.password = hashedPassword;
   }
 
-  static async update(values) {
+  static async update(values, ...args) {
     const { password, ...otherValues } = values;
     if (password) {
       otherValues.password = await hash(password, this.SALT_ROUNDS || DEFAULT_SALT_ROUNDS);
     }
-    return super.update(otherValues);
+    return super.update(otherValues, ...args);
   }
 
-  static async create(values) {
+  static async create(values, ...args) {
     const { password, ...otherValues } = values;
     if (password) {
       otherValues.password = await hash(password, this.SALT_ROUNDS || DEFAULT_SALT_ROUNDS);
     }
-    return super.create(otherValues);
+    return super.create(otherValues, ...args);
   }
 
-  static async upsert(values) {
+  static async upsert(values, ...args) {
     const { password, ...otherValues } = values;
     if (password) {
       otherValues.password = await hash(password, this.SALT_ROUNDS || DEFAULT_SALT_ROUNDS);
     }
-    return super.upsert(otherValues);
+    return super.upsert(otherValues, ...args);
   }
 
   static init({ primaryKey, ...options }) {

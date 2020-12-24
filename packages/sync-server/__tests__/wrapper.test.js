@@ -7,6 +7,7 @@ import {
   fakeScheduledVaccine,
   fakeSurvey,
   fakeSurveyScreenComponent,
+  fakeUser,
 } from './fake';
 import { withDate } from './utilities';
 
@@ -25,7 +26,7 @@ describe('wrappers', () => {
       ['survey/programDataElement', () => fakeProgramDataElement],
       ['survey/survey', () => fakeSurvey],
       ['survey/surveyScreenComponent', () => fakeSurveyScreenComponent],
-      // user
+      ['user', () => fakeUser],
       ['vaccination/scheduledVaccine', () => fakeScheduledVaccine(wrapper)],
     ].forEach(([channel, buildFakeInstance]) => {
       describe(channel, () => {
