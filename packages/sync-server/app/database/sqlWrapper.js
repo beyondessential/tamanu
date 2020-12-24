@@ -62,7 +62,7 @@ export class SqlWrapper {
       ['reference', this.models.ReferenceData],
       // ['survey/programDataElement', this.models.ProgramDataElement], // TODO
       ['survey/survey', this.models.Survey],
-      // ['survey/surveyScreenComponent', this.models.SurveyScreenComponent], // TODO
+      ['survey/surveyScreenComponent', this.models.SurveyScreenComponent],
       ['user', this.models.User],
       ['vaccination/scheduledVaccine', this.models.ScheduledVaccine],
     ].forEach(([route, Model]) => {

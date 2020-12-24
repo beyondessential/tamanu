@@ -31,6 +31,7 @@ export class Survey extends Model {
     });
     this.hasMany(models.SurveyScreenComponent, {
       as: 'components',
+      foreignKey: 'surveyId',
     });
   }
 }

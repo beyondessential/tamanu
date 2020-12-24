@@ -67,3 +67,18 @@ export function fakeSurvey(prefix = '') {
     },
   };
 }
+
+export function fakeSurveyScreenComponent(prefix = '') {
+  const id = uuidv4();
+  return {
+    data: {
+      id,
+      surveyId: null,
+      dataElementId: null,
+      screenIndex: random(0, 100),
+      componentIndex: random(0, 100),
+      options: '{"foo":"bar"}',
+      ...fakeStringFields(`${prefix}survey_${id}_`, ['text', 'visibilityCriteria']),
+    },
+  };
+}
