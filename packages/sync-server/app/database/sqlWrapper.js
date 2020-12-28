@@ -163,7 +163,7 @@ export class SqlWrapper {
       return null;
     }
     return {
-      ...convertToSyncRecordFromDb(user?.get({ plain: true })),
+      ...convertToSyncRecordFromDb(user.get({ plain: true })),
       hashedPassword: user.password,
     };
   }
