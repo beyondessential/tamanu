@@ -38,36 +38,10 @@ export class SyncManager {
     });
   }
 
-  getModelForRecordType(recordType: string): typeof BaseModel {
-    const { models } = Database;
-
-    switch (recordType) {
-      case 'patient':
-        return models.Patient;
-      case 'user':
-        return models.User;
-      case 'referenceData':
-        return models.ReferenceData;
-      case 'scheduledVaccine':
-        return models.ScheduledVaccine;
-      case 'program':
-        return models.Program;
-      case 'survey':
-        return models.Survey;
-      case 'surveyScreenComponent':
-        return models.SurveyScreenComponent;
-      case 'programDataElement':
-        return models.ProgramDataElement;
-      default:
-        return null;
-    }
-  }
-
-  async syncRecord(syncRecord: SyncRecord): Promise<void> {
+  async syncRecord(model: typeof BaseModel, syncRecord: SyncRecord): Promise<void> {
     // write one single downloaded record to the database
     const { recordType, isDeleted, data } = syncRecord;
 
-    const model = this.getModelForRecordType(recordType);
     if (!model) {
       throw new NoSyncImporterError(recordType);
     }
@@ -102,11 +76,14 @@ export class SyncManager {
 
     this.emitter.emit('syncStarted');
 
-    await this.runChannelSync('reference');
-    await this.runChannelSync('user');
-    await this.runChannelSync('vaccination');
-    await this.runChannelSync('survey', null, true);
-    await this.runChannelSync('patient');
+    const { models } = Database;
+    await this.runChannelSync(models.ReferenceData, 'reference');
+    await this.runChannelSync(models.User, 'user');
+    await this.runChannelSync(models.ScheduledVaccine, 'vaccination/scheduledVaccine');
+    await this.runChannelSync(models.Survey, 'survey/survey', null, true);
+    await this.runChannelSync(models.ProgramDataElement, 'survey/programDataElement', null, true);
+    await this.runChannelSync(models.SurveyScreenComponent, 'survey/surveyScreenComponent', null, true);
+    await this.runChannelSync(models.Patient, 'patient');
 
     // sync all reference data including shallow patient list
     // full sync of patients that've been flagged (encounters, etc)
@@ -144,7 +121,7 @@ export class SyncManager {
     await this.runScheduledSync();
   }
 
-  async syncAllPages(channel: string, since: Date, singlePageMode = false): Promise<Date> {
+  async syncAllPages(model: typeof BaseModel, channel: string, since: Date, singlePageMode = false): Promise<Date> {
     let page = 0;
 
     const downloadPage = (pageNumber: number): Promise<GetSyncDataResponse> => {
@@ -185,7 +162,7 @@ export class SyncManager {
     const syncRecords = async (records: SyncRecord[]): Promise<void> => {
       await Promise.all(records.map(async r => {
         try {
-          await this.syncRecord(r);
+          await this.syncRecord(model, r);
 
           if (r.lastSynced > maxDate) {
             maxDate = r.lastSynced;
@@ -279,6 +256,7 @@ export class SyncManager {
   }
 
   async runChannelSync(
+    model: typeof BaseModel,
     channel: string,
     overrideLastSynced = null,
     singlePageMode = false,
@@ -289,7 +267,7 @@ export class SyncManager {
 
     this.emitter.emit('channelSyncStarted', channel);
     try {
-      const maxDate = await this.syncAllPages(channel, lastSynced, singlePageMode);
+      const maxDate = await this.syncAllPages(model, channel, lastSynced, singlePageMode);
       await this.updateChannelSyncDate(channel, maxDate);
     } catch (e) {
       console.error(e);
