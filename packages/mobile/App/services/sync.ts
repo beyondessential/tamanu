@@ -7,8 +7,8 @@ import { BaseModel } from '~/models/BaseModel';
 import { GetSyncDataResponse, SyncRecord, SyncSource } from './syncSource';
 
 class NoSyncImporterError extends Error {
-  constructor(recordType: string) {
-    super(`No sync importer for record type ${recordType}`);
+  constructor(modelName: string) {
+    super(`No sync importer for model ${modelName}`);
   }
 }
 
@@ -40,10 +40,10 @@ export class SyncManager {
 
   async syncRecord(model: typeof BaseModel, syncRecord: SyncRecord): Promise<void> {
     // write one single downloaded record to the database
-    const { recordType, isDeleted, data } = syncRecord;
+    const { isDeleted, data } = syncRecord;
 
     if (!model) {
-      throw new NoSyncImporterError(recordType);
+      throw new NoSyncImporterError(model.name);
     }
     if (isDeleted) {
       await model.remove(data);
@@ -51,7 +51,7 @@ export class SyncManager {
       await model.createOrUpdate(data);
     }
 
-    this.emitter.emit('syncedRecord', syncRecord.recordType);
+    this.emitter.emit('syncedRecord', model.name);
   }
 
   async runScheduledSync(): Promise<void> {

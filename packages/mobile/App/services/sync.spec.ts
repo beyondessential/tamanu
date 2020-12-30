@@ -36,7 +36,6 @@ describe('SyncManager', () => {
     it('creates a model with a new id', async () => {
       // arrange
       const record = {
-        recordType: 'referenceData',
         lastSynced: new Date(1972, 5, 1),
         data: {
           id: uuidv4(),
@@ -51,7 +50,7 @@ describe('SyncManager', () => {
       expect(oldRows).toEqual([]);
 
       // act
-      await syncManager.syncRecord(record);
+      await syncManager.syncRecord(Database.models.ReferenceData, record);
 
       // assert
       expect(emittedEvents.map(({ action }) => action)).toContain('syncedRecord');
@@ -67,7 +66,6 @@ describe('SyncManager', () => {
     it('updates a model with an existing id', async () => {
       // arrange
       const record = {
-        recordType: 'referenceData',
         lastSynced: new Date(1972, 5, 1),
         data: {
           id: uuidv4(),
@@ -88,7 +86,7 @@ describe('SyncManager', () => {
       ]);
 
       // act
-      await syncManager.syncRecord({
+      await syncManager.syncRecord(Database.models.ReferenceData, {
         ...record,
         data: {
           ...record.data,
@@ -113,7 +111,6 @@ describe('SyncManager', () => {
     it('deletes a model when it receives a tombstone', async () => {
       // arrange
       const record = {
-        recordType: 'referenceData',
         lastSynced: new Date(1972, 5, 1),
         isDeleted: true,
         data: {
@@ -135,7 +132,7 @@ describe('SyncManager', () => {
 
       // act
       const { emittedEvents, syncManager } = createManager();
-      await syncManager.syncRecord(record);
+      await syncManager.syncRecord(Database.models.ReferenceData, record);
 
       // assert
       expect(emittedEvents.map(({ action }) => action)).toContain('syncedRecord');

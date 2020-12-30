@@ -17,7 +17,6 @@ export type GetSyncDataResponse = null | {
 }
 
 export interface SyncRecord {
-  recordType: string;
   lastSynced: Date;
   ERROR_MESSAGE?: string;
   isDeleted?: boolean;
