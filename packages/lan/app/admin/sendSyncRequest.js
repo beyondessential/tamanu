@@ -14,7 +14,7 @@ export async function sendSyncRequest(channel, records) {
   const parts = splitIntoChunks(records, maxRecordsPerRequest);
   log.info(`Syncing ${records.length} records (across ${parts.length} chunks) on ${channel} to ${config.syncHost}...`);
 
-  const url = `${config.syncHost}/v1/sync/${channel}`;
+  const url = `${config.syncHost}/v1/sync/${encodeURIComponent(channel)}`;
   for(const part of parts) {
     const response = await fetch(url, {
       method: 'POST',
