@@ -29,6 +29,7 @@ export function fakePatient(prefix = '') {
         'displayId',
       ]),
       sex: sample(['male', 'female', 'other']),
+      bloodType: sample(['A', 'B', 'AB', 'O']) + sample(['+', '-']),
       dateOfBirth: new Date(random(0, Date.now())),
       villageId: null,
     },
