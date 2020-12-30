@@ -4,7 +4,8 @@
     "name": "tamanu-sync",
     "verbose": false,
     "username": "",
-    "password": ""
+    "password": "",
+    "syncOnStartup": false
   },
   "auth": {
     "saltRounds": 12,

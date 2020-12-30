@@ -50,7 +50,9 @@ export async function initDatabase({ testMode = false }) {
 
   if (testMode) {
     await store.sequelize.drop();
-    await store.sequelize.sync({ force: true });
+    await store.sequelize.sync({ force: testMode });
+  } else if (config.db.syncOnStartup) {
+    await store.sequelize.sync();
   }
 
   existingConnection = { store };
