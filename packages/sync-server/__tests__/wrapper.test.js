@@ -23,11 +23,11 @@ describe('wrappers', () => {
     const modelTests = [
       ['patient', () => fakePatient],
       ['reference', () => fakeReferenceData],
-      ['survey/programDataElement', () => fakeProgramDataElement],
-      ['survey/survey', () => fakeSurvey],
-      ['survey/surveyScreenComponent', () => fakeSurveyScreenComponent],
+      ['programDataElement', () => fakeProgramDataElement],
+      ['survey', () => fakeSurvey],
+      ['surveyScreenComponent', () => fakeSurveyScreenComponent],
       ['user', () => fakeUser],
-      ['vaccination/scheduledVaccine', () => fakeScheduledVaccine(wrapper)],
+      ['scheduledVaccine', () => fakeScheduledVaccine(wrapper)],
     ];
 
     it('contains a test case for each model', () => {

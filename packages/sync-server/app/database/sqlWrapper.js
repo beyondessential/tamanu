@@ -61,12 +61,12 @@ export class SqlWrapper {
     const channelRouter = wayfarer();
     [
       ['patient', this.models.Patient],
+      ['programDataElement', this.models.ProgramDataElement],
       ['reference', this.models.ReferenceData],
-      ['survey/programDataElement', this.models.ProgramDataElement],
-      ['survey/survey', this.models.Survey],
-      ['survey/surveyScreenComponent', this.models.SurveyScreenComponent],
+      ['scheduledVaccine', this.models.ScheduledVaccine],
+      ['survey', this.models.Survey],
+      ['surveyScreenComponent', this.models.SurveyScreenComponent],
       ['user', this.models.User],
-      ['vaccination/scheduledVaccine', this.models.ScheduledVaccine],
     ].forEach(([route, Model]) => {
       if (!Model) {
         throw new Error(`sqlWrapper: model for channel route "${route}" does not exist`);
