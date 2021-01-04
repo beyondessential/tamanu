@@ -9,7 +9,7 @@
   "license": "AGPL-3.0-only",
   "scripts": {
     "build-shared": "yarn workspace shared-src run build",
-    "test": "yarn run build-shared && yarn workspace lan run test && yarn workspace sync-server run test",
+    "test": "yarn run build-shared && yarn workspace lan run test && yarn workspace sync-server run test && yarn workspace meta-server run test",
     "lint-all": "eslint packages/desktop/app packages/server/app packages/lan/app packages/shared/schemas packages/shared/services packages/shared/constants packages/shared/utils",
     "upgrade-lint-rules": "yarn workspaces run upgrade @beyondessential/eslint-config-beyondessential --latest",
     "lan-test": "yarn run build-shared && yarn workspace lan run test",
@@ -31,6 +31,7 @@
       "packages/lan",
       "packages/server",
       "packages/sync-server",
+      "packages/meta-server",
       "packages/shared",
       "packages/shared-src"
     ],
