@@ -11,14 +11,14 @@ export class User extends Model {
   }
 
   async setPassword(pw) {
-    const hashedPassword = await hash(pw, this.SALT_ROUNDS || DEFAULT_SALT_ROUNDS);
+    const hashedPassword = await hash(pw, this.SALT_ROUNDS);
     this.password = hashedPassword;
   }
 
   static async update(values, ...args) {
     const { password, ...otherValues } = values;
     if (password) {
-      otherValues.password = await hash(password, this.SALT_ROUNDS || DEFAULT_SALT_ROUNDS);
+      otherValues.password = await hash(password, this.SALT_ROUNDS);
     }
     return super.update(otherValues, ...args);
   }
@@ -26,7 +26,7 @@ export class User extends Model {
   static async create(values, ...args) {
     const { password, ...otherValues } = values;
     if (password) {
-      otherValues.password = await hash(password, this.SALT_ROUNDS || DEFAULT_SALT_ROUNDS);
+      otherValues.password = await hash(password, this.SALT_ROUNDS);
     }
     return super.create(otherValues, ...args);
   }
@@ -34,7 +34,7 @@ export class User extends Model {
   static async upsert(values, ...args) {
     const { password, ...otherValues } = values;
     if (password) {
-      otherValues.password = await hash(password, this.SALT_ROUNDS || DEFAULT_SALT_ROUNDS);
+      otherValues.password = await hash(password, this.SALT_ROUNDS);
     }
     return super.upsert(otherValues, ...args);
   }
@@ -64,5 +64,7 @@ export class User extends Model {
         indexes: [{ fields: ['email'] }],
       },
     );
+
+    this.SALT_ROUNDS = this.SALT_ROUNDS || DEFAULT_SALT_ROUNDS;
   }
 }
