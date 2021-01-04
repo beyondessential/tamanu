@@ -7,7 +7,7 @@ import { log } from '../logging';
 let existingConnection = null;
 
 // this is dangerous and should only be used in test mode
-const recreateDb = async name => {
+const unsafeRecreateDb = async name => {
   const { username, password, host, port } = config.db;
   const client = new pg.Client({
     user: username,
@@ -20,7 +20,7 @@ const recreateDb = async name => {
     await client.query(`DROP DATABASE IF EXISTS "${name}"`);
     await client.query(`CREATE DATABASE "${name}"`);
   } catch (e) {
-    log.error(`recreateDb: ${e.stack}`);
+    log.error(`unsafeRecreateDb: ${e.stack}`);
     throw e;
   } finally {
     await client.end();
@@ -37,7 +37,7 @@ export async function initDatabase({ testMode = false }) {
   const { sqlitePath } = config.db;
   if (testMode && !sqlitePath && process.env.JEST_WORKER_ID) {
     name = `${name}-${process.env.JEST_WORKER_ID}`;
-    await recreateDb(name);
+    await unsafeRecreateDb(name);
   }
 
   const store = await new SqlWrapper({
