@@ -21,7 +21,7 @@ export class ScheduledVaccine extends Model {
   }
 
   static initRelations(models) {
-    // TODO: what reference data type is a vaccine? drug or something else?
+    // vaccine is of type drug
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'vaccineId',
       as: 'vaccine',
