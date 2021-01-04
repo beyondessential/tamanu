@@ -7,7 +7,11 @@ export class ReferenceData extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
-        id: primaryKey,
+        id: {
+          type: Sequelize.STRING,
+          defaultValue: primaryKey.defaultValue,
+          primaryKey: true,
+        },
         code: {
           type: Sequelize.STRING,
           allowNull: false,
