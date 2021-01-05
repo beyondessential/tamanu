@@ -159,7 +159,7 @@ export const VaccineStatusCells = {
     text: 'SCHEDULED',
   },
   [VaccineStatus.OVERDUE]: {
-    Icon: Icons.AlertIcon,
+    Icon: Icons.CrossIcon,
     background: theme.colors.ALERT,
     color: theme.colors.ORANGE,
     text: 'OVERDUE',
