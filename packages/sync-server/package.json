@@ -21,7 +21,7 @@
     "test-coverage": "npm test -- --coverage",
     "test-watch": "npm test -- --watch",
     "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js && yarn run run-pkg",
-    "run-pkg": "pkg . --targets node12-win-x64 --output ./release/sync-server.exe",
+    "run-pkg": "pkg . --targets node12-linux-x64,node12-win-x64,node12-osx-x64 --output ./release/sync-server",
     "package": "./scripts/package.sh",
     "lint": "eslint app",
     "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
