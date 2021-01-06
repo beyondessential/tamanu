@@ -12,13 +12,22 @@
     "test": "yarn run build-shared && yarn workspace lan run test && yarn workspace sync-server run test && yarn workspace meta-server run test",
     "lint-all": "eslint packages/desktop/app packages/server/app packages/lan/app packages/shared/schemas packages/shared/services packages/shared/constants packages/shared/utils",
     "upgrade-lint-rules": "yarn workspaces run upgrade @beyondessential/eslint-config-beyondessential --latest",
-    "lan-test": "yarn run build-shared && yarn workspace lan run test",
-    "lan-start-dev": "node scripts/lan-start-dev.js",
+
     "desktop-start-dev": "yarn workspace desktop run start-dev",
-    "test-watch": "node scripts/lan-test-watch.js",
+
+    "watch-shared-and": "node scripts/watch-shared-and.js",
+
+    "lan-test": "yarn run build-shared && yarn workspace lan run test",
+    "lan-start-dev": "yarn run watch-shared-and lan start-dev",
+    "lan-test-watch": "yarn run watch-shared-and lan test-watch",
+
     "sync-test": "yarn run build-shared && yarn workspace sync-server run test",
-    "sync-start-dev": "node scripts/sync-start-dev.js",
-    "sync-test-watch": "node scripts/sync-test-watch.js"
+    "sync-start-dev": "yarn run watch-shared-and sync-server start-dev",
+    "sync-test-watch": "yarn run watch-shared-and sync-server test-watch",
+
+    "meta-test": "yarn run build-shared && yarn workspace meta-server run test",
+    "meta-start-dev": "yarn run watch-shared-and meta-server start-dev",
+    "meta-test-watch": "yarn run watch-shared-and meta-server test-watch"
   },
   "engines": {
     "node": "^12"
