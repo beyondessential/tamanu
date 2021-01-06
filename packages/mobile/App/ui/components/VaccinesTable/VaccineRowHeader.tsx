@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
-// import { Column } from '../Table';
 
 interface VaccineRowHeaderProps {
   key: string;
