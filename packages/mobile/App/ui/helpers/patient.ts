@@ -1,19 +1,14 @@
 import { differenceInWeeks } from 'date-fns';
 
 export enum VaccineStatus {
-  UNKNOWN,
-  MISSED,
-  NO_DUE_DATE,
-  DUE,
-  NOT_DUE,
-  UPCOMING,
-  OVERDUE,
-}
-
-export enum ScheduledVaccineStatus {
+  UNKNOWN = 'UNKNOWN',
   GIVEN = 'GIVEN',
   NOT_GIVEN = 'NOT_GIVEN',
   SCHEDULED = 'SCHEDULED',
+  MISSED = 'MISSED',
+  DUE = 'DUE',
+  UPCOMING = 'UPCOMING',
+  OVERDUE = 'OVERDUE',
 }
 
 export function getWeeksFromBirth(dateOfBirth: string): number {
@@ -22,7 +17,7 @@ export function getWeeksFromBirth(dateOfBirth: string): number {
 
 export function getVaccineStatus(weeksUntilDue): VaccineStatus {
   if (weeksUntilDue === null) {
-    return VaccineStatus.NO_DUE_DATE;
+    return VaccineStatus.UNKNOWN;
   }
   if (weeksUntilDue < -4) {
     return VaccineStatus.MISSED;
@@ -34,7 +29,7 @@ export function getVaccineStatus(weeksUntilDue): VaccineStatus {
     return VaccineStatus.DUE;
   }
   if (weeksUntilDue > 4) {
-    return VaccineStatus.NOT_DUE;
+    return VaccineStatus.SCHEDULED;
   }
   if (weeksUntilDue > 2) {
     return VaccineStatus.UPCOMING;

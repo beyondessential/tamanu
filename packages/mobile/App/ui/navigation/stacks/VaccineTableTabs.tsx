@@ -24,7 +24,7 @@ export const VaccineTableTabs = (): ReactElement => {
         name={Routes.HomeStack.VaccineStack.VaccineTabs.Routine}
         component={VaccineHistoryTab}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         options={{
           title: 'Catchup',
         }}
@@ -37,7 +37,7 @@ export const VaccineTableTabs = (): ReactElement => {
         }}
         name={Routes.HomeStack.VaccineStack.VaccineTabs.Campaign}
         component={VaccineHistoryTab}
-      />
+      /> */}
     </Tab.Navigator>
   );
 };

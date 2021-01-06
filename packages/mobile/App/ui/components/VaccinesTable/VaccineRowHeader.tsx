@@ -1,17 +1,21 @@
 import React from 'react';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
-import { Column } from '../Table';
+// import { Column } from '../Table';
 
 interface VaccineRowHeaderProps {
-  row: Column;
+  key: string;
+  title: string;
+  subtitle?: string;
 }
 
 export const VaccineRowHeader = ({
-  row,
+  key,
+  title,
+  subtitle,
 }: VaccineRowHeaderProps): JSX.Element => (
   <StyledView
-    key={row.key}
+    key={key}
     width={130}
     borderRightWidth={1}
     borderColor={theme.colors.BOX_OUTLINE}
@@ -22,11 +26,11 @@ export const VaccineRowHeader = ({
     justifyContent="center"
   >
     <StyledText fontSize={13} color={theme.colors.TEXT_SUPER_DARK}>
-      {row.title}
+      {title}
     </StyledText>
-    {row.subtitle && (
+    {subtitle && (
       <StyledText fontSize={13} color={theme.colors.TEXT_MID}>
-        {row.subtitle}
+        {subtitle}
       </StyledText>
     )}
   </StyledView>

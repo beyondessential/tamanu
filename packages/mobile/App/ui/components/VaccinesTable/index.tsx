@@ -4,12 +4,11 @@ import { uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
 import { Table } from '../Table';
 import { VaccineRowHeader } from './VaccineRowHeader';
-import { VaccineTableCell } from './VaccinesTableCell';
 import { VaccinesTableTitle } from './VaccinesTableTitle';
 import { vaccineTableHeader } from './VaccineTableHeader';
 import { ErrorScreen } from '../ErrorScreen';
 import { LoadingScreen } from '../LoadingScreen';
-import { getWeeksFromBirth, ScheduledVaccineStatus } from '~/ui/helpers/patient';
+import { getWeeksFromBirth, VaccineStatus } from '~/ui/helpers/patient';
 
 interface VaccinesTableProps {
   selectedPatient: any;
@@ -40,59 +39,49 @@ export const VaccinesTable = ({
   if (error || administeredError) return <ErrorScreen error={error || administeredError} />;
   if (!data) return <LoadingScreen />;
 
-  const schedules = uniqBy(data, 'schedule').map(d => d.schedule);
-
-  const columnData = data.map(({ id, weeksFromBirthDue, label, vaccine }) => ({
-    key: vaccine.id,
-    title: label,
-    subtitle: vaccine.name,
-    rowHeader: (column: any): ReactElement => (
-      <VaccineRowHeader key={column.key} row={column} />
-    ),
-    accessor: (row: any, onPress, column): ReactElement => (
-      <VaccineTableCell
-        onPress={onPress}
-        key={column.key}
-        vaccine={{
-          ...vaccine,
-          weeksUntilDue: weeksFromBirthDue
-            ? weeksFromBirthDue - getWeeksFromBirth(selectedPatient.dateOfBirth)
-            : null,
-          scheduledVaccineId: id,
-          status: row[column.key],
-          schedule: row.header,
-        }}
+  const uniqueByVaccine = uniqBy(data, 'label');
+  const rows = uniqueByVaccine.map(scheduledVaccine => ({
+    label: scheduledVaccine.label,
+    rowHeader: (): ReactElement => (
+      <VaccineRowHeader
+        key={scheduledVaccine.id}
+        title={scheduledVaccine.label}
+        subtitle={scheduledVaccine.vaccine.name}
       />
     ),
   }));
 
-  const rowData = schedules.map(schedule => {
-    const dataForSchedule = data.filter(d => d.schedule === schedule);
+  const uniqueBySchedule = uniqBy(data, 'schedule');
+  const columns = uniqueBySchedule.map(scheduledVaccine => scheduledVaccine.schedule);
 
-    return dataForSchedule.reduce((state, current) => {
-      const administeredVaccine = administeredData && administeredData.find(
-        v => v.scheduledVaccine.id === current.id,
-      );
+  const cells = {};
+  data.forEach(scheduledVaccine => {
+    const administeredVaccine = administeredData && administeredData.find(
+      v => v.scheduledVaccine.id === scheduledVaccine.id,
+    );
 
-      const vaccineStatus = administeredVaccine
-        ? administeredVaccine.status
-        : ScheduledVaccineStatus.SCHEDULED;
+    const weeksUntilDue = scheduledVaccine.weeksFromBirthDue
+      ? scheduledVaccine.weeksFromBirthDue - getWeeksFromBirth(selectedPatient.dateOfBirth)
+      : null;
 
-      return {
-        ...state,
-        [current.vaccine.id]: vaccineStatus,
-      };
-    }, { header: schedule });
+    const vaccineStatus = administeredVaccine
+      ? administeredVaccine.status
+      : VaccineStatus.SCHEDULED;
+
+    cells[scheduledVaccine.schedule] = [
+      ...(cells[scheduledVaccine.schedule] || []),
+      { ...scheduledVaccine, vaccineStatus, weeksUntilDue },
+    ];
   });
 
   return (
     <Table
       onPressItem={onPressItem}
-      columns={uniqBy(columnData, 'key')}
+      rows={rows}
+      columns={columns}
+      cells={cells}
       Title={VaccinesTableTitle}
-      data={rowData}
       tableHeader={vaccineTableHeader}
-      columnKey="header"
     />
   );
 };

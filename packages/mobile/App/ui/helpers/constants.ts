@@ -1,7 +1,7 @@
 import { EncounterType } from '~/types';
 import * as Icons from '/components/Icons';
 import { theme } from '/styled/theme';
-import { ScheduledVaccineStatus, VaccineStatus } from '/helpers/patient';
+import { VaccineStatus } from '/helpers/patient';
 import { ColorHelper } from './colors';
 
 export const DateFormats = {
@@ -128,59 +128,53 @@ export const userRolesOptions = [
 ];
 
 export const VaccineStatusCells = {
-  [ScheduledVaccineStatus.GIVEN]: {
+  [VaccineStatus.UNKNOWN]: {
+    Icon: Icons.EmptyCircleIcon,
+    background: 'transparent',
+    color: theme.colors.TEXT_SOFT,
+    text: 'UNKNOWN',
+  },
+  [VaccineStatus.GIVEN]: {
     Icon: Icons.GivenOnTimeIcon,
     background: theme.colors.SAFE,
     color: theme.colors.SAFE,
     text: 'GIVEN ON TIME',
   },
-  [ScheduledVaccineStatus.NOT_GIVEN]: {
+  [VaccineStatus.NOT_GIVEN]: {
     Icon: Icons.NotGivenIcon,
     background: theme.colors.DISABLED_GREY,
     color: theme.colors.TEXT_SOFT,
     text: 'NOT GIVEN',
   },
-  [ScheduledVaccineStatus.SCHEDULED]: {
+  [VaccineStatus.SCHEDULED]: {
     Icon: Icons.EmptyCircleIcon,
     background: theme.colors.BACKGROUND_GREY,
-    color: theme.colors.ORANGE,
+    color: theme.colors.TEXT_SOFT,
     text: 'SCHEDULED',
   },
   [VaccineStatus.MISSED]: {
-    Icon: Icons.NotGivenIcon,
-    background: theme.colors.DISABLED_GREY,
+    Icon: Icons.CrossIcon,
+    background: theme.colors.ALERT,
     color: theme.colors.TEXT_SOFT,
     text: 'MISSED',
   },
-  [VaccineStatus.NO_DUE_DATE]: {
+  [VaccineStatus.DUE]: {
     Icon: Icons.EmptyCircleIcon,
-    background: theme.colors.BACKGROUND_GREY,
-    color: theme.colors.ORANGE,
-    text: 'SCHEDULED',
+    background: theme.colors.PRIMARY_MAIN,
+    color: theme.colors.TEXT_SOFT,
+    text: 'DUE NOW',
   },
   [VaccineStatus.OVERDUE]: {
-    Icon: Icons.CrossIcon,
-    background: theme.colors.ALERT,
-    color: theme.colors.ORANGE,
-    text: 'OVERDUE',
-  },
-  [VaccineStatus.NOT_DUE]: {
     Icon: Icons.EmptyCircleIcon,
-    background: theme.colors.BACKGROUND_GREY,
-    color: theme.colors.ORANGE,
-    text: 'SCHEDULED',
+    background: theme.colors.SECONDARY_MAIN,
+    color: theme.colors.TEXT_SOFT,
+    text: 'OVERDUE',
   },
   [VaccineStatus.UPCOMING]: {
     Icon: Icons.EmptyCircleIcon,
-    background: ColorHelper.halfTransparency(theme.colors.LIGHT_BLUE),
-    color: theme.colors.ORANGE,
-    text: 'SCHEDULED',
-  },
-  [VaccineStatus.DUE]: {
-    Icon: Icons.EmptyCircleIcon,
-    background: theme.colors.BRIGHT_BLUE,
-    color: theme.colors.BRIGHT_BLUE,
-    text: 'DUE NOW',
+    background: ColorHelper.halfTransparency(theme.colors.PRIMARY_MAIN),
+    color: theme.colors.TEXT_SOFT,
+    text: 'UPCOMING',
   },
 };
 

@@ -1,12 +1,14 @@
 import React, { FunctionComponent } from 'react';
 import { StyledView, RowView } from '/styled/common';
-import { TableData } from './TableData';
+import { ScrollView } from 'react-native-gesture-handler';
+import { VaccineTableCell } from '../VaccinesTable/VaccinesTableCell';
 
 export type Column = {
   id?: string | number;
   key: string;
   title: string;
   subtitle?: string;
+  schedule?: string;
   accessor: (
     row: any,
     onPress?: (item: any) => void,
@@ -17,32 +19,46 @@ export type Column = {
 
 interface TableProps {
   Title: FunctionComponent<any>;
-  data: any;
-  columns: Column[];
+  cells: any;
+  rows: any;
+  columns: any[];
   tableHeader: any;
-  columnKey: string;
   onPressItem: (item: any) => void;
 }
 
 export const Table = ({
   Title,
-  data,
+  rows,
   columns,
+  cells,
   tableHeader,
-  columnKey,
   onPressItem,
 }: TableProps): JSX.Element => (
   <RowView>
     <StyledView>
       <Title />
-      {columns.map(c => c.rowHeader(c))}
+      {rows.map(r => r.rowHeader())}
     </StyledView>
-    <TableData
-      columnKey={columnKey}
-      data={data}
-      columns={columns}
-      tableHeader={tableHeader}
-      onPressItem={onPressItem}
-    />
+    <ScrollView
+      bounces={false}
+      scrollEnabled
+      showsHorizontalScrollIndicator
+      horizontal
+    >
+      <RowView>
+        {columns.map((column: any) => (
+          <StyledView key={`${column}`}>
+            {tableHeader.accessor(column, onPressItem)}
+            {rows.map((row, i) => (
+              <VaccineTableCell
+                key={`${column}${row.id}`}
+                onPress={onPressItem}
+                data={cells[column].find(d => d.label === row.label)}
+              />
+            ))}
+          </StyledView>
+        ))}
+      </RowView>
+    </ScrollView>
   </RowView>
 );

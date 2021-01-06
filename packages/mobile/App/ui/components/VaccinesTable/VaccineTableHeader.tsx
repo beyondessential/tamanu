@@ -1,12 +1,11 @@
 import React from 'react';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { IVaccine } from '~/types';
 
 export const vaccineTableHeader = {
   key: 'date',
   tableHeader: true,
-  accessor: (row: IVaccine): JSX.Element => (
+  accessor: (title: string): JSX.Element => (
     <StyledView
       paddingTop={15}
       paddingBottom={15}
@@ -22,7 +21,7 @@ export const vaccineTableHeader = {
         fontWeight={700}
         color={theme.colors.WHITE}
       >
-        {row.header}
+        {title}
       </StyledText>
     </StyledView>
   ),
