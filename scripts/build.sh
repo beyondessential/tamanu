@@ -11,5 +11,6 @@ touch ${DESKTOP_ROOT}/.env &&
 
 yarn --cwd ${DESKTOP_ROOT} run package-win
 yarn --cwd ${LAN_ROOT} run package
+yarn --cwd ${SYNC_SERVER_ROOT} run build
 
 ./scripts/pack.sh ${type}

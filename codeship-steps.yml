@@ -10,7 +10,7 @@
 - name: test
   service: app
   command: ./scripts/test.sh
-- name: build_lan_and_desktop_installers
+- name: build
   service: app
   tag: ^(master|dev|ci-)
   command: ./scripts/build.sh demo
