@@ -12,7 +12,8 @@
   command: ./scripts/test.sh
 - name: build
   service: app
-  tag: ^(master|dev|ci-)
+  # TODO: uncomment
+  # tag: ^(master|dev|ci-)
   command: ./scripts/build.sh demo
 - name: push_artefacts_to_s3
   service: awsdeployment
