@@ -24,7 +24,7 @@
   # TODO: uncomment
   # tag: dev
   service: awsdeployment
-  command: ./scripts/deploy_sync_server_dev.sh
+  command: ./scripts/deploy_to_eb.sh
 
 - type: manual
   tag: master
