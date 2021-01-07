@@ -3,6 +3,9 @@ set -euxo pipefail
 
 RELEASE_DIR=release
 
+# build sync bundle
+yarn workspace sync-server build
+
 # copy sync workspace into release dir
 pushd "$SYNC_SERVER_ROOT"
 rm -rf "./$RELEASE_DIR"
