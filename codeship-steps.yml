@@ -24,7 +24,7 @@
   # TODO: uncomment
   # tag: dev
   service: awsdeployment
-  command: codeship_aws eb_deploy . tamanu-sync-server tamanu-sync-server-dev elasticbeanstalk-ap-southeast-2-843218180240
+  command: 'codeship_aws eb_deploy . tamanu-sync-server tamanu-sync-server-dev elasticbeanstalk-ap-southeast-2-843218180240 | gsed "/^\s*adding:/d"'
 
 - type: manual
   tag: master
