@@ -1,0 +1,14 @@
+#!/bin/bash
+set -euxo pipefail
+
+RELEASE_DIR=release
+
+# copy sync workspace into release dir
+pushd "$SYNC_SERVER_ROOT"
+rm -rf "./$RELEASE_DIR"
+mkdir -p "./$RELEASE_DIR"
+cp -R ./[!"$RELEASE_DIR"]* "./$RELEASE_DIR"
+
+# run yarn install now that we're not in a known workspace
+pushd "$RELEASE_DIR"
+yarn install --non-interactive --production

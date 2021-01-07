@@ -10,21 +10,24 @@
 - name: test
   service: app
   command: ./scripts/test.sh
-- name: build
+- name: build_lan_and_desktop_installers
   service: app
+  tag: ^(master|dev|ci-)
+  command: ./scripts/build.sh demo
+- name: build_sync_release
   # TODO: uncomment
   # tag: ^(master|dev|ci-)
-  command: ./scripts/build.sh demo
+  service: app
+  command: ./scripts/build_sync_release.sh
 - name: push_artefacts_to_s3
   service: awsdeployment
   tag: ^(dev|ci-)
   command: ./scripts/push.sh
-
 - name: deploy_sync_dev_environment
   # TODO: uncomment
   # tag: dev
   service: awsdeployment
-  command: ./scripts/deploy_to_eb.sh
+  command: ./scripts/deploy_sync_dev.sh
 
 - type: manual
   tag: master
