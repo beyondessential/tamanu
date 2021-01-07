@@ -1,10 +1,9 @@
 import React from 'react';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
-import { Column } from '../Table';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
-export const VitalsTableRowHeader = ({ col }: { col: Column }): JSX.Element => (
+export const VitalsTableRowHeader = ({ title }: { title: string }): JSX.Element => (
   <StyledView
     width="100%"
     borderRightWidth={1}
@@ -15,11 +14,11 @@ export const VitalsTableRowHeader = ({ col }: { col: Column }): JSX.Element => (
     height={screenPercentageToDP(5.46, Orientation.Height)}
     justifyContent="center"
   >
-    <StyledText
+    <StyledText 
       fontSize={screenPercentageToDP(1.57, Orientation.Height)}
       color={theme.colors.TEXT_SUPER_DARK}
     >
-      {col.title}
+      {title}
     </StyledText>
   </StyledView>
 );

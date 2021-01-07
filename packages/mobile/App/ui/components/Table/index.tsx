@@ -3,25 +3,17 @@ import { StyledView, RowView } from '/styled/common';
 import { ScrollView } from 'react-native-gesture-handler';
 import { VaccineTableCell } from '../VaccinesTable/VaccinesTableCell';
 
-export type Column = {
-  id?: string | number;
-  key: string;
-  title: string;
-  subtitle?: string;
-  schedule?: string;
-  accessor: (
-    row: any,
-    onPress?: (item: any) => void,
-    column?: any,
-  ) => Element;
-  rowHeader: (row: any, column?: any) => Element;
+export type Row = {
+  rowKey: string;
+  rowTitle: string;
+  rowHeader: () => Element;
 };
 
 interface TableProps {
   Title: FunctionComponent<any>;
-  cells: any;
-  rows: any;
-  columns: any[];
+  cells: any[];
+  rows: Row[];
+  columns: string[];
   tableHeader: any;
   onPressItem: (item: any) => void;
 }
@@ -49,11 +41,11 @@ export const Table = ({
         {columns.map((column: any) => (
           <StyledView key={`${column}`}>
             {tableHeader.accessor(column, onPressItem)}
-            {rows.map((row, i) => (
+            {rows.map(row => (
               <VaccineTableCell
-                key={`${column}${row.id}`}
+                key={row.rowKey}
                 onPress={onPressItem}
-                data={cells[column].find(d => d.label === row.label)}
+                data={cells[column].find(c => c[row.rowKey] === row.rowTitle)}
               />
             ))}
           </StyledView>

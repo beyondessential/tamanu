@@ -27,7 +27,7 @@ interface VaccineTableCellProps {
 
 const CellContent = ({
   cellStatus, status,
-}: { status: string | null; cellStatus?: string | undefined }): ReactElement => {
+}: { status?: string; cellStatus?: string }): ReactElement => {
   const cellData = VaccineStatusCells[cellStatus] || VaccineStatusCells[status];
   const Icon = cellData.Icon;
 

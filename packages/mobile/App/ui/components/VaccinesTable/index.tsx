@@ -41,7 +41,8 @@ export const VaccinesTable = ({
 
   const uniqueByVaccine = uniqBy(data, 'label');
   const rows = uniqueByVaccine.map(scheduledVaccine => ({
-    label: scheduledVaccine.label,
+    rowTitle: scheduledVaccine.label,
+    rowKey: 'label',
     rowHeader: (): ReactElement => (
       <VaccineRowHeader
         key={scheduledVaccine.id}

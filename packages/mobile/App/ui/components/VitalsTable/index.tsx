@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
 import { Table } from '../Table';
-import { vitalsTableCols } from './VitalsTableColumns';
+import { vitalsTableCols } from './VitalsTableData';
 import { vitalsTableHeader } from './VitalsTableHeader';
 import { VitalsTableTitle } from './VitalsTableTitle';
 
@@ -12,12 +12,16 @@ interface VitalsTableProps {
 export const VitalsTable = memo(
   ({ patientData }: VitalsTableProps): JSX.Element => (
     <Table
-      columns={vitalsTableCols}
       Title={VitalsTableTitle}
-      data={patientData}
       tableHeader={vitalsTableHeader}
-      columnKey="date"
       onPressItem={(): null => null}
+      rows={rows}
+      columns={vitalsTableCols}
+      cells={cells}
+
+      // columns={vitalsTableCols}
+      // data={patientData}
+      // columnKey="date"
     />
   ),
 );
