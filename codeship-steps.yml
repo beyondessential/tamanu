@@ -7,7 +7,8 @@
 - name: install_dependencies
   service: app
   command: ./scripts/install.sh
-- type: parallel
+- name: build_and_test
+  type: parallel
   steps:
     - name: test
       service: app
@@ -21,7 +22,8 @@
       # tag: ^(master|dev|ci-)
       service: app
       command: ./scripts/build_sync_release.sh
-- type: parallel
+- name: push_and_deploy
+  type: parallel
   steps:
     - name: push_artefacts_to_s3
       service: awsdeployment
