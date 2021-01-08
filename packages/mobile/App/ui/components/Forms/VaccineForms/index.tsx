@@ -3,13 +3,13 @@ import { Formik } from 'formik';
 import { VaccineFormNotGiven } from './VaccineFormNotGiven';
 import { VaccineFormGiven } from './VaccineFormGiven';
 import { FullView } from '/styled/common';
-import { ScheduledVaccineStatus } from '~/ui/helpers/patient';
+import { VaccineStatus } from '~/ui/helpers/patient';
 
 const getFormType = (status: string): { Form: FC<any> } => {
   switch (status) {
-    case ScheduledVaccineStatus.GIVEN:
+    case VaccineStatus.GIVEN:
       return { Form: VaccineFormGiven };
-    case ScheduledVaccineStatus.NOT_GIVEN:
+    case VaccineStatus.NOT_GIVEN:
       return { Form: VaccineFormNotGiven };
     default:
       return { Form: VaccineFormGiven };

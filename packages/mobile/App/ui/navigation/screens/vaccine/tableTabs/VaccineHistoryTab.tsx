@@ -8,7 +8,7 @@ import { Routes } from '/helpers/routes';
 import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
 import { IPatient } from '~/types';
-import { ScheduledVaccineStatus } from '~/ui/helpers/patient';
+import { VaccineStatus } from '~/ui/helpers/patient';
 
 interface VaccineHistoryTabProps {
   navigation: NavigationProp<any>;
@@ -25,7 +25,7 @@ export const VaccineHistoryTabComponent = ({
 }: VaccineHistoryTabProps): ReactElement => {
   const category = route.name.split('/')[route.name.split('/').length - 1];
   const onNavigateToClickedCell = useCallback(item => {
-    if (item.status === ScheduledVaccineStatus.SCHEDULED) {
+    if (item.status === VaccineStatus.SCHEDULED) {
       navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.Index, {
         vaccine: item,
       });

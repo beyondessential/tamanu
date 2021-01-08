@@ -9,41 +9,39 @@ import {
 import { theme } from '/styled/theme';
 import { VaccineStatusCells } from '/helpers/constants';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { IAdministeredVaccine } from '~/types';
-import { getVaccineStatus, VaccineStatus, ScheduledVaccineStatus } from '~/ui/helpers/patient';
+import { IAdministeredVaccine, IScheduledVaccine } from '~/types';
+import { getVaccineStatus, VaccineStatus } from '~/ui/helpers/patient';
 
 interface VaccineCellMetadata {
    weeksUntilDue?: number;
    scheduledVaccineId?: string;
-   status: VaccineStatus;
+   vaccineStatus: VaccineStatus;
    schedule: ReactElement;
+   vaccine: IScheduledVaccine;
 }
 
 interface VaccineTableCellProps {
-  vaccine: IAdministeredVaccine & VaccineCellMetadata;
-  status: any;
+  data: IAdministeredVaccine & VaccineCellMetadata;
   onPress?: (item: any) => void;
 }
 
 const CellContent = ({
-  weeksUntilDue, status,
-}: { weeksUntilDue: number | null; status: string | null }): ReactElement => {
-  const dueStatus = getVaccineStatus(weeksUntilDue);
-  let cellStatus = status || dueStatus;
-  if (status === ScheduledVaccineStatus.SCHEDULED) cellStatus = dueStatus;
-  const Icon = VaccineStatusCells[cellStatus].Icon;
+  cellStatus, status,
+}: { status?: string; cellStatus?: string }): ReactElement => {
+  const cellData = VaccineStatusCells[cellStatus] || VaccineStatusCells[status];
+  const Icon = cellData.Icon;
 
   return (
     <StyledView
       width={85}
       borderRightWidth={1}
       borderColor={theme.colors.BOX_OUTLINE}
-      background={cellStatus ? VaccineStatusCells[cellStatus].background : 'transparent'}
+      background={cellData.background}
       borderBottomWidth={1}
       height={80}
       alignItems="center"
     >
-      {status
+      {cellStatus
         ? (
           <CenterView flex={1}>
             <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />
@@ -55,47 +53,52 @@ const CellContent = ({
 };
 
 export const VaccineTableCell = ({
-  vaccine,
+  data,
   onPress,
 }: VaccineTableCellProps): JSX.Element => {
-  const { weeksUntilDue, status } = vaccine;
+  if (!data) return <CellContent status={VaccineStatus.UNKNOWN} />;
+
+  const { vaccine, vaccineStatus, weeksUntilDue } = data;
+  const dueStatus = getVaccineStatus(weeksUntilDue);
+  let cellStatus = vaccineStatus || dueStatus || VaccineStatus.UNKNOWN;
+  if (vaccineStatus === VaccineStatus.SCHEDULED) cellStatus = dueStatus;
 
   const onPressItem = useCallback(() => {
-    if (weeksUntilDue > 4 && status === ScheduledVaccineStatus.SCHEDULED) {
-      Popup.show({
-        type: 'Warning',
-        title: 'Vaccine not due',
-        button: true,
-        textBody: `This patient should receive this vaccine in ${weeksUntilDue} weeks.`,
-        buttonText: 'Ok',
-        callback: () => Popup.hide(),
-      });
-      return;
-    }
-    if (weeksUntilDue < -4 && status === ScheduledVaccineStatus.SCHEDULED) {
-      Popup.show({
-        type: 'Warning',
-        title: 'Vaccine missed',
-        button: true,
-        textBody:
-          `Patient has missed this vaccine by ${Math.abs(weeksUntilDue)} weeks, please refer to the catchup schedule.`,
-        buttonText: 'Ok',
-        callback: () => Popup.hide(),
-      });
-      return;
+    if (vaccineStatus === VaccineStatus.SCHEDULED) {
+      if (dueStatus === VaccineStatus.MISSED) {
+        Popup.show({
+          type: 'Warning',
+          title: 'Vaccine missed',
+          button: true,
+          textBody:
+            `Patient has missed this vaccine by ${Math.abs(weeksUntilDue)} weeks, please refer to the catchup schedule.`,
+          buttonText: 'Ok',
+          callback: () => Popup.hide(),
+        });
+        return;
+      }
+      if (dueStatus === VaccineStatus.SCHEDULED) {
+        Popup.show({
+          type: 'Warning',
+          title: 'Vaccine not due',
+          button: true,
+          textBody: `This patient should receive this vaccine in ${weeksUntilDue} weeks.`,
+          buttonText: 'Ok',
+          callback: () => Popup.hide(),
+        });
+        return;
+      }
     }
 
-    if (status) {
-      onPress(vaccine);
+    if (vaccineStatus) {
+      onPress({ ...vaccine, status: vaccineStatus });
     }
   }, [vaccine]);
 
-  return (vaccine.status) ? (
+  return (
     <StyledTouchableOpacity onPress={onPressItem}>
-      <CellContent status={status} vaccine={vaccine} weeksUntilDue={weeksUntilDue} />
+      <CellContent status={vaccineStatus} cellStatus={cellStatus} />
     </StyledTouchableOpacity>
-  ) : (
-    <CellContent status={null} weeksUntilDue={weeksUntilDue} />
   );
 };
 
