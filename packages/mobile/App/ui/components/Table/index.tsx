@@ -15,7 +15,7 @@ interface TableProps {
   rows: Row[];
   columns: string[];
   tableHeader: any;
-  onPressItem: (item: any) => void;
+  onPressItem?: (item: any) => void;
 }
 
 export const Table = ({

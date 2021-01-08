@@ -27,7 +27,6 @@ export const VitalsTable = memo(
       <Table
         Title={VitalsTableTitle}
         tableHeader={vitalsTableHeader}
-        onPressItem={(): null => null}
         rows={vitalsRows}
         columns={columns}
         cells={cells}
