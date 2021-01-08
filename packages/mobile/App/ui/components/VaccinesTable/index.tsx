@@ -9,6 +9,7 @@ import { vaccineTableHeader } from './VaccineTableHeader';
 import { ErrorScreen } from '../ErrorScreen';
 import { LoadingScreen } from '../LoadingScreen';
 import { getWeeksFromBirth, VaccineStatus } from '~/ui/helpers/patient';
+import { VaccineTableCell } from './VaccinesTableCell';
 
 interface VaccinesTableProps {
   selectedPatient: any;
@@ -48,6 +49,12 @@ export const VaccinesTable = ({
         key={scheduledVaccine.id}
         title={scheduledVaccine.label}
         subtitle={scheduledVaccine.vaccine.name}
+      />
+    ),
+    cell: (cellData): ReactElement => (
+      <VaccineTableCell
+        onPress={onPressItem}
+        data={cellData}
       />
     ),
   }));

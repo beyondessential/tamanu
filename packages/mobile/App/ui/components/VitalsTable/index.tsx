@@ -1,7 +1,7 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
 import { Table } from '../Table';
-import { vitalsTableCols } from './VitalsTableData';
+import { vitalsRows, vitalsColumns } from './VitalsTableData';
 import { vitalsTableHeader } from './VitalsTableHeader';
 import { VitalsTableTitle } from './VitalsTableTitle';
 
@@ -10,18 +10,28 @@ interface VitalsTableProps {
 }
 
 export const VitalsTable = memo(
-  ({ patientData }: VitalsTableProps): JSX.Element => (
-    <Table
-      Title={VitalsTableTitle}
-      tableHeader={vitalsTableHeader}
-      onPressItem={(): null => null}
-      rows={rows}
-      columns={vitalsTableCols}
-      cells={cells}
+  ({ patientData }: VitalsTableProps): JSX.Element => {
+    const columns = useCallback(() => vitalsColumns(patientData), [patientData])();
+    const cells = {};
+    patientData.forEach(vitals => {
+      cells[vitals.date.toDateString()] = [];
+      Object.entries(vitals).forEach(([key, value]) => {
+        cells[vitals.date.toDateString()].push({
+          label: key,
+          value,
+        });
+      });
+    });
 
-      // columns={vitalsTableCols}
-      // data={patientData}
-      // columnKey="date"
-    />
-  ),
+    return (
+      <Table
+        Title={VitalsTableTitle}
+        tableHeader={vitalsTableHeader}
+        onPressItem={(): null => null}
+        rows={vitalsRows}
+        columns={columns}
+        cells={cells}
+      />
+    );
+  },
 );

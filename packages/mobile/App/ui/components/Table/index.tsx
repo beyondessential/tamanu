@@ -1,17 +1,17 @@
 import React, { FunctionComponent } from 'react';
 import { StyledView, RowView } from '/styled/common';
 import { ScrollView } from 'react-native-gesture-handler';
-import { VaccineTableCell } from '../VaccinesTable/VaccinesTableCell';
 
 export type Row = {
   rowKey: string;
   rowTitle: string;
   rowHeader: () => Element;
+  cell: (cellContent: FunctionComponent<any>) => Element;
 };
 
 interface TableProps {
   Title: FunctionComponent<any>;
-  cells: any[];
+  cells: {};
   rows: Row[];
   columns: string[];
   tableHeader: any;
@@ -41,13 +41,8 @@ export const Table = ({
         {columns.map((column: any) => (
           <StyledView key={`${column}`}>
             {tableHeader.accessor(column, onPressItem)}
-            {rows.map(row => (
-              <VaccineTableCell
-                key={row.rowKey}
-                onPress={onPressItem}
-                data={cells[column].find(c => c[row.rowKey] === row.rowTitle)}
-              />
-            ))}
+            {cells[column]
+            && rows.map(row => row.cell(cells[column].find(c => c[row.rowKey] === row.rowTitle)))}
           </StyledView>
         ))}
       </RowView>

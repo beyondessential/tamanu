@@ -1,35 +1,39 @@
-import React from 'react';
-import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
+import React, { ReactElement } from 'react';
 import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';
+import { Row } from '../Table';
 
-// const rowHeader = (column: any): JSX.Element => (
-//   <VitalsTableRowHeader key={column.key} col={column} />
-// );
+export const vitalsColumns = (patientData): string[] => patientData.map(d => d.date.toDateString());
 
-const accessor = (row: PatientVitalsProps, _, column): JSX.Element => (
-  <VitalsTableCell key={column.key}>{row[column.key]}</VitalsTableCell>
-);
+export const vitalRowFieldsToNames = {
+  weight: 'Weight (kg)',
+  height: 'Height (cm)',
+  sbp: 'sbp',
+  dbp: 'dbp',
+  heartRate: 'Heart Rate',
+  respiratoryRate: 'Respiratory Rate',
+  temperature: 'Temperature (ºC)',
+  svO2: 'SvO2 (%)',
+  avpu: 'AVPU',
+};
 
-
-export const vitalsRows = [
-  {
-    rowTitle: 1,
-    rowKey: 1,
-    rowHeader: <VitalsTableRowHeader title={rowTitle} />,
-  },
-];
-
-export const vitalsColumns: string[] = [
-  'Weight (kg)',
-  'Height (cm)',
+export const vitalsRows: Row[] = [
+  'weight',
+  'height',
   'sbp',
   'dbp',
-  'Heart Rate',
-  'Respiratory Rate',
-  'Temperature (ºC)',
-  'SvO2 (%)',
-  'AVPU',
-];
-
-export const vitalsCells = [];
+  'heartRate',
+  'respiratoryRate',
+  'temperature',
+  'svO2',
+  'avpu',
+].map(r => ({
+  rowKey: 'label',
+  rowTitle: r,
+  rowHeader: (): ReactElement => (
+    <VitalsTableRowHeader title={r} />
+  ),
+  cell: (cellData): ReactElement => (
+    <VitalsTableCell data={cellData} />
+  ),
+}));
