@@ -18,4 +18,4 @@ yarn install --non-interactive --production
 popd
 
 # copy across shared
-cp -vR ../shared "./$RELEASE_DIR/node_modules/"
+cp -R ../shared "./$RELEASE_DIR/node_modules/"
