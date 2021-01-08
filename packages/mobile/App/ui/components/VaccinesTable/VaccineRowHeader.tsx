@@ -9,12 +9,10 @@ interface VaccineRowHeaderProps {
 }
 
 export const VaccineRowHeader = ({
-  key,
   title,
   subtitle,
 }: VaccineRowHeaderProps): JSX.Element => (
   <StyledView
-    key={key}
     width={130}
     borderRightWidth={1}
     borderColor={theme.colors.BOX_OUTLINE}
