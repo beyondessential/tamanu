@@ -18,8 +18,7 @@
       tag: ^(master|dev|ci-)
       command: ./scripts/build.sh demo
     - name: build_sync_release
-      # TODO: uncomment
-      # tag: ^(master|dev|ci-)
+      tag: ^(master|dev|ci-)
       service: app
       command: ./scripts/build_sync_release.sh
 - name: push_and_deploy
@@ -30,8 +29,7 @@
       tag: ^(dev|ci-)
       command: ./scripts/push.sh
     - name: deploy_sync_dev_environment
-      # TODO: uncomment
-      # tag: dev
+      tag: ^(dev|ci-)
       service: awsdeployment
       command: ./scripts/deploy_sync_dev.sh
 
