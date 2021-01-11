@@ -1,5 +1,6 @@
 import config from 'config';
 import pg from 'pg';
+import { Sequelize } from 'sequelize';
 
 import { SqlWrapper } from './sqlWrapper';
 import { log } from '../logging';
@@ -46,6 +47,7 @@ export async function initDatabase({ testMode = false }) {
     log,
     makeEveryModelParanoid: true,
     saltRounds: config.auth.saltRounds,
+    primaryKeyType: Sequelize.STRING,
   }).init();
 
   if (testMode) {

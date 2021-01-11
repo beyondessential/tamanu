@@ -14,6 +14,6 @@ export function initDatabase({ testMode = false }) {
   return sharedInitDatabase({
     ...config.db,
     log,
-    uuidGenerator: testMode ? createTestUUID : null,
+    primaryKeyDefault: testMode ? createTestUUID : null,
   });
 }

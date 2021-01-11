@@ -18,9 +18,10 @@ export function initDatabase(dbOptions) {
     port=null,
     verbose=false,
     sqlitePath=null,
-    uuidGenerator=Sequelize.UUIDV4,
     makeEveryModelParanoid=false,
     saltRounds=null,
+    primaryKeyDefault=Sequelize.UUIDV4,
+    primaryKeyType=Sequelize.UUID,
   } = dbOptions;
 
   if (sqlitePath) {
@@ -51,8 +52,8 @@ export function initDatabase(dbOptions) {
   // init all models
   const modelClasses = Object.values(models);
   const primaryKey = {
-    type: Sequelize.UUID,
-    defaultValue: uuidGenerator,
+    type: primaryKeyType,
+    defaultValue: primaryKeyDefault,
     primaryKey: true,
   };
   log.info(`Registering ${modelClasses.length} models...`);
