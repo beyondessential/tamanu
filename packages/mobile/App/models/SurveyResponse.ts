@@ -6,7 +6,12 @@ import { ProgramDataElement } from './ProgramDataElement';
 import { Encounter } from './Encounter';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 
-import { FieldTypes, getStringValue, getResultValue } from '~/ui/helpers/fields';
+import { 
+  FieldTypes, 
+  getStringValue,
+  getResultValue,
+  checkVisibilityCriteria
+} from '~/ui/helpers/fields';
 import { DataElementType, ISurveyResponse } from '~/types';
 
 @Entity('survey_response')
@@ -68,12 +73,14 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       });
 
       // find a component with a Result data type and use its value as the overall result
-      const resultComponent = components.find(c => c.dataElement.type === DataElementType.Result);
+      const resultComponents = components
+        .filter(c => c.dataElement.type === DataElementType.Result)
+        .filter(c => checkVisibilityCriteria(c, componenets, values));
 
       const { 
         result,
         resultText,
-      } = getResultValue(resultComponent, values);
+      } = getResultValue(resultComponents[0], values);
 
       setNote("Creating response object...");
       const responseRecord = await SurveyResponse.create({

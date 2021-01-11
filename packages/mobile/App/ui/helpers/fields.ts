@@ -82,3 +82,54 @@ export function getResultValue(component: ISurveyScreenComponent, values: {}): R
     resultText: formatResultText(rawValue, component),
   };
 }
+
+function compareData(dataType: string, expected: string, given: any): boolean {
+  switch(dataType) {
+    case DataElementType.Binary:
+      if (expected === 'yes' && given === true) return true;
+      if (expected === 'no' && given === false) return true;
+      break;
+    default:
+      if (expected === given) return true;
+      break;
+  }
+
+  return false;
+}
+
+export function checkVisibilityCriteria(
+  component: ISurveyScreenComponent, 
+  allComponents: ISurveyScreenComponent[], 
+  values: any
+): boolean {
+  const { visibilityCriteria, dataElement } = component;
+  const dataType = dataElement.type;
+
+  // never show calculated fields
+  if (dataType == DataElementType.Calculated) return false;
+
+  // nothing set - show by default
+  if (!visibilityCriteria) return true;
+
+  const [
+    elementCode = '',
+    expectedAnswer = '',
+  ] = visibilityCriteria.split(/\s*:\s*/);
+
+  let givenAnswer = values[elementCode] || '';
+  if(givenAnswer.toLowerCase) {
+    givenAnswer = givenAnswer.toLowerCase().trim();
+  }
+  const expectedTrimmed = expectedAnswer.toLowerCase().trim();
+
+  const comparisonComponent = allComponents.find(x => x.dataElement.code === elementCode);
+
+  if(!comparisonComponent) {
+    console.warn(`Comparison component ${elementCode} not found!`);
+    return false;
+  }
+
+  const comparisonDataType = comparisonComponent.dataElement.type;
+
+  return compareData(comparisonDataType, expectedTrimmed, givenAnswer);
+}
