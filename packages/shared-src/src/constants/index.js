@@ -103,6 +103,7 @@ export const REFERENCE_TYPES = {
   FACILITY: 'facility',
   LOCATION: 'location',
   DEPARTMENT: 'department',
+  VACCINE: 'vaccine',
   VILLAGE: 'village',
 };
 
