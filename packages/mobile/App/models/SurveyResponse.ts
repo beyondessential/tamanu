@@ -6,8 +6,8 @@ import { ProgramDataElement } from './ProgramDataElement';
 import { Encounter } from './Encounter';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 
-import { FieldTypes, getStringValue } from '~/ui/helpers/fields';
-import { ISurveyResponse } from '~/types';
+import { FieldTypes, getStringValue, getResultValue } from '~/ui/helpers/fields';
+import { DataElementType, ISurveyResponse } from '~/types';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
@@ -50,7 +50,12 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   }
 
   static async submit(patientId, surveyData, values, setNote = () => null): Promise<SurveyResponse> {
-    const { surveyId, encounterReason, components, ...otherData } = surveyData;
+    const { 
+      surveyId, 
+      encounterReason, 
+      components,
+      ...otherData
+    } = surveyData;
 
     try {
       setNote("Creating encounter...");
@@ -61,6 +66,14 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         encounterType: 'surveyResponse',
         reasonForEncounter: encounterReason,
       });
+
+      // find a component with a Result data type and use its value as the overall result
+      const resultComponent = components.find(c => c.dataElement.type === DataElementType.Result);
+
+      const { 
+        result,
+        resultText,
+      } = getResultValue(resultComponent, values);
 
       setNote("Creating response object...");
       const responseRecord = await SurveyResponse.create({

@@ -16,26 +16,6 @@ import { ISurveyScreenComponent, DataElementType } from '~/types/ISurvey';
 
 import { useBackend, useBackendEffect } from '~/ui/hooks';
 
-function getResultValues(component, value) {
-  if(!component) {
-    // this survey does not have a result field
-    return { result: 0, resultText: '' };
-  }
-
-  if(typeof(value) === number) {
-    // TODO: read formatting options from component
-    return { 
-      result: value,
-      resultText: `${value.toFixed(0)}%`,
-    };
-  }
-
-  return {
-    result: 0,
-    resultText: value,
-  };
-}
-
 export const ProgramAddDetailsScreen = ({
   route,
 }: ProgramAddDetailsScreenProps): ReactElement => {
@@ -51,27 +31,12 @@ export const ProgramAddDetailsScreen = ({
   const { models } = useBackend();
   const onSubmitForm = useCallback(
     async (values: any, components: ISurveyScreenComponent[]) => {
-      // find a component with a Result data type and use its value as the overall result
-      const resultComponent = components.find(c => c.dataElement.type === DataElementType.Result);
-
-      const resultValue = values[resultComponent.dataElement.code];
-
-      const result = resultComponent 
-        ? values[resultComponent.dataElement.code] 
-        : 0;
-
-      const resultText = resultComponent 
-        ? getStringValue(resultComponent.dataElement.type, resultValue)
-        : '';
-
       const response = await models.SurveyResponse.submit(
         selectedPatientId,
         {
           surveyId,
           components,
           encounterReason: `Survey response for ${survey.name}`,
-          result,
-          resultText,
         },
         values,
         setNote,
