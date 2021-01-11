@@ -277,7 +277,7 @@ export class SyncManager {
   }
 
   async runPatientSync(patient: Patient): Promise<void> {
-    await this.syncAllPages(`patient/${patient.id}`, patient.lastSynced);
+    await this.syncAllPages(Database.models.Patient, `patient/${patient.id}`, patient.lastSynced);
 
     // eslint-disable-next-line no-param-reassign
     patient.lastSynced = new Date();
