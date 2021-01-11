@@ -41,12 +41,8 @@ function getColorForValue(result, thresholdString): string {
   return colors[colors.length - 1];
 }
 
-export const SurveyResultBadge = ({ result }): JSX.Element => {
-  if (!result && result !== 0) {
-    return null;
-  }
+export const SurveyResultBadge = ({ result, resultText }): JSX.Element => {
   const colorName = getColorForValue(result, CODING_STRING);
-  const text = `${result}`;
   return (
     <StyledView
       paddingLeft="6"
@@ -54,7 +50,7 @@ export const SurveyResultBadge = ({ result }): JSX.Element => {
       borderRadius={5}
       background={COLORS[colorName]}
     >
-      <StyledText>{result}</StyledText>
+      <StyledText>{resultText}</StyledText>
     </StyledView>
   );
 };
