@@ -126,3 +126,13 @@ export function fakeUser(prefix = '') {
     },
   };
 }
+
+export function fakeProgram(prefix = '') {
+  const id = uuidv4();
+  return {
+    data: {
+      id,
+      ...fakeStringFields(`${prefix}program_${id})`, ['name', 'code']),
+    },
+  };
+}

@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import {
   fakePatient,
+  fakeProgram,
   fakeProgramDataElement,
   fakeReferenceData,
   fakeScheduledVaccine,
@@ -23,6 +24,7 @@ describe('wrappers', () => {
     const modelTests = [
       ['patient', () => fakePatient],
       ['reference', () => fakeReferenceData],
+      ['program', () => fakeProgram],
       ['programDataElement', () => fakeProgramDataElement],
       ['survey', () => fakeSurvey],
       ['surveyScreenComponent', () => fakeSurveyScreenComponent],
