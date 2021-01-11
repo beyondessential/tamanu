@@ -80,6 +80,7 @@ export class SyncManager {
     await this.runChannelSync(models.ReferenceData, 'reference');
     await this.runChannelSync(models.User, 'user');
     await this.runChannelSync(models.ScheduledVaccine, 'scheduledVaccine');
+    await this.runChannelSync(models.Program, 'program', null, true);
     await this.runChannelSync(models.Survey, 'survey', null, true);
     await this.runChannelSync(models.ProgramDataElement, 'programDataElement', null, true);
     await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent', null, true);
