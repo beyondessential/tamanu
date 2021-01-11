@@ -17,8 +17,11 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @Column()
   endTime: Date;
 
-  @Column()
+  @Column({ default: 0 })
   result: number;
+
+  @Column({ default: '' })
+  resultText: string;
 
   @ManyToOne(type => Survey, survey => survey.responses)
   survey: Survey;
