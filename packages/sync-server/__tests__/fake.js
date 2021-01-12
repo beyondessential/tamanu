@@ -105,3 +105,21 @@ export function fakeProgram(prefix = '') {
     ...fakeStringFields(`${prefix}program_${id})`, ['name', 'code']),
   };
 }
+
+export function fakeAdministeredVaccine(prefix = '') {
+  const id = uuidv4();
+  return {
+    data: {
+      id,
+      encounterId: null,
+      scheduledVaccineId: null,
+      date: new Date(random(0, Date.now())),
+      ...fakeStringFields(`${prefix}administeredVaccine_${id})`, [
+        'batch',
+        'status',
+        'reason',
+        'location',
+      ]),
+    },
+  };
+}

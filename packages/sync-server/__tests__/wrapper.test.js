@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { REFERENCE_TYPES } from 'shared/constants';
 import {
+  fakeAdministeredVaccine,
   fakePatient,
   fakeProgram,
   fakeProgramDataElement,
@@ -24,6 +25,7 @@ describe('wrappers', () => {
     afterAll(closeDatabase);
 
     const modelTests = [
+      ['administeredVaccine', fakeAdministeredVaccine],
       ['patient', fakePatient],
       ['program', fakeProgram],
       ['programDataElement', fakeProgramDataElement],
