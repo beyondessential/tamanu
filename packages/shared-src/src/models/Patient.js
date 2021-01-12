@@ -22,6 +22,7 @@ export class Patient extends Model {
           type: Sequelize.ENUM('male', 'female', 'other'),
           allowNull: false,
         },
+        bloodType: Sequelize.STRING,
       },
       {
         ...options,

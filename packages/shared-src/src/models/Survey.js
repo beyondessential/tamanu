@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from '../constants';
 import { Model } from './Model';
 
 function parseOrNull(s) {
@@ -28,6 +29,10 @@ export class Survey extends Model {
   static initRelations(models) {
     this.belongsTo(models.Program, {
       foreignKey: 'programId',
+    });
+    this.hasMany(models.SurveyScreenComponent, {
+      as: 'components',
+      foreignKey: 'surveyId',
     });
   }
 }
@@ -77,8 +82,6 @@ export class SurveyScreenComponent extends Model {
   }
 }
 
-const DATA_ELEMENT_TYPE_VALUES = ['number', 'text'];
-
 export class ProgramDataElement extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -89,7 +92,7 @@ export class ProgramDataElement extends Model {
         indicator: Sequelize.STRING,
         defaultText: Sequelize.STRING,
         defaultOptions: Sequelize.STRING,
-        type: Sequelize.ENUM(DATA_ELEMENT_TYPE_VALUES),
+        type: Sequelize.ENUM(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
       },
       {
         ...options,

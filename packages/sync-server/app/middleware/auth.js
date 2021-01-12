@@ -12,11 +12,7 @@ export const authMiddleware = express.Router();
 const JWT_SECRET = config.auth.secret || uuid();
 
 const stripUser = user => {
-  const {
-    hashedPassword,
-    ...userData
-  } = user.data;
-  userData.id = user._id;
+  const { hashedPassword, ...userData } = user.data;
   return userData;
 };
 
@@ -44,7 +40,7 @@ authMiddleware.post('/login', asyncHandler(async (req, res) => {
   }
 
   const token = jwt.sign({
-    userId: user._id,
+    userId: user.data.id,
   }, JWT_SECRET);
 
   res.send({ 

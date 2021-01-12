@@ -1,29 +1,34 @@
 import { createTestContext } from './utilities';
 
-const { baseApp, expressApp, store } = createTestContext();
-
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_PASSWORD = '1Q2Q3Q4Q';
 
 const USERS = [
   {
-    email: TEST_EMAIL, 
-    password: TEST_PASSWORD, 
-    displayName: 'Test Beyond' 
-  }
+    email: TEST_EMAIL,
+    password: TEST_PASSWORD,
+    displayName: 'Test Beyond',
+  },
 ];
 
-describe("Auth", () => {
-
-  let app = null;
+describe('Auth', () => {
+  let baseApp;
+  let app;
+  let store;
+  let close;
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    close = ctx.close;
+    store = ctx.store;
     app = await baseApp.asRole('practitioner');
 
-    await Promise.all(USERS.map(r => store.insertUser(r)));
+    await Promise.all(USERS.map(r => ctx.store.models.User.create(r)));
   });
 
-  describe('Logging in', () => {
+  afterAll(async () => close());
 
+  describe('Logging in', () => {
     it('Should get a token for correct credentials', async () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
@@ -64,11 +69,9 @@ describe("Auth", () => {
       });
       expect(response).toHaveRequestError();
     });
-
   });
 
   describe('User management', () => {
-
     const USER_EMAIL = 'user.management@tamanu.test.io';
     const DISPLAY_NAME = 'John Jones';
     const USER_PASSWORD = 'abc_123';
@@ -76,12 +79,11 @@ describe("Auth", () => {
 
     it('Should hash a password for a user synced through the api', async () => {
       const response = await app.post('/v1/sync/user').send({
-        recordType: 'user',
         data: {
           email: USER_EMAIL,
-          displayName: DISPLAY_NAME,
           password: USER_PASSWORD,
-        }
+          displayName: DISPLAY_NAME,
+        },
       });
       expect(response).toHaveSucceeded();
 
@@ -100,11 +102,11 @@ describe("Auth", () => {
 
     it('Should hash an updated password for an existing user', async () => {
       const response = await app.post('/v1/sync/user').send({
-        recordType: 'user',
         data: {
           email: USER_EMAIL,
           password: USER_PASSWORD_2,
-        }
+          displayName: DISPLAY_NAME,
+        },
       });
       expect(response).toHaveSucceeded();
 
@@ -130,17 +132,16 @@ describe("Auth", () => {
     });
 
     it('Should include a new user in the GET /sync/user channel', async () => {
-      const now = (new Date()).valueOf();
+      const now = new Date().valueOf();
       const newEmail = 'new-user-get@test.tamanu.io';
       const displayName = 'test-new';
 
       const response = await app.post('/v1/sync/user').send({
-        recordType: 'user',
         data: {
           email: newEmail,
           displayName,
           password: USER_PASSWORD,
-        }
+        },
       });
       expect(response).toHaveSucceeded();
 
@@ -152,7 +153,7 @@ describe("Auth", () => {
     });
 
     it('Should include an updated user in the GET /sync/user channel', async () => {
-      const now = (new Date()).valueOf();
+      const now = new Date().valueOf();
       const displayNameUpdated = 'updated display name';
 
       const response = await app.post('/v1/sync/user').send({
@@ -160,7 +161,7 @@ describe("Auth", () => {
         data: {
           email: USER_EMAIL,
           displayName: displayNameUpdated,
-        }
+        },
       });
       expect(response).toHaveSucceeded();
 
@@ -186,9 +187,7 @@ describe("Auth", () => {
     const { token } = response.body;
 
     // then run the whoami request
-    const whoamiResponse = await baseApp
-      .get('/v1/whoami')
-      .set('Authorization', `Bearer ${token}`);
+    const whoamiResponse = await baseApp.get('/v1/whoami').set('Authorization', `Bearer ${token}`);
     expect(whoamiResponse).toHaveSucceeded();
 
     const { body } = whoamiResponse;
@@ -196,6 +195,4 @@ describe("Auth", () => {
     expect(body).not.toHaveProperty('password');
     expect(body).not.toHaveProperty('hashedPassword');
   });
-
 });
-

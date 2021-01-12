@@ -5,16 +5,4 @@
 // uses such an alias (or any file that imports such a file, etc) will break
 // this setup step.
 
-import { seedLabTests } from 'shared/demoData/labTestTypes';
-import { initDatabase } from 'sync-server/app/database';
-import { deleteTestData } from './setupUtilities';
-
-import { allSeeds } from './seed';
-
-export default async function() {
-  const ctx = initDatabase({
-    testMode: true,
-  });
-
-  await deleteTestData(ctx);
-}
+export default function() {}

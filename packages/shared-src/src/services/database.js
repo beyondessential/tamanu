@@ -14,9 +14,14 @@ export function initDatabase(dbOptions) {
     password,
     name,
     log,
+    host=null,
+    port=null,
     verbose=false,
     sqlitePath=null,
-    uuidGenerator=Sequelize.UUIDV4,
+    makeEveryModelParanoid=false,
+    saltRounds=null,
+    primaryKeyDefault=Sequelize.UUIDV4,
+    primaryKeyType=Sequelize.UUID,
   } = dbOptions;
 
   if (sqlitePath) {
@@ -36,14 +41,19 @@ export function initDatabase(dbOptions) {
     : { dialect: 'postgres' };
   const sequelize = new Sequelize(name, username, password, {
     ...options,
+    host,
+    port,
     logging,
   });
+
+  // set configuration variables for individual models
+  models.User.SALT_ROUNDS = saltRounds;
 
   // init all models
   const modelClasses = Object.values(models);
   const primaryKey = {
-    type: Sequelize.UUID,
-    defaultValue: uuidGenerator,
+    type: primaryKeyType,
+    defaultValue: primaryKeyDefault,
     primaryKey: true,
   };
   log.info(`Registering ${modelClasses.length} models...`);
@@ -53,6 +63,7 @@ export function initDatabase(dbOptions) {
         underscored: true,
         primaryKey,
         sequelize,
+        paranoid: makeEveryModelParanoid,
       },
       models,
     );

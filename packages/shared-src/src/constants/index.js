@@ -103,7 +103,10 @@ export const REFERENCE_TYPES = {
   FACILITY: 'facility',
   LOCATION: 'location',
   DEPARTMENT: 'department',
+  VACCINE: 'vaccine',
   VILLAGE: 'village',
 };
 
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
+
+export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = ['Binary', 'CalculatedQuestion', 'Checkbox', 'FreeText', 'Instruction', 'Number', 'Radio', 'SubmissionDate'];
