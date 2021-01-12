@@ -7,8 +7,8 @@ import { BaseModel } from '~/models/BaseModel';
 import { GetSyncDataResponse, SyncRecord, SyncSource } from './syncSource';
 
 class NoSyncImporterError extends Error {
-  constructor(recordType: string) {
-    super(`No sync importer for record type ${recordType}`);
+  constructor(modelName: string) {
+    super(`No sync importer for model ${modelName}`);
   }
 }
 
@@ -38,38 +38,12 @@ export class SyncManager {
     });
   }
 
-  getModelForRecordType(recordType: string): typeof BaseModel {
-    const { models } = Database;
-
-    switch (recordType) {
-      case 'patient':
-        return models.Patient;
-      case 'user':
-        return models.User;
-      case 'referenceData':
-        return models.ReferenceData;
-      case 'scheduledVaccine':
-        return models.ScheduledVaccine;
-      case 'program':
-        return models.Program;
-      case 'survey':
-        return models.Survey;
-      case 'surveyScreenComponent':
-        return models.SurveyScreenComponent;
-      case 'programDataElement':
-        return models.ProgramDataElement;
-      default:
-        return null;
-    }
-  }
-
-  async syncRecord(syncRecord: SyncRecord): Promise<void> {
+  async syncRecord(model: typeof BaseModel, syncRecord: SyncRecord): Promise<void> {
     // write one single downloaded record to the database
-    const { recordType, isDeleted, data } = syncRecord;
+    const { isDeleted, data } = syncRecord;
 
-    const model = this.getModelForRecordType(recordType);
     if (!model) {
-      throw new NoSyncImporterError(recordType);
+      throw new NoSyncImporterError(model.name);
     }
     if (isDeleted) {
       await model.remove(data);
@@ -77,7 +51,7 @@ export class SyncManager {
       await model.createOrUpdate(data);
     }
 
-    this.emitter.emit('syncedRecord', syncRecord.recordType);
+    this.emitter.emit('syncedRecord', model.name);
   }
 
   async runScheduledSync(): Promise<void> {
@@ -102,11 +76,15 @@ export class SyncManager {
 
     this.emitter.emit('syncStarted');
 
-    await this.runChannelSync('reference');
-    await this.runChannelSync('user');
-    await this.runChannelSync('vaccination');
-    await this.runChannelSync('survey', null, true);
-    await this.runChannelSync('patient');
+    const { models } = Database;
+    await this.runChannelSync(models.ReferenceData, 'reference');
+    await this.runChannelSync(models.User, 'user');
+    await this.runChannelSync(models.ScheduledVaccine, 'scheduledVaccine');
+    await this.runChannelSync(models.Program, 'program', null, true);
+    await this.runChannelSync(models.Survey, 'survey', null, true);
+    await this.runChannelSync(models.ProgramDataElement, 'programDataElement', null, true);
+    await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent', null, true);
+    await this.runChannelSync(models.Patient, 'patient');
 
     // sync all reference data including shallow patient list
     // full sync of patients that've been flagged (encounters, etc)
@@ -144,7 +122,7 @@ export class SyncManager {
     await this.runScheduledSync();
   }
 
-  async syncAllPages(channel: string, since: Date, singlePageMode = false): Promise<Date> {
+  async syncAllPages(model: typeof BaseModel, channel: string, since: Date, singlePageMode = false): Promise<Date> {
     let page = 0;
 
     const downloadPage = (pageNumber: number): Promise<GetSyncDataResponse> => {
@@ -185,7 +163,7 @@ export class SyncManager {
     const syncRecords = async (records: SyncRecord[]): Promise<void> => {
       await Promise.all(records.map(async r => {
         try {
-          await this.syncRecord(r);
+          await this.syncRecord(model, r);
 
           if (r.lastSynced > maxDate) {
             maxDate = r.lastSynced;
@@ -279,6 +257,7 @@ export class SyncManager {
   }
 
   async runChannelSync(
+    model: typeof BaseModel,
     channel: string,
     overrideLastSynced = null,
     singlePageMode = false,
@@ -289,7 +268,7 @@ export class SyncManager {
 
     this.emitter.emit('channelSyncStarted', channel);
     try {
-      const maxDate = await this.syncAllPages(channel, lastSynced, singlePageMode);
+      const maxDate = await this.syncAllPages(model, channel, lastSynced, singlePageMode);
       await this.updateChannelSyncDate(channel, maxDate);
     } catch (e) {
       console.error(e);
@@ -298,7 +277,7 @@ export class SyncManager {
   }
 
   async runPatientSync(patient: Patient): Promise<void> {
-    await this.syncAllPages(`patient/${patient.id}`, patient.lastSynced);
+    await this.syncAllPages(Database.models.Patient, `patient/${patient.id}`, patient.lastSynced);
 
     // eslint-disable-next-line no-param-reassign
     patient.lastSynced = new Date();

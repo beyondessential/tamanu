@@ -17,7 +17,6 @@ export type GetSyncDataResponse = null | {
 }
 
 export interface SyncRecord {
-  recordType: string;
   lastSynced: Date;
   ERROR_MESSAGE?: string;
   isDeleted?: boolean;
@@ -54,7 +53,7 @@ export class WebSyncSource implements SyncSource {
     // TODO: error handling (incl timeout)
     const pageLimit = singlePageMode ? 0 : 100;
     const sinceStamp = since.valueOf();
-    const url = `${this.host}/sync/${channel}?since=${sinceStamp}&page=${page}&limit=${pageLimit}`;
+    const url = `${this.host}/sync/${encodeURIComponent(channel)}?since=${sinceStamp}&page=${page}&limit=${pageLimit}`;
 
     try {
       const response = await fetch(url, {
