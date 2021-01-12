@@ -28,6 +28,13 @@ export const covidVaccinationStatus = {
   title: 'Vaccination Status',
   minWidth: 100,
   accessor: row => <VaccineStatusComponent row={row} />,
+  asyncExportAccessor: async row => {
+    const patientVaccinations = await API.get(`patient/${row.id}/immunisations`);
+    const covidVaccinations = patientVaccinations.data.filter(v => v.schedule === 'Campaign');
+    if (covidVaccinations.length === 1) return '1 Dose';
+    if (covidVaccinations.length === 2) return 'Complete';
+    return 'No dose';
+  },
 };
 
 const COLUMNS = [displayId, firstName, lastName, village, covidVaccinationStatus];

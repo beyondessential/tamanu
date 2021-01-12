@@ -6,6 +6,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import XLSX from 'xlsx';
+import { shell } from 'electron';
 import MaterialTable from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -14,6 +16,7 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import TableRow from '@material-ui/core/TableRow';
 import TableFooter from '@material-ui/core/TableFooter';
 import TablePagination from '@material-ui/core/TablePagination';
+import { Button } from '@material-ui/core';
 
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Colors } from '../../constants';
@@ -220,22 +223,50 @@ class TableComponent extends React.Component {
   renderPaginator() {
     const { columns, page, count, rowsPerPage, rowsPerPageOptions } = this.props;
     return (
-      <TableRow>
-        <TablePagination
-          rowsPerPageOptions={rowsPerPageOptions}
-          colSpan={columns.length}
-          page={page}
-          count={count}
-          rowsPerPage={rowsPerPage}
-          onChangePage={this.handleChangePage}
-          onChangeRowsPerPage={this.handleChangeRowsPerPage}
-        />
-      </TableRow>
+      <TablePagination
+        rowsPerPageOptions={rowsPerPageOptions}
+        colSpan={columns.length}
+        page={page}
+        count={count}
+        rowsPerPage={rowsPerPage}
+        onChangePage={this.handleChangePage}
+        onChangeRowsPerPage={this.handleChangeRowsPerPage}
+      />
     );
   }
 
   render() {
-    const { page, className } = this.props;
+    const { page, className, data, columns } = this.props;
+    const onDownloadData = async () => {
+      const headers = columns.map(c => c.key);
+      const rows = await Promise.all(
+        data.map(async d => {
+          const dx = {};
+          await Promise.all(
+            columns.map(async c => {
+              if (c.asyncExportAccessor) {
+                const value = await c.asyncExportAccessor(d);
+                dx[c.key] = value;
+                return;
+              }
+
+              dx[c.key] = d[c.key];
+            }),
+          );
+          return dx;
+        }),
+      );
+      console.log(rows);
+      const ws = XLSX.utils.json_to_sheet(rows, {
+        header: headers,
+      });
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'COVID Campaign');
+      const exportFileName = `workbook_${new Date().toString()}.xls`;
+
+      XLSX.writeFile(wb, exportFileName);
+      shell.openItem(exportFileName);
+    };
 
     return (
       <StyledTableContainer className={className}>
@@ -244,7 +275,12 @@ class TableComponent extends React.Component {
             <TableRow>{this.renderHeaders()}</TableRow>
           </StyledTableHead>
           <TableBody>{this.renderBodyContent()}</TableBody>
-          {page !== null && <StyledTableFooter>{this.renderPaginator()}</StyledTableFooter>}
+          <StyledTableFooter>
+            <TableRow>
+              <Button onClick={onDownloadData}>Download</Button>
+              {page !== null && this.renderPaginator()}
+            </TableRow>
+          </StyledTableFooter>
         </StyledTable>
       </StyledTableContainer>
     );
