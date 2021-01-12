@@ -16,7 +16,7 @@ const tabulate = ({ headers, rowData }) => [
   ...rowData.map(row => headers.map(h => row[h])),
 ];
 
-const writeToExcel = async (path, { metadata, data }) => {
+export const writeToExcel = async (path, { metadata, data }) => {
   const book = XLSX.utils.book_new();
 
   const sheet = XLSX.utils.aoa_to_sheet(tabulate(data));

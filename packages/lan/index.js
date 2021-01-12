@@ -92,7 +92,7 @@ export async function run() {
 }
 
 const { adminTasks } = config;
-if(adminTasks.length > 0) {
+if(adminTasks && adminTasks.length > 0) {
   runAdminTasks(adminTasks);
 } else {
   run();
