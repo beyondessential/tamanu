@@ -256,7 +256,7 @@ class TableComponent extends React.Component {
           return dx;
         }),
       );
-      console.log(rows);
+
       const ws = XLSX.utils.json_to_sheet(rows, {
         header: headers,
       });

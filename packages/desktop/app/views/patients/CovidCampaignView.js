@@ -19,7 +19,7 @@ const VaccineStatusComponent = ({ row }) => {
 
   const covidVaccinations = vaccinations.filter(v => v.schedule === 'Campaign');
   if (covidVaccinations.length === 1) return '1 Dose';
-  if (covidVaccinations.length === 2) return 'Complete';
+  if (covidVaccinations.length >= 2) return 'Complete';
   return 'No dose';
 };
 
@@ -32,7 +32,7 @@ export const covidVaccinationStatus = {
     const patientVaccinations = await API.get(`patient/${row.id}/immunisations`);
     const covidVaccinations = patientVaccinations.data.filter(v => v.schedule === 'Campaign');
     if (covidVaccinations.length === 1) return '1 Dose';
-    if (covidVaccinations.length === 2) return 'Complete';
+    if (covidVaccinations.length >= 2) return 'Complete';
     return 'No dose';
   },
 };
