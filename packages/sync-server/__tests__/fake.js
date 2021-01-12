@@ -34,26 +34,12 @@ export function fakePatient(prefix = '') {
   };
 }
 
-export async function fakeScheduledVaccine(wrapper) {
-  const vaccineId = uuidv4();
-  const vaccine = {
-    id: vaccineId,
-    type: REFERENCE_TYPES.DRUG,
-    ...fakeStringFields(`vaccine_${vaccineId}_`, ['code', 'name']),
-  };
-  await wrapper.insert('reference', vaccine);
-  return (prefix = '') => {
-    const scheduledVaccineId = uuidv4();
-    return {
-      id: scheduledVaccineId,
-      weeksFromBirthDue: random(0, 1000),
-      vaccineId,
-      ...fakeStringFields(`${prefix}scheduledVaccine_${scheduledVaccineId}_`, [
-        'category',
-        'label',
-        'schedule',
-      ]),
-    };
+export function fakeScheduledVaccine(prefix = '') {
+  const id = uuidv4();
+  return {
+    id,
+    vaccineId: null,
+    ...fakeStringFields(`${prefix}scheduledVaccine_${id}_`, ['category', 'label', 'schedule']),
   };
 }
 

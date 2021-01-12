@@ -1,11 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
+import { REFERENCE_TYPES } from 'shared/constants';
 import {
   fakePatient,
   fakeProgram,
   fakeProgramDataElement,
   fakeReferenceData,
   fakeScheduledVaccine,
+  fakeStringFields,
   fakeSurvey,
   fakeSurveyScreenComponent,
   fakeUser,
@@ -22,14 +24,32 @@ describe('wrappers', () => {
     afterAll(closeDatabase);
 
     const modelTests = [
-      ['patient', () => fakePatient],
-      ['reference', () => fakeReferenceData],
-      ['program', () => fakeProgram],
-      ['programDataElement', () => fakeProgramDataElement],
-      ['survey', () => fakeSurvey],
-      ['surveyScreenComponent', () => fakeSurveyScreenComponent],
-      ['user', () => fakeUser],
-      ['scheduledVaccine', () => fakeScheduledVaccine(wrapper)],
+      ['patient', fakePatient],
+      ['program', fakeProgram],
+      ['programDataElement', fakeProgramDataElement],
+      ['reference', fakeReferenceData],
+      [
+        'scheduledVaccine',
+        async () => {
+          const scheduledVaccine = fakeScheduledVaccine();
+
+          const vaccineId = uuidv4();
+          const vaccine = {
+            data: {
+              id: vaccineId,
+              type: REFERENCE_TYPES.VACCINE,
+              ...fakeStringFields(`vaccine_${vaccineId}_`, ['code', 'name']),
+            },
+          };
+          await wrapper.insert('reference', vaccine);
+          scheduledVaccine.data.vaccineId = vaccineId;
+
+          return scheduledVaccine;
+        },
+      ],
+      ['survey', fakeSurvey],
+      ['surveyScreenComponent', fakeSurveyScreenComponent],
+      ['user', fakeUser],
     ];
 
     it('contains a test case for each model', () => {
@@ -39,13 +59,10 @@ describe('wrappers', () => {
       expect(wrapper.builtRoutes.length).toEqual(modelTests.length);
     });
 
-    modelTests.forEach(([channel, buildFakeInstance]) => {
+    modelTests.forEach(([channel, fakeInstance]) => {
       describe(channel, () => {
-        let fakeInstance;
-
         beforeAll(async () => {
           await wrapper.unsafeRemoveAllOfChannel(channel);
-          fakeInstance = await buildFakeInstance();
         });
 
         it('finds no records when empty', async () => {
@@ -54,12 +71,12 @@ describe('wrappers', () => {
         });
 
         it('finds and counts records after an insertion', async () => {
-          const instance1 = fakeInstance();
+          const instance1 = await fakeInstance();
           await withDate(new Date(1980, 5, 1), async () => {
             await wrapper.insert(channel, instance1);
           });
 
-          const instance2 = fakeInstance();
+          const instance2 = await fakeInstance();
           await withDate(new Date(1990, 5, 1), async () => {
             await wrapper.insert(channel, instance2);
           });
@@ -77,7 +94,7 @@ describe('wrappers', () => {
         });
 
         it('marks records as deleted', async () => {
-          const instance = fakeInstance();
+          const instance = await fakeInstance();
           instance.id = uuidv4();
           await wrapper.insert(channel, instance);
 
@@ -93,7 +110,7 @@ describe('wrappers', () => {
         });
 
         it('removes all records of a channel', async () => {
-          const record = fakeInstance();
+          const record = await fakeInstance();
           await wrapper.insert(channel, record);
 
           await wrapper.unsafeRemoveAllOfChannel(channel);
