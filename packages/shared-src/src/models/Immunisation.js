@@ -5,7 +5,7 @@ import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
 // TODO: this model is deprecated, and should be removed once the lan server can
-// be migrated ScheduledVaccine and AdministeredVaccine
+// be migrated to use ScheduledVaccine and AdministeredVaccine
 export class Immunisation extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
