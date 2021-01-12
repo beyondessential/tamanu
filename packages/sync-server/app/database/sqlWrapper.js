@@ -46,6 +46,7 @@ export class SqlWrapper {
       ['scheduledVaccine', this.models.ScheduledVaccine],
       ['survey', this.models.Survey],
       ['surveyResponse', this.models.SurveyResponse],
+      ['surveyResponseAnswer', this.models.SurveyResponseAnswer],
       ['surveyScreenComponent', this.models.SurveyScreenComponent],
       ['user', this.models.User],
     ].forEach(([route, Model]) => {

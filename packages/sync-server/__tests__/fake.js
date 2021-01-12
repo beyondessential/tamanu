@@ -151,3 +151,15 @@ export function fakeSurveyResponse() {
     },
   };
 }
+
+export function fakeSurveyResponseAnswer(prefix = '') {
+  const id = uuidv4();
+  return {
+    data: {
+      id,
+      dataElementId: null,
+      responseId: null,
+      ...fakeStringFields(`${prefix}surveyResponseAnswer_${id})`, ['name', 'body']),
+    },
+  };
+}

@@ -12,6 +12,7 @@ import {
   fakeStringFields,
   fakeSurvey,
   fakeSurveyResponse,
+  fakeSurveyResponseAnswer,
   fakeSurveyScreenComponent,
   fakeUser,
 } from './fake';
@@ -77,6 +78,7 @@ describe('wrappers', () => {
       ],
       ['survey', fakeSurvey],
       ['surveyResponse', fakeSurveyResponse],
+      ['surveyResponseAnswer', fakeSurveyResponseAnswer],
       ['surveyScreenComponent', fakeSurveyScreenComponent],
       ['user', fakeUser],
     ];
