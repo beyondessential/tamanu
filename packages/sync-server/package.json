@@ -49,6 +49,7 @@
     "grunt-sass": "^2.1.0",
     "jest": "^24.5.0",
     "mocha": "^5.2.0",
+    "node-fetch": "^2.6.1",
     "nodemon": "^1.17.3",
     "nodemon-webpack-plugin": "^4.0.8",
     "pkg": "^4.4.8",
