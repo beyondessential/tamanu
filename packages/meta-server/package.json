@@ -7,11 +7,12 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "AGPL-3.0-only",
   "scripts": {
+    "start": "node ./dist/app.bundle.js",
     "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.js",
     "test": "NODE_ENV=test jest --runInBand",
     "test-coverage": "npm test -- --coverage",
     "test-watch": "npm test -- --watch",
-    "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js && yarn run run-pkg",
+    "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js",
     "lint": "eslint app",
     "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
   },
