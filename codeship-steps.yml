@@ -22,7 +22,7 @@
       service: app
       command: ./scripts/build_package_release.sh sync-server
     - name: build_meta_release
-      tag: ^(master|dev|ci-)
+      tag: ^(master|dev|ci-|meta-eb-deploy)
       service: app
       command: ./scripts/build_package_release.sh meta-server
 - name: push_and_deploy
