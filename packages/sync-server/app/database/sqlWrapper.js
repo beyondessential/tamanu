@@ -45,6 +45,7 @@ export class SqlWrapper {
       ['reference', this.models.ReferenceData],
       ['scheduledVaccine', this.models.ScheduledVaccine],
       ['survey', this.models.Survey],
+      ['surveyResponse', this.models.SurveyResponse],
       ['surveyScreenComponent', this.models.SurveyScreenComponent],
       ['user', this.models.User],
     ].forEach(([route, Model]) => {

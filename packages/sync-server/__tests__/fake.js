@@ -137,3 +137,17 @@ export function fakeEncounter(prefix = '') {
     },
   };
 }
+
+export function fakeSurveyResponse() {
+  const id = uuidv4();
+  return {
+    data: {
+      id,
+      encounterId: null,
+      surveyId: null,
+      startTime: new Date(random(0, Date.now())),
+      endTime: new Date(random(0, Date.now())),
+      result: Math.random() * 100,
+    },
+  };
+}
