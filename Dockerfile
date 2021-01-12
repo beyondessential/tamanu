@@ -18,6 +18,6 @@ ENV PACKAGES_DIR=/tamanu/packages \
     LAN_RELEASE_DIR=/tamanu/packages/lan/release \
     DESKTOP_ROOT=/tamanu/packages/desktop \
     LAN_ROOT=/tamanu/packages/lan \
-    SERVER_ROOT=/tamanu/packages/server
+    SYNC_SERVER_ROOT=/tamanu/packages/sync-server
 COPY . .tmp/
 WORKDIR /tamanu

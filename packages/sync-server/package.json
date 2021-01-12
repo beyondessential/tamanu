@@ -16,13 +16,12 @@
     ]
   },
   "scripts": {
+    "start": "node ./dist/app.bundle.js",
     "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.js",
     "test": "NODE_ENV=test jest",
     "test-coverage": "npm test -- --coverage",
     "test-watch": "npm test -- --watch",
-    "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js && yarn run run-pkg",
-    "run-pkg": "pkg . --targets node12-win-x64 --output ./release/sync-server.exe",
-    "package": "./scripts/package.sh",
+    "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js",
     "lint": "eslint app",
     "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
   },
@@ -30,7 +29,6 @@
     "@babel/core": "^7.3.4",
     "@babel/plugin-proposal-class-properties": "^7.3.4",
     "@babel/plugin-proposal-export-default-from": "^7.2.0",
-    "@babel/polyfill": "^7.2.5",
     "@babel/preset-env": "^7.3.4",
     "@beyondessential/eslint-config-beyondessential": "2.3.0",
     "babel-jest": "^26.0.1",
@@ -59,6 +57,7 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.2.5",
     "@casl/ability": "^4.1.0",
     "await-to-js": "^2.0.1",
     "basic-auth": "^2.0.1",
