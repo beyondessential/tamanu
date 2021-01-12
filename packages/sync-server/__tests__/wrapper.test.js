@@ -3,6 +3,7 @@ import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { REFERENCE_TYPES } from 'shared/constants';
 import {
   fakeAdministeredVaccine,
+  fakeEncounter,
   fakePatient,
   fakeProgram,
   fakeProgramDataElement,
@@ -26,6 +27,30 @@ describe('wrappers', () => {
 
     const modelTests = [
       ['administeredVaccine', fakeAdministeredVaccine],
+      [
+        'encounter',
+        async () => {
+          const patient = fakePatient();
+          await wrapper.insert('patient', patient);
+
+          const examiner = fakeUser('examiner');
+          await wrapper.insert('user', examiner);
+
+          const location = fakeReferenceData('location');
+          await wrapper.insert('reference', location);
+
+          const department = fakeReferenceData('department');
+          await wrapper.insert('reference', department);
+
+          const encounter = fakeEncounter();
+          encounter.data.patientId = patient.data.id;
+          encounter.data.examinerId = examiner.data.id;
+          encounter.data.locationId = location.data.id;
+          encounter.data.departmentId = department.data.id;
+
+          return encounter;
+        },
+      ],
       ['patient', fakePatient],
       ['program', fakeProgram],
       ['programDataElement', fakeProgramDataElement],

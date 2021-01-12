@@ -1,6 +1,7 @@
 import { random, sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import {
+  ENCOUNTER_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPES,
   REFERENCE_TYPE_VALUES,
@@ -120,6 +121,19 @@ export function fakeAdministeredVaccine(prefix = '') {
         'reason',
         'location',
       ]),
+    },
+  };
+}
+
+export function fakeEncounter(prefix = '') {
+  const id = uuidv4();
+  return {
+    data: {
+      id,
+      encounterType: sample(ENCOUNTER_TYPE_VALUES),
+      startDate: new Date(random(0, Date.now())),
+      endDate: new Date(random(0, Date.now())),
+      ...fakeStringFields(`${prefix}encounter_${id})`, ['reasonForEncounter']),
     },
   };
 }
