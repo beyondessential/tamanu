@@ -17,6 +17,7 @@ import TableRow from '@material-ui/core/TableRow';
 import TableFooter from '@material-ui/core/TableFooter';
 import TablePagination from '@material-ui/core/TablePagination';
 import { Button } from '@material-ui/core';
+import SaveAltIcon from '@material-ui/icons/SaveAlt';
 
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Colors } from '../../constants';
@@ -37,6 +38,11 @@ const CellError = React.memo(({ error }) => {
 
   return <CellErrorMessage onClick={showMessage}>ERROR</CellErrorMessage>;
 });
+
+const PaddedDownloadIcon = styled(SaveAltIcon)`
+  padding: 5px;
+  font-size: 42px;
+`;
 
 const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
@@ -80,6 +86,7 @@ const StyledTableHead = styled(TableHead)`
 
 const StyledTableFooter = styled(TableFooter)`
   background: ${Colors.background};
+  border-bottom: 1px solid black;
 `;
 
 const RowContainer = React.memo(({ children, onClick }) => (
@@ -236,7 +243,7 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { page, className, data, columns } = this.props;
+    const { page, className, data, columns, exportName } = this.props;
     const onDownloadData = async () => {
       const headers = columns.map(c => c.key);
       const rows = await Promise.all(
@@ -261,8 +268,8 @@ class TableComponent extends React.Component {
         header: headers,
       });
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'COVID Campaign');
-      const exportFileName = `workbook_${new Date().toString()}.xls`;
+      XLSX.utils.book_append_sheet(wb, ws, exportName);
+      const exportFileName = `${exportName}_${new Date().toString()}.xls`;
 
       XLSX.writeFile(wb, exportFileName);
       shell.openItem(exportFileName);
@@ -277,7 +284,9 @@ class TableComponent extends React.Component {
           <TableBody>{this.renderBodyContent()}</TableBody>
           <StyledTableFooter>
             <TableRow>
-              <Button onClick={onDownloadData}>Download</Button>
+              <Button onClick={onDownloadData}>
+                <PaddedDownloadIcon />
+              </Button>
               {page !== null && this.renderPaginator()}
             </TableRow>
           </StyledTableFooter>

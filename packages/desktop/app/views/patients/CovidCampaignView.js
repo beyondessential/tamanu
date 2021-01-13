@@ -44,6 +44,7 @@ const PatientCovidCampaignTable = React.memo(({ onPatientSelect, getVaccines, ..
     endpoint="patient"
     columns={COLUMNS}
     noDataMessage="No patients found"
+    exportName="Covid Campaign"
     onRowClick={onPatientSelect}
     {...props}
   />

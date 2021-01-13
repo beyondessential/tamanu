@@ -15,6 +15,7 @@ const DumbDataFetchingTable = memo(
     transformRow,
     initialSort = DEFAULT_SORT,
     className,
+    exportName = 'TamanuExport',
   }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
@@ -77,6 +78,7 @@ const DumbDataFetchingTable = memo(
         noDataMessage={noDataMessage}
         onRowClick={onRowClick}
         className={className}
+        exportName={exportName}
       />
     );
   },
