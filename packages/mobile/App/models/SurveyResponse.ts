@@ -12,6 +12,7 @@ import {
   getResultValue,
   checkVisibilityCriteria
 } from '~/ui/helpers/fields';
+
 import { DataElementType, ISurveyResponse } from '~/types';
 
 @Entity('survey_response')
@@ -72,15 +73,10 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         reasonForEncounter: encounterReason,
       });
 
-      // find a component with a Result data type and use its value as the overall result
-      const resultComponents = components
-        .filter(c => c.dataElement.type === DataElementType.Result)
-        .filter(c => checkVisibilityCriteria(c, componenets, values));
-
       const { 
         result,
         resultText,
-      } = getResultValue(resultComponents[0], values);
+      } = getResultValue(components, values);
 
       setNote("Creating response object...");
       const responseRecord = await SurveyResponse.create({

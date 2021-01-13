@@ -1,4 +1,4 @@
-import { ISurveyScreenComponent } from '~/types/ISurvey';
+import { ISurveyScreenComponent, DataElementType } from '~/types/ISurvey';
 
 export const FieldTypes = {
   TEXT: 'FreeText',
@@ -64,7 +64,14 @@ function formatResultText(value: number, { options }: ISurveyScreenComponent): s
   return `${value.toFixed(0)}%`;
 }
 
-export function getResultValue(component: ISurveyScreenComponent, values: {}): ResultValue {
+export function getResultValue(allComponents: ISurveyScreenComponent[], values: {}): ResultValue {
+  // find a component with a Result data type and use its value as the overall result
+  const resultComponents = allComponents
+    .filter(c => c.dataElement.type === DataElementType.Result)
+    .filter(c => checkVisibilityCriteria(c, allComponents, values));
+
+  const component = resultComponents[0];
+
   if(!component) {
     // this survey does not have a result field
     return { result: 0, resultText: '' };
@@ -72,11 +79,17 @@ export function getResultValue(component: ISurveyScreenComponent, values: {}): R
 
   const rawValue = values[component.dataElement.code];
 
+  // invalid values just get empty results
+  if(rawValue === undefined || rawValue === null || Number.isNaN(rawValue)) {
+    return { result: 0, resultText: '' };
+  }
+
+  // string values just get passed on directly
   if(typeof(rawValue) === "string") {
     return { result: 0, resultText: rawValue };
   }
 
-  // handling numeric data
+  // numeric data gets formatted
   return { 
     result: rawValue,
     resultText: formatResultText(rawValue, component),
