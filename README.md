@@ -138,7 +138,7 @@ the API url and login credentials as well (see config/default.json for how this 
 - `codeship.env.encrypted` encrypted ENV variables passed to docker during build process
 
 ### Server deployments
-Setting up a new Elastic Beanstalk application and environment:
+#### Setting up a new Elastic Beanstalk application and environment:
 
 - add a certificate for a subdomain (e.g. [sync-dev.tamanu.io](https://sync-dev.tamanu.io)) using AWS's ACM
 - configure the application and environment in AWS
@@ -149,7 +149,7 @@ Setting up a new Elastic Beanstalk application and environment:
         - in the application code section choose "sample application"
     3. hit "Configure more options"
         - select an environment type of "load balancing" in the capacity section, and select a max of 1 instance if you're setting up a dev environment
-        - add a https listener in the "load balancer" section, using the ACM certificate you added earlier
+        - add an https listener in the "load balancer" section, using the ACM certificate you set up earlier
         - add `NODE_CONFIG`=`{"port":8080,"foo":"bar"}` to environment properties in the software section
         - add the relevant keypair (probably tamanu-eb-key-pair) in the security section
         - set up managed updates (this will make sure instances are kept up to date with software patches)
@@ -159,7 +159,7 @@ Setting up a new Elastic Beanstalk application and environment:
     2. deploy the release using a one-line script similar to [scripts/deploy_meta_dev.sh](scripts/deploy_meta_dev.sh) or [scripts/deploy_sync_dev.sh](scripts/deploy_sync_dev.sh)
 - [set up encrypted environment variables](https://docs.cloudbees.com/docs/cloudbees-codeship/latest/pro-builds-and-configuration/environment-variables#_encrypted_environment_variables) using the jet cli, and add the environmental variables used by your deploy script, then encrypt and commit the [codeship.env.encrypted](codeship.env.encrypted) file
 
-Troubleshooting:
+#### Troubleshooting:
 
 - make sure you read the logs from both Codeship and your Elastic Beanstalk environment to find out what went wrong
 - configure [codeship-steps.yml](codeship-steps.yml) to build the exact branch you're working on by changing the line that looks something like `tag: ^(dev|ci-)` to `tag: ^(dev|ci-|my-branch)`
