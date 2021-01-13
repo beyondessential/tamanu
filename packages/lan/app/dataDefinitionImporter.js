@@ -273,7 +273,7 @@ export async function readDataDefinition(path) {
 }
 
 export async function importDataDefinition(models, path, onSheetImported) {
-  const sheetData = readDataDefinition(path);
+  const sheetData = await readDataDefinition(path);
 
   // import things serially just so we're not spamming the same
   // table of the database with a bunch of parallel imports
