@@ -15,7 +15,7 @@ mkdir ${LAN_ROOT}/release/data && touch ${LAN_ROOT}/release/data/.keep
 
 # include demo data in non-master builds
 if [ "$CI_BRANCH" != "master" ]; then
-  cp ${LAN_ROOT}/data/demo_definitions.xlsx ${LAN_ROOT}/release/data/.
+  cp ${LAN_ROOT}/data/*.xlsx ${LAN_ROOT}/release/data/.
 fi
 
 ${LAN_ROOT}/.bin/msi-packager \
