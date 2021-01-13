@@ -9,7 +9,14 @@ import { reloadPatient } from '../store/patient';
 import { ImmunisationForm } from '../forms/ImmunisationForm';
 
 const DumbImmunisationModal = React.memo(
-  ({ open, practitionerSuggester, onClose, onCreateImmunisation, facilitySuggester }) => {
+  ({
+    open,
+    practitionerSuggester,
+    vaccineSuggester,
+    onClose,
+    onCreateImmunisation,
+    facilitySuggester,
+  }) => {
     return (
       <Modal title="New immunisation" open={open} onClose={onClose}>
         <ImmunisationForm
@@ -17,6 +24,7 @@ const DumbImmunisationModal = React.memo(
           onCancel={onClose}
           practitionerSuggester={practitionerSuggester}
           facilitySuggester={facilitySuggester}
+          vaccineSuggester={vaccineSuggester}
         />
       </Modal>
     );
@@ -30,4 +38,5 @@ export const ImmunisationModal = connectApi((api, dispatch, { patientId }) => ({
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
   facilitySuggester: new Suggester(api, 'facility'),
+  vaccineSuggester: new Suggester(api, 'vaccine'),
 }))(DumbImmunisationModal);

@@ -5,3 +5,4 @@ export { LabRequestView } from './LabRequestView';
 export { ImagingRequestView } from './ImagingRequestView';
 export { DischargeSummaryView } from './DischargeSummaryView';
 export { ImmunisationsView } from './ImmunisationsView';
+export { CovidCampaignView } from './CovidCampaignView';

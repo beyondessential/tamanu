@@ -9,8 +9,34 @@ import {
   AutocompleteField,
   DateField,
   RadioField,
+  SelectField,
 } from '../components/Field';
 import { immunisationStatusList } from '../constants';
+
+const VaccineScheduleOptions = [
+  { value: 'Routine', label: 'Routine' },
+  { value: 'Catch-Up', label: 'Catch-Up' },
+  { value: 'Campaign', label: 'Campaign' },
+];
+
+const vaccineOptions = [
+  { label: 'BCG Vaccine', value: 'BCG Vaccine' },
+  { label: 'Hepatitis B', value: 'Hepatitis B' },
+  { label: 'Rotarix', value: 'Rotarix' },
+  { label: 'Pneumococcal Vaccine', value: 'Pneumococcal Vaccine' },
+  { label: 'Pentavalent', value: 'Pentavalent' },
+  { label: 'Bivalent Oral Polio Vaccine', value: 'Bivalent Oral Polio Vaccine' },
+  { label: 'Inactivated Polio Vaccine', value: 'Inactivated Polio Vaccine' },
+  { label: 'Measles Mumps Rubella', value: 'Measles Mumps Rubella' },
+  { label: 'Typhoid	Typhoid Conjugate Vaccine', value: 'Typhoid	Typhoid Conjugate Vaccine' },
+  { label: 'Diptheria Tetanus Pertussis', value: 'Diptheria Tetanus Pertussis' },
+  { label: 'Oral Polio Vaccine', value: 'Oral Polio Vaccine' },
+  { label: 'Tetanus Booster', value: 'Tetanus Booster' },
+  { label: 'Measles & Rubella', value: 'Measles & Rubella' },
+  { label: 'Human Papillomavirus Vaccine', value: 'Human Papillomavirus Vaccine' },
+  { label: 'COVID-19 Vaccine', value: 'COVID-19 Vaccine' },
+  { label: 'Inactivated Polio Vaccine', value: 'Inactivated Polio Vaccine' },
+];
 
 export const ImmunisationForm = React.memo(
   ({ onCancel, onSubmit, practitionerSuggester, facilitySuggester }) => (
@@ -24,17 +50,20 @@ export const ImmunisationForm = React.memo(
           <Field
             name="schedule"
             label="Schedule"
-            component={TextField}
+            component={SelectField}
             style={{ gridColumn: '1/-1' }}
+            options={VaccineScheduleOptions}
             required
           />
-          <Field
-            name="vaccine"
-            label="Vaccine"
-            component={TextField}
-            style={{ gridColumn: '1/-1' }}
-            required
-          />
+          <div style={{ gridColumn: '1/-1' }}>
+            <Field
+              name="vaccine"
+              label="Vaccine"
+              component={AutocompleteField}
+              options={vaccineOptions}
+              required
+            />
+          </div>
           <Field name="date" label="Date" component={DateField} required />
           <Field
             name="givenById"
@@ -45,7 +74,7 @@ export const ImmunisationForm = React.memo(
           />
           <Field
             name="facilityId"
-            label="Facility"
+            label="Health Facility"
             component={AutocompleteField}
             suggester={facilitySuggester}
           />

@@ -278,6 +278,11 @@ export const items = [
         path: `/immunisations/`,
         icon: submenuIcons.immunisations,
       },
+      {
+        label: 'COVID Campaign',
+        path: `/immunisations/covid`,
+        icon: submenuIcons.immunisations,
+      },
     ],
   },
 ];
