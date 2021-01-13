@@ -36,6 +36,10 @@
       tag: ^(dev|ci-)
       service: awsdeployment
       command: ./scripts/deploy_sync_dev.sh
+    - name: deploy_meta_dev_environment
+      tag: ^(dev|ci-|meta-eb-deploy)
+      service: awsdeployment
+      command: ./scripts/deploy_meta_dev.sh
 
 - type: manual
   tag: master
