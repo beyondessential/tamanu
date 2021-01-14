@@ -1,6 +1,7 @@
 import { ISurveyScreenComponent } from '~/types/ISurvey';
 
 import { getResultValue } from '~/ui/helpers/fields';
+import { runCalculations } from '~/ui/helpers/calculations';
 
 function makeDummyComponent(c: {}, index: number): ISurveyScreenComponent {
   return {
@@ -30,6 +31,32 @@ function makeDummySurvey(parts: any[]): ISurveyScreenComponent[] {
 describe('Survey calculations', () => {
   
   describe('CalculatedField', () => {
+
+    it('should run a trivial calculation', () => { 
+      const survey = makeDummySurvey([
+        { code: 'TEST', type: 'Calculated', calculation: '1' }
+      ]);
+      const calculations = runCalculations(survey, {});
+      expect(calculations.TEST).toEqual(1);
+    });
+
+    it('should run a simple calculation', () => { 
+      const survey = makeDummySurvey([
+        { code: 'TEST', type: 'Calculated', calculation: '1 + 1' }
+      ]);
+      const calculations = runCalculations(survey, {});
+      expect(calculations.TEST).toEqual(2);
+    });
+
+    it('should run several calculations', () => { 
+      const survey = makeDummySurvey([
+        { code: 'TEST', type: 'Calculated', calculation: '3 * 5' }
+        { code: 'TEST_2', type: 'Calculated', calculation: '100 - 1' }
+      ]);
+      const calculations = runCalculations(survey, {});
+      expect(calculations.TEST).toEqual(15);
+      expect(calculations.TEST_2).toEqual(99);
+    });
 
   });
 
