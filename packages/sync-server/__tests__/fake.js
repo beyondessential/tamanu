@@ -103,7 +103,7 @@ export function fakeProgram(prefix = '') {
   const id = uuidv4();
   return {
     id,
-    ...fakeStringFields(`${prefix}program_${id})`, ['name', 'code']),
+    ...fakeStringFields(`${prefix}program_${id})_`, ['name', 'code']),
   };
 }
 
@@ -115,7 +115,7 @@ export function fakeAdministeredVaccine(prefix = '') {
       encounterId: null,
       scheduledVaccineId: null,
       date: new Date(random(0, Date.now())),
-      ...fakeStringFields(`${prefix}administeredVaccine_${id})`, [
+      ...fakeStringFields(`${prefix}administeredVaccine_${id}_`, [
         'batch',
         'status',
         'reason',
@@ -133,7 +133,7 @@ export function fakeEncounter(prefix = '') {
       encounterType: sample(ENCOUNTER_TYPE_VALUES),
       startDate: new Date(random(0, Date.now())),
       endDate: new Date(random(0, Date.now())),
-      ...fakeStringFields(`${prefix}encounter_${id})`, ['reasonForEncounter']),
+      ...fakeStringFields(`${prefix}encounter_${id}_`, ['reasonForEncounter']),
     },
   };
 }
@@ -159,7 +159,7 @@ export function fakeSurveyResponseAnswer(prefix = '') {
       id,
       dataElementId: null,
       responseId: null,
-      ...fakeStringFields(`${prefix}surveyResponseAnswer_${id})`, ['name', 'body']),
+      ...fakeStringFields(`${prefix}surveyResponseAnswer_${id}_`, ['name', 'body']),
     },
   };
 }

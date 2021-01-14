@@ -1,73 +1,30 @@
 import wayfarer from 'wayfarer';
-import { Op, Sequelize } from 'sequelize';
 import { initDatabase } from 'shared/services/database';
+import { BasicHandler } from './BasicHandler';
+import { EncounterHandler } from './EncounterHandler';
 
-const ensureNumber = input => {
-  if (typeof input === 'string') {
-    const parsed = parseInt(input, 10);
-    return parsed; // might be NaN
-  }
-  return input;
+const convertToDbFromSyncRecord = syncRecord => {
+  const { data, hashedPassword, lastSynced, ...metadata } = syncRecord;
+
+  return {
+    password: hashedPassword,
+    ...metadata,
+    ...data,
+  };
 };
 
-class BasicHandler {
-  model = null;
+const convertToSyncRecordFromDb = dbRecord => {
+  const { id, updatedAt, createdAt, deletedAt, password, ...data } = dbRecord;
 
-  constructor(Model) {
-    if (!Model) {
-      throw new Error(`BasicHandler: must pass a model`);
-    }
-    this.Model = Model;
-  }
-
-  // ONLY FOR TESTS, ignores "paranoid"'s soft deletion
-  async unsafeRemoveAll() {
-    if (process.env.NODE_ENV !== 'test') {
-      throw new Error('DO NOT use unsafeRemoveAllOfChannel outside tests!');
-    }
-    return this.Model.destroy({ truncate: true, cascade: true, force: true });
-  }
-
-  async insert(record) {
-    return this.Model.upsert(record);
-  }
-
-  async countSince(since) {
-    return this.Model.count({
-      where: {
-        updatedAt: { [Op.gte]: ensureNumber(since) },
-      },
-      paranoid: false,
-    });
-  }
-
-  async findSince(since, { limit, offset } = {}) {
-    const records = await this.Model.findAll({
-      limit,
-      offset,
-      where: {
-        updatedAt: { [Op.gte]: ensureNumber(since) },
-      },
-      order: ['updated_at', 'id'],
-      paranoid: false,
-    });
-    return records.map(result => result.get({ plain: true }));
-  }
-
-  async markRecordDeleted(id) {
-    // use update instead of destroy so we can change both fields
-    const [num] = await this.Model.update(
-      {
-        deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
-        updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
-      },
-      {
-        where: { id },
-      },
-    );
-    return num;
-  }
-}
+  return {
+    lastSynced: updatedAt?.valueOf(),
+    ...(deletedAt ? { isDeleted: true } : {}),
+    data: {
+      id,
+      ...(deletedAt ? {} : data),
+    },
+  };
+};
 
 export class SqlWrapper {
   models = null;
@@ -98,7 +55,7 @@ export class SqlWrapper {
     [
       ['patient', new BasicHandler(this.models.Patient)],
       // ['patient/:patientId/administeredVaccine', this.models.AdministeredVaccine],
-      // ['patient/:patientId/encounter', this.models.Encounter],
+      ['patient/:patientId/encounter', new EncounterHandler(this.models)],
       // ['patient/:patientId/surveyResponse', this.models.SurveyResponse],
       // ['patient/:patientId/surveyResponseAnswer', this.models.SurveyResponseAnswer],
       ['program', new BasicHandler(this.models.Program)],
@@ -126,16 +83,22 @@ export class SqlWrapper {
     return this.channelRouter(channel, handler => handler.unsafeRemoveAll());
   }
 
-  async insert(channel, record) {
-    return this.channelRouter(channel, handler => handler.insert(record));
+  async insert(channel, syncRecord) {
+    const record = convertToDbFromSyncRecord(syncRecord);
+    return this.channelRouter(channel, (handler, params) => handler.insert(record, params));
   }
 
   async countSince(channel, since) {
-    return this.channelRouter(channel, handler => handler.countSince(since));
+    return this.channelRouter(channel, (handler, params) =>
+      handler.countSince({ ...params, since }),
+    );
   }
 
   async findSince(channel, since, { limit, offset } = {}) {
-    return this.channelRouter(channel, handler => handler.findSince(since, { limit, offset }));
+    return this.channelRouter(channel, async (handler, params) => {
+      const results = await handler.findSince({ ...params, since, limit, offset });
+      return results.map(result => convertToSyncRecordFromDb(result));
+    });
   }
 
   async markRecordDeleted(channel, id) {
@@ -151,7 +114,10 @@ export class SqlWrapper {
     if (!user) {
       return null;
     }
-    return user.get({ plain: true });
+    return {
+      ...convertToSyncRecordFromDb(user.get({ plain: true })),
+      hashedPassword: user.password,
+    };
   }
 
   async findUserById(id) {
@@ -159,6 +125,9 @@ export class SqlWrapper {
     if (!user) {
       return null;
     }
-    return user.get({ plain: true });
+    return {
+      ...convertToSyncRecordFromDb(user.get({ plain: true })),
+      hashedPassword: user.password,
+    };
   }
 }
