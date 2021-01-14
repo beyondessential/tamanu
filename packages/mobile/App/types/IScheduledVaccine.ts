@@ -3,7 +3,7 @@ import { IReferenceData } from './IReferenceData';
 
 export interface IScheduledVaccine {
   id: ID;
-  index: number;
+  index?: number;
   label: string;
   schedule: string;
   weeksFromBirthDue?: number;

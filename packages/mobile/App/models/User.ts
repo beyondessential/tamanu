@@ -8,8 +8,8 @@ export class User extends BaseModel implements IUser {
   @Column({ unique: true })
   email: string;
 
-  @Column()
-  localPassword: string;
+  @Column({ nullable: true })
+  localPassword?: string;
 
   // eslint-react gets confused by displayName.
   // eslint-disable-next-line react/static-property-placement

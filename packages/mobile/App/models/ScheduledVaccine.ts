@@ -5,8 +5,8 @@ import { ReferenceDataRelation, ReferenceData } from './ReferenceData';
 
 @Entity('scheduled_vaccine')
 export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
-  @Column()
-  index: number;
+  @Column({ nullable: true })
+  index?: number;
 
   @Column()
   label: string;

@@ -9,8 +9,8 @@ export class ProgramDataElement extends BaseModel
   @Column()
   code: string;
 
-  @Column({ default: '' })
-  indicator: string;
+  @Column({ nullable: true, default: '' })
+  indicator?: string;
 
   @Column({ default: '' })
   defaultText: string;
