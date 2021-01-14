@@ -10,6 +10,65 @@ const ensureNumber = input => {
   return input;
 };
 
+class BasicHandler {
+  model = null;
+
+  constructor(Model) {
+    if (!Model) {
+      throw new Error(`BasicHandler: must pass a model`);
+    }
+    this.Model = Model;
+  }
+
+  // ONLY FOR TESTS, ignores "paranoid"'s soft deletion
+  async unsafeRemoveAll() {
+    if (process.env.NODE_ENV !== 'test') {
+      throw new Error('DO NOT use unsafeRemoveAllOfChannel outside tests!');
+    }
+    return this.Model.destroy({ truncate: true, cascade: true, force: true });
+  }
+
+  async insert(record) {
+    return this.Model.upsert(record);
+  }
+
+  async countSince(since) {
+    return this.Model.count({
+      where: {
+        updatedAt: { [Op.gte]: ensureNumber(since) },
+      },
+      paranoid: false,
+    });
+  }
+
+  async findSince(since, { limit, offset } = {}) {
+    const records = await this.Model.findAll({
+      limit,
+      offset,
+      where: {
+        updatedAt: { [Op.gte]: ensureNumber(since) },
+      },
+      order: ['updated_at', 'id'],
+      paranoid: false,
+    });
+    return records.map(result => result.get({ plain: true }));
+  }
+
+  async markRecordDeleted(id) {
+    // use update instead of destroy so we can change both fields
+    const [num] = await this.Model.update(
+      {
+        deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+        updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+      },
+      {
+        where: { id },
+      },
+    );
+    return num;
+  }
+}
+
 export class SqlWrapper {
   models = null;
 
@@ -37,88 +96,51 @@ export class SqlWrapper {
   buildChannelRouter() {
     const channelRouter = wayfarer();
     [
-      ['administeredVaccine', this.models.AdministeredVaccine],
-      ['encounter', this.models.Encounter],
-      ['patient', this.models.Patient],
-      ['program', this.models.Program],
-      ['programDataElement', this.models.ProgramDataElement],
-      ['reference', this.models.ReferenceData],
-      ['scheduledVaccine', this.models.ScheduledVaccine],
-      ['survey', this.models.Survey],
-      ['surveyResponse', this.models.SurveyResponse],
-      ['surveyResponseAnswer', this.models.SurveyResponseAnswer],
-      ['surveyScreenComponent', this.models.SurveyScreenComponent],
-      ['user', this.models.User],
-    ].forEach(([route, Model]) => {
-      if (!Model) {
-        throw new Error(`sqlWrapper: model for channel route "${route}" does not exist`);
-      }
+      ['patient', new BasicHandler(this.models.Patient)],
+      // ['patient/:patientId/administeredVaccine', this.models.AdministeredVaccine],
+      // ['patient/:patientId/encounter', this.models.Encounter],
+      // ['patient/:patientId/surveyResponse', this.models.SurveyResponse],
+      // ['patient/:patientId/surveyResponseAnswer', this.models.SurveyResponseAnswer],
+      ['program', new BasicHandler(this.models.Program)],
+      ['programDataElement', new BasicHandler(this.models.ProgramDataElement)],
+      ['reference', new BasicHandler(this.models.ReferenceData)],
+      ['scheduledVaccine', new BasicHandler(this.models.ScheduledVaccine)],
+      ['survey', new BasicHandler(this.models.Survey)],
+      ['surveyScreenComponent', new BasicHandler(this.models.SurveyScreenComponent)],
+      ['user', new BasicHandler(this.models.User)],
+    ].forEach(([route, handler]) => {
       this.builtRoutes.push(route);
       channelRouter.on(route, async (urlParams, f) => {
         const params = { ...urlParams, route };
-        return f(Model, params);
+        return f(handler, params);
       });
     });
     return channelRouter;
   }
 
   // ONLY FOR TESTS, ignores "paranoid"'s soft deletion
-  unsafeRemoveAllOfChannel(channel) {
+  async unsafeRemoveAllOfChannel(channel) {
     if (process.env.NODE_ENV !== 'test') {
       throw new Error('DO NOT use unsafeRemoveAllOfChannel outside tests!');
     }
-    return this.channelRouter(channel, async Model => {
-      return Model.destroy({ truncate: true, cascade: true, force: true });
-    });
+    return this.channelRouter(channel, handler => handler.unsafeRemoveAll());
   }
 
   async insert(channel, record) {
-    return this.channelRouter(channel, async Model => {
-      return Model.upsert(record);
-    });
+    return this.channelRouter(channel, handler => handler.insert(record));
   }
 
   async countSince(channel, since) {
-    return this.channelRouter(channel, async Model => {
-      return Model.count({
-        where: {
-          updatedAt: { [Op.gte]: ensureNumber(since) },
-        },
-        paranoid: false,
-      });
-    });
+    return this.channelRouter(channel, handler => handler.countSince(since));
   }
 
   async findSince(channel, since, { limit, offset } = {}) {
-    return this.channelRouter(channel, async Model => {
-      const records = await Model.findAll({
-        limit,
-        offset,
-        where: {
-          updatedAt: { [Op.gte]: ensureNumber(since) },
-        },
-        order: ['updated_at', 'id'],
-        paranoid: false,
-      });
-      return records.map(result => result.get({ plain: true }));
-    });
+    return this.channelRouter(channel, handler => handler.findSince(since, { limit, offset }));
   }
 
-  markRecordDeleted(channel, id) {
-    return this.channelRouter(channel, async Model => {
-      // use update instead of destroy so we can change both fields
-      return Model.update(
-        {
-          deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
-          updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
-        },
-        {
-          where: { id },
-        },
-      ).then(([num]) => num);
-    });
+  async markRecordDeleted(channel, id) {
+    return this.channelRouter(channel, handler => handler.markRecordDeleted(id));
   }
-
   //------------------------------------
   // required for auth middleware
 

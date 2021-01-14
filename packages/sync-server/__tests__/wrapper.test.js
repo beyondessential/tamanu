@@ -28,31 +28,33 @@ describe('wrappers', () => {
     afterAll(closeDatabase);
 
     const modelTests = [
-      ['administeredVaccine', fakeAdministeredVaccine],
-      [
-        'encounter',
-        async () => {
-          const patient = fakePatient();
-          await wrapper.insert('patient', patient);
+      // ['administeredVaccine', fakeAdministeredVaccine],
+      // [
+      //   'encounter',
+      //   async () => {
+      //     const patient = fakePatient();
+      //     await wrapper.insert('patient', patient);
 
-          const examiner = fakeUser('examiner');
-          await wrapper.insert('user', examiner);
+      //     const examiner = fakeUser('examiner');
+      //     await wrapper.insert('user', examiner);
 
-          const location = fakeReferenceData('location');
-          await wrapper.insert('reference', location);
+      //     const location = fakeReferenceData('location');
+      //     await wrapper.insert('reference', location);
 
-          const department = fakeReferenceData('department');
-          await wrapper.insert('reference', department);
+      //     const department = fakeReferenceData('department');
+      //     await wrapper.insert('reference', department);
 
-          const encounter = fakeEncounter();
-          encounter.data.patientId = patient.data.id;
-          encounter.data.examinerId = examiner.data.id;
-          encounter.data.locationId = location.data.id;
-          encounter.data.departmentId = department.data.id;
+      //     const encounter = fakeEncounter();
+      //     encounter.data.patientId = patient.data.id;
+      //     encounter.data.examinerId = examiner.data.id;
+      //     encounter.data.locationId = location.data.id;
+      //     encounter.data.departmentId = department.data.id;
 
-          return encounter;
-        },
-      ],
+      //     return encounter;
+      //   },
+      // ],
+      // ['surveyResponse', fakeSurveyResponse],
+      // ['surveyResponseAnswer', fakeSurveyResponseAnswer],
       ['patient', fakePatient],
       ['program', fakeProgram],
       ['programDataElement', fakeProgramDataElement],
@@ -77,8 +79,6 @@ describe('wrappers', () => {
         },
       ],
       ['survey', fakeSurvey],
-      ['surveyResponse', fakeSurveyResponse],
-      ['surveyResponseAnswer', fakeSurveyResponseAnswer],
       ['surveyScreenComponent', fakeSurveyScreenComponent],
       ['user', fakeUser],
     ];
