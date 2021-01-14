@@ -125,7 +125,7 @@ export class SyncManager {
   async downloadAndImport(model: typeof BaseModel, channel: string, since: Date, singlePageMode = false): Promise<Date> {
     const downloadPage = (pageNumber: number): Promise<GetSyncDataResponse> => {
       this.emitter.emit('downloadingPage', `${channel}-${pageNumber}`);
-      return this.syncSource.getSyncData(
+      return this.syncSource.downloadRecords(
         channel,
         since,
         pageNumber,

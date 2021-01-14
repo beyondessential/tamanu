@@ -29,7 +29,7 @@ export interface LoginResponse {
 }
 
 export interface SyncSource {
-  getSyncData(
+  downloadRecords(
     channel: string,
     since: Date,
     page: number,
@@ -44,7 +44,7 @@ export class WebSyncSource implements SyncSource {
     this.host = host;
   }
 
-  async getSyncData(
+  async downloadRecords(
     channel: string,
     since: Date,
     page: number,
