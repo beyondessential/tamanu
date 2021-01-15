@@ -58,6 +58,43 @@ describe('Survey calculations', () => {
       expect(calculations.TEST_2).toEqual(99);
     });
 
+    it('should use substitutions', () => { 
+      const survey = makeDummySurvey([
+        { code: 'TEST', type: 'Calculated', calculation: 'TEST_1 + TEST_2' }
+      ]);
+      const calculations = runCalculations(survey, {
+        TEST_1: 24,
+        TEST_2: 1000,
+      });
+      expect(calculations.TEST).toEqual(1024);
+    });
+
+    it('should use second-order substitutions', () => { 
+      const survey = makeDummySurvey([
+        { code: 'TEST_BEFORE', type: 'Calculated', calculation: 'TEST_1 + TEST_2' }
+        { code: 'TEST_AFTER', type: 'Calculated', calculation: 'TEST_BEFORE + 2000' }
+      ]);
+      const calculations = runCalculations(survey, {
+        TEST_1: 24,
+        TEST_2: 1000,
+      });
+      expect(calculations.TEST_AFTER).toEqual(3024);
+    });
+
+    it('should register errored calculations as undefined', () => { 
+      const survey = makeDummySurvey([
+        { code: 'TEST_WORKS', type: 'Calculated', calculation: 'TEST_1 * 3' }
+        { code: 'TEST_BROKEN', type: 'Calculated', calculation: 'TEST_NONEXISTENT' }
+        { code: 'TEST_BROKEN_2', type: 'Calculated', calculation: '1 + + / * 4' }
+      ]);
+      const calculations = runCalculations(survey, {
+        TEST_1: 5,
+      });
+      expect(calculations.TEST_WORKS).toEqual(15);
+      expect(calculations).not.toHaveProperty('TEST_BROKEN');
+      expect(calculations).not.toHaveProperty('TEST_BROKEN_2');
+    });
+
   });
 
   describe('Results', () => {
@@ -87,6 +124,19 @@ describe('Survey calculations', () => {
       const { result, resultText } = getResultValue(survey, {});
       expect(result).toEqual(0);
       expect(resultText).toEqual('');
+    });
+
+    it('should use a calculated result field that has no value', () => {
+      const survey = makeDummySurvey([
+        { code: 'TEST', type: 'Number' }
+        { code: 'RESULT', type: 'Result', calculation: 'TEST * 2' }
+      ]);
+      const values = runCalculations(survey, {
+        TEST: 10,
+      });
+      const { result, resultText } = getResultValue(survey, values);
+      expect(result).toEqual(20);
+      expect(resultText).toEqual('20%');
     });
 
     describe('Visibility', () => {

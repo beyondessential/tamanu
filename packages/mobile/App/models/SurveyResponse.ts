@@ -13,6 +13,8 @@ import {
   checkVisibilityCriteria
 } from '~/ui/helpers/fields';
 
+import { runCalculations } from '~/ui/helpers/calculations';
+
 import { DataElementType, ISurveyResponse } from '~/types';
 
 @Entity('survey_response')
@@ -73,10 +75,12 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         reasonForEncounter: encounterReason,
       });
 
+      const calculatedValues = runCalculations(components, values);
+
       const { 
         result,
         resultText,
-      } = getResultValue(components, values);
+      } = getResultValue(components, calculatedValues);
 
       setNote("Creating response object...");
       const responseRecord = await SurveyResponse.create({
@@ -94,7 +98,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         return component.dataElement;
       };
 
-      for(let a of Object.entries(values)) { 
+      for(let a of Object.entries(calculatedValues)) { 
         const [dataElementCode, value] = a;
         const dataElement = findDataElement(dataElementCode);
         const body = getStringValue(dataElement.type, value);
